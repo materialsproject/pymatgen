@@ -358,7 +358,9 @@ class GWSpecs(AbstractAbinitioSpec):
                     #print data.get_data_array_2d('ecut', 'max')
                     if data.find_conv_pars_scf('ecut', 'full_width', self['tol'])[0]:
                         print '| parm_scr type calculation, converged scf values found'
-                        print data.conv_res
+                        #print data.conv_res
+                    else:
+                        print '| parm_scr type calculation, no converged scf values found'
                     # if converged ok, if not increase the grid parameter of the next set of calculations
                     if data.conv_res['control']['nbands']:
                         print '| parm_scr type calculation, converged values found, extrapolated value: ', extrapolated[4]
