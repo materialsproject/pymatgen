@@ -184,7 +184,7 @@ def multy_curve_fit(xs, ys, verbose):
     best = ['', np.inf]
     for function in functions:
         try:
-            popt, pcov = curve_fit(function, xs, ys, functions[function](xs, ys), maxfev=8000)
+            popt, pcov = curve_fit(function, xs, ys, functions[function](xs, ys), maxfev=8000, sigma=xs)
             m = measure(function, xs, ys, popt)
             perr = max(np.sqrt(np.diag(pcov)))
             #print 'pcov:\n', pcov
