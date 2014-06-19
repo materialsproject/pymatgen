@@ -178,7 +178,7 @@ class PhaseDiagram (MSONable):
                     continue
                 m = qhull_data[facet]
                 m[:, -1] = 1
-                if abs(np.linalg.det(m)) > 1e-16:
+                if abs(np.linalg.det(m)) > 1e-14:
                     finalfacets.append(facet)
             self.facets = finalfacets
 
@@ -449,8 +449,11 @@ class PhaseDiagramError(Exception):
     pass
 
 
-def get_facets(qhull_data):
+def get_facets(qhull_data, joggle=False):
     if HULL_METHOD == "scipy":
-        return ConvexHull(qhull_data, qhull_options="Qt i").simplices
+        if joggle:
+            return ConvexHull(qhull_data, qhull_options="QJ i").simplices
+        else:
+            return ConvexHull(qhull_data, qhull_options="Qt i").simplices
     else:
-        return ConvexHull(qhull_data, joggle=False).vertices
+        return ConvexHull(qhull_data, joggle=joggle).vertices
