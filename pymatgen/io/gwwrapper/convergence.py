@@ -173,7 +173,7 @@ def measure(function, xs, ys, popt):
     return m
 
 
-def multy_curve_fit(xs, ys):
+def multy_curve_fit(xs, ys, verbose):
     """
     fit multiple functions to the x, y data, return the best fit
     """
@@ -195,7 +195,8 @@ def multy_curve_fit(xs, ys):
                 if fit_results[f]['measure'] <= best[1]:
                     best = f, fit_results[f]['measure']
         except RuntimeError:
-            print 'no fit found for ', function
+            if verbose:
+                print 'no fit found for ', function
 
     return fit_results[best[0]]['popt'], fit_results[best[0]]['pcov'], best
 
@@ -227,7 +228,7 @@ def print_plot_line(function, popt, xs, ys, name, extra=''):
     f.close()
 
 
-def test_conv(xs, ys, name, tol=0.0001, extra=''):
+def test_conv(xs, ys, name, tol=0.0001, extra='', verbose=False):
     """
     test it and at which x_value dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists.
     """
@@ -245,7 +246,7 @@ def test_conv(xs, ys, name, tol=0.0001, extra=''):
                 #popt, pcov = curve_fit(exponential, xs, ys, p0_exponential(xs, ys), maxfev=8000)
                 #perr = np.sqrt(np.diag(pcov))
                 #print perr
-                popt, pcov, func = multy_curve_fit(xs, ys)
+                popt, pcov, func = multy_curve_fit(xs, ys, verbose)
                 #print popt
                 #print pcov
                 #print func
@@ -277,17 +278,20 @@ def test_conv(xs, ys, name, tol=0.0001, extra=''):
             else:
                 test = abs(ds[n])
 
-            #print test
+            if verbose:
+                print test
 
             if test < abs(tol):
-                #print 'converged'
+                if verbose:
+                    print 'converged'
                 conv = True
                 if xs[n] < x_value:
                     x_value = xs[n]
                     y_value = ys[n]
                     n_value = n
             else:
-                #print 'not converged'
+                if verbose:
+                    print 'not converged'
                 conv = False
                 x_value = float('inf')
         if n_value is None:
