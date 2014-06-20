@@ -183,6 +183,28 @@ def p0_simple_reciprocal(xs, ys):
     return [a, b]
 
 
+def simple_2reciprocal(x, a, b):
+    """
+    reciprocal function to fit convergence data
+    """
+    import numpy as np
+    c = 2
+    if isinstance(x, list):
+        y_l = []
+        for x_v in x:
+            y_l.append(a + b / x_v)
+        y = np.array(y_l)
+    else:
+        y = a + b / x ** 2
+    return y
+
+
+def p0_simple_2reciprocal(xs, ys):
+    c = 2
+    b = (1/xs[-1]-1/xs[0]**c) / (ys[-1] - ys[0])
+    a = ys[0] - b / xs[0]**c
+    return [a, b]
+
 
 def measure(function, xs, ys, popt, weights):
     """
@@ -206,7 +228,7 @@ def multy_curve_fit(xs, ys, verbose):
     fit multiple functions to the x, y data, return the best fit
     """
     #functions = {exponential: p0_exponential, reciprocal: p0_reciprocal, single_reciprocal: p0_single_reciprocal}
-    functions = {simple_reciprocal: p0_simple_reciprocal}
+    functions = {simple_reciprocal: p0_simple_reciprocal, simple_2reciprocal: p0_simple_2reciprocal}
     import numpy as np
     from scipy.optimize import curve_fit
     fit_results = {}
@@ -227,7 +249,7 @@ def multy_curve_fit(xs, ys, verbose):
                 if fit_results[f]['measure'] <= best[1]:
                     best = f, fit_results[f]['measure']
         except RuntimeError:
-            if verbose:
+            if True:
                 print 'no fit found for ', function
 
     return fit_results[best[0]]['popt'], fit_results[best[0]]['pcov'], best
