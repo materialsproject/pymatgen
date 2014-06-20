@@ -284,6 +284,7 @@ def multy_curve_fit(xs, ys, verbose):
             for f in fit_results:
                 if fit_results[f]['measure'] <= best[1]:
                     best = f, fit_results[f]['measure']
+            print function, m
         except RuntimeError:
             if True:
                 print 'no fit found for ', function
@@ -323,6 +324,8 @@ def print_plot_line(function, popt, xs, ys, name, extra=''):
         line = "plot %s + %s / x**4, 'convdat.%s' pointsize 4 lt 0, %s" % \
                (popt[0], popt[1], idp, popt[0])
         #print 'plot ', popt[0], ' + ', popt[1], "/ (x - ", popt[2], ")," "'"+'convdat.'+idp+"'"
+    else:
+        print function, ' no plot '
     f = open('plot-fits', mode='a')
     f.write('pause -1 \n')
     f.write('set title "' + name + ' - ' + extra + '"\n')
