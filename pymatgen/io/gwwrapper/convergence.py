@@ -258,12 +258,15 @@ def multy_curve_fit(xs, ys, verbose):
     for function in functions:
         try:
             ds = get_derivatives(xs, ys, fd=True)
-            mind = min(abs(ds))
+            mind = np.inf
+            for d in ds:
+                mind = min(abs(d), mind)
             print ds, '\n', mind
             weights = []
             for d in ds:
                 weights.append((1 / d) / (1 / mind))
             print weights
+
             popt, pcov = curve_fit(function, xs, ys, functions[function](xs, ys), maxfev=8000, sigma=weights)
             m = measure(function, xs, ys, popt, weights)
             perr = max(np.sqrt(np.diag(pcov)))
