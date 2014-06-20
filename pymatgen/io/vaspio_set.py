@@ -1181,7 +1181,7 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
 
     @staticmethod
     def from_previous_vasp_run(previous_vasp_dir, output_dir='.',
-                               mode="Uniform", user_incar_settings=None,
+                               user_incar_settings=None,
                                copy_chgcar=True, make_dir_if_not_present=True,
                                nbands_factor=5.0):
         """
@@ -1194,9 +1194,6 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
             output_dir (str): The directory to write the VASP input files
                 for the NonSCF calculations. Default to write in the current
                 directory.
-            mode (str): Line: Generate k-points along symmetry lines for
-                bandstructure. Uniform: Generate uniform k-points
-                grids for DOS.
             user_incar_settings (dict): A dict specify customized settings
                 for INCAR. Must contain a NBANDS value, suggest to use
                 1.2*(NBANDS from static run).
@@ -1227,7 +1224,7 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
         spin_band_settings = MPOpticsNonSCFVaspInputSet.get_ispin_nbands(vasp_run,
                                                                          outcar,
                                                                          nbands_factor=nbands_factor)
-        mpnscfvip = MPNonSCFVaspInputSet(nscf_incar_settings, mode)
+        mpnscfvip = MPNonSCFVaspInputSet(nscf_incar_settings, "Uniform")
         mpnscfvip.incar_settings.update(spin_band_settings)
         mpnscfvip.write_input(structure, output_dir, make_dir_if_not_present)
         if copy_chgcar:
