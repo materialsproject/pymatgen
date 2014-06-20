@@ -178,7 +178,7 @@ def simple_reciprocal(x, a, b):
 
 def p0_simple_reciprocal(xs, ys):
     c = 0
-    b = (1/(xs[-1] - c)-1/(xs[0] - c)) / (ys[-1] - ys[0])
+    b = (1/(xs[-1] - c) - 1/(xs[0] - c)) / (ys[-1] - ys[0])
     a = ys[0] - b / (xs[0] - c)
     return [a, b]
 
@@ -192,7 +192,7 @@ def simple_2reciprocal(x, a, b):
     if isinstance(x, list):
         y_l = []
         for x_v in x:
-            y_l.append(a + b / x_v)
+            y_l.append(a + b / x_v ** c)
         y = np.array(y_l)
     else:
         y = a + b / x ** c
@@ -201,9 +201,10 @@ def simple_2reciprocal(x, a, b):
 
 def p0_simple_2reciprocal(xs, ys):
     c = 2
-    b = (1/xs[-1]-1/xs[0]**c) / (ys[-1] - ys[0])
+    b = (1/xs[-1]**c - 1/xs[0]**c) / (ys[-1] - ys[0])
     a = ys[0] - b / xs[0]**c
     return [a, b]
+
 
 def simple_4reciprocal(x, a, b):
     """
@@ -214,7 +215,7 @@ def simple_4reciprocal(x, a, b):
     if isinstance(x, list):
         y_l = []
         for x_v in x:
-            y_l.append(a + b / x_v)
+            y_l.append(a + b / x_v ** c)
         y = np.array(y_l)
     else:
         y = a + b / x ** c
@@ -223,9 +224,10 @@ def simple_4reciprocal(x, a, b):
 
 def p0_simple_4reciprocal(xs, ys):
     c = 4
-    b = (1/xs[-1]-1/xs[0]**c) / (ys[-1] - ys[0])
+    b = (1/xs[-1]**c - 1/xs[0]**c) / (ys[-1] - ys[0])
     a = ys[0] - b / xs[0]**c
     return [a, b]
+
 
 def measure(function, xs, ys, popt, weights):
     """
