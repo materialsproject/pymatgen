@@ -280,6 +280,9 @@ def print_plot_line(function, popt, xs, ys, name, extra=''):
     elif function is simple_reciprocal:
         line = "plot %s + %s / x, 'convdat.%s' pointsize 4 lt 0, %s" % \
                (popt[0], popt[1], idp, popt[0])
+    elif function is simple_2reciprocal:
+        line = "plot %s + %s / x**2, 'convdat.%s' pointsize 4 lt 0, %s" % \
+               (popt[0], popt[1], idp, popt[0])
         #print 'plot ', popt[0], ' + ', popt[1], "/ (x - ", popt[2], ")," "'"+'convdat.'+idp+"'"
     f = open('plot-fits', mode='a')
     f.write('pause -1 \n')
