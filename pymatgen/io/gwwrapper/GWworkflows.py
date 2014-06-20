@@ -232,7 +232,7 @@ class SingleAbinitGWWorkFlow():
         extra_abivars = dict(
             ecut=20,
             pawecutdg=40,
-            gwmem=01,
+            gwmem='01',
             getden=-1,
             istwfk="*1",
             timopt=-1,
