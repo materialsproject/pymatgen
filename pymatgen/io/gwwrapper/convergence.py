@@ -319,7 +319,7 @@ def multy_curve_fit(xs, ys, verbose):
             for f in fit_results:
                 if fit_results[f]['measure'] <= best[1]:
                     best = f, fit_results[f]['measure']
-            print str(function), m
+            # print str(function), m
         except RuntimeError:
             if True:
                 print 'no fit found for ', function
@@ -335,11 +335,10 @@ def print_plot_line(function, popt, xs, ys, name, extra=''):
     f = open('convdat.'+str(idp), mode='w')
     for n in range(0, len(ys), 1):
         f.write(str(xs[n]) + ' ' + str(ys[n]) + '\n')
-        f.write('\n')
     f.close()
     tol = 0.05
-    line = 'plot %s lt 3, %s lt 4, %s lt 4, ' % (popt[0], popt[0] - tol, popt[0] + tol)
-    line += "'convdat.%s' pointsize 4 lt 0, " % idp
+    line = "plot 'convdat.%s' pointsize 4 lt 0, " % idp
+    line += '%s lt 3, %s lt 4, %s lt 4, ' % (popt[0], popt[0] - tol, popt[0] + tol)
     if function is exponential:
         line += "%s + %s * %s ** -x" % (popt[0], popt[1], min(max(1.00001, popt[2]), 1.2))
     elif function is reciprocal:
