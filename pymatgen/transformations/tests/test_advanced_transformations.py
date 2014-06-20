@@ -235,6 +235,20 @@ class MagOrderingTransformationTest(unittest.TestCase):
         from pymatgen.analysis.energy_models import SymmetryModel
         self.assertIsInstance(trans.emodel, SymmetryModel)
 
+    def test_zero_spin_case(self):
+        #ensure that zero spin case maintains sites and formula
+        from pymatgen.io.smartio import read_structure
+        s = read_structure(os.path.join(test_dir, 'Li2O.cif'))
+        trans = MagOrderingTransformation({"Li+": 0.0}, 0.5)
+        alls = trans.apply_transformation(s)
+        #compositions will not be equal due to spin assignment
+        #structure representations will be the same
+        self.assertEqual(str(s), str(alls))
+        #Ensure s does not have a spin property
+        self.assertFalse('spin' in s.sites[0].specie._properties)
+        #ensure sites are assigned a spin property in alls
+        self.assertTrue('spin' in alls.sites[0].specie._properties)
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
