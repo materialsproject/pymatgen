@@ -311,11 +311,10 @@ def multy_curve_fit(xs, ys, verbose):
             weights = get_weigts(xs, ys)
             popt, pcov = curve_fit(function, xs, ys, functions[function](xs, ys), maxfev=8000, sigma=weights)
             m = measure(function, xs, ys, popt, weights)
-            perr = max(np.sqrt(np.diag(pcov)))
             #print 'pcov:\n', pcov
             #print 'diag:\n', np.sqrt(np.diag(pcov))
             #print 'function:\n', function, perr, m
-            fit_results.update({function: {'measure': m, 'perr': perr, 'popt': popt, 'pcov': pcov}})
+            fit_results.update({function: {'measure': m, 'popt': popt, 'pcov': pcov}})
             for f in fit_results:
                 if fit_results[f]['measure'] <= best[1]:
                     best = f, fit_results[f]['measure']
@@ -359,7 +358,7 @@ def print_plot_line(function, popt, xs, ys, name, extra=''):
     f.write('pause -1 \n')
     f.write('set title "' + name + ' - ' + extra + '"\n')
     f.write("set output '" + name + '-' + idp + ".gif'" + '\n')
-    f.write("set yrange [" + str(popt[0] - 5 * tol) + ':' + str(popt[0] - 5 * tol)+']\n')
+    f.write("set yrange [" + str(popt[0] - 5 * tol) + ':' + str(popt[0] + 5 * tol)+']\n')
     f.write(line + '\n')
     f.close()
 
