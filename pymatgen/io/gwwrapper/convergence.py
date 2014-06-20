@@ -337,35 +337,30 @@ def print_plot_line(function, popt, xs, ys, name, extra=''):
         f.write(str(xs[n]) + ' ' + str(ys[n]) + '\n')
         f.write('\n')
     f.close()
-    line = ''
+    tol = 0.05
+    line = 'plot %s lt 3, %s lt 4, %s lt 4, ' % (popt[0], popt[0] - tol, popt[0] + tol)
+    line += "'convdat.%s' pointsize 4 lt 0, " % idp
     if function is exponential:
-        line = "plot %s + %s * %s ** -x, 'convdat.%s' pointsize 4 lt 0, %s" % \
-               (popt[0], popt[1], min(max(1.00001, popt[2]), 1.2), idp, popt[0])
+        line += "%s + %s * %s ** -x" % (popt[0], popt[1], min(max(1.00001, popt[2]), 1.2))
     elif function is reciprocal:
-        line = "plot %s + %s / x**%s, 'convdat.%s' pointsize 4 lt 0, %s" % \
-               (popt[0], popt[1], min(max(1, popt[2]), 5), idp, popt[0])
+        line += "%s + %s / x**%s" % (popt[0], popt[1], min(max(1, popt[2]), 5))
     elif function is single_reciprocal:
-        line = "plot %s + %s / (x - %s), 'convdat.%s' pointsize 4 lt 0, %s" % \
-               (popt[0], popt[1], popt[2], idp, popt[0])
+        line += "%s + %s / (x - %s)" % (popt[0], popt[1], popt[2])
     elif function is simple_reciprocal:
-        line = "plot %s + %s / x, 'convdat.%s' pointsize 4 lt 0, %s" % \
-               (popt[0], popt[1], idp, popt[0])
+        line += "%s + %s / x" % (popt[0], popt[1])
     elif function is simple_2reciprocal:
-        line = "plot %s + %s / x**2, 'convdat.%s' pointsize 4 lt 0, %s" % \
-               (popt[0], popt[1], idp, popt[0])
+        line += "%s + %s / x**2" % (popt[0], popt[1])
     elif function is simple_4reciprocal:
-        line = "plot %s + %s / x**4, 'convdat.%s' pointsize 4 lt 0, %s" % \
-               (popt[0], popt[1], idp, popt[0])
+        line += "%s + %s / x**4" % (popt[0], popt[1])
     elif function is simple_5reciprocal:
-        line = "plot %s + %s / x**0.5, 'convdat.%s' pointsize 4 lt 0, %s" % \
-               (popt[0], popt[1], idp, popt[0])
+        line += "%s + %s / x**0.5" % (popt[0], popt[1])
     else:
         print function, ' no plot '
     f = open('plot-fits', mode='a')
     f.write('pause -1 \n')
     f.write('set title "' + name + ' - ' + extra + '"\n')
     f.write("set output '" + name + '-' + idp + ".gif'" + '\n')
-    f.write("set yrange [" + str(popt[0] - 0.2) + ':' + str(popt[0] + 0.2)+']\n')
+    f.write("set yrange [" + str(popt[0] - 5 * tol) + ':' + str(popt[0] - 5 * tol)+']\n')
     f.write(line + '\n')
     f.close()
 
