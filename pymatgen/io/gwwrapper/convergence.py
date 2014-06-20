@@ -161,6 +161,29 @@ def p0_single_reciprocal(xs, ys):
     return [a, b, c]
 
 
+def simple_reciprocal(x, a, b):
+    """
+    reciprocal function to fit convergence data
+    """
+    import numpy as np
+    if isinstance(x, list):
+        y_l = []
+        for x_v in x:
+            y_l.append(a + b / x_v)
+        y = np.array(y_l)
+    else:
+        y = a + b / x
+    return y
+
+
+def p0_simple_reciprocal(xs, ys):
+    c = 0
+    b = (1/(xs[-1] - c)-1/(xs[0] - c)) / (ys[-1] - ys[0])
+    a = ys[0] - b / (xs[0] - c)
+    return [a, b]
+
+
+
 def measure(function, xs, ys, popt, weights):
     """
     measure the quality of the fit
@@ -168,7 +191,9 @@ def measure(function, xs, ys, popt, weights):
     m = 0
     n = 0
     for x in xs:
-        if len(popt) == 3:
+        if len(popt) == 2:
+            m += abs(ys[n] - function(x, popt[0], popt[1])) * weights[n]
+        elif len(popt) == 3:
             m += abs(ys[n] - function(x, popt[0], popt[1], popt[2])) * weights[n]
         else:
             raise NotImplementedError
@@ -180,7 +205,8 @@ def multy_curve_fit(xs, ys, verbose):
     """
     fit multiple functions to the x, y data, return the best fit
     """
-    functions = {exponential: p0_exponential, reciprocal: p0_reciprocal, single_reciprocal: p0_single_reciprocal}
+    #functions = {exponential: p0_exponential, reciprocal: p0_reciprocal, single_reciprocal: p0_single_reciprocal}
+    functions = {simple_reciprocal: p0_simple_reciprocal}
     import numpy as np
     from scipy.optimize import curve_fit
     fit_results = {}
@@ -229,6 +255,9 @@ def print_plot_line(function, popt, xs, ys, name, extra=''):
     elif function is single_reciprocal:
         line = "plot %s + %s / (x - %s), 'convdat.%s' pointsize 4 lt 0, %s" % \
                (popt[0], popt[1], popt[2], idp, popt[0])
+    elif function is simple_reciprocal:
+        line = "plot %s + %s / x, 'convdat.%s' pointsize 4 lt 0, %s" % \
+               (popt[0], popt[1], idp, popt[0])
         #print 'plot ', popt[0], ' + ', popt[1], "/ (x - ", popt[2], ")," "'"+'convdat.'+idp+"'"
     f = open('plot-fits', mode='a')
     f.write('pause -1 \n')
