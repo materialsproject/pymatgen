@@ -158,7 +158,7 @@ def p0_single_reciprocal(xs, ys):
     return [a, b, c]
 
 
-def measure(function, xs, ys, popt):
+def measure(function, xs, ys, popt, weights):
     """
     measure the quality of the fit
     """
@@ -166,7 +166,7 @@ def measure(function, xs, ys, popt):
     n = 0
     for x in xs:
         if len(popt) == 3:
-            m += abs(ys[n] - function(x, popt[0], popt[1], popt[2])) * (x - 2 * xs[0] + xs[1])
+            m += abs(ys[n] - function(x, popt[0], popt[1], popt[2])) * weights[n]
         else:
             raise NotImplementedError
         n += 1
@@ -184,10 +184,10 @@ def multy_curve_fit(xs, ys, verbose):
     best = ['', np.inf]
     for function in functions:
         try:
-            weights = (xs - 2 * xs[0] + xs[1])
+            weights = 1 / get_derivatives(xs, ys)
             print weights
             popt, pcov = curve_fit(function, xs, ys, functions[function](xs, ys), maxfev=8000, sigma=weights)
-            m = measure(function, xs, ys, popt)
+            m = measure(function, xs, ys, popt, weights)
             perr = max(np.sqrt(np.diag(pcov)))
             #print 'pcov:\n', pcov
             #print 'diag:\n', np.sqrt(np.diag(pcov))
