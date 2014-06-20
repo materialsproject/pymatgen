@@ -132,8 +132,8 @@ def exponential(x, a, b, n):
 
 def p0_exponential(xs, ys):
     n0 = 1.005
-    b0 = (n0 ** -xs[-1] - n0 ** -xs[0]) / (ys[-1] - ys[0])
-    a0 = ys[0] - b0 * n0 ** -xs[0]
+    b0 = (n0 ** -xs[-1] - n0 ** -xs[1]) / (ys[-1] - ys[1])
+    a0 = ys[1] - b0 * n0 ** -xs[1]
     #a0 = ys[-1]
     #b0 = (ys[0] - a0) / n0 ** xs[0]
     return [a0, b0, n0]
@@ -156,8 +156,8 @@ def single_reciprocal(x, a, b, c):
 
 def p0_single_reciprocal(xs, ys):
     c = 1
-    b = (1/(xs[-1] - c)-1/(xs[0] - c)) / (ys[-1] - ys[0])
-    a = ys[0] - b / (xs[0] - c)
+    b = (1/(xs[-1] - c)-1/(xs[1] - c)) / (ys[-1] - ys[1])
+    a = ys[1] - b / (xs[1] - c)
     return [a, b, c]
 
 
@@ -178,8 +178,8 @@ def simple_reciprocal(x, a, b):
 
 def p0_simple_reciprocal(xs, ys):
     c = 0
-    b = (1/(xs[-1] - c) - 1/(xs[0] - c)) / (ys[-1] - ys[0])
-    a = ys[0] - b / (xs[0] - c)
+    b = (1/(xs[-1] - c) - 1/(xs[1] - c)) / (ys[-1] - ys[1])
+    a = ys[1] - b / (xs[1] - c)
     return [a, b]
 
 
@@ -201,8 +201,8 @@ def simple_2reciprocal(x, a, b):
 
 def p0_simple_2reciprocal(xs, ys):
     c = 2
-    b = (1/xs[-1]**c - 1/xs[0]**c) / (ys[-1] - ys[0])
-    a = ys[0] - b / xs[0]**c
+    b = (1/xs[-1]**c - 1/xs[1]**c) / (ys[-1] - ys[1])
+    a = ys[1] - b / xs[1]**c
     return [a, b]
 
 
@@ -224,8 +224,8 @@ def simple_4reciprocal(x, a, b):
 
 def p0_simple_4reciprocal(xs, ys):
     c = 4
-    b = (1/xs[-1]**c - 1/xs[0]**c) / (ys[-1] - ys[0])
-    a = ys[0] - b / xs[0]**c
+    b = (1/xs[-1]**c - 1/xs[1]**c) / (ys[-1] - ys[1])
+    a = ys[1] - b / xs[1]**c
     return [a, b]
 
 
