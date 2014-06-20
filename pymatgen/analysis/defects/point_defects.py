@@ -39,7 +39,7 @@ class ValenceIonicRadiusEvaluator(object):
     """
 
     def __init__(self, structure):
-        self._structure = structure
+        self._structure = structure.copy()
         self._valences = self._get_valences()
         self._ionic_radii = self._get_ionic_radii()
 
@@ -49,7 +49,10 @@ class ValenceIonicRadiusEvaluator(object):
         List of ionic radii of elements in the order of sites.
         """
         el = [site.species_string for site in self._structure.sites]
+        #print el
+        #print self._ionic_radii
         radii_dict = dict(zip(el, self._ionic_radii))
+        #print radii_dict
         return radii_dict
 
     @property
@@ -66,14 +69,8 @@ class ValenceIonicRadiusEvaluator(object):
         """
         Returns oxidation state decorated structurel.
         """
-        return self._structure
+        return self._structure.copy()
 
-    @property
-    def structure(self):
-        """
-        Structure used for initialization
-        """
-        return self._structure
 
     def _get_ionic_radii(self):
         """
@@ -94,19 +91,24 @@ class ValenceIonicRadiusEvaluator(object):
             el = site.specie.symbol
             oxi_state = int(round(site.specie.oxi_state))
             coord_no = int(round(coord_finder.get_coordination_number(i)))
+            #print el, oxi_state, coord_no
             try:
                 tab_oxi_states = map(int, _ion_radii[el].keys())
                 tab_oxi_states.sort()
                 oxi_state = nearest_key(tab_oxi_states, oxi_state)
                 radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
             except KeyError:
+                #print 'reached here'
                 if coord_finder.get_coordination_number(i)-coord_no > 0:
                     new_coord_no = coord_no + 1
+                    #print 'coord No increased '
                 else:
                     new_coord_no = coord_no - 1
+                    #print 'coord No decreased '
                 try:
                     radius = _ion_radii[el][str(oxi_state)][str(new_coord_no)]
                     coord_no = new_coord_no
+                    #print 'new radius after changing coord no', radius
                 except:
                     tab_coords = map(int, _ion_radii[el][str(oxi_state)].keys())
                     tab_coords.sort()
@@ -131,6 +133,7 @@ class ValenceIonicRadiusEvaluator(object):
 
             #implement complex checks later
             radii.append(radius)
+            #print radius
         return radii
 
     def _get_valences(self):
