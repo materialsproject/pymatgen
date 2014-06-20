@@ -1056,6 +1056,21 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         incar.pop("MAGMOM", None)
         return incar
 
+    def get_poscar(self, structure, get_primitive_standard=False):
+        """
+        Get a POSCAR file of the giving structure.
+
+        Args:
+            structure (Structure/IStructure): structure to get POSCAR
+            get_primitive_standard (bool): if convert the input structure to a
+            primitive standard structure
+        """
+        if get_primitive_standard:
+            sym_finder = SymmetryFinder(structure, symprec=self.sym_prec)
+            return Poscar(sym_finder.get_primitive_standard_structure(False))
+        else:
+            return Poscar(structure)
+
     @staticmethod
     def from_previous_vasp_run(previous_vasp_dir, output_dir='.',
                                mode="Uniform", user_incar_settings=None,
@@ -1093,7 +1108,8 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             raise RuntimeError("Can't get valid results from previous run")
 
         #Get a Magmom-decorated structure
-        structure = MPNonSCFVaspInputSet.get_structure(vasp_run, outcar)
+        structure = MPNonSCFVaspInputSet.get_structure(vasp_run, outcar,
+                                                       initial_structure=True)
         nscf_incar_settings = MPNonSCFVaspInputSet.get_incar_settings(vasp_run,
                                                                       outcar)
         mpnscfvip = MPNonSCFVaspInputSet(nscf_incar_settings, mode)
