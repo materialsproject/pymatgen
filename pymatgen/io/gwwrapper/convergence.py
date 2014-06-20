@@ -33,13 +33,16 @@ class SplineInputError(Exception):
         self.msg = msg
 
 
-def get_derivatives(xs, ys):
+def get_derivatives(xs, ys, fd=False):
     """
     return the derivatives of y(x) at the points x
     if scipy is available a spline is generated to calculate the derivatives
     if scipy is not available the left and right slopes are calculated, if both exist the average is returned
+    putting fd to zero always returns the finite difference slopes
     """
     try:
+        if fd:
+            raise SplineInputError
         if len(xs) < 4:
             er = SplineInputError('too few data points')
             raise er
@@ -184,7 +187,7 @@ def multy_curve_fit(xs, ys, verbose):
     best = ['', np.inf]
     for function in functions:
         try:
-            d = get_derivatives(xs, ys)
+            d = get_derivatives(xs, ys, fd=True)
             weights = abs(d[0] / d)
             print weights
             popt, pcov = curve_fit(function, xs, ys, functions[function](xs, ys), maxfev=8000, sigma=weights)
