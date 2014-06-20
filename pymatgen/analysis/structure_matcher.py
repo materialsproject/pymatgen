@@ -1052,6 +1052,8 @@ class StructureMatcher(MSONable):
         superset, subset, _, _ = self._preprocess(superset, subset, True)
         match = self._match(superset, subset, 1, break_on_match=False)
 
+        if match is None:
+            return None
         if match[0] > self.stol:
             return None
         return match[4]
