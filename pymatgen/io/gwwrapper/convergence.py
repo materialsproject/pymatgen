@@ -269,7 +269,7 @@ def measure(function, xs, ys, popt, weights):
     return m
 
 
-def get_weigts(xs, ys, mode=1):
+def get_weigts(xs, ys, mode=0):
     if mode == 1:
         ds = get_derivatives(xs, ys, fd=True)
         import numpy as np
