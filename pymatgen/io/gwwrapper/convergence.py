@@ -219,13 +219,16 @@ def print_plot_line(function, popt, xs, ys, name, extra=''):
     f.close()
     line = ''
     if function is exponential:
-        line = "plot %s + %s * %s ** -x, 'convdat.%s' pointsize 4 lt 0, %s" % (popt[0], popt[1], popt[2], idp, popt[0])
+        line = "plot %s + %s * %s ** -x, 'convdat.%s' pointsize 4 lt 0, %s" % \
+               (popt[0], popt[1], min(max(1.00001, popt[2]), 1.2), idp, popt[0])
         #print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], " ** -x," "'"+'convdat.'+idp+"'"
     elif function is reciprocal:
-        line = "plot %s + %s / x**%s, 'convdat.%s' pointsize 4 lt 0, %s" % (popt[0], popt[1], popt[2], idp, popt[0])
+        line = "plot %s + %s / x**%s, 'convdat.%s' pointsize 4 lt 0, %s" % \
+               (popt[0], popt[1], min(max(1, popt[2]), 5), idp, popt[0])
         #print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], "," "'"+'convdat.'+idp+"'"
     elif function is single_reciprocal:
-        line = "plot %s + %s / (x - %s), 'convdat.%s' pointsize 4 lt 0, %s" % (popt[0], popt[1], popt[2], idp, popt[0])
+        line = "plot %s + %s / (x - %s), 'convdat.%s' pointsize 4 lt 0, %s" % \
+               (popt[0], popt[1], popt[2], idp, popt[0])
         #print 'plot ', popt[0], ' + ', popt[1], "/ (x - ", popt[2], ")," "'"+'convdat.'+idp+"'"
     f = open('plot-fits', mode='a')
     f.write('pause -1 \n')
