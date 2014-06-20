@@ -42,7 +42,7 @@ def get_derivatives(xs, ys, fd=False):
     """
     try:
         if fd:
-            raise SplineInputError
+            raise SplineInputError('no spline wanted')
         if len(xs) < 4:
             er = SplineInputError('too few data points')
             raise er
