@@ -251,8 +251,14 @@ def multy_curve_fit(xs, ys, verbose):
     fit multiple functions to the x, y data, return the best fit
     """
     #functions = {exponential: p0_exponential, reciprocal: p0_reciprocal, single_reciprocal: p0_single_reciprocal}
-    functions = {simple_reciprocal: p0_simple_reciprocal, simple_2reciprocal: p0_simple_2reciprocal,
-                 simple_4reciprocal: p0_simple_4reciprocal}
+    functions = {
+        exponential: p0_exponential,
+        reciprocal: p0_reciprocal,
+        single_reciprocal: p0_single_reciprocal,
+        simple_reciprocal: p0_simple_reciprocal,
+        simple_2reciprocal: p0_simple_2reciprocal,
+        simple_4reciprocal: p0_simple_4reciprocal
+    }
     import numpy as np
     from scipy.optimize import curve_fit
     fit_results = {}
