@@ -229,6 +229,29 @@ def p0_simple_4reciprocal(xs, ys):
     return [a, b]
 
 
+def simple_5reciprocal(x, a, b):
+    """
+    reciprocal function to fit convergence data
+    """
+    import numpy as np
+    c = 0.5
+    if isinstance(x, list):
+        y_l = []
+        for x_v in x:
+            y_l.append(a + b / x_v ** c)
+        y = np.array(y_l)
+    else:
+        y = a + b / x ** c
+    return y
+
+
+def p0_simple_5reciprocal(xs, ys):
+    c = 0.5
+    b = (1/xs[-1]**c - 1/xs[1]**c) / (ys[-1] - ys[1])
+    a = ys[1] - b / xs[1]**c
+    return [a, b]
+
+
 def measure(function, xs, ys, popt, weights):
     """
     measure the quality of the fit
@@ -246,6 +269,21 @@ def measure(function, xs, ys, popt, weights):
     return m
 
 
+def get_weigts(xs, ys, mode=1):
+    if mode == 1:
+        ds = get_derivatives(xs, ys, fd=True)
+        import numpy as np
+        mind = np.inf
+        for d in ds:
+            mind = min(abs(d), mind)
+        weights = []
+        for d in ds:
+            weights.append(abs((mind / d)))
+    else:
+        weights = [1] * len(xs)
+    return weights
+
+
 def multy_curve_fit(xs, ys, verbose):
     """
     fit multiple functions to the x, y data, return the best fit
@@ -257,7 +295,8 @@ def multy_curve_fit(xs, ys, verbose):
         single_reciprocal: p0_single_reciprocal,
         simple_reciprocal: p0_simple_reciprocal,
         simple_2reciprocal: p0_simple_2reciprocal,
-        simple_4reciprocal: p0_simple_4reciprocal
+        simple_4reciprocal: p0_simple_4reciprocal,
+        simple_5reciprocal: p0_simple_5reciprocal
     }
     import numpy as np
     from scipy.optimize import curve_fit
@@ -265,15 +304,7 @@ def multy_curve_fit(xs, ys, verbose):
     best = ['', np.inf]
     for function in functions:
         try:
-            ds = get_derivatives(xs, ys, fd=True)
-            mind = np.inf
-            for d in ds:
-                mind = min(abs(d), mind)
-            weights = []
-            for d in ds:
-                weights.append(abs((1 / d) / (1 / mind)))
-            print weights
-
+            weights = get_weigts(xs, ys)
             popt, pcov = curve_fit(function, xs, ys, functions[function](xs, ys), maxfev=8000, sigma=weights)
             m = measure(function, xs, ys, popt, weights)
             perr = max(np.sqrt(np.diag(pcov)))
@@ -306,11 +337,9 @@ def print_plot_line(function, popt, xs, ys, name, extra=''):
     if function is exponential:
         line = "plot %s + %s * %s ** -x, 'convdat.%s' pointsize 4 lt 0, %s" % \
                (popt[0], popt[1], min(max(1.00001, popt[2]), 1.2), idp, popt[0])
-        #print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], " ** -x," "'"+'convdat.'+idp+"'"
     elif function is reciprocal:
         line = "plot %s + %s / x**%s, 'convdat.%s' pointsize 4 lt 0, %s" % \
                (popt[0], popt[1], min(max(1, popt[2]), 5), idp, popt[0])
-        #print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], "," "'"+'convdat.'+idp+"'"
     elif function is single_reciprocal:
         line = "plot %s + %s / (x - %s), 'convdat.%s' pointsize 4 lt 0, %s" % \
                (popt[0], popt[1], popt[2], idp, popt[0])
@@ -323,7 +352,9 @@ def print_plot_line(function, popt, xs, ys, name, extra=''):
     elif function is simple_4reciprocal:
         line = "plot %s + %s / x**4, 'convdat.%s' pointsize 4 lt 0, %s" % \
                (popt[0], popt[1], idp, popt[0])
-        #print 'plot ', popt[0], ' + ', popt[1], "/ (x - ", popt[2], ")," "'"+'convdat.'+idp+"'"
+    elif function is simple_5reciprocal:
+        line = "plot %s + %s / x**0.5, 'convdat.%s' pointsize 4 lt 0, %s" % \
+               (popt[0], popt[1], idp, popt[0])
     else:
         print function, ' no plot '
     f = open('plot-fits', mode='a')
