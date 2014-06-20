@@ -120,7 +120,16 @@ class StructureMatcherTest(unittest.TestCase):
         self.assertTrue(i == 2)
         self.assertEqual(inds, [2])
 
-        #test supercell
+        #test supercell with match
+        result = [[1, 1, 0, 0, 1, 1, 0, 0],
+                  [1, 1, 0, 0, 1, 1, 0, 0],
+                  [1, 1, 1, 1, 0, 0, 1, 1]]
+        m, inds, i = sm._get_mask(s1, s2, 2, True)
+        self.assertTrue(np.all(m == result))
+        self.assertTrue(i == 2)
+        self.assertTrue(np.allclose(inds, np.array([4])))
+
+        #test supercell without match
         result = [[1, 1, 1, 1, 1, 1],
                   [0, 0, 0, 0, 1, 1],
                   [1, 1, 1, 1, 0, 0],

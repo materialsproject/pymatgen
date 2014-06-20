@@ -593,9 +593,13 @@ class StructureMatcher(MSONable):
             mask = np.rollaxis(mask, 2, 1)
             mask = mask.reshape((-1, len(struct1)))
 
-        #find the best translation index
+        #find the best translation indices
         i = np.argmax(np.sum(mask, axis=-1))
-        return mask, np.where(np.invert(mask[i]))[0], i
+        inds = np.where(np.invert(mask[i]))[0]
+        if s1_supercell:
+            #remove the symmetrically equivalent s1 indices
+            inds = inds[::fu]
+        return mask, inds, i
 
     def fit(self, struct1, struct2):
         """
