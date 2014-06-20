@@ -269,9 +269,9 @@ def measure(function, xs, ys, popt, weights):
     return m
 
 
-def get_weigts(xs, ys, mode=0):
+def get_weigts(xs, ys, mode=2):
+    ds = get_derivatives(xs, ys, fd=True)
     if mode == 1:
-        ds = get_derivatives(xs, ys, fd=True)
         import numpy as np
         mind = np.inf
         for d in ds:
@@ -279,6 +279,9 @@ def get_weigts(xs, ys, mode=0):
         weights = []
         for d in ds:
             weights.append(abs((mind / d)))
+    if mode == 2:
+        maxxs = max(xs)
+        weights = xs / maxxs
     else:
         weights = [1] * len(xs)
     return weights
