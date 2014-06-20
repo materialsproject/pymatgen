@@ -387,7 +387,7 @@ def test_conv(xs, ys, name, tol=0.0001, extra='', verbose=False):
                 #perr = np.sqrt(np.diag(pcov))
                 #print perr
                 popt, pcov, func = multy_curve_fit(xs, ys, verbose)
-                if func[1] > abs(len(ys)*tol):
+                if func[1] > abs(tol):
                     print 'warning function ', func[0], ' as the best fit but not a good fit: ', func[1]
                 #print popt
                 #print pcov
