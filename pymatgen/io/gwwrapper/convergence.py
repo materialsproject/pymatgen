@@ -365,6 +365,7 @@ def print_plot_line(function, popt, xs, ys, name, extra=''):
     f.write('pause -1 \n')
     f.write('set title "' + name + ' - ' + extra + '"\n')
     f.write("set output '" + name + '-' + idp + ".gif'" + '\n')
+    f.write("set yrange [" + str(popt[0] - 0.2) + ':' + str(popt[0] + 0.2)+']\n')
     f.write(line + '\n')
     f.close()
 
