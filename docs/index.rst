@@ -74,6 +74,32 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.9.11
+-------
+1. Bug fix for get_xrd_plot.
+2. Speed up XRD calculator by allowing specification of two theta ranges.
+3. Minor improvements to Gulp caller.
+
+v2.9.10
+-------
+1. Bug fix for unequal coefficients sizes in XRD.
+2. Support for Ag radiation in XRD calculator.
+3. Improved Procar class for extraction of information. (Germain Salvato
+   Vallverdu)
+4. Bug fix for extraction of GGA data from Materials API.
+
+v2.9.9
+------
+1. XRDCalculator now supports disordered structures.
+2. Minor speed ups and improvements.
+
+v2.9.8
+------
+1. Initial beta version of XRD pattern calculator.
+2. Pymatgen now uses spglib 1.6.0.
+3. Update to Vasprun to compute static deilectric constants with DFPT in VASP.
+   (Geoffroy Hautier)
+
 v2.9.7
 ------
 1. Quick bug-fix release that provides a better solution to Structure handling
@@ -166,7 +192,10 @@ Stable version
     Before installing pymatgen, you may need to first install a few critical
     dependencies manually.
 
-    1. Numpy's distutils is needed to compile the spglib and pyhull
+    1. Installation has been tested to be most successful with gcc,
+       and several dependencies have issues with icc. Use gcc where
+       possible and do "export CC=gcc" prior to installation.
+    2. Numpy's distutils is needed to compile the spglib and pyhull
        dependencies. This should be the first thing you install.
     2. Pyhull and PyCifRW. The recent versions of pip does not allow the
        installation of externally hosted files. Furthermore,

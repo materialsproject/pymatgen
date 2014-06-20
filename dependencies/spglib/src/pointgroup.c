@@ -1045,6 +1045,7 @@ static int laue_one_axis(int axes[3],
   num_ortho_axis = get_orthogonal_axis(ortho_axes, prop_rot, rot_order);
   if (! num_ortho_axis) { goto err; }
 
+  tmp_axes[1] = -1;
   tmp_axes[2] = axes[2];
   min_det = 4;
   is_found = 0;
@@ -1078,6 +1079,8 @@ static int laue_one_axis(int axes[3],
   }
 
  err: /* axes are not correctly found. */
+  warning_print("spglib: Secondary axis is not found.");
+  warning_print("(line %d, %s).\n", __LINE__, __FILE__);
   return 0;
 
  end:
