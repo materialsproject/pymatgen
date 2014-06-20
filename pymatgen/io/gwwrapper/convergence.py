@@ -318,7 +318,7 @@ def multy_curve_fit(xs, ys, verbose):
             for f in fit_results:
                 if fit_results[f]['measure'] <= best[1]:
                     best = f, fit_results[f]['measure']
-            print function, m
+            print str(function), m
         except RuntimeError:
             if True:
                 print 'no fit found for ', function
