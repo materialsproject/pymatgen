@@ -233,6 +233,7 @@ def simple_5reciprocal(x, a, b):
     """
     reciprocal function to fit convergence data
     """
+
     import numpy as np
     c = 0.5
     if isinstance(x, list):
