@@ -195,7 +195,7 @@ def simple_2reciprocal(x, a, b):
             y_l.append(a + b / x_v)
         y = np.array(y_l)
     else:
-        y = a + b / x ** 2
+        y = a + b / x ** c
     return y
 
 
@@ -205,6 +205,27 @@ def p0_simple_2reciprocal(xs, ys):
     a = ys[0] - b / xs[0]**c
     return [a, b]
 
+def simple_4reciprocal(x, a, b):
+    """
+    reciprocal function to fit convergence data
+    """
+    import numpy as np
+    c = 4
+    if isinstance(x, list):
+        y_l = []
+        for x_v in x:
+            y_l.append(a + b / x_v)
+        y = np.array(y_l)
+    else:
+        y = a + b / x ** c
+    return y
+
+
+def p0_simple_4reciprocal(xs, ys):
+    c = 4
+    b = (1/xs[-1]-1/xs[0]**c) / (ys[-1] - ys[0])
+    a = ys[0] - b / xs[0]**c
+    return [a, b]
 
 def measure(function, xs, ys, popt, weights):
     """
@@ -228,7 +249,8 @@ def multy_curve_fit(xs, ys, verbose):
     fit multiple functions to the x, y data, return the best fit
     """
     #functions = {exponential: p0_exponential, reciprocal: p0_reciprocal, single_reciprocal: p0_single_reciprocal}
-    functions = {simple_reciprocal: p0_simple_reciprocal, simple_2reciprocal: p0_simple_2reciprocal}
+    functions = {simple_reciprocal: p0_simple_reciprocal, simple_2reciprocal: p0_simple_2reciprocal,
+                 simple_4reciprocal: p0_simple_4reciprocal}
     import numpy as np
     from scipy.optimize import curve_fit
     fit_results = {}
@@ -236,7 +258,7 @@ def multy_curve_fit(xs, ys, verbose):
     for function in functions:
         try:
             d = get_derivatives(xs, ys, fd=True)
-            weights = abs(max(d) / d)
+            weights = abs(min(d) / d)
             print weights
             popt, pcov = curve_fit(function, xs, ys, functions[function](xs, ys), maxfev=8000, sigma=weights)
             m = measure(function, xs, ys, popt, weights)
@@ -282,6 +304,9 @@ def print_plot_line(function, popt, xs, ys, name, extra=''):
                (popt[0], popt[1], idp, popt[0])
     elif function is simple_2reciprocal:
         line = "plot %s + %s / x**2, 'convdat.%s' pointsize 4 lt 0, %s" % \
+               (popt[0], popt[1], idp, popt[0])
+    elif function is simple_4reciprocal:
+        line = "plot %s + %s / x**4, 'convdat.%s' pointsize 4 lt 0, %s" % \
                (popt[0], popt[1], idp, popt[0])
         #print 'plot ', popt[0], ' + ', popt[1], "/ (x - ", popt[2], ")," "'"+'convdat.'+idp+"'"
     f = open('plot-fits', mode='a')
