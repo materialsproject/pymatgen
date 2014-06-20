@@ -237,9 +237,9 @@ def measure(function, xs, ys, popt, weights):
     n = 0
     for x in xs:
         if len(popt) == 2:
-            m += abs(ys[n] - function(x, popt[0], popt[1])) * weights[n]
+            m += abs(ys[n] - function(x, popt[0], popt[1]))  # * weights[n]
         elif len(popt) == 3:
-            m += abs(ys[n] - function(x, popt[0], popt[1], popt[2])) * weights[n]
+            m += abs(ys[n] - function(x, popt[0], popt[1], popt[2]))   # * weights[n]
         else:
             raise NotImplementedError
         n += 1
