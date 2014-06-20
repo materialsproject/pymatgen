@@ -258,7 +258,8 @@ def multy_curve_fit(xs, ys, verbose):
     for function in functions:
         try:
             d = get_derivatives(xs, ys, fd=True)
-            weights = abs(min(d) / d)
+            mind = min(d)
+            weights = (1 / d) / (1 / mind)
             print weights
             popt, pcov = curve_fit(function, xs, ys, functions[function](xs, ys), maxfev=8000, sigma=weights)
             m = measure(function, xs, ys, popt, weights)
