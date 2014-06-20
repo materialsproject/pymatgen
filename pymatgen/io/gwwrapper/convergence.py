@@ -258,8 +258,8 @@ def multy_curve_fit(xs, ys, verbose):
     for function in functions:
         try:
             ds = get_derivatives(xs, ys, fd=True)
-            mind = min(ds)
-            print ds, mind
+            mind = min(abs(ds))
+            print ds, '\n', mind
             weights = []
             for d in ds:
                 weights.append((1 / d) / (1 / mind))
