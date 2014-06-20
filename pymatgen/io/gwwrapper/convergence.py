@@ -282,7 +282,9 @@ def get_weigts(xs, ys, mode=2):
             weights.append(abs((mind / d)))
     if mode == 2:
         maxxs = max(xs)**2
-        weights = xs**2 / maxxs
+        weights = []
+        for x in xs:
+            weights.append(x**2 / maxxs)
     else:
         weights = [1] * len(xs)
     print weights
