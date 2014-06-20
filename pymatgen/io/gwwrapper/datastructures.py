@@ -159,11 +159,12 @@ class AbstractAbinitioSpec(MSONable):
                     [-1]['band_structure']['kpoints']
                 except (IndexError, KeyError):
                     kpts = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
-                #print structure
+                print structure
                 remove_ox = OxidationStateRemovalTransformation()
                 structure = remove_ox.apply_transformation(structure)
                 get_prim = PrimitiveCellTransformation()
                 structure = get_prim.apply_transformation(structure)
+                print structure
                 structure.kpts = kpts
                 print 'kpoints:', structure.kpts[0], structure.kpts[1]
                 structure.item = item['name']
