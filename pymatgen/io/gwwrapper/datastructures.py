@@ -82,15 +82,12 @@ class AbstractAbinitioSpec(MSONable):
 
     @staticmethod
     def refine_structure(structure):
+        remove_ox = OxidationStateRemovalTransformation()
+        structure = remove_ox.apply_transformation(structure)
+        get_prim = PrimitiveCellTransformation()
+        structure = get_prim.apply_transformation(structure)
         sym_finder = SymmetryFinder(structure=structure, symprec=1e-3)
-        print 'input:'
-        print structure
-        print 'refined'
-        print sym_finder.get_refined_structure()
-        print 'primitive'
-        print sym_finder.find_primitive()
-
-        return structure
+        return sym_finder.get_refined_structure()
 
     def update_interactive(self):
         """
@@ -174,13 +171,9 @@ class AbstractAbinitioSpec(MSONable):
                 except (IndexError, KeyError):
                     kpts = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
                 print structure
-                remove_ox = OxidationStateRemovalTransformation()
-                structure = remove_ox.apply_transformation(structure)
-                get_prim = PrimitiveCellTransformation()
-                structure = get_prim.apply_transformation(structure)
-                print structure
                 structure.kpts = kpts
-                self.refine_structure(structure)
+                structure = self.refine_structure(structure)
+                print structure
                 print 'kpoints:', structure.kpts[0], structure.kpts[1]
                 structure.item = item['name']
             else:
