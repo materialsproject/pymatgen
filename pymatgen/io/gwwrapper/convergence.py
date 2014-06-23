@@ -336,10 +336,10 @@ def multi_curve_fit(xs, ys, verbose):
 
 
 def multi_reciprocal_extra(xs, ys):
-    ns = [0.5, 1.0, 1.5, 2, 3, 4, 5]
+    ns = [0.25, 0.5, 1.0, 1.5, 2, 3, 4, 5, 6]
     best = ['', np.inf]
     fit_results = {}
-    weights = len(xs) * [1.0]
+    weights = get_weights(xs, ys)
     for n in ns:
         popt = extrapolate_reciprocal(xs, ys, n)
         m = measure(reciprocal, xs, ys, popt, weights)
@@ -367,7 +367,7 @@ def print_plot_line(function, popt, xs, ys, name, extra=''):
     if function is exponential:
         line += "%s + %s * %s ** -x" % (popt[0], popt[1], min(max(1.00001, popt[2]), 1.2))
     elif function is reciprocal:
-        line += "%s + %s / x**%s" % (popt[0], popt[1], min(max(0.5, popt[2]), 5))
+        line += "%s + %s / x**%s" % (popt[0], popt[1], min(max(0.5, popt[2]), 6))
     elif function is single_reciprocal:
         line += "%s + %s / (x - %s)" % (popt[0], popt[1], popt[2])
     elif function is simple_reciprocal:
