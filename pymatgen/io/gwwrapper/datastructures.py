@@ -43,7 +43,7 @@ class AbstractAbinitioSpec(MSONable):
     __metaclass__ = ABCMeta
 
     def __init__(self):
-        self.data = {'code': 'VASP',
+        self.data = {'code': 'ABINIT',
                      'source': 'mp-vasp',
                      'mode': 'ceci',
                      'test': False,
@@ -86,6 +86,7 @@ class AbstractAbinitioSpec(MSONable):
         """
         key = 'tmp'
         while len(key) != 0:
+            print 'Pseudos from: ', self.code_interface.read_ps_dir()
             print self
             key = raw_input('enter key to change (h for help): ')
             if key in self.data.keys():
