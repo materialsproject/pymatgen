@@ -19,7 +19,6 @@ import os.path
 import ast
 import pymatgen as pmg
 import pymongo
-import json
 
 from abc import abstractproperty, abstractmethod, ABCMeta
 from pymatgen.io.vaspio.vasp_input import Poscar, Kpoints
@@ -29,7 +28,8 @@ from pymatgen.io.gwwrapper.convergence import test_conv
 from pymatgen.io.gwwrapper.helpers import print_gnuplot_header, s_name, add_gg_gap
 from pymatgen.io.gwwrapper.codeinterfaces import get_code_interface
 from pymatgen.core.structure import Structure
-from pymatgen.transformations.standard_transformations import OxidationStateRemovalTransformation, PrimitiveCellTransformation
+from pymatgen.transformations.standard_transformations import OxidationStateRemovalTransformation, \
+    PrimitiveCellTransformation
 
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -143,7 +143,8 @@ class AbstractAbinitioSpec(MSONable):
             pwd = os.environ['MAR_PAS']
             local_db_gaps.authenticate("setten", pwd)
             for c in local_db_gaps.exp.find():
-                print Structure.from_dict(c['icsd_data']['structure']).composition.reduced_formula, c['icsd_id'], c['MP_id']
+                print Structure.from_dict(c['icsd_data']['structure']).composition.reduced_formula, c['icsd_id'],\
+                    c['MP_id']
                 items_list.append({'name': 'mp-' + c['MP_id'], 'icsd': c['icsd_id'], 'mp': c['MP_id']})
         else:
             items_list = [line.strip() for line in open(self.data['source'])]
@@ -263,9 +264,10 @@ class GWSpecs(AbstractAbinitioSpec):
                         '  prec         : %s \n' \
                         '  tol          : %s \n' \
                         '  test         : %s \n' \
-                        '  converge     : %s' % (self.__class__.__name__, self.__doc__, self.get_code(), self.data['source'],
-                                                 self['jobs'], self['mode'], self['functional'], self['kp_grid_dens'],
-                                                 self['prec'], self['tol'], self['test'], self['converge'])
+                        '  converge     : %s' % (self.__class__.__name__, self.__doc__, self.get_code(),
+                                                 self.data['source'], self['jobs'], self['mode'], self['functional'],
+                                                 self['kp_grid_dens'], self['prec'], self['tol'], self['test'],
+                                                 self['converge'])
         return self._message
 
     @property
@@ -366,7 +368,8 @@ class GWSpecs(AbstractAbinitioSpec):
 
                     extrapolated = data.find_conv_pars(self['tol'])
                     if data.conv_res['control']['nbands']:
-                        print '| parm_scr type calculation, converged values found, extrapolated value: ', extrapolated[4]
+                        print '| parm_scr type calculation, converged values found, extrapolated value: %s' %\
+                              extrapolated[4]
                     else:
                         print '| parm_scr type calculation, no converged values found, increasing grid'
                         data.full_res['grid'] += 1
@@ -392,7 +395,8 @@ class GWSpecs(AbstractAbinitioSpec):
                         print data.data
                         done = True
                     if data.test_full_kp_results(tol_rel=1, tol_abs=0.001):
-                        print '| Full type calculation and the full results agree with the parm_scr. All_done for this compound.'
+                        print '| Full type calculation and the full results agree with the parm_scr.' \
+                              ' All_done for this compound.'
                         data.full_res.update({'all_done': True})
                         data.print_full_res()
                         done = True
@@ -620,8 +624,6 @@ class GWConvergenceData():
                     data_list.append([self.data[k]['ecut'],
                                       self.data[k]['min'],
                                       self.data[k]['max']])
-
-
         return sorted(data_list)
 
     def get_data_array(self):
