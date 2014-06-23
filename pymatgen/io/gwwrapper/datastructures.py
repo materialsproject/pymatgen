@@ -30,7 +30,7 @@ from pymatgen.io.gwwrapper.codeinterfaces import get_code_interface
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import OxidationStateRemovalTransformation, \
     PrimitiveCellTransformation
-
+from pymatgen.symmetry.finder import SymmetryFinder
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -79,6 +79,18 @@ class AbstractAbinitioSpec(MSONable):
             print 'Inputfile ', filename, ' not found exiting.'
             exit()
         self.update_code_interface()
+
+    @staticmethod
+    def refine_structure(structure):
+        sym_finder = SymmetryFinder(structure=structure, symprec=1e-3)
+        print 'input:'
+        print structure
+        print 'refined'
+        print sym_finder.get_refined_structure()
+        print 'primitive'
+        print sym_finder.find_primitive()
+
+        return structure
 
     def update_interactive(self):
         """
