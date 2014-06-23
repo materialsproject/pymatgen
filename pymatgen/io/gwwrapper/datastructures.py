@@ -573,8 +573,8 @@ class GWConvergenceData():
                 nbands_d = conv_data[5]
                 ecuteps_d = y_conv_der[conv_data[3]]
         self.conv_res['control'].update({'ecuteps': ecuteps_l, 'nbands': nbands_l})
-        self.conv_res.update({'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c, 'gap': gap},
-                              'derivatives': {'ecuteps': ecuteps_d, 'nbands': nbands_d}})
+        self.conv_res['values'].update({'ecuteps': ecuteps_c, 'nbands': nbands_c, 'gap': gap})
+        self.conv_res['derivatives'].update({'ecuteps': ecuteps_d, 'nbands': nbands_d})
         return test_conv(xs, extrapolated, name=self.name, tol=-0.05, extra='nbands at extrapolated ecuteps')
 
     def find_conv_pars_scf(self, x_name, y_name, tol=0.0001):
