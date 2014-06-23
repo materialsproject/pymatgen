@@ -255,8 +255,8 @@ def p0_simple_5reciprocal(xs, ys):
 
 
 def extrapolate_simple_reciprocal(xs, ys):
-    b = (1/(xs[-1]) - 1/(xs[-2])) / (ys[-1] - ys[-2])
-    a = ys[-2] - b / (xs[-2])
+    b = (ys[-2] - ys[-1]) / (1/(xs[-2]) - 1/(xs[-1]))
+    a = ys[-1] - b / (xs[-1])
     return [a, b]
 
 
