@@ -180,6 +180,7 @@ class AbstractAbinitioSpec(MSONable):
                 structure = get_prim.apply_transformation(structure)
                 print structure
                 structure.kpts = kpts
+                self.refine_structure(structure)
                 print 'kpoints:', structure.kpts[0], structure.kpts[1]
                 structure.item = item['name']
             else:
