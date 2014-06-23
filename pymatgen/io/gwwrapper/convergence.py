@@ -106,17 +106,12 @@ def exponential(x, a, b, n):
     """
     if n < 1.000001:
         n = 1.000001
-        #print n
     elif n > 1.2:
         n = 1.2
-        #print n
     if b < -10:
         b = -10
-        #print b
     elif b > 10:
         b = 10
-        #print b
-    #print a, b, x
     if isinstance(x, list):
         y_l = []
         for x_v in x:
@@ -124,8 +119,6 @@ def exponential(x, a, b, n):
         y = np.array(y_l)
     else:
         y = a + b * n ** -x
-    #print y
-    #print type(y)
     return y
 
 
@@ -292,7 +285,6 @@ def get_weights(xs, ys, mode=2):
             weights.append(x**2 / maxxs)
     else:
         weights = [1] * len(xs)
-    #print weights
     return weights
 
 
@@ -317,17 +309,14 @@ def multi_curve_fit(xs, ys, verbose):
         try:
             weights = get_weights(xs, ys)
             popt, pcov = curve_fit(function, xs, ys, functions[function](xs, ys), maxfev=8000, sigma=weights)
-            #popt = extrapolate_simple_reciprocal(xs, ys)
             pcov = []
             m = measure(function, xs, ys, popt, weights)
-            #print 'pcov:\n', pcov
-            #print 'diag:\n', np.sqrt(np.diag(pcov))
-            #print 'function:\n', function, perr, m
             fit_results.update({function: {'measure': m, 'popt': popt, 'pcov': pcov}})
             for f in fit_results:
                 if fit_results[f]['measure'] <= best[1]:
                     best = f, fit_results[f]['measure']
-            # print str(function), m
+            if verbose:
+                print str(function), m
         except RuntimeError:
             if True:
                 print 'no fit found for ', function
@@ -403,16 +392,10 @@ def test_conv(xs, ys, name, tol=0.0001, extra='', verbose=False):
         try:
             from scipy.optimize import curve_fit
             if None not in ys:
-                #popt, pcov = curve_fit(exponential, xs, ys, p0_exponential(xs, ys), maxfev=8000)
-                #perr = np.sqrt(np.diag(pcov))
-                #print perr
                 #popt, pcov, func = multi_curve_fit(xs, ys, verbose)
                 popt, pcov, func = multi_reciprocal_extra(xs, ys)
                 if func[1] > abs(tol):
                     print 'warning function ', func[0], ' as the best fit but not a good fit: ', func[1]
-                #print popt
-                #print pcov
-                #print func
                 # todo print this to file via a method in helper, as dict
                 f = open(name+'.fitdat', mode='a')
                 f.write('{')
@@ -424,15 +407,9 @@ def test_conv(xs, ys, name, tol=0.0001, extra='', verbose=False):
                 f.write(']}\n')
                 f.close()
                 print_plot_line(func[0], popt, xs, ys, name, extra=extra)
-              # print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ', "'+name+'.convdat"'
-              #  print 'plot ', popt[0], ' + ', popt[1], "/x", popt[2], '/x**2, "'+name+'.convdat"'
-              #  id = id_generator()
-              #  print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], " ** -x," "'"+'convdat.'+id+"'"
-
         except ImportError:
             popt, pcov = None, None
         for n in range(0, len(ds), 1):
-
             if tol < 0:
                 if popt[0] is not None:
                     test = abs(popt[0] - ys[n])
@@ -440,10 +417,8 @@ def test_conv(xs, ys, name, tol=0.0001, extra='', verbose=False):
                     test = float('inf')
             else:
                 test = abs(ds[n])
-
             if verbose:
                 print test
-
             if test < abs(tol):
                 if verbose:
                     print 'converged'
