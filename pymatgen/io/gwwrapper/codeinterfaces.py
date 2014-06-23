@@ -138,7 +138,7 @@ class VaspInterface(AbstractCodeInterface):
         return {'nbands': 'NBANDS', 'ecuteps': 'ENCUTGW'}
 
     def read_ps_dir(self):
-        location = os.environ('VASP_PSP_DIR')
+        location = os.environ['VASP_PSP_DIR']
         return location
 
     def read_convergence_data(self, data_dir):
@@ -308,7 +308,7 @@ class AbinitInterface(AbstractCodeInterface):
         return {'nbands': 'nscf_nbands', 'ecuteps': 'ecuteps'}
 
     def read_ps_dir(self):
-        location = os.environ('ABINIT_PS')
+        location = os.environ['ABINIT_PS']
         return location
 
     other_vars = """
@@ -431,7 +431,7 @@ class NewCodeInterface(AbstractCodeInterface):
         return results
 
     def read_ps_dir(self):
-        location = os.environ('PS_ENVIRON')
+        location = os.environ['PS_ENVIRON']
         return location
 
     def test(self, data):
