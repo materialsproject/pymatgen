@@ -22,6 +22,7 @@ __date__ = "May 2014"
 
 import string
 import random
+import numpy as np
 
 
 def id_generator(size=8, chars=string.ascii_uppercase + string.digits):
@@ -76,7 +77,6 @@ def reciprocal(x, a, b, n):
     """
     reciprocal function to the power n to fit convergence data
     """
-    import numpy as np
     if n < 1:
         n = 1
     elif n > 5:
@@ -104,7 +104,6 @@ def exponential(x, a, b, n):
     """
     exponential function base n to fit convergence data
     """
-    import numpy as np
     if n < 1.000001:
         n = 1.000001
         #print n
@@ -143,7 +142,6 @@ def single_reciprocal(x, a, b, c):
     """
     reciprocal function to fit convergence data
     """
-    import numpy as np
     if isinstance(x, list):
         y_l = []
         for x_v in x:
@@ -165,7 +163,6 @@ def simple_reciprocal(x, a, b):
     """
     reciprocal function to fit convergence data
     """
-    import numpy as np
     if isinstance(x, list):
         y_l = []
         for x_v in x:
@@ -177,8 +174,8 @@ def simple_reciprocal(x, a, b):
 
 
 def p0_simple_reciprocal(xs, ys):
-    b = (ys[-1] - ys[1]) / (1/xs[-1] - 1/xs[1])
-    a = ys[1] - b / xs[1]
+    #b = (ys[-1] - ys[1]) / (1/xs[-1] - 1/xs[1])
+    #a = ys[1] - b / xs[1]
     b = (ys[-1] - ys[-2]) / (1/(xs[-1]) - 1/(xs[-2]))
     a = ys[-2] - b / (xs[-2])
     return [a, b]
@@ -188,7 +185,6 @@ def simple_2reciprocal(x, a, b):
     """
     reciprocal function to fit convergence data
     """
-    import numpy as np
     c = 2
     if isinstance(x, list):
         y_l = []
@@ -211,7 +207,6 @@ def simple_4reciprocal(x, a, b):
     """
     reciprocal function to fit convergence data
     """
-    import numpy as np
     c = 4
     if isinstance(x, list):
         y_l = []
@@ -234,8 +229,6 @@ def simple_5reciprocal(x, a, b):
     """
     reciprocal function to fit convergence data
     """
-
-    import numpy as np
     c = 0.5
     if isinstance(x, list):
         y_l = []
@@ -265,6 +258,7 @@ def extrapolate_reciprocal(xs, ys, n):
     a = ys[-1] - b / (xs[-1])**n
     return [a, b, n]
 
+
 def measure(function, xs, ys, popt, weights):
     """
     measure the quality of the fit
@@ -281,10 +275,10 @@ def measure(function, xs, ys, popt, weights):
         n += 1
     return m
 
-def get_weigts(xs, ys, mode=2):
+
+def get_weights(xs, ys, mode=2):
     ds = get_derivatives(xs, ys, fd=True)
     if mode == 1:
-        import numpy as np
         mind = np.inf
         for d in ds:
             mind = min(abs(d), mind)
@@ -316,13 +310,12 @@ def multi_curve_fit(xs, ys, verbose):
         simple_4reciprocal: p0_simple_4reciprocal,
         simple_5reciprocal: p0_simple_5reciprocal
     }
-    import numpy as np
     from scipy.optimize import curve_fit
     fit_results = {}
     best = ['', np.inf]
     for function in functions:
         try:
-            weights = get_weigts(xs, ys)
+            weights = get_weights(xs, ys)
             popt, pcov = curve_fit(function, xs, ys, functions[function](xs, ys), maxfev=8000, sigma=weights)
             #popt = extrapolate_simple_reciprocal(xs, ys)
             pcov = []
@@ -344,10 +337,11 @@ def multi_curve_fit(xs, ys, verbose):
 
 def multi_reciprocal_extra(xs, ys):
     ns = [1, 2, 3, 4]
+    best = ['', np.inf]
+    fit_results = {}
     for n in ns:
-        fit_results = {}
         popt = extrapolate_reciprocal(xs, ys, n)
-        m = measure(reciprocal, xs, ys, popt, get_weigts(xs, ys))
+        m = measure(reciprocal, xs, ys, popt, get_weights(xs, ys))
         pcov = []
         fit_results.update({reciprocal: {'measure': m, 'popt': popt, 'pcov': pcov}})
         for f in fit_results:
@@ -405,7 +399,6 @@ def test_conv(xs, ys, name, tol=0.0001, extra='', verbose=False):
     if len(xs) > 2:
         ds = get_derivatives(xs[0:len(ys)], ys)
         try:
-            import numpy as np
             from scipy.optimize import curve_fit
             if None not in ys:
                 #popt, pcov = curve_fit(exponential, xs, ys, p0_exponential(xs, ys), maxfev=8000)
@@ -468,5 +461,3 @@ def test_conv(xs, ys, name, tol=0.0001, extra='', verbose=False):
             return [conv, x_value, y_value, n_value, popt[0], ds[n_value]]
     else:
         return [conv, x_value, y_value, n_value, popt[0], None]
-
-
