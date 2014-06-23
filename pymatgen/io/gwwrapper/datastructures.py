@@ -84,10 +84,11 @@ class AbstractAbinitioSpec(MSONable):
     def refine_structure(structure):
         remove_ox = OxidationStateRemovalTransformation()
         structure = remove_ox.apply_transformation(structure)
+        sym_finder = SymmetryFinder(structure=structure, symprec=1e-3)
+        structure = sym_finder.get_refined_structure()
         get_prim = PrimitiveCellTransformation()
         structure = get_prim.apply_transformation(structure)
-        sym_finder = SymmetryFinder(structure=structure, symprec=1e-3)
-        return sym_finder.get_refined_structure()
+        return structure
 
     def update_interactive(self):
         """
