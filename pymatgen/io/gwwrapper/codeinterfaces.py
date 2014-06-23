@@ -114,6 +114,12 @@ class AbstractCodeInterface(object):
         method to store the final results
         """
 
+    @abstractmethod
+    def read_ps_dir(self):
+        """
+        read from the environemt the location of speudo potentials
+        """
+
 
 class VaspInterface(AbstractCodeInterface):
     """
@@ -130,6 +136,10 @@ class VaspInterface(AbstractCodeInterface):
     @property
     def conv_pars(self):
         return {'nbands': 'NBANDS', 'ecuteps': 'ENCUTGW'}
+
+    def read_ps_dir(self):
+        location = os.environ('VASP_PSP_DIR')
+        return location
 
     def read_convergence_data(self, data_dir):
         results = {}
@@ -297,6 +307,10 @@ class AbinitInterface(AbstractCodeInterface):
     def conv_pars(self):
         return {'nbands': 'nscf_nbands', 'ecuteps': 'ecuteps'}
 
+    def read_ps_dir(self):
+        location = os.environ('ABINIT_PS')
+        return location
+
     other_vars = """
         [u'space_group', u'primitive_vectors', u'reduced_symmetry_matrices', u'reduced_symmetry_translations',
          u'atom_species', u'reduced_atom_positions', u'valence_charges', u'atomic_numbers', u'atom_species_names',
@@ -415,6 +429,10 @@ class NewCodeInterface(AbstractCodeInterface):
         results = {}  # adapt to read the output of NEW_CODE
         raise NotImplementedError
         return results
+
+    def read_ps_dir(self):
+        location = os.environ('PS_ENVIRON')
+        return location
 
     def test(self, data):
         """
