@@ -19,18 +19,16 @@ import os.path
 import ast
 import pymatgen as pmg
 import pymongo
+import numpy as np
 
 from abc import abstractproperty, abstractmethod, ABCMeta
 from pymatgen.io.vaspio.vasp_input import Poscar, Kpoints
 from pymatgen.matproj.rest import MPRester, MPRestError
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.io.gwwrapper.convergence import test_conv
-from pymatgen.io.gwwrapper.helpers import print_gnuplot_header, s_name, add_gg_gap
+from pymatgen.io.gwwrapper.helpers import print_gnuplot_header, s_name, add_gg_gap, refine_structure
 from pymatgen.io.gwwrapper.codeinterfaces import get_code_interface
 from pymatgen.core.structure import Structure
-from pymatgen.transformations.standard_transformations import OxidationStateRemovalTransformation, \
-    PrimitiveCellTransformation
-from pymatgen.symmetry.finder import SymmetryFinder
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -79,16 +77,6 @@ class AbstractAbinitioSpec(MSONable):
             print 'Inputfile ', filename, ' not found exiting.'
             exit()
         self.update_code_interface()
-
-    @staticmethod
-    def refine_structure(structure):
-        remove_ox = OxidationStateRemovalTransformation()
-        structure = remove_ox.apply_transformation(structure)
-        sym_finder = SymmetryFinder(structure=structure, symprec=1e-3)
-        structure = sym_finder.get_refined_structure()
-        get_prim = PrimitiveCellTransformation()
-        structure = get_prim.apply_transformation(structure)
-        return structure
 
     def update_interactive(self):
         """
@@ -166,9 +154,7 @@ class AbstractAbinitioSpec(MSONable):
                 print 'structure from marilyn', item['name'], item['icsd'], item['mp']
                 exp = local_db_gaps.exp.find({'MP_id': item['mp']})[0]
                 structure = Structure.from_dict(exp['icsd_data']['structure'])
-                print structure
-                structure = self.refine_structure(structure)
-                print structure
+                structure = refine_structure(structure)
                 try:
                     kpts = local_db_gaps.GGA_BS.find({'transformations.history.0.id': item['icsd']})[0]['calculations']\
                     [-1]['band_structure']['kpoints']

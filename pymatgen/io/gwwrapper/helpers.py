@@ -17,7 +17,11 @@ import ast
 import copy
 import math
 import shutil
+import numpy as np
 from pymatgen.core.units import Ha_to_eV, eV_to_Ha
+from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.transformations.standard_transformations import OxidationStateRemovalTransformation, \
+    PrimitiveCellTransformation, SupercellTransformation
 
 
 def now():
@@ -25,6 +29,27 @@ def now():
     helper to return a time string
     """
     return time.strftime("%H:%M:%S %d/%m/%Y")
+
+
+def refine_structure(structure):
+    remove_ox = OxidationStateRemovalTransformation()
+    structure = remove_ox.apply_transformation(structure)
+    sym_finder = SymmetryFinder(structure=structure, symprec=1e-3)
+    structure = sym_finder.get_refined_structure()
+    get_prim = PrimitiveCellTransformation()
+    structure = get_prim.apply_transformation(structure)
+    m = structure.lattice._matrix
+    x_prod = np.dot(np.cross(m[0], m[1]), m[2])
+    if x_prod < 0:
+        print x_prod
+        trans = SupercellTransformation(((1, 0, 0), (0, 0, 1), (0, 1, 0)))
+        structure = trans.apply_transformation(structure)
+        m = structure.lattice._matrix
+        x_prod = np.dot(np.cross(m[0], m[1]), m[2])
+        print x_prod
+        if x_prod < 0:
+            raise RuntimeError
+    return structure
 
 
 def s_name(structure):
