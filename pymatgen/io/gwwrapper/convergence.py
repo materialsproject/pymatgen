@@ -177,9 +177,9 @@ def simple_reciprocal(x, a, b):
 
 
 def p0_simple_reciprocal(xs, ys):
-    b = (1/(xs[-1]) - 1/(xs[1])) / (ys[-1] - ys[1])
-    a = ys[1] - b / (xs[1])
-    b = (1/(xs[-1]) - 1/(xs[-2])) / (ys[-1] - ys[-2])
+    b = (ys[-1] - ys[1]) / (1/xs[-1] - 1/xs[1])
+    a = ys[1] - b / xs[1]
+    b = (ys[-1] - ys[-2]) / (1/(xs[-1]) - 1/(xs[-2]))
     a = ys[-2] - b / (xs[-2])
     return [a, b]
 
@@ -202,7 +202,7 @@ def simple_2reciprocal(x, a, b):
 
 def p0_simple_2reciprocal(xs, ys):
     c = 2
-    b = (1/xs[-1]**c - 1/xs[1]**c) / (ys[-1] - ys[1])
+    b = (ys[-1] - ys[1]) / (1/xs[-1]**c - 1/xs[1]**c)
     a = ys[1] - b / xs[1]**c
     return [a, b]
 
@@ -225,7 +225,7 @@ def simple_4reciprocal(x, a, b):
 
 def p0_simple_4reciprocal(xs, ys):
     c = 4
-    b = (1/xs[-1]**c - 1/xs[1]**c) / (ys[-1] - ys[1])
+    b = (ys[-1] - ys[1]) / (1/xs[-1]**c - 1/xs[1]**c)
     a = ys[1] - b / xs[1]**c
     return [a, b]
 
@@ -249,7 +249,7 @@ def simple_5reciprocal(x, a, b):
 
 def p0_simple_5reciprocal(xs, ys):
     c = 0.5
-    b = (1/xs[-1]**c - 1/xs[1]**c) / (ys[-1] - ys[1])
+    b = (ys[-1] - ys[1]) / (1/xs[-1]**c - 1/xs[1]**c)
     a = ys[1] - b / xs[1]**c
     return [a, b]
 
@@ -260,6 +260,11 @@ def extrapolate_simple_reciprocal(xs, ys):
     return [a, b]
 
 
+def extrapolate_reciprocal(xs, ys, n):
+    b = (ys[-2] - ys[-1]) / (1/(xs[-2])**n - 1/(xs[-1])**n)
+    a = ys[-1] - b / (xs[-1])**n
+    return [a, b, n]
+
 def measure(function, xs, ys, popt, weights):
     """
     measure the quality of the fit
@@ -268,14 +273,13 @@ def measure(function, xs, ys, popt, weights):
     n = 0
     for x in xs:
         if len(popt) == 2:
-            m += abs(ys[n] - function(x, popt[0], popt[1]))  # * weights[n]
+            m += (ys[n] - function(x, popt[0], popt[1]))**2 * weights[n]
         elif len(popt) == 3:
-            m += abs(ys[n] - function(x, popt[0], popt[1], popt[2]))   # * weights[n]
+            m += (ys[n] - function(x, popt[0], popt[1], popt[2]))**2 * weights[n]
         else:
             raise NotImplementedError
         n += 1
     return m
-
 
 def get_weigts(xs, ys, mode=2):
     ds = get_derivatives(xs, ys, fd=True)
@@ -298,19 +302,19 @@ def get_weigts(xs, ys, mode=2):
     return weights
 
 
-def multy_curve_fit(xs, ys, verbose):
+def multi_curve_fit(xs, ys, verbose):
     """
     fit multiple functions to the x, y data, return the best fit
     """
     #functions = {exponential: p0_exponential, reciprocal: p0_reciprocal, single_reciprocal: p0_single_reciprocal}
     functions = {
-        #exponential: p0_exponential,
-        #reciprocal: p0_reciprocal,
-        #single_reciprocal: p0_single_reciprocal,
+        exponential: p0_exponential,
+        reciprocal: p0_reciprocal,
+        single_reciprocal: p0_single_reciprocal,
         simple_reciprocal: p0_simple_reciprocal,
-        #simple_2reciprocal: p0_simple_2reciprocal,
-        #simple_4reciprocal: p0_simple_4reciprocal,
-        #simple_5reciprocal: p0_simple_5reciprocal
+        simple_2reciprocal: p0_simple_2reciprocal,
+        simple_4reciprocal: p0_simple_4reciprocal,
+        simple_5reciprocal: p0_simple_5reciprocal
     }
     import numpy as np
     from scipy.optimize import curve_fit
@@ -319,8 +323,8 @@ def multy_curve_fit(xs, ys, verbose):
     for function in functions:
         try:
             weights = get_weigts(xs, ys)
-            #popt, pcov = curve_fit(function, xs, ys, functions[function](xs, ys), maxfev=8000, sigma=weights)
-            popt = extrapolate_simple_reciprocal(xs, ys)
+            popt, pcov = curve_fit(function, xs, ys, functions[function](xs, ys), maxfev=8000, sigma=weights)
+            #popt = extrapolate_simple_reciprocal(xs, ys)
             pcov = []
             m = measure(function, xs, ys, popt, weights)
             #print 'pcov:\n', pcov
@@ -335,6 +339,20 @@ def multy_curve_fit(xs, ys, verbose):
             if True:
                 print 'no fit found for ', function
 
+    return fit_results[best[0]]['popt'], fit_results[best[0]]['pcov'], best
+
+
+def multi_reciprocal_extra(xs, ys):
+    ns = [1, 2, 3, 4]
+    for n in ns:
+        fit_results = {}
+        popt = extrapolate_reciprocal(xs, ys, n)
+        m = measure(reciprocal, xs, ys, popt, get_weigts(xs, ys))
+        pcov = []
+        fit_results.update({reciprocal: {'measure': m, 'popt': popt, 'pcov': pcov}})
+        for f in fit_results:
+            if fit_results[f]['measure'] <= best[1]:
+                best = f, fit_results[f]['measure']
     return fit_results[best[0]]['popt'], fit_results[best[0]]['pcov'], best
 
 
@@ -370,7 +388,7 @@ def print_plot_line(function, popt, xs, ys, name, extra=''):
     f.write('pause -1 \n')
     f.write('set title "' + name + ' - ' + extra + '"\n')
     f.write("set output '" + name + '-' + idp + ".gif'" + '\n')
-    f.write("set yrange [" + str(popt[0] - 5 * tol) + ':' + str(popt[0] + 5 * tol)+']\n')
+    f.write("set yrange [" + str(popt[0] - 10 * tol) + ':' + str(popt[0] + 10 * tol)+']\n')
     f.write(line + '\n')
     f.close()
 
@@ -393,7 +411,8 @@ def test_conv(xs, ys, name, tol=0.0001, extra='', verbose=False):
                 #popt, pcov = curve_fit(exponential, xs, ys, p0_exponential(xs, ys), maxfev=8000)
                 #perr = np.sqrt(np.diag(pcov))
                 #print perr
-                popt, pcov, func = multy_curve_fit(xs, ys, verbose)
+                #popt, pcov, func = multi_curve_fit(xs, ys, verbose)
+                popt, pcov, func = multi_reciprocal_extra(xs, ys)
                 if func[1] > abs(tol):
                     print 'warning function ', func[0], ' as the best fit but not a good fit: ', func[1]
                 #print popt
