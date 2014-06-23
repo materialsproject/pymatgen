@@ -341,7 +341,7 @@ def multi_reciprocal_extra(xs, ys):
     return fit_results[best[2]]['popt'], fit_results[best[2]]['pcov'], best
 
 
-def print_plot_line(function, popt, xs, ys, name, extra=''):
+def print_plot_line(function, popt, xs, ys, name, tol=0.05, extra=''):
     """
     print the gnuplot command line to plot the x, y data with the fitted function using the popt parameters
     """
@@ -350,7 +350,7 @@ def print_plot_line(function, popt, xs, ys, name, extra=''):
     for n in range(0, len(ys), 1):
         f.write(str(xs[n]) + ' ' + str(ys[n]) + '\n')
     f.close()
-    tol = 0.05
+    tol = abs(tol)
     line = "plot 'convdat.%s' pointsize 4 lt 0, " % idp
     line += '%s lt 3, %s lt 4, %s lt 4, ' % (popt[0], popt[0] - tol, popt[0] + tol)
     if function is exponential:
@@ -373,7 +373,7 @@ def print_plot_line(function, popt, xs, ys, name, extra=''):
     f.write('pause -1 \n')
     f.write('set title "' + name + ' - ' + extra + '"\n')
     f.write("set output '" + name + '-' + idp + ".gif'" + '\n')
-    f.write("set yrange [" + str(popt[0] - 10 * tol) + ':' + str(popt[0] + 10 * tol)+']\n')
+    f.write("set yrange [" + str(popt[0] - 5 * tol) + ':' + str(popt[0] + 5 * tol)+']\n')
     f.write(line + '\n')
     f.close()
 
