@@ -165,15 +165,15 @@ class AbstractAbinitioSpec(MSONable):
                 print 'structure from marilyn', item['name'], item['icsd'], item['mp']
                 exp = local_db_gaps.exp.find({'MP_id': item['mp']})[0]
                 structure = Structure.from_dict(exp['icsd_data']['structure'])
+                print structure
+                structure = self.refine_structure(structure)
+                print structure
                 try:
                     kpts = local_db_gaps.GGA_BS.find({'transformations.history.0.id': item['icsd']})[0]['calculations']\
                     [-1]['band_structure']['kpoints']
                 except (IndexError, KeyError):
                     kpts = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
-                print structure
                 structure.kpts = kpts
-                structure = self.refine_structure(structure)
-                print structure
                 print 'kpoints:', structure.kpts[0], structure.kpts[1]
                 structure.item = item['name']
             else:
