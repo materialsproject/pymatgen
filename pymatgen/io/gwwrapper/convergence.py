@@ -292,7 +292,7 @@ def get_weights(xs, ys, mode=2):
             weights.append(x**2 / maxxs)
     else:
         weights = [1] * len(xs)
-    print weights
+    #print weights
     return weights
 
 
@@ -344,7 +344,7 @@ def multi_reciprocal_extra(xs, ys):
         popt = extrapolate_reciprocal(xs, ys, n)
         m = measure(reciprocal, xs, ys, popt, weights)
         pcov = []
-        print popt, m
+    #    print popt, m
         fit_results.update({n: {'measure': m, 'popt': popt, 'pcov': pcov}})
     for n in fit_results:
         if fit_results[n]['measure'] <= best[1]:
