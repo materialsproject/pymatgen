@@ -113,6 +113,8 @@ class PDPlotter(object):
         elif self._dim == 4:
             plt = self._get_3d_plot(label_stable)
 
+        return plt
+
     def show(self, label_stable=True, label_unstable=True, ordering=None,
              energy_colormap=None, process_attributes=False):
         """
