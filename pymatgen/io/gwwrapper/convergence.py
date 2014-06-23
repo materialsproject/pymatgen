@@ -319,7 +319,9 @@ def multy_curve_fit(xs, ys, verbose):
     for function in functions:
         try:
             weights = get_weigts(xs, ys)
-            popt, pcov = curve_fit(function, xs, ys, functions[function](xs, ys), maxfev=8000, sigma=weights)
+            #popt, pcov = curve_fit(function, xs, ys, functions[function](xs, ys), maxfev=8000, sigma=weights)
+            popt = extrapolate_simple_reciprocal(xs, ys)
+            pcov = []
             m = measure(function, xs, ys, popt, weights)
             #print 'pcov:\n', pcov
             #print 'diag:\n', np.sqrt(np.diag(pcov))
