@@ -339,10 +339,12 @@ def multi_reciprocal_extra(xs, ys):
     ns = [1, 2, 3, 4]
     best = ['', np.inf]
     fit_results = {}
+    weights = len(xs) * [1.0]
     for n in ns:
         popt = extrapolate_reciprocal(xs, ys, n)
-        m = measure(reciprocal, xs, ys, popt, get_weights(xs, ys))
+        m = measure(reciprocal, xs, ys, popt, weights)
         pcov = []
+        print popt, m
         fit_results.update({reciprocal: {'measure': m, 'popt': popt, 'pcov': pcov}})
         for f in fit_results:
             if fit_results[f]['measure'] <= best[1]:
