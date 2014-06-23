@@ -281,7 +281,7 @@ class PDAnalyzer(object):
 
         for c in chempots:
             gcpd = GrandPotentialPhaseDiagram(
-                stable_entries, {element: c - 0.01}, self._pd.elements
+                stable_entries, {element: c - 1e-5}, self._pd.elements
             )
             analyzer = PDAnalyzer(gcpd)
             gcdecomp = analyzer.get_decomposition(gccomp)
