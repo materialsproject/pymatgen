@@ -38,13 +38,13 @@ def refine_structure(structure):
     structure = sym_finder.get_refined_structure()
     get_prim = PrimitiveCellTransformation()
     structure = get_prim.apply_transformation(structure)
-    m = structure.lattice._matrix
+    m = structure.lattice.matrix
     x_prod = np.dot(np.cross(m[0], m[1]), m[2])
     if x_prod < 0:
         print x_prod
         trans = SupercellTransformation(((1, 0, 0), (0, 0, 1), (0, 1, 0)))
         structure = trans.apply_transformation(structure)
-        m = structure.lattice._matrix
+        m = structure.lattice.matrix
         x_prod = np.dot(np.cross(m[0], m[1]), m[2])
         print x_prod
         if x_prod < 0:
