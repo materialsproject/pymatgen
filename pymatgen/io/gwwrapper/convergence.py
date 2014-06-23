@@ -345,11 +345,11 @@ def multi_reciprocal_extra(xs, ys):
         m = measure(reciprocal, xs, ys, popt, weights)
         pcov = []
         print popt, m
-        fit_results.update({reciprocal: {'measure': m, 'popt': popt, 'pcov': pcov}})
-        for f in fit_results:
-            if fit_results[f]['measure'] <= best[1]:
-                best = f, fit_results[f]['measure']
-    return fit_results[best[0]]['popt'], fit_results[best[0]]['pcov'], best
+        fit_results.update({n: {'measure': m, 'popt': popt, 'pcov': pcov}})
+    for n in fit_results:
+        if fit_results[n]['measure'] <= best[1]:
+            best = reciprocal, fit_results[n]['measure'], n
+    return fit_results[best[2]]['popt'], fit_results[best[2]]['pcov'], best
 
 
 def print_plot_line(function, popt, xs, ys, name, extra=''):
