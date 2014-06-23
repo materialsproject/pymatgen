@@ -177,9 +177,10 @@ def simple_reciprocal(x, a, b):
 
 
 def p0_simple_reciprocal(xs, ys):
-    c = 0
-    b = (1/(xs[-1] - c) - 1/(xs[1] - c)) / (ys[-1] - ys[1])
-    a = ys[1] - b / (xs[1] - c)
+    b = (1/(xs[-1]) - 1/(xs[1])) / (ys[-1] - ys[1])
+    a = ys[1] - b / (xs[1])
+    b = (1/(xs[-1]) - 1/(xs[-2])) / (ys[-1] - ys[-2])
+    a = ys[-2] - b / (xs[-2])
     return [a, b]
 
 
@@ -253,6 +254,12 @@ def p0_simple_5reciprocal(xs, ys):
     return [a, b]
 
 
+def extrapolate_simple_reciprocal(xs, ys):
+    b = (1/(xs[-1]) - 1/(xs[-2])) / (ys[-1] - ys[-2])
+    a = ys[-2] - b / (xs[-2])
+    return [a, b]
+
+
 def measure(function, xs, ys, popt, weights):
     """
     measure the quality of the fit
@@ -297,13 +304,13 @@ def multy_curve_fit(xs, ys, verbose):
     """
     #functions = {exponential: p0_exponential, reciprocal: p0_reciprocal, single_reciprocal: p0_single_reciprocal}
     functions = {
-        exponential: p0_exponential,
-        reciprocal: p0_reciprocal,
-        single_reciprocal: p0_single_reciprocal,
+        #exponential: p0_exponential,
+        #reciprocal: p0_reciprocal,
+        #single_reciprocal: p0_single_reciprocal,
         simple_reciprocal: p0_simple_reciprocal,
-        simple_2reciprocal: p0_simple_2reciprocal,
-        simple_4reciprocal: p0_simple_4reciprocal,
-        simple_5reciprocal: p0_simple_5reciprocal
+        #simple_2reciprocal: p0_simple_2reciprocal,
+        #simple_4reciprocal: p0_simple_4reciprocal,
+        #simple_5reciprocal: p0_simple_5reciprocal
     }
     import numpy as np
     from scipy.optimize import curve_fit
