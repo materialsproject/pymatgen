@@ -356,14 +356,15 @@ class GWSpecs(AbstractAbinitioSpec):
                     if len(data.data) == 0:
                         print '| parm_scr type calculation but no data found.'
                         break
-                    extrapolated = data.find_conv_pars(self['tol'])
-                    #print data.get_data_array_2d('ecut', 'max')
+
                     if data.find_conv_pars_scf('ecut', 'full_width', self['tol'])[0]:
                         print '| parm_scr type calculation, converged scf values found'
                         #print data.conv_res
                     else:
                         print '| parm_scr type calculation, no converged scf values found'
                     # if converged ok, if not increase the grid parameter of the next set of calculations
+
+                    extrapolated = data.find_conv_pars(self['tol'])
                     if data.conv_res['control']['nbands']:
                         print '| parm_scr type calculation, converged values found, extrapolated value: ', extrapolated[4]
                     else:
@@ -426,7 +427,7 @@ class GWConvergenceData():
         self.spec = spec
         self.data = {}
         self.code_interface = get_code_interface(spec['code'])
-        self.conv_res = {'control': {}}
+        self.conv_res = {'control': {}, 'values': {}, 'derivatives': {}}
         self.full_res = {'all_done': False, 'grid': 0}
         self.name = s_name(structure)
         self.type = {'parm_scr': False, 'full': False, 'single': False, 'test': False}
@@ -563,7 +564,7 @@ class GWConvergenceData():
         self.conv_res['control'].update({'ecuteps': ecuteps_l, 'nbands': nbands_l})
         self.conv_res.update({'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c, 'gap': gap},
                               'derivatives': {'ecuteps': ecuteps_d, 'nbands': nbands_d}})
-        return test_conv(xs, extrapolated, name=self.name, tol=-1, extra='nbands at extrapolated ecuteps')
+        return test_conv(xs, extrapolated, name=self.name, tol=-0.05, extra='nbands at extrapolated ecuteps')
 
     def find_conv_pars_scf(self, x_name, y_name, tol=0.0001):
         xs = self.get_var_range(x_name)
