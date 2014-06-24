@@ -145,7 +145,7 @@ class SingleAbinitGWWorkFlow():
         self.tests = self.__class__.get_defaults_tests()
         self.convs = self.__class__.get_defaults_convs()
         self.response_models = self.__class__.get_response_models()
-        if option is not None:
+        if len(self.option) == len(self.convs):
             path_add = '.conv'
         else:
             path_add = ''
@@ -192,7 +192,7 @@ class SingleAbinitGWWorkFlow():
 
     def get_work_dir(self):
             name = s_name(self.structure)
-            if self.option is not None:
+            if len(self.option) < len(self.convs):
                 return str(name)+'_'+str(self.option['test'])+'_'+str(self.option['value'])
             else:
                 return str(name)
@@ -211,7 +211,7 @@ class SingleAbinitGWWorkFlow():
         # Don't know why protocol=-1 does not work here.
         flow = AbinitFlow(self.work_dir, manager, pickle_protocol=0)
 
-        all_converged = True if len(self.option) == len(self.get_defaults_convs()) else False
+        all_converged = True if len(self.option) == len(self.convs) else False
 
         # kpoint grid defined over density 40 > ~ 3 3 3
         if self.spec['converge'] and not all_converged:
