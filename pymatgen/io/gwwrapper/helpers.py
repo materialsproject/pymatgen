@@ -137,11 +137,12 @@ def read_grid_from_file(filename):
 
 def is_converged(hartree_parameters, structure, return_values=False):
     filename = s_name(structure) + ".conv_res"
+    to_return = {}
     try:
         f = open(filename, mode='r')
         conv_res = ast.literal_eval(f.read())
         f.close()
-        converged = conv_res['control']['nbands']
+        converged = True if True in conv_res['control'].values() else False
     except (IOError, OSError):
         if return_values:
             print 'Inputfile ', filename, ' not found, the convergence calculation did not finish properly' \
@@ -150,9 +151,18 @@ def is_converged(hartree_parameters, structure, return_values=False):
         return converged
     if return_values and converged:
         if hartree_parameters:
-            conv_res['values']['ecut'] = 4 * math.ceil(conv_res['values']['ecut'] * eV_to_Ha / 4)
-            conv_res['values']['ecuteps'] = 4 * math.ceil(conv_res['values']['ecuteps'] * eV_to_Ha / 4)
-        return conv_res['values']
+            try:
+                conv_res['values']['ecut'] = 4 * math.ceil(conv_res['values']['ecut'] * eV_to_Ha / 4)
+            except (KeyError, ArithmeticError, FloatingPointError, SyntaxError):
+                pass
+            try:
+                conv_res['values']['ecuteps'] = 4 * math.ceil(conv_res['values']['ecuteps'] * eV_to_Ha / 4)
+            except (KeyError, ArithmeticError, FloatingPointError, SyntaxError):
+                pass
+        for k in conv_res['control'].keys():
+            if conv_res['control'][k]:
+                to_return.update({k: conv_res['values'][k]})
+        return to_return
     else:
         return converged
 

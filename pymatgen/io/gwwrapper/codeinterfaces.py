@@ -387,8 +387,9 @@ class AbinitInterface(AbstractCodeInterface):
         excecute spec prepare input/jobfiles or submit to fw for a given structure
         for abinit a flow is created using abinitio
         """
-        if spec_data['converge'] and is_converged(spec_data, structure):
-            option = is_converged(spec_data, structure, return_values=True)
+
+        if spec_data['converge'] and is_converged(self.hartree_parameters, structure):
+            option = is_converged(self.hartree_parameters, structure, return_values=True)
             print option
         else:
             option = None
