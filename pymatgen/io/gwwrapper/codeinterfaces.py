@@ -390,9 +390,9 @@ class AbinitInterface(AbstractCodeInterface):
 
         if spec_data['converge'] and is_converged(self.hartree_parameters, structure):
             option = is_converged(self.hartree_parameters, structure, return_values=True)
-            print option
         else:
             option = None
+        print option
         work_flow = SingleAbinitGWWorkFlow(structure, spec_data, option)
         flow = work_flow.create()
         if flow is not None:
