@@ -31,10 +31,10 @@ def now():
     return time.strftime("%H:%M:%S %d/%m/%Y")
 
 
-def refine_structure(structure):
+def refine_structure(structure, symprec=1e-3):
     remove_ox = OxidationStateRemovalTransformation()
     structure = remove_ox.apply_transformation(structure)
-    sym_finder = SymmetryFinder(structure=structure, symprec=1e-3)
+    sym_finder = SymmetryFinder(structure=structure, symprec=symprec)
     structure = sym_finder.get_refined_structure()
     get_prim = PrimitiveCellTransformation()
     structure = get_prim.apply_transformation(structure)
