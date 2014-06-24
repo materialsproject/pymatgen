@@ -348,6 +348,7 @@ class GWSpecs(AbstractAbinitioSpec):
                     data.read()
                     #print data.data
                     # determine the parameters that give converged results
+                    print data.conv_res
                     if len(data.data) == 0:
                         print '| parm_scr type calculation but no data found.'
                         break
@@ -360,6 +361,7 @@ class GWSpecs(AbstractAbinitioSpec):
                     # if converged ok, if not increase the grid parameter of the next set of calculations
 
                     extrapolated = data.find_conv_pars(self['tol'])
+                    print data.conv_res
                     if data.conv_res['control']['nbands']:
                         print '| parm_scr type calculation, converged values found, extrapolated value: %s' %\
                               extrapolated[4]
@@ -570,7 +572,7 @@ class GWConvergenceData():
         for x in xs:
             ys.append(self.get_data_array_2d(x_name, y_name)[x])
         conv_data = test_conv(xs, ys, name=self.name, tol=tol, extra=x_name)
-        # print conv_data, {x_name: conv_data[0]}, {x_name: conv_data[1]}, {x_name: conv_data[5]}
+        print conv_data, {x_name: conv_data[0]}, {x_name: conv_data[1]}, {x_name: conv_data[5]}
         self.conv_res['control'].update({x_name: conv_data[0]})
         self.conv_res['values'].update({x_name: conv_data[1]})
         self.conv_res['derivatives'].update({x_name: conv_data[5]})
