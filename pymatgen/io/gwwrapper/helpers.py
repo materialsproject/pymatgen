@@ -150,6 +150,7 @@ def is_converged(hartree_parameters, structure, return_values=False):
         return converged
     if return_values and converged:
         if hartree_parameters:
+            conv_res['values']['ecut'] = 4 * math.ceil(conv_res['values']['ecut'] * eV_to_Ha / 4)
             conv_res['values']['ecuteps'] = 4 * math.ceil(conv_res['values']['ecuteps'] * eV_to_Ha / 4)
         return conv_res['values']
     else:
