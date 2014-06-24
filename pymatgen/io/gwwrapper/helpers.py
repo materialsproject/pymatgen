@@ -159,8 +159,8 @@ def is_converged(hartree_parameters, structure, return_values=False):
                 conv_res['values']['ecuteps'] = 4 * math.ceil(conv_res['values']['ecuteps'] * eV_to_Ha / 4)
             except (KeyError, ArithmeticError, FloatingPointError, SyntaxError):
                 pass
-        for k in conv_res['control'].keys():
-            if conv_res['control'][k]:
+        for k in conv_res['values'].keys():
+            if conv_res['values'][k] != 0:
                 to_return.update({k: conv_res['values'][k]})
         return to_return
     else:
