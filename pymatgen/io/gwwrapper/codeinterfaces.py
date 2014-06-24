@@ -76,7 +76,7 @@ class AbstractCodeInterface(object):
         specific to the code, and values as they are interpreted by the code
         """
         string = str({self.conv_pars['nbands']: conv_res['values']['nbands'],
-                      self.conv_part['ecut']: conv_res['values']['ecut'],
+                      self.conv_pars['ecut']: conv_res['values']['ecut'],
                       self.conv_pars['ecuteps']: conv_res['values']['ecuteps']})
         return string
 
