@@ -160,7 +160,7 @@ def is_converged(hartree_parameters, structure, return_values=False):
             except (KeyError, ArithmeticError, FloatingPointError, SyntaxError):
                 pass
         for k in conv_res['values'].keys():
-            if conv_res['values'][k] != 0:
+            if conv_res['values'][k] != 0 and conv_res['values'][k] != np.inf:
                 to_return.update({k: conv_res['values'][k]})
         return to_return
     else:
