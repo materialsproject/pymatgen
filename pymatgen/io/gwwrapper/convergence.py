@@ -325,7 +325,8 @@ def multi_curve_fit(xs, ys, verbose):
 
 
 def multi_reciprocal_extra(xs, ys):
-    ns = [0.25, 0.5, 1.0, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6]
+    ns = xrange(start=0.5, stop=6.0, step=0.1)
+    #ns = [0.25, 0.5, 1.0, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6]
     best = ['', np.inf]
     fit_results = {}
     weights = get_weights(xs, ys)
