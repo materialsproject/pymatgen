@@ -85,7 +85,7 @@ class BoltztrapRunner():
               "Bolztrap accordingly. Then add x_trans to your path")
 
     def __init__(self, bs, nelec, dos_type="HISTO", energy_grid=0.005,
-                 lpfac=10, type="BOLTZ", band_nb=None):
+                 lpfac=10, type="BOLTZ", band_nb=None, tauref=0, tauexp=0, tauen=0):
         self.lpfac = lpfac
         self._bs = bs
         self._nelec = nelec
@@ -94,6 +94,9 @@ class BoltztrapRunner():
         self.error = []
         self.type = type
         self.band_nb = band_nb
+        self.tauref=tauref
+        self.tauexp=tauexp
+        self.tauen=tauen
 
     def _make_energy_file(self, file_name):
         with open(file_name, 'w') as f:
@@ -198,7 +201,8 @@ class BoltztrapRunner():
                         i += 1
 
     def _make_intrans_file(self, file_name,
-                           doping=[1e15, 1e16, 1e17, 1e18, 1e19, 1e20], type="BOLTZ", band_nb=None):
+                           doping=[1e15, 1e16, 1e17, 1e18, 1e19, 1e20], type="BOLTZ", band_nb=None,
+                           tauref=0, tauexp=0, tauen=0):
         if type == "BOLTZ":
             with open(file_name, 'w') as fout:
                 fout.write("GENE          # use generic interface\n")
@@ -214,7 +218,7 @@ class BoltztrapRunner():
                 fout.write("800. 100.                  # Tmax, temperature grid\n")
                 fout.write("-1.  # energyrange of bands given DOS output sig_xxx and dos_xxx (xxx is band number)\n")
                 fout.write(self.dos_type+"\n")
-                fout.write("0 0 0 0 0\n")
+                fout.write(str(tauref)+" "+str(tauexp)+" "+str(tauen)+" 0 0 0\n")
                 fout.write(str(2*len(doping))+"\n")
                 for d in doping:
                     fout.write(str(d)+"\n")

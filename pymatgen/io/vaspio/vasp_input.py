@@ -33,7 +33,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.physical_constants import BOLTZMANN_CONST
 from pymatgen.core.design_patterns import Enum
 from pymatgen.core.structure import Structure
-from pymatgen.core.periodic_table import Element
+from pymatgen.core.periodic_table import Element, get_el_sp
 from monty.design_patterns import cached_class
 from pymatgen.util.string_utils import str_aligned, str_delimited
 from pymatgen.util.io_utils import clean_lines
@@ -186,6 +186,7 @@ class Poscar(MSONable):
                     try:
                         potcar = Potcar.from_file(os.path.join(dirname, f))
                         names = [sym.split("_")[0] for sym in potcar.symbols]
+                        map(get_el_sp, names) #ensure that the names are valid
                     except:
                         names = None
         with zopen(filename, "r") as f:

@@ -73,7 +73,6 @@ class PDAnalyzerTest(unittest.TestCase):
 
     def test_getmu_vertices_stability_phase(self):
         results = self.analyzer.getmu_vertices_stability_phase(Composition.from_formula("LiFeO2"), Element("O"))
-        print results
         self.assertAlmostEqual(len(results), 6)
         test_equality = False
         for c in results:
@@ -82,8 +81,10 @@ class PDAnalyzerTest(unittest.TestCase):
                 test_equality = True
         self.assertTrue(test_equality,"there is an expected vertex missing in the list")
 
+
     def test_getmu_range_stability_phase(self):
-        results = self.analyzer.getmu_range_stability_phase(Composition.from_formula("LiFeO2"), Element("O"))
+        results = self.analyzer.get_chempot_range_stability_phase(
+            Composition("LiFeO2"), Element("O"))
         self.assertAlmostEqual(results[Element("O")][1], -4.4501812249999997)
         self.assertAlmostEqual(results[Element("Fe")][0], -6.5961470999999996)
         self.assertAlmostEqual(results[Element("Li")][0], -3.6250022625000007)
