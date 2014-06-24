@@ -145,10 +145,13 @@ class SingleAbinitGWWorkFlow():
         self.tests = self.__class__.get_defaults_tests()
         self.convs = self.__class__.get_defaults_convs()
         self.response_models = self.__class__.get_response_models()
-        if len(self.option) == len(self.convs):
-            path_add = '.conv'
+        if self.option is None:
+            self.all_converged = False
+        elif len(self.option) == len(self.convs):
+            self.all_converged = True
         else:
-            path_add = ''
+            self.all_converged = False
+        path_add = '.conv' if self.all_converged else ''
         self.work_dir = s_name(self.structure)+path_add
         abi_pseudo = os.environ['ABINIT_PS_EXT']
         abi_pseudo_dir = os.environ['ABINIT_PS']
@@ -192,7 +195,7 @@ class SingleAbinitGWWorkFlow():
 
     def get_work_dir(self):
             name = s_name(self.structure)
-            if len(self.option) < len(self.convs):
+            if not self.all_converged:
                 return str(name)+'_'+str(self.option['test'])+'_'+str(self.option['value'])
             else:
                 return str(name)
@@ -211,10 +214,8 @@ class SingleAbinitGWWorkFlow():
         # Don't know why protocol=-1 does not work here.
         flow = AbinitFlow(self.work_dir, manager, pickle_protocol=0)
 
-        all_converged = True if len(self.option) == len(self.convs) else False
-
         # kpoint grid defined over density 40 > ~ 3 3 3
-        if self.spec['converge'] and not all_converged:
+        if self.spec['converge'] and not self.all_converged:
             # (2x2x2) gamma centered mesh for the convergence test on nbands and ecuteps
             scf_kppa = 2
         else:
@@ -259,7 +260,7 @@ class SingleAbinitGWWorkFlow():
             workdir = None
 
         if not all_done:
-            if (self.spec['test'] or self.spec['converge']) and not all_converged:
+            if (self.spec['test'] or self.spec['converge']) and not self.all_converged:
                 if self.spec['test']:
                     print '| setting test calculation'
                     tests = SingleAbinitGWWorkFlow(self.structure, self.spec).tests
@@ -289,7 +290,7 @@ class SingleAbinitGWWorkFlow():
                                 ecuteps.append(value)
                             if test == 'response_model':
                                 response_models.append(value)
-            elif all_converged:
+            elif self.all_converged:
                 print '| setting up for testing the converged values at the high kp grid '
                 # in this case a convergence study has already been performed.
                 # The resulting parameters are passed as option
