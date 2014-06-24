@@ -357,6 +357,9 @@ class GWSpecs(AbstractAbinitioSpec):
                         #print data.conv_res
                     else:
                         print '| parm_scr type calculation, no converged scf values found'
+                        data.full_res.update({'all_done': True}), {'remark': 'No converged SCf parameter found. Solution not implemented.'}
+                        data.print_full_res()
+                        done = True
                     # if converged ok, if not increase the grid parameter of the next set of calculations
                     extrapolated = data.find_conv_pars(self['tol'])
                     if data.conv_res['control']['nbands']:
