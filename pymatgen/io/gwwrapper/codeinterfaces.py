@@ -76,6 +76,7 @@ class AbstractCodeInterface(object):
         specific to the code, and values as they are interpreted by the code
         """
         string = str({self.conv_pars['nbands']: conv_res['values']['nbands'],
+                      self.conv_part['ecut']: conv_res['values']['ecut'],
                       self.conv_pars['ecuteps']: conv_res['values']['ecuteps']})
         return string
 
@@ -135,7 +136,7 @@ class VaspInterface(AbstractCodeInterface):
 
     @property
     def conv_pars(self):
-        return {'nbands': 'NBANDS', 'ecuteps': 'ENCUTGW'}
+        return {'nbands': 'NBANDS', 'ecuteps': 'ENCUTGW', 'ecut': 'ENCUT'}
 
     def read_ps_dir(self):
         location = os.environ['VASP_PSP_DIR']
@@ -305,7 +306,7 @@ class AbinitInterface(AbstractCodeInterface):
 
     @property
     def conv_pars(self):
-        return {'nbands': 'nscf_nbands', 'ecuteps': 'ecuteps'}
+        return {'nbands': 'nscf_nbands', 'ecuteps': 'ecuteps', 'ecut': 'ecut'}
 
     def read_ps_dir(self):
         location = os.environ['ABINIT_PS']
