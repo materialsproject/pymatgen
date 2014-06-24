@@ -143,7 +143,7 @@ def is_converged(hartree_parameters, structure, return_values=False):
         conv_res = ast.literal_eval(f.read())
         f.close()
         converged = True if True in conv_res['control'].values() else False
-    except (IOError, OSError):
+    except (IOError, OSError, ValueError):
         if return_values:
             print 'Inputfile ', filename, ' not found, the convergence calculation did not finish properly' \
                                           ' or was not parsed ...'
