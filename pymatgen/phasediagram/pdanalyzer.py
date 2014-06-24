@@ -355,11 +355,11 @@ class PDAnalyzer(object):
 
         return chempot_ranges
 
-    def getmu_vertices_stability_phase(self, target_comp, dep_elt):
+    def getmu_vertices_stability_phase(self, target_comp, dep_elt, tol_en=1e-2):
         """
-        returns a set of chemical potentials correspoding to the vertices of the simplex
+        returns a set of chemical potentials corresponding to the vertices of the simplex
         in the chemical potential phase diagram.
-        The simplex is buit using all elements in the target_composition except dep_elt.
+        The simplex is built using all elements in the target_composition except dep_elt.
         The chemical potential of dep_elt is computed from the target composition energy.
         This method is useful to get the limiting conditions for
         defects computations for instance.
@@ -368,6 +368,7 @@ class PDAnalyzer(object):
             target_comp: A Composition object
             dep_elt: the element for which the chemical potential is computed from the energy of
             the stable phase at the target composition
+            tol_en: a tolerance on the energy to set
 
         Returns:
              [{Element:mu}]: An array of conditions on simplex vertices for which each element has a chemical potential
@@ -391,8 +392,19 @@ class PDAnalyzer(object):
                         res = {}
                         for i in range(len(elts)):
                             res[elts[i]] = v[i] + muref[i]
-                        res[dep_elt]=(np.dot(v+muref,coeff)+ef)/target_comp[dep_elt]
-                        all_coords.append(res)
+                        res[dep_elt]=(np.dot(v+muref, coeff)+ef)/target_comp[dep_elt]
+                        already_in = False
+                        for di in all_coords:
+                            dict_equals = True
+                            for k in di:
+                                if abs(di[k]-res[k]) > tol_en:
+                                    dict_equals = False
+                                    break
+                            if dict_equals:
+                                already_in = True
+                                break
+                        if not already_in:
+                            all_coords.append(res)
         return all_coords
 
     def getmu_range_stability_phase(self, target_comp, open_elt):
