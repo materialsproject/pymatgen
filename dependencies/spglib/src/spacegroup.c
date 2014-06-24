@@ -22,19 +22,16 @@ static Spacegroup get_spacegroup(SPGCONST Cell * primitive,
 				 const double symprec);
 static int get_hall_number(double origin_shift[3],
 			   double conv_lattice[3][3],
-			   Centering * centering,
 			   SPGCONST Cell * primitive,
 			   SPGCONST Symmetry * symmetry,
 			   const double symprec);
 static int get_hall_number_local_iteration(double origin_shift[3],
 					   double conv_lattice[3][3],
-					   Centering * centering,
 					   SPGCONST Cell * primitive,
 					   SPGCONST Symmetry * symmetry,
 					   const double symprec);
 static int get_hall_number_local(double origin_shift[3],
 				 double conv_lattice[3][3],
-				 Centering * centering,
 				 SPGCONST Cell * primitive,
 				 SPGCONST Symmetry * symmetry,
 				 const double symprec);
@@ -94,7 +91,6 @@ static Spacegroup get_spacegroup(SPGCONST Cell * primitive,
   int hall_number;
   double conv_lattice[3][3];
   double origin_shift[3];
-  Centering centering;
   Symmetry *symmetry;
   Spacegroup spacegroup;
   SpacegroupType spacegroup_type;
@@ -109,7 +105,6 @@ static Spacegroup get_spacegroup(SPGCONST Cell * primitive,
 
   hall_number = get_hall_number(origin_shift,
 				conv_lattice,
-				&centering,
 				primitive,
 				symmetry,
 				symprec);
@@ -129,7 +124,6 @@ static Spacegroup get_spacegroup(SPGCONST Cell * primitive,
     spacegroup.number = spacegroup_type.number;
     spacegroup.hall_number = hall_number;
     spacegroup.holohedry = spacegroup_type.holohedry;
-    spacegroup.centering = centering;
     strcpy(spacegroup.schoenflies,
 	   spacegroup_type.schoenflies);
     strcpy(spacegroup.hall_symbol,
@@ -154,7 +148,6 @@ static Spacegroup get_spacegroup(SPGCONST Cell * primitive,
 
 static int get_hall_number(double origin_shift[3],
 			   double conv_lattice[3][3],
-			   Centering * centering,
 			   SPGCONST Cell * primitive,
 			   SPGCONST Symmetry * symmetry,
 			   const double symprec)
@@ -167,7 +160,6 @@ static int get_hall_number(double origin_shift[3],
   if (pg_num > -1) {
     hall_number = get_hall_number_local(origin_shift,
 					conv_lattice,
-					centering,
 					primitive,
 					symmetry,
 					symprec);
@@ -181,7 +173,6 @@ static int get_hall_number(double origin_shift[3],
   /* displacements of atoms from the exact points. */
   hall_number = get_hall_number_local_iteration(origin_shift,
 						conv_lattice,
-						centering,
 						primitive,
 						symmetry,
 						symprec);
@@ -192,7 +183,6 @@ static int get_hall_number(double origin_shift[3],
 
 static int get_hall_number_local_iteration(double origin_shift[3],
 					   double conv_lattice[3][3],
-					   Centering * centering,
 					   SPGCONST Cell * primitive,
 					   SPGCONST Symmetry * symmetry,
 					   const double symprec)
@@ -213,7 +203,6 @@ static int get_hall_number_local_iteration(double origin_shift[3],
     if (pg_num > -1) {
       hall_number = get_hall_number_local(origin_shift,
 					  conv_lattice,
-					  centering,
 					  primitive,
 					  sym_reduced,
 					  symprec);
@@ -237,31 +226,31 @@ static int get_hall_number_local_iteration(double origin_shift[3],
 
 static int get_hall_number_local(double origin_shift[3],
 				 double conv_lattice[3][3],
-				 Centering * centering,
 				 SPGCONST Cell * primitive,
 				 SPGCONST Symmetry * symmetry,
 				 const double symprec)
 {
   int hall_number;
+  Centering centering;
   double trans_mat[3][3];
   Symmetry * conv_symmetry;
 
   debug_print("get_hall_number_local:\n");
   
-  *centering = ptg_get_transformation_matrix(trans_mat,
-					     symmetry->rot,
-					     symmetry->size);
+  centering = ptg_get_transformation_matrix(trans_mat,
+					    symmetry->rot,
+					    symmetry->size);
 
   mat_multiply_matrix_d3(conv_lattice,
 			 primitive->lattice,
 			 trans_mat);
 
   conv_symmetry = get_conventional_symmetry(trans_mat,
-					    *centering,
+					    centering,
 					    symmetry);
 
   hall_number = hal_get_hall_symbol(origin_shift,
-				    *centering,
+				    centering,
 				    conv_lattice,
 				    conv_symmetry,
 				    symprec);

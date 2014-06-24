@@ -20,7 +20,7 @@ import numpy as np
 
 from pymatgen.io.vaspio.vasp_output import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar
-from pymatgen import Spin, Orbital
+from pymatgen import Spin, Orbital, Lattice, Structure
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
@@ -199,6 +199,10 @@ class OutcarTest(unittest.TestCase):
         outcar = Outcar(filepath)
         self.assertTrue(outcar.is_stopped)
 
+    def test_core_state_eigen(self):
+        filepath = os.path.join(test_dir, "OUTCAR.CL")
+        cl = Outcar(filepath).read_core_state_eigen()
+        self.assertAlmostEqual(cl[6]["2s"][-1], -174.4779)
 
 class OszicarTest(unittest.TestCase):
 
@@ -255,6 +259,14 @@ class ProcarTest(unittest.TestCase):
         self.assertAlmostEqual(p.get_occupation(1, 's'), 0.3538125)
         self.assertAlmostEqual(p.get_occupation(1, 'p'), 1.19540625)
         self.assertRaises(ValueError, p.get_occupation, 1, 'm')
+        self.assertEqual(p.nb_bands, 10)
+        self.assertEqual(p.nb_kpoints, 10)
+        lat = Lattice.cubic(3.)
+        s = Structure(lat, ["Li", "Na", "K"], [[0., 0., 0.], 
+                                               [0.25, 0.25, 0.25], 
+                                               [0.75, 0.75, 0.75]])
+        d = p.get_projection_on_elements(s)
+        self.assertAlmostEqual(d[1][2][2], {'Na': 0.042, 'K': 0.646, 'Li': 0.042})
         filepath = os.path.join(test_dir, 'PROCAR')
         p = Procar(filepath)
         self.assertAlmostEqual(p.get_occupation(0, 'd'), 4.3698147704200059)

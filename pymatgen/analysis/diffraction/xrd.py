@@ -14,7 +14,7 @@ __email__ = "ongsp@ucsd.edu"
 __date__ = "5/22/14"
 
 
-from math import sin, cos, asin, pi, degrees
+from math import sin, cos, asin, pi, degrees, radians
 import os
 
 import numpy as np
@@ -43,7 +43,11 @@ WAVELENGTHS = {
     "CoKa": 1.79026,
     "CoKa2": 1.79285,
     "CoKa1": 1.78896,
-    "CoKb1": 1.63079
+    "CoKb1": 1.63079,
+    "AgKa": 0.560885,
+    "AgKa2": 0.563813,
+    "AgKa1": 0.559421,
+    "AgKb1": 0.497082,
 }
 
 with open(os.path.join(os.path.dirname(__file__),
@@ -119,7 +123,7 @@ class XRDCalculator(object):
     # absences do not cancel exactly to zero.
     SCALED_INTENSITY_TOL = 1e-3
 
-    def __init__(self, wavelength="CuKa", symprec=0):
+    def __init__(self, wavelength="CuKa", symprec=0, debye_waller_factors=None):
         """
         Initializes the XRD calculator with a given radiation.
 
@@ -133,6 +137,9 @@ class XRDCalculator(object):
             symprec (float): Symmetry precision for structure refinement. If
                 set to 0, no refinement is done. Otherwise, refinement is
                 performed using spglib with provided precision.
+            debye_waller_factors ({element symbol: float}): Allows the
+                specification of Debye-Waller factors. Note that these
+                factors are temperature dependent.
         """
         if isinstance(wavelength, float):
             self.wavelength = wavelength
@@ -140,8 +147,9 @@ class XRDCalculator(object):
             self.radiation = wavelength
             self.wavelength = WAVELENGTHS[wavelength]
         self.symprec = symprec
+        self.debye_waller_factors = debye_waller_factors or {}
 
-    def get_xrd_data(self, structure, scaled=True):
+    def get_xrd_data(self, structure, scaled=True, two_theta_range=(0, 90)):
         """
         Calculates the XRD data for a structure.
 
@@ -150,15 +158,19 @@ class XRDCalculator(object):
             scaled (bool): Whether to return scaled intensities. The maximum
                 peak is set to a value of 100. Defaults to True. Use False if
                 you need the absolute values to combine XRD plots.
+            two_theta_range ([float of length 2]): Tuple for range of
+                two_thetas to calculate in degrees. Defaults to (0, 90). Set to
+                None if you want all diffracted beams within the limiting
+                sphere of radius 2 / wavelength.
 
         Returns:
             (XRD pattern) in the form of
-            [[two_theta, intensity, {(h, k, l): mult}], ...]
+            [[two_theta, intensity, {(h, k, l): mult}, d_hkl], ...]
             Two_theta is in degrees. Intensity is in arbitrary units and if
             scaled (the default), has a maximum value of 100 for the highest
             peak. {(h, k, l): mult} is a dict of Miller indices for all
             diffracted lattice planes contributing to that intensity and
-            their multiplicities.
+            their multiplicities. d_hkl is the interplanar spacing.
         """
         if self.symprec:
             finder = SymmetryFinder(structure, symprec=self.symprec)
@@ -168,26 +180,40 @@ class XRDCalculator(object):
         latt = structure.lattice
         is_hex = latt.is_hexagonal()
 
-        # Obtain crystallographic reciprocal lattice and points within
-        # limiting sphere (within 2/wavelength)
+        # Obtained from Bragg condition. Note that reciprocal lattice
+        # vector length is 1 / d_hkl.
+        min_r, max_r = (0, 2 / wavelength) if two_theta_range is None else \
+            [2 * sin(radians(t / 2)) / wavelength for t in two_theta_range]
+
+        # Obtain crystallographic reciprocal lattice points within range
         recip_latt = latt.reciprocal_lattice_crystallographic
         recip_pts = recip_latt.get_points_in_sphere(
-            [[0, 0, 0]], [0, 0, 0], 2 / wavelength)
+            [[0, 0, 0]], [0, 0, 0], max_r)
+        if min_r:
+            recip_pts = filter(lambda d: d[1] >= min_r, recip_pts)
 
         # Create a flattened array of zs, coeffs, fcoords and occus. This is
         # used to perform vectorized computation of atomic scattering factors
         # later. Note that these are not necessarily the same size as the
-        # structure as each partially occupied species occupies its own
+        # structure as each partially occupied specie occupies its own
         # position in the flattened array.
         zs = []
         coeffs = []
         fcoords = []
         occus = []
+        dwfactors = []
 
         for site in structure:
             for sp, occu in site.species_and_occu.items():
                 zs.append(sp.Z)
-                coeffs.append(ATOMIC_SCATTERING_PARAMS[sp.symbol])
+                try:
+                    c = ATOMIC_SCATTERING_PARAMS[sp.symbol]
+                except KeyError:
+                    raise ValueError("Unable to calculate XRD pattern as "
+                                     "there is no scattering coefficients for"
+                                     " %s." % sp.symbol)
+                coeffs.append(c)
+                dwfactors.append(self.debye_waller_factors.get(sp.symbol, 0))
                 fcoords.append(site.frac_coords)
                 occus.append(occu)
 
@@ -195,13 +221,15 @@ class XRDCalculator(object):
         coeffs = np.array(coeffs)
         fcoords = np.array(fcoords)
         occus = np.array(occus)
-
+        dwfactors = np.array(dwfactors)
         peaks = {}
         two_thetas = []
 
         for hkl, g_hkl, ind in sorted(
                 recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])):
             if g_hkl != 0:
+
+                d_hkl = 1 / g_hkl
 
                 # Bragg condition
                 theta = asin(wavelength * g_hkl / 2)
@@ -228,17 +256,20 @@ class XRDCalculator(object):
                 fs = zs - 41.78214 * s2 * np.sum(
                     coeffs[:, :, 0] * np.exp(-coeffs[:, :, 1] * s2), axis=1)
 
+                dw_correction = np.exp(-dwfactors * s2)
+
                 # Structure factor = sum of atomic scattering factors (with
                 # position factor exp(2j * pi * g.r and occupancies).
                 # Vectorized computation.
-                f_hkl = np.sum(fs * occus * np.exp(2j * pi * g_dot_r))
-
-                # Intensity for hkl is modulus square of structure factor.
-                i_hkl = (f_hkl * f_hkl.conjugate()).real
+                f_hkl = np.sum(fs * occus * np.exp(2j * pi * g_dot_r)
+                               * dw_correction)
 
                 #Lorentz polarization correction for hkl
                 lorentz_factor = (1 + cos(2 * theta) ** 2) / \
                     (sin(theta) ** 2 * cos(theta))
+
+                # Intensity for hkl is modulus square of structure factor.
+                i_hkl = (f_hkl * f_hkl.conjugate()).real
 
                 two_theta = degrees(2 * theta)
 
@@ -252,7 +283,8 @@ class XRDCalculator(object):
                     peaks[two_thetas[ind[0]]][0] += i_hkl * lorentz_factor
                     peaks[two_thetas[ind[0]]][1].append(tuple(hkl))
                 else:
-                    peaks[two_theta] = [i_hkl * lorentz_factor, [tuple(hkl)]]
+                    peaks[two_theta] = [i_hkl * lorentz_factor, [tuple(hkl)],
+                                        d_hkl]
                     two_thetas.append(two_theta)
 
         # Scale intensities so that the max intensity is 100.
@@ -263,7 +295,7 @@ class XRDCalculator(object):
             scaled_intensity = v[0] / max_intensity * 100 if scaled else v[0]
             fam = get_unique_families(v[1])
             if scaled_intensity > XRDCalculator.SCALED_INTENSITY_TOL:
-                data.append([k, scaled_intensity, fam])
+                data.append([k, scaled_intensity, fam, v[2]])
         return data
 
     def get_xrd_plot(self, structure, two_theta_range=(0, 90),
@@ -273,8 +305,10 @@ class XRDCalculator(object):
 
         Args:
             structure: Input structure
-            two_theta_range: Range of two_thetas for which to plot. Defaults
-                to (0, 90).
+            two_theta_range ([float of length 2]): Tuple for range of
+                two_thetas to calculate in degrees. Defaults to (0, 90). Set to
+                None if you want all diffracted beams within the limiting
+                sphere of radius 2 / wavelength.
             annotate_peaks: Whether to annotate the peaks with plane
                 information.
 
@@ -283,9 +317,8 @@ class XRDCalculator(object):
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(16, 10)
-        two_theta_range = [-1, float("inf")] if two_theta_range is None \
-            else two_theta_range
-        for two_theta, i, hkls in self.get_xrd_data(structure):
+        for two_theta, i, hkls, d_hkl in self.get_xrd_data(
+                structure, two_theta_range=two_theta_range):
             if two_theta_range[0] <= two_theta <= two_theta_range[1]:
                 label = ", ".join([str(hkl) for hkl in hkls.keys()])
                 plt.plot([two_theta, two_theta], [0, i], color='k',
@@ -305,10 +338,12 @@ class XRDCalculator(object):
         Shows the XRD plot.
 
         Args:
-            structure: Input structure
-            two_theta_range: Range of two_thetas for which to plot. Defaults
-                to (0, 90).
-            annotate_peaks: Whether to annotate the peaks with plane
+            structure (Structure): Input structure
+            two_theta_range ([float of length 2]): Tuple for range of
+                two_thetas to calculate in degrees. Defaults to (0, 90). Set to
+                None if you want all diffracted beams within the limiting
+                sphere of radius 2 / wavelength.
+            annotate_peaks (bool): Whether to annotate the peaks with plane
                 information.
         """
         self.get_xrd_plot(structure, two_theta_range=two_theta_range,
