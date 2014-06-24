@@ -569,7 +569,7 @@ class GWConvergenceData():
         for x in xs:
             ys.append(self.get_data_array_2d(x_name, y_name)[x])
         conv_data = test_conv(xs, ys, name=self.name, tol=tol, extra=x_name)
-        print conv_data, {x_name: conv_data[0]}, {x_name: conv_data[1]}, {x_name: conv_data[5]}
+        #print conv_data, {x_name: conv_data[0]}, {x_name: conv_data[1]}, {x_name: conv_data[5]}
         self.conv_res['control'].update({x_name: conv_data[0]})
         self.conv_res['values'].update({x_name: conv_data[1]})
         self.conv_res['derivatives'].update({x_name: conv_data[5]})
