@@ -242,6 +242,8 @@ class SingleAbinitGWWorkFlow():
                     pass
                 else:
                     extra_abivars.update({k: self.option[k]})
+                    if k == 'ecut':
+                        extra_abivars.update({'pawecutdg': self.option[k]*2})
 
         response_models = ['godby']
 
@@ -290,9 +292,9 @@ class SingleAbinitGWWorkFlow():
                                                    self.convs['ecuteps']['test_range'][0]]
                 nscf_nband = [self.option['nscf_nbands'], self.option['nscf_nbands'] + self.convs['nscf_nbands'][
                     'test_range'][1] - self.convs['nscf_nbands']['test_range'][0]]
-                for option in self.option:
-                    if option not in ['ecuteps', 'nscf_nband']:
-                        extra_abivars.update({option + '_s': self.option[option]})
+                # for option in self.option:
+                #    if option not in ['ecuteps', 'nscf_nband']:
+                #        extra_abivars.update({option + '_s': self.option[option]})
         else:
             print '| all is done for this material'
             return
