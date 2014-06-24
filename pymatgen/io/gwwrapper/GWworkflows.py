@@ -211,8 +211,10 @@ class SingleAbinitGWWorkFlow():
         # Don't know why protocol=-1 does not work here.
         flow = AbinitFlow(self.work_dir, manager, pickle_protocol=0)
 
+        all_converged = True if len(self.option) == len(self.get_defaults_convs()) else False
+
         # kpoint grid defined over density 40 > ~ 3 3 3
-        if self.spec['converge'] and self.option is None:
+        if self.spec['converge'] and not all_converged:
             # (2x2x2) gamma centered mesh for the convergence test on nbands and ecuteps
             scf_kppa = 2
         else:
@@ -257,7 +259,7 @@ class SingleAbinitGWWorkFlow():
             workdir = None
 
         if not all_done:
-            if (self.spec['test'] or self.spec['converge']) and self.option is None:
+            if (self.spec['test'] or self.spec['converge']) and not all_converged:
                 if self.spec['test']:
                     print '| setting test calculation'
                     tests = SingleAbinitGWWorkFlow(self.structure, self.spec).tests
@@ -273,7 +275,10 @@ class SingleAbinitGWWorkFlow():
                 nscf_nband = []
                 for test in tests:
                     if tests[test]['level'] == 'scf':
-                        extra_abivars.update({test + '_s': tests[test]['test_range']})
+                        if test in self.option:
+                            extra_abivars.update({test: self.option[test]})
+                        else:
+                            extra_abivars.update({test + '_s': tests[test]['test_range']})
                     else:
                         for value in tests[test]['test_range']:
                             if test == 'nscf_nbands':
@@ -284,7 +289,7 @@ class SingleAbinitGWWorkFlow():
                                 ecuteps.append(value)
                             if test == 'response_model':
                                 response_models.append(value)
-            elif self.option is not None:
+            elif all_converged:
                 print '| setting up for testing the converged values at the high kp grid '
                 # in this case a convergence study has already been performed.
                 # The resulting parameters are passed as option
@@ -299,7 +304,9 @@ class SingleAbinitGWWorkFlow():
             print '| all is done for this material'
             return
 
-        print extra_abivars
+        print 'ecuteps : ', ecuteps
+        print 'extra   : ', extra_abivars
+        print 'nscf_nb : ', nscf_nband
 
         work = g0w0_extended(abi_structure, self.pseudo_table, scf_kppa, nscf_nband, ecuteps, ecutsigx,
                              accuracy="normal", spin_mode="unpolarized", smearing=None, response_models=response_models,
