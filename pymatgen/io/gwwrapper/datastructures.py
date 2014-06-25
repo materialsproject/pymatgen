@@ -351,13 +351,18 @@ class GWSpecs(AbstractAbinitioSpec):
                     if len(data.data) == 0:
                         print '| parm_scr type calculation but no data found.'
                         break
+                    if len(data.data) < 24:
+                        print '| parm_scr type calculation but no complete data found,' \
+                              ' check is all calculations are done.'
+                        break
 
                     if data.find_conv_pars_scf('ecut', 'full_width', self['tol'])[0]:
                         print '| parm_scr type calculation, converged scf values found'
                         #print data.conv_res
                     else:
                         print '| parm_scr type calculation, no converged scf values found'
-                        data.full_res.update({'all_done': True}), {'remark': 'No converged SCf parameter found. Solution not implemented.'}
+                        data.full_res.update({'all_done': True}), {'remark': 'No converged SCf parameter found. '
+                                                                             'Solution not implemented.'}
                         data.print_full_res()
                         done = True
                     # if converged ok, if not increase the grid parameter of the next set of calculations
