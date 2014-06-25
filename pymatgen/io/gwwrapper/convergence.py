@@ -1,8 +1,11 @@
 """
 function for calculating the convergence of an x, y data set
-main function:
+main api:
+
 test_conv(xs, ys, name, tol)
+
 tries to fit multiple functions to the x, y data
+
 calculates which function fits best
 for tol < 0
 returns the x value for which y is converged within tol of the assymtotic value
@@ -18,7 +21,7 @@ __copyright__ = " "
 __version__ = "0.9"
 __maintainer__ = "Michiel van Setten"
 __email__ = "mjvansetten@gmail.com"
-__date__ = "May 2014"
+__date__ = "June 2014"
 
 import string
 import random
@@ -247,6 +250,9 @@ def extrapolate_simple_reciprocal(xs, ys):
 
 
 def extrapolate_reciprocal(xs, ys, n):
+    """
+    return the parameters such that a + b / x^n hits the last two data points
+    """
     b = (ys[-2] - ys[-1]) / (1/(xs[-2])**n - 1/(xs[-1])**n)
     a = ys[-1] - b / (xs[-1])**n
     return [a, b, n]
@@ -254,7 +260,7 @@ def extrapolate_reciprocal(xs, ys, n):
 
 def measure(function, xs, ys, popt, weights):
     """
-    measure the quality of the fit
+    measure the quality of a fit
     """
     m = 0
     n = 0
@@ -318,15 +324,17 @@ def multi_curve_fit(xs, ys, verbose):
             if verbose:
                 print str(function), m
         except RuntimeError:
-            if True:
-                print 'no fit found for ', function
-
+            print 'no fit found for ', function
     return fit_results[best[0]]['popt'], fit_results[best[0]]['pcov'], best
 
 
 def multi_reciprocal_extra(xs, ys):
+    """
+    Calculates for a series of powers ns the parameters for which the last two points are at the curve.
+    With these parameters measure how well the other data points fit.
+    return the best fit.
+    """
     ns = np.linspace(0.5, 6.0, num=56)
-    #ns = [0.25, 0.5, 1.0, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6]
     best = ['', np.inf]
     fit_results = {}
     weights = get_weights(xs, ys)
@@ -334,7 +342,6 @@ def multi_reciprocal_extra(xs, ys):
         popt = extrapolate_reciprocal(xs, ys, n)
         m = measure(reciprocal, xs, ys, popt, weights)
         pcov = []
-    #    print popt, m
         fit_results.update({n: {'measure': m, 'popt': popt, 'pcov': pcov}})
     for n in fit_results:
         if fit_results[n]['measure'] <= best[1]:
@@ -379,7 +386,7 @@ def print_plot_line(function, popt, xs, ys, name, tol=0.05, extra=''):
     f.close()
 
 
-def test_conv(xs, ys, name, tol=0.0001, extra='', verbose=False):
+def test_conv(xs, ys, name, tol=0.0001, extra='', verbose=False, mode='extra'):
     """
     test it and at which x_value dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists.
     """
@@ -391,10 +398,14 @@ def test_conv(xs, ys, name, tol=0.0001, extra='', verbose=False):
     if len(xs) > 2:
         ds = get_derivatives(xs[0:len(ys)], ys)
         try:
-            from scipy.optimize import curve_fit
             if None not in ys:
-                #popt, pcov, func = multi_curve_fit(xs, ys, verbose)
-                popt, pcov, func = multi_reciprocal_extra(xs, ys)
+                if mode == 'fit':
+                    popt, pcov, func = multi_curve_fit(xs, ys, verbose)
+                elif mode == 'extra':
+                    popt, pcov, func = multi_reciprocal_extra(xs, ys)
+                else:
+                    print 'nknown mode for test conv'
+                    raise NotImplementedError
                 if func[1] > abs(tol):
                     print 'warning function ', func[0], ' as the best fit but not a good fit: ', func[1]
                 # todo print this to file via a method in helper, as dict
