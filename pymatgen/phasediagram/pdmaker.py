@@ -170,10 +170,7 @@ class PhaseDiagram (MSONable):
         elif len(qhull_data) == dim:
             self.facets = [range(dim)]
         else:
-            if HULL_METHOD == "scipy":
-                facets = ConvexHull(qhull_data, qhull_options="Qt i").simplices
-            else:
-                facets = ConvexHull(qhull_data, joggle=False).vertices
+            facets = get_facets(qhull_data)
             finalfacets = []
             for facet in facets:
                 #skip facets that include the extra point
@@ -181,7 +178,7 @@ class PhaseDiagram (MSONable):
                     continue
                 m = qhull_data[facet]
                 m[:, -1] = 1
-                if abs(np.linalg.det(m)) > 1e-8:
+                if abs(np.linalg.det(m)) > 1e-14:
                     finalfacets.append(facet)
             self.facets = finalfacets
 
@@ -450,3 +447,13 @@ class PhaseDiagramError(Exception):
     An exception class for Phase Diagram generation.
     """
     pass
+
+
+def get_facets(qhull_data, joggle=False):
+    if HULL_METHOD == "scipy":
+        if joggle:
+            return ConvexHull(qhull_data, qhull_options="QJ i").simplices
+        else:
+            return ConvexHull(qhull_data, qhull_options="Qt i").simplices
+    else:
+        return ConvexHull(qhull_data, joggle=joggle).vertices

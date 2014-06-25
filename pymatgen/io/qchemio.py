@@ -179,8 +179,8 @@ class QcTask(MSONable):
                 return True
 
     def set_basis_set(self, basis_set):
-        if isinstance(basis_set, str):
-            self.params["rem"]["basis"] = basis_set.lower()
+        if isinstance(basis_set, str) or isinstance(basis_set, unicode):
+            self.params["rem"]["basis"] = str(basis_set).lower()
         elif isinstance(basis_set, dict):
             self.params["rem"]["basis"] = "gen"
             bs = dict()
@@ -200,6 +200,8 @@ class QcTask(MSONable):
                     raise ValueError("Basis set error: the molecule "
                                      "doesn't contain element " +
                                      ", ".join(basis_elements - mol_elements))
+        else:
+            raise Exception('Can\'t handle type "{}"'.format(type(basis_set)))
 
     def set_auxiliary_basis_set(self, aux_basis_set):
         if isinstance(aux_basis_set, str):
