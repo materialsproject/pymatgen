@@ -276,7 +276,9 @@ class SingleAbinitGWWorkFlow():
                 nscf_nband = []
                 for test in tests:
                     if tests[test]['level'] == 'scf':
-                        if test in self.option:
+                        if self.option is None:
+                            extra_abivars.update({test + '_s': tests[test]['test_range']})
+                        elif test in self.option:
                             extra_abivars.update({test: self.option[test]})
                         else:
                             extra_abivars.update({test + '_s': tests[test]['test_range']})
