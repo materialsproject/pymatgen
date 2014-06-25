@@ -476,6 +476,7 @@ class GWConvergenceData():
         self.data = {}
         tree = os.walk(self.name + subset)
         for dirs in tree:
+            print dirs[0]
             read = self.code_interface.read_convergence_data(dirs[0])
             if read:
                 self.data.update({n: read})
