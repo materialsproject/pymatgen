@@ -79,7 +79,8 @@ class XRDCalculator(object):
 
        .. math::
 
-           f(s) = Z - 41.78214 \\times s^2 \\times \\sum\\limits_{i=1}^n a_i \\exp(-b_is^2)
+           f(s) = Z - 41.78214 \\times s^2 \\times \\sum\\limits_{i=1}^n a_i \
+           \exp(-b_is^2)
 
        where :math:`s = \\frac{\\sin(\\theta)}{\\lambda}` and :math:`a_i`
        and :math:`b_i` are the fitted parameters for each element. The
@@ -87,7 +88,8 @@ class XRDCalculator(object):
 
        .. math::
 
-           F_{hkl} = \\sum\\limits_{j=1}^N f_j \\exp(2\\pi i \\mathbf{g_{hkl}} \cdot \\mathbf{r})
+           F_{hkl} = \\sum\\limits_{j=1}^N f_j \\exp(2\\pi i \\mathbf{g_{hkl}}
+           \cdot \\mathbf{r})
 
     4. The intensity is then given by the modulus square of the structure
        factor.
@@ -101,7 +103,8 @@ class XRDCalculator(object):
 
        .. math::
 
-           P(\\theta) = \\frac{1 + \\cos^2(2\\theta)}{\\sin^2(\\theta)\\cos(\\theta)}
+           P(\\theta) = \\frac{1 + \\cos^2(2\\theta)}
+           {\\sin^2(\\theta)\\cos(\\theta)}
     """
 
     #Tuple of available radiation keywords.
@@ -127,13 +130,10 @@ class XRDCalculator(object):
                 supported definitions in the AVAILABLE_RADIATION class
                 variable, which provides useful commonly used wavelengths.
                 If it is a float, it is interpreted as a wavelength in
-                angstroms.
-                Defaults to "CuKa", i.e, Cu K_alpha radiation.
-            symprec:
-                Symmetry precision for structure refinement. If set to 0,
-                no refinement is done. Otherwise, refinement is performed
-                using spglib with provided precision.
-
+                angstroms. Defaults to "CuKa", i.e, Cu K_alpha radiation.
+            symprec (float): Symmetry precision for structure refinement. If
+                set to 0, no refinement is done. Otherwise, refinement is
+                performed using spglib with provided precision.
         """
         if isinstance(wavelength, float):
             self.wavelength = wavelength

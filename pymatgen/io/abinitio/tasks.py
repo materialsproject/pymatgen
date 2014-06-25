@@ -526,6 +526,15 @@ class TaskManager(object):
         """Set the memory (in Megabytes) per CPU."""
         self.qadapter.set_mem_per_cpu(mem_mb)
 
+    def set_autoparal(self, value):
+        """Set the value of autoparal."""
+        assert value in [0, 1]
+        self.policy.autoparal = value
+
+    def set_max_ncpus(self, value):
+        """Set the value of max_ncpus."""
+        self.policy.max_ncpus = value
+
     def write_jobfile(self, task):
         """
         Write the submission script.
@@ -1168,9 +1177,9 @@ class Task(Node):
         self.outdir = Directory(os.path.join(self.workdir, "outdata"))
         self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
 
-        # stderr and output file of the queue manager.
-        self.qerr_file = File(os.path.join(self.workdir, "queue.err"))
-        self.qout_file = File(os.path.join(self.workdir, "queue.out"))
+        # stderr and output file of the queue manager. Note extensions.
+        self.qerr_file = File(os.path.join(self.workdir, "queue.qerr"))
+        self.qout_file = File(os.path.join(self.workdir, "queue.qout"))
 
     def set_manager(self, manager):
         """Set the `TaskManager` to use to launch the Task."""
@@ -1268,9 +1277,15 @@ class Task(Node):
         self.fix_ofiles()
 
     def _on_ok(self):
+        # Read timing data.
+        #self.read_timing()
+        # Fix output file names.
         self.fix_ofiles()
+        # Get results
         results = self.on_ok()
+        # Set internal flag.
         self._finalized = True
+
         return results
 
     def on_ok(self):
@@ -1483,7 +1498,7 @@ class Task(Node):
             #if status == self.S_UNCONVERGED:
             #    logger.debug("Task %s broadcasts signal S_UNCONVERGED" % self)
             #    dispatcher.send(signal=self.S_UNCONVERGED, sender=self)
-                                                                                
+
             # Finalize the task.
             if not self.finalized:
                 self._on_ok()
@@ -2128,8 +2143,7 @@ class AbinitTask(Task):
            Returns (None, None) if some problem occurred.
         """
         logger.info("in autoparal_fake_run")
-        manager = self.manager
-        policy = manager.policy
+        manager, policy = self.manager, self.manager.policy
 
         if policy.autoparal == 0 or policy.max_ncpus in [None, 1]: 
             msg = "Nothing to do in autoparal, returning (None, None)"
@@ -2214,6 +2228,23 @@ class AbinitTask(Task):
         general restart used when scheduler problems have been taken care of
         """
         return self._restart()
+
+    #@property
+    #def timing(self):
+    #    """Object with timing data. None if timing is not available"""
+    #    try:
+    #        return self._timing
+    #    except AttributeError:
+    #        return None
+
+    #def read_timig(self):
+    #    """
+    #    Read timing data from the main output file and store it in self.timing if available.
+    #    """
+    #    from pymatgen.io.abitimer import AbinitTimerParser
+    #    _timing = AbinitTimerParser()
+    #    retval = timing.parse(self.output_file) 
+    #    if retval == self.output_file: self._timing = _timing
 
 # TODO
 # Enable restarting capabilites:
