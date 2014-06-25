@@ -74,6 +74,20 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.9.11
+-------
+1. Bug fix for get_xrd_plot.
+2. Speed up XRD calculator by allowing specification of two theta ranges.
+3. Minor improvements to Gulp caller.
+
+v2.9.10
+-------
+1. Bug fix for unequal coefficients sizes in XRD.
+2. Support for Ag radiation in XRD calculator.
+3. Improved Procar class for extraction of information. (Germain Salvato
+   Vallverdu)
+4. Bug fix for extraction of GGA data from Materials API.
+
 v2.9.9
 ------
 1. XRDCalculator now supports disordered structures.
