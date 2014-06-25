@@ -533,6 +533,7 @@ class GWConvergenceData():
         xs = self.get_var_range('nbands')
         ys = self.get_var_range('ecuteps')
         zd = self.get_data_array()
+        print zd
         # print 'plot "'+self.name+'condat'+'"'
         for x in xs:
             zs = []
