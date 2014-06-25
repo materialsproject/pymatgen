@@ -837,8 +837,8 @@ class Node(object):
     S_DONE = Status(6)
     S_ABICRITICAL = Status(7)
     S_QUEUECRITICAL = Status(8)
-    S_ERROR = Status(9)
-    S_UNCONVERGED = Status(10)
+    S_UNCONVERGED = Status(9)
+    S_ERROR = Status(10)
     S_OK = Status(11)
 
     ALL_STATUS = [
@@ -850,8 +850,8 @@ class Node(object):
         S_DONE,
         S_ABICRITICAL,
         S_QUEUECRITICAL,
-        S_ERROR,
         S_UNCONVERGED,
+        S_ERROR,
         S_OK,
     ]
 
