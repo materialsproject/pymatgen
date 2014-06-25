@@ -879,6 +879,7 @@ class PbsAdapter(AbstractQueueAdapter):
         return False
 
     def increase_time(self, factor):
+        print('increasing time, not implemented pbs')
         return False
 
     def increase_cpus(self, factor):
