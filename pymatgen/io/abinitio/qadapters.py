@@ -607,7 +607,6 @@ class SlurmAdapter(AbstractQueueAdapter):
                     # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
                     queue_id = int(process.stdout.read().split()[3])
                     logger.info('Job submission was successful and queue_id is {}'.format(queue_id))
-
                 except:
                     # probably error parsing job code
                     queue_id = None
@@ -881,10 +880,15 @@ class PbsAdapter(AbstractQueueAdapter):
 
         return None
 
+    # no need to raise an error, if False is returned the fixer may try something else, we don't need to kill the
+    # scheduler just yet
+
     def exclude_nodes(self, nodes):
+        print('exluding nodes, not implemented yet pbs')
         return False
 
     def increase_mem(self, factor):
+        print('increasing mem, not implemented yet pbs')
         return False
 
     def increase_time(self, factor=1.5):
@@ -1022,6 +1026,27 @@ class SGEAdapter(AbstractQueueAdapter):
         logger.critical(err_msg)
 
         return None
+
+    def exclude_nodes(self, nodes):
+        """
+        Method to exclude nodes in the calculation
+        """
+        raise NotImplementedError("exclude_nodes")
+                                                                         
+    def increase_mem(self, factor):
+        """
+        Method to increase the amount of memory asked for, by factor.
+        """
+        raise NotImplementedError("increase_mem")
+                                                                         
+    def increase_time(self, factor):
+        """
+        Method to increase the available wall time asked for, by factor.
+        """
+        raise NotImplementedError("increase_time")
+
+    def increase_cpus(self, factor):
+        raise NotImplementedError("increase_cpus")
 
 
 class QScriptTemplate(string.Template):

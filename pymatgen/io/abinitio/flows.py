@@ -122,7 +122,8 @@ class AbinitFlow(Node):
             filepath:
                 Filename or directory name. It filepath is a directory, we 
                 scan the directory tree starting from filepath and we 
-                read the first pickle database.
+                read the first pickle database. Raise RuntimeError if multiple
+                databases are found.
             disable_signals:
                 If True, the nodes of the flow are not connected by signals.
                 This option is usually used when we want to read a flow 
@@ -133,9 +134,12 @@ class AbinitFlow(Node):
             for dirpath, dirnames, filenames in os.walk(filepath):
                 fnames = [f for f in filenames if f == cls.PICKLE_FNAME]
                 if fnames:
-                    assert len(fnames) == 1
-                    filepath = os.path.join(dirpath, fnames[0])
-                    break
+                    if len(fnames) == 1:
+                        filepath = os.path.join(dirpath, fnames[0])
+                        break  # Exit os.walk
+                    else:
+                        err_msg = "Found multiple databases:\n %s" % str(fnames)
+                        raise RuntimeError(err_msg)
             else:
                 err_msg = "Cannot find %s inside directory %s" % (cls.PICKLE_FNAME, filepath)
                 raise ValueError(err_msg)
@@ -757,7 +761,7 @@ class AbinitFlow(Node):
                                                                                                             
         return work
 
-    def allocate(self, manager=None):
+    def allocate(self):
         """
         Allocate the `AbinitFlow` i.e. assign the `workdir` and (optionally) 
         the `TaskManager` to the different tasks in the Flow.

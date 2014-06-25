@@ -90,7 +90,7 @@ class AbinitTimerParser(collections.Iterable):
                 read_ok.append(fname)
 
             except self.Error as e:
-                logger.warning("exception while parsing file %s :\n%s"  % (fname, str(e)))
+                logger.warning("exception while parsing file %s:\n%s" % (fname, str(e)))
                 continue
 
             finally:
@@ -109,8 +109,8 @@ class AbinitTimerParser(collections.Iterable):
 
         def parse_line(line):
             name, vals = line[:25], line[25:].split()
-            cpu_time, cpu_fract, wall_time, wall_fract, ncalls, gflops = vals
-            return AbinitTimerSection(name, cpu_time, cpu_fract, wall_time, wall_fract, ncalls, gflops)
+            ctime, cfract, wtime, wfract, ncalls, gflops = vals
+            return AbinitTimerSection(name, ctime, cfract, wtime, wfract, ncalls, gflops)
 
         inside, has_timer = 0, False
         for line in fh:
@@ -153,8 +153,6 @@ class AbinitTimerParser(collections.Iterable):
                         parse_line(line)
                     except:
                         parser_failed = True
-                    else:
-                        parser_failed = False
 
                     if not parser_failed:
                         raise self.Error("line should be empty: " + str(inside) + line)
@@ -264,12 +262,11 @@ class AbinitTimerParser(collections.Iterable):
     def show_efficiency(self, key="wall_time", what="gb", nmax=5, **kwargs):
         import matplotlib.pyplot as plt
 
-        title = kwargs.pop("title", None)
+        title = kwargs.pop("title", "Parallel efficiency")
         show = kwargs.pop("show", True)
         savefig = kwargs.pop("savefig", None)
 
         timers = self.timers()
-
         peff = self.pefficiency()
 
         # Table with the parallel efficiency for all the sections.
@@ -313,7 +310,7 @@ class AbinitTimerParser(collections.Iterable):
 
         ax.legend(lines, legend_entries, loc="best", shadow=True)
 
-        ax.set_title('Parallel efficiency')
+        ax.set_title(title)
         ax.set_xlabel('Total_NCPUs')
         ax.set_ylabel('Efficiency')
         ax.grid(True)
