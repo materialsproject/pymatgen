@@ -258,7 +258,12 @@ def measure(function, xs, ys, popt, weights):
     """
     m = 0
     n = 0
+    print xs
+    print ys
+    print popt
+    print weights
     for x in xs:
+        print n
         if len(popt) == 2:
             m += (ys[n] - function(x, popt[0], popt[1]))**2 * weights[n]
         elif len(popt) == 3:
