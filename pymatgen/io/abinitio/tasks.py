@@ -30,9 +30,6 @@ from pymatgen.io.abinitio.qadapters import qadapter_class
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
 from pymatgen.io.abinitio.strategies import StrategyWithInput, OpticInput, AnaddbInput
 
-import logging
-logger = logging.getLogger(__name__)
-
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
@@ -51,6 +48,9 @@ __all__ = [
     "OpticTask",
     "AnaddbTask",
 ]
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 # Tools and helper functions.
@@ -605,8 +605,8 @@ _COUNTER_FILE = os.path.join(conf_dir, "nodecounter")
 del conf_dir
 
 try:
-    with open(_COUNTER_FILE, "r") as fh:
-        _COUNTER = int(fh.read())
+    with open(_COUNTER_FILE, "r") as _fh:
+        _COUNTER = int(_fh.read())
 
 except IOError:
     _COUNTER = -1

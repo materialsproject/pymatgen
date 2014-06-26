@@ -12,6 +12,12 @@ from pymatgen.io.abinitio import myaml
 from pymatgen.util.string_utils import pprint_table
 
 
+def straceback():
+    """Returns a string with the traceback."""
+    import traceback
+    return traceback.format_exc()
+
+
 def _magic_parser(stream, magic):
     """
     Parse the section with the SCF cycle
@@ -356,14 +362,29 @@ class Relaxation(collections.Iterable):
 
         return fig
 
+class YamlTokenizerError(Exception):
+    """Exceptions raised by `YamlTokenizer."""
+
 
 class YamlTokenizer(collections.Iterator):
     """
     Provides context-manager support so you can use it in a with statement. 
     """
+    Error = YamlTokenizerError
+
     def __init__(self, filename):
+        # The position inside the file.
+        self.linepos = 0 
         self.stream = open(filename, "r")
-        self.linepos = 0 # The position inside the file.
+
+        #with open(filename, "r") as fh:
+        #    self.stream = iter(fh.readlines())
+
+        #self.stream = open(filename, "r")
+        #try:
+        #    self.stream = open(filename, "r")
+        #except IOError as exc:
+        #    raise self.Error(str(exc))
 
     def __iter__(self):
         return self
@@ -378,7 +399,12 @@ class YamlTokenizer(collections.Iterator):
         self.close()
 
     def close(self):
-        self.stream.close()
+        #pass
+        try:
+            self.stream.close()
+        except:
+            print("Exception in YAMLTokenizer.close()")
+            print(straceback())
 
     def seek(self, offset, whence=0):
         """

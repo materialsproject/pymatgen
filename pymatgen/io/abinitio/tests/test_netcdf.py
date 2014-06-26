@@ -69,7 +69,7 @@ class ETSF_Reader_TestCase(PymatgenTest):
                 value = data.read_value(varname)
                 print(varname, value)
                 self.assert_almost_equal(value, float_ref)
-            assert 0
+            #assert 0
 
             # Reading non-existent variables or dims should raise
             # a subclass of NetcdReaderError
