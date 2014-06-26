@@ -362,12 +362,18 @@ class ConversionVoltagePair(AbstractVoltagePair):
             normalization_els: Elements to normalize the reaction by. To
                 ensure correct capacities.
         """
+
+
         working_ion_entry = step1["element_reference"]
         working_ion = working_ion_entry.composition.elements[0].symbol
-        voltage = -step1["chempot"] + working_ion_entry.energy_per_atom
+
+        working_ion_valence = max(Element(working_ion).oxidation_states)
+
+        voltage = (-step1["chempot"] + working_ion_entry.energy_per_atom)/working_ion_valence
+
         mAh = (step2["evolution"] - step1["evolution"]) \
             * Charge(1, "e").to("C") * Time(1, "s").to("h") * AVOGADROS_CONST\
-            * 1000
+            * 1000 * working_ion_valence
         licomp = Composition.from_formula(working_ion)
         prev_rxn = step1["reaction"]
         reactants = {comp: abs(prev_rxn.get_coeff(comp))
