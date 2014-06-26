@@ -254,7 +254,7 @@ class PyLauncher(object):
 
         return num_launched
 
-    def rapidfire(self, max_nlaunch=-1, max_loops=1, sleep_time=None): # nlaunches=0,
+    def rapidfire(self, max_nlaunch=-1, max_loops=1, sleep_time=None, max_jobs_running = 22): # nlaunches=0,
         """
         Keeps submitting `Tasks` until we are out of jobs or no job is ready to run.
 
@@ -297,7 +297,7 @@ class PyLauncher(object):
 
             for task in tasks:
             # see if there is place in the que
-                if get_running_jobs() > 22:
+                if get_running_jobs() > max_jobs_running:
                     num_loops = max_loops
                     print('too many jobs in the queue, going back to sleep')
                     break
@@ -418,6 +418,8 @@ class PyFlowScheduler(object):
 
         self.mailto = kwargs.pop("mailto", None)
         self.verbose = int(kwargs.pop("verbose", 0))
+        self.max_nlaunch = int(kwargs.pop("max_nlaunch",10))
+        self.max_jobs_running = int(kwargs.pop("max_jobs_running",22))
 
         self.REMINDME_S = float(kwargs.pop("REMINDME_S", 14 * 24 * 3600))
         self.MAX_NUM_PYEXCS = int(kwargs.pop("MAX_NUM_PYEXCS", 0))
@@ -573,7 +575,7 @@ class PyFlowScheduler(object):
         """
         This function tries to run all the tasks that can be submitted.
         """
-        max_nlaunch, excs = 10, []
+        max_nlaunch, excs = self.max_nlaunch, []
 
         flow = self.flow
         flow.check_status()
@@ -601,7 +603,7 @@ class PyFlowScheduler(object):
 
         # Submit the tasks that are ready.
         try:
-            nlaunch = PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch, sleep_time=10)
+            nlaunch = PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch, sleep_time=10, max_jobs_running=self.max_jobs_running)
             self.nlaunch += nlaunch
 
             if nlaunch:
