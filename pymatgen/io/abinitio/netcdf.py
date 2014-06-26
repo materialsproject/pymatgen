@@ -142,6 +142,9 @@ class NetcdfReader(object):
             cmode:
                 if cmode=="c", a complex ndarrays is constructed and returned
                 (netcdf does not provide native support from complex datatype).
+
+        Returns:
+            numpy array if varname represents an array, scalar otherwise.
         """
         try:
             var = self.read_variable(varname, path=path)
@@ -151,7 +154,8 @@ class NetcdfReader(object):
         if cmode is None:
             # scalar or array
             #return var[0] if not var.shape else var[:]
-            return var.getValue() if not var.shape else var[:]
+            #return var.getValue() if not var.shape else var[:]
+            return var.getValue()[0] if not var.shape else var[:]
         else:
             assert var.shape[-1] == 2
             if cmode == "c":

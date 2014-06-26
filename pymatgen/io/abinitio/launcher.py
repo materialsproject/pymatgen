@@ -631,6 +631,9 @@ class PyFlowScheduler(object):
 
     def _callback(self):
         """The actual callback."""
+        # Show the number of open file descriptors
+        print(">>>>> _callback: Number of open file descriptors: %s" % get_open_fds())
+
         self._runem_all()
 
         # Mission accomplished. Shutdown the scheduler.
@@ -648,7 +651,7 @@ class PyFlowScheduler(object):
         if delta_etime.total_seconds() > self.num_reminders * self.REMINDME_S:
             self.num_reminders += 1
             msg = ("Just to remind you that the scheduler with pid %s, flow %s\n has been running for %s " %
-                   (self.pid, self.flow, delta_etime))
+                  (self.pid, self.flow, delta_etime))
             retcode = self.send_email(msg, tag="[REMINDER]")
 
             if retcode:
@@ -719,6 +722,7 @@ class PyFlowScheduler(object):
 
             self.history.append("Completed on %s" % time.asctime())
             self.history.append("Elapsed time %s" % self.get_delta_etime())
+            print(">>>>> shutdown: Number of open file descriptors: %s" % get_open_fds())
 
             retcode = self.send_email(msg)
             print("send_mail retcode", retcode)
@@ -843,3 +847,25 @@ def get_running_jobs():
 #    mailto = "matteo.giantomassi@uclouvain.be"
 #    retcode = sendmail("sendmail_test", text, mailto)
 #    print("Retcode", retcode)
+
+def get_open_fds():
+    """
+    return the number of open file descriptors for current process
+
+    .. warning: will only work on UNIX-like os-es.
+    """
+    import subprocess
+    import os
+
+    pid = os.getpid()
+    procs = subprocess.check_output( 
+        [ "lsof", '-w', '-Ff', "-p", str( pid ) ] )
+
+    nprocs = len( 
+        filter( 
+            lambda s: s and s[ 0 ] == 'f' and s[1: ].isdigit(),
+            procs.split( '\n' ) )
+        )
+
+    return nprocs
+

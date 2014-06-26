@@ -496,11 +496,18 @@ class MagOrderingTransformation(AbstractTransformation):
         for sp, spin in self.mag_species_spin.items():
             sp = get_el_sp(sp)
             oxi_state = getattr(sp, "oxi_state", 0)
-            up = Specie(sp.symbol, oxi_state, {"spin": abs(spin)})
-            down = Specie(sp.symbol, oxi_state, {"spin": -abs(spin)})
-            mods.replace_species(
-                {sp: Composition({up: self.order_parameter,
-                                  down: 1 - self.order_parameter})})
+            if spin:
+                up = Specie(sp.symbol, oxi_state, {"spin": abs(spin)})
+                down = Specie(sp.symbol, oxi_state, {"spin": -abs(spin)})
+                mods.replace_species(
+                    {sp: Composition({up: self.order_parameter,
+                                      down: 1 - self.order_parameter})})
+            else:
+                mods.replace_species(
+                    {sp: Specie(sp.symbol, oxi_state, {"spin": spin})})
+
+        if mods.is_ordered:
+            return [mods] if return_ranked_list > 1 else mods
 
         enum_args = self.enum_kwargs
 
@@ -528,8 +535,8 @@ class MagOrderingTransformation(AbstractTransformation):
         except ValueError:
             num_to_return = 1
 
-        if num_to_return == 1:
-            return alls[0]["structure"]
+        if num_to_return == 1 or not return_ranked_list:
+            return alls[0]["structure"] if num_to_return else alls
 
         m = StructureMatcher(comparator=SpinComparator())
 

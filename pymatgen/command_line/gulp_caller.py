@@ -72,7 +72,7 @@ _gulp_kw = {
 }
 
 
-class GulpIO:
+class GulpIO(object):
     """
     To generate GULP input and process output
     """
@@ -266,10 +266,16 @@ class GulpIO:
                 dict, where El is element.
         """
         if not val_dict:
-            bv = BVAnalyzer()
-            el = [site.species_string for site in structure.sites]
-            valences = bv.get_valences(structure)
-            val_dict = dict(zip(el, valences))
+            try:
+                #If structure is oxidation state decorated, use that first.
+                el = [site.specie.symbol for site in structure]
+                valences = [site.specie.oxi_state for site in structure]
+                val_dict = dict(zip(el, valences))
+            except AttributeError:
+                bv = BVAnalyzer()
+                el = [site.specie.symbol for site in structure]
+                valences = bv.get_valences(structure)
+                val_dict = dict(zip(el, valences))
 
         #Try bush library first
         bpb = BuckinghamPotential('bush')
@@ -343,7 +349,7 @@ class GulpIO:
             structure: pymatgen.core.structure.Structure
         """
         bv = BVAnalyzer()
-        el = [site.species_string for site in structure.sites]
+        el = [site.specie.symbol for site in structure]
         valences = bv.get_valences(structure)
         el_val_dict = dict(zip(el, valences))
 
@@ -468,7 +474,7 @@ class GulpIO:
         return Structure(latt, sp, coords)
 
 
-class GulpCaller:
+class GulpCaller(object):
     """
     Class to run gulp from commandline
     """
@@ -555,7 +561,8 @@ def get_energy_tersoff(structure, gulp_cmd='gulp'):
 
 
 def get_energy_buckingham(structure, gulp_cmd='gulp',
-                          keywords=('optimise', 'conp'), valence_dict=None):
+                          keywords=('optimise', 'conp', 'qok'),
+                          valence_dict=None):
     """
     Compute the energy of a structure using Buckingham potential.
 

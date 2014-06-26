@@ -30,9 +30,6 @@ from pymatgen.io.abinitio.qadapters import qadapter_class
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
 from pymatgen.io.abinitio.strategies import StrategyWithInput, OpticInput, AnaddbInput
 
-import logging
-logger = logging.getLogger(__name__)
-
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
@@ -51,6 +48,9 @@ __all__ = [
     "OpticTask",
     "AnaddbTask",
 ]
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 # Tools and helper functions.
@@ -605,8 +605,8 @@ _COUNTER_FILE = os.path.join(conf_dir, "nodecounter")
 del conf_dir
 
 try:
-    with open(_COUNTER_FILE, "r") as fh:
-        _COUNTER = int(fh.read())
+    with open(_COUNTER_FILE, "r") as _fh:
+        _COUNTER = int(_fh.read())
 
 except IOError:
     _COUNTER = -1
@@ -1044,13 +1044,23 @@ class Node(object):
     def add_required_files(self, files):
         """
         Add a list of paths to the list of files required by the `Node`.
+        Note that the files must exist when the task is registered.
 
         Args:
             files:
                 string or list of strings with the path of the files
+        Raises:
+            ValueError if at least one file does not exist.
         """
         # We want a list of absolute paths.
         files = map(os.path.abspath, list_strings(files))
+
+        # Files must exist.
+        if any(not os.path.exists(f) for f in files):
+            err_msg = ("Cannot define a dependency on a file that does not exist!\n" + 
+                       "The following files do not exist:\n" +
+                       "\n".join(["\t" + f for f in files if not os.path.exists(f)]))
+            raise ValueError(err_msg)
 
         # Convert to list of products.
         files = [Product.from_file(path) for path in files]
