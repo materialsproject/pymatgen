@@ -149,7 +149,7 @@ class AbinitFlow(Node):
         # Check if versions match.
         if flow.VERSION != cls.VERSION:
             msg = ("File flow version %s != latest version %s\n."
-                   "Regerate the flow to solve the problem " % (flow.VERSION, cls.VERSION))
+                   "Regenerate the flow to solve the problem " % (flow.VERSION, cls.VERSION))
             warnings.warn(msg)
 
         if not disable_signals:
