@@ -18,7 +18,8 @@ Working with Materials API
 --------------------------
 
 * `Calculating reaction energies with the Materials API <_static/Calculating%20Reaction%20Energies%20with%20the%20Materials%20API.html>`_
-* `Plotting PDs with the Materials API <_static/Plotting%20a%20Phase%20Diagram%20using%20the%20Materials%20API.html>`_
+* `Plotting Phase Diagrams with the Materials API <_static/Plotting%20a%20Phase%20Diagram%20using%20the%20Materials%20API.html>`_
+* `Plotting Pourbaix Diagrams with the Materials API <_static/Plotting%20a%20Pourbaix%20Diagram.html>`_
 
 Materials Analysis
 ------------------
