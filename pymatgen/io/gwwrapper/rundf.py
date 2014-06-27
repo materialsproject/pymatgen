@@ -40,15 +40,11 @@ def build_flow(options):
     # Working directory (default is the name of the script with '.py' removed and "run_" replaced by "flow_")
     workdir = options.workdir
     if not options.workdir:
-        workdir = os.path.basename(__file__).replace(".py", "").replace("run_","flow_")
+        #workdir = os.path.basename(__file__).replace(".py", "").replace("run_", "flow_")
         workdir = '.'
 
     # Instantiate the TaskManager.
     manager = abilab.TaskManager.from_user_config() if not options.manager else options.manager
-
-    # Initialize the flow.
-    # FIXME  Abistructure is not pickleable with protocol -1
-    flow = abilab.AbinitFlow(workdir=workdir, manager=manager, pickle_protocol=0)
 
     # Build the workflow for the computation of the deltafactor.
     # The calculation is done with the parameters and the cif files
@@ -59,32 +55,47 @@ def build_flow(options):
     # outdir directory DELTAFACTOR/work_0/outdir.
     factory = DeltaFactory()
 
-    kppa = 6750  # Use this to have the official k-point sampling
-    kppa = 50    # this value is for testing purpose.
-
     #extra = {}
 
-    ecut = 8
-    pawecutdg = ecut * 2 #if pseudo.ispaw else None
+    if options['test']:
+        kppa = 50    # this value is for testing purpose.
+        ecut = 8
+        pawecutdg = ecut * 2
 
-    work = factory.work_for_pseudo(pseudo, accuracy="normal", kppa=kppa,
-                                   ecut=ecut, pawecutdg=pawecutdg,
-                                   toldfe=1.e-8, smearing="fermi_dirac:0.0005")
+        # Initialize the flow.
+        # flow = abilab.AbinitFlow(workdir=workdir, manager=manager, pickle_protocol=0)
 
-    work.start()
-    work.wait()
-    return
+        work = factory.work_for_pseudo(pseudo, accuracy="normal", kppa=kppa,
+                                       ecut=ecut, pawecutdg=pawecutdg,
+                                       toldfe=1.e-8, smearing="fermi_dirac:0.0005")
 
-    # Register the workflow.
-    #flow.register_work(work)
-    #return flow.allocate()
+        work.start()
+        work.wait()
+        return
+    else:
+        kppa = 6750  # Use this to have the official k-point sampling
+        for ecut in [8, 12, 16, 20, 24, 28, 32, 36]:
+            pawecutdg = ecut * 2
+            flow = abilab.AbinitFlow(workdir=workdir+str(ecut), manager=manager, pickle_protocol=0)
+            work = factory.work_for_pseudo(pseudo, accuracy="normal", kppa=kppa,
+                                           ecut=ecut, pawecutdg=pawecutdg,
+                                           toldfe=1.e-8, smearing="fermi_dirac:0.0005")
+            # Register the workflow.
+            flow.register_work(work)
+
+    return flow.allocate()
 
 
 @abilab.flow_main
 def main(options):
+    print(option)
     flow = build_flow(options)
     return flow.build_and_pickle_dump()
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    option = {'test': False}
+
+    for arg in sys.argv:
+        option.update({arg: True})
+    sys.exit(main(option=option))
