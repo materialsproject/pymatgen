@@ -45,7 +45,7 @@ def build_flow(options):
     workdir = 'df_run'
 
     # Instantiate the TaskManager.
-    manager = abilab.TaskManager.from_user_config() if not options.manager else options.manager
+    manager = abilab.TaskManager.from_user_config()  # if not options.manager else options.manager
 
     # Build the workflow for the computation of the deltafactor.
     # The calculation is done with the parameters and the cif files
