@@ -10,7 +10,7 @@ __author__ = 'setten'
 
 import os
 import sys
-import abipy.data as data
+# import abipy.data as data
 import abipy.abilab as abilab
 
 from abipy.data.runs import AbipyTest, MixinTest
@@ -74,29 +74,31 @@ def build_flow(options):
         work.wait()
         return
     else:
+        flow = abilab.AbinitFlow(workdir=workdir, manager=manager, pickle_protocol=0)
         kppa = 6750  # Use this to have the official k-point sampling
         for ecut in [8, 12, 16, 20, 24, 28, 32, 36]:
             pawecutdg = ecut * 2
-            flow = abilab.AbinitFlow(workdir=workdir+str(ecut), manager=manager, pickle_protocol=0)
             work = factory.work_for_pseudo(pseudo, accuracy="normal", kppa=kppa,
                                            ecut=ecut, pawecutdg=pawecutdg,
                                            toldfe=1.e-8, smearing="fermi_dirac:0.0005")
             # Register the workflow.
-            flow.register_work(work)
+            flow.register_work(work, workdir='W'+str(ecut))
+        workflow = flow.allocate()
+        workflow.build_and_pickle_dump()
+        return
 
-    return flow.allocate()
 
-
-#@abilab.flow_main
+#abilab.flow_main
 def main(options):
-    print(option)
-    flow = build_flow(options)
-    return flow.build_and_pickle_dump()
+    print(options)
+    build_flow(options)
 
 
 if __name__ == "__main__":
-    option = {'test': False}
+    my_options = {'test': False}
 
     for arg in sys.argv:
-        option.update({arg: True})
-    sys.exit(main(option=option))
+        my_options.update({arg: True})
+
+    print(my_options)
+    main(options=my_options)
