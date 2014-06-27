@@ -1,8 +1,12 @@
-__author__ = 'setten'
 
 #!/usr/bin/env python
+
 """Compute the deltafactor for a given pseudopotential."""
+
 from __future__ import division, print_function
+
+__author__ = 'setten'
+
 
 import os
 import sys
