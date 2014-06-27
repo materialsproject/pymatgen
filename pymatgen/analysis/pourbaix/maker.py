@@ -212,7 +212,6 @@ class PourbaixDiagram(object):
                 if abs(np.linalg.det(facetmatrix)) > 1e-8:
                     vert_facets_removed.append(facet)
                 else:
-                    print "removed facet", facet
                     logger.debug("Removing vertical facet : {}".format(facet))
 
             logger.debug("Removing UCH facets by eliminating normal.z >0 ...")
@@ -248,7 +247,6 @@ class PourbaixDiagram(object):
                 if n[2] <= 0:
                     final_facets.append(facet)
                 else:
-                    print "removed UCH facet", facet
                     logger.debug("Removing UCH facet : {}".format(facet))
             final_facets = np.array(final_facets)
             self._facets = final_facets
