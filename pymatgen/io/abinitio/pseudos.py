@@ -122,6 +122,7 @@ class Pseudo(object):
             * Pseudo object.
             * string defining a valid path.
         """
+        print(obj)
         if isinstance(obj, cls):
             return obj
         else:
