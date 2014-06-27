@@ -122,11 +122,12 @@ class Pseudo(object):
             * Pseudo object.
             * string defining a valid path.
         """
+        print('in aspseudo')
         print(obj)
         if isinstance(obj, cls):
             return obj
         else:
-            # Assumes path.
+            print('Assumes path.')
             return cls.from_file(obj)
 
     @staticmethod
