@@ -883,6 +883,9 @@ class PbsAdapter(AbstractQueueAdapter):
     # no need to raise an error, if False is returned the fixer may try something else, we don't need to kill the
     # scheduler just yet
 
+    def do(self):
+        return 'this is not FORTAN'
+
     def exclude_nodes(self, nodes):
         print('exluding nodes, not implemented yet pbs')
         return False
