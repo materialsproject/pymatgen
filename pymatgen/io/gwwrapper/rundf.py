@@ -38,6 +38,7 @@ def build_flow(options):
     workdir = options.workdir
     if not options.workdir:
         workdir = os.path.basename(__file__).replace(".py", "").replace("run_","flow_")
+        workdir = '.'
 
     # Instantiate the TaskManager.
     manager = abilab.TaskManager.from_user_config() if not options.manager else options.manager
