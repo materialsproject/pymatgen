@@ -104,18 +104,25 @@ class PDPlotter(object):
 
         return lines, stable_entries, unstable_entries
 
-    def show(self, label_stable=True, label_unstable=True, ordering=None,
-             energy_colormap=None, process_attributes=False):
-        """
-        Draws the phase diagram using Matplotlib and show it.
-        """
+    def get_plot(self, label_stable=True, label_unstable=True, ordering=None,
+                 energy_colormap=None, process_attributes=False):
         if self._dim < 4:
             plt = self._get_2d_plot(label_stable, label_unstable, ordering,
                                     energy_colormap,
                                     process_attributes=process_attributes)
         elif self._dim == 4:
             plt = self._get_3d_plot(label_stable)
-        plt.show()
+
+        return plt
+
+    def show(self, label_stable=True, label_unstable=True, ordering=None,
+             energy_colormap=None, process_attributes=False):
+        """
+        Draws the phase diagram using Matplotlib and show it.
+        """
+        self.get_plot(label_stable=label_stable, label_unstable=label_unstable,
+                      ordering=ordering, energy_colormap=energy_colormap,
+                      process_attributes=process_attributes).show()
 
     def _get_2d_plot(self, label_stable=True, label_unstable=True,
                      ordering=None, energy_colormap=None, vmin_mev=-60.0,
@@ -330,7 +337,8 @@ class PDPlotter(object):
         ax.axis("off")
         return plt
 
-    def write_image(self, stream, image_format="svg", ordering=None,
+    def write_image(self, stream, image_format="svg", label_stable=True,
+                    label_unstable=True, ordering=None,
                     energy_colormap=None, process_attributes=False):
         """
         Writes the phase diagram to an image in a stream.
@@ -342,11 +350,10 @@ class PDPlotter(object):
                 format for image. Can be any of matplotlib supported formats.
                 Defaults to svg for best results for vector graphics.
         """
-        if self._dim < 4:
-            plt = self._get_2d_plot(ordering=ordering, energy_colormap=energy_colormap,
-                                    process_attributes=process_attributes)
-        elif self._dim == 4:
-            plt = self._get_3d_plot()
+        plt = self.get_plot(
+            label_stable=label_stable, label_unstable=label_unstable,
+            ordering=ordering, energy_colormap=energy_colormap,
+            process_attributes=process_attributes)
 
         f = plt.gcf()
         f.set_size_inches((12, 10))
