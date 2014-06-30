@@ -139,7 +139,7 @@ class Slab(Structure):
         self.normal = normal
         self.miller_index = miller_index
 
-        super(Structure, self).__init__(
+        super(Slab, self).__init__(
             slab.lattice, slab.species_and_occu, slab.frac_coords,
             site_properties=slab.site_properties)
 

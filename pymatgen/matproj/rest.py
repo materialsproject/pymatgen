@@ -75,7 +75,7 @@ class MPRester(object):
                             "e_above_hull", "hubbards", "is_compatible",
                             "spacegroup", "task_ids", "band_gap", "density",
                             "icsd_id", "cif", "total_magnetization",
-                            "material_id")
+                            "material_id", "oxide_type")
 
     def __init__(self, api_key=None, host="www.materialsproject.org"):
         if api_key is not None:
