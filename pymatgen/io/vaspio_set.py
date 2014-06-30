@@ -1198,7 +1198,7 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
     def from_previous_vasp_run(previous_vasp_dir, output_dir='.',
                                user_incar_settings=None,
                                copy_chgcar=True, make_dir_if_not_present=True,
-                               nbands_factor=5.0):
+                               nbands_factor=5.0, nedos=2001):
         """
         Generate a set of Vasp input files for NonSCF calculations from a
         directory of previous static Vasp run.
@@ -1254,7 +1254,8 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
         #Overwrite necessary INCAR parameters from previous runs
         previous_incar.update({"IBRION": -1, "ISMEAR": 0, "SIGMA": 0.001,
                                "LCHARG": False, "LORBIT": 11, "LWAVE": False,
-                               "NSW": 0, "ISYM": 0, "ICHARG": 11})
+                               "NSW": 0, "ISYM": 0, "ICHARG": 11, "LOPTICS": True,
+                               "NEDOS": nedos})
         previous_incar.update(nscf_incar_settings)
         previous_incar.update(user_incar_settings)
         previous_incar.pop("MAGMOM", None)
