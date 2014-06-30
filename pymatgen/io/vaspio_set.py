@@ -934,6 +934,21 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
                            style="Reciprocal", num_kpts=len(kpts),
                            kpts=kpts, kpts_weights=weights)
 
+    @property
+    def to_dict(self):
+        d = super(MPBSHSEVaspInputSet, self).to_dict
+        d['added_kpoints'] = self.added_kpoints
+        d['mode'] = self.mode
+        d['kpoints_density'] = self.kpoints_density
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(user_incar_settings=d.get("user_incar_settings", None),
+                   added_kpoints=d.get("added_kpoints", []),
+                   mode=d.get("mode", "Line"),
+                   kpoints_density=d.get("kpoints_density", 100))
+
 
 class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
     """
