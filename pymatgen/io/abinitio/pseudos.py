@@ -125,7 +125,6 @@ class Pseudo(object):
         if isinstance(obj, cls):
             return obj
         else:
-            print('Assumes path.')
             return cls.from_file(obj)
 
     @staticmethod
@@ -134,7 +133,6 @@ class Pseudo(object):
         Return a pseudopotential object from filename.
         Note: the parser knows the concrete class that should be instanciated
         """
-        print('from file')
         return PseudoParser().parse(filename)
 
     def __repr__(self):
@@ -1124,7 +1122,6 @@ class PseudoParser(object):
 
         try:
             header = parsers[ppdesc.name](path, ppdesc)
-            print(header)
         except Exception as exc:
             raise self.Error(path + ":\n" + straceback())
 
