@@ -251,7 +251,6 @@ class Slab(Structure):
             if site_abc[i] < 0 or site_abc[i] > 1:
                 raise ValueError("wrong distance, atom will be outside the cell.")
 
-
         print 'add_site:', site_abc, atom
 
         ist = InsertSitesTransformation(species=atom, coords=[site_abc])
