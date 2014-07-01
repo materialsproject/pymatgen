@@ -122,8 +122,6 @@ class Pseudo(object):
             * Pseudo object.
             * string defining a valid path.
         """
-        print('in aspseudo')
-        print(obj)
         if isinstance(obj, cls):
             return obj
         else:
@@ -744,35 +742,44 @@ class NcAbinitHeader(AbinitHeader):
         return NcAbinitHeader(summary, **header)
 
     @staticmethod
-    def oncvpsp_header(filename):
+    def oncvpsp_header(filename, ppdesc):
 
         lines = _read_nlines(filename, -1)
         header = {}
-
+        nc = None
         header.update({"pspcod": 11})
 
         for (lineno, line) in enumerate(lines):
+            #print(lineno, line)
 
             if 'psp8' in line and '###' not in line:
                 tokens = line.split()
-                header.update({'zatom': tokens[1]})
-                header.update({'pspxc': PseudoParser._FUNCTIONALS[tokens[4]]['n']})
-                nc = tokens[2]  # number of core states
-                nv = tokens[3]  # number of valence states
-            elif 'n, l, f' in line and '###' not in line:
+                header.update({'zatom': float(tokens[1])})
+                print({'zatom': float(tokens[1])})
+                header.update({'pspxc': PseudoParser._FUNCTIONALS[int(tokens[4])]['n']})
+                print({'pspxc': PseudoParser._FUNCTIONALS[int(tokens[4])]['n']})
+                nc = int(tokens[2])  # number of core states
+                nv = int(tokens[3])  # number of valence states
+            elif ' n ' in line and ' l ' in line and ' f ' in line and '###' not in line:
                 # "zion" info on the next nc+nv lines
                 zion = header['zatom']
-                for n in range(1, nc, 1):
+                for n in range(1, nc + 1, 1):
                     tokens = lines[lineno+n].split()
-                    print(tokens)
-                    zion -= tokens[2]
+                    print(tokens[2])
+                    zion -= float(tokens[2])
                 header.update({'zion': zion})
-            elif 'lmax' in line and '###' not in line:
+                print({'zion': zion})
+            elif '# lmax' in line and '###' not in line:
                 # "lmax" first on next line
-                header.update({'lmax': lines[lineno+1].split()[0]})
-            elif 'lloc' in line and '###' not in line:
+                header.update({'lmax': int(lines[lineno+1].split()[0])})
+                print({'lmax': int(lines[lineno+1].split()[0])})
+            elif '# lloc' in line and '###' not in line:
                 # "lloc" first on next line
-                header.update({'lloc': lines[lineno+1].split()[0]})
+                header.update({'lloc': int(lines[lineno+1].split()[0])})
+                print({'lloc': int(lines[lineno+1].split()[0])})
+            elif 'DATA FOR PLOTTING' in line:
+                break
+
 
         #these we don't know:
         #"r2well"       : _attr_desc(None, float),
@@ -780,8 +787,11 @@ class NcAbinitHeader(AbinitHeader):
         #"mmax"         : _attr_desc(None, float),
         # this could be rlmax / drl + 1
         header.update({'mmax': 0})
+        header.update({'pspdat': -1})
 
         summary = lines[0]
+
+        print(header)
 
         return NcAbinitHeader(summary, **header)
 
@@ -950,10 +960,10 @@ class PseudoParser(object):
     })
     del ppdesc
 
-    # renumber functionals from oncvpsp todo add the numbers for 1,2,3 ...
-    _FUNCTIONALS = {1: {'n': None, 'name': 'Wigner'},
-                    2: {'n': None, 'name': 'HL'},
-                    3: {'n': None, 'name': 'PWCA'},
+    # renumber functionals from oncvpsp todo confrim that 3 is 2
+    _FUNCTIONALS = {1: {'n': 4, 'name': 'Wigner'},
+                    2: {'n': 5, 'name': 'HL'},
+                    3: {'n': 2, 'name': 'PWCA'},
                     4: {'n': 11, 'name': 'PBE'}}
 
     def __init__(self):
@@ -1030,10 +1040,8 @@ class PseudoParser(object):
                 if 'psp8' in line and '#' not in line:
                     try:
                         tokens = line.split()
-                        print('tokens:')
-                        print(tokens)
-                        print('found' + self._FUNCTIONALS[tokens[4]]['name'] + 'functional')
-                        pspxc = self._FUNCTIONALS[tokens[4]]['n']
+                        print('found ' + self._FUNCTIONALS[int(tokens[4])]['name'] + ' functional')
+                        pspxc = self._FUNCTIONALS[int(tokens[4])]['n']
                     except OSError:
                         msg = "%s: Cannot parse pspcod, pspxc in line\n %s" % (filename, line)
                         sys.stderr.write(msg)
@@ -1041,6 +1049,10 @@ class PseudoParser(object):
 
                     if pspcod not in self._PSPCODES:
                         raise self.Error("%s: Don't know how to handle pspcod %s\n"  % (filename, pspcod))
+
+            ppdesc = self._PSPCODES[pspcod]
+
+            return ppdesc
 
         else:
             # Assume file with the abinit header.
@@ -1090,8 +1102,6 @@ class PseudoParser(object):
         """
         path = os.path.abspath(filename)
 
-        print('in parse')
-
         # Only PAW supports XML at present.
         if filename.endswith(".xml"):
             return PawXmlSetup(path)
@@ -1114,7 +1124,7 @@ class PseudoParser(object):
 
         try:
             header = parsers[ppdesc.name](path, ppdesc)
-
+            print(header)
         except Exception as exc:
             raise self.Error(path + ":\n" + straceback())
 
