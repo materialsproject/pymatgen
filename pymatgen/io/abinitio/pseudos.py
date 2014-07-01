@@ -743,7 +743,7 @@ class NcAbinitHeader(AbinitHeader):
         return NcAbinitHeader(summary, **header)
 
     @staticmethod
-    def psp8_header(filename):
+    def oncvpsp_header(filename):
 
         lines = _read_nlines(filename, -1)
         header = {}
@@ -949,11 +949,11 @@ class PseudoParser(object):
     })
     del ppdesc
 
+    # renumber functionals from oncvpsp todo add the numbers for 1,2,3 ...
     _FUNCTIONALS = {1: {'n': None, 'name': 'Wigner'},
                     2: {'n': None, 'name': 'HL'},
                     3: {'n': None, 'name': 'PWCA'},
                     4: {'n': 11, 'name': 'PBE'}}
-
 
     def __init__(self):
         # List of files that have been parsed succesfully.
@@ -1022,7 +1022,7 @@ class PseudoParser(object):
             # parser for ONCVPSP 's
             lines = _read_nlines(filename, -1)
 
-            pspcod = 7
+            pspcod = 11
 
             for (lineno, line) in enumerate(lines):
 
@@ -1104,7 +1104,7 @@ class PseudoParser(object):
             "TM"             : NcAbinitHeader.tm_header,
             "HGH"            : NcAbinitHeader.hgh_header,
             "HGHK"           : NcAbinitHeader.hgh_header,
-            "ONCVPSP"        : NcAbinitHeader.psp8_header,
+            "ONCVPSP"        : NcAbinitHeader.oncvpsp_header,
             "PAW_abinit_text": PawAbinitHeader.paw_header,
         }
 
