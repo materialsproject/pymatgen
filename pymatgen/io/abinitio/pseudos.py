@@ -136,6 +136,7 @@ class Pseudo(object):
         Return a pseudopotential object from filename.
         Note: the parser knows the concrete class that should be instanciated
         """
+        print('from file')
         return PseudoParser().parse(filename)
 
     def __repr__(self):
@@ -1029,10 +1030,11 @@ class PseudoParser(object):
                 if 'psp8' in line and '#' not in line:
                     try:
                         tokens = line.split()
+                        print('tokens:')
                         print(tokens)
                         print('found' + self._FUNCTIONALS[tokens[4]]['name'] + 'functional')
                         pspxc = self._FUNCTIONALS[tokens[4]]['n']
-                    except:
+                    except OSError:
                         msg = "%s: Cannot parse pspcod, pspxc in line\n %s" % (filename, line)
                         sys.stderr.write(msg)
                         return None
@@ -1087,6 +1089,8 @@ class PseudoParser(object):
             pseudopotential object or None if filename is not a valid pseudopotential file.
         """
         path = os.path.abspath(filename)
+
+        print('in parse')
 
         # Only PAW supports XML at present.
         if filename.endswith(".xml"):
