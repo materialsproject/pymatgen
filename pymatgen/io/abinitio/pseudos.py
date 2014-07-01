@@ -610,7 +610,7 @@ class NcAbinitHeader(AbinitHeader):
         "r2well"       : _attr_desc(None, float),
         "mmax"         : _attr_desc(None, float),
         # Optional variables for non linear-core correction. HGH does not have it.
-        "rchrg"        : _attr_desc(0.0,  float), # radius at which the core charge vanish (i.e. cut-off in a.u.)
+        "rchrg"        : _attr_desc(0.0,  float),  # radius at which the core charge vanish (i.e. cut-off in a.u.)
         "fchrg"        : _attr_desc(0.0,  float),
         "qchrg"        : _attr_desc(0.0,  float),
     }
@@ -739,6 +739,48 @@ class NcAbinitHeader(AbinitHeader):
         header = _dict_from_lines(header, [0,3,6,3])
 
         header["dojo_report"] = read_dojo_report(filename)
+
+        return NcAbinitHeader(summary, **header)
+
+    @staticmethod
+    def psp8_header(filename):
+
+        lines = _read_nlines(filename, -1)
+        header = {}
+
+        header.update({"pspcod": 11})
+
+        for (lineno, line) in enumerate(lines):
+
+            if 'psp8' in line and '###' not in line:
+                tokens = line.split()
+                header.update({'zatom': tokens[1]})
+                header.update({'pspxc': PseudoParser._FUNCTIONALS[tokens[4]]['n']})
+                nc = tokens[2]  # number of core states
+                nv = tokens[3]  # number of valence states
+            elif 'n, l, f' in line and '###' not in line:
+                # "zion" info on the next nc+nv lines
+                zion = header['zatom']
+                for n in range(1, nc, 1):
+                    tokens = lines[lineno+n].split()
+                    print(tokens)
+                    zion -= tokens[2]
+                header.update({'zion': zion})
+            elif 'lmax' in line and '###' not in line:
+                # "lmax" first on next line
+                header.update({'lmax': lines[lineno+1].split()[0]})
+            elif 'lloc' in line and '###' not in line:
+                # "lloc" first on next line
+                header.update({'lloc': lines[lineno+1].split()[0]})
+
+        #these we don't know:
+        #"r2well"       : _attr_desc(None, float),
+        header.update({'r2well': 0.0})
+        #"mmax"         : _attr_desc(None, float),
+        # this could be rlmax / drl + 1
+        header.update({'mmax': 0})
+
+        summary = lines[0]
 
         return NcAbinitHeader(summary, **header)
 
@@ -903,8 +945,15 @@ class PseudoParser(object):
         7 : ppdesc(6, "PAW_abinit_text", "PAW", None),
         #8 : ppdesc(8, "NC", None),
        10 : ppdesc(10, "HGHK", "NC", None),
+       11 : ppdesc(11, "ONCVPSP", "NC", None)
     })
     del ppdesc
+
+    _FUNCTIONALS = {1: {'n': None, 'name': 'Wigner'},
+                    2: {'n': None, 'name': 'HL'},
+                    3: {'n': None, 'name': 'PWCA'},
+                    4: {'n': 11, 'name': 'PBE'}}
+
 
     def __init__(self):
         # List of files that have been parsed succesfully.
@@ -969,10 +1018,31 @@ class PseudoParser(object):
         """
         if filename.endswith(".xml"):
             raise self.Error("XML pseudo not supported yet")
+        elif filename.endswith(".out"):
+            # parser for ONCVPSP 's
+            lines = _read_nlines(filename, -1)
+
+            pspcod = 7
+
+            for (lineno, line) in enumerate(lines):
+
+                if 'psp8' in line and '#' not in line:
+                    try:
+                        tokens = line.split()
+                        print(tokens)
+                        print('found' + self._FUNCTIONALS[tokens[4]]['name'] + 'functional')
+                        pspxc = self._FUNCTIONALS[tokens[4]]['n']
+                    except:
+                        msg = "%s: Cannot parse pspcod, pspxc in line\n %s" % (filename, line)
+                        sys.stderr.write(msg)
+                        return None
+
+                    if pspcod not in self._PSPCODES:
+                        raise self.Error("%s: Don't know how to handle pspcod %s\n"  % (filename, pspcod))
 
         else:
             # Assume file with the abinit header.
-            lines = _read_nlines(filename, -1)
+            lines = _read_nlines(filename, 80)
 
             for (lineno, line) in enumerate(lines):
 
@@ -1034,6 +1104,7 @@ class PseudoParser(object):
             "TM"             : NcAbinitHeader.tm_header,
             "HGH"            : NcAbinitHeader.hgh_header,
             "HGHK"           : NcAbinitHeader.hgh_header,
+            "ONCVPSP"        : NcAbinitHeader.psp8_header,
             "PAW_abinit_text": PawAbinitHeader.paw_header,
         }
 
