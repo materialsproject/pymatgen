@@ -148,7 +148,7 @@ class Slab(Structure):
         m = self.lattice.matrix
         return np.linalg.norm(np.cross(m[0], m[1]))
 
-    def adsorp_atom(self, site_a, atom, distance, xyz=0):
+    def adsorp_atom(self, site_a, atom, distance, coords_are_cartesian=False):
         """
         Gets the structure of single atom adsorption.
         slab structure from the Slab class(in [0, 0, 1])
@@ -160,7 +160,7 @@ class Slab(Structure):
         atom: adsorbed atom species
         distance: between centers of the adsorbed atom and the given site.
              in Angstroms
-        xyz: default is 0. 1 means site_a = [x, y, z], in Angstroms.
+        coords_are_cartesian: default is False. True means site_a = [x, y, z], in Angstroms.
 
         """
 
@@ -168,12 +168,14 @@ class Slab(Structure):
         c_s = self.lattice.c
         b123_s = self.lattice.inv_matrix.T
 
-        if xyz == 0:
+        if coords_are_cartesian == False:
             # site_a = [a, b, c]
             for i in xrange(3):
                 if site_a[i]> 1 or site_a[i] < 0:
                     raise ValueError("site_a is outside the cell.")
-            site_abc = [site_a[0], site_a[1],  distance/c_s+site_a[2]]
+            site_abc = []
+            for i in xrange(3):
+                site_abc.append(site_a[i]+self.normal[i]*distance/c_s)
         else:
             # site_a = [x, y, z]
             for i in xrange(3):
@@ -181,10 +183,10 @@ class Slab(Structure):
                     raise ValueError("sites_a is outside the cell.")
             site_a1 = np.array(site_a)
             # convert to a1, a2, a3
-            #< site_a2 = np.dot(a123_s, site_a1.T) / abc_s
-            #< site_abc = (V_o+site_a2) / abc_s
             site_a2 = np.dot(b123_s, site_a1.T)
-            site_abc = [site_a2[0], site_a2[1],  distance/c_s+site_a2[2]]
+            site_abc = []
+            for i in xrange(3):
+                site_abc.append(site_a2[i]+self.normal[i]*distance/c_s)
 
         if site_abc[2] < 0 or site_abc[2] > 1:
             raise ValueError("wrong distance, atom will be outside the cell.")
@@ -337,7 +339,7 @@ class SlabTest(unittest.TestCase):
 
         # 2. test site_a = xyz input
         s1 = Slab(self.cu, [0, 0, 1], 5, 5)
-        s1_ad2 = s1.adsorp_atom([1.5, 1.5, 3], 'O', 2, xyz=1)
+        s1_ad2 = s1.adsorp_atom([1.5, 1.5, 3], 'O', 2, coords_are_cartesian=True)
 
         self.assertEqual(len(s1_ad2), 9)
         self.assertEqual(s1_ad2.formula, "Cu8 O1")
