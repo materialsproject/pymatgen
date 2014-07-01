@@ -148,6 +148,53 @@ class Slab(Structure):
         m = self.lattice.matrix
         return np.linalg.norm(np.cross(m[0], m[1]))
 
+    def adsorp_atom(self, site_a, atom, distance, xyz=0):
+        """
+        Gets the structure of single atom adsorption.
+        slab structure from the Slab class(in [0, 0, 1])
+
+        Args:
+        site_a:  given sites for adsorption.
+             default(xyz=0): site_a = [a, b, c], within [0,1];
+             xyz=1: site_a = [x, y, z], in Angstroms.
+        atom: adsorbed atom species
+        distance: between centers of the adsorbed atom and the given site.
+             in Angstroms
+        xyz: default is 0. 1 means site_a = [x, y, z], in Angstroms.
+
+        """
+
+        abc_s = self.lattice.abc
+        c_s = self.lattice.c
+        b123_s = self.lattice.inv_matrix.T
+
+        if xyz == 0:
+            # site_a = [a, b, c]
+            for i in xrange(3):
+                if site_a[i]> 1 or site_a[i] < 0:
+                    raise ValueError("site_a is outside the cell.")
+            site_abc = [site_a[0], site_a[1],  distance/c_s+site_a[2]]
+        else:
+            # site_a = [x, y, z]
+            for i in xrange(3):
+                if site_a[i] > abc_s[i]:
+                    raise ValueError("sites_a is outside the cell.")
+            site_a1 = np.array(site_a)
+            # convert to a1, a2, a3
+            #< site_a2 = np.dot(a123_s, site_a1.T) / abc_s
+            #< site_abc = (V_o+site_a2) / abc_s
+            site_a2 = np.dot(b123_s, site_a1.T)
+            site_abc = [site_a2[0], site_a2[1],  distance/c_s+site_a2[2]]
+
+        if site_abc[2] < 0 or site_abc[2] > 1:
+            raise ValueError("wrong distance, atom will be outside the cell.")
+
+        print 'add_site:', site_abc, atom
+
+        structure0 = self
+        structure0.append(species=atom, coords=site_abc)
+        return structure0
+
     @classmethod
     def adsorb_atom(cls, structure_a, site_a, atom, distance,
                     surface=[0, 0, 1], xyz=0):
@@ -183,8 +230,8 @@ class Slab(Structure):
         if xyz == 0:
             # site_a = [a, b, c]
             for i in xrange(3):
-                if site_a[i]> 1 or site_a[i] < 0:
-                    raise ValueError("site_a is outsite the cell.")
+                if site_a[i] > 1 or site_a[i] < 0:
+                    raise ValueError("site_a is outside the cell.")
             site_abc = V_o / abc_s + site_a
         else:
             # site_a = [x, y, z]
@@ -211,6 +258,10 @@ class Slab(Structure):
         structure_ad = ist.apply_transformation(structure_a)
 
         return structure_ad
+
+
+
+
 
 
 import unittest
@@ -269,6 +320,34 @@ class SlabTest(unittest.TestCase):
                 self.assertAlmostEqual(s001_ad2[i].a, 0.5)
                 self.assertAlmostEqual(s001_ad2[i].b, 0.5)
                 self.assertAlmostEqual(s001_ad2[i].c, 0.4166667)
+
+    def test_adsorp_atom(self):
+        # O adsorb on 4Cu[0.5, 0.5, 0.25], abc = [3, 3, 12]
+        # 1. test site_a = abc input
+        s1 = Slab(self.cu, [0, 0, 1], 5, 5)
+        s1_ad1 = s1.adsorp_atom([0.5, 0.5, 0.25], 'O', 2)
+
+        self.assertEqual(len(s1_ad1), 9)
+        self.assertEqual(s1_ad1.formula, "Cu8 O1")
+        self.assertTrue(s1_ad1.ntypesp == 2)
+        self.assertTrue(s1_ad1.symbol_set == ("Cu", "O"))
+        index1 = int(s1_ad1.indices_from_symbol('O')[0])
+        self.assertAlmostEqual(s1_ad1[index1].a, 0.5)
+        self.assertAlmostEqual(s1_ad1[index1].b, 0.5)
+        self.assertAlmostEqual(s1_ad1[index1].c, 0.4166667)
+
+        # 2. test site_a = xyz input
+        s1 = Slab(self.cu, [0, 0, 1], 5, 5)
+        s1_ad2 = s1.adsorp_atom([1.5, 1.5, 3], 'O', 2, xyz=1)
+
+        self.assertEqual(len(s1_ad2), 9)
+        self.assertEqual(s1_ad2.formula, "Cu8 O1")
+        self.assertTrue(s1_ad2.ntypesp == 2)
+        self.assertTrue(s1_ad2.symbol_set == ("Cu", "O"))
+        index2 = int(s1_ad2.indices_from_symbol('O')[0])
+        self.assertAlmostEqual(s1_ad2[index2].a, 0.5)
+        self.assertAlmostEqual(s1_ad2[index2].b, 0.5)
+        self.assertAlmostEqual(s1_ad2[index2].c, 0.4166667)
 
 
 
