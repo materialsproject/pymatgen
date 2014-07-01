@@ -755,9 +755,9 @@ class NcAbinitHeader(AbinitHeader):
             if 'psp8' in line and '###' not in line:
                 tokens = line.split()
                 header.update({'zatom': float(tokens[1])})
-                print({'zatom': float(tokens[1])})
+                # print({'zatom': float(tokens[1])})
                 header.update({'pspxc': PseudoParser._FUNCTIONALS[int(tokens[4])]['n']})
-                print({'pspxc': PseudoParser._FUNCTIONALS[int(tokens[4])]['n']})
+                # print({'pspxc': PseudoParser._FUNCTIONALS[int(tokens[4])]['n']})
                 nc = int(tokens[2])  # number of core states
                 nv = int(tokens[3])  # number of valence states
             elif ' n ' in line and ' l ' in line and ' f ' in line and '###' not in line:
@@ -765,18 +765,18 @@ class NcAbinitHeader(AbinitHeader):
                 zion = header['zatom']
                 for n in range(1, nc + 1, 1):
                     tokens = lines[lineno+n].split()
-                    print(tokens[2])
+                    # print(tokens[2])
                     zion -= float(tokens[2])
                 header.update({'zion': zion})
-                print({'zion': zion})
+                # print({'zion': zion})
             elif '# lmax' in line and '###' not in line:
                 # "lmax" first on next line
                 header.update({'lmax': int(lines[lineno+1].split()[0])})
-                print({'lmax': int(lines[lineno+1].split()[0])})
+                # print({'lmax': int(lines[lineno+1].split()[0])})
             elif '# lloc' in line and '###' not in line:
                 # "lloc" first on next line
                 header.update({'lloc': int(lines[lineno+1].split()[0])})
-                print({'lloc': int(lines[lineno+1].split()[0])})
+                # print({'lloc': int(lines[lineno+1].split()[0])})
             elif 'DATA FOR PLOTTING' in line:
                 break
 
@@ -791,7 +791,7 @@ class NcAbinitHeader(AbinitHeader):
 
         summary = lines[0]
 
-        print(header)
+        # print(header)
 
         return NcAbinitHeader(summary, **header)
 
