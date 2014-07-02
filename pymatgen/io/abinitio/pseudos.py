@@ -702,6 +702,9 @@ class NcAbinitHeader(AbinitHeader):
         header = _dict_from_lines(lines[:3], [0, 3, 6])
         summary = lines[0]
 
+        header.update({'pspdat': header['pspd']})
+        header.pop('pspd')
+
         header["dojo_report"] = read_dojo_report(filename)
 
         return NcAbinitHeader(summary, **header)
