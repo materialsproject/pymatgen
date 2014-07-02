@@ -1236,7 +1236,7 @@ class DeltaFactorWorkflow(Workflow):
                                     accuracy=accuracy, spin_mode=spin_mode,
                                     smearing=smearing, **extra_abivars)
 
-            self.register(scf_input, task_class=ScfTask)
+            self.register(scf_input, task_class=ScfTask, manager=manager)
 
     def get_results(self):
         num_sites = self._input_structure.num_sites
