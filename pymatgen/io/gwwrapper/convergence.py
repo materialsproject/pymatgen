@@ -432,6 +432,7 @@ def test_conv(xs, ys, name, tol=0.0001, extra='', verbose=False, mode='extra'):
         except ImportError:
             popt, pcov = None, None
         for n in range(0, len(ds), 1):
+            print n
             if tol < 0:
                 if popt[0] is not None:
                     test = abs(popt[0] - ys[n])
