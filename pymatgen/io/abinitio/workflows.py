@@ -1000,6 +1000,8 @@ class PseudoIterativeConvergence(IterativeWorkflow):
             for ecut in self.ecut_iterator:
                 yield self.strategy_with_ecut(ecut)
 
+        print('wf 1003', manager )
+
         super(PseudoIterativeConvergence, self).__init__(strategy_generator(), 
               max_niter=max_niter, workdir=workdir, manager=manager, )
 
