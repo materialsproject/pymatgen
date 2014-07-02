@@ -584,7 +584,7 @@ class GWConvergenceData():
         self.conv_res['derivatives'].update({x_name: conv_data[5]})
         return conv_data
 
-    def test_full_kp_results(self, tol_rel=0.5, tol_abs=0.001):
+    def test_full_kp_results(self, tol_rel=0.5, tol_abs=0.0001):
         """
         test if the slopes of the gap data at the full kp mesh are 'comparable' to those of the low kp mesh
         """
@@ -596,9 +596,9 @@ class GWConvergenceData():
         nb_slope = (zd[nbs[-1]][ecs[-1]] - zd[nbs[0]][ecs[-1]]) / (nbs[-1] - nbs[0])
         ec_slope = (zd[nbs[-1]][ecs[-1]] - zd[nbs[-1]][ecs[0]]) / (ecs[-1] - ecs[0])
         print '        parm_scan   full'
-        lnb = abs(nb_slope) < (1 + tol_rel) * abs(self.conv_res['derivatives']['nbands']) and abs(nb_slope) < tol_abs
+        lnb = abs(nb_slope) < (1 + tol_rel) * abs(self.conv_res['derivatives']['nbands']) or abs(nb_slope) < tol_abs
         print 'nbands  %0.5f     %0.5f %r' % (abs(self.conv_res['derivatives']['nbands']), abs(nb_slope), lnb)
-        lec = abs(ec_slope) < (1 + tol_rel) * abs(self.conv_res['derivatives']['ecuteps']) and abs(ec_slope) < tol_abs
+        lec = abs(ec_slope) < (1 + tol_rel) * abs(self.conv_res['derivatives']['ecuteps']) or abs(ec_slope) < tol_abs
         print 'ecuteps %0.5f     %0.5f %r' % (abs(self.conv_res['derivatives']['ecuteps']), abs(ec_slope), lec)
         print 'values: (nb, ec, gap)', nbs[0], ecs[0], zd[nbs[0]][ecs[0]]
         if lnb and lec:
