@@ -715,6 +715,7 @@ class IterativeWorkflow(Workflow):
                 break
 
             # Start the task and block till completion.
+            kwargs.pop('wait')
             task.start(*args, **kwargs)
             task.wait()
 
