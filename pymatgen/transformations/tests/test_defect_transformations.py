@@ -18,6 +18,10 @@ from pymatgen.core.structure import Structure
 from pymatgen.transformations.defect_transformations import \
     VacancyTransformation, SubstitutionDefectTransformation, \
     AntisiteDefectTransformation, InterstitialTransformation
+try:
+    import zeo
+except ImportError:
+    zeo = None
 
 class VacancyTransformationTest(unittest.TestCase):
 
@@ -78,7 +82,7 @@ class AntisiteDefectTransformationTest(unittest.TestCase):
             self.assertIn(sc.composition.formula,
                           ["Li16 O16", "Li15 O17", "Li17 O15"])
 
-
+@unittest.skipIf(not zeo, "zeo not present.")
 class InterstitialTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
