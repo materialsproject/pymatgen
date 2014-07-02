@@ -1272,7 +1272,7 @@ class DeltaFactorWorkflow(Workflow):
             dfact = df_compute(wien2k.v0, wien2k.b0_GPa, wien2k.b1,
                                eos_fit.v0, eos_fit.b0_GPa, eos_fit.b1, b0_GPa=True)
 
-            print("delta",eos_fit)
+            print("delta", eos_fit)
             print("Deltafactor = %.3f meV" % dfact)
 
             wf_results.update({
