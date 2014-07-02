@@ -1072,6 +1072,7 @@ class PseudoParser(object):
                     #    raise self.Error("%s: Invalid line\n %s"  % (filename, line))
                     #    return None
 
+                    print(self._PSPCODES)
                     if pspcod not in self._PSPCODES:
                         raise self.Error("%s: Don't know how to handle pspcod %s\n"  % (filename, pspcod))
 
