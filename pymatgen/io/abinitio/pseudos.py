@@ -685,6 +685,28 @@ class NcAbinitHeader(AbinitHeader):
         return NcAbinitHeader(summary, **header)
 
     @staticmethod
+    def oncvpsp_header(filename, ppdesc):
+        """Parse the ONCVPSP abinit header."""
+        # Example
+        #Li    ONCVPSP  r_core=  2.01  3.02
+        #      3.0000      3.0000      140504    zatom,zion,pspd
+        #     8     2     1     4   600     0    pspcod,pspxc,lmax,lloc,mmax,r2well
+        #  5.99000000  0.00000000  0.00000000    rchrg fchrg qchrg
+        #     2     2     0     0     0    nproj
+        #     0                 extension_switch
+        #   0                        -2.5000025868368D+00 -1.2006906995331D+00
+        #     1  0.0000000000000D+00  0.0000000000000D+00  0.0000000000000D+00
+        #     2  1.0000000000000D-02  4.4140499497377D-02  1.9909081701712D-02
+        lines = _read_nlines(filename, -1)
+
+        header = _dict_from_lines(lines[:3], [0, 3, 6])
+        summary = lines[0]
+
+        header["dojo_report"] = read_dojo_report(filename)
+
+        return NcAbinitHeader(summary, **header)
+
+    @staticmethod
     def tm_header(filename, ppdesc):
         """Parse the TM abinit header."""
         # Example:
@@ -740,7 +762,7 @@ class NcAbinitHeader(AbinitHeader):
         return NcAbinitHeader(summary, **header)
 
     @staticmethod
-    def oncvpsp_header(filename, ppdesc):
+    def oncvpsp_out_header(filename, ppdesc):
 
         lines = _read_nlines(filename, -1)
         header = {}
@@ -1072,7 +1094,6 @@ class PseudoParser(object):
                     #    raise self.Error("%s: Invalid line\n %s"  % (filename, line))
                     #    return None
 
-                    print(self._PSPCODES)
                     if pspcod not in self._PSPCODES:
                         raise self.Error("%s: Don't know how to handle pspcod %s\n"  % (filename, pspcod))
 
