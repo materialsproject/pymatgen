@@ -5,9 +5,17 @@ This module defines classes for point defects
 """
 from __future__ import division
 
+__author__ = "Bharat Medasani"
+__copyright__ = "Copyright 2014, The Materials Project"
+__maintainier__ = "Bharat Medasani"
+__email__ = "mbkumar@gmail.com"
+__date__ = "Jul 1 2014"
+
 from pymatgen.analysis.defects.point_defects import Vacancy, \
     ValenceIonicRadiusEvaluator, Interstitial
 from pymatgen.transformations.transformation_abc import AbstractTransformation
+from pymatgen.transformations.standard_transformations import \
+    AutoOxiStateDecorationTransformation
 
 class VacancyTransformation(AbstractTransformation):
     """
@@ -19,7 +27,7 @@ class VacancyTransformation(AbstractTransformation):
         :return:
         """
         self.supercell_dim = supercell_dim
-        self.valences - valences
+        self.valences = valences
         self.radii = radii
 
     def apply_transformation(self,structure):
@@ -31,6 +39,7 @@ class VacancyTransformation(AbstractTransformation):
                  vacancy.
         """
         vac = Vacancy(structure,self.valences,self.radii)
+        #print vac.enumerate_defectsites()
         scs = vac.make_supercells_with_defects(self.supercell_dim)
         return scs
 
@@ -60,29 +69,30 @@ class VacancyTransformation(AbstractTransformation):
                 "@class":self.__class__.__name__ }
 
 
-class SubstitutionalDefectTransformation(AbstractTransformation):
+class SubstitutionDefectTransformation(AbstractTransformation):
     """
     Generates substiutional defect structures. 
     The first structure is the supercell of the original structure
     and is not a defect structure.
     """
-    def __init__(self, substitute_specie, site_specie, supercell_dim, 
+    def __init__(self, specie_map, supercell_dim,
                 valences=None, radii=None):
         """
         :param supecell_dim: Supercell scaling matrix
         :return:
         """
-        self.substitute_specie = substitute_specie
-        self.site_specie = site_specie
+        #self.substitute_specie = substitute_specie
+        #self.site_specie = site_specie
+        self._specie_map = specie_map
         self.supercell_dim = supercell_dim
-        self.valences - valences
+        self.valences = valences
         self.radii = radii
 
     def apply_transformation(self,structure):
         """
         :param structure:
         :return:
-            scs: Supercells with one substitutional defect in each
+            scs: Supercells with one substitution defect in each
                  structure. The first supercell doesn't contain any
                  defect.
         """
@@ -93,15 +103,15 @@ class SubstitutionalDefectTransformation(AbstractTransformation):
         for i in range(1,len(scs)):
             vac_sc = scs[i]
             vac_site = list(set(blk_sc.sites) - set(vac_sc.sites))[0]
-            if vac_site.specie.symbol != self.site_specie
-                continue
-            vac_sc.append(self.substitution_specie, vac_site.frac_coords)
-            sub_scs.append(vac_sc.get_sorted_structure())
+            site_specie = str(vac_site.specie)
+            if site_specie in self._specie_map.keys():
+                substitute_specie = self._specie_map[site_specie]
+                vac_sc.append(substitute_specie, vac_site.frac_coords)
+                sub_scs.append(vac_sc.get_sorted_structure())
         return sub_scs
 
     def __str__(self):
-        inp_args = ["Substitute specie = {}".format(self.substitute_specie),
-                    "Site specie = {}".format(self.site_specie),
+        inp_args = ["Specie map = {}".format(self._specie_map),
                     "Supercell scaling matrix = {}".format(self.supercell_dim),
                     "Valences of ions = {}".format(self.valences),
                     "Radii of ions = {}".format(self.radii)]
@@ -121,8 +131,7 @@ class SubstitutionalDefectTransformation(AbstractTransformation):
     @property
     def to_dict(self):
         return {"name":self.__class__.__name__, "version":__version__,
-                "init_args":{"substitute_specie":self.substitute_specie,
-                             "site_specie":self.site_specie,
+                "init_args":{"specie_map":self._specie_map,
                              "supercell_dim":self.supercell_dim,
                              "valences":self.valences,"radii":self.radii},
                 "@module":self.__class__.__module__,
@@ -139,7 +148,7 @@ class AntisiteDefectTransformation(AbstractTransformation):
         :return:
         """
         self.supercell_dim = supercell_dim
-        self.valences - valences
+        self.valences = valences
         self.radii = radii
 
     def apply_transformation(self,structure):
@@ -154,11 +163,11 @@ class AntisiteDefectTransformation(AbstractTransformation):
         scs = vac.make_supercells_with_defects(self.supercell_dim)
         blk_sc = scs[0]
         as_scs = [blk_sc.copy()]
-        struct_specie = blk_sc.types_of_specie
+        struct_species = blk_sc.types_of_specie
         for i in range(1,len(scs)):
             vac_sc = scs[i]
             vac_site = list(set(blk_sc.sites) - set(vac_sc.sites))[0]
-            for specie in set(struct_species) - set([vac_site_specie]):
+            for specie in set(struct_species) - set([vac_site.specie]):
                 anti_struct = vac_sc.copy()
                 anti_struct.append(specie, vac_site.frac_coords)
                 as_scs.append(anti_struct.get_sorted_structure())
@@ -194,7 +203,8 @@ class InterstitialTransformation(AbstractTransformation):
     """
     Generates interstitial structures from the input structure
     """
-    def __init__(self, supercell_dim, valences, radii, interstitial_specie):
+    def __init__(self, interstitial_specie, supercell_dim,
+                 valences={}, radii={}):
         """
         :param supercell_dim:
         :param valences:
@@ -207,7 +217,15 @@ class InterstitialTransformation(AbstractTransformation):
         self.inter_specie = interstitial_specie
 
     def apply_transformation(self, structure):
-        inter = Interstitial(structure, self.valences, self.radii)
+        if self.radii:
+            inter = Interstitial(structure, self.valences, self.radii)
+        else:
+            s = structure.copy()
+            valrad_eval = ValenceIonicRadiusEvaluator(s)
+            val = valrad_eval.valences
+            rad = valrad_eval.radii
+            inter = Interstitial(s,val,rad)
+
         scs = inter.make_supercells_with_defects(
             self.supercell_dim, self.inter_specie)
         return scs

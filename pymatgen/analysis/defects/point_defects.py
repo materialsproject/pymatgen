@@ -81,7 +81,7 @@ class ValenceIonicRadiusEvaluator(object):
         coord_finder = VoronoiCoordFinder(self._structure)
 
         def nearest_key(sorted_vals, key):
-            print sorted_vals, key
+            #print sorted_vals, key
             i = bisect_left(sorted_vals, key)
             if i == len(sorted_vals):
                 return sorted_vals[-1]
@@ -99,13 +99,11 @@ class ValenceIonicRadiusEvaluator(object):
             el = site.specie.symbol
             oxi_state = int(round(site.specie.oxi_state))
             coord_no = int(round(coord_finder.get_coordination_number(i)))
-            print el, oxi_state, coord_no
+            #print el, oxi_state, coord_no
             try:
                 tab_oxi_states = map(int, _ion_radii[el].keys())
                 tab_oxi_states.sort()
-                print tab_oxi_states
                 oxi_state = nearest_key(tab_oxi_states, oxi_state)
-                print oxi_state
                 radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
             except KeyError:
                 #print 'reached here'
