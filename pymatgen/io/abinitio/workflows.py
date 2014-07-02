@@ -1236,6 +1236,7 @@ class DeltaFactorWorkflow(Workflow):
                                     accuracy=accuracy, spin_mode=spin_mode,
                                     smearing=smearing, **extra_abivars)
 
+            print('wf 1239', manager)
             self.register(scf_input, task_class=ScfTask, manager=manager)
 
     def get_results(self):
