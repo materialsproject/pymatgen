@@ -276,6 +276,7 @@ class Workflow(BaseWorkflow):
         """Set the `TaskManager` to use to launch the Task."""
         self.manager = manager.deepcopy()
         for task in self:
+            print('set manager for task ', task)
             task.set_manager(manager)
 
     @property
