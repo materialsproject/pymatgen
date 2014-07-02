@@ -261,8 +261,6 @@ class Workflow(BaseWorkflow):
         """
         super(Workflow, self).__init__()
 
-        print('wf 264', manager)
-
 
         self._tasks = []
 
@@ -1004,9 +1002,7 @@ class PseudoIterativeConvergence(IterativeWorkflow):
             for ecut in self.ecut_iterator:
                 yield self.strategy_with_ecut(ecut)
 
-        print('wf 1003', manager)
-
-        super(PseudoIterativeConvergence, self).__init__(strategy_generator(), 
+        super(PseudoIterativeConvergence, self).__init__(strategy_generator(),
               max_niter=max_niter, workdir=workdir, manager=manager, )
 
         if not self.isnc:
@@ -1236,7 +1232,6 @@ class DeltaFactorWorkflow(Workflow):
                                     accuracy=accuracy, spin_mode=spin_mode,
                                     smearing=smearing, **extra_abivars)
 
-            print('wf 1239', manager)
             self.register(scf_input, task_class=ScfTask, manager=manager)
 
     def get_results(self):
