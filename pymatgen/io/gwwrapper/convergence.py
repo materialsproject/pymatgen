@@ -428,7 +428,7 @@ def test_conv(xs, ys, name, tol=0.0001, extra='', verbose=False, mode='extra'):
                     f.write('[' + str(xs[n]) + ' ' + str(ys[n]) + ']')
                 f.write(']}\n')
                 f.close()
-                print_plot_line(func[0], popt, xs, ys, name, extra=extra)
+                print_plot_line(func[0], popt, xs, ys, name, tol=tol, extra=extra)
         except ImportError:
             popt, pcov = None, None
         for n in range(0, len(ds), 1):
