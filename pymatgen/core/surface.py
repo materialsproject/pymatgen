@@ -148,69 +148,26 @@ class Slab(Structure):
         m = self.lattice.matrix
         return np.linalg.norm(np.cross(m[0], m[1]))
 
-    @classmethod
-    def adsorb_atom(cls, structure_a, site_a, atom, distance,
-                    surface=[0, 0, 1], xyz=0):
+    def add_adsorbate_atom(self, indices, specie, distance):
         """
         Gets the structure of single atom adsorption.
+        slab structure from the Slab class(in [0, 0, 1])
 
         Args:
-        structure_a: the slab structure for adsorption
-        site_a:  given sites for adsorption.
-             default(xyz=0): site_a = [a, b, c], within [0,1];
-             xyz=1: site_a = [x, y, z], in Angstroms.
-        atom: adsorbed atom species
-        distance: between centers of the adsorbed atom and the given site.
-             in Angstroms
-        surface: direction of the surface where atoms are adsorbed to
-             default: surface = [0, 0, 1]
-        xyz: default is 0. 1 means site_a = [x, y, z], in Angstroms.
-
+            indices ([int]): Indices of sites on which to put the absorbate.
+                Absorbed atom will be displaced relative to the center of
+                these sites.
+            specie (Specie/Element/str): adsorbed atom species
+            distance (float): between centers of the adsorbed atom and the
+                given site in Angstroms.
         """
-        from pymatgen.transformations.site_transformations import \
-            InsertSitesTransformation
+        #Let's do the work in cartesian coords
+        center = np.sum([self[i].coords for i in indices], axis=0) / len(
+            indices)
 
-        lattice_s = structure_a.lattice
-        abc_s = lattice_s.abc
-        # a123_s = lattice_s.matrix
-        b123_s = lattice_s.inv_matrix.T
-        # print surface
-        vector_o = np.dot(surface, b123_s)
-        print vector_o
-        lens_v = np.sqrt(np.dot(vector_o, vector_o.T))
-        V_o = vector_o / lens_v * distance
+        coords = center + self.normal * distance / np.linalg.norm(self.normal)
 
-        if xyz == 0:
-            # site_a = [a, b, c]
-            for i in xrange(3):
-                if site_a[i]> 1 or site_a[i] < 0:
-                    raise ValueError("site_a is outsite the cell.")
-            site_abc = V_o / abc_s + site_a
-        else:
-            # site_a = [x, y, z]
-            for i in xrange(3):
-                if site_a[i] > abc_s[i]:
-                    raise ValueError("sites_a is outside the cell.")
-            site_a1 = np.array(site_a)
-
-            # convert to a1, a2, a3
-            #< site_a2 = np.dot(a123_s, site_a1.T) / abc_s
-            #< site_abc = (V_o+site_a2) / abc_s
-            site_a2 = np.dot(b123_s, site_a1.T)
-
-            site_abc = V_o/abc_s+site_a2
-
-        for i in xrange(3):
-            if site_abc[i] < 0 or site_abc[i] > 1:
-                raise ValueError("wrong distance, atom will be outside the cell.")
-
-
-        print 'add_site:', site_abc, atom
-
-        ist = InsertSitesTransformation(species=atom, coords=[site_abc])
-        structure_ad = ist.apply_transformation(structure_a)
-
-        return structure_ad
+        self.append(specie, coords, coords_are_cartesian=True)
 
 
 import unittest
@@ -243,33 +200,20 @@ class SlabTest(unittest.TestCase):
         # write_structure(s, "cu_slab_%s_%.3f_%.3f.cif" %
         #                  (str(hkl), ssize, vsize))
 
-    def test_adsorb_atom(self):
-        s001 = Slab(self.cu,[0, 0, 1], 5, 5)
-        # print s001
+    def test_adsorp_atom(self):
         # O adsorb on 4Cu[0.5, 0.5, 0.25], abc = [3, 3, 12]
         # 1. test site_a = abc input
-        s001_ad1 = Slab.adsorb_atom(structure_a=s001, site_a=[0.5, 0.5, 0.25], atom= ['O'],
-                                    distance=2)
-        self.assertEqual(len(s001_ad1), 9)
-        for i in xrange(len(s001_ad1)):
-            if str(s001_ad1[i].specie) == 'O':
-                print s001_ad1[i].frac_coords
-                self.assertAlmostEqual(s001_ad1[i].a, 0.5)
-                self.assertAlmostEqual(s001_ad1[i].b, 0.5)
-                self.assertAlmostEqual(s001_ad1[i].c, 0.4166667)
-        self.assertEqual(s001_ad1.lattice.lengths_and_angles,
-                                 s001.lattice.lengths_and_angles)
-        # 2. test site_a = xyz input
-        s001_ad2 = Slab.adsorb_atom(structure_a=s001, site_a=[1.5, 1.5, 3], atom= ['O'],
-                                    distance=2, xyz=1)
-        self.assertEqual(len(s001_ad2), 9)
-        for i in xrange(len(s001_ad2)):
-            if str(s001_ad2[i].specie) == 'O':
-                print s001_ad2[i].frac_coords
-                self.assertAlmostEqual(s001_ad2[i].a, 0.5)
-                self.assertAlmostEqual(s001_ad2[i].b, 0.5)
-                self.assertAlmostEqual(s001_ad2[i].c, 0.4166667)
+        s1 = Slab(self.cu, [0, 0, 1], 5, 5)
+        s1.add_adsorbate_atom([3], 'O', 2)
 
+        self.assertEqual(len(s1), 9)
+        self.assertEqual(s1.formula, "Cu8 O1")
+        self.assertTrue(s1.ntypesp == 2)
+        self.assertTrue(s1.symbol_set == ("Cu", "O"))
+        index1 = int(s1.indices_from_symbol('O')[0])
+        self.assertAlmostEqual(s1[index1].a, 0.5)
+        self.assertAlmostEqual(s1[index1].b, 0.5)
+        self.assertAlmostEqual(s1[index1].c, 0.4166667)
 
 
 if __name__ == "__main__":
