@@ -587,7 +587,8 @@ class Incar(dict):
             val: Actual value of INCAR parameter.
         """
         list_keys = ("LDAUU", "LDAUL", "LDAUJ", "LDAUTYPE", "MAGMOM")
-        bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE", "LHFCALC")
+        bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE",
+                     "LHFCALC", "ADDGRID")
         float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN",
                       "POTIM")
         int_keys = ("NSW", "NBANDS", "NELMIN", "ISIF", "IBRION", "ISPIN",
