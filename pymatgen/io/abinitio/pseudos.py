@@ -952,9 +952,9 @@ class PseudoParser(object):
         #5 : ppdesc(5, "NC",     , None),
         6 : ppdesc(6, "FHI", "NC", None),
         7 : ppdesc(6, "PAW_abinit_text", "PAW", None),
-        #8 : ppdesc(8, "NC", None),
+        8 : ppdesc(8, "ONCVPSP", None),
        10 : ppdesc(10, "HGHK", "NC", None),
-       11 : ppdesc(11, "ONCVPSP", "NC", None)
+       11 : ppdesc(11, "ONCVPSP_out", "NC", None)
     })
     del ppdesc
 
