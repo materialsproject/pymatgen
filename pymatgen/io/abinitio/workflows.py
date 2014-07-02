@@ -261,6 +261,9 @@ class Workflow(BaseWorkflow):
         """
         super(Workflow, self).__init__()
 
+        print('wf 264', manager)
+
+
         self._tasks = []
 
         if workdir is not None:
@@ -1000,7 +1003,7 @@ class PseudoIterativeConvergence(IterativeWorkflow):
             for ecut in self.ecut_iterator:
                 yield self.strategy_with_ecut(ecut)
 
-        print('wf 1003', manager )
+        print('wf 1003', manager)
 
         super(PseudoIterativeConvergence, self).__init__(strategy_generator(), 
               max_niter=max_niter, workdir=workdir, manager=manager, )
