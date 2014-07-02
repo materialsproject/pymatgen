@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
 """
-This module defines classes for point defects
+This module defines classes for point defect transformations on structures
 """
 from __future__ import division
 
 __author__ = "Bharat Medasani"
 __copyright__ = "Copyright 2014, The Materials Project"
+__version__ = "0.1"
 __maintainier__ = "Bharat Medasani"
 __email__ = "mbkumar@gmail.com"
 __date__ = "Jul 1 2014"
@@ -14,8 +15,7 @@ __date__ = "Jul 1 2014"
 from pymatgen.analysis.defects.point_defects import Vacancy, \
     ValenceIonicRadiusEvaluator, Interstitial
 from pymatgen.transformations.transformation_abc import AbstractTransformation
-from pymatgen.transformations.standard_transformations import \
-    AutoOxiStateDecorationTransformation
+
 
 class VacancyTransformation(AbstractTransformation):
     """
