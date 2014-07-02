@@ -76,6 +76,13 @@ functions used in the fitting procedure, with initial guesses
 """
 
 
+def print_and_raise_error(xs, ys, name):
+        print 'Index error in', name
+        print 'ys: ', ys
+        print 'xs: ', xs
+        raise RuntimeError
+
+
 def reciprocal(x, a, b, n):
     """
     reciprocal function to the power n to fit convergence data
@@ -253,8 +260,11 @@ def extrapolate_reciprocal(xs, ys, n):
     """
     return the parameters such that a + b / x^n hits the last two data points
     """
-    b = (ys[-2] - ys[-1]) / (1/(xs[-2])**n - 1/(xs[-1])**n)
-    a = ys[-1] - b / (xs[-1])**n
+    try:
+        b = (ys[-2] - ys[-1]) / (1/(xs[-2])**n - 1/(xs[-1])**n)
+        a = ys[-1] - b / (xs[-1])**n
+    except IndexError:
+        print_and_raise_error(xs, ys, 'extrapolate_reciprocal')
     return [a, b, n]
 
 
