@@ -34,6 +34,7 @@ from pymatgen.io.abinitio.pseudos import Pseudo
 from pymatgen.io.abinitio.strategies import ScfStrategy
 from pymatgen.io.abinitio.eos import EOS
 from pymatgen.io.abinitio.abitimer import AbinitTimerParser
+from pymatgen.io.gwwrapper.helpers import refine_structure
 
 import logging
 logger = logging.getLogger(__name__)
@@ -1188,10 +1189,10 @@ class DeltaFactorWorkflow(Workflow):
         super(DeltaFactorWorkflow, self).__init__(workdir=workdir, manager=manager)
 
         if isinstance(structure_or_cif, Structure):
-            structure = structure_or_cif
+            structure = refine_structure(structure_or_cif)
         else:
             # Assume CIF file
-            structure = read_structure(structure_or_cif)
+            structure = refine_structure(read_structure(structure_or_cif))
 
         self.pseudo = Pseudo.aspseudo(pseudo)
 
