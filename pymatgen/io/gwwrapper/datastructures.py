@@ -392,7 +392,8 @@ class GWSpecs(AbstractAbinitioSpec):
                         done = True
                     if len(data.data) < 4:
                         print '| Full type calculation but no complete data found.'
-                        print data.data
+                        for item in data.data:
+                            print item
                         done = True
                     if data.test_full_kp_results(tol_rel=1, tol_abs=0.001):
                         print '| Full type calculation and the full results agree with the parm_scr.' \
@@ -538,7 +539,8 @@ class GWConvergenceData():
         xs = self.get_var_range('nbands')
         ys = self.get_var_range('ecuteps')
         zd = self.get_data_array()
-        print zd
+        for z in zd:
+            print z
         # print 'plot "'+self.name+'condat'+'"'
         for x in xs:
             zs = []
