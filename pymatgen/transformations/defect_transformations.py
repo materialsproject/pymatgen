@@ -12,6 +12,9 @@ __maintainier__ = "Bharat Medasani"
 __email__ = "mbkumar@gmail.com"
 __date__ = "Jul 1 2014"
 
+import collections
+
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.defects.point_defects import Vacancy, \
     ValenceIonicRadiusEvaluator, Interstitial
 from pymatgen.transformations.transformation_abc import AbstractTransformation
@@ -254,4 +257,48 @@ class InterstitialTransformation(AbstractTransformation):
                              "interstitial_specie":self.inter_specie},
                 "@module":self.__class__.__module__,
                 "@class":self.__class__.__name__ }
+
+
+class ParallelCombinatorTransformation(AbstractTransformation):
+    """
+    Transformation class that applies the input transformations in parallel
+    """
+    def __init__(self, transformations):
+        """
+        :param transformation_list:
+        :return:
+        """
+        self.transformations = transformations
+
+    def apply_transformation(self, structure):
+        return_structures = []
+        for transformation in self.transformations:
+            scs = transformation.apply_transformation(structure)
+            for sc in list(scs):
+                return_structures.append(Structure.from_sites(sc.sites))
+        return return_structures
+
+    def __str__(self):
+        inp_args = "Transformations = {}".format(self.transformations)
+        return "Parallel Combinator Transformation : " + inp_args
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        pass
+
+    @property
+    def is_one_to_many(self):
+        return True
+
+    @property
+    def to_dict(self):
+        return {"name":self.__class__.__name__, "version":__version__,
+                "init_args":{"transformations":self.transformations},
+                "@module":self.__class__.__module__,
+                "@class":self.__class__.__name__ }
+
+
 
