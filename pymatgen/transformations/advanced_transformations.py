@@ -138,7 +138,9 @@ class SuperTransformation(AbstractTransformation):
     @property
     def to_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"transformations": self._transformations},
+                "init_args": {
+                    "transformations": self._transformations,
+                    "nstructures_per_trans": self.nstructures_per_trans},
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
