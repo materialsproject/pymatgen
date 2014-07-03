@@ -12,6 +12,8 @@ __maintainier__ = "Bharat Medasani"
 __email__ = "mbkumar@gmail.com"
 __date__ = "Jul 1 2014"
 
+
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.defects.point_defects import Vacancy, \
     ValenceIonicRadiusEvaluator, Interstitial
 from pymatgen.transformations.transformation_abc import AbstractTransformation
@@ -35,13 +37,12 @@ class VacancyTransformation(AbstractTransformation):
         :param structure:
         :return:
             scs: Supercells with one symmetrically distinct vacancy in each
-                 structure. The first supercell doesn't contain any
-                 vacancy.
+                 structure. 
         """
         vac = Vacancy(structure,self.valences,self.radii)
         #print vac.enumerate_defectsites()
         scs = vac.make_supercells_with_defects(self.supercell_dim)
-        return scs
+        return scs[1:]
 
     def __str__(self):
         inp_args = ["Supercell scaling matrix = {}".format(self.supercell_dim),
@@ -93,13 +94,12 @@ class SubstitutionDefectTransformation(AbstractTransformation):
         :param structure:
         :return:
             scs: Supercells with one substitution defect in each
-                 structure. The first supercell doesn't contain any
-                 defect.
+                 structure. 
         """
         vac = Vacancy(structure,self.valences,self.radii)
         scs = vac.make_supercells_with_defects(self.supercell_dim)
         blk_sc = scs[0]
-        sub_scs = [blk_sc.copy()]
+        sub_scs = []
         for i in range(1,len(scs)):
             vac_sc = scs[i]
             vac_site = list(set(blk_sc.sites) - set(vac_sc.sites))[0]
@@ -162,7 +162,7 @@ class AntisiteDefectTransformation(AbstractTransformation):
         vac = Vacancy(structure,self.valences,self.radii)
         scs = vac.make_supercells_with_defects(self.supercell_dim)
         blk_sc = scs[0]
-        as_scs = [blk_sc.copy()]
+        as_scs = []
         struct_species = blk_sc.types_of_specie
         for i in range(1,len(scs)):
             vac_sc = scs[i]
@@ -228,7 +228,7 @@ class InterstitialTransformation(AbstractTransformation):
 
         scs = inter.make_supercells_with_defects(
             self.supercell_dim, self.inter_specie)
-        return scs
+        return scs[1:]
 
     def __str__(self):
         inp_args = ["Supercell scaling matrix = {}".format(self.supercell_dim),
@@ -256,4 +256,48 @@ class InterstitialTransformation(AbstractTransformation):
                              "interstitial_specie":self.inter_specie},
                 "@module":self.__class__.__module__,
                 "@class":self.__class__.__name__ }
+
+
+class ParallelCombinatorTransformation(AbstractTransformation):
+    """
+    Transformation class that applies the input transformations in parallel
+    """
+    def __init__(self, transformations):
+        """
+        :param transformation_list:
+        :return:
+        """
+        self.transformations = transformations
+
+    def apply_transformation(self, structure):
+        return_structures = []
+        for transformation in self.transformations:
+            scs = transformation.apply_transformation(structure)
+            for sc in list(scs):
+                return_structures.append(Structure.from_sites(sc.sites))
+        return return_structures
+
+    def __str__(self):
+        inp_args = "Transformations = {}".format(self.transformations)
+        return "Parallel Combinator Transformation : " + inp_args
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        pass
+
+    @property
+    def is_one_to_many(self):
+        return True
+
+    @property
+    def to_dict(self):
+        return {"name":self.__class__.__name__, "version":__version__,
+                "init_args":{"transformations":self.transformations},
+                "@module":self.__class__.__module__,
+                "@class":self.__class__.__name__ }
+
+
 
