@@ -312,7 +312,7 @@ def multi_curve_fit(xs, ys, verbose):
     functions = {
         exponential: p0_exponential,
         reciprocal: p0_reciprocal,
-        single_reciprocal: p0_single_reciprocal,
+        #single_reciprocal: p0_single_reciprocal,
         simple_reciprocal: p0_simple_reciprocal,
         simple_2reciprocal: p0_simple_2reciprocal,
         simple_4reciprocal: p0_simple_4reciprocal,
