@@ -1189,10 +1189,10 @@ class DeltaFactorWorkflow(Workflow):
         super(DeltaFactorWorkflow, self).__init__(workdir=workdir, manager=manager)
 
         if isinstance(structure_or_cif, Structure):
-            structure = refine_structure(structure_or_cif)
+            structure = refine_structure(structure_or_cif, symprec=1e-6)
         else:
             # Assume CIF file
-            structure = refine_structure(read_structure(structure_or_cif))
+            structure = refine_structure(read_structure(structure_or_cif), symprec=1e-6)
 
         self.pseudo = Pseudo.aspseudo(pseudo)
 
