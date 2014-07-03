@@ -12,7 +12,6 @@ __maintainier__ = "Bharat Medasani"
 __email__ = "mbkumar@gmail.com"
 __date__ = "Jul 1 2014"
 
-import collections
 
 from pymatgen.core.structure import Structure
 from pymatgen.analysis.defects.point_defects import Vacancy, \
