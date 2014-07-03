@@ -256,15 +256,26 @@ def extrapolate_simple_reciprocal(xs, ys):
     return [a, b]
 
 
-def extrapolate_reciprocal(xs, ys, n):
+def extrapolate_reciprocal(xs, ys, n, noise):
     """
     return the parameters such that a + b / x^n hits the last two data points
     """
-    try:
-        b = (ys[-2] - ys[-1]) / (1/(xs[-2])**n - 1/(xs[-1])**n)
-        a = ys[-1] - b / (xs[-1])**n
-    except IndexError:
-        print_and_raise_error(xs, ys, 'extrapolate_reciprocal')
+    if len(xs) > 4 and noise:
+        y1 = (ys[-3] + ys[-4]) / 2
+        y2 = (ys[-1] + ys[-2]) / 2
+        x1 = (xs[-3] + xs[-4]) / 2
+        x2 = (xs[-1] + xs[-2]) / 2
+        try:
+            b = (y1 - y2) / (1/x1**n - 1/x2**n)
+            a = y2 - b / x2**n
+        except IndexError:
+            print_and_raise_error(xs, ys, 'extrapolate_reciprocal')
+    else:
+        try:
+            b = (ys[-2] - ys[-1]) / (1/(xs[-2])**n - 1/(xs[-1])**n)
+            a = ys[-1] - b / (xs[-1])**n
+        except IndexError:
+            print_and_raise_error(xs, ys, 'extrapolate_reciprocal')
     return [a, b, n]
 
 
@@ -338,7 +349,7 @@ def multi_curve_fit(xs, ys, verbose):
     return fit_results[best[0]]['popt'], fit_results[best[0]]['pcov'], best
 
 
-def multi_reciprocal_extra(xs, ys):
+def multi_reciprocal_extra(xs, ys, noise=False):
     """
     Calculates for a series of powers ns the parameters for which the last two points are at the curve.
     With these parameters measure how well the other data points fit.
@@ -349,7 +360,7 @@ def multi_reciprocal_extra(xs, ys):
     fit_results = {}
     weights = get_weights(xs, ys)
     for n in ns:
-        popt = extrapolate_reciprocal(xs, ys, n)
+        popt = extrapolate_reciprocal(xs, ys, n, noise)
         m = measure(reciprocal, xs, ys, popt, weights)
         pcov = []
         fit_results.update({n: {'measure': m, 'popt': popt, 'pcov': pcov}})
@@ -413,6 +424,8 @@ def test_conv(xs, ys, name, tol=0.0001, extra='', verbose=False, mode='extra'):
                     popt, pcov, func = multi_curve_fit(xs, ys, verbose)
                 elif mode == 'extra':
                     popt, pcov, func = multi_reciprocal_extra(xs, ys)
+                elif mode == 'extra_noise':
+                    popt, pcov, func = multi_reciprocal_extra(xs, ys, noise=True)
                 else:
                     print 'nknown mode for test conv'
                     raise NotImplementedError
