@@ -445,10 +445,6 @@ class AbiStructure(Structure, AbivarAble):
 
         from pymatgen.io.gwwrapper.helpers import refine_structure
 
-        refine_structure(self)
-
-        print(self.lattice.matrix)
-
         rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
         xred = np.reshape([site.frac_coords for site in self], (-1,3))
 
