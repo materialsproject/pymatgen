@@ -449,6 +449,8 @@ class AbiStructure(Structure, AbivarAble):
                     print('set ', self.lattice.matrix[i][j], 'to zero')
                     self.lattice.matrix[i][j] = 0.0
 
+        print(self.lattice.matrix)
+
         rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
         xred = np.reshape([site.frac_coords for site in self], (-1,3))
 
