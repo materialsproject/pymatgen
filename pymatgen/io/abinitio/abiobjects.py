@@ -443,11 +443,9 @@ class AbiStructure(Structure, AbivarAble):
         for (atm_idx, site) in enumerate(self):
             typat[atm_idx] = types_of_specie.index(site.specie) + 1
 
-        for i in [0, 1, 2]:
-            for j in [0, 1, 2]:
-                if abs(self.lattice.matrix[i][j]) < 1e-12:
-                    print('set ', self.lattice.matrix[i][j], 'to zero')
-                    self.lattice.matrix[i][j] = 0.0
+        from pymatgen.io.gwwrapper.helpers import refine_structure
+
+        refine_structure(self)
 
         print(self.lattice.matrix)
 

@@ -131,7 +131,7 @@ class AbstractAbinitioSpec(MSONable):
 
         if self.data['source'] == 'mp-vasp':
             items_list = mp_list_vasp
-        elif self.data['source'] == 'poscar':
+        elif self.data['source'] == ['poscar', 'xyz']:
             files = os.listdir('.')
             items_list = files
         elif self.data['source'] == 'mar_exp':
@@ -176,6 +176,9 @@ class AbstractAbinitioSpec(MSONable):
                     else:
                         # print "no bandstructure information available, adding GG as 'gap'"
                         structure = add_gg_gap(structure)
+                elif item.endwith('xyz'):
+                    structure = pmg.read_structure(item)
+
                 elif item.startswith('mp-'):
                     with MPRester(mp_key) as mp_database:
                         print 'structure from mp database', item
