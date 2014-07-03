@@ -174,7 +174,7 @@ class Strategy(object):
         if hasattr(self, "_accuracy"):
             raise RuntimeError("object already has accuracy %s " % self._accuracy)
 
-        assert accuracy in ["low", "normal", "high",]
+        assert accuracy in ["low", "normal", "high"]
         self._accuracy = accuracy
 
     @property
