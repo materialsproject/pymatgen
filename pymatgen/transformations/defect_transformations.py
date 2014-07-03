@@ -35,13 +35,12 @@ class VacancyTransformation(AbstractTransformation):
         :param structure:
         :return:
             scs: Supercells with one symmetrically distinct vacancy in each
-                 structure. The first supercell doesn't contain any
-                 vacancy.
+                 structure. 
         """
         vac = Vacancy(structure,self.valences,self.radii)
         #print vac.enumerate_defectsites()
         scs = vac.make_supercells_with_defects(self.supercell_dim)
-        return scs
+        return scs[1:]
 
     def __str__(self):
         inp_args = ["Supercell scaling matrix = {}".format(self.supercell_dim),
@@ -93,13 +92,12 @@ class SubstitutionDefectTransformation(AbstractTransformation):
         :param structure:
         :return:
             scs: Supercells with one substitution defect in each
-                 structure. The first supercell doesn't contain any
-                 defect.
+                 structure. 
         """
         vac = Vacancy(structure,self.valences,self.radii)
         scs = vac.make_supercells_with_defects(self.supercell_dim)
         blk_sc = scs[0]
-        sub_scs = [blk_sc.copy()]
+        sub_scs = []
         for i in range(1,len(scs)):
             vac_sc = scs[i]
             vac_site = list(set(blk_sc.sites) - set(vac_sc.sites))[0]
@@ -162,7 +160,7 @@ class AntisiteDefectTransformation(AbstractTransformation):
         vac = Vacancy(structure,self.valences,self.radii)
         scs = vac.make_supercells_with_defects(self.supercell_dim)
         blk_sc = scs[0]
-        as_scs = [blk_sc.copy()]
+        as_scs = []
         struct_species = blk_sc.types_of_specie
         for i in range(1,len(scs)):
             vac_sc = scs[i]
@@ -228,7 +226,7 @@ class InterstitialTransformation(AbstractTransformation):
 
         scs = inter.make_supercells_with_defects(
             self.supercell_dim, self.inter_specie)
-        return scs
+        return scs[1:]
 
     def __str__(self):
         inp_args = ["Supercell scaling matrix = {}".format(self.supercell_dim),

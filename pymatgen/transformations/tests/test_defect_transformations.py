@@ -37,7 +37,7 @@ class VacancyTransformationTest(unittest.TestCase):
                            [0.00, -2.2171384943, 3.1355090603]])
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
         scs = t.apply_transformation(struct)
-        self.assertEqual(len(scs),3)
+        self.assertEqual(len(scs),2)
         for sc in scs:
             self.assertIn(sc.composition.formula,
                           ["Li16 O16", "Li15 O16", "Li16 O15"])
@@ -57,7 +57,7 @@ class SubstitutionDefectTransformationTest(unittest.TestCase):
                            [0.00, -2.2171384943, 3.1355090603]])
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
         scs = t.apply_transformation(struct)
-        self.assertEqual(len(scs),3)
+        self.assertEqual(len(scs),2)
         for sc in scs:
             self.assertIn(sc.composition.formula,
                           ["Li16 O16", "Na1 Li15 O16", "Li16 S1 O15"])
@@ -77,7 +77,7 @@ class AntisiteDefectTransformationTest(unittest.TestCase):
                            [0.00, -2.2171384943, 3.1355090603]])
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
         scs = t.apply_transformation(struct)
-        self.assertEqual(len(scs),3)
+        self.assertEqual(len(scs),2)
         for sc in scs:
             self.assertIn(sc.composition.formula,
                           ["Li16 O16", "Li15 O17", "Li17 O15"])
