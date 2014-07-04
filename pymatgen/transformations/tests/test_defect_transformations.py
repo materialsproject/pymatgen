@@ -37,7 +37,7 @@ class VacancyTransformationTest(unittest.TestCase):
                            [1.9200989668, 3.3257101909, 0.00],
                            [0.00, -2.2171384943, 3.1355090603]])
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
-        scs = t.apply_transformation(struct)
+        scs = t.apply_transformation(struct,return_ranked_list=100)
         self.assertEqual(len(scs),2)
         for sc in scs:
             self.assertIn(sc.composition.formula,
@@ -57,7 +57,7 @@ class SubstitutionDefectTransformationTest(unittest.TestCase):
                            [1.9200989668, 3.3257101909, 0.00],
                            [0.00, -2.2171384943, 3.1355090603]])
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
-        scs = t.apply_transformation(struct)
+        scs = t.apply_transformation(struct,return_ranked_list=100)
         self.assertEqual(len(scs),2)
         for sc in scs:
             self.assertIn(sc.composition.formula,
@@ -77,7 +77,7 @@ class AntisiteDefectTransformationTest(unittest.TestCase):
                            [1.9200989668, 3.3257101909, 0.00],
                            [0.00, -2.2171384943, 3.1355090603]])
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
-        scs = t.apply_transformation(struct)
+        scs = t.apply_transformation(struct,return_ranked_list=100)
         self.assertEqual(len(scs),2)
         for sc in scs:
             self.assertIn(sc.composition.formula,
@@ -97,7 +97,7 @@ class InterstitialTransformationTest(unittest.TestCase):
                            [1.9200989668, 3.3257101909, 0.00],
                            [0.00, -2.2171384943, 3.1355090603]])
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
-        scs = t.apply_transformation(struct)
+        scs = t.apply_transformation(struct,return_ranked_list=100000)
         #self.assertEqual(len(scs),3)
         for sc in scs:
             #print sc.composition.formula
