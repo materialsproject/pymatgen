@@ -262,12 +262,16 @@ class Pseudo(object):
         """Read the DOJO_REPORT section, returns {} if section is not present.""" 
         return read_dojo_report(self.path)
 
-    def write_dojo_report(self, report):
+    def write_dojo_report(self, report=None):
         """Write a new DOJO_REPORT section to the pseudopotential file."""
         path = self.path
 
+        if report is None:
+            report = self.dojo_report
+
         # Create JSON string from report.
         jstring = json.dumps(report, indent=4, sort_keys=True) + "\n"
+
 
         # Read lines from file and insert jstring between the tags.
         with open(path, "r") as fh:
