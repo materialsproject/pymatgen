@@ -2323,7 +2323,10 @@ class RelaxTask(AbinitTask):
     .. attributes:
 
         initial_structure:
+            Structure provided in input.
+
         final_structure:
+            Relaxed structure
     """
     # What about a possible ScfConvergenceWarning?
     CRITICAL_EVENTS = [
@@ -2355,9 +2358,13 @@ class RelaxTask(AbinitTask):
         return final_structure
 
     def restart(self):
-        # Structure relaxations can be restarted only if we have the WFK file or the DEN or the GSR file.
-        # from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
-        # Prefer WFK over other files since we can reuse the wavefunctions.
+        """
+        Restart the structural relaxation.
+
+        Structure relaxations can be restarted only if we have the WFK file or the DEN or the GSR file.
+        from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
+        Prefer WFK over other files since we can reuse the wavefunctions.
+        """
         for ext in ["WFK", "DEN"]:
             ofile = self.outdir.has_abiext(ext)
             if ofile:

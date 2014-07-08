@@ -9,7 +9,6 @@ import time
 import collections
 import warnings
 import cPickle as pickle
-#import pickle as pickle
 
 try:
     from pydispatch import dispatcher
@@ -449,13 +448,12 @@ class AbinitFlow(Node):
         """
         for i, work in enumerate(self):
             print(80*"=")
-            print("Workflow #%d: %s, Finalized=%s\n" % (i, work, work.finalized) )
+            print("Workflow #%d: %s, Finalized=%s\n" % (i, work, work.finalized))
 
             table = [["Task", "Status", "Queue_id", 
                       "Errors", "Warnings", "Comments", 
                       "MPI", "OMP", 
-                      "num_restarts", "Task Class"
-                     ]]
+                      "num_restarts", "Task Class"]]
 
             for task in work:
                 task_name = os.path.basename(task.name)
@@ -474,8 +472,7 @@ class AbinitFlow(Node):
                     [task_name, str(task.status), str(task.queue_id)] + 
                     events + 
                     cpu_info + 
-                    task_info
-                    )
+                    task_info)
 
             pprint_table(table, out=stream)
 
@@ -507,7 +504,7 @@ class AbinitFlow(Node):
         """
         #TODO: Add support for wti
         if wti is not None:
-            raise NotImplementedError("wti option is not avaiable!")
+            raise NotImplementedError("wti option is not available!")
 
         def get_files(task, wi, ti):
             """Helper function used to select the files of a task."""
@@ -528,14 +525,15 @@ class AbinitFlow(Node):
                     selected.append(getattr(choices[c], "path"))
                 except KeyError:
                     import warnings
-                    warnings.warn("Wrong keywork %s" % c)
+                    warnings.warn("Wrong keyword %s" % c)
             return selected
 
         # Build list of files to analyze.
         files = []
         for (task, wi, ti) in self.iflat_tasks_wti(status=status, op=op):
             lst = get_files(task, wi, ti)
-            if lst: files.extend(lst)
+            if lst:
+                files.extend(lst)
 
         #print(files)
         return Editor(editor=editor).edit_files(files)

@@ -581,9 +581,7 @@ class PyFlowScheduler(object):
         # Try to restart the unconverged tasks
         for task in self.flow.unconverged_tasks:
             try:
-                msg = "AbinitFlow will try restart task %s" % task
-                print(msg)
-                logger.info(msg)
+                logger.info("AbinitFlow will try restart task %s" % task)
 
                 fired = task.restart()
                 if fired: self.nlaunch += 1
@@ -827,6 +825,11 @@ def sendmail(subject, text, mailto, sender=None):
 
 
 def get_running_jobs():
+    """
+    Return the number if running jobs.
+
+    ..warning: only slurm is supported
+    """
     try:
         import os
         import subprocess
@@ -837,6 +840,7 @@ def get_running_jobs():
         n = len(data.splitlines()) - 1
     except OSError:
         n = 0
+
     return n
 
 # Test for sendmail
@@ -856,14 +860,9 @@ def get_open_fds():
     import os
 
     pid = os.getpid()
-    procs = subprocess.check_output( 
-        [ "lsof", '-w', '-Ff', "-p", str( pid ) ] )
+    procs = subprocess.check_output(["lsof", '-w', '-Ff', "-p", str(pid)])
 
-    nprocs = len( 
-        filter( 
-            lambda s: s and s[ 0 ] == 'f' and s[1: ].isdigit(),
-            procs.split( '\n' ) )
-        )
+    nprocs = len(filter(lambda s: s and s[0] == 'f' and s[1:].isdigit(), procs.split('\n')))
 
     return nprocs
 

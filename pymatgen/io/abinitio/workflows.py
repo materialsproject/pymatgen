@@ -233,14 +233,13 @@ class BaseWorkflow(Node):
                     a string that should provide a human-readable description of what has been performed.
         """
         return dict(returncode=0, 
-                    message="Calling on_all_ok of the base class!",
-                    )
+                    message="Calling on_all_ok of the base class!")
 
     def get_results(self):
         """
         Method called once the calculations are completed.
 
-        The base version returns a dictionary task_name : TaskResults for each task in self.
+        The base version returns a dictionary task_name: TaskResults for each task in self.
         """
         return WorkflowResults(task_results={task.name: task.results for task in self})
 
