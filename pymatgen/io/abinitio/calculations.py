@@ -18,7 +18,6 @@ from pymatgen.io.abinitio.workflows import (PseudoIterativeConvergence,
     PseudoConvergence, BandStructureWorkflow, G0W0_Workflow, BSEMDF_Workflow)
 
 
-
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
@@ -324,24 +323,51 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
         scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
         nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
 
-
-
     if "istwfk" not in extra_abivars:
         extra_abivars["istwfk"] = "*1"
 
-    scf_strategy = ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy, spin_mode=spin_mode,
-                               smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars)
-    nscf_strategy = NscfStrategy(scf_strategy, nscf_ksampling, max(nscf_nband), **extra_abivars)
+    scf_strategy = []
+    to_add = {}
+
+    extra_abivars.update(to_add)
+    #extra_abivars.update({'paral_kgb': 1})
+
+    #from pymatgen.io.abinitio.tasks import TaskManager
+    #tmp_manager = TaskManager.from_user_config()
+
+    #extra_abivars.update({'npkpt': 1, 'npfft': 4})
+    #ncpus = tmp_manager.tot_ncpus
+    #extra_abivars.update({'npbands': int(ncpus/4)})
+
+    for k in extra_abivars.keys():
+        if k[-2:] == '_s':
+            var = k[:len(k)-2]
+            values = extra_abivars.pop(k)
+            to_add.update({k: values[-1]})
+            for value in values:
+                extra_abivars[var] = value
+                extra_abivars['pawecutdg'] = extra_abivars['ecut']*2
+                scf_strategy.append(ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy, spin_mode=spin_mode,
+                                                smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars))
+
+    if len(scf_strategy) == 0:
+        scf_strategy.append(ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy, spin_mode=spin_mode,
+                                        smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars))
+
+    nscf_strategy = NscfStrategy(scf_strategy[-1], nscf_ksampling, max(nscf_nband), **extra_abivars)
 
     if scr_nband is None:
         scr_nband = nscf_nband
     if sigma_nband is None:
         sigma_nband = nscf_nband
 
-    if extra_abivars['ecut'][0] < max(ecuteps) / 4:
-        extra_abivars['ecut'][0] = max(ecuteps) / 4
+#    if extra_abivars['ecut'][0] < max(ecuteps) / 4:
+#        extra_abivars['ecut'][0] = max(ecuteps) / 4
     if ecutsigx < max(ecuteps):
         ecutsigx = max(ecuteps)
+
+    # for x in ('paral_kgb', 'npkpt', 'npfft', 'npbands'):
+    #    del extra_abivars[x]
 
     sigma_strategy = []
 
@@ -361,8 +387,8 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
                     ppmodel = response_model
                     screening = Screening(ecuteps_v, scr_nband, w_type="RPA", sc_mode="one_shot", ecutwfn=None, inclvkb=inclvkb)
                     self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening, ppmodel=ppmodel, gw_qprange=1)
-                scr_strategy = ScreeningStrategy(scf_strategy, nscf_strategy, screening, **extra_abivars)
-                sigma_strategy.append(SelfEnergyStrategy(scf_strategy, nscf_strategy, scr_strategy, self_energy, **extra_abivars))
+                scr_strategy = ScreeningStrategy(scf_strategy[-1], nscf_strategy, screening, **extra_abivars)
+                sigma_strategy.append(SelfEnergyStrategy(scf_strategy[-1], nscf_strategy, scr_strategy, self_energy, **extra_abivars))
 
     return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager)
 

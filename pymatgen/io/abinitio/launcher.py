@@ -297,7 +297,7 @@ class PyLauncher(object):
 
             for task in tasks:
             # see if there is place in the que
-                if get_running_jobs() > 22:
+                if get_running_jobs() > 99:
                     num_loops = max_loops
                     print('too many jobs in the queue, going back to sleep')
                     break
@@ -319,7 +319,8 @@ class PyLauncher(object):
 
         # Update the database.
         self.flow.check_status()
-        self.flow.fix_queue_errors()
+        self.flow.fix_queue_critical()
+        self.flow.fix_abi_critical()
         self.flow.pickle_dump()
 
         return num_launched
@@ -634,7 +635,9 @@ class PyFlowScheduler(object):
 
         # Mission accomplished. Shutdown the scheduler.
         all_ok = self.flow.all_ok
-        if self.verbose: print("all_ok", all_ok)
+        if self.verbose:
+            print("all_ok", all_ok)
+
         if all_ok:
             self.shutdown(msg="All tasks have reached S_OK. Will shutdown the scheduler and exit")
 
@@ -835,7 +838,7 @@ def get_running_jobs():
         import subprocess
         from subprocess import PIPE
         name = os.environ['LOGNAME']
-        cmd = ['squeue', '-u'+name]
+        cmd = ['qstat', '-u'+name]
         data = subprocess.Popen(cmd, stdout=PIPE).communicate()[0]
         n = len(data.splitlines()) - 1
     except OSError:

@@ -224,7 +224,6 @@ class Smearing(AbivarAble, MSONable):
         return Smearing(d["occopt"], d["tsmear"])
 
 
-
 class ElectronsAlgorithm(dict, AbivarAble):
     "Variables controlling the SCF/NSCF algorithm."
     # None indicates that we use abinit defaults.
@@ -443,6 +442,8 @@ class AbiStructure(Structure, AbivarAble):
         typat = np.zeros(natom, np.int)
         for (atm_idx, site) in enumerate(self):
             typat[atm_idx] = types_of_specie.index(site.specie) + 1
+
+        from pymatgen.io.gwwrapper.helpers import refine_structure
 
         rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
         xred = np.reshape([site.frac_coords for site in self], (-1,3))

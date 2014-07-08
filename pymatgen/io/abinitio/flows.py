@@ -79,6 +79,8 @@ class AbinitFlow(Node):
         # List of workflows.
         self._works = []
 
+        self._waited = 0
+
         # List of callbacks that must be executed when the dependencies reach S_OK
         self._callbacks = []
 
@@ -273,7 +275,7 @@ class AbinitFlow(Node):
         self.set_workdir(new_workdir, chroot=True)
 
         for i, work in enumerate(self):
-            new_wdir = os.path.join(self.workdir, "work_" + str(i))
+            new_wdir = os.path.join(self.workdir,"w" + str(i))
             work.chroot(new_wdir)
 
     def groupby_status(self):
@@ -386,14 +388,34 @@ class AbinitFlow(Node):
         for work in self:
             work.check_status()
 
-    def fix_queue_errors(self):
+    def fix_abi_critical(self):
+        """
+        Fixer for critical events originating form abinit
+        """
+        for task in self.iflat_tasks(status='S_ABICRITICAL'):
+            #todo
+            info_msg = 'We encountered an abi critial envent that could not be fixed'
+            print(info_msg)
+            try:
+                print('waited ', self._waited, ' cycles')
+            except AttributeError:
+                self._waited = 0
+            for error in task.abi_errors:
+                print('trying to fix:')
+                print(error)
+                print('by waiting for the phase of the moon to change a bit ... ')
+            if self._waited > 3:
+                task.set_status(task.S_ERROR, info_msg)
+            self._waited = self._waited + 1
+
+    def fix_queue_critical(self):
         """
         Fixer for errors originating from the scheduler. General strategy, first try to increase resources in order to
         fix the problem, if this is not possible, call a task specific method to attempt to decrease the demands.
         """
         from pymatgen.io.gwwrapper.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
 
-        for task in self.iflat_tasks(status='S_QUEUE_ERROR'):
+        for task in self.iflat_tasks(status='S_QUEUECRITICAL'):
             print(task)
             for error in task.queue_errors:
                 print('fixing :' + str(error))
@@ -405,7 +427,7 @@ class AbinitFlow(Node):
                         return task.set_status(task.S_READY)
                     else:
                         info_msg = 'Node error detected but no was node identified. Unrecoverable error.'
-                        return task.set_status(task.S_FINAL_ERROR, info_msg)
+                        return task.set_status(task.S_ERROR, info_msg)
                 elif isinstance(error, MemoryCancelError):
                     # ask the qadapter to provide more memory
                     if task.manager.qadapter.increase_mem():
@@ -418,7 +440,7 @@ class AbinitFlow(Node):
                     else:
                         info_msg = 'Memory error detected but the memory could not be increased neigther could the ' \
                                    'memory demand be decreased. Unrecoverable error.'
-                        return task.set_status(task.S_FINAL_ERROR, info_msg)
+                        return task.set_status(task.S_ERROR, info_msg)
                 elif isinstance(error, TimeCancelError):
                     # ask the qadapter to provide more memory
                     if task.manager.qadapter.increase_time():
@@ -436,10 +458,11 @@ class AbinitFlow(Node):
                         info_msg = 'Time cancel error detected but the time could not be increased neigther could ' \
                                    'the time demand be decreased by speedup of increasing the number of cpus. ' \
                                    'Unrecoverable error.'
-                        return task.set_status(task.S_FINAL_ERROR, info_msg)
+                        return task.set_status(task.S_ERROR, info_msg)
                 else:
                     info_msg = 'No solution provided for error %s. Unrecoverable error.' % error.name
-                    return task.set_status(task.S_FINAL_ERROR, info_msg)
+                    logger.debug(msg=info_msg)
+                    return task.set_status(task.S_ERROR, info_msg)
 
     def show_status(self, stream=sys.stdout):
         """
@@ -676,7 +699,7 @@ class AbinitFlow(Node):
         """
         # Directory of the workflow.
         if workdir is None:
-            work_workdir = os.path.join(self.workdir, "work_" + str(len(self)))
+            work_workdir = os.path.join(self.workdir, "w" + str(len(self)))
         else:
             work_workdir = os.path.join(self.workdir, os.path.basename(workdir))
 
@@ -715,7 +738,7 @@ class AbinitFlow(Node):
         """
         # TODO: pass a workflow factory instead of a class
         # Directory of the workflow.
-        work_workdir = os.path.join(self.workdir, "work_" + str(len(self)))
+        work_workdir = os.path.join(self.workdir, "w" + str(len(self)))
 
         # Create an empty workflow and register the callback
         work = work_class(workdir=work_workdir, manager=manager)

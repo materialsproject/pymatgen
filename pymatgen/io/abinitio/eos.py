@@ -13,11 +13,13 @@ __all__ = [
 
 ##########################################################################################
 
+
 def murnaghan(V, E0, B0, B1, V0):
     """From PRB 28,5480 (1983)"""
 
     E = E0 + B0*V/B1*(((V0/V)**B1)/(B1-1)+1) - V0*B0/(B1-1)
     return E
+
 
 def birch(V, E0, B0, B1, V0):
     """
@@ -32,12 +34,14 @@ def birch(V, E0, B0, B1, V0):
          + 9.0/16.0*B0*V0*(B1-4.)*((V0/V)**(2.0/3.0) - 1.0)**3)
     return E
 
+
 def birch_murnaghan(V, E0, B0, B1, V0):
     """BirchMurnaghan equation from PRB 70, 224107"""
 
     eta = (V/V0)**(1./3.)
     E = E0 + 9.*B0*V0/16.*(eta**2-1)**2*(6 + B1*(eta**2-1.) - 4.*eta**2)
     return E
+
 
 def pourier_tarantola(V, E0, B0, B1, V0):
     """Pourier-Tarantola equation from PRB 70, 224107"""
@@ -47,6 +51,7 @@ def pourier_tarantola(V, E0, B0, B1, V0):
 
     E = E0 + B0*V0*squiggle**2/6.*(3. + squiggle*(B1 - 2))
     return E
+
 
 def vinet(V, E0, B0, B1, V0):
     'Vinet equation from PRB 70, 224107'
@@ -88,6 +93,11 @@ def deltafactor_polyfit(volumes, energies):
     b1 = -1 - x**(-3./2.) * derivV3 / derivV2
 
     n = collections.namedtuple("DeltaFitResults", "v0 b0 b1 poly1d")
+
+    #print('deltafactor polyfit:')
+    #print('e0, b0, b1, v0')
+    #print(fitdata[0], b0, b1, v0)
+
     return n(v0, b0, b1, fitdata[0])
 
 ##########################################################################################
@@ -246,7 +256,7 @@ class EOS_Fit(object):
             from scipy.optimize import leastsq
             self.eos_params, self.ierr = leastsq(objective, self.p0, args=(self.volumes, self.energies))
 
-            if self.ierr not in [1,2,3,4]:
+            if self.ierr not in [1, 2, 3, 4]:
                 exc = EOSError("Optimal parameters not found")
                 print(str(exc))
                 self.exceptions.append(exc)
@@ -256,6 +266,10 @@ class EOS_Fit(object):
             self.b0 = self.eos_params[1]
             self.b1 = self.eos_params[2]
             self.v0 = self.eos_params[3]
+
+            print('EOS_fit:', func)
+            print('e0, b0, b1, v0')
+            print(self.eos_params)
 
     def __str__(self):
         lines = []

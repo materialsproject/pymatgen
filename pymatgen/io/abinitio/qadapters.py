@@ -607,7 +607,6 @@ class SlurmAdapter(AbstractQueueAdapter):
                     # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
                     queue_id = int(process.stdout.read().split()[3])
                     logger.info('Job submission was successful and queue_id is {}'.format(queue_id))
-
                 except:
                     # probably error parsing job code
                     queue_id = None
@@ -787,6 +786,15 @@ class PbsAdapter(AbstractQueueAdapter):
 """
 
     @property
+    def limits(self):
+        """
+        the limits for certain parameters set on the cluster.
+        currently hard coded, should be read at init
+        the increase functions will not increase beyond thise limits
+        """
+        return {'max_total_tasks': 3888, 'time': 48}
+
+    @property
     def mpi_ncpus(self):
         """Number of CPUs used for MPI."""
         return self.qparams.get("select", 1)
@@ -872,17 +880,45 @@ class PbsAdapter(AbstractQueueAdapter):
 
         return None
 
+    # no need to raise an error, if False is returned the fixer may try something else, we don't need to kill the
+    # scheduler just yet
+
+    def do(self):
+        return 'this is not FORTAN'
+
     def exclude_nodes(self, nodes):
-        raise NotImplementedError("exclude_nodes")
+        print('exluding nodes, not implemented yet pbs')
+        return False
 
     def increase_mem(self, factor):
-        raise NotImplementedError("increase_mem")
+        print('increasing mem, not implemented yet pbs')
+        return False
 
-    def increase_time(self, factor):
-        raise NotImplementedError("increase_time")
+    def increase_time(self, factor=1.5):
+        days, hours, minutes = 0, 0, 0
+        try:
+            # a pbe time parser [HH:MM]:SS
+            # feel free to pull this out and mak time in minutes always
+            n = str(self.qparams['time']).count(':')
+            if n == 0:
+                hours = int(float(self.qparams['time']))
+            elif n > 1:
+                hours = int(float(self.qparams['time'].split(':')[0]))
+                minutes = int(float(self.qparams['time'].split(':')[1]))
+            time = hours * 60 + minutes
+            time *= factor
+            if time < self.limits['time']:
+                self.qparams['time'] = str(int(time / 60)) + ':' + str(int(time - 60 * int(time / 60))) + ':00'
+                print('increased time to %s minutes' % time)
+                return True
+            else:
+                raise QueueAdapterError
+        except (KeyError, QueueAdapterError):
+            return False
 
     def increase_cpus(self, factor):
-        raise NotImplementedError("increase_cpus")
+        print('increasing cpus, not implemented yet pbs')
+        return False
 
 
 class SGEAdapter(AbstractQueueAdapter):
@@ -1014,7 +1050,6 @@ class SGEAdapter(AbstractQueueAdapter):
 
     def increase_cpus(self, factor):
         raise NotImplementedError("increase_cpus")
-
 
 
 class QScriptTemplate(string.Template):

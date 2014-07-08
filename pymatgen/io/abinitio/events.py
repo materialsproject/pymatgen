@@ -322,7 +322,7 @@ class EventsParser(object):
             for doc in tokens:
                 #print(80*"*")
                 #print("doc.tag", doc.tag)
-                #print("doc",doc)
+                #print("doc", doc)
                 #print(80*"*")
                 if w.match(doc.tag):
                     #print("got doc.tag", doc.tag,"--")

@@ -5,6 +5,7 @@ import abc
 import collections
 import copy
 import numpy as np
+import os
 
 from pprint import pprint, pformat
 from pymatgen.util.string_utils import str_aligned, str_delimited, is_string, list_strings
@@ -177,7 +178,7 @@ class Strategy(object):
         if hasattr(self, "_accuracy"):
             raise RuntimeError("object already has accuracy %s " % self._accuracy)
 
-        assert accuracy in ["low", "normal", "high",]
+        assert accuracy in ["low", "normal", "high"]
         self._accuracy = accuracy
 
     @property
@@ -639,7 +640,6 @@ class MDFBSE_Strategy(Strategy):
         return input.get_string()
 
 
-
 class InputWriter(object):
     """
     This object receives a list of `AbivarAble` objects, an optional
@@ -825,8 +825,9 @@ class StrategyWithInput(object):
 
 class OpticVar(collections.namedtuple("OpticVar", "name value help")):
     def __str__(self):
-        sval = string(self.value)
+        sval = str(self.value)
         return (4*" ").join(sval, "!" + self.help)
+
 
 class OpticInput(object):
     """
@@ -846,18 +847,18 @@ class OpticInput(object):
 
     # variable name --> default value.
     _VARIABLES = [
-        OpticVar("ddkfile_x", None,  "Name of the first d/dk response wavefunction file"),
-        OpticVar("ddkfile_y", None,  "Name of the second d/dk response wavefunction file"),
-        OpticVar("ddkfile_z", None,  "Name of the third d/dk response wavefunction file"),
-        OpticVar("wfkfile",   None,  "Name of the ground-state wavefunction file"),
-        OpticVar("zcut",      0.01,  "Value of the *smearing factor*, in Hartree"),
-        OpticVar("wmesh",(0.010, 1), "Frequency *step* and *maximum* frequency (Ha)"),
-        OpticVar("scissor", 0.000,   "*Scissor* shift if needed, in Hartree"),
-        OpticVar("sing_tol", 0.001,  "*Tolerance* on closeness of singularities (in Hartree)"),
-        OpticVar("num_lin_comp", None, "*Number of components* of linear optic tensor to be computed"),
-        OpticVar("lin_comp", None,    "Linear *coefficients* to be computed (x=1, y=2, z=3)"),
+        OpticVar("ddkfile_x",       None, "Name of the first d/dk response wavefunction file"),
+        OpticVar("ddkfile_y",       None, "Name of the second d/dk response wavefunction file"),
+        OpticVar("ddkfile_z",       None, "Name of the third d/dk response wavefunction file"),
+        OpticVar("wfkfile",         None, "Name of the ground-state wavefunction file"),
+        OpticVar("zcut",            0.01, "Value of the *smearing factor*, in Hartree"),
+        OpticVar("wmesh",     (0.010, 1), "Frequency *step* and *maximum* frequency (Ha)"),
+        OpticVar("scissor",        0.000, "*Scissor* shift if needed, in Hartree"),
+        OpticVar("sing_tol",       0.001, "*Tolerance* on closeness of singularities (in Hartree)"),
+        OpticVar("num_lin_comp",    None, "*Number of components* of linear optic tensor to be computed"),
+        OpticVar("lin_comp",        None, "Linear *coefficients* to be computed (x=1, y=2, z=3)"),
         OpticVar("num_nonlin_comp", None, "Number of components of nonlinear optic tensor to be computed"),
-        OpticVar("nonlin_comp", None, "! Non-linear coefficients to be computed"),
+        OpticVar("nonlin_comp",     None, "! Non-linear coefficients to be computed"),
     ]
 
     _VARNAMES = [v.name for v in _VARIABLES]
@@ -935,8 +936,8 @@ class AnaddbInput(object):
             comment:
                 Optional string with a comment that will be placed at the beginning of the file.
         """
-        self._structure = _structure
-        self.ndtset = ndset
+        self._structure = structure
+        self.ndtset = ndtset
         self.comment = comment
 
     def __init__(self, string):

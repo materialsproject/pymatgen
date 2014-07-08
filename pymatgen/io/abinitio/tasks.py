@@ -800,9 +800,9 @@ STATUS2STR = collections.OrderedDict([
     (4, "Submitted"),     # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
     (5, "Running"),       # Node is running.
     (6, "Done"),          # Node done, This does not imply that results are ok or that the calculation completed successfully
-    (7, "Error"),         # Node raised an Error by ABINIT.
-    (8, "Queue_Error"),   # Node raised an Error by submitting submission script, or by executing it
-    (9, "Final_Error"),   # Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.
+    (7, "AbiCritical"),   # Node raised an Error by ABINIT.
+    (8, "QueueCritical"), # Node raised an Error by submitting submission script, or by executing it
+    (9, "Error"),         # Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.
     (10, "Unconverged"),  # This usually means that an iterative algorithm didn't converge.
     (11, "Completed"),    # Execution completed successfully.
 ])
@@ -844,10 +844,10 @@ class Node(object):
     S_SUB = Status(4)
     S_RUN = Status(5)
     S_DONE = Status(6)
-    S_ERROR = Status(7)
-    S_QUEUE_ERROR = Status(8)
-    S_FINAL_ERROR = Status(9)
-    S_UNCONVERGED = Status(10)
+    S_ABICRITICAL = Status(7)
+    S_QUEUECRITICAL = Status(8)
+    S_UNCONVERGED = Status(9)
+    S_ERROR = Status(10)
     S_OK = Status(11)
 
     ALL_STATUS = [
@@ -857,10 +857,10 @@ class Node(object):
         S_SUB,
         S_RUN,
         S_DONE,
-        S_ERROR,
-        S_QUEUE_ERROR,
-        S_FINAL_ERROR,
+        S_ABICRITICAL,
+        S_QUEUECRITICAL,
         S_UNCONVERGED,
+        S_ERROR,
         S_OK,
     ]
 
@@ -1152,6 +1152,9 @@ class Task(Node):
 
         # Number of restarts effectuated.
         self.num_restarts = 0
+
+        self.queue_errors = []
+        self.abi_errors = []
 
     def __getstate__(self):
         """
@@ -1495,7 +1498,7 @@ class Task(Node):
             if status == self.S_OK:
                 self.history.append("Completed on %s" % time.asctime())
 
-            if status == self.S_ERROR:
+            if status == self.S_ABICRITICAL:
                 self.history.append("Error info:\n %s" % str(info_msg))
 
         if status == self.S_DONE:
@@ -1533,13 +1536,14 @@ class Task(Node):
 
         # 1) A locked task can only be unlocked by calling set_status explicitly.
         black_list = [self.S_LOCKED]
-        if self.status in black_list: return
+        if self.status in black_list:
+            return
 
         # 2) Check the returncode of the process (the process of submitting the job) first.
         # this point type of problem should also be handled by the scheduler error parser
         if self.returncode != 0:
             info_msg = "return code %s" % self.returncode
-            return self.set_status(self.S_ERROR, info_msg=info_msg)           # The job was not submitter properly
+            return self.set_status(self.S_ABICRITICAL, info_msg=info_msg)           # The job was not submitter properly
 
 #        err_msg = None
 #=======
@@ -1621,25 +1625,37 @@ class Task(Node):
 
             # 4)
             if report.errors or report.bugs:
+                if report.errors:
+                    print('errors:')
+                    for error in report.errors:
+                        print(error)
+                        try:
+                            self.abi_errors.append(error)
+                        except AttributeError:
+                            self.abi_errors = [error]
+                if report.bugs:
+                    print('bugs:')
+                    for bug in report.bugs:
+                        print(bug)
                 # Abinit reports problems
                 logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
                 info_msg = str(report.errors) + str(report.bugs)
-                return self.set_status(self.S_ERROR, info_msg=info_msg)
+                return self.set_status(self.S_ABICRITICAL, info_msg=info_msg)
                 # The job is unfixable due to ABINIT errors
             # 5)
             if self.stderr_file.exists and not err_info:
                 if self.qerr_file.exists and not err_msg:
                     # there is output and no errors
                     # Check if the run completed successfully.
-                    if report.run_completed:
-                        # Check if the calculation converged.
-                        not_ok = self.not_converged()
-                        if not_ok:
-                            return self.set_status(self.S_UNCONVERGED)
-                            # The job finished but did not converge
-                        else:
-                            return self.set_status(self.S_OK)
-                            # The job finished properly
+#                    if report.run_completed:
+#                        # Check if the calculation converged.
+#                        not_ok = self.not_converged()
+#                        if not_ok:
+#                            return self.set_status(self.S_UNCONVERGED)
+#                            # The job finished but did not converge
+#                        else:
+#                            return self.set_status(self.S_OK)
+#                            # The job finished properly
 
                     return self.set_status(self.S_RUN)
                     # The job still seems to be running
@@ -1654,6 +1670,7 @@ class Task(Node):
         # 7) Analyze the files of the resource manager and abinit and execution err (mvs)
         if self.qerr_file.exists:
             from pymatgen.io.gwwrapper.scheduler_error_parsers import get_parser
+            print('QTYPE :', self.manager.qadapter.QTYPE)
             scheduler_parser = get_parser(self.manager.qadapter.QTYPE, err_file=self.qerr_file.path,
                                           out_file=self.qout_file.path, run_err_file=self.stderr_file.path)
             scheduler_parser.parse()
@@ -1662,17 +1679,19 @@ class Task(Node):
                 print('scheduler errors found:')
                 print(scheduler_parser.errors)
                 self.queue_errors = scheduler_parser.errors
-                return self.set_status(self.S_QUEUE_ERROR)
-                # The job is killed or crashed and we know what happend
+                return self.set_status(self.S_QUEUECRITICAL)
+                # The job is killed or crashed and we know what happened
             else:
-                if err_info:
-                    return self.set_status(self.S_FINAL_ERROR, info_msg=err_info)
-                    # The job is killed or crashed but we don't know what happend
+                if len(err_info) > 0:
+                    print('found unknown que error:\n', err_info)
+                    return self.set_status(self.S_ERROR, info_msg=err_info)
+                    # The job is killed or crashed but we don't know what happened
 
-        # 8) anlizing the err files and abinit output did not identify a problem
+        # 8) analizing the err files and abinit output did not identify a problem
         # but if the files are not empty we do have a problem but no way of solving it:
-        if err_info or err_msg:
-            return self.set_status(self.S_FINAL_ERROR, info_msg=err_info)
+        if len(err_msg) > 0:
+            print('found error message:\n', err_msg)
+            return self.set_status(self.S_ERROR, info_msg=err_info)
             # The job is killed or crashed but we don't know what happend
 
         # 9) if we still haven't returned there is no indication of any error and the job can only still be running
@@ -1829,7 +1848,7 @@ class Task(Node):
         except parser.Error as exc:
             # Return a report with an error entry with info on the exception.
             logger.critical("%s: Exception while parsing ABINIT events:\n %s" % (file, str(exc)))
-            self.set_status(self.S_ERROR, info_msg=str(exc))
+            self.set_status(self.S_ABICRITICAL, info_msg=str(exc))
             return parser.report_exception(file.path, exc)
 
     @property
@@ -2009,7 +2028,7 @@ class Task(Node):
             except:
                 # Log the exception and continue with the parameters specified by the user.
                 logger.critical("autoparal_fake_run raised:\n%s" % straceback())
-                self.set_status(self.S_ERROR)
+                self.set_status(self.S_ABICRITICAL)
                 return 0
 
         # Start the calculation in a subprocess and return.

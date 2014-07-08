@@ -354,13 +354,32 @@ class SlurmErrorParser(AbstractErrorParser):
         }
 
 
-class PBSErrorParse(AbstractErrorParser):
+class PBSErrorParser(AbstractErrorParser):
     """
     Implementation for the PBS scheduler
     """
 
+    @property
+    def error_definitions(self):
+        return {
+            TimeCancelError: {
+                'out': {
+                    'string': "job killed: walltime",
+                    'meta_filter': {
+                        'broken_limit': [r"job killed: walltime (\d+) exceeded limit (\d+) que std", 1]
+                    }
+                }
+            },
+            AbstractError: {
+                'out': {
+                    'string': "a string to be found",
+                    'meta_filter': {}
+                }
+            }
+        }
 
-ALL_PARSERS = {'slurm': SlurmErrorParser, 'pbs': PBSErrorParse}
+
+ALL_PARSERS = {'slurm': SlurmErrorParser, 'pbs': PBSErrorParser}
 
 
 def get_parser(scheduler, err_file, out_file=None, run_err_file=None, batch_err_file=None):
@@ -377,7 +396,7 @@ def get_parser(scheduler, err_file, out_file=None, run_err_file=None, batch_err_
 
 
 if __name__ == "__main__":
-    my_parser = get_parser('slurm', err_file='queue.err', out_file='queue.out', run_err_file='run.err',
+    my_parser = get_parser('pbs', err_file='queue.err', out_file='queue.out', run_err_file='run.err',
                            batch_err_file='sbatch.err')
     my_parser.parse()
     print 'parser.errors', my_parser.errors

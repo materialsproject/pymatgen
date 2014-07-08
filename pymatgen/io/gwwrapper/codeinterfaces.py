@@ -21,12 +21,13 @@ __date__ = "May 2014"
 import os
 import shutil
 import os.path
+import collections
 
 from abc import abstractproperty, abstractmethod, ABCMeta
 from pymatgen.io.abinitio.netcdf import NetcdfReader
 from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.core.units import Ha_to_eV
-from pymatgen.io.gwwrapper.GWhelpers import is_converged, read_grid_from_file, s_name, expand_tests, store_conv_results
+from pymatgen.io.gwwrapper.helpers import is_converged, read_grid_from_file, s_name, expand_tests, store_conv_results
 from pymatgen.io.gwwrapper.GWvaspinputsets import SingleVaspGWWork
 from pymatgen.io.gwwrapper.GWworkflows import VaspGWFWWorkFlow, SingleAbinitGWWorkFlow
 from pymatgen.io.gwwrapper.GWvaspinputsets import GWscDFTPrepVaspInputSet, GWDFTDiagVaspInputSet, \
@@ -75,6 +76,7 @@ class AbstractCodeInterface(object):
         specific to the code, and values as they are interpreted by the code
         """
         string = str({self.conv_pars['nbands']: conv_res['values']['nbands'],
+                      self.conv_pars['ecut']: conv_res['values']['ecut'],
                       self.conv_pars['ecuteps']: conv_res['values']['ecuteps']})
         return string
 
@@ -113,6 +115,12 @@ class AbstractCodeInterface(object):
         method to store the final results
         """
 
+    @abstractmethod
+    def read_ps_dir(self):
+        """
+        read from the environemt the location of speudo potentials
+        """
+
 
 class VaspInterface(AbstractCodeInterface):
     """
@@ -128,7 +136,11 @@ class VaspInterface(AbstractCodeInterface):
 
     @property
     def conv_pars(self):
-        return {'nbands': 'NBANDS', 'ecuteps': 'ENCUTGW'}
+        return {'nbands': 'NBANDS', 'ecuteps': 'ENCUTGW', 'ecut': 'ENCUT'}
+
+    def read_ps_dir(self):
+        location = os.environ['VASP_PSP_DIR']
+        return location
 
     def read_convergence_data(self, data_dir):
         results = {}
@@ -294,7 +306,11 @@ class AbinitInterface(AbstractCodeInterface):
 
     @property
     def conv_pars(self):
-        return {'nbands': 'nscf_nbands', 'ecuteps': 'ecuteps'}
+        return {'nbands': 'nscf_nbands', 'ecuteps': 'ecuteps', 'ecut': 'ecut'}
+
+    def read_ps_dir(self):
+        location = os.environ['ABINIT_PS']
+        return location
 
     other_vars = """
         [u'space_group', u'primitive_vectors', u'reduced_symmetry_matrices', u'reduced_symmetry_translations',
@@ -310,16 +326,51 @@ class AbinitInterface(AbstractCodeInterface):
          u'ze0', u'omega4sd'] for later use """
 
     def read_convergence_data(self, data_dir):
-        run = os.path.join(data_dir, 'out_SIGRES.nc')
+        gwrun = os.path.join(data_dir, 'out_SIGRES.nc')
+        scfrunout = os.path.join(data_dir, 'out_OUT.nc')
+        scfruneig = os.path.join(data_dir, 'out_EIG.nc')
         results = {}
-        if os.path.isfile(run):
-            data = NetcdfReader(run)
+        if os.path.isfile(gwrun):
+            # return the gap at gamma
+            data = NetcdfReader(gwrun)
             data.print_tree()
-            results = {'ecuteps': Ha_to_eV * data.read_value('ecuteps'),
-                       'nbands': data.read_value('sigma_nband'),
-                       'gwgap': data.read_value('egwgap')[0][0]}
+            if not isinstance(data.read_value('ecuteps'), collections.Iterable):
+                ecuteps = data.read_value('ecuteps')
+            elif not isinstance(data.read_value('ecuteps')[0], collections.Iterable):
+                ecuteps = data.read_value('ecuteps')[0]
+            else:
+                raise Exception
+            if not isinstance(data.read_value('sigma_nband'), collections.Iterable):
+                sigma_nband = data.read_value('sigma_nband')
+            elif not isinstance(data.read_value('sigma_nband')[0], collections.Iterable):
+                sigma_nband = data.read_value('sigma_nband')[0]
+            else:
+                raise Exception
+            gwgap = data.read_value('egwgap')[0][0]
+            if not isinstance(gwgap, float):
+                raise Exception
+            results = {'ecuteps': Ha_to_eV * ecuteps,
+                       'nbands': sigma_nband,
+                       'gwgap': gwgap}
             data.close()
-        return results
+            return results
+        if os.path.isfile(scfruneig):
+            # return the lowest and hightest eigenvalue at gamma
+            data = NetcdfReader(scfruneig)
+            out = NetcdfReader(scfrunout)
+            if data.read_value('Eigenvalues')[0][0][-1] < 2.0:  # bad way to select only the scf results ..
+                if not isinstance(out.read_value('ecut'), collections.Iterable):
+                    ecut = out.read_value('ecut')
+                elif not isinstance(out.read_value('ecut')[0], collections.Iterable):
+                    ecut = out.read_value('ecut')[0]
+                else:
+                    raise Exception
+                results = {'ecut': Ha_to_eV * ecut,
+                           'min': data.read_value('Eigenvalues')[0][0][0]*Ha_to_eV,
+                           'max': data.read_value('Eigenvalues')[0][0][-1]*Ha_to_eV,
+                           'full_width': (data.read_value('Eigenvalues')[0][0][-1] - data.read_value('Eigenvalues')[0][0][0])*Ha_to_eV}
+                data.close()
+            return results
 
     def test(self, data):
         errors = []
@@ -336,10 +387,12 @@ class AbinitInterface(AbstractCodeInterface):
         excecute spec prepare input/jobfiles or submit to fw for a given structure
         for abinit a flow is created using abinitio
         """
-        if spec_data['converge'] and is_converged(spec_data, structure):
-            option = is_converged(spec_data, structure, return_values=True)
+
+        if spec_data['converge'] and is_converged(self.hartree_parameters, structure):
+            option = is_converged(self.hartree_parameters, structure, return_values=True)
         else:
             option = None
+        print option
         work_flow = SingleAbinitGWWorkFlow(structure, spec_data, option)
         flow = work_flow.create()
         if flow is not None:
@@ -349,7 +402,11 @@ class AbinitInterface(AbstractCodeInterface):
     def store_results(self, name):
         folder = name + '.res'
         store_conv_results(name, folder)
-        shutil.copyfile(os.path.join(name+".conv", "work_0", "task_6", "outdata", "out_SIGRES.nc"),
+        try:
+            shutil.copyfile(os.path.join(name+".conv", "w0", "t6", "outdata", "out_SIGRES.nc"),
+                        os.path.join(folder, "out_SIGRES.nc"))
+        except:  # compatibility issue
+            shutil.copyfile(os.path.join(name+".conv", "work_0", "task_6", "outdata", "out_SIGRES.nc"),
                         os.path.join(folder, "out_SIGRES.nc"))
 
 
@@ -375,6 +432,10 @@ class NewCodeInterface(AbstractCodeInterface):
         results = {}  # adapt to read the output of NEW_CODE
         raise NotImplementedError
         return results
+
+    def read_ps_dir(self):
+        location = os.environ['PS_ENVIRON']
+        return location
 
     def test(self, data):
         """
