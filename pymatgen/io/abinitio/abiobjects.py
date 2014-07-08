@@ -619,10 +619,10 @@ class KSampling(AbivarAble):
         Args:
             kpts:
                 Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
-        use_symmetries:
-            False if spatial symmetries should not be used to reduced the number of independent k-points.
-        use_time_reversal:
-            False if time-reversal symmetry should not be used to reduced the number of independent k-points.
+            use_symmetries:
+                False if spatial symmetries should not be used to reduced the number of independent k-points.
+            use_time_reversal:
+                False if time-reversal symmetry should not be used to reduced the number of independent k-points.
 
         Returns:
             `KSampling` object.
@@ -644,7 +644,7 @@ class KSampling(AbivarAble):
             ngkpt:
                 Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
             shiftk:
-                Shift to be applied to the kpoints. Defaults to (0,0,0).
+                Shift to be applied to the kpoints. 
             use_symmetries:
                 Use spatial symmetries to reduce the number of k-points.
             use_time_reversal:
