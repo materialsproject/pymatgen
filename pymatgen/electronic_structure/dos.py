@@ -320,6 +320,26 @@ class CompleteDos(Dos):
         site_dos = reduce(add_densities, self.pdos[site].values())
         return Dos(self.efermi, self.energies, site_dos)
 
+    def get_site_spd_dos(self, site):
+        """
+        Get orbital projected Dos of a particular site
+
+        Args:
+            site: Site in Structure associated with CompleteDos.
+
+        Returns:
+            dict of {orbital: Dos}, e.g. {"s": Dos object, ...}
+        """
+        spd_dos = dict()
+        for orb, pdos in self.pdos[site].items():
+            orb_type = orb.orbital_type
+            if orb_type in spd_dos:
+                spd_dos[orb_type] = add_densities(spd_dos[orb_type], pdos)
+            else:
+                spd_dos[orb_type] = pdos
+        return {orb: Dos(self.efermi, self.energies, densities) 
+                for orb, densities in spd_dos.items()}
+
     def get_site_t2g_eg_resolved_dos(self, site):
         """
         Get the t2g, eg projected DOS for a particular site.
