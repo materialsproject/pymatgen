@@ -17,9 +17,12 @@ import unittest
 import os
 import json
 
+import numpy as np
+
 from pymatgen import Lattice, Structure
 from pymatgen.transformations.standard_transformations import \
-    OxidationStateDecorationTransformation, SubstitutionTransformation
+    OxidationStateDecorationTransformation, SubstitutionTransformation, \
+    OrderDisorderedStructureTransformation
 from pymatgen.transformations.advanced_transformations import \
     SuperTransformation, EnumerateStructureTransformation, \
     MultipleSubstitutionTransformation, ChargeBalanceTransformation, \
@@ -77,6 +80,21 @@ class SuperTransformationTest(unittest.TestCase):
             self.assertEqual(s_and_t['transformation']
                              .apply_transformation(struct),
                              s_and_t['structure'])
+
+        #Test returning multiple structures from each transformation.
+        disord = Structure(np.eye(3) * 4.209, [{"Cs+": 0.5, "K+": 0.5}, "Cl-"],
+                           [[0, 0, 0], [0.5, 0.5, 0.5]])
+        disord.make_supercell([2, 2, 1])
+
+
+        tl = [EnumerateStructureTransformation(),
+              OrderDisorderedStructureTransformation()]
+        t = SuperTransformation(tl, nstructures_per_trans=10)
+        self.assertEqual(len(t.apply_transformation(disord,
+                                                    return_ranked_list=20)), 8)
+        t = SuperTransformation(tl)
+        self.assertEqual(len(t.apply_transformation(disord,
+                                                    return_ranked_list=20)), 2)
 
 
 class MultipleSubstitutionTransformationTest(unittest.TestCase):
@@ -234,6 +252,20 @@ class MagOrderingTransformationTest(unittest.TestCase):
         self.assertEqual(trans.mag_species_spin, {"Fe": 5})
         from pymatgen.analysis.energy_models import SymmetryModel
         self.assertIsInstance(trans.emodel, SymmetryModel)
+
+    def test_zero_spin_case(self):
+        #ensure that zero spin case maintains sites and formula
+        from pymatgen.io.smartio import read_structure
+        s = read_structure(os.path.join(test_dir, 'Li2O.cif'))
+        trans = MagOrderingTransformation({"Li+": 0.0}, 0.5)
+        alls = trans.apply_transformation(s)
+        #compositions will not be equal due to spin assignment
+        #structure representations will be the same
+        self.assertEqual(str(s), str(alls))
+        #Ensure s does not have a spin property
+        self.assertFalse('spin' in s.sites[0].specie._properties)
+        #ensure sites are assigned a spin property in alls
+        self.assertTrue('spin' in alls.sites[0].specie._properties)
 
 
 if __name__ == "__main__":

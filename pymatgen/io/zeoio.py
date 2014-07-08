@@ -30,7 +30,8 @@ from pymatgen.io.xyzio import XYZ
 try:
     from zeo.netstorage import AtomNetwork, VoronoiNetwork
     from zeo.area_volume import volume, surface_area
-    from zeo.cluster import get_nearest_largest_diameter_highaccuracy_vornode
+    from zeo.cluster import get_nearest_largest_diameter_highaccuracy_vornode,\
+            generate_simplified_highaccuracy_voronoi_network
     zeo_found = True
 except ImportError:
     zeo_found = False
@@ -47,9 +48,6 @@ class ZeoCssr(Cssr):
         structure: A structure to create ZeoCssr object
     """
 
-    # @requires(zeo_found,
-    #          "ZeoCssr requires Zeo++ cython extension to be installed. Please "
-    #          "contact developers of Zeo++ to obtain it.")
     def __init__(self, structure):
         super(ZeoCssr, self).__init__(structure)
 
@@ -218,6 +216,9 @@ class ZeoVoronoiXYZ(XYZ):
             ))
         return "\n".join(output)
 
+@requires(zeo_found,
+            "get_voronoi_nodes requires Zeo++ cython extension to be "
+            "installed. Please contact developers of Zeo++ to obtain it.")
 def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     """
     Analyze the void space in the input structure using voronoi decomposition
@@ -288,7 +289,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
 def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
     """
     Analyze the void space in the input structure using high accuracy 
-    voronoi decomposition
+    voronoi decomposition.
     Calls Zeo++ for Voronoi decomposition.
 
     Args:
@@ -321,7 +322,75 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
                 zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
         vornet, voronoi_face_centers = atmnet.perform_voronoi_decomposition()
         red_ha_vornet = \
-                get_nearest_largest_diameter_highaccuracy_vornode(atmnet)
+                generate_simplified_highaccuracy_voronoi_network(atmnet)
+                #get_nearest_largest_diameter_highaccuracy_vornode(atmnet)
+        red_ha_vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
+        voro_out_filename = name + '_voro.xyz'
+        voro_node_mol = ZeoVoronoiXYZ.from_file(voro_out_filename).molecule
+
+    species = ["X"] * len(voro_node_mol.sites)
+    coords = []
+    prop = []
+    for site in voro_node_mol.sites:
+        coords.append(list(site.coords))
+        prop.append(site.properties['voronoi_radius'])
+
+    lattice = Lattice.from_lengths_and_angles(
+        structure.lattice.abc, structure.lattice.angles)
+    voronoi_node_struct = Structure(
+        lattice, species, coords, coords_are_cartesian=True,
+        to_unit_cell=True, site_properties={"voronoi_radius": prop})
+
+
+    #PMG-Zeo c<->a transformation for voronoi face centers
+    rot_face_centers = [(center[1],center[2],center[0]) for center in 
+                        voronoi_face_centers]
+    species = ["X"] * len(rot_face_centers)
+    # Voronoi radius not evaluated for fc. Fix in future versions
+    prop = [0.0] * len(rot_face_centers)  
+    voronoi_facecenter_struct = Structure(
+        lattice, species, rot_face_centers, coords_are_cartesian=True,
+        to_unit_cell=True, site_properties={"voronoi_radius": prop})
+
+    return voronoi_node_struct, voronoi_facecenter_struct
+
+def get_high_accuracy_voronoi_nodes_alt(structure, rad_dict, probe_rad=0.1):
+    """
+    Function to replace high_accuracy_voronoi_nodes function. In testing
+    mode.
+    Analyze the void space in the input structure using high accuracy 
+    voronoi decomposition.
+    Calls Zeo++ for Voronoi decomposition.
+
+    Args:
+        structure: pymatgen.core.structure.Structure
+        rad_dict (optional): Dictionary of radii of elements in structure.
+            For ionic structures, pass rad_dict with ionic radii
+        probe_rad (optional): Sampling probe radius in Angstroms. 
+            Default is 0.1 A
+
+    Returns:
+        voronoi nodes as pymatgen.core.structure.Strucutre within the
+        unit cell defined by the lattice of input structure
+        voronoi face centers as pymatgen.core.structure.Strucutre within the
+        unit cell defined by the lattice of input structure
+    """
+
+    with ScratchDir('.'):
+        name = "temp_zeo1"
+        zeo_inp_filename = name + ".cssr"
+        ZeoCssr(structure).write_file(zeo_inp_filename)
+        rad_flag = True
+        rad_file = name + ".rad"
+        with open(rad_file, 'w+') as fp:
+            for el in rad_dict.keys():
+                print >>fp, "{} {}".format(el, rad_dict[el].real)
+
+        atmnet = AtomNetwork.read_from_CSSR(
+                zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
+        vornet, voronoi_face_centers = atmnet.perform_voronoi_decomposition()
+        red_ha_vornet = \
+                generate_simplified_highaccuracy_voronoi_network(atmnet)
         red_ha_vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
         voro_out_filename = name + '_voro.xyz'
         voro_node_mol = ZeoVoronoiXYZ.from_file(voro_out_filename).molecule
