@@ -34,6 +34,7 @@ from pymatgen.io.abinitio.pseudos import Pseudo
 from pymatgen.io.abinitio.strategies import ScfStrategy
 from pymatgen.io.abinitio.eos import EOS
 from pymatgen.io.abinitio.abitimer import AbinitTimerParser
+from pymatgen.io.gwwrapper.helpers import refine_structure
 
 import logging
 logger = logging.getLogger(__name__)
@@ -260,6 +261,7 @@ class Workflow(BaseWorkflow):
         """
         super(Workflow, self).__init__()
 
+
         self._tasks = []
 
         if workdir is not None:
@@ -272,6 +274,7 @@ class Workflow(BaseWorkflow):
         """Set the `TaskManager` to use to launch the Task."""
         self.manager = manager.deepcopy()
         for task in self:
+            print('set manager for task ', task)
             task.set_manager(manager)
 
     @property
@@ -306,7 +309,7 @@ class Workflow(BaseWorkflow):
         self.set_workdir(new_workdir, chroot=True)
 
         for i, task in enumerate(self):
-            new_tdir = os.path.join(self.workdir, "task_" + str(i))
+            new_tdir = os.path.join(self.workdir, "t" + str(i))
             task.set_workdir(new_tdir, chroot=True)
 
     def __len__(self):
@@ -390,7 +393,7 @@ class Workflow(BaseWorkflow):
                     # Use the one of the workflow.
                     task.set_manager(self.manager)
 
-            task_workdir = os.path.join(self.workdir, "task_" + str(i))
+            task_workdir = os.path.join(self.workdir, "t" + str(i))
 
             if not hasattr(task, "workdir"):
                 task.set_workdir(task_workdir)
@@ -425,7 +428,7 @@ class Workflow(BaseWorkflow):
         """
         task_workdir = None
         if hasattr(self, "workdir"):
-            task_workdir = os.path.join(self.workdir, "task_" + str(len(self)))
+            task_workdir = os.path.join(self.workdir, "t" + str(len(self)))
 
         if isinstance(obj, Task):
             task = obj
@@ -717,6 +720,7 @@ class IterativeWorkflow(Workflow):
                 break
 
             # Start the task and block till completion.
+            kwargs.pop('wait')
             task.start(*args, **kwargs)
             task.wait()
 
@@ -1001,7 +1005,7 @@ class PseudoIterativeConvergence(IterativeWorkflow):
             for ecut in self.ecut_iterator:
                 yield self.strategy_with_ecut(ecut)
 
-        super(PseudoIterativeConvergence, self).__init__(strategy_generator(), 
+        super(PseudoIterativeConvergence, self).__init__(strategy_generator(),
               max_niter=max_niter, workdir=workdir, manager=manager, )
 
         if not self.isnc:
@@ -1187,10 +1191,10 @@ class DeltaFactorWorkflow(Workflow):
         super(DeltaFactorWorkflow, self).__init__(workdir=workdir, manager=manager)
 
         if isinstance(structure_or_cif, Structure):
-            structure = structure_or_cif
+            structure = refine_structure(structure_or_cif, symprec=1e-6)
         else:
             # Assume CIF file
-            structure = read_structure(structure_or_cif)
+            structure = refine_structure(read_structure(structure_or_cif), symprec=1e-6)
 
         self.pseudo = Pseudo.aspseudo(pseudo)
 
@@ -1231,7 +1235,7 @@ class DeltaFactorWorkflow(Workflow):
                                     accuracy=accuracy, spin_mode=spin_mode,
                                     smearing=smearing, **extra_abivars)
 
-            self.register(scf_input, task_class=ScfTask)
+            self.register(scf_input, task_class=ScfTask, manager=manager)
 
     def get_results(self):
         num_sites = self._input_structure.num_sites
@@ -1266,7 +1270,7 @@ class DeltaFactorWorkflow(Workflow):
             dfact = df_compute(wien2k.v0, wien2k.b0_GPa, wien2k.b1,
                                eos_fit.v0, eos_fit.b0_GPa, eos_fit.b1, b0_GPa=True)
 
-            print("delta",eos_fit)
+            print("delta", eos_fit)
             print("Deltafactor = %.3f meV" % dfact)
 
             wf_results.update({
@@ -1330,7 +1334,12 @@ class G0W0_Workflow(Workflow):
         super(G0W0_Workflow, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
-        self.scf_task = scf_task = self.register(scf_input, task_class=ScfTask)
+        # register all scf_inputs but link the nscf only the last scf in the list
+        if isinstance(scf_input, (list, tuple)):
+            for single_scf_input in scf_input:
+                self.scf_task = scf_task = self.register(single_scf_input, task_class=ScfTask)
+        else:
+            self.scf_task = scf_task = self.register(scf_input, task_class=ScfTask)
 
         # Construct the input for the NSCF run.
         self.nscf_task = nscf_task = self.register(nscf_input, deps={scf_task: "DEN"}, task_class=NscfTask)
