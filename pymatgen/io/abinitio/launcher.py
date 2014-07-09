@@ -6,16 +6,16 @@ import time
 import collections
 import yaml
 import cStringIO as StringIO
+
+from datetime import timedelta
 from monty.os.path import which
 from pymatgen.io.abinitio import myaml
 
-from datetime import timedelta
 from pymatgen.core.design_patterns import AttrDict
 from pymatgen.util.string_utils import is_string
 from pymatgen.io.abinitio.utils import File
 
 import logging
-
 logger = logging.getLogger(__name__)
 
 __all__ = [
@@ -419,6 +419,7 @@ class PyFlowScheduler(object):
 
         self.mailto = kwargs.pop("mailto", None)
         self.verbose = int(kwargs.pop("verbose", 0))
+        self.use_dynamic_manager = kwargs.pop("use_dynamic_manager", True)
 
         self.REMINDME_S = float(kwargs.pop("REMINDME_S", 14 * 24 * 3600))
         self.MAX_NUM_PYEXCS = int(kwargs.pop("MAX_NUM_PYEXCS", 0))
@@ -575,8 +576,15 @@ class PyFlowScheduler(object):
         This function tries to run all the tasks that can be submitted.
         """
         max_nlaunch, excs = 10, []
-
         flow = self.flow
+
+        # Allow to change the manager at run-time
+        if self.use_dynamic_manager:
+            from pymatgen.io.abinitio.tasks import TaskManager
+            new_manager = TaskManager.from_user_config()
+            for work in flow:
+                work.set_manager(new_manager)
+
         flow.check_status()
 
         # Try to restart the unconverged tasks
