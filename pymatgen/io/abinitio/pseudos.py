@@ -1156,14 +1156,6 @@ class PseudoParser(object):
 
         root, ext = os.path.splitext(path)
 
-        # Add the content of input file (if present).
-        # The name of the input is name + ".ini"
-        #input = None
-        #input_path = root + ".ini"
-        #if os.path.exists(input_path):
-        #    with open(input_path, 'r') as fh:
-        #        input = fh.read()
-
         if psp_type == "NC":
             pseudo = NcAbinitPseudo(path, header)
         elif psp_type == "PAW":
@@ -1725,7 +1717,6 @@ class PseudoTable(collections.Sequence):
         try:
             return getattr(self, str(symbol))
         except AttributeError:
-            #raise
             return []
 
     def pseudo_from_name(self, name):

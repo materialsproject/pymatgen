@@ -400,13 +400,15 @@ class AbinitFlow(Node):
                 print('waited ', self._waited, ' cycles')
             except AttributeError:
                 self._waited = 0
+
             for error in task.abi_errors:
                 print('trying to fix:')
                 print(error)
-                print('by waiting for the phase of the moon to change a bit ... ')
+                print('by waiting for the phase of the moon to change a bit ...')
             if self._waited > 3:
                 task.set_status(task.S_ERROR, info_msg)
-            self._waited = self._waited + 1
+
+            self._waited += 1
 
     def fix_queue_critical(self):
         """
