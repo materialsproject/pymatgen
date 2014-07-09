@@ -8,6 +8,7 @@ import yaml
 import cStringIO as StringIO
 
 from datetime import timedelta
+from monty.dev import deprecated
 from monty.os.path import which
 from pymatgen.io.abinitio import myaml
 
@@ -296,8 +297,10 @@ class PyLauncher(object):
                 break
 
             for task in tasks:
-            # see if there is place in the que
-                if get_running_jobs() > 99:
+                # see if there is place in the queue
+                #njobs = get_running_jobs():
+                njobs = task.manager.qadapter.get_njobs_in_queue()
+                if njobs is not None and njobs > 99:
                     num_loops = max_loops
                     print('too many jobs in the queue, going back to sleep')
                     break
@@ -309,7 +312,7 @@ class PyLauncher(object):
                     num_launched += 1
 
                 if num_launched == max_nlaunch:
-                    # Exit the outermst loop.
+                    # Exit the outermost loop.
                     print('num_launched == max_nlaunch, going back to sleep')
                     num_loops = max_loops
                     break
@@ -780,8 +783,6 @@ class PyFlowScheduler(object):
             strio.writelines(self.exceptions)
 
         text = strio.getvalue()
-        #print("text", text)
-
         if tag is None:
             tag = " [ALL OK]" if self.flow.all_ok else " [WARNING]"
 
@@ -835,6 +836,7 @@ def sendmail(subject, text, mailto, sender=None):
     return len(errdata)
 
 
+@deprecated("qadapter.get_njobs_in_queue")
 def get_running_jobs():
     """
     Return the number if running jobs.

@@ -25,7 +25,6 @@ from pymatgen.util.io_utils import FileLock
 from pymatgen.util.string_utils import is_string, list_strings, WildCard
 from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
-
 from pymatgen.io.abinitio.qadapters import qadapter_class
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
 from pymatgen.io.abinitio.strategies import StrategyWithInput, OpticInput, AnaddbInput
