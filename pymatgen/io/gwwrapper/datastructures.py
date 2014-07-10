@@ -177,9 +177,9 @@ class AbstractAbinitioSpec(MSONable):
                     else:
                         # print "no bandstructure information available, adding GG as 'gap'"
                         structure = add_gg_gap(structure)
-                elif item.endwith('xyz'):
+                elif 'xyz' in item:
                     structure = pmg.read_structure(item)
-
+                    raise NotImplementedError
                 elif item.startswith('mp-'):
                     with MPRester(mp_key) as mp_database:
                         print 'structure from mp database', item
