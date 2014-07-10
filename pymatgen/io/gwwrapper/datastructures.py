@@ -29,6 +29,7 @@ from pymatgen.io.gwwrapper.convergence import test_conv
 from pymatgen.io.gwwrapper.helpers import print_gnuplot_header, s_name, add_gg_gap, refine_structure
 from pymatgen.io.gwwrapper.codeinterfaces import get_code_interface
 from pymatgen.core.structure import Structure
+from pymatgen.core.units import eV_to_Ha
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -375,7 +376,7 @@ class GWSpecs(AbstractAbinitioSpec):
                         data.full_res.update({'remark': 'No converged SCf parameter found. '
                                                                              'Solution not implemented.'})
                         data.print_full_res()
-                        data.conv_res['values'].update({'ecut': 40})
+                        data.conv_res['values'].update({'ecut': 40*eV_to_Ha})
                         data.conv_res['control'].update({'ecut': True})
                         done = True
                     # if converged ok, if not increase the grid parameter of the next set of calculations
