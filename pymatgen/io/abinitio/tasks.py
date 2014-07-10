@@ -1688,14 +1688,15 @@ class Task(Node):
 
         # 8) analizing the err files and abinit output did not identify a problem
         # but if the files are not empty we do have a problem but no way of solving it:
-        if len(err_msg) > 0:
+        if err_msg is not None and len(err_msg) > 0:
             print('found error message:\n', err_msg)
             return self.set_status(self.S_ERROR, info_msg=err_info)
             # The job is killed or crashed but we don't know what happend
 
         # 9) if we still haven't returned there is no indication of any error and the job can only still be running
         # but we should actually never land here, or we have delays in the file system ....
-        print('the job still seems to be running maybe it is hanging without producing output... ')
+        #print('the job still seems to be running maybe it is hanging without producing output... ')
+
         return self.set_status(self.S_RUN)
 
     def reduce_memory_demand(self):
@@ -2155,9 +2156,7 @@ class AbinitTask(Task):
         manager, policy = self.manager, self.manager.policy
 
         if policy.autoparal == 0 or policy.max_ncpus in [None, 1]: 
-            msg = "Nothing to do in autoparal, returning (None, None)"
-            logger.info(msg)
-            print(msg)
+            logger.info("Nothing to do in autoparal, returning (None, None)")
             return None, None
 
         if policy.autoparal != 1:

@@ -593,12 +593,14 @@ class SlurmAdapter(AbstractQueueAdapter):
             cmd = ['sbatch', script_file]
             process = Popen(cmd, stdout=PIPE, stderr=PIPE)
             # write the err output to file, a error parser may read it and a fixer may know what to do ...
-            f = open(submit_err_file, mode='w')
-            f.write('sbatch submit process stderr:')
-            f.write(str(process.stderr.read()))
-            f.write('qparams:')
-            f.write(str(self.qparams))
-            f.close()
+
+            with open(submit_err_file, mode='w') as f:
+                f.write('sbatch submit process stderr:')
+                f.write(str(process.stderr.read()))
+                f.write('qparams:')
+                f.write(str(self.qparams))
+                f.close()
+
             process.wait()
 
             # grab the returncode. SLURM returns 0 if the job was successful
@@ -621,11 +623,12 @@ class SlurmAdapter(AbstractQueueAdapter):
                            "The error response reads: {c}".format(c=process.stderr.read()))
                 raise self.Error(err_msg)
 
-        except BaseException as details:
-            print('print exception: ' + str(details))
-            f = open(submit_err_file, mode='a')
-            f.write('print exception: ' + str(details))
-            f.close()
+        except Exception as details:
+            msg = 'Error while submitting job:\n' + str(details)
+            logger.critical(msg)
+            with open(submit_err_file, mode='a') as f:
+                f.write(msg)
+                f.close()
             try:
                 print('sometimes we land here, no idea what is happening ... Michiel')
                 print(details)
@@ -734,6 +737,7 @@ class SlurmAdapter(AbstractQueueAdapter):
                 return True
             else:
                 raise QueueAdapterError
+
         except (KeyError, QueueAdapterError):
             return False
 
@@ -887,11 +891,11 @@ class PbsAdapter(AbstractQueueAdapter):
         return 'this is not FORTAN'
 
     def exclude_nodes(self, nodes):
-        print('exluding nodes, not implemented yet pbs')
+        logger.warning('exluding nodes, not implemented yet pbs')
         return False
 
     def increase_mem(self, factor):
-        print('increasing mem, not implemented yet pbs')
+        logger.warning('increasing mem, not implemented yet pbs')
         return False
 
     def increase_time(self, factor=1.5):
@@ -917,7 +921,7 @@ class PbsAdapter(AbstractQueueAdapter):
             return False
 
     def increase_cpus(self, factor):
-        print('increasing cpus, not implemented yet pbs')
+        logger.warning('increasing cpus, not implemented yet pbs')
         return False
 
 
