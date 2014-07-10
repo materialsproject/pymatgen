@@ -24,15 +24,5 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 if __name__ == "__main__":
     counter = 0
     spec_in = get_spec('GW')
-    try:
-        spec_in.read_from_file('spec.in')
-    except (IOError, OSError):
-        try:
-            spec_in.read_from_file('$HOME/.abinit/abipy/spec.in')
-        except (IOError, OSError):
-            pass
-        pass
-    spec_in.update_interactive()
-    spec_in.test()
-    spec_in.write_to_file('spec.in')
+    spec_in.read_from_file('spec.in')
     spec_in.loop_structures('w')
