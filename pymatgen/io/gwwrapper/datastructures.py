@@ -438,9 +438,9 @@ class GWSpecs(AbstractAbinitioSpec):
         """
         data = GWConvergenceData(spec=self, structure=structure)
         if data.read_conv_res_from_file(os.path.join(s_name(structure)+'.res', s_name(structure)+'.conv_res')):
-            print s_name(structure), data.conv_res['values']['ecuteps'], data.conv_res['values']['nscf_nbands']
+            print '-', s_name(structure), data.conv_res['values']['ecuteps'], data.conv_res['values']['nscf_nbands']
         else:
-            print s_name(structure), 0, 0
+            print '-', s_name(structure), 0, 0
 
 
 class GWConvergenceData():
