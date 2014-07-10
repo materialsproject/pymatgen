@@ -307,8 +307,7 @@ class ScfStrategy(Strategy):
                                     algorithm=scf_algorithm,
                                     nband=None,
                                     fband=None,
-                                    charge=charge,
-                                   )
+                                    charge=charge)
 
         self.extra_abivars = extra_abivars
 

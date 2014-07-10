@@ -404,8 +404,12 @@ class PyFlowScheduler(object):
                 number of minutes to wait
             seconds:
                 number of seconds to wait
+
             verbose:
                 (int) verbosity level
+            use_dynamic_manager:
+                True if the task manager must be re-initialized from 
+                file before launching the jobs. Default: False
         """
         # Options passed to the scheduler.
         self.sched_options = AttrDict(
@@ -422,7 +426,7 @@ class PyFlowScheduler(object):
 
         self.mailto = kwargs.pop("mailto", None)
         self.verbose = int(kwargs.pop("verbose", 0))
-        self.use_dynamic_manager = kwargs.pop("use_dynamic_manager", True)
+        self.use_dynamic_manager = kwargs.pop("use_dynamic_manager", False)
 
         self.REMINDME_S = float(kwargs.pop("REMINDME_S", 14 * 24 * 3600))
         self.MAX_NUM_PYEXCS = int(kwargs.pop("MAX_NUM_PYEXCS", 0))
@@ -640,7 +644,7 @@ class PyFlowScheduler(object):
     def _callback(self):
         """The actual callback."""
         # Show the number of open file descriptors
-        print(">>>>> _callback: Number of open file descriptors: %s" % get_open_fds())
+        #print(">>>>> _callback: Number of open file descriptors: %s" % get_open_fds())
 
         self._runem_all()
 
@@ -732,10 +736,10 @@ class PyFlowScheduler(object):
 
             self.history.append("Completed on %s" % time.asctime())
             self.history.append("Elapsed time %s" % self.get_delta_etime())
-            print(">>>>> shutdown: Number of open file descriptors: %s" % get_open_fds())
+            #print(">>>>> shutdown: Number of open file descriptors: %s" % get_open_fds())
 
             retcode = self.send_email(msg)
-            print("send_mail retcode", retcode)
+            #print("send_mail retcode", retcode)
 
         finally:
             # Write file with the list of exceptions:

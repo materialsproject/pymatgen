@@ -258,7 +258,6 @@ class AbinitFlow(Node):
         """
         try:
             return self._chrooted_from
-
         except AttributeError:
             return ""
 

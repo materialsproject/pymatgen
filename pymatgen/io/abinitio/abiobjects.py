@@ -833,7 +833,7 @@ class RelaxationMethod(AbivarAble):
         "ionmov"           : MANDATORY,
         "optcell"          : MANDATORY,
         "ntime"            : 80,
-        "dilatmx"          : 1.1,
+        "dilatmx"          : 1.05,
         "ecutsm"           : 0.5,
         "strfact"          : None,
         "tolmxf"           : None,
@@ -881,45 +881,43 @@ class RelaxationMethod(AbivarAble):
     @property
     def move_atoms(self):
         """True if atoms must be moved."""
-        return self.vars.ionmov != 0
+        return self.abivars.ionmov != 0
 
     @property
     def move_cell(self):
         """True if lattice parameters must be optimized."""
-        return self.vars.optcell != 0
+        return self.abivars.optcell != 0
 
     def to_abivars(self):
         """Returns a dictionary with the abinit variables"""
-        vars = self.vars
-
         # These variables are always present.
-        abivars = {
-            "ionmov" : vars.ionmov,
-            "optcell": vars.optcell,
-            "ntime"  : vars.ntime,
+        out_vars = {
+            "ionmov" : self.abivars.ionmov,
+            "optcell": self.abivars.optcell,
+            "ntime"  : self.abivars.ntime,
         }
 
         # Atom relaxation.
         if self.move_atoms:
-            abivars.update({
-                "tolmxf": vars.tolmxf,
+            out_vars.update({
+                "tolmxf": self.abivars.tolmxf,
             })
 
-        if vars.atoms_constraints:
+        if self.abivars.atoms_constraints:
             # Add input variables for constrained relaxation.
             raise NotImplementedError("")
-            abivars.update(vars.atoms_constraints.to_abivars())
+            out_vars.update(self.abivars.atoms_constraints.to_abivars())
 
         # Cell relaxation.
         if self.move_cell:
-            abivars.update({
-                "dilatmx"  : vars.dilatmx,
-                "ecutsm"   : vars.ecutsm,
-                "strfact"  : vars.strfact,
-                "strtarget": vars.strtarget,
+            out_vars.update({
+                "dilatmx"  : self.abivars.dilatmx,
+                "ecutsm"   : self.abivars.ecutsm,
+                "strfact"  : self.abivars.strfact,
+                "strtarget": self.abivars.strtarget,
             })
 
-        return abivars
+        return out_vars
 
 
 class PPModel(AbivarAble, MSONable):

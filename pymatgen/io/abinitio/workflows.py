@@ -17,19 +17,18 @@ except ImportError:
     pass
 
 from pymatgen.core.units import ArrayWithUnit, Ha_to_eV
-from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.core.design_patterns import Enum, AttrDict
-from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
+from pymatgen.core.design_patterns import AttrDict
+from pymatgen.serializers.json_coders import MSONable
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
-from pymatgen.util.string_utils import list_strings, pprint_table, WildCard
+from pymatgen.util.string_utils import pprint_table, WildCard
 from pymatgen.io.abinitio import wrappers
 from pymatgen.io.abinitio.tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, HaydockBseTask, RelaxTask)
-from pymatgen.io.abinitio.strategies import Strategy
-from pymatgen.io.abinitio.utils import File, Directory
+from pymatgen.io.abinitio.strategies import Strategy, RelaxStrategy
+from pymatgen.io.abinitio.utils import Directory
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
-from pymatgen.io.abinitio.abiobjects import Smearing, AbiStructure, KSampling, Electrons
+from pymatgen.io.abinitio.abiobjects import Smearing, AbiStructure, KSampling, Electrons, RelaxationMethod
 from pymatgen.io.abinitio.pseudos import Pseudo
 from pymatgen.io.abinitio.strategies import ScfStrategy
 from pymatgen.io.abinitio.eos import EOS
@@ -274,7 +273,7 @@ class Workflow(BaseWorkflow):
         """Set the `TaskManager` to use to launch the Task."""
         self.manager = manager.deepcopy()
         for task in self:
-            print('set manager for task ', task)
+            #print('set manager for task ', task)
             task.set_manager(manager)
 
     @property
@@ -606,7 +605,7 @@ class Workflow(BaseWorkflow):
         # Submit tasks (does not block)
         self.submit_tasks(wait=wait)
 
-    def read_etotal(self):
+    def read_etotal(self, unit="Ha"):
         """
         Reads the total energy from the GSR file produced by the task.
 
@@ -616,7 +615,7 @@ class Workflow(BaseWorkflow):
         if not self.all_done:
             raise self.Error("Some task is still in running/submitted state")
 
-        etotal = []
+        etotals = []
         for task in self:
             # Open the GSR file and read etotal (Hartree)
             gsr_path = task.outdir.has_abiext("GSR")
@@ -625,9 +624,9 @@ class Workflow(BaseWorkflow):
                 with ETSF_Reader(gsr_path) as r:
                     etot = r.read_value("etotal")
                 
-            etotal.append(etot)
+            etotals.append(etot)
 
-        return etotal
+        return ArrayWithUnit(etotals, "Ha").to(unit)
 
     def parse_timers(self):
         """
@@ -941,7 +940,6 @@ class PseudoConvergence(Workflow):
             self.register(strategy)
 
     def get_results(self):
-
         # Get the results of the tasks.
         wf_results = super(PseudoConvergence, self).get_results()
 
@@ -949,16 +947,13 @@ class PseudoConvergence(Workflow):
         data = compute_hints(self.ecut_list, etotal, self.atols_mev, self.pseudo)
 
         plot_etotal(data["ecut_list"], data["etotal"], data["aug_ratios"],
-            show=False, savefig=self.path_in_workdir("etotal.pdf"))
+                    show=False, savefig=self.path_in_workdir("etotal.pdf"))
 
         wf_results.update(data)
 
         if not monotonic(etotal, mode="<", atol=1.0e-5):
             logger.warning("E(ecut) is not decreasing")
             wf_results.push_exceptions("E(ecut) is not decreasing:\n" + str(etotal))
-
-        #if kwargs.get("json_dump", True):
-        #    wf_results.json_dump(self.path_in_workdir("results.json"))
 
         return wf_results
 
@@ -1058,7 +1053,7 @@ class PseudoIterativeConvergence(IterativeWorkflow):
         ecut_list, etotal, aug_ratios = data["ecut_list"],  data["etotal"], data["aug_ratios"]
 
         plot_etotal(ecut_list, etotal, aug_ratios,
-            show=False, savefig=self.path_in_workdir("etotal.pdf"))
+                    show=False, savefig=self.path_in_workdir("etotal.pdf"))
 
         wf_results.update(data)
 
@@ -1196,6 +1191,20 @@ class DeltaFactorWorkflow(Workflow):
             # Assume CIF file
             structure = refine_structure(read_structure(structure_or_cif), symprec=1e-6)
 
+        # Set extra_abivars
+        extra_abivars = dict(
+                pawecutdg=pawecutdg,
+                ecutsm=ecutsm,
+                toldfe=toldfe,
+                prtwf=0,
+                paral_kgb=0,
+        )
+
+        extra_abivars.update(**kwargs)
+
+        if ecut is not None:
+            extra_abivars.update({"ecut": ecut})
+
         self.pseudo = Pseudo.aspseudo(pseudo)
 
         structure = AbiStructure.asabistructure(structure)
@@ -1215,19 +1224,6 @@ class DeltaFactorWorkflow(Workflow):
             new_structure = Structure(new_lattice, structure.species, structure.frac_coords)
             new_structure = AbiStructure.asabistructure(new_structure)
 
-            extra_abivars = dict(
-                pawecutdg=pawecutdg,
-                ecutsm=ecutsm,
-                toldfe=toldfe,
-                prtwf=0,
-                paral_kgb=0,
-            )
-
-            extra_abivars.update(**kwargs)
-
-            if ecut is not None:
-                extra_abivars.update({"ecut": ecut})
-
             ksampling = KSampling.automatic_density(new_structure, kppa,
                                                     chksymbreak=chksymbreak)
 
@@ -1238,18 +1234,15 @@ class DeltaFactorWorkflow(Workflow):
             self.register(scf_input, task_class=ScfTask, manager=manager)
 
     def get_results(self):
-        num_sites = self._input_structure.num_sites
-
-        etotal = ArrayWithUnit(self.read_etotal(), "Ha").to("eV")
-
         wf_results = super(DeltaFactorWorkflow, self).get_results()
 
-        wf_results.update({
-            "etotal"    : list(etotal),
-            "volumes"   : list(self.volumes),
-            "natom"     : num_sites,
-            "dojo_level": 1,
-        })
+        num_sites = self._input_structure.num_sites
+        etotal = self.read_etotal(unit="eV")
+
+        wf_results.update(dict(
+            etotal=list(etotal),
+            volumes=list(self.volumes),
+            natom=num_sites))
 
         try:
             #eos_fit = EOS.Murnaghan().fit(self.volumes/num_sites, etotal/num_sites)
@@ -1298,16 +1291,187 @@ class DeltaFactorWorkflow(Workflow):
     def on_all_ok(self):
         return self.get_results()
 
-    #def make_report(self, results, **kwargs):
-    #    d = dict(v0=v0,
-    #             b0_GPa=b0_GPa,
-    #             b1=b1,
-    #             dfact=dfact
-    #            )
-    #    if results.exceptions:
-    #        d["_exceptions"] = str(results.exceptions)
-    #                                                                                         
-    #    d = {self.accuracy: d}
+
+class GbrvEosWorkflow(Workflow):
+
+    def __init__(self, structure, pseudo, ecut, ngkpt=(8,8,8),
+                 spin_mode="unpolarized", toldfe=1.e-8, 
+                 smearing="fermi_dirac:0.001 Ha",
+                 #smearing="fermi_dirac:0.1 eV",
+                 accuracy="normal", pawecutdg=None, ecutsm=0.05, chksymbreak=0,
+                 workdir=None, manager=None, **kwargs):
+                 # FIXME Hack in chksymbreak
+        """
+        Build a `Workflow` for the computation of E(V) with the parameters used in the GBRV paper.
+
+        Args:   
+            structure:
+                Structure object. 
+            pseudo:
+                String with the name of the pseudopotential file or `Pseudo` object.
+            ngkpt:
+                3 integers giving the MP divisions for the K-mesh.
+            spin_mode:
+                Spin polarization mode.
+            toldfe:
+                Tolerance on the energy (Ha)
+            smearing:
+                Smearing technique.
+            workdir:
+                String specifing the working directory.
+            manager:
+                `TaskManager` responsible for the submission of the tasks.
+        """
+        super(GbrvEosWorkflow, self).__init__(workdir=workdir, manager=manager)
+
+        # Set extra_abivars.
+        extra_abivars = dict(
+            ecut=ecut,
+            pawecutdg=pawecutdg,
+            #ecutsm=ecutsm,
+            toldfe=toldfe,
+            prtwf=0,
+            nband=8,
+            paral_kgb=0)
+                                       
+        extra_abivars.update(**kwargs)
+
+        ksampling = KSampling.monkhorst(ngkpt, chksymbreak=chksymbreak)
+        #ksampling = KSampling.gamma_centered(kpts=ngkpt, use_symmetries=True, use_time_reversal=True)
+
+        # GBRV use nine points from -1% to 1% of the initial guess and fitting the results to a parabola.
+        # Note that it's not clear to me if they change the volume or the lattice parameter!
+        self._input_structure = structure
+        self.volumes = structure.volume * np.arange(99, 101.25, 0.25) / 100.
+
+        for vol in self.volumes:
+            new_lattice = structure.lattice.scale(vol)
+            new_structure = Structure(new_lattice, structure.species, structure.frac_coords)
+            new_structure = AbiStructure.asabistructure(new_structure)
+
+            scf_input = ScfStrategy(new_structure, pseudo, ksampling,
+                                    accuracy=accuracy, spin_mode=spin_mode,
+                                    smearing=smearing, **extra_abivars)
+
+            # Register new task
+            self.register(scf_input, task_class=ScfTask)
+
+    def get_results(self):
+        wf_results = super(GbrvEosWorkflow, self).get_results()
+
+        # Read etotal and fit E(V) with a parabola to find minimum
+        num_sites = self._input_structure.num_sites
+        etotal = self.read_etotal(unit="eV")
+
+        wf_results.update(dict(
+            etotal=list(etotal),
+            volumes=list(self.volumes),
+            natom=num_sites))
+
+        try:
+            eos_fit = EOS.Quadratic().fit(self.volumes, etotal)
+
+            eos_fit.plot(show=False, savefig=self.outdir.path_in("eos.pdf"))
+        except EOS.Error as exc:
+            wf_results.push_exceptions(exc)
+
+        #v0 =
+        # Get a0 from v0 (depend on struct_type)
+        #a0 =
+
+        wf_results.update(dict(
+            a0=None,
+            v0=None))
+
+        return wf_results
+
+    def on_all_ok(self):
+        return self.get_results()
+
+
+class GbrvRelaxAndEosWorkflow(Workflow):
+
+    def __init__(self, structure, pseudo, ecut, ngkpt=(8,8,8),
+                 spin_mode="unpolarized", toldfe=1.e-8, smearing="fermi_dirac:0.001 Ha",
+                 accuracy="normal", pawecutdg=None, ecutsm=0.05, chksymbreak=0,
+                 workdir=None, manager=None, **kwargs):
+                 # FIXME Hack in chksymbreak
+        """
+        Build a `Workflow` for the computation of the deltafactor.
+
+        Args:   
+            structure:
+                Structure object 
+            pseudo:
+                String with the name of the pseudopotential file or `Pseudo` object.
+            ngkpt:
+                MP divisions.
+            spin_mode:
+                Spin polarization mode.
+            toldfe:
+                Tolerance on the energy (Ha)
+            smearing:
+                Smearing technique.
+            workdir:
+                String specifing the working directory.
+            manager:
+                `TaskManager` responsible for the submission of the tasks.
+        """
+        super(GbrvRelaxAndEosWorkflow, self).__init__(workdir=workdir, manager=manager)
+
+        # Set extra_abivars.
+        self.extra_abivars = dict(
+            ecut=ecut,
+            pawecutdg=pawecutdg,
+            #ecutsm=ecutsm,
+            toldfe=toldfe,
+            prtwf=0,
+            nband=8,
+            paral_kgb=0)
+                                       
+        self.extra_abivars.update(**kwargs)
+
+        ksampling = KSampling.monkhorst(ngkpt, chksymbreak=chksymbreak)
+        #ksampling = KSampling.gamma_centered(kpts=ngkpt, use_symmetries=True, use_time_reversal=True)
+
+        relax_algo = RelaxationMethod.atoms_and_cell()
+
+        self.relax_input = RelaxStrategy(structure, pseudo, ksampling, relax_algo, 
+                                         accuracy=accuracy, spin_mode=spin_mode,
+                                         smearing=smearing, **self.extra_abivars)
+
+        self.relax_task = self.register(self.relax_input, task_class=RelaxTask)
+
+    def on_all_ok(self):
+        # Get the relaxed structure.
+        structure = self.relax_task.read_final_structure()
+
+        inp = self.relax_input
+
+        # Build tasks for the computation of lattice parameters and EOS.
+        # From 94% to 106% of the equilibrium volume determined previously.
+        #self.volumes = structure.volume * np.arange(99, 101.25, 0.25) / 100.
+        #                                                                                     
+        #for vol in self.volumes:
+        #    new_lattice = structure.lattice.scale(vol)
+        #    new_structure = Structure(new_lattice, structure.species, structure.frac_coords)
+        #    new_structure = AbiStructure.asabistructure(new_structure)
+
+        #    scf_input = ScfStrategy(new_structure, inp.pseudos, inp.ksampling,
+        #                            accuracy=inp.accuracy, spin_mode=inp.electrons.spin_mode,
+        #                            smearing=inp.electrons.smearing, **self.extra_abivars)
+
+        #    # Register new task
+        #    self.register(scf_input, manager=self.manager, task_class=ScfTask)
+
+        ecut = self.extra_abivars.pop("ecut")
+        new_work = GbrvEosWorkflow(structure, inp.pseudos, ecut, **self.extra_abivars)
+
+        self.flow.register_work(new_work, manager=self.manager)
+        self.flow.allocate()
+        self.flow.build_and_pickle_dump()
+
+        return super(GbrvRelaxAndEosWorkflow, self).on_all_ok()
 
 
 class G0W0_Workflow(Workflow):
