@@ -372,8 +372,8 @@ class GWSpecs(AbstractAbinitioSpec):
                         #print data.conv_res
                     else:
                         print '| parm_scr type calculation, no converged scf values found'
-                        data.full_res.update({{'remark': 'No converged SCf parameter found. '
-                                                                             'Solution not implemented.'}})
+                        data.full_res.update({'remark': 'No converged SCf parameter found. '
+                                                                             'Solution not implemented.'})
                         data.print_full_res()
                         data.conv_res['values'].update({'ecut': 40})
                         data.conv_res['control'].update({'ecut': True})
