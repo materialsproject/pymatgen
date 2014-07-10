@@ -433,14 +433,18 @@ class GWSpecs(AbstractAbinitioSpec):
             data.set_type()
             data.print_plot_data()
 
-    def print_results(self, structure):
+    def print_results(self, structure, file_name='convergence_results'):
         """
         """
         data = GWConvergenceData(spec=self, structure=structure)
         if data.read_conv_res_from_file(os.path.join(s_name(structure)+'.res', s_name(structure)+'.conv_res')):
-            print '%', s_name(structure), data.conv_res['values']['ecuteps'], data.conv_res['values']['nscf_nbands']
+            s = '%s %s %s \n' % s_name(structure), str(data.conv_res['values']['ecuteps']), str(data.conv_res['values']['nscf_nbands'])
         else:
-            print '%', s_name(structure), 0, 0
+            s = '%s 0.0 0.0 \n' % s_name(structure)
+        print s
+        f = open(file_name, 'a')
+        f.write(s)
+        f.close()
 
 
 class GWConvergenceData():
