@@ -122,6 +122,7 @@ class AbstractAbinitioSpec(MSONable):
         mode:
         i: loop structures for input generation
         o: loop structures for output parsing
+        w: print all results
         """
         print 'loop structures mode ', mode
         mp_key = os.environ['MP_KEY']
@@ -199,6 +200,8 @@ class AbstractAbinitioSpec(MSONable):
             print item, s_name(structure)
             if mode == 'i':
                 self.excecute_flow(structure)
+            elif mode == 'w':
+                self.print_results(structure)
             elif mode == 'o':
                 # if os.path.isdir(s_name(structure)) or os.path.isdir(s_name(structure)+'.conv'):
                 self.process_data(structure)
@@ -225,9 +228,15 @@ class AbstractAbinitioSpec(MSONable):
         """
 
     @abstractmethod
+    def print_results(self, structure):
+        """
+        method called in loopstructures in 'w' write mode, this method should print final results
+        """
+
+    @abstractmethod
     def excecute_flow(self, structure):
         """
-        method called in loopstructures in 'i' input mode, this method schould generate input, job script files etc
+        method called in loopstructures in 'i' input mode, this method should generate input, job script files etc
          or create fire_work workflows and put them in a database
         """
 
@@ -334,7 +343,6 @@ class GWSpecs(AbstractAbinitioSpec):
         agreement with the scanning part
         """
         data = GWConvergenceData(spec=self, structure=structure)
-        print 'here'
         if self.data['converge']:
             done = False
             try:
@@ -424,6 +432,16 @@ class GWSpecs(AbstractAbinitioSpec):
             data.read()
             data.set_type()
             data.print_plot_data()
+
+    def print_results(self, structure):
+        """
+        """
+        data = GWConvergenceData(spec=self, structure=structure)
+        try:
+            data.read_conv_res_from_file(os.path.join(s_name(structure)+'.res', s_name(structure)+'.conv_res'))
+            print s_name(structure), data.conv_res['values']['ecuteps'], data.conv_res['values']['nscf_nbands']
+        except:
+            print s_name(structure), 0, 0
 
 
 class GWConvergenceData():
