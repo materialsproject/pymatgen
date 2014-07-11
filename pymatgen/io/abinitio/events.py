@@ -236,6 +236,7 @@ class EventReport(collections.Iterable):
         """
         Returns True if the calculation terminated.
         """
+
         try:
             return self._run_completed
         except AttributeError:
@@ -346,6 +347,7 @@ class EventsParser(object):
 
                 # Check whether the calculation completed.
                 if doc.tag == "!FinalSummary":
+                    print('------- setting run_completed ------')
                     run_completed = True
 
         # TODO: Add YAML doc with FinalSummary.
