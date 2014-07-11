@@ -801,9 +801,9 @@ STATUS2STR = collections.OrderedDict([
     (6, "Done"),          # Node done, This does not imply that results are ok or that the calculation completed successfully
     (7, "AbiCritical"),   # Node raised an Error by ABINIT.
     (8, "QueueCritical"), # Node raised an Error by submitting submission script, or by executing it
-    (9, "Error"),         # Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.
-    (10, "Unconverged"),  # This usually means that an iterative algorithm didn't converge.
-    (11, "Completed"),    # Execution completed successfully.
+    (9, "Unconverged"),   # This usually means that an iterative algorithm didn't converge.
+    (10,"Error"),         # Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.
+    (11,"Completed"),     # Execution completed successfully.
 ])
 
 
@@ -1260,6 +1260,7 @@ class Task(Node):
     def can_run(self):
         """The task can run if its status is < S_SUB and all the other dependencies (if any) are done!"""
         all_ok = all([stat == self.S_OK for stat in self.deps_status])
+        #print("all_ok",all_ok)
         return self.status < self.S_SUB and all_ok
 
     def not_converged(self):
@@ -2000,7 +2001,7 @@ class Task(Node):
             raise self.Error("Task status: %s" % str(self.status))
 
         if self.start_lockfile.exists:
-            logger.critical("Found lock file: %s" % self.start_lockfile.relpath)
+            logger.warning("Found lock file: %s" % self.start_lockfile.relpath)
             return 0
 
         self.start_lockfile.write("Started on %s" % time.asctime())
@@ -2036,15 +2037,15 @@ class Task(Node):
 
         return 1
 
-    #def start_and_wait(self, *args, **kwargs):
-    #    """
-    #    Helper method to start the task and wait.
+    def start_and_wait(self, *args, **kwargs):
+        """
+        Helper method to start the task and wait.
 
-    #    Mainly used when we are submitting the task via the shell
-    #    without passing through a queue manager.
-    #    """
-    #    self.start(*args, **kwargs)
-    #    return self.wait()
+        Mainly used when we are submitting the task via the shell
+        without passing through a queue manager.
+        """
+        self.start(*args, **kwargs)
+        return self.wait()
 
 
 class AbinitTask(Task):

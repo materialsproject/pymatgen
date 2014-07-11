@@ -212,10 +212,10 @@ class BaseWorkflow(Node):
                 results = AttrDict(**self.on_all_ok())
                 self._finalized = True
                 # Signal to possible observers that the `Workflow` reached S_OK
-                print("Workflow %s is finalized and broadcasts signal S_OK" % str(self))
-                print("Workflow %s status = %s" % (str(self), self.status))
-                dispatcher.send(signal=self.S_OK, sender=self)
+                logger.info("Workflow %s is finalized and broadcasts signal S_OK" % str(self))
+                logger.info("Workflow %s status = %s" % (str(self), self.status))
 
+                dispatcher.send(signal=self.S_OK, sender=self)
                 return results
 
         return AttrDict(returncode=1, message="Not all tasks are OK!")
@@ -273,7 +273,6 @@ class Workflow(BaseWorkflow):
         """Set the `TaskManager` to use to launch the Task."""
         self.manager = manager.deepcopy()
         for task in self:
-            #print('set manager for task ', task)
             task.set_manager(manager)
 
     @property
@@ -508,7 +507,6 @@ class Workflow(BaseWorkflow):
         self.check_status()
 
         status_list = [task.status for task in self]
-        #print("status_list", status_list)
 
         if only_min:
             return min(status_list)
@@ -521,7 +519,7 @@ class Workflow(BaseWorkflow):
         for task in self:
             task.check_status()
 
-        # Take into account possible dependencies.Use a list instead of generators 
+        # Take into account possible dependencies. Use a list instead of generators 
         for task in self:
             if task.status <= task.S_SUB and all([status == task.S_OK for status in task.deps_status]): 
                 task.set_status(task.S_READY)
@@ -924,11 +922,11 @@ class PseudoConvergence(Workflow):
 
         # Temporary object used to build the strategy.
         generator = PseudoIterativeConvergence(workdir, manager, pseudo, ecut_list, atols_mev,
-                                               toldfe    = toldfe,
-                                               spin_mode = spin_mode,
-                                               acell     = acell,
-                                               smearing  = smearing,
-                                               max_niter = len(ecut_list),
+                                               toldfe   =toldfe,
+                                               spin_mode=spin_mode,
+                                               acell    =acell,
+                                               smearing =smearing,
+                                               max_niter=len(ecut_list),
                                               )
         self.atols_mev = atols_mev
         self.pseudo = Pseudo.aspseudo(pseudo)
@@ -962,7 +960,7 @@ class PseudoIterativeConvergence(IterativeWorkflow):
 
     def __init__(self, workdir, manager, pseudo, ecut_list_or_slice, atols_mev,
                  toldfe=1.e-8, spin_mode="polarized", 
-                 acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV", max_niter=50,):
+                 acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV", max_niter=50):
         """
         Args:
             workdir:
@@ -1276,9 +1274,6 @@ class DeltaFactorWorkflow(Workflow):
         except EOS.Error as exc:
             wf_results.push_exceptions(exc)
 
-        #if kwargs.get("json_dump", True):
-        #    wf_results.json_dump(self.path_in_workdir("results.json"))
-
         # Write data for the computation of the delta factor
         with open(self.outdir.path_in("deltadata.txt"), "w") as fh:
             fh.write("# Deltafactor = %s meV\n" % dfact)
@@ -1294,7 +1289,7 @@ class DeltaFactorWorkflow(Workflow):
 
 class GbrvEosWorkflow(Workflow):
 
-    def __init__(self, structure, pseudo, ecut, ngkpt=(8,8,8),
+    def __init__(self, structure, struct_type, pseudo, ecut, ngkpt=(8,8,8),
                  spin_mode="unpolarized", toldfe=1.e-8, 
                  smearing="fermi_dirac:0.001 Ha",
                  #smearing="fermi_dirac:0.1 eV",
@@ -1324,11 +1319,14 @@ class GbrvEosWorkflow(Workflow):
         """
         super(GbrvEosWorkflow, self).__init__(workdir=workdir, manager=manager)
 
+        # Save the structure type (needed to compute a later on)
+        self.struct_type = struct_type
+
         # Set extra_abivars.
         extra_abivars = dict(
             ecut=ecut,
             pawecutdg=pawecutdg,
-            #ecutsm=ecutsm,
+            ecutsm=ecutsm,
             toldfe=toldfe,
             prtwf=0,
             nband=8,
@@ -1375,23 +1373,35 @@ class GbrvEosWorkflow(Workflow):
         except EOS.Error as exc:
             wf_results.push_exceptions(exc)
 
-        #v0 =
-        # Get a0 from v0 (depend on struct_type)
-        #a0 =
+        # Function to compute cubic a0 from primitive v0 (depends on struct_type)
+        vol2a = {"fcc": lambda vol: (4 * vol) ** (1/3.),
+                 "bcc": lambda vol: (2 * vol) ** (1/3.),
+                 }[self.struct_type]
+
+        a0 = vol2a(eof_fit.v0)
 
         wf_results.update(dict(
-            a0=None,
-            v0=None))
+            v0=eos_fit.v0,
+            b0=eos_fit.b0,
+            b1=eos_fit.b1,
+            a0=a0,
+            ))
+
+        #for pseudo in self.pseudos:
+        #    pseudo.write_dojo_report({"gbrv_test": {self.struct_type: wf_results}})
+
+        print("for GBRV struct_type: ", self.struct_type, "a0= ",a0, "Angstrom")
 
         return wf_results
 
     def on_all_ok(self):
+        """Callback executed when all tasks in self have reached S_OK."""
         return self.get_results()
 
 
 class GbrvRelaxAndEosWorkflow(Workflow):
 
-    def __init__(self, structure, pseudo, ecut, ngkpt=(8,8,8),
+    def __init__(self, structure, struct_type, pseudo, ecut, ngkpt=(8,8,8),
                  spin_mode="unpolarized", toldfe=1.e-8, smearing="fermi_dirac:0.001 Ha",
                  accuracy="normal", pawecutdg=None, ecutsm=0.05, chksymbreak=0,
                  workdir=None, manager=None, **kwargs):
@@ -1402,8 +1412,12 @@ class GbrvRelaxAndEosWorkflow(Workflow):
         Args:   
             structure:
                 Structure object 
+            structure_type:
+                fcc, bcc 
             pseudo:
                 String with the name of the pseudopotential file or `Pseudo` object.
+            ecut:
+                Cutoff energy in Hartree
             ngkpt:
                 MP divisions.
             spin_mode:
@@ -1418,56 +1432,51 @@ class GbrvRelaxAndEosWorkflow(Workflow):
                 `TaskManager` responsible for the submission of the tasks.
         """
         super(GbrvRelaxAndEosWorkflow, self).__init__(workdir=workdir, manager=manager)
+        self.struct_type = struct_type
 
         # Set extra_abivars.
         self.extra_abivars = dict(
             ecut=ecut,
             pawecutdg=pawecutdg,
-            #ecutsm=ecutsm,
             toldfe=toldfe,
             prtwf=0,
+            #ecutsm=ecutsm,
             nband=8,
             paral_kgb=0)
                                        
         self.extra_abivars.update(**kwargs)
+        self.ecut = ecut
 
         ksampling = KSampling.monkhorst(ngkpt, chksymbreak=chksymbreak)
-        #ksampling = KSampling.gamma_centered(kpts=ngkpt, use_symmetries=True, use_time_reversal=True)
-
         relax_algo = RelaxationMethod.atoms_and_cell()
 
         self.relax_input = RelaxStrategy(structure, pseudo, ksampling, relax_algo, 
                                          accuracy=accuracy, spin_mode=spin_mode,
                                          smearing=smearing, **self.extra_abivars)
 
+        # Register structure relaxation task.
         self.relax_task = self.register(self.relax_input, task_class=RelaxTask)
 
     def on_all_ok(self):
+        """
+        This method is called when self reaches S_OK.
+        It reads the optimized structure from the netcdf file and build
+        a new workflow for the computation of the EOS with the GBRV parameters.
+        """
         # Get the relaxed structure.
-        structure = self.relax_task.read_final_structure()
+        relaxed_structure = self.relax_task.read_final_structure()
 
-        inp = self.relax_input
+        # Needed because some pseudos do not provide hints for ecut.
+        try:
+            self.extra_abivars.pop("ecut")
+        except KeyError:
+            pass
 
-        # Build tasks for the computation of lattice parameters and EOS.
-        # From 94% to 106% of the equilibrium volume determined previously.
-        #self.volumes = structure.volume * np.arange(99, 101.25, 0.25) / 100.
-        #                                                                                     
-        #for vol in self.volumes:
-        #    new_lattice = structure.lattice.scale(vol)
-        #    new_structure = Structure(new_lattice, structure.species, structure.frac_coords)
-        #    new_structure = AbiStructure.asabistructure(new_structure)
+        new_work = GbrvEosWorkflow(relaxed_structure, self.struct_type, self.relax_input.pseudos, self.ecut, 
+                                   **self.extra_abivars)
 
-        #    scf_input = ScfStrategy(new_structure, inp.pseudos, inp.ksampling,
-        #                            accuracy=inp.accuracy, spin_mode=inp.electrons.spin_mode,
-        #                            smearing=inp.electrons.smearing, **self.extra_abivars)
-
-        #    # Register new task
-        #    self.register(scf_input, manager=self.manager, task_class=ScfTask)
-
-        ecut = self.extra_abivars.pop("ecut")
-        new_work = GbrvEosWorkflow(structure, inp.pseudos, ecut, **self.extra_abivars)
-
-        self.flow.register_work(new_work, manager=self.manager)
+        # Register the new workflow, allocate it and update the pickle database.
+        self.flow.register_work(new_work)
         self.flow.allocate()
         self.flow.build_and_pickle_dump()
 
@@ -1643,7 +1652,7 @@ class PhononWorkflow(Workflow):
     def merge_ddb_files(self):
         """
         This method is called when all the q-points have been computed.
-        Ir runs `mrgddb` in sequential on the local machine to produce
+        It runs `mrgddb` in sequential on the local machine to produce
         the final DDB file in the outdir of the `Workflow`.
         """
         ddb_files = filter(None, [task.outdir.has_abiext("DDB") for task in self])
@@ -1696,9 +1705,7 @@ class PhononWorkflow(Workflow):
         # Merge GKK files.
         #self.merge_gkk_files()
 
-        return dict(returncode=0,
-                    message="DDB merge done"
-                    )
+        return WorkflowResults(returncode=0, message="DDB merge done")
 
 
 class WorkflowResults(dict, MSONable):

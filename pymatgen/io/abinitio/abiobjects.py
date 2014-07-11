@@ -63,6 +63,9 @@ class AbivarAble(object):
     def __str__(self):
         return pformat(self.to_abivars(), indent=1, width=80, depth=None)
 
+    def __contains__(self, key):
+        return key in self.to_abivars()
+
 
 @singleton
 class MandatoryVariable(object):
