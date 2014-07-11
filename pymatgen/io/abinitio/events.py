@@ -347,7 +347,6 @@ class EventsParser(object):
 
                 # Check whether the calculation completed.
                 if doc.tag == "!FinalSummary":
-                    print('------- setting run_completed ------')
                     run_completed = True
 
         # TODO: Add YAML doc with FinalSummary.
