@@ -986,7 +986,6 @@ class PseudoParser(object):
        11 : ppdesc(11, "ONCVPSP_out", "NC", None)
     })
     del ppdesc
-
     # renumber functionals from oncvpsp todo confrim that 3 is 2
     _FUNCTIONALS = {1: {'n': 4, 'name': 'Wigner'},
                     2: {'n': 5, 'name': 'HL'},
