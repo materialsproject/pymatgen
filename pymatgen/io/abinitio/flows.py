@@ -397,17 +397,28 @@ class AbinitFlow(Node):
             #todo
             info_msg = 'We encountered an abi critial envent that could not be fixed'
             print(info_msg)
-            try:
-                print('waited ', self._waited, ' cycles')
-            except AttributeError:
-                self._waited = 0
-            for error in task.abi_errors:
-                print('trying to fix:')
-                print(error)
-                print('by waiting for the phase of the moon to change a bit ... ')
-            if self._waited > 3:
+
+            if task.manager.qadapter.increase_resources():
+                task.set_status(task.S_READY)
+                task.reset
+                return True
+            else:
                 task.set_status(task.S_ERROR, info_msg)
-            self._waited = self._waited + 1
+                return False
+
+            #try:
+            #    task.manager.qadapter.increase_cpus()
+            #    print('waited ', self._waited, ' cycles')
+            #except AttributeError:
+            #    self._waited = 0
+            #for error in task.abi_errors:
+            #    print('trying to fix:')
+            #    print(error)
+            #    print('by waiting for the phase of the moon to change a bit ... ')
+            #if self._waited > 3:
+            #    task.manager.qadapter.increase_cpus()
+            #    task.set_status(task.S_ERROR, info_msg)
+            #self._waited = self._waited + 1
 
     def fix_queue_critical(self):
         """
