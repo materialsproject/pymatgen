@@ -226,10 +226,10 @@ class AbinitFlow(Node):
     def ncpus_reserved(self):
         """
         Returns the number of CPUs reserved in this moment.
-        A CPUS is reserved if the task is not running but 
+        A CPU is reserved if the task is not running but
         we have submitted the task to the queue manager.
         """
-        return sum(work.ncpus_reverved for work in self)
+        return sum(work.ncpus_reserved for work in self)
 
     @property
     def ncpus_allocated(self):
@@ -471,8 +471,8 @@ class AbinitFlow(Node):
         of the different tasks on the specified stream.
         """
         for i, work in enumerate(self):
-            print(80*"=")
-            print("Workflow #%d: %s, Finalized=%s\n" % (i, work, work.finalized))
+            print(80*"=", file=stream)
+            print("Workflow #%d: %s, Finalized=%s\n" % (i, work, work.finalized), file=stream)
 
             table = [["Task", "Status", "Queue_id", 
                       "Errors", "Warnings", "Comments", 
@@ -581,7 +581,7 @@ class AbinitFlow(Node):
                 pid = int(fh.readline())
                 
             retcode = os.system("kill -9 %d" % pid)
-            print("Sent SIGKILL to the scheduler, retcode = %s" % retcode)
+            logger.info("Sent SIGKILL to the scheduler, retcode = %s" % retcode)
             try:
                 os.remove(pid_file)
             except IOError:
@@ -626,7 +626,7 @@ class AbinitFlow(Node):
         protocol = self.pickle_protocol
         filepath = os.path.join(self.workdir, self.PICKLE_FNAME)
 
-        with FileLock(filepath) as lock:
+        with FileLock(filepath):
             with open(filepath, mode="w" if protocol == 0 else "wb") as fh:
                 pickle.dump(self, fh, protocol=protocol)
 
@@ -784,16 +784,16 @@ class AbinitFlow(Node):
         # Replace this callback with dynamic dispatch
         # on_all_S_OK for workflow
         # on_S_OK for task
-        print("on_dep_ok with sender %s, signal %s" % (str(sender), signal))
+        logger.info("on_dep_ok with sender %s, signal %s" % (str(sender), signal))
 
         for i, cbk in enumerate(self._callbacks):
 
             if not cbk.handle_sender(sender):
-                print("Do not handle")
+                logger.info("Do not handle")
                 continue
 
             if not cbk.can_execute():
-                print("cannot execute")
+                logger.info("cannot execute")
                 continue 
 
             # Execute the callback to generate the workflow.
