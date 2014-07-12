@@ -7,10 +7,10 @@ import collections
 import yaml
 import cStringIO as StringIO
 
+
 from datetime import timedelta
 from monty.dev import deprecated
 from monty.os.path import which
-from pymatgen.io.abinitio import myaml
 
 from pymatgen.core.design_patterns import AttrDict
 from pymatgen.util.string_utils import is_string
@@ -454,8 +454,7 @@ class PyFlowScheduler(object):
     def from_file(cls, filepath):
         """Read the configuration parameters from a Yaml file."""
         with open(filepath, "r") as fh:
-            d = myaml.load(fh)
-            return cls(**d)
+            return cls(**yaml.load(fh))
 
     @classmethod
     def from_user_config(cls):

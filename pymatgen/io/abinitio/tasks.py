@@ -9,8 +9,8 @@ import shutil
 import collections
 import abc
 import copy
+import yaml
 
-from pymatgen.io.abinitio import myaml
 from pymatgen.io.abinitio import abiinspect
 from pymatgen.io.abinitio import events 
 
@@ -200,7 +200,7 @@ class ParalHintsParser(object):
         with abiinspect.YamlTokenizer(filename) as r:
             doc = r.next_doc_with_tag("!Autoparal")
             try:
-                d = myaml.load(doc.text_notag)
+                d = yaml.load(doc.text_notag)
                 return ParalHints(info=d["info"], confs=d["configurations"])
 
             except:
@@ -415,14 +415,23 @@ class TaskManager(object):
 
     @classmethod
     def from_dict(cls, d):
-        """Create an instance from a dictionary."""
+        """Create an instance from dictionary d."""
         return cls(**d)
+
+    @classmethod
+    def from_string(cls, s):
+        """Create an instance from string s containing a YAML dictionary."""
+        import StringIO
+        stream = StringIO.StringIO(s)
+        stream.seek(0)
+
+        return cls.from_dict(yaml.load(stream))
 
     @classmethod
     def from_file(cls, filename):
         """Read the configuration parameters from a Yaml file."""
         with open(filename, "r") as fh:
-            return cls.from_dict(myaml.load(fh))
+            return cls.from_dict(yaml.load(fh))
 
     @classmethod
     def from_user_config(cls):
@@ -1095,7 +1104,9 @@ class TaskRestartError(TaskError):
 class Task(Node):
     __metaclass__ = abc.ABCMeta
 
+    # Use class attributes for TaskErrors so that we don't have to import them.
     Error = TaskError
+    RestartError = TaskRestartError
 
     # List of `AbinitEvent` subclasses that are tested in the not_converged method. 
     # Subclasses should provide their own list if they need to check the converge status.
@@ -1332,6 +1343,8 @@ class Task(Node):
     def _restart(self):
         """
         Called by restart once we have finished preparing the task for restarting.
+
+        Return True if task has been restarted
         """
         self.set_status(self.S_READY, info_msg="Restarted on %s" % time.asctime())
 
@@ -1473,7 +1486,15 @@ class Task(Node):
         return self._status
 
     def set_status(self, status, info_msg=None):
-        """Set the status of the task."""
+        """
+        Set the status of the task.
+
+        Args:
+            status:
+                Status object or string representation of the status
+            info_msg:
+                string with human-readable message used in the case of errors (optional)
+        """
         # Accepts strings as well.
         if not isinstance(status, Status):
             try:
@@ -1834,23 +1855,22 @@ class Task(Node):
         Returns:
             `EventReport` instance or None if the main output file does not exist.
         """
-        file = {
+        ofile = {
             "output": self.output_file,
-            "log": self.log_file,
-        }[source]
+            "log": self.log_file}[source]
 
-        if not file.exists:
+        if not ofile.exists:
             return None
 
         parser = events.EventsParser()
         try:
-            return parser.parse(file.path)
+            return parser.parse(ofile.path)
 
         except parser.Error as exc:
             # Return a report with an error entry with info on the exception.
-            logger.critical("%s: Exception while parsing ABINIT events:\n %s" % (file, str(exc)))
+            logger.critical("%s: Exception while parsing ABINIT events:\n %s" % (ofile, str(exc)))
             self.set_status(self.S_ABICRITICAL, info_msg=str(exc))
-            return parser.report_exception(file.path, exc)
+            return parser.report_exception(ofile.path, exc)
 
     @property
     def results(self):
@@ -1877,10 +1897,10 @@ class Task(Node):
             raise self.Error("Task is not completed")
 
         return TaskResults({
-            "task_name"      : self.name,
+            "task_name": self.name,
             "task_returncode": self.returncode,
-            "task_status"    : self.status,
-            #"task_events"    : self.events.to_dict
+            "task_status": self.status,
+            #"task_events": self.events.to_dict
         })
 
     def move(self, dest, is_abspath=False):
@@ -2039,13 +2059,14 @@ class Task(Node):
 
     def start_and_wait(self, *args, **kwargs):
         """
-        Helper method to start the task and wait.
+        Helper method to start the task and wait for completetion.
 
         Mainly used when we are submitting the task via the shell
         without passing through a queue manager.
         """
         self.start(*args, **kwargs)
-        return self.wait()
+        retcode = self.wait()
+        return retcode
 
 
 class AbinitTask(Task):
@@ -2081,9 +2102,6 @@ class AbinitTask(Task):
         Here we fix this issue by renaming run.abo to run.abo_[number] if the output file "run.abo" already
         exists. A few lines of code in python, a lot of problems if you try to implement this trick in Fortran90. 
         """
-        # God rot the FORTRAN committee who was not able to give Fortran a decent standard library as well as $Windows$ OS!
-        # I don't really care if Fortran2003 provides support for OOP programming. 
-        # What I need is a standardized interface to communicate with the OS!
         if self.output_file.exists:
             # Find the index of the last file (if any) and push.
             # TODO: Maybe it's better to use run.abo --> run(1).abo
@@ -2094,7 +2112,7 @@ class AbinitTask(Task):
 
             # Call os.rename and are done! It's really amazing the that I can write Fortran code that runs on 10**3 processors 
             # whereas a simple mv in F90 requires a lot of unportable tricks (where unportable means "not supported by $windows$").
-            print("Will rename %s to %s" % (self.output_file.path, new_path))
+            logger.info("Will rename %s to %s" % (self.output_file.path, new_path))
             os.rename(self.output_file.path, new_path)
 
     @property
@@ -2168,8 +2186,7 @@ class AbinitTask(Task):
         # Set the variables for automatic parallelization
         autoparal_vars = dict(
             autoparal=policy.autoparal,
-            max_ncpus=policy.max_ncpus,
-        )
+            max_ncpus=policy.max_ncpus)
 
         self.strategy.add_extra_abivars(autoparal_vars)
 
@@ -2276,6 +2293,7 @@ class ScfTask(AbinitTask):
     def restart(self):
         """SCF calculations can be restarted if we have either the WFK file or the DEN file."""
         # Prefer WFK over DEN files since we can reuse the wavefunctions.
+        restart_file = None
         for ext in ["WFK", "DEN"]:
             restart_file = self.outdir.has_abiext(ext)
             irdvars = irdvars_for_ext(ext)
@@ -2383,6 +2401,7 @@ class RelaxTask(AbinitTask):
         from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
         Prefer WFK over other files since we can reuse the wavefunctions.
         """
+        ofile = None
         for ext in ["WFK", "DEN"]:
             ofile = self.outdir.has_abiext(ext)
             if ofile:
@@ -2438,6 +2457,7 @@ class PhononTask(AbinitTask):
         # from which we can read the first-order wavefunctions or the first order density.
         # Prefer 1WF over 1DEN since we can reuse the wavefunctions.
         #self.fix_ofiles()
+        restart_file = None
         for ext in ["1WF", "1DEN"]:
             restart_file = self.outdir.has_abiext(ext)
             irdvars = irdvars_for_ext(ext)
