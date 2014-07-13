@@ -259,7 +259,6 @@ class Workflow(BaseWorkflow):
         """
         super(Workflow, self).__init__()
 
-
         self._tasks = []
 
         if workdir is not None:
@@ -1122,24 +1121,22 @@ class RelaxWorkflow(Workflow):
 
         # Use WFK for the time being since I don't know why Abinit produces all these _TIM?_DEN files.
         #self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "DEN"}, task_class=RelaxTask)
-        self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "WFK"}, task_class=RelaxTask)
+        #self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "WFK"}, task_class=RelaxTask)
 
         # Lock ioncell_task as ion_task should communicate to ioncell_task that 
         # the calculation is OK and pass the final structure.
-        self.ioncell_task.set_status(self.S_LOCKED)
+        #self.ioncell_task.set_status(self.S_LOCKED)
 
-        self.transfer_done = False
+        #self.transfer_done = False
 
     def on_ok(self, sender):
-        """
-        This callback is called when one task reaches status S_OK.
-        """
+        """This callback is called when one task reaches status S_OK."""
         logger.debug("in on_ok with sender %s" % sender)
 
         if sender == self.ion_task and not self.transfer_done:
             # Get the relaxed structure.
             ion_structure = self.ion_task.read_final_structure()
-            print("ion_structure", ion_structure)
+            print("relaxed ion_structure", ion_structure)
 
             # Transfer it to the ioncell task (do it only once).
             self.ioncell_task.change_structure(ion_structure)
@@ -1153,7 +1150,7 @@ class RelaxWorkflow(Workflow):
 
 
 class DeltaFactorWorkflow(Workflow):
-
+    """Workflow for the calculation of the deltafactor."""
     def __init__(self, structure_or_cif, pseudo, kppa,
                  spin_mode="polarized", toldfe=1.e-8, smearing="fermi_dirac:0.1 eV",
                  accuracy="normal", ecut=None, pawecutdg=None, ecutsm=0.05, chksymbreak=0,
@@ -1190,11 +1187,11 @@ class DeltaFactorWorkflow(Workflow):
 
         # Set extra_abivars
         extra_abivars = dict(
-                pawecutdg=pawecutdg,
-                ecutsm=ecutsm,
-                toldfe=toldfe,
-                prtwf=0,
-                paral_kgb=0,
+            pawecutdg=pawecutdg,
+            ecutsm=ecutsm,
+            toldfe=toldfe,
+            prtwf=0,
+            paral_kgb=0,
         )
 
         extra_abivars.update(**kwargs)
@@ -1206,7 +1203,7 @@ class DeltaFactorWorkflow(Workflow):
 
         structure = AbiStructure.asabistructure(structure)
 
-        smearing = Smearing.assmearing(smearing)
+        #smearing = Smearing.assmearing(smearing)
 
         self._input_structure = structure
 
@@ -1283,11 +1280,15 @@ class DeltaFactorWorkflow(Workflow):
         return wf_results
 
     def on_all_ok(self):
+        """Callback executed when all tasks in self have reached S_OK."""
         return self.get_results()
 
 
 class GbrvEosWorkflow(Workflow):
-
+    """
+    Workflow for calculating the optimized lattice parameter and the
+    equation of state with the procedure used by GBRV for their pseudos.
+    """
     def __init__(self, structure, struct_type, pseudo, ecut, ngkpt=(8,8,8),
                  spin_mode="unpolarized", toldfe=1.e-8, 
                  smearing="fermi_dirac:0.001 Ha",
@@ -1377,17 +1378,13 @@ class GbrvEosWorkflow(Workflow):
                  "bcc": lambda vol: (2 * vol) ** (1/3.),
                  }[self.struct_type]
 
-        a0 = vol2a(eof_fit.v0)
+        a0 = vol2a(eos_fit.v0)
 
         wf_results.update(dict(
             v0=eos_fit.v0,
             b0=eos_fit.b0,
             b1=eos_fit.b1,
-            a0=a0,
-            ))
-
-        #for pseudo in self.pseudos:
-        #    pseudo.write_dojo_report({"gbrv_test": {self.struct_type: wf_results}})
+            a0=a0))
 
         print("for GBRV struct_type: ", self.struct_type, "a0= ",a0, "Angstrom")
 
@@ -1483,12 +1480,12 @@ class GbrvRelaxAndEosWorkflow(Workflow):
 
 
 class G0W0_Workflow(Workflow):
-
+    """
+    Workflow for G0W0 calculations.
+    """
     def __init__(self, scf_input, nscf_input, scr_input, sigma_inputs,
                  workdir=None, manager=None):
         """
-        Workflow for G0W0 calculations.
-
         Args:
             scf_input:
                 Input for the SCF run or `SCFStrategy` object.
@@ -1530,11 +1527,11 @@ class G0W0_Workflow(Workflow):
 
 
 class SigmaConvWorkflow(Workflow):
-
+    """
+    Workflow for self-energy convergence studies.
+    """
     def __init__(self, wfk_node, scr_node, sigma_inputs, workdir=None, manager=None):
         """
-        Workflow for self-energy convergence studies.
-
         Args:
             wfk_node:
                 The node who has produced the WFK file
@@ -1557,66 +1554,14 @@ class SigmaConvWorkflow(Workflow):
             self.register(sigma_input, deps={wfk_node: "WFK", scr_node: "SCR"})
 
 
-#class SCGW_Workflow(Workflow):
-#
-#    def __init__(self, scr_input, sigma_input, workdir=None, manager=None):
-#        """
-#        Workflow for G0W0 calculations.
-#
-#        Args:
-#            scr_input:
-#                Input for the screening run or `ScrStrategy` object 
-#            sigma_input:
-#                Strategy for the self-energy run.
-#            workdir:
-#                Working directory of the calculation.
-#            manager:
-#                `TaskManager` object.
-#        """
-#        super(SCGW_Workflow, self).__init__(workdir=workdir, manager=manager)
-#
-#        # Register the SCREENING run.
-#        self.scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
-#
-#        # Register the SIGMA run.
-#        self.sigma_task = self.register(sigma_input, deps={self.nscf_task: "WFK", self.scr_task: "SCR"})
-#
-#    def not_converged(self):
-#       return self.sigma_task.not_converged()
-#
-#    def restart(self):
-#        ext = "QPS"
-#        qps_file = self.sigma_task.outdir.has_abiext(ext)
-#        irdvars = irdvars_for_ext(ext)
-#
-#        if not qps_file:
-#            raise TaskRestartError("Cannot find the QPS file to restart from.")
-#
-#        # Move the QPS file produced by the SIGMA task to 
-#        # the indir of the SCR task and the indir of the SIGMA task.
-#        scr_infile = self.scr_task.indir.path_in(os.path.basename(qps_file)
-#        sigma_infile = self.sigma_task.indir.path_in(os.path.basename(qps_file)
-#        shutil.copy(qps_file, scr_infile)
-#        shutil.move(qps_file, sigma_infile)
-#
-#        # Add the appropriate variable for reading the QPS file.
-#        self.scr_task.strategy.add_extra_abivars(irdvars)
-#        self.sigma_task.strategy.add_extra_abivars(irdvars)
-#
-#        # Now we can resubmit the job.
-#        #for task in self.
-#        #    task.reset()
-#        self._restart()
-
-
 class BSEMDF_Workflow(Workflow):
-
+    """
+    Workflow for simple BSE calculations in which the self-energy corrections
+    are approximated by the scissors operator and the screening in modeled
+    with the model dielectric function.
+    """
     def __init__(self, scf_input, nscf_input, bse_input, workdir=None, manager=None):
         """
-        Workflow for simple BSE calculations in which the self-energy corrections 
-        are approximated by the scissors operator and the screening in modeled 
-        with the model dielectric function.
-
         Args:
             scf_input:
                 Input for the SCF run or `ScfStrategy` object.
@@ -1670,28 +1615,6 @@ class PhononWorkflow(Workflow):
         mrgddb.set_mpi_runner("mpirun")
         mrgddb.merge(ddb_files, out_ddb=out_ddb, description=desc, cwd=self.outdir.path)
 
-    def merge_gkk_files(self):
-        """
-        This method is called when all the q-points have been computed.
-        Ir runs `mrgddb` in sequential on the local machine to produce
-        the final DDB file in the outdir of the `Workflow`.
-        """
-        gkk_files = filter(None, [task.outdir.has_abiext("GKK") for task in self])
-                                                                                         
-        logger.debug("Will call mrggkk to merge %s:\n" % str(gkk_files))
-        assert len(gkk) == len(self)
-
-        #if len(gkk) == 1:
-        # Avoid the merge. Just move the GKK file to the outdir of the workflow
-                                                                                         
-        # Final GKK file will be produced in the outdir of the workflow.
-        out_ggk = self.outdir.path_in("out_GKK")
-
-        mrggkk = wrappers.Mrggkk(verbose=1)
-        mrggkk.set_mpi_runner("mpirun")
-        raise NotImplementedError("Have to check mrggkk")
-        #mrggkk.merge(gswfk_file, dfpt_files, gkk_files, out_fname, binascii=0, cwd=self.outdir.path)
-
     def on_all_ok(self):
         """
         This method is called when all the q-points have been computed.
@@ -1700,9 +1623,6 @@ class PhononWorkflow(Workflow):
         """
         # Merge DDB files.
         self.merge_ddb_files()
-
-        # Merge GKK files.
-        #self.merge_gkk_files()
 
         return WorkflowResults(returncode=0, message="DDB merge done")
 
