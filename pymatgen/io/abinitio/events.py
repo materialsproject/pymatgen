@@ -319,7 +319,8 @@ class EventsParser(object):
     """
     Error = EventsParserError
 
-    DEBUG_LEVEL = 1
+    # Internal flag used for debugging
+    DEBUG_LEVEL = 0
 
     def parse(self, filename):
         """

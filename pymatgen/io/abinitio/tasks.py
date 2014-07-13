@@ -5,6 +5,7 @@ from __future__ import division, print_function
 
 import os
 import time
+import datetime
 import shutil
 import collections
 import abc
@@ -841,7 +842,7 @@ class Node(object):
     implemented by the nodes of the calculation.
 
     Nodes are hashable and can be tested for equality
-    (hash uses the node identifier, while eq uses workdir).
+    (hash uses the node identifier, whereas eq uses workdir).
     """
     __metaclass__ = abc.ABCMeta
 
@@ -1093,6 +1094,33 @@ class Node(object):
     #    """Connect the signals."""
 
 
+class FileNode(Node):
+    """A Node that consists of an already existing file"""
+    def __init__(self, filename):
+        super(FileNode, self).__init__()
+        self.filepath = os.path.abspath(filename)
+        if not os.path.exists(self.filepath):
+            raise ValueError("File %s must exists" % self.filepath)
+
+        # Directories with input|output|temporary data.
+        self.workdir = os.path.dirname(self.filepath)
+
+        self.indir = Directory(self.workdir)
+        self.outdir = Directory(self.workdir)
+        self.tmpdir = Directory(self.workdir)
+
+    @property
+    def products(self):
+        return [Product.from_file(self.filepath)]
+
+    def opath_from_ext(self, ext):
+        return self.filepath
+
+    @property
+    def status(self):
+        return self.S_OK
+
+
 class TaskError(Exception):
     """Base Exception for `Task` methods"""
 
@@ -1102,6 +1130,7 @@ class TaskRestartError(TaskError):
 
 
 class Task(Node):
+    """A Task is a node that performs some kind of calculation."""
     __metaclass__ = abc.ABCMeta
 
     # Use class attributes for TaskErrors so that we don't have to import them.
@@ -1159,6 +1188,10 @@ class Task(Node):
 
         # Set the initial status.
         self.set_status(self.S_INIT)
+
+        # Use to compute the wall-time
+        self.start_datetime = None
+        self.stop_datetime = None
 
         # Number of restarts effectuated.
         self.num_restarts = 0
@@ -1279,6 +1312,27 @@ class Task(Node):
         logger.debug("not_converged method of the base class will always return False")
         report = self.get_event_report()
         return report.filter_types(self.CRITICAL_EVENTS)
+
+    def run_etime(self):
+        """
+        String with the wall-time
+
+        ...note:
+            The clock starts when self.status becomes S_RUN.
+            thus run_etime does not correspond to the effective wall-time.
+        """
+        s = "None"
+        if self.start_datetime is not None:
+            stop = self.stop_datetime
+            if stop is None:
+                stop = datetime.datetime.now()
+
+            # Compute time-delta, convert to string and remove microseconds (in any)
+            s = str(stop - self.start_datetime)
+            microsec = s.find(".")
+            if microsec != -1: s = s[:microsec]
+
+        return s
 
     def cancel(self):
         """
@@ -1522,7 +1576,15 @@ class Task(Node):
             if status == self.S_ABICRITICAL:
                 self.history.append("Error info:\n %s" % str(info_msg))
 
+        if status == self.S_RUN:
+            # Set start_datetime when the task enters S_RUN
+            if self.start_datetime is None:
+                self.start_datetime = datetime.datetime.now()
+
         if status == self.S_DONE:
+            self.stop_datetime = datetime.datetime.now()
+
+            # Execute the callback
             self._on_done()
                                                                                 
         if status == self.S_OK:
@@ -2301,7 +2363,7 @@ class ScfTask(AbinitTask):
                 break
 
         if not restart_file:
-            raise TaskRestartError("Cannot find WFK or DEN file to restart from.")
+            raise self.RestartError("Cannot find WFK or DEN file to restart from.")
 
         # Move out --> in.
         self.out_to_in(restart_file)
@@ -2317,7 +2379,7 @@ class ScfTask(AbinitTask):
         Plot the SCF cycle results with matplotlib.
 
         Returns
-            `matplotlib` figure, None is some error occurred. 
+            `matplotlib` figure, None if some error occurred.
         """
         scf_cycle = abiinspect.GroundStateScfCycle.from_file(self.output_file.path)
         if scf_cycle is not None:
@@ -2340,7 +2402,7 @@ class NscfTask(AbinitTask):
         irdvars = irdvars_for_ext(ext)
 
         if not restart_file:
-            raise TaskRestartError("Cannot find the WFK file to restart from.")
+            raise self.RestartError("Cannot find the WFK file to restart from.")
 
         # Move out --> in.
         self.out_to_in(restart_file)
@@ -2374,24 +2436,14 @@ class RelaxTask(AbinitTask):
         print("changing structure")
         self.strategy.abinit_input.set_structure(structure)
 
-    def read_final_structure(self, save=False):
+    def read_final_structure(self):
         """Read the final structure from the GSR file and save it in self.final_structure."""
-        # We already have it in memory.
-        if hasattr(self, "final_structure"):
-            return self.final_structure
-        
-        # Read it from file and save it if save is True.
         gsr_file = self.outdir.has_abiext("GSR")
         if not gsr_file:
-            raise TaskRestartError("Cannot find the GSR file with the final structure to restart from.")
+            raise self.RestartError("Cannot find the GSR file with the final structure to restart from.")
 
         with ETSF_Reader(gsr_file) as r:
-            final_structure = r.read_structure()
-
-        if save:
-            self.final_structure = final_structure
-
-        return final_structure
+            return r.read_structure()
 
     def restart(self):
         """
@@ -2410,7 +2462,7 @@ class RelaxTask(AbinitTask):
                 break
 
         if not ofile:
-            raise TaskRestartError("Cannot find the WFK|DEN file to restart from.")
+            raise self.RestartError("Cannot find the WFK|DEN file to restart from.")
 
         # Read the relaxed structure from the GSR file.
         structure = self.read_final_structure()
@@ -2465,7 +2517,7 @@ class PhononTask(AbinitTask):
                 break
 
         if not restart_file:
-            raise TaskRestartError("Cannot find the 1WF|1DEN|file to restart from.")
+            raise self.RestartError("Cannot find the 1WF|1DEN|file to restart from.")
 
         self.out_to_in(restart_file)
 
@@ -2504,7 +2556,7 @@ class G_Task(AbinitTask):
         irdvars = irdvars_for_ext(ext)
 
         if not restart_file:
-            raise TaskRestartError("Cannot find the QPS file to restart from.")
+            raise self.RestartError("Cannot find the QPS file to restart from.")
 
         self.out_to_in(restart_file)
 
@@ -2541,8 +2593,10 @@ class HaydockBseTask(BseTask):
     ]
 
     def restart(self):
-        # BSE calculations with Haydock can be restarted only if we have the 
-        # excitonic Hamiltonian and the HAYDR_SAVE file.
+        """
+        BSE calculations with Haydock can be restarted only if we have the
+        excitonic Hamiltonian and the HAYDR_SAVE file.
+        """
         # TODO: This version seems to work but the main output file is truncated
         # the log file is complete though.
         irdvars = {}
@@ -2569,7 +2623,7 @@ class HaydockBseTask(BseTask):
                     count += 1
 
             if not count:
-                raise TaskRestartError("Cannot find BSR|BSC files in %s" % self.indir)
+                raise self.RestartError("Cannot find BSR|BSC files in %s" % self.indir)
 
         # Rename HAYDR_SAVE files
         count = 0
@@ -2581,7 +2635,7 @@ class HaydockBseTask(BseTask):
                 self.out_to_in(ofile)
 
         if not count:
-            raise TaskRestartError("Cannot find the HAYDR_SAVE file to restart from.")
+            raise self.RestartError("Cannot find the HAYDR_SAVE file to restart from.")
 
         # Add the appropriate variable for restarting.
         self.strategy.add_extra_abivars(irdvars)
@@ -2591,11 +2645,10 @@ class HaydockBseTask(BseTask):
 
 
 class OpticTask(Task):
-    # TODO
-    # FIx the problem with report.is_completed
-    # all the executables in Abinit should signal the successful completion with the same format.
-    # possibly with YAML
-
+    """
+    Task for the computation of optical spectra with optic i.e.
+    RPA without local-field effects and velocity operator computed from DDK files.
+    """
     def __init__(self, optic_input, nscf_node, ddk_nodes, workdir=None, manager=None):
         """
         Create an instance of `OpticTask` from an string containing the input.
@@ -2604,17 +2657,20 @@ class OpticTask(Task):
             optic_input:
                 string with the optic variables (filepaths will be added at run time).
             nscf_node:
-                The NSCF task that will produce thw WFK file.
+                The NSCF task that will produce thw WFK file or string with the path of the WFK file.
             ddk_nodes:
-                List of `DDK_Task` nodes that will produce the DDK files.
+                List of `DDK_Task` nodes that will produce the DDK files or list of DDF paths.
             workdir:
                 Path to the working directory.
             manager:
                 `TaskManager` object.
         """
+        # Convert paths to FileNodes
         if is_string(nscf_node):
-            assert all(is_string(f) for f in ddk_nodes)
             nscf_node = FileNode(nscf_node)
+
+        if is_string(ddk_nodes[0]):
+            assert all(is_string(f) for f in ddk_nodes)
             ddk_nodes = [FileNode(fname) for fname in ddk_nodes]
 
         deps = {task: "1WF" for task in ddk_nodes}
@@ -2689,11 +2745,7 @@ class OpticTask(Task):
 
 
 class AnaddbTask(Task):
-    # TODO
-    # FIx the problem with report.is_completed
-    # all the executables in Abinit should signal the successful completion with the same format.
-    # possibly with YAML
-    def __init__(self, anaddb_input, ddb_node, 
+    def __init__(self, anaddb_input, ddb_node,
                  gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None):
         """
         Create an instance of `AnaddbTask` from an string containing the input.

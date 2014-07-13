@@ -411,8 +411,10 @@ class AbinitFlow(Node):
 
     def fix_queue_critical(self):
         """
-        Fixer for errors originating from the scheduler. General strategy, first try to increase resources in order to
-        fix the problem, if this is not possible, call a task specific method to attempt to decrease the demands.
+        Fixer for errors originating from the scheduler.
+
+        General strategy, first try to increase resources in order to fix the problem,
+        if this is not possible, call a task specific method to attempt to decrease the demands.
         """
         from pymatgen.io.gwwrapper.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
 
@@ -462,7 +464,7 @@ class AbinitFlow(Node):
                         return task.set_status(task.S_ERROR, info_msg)
                 else:
                     info_msg = 'No solution provided for error %s. Unrecoverable error.' % error.name
-                    logger.debug(msg=info_msg)
+                    logger.debug(info_msg)
                     return task.set_status(task.S_ERROR, info_msg)
 
     def show_status(self, stream=sys.stdout):
@@ -477,7 +479,7 @@ class AbinitFlow(Node):
             table = [["Task", "Status", "Queue_id", 
                       "Errors", "Warnings", "Comments", 
                       "MPI", "OMP", 
-                      "num_restarts", "Task Class"]]
+                      "Restart", "Task_Class", "Run-etime"]]
 
             for task in work:
                 task_name = os.path.basename(task.name)
@@ -490,13 +492,14 @@ class AbinitFlow(Node):
                     events = map(str, [report.num_errors, report.num_warnings, report.num_comments])
 
                 cpu_info = map(str, [task.mpi_ncpus, task.omp_ncpus])
-                task_info = map(str, [task.num_restarts, task.__class__.__name__])
+                task_info = map(str, [task.num_restarts, task.__class__.__name__, task.run_etime()])
 
                 table.append(
                     [task_name, str(task.status), str(task.queue_id)] + 
                     events + 
                     cpu_info + 
-                    task_info)
+                    task_info
+                )
 
             pprint_table(table, out=stream)
 
@@ -769,10 +772,12 @@ class AbinitFlow(Node):
             work.allocate(manager=self.manager)
             work.set_flow(self)
 
+        # Each task has a reference to the flow.
         for task in self.iflat_tasks():
             task.set_flow(self)
 
         self.check_dependencies()
+
         return self
 
     def show_dependencies(self):
@@ -1003,14 +1008,14 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
 
         # Run abinit on the front-end to get the list of irreducible pertubations.
         tmp_dir = os.path.join(workdir, "__ph_run" + str(i) + "__")
-        w = Workflow(workdir=tmp_dir, manager=shell_manager)
+        w = PhononWorkflow(workdir=tmp_dir, manager=shell_manager)
         fake_task = w.register(fake_input)
 
         # Use the magic value paral_rf = -1 to get the list of irreducible perturbations for this q-point.
         vars = dict(paral_rf=-1,
                     rfatpol=[1, natom],  # Set of atoms to displace.
                     rfdir=[1, 1, 1],     # Along this set of reduced coordinate axis.
-                   )
+                    )
 
         fake_task.strategy.add_extra_abivars(vars)
         w.allocate()
