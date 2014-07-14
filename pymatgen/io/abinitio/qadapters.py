@@ -454,6 +454,12 @@ class AbstractQueueAdapter(object):
         Method to increase the number of cpus asked for.
         """
 
+    # @abc.abstractmethod
+    def increase_resources(self):
+        """
+        Method to generally increase resources.
+        """
+
 
 ####################
 # Concrete classes #
@@ -918,7 +924,18 @@ class PbsAdapter(AbstractQueueAdapter):
 
     def increase_cpus(self, factor):
         print('increasing cpus, not implemented yet pbs')
+
         return False
+
+    def increase_resources(self):
+        """
+        Method to generally increase resources. On typical large machines we only increas cpu's since we use all
+        mem per cpu per core
+        """
+        if self.increase_cpus(1.5):
+            return True
+        else:
+            return False
 
 
 class SGEAdapter(AbstractQueueAdapter):

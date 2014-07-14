@@ -399,8 +399,8 @@ class AbinitFlow(Node):
             print(info_msg)
 
             if task.manager.qadapter.increase_resources():
+                task.restart()
                 task.set_status(task.S_READY)
-                task.reset
                 return True
             else:
                 task.set_status(task.S_ERROR, info_msg)
