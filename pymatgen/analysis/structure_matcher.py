@@ -1002,6 +1002,10 @@ class StructureMatcher(MSONable):
         """
         Performs transformations on struct2 to put it in a basis similar to
         struct1 (without changing any of the inter-site distances)
+        
+        Returns:
+            A structure object similar to struct1, obtained by making a supercell,
+                sorting, and translating struct2
         """
         if self._primitive_cell:
             raise ValueError("get_s2_like_s1 cannot be used with the primitive"
@@ -1045,8 +1049,16 @@ class StructureMatcher(MSONable):
 
     def get_mapping(self, superset, subset):
         """
-        Calculate the mapping from superset to subset, i.e.
-        superset[mapping] = subset
+        Calculate the mapping from superset to subset.
+        Args:
+            superset (Structure): Structure containing at least the sites in subset
+                (within the structure matching tolerance)
+            subset (Structure): Structure containing some of the sites in superset
+                (within the structure matching tolerance)
+        
+        Returns:
+            numpy array such that superset.sites[mapping] is within matching
+            tolerance of subset.sites or None if no such mapping is possible
         """
         if self._supercell:
             raise ValueError("cannot compute mapping to supercell")
