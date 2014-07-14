@@ -11,6 +11,7 @@ import collections
 import abc
 import copy
 import yaml
+import pprint
 import cStringIO as StringIO
 
 from pymatgen.io.abinitio import abiinspect
@@ -178,6 +179,12 @@ class ParalConf(AttrDict):
             if k not in self:
                 self[k] = v
 
+    def __str__(self):
+        stream = StringIO.StringIO()
+        pprint.pprint(self, stream=stream)
+
+        return stream.getvalue()
+
     @property
     def speedup(self):
         """Estimated speedup reported by ABINIT."""
@@ -236,19 +243,25 @@ class ParalHints(collections.Iterable):
         """Shallow copy of self."""
         return copy.copy(self)
 
-    def select_with_condition(self, condition):
+    def select_with_condition(self, condition, key=None):
         """
         Remove all the configurations that do not satisfy the given condition.
 
             Args:
                 `Condition` object with operators expressed with a Mongodb-like syntax
+            key:
+                Selects the sub-dictionary on which condition is applied, e.g. key="vars"
+                if we have to filter the configurations depending on the values in vars
         """
         new_confs = []
 
         for conf in self:
-            add_it = condition.apply(obj=conf)
-            #print("add_it", add_it)
-            #print(""conf", conf)
+            # Select the object on which condition is applied
+            obj = conf if key is None else AttrDict(conf[key])
+            add_it = condition.apply(obj=obj)
+            if key is "vars":
+                print("conf", conf)
+                print("added:", add_it)
             if add_it:
                 new_confs.append(conf)
 
@@ -299,7 +312,21 @@ class ParalHints(collections.Iterable):
             # If no configuration fullfills the requirements, 
             # we return the one with the highest speedup.
             if not hints:
-                #print("no configuration")
+                logger.warning("empty list of configurations after policy.condition")
+                hints = self.copy()
+                hints.sort_by_speedup()
+                return hints[-1].copy()
+
+        # Now filter the configurations depending on the values in vars
+        if policy.vars_condition:
+            print("condition", policy.vars_condition)
+            hints.select_with_condition(policy.vars_condition, key="vars")
+            print("after vars_condition", hints)
+
+            # If no configuration fullfills the requirements,
+            # we return the one with the highest speedup.
+            if not hints:
+                logger.warning("empty list of configurations after policy.vars_condition")
                 hints = self.copy()
                 hints.sort_by_speedup()
                 return hints[-1].copy()
@@ -336,7 +363,8 @@ class TaskPolicy(object):
     and the condition used to select the optimal configuration for the parallel run 
     """
 
-    def __init__(self, autoparal=0, automemory=0, mode="default", max_ncpus=None, use_fw=False, condition=None): 
+    def __init__(self, autoparal=0, automemory=0, mode="default", max_ncpus=None,
+                 use_fw=False, condition=None, vars_condition=None):
         """
         Args:
             autoparal: 
@@ -355,6 +383,8 @@ class TaskPolicy(object):
                 True if we are using fireworks.
             condition: 
                 condition used to filter the autoparal configuration (Mongodb syntax)
+            vars_condition:
+                condition used to filter the list of Abinit variables suggested by autoparal (Mongodb syntax)
         """
         self.autoparal = autoparal
         self.automemory = automemory
@@ -362,6 +392,7 @@ class TaskPolicy(object):
         self.max_ncpus = max_ncpus
         self.use_fw = use_fw 
         self.condition = Condition(condition) if condition is not None else condition
+        self.vars_condition = Condition(vars_condition) if vars_condition is not None else vars_condition
 
         if self.autoparal and self.max_ncpus is None:
             raise ValueError("When autoparal is not zero, max_ncpus must be specified.")
@@ -2279,8 +2310,8 @@ class AbinitTask(Task):
 
         try:
             confs = parser.parse(self.output_file.path)
+            #self.all_autoparal_confs = confs
             #print("confs", confs)
-            #self.all_autoparal_confs = confs 
 
         except parser.Error:
             logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
