@@ -29,6 +29,7 @@ from pymatgen.io.gwwrapper.convergence import test_conv
 from pymatgen.io.gwwrapper.helpers import print_gnuplot_header, s_name, add_gg_gap, refine_structure
 from pymatgen.io.gwwrapper.codeinterfaces import get_code_interface
 from pymatgen.core.structure import Structure
+from pymatgen.core.units import eV_to_Ha
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -122,6 +123,7 @@ class AbstractAbinitioSpec(MSONable):
         mode:
         i: loop structures for input generation
         o: loop structures for output parsing
+        w: print all results
         """
         print 'loop structures mode ', mode
         mp_key = os.environ['MP_KEY']
@@ -176,9 +178,9 @@ class AbstractAbinitioSpec(MSONable):
                     else:
                         # print "no bandstructure information available, adding GG as 'gap'"
                         structure = add_gg_gap(structure)
-                elif item.endwith('xyz'):
+                elif 'xyz' in item:
                     structure = pmg.read_structure(item)
-
+                    raise NotImplementedError
                 elif item.startswith('mp-'):
                     with MPRester(mp_key) as mp_database:
                         print 'structure from mp database', item
@@ -199,6 +201,8 @@ class AbstractAbinitioSpec(MSONable):
             print item, s_name(structure)
             if mode == 'i':
                 self.excecute_flow(structure)
+            elif mode == 'w':
+                self.print_results(structure)
             elif mode == 'o':
                 # if os.path.isdir(s_name(structure)) or os.path.isdir(s_name(structure)+'.conv'):
                 self.process_data(structure)
@@ -225,9 +229,15 @@ class AbstractAbinitioSpec(MSONable):
         """
 
     @abstractmethod
+    def print_results(self, structure):
+        """
+        method called in loopstructures in 'w' write mode, this method should print final results
+        """
+
+    @abstractmethod
     def excecute_flow(self, structure):
         """
-        method called in loopstructures in 'i' input mode, this method schould generate input, job script files etc
+        method called in loopstructures in 'i' input mode, this method should generate input, job script files etc
          or create fire_work workflows and put them in a database
         """
 
@@ -334,7 +344,6 @@ class GWSpecs(AbstractAbinitioSpec):
         agreement with the scanning part
         """
         data = GWConvergenceData(spec=self, structure=structure)
-        print 'here'
         if self.data['converge']:
             done = False
             try:
@@ -364,9 +373,11 @@ class GWSpecs(AbstractAbinitioSpec):
                         #print data.conv_res
                     else:
                         print '| parm_scr type calculation, no converged scf values found'
-                        data.full_res.update({'all_done': True}), {'remark': 'No converged SCf parameter found. '
-                                                                             'Solution not implemented.'}
+                        data.full_res.update({'remark': 'No converged SCf parameter found. '
+                                                                             'Solution not implemented.'})
                         data.print_full_res()
+                        data.conv_res['values'].update({'ecut': 40*eV_to_Ha})
+                        data.conv_res['control'].update({'ecut': True})
                         done = True
                     # if converged ok, if not increase the grid parameter of the next set of calculations
                     extrapolated = data.find_conv_pars(self['tol'])
@@ -424,6 +435,19 @@ class GWSpecs(AbstractAbinitioSpec):
             data.read()
             data.set_type()
             data.print_plot_data()
+
+    def print_results(self, structure, file_name='convergence_results'):
+        """
+        """
+        data = GWConvergenceData(spec=self, structure=structure)
+        if data.read_conv_res_from_file(os.path.join(s_name(structure)+'.res', s_name(structure)+'.conv_res')):
+            s = '%s %s %s \n' % (s_name(structure), str(data.conv_res['values']['ecuteps']), str(data.conv_res['values']['nscf_nbands']))
+        else:
+            s = '%s 0.0 0.0 \n' % s_name(structure)
+        print s
+        f = open(file_name, 'a')
+        f.write(s)
+        f.close()
 
 
 class GWConvergenceData():

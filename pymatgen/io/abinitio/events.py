@@ -251,6 +251,7 @@ class EventReport(collections.Iterable):
         """
         Returns True if the calculation terminated.
         """
+
         try:
             return self._run_completed
         except AttributeError:

@@ -454,6 +454,12 @@ class AbstractQueueAdapter(object):
         Method to increase the number of cpus asked for.
         """
 
+    # @abc.abstractmethod
+    def increase_resources(self):
+        """
+        Method to generally increase resources.
+        """
+
 
 ####################
 # Concrete classes #
@@ -796,7 +802,7 @@ class PbsAdapter(AbstractQueueAdapter):
         currently hard coded, should be read at init
         the increase functions will not increase beyond thise limits
         """
-        return {'max_total_tasks': 3888, 'time': 48}
+        return {'max_total_tasks': 3888, 'time': 48, 'max_select': 240}
 
     @property
     def mpi_ncpus(self):
@@ -921,8 +927,23 @@ class PbsAdapter(AbstractQueueAdapter):
             return False
 
     def increase_cpus(self, factor):
-        logger.warning('increasing cpus, not implemented yet pbs')
-        return False
+        base_increase = 12
+        new_cpus = self.qparams['select'] + factor * base_increase
+        if new_cpus < self.limits['max_select']:
+            return True
+        else:
+            logger.warning('increasing cpus reached the limit')
+            return False
+
+    def increase_resources(self):
+        """
+        Method to generally increase resources. On typical large machines we only increas cpu's since we use all
+        mem per cpu per core
+        """
+        if self.increase_cpus(2):
+            return True
+        else:
+            return False
 
 
 class SGEAdapter(AbstractQueueAdapter):

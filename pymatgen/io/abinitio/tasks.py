@@ -806,17 +806,17 @@ class Dependency(object):
 
 # Possible status of the node.
 STATUS2STR = collections.OrderedDict([
-    (1, "Initialized"),   # Node has been initialized
-    (2, "Locked"),        # Task is locked an must be explicitly unlocked by en external subject (Workflow).
-    (3, "Ready"),         # Node is ready i.e. all the depencies of the node have status S_OK
-    (4, "Submitted"),     # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
-    (5, "Running"),       # Node is running.
-    (6, "Done"),          # Node done, This does not imply that results are ok or that the calculation completed successfully
-    (7, "AbiCritical"),   # Node raised an Error by ABINIT.
-    (8, "QueueCritical"), # Node raised an Error by submitting submission script, or by executing it
-    (9, "Unconverged"),   # This usually means that an iterative algorithm didn't converge.
-    (10,"Error"),         # Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.
-    (11,"Completed"),     # Execution completed successfully.
+    (1,  "Initialized"),    # Node has been initialized
+    (2,  "Locked"),         # Task is locked an must be explicitly unlocked by en external subject (Workflow).
+    (3,  "Ready"),          # Node is ready i.e. all the depencies of the node have status S_OK
+    (4,  "Submitted"),      # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
+    (5,  "Running"),        # Node is running.
+    (6,  "Done"),           # Node done, This does not imply that results are ok or that the calculation completed successfully
+    (7,  "AbiCritical"),    # Node raised an Error by ABINIT.
+    (8,  "QueueCritical"),  # Node raised an Error by submitting submission script, or by executing it
+    (9,  "Unconverged"),    # This usually means that an iterative algorithm didn't converge.
+    (10, "Error"),          # Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.
+    (11, "Completed"),      # Execution completed successfully.
 ])
 
 
@@ -1621,7 +1621,8 @@ class Task(Node):
         """
 
         # 1) A locked task can only be unlocked by calling set_status explicitly.
-        black_list = [self.S_LOCKED]
+        # an errored task, should not end up here but just to be sure
+        black_list = [self.S_LOCKED, self.S_ERROR]
         if self.status in black_list:
             return
 
@@ -1770,19 +1771,21 @@ class Task(Node):
             else:
                 if len(err_info) > 0:
                     print('found unknown que error:\n', err_info)
-                    return self.set_status(self.S_ERROR, info_msg=err_info)
+                    return self.set_status(self.S_QUEUECRITICAL, info_msg=err_info)
                     # The job is killed or crashed but we don't know what happened
+                    # it is set to queuecritical, we will attempt to fix it by running on more resources
 
         # 8) analizing the err files and abinit output did not identify a problem
         # but if the files are not empty we do have a problem but no way of solving it:
         if err_msg is not None and len(err_msg) > 0:
             print('found error message:\n', err_msg)
-            return self.set_status(self.S_ERROR, info_msg=err_info)
+            return self.set_status(self.S_QUEUECRITICAL, info_msg=err_info)
             # The job is killed or crashed but we don't know what happend
+            # it is set to queuecritical, we will attempt to fix it by running on more resources
 
         # 9) if we still haven't returned there is no indication of any error and the job can only still be running
         # but we should actually never land here, or we have delays in the file system ....
-        #print('the job still seems to be running maybe it is hanging without producing output... ')
+        # print('the job still seems to be running maybe it is hanging without producing output... ')
 
         return self.set_status(self.S_RUN)
 

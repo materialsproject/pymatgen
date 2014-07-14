@@ -395,19 +395,8 @@ class AbinitFlow(Node):
             #todo
             info_msg = 'We encountered an abi critial envent that could not be fixed'
             print(info_msg)
-            try:
-                print('waited ', self._waited, ' cycles')
-            except AttributeError:
-                self._waited = 0
+            return False
 
-            for error in task.abi_errors:
-                print('trying to fix:')
-                print(error)
-                print('by waiting for the phase of the moon to change a bit ...')
-            if self._waited > 3:
-                task.set_status(task.S_ERROR, info_msg)
-
-            self._waited += 1
 
     def fix_queue_critical(self):
         """
@@ -420,52 +409,65 @@ class AbinitFlow(Node):
 
         for task in self.iflat_tasks(status='S_QUEUECRITICAL'):
             print(task)
-            for error in task.queue_errors:
-                print('fixing :' + str(error))
-                if isinstance(error, NodeFailureError):
-                    # if the problematic node is know exclude it
-                    if error.nodes is not None:
-                        task.manager.qadapter.exclude_nodes(error.nodes)
-                        task.restart()
-                        return task.set_status(task.S_READY)
-                    else:
-                        info_msg = 'Node error detected but no was node identified. Unrecoverable error.'
-                        return task.set_status(task.S_ERROR, info_msg)
-                elif isinstance(error, MemoryCancelError):
-                    # ask the qadapter to provide more memory
-                    if task.manager.qadapter.increase_mem():
-                        task.restart()
-                        return task.set_status(task.S_READY, info_msg='increased mem')
-                    # if this failed ask the task to provide a method to reduce the memory demand
-                    elif task.reduce_memory_demand():
-                        task.restart()
-                        return task.set_status(task.S_READY, info_msg='decreased mem demand')
-                    else:
-                        info_msg = 'Memory error detected but the memory could not be increased neigther could the ' \
-                                   'memory demand be decreased. Unrecoverable error.'
-                        return task.set_status(task.S_ERROR, info_msg)
-                elif isinstance(error, TimeCancelError):
-                    # ask the qadapter to provide more memory
-                    if task.manager.qadapter.increase_time():
-                        task.restart()
-                        return task.set_status(task.S_READY, info_msg='increased wall time')
-                    # if this fails ask the qadapter to increase the number of cpus
-                    elif task.manager.qadapter.increase_cpus():
-                        task.restart()
-                        return task.set_status(task.S_READY, info_msg='increased number of cpus')
-                    # if this failed ask the task to provide a method to speed up the task
-                    elif task.speed_up():
-                        task.restart()
-                        return task.set_status(task.S_READY, info_msg='task speedup')
-                    else:
-                        info_msg = 'Time cancel error detected but the time could not be increased neigther could ' \
-                                   'the time demand be decreased by speedup of increasing the number of cpus. ' \
-                                   'Unrecoverable error.'
-                        return task.set_status(task.S_ERROR, info_msg)
+
+            if not task.queue_errors:
+                # queue error but no errors detected, try to solve by increasing resources
+                # if resources are at maximum the tast is definitively turned to errored
+                if task.manager.qadapter.increase_resources():
+                    task.restart()
+                    task.set_status(task.S_READY)
+                    return True
                 else:
-                    info_msg = 'No solution provided for error %s. Unrecoverable error.' % error.name
-                    logger.debug(info_msg)
-                    return task.set_status(task.S_ERROR, info_msg)
+                    info_msg = 'unknown queue error, could not increase resources any further'
+                    task.set_status(task.S_ERROR, info_msg)
+                    return False
+            else:
+                for error in task.queue_errors:
+                    print('fixing :' + str(error))
+                    if isinstance(error, NodeFailureError):
+                        # if the problematic node is know exclude it
+                        if error.nodes is not None:
+                            task.manager.qadapter.exclude_nodes(error.nodes)
+                            task.restart()
+                            return task.set_status(task.S_READY)
+                        else:
+                            info_msg = 'Node error detected but no was node identified. Unrecoverable error.'
+                            return task.set_status(task.S_ERROR, info_msg)
+                    elif isinstance(error, MemoryCancelError):
+                        # ask the qadapter to provide more memory
+                        if task.manager.qadapter.increase_mem():
+                            task.restart()
+                            return task.set_status(task.S_READY, info_msg='increased mem')
+                        # if this failed ask the task to provide a method to reduce the memory demand
+                        elif task.reduce_memory_demand():
+                            task.restart()
+                            return task.set_status(task.S_READY, info_msg='decreased mem demand')
+                        else:
+                            info_msg = 'Memory error detected but the memory could not be increased neigther could the ' \
+                                       'memory demand be decreased. Unrecoverable error.'
+                            return task.set_status(task.S_ERROR, info_msg)
+                    elif isinstance(error, TimeCancelError):
+                        # ask the qadapter to provide more memory
+                        if task.manager.qadapter.increase_time():
+                            task.restart()
+                            return task.set_status(task.S_READY, info_msg='increased wall time')
+                        # if this fails ask the qadapter to increase the number of cpus
+                        elif task.manager.qadapter.increase_cpus():
+                            task.restart()
+                            return task.set_status(task.S_READY, info_msg='increased number of cpus')
+                        # if this failed ask the task to provide a method to speed up the task
+                        elif task.speed_up():
+                            task.restart()
+                            return task.set_status(task.S_READY, info_msg='task speedup')
+                        else:
+                            info_msg = 'Time cancel error detected but the time could not be increased neigther could ' \
+                                       'the time demand be decreased by speedup of increasing the number of cpus. ' \
+                                       'Unrecoverable error.'
+                            return task.set_status(task.S_ERROR, info_msg)
+                    else:
+                        info_msg = 'No solution provided for error %s. Unrecoverable error.' % error.name
+                        logger.debug(info_msg)
+                        return task.set_status(task.S_ERROR, info_msg)
 
     def show_status(self, stream=sys.stdout):
         """
