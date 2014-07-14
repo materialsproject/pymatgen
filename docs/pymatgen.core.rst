@@ -98,6 +98,14 @@ pymatgen.core.structure_modifier module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.core.surface module
+----------------------------
+
+.. automodule:: pymatgen.core.surface
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.core.units module
 --------------------------
 
