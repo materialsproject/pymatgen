@@ -695,10 +695,11 @@ class StructureMatcher(MSONable):
         return struct1, struct2, fu, s1_supercell
 
     def _match(self, struct1, struct2, fu, s1_supercell=True, use_rms=False,
-                   break_on_match=False):
+               break_on_match=False):
         """
         Matches struct2 onto struct1 (which should contain all sites in
         struct2).
+
         Args:
             struct1, struct2 (Structure): structures to be matched
             fu (int): size of supercell to create
@@ -721,6 +722,7 @@ class StructureMatcher(MSONable):
         #check that a valid mapping exists
         if not self._subset and mask.shape[1] != mask.shape[0]:
             return None
+
         if LinearAssignment(mask).min_cost > 0:
             return None
 
@@ -749,6 +751,7 @@ class StructureMatcher(MSONable):
                         best_match = val, dist, sc_m, total_t, mapping
                         if (break_on_match or val < 1e-5) and val < self.stol:
                             return best_match
+
         if best_match and best_match[0] < self.stol:
             return best_match
 
@@ -1056,6 +1059,7 @@ class StructureMatcher(MSONable):
         superset, subset, _, _ = self._preprocess(superset, subset, True)
         match = self._match(superset, subset, 1, break_on_match=False)
 
-        if match[0] > self.stol:
+        if match is None or match[0] > self.stol:
             return None
+
         return match[4]
