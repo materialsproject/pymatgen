@@ -803,17 +803,17 @@ class Dependency(object):
 
 # Possible status of the node.
 STATUS2STR = collections.OrderedDict([
-    (1, "Initialized"),   # Node has been initialized
-    (2, "Locked"),        # Task is locked an must be explicitly unlocked by en external subject (Workflow).
-    (3, "Ready"),         # Node is ready i.e. all the depencies of the node have status S_OK
-    (4, "Submitted"),     # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
-    (5, "Running"),       # Node is running.
-    (6, "Done"),          # Node done, This does not imply that results are ok or that the calculation completed successfully
-    (7, "AbiCritical"),   # Node raised an Error by ABINIT.
-    (8, "QueueCritical"), # Node raised an Error by submitting submission script, or by executing it
-    (9, "Unconverged"),   # This usually means that an iterative algorithm didn't converge.
-    (10,"Error"),         # Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.
-    (11,"Completed"),     # Execution completed successfully.
+    (1,  "Initialized"),    # Node has been initialized
+    (2,  "Locked"),         # Task is locked an must be explicitly unlocked by en external subject (Workflow).
+    (3,  "Ready"),          # Node is ready i.e. all the depencies of the node have status S_OK
+    (4,  "Submitted"),      # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
+    (5,  "Running"),        # Node is running.
+    (6,  "Done"),           # Node done, This does not imply that results are ok or that the calculation completed successfully
+    (7,  "AbiCritical"),    # Node raised an Error by ABINIT.
+    (8,  "QueueCritical"),  # Node raised an Error by submitting submission script, or by executing it
+    (9,  "Unconverged"),    # This usually means that an iterative algorithm didn't converge.
+    (10, "Error"),          # Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.
+    (11, "Completed"),      # Execution completed successfully.
 ])
 
 
