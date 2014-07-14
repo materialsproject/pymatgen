@@ -1321,6 +1321,7 @@ class GbrvEosWorkflow(Workflow):
         # Save the structure type (needed to compute a later on)
         self.struct_type = struct_type
 
+        # TODO: nband/fband are usually too small for the GBRV calculations.
         # Set extra_abivars.
         extra_abivars = dict(
             ecut=ecut,
