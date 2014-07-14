@@ -17,9 +17,12 @@ import unittest
 import os
 import json
 
+import numpy as np
+
 from pymatgen import Lattice, Structure
 from pymatgen.transformations.standard_transformations import \
-    OxidationStateDecorationTransformation, SubstitutionTransformation
+    OxidationStateDecorationTransformation, SubstitutionTransformation, \
+    OrderDisorderedStructureTransformation
 from pymatgen.transformations.advanced_transformations import \
     SuperTransformation, EnumerateStructureTransformation, \
     MultipleSubstitutionTransformation, ChargeBalanceTransformation, \
@@ -77,6 +80,23 @@ class SuperTransformationTest(unittest.TestCase):
             self.assertEqual(s_and_t['transformation']
                              .apply_transformation(struct),
                              s_and_t['structure'])
+
+    @unittest.skipIf(not enumlib_present, "enum_lib not present.")
+    def test_apply_transformation_mult(self):
+        #Test returning multiple structures from each transformation.
+        disord = Structure(np.eye(3) * 4.209, [{"Cs+": 0.5, "K+": 0.5}, "Cl-"],
+                           [[0, 0, 0], [0.5, 0.5, 0.5]])
+        disord.make_supercell([2, 2, 1])
+
+
+        tl = [EnumerateStructureTransformation(),
+              OrderDisorderedStructureTransformation()]
+        t = SuperTransformation(tl, nstructures_per_trans=10)
+        self.assertEqual(len(t.apply_transformation(disord,
+                                                    return_ranked_list=20)), 8)
+        t = SuperTransformation(tl)
+        self.assertEqual(len(t.apply_transformation(disord,
+                                                    return_ranked_list=20)), 2)
 
 
 class MultipleSubstitutionTransformationTest(unittest.TestCase):
