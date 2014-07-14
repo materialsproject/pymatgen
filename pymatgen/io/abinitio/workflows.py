@@ -24,7 +24,7 @@ from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
 from pymatgen.util.string_utils import pprint_table, WildCard
 from pymatgen.io.abinitio import wrappers
-from pymatgen.io.abinitio.tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, HaydockBseTask, RelaxTask)
+from pymatgen.io.abinitio.tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, BseTask, RelaxTask)
 from pymatgen.io.abinitio.strategies import Strategy, RelaxStrategy
 from pymatgen.io.abinitio.utils import Directory
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
@@ -1559,15 +1559,15 @@ class BSEMDF_Workflow(Workflow):
     are approximated by the scissors operator and the screening in modeled
     with the model dielectric function.
     """
-    def __init__(self, scf_input, nscf_input, bse_input, workdir=None, manager=None):
+    def __init__(self, scf_input, nscf_input, bse_inputs, workdir=None, manager=None):
         """
         Args:
             scf_input:
                 Input for the SCF run or `ScfStrategy` object.
             nscf_input:
                 Input for the NSCF run or `NscfStrategy` object.
-            bse_input:
-                Input for the BSE run or `BSEStrategy` object.
+            bse_inputs:
+                List of Inputs for the BSE run or `BSEStrategy` object.
             workdir:
                 Working directory of the calculation.
             manager:
@@ -1581,8 +1581,12 @@ class BSEMDF_Workflow(Workflow):
         # Construct the input for the NSCF run.
         self.nscf_task = self.register(nscf_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
 
-        # Construct the input for the BSE run.
-        self.bse_task = self.register(bse_input, deps={self.nscf_task: "WFK"}, task_class=HaydockBseTask)
+        # Construct the input(s) for the BSE run.
+        if not isinstance(bse_inputs, (list, tuple)):
+            bse_inputs = [bse_inputs]
+
+        for bse_input in bse_inputs:
+            self.register(bse_input, deps={self.nscf_task: "WFK"}, task_class=BseTask)
 
 
 class PhononWorkflow(Workflow):
@@ -1644,9 +1648,11 @@ class WorkflowResults(dict, MSONable):
 
     @property
     def exceptions(self):
+        """List of registered exceptions."""
         return self[self._EXC_KEY]
 
     def push_exceptions(self, *exceptions):
+        """Save a list of exceptions."""
         for exc in exceptions:
             newstr = str(exc)
             if newstr not in self.exceptions:
@@ -1667,6 +1673,7 @@ class WorkflowResults(dict, MSONable):
 
     @property
     def to_dict(self):
+        """Convert object to dictionary."""
         d = {k: v for k,v in self.items()}
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -1674,5 +1681,6 @@ class WorkflowResults(dict, MSONable):
 
     @classmethod
     def from_dict(cls, d):
+        """Build the object from a dictionary."""
         mydict = {k: v for k, v in d.items() if k not in ["@module", "@class"]}
         return cls(mydict)

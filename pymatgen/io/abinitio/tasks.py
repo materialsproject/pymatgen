@@ -11,6 +11,7 @@ import collections
 import abc
 import copy
 import yaml
+import cStringIO as StringIO
 
 from pymatgen.io.abinitio import abiinspect
 from pymatgen.io.abinitio import events 
@@ -44,7 +45,6 @@ __all__ = [
     "DDK_Task",
     "PhononTask",
     "G_Task",
-    "HaydockBseTask",
     "OpticTask",
     "AnaddbTask",
 ]
@@ -425,7 +425,6 @@ class TaskManager(object):
     @classmethod
     def from_string(cls, s):
         """Create an instance from string s containing a YAML dictionary."""
-        import StringIO
         stream = StringIO.StringIO(s)
         stream.seek(0)
 
@@ -1098,7 +1097,11 @@ class Node(object):
 
 
 class FileNode(Node):
-    """A Node that consists of an already existing file"""
+    """
+    A Node that consists of an already existing file.
+
+    Mainly used to connect Tasks to external files produced in previous runs
+    """
     def __init__(self, filename):
         super(FileNode, self).__init__()
         self.filepath = os.path.abspath(filename)
@@ -1210,7 +1213,7 @@ class Task(Node):
         This is the reason why we have to store the returncode in self._returncode instead
         of using self.process.returncode.
         """
-        return {k:v for k,v in self.__dict__.items() if k not in ["_process",]}
+        return {k: v for k, v in self.__dict__.items() if k not in ["_process"]}
 
     def set_workdir(self, workdir, chroot=False):
         """Set the working directory. Cannot be set more than once unless chroot is True"""
@@ -2585,19 +2588,13 @@ class BseTask(AbinitTask):
         for the computation of the dielectric function. 
         The direct diagonalization cannot be restarted whereas 
         Haydock and CG support restarting.
-    """
 
-#class CgBseTask(BseTask):
-#    """Bethe-Salpeter calculations with the conjugate-gradient method."""
-
-
-class HaydockBseTask(BseTask):
-    """
-    Bethe-Salpeter calculations with Haydock iterative scheme.
-    Provide in-place restart via (BSR|BSC) files
+        Bethe-Salpeter calculations with Haydock iterative scheme.
+        Provide in-place restart via (BSR|BSC) files
     """
     CRITICAL_EVENTS = [
         events.HaydockConvergenceWarning,
+        #events.BseIterativeDiagoConvergenceWarning,
     ]
 
     def restart(self):
@@ -2606,6 +2603,8 @@ class HaydockBseTask(BseTask):
         excitonic Hamiltonian and the HAYDR_SAVE file.
         """
         # TODO: This version seems to work but the main output file is truncated
+        # TODO: Handle restart if CG method is used
+        # TODO: restart should receive a list of critical events
         # the log file is complete though.
         irdvars = {}
 
