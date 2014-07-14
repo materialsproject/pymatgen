@@ -892,6 +892,7 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
             self.incar_settings.update(
                 {"NSW": 0, "ISMEAR": 0, "SIGMA": 0.05, "ISYM": 0,
                  "LCHARG": False})
+            self.incar_settings.update(self.user_incar_settings)
         self.added_kpoints = added_kpoints
         self.mode = mode
         self.kpoints_density = kpoints_density
