@@ -54,12 +54,17 @@ configurations:
       mpi_ncpus: 1
       efficiency:  1.000000000
       mem_per_cpu:        11.54
-      vars: {npfft: 2, npkpt: 1}
+      vars: {npfft: 1, npkpt: 1}
     - tot_ncpus: 2
       mpi_ncpus: 2
       efficiency:  1.000000000
       mem_per_cpu:         7.42
       vars: {npfft: 1, npkpt: 2}
+    - tot_ncpus: 2
+      mpi_ncpus: 2
+      efficiency:  0.100000000
+      mem_per_cpu:         9.42
+      vars: {npfft: 2, npkpt: 1}
     - tot_ncpus: 3
       mpi_ncpus: 3
       efficiency:  0.833333333
@@ -96,7 +101,7 @@ configurations:
 
         # Optimize speedup with ncpus <= max_ncpus and conditions on efficiency and mem_per_cpu.
         policy = TaskPolicy(autoparal=1, mode="default", max_ncpus=4, 
-            condition={"$and": [{"efficiency": {"$ge": 0.8}}, {"mem_per_cpu": {"$le": 7.0}}] })
+                            condition={"$and": [{"efficiency": {"$ge": 0.8}}, {"mem_per_cpu": {"$le": 7.0}}]})
         optimal = confs.select_optimal_conf(policy)
         aequal(optimal.tot_ncpus, 3)
 
@@ -111,9 +116,27 @@ configurations:
         aequal(optimal.tot_ncpus, 4)
 
         # Select configuration with npfft == 1
-        #policy = TaskPolicy(autoparal=1, max_ncpus=4, condition={"vars": {"npfft": {"$eq": 1}}})
-        #optimal = confs.select_optimal_conf(policy)
-        #aequal(optimal.tot_ncpus, 4)
+        policy = TaskPolicy(autoparal=1, max_ncpus=4, vars_condition={"npfft": {"$eq": 3}})
+        optimal = confs.select_optimal_conf(policy)
+        aequal(optimal.tot_ncpus, 3)
+        aequal(optimal.vars["npfft"],  3)
+
+        # Select configuration with npfft == 2 and npkpt == 1
+        policy = TaskPolicy(autoparal=1, max_ncpus=4,
+                            vars_condition={"$and": [{"npfft": {"$eq": 2}}, {"npkpt": {"$eq": 1}}]})
+        optimal = confs.select_optimal_conf(policy)
+        aequal(optimal.tot_ncpus, 2)
+        aequal(optimal.vars["npfft"],  2)
+        aequal(optimal.vars["npkpt"],  1)
+
+
+
+
+
+
+
+
+
         #assert 0
         
 
