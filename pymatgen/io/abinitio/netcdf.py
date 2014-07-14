@@ -156,7 +156,12 @@ class NetcdfReader(object):
             # scalar or array
             #return var[0] if not var.shape else var[:]
             #return var.getValue() if not var.shape else var[:]
-            #return var.getValue()[0] if not var.shape else var[:]
+            # MG: The code below is not portable.
+
+            # This one works on my Mac,
+            return var.getValue()[0] if not var.shape else var[:]
+
+            # This one is needed on zenobe!
             #if not isinstance(var.getValue(), collections.Iterable):
             try:
                 return var.getValue() if not var.shape else var[:]
