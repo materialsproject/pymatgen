@@ -6,10 +6,16 @@ from __future__ import division, print_function
 
 import collections
 import numpy as np
+import yaml
 
 from StringIO import StringIO
-from pymatgen.io.abinitio import myaml
 from pymatgen.util.string_utils import pprint_table
+
+
+def straceback():
+    """Returns a string with the traceback."""
+    import traceback
+    return traceback.format_exc()
 
 
 def _magic_parser(stream, magic):
@@ -356,14 +362,29 @@ class Relaxation(collections.Iterable):
 
         return fig
 
+class YamlTokenizerError(Exception):
+    """Exceptions raised by `YamlTokenizer."""
+
 
 class YamlTokenizer(collections.Iterator):
     """
     Provides context-manager support so you can use it in a with statement. 
     """
+    Error = YamlTokenizerError
+
     def __init__(self, filename):
+        # The position inside the file.
+        self.linepos = 0 
         self.stream = open(filename, "r")
-        self.linepos = 0 # The position inside the file.
+
+        #with open(filename, "r") as fh:
+        #    self.stream = iter(fh.readlines())
+
+        #self.stream = open(filename, "r")
+        #try:
+        #    self.stream = open(filename, "r")
+        #except IOError as exc:
+        #    raise self.Error(str(exc))
 
     def __iter__(self):
         return self
@@ -378,7 +399,12 @@ class YamlTokenizer(collections.Iterator):
         self.close()
 
     def close(self):
-        self.stream.close()
+        #pass
+        try:
+            self.stream.close()
+        except:
+            print("Exception in YAMLTokenizer.close()")
+            print(straceback())
 
     def seek(self, offset, whence=0):
         """
@@ -492,7 +518,7 @@ def yaml_read_kpoints(filename, doc_tag="!Kpoints"):
     """Read the K-points from file."""
     with YamlTokenizer(filename) as r:
         doc = r.next_doc_with_tag(doc_tag)
-        d = myaml.load(doc.text_notag)
+        d = yaml.load(doc.text_notag)
 
         return np.array(d["reduced_coordinates_of_qpoints"])
 
@@ -501,7 +527,7 @@ def yaml_read_irred_perts(filename, doc_tag="!IrredPerts"):
     """Read the lisr of irreducible perturbations from file."""
     with YamlTokenizer(filename) as r:
         doc = r.next_doc_with_tag(doc_tag)
-        d = myaml.load(doc.text_notag)
+        d = yaml.load(doc.text_notag)
 
         return d["irred_perts"]
 

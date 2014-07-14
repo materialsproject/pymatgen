@@ -5,12 +5,13 @@ from __future__ import division, print_function
 
 import os
 import time
+import datetime
 import shutil
 import collections
 import abc
 import copy
+import yaml
 
-from pymatgen.io.abinitio import myaml
 from pymatgen.io.abinitio import abiinspect
 from pymatgen.io.abinitio import events 
 
@@ -25,13 +26,9 @@ from pymatgen.util.io_utils import FileLock
 from pymatgen.util.string_utils import is_string, list_strings, WildCard
 from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
-
 from pymatgen.io.abinitio.qadapters import qadapter_class
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
 from pymatgen.io.abinitio.strategies import StrategyWithInput, OpticInput, AnaddbInput
-
-import logging
-logger = logging.getLogger(__name__)
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -51,6 +48,9 @@ __all__ = [
     "OpticTask",
     "AnaddbTask",
 ]
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 # Tools and helper functions.
@@ -201,7 +201,7 @@ class ParalHintsParser(object):
         with abiinspect.YamlTokenizer(filename) as r:
             doc = r.next_doc_with_tag("!Autoparal")
             try:
-                d = myaml.load(doc.text_notag)
+                d = yaml.load(doc.text_notag)
                 return ParalHints(info=d["info"], confs=d["configurations"])
 
             except:
@@ -416,14 +416,23 @@ class TaskManager(object):
 
     @classmethod
     def from_dict(cls, d):
-        """Create an instance from a dictionary."""
+        """Create an instance from dictionary d."""
         return cls(**d)
+
+    @classmethod
+    def from_string(cls, s):
+        """Create an instance from string s containing a YAML dictionary."""
+        import StringIO
+        stream = StringIO.StringIO(s)
+        stream.seek(0)
+
+        return cls.from_dict(yaml.load(stream))
 
     @classmethod
     def from_file(cls, filename):
         """Read the configuration parameters from a Yaml file."""
         with open(filename, "r") as fh:
-            return cls.from_dict(myaml.load(fh))
+            return cls.from_dict(yaml.load(fh))
 
     @classmethod
     def from_user_config(cls):
@@ -605,8 +614,8 @@ _COUNTER_FILE = os.path.join(conf_dir, "nodecounter")
 del conf_dir
 
 try:
-    with open(_COUNTER_FILE, "r") as fh:
-        _COUNTER = int(fh.read())
+    with open(_COUNTER_FILE, "r") as _fh:
+        _COUNTER = int(_fh.read())
 
 except IOError:
     _COUNTER = -1
@@ -802,9 +811,9 @@ STATUS2STR = collections.OrderedDict([
     (6, "Done"),          # Node done, This does not imply that results are ok or that the calculation completed successfully
     (7, "AbiCritical"),   # Node raised an Error by ABINIT.
     (8, "QueueCritical"), # Node raised an Error by submitting submission script, or by executing it
-    (9, "Error"),         # Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.
-    (10, "Unconverged"),  # This usually means that an iterative algorithm didn't converge.
-    (11, "Completed"),    # Execution completed successfully.
+    (9, "Unconverged"),   # This usually means that an iterative algorithm didn't converge.
+    (10,"Error"),         # Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.
+    (11,"Completed"),     # Execution completed successfully.
 ])
 
 
@@ -833,7 +842,7 @@ class Node(object):
     implemented by the nodes of the calculation.
 
     Nodes are hashable and can be tested for equality
-    (hash uses the node identifier, while eq uses workdir).
+    (hash uses the node identifier, whereas eq uses workdir).
     """
     __metaclass__ = abc.ABCMeta
 
@@ -1044,13 +1053,23 @@ class Node(object):
     def add_required_files(self, files):
         """
         Add a list of paths to the list of files required by the `Node`.
+        Note that the files must exist when the task is registered.
 
         Args:
             files:
                 string or list of strings with the path of the files
+        Raises:
+            ValueError if at least one file does not exist.
         """
         # We want a list of absolute paths.
         files = map(os.path.abspath, list_strings(files))
+
+        # Files must exist.
+        if any(not os.path.exists(f) for f in files):
+            err_msg = ("Cannot define a dependency on a file that does not exist!\n" + 
+                       "The following files do not exist:\n" +
+                       "\n".join(["\t" + f for f in files if not os.path.exists(f)]))
+            raise ValueError(err_msg)
 
         # Convert to list of products.
         files = [Product.from_file(path) for path in files]
@@ -1075,6 +1094,33 @@ class Node(object):
     #    """Connect the signals."""
 
 
+class FileNode(Node):
+    """A Node that consists of an already existing file"""
+    def __init__(self, filename):
+        super(FileNode, self).__init__()
+        self.filepath = os.path.abspath(filename)
+        if not os.path.exists(self.filepath):
+            raise ValueError("File %s must exists" % self.filepath)
+
+        # Directories with input|output|temporary data.
+        self.workdir = os.path.dirname(self.filepath)
+
+        self.indir = Directory(self.workdir)
+        self.outdir = Directory(self.workdir)
+        self.tmpdir = Directory(self.workdir)
+
+    @property
+    def products(self):
+        return [Product.from_file(self.filepath)]
+
+    def opath_from_ext(self, ext):
+        return self.filepath
+
+    @property
+    def status(self):
+        return self.S_OK
+
+
 class TaskError(Exception):
     """Base Exception for `Task` methods"""
 
@@ -1084,9 +1130,12 @@ class TaskRestartError(TaskError):
 
 
 class Task(Node):
+    """A Task is a node that performs some kind of calculation."""
     __metaclass__ = abc.ABCMeta
 
+    # Use class attributes for TaskErrors so that we don't have to import them.
     Error = TaskError
+    RestartError = TaskRestartError
 
     # List of `AbinitEvent` subclasses that are tested in the not_converged method. 
     # Subclasses should provide their own list if they need to check the converge status.
@@ -1139,6 +1188,10 @@ class Task(Node):
 
         # Set the initial status.
         self.set_status(self.S_INIT)
+
+        # Use to compute the wall-time
+        self.start_datetime = None
+        self.stop_datetime = None
 
         # Number of restarts effectuated.
         self.num_restarts = 0
@@ -1251,6 +1304,7 @@ class Task(Node):
     def can_run(self):
         """The task can run if its status is < S_SUB and all the other dependencies (if any) are done!"""
         all_ok = all([stat == self.S_OK for stat in self.deps_status])
+        #print("all_ok",all_ok)
         return self.status < self.S_SUB and all_ok
 
     def not_converged(self):
@@ -1258,6 +1312,27 @@ class Task(Node):
         logger.debug("not_converged method of the base class will always return False")
         report = self.get_event_report()
         return report.filter_types(self.CRITICAL_EVENTS)
+
+    def run_etime(self):
+        """
+        String with the wall-time
+
+        ...note:
+            The clock starts when self.status becomes S_RUN.
+            thus run_etime does not correspond to the effective wall-time.
+        """
+        s = "None"
+        if self.start_datetime is not None:
+            stop = self.stop_datetime
+            if stop is None:
+                stop = datetime.datetime.now()
+
+            # Compute time-delta, convert to string and remove microseconds (in any)
+            s = str(stop - self.start_datetime)
+            microsec = s.find(".")
+            if microsec != -1: s = s[:microsec]
+
+        return s
 
     def cancel(self):
         """
@@ -1322,6 +1397,8 @@ class Task(Node):
     def _restart(self):
         """
         Called by restart once we have finished preparing the task for restarting.
+
+        Return True if task has been restarted
         """
         self.set_status(self.S_READY, info_msg="Restarted on %s" % time.asctime())
 
@@ -1463,7 +1540,15 @@ class Task(Node):
         return self._status
 
     def set_status(self, status, info_msg=None):
-        """Set the status of the task."""
+        """
+        Set the status of the task.
+
+        Args:
+            status:
+                Status object or string representation of the status
+            info_msg:
+                string with human-readable message used in the case of errors (optional)
+        """
         # Accepts strings as well.
         if not isinstance(status, Status):
             try:
@@ -1491,7 +1576,15 @@ class Task(Node):
             if status == self.S_ABICRITICAL:
                 self.history.append("Error info:\n %s" % str(info_msg))
 
+        if status == self.S_RUN:
+            # Set start_datetime when the task enters S_RUN
+            if self.start_datetime is None:
+                self.start_datetime = datetime.datetime.now()
+
         if status == self.S_DONE:
+            self.stop_datetime = datetime.datetime.now()
+
+            # Execute the callback
             self._on_done()
                                                                                 
         if status == self.S_OK:
@@ -1679,14 +1772,15 @@ class Task(Node):
 
         # 8) analizing the err files and abinit output did not identify a problem
         # but if the files are not empty we do have a problem but no way of solving it:
-        if len(err_msg) > 0:
+        if err_msg is not None and len(err_msg) > 0:
             print('found error message:\n', err_msg)
             return self.set_status(self.S_ERROR, info_msg=err_info)
             # The job is killed or crashed but we don't know what happend
 
         # 9) if we still haven't returned there is no indication of any error and the job can only still be running
         # but we should actually never land here, or we have delays in the file system ....
-        print('the job still seems to be running maybe it is hanging without producing output... ')
+        #print('the job still seems to be running maybe it is hanging without producing output... ')
+
         return self.set_status(self.S_RUN)
 
     def reduce_memory_demand(self):
@@ -1823,23 +1917,22 @@ class Task(Node):
         Returns:
             `EventReport` instance or None if the main output file does not exist.
         """
-        file = {
+        ofile = {
             "output": self.output_file,
-            "log": self.log_file,
-        }[source]
+            "log": self.log_file}[source]
 
-        if not file.exists:
+        if not ofile.exists:
             return None
 
         parser = events.EventsParser()
         try:
-            return parser.parse(file.path)
+            return parser.parse(ofile.path)
 
         except parser.Error as exc:
             # Return a report with an error entry with info on the exception.
-            logger.critical("%s: Exception while parsing ABINIT events:\n %s" % (file, str(exc)))
+            logger.critical("%s: Exception while parsing ABINIT events:\n %s" % (ofile, str(exc)))
             self.set_status(self.S_ABICRITICAL, info_msg=str(exc))
-            return parser.report_exception(file.path, exc)
+            return parser.report_exception(ofile.path, exc)
 
     @property
     def results(self):
@@ -1866,10 +1959,10 @@ class Task(Node):
             raise self.Error("Task is not completed")
 
         return TaskResults({
-            "task_name"      : self.name,
+            "task_name": self.name,
             "task_returncode": self.returncode,
-            "task_status"    : self.status,
-            #"task_events"    : self.events.to_dict
+            "task_status": self.status,
+            #"task_events": self.events.to_dict
         })
 
     def move(self, dest, is_abspath=False):
@@ -1990,7 +2083,7 @@ class Task(Node):
             raise self.Error("Task status: %s" % str(self.status))
 
         if self.start_lockfile.exists:
-            logger.critical("Found lock file: %s" % self.start_lockfile.relpath)
+            logger.warning("Found lock file: %s" % self.start_lockfile.relpath)
             return 0
 
         self.start_lockfile.write("Started on %s" % time.asctime())
@@ -2026,15 +2119,16 @@ class Task(Node):
 
         return 1
 
-    #def start_and_wait(self, *args, **kwargs):
-    #    """
-    #    Helper method to start the task and wait.
+    def start_and_wait(self, *args, **kwargs):
+        """
+        Helper method to start the task and wait for completetion.
 
-    #    Mainly used when we are submitting the task via the shell
-    #    without passing through a queue manager.
-    #    """
-    #    self.start(*args, **kwargs)
-    #    return self.wait()
+        Mainly used when we are submitting the task via the shell
+        without passing through a queue manager.
+        """
+        self.start(*args, **kwargs)
+        retcode = self.wait()
+        return retcode
 
 
 class AbinitTask(Task):
@@ -2070,9 +2164,6 @@ class AbinitTask(Task):
         Here we fix this issue by renaming run.abo to run.abo_[number] if the output file "run.abo" already
         exists. A few lines of code in python, a lot of problems if you try to implement this trick in Fortran90. 
         """
-        # God rot the FORTRAN committee who was not able to give Fortran a decent standard library as well as $Windows$ OS!
-        # I don't really care if Fortran2003 provides support for OOP programming. 
-        # What I need is a standardized interface to communicate with the OS!
         if self.output_file.exists:
             # Find the index of the last file (if any) and push.
             # TODO: Maybe it's better to use run.abo --> run(1).abo
@@ -2083,7 +2174,7 @@ class AbinitTask(Task):
 
             # Call os.rename and are done! It's really amazing the that I can write Fortran code that runs on 10**3 processors 
             # whereas a simple mv in F90 requires a lot of unportable tricks (where unportable means "not supported by $windows$").
-            print("Will rename %s to %s" % (self.output_file.path, new_path))
+            logger.info("Will rename %s to %s" % (self.output_file.path, new_path))
             os.rename(self.output_file.path, new_path)
 
     @property
@@ -2146,9 +2237,7 @@ class AbinitTask(Task):
         manager, policy = self.manager, self.manager.policy
 
         if policy.autoparal == 0 or policy.max_ncpus in [None, 1]: 
-            msg = "Nothing to do in autoparal, returning (None, None)"
-            logger.info(msg)
-            print(msg)
+            logger.info("Nothing to do in autoparal, returning (None, None)")
             return None, None
 
         if policy.autoparal != 1:
@@ -2159,8 +2248,7 @@ class AbinitTask(Task):
         # Set the variables for automatic parallelization
         autoparal_vars = dict(
             autoparal=policy.autoparal,
-            max_ncpus=policy.max_ncpus,
-        )
+            max_ncpus=policy.max_ncpus)
 
         self.strategy.add_extra_abivars(autoparal_vars)
 
@@ -2267,6 +2355,7 @@ class ScfTask(AbinitTask):
     def restart(self):
         """SCF calculations can be restarted if we have either the WFK file or the DEN file."""
         # Prefer WFK over DEN files since we can reuse the wavefunctions.
+        restart_file = None
         for ext in ["WFK", "DEN"]:
             restart_file = self.outdir.has_abiext(ext)
             irdvars = irdvars_for_ext(ext)
@@ -2274,7 +2363,7 @@ class ScfTask(AbinitTask):
                 break
 
         if not restart_file:
-            raise TaskRestartError("Cannot find WFK or DEN file to restart from.")
+            raise self.RestartError("Cannot find WFK or DEN file to restart from.")
 
         # Move out --> in.
         self.out_to_in(restart_file)
@@ -2290,7 +2379,7 @@ class ScfTask(AbinitTask):
         Plot the SCF cycle results with matplotlib.
 
         Returns
-            `matplotlib` figure, None is some error occurred. 
+            `matplotlib` figure, None if some error occurred.
         """
         scf_cycle = abiinspect.GroundStateScfCycle.from_file(self.output_file.path)
         if scf_cycle is not None:
@@ -2313,7 +2402,7 @@ class NscfTask(AbinitTask):
         irdvars = irdvars_for_ext(ext)
 
         if not restart_file:
-            raise TaskRestartError("Cannot find the WFK file to restart from.")
+            raise self.RestartError("Cannot find the WFK file to restart from.")
 
         # Move out --> in.
         self.out_to_in(restart_file)
@@ -2332,7 +2421,10 @@ class RelaxTask(AbinitTask):
     .. attributes:
 
         initial_structure:
+            Structure provided in input.
+
         final_structure:
+            Relaxed structure
     """
     # What about a possible ScfConvergenceWarning?
     CRITICAL_EVENTS = [
@@ -2344,29 +2436,24 @@ class RelaxTask(AbinitTask):
         print("changing structure")
         self.strategy.abinit_input.set_structure(structure)
 
-    def read_final_structure(self, save=False):
+    def read_final_structure(self):
         """Read the final structure from the GSR file and save it in self.final_structure."""
-        # We already have it in memory.
-        if hasattr(self, "final_structure"):
-            return self.final_structure
-        
-        # Read it from file and save it if save is True.
         gsr_file = self.outdir.has_abiext("GSR")
         if not gsr_file:
-            raise TaskRestartError("Cannot find the GSR file with the final structure to restart from.")
+            raise self.RestartError("Cannot find the GSR file with the final structure to restart from.")
 
         with ETSF_Reader(gsr_file) as r:
-            final_structure = r.read_structure()
-
-        if save:
-            self.final_structure = final_structure
-
-        return final_structure
+            return r.read_structure()
 
     def restart(self):
-        # Structure relaxations can be restarted only if we have the WFK file or the DEN or the GSR file.
-        # from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
-        # Prefer WFK over other files since we can reuse the wavefunctions.
+        """
+        Restart the structural relaxation.
+
+        Structure relaxations can be restarted only if we have the WFK file or the DEN or the GSR file.
+        from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
+        Prefer WFK over other files since we can reuse the wavefunctions.
+        """
+        ofile = None
         for ext in ["WFK", "DEN"]:
             ofile = self.outdir.has_abiext(ext)
             if ofile:
@@ -2375,7 +2462,7 @@ class RelaxTask(AbinitTask):
                 break
 
         if not ofile:
-            raise TaskRestartError("Cannot find the WFK|DEN file to restart from.")
+            raise self.RestartError("Cannot find the WFK|DEN file to restart from.")
 
         # Read the relaxed structure from the GSR file.
         structure = self.read_final_structure()
@@ -2422,6 +2509,7 @@ class PhononTask(AbinitTask):
         # from which we can read the first-order wavefunctions or the first order density.
         # Prefer 1WF over 1DEN since we can reuse the wavefunctions.
         #self.fix_ofiles()
+        restart_file = None
         for ext in ["1WF", "1DEN"]:
             restart_file = self.outdir.has_abiext(ext)
             irdvars = irdvars_for_ext(ext)
@@ -2429,7 +2517,7 @@ class PhononTask(AbinitTask):
                 break
 
         if not restart_file:
-            raise TaskRestartError("Cannot find the 1WF|1DEN|file to restart from.")
+            raise self.RestartError("Cannot find the 1WF|1DEN|file to restart from.")
 
         self.out_to_in(restart_file)
 
@@ -2468,7 +2556,7 @@ class G_Task(AbinitTask):
         irdvars = irdvars_for_ext(ext)
 
         if not restart_file:
-            raise TaskRestartError("Cannot find the QPS file to restart from.")
+            raise self.RestartError("Cannot find the QPS file to restart from.")
 
         self.out_to_in(restart_file)
 
@@ -2505,8 +2593,10 @@ class HaydockBseTask(BseTask):
     ]
 
     def restart(self):
-        # BSE calculations with Haydock can be restarted only if we have the 
-        # excitonic Hamiltonian and the HAYDR_SAVE file.
+        """
+        BSE calculations with Haydock can be restarted only if we have the
+        excitonic Hamiltonian and the HAYDR_SAVE file.
+        """
         # TODO: This version seems to work but the main output file is truncated
         # the log file is complete though.
         irdvars = {}
@@ -2533,7 +2623,7 @@ class HaydockBseTask(BseTask):
                     count += 1
 
             if not count:
-                raise TaskRestartError("Cannot find BSR|BSC files in %s" % self.indir)
+                raise self.RestartError("Cannot find BSR|BSC files in %s" % self.indir)
 
         # Rename HAYDR_SAVE files
         count = 0
@@ -2545,7 +2635,7 @@ class HaydockBseTask(BseTask):
                 self.out_to_in(ofile)
 
         if not count:
-            raise TaskRestartError("Cannot find the HAYDR_SAVE file to restart from.")
+            raise self.RestartError("Cannot find the HAYDR_SAVE file to restart from.")
 
         # Add the appropriate variable for restarting.
         self.strategy.add_extra_abivars(irdvars)
@@ -2555,11 +2645,10 @@ class HaydockBseTask(BseTask):
 
 
 class OpticTask(Task):
-    # TODO
-    # FIx the problem with report.is_completed
-    # all the executables in Abinit should signal the successful completion with the same format.
-    # possibly with YAML
-
+    """
+    Task for the computation of optical spectra with optic i.e.
+    RPA without local-field effects and velocity operator computed from DDK files.
+    """
     def __init__(self, optic_input, nscf_node, ddk_nodes, workdir=None, manager=None):
         """
         Create an instance of `OpticTask` from an string containing the input.
@@ -2568,17 +2657,20 @@ class OpticTask(Task):
             optic_input:
                 string with the optic variables (filepaths will be added at run time).
             nscf_node:
-                The NSCF task that will produce thw WFK file.
+                The NSCF task that will produce thw WFK file or string with the path of the WFK file.
             ddk_nodes:
-                List of `DDK_Task` nodes that will produce the DDK files.
+                List of `DDK_Task` nodes that will produce the DDK files or list of DDF paths.
             workdir:
                 Path to the working directory.
             manager:
                 `TaskManager` object.
         """
+        # Convert paths to FileNodes
         if is_string(nscf_node):
-            assert all(is_string(f) for f in ddk_nodes)
             nscf_node = FileNode(nscf_node)
+
+        if is_string(ddk_nodes[0]):
+            assert all(is_string(f) for f in ddk_nodes)
             ddk_nodes = [FileNode(fname) for fname in ddk_nodes]
 
         deps = {task: "1WF" for task in ddk_nodes}
@@ -2653,11 +2745,7 @@ class OpticTask(Task):
 
 
 class AnaddbTask(Task):
-    # TODO
-    # FIx the problem with report.is_completed
-    # all the executables in Abinit should signal the successful completion with the same format.
-    # possibly with YAML
-    def __init__(self, anaddb_input, ddb_node, 
+    def __init__(self, anaddb_input, ddb_node,
                  gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None):
         """
         Create an instance of `AnaddbTask` from an string containing the input.

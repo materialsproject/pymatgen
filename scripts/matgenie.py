@@ -36,6 +36,7 @@ from pymatgen.io.smartio import read_structure, write_structure
 from pymatgen.io.cssrio import Cssr
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.alchemy.materials import TransformedStructure
+from pymatgen.analysis.diffraction.xrd import XRDCalculator
 
 save_file = "vasp_data.gz"
 
@@ -165,6 +166,8 @@ def plot_dos(args):
         plotter.get_plot().savefig(args.file[0])
     else:
         plotter.show()
+
+
 
 
 def plot_chgint(args):
@@ -322,6 +325,15 @@ def generate_files(args):
 
     else:
         print "No valid options selected."
+
+
+def generate_diffraction_plot(args):
+    s = read_structure(args.filenames[0])
+    c = XRDCalculator()
+    if args.outfile:
+        c.get_xrd_plot(s).savefig(args.outfile[0])
+    else:
+        c.show_xrd_plot(s)
 
 
 if __name__ == "__main__":
@@ -483,6 +495,16 @@ if __name__ == "__main__":
                                       "functional. Defaults to PBE.")
     parser_generate.set_defaults(func=generate_files)
 
+    parser_diffraction = subparsers.add_parser(
+        "diffraction",
+        help="Generate diffraction plots. Current supports XRD only.")
+    parser_diffraction.add_argument(
+        "filenames", metavar="filenames", type=str, nargs=1,
+        help="List of input structure files to generate diffraction plot.")
+    parser_diffraction.add_argument(
+        "-o", "--output_filename", dest="outfile", type=str, nargs=1,
+        help="Save to file given by filename.")
+    parser_diffraction.set_defaults(func=generate_diffraction_plot)
 
     args = parser.parse_args()
     args.func(args)

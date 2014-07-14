@@ -1158,7 +1158,7 @@ class Outcar(object):
 
     One can then call a specific reader depending on the type of run being
     performed. These are currently: read_igpar(), read_lepsilon() and
-    read_lcalcpol().
+    read_lcalcpol(), read_core_state_eign().
 
     See the documentation of those methods for more documentation.
 
@@ -1494,6 +1494,40 @@ class Outcar(object):
         except:
             raise Exception("CLACLCPOL OUTCAR could not be parsed.")
 
+    def read_core_state_eigen(self):
+        """ 
+        Read the core state eigenenergies at each ionic step.
+
+        Returns:
+            A list of dict over the atom such as [{"AO":[core state eig]}].
+            The core state eigenenergie list for each AO is over all ionic
+            step.
+
+        Example:
+            The core state eigenenergie of the 2s AO of the 6th atom of the
+            structure at the last ionic step is [5]["2s"][-1]
+        """
+
+        Natom = len(self.charge)
+        CL = [dict() for i in range(Natom)]
+
+        foutcar = zopen(self.filename, "r")
+        line = foutcar.readline()
+        while line != "":
+            line = foutcar.readline()
+
+            if "the core state eigen" in line:
+                for iat in range(Natom):
+                    line = foutcar.readline()
+                    data = line.split()[1:]
+                    for i in range(0, len(data), 2):
+                        if CL[iat].has_key(data[i]):
+                            CL[iat][data[i]].append(float(data[i+1]))
+                        else:
+                            CL[iat][data[i]] = [float(data[i+1])]
+
+        return CL
+
     @property
     def to_dict(self):
         d = {"@module": self.__class__.__module__,
@@ -1684,9 +1718,22 @@ class VolumetricData(object):
 
         f = zopen(file_name, "w")
         p = Poscar(self.structure)
-        f.write(p.get_string(vasp4_compatible=vasp4_compatible) + "\n")
+
+        lines = p.comment + "\n"
+        lines += "   1.00000000000000\n"
+        latt = self.structure.lattice.matrix
+        lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[0,:])
+        lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[1,:])
+        lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[2,:])
+        if not vasp4_compatible:
+            lines += "".join(["%5s" % s for s in p.site_symbols]) + "\n"
+        lines += "".join(["%6d" % x for x in p.natoms]) + "\n"
+        lines += "Direct\n"
+        for site in self.structure:
+            lines += "%10.6f%10.6f%10.6f\n" % tuple(site.frac_coords)
+        lines += "\n"
+        f.write(lines)
         a = self.dim
-        f.write("\n")
 
         def write_spin(data_type):
             lines = []
@@ -1896,6 +1943,47 @@ class Procar(object):
                     data[index][current_kpoint]["bands"][current_band] = \
                         dict(zip(headers, num_data))
             self.data = data
+            self._nb_kpoints = len(data[0].keys())
+            self._nb_bands = len(data[0][1]["bands"].keys())
+
+    @property
+    def nb_bands(self):
+        """
+        returns the number of bands in the band structure
+        """
+        return self._nb_bands
+
+    @property
+    def nb_kpoints(self):
+        """
+        Returns the number of k-points in the band structure calculation
+        """
+        return self._nb_kpoints
+
+    def get_projection_on_elements(self, structure):
+        """
+        Method returning a dictionary of projections on elements.
+        Spin polarized calculation are not supported.
+
+        Args:
+            structure (Structure): Input structure.
+
+        Returns:
+            a dictionary in the {Spin.up:[k index][b index][{Element:values}]]
+        """
+        dico = {Spin.up: []}
+        dico[Spin.up] = [[defaultdict(float)
+                          for i in range(self._nb_kpoints)]
+                         for j in range(self.nb_bands)]
+
+        for iat in self.data:
+            name = structure.species[iat].symbol
+            for k in self.data[iat]:
+                for b in self.data[iat][k]["bands"]:
+                    dico[Spin.up][b-1][k-1][name] = \
+                        sum(self.data[iat][k]["bands"][b].values())
+
+        return dico
 
     def get_d_occupation(self, atom_index):
         """
@@ -1984,8 +2072,18 @@ class Oszicar(object):
         ionic_steps = []
         ionic_pattern = re.compile("(\d+)\s+F=\s*([\d\-\.E\+]+)\s+"
                                    "E0=\s*([\d\-\.E\+]+)\s+"
-                                   "d\s*E\s*=\s*([\d\-\.E\+]+)\s+"
-                                   "mag=\s*([\d\-\.E\+]+)")
+                                   "d\s*E\s*=\s*([\d\-\.E\+]+)$")
+        ionic_mag_pattern = re.compile("(\d+)\s+F=\s*([\d\-\.E\+]+)\s+"
+                                       "E0=\s*([\d\-\.E\+]+)\s+"
+                                       "d\s*E\s*=\s*([\d\-\.E\+]+)\s+"
+                                       "mag=\s*([\d\-\.E\+]+)")
+        ionic_MD_pattern = re.compile("(\d+)\s+T=\s*([\d\-\.E\+]+)\s+"
+                                       "E=\s*([\d\-\.E\+]+)\s+"
+                                       "F=\s*([\d\-\.E\+]+)\s+"
+                                       "E0=\s*([\d\-\.E\+]+)\s+"
+                                       "EK=\s*([\d\-\.E\+]+)\s+"
+                                       "SP=\s*([\d\-\.E\+]+)\s+"
+                                       "SK=\s*([\d\-\.E\+]+)")
         electronic_pattern = re.compile("\s*\w+\s*:(.*)")
 
         def smart_convert(header, num):
@@ -2015,8 +2113,22 @@ class Oszicar(object):
                     m = ionic_pattern.match(line.strip())
                     ionic_steps.append({"F": float(m.group(2)),
                                         "E0": float(m.group(3)),
+                                        "dE": float(m.group(4))})
+                elif ionic_mag_pattern.match(line.strip()):
+                    m = ionic_mag_pattern.match(line.strip())
+                    ionic_steps.append({"F": float(m.group(2)),
+                                        "E0": float(m.group(3)),
                                         "dE": float(m.group(4)),
                                         "mag": float(m.group(5))})
+                elif ionic_MD_pattern.match(line.strip()):
+                    m = ionic_MD_pattern.match(line.strip())
+                    ionic_steps.append({"T": float(m.group(2)),
+                                        "E": float(m.group(3)),
+                                        "F": float(m.group(4)),
+                                        "E0": float(m.group(5)),
+                                        "EK": float(m.group(6)),
+                                        "SP": float(m.group(7)),
+                                        "SK": float(m.group(8))})
                 elif re.match("^\s*N\s+E\s*", line):
                     header = line.strip().replace("d eps", "deps").split()
         self.electronic_steps = electronic_steps

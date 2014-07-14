@@ -25,7 +25,7 @@ import requests
 import json
 import warnings
 
-from pymatgen import Structure, Composition, PMGJSONDecoder
+from pymatgen import Composition, PMGJSONDecoder
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
@@ -75,7 +75,7 @@ class MPRester(object):
                             "e_above_hull", "hubbards", "is_compatible",
                             "spacegroup", "task_ids", "band_gap", "density",
                             "icsd_id", "cif", "total_magnetization",
-                            "material_id")
+                            "material_id", "oxide_type")
 
     def __init__(self, api_key=None, host="www.materialsproject.org"):
         if api_key is not None:
@@ -108,7 +108,6 @@ class MPRester(object):
         """
         data = self.mpquery({"task_ids": task_id}, ["task_id"])
         return data[0]["task_id"]
-
 
     def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
         """
@@ -152,8 +151,56 @@ class MPRester(object):
                               .format(response.status_code))
 
         except Exception as ex:
-            msg = "{}. Content: {}".format(str(ex), response.content) if hasattr(response, "content") else str(ex)
+            msg = "{}. Content: {}".format(str(ex), response.content)\
+                if hasattr(response, "content") else str(ex)
             raise MPRestError(msg)
+
+    def get_task_data(self, chemsys_formula_id, prop=""):
+        """
+        Flexible method to get any data using the Materials Project REST
+        interface. Generally used by other methods for more specific queries.
+        Unlike the :func:`get_data`_, this method queries the task collection
+        for specific run information.
+
+        Format of REST return is *always* a list of dict (regardless of the
+        number of pieces of data returned. The general format is as follows:
+
+        [{"material_id": material_id, "property_name" : value}, ...]
+
+        Args:
+            chemsys_formula_id (str): A chemical system (e.g., Li-Fe-O),
+                or formula (e.g., Fe2O3) or materials_id (e.g., mp-1234).
+            prop (str): Property to be obtained. Should be one of the
+                MPRester.supported_properties. Leave as empty string for a
+                general list of useful properties.
+        """
+        if prop:
+            url = "{}/tasks/{}/{}".format(
+                self.preamble, chemsys_formula_id, prop)
+        else:
+            url = "{}/tasks/{}".format(
+                self.preamble, chemsys_formula_id)
+
+        response = None
+        try:
+            response = self.session.get(url)
+            if response.status_code in [200, 400]:
+                data = json.loads(response.text, cls=PMGJSONDecoder)
+                if data["valid_response"]:
+                    if data.get("warning"):
+                        warnings.warn(data["warning"])
+                    return data["response"]
+                else:
+                    raise MPRestError(data["error"])
+
+            raise MPRestError("REST query returned with error status code {}"
+                              .format(response.status_code))
+
+        except Exception as ex:
+            msg = "{}. Content: {}".format(str(ex), response.content) if hasattr(
+                response, "content") else str(ex)
+            raise MPRestError(msg)
+
 
     def get_structures(self, chemsys_formula_id, final=True):
         """
@@ -197,21 +244,33 @@ class MPRester(object):
         Returns:
             List of ComputedEntry or ComputedStructureEntry objects.
         """
-        data = self.get_data(chemsys_formula_id, prop="entry")
-        entries = [d["entry"] for d in data]
-
-        def make_struct_entry(entry):
-            s = self.get_structure_by_material_id(entry.entry_id,
-                                                  inc_structure == "final")
-            return ComputedStructureEntry(s, entry.energy,
-                                          entry.correction, entry.parameters,
-                                          entry.data, entry.entry_id)
-
-        if inc_structure:
-            entries = map(make_struct_entry, entries)
-
+        # TODO: This is a very hackish way of doing this. It should be fixed
+        # on the REST end.
         if compatible_only:
+            data = self.get_data(chemsys_formula_id, prop="entry")
+            entries = [d["entry"] for d in data]
+            if inc_structure:
+                for i, e in enumerate(entries):
+                    s = self.get_structure_by_material_id(
+                        e.entry_id, inc_structure == "final")
+                    entries[i] = ComputedStructureEntry(
+                        s, e.energy, e.correction, e.parameters, e.data,
+                        e.entry_id)
             entries = MaterialsProjectCompatibility().process_entries(entries)
+
+        else:
+            entries = []
+            for d in self.get_data(chemsys_formula_id, prop="task_ids"):
+                for i in d["task_ids"]:
+                    e = self.get_task_data(i, prop="entry")
+                    e = e[0]["entry"]
+                    if inc_structure:
+                        s = self.get_task_data(i,
+                                               prop="structure")[0]["structure"]
+                        e = ComputedStructureEntry(
+                            s, e.energy, e.correction, e.parameters, e.data,
+                            e.entry_id)
+                    entries.append(e)
 
         return entries
 
@@ -273,7 +332,8 @@ class MPRester(object):
         data = self.get_data(material_id, prop="bandstructure")
         return data[0]["bandstructure"]
 
-    def get_entries_in_chemsys(self, elements, compatible_only=True, inc_structure=None):
+    def get_entries_in_chemsys(self, elements, compatible_only=True,
+                               inc_structure=None):
         """
         Helper method to get a list of ComputedEntries in a chemical system.
         For example, elements = ["Li", "Fe", "O"] will return a list of all
@@ -290,12 +350,18 @@ class MPRester(object):
                 which performs adjustments to allow mixing of GGA and GGA+U
                 calculations for more accurate phase diagrams and reaction
                 energies.
+            inc_structure (str): If None, entries returned are
+                ComputedEntries. If inc_structure="final",
+                ComputedStructureEntries with final structures are returned.
+                Otherwise, ComputedStructureEntries with initial structures
+                are returned.
 
         Returns:
             List of ComputedEntries.
         """
-        return self.get_entries("-".join(elements),
-                                compatible_only=compatible_only, inc_structure=inc_structure)
+        return self.get_entries(
+            "-".join(elements), compatible_only=compatible_only,
+            inc_structure=inc_structure)
 
     def get_exp_thermo_data(self, formula):
         """

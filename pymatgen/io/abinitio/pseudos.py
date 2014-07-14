@@ -16,6 +16,7 @@ import numpy as np
 from pymatgen.core.design_patterns import FrozenDict, AttrDict
 from pymatgen.core.periodic_table import PeriodicTable
 from pymatgen.util.num_utils import iterator_from_slice
+from pymatgen.util.io_utils import FileLock
 from pymatgen.util.string_utils import list_strings, is_string
 
 __all__ = [
@@ -28,6 +29,8 @@ __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 
 # Tools and helper functions.
+
+
 def straceback():
     """Returns a string with the traceback."""
     import traceback
@@ -61,6 +64,7 @@ _l2str = {
 }
 
 _str2l = {v: k for k, v in _l2str.items()}
+
 
 def l2str(l):
     """Convert the angular momentum l (int) to string."""
@@ -102,6 +106,7 @@ def read_dojo_report(filename):
 
 
 _PTABLE = PeriodicTable()
+
 
 class Pseudo(object):
     """
@@ -264,17 +269,14 @@ class Pseudo(object):
 
     def write_dojo_report(self, report=None):
         """Write a new DOJO_REPORT section to the pseudopotential file."""
-        path = self.path
-
         if report is None:
             report = self.dojo_report
 
         # Create JSON string from report.
         jstring = json.dumps(report, indent=4, sort_keys=True) + "\n"
 
-
         # Read lines from file and insert jstring between the tags.
-        with open(path, "r") as fh:
+        with open(self.path, "r") as fh:
             lines = fh.readlines()
             try:
                 start = lines.index("<DOJO_REPORT>\n")
@@ -282,22 +284,22 @@ class Pseudo(object):
                 start = -1
 
             if start == -1:
-               # DOJO_REPORT was not present.
-               lines += ["\n", "<DOJO_REPORT>\n", jstring , "</DOJO_REPORT>\n",]
+                # DOJO_REPORT was not present.
+                lines += ["\n", "<DOJO_REPORT>\n", jstring , "</DOJO_REPORT>\n",]
             else:
-               stop = lines.index("</DOJO_REPORT>\n")
-               lines.insert(stop, jstring)
-               del lines[start+1:stop]
+                stop = lines.index("</DOJO_REPORT>\n")
+                lines.insert(stop, jstring)
+                del lines[start+1:stop]
 
         #  Write new file.
-        with open(path, "w") as fh:
-            fh.writelines(lines)
+        with FileLock(self.path):
+            with open(self.path, "w") as fh:
+                fh.writelines(lines)
 
     def remove_dojo_report(self):
         """Remove the DOJO_REPORT section from the pseudopotential file."""
         # Read lines from file and insert jstring between the tags.
-        path = self.path
-        with open(path, "r") as fh:
+        with open(self.path, "r") as fh:
             lines = fh.readlines()
             try:
                 start = lines.index("<DOJO_REPORT>\n")
@@ -305,17 +307,18 @@ class Pseudo(object):
                 start = -1
 
             if start == -1:
-               return
+                return
 
             stop = lines.index("</DOJO_REPORT>\n")
             if stop == -1:
-               return
+                return
 
             del lines[start+1:stop]
 
         # Write new file.
-        with open(path, "w") as fh:
-            fh.writelines(lines)
+        with FileLock(self.path):
+            with open(self.path, "w") as fh:
+                fh.writelines(lines)
 
     def hint_for_accuracy(self, accuracy="normal"):
         """
@@ -1155,14 +1158,6 @@ class PseudoParser(object):
 
         root, ext = os.path.splitext(path)
 
-        # Add the content of input file (if present).
-        # The name of the input is name + ".ini"
-        #input = None
-        #input_path = root + ".ini"
-        #if os.path.exists(input_path):
-        #    with open(input_path, 'r') as fh:
-        #        input = fh.read()
-
         if psp_type == "NC":
             pseudo = NcAbinitPseudo(path, header)
         elif psp_type == "PAW":
@@ -1724,7 +1719,6 @@ class PseudoTable(collections.Sequence):
         try:
             return getattr(self, str(symbol))
         except AttributeError:
-            #raise
             return []
 
     def pseudo_from_name(self, name):

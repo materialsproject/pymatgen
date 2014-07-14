@@ -17,19 +17,18 @@ except ImportError:
     pass
 
 from pymatgen.core.units import ArrayWithUnit, Ha_to_eV
-from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.core.design_patterns import Enum, AttrDict
-from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
+from pymatgen.core.design_patterns import AttrDict
+from pymatgen.serializers.json_coders import MSONable
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
-from pymatgen.util.string_utils import list_strings, pprint_table, WildCard
+from pymatgen.util.string_utils import pprint_table, WildCard
 from pymatgen.io.abinitio import wrappers
 from pymatgen.io.abinitio.tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, HaydockBseTask, RelaxTask)
-from pymatgen.io.abinitio.strategies import Strategy
-from pymatgen.io.abinitio.utils import File, Directory
+from pymatgen.io.abinitio.strategies import Strategy, RelaxStrategy
+from pymatgen.io.abinitio.utils import Directory
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
-from pymatgen.io.abinitio.abiobjects import Smearing, AbiStructure, KSampling, Electrons
+from pymatgen.io.abinitio.abiobjects import Smearing, AbiStructure, KSampling, Electrons, RelaxationMethod
 from pymatgen.io.abinitio.pseudos import Pseudo
 from pymatgen.io.abinitio.strategies import ScfStrategy
 from pymatgen.io.abinitio.eos import EOS
@@ -213,10 +212,10 @@ class BaseWorkflow(Node):
                 results = AttrDict(**self.on_all_ok())
                 self._finalized = True
                 # Signal to possible observers that the `Workflow` reached S_OK
-                print("Workflow %s is finalized and broadcasts signal S_OK" % str(self))
-                print("Workflow %s status = %s" % (str(self), self.status))
-                dispatcher.send(signal=self.S_OK, sender=self)
+                logger.info("Workflow %s is finalized and broadcasts signal S_OK" % str(self))
+                logger.info("Workflow %s status = %s" % (str(self), self.status))
 
+                dispatcher.send(signal=self.S_OK, sender=self)
                 return results
 
         return AttrDict(returncode=1, message="Not all tasks are OK!")
@@ -233,15 +232,13 @@ class BaseWorkflow(Node):
                 message: 
                     a string that should provide a human-readable description of what has been performed.
         """
-        return dict(returncode=0, 
-                    message="Calling on_all_ok of the base class!",
-                    )
+        return dict(returncode=0, message="Calling on_all_ok of the base class!")
 
     def get_results(self):
         """
         Method called once the calculations are completed.
 
-        The base version returns a dictionary task_name : TaskResults for each task in self.
+        The base version returns a dictionary task_name: TaskResults for each task in self.
         """
         return WorkflowResults(task_results={task.name: task.results for task in self})
 
@@ -262,7 +259,6 @@ class Workflow(BaseWorkflow):
         """
         super(Workflow, self).__init__()
 
-
         self._tasks = []
 
         if workdir is not None:
@@ -275,7 +271,6 @@ class Workflow(BaseWorkflow):
         """Set the `TaskManager` to use to launch the Task."""
         self.manager = manager.deepcopy()
         for task in self:
-            print('set manager for task ', task)
             task.set_manager(manager)
 
     @property
@@ -415,6 +410,9 @@ class Workflow(BaseWorkflow):
                 None means that this obj has no dependency.
             required_files:
                 List of strings with the path of the files used by the task.
+                Note that the files must exist when the task is registered.
+                Use the standard approach based on Workflows, Tasks and deps 
+                if the files will be produced in the future.
             manager:
                 The `TaskManager` responsible for the submission of the task. If manager is None, we use 
                 the `TaskManager` specified during the creation of the `Workflow`.
@@ -507,7 +505,6 @@ class Workflow(BaseWorkflow):
         self.check_status()
 
         status_list = [task.status for task in self]
-        #print("status_list", status_list)
 
         if only_min:
             return min(status_list)
@@ -520,7 +517,7 @@ class Workflow(BaseWorkflow):
         for task in self:
             task.check_status()
 
-        # Take into account possible dependencies.Use a list instead of generators 
+        # Take into account possible dependencies. Use a list instead of generators 
         for task in self:
             if task.status <= task.S_SUB and all([status == task.S_OK for status in task.deps_status]): 
                 task.set_status(task.S_READY)
@@ -604,7 +601,7 @@ class Workflow(BaseWorkflow):
         # Submit tasks (does not block)
         self.submit_tasks(wait=wait)
 
-    def read_etotal(self):
+    def read_etotal(self, unit="Ha"):
         """
         Reads the total energy from the GSR file produced by the task.
 
@@ -614,7 +611,7 @@ class Workflow(BaseWorkflow):
         if not self.all_done:
             raise self.Error("Some task is still in running/submitted state")
 
-        etotal = []
+        etotals = []
         for task in self:
             # Open the GSR file and read etotal (Hartree)
             gsr_path = task.outdir.has_abiext("GSR")
@@ -623,9 +620,9 @@ class Workflow(BaseWorkflow):
                 with ETSF_Reader(gsr_path) as r:
                     etot = r.read_value("etotal")
                 
-            etotal.append(etot)
+            etotals.append(etot)
 
-        return etotal
+        return ArrayWithUnit(etotals, "Ha").to(unit)
 
     def parse_timers(self):
         """
@@ -923,11 +920,11 @@ class PseudoConvergence(Workflow):
 
         # Temporary object used to build the strategy.
         generator = PseudoIterativeConvergence(workdir, manager, pseudo, ecut_list, atols_mev,
-                                               toldfe    = toldfe,
-                                               spin_mode = spin_mode,
-                                               acell     = acell,
-                                               smearing  = smearing,
-                                               max_niter = len(ecut_list),
+                                               toldfe   =toldfe,
+                                               spin_mode=spin_mode,
+                                               acell    =acell,
+                                               smearing =smearing,
+                                               max_niter=len(ecut_list),
                                               )
         self.atols_mev = atols_mev
         self.pseudo = Pseudo.aspseudo(pseudo)
@@ -939,7 +936,6 @@ class PseudoConvergence(Workflow):
             self.register(strategy)
 
     def get_results(self):
-
         # Get the results of the tasks.
         wf_results = super(PseudoConvergence, self).get_results()
 
@@ -947,16 +943,13 @@ class PseudoConvergence(Workflow):
         data = compute_hints(self.ecut_list, etotal, self.atols_mev, self.pseudo)
 
         plot_etotal(data["ecut_list"], data["etotal"], data["aug_ratios"],
-            show=False, savefig=self.path_in_workdir("etotal.pdf"))
+                    show=False, savefig=self.path_in_workdir("etotal.pdf"))
 
         wf_results.update(data)
 
         if not monotonic(etotal, mode="<", atol=1.0e-5):
             logger.warning("E(ecut) is not decreasing")
             wf_results.push_exceptions("E(ecut) is not decreasing:\n" + str(etotal))
-
-        #if kwargs.get("json_dump", True):
-        #    wf_results.json_dump(self.path_in_workdir("results.json"))
 
         return wf_results
 
@@ -965,7 +958,7 @@ class PseudoIterativeConvergence(IterativeWorkflow):
 
     def __init__(self, workdir, manager, pseudo, ecut_list_or_slice, atols_mev,
                  toldfe=1.e-8, spin_mode="polarized", 
-                 acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV", max_niter=50,):
+                 acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV", max_niter=50):
         """
         Args:
             workdir:
@@ -1056,7 +1049,7 @@ class PseudoIterativeConvergence(IterativeWorkflow):
         ecut_list, etotal, aug_ratios = data["ecut_list"],  data["etotal"], data["aug_ratios"]
 
         plot_etotal(ecut_list, etotal, aug_ratios,
-            show=False, savefig=self.path_in_workdir("etotal.pdf"))
+                    show=False, savefig=self.path_in_workdir("etotal.pdf"))
 
         wf_results.update(data)
 
@@ -1128,24 +1121,22 @@ class RelaxWorkflow(Workflow):
 
         # Use WFK for the time being since I don't know why Abinit produces all these _TIM?_DEN files.
         #self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "DEN"}, task_class=RelaxTask)
-        self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "WFK"}, task_class=RelaxTask)
+        #self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "WFK"}, task_class=RelaxTask)
 
         # Lock ioncell_task as ion_task should communicate to ioncell_task that 
         # the calculation is OK and pass the final structure.
-        self.ioncell_task.set_status(self.S_LOCKED)
+        #self.ioncell_task.set_status(self.S_LOCKED)
 
-        self.transfer_done = False
+        #self.transfer_done = False
 
     def on_ok(self, sender):
-        """
-        This callback is called when one task reaches status S_OK.
-        """
+        """This callback is called when one task reaches status S_OK."""
         logger.debug("in on_ok with sender %s" % sender)
 
         if sender == self.ion_task and not self.transfer_done:
             # Get the relaxed structure.
             ion_structure = self.ion_task.read_final_structure()
-            print("ion_structure", ion_structure)
+            print("relaxed ion_structure", ion_structure)
 
             # Transfer it to the ioncell task (do it only once).
             self.ioncell_task.change_structure(ion_structure)
@@ -1159,7 +1150,7 @@ class RelaxWorkflow(Workflow):
 
 
 class DeltaFactorWorkflow(Workflow):
-
+    """Workflow for the calculation of the deltafactor."""
     def __init__(self, structure_or_cif, pseudo, kppa,
                  spin_mode="polarized", toldfe=1.e-8, smearing="fermi_dirac:0.1 eV",
                  accuracy="normal", ecut=None, pawecutdg=None, ecutsm=0.05, chksymbreak=0,
@@ -1194,11 +1185,25 @@ class DeltaFactorWorkflow(Workflow):
             # Assume CIF file
             structure = refine_structure(read_structure(structure_or_cif), symprec=1e-6)
 
+        # Set extra_abivars
+        extra_abivars = dict(
+            pawecutdg=pawecutdg,
+            ecutsm=ecutsm,
+            toldfe=toldfe,
+            prtwf=0,
+            paral_kgb=0,
+        )
+
+        extra_abivars.update(**kwargs)
+
+        if ecut is not None:
+            extra_abivars.update({"ecut": ecut})
+
         self.pseudo = Pseudo.aspseudo(pseudo)
 
         structure = AbiStructure.asabistructure(structure)
 
-        smearing = Smearing.assmearing(smearing)
+        #smearing = Smearing.assmearing(smearing)
 
         self._input_structure = structure
 
@@ -1213,19 +1218,6 @@ class DeltaFactorWorkflow(Workflow):
             new_structure = Structure(new_lattice, structure.species, structure.frac_coords)
             new_structure = AbiStructure.asabistructure(new_structure)
 
-            extra_abivars = dict(
-                pawecutdg=pawecutdg,
-                ecutsm=ecutsm,
-                toldfe=toldfe,
-                prtwf=0,
-                paral_kgb=0,
-            )
-
-            extra_abivars.update(**kwargs)
-
-            if ecut is not None:
-                extra_abivars.update({"ecut": ecut})
-
             ksampling = KSampling.automatic_density(new_structure, kppa,
                                                     chksymbreak=chksymbreak)
 
@@ -1236,18 +1228,15 @@ class DeltaFactorWorkflow(Workflow):
             self.register(scf_input, task_class=ScfTask, manager=manager)
 
     def get_results(self):
-        num_sites = self._input_structure.num_sites
-
-        etotal = ArrayWithUnit(self.read_etotal(), "Ha").to("eV")
-
         wf_results = super(DeltaFactorWorkflow, self).get_results()
 
-        wf_results.update({
-            "etotal"    : list(etotal),
-            "volumes"   : list(self.volumes),
-            "natom"     : num_sites,
-            "dojo_level": 1,
-        })
+        num_sites = self._input_structure.num_sites
+        etotal = self.read_etotal(unit="eV")
+
+        wf_results.update(dict(
+            etotal=list(etotal),
+            volumes=list(self.volumes),
+            natom=num_sites))
 
         try:
             #eos_fit = EOS.Murnaghan().fit(self.volumes/num_sites, etotal/num_sites)
@@ -1281,9 +1270,6 @@ class DeltaFactorWorkflow(Workflow):
         except EOS.Error as exc:
             wf_results.push_exceptions(exc)
 
-        #if kwargs.get("json_dump", True):
-        #    wf_results.json_dump(self.path_in_workdir("results.json"))
-
         # Write data for the computation of the delta factor
         with open(self.outdir.path_in("deltadata.txt"), "w") as fh:
             fh.write("# Deltafactor = %s meV\n" % dfact)
@@ -1294,27 +1280,212 @@ class DeltaFactorWorkflow(Workflow):
         return wf_results
 
     def on_all_ok(self):
+        """Callback executed when all tasks in self have reached S_OK."""
         return self.get_results()
 
-    #def make_report(self, results, **kwargs):
-    #    d = dict(v0=v0,
-    #             b0_GPa=b0_GPa,
-    #             b1=b1,
-    #             dfact=dfact
-    #            )
-    #    if results.exceptions:
-    #        d["_exceptions"] = str(results.exceptions)
-    #                                                                                         
-    #    d = {self.accuracy: d}
+
+class GbrvEosWorkflow(Workflow):
+    """
+    Workflow for calculating the optimized lattice parameter and the
+    equation of state with the procedure used by GBRV for their pseudos.
+    """
+    def __init__(self, structure, struct_type, pseudo, ecut, ngkpt=(8,8,8),
+                 spin_mode="unpolarized", toldfe=1.e-8, 
+                 smearing="fermi_dirac:0.001 Ha",
+                 #smearing="fermi_dirac:0.1 eV",
+                 accuracy="normal", pawecutdg=None, ecutsm=0.05, chksymbreak=0,
+                 workdir=None, manager=None, **kwargs):
+                 # FIXME Hack in chksymbreak
+        """
+        Build a `Workflow` for the computation of E(V) with the parameters used in the GBRV paper.
+
+        Args:   
+            structure:
+                Structure object. 
+            pseudo:
+                String with the name of the pseudopotential file or `Pseudo` object.
+            ngkpt:
+                3 integers giving the MP divisions for the K-mesh.
+            spin_mode:
+                Spin polarization mode.
+            toldfe:
+                Tolerance on the energy (Ha)
+            smearing:
+                Smearing technique.
+            workdir:
+                String specifing the working directory.
+            manager:
+                `TaskManager` responsible for the submission of the tasks.
+        """
+        super(GbrvEosWorkflow, self).__init__(workdir=workdir, manager=manager)
+
+        # Save the structure type (needed to compute a later on)
+        self.struct_type = struct_type
+
+        # Set extra_abivars.
+        extra_abivars = dict(
+            ecut=ecut,
+            pawecutdg=pawecutdg,
+            ecutsm=ecutsm,
+            toldfe=toldfe,
+            prtwf=0,
+            nband=8,
+            paral_kgb=0)
+                                       
+        extra_abivars.update(**kwargs)
+
+        ksampling = KSampling.monkhorst(ngkpt, chksymbreak=chksymbreak)
+        #ksampling = KSampling.gamma_centered(kpts=ngkpt, use_symmetries=True, use_time_reversal=True)
+
+        # GBRV use nine points from -1% to 1% of the initial guess and fitting the results to a parabola.
+        # Note that it's not clear to me if they change the volume or the lattice parameter!
+        self._input_structure = structure
+        self.volumes = structure.volume * np.arange(99, 101.25, 0.25) / 100.
+
+        for vol in self.volumes:
+            new_lattice = structure.lattice.scale(vol)
+            new_structure = Structure(new_lattice, structure.species, structure.frac_coords)
+            new_structure = AbiStructure.asabistructure(new_structure)
+
+            scf_input = ScfStrategy(new_structure, pseudo, ksampling,
+                                    accuracy=accuracy, spin_mode=spin_mode,
+                                    smearing=smearing, **extra_abivars)
+
+            # Register new task
+            self.register(scf_input, task_class=ScfTask)
+
+    def get_results(self):
+        wf_results = super(GbrvEosWorkflow, self).get_results()
+
+        # Read etotal and fit E(V) with a parabola to find minimum
+        num_sites = self._input_structure.num_sites
+        etotal = self.read_etotal(unit="eV")
+
+        wf_results.update(dict(
+            etotal=list(etotal),
+            volumes=list(self.volumes),
+            natom=num_sites))
+
+        try:
+            eos_fit = EOS.Quadratic().fit(self.volumes, etotal)
+
+            eos_fit.plot(show=False, savefig=self.outdir.path_in("eos.pdf"))
+        except EOS.Error as exc:
+            wf_results.push_exceptions(exc)
+
+        # Function to compute cubic a0 from primitive v0 (depends on struct_type)
+        vol2a = {"fcc": lambda vol: (4 * vol) ** (1/3.),
+                 "bcc": lambda vol: (2 * vol) ** (1/3.),
+                 }[self.struct_type]
+
+        a0 = vol2a(eos_fit.v0)
+
+        wf_results.update(dict(
+            v0=eos_fit.v0,
+            b0=eos_fit.b0,
+            b1=eos_fit.b1,
+            a0=a0))
+
+        print("for GBRV struct_type: ", self.struct_type, "a0= ",a0, "Angstrom")
+
+        return wf_results
+
+    def on_all_ok(self):
+        """Callback executed when all tasks in self have reached S_OK."""
+        return self.get_results()
+
+
+class GbrvRelaxAndEosWorkflow(Workflow):
+
+    def __init__(self, structure, struct_type, pseudo, ecut, ngkpt=(8,8,8),
+                 spin_mode="unpolarized", toldfe=1.e-8, smearing="fermi_dirac:0.001 Ha",
+                 accuracy="normal", pawecutdg=None, ecutsm=0.05, chksymbreak=0,
+                 workdir=None, manager=None, **kwargs):
+                 # FIXME Hack in chksymbreak
+        """
+        Build a `Workflow` for the computation of the deltafactor.
+
+        Args:   
+            structure:
+                Structure object 
+            structure_type:
+                fcc, bcc 
+            pseudo:
+                String with the name of the pseudopotential file or `Pseudo` object.
+            ecut:
+                Cutoff energy in Hartree
+            ngkpt:
+                MP divisions.
+            spin_mode:
+                Spin polarization mode.
+            toldfe:
+                Tolerance on the energy (Ha)
+            smearing:
+                Smearing technique.
+            workdir:
+                String specifing the working directory.
+            manager:
+                `TaskManager` responsible for the submission of the tasks.
+        """
+        super(GbrvRelaxAndEosWorkflow, self).__init__(workdir=workdir, manager=manager)
+        self.struct_type = struct_type
+
+        # Set extra_abivars.
+        self.extra_abivars = dict(
+            ecut=ecut,
+            pawecutdg=pawecutdg,
+            toldfe=toldfe,
+            prtwf=0,
+            #ecutsm=ecutsm,
+            nband=8,
+            paral_kgb=0)
+                                       
+        self.extra_abivars.update(**kwargs)
+        self.ecut = ecut
+
+        ksampling = KSampling.monkhorst(ngkpt, chksymbreak=chksymbreak)
+        relax_algo = RelaxationMethod.atoms_and_cell()
+
+        self.relax_input = RelaxStrategy(structure, pseudo, ksampling, relax_algo, 
+                                         accuracy=accuracy, spin_mode=spin_mode,
+                                         smearing=smearing, **self.extra_abivars)
+
+        # Register structure relaxation task.
+        self.relax_task = self.register(self.relax_input, task_class=RelaxTask)
+
+    def on_all_ok(self):
+        """
+        This method is called when self reaches S_OK.
+        It reads the optimized structure from the netcdf file and build
+        a new workflow for the computation of the EOS with the GBRV parameters.
+        """
+        # Get the relaxed structure.
+        relaxed_structure = self.relax_task.read_final_structure()
+
+        # Needed because some pseudos do not provide hints for ecut.
+        try:
+            self.extra_abivars.pop("ecut")
+        except KeyError:
+            pass
+
+        new_work = GbrvEosWorkflow(relaxed_structure, self.struct_type, self.relax_input.pseudos, self.ecut, 
+                                   **self.extra_abivars)
+
+        # Register the new workflow, allocate it and update the pickle database.
+        self.flow.register_work(new_work)
+        self.flow.allocate()
+        self.flow.build_and_pickle_dump()
+
+        return super(GbrvRelaxAndEosWorkflow, self).on_all_ok()
 
 
 class G0W0_Workflow(Workflow):
-
+    """
+    Workflow for G0W0 calculations.
+    """
     def __init__(self, scf_input, nscf_input, scr_input, sigma_inputs,
                  workdir=None, manager=None):
         """
-        Workflow for G0W0 calculations.
-
         Args:
             scf_input:
                 Input for the SCF run or `SCFStrategy` object.
@@ -1356,11 +1527,11 @@ class G0W0_Workflow(Workflow):
 
 
 class SigmaConvWorkflow(Workflow):
-
+    """
+    Workflow for self-energy convergence studies.
+    """
     def __init__(self, wfk_node, scr_node, sigma_inputs, workdir=None, manager=None):
         """
-        Workflow for self-energy convergence studies.
-
         Args:
             wfk_node:
                 The node who has produced the WFK file
@@ -1383,66 +1554,14 @@ class SigmaConvWorkflow(Workflow):
             self.register(sigma_input, deps={wfk_node: "WFK", scr_node: "SCR"})
 
 
-#class SCGW_Workflow(Workflow):
-#
-#    def __init__(self, scr_input, sigma_input, workdir=None, manager=None):
-#        """
-#        Workflow for G0W0 calculations.
-#
-#        Args:
-#            scr_input:
-#                Input for the screening run or `ScrStrategy` object 
-#            sigma_input:
-#                Strategy for the self-energy run.
-#            workdir:
-#                Working directory of the calculation.
-#            manager:
-#                `TaskManager` object.
-#        """
-#        super(SCGW_Workflow, self).__init__(workdir=workdir, manager=manager)
-#
-#        # Register the SCREENING run.
-#        self.scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
-#
-#        # Register the SIGMA run.
-#        self.sigma_task = self.register(sigma_input, deps={self.nscf_task: "WFK", self.scr_task: "SCR"})
-#
-#    def not_converged(self):
-#       return self.sigma_task.not_converged()
-#
-#    def restart(self):
-#        ext = "QPS"
-#        qps_file = self.sigma_task.outdir.has_abiext(ext)
-#        irdvars = irdvars_for_ext(ext)
-#
-#        if not qps_file:
-#            raise TaskRestartError("Cannot find the QPS file to restart from.")
-#
-#        # Move the QPS file produced by the SIGMA task to 
-#        # the indir of the SCR task and the indir of the SIGMA task.
-#        scr_infile = self.scr_task.indir.path_in(os.path.basename(qps_file)
-#        sigma_infile = self.sigma_task.indir.path_in(os.path.basename(qps_file)
-#        shutil.copy(qps_file, scr_infile)
-#        shutil.move(qps_file, sigma_infile)
-#
-#        # Add the appropriate variable for reading the QPS file.
-#        self.scr_task.strategy.add_extra_abivars(irdvars)
-#        self.sigma_task.strategy.add_extra_abivars(irdvars)
-#
-#        # Now we can resubmit the job.
-#        #for task in self.
-#        #    task.reset()
-#        self._restart()
-
-
 class BSEMDF_Workflow(Workflow):
-
+    """
+    Workflow for simple BSE calculations in which the self-energy corrections
+    are approximated by the scissors operator and the screening in modeled
+    with the model dielectric function.
+    """
     def __init__(self, scf_input, nscf_input, bse_input, workdir=None, manager=None):
         """
-        Workflow for simple BSE calculations in which the self-energy corrections 
-        are approximated by the scissors operator and the screening in modeled 
-        with the model dielectric function.
-
         Args:
             scf_input:
                 Input for the SCF run or `ScfStrategy` object.
@@ -1477,7 +1596,7 @@ class PhononWorkflow(Workflow):
     def merge_ddb_files(self):
         """
         This method is called when all the q-points have been computed.
-        Ir runs `mrgddb` in sequential on the local machine to produce
+        It runs `mrgddb` in sequential on the local machine to produce
         the final DDB file in the outdir of the `Workflow`.
         """
         ddb_files = filter(None, [task.outdir.has_abiext("DDB") for task in self])
@@ -1496,28 +1615,6 @@ class PhononWorkflow(Workflow):
         mrgddb.set_mpi_runner("mpirun")
         mrgddb.merge(ddb_files, out_ddb=out_ddb, description=desc, cwd=self.outdir.path)
 
-    def merge_gkk_files(self):
-        """
-        This method is called when all the q-points have been computed.
-        Ir runs `mrgddb` in sequential on the local machine to produce
-        the final DDB file in the outdir of the `Workflow`.
-        """
-        gkk_files = filter(None, [task.outdir.has_abiext("GKK") for task in self])
-                                                                                         
-        logger.debug("Will call mrggkk to merge %s:\n" % str(gkk_files))
-        assert len(gkk) == len(self)
-
-        #if len(gkk) == 1:
-        # Avoid the merge. Just move the GKK file to the outdir of the workflow
-                                                                                         
-        # Final GKK file will be produced in the outdir of the workflow.
-        out_ggk = self.outdir.path_in("out_GKK")
-
-        mrggkk = wrappers.Mrggkk(verbose=1)
-        mrggkk.set_mpi_runner("mpirun")
-        raise NotImplementedError("Have to check mrggkk")
-        #mrggkk.merge(gswfk_file, dfpt_files, gkk_files, out_fname, binascii=0, cwd=self.outdir.path)
-
     def on_all_ok(self):
         """
         This method is called when all the q-points have been computed.
@@ -1527,12 +1624,7 @@ class PhononWorkflow(Workflow):
         # Merge DDB files.
         self.merge_ddb_files()
 
-        # Merge GKK files.
-        #self.merge_gkk_files()
-
-        return dict(returncode=0,
-                    message="DDB merge done"
-                    )
+        return WorkflowResults(returncode=0, message="DDB merge done")
 
 
 class WorkflowResults(dict, MSONable):
