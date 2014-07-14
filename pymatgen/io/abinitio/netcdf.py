@@ -6,6 +6,7 @@ import os.path
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.structure import Structure
 from monty.dev import requires
+import collections
 
 
 __author__ = "Matteo Giantomassi"
@@ -155,7 +156,19 @@ class NetcdfReader(object):
             # scalar or array
             #return var[0] if not var.shape else var[:]
             #return var.getValue() if not var.shape else var[:]
+            # MG: The code below is not portable.
+
+            # This one works on my Mac,
             return var.getValue()[0] if not var.shape else var[:]
+
+            # This one is needed on zenobe!
+            #if not isinstance(var.getValue(), collections.Iterable):
+            try:
+                return var.getValue() if not var.shape else var[:]
+            #elif not isinstance(var.getValue()[0], collections.Iterable):
+            except IndexError:
+                return var.getValue()[0] if not var.shape else var[:]
+
         else:
             assert var.shape[-1] == 2
             if cmode == "c":
