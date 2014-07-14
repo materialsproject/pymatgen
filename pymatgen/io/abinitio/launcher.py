@@ -6,16 +6,17 @@ import time
 import collections
 import yaml
 import cStringIO as StringIO
-from monty.os.path import which
-from pymatgen.io.abinitio import myaml
+
 
 from datetime import timedelta
+from monty.dev import deprecated
+from monty.os.path import which
+
 from pymatgen.core.design_patterns import AttrDict
 from pymatgen.util.string_utils import is_string
 from pymatgen.io.abinitio.utils import File
 
 import logging
-
 logger = logging.getLogger(__name__)
 
 __all__ = [
@@ -296,8 +297,10 @@ class PyLauncher(object):
                 break
 
             for task in tasks:
-            # see if there is place in the que
-                if get_running_jobs() > 99:
+                # see if there is place in the queue
+                #njobs = get_running_jobs():
+                njobs = task.manager.qadapter.get_njobs_in_queue()
+                if njobs is not None and njobs > 99:
                     num_loops = max_loops
                     print('too many jobs in the queue, going back to sleep')
                     break
@@ -309,7 +312,7 @@ class PyLauncher(object):
                     num_launched += 1
 
                 if num_launched == max_nlaunch:
-                    # Exit the outermst loop.
+                    # Exit the outermost loop.
                     print('num_launched == max_nlaunch, going back to sleep')
                     num_loops = max_loops
                     break
@@ -401,8 +404,12 @@ class PyFlowScheduler(object):
                 number of minutes to wait
             seconds:
                 number of seconds to wait
+
             verbose:
                 (int) verbosity level
+            use_dynamic_manager:
+                True if the task manager must be re-initialized from 
+                file before launching the jobs. Default: False
         """
         # Options passed to the scheduler.
         self.sched_options = AttrDict(
@@ -419,6 +426,7 @@ class PyFlowScheduler(object):
 
         self.mailto = kwargs.pop("mailto", None)
         self.verbose = int(kwargs.pop("verbose", 0))
+        self.use_dynamic_manager = kwargs.pop("use_dynamic_manager", False)
 
         self.REMINDME_S = float(kwargs.pop("REMINDME_S", 14 * 24 * 3600))
         self.MAX_NUM_PYEXCS = int(kwargs.pop("MAX_NUM_PYEXCS", 0))
@@ -446,8 +454,7 @@ class PyFlowScheduler(object):
     def from_file(cls, filepath):
         """Read the configuration parameters from a Yaml file."""
         with open(filepath, "r") as fh:
-            d = myaml.load(fh)
-            return cls(**d)
+            return cls(**yaml.load(fh))
 
     @classmethod
     def from_user_config(cls):
@@ -575,16 +582,21 @@ class PyFlowScheduler(object):
         This function tries to run all the tasks that can be submitted.
         """
         max_nlaunch, excs = 10, []
-
         flow = self.flow
+
+        # Allow to change the manager at run-time
+        if self.use_dynamic_manager:
+            from pymatgen.io.abinitio.tasks import TaskManager
+            new_manager = TaskManager.from_user_config()
+            for work in flow:
+                work.set_manager(new_manager)
+
         flow.check_status()
 
         # Try to restart the unconverged tasks
         for task in self.flow.unconverged_tasks:
             try:
-                msg = "AbinitFlow will try restart task %s" % task
-                print(msg)
-                logger.info(msg)
+                logger.info("AbinitFlow will try restart task %s" % task)
 
                 fired = task.restart()
                 if fired: self.nlaunch += 1
@@ -630,6 +642,9 @@ class PyFlowScheduler(object):
 
     def _callback(self):
         """The actual callback."""
+        # Show the number of open file descriptors
+        #print(">>>>> _callback: Number of open file descriptors: %s" % get_open_fds())
+
         self._runem_all()
 
         # Mission accomplished. Shutdown the scheduler.
@@ -649,7 +664,7 @@ class PyFlowScheduler(object):
         if delta_etime.total_seconds() > self.num_reminders * self.REMINDME_S:
             self.num_reminders += 1
             msg = ("Just to remind you that the scheduler with pid %s, flow %s\n has been running for %s " %
-                   (self.pid, self.flow, delta_etime))
+                  (self.pid, self.flow, delta_etime))
             retcode = self.send_email(msg, tag="[REMINDER]")
 
             if retcode:
@@ -720,9 +735,10 @@ class PyFlowScheduler(object):
 
             self.history.append("Completed on %s" % time.asctime())
             self.history.append("Elapsed time %s" % self.get_delta_etime())
+            #print(">>>>> shutdown: Number of open file descriptors: %s" % get_open_fds())
 
             retcode = self.send_email(msg)
-            print("send_mail retcode", retcode)
+            #print("send_mail retcode", retcode)
 
         finally:
             # Write file with the list of exceptions:
@@ -770,8 +786,6 @@ class PyFlowScheduler(object):
             strio.writelines(self.exceptions)
 
         text = strio.getvalue()
-        #print("text", text)
-
         if tag is None:
             tag = " [ALL OK]" if self.flow.all_ok else " [WARNING]"
 
@@ -825,7 +839,13 @@ def sendmail(subject, text, mailto, sender=None):
     return len(errdata)
 
 
+@deprecated("qadapter.get_njobs_in_queue")
 def get_running_jobs():
+    """
+    Return the number if running jobs.
+
+    ..warning: only slurm is supported
+    """
     try:
         import os
         import subprocess
@@ -836,6 +856,7 @@ def get_running_jobs():
         n = len(data.splitlines()) - 1
     except OSError:
         n = 0
+
     return n
 
 # Test for sendmail
@@ -844,3 +865,20 @@ def get_running_jobs():
 #    mailto = "matteo.giantomassi@uclouvain.be"
 #    retcode = sendmail("sendmail_test", text, mailto)
 #    print("Retcode", retcode)
+
+def get_open_fds():
+    """
+    return the number of open file descriptors for current process
+
+    .. warning: will only work on UNIX-like os-es.
+    """
+    import subprocess
+    import os
+
+    pid = os.getpid()
+    procs = subprocess.check_output(["lsof", '-w', '-Ff', "-p", str(pid)])
+
+    nprocs = len(filter(lambda s: s and s[0] == 'f' and s[1:].isdigit(), procs.split('\n')))
+
+    return nprocs
+

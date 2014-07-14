@@ -12,6 +12,10 @@ from pymatgen.util.string_utils import str_aligned, str_delimited, is_string, li
 from pymatgen.io.abinitio.abiobjects import SpinMode, Smearing, Electrons
 from pymatgen.io.abinitio.pseudos import PseudoTable
 
+import logging
+logger = logging.getLogger(__name__)
+
+
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
@@ -49,7 +53,7 @@ def select_pseudos(pseudos, structure, ret_table=True):
 
 
 def order_pseudos(pseudos, structure):
-    print('calling order pseudos')
+    logger.info('calling order pseudos')
     return select_pseudos(pseudos, structure, ret_table=False)
 
 
@@ -303,8 +307,7 @@ class ScfStrategy(Strategy):
                                     algorithm=scf_algorithm,
                                     nband=None,
                                     fband=None,
-                                    charge=charge,
-                                   )
+                                    charge=charge)
 
         self.extra_abivars = extra_abivars
 
@@ -768,7 +771,7 @@ class InputWriter(object):
 
         # Write the Abinit objects first.
         for obj in self.abiobjects:
-#            print(obj)
+            #print(obj)
             app([80*"#", ""])
             app(["#", "%s" % obj.__class__.__name__])
             app([80*"#", ""])

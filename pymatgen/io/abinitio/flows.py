@@ -9,7 +9,6 @@ import time
 import collections
 import warnings
 import cPickle as pickle
-#import pickle as pickle
 
 try:
     from pydispatch import dispatcher
@@ -151,7 +150,7 @@ class AbinitFlow(Node):
         # Check if versions match.
         if flow.VERSION != cls.VERSION:
             msg = ("File flow version %s != latest version %s\n."
-                   "Regerate the flow to solve the problem " % (flow.VERSION, cls.VERSION))
+                   "Regenerate the flow to solve the problem " % (flow.VERSION, cls.VERSION))
             warnings.warn(msg)
 
         if not disable_signals:
@@ -227,10 +226,10 @@ class AbinitFlow(Node):
     def ncpus_reserved(self):
         """
         Returns the number of CPUs reserved in this moment.
-        A CPUS is reserved if the task is not running but 
+        A CPU is reserved if the task is not running but
         we have submitted the task to the queue manager.
         """
-        return sum(work.ncpus_reverved for work in self)
+        return sum(work.ncpus_reserved for work in self)
 
     @property
     def ncpus_allocated(self):
@@ -259,7 +258,6 @@ class AbinitFlow(Node):
         """
         try:
             return self._chrooted_from
-
         except AttributeError:
             return ""
 
@@ -397,84 +395,79 @@ class AbinitFlow(Node):
             #todo
             info_msg = 'We encountered an abi critial envent that could not be fixed'
             print(info_msg)
+            return False
 
-            if task.manager.qadapter.increase_resources():
-                task.restart()
-                task.set_status(task.S_READY)
-                return True
-            else:
-                task.set_status(task.S_ERROR, info_msg)
-                return False
-
-            #try:
-            #    task.manager.qadapter.increase_cpus()
-            #    print('waited ', self._waited, ' cycles')
-            #except AttributeError:
-            #    self._waited = 0
-            #for error in task.abi_errors:
-            #    print('trying to fix:')
-            #    print(error)
-            #    print('by waiting for the phase of the moon to change a bit ... ')
-            #if self._waited > 3:
-            #    task.manager.qadapter.increase_cpus()
-            #    task.set_status(task.S_ERROR, info_msg)
-            #self._waited = self._waited + 1
 
     def fix_queue_critical(self):
         """
-        Fixer for errors originating from the scheduler. General strategy, first try to increase resources in order to
-        fix the problem, if this is not possible, call a task specific method to attempt to decrease the demands.
+        Fixer for errors originating from the scheduler.
+
+        General strategy, first try to increase resources in order to fix the problem,
+        if this is not possible, call a task specific method to attempt to decrease the demands.
         """
         from pymatgen.io.gwwrapper.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
 
         for task in self.iflat_tasks(status='S_QUEUECRITICAL'):
             print(task)
-            for error in task.queue_errors:
-                print('fixing :' + str(error))
-                if isinstance(error, NodeFailureError):
-                    # if the problematic node is know exclude it
-                    if error.nodes is not None:
-                        task.manager.qadapter.exclude_nodes(error.nodes)
-                        task.restart()
-                        return task.set_status(task.S_READY)
-                    else:
-                        info_msg = 'Node error detected but no was node identified. Unrecoverable error.'
-                        return task.set_status(task.S_ERROR, info_msg)
-                elif isinstance(error, MemoryCancelError):
-                    # ask the qadapter to provide more memory
-                    if task.manager.qadapter.increase_mem():
-                        task.restart()
-                        return task.set_status(task.S_READY, info_msg='increased mem')
-                    # if this failed ask the task to provide a method to reduce the memory demand
-                    elif task.reduce_memory_demand():
-                        task.restart()
-                        return task.set_status(task.S_READY, info_msg='decreased mem demand')
-                    else:
-                        info_msg = 'Memory error detected but the memory could not be increased neigther could the ' \
-                                   'memory demand be decreased. Unrecoverable error.'
-                        return task.set_status(task.S_ERROR, info_msg)
-                elif isinstance(error, TimeCancelError):
-                    # ask the qadapter to provide more memory
-                    if task.manager.qadapter.increase_time():
-                        task.restart()
-                        return task.set_status(task.S_READY, info_msg='increased wall time')
-                    # if this fails ask the qadapter to increase the number of cpus
-                    elif task.manager.qadapter.increase_cpus():
-                        task.restart()
-                        return task.set_status(task.S_READY, info_msg='increased number of cpus')
-                    # if this failed ask the task to provide a method to speed up the task
-                    elif task.speed_up():
-                        task.restart()
-                        return task.set_status(task.S_READY, info_msg='task speedup')
-                    else:
-                        info_msg = 'Time cancel error detected but the time could not be increased neigther could ' \
-                                   'the time demand be decreased by speedup of increasing the number of cpus. ' \
-                                   'Unrecoverable error.'
-                        return task.set_status(task.S_ERROR, info_msg)
+
+            if not task.queue_errors:
+                # queue error but no errors detected, try to solve by increasing resources
+                # if resources are at maximum the tast is definitively turned to errored
+                if task.manager.qadapter.increase_resources():
+                    task.restart()
+                    task.set_status(task.S_READY)
+                    return True
                 else:
-                    info_msg = 'No solution provided for error %s. Unrecoverable error.' % error.name
-                    logger.debug(msg=info_msg)
-                    return task.set_status(task.S_ERROR, info_msg)
+                    info_msg = 'unknown queue error, could not increase resources any further'
+                    task.set_status(task.S_ERROR, info_msg)
+                    return False
+            else:
+                for error in task.queue_errors:
+                    print('fixing :' + str(error))
+                    if isinstance(error, NodeFailureError):
+                        # if the problematic node is know exclude it
+                        if error.nodes is not None:
+                            task.manager.qadapter.exclude_nodes(error.nodes)
+                            task.restart()
+                            return task.set_status(task.S_READY)
+                        else:
+                            info_msg = 'Node error detected but no was node identified. Unrecoverable error.'
+                            return task.set_status(task.S_ERROR, info_msg)
+                    elif isinstance(error, MemoryCancelError):
+                        # ask the qadapter to provide more memory
+                        if task.manager.qadapter.increase_mem():
+                            task.restart()
+                            return task.set_status(task.S_READY, info_msg='increased mem')
+                        # if this failed ask the task to provide a method to reduce the memory demand
+                        elif task.reduce_memory_demand():
+                            task.restart()
+                            return task.set_status(task.S_READY, info_msg='decreased mem demand')
+                        else:
+                            info_msg = 'Memory error detected but the memory could not be increased neigther could the ' \
+                                       'memory demand be decreased. Unrecoverable error.'
+                            return task.set_status(task.S_ERROR, info_msg)
+                    elif isinstance(error, TimeCancelError):
+                        # ask the qadapter to provide more memory
+                        if task.manager.qadapter.increase_time():
+                            task.restart()
+                            return task.set_status(task.S_READY, info_msg='increased wall time')
+                        # if this fails ask the qadapter to increase the number of cpus
+                        elif task.manager.qadapter.increase_cpus():
+                            task.restart()
+                            return task.set_status(task.S_READY, info_msg='increased number of cpus')
+                        # if this failed ask the task to provide a method to speed up the task
+                        elif task.speed_up():
+                            task.restart()
+                            return task.set_status(task.S_READY, info_msg='task speedup')
+                        else:
+                            info_msg = 'Time cancel error detected but the time could not be increased neigther could ' \
+                                       'the time demand be decreased by speedup of increasing the number of cpus. ' \
+                                       'Unrecoverable error.'
+                            return task.set_status(task.S_ERROR, info_msg)
+                    else:
+                        info_msg = 'No solution provided for error %s. Unrecoverable error.' % error.name
+                        logger.debug(info_msg)
+                        return task.set_status(task.S_ERROR, info_msg)
 
     def show_status(self, stream=sys.stdout):
         """
@@ -482,14 +475,13 @@ class AbinitFlow(Node):
         of the different tasks on the specified stream.
         """
         for i, work in enumerate(self):
-            print(80*"=")
-            print("Workflow #%d: %s, Finalized=%s\n" % (i, work, work.finalized))
+            print(80*"=", file=stream)
+            print("Workflow #%d: %s, Finalized=%s\n" % (i, work, work.finalized), file=stream)
 
             table = [["Task", "Status", "Queue_id", 
                       "Errors", "Warnings", "Comments", 
                       "MPI", "OMP", 
-                      "num_restarts", "Task Class"
-                     ]]
+                      "Restart", "Task_Class", "Run-etime"]]
 
             for task in work:
                 task_name = os.path.basename(task.name)
@@ -502,14 +494,14 @@ class AbinitFlow(Node):
                     events = map(str, [report.num_errors, report.num_warnings, report.num_comments])
 
                 cpu_info = map(str, [task.mpi_ncpus, task.omp_ncpus])
-                task_info = map(str, [task.num_restarts, task.__class__.__name__])
+                task_info = map(str, [task.num_restarts, task.__class__.__name__, task.run_etime()])
 
                 table.append(
                     [task_name, str(task.status), str(task.queue_id)] + 
                     events + 
                     cpu_info + 
                     task_info
-                    )
+                )
 
             pprint_table(table, out=stream)
 
@@ -541,7 +533,7 @@ class AbinitFlow(Node):
         """
         #TODO: Add support for wti
         if wti is not None:
-            raise NotImplementedError("wti option is not avaiable!")
+            raise NotImplementedError("wti option is not available!")
 
         def get_files(task, wi, ti):
             """Helper function used to select the files of a task."""
@@ -562,14 +554,15 @@ class AbinitFlow(Node):
                     selected.append(getattr(choices[c], "path"))
                 except KeyError:
                     import warnings
-                    warnings.warn("Wrong keywork %s" % c)
+                    warnings.warn("Wrong keyword %s" % c)
             return selected
 
         # Build list of files to analyze.
         files = []
         for (task, wi, ti) in self.iflat_tasks_wti(status=status, op=op):
             lst = get_files(task, wi, ti)
-            if lst: files.extend(lst)
+            if lst:
+                files.extend(lst)
 
         #print(files)
         return Editor(editor=editor).edit_files(files)
@@ -593,7 +586,7 @@ class AbinitFlow(Node):
                 pid = int(fh.readline())
                 
             retcode = os.system("kill -9 %d" % pid)
-            print("Sent SIGKILL to the scheduler, retcode = %s" % retcode)
+            logger.info("Sent SIGKILL to the scheduler, retcode = %s" % retcode)
             try:
                 os.remove(pid_file)
             except IOError:
@@ -638,7 +631,7 @@ class AbinitFlow(Node):
         protocol = self.pickle_protocol
         filepath = os.path.join(self.workdir, self.PICKLE_FNAME)
 
-        with FileLock(filepath) as lock:
+        with FileLock(filepath):
             with open(filepath, mode="w" if protocol == 0 else "wb") as fh:
                 pickle.dump(self, fh, protocol=protocol)
 
@@ -781,10 +774,12 @@ class AbinitFlow(Node):
             work.allocate(manager=self.manager)
             work.set_flow(self)
 
+        # Each task has a reference to the flow.
         for task in self.iflat_tasks():
             task.set_flow(self)
 
         self.check_dependencies()
+
         return self
 
     def show_dependencies(self):
@@ -796,16 +791,16 @@ class AbinitFlow(Node):
         # Replace this callback with dynamic dispatch
         # on_all_S_OK for workflow
         # on_S_OK for task
-        print("on_dep_ok with sender %s, signal %s" % (str(sender), signal))
+        logger.info("on_dep_ok with sender %s, signal %s" % (str(sender), signal))
 
         for i, cbk in enumerate(self._callbacks):
 
             if not cbk.handle_sender(sender):
-                print("Do not handle")
+                logger.info("Do not handle")
                 continue
 
             if not cbk.can_execute():
-                print("cannot execute")
+                logger.info("cannot execute")
                 continue 
 
             # Execute the callback to generate the workflow.
@@ -1015,14 +1010,14 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
 
         # Run abinit on the front-end to get the list of irreducible pertubations.
         tmp_dir = os.path.join(workdir, "__ph_run" + str(i) + "__")
-        w = Workflow(workdir=tmp_dir, manager=shell_manager)
+        w = PhononWorkflow(workdir=tmp_dir, manager=shell_manager)
         fake_task = w.register(fake_input)
 
         # Use the magic value paral_rf = -1 to get the list of irreducible perturbations for this q-point.
         vars = dict(paral_rf=-1,
                     rfatpol=[1, natom],  # Set of atoms to displace.
                     rfdir=[1, 1, 1],     # Along this set of reduced coordinate axis.
-                   )
+                    )
 
         fake_task.strategy.add_extra_abivars(vars)
         w.allocate()

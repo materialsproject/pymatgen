@@ -63,6 +63,9 @@ class AbivarAble(object):
     def __str__(self):
         return pformat(self.to_abivars(), indent=1, width=80, depth=None)
 
+    def __contains__(self, key):
+        return key in self.to_abivars()
+
 
 @singleton
 class MandatoryVariable(object):
@@ -448,15 +451,27 @@ class AbiStructure(Structure, AbivarAble):
         rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
         xred = np.reshape([site.frac_coords for site in self], (-1,3))
 
-        return {
-            "acell" : 3 * [1.0],
-            "rprim" : rprim,
-            "natom" : natom,
-            "ntypat": len(types_of_specie),
-            "typat" : typat,
-            "xred"  : xred,
-            "znucl" : znucl_type,
-        }
+        # Set small values to zero. This usually happens when the CIF file
+        # does not give structure parameters with enough digits.
+        #rprim = np.where(np.abs(rprim) > 1e-8, rprim, 0.0)
+        #xred = np.where(np.abs(xred) > 1e-8, xred, 0.0)
+
+        d = dict(
+            natom=natom,
+            ntypat=len(types_of_specie),
+            typat=typat,
+            xred=xred,
+            znucl=znucl_type)
+
+        d.update(dict(
+            acell=3 * [1.0],
+            rprim=rprim))
+
+        #d.update(dict(
+        #    acell=3 * [1.0],
+        #    angdeg))
+
+        return d
 
 
 class KSampling(AbivarAble):
@@ -608,10 +623,10 @@ class KSampling(AbivarAble):
         Args:
             kpts:
                 Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
-        use_symmetries:
-            False if spatial symmetries should not be used to reduced the number of independent k-points.
-        use_time_reversal:
-            False if time-reversal symmetry should not be used to reduced the number of independent k-points.
+            use_symmetries:
+                False if spatial symmetries should not be used to reduced the number of independent k-points.
+            use_time_reversal:
+                False if time-reversal symmetry should not be used to reduced the number of independent k-points.
 
         Returns:
             `KSampling` object.
@@ -633,7 +648,7 @@ class KSampling(AbivarAble):
             ngkpt:
                 Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
             shiftk:
-                Shift to be applied to the kpoints. Defaults to (0,0,0).
+                Shift to be applied to the kpoints. 
             use_symmetries:
                 Use spatial symmetries to reduce the number of k-points.
             use_time_reversal:
@@ -821,7 +836,7 @@ class RelaxationMethod(AbivarAble):
         "ionmov"           : MANDATORY,
         "optcell"          : MANDATORY,
         "ntime"            : 80,
-        "dilatmx"          : 1.1,
+        "dilatmx"          : 1.05,
         "ecutsm"           : 0.5,
         "strfact"          : None,
         "tolmxf"           : None,
@@ -869,45 +884,43 @@ class RelaxationMethod(AbivarAble):
     @property
     def move_atoms(self):
         """True if atoms must be moved."""
-        return self.vars.ionmov != 0
+        return self.abivars.ionmov != 0
 
     @property
     def move_cell(self):
         """True if lattice parameters must be optimized."""
-        return self.vars.optcell != 0
+        return self.abivars.optcell != 0
 
     def to_abivars(self):
         """Returns a dictionary with the abinit variables"""
-        vars = self.vars
-
         # These variables are always present.
-        abivars = {
-            "ionmov" : vars.ionmov,
-            "optcell": vars.optcell,
-            "ntime"  : vars.ntime,
+        out_vars = {
+            "ionmov" : self.abivars.ionmov,
+            "optcell": self.abivars.optcell,
+            "ntime"  : self.abivars.ntime,
         }
 
         # Atom relaxation.
         if self.move_atoms:
-            abivars.update({
-                "tolmxf": vars.tolmxf,
+            out_vars.update({
+                "tolmxf": self.abivars.tolmxf,
             })
 
-        if vars.atoms_constraints:
+        if self.abivars.atoms_constraints:
             # Add input variables for constrained relaxation.
             raise NotImplementedError("")
-            abivars.update(vars.atoms_constraints.to_abivars())
+            out_vars.update(self.abivars.atoms_constraints.to_abivars())
 
         # Cell relaxation.
         if self.move_cell:
-            abivars.update({
-                "dilatmx"  : vars.dilatmx,
-                "ecutsm"   : vars.ecutsm,
-                "strfact"  : vars.strfact,
-                "strtarget": vars.strtarget,
+            out_vars.update({
+                "dilatmx"  : self.abivars.dilatmx,
+                "ecutsm"   : self.abivars.ecutsm,
+                "strfact"  : self.abivars.strfact,
+                "strtarget": self.abivars.strtarget,
             })
 
-        return abivars
+        return out_vars
 
 
 class PPModel(AbivarAble, MSONable):
