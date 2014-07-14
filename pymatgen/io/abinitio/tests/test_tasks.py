@@ -8,6 +8,7 @@ from pymatgen.io.abinitio.tasks import TaskPolicy
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 'test_files')
 
+
 class TaskManagerTest(PymatgenTest):
 
     def test_base(self):
@@ -53,18 +54,22 @@ configurations:
       mpi_ncpus: 1
       efficiency:  1.000000000
       mem_per_cpu:        11.54
+      vars: {npfft: 2, npkpt: 1}
     - tot_ncpus: 2
       mpi_ncpus: 2
       efficiency:  1.000000000
       mem_per_cpu:         7.42
+      vars: {npfft: 1, npkpt: 2}
     - tot_ncpus: 3
       mpi_ncpus: 3
       efficiency:  0.833333333
       mem_per_cpu:         6.60
+      vars: {npfft: 3, npkpt: 1}
     - tot_ncpus: 4
       mpi_ncpus: 4
       efficiency:  0.833333333
       mem_per_cpu:         15.77
+      vars: {npfft: 2, npkpt: 2}
 ...
 """
         tmpfile = self.tmpfile_write(s)
@@ -105,6 +110,12 @@ configurations:
         optimal = confs.select_optimal_conf(policy)
         aequal(optimal.tot_ncpus, 4)
 
+        # Select configuration with npfft == 1
+        #policy = TaskPolicy(autoparal=1, max_ncpus=4, condition={"vars": {"npfft": {"$eq": 1}}})
+        #optimal = confs.select_optimal_conf(policy)
+        #aequal(optimal.tot_ncpus, 4)
+        #assert 0
+        
 
 if __name__ == '__main__':
     import unittest

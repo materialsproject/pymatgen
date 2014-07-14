@@ -233,6 +233,7 @@ class ParalHints(collections.Iterable):
         return "\n".join(str(conf) for conf in self)
 
     def copy(self):
+        """Shallow copy of self."""
         return copy.copy(self)
 
     def select_with_condition(self, condition):
@@ -246,7 +247,8 @@ class ParalHints(collections.Iterable):
 
         for conf in self:
             add_it = condition.apply(obj=conf)
-            #print("add_it", add_it, "conf", conf)
+            #print("add_it", add_it)
+            #print(""conf", conf)
             if add_it:
                 new_confs.append(conf)
 
@@ -290,9 +292,9 @@ class ParalHints(collections.Iterable):
         # First select the configurations satisfying the 
         # condition specified by the user (if any)
         if policy.condition:
-            print("condition",policy.condition)
+            #print("condition",policy.condition)
             hints.select_with_condition(policy.condition)
-            print("after condition", hints)
+            #print("after condition", hints)
 
             # If no configuration fullfills the requirements, 
             # we return the one with the highest speedup.
@@ -368,7 +370,8 @@ class TaskPolicy(object):
         lines = [self.__class__.__name__ + ":"]
         app = lines.append
         for k, v in self.__dict__.items():
-            if k.startswith("_"): continue
+            if k.startswith("_"):
+                continue
             app("%s: %s" % (k, v))
 
         return "\n".join(lines)
@@ -430,7 +433,7 @@ class TaskManager(object):
 
     @classmethod
     def from_file(cls, filename):
-        """Read the configuration parameters from a Yaml file."""
+        """Read the configuration parameters from the Yaml file filename."""
         with open(filename, "r") as fh:
             return cls.from_dict(yaml.load(fh))
 
@@ -2505,9 +2508,11 @@ class PhononTask(AbinitTask):
     ]
 
     def restart(self):
-        # Phonon calculations can be restarted only if we have the 1WF file or the 1DEN file.
-        # from which we can read the first-order wavefunctions or the first order density.
-        # Prefer 1WF over 1DEN since we can reuse the wavefunctions.
+        """
+        Phonon calculations can be restarted only if we have the 1WF file or the 1DEN file.
+        from which we can read the first-order wavefunctions or the first order density.
+        Prefer 1WF over 1DEN since we can reuse the wavefunctions.
+        """
         #self.fix_ofiles()
         restart_file = None
         for ext in ["1WF", "1DEN"]:

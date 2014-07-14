@@ -1292,7 +1292,6 @@ class GbrvEosWorkflow(Workflow):
     def __init__(self, structure, struct_type, pseudo, ecut, ngkpt=(8,8,8),
                  spin_mode="unpolarized", toldfe=1.e-8, 
                  smearing="fermi_dirac:0.001 Ha",
-                 #smearing="fermi_dirac:0.1 eV",
                  accuracy="normal", pawecutdg=None, ecutsm=0.05, chksymbreak=0,
                  workdir=None, manager=None, **kwargs):
                  # FIXME Hack in chksymbreak
