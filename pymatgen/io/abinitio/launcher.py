@@ -457,6 +457,14 @@ class PyFlowScheduler(object):
             return cls(**yaml.load(fh))
 
     @classmethod
+    def from_string(cls, s):
+        """Create an istance from string s containing a YAML dictionary."""
+        stream = StringIO.StringIO(s)
+        stream.seek(0)
+
+        return cls(**yaml.load(stream))
+
+    @classmethod
     def from_user_config(cls):
         """
         Initialize the `PyFlowScheduler` from the YAML file 'scheduler.yml'.

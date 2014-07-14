@@ -25,7 +25,6 @@ __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 
 
-
 class PPConvergenceFactory(object):
     """
     Factory object that constructs workflows for analyzing the converge of
@@ -139,7 +138,6 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
 
     return BandStructureWorkflow(scf_strategy, nscf_strategy, dos_inputs=dos_strategy, 
                                  workdir=workdir, manager=manager)
-
 
 
 #def relaxation(workdir, manager, structure, pseudos, scf_kppa,
@@ -373,7 +371,7 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
 
     if 'cd' in response_models:
         hilbert = HilbertTransform(nomegasf=100, domegasf=None, spmeth=1, nfreqre=None, freqremax=None, nfreqim=None,
-                                      freqremin=None)
+                                   freqremin=None)
 
     for response_model in response_models:
         for ecuteps_v in ecuteps:
