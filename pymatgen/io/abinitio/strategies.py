@@ -7,9 +7,8 @@ import copy
 import numpy as np
 import os
 
-from pprint import pprint, pformat
 from pymatgen.util.string_utils import str_aligned, str_delimited, is_string, list_strings
-from pymatgen.io.abinitio.abiobjects import SpinMode, Smearing, Electrons
+from pymatgen.io.abinitio.abiobjects import Electrons
 from pymatgen.io.abinitio.pseudos import PseudoTable
 
 import logging
@@ -27,6 +26,8 @@ def select_pseudos(pseudos, structure, ret_table=True):
     """
     Given a list of pseudos and a pymatgen structure, extract the pseudopotentials
     for the calculation (useful when we receive an entire periodic table).
+    If ret_table is True, the function will return a PseudoTable instead of
+    a list of `Pseudo` objects
 
     Raises:
         ValueError if no pseudo is found or multiple occurrences are found.
@@ -235,6 +236,7 @@ class Strategy(object):
 
         # Use default values depending on the runlevel and the accuracy.
         tolname = self._runl2tolname[self.runlevel]
+
         return {tolname: getattr(self._tolerances[tolname], self.accuracy)}
 
     @property
@@ -298,16 +300,16 @@ class ScfStrategy(Strategy):
         self.set_accuracy(accuracy)
 
         self.structure = structure
-        self.pseudos   = select_pseudos(pseudos, structure)
+        self.pseudos = select_pseudos(pseudos, structure)
         self.ksampling = ksampling
         self.use_symmetries = use_symmetries
 
-        self.electrons  = Electrons(spin_mode=spin_mode,
-                                    smearing=smearing,
-                                    algorithm=scf_algorithm,
-                                    nband=None,
-                                    fband=None,
-                                    charge=charge)
+        self.electrons = Electrons(spin_mode=spin_mode,
+                                   smearing=smearing,
+                                   algorithm=scf_algorithm,
+                                   nband=None,
+                                   fband=None,
+                                   charge=charge)
 
         self.extra_abivars = extra_abivars
 
@@ -355,8 +357,8 @@ class NscfStrategy(Strategy):
         self.scf_strategy = scf_strategy
 
         self.nscf_nband = nscf_nband
-        self.pseudos    = scf_strategy.pseudos
-        self.ksampling  = ksampling
+        self.pseudos = scf_strategy.pseudos
+        self.ksampling = ksampling
 
         if nscf_algorithm is None:
             nscf_algorithm = {"iscf": -2}
@@ -392,8 +394,9 @@ class NscfStrategy(Strategy):
         extra.update(self.tolerance)
         extra.update(self.extra_abivars)
 
-        input = InputWriter(scf_strategy.structure, self.electrons, self.ksampling, **extra)
-        return input.get_string()
+        inp = InputWriter(scf_strategy.structure, self.electrons, self.ksampling, **extra)
+
+        return inp.get_string()
 
 
 class RelaxStrategy(ScfStrategy):
@@ -424,9 +427,10 @@ class RelaxStrategy(ScfStrategy):
             extra_abivars:
                 Extra ABINIT variables that will be directly added to the input file
         """
-        super(RelaxStrategy, self).__init__(structure, pseudos, ksampling,
-                 accuracy=accuracy, spin_mode=spin_mode, smearing=smearing,
-                 charge=charge, scf_algorithm=scf_algorithm, **extra_abivars)
+        super(RelaxStrategy, self).__init__(
+            structure, pseudos, ksampling,
+            accuracy=accuracy, spin_mode=spin_mode, smearing=smearing,
+            charge=charge, scf_algorithm=scf_algorithm, **extra_abivars)
 
         self.relax_algo = relax_algo
 
@@ -471,7 +475,7 @@ class ScreeningStrategy(Strategy):
 
         scr_nband = screening.nband
 
-        scf_electrons  = scf_strategy.electrons
+        scf_electrons = scf_strategy.electrons
         nscf_electrons = nscf_strategy.electrons
 
         if scr_nband > nscf_electrons.nband:
@@ -550,11 +554,11 @@ class SelfEnergyStrategy(Strategy):
         if not self.ksampling.is_homogeneous:
             raise ValueError("The k-sampling used for the NSCF run mush be homogeneous")
 
-        self.electrons = Electrons(spin_mode = scf_electrons.spin_mode,
-                                   smearing  = scf_electrons.smearing,
-                                   nband     = sigma.nband,
-                                   charge    = scf_electrons.charge,
-                                   comment   = None,
+        self.electrons = Electrons(spin_mode=scf_electrons.spin_mode,
+                                   smearing=scf_electrons.smearing,
+                                   nband=sigma.nband,
+                                   charge=scf_electrons.charge,
+                                   comment=None,
                                   )
     @property
     def runlevel(self):
@@ -670,7 +674,7 @@ class InputWriter(object):
         return self.abiobj_dict.values()
 
     def add_abiobj(self, obj):
-        """Add the object to self."""
+        """Add the object obj to self."""
         if not hasattr(obj, "to_abivars"):
             raise ValueError("%s does not define the method to_abivars" % str(obj))
 
@@ -921,7 +925,6 @@ class OpticInput(object):
         since we can pass the paths of the output files
         produced by the previous runs.
         """
-
 
 class AnaddbInput(object):
 

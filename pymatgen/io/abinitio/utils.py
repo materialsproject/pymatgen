@@ -236,6 +236,7 @@ _EXT2VARS = {
     "DKK": {},
 }
 
+
 def irdvars_for_ext(ext):
     """
     Returns a dictionary with the ABINIT variables 
@@ -513,7 +514,7 @@ def evaluate_rpn(rpn):
 
 class Condition(object):
     """
-    This object receive a dictionary that defines a boolean condition whose syntax is similar
+    This object receives a dictionary that defines a boolean condition whose syntax is similar
     to the one used in mongodb (albeit not all the operators available in mongodb are supported here).
 
     Example:
@@ -545,8 +546,8 @@ class Condition(object):
     def apply(self, obj):
         try:
             return evaluate_rpn(map2rpn(self.cmap, obj))
-        except:
-            logger.warning("Condition.apply() raise Exception")
+        except Exception as exc:
+            logger.critical("Condition.apply() raise Exception:\n %s" % str(exc))
             return False
 
 

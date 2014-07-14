@@ -518,10 +518,10 @@ class AbinitFlow(Node):
                     l ==> log_file,
                     e ==> stderr_file,
                     q ==> qerr_file,
-            wti
+            wti:
                 tuple with the (work, task_index) to select
                 or string in the form w_start:w_stop,task_start:task_stop
-            status
+            status:
                 if not None, only the tasks with this status are select
             op:
                 status operator. Requires status. A task is selected 
