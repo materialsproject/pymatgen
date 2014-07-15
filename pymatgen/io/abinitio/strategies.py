@@ -639,8 +639,8 @@ class MDFBSE_Strategy(Strategy):
         #extra.update(self.tolerance)
         extra.update(self.extra_abivars)
 
-        input = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.exc_ham, **extra)
-        return input.get_string()
+        inpw = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.exc_ham, **extra)
+        return inpw.get_string()
 
 
 class InputWriter(object):
@@ -717,8 +717,8 @@ class InputWriter(object):
             else:
                 # array --> matrix
                 matrix = np.reshape(arr, (-1, arr.shape[-1]))
-                lines  = []
-                for (idx, row) in enumerate(matrix):
+                lines = []
+                for idx, row in enumerate(matrix):
                     lines.append(" ".join(str(i) for i in row))
                 token = [key +"\n", "\n".join(lines)]
 

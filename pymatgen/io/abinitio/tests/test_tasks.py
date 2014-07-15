@@ -128,15 +128,6 @@ configurations:
         aequal(optimal.tot_ncpus, 2)
         aequal(optimal.vars["npfft"],  2)
         aequal(optimal.vars["npkpt"],  1)
-
-
-
-
-
-
-
-
-
         #assert 0
         
 

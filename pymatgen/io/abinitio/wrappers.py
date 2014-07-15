@@ -47,7 +47,7 @@ class ExecWrapper(object):
             msg = "Cannot find executable %s is PATH\n Use export PATH=/dir_with_exec:$PATH" % executable
             raise self.Error(msg)
 
-        assert os.path.basename(self.executable) == self._name
+        assert os.path.basename(self.executable) == self.name
 
     def __str__(self):
         return "%s" % self.executable
@@ -150,8 +150,7 @@ class Mrgscr(ExecWrapper):
 
         inp.write("1\n")                 # Option for merging q-points.
 
-        inp.seek(0)
-        self.stdin_data = [s for s in inp]
+        self.stdin_data = [s for s in inp.getvalue()]
 
         with open(self.stdin_fname, "w") as fh:
             fh.writelines(self.stdin_data)
@@ -233,8 +232,7 @@ class Mrggkk(ExecWrapper):
         for fname in gkk_files:
             inp.write(fname + "\n")
 
-        inp.seek(0)
-        self.stdin_data = [s for s in inp]
+        self.stdin_data = [s for s in inp.getvalue()]
 
         with open(self.stdin_fname, "w") as fh:
             fh.writelines(self.stdin_data)
@@ -258,7 +256,6 @@ class Mrgddb(ExecWrapper):
 
     def merge(self, ddb_files, out_ddb, description, cwd=None):
         """Merge DDB file, return the absolute path of the new database."""
-
         # We work with absolute paths.
         ddb_files = [os.path.abspath(s) for s in list_strings(ddb_files)]
 
@@ -285,7 +282,7 @@ class Mrgddb(ExecWrapper):
 
         inp = StringIO.StringIO()
 
-        inp.write(out_ddb + "\n")            # Name of the output file.
+        inp.write(out_ddb + "\n")              # Name of the output file.
         inp.write(str(description) + "\n")     # Description.
         inp.write(str(len(ddb_files)) + "\n")  # Number of input DDBs.
 
@@ -293,8 +290,7 @@ class Mrgddb(ExecWrapper):
         for fname in ddb_files:
             inp.write(fname + "\n")
 
-        inp.seek(0)
-        self.stdin_data = [s for s in inp]
+        self.stdin_data = [s for s in inp.getvalue()]
 
         with open(self.stdin_fname, "w") as fh:
             fh.writelines(self.stdin_data)
@@ -326,8 +322,7 @@ class Anaddb(ExecWrapper):
     #    inp.write("dummy1" + "\n")
     #    inp.write("dummy2" + "\n")
     #    inp.write("dummy3" + "\n")
-    #    inp.seek(0)
-    #    self.stdin_data = [s for s in inp]
+    #    self.stdin_data = [s for s in inp.getvalue()]
 
     def diagonalize_1q(self, ddb_file, cwd=None):
 
@@ -352,8 +347,7 @@ class Anaddb(ExecWrapper):
         inp.write("dummy2" + "\n")
         inp.write("dummy3" + "\n")
 
-        inp.seek(0)
-        self.stdin_data = [s for s in inp]
+        self.stdin_data = [s for s in inp.getvalue()]
 
         with open(self.stdin_fname, "w") as fh:
             fh.writelines(self.stdin_data)

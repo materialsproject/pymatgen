@@ -259,9 +259,9 @@ class ParalHints(collections.Iterable):
             # Select the object on which condition is applied
             obj = conf if key is None else AttrDict(conf[key])
             add_it = condition.apply(obj=obj)
-            if key is "vars":
-                print("conf", conf)
-                print("added:", add_it)
+            #if key is "vars":
+            #    print("conf", conf)
+            #    print("added:", add_it)
             if add_it:
                 new_confs.append(conf)
 
@@ -319,9 +319,9 @@ class ParalHints(collections.Iterable):
 
         # Now filter the configurations depending on the values in vars
         if policy.vars_condition:
-            print("condition", policy.vars_condition)
+            #print("condition", policy.vars_condition)
             hints.select_with_condition(policy.vars_condition, key="vars")
-            print("after vars_condition", hints)
+            #print("after vars_condition", hints)
 
             # If no configuration fullfills the requirements,
             # we return the one with the highest speedup.
@@ -2274,9 +2274,9 @@ class AbinitTask(Task):
            Returns (None, None) if some problem occurred.
         """
         logger.info("in autoparal_fake_run")
-        manager, policy = self.manager, self.manager.policy
+        policy = self.manager.policy
 
-        if policy.autoparal == 0 or policy.max_ncpus in [None, 1]: 
+        if policy.autoparal == 0 or policy.max_ncpus in [None, 1]:
             logger.info("Nothing to do in autoparal, returning (None, None)")
             return None, None
 
@@ -2294,7 +2294,7 @@ class AbinitTask(Task):
 
         # Build a simple manager to run the job in a shell subprocess on the frontend
         # we don't want to make a request to the queue manager for this simple job!
-        seq_manager = manager.to_shell_manager(mpi_ncpus=1)
+        seq_manager = self.manager.to_shell_manager(mpi_ncpus=1)
 
         # Return code is always != 0 
         process = seq_manager.launch(self)
@@ -2325,20 +2325,20 @@ class AbinitTask(Task):
         self.strategy.add_extra_abivars(optimal.vars)
                                                                   
         # Change the number of MPI nodes.
-        manager.set_mpi_ncpus(optimal.mpi_ncpus)
+        self.manager.set_mpi_ncpus(optimal.mpi_ncpus)
 
         # Change the number of OpenMP threads.
         #if optimal.omp_ncpus > 1:
-        #    manager.set_omp_ncpus(optimal.omp_ncpus)
+        #    self.manager.set_omp_ncpus(optimal.omp_ncpus)
         #else:
-        #    manager.disable_omp()
+        #    self.manager.disable_omp()
 
         # Change the memory per node if automemory evaluates to True.
         mem_per_cpu = optimal.mem_per_cpu
 
         if policy.automemory and mem_per_cpu:
             # mem_per_cpu = max(mem_per_cpu, policy.automemory)
-            manager.set_mem_per_cpu(mem_per_cpu)
+            self.manager.set_mem_per_cpu(mem_per_cpu)
 
         # Reset the status, remove garbage files ...
         self.set_status(self.S_INIT)
@@ -2456,15 +2456,7 @@ class NscfTask(AbinitTask):
 
 class RelaxTask(AbinitTask):
     """
-    Structural optimization.
-
-    .. attributes:
-
-        initial_structure:
-            Structure provided in input.
-
-        final_structure:
-            Relaxed structure
+    Task Structural optimization.
     """
     # What about a possible ScfConvergenceWarning?
     CRITICAL_EVENTS = [
@@ -2474,10 +2466,12 @@ class RelaxTask(AbinitTask):
     def change_structure(self, structure):
         """Change the input structure."""
         print("changing structure")
+        print("old:\n" + str(self.strategy.abinit_input.structure) + "\n")
+        print("new:\n" + str(structure) + "\n")
         self.strategy.abinit_input.set_structure(structure)
 
     def read_final_structure(self):
-        """Read the final structure from the GSR file and save it in self.final_structure."""
+        """Read the final structure from the GSR file."""
         gsr_file = self.outdir.has_abiext("GSR")
         if not gsr_file:
             raise self.RestartError("Cannot find the GSR file with the final structure to restart from.")
@@ -2508,7 +2502,7 @@ class RelaxTask(AbinitTask):
         structure = self.read_final_structure()
                                                            
         # Change the structure.
-        #self.change_structure(structure)
+        self.change_structure(structure)
 
         # Add the appropriate variable for restarting.
         self.strategy.add_extra_abivars(irdvars)
@@ -2783,6 +2777,7 @@ class OpticTask(Task):
 
 
 class AnaddbTask(Task):
+    """Task for Anaddb runs (post-processing of DFPT calculations)."""
     def __init__(self, anaddb_input, ddb_node,
                  gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None):
         """
@@ -2792,20 +2787,17 @@ class AnaddbTask(Task):
             anaddb_input:
                 string with the anaddb variables.
             ddb_node:
-                The node that will produce the DDB file (can be either `Task` or `Workflow` object)
+                The node that will produce the DDB file. Accept `Task`, `Workflow` or filepath.
             gkk_node:
-                The node that will produce the GKK file (can be either `Task` or `Workflow` object)
-                optional.
+                The node that will produce the GKK file (optional). Accept `Task`, `Workflow` or filepath.
             md_node:
-                The node that will produce the MD file (can be either `Task` or `Workflow` object)
-                optional.
+                The node that will produce the MD file (optional). Accept `Task`, `Workflow` or filepath.
             gkk_node:
-                The node that will produce the GKK file (can be either `Task` or `Workflow` object)
-                optional.
+                The node that will produce the GKK file (optional). Accept `Task`, `Workflow` or filepath.
             workdir:
-                Path to the working directory.
+                Path to the working directory (optional).
             manager:
-                `TaskManager` object.
+                `TaskManager` object (optional).
         """
         # Keep a reference to the nodes.
         if is_string(ddb_node): ddb_node = FileNode(ddb_node)
@@ -2816,7 +2808,7 @@ class AnaddbTask(Task):
         if gkk_node is not None: deps.update({gkk_node: "GKK"})
         self.gkk_node = gkk_node
 
-        # TODO: I never used it!
+        # I never used it!
         if is_string(md_node): md_node = FileNode(md_node)
         if md_node is not None: deps.update({md_node: "MD"})
         self.md_node = md_node
