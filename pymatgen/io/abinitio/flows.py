@@ -759,7 +759,7 @@ class AbinitFlow(Node):
 
         # Wrap the callable in a Callback object and save 
         # useful info such as the index of the workflow and the callback data.
-        cbk = Callback(cbk_name, self, deps=deps, cbk_data=cbk_data)
+        cbk = FlowCallback(cbk_name, self, deps=deps, cbk_data=cbk_data)
         self._callbacks.append(cbk)
                                                                                                             
         return work
@@ -877,10 +877,7 @@ class G0W0WithQptdmFlow(AbinitFlow):
         scr_input:
             Input for the SCR run.
         sigma_inputs:
-            Input(s) for the SIGMA run.
-
-    Returns:
-        `AbinitFlow`
+            Input(s) for the SIGMA run(s).
     """
     def __init__(self, workdir, manager, scf_input, nscf_input, scr_input, sigma_inputs):
         super(G0W0WithQptdmFlow, self).__init__(workdir, manager)
@@ -888,15 +885,9 @@ class G0W0WithQptdmFlow(AbinitFlow):
         # Register the first workflow (GS + NSCF calculation)
         bands_work = self.register_work(BandStructureWorkflow(scf_input, nscf_input))
 
-        assert not bands_work.scf_task.depends_on(bands_work.scf_task)
-        assert bands_work.nscf_task.depends_on(bands_work.scf_task)
-
         # Register the callback that will be executed the workflow for the SCR with qptdm.
         scr_work = self.register_work_from_cbk(cbk_name="cbk_qptdm_workflow", cbk_data={"input": scr_input},
                                                deps={bands_work.nscf_task: "WFK"}, work_class=QptdmWorkflow)
-
-        assert scr_work.depends_on(bands_work.nscf_task)
-        assert not scr_work.depends_on(bands_work.scf_task)
 
         # The last workflow contains a list of SIGMA tasks
         # that will use the data produced in the previous two workflows.
@@ -909,16 +900,14 @@ class G0W0WithQptdmFlow(AbinitFlow):
         self.register_work(sigma_work)
 
         self.allocate()
-        #assert sigma_task.depends_on(bands_work.nscf_task)
-        #assert not sigma_task.depends_on(bands_work.scf_task)
-        #assert sigma_task.depends_on(scr_work)
-
-        self.show_dependencies()
-        #print("sigma_work.deps", sigma_work.deps)
-        for sigma_task in sigma_work:
-            print("sigma_task.deps", sigma_task.deps)
 
     def cbk_qptdm_workflow(self, cbk):
+        """
+        This callback is executed by the flow when bands_work.nscf_task reaches S_OK.
+
+        It computes the list of q-points for the W(q,G,G'), creates nqpt tasks
+        in the second workflow (QptdmWorkflow), and connect the signals.
+        """
         scr_input = cbk.data["input"]
         # Use the WFK file produced by the second
         # Task in the first Workflow (NSCF step).
@@ -934,27 +923,44 @@ class G0W0WithQptdmFlow(AbinitFlow):
 
         return work
 
-class CallbackError(Exception):
-    """Exceptions raised by Callback."""
+
+class FlowCallbackError(Exception):
+    """Exceptions raised by FlowCallback."""
 
 
-class Callback(object):
-    Error = CallbackError
+class FlowCallback(object):
+    """
+    This object implements the callbacks executeed by the flow when
+    particular conditions are fulfilled. See on_dep_ok method of Flow.
+
+    .. note:
+        I decided to implement callbacks via this object instead of a standard
+        approach based on bound methods because:
+
+            1) pickle (v<=3) does not support the pickling/unplickling of bound methods
+
+            2) There's some extra logic and extra data needed for the proper functioning
+               of a callback at the flow level and this object provides an easy-to-use interface.
+    """
+    Error = FlowCallbackError
 
     def __init__(self, func_name, flow, deps, cbk_data):
         """
-        Initialize the callback.
-
         Args:
             func_name:
-                The name of the function to execute.
-                TODO: Must have signature
+                String with the name of the callback to execute.
+                func_name must be a bound method of flow with signature:
+
+                    func_name(self, cbk)
+
+                where self is the Flow instance and cbk is the callback
             flow:
                 Reference to the `Flow`
             deps:
                 List of dependencies associated to the callback
+                The callback is executed when all dependencies reach S_OK.
             cbk_data:
-                Additional data to pass to the callback.
+                Dictionary with additional data that will be passed to the callback via self.
         """
         self.func_name = func_name
         self.flow = flow
@@ -968,13 +974,14 @@ class Callback(object):
     def __call__(self):
         """Execute the callback."""
         if self.can_execute():
-            #print("in callback")
+            # Get the bound method of the flow from func_name.
+            # We use this trick because pickle (format <=3)
+            # does not support bound methods.
             try:
                 func = getattr(self.flow, self.func_name)
             except AttributeError as exc:
                 raise self.Error(str(exc))
 
-            #print(func)
             return func(self)
 
         else:

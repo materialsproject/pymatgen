@@ -59,6 +59,62 @@ __all__ = [
 ]
 
 
+class WorkflowResults(dict, MSONable):
+    """
+    Dictionary used to store some of the results produce by a workflow.
+    """
+    _MANDATORY_KEYS = [
+        "task_results",
+    ]
+
+    _EXC_KEY = "_exceptions"
+
+    def __init__(self, *args, **kwargs):
+        super(WorkflowResults, self).__init__(*args, **kwargs)
+
+        if self._EXC_KEY not in self:
+            self[self._EXC_KEY] = []
+
+    @property
+    def exceptions(self):
+        """List of registered exceptions."""
+        return self[self._EXC_KEY]
+
+    def push_exceptions(self, *exceptions):
+        """Save a list of exceptions."""
+        for exc in exceptions:
+            newstr = str(exc)
+            if newstr not in self.exceptions:
+                self[self._EXC_KEY] += [newstr]
+
+    def assert_valid(self):
+        """
+        Returns empty string if results seem valid.
+
+        The try assert except trick allows one to get a string with info on the exception.
+        We use the += operator so that sub-classes can add their own message.
+        """
+        # Validate tasks.
+        for tres in self["task_results"]:
+            self[self._EXC_KEY] += tres.assert_valid()
+
+        return self[self._EXC_KEY]
+
+    @property
+    def to_dict(self):
+        """Convert object to dictionary."""
+        d = {k: v for k,v in self.items()}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        """Build the object from a dictionary."""
+        mydict = {k: v for k, v in d.items() if k not in ["@module", "@class"]}
+        return cls(mydict)
+
+
 class WorkflowError(Exception):
     """Base class for the exceptions raised by Workflow objects."""
 
@@ -923,13 +979,11 @@ class PseudoConvergence(Workflow):
         super(PseudoConvergence, self).__init__(workdir, manager)
 
         # Temporary object used to build the strategy.
-        generator = PseudoIterativeConvergence(workdir, manager, pseudo, ecut_list, atols_mev,
-                                               toldfe   =toldfe,
-                                               spin_mode=spin_mode,
-                                               acell    =acell,
-                                               smearing =smearing,
-                                               max_niter=len(ecut_list),
-                                              )
+        generator = PseudoIterativeConvergence(
+            workdir, manager, pseudo, ecut_list, atols_mev,
+            toldfe=toldfe, spin_mode=spin_mode, acell=acell,
+            smearing=smearing, max_niter=len(ecut_list))
+
         self.atols_mev = atols_mev
         self.pseudo = Pseudo.aspseudo(pseudo)
 
@@ -1707,6 +1761,7 @@ class PhononWorkflow(Workflow):
         out_ddb = self.outdir.path_in("out_DDB")
         desc = "DDB file merged by %s on %s" % (self.__class__.__name__, time.asctime())
 
+        # TODO: propagate the taskmanager
         mrgddb = wrappers.Mrgddb(verbose=1)
         mrgddb.set_mpi_runner("mpirun")
         mrgddb.merge(ddb_files, out_ddb=out_ddb, description=desc, cwd=self.outdir.path)
@@ -1723,57 +1778,3 @@ class PhononWorkflow(Workflow):
         return WorkflowResults(returncode=0, message="DDB merge done")
 
 
-class WorkflowResults(dict, MSONable):
-    """
-    Dictionary used to store some of the results produce by a Task object
-    """
-    _MANDATORY_KEYS = [
-        "task_results",
-    ]
-
-    _EXC_KEY = "_exceptions"
-
-    def __init__(self, *args, **kwargs):
-        super(WorkflowResults, self).__init__(*args, **kwargs)
-
-        if self._EXC_KEY not in self:
-            self[self._EXC_KEY] = []
-
-    @property
-    def exceptions(self):
-        """List of registered exceptions."""
-        return self[self._EXC_KEY]
-
-    def push_exceptions(self, *exceptions):
-        """Save a list of exceptions."""
-        for exc in exceptions:
-            newstr = str(exc)
-            if newstr not in self.exceptions:
-                self[self._EXC_KEY] += [newstr]
-
-    def assert_valid(self):
-        """
-        Returns empty string if results seem valid.
-
-        The try assert except trick allows one to get a string with info on the exception.
-        We use the += operator so that sub-classes can add their own message.
-        """
-        # Validate tasks.
-        for tres in self.task_results:
-            self[self._EXC_KEY] += tres.assert_valid()
-
-        return self[self._EXC_KEY]
-
-    @property
-    def to_dict(self):
-        """Convert object to dictionary."""
-        d = {k: v for k,v in self.items()}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
-
-    @classmethod
-    def from_dict(cls, d):
-        """Build the object from a dictionary."""
-        mydict = {k: v for k, v in d.items() if k not in ["@module", "@class"]}
-        return cls(mydict)

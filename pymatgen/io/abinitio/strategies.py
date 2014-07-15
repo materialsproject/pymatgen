@@ -1,13 +1,14 @@
 """Strategy objects for creating ABINIT calculations."""
 from __future__ import division, print_function
 
+import sys
+import os
 import abc
 import collections
 import copy
 import numpy as np
-import os
 
-from pymatgen.util.string_utils import str_aligned, str_delimited, is_string, list_strings
+from pymatgen.util.string_utils import str_aligned, str_delimited, is_string
 from pymatgen.io.abinitio.abiobjects import Electrons
 from pymatgen.io.abinitio.pseudos import PseudoTable
 
@@ -696,12 +697,9 @@ class InputWriter(object):
         abivars.update(self.extra_abivars)
         return abivars
 
-    #def list_objects(self):
-    #    "String comment (comment of self + comments of the objects, if any)"
-    #    for obj in self.abiobjects:
-    #        if hasattr(obj, "comment"):
-    #            lines.append("%s: %s" % (obj.__class__.__name__, obj.comment))
-    #    return "\n".join(lines)
+    def print_abiobjects(self, stream=sys.stdout):
+        lines = [str(obj) for obj in self.abiobjects]
+        stream.write("\n".join(lines))
 
     @staticmethod
     def _format_kv(key, value):
@@ -720,7 +718,7 @@ class InputWriter(object):
                 lines = []
                 for idx, row in enumerate(matrix):
                     lines.append(" ".join(str(i) for i in row))
-                token = [key +"\n", "\n".join(lines)]
+                token = [key + "\n", "\n".join(lines)]
 
         else:
             token = [key, str(value)]
@@ -926,6 +924,7 @@ class OpticInput(object):
         produced by the previous runs.
         """
 
+
 class AnaddbInput(object):
 
     def __init__(self, structure=None, ndtset=1, comment=""):
@@ -949,11 +948,11 @@ class AnaddbInput(object):
     def structure(self):
         return self._structure
 
-    def to_string(self):
-        return self.string
-
     def make_input(self):
         return self.to_string()
+
+    def to_string(self):
+        return self.string
 
     def add_extra_abivars(self, abivars):
         """
