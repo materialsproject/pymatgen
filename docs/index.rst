@@ -110,46 +110,6 @@ v2.9.6
 2. Better error checking for Bandstructure KPOINTs.
 3. Patch to sanitize structures obtained from MPRester.
 
-v2.9.5
-------
-1. Bug fix for linear assignment, which may sometimes affect Structure
-   Matcher results.
-2. Minor improvement to the way grand canonical PDs work.
-
-v2.9.4
-------
-1. Bug fix for Pourbaix Maker (Sai).
-2. Streamline use of scratch directories for various calls. Require monty >=
-   0.1.2.
-3. High accuracy mode for Zeo++ (Bharat Medasani).
-
-v2.9.3
-------
-1. Bug fix release for printing TransformedStructures from Substitutor (Will
-   Richards).
-2. Misc improvements in BVAnalyzer, coord_utils and defects (Will Richards,
-   David Waroquiers and Bharat Medasani).
-
-v2.9.2
-------
-1. Bug fix release for DummySpecie, which failed when deserializing from
-   json and had bad hash function.
-
-v2.9.1
-------
-1. Structure/Molecule now supports Pythonic list-like API for replacing and
-   removing sites. See :ref:`quick_start` for examples.
-
-v2.9.0
-------
-1. Updates to support ABINIT 7.6.1 (by Matteo Giantomassi).
-2. Vastly improved docs.
-3. Refactoring to move commonly used Python utility functions to `Monty
-   package <https://pypi.python.org/pypi/monty>`_, which is now a dependency
-   for pymatgen.
-4. Minor fixes and improvements to DiffusionAnalyzer.
-5. Many bug fixes and improvements.
-
 :doc:`Older versions </changelog>`
 
 Getting pymatgen
@@ -198,8 +158,8 @@ Stable version
     3. Pyhull and PyCifRW. The recent versions of pip does not allow the
        installation of externally hosted files. Furthermore,
        there are some issues with easy_install for these extensions. Install
-       both these dependencies manually using "pip install <package>
-       --allow-external <package> --allow-unverified <package>".
+       both these dependencies manually using ``"pip install <package>
+       --allow-external <package> --allow-unverified <package>"``.
 
 The version at the Python Package Index (PyPI) is always the latest stable
 release that will be hopefully, be relatively bug-free. The easiest way to
@@ -403,8 +363,8 @@ matgenie.py. The typical usage of matgenie.py is::
 
     matgenie.py {analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
 
-At any time, you can use "matgenie.py --help" or "matgenie.py subcommand
---help" to bring up a useful help message on how to use these subcommands.
+At any time, you can use ``"matgenie.py --help"`` or ``"matgenie.py subcommand
+--help"`` to bring up a useful help message on how to use these subcommands.
 Here are a few examples of typical usages::
 
     #Parses all vasp runs in a directory and display the basic energy
