@@ -197,7 +197,7 @@ Stable version
        possible and do "export CC=gcc" prior to installation.
     2. Numpy's distutils is needed to compile the spglib and pyhull
        dependencies. This should be the first thing you install.
-    2. Pyhull and PyCifRW. The recent versions of pip does not allow the
+    3. Pyhull and PyCifRW. The recent versions of pip does not allow the
        installation of externally hosted files. Furthermore,
        there are some issues with easy_install for these extensions. Install
        both these dependencies manually using "pip install <package>
