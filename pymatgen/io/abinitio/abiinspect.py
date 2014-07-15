@@ -524,7 +524,7 @@ def yaml_read_kpoints(filename, doc_tag="!Kpoints"):
 
 
 def yaml_read_irred_perts(filename, doc_tag="!IrredPerts"):
-    """Read the lisr of irreducible perturbations from file."""
+    """Read the list of irreducible perturbations from file."""
     with YamlTokenizer(filename) as r:
         doc = r.next_doc_with_tag(doc_tag)
         d = yaml.load(doc.text_notag)
