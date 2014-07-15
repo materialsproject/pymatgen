@@ -318,7 +318,7 @@ class AbstractQueueAdapter(object):
         # Set job_name and the names for the stderr and stdout of the 
         # queue manager (note the use of the extensions .qout and .qerr
         # so that we can easily locate this file.
-        subs_dict['job_name'] = job_name.replace('/','_') 
+        subs_dict['job_name'] = job_name.replace('/', '_')
         subs_dict['_qout_path'] = qout_path
         subs_dict['_qerr_path'] = qerr_path
 
@@ -604,7 +604,6 @@ class SlurmAdapter(AbstractQueueAdapter):
                 f.write(str(process.stderr.read()))
                 f.write('qparams:')
                 f.write(str(self.qparams))
-                f.close()
 
             process.wait()
 
@@ -633,7 +632,7 @@ class SlurmAdapter(AbstractQueueAdapter):
             logger.critical(msg)
             with open(submit_err_file, mode='a') as f:
                 f.write(msg)
-                f.close()
+
             try:
                 print('sometimes we land here, no idea what is happening ... Michiel')
                 print(details)
@@ -893,7 +892,7 @@ class PbsAdapter(AbstractQueueAdapter):
     # scheduler just yet
 
     def do(self):
-        return 'this is not FORTAN'
+        return 'this is not FORTRAN'
 
     def exclude_nodes(self, nodes):
         logger.warning('exluding nodes, not implemented yet pbs')

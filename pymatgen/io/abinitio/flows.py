@@ -20,7 +20,7 @@ from pymatgen.util.string_utils import pprint_table, is_string
 from pymatgen.io.abinitio.tasks import Dependency, Node, Task, ScfTask, PhononTask 
 from pymatgen.io.abinitio.utils import Directory, Editor
 from pymatgen.io.abinitio.abiinspect import yaml_read_irred_perts
-from pymatgen.io.abinitio.workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow
+from pymatgen.io.abinitio.workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow, QptdmWorkflow
 
 import logging
 logger = logging.getLogger(__name__)
@@ -33,6 +33,7 @@ __maintainer__ = "Matteo Giantomassi"
 
 __all__ = [
     "AbinitFlow",
+    "G0W0WithQptdmFlow",
     "bandstructure_flow",
     "g0w0_flow",
     "phonon_flow",
@@ -397,7 +398,6 @@ class AbinitFlow(Node):
             print(info_msg)
             return False
 
-
     def fix_queue_critical(self):
         """
         Fixer for errors originating from the scheduler.
@@ -722,13 +722,13 @@ class AbinitFlow(Node):
 
         return work
 
-    def register_cbk(self, cbk, cbk_data, deps, work_class, manager=None):
+    def register_work_from_cbk(self, cbk_name, cbk_data, deps, work_class, manager=None):
         """
-        Registers a callback function that will generate the `Task` of the `Workflow`.
+        Registers a callback function that will generate the Tasks of the `Workflow`.
 
         Args:
-            cbk:
-                Callback function.
+            cbk_name:
+                Name of the callback function (must be a bound method of self)
             cbk_data
                 Additional data passed to the callback function.
             deps:
@@ -759,8 +759,7 @@ class AbinitFlow(Node):
 
         # Wrap the callable in a Callback object and save 
         # useful info such as the index of the workflow and the callback data.
-        cbk = Callback(cbk, work, deps=deps, cbk_data=cbk_data)
-                                                                                                            
+        cbk = Callback(cbk_name, self, deps=deps, cbk_data=cbk_data)
         self._callbacks.append(cbk)
                                                                                                             
         return work
@@ -796,24 +795,16 @@ class AbinitFlow(Node):
         for i, cbk in enumerate(self._callbacks):
 
             if not cbk.handle_sender(sender):
-                logger.info("Do not handle")
+                logger.info("%s does not handle sender %s" % (cbk, sender))
                 continue
 
             if not cbk.can_execute():
-                logger.info("cannot execute")
+                logger.info("Cannot execute %s" % cbk)
                 continue 
 
-            # Execute the callback to generate the workflow.
-            print("about to build new workflow")
-            #empty_work = self._works[cbk.w_idx]
-
-            # TODO better treatment of ids
-            # Make sure the new workflow has the same id as the previous one.
-            #new_work_idx = cbk.w_idx
-            work = cbk(flow=self)
-            work.add_deps(cbk.deps)
-
-            # Disable the callback.
+            # Execute the callback and disable it
+            print("about to execute callback %s" % cbk)
+            cbk()
             cbk.disable()
 
             # Update the database.
@@ -867,42 +858,131 @@ class AbinitFlow(Node):
         print("*** end live receivers ***")
 
 
-class Callback(object):
+class G0W0WithQptdmFlow(AbinitFlow):
+    """
+    Build an `AbinitFlow` for one-shot G0W0 calculations.
+    The computation of the q-points for the screening is parallelized with qptdm
+    i.e. we run independent calculation for each q-point and then we merge
+    the final results.
 
-    def __init__(self, func, work, deps, cbk_data):
+    Args:
+        workdir:
+            Working directory.
+        manager:
+            `TaskManager` object used to submit the jobs
+        scf_input:
+            Input for the GS SCF run.
+        nscf_input:
+            Input for the NSCF run (band structure run).
+        scr_input:
+            Input for the SCR run.
+        sigma_inputs:
+            Input(s) for the SIGMA run.
+
+    Returns:
+        `AbinitFlow`
+    """
+    def __init__(self, workdir, manager, scf_input, nscf_input, scr_input, sigma_inputs):
+        super(G0W0WithQptdmFlow, self).__init__(workdir, manager)
+
+        # Register the first workflow (GS + NSCF calculation)
+        bands_work = self.register_work(BandStructureWorkflow(scf_input, nscf_input))
+
+        assert not bands_work.scf_task.depends_on(bands_work.scf_task)
+        assert bands_work.nscf_task.depends_on(bands_work.scf_task)
+
+        # Register the callback that will be executed the workflow for the SCR with qptdm.
+        scr_work = self.register_work_from_cbk(cbk_name="cbk_qptdm_workflow", cbk_data={"input": scr_input},
+                                               deps={bands_work.nscf_task: "WFK"}, work_class=QptdmWorkflow)
+
+        assert scr_work.depends_on(bands_work.nscf_task)
+        assert not scr_work.depends_on(bands_work.scf_task)
+
+        # The last workflow contains a list of SIGMA tasks
+        # that will use the data produced in the previous two workflows.
+        if not isinstance(sigma_inputs, (list, tuple)):
+            sigma_inputs = [sigma_inputs]
+
+        sigma_work = Workflow()
+        for sigma_input in sigma_inputs:
+            sigma_work.register(sigma_input, deps={bands_work.nscf_task: "WFK", scr_work: "SCR"})
+        self.register_work(sigma_work)
+
+        self.allocate()
+        #assert sigma_task.depends_on(bands_work.nscf_task)
+        #assert not sigma_task.depends_on(bands_work.scf_task)
+        #assert sigma_task.depends_on(scr_work)
+
+        self.show_dependencies()
+        #print("sigma_work.deps", sigma_work.deps)
+        for sigma_task in sigma_work:
+            print("sigma_task.deps", sigma_task.deps)
+
+    def cbk_qptdm_workflow(self, cbk):
+        scr_input = cbk.data["input"]
+        # Use the WFK file produced by the second
+        # Task in the first Workflow (NSCF step).
+        nscf_task = self[0][1]
+        wfk_file = nscf_task.outdir.has_abiext("WFK")
+
+        work = self[1]
+        work.set_manager(self.manager)
+        work.create_tasks(wfk_file, scr_input)
+        work.add_deps(cbk.deps)
+        work.connect_signals()
+        work.build()
+
+        return work
+
+class CallbackError(Exception):
+    """Exceptions raised by Callback."""
+
+
+class Callback(object):
+    Error = CallbackError
+
+    def __init__(self, func_name, flow, deps, cbk_data):
         """
         Initialize the callback.
 
         Args:
-            func:
-                The function to execute. Must have signature .... TODO
-            work:
-                Reference to the `Workflow` that will be filled.
+            func_name:
+                The name of the function to execute.
+                TODO: Must have signature
+            flow:
+                Reference to the `Flow`
             deps:
                 List of dependencies associated to the callback
             cbk_data:
                 Additional data to pass to the callback.
         """
-        self.func = func
-        self.work = work
+        self.func_name = func_name
+        self.flow = flow
         self.deps = deps
-        self.cbk_data = cbk_data or {}
+        self.data = cbk_data or {}
         self._disabled = False
 
-    def __call__(self, flow):
+    def __str__(self):
+        return "%s: %s bound to %s" % (self.__class__.__name__, self.func_name, self.flow)
+
+    def __call__(self):
         """Execute the callback."""
         if self.can_execute():
-            print("in callback")
-            #print("in callback with sender %s, signal %s" % (sender, signal))
-            cbk_data = self.cbk_data.copy()
-            #cbk_data["_w_idx"] = self.w_idx
-            return self.func(flow=flow, work=self.work, cbk_data=cbk_data)
+            #print("in callback")
+            try:
+                func = getattr(self.flow, self.func_name)
+            except AttributeError as exc:
+                raise self.Error(str(exc))
+
+            #print(func)
+            return func(self)
+
         else:
-            raise Exception("Cannot execute")
+            raise self.Error("You tried to __call_ a callback that cannot be executed!")
 
     def can_execute(self):
-        """True if we can execut the callback."""
-        return not self._disabled and [dep.status == dep.node.S_OK  for dep in self.deps]
+        """True if we can execute the callback."""
+        return not self._disabled and [dep.status == dep.node.S_OK for dep in self.deps]
 
     def disable(self):
         """

@@ -419,6 +419,8 @@ class PyFlowScheduler(object):
 
             verbose:
                 (int) verbosity level
+            max_njobs_inque:
+                Limit on the number of jobs that can be present in the queue
             use_dynamic_manager:
                 True if the task manager must be re-initialized from 
                 file before launching the jobs. Default: False
@@ -439,6 +441,7 @@ class PyFlowScheduler(object):
         self.mailto = kwargs.pop("mailto", None)
         self.verbose = int(kwargs.pop("verbose", 0))
         self.use_dynamic_manager = kwargs.pop("use_dynamic_manager", False)
+        self.max_njobs_inqueue = kwargs.pop("max_njobs_inqueue", -1)
 
         self.REMINDME_S = float(kwargs.pop("REMINDME_S", 14 * 24 * 3600))
         self.MAX_NUM_PYEXCS = int(kwargs.pop("MAX_NUM_PYEXCS", 0))
@@ -603,6 +606,10 @@ class PyFlowScheduler(object):
         """
         max_nlaunch, excs = 10, []
         flow = self.flow
+
+        #nqjobs = flow.get_njobs_inqueue()
+        #if njobs >= self.max_njobs_inqueue:
+        #   return
 
         # Allow to change the manager at run-time
         if self.use_dynamic_manager:

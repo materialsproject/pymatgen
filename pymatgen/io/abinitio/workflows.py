@@ -34,6 +34,8 @@ from pymatgen.io.abinitio.strategies import ScfStrategy
 from pymatgen.io.abinitio.eos import EOS
 from pymatgen.io.abinitio.abitimer import AbinitTimerParser
 from pymatgen.io.gwwrapper.helpers import refine_structure
+from pymatgen.io.abinitio.abiinspect import yaml_read_kpoints
+
 
 import logging
 logger = logging.getLogger(__name__)
@@ -50,6 +52,7 @@ __all__ = [
     "RelaxWorkflow",
     "DeltaFactorWorkflow",
     "G0W0_Workflow",
+    "QptdmWorkflow",
     "SigmaConvWorkflow",
     "BSEMDF_Workflow",
     "PhononWorkflow",
@@ -201,6 +204,7 @@ class BaseWorkflow(Node):
     def on_ok(self, sender):
         """
         This callback is called when one task reaches status S_OK.
+        It executes on_all_ok when all task in self have reached S_OK.
         """
         logger.debug("in on_ok with sender %s" % sender)
 
@@ -592,11 +596,11 @@ class Workflow(BaseWorkflow):
         """
         wait = kwargs.pop("wait", False)
 
-        # Build dirs and files.
-        self.build(*args, **kwargs)
-
         # Initial setup
         self._setup(*args, **kwargs)
+
+        # Build dirs and files.
+        self.build(*args, **kwargs)
 
         # Submit tasks (does not block)
         self.submit_tasks(wait=wait)
@@ -1588,6 +1592,94 @@ class BSEMDF_Workflow(Workflow):
 
         for bse_input in bse_inputs:
             self.register(bse_input, deps={self.nscf_task: "WFK"}, task_class=BseTask)
+
+
+class QptdmWorkflow(Workflow):
+    """
+    This workflow parallelizes the calculation of the q-points of the screening.
+    It also provides the callback `on_all_ok` that calls mrgscr to merge
+    all the partial screening files produced.
+    """
+    def create_tasks(self, wfk_file, scr_input):
+        """
+        Create the SCR tasks and register them in self.
+
+        Args:
+            wfk_file:
+                Path to the ABINIT WFK file to use for the computation of the screening.
+            scr_input:
+                Input for the screening calculation.
+        """
+        assert len(self) == 0
+        wfk_file = self.wfk_file = os.path.abspath(wfk_file)
+
+        # Build a temporary workflow in the tmpdir that will use a shell manager
+        # to run ABINIT in order to get the list of q-points for the screening.
+        shell_manager = self.manager.to_shell_manager(mpi_ncpus=1)
+
+        w = Workflow(workdir=self.tmpdir.path_join("_qptdm_run"), manager=shell_manager)
+
+        fake_input = scr_input.deepcopy()
+        fake_task = w.register(fake_input)
+        w.allocate()
+        w.build()
+
+        # Create the symbolic link and add the magic value
+        # nqpdm = -1 to the input to get the list of q-points.
+        fake_task.inlink_file(wfk_file)
+        fake_task.strategy.add_extra_abivars({"nqptdm": -1})
+        fake_task.start_and_wait()
+
+        # Parse the section with the q-points
+        try:
+            qpoints = yaml_read_kpoints(fake_task.log_file.path, doc_tag="!Qptdms")
+            #print(qpoints)
+        finally:
+            w.rmtree()
+
+        # Now we can register the task for the different q-points
+        for qpoint in qpoints:
+            qptdm_input = scr_input.deepcopy()
+            qptdm_input.set_variables(nqptdm=1, qptdm=qpoint)
+
+            self.register(qptdm_input, manager=self.manager)
+
+        self.allocate()
+
+    def merge_scrfiles(self, remove_scrfiles=True):
+        """
+        This method is called when all the q-points have been computed.
+        It runs `mrgscr` in sequential on the local machine to produce
+        the final SCR file in the outdir of the `Workflow`.
+        If remove_scrfiles is True, the partial SCR files are removed after the merge.
+        """
+        scr_files = filter(None, [task.outdir.has_abiext("SCR") for task in self])
+
+        logger.debug("will call mrgscr to merge %s:\n" % str(scr_files))
+        assert len(scr_files) == len(self)
+
+        # TODO: Prograpagate manager to the wrappers
+        mrgscr = wrappers.Mrgscr(verbose=1)
+        mrgscr.set_mpi_runner("mpirun")
+        final_scr = mrgscr.merge_qpoints(scr_files, out_prefix="out", cwd=self.outdir.path)
+
+        if remove_scrfiles:
+            for scr_file in scr_files:
+                try:
+                    os.remove(scr_file)
+                except IOError:
+                    pass
+
+        return final_scr
+
+    def on_all_ok(self):
+        """
+        This method is called when all the q-points have been computed.
+        It runs `mrgscr` in sequential on the local machine to produce
+        the final SCR file in the outdir of the `Workflow`.
+        """
+        final_scr = self.merge_scrfiles()
+        return WorkflowResults(returncode=0, message="mrgscr done", final_scr=final_scr)
 
 
 class PhononWorkflow(Workflow):

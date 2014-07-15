@@ -159,9 +159,9 @@ class Directory(object):
         """Recursively delete the directory tree"""
         shutil.rmtree(self.path, ignore_errors=True)
 
-    def path_in(self, filename):
+    def path_in(self, file_basename):
         """Return the absolute path of filename in the directory."""
-        return os.path.join(self.path, filename)
+        return os.path.join(self.path, file_basename)
 
     def list_filepaths(self, wildcard=None):
         """
@@ -284,7 +284,7 @@ def abi_splitext(filename):
 
     root = filename[:i]
     if is_ncfile: 
-        ext = ext + ".nc"
+        ext += ".nc"
 
     return root, ext
 
@@ -547,7 +547,7 @@ class Condition(object):
         try:
             return evaluate_rpn(map2rpn(self.cmap, obj))
         except Exception as exc:
-            logger.critical("Condition.apply() raise Exception:\n %s" % str(exc))
+            logger.warning("Condition.apply() raise Exception:\n %s" % str(exc))
             return False
 
 
