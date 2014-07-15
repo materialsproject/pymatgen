@@ -1601,6 +1601,11 @@ class Task(Node):
 
         self._status = status
 
+        if status == self.S_RUN:
+            # Set start_datetime when the task enters S_RUN
+            if self.start_datetime is None:
+                self.start_datetime = datetime.datetime.now()
+
         # Add new entry to history only if the status has changed.
         if changed:
             if status == self.S_SUB: 
@@ -1612,11 +1617,6 @@ class Task(Node):
 
             if status == self.S_ABICRITICAL:
                 self.history.append("Error info:\n %s" % str(info_msg))
-
-        if status == self.S_RUN:
-            # Set start_datetime when the task enters S_RUN
-            if self.start_datetime is None:
-                self.start_datetime = datetime.datetime.now()
 
         if status == self.S_DONE:
             self.stop_datetime = datetime.datetime.now()
@@ -2319,7 +2319,7 @@ class AbinitTask(Task):
 
         # 3) Select the optimal configuration according to policy
         optimal = confs.select_optimal_conf(policy)
-        print("optimal Autoparal conf:\n %s" % optimal)
+        #print("optimal Autoparal conf:\n %s" % optimal)
 
         # 4) Change the input file and/or the submission script
         self.strategy.add_extra_abivars(optimal.vars)
