@@ -1399,7 +1399,7 @@ class GbrvRelaxAndEosWorkflow(Workflow):
 
     def __init__(self, structure, struct_type, pseudo, ecut, ngkpt=(8,8,8),
                  spin_mode="unpolarized", toldfe=1.e-8, smearing="fermi_dirac:0.001 Ha",
-                 accuracy="normal", pawecutdg=None, ecutsm=0.05, chksymbreak=0,
+                 accuracy="normal", pawecutdg=None, paral_kgb=0, ecutsm=0.05, chksymbreak=0,
                  workdir=None, manager=None, **kwargs):
                  # FIXME Hack in chksymbreak
         """
@@ -1438,7 +1438,7 @@ class GbrvRelaxAndEosWorkflow(Workflow):
             prtwf=0,
             #ecutsm=ecutsm,
             nband=8,
-            paral_kgb=0)
+            paral_kgb=paral_kgb)
                                        
         self.extra_abivars.update(**kwargs)
         self.ecut = ecut

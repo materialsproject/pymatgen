@@ -473,7 +473,6 @@ class ShellAdapter(AbstractQueueAdapter):
 #!/bin/bash
 
 export MPI_NCPUS=$${MPI_NCPUS}
-
 """
 
     @property
