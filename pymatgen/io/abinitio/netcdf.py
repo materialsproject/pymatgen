@@ -159,15 +159,15 @@ class NetcdfReader(object):
             # MG: The code below is not portable.
 
             # This one works on my Mac,
-            return var.getValue()[0] if not var.shape else var[:]
+            #return var.getValue()[0] if not var.shape else var[:]
 
             # This one is needed on zenobe!
             #if not isinstance(var.getValue(), collections.Iterable):
+            #return var.getValue()[0] if not var.shape else var[:]
             try:
-                return var.getValue() if not var.shape else var[:]
-            #elif not isinstance(var.getValue()[0], collections.Iterable):
-            except IndexError:
                 return var.getValue()[0] if not var.shape else var[:]
+            except IndexError:
+                return var.getValue() if not var.shape else var[:]
 
         else:
             assert var.shape[-1] == 2
