@@ -601,6 +601,15 @@ class TaskManager(object):
 
         return process
 
+    def increase_max_ncpus(self):
+        base_increase = 12
+        new = self.policy.max_ncpus + base_increase
+        if new <= 240:
+            self.set_max_ncpus(new)
+            return True
+        else:
+            return False
+
 
 # The code below initializes a counter from a file when the module is imported 
 # and save the counter's updated value automatically when the program terminates 
@@ -1627,7 +1636,7 @@ class Task(Node):
         # this point type of problem should also be handled by the scheduler error parser
         if self.returncode != 0:
             info_msg = "return code %s" % self.returncode
-            return self.set_status(self.S_ABICRITICAL, info_msg=info_msg)           # The job was not submitter properly
+            return self.set_status(self.S_QUEUECRITICAL, info_msg=info_msg)           # The job was not submitter properly
 
 #        err_msg = None
 #=======
@@ -1785,6 +1794,13 @@ class Task(Node):
         # print('the job still seems to be running maybe it is hanging without producing output... ')
 
         return self.set_status(self.S_RUN)
+
+    def fix_abicritical(self):
+        """
+
+        """
+        # todo implement this
+        return False
 
     def reduce_memory_demand(self):
         """
