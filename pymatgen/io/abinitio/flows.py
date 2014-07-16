@@ -387,16 +387,23 @@ class AbinitFlow(Node):
         for work in self:
             work.check_status()
 
+    def fix_critical(self):
+        self.fix_queue_critical()
+        self.fix_abi_critical()
+
     def fix_abi_critical(self):
         """
         Fixer for critical events originating form abinit
         """
         for task in self.iflat_tasks(status='S_ABICRITICAL'):
             #todo
-            info_msg = 'We encountered an abi critial envent that could not be fixed'
-            print(info_msg)
-            return False
-
+            if task.fix_abicritial():
+                task.restart()
+                task.set_status(task.S_READY)
+            else:
+                info_msg = 'We encountered an abi critial envent that could not be fixed'
+                print(info_msg)
+                task.set_status(status=task.S_ERROR)
 
     def fix_queue_critical(self):
         """
@@ -413,7 +420,7 @@ class AbinitFlow(Node):
             if not task.queue_errors:
                 # queue error but no errors detected, try to solve by increasing resources
                 # if resources are at maximum the tast is definitively turned to errored
-                if task.manager.qadapter.increase_resources():
+                if task.manager.policy.increase_max_ncpu():
                     task.restart()
                     task.set_status(task.S_READY)
                     return True

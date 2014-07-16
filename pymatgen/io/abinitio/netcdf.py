@@ -157,12 +157,10 @@ class NetcdfReader(object):
             #return var[0] if not var.shape else var[:]
             #return var.getValue() if not var.shape else var[:]
             #return var.getValue()[0] if not var.shape else var[:]
-            #if not isinstance(var.getValue(), collections.Iterable):
             try:
-                return var.getValue() if not var.shape else var[:]
-            #elif not isinstance(var.getValue()[0], collections.Iterable):
-            except IndexError:
                 return var.getValue()[0] if not var.shape else var[:]
+            except IndexError:
+                return var.getValue() if not var.shape else var[:]
 
         else:
             assert var.shape[-1] == 2
