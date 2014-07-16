@@ -30,7 +30,7 @@ from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
 from pymatgen.io.abinitio.qadapters import qadapter_class
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
-from pymatgen.io.abinitio.strategies import StrategyWithInput, OpticInput, AnaddbInput
+from pymatgen.io.abinitio.strategies import StrategyWithInput, OpticInput
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -2707,7 +2707,7 @@ class OpticTask(Task):
 
         deps = {task: "1WF" for task in ddk_nodes}
         deps.update({nscf_node: "WFK"})
-        print("deps", deps)
+        #print("deps", deps)
 
         strategy = OpticInput(optic_input)
         super(OpticTask, self).__init__(strategy=strategy, workdir=workdir, manager=manager, deps=deps)
@@ -2818,7 +2818,9 @@ class AnaddbTask(Task):
         self.ddk_node = ddk_node
                                                                                                         
         # TODO Refactor this code.
-        strategy = AnaddbInput(anaddb_input)
+        #from pymatgen.io.abinitio.strategies import AnaddbInput
+        #strategy = AnaddbInput(anaddb_input)
+        strategy = anaddb_input
         super(AnaddbTask, self).__init__(strategy=strategy, workdir=workdir, manager=manager, deps=deps)
 
     @property
