@@ -282,6 +282,7 @@ class InterstitialTransformation(AbstractTransformation):
         else:
             s = structure.copy()
             valrad_eval = ValenceIonicRadiusEvaluator(s)
+            s = valrad_eval.structure 
             val = valrad_eval.valences
             rad = valrad_eval.radii
             inter = Interstitial(s,val,rad,oxi_state=True)
