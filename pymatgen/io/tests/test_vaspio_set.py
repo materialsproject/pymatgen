@@ -222,9 +222,11 @@ class MITMPVaspInputSetTest(unittest.TestCase):
                          [10, -5, 0.6])
 
     def test_optics(self):
-        self.mpopticsparamset = MPOpticsNonSCFVaspInputSet.from_previous_vasp_run('{}/static_silicon'.format(test_dir),
-                                                                                  output_dir='optics_test_dir',
-                                                                                  nedos=1145)
+        if "VASP_PSP_DIR" not in os.environ:
+            os.environ["VASP_PSP_DIR"] = test_dir
+        self.mpopticsparamset = MPOpticsNonSCFVaspInputSet.from_previous_vasp_run(
+            '{}/static_silicon'.format(test_dir), output_dir='optics_test_dir',
+            nedos=1145)
         self.assertTrue(os.path.exists('optics_test_dir/CHGCAR'))
         incar = Incar.from_file('optics_test_dir/INCAR')
         self.assertTrue(incar['LOPTICS'])
