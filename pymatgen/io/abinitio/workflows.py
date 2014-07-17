@@ -1179,32 +1179,35 @@ class RelaxWorkflow(Workflow):
 
         # Use WFK for the time being since I don't know why Abinit produces all these _TIM?_DEN files.
         #self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "DEN"}, task_class=RelaxTask)
-        #self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "WFK"}, task_class=RelaxTask)
+        self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "WFK"}, task_class=RelaxTask)
 
         # Lock ioncell_task as ion_task should communicate to ioncell_task that 
         # the calculation is OK and pass the final structure.
-        #self.ioncell_task.set_status(self.S_LOCKED)
+        self.ioncell_task.set_status(self.S_LOCKED)
 
-        #self.transfer_done = False
+        self.transfer_done = False
 
     def on_ok(self, sender):
-        """This callback is called when one task reaches status S_OK."""
+        """
+        This callback is called when one task reaches status S_OK.
+        If sender == self.ion_task, we update the initial structure
+        used by self.ioncell_task and we unlock it so that the job can be submitted.
+        """
         logger.debug("in on_ok with sender %s" % sender)
 
         if sender == self.ion_task and not self.transfer_done:
-            # Get the relaxed structure.
+            # Get the relaxed structure from ion_task
             ion_structure = self.ion_task.read_final_structure()
-            print("relaxed ion_structure", ion_structure)
+            print("Got relaxed ion_structure", ion_structure)
 
-            # Transfer it to the ioncell task (do it only once).
+            # Transfer it to the ioncell task (we do it only once).
             self.ioncell_task.change_structure(ion_structure)
             self.transfer_done = True
 
-            # Finally unlock ioncell_task so that we can submit it.
+            # Unlock ioncell_task so that we can submit it.
             self.ioncell_task.set_status(self.S_READY)
 
-        base_results = super(RelaxWorkflow, self).on_ok(sender)
-        return base_results
+        return super(RelaxWorkflow, self).on_ok(sender)
 
 
 class DeltaFactorWorkflow(Workflow):
@@ -1219,9 +1222,9 @@ class DeltaFactorWorkflow(Workflow):
 
         Args:   
             structure_or_cif:
-                Structure objec or string with the path of the CIF file.
+                Structure object or string with the path of the CIF file.
             pseudo:
-                String with the name of the pseudopotential file or `Pseudo` object.` object.` object.` 
+                String with the name of the pseudopotential file or `Pseudo` object.`
             kppa:
                 Number of k-points per atom.
             spin_mode:
@@ -1444,7 +1447,7 @@ class GbrvEosWorkflow(Workflow):
             b1=eos_fit.b1,
             a0=a0))
 
-        print("for GBRV struct_type: ", self.struct_type, "a0= ",a0, "Angstrom")
+        print("for GBRV struct_type: ", self.struct_type, "a0= ", a0, "Angstrom")
 
         return wf_results
 
@@ -1564,12 +1567,12 @@ class G0W0_Workflow(Workflow):
         # register all scf_inputs but link the nscf only the last scf in the list
         if isinstance(scf_input, (list, tuple)):
             for single_scf_input in scf_input:
-                self.scf_task = scf_task = self.register(single_scf_input, task_class=ScfTask)
+                self.scf_task = self.register(single_scf_input, task_class=ScfTask)
         else:
-            self.scf_task = scf_task = self.register(scf_input, task_class=ScfTask)
+            self.scf_task = self.register(scf_input, task_class=ScfTask)
 
         # Construct the input for the NSCF run.
-        self.nscf_task = nscf_task = self.register(nscf_input, deps={scf_task: "DEN"}, task_class=NscfTask)
+        self.nscf_task = nscf_task = self.register(nscf_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
 
         # Register the SCREENING run.
         self.scr_task = scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
@@ -1592,9 +1595,9 @@ class SigmaConvWorkflow(Workflow):
         """
         Args:
             wfk_node:
-                The node who has produced the WFK file
+                The node who has produced the WFK file or filepath pointing to the WFK file.
             scr_node:
-                The node who has produced the SCR file
+                The node who has produced the SCR file or filepath pointing to the SCR file.
             sigma_inputs:
                 List of Strategies for the self-energy run.
             workdir:
@@ -1602,6 +1605,10 @@ class SigmaConvWorkflow(Workflow):
             manager:
                 `TaskManager` object.
         """
+        # Cast to node instances.
+        wfk_node = Node.as_node(wfk_node)
+        scr_node = Node.as_node(scr_node)
+
         super(SigmaConvWorkflow, self).__init__(workdir=workdir, manager=manager)
 
         # Register the SIGMA runs.
