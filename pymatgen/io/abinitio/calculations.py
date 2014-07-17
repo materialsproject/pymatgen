@@ -58,7 +58,7 @@ class PPConvergenceFactory(object):
         """
         workdir = os.path.abspath(workdir)
 
-        smearing = Smearing.assmearing(smearing)
+        smearing = Smearing.as_smearing(smearing)
 
         if isinstance(ecut_range, slice):
             workflow = PseudoIterativeConvergence(
@@ -218,7 +218,7 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
             Number of bands used to compute the self-energy (default is nscf_nband)
         gw_qprange:
             Option for the automatic selection of k-points and bands for GW corrections.
-            See Abinit docs for more detail. The default value makes the code computie the 
+            See Abinit docs for more detail. The default value makes the code compute the
             QP energies for all the point in the IBZ and one band above and one band below the Fermi level.
         workdir:
             Working directory.
@@ -236,7 +236,7 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
     scf_strategy = ScfStrategy(structure, pseudos, scf_ksampling,
                                accuracy=accuracy, spin_mode=spin_mode,
                                smearing=smearing, charge=charge,
-                               scf_algorithm=None, **extra_abivars)
+                               scf_algorithm=scf_algorithm, **extra_abivars)
 
     nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
 
@@ -249,7 +249,7 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
                           hilbert=None, ecutwfn=None, inclvkb=inclvkb)
 
     self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening,
-                             ppmodel=ppmodel)
+                             gw_qprange=gw_qprange, ppmodel=ppmodel)
 
     scr_strategy = ScreeningStrategy(scf_strategy, nscf_strategy, screening, **extra_abivars)
 
