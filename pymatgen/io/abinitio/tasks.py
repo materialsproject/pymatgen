@@ -961,6 +961,26 @@ class Node(object):
             # this usually happens when workdir has not been initialized
             return "<%s, workdir=None>" % self.__class__.__name__
 
+    @classmethod
+    def as_node(cls, obj):
+        """
+        Convert obj into a Node instance.
+
+        Return:
+            obj if obj is a Node instance,
+            cast obj to `FileNode` instance of obj is a string.
+            None if obj is None
+        """
+        if isinstance(obj, cls):
+            return obj
+        elif is_string(obj):
+            # Assume filepath.
+            return FileNode(obj)
+        elif obj is None:
+            return obj
+        else:
+            raise TypeError("Don't know how to convert %s to Node instance." % obj)
+
     @property
     def name(self):
         """
@@ -2191,10 +2211,6 @@ class AbinitTask(Task):
     """
     Base class defining an ABINIT calculation
     """
-    #IN = "in"
-    #OUT = "out"
-    #TMP = "tmp"
-
     @classmethod
     def from_input(cls, abinit_input, workdir=None, manager=None):
         """
@@ -2228,8 +2244,6 @@ class AbinitTask(Task):
             last = max(nums) if nums else 0
             new_path = self.output_file.path + "_" + str(last+1)
 
-            # Call os.rename and are done! It's really amazing the that I can write Fortran code that runs on 10**3 processors 
-            # whereas a simple mv in F90 requires a lot of unportable tricks (where unportable means "not supported by $windows$").
             logger.info("Will rename %s to %s" % (self.output_file.path, new_path))
             os.rename(self.output_file.path, new_path)
 
@@ -2502,6 +2516,11 @@ class RelaxTask(AbinitTask):
         Structure relaxations can be restarted only if we have the WFK file or the DEN or the GSR file.
         from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
         Prefer WFK over other files since we can reuse the wavefunctions.
+
+        .. note:
+            The problem in the present approach is that some parameters in the input
+            are computed from the initial structure and may not be consisten with
+            the modification of the structure done during the structure relaxation.
         """
         ofile = None
         for ext in ["WFK", "DEN"]:
@@ -2714,23 +2733,18 @@ class OpticTask(Task):
                 `TaskManager` object.
         """
         # Convert paths to FileNodes
-        if is_string(nscf_node):
-            nscf_node = FileNode(nscf_node)
+        self.nscf_node = Node.as_node(nscf_node)
+        self.ddk_nodes = [Node.as_node(n) for n in ddk_nodes]
+        assert len(ddk_nodes) == 3
+        print(self.nscf_node)
+        print(self.ddk_nodes)
 
-        if is_string(ddk_nodes[0]):
-            assert all(is_string(f) for f in ddk_nodes)
-            ddk_nodes = [FileNode(fname) for fname in ddk_nodes]
-
-        deps = {task: "1WF" for task in ddk_nodes}
-        deps.update({nscf_node: "WFK"})
+        deps = {n: "1WF" for n in self.ddk_nodes}
+        deps.update({self.nscf_node: "WFK"})
         #print("deps", deps)
 
         strategy = OpticInput(optic_input)
         super(OpticTask, self).__init__(strategy=strategy, workdir=workdir, manager=manager, deps=deps)
-
-        # Keep a reference to the nscf_task and the ddk tasks
-        assert len(ddk_nodes) == 3
-        self.nscf_node, self.ddk_nodes = nscf_node, ddk_nodes
 
     def set_workdir(self, workdir):
         super(OpticTask, self).set_workdir(workdir)
@@ -2750,14 +2764,13 @@ class OpticTask(Task):
         """String with the list of files and prefixes needed to execute ABINIT."""
         lines = []
         app = lines.append
-        pj = os.path.join
 
         #optic.in     ! Name of input file
         #optic.out    ! Unused
         #optic        ! Root name for all files that will be produced
         app(self.input_file.path)                 # Path to the input file
-        app(pj(self.workdir, "unused"))           # Path to the output file
-        app(pj(self.workdir, self.prefix.odata))  # Prefix for output data
+        app(os.path.join(self.workdir, "unused"))           # Path to the output file
+        app(os.path.join(self.workdir, self.prefix.odata))  # Prefix for output data
 
         return "\n".join(lines)
 
@@ -2816,28 +2829,23 @@ class AnaddbTask(Task):
                 `TaskManager` object (optional).
         """
         # Keep a reference to the nodes.
-        if is_string(ddb_node): ddb_node = FileNode(ddb_node)
-        deps = {ddb_node: "DDB"}
-        self.ddb_node = ddb_node
+        self.ddb_node = Node.as_node(ddb_node)
+        deps = {self.ddb_node: "DDB"}
 
-        if is_string(gkk_node): gkk_node = FileNode(gkk_node)
-        if gkk_node is not None: deps.update({gkk_node: "GKK"})
-        self.gkk_node = gkk_node
+        self.gkk_node = Node.as_node(gkk_node)
+        if self.gkk_node is not None:
+            deps.update({self.gkk_node: "GKK"})
 
         # I never used it!
-        if is_string(md_node): md_node = FileNode(md_node)
-        if md_node is not None: deps.update({md_node: "MD"})
-        self.md_node = md_node
+        self.md_node = Node.as_node(md_node)
+        if self.md_node is not None:
+            deps.update({self.md_node: "MD"})
 
-        if is_string(ddk_node): ddk_node = FileNode(ddk_node)
-        if ddk_node is not None: deps.update({ddk_node: "DDK"})
-        self.ddk_node = ddk_node
-                                                                                                        
-        # TODO Refactor this code.
-        #from pymatgen.io.abinitio.strategies import AnaddbInput
-        #strategy = AnaddbInput(anaddb_input)
-        strategy = anaddb_input
-        super(AnaddbTask, self).__init__(strategy=strategy, workdir=workdir, manager=manager, deps=deps)
+        self.ddk_node = Node.as_node(ddk_node)
+        if self.ddk_node is not None:
+            deps.update({self.ddk_node: "DDK"})
+
+        super(AnaddbTask, self).__init__(strategy=anaddb_input, workdir=workdir, manager=manager, deps=deps)
 
     @property
     def executable(self):

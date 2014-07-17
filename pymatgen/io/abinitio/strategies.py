@@ -329,8 +329,8 @@ class ScfStrategy(Strategy):
 
         extra.update(self.extra_abivars)
 
-        input = InputWriter(self.structure, self.electrons, self.ksampling, **extra)
-        return input.get_string()
+        inpw = InputWriter(self.structure, self.electrons, self.ksampling, **extra)
+        return inpw.get_string()
 
 
 class NscfStrategy(Strategy):
@@ -662,7 +662,7 @@ class InputWriter(object):
             else:
                 self.add_extra_abivars(arg)
 
-        for (k,v) in kwargs.items():
+        for k, v in kwargs.items():
             self.add_extra_abivars({k: v})
 
     def __str__(self):
@@ -705,7 +705,8 @@ class InputWriter(object):
     def _format_kv(key, value):
         """Formatter"""
         if value is None:
-            return [] # Use ABINIT default.
+            # Use ABINIT default.
+            return []
 
         if isinstance(value, collections.Iterable) and not is_string(value):
             arr = np.array(value)
@@ -807,10 +808,6 @@ class StrategyWithInput(object):
         # Order pseudos
         pseudos = self.abinit_input.pseudos
         return order_pseudos(pseudos, self.abinit_input.structure)
-        #print("pseudos", pseudos)
-        #print("ord_pseudos", ord_pseudos)
-        #return ord_pseudos
-        #return self.abinit_input.pseudos
 
     def add_extra_abivars(self, abivars):
         """Add variables (dict) to extra_abivars."""

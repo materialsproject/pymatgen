@@ -23,6 +23,7 @@ from pymatgen.io.smartio import read_structure
 from .netcdf import structure_from_etsf_file
 
 # tools
+
 def contract(s):
     """
     >>> contract("1 1 1 2 2 3")
