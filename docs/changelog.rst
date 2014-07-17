@@ -1,6 +1,46 @@
 Change log
 ==========
 
+v2.9.5
+------
+1. Bug fix for linear assignment, which may sometimes affect Structure
+   Matcher results.
+2. Minor improvement to the way grand canonical PDs work.
+
+v2.9.4
+------
+1. Bug fix for Pourbaix Maker (Sai).
+2. Streamline use of scratch directories for various calls. Require monty >=
+   0.1.2.
+3. High accuracy mode for Zeo++ (Bharat Medasani).
+
+v2.9.3
+------
+1. Bug fix release for printing TransformedStructures from Substitutor (Will
+   Richards).
+2. Misc improvements in BVAnalyzer, coord_utils and defects (Will Richards,
+   David Waroquiers and Bharat Medasani).
+
+v2.9.2
+------
+1. Bug fix release for DummySpecie, which failed when deserializing from
+   json and had bad hash function.
+
+v2.9.1
+------
+1. Structure/Molecule now supports Pythonic list-like API for replacing and
+   removing sites. See :ref:`quick_start` for examples.
+
+v2.9.0
+------
+1. Updates to support ABINIT 7.6.1 (by Matteo Giantomassi).
+2. Vastly improved docs.
+3. Refactoring to move commonly used Python utility functions to `Monty
+   package <https://pypi.python.org/pypi/monty>`_, which is now a dependency
+   for pymatgen.
+4. Minor fixes and improvements to DiffusionAnalyzer.
+5. Many bug fixes and improvements.
+
 v2.8.10
 -------
 1. Refactoring of qchemio module (by Xiaohui Qu).

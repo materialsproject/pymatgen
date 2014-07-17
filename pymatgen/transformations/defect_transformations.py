@@ -53,7 +53,10 @@ class VacancyTransformation(AbstractTransformation):
         if num_to_return < len(scs)-1:
             raise ValueError("VacancyTransformation has no ordering of best "
                              "structure. Must increase return_ranked_list.")
-        return scs[1:]
+        structures = []
+        for sc in scs[1:]: 
+            structures.append({'structure':sc})
+        return structures
 
     def __str__(self):
         inp_args = ["Supercell scaling matrix = {}".format(self.supercell_dim),
@@ -132,7 +135,10 @@ class SubstitutionDefectTransformation(AbstractTransformation):
         if num_to_return < len(sub_scs)-1:
             raise ValueError("SubstitutionDefectTransformation has no ordering"
                     " of best structure. Must increase return_ranked_list.")
-        return sub_scs
+        structures = []
+        for sc in sub_scs:
+            structures.append({'structure':sc})
+        return structures
 
     def __str__(self):
         inp_args = ["Specie map = {}".format(self._specie_map),
@@ -207,7 +213,10 @@ class AntisiteDefectTransformation(AbstractTransformation):
         if num_to_return < len(as_scs)-1:
             raise ValueError("AntisiteDefectTransformation has no ordering "
                     "of best structures. Must increase return_ranked_list.")
-        return as_scs
+        structures = []
+        for sc in as_scs:
+            structures.append({'structure':sc})
+        return structures
 
     def __str__(self):
         inp_args = ["Supercell scaling matrix = {}".format(self.supercell_dim),
@@ -273,9 +282,10 @@ class InterstitialTransformation(AbstractTransformation):
         else:
             s = structure.copy()
             valrad_eval = ValenceIonicRadiusEvaluator(s)
+            s = valrad_eval.structure 
             val = valrad_eval.valences
             rad = valrad_eval.radii
-            inter = Interstitial(s,val,rad)
+            inter = Interstitial(s,val,rad,oxi_state=True)
 
         scs = inter.make_supercells_with_defects(
             self.supercell_dim, self.inter_specie)
@@ -283,7 +293,11 @@ class InterstitialTransformation(AbstractTransformation):
         if num_to_return < len(scs)-1:
             raise ValueError("InterstitialTransformation has no ordering "
                     "of best structures. Must increase return_ranked_list.")
-        return scs[1:]
+
+        structures = []
+        for sc in scs[1:]:
+            structures.append({'structure':sc})
+        return structures
 
     def __str__(self):
         inp_args = ["Supercell scaling matrix = {}".format(self.supercell_dim),

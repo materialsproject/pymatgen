@@ -695,10 +695,11 @@ class StructureMatcher(MSONable):
         return struct1, struct2, fu, s1_supercell
 
     def _match(self, struct1, struct2, fu, s1_supercell=True, use_rms=False,
-                   break_on_match=False):
+               break_on_match=False):
         """
         Matches struct2 onto struct1 (which should contain all sites in
         struct2).
+
         Args:
             struct1, struct2 (Structure): structures to be matched
             fu (int): size of supercell to create
@@ -721,6 +722,7 @@ class StructureMatcher(MSONable):
         #check that a valid mapping exists
         if not self._subset and mask.shape[1] != mask.shape[0]:
             return None
+
         if LinearAssignment(mask).min_cost > 0:
             return None
 
@@ -749,6 +751,7 @@ class StructureMatcher(MSONable):
                         best_match = val, dist, sc_m, total_t, mapping
                         if (break_on_match or val < 1e-5) and val < self.stol:
                             return best_match
+
         if best_match and best_match[0] < self.stol:
             return best_match
 
@@ -999,6 +1002,14 @@ class StructureMatcher(MSONable):
         """
         Performs transformations on struct2 to put it in a basis similar to
         struct1 (without changing any of the inter-site distances)
+
+        Args:
+            struct1 (Structure): Reference structure
+            struct2 (Structure): Structure to transform.
+
+        Returns:
+            A structure object similar to struct1, obtained by making a
+            supercell, sorting, and translating struct2.
         """
         if self._primitive_cell:
             raise ValueError("get_s2_like_s1 cannot be used with the primitive"
@@ -1042,8 +1053,17 @@ class StructureMatcher(MSONable):
 
     def get_mapping(self, superset, subset):
         """
-        Calculate the mapping from superset to subset, i.e.
-        superset[mapping] = subset
+        Calculate the mapping from superset to subset.
+
+        Args:
+            superset (Structure): Structure containing at least the sites in
+                subset (within the structure matching tolerance)
+            subset (Structure): Structure containing some of the sites in
+                superset (within the structure matching tolerance)
+
+        Returns:
+            numpy array such that superset.sites[mapping] is within matching
+            tolerance of subset.sites or None if no such mapping is possible
         """
         if self._supercell:
             raise ValueError("cannot compute mapping to supercell")
@@ -1056,8 +1076,7 @@ class StructureMatcher(MSONable):
         superset, subset, _, _ = self._preprocess(superset, subset, True)
         match = self._match(superset, subset, 1, break_on_match=False)
 
-        if match is None:
+        if match is None or match[0] > self.stol:
             return None
-        if match[0] > self.stol:
-            return None
+
         return match[4]
