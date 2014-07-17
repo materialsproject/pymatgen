@@ -25,12 +25,11 @@ from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
 from pymatgen.util.string_utils import pprint_table, WildCard
 from pymatgen.io.abinitio import wrappers
 from pymatgen.io.abinitio.tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, BseTask, RelaxTask)
-from pymatgen.io.abinitio.strategies import Strategy, RelaxStrategy
+from pymatgen.io.abinitio.strategies import HtcStrategy, ScfStrategy, RelaxStrategy
 from pymatgen.io.abinitio.utils import Directory
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
 from pymatgen.io.abinitio.abiobjects import Smearing, AbiStructure, KSampling, Electrons, RelaxationMethod
 from pymatgen.io.abinitio.pseudos import Pseudo
-from pymatgen.io.abinitio.strategies import ScfStrategy
 from pymatgen.io.abinitio.eos import EOS
 from pymatgen.io.abinitio.abitimer import AbinitTimerParser
 from pymatgen.io.gwwrapper.helpers import refine_structure
@@ -494,7 +493,7 @@ class Workflow(BaseWorkflow):
             if task_class is None:
                 task_class = AbinitTask
 
-            if isinstance(obj, Strategy):
+            if isinstance(obj, HtcStrategy):
                 # Create the new task (note the factory so that we create subclasses easily).
                 task = task_class(obj, task_workdir, manager)
 
@@ -1041,7 +1040,7 @@ class PseudoIterativeConvergence(IterativeWorkflow):
         self.atols_mev = atols_mev
         self.toldfe = toldfe
         self.spin_mode = spin_mode
-        self.smearing = Smearing.assmearing(smearing)
+        self.smearing = Smearing.as_smearing(smearing)
         self.acell = acell
 
         if isinstance(ecut_list_or_slice, slice):
@@ -1264,7 +1263,7 @@ class DeltaFactorWorkflow(Workflow):
 
         structure = AbiStructure.asabistructure(structure)
 
-        #smearing = Smearing.assmearing(smearing)
+        #smearing = Smearing.as_smearing(smearing)
 
         self._input_structure = structure
 

@@ -87,7 +87,7 @@ def num_valence_electrons(pseudos, structure):
     return valence
 
 
-class Strategy(object):
+class AbstractStrategy(object):
     """
     A Strategy object generates the ABINIT input file used for a particular type of calculation
     e.g. ground-state runs, structural relaxations, self-energy calculations ...
@@ -97,48 +97,41 @@ class Strategy(object):
     Strategy objects must provide the method make_input that builds and returns the abinit input file.
 
     Attributes:
-        accuracy:
-            Accuracy of the calculation used to define basic parameters of the run.
-            such as tolerances, basis set truncation ...
+
         pseudos:
             List of pseudopotentials.
     """
     __metaclass__ = abc.ABCMeta
 
-    # Mapping runlevel --> optdriver variable
-    _runl2optdriver = {
-        "scf"      : 0 ,
-        "nscf"     : 0 ,
-        "relax"    : 0 ,
-        "dfpt"     : 1 ,
-        "screening": 3 ,
-        "sigma"    : 4 ,
-        "bse"      : 99,
-    }
+    #@abc.abstractproperty
+    #def pseudos(self):
 
-    # Name of the (default) tolerance used by the runlevels.
-    _runl2tolname = {
-        "scf"      : 'tolvrs',
-        "nscf"     : 'tolwfr',
-        "dfpt"     : 'toldfe',   # ?
-        "screening": 'toldfe',   # dummy
-        "sigma"    : 'toldfe',   # dummy
-        "bse"      : 'toldfe',   # ?
-        "relax"    : 'tolrff',
-    }
+    @property
+    def isnc(self):
+        """True if norm-conserving calculation."""
+        return self.pseudos.allnc
 
-    # Tolerances for the different levels of accuracy.
-    T = collections.namedtuple('Tolerance', "low normal high")
-    _tolerances = {
-        "toldfe": T(1.e-7,  1.e-8,  1.e-9),
-        "tolvrs": T(1.e-7,  1.e-8,  1.e-9),
-        "tolwfr": T(1.e-15, 1.e-17, 1.e-19),
-        "tolrff": T(0.04,   0.02,   0.01),
-        }
-    del T
+    @property
+    def ispaw(self):
+        """True if PAW calculation."""
+        return self.pseudos.allpaw
 
-    def __str__(self):
-        return "<%s at %s, accuracy = %s>" % (self.__class__.__name__, id(self), self.accuracy)
+    def num_valence_electrons(self):
+        return num_valence_electrons(self.pseudos, self.structure)
+
+    #@abc.abstractproperty
+    #def structure(self):
+
+    #def set_structure(self, structure):
+    #    self.structure = structure
+
+    #def change_structure(self, structure):
+    #    self.structure = structure
+
+    #def to_abivars(self):
+    #def to_dict(self):
+    #def from_abivars(cls, d):
+    #def from_dict(self, d):
 
     def copy(self):
         """Shallow copy of self."""
@@ -147,6 +140,79 @@ class Strategy(object):
     def deepcopy(self):
         """Deep copy of self."""
         return copy.deepcopy(self)
+
+
+    @abc.abstractmethod
+    def make_input(self, *args, **kwargs):
+        """Returns an Input instance."""
+
+
+class StrategyWithInput(object):
+    # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
+    def __init__(self, abinit_input):
+        self.abinit_input = abinit_input
+
+    @property
+    def pseudos(self):
+        # FIXME: pseudos must be order but I need to define an ABC for the Strategies and Inputs.
+        # Order pseudos
+        pseudos = self.abinit_input.pseudos
+        return order_pseudos(pseudos, self.abinit_input.structure)
+
+    def add_extra_abivars(self, abivars):
+        """Add variables (dict) to extra_abivars."""
+        self.abinit_input.set_variables(**abivars)
+
+    def remove_extra_abivars(self, keys):
+        """Remove variables from extra_abivars."""
+        self.abinit_input.remove_variables(keys)
+
+    def make_input(self):
+        return str(self.abinit_input)
+
+
+class HtcStrategy(AbstractStrategy):
+    """
+    Attributes:
+        accuracy:
+            Accuracy of the calculation used to define basic parameters of the run.
+            such as tolerances, basis set truncation ...
+    """
+    __metaclass__ = abc.ABCMeta
+
+    # Mapping runlevel --> optdriver variable
+    _runl2optdriver = {
+        "scf": 0,
+        "nscf": 0,
+        "relax": 0,
+        "dfpt": 1,
+        "screening": 3,
+        "sigma": 4,
+        "bse": 99,
+    }
+
+    # Name of the (default) tolerance used by the runlevels.
+    _runl2tolname = {
+        "scf": 'tolvrs',
+        "nscf": 'tolwfr',
+        "dfpt": 'toldfe',        # ?
+        "screening": 'toldfe',   # dummy
+        "sigma": 'toldfe',       # dummy
+        "bse": 'toldfe',         # ?
+        "relax": 'tolrff',
+    }
+
+    # Tolerances for the different levels of accuracy.
+    T = collections.namedtuple('Tolerance', "low normal high")
+    _tolerances = {
+        "toldfe": T(1.e-7,  1.e-8,  1.e-9),
+        "tolvrs": T(1.e-7,  1.e-8,  1.e-9),
+        "tolwfr": T(1.e-15, 1.e-17, 1.e-19),
+        "tolrff": T(0.04,   0.02,   0.01)}
+    del T
+
+    def __repr__(self):
+        return "<%s at %s, accuracy = %s>" % (self.__class__.__name__, id(self), self.accuracy)
 
     @abc.abstractproperty
     def runlevel(self):
@@ -192,16 +258,6 @@ class Strategy(object):
             return {}
 
     @property
-    def isnc(self):
-        """True if norm-conserving calculation."""
-        return self.pseudos.allnc
-
-    @property
-    def ispaw(self):
-        """True if PAW calculation."""
-        return self.pseudos.allpaw
-
-    @property
     def ecut(self):
         """Cutoff energy in Hartree."""
         try:
@@ -217,8 +273,10 @@ class Strategy(object):
         """Cutoff energy in Hartree for the dense grid used in PAW calculations."""
         if not self.ispaw:
             return None
+
         try:
-            return self.extra_abivars["pawecutdg"] # User option.
+            # User option.
+            return self.extra_abivars["pawecutdg"]
         except KeyError:
             raise NotImplementedError("")
             #ratio = max(p.suggested_augratio(accuracy) for p in self.pseudos])
@@ -249,7 +307,7 @@ class Strategy(object):
     def need_stress(self):
         """True if the computation of the stress is required."""
         # TODO: here it's easier to check if optcell != 0
-        return self.runlevel in ["relax",]
+        return self.runlevel in ["relax"]
 
     def add_extra_abivars(self, abivars):
         """Add variables (dict) to extra_abivars."""
@@ -259,15 +317,8 @@ class Strategy(object):
         for key in keys:
             self.extra_abivars.pop(key)
 
-    @abc.abstractmethod
-    def make_input(self, *args, **kwargs):
-        """Returns an Input instance."""
 
-    def num_valence_electrons(self):
-        return num_valence_electrons(self.pseudos, self.structure)
-
-
-class ScfStrategy(Strategy):
+class ScfStrategy(HtcStrategy):
     """
     Strategy for ground-state SCF calculations.
     """
@@ -299,18 +350,14 @@ class ScfStrategy(Strategy):
         super(ScfStrategy, self).__init__()
 
         self.set_accuracy(accuracy)
-
         self.structure = structure
         self.pseudos = select_pseudos(pseudos, structure)
         self.ksampling = ksampling
         self.use_symmetries = use_symmetries
 
         self.electrons = Electrons(spin_mode=spin_mode,
-                                   smearing=smearing,
-                                   algorithm=scf_algorithm,
-                                   nband=None,
-                                   fband=None,
-                                   charge=charge)
+                                   smearing=smearing, algorithm=scf_algorithm,
+                                   nband=None, fband=None, charge=charge)
 
         self.extra_abivars = extra_abivars
 
@@ -319,11 +366,7 @@ class ScfStrategy(Strategy):
         return "scf"
 
     def make_input(self):
-        extra = dict(
-            optdriver=self.optdriver,
-            ecut=self.ecut,
-            pawecutdg=self.pawecutdg,
-        )
+        extra = dict(optdriver=self.optdriver, ecut=self.ecut, pawecutdg=self.pawecutdg)
         extra.update(self.tolerance)
         extra.update({"nsym": 1 if not self.use_symmetries else None})
 
@@ -333,7 +376,7 @@ class ScfStrategy(Strategy):
         return inpw.get_string()
 
 
-class NscfStrategy(Strategy):
+class NscfStrategy(HtcStrategy):
     """
     Strategy for non-self-consistent calculations.
     """
@@ -354,7 +397,6 @@ class NscfStrategy(Strategy):
         super(NscfStrategy, self).__init__()
 
         self.set_accuracy(scf_strategy.accuracy)
-
         self.scf_strategy = scf_strategy
 
         self.nscf_nband = nscf_nband
@@ -387,16 +429,11 @@ class NscfStrategy(Strategy):
         # Initialize the system section from structure.
         scf_strategy = self.scf_strategy
 
-        extra = dict(
-            optdriver=self.optdriver,
-            ecut=self.ecut,
-            pawecutdg=self.pawecutdg,
-        )
+        extra = dict(optdriver=self.optdriver, ecut=self.ecut, pawecutdg=self.pawecutdg)
         extra.update(self.tolerance)
         extra.update(self.extra_abivars)
 
         inp = InputWriter(scf_strategy.structure, self.electrons, self.ksampling, **extra)
-
         return inp.get_string()
 
 
@@ -450,9 +487,8 @@ class RelaxStrategy(ScfStrategy):
         return input_str
 
 
-class ScreeningStrategy(Strategy):
+class ScreeningStrategy(HtcStrategy):
     """Strategy for Screening calculations."""
-
     def __init__(self, scf_strategy, nscf_strategy, screening, **extra_abivars):
         """
         Args:
@@ -489,10 +525,7 @@ class ScreeningStrategy(Strategy):
 
         self.electrons = Electrons(spin_mode=scf_electrons.spin_mode,
                                    smearing =scf_electrons.smearing,
-                                   nband=scr_nband,
-                                   charge=scf_electrons.charge,
-                                   comment=None,
-                                  )
+                                   nband=scr_nband, charge=scf_electrons.charge, comment=None)
 
         self.extra_abivars = extra_abivars
 
@@ -502,20 +535,15 @@ class ScreeningStrategy(Strategy):
 
     def make_input(self):
         # FIXME
-        extra = dict(
-            optdriver=self.optdriver,
-            ecut=self.ecut,
-            ecutwfn=self.ecut,
-            #pawecutdg=self.pawecutdg,
-        )
+        extra = dict(optdriver=self.optdriver, ecut=self.ecut, ecutwfn=self.ecut, pawecutdg=self.pawecutdg)
         extra.update(self.tolerance)
         extra.update(self.extra_abivars)
 
-        input = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.screening, **extra)
-        return input.get_string()
+        inpw = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.screening, **extra)
+        return inpw.get_string()
 
 
-class SelfEnergyStrategy(Strategy):
+class SelfEnergyStrategy(HtcStrategy):
     """Strategy for self-energy calculations."""
     def __init__(self, scf_strategy, nscf_strategy, scr_strategy, sigma, **extra_abivars):
         """
@@ -544,7 +572,7 @@ class SelfEnergyStrategy(Strategy):
 
         self.extra_abivars = extra_abivars
 
-        scf_electrons  = scf_strategy.electrons
+        scf_electrons = scf_strategy.electrons
         nscf_electrons = nscf_strategy.electrons
 
         if sigma.nband > nscf_electrons.nband:
@@ -556,31 +584,23 @@ class SelfEnergyStrategy(Strategy):
             raise ValueError("The k-sampling used for the NSCF run mush be homogeneous")
 
         self.electrons = Electrons(spin_mode=scf_electrons.spin_mode,
-                                   smearing=scf_electrons.smearing,
-                                   nband=sigma.nband,
-                                   charge=scf_electrons.charge,
-                                   comment=None,
-                                  )
+                                   smearing=scf_electrons.smearing, nband=sigma.nband,
+                                   charge=scf_electrons.charge, comment=None)
     @property
     def runlevel(self):
         return "sigma"
 
     def make_input(self):
         # FIXME
-        extra = dict(
-            optdriver=self.optdriver,
-            ecut=self.ecut,
-            ecutwfn=self.ecut,
-            # "pawecutdg": self.pawecutdg,
-            )
+        extra = dict(optdriver=self.optdriver, ecut=self.ecut, ecutwfn=self.ecut, pawecutdg=self.pawecutdg)
         extra.update(self.tolerance)
         extra.update(self.extra_abivars)
 
-        input = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.sigma, **extra)
-        return input.get_string()
+        inpw = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.sigma, **extra)
+        return inpw.get_string()
 
 
-class MDFBSE_Strategy(Strategy):
+class MDFBSE_Strategy(HtcStrategy):
     """
     Strategy for Bethe-Salpeter calculation based on the
     model dielectric function and the scissors operator
@@ -608,7 +628,7 @@ class MDFBSE_Strategy(Strategy):
 
         self.extra_abivars = extra_abivars
 
-        scf_electrons  = scf_strategy.electrons
+        scf_electrons = scf_strategy.electrons
         nscf_electrons = nscf_strategy.electrons
 
         if exc_ham.nband > nscf_electrons.nband:
@@ -620,23 +640,15 @@ class MDFBSE_Strategy(Strategy):
             raise ValueError("The k-sampling used for the NSCF run mush be homogeneous")
 
         self.electrons = Electrons(spin_mode=scf_electrons.spin_mode,
-                                   smearing=scf_electrons.smearing,
-                                   nband=exc_ham.nband,
-                                   charge= scf_electrons.charge,
-                                   comment=None,
-                                    )
+                                   smearing=scf_electrons.smearing, nband=exc_ham.nband,
+                                   charge=scf_electrons.charge, comment=None)
     @property
     def runlevel(self):
         return "bse"
 
     def make_input(self):
         # FIXME
-        extra = dict(
-            optdriver=self.optdriver,
-            ecut=self.ecut,
-            ecutwfn=self.ecut,
-            #pawecutdg=self.pawecutdg,
-        )
+        extra = dict(optdriver=self.optdriver, ecut=self.ecut, pawecutdg=self.pawecutdg, ecutwfn=self.ecut)
         #extra.update(self.tolerance)
         extra.update(self.extra_abivars)
 
@@ -797,30 +809,6 @@ class InputWriter(object):
             return str_delimited(lines, header=None, delimiter=5*" ")
 
 
-class StrategyWithInput(object):
-    # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
-    def __init__(self, abinit_input):
-        self.abinit_input = abinit_input
-
-    @property
-    def pseudos(self):
-        # FIXME: pseudos must be order but I need to define an ABC for the Strategies and Inputs.
-        # Order pseudos
-        pseudos = self.abinit_input.pseudos
-        return order_pseudos(pseudos, self.abinit_input.structure)
-
-    def add_extra_abivars(self, abivars):
-        """Add variables (dict) to extra_abivars."""
-        self.abinit_input.set_variables(**abivars)
-
-    def remove_extra_abivars(self, keys):
-        """Remove variables from extra_abivars."""
-        self.abinit_input.remove_variables(keys)
-
-    def make_input(self):
-        return str(self.abinit_input)
-
-
 class OpticVar(collections.namedtuple("OpticVar", "name value help")):
     def __str__(self):
         sval = str(self.value)
@@ -920,6 +908,3 @@ class OpticInput(object):
         since we can pass the paths of the output files
         produced by the previous runs.
         """
-
-
-
