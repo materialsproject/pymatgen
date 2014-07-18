@@ -36,7 +36,6 @@
         },
         "NELM": 100,
         "NELMIN": 3,
-        "NPAR": 8,
         "NSW": 99,
         "PREC": "Accurate",
         "PRECFOCK": "Fast",
