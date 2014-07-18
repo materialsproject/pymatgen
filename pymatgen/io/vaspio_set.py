@@ -201,7 +201,8 @@ class DictVaspInputSet(AbstractVaspInputSet):
     def __init__(self, name, config_dict, hubbard_off=False,
                  user_incar_settings=None,
                  constrain_total_magmom=False, sort_structure=True,
-                 ediff_per_atom=True, potcar_functional=None):
+                 ediff_per_atom=True, potcar_functional=None,
+                 force_gamma=False):
         self.name = name
         self.potcar_settings = config_dict["POTCAR"]
         self.kpoints_settings = config_dict['KPOINTS']
@@ -211,6 +212,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
         self.ediff_per_atom = ediff_per_atom
         self.hubbard_off = hubbard_off
         self.potcar_functional = potcar_functional
+        self.force_gamma = force_gamma
         if hubbard_off:
             for k in self.incar_settings.keys():
                 if k.startswith("LDAU"):
@@ -315,7 +317,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
         if self.sort_structure:
             structure = structure.get_sorted_structure()
         dens = int(self.kpoints_settings['grid_density'])
-        return Kpoints.automatic_density(structure, dens)
+        return Kpoints.automatic_density(structure, dens, self.force_gamma)
 
     def __str__(self):
         return self.name
