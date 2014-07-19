@@ -144,7 +144,6 @@
         },
         "NELM": 100,
         "NELMIN": 6,
-        "NPAR": 1,
         "NSW": 99,
         "PREC": "Accurate",
         "SIGMA": 0.05
