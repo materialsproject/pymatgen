@@ -33,7 +33,7 @@ def select_pseudos(pseudos, structure, ret_table=True):
     Raises:
         ValueError if no pseudo is found or multiple occurrences are found.
     """
-    table = PseudoTable.astable(pseudos)
+    table = PseudoTable.as_table(pseudos)
 
     pseudos = []
     for symbol in structure.types_of_specie:
@@ -75,7 +75,7 @@ def num_valence_electrons(pseudos, structure):
         input list contains more than one pseudo for the chemical symbols
         appearing in structure.
     """
-    table = PseudoTable.astable(pseudos)
+    table = PseudoTable.as_table(pseudos)
 
     valence = 0.0
     for site in structure:
@@ -409,15 +409,10 @@ class NscfStrategy(HtcStrategy):
         # Electrons used in the GS run.
         scf_electrons = scf_strategy.electrons
 
-        self.electrons = Electrons(spin_mode=scf_electrons.spin_mode,
-                                   smearing=scf_electrons.smearing,
-                                   algorithm=nscf_algorithm,
-                                   nband=nscf_nband,
-                                   fband=None,
-                                   charge=scf_electrons.charge,
-                                   comment=None,
-                                   #occupancies = None,
-                                   )
+        self.electrons = Electrons(
+            spin_mode=scf_electrons.spin_mode, smearing=scf_electrons.smearing,
+            algorithm=nscf_algorithm, nband=nscf_nband,
+            fband=None, charge=scf_electrons.charge, comment=None)
 
         self.extra_abivars = extra_abivars
 
@@ -583,9 +578,10 @@ class SelfEnergyStrategy(HtcStrategy):
         if not self.ksampling.is_homogeneous:
             raise ValueError("The k-sampling used for the NSCF run mush be homogeneous")
 
-        self.electrons = Electrons(spin_mode=scf_electrons.spin_mode,
-                                   smearing=scf_electrons.smearing, nband=sigma.nband,
-                                   charge=scf_electrons.charge, comment=None)
+        self.electrons = Electrons(
+            spin_mode=scf_electrons.spin_mode, smearing=scf_electrons.smearing,
+            nband=sigma.nband, charge=scf_electrons.charge)
+
     @property
     def runlevel(self):
         return "sigma"
@@ -639,9 +635,10 @@ class MDFBSE_Strategy(HtcStrategy):
         if not self.ksampling.is_homogeneous:
             raise ValueError("The k-sampling used for the NSCF run mush be homogeneous")
 
-        self.electrons = Electrons(spin_mode=scf_electrons.spin_mode,
-                                   smearing=scf_electrons.smearing, nband=exc_ham.nband,
-                                   charge=scf_electrons.charge, comment=None)
+        self.electrons = Electrons(
+            spin_mode=scf_electrons.spin_mode, smearing=scf_electrons.smearing,
+            nband=exc_ham.nband, charge=scf_electrons.charge)
+
     @property
     def runlevel(self):
         return "bse"
@@ -722,7 +719,8 @@ class InputWriter(object):
 
         if isinstance(value, collections.Iterable) and not is_string(value):
             arr = np.array(value)
-            if len(arr.shape) in [0,1]: # scalar or vector.
+            if len(arr.shape) in [0,1]:
+                # scalar or vector.
                 token = [key, " ".join(str(i) for i in arr)]
 
             else:

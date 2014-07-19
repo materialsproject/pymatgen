@@ -1609,7 +1609,7 @@ class PseudoTable(collections.Sequence):
     Fe
     """
     @classmethod
-    def astable(cls, items):
+    def as_table(cls, items):
         """
         Return an instance of `PseudoTable` from the iterable items.
         """ 
