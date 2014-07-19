@@ -6,8 +6,8 @@ API to enable the creation of data structures and pymatgen objects using
 Materials Project data.
 
 To make use of the Materials API, you need to be a registered user of the
-Materials Project, and obtain an API key by going to your profile at
-https://www.materialsproject.org/profile.
+Materials Project, and obtain an API key by going to your dashboard at
+https://www.materialsproject.org/dashboard.
 """
 
 from __future__ import division

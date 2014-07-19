@@ -201,7 +201,8 @@ class DictVaspInputSet(AbstractVaspInputSet):
     def __init__(self, name, config_dict, hubbard_off=False,
                  user_incar_settings=None,
                  constrain_total_magmom=False, sort_structure=True,
-                 ediff_per_atom=True, potcar_functional=None):
+                 ediff_per_atom=True, potcar_functional=None,
+                 force_gamma=False):
         self.name = name
         self.potcar_settings = config_dict["POTCAR"]
         self.kpoints_settings = config_dict['KPOINTS']
@@ -211,6 +212,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
         self.ediff_per_atom = ediff_per_atom
         self.hubbard_off = hubbard_off
         self.potcar_functional = potcar_functional
+        self.force_gamma = force_gamma
         if hubbard_off:
             for k in self.incar_settings.keys():
                 if k.startswith("LDAU"):
@@ -315,7 +317,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
         if self.sort_structure:
             structure = structure.get_sorted_structure()
         dens = int(self.kpoints_settings['grid_density'])
-        return Kpoints.automatic_density(structure, dens)
+        return Kpoints.automatic_density(structure, dens, self.force_gamma)
 
     def __str__(self):
         return self.name
@@ -895,6 +897,7 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
             self.incar_settings.update(
                 {"NSW": 0, "ISMEAR": 0, "SIGMA": 0.05, "ISYM": 0,
                  "LCHARG": False})
+            self.incar_settings.update(self.user_incar_settings)
         self.added_kpoints = added_kpoints
         self.mode = mode
         self.kpoints_density = kpoints_density
@@ -936,6 +939,21 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
             return Kpoints(comment="HSE run on uniform grid",
                            style="Reciprocal", num_kpts=len(kpts),
                            kpts=kpts, kpts_weights=weights)
+
+    @property
+    def to_dict(self):
+        d = super(MPBSHSEVaspInputSet, self).to_dict
+        d['added_kpoints'] = self.added_kpoints
+        d['mode'] = self.mode
+        d['kpoints_density'] = self.kpoints_density
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(user_incar_settings=d.get("user_incar_settings", None),
+                   added_kpoints=d.get("added_kpoints", []),
+                   mode=d.get("mode", "Line"),
+                   kpoints_density=d.get("kpoints_density", 100))
 
 
 class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
@@ -1143,6 +1161,148 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                     previous_incar["LMAXMIX"] < 4])
                if previous_incar.get("LDAU") else False]):
             raise ValueError("Incompatible INCAR parameters!")
+
+
+class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
+    """
+    Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
+    for non self-consistent field (NonSCF) calculation with the computation
+    of the dielectric function that follows a static run
+    It is recommended to use the NonSCF from_previous_run method to construct
+    the input set to inherit most of the functions.
+
+    Args:
+        user_incar_settings (dict): A dict specify customized settings
+            for INCAR. Must contain a NBANDS value, suggest to use
+            factor*(NBANDS from static run) with factor between 5 and 10.
+        mode: Line: Generate k-points along symmetry lines for
+            bandstructure. Uniform: Generate uniform k-points
+            grids for DOS.
+        constrain_total_magmom (bool): Whether to constrain the total
+            magmom (NUPDOWN in INCAR) to be the sum of the expected
+            MAGMOM for all species. Defaults to False.
+        kpoints_density (int): kpoints density for the reciprocal cell
+            of structure. Might need to increase the default value when
+            calculating metallic materials.
+        sort_structure (bool): Whether to sort structure. Defaults to
+            False.
+        sym_prec (float): Tolerance for symmetry finding
+    """
+
+    def __init__(self, user_incar_settings,
+                 constrain_total_magmom=False, sort_structure=False,
+                 kpoints_density=1000, sym_prec=0.1, nedos=2001):
+        self.sym_prec = sym_prec
+        self.nedos = nedos
+        MPNonSCFVaspInputSet.__init__(self, user_incar_settings, mode="Uniform",
+                                      constrain_total_magmom=constrain_total_magmom, sort_structure=sort_structure,
+                                      kpoints_density=kpoints_density, sym_prec=sym_prec)
+        self.incar_settings.update({"NEDOS": nedos})
+        self.incar_settings.update({"LOPTICS": True})
+
+    @staticmethod
+    def from_previous_vasp_run(previous_vasp_dir, output_dir='.',
+                               user_incar_settings=None,
+                               copy_chgcar=True, make_dir_if_not_present=True,
+                               nbands_factor=5.0, nedos=2001):
+        """
+        Generate a set of Vasp input files for NonSCF calculations from a
+        directory of previous static Vasp run.
+
+        Args:
+            previous_vasp_dir (str): The directory contains the outputs(
+                vasprun.xml and OUTCAR) of previous vasp run.
+            output_dir (str): The directory to write the VASP input files
+                for the NonSCF calculations. Default to write in the current
+                directory.
+            user_incar_settings (dict): A dict specify customized settings
+                for INCAR. Must contain a NBANDS value, suggest to use
+                1.2*(NBANDS from static run).
+            copy_chgcar (bool): Default to copy CHGCAR from SC run
+            make_dir_if_not_present (bool): Set to True if you want the
+                directory (and the whole path) to be created if it is not
+                present.
+            nbands_factor (float): Factor by which the number of bands is to be multiplied.
+            Typical calculations of dielectric functions need a total number
+            of bands of 5 to 10 times the number of valence bands
+        """
+        user_incar_settings = user_incar_settings or {}
+
+        try:
+            vasp_run = Vasprun(os.path.join(previous_vasp_dir, "vasprun.xml"),
+                               parse_dos=False, parse_eigen=None)
+            outcar = Outcar(os.path.join(previous_vasp_dir, "OUTCAR"))
+            previous_incar = vasp_run.incar
+        except:
+            traceback.format_exc()
+            raise RuntimeError("Can't get valid results from previous run")
+
+        #Get a Magmom-decorated structure
+        structure = MPNonSCFVaspInputSet.get_structure(vasp_run, outcar,
+                                                       initial_structure=True)
+        nscf_incar_settings = MPNonSCFVaspInputSet.get_incar_settings(vasp_run,
+                                                                      outcar)
+        spin_band_settings = MPOpticsNonSCFVaspInputSet.get_ispin_nbands(vasp_run,
+                                                                         outcar,
+                                                                         nbands_factor=nbands_factor)
+        mpnscfvip = MPNonSCFVaspInputSet(nscf_incar_settings, "Uniform")
+        mpnscfvip.incar_settings.update(spin_band_settings)
+        mpnscfvip.write_input(structure, output_dir, make_dir_if_not_present)
+        if copy_chgcar:
+            try:
+                shutil.copyfile(os.path.join(previous_vasp_dir, "CHGCAR"),
+                                os.path.join(output_dir, "CHGCAR"))
+            except Exception as e:
+                traceback.format_exc()
+                raise RuntimeError("Can't copy CHGCAR from SC run" + '\n'
+                                   + str(e))
+
+        #Overwrite necessary INCAR parameters from previous runs
+        previous_incar.update({"IBRION": -1, "ISMEAR": 0, "SIGMA": 0.001,
+                               "LCHARG": False, "LORBIT": 11, "LWAVE": False,
+                               "NSW": 0, "ISYM": 0, "ICHARG": 11, "LOPTICS": True,
+                               "NEDOS": nedos})
+        previous_incar.update(nscf_incar_settings)
+        previous_incar.update(user_incar_settings)
+        previous_incar.pop("MAGMOM", None)
+        previous_incar.write_file(os.path.join(output_dir, "INCAR"))
+
+        # Perform checking on INCAR parameters
+        if any([previous_incar.get("NSW", 0) != 0,
+                previous_incar["IBRION"] != -1,
+                previous_incar["ICHARG"] != 11,
+               any([sum(previous_incar["LDAUU"]) <= 0,
+                    previous_incar["LMAXMIX"] < 4])
+               if previous_incar.get("LDAU") else False]):
+            raise ValueError("Incompatible INCAR parameters!")
+
+    @staticmethod
+    def get_ispin_nbands(vasp_run, outcar=None, nbands_factor=5.0):
+        """
+        Helper method to get necessary user_incar_settings from previous run.
+
+        Args:
+            vasp_run (Vasprun): Vasprun that contains the final
+                structure from previous run.
+            outcar (Outcar): Outcar that contains the magnetization info
+                from previous run.
+
+        """
+        # Turn off spin when magmom for every site is smaller than 0.02.
+        if outcar and outcar.magnetization:
+            site_magmom = np.array([i['tot'] for i in outcar.magnetization])
+            ispin = 2 if np.any(site_magmom[np.abs(site_magmom) > 0.02]) else 1
+        elif vasp_run.is_spin:
+            ispin = 2
+        else:
+            ispin = 1
+        nbands = int(np.ceil(vasp_run.to_dict["input"]["parameters"]["NBANDS"]
+                             * nbands_factor))
+        incar_settings = {"ISPIN": ispin, "NBANDS": nbands}
+        for grid in ["NGX", "NGY", "NGZ"]:
+            if vasp_run.incar.get(grid):
+                incar_settings.update({grid: vasp_run.incar.get(grid)})
+        return incar_settings
 
 
 def batch_write_vasp_input(structures, vasp_input_set, output_dir,
