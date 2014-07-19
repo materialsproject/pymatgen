@@ -1058,30 +1058,6 @@ class PseudoParser(object):
         """
         if filename.endswith(".xml"):
             raise self.Error("XML pseudo not supported yet")
-        elif filename.endswith(".out"):
-            # parser for ONCVPSP 's
-            lines = _read_nlines(filename, -1)
-
-            pspcod = 11
-
-            for (lineno, line) in enumerate(lines):
-
-                if 'psp8' in line and '#' not in line:
-                    try:
-                        tokens = line.split()
-                        print('found ' + self._FUNCTIONALS[int(tokens[4])]['name'] + ' functional')
-                        pspxc = self._FUNCTIONALS[int(tokens[4])]['n']
-                    except OSError:
-                        msg = "%s: Cannot parse pspcod, pspxc in line\n %s" % (filename, line)
-                        sys.stderr.write(msg)
-                        return None
-
-                    if pspcod not in self._PSPCODES:
-                        raise self.Error("%s: Don't know how to handle pspcod %s\n"  % (filename, pspcod))
-
-            ppdesc = self._PSPCODES[pspcod]
-
-            return ppdesc
 
         else:
             # Assume file with the abinit header.
