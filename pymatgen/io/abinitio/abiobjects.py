@@ -602,7 +602,7 @@ class KSampling(AbivarAble):
         Returns:
             `KSampling` object.
         """
-        return cls(kpts= [kpts], kpt_shifts=(0.0, 0.0, 0.0),
+        return cls(kpts=[kpts], kpt_shifts=(0.0, 0.0, 0.0),
                    use_symmetries=use_symmetries, use_time_reversal=use_time_reversal,
                    comment="gamma-centered mode")
 
@@ -626,8 +626,8 @@ class KSampling(AbivarAble):
             `KSampling` object.
         """
         return cls(
-            kpts=[ngkpt], kpt_shifts= shiftk,
-            use_symmetrie=use_symmetries, use_time_reversal=use_time_reversal, chksymbreak=chksymbreak,
+            kpts=[ngkpt], kpt_shifts=shiftk,
+            use_symmetries=use_symmetries, use_time_reversal=use_time_reversal, chksymbreak=chksymbreak,
             comment=comment if comment else "Monkhorst-Pack scheme with user-specified shiftk")
 
     @classmethod
@@ -663,7 +663,7 @@ class KSampling(AbivarAble):
 
         return cls.monkhorst(
             ngkpt, shiftk=shiftk, use_symmetries=use_symmetries, use_time_reversal=use_time_reversal,
-            chksymbreak=chksymbreak, comment= comment if comment else "Automatic Monkhorst-Pack scheme")
+            chksymbreak=chksymbreak, comment=comment if comment else "Automatic Monkhorst-Pack scheme")
 
     @classmethod
     def _path(cls, ndivsm, structure=None, kpath_bounds=None, comment=None):

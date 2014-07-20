@@ -90,7 +90,7 @@ class ExecWrapper(object):
 
         p = Popen(self.cmd_str, shell=True, stdout=PIPE, stderr=PIPE, cwd=cwd)
 
-        (self.stdout_data, self.stderr_data) = p.communicate()
+        self.stdout_data, self.stderr_data = p.communicate()
 
         self.returncode = p.returncode
 
