@@ -844,7 +844,7 @@ class Dependency(object):
 
 
 # Possible status of the node.
-STATUS2STR = collections.OrderedDict([
+_STATUS2STR = collections.OrderedDict([
     (1,  "Initialized"),    # Node has been initialized
     (2,  "Locked"),         # Task is locked an must be explicitly unlocked by en external subject (Workflow).
     (3,  "Ready"),          # Node is ready i.e. all the depencies of the node have status S_OK
@@ -866,12 +866,12 @@ class Status(int):
 
     def __str__(self):
         """String representation."""
-        return STATUS2STR[self]
+        return _STATUS2STR[self]
 
     @classmethod
     def from_string(cls, s):
         """Return a `Status` instance from its string representation."""
-        for num, text in STATUS2STR.items():
+        for num, text in _STATUS2STR.items():
             if text == s:
                 return cls(num)
         else:
@@ -889,17 +889,17 @@ class Node(object):
     __metaclass__ = abc.ABCMeta
 
     # Possible status of the node.
-    S_INIT = Status(1)
-    S_LOCKED = Status(2)
-    S_READY = Status(3)
-    S_SUB = Status(4)
-    S_RUN = Status(5)
-    S_DONE = Status(6)
-    S_ABICRITICAL = Status(7)
-    S_QUEUECRITICAL = Status(8)
-    S_UNCONVERGED = Status(9)
-    S_ERROR = Status(10)
-    S_OK = Status(11)
+    S_INIT = Status.from_string("Initialized")
+    S_LOCKED = Status.from_string("Locked")
+    S_READY = Status.from_string("Ready")
+    S_SUB = Status.from_string("Submitted")
+    S_RUN = Status.from_string("Running")
+    S_DONE = Status.from_string("Done")
+    S_ABICRITICAL = Status.from_string("AbiCritical")
+    S_QUEUECRITICAL = Status.from_string("QueueCritical")
+    S_UNCONVERGED = Status.from_string("Unconverged")
+    S_ERROR = Status.from_string("Error")
+    S_OK = Status.from_string("Completed")
 
     ALL_STATUS = [
         S_INIT,
@@ -1528,6 +1528,7 @@ class Task(Node):
     def kill(self):
         """Kill the child."""
         self.process.kill()
+        self.set_status(self.S_ERROR)
         self._returncode = self.process.returncode
 
     @property
@@ -1622,7 +1623,7 @@ class Task(Node):
             except AttributeError:
                 status = Status.from_string(status)
 
-        assert status in STATUS2STR
+        assert status in _STATUS2STR
 
         changed = True
         if hasattr(self, "_status"):
