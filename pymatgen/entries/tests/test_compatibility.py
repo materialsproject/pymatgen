@@ -13,6 +13,7 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 19, 2012"
 
+import os
 import unittest
 
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility, \
@@ -406,7 +407,9 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
 class AqueousCorrectionTest(unittest.TestCase):
 
     def setUp(self):
-        self.corr = AqueousCorrection("MIT")
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        fp = os.path.join(module_dir, os.path.pardir, "MITCompatibility.yaml")
+        self.corr = AqueousCorrection(fp)
 
     def test_compound_energy(self):
 
@@ -436,7 +439,9 @@ class TestMITAqueousCompatibility(unittest.TestCase):
     def setUp(self):
         self.compat = MITCompatibility()
         self.aqcompat = MITAqueousCompatibility()
-        self.aqcorr =  AqueousCorrection("MIT")
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        fp = os.path.join(module_dir, os.path.pardir, "MITCompatibility.yaml")
+        self.aqcorr =  AqueousCorrection(fp)
         
     def test_aqueous_compat(self):
 
