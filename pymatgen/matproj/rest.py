@@ -201,7 +201,6 @@ class MPRester(object):
                 response, "content") else str(ex)
             raise MPRestError(msg)
 
-
     def get_structures(self, chemsys_formula_id, final=True):
         """
         Get a list of Structures corresponding to a chemical system, formula,
