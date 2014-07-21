@@ -1484,7 +1484,7 @@ class Outcar(object):
             raise Exception("CLACLCPOL OUTCAR could not be parsed.")
 
     def read_core_state_eigen(self):
-        """ 
+        """
         Read the core state eigenenergies at each ionic step.
 
         Returns:
@@ -2210,6 +2210,41 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
                 .get_band_structure(kpoints_filename=None, efermi=efermi)
         else:
             return None
+
+class Xdatcar(object):
+    """
+    Class representing an XDATCAR file. Only tested with VASP 5.x files.
+    """
+
+    def __init__(self, filename):
+        """
+        Init a Xdatcar.
+
+        Args:
+            filename (str): Filename of XDATCAR file.
+        """
+        preamble = None
+        coords_str = []
+        structures = []
+        preamble_done = False
+        with zopen(filename) as f:
+            for l in f:
+                l = l.strip()
+                if preamble is None:
+                    preamble = [l]
+                elif not preamble_done:
+                    if l == "":
+                        preamble_done = True
+                    else:
+                        preamble.append(l)
+                elif l == "":
+                    p = Poscar.from_string("\n".join(preamble +
+                                                     ["Direct"] + coords_str))
+                    structures.append(p.structure)
+                    coords_str = []
+                else:
+                    coords_str.append(l)
+        self.structures = structures
 
 
 def get_adjusted_fermi_level(efermi, cbm, band_structure):
