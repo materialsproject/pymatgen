@@ -16,7 +16,7 @@ __date__ = "Mar 19, 2012"
 import unittest
 
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility, \
-    MITCompatibility, AqueousCorrection
+    MITCompatibility, AqueousCorrection, MITAqueousCompatibility, MaterialsProjectAqueousCompatibility
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
 from pymatgen import Composition, Lattice, Structure, Element
@@ -429,6 +429,39 @@ class AqueousCorrectionTest(unittest.TestCase):
         entry = ComputedEntry(Composition("Cl"), -24)
         entry = self.corr.correct_entry(entry)
         self.assertAlmostEqual(entry.energy, -24.344373, 4)
+
+
+class TestMITAqueousCompatibility(unittest.TestCase):
+
+    def setUp(self):
+        self.compat = MITCompatibility()
+        self.aqcompat = MITAqueousCompatibility()
+        self.aqcorr =  AqueousCorrection("MIT")
+        
+    def test_aqueous_compat(self):
+
+        el_li = Element("Li")
+        el_o = Element("O")
+        el_h = Element("H")
+        latt = Lattice.from_parameters(3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000)
+        elts = [el_h, el_h, el_li, el_li, el_o, el_o]
+        coords = [[0.000000, 0.500000, 0.413969],
+                  [0.500000, 0.000000, 0.586031], 
+                  [0.000000, 0.000000, 0.000000],
+                  [0.500000, 0.500000, 0.000000],
+                  [0.000000, 0.500000, 0.192672],
+                  [0.500000, 0.000000, 0.807328]]
+        struct = Structure(latt, elts, coords)
+        lioh_entry = ComputedStructureEntry(struct, -3,
+                                            parameters={'is_hubbard': False,
+                                          'hubbards': None,
+                                          'run_type': 'GGA',
+                                          'potcar_symbols':
+        ['PAW_PBE Fe 17Jan2003', 'PAW_PBE O 08Apr2002', 'PAW_PBE H 15Jun2001']})
+        lioh_entry_compat = self.compat.process_entry(lioh_entry)
+        lioh_entry_compat_aqcorr = self.aqcorr.correct_entry(lioh_entry_compat)
+        lioh_entry_aqcompat = self.aqcompat.process_entry(lioh_entry)
+        self.assertAlmostEqual(lioh_entry_compat_aqcorr.energy, lioh_entry_aqcompat.energy, 4)
 
 
 if __name__ == "__main__":
