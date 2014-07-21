@@ -50,11 +50,12 @@ class VacancyTransformation(AbstractTransformation):
         vac = Vacancy(structure,self.valences,self.radii)
         #print vac.enumerate_defectsites()
         scs = vac.make_supercells_with_defects(self.supercell_dim)
-        if num_to_return < len(scs)-1:
-            raise ValueError("VacancyTransformation has no ordering of best "
-                             "structure. Must increase return_ranked_list.")
+        #if num_to_return < len(scs)-1:
+        #    raise ValueError("VacancyTransformation has no ordering of best "
+        #                     "structure. Must increase return_ranked_list.")
         structures = []
-        for sc in scs[1:]: 
+        num_to_return = min(num_to_return, len(scs)-1)
+        for sc in scs[1:num_to_return+1]: 
             structures.append({'structure':sc})
         return structures
 
@@ -132,11 +133,13 @@ class SubstitutionDefectTransformation(AbstractTransformation):
                 vac_sc.append(substitute_specie, vac_site.frac_coords)
                 sub_scs.append(vac_sc.get_sorted_structure())
 
-        if num_to_return < len(sub_scs)-1:
-            raise ValueError("SubstitutionDefectTransformation has no ordering"
-                    " of best structure. Must increase return_ranked_list.")
+        #if num_to_return < len(sub_scs)-1:
+        #    raise ValueError("SubstitutionDefectTransformation has no ordering"
+        #            " of best structure. Must increase return_ranked_list.")
+        num_to_return = min(num_to_return, len(sub_scs))
+
         structures = []
-        for sc in sub_scs:
+        for sc in sub_scs[0:num_to_return]:
             structures.append({'structure':sc})
         return structures
 
@@ -210,11 +213,12 @@ class AntisiteDefectTransformation(AbstractTransformation):
                 anti_struct.append(specie, vac_site.frac_coords)
                 as_scs.append(anti_struct.get_sorted_structure())
 
-        if num_to_return < len(as_scs)-1:
-            raise ValueError("AntisiteDefectTransformation has no ordering "
-                    "of best structures. Must increase return_ranked_list.")
+        #if num_to_return < len(as_scs)-1:
+        #    raise ValueError("AntisiteDefectTransformation has no ordering "
+        #            "of best structures. Must increase return_ranked_list.")
+        num_to_return = min(num_to_return,len(as_scs))
         structures = []
-        for sc in as_scs:
+        for sc in as_scs[0:num_to_return]:
             structures.append({'structure':sc})
         return structures
 
@@ -290,12 +294,13 @@ class InterstitialTransformation(AbstractTransformation):
         scs = inter.make_supercells_with_defects(
             self.supercell_dim, self.inter_specie)
 
-        if num_to_return < len(scs)-1:
-            raise ValueError("InterstitialTransformation has no ordering "
-                    "of best structures. Must increase return_ranked_list.")
+        #if num_to_return < len(scs)-1:
+        #    raise ValueError("InterstitialTransformation has no ordering "
+        #            "of best structures. Must increase return_ranked_list.")
 
         structures = []
-        for sc in scs[1:]:
+        num_to_return = min(num_to_return,len(scs)-1)
+        for sc in scs[1:num_to_return+1]:
             structures.append({'structure':sc})
         return structures
 
