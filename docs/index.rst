@@ -72,6 +72,13 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.9.12
+-------
+1. Defect transformations (Bharat).
+2. Support for optical properties (Geoffroy Hautier and David Waroquiers).
+3. Improved support for some VASP output files (XDATCAR and OSZICAR).
+4. Refactored compatibilities now uses YAML for ease of reading.
+
 v2.9.11
 -------
 1. Bug fix for get_xrd_plot.
