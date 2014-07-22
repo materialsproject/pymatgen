@@ -31,11 +31,26 @@ with open(os.path.join(os.path.dirname(__file__), "periodic_table.json")) as f:
 
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 
+_MAXZ = 119
+
 # List with the correspondence Z --> Symbol
 # We use a list instead of a mapping so that we can select slices easily.
-_z2symbol = 119 * [None]
+_z2symbol = _MAXZ * [None]
 for (symbol, data) in _pt_data.items():
     _z2symbol[data["Atomic no"]] = symbol
+
+
+def all_symbols():
+    """tuple with element symbols ordered by Z."""
+    # Break when we get None as we don't want to have None in a list of strings.
+    symbols = []
+    for z in range(1, _MAXZ+1):
+        s = symbol_from_Z(z)
+        if s is None:
+            break
+        symbols.append(s)
+
+    return tuple(symbols)
 
 
 def symbol_from_Z(z):
