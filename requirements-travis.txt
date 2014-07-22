@@ -5,3 +5,4 @@ pybtex==0.17
 requests==2.2.1
 monty==0.2.2
 pyhull==1.4.3
+pyyaml==3.10
