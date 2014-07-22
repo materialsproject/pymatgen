@@ -74,8 +74,17 @@ class MPRester(object):
                             "is_hubbard", "elements", "nelements",
                             "e_above_hull", "hubbards", "is_compatible",
                             "spacegroup", "task_ids", "band_gap", "density",
-                            "icsd_id", "cif", "total_magnetization",
+                            "icsd_id", "icsd_ids", "cif", "total_magnetization",
                             "material_id", "oxide_type")
+
+    supported_task_properties = ("energy", "energy_per_atom", "volume",
+                                 "formation_energy_per_atom", "nsites",
+                                 "unit_cell_formula", "pretty_formula",
+                                 "is_hubbard",
+                                 "elements", "nelements", "e_above_hull",
+                                 "hubbards",
+                                 "is_compatible", "spacegroup",
+                                 "band_gap", "density", "icsd_id", "cif")
 
     def __init__(self, api_key=None, host="www.materialsproject.org"):
         if api_key is not None:
@@ -125,7 +134,7 @@ class MPRester(object):
             data_type (str): Type of data to return. Currently can either be
                 "vasp" or "exp".
             prop (str): Property to be obtained. Should be one of the
-                MPRester.supported_properties. Leave as empty string for a
+                MPRester.supported_task_properties. Leave as empty string for a
                 general list of useful properties.
         """
         if prop:
@@ -200,7 +209,6 @@ class MPRester(object):
             msg = "{}. Content: {}".format(str(ex), response.content) if hasattr(
                 response, "content") else str(ex)
             raise MPRestError(msg)
-
 
     def get_structures(self, chemsys_formula_id, final=True):
         """
