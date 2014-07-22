@@ -869,6 +869,15 @@ class Status(int):
         return _STATUS2STR[self]
 
     @classmethod
+    def as_status(cls, obj):
+        """Convert obj into Status."""
+        if isinstance(obj, cls):
+            return obj
+        else:
+            # Assume string
+            return cls.from_string(obj)
+
+    @classmethod
     def from_string(cls, s):
         """Return a `Status` instance from its string representation."""
         for num, text in _STATUS2STR.items():
