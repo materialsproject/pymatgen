@@ -99,7 +99,7 @@ class SubstitutionDefectTransformation(AbstractTransformation):
         """
         #self.substitute_specie = substitute_specie
         #self.site_specie = site_specie
-        self._species_map = specie_map
+        self._species_map = species_map
         self.supercell_dim = supercell_dim
         self.valences = valences
         self.radii = radii
@@ -128,8 +128,8 @@ class SubstitutionDefectTransformation(AbstractTransformation):
             vac_sc = scs[i]
             vac_site = list(set(blk_sc.sites) - set(vac_sc.sites))[0]
             site_specie = str(vac_site.specie)
-            if site_specie in self._specie_map.keys():
-                substitute_specie = self._specie_map[site_specie]
+            if site_specie in self._species_map.keys():
+                substitute_specie = self._species_map[site_specie]
                 vac_sc.append(substitute_specie, vac_site.frac_coords)
                 sub_scs.append(vac_sc.get_sorted_structure())
 
