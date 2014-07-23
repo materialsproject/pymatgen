@@ -144,7 +144,9 @@ class SubstitutionDefectTransformation(AbstractTransformation):
         return structures
 
     def __str__(self):
-        inp_args = ["Specie map = {}".format(self._specie_map),
+        specie_map_string = ", ".join(
+            [str(k) + "->" + str(v) for k, v in self._specie_map.items()])
+        inp_args = ["Specie map = {}".format(specie_map_string),
                     "Supercell scaling matrix = {}".format(self.supercell_dim),
                     "Valences of ions = {}".format(self.valences),
                     "Radii of ions = {}".format(self.radii)]
