@@ -91,7 +91,7 @@ class SubstitutionDefectTransformation(AbstractTransformation):
     The first structure is the supercell of the original structure
     and is not a defect structure.
     """
-    def __init__(self, specie_map, supercell_dim,
+    def __init__(self, species_map, supercell_dim,
                 valences=None, radii=None):
         """
         :param supecell_dim: Supercell scaling matrix
@@ -99,7 +99,7 @@ class SubstitutionDefectTransformation(AbstractTransformation):
         """
         #self.substitute_specie = substitute_specie
         #self.site_specie = site_specie
-        self._specie_map = specie_map
+        self._species_map = species_map
         self.supercell_dim = supercell_dim
         self.valences = valences
         self.radii = radii
@@ -128,8 +128,8 @@ class SubstitutionDefectTransformation(AbstractTransformation):
             vac_sc = scs[i]
             vac_site = list(set(blk_sc.sites) - set(vac_sc.sites))[0]
             site_specie = str(vac_site.specie)
-            if site_specie in self._specie_map.keys():
-                substitute_specie = self._specie_map[site_specie]
+            if site_specie in self._species_map.keys():
+                substitute_specie = self._species_map[site_specie]
                 vac_sc.append(substitute_specie, vac_site.frac_coords)
                 sub_scs.append(vac_sc.get_sorted_structure())
 
@@ -144,7 +144,9 @@ class SubstitutionDefectTransformation(AbstractTransformation):
         return structures
 
     def __str__(self):
-        inp_args = ["Specie map = {}".format(self._specie_map),
+        specie_map_string = ", ".join(
+            [str(k) + "->" + str(v) for k, v in self._specie_map.items()])
+        inp_args = ["Specie map = {}".format(specie_map_string),
                     "Supercell scaling matrix = {}".format(self.supercell_dim),
                     "Valences of ions = {}".format(self.valences),
                     "Radii of ions = {}".format(self.radii)]
@@ -163,8 +165,15 @@ class SubstitutionDefectTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
+        sp_map = []
+        for k, v in self._species_map.iteritems():
+            if isinstance(v, dict):
+                v = [(str(k2), v2) for k2, v2 in v.iteritems()]
+                sp_map.append((str(k), v))
+            else:
+                sp_map.append((str(k), str(v)))
         return {"name":self.__class__.__name__, "version":__version__,
-                "init_args":{"specie_map":self._specie_map,
+                "init_args":{"species_map":sp_map,
                              "supercell_dim":self.supercell_dim,
                              "valences":self.valences,"radii":self.radii},
                 "@module":self.__class__.__module__,

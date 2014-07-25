@@ -1753,6 +1753,16 @@ class Structure(IStructure, collections.MutableSequence):
         s = (1 + np.array(strain)) * np.eye(3)
         self.modify_lattice(Lattice(np.dot(self._lattice.matrix.T, s).T))
 
+    def sort(self, key=None):
+        """
+        Sort a structure in place.
+
+        Args:
+            key (callable): Similar to list.sort, takes a key which defines a
+                sort function. Defaults to None, which means default.
+        """
+        self._sites = sorted(self._sites, key=key)
+
     def translate_sites(self, indices, vector, frac_coords=True,
                         to_unit_cell=True):
         """

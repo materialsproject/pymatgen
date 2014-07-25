@@ -41,7 +41,7 @@ with open("README.rst") as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2.9.12",
+    version="2.9.13",
     install_requires=["numpy>=1.5", "pyhull>=1.4.3", "PyCifRW>=3.3",
                       "requests>=1.0", "pybtex>=0.16", "pyyaml>=3.0",
                       "monty>=0.2.2"],
@@ -54,7 +54,7 @@ setup(
                   "pymatgen.analysis": ["bvparam_1991.json", "icsd_bv.json"],
                   "pymatgen.io": ["*.cfg", "*.json"],
                   "pymatgen.io.gwwrapper":["*.json"],
-                  "pymatgen.entries": ["*.cfg"],
+                  "pymatgen.entries": ["*.yaml"],
                   "pymatgen.structure_prediction": ["data/*.json"],
                   "pymatgen.vis": ["ElementColorSchemes.cfg"],
                   "pymatgen.command_line": ["OxideTersoffPotentials"],
