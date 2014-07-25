@@ -52,7 +52,7 @@ setup(
                     "abinitio": ["pydispatcher>=2.0", "apscheduler>=2.1.1"]},
     package_data={"pymatgen.core": ["*.json"],
                   "pymatgen.analysis": ["bvparam_1991.json", "icsd_bv.json"],
-                  "pymatgen.io": ["*.cfg", "*.json"],
+                  "pymatgen.io": ["*.cfg", "*.yaml"],
                   "pymatgen.entries": ["*.yaml"],
                   "pymatgen.structure_prediction": ["data/*.json"],
                   "pymatgen.vis": ["ElementColorSchemes.cfg"],
