@@ -72,6 +72,10 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.9.13
+-------
+1. Urgent bug fix for missing compatibility yamls.
+
 v2.9.12
 -------
 1. Defect transformations (Bharat).
