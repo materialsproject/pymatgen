@@ -653,11 +653,9 @@ class IStructure(SiteCollection, MSONable):
 
     def get_sorted_structure(self, cmp=None, key=None, reverse=False):
         """
-        Get a sorted copy of the structure.
-        Sites are sorted by the electronegativity of the species.
-
-        Sort a structure in place. The parameters have the same meaning as in
-        list.sort.
+        Get a sorted copy of the structure. The parameters have the same
+        meaning as in list.sort. By default, sites are sorted by the
+        electronegativity of the species.
 
         Args:
             cmp: Specifies a custom comparison function of two arguments
@@ -1772,7 +1770,11 @@ class Structure(IStructure, collections.MutableSequence):
     def sort(self, cmp=None, key=None, reverse=False):
         """
         Sort a structure in place. The parameters have the same meaning as in
-        list.sort.
+        list.sort. By default, sites are sorted by the electronegativity of
+        the species. The difference between this method and
+        get_sorted_structure (which also works in IStructure) is that the
+        latter returns a new Structure, while this just sorts the Structure
+        in place.
 
         Args:
             cmp: Specifies a custom comparison function of two arguments
