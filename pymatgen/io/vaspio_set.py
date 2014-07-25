@@ -383,7 +383,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
         """
         with open(json_file) as f:
             return DictVaspInputSet(
-                name, yaml.load(f, Loader=Loader), **kwargs)
+                name, json.load(f))
 
     @staticmethod
     def from_yaml_file(name, yaml_file, **kwargs):
