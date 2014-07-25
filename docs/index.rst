@@ -72,6 +72,12 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.9.14
+-------
+1. Implements Structure.sort method. Both Structure.sort and the
+   get_sorted_structure methods now supports all arguments supported by list
+   .sort().
+
 v2.9.13
 -------
 1. Urgent bug fix for missing compatibility yamls.
