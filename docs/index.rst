@@ -77,6 +77,8 @@ v2.9.14
 1. Implements Structure.sort method. Both Structure.sort and the
    get_sorted_structure methods now supports all arguments supported by list
    .sort().
+2. VaspInputSets now uses yaml. Note the new dependency on pyyaml. It is
+   highly recommended that you install pyyaml with the libyaml C bindings.
 
 v2.9.13
 -------
@@ -177,6 +179,13 @@ Stable version
        there are some issues with easy_install for these extensions. Install
        both these dependencies manually using ``"pip install <package>
        --allow-external <package> --allow-unverified <package>"``.
+    4. Although PyYaml can be installed directly through pip without
+       additional preparation, it is highly recommended that you install
+       pyyaml with the C bindings for speed. To do so, install LibYaml first,
+       and then install pyyaml with the command below (see the `pyyaml
+       doc<http://pyyaml.org/wiki/PyYAML>`_ for more information)::
+
+           python setup.py --with-libyaml install
 
 The version at the Python Package Index (PyPI) is always the latest stable
 release that will be hopefully, be relatively bug-free. The easiest way to
