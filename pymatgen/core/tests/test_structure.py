@@ -298,6 +298,9 @@ class StructureTest(PymatgenTest):
         s.sort(key=lambda site: site.species_string)
         self.assertEqual(s[0].species_string, "F")
         self.assertEqual(s[1].species_string, "Si")
+        s.sort(key=lambda site: site.species_string, reverse=True)
+        self.assertEqual(s[0].species_string, "Si")
+        self.assertEqual(s[1].species_string, "F")
 
     def test_append_insert_remove_replace(self):
         s = self.structure

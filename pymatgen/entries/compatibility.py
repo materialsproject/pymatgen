@@ -17,6 +17,11 @@ __date__ = "Mar 19, 2012"
 
 import os
 import yaml
+try:
+    from yaml import CLoader as Loader
+except ImportError:
+    from yaml import Loader
+
 from collections import defaultdict
 
 from monty.design_patterns import cached_class
@@ -135,7 +140,7 @@ class GasCorrection(Correction):
     """
     def __init__(self, config_file, correct_peroxide=True):
         with open(config_file) as f:
-            c = yaml.load(f)
+            c = yaml.load(f, Loader=Loader)
 
         self.cpd_energies = c['Advanced']['CompoundEnergies']
         self.oxide_correction = c['OxideCorrections']
@@ -181,7 +186,8 @@ class GasCorrection(Correction):
                     elif rform in UCorrection.ozonides:
                         correction += self.oxide_correction["ozonide"] * \
                             comp["O"]
-                    elif Element("O") in comp.elements and len(comp.elements) > 1:
+                    elif Element("O") in comp.elements and len(comp.elements)\
+                            > 1:
                         correction += self.oxide_correction['oxide'] * comp["O"]
         else:
             correction += self.oxide_correction['oxide'] * comp["O"]
@@ -203,7 +209,7 @@ class AqueousCorrection(Correction):
     """
     def __init__(self, config_file):
         with open(config_file) as f:
-            c = yaml.load(f)
+            c = yaml.load(f, Loader=Loader)
         self.cpd_energies = c['AqueousCompoundEnergies']
         self.name = c["Name"]
 
@@ -262,7 +268,7 @@ class UCorrection(Correction):
             raise CompatibilityError("Invalid compat_type {}".format(compat_type))
         
         with open(config_file) as f:
-            c = yaml.load(f)
+            c = yaml.load(f, Loader=Loader)
        
         self.input_set = input_set
         if compat_type == 'Advanced':
@@ -394,8 +400,9 @@ class MaterialsProjectCompatibility(Compatibility):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MPCompatibility.yaml")
         i_s = MPVaspInputSet()
-        Compatibility.__init__(self, [PotcarCorrection(i_s), GasCorrection(fp, 
-                        correct_peroxide=correct_peroxide),
+        Compatibility.__init__(
+            self, [PotcarCorrection(i_s),
+                   GasCorrection(fp, correct_peroxide=correct_peroxide),
                    UCorrection(fp, i_s, compat_type)])
 
 
@@ -423,9 +430,11 @@ class MITCompatibility(Compatibility):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MITCompatibility.yaml")
         i_s = MITVaspInputSet()
-        Compatibility.__init__(self, [PotcarCorrection(i_s), GasCorrection(fp, 
-                        correct_peroxide=correct_peroxide),
+        Compatibility.__init__(
+            self, [PotcarCorrection(i_s),
+                   GasCorrection(fp, correct_peroxide=correct_peroxide),
                    UCorrection(fp, i_s, compat_type)])
+
 
 @cached_class
 class MITAqueousCompatibility(Compatibility):
@@ -451,9 +460,11 @@ class MITAqueousCompatibility(Compatibility):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MITCompatibility.yaml")
         i_s = MITVaspInputSet()
-        Compatibility.__init__(self, [PotcarCorrection(i_s), GasCorrection(fp, 
-                        correct_peroxide=correct_peroxide),
+        Compatibility.__init__(
+            self, [PotcarCorrection(i_s),
+                   GasCorrection(fp, correct_peroxide=correct_peroxide),
                    UCorrection(fp, i_s, compat_type), AqueousCorrection(fp)])
+
 
 @cached_class
 class MaterialsProjectAqueousCompatibility(Compatibility):
@@ -480,6 +491,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MPCompatibility.yaml")
         i_s = MPVaspInputSet()
-        Compatibility.__init__(self, [PotcarCorrection(i_s), GasCorrection(fp, 
-                        correct_peroxide=correct_peroxide),
+        Compatibility.__init__(
+            self, [PotcarCorrection(i_s),
+                   GasCorrection(fp, correct_peroxide=correct_peroxide),
                    UCorrection(fp, i_s, compat_type), AqueousCorrection(fp)])
