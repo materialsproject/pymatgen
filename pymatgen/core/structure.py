@@ -651,12 +651,26 @@ class IStructure(SiteCollection, MSONable):
         inner = r - dr
         return [(site, dist) for (site, dist) in outer if dist > inner]
 
-    def get_sorted_structure(self):
+    def get_sorted_structure(self, cmp=None, key=None, reverse=False):
         """
-        Get a sorted copy of the structure.
-        Sites are sorted by the electronegativity of the species.
+        Get a sorted copy of the structure. The parameters have the same
+        meaning as in list.sort. By default, sites are sorted by the
+        electronegativity of the species.
+
+        Args:
+            cmp: Specifies a custom comparison function of two arguments
+                (iterable elements) which should return a negative, zero or
+                positive number depending on whether the first argument is
+                considered smaller than, equal to, or larger than the second
+                argument: cmp=lambda x,y: cmp(x.lower(), y.lower()). The
+                default value is None.
+            key: Specifies a function of one argument that is used to extract
+                a comparison key from each list element: key=str.lower. The
+                default value is None (compare the elements directly).
+            reverse (bool): If set to True, then the list elements are sorted
+                as if each comparison were reversed.
         """
-        sites = sorted(self)
+        sites = sorted(self, cmp=cmp, key=key, reverse=reverse)
         return self.__class__.from_sites(sites)
 
     def get_reduced_structure(self, reduction_algo="niggli"):
@@ -1753,15 +1767,29 @@ class Structure(IStructure, collections.MutableSequence):
         s = (1 + np.array(strain)) * np.eye(3)
         self.modify_lattice(Lattice(np.dot(self._lattice.matrix.T, s).T))
 
-    def sort(self, key=None):
+    def sort(self, cmp=None, key=None, reverse=False):
         """
-        Sort a structure in place.
+        Sort a structure in place. The parameters have the same meaning as in
+        list.sort. By default, sites are sorted by the electronegativity of
+        the species. The difference between this method and
+        get_sorted_structure (which also works in IStructure) is that the
+        latter returns a new Structure, while this just sorts the Structure
+        in place.
 
         Args:
-            key (callable): Similar to list.sort, takes a key which defines a
-                sort function. Defaults to None, which means default.
+            cmp: Specifies a custom comparison function of two arguments
+                (iterable elements) which should return a negative, zero or
+                positive number depending on whether the first argument is
+                considered smaller than, equal to, or larger than the second
+                argument: cmp=lambda x,y: cmp(x.lower(), y.lower()). The
+                default value is None.
+            key: Specifies a function of one argument that is used to extract
+                a comparison key from each list element: key=str.lower. The
+                default value is None (compare the elements directly).
+            reverse (bool): If set to True, then the list elements are sorted
+                as if each comparison were reversed.
         """
-        self._sites = sorted(self._sites, key=key)
+        self._sites = sorted(self._sites, cmp=cmp, key=key, reverse=reverse)
 
     def translate_sites(self, indices, vector, frac_coords=True,
                         to_unit_cell=True):

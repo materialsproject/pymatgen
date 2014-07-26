@@ -21,6 +21,11 @@ __date__ = "Nov 16, 2011"
 import os
 import abc
 import json
+import yaml
+try:
+    from yaml import CLoader as Loader
+except ImportError:
+    from yaml import Loader
 import re
 import traceback
 import shutil
@@ -156,7 +161,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
     """
     Concrete implementation of VaspInputSet that is initialized from a dict
     settings. This allows arbitrary settings to be input. In general,
-    this is rarely used directly unless there is a source of settings in JSON
+    this is rarely used directly unless there is a source of settings in yaml
     format (e.g., from a REST interface). It is typically used by other
     VaspInputSets for initialization.
 
@@ -362,14 +367,15 @@ class DictVaspInputSet(AbstractVaspInputSet):
                    sort_structure=d.get("sort_structure", True),
                    potcar_functional=d.get("potcar_functional", None))
 
+
     @staticmethod
     def from_json_file(name, json_file, **kwargs):
         """
-        Creates a DictVaspInputSet from a json file.
+        Creates a DictVaspInputSet from a yaml file.
 
         Args:
             name (str): A name for the input set.
-            json_file (str): Path to a json file containing the settings.
+            json_file (str): Path to a yaml file containing the settings.
             \*\*kwargs: Same kwargs as in the constructor.
 
         Returns:
@@ -377,11 +383,28 @@ class DictVaspInputSet(AbstractVaspInputSet):
         """
         with open(json_file) as f:
             return DictVaspInputSet(
-                name, json.load(f), **kwargs)
+                name, json.load(f))
+
+    @staticmethod
+    def from_yaml_file(name, yaml_file, **kwargs):
+        """
+        Creates a DictVaspInputSet from a yaml file.
+
+        Args:
+            name (str): A name for the input set.
+            yaml_file (str): Path to a yaml file containing the settings.
+            \*\*kwargs: Same kwargs as in the constructor.
+
+        Returns:
+            DictVaspInputSet
+        """
+        with open(yaml_file) as f:
+            return DictVaspInputSet(
+                name, yaml.load(f, Loader=Loader), **kwargs)
 
 
-MITVaspInputSet = partial(DictVaspInputSet.from_json_file, "MIT",
-                          os.path.join(MODULE_DIR, "MITVaspInputSet.json"))
+MITVaspInputSet = partial(DictVaspInputSet.from_yaml_file, "MIT",
+                          os.path.join(MODULE_DIR, "MITVaspInputSet.yaml"))
 """
 Standard implementation of VaspInputSet utilizing parameters in the MIT
 High-throughput project.
@@ -394,24 +417,20 @@ Please refer::
     K. A. Persson, G. Ceder. A high-throughput infrastructure for density
     functional theory calculations. Computational Materials Science,
     2011, 50(8), 2295-2310. doi:10.1016/j.commatsci.2011.02.023
-
-for more information. Supports the same kwargs as :class:`JSONVaspInputSet`.
 """
 
-MITGGAVaspInputSet = partial(DictVaspInputSet.from_json_file, "MIT GGA",
-                             os.path.join(MODULE_DIR, "MITVaspInputSet.json"),
+MITGGAVaspInputSet = partial(DictVaspInputSet.from_yaml_file, "MIT GGA",
+                             os.path.join(MODULE_DIR, "MITVaspInputSet.yaml"),
                              hubbard_off=True)
 """
 GGA (no U) version of MITVaspInputSet.
-Supports the same kwargs as :class:`JSONVaspInputSet`.
 """
 
 MITHSEVaspInputSet = partial(
-    DictVaspInputSet.from_json_file, "MIT HSE",
-    os.path.join(MODULE_DIR, "MITHSEVaspInputSet.json"))
+    DictVaspInputSet.from_yaml_file, "MIT HSE",
+    os.path.join(MODULE_DIR, "MITHSEVaspInputSet.yaml"))
 """
 Typical implementation of input set for a HSE run using MIT parameters.
-Supports the same kwargs as :class:`JSONVaspInputSet`.
 """
 
 
@@ -433,8 +452,9 @@ class MITNEBVaspInputSet(DictVaspInputSet):
         if user_incar_settings:
             defaults.update(user_incar_settings)
 
-        with open(os.path.join(MODULE_DIR, "MITVaspInputSet.json")) as f:
-            DictVaspInputSet.__init__(self, "MIT NEB", json.load(f),
+        with open(os.path.join(MODULE_DIR, "MITVaspInputSet.yaml")) as f:
+            DictVaspInputSet.__init__(self, "MIT NEB",
+                                      yaml.load(f, Loader=Loader),
                                       user_incar_settings=defaults,
                                       ediff_per_atom=False, **kwargs)
         self.nimages = nimages
@@ -542,9 +562,9 @@ class MITMDVaspInputSet(DictVaspInputSet):
         #override default settings with user supplied settings
         if user_incar_settings:
             defaults.update(user_incar_settings)
-        with open(os.path.join(MODULE_DIR, "MITVaspInputSet.json")) as f:
+        with open(os.path.join(MODULE_DIR, "MITVaspInputSet.yaml")) as f:
             DictVaspInputSet.__init__(
-                self, "MIT MD", json.load(f),
+                self, "MIT MD", yaml.load(f, Loader=Loader),
                 hubbard_off=hubbard_off, sort_structure=sort_structure,
                 user_incar_settings=defaults, **kwargs)
 
@@ -589,27 +609,26 @@ class MITMDVaspInputSet(DictVaspInputSet):
                    sort_structure=d.get("sort_structure", True))
 
 
-MPVaspInputSet = partial(DictVaspInputSet.from_json_file, "MP",
-                         os.path.join(MODULE_DIR, "MPVaspInputSet.json"))
+MPVaspInputSet = partial(DictVaspInputSet.from_yaml_file, "MP",
+                         os.path.join(MODULE_DIR, "MPVaspInputSet.yaml"))
 """
 Implementation of VaspInputSet utilizing parameters in the public
 Materials Project. Typically, the pseudopotentials chosen contain more
 electrons than the MIT parameters, and the k-point grid is ~50% more dense.
 The LDAUU parameters are also different due to the different psps used,
-which result in different fitted values. Supports the same kwargs as
-:class:`JSONVaspInputSet`.
+which result in different fitted values.
 """
 
-MPGGAVaspInputSet = partial(DictVaspInputSet.from_json_file, "MP GGA",
-                            os.path.join(MODULE_DIR, "MPVaspInputSet.json"),
+MPGGAVaspInputSet = partial(DictVaspInputSet.from_yaml_file, "MP GGA",
+                            os.path.join(MODULE_DIR, "MPVaspInputSet.yaml"),
                             hubbard_off=True)
 """
 Same as the MPVaspInput set, but the +U is enforced to be turned off.
 """
 
 
-MPHSEVaspInputSet = partial(DictVaspInputSet.from_json_file, "MP HSE",
-                            os.path.join(MODULE_DIR, "MPHSEVaspInputSet.json"))
+MPHSEVaspInputSet = partial(DictVaspInputSet.from_yaml_file, "MP HSE",
+                            os.path.join(MODULE_DIR, "MPHSEVaspInputSet.yaml"))
 """
 Same as the MPVaspInput set, but with HSE parameters.
 """
@@ -648,9 +667,9 @@ class MPStaticVaspInputSet(DictVaspInputSet):
     """
 
     def __init__(self, kpoints_density=90, sym_prec=0.1, **kwargs):
-        with open(os.path.join(MODULE_DIR, "MPVaspInputSet.json")) as f:
+        with open(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")) as f:
             DictVaspInputSet.__init__(
-                self, "MP Static", json.load(f), **kwargs)
+                self, "MP Static", yaml.load(f, Loader=Loader), **kwargs)
         self.incar_settings.update(
             {"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
              "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0,
@@ -850,9 +869,10 @@ class MPStaticDielectricDFPTVaspInputSet(DictVaspInputSet):
     """
 
     def __init__(self, user_incar_settings=None, ionic=True):
-        with open(os.path.join(MODULE_DIR, "MPVaspInputSet.json")) as f:
+        with open(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")) as f:
             DictVaspInputSet.__init__(
-                self, "MaterialsProject Static Dielectric DFPT", json.load(f))
+                self, "MaterialsProject Static Dielectric DFPT",
+                yaml.load(f, Loader=Loader))
         self.user_incar_settings = user_incar_settings if \
             user_incar_settings is not None else {}
         self.incar_settings.update(self.user_incar_settings)
@@ -889,9 +909,10 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
 
     def __init__(self, user_incar_settings=None, added_kpoints=[], mode="Line",
                  kpoints_density=100):
-        with open(os.path.join(MODULE_DIR, "MPHSEVaspInputSet.json")) as f:
+        with open(os.path.join(MODULE_DIR, "MPHSEVaspInputSet.yaml")) as f:
             DictVaspInputSet.__init__(
-                self, "MaterialsProject HSE Band Structure", json.load(f))
+                self, "MaterialsProject HSE Band Structure",
+                yaml.load(f, Loader=Loader))
             self.user_incar_settings = user_incar_settings if \
                 user_incar_settings is not None else {}
             self.incar_settings.update(
@@ -990,9 +1011,9 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         if mode not in ["Line", "Uniform"]:
             raise ValueError("Supported modes for NonSCF runs are 'Line' and "
                              "'Uniform'!")
-        with open(os.path.join(MODULE_DIR, "MPVaspInputSet.json")) as f:
+        with open(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")) as f:
             DictVaspInputSet.__init__(
-                self, "MaterialsProject Static", json.load(f),
+                self, "MaterialsProject Static", yaml.load(f, Loader=Loader),
                 constrain_total_magmom=constrain_total_magmom,
                 sort_structure=sort_structure)
         self.user_incar_settings = user_incar_settings

@@ -1626,12 +1626,12 @@ class Task(Node):
                 string with human-readable message used in the case of errors (optional)
         """
         # Accepts strings as well.
-        if not isinstance(status, Status):
-            try:
-                status = getattr(Node, status)
-            except AttributeError:
-                status = Status.from_string(status)
-
+        #if not isinstance(status, Status):
+        #    try:
+        #        status = getattr(Node, status)
+        #    except AttributeError:
+        #        status = Status.from_string(status)
+        status = Status.as_status(status)
         assert status in _STATUS2STR
 
         changed = True
