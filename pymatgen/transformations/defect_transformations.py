@@ -23,12 +23,15 @@ class VacancyTransformation(AbstractTransformation):
     """
     Generates vacancy structures
     """
-    def __init__(self, supercell_dim, valences=None, radii=None):
+    def __init__(self, supercell_dim, species=None, valences=None, radii=None):
         """
         :param supecell_dim: Supercell scaling matrix
+        :param species: Species in the structure for which vacancy
+        transformation is applied
         :return:
         """
         self.supercell_dim = supercell_dim
+        self.species = species
         self.valences = valences
         self.radii = radii
 
@@ -47,20 +50,21 @@ class VacancyTransformation(AbstractTransformation):
             num_to_return = int(return_ranked_list)
         except ValueError:
             num_to_return = 1
+
         vac = Vacancy(structure,self.valences,self.radii)
-        #print vac.enumerate_defectsites()
-        scs = vac.make_supercells_with_defects(self.supercell_dim)
+        scs = vac.make_supercells_with_defects(
+            self.supercell_dim,self.species, num_to_return)
         #if num_to_return < len(scs)-1:
         #    raise ValueError("VacancyTransformation has no ordering of best "
         #                     "structure. Must increase return_ranked_list.")
         structures = []
-        num_to_return = min(num_to_return, len(scs)-1)
-        for sc in scs[1:num_to_return+1]: 
+        for sc in scs[1:]:
             structures.append({'structure':sc})
         return structures
 
     def __str__(self):
         inp_args = ["Supercell scaling matrix = {}".format(self.supercell_dim),
+                    "Vacancy species = {}".format(self.species),
                     "Valences of ions = {}".format(self.valences),
                     "Radii of ions = {}".format(self.radii)]
         return "Vacancy Transformation : " + ", ".join(inp_args)
@@ -80,7 +84,9 @@ class VacancyTransformation(AbstractTransformation):
     def to_dict(self):
         return {"name":self.__class__.__name__, "version":__version__,
                 "init_args":{"supercell_dim":self.supercell_dim,
-                             "valences":self.valences,"radii":self.radii},
+                             "species":species,
+                             "valences":self.valences,
+                             "radii":self.radii},
                 "@module":self.__class__.__module__,
                 "@class":self.__class__.__name__ }
 
@@ -120,14 +126,16 @@ class SubstitutionDefectTransformation(AbstractTransformation):
         except ValueError:
             num_to_return = 1
 
+        species = self._species_map.keys()
         vac = Vacancy(structure,self.valences,self.radii)
-        scs = vac.make_supercells_with_defects(self.supercell_dim)
+        scs = vac.make_supercells_with_defects(
+            self.supercell_dim,species,num_to_return)
         blk_sc = scs[0]
         sub_scs = []
         for i in range(1,len(scs)):
             vac_sc = scs[i]
             vac_site = list(set(blk_sc.sites) - set(vac_sc.sites))[0]
-            site_specie = str(vac_site.specie)
+            site_specie = vac_site.specie.element.symbol
             if site_specie in self._species_map.keys():
                 substitute_specie = self._species_map[site_specie]
                 vac_sc.append(substitute_specie, vac_site.frac_coords)
