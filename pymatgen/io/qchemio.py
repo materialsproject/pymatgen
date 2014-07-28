@@ -1229,6 +1229,7 @@ class QcOutput(object):
                         for freq, mode in zip(vib_freqs, zip(*vib_modes)):
                             freqs.append({"frequency": freq,
                                           "vib_mode": mode})
+                        vib_modes = []
                         continue
                     dis_flat = [float(x) for x in line.strip().split()[1:]]
                     dis_atom = zip(*([iter(dis_flat)]*3))
