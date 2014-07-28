@@ -193,7 +193,8 @@ class Vasprun(object):
                             "actual_kpoints_weights", "dos_energies",
                             "eigenvalues", "tdos", "idos", "pdos", "efermi",
                             "ionic_steps", "dos_has_errors",
-                            "projected_eigenvalues", "dielectric", "epsilon_static"]
+                            "projected_eigenvalues", "dielectric",
+                            "epsilon_static"]
 
     def __init__(self, filename, ionic_step_skip=None,
                  ionic_step_offset=0, parse_dos=True,
@@ -886,8 +887,8 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.stress.shape = (3, 3)
             self.read_positions = False
         elif name == "varray" and state["varray"] == "epsilon":
-            self.epsilon_static = np.array(map(float,
-                                        self.epsilonstr.getvalue().split()))
+            self.epsilon_static = np.array(
+                map(float, self.epsilonstr.getvalue().split()))
             self.epsilon_static.shape = (3, 3)
             self.read_epsilon_static = False
         elif name == "calculation":
@@ -1484,7 +1485,7 @@ class Outcar(object):
             raise Exception("CLACLCPOL OUTCAR could not be parsed.")
 
     def read_core_state_eigen(self):
-        """ 
+        """
         Read the core state eigenenergies at each ionic step.
 
         Returns:
@@ -2067,12 +2068,12 @@ class Oszicar(object):
                                        "d\s*E\s*=\s*([\d\-\.E\+]+)\s+"
                                        "mag=\s*([\d\-\.E\+]+)")
         ionic_MD_pattern = re.compile("(\d+)\s+T=\s*([\d\-\.E\+]+)\s+"
-                                       "E=\s*([\d\-\.E\+]+)\s+"
-                                       "F=\s*([\d\-\.E\+]+)\s+"
-                                       "E0=\s*([\d\-\.E\+]+)\s+"
-                                       "EK=\s*([\d\-\.E\+]+)\s+"
-                                       "SP=\s*([\d\-\.E\+]+)\s+"
-                                       "SK=\s*([\d\-\.E\+]+)")
+                                      "E=\s*([\d\-\.E\+]+)\s+"
+                                      "F=\s*([\d\-\.E\+]+)\s+"
+                                      "E0=\s*([\d\-\.E\+]+)\s+"
+                                      "EK=\s*([\d\-\.E\+]+)\s+"
+                                      "SP=\s*([\d\-\.E\+]+)\s+"
+                                      "SK=\s*([\d\-\.E\+]+)")
         electronic_pattern = re.compile("\s*\w+\s*:(.*)")
 
         def smart_convert(header, num):
@@ -2210,6 +2211,46 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
                 .get_band_structure(kpoints_filename=None, efermi=efermi)
         else:
             return None
+
+
+class Xdatcar(object):
+    """
+    Class representing an XDATCAR file. Only tested with VASP 5.x files.
+
+    .. attribute:: structures
+
+        List of structures parsed from XDATCAR.
+    """
+
+    def __init__(self, filename):
+        """
+        Init a Xdatcar.
+
+        Args:
+            filename (str): Filename of XDATCAR file.
+        """
+        preamble = None
+        coords_str = []
+        structures = []
+        preamble_done = False
+        with zopen(filename) as f:
+            for l in f:
+                l = l.strip()
+                if preamble is None:
+                    preamble = [l]
+                elif not preamble_done:
+                    if l == "":
+                        preamble_done = True
+                    else:
+                        preamble.append(l)
+                elif l == "":
+                    p = Poscar.from_string("\n".join(preamble +
+                                                     ["Direct"] + coords_str))
+                    structures.append(p.structure)
+                    coords_str = []
+                else:
+                    coords_str.append(l)
+        self.structures = structures
 
 
 def get_adjusted_fermi_level(efermi, cbm, band_structure):
