@@ -474,7 +474,13 @@ class Vacancy(Defect):
             limit_return_structures = self.defectsite_count()
         for defect_site in self.enumerate_defectsites():
             if len(sc_with_vac) <= limit_return_structures:
-                site_specie = defect_site.specie.element.symbol
+                if isinstance(defect_site.specie,Specie):
+                    site_specie = defect_site.specie.element.symbol
+                elif isinstance(defect_site.specie,Element):
+                    site_specie = defect_site.specie.symbol
+                else:
+                    raise TypeError("site specie is neither Specie nor Element")
+
                 if site_specie in species:
                     sc_with_vac.append(self._supercell_with_defect(
                         scaling_matrix, defect_site))
