@@ -447,13 +447,18 @@ class Vacancy(Defect):
                 return sc
         raise ValueError('Something wrong if reached here')
 
-    def make_supercells_with_defects(self, scaling_matrix):
+    def make_supercells_with_defects(self, scaling_matrix, species=None,
+                                     limit_return_structures=False):
         """
         Generate sequence of supercells in pymatgen.core.structure.Structure
         format, with each supercell containing one vacancy.
 
         Args:
             scaling_matrix: super cell scale parameters in matrix forms
+            species: Species in list format only for which vacancy supercells
+                are required. If not specified all the species are considered.
+            limit_return_structures: Boolean or positive number
+                If number, only that many structures are returned.
 
         Returns:
             Supercells with vacancies. First supercell has no defects.
@@ -462,9 +467,17 @@ class Vacancy(Defect):
         sc = self._structure.copy()
         sc.make_supercell(scaling_matrix)
         sc_with_vac.append(sc)
+
+        if not species:
+            species = sc.symbol_set
+        if not limit_return_structures:
+            limit_return_structures = self.defectsite_count()
         for defect_site in self.enumerate_defectsites():
-            sc_with_vac.append(self._supercell_with_defect(scaling_matrix,
-                                                           defect_site))
+            if len(sc_with_vac) <= limit_return_structures:
+                site_specie = defect_site.specie.element.symbol
+                if site_specie in species:
+                    sc_with_vac.append(self._supercell_with_defect(
+                        scaling_matrix, defect_site))
         return sc_with_vac
 
 

@@ -140,6 +140,32 @@ class VacancyTest(unittest.TestCase):
             min_chrg, max_chrg = self._mgo_vac.get_coordsites_min_max_charge(i)
             self.assertEqual(min_chrg, max_chrg)
 
+    def test_make_supercells_with_defects(self):
+        scaling_matrix = [2,2,2]
+        vac_specie = ['Mg']
+        vac_scs = self._mgo_vac.make_supercells_with_defects(
+            scaling_matrix, vac_specie)
+        expected_structure_formulae = ["Mg32 O32", "Mg32 O31", "Mg31 O32"]
+        self.assertEqual(len(vac_scs),2)
+        for sc in vac_scs:
+            self.assertIn(sc.formula, expected_structure_formulae)
+
+        vac_scs = self._mgo_vac.make_supercells_with_defects(scaling_matrix)
+        expected_structure_formulae = ["Mg32 O32", "Mg32 O31", "Mg31 O32"]
+        self.assertEqual(len(vac_scs),3)
+        for sc in vac_scs:
+            self.assertIn(sc.formula, expected_structure_formulae)
+
+        vac_scs = self._mgo_vac.make_supercells_with_defects(
+            scaling_matrix,limit_return_structures=1)
+        expected_structure_formulae = ["Mg32 O32", "Mg32 O31", "Mg31 O32"]
+        self.assertEqual(len(vac_scs),2)
+        for sc in vac_scs:
+            self.assertIn(sc.formula, expected_structure_formulae)
+
+
+
+
     @unittest.skip("deprecated")
     def test_get_volume(self):
         for i in range(self._mgo_vac.defectsite_count()):
