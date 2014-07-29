@@ -129,7 +129,7 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][1], -0.00459066)
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[2][2], 3.24330517)
 
-        entry = vasprun_dfpt.get_computed_structure_entry()
+        entry = vasprun_dfpt.get_computed_entry()
         entry = MaterialsProjectCompatibility().process_entry(entry)
         self.assertAlmostEqual(entry.uncorrected_energy + entry.correction,
                                entry.energy)
