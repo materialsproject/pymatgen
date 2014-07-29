@@ -42,6 +42,8 @@ from pymatgen.electronic_structure.bandstructure import BandStructure, \
     BandStructureSymmLine, get_reconstructed_band_structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.io.vaspio.vasp_input import Incar, Kpoints, Poscar
+from pymatgen.entries.computed_entries import \
+    ComputedEntry, ComputedStructureEntry
 
 logger = logging.getLogger(__name__)
 
@@ -317,6 +319,41 @@ class Vasprun(object):
         """
         return True if self.parameters.get("ISPIN", 1) == 2 else False
 
+    def get_computed_entry(self, inc_structure=False, parameters=None,
+                           data=None):
+        """
+        Returns a ComputedStructureEntry from the vasprun.
+
+        Args:
+            inc_structure (bool): Set to True if you want
+                ComputedStructureEntries to be returned instead of
+                ComputedEntries.
+            parameters (list): Input parameters to include. It has to be one of
+                the properties supported by the Vasprun object. If
+                parameters == None, a default set of parameters that are
+                necessary for typical post-processing will be set.
+            data (list): Output data to include. Has to be one of the properties
+                supported by the Vasprun object.
+
+        Returns:
+            ComputedStructureEntry/ComputedEntry
+        """
+        param_names = {"is_hubbard", "hubbards", "potcar_symbols",
+                       "run_type"}
+        if parameters:
+            param_names.update(parameters)
+        params = {p: getattr(self, p) for p in param_names}
+        data = {p: getattr(self, p) for p in data} if data is not None else {}
+
+        if inc_structure:
+            return ComputedStructureEntry(self.final_structure,
+                                          self.final_energy, parameters=params,
+                                          data=data)
+        else:
+            return ComputedEntry(self.final_structure.composition,
+                                 self.final_energy, parameters=params,
+                                 data=data)
+
     def get_band_structure(self, kpoints_filename=None, efermi=None,
                            line_mode=False):
         """
@@ -355,7 +392,8 @@ class Vasprun(object):
         if not kpoints_filename:
             kpoints_filename = self.filename.replace('vasprun.xml', 'KPOINTS')
         if not os.path.exists(kpoints_filename) and line_mode is True:
-            raise VaspParserError('KPOINTS needed to obtain band structure along symmetry lines.')
+            raise VaspParserError('KPOINTS needed to obtain band structure '
+                                  'along symmetry lines.')
 
         if efermi is None:
             efermi = self.efermi
@@ -445,7 +483,8 @@ class Vasprun(object):
                     eigenvals = {Spin.up: up_eigen}
             else:
                 if '' in kpoint_file.labels:
-                    raise Exception("a band structure along symmetry lines requires a label for each kpoint. "
+                    raise Exception("A band structure along symmetry lines "
+                                    "requires a label for each kpoint. "
                                     "Check your KPOINTS file")
                 labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
                 labels_dict.pop(None, None)
