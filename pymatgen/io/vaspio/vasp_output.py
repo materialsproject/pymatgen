@@ -42,6 +42,7 @@ from pymatgen.electronic_structure.bandstructure import BandStructure, \
     BandStructureSymmLine, get_reconstructed_band_structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.io.vaspio.vasp_input import Incar, Kpoints, Poscar
+from pymatgen.entries.computed_entries import ComputedStructureEntry
 
 logger = logging.getLogger(__name__)
 
@@ -313,6 +314,17 @@ class Vasprun(object):
         """
         return True if self.parameters.get("ISPIN", 1) == 2 else False
 
+    def get_computed_structure_entry(self):
+        """
+        Returns a ComputedStructureEntry from the vasprun.
+        """
+        params = {
+            "hubbards": self.hubbards,
+            "potcar_symbols": self.potcar_symbols
+        }
+        return ComputedStructureEntry(self.final_structure,
+                                      self.final_energy, parameters=params)
+
     def get_band_structure(self, kpoints_filename=None, efermi=None,
                            line_mode=False):
         """
@@ -351,7 +363,8 @@ class Vasprun(object):
         if not kpoints_filename:
             kpoints_filename = self.filename.replace('vasprun.xml', 'KPOINTS')
         if not os.path.exists(kpoints_filename) and line_mode is True:
-            raise VaspParserError('KPOINTS needed to obtain band structure along symmetry lines.')
+            raise VaspParserError('KPOINTS needed to obtain band structure '
+                                  'along symmetry lines.')
 
         if efermi is None:
             efermi = self.efermi
@@ -441,7 +454,8 @@ class Vasprun(object):
                     eigenvals = {Spin.up: up_eigen}
             else:
                 if '' in kpoint_file.labels:
-                    raise Exception("a band structure along symmetry lines requires a label for each kpoint. "
+                    raise Exception("A band structure along symmetry lines "
+                                    "requires a label for each kpoint. "
                                     "Check your KPOINTS file")
                 labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
                 labels_dict.pop(None, None)
