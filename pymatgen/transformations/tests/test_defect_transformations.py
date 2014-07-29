@@ -27,7 +27,6 @@ except ImportError:
 class VacancyTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
-        t = VacancyTransformation([2,2,2])
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
@@ -37,17 +36,32 @@ class VacancyTransformationTest(unittest.TestCase):
                            [1.9200989668, 3.3257101909, 0.00],
                            [0.00, -2.2171384943, 3.1355090603]])
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
+        t = VacancyTransformation([2,2,2],species="Li")
         structures = t.apply_transformation(struct,return_ranked_list=100)
-        self.assertEqual(len(structures),2)
-        for struct in structures:
-            self.assertIn(struct['structure'].composition.formula,
-                          ["Li16 O16", "Li15 O16", "Li16 O15"])
+        self.assertEqual(len(structures),1)
+        for vac_struct in structures:
+            self.assertIn(vac_struct['structure'].composition.formula,
+                          [ "Li15 O16"])
+
+        t = VacancyTransformation([2,2,2],species="O")
+        structures = t.apply_transformation(struct,return_ranked_list=100)
+        self.assertEqual(len(structures),1)
+        for vac_struct in structures:
+            self.assertIn(vac_struct['structure'].composition.formula,
+                          [ "Li16 O15"])
+
+        t = VacancyTransformation([2,2,2])
+        structures = t.apply_transformation(struct,return_ranked_list=1)
+        self.assertEqual(len(structures),1)
+        for vac_struct in structures:
+            self.assertIn(vac_struct['structure'].composition.formula,
+                          [ "Li16 O15","Li15 O16"])
 
 
 class SubstitutionDefectTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
-        t = SubstitutionDefectTransformation({"Li+":"Na+","O2-":"S2-"},[2,2,2])
+        t = SubstitutionDefectTransformation({"Li":"Na","O":"S"},[2,2,2])
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])

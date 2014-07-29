@@ -284,9 +284,16 @@ class PourbaixDiagram(object):
     @property
     def stable_entries(self):
         """
-        Returns the stable entries in the phase diagram.
+        Returns the stable entries in the Pourbaix diagram.
         """
-        return self._stable_entries
+        return list(self._stable_entries)
+    
+    @property
+    def unstable_entries(self):
+        """
+        Returns all unstable entries in the Pourbaix diagram
+        """
+        return [e for e in self.qhull_entries if e not in self.stable_entries]
 
     @property
     def all_entries(self):
