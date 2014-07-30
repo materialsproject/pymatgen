@@ -65,11 +65,6 @@ def check_input(def_list):
     return flag
 
 # TODO: Cleanup the initialization
-# Break the function into parts
-# Part1: Setup the system
-# Part2: Compute the trial mus if not given
-# Part3: Calculate the defect formation energies
-# Part4: Calculate the plots
 
 @requires(sympy_found,
             "comute_defect_density requires Sympy module. Please install it.")
