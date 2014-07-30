@@ -162,7 +162,7 @@ class BalancedReactionTest(unittest.TestCase):
                 Composition('Li2O'): 12}
         rxn = BalancedReaction(rct, prod)
         self.assertEquals(str(rxn),
-                          '1.000 Na2S + 24.000 Li + 3.000 K2SO4 -> 12.000 Li2O + 2.000 K2S + 2.000 KNaS')
+                          '24.000 Li + 3.000 K2SO4 + 1.000 Na2S -> 2.000 KNaS + 12.000 Li2O + 2.000 K2S')
 
         #Test unbalanced exception
         rct = {Composition('K2SO4'): 1,
