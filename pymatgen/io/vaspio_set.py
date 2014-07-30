@@ -28,7 +28,7 @@ from functools import partial
 
 import numpy as np
 
-from monty.serialization import serial_loadf
+from monty.serialization import loadfn
 
 from pymatgen.io.cifio import CifWriter
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
@@ -377,7 +377,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
         Returns:
             DictVaspInputSet
         """
-        return DictVaspInputSet(name, serial_loadf(filename), **kwargs)
+        return DictVaspInputSet(name, loadfn(filename), **kwargs)
 
 
 MITVaspInputSet = partial(DictVaspInputSet.from_file, "MIT",
@@ -431,7 +431,7 @@ class MITNEBVaspInputSet(DictVaspInputSet):
 
         DictVaspInputSet.__init__(
             self, "MIT NEB",
-            serial_loadf(os.path.join(MODULE_DIR, "MITVaspInputSet.yaml")),
+            loadfn(os.path.join(MODULE_DIR, "MITVaspInputSet.yaml")),
             user_incar_settings=defaults, ediff_per_atom=False, **kwargs)
         self.nimages = nimages
 
@@ -540,7 +540,7 @@ class MITMDVaspInputSet(DictVaspInputSet):
             defaults.update(user_incar_settings)
         DictVaspInputSet.__init__(
             self, "MIT MD",
-            serial_loadf(os.path.join(MODULE_DIR, "MITVaspInputSet.yaml")),
+            loadfn(os.path.join(MODULE_DIR, "MITVaspInputSet.yaml")),
             hubbard_off=hubbard_off, sort_structure=sort_structure,
             user_incar_settings=defaults, **kwargs)
 
@@ -554,7 +554,7 @@ class MITMDVaspInputSet(DictVaspInputSet):
         #use VASP default ENCUT
         if 'ENCUT' not in self.user_incar_settings:
             del self.incar_settings['ENCUT']
-        
+
         if not spin_polarized:
             del self.incar_settings['MAGMOM']
 
@@ -645,7 +645,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
     def __init__(self, kpoints_density=90, sym_prec=0.1, **kwargs):
         DictVaspInputSet.__init__(
             self, "MP Static",
-            serial_loadf(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")),
+            loadfn(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")),
             **kwargs)
         self.incar_settings.update(
             {"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
@@ -848,7 +848,7 @@ class MPStaticDielectricDFPTVaspInputSet(DictVaspInputSet):
     def __init__(self, user_incar_settings=None, ionic=True):
         DictVaspInputSet.__init__(
             self, "MaterialsProject Static Dielectric DFPT",
-            serial_loadf(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")))
+            loadfn(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")))
         self.user_incar_settings = user_incar_settings if \
             user_incar_settings is not None else {}
         self.incar_settings.update(self.user_incar_settings)
@@ -887,7 +887,7 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
                  kpoints_density=100):
         DictVaspInputSet.__init__(
             self, "MaterialsProject HSE Band Structure",
-            serial_loadf(os.path.join(MODULE_DIR, "MPHSEVaspInputSet.yaml")))
+            loadfn(os.path.join(MODULE_DIR, "MPHSEVaspInputSet.yaml")))
         self.user_incar_settings = user_incar_settings if \
             user_incar_settings is not None else {}
         self.incar_settings.update(
@@ -987,7 +987,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                              "'Uniform'!")
         DictVaspInputSet.__init__(
             self, "MaterialsProject Static",
-            serial_loadf(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")),
+            loadfn(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")),
             constrain_total_magmom=constrain_total_magmom,
             sort_structure=sort_structure)
         self.user_incar_settings = user_incar_settings

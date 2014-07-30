@@ -20,7 +20,7 @@ import os
 from collections import defaultdict
 
 from monty.design_patterns import cached_class
-from monty.serialization import serial_loadf
+from monty.serialization import loadfn
 
 from pymatgen.io.vaspio_set import MITVaspInputSet, MPVaspInputSet
 from pymatgen.core.periodic_table import Element
@@ -136,7 +136,7 @@ class GasCorrection(Correction):
             corrections are to be applied or not.
     """
     def __init__(self, config_file, correct_peroxide=True):
-        c = serial_loadf(config_file)
+        c = loadfn(config_file)
         self.cpd_energies = c['Advanced']['CompoundEnergies']
         self.oxide_correction = c['OxideCorrections']
         self.name = c['Name']
@@ -203,7 +203,7 @@ class AqueousCorrection(Correction):
         config_file: Path to the selected compatibility.yaml config file.
     """
     def __init__(self, config_file):
-        c = serial_loadf(config_file)
+        c = loadfn(config_file)
         self.cpd_energies = c['AqueousCompoundEnergies']
         self.name = c["Name"]
 
@@ -262,7 +262,7 @@ class UCorrection(Correction):
             raise CompatibilityError("Invalid compat_type {}"
                                      .format(compat_type))
 
-        c = serial_loadf(config_file)
+        c = loadfn(config_file)
 
         self.input_set = input_set
         if compat_type == 'Advanced':
