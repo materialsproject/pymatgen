@@ -11,7 +11,7 @@ from pymatgen.analysis.defects.dilute_solution_model import dilute_solution_mode
 try:
     import sympy
 except ImportError:
-    zeo = None
+    sympy = None
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
