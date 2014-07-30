@@ -55,7 +55,7 @@ setup(
                   "pymatgen.io": ["*.cfg", "*.yaml"],
                   "pymatgen.entries": ["*.yaml"],
                   "pymatgen.structure_prediction": ["data/*.json"],
-                  "pymatgen.vis": ["ElementColorSchemes.cfg"],
+                  "pymatgen.vis": ["ElementColorSchemes.yaml"],
                   "pymatgen.command_line": ["OxideTersoffPotentials"],
                   "pymatgen.analysis.defects": ["*.json"],
                   "pymatgen.analysis.diffraction": ["*.json"]},
