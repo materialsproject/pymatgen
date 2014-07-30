@@ -22,7 +22,7 @@ import subprocess
 import numpy as np
 import vtk
 
-from monty.serialization import serial_loadf
+from monty.serialization import loadfn
 
 from pymatgen.util.coord_utils import in_coord_list
 from pymatgen.core.periodic_table import Specie
@@ -91,7 +91,7 @@ class StructureVis(object):
             self.el_color_mapping = element_color_mapping
         else:
             module_dir = os.path.dirname(os.path.abspath(__file__))
-            colors = serial_loadf(
+            colors = loadfn(
                 os.path.join(module_dir, "ElementColorSchemes.yaml"))
             self.el_color_mapping = colors["VESTA"]
         self.show_unit_cell = show_unit_cell
