@@ -41,45 +41,28 @@ class BalancedReaction(MSONable):
             products ({Composition: float}): Products as dict of
                 {Composition: amt}.
         """
+        #sum reactants and products
+        all_reactants = sum([k * v for k, v in reactants_coeffs.items()],
+                            Composition({}))
+        all_products = sum([k * v for k, v in products_coeffs.items()],
+                           Composition({}))
 
-        coeffs = []
-        all_comp = []
-        for comp, c in reactants_coeffs.items():
-            if comp not in all_comp:
-                all_comp.append(comp)
-                coeffs.append(-c)
-            else:
-                ind = all_comp.index(comp)
-                coeffs[ind] += -c
+        if not all_reactants.almost_equals(all_products, 
+                                atol=Reaction.TOLERANCE):
+            raise ReactionError("Reaction is unbalanced!")
 
-        for comp, c in products_coeffs.items():
-            if comp not in all_comp:
-                all_comp.append(comp)
-                coeffs.append(c)
-            else:
-                ind = all_comp.index(comp)
-                coeffs[ind] += c
-        els = set()
-        for c in all_comp:
-            els.update(c.elements)
-        els = tuple(els)
+        self._els = all_reactants.elements
+        self._all_comp = list(set(reactants_coeffs.keys() +
+                                  products_coeffs.keys()))
 
-        sum_comp = defaultdict(int)
+        self.reactants_coeffs = reactants_coeffs
+        self.products_coeffs = products_coeffs
 
-        for i in xrange(len(all_comp)):
-            for el in els:
-                sum_comp[el] += coeffs[i] * all_comp[i][el]
-
-        for v in sum_comp.values():
-            if abs(v) > Reaction.TOLERANCE:
-                raise ReactionError("Reaction is unbalanced!")
-
-        self._input_rct = reactants_coeffs
-        self._input_prd = products_coeffs
-
-        self._els = els
-        self._all_comp = all_comp
-        self._coeffs = coeffs
+        #calculate net reaction coefficients
+        self._coeffs = []
+        for c in self._all_comp:
+            self._coeffs.append(products_coeffs.get(c,0) -
+                                reactants_coeffs.get(c,0))
         self._num_comp = len(self._all_comp)
 
     def calculate_energy(self, energies):
@@ -269,9 +252,9 @@ class BalancedReaction(MSONable):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "reactants": {str(comp): coeff
-                              for comp, coeff in self._input_rct.items()},
+                              for comp, coeff in self.reactants_coeffs.items()},
                 "products": {str(comp): coeff
-                             for comp, coeff in self._input_prd.items()}}
+                             for comp, coeff in self.products_coeffs.items()}}
 
     @classmethod
     def from_dict(cls, d):
