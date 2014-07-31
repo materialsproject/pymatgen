@@ -262,6 +262,10 @@ class StructureMatcherTest(unittest.TestCase):
         out = sm.group_structures(self.struct_list)
         self.assertEqual(map(len, out), [4, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1])
         self.assertEqual(sum(map(len, out)), len(self.struct_list))
+        for s in self.struct_list[::2]:
+            s.replace_species({'Ti': 'Zr', 'O':'Ti'})
+        out = sm.group_structures(self.struct_list, anonymous=True)
+        self.assertEqual(map(len, out), [4, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1])
 
     def test_mix(self):
         structures = []
