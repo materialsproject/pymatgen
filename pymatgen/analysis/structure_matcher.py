@@ -790,7 +790,8 @@ class StructureMatcher(MSONable):
                 ref = unmatched.pop(0)
                 matches = [ref]
                 if anonymous:
-                    inds = filter(lambda i: self.fit_anonymous(ref, unmatched[i]),
+                    inds = filter(lambda i: isinstance(self.fit_anonymous(ref, 
+                                                        unmatched[i]), dict),
                                   xrange(len(unmatched)))
                 else:
                     inds = filter(lambda i: self.fit(ref, unmatched[i]),
