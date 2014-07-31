@@ -295,13 +295,13 @@ class SlabTest(unittest.TestCase): # 4 different unit cells will be tested, ZnO,
 
     def setUp(self):
 
-        Zn_O = CifParser("/home/richard/pymatgen/pymatgen/core/surface tests/001_terminations/ZnO-wz.cif")
+        Zn_O = CifParser("pymatgen/pymatgen/core/surface tests/001_terminations/ZnO-wz.cif")
         self.zno = (Zn_O.get_structures(primitive = False)[0])
-        Te_I  = CifParser("/home/richard/pymatgen/pymatgen/core/surface tests/001_terminations/icsd_TeI.cif")
+        Te_I  = CifParser("pymatgen/pymatgen/core/surface tests/001_terminations/icsd_TeI.cif")
         self.tei= (Te_I.get_structures(primitive = False)[0])
-        Ba_Ti_O3  = CifParser("/home/richard/pymatgen/pymatgen/core/surface tests/001_terminations/icsd_batio3.cif")
+        Ba_Ti_O3  = CifParser("pymatgen/pymatgen/core/surface tests/001_terminations/icsd_batio3.cif")
         self.batio3= (Ba_Ti_O3.get_structures(primitive = False)[0])
-        Li_Fe_PO4  = CifParser("/home/richard/pymatgen/pymatgen/core/surface tests/001_terminations/LiFePO4.cif")
+        Li_Fe_PO4  = CifParser("pymatgen/pymatgen/core/surface tests/001_terminations/LiFePO4.cif")
         self.lifepo4= (Li_Fe_PO4.get_structures(primitive = False)[0])
 
     def test_init(self):
@@ -320,14 +320,14 @@ class SlabTest(unittest.TestCase): # 4 different unit cells will be tested, ZnO,
 
         m = [z001, t001, b001, l001, z100, t100, b100, l100]
 
-        fileName = ["/home/richard/pymatgen/pymatgen/core/surface tests/001_terminations/ZnO-wz.cif",
-                    "/home/richard/pymatgen/pymatgen/core/surface tests/001_terminations/icsd_TeI.cif",
-                    "/home/richard/pymatgen/pymatgen/core/surface tests/001_terminations/icsd_batio3.cif",
-                    "/home/richard/pymatgen/pymatgen/core/surface tests/001_terminations/LiFePO4.cif",
-                    "/home/richard/pymatgen/pymatgen/core/surface tests/100_terminations/ZnO-wz.cif",
-                    "/home/richard/pymatgen/pymatgen/core/surface tests/100_terminations/icsd_TeI.cif",
-                    "/home/richard/pymatgen/pymatgen/core/surface tests/100_terminations/icsd_batio3.cif",
-                    "/home/richard/pymatgen/pymatgen/core/surface tests/100_terminations/LiFePO4.cif"]
+        fileName = ["pymatgen/pymatgen/core/surface tests/001_terminations/ZnO-wz.cif",
+                    "pymatgen/pymatgen/core/surface tests/001_terminations/icsd_TeI.cif",
+                    "pymatgen/pymatgen/core/surface tests/001_terminations/icsd_batio3.cif",
+                    "pymatgen/pymatgen/core/surface tests/001_terminations/LiFePO4.cif",
+                    "pymatgen/pymatgen/core/surface tests/100_terminations/ZnO-wz.cif",
+                    "pymatgen/pymatgen/core/surface tests/100_terminations/icsd_TeI.cif",
+                    "pymatgen/pymatgen/core/surface tests/100_terminations/icsd_batio3.cif",
+                    "pymatgen/pymatgen/core/surface tests/100_terminations/LiFePO4.cif"]
 
         for i in range(0, len(fileName)):
             Name = fileName[i][:-4] + "_%s_%s_%s_%s_" \
@@ -344,7 +344,7 @@ class SlabTest(unittest.TestCase): # 4 different unit cells will be tested, ZnO,
                 write_structure(m[i].enum[iii], newFile)
 
                 # Compares the newly created structure to one that was already made
-                test_comp = CifParser("/home/richard/pymatgen/pymatgen/core/surface tests/tests/" + newFile[+68:])
+                test_comp = CifParser("pymatgen/pymatgen/core/surface tests/tests/" + newFile[+68:])
                 # Line 347 might change depending on where you cloned pymatgen
                 self.compare_structure = (test_comp.get_structures(primitive = False)[0])
                 test_new = CifParser(newFile)
