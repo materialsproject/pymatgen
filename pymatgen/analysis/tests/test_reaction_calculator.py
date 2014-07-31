@@ -1,13 +1,12 @@
 import unittest
 
 from pymatgen import Composition
-from pymatgen.analysis.reaction_calculator import Reaction, BalancedReaction,\
+from pymatgen.analysis.reaction_calculator import Reaction, BalancedReaction, \
     ReactionError, ComputedReaction
 from pymatgen.entries.computed_entries import ComputedEntry
 
 
 class ReactionTest(unittest.TestCase):
-
     def test_init(self):
         reactants = [Composition("Fe"),
                      Composition("O2")]
@@ -188,6 +187,20 @@ class BalancedReactionTest(unittest.TestCase):
         self.assertEqual(rxn,
                          BalancedReaction.from_string("4 Li + O2 -> 2Li2O"))
 
+    def test_remove_spectator_species(self):
+        rxn = BalancedReaction({Composition("Li"): 4, Composition("O2"): 1, Composition('Na'): 1},
+                               {Composition("Li2O"): 2, Composition('Na'): 1},
+                               remove_spectator_species=True)
+
+        self.assertTrue(Composition('Na') not in rxn.all_comp)
+
+        rxn2 = BalancedReaction({Composition("Li"): 4, Composition("O2"): 1, Composition('Na'): 1},
+                                {Composition("Li2O"): 2, Composition('Na'): 1},
+                                remove_spectator_species=False)
+
+        self.assertTrue(Composition('Na') in rxn2.all_comp)
+        self.assertTrue(abs(rxn2.get_coeff(Composition('Na'))) < Reaction.TOLERANCE)
+
 
 class ComputedReactionTest(unittest.TestCase):
     def setUp(self):
@@ -220,6 +233,7 @@ class ComputedReactionTest(unittest.TestCase):
         d = self.rxn.to_dict
         new_rxn = ComputedReaction.from_dict(d)
         self.assertEqual(str(new_rxn), "1.000 O2 + 2.000 Li -> 1.000 Li2O2")
+
 
 if __name__ == '__main__':
     unittest.main()
