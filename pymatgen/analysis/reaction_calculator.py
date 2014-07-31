@@ -31,7 +31,7 @@ class BalancedReaction(MSONable):
     An object representing a complete chemical reaction.
     """
 
-    def __init__(self, reactants_coeffs, products_coeffs):
+    def __init__(self, reactants_coeffs, products_coeffs, remove_spectator_species=False):
         """
         Reactants and products to be specified as dict of {Composition: coeff}.
 
@@ -52,17 +52,24 @@ class BalancedReaction(MSONable):
             raise ReactionError("Reaction is unbalanced!")
 
         self._els = all_reactants.elements
-        self._all_comp = list(set(reactants_coeffs.keys() +
-                                  products_coeffs.keys()))
 
         self.reactants_coeffs = reactants_coeffs
         self.products_coeffs = products_coeffs
 
         #calculate net reaction coefficients
         self._coeffs = []
-        for c in self._all_comp:
-            self._coeffs.append(products_coeffs.get(c,0) -
-                                reactants_coeffs.get(c,0))
+        self._els = []
+        self._all_comp = []
+        for c in set(reactants_coeffs.keys() +
+                                  products_coeffs.keys()):
+
+            coeff = products_coeffs.get(c,0) - \
+                                    reactants_coeffs.get(c,0)
+
+            if (not remove_spectator_species) or abs(coeff) > Reaction.TOLERANCE:
+                self._all_comp.append(c)
+                self._coeffs.append(coeff)
+
         self._num_comp = len(self._all_comp)
 
     def calculate_energy(self, energies):
