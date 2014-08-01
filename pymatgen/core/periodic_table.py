@@ -63,6 +63,22 @@ def symbol_from_Z(z):
     return _z2symbol[z]
 
 
+_CHARS2L = {
+    "s": 0,
+    "p": 1,
+    "d": 2,
+    "f": 3,
+    "g": 4,
+    "h": 5,
+    "i": 6,
+}
+
+
+def char2l(char):
+    """Concert a character (s, p, d ..) into the angular momentum l (int)."""
+    return _CHARS2L[char]
+
+
 @cached_class
 @total_ordering
 class Element(object):
@@ -468,7 +484,7 @@ class Element(object):
         for sym, data in _pt_data.items():
             if data["Atomic no"] == z:
                 return Element(sym)
-        raise ValueError("No element with this atomic number")
+        raise ValueError("No element with this atomic number %s" % z)
 
     @staticmethod
     def from_row_and_group(row, group):
