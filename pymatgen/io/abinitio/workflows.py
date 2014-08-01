@@ -25,7 +25,7 @@ from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
 from pymatgen.util.string_utils import pprint_table, WildCard
 from pymatgen.io.abinitio import wrappers
 from pymatgen.io.abinitio.tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, BseTask, RelaxTask)
-from pymatgen.io.abinitio.strategies import HtcStrategy, ScfStrategy, RelaxStrategy
+from pymatgen.io.abinitio.strategies import HtcStrategy, ScfStrategy, RelaxStrategy #, num_valence_electrons
 from pymatgen.io.abinitio.utils import Directory
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
 from pymatgen.io.abinitio.abiobjects import Smearing, AbiStructure, KSampling, Electrons, RelaxationMethod
@@ -1260,10 +1260,7 @@ class DeltaFactorWorkflow(Workflow):
             extra_abivars.update({"ecut": ecut})
 
         self.pseudo = Pseudo.aspseudo(pseudo)
-
         structure = AbiStructure.asabistructure(structure)
-
-        #smearing = Smearing.as_smearing(smearing)
 
         self._input_structure = structure
 
@@ -1344,14 +1341,25 @@ class DeltaFactorWorkflow(Workflow):
         return self.get_results()
 
 
+def gbrv_nband(pseudo):
+    # nband/fband are usually too small for the GBRV calculations.
+    # FIXME this is not optimal
+    nband = pseudo.Z_val
+    nband += 0.5 * nband
+    nband = int(nband)
+    nband = max(nband,  8)
+    print("nband", nband)
+    return nband
+
+
+
 class GbrvEosWorkflow(Workflow):
     """
     Workflow for calculating the optimized lattice parameter and the
     equation of state with the procedure used by GBRV for their pseudos.
     """
     def __init__(self, structure, struct_type, pseudo, ecut, ngkpt=(8,8,8),
-                 spin_mode="unpolarized", toldfe=1.e-8, 
-                 smearing="fermi_dirac:0.001 Ha",
+                 spin_mode="unpolarized", toldfe=1.e-8, smearing="fermi_dirac:0.001 Ha",
                  accuracy="normal", pawecutdg=None, paral_kgb=0, ecutsm=0.05, chksymbreak=0,
                  workdir=None, manager=None, **kwargs):
                  # FIXME Hack in chksymbreak
@@ -1380,8 +1388,8 @@ class GbrvEosWorkflow(Workflow):
 
         # Save the structure type (needed to compute a later on)
         self.struct_type = struct_type
+        self.symbol = pseudo.symbol
 
-        # TODO: nband/fband are usually too small for the GBRV calculations.
         # Set extra_abivars.
         extra_abivars = dict(
             ecut=ecut,
@@ -1389,7 +1397,7 @@ class GbrvEosWorkflow(Workflow):
             ecutsm=ecutsm,
             toldfe=toldfe,
             prtwf=0,
-            nband=8,
+            #nband=nband,
             paral_kgb=paral_kgb)
                                        
         extra_abivars.update(**kwargs)
@@ -1428,8 +1436,8 @@ class GbrvEosWorkflow(Workflow):
 
         try:
             eos_fit = EOS.Quadratic().fit(self.volumes, etotal)
-
             eos_fit.plot(show=False, savefig=self.outdir.path_in("eos.pdf"))
+
         except EOS.Error as exc:
             wf_results.push_exceptions(exc)
 
@@ -1437,7 +1445,6 @@ class GbrvEosWorkflow(Workflow):
         vol2a = {"fcc": lambda vol: (4 * vol) ** (1/3.),
                  "bcc": lambda vol: (2 * vol) ** (1/3.),
                  }[self.struct_type]
-
         a0 = vol2a(eos_fit.v0)
 
         wf_results.update(dict(
@@ -1446,8 +1453,18 @@ class GbrvEosWorkflow(Workflow):
             b1=eos_fit.b1,
             a0=a0))
 
-        print("for GBRV struct_type: ", self.struct_type, "a0= ", a0, "Angstrom")
+        from pseudo_dojo.refdata.gbrv.database import gbrv_database
+        db = gbrv_database()
+        entry = db.get_entry(self.symbol, stype=self.struct_type)
+        abs_err = a0 - entry.ae
+        rel_err = 100 * (a0 - entry.ae) / entry.ae
 
+        pawabs_err = a0 - entry.gbrv_paw
+        pawrel_err = 100 * (a0 - entry.gbrv_paw) / entry.gbrv_paw
+
+        print("for GBRV struct_type: ", self.struct_type, "a0= ", a0, "Angstrom")
+        print("AE - THIS: abs_err = %f, rel_err = %f %%" % (abs_err, rel_err))
+        print("GBRV-PAW - THIS: abs_err = %f, rel_err = %f %%" % (pawabs_err, pawrel_err))
         return wf_results
 
     def on_all_ok(self):
@@ -1490,6 +1507,10 @@ class GbrvRelaxAndEosWorkflow(Workflow):
         super(GbrvRelaxAndEosWorkflow, self).__init__(workdir=workdir, manager=manager)
         self.struct_type = struct_type
 
+        # nband must be large enough to accomodate fractional occupancies.
+        self.pseudo = Pseudo.aspseudo(pseudo)
+        self.nband = gbrv_nband(self.pseudo)
+
         # Set extra_abivars.
         self.extra_abivars = dict(
             ecut=ecut,
@@ -1497,7 +1518,7 @@ class GbrvRelaxAndEosWorkflow(Workflow):
             toldfe=toldfe,
             prtwf=0,
             #ecutsm=ecutsm,
-            nband=8,
+            nband=self.nband,
             paral_kgb=paral_kgb)
                                        
         self.extra_abivars.update(**kwargs)
@@ -1528,8 +1549,8 @@ class GbrvRelaxAndEosWorkflow(Workflow):
         except KeyError:
             pass
 
-        new_work = GbrvEosWorkflow(relaxed_structure, self.struct_type, self.relax_input.pseudos, self.ecut, 
-                                   **self.extra_abivars)
+        new_work = GbrvEosWorkflow(relaxed_structure, self.struct_type, self.pseudo, self.ecut, 
+            **self.extra_abivars)
 
         # Register the new workflow, allocate it and update the pickle database.
         self.flow.register_work(new_work)
