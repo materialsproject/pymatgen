@@ -465,7 +465,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     return plot_data
 
 
-def compute_defect_density(structure, e0, vac_defs, antisite_defs, T, 
+def compute_defect_density(structure, e0, vac_defs, antisite_defs, T=800, 
         trial_chem_pot=None, _style="HighCharts"):
     """
     Wrapper for the dilute_solution_model where the computed plot data is 
