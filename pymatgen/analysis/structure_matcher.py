@@ -755,7 +755,7 @@ class StructureMatcher(MSONable):
         if best_match and best_match[0] < self.stol:
             return best_match
 
-    def group_structures(self, s_list):
+    def group_structures(self, s_list, anonymous=False):
         """
         Given a list of structures, use fit to group
         them by structural equality.
@@ -772,8 +772,14 @@ class StructureMatcher(MSONable):
             raise ValueError("allow_subset cannot be used with"
                              " group_structures")
 
-        #Use structure hash to pre-group structures.
-        shash = self._comparator.get_structure_hash
+        #Use structure hash to pre-group structures
+        if anonymous:
+            if not isinstance(self._comparator, SpeciesComparator):
+                raise ValueError('Anonymous fitting currently requires '
+                                 'SpeciesComparator')
+            shash = lambda x: x.composition.anonymized_formula
+        else:
+            shash = self._comparator.get_structure_hash
         sorted_s_list = sorted(s_list, key=shash)
         all_groups = []
 
@@ -783,8 +789,13 @@ class StructureMatcher(MSONable):
             while len(unmatched) > 0:
                 ref = unmatched.pop(0)
                 matches = [ref]
-                inds = filter(lambda i: self.fit(ref, unmatched[i]),
-                              xrange(len(unmatched)))
+                if anonymous:
+                    inds = filter(lambda i: isinstance(self.fit_anonymous(ref, 
+                                                        unmatched[i]), dict),
+                                  xrange(len(unmatched)))
+                else:
+                    inds = filter(lambda i: self.fit(ref, unmatched[i]),
+                                  xrange(len(unmatched)))
                 matches.extend([unmatched[i] for i in inds])
                 unmatched = [unmatched[i] for i in xrange(len(unmatched))
                              if i not in inds]
@@ -826,6 +837,8 @@ class StructureMatcher(MSONable):
             struct1 to struct2. (None, None) is returned if the minimax_rms
             exceeds the threshold.
         """
+        if not isinstance(self._comparator, SpeciesComparator):
+            raise ValueError('Anonymous fitting currently requires SpeciesComparator')
         sp1 = list(set(struct1.species_and_occu))
         sp2 = list(set(struct2.species_and_occu))
 
@@ -869,7 +882,8 @@ class StructureMatcher(MSONable):
             is the corresponding minimal species mapping that would map
             struct1 to struct2. None is returned if no fit is found.
         """
-
+        if not isinstance(self._comparator, SpeciesComparator):
+            raise ValueError('Anonymous fitting currently requires SpeciesComparator')
         sp1 = list(set(struct1.species_and_occu))
         sp2 = list(set(struct2.species_and_occu))
         if len(sp1) != len(sp2):
@@ -917,6 +931,8 @@ class StructureMatcher(MSONable):
             mappings is a list of possible species mappings that
             would map struct1 to struct2.
         """
+        if not isinstance(self._comparator, SpeciesComparator):
+            raise ValueError('Anonymous fitting currently requires SpeciesComparator')
         sp1 = list(set(struct1.species_and_occu))
         sp2 = list(set(struct2.species_and_occu))
 

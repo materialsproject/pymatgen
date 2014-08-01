@@ -68,7 +68,8 @@ def check_input(def_list):
 
 @requires(sympy_found,
             "comute_defect_density requires Sympy module. Please install it.")
-def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T):
+def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T, 
+        trial_chem_pot = None, generate='plot'):
 
     """
     Compute the defect densities for a structure based on the input parameters
@@ -95,7 +96,12 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T):
             from pymatgen.analysis.defects.point_defects.Vacancy class.
         T:
             Temperature in Kelvin
-
+        trial_chem_pot:
+            Trial chemical potentials to speedup the plot generation
+            Format is {el1:mu1,...}
+        generate (string): Options are plot or energy
+            Chemical potentials are also returned with energy option.
+            If energy option is not chosen, plot is generated.
     """
 
     if not check_input(vac_defs):
@@ -244,64 +250,66 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T):
                     dC[j,epi,p_r]) for j in range(n)])
             omega -= k_B*T*multiplicity[p_r]*exp(-(dE[epi,p_r]-sum_mu)/(k_B*T))
 
+    def compute_mus():
 
-    def reduce_mu():
-        omega = [e0 - sum([mu[site_mu_map[i]]*sum(c0[i,:]) for i in range(n)])]
-        x = solve(omega)
-        return x
+        def reduce_mu():
+            omega = [e0 - sum([mu[site_mu_map[i]]*sum(c0[i,:]) for i in range(n)])]
+            x = solve(omega)
+            return x
 
-    # Compute trial mu
-    mu_red = reduce_mu()
-    #print mu_red
+        # Compute trial mu
+        mu_red = reduce_mu()
+        #print mu_red
 
-    mult = multiplicity
-    #for ind in specie_site_index_map:
-    #    print ind[0], ind[1]
-    specie_concen = [sum(mult[ind[0]:ind[1]]) for ind in specie_site_index_map]
-    #print 'specie_concent', specie_concen
-    y_vect = [specie_concen[-1]/specie_concen[i] for i in range(m)]
-    #print 'y_vect', y_vect
-    vector_func = [y_vect[i]-c_ratio[i] for i in range(m-1)]
-    vector_func.append(omega)
-    #print vector_func
-    #vector_func.append(mu_equalities)
-    #print 'y0', y0
-    min_diff = 1e10
-    mu_vals = None
-    c_val = None
-    m1_min = -20.0
-    if e0 > 0:
-        m1_max = 10            # Search space needs to be modified
-    else:
-        m1_max = 0
-    for m1 in np.arange(m1_min,m1_max,0.1):
-        m0 = mu_red[mu[0]].subs(mu[-1],m1)
+        mult = multiplicity
+        #for ind in specie_site_index_map:
+        #    print ind[0], ind[1]
+        specie_concen = [sum(mult[ind[0]:ind[1]]) for ind in specie_site_index_map]
+        #print 'specie_concent', specie_concen
+        y_vect = [specie_concen[-1]/specie_concen[i] for i in range(m)]
+        #print 'y_vect', y_vect
+        vector_func = [y_vect[i]-c_ratio[i] for i in range(m-1)]
+        vector_func.append(omega)
+        #print vector_func
+        #vector_func.append(mu_equalities)
+        #print 'y0', y0
+        min_diff = 1e10
+        mu_vals = None
+        c_val = None
+        m1_min = -20.0
+        if e0 > 0:
+            m1_max = 10            # Search space needs to be modified
+        else:
+            m1_max = 0
+        for m1 in np.arange(m1_min,m1_max,0.1):
+            m0 = mu_red[mu[0]].subs(mu[-1],m1)
 
-        try:
-            x = nsolve(vector_func,mu,[m0,m1],module="numpy")
-            # Line needs to be modified to include all mus when n > 2
-        except:
-            continue
+            try:
+                x = nsolve(vector_func,mu,[m0,m1],module="numpy")
+                # Line needs to be modified to include all mus when n > 2
+            except:
+                continue
 
-        c_val = c.subs(dict(zip(mu,x)))
-        #print c_val
-        #if all(x >= 0 for x in c_val):
-        specie_concen = []
-        for ind in specie_site_index_map:
-            specie_concen.append(sum([sum(c_val[i,:]) for i in range(*ind)]))
-        y_comp = [specie_concen[-1]/specie_concen[i] for i in range(m)]
-        diff = math.sqrt(sum([pow(abs(y_comp[i]-y_vect[i]),2) for i in range(m)]))
-        if diff < min_diff:
-            min_diff = diff
-            mu_vals = x
+            c_val = c.subs(dict(zip(mu,x)))
+            #print c_val
+            #if all(x >= 0 for x in c_val):
+            specie_concen = []
+            for ind in specie_site_index_map:
+                specie_concen.append(sum([sum(c_val[i,:]) for i in range(*ind)]))
+            y_comp = [specie_concen[-1]/specie_concen[i] for i in range(m)]
+            diff = math.sqrt(sum([pow(abs(y_comp[i]-y_vect[i]),2) for i in range(m)]))
+            if diff < min_diff:
+                min_diff = diff
+                mu_vals = x
 
-    if mu_vals:
-        mu_vals = [float(mu_val) for mu_val in mu_vals]
-    else:
-        raise ValueError()
-    print mu_vals
-    #print els
-    #sys.exit()
+        if mu_vals:
+            mu_vals = [float(mu_val) for mu_val in mu_vals]
+        else:
+            raise ValueError()
+        print mu_vals
+        return mu_vals
+        #print els
+
     def compute_def_formation_energies():
         i = 0
         for vac_def in vac_defs:
@@ -341,10 +349,20 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T):
                 label = '$'+sub_specie+'_{'+site_specie+'_'+str(cur_ind)+'}$'
             formation_energies['antisites'][i]['label'] = label
             i += 1
+        return formation_energies
 
-    compute_def_formation_energies()
-    #return formation_energies
-    #sys.exit()
+    if not trial_chem_pot:
+        mu_vals = compute_mus()
+    else:
+        try:
+            mu_vals = [trail_chem_pot[element] for element in specie_ordger]
+        except:
+            mu_vals = compute_mus()
+
+    if generate == 'energy':
+        formation_energies = compute_def_formation_energies()
+        mu_dict = dict(zip(specie_order,mu_vals)) 
+        return formation_energies, mu_dict
 
 
     # Compute ymax
@@ -447,10 +465,11 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T):
     return plot_data
 
 
-def compute_defect_density(structure, e0, vac_defs, antisite_defs, T, plot_style="HighCharts"):
+def compute_defect_density(structure, e0, vac_defs, antisite_defs, T, 
+        trial_chem_pot=None, _style="HighCharts"):
     """
-    Wrapper for the dilute_solution_model where the computed plot data is prepared based
-    on plot_style. Only "HighCharts" is supported at this point
+    Wrapper for the dilute_solution_model where the computed plot data is 
+    prepared based on plot_style. Only "HighCharts" is supported at this point
 
     :param structure:
     :param e0:
@@ -460,7 +479,8 @@ def compute_defect_density(structure, e0, vac_defs, antisite_defs, T, plot_style
     :param plot_style:
     :return:
     """
-    plot_data = dilute_solution_model(structure,e0,vac_defs,antisite_defs,T)
+    plot_data = dilute_solution_model(structure,e0,vac_defs,antisite_defs,T,
+            trial_chem_pot=trial_chem_pot)
 
     if plot_style == 'HighCharts':
         hgh_chrt_data = {}
