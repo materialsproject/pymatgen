@@ -16,15 +16,12 @@ __date__ = "Mar 19, 2012"
 
 
 import os
-import yaml
-try:
-    from yaml import CLoader as Loader
-except ImportError:
-    from yaml import Loader
 
 from collections import defaultdict
 
 from monty.design_patterns import cached_class
+from monty.serialization import loadfn
+
 from pymatgen.io.vaspio_set import MITVaspInputSet, MPVaspInputSet
 from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.structure_analyzer import oxide_type
@@ -139,9 +136,7 @@ class GasCorrection(Correction):
             corrections are to be applied or not.
     """
     def __init__(self, config_file, correct_peroxide=True):
-        with open(config_file) as f:
-            c = yaml.load(f, Loader=Loader)
-
+        c = loadfn(config_file)
         self.cpd_energies = c['Advanced']['CompoundEnergies']
         self.oxide_correction = c['OxideCorrections']
         self.name = c['Name']
@@ -208,8 +203,7 @@ class AqueousCorrection(Correction):
         config_file: Path to the selected compatibility.yaml config file.
     """
     def __init__(self, config_file):
-        with open(config_file) as f:
-            c = yaml.load(f, Loader=Loader)
+        c = loadfn(config_file)
         self.cpd_energies = c['AqueousCompoundEnergies']
         self.name = c["Name"]
 
@@ -265,10 +259,10 @@ class UCorrection(Correction):
 
     def __init__(self, config_file, input_set, compat_type):
         if compat_type not in ['GGA', 'Advanced']:
-            raise CompatibilityError("Invalid compat_type {}".format(compat_type))
+            raise CompatibilityError("Invalid compat_type {}"
+                                     .format(compat_type))
 
-        with open(config_file) as f:
-            c = yaml.load(f, Loader=Loader)
+        c = loadfn(config_file)
 
         self.input_set = input_set
         if compat_type == 'Advanced':

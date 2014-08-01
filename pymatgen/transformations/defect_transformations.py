@@ -13,7 +13,7 @@ __email__ = "mbkumar@gmail.com"
 __date__ = "Jul 1 2014"
 
 
-from pymatgen.core.structure import Structure
+from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.analysis.defects.point_defects import Vacancy, \
     ValenceIonicRadiusEvaluator, Interstitial
 from pymatgen.transformations.transformation_abc import AbstractTransformation
@@ -84,7 +84,7 @@ class VacancyTransformation(AbstractTransformation):
     def to_dict(self):
         return {"name":self.__class__.__name__, "version":__version__,
                 "init_args":{"supercell_dim":self.supercell_dim,
-                             "species":species,
+                             "species":self.species,
                              "valences":self.valences,
                              "radii":self.radii},
                 "@module":self.__class__.__module__,
@@ -135,7 +135,10 @@ class SubstitutionDefectTransformation(AbstractTransformation):
         for i in range(1,len(scs)):
             vac_sc = scs[i]
             vac_site = list(set(blk_sc.sites) - set(vac_sc.sites))[0]
-            site_specie = vac_site.specie.element.symbol
+            if isinstance(vac_site.specie,Specie):
+                site_specie = vac_site.specie.element.symbol
+            elif isinstance(vac_site.specie,Element):
+                site_specie = vac_site.specie.symbol
             if site_specie in self._species_map.keys():
                 substitute_specie = self._species_map[site_specie]
                 vac_sc.append(substitute_specie, vac_site.frac_coords)

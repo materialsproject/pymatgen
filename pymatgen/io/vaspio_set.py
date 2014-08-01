@@ -20,12 +20,7 @@ __date__ = "Nov 16, 2011"
 
 import os
 import abc
-import json
-import yaml
-try:
-    from yaml import CLoader as Loader
-except ImportError:
-    from yaml import Loader
+
 import re
 import traceback
 import shutil
@@ -33,13 +28,15 @@ from functools import partial
 
 import numpy as np
 
+from monty.serialization import loadfn
+
 from pymatgen.io.cifio import CifWriter
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vaspio.vasp_output import Vasprun, Outcar
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.symmetry.bandstructure import HighSymmKpath
-from pymatgen import write_structure
+from pymatgen.io.smartio import write_structure
 
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -367,43 +364,23 @@ class DictVaspInputSet(AbstractVaspInputSet):
                    sort_structure=d.get("sort_structure", True),
                    potcar_functional=d.get("potcar_functional", None))
 
-
     @staticmethod
-    def from_json_file(name, json_file, **kwargs):
+    def from_file(name, filename, **kwargs):
         """
-        Creates a DictVaspInputSet from a yaml file.
+        Creates a DictVaspInputSet from a yaml/json file.
 
         Args:
             name (str): A name for the input set.
-            json_file (str): Path to a yaml file containing the settings.
+            filename (str): Path to a yaml/json file containing the settings.
             \*\*kwargs: Same kwargs as in the constructor.
 
         Returns:
             DictVaspInputSet
         """
-        with open(json_file) as f:
-            return DictVaspInputSet(
-                name, json.load(f))
-
-    @staticmethod
-    def from_yaml_file(name, yaml_file, **kwargs):
-        """
-        Creates a DictVaspInputSet from a yaml file.
-
-        Args:
-            name (str): A name for the input set.
-            yaml_file (str): Path to a yaml file containing the settings.
-            \*\*kwargs: Same kwargs as in the constructor.
-
-        Returns:
-            DictVaspInputSet
-        """
-        with open(yaml_file) as f:
-            return DictVaspInputSet(
-                name, yaml.load(f, Loader=Loader), **kwargs)
+        return DictVaspInputSet(name, loadfn(filename), **kwargs)
 
 
-MITVaspInputSet = partial(DictVaspInputSet.from_yaml_file, "MIT",
+MITVaspInputSet = partial(DictVaspInputSet.from_file, "MIT",
                           os.path.join(MODULE_DIR, "MITVaspInputSet.yaml"))
 """
 Standard implementation of VaspInputSet utilizing parameters in the MIT
@@ -419,7 +396,7 @@ Please refer::
     2011, 50(8), 2295-2310. doi:10.1016/j.commatsci.2011.02.023
 """
 
-MITGGAVaspInputSet = partial(DictVaspInputSet.from_yaml_file, "MIT GGA",
+MITGGAVaspInputSet = partial(DictVaspInputSet.from_file, "MIT GGA",
                              os.path.join(MODULE_DIR, "MITVaspInputSet.yaml"),
                              hubbard_off=True)
 """
@@ -427,7 +404,7 @@ GGA (no U) version of MITVaspInputSet.
 """
 
 MITHSEVaspInputSet = partial(
-    DictVaspInputSet.from_yaml_file, "MIT HSE",
+    DictVaspInputSet.from_file, "MIT HSE",
     os.path.join(MODULE_DIR, "MITHSEVaspInputSet.yaml"))
 """
 Typical implementation of input set for a HSE run using MIT parameters.
@@ -452,11 +429,10 @@ class MITNEBVaspInputSet(DictVaspInputSet):
         if user_incar_settings:
             defaults.update(user_incar_settings)
 
-        with open(os.path.join(MODULE_DIR, "MITVaspInputSet.yaml")) as f:
-            DictVaspInputSet.__init__(self, "MIT NEB",
-                                      yaml.load(f, Loader=Loader),
-                                      user_incar_settings=defaults,
-                                      ediff_per_atom=False, **kwargs)
+        DictVaspInputSet.__init__(
+            self, "MIT NEB",
+            loadfn(os.path.join(MODULE_DIR, "MITVaspInputSet.yaml")),
+            user_incar_settings=defaults, ediff_per_atom=False, **kwargs)
         self.nimages = nimages
 
     def _process_structures(self, structures):
@@ -562,11 +538,11 @@ class MITMDVaspInputSet(DictVaspInputSet):
         #override default settings with user supplied settings
         if user_incar_settings:
             defaults.update(user_incar_settings)
-        with open(os.path.join(MODULE_DIR, "MITVaspInputSet.yaml")) as f:
-            DictVaspInputSet.__init__(
-                self, "MIT MD", yaml.load(f, Loader=Loader),
-                hubbard_off=hubbard_off, sort_structure=sort_structure,
-                user_incar_settings=defaults, **kwargs)
+        DictVaspInputSet.__init__(
+            self, "MIT MD",
+            loadfn(os.path.join(MODULE_DIR, "MITVaspInputSet.yaml")),
+            hubbard_off=hubbard_off, sort_structure=sort_structure,
+            user_incar_settings=defaults, **kwargs)
 
         self.start_temp = start_temp
         self.end_temp = end_temp
@@ -578,7 +554,7 @@ class MITMDVaspInputSet(DictVaspInputSet):
         #use VASP default ENCUT
         if 'ENCUT' not in self.user_incar_settings:
             del self.incar_settings['ENCUT']
-        
+
         if not spin_polarized:
             del self.incar_settings['MAGMOM']
 
@@ -609,7 +585,7 @@ class MITMDVaspInputSet(DictVaspInputSet):
                    sort_structure=d.get("sort_structure", True))
 
 
-MPVaspInputSet = partial(DictVaspInputSet.from_yaml_file, "MP",
+MPVaspInputSet = partial(DictVaspInputSet.from_file, "MP",
                          os.path.join(MODULE_DIR, "MPVaspInputSet.yaml"))
 """
 Implementation of VaspInputSet utilizing parameters in the public
@@ -619,7 +595,7 @@ The LDAUU parameters are also different due to the different psps used,
 which result in different fitted values.
 """
 
-MPGGAVaspInputSet = partial(DictVaspInputSet.from_yaml_file, "MP GGA",
+MPGGAVaspInputSet = partial(DictVaspInputSet.from_file, "MP GGA",
                             os.path.join(MODULE_DIR, "MPVaspInputSet.yaml"),
                             hubbard_off=True)
 """
@@ -627,7 +603,7 @@ Same as the MPVaspInput set, but the +U is enforced to be turned off.
 """
 
 
-MPHSEVaspInputSet = partial(DictVaspInputSet.from_yaml_file, "MP HSE",
+MPHSEVaspInputSet = partial(DictVaspInputSet.from_file, "MP HSE",
                             os.path.join(MODULE_DIR, "MPHSEVaspInputSet.yaml"))
 """
 Same as the MPVaspInput set, but with HSE parameters.
@@ -667,9 +643,10 @@ class MPStaticVaspInputSet(DictVaspInputSet):
     """
 
     def __init__(self, kpoints_density=90, sym_prec=0.1, **kwargs):
-        with open(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")) as f:
-            DictVaspInputSet.__init__(
-                self, "MP Static", yaml.load(f, Loader=Loader), **kwargs)
+        DictVaspInputSet.__init__(
+            self, "MP Static",
+            loadfn(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")),
+            **kwargs)
         self.incar_settings.update(
             {"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
              "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0,
@@ -832,9 +809,9 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         # Perform checking on INCAR parameters
         if any([previous_incar.get("NSW", 0) != 0,
                 previous_incar["IBRION"] != -1,
-                previous_incar["LCHARG"] != True,
+                previous_incar["LCHARG"] is True,
                any([sum(previous_incar["LDAUU"]) <= 0,
-                    previous_incar["LMAXMIX"]<4])
+                    previous_incar["LMAXMIX"] < 4])
                if previous_incar.get("LDAU") else False]):
             raise ValueError("Incompatible INCAR parameters!")
 
@@ -869,10 +846,9 @@ class MPStaticDielectricDFPTVaspInputSet(DictVaspInputSet):
     """
 
     def __init__(self, user_incar_settings=None, ionic=True):
-        with open(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")) as f:
-            DictVaspInputSet.__init__(
-                self, "MaterialsProject Static Dielectric DFPT",
-                yaml.load(f, Loader=Loader))
+        DictVaspInputSet.__init__(
+            self, "MaterialsProject Static Dielectric DFPT",
+            loadfn(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")))
         self.user_incar_settings = user_incar_settings if \
             user_incar_settings is not None else {}
         self.incar_settings.update(self.user_incar_settings)
@@ -909,16 +885,14 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
 
     def __init__(self, user_incar_settings=None, added_kpoints=[], mode="Line",
                  kpoints_density=100):
-        with open(os.path.join(MODULE_DIR, "MPHSEVaspInputSet.yaml")) as f:
-            DictVaspInputSet.__init__(
-                self, "MaterialsProject HSE Band Structure",
-                yaml.load(f, Loader=Loader))
-            self.user_incar_settings = user_incar_settings if \
-                user_incar_settings is not None else {}
-            self.incar_settings.update(
-                {"NSW": 0, "ISMEAR": 0, "SIGMA": 0.05, "ISYM": 0,
-                 "LCHARG": False})
-            self.incar_settings.update(self.user_incar_settings)
+        DictVaspInputSet.__init__(
+            self, "MaterialsProject HSE Band Structure",
+            loadfn(os.path.join(MODULE_DIR, "MPHSEVaspInputSet.yaml")))
+        self.user_incar_settings = user_incar_settings if \
+            user_incar_settings is not None else {}
+        self.incar_settings.update(
+            {"NSW": 0, "ISMEAR": 0, "SIGMA": 0.05, "ISYM": 0, "LCHARG": False})
+        self.incar_settings.update(self.user_incar_settings)
         self.added_kpoints = added_kpoints
         self.mode = mode
         self.kpoints_density = kpoints_density
@@ -1011,11 +985,11 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         if mode not in ["Line", "Uniform"]:
             raise ValueError("Supported modes for NonSCF runs are 'Line' and "
                              "'Uniform'!")
-        with open(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")) as f:
-            DictVaspInputSet.__init__(
-                self, "MaterialsProject Static", yaml.load(f, Loader=Loader),
-                constrain_total_magmom=constrain_total_magmom,
-                sort_structure=sort_structure)
+        DictVaspInputSet.__init__(
+            self, "MaterialsProject Static",
+            loadfn(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")),
+            constrain_total_magmom=constrain_total_magmom,
+            sort_structure=sort_structure)
         self.user_incar_settings = user_incar_settings
         self.incar_settings.update(
             {"IBRION": -1, "ISMEAR": 0, "SIGMA": 0.001, "LCHARG": False,
@@ -1215,9 +1189,11 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
                  kpoints_density=1000, sym_prec=0.1, nedos=2001):
         self.sym_prec = sym_prec
         self.nedos = nedos
-        MPNonSCFVaspInputSet.__init__(self, user_incar_settings, mode="Uniform",
-                                      constrain_total_magmom=constrain_total_magmom, sort_structure=sort_structure,
-                                      kpoints_density=kpoints_density, sym_prec=sym_prec)
+        MPNonSCFVaspInputSet.__init__(
+            self, user_incar_settings, mode="Uniform",
+            constrain_total_magmom=constrain_total_magmom,
+            sort_structure=sort_structure,
+            kpoints_density=kpoints_density, sym_prec=sym_prec)
         self.incar_settings.update({"NEDOS": nedos})
         self.incar_settings.update({"LOPTICS": True})
 
@@ -1243,9 +1219,10 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
             make_dir_if_not_present (bool): Set to True if you want the
                 directory (and the whole path) to be created if it is not
                 present.
-            nbands_factor (float): Factor by which the number of bands is to be multiplied.
-            Typical calculations of dielectric functions need a total number
-            of bands of 5 to 10 times the number of valence bands
+            nbands_factor (float): Factor by which the number of bands is to be
+                multiplied. Typical calculations of dielectric functions need a
+                total number of bands of 5 to 10 times the number of valence
+                bands.
         """
         user_incar_settings = user_incar_settings or {}
 
@@ -1263,9 +1240,8 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
                                                        initial_structure=True)
         nscf_incar_settings = MPNonSCFVaspInputSet.get_incar_settings(vasp_run,
                                                                       outcar)
-        spin_band_settings = MPOpticsNonSCFVaspInputSet.get_ispin_nbands(vasp_run,
-                                                                         outcar,
-                                                                         nbands_factor=nbands_factor)
+        spin_band_settings = MPOpticsNonSCFVaspInputSet.get_ispin_nbands(
+            vasp_run, outcar, nbands_factor=nbands_factor)
         mpnscfvip = MPNonSCFVaspInputSet(nscf_incar_settings, "Uniform")
         mpnscfvip.incar_settings.update(spin_band_settings)
         mpnscfvip.write_input(structure, output_dir, make_dir_if_not_present)
@@ -1281,8 +1257,8 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
         #Overwrite necessary INCAR parameters from previous runs
         previous_incar.update({"IBRION": -1, "ISMEAR": 0, "SIGMA": 0.001,
                                "LCHARG": False, "LORBIT": 11, "LWAVE": False,
-                               "NSW": 0, "ISYM": 0, "ICHARG": 11, "LOPTICS": True,
-                               "NEDOS": nedos})
+                               "NSW": 0, "ISYM": 0, "ICHARG": 11,
+                               "LOPTICS": True, "NEDOS": nedos})
         previous_incar.update(nscf_incar_settings)
         previous_incar.update(user_incar_settings)
         previous_incar.pop("MAGMOM", None)
