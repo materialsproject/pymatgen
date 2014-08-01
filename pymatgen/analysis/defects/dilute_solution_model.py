@@ -466,7 +466,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
 
 
 def compute_defect_density(structure, e0, vac_defs, antisite_defs, T=800, 
-        trial_chem_pot=None, _style="HighCharts"):
+        trial_chem_pot=None, plot_style="HighCharts"):
     """
     Wrapper for the dilute_solution_model where the computed plot data is 
     prepared based on plot_style. Only "HighCharts" is supported at this point
