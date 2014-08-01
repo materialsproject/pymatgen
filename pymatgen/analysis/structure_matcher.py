@@ -911,7 +911,7 @@ class StructureMatcher(MSONable):
             for m in matches:
                 X_diff = 0
                 for k, v in m[0].items():
-                    X_diff += abs(k.X-v.X) * struct1.composition[k]
+                    X_diff += struct1.composition[k] * (k.X - v.X) ** 2
                 if X_diff < min_X_diff:
                     min_X_diff = X_diff
                     best = m[0]
