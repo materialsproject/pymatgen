@@ -465,8 +465,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     return plot_data
 
 
-def compute_defect_density(structure, e0, vac_defs, antisite_defs, T=800, 
-        trial_chem_pot=None, plot_style="HighCharts"):
+def compute_defect_density(structure, defect_data, T=800,plot_style="HighCharts"):
     """
     Wrapper for the dilute_solution_model where the computed plot data is 
     prepared based on plot_style. Only "HighCharts" is supported at this point
@@ -479,6 +478,10 @@ def compute_defect_density(structure, e0, vac_defs, antisite_defs, T=800,
     :param plot_style:
     :return:
     """
+    e0=defect_data["bulk_energy"]
+    antisite_defs=defect_data["antisites"]
+    trial_chem_pot=defect_data["chemical_potential"][str(T)]
+    vac_defs=defect_data["vacancies"]
     plot_data = dilute_solution_model(structure,e0,vac_defs,antisite_defs,T,
             trial_chem_pot=trial_chem_pot)
 
