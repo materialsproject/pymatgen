@@ -398,7 +398,7 @@ class AbinitFlow(Node):
         """
         for task in self.iflat_tasks(status='S_ABICRITICAL'):
             #todo
-            if task.fix_abicritial():
+            if task.fix_abicritical():
                 task.restart()
                 task.set_status(task.S_READY)
             else:

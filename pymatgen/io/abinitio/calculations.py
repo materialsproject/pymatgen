@@ -30,21 +30,17 @@ class PPConvergenceFactory(object):
     Factory object that constructs workflows for analyzing the converge of
     pseudopotentials.
     """
-    def work_for_pseudo(self, workdir, manager, pseudo, ecut_range, 
+    def work_for_pseudo(self, pseudo, ecut_range, 
                         toldfe=1.e-8, atols_mev=(10, 1, 0.1), spin_mode="polarized",
-                        acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV",):
+                        acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV", workdir=None, manager=None):
         """
         Return a `Workflow` object given the pseudopotential pseudo.
 
         Args:
-            workdir:
-                Working directory.
             pseudo:
                 Pseudo object.
             ecut_range:
                 range of cutoff energies in Ha units.
-            manager:
-                `TaskManager` object.
             toldfe:
                 Tolerance on the total energy (Ha).
             atols_mev:
@@ -55,22 +51,24 @@ class PPConvergenceFactory(object):
                 Length of the real space lattice (Bohr units)
             smearing:
                 Smearing technique.
+            workdir:
+                Working directory.
+            manager:
+                `TaskManager` object.
         """
-        workdir = os.path.abspath(workdir)
-
         smearing = Smearing.as_smearing(smearing)
 
         if isinstance(ecut_range, slice):
             workflow = PseudoIterativeConvergence(
-                workdir, manager, pseudo, ecut_range, atols_mev, 
+                pseudo, ecut_range, atols_mev, 
                 toldfe=toldfe, spin_mode=spin_mode, 
-                acell=acell, smearing=smearing)
+                acell=acell, smearing=smearing, workdir=workdir, manager=manager)
 
         else:
             workflow = PseudoConvergence(
-                workdir, manager, pseudo, ecut_range, atols_mev, 
+                pseudo, ecut_range, atols_mev, 
                 toldfe=toldfe, spin_mode=spin_mode, 
-                acell=acell, smearing=smearing)
+                acell=acell, smearing=smearing, workdir=workdir, manager=manager)
 
         return workflow
 
