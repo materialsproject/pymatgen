@@ -229,7 +229,8 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             for epi in range(n):
                 sum_mu = sum([mu[site_mu_map[j]]*Integer(
                         dC[j,epi,p]) for j in range(n)])
-                c[i,p] += Integer(multiplicity[p]*dC[i,epi,p])*exp(-(dE[epi,p]-sum_mu)/(k_B*T))
+                c[i,p] += Integer(multiplicity[p]*dC[i,epi,p]) * \
+                        exp(-(dE[epi,p]-sum_mu)/(k_B*T))
 
     #specie_concen = [sum(mult[ind[0]:ind[1]]) for ind in specie_site_index_map]
     #total_c = [sum(c[ind[0]:ind[1]]) for ind in specie_site_index_map]
@@ -375,12 +376,13 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     comp2_min = 100-comp1_max
     ymin = comp2_min/comp1_max
     #print ymin, ymax
-    delta = (ymax-ymin)/100.0
+    delta = (ymax-ymin)/40.0
 
     #for i in range(len(mu)):
     #    print mu[i], mu_vals[i]
 
-    # Compile mu's for all composition ratios in the range +/- 1% from the stoichiometry
+    # Compile mu's for all composition ratios in the range 
+    #+/- 1% from the stoichiometry
     result = {}
     for y in np.arange(ymin,ymax,delta):
         result[y] = []
@@ -396,28 +398,33 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     # Compute the concentrations for all the compositions
     for key in result:
         mu_val = result[key]
-        total_c_val = [total_c[i].subs(dict(zip(mu,mu_val))) for i in range(len(total_c))]
+        total_c_val = [total_c[i].subs(dict(zip(mu,mu_val))) \
+                for i in range(len(total_c))]
         c_val = c.subs(dict(zip(mu,mu_val)))
         res1 = []
-        res1.append(float(total_c_val[0]/sum(total_c_val)))    # Concentration of first element/over total concen
+        # Concentration of first element/over total concen
+        res1.append(float(total_c_val[0]/sum(total_c_val)))    
         sum_c0 = sum([c0[i,i] for i in range(n)])
         for i in range(n):
             for j in range(n):
-                if i == j:
-                    res1.append(float((c0[i,i]-sum(c_val[:,i]))/c0[i,i]))     # Vacancy
-                else:
-                    res1.append(float(c_val[i,j]/c0[i,i]))                    # Antisite
+                if i == j:              # Vacancy
+                    res1.append(float((c0[i,i]-sum(c_val[:,i]))/c0[i,i]))     
+                else:                   # Antisite
+                    res1.append(float(c_val[i,j]/c0[i,i]))                    
         res.append(res1)
 
     res = np.array(res)
-    dtype = [('x',np.float64)]+[('y'+str(i)+str(j),np.float64) for i in range(n) for j in range(n)]
+    dtype = [('x',np.float64)]+[('y'+str(i)+str(j),np.float64) \
+            for i in range(n) for j in range(n)]
     res1 = np.sort(res.view(dtype),order=['x'],axis=0)
 
 
     plot_data = {}
-    """Because all the plots have identical x-points storing it in a single array"""
+    """Because all the plots have identical x-points storing it in a 
+    single array"""
     plot_data['x'] = [dat[0][0] for dat in res1]         # x-axis data
-    plot_data['x_label'] = "% "+els[0]                            # Element whose composition is varied. For x-label
+    # Element whose composition is varied. For x-label
+    plot_data['x_label'] = "% "+els[0]                   
     plot_data['y_label'] = "Point defect density"
     conc = []
     for i in range(n):
@@ -439,12 +446,16 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         indices = specie_site_index_map[specie_ind]
         specie_ind_del = indices[1]-indices[0]
         cur_ind = i - indices[0] + 1
-        if not specie_ind_del-1:
-            label = '$V_{'+specie+'}$'
+        if 'V' not in els:
+            vac_string = "$V_{"
         else:
-            label = '$V_{'+specie+'_'+str(cur_ind)+'}$'
-
-        y_data.append({'data':data,'name':label})       # Plot data and legend info
+            vac_string = "$Vac_{"
+        if not specie_ind_del-1:
+            label = vac_string+specie+'}$'
+        else:
+            label = vac_string+specie+'_'+str(cur_ind)+'}$'
+        # Plot data and legend info
+        y_data.append({'data':data,'name':label})       
 
         site_specie = els[i]
         for j in range(m):          # Antisite plot dat
@@ -493,6 +504,12 @@ def compute_defect_density(structure, e0, vac_defs, antisite_defs, T=800,
             y = y_data['data']
             xy = zip(x,y)
             xy = [list(el) for el in xy]
-            series.append({'data':xy, 'name':y_data['name']})
+            name = y_data['name'].strip('$')
+            flds= name.split('_')
+            def_string = flds[0]
+            site_string = flds[1].strip('{}')
+            name = def_string+"<sub>"+site_string+"</sub>"
+            #series.append({'data':xy, 'name':y_data['name']})
+            series.append({'data':xy, 'name':name})
         hgh_chrt_data['series'] = series
         return hgh_chrt_data
