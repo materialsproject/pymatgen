@@ -971,17 +971,17 @@ def plot_etotal(ecut_list, etotals, aug_ratios, **kwargs):
 
 class PseudoConvergence(Workflow):
 
-    def __init__(self, workdir, manager, pseudo, ecut_list, atols_mev,
+    def __init__(self, pseudo, ecut_list, atols_mev,
                  toldfe=1.e-8, spin_mode="polarized", 
-                 acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV"):
+                 acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV", workdir=None, manager=None):
 
         super(PseudoConvergence, self).__init__(workdir, manager)
 
         # Temporary object used to build the strategy.
         generator = PseudoIterativeConvergence(
-            workdir, manager, pseudo, ecut_list, atols_mev,
+            pseudo, ecut_list, atols_mev,
             toldfe=toldfe, spin_mode=spin_mode, acell=acell,
-            smearing=smearing, max_niter=len(ecut_list))
+            smearing=smearing, max_niter=len(ecut_list), workdir=workdir, manager=manager)
 
         self.atols_mev = atols_mev
         self.pseudo = Pseudo.aspseudo(pseudo)
@@ -998,9 +998,11 @@ class PseudoConvergence(Workflow):
 
         etotal = self.read_etotal()
         data = compute_hints(self.ecut_list, etotal, self.atols_mev, self.pseudo)
+        #print("ecut_list", self.ecut_list)
+        #print("etotal", etotal)
 
-        plot_etotal(data["ecut_list"], data["etotal"], data["aug_ratios"],
-                    show=False, savefig=self.path_in_workdir("etotal.pdf"))
+        #plot_etotal(data["ecut_list"], data["etotal"], data["aug_ratios"],
+        #            show=False, savefig=self.path_in_workdir("etotal.pdf"))
 
         wf_results.update(data)
 
@@ -1013,27 +1015,27 @@ class PseudoConvergence(Workflow):
 
 class PseudoIterativeConvergence(IterativeWorkflow):
 
-    def __init__(self, workdir, manager, pseudo, ecut_list_or_slice, atols_mev,
+    def __init__(self, pseudo, ecut_list_or_slice, atols_mev,
                  toldfe=1.e-8, spin_mode="polarized", 
-                 acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV", max_niter=50):
+                 acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV", max_niter=50, workdir=None, manager=None):
         """
         Args:
-            workdir:
-                Working directory.
             pseudo:
                 string or Pseudo instance
             ecut_list_or_slice:
                 List of cutoff energies or slice object (mainly used for infinite iterations).
             atols_mev:
                 List of absolute tolerances in meV (3 entries corresponding to accuracy ["low", "normal", "high"]
-            manager:
-                `TaskManager` object.
             spin_mode:
                 Defined how the electronic spin will be treated.
             acell:
                 Lengths of the periodic box in Bohr.
             smearing:
                 Smearing instance or string in the form "mode:tsmear". Default: FemiDirac with T=0.1 eV
+            workdir:
+                Working directory.
+            manager:
+                `TaskManager` object.
         """
         self.pseudo = Pseudo.aspseudo(pseudo)
 
@@ -1054,7 +1056,7 @@ class PseudoIterativeConvergence(IterativeWorkflow):
                 yield self.strategy_with_ecut(ecut)
 
         super(PseudoIterativeConvergence, self).__init__(strategy_generator(),
-              max_niter=max_niter, workdir=workdir, manager=manager, )
+              max_niter=max_niter, workdir=workdir, manager=manager)
 
         if not self.isnc:
             raise NotImplementedError("PAW convergence tests are not supported yet")
@@ -1091,8 +1093,7 @@ class PseudoIterativeConvergence(IterativeWorkflow):
         return [float(task.strategy.ecut) for task in self]
 
     def check_etotal_convergence(self, *args, **kwargs):
-        return compute_hints(self.ecut_list, self.read_etotal(), self.atols_mev,
-                             self.pseudo)
+        return compute_hints(self.ecut_list, self.read_etotal(), self.atols_mev, self.pseudo)
 
     def exit_iteration(self, *args, **kwargs):
         return self.check_etotal_convergence(self, *args, **kwargs)
@@ -1386,7 +1387,7 @@ class GbrvEosWorkflow(Workflow):
         """
         super(GbrvEosWorkflow, self).__init__(workdir=workdir, manager=manager)
 
-        # Save the structure type (needed to compute a later on)
+        # Save the structure type (needed to compute lattice parameter a)
         self.struct_type = struct_type
         self.symbol = pseudo.symbol
 
@@ -1403,7 +1404,7 @@ class GbrvEosWorkflow(Workflow):
         extra_abivars.update(**kwargs)
 
         ksampling = KSampling.monkhorst(ngkpt, chksymbreak=chksymbreak)
-        #ksampling = KSampling.gamma_centered(kpts=ngkpt, use_symmetries=True, use_time_reversal=True)
+        #ksampling = KSampling.gamma_centered(kpts=ngkpt)
 
         # GBRV use nine points from -1% to 1% of the initial guess and fitting the results to a parabola.
         # Note that it's not clear to me if they change the volume or the lattice parameter!
@@ -1739,7 +1740,7 @@ class QptdmWorkflow(Workflow):
         logger.debug("will call mrgscr to merge %s:\n" % str(scr_files))
         assert len(scr_files) == len(self)
 
-        # TODO: Prograpagate manager to the wrappers
+        # TODO: Propapagate the manager to the wrappers
         mrgscr = wrappers.Mrgscr(verbose=1)
         mrgscr.set_mpi_runner("mpirun")
         final_scr = mrgscr.merge_qpoints(scr_files, out_prefix="out", cwd=self.outdir.path)
