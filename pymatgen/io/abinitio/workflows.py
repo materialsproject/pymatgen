@@ -933,13 +933,14 @@ def plot_etotal(ecut_list, etotals, aug_ratios, **kwargs):
 
     lines, legends = [], []
 
-    emax = -np.inf
+    #emax = -np.inf
     for (aratio, etot) in zip(aug_ratios, etotals):
         emev = np.array(etot) * Ha_to_eV * 1000
         emev_inf = npts * [emev[-1]]
         yy = emev - emev_inf
-
-        emax = np.max(emax, np.max(yy))
+        #print("emax", emax)
+        #print("yy", yy)
+        #emax = np.max(emax, np.max(yy))
 
         line, = ax.plot(ecut_list, yy, "-->", linewidth=3.0, markersize=10)
 
@@ -950,15 +951,13 @@ def plot_etotal(ecut_list, etotals, aug_ratios, **kwargs):
 
     # Set xticks and labels.
     ax.grid(True)
+    ax.set_title("$\Delta$ Etotal Vs Ecut")
     ax.set_xlabel("Ecut [Ha]")
     ax.set_ylabel("$\Delta$ Etotal [meV]")
     ax.set_xticks(ecut_list)
 
     #ax.yaxis.set_view_interval(-10, emax + 0.01 * abs(emax))
-    #ax.xaxis.set_view_interval(-10, 20)
     ax.yaxis.set_view_interval(-10, 20)
-
-    ax.set_title("$\Delta$ Etotal Vs Ecut")
 
     if show:
         plt.show()
@@ -984,7 +983,7 @@ class PseudoConvergence(Workflow):
             smearing=smearing, max_niter=len(ecut_list), workdir=workdir, manager=manager)
 
         self.atols_mev = atols_mev
-        self.pseudo = Pseudo.aspseudo(pseudo)
+        self.pseudo = Pseudo.as_pseudo(pseudo)
 
         self.ecut_list = []
         for ecut in ecut_list:
@@ -1001,8 +1000,8 @@ class PseudoConvergence(Workflow):
         #print("ecut_list", self.ecut_list)
         #print("etotal", etotal)
 
-        #plot_etotal(data["ecut_list"], data["etotal"], data["aug_ratios"],
-        #            show=False, savefig=self.path_in_workdir("etotal.pdf"))
+        plot_etotal(data["ecut_list"], data["etotal"], data["aug_ratios"],
+                    show=False, savefig=self.path_in_workdir("etotal.pdf"))
 
         wf_results.update(data)
 
@@ -1037,7 +1036,7 @@ class PseudoIterativeConvergence(IterativeWorkflow):
             manager:
                 `TaskManager` object.
         """
-        self.pseudo = Pseudo.aspseudo(pseudo)
+        self.pseudo = Pseudo.as_pseudo(pseudo)
 
         self.atols_mev = atols_mev
         self.toldfe = toldfe
@@ -1260,7 +1259,7 @@ class DeltaFactorWorkflow(Workflow):
         if ecut is not None:
             extra_abivars.update({"ecut": ecut})
 
-        self.pseudo = Pseudo.aspseudo(pseudo)
+        self.pseudo = Pseudo.as_pseudo(pseudo)
         structure = AbiStructure.asabistructure(structure)
 
         self._input_structure = structure
@@ -1509,7 +1508,7 @@ class GbrvRelaxAndEosWorkflow(Workflow):
         self.struct_type = struct_type
 
         # nband must be large enough to accomodate fractional occupancies.
-        self.pseudo = Pseudo.aspseudo(pseudo)
+        self.pseudo = Pseudo.as_pseudo(pseudo)
         self.nband = gbrv_nband(self.pseudo)
 
         # Set extra_abivars.

@@ -23,7 +23,8 @@ class WorkflowTestCase(PymatgenTest):
         pseudo = ref_file("14si.pspnc")
         ecut_list = range(10, 40, 2)
 
-        pptest_wf = PseudoConvergence(workdir, manager, pseudo, ecut_list, atols_mev=(10, 1, 0.1))
+        pptest_wf = PseudoConvergence(pseudo, ecut_list, atols_mev=(10, 1, 0.1), 
+                                      workdir=workdir, manager=manager)
         pptest_wf.allocate()
 
         # Test pickle
