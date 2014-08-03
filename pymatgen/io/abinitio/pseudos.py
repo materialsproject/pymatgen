@@ -120,7 +120,7 @@ class Pseudo(object):
     #    self._dojo_report = {}
 
     @classmethod
-    def aspseudo(cls, obj):
+    def as_pseudo(cls, obj):
         """
         Convert obj into a pseudo. Accepts:
 
@@ -264,8 +264,12 @@ class Pseudo(object):
             return None
 
     def read_dojo_report(self):
-        """Read the DOJO_REPORT section, returns {} if section is not present.""" 
-        return read_dojo_report(self.path)
+        """
+        Read the DOJO_REPORT section and set dojo_report attribute. 
+        returns {} if section is not present.
+        """ 
+        self.dojo_report = read_dojo_report(self.path)
+        return self.dojo_report
 
     def write_dojo_report(self, report=None):
         """Write a new DOJO_REPORT section to the pseudopotential file."""
