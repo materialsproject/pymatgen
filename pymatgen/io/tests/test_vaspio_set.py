@@ -87,6 +87,12 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         p = MITVaspInputSet(potcar_functional="LDA").get_potcar(struct)
         self.assertEqual(p.functional, 'LDA')
 
+    def test_get_nelect(self):
+        coords = [[0]*3, [0.5]*3, [0.75]*3]
+        lattice = Lattice.cubic(4)
+        s = Structure(lattice, ['Si', 'Si', 'Fe'], coords)
+        self.assertAlmostEqual(MITVaspInputSet().get_nelect(s), 16)
+
     def test_get_incar(self):
         incar = self.paramset.get_incar(self.struct)
 
