@@ -89,7 +89,7 @@ class MPRester(object):
             self.api_key = api_key
         else:
             self.api_key = os.environ.get("MAPI_KEY", "")
-        self.preamble = "https://{}/rest/v1".format(host)
+        self.preamble = "https://{}/rest/v2".format(host)
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
 
