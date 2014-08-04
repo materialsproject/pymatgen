@@ -10,29 +10,24 @@ import time
 import abc
 import collections
 import numpy as np
-
 try:
     from pydispatch import dispatcher
 except ImportError:
     pass
 
 from pymatgen.core.units import ArrayWithUnit, Ha_to_eV
-from pymatgen.core.structure import Structure
 from pymatgen.core.design_patterns import AttrDict
 from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
-from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
 from pymatgen.util.string_utils import pprint_table, WildCard
 from pymatgen.io.abinitio import wrappers
 from pymatgen.io.abinitio.tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, BseTask, RelaxTask)
-from pymatgen.io.abinitio.strategies import HtcStrategy, ScfStrategy, RelaxStrategy #, num_valence_electrons
+from pymatgen.io.abinitio.strategies import HtcStrategy, ScfStrategy #, RelaxStrategy
 from pymatgen.io.abinitio.utils import Directory
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
-from pymatgen.io.abinitio.abiobjects import Smearing, AbiStructure, KSampling, Electrons, RelaxationMethod
+from pymatgen.io.abinitio.abiobjects import Smearing, AbiStructure, KSampling, Electrons  #, RelaxationMethod
 from pymatgen.io.abinitio.pseudos import Pseudo
-from pymatgen.io.abinitio.eos import EOS
 from pymatgen.io.abinitio.abitimer import AbinitTimerParser
-from pymatgen.io.gwwrapper.helpers import refine_structure
 from pymatgen.io.abinitio.abiinspect import yaml_read_kpoints
 
 
@@ -274,7 +269,12 @@ class BaseWorkflow(Node):
             else:
                 # Set finalized here, because on_all_ok might change it (e.g. Relax + EOS in a single workflow)
                 self._finalized = True
-                results = AttrDict(**self.on_all_ok())
+                try:
+                    results = AttrDict(**self.on_all_ok())
+                except:
+                    self._finalized = False
+                    raise
+
                 # Signal to possible observers that the `Workflow` reached S_OK
                 logger.info("Workflow %s is finalized and broadcasts signal S_OK" % str(self))
                 logger.info("Workflow %s status = %s" % (str(self), self.status))
@@ -1119,9 +1119,6 @@ class PseudoIterativeConvergence(IterativeWorkflow):
         if not monotonic(data["etotals"], mode="<", atol=1.0e-5):
             logger.warning("E(ecut) is not decreasing")
             wf_results.push_exceptions("E(ecut) is not decreasing\n" + str(etotals))
-
-        #if kwargs.get("json_dump", True):
-        #    wf_results.json_dump(self.path_in_workdir("results.json"))
 
         return wf_results
 

@@ -277,6 +277,7 @@ class Pseudo(object):
 
         # Create JSON string from report.
         jstring = json.dumps(report, indent=4, sort_keys=True) + "\n"
+        #jstring = json.dumps(report, sort_keys=True) + "\n"
 
         # Read lines from file and insert jstring between the tags.
         with open(self.path, "r") as fh:
