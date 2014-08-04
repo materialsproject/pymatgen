@@ -316,11 +316,13 @@ class EOS_Fit(object):
     def b0_GPa(self):
         return FloatWithUnit(self.b0, "eV ang^-3").to("GPa")
 
-    def plot(self, **kwargs):
+    def plot(self, ax=None, **kwargs):
         """
         Uses Matplotlib to plot the energy curve.
 
         Args:
+            ax:
+                Axis object. If ax is None, a new figure is produced.
             show:
                 True to show the figure
             savefig:
@@ -337,8 +339,11 @@ class EOS_Fit(object):
         vmin, vmax = (vmin - 0.01 * abs(vmin), vmax + 0.01 * abs(vmax))
         emin, emax = (emin - 0.01 * abs(emin), emax + 0.01 * abs(emax))
 
-        fig = plt.figure()
-        ax = fig.add_subplot(1,1,1)
+        if ax is None:
+            fig = plt.figure()
+            ax = fig.add_subplot(1,1,1)
+        else:
+            fig = plt.gcf()
 
         lines, legends = [], []
 

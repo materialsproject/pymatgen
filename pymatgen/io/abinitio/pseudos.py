@@ -89,7 +89,8 @@ def read_dojo_report(filename):
             return {}
 
         stop = lines.index("</DOJO_REPORT>\n")
-        return json.loads("".join(lines[start+1:stop]))
+        d = json.loads("".join(lines[start+1:stop]))
+        return d
 
 #class DojoReport(dict):
 #    _LATEST_VERSION = 1.0
@@ -101,8 +102,6 @@ def read_dojo_report(filename):
 #        new = read_dojo_report(path)
 #        new.__class__ = cls
 #        return new
-#
-#    #def to_file(self, path):
 
 
 _PTABLE = PeriodicTable()
