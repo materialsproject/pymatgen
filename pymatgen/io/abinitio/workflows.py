@@ -41,7 +41,6 @@ __maintainer__ = "Matteo Giantomassi"
 
 __all__ = [
     "Workflow",
-    "IterativeWorkflow",
     "BandStructureWorkflow",
     "RelaxWorkflow",
     "G0W0_Workflow",
@@ -704,425 +703,6 @@ class Workflow(BaseWorkflow):
         return parser
 
 
-class IterativeWorkflow(Workflow):
-    """
-    This object defines a `Workflow` that produces `Tasks` until a particular 
-    condition is satisfied (mainly used for convergence studies or iterative algorithms.)
-    """
-    __metaclass__ = abc.ABCMeta
-
-    def __init__(self, strategy_generator, max_niter=25, workdir=None, manager=None):
-        """
-        Args:
-            strategy_generator:
-                Generator object that produces `Strategy` objects.
-            max_niter:
-                Maximum number of iterations. A negative value or zero value
-                is equivalent to having an infinite number of iterations.
-            workdir:
-                Working directory.
-            manager:
-                `TaskManager` class.
-        """
-        super(IterativeWorkflow, self).__init__(workdir, manager)
-
-        self.strategy_generator = strategy_generator
-
-        self._max_niter = max_niter
-        self.niter = 0
-
-    @property
-    def max_niter(self):
-        return self._max_niter
-
-    #def set_max_niter(self, max_niter):
-    #    self._max_niter = max_niter
-
-    #def set_inputs(self, inputs):
-    #    self.strategy_generator = list(inputs)
-
-    def next_task(self):
-        """
-        Generate and register a new `Task`.
-
-        Returns: 
-            New `Task` object
-        """
-        try:
-            next_strategy = next(self.strategy_generator)
-
-        except StopIteration:
-            raise
-
-        self.register(next_strategy)
-        assert len(self) == self.niter
-
-        return self[-1]
-
-    def submit_tasks(self, *args, **kwargs):
-        """
-        Run the tasks till self.exit_iteration says to exit 
-        or the number of iterations exceeds self.max_niter
-
-        Returns: 
-            dictionary with the final results
-        """
-        self.niter = 1
-
-        while True:
-            if self.niter > self.max_niter > 0:
-                logger.debug("niter %d > max_niter %d" % (self.niter, self.max_niter))
-                break
-
-            try:
-                task = self.next_task()
-            except StopIteration:
-                break
-
-            # Start the task and block till completion.
-            kwargs.pop('wait')
-            task.start(*args, **kwargs)
-            task.wait()
-
-            data = self.exit_iteration(*args, **kwargs)
-
-            if data["exit"]:
-                break
-
-            self.niter += 1
-
-    @abc.abstractmethod
-    def exit_iteration(self, *args, **kwargs):
-        """
-        Return a dictionary with the results produced at the given iteration.
-        The dictionary must contains an entry "converged" that evaluates to
-        True if the iteration should be stopped.
-        """
-
-
-def check_conv(values, tol, min_numpts=1, mode="abs", vinf=None):
-    """
-    Given a list of values and a tolerance tol, returns the leftmost index for which
-
-        abs(value[i] - vinf) < tol if mode == "abs"
-
-    or
-
-        abs(value[i] - vinf) / vinf < tol if mode == "rel"
-
-    returns -1 if convergence is not achieved. By default, vinf = values[-1]
-
-    Args:
-        tol:
-            Tolerance
-        min_numpts:
-            Minimum number of points that must be converged.
-        mode:
-            "abs" for absolute convergence, "rel" for relative convergence.
-        vinf:
-            Used to specify an alternative value instead of values[-1].
-    """
-    vinf = values[-1] if vinf is None else vinf
-
-    if mode == "abs":
-        vdiff = [abs(v - vinf) for v in values]
-    elif mode == "rel":
-        vdiff = [abs(v - vinf) / vinf for v in values]
-    else:
-        raise ValueError("Wrong mode %s" % mode)
-
-    numpts = len(vdiff)
-    i = -2
-
-    if (numpts > min_numpts) and vdiff[-2] < tol:
-        for i in range(numpts-1, -1, -1):
-            if vdiff[i] > tol:
-                break
-        if (numpts - i -1) < min_numpts: i = -2
-
-    return i + 1
-
-
-def compute_hints(ecuts, etotals, atols_mev, pseudo, min_numpts=1, stream=sys.stdout):
-    de_low, de_normal, de_high = [a / (1000 * Ha_to_eV) for a in atols_mev]
-
-    num_ene = len(etotals)
-    etotal_inf = etotals[-1]
-
-    ihigh   = check_conv(etotals, de_high, min_numpts=min_numpts)
-    inormal = check_conv(etotals, de_normal)
-    ilow    = check_conv(etotals, de_low)
-
-    accidx = {"H": ihigh, "N": inormal, "L": ilow}
-
-    table = []; app = table.append
-
-    app(["iter", "ecut", "etotal", "et-e_inf [meV]", "accuracy",])
-    for idx, (ec, et) in enumerate(zip(ecuts, etotals)):
-        line = "%d %.1f %.7f %.3f" % (idx, ec, et, (et-etotal_inf) * Ha_to_eV * 1.e+3)
-        row = line.split() + ["".join(c for c,v in accidx.items() if v == idx)]
-        app(row)
-
-    if stream is not None:
-        stream.write("pseudo: %s\n" % pseudo.name)
-        pprint_table(table, out=stream)
-
-    ecut_high, ecut_normal, ecut_low = 3 * (None,)
-    exit = (ihigh != -1)
-
-    if exit:
-        ecut_low    = ecuts[ilow]
-        ecut_normal = ecuts[inormal]
-        ecut_high   = ecuts[ihigh]
-
-    aug_ratios = [1,]
-    aug_ratio_low, aug_ratio_normal, aug_ratio_high = 3 * (1,)
-
-    data = {
-        "exit"       : ihigh != -1,
-        "etotals"    : list(etotals),
-        "ecuts"      : list(ecuts),
-        "aug_ratios" : aug_ratios,
-        "low"        : {"ecut": ecut_low, "aug_ratio": aug_ratio_low},
-        "normal"     : {"ecut": ecut_normal, "aug_ratio": aug_ratio_normal},
-        "high"       : {"ecut": ecut_high, "aug_ratio": aug_ratio_high},
-        "pseudo_name": pseudo.name,
-        "pseudo_path": pseudo.path,
-        "atols_mev"  : atols_mev,
-        "dojo_level" : 0,
-    }
-
-    return data
-
-
-def plot_etotals(ecuts, etotals, aug_ratios, **kwargs):
-    """
-    Uses Matplotlib to plot the energy curve as function of ecut
-
-    Args:
-        ecuts:
-            List of cutoff energies
-        etotals:
-            Total energies in Hartree, see aug_ratios
-        aug_ratios:
-            List augmentation rations. [1,] for norm-conserving, [4, ...] for PAW
-            The number of elements in aug_ration must equal the number of (sub)lists
-            in etotals. Example:
-
-                - NC: etotals = [3.4, 4,5 ...], aug_ratios = [1,]
-                - PAW: etotals = [[3.4, ...], [3.6, ...]], aug_ratios = [4,6]
-
-        =========     ==============================================================
-        kwargs        description
-        =========     ==============================================================
-        show          True to show the figure
-        savefig       'abc.png' or 'abc.eps'* to save the figure to a file.
-        =========     ==============================================================
-
-    Returns:
-        `matplotlib` figure.
-    """
-    show = kwargs.pop("show", True)
-    savefig = kwargs.pop("savefig", None)
-
-    import matplotlib.pyplot as plt
-    fig = plt.figure()
-    ax = fig.add_subplot(1,1,1)
-
-    npts = len(ecuts)
-
-    if len(aug_ratios) != 1 and len(aug_ratios) != len(etotals):
-        raise ValueError("The number of sublists in etotal must equal the number of aug_ratios")
-
-    if len(aug_ratios) == 1:
-        etotals = [etotals,]
-
-    lines, legends = [], []
-
-    #emax = -np.inf
-    for (aratio, etot) in zip(aug_ratios, etotals):
-        emev = np.array(etot) * Ha_to_eV * 1000
-        emev_inf = npts * [emev[-1]]
-        yy = emev - emev_inf
-        #print("emax", emax)
-        #print("yy", yy)
-        #emax = np.max(emax, np.max(yy))
-
-        line, = ax.plot(ecuts, yy, "-->", linewidth=3.0, markersize=10)
-
-        lines.append(line)
-        legends.append("aug_ratio = %s" % aratio)
-
-    ax.legend(lines, legends, 'upper right', shadow=True)
-
-    # Set xticks and labels.
-    ax.grid(True)
-    ax.set_title("$\Delta$ Etotal Vs Ecut")
-    ax.set_xlabel("Ecut [Ha]")
-    ax.set_ylabel("$\Delta$ Etotal [meV]")
-    ax.set_xticks(ecuts)
-
-    #ax.yaxis.set_view_interval(-10, emax + 0.01 * abs(emax))
-    ax.yaxis.set_view_interval(-10, 20)
-
-    if show:
-        plt.show()
-
-    if savefig is not None:
-        fig.savefig(savefig)
-
-    return fig
-
-
-class PseudoConvergence(Workflow):
-
-    def __init__(self, pseudo, ecuts, atols_mev,
-                 toldfe=1.e-8, spin_mode="polarized", 
-                 acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV", workdir=None, manager=None):
-
-        super(PseudoConvergence, self).__init__(workdir, manager)
-
-        # Temporary object used to build the strategy.
-        generator = PseudoIterativeConvergence(
-            pseudo, ecuts, atols_mev,
-            toldfe=toldfe, spin_mode=spin_mode, acell=acell,
-            smearing=smearing, max_niter=len(ecuts), workdir=workdir, manager=manager)
-
-        self.atols_mev = atols_mev
-        self.pseudo = Pseudo.as_pseudo(pseudo)
-
-        self.ecuts = []
-        for ecut in ecuts:
-            strategy = generator.strategy_with_ecut(ecut)
-            self.ecuts.append(ecut)
-            self.register(strategy)
-
-    def get_results(self):
-        # Get the results of the tasks.
-        wf_results = super(PseudoConvergence, self).get_results()
-
-        etotals = self.read_etotals()
-        data = compute_hints(self.ecuts, etotals, self.atols_mev, self.pseudo)
-        #print("ecuts", self.ecuts)
-        #print("etotals", etotals)
-
-        #plot_etotals(data["ecuts"], data["etotals"], data["aug_ratios"],
-        #            show=False, savefig=self.path_in_workdir("etotals.pdf"))
-
-        wf_results.update(data)
-
-        if not monotonic(etotals, mode="<", atol=1.0e-5):
-            logger.warning("E(ecut) is not decreasing")
-            wf_results.push_exceptions("E(ecut) is not decreasing:\n" + str(etotals))
-
-        return wf_results
-
-
-class PseudoIterativeConvergence(IterativeWorkflow):
-
-    def __init__(self, pseudo, ecuts_or_slice, atols_mev,
-                 toldfe=1.e-8, spin_mode="polarized", 
-                 acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV", max_niter=50, workdir=None, manager=None):
-        """
-        Args:
-            pseudo:
-                string or Pseudo instance
-            ecuts_or_slice:
-                List of cutoff energies or slice object (mainly used for infinite iterations).
-            atols_mev:
-                List of absolute tolerances in meV (3 entries corresponding to accuracy ["low", "normal", "high"]
-            spin_mode:
-                Defined how the electronic spin will be treated.
-            acell:
-                Lengths of the periodic box in Bohr.
-            smearing:
-                Smearing instance or string in the form "mode:tsmear". Default: FemiDirac with T=0.1 eV
-            workdir:
-                Working directory.
-            manager:
-                `TaskManager` object.
-        """
-        self.pseudo = Pseudo.as_pseudo(pseudo)
-
-        self.atols_mev = atols_mev
-        self.toldfe = toldfe
-        self.spin_mode = spin_mode
-        self.smearing = Smearing.as_smearing(smearing)
-        self.acell = acell
-
-        if isinstance(ecuts_or_slice, slice):
-            self.ecut_iterator = iterator_from_slice(ecuts_or_slice)
-        else:
-            self.ecut_iterator = iter(ecuts_or_slice)
-
-        # Construct a generator that returns strategy objects.
-        def strategy_generator():
-            for ecut in self.ecut_iterator:
-                yield self.strategy_with_ecut(ecut)
-
-        super(PseudoIterativeConvergence, self).__init__(strategy_generator(),
-              max_niter=max_niter, workdir=workdir, manager=manager)
-
-        if not self.isnc:
-            raise NotImplementedError("PAW convergence tests are not supported yet")
-
-    def strategy_with_ecut(self, ecut):
-        """Return a Strategy instance with given cutoff energy ecut."""
-
-        # Define the system: one atom in a box of lenghts acell.
-        boxed_atom = AbiStructure.boxed_atom(self.pseudo, acell=self.acell)
-
-        # Gamma-only sampling.
-        gamma_only = KSampling.gamma_only()
-
-        # Setup electrons.
-        electrons = Electrons(spin_mode=self.spin_mode, smearing=self.smearing)
-
-        # Don't write WFK files.
-        extra_abivars = {
-            "ecut" : ecut,
-            "prtwf": 0,
-            "toldfe": self.toldfe,
-        }
-
-        strategy = ScfStrategy(boxed_atom, self.pseudo, gamma_only,
-                               spin_mode=self.spin_mode, smearing=self.smearing,
-                               charge=0.0, scf_algorithm=None,
-                               use_symmetries=True, **extra_abivars)
-
-        return strategy
-
-    @property
-    def ecuts(self):
-        """The list of cutoff energies computed so far"""
-        return [float(task.strategy.ecut) for task in self]
-
-    def check_etotal_convergence(self, *args, **kwargs):
-        return compute_hints(self.ecuts, self.read_etotals(), self.atols_mev, self.pseudo)
-
-    def exit_iteration(self, *args, **kwargs):
-        return self.check_etotal_convergence(self, *args, **kwargs)
-
-    def get_results(self):
-        """Return the results of the tasks."""
-        wf_results = super(PseudoIterativeConvergence, self).get_results()
-
-        data = self.check_etotal_convergence()
-
-        ecuts, etotals, aug_ratios = data["ecuts"],  data["etotals"], data["aug_ratios"]
-
-        #plot_etotals(ecuts, etotals, aug_ratios,
-        #            show=False, savefig=self.path_in_workdir("etotals.pdf"))
-
-        wf_results.update(data)
-
-        if not monotonic(data["etotals"], mode="<", atol=1.0e-5):
-            logger.warning("E(ecut) is not decreasing")
-            wf_results.push_exceptions("E(ecut) is not decreasing\n" + str(etotals))
-
-        return wf_results
-
-
 class BandStructureWorkflow(Workflow):
     """Workflow for band structure calculations."""
     def __init__(self, scf_input, nscf_input, dos_inputs=None, workdir=None, manager=None):
@@ -1457,3 +1037,49 @@ class PhononWorkflow(Workflow):
         return WorkflowResults(returncode=0, message="DDB merge done")
 
 
+class PPConvergenceFactory(object):
+    """
+    Factory object that constructs workflows for analyzing the converge of
+    pseudopotentials.
+    """
+    def work_for_pseudo(self, pseudo, ecut_range, 
+                        toldfe=1.e-8, atols_mev=(10, 1, 0.1), spin_mode="polarized",
+                        acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV", workdir=None, manager=None):
+        """
+        Return a `Workflow` object given the pseudopotential pseudo.
+
+        Args:
+            pseudo:
+                Pseudo object.
+            ecut_range:
+                range of cutoff energies in Ha units.
+            toldfe:
+                Tolerance on the total energy (Ha).
+            atols_mev:
+                Tolerances in meV for accuracy in ["low", "normal", "high"]
+            spin_mode:
+                Spin polarization.
+            acell:
+                Length of the real space lattice (Bohr units)
+            smearing:
+                Smearing technique.
+            workdir:
+                Working directory.
+            manager:
+                `TaskManager` object.
+        """
+        smearing = Smearing.as_smearing(smearing)
+
+        if isinstance(ecut_range, slice):
+            workflow = PseudoIterativeConvergence(
+                pseudo, ecut_range, atols_mev, 
+                toldfe=toldfe, spin_mode=spin_mode, 
+                acell=acell, smearing=smearing, workdir=workdir, manager=manager)
+
+        else:
+            workflow = PseudoConvergence(
+                pseudo, ecut_range, atols_mev, 
+                toldfe=toldfe, spin_mode=spin_mode, 
+                acell=acell, smearing=smearing, workdir=workdir, manager=manager)
+
+        return workflow
