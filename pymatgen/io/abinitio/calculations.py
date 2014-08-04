@@ -1,6 +1,5 @@
 """
-Factory functions producing ABINIT workflows. Entry points for client code
-(high-level interface)
+Factory functions producing ABINIT workflows. Entry points for client code (high-level interface)
 """
 from __future__ import division, print_function
 
@@ -14,8 +13,7 @@ from pymatgen.io.abinitio.abiobjects import HilbertTransform
 from pymatgen.io.abinitio.strategies import (ScfStrategy, NscfStrategy,
     ScreeningStrategy, SelfEnergyStrategy, MDFBSE_Strategy)
 
-from pymatgen.io.abinitio.workflows import (PseudoIterativeConvergence,
-    PseudoConvergence, BandStructureWorkflow, G0W0_Workflow, BSEMDF_Workflow)
+from pymatgen.io.abinitio.workflows import (BandStructureWorkflow, G0W0_Workflow, BSEMDF_Workflow)
 
 
 __author__ = "Matteo Giantomassi"
@@ -25,60 +23,12 @@ __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 
 
-class PPConvergenceFactory(object):
-    """
-    Factory object that constructs workflows for analyzing the converge of
-    pseudopotentials.
-    """
-    def work_for_pseudo(self, pseudo, ecut_range, 
-                        toldfe=1.e-8, atols_mev=(10, 1, 0.1), spin_mode="polarized",
-                        acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV", workdir=None, manager=None):
-        """
-        Return a `Workflow` object given the pseudopotential pseudo.
-
-        Args:
-            pseudo:
-                Pseudo object.
-            ecut_range:
-                range of cutoff energies in Ha units.
-            toldfe:
-                Tolerance on the total energy (Ha).
-            atols_mev:
-                Tolerances in meV for accuracy in ["low", "normal", "high"]
-            spin_mode:
-                Spin polarization.
-            acell:
-                Length of the real space lattice (Bohr units)
-            smearing:
-                Smearing technique.
-            workdir:
-                Working directory.
-            manager:
-                `TaskManager` object.
-        """
-        smearing = Smearing.as_smearing(smearing)
-
-        if isinstance(ecut_range, slice):
-            workflow = PseudoIterativeConvergence(
-                pseudo, ecut_range, atols_mev, 
-                toldfe=toldfe, spin_mode=spin_mode, 
-                acell=acell, smearing=smearing, workdir=workdir, manager=manager)
-
-        else:
-            workflow = PseudoConvergence(
-                pseudo, ecut_range, atols_mev, 
-                toldfe=toldfe, spin_mode=spin_mode, 
-                acell=acell, smearing=smearing, workdir=workdir, manager=manager)
-
-        return workflow
-
-
 def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
                   ndivsm, accuracy="normal", spin_mode="polarized",
                   smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None,
                   dos_kppa=None, workdir=None, manager=None, **extra_abivars):
     """
-    Returns a Work object that computes that bandstructure of the material.
+    Returns a Workflow for bandstructure calculations.
 
     Args:
         structure:

@@ -140,8 +140,7 @@ class Pseudo(object):
         return PseudoParser().parse(filename)
 
     def __repr__(self):
-        return "<%s at %s, name = %s>" % (
-            self.__class__.__name__, id(self), self.name)
+        return "<%s at %s, name = %s>" % (self.__class__.__name__, id(self), self.name)
 
     def __str__(self):
         """String representation."""
@@ -429,14 +428,15 @@ class AbinitPseudo(Pseudo):
         """
         self.path = path
         self._summary = header.summary
-        if hasattr(self, "dojo_report"):
+
+        if hasattr(header, "dojo_report"):
             self.dojo_report = header.dojo_report
         else:
             self.dojo_report = {}
 
         #self.pspcod  = header.pspcod
 
-        for (attr_name, desc) in header.items():
+        for attr_name, desc in header.items():
             value = header.get(attr_name, None)
 
             # Hide these attributes since one should always use the public interface.
@@ -676,7 +676,6 @@ class NcAbinitHeader(AbinitHeader):
 
         header["dojo_report"] = read_dojo_report(filename)
 
-        #print(header)
         return NcAbinitHeader(summary, **header)
 
     @staticmethod
@@ -775,59 +774,59 @@ class NcAbinitHeader(AbinitHeader):
 
         return NcAbinitHeader(summary, **header)
 
-    @staticmethod
-    def oncvpsp_out_header(filename, ppdesc):
+    #@staticmethod
+    #def oncvpsp_out_header(filename, ppdesc):
 
-        lines = _read_nlines(filename, -1)
-        header = {}
-        nc = None
-        header.update({"pspcod": 11})
+    #    lines = _read_nlines(filename, -1)
+    #    header = {}
+    #    nc = None
+    #    header.update({"pspcod": 11})
 
-        for (lineno, line) in enumerate(lines):
-            #print(lineno, line)
+    #    for (lineno, line) in enumerate(lines):
+    #        #print(lineno, line)
 
-            if 'psp8' in line and '###' not in line:
-                tokens = line.split()
-                header.update({'zatom': float(tokens[1])})
-                # print({'zatom': float(tokens[1])})
-                header.update({'pspxc': PseudoParser._FUNCTIONALS[int(tokens[4])]['n']})
-                # print({'pspxc': PseudoParser._FUNCTIONALS[int(tokens[4])]['n']})
-                nc = int(tokens[2])  # number of core states
-                nv = int(tokens[3])  # number of valence states
-            elif ' n ' in line and ' l ' in line and ' f ' in line and '###' not in line:
-                # "zion" info on the next nc+nv lines
-                zion = header['zatom']
-                for n in range(1, nc + 1, 1):
-                    tokens = lines[lineno+n].split()
-                    # print(tokens[2])
-                    zion -= float(tokens[2])
-                header.update({'zion': zion})
-                # print({'zion': zion})
-            elif '# lmax' in line and '###' not in line:
-                # "lmax" first on next line
-                header.update({'lmax': int(lines[lineno+1].split()[0])})
-                # print({'lmax': int(lines[lineno+1].split()[0])})
-            elif '# lloc' in line and '###' not in line:
-                # "lloc" first on next line
-                header.update({'lloc': int(lines[lineno+1].split()[0])})
-                # print({'lloc': int(lines[lineno+1].split()[0])})
-            elif 'DATA FOR PLOTTING' in line:
-                break
+    #        if 'psp8' in line and '###' not in line:
+    #            tokens = line.split()
+    #            header.update({'zatom': float(tokens[1])})
+    #            # print({'zatom': float(tokens[1])})
+    #            header.update({'pspxc': PseudoParser._FUNCTIONALS[int(tokens[4])]['n']})
+    #            # print({'pspxc': PseudoParser._FUNCTIONALS[int(tokens[4])]['n']})
+    #            nc = int(tokens[2])  # number of core states
+    #            nv = int(tokens[3])  # number of valence states
+    #        elif ' n ' in line and ' l ' in line and ' f ' in line and '###' not in line:
+    #            # "zion" info on the next nc+nv lines
+    #            zion = header['zatom']
+    #            for n in range(1, nc + 1, 1):
+    #                tokens = lines[lineno+n].split()
+    #                # print(tokens[2])
+    #                zion -= float(tokens[2])
+    #            header.update({'zion': zion})
+    #            # print({'zion': zion})
+    #        elif '# lmax' in line and '###' not in line:
+    #            # "lmax" first on next line
+    #            header.update({'lmax': int(lines[lineno+1].split()[0])})
+    #            # print({'lmax': int(lines[lineno+1].split()[0])})
+    #        elif '# lloc' in line and '###' not in line:
+    #            # "lloc" first on next line
+    #            header.update({'lloc': int(lines[lineno+1].split()[0])})
+    #            # print({'lloc': int(lines[lineno+1].split()[0])})
+    #        elif 'DATA FOR PLOTTING' in line:
+    #            break
 
 
-        #these we don't know:
-        #"r2well"       : _attr_desc(None, float),
-        header.update({'r2well': 0.0})
-        #"mmax"         : _attr_desc(None, float),
-        # this could be rlmax / drl + 1
-        header.update({'mmax': 0})
-        header.update({'pspdat': -1})
+    #    #these we don't know:
+    #    #"r2well"       : _attr_desc(None, float),
+    #    header.update({'r2well': 0.0})
+    #    #"mmax"         : _attr_desc(None, float),
+    #    # this could be rlmax / drl + 1
+    #    header.update({'mmax': 0})
+    #    header.update({'pspdat': -1})
 
-        summary = lines[0]
+    #    summary = lines[0]
 
-        # print(header)
+    #    # print(header)
 
-        return NcAbinitHeader(summary, **header)
+    #    return NcAbinitHeader(summary, **header)
 
 
 class PawAbinitHeader(AbinitHeader):
@@ -990,7 +989,7 @@ class PseudoParser(object):
         7 : ppdesc(6, "PAW_abinit_text", "PAW", None),
         8 : ppdesc(8, "ONCVPSP", "NC", None),
        10 : ppdesc(10, "HGHK", "NC", None),
-       11 : ppdesc(11, "ONCVPSP_out", "NC", None)
+       #11 : ppdesc(11, "ONCVPSP_out", "NC", None)
     })
     del ppdesc
     # renumber functionals from oncvpsp todo confrim that 3 is 2
