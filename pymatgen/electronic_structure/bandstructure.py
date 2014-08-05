@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides classes to define everything related to band structures.
 """

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines classes for point defects
 """

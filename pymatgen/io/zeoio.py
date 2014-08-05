@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Module implementing classes and functions to use Zeo++.
 Zeo++ can be obtained from http://www.maciejharanczyk.info/Zeopp/

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module contains the classes to build a ConversionElectrode.
 """

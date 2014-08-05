@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides input and output from the CSSR file format.
 """
