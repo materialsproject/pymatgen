@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import unittest
 
 from pymatgen.optimization.linear_assignment import LinearAssignment

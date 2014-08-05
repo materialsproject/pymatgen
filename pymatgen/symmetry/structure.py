@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements symmetry-related structure forms.
 """

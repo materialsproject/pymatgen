@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Classes and methods related to the Structure Notation Language (SNL)
 """

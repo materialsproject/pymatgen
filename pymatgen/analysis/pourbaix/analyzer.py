@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Class for analyzing Pourbaix Diagrams. Similar to PDAnalyzer
 """

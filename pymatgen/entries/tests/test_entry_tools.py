@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 FIXME: Proper module docstring
 """

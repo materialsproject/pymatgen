@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines the abstract base classes for battery-related classes.
 Regardless of the kind of electrode, conversion or insertion, there are many
