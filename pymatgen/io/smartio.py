@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This class implements smart io classes that performs intelligent io based on
 file extensions.

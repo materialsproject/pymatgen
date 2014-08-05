@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Classes for reading/manipulating/writing VASP ouput files.
 """

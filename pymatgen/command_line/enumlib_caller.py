@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements an interface to enumlib, Gus Hart"s excellent Fortran
 code for enumerating derivative structures.
