@@ -77,9 +77,12 @@ v2.9.14
 1. Implements Structure.sort method. Both Structure.sort and the
    get_sorted_structure methods now supports all arguments supported by list
    .sort().
-2. VaspInputSets now uses yaml. Note the new dependency on pyyaml. It is
-   highly recommended that you install pyyaml with the libyaml C bindings.
+2. VaspInputSets configs, as well as several other configs now uses yaml. Note
+   the new dependency on pyyaml. It is highly recommended that you install
+   pyyaml with the libyaml C bindings.
 3. Fix missing spglib dependency.
+4. Use monty.serialization for transparent handling of JSON vs YAML.
+   Requirements updated to monty>=0.3.1.
 
 v2.9.13
 -------
