@@ -79,6 +79,7 @@ v2.9.14
    .sort().
 2. VaspInputSets now uses yaml. Note the new dependency on pyyaml. It is
    highly recommended that you install pyyaml with the libyaml C bindings.
+3. Fix missing spglib dependency.
 
 v2.9.13
 -------
