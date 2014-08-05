@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module contains classes to wrap Python VTK to make nice molecular plots.
 """

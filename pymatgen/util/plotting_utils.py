@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Utilities for generating nicer plots.
 """

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This package implements various diffraction analyses.
 """

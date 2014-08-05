@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines the classes relating to 3D lattices.
 """

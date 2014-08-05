@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements equivalents of the basic ComputedEntry objects, which
 is the basic entity that can be used to perform many analyses. ComputedEntries
