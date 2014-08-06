@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines filters for Transmuter object.
 """

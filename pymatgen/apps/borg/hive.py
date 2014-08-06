@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module define the various drones used to assimilate data.
 """

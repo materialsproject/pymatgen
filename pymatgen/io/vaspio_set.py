@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines the VaspInputSet abstract base class and a concrete
 implementation for the parameters used by the Materials Project and the MIT

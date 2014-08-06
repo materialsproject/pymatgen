@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides classes to run and analyze boltztrap on pymatgen band
 structure objects. Boltztrap is a software interpolating band structures and
