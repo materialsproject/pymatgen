@@ -424,8 +424,8 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     single array"""
     plot_data['x'] = [dat[0][0] for dat in res1]         # x-axis data
     # Element whose composition is varied. For x-label
-    plot_data['x_label'] = "% "+els[0]                   
-    plot_data['y_label'] = "Point defect density"
+    plot_data['x_label'] = els[0]+ " mole fraction" 
+    plot_data['y_label'] = "Point defect concentration"
     conc = []
     for i in range(n):
         conc.append([])
