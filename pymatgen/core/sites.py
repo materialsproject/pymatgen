@@ -52,9 +52,8 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
             properties: Properties associated with the site as a dict, e.g.
                 {"magmom": 5}. Defaults to None.
         """
-        if issubclass(atoms_n_occu.__class__, collections.Mapping):
-            self._species = Composition({get_el_sp(k): v
-                                         for k, v in atoms_n_occu.items()})
+        if isinstance(atoms_n_occu, collections.Mapping):
+            self._species = Composition(atoms_n_occu)
             totaloccu = self._species.num_atoms
             if totaloccu > 1 + Composition.amount_tolerance:
                 raise ValueError("Species occupancies sum to more than 1!")
