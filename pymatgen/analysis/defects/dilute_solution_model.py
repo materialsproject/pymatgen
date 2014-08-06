@@ -23,6 +23,7 @@ import numpy as np
 import scipy
 
 from monty.dev import requires
+from monty.fractions import gcd
 
 from pymatgen.analysis.defects import Vacancy
 from pymatgen.core.structure import Composition
@@ -36,24 +37,6 @@ except ImportError:
 
 # physical consts
 k_B=8.6173324e-5                # eV/K
-
-def gcd(a, b):
-    """Return greatest common divisor using Euclid's Algorithm."""
-    while b:
-        a, b = b, a % b
-    return a
-
-def lcm(a, b):
-    """Return lowest common multiple."""
-    return a * b // gcd(a, b)
-
-def lcmm(*args):
-    """Return lcm of args."""
-    return reduce(lcm, args)
-
-def gcdd(*args):
-    """ Return gcd of args."""
-    return reduce(gcd, args)
 
 # Check the inputs
 def check_input(def_list):
@@ -125,7 +108,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
 
     # Reduce the system and associated parameters such that only distinctive
     # atoms are retained
-    comm_div = gcdd(*tuple(multiplicity))
+    comm_div = gcd(*tuple(multiplicity))
     multiplicity = [val/comm_div for val in multiplicity]
     e0 = e0/comm_div
     T = Integer(T)
