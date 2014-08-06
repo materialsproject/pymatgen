@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 TODO: Modify module doc.
 """

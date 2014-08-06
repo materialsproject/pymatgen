@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements Compatibility corrections for mixing runs of different
 functionals.
@@ -16,15 +14,12 @@ __date__ = "Mar 19, 2012"
 
 
 import os
-import yaml
-try:
-    from yaml import CLoader as Loader
-except ImportError:
-    from yaml import Loader
 
 from collections import defaultdict
 
 from monty.design_patterns import cached_class
+from monty.serialization import loadfn
+
 from pymatgen.io.vaspio_set import MITVaspInputSet, MPVaspInputSet
 from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.structure_analyzer import oxide_type
@@ -135,13 +130,11 @@ class GasCorrection(Correction):
 
     Args:
         config_file: Path to the selected compatibility.yaml config file.
-        correct_peroxide: Specify whether peroxide/superoxide/ozonide 
-            corrections are to be applied or not. 
+        correct_peroxide: Specify whether peroxide/superoxide/ozonide
+            corrections are to be applied or not.
     """
     def __init__(self, config_file, correct_peroxide=True):
-        with open(config_file) as f:
-            c = yaml.load(f, Loader=Loader)
-
+        c = loadfn(config_file)
         self.cpd_energies = c['Advanced']['CompoundEnergies']
         self.oxide_correction = c['OxideCorrections']
         self.name = c['Name']
@@ -167,7 +160,7 @@ class GasCorrection(Correction):
                     if entry.data["oxide_type"] == "hydroxide":
                         ox_corr = self.oxide_correction["oxide"]
                         correction += ox_corr * comp["O"]
-    
+
                 elif hasattr(entry, "structure"):
                     ox_type, nbonds = oxide_type(entry.structure, 1.05,
                                                  return_nbonds=True)
@@ -208,8 +201,7 @@ class AqueousCorrection(Correction):
         config_file: Path to the selected compatibility.yaml config file.
     """
     def __init__(self, config_file):
-        with open(config_file) as f:
-            c = yaml.load(f, Loader=Loader)
+        c = loadfn(config_file)
         self.cpd_energies = c['AqueousCompoundEnergies']
         self.name = c["Name"]
 
@@ -265,11 +257,11 @@ class UCorrection(Correction):
 
     def __init__(self, config_file, input_set, compat_type):
         if compat_type not in ['GGA', 'Advanced']:
-            raise CompatibilityError("Invalid compat_type {}".format(compat_type))
-        
-        with open(config_file) as f:
-            c = yaml.load(f, Loader=Loader)
-       
+            raise CompatibilityError("Invalid compat_type {}"
+                                     .format(compat_type))
+
+        c = loadfn(config_file)
+
         self.input_set = input_set
         if compat_type == 'Advanced':
             self.u_settings = self.input_set.incar_settings["LDAUU"]
@@ -392,8 +384,8 @@ class MaterialsProjectCompatibility(Compatibility):
             equivalent GGA entries excluded. For example, Fe oxides should
             have a U value under the Advanced scheme. A GGA Fe oxide run
             will therefore be excluded under the scheme.
-        correct_peroxide: Specify whether peroxide/superoxide/ozonide 
-            corrections are to be applied or not. 
+        correct_peroxide: Specify whether peroxide/superoxide/ozonide
+            corrections are to be applied or not.
     """
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True):
@@ -422,8 +414,8 @@ class MITCompatibility(Compatibility):
             equivalent GGA entries excluded. For example, Fe oxides should
             have a U value under the Advanced scheme. A GGA Fe oxide run
             will therefore be excluded under the scheme.
-        correct_peroxide: Specify whether peroxide/superoxide/ozonide 
-            corrections are to be applied or not. 
+        correct_peroxide: Specify whether peroxide/superoxide/ozonide
+            corrections are to be applied or not.
     """
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True):

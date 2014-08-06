@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Classes for reading/manipulating/writing FEFF files.
 http://leonardo.phys.washington.edu/feff/

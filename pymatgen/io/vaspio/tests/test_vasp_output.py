@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Created on Jul 16, 2012
 """
@@ -21,6 +19,7 @@ import numpy as np
 from pymatgen.io.vaspio.vasp_output import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar
 from pymatgen import Spin, Orbital, Lattice, Structure
+from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
@@ -127,6 +126,11 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][0], 3.26105533)
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][1], -0.00459066)
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[2][2], 3.24330517)
+
+        entry = vasprun_dfpt.get_computed_entry()
+        entry = MaterialsProjectCompatibility().process_entry(entry)
+        self.assertAlmostEqual(entry.uncorrected_energy + entry.correction,
+                               entry.energy)
 
     def test_to_dict(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')

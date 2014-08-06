@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from pymatgen.alchemy.filters import ContainsSpecieFilter, \
     SpecieProximityFilter, RemoveDuplicatesFilter
 from pymatgen.core.lattice import Lattice

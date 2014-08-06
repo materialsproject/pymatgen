@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 A module to perform diffusion analyses (e.g. calculating diffusivity from
 mean square displacements etc.). If you use this module, please consider

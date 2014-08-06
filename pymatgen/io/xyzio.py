@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Module implementing an XYZ file object class.
 """

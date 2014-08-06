@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines site transformations which transforms a structure into
 another structure. Site transformations differ from standard transformations

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module contains classes to wrap Python VTK to make nice molecular plots.
 """
@@ -21,6 +19,8 @@ import subprocess
 
 import numpy as np
 import vtk
+
+from monty.serialization import loadfn
 
 from pymatgen.util.coord_utils import in_coord_list
 from pymatgen.core.periodic_table import Specie
@@ -89,14 +89,9 @@ class StructureVis(object):
             self.el_color_mapping = element_color_mapping
         else:
             module_dir = os.path.dirname(os.path.abspath(__file__))
-            config = ConfigParser.SafeConfigParser()
-            config.optionxform = str
-            config.readfp(open(os.path.join(module_dir,
-                                            "ElementColorSchemes.cfg")))
-
-            self.el_color_mapping = {}
-            for (el, color) in config.items("VESTA"):
-                self.el_color_mapping[el] = [int(i) for i in color.split(",")]
+            colors = loadfn(
+                os.path.join(module_dir, "ElementColorSchemes.yaml"))
+            self.el_color_mapping = colors["VESTA"]
         self.show_unit_cell = show_unit_cell
         self.show_bonds = show_bonds
         self.show_polyhedron = show_polyhedron
