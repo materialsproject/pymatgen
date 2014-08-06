@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module define the various drones used to assimilate data.
 """
@@ -147,23 +145,11 @@ class VaspToComputedEntryDrone(AbstractDrone):
         except Exception as ex:
             logger.debug("error in {}: {}".format(filepath, ex))
             return None
-        param = {}
-        for p in self._parameters:
-            param[p] = getattr(vasprun, p)
 
-        param["history"] = _get_transformation_history(path)
-
-        data = {}
-        for d in self._data:
-            data[d] = getattr(vasprun, d)
-        if self._inc_structure:
-            entry = ComputedStructureEntry(vasprun.final_structure,
-                                           vasprun.final_energy,
-                                           parameters=param, data=data)
-        else:
-            entry = ComputedEntry(vasprun.final_structure.composition,
-                                  vasprun.final_energy, parameters=param,
-                                  data=data)
+        entry = vasprun.get_computed_entry(self._inc_structure,
+                                           parameters=self._parameters,
+                                           data=self._data)
+        entry.parameters["history"] = _get_transformation_history(path)
         return entry
 
     def get_valid_paths(self, path):
@@ -238,8 +224,8 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                         multiple steps. By default, assimilate will try to find
                         a file simply named filename, filename.bz2, or
                         filename.gz.  Failing which it will try to get a relax2
-                        from an aflow style run if possible. Or else, a
-                        randomly chosen file is chosen.
+                        from a custodian double relaxation style run if
+                        possible. Or else, a random file is chosen.
                         """
                         for fname in files:
                             if fnmatch.fnmatch(os.path.basename(fname),

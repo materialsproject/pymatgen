@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Interface with command line GULP.
 http://projects.ivec.org

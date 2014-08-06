@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements various transmuter classes.
 Transmuters are essentially classes that generate TransformedStructures from

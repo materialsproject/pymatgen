@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides core classes needed by all define electronic structure,
 such as the Spin, Orbital, etc.
