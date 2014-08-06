@@ -180,6 +180,8 @@ class QcTask(MSONable):
     def set_basis_set(self, basis_set):
         if isinstance(basis_set, str) or isinstance(basis_set, unicode):
             self.params["rem"]["basis"] = str(basis_set).lower()
+            if basis_set.lower() not in ["gen", "mixed"]:
+                self.params.pop("basis", None)
         elif isinstance(basis_set, dict):
             self.params["rem"]["basis"] = "gen"
             bs = dict()
@@ -199,12 +201,24 @@ class QcTask(MSONable):
                     raise ValueError("Basis set error: the molecule "
                                      "doesn't contain element " +
                                      ", ".join(basis_elements - mol_elements))
+        elif isinstance(basis_set, list):
+            self.params["rem"]["basis"] = "mixed"
+            bs = [(a[0].capitalize(), a[1].lower()) for a in basis_set]
+            self.params["basis"] = bs
+            if len(self.mol) != len(basis_set):
+                raise ValueError("Must specific a basis set for every atom")
+            mol_elements = [site.species_string for site in self.mol.sites]
+            basis_elements = [a[0] for a in bs]
+            if mol_elements != basis_elements:
+                raise ValueError("Elements in molecule and mixed basis set don't match")
         else:
             raise Exception('Can\'t handle type "{}"'.format(type(basis_set)))
 
     def set_auxiliary_basis_set(self, aux_basis_set):
         if isinstance(aux_basis_set, str):
             self.params["rem"]["aux_basis"] = aux_basis_set.lower()
+            if aux_basis_set.lower() not in ["gen", "mixed"]:
+                self.params.pop("aux_basis", None)
         elif isinstance(aux_basis_set, dict):
             self.params["rem"]["aux_basis"] = "gen"
             bs = dict()
@@ -225,6 +239,18 @@ class QcTask(MSONable):
                     raise ValueError("Auxiliary asis set error: the "
                                      "molecule doesn't contain element " +
                                      ", ".join(basis_elements - mol_elements))
+        elif isinstance(aux_basis_set, list):
+            self.params["rem"]["aux_basis"] = "mixed"
+            bs = [(a[0].capitalize(), a[1].lower()) for a in aux_basis_set]
+            self.params["aux_basis"] = bs
+            if len(self.mol) != len(aux_basis_set):
+                raise ValueError("Must specific a auxiliary basis set for every atom")
+            mol_elements = [site.species_string for site in self.mol.sites]
+            basis_elements = [a[0] for a in bs]
+            if mol_elements != basis_elements:
+                raise ValueError("Elements in molecule and mixed basis set don't match")
+        else:
+            raise Exception('Can\'t handle type "{}"'.format(type(aux_basis_set)))
 
     def set_ecp(self, ecp):
         if isinstance(ecp, str):
@@ -540,20 +566,32 @@ class QcTask(MSONable):
 
     def _format_basis(self):
         lines = []
-        for element in sorted(self.params["basis"].keys()):
-            basis = self.params["basis"][element]
-            lines.append(" " + element)
-            lines.append(" " + basis)
-            lines.append(" ****")
+        if isinstance(self.params["basis"], dict):
+            for element in sorted(self.params["basis"].keys()):
+                basis = self.params["basis"][element]
+                lines.append(" " + element)
+                lines.append(" " + basis)
+                lines.append(" ****")
+        elif isinstance(self.params["basis"], list):
+            for i, (element, bs) in enumerate(self.params["basis"]):
+                lines.append(" {element:2s} {number:3d}".format(element=element, number=i+1))
+                lines.append(" {}".format(bs))
+                lines.append(" ****")
         return lines
 
     def _format_aux_basis(self):
         lines = []
-        for element in sorted(self.params["aux_basis"].keys()):
-            basis = self.params["aux_basis"][element]
-            lines.append(" " + element)
-            lines.append(" " + basis)
-            lines.append(" ****")
+        if isinstance(self.params["aux_basis"], dict):
+            for element in sorted(self.params["aux_basis"].keys()):
+                basis = self.params["aux_basis"][element]
+                lines.append(" " + element)
+                lines.append(" " + basis)
+                lines.append(" ****")
+        else:
+            for i, (element, bs) in enumerate(self.params["aux_basis"]):
+                lines.append(" {element:2s} {number:3d}".format(element=element, number=i+1))
+                lines.append(" {}".format(bs))
+                lines.append(" ****")
         return lines
 
     def _format_ecp(self):
@@ -901,22 +939,42 @@ class QcTask(MSONable):
         if len(contents) % 3 != 0:
             raise ValueError("Auxiliary basis set section format error")
         chunks = zip(*[iter(contents)]*3)
-        d = dict()
-        for ch in chunks:
-            element, basis = ch[:2]
-            d[element.strip().capitalize()] = basis.strip().lower()
-        return d
+        t = contents[0].split()
+        if len(t) == 2 and int(t[1]) > 0:
+            bs = []
+            for i, ch in enumerate(chunks):
+                element, number = ch[0].split()
+                basis = ch[1]
+                if int(number) != i+1:
+                    raise ValueError("Atom order number doesn't match in $aux_basis section")
+                bs.append((element.strip().capitalize(), basis.strip().lower()))
+        else:
+            bs = dict()
+            for ch in chunks:
+                element, basis = ch[:2]
+                bs[element.strip().capitalize()] = basis.strip().lower()
+        return bs
 
     @classmethod
     def _parse_basis(cls, contents):
         if len(contents) % 3 != 0:
             raise ValueError("Basis set section format error")
         chunks = zip(*[iter(contents)]*3)
-        d = dict()
-        for ch in chunks:
-            element, basis = ch[:2]
-            d[element.strip().capitalize()] = basis.strip().lower()
-        return d
+        t = contents[0].split()
+        if len(t) == 2 and int(t[1]) > 0:
+            bs = []
+            for i, ch in enumerate(chunks):
+                element, number = ch[0].split()
+                basis = ch[1]
+                if int(number) != i+1:
+                    raise ValueError("Atom order number doesn't match in $basis section")
+                bs.append((element.strip().capitalize(), basis.strip().lower()))
+        else:
+            bs = dict()
+            for ch in chunks:
+                element, basis = ch[:2]
+                bs[element.strip().capitalize()] = basis.strip().lower()
+        return bs
 
     @classmethod
     def _parse_ecp(cls, contents):
