@@ -43,9 +43,9 @@ __all__ = [
     "ScfTask",
     "NscfTask",
     "RelaxTask",
-    "DDK_Task",
+    "DdkTask",
     "PhononTask",
-    "G_Task",
+    "SigmaTask",
     "OpticTask",
     "AnaddbTask",
 ]
@@ -2567,8 +2567,9 @@ class RelaxTask(AbinitTask):
             return relaxation.plot(**kwargs)
 
 
-class DDK_Task(AbinitTask):
+class DdkTask(AbinitTask):
     """Task for DDK calculations."""
+#DDK_Task = DdkTask
 
 
 class PhononTask(AbinitTask):
@@ -2620,7 +2621,7 @@ class PhononTask(AbinitTask):
             return scf_cycle.plot(**kwargs)
 
 
-class G_Task(AbinitTask):
+class SigmaTask(AbinitTask):
     """
     Tasks for SIGMA calculations employing the self-consistent G approximation 
     Provide support for in-place restart via QPS files
@@ -2736,7 +2737,7 @@ class OpticTask(Task):
             nscf_node:
                 The NSCF task that will produce thw WFK file or string with the path of the WFK file.
             ddk_nodes:
-                List of `DDK_Task` nodes that will produce the DDK files or list of DDF paths.
+                List of `DdkTask` nodes that will produce the DDK files or list of DDF paths.
             workdir:
                 Path to the working directory.
             manager:

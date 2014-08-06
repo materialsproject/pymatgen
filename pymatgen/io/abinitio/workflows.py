@@ -21,7 +21,7 @@ from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
 from pymatgen.util.string_utils import pprint_table, WildCard
 from pymatgen.io.abinitio import wrappers
-from pymatgen.io.abinitio.tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, BseTask, RelaxTask)
+from pymatgen.io.abinitio.tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, DdkTask, BseTask, RelaxTask)
 from pymatgen.io.abinitio.strategies import HtcStrategy, ScfStrategy #, RelaxStrategy
 from pymatgen.io.abinitio.utils import Directory
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
@@ -534,6 +534,15 @@ class Workflow(BaseWorkflow):
         """Register a task for structural optimization."""
         kwargs["task_class"] = RelaxTask
         return self.register(*args, **kwargs)
+
+    def register_ddk_task(self, *args, **kwargs):
+        """Register a nscf task."""
+        kwargs["task_class"] = DdkTask
+        return self.register(*args, **kwargs)
+
+    def register_bse_task(self, *args, **kwargs):
+        """Register a nscf task."""
+        kwargs["task_class"] = BseTask
 
     def path_in_workdir(self, filename):
         """Create the absolute path of filename in the working directory."""
