@@ -510,7 +510,7 @@ class Workflow(BaseWorkflow):
 
         # Handle possible dependencies.
         if deps is not None:
-            deps = [Dependency(node, exts) for (node, exts) in deps.items()]
+            deps = [Dependency(node, exts) for node, exts in deps.items()]
             task.add_deps(deps)
 
         # Handle possible dependencies.
@@ -518,6 +518,22 @@ class Workflow(BaseWorkflow):
             task.add_required_files(required_files)
 
         return task
+
+    # Helper functions
+    def register_scf_task(self, *args, **kwargs):
+        """Register a Scf task."""
+        kwargs["task_class"] = ScfTask
+        return self.register(*args, **kwargs)
+                                                    
+    def register_nscf_task(self, *args, **kwargs):
+        """Register a nscf task."""
+        kwargs["task_class"] = NscfTask
+        return self.register(*args, **kwargs)
+                                                    
+    def register_relax_task(self, *args, **kwargs):
+        """Register a task for structural optimization."""
+        kwargs["task_class"] = RelaxTask
+        return self.register(*args, **kwargs)
 
     def path_in_workdir(self, filename):
         """Create the absolute path of filename in the working directory."""
