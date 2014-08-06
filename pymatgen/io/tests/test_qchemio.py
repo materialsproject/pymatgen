@@ -1484,6 +1484,14 @@ $end
                           (0.0138491, 0.0083436, 0.0188022),
                           (-0.0151146, -0.0015971, -0.0054462)])
 
+    def test_nbo_charges(self):
+        filename = os.path.join(test_dir, "quinoxaline_anion.qcout")
+        qcout = QcOutput(filename)
+        ans = [-0.29291, -0.29807, 0.12715, 0.12715, -0.29807, -0.29291,
+               0.21284, 0.22287, 0.22287, 0.21284, -0.10866, -0.10866,
+               0.19699, -0.5602, -0.5602, 0.19699]
+        self.assertEqual(qcout.data[0]["charges"]["nbo"], ans)
+
 
 if __name__ == "__main__":
     unittest.main()

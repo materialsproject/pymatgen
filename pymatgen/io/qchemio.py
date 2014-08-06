@@ -1052,6 +1052,7 @@ class QcOutput(object):
         with zopen(filename) as f:
             data = f.read()
         chunks = re.split("\n\nRunning Job \d+ of \d+ \S+", data)
+        # noinspection PyTypeChecker
         self.data = map(self._parse_job, chunks)
 
     @classmethod
@@ -1094,6 +1095,10 @@ class QcOutput(object):
                                           "k?cal/mol")
         detailed_charge_pattern = re.compile("Ground-State (?P<method>\w+) Net"
                                              " Atomic Charges")
+        nbo_charge_pattern = re.compile("(?P<element>[A-Z][a-z]{0,2})\s+(?P<no>\d+)\s+(?P<charge>\-?\d\.\d+)"
+                                        "\s+(?P<core>\-?\d+\.\d+)\s+(?P<valence>\-?\d+\.\d+)"
+                                        "\s+(?P<rydberg>\-?\d+\.\d+)\s+(?P<total>\-?\d+\.\d+)"
+                                        "\s+(?P<spin>\-?\d\.\d+)")
 
         error_defs = (
             (re.compile("Convergence failure"), "Bad SCF convergence"),
@@ -1140,6 +1145,8 @@ class QcOutput(object):
         properly_terminated = False
         pop_method = None
         parse_charge = False
+        nbo_available = False
+        parse_nbo_charge = False
         charges = dict()
         scf_successful = False
         opt_successful = False
@@ -1257,6 +1264,19 @@ class QcOutput(object):
                         continue
                     else:
                         charges[pop_method].append(float(line.split()[2]))
+            elif parse_nbo_charge:
+                if '-'*20 in line:
+                    if len(charges[pop_method]) == 0:
+                        continue
+                elif "="*20 in line:
+                    pop_method = None
+                    parse_nbo_charge = False
+                else:
+                    m = nbo_charge_pattern.search(line)
+                    if m:
+                        charges[pop_method].append(float(m.group("charge")))
+                    else:
+                        raise Exception("Can't find NBO charges")
             else:
                 if spin_multiplicity is None:
                     m = num_ele_pattern.search(line)
@@ -1291,6 +1311,14 @@ class QcOutput(object):
                     pop_method = m.group("method").lower()
                     parse_charge = True
                     charges[pop_method] = []
+                if nbo_available:
+                    if "Atom No    Charge        Core      Valence" \
+                       "    Rydberg      Total      Density" in line:
+                        pop_method = "nbo"
+                        parse_nbo_charge = True
+                        charges[pop_method] = []
+                if "N A T U R A L   B O N D   O R B I T A L   A N A L Y S I S" in line:
+                    nbo_available = True
                 if name and energy:
                     energies.append(tuple([name, energy]))
                 if "User input:" in line:
