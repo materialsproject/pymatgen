@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 OpenBabel interface module, which opens up access to the hundreds of file
 formats supported by OpenBabel. Requires openbabel with python bindings to be

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Module containing analysis classes which compute a pourbaix diagram given a
 target compound/element.

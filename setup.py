@@ -20,8 +20,9 @@ def get_spglib_ext():
     Set up spglib extension.
     """
     spglibs = glob.glob(os.path.join("dependencies", "spglib*"))
-    if len(spglibs) == 0:
-        raise ValueError("No spglib found in dependencies.")
+    if len(spglibs) != 1:
+        raise ValueError("Incorrect number of spglib found in dependencies. "
+                         "Expected 1, got %d" % len(spglibs))
     spglibdir = spglibs[0]
 
     # set rest of spglib
@@ -41,7 +42,7 @@ with open("README.rst") as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2.9.13",
+    version="2.9.14",
     install_requires=["numpy>=1.5", "pyhull>=1.4.3", "PyCifRW>=3.3",
                       "requests>=1.0", "pybtex>=0.16", "pyyaml>=3.0",
                       "monty>=0.3.1"],
