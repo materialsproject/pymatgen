@@ -15,19 +15,13 @@ __email__ = "mbkumar@gmail.com"
 __status__ = "Alpha"
 __date__ = "6/4/14"
 
-import sys
 import math
-import json
 import copy
 import numpy as np
-import scipy
 
 from monty.dev import requires
 from monty.fractions import gcd
 
-from pymatgen.analysis.defects import Vacancy
-from pymatgen.core.structure import Composition
-from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder
 
 try:
     from sympy import Symbol, nsolve, Integer, Rational, Matrix, exp, solve, Eq
