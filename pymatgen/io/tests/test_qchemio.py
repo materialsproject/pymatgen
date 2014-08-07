@@ -1660,6 +1660,12 @@ $end
                0.21284, 0.22287, 0.22287, 0.21284, -0.10866, -0.10866,
                0.19699, -0.5602, -0.5602, 0.19699]
         self.assertEqual(qcout.data[0]["charges"]["nbo"], ans)
+        filename = os.path.join(test_dir, "tfsi_nbo.qcout")
+        qcout = QcOutput(filename)
+        ans = [2.2274, 2.23584, -0.94183, -0.94575, -0.94719, -0.9423,
+               0.86201, 0.85672, -0.35698, -0.35373, -0.35782, -0.35647,
+               -0.35646, -0.35787, -1.26555]
+        self.assertEqual(qcout.data[0]["charges"]["nbo"], ans)
 
 
 if __name__ == "__main__":

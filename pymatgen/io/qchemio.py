@@ -1155,7 +1155,8 @@ class QcOutput(object):
         nbo_charge_pattern = re.compile("(?P<element>[A-Z][a-z]{0,2})\s+(?P<no>\d+)\s+(?P<charge>\-?\d\.\d+)"
                                         "\s+(?P<core>\-?\d+\.\d+)\s+(?P<valence>\-?\d+\.\d+)"
                                         "\s+(?P<rydberg>\-?\d+\.\d+)\s+(?P<total>\-?\d+\.\d+)"
-                                        "\s+(?P<spin>\-?\d\.\d+)")
+                                        "(\s+(?P<spin>\-?\d\.\d+))?")
+        nbo_wavefunction_type_pattern = re.compile("This is an? (?P<type>\w+\-\w+) NBO calculation")
 
         error_defs = (
             (re.compile("Convergence failure"), "Bad SCF convergence"),
@@ -1203,6 +1204,7 @@ class QcOutput(object):
         pop_method = None
         parse_charge = False
         nbo_available = False
+        nbo_charge_header = None
         parse_nbo_charge = False
         charges = dict()
         scf_successful = False
@@ -1369,8 +1371,18 @@ class QcOutput(object):
                     parse_charge = True
                     charges[pop_method] = []
                 if nbo_available:
-                    if "Atom No    Charge        Core      Valence" \
-                       "    Rydberg      Total      Density" in line:
+                    if nbo_charge_header is None:
+                        m = nbo_wavefunction_type_pattern.search(line)
+                        if m:
+                            nbo_wavefunction_type = m.group("type")
+                            nbo_charge_header_dict = {
+                                "closed-shell": "Atom No    Charge        Core      "
+                                                "Valence    Rydberg      Total",
+                                "open-shell": "Atom No    Charge        Core      "
+                                              "Valence    Rydberg      Total      Density"}
+                            nbo_charge_header = nbo_charge_header_dict[nbo_wavefunction_type]
+                        continue
+                    if nbo_charge_header in line:
                         pop_method = "nbo"
                         parse_nbo_charge = True
                         charges[pop_method] = []
