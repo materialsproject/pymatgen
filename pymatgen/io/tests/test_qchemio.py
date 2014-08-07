@@ -1667,6 +1667,10 @@ $end
                -0.35646, -0.35787, -1.26555]
         self.assertEqual(qcout.data[0]["charges"]["nbo"], ans)
 
+    def test_simple_aimd(self):
+        filename = os.path.join(test_dir, "h2o_aimd.qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(len(qcout.data[0]["molecules"]), 11)
 
 if __name__ == "__main__":
     unittest.main()
