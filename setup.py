@@ -43,7 +43,7 @@ setup(
     name="pymatgen",
     packages=find_packages(),
     version="2.9.14",
-    install_requires=["numpy>=1.5", "pyhull>=1.4.3", "PyCifRW>=3.3",
+    install_requires=["numpy>=1.8", "pyhull>=1.4.3", "PyCifRW>=3.3",
                       "requests>=1.0", "pybtex>=0.16", "pyyaml>=3.0",
                       "monty>=0.3.1"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
