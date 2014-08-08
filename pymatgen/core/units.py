@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements a FloatWithUnit, which is a subclass of float. It
 also defines supported units for some commonly used units for energy, length,

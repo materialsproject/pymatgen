@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module contains an algorithm to solve the Linear Assignment Problem
 """

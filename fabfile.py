@@ -14,7 +14,7 @@ from fabric.api import local, lcd
 from pymatgen import __version__ as ver
 
 
-def makedoc():
+def make_doc():
     with lcd("examples"):
         local("ipython nbconvert --to html *.ipynb")
         local("mv *.html ../docs/_static")
@@ -63,7 +63,7 @@ def setver():
 
 
 def update_doc():
-    makedoc()
+    make_doc()
     with lcd("docs/_build/html/"):
         local("git add .")
         local("git commit -a -m \"Update dev docs\"")

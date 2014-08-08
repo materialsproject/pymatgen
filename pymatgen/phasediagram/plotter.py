@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides classes for plotting PhaseDiagram objects.
 """

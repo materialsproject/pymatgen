@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines the VaspInputSet abstract base class and a concrete
 implementation for the parameters used by the Materials Project and the MIT
@@ -295,6 +293,15 @@ class DictVaspInputSet(AbstractVaspInputSet):
                           functional=self.potcar_functional)
         else:
             return Potcar(self.get_potcar_symbols(structure))
+
+    def get_nelect(self, structure):
+        """
+        Gets the default number of electrons for a given structure.
+        """
+        n = 0
+        for ps in self.get_potcar(structure):
+            n += structure.composition[ps.element] * ps.ZVAL
+        return n
 
     def get_potcar_symbols(self, structure):
         if self.sort_structure:
