@@ -116,7 +116,10 @@ class MPRester(object):
             else:
                 response = self.session.get(url, params=payload)
             if response.status_code in [200, 400]:
-                data = json.loads(response.text, cls=PMGJSONDecoder)
+                try:
+                    data = json.loads(response.text, cls=PMGJSONDecoder)
+                except:
+                    data = json.loads(response.text)
                 if data["valid_response"]:
                     if data.get("warning"):
                         warnings.warn(data["warning"])
