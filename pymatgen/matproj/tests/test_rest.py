@@ -192,7 +192,8 @@ class MPResterTest(unittest.TestCase):
                                        data["e_above_hull"])
 
     def test_get_reaction(self):
-        print self.rester.get_reaction(["Li", "O"], ["Li2O"])
+        rxn = self.rester.get_reaction(["Li", "O"], ["Li2O"])
+        self.assertIn("Li2O", rxn["Experimental_references"])
 
 if __name__ == "__main__":
     unittest.main()
