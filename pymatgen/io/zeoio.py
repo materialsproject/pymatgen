@@ -354,7 +354,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
 
     return voronoi_node_struct, voronoi_facecenter_struct
 
-def get_high_accuracy_voronoi_nodes_test(structure, rad_dict, probe_rad=0.1):
+def get_high_accuracy_voronoi_nodes_alt(structure, rad_dict, probe_rad=0.1):
     """
     Function to replace high_accuracy_voronoi_nodes function. In testing
     mode.
