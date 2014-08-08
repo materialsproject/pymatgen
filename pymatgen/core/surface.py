@@ -132,7 +132,93 @@ class Slab(Structure):
             slab_scale_factor = np.dot(mapping[2], slab_scale_factor)
             slab = lll_slab
 
+<<<<<<< HEAD
         self.parent = structure
+=======
+        n = 0
+        term_slab = slab.copy()
+        c = term_slab.lattice.c
+        # For loop moves all sites down to compensate for the space opened up by the shift
+        for site in term_slab:
+            index = []
+            index.append(n)
+            term_slab.translate_sites(index, [0, 0, -shift/c])
+            n+=1
+
+        # Rescales the  lattice
+        new_latt = Lattice.from_parameters(term_slab.lattice.a, term_slab.lattice.b, min_vacuum_size+nlayers_slab*dist,
+                                           term_slab.lattice.alpha, term_slab.lattice.beta, term_slab.lattice.gamma)
+        term_slab.modify_lattice(new_latt)
+
+        el = term_slab.species
+        org_coords = term_slab.frac_coords.tolist()
+        new_coord, b = [], []
+
+        for i in org_coords:
+            i[2] = (i[2]*c)/term_slab.lattice.c
+
+        for i in term_slab.frac_coords:
+            b.append(i[2])
+            new_coord.append(b)
+            b = []
+
+        # Clusters sites together that belong in the same termination surface based on their position in the
+        # c direction. Also organizes sites by ascending order from teh origin along the c direction. How close
+        # the sites have to be to belong in the same termination surface depends on the user input thresh.
+        tracker_index = scipy.cluster.hierarchy.fclusterdata(new_coord, thresh, criterion= crit)
+        new_coord, tracker_index, org_coords, el = zip(*sorted(zip(new_coord, tracker_index, org_coords, el)))
+
+# Creates a list (term_index) that tells us which at which site does a termination begin. For 1 unit cell.
+        term_index = []
+        gg = 0
+        for i in range(0, len(term_slab)):
+            gg +=1
+            if i == len(term_slab) - 1:
+                term_index.append(i)
+            else:
+                if tracker_index[i] != tracker_index[i+1]:
+                    term_index.append(i)
+            if gg == len(structure):
+                    break
+
+        slab_list, term_coords = [], []
+        a, i = 0, 0
+        new_slab = Structure(term_slab.lattice, el, org_coords)
+
+        for iii in range(0, len(term_index)):
+            y = []
+            alt_slab = new_slab.copy()
+
+            for ii in range(0, len(alt_slab)):
+                index = []
+                term_scale = 0
+                index.append(ii)
+
+                if alt_slab.frac_coords[ii][2] > alt_slab.frac_coords[term_index[iii]][2]:
+                    term_scale = min_vacuum_size
+
+                alt_slab.translate_sites(index, [0, 0, term_scale/(new_slab.lattice.c)])
+
+            if standardize:
+                index = []
+                for f in range(0, len(alt_slab)):
+                    index.append(f)
+                if alt_slab.frac_coords[f][2] > alt_slab.frac_coords[term_index[iii]][2]:
+                    standard_shift = -(alt_slab.frac_coords[term_index[iii]][2] + (0.5*min_vacuum_size)/alt_slab.lattice.c)
+                else:
+                    standard_shift = 1 - alt_slab.frac_coords[term_index[iii]][2] - (0.5*min_vacuum_size)/alt_slab.lattice.c
+                alt_slab.translate_sites(index, [0, 0, standard_shift])
+
+            slab_list.append(alt_slab)
+
+            for iv in range(a, term_index[iii] + 1):
+                y.append(slab_list[i][iv])
+
+            i += 1
+            term_coords.append(y)
+            a = term_index[iii]+1
+
+>>>>>>> parent of 16269eb... Latest commit
         self.min_slab_size = min_slab_size
         self.min_vac_size = min_vacuum_size
         self.scale_factor = np.array(slab_scale_factor)
