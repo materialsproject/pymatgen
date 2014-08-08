@@ -77,6 +77,7 @@ v2.9.15
 1. Major update: MPRester now uses Materials API v2! Also major refactoring
    of MPRester.
 2. Bug fix for XYZ parsing for scientific notation.
+3. Update numpy requirements to 1.8+. Fixes memory leak.
 
 v2.9.14
 -------
