@@ -227,9 +227,11 @@ class Slab(Structure):
                 for f in range(0, len(alt_slab)):
                     index.append(f)
                 if alt_slab.frac_coords[f][2] > alt_slab.frac_coords[term_index[iii]][2]:
-                    standard_shift = -(alt_slab.frac_coords[term_index[iii]][2] + (0.5*min_vacuum_size)/alt_slab.lattice.c)
+                    standard_shift = -(alt_slab.frac_coords[term_index[iii]][2] +
+                                       (0.5*min_vacuum_size)/alt_slab.lattice.c)
                 else:
-                    standard_shift = 1 - alt_slab.frac_coords[term_index[iii]][2] - (0.5*min_vacuum_size)/alt_slab.lattice.c
+                    standard_shift = 1 - alt_slab.frac_coords[term_index[iii]][2] - \
+                                     (0.5*min_vacuum_size)/alt_slab.lattice.c
                 alt_slab.translate_sites(index, [0, 0, standard_shift])
 
             slab_list.append(alt_slab)
