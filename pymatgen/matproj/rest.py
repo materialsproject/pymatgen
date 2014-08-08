@@ -1,6 +1,6 @@
 """
 This module provides classes to interface with the Materials Project REST
-API to enable the creation of data structures and pymatgen objects using
+API v2 to enable the creation of data structures and pymatgen objects using
 Materials Project data.
 
 To make use of the Materials API, you need to be a registered user of the
@@ -162,12 +162,10 @@ class MPRester(object):
                 MPRester.supported_task_properties. Leave as empty string for a
                 general list of useful properties.
         """
+        sub_url = "/materials/%s/%s" % (chemsys_formula_id, data_type)
         if prop:
-            url = "/materials/{}/{}/{}".format(chemsys_formula_id, data_type,
-                                               prop)
-        else:
-            url = "/materials/{}/{}".format(chemsys_formula_id, data_type)
-        return self._make_request(url)
+            sub_url += "/" + prop
+        return self._make_request(sub_url)
 
     def get_task_data(self, chemsys_formula_id, prop=""):
         """
@@ -188,11 +186,10 @@ class MPRester(object):
                 MPRester.supported_properties. Leave as empty string for a
                 general list of useful properties.
         """
+        sub_url = "/tasks/%s" % chemsys_formula_id
         if prop:
-            url = "/tasks/{}/{}".format(chemsys_formula_id, prop)
-        else:
-            url = "/tasks/{}".format(chemsys_formula_id)
-        return self._make_request(url)
+            sub_url += "/" + prop
+        return self._make_request(sub_url)
 
     def get_structures(self, chemsys_formula_id, final=True):
         """
@@ -503,13 +500,13 @@ class MPRester(object):
                 or a single String with commas separating authors
             projects ([str]): List of Strings ['Project A', 'Project B'].
                 This applies to all structures.
-            references (str): A String in BibTeX format. Again, this applies to all
-                structures.
+            references (str): A String in BibTeX format. Again, this applies to
+                all structures.
             remarks ([str]): List of Strings ['Remark A', 'Remark B']
             data ([dict]): A list of free form dict. Namespaced at the root
                 level with an underscore, e.g. {"_materialsproject":<custom
-                data>}. The length of data should be the same as the list of structures
-                if not None.
+                data>}. The length of data should be the same as the list of
+                structures if not None.
             histories: List of list of dicts - [[{'name':'', 'url':'',
                 'description':{}}], ...] The length of histories should be the
                 same as the list of structures if not None.
@@ -662,13 +659,14 @@ class MPRester(object):
                 list of authors should apply to all runs.
             projects ([str]): List of Strings ['Project A', 'Project B'].
                 This applies to all structures.
-            references (str): A String in BibTeX format. Again, this applies to all
-                structures.
+            references (str): A String in BibTeX format. Again, this applies to
+                all structures.
             remarks ([str]): List of Strings ['Remark A', 'Remark B']
             master_data (dict): A free form dict. Namespaced at the root
                 level with an underscore, e.g. {"_materialsproject":<custom
-                data>}. This data is added to all structures detected in the directory,
-                in addition to other vasp data on a per structure basis.
+                data>}. This data is added to all structures detected in the
+                directory, in addition to other vasp data on a per structure
+                basis.
             master_history: A master history to be added to all entries.
             created_at (datetime): A datetime object
             ncpus (int): Number of cpus to use in using BorgQueen to
