@@ -186,7 +186,7 @@ class Poscar(MSONable):
                     try:
                         potcar = Potcar.from_file(os.path.join(dirname, f))
                         names = [sym.split("_")[0] for sym in potcar.symbols]
-                        map(get_el_sp, names) #ensure that the names are valid
+                        map(get_el_sp, names)  # ensure that the names are valid
                     except:
                         names = None
         with zopen(filename, "r") as f:
