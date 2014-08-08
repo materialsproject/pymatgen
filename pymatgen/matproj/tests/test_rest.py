@@ -112,10 +112,10 @@ class MPResterTest(unittest.TestCase):
         self.assertIsInstance(e, ComputedEntry)
         self.assertTrue(e.composition.reduced_formula, "LiFePO4")
 
-    def test_mpquery(self):
+    def test_query(self):
         criteria = {'elements': {'$in': ['Li', 'Na', 'K'], '$all': ['O']}}
         props = ['formula', 'energy']
-        data = self.rester.mpquery(criteria=criteria, properties=props)
+        data = self.rester.query(criteria=criteria, properties=props)
         self.assertTrue(len(data) > 6)
 
     def test_get_exp_thermo_data(self):
