@@ -72,6 +72,11 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.9.15
+-------
+1. Major update: MPRester now uses Materials API v2! Also major refactoring
+   of MPRester.
+
 v2.9.14
 -------
 1. Implements Structure.sort method. Both Structure.sort and the
