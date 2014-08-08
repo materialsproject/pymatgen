@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements Compatibility corrections for mixing runs of different
 functionals.

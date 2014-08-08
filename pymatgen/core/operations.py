@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides classes that operate on points or vectors in 3D space.
 """

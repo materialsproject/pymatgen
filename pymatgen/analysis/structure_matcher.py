@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides classes to perform fitting of structures.
 """
@@ -838,15 +836,19 @@ class StructureMatcher(MSONable):
         ratio = fu if s1_supercell else 1/fu
         swapped = len(struct1) * ratio < len(struct2)
 
+        s1_r_comp = struct1.composition.reduced_composition
+        s2_r_comp = struct2.composition.reduced_composition
         matches = []
         for perm in itertools.permutations(sp2):
             sp_mapping = dict(zip(sp1, perm))
+
+            #do quick check that compositions are compatible
+            mapped_comp = Composition({sp_mapping[k]:v for k, v in s1_r_comp.items()})
+            if (not self._subset) and not s2_r_comp.almost_equals(mapped_comp):
+                continue
+
             mapped_struct = struct1.copy()
             mapped_struct.replace_species(sp_mapping)
-            #check that match is possible
-            if not self._subset and self._comparator.get_structure_hash(mapped_struct) \
-                        != self._comparator.get_structure_hash(struct2):
-                continue
             if swapped:
                 m = self._strict_match(struct2, mapped_struct, fu, (not s1_supercell), 
                                        use_rms, break_on_match)

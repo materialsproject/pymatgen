@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements an interface to the Henkelmann et al.'s excellent
 Fortran code for calculating a Bader charge analysis.

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines the FeffInputSet abstract base class and a concrete
 implementation for the Materials Project.  The basic concept behind an input

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines Entry classes for containing experimental data.
 """

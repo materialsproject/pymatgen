@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # coding=utf-8
 
 """
@@ -181,6 +180,8 @@ class QcTask(MSONable):
     def set_basis_set(self, basis_set):
         if isinstance(basis_set, str) or isinstance(basis_set, unicode):
             self.params["rem"]["basis"] = str(basis_set).lower()
+            if basis_set.lower() not in ["gen", "mixed"]:
+                self.params.pop("basis", None)
         elif isinstance(basis_set, dict):
             self.params["rem"]["basis"] = "gen"
             bs = dict()
@@ -200,12 +201,24 @@ class QcTask(MSONable):
                     raise ValueError("Basis set error: the molecule "
                                      "doesn't contain element " +
                                      ", ".join(basis_elements - mol_elements))
+        elif isinstance(basis_set, list):
+            self.params["rem"]["basis"] = "mixed"
+            bs = [(a[0].capitalize(), a[1].lower()) for a in basis_set]
+            self.params["basis"] = bs
+            if len(self.mol) != len(basis_set):
+                raise ValueError("Must specific a basis set for every atom")
+            mol_elements = [site.species_string for site in self.mol.sites]
+            basis_elements = [a[0] for a in bs]
+            if mol_elements != basis_elements:
+                raise ValueError("Elements in molecule and mixed basis set don't match")
         else:
             raise Exception('Can\'t handle type "{}"'.format(type(basis_set)))
 
     def set_auxiliary_basis_set(self, aux_basis_set):
         if isinstance(aux_basis_set, str):
             self.params["rem"]["aux_basis"] = aux_basis_set.lower()
+            if aux_basis_set.lower() not in ["gen", "mixed"]:
+                self.params.pop("aux_basis", None)
         elif isinstance(aux_basis_set, dict):
             self.params["rem"]["aux_basis"] = "gen"
             bs = dict()
@@ -226,6 +239,18 @@ class QcTask(MSONable):
                     raise ValueError("Auxiliary asis set error: the "
                                      "molecule doesn't contain element " +
                                      ", ".join(basis_elements - mol_elements))
+        elif isinstance(aux_basis_set, list):
+            self.params["rem"]["aux_basis"] = "mixed"
+            bs = [(a[0].capitalize(), a[1].lower()) for a in aux_basis_set]
+            self.params["aux_basis"] = bs
+            if len(self.mol) != len(aux_basis_set):
+                raise ValueError("Must specific a auxiliary basis set for every atom")
+            mol_elements = [site.species_string for site in self.mol.sites]
+            basis_elements = [a[0] for a in bs]
+            if mol_elements != basis_elements:
+                raise ValueError("Elements in molecule and mixed basis set don't match")
+        else:
+            raise Exception('Can\'t handle type "{}"'.format(type(aux_basis_set)))
 
     def set_ecp(self, ecp):
         if isinstance(ecp, str):
@@ -541,20 +566,32 @@ class QcTask(MSONable):
 
     def _format_basis(self):
         lines = []
-        for element in sorted(self.params["basis"].keys()):
-            basis = self.params["basis"][element]
-            lines.append(" " + element)
-            lines.append(" " + basis)
-            lines.append(" ****")
+        if isinstance(self.params["basis"], dict):
+            for element in sorted(self.params["basis"].keys()):
+                basis = self.params["basis"][element]
+                lines.append(" " + element)
+                lines.append(" " + basis)
+                lines.append(" ****")
+        elif isinstance(self.params["basis"], list):
+            for i, (element, bs) in enumerate(self.params["basis"]):
+                lines.append(" {element:2s} {number:3d}".format(element=element, number=i+1))
+                lines.append(" {}".format(bs))
+                lines.append(" ****")
         return lines
 
     def _format_aux_basis(self):
         lines = []
-        for element in sorted(self.params["aux_basis"].keys()):
-            basis = self.params["aux_basis"][element]
-            lines.append(" " + element)
-            lines.append(" " + basis)
-            lines.append(" ****")
+        if isinstance(self.params["aux_basis"], dict):
+            for element in sorted(self.params["aux_basis"].keys()):
+                basis = self.params["aux_basis"][element]
+                lines.append(" " + element)
+                lines.append(" " + basis)
+                lines.append(" ****")
+        else:
+            for i, (element, bs) in enumerate(self.params["aux_basis"]):
+                lines.append(" {element:2s} {number:3d}".format(element=element, number=i+1))
+                lines.append(" {}".format(bs))
+                lines.append(" ****")
         return lines
 
     def _format_ecp(self):
@@ -902,22 +939,42 @@ class QcTask(MSONable):
         if len(contents) % 3 != 0:
             raise ValueError("Auxiliary basis set section format error")
         chunks = zip(*[iter(contents)]*3)
-        d = dict()
-        for ch in chunks:
-            element, basis = ch[:2]
-            d[element.strip().capitalize()] = basis.strip().lower()
-        return d
+        t = contents[0].split()
+        if len(t) == 2 and int(t[1]) > 0:
+            bs = []
+            for i, ch in enumerate(chunks):
+                element, number = ch[0].split()
+                basis = ch[1]
+                if int(number) != i+1:
+                    raise ValueError("Atom order number doesn't match in $aux_basis section")
+                bs.append((element.strip().capitalize(), basis.strip().lower()))
+        else:
+            bs = dict()
+            for ch in chunks:
+                element, basis = ch[:2]
+                bs[element.strip().capitalize()] = basis.strip().lower()
+        return bs
 
     @classmethod
     def _parse_basis(cls, contents):
         if len(contents) % 3 != 0:
             raise ValueError("Basis set section format error")
         chunks = zip(*[iter(contents)]*3)
-        d = dict()
-        for ch in chunks:
-            element, basis = ch[:2]
-            d[element.strip().capitalize()] = basis.strip().lower()
-        return d
+        t = contents[0].split()
+        if len(t) == 2 and int(t[1]) > 0:
+            bs = []
+            for i, ch in enumerate(chunks):
+                element, number = ch[0].split()
+                basis = ch[1]
+                if int(number) != i+1:
+                    raise ValueError("Atom order number doesn't match in $basis section")
+                bs.append((element.strip().capitalize(), basis.strip().lower()))
+        else:
+            bs = dict()
+            for ch in chunks:
+                element, basis = ch[:2]
+                bs[element.strip().capitalize()] = basis.strip().lower()
+        return bs
 
     @classmethod
     def _parse_ecp(cls, contents):
@@ -1052,6 +1109,7 @@ class QcOutput(object):
         with zopen(filename) as f:
             data = f.read()
         chunks = re.split("\n\nRunning Job \d+ of \d+ \S+", data)
+        # noinspection PyTypeChecker
         self.data = map(self._parse_job, chunks)
 
     @classmethod
@@ -1094,6 +1152,11 @@ class QcOutput(object):
                                           "k?cal/mol")
         detailed_charge_pattern = re.compile("Ground-State (?P<method>\w+) Net"
                                              " Atomic Charges")
+        nbo_charge_pattern = re.compile("(?P<element>[A-Z][a-z]{0,2})\s+(?P<no>\d+)\s+(?P<charge>\-?\d\.\d+)"
+                                        "\s+(?P<core>\-?\d+\.\d+)\s+(?P<valence>\-?\d+\.\d+)"
+                                        "\s+(?P<rydberg>\-?\d+\.\d+)\s+(?P<total>\-?\d+\.\d+)"
+                                        "(\s+(?P<spin>\-?\d\.\d+))?")
+        nbo_wavefunction_type_pattern = re.compile("This is an? (?P<type>\w+\-\w+) NBO calculation")
 
         error_defs = (
             (re.compile("Convergence failure"), "Bad SCF convergence"),
@@ -1140,6 +1203,9 @@ class QcOutput(object):
         properly_terminated = False
         pop_method = None
         parse_charge = False
+        nbo_available = False
+        nbo_charge_header = None
+        parse_nbo_charge = False
         charges = dict()
         scf_successful = False
         opt_successful = False
@@ -1257,6 +1323,19 @@ class QcOutput(object):
                         continue
                     else:
                         charges[pop_method].append(float(line.split()[2]))
+            elif parse_nbo_charge:
+                if '-'*20 in line:
+                    if len(charges[pop_method]) == 0:
+                        continue
+                elif "="*20 in line:
+                    pop_method = None
+                    parse_nbo_charge = False
+                else:
+                    m = nbo_charge_pattern.search(line)
+                    if m:
+                        charges[pop_method].append(float(m.group("charge")))
+                    else:
+                        raise Exception("Can't find NBO charges")
             else:
                 if spin_multiplicity is None:
                     m = num_ele_pattern.search(line)
@@ -1291,6 +1370,24 @@ class QcOutput(object):
                     pop_method = m.group("method").lower()
                     parse_charge = True
                     charges[pop_method] = []
+                if nbo_available:
+                    if nbo_charge_header is None:
+                        m = nbo_wavefunction_type_pattern.search(line)
+                        if m:
+                            nbo_wavefunction_type = m.group("type")
+                            nbo_charge_header_dict = {
+                                "closed-shell": "Atom No    Charge        Core      "
+                                                "Valence    Rydberg      Total",
+                                "open-shell": "Atom No    Charge        Core      "
+                                              "Valence    Rydberg      Total      Density"}
+                            nbo_charge_header = nbo_charge_header_dict[nbo_wavefunction_type]
+                        continue
+                    if nbo_charge_header in line:
+                        pop_method = "nbo"
+                        parse_nbo_charge = True
+                        charges[pop_method] = []
+                if "N A T U R A L   B O N D   O R B I T A L   A N A L Y S I S" in line:
+                    nbo_available = True
                 if name and energy:
                     energies.append(tuple([name, energy]))
                 if "User input:" in line:

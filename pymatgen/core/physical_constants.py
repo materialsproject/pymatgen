@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines useful physical constants and conversion factors.
 All units are in SI units except for conversion factors.

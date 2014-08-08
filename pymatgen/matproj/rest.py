@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides classes to interface with the Materials Project REST
 API to enable the creation of data structures and pymatgen objects using
