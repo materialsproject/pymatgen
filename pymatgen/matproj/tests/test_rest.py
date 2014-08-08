@@ -191,5 +191,8 @@ class MPResterTest(unittest.TestCase):
                 self.assertAlmostEqual(a.get_e_above_hull(e),
                                        data["e_above_hull"])
 
+    def test_get_reaction(self):
+        print self.rester.get_reaction(["Li", "O"], ["Li2O"])
+
 if __name__ == "__main__":
     unittest.main()

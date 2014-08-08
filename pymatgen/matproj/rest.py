@@ -110,9 +110,11 @@ class MPRester(object):
     def _make_request(self, sub_url, payload=None, method="GET"):
         response = None
         url = self.preamble + sub_url
-        req = self.session.post if method == "POST" else self.session.get
         try:
-            response = req(url, data=payload)
+            if method == "POST":
+                response = self.session.post(url, data=payload)
+            else:
+                response = self.session.get(url, params=payload)
             if response.status_code in [200, 400]:
                 data = json.loads(response.text, cls=PMGJSONDecoder)
                 if data["valid_response"]:
@@ -724,6 +726,22 @@ class MPRester(object):
                               .format(response.status_code, response.text))
         except Exception as ex:
             raise MPRestError(str(ex))
+
+
+    def get_reaction(self, reactants, products):
+        """
+        Gets a reaction from the Materials Project.
+
+        Args:
+            reactants ([str]): List of formulas
+            products ([str]): List of formulas
+
+        Returns:
+            rxn
+        """
+        return self._make_request("/reaction",
+                                  payload={"reactants[]": reactants,
+                                           "products[]": products})
 
 
 class MPRestError(Exception):
