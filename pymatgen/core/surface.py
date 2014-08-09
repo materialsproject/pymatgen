@@ -43,19 +43,6 @@ class Slab(Structure):
 
         Parent structure from which Slab was derived.
 
-    .. attribute:: miller_index
-        The plane direction that the slab is oriented in
-
-    .. attribute:: term_coords
-        Holds the corresponding list of sites on the surface
-        terminations
-
-    .. attribute:: thresh
-        The threshold value for fclusterdata
-
-    .. attribute:: shift
-        The shift in the origin of the slab in Angstroms
-
     .. attribute:: min_slab_size
 
         Minimum size in angstroms of layers containing atoms
@@ -63,10 +50,6 @@ class Slab(Structure):
     .. attribute:: min_vac_size
 
         Minimize size in angstroms of layers containing vacuum
-
-    .. attribute:: slab_list
-        Holds a list of Structure objects of slabs with different
-        terminations
 
     .. attribute:: scale_factor
 
@@ -175,13 +158,15 @@ class Slab(Structure):
             slab_scale_factor = np.dot(mapping[2], slab_scale_factor)
             slab = lll_slab
 
+        n = 0
         term_slab = slab.copy()
         c = term_slab.lattice.c
         # For loop moves all sites down to compensate for the space opened up by the shift
-        for i in range(0, len(term_slab)):
+        for site in term_slab:
             index = []
-            index.append(i)
+            index.append(n)
             term_slab.translate_sites(index, [0, 0, -shift/c])
+            n+=1
 
         # Rescales the  lattice
         new_latt = Lattice.from_parameters(term_slab.lattice.a, term_slab.lattice.b, min_vacuum_size+nlayers_slab*dist,
@@ -241,18 +226,13 @@ class Slab(Structure):
                 index = []
                 for f in range(0, len(alt_slab)):
                     index.append(f)
-<<<<<<< HEAD
-                    standard_shift = -(alt_slab.frac_coords[term_index[iii]][2] +
-=======
                 if alt_slab.frac_coords[f][2] > alt_slab.frac_coords[term_index[iii]][2]:
                     standard_shift = -(alt_slab.frac_coords[term_index[iii]][2] + 
->>>>>>> 1e0c275f7ff1d4a0cafe30d6e8a8419a3e44dd1b
                                        (0.5*min_vacuum_size)/alt_slab.lattice.c)
-
-                if alt_slab.frac_coords[f][2] > alt_slab.frac_coords[term_index[iii]][2]:
-                    alt_slab.translate_sites(index, [0, 0, standard_shift])
                 else:
-                    alt_slab.translate_sites(index, [0, 0, 1-standard_shift])
+                    standard_shift = 1 - alt_slab.frac_coords[term_index[iii]][2] - \
+                                     (0.5*min_vacuum_size)/alt_slab.lattice.c
+                alt_slab.translate_sites(index, [0, 0, standard_shift])
 
             slab_list.append(alt_slab)
 
@@ -264,11 +244,13 @@ class Slab(Structure):
             a = term_index[iii]+1
 
         self.min_slab_size = min_slab_size
+        self.nlayers_slab = nlayers_slab
         self.min_vac_size = min_vacuum_size
-        self.slab_list = slab_list
+        self.slab_list = slab_list # Holds a list of Structure objects of slabs with different terminations
         self.parent = structure
         self.miller_index = miller_index
-        self.term_coords = term_coords
+        self.term_index = term_index
+        self.term_coords = term_coords # Holds the corresponding list of sites on the surface terminations
         self.thresh = thresh
         self.shift = shift
         self.scale_factor = np.array(slab_scale_factor)
