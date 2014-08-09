@@ -241,7 +241,12 @@ class Slab(Structure):
                 index = []
                 for f in range(0, len(alt_slab)):
                     index.append(f)
+<<<<<<< HEAD
                     standard_shift = -(alt_slab.frac_coords[term_index[iii]][2] +
+=======
+                if alt_slab.frac_coords[f][2] > alt_slab.frac_coords[term_index[iii]][2]:
+                    standard_shift = -(alt_slab.frac_coords[term_index[iii]][2] + 
+>>>>>>> 1e0c275f7ff1d4a0cafe30d6e8a8419a3e44dd1b
                                        (0.5*min_vacuum_size)/alt_slab.lattice.c)
 
                 if alt_slab.frac_coords[f][2] > alt_slab.frac_coords[term_index[iii]][2]:
