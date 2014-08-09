@@ -216,7 +216,7 @@ Entries - Basic analysis unit
 =============================
 
 Beyond the core Element, Site and Structure objects, most analyses within in
-pymatgen (e.g., creating a PhaseDiagram) is performed using Entry objects. An
+pymatgen (e.g., creating a PhaseDiagram) are performed using Entry objects. An
 Entry in its most basic form contains a calculated energy and a composition,
 and may optionally contain other input or calculated data. In most instances,
 you will use the ComputedEntry or ComputedStructureEntry objects defined in
@@ -401,7 +401,7 @@ In parallel, we have coded in the :mod:`pymatgen.matproj.rest` module a
 MPRester, a user-friendly high-level interface to the Materials API to obtain
 useful pymatgen objects for further analyses.  To use the Materials API,
 your need to first register with the Materials Project and generate your API
-key in your profile at https://www.materialsproject.org/profile. In the
+key in your dashboard at https://www.materialsproject.org/dashboard. In the
 examples below, the user's Materials API key is designated as "USER_API_KEY".
 
 The MPRester provides many convenience methods, but we will just highlight

@@ -3,12 +3,14 @@
 import unittest
 import os
 import numpy as np
+import shutil
 
 from pymatgen.io.vaspio_set import MITVaspInputSet, MITHSEVaspInputSet, \
     MPVaspInputSet, MITGGAVaspInputSet, MITNEBVaspInputSet,\
     MPStaticVaspInputSet, MPNonSCFVaspInputSet, MITMDVaspInputSet,\
-    MPHSEVaspInputSet, MPBSHSEVaspInputSet, MPStaticDielectricDFPTVaspInputSet
-from pymatgen.io.vaspio.vasp_input import Poscar
+    MPHSEVaspInputSet, MPBSHSEVaspInputSet, MPStaticDielectricDFPTVaspInputSet,\
+    MPOpticsNonSCFVaspInputSet
+from pymatgen.io.vaspio.vasp_input import Poscar, Incar
 from pymatgen import Specie, Lattice, Structure
 from pymatgen.serializers.json_coders import PMGJSONDecoder
 
@@ -42,7 +44,7 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.mpbshseparamsetl = MPBSHSEVaspInputSet(mode="Line")
         self.mpbshseparamsetu = MPBSHSEVaspInputSet(mode="Uniform", added_kpoints=[[0.5, 0.5, 0.0]])
         self.mpdielparamset = MPStaticDielectricDFPTVaspInputSet()
-        
+
     def test_get_poscar(self):
         coords = list()
         coords.append([0, 0, 0])
@@ -218,6 +220,20 @@ class MITMPVaspInputSetTest(unittest.TestCase):
 
         self.assertEqual(self.userparamset.get_incar(struct)['MAGMOM'],
                          [10, -5, 0.6])
+
+    def test_optics(self):
+        if "VASP_PSP_DIR" not in os.environ:
+            os.environ["VASP_PSP_DIR"] = test_dir
+        self.mpopticsparamset = MPOpticsNonSCFVaspInputSet.from_previous_vasp_run(
+            '{}/static_silicon'.format(test_dir), output_dir='optics_test_dir',
+            nedos=1145)
+        self.assertTrue(os.path.exists('optics_test_dir/CHGCAR'))
+        incar = Incar.from_file('optics_test_dir/INCAR')
+        self.assertTrue(incar['LOPTICS'])
+        self.assertEqual(incar['NEDOS'], 1145)
+
+        #Remove the directory in which the inputs have been created
+        shutil.rmtree('optics_test_dir')
 
     def test_get_kpoints(self):
         kpoints = self.paramset.get_kpoints(self.struct)

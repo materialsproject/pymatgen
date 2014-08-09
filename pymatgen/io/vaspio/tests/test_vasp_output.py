@@ -19,7 +19,7 @@ import json
 import numpy as np
 
 from pymatgen.io.vaspio.vasp_output import Chgcar, Locpot, Oszicar, Outcar, \
-    Vasprun, Procar
+    Vasprun, Procar, Xdatcar
 from pymatgen import Spin, Orbital, Lattice, Structure
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
@@ -262,8 +262,8 @@ class ProcarTest(unittest.TestCase):
         self.assertEqual(p.nb_bands, 10)
         self.assertEqual(p.nb_kpoints, 10)
         lat = Lattice.cubic(3.)
-        s = Structure(lat, ["Li", "Na", "K"], [[0., 0., 0.], 
-                                               [0.25, 0.25, 0.25], 
+        s = Structure(lat, ["Li", "Na", "K"], [[0., 0., 0.],
+                                               [0.25, 0.25, 0.25],
                                                [0.75, 0.75, 0.75]])
         d = p.get_projection_on_elements(s)
         self.assertAlmostEqual(d[1][2][2], {'Na': 0.042, 'K': 0.646, 'Li': 0.042})
@@ -271,6 +271,17 @@ class ProcarTest(unittest.TestCase):
         p = Procar(filepath)
         self.assertAlmostEqual(p.get_occupation(0, 'd'), 4.3698147704200059)
         self.assertAlmostEqual(p.get_occupation(0, 'dxy'), 0.85796295426000124)
+
+
+class XdatcarTest(unittest.TestCase):
+
+    def test_init(self):
+        filepath = os.path.join(test_dir, 'XDATCAR')
+        x = Xdatcar(filepath)
+        structures = x.structures
+        self.assertEqual(len(structures), 3)
+        for s in structures:
+            self.assertEqual(s.formula, "Li2 O1")
 
 
 if __name__ == "__main__":
