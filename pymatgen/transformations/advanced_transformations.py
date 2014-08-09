@@ -90,12 +90,17 @@ class SuperTransformation(AbstractTransformation):
     object.
 
     Args:
-        transformations: List of transformations to apply to a structure.
-            One transformation is applied to each output structure.
+        transformations ([transformations]): List of transformations to apply
+            to a structure. One transformation is applied to each output
+            structure.
+        nstructures_per_trans (int): If the transformations are one-to-many and,
+            nstructures_per_trans structures from each transformation are
+            added to the full list. Defaults to 1, i.e., only best structure.
     """
 
-    def __init__(self, transformations):
+    def __init__(self, transformations, nstructures_per_trans=1):
         self._transformations = transformations
+        self.nstructures_per_trans = nstructures_per_trans
 
     def apply_transformation(self, structure, return_ranked_list=False):
         if not return_ranked_list:
@@ -103,9 +108,16 @@ class SuperTransformation(AbstractTransformation):
                              " output. Must use return_ranked_list")
         structures = []
         for t in self._transformations:
-            structures.append(
-                {"transformation": t,
-                 "structure": t.apply_transformation(structure)})
+            if t.is_one_to_many:
+                for d in t.apply_transformation(
+                        structure,
+                        return_ranked_list=self.nstructures_per_trans):
+                    d["transformation"] = t
+                    structures.append(d)
+            else:
+                structures.append(
+                    {"transformation": t,
+                     "structure": t.apply_transformation(structure)})
         return structures
 
     def __str__(self):
@@ -126,7 +138,9 @@ class SuperTransformation(AbstractTransformation):
     @property
     def to_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"transformations": self._transformations},
+                "init_args": {
+                    "transformations": self._transformations,
+                    "nstructures_per_trans": self.nstructures_per_trans},
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 

@@ -252,7 +252,7 @@ class DiffusionAnalyzer(MSONable):
         perform diffusion analysis.
 
         Args:
-            structures [Structure]: list of Structure objects (must be
+            structures ([Structure]): list of Structure objects (must be
                 ordered in sequence of run). E.g., you may have performed
                 sequential VASP runs to obtain sufficient statistics.
             specie (Element/Specie): Specie to calculate diffusivity for as a
