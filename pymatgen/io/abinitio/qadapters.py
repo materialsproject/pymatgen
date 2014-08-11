@@ -938,7 +938,7 @@ class PbsAdapter(AbstractQueueAdapter):
         Method to generally increase resources. On typical large machines we only increas cpu's since we use all
         mem per cpu per core
         """
-        if self.increase_cpus(2):
+        if self.increase_cpus(1):
             return True
         else:
             return False
