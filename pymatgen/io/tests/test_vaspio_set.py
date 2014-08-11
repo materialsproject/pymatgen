@@ -2,12 +2,15 @@
 
 import unittest
 import os
-from numpy import array
+import numpy as np
+import shutil
 
 from pymatgen.io.vaspio_set import MITVaspInputSet, MITHSEVaspInputSet, \
     MPVaspInputSet, MITGGAVaspInputSet, MITNEBVaspInputSet,\
-    MPStaticVaspInputSet, MPNonSCFVaspInputSet, MITMDVaspInputSet
-from pymatgen.io.vaspio.vasp_input import Poscar
+    MPStaticVaspInputSet, MPNonSCFVaspInputSet, MITMDVaspInputSet,\
+    MPHSEVaspInputSet, MPBSHSEVaspInputSet, MPStaticDielectricDFPTVaspInputSet,\
+    MPOpticsNonSCFVaspInputSet
+from pymatgen.io.vaspio.vasp_input import Poscar, Incar
 from pymatgen import Specie, Lattice, Structure
 from pymatgen.serializers.json_coders import PMGJSONDecoder
 
@@ -37,7 +40,11 @@ class MITMPVaspInputSetTest(unittest.TestCase):
             {"NBANDS": 50}, mode="Uniform")
         self.mpnscfparamsetl = MPNonSCFVaspInputSet(
             {"NBANDS": 60}, mode="Line")
-        
+        self.mphseparamset = MPHSEVaspInputSet()
+        self.mpbshseparamsetl = MPBSHSEVaspInputSet(mode="Line")
+        self.mpbshseparamsetu = MPBSHSEVaspInputSet(mode="Uniform", added_kpoints=[[0.5, 0.5, 0.0]])
+        self.mpdielparamset = MPStaticDielectricDFPTVaspInputSet()
+
     def test_get_poscar(self):
         coords = list()
         coords.append([0, 0, 0])
@@ -52,7 +59,6 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         
         self.assertEqual(s_unsorted[0].specie.symbol, 'Fe')
         self.assertEqual(s_sorted[0].specie.symbol, 'Mn')
-        
 
     def test_get_potcar_symbols(self):
         coords = list()
@@ -69,7 +75,23 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         
         syms = MPVaspInputSet(sort_structure=False).get_potcar_symbols(struct)
         self.assertEquals(syms, ['P', 'Fe_pv', 'O'])
-        
+
+    def test_lda_potcar(self):
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.5, 0.75])
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
+        struct = Structure(lattice, ["P", "Fe"], coords)
+        p = MITVaspInputSet(potcar_functional="LDA").get_potcar(struct)
+        self.assertEqual(p.functional, 'LDA')
+
+    def test_get_nelect(self):
+        coords = [[0]*3, [0.5]*3, [0.75]*3]
+        lattice = Lattice.cubic(4)
+        s = Structure(lattice, ['Si', 'Si', 'Fe'], coords)
+        self.assertAlmostEqual(MITVaspInputSet().get_nelect(s), 16)
 
     def test_get_incar(self):
         incar = self.paramset.get_incar(self.struct)
@@ -93,13 +115,31 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         incar_nscfu = self.mpnscfparamsetu.get_incar(self.struct)
         self.assertEqual(incar_nscfu["ISYM"], 0)
 
+        incar_hse = self.mphseparamset.get_incar(self.struct)
+        self.assertEqual(incar_hse['LHFCALC'], True)
+        self.assertEqual(incar_hse['HFSCREEN'], 0.2)
+
+        incar_hse_bsl = self.mpbshseparamsetl.get_incar(self.struct)
+        self.assertEqual(incar_hse_bsl['LHFCALC'], True)
+        self.assertEqual(incar_hse_bsl['HFSCREEN'], 0.2)
+        self.assertEqual(incar_hse_bsl['NSW'], 0)
+
+        incar_hse_bsu = self.mpbshseparamsetu.get_incar(self.struct)
+        self.assertEqual(incar_hse_bsu['LHFCALC'], True)
+        self.assertEqual(incar_hse_bsu['HFSCREEN'], 0.2)
+        self.assertEqual(incar_hse_bsu['NSW'], 0)
+
+        incar_diel = self.mpdielparamset.get_incar(self.struct)
+        self.assertEqual(incar_diel['IBRION'], 8)
+        self.assertEqual(incar_diel['LEPSILON'], True)
+
         si = 14
         coords = list()
-        coords.append(array([0, 0, 0]))
-        coords.append(array([0.75, 0.5, 0.75]))
+        coords.append(np.array([0, 0, 0]))
+        coords.append(np.array([0.75, 0.5, 0.75]))
 
         #Silicon structure for testing.
-        latt = Lattice(array([[3.8401979337, 0.00, 0.00],
+        latt = Lattice(np.array([[3.8401979337, 0.00, 0.00],
                               [1.9200989668, 3.3257101909, 0.00],
                               [0.00, -2.2171384943, 3.1355090603]]))
         struct = Structure(latt, [si, si], coords)
@@ -187,6 +227,20 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.assertEqual(self.userparamset.get_incar(struct)['MAGMOM'],
                          [10, -5, 0.6])
 
+    def test_optics(self):
+        if "VASP_PSP_DIR" not in os.environ:
+            os.environ["VASP_PSP_DIR"] = test_dir
+        self.mpopticsparamset = MPOpticsNonSCFVaspInputSet.from_previous_vasp_run(
+            '{}/static_silicon'.format(test_dir), output_dir='optics_test_dir',
+            nedos=1145)
+        self.assertTrue(os.path.exists('optics_test_dir/CHGCAR'))
+        incar = Incar.from_file('optics_test_dir/INCAR')
+        self.assertTrue(incar['LOPTICS'])
+        self.assertEqual(incar['NEDOS'], 1145)
+
+        #Remove the directory in which the inputs have been created
+        shutil.rmtree('optics_test_dir')
+
     def test_get_kpoints(self):
         kpoints = self.paramset.get_kpoints(self.struct)
         self.assertEquals(kpoints.kpts, [[2, 4, 6]])
@@ -207,6 +261,24 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         kpoints = self.mpnscfparamsetu.get_kpoints(self.struct)
         self.assertEquals(kpoints.num_kpts, 168)
 
+        kpoints = self.mpbshseparamsetl.get_kpoints(self.struct)
+        self.assertAlmostEquals(kpoints.num_kpts, 164)
+        self.assertAlmostEqual(kpoints.kpts[10][0], 0.0)
+        self.assertAlmostEqual(kpoints.kpts[10][1], 0.5)
+        self.assertAlmostEqual(kpoints.kpts[10][2], 0.16666667)
+        self.assertAlmostEqual(kpoints.kpts[-1][0], 0.66006924)
+        self.assertAlmostEqual(kpoints.kpts[-1][1], 0.51780182)
+        self.assertAlmostEqual(kpoints.kpts[-1][2], 0.30173482)
+
+        kpoints = self.mpbshseparamsetu.get_kpoints(self.struct)
+        self.assertAlmostEquals(kpoints.num_kpts, 25)
+        self.assertAlmostEqual(kpoints.kpts[10][0], 0.0)
+        self.assertAlmostEqual(kpoints.kpts[10][1], 0.5)
+        self.assertAlmostEqual(kpoints.kpts[10][2], 0.16666667)
+        self.assertAlmostEqual(kpoints.kpts[-1][0], 0.5)
+        self.assertAlmostEqual(kpoints.kpts[-1][1], 0.5)
+        self.assertAlmostEqual(kpoints.kpts[-1][2], 0.0)
+
     def test_to_from_dict(self):
         self.mitparamset = MITVaspInputSet()
         self.mithseparamset = MITHSEVaspInputSet()
@@ -224,6 +296,10 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.assertNotIn("LDAUU", v.incar_settings)
 
         d = self.mithseparamset.to_dict
+        v = dec.process_decoded(d)
+        self.assertEqual(v.incar_settings["LHFCALC"], True)
+
+        d = self.mphseparamset.to_dict
         v = dec.process_decoded(d)
         self.assertEqual(v.incar_settings["LHFCALC"], True)
 
@@ -293,6 +369,19 @@ class MITNEBVaspInputSetTest(unittest.TestCase):
         d = self.vis.to_dict
         v = dec.process_decoded(d)
         self.assertEqual(v.incar_settings["IMAGES"], 10)
+
+    def test_write_inputs(self):
+        c1 = [[0.5] * 3, [0.9] * 3]
+        c2 = [[0.5] * 3, [0.9, 0.1, 0.1]]
+        s1 = Structure(Lattice.cubic(5), ['Si', 'Si'], c1)
+        s2 = Structure(Lattice.cubic(5), ['Si', 'Si'], c2)
+        structs = []
+        for s in s1.interpolate(s2, 3, pbc=True):
+            structs.append(Structure.from_sites(s.sites,
+                                        to_unit_cell=True))
+
+        fc = self.vis._process_structures(structs)[2].frac_coords
+        self.assertTrue(np.allclose(fc, [[0.5]*3,[0.9, 1.033333, 1.0333333]]))
 
 
 if __name__ == '__main__':

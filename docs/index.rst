@@ -8,8 +8,6 @@
    :alt: pymatgen
    :align: center
 
-.. image:: https://circleci.com/gh/materialsproject/pymatgen/tree/stable.png?circle-token=:circle-token
-
 Introduction
 ============
 
@@ -74,39 +72,35 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-v2.9.4
-------
-1. Bug fix for Pourbaix Maker (Sai).
-2. Streamline use of scratch directories for various calls. Require monty >=
-   0.1.2.
-3. High accuracy mode for Zeo++ (Bharat Medasani).
+v2.9.15
+-------
+1. Major update: MPRester now uses Materials API v2! Also major refactoring
+   of MPRester.
+2. Bug fix for XYZ parsing for scientific notation.
+3. Update numpy requirements to 1.8+. Fixes memory leak.
 
-v2.9.3
-------
-1. Bug fix release for printing TransformedStructures from Substitutor (Will
-   Richards).
-2. Misc improvements in BVAnalyzer, coord_utils and defects (Will Richards,
-   David Waroquiers and Bharat Medasani).
+v2.9.14
+-------
+1. Implements Structure.sort method. Both Structure.sort and the
+   get_sorted_structure methods now supports all arguments supported by list
+   .sort().
+2. VaspInputSets configs, as well as several other configs now uses yaml. Note
+   the new dependency on pyyaml. It is highly recommended that you install
+   pyyaml with the libyaml C bindings.
+3. Fix missing spglib dependency.
+4. Use monty.serialization for transparent handling of JSON vs YAML.
+   Requirements updated to monty>=0.3.1.
 
-v2.9.2
-------
-1. Bug fix release for DummySpecie, which failed when deserializing from
-   json and had bad hash function.
+v2.9.13
+-------
+1. Urgent bug fix for missing compatibility yamls.
 
-v2.9.1
-------
-1. Structure/Molecule now supports Pythonic list-like API for replacing and
-   removing sites. See :ref:`quick_start` for examples.
-
-v2.9.0
-------
-1. Updates to support ABINIT 7.6.1 (by Matteo Giantomassi).
-2. Vastly improved docs.
-3. Refactoring to move commonly used Python utility functions to `Monty
-   package <https://pypi.python.org/pypi/monty>`_, which is now a dependency
-   for pymatgen.
-4. Minor fixes and improvements to DiffusionAnalyzer.
-5. Many bug fixes and improvements.
+v2.9.12
+-------
+1. Defect transformations (Bharat).
+2. Support for optical properties (Geoffroy Hautier and David Waroquiers).
+3. Improved support for some VASP output files (XDATCAR and OSZICAR).
+4. Refactored compatibilities now uses YAML for ease of reading.
 
 :doc:`Older versions </changelog>`
 
@@ -148,13 +142,23 @@ Stable version
     Before installing pymatgen, you may need to first install a few critical
     dependencies manually.
 
-    1. Numpy's distutils is needed to compile the spglib and pyhull
+    1. Installation has been tested to be most successful with gcc,
+       and several dependencies have issues with icc. Use gcc where
+       possible and do "export CC=gcc" prior to installation.
+    2. Numpy's distutils is needed to compile the spglib and pyhull
        dependencies. This should be the first thing you install.
-    2. Pyhull and PyCifRW. The recent versions of pip does not allow the
+    3. Pyhull and PyCifRW. The recent versions of pip does not allow the
        installation of externally hosted files. Furthermore,
        there are some issues with easy_install for these extensions. Install
-       both these dependencies manually using "pip install <package>
-       --allow-external <package> --allow-unverified <package>".
+       both these dependencies manually using ``"pip install <package>
+       --allow-external <package> --allow-unverified <package>"``.
+    4. Although PyYaml can be installed directly through pip without
+       additional preparation, it is highly recommended that you install
+       pyyaml with the C bindings for speed. To do so, install LibYaml first,
+       and then install pyyaml with the command below (see the `pyyaml
+       doc<http://pyyaml.org/wiki/PyYAML>`_ for more information)::
+
+           python setup.py --with-libyaml install
 
 The version at the Python Package Index (PyPI) is always the latest stable
 release that will be hopefully, be relatively bug-free. The easiest way to
@@ -202,7 +206,7 @@ Installation help
 -----------------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    installation
 
@@ -358,8 +362,8 @@ matgenie.py. The typical usage of matgenie.py is::
 
     matgenie.py {analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
 
-At any time, you can use "matgenie.py --help" or "matgenie.py subcommand
---help" to bring up a useful help message on how to use these subcommands.
+At any time, you can use ``"matgenie.py --help"`` or ``"matgenie.py subcommand
+--help"`` to bring up a useful help message on how to use these subcommands.
 Here are a few examples of typical usages::
 
     #Parses all vasp runs in a directory and display the basic energy

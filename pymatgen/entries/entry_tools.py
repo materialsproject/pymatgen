@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements functions to perform various useful operations on
 entries, such as grouping entries by structure.

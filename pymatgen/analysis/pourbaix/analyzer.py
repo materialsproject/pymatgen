@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Class for analyzing Pourbaix Diagrams. Similar to PDAnalyzer
 """
@@ -86,7 +84,9 @@ class PourbaixAnalyzer(object):
         basis_vecs = []
         on_plane_points = []
         # Create basis vectors
-        for row in self._pd._qhull_data:
+        for entry in self._pd.stable_entries:
+            ie = self._pd.qhull_entries.index(entry)
+            row = self._pd._qhull_data[ie]
             on_plane_points.append([0, 0, row[2]])
             this_basis_vecs = []
             norm_vec = [-0.0591 * row[0], -1 * row[1], 1]
@@ -139,12 +139,12 @@ class PourbaixAnalyzer(object):
         pourbaix_domains = {}
         self.pourbaix_domain_vertices = {}
 
-        for i in xrange(len(self._pd._qhull_data)):
+        for i in xrange(len(self._pd.stable_entries)):
             vertices = [[int_points[vert][0], int_points[vert][1]] for vert in
                          hs_int.facets_by_halfspace[i]]
             if len(vertices) < 1:
                 continue
-            pourbaix_domains[self._pd._qhull_entries[i]] = ConvexHull(vertices).simplices
+            pourbaix_domains[self._pd.stable_entries[i]] = ConvexHull(vertices).simplices
 
             # Need to order vertices for highcharts area plot
             cx = sum([vert[0] for vert in vertices]) / len(vertices)
@@ -152,7 +152,7 @@ class PourbaixAnalyzer(object):
             point_comp = lambda x, y: x[0]*y[1] - x[1]*y[0]
             vert_center = [[v[0] - cx, v[1] - cy] for v in vertices]
             vert_center.sort(key=cmp_to_key(point_comp))
-            self.pourbaix_domain_vertices[self._pd._qhull_entries[i]] =\
+            self.pourbaix_domain_vertices[self._pd.stable_entries[i]] =\
              [[v[0] + cx, v[1] + cy] for v in vert_center]
 
         self.pourbaix_domains = pourbaix_domains

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides classes used to define a non-periodic molecule and a
 periodic structure.
@@ -23,6 +21,7 @@ import collections
 import itertools
 from abc import ABCMeta, abstractmethod, abstractproperty
 import random
+import warnings
 
 import numpy as np
 
@@ -34,8 +33,7 @@ from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
-from pymatgen.util.coord_utils import get_points_in_sphere_pbc, get_angle, \
-    pbc_all_distances, all_distances
+from pymatgen.util.coord_utils import get_angle, all_distances
 from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length
 from monty.dev import deprecated
@@ -369,16 +367,27 @@ class IStructure(SiteCollection, MSONable):
                 that are less than 0.01 Ang apart. Defaults to False.
             to_unit_cell (bool): Whether to translate sites into the unit
                 cell.
+
+        Returns:
+            (Structure) Note that missing properties are set as None.
         """
-        props = collections.defaultdict(list)
+        prop_keys = []
+        props = {}
         lattice = None
-        for site in sites:
+        for i, site in enumerate(sites):
             if not lattice:
                 lattice = site.lattice
             elif site.lattice != lattice:
                 raise ValueError("Sites must belong to the same lattice")
             for k, v in site.properties.items():
-                props[k].append(v)
+                if k not in prop_keys:
+                    prop_keys.append(k)
+                    props[k] = [None] * len(sites)
+                props[k][i] = v
+        for k, v in props.items():
+            if any((vv is None for vv in v)):
+                warnings.warn("Not all sites have property %s. Missing values "
+                              "are set to None." % k)
         return cls(lattice, [site.species_and_occu for site in sites],
                    [site.frac_coords for site in sites],
                    site_properties=props,
@@ -391,8 +400,8 @@ class IStructure(SiteCollection, MSONable):
         Returns the distance matrix between all sites in the structure. For
         periodic structures, this should return the nearest image distance.
         """
-        return pbc_all_distances(self.lattice, self.frac_coords,
-                                 self.frac_coords)
+        return self.lattice.get_all_distances(self.frac_coords,
+                                              self.frac_coords)
 
     @property
     def sites(self):
@@ -519,8 +528,8 @@ class IStructure(SiteCollection, MSONable):
         """
         site_fcoords = np.mod(self.frac_coords, 1)
         neighbors = []
-        for fcoord, dist, i in get_points_in_sphere_pbc(self._lattice,
-                                                        site_fcoords, pt, r):
+        for fcoord, dist, i in self._lattice.get_points_in_sphere(
+                site_fcoords, pt, r):
             nnsite = PeriodicSite(self[i].species_and_occu,
                                   fcoord, self._lattice,
                                   properties=self[i].properties)
@@ -640,12 +649,26 @@ class IStructure(SiteCollection, MSONable):
         inner = r - dr
         return [(site, dist) for (site, dist) in outer if dist > inner]
 
-    def get_sorted_structure(self):
+    def get_sorted_structure(self, cmp=None, key=None, reverse=False):
         """
-        Get a sorted copy of the structure.
-        Sites are sorted by the electronegativity of the species.
+        Get a sorted copy of the structure. The parameters have the same
+        meaning as in list.sort. By default, sites are sorted by the
+        electronegativity of the species.
+
+        Args:
+            cmp: Specifies a custom comparison function of two arguments
+                (iterable elements) which should return a negative, zero or
+                positive number depending on whether the first argument is
+                considered smaller than, equal to, or larger than the second
+                argument: cmp=lambda x,y: cmp(x.lower(), y.lower()). The
+                default value is None.
+            key: Specifies a function of one argument that is used to extract
+                a comparison key from each list element: key=str.lower. The
+                default value is None (compare the elements directly).
+            reverse (bool): If set to True, then the list elements are sorted
+                as if each comparison were reversed.
         """
-        sites = sorted(self)
+        sites = sorted(self, cmp=cmp, key=key, reverse=reverse)
         return self.__class__.from_sites(sites)
 
     def get_reduced_structure(self, reduction_algo="niggli"):
@@ -675,15 +698,16 @@ class IStructure(SiteCollection, MSONable):
 
         Args:
             site_properties (dict): Properties to add or override. The
-                properties are specified in the same way as the constructor, i.e.,
-                as a dict of the form {property: [values]}. The properties
-                should be in the order of the *original* structure if you
-                are performing sanitization.
+                properties are specified in the same way as the constructor,
+                i.e., as a dict of the form {property: [values]}. The
+                properties should be in the order of the *original* structure
+                if you are performing sanitization.
             sanitize (bool): If True, this method will return a sanitized
-                structure. Sanitization performs a few things: (i) The sites are sorted
-                by electronegativity, (ii) a LLL lattice reduction is carried
-                out to obtain a relatively orthogonalized cell, (iii) all
-                fractional coords for sites are mapped into the unit cell.
+                structure. Sanitization performs a few things: (i) The sites are
+                sorted by electronegativity, (ii) a LLL lattice reduction is
+                carried out to obtain a relatively orthogonalized cell,
+                (iii) all fractional coords for sites are mapped into the
+                unit cell.
 
         Returns:
             A copy of the Structure, with optionally new site_properties and
@@ -1395,8 +1419,8 @@ class IMolecule(SiteCollection, MSONable):
                     new_coords = np.dot(m, centered_coords.T).T + box_center
                     if len(coords) == 0:
                         break
-                    distances = pbc_all_distances(
-                        lattice, lattice.get_fractional_coords(new_coords),
+                    distances = lattice.get_all_distances(
+                        lattice.get_fractional_coords(new_coords),
                         lattice.get_fractional_coords(coords))
                     if np.amin(distances) > min_dist:
                         break
@@ -1740,6 +1764,30 @@ class Structure(IStructure, collections.MutableSequence):
         """
         s = (1 + np.array(strain)) * np.eye(3)
         self.modify_lattice(Lattice(np.dot(self._lattice.matrix.T, s).T))
+
+    def sort(self, cmp=None, key=None, reverse=False):
+        """
+        Sort a structure in place. The parameters have the same meaning as in
+        list.sort. By default, sites are sorted by the electronegativity of
+        the species. The difference between this method and
+        get_sorted_structure (which also works in IStructure) is that the
+        latter returns a new Structure, while this just sorts the Structure
+        in place.
+
+        Args:
+            cmp: Specifies a custom comparison function of two arguments
+                (iterable elements) which should return a negative, zero or
+                positive number depending on whether the first argument is
+                considered smaller than, equal to, or larger than the second
+                argument: cmp=lambda x,y: cmp(x.lower(), y.lower()). The
+                default value is None.
+            key: Specifies a function of one argument that is used to extract
+                a comparison key from each list element: key=str.lower. The
+                default value is None (compare the elements directly).
+            reverse (bool): If set to True, then the list elements are sorted
+                as if each comparison were reversed.
+        """
+        self._sites = sorted(self._sites, cmp=cmp, key=key, reverse=reverse)
 
     def translate_sites(self, indices, vector, frac_coords=True,
                         to_unit_cell=True):
@@ -2351,7 +2399,9 @@ class FunctionalGroups(dict):
         """
         Loads functional group data from json file. Return list that can be
         easily converted into a Molecule object. The .json file, of course,
-        has to be under the same directory of this function"""
+        has to be under the same directory of this function
+        """
+        dict.__init__(self)
         with open(os.path.join(os.path.dirname(__file__),
                                "func_groups.json")) as f:
             for k, v in json.load(f).items():

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 A module to perform diffusion analyses (e.g. calculating diffusivity from
 mean square displacements etc.). If you use this module, please consider
@@ -252,7 +250,7 @@ class DiffusionAnalyzer(MSONable):
         perform diffusion analysis.
 
         Args:
-            structures [Structure]: list of Structure objects (must be
+            structures ([Structure]): list of Structure objects (must be
                 ordered in sequence of run). E.g., you may have performed
                 sequential VASP runs to obtain sufficient statistics.
             specie (Element/Specie): Specie to calculate diffusivity for as a
@@ -271,7 +269,7 @@ class DiffusionAnalyzer(MSONable):
                 MSD vs dt. Weights are proportional to 1/dt, since the
                 number of observations are also proportional to 1/dt (and
                 hence the variance is proportional to dt)
-            """
+        """
         structure = structures[0]
 
         p = [np.array(s.frac_coords)[:, None] for s in structures]
@@ -446,7 +444,7 @@ def _get_vasprun(args):
 def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
     """
     Returns (Arrhenius) extrapolated diffusivity at new_temp
-    
+
     Args:
         temps ([float]): A sequence of temperatures. units: K
         diffusivities ([float]): A sequence of diffusivities (e.g.,
@@ -468,13 +466,13 @@ def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
                                   species):
     """
     Returns extrapolated mS/cm conductivity.
-    
+
     Args:
         temps ([float]): A sequence of temperatures. units: K
         diffusivities ([float]): A sequence of diffusivities (e.g.,
             from DiffusionAnalyzer.diffusivity). units: cm^2/s
         new_temp (float): desired temperature. units: K
-        structure (structure): structure used for the diffusivity calculation 
+        structure (structure): structure used for the diffusivity calculation
         species (string/Specie): conducting species
 
     Returns:
@@ -513,7 +511,7 @@ def get_arrhenius_plot(temps, diffusivities, **kwargs):
     # out in base 10 for easier reading of the diffusivity scale,
     # but the Arrhenius relationship is in base e).
     actv_energy = - w[0] * phyc.k_b / phyc.e * 1e6 * math.log(10)
-    plt.text(0.6, 0.85, "E$_a$ = {:.0f} meV".format(actv_energy), 
+    plt.text(0.6, 0.85, "E$_a$ = {:.0f} meV".format(actv_energy),
              fontsize=30, transform=plt.axes().transAxes)
     plt.ylabel("log(D (cm$^2$/s))")
     plt.xlabel("1000/T (K$^{-1}$)")

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Wrapper classes for Cif input and output from Structures.
 """
@@ -178,8 +176,12 @@ class CifParser(object):
         for k, v in self._cif.items():
             try:
                 structures.append(self._get_structure(v, primitive))
-            except KeyError:
-                pass
+            except KeyError as exc:
+                # Warn the user (Errors should never pass silently)
+                # A user reported a problem with cif files produced by Avogadro
+                # in which the atomic coordinates are in Cartesian coords.
+                warnings.warn(str(exc))
+
         return structures
 
     @property

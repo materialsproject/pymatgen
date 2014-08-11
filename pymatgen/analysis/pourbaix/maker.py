@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Module containing analysis classes which compute a pourbaix diagram given a
 target compound/element.
@@ -139,7 +137,9 @@ class PourbaixDiagram(object):
                 dict_of_non_oh = dict(zip([key for key in entry.composition.keys() if key.symbol not in ["O", "H"]],
                                            [entry.composition[key] for key in [key for key in entry.composition.keys() if key.symbol not in ["O", "H"]]]))
                 if Composition(dict(zip(self._elt_comp.keys(), [self._elt_comp[key] / min([self._elt_comp[key] for key in self._elt_comp.keys()])
-                                                                 for key in self._elt_comp.keys()]))).reduced_formula == Composition(dict_of_non_oh).reduced_formula:
+                                                                 for key in self._elt_comp.keys()]))).reduced_formula ==\
+                        Composition(dict(zip(dict_of_non_oh.keys(), [dict_of_non_oh[el] / min([dict_of_non_oh[key] for key in dict_of_non_oh.keys()])
+                                                                     for el in dict_of_non_oh.keys()]))).reduced_formula:                                                                     
                     processed_entries.append(MultiEntry([entry], [1.0]))
                 continue
 
@@ -210,7 +210,6 @@ class PourbaixDiagram(object):
                 if abs(np.linalg.det(facetmatrix)) > 1e-8:
                     vert_facets_removed.append(facet)
                 else:
-                    print "removed facet", facet
                     logger.debug("Removing vertical facet : {}".format(facet))
 
             logger.debug("Removing UCH facets by eliminating normal.z >0 ...")
@@ -246,7 +245,6 @@ class PourbaixDiagram(object):
                 if n[2] <= 0:
                     final_facets.append(facet)
                 else:
-                    print "removed UCH facet", facet
                     logger.debug("Removing UCH facet : {}".format(facet))
             final_facets = np.array(final_facets)
             self._facets = final_facets
@@ -284,9 +282,16 @@ class PourbaixDiagram(object):
     @property
     def stable_entries(self):
         """
-        Returns the stable entries in the phase diagram.
+        Returns the stable entries in the Pourbaix diagram.
         """
-        return self._stable_entries
+        return list(self._stable_entries)
+    
+    @property
+    def unstable_entries(self):
+        """
+        Returns all unstable entries in the Pourbaix diagram
+        """
+        return [e for e in self.qhull_entries if e not in self.stable_entries]
 
     @property
     def all_entries(self):

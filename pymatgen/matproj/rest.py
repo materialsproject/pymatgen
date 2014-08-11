@@ -1,13 +1,11 @@
-#!/usr/bin/env python
-
 """
 This module provides classes to interface with the Materials Project REST
-API to enable the creation of data structures and pymatgen objects using
+API v2 to enable the creation of data structures and pymatgen objects using
 Materials Project data.
 
 To make use of the Materials API, you need to be a registered user of the
-Materials Project, and obtain an API key by going to your profile at
-https://www.materialsproject.org/profile.
+Materials Project, and obtain an API key by going to your dashboard at
+https://www.materialsproject.org/dashboard.
 """
 
 from __future__ import division
@@ -24,6 +22,8 @@ import os
 import requests
 import json
 import warnings
+
+from monty.dev import deprecated
 
 from pymatgen import Composition, PMGJSONDecoder
 from pymatgen.entries.computed_entries import ComputedStructureEntry
@@ -74,15 +74,24 @@ class MPRester(object):
                             "is_hubbard", "elements", "nelements",
                             "e_above_hull", "hubbards", "is_compatible",
                             "spacegroup", "task_ids", "band_gap", "density",
-                            "icsd_id", "cif", "total_magnetization",
-                            "material_id")
+                            "icsd_id", "icsd_ids", "cif", "total_magnetization",
+                            "material_id", "oxide_type")
+
+    supported_task_properties = ("energy", "energy_per_atom", "volume",
+                                 "formation_energy_per_atom", "nsites",
+                                 "unit_cell_formula", "pretty_formula",
+                                 "is_hubbard",
+                                 "elements", "nelements", "e_above_hull",
+                                 "hubbards",
+                                 "is_compatible", "spacegroup",
+                                 "band_gap", "density", "icsd_id", "cif")
 
     def __init__(self, api_key=None, host="www.materialsproject.org"):
         if api_key is not None:
             self.api_key = api_key
         else:
             self.api_key = os.environ.get("MAPI_KEY", "")
-        self.preamble = "https://{}/rest/v1".format(host)
+        self.preamble = "https://{}/rest/v2".format(host)
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
 
@@ -98,6 +107,34 @@ class MPRester(object):
         """
         self.session.close()
 
+    def _make_request(self, sub_url, payload=None, method="GET"):
+        response = None
+        url = self.preamble + sub_url
+        try:
+            if method == "POST":
+                response = self.session.post(url, data=payload)
+            else:
+                response = self.session.get(url, params=payload)
+            if response.status_code in [200, 400]:
+                try:
+                    data = json.loads(response.text, cls=PMGJSONDecoder)
+                except:
+                    data = json.loads(response.text)
+                if data["valid_response"]:
+                    if data.get("warning"):
+                        warnings.warn(data["warning"])
+                    return data["response"]
+                else:
+                    raise MPRestError(data["error"])
+
+            raise MPRestError("REST query returned with error status code {}"
+                              .format(response.status_code))
+
+        except Exception as ex:
+            msg = "{}. Content: {}".format(str(ex), response.content)\
+                if hasattr(response, "content") else str(ex)
+            raise MPRestError(msg)
+
     def get_materials_id_from_task_id(self, task_id):
         """
         Returns a new MP materials id from a task id (which can be
@@ -105,10 +142,11 @@ class MPRester(object):
 
         Args:
             task_id (str): A task id.
-        """
-        data = self.mpquery({"task_ids": task_id}, ["task_id"])
-        return data[0]["task_id"]
 
+        Returns:
+            materials_id (str)
+        """
+        return self._make_request("/materials/mid_from_tid/%s" % task_id)
 
     def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
         """
@@ -126,32 +164,37 @@ class MPRester(object):
             data_type (str): Type of data to return. Currently can either be
                 "vasp" or "exp".
             prop (str): Property to be obtained. Should be one of the
+                MPRester.supported_task_properties. Leave as empty string for a
+                general list of useful properties.
+        """
+        sub_url = "/materials/%s/%s" % (chemsys_formula_id, data_type)
+        if prop:
+            sub_url += "/" + prop
+        return self._make_request(sub_url)
+
+    def get_task_data(self, chemsys_formula_id, prop=""):
+        """
+        Flexible method to get any data using the Materials Project REST
+        interface. Generally used by other methods for more specific queries.
+        Unlike the :func:`get_data`_, this method queries the task collection
+        for specific run information.
+
+        Format of REST return is *always* a list of dict (regardless of the
+        number of pieces of data returned. The general format is as follows:
+
+        [{"material_id": material_id, "property_name" : value}, ...]
+
+        Args:
+            chemsys_formula_id (str): A chemical system (e.g., Li-Fe-O),
+                or formula (e.g., Fe2O3) or materials_id (e.g., mp-1234).
+            prop (str): Property to be obtained. Should be one of the
                 MPRester.supported_properties. Leave as empty string for a
                 general list of useful properties.
         """
+        sub_url = "/tasks/%s" % chemsys_formula_id
         if prop:
-            url = "{}/materials/{}/{}/{}".format(
-                self.preamble, chemsys_formula_id, data_type, prop)
-        else:
-            url = "{}/materials/{}/{}".format(
-                self.preamble, chemsys_formula_id, data_type)
-
-        try:
-            response = self.session.get(url)
-            if response.status_code in [200, 400]:
-                data = json.loads(response.text, cls=PMGJSONDecoder)
-                if data["valid_response"]:
-                    if data.get("warning"):
-                        warnings.warn(data["warning"])
-                    return data["response"]
-                else:
-                    raise MPRestError(data["error"])
-
-            raise MPRestError("REST query returned with error status code {}"
-                              .format(response.status_code))
-
-        except Exception as ex:
-            raise MPRestError(str(ex))
+            sub_url += "/" + prop
+        return self._make_request(sub_url)
 
     def get_structures(self, chemsys_formula_id, final=True):
         """
@@ -195,21 +238,32 @@ class MPRester(object):
         Returns:
             List of ComputedEntry or ComputedStructureEntry objects.
         """
-        data = self.get_data(chemsys_formula_id, prop="entry")
-        entries = [d["entry"] for d in data]
-
-        def make_struct_entry(entry):
-            s = self.get_structure_by_material_id(entry.entry_id,
-                                                  inc_structure == "final")
-            return ComputedStructureEntry(s, entry.energy,
-                                          entry.correction, entry.parameters,
-                                          entry.data, entry.entry_id)
-
-        if inc_structure:
-            entries = map(make_struct_entry, entries)
-
+        # TODO: This is a very hackish way of doing this. It should be fixed
+        # on the REST end.
         if compatible_only:
+            data = self.get_data(chemsys_formula_id, prop="entry")
+            entries = [d["entry"] for d in data]
+            if inc_structure:
+                for i, e in enumerate(entries):
+                    s = self.get_structure_by_material_id(
+                        e.entry_id, inc_structure == "final")
+                    entries[i] = ComputedStructureEntry(
+                        s, e.energy, e.correction, e.parameters, e.data,
+                        e.entry_id)
             entries = MaterialsProjectCompatibility().process_entries(entries)
+        else:
+            entries = []
+            for d in self.get_data(chemsys_formula_id, prop="task_ids"):
+                for i in d["task_ids"]:
+                    e = self.get_task_data(i, prop="entry")
+                    e = e[0]["entry"]
+                    if inc_structure:
+                        s = self.get_task_data(i,
+                                               prop="structure")[0]["structure"]
+                        e = ComputedStructureEntry(
+                            s, e.energy, e.correction, e.parameters, e.data,
+                            e.entry_id)
+                    entries.append(e)
 
         return entries
 
@@ -271,7 +325,8 @@ class MPRester(object):
         data = self.get_data(material_id, prop="bandstructure")
         return data[0]["bandstructure"]
 
-    def get_entries_in_chemsys(self, elements, compatible_only=True, inc_structure=None):
+    def get_entries_in_chemsys(self, elements, compatible_only=True,
+                               inc_structure=None):
         """
         Helper method to get a list of ComputedEntries in a chemical system.
         For example, elements = ["Li", "Fe", "O"] will return a list of all
@@ -288,12 +343,18 @@ class MPRester(object):
                 which performs adjustments to allow mixing of GGA and GGA+U
                 calculations for more accurate phase diagrams and reaction
                 energies.
+            inc_structure (str): If None, entries returned are
+                ComputedEntries. If inc_structure="final",
+                ComputedStructureEntries with final structures are returned.
+                Otherwise, ComputedStructureEntries with initial structures
+                are returned.
 
         Returns:
             List of ComputedEntries.
         """
-        return self.get_entries("-".join(elements),
-                                compatible_only=compatible_only, inc_structure=inc_structure)
+        return self.get_entries(
+            "-".join(elements), compatible_only=compatible_only,
+            inc_structure=inc_structure)
 
     def get_exp_thermo_data(self, formula):
         """
@@ -353,6 +414,42 @@ class MPRester(object):
         except Exception as ex:
             raise MPRestError(str(ex))
 
+    def query(self, criteria, properties):
+        """
+        Performs an advanced query, which is a Mongo-like syntax for directly
+        querying the Materials Project database via the query rest interface.
+        Please refer to the Materials Project REST wiki
+        https://materialsproject.org/wiki/index.php/The_Materials_API#query
+        on the query language and supported criteria and properties.
+        Essentially, any supported properties within MPRester should be
+        supported in query.
+
+        Query allows an advanced developer to perform queries which are
+        otherwise too cumbersome to perform using the standard convenience
+        methods.
+
+        Args:
+            criteria (dict): Criteria of the query as a mongo-style dict.
+                For example, {"elements":{"$in":["Li", "Na", "K"], "$all": [
+                "O"]}, "nelements":2} selects all Li, Na and K oxides.
+                {"band_gap": {"$gt": 1}} selects all materials with band gaps
+                greater than 1 eV.
+            properties (list): Properties to request for as a list. For
+                example, ["formula", "formation_energy_per_atom"] returns
+                the formula and formation energy per atom.
+
+        Returns:
+            List of results. E.g.,
+            [{u'formula': {u'O': 1, u'Li': 2.0}},
+            {u'formula': {u'Na': 2.0, u'O': 2.0}},
+            {u'formula': {u'K': 1, u'O': 3.0}},
+            ...]
+        """
+        payload = {"criteria": json.dumps(criteria),
+                   "properties": json.dumps(properties)}
+        return self._make_request("/query", payload=payload, method="POST")
+
+    @deprecated(replacement=query)
     def mpquery(self, criteria, properties):
         """
         Performs an advanced mpquery, which is a Mongo-like syntax for directly
@@ -384,26 +481,7 @@ class MPRester(object):
             {u'formula': {u'K': 1, u'O': 3.0}},
             ...]
         """
-        try:
-            payload = {"criteria": json.dumps(criteria),
-                       "properties": json.dumps(properties)}
-            response = self.session.post(
-                "{}/mpquery".format(self.preamble), data=payload)
-
-            if response.status_code in [200, 400]:
-                data = json.loads(response.text, cls=PMGJSONDecoder)
-                if data["valid_response"]:
-                    if data.get("warning"):
-                        warnings.warn(data["warning"])
-                    return data["response"]["results"]
-                else:
-                    raise MPRestError(data["error"])
-
-            raise MPRestError("REST query returned with error status code {}"
-                              .format(response.status_code))
-
-        except Exception as ex:
-            raise MPRestError(str(ex))
+        return self.query(criteria, properties)
 
     def submit_structures(self, structures, authors, projects=None,
                           references='', remarks=None, data=None,
@@ -427,13 +505,13 @@ class MPRester(object):
                 or a single String with commas separating authors
             projects ([str]): List of Strings ['Project A', 'Project B'].
                 This applies to all structures.
-            references (str): A String in BibTeX format. Again, this applies to all
-                structures.
+            references (str): A String in BibTeX format. Again, this applies to
+                all structures.
             remarks ([str]): List of Strings ['Remark A', 'Remark B']
             data ([dict]): A list of free form dict. Namespaced at the root
                 level with an underscore, e.g. {"_materialsproject":<custom
-                data>}. The length of data should be the same as the list of structures
-                if not None.
+                data>}. The length of data should be the same as the list of
+                structures if not None.
             histories: List of list of dicts - [[{'name':'', 'url':'',
                 'description':{}}], ...] The length of histories should be the
                 same as the list of structures if not None.
@@ -586,13 +664,14 @@ class MPRester(object):
                 list of authors should apply to all runs.
             projects ([str]): List of Strings ['Project A', 'Project B'].
                 This applies to all structures.
-            references (str): A String in BibTeX format. Again, this applies to all
-                structures.
+            references (str): A String in BibTeX format. Again, this applies to
+                all structures.
             remarks ([str]): List of Strings ['Remark A', 'Remark B']
             master_data (dict): A free form dict. Namespaced at the root
                 level with an underscore, e.g. {"_materialsproject":<custom
-                data>}. This data is added to all structures detected in the directory,
-                in addition to other vasp data on a per structure basis.
+                data>}. This data is added to all structures detected in the
+                directory, in addition to other vasp data on a per structure
+                basis.
             master_history: A master history to be added to all entries.
             created_at (datetime): A datetime object
             ncpus (int): Number of cpus to use in using BorgQueen to
@@ -650,6 +729,22 @@ class MPRester(object):
                               .format(response.status_code, response.text))
         except Exception as ex:
             raise MPRestError(str(ex))
+
+
+    def get_reaction(self, reactants, products):
+        """
+        Gets a reaction from the Materials Project.
+
+        Args:
+            reactants ([str]): List of formulas
+            products ([str]): List of formulas
+
+        Returns:
+            rxn
+        """
+        return self._make_request("/reaction",
+                                  payload={"reactants[]": reactants,
+                                           "products[]": products})
 
 
 class MPRestError(Exception):

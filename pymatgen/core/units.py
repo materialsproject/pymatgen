@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements a FloatWithUnit, which is a subclass of float. It
 also defines supported units for some commonly used units for energy, length,
@@ -325,7 +323,6 @@ class FloatWithUnit(float):
                 "{} is not a supported unit for {}".format(unit, unit_type))
         self._unit = Unit(unit)
         self._unit_type = unit_type
-        super(FloatWithUnit, self).__init__(val)
 
     def __repr__(self):
         return super(FloatWithUnit, self).__repr__()

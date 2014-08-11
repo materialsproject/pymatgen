@@ -8,6 +8,7 @@ from pymatgen.core.structure import IStructure, Structure, IMolecule, \
     StructureError, Molecule
 from pymatgen.core.lattice import Lattice
 import random
+import warnings
 
 
 class IStructureTest(PymatgenTest):
@@ -43,7 +44,7 @@ class IStructureTest(PymatgenTest):
         #these shouldn't raise an error
         IStructure(self.lattice, ["Si"] * 2, coords[:2], True)
         IStructure(self.lattice, ["Si"], coords[:1], True)
-        
+
 
     def test_volume_and_density(self):
         self.assertAlmostEqual(self.struct.volume, 40.04, 2, "Volume wrong!")
@@ -288,6 +289,19 @@ class StructureTest(PymatgenTest):
     def test_non_hash(self):
         self.assertRaises(TypeError, dict, [(self.structure, 1)])
 
+    def test_sort(self):
+        s = self.structure
+        s[0] = "F"
+        s.sort()
+        self.assertEqual(s[0].species_string, "Si")
+        self.assertEqual(s[1].species_string, "F")
+        s.sort(key=lambda site: site.species_string)
+        self.assertEqual(s[0].species_string, "F")
+        self.assertEqual(s[1].species_string, "Si")
+        s.sort(key=lambda site: site.species_string, reverse=True)
+        self.assertEqual(s[0].species_string, "Si")
+        self.assertEqual(s[1].species_string, "F")
+
     def test_append_insert_remove_replace(self):
         s = self.structure
         s.insert(1, "O", [0.5, 0.5, 0.5])
@@ -463,6 +477,22 @@ class StructureTest(PymatgenTest):
         d = self.structure.to_dict
         s2 = Structure.from_dict(d)
         self.assertEqual(type(s2), Structure)
+
+    def test_propertied_structure_mod(self):
+        prop_structure = Structure(
+            self.structure.lattice, ["Si"] * 2, self.structure.frac_coords,
+            site_properties={'magmom': [5, -5]})
+        prop_structure.append("C", [0.25, 0.25, 0.25])
+        d = prop_structure.to_dict
+        with warnings.catch_warnings(record=True) as w:
+            # Cause all warnings to always be triggered.
+            warnings.simplefilter("always")
+            s2 = Structure.from_dict(d)
+            self.assertEqual(len(w), 1)
+            self.assertEqual(
+                str(w[0].message),
+                'Not all sites have property magmom. Missing values are set '
+                'to None.')
 
 
 class IMoleculeTest(PymatgenTest):

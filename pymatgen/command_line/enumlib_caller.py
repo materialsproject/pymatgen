@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements an interface to enumlib, Gus Hart"s excellent Fortran
 code for enumerating derivative structures.
@@ -34,6 +32,7 @@ __date__ = "Jul 16, 2012"
 import re
 import math
 import subprocess
+import itertools
 import logging
 
 import numpy as np
@@ -50,32 +49,19 @@ from monty.tempfile import ScratchDir
 logger = logging.getLogger(__name__)
 
 
-@requires(which('multienum.x') and which('makestr.x'),
-          "EnumlibAdaptor requires the executables 'multienum.x' and "
-          "'makestr.x' to be in the path. Please download the library at"
+# Favor the use of the newer "enum.x" by Gus Hart instead of the older
+# "multienum.x"
+enum_cmd = which('multienum.x')
+
+
+@requires(enum_cmd and which('makestr.x'),
+          "EnumlibAdaptor requires the executables 'enum.x' or 'multienum.x' "
+          "and 'makestr.x' to be in the path. Please download the library at"
           "http://enum.sourceforge.net/ and follow the instructions in "
           "the README to compile these two executables accordingly.")
 class EnumlibAdaptor(object):
     """
     An adaptor for enumlib.
-
-    Args:
-        structure: An input structure.
-        min_cell_size (int): The minimum cell size wanted. Defaults to 1.
-        max_cell_size (int): The maximum cell size wanted. Defaults to 1.
-        symm_prec (float): Symmetry precision. Defaults to 0.1.
-        enum_precision_parameter (float): Finite precision parameter for
-            enumlib. Default of 0.001 is usually ok, but you might need to
-            tweak it for certain cells.
-        refine_structure (bool): If you are starting from a structure that
-            has been relaxed via some electronic structure code,
-            it is usually much better to start with symmetry determination
-            and then obtain a refined structure. The refined structure have
-            cell parameters and atomic positions shifted to the expected
-            symmetry positions, which makes it much less sensitive precision
-            issues in enumlib. If you are already starting from an
-            experimental cif, refinement should have already been done and
-            it is not necessary. Defaults to False.
 
     .. attribute:: structures
 
@@ -86,6 +72,27 @@ class EnumlibAdaptor(object):
     def __init__(self, structure, min_cell_size=1, max_cell_size=1,
                  symm_prec=0.1, enum_precision_parameter=0.001,
                  refine_structure=False):
+        """
+        Initializes the adapter with a structure and some parameters.
+
+        Args:
+            structure: An input structure.
+            min_cell_size (int): The minimum cell size wanted. Defaults to 1.
+            max_cell_size (int): The maximum cell size wanted. Defaults to 1.
+            symm_prec (float): Symmetry precision. Defaults to 0.1.
+            enum_precision_parameter (float): Finite precision parameter for
+                enumlib. Default of 0.001 is usually ok, but you might need to
+                tweak it for certain cells.
+            refine_structure (bool): If you are starting from a structure that
+                has been relaxed via some electronic structure code,
+                it is usually much better to start with symmetry determination
+                and then obtain a refined structure. The refined structure have
+                cell parameters and atomic positions shifted to the expected
+                symmetry positions, which makes it much less sensitive precision
+                issues in enumlib. If you are already starting from an
+                experimental cif, refinement should have already been done and
+                it is not necessary. Defaults to False.
+        """
         if refine_structure:
             finder = SymmetryFinder(structure, symm_prec)
             self.structure = finder.get_refined_structure()
@@ -151,27 +158,14 @@ class EnumlibAdaptor(object):
         index_species = []
         index_amounts = []
 
-        #Let"s group and sort the sites by symmetry.
-        site_symmetries = []
-        for sites in symmetrized_structure.equivalent_sites:
-            finder = SymmetryFinder(Structure.from_sites(sites),
-                                    self.symm_prec)
-            sgnum = finder.get_spacegroup_number()
-            site_symmetries.append((sites, sgnum))
-
-        site_symmetries = sorted(site_symmetries, key=lambda s: s[1])
-
         #Stores the ordered sites, which are not enumerated.
-        min_sg_num = site_symmetries[0][1]
         ordered_sites = []
         disordered_sites = []
         coord_str = []
-        min_disordered_sg = 300
-        for (sites, sgnum) in site_symmetries:
+        for sites in symmetrized_structure.equivalent_sites:
             if sites[0].is_ordered:
                 ordered_sites.append(sites)
             else:
-                min_disordered_sg = min(min_disordered_sg, sgnum)
                 sp_label = []
                 species = {k: v for k, v in sites[0].species_and_occu.items()}
                 if sum(species.values()) < 1 - EnumlibAdaptor.amount_tol:
@@ -194,26 +188,46 @@ class EnumlibAdaptor(object):
                         sp_label))
                 disordered_sites.append(sites)
 
+        def get_sg_info(ss):
+            finder = SymmetryFinder(Structure.from_sites(ss), self.symm_prec)
+            sgnum = finder.get_spacegroup_number()
+            return sgnum
+
+        curr_sites = list(itertools.chain.from_iterable(disordered_sites))
+        min_sgnum = get_sg_info(curr_sites)
+        logger.debug("Disorderd sites has sgnum %d" % (
+            min_sgnum))
         #It could be that some of the ordered sites has a lower symmetry than
         #the disordered sites.  So we consider the lowest symmetry sites as
         #disordered in our enumeration.
-        if min_disordered_sg > min_sg_num:
-            logger.debug("Ordered sites have lower symmetry than disordered.")
-            sites = ordered_sites.pop(0)
-            index_species.append(sites[0].specie)
-            index_amounts.append(len(sites))
-            sp_label = len(index_species) - 1
-            logger.debug("Lowest symmetry {} sites are included in enum."
-                         .format(sites[0].specie))
-            for site in sites:
-                coord_str.append("{} {}".format(
-                    coord_format.format(*site.coords),
-                    sp_label))
-            disordered_sites.append(sites)
-
         self.ordered_sites = []
+        to_add = []
+
         for sites in ordered_sites:
-            self.ordered_sites.extend(sites)
+            temp_sites = list(curr_sites) + sites
+            sgnum = get_sg_info(temp_sites)
+            if sgnum < min_sgnum:
+                logger.debug("Adding {} to sites to be ordered. "
+                             "New sgnum {}"
+                             .format(sites, sgnum))
+                to_add = sites
+                min_sgnum = sgnum
+
+        for sites in ordered_sites:
+            if sites == to_add:
+                index_species.append(sites[0].specie)
+                index_amounts.append(len(sites))
+                sp_label = len(index_species) - 1
+                logger.debug("Lowest symmetry {} sites are included in enum."
+                             .format(sites[0].specie))
+                for site in sites:
+                    coord_str.append("{} {}".format(
+                        coord_format.format(*site.coords),
+                        sp_label))
+                disordered_sites.append(sites)
+            else:
+                self.ordered_sites.extend(sites)
+
         self.index_species = index_species
 
         lattice = self.structure.lattice
@@ -246,7 +260,7 @@ class EnumlibAdaptor(object):
             f.write("\n".join(output))
 
     def _run_multienum(self):
-        p = subprocess.Popen(["multienum.x"],
+        p = subprocess.Popen([enum_cmd],
                              stdout=subprocess.PIPE,
                              stdin=subprocess.PIPE, close_fds=True)
         output = p.communicate()[0]
