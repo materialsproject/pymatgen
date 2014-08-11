@@ -13,6 +13,7 @@ __date__ = "May 2014"
 
 import time
 import os
+import io
 import ast
 import copy
 import math
@@ -29,6 +30,16 @@ def now():
     helper to return a time string
     """
     return time.strftime("%H:%M:%S %d/%m/%Y")
+
+
+def read_extra_abivars():
+    ea = {}
+    if os.path.isfile('extra_abivars'):
+        f = open('extra_abivars')
+        ea = ast.literal_eval(f.read())
+        if not is_converged(ea, dict):
+            raise RuntimeError
+    return ea
 
 
 def refine_structure(structure, symprec=1e-3):
