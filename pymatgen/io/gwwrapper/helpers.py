@@ -37,7 +37,7 @@ def read_extra_abivars():
     if os.path.isfile('extra_abivars'):
         f = open('extra_abivars')
         ea = ast.literal_eval(f.read())
-        if not is_converged(ea, dict):
+        if not isinstance(ea, dict):
             raise RuntimeError
     return ea
 
