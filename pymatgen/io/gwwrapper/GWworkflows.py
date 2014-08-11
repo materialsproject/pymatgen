@@ -22,6 +22,7 @@ from pymatgen.io.abinitio.tasks import TaskManager
 from pymatgen.io.abinitio.pseudos import PseudoTable
 from pymatgen.io.gwwrapper.GWtasks import *
 from pymatgen.io.gwwrapper.helpers import now, s_name, expand_tests, read_grid_from_file, is_converged
+from pymatgen.io.gwwrapper.helpers import read_extra_abivars
 from fireworks.core.firework import FireWork, Workflow
 from fireworks.core.launchpad import LaunchPad
 
@@ -238,6 +239,9 @@ class SingleAbinitGWWorkFlow():
             timopt=-1,
             nbdbuf=8
         )
+
+        # read user defined extra abivars from file 'extra_abivars' should be dictionary
+        extra_abivars.update(read_extra_abivars())
 
         if self.option is not None:
             for k in self.option.keys():
