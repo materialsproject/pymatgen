@@ -884,14 +884,16 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
         added_kpoints: a list of kpoints (list of 3 number list) with weight 0
             added to the run. The k-points are in fractional coordinates
         kpoints_density: the kpoint density of the uniform grid used for the
-            band structure run
+            band structure run (By default: this is the same as in
+            MPHSEVaspInputSet, i.e. 1000 / atom). Note that the uniform grid is
+            always Gamma centered for now (this might be changed ?).
         mode: Line: Generate k-points along symmetry lines for
             bandstructure. Uniform: Generate uniform k-points grid
 
     """
 
-    def __init__(self, user_incar_settings=None, added_kpoints=[], mode="Line",
-                 kpoints_density=100):
+    def __init__(self, user_incar_settings=None, added_kpoints=None, mode="Line",
+                 kpoints_density=None, kpoints_line_density=20):
         DictVaspInputSet.__init__(
             self, "MaterialsProject HSE Band Structure",
             loadfn(os.path.join(MODULE_DIR, "MPHSEVaspInputSet.yaml")))
@@ -900,18 +902,19 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
         self.incar_settings.update(
             {"NSW": 0, "ISMEAR": 0, "SIGMA": 0.05, "ISYM": 0, "LCHARG": False})
         self.incar_settings.update(self.user_incar_settings)
-        self.added_kpoints = added_kpoints
+        self.added_kpoints = added_kpoints if added_kpoints is not None else []
         self.mode = mode
-        self.kpoints_density = kpoints_density
+        self.kpoints_density = (kpoints_density if kpoints_density is not None
+                                else self.kpoints_settings['grid_density'])
+        self.kpoints_line_density = kpoints_line_density
 
     def get_kpoints(self, structure):
-        self.kpoints_settings['grid_density'] = self.kpoints_density * \
-            structure.lattice.reciprocal_lattice.volume * structure.num_sites
+        self.kpoints_settings['grid_density'] = self.kpoints_density
         grid = super(MPBSHSEVaspInputSet, self).get_kpoints(structure).kpts
         if self.mode == "Line":
             ir_kpts = SymmetryFinder(structure, symprec=0.1)\
                 .get_ir_reciprocal_mesh(grid[0])
-            kpoints, labels = HighSymmKpath(structure).get_kpoints()
+            kpoints, labels = HighSymmKpath(structure).get_kpoints(line_density=self.kpoints_line_density)
             kpts = []
             weights = []
             all_labels = []
@@ -948,6 +951,7 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
         d['added_kpoints'] = self.added_kpoints
         d['mode'] = self.mode
         d['kpoints_density'] = self.kpoints_density
+        d['kpoints_line_density'] = self.kpoints_line_density
         return d
 
     @classmethod
@@ -955,7 +959,8 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
         return cls(user_incar_settings=d.get("user_incar_settings", None),
                    added_kpoints=d.get("added_kpoints", []),
                    mode=d.get("mode", "Line"),
-                   kpoints_density=d.get("kpoints_density", 100))
+                   kpoints_density=d.get("kpoints_density", None),
+                   kpoints_line_density=d.get("kpoints_line_density", 20))
 
 
 class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
