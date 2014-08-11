@@ -112,10 +112,10 @@ class MPResterTest(unittest.TestCase):
         self.assertIsInstance(e, ComputedEntry)
         self.assertTrue(e.composition.reduced_formula, "LiFePO4")
 
-    def test_mpquery(self):
+    def test_query(self):
         criteria = {'elements': {'$in': ['Li', 'Na', 'K'], '$all': ['O']}}
         props = ['formula', 'energy']
-        data = self.rester.mpquery(criteria=criteria, properties=props)
+        data = self.rester.query(criteria=criteria, properties=props)
         self.assertTrue(len(data) > 6)
 
     def test_get_exp_thermo_data(self):
@@ -190,6 +190,10 @@ class MPResterTest(unittest.TestCase):
                         break
                 self.assertAlmostEqual(a.get_e_above_hull(e),
                                        data["e_above_hull"])
+
+    def test_get_reaction(self):
+        rxn = self.rester.get_reaction(["Li", "O"], ["Li2O"])
+        self.assertIn("Li2O", rxn["Experimental_references"])
 
 if __name__ == "__main__":
     unittest.main()
