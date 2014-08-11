@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Module contains classes presenting Element and Specie (Element + oxidation
 state) and PeriodicTable.

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Utilities for manipulating coordinates or list of coordinates, under periodic
 boundary conditions or otherwise. Many of these are heavily vectorized in

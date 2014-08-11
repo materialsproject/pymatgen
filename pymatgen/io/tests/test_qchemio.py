@@ -163,8 +163,85 @@ $end
         self.assertEqual(str(qctask), ans)
         self.elementary_io_verify(ans, qctask)
 
+    def test_mixed_basis_str(self):
+        qctask = QcTask(mol, title="Test Methane", exchange="B3LYP",
+                        jobtype="SP",
+                        basis_set=[("C", "6-311G*"), ("H", "6-31g(d,p)"), ("H", "6-31g(d,p)"),
+                                   ("H", "6-31g*"), ("cl", "6-31+g*")])
+        ans_mixed = """$comment
+ Test Methane
+$end
+
+
+$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ H           1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ Cl         -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+   jobtype = sp
+  exchange = b3lyp
+     basis = mixed
+$end
+
+
+$basis
+ C    1
+ 6-311g*
+ ****
+ H    2
+ 6-31g(d,p)
+ ****
+ H    3
+ 6-31g(d,p)
+ ****
+ H    4
+ 6-31g*
+ ****
+ Cl   5
+ 6-31+g*
+ ****
+$end
+
+"""
+        self.assertEqual(ans_mixed, str(qctask))
+        self.elementary_io_verify(ans_mixed, qctask)
+        qctask.set_basis_set("6-31+G*")
+        ans_simple = """$comment
+ Test Methane
+$end
+
+
+$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ H           1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ Cl         -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+   jobtype = sp
+  exchange = b3lyp
+     basis = 6-31+g*
+$end
+
+"""
+        self.assertEqual(str(qctask), ans_simple)
+        qctask.set_basis_set([("C", "6-311G*"), ("H", "6-31g(d,p)"), ("H", "6-31g(d,p)"),
+                              ("H", "6-31g*"), ("cl", "6-31+g*")])
+        self.assertEqual(str(qctask), ans_mixed)
+        self.elementary_io_verify(ans_mixed, qctask)
+
     def test_aux_basis_str(self):
-        ans = '''$comment
+        ans_gen = '''$comment
  Test Methane
 $end
 
@@ -220,8 +297,100 @@ $end
                         aux_basis_set={"c": "rimp2-cc-pvdz",
                                        "H": "rimp2-cc-pvdz",
                                        "Cl": "rimp2-aug-cc-pvdz"})
-        self.assertEqual(str(qctask), ans)
-        self.elementary_io_verify(ans, qctask)
+        self.assertEqual(str(qctask), ans_gen)
+        self.elementary_io_verify(ans_gen, qctask)
+        qctask.set_auxiliary_basis_set([("C", "aug-cc-pvdz"), ("H", "cc-pvdz"), ("H", "cc-pvdz"),
+                                        ("H", "cc-pvdz"), ("cl", "rimp2-aug-cc-pvdz")])
+        ans_mixed_aux = """$comment
+ Test Methane
+$end
+
+
+$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ H           1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ Cl         -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+    jobtype = freq
+   exchange = xygjos
+      basis = gen
+  aux_basis = mixed
+$end
+
+
+$aux_basis
+ C    1
+ aug-cc-pvdz
+ ****
+ H    2
+ cc-pvdz
+ ****
+ H    3
+ cc-pvdz
+ ****
+ H    4
+ cc-pvdz
+ ****
+ Cl   5
+ rimp2-aug-cc-pvdz
+ ****
+$end
+
+
+$basis
+ C
+ 6-31g*
+ ****
+ Cl
+ 6-31+g*
+ ****
+ H
+ 6-31g*
+ ****
+$end
+
+"""
+        self.assertEqual(ans_mixed_aux, str(qctask))
+        self.elementary_io_verify(ans_mixed_aux, qctask)
+        qctask.set_basis_set("6-31+G*")
+        qctask.set_auxiliary_basis_set("rimp2-cc-pvdz")
+        ans_simple = """$comment
+ Test Methane
+$end
+
+
+$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ H           1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ Cl         -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+    jobtype = freq
+   exchange = xygjos
+      basis = 6-31+g*
+  aux_basis = rimp2-cc-pvdz
+$end
+
+"""
+        self.assertEqual(ans_simple, str(qctask))
+        self.elementary_io_verify(ans_simple, qctask)
+        qctask.set_basis_set({"C": "6-31G*", "h": "6-31g*",
+                              "CL": "6-31+g*"})
+        qctask.set_auxiliary_basis_set([("C", "aug-cc-pvdz"), ("H", "cc-pvdz"), ("H", "cc-pvdz"),
+                                        ("H", "cc-pvdz"), ("cl", "rimp2-aug-cc-pvdz")])
+        self.assertEqual(ans_mixed_aux, str(qctask))
+        self.elementary_io_verify(ans_mixed_aux, qctask)
 
     def test_ecp_str(self):
         ans = '''$comment
@@ -1281,10 +1450,7 @@ $end
                                   (0.0, 0.0, 0.0),
                                   (0.0, 0.0, -0.707)),
                      'frequency': 199.94},
-                    {'vib_mode': ((0.17, -0.475, 0.0),
-                                  (-0.236, 0.659, 0.0),
-                                  (0.17, -0.475, 0.0),
-                                  (0.0, 0.0, -0.505),
+                    {'vib_mode': ((0.0, 0.0, -0.505),
                                   (0.0, 0.0, 0.7),
                                   (0.0, 0.0, -0.505)),
                      'frequency': 311.74}]
@@ -1486,6 +1652,20 @@ $end
                           (0.0119225, 0.0113174, 0.0154056),
                           (0.0138491, 0.0083436, 0.0188022),
                           (-0.0151146, -0.0015971, -0.0054462)])
+
+    def test_nbo_charges(self):
+        filename = os.path.join(test_dir, "quinoxaline_anion.qcout")
+        qcout = QcOutput(filename)
+        ans = [-0.29291, -0.29807, 0.12715, 0.12715, -0.29807, -0.29291,
+               0.21284, 0.22287, 0.22287, 0.21284, -0.10866, -0.10866,
+               0.19699, -0.5602, -0.5602, 0.19699]
+        self.assertEqual(qcout.data[0]["charges"]["nbo"], ans)
+        filename = os.path.join(test_dir, "tfsi_nbo.qcout")
+        qcout = QcOutput(filename)
+        ans = [2.2274, 2.23584, -0.94183, -0.94575, -0.94719, -0.9423,
+               0.86201, 0.85672, -0.35698, -0.35373, -0.35782, -0.35647,
+               -0.35646, -0.35787, -1.26555]
+        self.assertEqual(qcout.data[0]["charges"]["nbo"], ans)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Classes for reading/manipulating/writing VASP input files. All major VASP input
 files.
@@ -186,7 +184,7 @@ class Poscar(MSONable):
                     try:
                         potcar = Potcar.from_file(os.path.join(dirname, f))
                         names = [sym.split("_")[0] for sym in potcar.symbols]
-                        map(get_el_sp, names) #ensure that the names are valid
+                        map(get_el_sp, names)  # ensure that the names are valid
                     except:
                         names = None
         with zopen(filename, "r") as f:
@@ -587,7 +585,8 @@ class Incar(dict):
             val: Actual value of INCAR parameter.
         """
         list_keys = ("LDAUU", "LDAUL", "LDAUJ", "LDAUTYPE", "MAGMOM")
-        bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE", "LHFCALC")
+        bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE",
+                     "LHFCALC", "ADDGRID")
         float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN",
                       "POTIM")
         int_keys = ("NSW", "NBANDS", "NELMIN", "ISIF", "IBRION", "ISPIN",

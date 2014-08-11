@@ -203,12 +203,56 @@ Things you can do with Structures
 This section is a work in progress.  But just to give an overview of the kind of
 analysis you can do:
 
-1. Modify Structures using either :mod:`pymatgen.core.structure_modifier`,
-   or even better, using the :mod:`pymatgen.transformations` and
-   :mod:`pymatgen.alchemy` packages.
+1. Modify Structures directly or even better, using the :mod:`pymatgen
+   .transformations` and :mod:`pymatgen.alchemy` packages.
 2. Analyse Structures. E.g., compute the Ewald sum using the
    :mod:`pymatgen.analysis.ewald` package, compare two structures for
    similarity using :mod:`pymatgen.analysis.structure_matcher`.
+
+It should be noted that Structure and Molecule are designed to be mutable. In
+fact, they are the most basic mutable units (everything below in the class
+hierarchy such as Element, Specie, Site, PeriodicSite, Lattice are immutable).
+If you need guarantees of immutability for Structure/Molecule,
+you should use the IStructure and IMolecule classes instead.
+
+Modifying Structures or Molecules
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Pymatgen supports a highly Pythonic interface for modifying Structures and
+Molecules. For example, you can change any site simply with::
+
+    # Change the specie at site position 1 to a fluorine atom.
+    structure[1] = "F"
+    molecule[1] = "F"
+
+    # Change species and coordinates (fractional assumed for Structures,
+    # cartesian for Molecules)
+    structure[1] = "Cl", [0.51, 0.51, 0.51]
+    molecule[1] = "F", [1.34, 2, 3]
+
+    # Structure/Molecule also supports typical list-like operators,
+    # such as reverse, extend, pop, index, count.
+    structure.reverse()
+    molecule.reverse()
+
+    structure.append("F", [0.9, 0.9, 0.9])
+    molecule.append("F", [2.1, 3,.2 4.3])
+
+There are also many typical transforms you can do on Structures. Here are
+some examples::
+
+    # Make a supercell
+    structure.make_supercell([2, 2, 2])
+
+    #Find a primitive version of the Structure
+    structure.find_primitive_structure()
+
+    # Interpolate between two structures to get 10 structures (typically for
+    # NEB calculations.
+    structure.interpolate(another_structure, nimages=10)
+
+The above is just some examples of typical use cases. A lot more is possible
+and you may explore the actual API doc for the structure and molecule classes.
 
 .. _entries:
 
@@ -216,7 +260,7 @@ Entries - Basic analysis unit
 =============================
 
 Beyond the core Element, Site and Structure objects, most analyses within in
-pymatgen (e.g., creating a PhaseDiagram) is performed using Entry objects. An
+pymatgen (e.g., creating a PhaseDiagram) are performed using Entry objects. An
 Entry in its most basic form contains a calculated energy and a composition,
 and may optionally contain other input or calculated data. In most instances,
 you will use the ComputedEntry or ComputedStructureEntry objects defined in
@@ -401,7 +445,7 @@ In parallel, we have coded in the :mod:`pymatgen.matproj.rest` module a
 MPRester, a user-friendly high-level interface to the Materials API to obtain
 useful pymatgen objects for further analyses.  To use the Materials API,
 your need to first register with the Materials Project and generate your API
-key in your profile at https://www.materialsproject.org/profile. In the
+key in your dashboard at https://www.materialsproject.org/dashboard. In the
 examples below, the user's Materials API key is designated as "USER_API_KEY".
 
 The MPRester provides many convenience methods, but we will just highlight

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines classes for point defects
 """
@@ -10,18 +8,17 @@ import abc
 import json
 from bisect import bisect_left
 
+from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.io.zeoio import get_voronoi_nodes, get_void_volume_surfarea, \
     get_high_accuracy_voronoi_nodes
-from pymatgen.command_line.gulp_caller import get_energy_buckingham
-from pymatgen.command_line.gulp_caller import \
+from pymatgen.command_line.gulp_caller import get_energy_buckingham, \
     get_energy_relax_structure_buckingham
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     RelaxationAnalyzer
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.core.periodic_table import Specie
 
 file_dir = os.path.dirname(__file__)
 rad_file = os.path.join(file_dir, 'ionic_radii.json')
@@ -39,7 +36,7 @@ class ValenceIonicRadiusEvaluator(object):
     """
 
     def __init__(self, structure):
-        self._structure = structure
+        self._structure = structure.copy()
         self._valences = self._get_valences()
         self._ionic_radii = self._get_ionic_radii()
 
@@ -50,6 +47,7 @@ class ValenceIonicRadiusEvaluator(object):
         """
         el = [site.species_string for site in self._structure.sites]
         radii_dict = dict(zip(el, self._ionic_radii))
+        #print radii_dict
         return radii_dict
 
     @property
@@ -64,9 +62,10 @@ class ValenceIonicRadiusEvaluator(object):
     @property
     def structure(self):
         """
-        Structure used for initialization
+        Returns oxidation state decorated structurel.
         """
-        return self._structure
+        return self._structure.copy()
+
 
     def _get_ionic_radii(self):
         """
@@ -79,11 +78,23 @@ class ValenceIonicRadiusEvaluator(object):
         def nearest_key(sorted_vals, key):
             i = bisect_left(sorted_vals, key)
             if i == len(sorted_vals):
-                i = -1
-            return sorted_vals[i]
+                return sorted_vals[-1]
+            if i == 0:
+                return sorted_vals[0]
+            before = sorted_vals[i-1]
+            after = sorted_vals[i]
+            if after-key < key-before:
+                return after
+            else:
+                return before
 
         for i in range(len(self._structure.sites)):
             site = self._structure.sites[i]
+            if isinstance(site.specie,Element):
+                radius = site.specie.atomic_radius
+                radii.append(radius)
+                continue
+
             el = site.specie.symbol
             oxi_state = int(round(site.specie.oxi_state))
             coord_no = int(round(coord_finder.get_coordination_number(i)))
@@ -140,9 +151,9 @@ class ValenceIonicRadiusEvaluator(object):
                 self._structure = bv.get_oxi_state_decorated_structure(self._structure)
                 valences = bv.get_valences(self._structure)
             except:
-                raise
+                valences = [0]*self._structure.num_sites
+                #raise
 
-        #print valences
         #el = [site.specie.symbol for site in self._structure.sites]
         #el = [site.species_string for site in self._structure.sites]
         #el = [site.specie for site in self._structure.sites]
@@ -198,6 +209,12 @@ class Defect(object):
         Returns the defect site at the index.
         """
         return self._defect_sites[n]
+
+    def get_defectsite_multiplicity(self, n):
+        """
+        Returns the symmtric multiplicity of the defect site at the index.
+        """
+        return self._defect_site_multiplicity[n]
 
     def get_defectsite_coordination_number(self, n):
         """
@@ -261,8 +278,10 @@ class Vacancy(Defect):
         equiv_site_seq = symm_structure.equivalent_sites
 
         self._defect_sites = []
+        self._defect_site_multiplicity = []
         for equiv_sites in equiv_site_seq:
             self._defect_sites.append(equiv_sites[0])
+            self._defect_site_multiplicity.append(len(equiv_sites))
 
         self._vac_site_indices = []
         for site in self._defect_sites:
@@ -420,17 +439,24 @@ class Vacancy(Defect):
                                       sc.lattice,
                                       properties=defect_site.properties)
         for i in range(len(sc.sites)):
-            if sc_defect_site == sc.sites[i]:
+            #if sc_defect_site == sc.sites[i]:
+            if sc_defect_site.distance(sc.sites[i]) < 1e-3:
                 del sc[i]
                 return sc
+        raise ValueError('Something wrong if reached here')
 
-    def make_supercells_with_defects(self, scaling_matrix):
+    def make_supercells_with_defects(self, scaling_matrix, species=None,
+                                     limit_return_structures=False):
         """
         Generate sequence of supercells in pymatgen.core.structure.Structure
         format, with each supercell containing one vacancy.
 
         Args:
             scaling_matrix: super cell scale parameters in matrix forms
+            species: Species in list format only for which vacancy supercells
+                are required. If not specified all the species are considered.
+            limit_return_structures: Boolean or positive number
+                If number, only that many structures are returned.
 
         Returns:
             Supercells with vacancies. First supercell has no defects.
@@ -439,9 +465,23 @@ class Vacancy(Defect):
         sc = self._structure.copy()
         sc.make_supercell(scaling_matrix)
         sc_with_vac.append(sc)
+
+        if not species:
+            species = sc.symbol_set
+        if not limit_return_structures:
+            limit_return_structures = self.defectsite_count()
         for defect_site in self.enumerate_defectsites():
-            sc_with_vac.append(self._supercell_with_defect(scaling_matrix,
-                                                           defect_site))
+            if len(sc_with_vac) <= limit_return_structures:
+                if isinstance(defect_site.specie,Specie):
+                    site_specie = defect_site.specie.element.symbol
+                elif isinstance(defect_site.specie,Element):
+                    site_specie = defect_site.specie.symbol
+                else:
+                    raise TypeError("site specie is neither Specie nor Element")
+
+                if site_specie in species:
+                    sc_with_vac.append(self._supercell_with_defect(
+                        scaling_matrix, defect_site))
         return sc_with_vac
 
 
@@ -500,7 +540,7 @@ class Interstitial(Defect):
     """
 
     def __init__(self, structure, valences, radii, site_type='voronoi_vertex',
-                 accuracy='Normal', symmetry_flag=True):
+                 accuracy='Normal', symmetry_flag=True, oxi_state = False):
         """
         Given a structure, generate symmetrically distinct interstitial sites.
 
@@ -514,18 +554,30 @@ class Interstitial(Defect):
                 Default is "voronoi_vertex"
             accuracy: Flag denoting whether to use high accuracy version 
                 of Zeo++. Options are "Normal" and "High". Default is normal.
+            symmetry_flag: If True, only returns symmetrically distinct sites
+            oxi_state: If False, input structure is considered devoid of 
+                oxidation-state decoration. And oxi-state for each site is 
+                determined. Use True, if input structure is oxi-state 
+                decorated. This option is useful when the structure is 
+                not electro-neutral after deleting/adding sites. In that
+                case oxi-decorate the structure before deleting/adding the
+                sites.
         """
-        try:
-            bv = BVAnalyzer()
-            self._structure = bv.get_oxi_state_decorated_structure(structure)
-        except:
+        if not oxi_state:
             try:
-                bv = BVAnalyzer(symm_tol=0.0)
+                bv = BVAnalyzer()
                 self._structure = bv.get_oxi_state_decorated_structure(
-                        structure
-                        )
+                        structure)
             except:
-                raise
+                try:
+                    bv = BVAnalyzer(symm_tol=0.0)
+                    self._structure = bv.get_oxi_state_decorated_structure(
+                            structure)
+                except:
+                    raise
+        else:
+            self._structure = structure
+
         self._valence_dict = valences
         self._rad_dict = radii
 

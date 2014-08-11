@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Created on Jul 16, 2012
 """
@@ -19,8 +17,9 @@ import json
 import numpy as np
 
 from pymatgen.io.vaspio.vasp_output import Chgcar, Locpot, Oszicar, Outcar, \
-    Vasprun, Procar
+    Vasprun, Procar, Xdatcar
 from pymatgen import Spin, Orbital, Lattice, Structure
+from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
@@ -127,6 +126,11 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][0], 3.26105533)
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][1], -0.00459066)
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[2][2], 3.24330517)
+
+        entry = vasprun_dfpt.get_computed_entry()
+        entry = MaterialsProjectCompatibility().process_entry(entry)
+        self.assertAlmostEqual(entry.uncorrected_energy + entry.correction,
+                               entry.energy)
 
     def test_to_dict(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
@@ -262,8 +266,8 @@ class ProcarTest(unittest.TestCase):
         self.assertEqual(p.nb_bands, 10)
         self.assertEqual(p.nb_kpoints, 10)
         lat = Lattice.cubic(3.)
-        s = Structure(lat, ["Li", "Na", "K"], [[0., 0., 0.], 
-                                               [0.25, 0.25, 0.25], 
+        s = Structure(lat, ["Li", "Na", "K"], [[0., 0., 0.],
+                                               [0.25, 0.25, 0.25],
                                                [0.75, 0.75, 0.75]])
         d = p.get_projection_on_elements(s)
         self.assertAlmostEqual(d[1][2][2], {'Na': 0.042, 'K': 0.646, 'Li': 0.042})
@@ -271,6 +275,17 @@ class ProcarTest(unittest.TestCase):
         p = Procar(filepath)
         self.assertAlmostEqual(p.get_occupation(0, 'd'), 4.3698147704200059)
         self.assertAlmostEqual(p.get_occupation(0, 'dxy'), 0.85796295426000124)
+
+
+class XdatcarTest(unittest.TestCase):
+
+    def test_init(self):
+        filepath = os.path.join(test_dir, 'XDATCAR')
+        x = Xdatcar(filepath)
+        structures = x.structures
+        self.assertEqual(len(structures), 3)
+        for s in structures:
+            self.assertEqual(s.formula, "Li2 O1")
 
 
 if __name__ == "__main__":

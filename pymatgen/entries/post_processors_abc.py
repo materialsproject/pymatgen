@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements abstract base classes for post-processing entries.
 Any class which modifies entries should inherit these classes.

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements a point group assigner for a molecule.
 """
