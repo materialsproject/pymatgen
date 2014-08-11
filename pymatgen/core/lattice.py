@@ -914,15 +914,21 @@ class Lattice(MSONable):
 
         cart_f1 = self.get_cartesian_coords(fcoords1)
         cart_f2 = self.get_cartesian_coords(shifted_f2)
-
-        #all vectors from f1 to f2
-        vectors = cart_f2[None, :, :, :] - cart_f1[:, None, None, :]
-
-        d_2 = np.sum(vectors ** 2, axis=3)
-
-        distances = np.min(d_2, axis=2) ** 0.5
-
-        return distances
+        
+        if cart_f1.size * cart_f2.size < 1e5:
+            #all vectors from f1 to f2
+            vectors = cart_f2[None, :, :, :] - cart_f1[:, None, None, :]
+            d_2 = np.sum(vectors ** 2, axis=3)
+            distances = np.min(d_2, axis=2) ** 0.5
+            return distances
+        else:
+            #memory will overflow, so do a loop
+            distances = []
+            for c1 in cart_f1:
+                vectors = cart_f2[:, :, :] - c1[None, None, :]
+                d_2 = np.sum(vectors ** 2, axis=2)
+                distances.append(np.min(d_2, axis=1) ** 0.5)
+            return np.array(distances)
 
     def is_hexagonal(self, hex_angle_tol=5, hex_length_tol=0.01):
         lengths, angles = self.lengths_and_angles

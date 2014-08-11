@@ -60,6 +60,16 @@ H -0.513360 0.889165 -0.363000"""
             if i == 0:
                 self.assertTrue(all([c == 0 for c in site.coords]))
 
+        mol_str = """2
+Random
+C 2.39132145462 -0.700993488928 -7.22293142224e-06
+C 1.16730636786 -1.38166622735 -2.77112970359e-06
+"""
+        xyz = XYZ.from_string(mol_str)
+        mol = xyz.molecule
+        self.assertTrue(abs(mol[0].z) < 1e-5)
+        self.assertTrue(abs(mol[1].z) < 1e-5)
+
     def test_init_from_structure(self):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
