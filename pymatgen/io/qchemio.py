@@ -1157,6 +1157,7 @@ class QcOutput(object):
                                         "\s+(?P<rydberg>\-?\d+\.\d+)\s+(?P<total>\-?\d+\.\d+)"
                                         "(\s+(?P<spin>\-?\d\.\d+))?")
         nbo_wavefunction_type_pattern = re.compile("This is an? (?P<type>\w+\-\w+) NBO calculation")
+        float_pattern = re.compile("-?\d+\.?\d+([eE]\d+)?$")
 
         error_defs = (
             (re.compile("Convergence failure"), "Bad SCF convergence"),
@@ -1209,6 +1210,14 @@ class QcOutput(object):
         charges = dict()
         scf_successful = False
         opt_successful = False
+        parse_alpha_homo = False
+        parse_alpha_lumo = False
+        parse_beta_homo = False
+        parse_beta_lumo = False
+        current_alpha_homo = None
+        current_alpha_lumo = None
+        current_beta_homo = None
+        homo_lumo = []
         for line in output.split("\n"):
             for ep, message in error_defs:
                 if ep.search(line):
@@ -1336,6 +1345,52 @@ class QcOutput(object):
                         charges[pop_method].append(float(m.group("charge")))
                     else:
                         raise Exception("Can't find NBO charges")
+            elif parse_alpha_homo:
+                if "-- Occupied --" in line:
+                    continue
+                elif "-- Virtual --" in line:
+                    parse_alpha_homo = False
+                    parse_alpha_lumo = True
+                    continue
+                else:
+                    tokens = line.split()
+                    m = float_pattern.search(tokens[-1])
+                    if m:
+                        current_alpha_homo = float(m.group(0))
+                    continue
+            elif parse_alpha_lumo:
+                current_alpha_lumo = float(line.split()[0])
+                parse_alpha_lumo = False
+                continue
+            elif parse_beta_homo:
+                if "-- Occupied --" in line:
+                    continue
+                elif "-- Virtual --" in line:
+                    parse_beta_homo = False
+                    parse_beta_lumo = True
+                    continue
+                else:
+                    tokens = line.split()
+                    m = float_pattern.search(tokens[-1])
+                    if m:
+                        current_beta_homo = float(m.group(0))
+                    continue
+            elif parse_beta_lumo:
+                current_beta_lumo = float(line.split()[0])
+                parse_beta_lumo = False
+                current_homo = max([current_alpha_homo, current_beta_homo])
+                current_lumo = min([current_alpha_lumo, current_beta_lumo])
+                homo_lumo.append([current_homo, current_lumo])
+                current_alpha_homo = None
+                current_alpha_lumo = None
+                current_beta_homo = None
+                continue
+            elif "-" * 50 in line and not (current_alpha_lumo is None):
+                homo_lumo.append([current_alpha_homo, current_alpha_lumo])
+                current_alpha_homo = None
+                current_alpha_lumo = None
+                current_beta_homo = None
+                continue
             else:
                 if spin_multiplicity is None:
                     m = num_ele_pattern.search(line)
@@ -1404,6 +1459,12 @@ class QcOutput(object):
                     gradients.append({"gradients": []})
                 elif "VIBRATIONAL ANALYSIS" in line:
                     parse_freq = True
+                elif "Alpha MOs" in line:
+                    parse_alpha_homo = True
+                    parse_alpha_lumo = False
+                elif "Beta MOs" in line:
+                    parse_beta_homo = True
+                    parse_beta_lumo = False
                 elif "Thank you very much for using Q-Chem." in line:
                     properly_terminated = True
                 elif "OPTIMIZATION CONVERGED" in line:
@@ -1448,6 +1509,7 @@ class QcOutput(object):
         data = {
             "jobtype": jobtype,
             "energies": energies,
+            "HOMO/LUMOs": homo_lumo,
             'charges': charges,
             "corrections": thermal_corr,
             "molecules": molecules,
