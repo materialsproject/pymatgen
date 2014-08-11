@@ -409,60 +409,11 @@ class StructureMatcher(MSONable):
         Args:
             s, target_s: Structure objects
         """
-        t_l, t_a = target_lattice.lengths_and_angles
-        r = (1 + self.ltol) * max(t_l)
-        fpts, dists, i = s.lattice.get_points_in_sphere(
-            frac_points=[[0, 0, 0]], center=[0, 0, 0],
-            r=r).T
-        #get possible vectors for a, b, and c
-        new_v = []
-        for l in t_l:
-            max_r = (1 + self.ltol) * l
-            min_r = (1 - self.ltol) * l
-            vi = fpts[np.where((dists < max_r) & (dists > min_r))]
-            if len(vi) == 0:
-                return
-            cart_vi = np.dot(np.array([i for i in vi]), s.lattice.matrix)
-            new_v.append(cart_vi)
-
-        #The vectors are broadcast into a 5-D array containing
-        #all permutations of the entries in new_v[0], new_v[1], new_v[2]
-        #Produces the same result as three nested loops over the
-        #same variables and calculating determinants individually
-        bfl = (np.array(new_v[0])[None, None, :, None, :] *
-               np.array([1, 0, 0])[None, None, None, :, None] +
-               np.array(new_v[1])[None, :, None, None, :] *
-               np.array([0, 1, 0])[None, None, None, :, None] +
-               np.array(new_v[2])[:, None, None, None, :] *
-               np.array([0, 0, 1])[None, None, None, :, None])
-
-        #Compute volume of each lattice
-        vol = np.abs(np.sum(bfl[:, :, :, 0, :] *
-                            np.cross(bfl[:, :, :, 1, :],
-                                     bfl[:, :, :, 2, :]), 3))
-        #valid lattices must not change volume
-        min_vol = s.volume * 0.999 * supercell_size
-        max_vol = s.volume * 1.001 * supercell_size
-        bfl = bfl[np.where((vol > min_vol) & (vol < max_vol))]
-        if len(bfl) == 0:
-            return
-
-        #compute angles
-        lengths = np.sum(bfl ** 2, axis=2) ** 0.5
-        angles = np.zeros((len(bfl), 3), float)
-        for i in xrange(3):
-            j = (i + 1) % 3
-            k = (i + 2) % 3
-            angles[:, i] = \
-                np.sum(bfl[:, j, :] * bfl[:, k, :], 1) \
-                / (lengths[:, j] * lengths[:, k])
-        angles = np.arccos(angles) * 180. / np.pi
-        #Check angles are within tolerance
-        valid_angles = np.where(np.all(np.abs(angles - t_a) <
-                                       self.angle_tol, axis=1))
-        for lat in bfl[valid_angles]:
-            nl = Lattice(lat)
-            yield nl
+        lattices = s.lattice.find_all_mappings(target_lattice, 
+                        ltol = self.ltol, atol=self.angle_tol)
+        for l, _, scale_m in lattices:
+            if np.abs(np.abs(np.linalg.det(scale_m)) - supercell_size) < 0.5:
+                yield l, scale_m
 
     def _get_supercells(self, struct1, struct2, fu, s1_supercell):
         """
@@ -482,22 +433,18 @@ class StructureMatcher(MSONable):
             s2_fc = np.array(s2.frac_coords)
             if fu == 1:
                 cc = np.array(s1.cart_coords)
-                for l in self._get_lattices(s2.lattice, s1, fu):
-                    supercell_matrix = np.round(np.dot(l.matrix,
-                        s1.lattice.inv_matrix)).astype('int')
+                for l, sc_m in self._get_lattices(s2.lattice, s1, fu):
                     fc = l.get_fractional_coords(cc)
                     fc -= np.floor(fc)
-                    yield fc, s2_fc, av_lat(l, s2.lattice), supercell_matrix
+                    yield fc, s2_fc, av_lat(l, s2.lattice), sc_m
             else:
                 fc_init = np.array(s1.frac_coords)
-                for l in self._get_lattices(s2.lattice, s1, fu):
-                    supercell_matrix = np.round(np.dot(l.matrix,
-                        s1.lattice.inv_matrix)).astype('int')
-                    fc = np.dot(fc_init, np.linalg.inv(supercell_matrix))
-                    lp = lattice_points_in_supercell(supercell_matrix)
+                for l, sc_m in self._get_lattices(s2.lattice, s1, fu):
+                    fc = np.dot(fc_init, np.linalg.inv(sc_m))
+                    lp = lattice_points_in_supercell(sc_m)
                     fc = (fc[:, None, :] + lp[None, :, :]).reshape((-1, 3))
                     fc -= np.floor(fc)
-                    yield fc, s2_fc, av_lat(l, s2.lattice), supercell_matrix
+                    yield fc, s2_fc, av_lat(l, s2.lattice), sc_m
         if s1_supercell:
             for x in sc_generator(struct1, struct2):
                 yield x
