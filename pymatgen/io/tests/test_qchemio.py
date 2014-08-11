@@ -1672,5 +1672,20 @@ $end
         qcout = QcOutput(filename)
         self.assertEqual(len(qcout.data[0]["molecules"]), 11)
 
+    def test_homo_lumo(self):
+        filename = os.path.join(test_dir, "quinoxaline_anion.qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(qcout.data[0]["HOMO/LUMOs"], [[0.037, 0.103]])
+        filename = os.path.join(test_dir, "qchem_energies", "hf_ccsd(t).qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(qcout.data[0]["HOMO/LUMOs"], [[-0.652, 0.192],
+                                                       [-0.652, 0.192]])
+        filename = os.path.join(test_dir, "crowd_gradient_number.qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(qcout.data[0]["HOMO/LUMOs"], [[-0.211, -0.167],
+                                                      [-0.183, -0.158],
+                                                      [-0.175, -0.14]])
+
+
 if __name__ == "__main__":
     unittest.main()
