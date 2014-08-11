@@ -2336,6 +2336,13 @@ class AbinitTask(Task):
         """
         return self._restart()
 
+    def restart_from_scratch(self):
+        """
+        restart from scratch, reuse of output
+        this is to be used if a job is restarted with more resources after a crash
+        """
+        return self._restart()
+
     #@property
     #def timing(self):
     #    """Object with timing data. None if timing is not available"""
@@ -2431,6 +2438,8 @@ class NscfTask(AbinitTask):
 
         # Now we can resubmit the job.
         return self._restart()
+
+
 
 
 class RelaxTask(AbinitTask):
