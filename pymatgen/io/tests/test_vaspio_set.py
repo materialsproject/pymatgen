@@ -3,12 +3,14 @@
 import unittest
 import os
 import numpy as np
+import shutil
 
 from pymatgen.io.vaspio_set import MITVaspInputSet, MITHSEVaspInputSet, \
     MPVaspInputSet, MITGGAVaspInputSet, MITNEBVaspInputSet,\
     MPStaticVaspInputSet, MPNonSCFVaspInputSet, MITMDVaspInputSet,\
-    MPHSEVaspInputSet, MPBSHSEVaspInputSet, MPStaticDielectricDFPTVaspInputSet
-from pymatgen.io.vaspio.vasp_input import Poscar
+    MPHSEVaspInputSet, MPBSHSEVaspInputSet, MPStaticDielectricDFPTVaspInputSet,\
+    MPOpticsNonSCFVaspInputSet
+from pymatgen.io.vaspio.vasp_input import Poscar, Incar
 from pymatgen import Specie, Lattice, Structure
 from pymatgen.serializers.json_coders import PMGJSONDecoder
 
@@ -42,7 +44,7 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.mpbshseparamsetl = MPBSHSEVaspInputSet(mode="Line")
         self.mpbshseparamsetu = MPBSHSEVaspInputSet(mode="Uniform", added_kpoints=[[0.5, 0.5, 0.0]])
         self.mpdielparamset = MPStaticDielectricDFPTVaspInputSet()
-        
+
     def test_get_poscar(self):
         coords = list()
         coords.append([0, 0, 0])
@@ -84,6 +86,12 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         struct = Structure(lattice, ["P", "Fe"], coords)
         p = MITVaspInputSet(potcar_functional="LDA").get_potcar(struct)
         self.assertEqual(p.functional, 'LDA')
+
+    def test_get_nelect(self):
+        coords = [[0]*3, [0.5]*3, [0.75]*3]
+        lattice = Lattice.cubic(4)
+        s = Structure(lattice, ['Si', 'Si', 'Fe'], coords)
+        self.assertAlmostEqual(MITVaspInputSet().get_nelect(s), 16)
 
     def test_get_incar(self):
         incar = self.paramset.get_incar(self.struct)
@@ -219,6 +227,20 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.assertEqual(self.userparamset.get_incar(struct)['MAGMOM'],
                          [10, -5, 0.6])
 
+    def test_optics(self):
+        if "VASP_PSP_DIR" not in os.environ:
+            os.environ["VASP_PSP_DIR"] = test_dir
+        self.mpopticsparamset = MPOpticsNonSCFVaspInputSet.from_previous_vasp_run(
+            '{}/static_silicon'.format(test_dir), output_dir='optics_test_dir',
+            nedos=1145)
+        self.assertTrue(os.path.exists('optics_test_dir/CHGCAR'))
+        incar = Incar.from_file('optics_test_dir/INCAR')
+        self.assertTrue(incar['LOPTICS'])
+        self.assertEqual(incar['NEDOS'], 1145)
+
+        #Remove the directory in which the inputs have been created
+        shutil.rmtree('optics_test_dir')
+
     def test_get_kpoints(self):
         kpoints = self.paramset.get_kpoints(self.struct)
         self.assertEquals(kpoints.kpts, [[2, 4, 6]])
@@ -240,19 +262,19 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.assertEquals(kpoints.num_kpts, 168)
 
         kpoints = self.mpbshseparamsetl.get_kpoints(self.struct)
-        self.assertAlmostEquals(kpoints.num_kpts, 188)
-        self.assertAlmostEqual(kpoints.kpts[10][0], 0.25)
+        self.assertAlmostEquals(kpoints.num_kpts, 164)
+        self.assertAlmostEqual(kpoints.kpts[10][0], 0.0)
         self.assertAlmostEqual(kpoints.kpts[10][1], 0.5)
-        self.assertAlmostEqual(kpoints.kpts[10][2], 0.0)
+        self.assertAlmostEqual(kpoints.kpts[10][2], 0.16666667)
         self.assertAlmostEqual(kpoints.kpts[-1][0], 0.66006924)
         self.assertAlmostEqual(kpoints.kpts[-1][1], 0.51780182)
         self.assertAlmostEqual(kpoints.kpts[-1][2], 0.30173482)
 
         kpoints = self.mpbshseparamsetu.get_kpoints(self.struct)
-        self.assertAlmostEquals(kpoints.num_kpts, 49)
-        self.assertAlmostEqual(kpoints.kpts[23][0], 0.5)
-        self.assertAlmostEqual(kpoints.kpts[23][1], 0.5)
-        self.assertAlmostEqual(kpoints.kpts[23][2], 0.16666667)
+        self.assertAlmostEquals(kpoints.num_kpts, 25)
+        self.assertAlmostEqual(kpoints.kpts[10][0], 0.0)
+        self.assertAlmostEqual(kpoints.kpts[10][1], 0.5)
+        self.assertAlmostEqual(kpoints.kpts[10][2], 0.16666667)
         self.assertAlmostEqual(kpoints.kpts[-1][0], 0.5)
         self.assertAlmostEqual(kpoints.kpts[-1][1], 0.5)
         self.assertAlmostEqual(kpoints.kpts[-1][2], 0.0)

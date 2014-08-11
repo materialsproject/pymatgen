@@ -167,6 +167,24 @@ minor compilation error messages, I generally assume Linux users are usually
 able to diagnose and solve those. For users of Ubuntu, most of the dependencies
 (including the optional ones) are most easily installed using apt-get.
 
+Using pymatgen on public HPC resources
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you wish to use pymatgen on HPC resources (e.g., NERSC or XSEDE resources)
+where you do not have administrator priveleges, there are two options.
+
+1. Use the ``"--user"`` option. Pip, easy_install, python setup.py install all
+   support the ``--user`` option. You can add ``--user`` to all your commands
+   and it will be installed in $HOME/.local/lib/python2.7/site-packages/. You
+   may need to modify your PYTHONPATH accordingly.
+2. Use virtualenv. You may still need to install virtualenv using the
+   ``--user`` option if the HPC resource does not have it. Afterwards,
+   you can create a virtualenv to install everything else. This allows you
+   to properly isolate dependencies.
+
+For most users, option 1 is simpler. Option 2 is useful if you foresee
+potential conflicts with many different python packages.
+
 POTCAR Setup
 ============
 

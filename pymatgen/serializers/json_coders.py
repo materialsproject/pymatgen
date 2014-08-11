@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 .. versionadded:: 1.9.0
 

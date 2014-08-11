@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements an XRD pattern calculator.
 """

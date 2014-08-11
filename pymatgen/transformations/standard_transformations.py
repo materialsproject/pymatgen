@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines standard transformations which transforms a structure into
 another structure. Standard transformations operate in a structure-wide manner,

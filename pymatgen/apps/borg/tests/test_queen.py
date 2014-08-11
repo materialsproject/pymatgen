@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Created on Mar 18, 2012
 """
@@ -31,7 +29,7 @@ class BorgQueenTest(unittest.TestCase):
 
     def test_get_data(self):
         data = self.queen.get_data()
-        self.assertEqual(len(data), 1)
+        self.assertEqual(len(data), 2)
 
     def test_load_data(self):
         drone = VaspToComputedEntryDrone()

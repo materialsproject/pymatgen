@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines the classes relating to 3D lattices.
 """
@@ -398,6 +396,65 @@ class Lattice(MSONable):
                 "gamma": float(self.gamma),
                 "volume": float(self.volume)}
 
+    def find_all_mappings(self, other_lattice, ltol=1e-5, atol=1):
+        """
+        Finds all mappings between current lattice and another lattice.
+
+        Args:
+            other_lattice (Lattice): Another lattice that is equivalent to
+                this one.
+            ltol (float): Tolerance for matching lengths. Defaults to 1e-5.
+            atol (float): Tolerance for matching angles. Defaults to 1.
+
+        Yields:
+            (aligned_lattice, rotation_matrix, scale_matrix) if a mapping is
+            found. aligned_lattice is a rotated version of other_lattice that
+            has the same lattice parameters, but which is aligned in the
+            coordinate system of this lattice so that translational points
+            match up in 3D. rotation_matrix is the rotation that has to be
+            applied to other_lattice to obtain aligned_lattice, i.e.,
+            aligned_matrix = np.inner(other_lattice, rotation_matrix) and
+            op = SymmOp.from_rotation_and_translation(rotation_matrix)
+            aligned_matrix = op.operate_multi(latt.matrix)
+            Finally, scale_matrix is the integer matrix that expresses
+            aligned_matrix as a linear combination of this
+            lattice, i.e., aligned_matrix = np.dot(scale_matrix, self.matrix)
+
+            None is returned if no matches are found.
+        """
+        (lengths, angles) = other_lattice.lengths_and_angles
+        (alpha, beta, gamma) = angles
+
+        points = self.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
+                                           max(lengths) * (1 + ltol))
+        frac = np.array([p[0] for p in points])
+        dist = np.array([p[1] for p in points])
+        cart = self.get_cartesian_coords(frac)
+
+        inds = [np.abs(dist - l) / l <= ltol for l in lengths]
+        c_cand = [cart[i] for i in inds]
+        f_cand = [frac[i] for i in inds]
+        lengths = [np.sum(c ** 2, axis=-1) ** 0.5 for c in c_cand]
+
+        def get_angles(v1, v2, l1, l2):
+            x = np.inner(np.atleast_2d(v1), v2) / np.atleast_1d(l1)[:, None] / l2
+            x[x>1] = 1
+            x[x<-1] = -1
+            angles = np.arccos(x) * 180. / pi
+            return angles
+
+        gammas = get_angles(c_cand[0], c_cand[1], lengths[0], lengths[1])
+        for i, j in np.argwhere(np.abs(gammas - gamma) < atol):
+            alphas = get_angles(c_cand[1][j], c_cand[2], lengths[1][j], lengths[2])[0]
+            betas = get_angles(c_cand[0][i], c_cand[2], lengths[0][i], lengths[2])[0]
+            inds = np.logical_and(np.abs(alphas - alpha) < atol, np.abs(betas - beta) < atol)
+
+            for c, f in zip(c_cand[2][inds], f_cand[2][inds]):
+                aligned_m = np.array([c_cand[0][i], c_cand[1][j], c])
+                scale_m = np.array([f_cand[0][i], f_cand[1][j], f])
+                rotation_m = np.linalg.solve(aligned_m, other_lattice.matrix)
+                yield Lattice(aligned_m), rotation_m, scale_m
+
     def find_mapping(self, other_lattice, ltol=1e-5, atol=1):
         """
         Finds a mapping between current lattice and another lattice. There
@@ -418,43 +475,17 @@ class Lattice(MSONable):
             coordinate system of this lattice so that translational points
             match up in 3D. rotation_matrix is the rotation that has to be
             applied to other_lattice to obtain aligned_lattice, i.e.,
-            aligned_matrix = rotation_matrix * other_lattice.
+            aligned_matrix = np.inner(other_lattice, rotation_matrix) and
+            op = SymmOp.from_rotation_and_translation(rotation_matrix)
+            aligned_matrix = op.operate_multi(latt.matrix)
             Finally, scale_matrix is the integer matrix that expresses
             aligned_matrix as a linear combination of this
-            lattice, i.e., aligned_matrix = scale_matrix * self
+            lattice, i.e., aligned_matrix = np.dot(scale_matrix, self.matrix)
 
             None is returned if no matches are found.
         """
-        (lengths, angles) = other_lattice.lengths_and_angles
-        (alpha, beta, gamma) = angles
-
-        points = self.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
-                                           max(lengths) + 0.1)
-        all_frac = [p[0] for p in points]
-        dist = [p[1] for p in points]
-        cart = self.get_cartesian_coords(all_frac)
-        data = zip(cart, dist)
-        candidates = [filter(lambda d: abs(d[1] - l) < ltol, data)
-                      for l in lengths]
-
-        def get_angle(v1, v2):
-            x = dot(v1[0], v2[0]) / v1[1] / v2[1]
-            x = min(1, x)
-            x = max(-1, x)
-            angle = np.arccos(x) * 180. / pi
-            return angle
-
-        for m1, m2, m3 in itertools.product(*candidates):
-            if abs(get_angle(m1, m2) - gamma) < atol and\
-                    abs(get_angle(m2, m3) - alpha) < atol and\
-                    abs(get_angle(m1, m3) - beta) < atol:
-                aligned_m = np.array([m1[0], m2[0], m3[0]])
-                rotation_matrix = np.linalg.solve(other_lattice.matrix.T,
-                                                  aligned_m.T).T
-                scale_matrix = np.linalg.solve(aligned_m.T, self._matrix.T).T
-                return Lattice(aligned_m), rotation_matrix, scale_matrix
-
-        return None
+        for x in self.find_all_mappings(other_lattice, ltol, atol):
+            return x
 
     def get_most_compact_basis_on_lattice(self):
         """
@@ -916,15 +947,21 @@ class Lattice(MSONable):
 
         cart_f1 = self.get_cartesian_coords(fcoords1)
         cart_f2 = self.get_cartesian_coords(shifted_f2)
-
-        #all vectors from f1 to f2
-        vectors = cart_f2[None, :, :, :] - cart_f1[:, None, None, :]
-
-        d_2 = np.sum(vectors ** 2, axis=3)
-
-        distances = np.min(d_2, axis=2) ** 0.5
-
-        return distances
+        
+        if cart_f1.size * cart_f2.size < 1e5:
+            #all vectors from f1 to f2
+            vectors = cart_f2[None, :, :, :] - cart_f1[:, None, None, :]
+            d_2 = np.sum(vectors ** 2, axis=3)
+            distances = np.min(d_2, axis=2) ** 0.5
+            return distances
+        else:
+            #memory will overflow, so do a loop
+            distances = []
+            for c1 in cart_f1:
+                vectors = cart_f2[:, :, :] - c1[None, None, :]
+                d_2 = np.sum(vectors ** 2, axis=2)
+                distances.append(np.min(d_2, axis=1) ** 0.5)
+            return np.array(distances)
 
     def is_hexagonal(self, hex_angle_tol=5, hex_length_tol=0.01):
         lengths, angles = self.lengths_and_angles

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements a Composition class to represent compositions.
 """
