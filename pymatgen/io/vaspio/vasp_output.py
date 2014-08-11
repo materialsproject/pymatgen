@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Classes for reading/manipulating/writing VASP ouput files.
 """
@@ -31,7 +29,6 @@ import numpy as np
 
 from monty.io import zopen, reverse_readline
 
-from pymatgen.util.coord_utils import get_points_in_sphere_pbc
 from pymatgen.util.io_utils import clean_lines, micro_pyawk, \
     clean_json
 from pymatgen.core.structure import Structure
@@ -43,6 +40,8 @@ from pymatgen.electronic_structure.bandstructure import BandStructure, \
     BandStructureSymmLine, get_reconstructed_band_structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.io.vaspio.vasp_input import Incar, Kpoints, Poscar
+from pymatgen.entries.computed_entries import \
+    ComputedEntry, ComputedStructureEntry
 
 logger = logging.getLogger(__name__)
 
@@ -130,6 +129,7 @@ class Vasprun(object):
         in VASP).
 
     .. attribute:: dielectric
+
         The real and imaginary part of the dielectric constant (e.g., computed
         by RPA) in function of the energy (frequency). Optical properties (e.g.
         absorption coefficient) can be obtained through this.
@@ -139,7 +139,13 @@ class Vasprun(object):
         real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz,
         imag_partxy, imag_partyz, imag_partxz]])
 
+    .. attribute:: epsilon_static
+
+        The static part of the dielectric constant. Present when it's a DFPT run
+        (LEPSILON=TRUE)
+
     .. attribute:: nionic_steps
+
         The total number of ionic steps. This number is always equal
         to the total number of steps in the actual run even if
         ionic_step_skip is used.
@@ -187,7 +193,8 @@ class Vasprun(object):
                             "actual_kpoints_weights", "dos_energies",
                             "eigenvalues", "tdos", "idos", "pdos", "efermi",
                             "ionic_steps", "dos_has_errors",
-                            "projected_eigenvalues", "dielectric"]
+                            "projected_eigenvalues", "dielectric",
+                            "epsilon_static"]
 
     def __init__(self, filename, ionic_step_skip=None,
                  ionic_step_offset=0, parse_dos=True,
@@ -306,6 +313,41 @@ class Vasprun(object):
         """
         return True if self.parameters.get("ISPIN", 1) == 2 else False
 
+    def get_computed_entry(self, inc_structure=False, parameters=None,
+                           data=None):
+        """
+        Returns a ComputedStructureEntry from the vasprun.
+
+        Args:
+            inc_structure (bool): Set to True if you want
+                ComputedStructureEntries to be returned instead of
+                ComputedEntries.
+            parameters (list): Input parameters to include. It has to be one of
+                the properties supported by the Vasprun object. If
+                parameters == None, a default set of parameters that are
+                necessary for typical post-processing will be set.
+            data (list): Output data to include. Has to be one of the properties
+                supported by the Vasprun object.
+
+        Returns:
+            ComputedStructureEntry/ComputedEntry
+        """
+        param_names = {"is_hubbard", "hubbards", "potcar_symbols",
+                       "run_type"}
+        if parameters:
+            param_names.update(parameters)
+        params = {p: getattr(self, p) for p in param_names}
+        data = {p: getattr(self, p) for p in data} if data is not None else {}
+
+        if inc_structure:
+            return ComputedStructureEntry(self.final_structure,
+                                          self.final_energy, parameters=params,
+                                          data=data)
+        else:
+            return ComputedEntry(self.final_structure.composition,
+                                 self.final_energy, parameters=params,
+                                 data=data)
+
     def get_band_structure(self, kpoints_filename=None, efermi=None,
                            line_mode=False):
         """
@@ -340,17 +382,20 @@ class Vasprun(object):
             - make a bit more general for non Symm Line band structures
             - make a decision on the convention with 2*pi or not.
         """
+
         if not kpoints_filename:
             kpoints_filename = self.filename.replace('vasprun.xml', 'KPOINTS')
-        if not os.path.exists(kpoints_filename):
-            raise VaspParserError('KPOINTS needed to obtain band structure.')
+        if not os.path.exists(kpoints_filename) and line_mode is True:
+            raise VaspParserError('KPOINTS needed to obtain band structure '
+                                  'along symmetry lines.')
 
         if efermi is None:
             efermi = self.efermi
 
-        kpoint_file = Kpoints.from_file(kpoints_filename)
+        kpoint_file=None
+        if os.path.exists(kpoints_filename):
+            kpoint_file = Kpoints.from_file(kpoints_filename)
         lattice_new = Lattice(self.lattice_rec.matrix * 2 * math.pi)
-        #lattice_rec=[self.lattice_rec.matrix[i][j] for i,j in range(3)]
 
         kpoints = [np.array(self.actual_kpoints[i])
                    for i in range(len(self.actual_kpoints))]
@@ -394,15 +439,16 @@ class Vasprun(object):
                     )
 
         #check if we have an hybrid band structure computation
-        #for this we look at the presence of the LHFCALC tag and of k-points
-        #that have weights=0.0
+        #for this we look at the presence of the LHFCALC tag
         hybrid_band = False
         if self.parameters['LHFCALC']:
-            for l in kpoint_file.labels:
-                if l is not None:
-                    hybrid_band = True
+            hybrid_band = True
 
-        if kpoint_file.style == "Line_mode" or hybrid_band or line_mode:
+        if kpoint_file is not None:
+            if kpoint_file.style == "Line_mode":
+                line_mode = True
+
+        if line_mode:
             labels_dict = {}
             if hybrid_band:
                 start_bs_index = 0
@@ -430,6 +476,10 @@ class Vasprun(object):
                 else:
                     eigenvals = {Spin.up: up_eigen}
             else:
+                if '' in kpoint_file.labels:
+                    raise Exception("A band structure along symmetry lines "
+                                    "requires a label for each kpoint. "
+                                    "Check your KPOINTS file")
                 labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
                 labels_dict.pop(None, None)
             return BandStructureSymmLine(kpoints, eigenvals, lattice_new,
@@ -523,6 +573,7 @@ class Vasprun(object):
             eigen[index][str(spin)] = values
         vout["eigenvalues"] = eigen
         vout['dielectric'] = self.dielectric
+        vout['epsilon_static'] = self.epsilon_static
 
         peigen = []
 
@@ -588,6 +639,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.lattice_rec = []
         self.stress = []
         self.dielectric = ([], [], [])
+        self.epsilon_static = []
 
         self.input_read = False
         self.read_structure = False
@@ -596,6 +648,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.read_eigen = False
         self.read_projected_eigen = False
         self.read_diel = False
+        self.read_epsilon_static = False
         self.read_dos = False
         self.in_efermi = False
         self.read_atoms = False
@@ -655,6 +708,8 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.posstr.write(data)
         elif self.read_rec_lattice:
             self.latticerec.write(data)
+        elif self.read_epsilon_static:
+            self.epsilonstr.write(data)
 
     def endElement(self, name):
         """
@@ -718,6 +773,8 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             elif name == "v" and (state["varray"] == "forces" or
                                   state["varray"] == "stress"):
                 self.read_positions = True
+            elif name == "v" and state["varray"] == "epsilon":
+                self.read_epsilon_static = True
             elif name == "dielectricfunction":
                 logger.debug("Reading dielectric function...")
                 self.read_diel = True
@@ -790,6 +847,8 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.read_structure = True
         elif name == "varray" and (state["varray"] in ["forces", "stress"]):
             self.posstr = StringIO.StringIO()
+        elif name == "varray" and (state["varray"] in ["epsilon"]):
+            self.epsilonstr = StringIO.StringIO()
 
     def _read_input(self, name):
         state = self._state
@@ -864,6 +923,11 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                                        self.posstr.getvalue().split()))
             self.stress.shape = (3, 3)
             self.read_positions = False
+        elif name == "varray" and state["varray"] == "epsilon":
+            self.epsilon_static = np.array(
+                map(float, self.epsilonstr.getvalue().split()))
+            self.epsilon_static.shape = (3, 3)
+            self.read_epsilon_static = False
         elif name == "calculation":
             self.ionic_steps.append({"electronic_steps": self.scdata,
                                      "structure": self.structures[-1],
@@ -1121,7 +1185,7 @@ class Outcar(object):
 
     One can then call a specific reader depending on the type of run being
     performed. These are currently: read_igpar(), read_lepsilon() and
-    read_lcalcpol().
+    read_lcalcpol(), read_core_state_eign().
 
     See the documentation of those methods for more documentation.
 
@@ -1457,6 +1521,40 @@ class Outcar(object):
         except:
             raise Exception("CLACLCPOL OUTCAR could not be parsed.")
 
+    def read_core_state_eigen(self):
+        """
+        Read the core state eigenenergies at each ionic step.
+
+        Returns:
+            A list of dict over the atom such as [{"AO":[core state eig]}].
+            The core state eigenenergie list for each AO is over all ionic
+            step.
+
+        Example:
+            The core state eigenenergie of the 2s AO of the 6th atom of the
+            structure at the last ionic step is [5]["2s"][-1]
+        """
+
+        Natom = len(self.charge)
+        CL = [dict() for i in range(Natom)]
+
+        foutcar = zopen(self.filename, "r")
+        line = foutcar.readline()
+        while line != "":
+            line = foutcar.readline()
+
+            if "the core state eigen" in line:
+                for iat in range(Natom):
+                    line = foutcar.readline()
+                    data = line.split()[1:]
+                    for i in range(0, len(data), 2):
+                        if CL[iat].has_key(data[i]):
+                            CL[iat][data[i]].append(float(data[i+1]))
+                        else:
+                            CL[iat][data[i]] = [float(data[i+1])]
+
+        return CL
+
     @property
     def to_dict(self):
         d = {"@module": self.__class__.__module__,
@@ -1647,9 +1745,22 @@ class VolumetricData(object):
 
         f = zopen(file_name, "w")
         p = Poscar(self.structure)
-        f.write(p.get_string(vasp4_compatible=vasp4_compatible) + "\n")
+
+        lines = p.comment + "\n"
+        lines += "   1.00000000000000\n"
+        latt = self.structure.lattice.matrix
+        lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[0,:])
+        lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[1,:])
+        lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[2,:])
+        if not vasp4_compatible:
+            lines += "".join(["%5s" % s for s in p.site_symbols]) + "\n"
+        lines += "".join(["%6d" % x for x in p.natoms]) + "\n"
+        lines += "Direct\n"
+        for site in self.structure:
+            lines += "%10.6f%10.6f%10.6f\n" % tuple(site.frac_coords)
+        lines += "\n"
+        f.write(lines)
         a = self.dim
-        f.write("\n")
 
         def write_spin(data_type):
             lines = []
@@ -1705,9 +1816,8 @@ class VolumetricData(object):
             coords = []
             for (x, y, z) in itertools.product(*[xrange(i) for i in a]):
                 coords.append([x / a[0], y / a[1], z / a[2]])
-            sites_dist = get_points_in_sphere_pbc(struct.lattice, coords,
-                                                  struct[ind].coords,
-                                                  radius)
+            sites_dist = struct.lattice.get_points_in_sphere(
+                coords, struct[ind].coords, radius)
             self._distance_matrix[ind] = {"max_radius": radius,
                                           "data": np.array(sites_dist)}
 
@@ -1860,6 +1970,47 @@ class Procar(object):
                     data[index][current_kpoint]["bands"][current_band] = \
                         dict(zip(headers, num_data))
             self.data = data
+            self._nb_kpoints = len(data[0].keys())
+            self._nb_bands = len(data[0][1]["bands"].keys())
+
+    @property
+    def nb_bands(self):
+        """
+        returns the number of bands in the band structure
+        """
+        return self._nb_bands
+
+    @property
+    def nb_kpoints(self):
+        """
+        Returns the number of k-points in the band structure calculation
+        """
+        return self._nb_kpoints
+
+    def get_projection_on_elements(self, structure):
+        """
+        Method returning a dictionary of projections on elements.
+        Spin polarized calculation are not supported.
+
+        Args:
+            structure (Structure): Input structure.
+
+        Returns:
+            a dictionary in the {Spin.up:[k index][b index][{Element:values}]]
+        """
+        dico = {Spin.up: []}
+        dico[Spin.up] = [[defaultdict(float)
+                          for i in range(self._nb_kpoints)]
+                         for j in range(self.nb_bands)]
+
+        for iat in self.data:
+            name = structure.species[iat].symbol
+            for k in self.data[iat]:
+                for b in self.data[iat][k]["bands"]:
+                    dico[Spin.up][b-1][k-1][name] = \
+                        sum(self.data[iat][k]["bands"][b].values())
+
+        return dico
 
     def get_d_occupation(self, atom_index):
         """
@@ -1948,8 +2099,18 @@ class Oszicar(object):
         ionic_steps = []
         ionic_pattern = re.compile("(\d+)\s+F=\s*([\d\-\.E\+]+)\s+"
                                    "E0=\s*([\d\-\.E\+]+)\s+"
-                                   "d\s*E\s*=\s*([\d\-\.E\+]+)\s+"
-                                   "mag=\s*([\d\-\.E\+]+)")
+                                   "d\s*E\s*=\s*([\d\-\.E\+]+)$")
+        ionic_mag_pattern = re.compile("(\d+)\s+F=\s*([\d\-\.E\+]+)\s+"
+                                       "E0=\s*([\d\-\.E\+]+)\s+"
+                                       "d\s*E\s*=\s*([\d\-\.E\+]+)\s+"
+                                       "mag=\s*([\d\-\.E\+]+)")
+        ionic_MD_pattern = re.compile("(\d+)\s+T=\s*([\d\-\.E\+]+)\s+"
+                                      "E=\s*([\d\-\.E\+]+)\s+"
+                                      "F=\s*([\d\-\.E\+]+)\s+"
+                                      "E0=\s*([\d\-\.E\+]+)\s+"
+                                      "EK=\s*([\d\-\.E\+]+)\s+"
+                                      "SP=\s*([\d\-\.E\+]+)\s+"
+                                      "SK=\s*([\d\-\.E\+]+)")
         electronic_pattern = re.compile("\s*\w+\s*:(.*)")
 
         def smart_convert(header, num):
@@ -1979,8 +2140,22 @@ class Oszicar(object):
                     m = ionic_pattern.match(line.strip())
                     ionic_steps.append({"F": float(m.group(2)),
                                         "E0": float(m.group(3)),
+                                        "dE": float(m.group(4))})
+                elif ionic_mag_pattern.match(line.strip()):
+                    m = ionic_mag_pattern.match(line.strip())
+                    ionic_steps.append({"F": float(m.group(2)),
+                                        "E0": float(m.group(3)),
                                         "dE": float(m.group(4)),
                                         "mag": float(m.group(5))})
+                elif ionic_MD_pattern.match(line.strip()):
+                    m = ionic_MD_pattern.match(line.strip())
+                    ionic_steps.append({"T": float(m.group(2)),
+                                        "E": float(m.group(3)),
+                                        "F": float(m.group(4)),
+                                        "E0": float(m.group(5)),
+                                        "EK": float(m.group(6)),
+                                        "SP": float(m.group(7)),
+                                        "SK": float(m.group(8))})
                 elif re.match("^\s*N\s+E\s*", line):
                     header = line.strip().replace("d eps", "deps").split()
         self.electronic_steps = electronic_steps
@@ -2073,6 +2248,46 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
                 .get_band_structure(kpoints_filename=None, efermi=efermi)
         else:
             return None
+
+
+class Xdatcar(object):
+    """
+    Class representing an XDATCAR file. Only tested with VASP 5.x files.
+
+    .. attribute:: structures
+
+        List of structures parsed from XDATCAR.
+    """
+
+    def __init__(self, filename):
+        """
+        Init a Xdatcar.
+
+        Args:
+            filename (str): Filename of XDATCAR file.
+        """
+        preamble = None
+        coords_str = []
+        structures = []
+        preamble_done = False
+        with zopen(filename) as f:
+            for l in f:
+                l = l.strip()
+                if preamble is None:
+                    preamble = [l]
+                elif not preamble_done:
+                    if l == "":
+                        preamble_done = True
+                    else:
+                        preamble.append(l)
+                elif l == "":
+                    p = Poscar.from_string("\n".join(preamble +
+                                                     ["Direct"] + coords_str))
+                    structures.append(p.structure)
+                    coords_str = []
+                else:
+                    coords_str.append(l)
+        self.structures = structures
 
 
 def get_adjusted_fermi_level(efermi, cbm, band_structure):

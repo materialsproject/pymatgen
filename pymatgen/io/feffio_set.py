@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines the FeffInputSet abstract base class and a concrete
 implementation for the Materials Project.  The basic concept behind an input
@@ -20,7 +18,8 @@ __date__ = "April 7, 2013"
 
 import os
 import abc
-import ConfigParser
+
+from monty.serialization import loadfn
 
 from pymatgen.io.feffio import FeffAtoms, FeffTags, FeffPot, Header
 
@@ -184,12 +183,9 @@ class FeffInputSet(AbstractFeffInputSet):
     def __init__(self, name):
         self.name = name
         module_dir = os.path.dirname(os.path.abspath(__file__))
-        self._config = ConfigParser.SafeConfigParser()
-        self._config.optionxform = str
-        self._config.readfp(open(os.path.join(module_dir,
-                                              "FeffInputSets.cfg")))
-        self.xanes_settings = dict(self._config.items(self.name + "feffXANES"))
-        self.exafs_settings = dict(self._config.items(self.name + "feffEXAFS"))
+        config = loadfn(os.path.join(module_dir, "FeffInputSets.yaml"))
+        self.xanes_settings = config[self.name + "feffXANES"]
+        self.exafs_settings = config[self.name + "feffEXAFS"]
 
     def get_header(self, structure, source='', comment=''):
         """
@@ -210,7 +206,7 @@ class FeffInputSet(AbstractFeffInputSet):
     def get_feff_tags(self, calc_type):
         """
         Reads standard parameters for XANES or EXAFS calculation
-        from FeffInputSets.cfg file.
+        from FeffInputSets.yaml file.
 
         Args:
             calc_type: At this time either 'XANES' or 'EXAFS' string is

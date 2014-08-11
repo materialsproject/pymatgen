@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module contains useful decorators for a variety of functions.
 """

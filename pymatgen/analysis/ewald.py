@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides classes for calculating the ewald sum of a structure.
 """
@@ -23,7 +21,6 @@ import bisect
 import numpy as np
 
 from pymatgen.core.physical_constants import ELECTRON_CHARGE, EPSILON_0
-from pymatgen.util.coord_utils import get_points_in_sphere_pbc
 
 
 class EwaldSummation(object):
@@ -246,8 +243,8 @@ class EwaldSummation(object):
         forces = np.zeros((numsites, 3))
         coords = self._coords
         rcp_latt = self._s.lattice.reciprocal_lattice
-        recip_nn = get_points_in_sphere_pbc(rcp_latt, [[0, 0, 0]], [0, 0, 0],
-                                            self._gmax)
+        recip_nn = rcp_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
+                                                 self._gmax)
 
         frac_to_cart = rcp_latt.get_cartesian_coords
 

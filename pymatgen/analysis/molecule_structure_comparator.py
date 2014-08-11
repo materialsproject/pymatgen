@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides classes to comparsion the structures of the two
 molecule. As long as the two molecule have the same bond connection tables,
@@ -76,14 +74,20 @@ class MoleculeStructureComparator(MSONable):
         priority_cap: The ratio of the elongation of the bond to be
             acknowledged for the priority bonds.
     """
+
+    ionic_element_list = ['Na', 'Mg', 'Al', 'Sc', 'V', 'Cr', "Mn", 'Fe', 'Co', 'Ni',
+                          'Cu', 'Zn', 'Ga', 'Rb', 'Sr']
+
     def __init__(self, bond_length_cap=0.3,
                  covalent_radius=CovalentRadius.radius,
                  priority_bonds=(),
-                 priority_cap=0.8):
+                 priority_cap=0.8,
+                 ignore_ionic_bond=True):
         self.bond_length_cap = bond_length_cap
         self.covalent_radius = covalent_radius
         self.priority_bonds = [tuple(sorted(b)) for b in priority_bonds]
         self.priority_cap = priority_cap
+        self.ignore_ionic_bond = ignore_ionic_bond
 
     def are_equal(self, mol1, mol2):
         """
@@ -110,7 +114,11 @@ class MoleculeStructureComparator(MSONable):
         """
         num_atoms = len(mol)
         # index starting from 0
-        all_pairs = list(itertools.combinations(range(num_atoms), 2))
+        if self.ignore_ionic_bond:
+            covalent_atoms = [i for i in range(num_atoms) if mol.species[i].symbol not in self.ionic_element_list]
+        else:
+            covalent_atoms = range(num_atoms)
+        all_pairs = list(itertools.combinations(covalent_atoms, 2))
         pair_dists = [mol.get_distance(*p) for p in all_pairs]
         elements = mol.composition.to_dict.keys()
         unavailable_elements = list(set(elements) -

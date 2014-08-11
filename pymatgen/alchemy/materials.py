@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides various representations of transformed structures. A
 TransformedStructure is a structure that has been modified by undergoing a
@@ -168,15 +166,21 @@ class TransformedStructure(MSONable):
         hdict["input_structure"] = self.final_structure.to_dict
         self.history.append(hdict)
         
-    def extend_transformations(self, transformations):
+    def extend_transformations(self, transformations, 
+                               return_alternatives=False):
         """
         Extends a sequence of transformations to the TransformedStructure.
 
         Args:
             transformations: Sequence of Transformations
+            return_alternatives: Whether to return alternative
+                TransformedStructures for one-to-many transformations.
+                return_alternatives can be a number, which stipulates the
+                total number of structures to return.
         """
         for t in transformations:
-            self.append_transformation(t)
+            self.append_transformation(t,
+                    return_alternatives=return_alternatives)
             
     def get_vasp_input(self, vasp_input_set, generate_potcar=True):
         """

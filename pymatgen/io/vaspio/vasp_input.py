@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Classes for reading/manipulating/writing VASP input files. All major VASP input
 files.
@@ -33,7 +31,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.physical_constants import BOLTZMANN_CONST
 from pymatgen.core.design_patterns import Enum
 from pymatgen.core.structure import Structure
-from pymatgen.core.periodic_table import Element
+from pymatgen.core.periodic_table import Element, get_el_sp
 from monty.design_patterns import cached_class
 from pymatgen.util.string_utils import str_aligned, str_delimited
 from pymatgen.util.io_utils import clean_lines
@@ -186,6 +184,7 @@ class Poscar(MSONable):
                     try:
                         potcar = Potcar.from_file(os.path.join(dirname, f))
                         names = [sym.split("_")[0] for sym in potcar.symbols]
+                        map(get_el_sp, names)  # ensure that the names are valid
                     except:
                         names = None
         with zopen(filename, "r") as f:
@@ -386,7 +385,7 @@ class Poscar(MSONable):
             for v in self.predictor_corrector[2:]:
                 lines.append(" ".join([format_str.format(i) for i in v]))
 
-        return "\n".join(lines)
+        return "\n".join(lines) + "\n"
 
     def __str__(self):
         """
@@ -400,7 +399,7 @@ class Poscar(MSONable):
         the Poscar.get_string method and are passed through directly.
         """
         with open(filename, "w") as f:
-            f.write(self.get_string(**kwargs) + "\n")
+            f.write(self.get_string(**kwargs))
 
     @property
     def to_dict(self):
@@ -535,9 +534,9 @@ class Incar(dict):
                 lines.append([k, self[k]])
 
         if pretty:
-            return str_aligned(lines)
+            return str_aligned(lines) + "\n"
         else:
-            return str_delimited(lines, None, " = ")
+            return str_delimited(lines, None, " = ") + "\n"
 
     def __str__(self):
         return self.get_string(sort_keys=True, pretty=False)
@@ -550,7 +549,7 @@ class Incar(dict):
             filename (str): filename to write to.
         """
         with open(filename, "w") as f:
-            f.write(self.__str__() + "\n")
+            f.write(self.__str__())
 
     @staticmethod
     def from_file(filename):
@@ -586,7 +585,8 @@ class Incar(dict):
             val: Actual value of INCAR parameter.
         """
         list_keys = ("LDAUU", "LDAUL", "LDAUJ", "LDAUTYPE", "MAGMOM")
-        bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE", "LHFCALC")
+        bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE",
+                     "LHFCALC", "ADDGRID")
         float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN",
                       "POTIM")
         int_keys = ("NSW", "NBANDS", "NELMIN", "ISIF", "IBRION", "ISPIN",
@@ -825,7 +825,7 @@ class Kpoints(MSONable):
                        kpts_shift=shift)
 
     @staticmethod
-    def automatic_density(structure, kppa):
+    def automatic_density(structure, kppa, force_gamma=False):
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes for hexagonal cells and
@@ -838,6 +838,8 @@ class Kpoints(MSONable):
         Args:
             structure (Structure): Input structure
             kppa (int): Grid density
+            force_gamma (bool): Force a gamma centered mesh (default is to
+                use gamma only for hexagonal cells)
 
         Returns:
             Kpoints
@@ -853,25 +855,14 @@ class Kpoints(MSONable):
         #ensure that numDiv[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
 
-        angles = latt.angles
-        hex_angle_tol = 5  # in degrees
-        hex_length_tol = 0.01  # in angstroms
-        right_angles = [i for i in xrange(3)
-                        if abs(angles[i] - 90) < hex_angle_tol]
-        hex_angles = [i for i in xrange(3)
-                      if abs(angles[i] - 60) < hex_angle_tol or
-                      abs(angles[i] - 120) < hex_angle_tol]
-
-        is_hexagonal = (len(right_angles) == 2 and len(hex_angles) == 1
-                        and abs(lengths[right_angles[0]] -
-                                lengths[right_angles[1]]) < hex_length_tol)
+        is_hexagonal = latt.is_hexagonal()
 
         # VASP documentation recommends to use even grids for n <= 8 and odd
         # grids for n > 8.
         num_div = [i + i % 2 if i <= 8 else i - i % 2 + 1 for i in num_div]
 
         has_odd = any([i % 2 == 1 for i in num_div])
-        if has_odd or is_hexagonal:
+        if has_odd or is_hexagonal or force_gamma:
             style = Kpoints.supported_modes.Gamma
         else:
             style = Kpoints.supported_modes.Monkhorst
@@ -880,6 +871,43 @@ class Kpoints(MSONable):
             "{} / atom".format(kppa)
         num_kpts = 0
         return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
+
+    @staticmethod
+    def automatic_linemode(divisions, ibz):
+        """
+        Convenient static constructor for a KPOINTS in mode line_mode.
+        gamma centered Monkhorst-Pack grids and the number of subdivisions
+        along each reciprocal lattice vector determined by the scheme in the
+        VASP manual.
+
+        Args:
+            divisions: Parameter determining the number of k-points along each
+                hight symetry lines.
+            ibz: HighSymmKpath object (pymatgen.symmetry.bandstructure)
+
+        Returns:
+            Kpoints object
+        """
+        kpoints = list()
+        labels = list()
+        for path in ibz.kpath["path"]:
+            kpoints.append(ibz.kpath["kpoints"][path[0]])
+            labels.append(path[0])
+            for i in range(1, len(path) - 1):
+                kpoints.append(ibz.kpath["kpoints"][path[i]])
+                labels.append(path[i])
+                kpoints.append(ibz.kpath["kpoints"][path[i]])
+                labels.append(path[i])
+
+            kpoints.append(ibz.kpath["kpoints"][path[-1]])
+            labels.append(path[-1])
+
+        return Kpoints("Line_mode KPOINTS file",
+                       style=Kpoints.supported_modes.Line_mode,
+                       coord_type="Reciprocal",
+                       kpts=kpoints,
+                       labels=labels,
+                       num_kpts=int(divisions))
 
     @staticmethod
     def from_file(filename):
@@ -991,17 +1019,19 @@ class Kpoints(MSONable):
             filename (str): Filename to write to.
         """
         with open(filename, "w") as f:
-            f.write(self.__str__() + "\n")
+            f.write(self.__str__())
 
     def __str__(self):
         lines = [self.comment, str(self.num_kpts), self.style]
         style = self.style.lower()[0]
-        if style == "Line-mode":
+        if style == "l":
             lines.append(self.coord_type)
         for i in xrange(len(self.kpts)):
             lines.append(" ".join([str(x) for x in self.kpts[i]]))
             if style == "l":
                 lines[-1] += " ! " + self.labels[i]
+                if i % 2 == 1:
+                    lines[-1] += "\n"
             elif self.num_kpts > 0:
                 if self.labels is not None:
                     lines[-1] += " %i %s" % (self.kpts_weights[i],
@@ -1022,7 +1052,7 @@ class Kpoints(MSONable):
         #Print shifts for automatic kpoints types if not zero.
         if self.num_kpts <= 0 and tuple(self.kpts_shift) != (0, 0, 0):
             lines.append(" ".join([str(x) for x in self.kpts_shift]))
-        return "\n".join(lines)
+        return "\n".join(lines) + "\n"
 
     @property
     def to_dict(self):
@@ -1109,12 +1139,11 @@ class PotcarSingle(object):
         self.keywords = dict(keypairs)
 
     def __str__(self):
-        return self.data
+        return self.data + "\n"
 
     def write_file(self, filename):
-        writer = open(filename, "w")
-        writer.write(self.__str__() + "\n")
-        writer.close()
+        with zopen(filename, "w") as f:
+            f.write(self.__str__())
 
     @staticmethod
     def from_file(filename):
@@ -1239,7 +1268,7 @@ class Potcar(list):
         return potcar
 
     def __str__(self):
-        return "\n".join([str(potcar).strip("\n") for potcar in self])
+        return "\n".join([str(potcar).strip("\n") for potcar in self]) + "\n"
 
     def write_file(self, filename):
         """
@@ -1249,7 +1278,7 @@ class Potcar(list):
             filename (str): filename to write to.
         """
         with open(filename, "w") as f:
-            f.write(self.__str__() + "\n")
+            f.write(self.__str__())
 
     @property
     def symbols(self):

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides classes to define everything related to band structures.
 """
@@ -480,10 +478,9 @@ class BandStructure(object):
 
         Returns:
             A dict {"energy","direct","transition"}:
-            - "energy": band gap energy
-            - "direct": A boolean telling if the gap is direct (True)
-              or not (False)
-            - "transition": kpoint labels of the transition (e.g., "\Gamma-X")
+            "energy": band gap energy
+            "direct": A boolean telling if the gap is direct or not
+            "transition": kpoint labels of the transition (e.g., "\Gamma-X")
         """
         if self.is_metal():
             return {"energy": 0.0, "direct": False, "transition": None}
@@ -600,10 +597,10 @@ class BandStructure(object):
         Create from dict.
 
         Args:
-            A dict with all data for a band structure symm line object.
+            A dict with all data for a band structure object.
 
         Returns:
-            A BandStructureSymmLine object
+            A BandStructure object
         """
         labels_dict = d['labels_dict']
         projections = {}

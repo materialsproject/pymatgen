@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides classes used to modify structures.
 """

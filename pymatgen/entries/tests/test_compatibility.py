@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Created on Mar 19, 2012
 """
@@ -13,10 +11,11 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 19, 2012"
 
+import os
 import unittest
 
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility, \
-    MITCompatibility, AqueousCorrection
+    MITCompatibility, AqueousCorrection, MITAqueousCompatibility, MaterialsProjectAqueousCompatibility
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
 from pymatgen import Composition, Lattice, Structure, Element
@@ -333,10 +332,82 @@ class OxideTypeCorrectionTest(unittest.TestCase):
         self.assertAlmostEqual(li2o_entry_corrected.energy, -3.0 -0.66975, 4)
 
 
+class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
+    
+    def setUp(self):
+        self.compat = MITCompatibility(correct_peroxide=False)
+
+    def test_oxide_energy_corr(self):
+        el_li = Element("Li")
+        el_o = Element("O")
+        elts = [el_li, el_li, el_o]
+        latt = Lattice.from_parameters(3.278, 3.278, 3.278,
+                                       60, 60, 60)
+        coords = [[0.25, 0.25, 0.25],
+                  [0.75, 0.75, 0.75],
+                  [0.0, 0.0, 0.0]]
+        struct = Structure(latt, elts, coords)
+        li2o_entry = ComputedStructureEntry(struct, -3,
+                                            parameters={'is_hubbard': False,
+                                          'hubbards': None,
+                                          'run_type': 'GGA',
+                                          'potcar_symbols':
+        ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
+        li2o_entry_corrected = self.compat.process_entry(li2o_entry)
+        self.assertAlmostEqual(li2o_entry_corrected.energy, -3.0 -0.66975, 4)
+
+    def test_peroxide_energy_corr(self):
+        latt = Lattice.from_parameters(3.159597, 3.159572, 7.685205, 89.999884, 89.999674, 60.000510)
+        el_li = Element("Li")
+        el_o = Element("O")
+        elts = [el_li, el_li, el_li, el_li, el_o, el_o, el_o, el_o]
+        coords = [[0.666656, 0.666705, 0.750001],
+                  [0.333342, 0.333378, 0.250001],
+                  [0.000001, 0.000041, 0.500001],
+                  [0.000001, 0.000021, 0.000001],
+                  [0.333347, 0.333332, 0.649191],
+                  [0.333322, 0.333353, 0.850803],
+                  [0.666666, 0.666686, 0.350813],
+                  [0.666665, 0.666684, 0.149189]]
+        struct = Structure(latt, elts, coords)
+        li2o2_entry = ComputedStructureEntry(struct, -3,
+                                            parameters={'is_hubbard': False,
+                                          'hubbards': None,
+                                          'run_type': 'GGA',
+                                          'potcar_symbols':
+        ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
+        li2o2_entry_corrected = self.compat.process_entry(li2o2_entry)
+        self.assertRaises(AssertionError, self.assertAlmostEqual,
+                           *(li2o2_entry_corrected.energy, -3 - 0.44317 * 4, 4))
+        self.assertAlmostEqual(li2o2_entry_corrected.energy, -3 - 0.66975 * 4, 4)
+
+    def test_ozonide(self):
+        el_li = Element("Li")
+        el_o = Element("O")
+        elts = [el_li, el_o, el_o, el_o]
+        latt = Lattice.from_parameters(3.999911, 3.999911, 3.999911,
+                                       133.847504, 102.228244, 95.477342)
+        coords = [[0.513004, 0.513004, 1.000000],
+                  [0.017616, 0.017616, 0.000000],
+                  [0.649993, 0.874790, 0.775203],
+                  [0.099587, 0.874790, 0.224797]]
+        struct = Structure(latt, elts, coords)
+        lio3_entry = ComputedStructureEntry(struct, -3,
+                                            parameters={'is_hubbard': False,
+                                          'hubbards': None,
+                                          'run_type': 'GGA',
+                                          'potcar_symbols':
+        ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
+        lio3_entry_corrected = self.compat.process_entry(lio3_entry)
+        self.assertAlmostEqual(lio3_entry_corrected.energy, -3.0 - 3 * 0.66975)
+
+
 class AqueousCorrectionTest(unittest.TestCase):
 
     def setUp(self):
-        self.corr = AqueousCorrection("MIT")
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        fp = os.path.join(module_dir, os.path.pardir, "MITCompatibility.yaml")
+        self.corr = AqueousCorrection(fp)
 
     def test_compound_energy(self):
 
@@ -359,6 +430,41 @@ class AqueousCorrectionTest(unittest.TestCase):
         entry = ComputedEntry(Composition("Cl"), -24)
         entry = self.corr.correct_entry(entry)
         self.assertAlmostEqual(entry.energy, -24.344373, 4)
+
+
+class TestMITAqueousCompatibility(unittest.TestCase):
+
+    def setUp(self):
+        self.compat = MITCompatibility()
+        self.aqcompat = MITAqueousCompatibility()
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        fp = os.path.join(module_dir, os.path.pardir, "MITCompatibility.yaml")
+        self.aqcorr =  AqueousCorrection(fp)
+        
+    def test_aqueous_compat(self):
+
+        el_li = Element("Li")
+        el_o = Element("O")
+        el_h = Element("H")
+        latt = Lattice.from_parameters(3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000)
+        elts = [el_h, el_h, el_li, el_li, el_o, el_o]
+        coords = [[0.000000, 0.500000, 0.413969],
+                  [0.500000, 0.000000, 0.586031], 
+                  [0.000000, 0.000000, 0.000000],
+                  [0.500000, 0.500000, 0.000000],
+                  [0.000000, 0.500000, 0.192672],
+                  [0.500000, 0.000000, 0.807328]]
+        struct = Structure(latt, elts, coords)
+        lioh_entry = ComputedStructureEntry(struct, -3,
+                                            parameters={'is_hubbard': False,
+                                          'hubbards': None,
+                                          'run_type': 'GGA',
+                                          'potcar_symbols':
+        ['PAW_PBE Fe 17Jan2003', 'PAW_PBE O 08Apr2002', 'PAW_PBE H 15Jun2001']})
+        lioh_entry_compat = self.compat.process_entry(lioh_entry)
+        lioh_entry_compat_aqcorr = self.aqcorr.correct_entry(lioh_entry_compat)
+        lioh_entry_aqcompat = self.aqcompat.process_entry(lioh_entry)
+        self.assertAlmostEqual(lioh_entry_compat_aqcorr.energy, lioh_entry_aqcompat.energy, 4)
 
 
 if __name__ == "__main__":
