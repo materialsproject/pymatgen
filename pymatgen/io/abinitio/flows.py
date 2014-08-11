@@ -17,7 +17,7 @@ except ImportError:
 
 from pymatgen.util.io_utils import FileLock
 from pymatgen.util.string_utils import pprint_table, is_string
-from pymatgen.io.abinitio.tasks import Dependency, Node, Task, ScfTask, PhononTask 
+from pymatgen.io.abinitio.tasks import Dependency, Node, Task, ScfTask, PhononTask, TaskManager
 from pymatgen.io.abinitio.utils import Directory, Editor
 from pymatgen.io.abinitio.abiinspect import yaml_read_irred_perts
 from pymatgen.io.abinitio.workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow, QptdmWorkflow
@@ -58,13 +58,15 @@ class AbinitFlow(Node):
 
     PICKLE_FNAME = "__AbinitFlow__.pickle"
 
-    def __init__(self, workdir, manager, pickle_protocol=-1):
+    def __init__(self, workdir, manager=None, pickle_protocol=-1):
         """
         Args:
             workdir:
                 String specifying the directory where the workflows will be produced.
             manager:
                 `TaskManager` object responsible for the submission of the jobs.
+                If manager is None, the object is initialized from the yaml file
+                located either in the working directory or in the user configuration dir.
             pickle_procol:
                 Pickle protocol version used for saving the status of the object.
                 -1 denotes the latest version supported by the python interpreter.
@@ -75,6 +77,8 @@ class AbinitFlow(Node):
 
         self.creation_date = time.asctime()
 
+        if manager is None: 
+            manager = TaskManager.from_user_config()
         self.manager = manager.deepcopy()
 
         # List of workflows.
@@ -477,14 +481,19 @@ class AbinitFlow(Node):
                         logger.debug(info_msg)
                         return task.set_status(task.S_ERROR, info_msg)
 
-    def show_status(self, stream=sys.stdout):
+    def show_status(self, stream=sys.stdout, exclude_finalized=1):
         """
         Report the status of the workflows and the status 
         of the different tasks on the specified stream.
+
+        if exclude_finalized, no full entry for works that are completed is printed.
         """
         for i, work in enumerate(self):
             print(80*"=", file=stream)
             print("Workflow #%d: %s, Finalized=%s\n" % (i, work, work.finalized), file=stream)
+
+            if exclude_finalized and work.finalized:
+                continue
 
             table = [["Task", "Status", "Queue_id", 
                       "Errors", "Warnings", "Comments", 
