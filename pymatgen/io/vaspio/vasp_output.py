@@ -1156,36 +1156,47 @@ class VasprunET(object):
         with zopen(filename) as f:
             structures = []
             syms = []
-            text = []
-            read_atoms = False
-            read_structure = False
-            for event, elem in iterparse(f, events=("start", "end")):
-                if (not syms) and elem.tag == "array" and \
-                        elem.attrib.get("name") == "atoms":
-                    read_atoms = event == "start"
-                    if not read_atoms:
-                        text = [t for t in text if t]
-                        syms = map(str.strip, text[0::2])
-                        text = []
+            for event, elem in iterparse(f, events=("end", )):
+                if elem.tag == "incar":
+                    self.incar = self._parse_params(elem, filename)
+                elif elem.tag == "parameters":
+                    self.parameters = self._parse_params(elem, filename)
+                if elem.tag == "array" and elem.attrib.get("name") == "atoms":
+                    for rc in elem.find("set"):
+                        syms.append(rc.find("c").text.strip())
+                    elem.clear()
                 elif elem.tag == "structure":
-                    read_structure = event == "start"
-                    if not read_structure:
-                        text = [t for t in text if t]
-                        data = []
-                        for l in text:
-                            data.append(map(float, l.split()))
-                        latt = data[0:3]
-                        pos = data[6:6+len(syms)]
-                        structures.append(Structure(latt, syms, pos))
-                        text = []
-                        elem.clear()
-                elif read_atoms and elem.tag == "c" and event == "end":
-                    text.append(elem.text)
-                elif read_structure and elem.tag == "v" and event == "end":
-                    text.append(elem.text)
+                    structures.append(self._parse_structure(elem, syms))
+                    elem.clear()
         self.initial_structure = structures.pop(0)
         self.final_structure = structures[-1]
         self.structures = structures
+
+    def _parse_params(self, elem, filename):
+        params = {}
+        for c in elem:
+            if c.tag not in ("i", "v"):
+                params.update(self._parse_params(c, filename))
+            else:
+                name = c.attrib.get("name")
+                ptype = c.attrib.get("type")
+                val = c.text
+                if c.tag == "i":
+                    params[name] = parse_parameters(ptype, val)
+                else:
+                    params[name] = parse_v_parameters(ptype, val, filename,
+                                                      name)
+        return params
+
+    def _parse_structure(self, elem, syms):
+        latt = []
+        pos = []
+        for v in elem.find("crystal").find("varray"):
+            latt.append([float(i) for i in v.text.split()])
+        for v in elem.find("varray"):
+            pos.append([float(i) for i in v.text.split()])
+        return Structure(latt, syms, pos)
+
 
 
 class Outcar(object):
