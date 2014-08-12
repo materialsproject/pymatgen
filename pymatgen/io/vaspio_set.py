@@ -657,7 +657,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         self.incar_settings.update(
             {"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
              "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0,
-             "ICHARG": 0, "EDIFF": 0.000001})
+             "ICHARG": 0, "EDIFF": 0.000001, "ALGO": "Normal"})
         self.kpoints_settings.update({"kpoints_density": kpoints_density})
         self.sym_prec = sym_prec
 
@@ -783,7 +783,8 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         # Use previous run INCAR and override necessary parameters
         previous_incar.update({"IBRION": -1, "ISMEAR": -5, "LAECHG": True,
                                "LCHARG": True, "LORBIT": 11, "LVHAR": True,
-                               "LWAVE": False, "NSW": 0, "ICHARG": 0})
+                               "LWAVE": False, "NSW": 0, "ICHARG": 0,
+                               "ALGO": "Normal"})
 
         for incar_key in ["MAGMOM", "NUPDOWN"]:
             if new_incar.get(incar_key, None):
