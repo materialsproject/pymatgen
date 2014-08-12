@@ -17,7 +17,7 @@ import json
 import numpy as np
 
 from pymatgen.io.vaspio.vasp_output import Chgcar, Locpot, Oszicar, Outcar, \
-    Vasprun, Procar, Xdatcar
+    Vasprun, Procar, Xdatcar, VasprunET
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 
@@ -286,6 +286,16 @@ class XdatcarTest(unittest.TestCase):
         self.assertEqual(len(structures), 3)
         for s in structures:
             self.assertEqual(s.formula, "Li2 O1")
+
+
+class VasprunETTestCase(unittest.TestCase):
+
+    def test_init(self):
+        filepath = os.path.join(test_dir, 'vasprun.xml')
+        v1 = Vasprun(filepath)
+        v2 = VasprunET(filepath)
+        for s1, s2 in zip(v1.structures, v2.structures):
+            self.assertEqual(s1, s2)
 
 
 if __name__ == "__main__":

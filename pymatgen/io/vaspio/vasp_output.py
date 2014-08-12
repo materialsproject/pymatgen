@@ -24,6 +24,7 @@ import xml.sax.handler
 import StringIO
 import logging
 from collections import defaultdict
+from xml.etree.cElementTree import iterparse
 
 import numpy as np
 
@@ -1142,6 +1143,49 @@ def parse_from_incar(filename, key):
             else:
                 return None
     return None
+
+
+class VasprunET(object):
+    """
+    A cElementTree implementation of the Vasprun parser. Easier API.
+    Optimized for parsing structures for now. Probably can be expanded to do
+    much more.
+    """
+
+    def __init__(self, filename):
+        with zopen(filename) as f:
+            structures = []
+            syms = []
+            text = []
+            read_atoms = False
+            read_structure = False
+            for event, elem in iterparse(f, events=("start", "end")):
+                if (not syms) and elem.tag == "array" and \
+                        elem.attrib.get("name") == "atoms":
+                    read_atoms = event == "start"
+                    if not read_atoms:
+                        text = [t for t in text if t]
+                        syms = map(str.strip, text[0::2])
+                        text = []
+                elif elem.tag == "structure":
+                    read_structure = event == "start"
+                    if not read_structure:
+                        text = [t for t in text if t]
+                        data = []
+                        for l in text:
+                            data.append(map(float, l.split()))
+                        latt = data[0:3]
+                        pos = data[6:6+len(syms)]
+                        structures.append(Structure(latt, syms, pos))
+                        text = []
+                        elem.clear()
+                elif read_atoms and elem.tag == "c" and event == "end":
+                    text.append(elem.text)
+                elif read_structure and elem.tag == "v" and event == "end":
+                    text.append(elem.text)
+        self.initial_structure = structures.pop(0)
+        self.final_structure = structures[-1]
+        self.structures = structures
 
 
 class Outcar(object):
