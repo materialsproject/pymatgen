@@ -18,6 +18,8 @@ import math
 from monty.dev import deprecated
 from pymatgen.core.lattice import Lattice
 
+#array size threshold for looping instead of broadcasting
+LOOP_THRESHOLD = 1e6
 
 def find_in_coord_list(coord_list, coord, atol=1e-8):
     """
@@ -256,12 +258,20 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
     cart_f1 = lattice.get_cartesian_coords(fcoords1)
     cart_f2 = lattice.get_cartesian_coords(shifted_f2)
 
-    #all vectors from f1 to f2
-    vectors = cart_f2[None, :, :, :] - cart_f1[:, None, None, :]
-
-    d_2 = np.sum(vectors ** 2, axis=3)
-    a, b = np.indices([len(fcoords1), len(fcoords2)])
-    return vectors[a, b, np.argmin(d_2, axis=2)]
+    if cart_f1.size * cart_f2.size < LOOP_THRESHOLD:
+        #all vectors from f1 to f2
+        vectors = cart_f2[None, :, :, :] - cart_f1[:, None, None, :]
+        d_2 = np.sum(vectors ** 2, axis=-1)
+        a, b = np.indices(vectors.shape[:2])
+        return vectors[a, b, np.argmin(d_2, axis=-1)]
+    else:
+        shortest = np.zeros((len(cart_f1), len(cart_f2), 3))
+        for i, c1 in enumerate(cart_f1):
+            vectors = cart_f2[:, :, :] - c1[None, None, :]
+            d_2 = np.sum(vectors ** 2, axis=-1)
+            shortest[i] = vectors[np.arange(len(vectors)), 
+                                  np.argmin(d_2, axis=-1)]
+        return shortest
 
 
 def find_in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8):
