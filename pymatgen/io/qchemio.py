@@ -10,7 +10,7 @@ from string import Template
 from monty.io import zopen
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule
-from pymatgen.core.units import Energy
+from pymatgen.core.units import Energy, FloatWithUnit
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.util.coord_utils import get_angle
 
@@ -1157,7 +1157,9 @@ class QcOutput(object):
                                         "\s+(?P<rydberg>\-?\d+\.\d+)\s+(?P<total>\-?\d+\.\d+)"
                                         "(\s+(?P<spin>\-?\d\.\d+))?")
         nbo_wavefunction_type_pattern = re.compile("This is an? (?P<type>\w+\-\w+) NBO calculation")
-        float_pattern = re.compile("-?\d+\.?\d+([eE]\d+)?$")
+        bsse_pattern = re.compile("DE, kJ/mol\s+(?P<raw_be>\-?\d+\.?\d+([eE]\d+)?)\s+"
+                                  "(?P<corrected_be>\-?\d+\.?\d+([eE]\d+)?)")
+        float_pattern = re.compile("\-?\d+\.?\d+([eE]\d+)?$")
 
         error_defs = (
             (re.compile("Convergence failure"), "Bad SCF convergence"),
@@ -1218,6 +1220,7 @@ class QcOutput(object):
         current_alpha_lumo = None
         current_beta_homo = None
         homo_lumo = []
+        bsse = None
         for line in output.split("\n"):
             for ep, message in error_defs:
                 if ep.search(line):
@@ -1410,6 +1413,12 @@ class QcOutput(object):
                     if m:
                         thermal_corr[m.group("name")] = \
                             float(m.group("correction"))
+                m = bsse_pattern.search(line)
+                if m:
+                    raw_be = float(m.group("raw_be"))
+                    corrected_be = float(m.group("corrected_be"))
+                    bsse_fwu = FloatWithUnit(raw_be - corrected_be, "kJ mol^-1")
+                    bsse = bsse_fwu.to('eV atom^-1').real
                 name = None
                 energy = None
                 m = scf_energy_pattern.search(line)
@@ -1510,6 +1519,7 @@ class QcOutput(object):
             "jobtype": jobtype,
             "energies": energies,
             "HOMO/LUMOs": homo_lumo,
+            "bsse": bsse,
             'charges': charges,
             "corrections": thermal_corr,
             "molecules": molecules,
