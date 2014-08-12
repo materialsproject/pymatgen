@@ -296,7 +296,8 @@ class VasprunETTestCase(unittest.TestCase):
         v2 = VasprunET(filepath)
         for s1, s2 in zip(v1.structures, v2.structures):
             self.assertEqual(s1, s2)
-
+        self.assertEqual(v1.atomic_symbols, v2.atomic_symbols)
+        self.assertEqual(v1.potcar_symbols, v2.potcar_symbols)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
