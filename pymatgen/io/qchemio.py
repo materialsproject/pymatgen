@@ -151,7 +151,7 @@ class QcTask(MSONable):
                 if k in self.alternative_keys:
                     k = self.alternative_keys[k]
                 if isinstance(v, str) or isinstance(v, unicode):
-                    v = v.lower()
+                    v = str(v).lower()
                     if v in self.alternative_values:
                         v = self.alternative_values[v]
                     self.params["rem"][k] = v
@@ -551,9 +551,9 @@ class QcTask(MSONable):
     def _format_molecule(self):
         lines = []
 
-        def inner_format_mol(m):
+        def inner_format_mol(m2):
             mol_lines = []
-            for site in m.sites:
+            for site in m2.sites:
                 mol_lines.append(" {element:<4} {x:>17.8f} {y:>17.8f} "
                                  "{z:>17.8f}".format(element=site.species_string,
                                                      x=site.x, y=site.y, z=site.z))
@@ -674,7 +674,6 @@ class QcTask(MSONable):
 
     @property
     def to_dict(self):
-        mol_dict = None
         if isinstance(self.mol, str) or isinstance(self.mol, unicode):
             mol_dict = self.mol
         elif isinstance(self.mol, Molecule):
