@@ -298,7 +298,7 @@ class VasprunETTestCase(unittest.TestCase):
             self.assertEqual(s1, s2)
         self.assertEqual(v1.atomic_symbols, v2.atomic_symbols)
         self.assertEqual(v1.potcar_symbols, v2.potcar_symbols)
-
+        print
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
