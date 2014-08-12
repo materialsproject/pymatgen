@@ -1155,6 +1155,7 @@ class VasprunET(object):
     def __init__(self, filename):
         with zopen(filename) as f:
             structures = []
+            ionic_steps = []
             for event, elem in iterparse(f, events=("end", )):
                 if elem.tag == "incar":
                     self.incar = self._parse_params(elem, filename)
@@ -1170,11 +1171,27 @@ class VasprunET(object):
                                 rc.findall("c")[4].text.strip()
                                 for rc in a.find("set")]
                     elem.clear()
-                elif elem.tag == "structure":
-                    structures.append(
-                        self._parse_structure(elem, self.atomic_symbols))
+                elif elem.tag == "calculation":
+                    esteps = []
+                    for scstep in elem.findall("scstep"):
+                        esteps.append(
+                            {i.attrib["name"]: float(i.text)
+                             for i in scstep.find("energy").findall("i")})
+                    s = self._parse_structure(elem.find("structure"),
+                                              self.atomic_symbols)
+                    ionic_steps.append({
+                        "electronic_steps": esteps,
+                        "structure": s
+                    })
+
+                    structures.append(s)
                     elem.clear()
-        self.initial_structure = structures.pop(0)
+                elif elem.tag == "structure" and elem.attrib.get("name") == \
+                        "initialpos":
+                    self.initial_structure = self._parse_structure(
+                        elem, self.atomic_symbols)
+                    elem.clear()
+        self.ionic_steps = ionic_steps
         self.final_structure = structures[-1]
         self.structures = structures
 
