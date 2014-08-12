@@ -1440,13 +1440,15 @@ class QcOutput(object):
                 parse_beta_lumo = False
                 current_homo = max([current_alpha_homo, current_beta_homo])
                 current_lumo = min([current_alpha_lumo, current_beta_lumo])
-                homo_lumo.append([current_homo, current_lumo])
+                homo_lumo.append([Energy(current_homo, "Ha").to("eV"),
+                                  Energy(current_lumo, "Ha").to("eV")])
                 current_alpha_homo = None
                 current_alpha_lumo = None
                 current_beta_homo = None
                 continue
             elif "-" * 50 in line and not (current_alpha_lumo is None):
-                homo_lumo.append([current_alpha_homo, current_alpha_lumo])
+                homo_lumo.append([Energy(current_alpha_homo, "Ha").to("eV"),
+                                  Energy(current_alpha_lumo, "Ha").to("eV")])
                 current_alpha_homo = None
                 current_alpha_lumo = None
                 current_beta_homo = None
