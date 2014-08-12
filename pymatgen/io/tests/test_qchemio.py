@@ -1686,6 +1686,11 @@ $end
                                                       [-0.183, -0.158],
                                                       [-0.175, -0.14]])
 
+    def test_bsse(self):
+        filename = os.path.join(test_dir, "bsse.qcout")
+        qcout = QcOutput(filename)
+        self.assertAlmostEqual(qcout.data[0]["bsse"], -0.164210762949, 5)
+
 
 if __name__ == "__main__":
     unittest.main()
