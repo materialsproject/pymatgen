@@ -1172,28 +1172,17 @@ class VasprunET(object):
                                 for rc in a.find("set")]
                     elem.clear()
                 elif elem.tag == "calculation":
-                    esteps = []
-                    for scstep in elem.findall("scstep"):
-                        esteps.append(
-                            {i.attrib["name"]: float(i.text)
-                             for i in scstep.find("energy").findall("i")})
-                    s = self._parse_structure(elem.find("structure"),
-                                              self.atomic_symbols)
-                    ionic_steps.append({
-                        "electronic_steps": esteps,
-                        "structure": s
-                    })
-
-                    structures.append(s)
+                    ionic_steps.append(self._parse_calculation(elem))
                     elem.clear()
                 elif elem.tag == "structure" and elem.attrib.get("name") == \
                         "initialpos":
-                    self.initial_structure = self._parse_structure(
-                        elem, self.atomic_symbols)
+                    self.initial_structure = self._parse_structure(elem)
                     elem.clear()
         self.ionic_steps = ionic_steps
-        self.final_structure = structures[-1]
-        self.structures = structures
+        self.structures = [d["structure"] for d in ionic_steps]
+
+    def final_structure(self):
+        return self.structures[-1]
 
     def _parse_params(self, elem, filename):
         params = {}
@@ -1211,14 +1200,28 @@ class VasprunET(object):
                                                       name)
         return params
 
-    def _parse_structure(self, elem, syms):
+    def _parse_calculation(self, elem):
+        esteps = []
+        for scstep in elem.findall("scstep"):
+            esteps.append(
+                {i.attrib["name"]: float(i.text)
+                 for i in scstep.find("energy").findall("i")})
+        s = self._parse_structure(elem.find("structure"))
+
+        istep = {i.attrib["name"]: float(i.text)
+                  for i in elem.find("energy").findall("i")}
+        istep["electronic_steps"] = esteps
+        istep["structure"] = s
+        return istep
+
+    def _parse_structure(self, elem):
         latt = []
         pos = []
         for v in elem.find("crystal").find("varray"):
             latt.append([float(i) for i in v.text.split()])
         for v in elem.find("varray"):
             pos.append([float(i) for i in v.text.split()])
-        return Structure(latt, syms, pos)
+        return Structure(latt, self.atomic_symbols, pos)
 
 
 
