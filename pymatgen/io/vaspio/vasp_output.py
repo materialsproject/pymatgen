@@ -1152,9 +1152,10 @@ class VasprunET(object):
     much more.
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename, parse_dos=True):
         with zopen(filename) as f:
             ionic_steps = []
+            self.structures = []
             for event, elem in iterparse(f, events=("end", )):
                 if elem.tag == "incar":
                     self.incar = self._parse_params(elem, filename)
@@ -1172,16 +1173,53 @@ class VasprunET(object):
                     elem.clear()
                 elif elem.tag == "calculation":
                     ionic_steps.append(self._parse_calculation(elem))
+                    self.structures.append(ionic_steps[-1]["structure"])
                     elem.clear()
                 elif elem.tag == "structure" and elem.attrib.get("name") == \
                         "initialpos":
                     self.initial_structure = self._parse_structure(elem)
                     elem.clear()
+                elif parse_dos and elem.tag == "dos":
+                    self.tdos, self.idos, pdos = self._parse_dos(elem)
+                    self.complete_dos = CompleteDos(self.final_structure,
+                                                    self.tdos, pdos)
         self.ionic_steps = ionic_steps
-        self.structures = [d["structure"] for d in ionic_steps]
 
+    @property
     def final_structure(self):
         return self.structures[-1]
+
+    def _parse_dos(self, elem):
+        efermi = float(elem.find("i").text)
+        energies = None
+        tdensities = {}
+        idensities = {}
+
+        for s in elem.find("total").find("array").find("set").findall("set"):
+            data = np.array(parse_varray(s))
+            energies = data[0, :]
+            spin = Spin.up if s.attrib["comment"] == "spin 1" else Spin.down
+            tdensities[spin] = data[1, :]
+            idensities[spin] = data[2, :]
+
+        i = 0
+        pdos = defaultdict(dict)
+        structure = self.final_structure
+        for s in elem.find("partial").find("array").find("set").findall("set"):
+            data = {}
+            for ss in s.findall("set"):
+                spin = Spin.up if s.attrib["comment"] == "spin 1" else Spin.down
+                data[spin] = np.array(parse_varray(ss))
+                nrow, ncol = data[spin].shape
+            for j in xrange(1, ncol):
+                pdos[structure[i]][Orbital.from_vasp_index(j - 1)] = {
+                    k: v[i, :] for k, v in data.items()
+                }
+            i += 1
+
+        return Dos(efermi, energies, tdensities), \
+               Dos(efermi, energies, idensities), \
+               pdos
 
     def _parse_params(self, elem, filename):
         params = {}
