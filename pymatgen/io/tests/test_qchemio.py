@@ -1723,16 +1723,18 @@ $end
     def test_homo_lumo(self):
         filename = os.path.join(test_dir, "quinoxaline_anion.qcout")
         qcout = QcOutput(filename)
-        self.assertEqual(qcout.data[0]["HOMO/LUMOs"], [[0.037, 0.103]])
+        for a, b in zip(qcout.data[0]["HOMO/LUMOs"][-1],
+                        [1.00682120282, 2.80277253758]):
+            self.assertAlmostEqual(a, b, 5)
         filename = os.path.join(test_dir, "qchem_energies", "hf_ccsd(t).qcout")
         qcout = QcOutput(filename)
-        self.assertEqual(qcout.data[0]["HOMO/LUMOs"], [[-0.652, 0.192],
-                                                       [-0.652, 0.192]])
+        self.assertEqual(qcout.data[0]["HOMO/LUMOs"], [[-17.74182227672, 5.2245857011200005],
+                                                       [-17.74182227672, 5.2245857011200005]])
         filename = os.path.join(test_dir, "crowd_gradient_number.qcout")
         qcout = QcOutput(filename)
-        self.assertEqual(qcout.data[0]["HOMO/LUMOs"], [[-0.211, -0.167],
-                                                      [-0.183, -0.158],
-                                                      [-0.175, -0.14]])
+        self.assertEqual(qcout.data[0]["HOMO/LUMOs"], [[-5.74160199446, -4.544301104620001],
+                                                       [-4.9796832463800005, -4.2993986498800005],
+                                                       [-4.7619921755, -3.8095937404000004]])
 
     def test_bsse(self):
         filename = os.path.join(test_dir, "bsse.qcout")
