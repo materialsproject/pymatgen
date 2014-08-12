@@ -91,14 +91,26 @@ class QcTask(MSONable):
                  basis_set="6-31+G*", aux_basis_set=None, ecp=None,
                  rem_params=None, optional_params=None):
         self.mol = copy.deepcopy(molecule) if molecule else "read"
-        if isinstance(self.mol, str):
-            self.mol = self.mol.lower()
         self.charge = charge
         self.spin_multiplicity = spin_multiplicity
-        if not (isinstance(self.mol, str) and self.mol == "read"):
-            if not isinstance(self.mol, Molecule):
-                raise ValueError("The molecule must be a pymatgen Molecule "
-                                 "object or read/None")
+        if isinstance(self.mol, str) or isinstance(self.mol, unicode):
+            self.mol = self.mol.lower()
+            if self.mol != "read":
+                raise ValueError('The only accept text value for mol is "read"')
+        elif isinstance(self.mol, list):
+            for m in self.mol:
+                if not isinstance(m, Molecule):
+                    raise ValueError("In case of type list, every element of mol must be a pymatgen Molecule")
+            if self.charge is None or self.spin_multiplicity is None:
+                raise ValueError("For fragments molecule section input, charge and spin_multiplicity "
+                                 "must be specificed")
+            total_charge = sum([m.charge for m in self.mol])
+            total_unpaired_electron = sum([m.spin_multiplicity-1 for m in self.mol])
+            if total_charge != self.charge:
+                raise ValueError("The charge of the molecule doesn't equal to the sum of the fragment charges")
+            if total_unpaired_electron % 2 != (self.spin_multiplicity - 1) % 2:
+                raise ValueError("Spin multiplicity of molecule and fragments doesn't match")
+        elif isinstance(self.mol, Molecule):
             self.charge = charge if charge is not None else self.mol.charge
             nelectrons = self.mol.charge + self.mol.nelectrons - self.charge
             if spin_multiplicity is not None:
@@ -109,6 +121,9 @@ class QcTask(MSONable):
                                      .format(self.charge, spin_multiplicity))
             else:
                 self.spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
+        else:
+            raise ValueError("The molecule must be a pymatgen Molecule "
+                             "object or read/None or list of pymatgen Molecule")
         if (self.charge is None) != (self.spin_multiplicity is None):
             raise ValueError("spin multiplicity must be set together")
         if self.charge is not None and isinstance(self.mol, Molecule):
@@ -135,7 +150,7 @@ class QcTask(MSONable):
                 k = k.lower()
                 if k in self.alternative_keys:
                     k = self.alternative_keys[k]
-                if isinstance(v, str):
+                if isinstance(v, str) or isinstance(v, unicode):
                     v = v.lower()
                     if v in self.alternative_values:
                         v = self.alternative_values[v]
@@ -157,7 +172,8 @@ class QcTask(MSONable):
 
         if aux_basis_set is None:
             if self._aux_basis_required():
-                if isinstance(self.params["rem"]["basis"], str):
+                if isinstance(self.params["rem"]["basis"], str) or \
+                        isinstance(self.params["rem"]["basis"], unicode):
                     if self.params["rem"]["basis"].startswith("6-31+g"):
                         self.set_auxiliary_basis_set("rimp2-aug-cc-pvdz")
                     elif self.params["rem"]["basis"].startswith("6-311+g"):
@@ -215,7 +231,7 @@ class QcTask(MSONable):
             raise Exception('Can\'t handle type "{}"'.format(type(basis_set)))
 
     def set_auxiliary_basis_set(self, aux_basis_set):
-        if isinstance(aux_basis_set, str):
+        if isinstance(aux_basis_set, str) or isinstance(aux_basis_set, unicode):
             self.params["rem"]["aux_basis"] = aux_basis_set.lower()
             if aux_basis_set.lower() not in ["gen", "mixed"]:
                 self.params.pop("aux_basis", None)
@@ -253,7 +269,7 @@ class QcTask(MSONable):
             raise Exception('Can\'t handle type "{}"'.format(type(aux_basis_set)))
 
     def set_ecp(self, ecp):
-        if isinstance(ecp, str):
+        if isinstance(ecp, str) or isinstance(ecp, unicode):
             self.params["rem"]["ecp"] = ecp.lower()
         elif isinstance(ecp, dict):
             self.params["rem"]["ecp"] = "gen"
@@ -501,15 +517,15 @@ class QcTask(MSONable):
         if pcm_params:
             for k, v in pcm_params.iteritems():
                 self.params["pcm"][k.lower()] = v.lower() \
-                    if isinstance(v, str) else v
+                    if isinstance(v, str) or isinstance(v, unicode) else v
 
         for k, v in default_pcm_params.iteritems():
             if k.lower() not in self.params["pcm"].keys():
                 self.params["pcm"][k.lower()] = v.lower() \
-                    if isinstance(v, str) else v
+                    if isinstance(v, str) or isinstance(v, unicode) else v
         for k, v in solvent_params.iteritems():
             self.params["pcm_solvent"][k.lower()] = v.lower() \
-                if isinstance(v, str) else copy.deepcopy(v)
+                if isinstance(v, str) or isinstance(v, unicode) else copy.deepcopy(v)
         self.params["rem"]["solvent_method"] = "pcm"
         if radii_force_field:
             self.params["pcm"]["radii"] = "bondi"
@@ -534,16 +550,29 @@ class QcTask(MSONable):
 
     def _format_molecule(self):
         lines = []
+
+        def inner_format_mol(m):
+            mol_lines = []
+            for site in m.sites:
+                mol_lines.append(" {element:<4} {x:>17.8f} {y:>17.8f} "
+                                 "{z:>17.8f}".format(element=site.species_string,
+                                                     x=site.x, y=site.y, z=site.z))
+            return mol_lines
+
         if self.charge is not None:
             lines.append(" {charge:d}  {multi:d}".format(charge=self
                          .charge, multi=self.spin_multiplicity))
-        if isinstance(self.mol, str) and self.mol == "read":
+        if (isinstance(self.mol, str) or isinstance(self.mol, unicode))\
+                and self.mol == "read":
             lines.append(" read")
+        elif isinstance(self.mol, list):
+            for m in self.mol:
+                lines.append("--")
+                lines.append(" {charge:d}  {multi:d}".format(
+                    charge=m.charge, multi=m.spin_multiplicity))
+                lines.extend(inner_format_mol(m))
         else:
-            for site in self.mol.sites:
-                lines.append(" {element:<4} {x:>17.8f} {y:>17.8f} "
-                             "{z:>17.8f}".format(element=site.species_string,
-                                                 x=site.x, y=site.y, z=site.z))
+            lines.extend(inner_format_mol(self.mol))
         return lines
 
     def _format_rem(self):
@@ -645,18 +674,32 @@ class QcTask(MSONable):
 
     @property
     def to_dict(self):
+        mol_dict = None
+        if isinstance(self.mol, str) or isinstance(self.mol, unicode):
+            mol_dict = self.mol
+        elif isinstance(self.mol, Molecule):
+            mol_dict = self.mol.to_dict
+        elif isinstance(self.mol, list):
+            mol_dict = [m.to_dict for m in self.mol]
+        else:
+            raise ValueError('Unknow molecule type "{}"'.format(type(self.mol)))
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "molecule": self.mol if isinstance(self.mol, str)
-                else self.mol.to_dict,
+                "molecule": mol_dict,
                 "charge": self.charge,
                 "spin_multiplicity": self.spin_multiplicity,
                 "params": self.params}
 
     @classmethod
     def from_dict(cls, d):
-        mol = "read" if d["molecule"] == "read" \
-            else Molecule.from_dict(d["molecule"])
+        if d["molecule"] == "read":
+            mol = "read"
+        elif isinstance(d["molecule"], dict):
+            mol = Molecule.from_dict(d["molecule"])
+        elif isinstance(d["molecule"], list):
+            mol = [Molecule.from_dict(m) for m in d["molecule"]]
+        else:
+            raise ValueError('Unknow molecule type "{}"'.format(type(d["molecule"])))
         jobtype = d["params"]["rem"]["jobtype"]
         title = d["params"].get("comment", None)
         exchange = d["params"]["rem"]["exchange"]
@@ -899,8 +942,23 @@ class QcTask(MSONable):
         elif charge is None or spin_multiplicity is None:
             raise ValueError("Charge or spin multiplicity is not found")
         else:
-            mol = cls._parse_coords(contents[1:])
-            mol.set_charge_and_spin(charge, spin_multiplicity)
+            if contents[1].strip()[0:2] == "--":
+                chunks = "\n".join(contents[2:]).split("--\n")
+                mol = []
+                for chunk in chunks:
+                    mol_contents = chunk.split("\n")
+                    m = charge_multi_pattern.match(mol_contents[0])
+                    if m:
+                        fragment_charge = int(m.group("charge"))
+                        fragment_spin_multiplicity = int(m.group("multi"))
+                    else:
+                        raise Exception("charge and spin multiplicity must be specified for each fragment")
+                    fragment = cls._parse_coords(mol_contents[1:])
+                    fragment.set_charge_and_spin(fragment_charge, fragment_spin_multiplicity)
+                    mol.append(fragment)
+            else:
+                mol = cls._parse_coords(contents[1:])
+                mol.set_charge_and_spin(charge, spin_multiplicity)
             return mol, charge, spin_multiplicity
 
     @classmethod
