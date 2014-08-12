@@ -1157,22 +1157,46 @@ class VasprunET(object):
             structures = []
             syms = []
             for event, elem in iterparse(f, events=("end", )):
+                if elem.tag == "incar":
+                    self.incar = self._parse_params(elem, filename)
+                elif elem.tag == "parameters":
+                    self.parameters = self._parse_params(elem, filename)
                 if elem.tag == "array" and elem.attrib.get("name") == "atoms":
                     for rc in elem.find("set"):
                         syms.append(rc.find("c").text.strip())
                     elem.clear()
                 elif elem.tag == "structure":
-                    latt = []
-                    pos = []
-                    for v in elem.find("crystal").find("varray"):
-                        latt.append([float(i) for i in v.text.split()])
-                    for v in elem.find("varray"):
-                        pos.append([float(i) for i in v.text.split()])
-                    structures.append(Structure(latt, syms, pos))
+                    structures.append(self._parse_structure(elem, syms))
                     elem.clear()
         self.initial_structure = structures.pop(0)
         self.final_structure = structures[-1]
         self.structures = structures
+
+    def _parse_params(self, elem, filename):
+        params = {}
+        for c in elem:
+            if c.tag not in ("i", "v"):
+                params.update(self._parse_params(c, filename))
+            else:
+                name = c.attrib.get("name")
+                ptype = c.attrib.get("type")
+                val = c.text
+                if c.tag == "i":
+                    params[name] = parse_parameters(ptype, val)
+                else:
+                    params[name] = parse_v_parameters(ptype, val, filename,
+                                                      name)
+        return params
+
+    def _parse_structure(self, elem, syms):
+        latt = []
+        pos = []
+        for v in elem.find("crystal").find("varray"):
+            latt.append([float(i) for i in v.text.split()])
+        for v in elem.find("varray"):
+            pos.append([float(i) for i in v.text.split()])
+        return Structure(latt, syms, pos)
+
 
 
 class Outcar(object):
