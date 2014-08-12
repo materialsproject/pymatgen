@@ -187,9 +187,21 @@ class CoordUtilsTest(PymatgenTest):
                              [3.015, 0.000, 3.207, 1.131, 4.453],
                              [4.072, 3.207, 0.000, 2.251, 1.788],
                              [3.519, 1.131, 2.251, 0.000, 3.852]])
+
         vectors = pbc_shortest_vectors(lattice, fcoords[:-1], fcoords)
         dists = np.sum(vectors**2, axis = -1)**0.5
         self.assertArrayAlmostEqual(dists, expected, 3)
+
+        #now try with small loop threshold
+        from pymatgen.util import coord_utils
+        prev_threshold = coord_utils.LOOP_THRESHOLD
+        coord_utils.LOOP_THRESHOLD = 0
+
+        vectors = pbc_shortest_vectors(lattice, fcoords[:-1], fcoords)
+        dists = np.sum(vectors**2, axis = -1)**0.5
+        self.assertArrayAlmostEqual(dists, expected, 3)
+
+        coord_utils.LOOP_THRESHOLD = prev_threshold
 
 
 if __name__ == "__main__":
