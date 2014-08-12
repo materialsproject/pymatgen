@@ -1,10 +1,13 @@
+import copy
 import glob
 import json
 import os
 from unittest import TestCase
 import unittest
+
 from pymatgen import Molecule
 from pymatgen.io.qchemio import QcTask, QcInput, QcOutput
+
 
 __author__ = 'xiaohuiqu'
 
@@ -21,9 +24,15 @@ coords = [[0.000000, 0.000000, 0.000000],
 mol = Molecule(["C", "H", "H", "H", "Cl"], coords)
 
 coords2 = [[0.0, 0.0, -2.4],
-          [0.0, 0.0, 0.0],
-          [0.0, 0.0, 2.4]]
+           [0.0, 0.0, 0.0],
+           [0.0, 0.0, 2.4]]
 heavy_mol = Molecule(["Br", "Cd", "Br"], coords2)
+
+coords3 = [[2.632273, -0.313504, -0.750376],
+           [3.268182, -0.937310, -0.431464],
+           [2.184198, -0.753305, -1.469059]]
+
+water_mol = Molecule(["O", "H", "H"], coords3)
 
 
 class TestQcTask(TestCase):
@@ -160,6 +169,45 @@ $end
         qctask = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
+
+    def test_fragmented_molecule(self):
+        mol1 = copy.deepcopy(mol)
+        mol1.set_charge_and_spin(1, 2)
+        mol2 = copy.deepcopy(water_mol)
+        mol2.set_charge_and_spin(-1, 2)
+        qctask = QcTask([mol1, mol2], title="Test Fragments", exchange="B3LYP",
+                        jobtype="bsse", charge=0, spin_multiplicity=3, basis_set="6-31++G**")
+        ans = """$comment
+ Test Fragments
+$end
+
+
+$molecule
+ 0  3
+--
+ 1  2
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ H           1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ Cl         -0.51336000        0.88916500       -0.36300000
+--
+ -1  2
+ O           2.63227300       -0.31350400       -0.75037600
+ H           3.26818200       -0.93731000       -0.43146400
+ H           2.18419800       -0.75330500       -1.46905900
+$end
+
+
+$rem
+   jobtype = bsse
+  exchange = b3lyp
+     basis = 6-31++g**
+$end
+
+"""
         self.assertEqual(str(qctask), ans)
         self.elementary_io_verify(ans, qctask)
 
@@ -1666,6 +1714,33 @@ $end
                0.86201, 0.85672, -0.35698, -0.35373, -0.35782, -0.35647,
                -0.35646, -0.35787, -1.26555]
         self.assertEqual(qcout.data[0]["charges"]["nbo"], ans)
+
+    def test_simple_aimd(self):
+        filename = os.path.join(test_dir, "h2o_aimd.qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(len(qcout.data[0]["molecules"]), 11)
+
+    def test_homo_lumo(self):
+        filename = os.path.join(test_dir, "quinoxaline_anion.qcout")
+        qcout = QcOutput(filename)
+        for a, b in zip(qcout.data[0]["HOMO/LUMOs"][-1],
+                        [1.00682120282, 2.80277253758]):
+            self.assertAlmostEqual(a, b, 5)
+        filename = os.path.join(test_dir, "qchem_energies", "hf_ccsd(t).qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(qcout.data[0]["HOMO/LUMOs"], [[-17.74182227672, 5.2245857011200005],
+                                                       [-17.74182227672, 5.2245857011200005]])
+        filename = os.path.join(test_dir, "crowd_gradient_number.qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(qcout.data[0]["HOMO/LUMOs"], [[-5.74160199446, -4.544301104620001],
+                                                       [-4.9796832463800005, -4.2993986498800005],
+                                                       [-4.7619921755, -3.8095937404000004]])
+
+    def test_bsse(self):
+        filename = os.path.join(test_dir, "bsse.qcout")
+        qcout = QcOutput(filename)
+        self.assertAlmostEqual(qcout.data[0]["bsse"], -0.164210762949, 5)
+        self.assertEqual(qcout.data[0]["jobtype"], "bsse")
 
 
 if __name__ == "__main__":
