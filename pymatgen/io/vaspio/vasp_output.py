@@ -1155,18 +1155,24 @@ class VasprunET(object):
     def __init__(self, filename):
         with zopen(filename) as f:
             structures = []
-            syms = []
             for event, elem in iterparse(f, events=("end", )):
                 if elem.tag == "incar":
                     self.incar = self._parse_params(elem, filename)
                 elif elem.tag == "parameters":
                     self.parameters = self._parse_params(elem, filename)
-                if elem.tag == "array" and elem.attrib.get("name") == "atoms":
-                    for rc in elem.find("set"):
-                        syms.append(rc.find("c").text.strip())
+                elif elem.tag == "atominfo":
+                    for a in elem.findall("array"):
+                        if a.attrib["name"] == "atoms":
+                            self.atomic_symbols = [rc.find("c").text.strip()
+                                                   for rc in a.find("set")]
+                        elif a.attrib["name"] == "atomtypes":
+                            self.potcar_symbols = [
+                                rc.findall("c")[4].text.strip()
+                                for rc in a.find("set")]
                     elem.clear()
                 elif elem.tag == "structure":
-                    structures.append(self._parse_structure(elem, syms))
+                    structures.append(
+                        self._parse_structure(elem, self.atomic_symbols))
                     elem.clear()
         self.initial_structure = structures.pop(0)
         self.final_structure = structures[-1]
