@@ -1154,7 +1154,6 @@ class VasprunET(object):
 
     def __init__(self, filename):
         with zopen(filename) as f:
-            structures = []
             ionic_steps = []
             for event, elem in iterparse(f, events=("end", )):
                 if elem.tag == "incar":
@@ -1201,28 +1200,27 @@ class VasprunET(object):
         return params
 
     def _parse_calculation(self, elem):
+        istep = {i.attrib["name"]: float(i.text)
+                 for i in elem.find("energy").findall("i")}
         esteps = []
         for scstep in elem.findall("scstep"):
             esteps.append(
                 {i.attrib["name"]: float(i.text)
                  for i in scstep.find("energy").findall("i")})
         s = self._parse_structure(elem.find("structure"))
-
-        istep = {i.attrib["name"]: float(i.text)
-                  for i in elem.find("energy").findall("i")}
+        for va in elem.findall("varray"):
+            istep[va.attrib["name"]] = parse_varray(va)
         istep["electronic_steps"] = esteps
         istep["structure"] = s
         return istep
 
     def _parse_structure(self, elem):
-        latt = []
-        pos = []
-        for v in elem.find("crystal").find("varray"):
-            latt.append([float(i) for i in v.text.split()])
-        for v in elem.find("varray"):
-            pos.append([float(i) for i in v.text.split()])
+        latt = parse_varray(elem.find("crystal").find("varray"))
+        pos = parse_varray(elem.find("varray"))
         return Structure(latt, self.atomic_symbols, pos)
 
+def parse_varray(elem):
+    return [[float(i) for i in v.text.split()] for v in elem]
 
 
 class Outcar(object):
