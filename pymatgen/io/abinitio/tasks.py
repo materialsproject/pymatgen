@@ -2337,7 +2337,7 @@ class AbinitTask(Task):
         restart from scratch, reuse of output
         this is to be used if a job is restarted with more resources after a crash
         """
-        return self._restart(nosubmit=True)
+        return self._restart(no_submit=True)
 
     def fix_abicritical(self):
         """
