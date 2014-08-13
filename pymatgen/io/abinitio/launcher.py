@@ -425,10 +425,10 @@ class PyFlowScheduler(object):
         self.verbose = int(kwargs.pop("verbose", 0))
         self.use_dynamic_manager = kwargs.pop("use_dynamic_manager", False)
 
-        self.REMINDME_S = float(kwargs.pop("REMINDME_S", 14 * 24 * 3600))
+        self.REMINDME_S = float(kwargs.pop("REMINDME_S", 4 * 24 * 3600))
         self.MAX_NUM_PYEXCS = int(kwargs.pop("MAX_NUM_PYEXCS", 0))
         self.MAX_NUM_ABIERRS = int(kwargs.pop("MAX_NUM_ABIERRS", 0))
-        self.SAFETY_RATIO = int(kwargs.pop("SAFETY_RATIO", 3))
+        self.SAFETY_RATIO = int(kwargs.pop("SAFETY_RATIO", 5))
         #self.MAX_ETIME_S = kwargs.pop("MAX_ETIME_S", )
 
         if kwargs:
