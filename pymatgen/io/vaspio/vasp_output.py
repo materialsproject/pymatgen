@@ -109,7 +109,7 @@ def _parse_v_parameters(val_type, val, filename, param_name):
 
 
 def _parse_varray(elem):
-    return [[float(i) for i in v.text.split()] for v in elem]
+    return [map(float, v.text.split()) for v in elem]
 
 
 def _parse_from_incar(filename, key):
@@ -332,7 +332,7 @@ class Vasprun(object):
                     self.tdos, self.idos, self.pdos = self._parse_dos(elem)
                     self.efermi = self.tdos.efermi
                     self.dos_has_errors = False
-                except:
+                except Exception:
                     self.dos_has_errors = True
             elif parse_eigen and tag == "eigenvalues":
                 self.eigenvalues = self._parse_eigen(elem)
@@ -808,17 +808,14 @@ class Vasprun(object):
 
         pdoss = []
         for s in elem.find("partial").find("array").find("set").findall("set"):
-            data = {}
+            pdos = defaultdict(dict)
             for ss in s.findall("set"):
                 spin = Spin.up if ss.attrib["comment"] == "spin 1" else \
                     Spin.down
-                data[spin] = np.array(_parse_varray(ss))
-                nrow, ncol = data[spin].shape
-            pdos = {}
-            for j in xrange(1, ncol):
-                pdos[Orbital.from_vasp_index(j - 1)] = {
-                    k: v[:, j] for k, v in data.items()
-                }
+                data = np.array(_parse_varray(ss))
+                nrow, ncol = data.shape
+                for j in xrange(1, ncol):
+                    pdos[Orbital.from_vasp_index(j - 1)][spin] = data
             pdoss.append(pdos)
         elem.clear()
         return Dos(efermi, energies, tdensities), \
