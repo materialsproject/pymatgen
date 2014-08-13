@@ -305,34 +305,38 @@ class Vasprun(object):
         ionic_steps = []
         parsed_header = False
         for event, elem in iterparse(stream, events=("end", )):
+            tag = elem.tag
             if not parsed_header:
-                if elem.tag == "generator":
+                if tag == "generator":
                     self.generator = self._parse_params(elem)
-                elif elem.tag == "incar":
+                elif tag == "incar":
                     self.incar = self._parse_params(elem)
-                elif elem.tag == "kpoints":
+                elif tag == "kpoints":
                     self.kpoints, self.actual_kpoints, \
                         self.actual_kpoints_weights = self._parse_kpoints(elem)
-                elif elem.tag == "parameters":
+                elif tag == "parameters":
                     self.parameters = self._parse_params(elem)
-                elif elem.tag == "structure" and elem.attrib.get("name") == \
+                elif tag == "structure" and elem.attrib.get("name") == \
                         "initialpos":
                     self.initial_structure = self._parse_structure(elem)
-                elif elem.tag == "atominfo":
+                elif tag == "atominfo":
                     self.atomic_symbols, self.potcar_symbols = \
                         self._parse_atominfo(elem)
-            if elem.tag == "calculation":
+            if tag == "calculation":
                 parsed_header = True
                 ionic_steps.append(self._parse_calculation(elem))
-            elif parse_dos and elem.tag == "dos":
-                self.tdos, self.idos, self.pdos = self._parse_dos(elem)
-                self.efermi = self.tdos.efermi
-            elif parse_eigen and elem.tag == "eigenvalues":
+            elif parse_dos and tag == "dos":
+                try:
+                    self.tdos, self.idos, self.pdos = self._parse_dos(elem)
+                    self.efermi = self.tdos.efermi
+                    self.dos_has_errors = False
+                except:
+                    self.dos_has_errors = True
+            elif parse_eigen and tag == "eigenvalues":
                 self.eigenvalues = self._parse_eigen(elem)
-            elif parse_projected_eigen and elem.tag == "projected":
-                self.projected_eigenvalues = self._parse_projected_eigen(
-                    elem)
-            elif elem.tag == "structure" and elem.attrib.get("name") == \
+            elif parse_projected_eigen and tag == "projected":
+                self.projected_eigenvalues = self._parse_projected_eigen(elem)
+            elif tag == "structure" and elem.attrib.get("name") == \
                     "finalpos":
                 self.final_structure = self._parse_structure(elem)
         self.ionic_steps = ionic_steps
@@ -728,8 +732,8 @@ class Vasprun(object):
                 if c.tag == "i":
                     params[name] = _parse_parameters(ptype, val)
                 else:
-                    params[name] = _parse_v_parameters(ptype, val, self.filename,
-                                                      name)
+                    params[name] = _parse_v_parameters(ptype, val,
+                                                       self.filename, name)
         elem.clear()
         return params
 
@@ -762,10 +766,14 @@ class Vasprun(object):
             if name == "kpointlist":
                 actual_kpoints = _parse_varray(va)
             elif name == "weights":
-                weights = [i[0] for i in
-                                               _parse_varray(va)]
+                weights = [i[0] for i in _parse_varray(va)]
         elem.clear()
         return k, actual_kpoints, weights
+
+    def _parse_structure(self, elem):
+        latt = _parse_varray(elem.find("crystal").find("varray"))
+        pos = _parse_varray(elem.find("varray"))
+        return Structure(latt, self.atomic_symbols, pos)
 
     def _parse_calculation(self, elem):
         istep = {i.attrib["name"]: float(i.text)
@@ -782,11 +790,6 @@ class Vasprun(object):
         istep["structure"] = s
         elem.clear()
         return istep
-
-    def _parse_structure(self, elem):
-        latt = _parse_varray(elem.find("crystal").find("varray"))
-        pos = _parse_varray(elem.find("varray"))
-        return Structure(latt, self.atomic_symbols, pos)
 
     def _parse_dos(self, elem):
         efermi = float(elem.find("i").text)
