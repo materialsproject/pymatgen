@@ -15,6 +15,7 @@ import unittest
 import os
 import json
 import numpy as np
+import itertools
 
 from pymatgen.io.vaspio.vasp_output import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar, VasprunET
@@ -298,7 +299,15 @@ class VasprunETTestCase(unittest.TestCase):
             self.assertEqual(s1, s2)
         self.assertEqual(v1.atomic_symbols, v2.atomic_symbols)
         self.assertEqual(v1.potcar_symbols, v2.potcar_symbols)
-        print v2.complete_dos.get_element_dos()
+        self.assertEqual(str(v1.kpoints), str(v2.kpoints))
+        self.assertEqual(v1.actual_kpoints_weights, v2.actual_kpoints_weights)
+        for s1, s2 in zip(v1.final_structure, v2.final_structure):
+            pdos1 = v1.complete_dos.pdos[s1]
+            pdos2 = v2.complete_dos.pdos[s2]
+            for orb in pdos1.keys():
+                for spin in (Spin.up, Spin.down):
+                    self.assertTrue(np.allclose(pdos1[orb][spin],
+                                                pdos2[orb][spin]))
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

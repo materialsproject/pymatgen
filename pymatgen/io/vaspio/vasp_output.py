@@ -1153,41 +1153,52 @@ class VasprunET(object):
     """
 
     def __init__(self, filename, parse_dos=True):
+        self.filename = filename
         with zopen(filename) as f:
             ionic_steps = []
             self.structures = []
+            parsed_header = False
             for event, elem in iterparse(f, events=("end", )):
-                if elem.tag == "incar":
-                    self.incar = self._parse_params(elem, filename)
-                elif elem.tag == "parameters":
-                    self.parameters = self._parse_params(elem, filename)
-                elif elem.tag == "atominfo":
-                    for a in elem.findall("array"):
-                        if a.attrib["name"] == "atoms":
-                            self.atomic_symbols = [rc.find("c").text.strip()
-                                                   for rc in a.find("set")]
-                        elif a.attrib["name"] == "atomtypes":
-                            self.potcar_symbols = [
-                                rc.findall("c")[4].text.strip()
-                                for rc in a.find("set")]
-                    elem.clear()
-                elif elem.tag == "calculation":
+                if not parsed_header:
+                    if elem.tag == "incar":
+                        self.incar = self._parse_params(elem)
+                    elif elem.tag == "kpoints":
+                        self._parse_kpoints(elem)
+                    elif elem.tag == "parameters":
+                        self.parameters = self._parse_params(elem)
+                    elif elem.tag == "structure" and elem.attrib.get("name") == \
+                            "initialpos":
+                        self.initial_structure = self._parse_structure(elem)
+                    elif elem.tag == "atominfo":
+                        self._parse_atominfo(elem)
+                if elem.tag == "calculation":
+                    parsed_header = True
                     ionic_steps.append(self._parse_calculation(elem))
                     self.structures.append(ionic_steps[-1]["structure"])
-                    elem.clear()
-                elif elem.tag == "structure" and elem.attrib.get("name") == \
-                        "initialpos":
-                    self.initial_structure = self._parse_structure(elem)
-                    elem.clear()
                 elif parse_dos and elem.tag == "dos":
-                    self.tdos, self.idos, pdos = self._parse_dos(elem)
-                    self.complete_dos = CompleteDos(self.final_structure,
-                                                    self.tdos, pdos)
+                    self.tdos, self.idos, pdoss = self._parse_dos(elem)
+
         self.ionic_steps = ionic_steps
+        if parse_dos:
+            s = self.final_structure
+            pdoss = {s[i]: d for i, d in enumerate(pdoss)}
+            self.complete_dos = CompleteDos(self.final_structure,
+                                            self.tdos, pdoss)
 
     @property
     def final_structure(self):
         return self.structures[-1]
+
+    def _parse_atominfo(self, elem):
+        for a in elem.findall("array"):
+            if a.attrib["name"] == "atoms":
+                self.atomic_symbols = [rc.find("c").text.strip()
+                                       for rc in a.find("set")]
+            elif a.attrib["name"] == "atomtypes":
+                self.potcar_symbols = [
+                    rc.findall("c")[4].text.strip()
+                    for rc in a.find("set")]
+        elem.clear()
 
     def _parse_dos(self, elem):
         efermi = float(elem.find("i").text)
@@ -1202,30 +1213,29 @@ class VasprunET(object):
             tdensities[spin] = data[1, :]
             idensities[spin] = data[2, :]
 
-        i = 0
-        pdos = defaultdict(dict)
-        structure = self.final_structure
+        pdoss = []
         for s in elem.find("partial").find("array").find("set").findall("set"):
             data = {}
             for ss in s.findall("set"):
-                spin = Spin.up if s.attrib["comment"] == "spin 1" else Spin.down
+                spin = Spin.up if ss.attrib["comment"] == "spin 1" else \
+                    Spin.down
                 data[spin] = np.array(parse_varray(ss))
                 nrow, ncol = data[spin].shape
+            pdos = {}
             for j in xrange(1, ncol):
-                pdos[structure[i]][Orbital.from_vasp_index(j - 1)] = {
-                    k: v[i, :] for k, v in data.items()
+                pdos[Orbital.from_vasp_index(j - 1)] = {
+                    k: v[:, j] for k, v in data.items()
                 }
-            i += 1
-
+            pdoss.append(pdos)
         return Dos(efermi, energies, tdensities), \
                Dos(efermi, energies, idensities), \
-               pdos
+               pdoss
 
-    def _parse_params(self, elem, filename):
+    def _parse_params(self, elem):
         params = {}
         for c in elem:
             if c.tag not in ("i", "v"):
-                params.update(self._parse_params(c, filename))
+                params.update(self._parse_params(c))
             else:
                 name = c.attrib.get("name")
                 ptype = c.attrib.get("type")
@@ -1233,8 +1243,9 @@ class VasprunET(object):
                 if c.tag == "i":
                     params[name] = parse_parameters(ptype, val)
                 else:
-                    params[name] = parse_v_parameters(ptype, val, filename,
+                    params[name] = parse_v_parameters(ptype, val, self.filename,
                                                       name)
+        elem.clear()
         return params
 
     def _parse_calculation(self, elem):
@@ -1250,12 +1261,35 @@ class VasprunET(object):
             istep[va.attrib["name"]] = parse_varray(va)
         istep["electronic_steps"] = esteps
         istep["structure"] = s
+        elem.clear()
         return istep
 
     def _parse_structure(self, elem):
         latt = parse_varray(elem.find("crystal").find("varray"))
         pos = parse_varray(elem.find("varray"))
         return Structure(latt, self.atomic_symbols, pos)
+
+    def _parse_kpoints(self, elem):
+        gen = elem.find("generation")
+        k = Kpoints("Kpoints from vasprun.xml")
+        k.style = gen.attrib["param"]
+        for v in gen.findall("v"):
+            name = v.attrib["name"]
+            toks = v.text.split()
+            if name == "divisions":
+                k.kpts = [map(int, toks)]
+            elif name == "usershift":
+                k.kpts_shift = map(float, toks)
+            elif name in {"genvec1", "genvec2", "genvec3", "shift"}:
+                setattr(k, name, map(float, toks))
+        self.kpoints = k
+        for va in elem.findall("varray"):
+            name = va.attrib["name"]
+            if name == "kpointlist":
+                self.actual_kpoints = parse_varray(va)
+            elif name == "weights":
+                self.actual_kpoints_weights = [i[0] for i in parse_varray(va)]
+        elem.clear()
 
 def parse_varray(elem):
     return [[float(i) for i in v.text.split()] for v in elem]
