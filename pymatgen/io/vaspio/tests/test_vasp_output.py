@@ -36,6 +36,8 @@ class VasprunTest(unittest.TestCase):
                             for i in vasprun.ionic_steps])
         self.assertEquals(29, len(vasprun.ionic_steps))
         self.assertEquals(len(vasprun.structures), len(vasprun.ionic_steps))
+        self.assertEqual(vasprun.lattice,
+                         vasprun.lattice_rec.reciprocal_lattice)
 
         for i, step in enumerate(vasprun.ionic_steps):
             self.assertEqual(vasprun.structures[i], step["structure"])
@@ -45,10 +47,7 @@ class VasprunTest(unittest.TestCase):
 
         self.assertEquals(308, totalscsteps,
                           "Incorrect number of energies read from vasprun.xml")
-        self.assertEquals([u'Li', u'Fe', u'Fe', u'Fe', u'Fe', u'P', u'P', u'P',
-                           u'P', u'O', u'O', u'O', u'O', u'O', u'O', u'O',
-                           u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O',
-                           u'O'],
+        self.assertEquals(['Li'] + 4 * ['Fe'] + 4 * [u'P'] + 16 * ["O"],
                           vasprun.atomic_symbols,
                           "Incorrect symbols read from vasprun.xml")
         self.assertEquals(vasprun.final_structure.composition.reduced_formula,
