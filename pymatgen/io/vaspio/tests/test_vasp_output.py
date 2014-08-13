@@ -15,10 +15,9 @@ import unittest
 import os
 import json
 import numpy as np
-import itertools
 
 from pymatgen.io.vaspio.vasp_output import Chgcar, Locpot, Oszicar, Outcar, \
-    Vasprun, Procar, Xdatcar, VasprunET
+    Vasprun, Procar, Xdatcar, VasprunSAX
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 
@@ -36,8 +35,7 @@ class VasprunTest(unittest.TestCase):
         totalscsteps = sum([len(i['electronic_steps'])
                             for i in vasprun.ionic_steps])
         self.assertEquals(29, len(vasprun.ionic_steps))
-        self.assertEquals(len(vasprun.structures),
-                          len(vasprun.ionic_steps) + 1)
+        self.assertEquals(len(vasprun.structures), len(vasprun.ionic_steps))
 
         for i, step in enumerate(vasprun.ionic_steps):
             self.assertEqual(vasprun.structures[i], step["structure"])
@@ -90,7 +88,7 @@ class VasprunTest(unittest.TestCase):
         self.assertEqual(vasprun_skip.nionic_steps, 29)
         self.assertEqual(len(vasprun_skip.ionic_steps),
                          int(vasprun.nionic_steps / 3) + 1)
-        self.assertEqual(len(vasprun_skip.ionic_steps) + 1,
+        self.assertEqual(len(vasprun_skip.ionic_steps),
                          len(vasprun_skip.structures))
         self.assertEqual(len(vasprun_skip.ionic_steps),
                          int(vasprun.nionic_steps / 3) + 1)
@@ -289,12 +287,12 @@ class XdatcarTest(unittest.TestCase):
             self.assertEqual(s.formula, "Li2 O1")
 
 
-class VasprunETTestCase(unittest.TestCase):
+class VasprunETSAXTestCase(unittest.TestCase):
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
-        v1 = Vasprun(filepath)
-        vet = VasprunET(filepath)
+        v1 = VasprunSAX(filepath)
+        vet = Vasprun(filepath)
         for s1, s2 in zip(v1.structures, vet.structures):
             self.assertEqual(s1, s2)
         self.assertEqual(v1.atomic_symbols, vet.atomic_symbols)
@@ -327,7 +325,7 @@ class VasprunETTestCase(unittest.TestCase):
 
         self.assertIsNotNone(json.dumps(vet.to_dict))
 
-        vasprun_ggau = VasprunET(os.path.join(test_dir, 'lifepo4.xml'),
+        vasprun_ggau = Vasprun(os.path.join(test_dir, 'lifepo4.xml'),
                                  parse_projected_eigen=True)
         self.assertTrue(vasprun_ggau.is_hubbard)
         self.assertEqual(vasprun_ggau.hubbards["Fe"], 4.3)
@@ -335,6 +333,13 @@ class VasprunETTestCase(unittest.TestCase):
             vasprun_ggau.projected_eigenvalues[(Spin.up, 0, 0, 96, Orbital.s)],
             0.0032)
         self.assertIsNotNone(json.dumps(vasprun_ggau.to_dict))
+
+        filepath = os.path.join(test_dir, 'vasprun.xml.dfpt')
+        vasprun_dfpt = Vasprun(filepath)
+        self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][0], 3.26105533)
+        self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][1], -0.00459066)
+        self.assertAlmostEqual(vasprun_dfpt.epsilon_static[2][2], 3.24330517)
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
