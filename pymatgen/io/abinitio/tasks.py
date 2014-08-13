@@ -1798,13 +1798,6 @@ class Task(Node):
 
         return self.set_status(self.S_RUN)
 
-    def fix_abicritical(self):
-        """
-
-        """
-        # todo implement this
-        return False
-
     def reduce_memory_demand(self):
         """
         Method that can be called by the flow to decrease the memory demand of a specific task.
@@ -2345,6 +2338,19 @@ class AbinitTask(Task):
         this is to be used if a job is restarted with more resources after a crash
         """
         return self._restart(nosubmit=True)
+
+    def fix_abicritical(self):
+        """
+
+        """
+        # the crude, no idea what to do but this may work, solution.
+        if self.manager.qadapter.increase_resources():
+            self.reset_from_scratch()
+            return True
+        else:
+            info_msg = 'unknown queue error, could not increase resources any further'
+            self.set_status(self.S_ERROR, info_msg)
+            return False
 
     #@property
     #def timing(self):
