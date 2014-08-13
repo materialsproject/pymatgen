@@ -654,21 +654,17 @@ class Vasprun(object):
         d["pretty_formula"] = comp.reduced_formula
         symbols = [s.split()[1] for s in self.potcar_symbols]
         symbols = [re.split("_", s)[0] for s in symbols]
-        d["is_hubbard"] = self.incar.get("LDAU", False)
+        d["is_hubbard"] = self.is_hubbard
+        d["hubbards"] = {}
         if d["is_hubbard"]:
             us = self.incar.get("LDAUU", self.parameters.get("LDAUU"))
             js = self.incar.get("LDAUJ", self.parameters.get("LDAUJ"))
             if len(us) == len(symbols):
                 d["hubbards"] = {symbols[i]: us[i] - js[i]
                                  for i in xrange(len(symbols))}
-            elif sum(us) == 0 and sum(js) == 0:
-                d["is_hubbard"] = False
-                d["hubbards"] = {}
             else:
                 raise VaspParserError("Length of U value parameters and atomic"
                                       " symbols are mismatched.")
-        else:
-            d["hubbards"] = {}
 
         unique_symbols = sorted(list(set(symbols)))
         d["elements"] = unique_symbols
