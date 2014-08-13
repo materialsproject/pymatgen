@@ -20,7 +20,6 @@ import re
 import math
 import itertools
 import warnings
-import xml.sax.handler
 import StringIO
 import logging
 from collections import defaultdict
