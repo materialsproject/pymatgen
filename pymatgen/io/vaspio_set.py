@@ -1241,7 +1241,7 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
 
         try:
             vasp_run = Vasprun(os.path.join(previous_vasp_dir, "vasprun.xml"),
-                               parse_dos=False, parse_eigen=None)
+                               parse_dos=False, parse_eigen=False)
             outcar = Outcar(os.path.join(previous_vasp_dir, "OUTCAR"))
             previous_incar = vasp_run.incar
         except:

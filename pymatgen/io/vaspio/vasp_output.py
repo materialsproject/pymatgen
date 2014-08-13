@@ -301,7 +301,9 @@ class Vasprun(object):
                 self.nionic_steps = len(self.ionic_steps)
 
     def _parse(self, stream, parse_dos, parse_eigen, parse_projected_eigen):
-        self.projected_eigenvalues = {}
+        self.efermi = None
+        self.eigenvalues = None
+        self.projected_eigenvalues = None
         ionic_steps = []
         parsed_header = False
         for event, elem in iterparse(stream, events=("end", )):
@@ -691,15 +693,17 @@ class Vasprun(object):
                 "crystal": self.final_structure.to_dict,
                 "efermi": self.efermi}
 
-        eigen = defaultdict(dict)
-        for (spin, index), values in self.eigenvalues.items():
-            eigen[index][str(spin)] = values
-        vout["eigenvalues"] = eigen
-        vout['epsilon_static'] = self.epsilon_static
+        if self.eigenvalues:
+            eigen = defaultdict(dict)
+            for (spin, index), values in self.eigenvalues.items():
+                eigen[index][str(spin)] = values
+            vout["eigenvalues"] = eigen
+            (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
+            vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm,
+                             is_gap_direct=is_direct))
 
-        peigen = []
-
-        if len(self.projected_eigenvalues) != 0:
+        if self.projected_eigenvalues:
+            peigen = []
             for i in range(len(eigen)):
                 peigen.append({})
                 for spin in eigen[i].keys():
@@ -712,12 +716,10 @@ class Vasprun(object):
                 if orbital not in beigen:
                     beigen[orbital] = [0.0] * nsites
                 beigen[orbital][ion_index] = value
-        vout['projected_eigenvalues'] = peigen
-        (gap, cbm, vbm, is_direct) = self.eigenvalue_band_properties
-        vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm,
-                         is_gap_direct=is_direct))
-        d['output'] = vout
+            vout['projected_eigenvalues'] = peigen
 
+        vout['epsilon_static'] = self.epsilon_static
+        d['output'] = vout
         return clean_json(d, strict=True)
 
     def _parse_params(self, elem):
@@ -735,7 +737,7 @@ class Vasprun(object):
                     params[name] = _parse_v_parameters(ptype, val,
                                                        self.filename, name)
         elem.clear()
-        return params
+        return Incar(params)
 
     def _parse_atominfo(self, elem):
         for a in elem.findall("array"):
