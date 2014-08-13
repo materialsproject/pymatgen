@@ -321,8 +321,6 @@ class PyLauncher(object):
             num_loops += 1
 
         # Update the database.
-        self.flow.check_status()
-        self.flow.fix_critical()
         self.flow.pickle_dump()
 
         return num_launched
@@ -578,7 +576,9 @@ class PyFlowScheduler(object):
 
     def _runem_all(self):
         """
-        This function tries to run all the tasks that can be submitted.
+        This function checks the status of all tasks,
+        tries to fix tasks that went unconverged, abicritical, or queuecritical
+        and tries to run all the tasks that can be submitted.+
         """
         max_nlaunch, excs = 10, []
         flow = self.flow
@@ -590,9 +590,12 @@ class PyFlowScheduler(object):
             for work in flow:
                 work.set_manager(new_manager)
 
+        # check stattus
         flow.check_status()
 
+        # fix problems
         # Try to restart the unconverged tasks
+        # todo donot fire here but prepare for fireing in rapidfire
         for task in self.flow.unconverged_tasks:
             try:
                 logger.info("AbinitFlow will try restart task %s" % task)
@@ -603,6 +606,11 @@ class PyFlowScheduler(object):
             except Exception:
                 excs.append(straceback())
 
+        # move here from withing rapid fire ...
+        # fix only prepares for restarting, and sets to ready
+        flow.fix_critical()
+
+        # update database
         flow.pickle_dump()
 
         #if self.num_restarts == self.max_num_restarts:

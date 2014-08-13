@@ -459,6 +459,7 @@ class AbstractQueueAdapter(object):
         """
         Method to generally increase resources.
         """
+        return False
 
 
 ####################
@@ -930,6 +931,7 @@ class PbsAdapter(AbstractQueueAdapter):
         base_increase = 12
         new_cpus = self.qparams['select'] + factor * base_increase
         if new_cpus < self.limits['max_select']:
+            self.qparams['select'] = new_cpus
             return True
         else:
             logger.warning('increasing cpus reached the limit')

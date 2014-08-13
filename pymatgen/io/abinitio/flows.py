@@ -422,8 +422,7 @@ class AbinitFlow(Node):
                 # if resources are at maximum the tast is definitively turned to errored
                 if task.manager.qadapter.increase_resources():
 #                if task.manager.policy.increase_max_ncpu():
-                    task.restart_from_scratch()
-                    # task.set_status(task.S_READY)
+                    task.reset_from_scratch()
                     return True
                 else:
                     info_msg = 'unknown queue error, could not increase resources any further'

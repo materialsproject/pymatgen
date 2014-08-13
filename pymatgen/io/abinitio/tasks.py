@@ -1403,7 +1403,7 @@ class Task(Node):
             logger.debug("will rename old %s to new %s" % (old, new))
             os.rename(old, new)
 
-    def _restart(self):
+    def _restart(self, no_submit=False):
         """
         Called by restart once we have finished preparing the task for restarting.
 
@@ -1417,12 +1417,15 @@ class Task(Node):
 
         # Remove the lock file
         self.start_lockfile.remove()
- 
-        # Relaunch the task.
-        fired = self.start()
 
-        if not fired:
-            self.history.append("[%s], restart failed" % time.asctime())
+        if not no_submit:
+            # Relaunch the task.
+            fired = self.start()
+
+            if not fired:
+                self.history.append("[%s], restart failed" % time.asctime())
+        else:
+            fired = False
 
         return fired
 
@@ -2341,7 +2344,7 @@ class AbinitTask(Task):
         restart from scratch, reuse of output
         this is to be used if a job is restarted with more resources after a crash
         """
-        return self._restart()
+        return self._restart(nosubmit = True)
 
     #@property
     #def timing(self):
@@ -2438,8 +2441,6 @@ class NscfTask(AbinitTask):
 
         # Now we can resubmit the job.
         return self._restart()
-
-
 
 
 class RelaxTask(AbinitTask):
