@@ -2339,12 +2339,12 @@ class AbinitTask(Task):
         """
         return self._restart()
 
-    def restart_from_scratch(self):
+    def reset_from_scratch(self):
         """
         restart from scratch, reuse of output
         this is to be used if a job is restarted with more resources after a crash
         """
-        return self._restart(nosubmit = True)
+        return self._restart(nosubmit=True)
 
     #@property
     #def timing(self):
