@@ -17,7 +17,7 @@ import json
 import numpy as np
 
 from pymatgen.io.vaspio.vasp_output import Chgcar, Locpot, Oszicar, Outcar, \
-    Vasprun, Procar, Xdatcar, VasprunSAX
+    Vasprun, Procar, Xdatcar
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 
