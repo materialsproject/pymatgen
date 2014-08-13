@@ -356,6 +356,10 @@ class Vasprun(object):
         return self.ionic_steps[-1].get("epsilon", [])
 
     @property
+    def lattice(self):
+        return self.final_structure.lattice
+
+    @property
     def lattice_rec(self):
         return self.final_structure.lattice.reciprocal_lattice
 
