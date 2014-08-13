@@ -885,8 +885,11 @@ class PbsAdapter(AbstractQueueAdapter):
             return njobs
 
         # there's a problem talking to qstat server?
-        err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' + 
+        print(' ** ')
+        print(process[1].split('\n'))
+        err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' +
                    'The error response reads: {}'.format(process[2]))
+        print(' ** ')
         logger.critical(err_msg)
 
         return None
