@@ -294,20 +294,47 @@ class VasprunETTestCase(unittest.TestCase):
     def test_init(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
         v1 = Vasprun(filepath)
-        v2 = VasprunET(filepath)
-        for s1, s2 in zip(v1.structures, v2.structures):
+        vet = VasprunET(filepath)
+        for s1, s2 in zip(v1.structures, vet.structures):
             self.assertEqual(s1, s2)
-        self.assertEqual(v1.atomic_symbols, v2.atomic_symbols)
-        self.assertEqual(v1.potcar_symbols, v2.potcar_symbols)
-        self.assertEqual(str(v1.kpoints), str(v2.kpoints))
-        self.assertEqual(v1.actual_kpoints_weights, v2.actual_kpoints_weights)
-        for s1, s2 in zip(v1.final_structure, v2.final_structure):
+        self.assertEqual(v1.atomic_symbols, vet.atomic_symbols)
+        self.assertEqual(str(v1.kpoints), str(vet.kpoints))
+        self.assertEqual(v1.actual_kpoints_weights, vet.actual_kpoints_weights)
+        for s1, s2 in zip(v1.final_structure, vet.final_structure):
             pdos1 = v1.complete_dos.pdos[s1]
-            pdos2 = v2.complete_dos.pdos[s2]
+            pdos2 = vet.complete_dos.pdos[s2]
             for orb in pdos1.keys():
                 for spin in (Spin.up, Spin.down):
                     self.assertTrue(np.allclose(pdos1[orb][spin],
                                                 pdos2[orb][spin]))
+        self.assertAlmostEqual(vet.final_energy, -269.38319884, 7)
+        self.assertAlmostEqual(vet.tdos.get_gap(), 2.0589, 4)
+        for k, v in vet.eigenvalues.items():
+            self.assertEqual(v, v1.eigenvalues[k])
+        expectedans = (2.539, 4.0906, 1.5516, False)
+        (gap, cbm, vbm, direct) = vet.eigenvalue_band_properties
+        self.assertAlmostEqual(gap, expectedans[0])
+        self.assertAlmostEqual(cbm, expectedans[1])
+        self.assertAlmostEqual(vbm, expectedans[2])
+        self.assertEqual(direct, expectedans[3])
+        self.assertFalse(vet.is_hubbard)
+        self.assertEqual(vet.potcar_symbols,
+                         [u'PAW_PBE Li 17Jan2003',
+                          u'PAW_PBE Fe 06Sep2000',
+                          u'PAW_PBE Fe 06Sep2000',
+                          u'PAW_PBE P 17Jan2003',
+                          u'PAW_PBE O 08Apr2002'])
+
+        self.assertIsNotNone(json.dumps(vet.to_dict))
+
+        vasprun_ggau = VasprunET(os.path.join(test_dir, 'lifepo4.xml'),
+                                 parse_projected_eigen=True)
+        self.assertTrue(vasprun_ggau.is_hubbard)
+        self.assertEqual(vasprun_ggau.hubbards["Fe"], 4.3)
+        self.assertAlmostEqual(
+            vasprun_ggau.projected_eigenvalues[(Spin.up, 0, 0, 96, Orbital.s)],
+            0.0032)
+        self.assertIsNotNone(json.dumps(vasprun_ggau.to_dict))
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
