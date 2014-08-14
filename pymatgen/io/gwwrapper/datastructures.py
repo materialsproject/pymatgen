@@ -493,14 +493,21 @@ class GWSpecs(AbstractAbinitioSpec):
                      'item': structure.item,
                      'structure': structure.to_dict,
                      'conv_res': data.conv_res,
-                     'time': now(),
                      'gw_results': con_dat,
                      'spec': self.to_dict(),
                      'extra_vars': extra,
                      'results_file': results_file,
                      'ps': ps}
             print entry
-            GW_results.general.insert(entry)
+            count = GW_results.general.find(entry).count()
+            if count == 0:
+                GW_results.general.insert(entry)
+                print 'inserted', s_name(structure)
+            elif count == 1:
+                GW_results.general.update(entry)
+                print 'updated', s_name(structure)
+            else:
+                print 'duplicate entry ... '
             if self.data['source'] == 'mar_exp':
                 pass
                 #also push to local_gaps
