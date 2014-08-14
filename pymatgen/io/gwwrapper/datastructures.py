@@ -476,7 +476,7 @@ class GWSpecs(AbstractAbinitioSpec):
             f.close()
         except (OSError, IOError):
             extra = None
-        ps = self.code_interface.read_ps_dir
+        ps = str(self.code_interface.read_ps_dir)
         results_file = os.path.join(s_name(structure)+'.res', self.code_interface.gw_data_file)
 
         local_serv = pymongo.Connection("marilyn.pcpm.ucl.ac.be")
@@ -488,7 +488,7 @@ class GWSpecs(AbstractAbinitioSpec):
         GW_results = local_serv.GW_results
         GW_results.authenticate("setten", pwd)
 
-        if success and con_dat is None:
+        if success and con_dat is not None:
             entry = {'system': s_name(structure), 'item': structure.item, 'structure': structure.to_dict,
                      'conv_res': data.conv_res, 'time': now(), 'gw_results': con_dat, 'spec': self.to_dict(),
                      'extra_vars': extra, 'results_file': results_file, 'ps': ps}
