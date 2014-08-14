@@ -203,6 +203,8 @@ class AbstractAbinitioSpec(MSONable):
                 self.excecute_flow(structure)
             elif mode == 'w':
                 self.print_results(structure)
+            elif mode == 's':
+                self.insert_in_database(structure)
             elif mode == 'o':
                 # if os.path.isdir(s_name(structure)) or os.path.isdir(s_name(structure)+'.conv'):
                 self.process_data(structure)
@@ -244,8 +246,15 @@ class AbstractAbinitioSpec(MSONable):
     @abstractmethod
     def process_data(self, structure):
         """
-        method called in loopstructures in 'o' input mode, this method should take the results from the calcultations
+        method called in loopstructures in 'o' output mode, this method should take the results from the calcultations
         and perform analysis'
+        """
+
+    @abstractmethod
+    def insert_in_database(self, structure):
+        """
+        method called in loopstructures in 's' store mode, this method should take the results from the calcultations
+        and put them in a database'
         """
 
 
@@ -461,14 +470,32 @@ class GWSpecs(AbstractAbinitioSpec):
         data = GWConvergenceData(spec=self, structure=structure)
         success = data.read_conv_res_from_file(os.path.join(s_name(structure)+'.res', s_name(structure)+'.conv_res'))
         con_dat = self.code_interface.read_convergence_data(s_name(structure)+'.res')
-        file = os.path.join(s_name(structure)+'.res', self.code_interface.gw_data_file)
+        try:
+            extra = ast.literal_eval('extra_abivars')
+        except (OSError, IOError):
+            extra = None
+        ps = self.code_interface.read_ps_dir
+        results_file = os.path.join(s_name(structure)+'.res', self.code_interface.gw_data_file)
+
+        local_serv = pymongo.Connection("marilyn.pcpm.ucl.ac.be")
+        pwd = os.environ['MAR_PAS']
+
+        #local_db_gaps = local_serv.band_gaps
+        #local_db_gaps.authenticate("setten", pwd)
+
+        GW_results = local_serv.GW_results
+        GW_results.authenticate("setten", pwd)
+
         if success and con_dat is None:
-            entry = {'system': s_name(structure), 'conv_res': data.conv_res, 'time': now(), 'gw_results': con_dat,
-                     'spec': self}
-            #todo add the sigres to the db entry
-            #todo add to db
+            entry = {'system': s_name(structure), 'item': structure.item, 'structure': structure.to_dict,
+                     'conv_res': data.conv_res, 'time': now(), 'gw_results': con_dat, 'spec': self.to_dict(),
+                     'extra_vars': extra, 'results_file': results_file, 'ps': ps}
+            GW_results.general.insert(entry)
+            if self.data['source'] == 'mar_exp':
+                pass
+                #also push to local_gaps
+            #todo add the sigres to the db entry gridfs
             #todo remove the workfolders
-        raise NotImplementedError
 
 
 class GWConvergenceData():
