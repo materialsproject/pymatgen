@@ -84,6 +84,8 @@ def deltafactor_polyfit(volumes, energies):
     deriv2 = np.polyder(deriv1, 1)
     deriv3 = np.polyder(deriv2, 1)
 
+    n = collections.namedtuple("DeltaFitResults", "v0 b0 b1 poly1d")
+
     v0 = 0
     x = 0
     for x in np.roots(deriv1):
@@ -91,14 +93,16 @@ def deltafactor_polyfit(volumes, energies):
             v0 = x**(-3./2.)
             break
     else:
-        raise EOSError("No minimum could be found")
+        print("EOS: No minimum could be found")
+        return n(0, 0, 0, 0)
+        #no need to kill everybody else in the whole world ..
+        #raise EOSError("No minimum could be found")
 
     derivV2 = 4./9. * x**5. * deriv2(x)
     derivV3 = (-20./9. * x**(13./2.) * deriv2(x) - 8./27. * x**(15./2.) * deriv3(x))
     b0 = derivV2 / x**(3./2.)
     b1 = -1 - x**(-3./2.) * derivV3 / derivV2
 
-    n = collections.namedtuple("DeltaFitResults", "v0 b0 b1 poly1d")
 
     #print('deltafactor polyfit:')
     #print('e0, b0, b1, v0')
