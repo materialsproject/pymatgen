@@ -445,6 +445,7 @@ class GWSpecs(AbstractAbinitioSpec):
         else:
             s = '%s 0.0 0.0 \n' % s_name(structure)
         print s
+        print self.code_interface.read_convergence_data(s_name(structure)+'.res')
         f = open(file_name, 'a')
         f.write(s)
         f.close()
