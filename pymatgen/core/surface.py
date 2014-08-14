@@ -43,19 +43,6 @@ class Slab(Structure):
 
         Parent structure from which Slab was derived.
 
-    .. attribute:: miller_index
-        The plane direction that the slab is oriented in
-
-    .. attribute:: term_coords
-        Holds the corresponding list of sites on the surface
-        terminations
-
-    .. attribute:: thresh
-        The threshold value for fclusterdata
-
-    .. attribute:: shift
-        The shift in the origin of the slab in Angstroms
-
     .. attribute:: min_slab_size
 
         Minimum size in angstroms of layers containing atoms
@@ -63,10 +50,6 @@ class Slab(Structure):
     .. attribute:: min_vac_size
 
         Minimize size in angstroms of layers containing vacuum
-
-    .. attribute:: slab_list
-        Holds a list of Structure objects of slabs with different
-        terminations
 
     .. attribute:: scale_factor
 
@@ -175,25 +158,22 @@ class Slab(Structure):
             slab_scale_factor = np.dot(mapping[2], slab_scale_factor)
             slab = lll_slab
 
+        n = 0
         term_slab = slab.copy()
         c = term_slab.lattice.c
         # For loop moves all sites down to compensate for the space opened up by the shift
-        for i in range(0, len(term_slab)):
+        for site in term_slab:
             index = []
-            index.append(i)
+            index.append(n)
             term_slab.translate_sites(index, [0, 0, -shift/c])
-
-        # Rescales the  lattice
-        new_latt = Lattice.from_parameters(term_slab.lattice.a, term_slab.lattice.b, min_vacuum_size+nlayers_slab*dist,
-                                           term_slab.lattice.alpha, term_slab.lattice.beta, term_slab.lattice.gamma)
-        term_slab.modify_lattice(new_latt)
+            n+=1
 
         el = term_slab.species
         org_coords = term_slab.frac_coords.tolist()
         new_coord, b = [], []
 
-        for i in org_coords:
-            i[2] = (i[2]*c)/term_slab.lattice.c
+#        for i in org_coords:
+#            i[2] = (i[2]*c)/term_slab.lattice.c
 
         for i in term_slab.frac_coords:
             b.append(i[2])
@@ -222,6 +202,7 @@ class Slab(Structure):
         slab_list, term_coords = [], []
         a, i = 0, 0
         new_slab = Structure(term_slab.lattice, el, org_coords)
+        term_scale = nlayers_vac*dist
 
         for iii in range(0, len(term_index)):
             y = []
@@ -229,30 +210,23 @@ class Slab(Structure):
 
             for ii in range(0, len(alt_slab)):
                 index = []
-                term_scale = 0
                 index.append(ii)
 
                 if alt_slab.frac_coords[ii][2] > alt_slab.frac_coords[term_index[iii]][2]:
-                    term_scale = min_vacuum_size
-
-                alt_slab.translate_sites(index, [0, 0, term_scale/(new_slab.lattice.c)])
+                    alt_slab.translate_sites(index, [0, 0, term_scale/(new_slab.lattice.c)])
 
             if standardize:
                 index = []
                 for f in range(0, len(alt_slab)):
                     index.append(f)
-<<<<<<< HEAD
                     standard_shift = -(alt_slab.frac_coords[term_index[iii]][2] +
-=======
-                if alt_slab.frac_coords[f][2] > alt_slab.frac_coords[term_index[iii]][2]:
-                    standard_shift = -(alt_slab.frac_coords[term_index[iii]][2] + 
->>>>>>> 1e0c275f7ff1d4a0cafe30d6e8a8419a3e44dd1b
-                                       (0.5*min_vacuum_size)/alt_slab.lattice.c)
+                                       (0.5*term_scale)/alt_slab.lattice.c)
 
                 if alt_slab.frac_coords[f][2] > alt_slab.frac_coords[term_index[iii]][2]:
                     alt_slab.translate_sites(index, [0, 0, standard_shift])
                 else:
-                    alt_slab.translate_sites(index, [0, 0, 1-standard_shift])
+                    alt_slab.translate_sites(index, [0, 0, 1+standard_shift])
+
 
             slab_list.append(alt_slab)
 
@@ -264,11 +238,13 @@ class Slab(Structure):
             a = term_index[iii]+1
 
         self.min_slab_size = min_slab_size
+        self.nlayers_slab = nlayers_slab
         self.min_vac_size = min_vacuum_size
-        self.slab_list = slab_list
+        self.slab_list = slab_list # Holds a list of Structure objects of slabs with different terminations
         self.parent = structure
         self.miller_index = miller_index
-        self.term_coords = term_coords
+        self.term_index = term_index
+        self.term_coords = term_coords # Holds the corresponding list of sites on the surface terminations
         self.thresh = thresh
         self.shift = shift
         self.scale_factor = np.array(slab_scale_factor)
@@ -366,10 +342,27 @@ class SlabTest(unittest.TestCase):
                             [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5],
                              [0, 0.5, 0.5]])
 
-        Zn_O = CifParser(get_path("001_terminations/ZnO-wz.cif"))
-        self.zno = (Zn_O.get_structures(primitive = False)[0])
-        Li_Fe_PO4  = CifParser(get_path("001_terminations/LiFePO4.cif"))
-        self.lifepo4= (Li_Fe_PO4.get_structures(primitive = False)[0])
+        self.lifepo4 = Structure(Lattice.orthorhombic(10.332, 6.01, 4.787),
+                                 ["Li", "Li", "Li", "Li", "Fe", "Fe", "Fe", "Fe", "P", "P", "P", "P", "O",
+                                  "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O"],
+                                 [[0.5, 0, 0.5], [0, 0.5, 0], [0.5, 0.5, 0.5], [0, 0, 0], [0.78221, 0.25, 0.52527],
+                                  [0.28221, 0.25, 0.97473], [0.21779,  0.75,     0.47473], [0.71779,  0.75,     0.02527],
+                                  [0.59485,  0.25,     0.08079], [.09485,  0.25,     0.41921], [0.40515,  0.75,     0.91921],
+                                  [0.90515,  0.75,     0.58079], [0.5968,   0.25,     0.757  ], [0.0968,   0.25,     0.743  ],
+                                  [0.4032,   0.75,     0.243  ], [0.9032,   0.75,     0.257  ], [0.9567,   0.25,     0.294  ],
+                                  [0.4567,   0.25,     0.206  ], [0.0433,   0.75,     0.706  ], [0.5433,   0.75,     0.794  ],
+                                  [0.66567,  0.0466,   0.2153 ], [0.16567,  0.4534,   0.2847 ], [0.33433,  0.5466,   0.7847 ],
+                                  [0.83433,  0.9534,   0.7153 ], [0.33433,  0.9534,   0.7847 ], [0.83433,  0.5466,   0.7153 ],
+                                  [0.66567,  0.4534,   0.2153 ], [0.16567,  0.0466,   0.2847 ]])
+
+        self.zno = Structure(Lattice.from_parameters(3.253, 3.253, 5.213, 90, 90, 120), ["Zn", "Zn", "O", "O"],
+                             [[0.6667, 0.3334, 0.5], [0.3333, 0.6666, 0],
+                              [0.6667, 0.3334, 0.882], [0.3333, 0.6666, 0.382]])
+
+        #Zn_O = CifParser(get_path("001_terminations/ZnO-wz.cif"))
+        #self.zno = (Zn_O.get_structures(primitive = False)[0])
+        #Li_Fe_PO4  = CifParser(get_path("001_terminations/LiFePO4.cif"))
+        #self.lifepo4= (Li_Fe_PO4.get_structures(primitive = False)[0])
 
     def test_init(self):
         for hkl in itertools.product(xrange(4), xrange(4), xrange(4)):
