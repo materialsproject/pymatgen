@@ -441,14 +441,28 @@ class GWSpecs(AbstractAbinitioSpec):
         """
         data = GWConvergenceData(spec=self, structure=structure)
         if data.read_conv_res_from_file(os.path.join(s_name(structure)+'.res', s_name(structure)+'.conv_res')):
-            s = '%s %s %s \n' % (s_name(structure), str(data.conv_res['values']['ecuteps']), str(data.conv_res['values']['nscf_nbands']))
+            s = '%s %s %s ' % (s_name(structure), str(data.conv_res['values']['ecuteps']), str(data.conv_res['values']['nscf_nbands']))
         else:
-            s = '%s 0.0 0.0 \n' % s_name(structure)
-        print s
-        print self.code_interface.read_convergence_data(s_name(structure)+'.res')
+            s = '%s 0.0 0.0 ' % s_name(structure)
+        con_dat = self.code_interface.read_convergence_data(s_name(structure)+'.res')
+        if con_dat is not None:
+            s += '%s ' % con_dat['gwgap']
+        else:
+            s += '0.0 '
+        s += '\n'
         f = open(file_name, 'a')
         f.write(s)
         f.close()
+
+    def insert_in_database(self, structure, clean_on_ok=True):
+        """
+        insert the convergence data and the 'sigres' in a database
+        """
+        data = GWConvergenceData(spec=self, structure=structure)
+        data.read_conv_res_from_file(os.path.join(s_name(structure)+'.res', s_name(structure)+'.conv_res'))
+        con_dat = self.code_interface.read_convergence_data(s_name(structure)+'.res')
+
+        raise NotImplementedError
 
 
 class GWConvergenceData():
