@@ -701,21 +701,21 @@ class Vasprun(object):
             vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm,
                              is_gap_direct=is_direct))
 
-        if self.projected_eigenvalues:
-            peigen = []
-            for i in range(len(eigen)):
-                peigen.append({})
-                for spin in eigen[i].keys():
-                    peigen[i][spin] = []
-                    for j in range(len(eigen[i][spin])):
-                        peigen[i][spin].append({})
-            for (spin, kpoint_index, band_index, ion_index, orbital), value \
-                    in self.projected_eigenvalues.items():
-                beigen = peigen[kpoint_index][str(spin)][band_index]
-                if orbital not in beigen:
-                    beigen[orbital] = [0.0] * nsites
-                beigen[orbital][ion_index] = value
-            vout['projected_eigenvalues'] = peigen
+            if self.projected_eigenvalues:
+                peigen = []
+                for i in range(len(eigen)):
+                    peigen.append({})
+                    for spin in eigen[i].keys():
+                        peigen[i][spin] = []
+                        for j in range(len(eigen[i][spin])):
+                            peigen[i][spin].append({})
+                for (spin, kpoint_index, band_index, ion_index, orbital), \
+                        value in self.projected_eigenvalues.items():
+                    beigen = peigen[kpoint_index][str(spin)][band_index]
+                    if orbital not in beigen:
+                        beigen[orbital] = [0.0] * nsites
+                    beigen[orbital][ion_index] = value
+                vout['projected_eigenvalues'] = peigen
 
         vout['epsilon_static'] = self.epsilon_static
         d['output'] = vout
@@ -1243,25 +1243,20 @@ class Outcar(object):
             structure at the last ionic step is [5]["2s"][-1]
         """
 
-        Natom = len(self.charge)
-        CL = [dict() for i in range(Natom)]
+        natom = len(self.charge)
+        cl = [defaultdict(list) for i in range(natom)]
 
         foutcar = zopen(self.filename, "r")
         line = foutcar.readline()
         while line != "":
             line = foutcar.readline()
-
             if "the core state eigen" in line:
-                for iat in range(Natom):
+                for iat in range(natom):
                     line = foutcar.readline()
                     data = line.split()[1:]
                     for i in range(0, len(data), 2):
-                        if CL[iat].has_key(data[i]):
-                            CL[iat][data[i]].append(float(data[i+1]))
-                        else:
-                            CL[iat][data[i]] = [float(data[i+1])]
-
-        return CL
+                        cl[iat][data[i]].append(float(data[i+1]))
+        return cl
 
     @property
     def to_dict(self):
