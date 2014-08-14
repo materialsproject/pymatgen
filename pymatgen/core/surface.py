@@ -167,6 +167,14 @@ class Slab(Structure):
             index.append(n)
             term_slab.translate_sites(index, [0, 0, -shift/c])
             n+=1
+<<<<<<< HEAD
+=======
+
+        # Rescales the  lattice
+        new_latt = Lattice.from_parameters(term_slab.lattice.a, term_slab.lattice.b, min_vacuum_size+nlayers_slab*dist,
+                                           term_slab.lattice.alpha, term_slab.lattice.beta, term_slab.lattice.gamma)
+        term_slab.modify_lattice(new_latt)
+>>>>>>> 9e02438aff298a98b6aa9eedcf8fe07504238596
 
         el = term_slab.species
         org_coords = term_slab.frac_coords.tolist()
@@ -219,6 +227,7 @@ class Slab(Structure):
                 index = []
                 for f in range(0, len(alt_slab)):
                     index.append(f)
+<<<<<<< HEAD
                     standard_shift = -(alt_slab.frac_coords[term_index[iii]][2] +
                                        (0.5*term_scale)/alt_slab.lattice.c)
 
@@ -227,6 +236,15 @@ class Slab(Structure):
                 else:
                     alt_slab.translate_sites(index, [0, 0, 1+standard_shift])
 
+=======
+                if alt_slab.frac_coords[f][2] > alt_slab.frac_coords[term_index[iii]][2]:
+                    standard_shift = -(alt_slab.frac_coords[term_index[iii]][2] + 
+                                       (0.5*min_vacuum_size)/alt_slab.lattice.c)
+                else:
+                    standard_shift = 1 - alt_slab.frac_coords[term_index[iii]][2] - \
+                                     (0.5*min_vacuum_size)/alt_slab.lattice.c
+                alt_slab.translate_sites(index, [0, 0, standard_shift])
+>>>>>>> 9e02438aff298a98b6aa9eedcf8fe07504238596
 
             slab_list.append(alt_slab)
 
