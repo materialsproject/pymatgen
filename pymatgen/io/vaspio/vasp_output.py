@@ -750,10 +750,12 @@ class Vasprun(object):
         return atomic_symbols, potcar_symbols
 
     def _parse_kpoints(self, elem):
-        gen = elem.find("generation")
+        e = elem
+        if elem.find("generation"):
+            e = elem.find("generation")
         k = Kpoints("Kpoints from vasprun.xml")
-        k.style = gen.attrib["param"]
-        for v in gen.findall("v"):
+        k.style = e.attrib["param"] if "params" in e.attrib else "Reciprocal"
+        for v in e.findall("v"):
             name = v.attrib.get("name")
             toks = v.text.split()
             if name == "divisions":
@@ -769,6 +771,10 @@ class Vasprun(object):
             elif name == "weights":
                 weights = [i[0] for i in _parse_varray(va)]
         elem.clear()
+        if k.style == "Reciprocal":
+            k = Kpoints(comment="Kpoints from vasprun.xml",
+                    style="Reciprocal", num_kpts=len(k.kpts),
+                    kpts=actual_kpoints, kpts_weights=weights)
         return k, actual_kpoints, weights
 
     def _parse_structure(self, elem):
