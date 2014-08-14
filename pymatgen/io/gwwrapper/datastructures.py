@@ -471,7 +471,9 @@ class GWSpecs(AbstractAbinitioSpec):
         success = data.read_conv_res_from_file(os.path.join(s_name(structure)+'.res', s_name(structure)+'.conv_res'))
         con_dat = self.code_interface.read_convergence_data(s_name(structure)+'.res')
         try:
-            extra = ast.literal_eval('extra_abivars')
+            f = open('extra_abivars', mode='r')
+            extra = ast.literal_eval(f.read())
+            f.close()
         except (OSError, IOError):
             extra = None
         ps = self.code_interface.read_ps_dir
