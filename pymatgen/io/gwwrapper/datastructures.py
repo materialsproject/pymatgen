@@ -476,7 +476,7 @@ class GWSpecs(AbstractAbinitioSpec):
             f.close()
         except (OSError, IOError):
             extra = None
-        ps = str(self.code_interface.read_ps_dir)
+        ps = self.code_interface.read_ps_dir()
         results_file = os.path.join(s_name(structure)+'.res', self.code_interface.gw_data_file)
 
         local_serv = pymongo.Connection("marilyn.pcpm.ucl.ac.be")
