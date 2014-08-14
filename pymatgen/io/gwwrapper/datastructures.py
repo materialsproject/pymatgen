@@ -461,8 +461,10 @@ class GWSpecs(AbstractAbinitioSpec):
         data = GWConvergenceData(spec=self, structure=structure)
         success = data.read_conv_res_from_file(os.path.join(s_name(structure)+'.res', s_name(structure)+'.conv_res'))
         con_dat = self.code_interface.read_convergence_data(s_name(structure)+'.res')
+        file = os.path.join(s_name(structure)+'.res', self.code_interface.gw_data_file)
         if success and con_dat is None:
-            entry = {'system': s_name(structure), 'conv_res': data.conv_res, 'time': now(), 'gw_results': con_dat}
+            entry = {'system': s_name(structure), 'conv_res': data.conv_res, 'time': now(), 'gw_results': con_dat,
+                     'spec': self}
             #todo add the sigres to the db entry
             #todo add to db
             #todo remove the workfolders

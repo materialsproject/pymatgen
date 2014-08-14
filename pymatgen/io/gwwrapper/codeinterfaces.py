@@ -308,6 +308,10 @@ class AbinitInterface(AbstractCodeInterface):
     def conv_pars(self):
         return {'nbands': 'nscf_nbands', 'ecuteps': 'ecuteps', 'ecut': 'ecut'}
 
+    @property
+    def gw_data_file(self):
+        return 'SIGRES.nc'
+
     def read_ps_dir(self):
         location = os.environ['ABINIT_PS']
         return location
