@@ -489,9 +489,17 @@ class GWSpecs(AbstractAbinitioSpec):
         GW_results.authenticate("setten", pwd)
 
         if success and con_dat is not None:
-            entry = {'system': s_name(structure), 'item': structure.item, 'structure': structure.to_dict,
-                     'conv_res': data.conv_res, 'time': now(), 'gw_results': con_dat, 'spec': self.to_dict(),
-                     'extra_vars': extra, 'results_file': results_file, 'ps': ps}
+            entry = {'system': s_name(structure),
+                     'item': structure.item,
+                     'structure': structure.to_dict,
+                     'conv_res': data.conv_res,
+                     'time': now(),
+                     'gw_results': con_dat,
+                     'spec': self.to_dict(),
+                     'extra_vars': extra,
+                     'results_file': results_file,
+                     'ps': ps}
+            print entry
             GW_results.general.insert(entry)
             if self.data['source'] == 'mar_exp':
                 pass
