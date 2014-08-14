@@ -94,7 +94,8 @@ def deltafactor_polyfit(volumes, energies):
             break
     else:
         print("EOS: No minimum could be found")
-        return n(0, 0, 0, 0)
+        x = np.roots(deriv1)[1]
+        v0 = x**(-3./2.)
         #no need to kill everybody else in the whole world ..
         #raise EOSError("No minimum could be found")
 
