@@ -817,7 +817,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         # Perform checking on INCAR parameters
         if any([previous_incar.get("NSW", 0) != 0,
                 previous_incar["IBRION"] != -1,
-                previous_incar["LCHARG"] != True,
+                previous_incar["LCHARG"] is not True,
                any([sum(previous_incar["LDAUU"]) <= 0,
                     previous_incar["LMAXMIX"] < 4])
                if previous_incar.get("LDAU") else False]):
