@@ -26,7 +26,7 @@ from pymatgen.io.vaspio.vasp_input import Poscar, Kpoints
 from pymatgen.matproj.rest import MPRester, MPRestError
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.io.gwwrapper.convergence import test_conv
-from pymatgen.io.gwwrapper.helpers import print_gnuplot_header, s_name, add_gg_gap, refine_structure
+from pymatgen.io.gwwrapper.helpers import print_gnuplot_header, s_name, add_gg_gap, refine_structure, now
 from pymatgen.io.gwwrapper.codeinterfaces import get_code_interface
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import eV_to_Ha
@@ -459,9 +459,13 @@ class GWSpecs(AbstractAbinitioSpec):
         insert the convergence data and the 'sigres' in a database
         """
         data = GWConvergenceData(spec=self, structure=structure)
-        data.read_conv_res_from_file(os.path.join(s_name(structure)+'.res', s_name(structure)+'.conv_res'))
+        success = data.read_conv_res_from_file(os.path.join(s_name(structure)+'.res', s_name(structure)+'.conv_res'))
         con_dat = self.code_interface.read_convergence_data(s_name(structure)+'.res')
-
+        if success and con_dat is None:
+            entry = {'system': s_name(structure), 'conv_res': data.conv_res, 'time': now(), 'gw_results': con_dat}
+            #todo add the sigres to the db entry
+            #todo add to db
+            #todo remove the workfolders
         raise NotImplementedError
 
 
