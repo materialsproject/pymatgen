@@ -499,12 +499,20 @@ class GWSpecs(AbstractAbinitioSpec):
                      'results_file': results_file,
                      'ps': ps}
             print entry
-            count = GW_results.general.find(entry).count()
+            querry = {'system': s_name(structure),
+                     'item': structure.item,
+                     'structure': structure.to_dict,
+                     'spec': self.to_dict(),
+                     'extra_vars': extra,
+                     'ps': ps}
+            count = GW_results.general.find(querry).count()
             if count == 0:
                 GW_results.general.insert(entry)
                 print 'inserted', s_name(structure)
             elif count == 1:
-                GW_results.general.update(entry)
+                new_entry = GW_results.general.find_one(querry)
+                new_entry.update(entry)
+                GW_results.general.save(new_entry)
                 print 'updated', s_name(structure)
             else:
                 print 'duplicate entry ... '
