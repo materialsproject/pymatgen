@@ -130,6 +130,9 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(entry.uncorrected_energy + entry.correction,
                                entry.energy)
 
+        vasprun_uniform = Vasprun(os.path.join(test_dir, "vasprun.xml.uniform"))
+        self.assertEqual(vasprun_uniform.kpoints.style, "Reciprocal")
+
     def test_to_dict(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath)
