@@ -657,7 +657,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         self.incar_settings.update(
             {"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
              "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0,
-             "ICHARG": 0, "EDIFF": 0.000001})
+             "ICHARG": 0, "EDIFF": 0.000001, "ALGO": "Normal"})
         self.kpoints_settings.update({"kpoints_density": kpoints_density})
         self.sym_prec = sym_prec
 
@@ -783,7 +783,8 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         # Use previous run INCAR and override necessary parameters
         previous_incar.update({"IBRION": -1, "ISMEAR": -5, "LAECHG": True,
                                "LCHARG": True, "LORBIT": 11, "LVHAR": True,
-                               "LWAVE": False, "NSW": 0, "ICHARG": 0})
+                               "LWAVE": False, "NSW": 0, "ICHARG": 0,
+                               "ALGO": "Normal"})
 
         for incar_key in ["MAGMOM", "NUPDOWN"]:
             if new_incar.get(incar_key, None):
@@ -816,7 +817,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         # Perform checking on INCAR parameters
         if any([previous_incar.get("NSW", 0) != 0,
                 previous_incar["IBRION"] != -1,
-                previous_incar["LCHARG"] is True,
+                previous_incar["LCHARG"] is not True,
                any([sum(previous_incar["LDAUU"]) <= 0,
                     previous_incar["LMAXMIX"] < 4])
                if previous_incar.get("LDAU") else False]):
@@ -1240,7 +1241,7 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
 
         try:
             vasp_run = Vasprun(os.path.join(previous_vasp_dir, "vasprun.xml"),
-                               parse_dos=False, parse_eigen=None)
+                               parse_dos=False, parse_eigen=False)
             outcar = Outcar(os.path.join(previous_vasp_dir, "OUTCAR"))
             previous_incar = vasp_run.incar
         except:
