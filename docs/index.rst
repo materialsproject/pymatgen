@@ -72,6 +72,11 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.9.16
+-------
+1. Vastly improved Vasprun parser using cElementTree. Twice as fast,
+   half as much code and easier to maintain.
+
 v2.9.15
 -------
 1. Major update: MPRester now uses Materials API v2! Also major refactoring
