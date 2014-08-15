@@ -1742,6 +1742,12 @@ $end
         self.assertAlmostEqual(qcout.data[0]["bsse"], -0.164210762949, 5)
         self.assertEqual(qcout.data[0]["jobtype"], "bsse")
 
+    def test_hirshfeld_charge(self):
+        filename = os.path.join(test_dir, "hirshfeld_population.qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(qcout.data[0]["charges"]["hirshfeld"],
+                         [-0.286309, 0.143134, 0.143176])
+
 
 if __name__ == "__main__":
     unittest.main()
