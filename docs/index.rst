@@ -72,6 +72,10 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.10.1
+-------
+1. Minor fix for monty requirements in setup.py.
+
 v2.10.0
 -------
 1. Major update: MPRester now uses Materials API v2! Also major refactoring
