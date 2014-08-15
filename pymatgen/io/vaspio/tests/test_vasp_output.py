@@ -35,8 +35,9 @@ class VasprunTest(unittest.TestCase):
         totalscsteps = sum([len(i['electronic_steps'])
                             for i in vasprun.ionic_steps])
         self.assertEquals(29, len(vasprun.ionic_steps))
-        self.assertEquals(len(vasprun.structures),
-                          len(vasprun.ionic_steps) + 1)
+        self.assertEquals(len(vasprun.structures), len(vasprun.ionic_steps))
+        self.assertEqual(vasprun.lattice,
+                         vasprun.lattice_rec.reciprocal_lattice)
 
         for i, step in enumerate(vasprun.ionic_steps):
             self.assertEqual(vasprun.structures[i], step["structure"])
@@ -46,23 +47,15 @@ class VasprunTest(unittest.TestCase):
 
         self.assertEquals(308, totalscsteps,
                           "Incorrect number of energies read from vasprun.xml")
-        self.assertEquals([u'Li', u'Fe', u'Fe', u'Fe', u'Fe', u'P', u'P', u'P',
-                           u'P', u'O', u'O', u'O', u'O', u'O', u'O', u'O',
-                           u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O',
-                           u'O'],
-                          vasprun.atomic_symbols,
-                          "Incorrect symbols read from vasprun.xml")
+        self.assertEquals(['Li'] + 4 * ['Fe'] + 4 * ['P'] + 16 * ["O"],
+                          vasprun.atomic_symbols)
         self.assertEquals(vasprun.final_structure.composition.reduced_formula,
-                          "LiFe4(PO4)4",
-                          "Wrong formula for final structure read.")
+                          "LiFe4(PO4)4")
         self.assertIsNotNone(vasprun.incar, "Incar cannot be read")
         self.assertIsNotNone(vasprun.kpoints, "Kpoints cannot be read")
-        self.assertIsNotNone(vasprun.eigenvalues,
-                             "Eigenvalues cannot be read")
-        self.assertAlmostEqual(vasprun.final_energy, -269.38319884, 7,
-                               "Wrong final energy")
-        self.assertAlmostEqual(vasprun.tdos.get_gap(), 2.0589, 4,
-                               "Wrong gap from dos!")
+        self.assertIsNotNone(vasprun.eigenvalues, "Eigenvalues cannot be read")
+        self.assertAlmostEqual(vasprun.final_energy, -269.38319884, 7)
+        self.assertAlmostEqual(vasprun.tdos.get_gap(), 2.0589, 4)
         expectedans = (2.539, 4.0906, 1.5516, False)
         (gap, cbm, vbm, direct) = vasprun.eigenvalue_band_properties
         self.assertAlmostEqual(gap, expectedans[0])
@@ -70,11 +63,10 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(vbm, expectedans[2])
         self.assertEqual(direct, expectedans[3])
         self.assertFalse(vasprun.is_hubbard)
-        self.assertEqual(vasprun.potcar_symbols, [u'PAW_PBE Li 17Jan2003',
-                                                  u'PAW_PBE Fe 06Sep2000',
-                                                  u'PAW_PBE Fe 06Sep2000',
-                                                  u'PAW_PBE P 17Jan2003',
-                                                  u'PAW_PBE O 08Apr2002'])
+        self.assertEqual(vasprun.potcar_symbols,
+                         [u'PAW_PBE Li 17Jan2003', u'PAW_PBE Fe 06Sep2000',
+                          u'PAW_PBE Fe 06Sep2000', u'PAW_PBE P 17Jan2003',
+                          u'PAW_PBE O 08Apr2002'])
         self.assertIsNotNone(vasprun.kpoints, "Kpoints cannot be read")
         self.assertIsNotNone(vasprun.actual_kpoints,
                              "Actual kpoints cannot be read")
@@ -89,7 +81,7 @@ class VasprunTest(unittest.TestCase):
         self.assertEqual(vasprun_skip.nionic_steps, 29)
         self.assertEqual(len(vasprun_skip.ionic_steps),
                          int(vasprun.nionic_steps / 3) + 1)
-        self.assertEqual(len(vasprun_skip.ionic_steps) + 1,
+        self.assertEqual(len(vasprun_skip.ionic_steps),
                          len(vasprun_skip.structures))
         self.assertEqual(len(vasprun_skip.ionic_steps),
                          int(vasprun.nionic_steps / 3) + 1)
@@ -131,6 +123,9 @@ class VasprunTest(unittest.TestCase):
         entry = MaterialsProjectCompatibility().process_entry(entry)
         self.assertAlmostEqual(entry.uncorrected_energy + entry.correction,
                                entry.energy)
+
+        vasprun_uniform = Vasprun(os.path.join(test_dir, "vasprun.xml.uniform"))
+        self.assertEqual(vasprun_uniform.kpoints.style, "Reciprocal")
 
     def test_to_dict(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
