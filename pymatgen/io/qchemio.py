@@ -1207,7 +1207,7 @@ class QcOutput(object):
         thermal_corr_pattern = re.compile("(?P<name>\S.*\S):\s+"
                                           "(?P<correction>\d+\.\d+)\s+"
                                           "k?cal/mol")
-        detailed_charge_pattern = re.compile("Ground-State (?P<method>\w+) Net"
+        detailed_charge_pattern = re.compile("(Ground-State )?(?P<method>\w+)( Net)?"
                                              " Atomic Charges")
         nbo_charge_pattern = re.compile("(?P<element>[A-Z][a-z]{0,2})\s+(?P<no>\d+)\s+(?P<charge>\-?\d\.\d+)"
                                         "\s+(?P<core>\-?\d+\.\d+)\s+(?P<valence>\-?\d+\.\d+)"
@@ -1278,6 +1278,7 @@ class QcOutput(object):
         current_beta_homo = None
         homo_lumo = []
         bsse = None
+        hiershfiled_pop = False
         for line in output.split("\n"):
             for ep, message in error_defs:
                 if ep.search(line):
@@ -1517,8 +1518,13 @@ class QcOutput(object):
                     parse_input = True
                 elif "Standard Nuclear Orientation (Angstroms)" in line:
                     parse_coords = True
-                elif "Cycle       Energy         DIIS Error" in line\
-                        or "Cycle       Energy        RMS Gradient" in line:
+                elif "Performing Hirshfeld population analysis" in line:
+                    hiershfiled_pop = True
+                elif "Hirshfeld: atomic densities completed" in line:
+                    hiershfiled_pop = False
+                elif ("Cycle       Energy         DIIS Error" in line\
+                        or "Cycle       Energy        RMS Gradient" in line)\
+                        and not hiershfiled_pop:
                     parse_scf_iter = True
                     scf_iters.append([])
                     scf_successful = False
