@@ -1747,6 +1747,7 @@ $end
         qcout = QcOutput(filename)
         self.assertEqual(qcout.data[0]["charges"]["hirshfeld"],
                          [-0.286309, 0.143134, 0.143176])
+        self.assertFalse(qcout.data[0]["has_error"])
 
 
 if __name__ == "__main__":
