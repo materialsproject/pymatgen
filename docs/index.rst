@@ -76,6 +76,11 @@ v2.9.16
 -------
 1. Vastly improved Vasprun parser using cElementTree. Twice as fast,
    half as much code and easier to maintain.
+2. Improve monty.serialization for transparent handling of JSON vs YAML.
+   Requirements updated to monty>=0.3.3.
+3. Improved handling of Structure manipulations for extremely large
+   structures (particularly in terms of memory consumption).
+4. Minor bug fixes.
 
 v2.9.15
 -------
