@@ -832,17 +832,17 @@ class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
 
 
 def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20,
-               bitrate=10000, quality=5):
+               bitrate="10000k", quality=1):
     """
     Generate a movie from a sequence of structures using vtk and ffmpeg.
 
     Args:
         structures: sequence of structures
         output_filename: filename for structure output. defaults to movie.mp4
-        zoom: A zoom to be applied to the visulizer. Defaults to 1.0
+        zoom: A zoom to be applied to the visualizer. Defaults to 1.0.
         fps: Frames per second for the movie. Defaults to 20.
-        bitrate: Video bitate.  Defaults to 10000 (fairly high quality).
-        quality: A quality scale. Defaults to 5.
+        bitrate: Video bitate.  Defaults to 10000k (fairly high quality).
+        quality: A quality scale. Defaults to 1.
     """
     vis = StructureVis()
     vis.show_help = False
