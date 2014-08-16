@@ -206,10 +206,36 @@ class LatticeTestCase(PymatgenTest):
         scale = np.array([[1, 1, 0], [0, 1, 0], [0, 0, 1]])
 
         latt2 = Lattice(np.dot(rot, np.dot(scale, m).T).T)
-        (latt, rot, scale2) = latt2.find_mapping(latt)
+        (aligned_out, rot_out, scale_out) = latt2.find_mapping(latt)
         self.assertAlmostEqual(abs(np.linalg.det(rot)), 1)
-        self.assertTrue(np.allclose(scale2, scale) or
-                        np.allclose(scale2, -scale))
+
+        rotated = SymmOp.from_rotation_and_translation(rot_out).operate_multi(latt.matrix)
+
+        self.assertArrayAlmostEqual(rotated, aligned_out.matrix)
+        self.assertArrayAlmostEqual(np.dot(scale_out, latt2.matrix), aligned_out.matrix)
+        self.assertArrayAlmostEqual(aligned_out.lengths_and_angles, latt.lengths_and_angles)
+        self.assertFalse(np.allclose(aligned_out.lengths_and_angles,
+                                     latt2.lengths_and_angles))
+
+    def test_find_all_mappings(self):
+        m = np.array([[0.1, 0.2, 0.3], [-0.1, 0.2, 0.7], [0.6, 0.9, 0.2]])
+        latt = Lattice(m)
+
+        op = SymmOp.from_origin_axis_angle([0, 0, 0], [2, -1, 3], 40)
+        rot = op.rotation_matrix
+        scale = np.array([[0, 2, 0], [1, 1, 0], [0,0,1]])
+
+        latt2 = Lattice(np.dot(rot, np.dot(scale, m).T).T)
+
+        for (aligned_out, rot_out, scale_out) in latt.find_all_mappings(latt2):
+            self.assertArrayAlmostEqual(np.inner(latt2.matrix, rot_out), aligned_out.matrix)
+            self.assertArrayAlmostEqual(np.dot(scale_out, latt.matrix), aligned_out.matrix)
+            self.assertArrayAlmostEqual(aligned_out.lengths_and_angles, latt2.lengths_and_angles)
+            self.assertFalse(np.allclose(aligned_out.lengths_and_angles,
+                                         latt.lengths_and_angles))
+
+        latt = Lattice.orthorhombic(9, 9, 5)
+        self.assertEqual(len(list(latt.find_all_mappings(latt))), 16)
 
     def test_to_from_dict(self):
         d = self.tetragonal.to_dict
