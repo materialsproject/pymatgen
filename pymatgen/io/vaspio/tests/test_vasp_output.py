@@ -33,8 +33,9 @@ class VasprunTest(unittest.TestCase):
 
         #test pdos parsing
         pdos0 = vasprun.complete_dos.pdos[vasprun.final_structure[0]]
-        pdos_shape = np.array(pdos0[Orbital.s][1]).shape
-        self.assertEqual(pdos_shape, (301, ))
+        self.assertAlmostEqual(pdos0[Orbital.s][1][16], 0.0026)
+        self.assertAlmostEqual(pdos0[Orbital.pz][-1][16], 0.0012)
+        self.assertEqual(pdos0[Orbital.s][1].shape, (301, ))
 
         filepath2 = os.path.join(test_dir, 'lifepo4.xml')
         vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True)
