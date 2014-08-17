@@ -1209,7 +1209,7 @@ class QcOutput(object):
                                           "k?cal/mol")
         detailed_charge_pattern = re.compile("(Ground-State )?(?P<method>\w+)( Net)?"
                                              " Atomic Charges")
-        nbo_charge_pattern = re.compile("(?P<element>[A-Z][a-z]{0,2})\s+(?P<no>\d+)\s+(?P<charge>\-?\d\.\d+)"
+        nbo_charge_pattern = re.compile("(?P<element>[A-Z][a-z]{0,2})\s*(?P<no>\d+)\s+(?P<charge>\-?\d\.\d+)"
                                         "\s+(?P<core>\-?\d+\.\d+)\s+(?P<valence>\-?\d+\.\d+)"
                                         "\s+(?P<rydberg>\-?\d+\.\d+)\s+(?P<total>\-?\d+\.\d+)"
                                         "(\s+(?P<spin>\-?\d\.\d+))?")

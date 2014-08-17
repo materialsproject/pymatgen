@@ -831,7 +831,7 @@ class Vasprun(object):
                 data = np.array(_parse_varray(ss))
                 nrow, ncol = data.shape
                 for j in xrange(1, ncol):
-                    pdos[Orbital.from_vasp_index(j - 1)][spin] = data
+                    pdos[Orbital.from_vasp_index(j - 1)][spin] = data[:, j]
             pdoss.append(pdos)
         elem.clear()
         return Dos(efermi, energies, tdensities), \
