@@ -366,6 +366,33 @@ class Compatibility(object):
         """
         return filter(None, map(self.process_entry, entries))
 
+    def explain(self, entry):
+        """
+        Prints an explanation of the corrections that are being applied for a
+        given compatibility scheme. Inspired by the "explain" methods in many
+        database methodologies.
+
+        Args:
+            entry: A ComputedEntry.
+        """
+        entry = self.process_entry(entry)
+        print "The uncorrected value of the energy of %s is %f eV" % (
+            entry.composition, entry.uncorrected_energy)
+        print "The following corrections / screening are applied for %s:\n" %\
+            self.__class__.__name__
+        corr_dict = self.get_corrections_dict(entry)
+        for c in self.corrections:
+            desc = c.__doc__.split("Args")[0].strip()
+            print "%s correction: %s\n" % (str(c), desc.strip())
+            if str(c) in corr_dict:
+                print "For the entry, this correction has the value %f eV." % \
+                      corr_dict[str(c)]
+            else:
+                print "This correction does not make any changes to the energy."
+            print "-" * 30
+
+        print "The final energy after corrections is %f" % entry.energy
+
 
 @cached_class
 class MaterialsProjectCompatibility(Compatibility):
