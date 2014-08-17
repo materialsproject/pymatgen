@@ -426,7 +426,7 @@ class AbinitFlow(Node):
                 # queue error but no errors detected, try to solve by increasing resources
                 # if resources are at maximum the tast is definitively turned to errored
                 if task.manager.qadapter.increase_resources():
-#                if task.manager.policy.increase_max_ncpu():
+                #if task.manager.policy.increase_max_ncpu():
                     task.restart_from_scratch()
                     # task.set_status(task.S_READY)
                     return True
@@ -496,10 +496,10 @@ class AbinitFlow(Node):
             if exclude_finalized and work.finalized:
                 continue
 
-            table = [["Task", "Status", "Queue_id", 
+            table = [["Task", "Status", "Queue-id", 
                       "Errors", "Warnings", "Comments", 
                       "MPI", "OMP", 
-                      "Restart", "Task_Class", "Run-etime"]]
+                      "Restarts", "Task-Class", "Run-Etime"]]
 
             for task in work:
                 task_name = os.path.basename(task.name)
