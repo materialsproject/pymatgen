@@ -30,6 +30,12 @@ class VasprunTest(unittest.TestCase):
     def test_properties(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath)
+
+        #test pdos parsing
+        pdos0 = vasprun.complete_dos.pdos[vasprun.final_structure[0]]
+        pdos_shape = np.array(pdos0[Orbital.s][1]).shape
+        self.assertEqual(pdos_shape, (301, ))
+
         filepath2 = os.path.join(test_dir, 'lifepo4.xml')
         vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True)
         totalscsteps = sum([len(i['electronic_steps'])
