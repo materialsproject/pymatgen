@@ -72,35 +72,30 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-v2.9.15
+v2.10.2
+-------
+1. Bug fix for Projected DOS parsing in new Vasprun.
+2. Compatibility now has a *explain* method which provides a detailed outline
+   of the changes that a Compatibility makes to an Entry.
+
+v2.10.1
+-------
+1. Minor fix for monty requirements in setup.py.
+
+v2.10.0
 -------
 1. Major update: MPRester now uses Materials API v2! Also major refactoring
    of MPRester.
-2. Bug fix for XYZ parsing for scientific notation.
-3. Update numpy requirements to 1.8+. Fixes memory leak.
-
-v2.9.14
--------
-1. Implements Structure.sort method. Both Structure.sort and the
-   get_sorted_structure methods now supports all arguments supported by list
-   .sort().
-2. VaspInputSets configs, as well as several other configs now uses yaml. Note
-   the new dependency on pyyaml. It is highly recommended that you install
-   pyyaml with the libyaml C bindings.
-3. Fix missing spglib dependency.
-4. Use monty.serialization for transparent handling of JSON vs YAML.
-   Requirements updated to monty>=0.3.1.
-
-v2.9.13
--------
-1. Urgent bug fix for missing compatibility yamls.
-
-v2.9.12
--------
-1. Defect transformations (Bharat).
-2. Support for optical properties (Geoffroy Hautier and David Waroquiers).
-3. Improved support for some VASP output files (XDATCAR and OSZICAR).
-4. Refactored compatibilities now uses YAML for ease of reading.
+2. Vastly improved Vasprun parser using cElementTree. Twice as fast,
+   half as much code and easier to maintain.
+3. Vast improvements to Qchem functionality (Xiaohui Qu).
+4. Improved handling of Structure manipulations for extremely large
+   structures (particularly in terms of memory consumption).
+5. Bug fix for XYZ parsing for scientific notation.
+6. Improve monty.serialization for transparent handling of JSON vs YAML.
+   Requirements updated to monty>=0.3.3.
+7. Update numpy requirements to 1.8+. Fixes memory leak.
+8. Other minor bug fixes.
 
 :doc:`Older versions </changelog>`
 

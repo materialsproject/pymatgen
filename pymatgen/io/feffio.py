@@ -364,7 +364,7 @@ class FeffAtoms(MSONable):
         self._pot_dict = {}
 
         for i, atom in enumerate(unique_pot_atoms):
-            self._pot_dict[atom] = i
+            self._pot_dict[atom] = i + 1
 
     @property
     def central_atom(self):
