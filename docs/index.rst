@@ -72,6 +72,12 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.10.2
+-------
+1. Bug fix for Projected DOS parsing in new Vasprun.
+2. Compatibility now has a *explain* method which provides a detailed outline
+   of the changes that a Compatibility makes to an Entry.
+
 v2.10.1
 -------
 1. Minor fix for monty requirements in setup.py.
