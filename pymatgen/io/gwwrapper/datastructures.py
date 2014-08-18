@@ -135,7 +135,7 @@ class AbstractAbinitioSpec(MSONable):
 
         if self.data['source'] == 'mp-vasp':
             items_list = mp_list_vasp
-        elif self.data['source'] == ['poscar', 'xyz']:
+        elif self.data['source'] == ['poscar']:
             files = os.listdir('.')
             items_list = files
         elif self.data['source'] == 'mar_exp':
