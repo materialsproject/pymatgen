@@ -19,6 +19,8 @@ import os.path
 import ast
 import pymatgen as pmg
 import pymongo
+import copy
+import gridfs
 import numpy as np
 
 from abc import abstractproperty, abstractmethod, ABCMeta
@@ -463,7 +465,7 @@ class GWSpecs(AbstractAbinitioSpec):
         f.write(s)
         f.close()
 
-    def insert_in_database(self, structure, clean_on_ok=True):
+    def insert_in_database(self, structure, clean_on_ok=False, db_name='GW_results', collection='general'):
         """
         insert the convergence data and the 'sigres' in a database
         """
@@ -479,47 +481,54 @@ class GWSpecs(AbstractAbinitioSpec):
         ps = self.code_interface.read_ps_dir()
         results_file = os.path.join(s_name(structure)+'.res', self.code_interface.gw_data_file)
 
-        local_serv = pymongo.Connection("marilyn.pcpm.ucl.ac.be")
-        pwd = os.environ['MAR_PAS']
-
-        #local_db_gaps = local_serv.band_gaps
-        #local_db_gaps.authenticate("setten", pwd)
-
-        GW_results = local_serv.GW_results
-        GW_results.authenticate("setten", pwd)
-
         if success and con_dat is not None:
-            entry = {'system': s_name(structure),
-                     'item': structure.item,
-                     'structure': structure.to_dict,
-                     'conv_res': data.conv_res,
-                     'gw_results': con_dat,
-                     'spec': self.to_dict(),
-                     'extra_vars': extra,
-                     'results_file': results_file,
-                     'ps': ps}
-            print entry
-            querry = {'system': s_name(structure),
+            query = {'system': s_name(structure),
                      'item': structure.item,
                      'structure': structure.to_dict,
                      'spec': self.to_dict(),
                      'extra_vars': extra,
                      'ps': ps}
-            count = GW_results.general.find(querry).count()
+            entry = copy.deepcopy(query)
+            entry.update({'conv_res': data.conv_res,
+                          'gw_results': con_dat,
+                          'results_file': results_file})
+
+            # generic section that should go into the base class like
+            #    self._insert_in_database(query, entry, db_name, collection)
+            local_serv = pymongo.Connection("marilyn.pcpm.ucl.ac.be")
+            try:
+                user = os.environ['MAR_USER']
+            except OSError:
+                user = input('DataBase user name: ')
+            try:
+                pwd = os.environ['MAR_PAS']
+            except OSError:
+                pwd = input('DataBase pwd: ')
+            db = local_serv[db_name]
+            db.authenticate(user, pwd)
+            col = db[collection]
+            gfs = gridfs.GridFS(col)
+            count = col.find(query).count()
             if count == 0:
-                GW_results.general.insert(entry)
+                entry[results_file] = gfs.put(entry[results_file])
+                col.insert(entry)
                 print 'inserted', s_name(structure)
             elif count == 1:
-                new_entry = GW_results.general.find_one(querry)
+                new_entry = col.find_one(query)
+                if '_id' in new_entry['results_file']:
+                    print 'removing file ', new_entry['results_file'], 'from db'
+                    gfs.remove(new_entry['results_file'])
                 new_entry.update(entry)
-                GW_results.general.save(new_entry)
+                print 'adding', new_entry['results_file']
+                new_entry['results_file'] = gfs.put(new_entry['results_file'])
+                print 'as ', new_entry['results_file']
+                col.save(new_entry)
                 print 'updated', s_name(structure)
             else:
                 print 'duplicate entry ... '
-            if self.data['source'] == 'mar_exp':
-                pass
-                #also push to local_gaps
-            #todo add the sigres to the db entry gridfs
+            local_serv.disconnect()
+            # end generic section
+
             #todo remove the workfolders
 
 
@@ -785,6 +794,7 @@ class GWConvergenceData():
         """
         data_file = self.name + '.data'
         f = open(data_file, mode='a')
+        f.write('\n')
         try:
             tmp = self.get_sorted_data_list()[0][0]
         except IndexError:
