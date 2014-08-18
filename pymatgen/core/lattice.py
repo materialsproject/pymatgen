@@ -452,6 +452,8 @@ class Lattice(MSONable):
             for c, f in zip(c_cand[2][inds], f_cand[2][inds]):
                 aligned_m = np.array([c_cand[0][i], c_cand[1][j], c])
                 scale_m = np.array([f_cand[0][i], f_cand[1][j], f])
+                if np.abs(np.linalg.det(scale_m)) < 1e-8:
+                    continue
                 rotation_m = np.linalg.solve(aligned_m, other_lattice.matrix)
                 yield Lattice(aligned_m), rotation_m, scale_m
 

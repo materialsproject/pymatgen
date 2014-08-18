@@ -701,21 +701,21 @@ class Vasprun(object):
             vout.update(dict(bandgap=gap, cbm=cbm, vbm=vbm,
                              is_gap_direct=is_direct))
 
-        if self.projected_eigenvalues:
-            peigen = []
-            for i in range(len(eigen)):
-                peigen.append({})
-                for spin in eigen[i].keys():
-                    peigen[i][spin] = []
-                    for j in range(len(eigen[i][spin])):
-                        peigen[i][spin].append({})
-            for (spin, kpoint_index, band_index, ion_index, orbital), value \
-                    in self.projected_eigenvalues.items():
-                beigen = peigen[kpoint_index][str(spin)][band_index]
-                if orbital not in beigen:
-                    beigen[orbital] = [0.0] * nsites
-                beigen[orbital][ion_index] = value
-            vout['projected_eigenvalues'] = peigen
+            if self.projected_eigenvalues:
+                peigen = []
+                for i in range(len(eigen)):
+                    peigen.append({})
+                    for spin in eigen[i].keys():
+                        peigen[i][spin] = []
+                        for j in range(len(eigen[i][spin])):
+                            peigen[i][spin].append({})
+                for (spin, kpoint_index, band_index, ion_index, orbital), \
+                        value in self.projected_eigenvalues.items():
+                    beigen = peigen[kpoint_index][str(spin)][band_index]
+                    if orbital not in beigen:
+                        beigen[orbital] = [0.0] * nsites
+                    beigen[orbital][ion_index] = value
+                vout['projected_eigenvalues'] = peigen
 
         vout['epsilon_static'] = self.epsilon_static
         d['output'] = vout
@@ -750,10 +750,12 @@ class Vasprun(object):
         return atomic_symbols, potcar_symbols
 
     def _parse_kpoints(self, elem):
-        gen = elem.find("generation")
+        e = elem
+        if elem.find("generation"):
+            e = elem.find("generation")
         k = Kpoints("Kpoints from vasprun.xml")
-        k.style = gen.attrib["param"]
-        for v in gen.findall("v"):
+        k.style = e.attrib["param"] if "params" in e.attrib else "Reciprocal"
+        for v in e.findall("v"):
             name = v.attrib.get("name")
             toks = v.text.split()
             if name == "divisions":
@@ -769,6 +771,10 @@ class Vasprun(object):
             elif name == "weights":
                 weights = [i[0] for i in _parse_varray(va)]
         elem.clear()
+        if k.style == "Reciprocal":
+            k = Kpoints(comment="Kpoints from vasprun.xml",
+                    style="Reciprocal", num_kpts=len(k.kpts),
+                    kpts=actual_kpoints, kpts_weights=weights)
         return k, actual_kpoints, weights
 
     def _parse_structure(self, elem):
@@ -814,7 +820,7 @@ class Vasprun(object):
                 data = np.array(_parse_varray(ss))
                 nrow, ncol = data.shape
                 for j in xrange(1, ncol):
-                    pdos[Orbital.from_vasp_index(j - 1)][spin] = data
+                    pdos[Orbital.from_vasp_index(j - 1)][spin] = data[:, j]
             pdoss.append(pdos)
         elem.clear()
         return Dos(efermi, energies, tdensities), \
@@ -1237,25 +1243,20 @@ class Outcar(object):
             structure at the last ionic step is [5]["2s"][-1]
         """
 
-        Natom = len(self.charge)
-        CL = [dict() for i in range(Natom)]
+        natom = len(self.charge)
+        cl = [defaultdict(list) for i in range(natom)]
 
         foutcar = zopen(self.filename, "r")
         line = foutcar.readline()
         while line != "":
             line = foutcar.readline()
-
             if "the core state eigen" in line:
-                for iat in range(Natom):
+                for iat in range(natom):
                     line = foutcar.readline()
                     data = line.split()[1:]
                     for i in range(0, len(data), 2):
-                        if CL[iat].has_key(data[i]):
-                            CL[iat][data[i]].append(float(data[i+1]))
-                        else:
-                            CL[iat][data[i]] = [float(data[i+1])]
-
-        return CL
+                        cl[iat][data[i]].append(float(data[i+1]))
+        return cl
 
     @property
     def to_dict(self):
