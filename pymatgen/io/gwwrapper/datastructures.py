@@ -498,11 +498,11 @@ class GWSpecs(AbstractAbinitioSpec):
             local_serv = pymongo.Connection("marilyn.pcpm.ucl.ac.be")
             try:
                 user = os.environ['MAR_USER']
-            except OSError:
+            except KeyError:
                 user = input('DataBase user name: ')
             try:
                 pwd = os.environ['MAR_PAS']
-            except OSError:
+            except KeyError:
                 pwd = input('DataBase pwd: ')
             db = local_serv[db_name]
             db.authenticate(user, pwd)
