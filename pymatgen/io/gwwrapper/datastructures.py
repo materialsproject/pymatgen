@@ -507,7 +507,7 @@ class GWSpecs(AbstractAbinitioSpec):
             db = local_serv[db_name]
             db.authenticate(user, pwd)
             col = db[collection]
-            gfs = gridfs.GridFS(col)
+            gfs = gridfs.GridFS(db)
             count = col.find(query).count()
             if count == 0:
                 entry[results_file] = gfs.put(entry[results_file])
