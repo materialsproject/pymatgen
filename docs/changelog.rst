@@ -1,8 +1,6 @@
 Change log
 ==========
 
-<<<<<<< HEAD
-=======
 v2.9.14
 -------
 1. Implements Structure.sort method. Both Structure.sort and the
@@ -26,7 +24,6 @@ v2.9.12
 3. Improved support for some VASP output files (XDATCAR and OSZICAR).
 4. Refactored compatibilities now uses YAML for ease of reading.
 
->>>>>>> upstream/master
 v2.9.11
 -------
 1. Bug fix for get_xrd_plot.
