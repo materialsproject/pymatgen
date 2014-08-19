@@ -107,7 +107,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             if v < -Composition.amount_tolerance:
                 raise CompositionError("Amounts in Composition cannot be "
                                        "negative!")
-            elif v < 0:
+            elif v < Composition.amount_tolerance:
                 del elmap[k]
         self._elmap = {get_el_sp(k): v for k, v in elmap.items()}
         self._natoms = sum(self._elmap.values())
