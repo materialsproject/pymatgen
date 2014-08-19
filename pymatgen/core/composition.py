@@ -16,6 +16,7 @@ import re
 import collections
 import string
 from fractions import gcd
+from functools import total_ordering
 from itertools import chain
 from pymatgen.core.periodic_table import get_el_sp, Element
 from pymatgen.util.string_utils import formula_double_format
@@ -23,6 +24,7 @@ from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.units import unitized
 
 
+@total_ordering
 class Composition(collections.Mapping, collections.Hashable, MSONable):
     """
     Represents a Composition, which is essentially a {element:amount} mapping
@@ -120,6 +122,18 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         for el in chain(self.elements, other.elements):
             if abs(self[el] - other[el]) > Composition.amount_tolerance:
                 return False
+        return True
+
+    def __ge__(self, other):
+        """
+        Defines >= for Compositions. Should ONLY be used for ordering.
+        (Behavior is probably not what you'd expect)
+        """
+        for el in sorted(set(self.elements + other.elements)):
+            if other[el] - self[el] >= Composition.amount_tolerance:
+                return False
+            elif self[el] - other[el] >= Composition.amount_tolerance:
+                return True
         return True
 
     def __ne__(self, other):
