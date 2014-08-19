@@ -401,7 +401,7 @@ class GWSpecs(AbstractAbinitioSpec):
                     data.print_full_res()
                     data.print_conv_res()
                     # plot data:
-                    print_gnuplot_header('plots', s_name(structure)+' tol = '+str(self['tol']))
+                    print_gnuplot_header('plots', s_name(structure)+' tol = '+str(self['tol']), filetype=None)
                     data.print_gnuplot_line('plots')
                     data.print_plot_data()
                     done = True
@@ -516,9 +516,11 @@ class GWSpecs(AbstractAbinitioSpec):
                 print 'inserted', s_name(structure)
             elif count == 1:
                 new_entry = col.find_one(query)
-                if '_id' in new_entry['results_file']:
+                try:
                     print 'removing file ', new_entry['results_file'], 'from db'
                     gfs.remove(new_entry['results_file'])
+                except:
+                    pass
                 new_entry.update(entry)
                 print 'adding', new_entry['results_file']
                 new_entry['results_file'] = gfs.put(new_entry['results_file'])
@@ -794,7 +796,7 @@ class GWConvergenceData():
         print the gap data in a way for 3d plotting using gnuplot to file
         """
         data_file = self.name + '.data'
-        f = open(data_file, mode='a')
+        f = open(data_file, mode='w')
         f.write('\n')
         try:
             tmp = self.get_sorted_data_list()[0][0]
