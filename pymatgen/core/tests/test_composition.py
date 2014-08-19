@@ -74,6 +74,9 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual("H2 O1", Composition(f).formula)
         self.assertEqual("Na2 O1", Composition(Na=2, O=1).formula)
 
+        c = Composition({'S': Composition.amount_tolerance / 2})
+        self.assertEqual(len(c.elements), 0)
+
     def test_average_electroneg(self):
         val = [2.7224999999999997, 2.4160000000000004, 2.5485714285714285,
                2.21, 2.718, 3.08, 1.21, 2.43]
@@ -203,6 +206,11 @@ class CompositionTest(unittest.TestCase):
                          "Incorrect composition after addition!")
         self.assertEqual((self.comp[0] - {"Fe": 2, "O": 3}).formula,
                          "Li3 P3 O9")
+
+        #check that S is completely removed by subtraction
+        c1 = Composition({'S': 1 + Composition.amount_tolerance / 2, 'O': 1})
+        c2 = Composition({'S': 1})
+        self.assertEqual(len((c1 - c2).elements), 1)
 
     def test_mul(self):
         self.assertEqual((self.comp[0] * 4).formula, "Li12 Fe8 P12 O48")
