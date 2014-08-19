@@ -4,11 +4,11 @@ This module provides classes to perform fitting of structures.
 
 from __future__ import division
 
-__author__ = "Stephen Dacek, William Davidson Richards, Shyue Ping Ong"
+__author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
-__maintainer__ = "Stephen Dacek"
-__email__ = "sdacek@mit.edu"
+__maintainer__ = "William Davidson Richards"
+__email__ = "wrichard@mit.edu"
 __status__ = "Production"
 __date__ = "Dec 3, 2012"
 
@@ -23,7 +23,6 @@ from pymatgen.core.composition import Composition
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord_utils import pbc_shortest_vectors, \
     lattice_points_in_supercell
-from pymatgen.symmetry.finder import SymmetryFinder
 
 
 class AbstractComparator(MSONable):
@@ -54,20 +53,23 @@ class AbstractComparator(MSONable):
         return
 
     @abc.abstractmethod
-    def get_structure_hash(self, structure):
+    def get_hash(self, composition):
         """
-        Defines a hash for structures. This allows structures to be grouped
-        efficiently for comparison. For example, in exact matching,
-        you should only try to perform matching if structures have the same
-        reduced formula (structures with different formulas can't possibly
-        match). So the reduced_formula is a good hash. The hash function
-        should be relatively fast to compute relative to the actual matching.
+        Defines a hash to group structures. This allows structures to be 
+        grouped efficiently for comparison. The hash must be invariant under 
+        supercell creation. (e.g. composition is not a good hash, but 
+        fractional_composition might be). Reduced formula is not a good formula,
+        due to weird behavior with fractional occupancy.
+        
+        Composition is used here instead of structure because for anonymous
+        matches it is much quicker to apply a substitution to a composition 
+        object than a structure object.
 
         Args:
-            structure: A structure
+            composition (Composition): composition of the structure
 
         Returns:
-            A hashable object. Examples can be string formulas, etc.
+            A hashable object. Examples can be string formulas, integers etc.
         """
         return
 
@@ -108,18 +110,11 @@ class SpeciesComparator(AbstractComparator):
         """
         return sp1 == sp2
 
-    def get_structure_hash(self, structure):
+    def get_hash(self, composition):
         """
-        Hash for structure.
-
-        Args:
-            structure: A structure
-
-        Returns:
-            Reduced formula for the structure is used as a hash for the
-            SpeciesComparator.
+        Returns: Fractional composition
         """
-        return structure.composition.reduced_formula
+        return composition.get_fractional_composition()
 
 
 class SpinComparator(AbstractComparator):
@@ -159,20 +154,11 @@ class SpinComparator(AbstractComparator):
                 return False
         return True
 
-    def get_structure_hash(self, structure):
+    def get_hash(self, composition):
         """
-        Hash for structure.
-
-        Args:
-            structure: A structure
-
-        Returns:
-            Reduced formula for the structure is used as a hash for the
-            SpeciesComparator.
+        Returns: Fractional composition
         """
-        f = SymmetryFinder(structure, 0.1)
-        return "{} {}".format(f.get_spacegroup_number(),
-                              structure.composition.reduced_formula)
+        return composition.get_fractional_composition()
 
 
 class ElementComparator(AbstractComparator):
@@ -200,18 +186,11 @@ class ElementComparator(AbstractComparator):
         comp2 = Composition(sp2)
         return comp1.get_el_amt_dict() == comp2.get_el_amt_dict()
 
-    def get_structure_hash(self, structure):
+    def get_hash(self, composition):
         """
-        Hash for structure.
-
-        Args:
-            structure: A structure
-
-        Returns:
-            Reduced formula for the structure is used as a hash for the
-            SpeciesComparator.
+        Returns: Fractional element composition
         """
-        return structure.composition.reduced_formula
+        return composition.element_composition.get_fractional_composition()
 
 
 class FrameworkComparator(AbstractComparator):
@@ -234,17 +213,11 @@ class FrameworkComparator(AbstractComparator):
         """
         return True
 
-    def get_structure_hash(self, structure):
+    def get_hash(self, composition):
         """
-        Hash for structure.
-
-        Args:
-            structure: A structure
-
-        Returns:
-            Number of atoms is a good hash for simple framework matching.
+        No hash possible
         """
-        return len(structure)
+        return 1
 
 
 class OrderDisorderElementComparator(AbstractComparator):
@@ -272,15 +245,9 @@ class OrderDisorderElementComparator(AbstractComparator):
             return True
         return False
 
-    def get_structure_hash(self, structure):
-        """
-        Hash for structure.
-
-        Args:
-            structure: A structure
-
-        Returns:
-            TODO No good hash yet
+    def get_hash(self, composition):
+        """"
+        No hash possible
         """
         return 1
 
@@ -395,9 +362,9 @@ class StructureMatcher(MSONable):
             raise ValueError('invalid argument for supercell_size')
 
         if fu < 2/3:
-            return round(1/fu), False
+            return int(round(1/fu)), False
         else:
-            return round(fu), True
+            return int(round(fu)), True
 
     def _get_lattices(self, target_lattice, s, supercell_size=1):
         """
@@ -557,8 +524,8 @@ class StructureMatcher(MSONable):
         Returns:
             True or False.
         """
-        if not self._subset and self._comparator.get_structure_hash(struct1) \
-                != self._comparator.get_structure_hash(struct2):
+        if not self._subset and self._comparator.get_hash(struct1.composition) \
+                != self._comparator.get_hash(struct2.composition):
             return None
 
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
@@ -720,14 +687,15 @@ class StructureMatcher(MSONable):
 
         #Use structure hash to pre-group structures
         if anonymous:
-            shash = lambda x: x.composition.anonymized_formula
+            c_hash = lambda c: c.anonymized_formula
         else:
-            shash = self._comparator.get_structure_hash
-        sorted_s_list = sorted(s_list, key=shash)
+            c_hash = self._comparator.get_hash
+        s_hash = lambda s: c_hash(s.composition)
+        sorted_s_list = sorted(s_list, key=s_hash)
         all_groups = []
 
         #For each pre-grouped list of structures, perform actual matching.
-        for _, g in itertools.groupby(sorted_s_list, key=shash):
+        for k, g in itertools.groupby(sorted_s_list, key=s_hash):
             unmatched = list(g)
             while len(unmatched) > 0:
                 ref = unmatched.pop(0)
@@ -783,15 +751,16 @@ class StructureMatcher(MSONable):
         ratio = fu if s1_supercell else 1/fu
         swapped = len(struct1) * ratio < len(struct2)
 
-        s1_r_comp = struct1.composition.reduced_composition
-        s2_r_comp = struct2.composition.reduced_composition
+        s1_comp = struct1.composition
+        s2_comp = struct2.composition
         matches = []
         for perm in itertools.permutations(sp2):
             sp_mapping = dict(zip(sp1, perm))
 
             #do quick check that compositions are compatible
-            mapped_comp = Composition({sp_mapping[k]:v for k, v in s1_r_comp.items()})
-            if (not self._subset) and not s2_r_comp.almost_equals(mapped_comp):
+            mapped_comp = Composition({sp_mapping[k]:v for k, v in s1_comp.items()})
+            if (not self._subset) and self._comparator.get_hash(mapped_comp) != \
+                                      self._comparator.get_hash(s2_comp):
                 continue
 
             mapped_struct = struct1.copy()
