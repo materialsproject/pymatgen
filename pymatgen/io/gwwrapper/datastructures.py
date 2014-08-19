@@ -494,7 +494,7 @@ class GWSpecs(AbstractAbinitioSpec):
                           'results_file': results_file})
 
             # generic section that should go into the base class like
-            #    self._insert_in_database(query, entry, db_name, collection)
+            #   insert_in_database(query, entry, db_name, collection, server="marilyn.pcpm.ucl.ac.be")
             local_serv = pymongo.Connection("marilyn.pcpm.ucl.ac.be")
             try:
                 user = os.environ['MAR_USER']
