@@ -74,6 +74,9 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual("H2 O1", Composition(f).formula)
         self.assertEqual("Na2 O1", Composition(Na=2, O=1).formula)
 
+        c = Composition({'S': Composition.amount_tolerance / 2})
+        self.assertEqual(len(c.elements), 0)
+
     def test_average_electroneg(self):
         val = [2.7224999999999997, 2.4160000000000004, 2.5485714285714285,
                2.21, 2.718, 3.08, 1.21, 2.43]
@@ -204,6 +207,11 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual((self.comp[0] - {"Fe": 2, "O": 3}).formula,
                          "Li3 P3 O9")
 
+        #check that S is completely removed by subtraction
+        c1 = Composition({'S': 1 + Composition.amount_tolerance / 2, 'O': 1})
+        c2 = Composition({'S': 1})
+        self.assertEqual(len((c1 - c2).elements), 1)
+
     def test_mul(self):
         self.assertEqual((self.comp[0] * 4).formula, "Li12 Fe8 P12 O48")
         self.assertEqual((3 * self.comp[1]).formula, "Li9 Fe3 P3 O15")
@@ -225,6 +233,21 @@ class CompositionTest(unittest.TestCase):
                                                        comp2.formula))
         self.assertEqual(comp1.__hash__(), comp2.__hash__(),
                          "Hashcode equality test failed!")
+
+    def test_comparisons(self):
+        c1 = Composition({'S': 1})
+        c1_1 = Composition({'S': 1.00000000000001})
+        c2 = Composition({'S': 2})
+        c3 = Composition({'O': 1})
+        c4 = Composition({'O': 1, 'S': 1})
+        self.assertFalse(c1 > c2)
+        self.assertFalse(c1_1 > c1)
+        self.assertFalse(c1_1 < c1)
+        self.assertTrue(c1 > c3)
+        self.assertTrue(c3 < c1)
+        self.assertTrue(c4 > c1)
+        self.assertEqual(sorted([c1, c1_1, c2, c4, c3]),
+                        [c3, c1, c1_1, c4, c2])
 
     def test_almost_equals(self):
         c1 = Composition({'Fe': 2.0, 'O': 3.0, 'Mn': 0})
