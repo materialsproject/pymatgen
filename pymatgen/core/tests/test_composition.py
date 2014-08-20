@@ -265,9 +265,11 @@ class CompositionTest(unittest.TestCase):
         self.assertFalse(self.comp[0].__ne__(self.comp[0]))
         self.assertTrue(self.comp[0].__ne__(self.comp[1]))
 
-    def test_get_fractional_composition(self):
+    def test_fractional_composition(self):
         for c in self.comp:
             self.assertAlmostEqual(c.get_fractional_composition().num_atoms, 1)
+        for c in self.comp:
+            self.assertAlmostEqual(c.fractional_composition.num_atoms, 1)
 
     def test_init_numerical_tolerance(self):
         self.assertEqual(Composition({'B':1, 'C':-1e-12}), Composition('B'))

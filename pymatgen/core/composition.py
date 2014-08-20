@@ -18,6 +18,7 @@ import string
 from fractions import gcd
 from functools import total_ordering
 from itertools import chain
+from monty.dev import deprecated
 from pymatgen.core.periodic_table import get_el_sp, Element
 from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
@@ -126,8 +127,8 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
 
     def __ge__(self, other):
         """
-        Defines >= for Compositions. Should ONLY be used for ordering.
-        (Behavior is probably not what you'd expect)
+        Defines >= for Compositions. Should ONLY be used for defining a sort
+        order (the behavior is probably not what you'd expect)
         """
         for el in sorted(set(self.elements + other.elements)):
             if other[el] - self[el] >= Composition.amount_tolerance:
@@ -285,6 +286,19 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         return Composition(o)
 
     @property
+    def fractional_composition(self):
+        """
+        Returns the normalized composition which the number of species sum to
+        1.
+
+        Returns:
+            Normalized composition which the number of species sum to 1.
+        """
+        natoms = self._natoms
+        frac_map = {k: v / natoms for k, v in self._elmap.items()}
+        return Composition(frac_map)
+
+    @property
     def reduced_composition(self):
         """
         Returns the reduced composition,i.e. amounts normalized by greatest
@@ -325,6 +339,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
 
         return formula, factor
 
+    @deprecated(fractional_composition) #as of 8/20/14
     def get_fractional_composition(self):
         """
         Returns the normalized composition which the number of species sum to
@@ -333,9 +348,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         Returns:
             Normalized composition which the number of species sum to 1.
         """
-        natoms = self._natoms
-        frac_map = {k: v / natoms for k, v in self._elmap.items()}
-        return Composition(frac_map)
+        return self.fractional_composition
 
     @property
     def reduced_formula(self):
