@@ -511,7 +511,7 @@ class GWSpecs(AbstractAbinitioSpec):
             gfs = gridfs.GridFS(db)
             count = col.find(query).count()
             if count == 0:
-                entry[results_file] = gfs.put(entry[results_file])
+                entry['results_file'] = gfs.put(entry['results_file'])
                 col.insert(entry)
                 print 'inserted', s_name(structure)
             elif count == 1:
