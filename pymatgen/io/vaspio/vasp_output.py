@@ -789,8 +789,6 @@ class Vasprun(object):
         for scstep in elem.findall("scstep"):
             d = {i.attrib["name"]: float(i.text)
                  for i in scstep.find("energy").findall("i")}
-            d["time"] = {i.attrib["name"]: float(i.text.split()[0])
-                         for i in scstep.findall("time")}
             esteps.append(d)
         s = self._parse_structure(elem.find("structure"))
         for va in elem.findall("varray"):
