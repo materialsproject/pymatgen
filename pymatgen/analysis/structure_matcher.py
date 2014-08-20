@@ -114,7 +114,7 @@ class SpeciesComparator(AbstractComparator):
         """
         Returns: Fractional composition
         """
-        return composition.get_fractional_composition()
+        return composition.fractional_composition
 
 
 class SpinComparator(AbstractComparator):
@@ -158,7 +158,7 @@ class SpinComparator(AbstractComparator):
         """
         Returns: Fractional composition
         """
-        return composition.get_fractional_composition()
+        return composition.fractional_composition
 
 
 class ElementComparator(AbstractComparator):
@@ -190,7 +190,7 @@ class ElementComparator(AbstractComparator):
         """
         Returns: Fractional element composition
         """
-        return composition.element_composition.get_fractional_composition()
+        return composition.element_composition.fractional_composition
 
 
 class FrameworkComparator(AbstractComparator):
