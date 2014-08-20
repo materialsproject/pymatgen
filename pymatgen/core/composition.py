@@ -147,9 +147,8 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         new_el_map = collections.defaultdict(float)
         new_el_map.update(self)
-        for k in other.keys():
-            el = get_el_sp(k)
-            new_el_map[el] += other[k]
+        for k, v in other.iteritems():
+            new_el_map[get_el_sp(k)] += v
         return Composition(new_el_map)
 
     def __sub__(self, other):
@@ -161,18 +160,10 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             CompositionError if the subtracted composition is greater than the
             original composition in any of its elements.
         """
-        new_el_map = {el: self[el] for el in self}
-        for k in other.keys():
-            el = get_el_sp(k)
-            if el in self and other[k] <= self[el]:
-                new_el_map[el] -= other[k]
-            else:
-                raise CompositionError(
-                    "All elements in subtracted composition must exist in "
-                    "original composition in equal or lesser amount!")
-
-            new_el_map = {sp: amt for sp, amt in new_el_map.items()
-                          if amt != 0}
+        new_el_map = collections.defaultdict(float)
+        new_el_map.update(self)
+        for k, v in other.iteritems():
+            new_el_map[get_el_sp(k)] -= v
         return Composition(new_el_map)
 
     def __mul__(self, other):
@@ -243,9 +234,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         True if composition is for an element.
         """
-        positive_amts = [amt for amt in self._elmap.values()
-                         if amt > self.amount_tolerance]
-        return len(positive_amts) == 1
+        return len(self._elmap) == 1
 
     def copy(self):
         return Composition(self._elmap)
@@ -444,6 +433,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         return get_sym_dict(formula, 1)
 
     @staticmethod
+    @deprecated(__init__)
     def from_formula(formula):
         """
         .. deprecated:: 1.6.1
@@ -565,7 +555,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             #the strict composition parsing might throw an error, we can ignore
             #it and just get on with fuzzy matching
             try:
-                comp = Composition.from_formula(fuzzy_formula)
+                comp = Composition(fuzzy_formula)
                 return [comp]
             except (CompositionError, ValueError):
                 pass

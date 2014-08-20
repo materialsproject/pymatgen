@@ -26,14 +26,14 @@ class CompositionTest(unittest.TestCase):
 
     def setUp(self):
         self.comp = list()
-        self.comp.append(Composition.from_formula("Li3Fe2(PO4)3"))
-        self.comp.append(Composition.from_formula("Li3Fe(PO4)O"))
-        self.comp.append(Composition.from_formula("LiMn2O4"))
-        self.comp.append(Composition.from_formula("Li4O4"))
-        self.comp.append(Composition.from_formula("Li3Fe2Mo3O12"))
-        self.comp.append(Composition.from_formula("Li3Fe2((PO4)3(CO3)5)2"))
-        self.comp.append(Composition.from_formula("Li1.5Si0.5"))
-        self.comp.append(Composition.from_formula("ZnOH"))
+        self.comp.append(Composition("Li3Fe2(PO4)3"))
+        self.comp.append(Composition("Li3Fe(PO4)O"))
+        self.comp.append(Composition("LiMn2O4"))
+        self.comp.append(Composition("Li4O4"))
+        self.comp.append(Composition("Li3Fe2Mo3O12"))
+        self.comp.append(Composition("Li3Fe2((PO4)3(CO3)5)2"))
+        self.comp.append(Composition("Li1.5Si0.5"))
+        self.comp.append(Composition("ZnOH"))
 
         self.indeterminate_comp = []
         self.indeterminate_comp.append(
@@ -108,7 +108,7 @@ class CompositionTest(unittest.TestCase):
                             ["Co2 P4 O4", "Co2 Po4", "P4 C2 O6",
                              "Po4 C2 O2"], []]
         for i, c in enumerate(correct_formulas):
-            self.assertEqual([Composition.from_formula(comp) for comp in c],
+            self.assertEqual([Composition(comp) for comp in c],
                              self.indeterminate_comp[i])
 
     def test_alphabetical_formula(self):
@@ -125,8 +125,7 @@ class CompositionTest(unittest.TestCase):
         for i in xrange(len(self.comp)):
             self.assertEqual(self.comp[i]
                              .get_reduced_composition_and_factor()[0],
-                             Composition
-                             .from_formula(correct_reduced_formulas[i]))
+                             Composition(correct_reduced_formulas[i]))
 
     def test_reduced_formula(self):
         correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4',
@@ -201,11 +200,14 @@ class CompositionTest(unittest.TestCase):
 
     def test_sub(self):
         self.assertEqual((self.comp[0]
-                          - Composition.from_formula("Li2O")).formula,
+                          - Composition("Li2O")).formula,
                          "Li1 Fe2 P3 O11",
                          "Incorrect composition after addition!")
         self.assertEqual((self.comp[0] - {"Fe": 2, "O": 3}).formula,
                          "Li3 P3 O9")
+
+        self.assertRaises(CompositionError, Composition('O').__sub__, 
+                          Composition('H'))
 
         #check that S is completely removed by subtraction
         c1 = Composition({'S': 1 + Composition.amount_tolerance / 2, 'O': 1})
