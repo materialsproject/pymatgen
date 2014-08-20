@@ -175,6 +175,11 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             raise ValueError("Multiplication can only be done for int/floats!")
         return Composition({el: self[el] * other for el in self})
 
+    def __truediv__(self, other):
+        if not isinstance(other, (int, float)):
+            raise ValueError("Division can only be done for int/floats!")
+        return Composition({el: self[el] / other for el in self})
+
     def __rmul__(self, other):
         """
         Multiply a Composition by an integer or a float. This provides for
@@ -192,9 +197,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         hashcode = 0
         for el in self._elmap.keys():
-            #Ignore elements with zero amounts.
-            if self[el] > self.amount_tolerance:
-                hashcode += el.Z
+            hashcode += el.Z
         return hashcode
 
     def __contains__(self, el):
@@ -247,8 +250,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt.keys(), key=lambda s: get_el_sp(s).X)
-        formula = [s + formula_double_format(sym_amt[s], False) for s in syms
-                   if sym_amt[s] != 0]
+        formula = [s + formula_double_format(sym_amt[s], False) for s in syms]
         return " ".join(formula)
 
     @property
@@ -259,8 +261,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt.keys())
-        formula = [s + formula_double_format(sym_amt[s], False) for s in syms
-                   if sym_amt[s] != 0]
+        formula = [s + formula_double_format(sym_amt[s], False) for s in syms]
         return " ".join(formula)
 
     @property
@@ -269,10 +270,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         Returns the composition replacing any species by the corresponding
         element.
         """
-        o = collections.defaultdict(float)
-        for sp in self:
-            o[Element(sp.symbol)] += self[sp]
-        return Composition(o)
+        return Composition(self.get_el_amt_dict())
 
     @property
     def fractional_composition(self):
@@ -283,9 +281,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         Returns:
             Normalized composition which the number of species sum to 1.
         """
-        natoms = self._natoms
-        frac_map = {k: v / natoms for k, v in self._elmap.items()}
-        return Composition(frac_map)
+        return self / self._natoms
 
     @property
     def reduced_composition(self):
