@@ -481,7 +481,7 @@ class GWSpecs(AbstractAbinitioSpec):
             extra = None
         ps = self.code_interface.read_ps_dir()
         results_file = os.path.join(s_name(structure)+'.res', self.code_interface.gw_data_file)
-
+        data_file = os.path.join(s_name(structure)+'.res', s_name(structure)+'.data')
         if success and con_dat is not None:
             query = {'system': s_name(structure),
                      'item': structure.item,
@@ -492,7 +492,8 @@ class GWSpecs(AbstractAbinitioSpec):
             entry = copy.deepcopy(query)
             entry.update({'conv_res': data.conv_res,
                           'gw_results': con_dat,
-                          'results_file': results_file})
+                          'results_file': results_file,
+                          'data_file': data_file})
 
             # generic section that should go into the base class like
             #   insert_in_database(query, entry, db_name, collection, server="marilyn.pcpm.ucl.ac.be")
@@ -513,6 +514,7 @@ class GWSpecs(AbstractAbinitioSpec):
             count = col.find(query).count()
             if count == 0:
                 entry['results_file'] = gfs.put(entry['results_file'])
+                entry['data_file'] = gfs.put(entry['data_file'])
                 col.insert(entry)
                 print 'inserted', s_name(structure)
             elif count == 1:
@@ -522,10 +524,16 @@ class GWSpecs(AbstractAbinitioSpec):
                     gfs.remove(new_entry['results_file'])
                 except:
                     pass
+                try:
+                    print 'removing file ', new_entry['data_file'], 'from db'
+                    gfs.remove(new_entry['data_file'])
+                except:
+                    pass
                 new_entry.update(entry)
-                print 'adding', new_entry['results_file']
+                print 'adding', new_entry['results_file'], new_entry['data_file']
                 new_entry['results_file'] = gfs.put(new_entry['results_file'])
-                print 'as ', new_entry['results_file']
+                new_entry['data_file'] = gfs.put(new_entry['data_file'])
+                print 'as ', new_entry['results_file'], new_entry['data_file']
                 col.save(new_entry)
                 print 'updated', s_name(structure)
             else:
