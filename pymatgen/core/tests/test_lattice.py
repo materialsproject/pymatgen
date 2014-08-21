@@ -237,6 +237,11 @@ class LatticeTestCase(PymatgenTest):
         latt = Lattice.orthorhombic(9, 9, 5)
         self.assertEqual(len(list(latt.find_all_mappings(latt))), 16)
 
+        #catch the singular matrix error
+        latt = Lattice.from_lengths_and_angles([1,1,1], [10,10,10])
+        for l, _, _ in latt.find_all_mappings(latt, ltol=0.05, atol=11):
+            self.assertTrue(isinstance(l, Lattice))
+
     def test_to_from_dict(self):
         d = self.tetragonal.to_dict
         t = Lattice.from_dict(d)

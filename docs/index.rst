@@ -1,8 +1,3 @@
-.. pymatgen documentation master file, created by
-   sphinx-quickstart on Tue Nov 15 00:13:52 2011.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 .. image:: _static/pymatgen.png
    :width: 300 px
    :alt: pymatgen
@@ -71,6 +66,12 @@ several advantages over other codes out there:
 
 Latest Change Log
 =================
+
+v2.10.2
+-------
+1. Bug fix for Projected DOS parsing in new Vasprun.
+2. Compatibility now has a *explain* method which provides a detailed outline
+   of the changes that a Compatibility makes to an Entry.
 
 v2.10.1
 -------
