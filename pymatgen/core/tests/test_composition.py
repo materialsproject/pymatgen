@@ -90,7 +90,7 @@ class CompositionTest(unittest.TestCase):
                             'Li1.5 Si0.5', 'Zn1 H1 O1']
         all_formulas = [c.formula for c in self.comp]
         self.assertEqual(all_formulas, correct_formulas)
-        self.assertRaises(CompositionError, Composition.from_formula,
+        self.assertRaises(CompositionError, Composition,
                           "(co2)(po4)2")
 
     def test_mixed_valence(self):
