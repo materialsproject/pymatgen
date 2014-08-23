@@ -167,14 +167,6 @@ class Slab(Structure):
             index.append(n)
             term_slab.translate_sites(index, [0, 0, -shift/c])
             n+=1
-<<<<<<< HEAD
-=======
-
-        # Rescales the  lattice
-        new_latt = Lattice.from_parameters(term_slab.lattice.a, term_slab.lattice.b, min_vacuum_size+nlayers_slab*dist,
-                                           term_slab.lattice.alpha, term_slab.lattice.beta, term_slab.lattice.gamma)
-        term_slab.modify_lattice(new_latt)
->>>>>>> 9e02438aff298a98b6aa9eedcf8fe07504238596
 
         el = term_slab.species
         org_coords = term_slab.frac_coords.tolist()
@@ -227,7 +219,6 @@ class Slab(Structure):
                 index = []
                 for f in range(0, len(alt_slab)):
                     index.append(f)
-<<<<<<< HEAD
                     standard_shift = -(alt_slab.frac_coords[term_index[iii]][2] +
                                        (0.5*term_scale)/alt_slab.lattice.c)
 
@@ -236,15 +227,6 @@ class Slab(Structure):
                 else:
                     alt_slab.translate_sites(index, [0, 0, 1+standard_shift])
 
-=======
-                if alt_slab.frac_coords[f][2] > alt_slab.frac_coords[term_index[iii]][2]:
-                    standard_shift = -(alt_slab.frac_coords[term_index[iii]][2] + 
-                                       (0.5*min_vacuum_size)/alt_slab.lattice.c)
-                else:
-                    standard_shift = 1 - alt_slab.frac_coords[term_index[iii]][2] - \
-                                     (0.5*min_vacuum_size)/alt_slab.lattice.c
-                alt_slab.translate_sites(index, [0, 0, standard_shift])
->>>>>>> 9e02438aff298a98b6aa9eedcf8fe07504238596
 
             slab_list.append(alt_slab)
 
@@ -340,6 +322,104 @@ class Slab(Structure):
         structure_ad = ist.apply_transformation(structure_a)
 
         return structure_ad
+
+    def make_interface(self, inter_hkl, inter_structure, term=None, interface_gap = 0):
+
+        if term != None:
+            inter_slab = self.slab_list[term].copy()
+        else:
+            inter_slab = self
+
+        # Finds the strain to apply to secondary structure for proper interfacing
+        latt1 = Lattice.from_parameters(self.parent.lattice.a, self.parent.lattice.b, self.parent.lattice.c,
+                                        self.parent.lattice.alpha, self.parent.lattice.beta, self.parent.lattice.gamma)
+        latt2 = Lattice.from_parameters(inter_structure.lattice.a, inter_structure.lattice.b, inter_structure.lattice.c,
+                                        inter_structure.lattice.alpha, inter_structure.lattice.beta,
+                                        inter_structure.lattice.gamma)
+
+        g1 =latt1.metric_tensor
+        g2 =latt2.metric_tensor
+
+        hklt1 = np.transpose(self.miller_index)
+        hklt2 = np.transpose(inter_hkl)
+        d1 = np.dot(np.dot(self.miller_index, g1), hklt1)**(-0.5)
+        d2 = np.dot(np.dot(inter_hkl, g2), hklt2)**(-0.5)
+
+        strain = (d1-d2)/d1
+        inter_structure.apply_strain(strain)
+
+        # Creates a supercell of the strained secondary structure
+        m = self.lattice.matrix
+        A1 = np.linalg.norm(np.cross(m[0], m[1]))
+        m = inter_structure.lattice.matrix
+        A2 = np.linalg.norm(np.cross(m[0], m[1]))
+
+        height = int(math.ceil((A1/self.lattice.a) / (A2/inter_structure.lattice.a))*2)
+        base = int(math.ceil(self.lattice.a/inter_structure.lattice.a)*2)
+        c_basis = int(math.ceil(self.lattice.c/inter_structure.lattice.c)*2)
+        interface_scale_factor = [base, height, c_basis]
+        inter_structure.make_supercell(interface_scale_factor)
+
+        # Carves the secondary supercell into a shape compatible for interfacing with the slab
+        new_sites = []
+        specimen = inter_structure.species
+        scaled_species = []
+
+        for i in range(0, len(inter_structure)):
+            if self.shift <= inter_structure[i].coords[0] <= self.lattice.a and \
+                                    0 <= inter_structure[i].coords[1] <= self.lattice.b and \
+                                    0 <= inter_structure[i].coords[2] <= self.true_slab_size:
+                new_sites.append(inter_structure[i])
+                scaled_species.append(specimen[i])
+
+        scaled_sites = []
+        for site in new_sites:
+            scaled_sites.append(site.coords)
+
+        interface_lattice = Lattice.from_parameters(self.lattice.a, self.lattice.b, self.lattice.c, self.lattice.alpha, self.lattice.beta, self.lattice.gamma)
+        inter_structure = Structure(interface_lattice, scaled_species, scaled_sites, coords_are_cartesian = True)
+
+        # Creates the interface between two structures
+        interface_sites = []
+        interface_species = []
+        c_list = []
+        new_a = self.lattice.a + interface_gap + inter_structure.lattice.a
+        specimen = inter_slab.species
+        for i in range(0, len(inter_slab)):
+            c_list.append(inter_slab[i].coords[2])
+            interface_sites.append(inter_slab[i].coords)
+            interface_species.append(specimen[i])
+
+        # For some reason self[i].coords[ii] has coordinates a and switched, figure out the source later
+        for i in range(0, len(interface_sites)):
+            interface_sites[i][0], interface_sites[i][1] = interface_sites[i][1], interface_sites[i][0]
+
+        specimen = inter_structure.species
+        for i in range(0, len(inter_structure)):
+            interface_sites.append(inter_structure[i].coords)
+            interface_species.append(specimen[i])
+
+        interface_lattice = Lattice.from_parameters(new_a, self.lattice.b, self.lattice.c, self.lattice.alpha,
+                                                    self.lattice.beta, self.lattice.gamma)
+
+        interface_system = Structure(interface_lattice, interface_species, interface_sites, coords_are_cartesian=True)
+
+        index = []
+        index2 = []
+
+        for i in range(len(self)-1, len(interface_system)):
+            if max(c_list) < interface_system[i].coords[2] or interface_system[i].coords[2] < min(c_list):
+                index2.append(i)
+
+        interface_system.remove_sites(index2)
+
+        for i in range(len(self)-1, len(interface_system)):
+            index.append(i)
+        interface_system.translate_sites(index, [(interface_gap + self.lattice.a)/new_a, 0, 0])
+
+        interface = [interface_system, strain]
+
+        return interface
 
 
 import unittest
