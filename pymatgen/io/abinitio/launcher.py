@@ -220,6 +220,7 @@ class PyLauncher(object):
                 `AbinitFlow` object
         """
         self.flow = flow
+        self.max_jobs = 200
 
     def single_shot(self):
         """
@@ -296,21 +297,19 @@ class PyLauncher(object):
             if got_empty_list == max_loops:
                 break
 
-            for task in tasks:
-                # see if there is place in the queue
-                #njobs = get_running_jobs():
-                njobs = task.manager.qadapter.get_njobs_in_queue()
-                if njobs is not None and njobs > 99:
-                    num_loops = max_loops
-                    print('too many jobs in the queue, going back to sleep')
-                    break
+            if len(tasks) > 0:
+                n_to_run = self.max_jobs - tasks[0].manager.qadapter.get_njobs_in_queue()
+            else:
+                n_to_run = 0
 
+            if n_to_run == 0:
+                print('too many jobs in the queue, going back to sleep')
+
+            for task in tasks[:n_to_run]:
                 fired = task.start()
-
                 if fired:
                     launched.append(task)
                     num_launched += 1
-
                 if num_launched == max_nlaunch:
                     # Exit the outermost loop.
                     print('num_launched == max_nlaunch, going back to sleep')
