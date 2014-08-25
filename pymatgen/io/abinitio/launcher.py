@@ -265,13 +265,10 @@ class PyLauncher(object):
         Args:
             max_nlaunch:
                 Maximum number of launches. default: no limit.
-
-        nlaunches:
-            0 means 'until completion', -1 or "infinite" means to loop forever
-        max_loops:
-            maximum number of loops
-        sleep_time:
-            secs to sleep between rapidfire loop iterations
+            max_loops:
+                Maximum number of loops
+            sleep_time:
+                secs to sleep between rapidfire loop iterations
 
         Returns:
             The number of tasks launched.
@@ -285,7 +282,7 @@ class PyLauncher(object):
             tasks = self.fetch_tasks_to_run()
 
             # I don't know why but we receive duplicated tasks.
-            if any(task in launched for task in task):
+            if any(task in launched for task in tasks):
                 logger.critical("task %s already in launched list:\n%s" % (task, launched))
 
             # Preventive test.
@@ -294,14 +291,14 @@ class PyLauncher(object):
             if not tasks:
                 continue
 
-            njobs_in_queue = tasks[0].manager.qadapter.get_njobs_in_queue()
+            njobs_inqueue = tasks[0].manager.qadapter.get_njobs_in_queue()
             rest = self.max_njobs_inqueue - njobs_inqueue
             if rest <= 0:
                 print('too many jobs in the queue, going back to sleep')
                 continue
 
-            stop = -1 if rest > len(tasks) else rest
-            print("Will fire %d jobs" % stop)
+            stop = len(tasks) if rest > len(tasks) else rest
+            #print("Will fire %d jobs" % stop)
 
             for task in tasks[:stop]:
                 fired = task.start()
