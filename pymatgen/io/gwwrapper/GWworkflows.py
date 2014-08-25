@@ -231,6 +231,7 @@ class SingleAbinitGWWorkFlow():
         ecutsigx = 8
 
         extra_abivars = dict(
+            inclvkb=2,
             ecut=44,
             pawecutdg=88,
             gwmem='00',
@@ -317,7 +318,7 @@ class SingleAbinitGWWorkFlow():
 
         work = g0w0_extended(abi_structure, self.pseudo_table, scf_kppa, nscf_nband, ecuteps, ecutsigx,
                              accuracy="normal", spin_mode="unpolarized", smearing=None, response_models=response_models,
-                             charge=0.0, inclvkb=2, sigma_nband=None, scr_nband=None, gamma=gamma,
+                             charge=0.0, sigma_nband=None, scr_nband=None, gamma=gamma,
                              **extra_abivars)
 
         flow.register_work(work, workdir=workdir)

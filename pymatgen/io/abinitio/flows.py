@@ -403,7 +403,7 @@ class AbinitFlow(Node):
         for task in self.iflat_tasks(status='S_ABICRITICAL'):
             #todo
             if task.fix_abicritical():
-                task.restart_from_scratch()
+                task.reset_from_scratch()
                 # task.set_status(task.S_READY)
             else:
                 info_msg = 'We encountered an abi critial envent that could not be fixed'
@@ -427,8 +427,7 @@ class AbinitFlow(Node):
                 # if resources are at maximum the tast is definitively turned to errored
                 if task.manager.qadapter.increase_resources():
                 #if task.manager.policy.increase_max_ncpu():
-                    task.restart_from_scratch()
-                    # task.set_status(task.S_READY)
+                    task.reset_from_scratch()
                     return True
                 else:
                     info_msg = 'unknown queue error, could not increase resources any further'
@@ -441,19 +440,19 @@ class AbinitFlow(Node):
                         # if the problematic node is know exclude it
                         if error.nodes is not None:
                             task.manager.qadapter.exclude_nodes(error.nodes)
-                            task.restart_from_scratch()
-                            return True
+                            task.reset_from_scratch()
+                            return task.set_status(task.S_READY, info_msg='increased resources')
                         else:
                             info_msg = 'Node error detected but no was node identified. Unrecoverable error.'
                             return task.set_status(task.S_ERROR, info_msg)
                     elif isinstance(error, MemoryCancelError):
                         # ask the qadapter to provide more memory
                         if task.manager.qadapter.increase_mem():
-                            task.restart_from_scratch()
+                            task.reset_from_scratch()
                             return task.set_status(task.S_READY, info_msg='increased mem')
                         # if this failed ask the task to provide a method to reduce the memory demand
                         elif task.reduce_memory_demand():
-                            task.restart_from_scratch()
+                            task.reset_from_scratch()
                             return task.set_status(task.S_READY, info_msg='decreased mem demand')
                         else:
                             info_msg = 'Memory error detected but the memory could not be increased neigther could the ' \
@@ -462,15 +461,15 @@ class AbinitFlow(Node):
                     elif isinstance(error, TimeCancelError):
                         # ask the qadapter to provide more memory
                         if task.manager.qadapter.increase_time():
-                            task.restart_from_scratch()
+                            task.reset_from_scratch()
                             return task.set_status(task.S_READY, info_msg='increased wall time')
                         # if this fails ask the qadapter to increase the number of cpus
                         elif task.manager.qadapter.increase_cpus():
-                            task.restart_from_scratch()
+                            task.reset_from_scratch()
                             return task.set_status(task.S_READY, info_msg='increased number of cpus')
                         # if this failed ask the task to provide a method to speed up the task
                         elif task.speed_up():
-                            task.restart_from_scratch()
+                            task.reset_from_scratch()
                             return task.set_status(task.S_READY, info_msg='task speedup')
                         else:
                             info_msg = 'Time cancel error detected but the time could not be increased neigther could ' \

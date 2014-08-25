@@ -1469,7 +1469,7 @@ class Task(Node):
             logger.debug("will rename old %s to new %s" % (old, new))
             os.rename(old, new)
 
-    def _restart(self):
+    def _restart(self, no_submit=False):
         """
         Called by restart once we have finished preparing the task for restarting.
 
@@ -1483,12 +1483,15 @@ class Task(Node):
 
         # Remove the lock file
         self.start_lockfile.remove()
- 
-        # Relaunch the task.
-        fired = self.start()
 
-        if not fired:
-            self.history.append("[%s], restart failed" % time.asctime())
+        if not no_submit:
+            # Relaunch the task.
+            fired = self.start()
+
+            if not fired:
+                self.history.append("[%s], restart failed" % time.asctime())
+        else:
+            fired = False
 
         return fired
 
@@ -1861,13 +1864,6 @@ class Task(Node):
         # print('the job still seems to be running maybe it is hanging without producing output... ')
 
         return self.set_status(self.S_RUN)
-
-    def fix_abicritical(self):
-        """
-
-        """
-        # todo implement this
-        return False
 
     def reduce_memory_demand(self):
         """
@@ -2397,12 +2393,25 @@ class AbinitTask(Task):
         """
         return self._restart()
 
-    def restart_from_scratch(self):
+    def reset_from_scratch(self):
         """
         restart from scratch, reuse of output
         this is to be used if a job is restarted with more resources after a crash
         """
-        return self._restart()
+        return self._restart(no_submit=True)
+
+    def fix_abicritical(self):
+        """
+
+        """
+        # the crude, no idea what to do but this may work, solution.
+        if self.manager.qadapter.increase_resources():
+            self.reset_from_scratch()
+            return True
+        else:
+            info_msg = 'unknown queue error, could not increase resources any further'
+            self.set_status(self.S_ERROR, info_msg)
+            return False
 
     #@property
     #def timing(self):
@@ -2499,8 +2508,6 @@ class NscfTask(AbinitTask):
 
         # Now we can resubmit the job.
         return self._restart()
-
-
 
 
 class RelaxTask(AbinitTask):

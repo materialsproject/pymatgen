@@ -308,6 +308,10 @@ class AbinitInterface(AbstractCodeInterface):
     def conv_pars(self):
         return {'nbands': 'nscf_nbands', 'ecuteps': 'ecuteps', 'ecut': 'ecut'}
 
+    @property
+    def gw_data_file(self):
+        return 'SIGRES.nc'
+
     def read_ps_dir(self):
         location = os.environ['ABINIT_PS']
         return location
@@ -349,9 +353,9 @@ class AbinitInterface(AbstractCodeInterface):
             gwgap = data.read_value('egwgap')[0][0]
             if not isinstance(gwgap, float):
                 raise Exception
-            results = {'ecuteps': Ha_to_eV * ecuteps,
-                       'nbands': sigma_nband,
-                       'gwgap': gwgap}
+            results = {'ecuteps': float(Ha_to_eV * ecuteps),
+                       'nbands': int(sigma_nband),
+                       'gwgap': float(gwgap)}
             data.close()
             return results
         if os.path.isfile(scfruneig):

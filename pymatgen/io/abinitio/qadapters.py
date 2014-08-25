@@ -459,6 +459,7 @@ class AbstractQueueAdapter(object):
         """
         Method to generally increase resources.
         """
+        return False
 
 
 ####################
@@ -800,7 +801,7 @@ class PbsAdapter(AbstractQueueAdapter):
         currently hard coded, should be read at init
         the increase functions will not increase beyond thise limits
         """
-        return {'max_total_tasks': 3888, 'time': 48, 'max_select': 240}
+        return {'max_total_tasks': 3888, 'time': 48, 'max_select': 120}
 
     @property
     def mpi_ncpus(self):
@@ -882,8 +883,11 @@ class PbsAdapter(AbstractQueueAdapter):
             return njobs
 
         # there's a problem talking to qstat server?
-        err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' + 
+        print(' ** ')
+        print(process[1].split('\n'))
+        err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' +
                    'The error response reads: {}'.format(process[2]))
+        print(' ** ')
         logger.critical(err_msg)
 
         return None
@@ -928,6 +932,7 @@ class PbsAdapter(AbstractQueueAdapter):
         base_increase = 12
         new_cpus = self.qparams['select'] + factor * base_increase
         if new_cpus < self.limits['max_select']:
+            self.qparams['select'] = new_cpus
             return True
         else:
             logger.warning('increasing cpus reached the limit')
