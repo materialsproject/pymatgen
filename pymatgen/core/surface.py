@@ -23,7 +23,7 @@ from pymatgen import Lattice, Structure
 
 import numpy as np
 import copy
-import scipy.cluster.hierarchy
+from scipy.cluster.hierarchy import fclusterdata
 import os
 
 
@@ -61,8 +61,9 @@ class Slab(Structure):
         Surface normal vector.
     """
 
-    def __init__(self, structure, miller_index, min_slab_size, min_vacuum_size,
-                 thresh=0.0001, crit ='distance', lll_reduce=True, standardize = True, shift=0.00000000000001):
+    def __init__(self, structure, miller_index, min_slab_size,
+                 min_vacuum_size, thresh=0.0001, crit ='distance',
+                 lll_reduce=True, standardize = True, shift=0.00000000000001):
         """
         Makes a Slab structure. Note that the code will make a slab with
         whatever size that is specified, rounded upwards. The a and b lattice
@@ -161,7 +162,8 @@ class Slab(Structure):
         n = 0
         term_slab = slab.copy()
         c = term_slab.lattice.c
-        # For loop moves all sites down to compensate for the space opened up by the shift
+        # For loop moves all sites down to compensate
+        # for the space opened up by the shift
         for site in term_slab:
             index = []
             index.append(n)
@@ -180,13 +182,16 @@ class Slab(Structure):
             new_coord.append(b)
             b = []
 
-        # Clusters sites together that belong in the same termination surface based on their position in the
-        # c direction. Also organizes sites by ascending order from teh origin along the c direction. How close
-        # the sites have to be to belong in the same termination surface depends on the user input thresh.
-        tracker_index = scipy.cluster.hierarchy.fclusterdata(new_coord, thresh, criterion= crit)
-        new_coord, tracker_index, org_coords, el = zip(*sorted(zip(new_coord, tracker_index, org_coords, el)))
+# Clusters sites together that belong in the same termination surface based
+# on their position in the c direction. Also organizes sites by ascending
+# order from teh origin along the c direction. How close the sites have to
+# be to belong in the same termination surface depends on the user input thresh.
+        tracker_index = fclusterdata(new_coord, thresh, criterion= crit)
+        new_coord, tracker_index, org_coords, el = \
+            zip(*sorted(zip(new_coord, tracker_index, org_coords, el)))
 
-# Creates a list (term_index) that tells us which at which site does a termination begin. For 1 unit cell.
+# Creates a list (term_index) that tells us which at
+# which site does a termination begin. For 1 unit cell.
         term_index = []
         gg = 0
         for i in range(0, len(term_slab)):
@@ -212,8 +217,10 @@ class Slab(Structure):
                 index = []
                 index.append(ii)
 
-                if alt_slab.frac_coords[ii][2] > alt_slab.frac_coords[term_index[iii]][2]:
-                    alt_slab.translate_sites(index, [0, 0, term_scale/(new_slab.lattice.c)])
+                if alt_slab.frac_coords[ii][2] > \
+                        alt_slab.frac_coords[term_index[iii]][2]:
+                    alt_slab.translate_sites\
+                        (index, [0, 0, term_scale/(new_slab.lattice.c)])
 
             if standardize:
                 index = []
@@ -222,7 +229,8 @@ class Slab(Structure):
                     standard_shift = -(alt_slab.frac_coords[term_index[iii]][2] +
                                        (0.5*term_scale)/alt_slab.lattice.c)
 
-                if alt_slab.frac_coords[f][2] > alt_slab.frac_coords[term_index[iii]][2]:
+                if alt_slab.frac_coords[f][2] > \
+                        alt_slab.frac_coords[term_index[iii]][2]:
                     alt_slab.translate_sites(index, [0, 0, standard_shift])
                 else:
                     alt_slab.translate_sites(index, [0, 0, 1+standard_shift])
@@ -240,15 +248,14 @@ class Slab(Structure):
         self.min_slab_size = min_slab_size
         self.nlayers_slab = nlayers_slab
         self.min_vac_size = min_vacuum_size
-        self.slab_list = slab_list # Holds a list of Structure objects of slabs with different terminations
+        self.slab_list = slab_list 
         self.parent = structure
         self.miller_index = miller_index
-        self.term_index = term_index
-        self.term_coords = term_coords # Holds the corresponding list of sites on the surface terminations
-        self.thresh = thresh
-        self.shift = shift
+        self.term_coords = term_coords
         self.scale_factor = np.array(slab_scale_factor)
         self.normal = normal
+        self.true_vac_size = nlayers_vac*dist
+        self.shift = shift
 
         super(Slab, self).__init__(
             slab.lattice, slab.species_and_occu, slab.frac_coords,
@@ -323,103 +330,71 @@ class Slab(Structure):
 
         return structure_ad
 
-    def make_interface(self, inter_hkl, inter_structure, term=None, interface_gap = 0):
+    def make_interface(self, sec_struct, term):
 
-        if term != None:
-            inter_slab = self.slab_list[term].copy()
-        else:
-            inter_slab = self
-
-        # Finds the strain to apply to secondary structure for proper interfacing
-        latt1 = Lattice.from_parameters(self.parent.lattice.a, self.parent.lattice.b, self.parent.lattice.c,
-                                        self.parent.lattice.alpha, self.parent.lattice.beta, self.parent.lattice.gamma)
-        latt2 = Lattice.from_parameters(inter_structure.lattice.a, inter_structure.lattice.b, inter_structure.lattice.c,
-                                        inter_structure.lattice.alpha, inter_structure.lattice.beta,
-                                        inter_structure.lattice.gamma)
-
-        g1 =latt1.metric_tensor
-        g2 =latt2.metric_tensor
-
-        hklt1 = np.transpose(self.miller_index)
-        hklt2 = np.transpose(inter_hkl)
-        d1 = np.dot(np.dot(self.miller_index, g1), hklt1)**(-0.5)
-        d2 = np.dot(np.dot(inter_hkl, g2), hklt2)**(-0.5)
-
-        strain = (d1-d2)/d1
-        inter_structure.apply_strain(strain)
-
-        # Creates a supercell of the strained secondary structure
+        # Creates a supercell of the secondary structure
         m = self.lattice.matrix
         A1 = np.linalg.norm(np.cross(m[0], m[1]))
-        m = inter_structure.lattice.matrix
+        m = sec_struct.lattice.matrix
         A2 = np.linalg.norm(np.cross(m[0], m[1]))
 
-        height = int(math.ceil((A1/self.lattice.a) / (A2/inter_structure.lattice.a))*2)
-        base = int(math.ceil(self.lattice.a/inter_structure.lattice.a)*2)
-        c_basis = int(math.ceil(self.lattice.c/inter_structure.lattice.c)*2)
+        height = int(math.ceil((A1/self.lattice.a)
+                               / (A2/sec_struct.lattice.a))*2)
+        base = int(math.ceil(self.lattice.a/sec_struct.lattice.a)*2)
+        c_basis = int(math.ceil(self.lattice.c/sec_struct.lattice.c)*2)
         interface_scale_factor = [base, height, c_basis]
-        inter_structure.make_supercell(interface_scale_factor)
+        sec_struct.make_supercell(interface_scale_factor)
 
-        # Carves the secondary supercell into a shape compatible for interfacing with the slab
+# Carves the secondary supercell into a shape compatible for interfacing with the slab
         new_sites = []
-        specimen = inter_structure.species
+        specimen = sec_struct.species
         scaled_species = []
 
-        for i in range(0, len(inter_structure)):
-            if self.shift <= inter_structure[i].coords[0] <= self.lattice.a and \
-                                    0 <= inter_structure[i].coords[1] <= self.lattice.b and \
-                                    0 <= inter_structure[i].coords[2] <= self.true_slab_size:
-                new_sites.append(inter_structure[i])
+        for i in range(0, len(sec_struct)):
+            if 0 <= sec_struct[i].coords[0] <= self.lattice.a and \
+               0 <= sec_struct[i].coords[1] <= self.lattice.b and \
+               0 <= sec_struct[i].coords[2] <= self.lattice.c:
+                new_sites.append(sec_struct[i])
                 scaled_species.append(specimen[i])
 
         scaled_sites = []
         for site in new_sites:
             scaled_sites.append(site.coords)
 
-        interface_lattice = Lattice.from_parameters(self.lattice.a, self.lattice.b, self.lattice.c, self.lattice.alpha, self.lattice.beta, self.lattice.gamma)
-        inter_structure = Structure(interface_lattice, scaled_species, scaled_sites, coords_are_cartesian = True)
+        sec_struct = Structure(self.lattice, scaled_species,
+                               scaled_sites, coords_are_cartesian = True)
 
         # Creates the interface between two structures
         interface_sites = []
         interface_species = []
-        c_list = []
-        new_a = self.lattice.a + interface_gap + inter_structure.lattice.a
-        specimen = inter_slab.species
-        for i in range(0, len(inter_slab)):
-            c_list.append(inter_slab[i].coords[2])
-            interface_sites.append(inter_slab[i].coords)
+        # c_list = []
+        specimen = self.slab_list[term].species
+
+        for i in range(0, len(self.slab_list[term])):
+            # c_list.append(self.slab_list[term][i].coords[2])
+            interface_sites.append(self.slab_list[term][i].coords)
             interface_species.append(specimen[i])
 
-        # For some reason self[i].coords[ii] has coordinates a and switched, figure out the source later
-        for i in range(0, len(interface_sites)):
-            interface_sites[i][0], interface_sites[i][1] = interface_sites[i][1], interface_sites[i][0]
+        specimen = sec_struct.species
+        for i in range(0, len(sec_struct)):
+            if self.true_vac_size/2 <= sec_struct[i].coords[2] \
+                            <= self.lattice.c-self.true_vac_size/2:
+                continue
+            else:
+                interface_sites.append(sec_struct[i].coords)
+                interface_species.append(specimen[i])
 
-        specimen = inter_structure.species
-        for i in range(0, len(inter_structure)):
-            interface_sites.append(inter_structure[i].coords)
-            interface_species.append(specimen[i])
+        # For some reason self[i].coords[ii] has coordinates
+        # a and b switched, figure out the source later
+        for i in range(len(self)+1, len(interface_sites)):
+            interface_sites[i][0], interface_sites[i][1] = \
+                interface_sites[i][1], interface_sites[i][0]
 
-        interface_lattice = Lattice.from_parameters(new_a, self.lattice.b, self.lattice.c, self.lattice.alpha,
-                                                    self.lattice.beta, self.lattice.gamma)
+        interface_system = Structure(self.lattice, interface_species,
+                                     interface_sites,
+                                     coords_are_cartesian=True)
 
-        interface_system = Structure(interface_lattice, interface_species, interface_sites, coords_are_cartesian=True)
-
-        index = []
-        index2 = []
-
-        for i in range(len(self)-1, len(interface_system)):
-            if max(c_list) < interface_system[i].coords[2] or interface_system[i].coords[2] < min(c_list):
-                index2.append(i)
-
-        interface_system.remove_sites(index2)
-
-        for i in range(len(self)-1, len(interface_system)):
-            index.append(i)
-        interface_system.translate_sites(index, [(interface_gap + self.lattice.a)/new_a, 0, 0])
-
-        interface = [interface_system, strain]
-
-        return interface
+        return interface_system
 
 
 import unittest
@@ -427,7 +402,8 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.io.smartio import CifParser
 from pymatgen import write_structure
 
-# To run this test, it is assumed that the pymatgen folder is in your home directory
+# To run this test, it is assumed that the
+# pymatgen folder is in your home directory
 def get_path(path_str):
     file_name = "pymatgen/pymatgen/core/tests/surface tests/" + path_str
     path = os.path.join(os.path.expanduser("~"), file_name)
@@ -441,8 +417,10 @@ class SlabTest(unittest.TestCase):
                              [0, 0.5, 0.5]])
 
         self.lifepo4 = Structure(Lattice.orthorhombic(10.332, 6.01, 4.787),
-                                 ["Li", "Li", "Li", "Li", "Fe", "Fe", "Fe", "Fe", "P", "P", "P", "P", "O",
-                                  "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O"],
+                                 ["Li", "Li", "Li", "Li", "Fe", "Fe", "Fe",
+                                  "Fe", "P", "P", "P", "P", "O", "O", "O",
+                                  "O", "O", "O", "O", "O", "O", "O", "O",
+                                  "O", "O", "O", "O", "O"],
                                  [[0.5, 0, 0.5], [0, 0.5, 0], [0.5, 0.5, 0.5], [0, 0, 0], [0.78221, 0.25, 0.52527],
                                   [0.28221, 0.25, 0.97473], [0.21779,  0.75,     0.47473], [0.71779,  0.75,     0.02527],
                                   [0.59485,  0.25,     0.08079], [.09485,  0.25,     0.41921], [0.40515,  0.75,     0.91921],
@@ -453,9 +431,16 @@ class SlabTest(unittest.TestCase):
                                   [0.83433,  0.9534,   0.7153 ], [0.33433,  0.9534,   0.7847 ], [0.83433,  0.5466,   0.7153 ],
                                   [0.66567,  0.4534,   0.2153 ], [0.16567,  0.0466,   0.2847 ]])
 
-        self.zno = Structure(Lattice.from_parameters(3.253, 3.253, 5.213, 90, 90, 120), ["Zn", "Zn", "O", "O"],
-                             [[0.6667, 0.3334, 0.5], [0.3333, 0.6666, 0],
-                              [0.6667, 0.3334, 0.882], [0.3333, 0.6666, 0.382]])
+        self.zno = Structure(Lattice.from_parameters(3.253, 3.253, 5.213,
+                                                     90, 90, 120),
+                             ["Zn", "Zn", "O", "O"],
+                             [[0.6667, 0.3334, 0.5],
+                              [0.3333, 0.6666, 0],
+                              [0.6667, 0.3334, 0.882],
+                              [0.3333, 0.6666, 0.382]])
+
+        self.libcc = Structure(Lattice.cubic(3.51004), ["Li", "Li"],
+                               [[0, 0, 0], [0.5, 0.5, 0.5]])
 
         #Zn_O = CifParser(get_path("001_terminations/ZnO-wz.cif"))
         #self.zno = (Zn_O.get_structures(primitive = False)[0])
@@ -528,12 +513,10 @@ class SlabTest(unittest.TestCase):
                     get_path("100_terminations/LiFePO4.cif")]
 
         for i in range(0, len(fileName)):
-            Name = fileName[i][:-4] + "_%s_slab %s_vac %s_threshold %s_shift %s_#" \
+            Name = fileName[i][:-4] + "_%s_slab %s_vac %s_#" \
                                       %(str(m[i].miller_index),
                                         m[i].min_slab_size,
-                                        m[i].min_vac_size,
-                                        m[i].thresh,
-                                        m[i].shift)
+                                        m[i].min_vac_size)
             fileType = ".cif"
 
             # For visual debugging
@@ -542,22 +525,27 @@ class SlabTest(unittest.TestCase):
                 newFile = Name + name_num + fileType
                 write_structure(m[i].slab_list[ii], newFile)
 
-                # Compares the newly created structure to ones that were already made for checking sites are being
-                # translated correctly. Optional test can be turned on. Test turned off by default to save processing.
+                # Compares the newly created structure to ones
+                # that were already made for checking sites are being
+                # translated correctly. Optional test can be turned
+                # on. Test turned off by default to save processing.
                 #test_comp = CifParser(get_path("tests" + newFile[+73:]))
                 #self.compare_structure = (test_comp.get_structures(primitive = False)[0])
                 #test_new = CifParser(newFile)
                 #self.new_structure = (test_new.get_structures(primitive = False)[0])
                 #self.assertEqual(self.compare_structure, self.new_structure)
 
-            # Prints the coordinates and the species of each atom along with the number of atoms on a
+            # Prints the coordinates and the species of each
+            # atom along with the number of atoms on a
             # surface termination site
             for iii in range(0, len(m[i].term_coords)):
                 print(m[i].term_coords[iii])
-                print("%s atoms in this termination surface." %(len(m[i].term_coords[iii])))
+                print("%s atoms in this termination surface."
+                      %(len(m[i].term_coords[iii])))
 
             print(" ")
-        # Checks to see if the program generates the number of terminations we would expect it to
+        # Checks to see if the program generates the
+        # number of terminations we would expect it to
         self.assertEqual(len(z001.slab_list), 4)
         self.assertEqual(len(z100.slab_list), 2)
         self.assertEqual(len(l001.slab_list), 16)
@@ -573,9 +561,17 @@ class SlabTest(unittest.TestCase):
                  l001_shift.slab_list[2].frac_coords[8][2])*l001.slab_list[0].lattice.c
         self.assertAlmostEqual(shift, l001_shift.shift, places=0)
 
+    def test_make_interface(self):
+        n = 5
+        slab = Slab(self.lifepo4, [0, 0, 1], 10, 10)
+        interface = slab.make_interface(self.libcc, term=n)
+        # For visual debugging
+        write_structure(interface, "Li_LiFePO4_interface.cif")
 
+        for i in range(0, len(slab.slab_list[n])):
+            self.assertEqual(slab.slab_list[n][i].coords[0], interface[i].coords[0])
+            self.assertEqual(slab.slab_list[n][i].coords[1], interface[i].coords[1])
+            self.assertEqual(slab.slab_list[n][i].coords[2], interface[i].coords[2])
 
 if __name__ == "__main__":
     unittest.main()
-
-
