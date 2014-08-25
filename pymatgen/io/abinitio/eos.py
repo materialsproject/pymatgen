@@ -106,7 +106,6 @@ def deltafactor_polyfit(volumes, energies):
 
     return n(v0, b0, b1, fitdata[0])
 
-##########################################################################################
 
 
 class EOSError(Exception):
@@ -201,7 +200,6 @@ class EOS(object):
 
         return EOS_Fit(volumes, energies, self._func, self._eos_name)
 
-##########################################################################################
 
 
 class EOS_Fit(object):

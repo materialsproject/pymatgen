@@ -46,6 +46,3 @@ def enable_logging(main):
         return retcode
 
     return wrapper
-
-
-
