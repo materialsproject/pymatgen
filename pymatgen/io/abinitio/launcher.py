@@ -223,7 +223,7 @@ class PyLauncher(object):
         """
         self.flow = flow
 
-        self.max_njobs_inqueue = kwargs.get("max_njobs_inqueue", 99)
+        self.max_njobs_inqueue = kwargs.get("max_njobs_inqueue", 200)
 
     def single_shot(self):
         """
@@ -301,8 +301,7 @@ class PyLauncher(object):
                 break
 
             for task in tasks:
-                # see if there is place in the queue
-                #njobs = get_running_jobs():
+                # See if there is place in the queue
                 njobs = task.manager.qadapter.get_njobs_in_queue()
                 if njobs is not None and njobs > self.max_njobs_inqueue:
                     num_loops = max_loops

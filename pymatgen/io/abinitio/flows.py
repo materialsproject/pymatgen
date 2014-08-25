@@ -482,18 +482,18 @@ class AbinitFlow(Node):
                         logger.debug(info_msg)
                         return task.set_status(task.S_ERROR, info_msg)
 
-    def show_status(self, stream=sys.stdout, exclude_finalized=1):
+    def show_status(self, stream=sys.stdout, verbose=0):
         """
         Report the status of the workflows and the status 
         of the different tasks on the specified stream.
 
-        if exclude_finalized, no full entry for works that are completed is printed.
+        if not verbose, no full entry for works that are completed is printed.
         """
         for i, work in enumerate(self):
             print(80*"=", file=stream)
             print("Workflow #%d: %s, Finalized=%s\n" % (i, work, work.finalized), file=stream)
 
-            if exclude_finalized and work.finalized:
+            if verbose == 0 and work.finalized:
                 continue
 
             table = [["Task", "Status", "Queue-id", 
