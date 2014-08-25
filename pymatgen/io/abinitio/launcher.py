@@ -222,7 +222,6 @@ class PyLauncher(object):
                     number of jobs in the queue is >= Max number of jobs
         """
         self.flow = flow
-
         self.max_njobs_inqueue = kwargs.get("max_njobs_inqueue", 200)
 
     def single_shot(self):
@@ -259,7 +258,7 @@ class PyLauncher(object):
 
         return num_launched
 
-    def rapidfire(self, max_nlaunch=-1, max_loops=1, sleep_time=None): # nlaunches=0,
+    def rapidfire(self, max_nlaunch=-1, max_loops=1, sleep_time=5): 
         """
         Keeps submitting `Tasks` until we are out of jobs or no job is ready to run.
 
@@ -277,39 +276,35 @@ class PyLauncher(object):
         Returns:
             The number of tasks launched.
         """
-        sleep_time = sleep_time if sleep_time else 5
-        #nlaunches = -1 if nlaunches == 'infinite' else int(nlaunches)
-        num_loops, num_launched, launched = 0, 0, []
-        got_empty_list = 0
+        num_launched, launched = 0, []
 
-        while num_loops <= max_loops:
+        for count in range(max_loops):
+            if count > 0:
+                time.sleep(sleep_time)
+
             tasks = self.fetch_tasks_to_run()
 
             # I don't know why but we receive duplicated tasks.
-            for task in tasks:
-                if task in launched:
-                    err_msg = "task %s already in launched list:\n%s" % (task, launched)
-                    logger.critical(err_msg)
+            if any(task in launched for task in task):
+                logger.critical("task %s already in launched list:\n%s" % (task, launched))
 
             # Preventive test.
             tasks = [t for t in tasks if t not in launched]
 
             if not tasks:
-                got_empty_list += 1
+                continue
 
-            if got_empty_list == max_loops:
-                break
+            njobs_in_queue = tasks[0].manager.qadapter.get_njobs_in_queue()
+            rest = self.max_njobs_inqueue - njobs_inqueue
+            if rest <= 0:
+                print('too many jobs in the queue, going back to sleep')
+                continue
 
-            for task in tasks:
-                # See if there is place in the queue
-                njobs = task.manager.qadapter.get_njobs_in_queue()
-                if njobs is not None and njobs > self.max_njobs_inqueue:
-                    num_loops = max_loops
-                    print('too many jobs in the queue, going back to sleep')
-                    break
+            stop = -1 if rest > len(tasks) else rest
+            print("Will fire %d jobs" % stop)
 
+            for task in tasks[:stop]:
                 fired = task.start()
-
                 if fired:
                     launched.append(task)
                     num_launched += 1
@@ -317,15 +312,10 @@ class PyLauncher(object):
                 if num_launched == max_nlaunch:
                     # Exit the outermost loop.
                     print('num_launched == max_nlaunch, going back to sleep')
-                    num_loops = max_loops
                     break
 
-            #time.sleep(sleep_time)
-            num_loops += 1
 
         # Update the database.
-        self.flow.check_status()
-        self.flow.fix_critical()
         self.flow.pickle_dump()
 
         return num_launched
@@ -441,10 +431,10 @@ class PyFlowScheduler(object):
         self.use_dynamic_manager = kwargs.pop("use_dynamic_manager", False)
         self.max_njobs_inqueue = kwargs.pop("max_njobs_inqueue", -1)
 
-        self.REMINDME_S = float(kwargs.pop("REMINDME_S", 14 * 24 * 3600))
+        self.REMINDME_S = float(kwargs.pop("REMINDME_S", 4 * 24 * 3600))
         self.MAX_NUM_PYEXCS = int(kwargs.pop("MAX_NUM_PYEXCS", 0))
         self.MAX_NUM_ABIERRS = int(kwargs.pop("MAX_NUM_ABIERRS", 0))
-        self.SAFETY_RATIO = int(kwargs.pop("SAFETY_RATIO", 3))
+        self.SAFETY_RATIO = int(kwargs.pop("SAFETY_RATIO", 5))
         #self.MAX_ETIME_S = kwargs.pop("MAX_ETIME_S", )
 
         if kwargs:
@@ -600,7 +590,9 @@ class PyFlowScheduler(object):
 
     def _runem_all(self):
         """
-        This function tries to run all the tasks that can be submitted.
+        This function checks the status of all tasks,
+        tries to fix tasks that went unconverged, abicritical, or queuecritical
+        and tries to run all the tasks that can be submitted.+
         """
         max_nlaunch, excs = 10, []
         flow = self.flow
@@ -616,9 +608,12 @@ class PyFlowScheduler(object):
             for work in flow:
                 work.set_manager(new_manager)
 
+        # check stattus
         flow.check_status()
 
+        # fix problems
         # Try to restart the unconverged tasks
+        # todo donot fire here but prepare for fireing in rapidfire
         for task in self.flow.unconverged_tasks:
             try:
                 logger.info("AbinitFlow will try restart task %s" % task)
@@ -629,6 +624,11 @@ class PyFlowScheduler(object):
             except Exception:
                 excs.append(straceback())
 
+        # move here from withing rapid fire ...
+        # fix only prepares for restarting, and sets to ready
+        flow.fix_critical()
+
+        # update database
         flow.pickle_dump()
 
         #if self.num_restarts == self.max_num_restarts:

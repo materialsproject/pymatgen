@@ -2,6 +2,7 @@
 Classes for writing GW Input and analyzing GW data. The underlying classes can handle the use of VASP and ABINIT via the
 code interfaces provided in codeinterfaces.
 Reads the POSCAR_name in the the current folder and outputs GW input to subfolders name or lists of structures
+test 3
 """
 
 from __future__ import division
@@ -19,6 +20,8 @@ import os.path
 import ast
 import pymatgen as pmg
 import pymongo
+import copy
+import gridfs
 import numpy as np
 
 from abc import abstractproperty, abstractmethod, ABCMeta
@@ -26,7 +29,7 @@ from pymatgen.io.vaspio.vasp_input import Poscar, Kpoints
 from pymatgen.matproj.rest import MPRester, MPRestError
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.io.gwwrapper.convergence import test_conv
-from pymatgen.io.gwwrapper.helpers import print_gnuplot_header, s_name, add_gg_gap, refine_structure
+from pymatgen.io.gwwrapper.helpers import print_gnuplot_header, s_name, add_gg_gap, refine_structure, now
 from pymatgen.io.gwwrapper.codeinterfaces import get_code_interface
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import eV_to_Ha
@@ -133,7 +136,7 @@ class AbstractAbinitioSpec(MSONable):
 
         if self.data['source'] == 'mp-vasp':
             items_list = mp_list_vasp
-        elif self.data['source'] == ['poscar', 'xyz']:
+        elif self.data['source'] == 'poscar':
             files = os.listdir('.')
             items_list = files
         elif self.data['source'] == 'mar_exp':
@@ -203,6 +206,8 @@ class AbstractAbinitioSpec(MSONable):
                 self.excecute_flow(structure)
             elif mode == 'w':
                 self.print_results(structure)
+            elif mode == 's':
+                self.insert_in_database(structure)
             elif mode == 'o':
                 # if os.path.isdir(s_name(structure)) or os.path.isdir(s_name(structure)+'.conv'):
                 self.process_data(structure)
@@ -244,8 +249,15 @@ class AbstractAbinitioSpec(MSONable):
     @abstractmethod
     def process_data(self, structure):
         """
-        method called in loopstructures in 'o' input mode, this method should take the results from the calcultations
+        method called in loopstructures in 'o' output mode, this method should take the results from the calcultations
         and perform analysis'
+        """
+
+    @abstractmethod
+    def insert_in_database(self, structure):
+        """
+        method called in loopstructures in 's' store mode, this method should take the results from the calcultations
+        and put them in a database'
         """
 
 
@@ -390,7 +402,7 @@ class GWSpecs(AbstractAbinitioSpec):
                     data.print_full_res()
                     data.print_conv_res()
                     # plot data:
-                    print_gnuplot_header('plots', s_name(structure)+' tol = '+str(self['tol']))
+                    print_gnuplot_header('plots', s_name(structure)+' tol = '+str(self['tol']), filetype=None)
                     data.print_gnuplot_line('plots')
                     data.print_plot_data()
                     done = True
@@ -441,13 +453,95 @@ class GWSpecs(AbstractAbinitioSpec):
         """
         data = GWConvergenceData(spec=self, structure=structure)
         if data.read_conv_res_from_file(os.path.join(s_name(structure)+'.res', s_name(structure)+'.conv_res')):
-            s = '%s %s %s \n' % (s_name(structure), str(data.conv_res['values']['ecuteps']), str(data.conv_res['values']['nscf_nbands']))
+            s = '%s %s %s ' % (s_name(structure), str(data.conv_res['values']['ecuteps']), str(data.conv_res['values']['nscf_nbands']))
         else:
-            s = '%s 0.0 0.0 \n' % s_name(structure)
-        print s
+            s = '%s 0.0 0.0 ' % s_name(structure)
+        con_dat = self.code_interface.read_convergence_data(s_name(structure)+'.res')
+        if con_dat is not None:
+            s += '%s ' % con_dat['gwgap']
+        else:
+            s += '0.0 '
+        s += '\n'
         f = open(file_name, 'a')
         f.write(s)
         f.close()
+
+    def insert_in_database(self, structure, clean_on_ok=False, db_name='GW_results', collection='general'):
+        """
+        insert the convergence data and the 'sigres' in a database
+        """
+        data = GWConvergenceData(spec=self, structure=structure)
+        success = data.read_conv_res_from_file(os.path.join(s_name(structure)+'.res', s_name(structure)+'.conv_res'))
+        con_dat = self.code_interface.read_convergence_data(s_name(structure)+'.res')
+        try:
+            f = open('extra_abivars', mode='r')
+            extra = ast.literal_eval(f.read())
+            f.close()
+        except (OSError, IOError):
+            extra = None
+        ps = self.code_interface.read_ps_dir()
+        results_file = os.path.join(s_name(structure)+'.res', self.code_interface.gw_data_file)
+        data_file = os.path.join(s_name(structure)+'.res', s_name(structure)+'.data')
+        if success and con_dat is not None:
+            query = {'system': s_name(structure),
+                     'item': structure.item,
+                     'structure': structure.to_dict,
+                     'spec': self.to_dict(),
+                     'extra_vars': extra,
+                     'ps': ps}
+            entry = copy.deepcopy(query)
+            entry.update({'conv_res': data.conv_res,
+                          'gw_results': con_dat,
+                          'results_file': results_file,
+                          'data_file': data_file})
+
+            # generic section that should go into the base class like
+            #   insert_in_database(query, entry, db_name, collection, server="marilyn.pcpm.ucl.ac.be")
+            local_serv = pymongo.Connection("marilyn.pcpm.ucl.ac.be")
+            try:
+                user = os.environ['MAR_USER']
+            except KeyError:
+                user = input('DataBase user name: ')
+            try:
+                pwd = os.environ['MAR_PAS']
+            except KeyError:
+                pwd = input('DataBase pwd: ')
+            db = local_serv[db_name]
+            db.authenticate(user, pwd)
+            col = db[collection]
+            print col
+            gfs = gridfs.GridFS(db)
+            count = col.find(query).count()
+            if count == 0:
+                entry['results_file'] = gfs.put(entry['results_file'])
+                entry['data_file'] = gfs.put(entry['data_file'])
+                col.insert(entry)
+                print 'inserted', s_name(structure)
+            elif count == 1:
+                new_entry = col.find_one(query)
+                try:
+                    print 'removing file ', new_entry['results_file'], 'from db'
+                    gfs.remove(new_entry['results_file'])
+                except:
+                    pass
+                try:
+                    print 'removing file ', new_entry['data_file'], 'from db'
+                    gfs.remove(new_entry['data_file'])
+                except:
+                    pass
+                new_entry.update(entry)
+                print 'adding', new_entry['results_file'], new_entry['data_file']
+                new_entry['results_file'] = gfs.put(new_entry['results_file'])
+                new_entry['data_file'] = gfs.put(new_entry['data_file'])
+                print 'as ', new_entry['results_file'], new_entry['data_file']
+                col.save(new_entry)
+                print 'updated', s_name(structure)
+            else:
+                print 'duplicate entry ... '
+            local_serv.disconnect()
+            # end generic section
+
+            #todo remove the workfolders
 
 
 class GWConvergenceData():
@@ -711,7 +805,8 @@ class GWConvergenceData():
         print the gap data in a way for 3d plotting using gnuplot to file
         """
         data_file = self.name + '.data'
-        f = open(data_file, mode='a')
+        f = open(data_file, mode='w')
+        f.write('\n')
         try:
             tmp = self.get_sorted_data_list()[0][0]
         except IndexError:
