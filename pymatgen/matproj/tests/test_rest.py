@@ -213,7 +213,6 @@ class QueryParserTest(unittest.TestCase):
         self.assertIn("CsLi2", crit["pretty_formula"]["$in"])
 
         crit = p.parse("Li-*-*")
-        self.assertIn("Li-Ru", crit["chemsys"]["$in"])
         self.assertIn("Li-Re-Ru", crit["chemsys"]["$in"])
         self.assertNotIn("Li-Li", crit["chemsys"]["$in"])
 
