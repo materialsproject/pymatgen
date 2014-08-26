@@ -803,7 +803,7 @@ class PbsAdapter(AbstractQueueAdapter):
         currently hard coded, should be read at init
         the increase functions will not increase beyond thise limits
         """
-        return {'max_total_tasks': 3888, 'time': 48, 'max_select': 120}
+        return {'max_total_tasks': 3888, 'time': 48, 'max_select': 240}
 
     @property
     def mpi_ncpus(self):
