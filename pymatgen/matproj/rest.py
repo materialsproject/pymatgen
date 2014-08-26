@@ -434,12 +434,15 @@ class MPRester(object):
         methods.
 
         Args:
-            criteria (str/dict): Criteria of the query as a mongo-style dict
-                or a simple string.
-                Supports a powerful but simple string criteria. E.g., "Fe2O3"
-                means search for materials with reduced_formula Fe2O3. Wild
-                cards are also supported. E.g., "*2O" means get all materials
-                whose formula can be formed as *2O, e.g., Li2O, K2O, etc.
+            criteria (str/dict): Criteria of the query as a string or
+                mongo-style dict.
+
+                If string, it supports a powerful but simple string criteria.
+                E.g., "Fe2O3" means search for materials with reduced_formula
+                Fe2O3. Wild cards are also supported. E.g., "*2O" means get
+                all materials whose formula can be formed as *2O, e.g.,
+                Li2O, K2O, etc.
+
                 Other syntax examples:
                 mp-1234: Interpreted as a Materials ID.
                 Fe2O3 or *2O3: Interpreted as reduced formulas.
@@ -450,8 +453,7 @@ class MPRester(object):
                 reduced formula FeO or with materials_id mp-1234.
 
                 Using a full dict syntax, even more powerful queries can be
-                constructed.
-                For example, {"elements":{"$in":["Li",
+                constructed. For example, {"elements":{"$in":["Li",
                 "Na", "K"], "$all": ["O"]}, "nelements":2} selects all Li, Na
                 and K oxides. {"band_gap": {"$gt": 1}} selects all materials
                 with band gaps greater than 1 eV.
@@ -467,7 +469,7 @@ class MPRester(object):
             ...]
         """
         if not isinstance(criteria, dict):
-            criteria = QueryParser().parse(criteria)
+            criteria = MPRester.parse_criteria(criteria)
         payload = {"criteria": json.dumps(criteria),
                    "properties": json.dumps(properties)}
         return self._make_request("/query", payload=payload, method="POST")
@@ -753,7 +755,6 @@ class MPRester(object):
         except Exception as ex:
             raise MPRestError(str(ex))
 
-
     def get_reaction(self, reactants, products):
         """
         Gets a reaction from the Materials Project.
@@ -769,37 +770,26 @@ class MPRester(object):
                                   payload={"reactants[]": reactants,
                                            "products[]": products})
 
-
-class MPRestError(Exception):
-    """
-    Exception class for MPRestAdaptor.
-    Raised when the query has problems, e.g., bad query format.
-    """
-    pass
-
-
-class QueryParser(object):
-    """
-    A criteria parser that adds support for wild cards. E.g., something like
-    "*2O" gets converted to
-    {'pretty_formula': {'$in': [u'B2O', u'Xe2O', u'Ne2O', 'O2', u'Am2O', ...]}}
-
-    Other syntax examples:
-        mp-1234: Interpreted as a Materials ID.
-        Fe2O3 or *2O3: Interpreted as reduced formulas.
-        Li-Fe-O or *-Fe-O: Interpreted as chemical systems.
-
-    You can mix and match with spaces, which are interpreted as "OR". E.g.,
-    "mp-1234 FeO" means query for all compounds with reduced formula FeO or
-    with materials_id mp-1234.
-    """
-
-    def parse(self, criteria_string):
+    @staticmethod
+    def parse_criteria(criteria_string):
         """
-        Parses a criteria and generates a proper mongo syntax criteria.
+        Parses a powerful and simple string criteria and generates a proper
+        mongo syntax criteria.
 
         Args:
             criteria_string (str): A string representing a search criteria.
+                Also supports wild cards. E.g.,
+                something like "*2O" gets converted to
+                {'pretty_formula': {'$in': [u'B2O', u'Xe2O', u"Li2O", ...]}}
+
+                Other syntax examples:
+                    mp-1234: Interpreted as a Materials ID.
+                    Fe2O3 or *2O3: Interpreted as reduced formulas.
+                    Li-Fe-O or *-Fe-O: Interpreted as chemical systems.
+
+                You can mix and match with spaces, which are interpreted as
+                "OR". E.g., "mp-1234 FeO" means query for all compounds with
+                reduced formula FeO or with materials_id mp-1234.
 
         Returns:
             A mongo query dict.
@@ -838,3 +828,10 @@ class QueryParser(object):
         else:
             return {"$or": map(parse_tok, toks)}
 
+
+class MPRestError(Exception):
+    """
+    Exception class for MPRestAdaptor.
+    Raised when the query has problems, e.g., bad query format.
+    """
+    pass
