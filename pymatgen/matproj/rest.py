@@ -815,12 +815,15 @@ class QueryParser(object):
                             for el in elements]
                 chemsyss = []
                 for cs in itertools.product(*elements):
-                    chemsyss.append("-".join(sorted(set(cs))))
+                    if len(set(cs)) == len(cs):
+                        chemsyss.append("-".join(sorted(set(cs))))
                 return {"chemsys": {"$in": chemsyss}}
             else:
                 all_formulas = set()
+                syms = re.findall("[A-Z][a-z]*", t)
+                to_permute = ALL_ELEMENT_SYMBOLS.difference(syms)
                 parts = t.split("*")
-                for syms in itertools.permutations(ALL_ELEMENT_SYMBOLS,
+                for syms in itertools.permutations(to_permute,
                                                    len(parts) - 1):
                     f = []
                     for p in zip(parts, syms):

@@ -118,7 +118,7 @@ class MPResterTest(unittest.TestCase):
         data = self.rester.query(criteria=criteria, properties=props)
         self.assertTrue(len(data) > 6)
         data = self.rester.query(criteria="*2O", properties=props)
-        self.assertGreaterEqual(len(data), 57)
+        self.assertGreaterEqual(len(data), 52)
         self.assertIn("Li2O", (d["pretty_formula"] for d in data))
 
     def test_get_exp_thermo_data(self):
@@ -219,7 +219,7 @@ class QueryParserTest(unittest.TestCase):
 
         comps = p.parse("**O3")["pretty_formula"]["$in"]
         for c in comps:
-            self.assertTrue(2 <= len(Composition(c)) <= 3)
+            self.assertEqual(len(Composition(c)), 3)
 
 
 if __name__ == "__main__":
