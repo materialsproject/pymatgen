@@ -67,6 +67,11 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.10.3
+-------
+1. MPRester.query now supports a simple but powerful string criteria syntax
+   with support for wild cards.
+
 v2.10.2
 -------
 1. Bug fix for Projected DOS parsing in new Vasprun.

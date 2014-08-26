@@ -14,7 +14,7 @@ __date__ = "Jun 9, 2012"
 import unittest
 import os
 
-from pymatgen.matproj.rest import MPRester, MPRestError, QueryParser
+from pymatgen.matproj.rest import MPRester, MPRestError
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Structure, Composition
 from pymatgen.entries.computed_entries import ComputedEntry
@@ -198,25 +198,21 @@ class MPResterTest(unittest.TestCase):
         rxn = self.rester.get_reaction(["Li", "O"], ["Li2O"])
         self.assertIn("Li2O", rxn["Experimental_references"])
 
-
-class QueryParserTest(unittest.TestCase):
-
-    def test_init_(self):
-        p = QueryParser()
-        crit = p.parse("mp-1234 Li-*")
+    def test_parse_criteria(self):
+        crit = MPRester.parse_criteria("mp-1234 Li-*")
         self.assertIn("Li-O", crit["$or"][1]["chemsys"]["$in"])
         self.assertIn({"task_id": "mp-1234"}, crit["$or"])
 
-        crit = p.parse("Li2*")
+        crit = MPRester.parse_criteria("Li2*")
         self.assertIn("Li2O", crit["pretty_formula"]["$in"])
         self.assertIn("Li2I", crit["pretty_formula"]["$in"])
         self.assertIn("CsLi2", crit["pretty_formula"]["$in"])
 
-        crit = p.parse("Li-*-*")
+        crit = MPRester.parse_criteria("Li-*-*")
         self.assertIn("Li-Re-Ru", crit["chemsys"]["$in"])
         self.assertNotIn("Li-Li", crit["chemsys"]["$in"])
 
-        comps = p.parse("**O3")["pretty_formula"]["$in"]
+        comps = MPRester.parse_criteria("**O3")["pretty_formula"]["$in"]
         for c in comps:
             self.assertEqual(len(Composition(c)), 3)
 
