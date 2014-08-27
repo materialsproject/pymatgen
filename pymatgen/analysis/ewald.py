@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides classes for calculating the ewald sum of a structure.
 """

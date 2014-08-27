@@ -47,7 +47,7 @@ class ExecWrapper(object):
             msg = "Cannot find executable %s is PATH\n Use export PATH=/dir_with_exec:$PATH" % executable
             raise self.Error(msg)
 
-        assert os.path.basename(self.executable) == self._name
+        assert os.path.basename(self.executable) == self.name
 
     def __str__(self):
         return "%s" % self.executable
@@ -90,7 +90,7 @@ class ExecWrapper(object):
 
         p = Popen(self.cmd_str, shell=True, stdout=PIPE, stderr=PIPE, cwd=cwd)
 
-        (self.stdout_data, self.stderr_data) = p.communicate()
+        self.stdout_data, self.stderr_data = p.communicate()
 
         self.returncode = p.returncode
 
@@ -150,8 +150,7 @@ class Mrgscr(ExecWrapper):
 
         inp.write("1\n")                 # Option for merging q-points.
 
-        inp.seek(0)
-        self.stdin_data = [s for s in inp]
+        self.stdin_data = [s for s in inp.getvalue()]
 
         with open(self.stdin_fname, "w") as fh:
             fh.writelines(self.stdin_data)
@@ -233,8 +232,7 @@ class Mrggkk(ExecWrapper):
         for fname in gkk_files:
             inp.write(fname + "\n")
 
-        inp.seek(0)
-        self.stdin_data = [s for s in inp]
+        self.stdin_data = [s for s in inp.getvalue()]
 
         with open(self.stdin_fname, "w") as fh:
             fh.writelines(self.stdin_data)
@@ -258,7 +256,6 @@ class Mrgddb(ExecWrapper):
 
     def merge(self, ddb_files, out_ddb, description, cwd=None):
         """Merge DDB file, return the absolute path of the new database."""
-
         # We work with absolute paths.
         ddb_files = [os.path.abspath(s) for s in list_strings(ddb_files)]
 
@@ -285,7 +282,7 @@ class Mrgddb(ExecWrapper):
 
         inp = StringIO.StringIO()
 
-        inp.write(out_ddb + "\n")            # Name of the output file.
+        inp.write(out_ddb + "\n")              # Name of the output file.
         inp.write(str(description) + "\n")     # Description.
         inp.write(str(len(ddb_files)) + "\n")  # Number of input DDBs.
 
@@ -293,8 +290,7 @@ class Mrgddb(ExecWrapper):
         for fname in ddb_files:
             inp.write(fname + "\n")
 
-        inp.seek(0)
-        self.stdin_data = [s for s in inp]
+        self.stdin_data = [s for s in inp.getvalue()]
 
         with open(self.stdin_fname, "w") as fh:
             fh.writelines(self.stdin_data)
@@ -305,110 +301,3 @@ class Mrgddb(ExecWrapper):
             raise
 
         return out_ddb
-
-
-class AnaddbError(Exception):
-    """Error class for Anaddb."""
-
-
-class Anaddb(ExecWrapper):
-    _name = "anaddb"
-
-    Error = AnaddbError
-
-    #def make_stdin(self):
-    #    # Files file
-    #    inp = StringIO.StringIO()
-    #    inp.write(self.input_fname + "\n")     # Input file.
-    #    inp.write(self.stdout_fname + "\n")    # Output file.
-    #    inp.write(ddb_file + "\n")             # DDB file
-    #    inp.write("dummy_band2eps" + "\n")
-    #    inp.write("dummy1" + "\n")
-    #    inp.write("dummy2" + "\n")
-    #    inp.write("dummy3" + "\n")
-    #    inp.seek(0)
-    #    self.stdin_data = [s for s in inp]
-
-    def diagonalize_1q(self, ddb_file, cwd=None):
-
-        # We work with absolute paths.
-        ddb_file = os.path.abspath(ddb_file)
-
-        self.stdin_fname, self.input_fname, self.stdout_fname, self.stderr_fname = (
-            "anaddb.stdin", "anaddb.input", "anaddb.stdout", "anaddb.stderr")
-
-        if cwd is not None:
-            self.stdin_fname, self.input_fname, self.stdout_fname, self.stderr_fname = \
-                map(os.path.join, 3 * [cwd], [self.stdin_fname, self.inp_fname, self.stdout_fname, self.stderr_fname])
-
-        # Files file
-        inp = StringIO.StringIO()
-
-        inp.write(self.input_fname + "\n")     # Input file.
-        inp.write(self.stdout_fname + "\n")    # Output file.
-        inp.write(ddb_file + "\n")             # DDB file
-        inp.write("dummy_band2eps" + "\n")
-        inp.write("dummy1" + "\n")
-        inp.write("dummy2" + "\n")
-        inp.write("dummy3" + "\n")
-
-        inp.seek(0)
-        self.stdin_data = [s for s in inp]
-
-        with open(self.stdin_fname, "w") as fh:
-            fh.writelines(self.stdin_data)
-
-        # Get the q-point from the DDB file
-        with open(ddb_file, "r") as fh:
-            nfound = 0
-            tag = " qpt "
-            for line in fh:
-                print(line)
-                if line.startswith(tag):
-                    nfound += 1
-                    # Coordinates of the q-points.
-                    qcoords_str = line.split()[1:4]
-                    #qcoords_str = [ s.replace("D", "E") for s in qcoords_str]
-                    qpoint = map(float, qcoords_str)
-
-        if nfound != 1:
-            raise self.Error("Found %s occurrences of tag %s in file %s" % (nfound, tag, ddb_file))
-
-        # Write simple input file for the anaddb code.
-        with open(self.input_fname, "w") as inp:
-            inp.write('# Flags\n')
-            inp.write(' ifcflag   1 # Interatomic force constant flag\n\n')
-            inp.write('# Wavevector grid number 1 (coarse grid, from DDB)\n\n')
-            inp.write(' brav    1         # Bravais Lattice : 1-S.C., 2-F.C., 3-B.C., 4-Hex.\n')
-            inp.write(' ngqpt   1  1  1   # Q-mesh\n')
-            inp.write(' nqshft  1         # number of q-shifts\n')
-            inp.write(' q1shft  %f %f %f' % tuple(qpoint))
-
-            #inp.write('# Effective charges
-            #inp.write('     asr   1     ! Acoustic Sum Rule. 1 => imposed asymetrically
-            #inp.write('  chneut   1     ! Charge neutrality requirement for effective charges.
-            #inp.write('# Interatomic force constant info
-            #inp.write('  dipdip  1      ! Dipole-dipole interaction treatment
-            #inp.write('  ifcana  1      ! Analysis of the IFCs
-            #inp.write('  ifcout 20      ! Number of IFC's written in the output, per atom
-            #inp.write('  natifc  1      ! Number of atoms in the cell for which ifc's are analysed
-            #inp.write('   atifc  1      ! List of atoms
-            #inp.write('
-            #inp.write('# This line added when defaults were changed (v5.3) to keep the previous, old behaviour
-            #inp.write('#  symdynmat 0
-
-        if self.verbose:
-            print("Will diagonalize DDB file : %s" % ddb_file)
-
-        try:
-            self.execute(cwd=cwd)
-        except self.Error:
-            raise
-
-        # Get frequencies from the output file
-        # TODO
-        #with open(self.stdout_fname, "r") as out:
-            #print(out.readlines())
-            #for line in out:
-            #    if line: raise
-            #return frequencies

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides plotting capabilities for battery related applications.
 """

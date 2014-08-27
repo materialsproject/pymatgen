@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Created on Nov 14, 2012
 """
@@ -32,7 +30,7 @@ class FuncTest(PymatgenTest):
         self.assertIsNone(clean["world"])
         self.assertEqual(json.dumps(d), json.dumps(clean))
 
-        d = {"hello": self.get_test_structure()}
+        d = {"hello": self.get_si2_structure()}
         self.assertRaises(TypeError, json.dumps, d)
         clean = clean_json(d)
         self.assertIsInstance(clean["hello"], basestring)

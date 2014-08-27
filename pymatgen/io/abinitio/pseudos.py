@@ -16,6 +16,7 @@ import numpy as np
 from pymatgen.core.design_patterns import FrozenDict, AttrDict
 from pymatgen.core.periodic_table import PeriodicTable
 from pymatgen.util.num_utils import iterator_from_slice
+from pymatgen.util.io_utils import FileLock
 from pymatgen.util.string_utils import list_strings, is_string
 
 __all__ = [
@@ -28,6 +29,8 @@ __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 
 # Tools and helper functions.
+
+
 def straceback():
     """Returns a string with the traceback."""
     import traceback
@@ -62,6 +65,7 @@ _l2str = {
 
 _str2l = {v: k for k, v in _l2str.items()}
 
+
 def l2str(l):
     """Convert the angular momentum l (int) to string."""
     try:
@@ -85,7 +89,8 @@ def read_dojo_report(filename):
             return {}
 
         stop = lines.index("</DOJO_REPORT>\n")
-        return json.loads("".join(lines[start+1:stop]))
+        d = json.loads("".join(lines[start+1:stop]))
+        return d
 
 #class DojoReport(dict):
 #    _LATEST_VERSION = 1.0
@@ -97,11 +102,10 @@ def read_dojo_report(filename):
 #        new = read_dojo_report(path)
 #        new.__class__ = cls
 #        return new
-#
-#    #def to_file(self, path):
 
 
 _PTABLE = PeriodicTable()
+
 
 class Pseudo(object):
     """
@@ -115,7 +119,7 @@ class Pseudo(object):
     #    self._dojo_report = {}
 
     @classmethod
-    def aspseudo(cls, obj):
+    def as_pseudo(cls, obj):
         """
         Convert obj into a pseudo. Accepts:
 
@@ -125,7 +129,6 @@ class Pseudo(object):
         if isinstance(obj, cls):
             return obj
         else:
-            # Assumes path.
             return cls.from_file(obj)
 
     @staticmethod
@@ -137,8 +140,7 @@ class Pseudo(object):
         return PseudoParser().parse(filename)
 
     def __repr__(self):
-        return "<%s at %s, name = %s>" % (
-            self.__class__.__name__, id(self), self.name)
+        return "<%s at %s, name = %s>" % (self.__class__.__name__, id(self), self.name)
 
     def __str__(self):
         """String representation."""
@@ -260,18 +262,24 @@ class Pseudo(object):
             return None
 
     def read_dojo_report(self):
-        """Read the DOJO_REPORT section, returns {} if section is not present.""" 
-        return read_dojo_report(self.path)
+        """
+        Read the DOJO_REPORT section and set dojo_report attribute. 
+        returns {} if section is not present.
+        """ 
+        self.dojo_report = read_dojo_report(self.path)
+        return self.dojo_report
 
-    def write_dojo_report(self, report):
+    def write_dojo_report(self, report=None):
         """Write a new DOJO_REPORT section to the pseudopotential file."""
-        path = self.path
+        if report is None:
+            report = self.dojo_report
 
         # Create JSON string from report.
         jstring = json.dumps(report, indent=4, sort_keys=True) + "\n"
+        #jstring = json.dumps(report, sort_keys=True) + "\n"
 
         # Read lines from file and insert jstring between the tags.
-        with open(path, "r") as fh:
+        with open(self.path, "r") as fh:
             lines = fh.readlines()
             try:
                 start = lines.index("<DOJO_REPORT>\n")
@@ -279,22 +287,22 @@ class Pseudo(object):
                 start = -1
 
             if start == -1:
-               # DOJO_REPORT was not present.
-               lines += ["\n", "<DOJO_REPORT>\n", jstring , "</DOJO_REPORT>\n",]
+                # DOJO_REPORT was not present.
+                lines += ["\n", "<DOJO_REPORT>\n", jstring , "</DOJO_REPORT>\n",]
             else:
-               stop = lines.index("</DOJO_REPORT>\n")
-               lines.insert(stop, jstring)
-               del lines[start+1:stop]
+                stop = lines.index("</DOJO_REPORT>\n")
+                lines.insert(stop, jstring)
+                del lines[start+1:stop]
 
         #  Write new file.
-        with open(path, "w") as fh:
-            fh.writelines(lines)
+        with FileLock(self.path):
+            with open(self.path, "w") as fh:
+                fh.writelines(lines)
 
     def remove_dojo_report(self):
         """Remove the DOJO_REPORT section from the pseudopotential file."""
         # Read lines from file and insert jstring between the tags.
-        path = self.path
-        with open(path, "r") as fh:
+        with open(self.path, "r") as fh:
             lines = fh.readlines()
             try:
                 start = lines.index("<DOJO_REPORT>\n")
@@ -302,17 +310,18 @@ class Pseudo(object):
                 start = -1
 
             if start == -1:
-               return
+                return
 
             stop = lines.index("</DOJO_REPORT>\n")
             if stop == -1:
-               return
+                return
 
             del lines[start+1:stop]
 
         # Write new file.
-        with open(path, "w") as fh:
-            fh.writelines(lines)
+        with FileLock(self.path):
+            with open(self.path, "w") as fh:
+                fh.writelines(lines)
 
     def hint_for_accuracy(self, accuracy="normal"):
         """
@@ -419,14 +428,15 @@ class AbinitPseudo(Pseudo):
         """
         self.path = path
         self._summary = header.summary
-        if hasattr(self, "dojo_report"):
+
+        if hasattr(header, "dojo_report"):
             self.dojo_report = header.dojo_report
         else:
             self.dojo_report = {}
 
         #self.pspcod  = header.pspcod
 
-        for (attr_name, desc) in header.items():
+        for attr_name, desc in header.items():
             value = header.get(attr_name, None)
 
             # Hide these attributes since one should always use the public interface.
@@ -608,7 +618,7 @@ class NcAbinitHeader(AbinitHeader):
         "r2well"       : _attr_desc(None, float),
         "mmax"         : _attr_desc(None, float),
         # Optional variables for non linear-core correction. HGH does not have it.
-        "rchrg"        : _attr_desc(0.0,  float), # radius at which the core charge vanish (i.e. cut-off in a.u.)
+        "rchrg"        : _attr_desc(0.0,  float),  # radius at which the core charge vanish (i.e. cut-off in a.u.)
         "fchrg"        : _attr_desc(0.0,  float),
         "qchrg"        : _attr_desc(0.0,  float),
     }
@@ -666,7 +676,6 @@ class NcAbinitHeader(AbinitHeader):
 
         header["dojo_report"] = read_dojo_report(filename)
 
-        #print(header)
         return NcAbinitHeader(summary, **header)
 
     @staticmethod
@@ -680,6 +689,31 @@ class NcAbinitHeader(AbinitHeader):
 
         header = _dict_from_lines(lines[:3], [0, 3, 6])
         summary = lines[0]
+
+        header["dojo_report"] = read_dojo_report(filename)
+
+        return NcAbinitHeader(summary, **header)
+
+    @staticmethod
+    def oncvpsp_header(filename, ppdesc):
+        """Parse the ONCVPSP abinit header."""
+        # Example
+        #Li    ONCVPSP  r_core=  2.01  3.02
+        #      3.0000      3.0000      140504    zatom,zion,pspd
+        #     8     2     1     4   600     0    pspcod,pspxc,lmax,lloc,mmax,r2well
+        #  5.99000000  0.00000000  0.00000000    rchrg fchrg qchrg
+        #     2     2     0     0     0    nproj
+        #     0                 extension_switch
+        #   0                        -2.5000025868368D+00 -1.2006906995331D+00
+        #     1  0.0000000000000D+00  0.0000000000000D+00  0.0000000000000D+00
+        #     2  1.0000000000000D-02  4.4140499497377D-02  1.9909081701712D-02
+        lines = _read_nlines(filename, -1)
+
+        header = _dict_from_lines(lines[:3], [0, 3, 6])
+        summary = lines[0]
+
+        header.update({'pspdat': header['pspd']})
+        header.pop('pspd')
 
         header["dojo_report"] = read_dojo_report(filename)
 
@@ -739,6 +773,60 @@ class NcAbinitHeader(AbinitHeader):
         header["dojo_report"] = read_dojo_report(filename)
 
         return NcAbinitHeader(summary, **header)
+
+    #@staticmethod
+    #def oncvpsp_out_header(filename, ppdesc):
+
+    #    lines = _read_nlines(filename, -1)
+    #    header = {}
+    #    nc = None
+    #    header.update({"pspcod": 11})
+
+    #    for (lineno, line) in enumerate(lines):
+    #        #print(lineno, line)
+
+    #        if 'psp8' in line and '###' not in line:
+    #            tokens = line.split()
+    #            header.update({'zatom': float(tokens[1])})
+    #            # print({'zatom': float(tokens[1])})
+    #            header.update({'pspxc': PseudoParser._FUNCTIONALS[int(tokens[4])]['n']})
+    #            # print({'pspxc': PseudoParser._FUNCTIONALS[int(tokens[4])]['n']})
+    #            nc = int(tokens[2])  # number of core states
+    #            nv = int(tokens[3])  # number of valence states
+    #        elif ' n ' in line and ' l ' in line and ' f ' in line and '###' not in line:
+    #            # "zion" info on the next nc+nv lines
+    #            zion = header['zatom']
+    #            for n in range(1, nc + 1, 1):
+    #                tokens = lines[lineno+n].split()
+    #                # print(tokens[2])
+    #                zion -= float(tokens[2])
+    #            header.update({'zion': zion})
+    #            # print({'zion': zion})
+    #        elif '# lmax' in line and '###' not in line:
+    #            # "lmax" first on next line
+    #            header.update({'lmax': int(lines[lineno+1].split()[0])})
+    #            # print({'lmax': int(lines[lineno+1].split()[0])})
+    #        elif '# lloc' in line and '###' not in line:
+    #            # "lloc" first on next line
+    #            header.update({'lloc': int(lines[lineno+1].split()[0])})
+    #            # print({'lloc': int(lines[lineno+1].split()[0])})
+    #        elif 'DATA FOR PLOTTING' in line:
+    #            break
+
+
+    #    #these we don't know:
+    #    #"r2well"       : _attr_desc(None, float),
+    #    header.update({'r2well': 0.0})
+    #    #"mmax"         : _attr_desc(None, float),
+    #    # this could be rlmax / drl + 1
+    #    header.update({'mmax': 0})
+    #    header.update({'pspdat': -1})
+
+    #    summary = lines[0]
+
+    #    # print(header)
+
+    #    return NcAbinitHeader(summary, **header)
 
 
 class PawAbinitHeader(AbinitHeader):
@@ -899,10 +987,16 @@ class PseudoParser(object):
         #5 : ppdesc(5, "NC",     , None),
         6 : ppdesc(6, "FHI", "NC", None),
         7 : ppdesc(6, "PAW_abinit_text", "PAW", None),
-        #8 : ppdesc(8, "NC", None),
+        8 : ppdesc(8, "ONCVPSP", "NC", None),
        10 : ppdesc(10, "HGHK", "NC", None),
+       #11 : ppdesc(11, "ONCVPSP_out", "NC", None)
     })
     del ppdesc
+    # renumber functionals from oncvpsp todo confrim that 3 is 2
+    _FUNCTIONALS = {1: {'n': 4, 'name': 'Wigner'},
+                    2: {'n': 5, 'name': 'HL'},
+                    3: {'n': 2, 'name': 'PWCA'},
+                    4: {'n': 11, 'name': 'PBE'}}
 
     def __init__(self):
         # List of files that have been parsed succesfully.
@@ -970,7 +1064,7 @@ class PseudoParser(object):
 
         else:
             # Assume file with the abinit header.
-            lines = _read_nlines(filename, -1)
+            lines = _read_nlines(filename, 80)
 
             for (lineno, line) in enumerate(lines):
 
@@ -1032,24 +1126,16 @@ class PseudoParser(object):
             "TM"             : NcAbinitHeader.tm_header,
             "HGH"            : NcAbinitHeader.hgh_header,
             "HGHK"           : NcAbinitHeader.hgh_header,
+            "ONCVPSP"        : NcAbinitHeader.oncvpsp_header,
             "PAW_abinit_text": PawAbinitHeader.paw_header,
         }
 
         try:
             header = parsers[ppdesc.name](path, ppdesc)
-
         except Exception as exc:
             raise self.Error(path + ":\n" + straceback())
 
         root, ext = os.path.splitext(path)
-
-        # Add the content of input file (if present).
-        # The name of the input is name + ".ini"
-        #input = None
-        #input_path = root + ".ini"
-        #if os.path.exists(input_path):
-        #    with open(input_path, 'r') as fh:
-        #        input = fh.read()
 
         if psp_type == "NC":
             pseudo = NcAbinitPseudo(path, header)
@@ -1502,7 +1588,7 @@ class PseudoTable(collections.Sequence):
     Fe
     """
     @classmethod
-    def astable(cls, items):
+    def as_table(cls, items):
         """
         Return an instance of `PseudoTable` from the iterable items.
         """ 
@@ -1612,7 +1698,6 @@ class PseudoTable(collections.Sequence):
         try:
             return getattr(self, str(symbol))
         except AttributeError:
-            #raise
             return []
 
     def pseudo_from_name(self, name):

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements a Composition class to represent compositions.
 """
@@ -18,13 +16,16 @@ import re
 import collections
 import string
 from fractions import gcd
+from functools import total_ordering
 from itertools import chain
+from monty.dev import deprecated
 from pymatgen.core.periodic_table import get_el_sp, Element
 from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.units import unitized
 
 
+@total_ordering
 class Composition(collections.Mapping, collections.Hashable, MSONable):
     """
     Represents a Composition, which is essentially a {element:amount} mapping
@@ -107,7 +108,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             if v < -Composition.amount_tolerance:
                 raise CompositionError("Amounts in Composition cannot be "
                                        "negative!")
-            elif v < 0:
+            elif v < Composition.amount_tolerance:
                 del elmap[k]
         self._elmap = {get_el_sp(k): v for k, v in elmap.items()}
         self._natoms = sum(self._elmap.values())
@@ -124,6 +125,18 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
                 return False
         return True
 
+    def __ge__(self, other):
+        """
+        Defines >= for Compositions. Should ONLY be used for defining a sort
+        order (the behavior is probably not what you'd expect)
+        """
+        for el in sorted(set(self.elements + other.elements)):
+            if other[el] - self[el] >= Composition.amount_tolerance:
+                return False
+            elif self[el] - other[el] >= Composition.amount_tolerance:
+                return True
+        return True
+
     def __ne__(self, other):
         return not self.__eq__(other)
 
@@ -134,9 +147,8 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         new_el_map = collections.defaultdict(float)
         new_el_map.update(self)
-        for k in other.keys():
-            el = get_el_sp(k)
-            new_el_map[el] += other[k]
+        for k, v in other.iteritems():
+            new_el_map[get_el_sp(k)] += v
         return Composition(new_el_map)
 
     def __sub__(self, other):
@@ -148,18 +160,10 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             CompositionError if the subtracted composition is greater than the
             original composition in any of its elements.
         """
-        new_el_map = {el: self[el] for el in self}
-        for k in other.keys():
-            el = get_el_sp(k)
-            if el in self and other[k] <= self[el]:
-                new_el_map[el] -= other[k]
-            else:
-                raise CompositionError(
-                    "All elements in subtracted composition must exist in "
-                    "original composition in equal or lesser amount!")
-
-            new_el_map = {sp: amt for sp, amt in new_el_map.items()
-                          if amt != 0}
+        new_el_map = collections.defaultdict(float)
+        new_el_map.update(self)
+        for k, v in other.iteritems():
+            new_el_map[get_el_sp(k)] -= v
         return Composition(new_el_map)
 
     def __mul__(self, other):
@@ -170,6 +174,11 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         if not isinstance(other, (int, float)):
             raise ValueError("Multiplication can only be done for int/floats!")
         return Composition({el: self[el] * other for el in self})
+
+    def __truediv__(self, other):
+        if not isinstance(other, (int, float)):
+            raise ValueError("Division can only be done for int/floats!")
+        return Composition({el: self[el] / other for el in self})
 
     def __rmul__(self, other):
         """
@@ -188,9 +197,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         hashcode = 0
         for el in self._elmap.keys():
-            #Ignore elements with zero amounts.
-            if self[el] > self.amount_tolerance:
-                hashcode += el.Z
+            hashcode += el.Z
         return hashcode
 
     def __contains__(self, el):
@@ -230,9 +237,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         True if composition is for an element.
         """
-        positive_amts = [amt for amt in self._elmap.values()
-                         if amt > self.amount_tolerance]
-        return len(positive_amts) == 1
+        return len(self._elmap) == 1
 
     def copy(self):
         return Composition(self._elmap)
@@ -245,8 +250,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt.keys(), key=lambda s: get_el_sp(s).X)
-        formula = [s + formula_double_format(sym_amt[s], False) for s in syms
-                   if sym_amt[s] != 0]
+        formula = [s + formula_double_format(sym_amt[s], False) for s in syms]
         return " ".join(formula)
 
     @property
@@ -257,8 +261,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt.keys())
-        formula = [s + formula_double_format(sym_amt[s], False) for s in syms
-                   if sym_amt[s] != 0]
+        formula = [s + formula_double_format(sym_amt[s], False) for s in syms]
         return " ".join(formula)
 
     @property
@@ -267,10 +270,18 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         Returns the composition replacing any species by the corresponding
         element.
         """
-        o = collections.defaultdict(float)
-        for sp in self:
-            o[Element(sp.symbol)] += self[sp]
-        return Composition(o)
+        return Composition(self.get_el_amt_dict())
+
+    @property
+    def fractional_composition(self):
+        """
+        Returns the normalized composition which the number of species sum to
+        1.
+
+        Returns:
+            Normalized composition which the number of species sum to 1.
+        """
+        return self / self._natoms
 
     @property
     def reduced_composition(self):
@@ -313,6 +324,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
 
         return formula, factor
 
+    @deprecated(fractional_composition) #as of 8/20/14
     def get_fractional_composition(self):
         """
         Returns the normalized composition which the number of species sum to
@@ -321,9 +333,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         Returns:
             Normalized composition which the number of species sum to 1.
         """
-        natoms = self._natoms
-        frac_map = {k: v / natoms for k, v in self._elmap.items()}
-        return Composition(frac_map)
+        return self.fractional_composition
 
     @property
     def reduced_formula(self):
@@ -419,6 +429,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         return get_sym_dict(formula, 1)
 
     @staticmethod
+    @deprecated(__init__)
     def from_formula(formula):
         """
         .. deprecated:: 1.6.1
@@ -540,7 +551,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             #the strict composition parsing might throw an error, we can ignore
             #it and just get on with fuzzy matching
             try:
-                comp = Composition.from_formula(fuzzy_formula)
+                comp = Composition(fuzzy_formula)
                 return [comp]
             except (CompositionError, ValueError):
                 pass
