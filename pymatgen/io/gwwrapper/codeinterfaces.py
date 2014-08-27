@@ -310,7 +310,7 @@ class AbinitInterface(AbstractCodeInterface):
 
     @property
     def gw_data_file(self):
-        return 'SIGRES.nc'
+        return 'out_SIGRES.nc'
 
     def read_ps_dir(self):
         location = os.environ['ABINIT_PS']
