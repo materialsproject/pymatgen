@@ -46,6 +46,9 @@ def symbol_from_Z(z):
     return _z2symbol[z]
 
 
+ALL_ELEMENT_SYMBOLS = set(_pt_data.keys())
+
+
 @cached_class
 @total_ordering
 class Element(object):
@@ -479,7 +482,7 @@ class Element(object):
             True if symbol is a valid element (e.g., "H"). False otherwise
             (e.g., "Zebra").
         """
-        return symbol in _pt_data
+        return symbol in ALL_ELEMENT_SYMBOLS
 
     @property
     def row(self):
