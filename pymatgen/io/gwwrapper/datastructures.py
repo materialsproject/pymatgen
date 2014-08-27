@@ -513,8 +513,10 @@ class GWSpecs(AbstractAbinitioSpec):
             gfs = gridfs.GridFS(db)
             count = col.find(query).count()
             if count == 0:
-                entry['results_file'] = gfs.put(entry['results_file'])
-                entry['data_file'] = gfs.put(entry['data_file'])
+                with open(entry['results_file'], 'r') as f:
+                    entry['results_file'] = gfs.put(f.readall())
+                with open(entry['data_file'], 'r') as f:
+                    entry['data_file'] = gfs.put(f.readall())
                 col.insert(entry)
                 print 'inserted', s_name(structure)
             elif count == 1:
