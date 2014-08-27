@@ -427,7 +427,7 @@ class GWSpecs(AbstractAbinitioSpec):
                         data.full_res.update({'all_done': True})
                         data.print_full_res()
                         done = True
-                        data.print_plot_data()
+                        #data.print_plot_data()
                         self.code_interface.store_results(name=s_name(structure))
                     else:
                         print '| Full type calculation but the full results do not agree with the parm_scr.'
