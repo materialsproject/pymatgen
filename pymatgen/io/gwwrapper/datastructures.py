@@ -513,10 +513,16 @@ class GWSpecs(AbstractAbinitioSpec):
             gfs = gridfs.GridFS(db)
             count = col.find(query).count()
             if count == 0:
-                with open(entry['results_file'], 'r') as f:
-                    entry['results_file'] = gfs.put(f.readall())
-                with open(entry['data_file'], 'r') as f:
-                    entry['data_file'] = gfs.put(f.readall())
+                try:
+                    with open(entry['results_file'], 'r') as f:
+                        entry['results_file'] = gfs.put(f.readall())
+                except IOError:
+                    print entry['results_file'], 'not found'
+                try:
+                    with open(entry['data_file'], 'r') as f:
+                        entry['data_file'] = gfs.put(f.readall())
+                except IOError:
+                    print entry['data_file'], 'not found'
                 col.insert(entry)
                 print 'inserted', s_name(structure)
             elif count == 1:
@@ -533,10 +539,16 @@ class GWSpecs(AbstractAbinitioSpec):
                     pass
                 new_entry.update(entry)
                 print 'adding', new_entry['results_file'], new_entry['data_file']
-                with open(new_entry['results_file'], 'r') as f:
-                    new_entry['results_file'] = gfs.put(f.readall())
-                with open(new_entry['data_file'], 'r') as f:
-                    new_entry['data_file'] = gfs.put(f.readall())
+                try:
+                    with open(new_entry['results_file'], 'r') as f:
+                        new_entry['results_file'] = gfs.put(f.readall())
+                except IOError:
+                    print new_entry['results_file'], 'not found'
+                try:
+                    with open(new_entry['data_file'], 'r') as f:
+                        new_entry['data_file'] = gfs.put(f.readall())
+                except IOError:
+                    print new_entry['data_file'], 'not found'
                 print 'as ', new_entry['results_file'], new_entry['data_file']
                 col.save(new_entry)
                 print 'updated', s_name(structure)
