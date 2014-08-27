@@ -29,7 +29,7 @@ class BalancedReaction(MSONable):
     An object representing a complete chemical reaction.
     """
 
-    def __init__(self, reactants_coeffs, products_coeffs, remove_spectator_species=False):
+    def __init__(self, reactants_coeffs, products_coeffs):
         """
         Reactants and products to be specified as dict of {Composition: coeff}.
 
@@ -64,7 +64,7 @@ class BalancedReaction(MSONable):
             coeff = products_coeffs.get(c,0) - \
                                     reactants_coeffs.get(c,0)
 
-            if (not remove_spectator_species) or abs(coeff) > Reaction.TOLERANCE:
+            if abs(coeff) > Reaction.TOLERANCE:
                 self._all_comp.append(c)
                 self._coeffs.append(coeff)
 
