@@ -100,8 +100,9 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             In addition, the Composition constructor also allows a single
             string as an input formula. E.g., Composition("Li2O").
 
-            allow_negative: Whether to allow negative compositions. This argument
-                must be popped from the kwargs due to *args ambiguity.
+            allow_negative: Whether to allow negative compositions. This
+                argument must be popped from the \*\*kwargs due to \*args
+                ambiguity.
         """
         self.allow_negative = kwargs.pop('allow_negative', False)
         if len(args) == 1 and isinstance(args[0], basestring):
@@ -177,7 +178,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         if not isinstance(other, (int, float)):
             raise ValueError("Multiplication can only be done for int/floats!")
-        return Composition({el: self[el] * other for el in self}, 
+        return Composition({el: self[el] * other for el in self},
                            allow_negative=self.allow_negative)
 
     def __truediv__(self, other):
@@ -274,7 +275,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         Returns the composition replacing any species by the corresponding
         element.
         """
-        return Composition(self.get_el_amt_dict(), 
+        return Composition(self.get_el_amt_dict(),
                            allow_negative=self.allow_negative)
 
     @property
