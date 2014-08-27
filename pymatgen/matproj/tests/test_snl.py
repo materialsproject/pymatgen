@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Unit tests for StructureNL (SNL) format
 """

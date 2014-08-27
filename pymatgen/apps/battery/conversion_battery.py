@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module contains the classes to build a ConversionElectrode.
 """
@@ -368,19 +366,21 @@ class ConversionVoltagePair(AbstractVoltagePair):
         mAh = (step2["evolution"] - step1["evolution"]) \
             * Charge(1, "e").to("C") * Time(1, "s").to("h") * AVOGADROS_CONST\
             * 1000
-        licomp = Composition.from_formula(working_ion)
+        licomp = Composition(working_ion)
         prev_rxn = step1["reaction"]
         reactants = {comp: abs(prev_rxn.get_coeff(comp))
                      for comp in prev_rxn.products if comp != licomp}
+
         curr_rxn = step2["reaction"]
         products = {comp: abs(curr_rxn.get_coeff(comp))
                     for comp in curr_rxn.products if comp != licomp}
+
         reactants[licomp] = (step2["evolution"] - step1["evolution"])
 
-        rxn = BalancedReaction(reactants, products)
+        rxn = BalancedReaction(reactants, products, remove_spectator_species=True)
 
         for el, amt in normalization_els.items():
-            if rxn.get_el_amount(el) != 0:
+            if rxn.get_el_amount(el) > 1e-6:
                 rxn.normalize_to_element(el, amt)
                 break
 

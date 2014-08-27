@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements more advanced transformations.
 """
@@ -16,6 +14,7 @@ __date__ = "Jul 24, 2012"
 import numpy as np
 from fractions import gcd, Fraction
 
+from itertools import groupby
 from pymatgen.core.structure import Specie, Composition
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.transformations.transformation_abc import AbstractTransformation
@@ -90,12 +89,17 @@ class SuperTransformation(AbstractTransformation):
     object.
 
     Args:
-        transformations: List of transformations to apply to a structure.
-            One transformation is applied to each output structure.
+        transformations ([transformations]): List of transformations to apply
+            to a structure. One transformation is applied to each output
+            structure.
+        nstructures_per_trans (int): If the transformations are one-to-many and,
+            nstructures_per_trans structures from each transformation are
+            added to the full list. Defaults to 1, i.e., only best structure.
     """
 
-    def __init__(self, transformations):
+    def __init__(self, transformations, nstructures_per_trans=1):
         self._transformations = transformations
+        self.nstructures_per_trans = nstructures_per_trans
 
     def apply_transformation(self, structure, return_ranked_list=False):
         if not return_ranked_list:
@@ -103,9 +107,16 @@ class SuperTransformation(AbstractTransformation):
                              " output. Must use return_ranked_list")
         structures = []
         for t in self._transformations:
-            structures.append(
-                {"transformation": t,
-                 "structure": t.apply_transformation(structure)})
+            if t.is_one_to_many:
+                for d in t.apply_transformation(
+                        structure,
+                        return_ranked_list=self.nstructures_per_trans):
+                    d["transformation"] = t
+                    structures.append(d)
+            else:
+                structures.append(
+                    {"transformation": t,
+                     "structure": t.apply_transformation(structure)})
         return structures
 
     def __str__(self):
@@ -126,7 +137,9 @@ class SuperTransformation(AbstractTransformation):
     @property
     def to_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"transformations": self._transformations},
+                "init_args": {
+                    "transformations": self._transformations,
+                    "nstructures_per_trans": self.nstructures_per_trans},
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
@@ -539,13 +552,16 @@ class MagOrderingTransformation(AbstractTransformation):
             return alls[0]["structure"] if num_to_return else alls
 
         m = StructureMatcher(comparator=SpinComparator())
+        key = lambda x: SymmetryFinder(x, 0.1).get_spacegroup_number()
+        out = []
+        for _, g in groupby(sorted([d["structure"] for d in alls],
+                                   key=key), key):
+            grouped = m.group_structures(g)
+            out.extend([{"structure": g[0],
+                         "energy": self.emodel.get_energy(g[0])}
+                        for g in grouped])
 
-        grouped = m.group_structures([d["structure"] for d in alls])
-
-        alls = [{"structure": g[0], "energy": self.emodel.get_energy(g[0])}
-                for g in grouped]
-
-        self._all_structures = sorted(alls, key=lambda d: d["energy"])
+        self._all_structures = sorted(out, key=lambda d: d["energy"])
 
         return self._all_structures[0:num_to_return]
 

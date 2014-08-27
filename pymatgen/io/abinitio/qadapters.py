@@ -318,7 +318,7 @@ class AbstractQueueAdapter(object):
         # Set job_name and the names for the stderr and stdout of the 
         # queue manager (note the use of the extensions .qout and .qerr
         # so that we can easily locate this file.
-        subs_dict['job_name'] = job_name.replace('/','_') 
+        subs_dict['job_name'] = job_name.replace('/', '_')
         subs_dict['_qout_path'] = qout_path
         subs_dict['_qerr_path'] = qerr_path
 
@@ -454,6 +454,13 @@ class AbstractQueueAdapter(object):
         Method to increase the number of cpus asked for.
         """
 
+    # @abc.abstractmethod
+    def increase_resources(self):
+        """
+        Method to generally increase resources.
+        """
+        return False
+
 
 ####################
 # Concrete classes #
@@ -467,7 +474,6 @@ class ShellAdapter(AbstractQueueAdapter):
 #!/bin/bash
 
 export MPI_NCPUS=$${MPI_NCPUS}
-
 """
 
     @property
@@ -593,12 +599,13 @@ class SlurmAdapter(AbstractQueueAdapter):
             cmd = ['sbatch', script_file]
             process = Popen(cmd, stdout=PIPE, stderr=PIPE)
             # write the err output to file, a error parser may read it and a fixer may know what to do ...
-            f = open(submit_err_file, mode='w')
-            f.write('sbatch submit process stderr:')
-            f.write(str(process.stderr.read()))
-            f.write('qparams:')
-            f.write(str(self.qparams))
-            f.close()
+
+            with open(submit_err_file, mode='w') as f:
+                f.write('sbatch submit process stderr:')
+                f.write(str(process.stderr.read()))
+                f.write('qparams:')
+                f.write(str(self.qparams))
+
             process.wait()
 
             # grab the returncode. SLURM returns 0 if the job was successful
@@ -607,7 +614,6 @@ class SlurmAdapter(AbstractQueueAdapter):
                     # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
                     queue_id = int(process.stdout.read().split()[3])
                     logger.info('Job submission was successful and queue_id is {}'.format(queue_id))
-
                 except:
                     # probably error parsing job code
                     queue_id = None
@@ -622,11 +628,12 @@ class SlurmAdapter(AbstractQueueAdapter):
                            "The error response reads: {c}".format(c=process.stderr.read()))
                 raise self.Error(err_msg)
 
-        except BaseException as details:
-            print('print exception: ' + str(details))
-            f = open(submit_err_file, mode='a')
-            f.write('print exception: ' + str(details))
-            f.close()
+        except Exception as details:
+            msg = 'Error while submitting job:\n' + str(details)
+            logger.critical(msg)
+            with open(submit_err_file, mode='a') as f:
+                f.write(msg)
+
             try:
                 print('sometimes we land here, no idea what is happening ... Michiel')
                 print(details)
@@ -735,6 +742,7 @@ class SlurmAdapter(AbstractQueueAdapter):
                 return True
             else:
                 raise QueueAdapterError
+
         except (KeyError, QueueAdapterError):
             return False
 
@@ -785,6 +793,15 @@ class PbsAdapter(AbstractQueueAdapter):
 #PBS -o $${_qout_path}
 #PBS -e $${_qerr_path}
 """
+
+    @property
+    def limits(self):
+        """
+        the limits for certain parameters set on the cluster.
+        currently hard coded, should be read at init
+        the increase functions will not increase beyond thise limits
+        """
+        return {'max_total_tasks': 3888, 'time': 48, 'max_select': 120}
 
     @property
     def mpi_ncpus(self):
@@ -866,23 +883,70 @@ class PbsAdapter(AbstractQueueAdapter):
             return njobs
 
         # there's a problem talking to qstat server?
-        err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' + 
+        print(' ** ')
+        print(process[1].split('\n'))
+        err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' +
                    'The error response reads: {}'.format(process[2]))
+        print(' ** ')
         logger.critical(err_msg)
 
         return None
 
+    # no need to raise an error, if False is returned the fixer may try something else, we don't need to kill the
+    # scheduler just yet
+
+    def do(self):
+        return 'this is not FORTRAN'
+
     def exclude_nodes(self, nodes):
-        raise NotImplementedError("exclude_nodes")
+        logger.warning('exluding nodes, not implemented yet pbs')
+        return False
 
     def increase_mem(self, factor):
-        raise NotImplementedError("increase_mem")
+        logger.warning('increasing mem, not implemented yet pbs')
+        return False
 
-    def increase_time(self, factor):
-        raise NotImplementedError("increase_time")
+    def increase_time(self, factor=1.5):
+        days, hours, minutes = 0, 0, 0
+        try:
+            # a pbe time parser [HH:MM]:SS
+            # feel free to pull this out and mak time in minutes always
+            n = str(self.qparams['time']).count(':')
+            if n == 0:
+                hours = int(float(self.qparams['time']))
+            elif n > 1:
+                hours = int(float(self.qparams['time'].split(':')[0]))
+                minutes = int(float(self.qparams['time'].split(':')[1]))
+            time = hours * 60 + minutes
+            time *= factor
+            if time < self.limits['time']:
+                self.qparams['time'] = str(int(time / 60)) + ':' + str(int(time - 60 * int(time / 60))) + ':00'
+                print('increased time to %s minutes' % time)
+                return True
+            else:
+                raise QueueAdapterError
+        except (KeyError, QueueAdapterError):
+            return False
 
     def increase_cpus(self, factor):
-        raise NotImplementedError("increase_cpus")
+        base_increase = 12
+        new_cpus = self.qparams['select'] + factor * base_increase
+        if new_cpus < self.limits['max_select']:
+            self.qparams['select'] = new_cpus
+            return True
+        else:
+            logger.warning('increasing cpus reached the limit')
+            return False
+
+    def increase_resources(self):
+        """
+        Method to generally increase resources. On typical large machines we only increas cpu's since we use all
+        mem per cpu per core
+        """
+        if self.increase_cpus(1):
+            return True
+        else:
+            return False
 
 
 class SGEAdapter(AbstractQueueAdapter):
@@ -1014,7 +1078,6 @@ class SGEAdapter(AbstractQueueAdapter):
 
     def increase_cpus(self, factor):
         raise NotImplementedError("increase_cpus")
-
 
 
 class QScriptTemplate(string.Template):

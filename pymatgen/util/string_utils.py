@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides utility classes for string operations.
 """

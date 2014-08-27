@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Defines an abstract base class contract for Transformation object.
 """

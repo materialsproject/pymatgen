@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module contains useful decorators for a variety of functions.
 """
@@ -48,6 +46,3 @@ def enable_logging(main):
         return retcode
 
     return wrapper
-
-
-

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides classes to run and analyze boltztrap on pymatgen band
 structure objects. Boltztrap is a software interpolating band structures and
@@ -75,6 +73,10 @@ class BoltztrapRunner():
                 type of boltztrap usage by default BOLTZ to compute transport coefficients
                 but you can have also "FERMI" to compute fermi surface or more correctly to
                 get certain bands interpolated
+            soc:
+                results from spin-orbit coupling (soc) computations give typically non-polarized (no spin up or down)
+                results but 1 electron occupations. If the band structure comes from a soc computation, you should set
+                soc to True (default False)
     """
 
     @requires(which('x_trans'),
@@ -85,7 +87,7 @@ class BoltztrapRunner():
               "Bolztrap accordingly. Then add x_trans to your path")
 
     def __init__(self, bs, nelec, dos_type="HISTO", energy_grid=0.005,
-                 lpfac=10, type="BOLTZ", band_nb=None, tauref=0, tauexp=0, tauen=0):
+                 lpfac=10, type="BOLTZ", band_nb=None, tauref=0, tauexp=0, tauen=0, soc=False):
         self.lpfac = lpfac
         self._bs = bs
         self._nelec = nelec
@@ -97,6 +99,7 @@ class BoltztrapRunner():
         self.tauref=tauref
         self.tauexp=tauexp
         self.tauen=tauen
+        self.soc=soc
 
     def _make_energy_file(self, file_name):
         with open(file_name, 'w') as f:
@@ -138,7 +141,7 @@ class BoltztrapRunner():
     def _make_def_file(self, def_file_name):
         with open(def_file_name,'w') as f:
             so = ""
-            if self._bs.is_spin_polarized:
+            if self._bs.is_spin_polarized or self.soc:
                 so = "so"
             f.write("5, 'boltztrap.intrans',      'old',    'formatted',0\n"+
                     "6,'boltztrap.outputtrans',      'unknown',    'formatted',0\n"+
@@ -238,7 +241,7 @@ class BoltztrapRunner():
                 fout.write(str(band_nb+1))
 
     def _make_all_files(self, path):
-        if self._bs.is_spin_polarized:
+        if self._bs.is_spin_polarized or self.soc:
             self._make_energy_file(os.path.join(path, "boltztrap.energyso"))
         else:
             self._make_energy_file(os.path.join(path, "boltztrap.energy"))
@@ -267,7 +270,7 @@ class BoltztrapRunner():
         os.chdir(path_dir)
 
         self._make_all_files(path_dir)
-        if self._bs.is_spin_polarized:
+        if self._bs.is_spin_polarized or self.soc:
             p = subprocess.Popen(["x_trans", "BoltzTraP", "-so"],
                                  stdout=subprocess.PIPE,
                                  stdin=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -828,7 +831,7 @@ class BoltztrapAnalyzer():
              'n': {int(d): [_make_float_hall(v)
                             for v in data['hall_doping']['n'][d]]
                    for d in data['hall_doping']['n']}},
-            Dos.from_dict(data['dos']), data['carrier_conc'], data['dos_partial'],
+            Dos.from_dict(data['dos']), data['dos_partial'], data['carrier_conc'], 
             data['vol'], str(data['warning']))
 
 
