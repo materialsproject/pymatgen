@@ -515,12 +515,12 @@ class GWSpecs(AbstractAbinitioSpec):
             if count == 0:
                 try:
                     with open(entry['results_file'], 'r') as f:
-                        entry['results_file'] = gfs.put(f.readall())
+                        entry['results_file'] = gfs.put(f.read())
                 except IOError:
                     print entry['results_file'], 'not found'
                 try:
                     with open(entry['data_file'], 'r') as f:
-                        entry['data_file'] = gfs.put(f.readall())
+                        entry['data_file'] = gfs.put(f.read())
                 except IOError:
                     print entry['data_file'], 'not found'
                 col.insert(entry)
@@ -541,12 +541,12 @@ class GWSpecs(AbstractAbinitioSpec):
                 print 'adding', new_entry['results_file'], new_entry['data_file']
                 try:
                     with open(new_entry['results_file'], 'r') as f:
-                        new_entry['results_file'] = gfs.put(f.readall())
+                        new_entry['results_file'] = gfs.put(f.read())
                 except IOError:
                     print new_entry['results_file'], 'not found'
                 try:
                     with open(new_entry['data_file'], 'r') as f:
-                        new_entry['data_file'] = gfs.put(f.readall())
+                        new_entry['data_file'] = gfs.put(f.read())
                 except IOError:
                     print new_entry['data_file'], 'not found'
                 print 'as ', new_entry['results_file'], new_entry['data_file']
