@@ -531,8 +531,10 @@ class GWSpecs(AbstractAbinitioSpec):
                     pass
                 new_entry.update(entry)
                 print 'adding', new_entry['results_file'], new_entry['data_file']
-                new_entry['results_file'] = gfs.put(new_entry['results_file'])
-                new_entry['data_file'] = gfs.put(new_entry['data_file'])
+                with open(new_entry['results_file'], 'r') as f:
+                    new_entry['results_file'] = gfs.put(f.readall())
+                with open(new_entry['data_file'], 'r') as f:
+                    new_entry['data_file'] = gfs.put(f.readall())
                 print 'as ', new_entry['results_file'], new_entry['data_file']
                 col.save(new_entry)
                 print 'updated', s_name(structure)
