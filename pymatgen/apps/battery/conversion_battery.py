@@ -377,7 +377,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
 
         reactants[licomp] = (step2["evolution"] - step1["evolution"])
 
-        rxn = BalancedReaction(reactants, products, remove_spectator_species=True)
+        rxn = BalancedReaction(reactants, products)
 
         for el, amt in normalization_els.items():
             if rxn.get_el_amount(el) > 1e-6:
