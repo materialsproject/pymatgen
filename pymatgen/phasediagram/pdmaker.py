@@ -145,7 +145,7 @@ class PhaseDiagram (MSONable):
             while prev_e and epa > 1e-4 + prev_e[0]:
                 prev_c.pop(0)
                 prev_e.pop(0)
-            frac_comp = entries[i].composition.get_fractional_composition()
+            frac_comp = entries[i].composition.fractional_composition
             if frac_comp not in prev_c:
                 ind.append(i)
             prev_e.append(epa)
@@ -389,7 +389,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
         """
         new_entries = []
         if self.normalize_terminals:
-            fractional_comp = [c.get_fractional_composition()
+            fractional_comp = [c.fractional_composition
                                for c in terminal_compositions]
         else:
             fractional_comp = terminal_compositions
