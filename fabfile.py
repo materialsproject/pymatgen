@@ -8,7 +8,9 @@ __date__ = "Mar 6, 2014"
 
 import glob
 import os
+import json
 import webbrowser
+import requests
 
 from fabric.api import local, lcd
 from pymatgen import __version__ as ver
@@ -78,6 +80,34 @@ def merge_stable():
     local("git checkout master")
 
 
+def release_github():
+    desc = []
+    read = False
+    with open("docs/index.rst") as f:
+        for l in f:
+            if l.strip() == "v" + ver:
+                read = True
+            elif l.strip() == "":
+                read = False
+            elif read:
+                desc.append(l.rstrip())
+    desc.pop(0)
+    payload = {
+        "tag_name": "v" + ver,
+        "target_commitish": "master",
+        "name": "v" + ver,
+        "body": desc,
+        "draft": True,
+        "prerelease": False
+    }
+
+    response = requests.post(
+        "https://api.github.com/repos/materialsproject/pymatgen/releases",
+        data=json.dumps(payload),
+        headers={"Authorization": "token " + os.environ["PYMATGEN_GH_TOKEN"]})
+    print response.text
+
+
 def log_ver():
     filepath = os.path.join(os.environ["HOME"], "Dropbox", "Public",
                             "pymatgen", ver)
@@ -92,6 +122,7 @@ def release(skip_test=False):
     publish()
     log_ver()
     update_doc()
+    release_github()
     merge_stable()
 
 
