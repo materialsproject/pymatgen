@@ -239,6 +239,18 @@ class Vasprun(object):
         the final electronic convergence as well as whether the number of
         ionic steps is equal to the NSW setting.
         """
+        if 'LEPSILON' in self.incar and self.incar['LEPSILON']:
+            nb_steps = 1
+            for c in self.ionic_steps[-1]["electronic_steps"][1:]:
+                print len(c)
+                if len(c) != 12:
+                    nb_steps += 1
+                else:
+                    break
+            if nb_steps+1 == self.parameters["NELM"]:
+                return False
+            else:
+                return True
         if len(self.ionic_steps[-1]["electronic_steps"]) == \
                 self.parameters["NELM"]:
             return False
