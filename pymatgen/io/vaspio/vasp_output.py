@@ -305,7 +305,7 @@ class Vasprun(object):
         self.projected_eigenvalues = None
         ionic_steps = []
         parsed_header = False
-        for event, elem in iterparse(stream, events=("end", )):
+        for event, elem in iterparse(stream):
             tag = elem.tag
             if not parsed_header:
                 if tag == "generator":
@@ -440,7 +440,7 @@ class Vasprun(object):
         """
         True if run is spin-polarized.
         """
-        return True if self.parameters.get("ISPIN", 1) == 2 else False
+        return self.parameters.get("ISPIN", 1) == 2
 
     def get_computed_entry(self, inc_structure=False, parameters=None,
                            data=None):
