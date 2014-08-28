@@ -96,7 +96,7 @@ def release_github():
         "tag_name": "v" + ver,
         "target_commitish": "master",
         "name": "v" + ver,
-        "body": desc,
+        "body": "\n".join(desc),
         "draft": True,
         "prerelease": False
     }
