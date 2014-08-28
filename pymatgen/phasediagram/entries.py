@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines PDEntry, which wraps information (composition and energy)
 necessary to create phase diagrams.

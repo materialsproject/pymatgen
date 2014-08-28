@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Wrapper classes for Cif input and output from Structures.
 """
@@ -210,7 +208,7 @@ class CifWriter:
         block = CifFile.CifBlock()
         latt = struct.lattice
         comp = struct.composition
-        no_oxi_comp = Composition(comp.formula)
+        no_oxi_comp = comp.element_composition
         spacegroup = ("P 1", 1)
         if find_spacegroup:
             sf = SymmetryFinder(struct, 0.001)
@@ -227,7 +225,7 @@ class CifWriter:
         block["_chemical_formula_sum"] = str(no_oxi_comp.formula)
         block["_cell_volume"] = str(latt.volume)
 
-        reduced_comp = Composition.from_formula(no_oxi_comp.reduced_formula)
+        reduced_comp = no_oxi_comp.reduced_composition
         el = no_oxi_comp.elements[0]
         amt = comp[el]
         fu = int(amt / reduced_comp[Element(el.symbol)])

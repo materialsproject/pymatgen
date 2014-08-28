@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines classes for point defects
 """
@@ -10,18 +8,17 @@ import abc
 import json
 from bisect import bisect_left
 
+from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.io.zeoio import get_voronoi_nodes, get_void_volume_surfarea, \
     get_high_accuracy_voronoi_nodes
-from pymatgen.command_line.gulp_caller import get_energy_buckingham
-from pymatgen.command_line.gulp_caller import \
+from pymatgen.command_line.gulp_caller import get_energy_buckingham, \
     get_energy_relax_structure_buckingham
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     RelaxationAnalyzer
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.core.periodic_table import Specie
 
 file_dir = os.path.dirname(__file__)
 rad_file = os.path.join(file_dir, 'ionic_radii.json')
@@ -49,8 +46,6 @@ class ValenceIonicRadiusEvaluator(object):
         List of ionic radii of elements in the order of sites.
         """
         el = [site.species_string for site in self._structure.sites]
-        #print el
-        #print self._ionic_radii
         radii_dict = dict(zip(el, self._ionic_radii))
         #print radii_dict
         return radii_dict
@@ -81,7 +76,6 @@ class ValenceIonicRadiusEvaluator(object):
         coord_finder = VoronoiCoordFinder(self._structure)
 
         def nearest_key(sorted_vals, key):
-            #print sorted_vals, key
             i = bisect_left(sorted_vals, key)
             if i == len(sorted_vals):
                 return sorted_vals[-1]
@@ -96,28 +90,27 @@ class ValenceIonicRadiusEvaluator(object):
 
         for i in range(len(self._structure.sites)):
             site = self._structure.sites[i]
+            if isinstance(site.specie,Element):
+                radius = site.specie.atomic_radius
+                radii.append(radius)
+                continue
+
             el = site.specie.symbol
             oxi_state = int(round(site.specie.oxi_state))
             coord_no = int(round(coord_finder.get_coordination_number(i)))
-            #print el, oxi_state, coord_no
             try:
                 tab_oxi_states = map(int, _ion_radii[el].keys())
                 tab_oxi_states.sort()
                 oxi_state = nearest_key(tab_oxi_states, oxi_state)
                 radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
             except KeyError:
-                #print 'reached here'
                 if coord_finder.get_coordination_number(i)-coord_no > 0:
                     new_coord_no = coord_no + 1
-                    #print 'coord No increased '
                 else:
                     new_coord_no = coord_no - 1
-                    #print 'coord No decreased '
                 try:
                     radius = _ion_radii[el][str(oxi_state)][str(new_coord_no)]
-                    #print oxi_state, new_coord_no
                     coord_no = new_coord_no
-                    #print 'new radius after changing coord no', radius
                 except:
                     tab_coords = map(int, _ion_radii[el][str(oxi_state)].keys())
                     tab_coords.sort()
@@ -142,7 +135,6 @@ class ValenceIonicRadiusEvaluator(object):
 
             #implement complex checks later
             radii.append(radius)
-            #print radius
         return radii
 
     def _get_valences(self):
@@ -159,9 +151,9 @@ class ValenceIonicRadiusEvaluator(object):
                 self._structure = bv.get_oxi_state_decorated_structure(self._structure)
                 valences = bv.get_valences(self._structure)
             except:
-                raise
+                valences = [0]*self._structure.num_sites
+                #raise
 
-        #print valences
         #el = [site.specie.symbol for site in self._structure.sites]
         #el = [site.species_string for site in self._structure.sites]
         #el = [site.specie for site in self._structure.sites]
@@ -453,13 +445,18 @@ class Vacancy(Defect):
                 return sc
         raise ValueError('Something wrong if reached here')
 
-    def make_supercells_with_defects(self, scaling_matrix):
+    def make_supercells_with_defects(self, scaling_matrix, species=None,
+                                     limit_return_structures=False):
         """
         Generate sequence of supercells in pymatgen.core.structure.Structure
         format, with each supercell containing one vacancy.
 
         Args:
             scaling_matrix: super cell scale parameters in matrix forms
+            species: Species in list format only for which vacancy supercells
+                are required. If not specified all the species are considered.
+            limit_return_structures: Boolean or positive number
+                If number, only that many structures are returned.
 
         Returns:
             Supercells with vacancies. First supercell has no defects.
@@ -468,9 +465,23 @@ class Vacancy(Defect):
         sc = self._structure.copy()
         sc.make_supercell(scaling_matrix)
         sc_with_vac.append(sc)
+
+        if not species:
+            species = sc.symbol_set
+        if not limit_return_structures:
+            limit_return_structures = self.defectsite_count()
         for defect_site in self.enumerate_defectsites():
-            sc_with_vac.append(self._supercell_with_defect(scaling_matrix,
-                                                           defect_site))
+            if len(sc_with_vac) <= limit_return_structures:
+                if isinstance(defect_site.specie,Specie):
+                    site_specie = defect_site.specie.element.symbol
+                elif isinstance(defect_site.specie,Element):
+                    site_specie = defect_site.specie.symbol
+                else:
+                    raise TypeError("site specie is neither Specie nor Element")
+
+                if site_specie in species:
+                    sc_with_vac.append(self._supercell_with_defect(
+                        scaling_matrix, defect_site))
         return sc_with_vac
 
 

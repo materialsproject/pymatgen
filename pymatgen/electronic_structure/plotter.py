@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements plotter for DOS and band structure.
 """

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements classes to perform bond valence analyses.
 """

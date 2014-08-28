@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Module which defines basic entries for each ion and oxide to compute a
 Pourbaix diagram

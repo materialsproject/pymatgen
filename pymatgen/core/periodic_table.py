@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Module contains classes presenting Element and Specie (Element + oxidation
 state) and PeriodicTable.
@@ -46,6 +44,9 @@ def symbol_from_Z(z):
         z (int): Atomic number or slice object
     """
     return _z2symbol[z]
+
+
+ALL_ELEMENT_SYMBOLS = set(_pt_data.keys())
 
 
 @cached_class
@@ -481,7 +482,7 @@ class Element(object):
             True if symbol is a valid element (e.g., "H"). False otherwise
             (e.g., "Zebra").
         """
-        return symbol in _pt_data
+        return symbol in ALL_ELEMENT_SYMBOLS
 
     @property
     def row(self):

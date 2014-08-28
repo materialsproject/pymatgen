@@ -1,6 +1,107 @@
 Change log
 ==========
 
+v2.9.14
+-------
+1. Implements Structure.sort method. Both Structure.sort and the
+   get_sorted_structure methods now supports all arguments supported by list
+   .sort().
+2. VaspInputSets configs, as well as several other configs now uses yaml. Note
+   the new dependency on pyyaml. It is highly recommended that you install
+   pyyaml with the libyaml C bindings.
+3. Fix missing spglib dependency.
+4. Use monty.serialization for transparent handling of JSON vs YAML.
+   Requirements updated to monty>=0.3.1.
+
+v2.9.13
+-------
+1. Urgent bug fix for missing compatibility yamls.
+
+v2.9.12
+-------
+1. Defect transformations (Bharat).
+2. Support for optical properties (Geoffroy Hautier and David Waroquiers).
+3. Improved support for some VASP output files (XDATCAR and OSZICAR).
+4. Refactored compatibilities now uses YAML for ease of reading.
+
+v2.9.11
+-------
+1. Bug fix for get_xrd_plot.
+2. Speed up XRD calculator by allowing specification of two theta ranges.
+3. Minor improvements to Gulp caller.
+
+v2.9.10
+-------
+1. Bug fix for unequal coefficients sizes in XRD.
+2. Support for Ag radiation in XRD calculator.
+3. Improved Procar class for extraction of information. (Germain Salvato
+   Vallverdu)
+4. Bug fix for extraction of GGA data from Materials API.
+
+v2.9.9
+------
+1. XRDCalculator now supports disordered structures.
+2. Minor speed ups and improvements.
+
+v2.9.8
+------
+1. Initial beta version of XRD pattern calculator.
+2. Pymatgen now uses spglib 1.6.0.
+3. Update to Vasprun to compute static deilectric constants with DFPT in VASP.
+   (Geoffroy Hautier)
+
+v2.9.7
+------
+1. Quick bug-fix release that provides a better solution to Structure handling
+   of properties instead of sanitizing MPRester structures.
+
+v2.9.6
+------
+1. Patch to allow 1D phase diagrams (essentially finding the lowest energy
+   phase).
+2. Better error checking for Bandstructure KPOINTs.
+3. Patch to sanitize structures obtained from MPRester.
+
+v2.9.5
+------
+1. Bug fix for linear assignment, which may sometimes affect Structure
+   Matcher results.
+2. Minor improvement to the way grand canonical PDs work.
+
+v2.9.4
+------
+1. Bug fix for Pourbaix Maker (Sai).
+2. Streamline use of scratch directories for various calls. Require monty >=
+   0.1.2.
+3. High accuracy mode for Zeo++ (Bharat Medasani).
+
+v2.9.3
+------
+1. Bug fix release for printing TransformedStructures from Substitutor (Will
+   Richards).
+2. Misc improvements in BVAnalyzer, coord_utils and defects (Will Richards,
+   David Waroquiers and Bharat Medasani).
+
+v2.9.2
+------
+1. Bug fix release for DummySpecie, which failed when deserializing from
+   json and had bad hash function.
+
+v2.9.1
+------
+1. Structure/Molecule now supports Pythonic list-like API for replacing and
+   removing sites. See :ref:`quick_start` for examples.
+
+v2.9.0
+------
+1. Updates to support ABINIT 7.6.1 (by Matteo Giantomassi).
+2. Vastly improved docs.
+3. Refactoring to move commonly used Python utility functions to `Monty
+   package <https://pypi.python.org/pypi/monty>`_, which is now a dependency
+   for pymatgen.
+4. Minor fixes and improvements to DiffusionAnalyzer.
+5. Many bug fixes and improvements.
+
 v2.8.10
 -------
 1. Refactoring of qchemio module (by Xiaohui Qu).
