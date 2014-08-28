@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides various representations of transformed structures. A
 TransformedStructure is a structure that has been modified by undergoing a

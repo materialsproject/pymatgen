@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides classes to run and analyze boltztrap on pymatgen band
 structure objects. Boltztrap is a software interpolating band structures and
@@ -833,7 +831,7 @@ class BoltztrapAnalyzer():
              'n': {int(d): [_make_float_hall(v)
                             for v in data['hall_doping']['n'][d]]
                    for d in data['hall_doping']['n']}},
-            Dos.from_dict(data['dos']), data['carrier_conc'], data['dos_partial'],
+            Dos.from_dict(data['dos']), data['dos_partial'], data['carrier_conc'], 
             data['vol'], str(data['warning']))
 
 

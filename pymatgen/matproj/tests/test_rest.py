@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Created on Jun 9, 2012
 """
@@ -43,7 +41,7 @@ class MPResterTest(unittest.TestCase):
                  "nsites", "unit_cell_formula", "pretty_formula", "is_hubbard",
                  "elements", "nelements", "e_above_hull", "hubbards",
                  "is_compatible", "task_ids",
-                 "density", "icsd_id", "total_magnetization"]
+                 "density", "icsd_ids", "total_magnetization"]
         expected_vals = [-191.33812137, -6.833504334642858, -2.551358929370749,
                          28, {u'P': 4, u'Fe': 4, u'O': 16, u'Li': 4},
                          "LiFePO4", True, [u'Li', u'O', u'P', u'Fe'], 4, 0.0,
@@ -58,10 +56,10 @@ class MPResterTest(unittest.TestCase):
 
         for (i, prop) in enumerate(props):
             if prop not in ['hubbards', 'unit_cell_formula', 'elements',
-                            'icsd_id']:
+                            'icsd_ids', 'task_ids']:
                 val = self.rester.get_data("mp-19017", prop=prop)[0][prop]
                 self.assertAlmostEqual(expected_vals[i], val)
-            elif prop in ["elements", "icsd_id"]:
+            elif prop in ["elements", "icsd_ids", "task_ids"]:
                 self.assertEqual(set(expected_vals[i]),
                                  set(self.rester.get_data("mp-19017",
                                                           prop=prop)[0][prop]))
@@ -114,11 +112,14 @@ class MPResterTest(unittest.TestCase):
         self.assertIsInstance(e, ComputedEntry)
         self.assertTrue(e.composition.reduced_formula, "LiFePO4")
 
-    def test_mpquery(self):
+    def test_query(self):
         criteria = {'elements': {'$in': ['Li', 'Na', 'K'], '$all': ['O']}}
-        props = ['formula', 'energy']
-        data = self.rester.mpquery(criteria=criteria, properties=props)
+        props = ['pretty_formula', 'energy']
+        data = self.rester.query(criteria=criteria, properties=props)
         self.assertTrue(len(data) > 6)
+        data = self.rester.query(criteria="*2O", properties=props)
+        self.assertGreaterEqual(len(data), 52)
+        self.assertIn("Li2O", (d["pretty_formula"] for d in data))
 
     def test_get_exp_thermo_data(self):
         data = self.rester.get_exp_thermo_data("Fe2O3")
@@ -192,6 +193,29 @@ class MPResterTest(unittest.TestCase):
                         break
                 self.assertAlmostEqual(a.get_e_above_hull(e),
                                        data["e_above_hull"])
+
+    def test_get_reaction(self):
+        rxn = self.rester.get_reaction(["Li", "O"], ["Li2O"])
+        self.assertIn("Li2O", rxn["Experimental_references"])
+
+    def test_parse_criteria(self):
+        crit = MPRester.parse_criteria("mp-1234 Li-*")
+        self.assertIn("Li-O", crit["$or"][1]["chemsys"]["$in"])
+        self.assertIn({"task_id": "mp-1234"}, crit["$or"])
+
+        crit = MPRester.parse_criteria("Li2*")
+        self.assertIn("Li2O", crit["pretty_formula"]["$in"])
+        self.assertIn("Li2I", crit["pretty_formula"]["$in"])
+        self.assertIn("CsLi2", crit["pretty_formula"]["$in"])
+
+        crit = MPRester.parse_criteria("Li-*-*")
+        self.assertIn("Li-Re-Ru", crit["chemsys"]["$in"])
+        self.assertNotIn("Li-Li", crit["chemsys"]["$in"])
+
+        comps = MPRester.parse_criteria("**O3")["pretty_formula"]["$in"]
+        for c in comps:
+            self.assertEqual(len(Composition(c)), 3)
+
 
 if __name__ == "__main__":
     unittest.main()

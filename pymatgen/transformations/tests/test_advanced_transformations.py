@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Created on Jul 24, 2012
 """
@@ -81,6 +79,8 @@ class SuperTransformationTest(unittest.TestCase):
                              .apply_transformation(struct),
                              s_and_t['structure'])
 
+    @unittest.skipIf(not enumlib_present, "enum_lib not present.")
+    def test_apply_transformation_mult(self):
         #Test returning multiple structures from each transformation.
         disord = Structure(np.eye(3) * 4.209, [{"Cs+": 0.5, "K+": 0.5}, "Cl-"],
                            [[0, 0, 0], [0.5, 0.5, 0.5]])

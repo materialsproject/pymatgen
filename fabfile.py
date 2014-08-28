@@ -8,13 +8,15 @@ __date__ = "Mar 6, 2014"
 
 import glob
 import os
+import json
 import webbrowser
+import requests
 
 from fabric.api import local, lcd
 from pymatgen import __version__ as ver
 
 
-def makedoc():
+def make_doc():
     with lcd("examples"):
         local("ipython nbconvert --to html *.ipynb")
         local("mv *.html ../docs/_static")
@@ -63,7 +65,7 @@ def setver():
 
 
 def update_doc():
-    makedoc()
+    make_doc()
     with lcd("docs/_build/html/"):
         local("git add .")
         local("git commit -a -m \"Update dev docs\"")
@@ -71,11 +73,40 @@ def update_doc():
 
 
 def merge_stable():
+    local("git commit -a -m \"v%s release\"" % ver)
     local("git checkout stable")
     local("git pull")
     local("git merge master")
     local("git push")
     local("git checkout master")
+
+
+def release_github():
+    desc = []
+    read = False
+    with open("docs/index.rst") as f:
+        for l in f:
+            if l.strip() == "v" + ver:
+                read = True
+            elif l.strip() == "":
+                read = False
+            elif read:
+                desc.append(l.rstrip())
+    desc.pop(0)
+    payload = {
+        "tag_name": "v" + ver,
+        "target_commitish": "master",
+        "name": "v" + ver,
+        "body": "\n".join(desc),
+        "draft": False,
+        "prerelease": False
+    }
+
+    response = requests.post(
+        "https://api.github.com/repos/materialsproject/pymatgen/releases",
+        data=json.dumps(payload),
+        headers={"Authorization": "token " + os.environ["PYMATGEN_GH_TOKEN"]})
+    print response.text
 
 
 def log_ver():
@@ -93,6 +124,7 @@ def release(skip_test=False):
     log_ver()
     update_doc()
     merge_stable()
+    release_github()
 
 
 def opendoc():

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Module containing class to create an ion
 """

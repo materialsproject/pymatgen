@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides classes to comparsion the structures of the two
 molecule. As long as the two molecule have the same bond connection tables,

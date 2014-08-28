@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements more advanced transformations.
 """
@@ -16,6 +14,7 @@ __date__ = "Jul 24, 2012"
 import numpy as np
 from fractions import gcd, Fraction
 
+from itertools import groupby
 from pymatgen.core.structure import Specie, Composition
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.transformations.transformation_abc import AbstractTransformation
@@ -553,13 +552,16 @@ class MagOrderingTransformation(AbstractTransformation):
             return alls[0]["structure"] if num_to_return else alls
 
         m = StructureMatcher(comparator=SpinComparator())
+        key = lambda x: SymmetryFinder(x, 0.1).get_spacegroup_number()
+        out = []
+        for _, g in groupby(sorted([d["structure"] for d in alls],
+                                   key=key), key):
+            grouped = m.group_structures(g)
+            out.extend([{"structure": g[0],
+                         "energy": self.emodel.get_energy(g[0])}
+                        for g in grouped])
 
-        grouped = m.group_structures([d["structure"] for d in alls])
-
-        alls = [{"structure": g[0], "energy": self.emodel.get_energy(g[0])}
-                for g in grouped]
-
-        self._all_structures = sorted(alls, key=lambda d: d["energy"])
+        self._all_structures = sorted(out, key=lambda d: d["energy"])
 
         return self._all_structures[0:num_to_return]
 
