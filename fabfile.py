@@ -80,6 +80,7 @@ def merge_stable():
     local("git push")
     local("git checkout master")
 
+
 def release_github():
     desc = []
     read = False
