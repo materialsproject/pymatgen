@@ -71,6 +71,8 @@ v2.10.3
 -------
 1. MPRester.query now supports a simple but powerful string criteria syntax
    with support for wild cards.
+2. Improvements to Composition - support for negative compositions, sorting etc.
+3. Speed ups to StructureMatcher.
 
 v2.10.2
 -------

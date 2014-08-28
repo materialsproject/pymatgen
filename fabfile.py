@@ -73,12 +73,12 @@ def update_doc():
 
 
 def merge_stable():
+    local("git commit -a -m \"v%s release\"" % ver)
     local("git checkout stable")
     local("git pull")
     local("git merge master")
     local("git push")
     local("git checkout master")
-
 
 def release_github():
     desc = []
@@ -122,8 +122,8 @@ def release(skip_test=False):
     publish()
     log_ver()
     update_doc()
-    release_github()
     merge_stable()
+    release_github()
 
 
 def opendoc():
