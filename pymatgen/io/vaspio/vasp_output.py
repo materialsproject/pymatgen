@@ -372,7 +372,6 @@ class Vasprun(object):
         if 'LEPSILON' in self.incar and self.incar['LEPSILON']:
             nb_steps = 1
             for c in self.ionic_steps[-1]["electronic_steps"][1:]:
-                print len(c)
                 if len(c) != 12:
                     nb_steps += 1
                 else:
