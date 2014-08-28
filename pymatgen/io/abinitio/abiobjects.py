@@ -526,7 +526,7 @@ class KSampling(AbivarAble):
 
         if mode in ("monkhorst",):
             assert num_kpts == 0
-            ngkpt = np.reshape(kpts, (3,)),
+            ngkpt  = np.reshape(kpts, (-1,3))
             shiftk = np.reshape(kpt_shifts, (-1,3))
 
             if use_symmetries and use_time_reversal: kptopt = 1
