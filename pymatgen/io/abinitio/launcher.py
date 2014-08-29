@@ -774,7 +774,6 @@ class PyFlowScheduler(object):
 
         return sendmail(subject=self.flow.name + tag, text=text, mailto=self.mailto)
 
-
 def sendmail(subject, text, mailto, sender=None):
     """
     Sends an e-mail either with unix sendmail.
@@ -820,7 +819,6 @@ def sendmail(subject, text, mailto, sender=None):
 
     outdata, errdata = p.communicate(msg)
     return len(errdata)
-
 
 def get_running_jobs():
     try:
