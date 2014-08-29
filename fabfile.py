@@ -74,6 +74,7 @@ def update_doc():
 
 def merge_stable():
     local("git commit -a -m \"v%s release\"" % ver)
+    local("git push")
     local("git checkout stable")
     local("git pull")
     local("git merge master")
