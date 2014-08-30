@@ -9,7 +9,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher, \
 from pymatgen.serializers.json_coders import PMGJSONDecoder
 from pymatgen.core.operations import SymmOp
 from pymatgen.io.smartio import read_structure
-from pymatgen.core import Structure, Composition, Lattice
+from pymatgen.core import Structure, Element, Lattice
 from pymatgen.util.coord_utils import find_in_coord_list_pbc
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -120,7 +120,16 @@ class StructureMatcherTest(unittest.TestCase):
         self.assertTrue(i == 2)
         self.assertEqual(inds, [2])
 
-        #test supercell
+        #test supercell with match
+        result = [[1, 1, 0, 0, 1, 1, 0, 0],
+                  [1, 1, 0, 0, 1, 1, 0, 0],
+                  [1, 1, 1, 1, 0, 0, 1, 1]]
+        m, inds, i = sm._get_mask(s1, s2, 2, True)
+        self.assertTrue(np.all(m == result))
+        self.assertTrue(i == 2)
+        self.assertTrue(np.allclose(inds, np.array([4])))
+
+        #test supercell without match
         result = [[1, 1, 1, 1, 1, 1],
                   [0, 0, 0, 0, 1, 1],
                   [1, 1, 1, 1, 0, 0],
@@ -207,31 +216,29 @@ class StructureMatcherTest(unittest.TestCase):
         self.assertFalse(sm.fit(lfp, nfp))
 
         #Test anonymous fit.
-        self.assertEqual(sm.fit_anonymous(lfp, nfp),
-                         {Composition("Li"): Composition("Na")})
-        self.assertAlmostEqual(sm.get_minimax_rms_anonymous(lfp, nfp)[0],
-                               0.096084154118549828)
+        self.assertEqual(sm.fit_anonymous(lfp, nfp), True)
+        self.assertAlmostEqual(sm.get_rms_anonymous(lfp, nfp)[0],
+                               0.060895871160262717)
 
         #Test partial occupancies.
-        s1 = Structure([[3, 0, 0], [0, 3, 0], [0, 0, 3]],
+        s1 = Structure(Lattice.cubic(3),
                        [{"Fe": 0.5}, {"Fe": 0.5}, {"Fe": 0.5}, {"Fe": 0.5}],
                        [[0, 0, 0], [0.25, 0.25, 0.25],
                         [0.5, 0.5, 0.5], [0.75, 0.75, 0.75]])
-        s2 = Structure([[3, 0, 0], [0, 3, 0], [0, 0, 3]],
+        s2 = Structure(Lattice.cubic(3),
                        [{"Fe": 0.25}, {"Fe": 0.5}, {"Fe": 0.5}, {"Fe": 0.75}],
                        [[0, 0, 0], [0.25, 0.25, 0.25],
                         [0.5, 0.5, 0.5], [0.75, 0.75, 0.75]])
         self.assertFalse(sm.fit(s1, s2))
         self.assertFalse(sm.fit(s2, s1))
-        s2 = Structure([[3, 0, 0], [0, 3, 0], [0, 0, 3]],
-                       [{"Fe": 0.25}, {"Fe": 0.25}, {"Fe": 0.25},
-                        {"Fe": 0.25}],
+        s2 = Structure(Lattice.cubic(3),
+                       [{"Mn": 0.5}, {"Mn": 0.5}, {"Mn": 0.5},
+                        {"Mn": 0.5}],
                        [[0, 0, 0], [0.25, 0.25, 0.25],
                         [0.5, 0.5, 0.5], [0.75, 0.75, 0.75]])
-        self.assertEqual(sm.fit_anonymous(s1, s2),
-                         {Composition("Fe0.5"): Composition("Fe0.25")})
+        self.assertEqual(sm.fit_anonymous(s1, s2), True)
 
-        self.assertAlmostEqual(sm.get_minimax_rms_anonymous(s1, s2)[0], 0)
+        self.assertAlmostEqual(sm.get_rms_anonymous(s1, s2)[0], 0)
 
     def test_oxi(self):
         """Test oxidation state removal matching"""
@@ -253,6 +260,10 @@ class StructureMatcherTest(unittest.TestCase):
         out = sm.group_structures(self.struct_list)
         self.assertEqual(map(len, out), [4, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1])
         self.assertEqual(sum(map(len, out)), len(self.struct_list))
+        for s in self.struct_list[::2]:
+            s.replace_species({'Ti': 'Zr', 'O':'Ti'})
+        out = sm.group_structures(self.struct_list, anonymous=True)
+        self.assertEqual(map(len, out), [4, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1])
 
     def test_mix(self):
         structures = []
@@ -331,7 +342,7 @@ class StructureMatcherTest(unittest.TestCase):
                        [[0,0.1,0],[0,0.1,-0.95],[.7,.5,.375]])
 
         s1, s2, fu, s1_supercell = sm._preprocess(s1, s2, False)
-        match = sm._match(s1, s2, fu, s1_supercell = True, use_rms = True, break_on_match = False)
+        match = sm._strict_match(s1, s2, fu, s1_supercell = True, use_rms = True, break_on_match = False)
         scale_matrix = match[2]
         s2.make_supercell(scale_matrix)
         fc = s2.frac_coords + match[3]
@@ -351,7 +362,7 @@ class StructureMatcherTest(unittest.TestCase):
 
         s1, s2, fu, s1_supercell = sm._preprocess(s1, s2, False)
 
-        match = sm._match(s1, s2, fu, s1_supercell = False,
+        match = sm._strict_match(s1, s2, fu, s1_supercell = False,
                           use_rms = True, break_on_match = False)
         scale_matrix = match[2]
         s2.make_supercell(scale_matrix)
@@ -613,8 +624,14 @@ class StructureMatcherTest(unittest.TestCase):
 
         s1 = read_structure(os.path.join(test_dir, "Na2Fe2PAsO4S4.cif"))
         s2 = read_structure(os.path.join(test_dir, "Na2Fe2PNO4Se4.cif"))
-        self.assertAlmostEqual(sm.fit_with_electronegativity(s1, s2),
-                               {Composition('S'): Composition('Se'), Composition('As'): Composition('N')})
+        self.assertEqual(sm.get_best_electronegativity_anonymous_mapping(s1, s2),
+                    {Element('S'): Element('Se'),
+                     Element('As'): Element('N'),
+                     Element('Fe'): Element('Fe'),
+                     Element('Na'): Element('Na'),
+                     Element('P'): Element('P'),
+                     Element('O'): Element('O'),})
+        self.assertEqual(len(sm.get_all_anonymous_mappings(s1, s2)), 2)
 
 
 if __name__ == '__main__':

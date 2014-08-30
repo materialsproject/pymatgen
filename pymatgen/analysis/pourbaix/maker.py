@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Module containing analysis classes which compute a pourbaix diagram given a
 target compound/element.
@@ -212,7 +210,6 @@ class PourbaixDiagram(object):
                 if abs(np.linalg.det(facetmatrix)) > 1e-8:
                     vert_facets_removed.append(facet)
                 else:
-                    print "removed facet", facet
                     logger.debug("Removing vertical facet : {}".format(facet))
 
             logger.debug("Removing UCH facets by eliminating normal.z >0 ...")
@@ -248,7 +245,6 @@ class PourbaixDiagram(object):
                 if n[2] <= 0:
                     final_facets.append(facet)
                 else:
-                    print "removed UCH facet", facet
                     logger.debug("Removing UCH facet : {}".format(facet))
             final_facets = np.array(final_facets)
             self._facets = final_facets
@@ -286,9 +282,16 @@ class PourbaixDiagram(object):
     @property
     def stable_entries(self):
         """
-        Returns the stable entries in the phase diagram.
+        Returns the stable entries in the Pourbaix diagram.
         """
-        return self._stable_entries
+        return list(self._stable_entries)
+    
+    @property
+    def unstable_entries(self):
+        """
+        Returns all unstable entries in the Pourbaix diagram
+        """
+        return [e for e in self.qhull_entries if e not in self.stable_entries]
 
     @property
     def all_entries(self):

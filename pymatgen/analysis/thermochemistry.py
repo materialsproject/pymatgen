@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 A module to perform experimental thermochemical data analysis.
 """

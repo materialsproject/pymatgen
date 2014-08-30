@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides classes to create phase diagrams.
 """
@@ -147,7 +145,7 @@ class PhaseDiagram (MSONable):
             while prev_e and epa > 1e-4 + prev_e[0]:
                 prev_c.pop(0)
                 prev_e.pop(0)
-            frac_comp = entries[i].composition.get_fractional_composition()
+            frac_comp = entries[i].composition.fractional_composition
             if frac_comp not in prev_c:
                 ind.append(i)
             prev_e.append(epa)
@@ -170,10 +168,7 @@ class PhaseDiagram (MSONable):
         elif len(qhull_data) == dim:
             self.facets = [range(dim)]
         else:
-            if HULL_METHOD == "scipy":
-                facets = ConvexHull(qhull_data, qhull_options="Qt i").simplices
-            else:
-                facets = ConvexHull(qhull_data, joggle=False).vertices
+            facets = get_facets(qhull_data)
             finalfacets = []
             for facet in facets:
                 #skip facets that include the extra point
@@ -181,7 +176,7 @@ class PhaseDiagram (MSONable):
                     continue
                 m = qhull_data[facet]
                 m[:, -1] = 1
-                if abs(np.linalg.det(m)) > 1e-8:
+                if abs(np.linalg.det(m)) > 1e-14:
                     finalfacets.append(facet)
             self.facets = finalfacets
 
@@ -394,7 +389,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
         """
         new_entries = []
         if self.normalize_terminals:
-            fractional_comp = [c.get_fractional_composition()
+            fractional_comp = [c.fractional_composition
                                for c in terminal_compositions]
         else:
             fractional_comp = terminal_compositions
@@ -450,3 +445,13 @@ class PhaseDiagramError(Exception):
     An exception class for Phase Diagram generation.
     """
     pass
+
+
+def get_facets(qhull_data, joggle=False):
+    if HULL_METHOD == "scipy":
+        if joggle:
+            return ConvexHull(qhull_data, qhull_options="QJ i").simplices
+        else:
+            return ConvexHull(qhull_data, qhull_options="Qt i").simplices
+    else:
+        return ConvexHull(qhull_data, joggle=joggle).vertices

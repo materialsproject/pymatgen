@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This class implements definitions for various kinds of bonds. Typically used in
 Molecule analysis.
