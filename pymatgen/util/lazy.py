@@ -2,7 +2,6 @@
 Decorator to create lazy attributes.
 Taken from https://pypi.python.org/pypi/lazy v1.1
 """
-
 import functools
 
 

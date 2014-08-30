@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Created on Jul 16, 2012
 """
@@ -34,7 +32,7 @@ class PoscarTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         comp = poscar.structure.composition
-        self.assertEqual(comp, Composition.from_formula("Fe4P4O16"))
+        self.assertEqual(comp, Composition("Fe4P4O16"))
 
         #Vasp 4 type with symbols at the end.
         poscar_string = """Test1
@@ -427,7 +425,7 @@ class VaspInputTest(unittest.TestCase):
         d = self.vinput.to_dict
         vinput = VaspInput.from_dict(d)
         comp = vinput["POSCAR"].structure.composition
-        self.assertEqual(comp, Composition.from_formula("Fe4P4O16"))
+        self.assertEqual(comp, Composition("Fe4P4O16"))
 
     def test_from_directory(self):
         vi = VaspInput.from_directory(test_dir,

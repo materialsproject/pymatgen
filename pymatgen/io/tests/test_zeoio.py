@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 '''
 '''
 
@@ -193,7 +191,7 @@ class GetHighAccuracyVoronoiNodesTest(unittest.TestCase):
         assert len(self.rad_dict) == len(self.structure.composition)
 
     def test_get_voronoi_nodes(self):
-        vor_node_struct, vor_fc_struct = get_high_accuracy_voronoi_nodes(
+        vor_node_struct, vor_fc_struct = get_high_accuracy_voronoi_nodes_alt(
                 self.structure, self.rad_dict)
         self.assertIsInstance(vor_node_struct, Structure)
         self.assertIsInstance(vor_fc_struct, Structure)

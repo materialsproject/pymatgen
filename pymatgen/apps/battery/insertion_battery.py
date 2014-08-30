@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module is used for analysis of materials with potential application as
 intercalation batteries.

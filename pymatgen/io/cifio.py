@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Wrapper classes for Cif input and output from Structures.
 """

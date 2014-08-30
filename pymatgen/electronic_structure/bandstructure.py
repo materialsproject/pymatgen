@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides classes to define everything related to band structures.
 """
@@ -599,10 +597,10 @@ class BandStructure(object):
         Create from dict.
 
         Args:
-            A dict with all data for a band structure symm line object.
+            A dict with all data for a band structure object.
 
         Returns:
-            A BandStructureSymmLine object
+            A BandStructure object
         """
         labels_dict = d['labels_dict']
         projections = {}

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 An interface to the excellent spglib library by Atsushi Togo
 (http://spglib.sourceforge.net/) for pymatgen.

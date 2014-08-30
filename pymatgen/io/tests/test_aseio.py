@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Created on Mar 8, 2012
 """
@@ -34,7 +32,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
         structure = p.structure
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
-        ase_composition = Composition.from_formula(atoms.get_name())
+        ase_composition = Composition(atoms.get_name())
         self.assertEqual(ase_composition, structure.composition)
 
     def test_get_structure(self):

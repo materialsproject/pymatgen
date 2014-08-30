@@ -289,6 +289,19 @@ class StructureTest(PymatgenTest):
     def test_non_hash(self):
         self.assertRaises(TypeError, dict, [(self.structure, 1)])
 
+    def test_sort(self):
+        s = self.structure
+        s[0] = "F"
+        s.sort()
+        self.assertEqual(s[0].species_string, "Si")
+        self.assertEqual(s[1].species_string, "F")
+        s.sort(key=lambda site: site.species_string)
+        self.assertEqual(s[0].species_string, "F")
+        self.assertEqual(s[1].species_string, "Si")
+        s.sort(key=lambda site: site.species_string, reverse=True)
+        self.assertEqual(s[0].species_string, "Si")
+        self.assertEqual(s[1].species_string, "F")
+
     def test_append_insert_remove_replace(self):
         s = self.structure
         s.insert(1, "O", [0.5, 0.5, 0.5])

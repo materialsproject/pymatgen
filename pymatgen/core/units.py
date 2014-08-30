@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements a FloatWithUnit, which is a subclass of float. It
 also defines supported units for some commonly used units for energy, length,
@@ -309,7 +307,10 @@ class FloatWithUnit(float):
     Error = UnitError
 
     def __new__(cls, val, unit, unit_type=None):
-        return float.__new__(cls, val)
+        new = float.__new__(cls, val)
+        new._unit = Unit(unit)
+        new._unit_type = unit_type
+        return new
 
     def __init__(self, val, unit, unit_type=None):
         """
@@ -745,6 +746,7 @@ def unitized(unit):
     def wrap(f):
         def wrapped_f(*args, **kwargs):
             val = f(*args, **kwargs)
+            #print(val)
             unit_type = _UNAME2UTYPE[unit]
             if isinstance(val, collections.Sequence):
                 # TODO: why don't we return a ArrayWithUnit?

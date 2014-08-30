@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Created on Jul 16, 2012
 """
@@ -19,8 +17,9 @@ import json
 import numpy as np
 
 from pymatgen.io.vaspio.vasp_output import Chgcar, Locpot, Oszicar, Outcar, \
-    Vasprun, Procar
-from pymatgen import Spin, Orbital
+    Vasprun, Procar, Xdatcar
+from pymatgen import Spin, Orbital, Lattice, Structure
+from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
@@ -31,13 +30,21 @@ class VasprunTest(unittest.TestCase):
     def test_properties(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath)
+
+        #test pdos parsing
+        pdos0 = vasprun.complete_dos.pdos[vasprun.final_structure[0]]
+        self.assertAlmostEqual(pdos0[Orbital.s][1][16], 0.0026)
+        self.assertAlmostEqual(pdos0[Orbital.pz][-1][16], 0.0012)
+        self.assertEqual(pdos0[Orbital.s][1].shape, (301, ))
+
         filepath2 = os.path.join(test_dir, 'lifepo4.xml')
         vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True)
         totalscsteps = sum([len(i['electronic_steps'])
                             for i in vasprun.ionic_steps])
         self.assertEquals(29, len(vasprun.ionic_steps))
-        self.assertEquals(len(vasprun.structures),
-                          len(vasprun.ionic_steps) + 1)
+        self.assertEquals(len(vasprun.structures), len(vasprun.ionic_steps))
+        self.assertEqual(vasprun.lattice,
+                         vasprun.lattice_rec.reciprocal_lattice)
 
         for i, step in enumerate(vasprun.ionic_steps):
             self.assertEqual(vasprun.structures[i], step["structure"])
@@ -47,23 +54,15 @@ class VasprunTest(unittest.TestCase):
 
         self.assertEquals(308, totalscsteps,
                           "Incorrect number of energies read from vasprun.xml")
-        self.assertEquals([u'Li', u'Fe', u'Fe', u'Fe', u'Fe', u'P', u'P', u'P',
-                           u'P', u'O', u'O', u'O', u'O', u'O', u'O', u'O',
-                           u'O', u'O', u'O', u'O', u'O', u'O', u'O', u'O',
-                           u'O'],
-                          vasprun.atomic_symbols,
-                          "Incorrect symbols read from vasprun.xml")
+        self.assertEquals(['Li'] + 4 * ['Fe'] + 4 * ['P'] + 16 * ["O"],
+                          vasprun.atomic_symbols)
         self.assertEquals(vasprun.final_structure.composition.reduced_formula,
-                          "LiFe4(PO4)4",
-                          "Wrong formula for final structure read.")
+                          "LiFe4(PO4)4")
         self.assertIsNotNone(vasprun.incar, "Incar cannot be read")
         self.assertIsNotNone(vasprun.kpoints, "Kpoints cannot be read")
-        self.assertIsNotNone(vasprun.eigenvalues,
-                             "Eigenvalues cannot be read")
-        self.assertAlmostEqual(vasprun.final_energy, -269.38319884, 7,
-                               "Wrong final energy")
-        self.assertAlmostEqual(vasprun.tdos.get_gap(), 2.0589, 4,
-                               "Wrong gap from dos!")
+        self.assertIsNotNone(vasprun.eigenvalues, "Eigenvalues cannot be read")
+        self.assertAlmostEqual(vasprun.final_energy, -269.38319884, 7)
+        self.assertAlmostEqual(vasprun.tdos.get_gap(), 2.0589, 4)
         expectedans = (2.539, 4.0906, 1.5516, False)
         (gap, cbm, vbm, direct) = vasprun.eigenvalue_band_properties
         self.assertAlmostEqual(gap, expectedans[0])
@@ -71,11 +70,10 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(vbm, expectedans[2])
         self.assertEqual(direct, expectedans[3])
         self.assertFalse(vasprun.is_hubbard)
-        self.assertEqual(vasprun.potcar_symbols, [u'PAW_PBE Li 17Jan2003',
-                                                  u'PAW_PBE Fe 06Sep2000',
-                                                  u'PAW_PBE Fe 06Sep2000',
-                                                  u'PAW_PBE P 17Jan2003',
-                                                  u'PAW_PBE O 08Apr2002'])
+        self.assertEqual(vasprun.potcar_symbols,
+                         [u'PAW_PBE Li 17Jan2003', u'PAW_PBE Fe 06Sep2000',
+                          u'PAW_PBE Fe 06Sep2000', u'PAW_PBE P 17Jan2003',
+                          u'PAW_PBE O 08Apr2002'])
         self.assertIsNotNone(vasprun.kpoints, "Kpoints cannot be read")
         self.assertIsNotNone(vasprun.actual_kpoints,
                              "Actual kpoints cannot be read")
@@ -90,7 +88,7 @@ class VasprunTest(unittest.TestCase):
         self.assertEqual(vasprun_skip.nionic_steps, 29)
         self.assertEqual(len(vasprun_skip.ionic_steps),
                          int(vasprun.nionic_steps / 3) + 1)
-        self.assertEqual(len(vasprun_skip.ionic_steps) + 1,
+        self.assertEqual(len(vasprun_skip.ionic_steps),
                          len(vasprun_skip.structures))
         self.assertEqual(len(vasprun_skip.ionic_steps),
                          int(vasprun.nionic_steps / 3) + 1)
@@ -127,6 +125,14 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][0], 3.26105533)
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][1], -0.00459066)
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[2][2], 3.24330517)
+
+        entry = vasprun_dfpt.get_computed_entry()
+        entry = MaterialsProjectCompatibility().process_entry(entry)
+        self.assertAlmostEqual(entry.uncorrected_energy + entry.correction,
+                               entry.energy)
+
+        vasprun_uniform = Vasprun(os.path.join(test_dir, "vasprun.xml.uniform"))
+        self.assertEqual(vasprun_uniform.kpoints.style, "Reciprocal")
 
     def test_to_dict(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
@@ -199,6 +205,10 @@ class OutcarTest(unittest.TestCase):
         outcar = Outcar(filepath)
         self.assertTrue(outcar.is_stopped)
 
+    def test_core_state_eigen(self):
+        filepath = os.path.join(test_dir, "OUTCAR.CL")
+        cl = Outcar(filepath).read_core_state_eigen()
+        self.assertAlmostEqual(cl[6]["2s"][-1], -174.4779)
 
 class OszicarTest(unittest.TestCase):
 
@@ -255,10 +265,29 @@ class ProcarTest(unittest.TestCase):
         self.assertAlmostEqual(p.get_occupation(1, 's'), 0.3538125)
         self.assertAlmostEqual(p.get_occupation(1, 'p'), 1.19540625)
         self.assertRaises(ValueError, p.get_occupation, 1, 'm')
+        self.assertEqual(p.nb_bands, 10)
+        self.assertEqual(p.nb_kpoints, 10)
+        lat = Lattice.cubic(3.)
+        s = Structure(lat, ["Li", "Na", "K"], [[0., 0., 0.],
+                                               [0.25, 0.25, 0.25],
+                                               [0.75, 0.75, 0.75]])
+        d = p.get_projection_on_elements(s)
+        self.assertAlmostEqual(d[1][2][2], {'Na': 0.042, 'K': 0.646, 'Li': 0.042})
         filepath = os.path.join(test_dir, 'PROCAR')
         p = Procar(filepath)
         self.assertAlmostEqual(p.get_occupation(0, 'd'), 4.3698147704200059)
         self.assertAlmostEqual(p.get_occupation(0, 'dxy'), 0.85796295426000124)
+
+
+class XdatcarTest(unittest.TestCase):
+
+    def test_init(self):
+        filepath = os.path.join(test_dir, 'XDATCAR')
+        x = Xdatcar(filepath)
+        structures = x.structures
+        self.assertEqual(len(structures), 3)
+        for s in structures:
+            self.assertEqual(s.formula, "Li2 O1")
 
 
 if __name__ == "__main__":

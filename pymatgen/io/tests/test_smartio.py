@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Created on Jul 30, 2012
 """

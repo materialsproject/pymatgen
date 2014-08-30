@@ -22,7 +22,7 @@ from pymatgen.io.smartio import read_structure
 
 from .netcdf import structure_from_etsf_file
 
-# tools
+
 def contract(s):
     """
     >>> contract("1 1 1 2 2 3")
@@ -60,8 +60,17 @@ class AbivarAble(object):
         Returns a dictionary with the abinit variables.
         """
 
+    #@abc.abstractmethod
+    #def from_abivars(cls, vars):
+    #    """
+    #    Build the object from a dictionary with Abinit variables.
+    #    """
+
     def __str__(self):
         return pformat(self.to_abivars(), indent=1, width=80, depth=None)
+
+    def __contains__(self, key):
+        return key in self.to_abivars()
 
 
 @singleton
@@ -82,11 +91,10 @@ MANDATORY = MandatoryVariable()
 DEFAULT = DefaultVariable()
 
 
-class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
-               AbivarAble):
+class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"), AbivarAble):
     """
     Different configurations of the electron density as implemented in abinit:
-    One can use asspinmode to construct the object via SpinMode.asspinmode
+    One can use as_spinmode to construct the object via SpinMode.as_spinmode
     (string) where string can assume the values:
 
         - polarized
@@ -96,7 +104,7 @@ class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
         - spinor_nomag (non-collinear, no magnetism)
     """
     @classmethod
-    def asspinmode(cls, obj):
+    def as_spinmode(cls, obj):
         """Converts obj into a SpinMode instance"""
         if isinstance(obj, cls):
             return obj
@@ -116,10 +124,10 @@ class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
 
 # An handy Multiton
 _mode2spinvars = {
-    "unpolarized" : SpinMode("unpolarized" , 1, 1, 1),
-    "polarized"   : SpinMode("polarized"   , 2, 1, 2),
-    "afm"         : SpinMode("afm"         , 1, 1, 2),
-    "spinor"      : SpinMode("spinor"      , 1, 2, 4),
+    "unpolarized": SpinMode("unpolarized", 1, 1, 1),
+    "polarized": SpinMode("polarized", 2, 1, 2),
+    "afm": SpinMode("afm", 1, 1, 2),
+    "spinor": SpinMode("spinor", 1, 2, 4),
     "spinor_nomag": SpinMode("spinor_nomag", 1, 2, 1),
 }
 
@@ -127,17 +135,16 @@ _mode2spinvars = {
 class Smearing(AbivarAble, MSONable):
     """
     Variables defining the smearing technique. The preferred way to instanciate
-    a Smearing object is via the class method Smearing.assmearing(string)
+    a Smearing object is via the class method Smearing.as_smearing(string)
     """
     #: Mapping string_mode --> occopt
     _mode2occopt = {
-        'nosmearing' : 1,
+        'nosmearing': 1,
         'fermi_dirac': 3,
-        'marzari4'   : 4,
-        'marzari5'   : 5,
-        'methfessel' : 6,
-        'gaussian'   : 7,
-    }
+        'marzari4': 4,
+        'marzari5': 5,
+        'methfessel': 6,
+        'gaussian': 7}
 
     def __init__(self, occopt, tsmear):
         self.occopt = occopt
@@ -163,7 +170,7 @@ class Smearing(AbivarAble, MSONable):
     __nonzero__ = __bool__
 
     @classmethod
-    def assmearing(cls, obj):
+    def as_smearing(cls, obj):
         """
         Constructs an instance of Smearing from obj. Accepts obj in the form:
 
@@ -224,28 +231,18 @@ class Smearing(AbivarAble, MSONable):
         return Smearing(d["occopt"], d["tsmear"])
 
 
-
 class ElectronsAlgorithm(dict, AbivarAble):
-    "Variables controlling the SCF/NSCF algorithm."
+    """Variables controlling the SCF/NSCF algorithm."""
     # None indicates that we use abinit defaults.
-    _default_vars = {
-        "iprcell"  : None,
-        "iscf"     : None,
-        "diemac"   : None,
-        "diemix"   : None,
-        "diemixmag": None,
-        "dielam"   : None,
-        "diegap"   : None,
-        "dielng"   : None,
-        "diecut"   : None,
-        "nstep"    : 70,
-    }
+    _DEFAULT = dict(
+        iprcell=None, iscf=None, diemac=None, diemix=None, diemixmag=None,
+        dielam=None, diegap=None, dielng=None, diecut=None, nstep=50)
 
     def __init__(self, *args, **kwargs):
         super(ElectronsAlgorithm, self).__init__(*args, **kwargs)
 
         for k in self:
-            if k not in self._default_vars:
+            if k not in self._DEFAULT:
                 raise ValueError("%s: No default value has been provided for "
                                  "key %s" % (self.__class__.__name__, k))
 
@@ -257,16 +254,8 @@ class Electrons(AbivarAble):
     """
     The electronic degrees of freedom
     """
-    def __init__(self,
-                 spin_mode = "polarized",
-                 smearing  = "fermi_dirac:0.1 eV",
-                 algorithm = None,
-                 nband     = None,
-                 fband     = None,
-                 charge    = 0.0,
-                 comment   = None,
-                 #occupancies = None,
-                ):
+    def __init__(self, spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
+                 algorithm=None, nband=None, fband=None, charge=0.0, comment=None):  # occupancies=None,
         """
         Constructor for Electrons object.
 
@@ -280,15 +269,12 @@ class Electrons(AbivarAble):
         super(Electrons, self).__init__()
 
         self.comment = comment
-
-        self.smearing = Smearing.assmearing(smearing)
-
-        self.spin_mode = SpinMode.asspinmode(spin_mode)
+        self.smearing = Smearing.as_smearing(smearing)
+        self.spin_mode = SpinMode.as_spinmode(spin_mode)
 
         self.nband = nband
         self.fband = fband
         self.charge = charge
-
         self.algorithm = algorithm
 
         # FIXME
@@ -444,18 +430,32 @@ class AbiStructure(Structure, AbivarAble):
         for (atm_idx, site) in enumerate(self):
             typat[atm_idx] = types_of_specie.index(site.specie) + 1
 
+        from pymatgen.io.gwwrapper.helpers import refine_structure
+
         rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
         xred = np.reshape([site.frac_coords for site in self], (-1,3))
 
-        return {
-            "acell" : 3 * [1.0],
-            "rprim" : rprim,
-            "natom" : natom,
-            "ntypat": len(types_of_specie),
-            "typat" : typat,
-            "xred"  : xred,
-            "znucl" : znucl_type,
-        }
+        # Set small values to zero. This usually happens when the CIF file
+        # does not give structure parameters with enough digits.
+        #rprim = np.where(np.abs(rprim) > 1e-8, rprim, 0.0)
+        #xred = np.where(np.abs(xred) > 1e-8, xred, 0.0)
+
+        d = dict(
+            natom=natom,
+            ntypat=len(types_of_specie),
+            typat=typat,
+            xred=xred,
+            znucl=znucl_type)
+
+        d.update(dict(
+            acell=3 * [1.0],
+            rprim=rprim))
+
+        #d.update(dict(
+        #    acell=3 * [1.0],
+        #    angdeg))
+
+        return d
 
 
 class KSampling(AbivarAble):
@@ -465,18 +465,9 @@ class KSampling(AbivarAble):
     # Modes supported by the constructor.
     modes = Enum(('monkhorst', 'path', 'automatic',))
 
-    def __init__(self,
-                 mode              = "monkhorst",
-                 num_kpts          = 0,
-                 kpts              = ((1, 1, 1),),
-                 kpt_shifts        = (0.5, 0.5, 0.5),
-                 use_symmetries    = True,
-                 use_time_reversal = True,
-                 kpts_weights      = None,
-                 labels            = None,
-                 chksymbreak       = None,
-                 comment           = None,
-                 ):
+    def __init__(self, mode="monkhorst", num_kpts= 0, kpts=((1, 1, 1),), kpt_shifts=(0.5, 0.5, 0.5),
+                 kpts_weights=None, use_symmetries=True, use_time_reversal=True, chksymbreak=None,
+                 comment=None):
         """
         Highly flexible constructor for KSampling objects.  The flexibility comes
         at the cost of usability and in general, it is recommended that you use
@@ -515,8 +506,6 @@ class KSampling(AbivarAble):
                 the number of independent k-points.
             kpts_weights:
                 Optional weights for kpoints. For explicit kpoints.
-            labels:
-                In path-mode, this should provide a list of labels for each kpt.
             chksymbreak:
                 Abinit input variable: check whether the BZ sampling preserves
                 the symmetry of the crystal.
@@ -537,7 +526,7 @@ class KSampling(AbivarAble):
 
         if mode in ("monkhorst",):
             assert num_kpts == 0
-            ngkpt  = np.reshape(kpts, (3,)),
+            ngkpt  = np.reshape(kpts, (-1,3))
             shiftk = np.reshape(kpt_shifts, (-1,3))
 
             if use_symmetries and use_time_reversal: kptopt = 1
@@ -554,7 +543,6 @@ class KSampling(AbivarAble):
             })
 
         elif mode in ("path",):
-
             if num_kpts <= 0:
                 raise ValueError("For Path mode, num_kpts must be specified and >0")
 
@@ -565,7 +553,6 @@ class KSampling(AbivarAble):
                 "ndivsm"   : num_kpts,
                 "kptbounds": kptbounds,
                 "kptopt"   : -len(kptbounds)+1,
-                #"labels"  : labels,  # TODO
             })
 
         elif mode in ("automatic",):
@@ -592,11 +579,11 @@ class KSampling(AbivarAble):
 
     @property
     def is_homogeneous(self):
-        return self.mode not in ["path",]
+        return self.mode not in ["path"]
 
     @classmethod
     def gamma_only(cls):
-        "Gamma-only sampling"
+        """Gamma-only sampling"""
         return cls(kpt_shifts=(0.0,0.0,0.0), comment="Gamma-only sampling")
 
     @classmethod
@@ -607,20 +594,17 @@ class KSampling(AbivarAble):
         Args:
             kpts:
                 Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
-        use_symmetries:
-            False if spatial symmetries should not be used to reduced the number of independent k-points.
-        use_time_reversal:
-            False if time-reversal symmetry should not be used to reduced the number of independent k-points.
+            use_symmetries:
+                False if spatial symmetries should not be used to reduced the number of independent k-points.
+            use_time_reversal:
+                False if time-reversal symmetry should not be used to reduced the number of independent k-points.
 
         Returns:
             `KSampling` object.
         """
-        return cls(kpts              = [kpts],
-                   kpt_shifts        = (0.0, 0.0, 0.0),
-                   use_symmetries    = use_symmetries,
-                   use_time_reversal = use_time_reversal,
-                   comment           = "gamma-centered mode",
-                   )
+        return cls(kpts=[kpts], kpt_shifts=(0.0, 0.0, 0.0),
+                   use_symmetries=use_symmetries, use_time_reversal=use_time_reversal,
+                   comment="gamma-centered mode")
 
     @classmethod
     def monkhorst(cls, ngkpt, shiftk=(0.5, 0.5, 0.5), chksymbreak=None, use_symmetries=True,
@@ -632,7 +616,7 @@ class KSampling(AbivarAble):
             ngkpt:
                 Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
             shiftk:
-                Shift to be applied to the kpoints. Defaults to (0,0,0).
+                Shift to be applied to the kpoints. 
             use_symmetries:
                 Use spatial symmetries to reduce the number of k-points.
             use_time_reversal:
@@ -641,16 +625,14 @@ class KSampling(AbivarAble):
         Returns:
             `KSampling` object.
         """
-        return cls(kpts              = [ngkpt],
-                   kpt_shifts        = shiftk,
-                   use_symmetries    = use_symmetries,
-                   use_time_reversal = use_time_reversal,
-                   chksymbreak       = chksymbreak,
-                   comment           = comment if comment else "Monkhorst-Pack scheme with user-specified shiftk",
-                  )
+        return cls(
+            kpts=[ngkpt], kpt_shifts=shiftk,
+            use_symmetries=use_symmetries, use_time_reversal=use_time_reversal, chksymbreak=chksymbreak,
+            comment=comment if comment else "Monkhorst-Pack scheme with user-specified shiftk")
 
     @classmethod
-    def monkhorst_automatic(cls, structure, ngkpt, chksymbreak=None, use_symmetries=True, use_time_reversal=True, comment=None):
+    def monkhorst_automatic(cls, structure, ngkpt,
+                            use_symmetries=True, use_time_reversal=True, chksymbreak=None, comment=None):
         """
         Convenient static constructor for an automatic Monkhorst-Pack mesh.
 
@@ -679,13 +661,9 @@ class KSampling(AbivarAble):
         #elif lattice.isbcc
         #elif lattice.isfcc
 
-        return cls.monkhorst(ngkpt,
-                             shiftk            = shiftk,
-                             chksymbreak       = chksymbreak,
-                             use_symmetries    = use_symmetries,
-                             use_time_reversal = use_time_reversal,
-                             comment           = comment if comment else "Automatic Monkhorst-Pack scheme",
-                            )
+        return cls.monkhorst(
+            ngkpt, shiftk=shiftk, use_symmetries=use_symmetries, use_time_reversal=use_time_reversal,
+            chksymbreak=chksymbreak, comment=comment if comment else "Automatic Monkhorst-Pack scheme")
 
     @classmethod
     def _path(cls, ndivsm, structure=None, kpath_bounds=None, comment=None):
@@ -721,20 +699,17 @@ class KSampling(AbivarAble):
                 #print("label %s, red_coord %s" % (label, red_coord))
                 kpath_bounds.append(red_coord)
 
-        return cls(mode     = KSampling.modes.path,
-                   num_kpts = ndivsm,
-                   kpts     = kpath_bounds,
-                   comment  = comment if comment else "K-Path scheme",
-                  )
+        return cls(mode=KSampling.modes.path, num_kpts=ndivsm, kpts=kpath_bounds,
+                   comment=comment if comment else "K-Path scheme")
 
     @classmethod
     def path_from_structure(cls, ndivsm, structure):
-        "See _path for the meaning of the variables"
+        """See _path for the meaning of the variables"""
         return cls._path(ndivsm,  structure=structure, comment="K-path generated automatically from pymatgen structure")
 
     @classmethod
     def explicit_path(cls, ndivsm, kpath_bounds):
-        "See _path for the meaning of the variables"
+        """See _path for the meaning of the variables"""
         return cls._path(ndivsm, kpath_bounds=kpath_bounds, comment="Explicit K-path")
 
     @classmethod
@@ -787,15 +762,10 @@ class KSampling(AbivarAble):
 
         shifts = np.reshape(shifts, (-1, 3))
 
-        return cls(mode              = "monkhorst",
-                   num_kpts          = 0,
-                   kpts              = [num_div],
-                   kpt_shifts        = shifts,
-                   chksymbreak       = chksymbreak,
-                   use_symmetries    = use_symmetries   ,
-                   use_time_reversal = use_time_reversal,
-                   comment           = comment,
-                  )
+        return cls(
+            mode="monkhorst", num_kpts=0, kpts=[num_div], kpt_shifts=shifts,
+            use_symmetries=use_symmetries, use_time_reversal=use_time_reversal, chksymbreak=chksymbreak,
+            comment=comment)
 
     def to_abivars(self):
         return self.abivars
@@ -820,7 +790,7 @@ class RelaxationMethod(AbivarAble):
         "ionmov"           : MANDATORY,
         "optcell"          : MANDATORY,
         "ntime"            : 80,
-        "dilatmx"          : 1.1,
+        "dilatmx"          : 1.05,
         "ecutsm"           : 0.5,
         "strfact"          : None,
         "tolmxf"           : None,
@@ -847,7 +817,8 @@ class RelaxationMethod(AbivarAble):
 
         for k in self.abivars:
             if k is MANDATORY:
-                raise ValueError("%s: No default value has been provided for the mandatory key %s" % (self.__class__.__name__, k))
+                raise ValueError("%s: No default value has been provided for the mandatory key %s" %
+                                 (self.__class__.__name__, k))
 
     @classmethod
     def atoms_only(cls, atoms_constraints=None):
@@ -868,52 +839,50 @@ class RelaxationMethod(AbivarAble):
     @property
     def move_atoms(self):
         """True if atoms must be moved."""
-        return self.vars.ionmov != 0
+        return self.abivars.ionmov != 0
 
     @property
     def move_cell(self):
         """True if lattice parameters must be optimized."""
-        return self.vars.optcell != 0
+        return self.abivars.optcell != 0
 
     def to_abivars(self):
         """Returns a dictionary with the abinit variables"""
-        vars = self.vars
-
         # These variables are always present.
-        abivars = {
-            "ionmov" : vars.ionmov,
-            "optcell": vars.optcell,
-            "ntime"  : vars.ntime,
+        out_vars = {
+            "ionmov" : self.abivars.ionmov,
+            "optcell": self.abivars.optcell,
+            "ntime"  : self.abivars.ntime,
         }
 
         # Atom relaxation.
         if self.move_atoms:
-            abivars.update({
-                "tolmxf": vars.tolmxf,
+            out_vars.update({
+                "tolmxf": self.abivars.tolmxf,
             })
 
-        if vars.atoms_constraints:
+        if self.abivars.atoms_constraints:
             # Add input variables for constrained relaxation.
             raise NotImplementedError("")
-            abivars.update(vars.atoms_constraints.to_abivars())
+            out_vars.update(self.abivars.atoms_constraints.to_abivars())
 
         # Cell relaxation.
         if self.move_cell:
-            abivars.update({
-                "dilatmx"  : vars.dilatmx,
-                "ecutsm"   : vars.ecutsm,
-                "strfact"  : vars.strfact,
-                "strtarget": vars.strtarget,
+            out_vars.update({
+                "dilatmx"  : self.abivars.dilatmx,
+                "ecutsm"   : self.abivars.ecutsm,
+                "strfact"  : self.abivars.strfact,
+                "strtarget": self.abivars.strtarget,
             })
 
-        return abivars
+        return out_vars
 
 
 class PPModel(AbivarAble, MSONable):
     """
     Parameters defining the plasmon-pole technique.
     The common way to instanciate a PPModel object is via the class method
-    PPModel.asppmodel(string)
+    PPModel.as_ppmodel(string)
     """
     _mode2ppmodel = {
         "noppmodel": 0,
@@ -926,7 +895,7 @@ class PPModel(AbivarAble, MSONable):
     modes = Enum(k for k in _mode2ppmodel)
 
     @classmethod
-    def asppmodel(cls, obj):
+    def as_ppmodel(cls, obj):
         """
         Constructs an instance of PPModel from obj.
 
@@ -983,8 +952,7 @@ class PPModel(AbivarAble, MSONable):
 
     def to_abivars(self):
         if self:
-            return {"ppmodel": self._mode2ppmodel[self.mode],
-                    "ppmfrq" : self.plasmon_freq,}
+            return {"ppmodel": self._mode2ppmodel[self.mode], "ppmfrq": self.plasmon_freq}
         else:
             return {}
 
@@ -1001,7 +969,6 @@ class PPModel(AbivarAble, MSONable):
     @staticmethod
     def from_dict(d):
         return PPModel(mode=d["mode"], plasmon_freq=d["plasmon_freq"])
-
 
 
 class HilbertTransform(AbivarAble):
@@ -1031,7 +998,7 @@ class HilbertTransform(AbivarAble):
         # Spectral function
         self.nomegasf = nomegasf
         self.domegasf = domegasf
-        self.spmeth   = spmeth
+        self.spmeth = spmeth
 
         # Mesh for the contour-deformation method used for the integration of the self-energy
         self.nfreqre = nfreqre
@@ -1209,17 +1176,17 @@ class SelfEnergy(AbivarAble):
         if sc_mode not in self._SC_MODES:
             raise ValueError("Self-consistecy mode %s is not supported" % sc_mode)
 
-        self.type      = se_type
-        self.sc_mode   = sc_mode
-        self.nband     = nband
-        self.ecutsigx  = ecutsigx
+        self.type = se_type
+        self.sc_mode = sc_mode
+        self.nband = nband
+        self.ecutsigx = ecutsigx
         self.screening = screening
         self.gw_qprange = gw_qprange
         self.gwpara = gwpara
 
         if ppmodel is not None:
             assert not screening.use_hilbert
-            self.ppmodel = PPModel.asppmodel(ppmodel)
+            self.ppmodel = PPModel.as_ppmodel(ppmodel)
 
         self.ecuteps = ecuteps if ecuteps is not None else screening.ecuteps
         self.ecutwfn = ecutwfn
@@ -1265,8 +1232,7 @@ class SelfEnergy(AbivarAble):
         return 1 if self.sc_mode == "one_shot" else 0
 
     def to_abivars(self):
-        "Returns a dictionary with the abinit variables"
-
+        """Returns a dictionary with the abinit variables."""
         abivars = dict(
             gwcalctyp=self.gwcalctyp,
             ecuteps=self.ecuteps,
@@ -1341,7 +1307,7 @@ class ExcHamiltonian(AbivarAble):
             **kwargs:
                 Extra keywords
         """
-        spin_mode = SpinMode.asspinmode(spin_mode)
+        spin_mode = SpinMode.as_spinmode(spin_mode)
 
         # We want an array bs_loband(nsppol).
         try:
@@ -1431,127 +1397,3 @@ class ExcHamiltonian(AbivarAble):
         abivars.update(self.kwargs)
 
         return abivars
-
-
-#class Perturbation(AbivarAble):
-#    """
-#    Base class for perturbations: a base perturbation is essentially defined
-#    by a q-point in reduced coordinates.
-#
-#    Subclasses should extend the base method `to_abivars` and provide the method `suggested_kptopt`
-#    that returns the value of kptopt that can be used to sample the Brillouin zone.
-#    """
-#    def __init__(self, qpt):
-#        """
-#        Args:
-#            qpt:
-#                reduced coordinates of the q-point associated to the perturbation.
-#        """
-#        self.qpt = np.reshape(qpt, (-1,3))
-#        self.nqpt = len(self.qpt)
-#
-#    @property
-#    def qpt_is_gamma(self):
-#        """True if the q-point of the perturbation is Gamma."""
-#        return np.all(np.abs(self.qpt) < 1.e-6)
-#
-#    @abc.abstractproperty
-#    def suggested_kptopt(self):
-#        """Returns the suggested value of kptopt to use for this perturbation."""
-#        return 3
-#
-#    def to_abivars(self):
-#        return dict(nqpt=1, qpt=self.qpt)
-#
-#
-#class IFC(AbivarAble):
-#    """
-#    This object defines the set of variables used for the
-#    Fourier interpolation of the interatomic force constants.
-#    """
-#    def __init__(self, ddb_filename, ngqpt, q1shfts=(0.,0.,0.), ifcflag=1, brav=1):
-#        """
-#        For the complete description of the meaning of the variables see anaddb_help.html
-#
-#        Args:
-#            ddb_filename:
-#                Path to the DDB file.
-#            ngqpt:
-#                Monkhorst-Pack divisions.
-#            q1shfts:
-#                Monkhorst-Pack shifts.
-#            ifcflag:
-#                Interatomic force constant flag.
-#            brav:
-#                Bravais Lattice: 1-S.C., 2-F.C., 3-B.C., 4-Hex.
-#        """
-#        self.ddb_filename = os.path.abspath(ddb_filename)
-#        if not os.path.exists(self.ddb_filename):
-#            raise ValueError("%s: no such file" % self.ddb_filename)
-#
-#        self.ifcflag = ifcflag
-#        self.brav = brav
-#        self.ngqpt = ngqpt
-#
-#        self.q1shft = np.reshape(q1shft, (-1,3))
-#        self.nqshft = len(self.q1shft)
-#
-#    def to_abivars(self):
-#        d = dict(
-#            ifcflag=self.ifcflag,
-#            brav=self.brav,
-#            ngqpt="%d %d %d" % tuple(q for q in self.ngqpt),
-#            nqshft=self.nqshft,
-#            )
-#
-#        lines = []
-#        for shift in self.q1shfts:
-#            lines.append("%f %f %f" % tuple(c for c in shift))
-#        d["q1shfts"] = "\n".join(lines)
-#
-#        return d
-#
-#    def fourier_interpol(self, qpath=None, qmesh=None, symdynmat=1, asr=1, chneut=1, dipdip=1,
-#                         executable=None, verbose=0):
-#        """
-#        Fourier interpolation of the IFCs.
-#
-#        Args:
-#            asr:
-#                Acoustic Sum Rule. 1 to impose it asymetrically.
-#            chneut:
-#                Charge neutrality requirement for effective charges.
-#            dipdip:
-#                Dipole-dipole interaction treatment.
-#            symdinmat:
-#                TODO
-#        """
-#        # Build input for anaddb. Variables are stored in the dict d.
-#        d = {
-#            "symdynmat": symdynmat,
-#            "asr"      : asr,
-#            "chneut"   : chneut,
-#            "dipdip"   : dipdip,
-#        }
-#
-#        # Phonon band structure.
-#        if qpath is not None:
-#            qpath = np.reshape(qpath, (-1,3))
-#            d.update({
-#                "nqpath": len(qpath),
-#                "qpath" : "\n".join("%f %f %f" % tuple(q) for q in qpath),
-#            })
-#
-#        # Phonon DOS calculations.
-#        # TODO
-#        #if qmesh is not None:
-#        #    d.update({
-#        #        "nph1l": 1,
-#        #        "qph1l": 1,
-#        #    })
-#        d.update(self.to_abivars())
-#
-#        from .wrappers import Anaddb
-#        anaddb = Anaddb(executable=executable, verbose=verbose)
-#        #anaddb.set_input(d)
-#        #phband, phdos, events = anaddb.fourier_interpolation()
