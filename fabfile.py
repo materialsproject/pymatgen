@@ -64,7 +64,7 @@ def make_doc():
         #Avoid ths use of jekyll so that _dir works as intended.
         local("touch _build/html/.nojekyll")
 
-    #os.remove("LATEST_CHANGES")
+    os.remove("LATEST_CHANGES")
 
 def publish():
     local("python setup.py release")
