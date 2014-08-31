@@ -125,6 +125,8 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][0], 3.26105533)
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][1], -0.00459066)
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[2][2], 3.24330517)
+        for e in vasprun_dfpt.ionic_steps[-1]["electronic_steps"]:
+            print e
 
         entry = vasprun_dfpt.get_computed_entry()
         entry = MaterialsProjectCompatibility().process_entry(entry)
