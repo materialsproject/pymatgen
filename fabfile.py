@@ -21,9 +21,8 @@ def make_doc():
     with open("CHANGES") as f:
         contents = f.read()
 
-    toks = re.split("-+", contents)
+    toks = re.split("\-+", contents)
     n = len(toks[0].split()[-1])
-
     changes = ("-" * n).join(toks[0:2])
 
     with open("LATEST_CHANGES", "w") as f:
@@ -65,7 +64,7 @@ def make_doc():
         #Avoid ths use of jekyll so that _dir works as intended.
         local("touch _build/html/.nojekyll")
 
-    os.remove("LATEST_CHANGES")
+    #os.remove("LATEST_CHANGES")
 
 def publish():
     local("python setup.py release")
@@ -96,22 +95,15 @@ def merge_stable():
 
 
 def release_github():
-    desc = []
-    read = False
-    with open("docs/index.rst") as f:
-        for l in f:
-            if l.strip() == "v" + ver:
-                read = True
-            elif l.strip() == "":
-                read = False
-            elif read:
-                desc.append(l.rstrip())
-    desc.pop(0)
+    with open("CHANGES") as f:
+        contents = f.read()
+    toks = re.split("\-+", contents)
+    desc = toks[1].strip()
     payload = {
         "tag_name": "v" + ver,
         "target_commitish": "master",
         "name": "v" + ver,
-        "body": "\n".join(desc),
+        "body": desc,
         "draft": False,
         "prerelease": False
     }
