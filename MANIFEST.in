@@ -1,4 +1,4 @@
-include *.rst LICENSE ez_setup.py
+include *.rst LICENSE CHANGES ez_setup.py
 recursive-include pymatgen *.py *.json *.yaml
 recursive-include scripts *.py
 recursive-include dependencies *

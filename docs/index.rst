@@ -64,40 +64,7 @@ several advantages over other codes out there:
    written in other languages. Pymatgen also comes with a complete system for
    handling periodic boundary conditions.
 
-Latest Change Log
-=================
-
-v2.10.3
--------
-1. MPRester.query now supports a simple but powerful string criteria syntax
-   with support for wild cards.
-2. Improvements to Composition - support for negative compositions, sorting etc.
-3. Speed ups to StructureMatcher.
-
-v2.10.2
--------
-1. Bug fix for Projected DOS parsing in new Vasprun.
-2. Compatibility now has a *explain* method which provides a detailed outline
-   of the changes that a Compatibility makes to an Entry.
-
-v2.10.1
--------
-1. Minor fix for monty requirements in setup.py.
-
-v2.10.0
--------
-1. Major update: MPRester now uses Materials API v2! Also major refactoring
-   of MPRester.
-2. Vastly improved Vasprun parser using cElementTree. Twice as fast,
-   half as much code and easier to maintain.
-3. Vast improvements to Qchem functionality (Xiaohui Qu).
-4. Improved handling of Structure manipulations for extremely large
-   structures (particularly in terms of memory consumption).
-5. Bug fix for XYZ parsing for scientific notation.
-6. Improve monty.serialization for transparent handling of JSON vs YAML.
-   Requirements updated to monty>=0.3.3.
-7. Update numpy requirements to 1.8+. Fixes memory leak.
-8. Other minor bug fixes.
+.. include:: ../LATEST_CHANGES
 
 :doc:`Older versions </changelog>`
 

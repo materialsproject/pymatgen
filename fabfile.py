@@ -11,12 +11,24 @@ import os
 import json
 import webbrowser
 import requests
+import re
 
 from fabric.api import local, lcd
 from pymatgen import __version__ as ver
 
 
 def make_doc():
+    with open("CHANGES") as f:
+        contents = f.read()
+
+    toks = re.split("-+", contents)
+    n = len(toks[0].split()[-1])
+
+    changes = ("-" * n).join(toks[0:2])
+
+    with open("LATEST_CHANGES", "w") as f:
+        f.write(changes)
+
     with lcd("examples"):
         local("ipython nbconvert --to html *.ipynb")
         local("mv *.html ../docs/_static")
@@ -53,6 +65,7 @@ def make_doc():
         #Avoid ths use of jekyll so that _dir works as intended.
         local("touch _build/html/.nojekyll")
 
+    os.remove("LATEST_CHANGES")
 
 def publish():
     local("python setup.py release")
@@ -128,6 +141,6 @@ def release(skip_test=False):
     release_github()
 
 
-def opendoc():
+def open_doc():
     pth = os.path.abspath("docs/_build/html/index.html")
     webbrowser.open("file://" + pth)
