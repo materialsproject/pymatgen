@@ -119,7 +119,7 @@ in the pymatgen root directory.
 
 Change Log
 ==========
-The latest change log is available `here <https://github.com/materialsproject/pymatgen/blob/master/CHANGES.rst>`_
+The latest change log is available `here <https://github.com/materialsproject/pymatgen/blob/master/CHANGES.rst>`_.
 
 Using pymatgen
 ==============
