@@ -66,7 +66,7 @@ several advantages over other codes out there:
 
 .. include:: ../LATEST_CHANGES
 
-:doc:`Older versions </changelog>`
+:doc:`Older versions </change_log>`
 
 Getting pymatgen
 ================

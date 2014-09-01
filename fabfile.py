@@ -1,10 +1,12 @@
 """
 Deployment file to facilitate releases of pymatgen.
+Note that this file is meant to be run from the root directory of the pymatgen
+repo.
 """
 
 __author__ = "Shyue Ping Ong"
 __email__ = "ongsp@ucsd.edu"
-__date__ = "Mar 6, 2014"
+__date__ = "Sep 1, 2014"
 
 import glob
 import os
@@ -18,20 +20,21 @@ from pymatgen import __version__ as ver
 
 
 def make_doc():
-    with open("CHANGES") as f:
+    with open("CHANGES.rst") as f:
         contents = f.read()
 
     toks = re.split("\-+", contents)
     n = len(toks[0].split()[-1])
     changes = ("-" * n).join(toks[0:2])
 
-    with open("LATEST_CHANGES", "w") as f:
+    with open("LATEST_CHANGES.rst", "w") as f:
         f.write(changes)
 
     with lcd("examples"):
         local("ipython nbconvert --to html *.ipynb")
         local("mv *.html ../docs/_static")
     with lcd("docs"):
+        local("cp ../CHANGES.rst change_log.rst")
         local("sphinx-apidoc -d 6 -o . -f ../pymatgen")
         local("rm pymatgen.*.tests.rst")
         for f in glob.glob("docs/*.rst"):
@@ -64,7 +67,8 @@ def make_doc():
         #Avoid ths use of jekyll so that _dir works as intended.
         local("touch _build/html/.nojekyll")
 
-    os.remove("LATEST_CHANGES")
+
+    os.remove("LATEST_CHANGES.rst")
 
 def publish():
     local("python setup.py release")
@@ -95,7 +99,7 @@ def merge_stable():
 
 
 def release_github():
-    with open("CHANGES") as f:
+    with open("CHANGES.rst") as f:
         contents = f.read()
     toks = re.split("\-+", contents)
     desc = toks[1].strip()
@@ -107,7 +111,6 @@ def release_github():
         "draft": False,
         "prerelease": False
     }
-
     response = requests.post(
         "https://api.github.com/repos/materialsproject/pymatgen/releases",
         data=json.dumps(payload),
