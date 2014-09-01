@@ -372,9 +372,10 @@ class Vasprun(object):
         if 'LEPSILON' in self.incar and self.incar['LEPSILON']:
             nb_steps = 1
             for c in self.ionic_steps[-1]["electronic_steps"][1:]:
-                print len(c)
-                if len(c) != 12:
-                    nb_steps += 1
+                if 'e_wo_entrp' in c.keys() and \
+                   'e_fr_energy' in c.keys() and \
+                   'e_0_energy' in c.keys() and len(c) == 3:
+                        nb_steps += 1
                 else:
                     break
             if nb_steps+1 == self.parameters["NELM"]:
