@@ -859,6 +859,6 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20,
         vis.write_image(filename.format(i), 3)
     filename = "image%0" + str(sigfig) + "d.png"
     args = ["ffmpeg", "-y", "-i", filename,
-            "-qscale", str(quality), "-r", str(fps), "-b", str(bitrate),
+            "-q:v", str(quality), "-r", str(fps), "-b:v", str(bitrate),
             output_filename]
     subprocess.Popen(args)
