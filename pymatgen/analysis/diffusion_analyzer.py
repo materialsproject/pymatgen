@@ -16,8 +16,8 @@ citing the following papers::
 
 from __future__ import division
 
-__author__ = "Will Richards"
-__version__ = "0.1"
+__author__ = "Will Richards, Shyue Ping Ong"
+__version__ = "0.2"
 __maintainer__ = "Will Richards"
 __email__ = "wrichard@mit.edu"
 __status__ = "Beta"
@@ -61,7 +61,8 @@ class DiffusionAnalyzer(MSONable):
     """
 
     def __init__(self, structure, displacements, specie, temperature,
-                 time_step, step_skip, min_obs=30, weighted=True):
+                 time_step, step_skip, smoothed=True, min_obs=30,
+                 weighted=True):
         """
         This constructor is meant to be used with pre-processed data.
         Other convenient constructors are provided as class methods (see
@@ -76,6 +77,8 @@ class DiffusionAnalyzer(MSONable):
         diffusion estimate, a least squares regression of the MSD against
         time to obtain the slope, which is then related to the diffusivity.
 
+        For traditional analysis, use smoothed=False and weighted=False.
+
         Args:
             structure (Structure): Initial structure.
             displacements (array): Numpy array of with shape [site,
@@ -87,6 +90,8 @@ class DiffusionAnalyzer(MSONable):
             step_skip (int): Sampling frequency of the displacements (
                 time_step is multiplied by this number to get the real time
                 between measurements)
+            smoothed (bool): Whether to smooth the MSD. Generally more
+                accurate, but makes error analysis complicated.
             min_obs (int): Minimum number of observations to have before
                 including in the MSD vs dt calculation. E.g. If a structure
                 has 10 diffusing atoms, and min_obs = 30, the MSD vs dt will be
@@ -97,15 +102,14 @@ class DiffusionAnalyzer(MSONable):
                 number of observations are also proportional to 1/dt (and
                 hence the variance is proportional to dt)
         """
-        self.s = structure
+        self.structure = structure
         self.disp = displacements
-        self.sp = specie
+        self.specie = specie
         self.temperature = temperature
         self.time_step = time_step
         self.step_skip = step_skip
         self.min_obs = min_obs
         self.weighted = weighted
-
         self.indices = []
         self.framework_indices = []
 
@@ -129,32 +133,41 @@ class DiffusionAnalyzer(MSONable):
             dc_framework = self.disp[self.framework_indices] - drift
             self.max_framework_displacement = \
                 np.max(np.sum(dc_framework ** 2, axis=-1) ** 0.5)
-            df_x = self.s.lattice.get_fractional_coords(dc_x)
+            df_x = self.structure.lattice.get_fractional_coords(dc_x)
 
-            #limit the number of sampled timesteps to 200
-            min_dt = int(1000 / (self.step_skip * self.time_step))
-            max_dt = min(dc_x.shape[0] * dc_x.shape[1] // self.min_obs,
-                         dc_x.shape[1])
-            if min_dt >= max_dt:
-                raise ValueError('Not enough data to calculate diffusivity')
-            timesteps = np.arange(min_dt, max_dt,
-                                  max(int((max_dt - min_dt) / 200), 1))
+            if smoothed:
+                #limit the number of sampled timesteps to 200
+                min_dt = int(1000 / (self.step_skip * self.time_step))
+                max_dt = min(dc_x.shape[0] * dc_x.shape[1] // self.min_obs,
+                             dc_x.shape[1])
+                if min_dt >= max_dt:
+                    raise ValueError('Not enough data to calculate diffusivity')
+                timesteps = np.arange(min_dt, max_dt,
+                                      max(int((max_dt - min_dt) / 200), 1))
+            else:
+                (nions, nsteps, dim) = dc_x.shape
+                timesteps = np.arange(0, nsteps)
+
             self.dt = timesteps * self.time_step * self.step_skip
 
             #calculate the smoothed msd values
-            self.s_msd = np.zeros_like(self.dt, dtype=np.double)
-            self.s_msd_components = np.zeros(self.dt.shape + (3,))
-            lengths = np.array(self.s.lattice.abc)[None, None, :]
+            self.msd = np.zeros_like(self.dt, dtype=np.double)
+            self.msd_components = np.zeros(self.dt.shape + (3,))
+            lengths = np.array(self.structure.lattice.abc)[None, None, :]
+            weights = []
             for i, n in enumerate(timesteps):
-                dx = dc_x[:, n:, :] - dc_x[:, :-n, :]
-                self.s_msd[i] = 3 * np.average(dx ** 2)
-                dcomponents = (df_x[:, n:, :] - df_x[:, :-n, :]) * lengths
-                self.s_msd_components[i] = np.average(
+                dx = dc_x[:, n:, :] - dc_x[:, :-n, :] if smoothed \
+                    else dc_x[:, i, :]
+                weights.append(dx.shape[1])
+                self.msd[i] = 3 * np.average(dx ** 2)
+                dcomponents = (df_x[:, n:, :] - df_x[:, :-n, :] if smoothed
+                               else df_x[:, i, :]) * lengths
+                self.msd_components[i] = np.average(
                     np.average(dcomponents ** 2, axis=1), axis=0)
 
             #run the regression on the msd components
-            if weighted:
-                w = 1 / self.dt
+            if weighted and smoothed:
+                w = np.array(weights)
             else:
                 w = np.ones_like(self.dt)
 
@@ -169,17 +182,17 @@ class DiffusionAnalyzer(MSONable):
             a[:, 0] = self.dt
             for i in range(3):
                 (m, c), res, rank, s = weighted_lstsq(
-                    a, self.s_msd_components[:, i], w)
+                    a, self.msd_components[:, i], w)
                 m_components[i] = max(m, 1e-15)
                 m_components_res[i] = res[0]
 
-            (m, c), res, rank, s = weighted_lstsq(a, self.s_msd, w)
+            (m, c), res, rank, s = weighted_lstsq(a, self.msd, w)
             #m shouldn't be negative
             m = max(m, 1e-15)
 
             #factor of 10 is to convert from A^2/fs to cm^2/s
             #factor of 6 is for dimensionality
-            conv_factor = get_conversion_factor(self.s, self.sp,
+            conv_factor = get_conversion_factor(self.structure, self.specie,
                                                 self.temperature)
             self.diffusivity = m / 60
 
@@ -222,18 +235,18 @@ class DiffusionAnalyzer(MSONable):
             "S_components": self.conductivity_components.tolist(),
             "D_components_sigma": self.diffusivity_components_std_dev.tolist(),
             "S_components_sigma": self.conductivity_components_std_dev.tolist(),
-            "specie": str(self.sp),
+            "specie": str(self.specie),
             "step_skip": self.step_skip,
             "time_step": self.time_step,
             "temperature": self.temperature
         }
         if include_msd_t:
-            d["msd"] = self.s_msd.tolist()
-            d["msd_components"] = self.s_msd_components.tolist()
+            d["msd"] = self.msd.tolist()
+            d["msd_components"] = self.msd_components.tolist()
             d["dt"] = self.dt.tolist()
         return d
 
-    def get_smoothed_msd_plot(self, plt=None):
+    def get_smoothed_msd_plot(self, plt=None, smoothed=True):
         """
         Get the plot of the smoothed msd vs time graph. Useful for
         checking convergence. This can be written to an image file.
@@ -244,10 +257,10 @@ class DiffusionAnalyzer(MSONable):
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8, plt=plt)
-        plt.plot(self.dt, self.s_msd, 'k')
-        plt.plot(self.dt, self.s_msd_components[:, 0], 'r')
-        plt.plot(self.dt, self.s_msd_components[:, 1], 'g')
-        plt.plot(self.dt, self.s_msd_components[:, 2], 'b')
+        plt.plot(self.dt, self.msd, 'k')
+        plt.plot(self.dt, self.msd_components[:, 0], 'r')
+        plt.plot(self.dt, self.msd_components[:, 1], 'g')
+        plt.plot(self.dt, self.msd_components[:, 2], 'b')
         plt.legend(["Overall", "a", "b", "c"], loc=2, prop={"size": 20})
         plt.xlabel("Timestep")
         plt.ylabel("MSD")
@@ -403,9 +416,9 @@ class DiffusionAnalyzer(MSONable):
         return {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
-            "structure": self.s.to_dict,
+            "structure": self.structure.to_dict,
             "displacements": self.disp.tolist(),
-            "specie": self.sp,
+            "specie": self.specie,
             "temperature": self.temperature,
             "time_step": self.time_step,
             "step_skip": self.step_skip,
@@ -419,7 +432,7 @@ class DiffusionAnalyzer(MSONable):
         return cls(structure, np.array(d["displacements"]), specie=d["specie"],
                    temperature=d["temperature"], time_step=d["time_step"],
                    step_skip=d["step_skip"], min_obs=d["min_obs"],
-                   weighted=d["weighted"])
+                   weighted=d["weighted"], smoothed=d.get("smoothed", True))
 
 
 def get_conversion_factor(structure, species, temperature):
