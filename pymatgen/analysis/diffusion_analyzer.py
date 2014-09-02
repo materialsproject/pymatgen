@@ -97,10 +97,11 @@ class DiffusionAnalyzer(MSONable):
                 has 10 diffusing atoms, and min_obs = 30, the MSD vs dt will be
                 calculated up to dt = total_run_time / 3, so that each
                 diffusing atom is measured at least 3 uncorrelated times.
+                Only applies in smoothed=True.
             weighted (bool): Uses a weighted least squares to fit the
-                MSD vs dt. Weights are proportional to 1/dt, since the
-                number of observations are also proportional to 1/dt (and
-                hence the variance is proportional to dt)
+                MSD vs dt. Weights are proportional to 1/Var, which is
+                in turn proprotional to number of observations. Only applies
+                in smoothed=True.
         """
         self.structure = structure
         self.disp = displacements
