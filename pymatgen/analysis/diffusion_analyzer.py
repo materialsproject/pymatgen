@@ -23,7 +23,6 @@ __email__ = "wrichard@mit.edu"
 __status__ = "Beta"
 __date__ = "5/2/13"
 
-import math
 
 import numpy as np
 
@@ -162,31 +161,47 @@ class DiffusionAnalyzer(MSONable):
             #weighted least squares
             def weighted_lstsq(a, b, w):
                 w_root = w ** 0.5
-                x, res, rank, s = np.linalg.lstsq(a * w_root[:, None],
-                                                  b * w_root)
-                return x
+                return np.linalg.lstsq(a * w_root[:, None], b * w_root)
 
             m_components = np.zeros(3)
+            m_components_res = np.zeros(3)
             a = np.ones((len(self.dt), 2))
             a[:, 0] = self.dt
             for i in range(3):
-                (m, c) = weighted_lstsq(a, self.s_msd_components[:, i], w)
+                (m, c), res, rank, s = weighted_lstsq(
+                    a, self.s_msd_components[:, i], w)
                 m_components[i] = max(m, 1e-15)
+                m_components_res[i] = res[0]
 
-            (m, c) = weighted_lstsq(a, self.s_msd, w)
+            (m, c), res, rank, s = weighted_lstsq(a, self.s_msd, w)
             #m shouldn't be negative
             m = max(m, 1e-15)
+
 
             #factor of 10 is to convert from A^2/fs to cm^2/s
             #factor of 6 is for dimensionality
             conv_factor = get_conversion_factor(self.s, self.sp,
                                                 self.temperature)
             self.diffusivity = m / 60
+
+            # Calculate the error in the diffusivity using the error in the
+            # slope from the lst sq.
+            # Variance in slope = n * Squared Residuals / (n * Sxx - Sx ** 2).
+            n = len(self.dt)
+            # Pre-compute the denominator since we will use it later.
+            denom = (n * np.sum(self.dt ** 2) - np.sum(self.dt) ** 2)
+
+            self.diffusivity_std_dev = np.sqrt(n * res[0] / denom) / 60
             self.conductivity = self.diffusivity * conv_factor
+            self.conductivity_std_dev = self.diffusivity_std_dev * conv_factor
 
             self.diffusivity_components = m_components / 20
+            self.diffusivity_components_std_dev = np.sqrt(
+                n * m_components_res / denom) / 20
             self.conductivity_components = self.diffusivity_components * \
                 conv_factor
+            self.conductivity_components_std_dev = \
+                self.diffusivity_components_std_dev * conv_factor
 
     def get_summary_dict(self, include_msd_t=False):
         """
