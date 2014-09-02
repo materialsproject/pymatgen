@@ -54,6 +54,7 @@ class VasprunTest(unittest.TestCase):
 
         self.assertEquals(308, totalscsteps,
                           "Incorrect number of energies read from vasprun.xml")
+
         self.assertEquals(['Li'] + 4 * ['Fe'] + 4 * ['P'] + 16 * ["O"],
                           vasprun.atomic_symbols)
         self.assertEquals(vasprun.final_structure.composition.reduced_formula,
