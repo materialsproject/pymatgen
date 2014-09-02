@@ -126,6 +126,7 @@ def qadapter_class(qtype):
     return {"shell": ShellAdapter,
             "slurm": SlurmAdapter,
             "pbs": PbsAdapter,
+            "pbsold": PbsOldAdapter,
             "sge": SGEAdapter,
             }[qtype.lower()]
 
