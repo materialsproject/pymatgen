@@ -966,7 +966,7 @@ class PbsOldAdapter(PbsAdapter):
 ####PBS -l pvmem=$${pvmem}mb
 #PBS -l pmem=$${pmem}mb
 ####PBS -l mppwidth=$${mppwidth}
-#PBS -l nodes=$${nodes}:ppn=$${ppn}  # OLD SYNTAX
+#PBS -l nodes=$${nodes}:ppn=$${ppn} 
 #PBS -M $${mail_user}
 #PBS -m $${mail_type}
 # Submission environment
