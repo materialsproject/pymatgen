@@ -423,7 +423,8 @@ class CompleteDos(Dos):
                         el_dos[orbital_type] = \
                             add_densities(el_dos[orbital_type], pdos)
 
-        return el_dos
+        return {orb: Dos(self.efermi, self.energies, densities)
+                for orb, densities in el_dos.items()}
 
     @classmethod
     def from_dict(cls, d):

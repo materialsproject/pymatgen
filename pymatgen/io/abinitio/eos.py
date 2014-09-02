@@ -84,8 +84,6 @@ def deltafactor_polyfit(volumes, energies):
     deriv2 = np.polyder(deriv1, 1)
     deriv3 = np.polyder(deriv2, 1)
 
-    n = collections.namedtuple("DeltaFitResults", "v0 b0 b1 poly1d")
-
     v0 = 0
     x = 0
     for x in np.roots(deriv1):
@@ -104,6 +102,7 @@ def deltafactor_polyfit(volumes, energies):
     #print('e0, b0, b1, v0')
     #print(fitdata[0], b0, b1, v0)
 
+    n = collections.namedtuple("DeltaFitResults", "v0 b0 b1 poly1d")
     return n(v0, b0, b1, fitdata[0])
 
 
