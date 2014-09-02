@@ -772,39 +772,6 @@ class SlurmAdapter(AbstractQueueAdapter):
 
         return None
 
-class PbsOldAdapter(PbsAdapter):
-
-    QTYPE = "pbsold"
-
-    QTEMPLATE = """\
-#!/bin/bash
-
-#PBS -A $${account}
-#PBS -N $${job_name}
-#PBS -l walltime=$${walltime}
-#PBS -q $${queue}
-#PBS -l model=$${model}
-#PBS -l place=$${place}
-#PBS -W group_list=$${group_list}
-####PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads} # New syntax
-####PBS -l pvmem=$${pvmem}mb
-#PBS -l pmem=$${pmem}mb
-####PBS -l mppwidth=$${mppwidth}
-#PBS -l nodes=$${nodes}:ppn=$${ppn}  # OLD SYNTAX
-#PBS -M $${mail_user}
-#PBS -m $${mail_type}
-# Submission environment
-#PBS -V
-#PBS -o $${_qout_path}
-#PBS -e $${_qerr_path}
-"""
-
-    def set_mem_per_cpu(self, mem_mb):
-        """Set the memory per CPU in Megabytes"""
-
-        self.qparams["pmem"] = mem_mb
-        self.qparams["mem"] = mem_mb
-
 
 class PbsAdapter(AbstractQueueAdapter):
     QTYPE = "pbs"
@@ -979,6 +946,39 @@ class PbsAdapter(AbstractQueueAdapter):
         else:
             return False
 
+
+class PbsOldAdapter(PbsAdapter):
+
+    QTYPE = "pbsold"
+
+    QTEMPLATE = """\
+#!/bin/bash
+
+#PBS -A $${account}
+#PBS -N $${job_name}
+#PBS -l walltime=$${walltime}
+#PBS -q $${queue}
+#PBS -l model=$${model}
+#PBS -l place=$${place}
+#PBS -W group_list=$${group_list}
+####PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads} # New syntax
+####PBS -l pvmem=$${pvmem}mb
+#PBS -l pmem=$${pmem}mb
+####PBS -l mppwidth=$${mppwidth}
+#PBS -l nodes=$${nodes}:ppn=$${ppn}  # OLD SYNTAX
+#PBS -M $${mail_user}
+#PBS -m $${mail_type}
+# Submission environment
+#PBS -V
+#PBS -o $${_qout_path}
+#PBS -e $${_qerr_path}
+"""
+
+    def set_mem_per_cpu(self, mem_mb):
+        """Set the memory per CPU in Megabytes"""
+
+        self.qparams["pmem"] = mem_mb
+        self.qparams["mem"] = mem_mb
 
 class SGEAdapter(AbstractQueueAdapter):
     """
