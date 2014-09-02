@@ -54,6 +54,7 @@ class VasprunTest(unittest.TestCase):
 
         self.assertEquals(308, totalscsteps,
                           "Incorrect number of energies read from vasprun.xml")
+
         self.assertEquals(['Li'] + 4 * ['Fe'] + 4 * ['P'] + 16 * ["O"],
                           vasprun.atomic_symbols)
         self.assertEquals(vasprun.final_structure.composition.reduced_formula,
@@ -125,11 +126,16 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][0], 3.26105533)
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][1], -0.00459066)
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[2][2], 3.24330517)
+        self.assertTrue(vasprun_dfpt.converged)
 
         entry = vasprun_dfpt.get_computed_entry()
         entry = MaterialsProjectCompatibility().process_entry(entry)
         self.assertAlmostEqual(entry.uncorrected_energy + entry.correction,
                                entry.energy)
+
+        filepath = os.path.join(test_dir, 'vasprun.xml.dfpt.unconverged')
+        vasprun_dfpt_unconv = Vasprun(filepath)
+        self.assertFalse(vasprun_dfpt_unconv.converged)
 
         vasprun_uniform = Vasprun(os.path.join(test_dir, "vasprun.xml.uniform"))
         self.assertEqual(vasprun_uniform.kpoints.style, "Reciprocal")
