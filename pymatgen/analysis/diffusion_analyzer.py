@@ -177,7 +177,6 @@ class DiffusionAnalyzer(MSONable):
             #m shouldn't be negative
             m = max(m, 1e-15)
 
-
             #factor of 10 is to convert from A^2/fs to cm^2/s
             #factor of 6 is for dimensionality
             conv_factor = get_conversion_factor(self.s, self.sp,
@@ -341,8 +340,8 @@ class DiffusionAnalyzer(MSONable):
         time_step = vaspruns[0].parameters['POTIM']
 
         return cls.from_structures(structures, specie, temperature,
-                   time_step, step_skip=step_skip, min_obs=min_obs,
-                   weighted=weighted)
+            time_step, step_skip=step_skip, min_obs=min_obs,
+            weighted=weighted)
 
     @classmethod
     def from_files(cls, filepaths, specie, step_skip=10, min_obs=30,
@@ -444,8 +443,8 @@ def get_conversion_factor(structure, species, temperature):
 
     n = structure.composition[species]
 
-    V = structure.volume * 1e-24  # units cm^3
-    return 1000 * n / (V * phyc.N_a) * z ** 2 * phyc.F ** 2\
+    vol = structure.volume * 1e-24  # units cm^3
+    return 1000 * n / (vol * phyc.N_a) * z ** 2 * phyc.F ** 2\
         / (phyc.R * temperature)
 
 
@@ -454,6 +453,7 @@ def _get_vasprun(args):
     Internal method to support multiprocessing.
     """
     return Vasprun(args[0], ionic_step_skip=args[1])
+
 
 def fit_arrhenius(temps, diffusivities):
     """
@@ -468,8 +468,8 @@ def fit_arrhenius(temps, diffusivities):
     t_1 = 1 / np.array(temps)
     logd = np.log(diffusivities)
     #Do a least squares regression of log(D) vs 1/T
-    A = np.array([t_1, np.ones(len(temps))]).T
-    w = np.array(np.linalg.lstsq(A, logd)[0])
+    a = np.array([t_1, np.ones(len(temps))]).T
+    w = np.array(np.linalg.lstsq(a, logd)[0])
     return -w[0] * phyc.k_b / phyc.e, np.exp(w[1])
     
 
