@@ -49,15 +49,34 @@ class DiffusionAnalyzer(MSONable):
 
         A vector with diffusivity in the a, b and c directions in cm^2 / cm
 
-    .. attribute: conductivity components
+    .. attribute: conductivity_components
 
         A vector with conductivity in the a, b and c directions in mS / cm
+
+    .. attribute: diffusivity_sigma
+
+        Std dev in diffusivity in cm^2 / cm. Note that this makes sense only
+        for non-smoothed analyses.
+
+    .. attribute: conductivity_sigma
+
+        Std dev in conductivity in mS / cm. Note that this makes sense only
+        for non-smoothed analyses.
+
+    .. attribute: diffusivity_components_sigma
+
+        A vector with std dev. in diffusivity in the a, b and c directions in
+        cm^2 / cm. Note that this makes sense only for non-smoothed analyses.
+
+    .. attribute: conductivity_components_sigma
+
+        A vector with std dev. in conductivity in the a, b and c directions
+        in mS / cm. Note that this makes sense only for non-smoothed analyses.
 
     .. attribute: max_framework_displacement
 
         The maximum (drift adjusted) distance of any framework atom from its
-        starting location in A
-
+        starting location in A.
     """
 
     def __init__(self, structure, displacements, specie, temperature,
@@ -239,7 +258,8 @@ class DiffusionAnalyzer(MSONable):
             "specie": str(self.specie),
             "step_skip": self.step_skip,
             "time_step": self.time_step,
-            "temperature": self.temperature
+            "temperature": self.temperature,
+            "max_framework_displacement": self.max_framework_displacement
         }
         if include_msd_t:
             d["msd"] = self.msd.tolist()
