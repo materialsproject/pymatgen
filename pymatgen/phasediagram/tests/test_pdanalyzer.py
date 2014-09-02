@@ -72,7 +72,7 @@ class PDAnalyzerTest(unittest.TestCase):
         self.assertEqual(len(self.analyzer.get_chempot_range_map(elements)), 10)
 
     def test_getmu_vertices_stability_phase(self):
-        results = self.analyzer.getmu_vertices_stability_phase(Composition.from_formula("LiFeO2"), Element("O"))
+        results = self.analyzer.getmu_vertices_stability_phase(Composition("LiFeO2"), Element("O"))
         self.assertAlmostEqual(len(results), 6)
         test_equality = False
         for c in results:

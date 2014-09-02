@@ -509,13 +509,33 @@ a new calculated material can be determined::
    plotter = PDPlotter(pd)
    plotter.show()
 
+The query method
+~~~~~~~~~~~~~~~~
+
+For the most flexibility, you can also use the query method of the MPRester.
+This method allows any kind of mongo query to be performed on the Materials
+Project database. It also supports a simple string syntax with wild cards.
+Examples are given below::
+
+   from pymatgen.matproj.rest import MPRester
+
+   with MPRester("USER_API_KEY") as m:
+
+       # Get all energies of materials with formula "*2O".
+       results = m.query("*2O", ['energy'])
+
+       # Get the formulas and energies of materials with materials_id mp-1234
+       # or with formula FeO.
+       results = m.query("FeO mp-1234", ['pretty_formula', 'energy'])
+
+       # Get all compounds of the form ABO3
+       results = m.query("**O3", ['pretty_formula', 'energy'])
+
 Setting the MAPI_KEY environment variable
 -----------------------------------------
 
-.. versionadded:: 2.3.2
-
-With effect from version 2.3.2, MPRester now supports an alternative method
-of setting the API key via the MAPI_KEY environment variable. Simply add::
+MPRester supports an alternative method of setting the API key via the
+MAPI_KEY environment variable. Simply add::
 
     export MAPI_KEY="USER_API_KEY"
 
