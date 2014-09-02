@@ -850,8 +850,8 @@ class Kpoints(MSONable):
         ngrid = kppa / structure.num_sites
 
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
-        num_div = [int(round(mult / l)) for l in lengths]
 
+        num_div = [int(np.ceil(mult / l)) for l in lengths]
         #ensure that numDiv[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
 
