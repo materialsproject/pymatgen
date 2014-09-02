@@ -440,6 +440,23 @@ def _get_vasprun(args):
     """
     return Vasprun(args[0], ionic_step_skip=args[1])
 
+def fit_arrhenius(temps, diffusivities):
+    """
+    Returns Ea and c from the Arrhenius fit:
+        D = c * exp(-Ea/kT)
+
+    Args:
+        temps ([float]): A sequence of temperatures. units: K
+        diffusivities ([float]): A sequence of diffusivities (e.g.,
+            from DiffusionAnalyzer.diffusivity). units: cm^2/s
+    """
+    t_1 = 1 / np.array(temps)
+    logd = np.log(diffusivities)
+    #Do a least squares regression of log(D) vs 1/T
+    A = np.array([t_1, np.ones(len(temps))]).T
+    w = np.array(np.linalg.lstsq(A, logd)[0])
+    return -w[0] * phyc.k_b / phyc.e, np.exp(w[1])
+    
 
 def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
     """
@@ -454,12 +471,8 @@ def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
     Returns:
         (float) Diffusivity at extrapolated temp in mS/cm.
     """
-    t_1 = 1000 / np.array(temps)
-    logd = np.log10(diffusivities)
-    #Do a least squares regression of log(D) vs 1000/T
-    A = np.array([t_1, np.ones(len(temps))]).T
-    w = np.array(np.linalg.lstsq(A, logd)[0])
-    return 10 ** (w[0] * 1000 / new_temp + w[1])
+    Ea, c = fit_arrhenius(temps, diffusivities)
+    return c * np.exp(-Ea / (phyc.k_b / phyc.e * new_temp))
 
 
 def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
@@ -496,22 +509,21 @@ def get_arrhenius_plot(temps, diffusivities, **kwargs):
     Returns:
         A matplotlib.pyplot object. Do plt.show() to show the plot.
     """
-    t_1 = 1000 / np.array(temps)
-    logd = np.log10(diffusivities)
-    #Do a least squares regression of log(D) vs 1000/T
-    A = np.array([t_1, np.ones(len(temps))]).T
-    w = np.array(np.linalg.lstsq(A, logd)[0])
+    Ea, c = fit_arrhenius(temps, diffusivities)
+
     from pymatgen.util.plotting_utils import get_publication_quality_plot
     plt = get_publication_quality_plot(12, 8)
-    plt.plot(t_1, logd, 'ko', t_1, np.dot(A, w), 'k--', markersize=10,
+
+    #log10 of the arrhenius fit
+    arr = np.log10(c) + np.log10(np.e)*(-Ea / (phyc.k_b / phyc.e * temps))
+
+    t_1 = 1000 / np.array(temps)
+    logd = np.log10(diffusivities)
+
+    plt.plot(t_1, logd, 'ko', t_1, arr, 'k--', markersize=10,
              **kwargs)
-    # Calculate the activation energy in meV = negative of the slope,
-    # * kB (/ electron charge to convert to eV), * 1000 (inv. temperature
-    # scale), * 1000 (eV -> meV), * math.log(10) (the regression is carried
-    # out in base 10 for easier reading of the diffusivity scale,
-    # but the Arrhenius relationship is in base e).
-    actv_energy = - w[0] * phyc.k_b / phyc.e * 1e6 * math.log(10)
-    plt.text(0.6, 0.85, "E$_a$ = {:.0f} meV".format(actv_energy),
+
+    plt.text(0.6, 0.85, "E$_a$ = {:.0f} meV".format(Ea * 1000),
              fontsize=30, transform=plt.axes().transAxes)
     plt.ylabel("log(D (cm$^2$/s))")
     plt.xlabel("1000/T (K$^{-1}$)")

@@ -10,6 +10,7 @@ import tempfile
 import numpy.testing.utils as nptu
 from pymatgen.core.structure import Structure
 
+
 class PymatgenTest(unittest.TestCase):
     """
     Extends unittest.TestCase with functions (taken from numpy.testing.utils)

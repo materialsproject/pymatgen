@@ -305,7 +305,7 @@ class Vasprun(object):
         self.projected_eigenvalues = None
         ionic_steps = []
         parsed_header = False
-        for event, elem in iterparse(stream, events=("end", )):
+        for event, elem in iterparse(stream):
             tag = elem.tag
             if not parsed_header:
                 if tag == "generator":
@@ -369,8 +369,14 @@ class Vasprun(object):
         the final electronic convergence as well as whether the number of
         ionic steps is equal to the NSW setting.
         """
-        if len(self.ionic_steps[-1]["electronic_steps"]) == \
-                self.parameters["NELM"]:
+        final_esteps = self.ionic_steps[-1]["electronic_steps"]
+        if 'LEPSILON' in self.incar and self.incar['LEPSILON']:
+            i = 1
+            to_check = set(['e_wo_entrp', 'e_fr_energy', 'e_0_energy'])
+            while set(final_esteps[i].keys()) == to_check:
+                i += 1
+            return i + 1 != self.parameters["NELM"]
+        if len(final_esteps) == self.parameters["NELM"]:
             return False
         nsw = self.parameters.get("NSW", 0)
         return len(self.ionic_steps) < nsw or nsw < 1
@@ -444,7 +450,7 @@ class Vasprun(object):
         """
         True if run is spin-polarized.
         """
-        return True if self.parameters.get("ISPIN", 1) == 2 else False
+        return self.parameters.get("ISPIN", 1) == 2
 
     def get_computed_entry(self, inc_structure=False, parameters=None,
                            data=None):

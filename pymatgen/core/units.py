@@ -276,7 +276,7 @@ class Unit(collections.Mapping):
         factor = ofactor / nfactor
         for uo, un in zip(units_old, units_new):
             if uo[1] != un[1]:
-                raise UnitError("Units are not compatible!")
+                raise UnitError("Units %s and %s are not compatible!" % (uo, un))
             c = ALL_UNITS[_UNAME2UTYPE[uo[0]]]
             factor *= (c[uo[0]] / c[un[0]]) ** uo[1]
         return factor

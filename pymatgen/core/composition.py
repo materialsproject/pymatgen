@@ -80,7 +80,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
                         "HO": "H2O2", "CsO": "Cs2O2", "RbO": "Rb2O2",
                         "O": "O2",  "N": "N2", "Cl": "Cl2", "H": "H2"}
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs): #allow_negative=False
         """
         Very flexible Composition construction, similar to the built-in Python
         dict(). Also extended to allow simple string init.
@@ -99,19 +99,24 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
 
             In addition, the Composition constructor also allows a single
             string as an input formula. E.g., Composition("Li2O").
+
+            allow_negative: Whether to allow negative compositions. This
+                argument must be popped from the \*\*kwargs due to \*args
+                ambiguity.
         """
+        self.allow_negative = kwargs.pop('allow_negative', False)
         if len(args) == 1 and isinstance(args[0], basestring):
             elmap = self._parse_formula(args[0])
         else:
             elmap = dict(*args, **kwargs)
         for k, v in elmap.items():
-            if v < -Composition.amount_tolerance:
+            if v < -Composition.amount_tolerance and not self.allow_negative:
                 raise CompositionError("Amounts in Composition cannot be "
                                        "negative!")
-            elif v < Composition.amount_tolerance:
+            elif abs(v) < Composition.amount_tolerance:
                 del elmap[k]
         self._elmap = {get_el_sp(k): v for k, v in elmap.items()}
-        self._natoms = sum(self._elmap.values())
+        self._natoms = sum(map(abs, self._elmap.values()))
 
     def __getitem__(self, el):
         """
@@ -149,7 +154,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         new_el_map.update(self)
         for k, v in other.iteritems():
             new_el_map[get_el_sp(k)] += v
-        return Composition(new_el_map)
+        return Composition(new_el_map, allow_negative=self.allow_negative)
 
     def __sub__(self, other):
         """
@@ -164,7 +169,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         new_el_map.update(self)
         for k, v in other.iteritems():
             new_el_map[get_el_sp(k)] -= v
-        return Composition(new_el_map)
+        return Composition(new_el_map, allow_negative=self.allow_negative)
 
     def __mul__(self, other):
         """
@@ -173,12 +178,14 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         if not isinstance(other, (int, float)):
             raise ValueError("Multiplication can only be done for int/floats!")
-        return Composition({el: self[el] * other for el in self})
+        return Composition({el: self[el] * other for el in self},
+                           allow_negative=self.allow_negative)
 
     def __truediv__(self, other):
         if not isinstance(other, (int, float)):
             raise ValueError("Division can only be done for int/floats!")
-        return Composition({el: self[el] / other for el in self})
+        return Composition({el: self[el] / other for el in self},
+                           allow_negative=self.allow_negative)
 
     def __rmul__(self, other):
         """
@@ -186,9 +193,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         the reflected multiplication, e.g.,
         4 * Fe2O3 -> Fe8O12
         """
-        if not isinstance(other, (int, float)):
-            raise ValueError("Multiplication can only be done for int/floats!")
-        return Composition({el: self[el] * other for el in self})
+        return self.__mul__(other)
 
     def __hash__(self):
         """
@@ -211,7 +216,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
 
     @property
     def average_electroneg(self):
-        return sum((el.X * amt for el, amt in self._elmap.items())) / \
+        return sum((el.X * abs(amt) for el, amt in self._elmap.items())) / \
             self.num_atoms
 
     def almost_equals(self, other, rtol=0.1, atol=1e-8):
@@ -240,7 +245,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         return len(self._elmap) == 1
 
     def copy(self):
-        return Composition(self._elmap)
+        return Composition(self._elmap, allow_negative=self.allow_negative)
 
     @property
     def formula(self):
@@ -270,7 +275,8 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         Returns the composition replacing any species by the corresponding
         element.
         """
-        return Composition(self.get_el_amt_dict())
+        return Composition(self.get_el_amt_dict(),
+                           allow_negative=self.allow_negative)
 
     @property
     def fractional_composition(self):
@@ -301,8 +307,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             Li4Fe4P4O16 returns (Composition("LiFePO4"), 4).
         """
         factor = self.get_reduced_formula_and_factor()[1]
-        reduced_comp = Composition({el: self[el] / factor for el in self})
-        return reduced_comp, factor
+        return self / factor, factor
 
     def get_reduced_formula_and_factor(self):
         """
@@ -358,7 +363,8 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
     @property
     def num_atoms(self):
         """
-        Total number of atoms in Composition
+        Total number of atoms in Composition. For negative amounts, sum
+        of absolute values
         """
         return self._natoms
 
@@ -381,7 +387,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         Returns:
             Atomic fraction for element el in Composition
         """
-        return self[el] / self._natoms
+        return abs(self[el]) / self._natoms
 
     def get_wt_fraction(self, el):
         """
@@ -393,7 +399,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         Returns:
             Weight fraction for element el in Composition
         """
-        return get_el_sp(el).atomic_mass * self[el] / self.weight
+        return get_el_sp(el).atomic_mass * abs(self[el]) / self.weight
 
     def _parse_formula(self, formula):
         """
@@ -405,7 +411,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         def get_sym_dict(f, factor):
             sym_dict = collections.defaultdict(float)
-            for m in re.finditer(r"([A-Z][a-z]*)([\.\d]*)", f):
+            for m in re.finditer(r"([A-Z][a-z]*)([-*\.\d]*)", f):
                 el = m.group(1)
                 amt = 1
                 if m.group(2).strip() != "":
@@ -735,13 +741,13 @@ def reduce_formula(sym_amt):
     syms = sorted(sym_amt.keys(),
                   key=lambda s: get_el_sp(s).X)
 
-    syms = filter(lambda s: sym_amt[s] > Composition.amount_tolerance, syms)
+    syms = filter(lambda s: abs(sym_amt[s]) > Composition.amount_tolerance, syms)
     num_el = len(syms)
     contains_polyanion = (num_el >= 3 and
                           get_el_sp(syms[num_el - 1]).X
                           - get_el_sp(syms[num_el - 2]).X < 1.65)
 
-    factor = reduce(gcd, sym_amt.values())
+    factor = abs(reduce(gcd, sym_amt.values()))
     reduced_form = []
     n = num_el - 2 if contains_polyanion else num_el
     for i in range(0, n):
