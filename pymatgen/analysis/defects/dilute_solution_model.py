@@ -49,36 +49,36 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         trial_chem_pot = None, generate='plot'):
 
     """
-    Compute the defect densities for a structure based on the input parameters
-    using dilute solution model.
+    Compute the defect densities using dilute solution model.
+
     Args:
-        structure:
-            pymatgen.core.structure.Structure object representing the
+        structure: pymatgen.core.structure.Structure object representing the
             primitive or unitcell of the crystal.
-        e0:
-            The total energy of the undefected system.
+        e0: The total energy of the undefected system.
             This is E0 from VASP calculation.
-        vac_defs:
-            List of vacancy defect parameters in the dictionary format.
+        vac_defs: List of vacancy defect parameters in the dictionary format.
             The keys of the dict associated with each vacancy defect are
             1) site_index, 2) site_specie, 3) site_multiplicity, and
             4) energy. 1-3 can be obtained from
             pymatgen.analysis.defects.point_defects.Vacancy class.
             Site index is expected to start with 1 (fortran index).
-        antisite_defs:
-            List of antisite defect parameters in the dictionary format.
-            The keys of the dict associated with each antisite defect are
-            1) site_index, 2) site_specie, 3) site_multiplicity,
+        antisite_defs: List of antisite defect parameters in the dictionary 
+            format. The keys of the dict associated with each antisite defect 
+            are 1) site_index, 2) site_specie, 3) site_multiplicity,
             4) substitution_specie, and 5) energy. 1-3 can be obtained
             from pymatgen.analysis.defects.point_defects.Vacancy class.
-        T:
-            Temperature in Kelvin
-        trial_chem_pot:
-            Trial chemical potentials to speedup the plot generation
-            Format is {el1:mu1,...}
+        T: Temperature in Kelvin
+        trial_chem_pot (optional): Trial chemical potentials to speedup 
+            the plot generation. Format is {el1:mu1,...}
         generate (string): Options are plot or energy
             Chemical potentials are also returned with energy option.
             If energy option is not chosen, plot is generated.
+
+    Returns:
+        If generate=plot, the plot data is generated and returned in 
+        HighCharts format. 
+        If generate=energy, defect formation enthalpies and chemical
+        potentials are returned.
     """
 
     if not check_input(vac_defs):
@@ -458,16 +458,34 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
 def compute_defect_density(structure, e0, vac_defs, antisite_defs, T=800,
         trial_chem_pot=None, plot_style="HighCharts"):
     """
-    Wrapper for the dilute_solution_model where the computed plot data is 
-    prepared based on plot_style. Only "HighCharts" is supported at this point
+    Wrapper for the dilute_solution_model. 
+    
+    The computed plot data is prepared based on plot_style. 
+    Only "HighCharts" is supported at this point
 
-    :param structure:
-    :param e0:
-    :param vac_defs:
-    :param antisite_defs:
-    :param T:
-    :param plot_style:
-    :return:
+    Args:
+        structure: pymatgen.core.structure.Structure object representing the
+            primitive or unitcell of the crystal.
+        e0: The total energy of the undefected system.
+            This is E0 from VASP calculation.
+        vac_defs: List of vacancy defect parameters in the dictionary format.
+            The keys of the dict associated with each vacancy defect are
+            1) site_index, 2) site_specie, 3) site_multiplicity, and
+            4) energy. 1-3 can be obtained from
+            pymatgen.analysis.defects.point_defects.Vacancy class.
+            Site index is expected to start with 1 (fortran index).
+        antisite_defs: List of antisite defect parameters in the dictionary 
+            format. The keys of the dict associated with each antisite defect 
+            are 1) site_index, 2) site_specie, 3) site_multiplicity,
+            4) substitution_specie, and 5) energy. 1-3 can be obtained
+            from pymatgen.analysis.defects.point_defects.Vacancy class.
+        T: Temperature in Kelvin
+        trial_chem_pot (optional): Trial chemical potentials to speedup 
+            the plot generation. Format is {el1:mu1,...}
+        plot_style (string): Only option and default is HighCharts
+
+    Returns:
+        The plot data is generated and returned in HighCharts format. 
     """
     plot_data = dilute_solution_model(structure,e0,vac_defs,antisite_defs,T,
             trial_chem_pot=trial_chem_pot)
@@ -494,49 +512,42 @@ def compute_defect_density(structure, e0, vac_defs, antisite_defs, T=800,
         return hgh_chrt_data
 
 
-#solute_site_preference_finder is based on dilute_solution_model and so most of the code
-#is same. However differences exist in setting up and processing hence new function
+#solute_site_preference_finder is based on dilute_solution_model and so most 
+#of the code is same. However differences exist in setting up and processing 
+#hence new function
 @requires(sympy_found,
             "comute_defect_density requires Sympy module. Please install it.")
 def solute_site_preference_finder(
         structure, e0, T, vac_defs, antisite_defs,  solute_defs,
-        solute_concen=0.01, trial_chem_pot = None, generate='plot'):
+        solute_concen=0.01, trial_chem_pot = None):
 
     """
-    Compute the defect densities for a structure with solute based on the input parameters
-    using dilute solution model.
+    Compute the solute defect densities using dilute solution model.
     Args:
-        structure:
-            pymatgen.core.structure.Structure object representing the
+        structure: pymatgen.core.structure.Structure object representing the
             primitive or unitcell of the crystal.
-        e0:
-            The total energy of the undefected system.
+        e0: The total energy of the undefected system.
             This is E0 from VASP calculation.
-        vac_defs:
-            List of vacancy defect parameters in the dictionary format.
+        vac_defs: List of vacancy defect parameters in the dictionary format.
             The keys of the dict associated with each vacancy defect are
             1) site_index, 2) site_specie, 3) site_multiplicity, and
             4) energy. 1-3 can be obtained from
             pymatgen.analysis.defects.point_defects.Vacancy class.
             Site index is expected to start with 1 (fortran index).
-        antisite_defs:
-            List of antisite defect parameters in the dictionary format.
-            The keys of the dict associated with each antisite defect are
-            1) site_index, 2) site_specie, 3) site_multiplicity,
+        antisite_defs: List of antisite defect parameters in the dictionary 
+            format. The keys of the dict associated with each antisite 
+            defect are 1) site_index, 2) site_specie, 3) site_multiplicity,
             4) substitution_specie, and 5) energy. 1-3 can be obtained
             from pymatgen.analysis.defects.point_defects.Vacancy class.
-        solute_defs:
-            List of solute defect parameters in the dictionary format.
-            Similary to that of antisite defs, wtih solute specie
+        solute_defs: List of solute defect parameters in the dictionary 
+            format. Similary to that of antisite defs, wtih solute specie
             specified in substitution_specie
-        T:
-            Temperature in Kelvin
-        trial_chem_pot:
-            Trial chemical potentials to speedup the plot generation
-            Format is {el1:mu1,...}
-        generate (string): Options are plot or energy
-            Chemical potentials are also returned with energy option.
-            If energy option is not chosen, plot is generated.
+        T: Temperature in Kelvin
+        trial_chem_pot: Trial chemical potentials to speedup the plot 
+            generation. Format is {el1:mu1,...}
+
+    Returns:
+        plot_data: The data for plotting the solute defect concentration.
     """
 
     if not check_input(vac_defs):
@@ -722,7 +733,8 @@ def solute_site_preference_finder(
                 new_c0[i,i] = host_concen*c0[i,i]
             new_c0[n,n] = 2*solute_concen
             omega = [
-                e0-sum([mu[site_mu_map[i]]*sum(new_c0[i,:]) for i in range(n+1)])]
+                e0-sum([mu[site_mu_map[i]]*sum(new_c0[i,:]) 
+                    for i in range(n+1)])]
             x = solve(omega)
             return x
 
@@ -784,11 +796,6 @@ def solute_site_preference_finder(
         except:
             mu_vals = compute_mus()
     print (mu_vals, mu_vals)
-
-    #if generate == 'energy':
-    #    formation_energies = compute_def_formation_energies()
-    #    mu_dict = dict(zip(specie_order,mu_vals))
-    #    return formation_energies, mu_dict
 
 
     # Compute ymax
@@ -859,7 +866,6 @@ def solute_site_preference_finder(
     dtype = [('x',np.float64)]+[('y'+str(i)+str(j),np.float64) \
             for i in range(n+1) for j in range(n)]
     res1 = np.sort(res.view(dtype),order=['x'],axis=0)
-
 
     conc = []
     for i in range(n+1):
