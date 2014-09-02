@@ -215,9 +215,13 @@ class DiffusionAnalyzer(MSONable):
         """
         d = {
             "D": self.diffusivity,
+            "D_sigma": self.diffusivity_std_dev,
             "S": self.conductivity,
+            "S_sigma": self.conductivity_std_dev,
             "D_components": self.diffusivity_components.tolist(),
             "S_components": self.conductivity_components.tolist(),
+            "D_components_sigma": self.diffusivity_components_std_dev.tolist(),
+            "S_components_sigma": self.conductivity_components_std_dev.tolist(),
             "specie": str(self.sp),
             "step_skip": self.step_skip,
             "time_step": self.time_step,
@@ -510,7 +514,8 @@ def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
         * get_conversion_factor(structure, species, new_temp)
 
 
-def get_arrhenius_plot(temps, diffusivities, **kwargs):
+def get_arrhenius_plot(temps, diffusivities, diffusivity_errors=None,
+                       **kwargs):
     """
     Returns an Arrhenius plot.
 
@@ -518,6 +523,8 @@ def get_arrhenius_plot(temps, diffusivities, **kwargs):
         temps ([float]): A sequence of temperatures.
         diffusivities ([float]): A sequence of diffusivities (e.g.,
             from DiffusionAnalyzer.diffusivity).
+        diffusivity_errors ([float]): A sequence of errors for the
+            diffusivities. If None, no error bar is plotted.
         \*\*kwargs:
             Any keyword args supported by matplotlib.pyplot.plot.
 
@@ -530,17 +537,22 @@ def get_arrhenius_plot(temps, diffusivities, **kwargs):
     plt = get_publication_quality_plot(12, 8)
 
     #log10 of the arrhenius fit
-    arr = np.log10(c) + np.log10(np.e)*(-Ea / (phyc.k_b / phyc.e * temps))
+    arr = c * np.exp(-Ea / (phyc.k_b / phyc.e *
+                                               np.array(temps)))
 
     t_1 = 1000 / np.array(temps)
-    logd = np.log10(diffusivities)
 
-    plt.plot(t_1, logd, 'ko', t_1, arr, 'k--', markersize=10,
+    plt.plot(t_1, diffusivities, 'ko', t_1, arr, 'k--', markersize=10,
              **kwargs)
-
+    if diffusivity_errors is not None:
+        n = len(diffusivity_errors)
+        plt.errorbar(t_1[0:n], diffusivities[0:n], yerr=diffusivity_errors,
+                     fmt='ko', ecolor='k', capthick=2, linewidth=2)
+    ax = plt.axes()
+    ax.set_yscale('log')
     plt.text(0.6, 0.85, "E$_a$ = {:.0f} meV".format(Ea * 1000),
              fontsize=30, transform=plt.axes().transAxes)
-    plt.ylabel("log(D (cm$^2$/s))")
+    plt.ylabel("D (cm$^2$/s)")
     plt.xlabel("1000/T (K$^{-1}$)")
     plt.tight_layout()
     return plt
