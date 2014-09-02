@@ -18,7 +18,8 @@ import json
 import numpy as np
 
 from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer,\
-    get_conversion_factor
+    get_conversion_factor, fit_arrhenius
+import pymatgen.core.physical_constants as phyc
 from pymatgen.io.smartio import read_structure
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -32,6 +33,16 @@ class FuncTest(unittest.TestCase):
         s = read_structure(filepath)
         self.assertAlmostEqual(41370704.1173,
                                get_conversion_factor(s, "Li", 600), 4)
+
+    def test_fit_arrhenius(self):
+        Ea = 0.5
+        k = phyc.k_b / phyc.e
+        c = 12
+        temps = np.array([300, 1000, 500])
+        diffusivities = c * np.exp(-Ea/(k * temps))
+        r = fit_arrhenius(temps, diffusivities)
+        self.assertAlmostEqual(r[0], Ea)
+        self.assertAlmostEqual(r[1], c)
 
 
 class DiffusionAnalyzerTest(unittest.TestCase):
