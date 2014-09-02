@@ -81,6 +81,17 @@ class DiffusionAnalyzerTest(PymatgenTest):
             #Ensure summary dict is json serializable.
             json.dumps(d.get_summary_dict(include_msd_t=True))
 
+            d = DiffusionAnalyzer(d.structure, d.disp, d.specie, d.temperature,
+                                  d.time_step, d.step_skip, smoothed=True,
+                                  weighted=True)
+            self.assertAlmostEqual(d.conductivity, 73.1928059219, 7)
+            self.assertAlmostEqual(d.diffusivity, 1.14606446822e-06, 7)
+
+            d = DiffusionAnalyzer(d.structure, d.disp, d.specie, d.temperature,
+                                  d.time_step, d.step_skip, smoothed=False)
+            self.assertAlmostEqual(d.conductivity, 27.2047915553, 7)
+            self.assertAlmostEqual(d.diffusivity, 4.25976905436e-07, 7)
+
 
 if __name__ == '__main__':
     unittest.main()
