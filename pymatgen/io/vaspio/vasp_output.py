@@ -379,7 +379,7 @@ class Vasprun(object):
         if len(final_esteps) == self.parameters["NELM"]:
             return False
         nsw = self.parameters.get("NSW", 0)
-        return len(self.ionic_steps) < nsw or nsw <= 1
+        return len(self.ionic_steps) < nsw or nsw < 1
 
     @property
     @unitized("eV")
