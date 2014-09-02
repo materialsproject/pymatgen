@@ -114,9 +114,12 @@ class MPResterTest(unittest.TestCase):
 
     def test_query(self):
         criteria = {'elements': {'$in': ['Li', 'Na', 'K'], '$all': ['O']}}
-        props = ['formula', 'energy']
+        props = ['pretty_formula', 'energy']
         data = self.rester.query(criteria=criteria, properties=props)
         self.assertTrue(len(data) > 6)
+        data = self.rester.query(criteria="*2O", properties=props)
+        self.assertGreaterEqual(len(data), 52)
+        self.assertIn("Li2O", (d["pretty_formula"] for d in data))
 
     def test_get_exp_thermo_data(self):
         data = self.rester.get_exp_thermo_data("Fe2O3")
@@ -194,6 +197,25 @@ class MPResterTest(unittest.TestCase):
     def test_get_reaction(self):
         rxn = self.rester.get_reaction(["Li", "O"], ["Li2O"])
         self.assertIn("Li2O", rxn["Experimental_references"])
+
+    def test_parse_criteria(self):
+        crit = MPRester.parse_criteria("mp-1234 Li-*")
+        self.assertIn("Li-O", crit["$or"][1]["chemsys"]["$in"])
+        self.assertIn({"task_id": "mp-1234"}, crit["$or"])
+
+        crit = MPRester.parse_criteria("Li2*")
+        self.assertIn("Li2O", crit["pretty_formula"]["$in"])
+        self.assertIn("Li2I", crit["pretty_formula"]["$in"])
+        self.assertIn("CsLi2", crit["pretty_formula"]["$in"])
+
+        crit = MPRester.parse_criteria("Li-*-*")
+        self.assertIn("Li-Re-Ru", crit["chemsys"]["$in"])
+        self.assertNotIn("Li-Li", crit["chemsys"]["$in"])
+
+        comps = MPRester.parse_criteria("**O3")["pretty_formula"]["$in"]
+        for c in comps:
+            self.assertEqual(len(Composition(c)), 3)
+
 
 if __name__ == "__main__":
     unittest.main()

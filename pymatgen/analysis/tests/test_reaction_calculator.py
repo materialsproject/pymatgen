@@ -189,18 +189,9 @@ class BalancedReactionTest(unittest.TestCase):
 
     def test_remove_spectator_species(self):
         rxn = BalancedReaction({Composition("Li"): 4, Composition("O2"): 1, Composition('Na'): 1},
-                               {Composition("Li2O"): 2, Composition('Na'): 1},
-                               remove_spectator_species=True)
+                               {Composition("Li2O"): 2, Composition('Na'): 1})
 
         self.assertTrue(Composition('Na') not in rxn.all_comp)
-
-        rxn2 = BalancedReaction({Composition("Li"): 4, Composition("O2"): 1, Composition('Na'): 1},
-                                {Composition("Li2O"): 2, Composition('Na'): 1},
-                                remove_spectator_species=False)
-
-        self.assertTrue(Composition('Na') in rxn2.all_comp)
-        self.assertTrue(abs(rxn2.get_coeff(Composition('Na'))) < Reaction.TOLERANCE)
-
 
 class ComputedReactionTest(unittest.TestCase):
     def setUp(self):

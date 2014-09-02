@@ -212,6 +212,10 @@ class DummySpecieTestCase(unittest.TestCase):
         o = pickle.dumps(el1)
         self.assertEqual(el1, pickle.loads(o))
 
+    def test_sort(self):
+        r = sorted([Element('Fe'), DummySpecie("X")])
+        self.assertEqual(r, [DummySpecie("X"), Element('Fe')])
+
 
 class PeriodicTableTestCase(unittest.TestCase):
 
