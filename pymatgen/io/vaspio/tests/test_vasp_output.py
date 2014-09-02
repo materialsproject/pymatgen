@@ -54,14 +54,9 @@ class VasprunTest(unittest.TestCase):
 
         self.assertEquals(308, totalscsteps,
                           "Incorrect number of energies read from vasprun.xml")
-<<<<<<< HEAD
-        self.assertEquals(['Li'] + 4 * ['Fe'] + 4 * [u'P'] + 16 * ["O"],
-                          vasprun.atomic_symbols,
-                          "Incorrect symbols read from vasprun.xml")
-=======
+
         self.assertEquals(['Li'] + 4 * ['Fe'] + 4 * ['P'] + 16 * ["O"],
                           vasprun.atomic_symbols)
->>>>>>> upstream/master
         self.assertEquals(vasprun.final_structure.composition.reduced_formula,
                           "LiFe4(PO4)4")
         self.assertIsNotNone(vasprun.incar, "Incar cannot be read")
