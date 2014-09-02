@@ -292,6 +292,11 @@ class PyLauncher(object):
                 continue
 
             njobs_inqueue = tasks[0].manager.qadapter.get_njobs_in_queue()
+            if njobs_inqueue is None:
+                print('Cannot get njobs_inqueue, going back to sleep')
+                continue
+
+
             rest = self.max_njobs_inqueue - njobs_inqueue
             if rest <= 0:
                 print('too many jobs in the queue, going back to sleep')
