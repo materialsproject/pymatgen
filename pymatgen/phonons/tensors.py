@@ -111,7 +111,7 @@ class SQTensor(object):
         if self.is_symmetric()==False:
             raise ValueError("This method takes only symmetric tensors")
         average_Cij = self.KG_average
-        nu = (1-2.0/3*average_Cij[1]/average_Cij[0])/(2+2.0/3*average_Cij[1]/average_Cij[0])
+        nu = (1-2.0/3*average_Cij[5]/average_Cij[4])/(2+2.0/3*average_Cij[5]/average_Cij[4])
 
 
 
