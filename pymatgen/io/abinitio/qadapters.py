@@ -790,6 +790,7 @@ class PbsAdapter(AbstractQueueAdapter):
 #PBS -W group_list=$${group_list}
 #PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
 #PBS -l pvmem=$${pvmem}mb
+#PBS -r y
 ####PBS -l mppwidth=$${mppwidth}
 ####PBS -l nodes=$${nodes}:ppn=$${ppn}  # OLD SYNTAX
 #PBS -o $${_qout_path}
