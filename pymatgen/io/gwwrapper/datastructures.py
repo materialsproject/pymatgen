@@ -288,6 +288,21 @@ class GWSpecs(AbstractAbinitioSpec):
                                                  self['converge'])
         return self._message
 
+    def __hash__(self):
+        """
+        this will work as long a there are only hashable items in the data dict
+        """
+        return hash(frozenset(self.data.items()))
+
+    def hash_str(self):
+        """
+        old fist attempt ...
+        """
+        hashstr = 'code:%s;source:%sjobs:%s;mode:%s;functional:%s;kp_grid_dens:%sprec:%s;tol:%s;test:%s;converge:%s' % \
+                  (self.get_code(), self.data['source'], self['jobs'], self['mode'], self['functional'],
+                   self['kp_grid_dens'], self['prec'], self['tol'], self['test'], self['converge'])
+        return hashstr
+
     @property
     def help(self):
         return "source:       poscar, mp-vasp, any other will be interpreted as a filename to read mp-id's from \n" \
@@ -485,12 +500,15 @@ class GWSpecs(AbstractAbinitioSpec):
         if success and con_dat is not None:
             query = {'system': s_name(structure),
                      'item': structure.item,
-                     'structure': structure.to_dict,
-                     'spec': self.to_dict(),
-                     'extra_vars': extra,
+                     'spec_hash': hash(self),
+                     'extra_vars_hash': hash(frozenset(extra.items())),
                      'ps': ps}
+            print 'query:', query
             entry = copy.deepcopy(query)
             entry.update({'conv_res': data.conv_res,
+                          'spec': self.to_dict(),
+                          'extra_vars': extra,
+                          'structure': structure.to_dict,
                           'gw_results': con_dat,
                           'results_file': results_file,
                           'data_file': data_file})
