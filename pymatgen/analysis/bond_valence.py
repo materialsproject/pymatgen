@@ -22,6 +22,8 @@ from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.core.periodic_table import get_el_sp
+from monty.serialization import loadfn, dumpfn
+from pymatgen.util.io_utils import clean_json
 
 #Let's initialize some module level properties.
 
@@ -37,17 +39,15 @@ module_dir = os.path.dirname(os.path.abspath(__file__))
 
 #Read in BV parameters.
 BV_PARAMS = {}
-with open(os.path.join(module_dir, "bvparam_1991.json"), "r") as f:
-    for k, v in json.load(f).items():
-        BV_PARAMS[Element(k)] = v
+for k, v in loadfn(os.path.join(module_dir, "bvparam_1991.yaml")).items():
+    BV_PARAMS[Element(k)] = v
 
-#Read in json containing data-mined ICSD BV data.
-with open(os.path.join(module_dir, "icsd_bv.json"), "r") as f:
-    all_data = json.load(f)
-    ICSD_BV_DATA = {Specie.from_string(sp): data
-                    for sp, data in all_data["bvsum"].items()}
-    PRIOR_PROB = {Specie.from_string(sp): data
-                  for sp, data in all_data["occurrence"].items()}
+#Read in yaml containing data-mined ICSD BV data.
+all_data = loadfn(os.path.join(module_dir, "icsd_bv.yaml"))
+ICSD_BV_DATA = {Specie.from_string(sp): data
+                for sp, data in all_data["bvsum"].items()}
+PRIOR_PROB = {Specie.from_string(sp): data
+              for sp, data in all_data["occurrence"].items()}
 
 
 def calculate_bv_sum(site, nn_list, scale_factor=1.0):

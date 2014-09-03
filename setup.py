@@ -52,7 +52,7 @@ setup(
                     "vis": ["vtk>=6.0.0"],
                     "abinitio": ["pydispatcher>=2.0", "apscheduler>=2.1.1"]},
     package_data={"pymatgen.core": ["*.json"],
-                  "pymatgen.analysis": ["bvparam_1991.json", "icsd_bv.json"],
+                  "pymatgen.analysis": ["*.yaml"],
                   "pymatgen.io": ["*.yaml"],
                   "pymatgen.entries": ["*.yaml"],
                   "pymatgen.structure_prediction": ["data/*.json"],
