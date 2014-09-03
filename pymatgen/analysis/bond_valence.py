@@ -12,18 +12,18 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Oct 26, 2012"
 
 import collections
-import json
 import numpy as np
 import operator
 import os
-
 from math import exp, sqrt
+
+from monty.serialization import loadfn
+
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.core.periodic_table import get_el_sp
-from monty.serialization import loadfn, dumpfn
-from pymatgen.util.io_utils import clean_json
+
 
 #Let's initialize some module level properties.
 
