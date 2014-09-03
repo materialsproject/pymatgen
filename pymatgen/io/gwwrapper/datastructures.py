@@ -294,6 +294,7 @@ class GWSpecs(AbstractAbinitioSpec):
         """
         tmp = copy.deepcopy(self.data)
         tmp['jobs'] = tuple(tmp['jobs'])
+        print tmp
         return hash(frozenset(self.data.items()))
 
     def hash_str(self):
