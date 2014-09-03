@@ -787,8 +787,10 @@ class PbsAdapter(AbstractQueueAdapter):
 #PBS -l model=$${model}
 #PBS -l place=$${place}
 #PBS -W group_list=$${group_list}
+#PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
 #PBS -l pvmem=$${pvmem}mb
-#PBS -l nodes=$${nodes}:ppn=$${ppn}  # OLD SYNTAX
+####PBS -l mppwidth=$${mppwidth}
+####PBS -l nodes=$${nodes}:ppn=$${ppn}
 #PBS -o $${_qout_path}
 #PBS -e $${_qerr_path}
 """
@@ -962,7 +964,7 @@ class PbsOldAdapter(PbsAdapter):
 #PBS -l model=$${model}
 #PBS -l place=$${place}
 #PBS -W group_list=$${group_list}
-####PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads} # New syntax
+####PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
 ####PBS -l pvmem=$${pvmem}mb
 #PBS -l pmem=$${pmem}mb
 ####PBS -l mppwidth=$${mppwidth}
@@ -980,6 +982,16 @@ class PbsOldAdapter(PbsAdapter):
 
         self.qparams["pmem"] = mem_mb
         self.qparams["mem"] = mem_mb
+
+    @property
+    def mpi_ncpus(self):
+        """Number of CPUs used for MPI."""
+        return self.qparams.get("nodes", 1)*self.qparams.get("ppn", 1)
+
+    def set_mpi_ncpus(self, mpi_ncpus):
+        """Set the number of CPUs used for MPI."""
+        self.qparams["nodes"] = 1
+        self.qparams["ppn"] = mpi_ncpus
 
 class SGEAdapter(AbstractQueueAdapter):
     """
