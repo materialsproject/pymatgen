@@ -119,8 +119,9 @@ class DiffusionAnalyzer(MSONable):
                 Only applies in smoothed=True.
             weighted (bool): Uses a weighted least squares to fit the
                 MSD vs dt. Weights are proportional to 1/Var, which is
-                in turn proprotional to number of observations. Only applies
-                in smoothed=True.
+                in turn proportional to number of *independent* observations.
+                Number of independent (non-overlapping) observations is
+                proportional to 1 / dt. Only applies if smoothed=True.
         """
         self.structure = structure
         self.disp = displacements
@@ -174,11 +175,9 @@ class DiffusionAnalyzer(MSONable):
             self.msd = np.zeros_like(self.dt, dtype=np.double)
             self.msd_components = np.zeros(self.dt.shape + (3,))
             lengths = np.array(self.structure.lattice.abc)[None, None, :]
-            weights = []
             for i, n in enumerate(timesteps):
                 dx = dc_x[:, n:, :] - dc_x[:, :-n, :] if smoothed \
                     else dc_x[:, i, :]
-                weights.append(dx.shape[1])
                 self.msd[i] = 3 * np.average(dx ** 2)
                 dcomponents = (df_x[:, n:, :] - df_x[:, :-n, :] if smoothed
                                else df_x[:, i, :]) * lengths
@@ -187,7 +186,7 @@ class DiffusionAnalyzer(MSONable):
 
             #run the regression on the msd components
             if weighted and smoothed:
-                w = np.array(weights)
+                w = 1 / self.dt
             else:
                 w = np.ones_like(self.dt)
 
