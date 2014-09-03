@@ -74,7 +74,8 @@ setup(
                 "analysis code that defines core object representations for "
                 "structures and molecules with support for many electronic "
                 "structure codes. It is currently the core analysis code "
-                "powering the Materials Project (www.materialsproject.org).",
+                "powering the Materials Project "
+                "(https://www.materialsproject.org).",
     long_description=long_desc,
     keywords=["VASP", "gaussian", "ABINIT", "nwchem", "materials", "project",
               "electronic", "structure", "analysis", "phase", "diagrams"],
