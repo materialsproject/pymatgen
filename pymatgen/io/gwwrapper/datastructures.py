@@ -292,6 +292,8 @@ class GWSpecs(AbstractAbinitioSpec):
         """
         this will work as long a there are only hashable items in the data dict
         """
+        tmp = copy.deepcopy(self.data)
+        tmp['jobs'] = tuple(tmp['jobs'])
         return hash(frozenset(self.data.items()))
 
     def hash_str(self):
