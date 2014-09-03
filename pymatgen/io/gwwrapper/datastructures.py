@@ -504,7 +504,7 @@ class GWSpecs(AbstractAbinitioSpec):
             query = {'system': s_name(structure),
                      'item': structure.item,
                      'spec_hash': hash(self),
-                     'extra_vars_hash': hash(frozenset(extra.items())),
+                     'extra_vars_hash': hash(None) if extra is None else hash(frozenset(extra.items())),
                      'ps': ps}
             print 'query:', query
             entry = copy.deepcopy(query)
