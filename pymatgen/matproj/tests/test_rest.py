@@ -169,6 +169,8 @@ class MPResterTest(unittest.TestCase):
 
     def test_get_stability(self):
         entries = self.rester.get_entries("Fe-O")
+        entries.extend(self.rester.get_entries("Fe"))
+        entries.extend(self.rester.get_entries("O"))
         modified_entries = []
         for entry in entries:
             # Create modified entries with energies that are 0.01eV higher
