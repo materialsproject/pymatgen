@@ -596,13 +596,14 @@ class BSPlotter(object):
         """
         import matplotlib as mpl
         import matplotlib.pyplot as plt
+        from mpl_toolkits.mplot3d import Axes3D
         mpl.rcParams['legend.fontsize'] = 10
 
         fig = plt.figure()
-        ax = fig.gca(projection='3d')
-        vec1 = self._bs._lattice_rec.matrix[0]
-        vec2 = self._bs._lattice_rec.matrix[1]
-        vec3 = self._bs._lattice_rec.matrix[2]
+        ax = Axes3D(fig)
+        vec1 = self._bs.lattice.matrix[0]
+        vec2 = self._bs.lattice.matrix[1]
+        vec3 = self._bs.lattice.matrix[2]
 
         #make the grid
         max_x = -1000
@@ -630,7 +631,7 @@ class BSPlotter(object):
                     if list_k_points[-1][2] < min_z:
                         min_z = list_k_points[-1][0]
 
-        vertex = qvertex_target(list_k_points, 13)
+        vertex = _qvertex_target(list_k_points, 13)
         lines = get_lines_voronoi(vertex)
 
         for i in range(len(lines)):
@@ -640,12 +641,12 @@ class BSPlotter(object):
                     [vertex1[2], vertex2[2]], color='k')
 
         for b in self._bs._branches:
-            vertex1 = self._bs._kpoints[b['start_index']].cart_coords
-            vertex2 = self._bs._kpoints[b['end_index']].cart_coords
+            vertex1 = self._bs.kpoints[b['start_index']].cart_coords
+            vertex2 = self._bs.kpoints[b['end_index']].cart_coords
             ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]],
                     [vertex1[2], vertex2[2]], color='r', linewidth=3)
 
-        for k in self._bs._kpoints:
+        for k in self._bs.kpoints:
             if k.label:
                 label = k.label
                 if k.label.startswith("\\") or k.label.find("_") != -1:
@@ -937,17 +938,17 @@ class BSPlotterProjected(BSPlotter):
         return plt
 
 
-def qvertex_target(data, index):
+def _qvertex_target(data, index):
     """
     Input data should be in the form of a list of a list of floats.
     index is the index of the targeted point
     Returns the vertices of the voronoi construction around this target point.
     """
     from pyhull import qvoronoi
-    output = qvoronoi("p Qv"+str(index), data)
+    output = qvoronoi("p QV"+str(index), data)
     output.pop(0)
-    output.pop(1)
-    return [[float(i) for i in row] for row in output]
+    output.pop(0)
+    return [[float(i) for i in row.split()] for row in output]
 
 
 def get_lines_voronoi(data):
