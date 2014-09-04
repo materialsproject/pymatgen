@@ -196,13 +196,21 @@ class DictVaspInputSet(AbstractVaspInputSet):
         potcar_functional (str): Functional to use. Default (None) is to use
             the functional in Potcar.DEFAULT_FUNCTIONAL. Valid values:
             "PBE", "LDA", "PW91", "LDA_US"
+        force_gamma (bool): Force gamma centered kpoint generation. Default
+            (False) is to use the Automatic Density kpoint scheme, which
+            will use the Gamma centered generation scheme for hexagonal
+            cells, and Monkhorst-Pack otherwise.
+        reduce_structure (None/str): Before generating the input files,
+            generate the reduced structure. Default (None), does not
+            alter the structure. Valid values: None, "niggli", "LLL"
+
     """
 
     def __init__(self, name, config_dict, hubbard_off=False,
                  user_incar_settings=None,
                  constrain_total_magmom=False, sort_structure=True,
                  ediff_per_atom=True, potcar_functional=None,
-                 force_gamma=False):
+                 force_gamma=False, reduce_structure=None):
         self.name = name
         self.potcar_settings = config_dict["POTCAR"]
         self.kpoints_settings = config_dict['KPOINTS']
@@ -213,6 +221,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
         self.hubbard_off = hubbard_off
         self.potcar_functional = potcar_functional
         self.force_gamma = force_gamma
+        self.reduce_structure = reduce_structure
         if hubbard_off:
             for k in self.incar_settings.keys():
                 if k.startswith("LDAU"):
@@ -222,6 +231,8 @@ class DictVaspInputSet(AbstractVaspInputSet):
 
     def get_incar(self, structure):
         incar = Incar()
+        if self.reduce_structure:
+            structure = structure.get_reduced_structure(self.reduce_structure)
         if self.sort_structure:
             structure = structure.get_sorted_structure()
         comp = structure.composition
@@ -281,11 +292,15 @@ class DictVaspInputSet(AbstractVaspInputSet):
         return incar
 
     def get_poscar(self, structure):
+        if self.reduce_structure:
+            structure = structure.get_reduced_structure(self.reduce_structure)
         if self.sort_structure:
             structure = structure.get_sorted_structure()
         return Poscar(structure)
 
     def get_potcar(self, structure):
+        if self.reduce_structure:
+            structure = structure.get_reduced_structure(self.reduce_structure)
         if self.sort_structure:
             structure = structure.get_sorted_structure()
         if self.potcar_functional:
@@ -304,6 +319,8 @@ class DictVaspInputSet(AbstractVaspInputSet):
         return n
 
     def get_potcar_symbols(self, structure):
+        if self.reduce_structure:
+            structure = structure.get_reduced_structure(self.reduce_structure)
         if self.sort_structure:
             structure = structure.get_sorted_structure()
         p = self.get_poscar(structure)
@@ -323,10 +340,26 @@ class DictVaspInputSet(AbstractVaspInputSet):
             Uses a simple approach scaling the number of divisions along each
             reciprocal lattice vector proportional to its length.
         """
+        if self.reduce_structure:
+            structure = structure.get_reduced_structure(self.reduce_structure)
         if self.sort_structure:
             structure = structure.get_sorted_structure()
-        dens = int(self.kpoints_settings['grid_density'])
-        return Kpoints.automatic_density(structure, dens, self.force_gamma)
+
+        # If grid_density is in the kpoints_settings use Kpoints.automatic_density
+        if self.kpoints_settings.get('grid_density'):
+            dens = int(self.kpoints_settings['grid_density'])
+            return Kpoints.automatic_density(structure, dens, self.force_gamma)
+
+        # If length is in the kpoints_settings use Kpoints.automatic
+        elif self.kpoints_settings.get('length'):
+            length = int(self.kpoints_settings['length'])
+            return Kpoints.automatic(length)
+
+        # Raise error. Unsure of which kpoint generation to use
+        else:
+            raise ValueError("Invalid KPoint Generation algo : Supported Keys are "
+                             "grid_density: for Kpoints.automatic_density generation "
+                             "and length  : for Kpoints.automatic generation")
 
     def __str__(self):
         return self.name
@@ -657,7 +690,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         self.incar_settings.update(
             {"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
              "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0,
-             "ICHARG": 0, "EDIFF": 0.000001})
+             "ICHARG": 0, "EDIFF": 0.000001, "ALGO": "Normal"})
         self.kpoints_settings.update({"kpoints_density": kpoints_density})
         self.sym_prec = sym_prec
 
@@ -783,7 +816,8 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         # Use previous run INCAR and override necessary parameters
         previous_incar.update({"IBRION": -1, "ISMEAR": -5, "LAECHG": True,
                                "LCHARG": True, "LORBIT": 11, "LVHAR": True,
-                               "LWAVE": False, "NSW": 0, "ICHARG": 0})
+                               "LWAVE": False, "NSW": 0, "ICHARG": 0,
+                               "ALGO": "Normal"})
 
         for incar_key in ["MAGMOM", "NUPDOWN"]:
             if new_incar.get(incar_key, None):
@@ -816,7 +850,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         # Perform checking on INCAR parameters
         if any([previous_incar.get("NSW", 0) != 0,
                 previous_incar["IBRION"] != -1,
-                previous_incar["LCHARG"] is True,
+                previous_incar["LCHARG"] is not True,
                any([sum(previous_incar["LDAUU"]) <= 0,
                     previous_incar["LMAXMIX"] < 4])
                if previous_incar.get("LDAU") else False]):
@@ -1240,7 +1274,7 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
 
         try:
             vasp_run = Vasprun(os.path.join(previous_vasp_dir, "vasprun.xml"),
-                               parse_dos=False, parse_eigen=None)
+                               parse_dos=False, parse_eigen=False)
             outcar = Outcar(os.path.join(previous_vasp_dir, "OUTCAR"))
             previous_incar = vasp_run.incar
         except:

@@ -165,13 +165,13 @@ class GetVoronoiNodesTest(unittest.TestCase):
         assert len(self.rad_dict) == len(self.structure.composition)
 
     def test_get_voronoi_nodes(self):
-        vor_node_struct, vor_face_center_struct = get_voronoi_nodes(
-                self.structure, self.rad_dict
-                )
+        vor_node_struct, vor_edge_center_struct, vor_face_center_struct = \
+                get_voronoi_nodes(self.structure, self.rad_dict)
         self.assertIsInstance(vor_node_struct, Structure)
+        self.assertIsInstance(vor_edge_center_struct, Structure)
         self.assertIsInstance(vor_face_center_struct, Structure)
-        print len(vor_node_struct.sites)
-        print len(vor_face_center_struct.sites)
+        print (len(vor_node_struct.sites))
+        print (len(vor_face_center_struct.sites))
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
@@ -191,12 +191,14 @@ class GetHighAccuracyVoronoiNodesTest(unittest.TestCase):
         assert len(self.rad_dict) == len(self.structure.composition)
 
     def test_get_voronoi_nodes(self):
-        vor_node_struct, vor_fc_struct = get_high_accuracy_voronoi_nodes_alt(
-                self.structure, self.rad_dict)
+        vor_node_struct, vor_ec_struct, vor_fc_struct = \
+                get_high_accuracy_voronoi_nodes(
+                    self.structure, self.rad_dict)
         self.assertIsInstance(vor_node_struct, Structure)
+        self.assertIsInstance(vor_ec_struct, Structure)
         self.assertIsInstance(vor_fc_struct, Structure)
-        print len(vor_node_struct.sites)
-        print len(vor_fc_struct.sites)
+        print (len(vor_node_struct.sites))
+        print (len(vor_fc_struct.sites))
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
@@ -220,10 +222,10 @@ class GetVoronoiNodesMultiOxiTest(unittest.TestCase):
             print el, self.rad_dict[el].real
 
     def test_get_voronoi_nodes(self):
-        vor_node_struct, vor_face_center_struct = get_voronoi_nodes(
-                self.structure, self.rad_dict
-                )
+        vor_node_struct, vor_edge_center_struct, vor_face_center_struct =\
+                get_voronoi_nodes(self.structure, self.rad_dict)
         self.assertIsInstance(vor_node_struct, Structure)
+        self.assertIsInstance(vor_edge_center_struct, Structure)
         self.assertIsInstance(vor_face_center_struct, Structure)
 
 

@@ -145,7 +145,7 @@ class PhaseDiagram (MSONable):
             while prev_e and epa > 1e-4 + prev_e[0]:
                 prev_c.pop(0)
                 prev_e.pop(0)
-            frac_comp = entries[i].composition.get_fractional_composition()
+            frac_comp = entries[i].composition.fractional_composition
             if frac_comp not in prev_c:
                 ind.append(i)
             prev_e.append(epa)
@@ -303,11 +303,10 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
                                   for entry in entries])
         self.chempots = {get_el_sp(el): u for el, u in chempots.items()}
         elements = set(elements).difference(self.chempots.keys())
-        all_entries = [GrandPotPDEntry(e, self.chempots)
-                       for e in entries
-                       if (not e.is_element) or
-                       e.composition.elements[0] in elements]
-
+        all_entries = []
+        for e in entries:
+            if len(set(e.composition.elements).intersection(set(elements))) > 0:
+                all_entries.append(GrandPotPDEntry(e, self.chempots))
         super(GrandPotentialPhaseDiagram, self).__init__(all_entries, elements)
 
     def __str__(self):
@@ -389,7 +388,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
         """
         new_entries = []
         if self.normalize_terminals:
-            fractional_comp = [c.get_fractional_composition()
+            fractional_comp = [c.fractional_composition
                                for c in terminal_compositions]
         else:
             fractional_comp = terminal_compositions

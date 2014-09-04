@@ -22,10 +22,14 @@ import os
 import requests
 import json
 import warnings
+import re
+import itertools
 
 from monty.dev import deprecated
 
-from pymatgen import Composition, PMGJSONDecoder
+from pymatgen.core.periodic_table import ALL_ELEMENT_SYMBOLS
+from pymatgen.core.composition import Composition
+from pymatgen.serializers.json_coders import PMGJSONDecoder
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
@@ -34,6 +38,7 @@ from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.matproj.snl import StructureNL
 from pymatgen.serializers.json_coders import PMGJSONEncoder
+from pymatgen.core.periodic_table import PeriodicTable
 
 
 class MPRester(object):
@@ -429,11 +434,29 @@ class MPRester(object):
         methods.
 
         Args:
-            criteria (dict): Criteria of the query as a mongo-style dict.
-                For example, {"elements":{"$in":["Li", "Na", "K"], "$all": [
-                "O"]}, "nelements":2} selects all Li, Na and K oxides.
-                {"band_gap": {"$gt": 1}} selects all materials with band gaps
-                greater than 1 eV.
+            criteria (str/dict): Criteria of the query as a string or
+                mongo-style dict.
+
+                If string, it supports a powerful but simple string criteria.
+                E.g., "Fe2O3" means search for materials with reduced_formula
+                Fe2O3. Wild cards are also supported. E.g., "\*2O" means get
+                all materials whose formula can be formed as \*2O, e.g.,
+                Li2O, K2O, etc.
+
+                Other syntax examples:
+                mp-1234: Interpreted as a Materials ID.
+                Fe2O3 or \*2O3: Interpreted as reduced formulas.
+                Li-Fe-O or \*-Fe-O: Interpreted as chemical systems.
+
+                You can mix and match with spaces, which are interpreted as
+                "OR". E.g. "mp-1234 FeO" means query for all compounds with
+                reduced formula FeO or with materials_id mp-1234.
+
+                Using a full dict syntax, even more powerful queries can be
+                constructed. For example, {"elements":{"$in":["Li",
+                "Na", "K"], "$all": ["O"]}, "nelements":2} selects all Li, Na
+                and K oxides. {"band_gap": {"$gt": 1}} selects all materials
+                with band gaps greater than 1 eV.
             properties (list): Properties to request for as a list. For
                 example, ["formula", "formation_energy_per_atom"] returns
                 the formula and formation energy per atom.
@@ -445,6 +468,8 @@ class MPRester(object):
             {u'formula': {u'K': 1, u'O': 3.0}},
             ...]
         """
+        if not isinstance(criteria, dict):
+            criteria = MPRester.parse_criteria(criteria)
         payload = {"criteria": json.dumps(criteria),
                    "properties": json.dumps(properties)}
         return self._make_request("/query", payload=payload, method="POST")
@@ -730,7 +755,6 @@ class MPRester(object):
         except Exception as ex:
             raise MPRestError(str(ex))
 
-
     def get_reaction(self, reactants, products):
         """
         Gets a reaction from the Materials Project.
@@ -745,6 +769,64 @@ class MPRester(object):
         return self._make_request("/reaction",
                                   payload={"reactants[]": reactants,
                                            "products[]": products})
+
+    @staticmethod
+    def parse_criteria(criteria_string):
+        """
+        Parses a powerful and simple string criteria and generates a proper
+        mongo syntax criteria.
+
+        Args:
+            criteria_string (str): A string representing a search criteria.
+                Also supports wild cards. E.g.,
+                something like "\*2O" gets converted to
+                {'pretty_formula': {'$in': [u'B2O', u'Xe2O', u"Li2O", ...]}}
+
+                Other syntax examples:
+                    mp-1234: Interpreted as a Materials ID.
+                    Fe2O3 or \*2O3: Interpreted as reduced formulas.
+                    Li-Fe-O or \*-Fe-O: Interpreted as chemical systems.
+
+                You can mix and match with spaces, which are interpreted as
+                "OR". E.g., "mp-1234 FeO" means query for all compounds with
+                reduced formula FeO or with materials_id mp-1234.
+
+        Returns:
+            A mongo query dict.
+        """
+        toks = criteria_string.split()
+
+        def parse_tok(t):
+            if re.match("\w+-\d+", t):
+                return {"task_id": t}
+            elif "-" in t:
+                elements = t.split("-")
+                elements = [[el] if el != "*" else ALL_ELEMENT_SYMBOLS
+                            for el in elements]
+                chemsyss = []
+                for cs in itertools.product(*elements):
+                    if len(set(cs)) == len(cs):
+                        chemsyss.append("-".join(sorted(set(cs))))
+                return {"chemsys": {"$in": chemsyss}}
+            else:
+                all_formulas = set()
+                syms = re.findall("[A-Z][a-z]*", t)
+                to_permute = ALL_ELEMENT_SYMBOLS.difference(syms)
+                parts = t.split("*")
+                for syms in itertools.permutations(to_permute,
+                                                   len(parts) - 1):
+                    f = []
+                    for p in zip(parts, syms):
+                        f.extend(p)
+                    f.append(parts[-1])
+                    c = Composition("".join(f)).reduced_formula
+                    all_formulas.add(c)
+                return {"pretty_formula": {"$in": list(all_formulas)}}
+
+        if len(toks) == 1:
+            return parse_tok(toks[0])
+        else:
+            return {"$or": map(parse_tok, toks)}
 
 
 class MPRestError(Exception):
