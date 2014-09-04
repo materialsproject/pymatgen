@@ -298,9 +298,10 @@ class PyLauncher(object):
                 break
 
             if len(tasks) > 0:
-                n_jobs = tasks[0].manager.qadapter.get_njobs_in_queue() if \
-                    tasks[0].manager.qadapter.get_njobs_in_queue() is not None else 0
-                n_to_run = self.max_jobs - n_jobs
+                n_jobs_in_queue = tasks[0].manager.qadapter.get_njobs_in_queue()
+                if n_jobs_in_queue is None:
+                    n_jobs_in_queue = 0
+                n_to_run = self.max_jobs - n_jobs_in_queue
             else:
                 n_to_run = 0
 
