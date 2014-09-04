@@ -390,17 +390,17 @@ class Compatibility(object):
         else:
             uncorrected_energy = centry.uncorrected_energy
             corrected_energy = centry.energy
-        d = {"Compatibility": self.__class__.__name__,
-             "Uncorrected_energy": uncorrected_energy,
-             "Corrected_energy": corrected_energy}
+        d = {"compatibility": self.__class__.__name__,
+             "uncorrected_energy": uncorrected_energy,
+             "corrected_energy": corrected_energy}
         corrections = []
         corr_dict = self.get_corrections_dict(entry)
         for c in self.corrections:
-            cd = {"Name": str(c)}
-            cd["Description"] = c.__doc__.split("Args")[0].strip()
-            cd["Value"] = corr_dict.get(str(c), 0)
+            cd = {"name": str(c)}
+            cd["description"] = c.__doc__.split("Args")[0].strip()
+            cd["value"] = corr_dict.get(str(c), 0)
             corrections.append(cd)
-        d["Corrections"] = corrections
+        d["corrections"] = corrections
         return d
 
     def explain(self, entry):
@@ -414,17 +414,17 @@ class Compatibility(object):
         """
         d = self.get_explanation_dict(entry)
         print "The uncorrected value of the energy of %s is %f eV" % (
-            entry.composition, d["Uncorrected_energy"])
+            entry.composition, d["uncorrected_energy"])
         print "The following corrections / screening are applied for %s:\n" %\
-            d["Compatibility"]
-        for c in d["Corrections"]:
-            print "%s correction: %s\n" % (c["Name"],
-                                           c["Description"])
+            d["compatibility"]
+        for c in d["corrections"]:
+            print "%s correction: %s\n" % (c["name"],
+                                           c["description"])
             print "For the entry, this correction has the value %f eV." % c[
-                "Value"]
+                "value"]
             print "-" * 30
 
-        print "The final energy after corrections is %f" % d["Corrected_energy"]
+        print "The final energy after corrections is %f" % d["corrected_energy"]
 
 
 @cached_class
