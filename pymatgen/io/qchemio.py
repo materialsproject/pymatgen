@@ -10,7 +10,7 @@ from string import Template
 from monty.io import zopen
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule
-from pymatgen.core.units import Energy
+from pymatgen.core.units import Energy, FloatWithUnit
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.util.coord_utils import get_angle
 
@@ -91,14 +91,26 @@ class QcTask(MSONable):
                  basis_set="6-31+G*", aux_basis_set=None, ecp=None,
                  rem_params=None, optional_params=None):
         self.mol = copy.deepcopy(molecule) if molecule else "read"
-        if isinstance(self.mol, str):
-            self.mol = self.mol.lower()
         self.charge = charge
         self.spin_multiplicity = spin_multiplicity
-        if not (isinstance(self.mol, str) and self.mol == "read"):
-            if not isinstance(self.mol, Molecule):
-                raise ValueError("The molecule must be a pymatgen Molecule "
-                                 "object or read/None")
+        if isinstance(self.mol, str) or isinstance(self.mol, unicode):
+            self.mol = self.mol.lower()
+            if self.mol != "read":
+                raise ValueError('The only accept text value for mol is "read"')
+        elif isinstance(self.mol, list):
+            for m in self.mol:
+                if not isinstance(m, Molecule):
+                    raise ValueError("In case of type list, every element of mol must be a pymatgen Molecule")
+            if self.charge is None or self.spin_multiplicity is None:
+                raise ValueError("For fragments molecule section input, charge and spin_multiplicity "
+                                 "must be specificed")
+            total_charge = sum([m.charge for m in self.mol])
+            total_unpaired_electron = sum([m.spin_multiplicity-1 for m in self.mol])
+            if total_charge != self.charge:
+                raise ValueError("The charge of the molecule doesn't equal to the sum of the fragment charges")
+            if total_unpaired_electron % 2 != (self.spin_multiplicity - 1) % 2:
+                raise ValueError("Spin multiplicity of molecule and fragments doesn't match")
+        elif isinstance(self.mol, Molecule):
             self.charge = charge if charge is not None else self.mol.charge
             nelectrons = self.mol.charge + self.mol.nelectrons - self.charge
             if spin_multiplicity is not None:
@@ -109,6 +121,9 @@ class QcTask(MSONable):
                                      .format(self.charge, spin_multiplicity))
             else:
                 self.spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
+        else:
+            raise ValueError("The molecule must be a pymatgen Molecule "
+                             "object or read/None or list of pymatgen Molecule")
         if (self.charge is None) != (self.spin_multiplicity is None):
             raise ValueError("spin multiplicity must be set together")
         if self.charge is not None and isinstance(self.mol, Molecule):
@@ -135,8 +150,8 @@ class QcTask(MSONable):
                 k = k.lower()
                 if k in self.alternative_keys:
                     k = self.alternative_keys[k]
-                if isinstance(v, str):
-                    v = v.lower()
+                if isinstance(v, str) or isinstance(v, unicode):
+                    v = str(v).lower()
                     if v in self.alternative_values:
                         v = self.alternative_values[v]
                     self.params["rem"][k] = v
@@ -157,7 +172,8 @@ class QcTask(MSONable):
 
         if aux_basis_set is None:
             if self._aux_basis_required():
-                if isinstance(self.params["rem"]["basis"], str):
+                if isinstance(self.params["rem"]["basis"], str) or \
+                        isinstance(self.params["rem"]["basis"], unicode):
                     if self.params["rem"]["basis"].startswith("6-31+g"):
                         self.set_auxiliary_basis_set("rimp2-aug-cc-pvdz")
                     elif self.params["rem"]["basis"].startswith("6-311+g"):
@@ -215,7 +231,7 @@ class QcTask(MSONable):
             raise Exception('Can\'t handle type "{}"'.format(type(basis_set)))
 
     def set_auxiliary_basis_set(self, aux_basis_set):
-        if isinstance(aux_basis_set, str):
+        if isinstance(aux_basis_set, str) or isinstance(aux_basis_set, unicode):
             self.params["rem"]["aux_basis"] = aux_basis_set.lower()
             if aux_basis_set.lower() not in ["gen", "mixed"]:
                 self.params.pop("aux_basis", None)
@@ -253,7 +269,7 @@ class QcTask(MSONable):
             raise Exception('Can\'t handle type "{}"'.format(type(aux_basis_set)))
 
     def set_ecp(self, ecp):
-        if isinstance(ecp, str):
+        if isinstance(ecp, str) or isinstance(ecp, unicode):
             self.params["rem"]["ecp"] = ecp.lower()
         elif isinstance(ecp, dict):
             self.params["rem"]["ecp"] = "gen"
@@ -501,15 +517,15 @@ class QcTask(MSONable):
         if pcm_params:
             for k, v in pcm_params.iteritems():
                 self.params["pcm"][k.lower()] = v.lower() \
-                    if isinstance(v, str) else v
+                    if isinstance(v, str) or isinstance(v, unicode) else v
 
         for k, v in default_pcm_params.iteritems():
             if k.lower() not in self.params["pcm"].keys():
                 self.params["pcm"][k.lower()] = v.lower() \
-                    if isinstance(v, str) else v
+                    if isinstance(v, str) or isinstance(v, unicode) else v
         for k, v in solvent_params.iteritems():
             self.params["pcm_solvent"][k.lower()] = v.lower() \
-                if isinstance(v, str) else copy.deepcopy(v)
+                if isinstance(v, str) or isinstance(v, unicode) else copy.deepcopy(v)
         self.params["rem"]["solvent_method"] = "pcm"
         if radii_force_field:
             self.params["pcm"]["radii"] = "bondi"
@@ -534,16 +550,29 @@ class QcTask(MSONable):
 
     def _format_molecule(self):
         lines = []
+
+        def inner_format_mol(m2):
+            mol_lines = []
+            for site in m2.sites:
+                mol_lines.append(" {element:<4} {x:>17.8f} {y:>17.8f} "
+                                 "{z:>17.8f}".format(element=site.species_string,
+                                                     x=site.x, y=site.y, z=site.z))
+            return mol_lines
+
         if self.charge is not None:
             lines.append(" {charge:d}  {multi:d}".format(charge=self
                          .charge, multi=self.spin_multiplicity))
-        if isinstance(self.mol, str) and self.mol == "read":
+        if (isinstance(self.mol, str) or isinstance(self.mol, unicode))\
+                and self.mol == "read":
             lines.append(" read")
+        elif isinstance(self.mol, list):
+            for m in self.mol:
+                lines.append("--")
+                lines.append(" {charge:d}  {multi:d}".format(
+                    charge=m.charge, multi=m.spin_multiplicity))
+                lines.extend(inner_format_mol(m))
         else:
-            for site in self.mol.sites:
-                lines.append(" {element:<4} {x:>17.8f} {y:>17.8f} "
-                             "{z:>17.8f}".format(element=site.species_string,
-                                                 x=site.x, y=site.y, z=site.z))
+            lines.extend(inner_format_mol(self.mol))
         return lines
 
     def _format_rem(self):
@@ -645,18 +674,31 @@ class QcTask(MSONable):
 
     @property
     def to_dict(self):
+        if isinstance(self.mol, str) or isinstance(self.mol, unicode):
+            mol_dict = self.mol
+        elif isinstance(self.mol, Molecule):
+            mol_dict = self.mol.to_dict
+        elif isinstance(self.mol, list):
+            mol_dict = [m.to_dict for m in self.mol]
+        else:
+            raise ValueError('Unknow molecule type "{}"'.format(type(self.mol)))
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "molecule": self.mol if isinstance(self.mol, str)
-                else self.mol.to_dict,
+                "molecule": mol_dict,
                 "charge": self.charge,
                 "spin_multiplicity": self.spin_multiplicity,
                 "params": self.params}
 
     @classmethod
     def from_dict(cls, d):
-        mol = "read" if d["molecule"] == "read" \
-            else Molecule.from_dict(d["molecule"])
+        if d["molecule"] == "read":
+            mol = "read"
+        elif isinstance(d["molecule"], dict):
+            mol = Molecule.from_dict(d["molecule"])
+        elif isinstance(d["molecule"], list):
+            mol = [Molecule.from_dict(m) for m in d["molecule"]]
+        else:
+            raise ValueError('Unknow molecule type "{}"'.format(type(d["molecule"])))
         jobtype = d["params"]["rem"]["jobtype"]
         title = d["params"].get("comment", None)
         exchange = d["params"]["rem"]["exchange"]
@@ -899,8 +941,23 @@ class QcTask(MSONable):
         elif charge is None or spin_multiplicity is None:
             raise ValueError("Charge or spin multiplicity is not found")
         else:
-            mol = cls._parse_coords(contents[1:])
-            mol.set_charge_and_spin(charge, spin_multiplicity)
+            if contents[1].strip()[0:2] == "--":
+                chunks = "\n".join(contents[2:]).split("--\n")
+                mol = []
+                for chunk in chunks:
+                    mol_contents = chunk.split("\n")
+                    m = charge_multi_pattern.match(mol_contents[0])
+                    if m:
+                        fragment_charge = int(m.group("charge"))
+                        fragment_spin_multiplicity = int(m.group("multi"))
+                    else:
+                        raise Exception("charge and spin multiplicity must be specified for each fragment")
+                    fragment = cls._parse_coords(mol_contents[1:])
+                    fragment.set_charge_and_spin(fragment_charge, fragment_spin_multiplicity)
+                    mol.append(fragment)
+            else:
+                mol = cls._parse_coords(contents[1:])
+                mol.set_charge_and_spin(charge, spin_multiplicity)
             return mol, charge, spin_multiplicity
 
     @classmethod
@@ -1150,13 +1207,16 @@ class QcOutput(object):
         thermal_corr_pattern = re.compile("(?P<name>\S.*\S):\s+"
                                           "(?P<correction>\d+\.\d+)\s+"
                                           "k?cal/mol")
-        detailed_charge_pattern = re.compile("Ground-State (?P<method>\w+) Net"
+        detailed_charge_pattern = re.compile("(Ground-State )?(?P<method>\w+)( Net)?"
                                              " Atomic Charges")
-        nbo_charge_pattern = re.compile("(?P<element>[A-Z][a-z]{0,2})\s+(?P<no>\d+)\s+(?P<charge>\-?\d\.\d+)"
+        nbo_charge_pattern = re.compile("(?P<element>[A-Z][a-z]{0,2})\s*(?P<no>\d+)\s+(?P<charge>\-?\d\.\d+)"
                                         "\s+(?P<core>\-?\d+\.\d+)\s+(?P<valence>\-?\d+\.\d+)"
                                         "\s+(?P<rydberg>\-?\d+\.\d+)\s+(?P<total>\-?\d+\.\d+)"
                                         "(\s+(?P<spin>\-?\d\.\d+))?")
         nbo_wavefunction_type_pattern = re.compile("This is an? (?P<type>\w+\-\w+) NBO calculation")
+        bsse_pattern = re.compile("DE, kJ/mol\s+(?P<raw_be>\-?\d+\.?\d+([eE]\d+)?)\s+"
+                                  "(?P<corrected_be>\-?\d+\.?\d+([eE]\d+)?)")
+        float_pattern = re.compile("\-?\d+\.?\d+([eE]\d+)?$")
 
         error_defs = (
             (re.compile("Convergence failure"), "Bad SCF convergence"),
@@ -1209,6 +1269,16 @@ class QcOutput(object):
         charges = dict()
         scf_successful = False
         opt_successful = False
+        parse_alpha_homo = False
+        parse_alpha_lumo = False
+        parse_beta_homo = False
+        parse_beta_lumo = False
+        current_alpha_homo = None
+        current_alpha_lumo = None
+        current_beta_homo = None
+        homo_lumo = []
+        bsse = None
+        hiershfiled_pop = False
         for line in output.split("\n"):
             for ep, message in error_defs:
                 if ep.search(line):
@@ -1336,6 +1406,54 @@ class QcOutput(object):
                         charges[pop_method].append(float(m.group("charge")))
                     else:
                         raise Exception("Can't find NBO charges")
+            elif parse_alpha_homo:
+                if "-- Occupied --" in line:
+                    continue
+                elif "-- Virtual --" in line:
+                    parse_alpha_homo = False
+                    parse_alpha_lumo = True
+                    continue
+                else:
+                    tokens = line.split()
+                    m = float_pattern.search(tokens[-1])
+                    if m:
+                        current_alpha_homo = float(m.group(0))
+                    continue
+            elif parse_alpha_lumo:
+                current_alpha_lumo = float(line.split()[0])
+                parse_alpha_lumo = False
+                continue
+            elif parse_beta_homo:
+                if "-- Occupied --" in line:
+                    continue
+                elif "-- Virtual --" in line:
+                    parse_beta_homo = False
+                    parse_beta_lumo = True
+                    continue
+                else:
+                    tokens = line.split()
+                    m = float_pattern.search(tokens[-1])
+                    if m:
+                        current_beta_homo = float(m.group(0))
+                    continue
+            elif parse_beta_lumo:
+                current_beta_lumo = float(line.split()[0])
+                parse_beta_lumo = False
+                current_homo = max([current_alpha_homo, current_beta_homo])
+                current_lumo = min([current_alpha_lumo, current_beta_lumo])
+                homo_lumo.append([Energy(current_homo, "Ha").to("eV"),
+                                  Energy(current_lumo, "Ha").to("eV")])
+                current_alpha_homo = None
+                current_alpha_lumo = None
+                current_beta_homo = None
+                continue
+            elif "-" * 50 in line and not (current_alpha_lumo is None):
+                homo_lumo.append([Energy(current_alpha_homo, "Ha").to("eV"),
+                                  Energy(current_alpha_lumo, "Ha").to("eV")])
+                current_alpha_homo = None
+                current_alpha_lumo = None
+                current_beta_homo = None
+                continue
             else:
                 if spin_multiplicity is None:
                     m = num_ele_pattern.search(line)
@@ -1355,6 +1473,12 @@ class QcOutput(object):
                     if m:
                         thermal_corr[m.group("name")] = \
                             float(m.group("correction"))
+                m = bsse_pattern.search(line)
+                if m:
+                    raw_be = float(m.group("raw_be"))
+                    corrected_be = float(m.group("corrected_be"))
+                    bsse_fwu = FloatWithUnit(raw_be - corrected_be, "kJ mol^-1")
+                    bsse = bsse_fwu.to('eV atom^-1').real
                 name = None
                 energy = None
                 m = scf_energy_pattern.search(line)
@@ -1394,8 +1518,13 @@ class QcOutput(object):
                     parse_input = True
                 elif "Standard Nuclear Orientation (Angstroms)" in line:
                     parse_coords = True
-                elif "Cycle       Energy         DIIS Error" in line\
-                        or "Cycle       Energy        RMS Gradient" in line:
+                elif "Performing Hirshfeld population analysis" in line:
+                    hiershfiled_pop = True
+                elif "Hirshfeld: atomic densities completed" in line:
+                    hiershfiled_pop = False
+                elif ("Cycle       Energy         DIIS Error" in line\
+                        or "Cycle       Energy        RMS Gradient" in line)\
+                        and not hiershfiled_pop:
                     parse_scf_iter = True
                     scf_iters.append([])
                     scf_successful = False
@@ -1404,6 +1533,12 @@ class QcOutput(object):
                     gradients.append({"gradients": []})
                 elif "VIBRATIONAL ANALYSIS" in line:
                     parse_freq = True
+                elif "Alpha MOs" in line:
+                    parse_alpha_homo = True
+                    parse_alpha_lumo = False
+                elif "Beta MOs" in line:
+                    parse_beta_homo = True
+                    parse_beta_lumo = False
                 elif "Thank you very much for using Q-Chem." in line:
                     properly_terminated = True
                 elif "OPTIMIZATION CONVERGED" in line:
@@ -1448,6 +1583,8 @@ class QcOutput(object):
         data = {
             "jobtype": jobtype,
             "energies": energies,
+            "HOMO/LUMOs": homo_lumo,
+            "bsse": bsse,
             'charges': charges,
             "corrections": thermal_corr,
             "molecules": molecules,

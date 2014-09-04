@@ -16,7 +16,7 @@ import os
 import json
 
 from pymatgen.electronic_structure.dos import CompleteDos
-from pymatgen.electronic_structure.plotter import DosPlotter, BSPlotter
+from pymatgen.electronic_structure.plotter import DosPlotter, BSPlotter, _qvertex_target
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -72,6 +72,12 @@ class BSPlotterTest(unittest.TestCase):
                          "wrong tick label")
         self.assertEqual(len(self.plotter.bs_plot_data()['ticks']['label']),
                          19, "wrong number of tick labels")
+
+    def test_qvertex_target(self):
+        results = _qvertex_target([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 1.0, 0.0], [0.0, 1.0, 0.0],
+                        [0.0, 0.0, 1.0], [1.0, 0.0, 1.0], [1.0, 1.0, 1.0], [0.0, 1.0, 1.0], [0.5, 0.5, 0.5]], 8)
+        self.assertEqual(len(results), 6)
+        self.assertEqual(results[3][1], 0.5)
 
 
 if __name__ == "__main__":

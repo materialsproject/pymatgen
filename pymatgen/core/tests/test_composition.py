@@ -26,14 +26,14 @@ class CompositionTest(unittest.TestCase):
 
     def setUp(self):
         self.comp = list()
-        self.comp.append(Composition.from_formula("Li3Fe2(PO4)3"))
-        self.comp.append(Composition.from_formula("Li3Fe(PO4)O"))
-        self.comp.append(Composition.from_formula("LiMn2O4"))
-        self.comp.append(Composition.from_formula("Li4O4"))
-        self.comp.append(Composition.from_formula("Li3Fe2Mo3O12"))
-        self.comp.append(Composition.from_formula("Li3Fe2((PO4)3(CO3)5)2"))
-        self.comp.append(Composition.from_formula("Li1.5Si0.5"))
-        self.comp.append(Composition.from_formula("ZnOH"))
+        self.comp.append(Composition("Li3Fe2(PO4)3"))
+        self.comp.append(Composition("Li3Fe(PO4)O"))
+        self.comp.append(Composition("LiMn2O4"))
+        self.comp.append(Composition("Li4O4"))
+        self.comp.append(Composition("Li3Fe2Mo3O12"))
+        self.comp.append(Composition("Li3Fe2((PO4)3(CO3)5)2"))
+        self.comp.append(Composition("Li1.5Si0.5"))
+        self.comp.append(Composition("ZnOH"))
 
         self.indeterminate_comp = []
         self.indeterminate_comp.append(
@@ -74,6 +74,9 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual("H2 O1", Composition(f).formula)
         self.assertEqual("Na2 O1", Composition(Na=2, O=1).formula)
 
+        c = Composition({'S': Composition.amount_tolerance / 2})
+        self.assertEqual(len(c.elements), 0)
+
     def test_average_electroneg(self):
         val = [2.7224999999999997, 2.4160000000000004, 2.5485714285714285,
                2.21, 2.718, 3.08, 1.21, 2.43]
@@ -87,7 +90,7 @@ class CompositionTest(unittest.TestCase):
                             'Li1.5 Si0.5', 'Zn1 H1 O1']
         all_formulas = [c.formula for c in self.comp]
         self.assertEqual(all_formulas, correct_formulas)
-        self.assertRaises(CompositionError, Composition.from_formula,
+        self.assertRaises(CompositionError, Composition,
                           "(co2)(po4)2")
 
     def test_mixed_valence(self):
@@ -105,7 +108,7 @@ class CompositionTest(unittest.TestCase):
                             ["Co2 P4 O4", "Co2 Po4", "P4 C2 O6",
                              "Po4 C2 O2"], []]
         for i, c in enumerate(correct_formulas):
-            self.assertEqual([Composition.from_formula(comp) for comp in c],
+            self.assertEqual([Composition(comp) for comp in c],
                              self.indeterminate_comp[i])
 
     def test_alphabetical_formula(self):
@@ -122,8 +125,7 @@ class CompositionTest(unittest.TestCase):
         for i in xrange(len(self.comp)):
             self.assertEqual(self.comp[i]
                              .get_reduced_composition_and_factor()[0],
-                             Composition
-                             .from_formula(correct_reduced_formulas[i]))
+                             Composition(correct_reduced_formulas[i]))
 
     def test_reduced_formula(self):
         correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4',
@@ -198,15 +200,26 @@ class CompositionTest(unittest.TestCase):
 
     def test_sub(self):
         self.assertEqual((self.comp[0]
-                          - Composition.from_formula("Li2O")).formula,
+                          - Composition("Li2O")).formula,
                          "Li1 Fe2 P3 O11",
                          "Incorrect composition after addition!")
         self.assertEqual((self.comp[0] - {"Fe": 2, "O": 3}).formula,
                          "Li3 P3 O9")
 
+        self.assertRaises(CompositionError, Composition('O').__sub__, 
+                          Composition('H'))
+
+        #check that S is completely removed by subtraction
+        c1 = Composition({'S': 1 + Composition.amount_tolerance / 2, 'O': 1})
+        c2 = Composition({'S': 1})
+        self.assertEqual(len((c1 - c2).elements), 1)
+
     def test_mul(self):
         self.assertEqual((self.comp[0] * 4).formula, "Li12 Fe8 P12 O48")
         self.assertEqual((3 * self.comp[1]).formula, "Li9 Fe3 P3 O15")
+
+    def test_div(self):
+        self.assertEqual((self.comp[0] / 4).formula, 'Li0.75 Fe0.5 P0.75 O3')
 
     def test_equals(self):
         random_z = random.randint(1, 92)
@@ -226,6 +239,21 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual(comp1.__hash__(), comp2.__hash__(),
                          "Hashcode equality test failed!")
 
+    def test_comparisons(self):
+        c1 = Composition({'S': 1})
+        c1_1 = Composition({'S': 1.00000000000001})
+        c2 = Composition({'S': 2})
+        c3 = Composition({'O': 1})
+        c4 = Composition({'O': 1, 'S': 1})
+        self.assertFalse(c1 > c2)
+        self.assertFalse(c1_1 > c1)
+        self.assertFalse(c1_1 < c1)
+        self.assertTrue(c1 > c3)
+        self.assertTrue(c3 < c1)
+        self.assertTrue(c4 > c1)
+        self.assertEqual(sorted([c1, c1_1, c2, c4, c3]),
+                        [c3, c1, c1_1, c4, c2])
+
     def test_almost_equals(self):
         c1 = Composition({'Fe': 2.0, 'O': 3.0, 'Mn': 0})
         c2 = Composition({'O': 3.2, 'Fe': 1.9, 'Zn': 0})
@@ -242,12 +270,49 @@ class CompositionTest(unittest.TestCase):
         self.assertFalse(self.comp[0].__ne__(self.comp[0]))
         self.assertTrue(self.comp[0].__ne__(self.comp[1]))
 
-    def test_get_fractional_composition(self):
+    def test_fractional_composition(self):
         for c in self.comp:
             self.assertAlmostEqual(c.get_fractional_composition().num_atoms, 1)
+        for c in self.comp:
+            self.assertAlmostEqual(c.fractional_composition.num_atoms, 1)
 
     def test_init_numerical_tolerance(self):
         self.assertEqual(Composition({'B':1, 'C':-1e-12}), Composition('B'))
+
+    def test_negative_compositions(self):
+        self.assertEqual(Composition('Li-1(PO-1)4', allow_negative=True).formula,
+                         'Li-1 P4 O-4')
+        self.assertEqual(Composition('Li-1(PO-1)4', allow_negative=True).reduced_formula,
+                         'Li-1(PO-1)4')
+        self.assertEqual(Composition('Li-2Mg4', allow_negative=True).reduced_composition,
+                         Composition('Li-1Mg2', allow_negative=True))
+        self.assertEqual(Composition('Li-2.5Mg4', allow_negative=True).reduced_composition,
+                         Composition('Li-2.5Mg4', allow_negative=True))
+
+        #test math
+        c1 = Composition('LiCl', allow_negative=True)
+        c2 = Composition('Li')
+        self.assertEqual(c1 - 2 * c2, Composition({'Li': -1, 'Cl': 1}, 
+                                                  allow_negative=True))
+        self.assertEqual((c1 + c2).allow_negative, True)
+        self.assertEqual(c1 / -1, Composition('Li-1Cl-1', allow_negative=True))
+
+        #test num_atoms
+        c1 = Composition('Mg-1Li', allow_negative=True)
+        self.assertEqual(c1.num_atoms, 2)
+        self.assertEqual(c1.get_atomic_fraction('Mg'), 0.5)
+        self.assertEqual(c1.get_atomic_fraction('Li'), 0.5)
+        self.assertEqual(c1.fractional_composition, 
+                         Composition('Mg-0.5Li0.5', allow_negative=True))
+
+        #test copy
+        self.assertEqual(c1.copy(), c1)
+
+        #test species
+        c1 = Composition({'Mg':1, 'Mg2+':-1}, allow_negative=True)
+        self.assertEqual(c1.num_atoms, 2)
+        self.assertEqual(c1.element_composition, Composition())
+        self.assertEqual(c1.average_electroneg, 1.31)
 
 
 if __name__ == "__main__":

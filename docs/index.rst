@@ -1,8 +1,3 @@
-.. pymatgen documentation master file, created by
-   sphinx-quickstart on Tue Nov 15 00:13:52 2011.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 .. image:: _static/pymatgen.png
    :width: 300 px
    :alt: pymatgen
@@ -69,40 +64,9 @@ several advantages over other codes out there:
    written in other languages. Pymatgen also comes with a complete system for
    handling periodic boundary conditions.
 
-Latest Change Log
-=================
+.. include:: ../LATEST_CHANGES
 
-v2.9.15
--------
-1. Major update: MPRester now uses Materials API v2! Also major refactoring
-   of MPRester.
-2. Bug fix for XYZ parsing for scientific notation.
-3. Update numpy requirements to 1.8+. Fixes memory leak.
-
-v2.9.14
--------
-1. Implements Structure.sort method. Both Structure.sort and the
-   get_sorted_structure methods now supports all arguments supported by list
-   .sort().
-2. VaspInputSets configs, as well as several other configs now uses yaml. Note
-   the new dependency on pyyaml. It is highly recommended that you install
-   pyyaml with the libyaml C bindings.
-3. Fix missing spglib dependency.
-4. Use monty.serialization for transparent handling of JSON vs YAML.
-   Requirements updated to monty>=0.3.1.
-
-v2.9.13
--------
-1. Urgent bug fix for missing compatibility yamls.
-
-v2.9.12
--------
-1. Defect transformations (Bharat).
-2. Support for optical properties (Geoffroy Hautier and David Waroquiers).
-3. Improved support for some VASP output files (XDATCAR and OSZICAR).
-4. Refactored compatibilities now uses YAML for ease of reading.
-
-:doc:`Older versions </changelog>`
+:doc:`Older versions </change_log>`
 
 Getting pymatgen
 ================
@@ -476,28 +440,9 @@ License
 =======
 
 Pymatgen is released under the MIT License. The terms of the license are as
-follows::
+follows:
 
-    The MIT License (MIT)
-    Copyright (c) 2011-2012 MIT & LBNL
-
-    Permission is hereby granted, free of charge, to any person obtaining a
-    copy of this software and associated documentation files (the "Software")
-    , to deal in the Software without restriction, including without limitation
-    the rights to use, copy, modify, merge, publish, distribute, sublicense,
-    and/or sell copies of the Software, and to permit persons to whom the
-    Software is furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in
-    all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-    DEALINGS IN THE SOFTWARE.
+.. literalinclude:: ../LICENSE.rst
 
 Indices and tables
 ==================

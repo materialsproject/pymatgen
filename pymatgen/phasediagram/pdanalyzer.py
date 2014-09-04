@@ -16,6 +16,8 @@ import numpy as np
 import itertools
 import collections
 
+from monty.functools import lru_cache
+
 from pyhull.simplex import Simplex
 
 from pymatgen.core.composition import Composition
@@ -77,15 +79,19 @@ class PDAnalyzer(object):
         else:
             return True
 
+    @lru_cache(1)
     def _get_facets(self, comp):
         """
-        Get the facets that a composition falls into.
+        Get the facets that a composition falls into. Cached so successive
+        calls at same composition are fast.
         """
         return filter(lambda f: self._in_facet(f, comp), self._pd.facets)
 
+    @lru_cache(1)
     def _get_facet(self, comp):
         """
-        Get any facet that a composition falls into.
+        Get any facet that a composition falls into. Cached so successive
+        calls at same composition are fast.
         """
         for facet in self._pd.facets:
             if self._in_facet(facet, comp):
@@ -94,7 +100,7 @@ class PDAnalyzer(object):
 
     def get_decomposition(self, comp):
         """
-        Provides the decomposition at a particular composition
+        Provides the decomposition at a particular composition.
 
         Args:
             comp: A composition
@@ -113,7 +119,9 @@ class PDAnalyzer(object):
 
     def get_decomp_and_e_above_hull(self, entry, allow_negative=False):
         """
-        Provides the decomposition and energy above convex hull for an entry
+        Provides the decomposition and energy above convex hull for an entry.
+        Due to caching, can be much faster if entries with the same composition
+        are processed together.
 
         Args:
             entry: A PDEntry like object
