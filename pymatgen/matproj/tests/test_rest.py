@@ -168,9 +168,7 @@ class MPResterTest(unittest.TestCase):
         # self.assertEqual(len(data), 0)
 
     def test_get_stability(self):
-        entries = self.rester.get_entries("Fe-O")
-        entries.extend(self.rester.get_entries("Fe"))
-        entries.extend(self.rester.get_entries("O"))
+        entries = self.rester.get_entries_in_chemsys(["Fe", "O"])
         modified_entries = []
         for entry in entries:
             # Create modified entries with energies that are 0.01eV higher
