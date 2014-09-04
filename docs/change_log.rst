@@ -1,7 +1,7 @@
 Change log
 ==========
 
-v2.10.4
+v2.10.5
 -------
 * DiffusionAnalyzer now has non-smoothed option.
 * Kpoints generation algorithm now guarantees minimum # of points.
