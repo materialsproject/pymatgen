@@ -1,6 +1,14 @@
 Change log
 ==========
 
+v2.10.5
+-------
+* DiffusionAnalyzer now has non-smoothed option.
+* Kpoints generation algorithm now guarantees minimum # of points.
+* Compatibility now has a proper explanation dict.
+* Vaspruns with NSW == 1 now checked properly for electronic conv.
+* make_movie now supports kwargs.
+
 v2.10.3
 -------
 * MPRester.query now supports a simple but powerful string criteria syntax
