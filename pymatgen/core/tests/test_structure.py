@@ -247,9 +247,15 @@ class IStructureTest(PymatgenTest):
     def test_get_all_neighbors_and_get_neighbors(self):
         s = self.struct
         r = random.uniform(3, 6)
-        all_nn = s.get_all_neighbors(r)
+        all_nn = s.get_all_neighbors(r, True)
         for i in range(len(s)):
             self.assertEqual(len(all_nn[i]), len(s.get_neighbors(s[i], r)))
+
+        for site, nns in zip(s, all_nn):
+            for nn in nns:
+                self.assertTrue(nn[0].is_periodic_image(s[nn[2]]))
+                d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
+                self.assertAlmostEqual(d, nn[1])
 
     def test_get_dist_matrix(self):
         ans = [[0., 2.3516318],

@@ -610,24 +610,19 @@ class IStructure(SiteCollection, MSONable):
 
         site_coords = np.array(self.cart_coords)
         latt = self._lattice
-        frac_2_cart = latt.get_cartesian_coords
-        n = len(self)
-        indices = np.array(range(n))
+        indices = np.arange(len(self))
         for image in itertools.product(*all_ranges):
-            for (j, fcoord) in enumerate(all_fcoords):
-                fcoords = fcoord + image
-                coords = frac_2_cart(fcoords)
-                submat = np.tile(coords, (n, 1))
-                dists = np.power(site_coords - submat, 2)
-                dists = np.sqrt(dists.sum(axis=1))
-                withindists = (dists <= r) * (dists > 1e-8)
-                sp = self[j].species_and_occu
-                props = self[j].properties
-                for i in indices[withindists]:
-                    nnsite = PeriodicSite(sp, fcoords, latt,
-                                          properties=props)
-                    item = (nnsite, dists[i], j) if include_index else (
-                        nnsite, dists[i])
+            fcoords = all_fcoords + image
+            coords = latt.get_cartesian_coords(fcoords)
+            all_dists = all_distances(coords, site_coords)
+            all_within_r = np.bitwise_and(all_dists <= r, all_dists > 1e-8)
+
+            for (j, d, within_r) in zip(indices, all_dists, all_within_r):
+                nnsite = PeriodicSite(self[j].species_and_occu, fcoords[j],
+                                      latt, properties=self[j].properties)
+                for i in indices[within_r]:
+                    item = (nnsite, d[i], j) if include_index else (
+                        nnsite, d[i])
                     neighbors[i].append(item)
         return neighbors
 
