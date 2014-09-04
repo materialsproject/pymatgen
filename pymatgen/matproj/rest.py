@@ -357,9 +357,18 @@ class MPRester(object):
         Returns:
             List of ComputedEntries.
         """
-        return self.get_entries(
-            "-".join(elements), compatible_only=compatible_only,
-            inc_structure=inc_structure)
+        entries = []
+        for i in xrange(len(elements)):
+            for els in itertools.combinations(elements, i + 1):
+                try:
+                    entries.extend(
+                        self.get_entries(
+                            "-".join(els), compatible_only=compatible_only,
+                            inc_structure=inc_structure)
+                    )
+                except:
+                    pass
+        return entries
 
     def get_exp_thermo_data(self, formula):
         """
