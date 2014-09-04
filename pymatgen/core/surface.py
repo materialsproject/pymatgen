@@ -33,6 +33,28 @@ def lcm(numbers):
         return (a * b) / gcd(a, b)
     return reduce(lcm, numbers, 1)
 
+def organize(struct, thresh, crit):
+    el = struct.species
+    org_coords = struct.frac_coords.tolist()
+    new_coord, b = [], []
+
+    for i in struct.frac_coords:
+        b.append(i[2])
+        new_coord.append(b)
+        b = []
+
+# Clusters sites together that belong in the same termination surface based
+# on their position in the c direction. Also organizes sites by ascending
+# order from teh origin along the c direction. How close the sites have to
+# be to belong in the same termination surface depends on the user input thresh.
+    tracker_index = fclusterdata(new_coord, thresh, criterion= crit)
+    new_coord, tracker_index, org_coords, el = \
+        zip(*sorted(zip(new_coord, tracker_index, org_coords, el)))
+
+    return [Structure(struct.lattice, el, org_coords), tracker_index]
+
+
+
 
 class Slab(Structure):
     """
@@ -63,7 +85,7 @@ class Slab(Structure):
 
     def __init__(self, structure, miller_index, min_slab_size,
                  min_vacuum_size, thresh=0.0001, crit ='distance',
-                 lll_reduce=True, standardize = True, shift=0.00000000000001):
+                 lll_reduce=True, standardize = True, shift=0):
         """
         Makes a Slab structure. Note that the code will make a slab with
         whatever size that is specified, rounded upwards. The a and b lattice
@@ -143,8 +165,24 @@ class Slab(Structure):
         nlayers = nlayers_slab + nlayers_vac
         slab_scale_factor.append(eye[latt_index] * nlayers)
 
-        slab = structure.copy()
+        l = organize(structure.copy(), thresh, crit)
+        slab, tracker_index = l[0], l[1]
 
+# Creates a list (term_index) that tells us which at
+# which site does a termination begin. For 1 unit cell.
+        term_index = []
+        gg = 0
+        for i in range(0, len(slab)):
+            gg +=1
+            if i == len(slab) - 1:
+                term_index.append(i)
+            else:
+                if tracker_index[i] != tracker_index[i+1]:
+                    term_index.append(i)
+
+
+        slab_list, term_coords = [], []
+        b = slab_scale_factor
         slab.make_supercell(slab_scale_factor)
         new_sites = []
         for site in slab:
@@ -159,96 +197,54 @@ class Slab(Structure):
             slab_scale_factor = np.dot(mapping[2], slab_scale_factor)
             slab = lll_slab
 
-        n = 0
-        term_slab = slab.copy()
-        c = term_slab.lattice.c
-        # For loop moves all sites down to compensate
-        # for the space opened up by the shift
-        for site in term_slab:
-            index = []
-            index.append(n)
-            term_slab.translate_sites(index, [0, 0, -shift/c])
-            n+=1
-
-        el = term_slab.species
-        org_coords = term_slab.frac_coords.tolist()
-        new_coord, b = [], []
-
-#        for i in org_coords:
-#            i[2] = (i[2]*c)/term_slab.lattice.c
-
-        for i in term_slab.frac_coords:
-            b.append(i[2])
-            new_coord.append(b)
-            b = []
-
-# Clusters sites together that belong in the same termination surface based
-# on their position in the c direction. Also organizes sites by ascending
-# order from teh origin along the c direction. How close the sites have to
-# be to belong in the same termination surface depends on the user input thresh.
-        tracker_index = fclusterdata(new_coord, thresh, criterion= crit)
-        new_coord, tracker_index, org_coords, el = \
-            zip(*sorted(zip(new_coord, tracker_index, org_coords, el)))
-
-# Creates a list (term_index) that tells us which at
-# which site does a termination begin. For 1 unit cell.
-        term_index = []
-        gg = 0
-        for i in range(0, len(term_slab)):
-            gg +=1
-            if i == len(term_slab) - 1:
-                term_index.append(i)
-            else:
-                if tracker_index[i] != tracker_index[i+1]:
-                    term_index.append(i)
-            if gg == len(structure):
-                    break
-
-        slab_list, term_coords = [], []
-        a, i = 0, 0
-        new_slab = Structure(term_slab.lattice, el, org_coords)
-        term_scale = nlayers_vac*dist
-
-        for iii in range(0, len(term_index)):
+        for i in range(0, len(term_index)):
             y = []
-            alt_slab = new_slab.copy()
+            term_slab = structure.copy()
+            term_slab.make_supercell(b)
+            term_slab = organize(term_slab, thresh, crit)[0]
+            c = term_slab.lattice.c
+            term_site = term_slab[term_index[i]].frac_coords[2]*c
 
-            for ii in range(0, len(alt_slab)):
-                index = []
+
+            new_sites = []
+            for site in term_slab:
+                if shift+term_site <= site.frac_coords[2] * c < nlayers_slab * dist +\
+                        shift +term_site:
+                    new_sites.append(site)
+
+            term_slab = Structure.from_sites(new_sites)
+
+            if lll_reduce:
+                term_slab = term_slab.copy(sanitize=True)
+
+            min_c = []
+            index = []
+            for ii in range(0, len(term_slab)):
+                min_c.append(term_slab[ii].frac_coords[2])
                 index.append(ii)
+            length = min(min_c)
 
-                if alt_slab.frac_coords[ii][2] > \
-                        alt_slab.frac_coords[term_index[iii]][2]:
-                    alt_slab.translate_sites\
-                        (index, [0, 0, term_scale/(new_slab.lattice.c)])
+            term_slab.translate_sites(index, [0, 0, -length + ((nlayers_vac*dist)/c)/2])
+            slab_list.append(term_slab)
 
-            if standardize:
-                index = []
-                for f in range(0, len(alt_slab)):
-                    index.append(f)
-                    standard_shift = -(alt_slab.frac_coords[term_index[iii]][2] +
-                                       (0.5*term_scale)/alt_slab.lattice.c)
+            term_slab = organize(term_slab, thresh, crit)[0]
 
-                if alt_slab.frac_coords[f][2] > \
-                        alt_slab.frac_coords[term_index[iii]][2]:
-                    alt_slab.translate_sites(index, [0, 0, standard_shift])
-                else:
-                    alt_slab.translate_sites(index, [0, 0, 1+standard_shift])
+            if i != len(term_index)-1:
+                a = term_index[i+1]
+            else:
+                a = term_index[i]
+            for iv in range(term_index[i], a):
+                y.append(term_slab[iv])
 
-
-            slab_list.append(alt_slab)
-
-            for iv in range(a, term_index[iii] + 1):
-                y.append(slab_list[i][iv])
-
-            i += 1
             term_coords.append(y)
-            a = term_index[iii]+1
+
+        print(term_index)
+
 
         self.min_slab_size = min_slab_size
         self.nlayers_slab = nlayers_slab
         self.min_vac_size = min_vacuum_size
-        self.slab_list = slab_list 
+        self.slab_list = slab_list
         self.parent = structure
         self.miller_index = miller_index
         self.term_coords = term_coords
@@ -260,6 +256,7 @@ class Slab(Structure):
         super(Slab, self).__init__(
             slab.lattice, slab.species_and_occu, slab.frac_coords,
             site_properties=slab.site_properties)
+
 
     @property
     def surface_area(self):
@@ -529,11 +526,11 @@ class SlabTest(unittest.TestCase):
                 # that were already made for checking sites are being
                 # translated correctly. Optional test can be turned
                 # on. Test turned off by default to save processing.
-                #test_comp = CifParser(get_path("tests" + newFile[+73:]))
-                #self.compare_structure = (test_comp.get_structures(primitive = False)[0])
-                #test_new = CifParser(newFile)
-                #self.new_structure = (test_new.get_structures(primitive = False)[0])
-                #self.assertEqual(self.compare_structure, self.new_structure)
+                # test_comp = CifParser(get_path("tests" + newFile[+73:]))
+                # self.compare_structure = (test_comp.get_structures(primitive = False)[0])
+                # test_new = CifParser(newFile)
+                # self.new_structure = (test_new.get_structures(primitive = False)[0])
+                # self.assertEqual(self.compare_structure, self.new_structure)
 
             # Prints the coordinates and the species of each
             # atom along with the number of atoms on a
