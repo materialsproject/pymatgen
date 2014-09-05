@@ -347,13 +347,13 @@ class DictVaspInputSet(AbstractVaspInputSet):
 
         # If grid_density is in the kpoints_settings use Kpoints.automatic_density
         if self.kpoints_settings.get('grid_density'):
-            dens = int(self.kpoints_settings['grid_density'])
-            return Kpoints.automatic_density(structure, dens, self.force_gamma)
+            return Kpoints.automatic_density(structure,
+                                             self.kpoints_settings['grid_density'],
+                                             self.force_gamma)
 
         # If length is in the kpoints_settings use Kpoints.automatic
         elif self.kpoints_settings.get('length'):
-            length = int(self.kpoints_settings['length'])
-            return Kpoints.automatic(length)
+            return Kpoints.automatic(self.kpoints_settings['length'])
 
         # Raise error. Unsure of which kpoint generation to use
         else:
