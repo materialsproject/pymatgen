@@ -27,7 +27,7 @@ import itertools
 
 from monty.dev import deprecated
 
-from pymatgen.core.periodic_table import ALL_ELEMENT_SYMBOLS
+from pymatgen.core.periodic_table import ALL_ELEMENT_SYMBOLS, Element
 from pymatgen.core.composition import Composition
 from pymatgen.serializers.json_coders import PMGJSONDecoder
 from pymatgen.entries.computed_entries import ComputedStructureEntry
@@ -810,8 +810,8 @@ class MPRester(object):
                 return {"task_id": t}
             elif "-" in t:
                 elements = t.split("-")
-                elements = [[el] if el != "*" else ALL_ELEMENT_SYMBOLS
-                            for el in elements]
+                elements = [[Element(el).symbol] if el != "*" else
+                            ALL_ELEMENT_SYMBOLS for el in elements]
                 chemsyss = []
                 for cs in itertools.product(*elements):
                     if len(set(cs)) == len(cs):

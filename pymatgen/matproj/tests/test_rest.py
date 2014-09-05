@@ -216,6 +216,11 @@ class MPResterTest(unittest.TestCase):
         for c in comps:
             self.assertEqual(len(Composition(c)), 3)
 
+        #Let's test some invalid symbols
+
+        self.assertRaises(KeyError, MPRester.parse_criteria, "li-fe")
+        self.assertRaises(ValueError, MPRester.parse_criteria, "LO2")
+
 
 if __name__ == "__main__":
     unittest.main()
