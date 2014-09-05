@@ -828,8 +828,10 @@ class MPRester(object):
                     for p in zip(parts, syms):
                         f.extend(p)
                     f.append(parts[-1])
-                    c = Composition("".join(f)).reduced_formula
-                    all_formulas.add(c)
+                    c = Composition("".join(f))
+                    #Check for valid Elements in keys.
+                    map(lambda e: Element(e.symbol), c.keys())
+                    all_formulas.add(c.reduced_formula)
                 return {"pretty_formula": {"$in": list(all_formulas)}}
 
         if len(toks) == 1:
