@@ -257,6 +257,21 @@ class IStructureTest(PymatgenTest):
                 d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
                 self.assertAlmostEqual(d, nn[1])
 
+        s = Structure(Lattice.cubic(1), ['Li'], [[0,0,0]])
+        s.make_supercell([2,2,2])
+        self.assertEqual(sum(map(len, s.get_all_neighbors(3))), 976)
+
+    def test_get_all_neighbors_outside_cell(self):
+        s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'], 
+                      [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3])
+        all_nn = s.get_all_neighbors(0.2, True)
+        for site, nns in zip(s, all_nn):
+            for nn in nns:
+                self.assertTrue(nn[0].is_periodic_image(s[nn[2]]))
+                d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
+                self.assertAlmostEqual(d, nn[1])
+        self.assertEqual(map(len, all_nn), [2, 2, 2, 0])
+
     def test_get_dist_matrix(self):
         ans = [[0., 2.3516318],
                [2.3516318, 0.]]

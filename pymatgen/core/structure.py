@@ -585,41 +585,31 @@ class IStructure(SiteCollection, MSONable):
             structure. This is needed for ewaldmatrix by keeping track of which
             sites contribute to the ewald sum.
         """
-
         # Use same algorithm as get_sites_in_sphere to determine supercell but
         # loop over all atoms in crystal
-        recp_len = self.lattice.reciprocal_lattice.abc
-        sr = r + 0.15
-        nmax = [sr * l / (2 * math.pi) for l in recp_len]
-        site_nminmax = []
-        floor = math.floor
-        inds = (0, 1, 2)
-        for site in self:
-            pcoords = site.frac_coords
-            inmax = [int(floor(pcoords[i] + nmax[i])) for i in inds]
-            inmin = [int(floor(pcoords[i] - nmax[i])) for i in inds]
-            site_nminmax.append(zip(inmin, inmax))
+        recp_len = np.array(self.lattice.reciprocal_lattice.abc)
+        maxr = np.ceil((r + 0.15) * recp_len / (2 * math.pi))
+        nmin = np.floor(np.min(self.frac_coords, axis=0)) - maxr
+        nmax = np.ceil(np.max(self.frac_coords, axis=0)) + maxr
 
-        nmin = [min([i[j][0] for i in site_nminmax]) for j in inds]
-        nmax = [max([i[j][1] for i in site_nminmax]) for j in inds]
+        all_ranges = [np.arange(x, y) for x, y in zip(nmin, nmax)]
 
-        all_ranges = [range(nmin[i], nmax[i] + 1) for i in inds]
-
+        latt = self._lattice
         neighbors = [list() for i in xrange(len(self._sites))]
         all_fcoords = np.mod(self.frac_coords, 1)
+        coords_in_cell = latt.get_cartesian_coords(all_fcoords)
+        site_coords = self.cart_coords
 
-        site_coords = np.array(self.cart_coords)
-        latt = self._lattice
         indices = np.arange(len(self))
         for image in itertools.product(*all_ranges):
-            fcoords = all_fcoords + image
-            coords = latt.get_cartesian_coords(fcoords)
+            coords = latt.get_cartesian_coords(image) + coords_in_cell
             all_dists = all_distances(coords, site_coords)
             all_within_r = np.bitwise_and(all_dists <= r, all_dists > 1e-8)
 
             for (j, d, within_r) in zip(indices, all_dists, all_within_r):
-                nnsite = PeriodicSite(self[j].species_and_occu, fcoords[j],
-                                      latt, properties=self[j].properties)
+                nnsite = PeriodicSite(self[j].species_and_occu, coords[j],
+                                      latt, properties=self[j].properties,
+                                      coords_are_cartesian=True)
                 for i in indices[within_r]:
                     item = (nnsite, d[i], j) if include_index else (
                         nnsite, d[i])
