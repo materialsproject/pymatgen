@@ -14,6 +14,7 @@ import json
 import webbrowser
 import requests
 import re
+import subprocess
 
 from fabric.api import local, lcd
 from pymatgen import __version__ as ver
@@ -116,6 +117,17 @@ def release_github():
         data=json.dumps(payload),
         headers={"Authorization": "token " + os.environ["GITHUB_RELEASES_TOKEN"]})
     print response.text
+
+
+def update_changelog():
+    output = subprocess.check_output(["git", "log", "--pretty=format:%s",
+        "v%s..HEAD" % ver])
+    lines = ["* " + l for l in output.strip().split("\n")]
+    with open("CHANGES.rst") as f:
+        contents = f.read()
+    toks = contents.split("==========")
+    toks.insert(-1, "\n\n" + "\n".join(lines))
+    print "==========".join(toks)  
 
 
 def log_ver():

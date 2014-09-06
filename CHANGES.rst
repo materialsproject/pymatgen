@@ -478,7 +478,6 @@ v2.2.0
 
 v2.1.2
 ------
-
 * Brand new CompoundPD class that allows the plotting of phase diagrams that
   do not have elements as their terminal points.
 * Spglib is now completely integrated as part of the setup.py installation.
@@ -495,7 +494,6 @@ v2.1.2
 
 v2.0.0
 ------
-
 * Brand new module (pymatgen.matproj.rest) for interfacing with the
   MaterialsProject REST interface.
 * Useful aliases for commonly used Objects, similar in style to numpy.
