@@ -127,7 +127,8 @@ def update_changelog():
         contents = f.read()
     toks = contents.split("==========")
     toks.insert(-1, "\n\n" + "\n".join(lines))
-    print "==========".join(toks)  
+    with open("CHANGES.rst", "w") as f:
+        f.write("==========".join(toks))
 
 
 def log_ver():
