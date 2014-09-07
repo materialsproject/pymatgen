@@ -1,6 +1,6 @@
 PyCifRW==3.6.2
 PyDispatcher==2.0.3
-numpy==1.8.1
+numpy==1.9.0
 pybtex>=0.18
 requests==2.3.0
 monty==0.3.6
