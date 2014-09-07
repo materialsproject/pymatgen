@@ -906,9 +906,8 @@ class Lattice(MSONable):
                                axis=4))
         within_r = np.where(dists <= r)
 
-        d = [shifted_coords[within_r], dists[within_r], indices[within_r[0]]]
-
-        return np.transpose(d)
+        return list(zip(shifted_coords[within_r], dists[within_r],
+                        indices[within_r[0]]))
 
     def get_all_distances(self, fcoords1, fcoords2):
         """
@@ -949,7 +948,7 @@ class Lattice(MSONable):
 
         cart_f1 = self.get_cartesian_coords(fcoords1)
         cart_f2 = self.get_cartesian_coords(shifted_f2)
-        
+
         if cart_f1.size * cart_f2.size < 1e5:
             #all vectors from f1 to f2
             vectors = cart_f2[None, :, :, :] - cart_f1[:, None, None, :]
