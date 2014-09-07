@@ -64,7 +64,7 @@ several advantages over other codes out there:
    written in other languages. Pymatgen also comes with a complete system for
    handling periodic boundary conditions.
 
-.. include:: ../LATEST_CHANGES
+.. include:: latest_changes.rst
 
 :doc:`Older versions </change_log>`
 
@@ -120,7 +120,7 @@ Stable version
        additional preparation, it is highly recommended that you install
        pyyaml with the C bindings for speed. To do so, install LibYaml first,
        and then install pyyaml with the command below (see the `pyyaml
-       doc<http://pyyaml.org/wiki/PyYAML>`_ for more information)::
+       doc <http://pyyaml.org/wiki/PyYAML>`_ for more information)::
 
            python setup.py --with-libyaml install
 

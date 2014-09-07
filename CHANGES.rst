@@ -507,6 +507,7 @@ v2.0.0
 * Useful aliases for commonly used Objects, similar in style to numpy.
   Supported objects include Element, Composition, Structure, Molecule, Spin
   and Orbital. For example, the following will now work::
+
       import pymatgen as mg
       # Elemental Si
       fe = mg.Element("Si")
