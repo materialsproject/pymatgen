@@ -26,9 +26,11 @@ def make_doc():
 
     toks = re.split("\-+", contents)
     n = len(toks[0].split()[-1])
-    changes = ("-" * n).join(toks[0:2])
+    changes = [toks[0]]
+    changes.append("\n" + "\n".join(toks[1].strip().split("\n")[0:-1]))
+    changes = ("-" * n).join(changes)
 
-    with open("LATEST_CHANGES.rst", "w") as f:
+    with open("docs/latest_changes.rst", "w") as f:
         f.write(changes)
 
     with lcd("examples"):
@@ -68,8 +70,6 @@ def make_doc():
         #Avoid ths use of jekyll so that _dir works as intended.
         local("touch _build/html/.nojekyll")
 
-
-    os.remove("LATEST_CHANGES.rst")
 
 def publish():
     local("python setup.py release")
