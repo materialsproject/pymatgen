@@ -1123,13 +1123,12 @@ class PotcarSingle(object):
 
     def __init__(self, data):
         self.data = data  # raw POTCAR as a string
-
         # AJ (5/18/2012) - only search on relevant portion of POTCAR, should
         # fail gracefully if string not found
-        search_string = self.data[0:self.data.find("END of PSCTR-controll "
-                                                   "parameters")]
+        #search_string = self.data[0:self.data.find("END of PSCTR-controll
+        # parameters")]
         keypairs = re.compile(r";*\s*(.+?)\s*=\s*([^;\n]+)\s*",
-                              re.M).findall(search_string)
+                              re.M).findall(self.data)
         self.keywords = dict(keypairs)
 
     def __str__(self):
@@ -1142,7 +1141,7 @@ class PotcarSingle(object):
     @staticmethod
     def from_file(filename):
         with zopen(filename, "rb") as f:
-            return PotcarSingle(f.read())
+            return PotcarSingle(bytes.decode(f.read()))
 
     @staticmethod
     def from_symbol_and_functional(symbol, functional="PBE"):
