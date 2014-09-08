@@ -413,18 +413,19 @@ class Compatibility(object):
             entry: A ComputedEntry.
         """
         d = self.get_explanation_dict(entry)
-        print "The uncorrected value of the energy of %s is %f eV" % (
-            entry.composition, d["uncorrected_energy"])
-        print "The following corrections / screening are applied for %s:\n" %\
-            d["compatibility"]
+        print("The uncorrected value of the energy of %s is %f eV" % (
+            entry.composition, d["uncorrected_energy"]))
+        print("The following corrections / screening are applied for %s:\n" %\
+            d["compatibility"])
         for c in d["corrections"]:
-            print "%s correction: %s\n" % (c["name"],
-                                           c["description"])
-            print "For the entry, this correction has the value %f eV." % c[
-                "value"]
-            print "-" * 30
+            print("%s correction: %s\n" % (c["name"],
+                                           c["description"]))
+            print("For the entry, this correction has the value %f eV." % c[
+                "value"])
+            print("-" * 30)
 
-        print "The final energy after corrections is %f" % d["corrected_energy"]
+        print("The final energy after corrections is %f" % d[
+            "corrected_energy"])
 
 
 @cached_class

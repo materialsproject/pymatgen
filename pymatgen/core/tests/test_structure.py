@@ -270,7 +270,7 @@ class IStructureTest(PymatgenTest):
                 self.assertTrue(nn[0].is_periodic_image(s[nn[2]]))
                 d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
                 self.assertAlmostEqual(d, nn[1])
-        self.assertEqual(map(len, all_nn), [2, 2, 2, 0])
+        self.assertEqual(list(map(len, all_nn)), [2, 2, 2, 0])
 
     def test_get_dist_matrix(self):
         ans = [[0., 2.3516318],
