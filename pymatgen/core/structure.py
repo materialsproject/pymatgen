@@ -917,7 +917,7 @@ class IStructure(SiteCollection, MSONable):
         return "\n".join(outs)
 
     def __str__(self):
-        outs = ["Structure Summary ({s})".format(s=str(self.composition)),
+        outs = ["Structure Summary ({s})".format(s=self.composition.formula),
                 "Reduced Formula: {}"
                 .format(self.composition.reduced_formula)]
         to_s = lambda x: "%0.6f" % x
@@ -1225,7 +1225,7 @@ class IMolecule(SiteCollection, MSONable):
         return "\n".join(outs)
 
     def __str__(self):
-        outs = ["Molecule Summary ({s})".format(s=str(self.composition)),
+        outs = ["Molecule Summary ({s})".format(s=self.composition.formula),
                 "Reduced Formula: " + self.composition.reduced_formula,
                 "Charge = {}, Spin Mult = {}".format(
                     self._charge, self._spin_multiplicity)]
@@ -1638,7 +1638,7 @@ class Structure(IStructure, collections.MutableSequence):
             return PeriodicSite(new_atom_occu, site.frac_coords, latt,
                                 properties=site.properties)
 
-        self._sites = map(mod_site, self._sites)
+        self._sites = list(map(mod_site, self._sites))
 
     def replace(self, i, species, coords=None, coords_are_cartesian=False,
                 properties=None):
@@ -1675,7 +1675,7 @@ class Structure(IStructure, collections.MutableSequence):
             species: Sequence of species to remove, e.g., ["Li", "Na"].
         """
         new_sites = []
-        species = map(get_el_sp, species)
+        species = list(map(get_el_sp, species))
 
         for site in self._sites:
             new_sp_occu = {sp: amt for sp, amt in site.species_and_occu.items()
@@ -1713,7 +1713,7 @@ class Structure(IStructure, collections.MutableSequence):
             new_frac = self._lattice.get_fractional_coords(new_cart)
             return PeriodicSite(site.species_and_occu, new_frac, self._lattice,
                                 properties=site.properties)
-        self._sites = map(operate_site, self._sites)
+        self._sites = list(map(operate_site, self._sites))
 
     def modify_lattice(self, new_lattice):
         """
@@ -2161,7 +2161,7 @@ class Molecule(IMolecule, collections.MutableSequence):
                     else:
                         new_atom_occu[sp] = amt
             return Site(new_atom_occu, site.coords, properties=site.properties)
-        self._sites = map(mod_site, self._sites)
+        self._sites = list(map(mod_site, self._sites))
 
     @deprecated(__setitem__)
     def replace(self, i, species_n_occu, coords=None):
@@ -2186,7 +2186,7 @@ class Molecule(IMolecule, collections.MutableSequence):
             species: Species to remove.
         """
         new_sites = []
-        species = map(get_el_sp, species)
+        species = list(map(get_el_sp, species))
         for site in self._sites:
             new_sp_occu = {sp: amt for sp, amt in site.species_and_occu.items()
                            if sp not in species}
@@ -2250,7 +2250,7 @@ class Molecule(IMolecule, collections.MutableSequence):
             new_cart = symmop.operate(site.coords)
             return Site(site.species_and_occu, new_cart,
                         properties=site.properties)
-        self._sites = map(operate_site, self._sites)
+        self._sites = list(map(operate_site, self._sites))
 
     def copy(self):
         """
