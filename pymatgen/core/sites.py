@@ -200,8 +200,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         Minimally effective hash function that just distinguishes between Sites
         with different elements.
         """
-        hashcode = sum((el.Z * occu for el, occu in self._species.items()))
-        return hashcode
+        return sum([el.Z for el in self._species.keys()])
 
     def __contains__(self, el):
         return el in self._species
@@ -318,6 +317,13 @@ class PeriodicSite(Site, MSONable):
             self._fcoords = np.mod(self._fcoords, 1)
             c_coords = lattice.get_cartesian_coords(self._fcoords)
         Site.__init__(self, atoms_n_occu, c_coords, properties)
+
+    def __hash__(self):
+        """
+        Minimally effective hash function that just distinguishes between Sites
+        with different elements.
+        """
+        return sum([el.Z for el in self._species.keys()])
 
     @property
     def lattice(self):

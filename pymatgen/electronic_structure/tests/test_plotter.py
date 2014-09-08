@@ -32,7 +32,8 @@ except ImportError:
 class DosPlotterTest(unittest.TestCase):
 
     def setUp(self):
-        with open(os.path.join(test_dir, "complete_dos.json"), "r") as f:
+        with open(os.path.join(test_dir, "complete_dos.json"), "r",
+                  encoding='utf-8') as f:
             self.dos = CompleteDos.from_dict(json.load(f))
             self.plotter = DosPlotter(sigma=0.2, stack=True)
 
@@ -56,7 +57,7 @@ class BSPlotterTest(unittest.TestCase):
 
     def setUp(self):
         with open(os.path.join(test_dir, "CaO_2605_bandstructure.json"),
-                  "rb") as f:
+                  "r", encoding='utf-8') as f:
             d = json.loads(f.read())
             self.bs = BandStructureSymmLine.from_dict(d)
             self.plotter = BSPlotter(self.bs)
