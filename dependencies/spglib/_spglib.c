@@ -70,8 +70,6 @@ static PyMethodDef functions[] = {
   {NULL, NULL, 0, NULL}
 };
 
-
-
 struct module_state {
     PyObject *error;
 };
