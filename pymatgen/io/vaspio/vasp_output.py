@@ -411,7 +411,7 @@ class Vasprun(object):
         us = self.incar.get("LDAUU", self.parameters.get("LDAUU"))
         js = self.incar.get("LDAUJ", self.parameters.get("LDAUJ"))
         if len(us) == len(symbols):
-            return {symbols[i]: us[i] - js[i] for i in xrange(len(symbols))}
+            return {symbols[i]: us[i] - js[i] for i in range(len(symbols))}
         elif sum(us) == 0 and sum(js) == 0:
             return {}
         else:
@@ -666,7 +666,7 @@ class Vasprun(object):
             js = self.incar.get("LDAUJ", self.parameters.get("LDAUJ"))
             if len(us) == len(symbols):
                 d["hubbards"] = {symbols[i]: us[i] - js[i]
-                                 for i in xrange(len(symbols))}
+                                 for i in range(len(symbols))}
             else:
                 raise VaspParserError("Length of U value parameters and atomic"
                                       " symbols are mismatched.")
@@ -682,7 +682,7 @@ class Vasprun(object):
                "kpoints": self.kpoints.to_dict}
         actual_kpts = [{"abc": list(self.actual_kpoints[i]),
                         "weight": self.actual_kpoints_weights[i]}
-                       for i in xrange(len(self.actual_kpoints))]
+                       for i in range(len(self.actual_kpoints))]
         vin["kpoints"]["actual_points"] = actual_kpts
         vin["potcar"] = [s.split(" ")[1] for s in self.potcar_symbols]
         vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]
@@ -825,7 +825,7 @@ class Vasprun(object):
                     Spin.down
                 data = np.array(_parse_varray(ss))
                 nrow, ncol = data.shape
-                for j in xrange(1, ncol):
+                for j in range(1, ncol):
                     pdos[Orbital.from_vasp_index(j - 1)][spin] = data[:, j]
             pdoss.append(pdos)
         elem.clear()
@@ -1018,7 +1018,7 @@ class Outcar(object):
 
             def er_bp(results, match):
                 results.er_bp[Spin.up] = np.array([float(match.group(i))
-                                                   for i in xrange(1, 4)]) / 2
+                                                   for i in range(1, 4)]) / 2
                 results.er_bp[Spin.down] = results.er_bp[Spin.up]
 
             search.append(["^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
@@ -1028,7 +1028,7 @@ class Outcar(object):
             # Spin cases
             def er_ev_up(results, match):
                 results.er_ev[Spin.up] = np.array([float(match.group(i))
-                                                   for i in xrange(1, 4)])
+                                                   for i in range(1, 4)])
                 results.context = Spin.up
 
             search.append(["^.*Spin component 1 *e<r>_ev=\( *([-0-9.Ee+]*) "
@@ -1056,7 +1056,7 @@ class Outcar(object):
 
             def er_bp_dn(results, match):
                 results.er_bp[Spin.down] = np.array([float(match.group(i))
-                                                     for i in xrange(1, 4)])
+                                                     for i in range(1, 4)])
             search.append(["^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
                            "*([-0-9.Ee+]*) *\)",
                            lambda results,
@@ -1065,7 +1065,7 @@ class Outcar(object):
             # Always present spin/non-spin
             def p_elc(results, match):
                 results.p_elc = np.array([float(match.group(i))
-                                          for i in xrange(1, 4)])
+                                          for i in range(1, 4)])
 
             search.append(["^.*Total electronic dipole moment: "
                            "*p\[elc\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
@@ -1073,7 +1073,7 @@ class Outcar(object):
 
             def p_ion(results, match):
                 results.p_ion = np.array([float(match.group(i))
-                                          for i in xrange(1, 4)])
+                                          for i in range(1, 4)])
 
             search.append(["^.*ionic dipole moment: "
                            "*p\[ion\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
@@ -1119,7 +1119,7 @@ class Outcar(object):
 
             def dielectric_data(results, match):
                 results.dielectric_tensor[results.dielectric_index, :] = \
-                    np.array([float(match.group(i)) for i in xrange(1, 4)])
+                    np.array([float(match.group(i)) for i in range(1, 4)])
                 results.dielectric_index += 1
 
             search.append(["^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$",
@@ -1146,7 +1146,7 @@ class Outcar(object):
 
             def piezo_data(results, match):
                 results.piezo_tensor[results.piezo_index, :] = \
-                    np.array([float(match.group(i)) for i in xrange(1, 7)])
+                    np.array([float(match.group(i)) for i in range(1, 7)])
                 results.piezo_index += 1
 
             search.append(["^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
@@ -1181,7 +1181,7 @@ class Outcar(object):
 
             def born_data(results, match):
                 results.born[results.born_ion][int(match.group(1)) - 1, :] = \
-                    np.array([float(match.group(i)) for i in xrange(2, 5)])
+                    np.array([float(match.group(i)) for i in range(2, 5)])
 
             search.append(["^ *([1-3]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) "
                            "+([-0-9.Ee+]+)$",
@@ -1350,7 +1350,7 @@ class VolumetricData(object):
         ng = self.dim
         num_pts = ng[ind]
         lengths = self.structure.lattice.abc
-        return [i / num_pts * lengths[ind] for i in xrange(num_pts)]
+        return [i / num_pts * lengths[ind] for i in range(num_pts)]
 
     def __add__(self, other):
         return self.linear_add(other, 1.0)
@@ -1475,8 +1475,8 @@ class VolumetricData(object):
             lines = []
             count = 0
             f.write("{} {} {}\n".format(a[0], a[1], a[2]))
-            for (k, j, i) in itertools.product(xrange(a[2]), xrange(a[1]),
-                                               xrange(a[0])):
+            for (k, j, i) in itertools.product(range(a[2]), range(a[1]),
+                                               range(a[0])):
                 lines.append("%0.11e" % self.data[data_type][i, j, k])
                 count += 1
                 if count % 5 == 0:
@@ -1513,7 +1513,7 @@ class VolumetricData(object):
         """
         #For non-spin-polarized runs, this is zero by definition.
         if not self.is_spin_polarized:
-            radii = [radius / nbins * (i + 1) for i in xrange(nbins)]
+            radii = [radius / nbins * (i + 1) for i in range(nbins)]
             data = np.zeros((nbins, 2))
             data[:, 0] = radii
             return data
@@ -1523,7 +1523,7 @@ class VolumetricData(object):
         if ind not in self._distance_matrix or\
                 self._distance_matrix[ind]["max_radius"] < radius:
             coords = []
-            for (x, y, z) in itertools.product(*[xrange(i) for i in a]):
+            for (x, y, z) in itertools.product(*[range(i) for i in a]):
                 coords.append([x / a[0], y / a[1], z / a[2]])
             sites_dist = struct.lattice.get_points_in_sphere(
                 coords, struct[ind].coords, radius)
@@ -1545,7 +1545,7 @@ class VolumetricData(object):
         data = np.zeros((nbins, 2))
         data[:, 0] = edges[1:]
         data[:, 1] = [sum(hist[0:i + 1]) / self.ngridpts
-                      for i in xrange(nbins)]
+                      for i in range(nbins)]
         return data
 
     def get_average_along_axis(self, ind):
@@ -1840,7 +1840,7 @@ class Oszicar(object):
                 if m:
                     toks = m.group(1).split()
                     data = {header[i]: smart_convert(header[i], toks[i])
-                            for i in xrange(len(toks))}
+                            for i in range(len(toks))}
                     if toks[0] == "1":
                         electronic_steps.append([data])
                     else:
@@ -1878,7 +1878,7 @@ class Oszicar(object):
         ((4507.24605593, 143.824705755, -512.073149912, ...), ...)
         """
         all_energies = []
-        for i in xrange(len(self.electronic_steps)):
+        for i in range(len(self.electronic_steps)):
             energies = [step["E"] for step in self.electronic_steps[i]]
             energies.append(self.ionic_steps[i]["F"])
             all_energies.append(tuple(energies))
