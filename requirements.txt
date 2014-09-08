@@ -6,3 +6,4 @@ requests==2.3.0
 monty==0.3.6
 pyhull==1.5.0
 pyyaml==3.11
+six==1.7.3

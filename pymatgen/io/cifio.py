@@ -15,7 +15,7 @@ __date__ = "Sep 23, 2011"
 
 
 import re
-import cStringIO
+from six.moves import cStringIO
 import math
 import warnings
 from collections import OrderedDict

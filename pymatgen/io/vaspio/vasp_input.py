@@ -18,7 +18,6 @@ import os
 import re
 import itertools
 import warnings
-import ConfigParser
 import logging
 
 import numpy as np
@@ -1094,12 +1093,6 @@ class Kpoints(MSONable):
 def get_potcar_dir():
     if "VASP_PSP_DIR" in os.environ:
         return os.environ["VASP_PSP_DIR"]
-    elif os.path.exists(os.path.join(os.path.dirname(pymatgen.__file__),
-                                     "pymatgen.cfg")):
-        module_dir = os.path.dirname(pymatgen.__file__)
-        config = ConfigParser.SafeConfigParser()
-        config.readfp(open(os.path.join(module_dir, "pymatgen.cfg")))
-        return config.get("VASP", "pspdir")
     return None
 
 
