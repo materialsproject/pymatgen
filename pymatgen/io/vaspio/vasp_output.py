@@ -83,10 +83,10 @@ def _parse_v_parameters(val_type, val, filename, param_name):
         Parsed value.
     """
     if val_type == "logical":
-        val = map(lambda i: i == "T", val.split())
+        val = [i == "T" for i in val.split()]
     elif val_type == "int":
         try:
-            val = map(int, val.split())
+            val = [int(i) for i in val.split()]
         except ValueError:
             # Fix for stupid error in vasprun sometimes which displays
             # LDAUL/J as 2****
@@ -97,7 +97,7 @@ def _parse_v_parameters(val_type, val, filename, param_name):
         val = val.split()
     else:
         try:
-            val = map(float, val.split())
+            val = [float(i) for i in val.split()]
         except ValueError:
             # Fix for stupid error in vasprun sometimes which displays
             # MAGMOM as 2****
@@ -108,7 +108,7 @@ def _parse_v_parameters(val_type, val, filename, param_name):
 
 
 def _parse_varray(elem):
-    return [map(float, v.text.split()) for v in elem]
+    return [[float(i) for i in v.text.split()] for v in elem]
 
 
 def _parse_from_incar(filename, key):
@@ -765,11 +765,11 @@ class Vasprun(object):
             name = v.attrib.get("name")
             toks = v.text.split()
             if name == "divisions":
-                k.kpts = [map(int, toks)]
+                k.kpts = [[int(i) for i in toks]]
             elif name == "usershift":
-                k.kpts_shift = map(float, toks)
+                k.kpts_shift = [float(i) for i in toks]
             elif name in {"genvec1", "genvec2", "genvec3", "shift"}:
-                setattr(k, name, map(float, toks))
+                setattr(k, name, [float(i) for i in toks])
         for va in elem.findall("varray"):
             name = va.attrib["name"]
             if name == "kpointlist":
@@ -1429,7 +1429,7 @@ class VolumetricData(object):
                         poscar = Poscar.from_string("\n".join(poscar_string))
                         poscar_read = True
                 elif not dim:
-                    dim = map(int, line.split())
+                    dim = [int(i) for i in line.split()]
                     ngrid_pts = dim[0] * dim[1] * dim[2]
                     dimline = line
                     read_dataset = True
@@ -1669,7 +1669,7 @@ class Procar(object):
                     headers.pop(-1)
                 elif expr.match(l):
                     linedata = dataexpr.findall(l)
-                    num_data = map(float, linedata)
+                    num_data = [float(i) for i in linedata]
                     #Convert to zero-based indexing for atoms.
                     index = int(num_data.pop(0)) - 1
                     num_data.pop(-1)
