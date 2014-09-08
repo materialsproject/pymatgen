@@ -53,7 +53,7 @@ class SiteTest(PymatgenTest):
 
     def test_hash(self):
         self.assertEqual(self.ordered_site.__hash__(), 26)
-        self.assertEqual(self.disordered_site.__hash__(), 25.5)
+        self.assertEqual(self.disordered_site.__hash__(), 51)
 
     def test_cmp(self):
         self.assertTrue(self.ordered_site > self.disordered_site)
