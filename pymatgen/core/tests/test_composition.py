@@ -122,7 +122,7 @@ class CompositionTest(unittest.TestCase):
         correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4',
                                     'Li2O2', 'Li3Fe2(MoO4)3',
                                     'Li3Fe2P6(C5O27)2', 'Li1.5Si0.5', 'ZnHO']
-        for i in xrange(len(self.comp)):
+        for i in range(len(self.comp)):
             self.assertEqual(self.comp[i]
                              .get_reduced_composition_and_factor()[0],
                              Composition(correct_reduced_formulas[i]))
@@ -157,7 +157,7 @@ class CompositionTest(unittest.TestCase):
     def test_anonymized_formula(self):
         expected_formulas = ['A2B3C3D12', 'ABC3D5', 'AB2C4', 'A2B2',
                              'A2B3C3D12', 'A2B3C6D10E54', 'A0.5B1.5', 'ABC']
-        for i in xrange(len(self.comp)):
+        for i in range(len(self.comp)):
             self.assertEqual(self.comp[i].anonymized_formula,
                              expected_formulas[i])
 
