@@ -312,8 +312,8 @@ loop_
   _atom_site_B_iso_or_equiv
   _atom_site_occupancy
    Si4+  Si1  1  0.000000  0.000000  0.000000  0  .  1
-   N3-  N2  1  0.750000  0.500000  0.750000  0  .  0.5
-   Si3+  Si3  1  0.750000  0.500000  0.750000  0  .  0.5
+   Si3+  Si2  1  0.750000  0.500000  0.750000  0  .  0.5
+   N3-  N3  1  0.750000  0.500000  0.750000  0  .  0.5
    N3-  N4  1  0.500000  0.500000  0.500000  0  .  1
 """
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
@@ -329,10 +329,10 @@ class HelperFunctionTest(unittest.TestCase):
         toks = ['y+1/2, -x+1/2, z+1/2']
         op = parse_symmetry_operations(toks)[0]
         self.assertTrue(np.equal(op.affine_matrix,
-                                 [[ 0. ,  1. ,  0. ,  0.5],
-                                  [-1. ,  0. ,  0. ,  0.5],
-                                  [ 0. ,  0. ,  1. ,  0.5],
-                                  [ 0. ,  0. ,  0. ,  1. ]]).all())
+                                 [[ 0.,  1.,  0.,  0.5],
+                                  [-1.,  0.,  0.,  0.5],
+                                  [ 0.,  0.,  1.,  0.5],
+                                  [ 0.,  0.,  0.,  1.]]).all())
 
 if __name__ == '__main__':
     unittest.main()
