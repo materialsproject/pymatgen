@@ -136,7 +136,7 @@ def _get_si_unit(unit):
     unit_type = _UNAME2UTYPE[unit]
     si_unit = filter(lambda k: BASE_UNITS[unit_type][k] == 1,
                      BASE_UNITS[unit_type].keys())
-    return si_unit[0], BASE_UNITS[unit_type][unit]
+    return list(si_unit)[0], BASE_UNITS[unit_type][unit]
 
 
 class UnitError(BaseException):
