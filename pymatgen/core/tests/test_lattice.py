@@ -126,32 +126,43 @@ class LatticeTestCase(PymatgenTest):
         lattice = Lattice([1.0, 1, 1, -1.0, 0, 2, 3.0, 5, 6])
         reduced_latt = lattice.get_lll_reduced_lattice()
 
-        expected_ans = np.array([0.0, 1.0, 0.0,
-                                 1.0, 0.0, 1.0,
-                                 - 2.0, 0.0, 1.0]).reshape((3, 3))
-        self.assertArrayAlmostEqual(reduced_latt.matrix, expected_ans)
+        expected_ans = Lattice(np.array(
+            [0.0, 1.0, 0.0, 1.0, 0.0, 1.0, -2.0, 0.0, 1.0]).reshape((3, 3)))
+        self.assertAlmostEqual(
+            np.linalg.det(np.linalg.solve(expected_ans.matrix,
+                                          reduced_latt.matrix)),
+            1)
+        self.assertArrayAlmostEqual(
+            sorted(reduced_latt.abc), sorted(expected_ans.abc))
         self.assertAlmostEqual(reduced_latt.volume, lattice.volume)
         latt = [7.164750, 2.481942, 0.000000,
                 - 4.298850, 2.481942, 0.000000,
                 0.000000, 0.000000, 14.253000]
-        expected_ans = np.array([-4.298850, 2.481942, 0.000000,
-                                 2.865900, 4.963884, 0.000000,
-                                 0.000000, 0.000000, 14.253000])
-        expected_ans = expected_ans.reshape((3, 3))
+        expected_ans = Lattice(np.array(
+            [-4.298850, 2.481942, 0.000000, 2.865900, 4.963884, 0.000000,
+             0.000000, 0.000000, 14.253000]))
         reduced_latt = Lattice(latt).get_lll_reduced_lattice()
-        self.assertArrayAlmostEqual(reduced_latt.matrix, expected_ans)
-        self.assertAlmostEqual(reduced_latt.volume, Lattice(latt).volume)
+        self.assertAlmostEqual(
+            np.linalg.det(np.linalg.solve(expected_ans.matrix,
+                                          reduced_latt.matrix)),
+            1)
+        self.assertArrayAlmostEqual(
+            sorted(reduced_latt.abc), sorted(expected_ans.abc))
 
-        expected_ans = np.array([0.0, 10.0, 10.0,
-                                 10.0, 10.0, 0.0,
-                                 30.0, -30.0, 40.0]).reshape((3, 3))
+        expected_ans = Lattice([0.0, 10.0, 10.0,
+                                10.0, 10.0, 0.0,
+                                30.0, -30.0, 40.0])
 
         lattice = np.array([100., 0., 10., 10., 10., 20., 10., 10., 10.])
         lattice = lattice.reshape(3, 3)
         lattice = Lattice(lattice.T)
         reduced_latt = lattice.get_lll_reduced_lattice()
-        self.assertArrayAlmostEqual(reduced_latt.matrix, expected_ans)
-        self.assertAlmostEqual(reduced_latt.volume, lattice.volume)
+        self.assertAlmostEqual(
+            np.linalg.det(np.linalg.solve(expected_ans.matrix,
+                                          reduced_latt.matrix)),
+            1)
+        self.assertArrayAlmostEqual(
+            sorted(reduced_latt.abc), sorted(expected_ans.abc))
 
         random_latt = Lattice(np.random.random((3, 3)))
         if np.linalg.det(random_latt.matrix) > 1e-8:
@@ -266,8 +277,8 @@ class LatticeTestCase(PymatgenTest):
         ws_cell = Lattice([[10, 0, 0], [0, 5, 0], [0, 0, 1]])\
             .get_wigner_seitz_cell()
         self.assertEqual(6, len(ws_cell))
-        self.assertEqual(ws_cell[3], [[-5.0, -2.5, -0.5], [-5.0, 2.5, -0.5],
-                                      [-5.0, 2.5, 0.5], [-5.0, -2.5, 0.5]])
+        for l in ws_cell[3]:
+            self.assertEqual([abs(i) for i in l], [5.0, 2.5, 0.5])
 
     def test_dot_and_norm(self):
         frac_basis = [[1,0,0], [0,1,0], [0,0,1]]
