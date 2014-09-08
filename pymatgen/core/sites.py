@@ -135,7 +135,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         if not self._is_ordered:
             raise AttributeError("specie property only works for ordered "
                                  "sites!")
-        return self._species.keys()[0]
+        return list(self._species.keys())[0]
 
     @property
     def coords(self):
@@ -216,7 +216,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         return "Site: {} ({:.4f}, {:.4f}, {:.4f})".format(
             self.species_string, *self._coords)
 
-    def __cmp__(self, other):
+    def __lt__(self, other):
         """
         Sets a default sort order for atomic species by electronegativity. Very
         useful for getting correct formulas.  For example, FeO4PLi is
@@ -225,15 +225,15 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
 
         if self._species.average_electroneg < \
                 other._species.average_electroneg:
-            return -1
+            return True
         if self._species.average_electroneg > \
                 other._species.average_electroneg:
-            return 1
+            return False
         if self.species_string < other.species_string:
-            return -1
+            return True
         if self.species_string > other.species_string:
-            return 1
-        return 0
+            return False
+        return False
 
     def __str__(self):
         return "{} {}".format(self._coords, self.species_string)
