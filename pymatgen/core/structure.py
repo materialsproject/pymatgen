@@ -25,6 +25,8 @@ import warnings
 
 import numpy as np
 
+import six
+
 from fractions import gcd
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
@@ -340,7 +342,7 @@ class IStructure(SiteCollection, MSONable):
             self._lattice = Lattice(lattice)
 
         sites = []
-        for i in xrange(len(species)):
+        for i in range(len(species)):
             prop = None
             if site_properties:
                 prop = {k: v[i] for k, v in site_properties.items()}
@@ -595,7 +597,7 @@ class IStructure(SiteCollection, MSONable):
         all_ranges = [np.arange(x, y) for x, y in zip(nmin, nmax)]
 
         latt = self._lattice
-        neighbors = [list() for i in xrange(len(self._sites))]
+        neighbors = [list() for i in range(len(self._sites))]
         all_fcoords = np.mod(self.frac_coords, 1)
         coords_in_cell = latt.get_cartesian_coords(all_fcoords)
         site_coords = self.cart_coords
@@ -634,26 +636,20 @@ class IStructure(SiteCollection, MSONable):
         inner = r - dr
         return [(site, dist) for (site, dist) in outer if dist > inner]
 
-    def get_sorted_structure(self, cmp=None, key=None, reverse=False):
+    def get_sorted_structure(self, key=None, reverse=False):
         """
         Get a sorted copy of the structure. The parameters have the same
         meaning as in list.sort. By default, sites are sorted by the
         electronegativity of the species.
 
         Args:
-            cmp: Specifies a custom comparison function of two arguments
-                (iterable elements) which should return a negative, zero or
-                positive number depending on whether the first argument is
-                considered smaller than, equal to, or larger than the second
-                argument: cmp=lambda x,y: cmp(x.lower(), y.lower()). The
-                default value is None.
             key: Specifies a function of one argument that is used to extract
                 a comparison key from each list element: key=str.lower. The
                 default value is None (compare the elements directly).
             reverse (bool): If set to True, then the list elements are sorted
                 as if each comparison were reversed.
         """
-        sites = sorted(self, cmp=cmp, key=key, reverse=reverse)
+        sites = sorted(self, key=key, reverse=reverse)
         return self.__class__.from_sites(sites)
 
     def get_reduced_structure(self, reduction_algo="niggli"):
@@ -770,7 +766,7 @@ class IStructure(SiteCollection, MSONable):
             vec -= np.round(vec)
         sp = self.species_and_occu
         structs = []
-        for x in xrange(nimages+1):
+        for x in range(nimages+1):
             if interpolate_lattices:
                 l_a = lstart + x / nimages * lvec
                 l = Lattice.from_lengths_and_angles(*l_a)
@@ -818,7 +814,7 @@ class IStructure(SiteCollection, MSONable):
                          in itertools.groupby(sites,
                                               key=lambda s: s.species_string)]
 
-        num_fu = reduce(gcd, map(len, grouped_sites))
+        num_fu = six.moves.reduce(gcd, map(len, grouped_sites))
         min_vol = original_volume * 0.5 / num_fu
 
         min_site_list = min(grouped_sites, key=lambda group: len(group))
@@ -826,7 +822,7 @@ class IStructure(SiteCollection, MSONable):
         min_site_list = [site.to_unit_cell for site in min_site_list]
         org = min_site_list[0].coords
         possible_vectors = [min_site_list[i].coords - org
-                            for i in xrange(1, len(min_site_list))]
+                            for i in range(1, len(min_site_list))]
 
         #Let's try to use the shortest vector possible first. Allows for faster
         #convergence to primitive cell.
@@ -843,7 +839,7 @@ class IStructure(SiteCollection, MSONable):
                              [1, 0, 1], [1, 1, 0], [1, 1, 1]])
         l_points = self._lattice.get_cartesian_coords(l_points)
 
-        for v, repl_pos in itertools.product(possible_vectors, xrange(3)):
+        for v, repl_pos in itertools.product(possible_vectors, range(3)):
             #Try combinations of new lattice vectors with existing lattice
             #vectors.
             latt = self._lattice.matrix
@@ -1049,7 +1045,7 @@ class IMolecule(SiteCollection, MSONable):
                                   "coordinates."))
 
         sites = []
-        for i in xrange(len(species)):
+        for i in range(len(species)):
             prop = None
             if site_properties:
                 prop = {k: v[i] for k, v in site_properties.items()}
@@ -1504,7 +1500,7 @@ class Structure(IStructure, collections.MutableSequence):
                                  "as Structure!")
             self._sites[i] = site
         else:
-            if isinstance(site, basestring) or (not isinstance(site, \
+            if isinstance(site, six.string_types) or (not isinstance(site, \
                     collections.Sequence)):
                 sp = site
                 frac_coords = self._sites[i].frac_coords
@@ -1600,7 +1596,7 @@ class Structure(IStructure, collections.MutableSequence):
         """
         if len(values) != len(self._sites):
             raise ValueError("Values must be same length as sites.")
-        for i in xrange(len(self._sites)):
+        for i in range(len(self._sites)):
             site = self._sites[i]
             props = site.properties
             if not props:
@@ -1750,7 +1746,7 @@ class Structure(IStructure, collections.MutableSequence):
         s = (1 + np.array(strain)) * np.eye(3)
         self.modify_lattice(Lattice(np.dot(self._lattice.matrix.T, s).T))
 
-    def sort(self, cmp=None, key=None, reverse=False):
+    def sort(self, key=None, reverse=False):
         """
         Sort a structure in place. The parameters have the same meaning as in
         list.sort. By default, sites are sorted by the electronegativity of
@@ -1760,19 +1756,13 @@ class Structure(IStructure, collections.MutableSequence):
         in place.
 
         Args:
-            cmp: Specifies a custom comparison function of two arguments
-                (iterable elements) which should return a negative, zero or
-                positive number depending on whether the first argument is
-                considered smaller than, equal to, or larger than the second
-                argument: cmp=lambda x,y: cmp(x.lower(), y.lower()). The
-                default value is None.
             key: Specifies a function of one argument that is used to extract
                 a comparison key from each list element: key=str.lower. The
                 default value is None (compare the elements directly).
             reverse (bool): If set to True, then the list elements are sorted
                 as if each comparison were reversed.
         """
-        self._sites = sorted(self._sites, cmp=cmp, key=key, reverse=reverse)
+        self._sites = sorted(self._sites, key=key, reverse=reverse)
 
     def translate_sites(self, indices, vector, frac_coords=True,
                         to_unit_cell=True):
@@ -2012,7 +2002,7 @@ class Molecule(IMolecule, collections.MutableSequence):
         if isinstance(site, Site):
             self._sites[i] = site
         else:
-            if isinstance(site, basestring) or (not isinstance(site, \
+            if isinstance(site, six.string_types) or (not isinstance(site, \
                     collections.Sequence)):
                 sp = site
                 coords = self._sites[i].coords
@@ -2113,7 +2103,7 @@ class Molecule(IMolecule, collections.MutableSequence):
         """
         if len(values) != len(self._sites):
             raise ValueError("Values must be same length as sites.")
-        for i in xrange(len(self._sites)):
+        for i in range(len(self._sites)):
             site = self._sites[i]
             props = site.properties
             if not props:

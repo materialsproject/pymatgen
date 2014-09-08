@@ -1,4 +1,6 @@
+# coding: utf-8
 #!/usr/bin/env python
+
 import os
 
 from pymatgen.io.vaspio import Potcar
