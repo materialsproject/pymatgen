@@ -1186,7 +1186,7 @@ class TestQcOutput(TestCase):
                         ('SCF', -20180.15020789526),
                         ('SCF', -20180.150206202714)]
         self.assertEqual(qcout.data[0]["energies"], ans_energies)
-        ans_mol1 = '''Molecule Summary (H4 S1 C5 O2)
+        ans_mol1 = '''Molecule Summary (H4 C5 S1 O2)
 Reduced Formula: H4C5SO2
 Charge = -1, Spin Mult = 2
 Sites (12)
@@ -1202,7 +1202,7 @@ Sites (12)
 10 O     2.131988     1.173581    -0.000330
 11 O     2.322109    -1.079218    -0.000021
 12 H     3.262059    -0.820188    -0.000171'''
-        ans_mol_last = '''Molecule Summary (H4 S1 C5 O2)
+        ans_mol_last = '''Molecule Summary (H4 C5 S1 O2)
 Reduced Formula: H4C5SO2
 Charge = -1, Spin Mult = 2
 Sites (12)
@@ -1437,10 +1437,10 @@ $end
         ans_thermo_corr = json.loads(ans_thermo_corr_text)
         self.assertEqual(sorted(qcout.data[1]['corrections'].keys()),
                          sorted(ans_thermo_corr.keys()))
-        for k, ref in ans_thermo_corr.iteritems():
+        for k, ref in ans_thermo_corr.items():
             self.assertAlmostEqual(qcout.data[1]['corrections'][k], ref)
         self.assertEqual(len(qcout.data[1]['molecules']), 1)
-        ans_mol1 = '''Molecule Summary (Br2 Cd1)
+        ans_mol1 = '''Molecule Summary (Cd1 Br2)
 Reduced Formula: CdBr2
 Charge = 0, Spin Mult = 1
 Sites (3)
