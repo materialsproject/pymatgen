@@ -88,7 +88,7 @@ class MSONable(object):
                 filename to write to. It is recommended that the file extension
                 be ".mson".
         """
-        with zopen(filename, "wb") as f:
+        with zopen(filename, "w", encoding="utf-8") as f:
             json.dump(self, f, cls=PMGJSONEncoder)
 
 
@@ -173,7 +173,7 @@ class PMGJSONDecoder(json.JSONDecoder):
                         dt = datetime.datetime.strptime(d["string"],
                                                         "%Y-%m-%d %H:%M:%S")
                     return dt
-                mod = __import__(modname, globals(), locals(), [classname], -1)
+                mod = __import__(modname, globals(), locals(), [classname])
                 if hasattr(mod, classname):
                     cls_ = getattr(mod, classname)
                     data = {k: v for k, v in d.items()
