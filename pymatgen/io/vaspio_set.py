@@ -223,7 +223,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
         self.force_gamma = force_gamma
         self.reduce_structure = reduce_structure
         if hubbard_off:
-            for k in self.incar_settings.keys():
+            for k in list(self.incar_settings.keys()):
                 if k.startswith("LDAU"):
                     del self.incar_settings[k]
         if user_incar_settings:

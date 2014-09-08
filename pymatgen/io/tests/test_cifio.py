@@ -116,7 +116,6 @@ loop_
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         writer = CifWriter(poscar.structure, find_spacegroup=True)
-        print str(writer)
         ans = """#\#CIF1.1
 ##########################################################################
 #               Crystallographic Information Format file
