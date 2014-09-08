@@ -3,6 +3,7 @@
 import unittest
 import os
 import json
+from io import open
 
 from pymatgen.electronic_structure.bandstructure import Kpoint
 from pymatgen import Lattice

@@ -15,6 +15,8 @@ import unittest
 import os
 import json
 
+from io import open
+
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.plotter import DosPlotter, BSPlotter, _qvertex_target
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine

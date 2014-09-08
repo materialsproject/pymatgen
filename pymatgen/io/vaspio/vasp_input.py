@@ -20,6 +20,7 @@ import itertools
 import warnings
 import logging
 
+import six
 import numpy as np
 from numpy.linalg import det
 
@@ -183,7 +184,7 @@ class Poscar(MSONable):
                     try:
                         potcar = Potcar.from_file(os.path.join(dirname, f))
                         names = [sym.split("_")[0] for sym in potcar.symbols]
-                        map(get_el_sp, names)  # ensure that the names are valid
+                        [get_el_sp(n) for n in names] # ensure valid names
                     except:
                         names = None
         with zopen(filename, "r") as f:
@@ -227,7 +228,7 @@ class Poscar(MSONable):
         lines = tuple(clean_lines(chunks[0].split("\n"), False))
         comment = lines[0]
         scale = float(lines[1])
-        lattice = np.array([map(float, line.split())
+        lattice = np.array([[float(i) for i in line.split()]
                             for line in lines[2:5]])
         if scale < 0:
             # In vasp, a negative scale factor is treated as a volume. We need
@@ -239,14 +240,14 @@ class Poscar(MSONable):
 
         vasp5_symbols = False
         try:
-            natoms = map(int, lines[5].split())
+            natoms = [int(i) for i in lines[5].split()]
             ipos = 6
         except ValueError:
             vasp5_symbols = True
             symbols = lines[5].split()
-            natoms = map(int, lines[6].split())
+            natoms = [int(i) for i in lines[6].split()]
             atomic_symbols = list()
-            for i in xrange(len(natoms)):
+            for i in range(len(natoms)):
                 atomic_symbols.extend([symbols[i]] * natoms[i])
             ipos = 7
 
@@ -268,7 +269,7 @@ class Poscar(MSONable):
         if default_names:
             try:
                 atomic_symbols = []
-                for i in xrange(len(natoms)):
+                for i in range(len(natoms)):
                     atomic_symbols.extend([default_names[i]] * natoms[i])
                 vasp5_symbols = True
             except IndexError:
@@ -288,7 +289,7 @@ class Poscar(MSONable):
             except (ValueError, IndexError):
                 #Defaulting to false names.
                 atomic_symbols = []
-                for i in xrange(len(natoms)):
+                for i in range(len(natoms)):
                     sym = Element.from_Z(i + 1).symbol
                     atomic_symbols.extend([sym] * natoms[i])
                 warnings.warn("Elements in POSCAR cannot be determined. "
@@ -298,9 +299,9 @@ class Poscar(MSONable):
         # read the atomic coordinates
         coords = []
         selective_dynamics = list() if sdynamics else None
-        for i in xrange(nsites):
+        for i in range(nsites):
             toks = lines[ipos + 1 + i].split()
-            coords.append(map(float, toks[:3]))
+            coords.append([float(j) for j in toks[:3]])
             if sdynamics:
                 selective_dynamics.append([tok.upper()[0] == "T"
                                            for tok in toks[3:6]])
@@ -489,9 +490,9 @@ class Incar(dict):
         valid INCAR tags. Also cleans the parameter and val by stripping
         leading and trailing white spaces.
         """
-        super(Incar, self).__setitem__(key.strip(),
-                                       Incar.proc_val(key.strip(), val.strip())
-                                       if isinstance(val, basestring) else val)
+        super(Incar, self).__setitem__(
+            key.strip(), Incar.proc_val(key.strip(), val.strip())
+            if isinstance(val, six.string_types) else val)
 
     @property
     def to_dict(self):
@@ -934,11 +935,11 @@ class Kpoints(MSONable):
 
         #Automatic gamma and Monk KPOINTS, with optional shift
         if style == "g" or style == "m":
-            kpts = map(int, lines[3].split())
+            kpts = [int(i) for i in lines[3].split()]
             kpts_shift = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
                 try:
-                    kpts_shift = map(int, lines[4].split())
+                    kpts_shift = [int(i) for i in lines[4].split()]
                 except ValueError:
                     pass
             return Kpoints.gamma_automatic(kpts, kpts_shift) if style == "g" \
@@ -948,8 +949,8 @@ class Kpoints(MSONable):
         if num_kpts <= 0:
             style = Kpoints.supported_modes.Cartesian if style in "ck" \
                 else Kpoints.supported_modes.Reciprocal
-            kpts = [map(float, lines[i].split()) for i in xrange(3, 6)]
-            kpts_shift = map(float, lines[6].split())
+            kpts = [[float(j) for j in lines[i].split()] for i in range(3, 6)]
+            kpts_shift = [float(i) for i in lines[6].split()]
             return Kpoints(comment=comment, num_kpts=num_kpts, style=style,
                            kpts=kpts, kpts_shift=kpts_shift)
 
@@ -982,9 +983,9 @@ class Kpoints(MSONable):
         tet_weight = 0
         tet_connections = None
 
-        for i in xrange(3, 3 + num_kpts):
+        for i in range(3, 3 + num_kpts):
             toks = lines[i].split()
-            kpts.append([map(float, toks[0:3])])
+            kpts.append([[float(j) for j in toks[0:3]]])
             kpts_weights.append(float(toks[3]))
             if len(toks) > 4:
                 labels.append(toks[4])
@@ -997,11 +998,11 @@ class Kpoints(MSONable):
                 tet_number = int(toks[0])
                 tet_weight = float(toks[1])
                 tet_connections = []
-                for i in xrange(5 + num_kpts, 5 + num_kpts + tet_number):
+                for i in range(5 + num_kpts, 5 + num_kpts + tet_number):
                     toks = lines[i].split()
                     tet_connections.append((int(toks[0]),
                                             [int(toks[j])
-                                             for j in xrange(1, 5)]))
+                                             for j in range(1, 5)]))
         except IndexError:
             pass
 
@@ -1025,7 +1026,7 @@ class Kpoints(MSONable):
         style = self.style.lower()[0]
         if style == "l":
             lines.append(self.coord_type)
-        for i in xrange(len(self.kpts)):
+        for i in range(len(self.kpts)):
             lines.append(" ".join([str(x) for x in self.kpts[i]]))
             if style == "l":
                 lines[-1] += " ! " + self.labels[i]
