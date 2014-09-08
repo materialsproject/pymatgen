@@ -291,7 +291,7 @@ class Vasprun(object):
                         steps[-1].split("</calculation>")[-1])
                 else:
                     to_parse = "{}<calculation>{}".format(preamble, to_parse)
-                self._parse(cStringIO.StringIO(to_parse), parse_dos=parse_dos,
+                self._parse(cStringIO(to_parse), parse_dos=parse_dos,
                             parse_eigen=parse_eigen,
                             parse_projected_eigen=parse_projected_eigen)
             else:
