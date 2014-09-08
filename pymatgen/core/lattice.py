@@ -337,10 +337,8 @@ class Lattice(MSONable):
         try:
             return self._reciprocal_lattice
         except AttributeError:
-            v = [np.cross(self._matrix[(i + 1) % 3], self._matrix[(i + 2) % 3])
-                for i in xrange(3)]
-            self._reciprocal_lattice = Lattice(np.array(v) * 2 * np.pi /
-                                               self.volume)
+            v = np.linalg.inv(self._matrix).T
+            self._reciprocal_lattice = Lattice(v * 2 * np.pi)
             return self._reciprocal_lattice
 
     @property
@@ -452,7 +450,7 @@ class Lattice(MSONable):
             for c, f in zip(c_cand[2][inds], f_cand[2][inds]):
                 aligned_m = np.array([c_cand[0][i], c_cand[1][j], c])
                 scale_m = np.array([f_cand[0][i], f_cand[1][j], f])
-                if np.abs(np.linalg.det(scale_m)) < 1e-8:
+                if abs(np.linalg.det(scale_m)) < 1e-8:
                     continue
                 rotation_m = np.linalg.solve(aligned_m, other_lattice.matrix)
                 yield Lattice(aligned_m), rotation_m, scale_m
