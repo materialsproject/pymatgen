@@ -29,7 +29,6 @@ from pymatgen.util.coord_utils import in_coord_list_pbc
 from monty.string import remove_non_ascii
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
 
 
