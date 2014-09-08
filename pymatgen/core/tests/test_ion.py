@@ -61,7 +61,7 @@ class IonTest(unittest.TestCase):
         expected_formulas = ['A+1', 'AB4-1', 'A+2', 'AB3-2',
                              'AB6C6-3', 'AB6C6-4', 'AB3C5D27-3',
                              'A+2', 'ABC']
-        for i in xrange(len(self.comp)):
+        for i in range(len(self.comp)):
             self.assertEqual(self.comp[i].anonymized_formula,
                              expected_formulas[i])
 

@@ -57,7 +57,7 @@ class IStructureTest(PymatgenTest):
         coords.append([0.75, 0.5, 0.75])
         s = IStructure(self.lattice, [{Specie('O', -2): 1.0},
                                       {Specie('Mg', 2): 0.8}], coords)
-        self.assertEqual(str(s.composition), 'Mg2+0.8 O2-1')
+        self.assertEqual(s.composition.formula, 'Mg0.8 O1')
 
     def test_get_sorted_structure(self):
         coords = list()
@@ -83,7 +83,7 @@ class IStructureTest(PymatgenTest):
         coords.append([0.75, 0.5, 0.75])
         s = IStructure(self.lattice, [{'O': 1.0}, {'Mg': 0.8}],
                        coords)
-        self.assertEqual(str(s.composition), 'Mg0.8 O1')
+        self.assertEqual(s.composition.formula, 'Mg0.8 O1')
         self.assertFalse(s.is_ordered)
 
     def test_get_distance(self):
