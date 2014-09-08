@@ -60,7 +60,7 @@ class XYZ(object):
         coord_patt = re.compile(
             "(\w+)\s+([0-9\-\.e]+)\s+([0-9\-\.e]+)\s+([0-9\-\.e]+)"
         )
-        for i in xrange(2, 2 + num_sites):
+        for i in range(2, 2 + num_sites):
             m = coord_patt.search(lines[i])
             if m:
                 sp.append(m.group(1))  # this is 1-indexed

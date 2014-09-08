@@ -3,7 +3,6 @@ Wrapper classes for Cif input and output from Structures.
 """
 
 from __future__ import division
-from pymatgen.symmetry.finder import SymmetryFinder
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -15,12 +14,15 @@ __date__ = "Sep 23, 2011"
 
 
 import re
-from six.moves import cStringIO
 import math
 import warnings
 from collections import OrderedDict
 
 import CifFile
+import six
+from six.moves import cStringIO
+
+
 import numpy as np
 
 from pymatgen.core.periodic_table import Element, Specie
@@ -30,6 +32,7 @@ from monty.string import remove_non_ascii
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.operations import SymmOp
+from pymatgen.symmetry.finder import SymmetryFinder
 
 
 class CifParser(object):
@@ -45,7 +48,7 @@ class CifParser(object):
 
     def __init__(self, filename, occupancy_tolerance=1.):
         self._occupancy_tolerance = occupancy_tolerance
-        if isinstance(filename, basestring):
+        if isinstance(filename, six.string_types):
             with zopen(filename, "r") as f:
                 # We use this round-about way to clean up the CIF first.
                 stream = cStringIO(_clean_cif(f.read()))
