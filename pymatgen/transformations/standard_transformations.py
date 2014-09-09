@@ -294,7 +294,7 @@ class SubstitutionTransformation(AbstractTransformation):
     """
     def __init__(self, species_map):
         self._species_map = dict(species_map)
-        for k, v in self._species_map.iteritems():
+        for k, v in self._species_map.items():
             if isinstance(v, (tuple, list)):
                 self._species_map[k] = dict(v)
 
@@ -332,9 +332,9 @@ class SubstitutionTransformation(AbstractTransformation):
         #convert sp_map to tuple representation to work with Mongo
         #which doesn't allow '.' in key names
         sp_map = []
-        for k, v in self._species_map.iteritems():
+        for k, v in self._species_map.items():
             if isinstance(v, dict):
-                v = [(str(k2), v2) for k2, v2 in v.iteritems()]
+                v = [(str(k2), v2) for k2, v2 in v.items()]
                 sp_map.append((str(k), v))
             else:
                 sp_map.append((str(k), str(v)))
@@ -356,8 +356,8 @@ class RemoveSpeciesTransformation(AbstractTransformation):
 
     def apply_transformation(self, structure):
         s = Structure.from_sites(structure.sites)
-        map(s.remove_species, [[get_el_sp(sp)]
-                               for sp in self._species])
+        for sp in self._species:
+            s.remove_species([get_el_sp(sp)])
         return s
 
     def __str__(self):
@@ -438,7 +438,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
             transmuted structure class.
         """
         sp = get_el_sp(self._specie)
-        specie_indices = [i for i in xrange(len(structure))
+        specie_indices = [i for i in range(len(structure))
                           if structure[i].species_and_occu ==
                           Composition({sp: 1})]
         trans = PartialRemoveSitesTransformation([specie_indices],
