@@ -318,9 +318,13 @@ def solid_angle(center, coords):
     r.append(r[0])
     n = [np.cross(r[i + 1], r[i]) for i in range(len(r) - 1)]
     n.append(np.cross(r[1], r[0]))
-    phi = sum([math.acos(-np.dot(n[i], n[i + 1])
-                         / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1])))
-               for i in range(len(n) - 1)])
+    vals = []
+    for i in range(len(n) - 1):
+        v = -np.dot(n[i], n[i + 1])\
+            / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))
+        v = max(min(v, 1), -1)
+        vals.append(math.acos(v))
+    phi = sum(vals)
     return phi + (3 - len(r)) * math.pi
 
 
