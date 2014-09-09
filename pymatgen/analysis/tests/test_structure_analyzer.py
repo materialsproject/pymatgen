@@ -3,11 +3,10 @@ import unittest
 import os
 
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
-    solid_angle, contains_peroxide, RelaxationAnalyzer, VoronoiConnectivity, oxide_type
-from pymatgen.io.cifio import CifParser
+    solid_angle, contains_peroxide, RelaxationAnalyzer, VoronoiConnectivity, \
+    oxide_type
 from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen import Element
-from pymatgen import Structure, Lattice
+from pymatgen import Element, Structure, Lattice, read_structure
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -16,9 +15,8 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 class VoronoiCoordFinderTest(unittest.TestCase):
 
     def setUp(self):
-        filepath = os.path.join(test_dir, 'LiFePO4.cif')
-        parser = CifParser(filepath)
-        s = parser.get_structures()[0]
+        filepath = os.path.join(test_dir, 'LiFePO4.json')
+        s = read_structure(filepath)
         self.finder = VoronoiCoordFinder(s, [Element("O")])
 
     def test_get_voronoi_polyhedra(self):
@@ -65,9 +63,8 @@ class RelaxationAnalyzerTest(unittest.TestCase):
 class VoronoiConnectivityTest(unittest.TestCase):
     
     def setUp(self):
-        filepath = os.path.join(test_dir, 'LiFePO4.cif')
-        parser = CifParser(filepath)
-        self.s = parser.get_structures()[0]
+        filepath = os.path.join(test_dir, 'LiFePO4.json')
+        self.s = read_structure(filepath)
         
     def test_connectivity_array(self):
         vc = VoronoiConnectivity(self.s)
@@ -101,15 +98,13 @@ class MiscFunctionTest(unittest.TestCase):
     def test_contains_peroxide(self):
 
         for filename in ['LiFePO4', 'NaFePO4', 'Li3V2(PO4)3', 'Li2O']:
-            filepath = os.path.join(test_dir, "{}.cif".format(filename))
-            parser = CifParser(filepath)
-            s = parser.get_structures()[0]
+            filepath = os.path.join(test_dir, "{}.json".format(filename))
+            s = read_structure(filepath)
             self.assertFalse(contains_peroxide(s))
 
         for filename in ['Li2O2', "K2O2"]:
-            filepath = os.path.join(test_dir, "{}.cif".format(filename))
-            parser = CifParser(filepath)
-            s = parser.get_structures()[0]
+            filepath = os.path.join(test_dir, "{}.json".format(filename))
+            s = read_structure(filepath)
             self.assertTrue(contains_peroxide(s))
             
     def test_oxide_type(self):
