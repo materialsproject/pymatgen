@@ -45,7 +45,7 @@ class BalancedReaction(MSONable):
         all_products = sum([k * v for k, v in products_coeffs.items()],
                            Composition({}))
 
-        if not all_reactants.almost_equals(all_products, 
+        if not all_reactants.almost_equals(all_products,
                                 atol=Reaction.TOLERANCE):
             raise ReactionError("Reaction is unbalanced!")
 
@@ -111,7 +111,7 @@ class BalancedReaction(MSONable):
         all_comp = self._all_comp
         coeffs = self._coeffs
         current_el_amount = sum([all_comp[i][element] * abs(coeffs[i])
-                                 for i in xrange(len(all_comp))]) / 2
+                                 for i in range(len(all_comp))]) / 2
         scale_factor = factor / current_el_amount
         self._coeffs = [c * scale_factor for c in coeffs]
 
@@ -126,7 +126,7 @@ class BalancedReaction(MSONable):
             Amount of that element in the reaction.
         """
         return sum([self._all_comp[i][element] * abs(self._coeffs[i])
-                    for i in xrange(len(self._all_comp))]) / 2
+                    for i in range(len(self._all_comp))]) / 2
 
     @property
     def elements(self):
@@ -154,7 +154,7 @@ class BalancedReaction(MSONable):
         """
         List of reactants
         """
-        return [self._all_comp[i] for i in xrange(len(self._all_comp))
+        return [self._all_comp[i] for i in range(len(self._all_comp))
                 if self._coeffs[i] < 0]
 
     @property
@@ -162,7 +162,7 @@ class BalancedReaction(MSONable):
         """
         List of products
         """
-        return [self._all_comp[i] for i in xrange(len(self._all_comp))
+        return [self._all_comp[i] for i in range(len(self._all_comp))
                 if self._coeffs[i] > 0]
 
     def get_coeff(self, comp):
@@ -370,18 +370,18 @@ class Reaction(BalancedReaction):
                     for perm_matrix in itertools.permutations(comp_matrix):
                         logger.debug("Testing permuted matrix = {}"
                                      .format(perm_matrix))
-                        for m in xrange(nconstraints):
+                        for m in range(nconstraints):
                             submatrix = [[perm_matrix[i][j]
-                                          for j in xrange(nconstraints)
+                                          for j in range(nconstraints)
                                           if j != m]
-                                         for i in xrange(nconstraints)
+                                         for i in range(nconstraints)
                                          if i != m]
                             logger.debug("Testing submatrix = {}"
                                          .format(submatrix))
                             if abs(np.linalg.det(submatrix)) > self.TOLERANCE:
                                 logger.debug("Possible sol")
                                 ansmatrix = [perm_matrix[i][m]
-                                             for i in xrange(nconstraints)
+                                             for i in range(nconstraints)
                                              if i != m]
                                 coeffs = -np.linalg.solve(submatrix, ansmatrix)
                                 coeffs = [c for c in coeffs]
@@ -399,7 +399,7 @@ class Reaction(BalancedReaction):
                     raise ReactionError("Reaction is ill-formed and cannot be"
                                         " balanced.")
 
-        for i in xrange(len(coeffs) - 1, -1, -1):
+        for i in range(len(coeffs) - 1, -1, -1):
             if coeffs[i] != 0:
                 normfactor = coeffs[i]
                 break

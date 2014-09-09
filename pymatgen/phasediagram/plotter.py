@@ -83,7 +83,7 @@ class PDPlotter(object):
         all_data = np.array(pd.all_entries_hulldata)
         unstable_entries = dict()
         stable = pd.stable_entries
-        for i in xrange(0, len(all_entries)):
+        for i in range(0, len(all_entries)):
             entry = all_entries[i]
             if entry not in stable:
                 if self._dim < 3:
