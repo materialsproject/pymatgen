@@ -280,7 +280,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
                 elif any([el.Z > 20 for el in structure.composition]):
                     incar['LMAXMIX'] = 4
         else:
-            for key in incar.keys():
+            for key in list(incar.keys()):
                 if key.startswith('LDAU'):
                     del incar[key]
 
