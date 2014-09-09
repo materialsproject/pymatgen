@@ -14,10 +14,12 @@ __date__ = "Sep 23, 2011"
 import os
 import random
 import unittest
+import json
+import six
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core import PeriodicSite
-from pymatgen.io.cifio import CifParser
+from pymatgen.serializers.json_coders import PMGJSONDecoder
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.transformations.standard_transformations import *
 from pymatgen.symmetry.structure import SymmetrizedStructure
@@ -127,11 +129,12 @@ class SupercellTransformationTest(unittest.TestCase):
         self.assertEqual(s.composition.formula, "Li16 O16")
 
     def test_from_scaling_factors(self):
-        scale_factors = [random.randint(1, 5) for i in xrange(3)]
+        scale_factors = [random.randint(1, 5) for i in range(3)]
         t = SupercellTransformation.from_scaling_factors(*scale_factors)
         s = t.apply_transformation(self.struct)
-        self.assertEqual(s.num_sites, 4 * reduce(lambda a, b: a * b,
-                                                 scale_factors))
+        self.assertEqual(s.num_sites,
+                         4 * six.moves.reduce(lambda a, b: a * b,
+                                              scale_factors))
 
 
 class OxidationStateDecorationTransformationTest(unittest.TestCase):
@@ -286,7 +289,7 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
                                      {"Si4+": 0.333}, "O2-"], coords)
         allstructs = t.apply_transformation(struct, 50)
         self.assertEqual(len(allstructs), 3)
-        
+
     def test_symmetrized_structure(self):
         t = OrderDisorderedStructureTransformation(symmetrized_structures=True)
         c = []
@@ -363,10 +366,10 @@ class PrimitiveCellTransformationTest(unittest.TestCase):
         s = t.apply_transformation(struct)
         self.assertEqual(len(s), 4)
 
-        parser = CifParser(os.path.join(test_dir, "TiO2_super.cif"))
-        s = parser.get_structures()[0]
-        prim = t.apply_transformation(s)
-        self.assertEqual(prim.formula, "Ti4 O8")
+        with open(os.path.join(test_dir, "TiO2_super.json")) as f:
+            s = json.load(f, cls=PMGJSONDecoder)
+            prim = t.apply_transformation(s)
+            self.assertEqual(prim.formula, "Ti4 O8")
 
 
 class PerturbStructureTransformationTest(unittest.TestCase):
