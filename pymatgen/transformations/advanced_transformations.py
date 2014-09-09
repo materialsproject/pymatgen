@@ -13,8 +13,10 @@ __date__ = "Jul 24, 2012"
 
 import numpy as np
 from fractions import gcd, Fraction
-
 from itertools import groupby
+
+import six
+
 from pymatgen.core.structure import Specie, Composition
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.transformations.transformation_abc import AbstractTransformation
@@ -494,7 +496,7 @@ class MagOrderingTransformation(AbstractTransformation):
         atom_per_specie = [structure.composition.get(m)
                            for m in mag_species_spin.keys()]
 
-        n_gcd = reduce(gcd, atom_per_specie)
+        n_gcd = six.moves.reduce(gcd, atom_per_specie)
 
         if not n_gcd:
             raise ValueError(
@@ -528,7 +530,7 @@ class MagOrderingTransformation(AbstractTransformation):
             MagOrderingTransformation.determine_min_cell(
                 structure, self.mag_species_spin,
                 self.order_parameter)),
-            enum_args.get("min_cell_size"))
+            enum_args.get("min_cell_size", 1))
 
         max_cell = self.enum_kwargs.get('max_cell_size')
         if max_cell:

@@ -382,14 +382,12 @@ class GulpIO(object):
         if energy:
             return float(energy[4])
         else:
-            #print gout
             raise GulpError("Energy not found in Gulp output")
 
     def get_relaxed_structure(self, gout):
         #Find the structure lines
         structure_lines = []
         cell_param_lines = []
-        #print gout
         output_lines = gout.split("\n")
         no_lines = len(output_lines)
         i = 0
@@ -519,13 +517,13 @@ class GulpCaller(object):
         output = p.communicate(gin)
 
         if "Error" in output[1] or "error" in output[1]:
-            print gin
-            print "----output_0---------"
-            print output[0]
-            print "----End of output_0------\n\n\n"
-            print "----output_1--------"
-            print output[1]
-            print "----End of output_1------"
+            print(gin)
+            print("----output_0---------")
+            print(output[0])
+            print("----End of output_0------\n\n\n")
+            print("----output_1--------")
+            print(output[1])
+            print("----End of output_1------")
             raise GulpError(output[1])
 
         # We may not need this

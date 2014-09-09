@@ -55,14 +55,14 @@ class AbstractComparator(MSONable):
     @abc.abstractmethod
     def get_hash(self, composition):
         """
-        Defines a hash to group structures. This allows structures to be 
-        grouped efficiently for comparison. The hash must be invariant under 
-        supercell creation. (e.g. composition is not a good hash, but 
+        Defines a hash to group structures. This allows structures to be
+        grouped efficiently for comparison. The hash must be invariant under
+        supercell creation. (e.g. composition is not a good hash, but
         fractional_composition might be). Reduced formula is not a good formula,
         due to weird behavior with fractional occupancy.
-        
+
         Composition is used here instead of structure because for anonymous
-        matches it is much quicker to apply a substitution to a composition 
+        matches it is much quicker to apply a substitution to a composition
         object than a structure object.
 
         Args:
@@ -376,7 +376,7 @@ class StructureMatcher(MSONable):
         Args:
             s, target_s: Structure objects
         """
-        lattices = s.lattice.find_all_mappings(target_lattice, 
+        lattices = s.lattice.find_all_mappings(target_lattice,
                         ltol = self.ltol, atol=self.angle_tol)
         for l, _, scale_m in lattices:
             if abs(abs(np.linalg.det(scale_m)) - supercell_size) < 0.5:
@@ -529,7 +529,7 @@ class StructureMatcher(MSONable):
             return None
 
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
-        match = self._match(struct1, struct2, fu, s1_supercell, 
+        match = self._match(struct1, struct2, fu, s1_supercell,
                             break_on_match=True)
 
         if match is None:
@@ -551,7 +551,7 @@ class StructureMatcher(MSONable):
             lattice is found None is returned.
         """
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
-        match = self._match(struct1, struct2, fu, s1_supercell, use_rms=True, 
+        match = self._match(struct1, struct2, fu, s1_supercell, use_rms=True,
                             break_on_match=False)
 
         if match is None:
@@ -701,13 +701,13 @@ class StructureMatcher(MSONable):
                 ref = unmatched.pop(0)
                 matches = [ref]
                 if anonymous:
-                    inds = filter(lambda i: self.fit_anonymous(ref, 
-                            unmatched[i]), xrange(len(unmatched)))
+                    inds = filter(lambda i: self.fit_anonymous(ref,
+                            unmatched[i]), range(len(unmatched)))
                 else:
                     inds = filter(lambda i: self.fit(ref, unmatched[i]),
-                                  xrange(len(unmatched)))
+                                  range(len(unmatched)))
                 matches.extend([unmatched[i] for i in inds])
-                unmatched = [unmatched[i] for i in xrange(len(unmatched))
+                unmatched = [unmatched[i] for i in range(len(unmatched))
                              if i not in inds]
                 all_groups.append(matches)
         return all_groups
@@ -766,10 +766,10 @@ class StructureMatcher(MSONable):
             mapped_struct = struct1.copy()
             mapped_struct.replace_species(sp_mapping)
             if swapped:
-                m = self._strict_match(struct2, mapped_struct, fu, (not s1_supercell), 
+                m = self._strict_match(struct2, mapped_struct, fu, (not s1_supercell),
                                        use_rms, break_on_match)
             else:
-                m = self._strict_match(mapped_struct, struct2, fu, s1_supercell, 
+                m = self._strict_match(mapped_struct, struct2, fu, s1_supercell,
                                        use_rms, break_on_match)
             if m:
                 matches.append((sp_mapping, m))
@@ -789,14 +789,14 @@ class StructureMatcher(MSONable):
 
         Returns:
             (min_rms, min_mapping)
-            min_rms is the minimum rms distance, and min_mapping is the 
+            min_rms is the minimum rms distance, and min_mapping is the
             corresponding minimal species mapping that would map
             struct1 to struct2. (None, None) is returned if the minimax_rms
             exceeds the threshold.
         """
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
-        
-        matches = self._anonymous_match(struct1, struct2, fu, s1_supercell, 
+
+        matches = self._anonymous_match(struct1, struct2, fu, s1_supercell,
                                         use_rms=True, break_on_match=False)
         if matches:
             best = sorted(matches, key=lambda x:x[1][0])[0]
@@ -821,7 +821,7 @@ class StructureMatcher(MSONable):
         """
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
 
-        matches = self._anonymous_match(struct1, struct2, fu, s1_supercell, 
+        matches = self._anonymous_match(struct1, struct2, fu, s1_supercell,
                                         use_rms=True, break_on_match=True)
 
         if matches:
@@ -849,10 +849,10 @@ class StructureMatcher(MSONable):
             list of species mappings that map struct1 to struct2.
         """
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
-        
-        matches = self._anonymous_match(struct1, struct2, fu, s1_supercell, 
+
+        matches = self._anonymous_match(struct1, struct2, fu, s1_supercell,
                                         break_on_match=True)
-        
+
         if matches:
             return [m[0] for m in matches]
 
@@ -871,7 +871,7 @@ class StructureMatcher(MSONable):
         """
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
 
-        matches = self._anonymous_match(struct1, struct2, fu, s1_supercell, 
+        matches = self._anonymous_match(struct1, struct2, fu, s1_supercell,
                                         break_on_match=True, single_match=True)
 
         if matches:
@@ -895,7 +895,7 @@ class StructureMatcher(MSONable):
             raise ValueError("The non-supercell must be put onto the basis"
                              " of the supercell, not the other way around")
 
-        match = self._match(struct, supercell, fu, s1_supercell, use_rms=True, 
+        match = self._match(struct, supercell, fu, s1_supercell, use_rms=True,
                             break_on_match=False)
 
         if match is None:
@@ -925,7 +925,7 @@ class StructureMatcher(MSONable):
         if s1_supercell and fu > 1:
             raise ValueError("Struct1 must be the supercell, "
                              "not the other way around")
-        
+
         temp = struct2.copy()
         if len(s1) * ratio >= len(s2):
             #s1 is superset
