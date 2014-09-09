@@ -1415,13 +1415,11 @@ class Task(Node):
         self.num_restarts += 1
         self.history.append("Restarted on %s, num_restarts %d" % (time.asctime(), self.num_restarts))
 
-        # Remove the lock file
-        self.start_lockfile.remove()
-
         if not no_submit:
+            # Remove the lock file
+            self.start_lockfile.remove()
             # Relaunch the task.
             fired = self.start()
-
             if not fired:
                 self.history.append("[%s], restart failed" % time.asctime())
         else:
@@ -1905,7 +1903,6 @@ class Task(Node):
                 if os.path.realpath(dest) != path:
                     raise self.Error("dest %s does not point to path %s" % (dest, path))
 
-
     @abc.abstractmethod
     def setup(self):
         """Public method called before submitting the task."""
@@ -2337,6 +2334,10 @@ class AbinitTask(Task):
         restart from scratch, reuse of output
         this is to be used if a job is restarted with more resources after a crash
         """
+        # remove all 'error', else the job will be seen as crashed in the next check status
+        # even if the job did not run
+        self.remove_files(self.output_file, self.log_file, self.stderr_file)
+        self.start_lockfile.remove()
         return self._restart(no_submit=True)
 
     def fix_abicritical(self):
@@ -2345,6 +2346,7 @@ class AbinitTask(Task):
         """
         # the crude, no idea what to do but this may work, solution.
         if self.manager.qadapter.increase_resources():
+
             self.reset_from_scratch()
             return True
         else:
