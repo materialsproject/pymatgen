@@ -4,24 +4,23 @@ Wrapper classes for Cif input and output from Structures.
 
 from __future__ import division
 
-__author__ = "Shyue Ping Ong"
+__author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
+__version__ = "3.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 
-import re
 import math
+import re
+import shlex
 import warnings
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict, deque
 
-import CifFile
 import six
 from six.moves import cStringIO
-
 
 import numpy as np
 
@@ -34,11 +33,169 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.finder import SymmetryFinder
 
+class CifBlock(object):
+    
+    def __init__(self, data, loops, header):
+        """
+        Args:
+            data: dict or OrderedDict of data to go into the cif. Values should
+                    be convertible to string, or lists of these if the key is
+                    in a loop
+            loops: list of lists of keys, grouped by which loop they should 
+                    appear in
+            header: name of the block (appears after the data_ on the first line)
+        """
+        self.loops = loops
+        self.data = data
+        # AJ says: CIF Block names cannot be more than 75 characters or you
+        # get an Exception
+        self.header = header[:74]
+
+    def __getitem__(self, key):
+        return self.data[key]
+
+    def __str__(self):
+        s = ["data_{}".format(self.header)]
+        keys = self.data.keys()
+        written = []
+        for k in keys:
+            if k in written:
+                continue
+            for l in self.loops:
+                if k in l:
+                    s.append(self._loop_to_string(l))
+                    written.extend(l)
+                    break
+            if k in written:
+                continue
+            s.append("{}   {}".format(k, self._format_field(self.data[k])))
+        return "\n".join(s)
+
+    def _loop_to_string(self, loop):
+        s = ["loop_"]
+        s.extend(loop)
+        for fields in zip(*[self.data[k] for k in loop]):
+            s.append(" " + "  ".join(map(self._format_field, fields)))
+        return "\n  ".join(s)
+
+    def _format_field(self, v):
+        v = str(v).strip()
+        if "'" in v and '"' in v:
+            raise ValueError("cannot have both quotes in string")
+        if " " in v:
+            if "'" in v:
+                q = '"'
+            else:
+                q = "'"
+            v = q + v + q
+        return v
+
+    @classmethod
+    def _process_string(cls, string):
+        #remove comments
+        string = re.sub("#.*", "", string)
+        #remove empty lines
+        string = re.sub("^\s*\n", "", string, flags = re.MULTILINE)
+        #remove whitespaces at beginning of lines
+        string = re.sub("^\s*", "", string, flags = re.MULTILINE)
+        #remove non_ascii
+        string = remove_non_ascii(string)
+        
+        q = deque()
+        multiline = False
+        ml = []
+        #rejoin multiline strings
+        #this regex splits on spaces, except when in quotes.
+        #it also ignores single quotes when surrounded by non-whitespace
+        #since they are sometimes used in author names
+        p = re.compile(r'''([^'\s]+|'(?:\S'\S|[^'])*'|"[^"]*")''')
+        for l in string.splitlines():
+            if multiline:
+                if l.startswith(";"):
+                    multiline = False
+                    q.append(" ".join(ml))
+                    ml = []
+                    l = l[1:].strip()
+                else:
+                    ml.append(l)
+                    continue
+            if l.startswith(";"):
+                multiline = True
+                ml.append(l[1:].strip())
+            else:
+                q.extend(p.findall(l))
+        return q
+
+    @classmethod
+    def from_string(cls, string):
+        q = cls._process_string(string)
+        header = q.popleft()[5:]
+        data = OrderedDict()
+        loops = []
+        while q:
+            s = q.popleft()
+            if s == "_eof":
+                break
+            if s.startswith("_"):
+                data[s] = q.popleft()
+            elif s.startswith("loop_"):
+                columns = []
+                items = []
+                while q:
+                    s = q[0]
+                    if s.startswith("loop_") or not s.startswith("_"):
+                        break
+                    columns.append(q.popleft())
+                    data[columns[-1]] = []
+                while q:
+                    s = q[0]
+                    if s.startswith("loop_") or s.startswith("_"):
+                        break
+                    items.append(q.popleft())
+                n = len(items) // len(columns)
+                assert len(items) % n == 0
+                loops.append(columns)
+                for k, v in zip(columns * n, items):
+                    data[k].append(v.strip())
+        return cls(data, loops, header)
+
+
+class CifFile(object):
+    """
+    Reads and parses CifBlocks from a .cif file
+    """
+
+    def __init__(self, data, orig_string=None):
+        """
+        Args:
+            data: OrderedDict of CifBlock objects
+            string: The original cif string
+        """
+        self.data = data
+        self.orig_string = orig_string
+
+    def __str__(self):
+        s = map(str, self.data.values())
+        return "\n".join(s)+"\n"
+
+    @classmethod
+    def from_string(cls, string):
+        d = OrderedDict()
+        for x in re.split("^data_", "x\n"+string, 
+                          flags=re.MULTILINE|re.DOTALL)[1:]:
+            c = CifBlock.from_string("data_"+x)
+            d[c.header] = c
+        return cls(d, string)
+
+    @classmethod
+    def from_file(cls, filename):
+        with zopen(filename, "r") as f:
+            return cls.from_string(f.read())
+
 
 class CifParser(object):
     """
-    A wrapper class around PyCifRW to read Cif and convert into a pymatgen
-    Structure object.
+    Parses a cif file
 
     Args:
         filename (str): Cif filename. bzipped or gzipped cifs are fine too.
@@ -49,12 +206,9 @@ class CifParser(object):
     def __init__(self, filename, occupancy_tolerance=1.):
         self._occupancy_tolerance = occupancy_tolerance
         if isinstance(filename, six.string_types):
-            with zopen(filename, "r") as f:
-                # We use this round-about way to clean up the CIF first.
-                stream = cStringIO(_clean_cif(f.read()))
-                self._cif = CifFile.ReadCif(stream)
+            self._cif = CifFile.from_file(filename)
         else:
-            self._cif = CifFile.ReadCif(filename)
+            self._cif = CifFile.from_string(filename.read())
 
     @staticmethod
     def from_string(cif_string, occupancy_tolerance=1.):
@@ -70,7 +224,7 @@ class CifParser(object):
         Returns:
             CifParser
         """
-        stream = cStringIO(_clean_cif(cif_string))
+        stream = cStringIO(cif_string)
         return CifParser(stream, occupancy_tolerance)
 
     def _unique_coords(self, coord_in):
@@ -175,9 +329,9 @@ class CifParser(object):
             List of Structures.
         """
         structures = []
-        for k, v in self._cif.items():
+        for d in self._cif.data.values():
             try:
-                structures.append(self._get_structure(v, primitive))
+                structures.append(self._get_structure(d, primitive))
             except KeyError as exc:
                 # Warn the user (Errors should never pass silently)
                 # A user reported a problem with cif files produced by Avogadro
@@ -189,9 +343,9 @@ class CifParser(object):
     @property
     def to_dict(self):
         d = OrderedDict()
-        for k, v in self._cif.items():
+        for k, v in self._cif.data.items():
             d[k] = {}
-            for k2, v2 in v.items():
+            for k2, v2 in v.data.items():
                 d[k][k2] = v2
         return d
 
@@ -207,7 +361,8 @@ class CifWriter:
     """
 
     def __init__(self, struct, find_spacegroup=False):
-        block = CifFile.CifBlock()
+        block = OrderedDict()
+        loops = []
         latt = struct.lattice
         comp = struct.composition
         no_oxi_comp = comp.element_composition
@@ -233,9 +388,11 @@ class CifWriter:
         fu = int(amt / reduced_comp[Element(el.symbol)])
 
         block["_cell_formula_units_Z"] = str(fu)
-        block.AddCifItem(([["_symmetry_equiv_pos_site_id",
-                            "_symmetry_equiv_pos_as_xyz"]],
-                          [[["1"], ["x, y, z"]]]))
+        
+        block["_symmetry_equiv_pos_site_id"] = ["1"]
+        block["_symmetry_equiv_pos_as_xyz"] = ["x, y, z"]
+        loops.append(["_symmetry_equiv_pos_site_id",
+                      "_symmetry_equiv_pos_as_xyz"])
 
         contains_oxidation = True
         try:
@@ -245,10 +402,9 @@ class CifWriter:
             symbol_to_oxinum = {el.symbol: 0 for el in comp.elements}
             contains_oxidation = False
         if contains_oxidation:
-            block.AddCifItem(([["_atom_type_symbol",
-                                "_atom_type_oxidation_number"]],
-                              [[symbol_to_oxinum.keys(),
-                                symbol_to_oxinum.values()]]))
+            block["_atom_type_symbol"] = symbol_to_oxinum.keys()
+            block["_atom_type_oxidation_number"] = symbol_to_oxinum.values()
+            loops.append(["_atom_type_symbol", "_atom_type_oxidation_number"])
 
         atom_site_type_symbol = []
         atom_site_symmetry_multiplicity = []
@@ -274,30 +430,26 @@ class CifWriter:
                 count += 1
 
         block["_atom_site_type_symbol"] = atom_site_type_symbol
-        block.AddToLoop("_atom_site_type_symbol",
-                        {"_atom_site_label": atom_site_label})
-        block.AddToLoop("_atom_site_type_symbol",
-                        {"_atom_site_symmetry_multiplicity":
-                         atom_site_symmetry_multiplicity})
-        block.AddToLoop("_atom_site_type_symbol",
-                        {"_atom_site_fract_x": atom_site_fract_x})
-        block.AddToLoop("_atom_site_type_symbol",
-                        {"_atom_site_fract_y": atom_site_fract_y})
-        block.AddToLoop("_atom_site_type_symbol",
-                        {"_atom_site_fract_z": atom_site_fract_z})
-        block.AddToLoop("_atom_site_type_symbol",
-                        {"_atom_site_attached_hydrogens":
-                         atom_site_attached_hydrogens})
-        block.AddToLoop("_atom_site_type_symbol",
-                        {"_atom_site_B_iso_or_equiv":
-                         atom_site_B_iso_or_equiv})
-        block.AddToLoop("_atom_site_type_symbol",
-                        {"_atom_site_occupancy": atom_site_occupancy})
-
-        self._cf = CifFile.CifFile()
-        # AJ says: CIF Block names cannot be more than 75 characters or you
-        # get an Exception
-        self._cf[comp.reduced_formula[0:74]] = block
+        block["_atom_site_label"] = atom_site_label
+        block["_atom_site_symmetry_multiplicity"] = atom_site_symmetry_multiplicity
+        block["_atom_site_fract_x"] = atom_site_fract_x
+        block["_atom_site_fract_y"] = atom_site_fract_y
+        block["_atom_site_fract_z"] = atom_site_fract_z
+        block["_atom_site_attached_hydrogens"] = atom_site_fract_z
+        block["_atom_site_B_iso_or_equiv"] = atom_site_B_iso_or_equiv
+        block["_atom_site_occupancy"] = atom_site_occupancy
+        loops.append(["_atom_site_type_symbol",
+                      "_atom_site_label",
+                      "_atom_site_symmetry_multiplicity",
+                      "_atom_site_fract_x",
+                      "_atom_site_fract_y",
+                      "_atom_site_fract_z",
+                      "_atom_site_attached_hydrogens",
+                      "_atom_site_B_iso_or_equiv",
+                      "_atom_site_occupancy"])
+        d = OrderedDict()
+        d[comp.reduced_formula] = CifBlock(block, loops, comp.reduced_formula)
+        self._cf = CifFile(d)
 
     def __str__(self):
         """
@@ -311,30 +463,6 @@ class CifWriter:
         """
         with open(filename, "w") as f:
             f.write(self.__str__())
-
-
-def _clean_cif(s):
-    """
-    Removes non-ASCII and some unsupported _cgraph fields from the cif
-    string
-    """
-    clean = []
-    lines = s.split("\n")
-    skip = False
-    while len(lines) > 0:
-        l = lines.pop(0)
-        if skip:
-            if l.strip().startswith("_") or l.strip() == "loop_":
-                skip = False
-            else:
-                continue
-
-        if l.strip().startswith("_cgraph"):
-            skip = True
-        elif not l.strip().startswith("_eof"):
-            clean.append(remove_non_ascii(l))
-
-    return "\n".join(clean)
 
 
 def str2float(text):
