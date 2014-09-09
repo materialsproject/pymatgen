@@ -59,8 +59,8 @@ class PoscarTransmuterTest(unittest.TestCase):
             self.assertEqual(expected_ans, els)
 
     def test_transmuter(self):
-        tsc = PoscarTransmuter.from_filenames([os.path.join(test_dir,
-                                                            "POSCAR")])
+        tsc = PoscarTransmuter.from_filenames(
+            [os.path.join(test_dir, "POSCAR")])
         tsc.append_transformation(RemoveSpeciesTransformation('O'))
         self.assertEqual(len(tsc[0].final_structure), 8)
 
