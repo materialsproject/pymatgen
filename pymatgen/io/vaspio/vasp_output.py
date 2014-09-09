@@ -20,7 +20,7 @@ import re
 import math
 import itertools
 import warnings
-import StringIO
+from six.moves import cStringIO
 import logging
 from collections import defaultdict
 from xml.etree.cElementTree import iterparse
@@ -83,10 +83,10 @@ def _parse_v_parameters(val_type, val, filename, param_name):
         Parsed value.
     """
     if val_type == "logical":
-        val = map(lambda i: i == "T", val.split())
+        val = [i == "T" for i in val.split()]
     elif val_type == "int":
         try:
-            val = map(int, val.split())
+            val = [int(i) for i in val.split()]
         except ValueError:
             # Fix for stupid error in vasprun sometimes which displays
             # LDAUL/J as 2****
@@ -97,7 +97,7 @@ def _parse_v_parameters(val_type, val, filename, param_name):
         val = val.split()
     else:
         try:
-            val = map(float, val.split())
+            val = [float(i) for i in val.split()]
         except ValueError:
             # Fix for stupid error in vasprun sometimes which displays
             # MAGMOM as 2****
@@ -108,7 +108,7 @@ def _parse_v_parameters(val_type, val, filename, param_name):
 
 
 def _parse_varray(elem):
-    return [map(float, v.text.split()) for v in elem]
+    return [[float(i) for i in v.text.split()] for v in elem]
 
 
 def _parse_from_incar(filename, key):
@@ -291,7 +291,7 @@ class Vasprun(object):
                         steps[-1].split("</calculation>")[-1])
                 else:
                     to_parse = "{}<calculation>{}".format(preamble, to_parse)
-                self._parse(StringIO.StringIO(to_parse), parse_dos=parse_dos,
+                self._parse(cStringIO(to_parse), parse_dos=parse_dos,
                             parse_eigen=parse_eigen,
                             parse_projected_eigen=parse_projected_eigen)
             else:
@@ -305,7 +305,7 @@ class Vasprun(object):
         self.projected_eigenvalues = None
         ionic_steps = []
         parsed_header = False
-        for event, elem in iterparse(stream, events=("end", )):
+        for event, elem in iterparse(stream):
             tag = elem.tag
             if not parsed_header:
                 if tag == "generator":
@@ -369,11 +369,17 @@ class Vasprun(object):
         the final electronic convergence as well as whether the number of
         ionic steps is equal to the NSW setting.
         """
-        if len(self.ionic_steps[-1]["electronic_steps"]) == \
-                self.parameters["NELM"]:
+        final_esteps = self.ionic_steps[-1]["electronic_steps"]
+        if 'LEPSILON' in self.incar and self.incar['LEPSILON']:
+            i = 1
+            to_check = set(['e_wo_entrp', 'e_fr_energy', 'e_0_energy'])
+            while set(final_esteps[i].keys()) == to_check:
+                i += 1
+            return i + 1 != self.parameters["NELM"]
+        if len(final_esteps) == self.parameters["NELM"]:
             return False
         nsw = self.parameters.get("NSW", 0)
-        return len(self.ionic_steps) < nsw or nsw < 1
+        return len(self.ionic_steps) < nsw or nsw <= 1
 
     @property
     @unitized("eV")
@@ -409,7 +415,7 @@ class Vasprun(object):
         us = self.incar.get("LDAUU", self.parameters.get("LDAUU"))
         js = self.incar.get("LDAUJ", self.parameters.get("LDAUJ"))
         if len(us) == len(symbols):
-            return {symbols[i]: us[i] - js[i] for i in xrange(len(symbols))}
+            return {symbols[i]: us[i] - js[i] for i in range(len(symbols))}
         elif sum(us) == 0 and sum(js) == 0:
             return {}
         else:
@@ -444,7 +450,7 @@ class Vasprun(object):
         """
         True if run is spin-polarized.
         """
-        return True if self.parameters.get("ISPIN", 1) == 2 else False
+        return self.parameters.get("ISPIN", 1) == 2
 
     def get_computed_entry(self, inc_structure=False, parameters=None,
                            data=None):
@@ -664,7 +670,7 @@ class Vasprun(object):
             js = self.incar.get("LDAUJ", self.parameters.get("LDAUJ"))
             if len(us) == len(symbols):
                 d["hubbards"] = {symbols[i]: us[i] - js[i]
-                                 for i in xrange(len(symbols))}
+                                 for i in range(len(symbols))}
             else:
                 raise VaspParserError("Length of U value parameters and atomic"
                                       " symbols are mismatched.")
@@ -680,7 +686,7 @@ class Vasprun(object):
                "kpoints": self.kpoints.to_dict}
         actual_kpts = [{"abc": list(self.actual_kpoints[i]),
                         "weight": self.actual_kpoints_weights[i]}
-                       for i in xrange(len(self.actual_kpoints))]
+                       for i in range(len(self.actual_kpoints))]
         vin["kpoints"]["actual_points"] = actual_kpts
         vin["potcar"] = [s.split(" ")[1] for s in self.potcar_symbols]
         vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]
@@ -770,11 +776,11 @@ class Vasprun(object):
             name = v.attrib.get("name")
             toks = v.text.split()
             if name == "divisions":
-                k.kpts = [map(int, toks)]
+                k.kpts = [[int(i) for i in toks]]
             elif name == "usershift":
-                k.kpts_shift = map(float, toks)
+                k.kpts_shift = [float(i) for i in toks]
             elif name in {"genvec1", "genvec2", "genvec3", "shift"}:
-                setattr(k, name, map(float, toks))
+                setattr(k, name, [float(i) for i in toks])
         for va in elem.findall("varray"):
             name = va.attrib["name"]
             if name == "kpointlist":
@@ -830,7 +836,7 @@ class Vasprun(object):
                     Spin.down
                 data = np.array(_parse_varray(ss))
                 nrow, ncol = data.shape
-                for j in xrange(1, ncol):
+                for j in range(1, ncol):
                     pdos[Orbital.from_vasp_index(j - 1)][spin] = data[:, j]
             pdoss.append(pdos)
         elem.clear()
@@ -1023,7 +1029,7 @@ class Outcar(object):
 
             def er_bp(results, match):
                 results.er_bp[Spin.up] = np.array([float(match.group(i))
-                                                   for i in xrange(1, 4)]) / 2
+                                                   for i in range(1, 4)]) / 2
                 results.er_bp[Spin.down] = results.er_bp[Spin.up]
 
             search.append(["^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
@@ -1033,7 +1039,7 @@ class Outcar(object):
             # Spin cases
             def er_ev_up(results, match):
                 results.er_ev[Spin.up] = np.array([float(match.group(i))
-                                                   for i in xrange(1, 4)])
+                                                   for i in range(1, 4)])
                 results.context = Spin.up
 
             search.append(["^.*Spin component 1 *e<r>_ev=\( *([-0-9.Ee+]*) "
@@ -1061,7 +1067,7 @@ class Outcar(object):
 
             def er_bp_dn(results, match):
                 results.er_bp[Spin.down] = np.array([float(match.group(i))
-                                                     for i in xrange(1, 4)])
+                                                     for i in range(1, 4)])
             search.append(["^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
                            "*([-0-9.Ee+]*) *\)",
                            lambda results,
@@ -1070,7 +1076,7 @@ class Outcar(object):
             # Always present spin/non-spin
             def p_elc(results, match):
                 results.p_elc = np.array([float(match.group(i))
-                                          for i in xrange(1, 4)])
+                                          for i in range(1, 4)])
 
             search.append(["^.*Total electronic dipole moment: "
                            "*p\[elc\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
@@ -1078,7 +1084,7 @@ class Outcar(object):
 
             def p_ion(results, match):
                 results.p_ion = np.array([float(match.group(i))
-                                          for i in xrange(1, 4)])
+                                          for i in range(1, 4)])
 
             search.append(["^.*ionic dipole moment: "
                            "*p\[ion\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
@@ -1124,7 +1130,7 @@ class Outcar(object):
 
             def dielectric_data(results, match):
                 results.dielectric_tensor[results.dielectric_index, :] = \
-                    np.array([float(match.group(i)) for i in xrange(1, 4)])
+                    np.array([float(match.group(i)) for i in range(1, 4)])
                 results.dielectric_index += 1
 
             search.append(["^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$",
@@ -1151,7 +1157,7 @@ class Outcar(object):
 
             def piezo_data(results, match):
                 results.piezo_tensor[results.piezo_index, :] = \
-                    np.array([float(match.group(i)) for i in xrange(1, 7)])
+                    np.array([float(match.group(i)) for i in range(1, 7)])
                 results.piezo_index += 1
 
             search.append(["^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
@@ -1186,7 +1192,7 @@ class Outcar(object):
 
             def born_data(results, match):
                 results.born[results.born_ion][int(match.group(1)) - 1, :] = \
-                    np.array([float(match.group(i)) for i in xrange(2, 5)])
+                    np.array([float(match.group(i)) for i in range(2, 5)])
 
             search.append(["^ *([1-3]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) "
                            "+([-0-9.Ee+]+)$",
@@ -1355,7 +1361,7 @@ class VolumetricData(object):
         ng = self.dim
         num_pts = ng[ind]
         lengths = self.structure.lattice.abc
-        return [i / num_pts * lengths[ind] for i in xrange(num_pts)]
+        return [i / num_pts * lengths[ind] for i in range(num_pts)]
 
     def __add__(self, other):
         return self.linear_add(other, 1.0)
@@ -1434,7 +1440,7 @@ class VolumetricData(object):
                         poscar = Poscar.from_string("\n".join(poscar_string))
                         poscar_read = True
                 elif not dim:
-                    dim = map(int, line.split())
+                    dim = [int(i) for i in line.split()]
                     ngrid_pts = dim[0] * dim[1] * dim[2]
                     dimline = line
                     read_dataset = True
@@ -1480,8 +1486,8 @@ class VolumetricData(object):
             lines = []
             count = 0
             f.write("{} {} {}\n".format(a[0], a[1], a[2]))
-            for (k, j, i) in itertools.product(xrange(a[2]), xrange(a[1]),
-                                               xrange(a[0])):
+            for (k, j, i) in itertools.product(range(a[2]), range(a[1]),
+                                               range(a[0])):
                 lines.append("%0.11e" % self.data[data_type][i, j, k])
                 count += 1
                 if count % 5 == 0:
@@ -1518,7 +1524,7 @@ class VolumetricData(object):
         """
         #For non-spin-polarized runs, this is zero by definition.
         if not self.is_spin_polarized:
-            radii = [radius / nbins * (i + 1) for i in xrange(nbins)]
+            radii = [radius / nbins * (i + 1) for i in range(nbins)]
             data = np.zeros((nbins, 2))
             data[:, 0] = radii
             return data
@@ -1528,7 +1534,7 @@ class VolumetricData(object):
         if ind not in self._distance_matrix or\
                 self._distance_matrix[ind]["max_radius"] < radius:
             coords = []
-            for (x, y, z) in itertools.product(*[xrange(i) for i in a]):
+            for (x, y, z) in itertools.product(*[range(i) for i in a]):
                 coords.append([x / a[0], y / a[1], z / a[2]])
             sites_dist = struct.lattice.get_points_in_sphere(
                 coords, struct[ind].coords, radius)
@@ -1550,7 +1556,7 @@ class VolumetricData(object):
         data = np.zeros((nbins, 2))
         data[:, 0] = edges[1:]
         data[:, 1] = [sum(hist[0:i + 1]) / self.ngridpts
-                      for i in xrange(nbins)]
+                      for i in range(nbins)]
         return data
 
     def get_average_along_axis(self, ind):
@@ -1674,7 +1680,7 @@ class Procar(object):
                     headers.pop(-1)
                 elif expr.match(l):
                     linedata = dataexpr.findall(l)
-                    num_data = map(float, linedata)
+                    num_data = [float(i) for i in linedata]
                     #Convert to zero-based indexing for atoms.
                     index = int(num_data.pop(0)) - 1
                     num_data.pop(-1)
@@ -1845,7 +1851,7 @@ class Oszicar(object):
                 if m:
                     toks = m.group(1).split()
                     data = {header[i]: smart_convert(header[i], toks[i])
-                            for i in xrange(len(toks))}
+                            for i in range(len(toks))}
                     if toks[0] == "1":
                         electronic_steps.append([data])
                     else:
@@ -1883,7 +1889,7 @@ class Oszicar(object):
         ((4507.24605593, 143.824705755, -512.073149912, ...), ...)
         """
         all_energies = []
-        for i in xrange(len(self.electronic_steps)):
+        for i in range(len(self.electronic_steps)):
             energies = [step["E"] for step in self.electronic_steps[i]]
             energies.append(self.ionic_steps[i]["F"])
             all_energies.append(tuple(energies))

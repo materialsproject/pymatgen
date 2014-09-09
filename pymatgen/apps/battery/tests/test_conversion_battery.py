@@ -56,7 +56,7 @@ class ConversionElectrodeTest(unittest.TestCase):
                 Composition(f), entries)
             self.assertEqual(len(c.get_sub_electrodes(True)), c.num_steps)
             self.assertEqual(len(c.get_sub_electrodes(False)),
-                             sum(xrange(1, c.num_steps + 1)))
+                             sum(range(1, c.num_steps + 1)))
             self.assertIsNotNone(str(c))
             p = expected_properties[f]
 

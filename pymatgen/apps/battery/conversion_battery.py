@@ -94,7 +94,7 @@ class ConversionElectrode(AbstractElectrode):
                 normalization_els[el] = amt
         vpairs = [ConversionVoltagePair.from_steps(profile[i], profile[i + 1],
                                                    normalization_els)
-                  for i in xrange(len(profile) - 1)]
+                  for i in range(len(profile) - 1)]
         return ConversionElectrode(vpairs, working_ion_entry, comp)
 
     @staticmethod
@@ -136,10 +136,10 @@ class ConversionElectrode(AbstractElectrode):
         if adjacent_only:
             return [self.__class__(self._vpairs[i:i + 1],
                                    self._working_ion_entry, self._composition)
-                    for i in xrange(len(self._vpairs))]
+                    for i in range(len(self._vpairs))]
         sub_electrodes = []
-        for i in xrange(len(self._vpairs)):
-            for j in xrange(i, len(self._vpairs)):
+        for i in range(len(self._vpairs)):
+            for j in range(i, len(self._vpairs)):
                 sub_electrodes.append(self.__class__(self._vpairs[i:j + 1],
                                                      self._working_ion_entry,
                                                      self._composition))
@@ -177,12 +177,12 @@ class ConversionElectrode(AbstractElectrode):
             found = False
             rxn1 = pair1.rxn
             all_formulas1 = set([rxn1.all_comp[i].reduced_formula
-                                 for i in xrange(len(rxn1.all_comp))
+                                 for i in range(len(rxn1.all_comp))
                                  if abs(rxn1.coeffs[i]) > 1e-5])
             for pair2 in self:
                 rxn2 = pair2.rxn
                 all_formulas2 = set([rxn2.all_comp[i].reduced_formula
-                                     for i in xrange(len(rxn2.all_comp))
+                                     for i in range(len(rxn2.all_comp))
                                      if abs(rxn2.coeffs[i]) > 1e-5])
                 if all_formulas1 == all_formulas2:
                     found = True
@@ -202,12 +202,12 @@ class ConversionElectrode(AbstractElectrode):
             found = False
             rxn1 = pair1.rxn
             all_formulas1 = set([rxn1.all_comp[i].reduced_formula
-                                 for i in xrange(len(rxn1.all_comp))
+                                 for i in range(len(rxn1.all_comp))
                                  if abs(rxn1.coeffs[i]) > 1e-5])
             for pair2 in self:
                 rxn2 = pair2.rxn
                 all_formulas2 = set([rxn2.all_comp[i].reduced_formula
-                                     for i in xrange(len(rxn2.all_comp))
+                                     for i in range(len(rxn2.all_comp))
                                      if abs(rxn2.coeffs[i]) > 1e-5])
                 if all_formulas1 == all_formulas2:
                     found = True
@@ -289,7 +289,7 @@ class ConversionElectrode(AbstractElectrode):
             frac.append(pair.frac_charge)
             frac.append(pair.frac_discharge)
             d["reactions"].append(str(rxn))
-            for i in xrange(len(rxn.coeffs)):
+            for i in range(len(rxn.coeffs)):
                 if abs(rxn.coeffs[i]) > 1e-5 and rxn.all_comp[i] not in comps:
                     comps.append(rxn.all_comp[i])
                 if abs(rxn.coeffs[i]) > 1e-5 and \
@@ -377,7 +377,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
 
         reactants[licomp] = (step2["evolution"] - step1["evolution"])
 
-        rxn = BalancedReaction(reactants, products, remove_spectator_species=True)
+        rxn = BalancedReaction(reactants, products)
 
         for el, amt in normalization_els.items():
             if rxn.get_el_amount(el) > 1e-6:
@@ -386,14 +386,14 @@ class ConversionVoltagePair(AbstractVoltagePair):
 
         prev_mass_dischg = sum([prev_rxn.all_comp[i].weight
                                 * abs(prev_rxn.coeffs[i])
-                                for i in xrange(len(prev_rxn.all_comp))]) / 2
+                                for i in range(len(prev_rxn.all_comp))]) / 2
         vol_charge = sum([abs(prev_rxn.get_coeff(e.composition))
                           * e.structure.volume
                           for e in step1["entries"]
                           if e.composition.reduced_formula != working_ion])
         mass_discharge = sum([curr_rxn.all_comp[i].weight
                               * abs(curr_rxn.coeffs[i])
-                              for i in xrange(len(curr_rxn.all_comp))]) / 2
+                              for i in range(len(curr_rxn.all_comp))]) / 2
         mass_charge = prev_mass_dischg
         mass_discharge = mass_discharge
         vol_discharge = sum([abs(curr_rxn.get_coeff(e.composition))

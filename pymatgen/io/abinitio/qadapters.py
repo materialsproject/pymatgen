@@ -511,7 +511,7 @@ export MPI_NCPUS=$${MPI_NCPUS}
             raise self.Error("Random Error ...!")
 
     def get_njobs_in_queue(self, username=None):
-        return None
+        return 1
 
     def exclude_nodes(self, nodes):
         return False

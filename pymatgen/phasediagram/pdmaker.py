@@ -101,14 +101,15 @@ class PhaseDiagram (MSONable):
         """
         if elements is None:
             elements = set()
-            map(elements.update, [entry.composition.elements
-                                  for entry in entries])
+            for entry in entries:
+                elements.update(entry.composition.elements)
         elements = list(elements)
         dim = len(elements)
         el_refs = {}
         for el in elements:
-            el_entries = filter(lambda e: e.composition.is_element and
-                                e.composition.elements[0] == el, entries)
+            el_entries = list(filter(lambda e: e.composition.is_element and
+                                               e.composition.elements[0] == el,
+                                     entries))
             if len(el_entries) == 0:
                 raise PhaseDiagramError(
                     "There are no entries associated with terminal {}."
@@ -118,7 +119,7 @@ class PhaseDiagram (MSONable):
         data = []
         for entry in entries:
             comp = entry.composition
-            row = map(comp.get_atomic_fraction, elements)
+            row = [comp.get_atomic_fraction(el) for el in elements]
             row.append(entry.energy_per_atom)
             data.append(row)
 
@@ -152,7 +153,7 @@ class PhaseDiagram (MSONable):
             prev_c.append(frac_comp)
 
         #add the elemental references
-        ind.extend(map(entries.index, el_refs.values()))
+        ind.extend([entries.index(el) for el in el_refs.values()])
 
         qhull_entries = [entries[i] for i in ind]
         qhull_data = data[ind][:, 1:]
@@ -299,15 +300,14 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         """
         if elements is None:
             elements = set()
-            map(elements.update, [entry.composition.elements
-                                  for entry in entries])
+            for entry in entries:
+                elements.update(entry.composition.elements)
         self.chempots = {get_el_sp(el): u for el, u in chempots.items()}
         elements = set(elements).difference(self.chempots.keys())
-        all_entries = [GrandPotPDEntry(e, self.chempots)
-                       for e in entries
-                       if (not e.is_element) or
-                       e.composition.elements[0] in elements]
-
+        all_entries = []
+        for e in entries:
+            if len(set(e.composition.elements).intersection(set(elements))) > 0:
+                all_entries.append(GrandPotPDEntry(e, self.chempots))
         super(GrandPotentialPhaseDiagram, self).__init__(all_entries, elements)
 
     def __str__(self):

@@ -16,6 +16,8 @@ import os
 import time
 import errno
 
+import six
+
 
 def clean_lines(string_list, remove_empty_lines=True):
     """
@@ -121,7 +123,7 @@ def clean_json(input_json, strict=False):
         if not strict:
             return str(input_json)
         else:
-            if isinstance(input_json, basestring):
+            if isinstance(input_json, six.string_types):
                 return str(input_json)
             else:
                 return clean_json(input_json.to_dict, strict=strict)

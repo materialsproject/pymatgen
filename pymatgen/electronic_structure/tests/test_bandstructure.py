@@ -3,6 +3,7 @@
 import unittest
 import os
 import json
+from io import open
 
 from pymatgen.electronic_structure.bandstructure import Kpoint
 from pymatgen import Lattice
@@ -36,8 +37,9 @@ class KpointTest(unittest.TestCase):
 class BandStructureSymmLine_test(unittest.TestCase):
 
     def setUp(self):
-        with open(os.path.join(test_dir, "Cu2O_361_bandstructure.json"), "rb") as f:
-            d = json.loads(f.read())
+        with open(os.path.join(test_dir, "Cu2O_361_bandstructure.json"),
+                  "r", encoding='utf-8') as f:
+            d = json.load(f)
             self.bs = BandStructureSymmLine.from_dict(d)
             self.assertListEqual(self.bs._projections[Spin.up][10][12][Orbital.s], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "wrong projections")
             self.assertListEqual(self.bs._projections[Spin.up][25][0][Orbital.dyz], [0.0, 0.0, 0.0011, 0.0219, 0.0219, 0.069], "wrong projections")
@@ -46,8 +48,9 @@ class BandStructureSymmLine_test(unittest.TestCase):
             self.assertAlmostEqual(self.bs.get_projections_on_elts_and_orbitals({'Cu':['s','d']})[Spin.up][25][0]['Cu']['s'], 0.0027)
             self.assertAlmostEqual(self.bs.get_projections_on_elts_and_orbitals({'Cu':['s','d']})[Spin.up][25][0]['Cu']['d'], 0.8495999999999999)
 
-        with open(os.path.join(test_dir, "CaO_2605_bandstructure.json"), "rb") as f:
-            d = json.loads(f.read())
+        with open(os.path.join(test_dir, "CaO_2605_bandstructure.json"), "r",
+                  encoding='utf-8') as f:
+            d = json.load(f)
             #print d.keys()
             self.bs = BandStructureSymmLine.from_dict(d)
             #print self.bs.to_dict.keys()
@@ -62,8 +65,8 @@ class BandStructureSymmLine_test(unittest.TestCase):
             self.assertEqual(self.bs._branches[5]['end_index'], 95)
             self.assertAlmostEqual(self.bs._distance[70], 4.2335127528765737)
         with open(os.path.join(test_dir, "NiO_19009_bandstructure.json"),
-                  "rb") as f:
-            d = json.loads(f.read())
+                  "r", encoding='utf-8') as f:
+            d = json.load(f)
             self.bs_spin = BandStructureSymmLine.from_dict(d)
             #this doesn't really test to_dict -> from_dict very well
             #self.assertEqual(self.bs_spin.to_dict.keys(), d.keys())
