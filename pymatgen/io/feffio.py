@@ -186,7 +186,7 @@ class Header(MSONable):
         return Header.from_string(hs)
 
     @staticmethod
-    def header_string_from_file(filename):
+    def header_string_from_file(filename='feff.inp'):
         """
         Reads Header string from either a HEADER file or feff.inp file
         Will also read a header from a non-pymatgen generated feff.inp file
@@ -865,7 +865,7 @@ class FeffPot(MSONable):
                        d['central_atom'])
 
     @staticmethod
-    def pot_string_from_file(filename):
+    def pot_string_from_file(filename='feff.inp'):
         """
         Reads Potential parameters from a feff.inp or FEFFPOT file.
         The lines are arranged as follows:

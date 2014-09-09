@@ -337,7 +337,7 @@ def generate_diffraction_plot(args):
         c.show_xrd_plot(s)
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="""
     matgenie is a convenient script that uses pymatgen to perform many
     analyses, plotting and format conversions. This script works based on
@@ -509,3 +509,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     args.func(args)
+
+
+if __name__ == "__main__":
+    main()

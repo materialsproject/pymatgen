@@ -13,6 +13,8 @@ __date__ = "Mar 20, 2012"
 
 import numpy as np
 
+import six
+
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord_utils import get_linear_interpolated_value
@@ -93,7 +95,7 @@ class Dos(MSONable):
         from scipy.ndimage.filters import gaussian_filter1d
         smeared_dens = {}
         diff = [self.energies[i + 1] - self.energies[i]
-                for i in xrange(len(self.energies) - 1)]
+                for i in range(len(self.energies) - 1)]
         avgdiff = sum(diff) / len(diff)
         for spin, dens in self.densities.items():
             smeared_dens[spin] = gaussian_filter1d(dens, sigma / avgdiff)
@@ -151,9 +153,9 @@ class Dos(MSONable):
         if not abs_tol:
             tol = tol * tdos.sum() / tdos.shape[0]
         energies = self.energies
-        below_fermi = [i for i in xrange(len(energies))
+        below_fermi = [i for i in range(len(energies))
                        if energies[i] < self.efermi and tdos[i] > tol]
-        above_fermi = [i for i in xrange(len(energies))
+        above_fermi = [i for i in range(len(energies))
                        if energies[i] > self.efermi and tdos[i] > tol]
         vbm_start = max(below_fermi)
         cbm_start = min(above_fermi)
@@ -315,7 +317,7 @@ class CompleteDos(Dos):
         Returns:
             Dos containing summed orbital densities for site.
         """
-        site_dos = reduce(add_densities, self.pdos[site].values())
+        site_dos = six.moves.reduce(add_densities, self.pdos[site].values())
         return Dos(self.efermi, self.energies, site_dos)
 
     def get_site_spd_dos(self, site):
@@ -359,9 +361,9 @@ class CompleteDos(Dos):
                     elif orb in (Orbital.dx2, Orbital.dz2):
                         eg_dos.append(pdos)
         return {"t2g": Dos(self.efermi, self.energies,
-                           reduce(add_densities, t2g_dos)),
+                           six.moves.reduce(add_densities, t2g_dos)),
                 "e_g": Dos(self.efermi, self.energies,
-                           reduce(add_densities, eg_dos))}
+                           six.moves.reduce(add_densities, eg_dos))}
 
     def get_spd_dos(self):
         """
@@ -434,7 +436,7 @@ class CompleteDos(Dos):
         tdos = Dos.from_dict(d)
         struct = Structure.from_dict(d["structure"])
         pdoss = {}
-        for i in xrange(len(d["pdos"])):
+        for i in range(len(d["pdos"])):
             at = struct[i]
             orb_dos = {}
             for orb_str, odos in d["pdos"][i].items():

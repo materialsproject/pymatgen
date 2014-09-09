@@ -168,7 +168,7 @@ class MPResterTest(unittest.TestCase):
         # self.assertEqual(len(data), 0)
 
     def test_get_stability(self):
-        entries = self.rester.get_entries("Fe-O")
+        entries = self.rester.get_entries_in_chemsys(["Fe", "O"])
         modified_entries = []
         for entry in entries:
             # Create modified entries with energies that are 0.01eV higher
@@ -215,6 +215,11 @@ class MPResterTest(unittest.TestCase):
         comps = MPRester.parse_criteria("**O3")["pretty_formula"]["$in"]
         for c in comps:
             self.assertEqual(len(Composition(c)), 3)
+
+        #Let's test some invalid symbols
+
+        self.assertRaises(KeyError, MPRester.parse_criteria, "li-fe")
+        self.assertRaises(KeyError, MPRester.parse_criteria, "LO2")
 
 
 if __name__ == "__main__":

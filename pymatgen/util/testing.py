@@ -97,13 +97,13 @@ class PymatgenTest(unittest.TestCase):
 
         for protocol in protocols:
             # Serialize and deserialize the object.
-            mode = "w" if protocol == 0 else "wb"
+            mode = "wb"
             fd, tmpfile = tempfile.mkstemp(text="b" not in mode)
 
             with open(tmpfile, mode) as fh:
                 pickle.dump(objects, fh, protocol=protocol)
 
-            with open(tmpfile, "r") as fh:
+            with open(tmpfile, "rb") as fh:
                 new_objects = pickle.load(fh)
 
             # Test for equality

@@ -15,6 +15,9 @@ __date__ = "Nov 10, 2012"
 import re
 import collections
 import string
+
+import six
+
 from fractions import gcd
 from functools import total_ordering
 from itertools import chain
@@ -105,11 +108,11 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
                 ambiguity.
         """
         self.allow_negative = kwargs.pop('allow_negative', False)
-        if len(args) == 1 and isinstance(args[0], basestring):
+        if len(args) == 1 and isinstance(args[0], six.string_types):
             elmap = self._parse_formula(args[0])
         else:
             elmap = dict(*args, **kwargs)
-        for k, v in elmap.items():
+        for k, v in list(elmap.items()):
             if v < -Composition.amount_tolerance and not self.allow_negative:
                 raise CompositionError("Amounts in Composition cannot be "
                                        "negative!")
@@ -152,7 +155,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         new_el_map = collections.defaultdict(float)
         new_el_map.update(self)
-        for k, v in other.iteritems():
+        for k, v in other.items():
             new_el_map[get_el_sp(k)] += v
         return Composition(new_el_map, allow_negative=self.allow_negative)
 
@@ -167,7 +170,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         new_el_map = collections.defaultdict(float)
         new_el_map.update(self)
-        for k, v in other.iteritems():
+        for k, v in other.items():
             new_el_map[get_el_sp(k)] -= v
         return Composition(new_el_map, allow_negative=self.allow_negative)
 
@@ -353,7 +356,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         Returns view of elements in Composition.
         """
-        return self._elmap.keys()
+        return list(self._elmap.keys())
 
     def __str__(self):
         return " ".join([
@@ -741,13 +744,14 @@ def reduce_formula(sym_amt):
     syms = sorted(sym_amt.keys(),
                   key=lambda s: get_el_sp(s).X)
 
-    syms = filter(lambda s: abs(sym_amt[s]) > Composition.amount_tolerance, syms)
+    syms = list(filter(lambda s: abs(sym_amt[s]) >
+                                 Composition.amount_tolerance, syms))
     num_el = len(syms)
     contains_polyanion = (num_el >= 3 and
                           get_el_sp(syms[num_el - 1]).X
                           - get_el_sp(syms[num_el - 2]).X < 1.65)
 
-    factor = abs(reduce(gcd, sym_amt.values()))
+    factor = abs(six.moves.reduce(gcd, sym_amt.values()))
     reduced_form = []
     n = num_el - 2 if contains_polyanion else num_el
     for i in range(0, n):

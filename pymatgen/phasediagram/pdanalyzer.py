@@ -85,7 +85,7 @@ class PDAnalyzer(object):
         Get the facets that a composition falls into. Cached so successive
         calls at same composition are fast.
         """
-        return filter(lambda f: self._in_facet(f, comp), self._pd.facets)
+        return list(filter(lambda f: self._in_facet(f, comp), self._pd.facets))
 
     @lru_cache(1)
     def _get_facet(self, comp):
@@ -145,7 +145,7 @@ class PDAnalyzer(object):
             compm = self._make_comp_matrix([entry.composition])
             decomp_amts = np.linalg.solve(m.T, compm.T)[:,0]
             decomp = {self._pd.qhull_entries[facet[i]]: decomp_amts[i]
-                      for i in xrange(len(decomp_amts))
+                      for i in range(len(decomp_amts))
                       if abs(decomp_amts[i]) > PDAnalyzer.numerical_tol}
             energies = [self._pd.qhull_entries[i].energy_per_atom for i in facet]
             ehull = entry.energy_per_atom - np.dot(decomp_amts, energies)

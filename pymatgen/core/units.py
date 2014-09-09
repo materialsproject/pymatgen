@@ -17,6 +17,7 @@ __status__ = "Production"
 __date__ = "Aug 30, 2013"
 
 import numpy as np
+import six
 
 import collections
 from numbers import Number
@@ -135,13 +136,22 @@ def _get_si_unit(unit):
     unit_type = _UNAME2UTYPE[unit]
     si_unit = filter(lambda k: BASE_UNITS[unit_type][k] == 1,
                      BASE_UNITS[unit_type].keys())
-    return si_unit[0], BASE_UNITS[unit_type][unit]
+    return list(si_unit)[0], BASE_UNITS[unit_type][unit]
 
 
 class UnitError(BaseException):
     """
     Exception class for unit errors.
     """
+
+
+def check_mappings(u):
+    for v in DERIVED_UNITS.values():
+        for k2, v2 in v.items():
+            if all([v2.get(ku, 0) == vu for ku, vu in u.items()]) and \
+                    all([u.get(kv2, 0) == vv2 for kv2, vv2 in v2.items()]):
+                return {k2: 1}
+    return u
 
 
 class Unit(collections.Mapping):
@@ -163,27 +173,15 @@ class Unit(collections.Mapping):
                 space-separated.
         """
 
-        if isinstance(unit_def, basestring):
+        if isinstance(unit_def, six.string_types):
             unit = collections.defaultdict(int)
             for m in re.finditer("([A-Za-z]+)\s*\^*\s*([\-0-9]*)", unit_def):
                 p = m.group(2)
                 p = 1 if not p else int(p)
                 k = m.group(1)
-                for utype in ALL_UNITS.values():
-                    for u in utype.keys():
-                        if u.lower() == k.lower():
-                            k = u
                 unit[k] += p
         else:
             unit = {k: v for k, v in dict(unit_def).items() if v != 0}
-
-        def check_mappings(u):
-            for v in DERIVED_UNITS.values():
-                for k2, v2 in v.items():
-                    if u == v2:
-                        return {k2: 1}
-            return u
-
         self._unit = check_mappings(unit)
 
     def __mul__(self, other):
