@@ -2336,12 +2336,19 @@ class AbinitTask(Task):
         """
         # remove all 'error', else the job will be seen as crashed in the next check status
         # even if the job did not run
-        self.remove_files(self.output_file, self.log_file, self.stderr_file)
+        self.output_file.remove()
+        self.log_file.remove()
+        self.stderr_file.remove()
         self.start_lockfile.remove()
         return self._restart(no_submit=True)
 
     def fix_abicritical(self):
         """
+        method to fix crashes/error caused by abinit
+        currently:
+            try to rerun with more resources, last resort if all else fails
+        ideas:
+            upon repetative no converging iscf > 2 / 12
 
         """
         # the crude, no idea what to do but this may work, solution.
