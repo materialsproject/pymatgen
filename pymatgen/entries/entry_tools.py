@@ -40,7 +40,7 @@ def _perform_grouping(args):
      
     entries = json.loads(entries_json, cls=PMGJSONDecoder)
     hosts = json.loads(hosts_json, cls=PMGJSONDecoder)
-    unmatched = zip(entries, hosts)
+    unmatched = list(zip(entries, hosts))
     while len(unmatched) > 0:
         ref_host = unmatched[0][1]
         logger.info(
@@ -50,7 +50,7 @@ def _perform_grouping(args):
         ref_formula = ref_host.composition.reduced_formula
         logger.info("Reference host = {}".format(ref_formula))
         matches = [unmatched[0]]
-        for i in xrange(1, len(unmatched)):
+        for i in range(1, len(unmatched)):
             test_host = unmatched[i][1]
             logger.info("Testing tid = {}, formula = {}"
                         .format(unmatched[i][0].entry_id, test_host.formula))
@@ -63,7 +63,7 @@ def _perform_grouping(args):
                 logger.info("Fit found")
                 matches.append(unmatched[i])
         groups.append(json.dumps([m[0] for m in matches], cls=PMGJSONEncoder))
-        unmatched = filter(lambda x: x not in matches, unmatched)
+        unmatched = list(filter(lambda x: x not in matches, unmatched))
         logger.info("{} unmatched remaining".format(len(unmatched)))
 
 

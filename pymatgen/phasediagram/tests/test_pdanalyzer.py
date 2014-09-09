@@ -37,7 +37,7 @@ class PDAnalyzerTest(unittest.TestCase):
 
     def test_get_decomposition(self):
         for entry in self.pd.stable_entries:
-            self.assertEquals(len(self.analyzer.get_decomposition(entry.composition)), 1,
+            self.assertEqual(len(self.analyzer.get_decomposition(entry.composition)), 1,
                               "Stable composition should have only 1 decomposition!")
         dim = len(self.pd.elements)
         for entry in self.pd.all_entries:

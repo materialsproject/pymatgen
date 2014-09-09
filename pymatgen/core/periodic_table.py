@@ -343,6 +343,10 @@ class Element(object):
         #function used by pickle to recreate object
         return self._symbol,
 
+    def __getinitargs__(self):
+        # function used by pickle to recreate object
+        return self._symbol,
+
     @property
     def data(self):
         """
@@ -721,6 +725,14 @@ class Specie(MSONable):
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
 
+    def __getnewargs__(self):
+        # function used by pickle to recreate object
+        return self._el.symbol, self._oxi_state, self._properties
+
+    def __getinitargs__(self):
+        # function used by pickle to recreate object
+        return self._el.symbol, self._oxi_state, self._properties
+
     def __getattr__(self, a):
         #overriding getattr doens't play nice with pickle, so we
         #can't use self._properties
@@ -752,7 +764,7 @@ class Specie(MSONable):
         should effectively ensure that no two unequal Specie have the same
         hash.
         """
-        return self.Z * 100 + self._oxi_state
+        return self.Z
 
     def __lt__(self, other):
         """
@@ -941,6 +953,14 @@ class DummySpecie(MSONable):
         for k in self._properties.keys():
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
+
+    def __getnewargs__(self):
+        # function used by pickle to recreate object
+        return self._symbol, self._oxi_state, self._properties
+
+    def __getinitargs__(self):
+        # function used by pickle to recreate object
+        return self._symbol, self._oxi_state, self._properties
 
     def __getattr__(self, a):
         #overriding getattr doens't play nice with pickle, so we

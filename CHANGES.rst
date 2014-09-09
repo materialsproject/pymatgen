@@ -1,6 +1,22 @@
 Change log
 ==========
 
+v2.10.6
+-------
+* Bug fix for np1.9 incompatibility. Now works.
+* Use wheel for pymatgen deployments.
+* matgenie.py is now renamed to pmg for faster CLI usage.
+* Improvements to KPOINTS automatic generation.
+* Simpler and faster Structure.get_all_neighbors
+
+v2.10.5
+-------
+* DiffusionAnalyzer now has non-smoothed option.
+* Kpoints generation algorithm now guarantees minimum # of points.
+* Compatibility now has a proper explanation dict.
+* Vaspruns with NSW == 1 now checked properly for electronic conv.
+* make_movie now supports kwargs.
+
 v2.10.3
 -------
 * MPRester.query now supports a simple but powerful string criteria syntax
@@ -470,7 +486,6 @@ v2.2.0
 
 v2.1.2
 ------
-
 * Brand new CompoundPD class that allows the plotting of phase diagrams that
   do not have elements as their terminal points.
 * Spglib is now completely integrated as part of the setup.py installation.
@@ -487,12 +502,12 @@ v2.1.2
 
 v2.0.0
 ------
-
 * Brand new module (pymatgen.matproj.rest) for interfacing with the
   MaterialsProject REST interface.
 * Useful aliases for commonly used Objects, similar in style to numpy.
   Supported objects include Element, Composition, Structure, Molecule, Spin
   and Orbital. For example, the following will now work::
+
       import pymatgen as mg
       # Elemental Si
       fe = mg.Element("Si")

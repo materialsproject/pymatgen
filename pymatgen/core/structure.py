@@ -25,6 +25,8 @@ import warnings
 
 import numpy as np
 
+import six
+
 from fractions import gcd
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
@@ -340,7 +342,7 @@ class IStructure(SiteCollection, MSONable):
             self._lattice = Lattice(lattice)
 
         sites = []
-        for i in xrange(len(species)):
+        for i in range(len(species)):
             prop = None
             if site_properties:
                 prop = {k: v[i] for k, v in site_properties.items()}
@@ -585,49 +587,34 @@ class IStructure(SiteCollection, MSONable):
             structure. This is needed for ewaldmatrix by keeping track of which
             sites contribute to the ewald sum.
         """
-
         # Use same algorithm as get_sites_in_sphere to determine supercell but
         # loop over all atoms in crystal
-        recp_len = self.lattice.reciprocal_lattice.abc
-        sr = r + 0.15
-        nmax = [sr * l / (2 * math.pi) for l in recp_len]
-        site_nminmax = []
-        floor = math.floor
-        inds = (0, 1, 2)
-        for site in self:
-            pcoords = site.frac_coords
-            inmax = [int(floor(pcoords[i] + nmax[i])) for i in inds]
-            inmin = [int(floor(pcoords[i] - nmax[i])) for i in inds]
-            site_nminmax.append(zip(inmin, inmax))
+        recp_len = np.array(self.lattice.reciprocal_lattice.abc)
+        maxr = np.ceil((r + 0.15) * recp_len / (2 * math.pi))
+        nmin = np.floor(np.min(self.frac_coords, axis=0)) - maxr
+        nmax = np.ceil(np.max(self.frac_coords, axis=0)) + maxr
 
-        nmin = [min([i[j][0] for i in site_nminmax]) for j in inds]
-        nmax = [max([i[j][1] for i in site_nminmax]) for j in inds]
+        all_ranges = [np.arange(x, y) for x, y in zip(nmin, nmax)]
 
-        all_ranges = [range(nmin[i], nmax[i] + 1) for i in inds]
-
-        neighbors = [list() for i in xrange(len(self._sites))]
-        all_fcoords = np.mod(self.frac_coords, 1)
-
-        site_coords = np.array(self.cart_coords)
         latt = self._lattice
-        frac_2_cart = latt.get_cartesian_coords
-        n = len(self)
-        indices = np.array(range(n))
+        neighbors = [list() for i in range(len(self._sites))]
+        all_fcoords = np.mod(self.frac_coords, 1)
+        coords_in_cell = latt.get_cartesian_coords(all_fcoords)
+        site_coords = self.cart_coords
+
+        indices = np.arange(len(self))
         for image in itertools.product(*all_ranges):
-            for (j, fcoord) in enumerate(all_fcoords):
-                fcoords = fcoord + image
-                coords = frac_2_cart(fcoords)
-                submat = np.tile(coords, (n, 1))
-                dists = np.power(site_coords - submat, 2)
-                dists = np.sqrt(dists.sum(axis=1))
-                withindists = (dists <= r) * (dists > 1e-8)
-                sp = self[j].species_and_occu
-                props = self[j].properties
-                for i in indices[withindists]:
-                    nnsite = PeriodicSite(sp, fcoords, latt,
-                                          properties=props)
-                    item = (nnsite, dists[i], j) if include_index else (
-                        nnsite, dists[i])
+            coords = latt.get_cartesian_coords(image) + coords_in_cell
+            all_dists = all_distances(coords, site_coords)
+            all_within_r = np.bitwise_and(all_dists <= r, all_dists > 1e-8)
+
+            for (j, d, within_r) in zip(indices, all_dists, all_within_r):
+                nnsite = PeriodicSite(self[j].species_and_occu, coords[j],
+                                      latt, properties=self[j].properties,
+                                      coords_are_cartesian=True)
+                for i in indices[within_r]:
+                    item = (nnsite, d[i], j) if include_index else (
+                        nnsite, d[i])
                     neighbors[i].append(item)
         return neighbors
 
@@ -649,26 +636,20 @@ class IStructure(SiteCollection, MSONable):
         inner = r - dr
         return [(site, dist) for (site, dist) in outer if dist > inner]
 
-    def get_sorted_structure(self, cmp=None, key=None, reverse=False):
+    def get_sorted_structure(self, key=None, reverse=False):
         """
         Get a sorted copy of the structure. The parameters have the same
         meaning as in list.sort. By default, sites are sorted by the
         electronegativity of the species.
 
         Args:
-            cmp: Specifies a custom comparison function of two arguments
-                (iterable elements) which should return a negative, zero or
-                positive number depending on whether the first argument is
-                considered smaller than, equal to, or larger than the second
-                argument: cmp=lambda x,y: cmp(x.lower(), y.lower()). The
-                default value is None.
             key: Specifies a function of one argument that is used to extract
                 a comparison key from each list element: key=str.lower. The
                 default value is None (compare the elements directly).
             reverse (bool): If set to True, then the list elements are sorted
                 as if each comparison were reversed.
         """
-        sites = sorted(self, cmp=cmp, key=key, reverse=reverse)
+        sites = sorted(self, key=key, reverse=reverse)
         return self.__class__.from_sites(sites)
 
     def get_reduced_structure(self, reduction_algo="niggli"):
@@ -785,7 +766,7 @@ class IStructure(SiteCollection, MSONable):
             vec -= np.round(vec)
         sp = self.species_and_occu
         structs = []
-        for x in xrange(nimages+1):
+        for x in range(nimages+1):
             if interpolate_lattices:
                 l_a = lstart + x / nimages * lvec
                 l = Lattice.from_lengths_and_angles(*l_a)
@@ -833,7 +814,7 @@ class IStructure(SiteCollection, MSONable):
                          in itertools.groupby(sites,
                                               key=lambda s: s.species_string)]
 
-        num_fu = reduce(gcd, map(len, grouped_sites))
+        num_fu = six.moves.reduce(gcd, map(len, grouped_sites))
         min_vol = original_volume * 0.5 / num_fu
 
         min_site_list = min(grouped_sites, key=lambda group: len(group))
@@ -841,7 +822,7 @@ class IStructure(SiteCollection, MSONable):
         min_site_list = [site.to_unit_cell for site in min_site_list]
         org = min_site_list[0].coords
         possible_vectors = [min_site_list[i].coords - org
-                            for i in xrange(1, len(min_site_list))]
+                            for i in range(1, len(min_site_list))]
 
         #Let's try to use the shortest vector possible first. Allows for faster
         #convergence to primitive cell.
@@ -858,7 +839,7 @@ class IStructure(SiteCollection, MSONable):
                              [1, 0, 1], [1, 1, 0], [1, 1, 1]])
         l_points = self._lattice.get_cartesian_coords(l_points)
 
-        for v, repl_pos in itertools.product(possible_vectors, xrange(3)):
+        for v, repl_pos in itertools.product(possible_vectors, range(3)):
             #Try combinations of new lattice vectors with existing lattice
             #vectors.
             latt = self._lattice.matrix
@@ -936,7 +917,7 @@ class IStructure(SiteCollection, MSONable):
         return "\n".join(outs)
 
     def __str__(self):
-        outs = ["Structure Summary ({s})".format(s=str(self.composition)),
+        outs = ["Structure Summary ({s})".format(s=self.composition.formula),
                 "Reduced Formula: {}"
                 .format(self.composition.reduced_formula)]
         to_s = lambda x: "%0.6f" % x
@@ -1064,7 +1045,7 @@ class IMolecule(SiteCollection, MSONable):
                                   "coordinates."))
 
         sites = []
-        for i in xrange(len(species)):
+        for i in range(len(species)):
             prop = None
             if site_properties:
                 prop = {k: v[i] for k, v in site_properties.items()}
@@ -1244,7 +1225,7 @@ class IMolecule(SiteCollection, MSONable):
         return "\n".join(outs)
 
     def __str__(self):
-        outs = ["Molecule Summary ({s})".format(s=str(self.composition)),
+        outs = ["Molecule Summary ({s})".format(s=self.composition.formula),
                 "Reduced Formula: " + self.composition.reduced_formula,
                 "Charge = {}, Spin Mult = {}".format(
                     self._charge, self._spin_multiplicity)]
@@ -1519,7 +1500,7 @@ class Structure(IStructure, collections.MutableSequence):
                                  "as Structure!")
             self._sites[i] = site
         else:
-            if isinstance(site, basestring) or (not isinstance(site, \
+            if isinstance(site, six.string_types) or (not isinstance(site, \
                     collections.Sequence)):
                 sp = site
                 frac_coords = self._sites[i].frac_coords
@@ -1615,7 +1596,7 @@ class Structure(IStructure, collections.MutableSequence):
         """
         if len(values) != len(self._sites):
             raise ValueError("Values must be same length as sites.")
-        for i in xrange(len(self._sites)):
+        for i in range(len(self._sites)):
             site = self._sites[i]
             props = site.properties
             if not props:
@@ -1657,7 +1638,7 @@ class Structure(IStructure, collections.MutableSequence):
             return PeriodicSite(new_atom_occu, site.frac_coords, latt,
                                 properties=site.properties)
 
-        self._sites = map(mod_site, self._sites)
+        self._sites = list(map(mod_site, self._sites))
 
     def replace(self, i, species, coords=None, coords_are_cartesian=False,
                 properties=None):
@@ -1694,7 +1675,7 @@ class Structure(IStructure, collections.MutableSequence):
             species: Sequence of species to remove, e.g., ["Li", "Na"].
         """
         new_sites = []
-        species = map(get_el_sp, species)
+        species = list(map(get_el_sp, species))
 
         for site in self._sites:
             new_sp_occu = {sp: amt for sp, amt in site.species_and_occu.items()
@@ -1732,7 +1713,7 @@ class Structure(IStructure, collections.MutableSequence):
             new_frac = self._lattice.get_fractional_coords(new_cart)
             return PeriodicSite(site.species_and_occu, new_frac, self._lattice,
                                 properties=site.properties)
-        self._sites = map(operate_site, self._sites)
+        self._sites = list(map(operate_site, self._sites))
 
     def modify_lattice(self, new_lattice):
         """
@@ -1765,7 +1746,7 @@ class Structure(IStructure, collections.MutableSequence):
         s = (1 + np.array(strain)) * np.eye(3)
         self.modify_lattice(Lattice(np.dot(self._lattice.matrix.T, s).T))
 
-    def sort(self, cmp=None, key=None, reverse=False):
+    def sort(self, key=None, reverse=False):
         """
         Sort a structure in place. The parameters have the same meaning as in
         list.sort. By default, sites are sorted by the electronegativity of
@@ -1775,19 +1756,13 @@ class Structure(IStructure, collections.MutableSequence):
         in place.
 
         Args:
-            cmp: Specifies a custom comparison function of two arguments
-                (iterable elements) which should return a negative, zero or
-                positive number depending on whether the first argument is
-                considered smaller than, equal to, or larger than the second
-                argument: cmp=lambda x,y: cmp(x.lower(), y.lower()). The
-                default value is None.
             key: Specifies a function of one argument that is used to extract
                 a comparison key from each list element: key=str.lower. The
                 default value is None (compare the elements directly).
             reverse (bool): If set to True, then the list elements are sorted
                 as if each comparison were reversed.
         """
-        self._sites = sorted(self._sites, cmp=cmp, key=key, reverse=reverse)
+        self._sites = sorted(self._sites, key=key, reverse=reverse)
 
     def translate_sites(self, indices, vector, frac_coords=True,
                         to_unit_cell=True):
@@ -2027,7 +2002,7 @@ class Molecule(IMolecule, collections.MutableSequence):
         if isinstance(site, Site):
             self._sites[i] = site
         else:
-            if isinstance(site, basestring) or (not isinstance(site, \
+            if isinstance(site, six.string_types) or (not isinstance(site, \
                     collections.Sequence)):
                 sp = site
                 coords = self._sites[i].coords
@@ -2128,7 +2103,7 @@ class Molecule(IMolecule, collections.MutableSequence):
         """
         if len(values) != len(self._sites):
             raise ValueError("Values must be same length as sites.")
-        for i in xrange(len(self._sites)):
+        for i in range(len(self._sites)):
             site = self._sites[i]
             props = site.properties
             if not props:
@@ -2186,7 +2161,7 @@ class Molecule(IMolecule, collections.MutableSequence):
                     else:
                         new_atom_occu[sp] = amt
             return Site(new_atom_occu, site.coords, properties=site.properties)
-        self._sites = map(mod_site, self._sites)
+        self._sites = list(map(mod_site, self._sites))
 
     @deprecated(__setitem__)
     def replace(self, i, species_n_occu, coords=None):
@@ -2211,7 +2186,7 @@ class Molecule(IMolecule, collections.MutableSequence):
             species: Species to remove.
         """
         new_sites = []
-        species = map(get_el_sp, species)
+        species = list(map(get_el_sp, species))
         for site in self._sites:
             new_sp_occu = {sp: amt for sp, amt in site.species_and_occu.items()
                            if sp not in species}
@@ -2275,7 +2250,7 @@ class Molecule(IMolecule, collections.MutableSequence):
             new_cart = symmop.operate(site.coords)
             return Site(site.species_and_occu, new_cart,
                         properties=site.properties)
-        self._sites = map(operate_site, self._sites)
+        self._sites = list(map(operate_site, self._sites))
 
     def copy(self):
         """

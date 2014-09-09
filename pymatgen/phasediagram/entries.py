@@ -14,7 +14,9 @@ __status__ = "Production"
 __date__ = "May 16, 2011"
 
 import re
+import csv
 
+from io import open
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
@@ -192,23 +194,23 @@ class PDEntryIO(object):
         Returns:
             List of Elements, List of PDEntries
         """
-        import csv
-        reader = csv.reader(open(filename, "rb"), delimiter=",",
-                            quotechar="\"", quoting=csv.QUOTE_MINIMAL)
-        entries = list()
-        header_read = False
-        for row in reader:
-            if not header_read:
-                elements = row[1:(len(row) - 1)]
-                header_read = True
-            else:
-                name = row[0]
-                energy = float(row[-1])
-                comp = dict()
-                for ind in range(1, len(row) - 1):
-                    if float(row[ind]) > 0:
-                        comp[Element(elements[ind - 1])] = float(row[ind])
-                entries.append(PDEntry(Composition(comp), energy, name))
+        with open(filename, "r", encoding="utf-8") as f:
+            reader = csv.reader(f, delimiter=",",
+                                quotechar="\"", quoting=csv.QUOTE_MINIMAL)
+            entries = list()
+            header_read = False
+            for row in reader:
+                if not header_read:
+                    elements = row[1:(len(row) - 1)]
+                    header_read = True
+                else:
+                    name = row[0]
+                    energy = float(row[-1])
+                    comp = dict()
+                    for ind in range(1, len(row) - 1):
+                        if float(row[ind]) > 0:
+                            comp[Element(elements[ind - 1])] = float(row[ind])
+                    entries.append(PDEntry(Composition(comp), energy, name))
         elements = [Element(el) for el in elements]
         return elements, entries
 

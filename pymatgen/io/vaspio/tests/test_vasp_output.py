@@ -50,10 +50,11 @@ class VasprunTest(unittest.TestCase):
             self.assertEqual(vasprun.structures[i], step["structure"])
 
         self.assertTrue(all([vasprun.structures[i] == vasprun.ionic_steps[i][
-            "structure"] for i in xrange(len(vasprun.ionic_steps))]))
+            "structure"] for i in range(len(vasprun.ionic_steps))]))
 
         self.assertEquals(308, totalscsteps,
                           "Incorrect number of energies read from vasprun.xml")
+
         self.assertEquals(['Li'] + 4 * ['Fe'] + 4 * ['P'] + 16 * ["O"],
                           vasprun.atomic_symbols)
         self.assertEquals(vasprun.final_structure.composition.reduced_formula,

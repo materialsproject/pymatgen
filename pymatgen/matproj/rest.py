@@ -27,7 +27,7 @@ import itertools
 
 from monty.dev import deprecated
 
-from pymatgen.core.periodic_table import ALL_ELEMENT_SYMBOLS
+from pymatgen.core.periodic_table import ALL_ELEMENT_SYMBOLS, Element
 from pymatgen.core.composition import Composition
 from pymatgen.serializers.json_coders import PMGJSONDecoder
 from pymatgen.entries.computed_entries import ComputedStructureEntry
@@ -357,9 +357,18 @@ class MPRester(object):
         Returns:
             List of ComputedEntries.
         """
-        return self.get_entries(
-            "-".join(elements), compatible_only=compatible_only,
-            inc_structure=inc_structure)
+        entries = []
+        for i in xrange(len(elements)):
+            for els in itertools.combinations(elements, i + 1):
+                try:
+                    entries.extend(
+                        self.get_entries(
+                            "-".join(els), compatible_only=compatible_only,
+                            inc_structure=inc_structure)
+                    )
+                except:
+                    pass
+        return entries
 
     def get_exp_thermo_data(self, formula):
         """
@@ -801,8 +810,8 @@ class MPRester(object):
                 return {"task_id": t}
             elif "-" in t:
                 elements = t.split("-")
-                elements = [[el] if el != "*" else ALL_ELEMENT_SYMBOLS
-                            for el in elements]
+                elements = [[Element(el).symbol] if el != "*" else
+                            ALL_ELEMENT_SYMBOLS for el in elements]
                 chemsyss = []
                 for cs in itertools.product(*elements):
                     if len(set(cs)) == len(cs):
@@ -819,8 +828,10 @@ class MPRester(object):
                     for p in zip(parts, syms):
                         f.extend(p)
                     f.append(parts[-1])
-                    c = Composition("".join(f)).reduced_formula
-                    all_formulas.add(c)
+                    c = Composition("".join(f))
+                    #Check for valid Elements in keys.
+                    map(lambda e: Element(e.symbol), c.keys())
+                    all_formulas.add(c.reduced_formula)
                 return {"pretty_formula": {"$in": list(all_formulas)}}
 
         if len(toks) == 1:
