@@ -51,7 +51,8 @@ class InsertionElectrode(AbstractElectrode):
         #Prepare to make phase diagram: determine elements and set their energy
         #to be very high
         elements = set()
-        map(elements.update, [entry.composition.elements for entry in entries])
+        for entry in entries:
+            elements.update(entry.composition.elements)
 
         #Set an artificial energy for each element for convex hull generation
         element_energy = max([entry.energy_per_atom for entry in entries]) + 10
@@ -172,9 +173,13 @@ class InsertionElectrode(AbstractElectrode):
             Maximum decomposition energy of all compounds along the insertion
             path (a subset of the path can be chosen by the optional arguments)
         """
-        return max([max(pair.decomp_e_discharge, pair.decomp_e_charge)
-                    for pair in self._select_in_voltage_range(min_voltage,
-                                                              max_voltage)])
+        data = []
+        for pair in self._select_in_voltage_range(min_voltage, max_voltage):
+            if pair.decomp_e_charge is not None:
+                data.append(pair.decomp_e_charge)
+            if pair.decomp_e_discharge is not None:
+                data.append(pair.decomp_e_discharge)
+        return max(data) if len(data) > 0 else None
 
     def get_min_instability(self, min_voltage=None, max_voltage=None):
         """
@@ -188,9 +193,13 @@ class InsertionElectrode(AbstractElectrode):
             Minimum decomposition energy of all compounds along the insertion
             path (a subset of the path can be chosen by the optional arguments)
         """
-        return min([min(pair.decomp_e_discharge, pair.decomp_e_charge)
-                    for pair in self._select_in_voltage_range(min_voltage,
-                                                              max_voltage)])
+        data = []
+        for pair in self._select_in_voltage_range(min_voltage, max_voltage):
+            if pair.decomp_e_charge is not None:
+                data.append(pair.decomp_e_charge)
+            if pair.decomp_e_discharge is not None:
+                data.append(pair.decomp_e_discharge)
+        return min(data) if len(data) > 0 else None
 
     def get_max_muO2(self, min_voltage=None, max_voltage=None):
         """
@@ -205,9 +214,13 @@ class InsertionElectrode(AbstractElectrode):
             insertion path (a subset of the path can be chosen by the optional
             arguments).
         """
-        return max([max(pair.muO2_discharge, pair.muO2_charge)
-                    for pair in self._select_in_voltage_range(min_voltage,
-                                                              max_voltage)])
+        data = []
+        for pair in self._select_in_voltage_range(min_voltage, max_voltage):
+            if pair.muO2_discharge is not None:
+                data.append(pair.pair.muO2_discharge)
+            if pair.muO2_charge is not None:
+                data.append(pair.muO2_charge)
+        return max(data) if len(data) > 0 else None
 
     def get_min_muO2(self, min_voltage=None, max_voltage=None):
         """
@@ -223,9 +236,13 @@ class InsertionElectrode(AbstractElectrode):
             insertion path (a subset of the path can be chosen by the optional
             arguments).
         """
-        return min([min(pair.muO2_discharge, pair.muO2_charge)
-                    for pair in self._select_in_voltage_range(min_voltage,
-                                                              max_voltage)])
+        data = []
+        for pair in self._select_in_voltage_range(min_voltage, max_voltage):
+            if pair.pair.muO2_discharge is not None:
+                data.append(pair.pair.muO2_discharge)
+            if pair.muO2_charge is not None:
+                data.append(pair.muO2_charge)
+        return min(data) if len(data) > 0 else None
 
     def get_sub_electrodes(self, adjacent_only=True, include_myself=True):
         """
