@@ -3,7 +3,7 @@ from pymatgen.alchemy.filters import ContainsSpecieFilter, \
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Specie
-from pymatgen.io.cifio import CifParser
+from pymatgen.io.smartio import read_structure
 from pymatgen.alchemy.transmuters import StandardTransmuter
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.serializers.json_coders import PMGJSONDecoder
@@ -63,9 +63,8 @@ class ContainsSpecieFilterTest(unittest.TestCase):
 class SpecieProximityFilterTest(unittest.TestCase):
 
     def test_filter(self):
-        filename = os.path.join(test_dir, "Li10GeP2S12.cif")
-        p = CifParser(filename)
-        s = p.get_structures()[0]
+        filename = os.path.join(test_dir, "Li10GeP2S12.json")
+        s = read_structure(filename)
         sf = SpecieProximityFilter({"Li": 1})
         self.assertTrue(sf.test(s))
         sf = SpecieProximityFilter({"Li": 2})
