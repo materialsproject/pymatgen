@@ -158,7 +158,7 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
                                                                'O': -2})
             s = oxitrans.apply_transformation(s)
             alls = enum_trans.apply_transformation(s, 100)
-            self.assertEquals(len(alls), expected_ans[i])
+            self.assertEqual(len(alls), expected_ans[i])
             self.assertIsInstance(trans.apply_transformation(s), Structure)
             for s in alls:
                 self.assertIn("energy", s)
@@ -167,7 +167,7 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         trans = SubstitutionTransformation({'Fe': {'Fe': 0.5}})
         s = trans.apply_transformation(struct)
         alls = enum_trans.apply_transformation(s, 100)
-        self.assertEquals(len(alls), 3)
+        self.assertEqual(len(alls), 3)
         self.assertIsInstance(trans.apply_transformation(s), Structure)
         for s in alls:
             self.assertNotIn("energy", s)

@@ -19,6 +19,8 @@ from math import exp, sqrt
 
 from monty.serialization import loadfn
 
+import six
+
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.finder import SymmetryFinder
@@ -282,8 +284,9 @@ class BVAnalyzer(object):
                 #Sort valences in order of decreasing probability.
                 val = sorted(val, key=lambda v: -prob[v])
                 #Retain probabilities that are at least 1/100 of highest prob.
-                valences.append(filter(lambda v: prob[v] > 0.01 * prob[val[0]],
-                                       val))
+                valences.append(
+                    list(filter(lambda v: prob[v] > 0.01 * prob[val[0]],
+                                val)))
         else:
             full_all_prob = []
             for sites in equi_sites:
@@ -323,8 +326,8 @@ class BVAnalyzer(object):
                 max_diff = max([max(v) - min(v) for v in el_oxi.values()])
                 if max_diff > 1:
                     return
-                score = reduce(operator.mul, [all_prob[i][v]
-                                              for i, v in enumerate(v_set)])
+                score = six.moves.reduce(
+                    operator.mul, [all_prob[i][v] for i, v in enumerate(v_set)])
                 if score > self._best_score:
                     self._best_vset = v_set
                     self._best_score = score
@@ -397,9 +400,10 @@ class BVAnalyzer(object):
                 if max_diff > 2:
                     return
 
-                score = reduce(operator.mul,
-                                [all_prob[attrib[iv]][elements[iv]][vv]
-                                 for iv, vv in enumerate(v_set)])
+                score = six.moves.reduce(
+                    operator.mul,
+                    [all_prob[attrib[iv]][elements[iv]][vv]
+                     for iv, vv in enumerate(v_set)])
                 if score > self._best_score:
                     self._best_vset = v_set
                     self._best_score = score

@@ -24,6 +24,8 @@ import logging
 import math
 import os
 
+import six
+
 
 @cached_class
 class SubstitutionProbability(object):
@@ -193,13 +195,16 @@ class SubstitutionPredictor(object):
         def _recurse(output_prob, output_species):
             best_case_prob = list(max_probabilities)
             best_case_prob[:len(output_prob)] = output_prob
-            if reduce(mul, best_case_prob) > self.threshold:
+            if six.moves.reduce(mul, best_case_prob) > self.threshold:
                 if len(output_species) == len(species):
-                    odict = {'probability': reduce(mul, best_case_prob)}
+                    odict = {
+                        'probability': six.moves.reduce(mul, best_case_prob)}
                     if to_this_composition:
-                        odict['substitutions'] = dict(zip(output_species, species))
+                        odict['substitutions'] = dict(
+                            zip(output_species, species))
                     else:
-                        odict['substitutions'] = dict(zip(species, output_species))
+                        odict['substitutions'] = dict(
+                            zip(species, output_species))
                     if len(output_species) == len(set(output_species)):
                         output.append(odict)
                     return
@@ -235,11 +240,12 @@ class SubstitutionPredictor(object):
             will be from the list species. If false, the keys will be
             from that list.
         """
-        preds = self.list_prediction(composition.keys(), to_this_composition)
+        preds = self.list_prediction(list(composition.keys()),
+                                     to_this_composition)
         output = []
         for p in preds:
             if to_this_composition:
-                subs = {v:k for k, v in p['substitutions'].iteritems()}
+                subs = {v:k for k, v in p['substitutions'].items()}
             else:
                 subs = p['substitutions']
             charge = 0
@@ -247,6 +253,7 @@ class SubstitutionPredictor(object):
                 charge += subs[k].oxi_state * v
             if abs(charge) < 1e-8:
                 output.append(p)
-        logging.info('{} charge balanced substitutions found'.format(len(output)))
+        logging.info('{} charge balanced substitutions found'
+                     .format(len(output)))
         return output
 
