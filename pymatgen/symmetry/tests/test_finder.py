@@ -20,7 +20,7 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.io.cifio import CifParser
-from pymatgen.io.vaspio.vasp_output import Vasprun
+
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
