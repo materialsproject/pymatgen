@@ -77,7 +77,7 @@ class AbstractComparator(MSONable):
     def from_dict(cls, d):
         for trans_modules in ['structure_matcher']:
             mod = __import__('pymatgen.analysis.' + trans_modules,
-                             globals(), locals(), [d['@class']], -1)
+                             globals(), locals(), [d['@class']], 0)
             if hasattr(mod, d['@class']):
                 trans = getattr(mod, d['@class'])
                 return trans()
@@ -706,6 +706,7 @@ class StructureMatcher(MSONable):
                 else:
                     inds = filter(lambda i: self.fit(ref, unmatched[i]),
                                   range(len(unmatched)))
+                inds = list(inds)
                 matches.extend([unmatched[i] for i in inds])
                 unmatched = [unmatched[i] for i in range(len(unmatched))
                              if i not in inds]
@@ -945,7 +946,7 @@ class StructureMatcher(MSONable):
                 return None
             temp.make_supercell(match[2])
             #add sites not included in the mapping
-            not_included = range(len(temp))
+            not_included = list(range(len(temp)))
             for i in match[4]:
                 not_included.remove(i)
             mapping = list(match[4]) + not_included
