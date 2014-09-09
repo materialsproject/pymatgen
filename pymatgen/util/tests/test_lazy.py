@@ -16,7 +16,7 @@ class TestCase(unittest.TestCase):
         """
         try:
             func(*args, **kw)
-        except exc_cls, e:
+        except exc_cls as e:
             exc_str = str(e)
         else:
             self.fail('%s not raised' % (exc_cls.__name__,))

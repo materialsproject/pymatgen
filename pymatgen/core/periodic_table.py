@@ -77,6 +77,9 @@ def char2l(char):
     return _CHARS2L[char]
 
 
+ALL_ELEMENT_SYMBOLS = set(_pt_data.keys())
+
+
 @cached_class
 @total_ordering
 class Element(object):
@@ -340,6 +343,10 @@ class Element(object):
         #function used by pickle to recreate object
         return self._symbol,
 
+    def __getinitargs__(self):
+        # function used by pickle to recreate object
+        return self._symbol,
+
     @property
     def data(self):
         """
@@ -450,10 +457,10 @@ class Element(object):
         return self._z
 
     def __repr__(self):
-        return "Element " + self._symbol
+        return "Element " + self.symbol
 
     def __str__(self):
-        return self._symbol
+        return self.symbol
 
     def __lt__(self, other):
         """
@@ -461,12 +468,12 @@ class Element(object):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted into LiFePO4.
         """
-        if self._x != other._x:
-            return self._x < other._x
+        if self.X != other.X:
+            return self.X < other.X
         else:
             # There are cases where the electronegativity are exactly equal.
             # We then sort by symbol.
-            return self._symbol < other._symbol
+            return self.symbol < other.symbol
 
     @staticmethod
     def from_Z(z):
@@ -510,7 +517,7 @@ class Element(object):
             True if symbol is a valid element (e.g., "H"). False otherwise
             (e.g., "Zebra").
         """
-        return symbol in _pt_data
+        return symbol in ALL_ELEMENT_SYMBOLS
 
     @property
     def row(self):
@@ -611,7 +618,7 @@ class Element(object):
         """
         True if element is a metalloid.
         """
-        return self._symbol in ("B", "Si", "Ge", "As", "Sb", "Te", "Po")
+        return self.symbol in ("B", "Si", "Ge", "As", "Sb", "Te", "Po")
 
     @property
     def is_alkali(self):
@@ -674,7 +681,7 @@ class Element(object):
         """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "element": self._symbol}
+                "element": self.symbol}
 
 
 @cached_class
@@ -718,6 +725,14 @@ class Specie(MSONable):
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
 
+    def __getnewargs__(self):
+        # function used by pickle to recreate object
+        return self._el.symbol, self._oxi_state, self._properties
+
+    def __getinitargs__(self):
+        # function used by pickle to recreate object
+        return self._el.symbol, self._oxi_state, self._properties
+
     def __getattr__(self, a):
         #overriding getattr doens't play nice with pickle, so we
         #can't use self._properties
@@ -749,19 +764,19 @@ class Specie(MSONable):
         should effectively ensure that no two unequal Specie have the same
         hash.
         """
-        return self.Z * 100 + self._oxi_state
+        return self.Z
 
     def __lt__(self, other):
         """
         Sets a default sort order for atomic species by electronegativity,
         followed by oxidation state.
         """
-        if self._x != other._x:
-            return self._x < other._x
-        elif self._symbol != other._symbol:
+        if self.X != other.X:
+            return self.X < other.X
+        elif self.symbol != other.symbol:
             # There are cases where the electronegativity are exactly equal.
             # We then sort by symbol.
-            return self._symbol < other._symbol
+            return self.symbol < other.symbol
         else:
             other_oxi = 0 if isinstance(other, Element) else other.oxi_state
             return self.oxi_state < other_oxi
@@ -939,6 +954,14 @@ class DummySpecie(MSONable):
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
 
+    def __getnewargs__(self):
+        # function used by pickle to recreate object
+        return self._symbol, self._oxi_state, self._properties
+
+    def __getinitargs__(self):
+        # function used by pickle to recreate object
+        return self._symbol, self._oxi_state, self._properties
+
     def __getattr__(self, a):
         #overriding getattr doens't play nice with pickle, so we
         #can't use self._properties
@@ -971,12 +994,12 @@ class DummySpecie(MSONable):
         Sets a default sort order for atomic species by electronegativity,
         followed by oxidation state.
         """
-        if self._x != other._x:
-            return self._x < other._x
-        elif self._symbol != other._symbol:
+        if self.X != other.X:
+            return self.X < other.X
+        elif self.symbol != other.symbol:
             # There are cases where the electronegativity are exactly equal.
             # We then sort by symbol.
-            return self._symbol < other._symbol
+            return self.symbol < other.symbol
         else:
             other_oxi = 0 if isinstance(other, Element) else other.oxi_state
             return self.oxi_state < other_oxi
@@ -1007,7 +1030,7 @@ class DummySpecie(MSONable):
         return self._symbol
 
     def __deepcopy__(self, memo):
-        return DummySpecie(self._symbol, self._oxi_state)
+        return DummySpecie(self.symbol, self._oxi_state)
 
     @staticmethod
     def from_string(species_string):

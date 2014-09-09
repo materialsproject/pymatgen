@@ -292,6 +292,11 @@ class PyLauncher(object):
                 continue
 
             njobs_inqueue = tasks[0].manager.qadapter.get_njobs_in_queue()
+            if njobs_inqueue is None:
+                print('Cannot get njobs_inqueue, going back to sleep')
+                continue
+
+
             rest = self.max_njobs_inqueue - njobs_inqueue
             if rest <= 0:
                 print('too many jobs in the queue, going back to sleep')
@@ -437,9 +442,11 @@ class PyFlowScheduler(object):
         if kwargs:
             raise self.Error("Unknown arguments %s" % kwargs)
 
-        from apscheduler.scheduler import Scheduler
+        #from apscheduler.scheduler import Scheduler
+        #self.sched = Scheduler(standalone=True)
 
-        self.sched = Scheduler(standalone=True)
+        from apscheduler.schedulers.blocking import BlockingScheduler
+        self.sched = BlockingScheduler()
 
         self.nlaunch = 0
         self.num_reminders = 1
@@ -573,7 +580,8 @@ class PyFlowScheduler(object):
         self.history.append("Started on %s" % time.asctime())
         self.start_time = time.time()
 
-        self.sched.add_interval_job(self.callback, **self.sched_options)
+        #self.sched.add_interval_job(self.callback, **self.sched_options)
+        self.sched.add_job(self.callback, 'interval', **self.sched_options)
 
         # Try to run the job immediately. If something goes wrong
         # return without initializing the scheduler.

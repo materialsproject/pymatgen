@@ -379,7 +379,7 @@ class StructureMatcher(MSONable):
         lattices = s.lattice.find_all_mappings(target_lattice, 
                         ltol = self.ltol, atol=self.angle_tol)
         for l, _, scale_m in lattices:
-            if np.abs(np.abs(np.linalg.det(scale_m)) - supercell_size) < 0.5:
+            if abs(abs(np.linalg.det(scale_m)) - supercell_size) < 0.5:
                 yield l, scale_m
 
     def _get_supercells(self, struct1, struct2, fu, s1_supercell):
@@ -435,7 +435,7 @@ class StructureMatcher(MSONable):
         dist = s1[None, :] - s2[:, None]
         dist = abs(dist - np.round(dist))
 
-        dist[np.where(dist > frac_tol[None, None, :])] = mask_val
+        dist[dist > frac_tol[None, None, :]] = mask_val
         cost = np.sum(dist, axis=-1)
         cost[mask] = mask_val
 

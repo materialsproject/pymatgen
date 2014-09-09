@@ -326,8 +326,8 @@ class PotcarSingleTest(unittest.TestCase):
 
     def setUp(self):
         with zopen(os.path.join(test_dir, "POT_GGA_PAW_PBE",
-                                "POTCAR.Mn_pv.gz"), 'r') as f:
-            self.psingle = PotcarSingle(f.read())
+                                "POTCAR.Mn_pv.gz"), 'rb') as f:
+            self.psingle = PotcarSingle(f.read().decode(encoding="utf-8"))
 
     def test_keywords(self):
         data = {'VRHFIN': 'Mn: 3p4s3d', 'LPAW': 'T    paw PP', 'DEXC': '-.003',
@@ -389,7 +389,8 @@ class PotcarTest(unittest.TestCase):
 
     def test_potcar_map(self):
         fe_potcar = zopen(os.path.join(test_dir, "POT_GGA_PAW_PBE",
-                                       "POTCAR.Fe_pv.gz")).read()
+                                       "POTCAR.Fe_pv.gz")).read().decode(
+            "utf-8")
         #specify V instead of Fe - this makes sure the test won't pass if the
         #code just grabs the POTCAR from the config file (the config file would
         #grab the V POTCAR)

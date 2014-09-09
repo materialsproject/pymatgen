@@ -57,7 +57,7 @@ class IStructureTest(PymatgenTest):
         coords.append([0.75, 0.5, 0.75])
         s = IStructure(self.lattice, [{Specie('O', -2): 1.0},
                                       {Specie('Mg', 2): 0.8}], coords)
-        self.assertEqual(str(s.composition), 'Mg2+0.8 O2-1')
+        self.assertEqual(s.composition.formula, 'Mg0.8 O1')
 
     def test_get_sorted_structure(self):
         coords = list()
@@ -83,7 +83,7 @@ class IStructureTest(PymatgenTest):
         coords.append([0.75, 0.5, 0.75])
         s = IStructure(self.lattice, [{'O': 1.0}, {'Mg': 0.8}],
                        coords)
-        self.assertEqual(str(s.composition), 'Mg0.8 O1')
+        self.assertEqual(s.composition.formula, 'Mg0.8 O1')
         self.assertFalse(s.is_ordered)
 
     def test_get_distance(self):
@@ -247,9 +247,30 @@ class IStructureTest(PymatgenTest):
     def test_get_all_neighbors_and_get_neighbors(self):
         s = self.struct
         r = random.uniform(3, 6)
-        all_nn = s.get_all_neighbors(r)
+        all_nn = s.get_all_neighbors(r, True)
         for i in range(len(s)):
             self.assertEqual(len(all_nn[i]), len(s.get_neighbors(s[i], r)))
+
+        for site, nns in zip(s, all_nn):
+            for nn in nns:
+                self.assertTrue(nn[0].is_periodic_image(s[nn[2]]))
+                d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
+                self.assertAlmostEqual(d, nn[1])
+
+        s = Structure(Lattice.cubic(1), ['Li'], [[0,0,0]])
+        s.make_supercell([2,2,2])
+        self.assertEqual(sum(map(len, s.get_all_neighbors(3))), 976)
+
+    def test_get_all_neighbors_outside_cell(self):
+        s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'], 
+                      [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3])
+        all_nn = s.get_all_neighbors(0.2, True)
+        for site, nns in zip(s, all_nn):
+            for nn in nns:
+                self.assertTrue(nn[0].is_periodic_image(s[nn[2]]))
+                d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
+                self.assertAlmostEqual(d, nn[1])
+        self.assertEqual(list(map(len, all_nn)), [2, 2, 2, 0])
 
     def test_get_dist_matrix(self):
         ans = [[0., 2.3516318],

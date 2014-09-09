@@ -108,7 +108,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         String representation of species on the site.
         """
         if self._is_ordered:
-            return str(self._species.keys()[0])
+            return str(list(self._species.keys())[0])
         else:
             sorted_species = sorted(self._species.keys())
             return ", ".join(["{}:{:.3f}".format(sp, self._species[sp])
@@ -135,7 +135,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         if not self._is_ordered:
             raise AttributeError("specie property only works for ordered "
                                  "sites!")
-        return self._species.keys()[0]
+        return list(self._species.keys())[0]
 
     @property
     def coords(self):
@@ -200,8 +200,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         Minimally effective hash function that just distinguishes between Sites
         with different elements.
         """
-        hashcode = sum((el.Z * occu for el, occu in self._species.items()))
-        return hashcode
+        return sum([el.Z for el in self._species.keys()])
 
     def __contains__(self, el):
         return el in self._species
@@ -216,7 +215,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         return "Site: {} ({:.4f}, {:.4f}, {:.4f})".format(
             self.species_string, *self._coords)
 
-    def __cmp__(self, other):
+    def __lt__(self, other):
         """
         Sets a default sort order for atomic species by electronegativity. Very
         useful for getting correct formulas.  For example, FeO4PLi is
@@ -225,15 +224,15 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
 
         if self._species.average_electroneg < \
                 other._species.average_electroneg:
-            return -1
+            return True
         if self._species.average_electroneg > \
                 other._species.average_electroneg:
-            return 1
+            return False
         if self.species_string < other.species_string:
-            return -1
+            return True
         if self.species_string > other.species_string:
-            return 1
-        return 0
+            return False
+        return False
 
     def __str__(self):
         return "{} {}".format(self._coords, self.species_string)
@@ -318,6 +317,13 @@ class PeriodicSite(Site, MSONable):
             self._fcoords = np.mod(self._fcoords, 1)
             c_coords = lattice.get_cartesian_coords(self._fcoords)
         Site.__init__(self, atoms_n_occu, c_coords, properties)
+
+    def __hash__(self):
+        """
+        Minimally effective hash function that just distinguishes between Sites
+        with different elements.
+        """
+        return sum([el.Z for el in self._species.keys()])
 
     @property
     def lattice(self):
