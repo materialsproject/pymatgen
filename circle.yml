@@ -9,6 +9,7 @@ dependencies:
     - pip install scipy
     - easy_install -U setuptools
     - pip install -r requirements.txt
+    - pip install pillow
     - python setup.py develop
 test:
   override:
