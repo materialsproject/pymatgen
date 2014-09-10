@@ -1,6 +1,8 @@
 machine:
   timezone:
     America/Los_Angeles
+  python:
+    version: 3.4.1
 dependencies:
   override:
     - pip install -q numpy
