@@ -121,7 +121,7 @@ def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
     elif abs(afloat - int(afloat)) < tol:
         return str(int(afloat))
     else:
-        return str(afloat)
+        return str(round(afloat, 8))
 
 
 def latexify(formula):
