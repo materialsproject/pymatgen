@@ -254,9 +254,9 @@ loop_
 loop_
   _atom_type_symbol
   _atom_type_oxidation_number
-   N3-  -3.0
    Si3+  3.0
    Si4+  4.0
+   N3-  -3.0
 loop_
   _atom_site_type_symbol
   _atom_site_label

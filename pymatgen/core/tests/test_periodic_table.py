@@ -185,6 +185,11 @@ class SpecieTestCase(unittest.TestCase):
         self.assertRaises(ValueError, Specie("Fe", 2).get_crystal_field_spin,
                           "hex")
 
+    def test_sort(self):
+        els = map(get_el_sp, ["N3-", "Si4+", "Si3+"])
+        self.assertEqual(sorted(els), [Specie("Si", 3), Specie("Si", 4), 
+                                       Specie("N", -3)])
+
 
 class DummySpecieTestCase(unittest.TestCase):
 
