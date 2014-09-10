@@ -317,7 +317,7 @@ class GaussianInput(object):
     def __str__(self):
         def para_dict_to_string(para, joiner=" "):
             para_str = ["{}={}".format(k, v) if v else k
-                        for k, v in para.items()]
+                        for k, v in sorted(para.items())]
             return joiner.join(para_str)
 
         output = []
