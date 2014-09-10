@@ -25,8 +25,6 @@ import warnings
 import re
 import itertools
 
-from monty.dev import deprecated
-
 from pymatgen.core.periodic_table import ALL_ELEMENT_SYMBOLS, Element
 from pymatgen.core.composition import Composition
 from pymatgen.serializers.json_coders import PMGJSONDecoder
@@ -482,40 +480,6 @@ class MPRester(object):
         payload = {"criteria": json.dumps(criteria),
                    "properties": json.dumps(properties)}
         return self._make_request("/query", payload=payload, method="POST")
-
-    @deprecated(replacement=query)
-    def mpquery(self, criteria, properties):
-        """
-        Performs an advanced mpquery, which is a Mongo-like syntax for directly
-        querying the Materials Project database via the mpquery rest interface.
-        Please refer to the Materials Project REST wiki
-        https://materialsproject.org/wiki/index.php/The_Materials_API#mpquery
-        on the mpquery language and supported criteria and properties.
-        Essentially, any supported properties within MPRester should be
-        supported in mpquery.
-
-        Mpquery allows an advanced developer to perform queries which are
-        otherwise too cumbersome to perform using the standard convenience
-        methods.
-
-        Args:
-            criteria (dict): Criteria of the query as a mongo-style dict.
-                For example, {"elements":{"$in":["Li", "Na", "K"], "$all": [
-                "O"]}, "nelements":2} selects all Li, Na and K oxides.
-                {"band_gap": {"$gt": 1}} selects all materials with band gaps
-                greater than 1 eV.
-            properties (list): Properties to request for as a list. For
-                example, ["formula", "formation_energy_per_atom"] returns
-                the formula and formation energy per atom.
-
-        Returns:
-            List of results. E.g.,
-            [{u'formula': {u'O': 1, u'Li': 2.0}},
-            {u'formula': {u'Na': 2.0, u'O': 2.0}},
-            {u'formula': {u'K': 1, u'O': 3.0}},
-            ...]
-        """
-        return self.query(criteria, properties)
 
     def submit_structures(self, structures, authors, projects=None,
                           references='', remarks=None, data=None,
