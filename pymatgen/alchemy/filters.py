@@ -3,6 +3,8 @@ This module defines filters for Transmuter object.
 """
 
 from __future__ import division
+import six
+from six.moves import map
 
 __author__ = "Will Richards, Shyue Ping Ong, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -19,13 +21,12 @@ from pymatgen.symmetry.finder import SymmetryFinder
 import abc
 
 
-class AbstractStructureFilter(MSONable):
+class AbstractStructureFilter(six.with_metaclass(abc.ABCMeta, MSONable)):
     """
     AbstractStructureFilter that defines an API to perform testing of
     Structures. Structures that return True to a test are retained during
     transmutation while those that return False are removed.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def test(self, structure):
