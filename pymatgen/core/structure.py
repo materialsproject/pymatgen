@@ -38,7 +38,6 @@ from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_angle, all_distances
 from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length
-from monty.dev import deprecated
 
 
 class SiteCollection(collections.Sequence):
@@ -1575,16 +1574,6 @@ class Structure(IStructure, collections.MutableSequence):
 
         self._sites.insert(i, new_site)
 
-    @deprecated(__delitem__)
-    def remove(self, i):
-        """
-        Remove site at index i.
-
-        Args:
-            i (int): Index of site to remove.
-        """
-        del(self._sites[i])
-
     def add_site_property(self, property_name, values):
         """
         Adds a property to all sites.
@@ -2112,19 +2101,6 @@ class Molecule(IMolecule, collections.MutableSequence):
             self._sites[i] = Site(site.species_and_occu, site.coords,
                                   properties=props)
 
-    @deprecated(__delitem__)
-    def remove(self, i):
-        """
-        Delete site at index i.
-
-        Args:
-            i (int): Index of site to remove.
-
-        Returns:
-            New structure with site removed.
-        """
-        del(self._sites[i])
-
     def replace_species(self, species_mapping):
         """
         Swap species in a molecule.
@@ -2162,21 +2138,6 @@ class Molecule(IMolecule, collections.MutableSequence):
                         new_atom_occu[sp] = amt
             return Site(new_atom_occu, site.coords, properties=site.properties)
         self._sites = list(map(mod_site, self._sites))
-
-    @deprecated(__setitem__)
-    def replace(self, i, species_n_occu, coords=None):
-        """
-        Replace a single site. Takes either a species or a dict of occus.
-
-        Args:
-            i (int): Index of the site in the _sites list
-            species (Specie-like): A species object.
-            coords (3x1 array): If supplied, the new coords are used.
-                Otherwise, the old coordinates are retained.
-        """
-        coords = coords if coords is not None else self._sites[i].coords
-        self._sites[i] = Site(species_n_occu, coords,
-                              properties=self._sites[i].properties)
 
     def remove_species(self, species):
         """
