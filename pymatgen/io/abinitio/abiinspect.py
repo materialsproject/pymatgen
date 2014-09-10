@@ -51,7 +51,7 @@ def _magic_parser(stream, magic):
             # End of the section.
             if not line: break
 
-            tokens = map(float, line.split()[1:])
+            tokens = list(map(float, line.split()[1:]))
             assert len(tokens) == len(keys)
             for l, v in zip(fields.values(), tokens):
                 l.append(v)
@@ -113,7 +113,7 @@ class ScfCycle(collections.Mapping):
         """String representation."""
         table = [list(self.fields.keys())]
         for it in range(self.num_iterations):
-            row = map(str, (self[k][it] for k in self.keys()))
+            row = list(map(str, (self[k][it] for k in self.keys())))
             table.append(row)
 
         stream = cStringIO()
@@ -537,7 +537,7 @@ class YamlDoc(object):
         self.text = text
         self.lineno = lineno
         if isinstance(tag, bytes):
-            tag = text.decode("utf-8", "ignore")
+            tag = tag.decode("utf-8", "ignore")
         self.tag = tag
 
     def __str__(self):
