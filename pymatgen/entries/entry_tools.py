@@ -17,7 +17,7 @@ import json
 import datetime
 import collections
 
-from pymatgen.core.structure_modifier import StructureEditor
+from pymatgen.core.structure import Structure
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
     SpeciesComparator
 from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder
@@ -27,9 +27,9 @@ logger = logging.getLogger(__name__)
 
 def _get_host(structure, species_to_remove):
     if species_to_remove:
-        editor = StructureEditor(structure)
-        editor.remove_species(species_to_remove)
-        return editor.modified_structure
+        s = Structure.from_sites(structure)
+        s.remove_species(species_to_remove)
+        return s
     else:
         return structure
 
@@ -37,7 +37,7 @@ def _get_host(structure, species_to_remove):
 def _perform_grouping(args):
     (entries_json, hosts_json, ltol, stol, angle_tol,
      primitive_cell, scale, comparator, groups) = args
-     
+
     entries = json.loads(entries_json, cls=PMGJSONDecoder)
     hosts = json.loads(hosts_json, cls=PMGJSONDecoder)
     unmatched = list(zip(entries, hosts))
