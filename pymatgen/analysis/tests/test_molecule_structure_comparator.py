@@ -49,8 +49,8 @@ class TestMoleculeStructureComparator(TestCase):
 
     def test_to_and_from_dict(self):
         msc1 = MoleculeStructureComparator()
-        d1 = msc1.to_dict
-        d2 = MoleculeStructureComparator.from_dict(d1).to_dict
+        d1 = msc1.as_dict()
+        d2 = MoleculeStructureComparator.from_dict(d1).as_dict()
         self.assertEqual(d1, d2)
         thio1 = read_mol(os.path.join(test_dir, "thiophene1.xyz"))
         # noinspection PyProtectedMember
@@ -58,6 +58,6 @@ class TestMoleculeStructureComparator(TestCase):
             bond_length_cap=0.2,
             priority_bonds=msc1._get_bonds(thio1),
             priority_cap=0.5)
-        d1 = msc2.to_dict
-        d2 = MoleculeStructureComparator.from_dict(d1).to_dict
+        d1 = msc2.as_dict()
+        d2 = MoleculeStructureComparator.from_dict(d1).as_dict()
         self.assertEqual(d1, d2)

@@ -25,18 +25,18 @@ from pymatgen.io.vaspio.vasp_output import Vasprun, Oszicar
 from pymatgen.io.gaussianio import GaussianOutput
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 
 logger = logging.getLogger(__name__)
 
 
-class AbstractDrone(MSONable):
+class AbstractDrone(PMGSONable):
     """
     Abstract drone class that defines the various methods that must be
     implemented by drones. Because of the quirky nature of Python"s
     multiprocessing, the intermediate data representations has to be in the
     form of python primitives. So all objects that drones work with must be
-    MSONable. All drones must also implement the standard MSONable to_dict and
+    PMGSONable. All drones must also implement the standard PMGSONable as_dict and
     from_dict API.
     """
     __metaclass__ = abc.ABCMeta
@@ -46,7 +46,7 @@ class AbstractDrone(MSONable):
         """
         Assimilate data in a directory path into a pymatgen object. Because of
         the quirky nature of Python"s multiprocessing, the object must support
-        pymatgen"s to_dict for parallel processing.
+        pymatgen"s as_dict for parallel processing.
 
         Args:
             path: directory path
@@ -165,8 +165,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
     def __str__(self):
         return " VaspToComputedEntryDrone"
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"init_args": {"inc_structure": self._inc_structure,
                               "parameters": self._parameters,
                               "data": self._data},
@@ -284,8 +283,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
     def __str__(self):
         return "SimpleVaspToComputedEntryDrone"
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"init_args": {"inc_structure": self._inc_structure},
                 "version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
@@ -370,8 +368,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
     def __str__(self):
         return " GaussianToComputedEntryDrone"
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"init_args": {"inc_structure": self._inc_structure,
                               "parameters": self._parameters,
                               "data": self._data,

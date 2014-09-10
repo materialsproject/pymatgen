@@ -19,17 +19,20 @@ import json
 import datetime
 from copy import deepcopy
 
+from monty.json import MontyDecoder
+
 from pymatgen.core.structure import Structure
 from pymatgen.io.cifio import CifParser
 from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.matproj.snl import StructureNL
 
 from warnings import warn
 
-dec = PMGJSONDecoder()
+dec = MontyDecoder()
 
-class TransformedStructure(MSONable):
+
+class TransformedStructure(PMGSONable):
     """
     Container object for new structures that include history of
     transformations.
@@ -122,33 +125,33 @@ class TransformedStructure(MSONable):
             ranked_list = transformation.apply_transformation(
                 self.final_structure, return_ranked_list=return_alternatives)
             
-            input_structure = self.final_structure.to_dict
+            input_structure = self.final_structure.as_dict()
             alts = []
             for x in ranked_list[1:]:
                 s = x.pop("structure")
                 actual_transformation = x.pop("transformation", transformation)
-                hdict = actual_transformation.to_dict
+                hdict = actual_transformation.as_dict()
                 hdict["input_structure"] = input_structure
                 hdict["output_parameters"] = x
                 self.final_structure = s
-                d = self.to_dict
+                d = self.as_dict()
                 d['history'].append(hdict)
-                d['final_structure'] = s.to_dict
+                d['final_structure'] = s.as_dict()
                 alts.append(TransformedStructure.from_dict(d))
                 
             x = ranked_list[0]
             s = x.pop("structure")
             actual_transformation = x.pop("transformation", transformation)
-            hdict = actual_transformation.to_dict
-            hdict["input_structure"] = self.final_structure.to_dict
+            hdict = actual_transformation.as_dict()
+            hdict["input_structure"] = self.final_structure.as_dict()
             hdict["output_parameters"] = x
             self.history.append(hdict)
             self.final_structure = s
             return alts
         else:
             s = transformation.apply_transformation(self.final_structure)
-            hdict = transformation.to_dict
-            hdict["input_structure"] = self.final_structure.to_dict
+            hdict = transformation.as_dict()
+            hdict["input_structure"] = self.final_structure.as_dict()
             hdict["output_parameters"] = {}
             self.history.append(hdict)
             self.final_structure = s
@@ -162,8 +165,8 @@ class TransformedStructure(MSONable):
                 AbstractStructureFilter API. Tells transmuter waht structures
                 to retain.
         """
-        hdict = structure_filter.to_dict
-        hdict["input_structure"] = self.final_structure.to_dict
+        hdict = structure_filter.as_dict()
+        hdict["input_structure"] = self.final_structure.as_dict()
         self.history.append(hdict)
         
     def extend_transformations(self, transformations, 
@@ -195,7 +198,7 @@ class TransformedStructure(MSONable):
         """
         d = vasp_input_set.get_all_vasp_input(self.final_structure,
                                               generate_potcar)
-        d["transformations.json"] = json.dumps(self.to_dict)
+        d["transformations.json"] = json.dumps(self.as_dict)
         return d
 
     def write_vasp_input(self, vasp_input_set, output_dir,
@@ -215,7 +218,7 @@ class TransformedStructure(MSONable):
         vasp_input_set.write_input(self.final_structure, output_dir,
                                    make_dir_if_not_present=create_directory)
         with open(os.path.join(output_dir, "transformations.json"), "w") as fp:
-            json.dump(self.to_dict, fp)
+            json.dump(self.as_dict, fp)
 
     def __str__(self):
         output = ["Current structure", "------------",
@@ -279,7 +282,7 @@ class TransformedStructure(MSONable):
         """
         parser = CifParser.from_string(cif_string, occupancy_tolerance)
         raw_string = re.sub("'", "\"", cif_string)
-        cif_dict = parser.to_dict
+        cif_dict = parser.as_dict()
         cif_keys = list(cif_dict.keys())
         s = parser.get_structures(primitive)[0]
         partial_cif = cif_dict[cif_keys[0]]
@@ -314,12 +317,11 @@ class TransformedStructure(MSONable):
                        "original_file": raw_string}
         return TransformedStructure(s, transformations, history=[source_info])
     
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Dict representation of the TransformedStructure.
         """
-        d = self.final_structure.to_dict
+        d = self.final_structure.as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         d["history"] = deepcopy(self.history)

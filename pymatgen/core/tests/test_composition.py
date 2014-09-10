@@ -177,12 +177,12 @@ class CompositionTest(unittest.TestCase):
                          "Fe3O4",
                          "Creation form sym_amount dictionary failed!")
         comp = Composition({"Fe2+": 2, "Fe3+": 4, "O2-": 8})
-        comp2 = Composition.from_dict(comp.to_dict)
+        comp2 = Composition.from_dict(comp.as_dict())
         self.assertEqual(comp, comp2)
 
-    def test_to_dict(self):
+    def test_as_dict(self):
         c = Composition.from_dict({'Fe': 4, 'O': 6})
-        d = c.to_dict
+        d = c.as_dict()
         correct_dict = {'Fe': 4.0, 'O': 6.0}
         self.assertEqual(d['Fe'], correct_dict['Fe'])
         self.assertEqual(d['O'], correct_dict['O'])

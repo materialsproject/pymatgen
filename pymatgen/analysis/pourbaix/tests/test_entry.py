@@ -44,7 +44,7 @@ class TestPourbaixEntry(unittest.TestCase):
         self.assertEquals(self.PxSol.nH2O, 3, "Wrong nH2O!")
 
     def test_to_from_dict(self):
-        d = self.PxIon.to_dict
+        d = self.PxIon.as_dict()
         ion_entry = self.PxIon.from_dict(d)
         self.assertEquals(ion_entry.entry.name, "MnO4[-]", "Wrong Entry!")
 
@@ -117,7 +117,7 @@ class IonEntryTest(unittest.TestCase):
         self.assertEquals(comp, expected_comp, "Wrong composition!")
 
     def test_to_from_dict(self):
-        d = self.entry.to_dict
+        d = self.entry.as_dict()
         entry = IonEntry.from_dict(d)
 
         self.assertEquals(entry.name, 'MnO4[-]', "Wrong name!")

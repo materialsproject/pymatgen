@@ -497,8 +497,7 @@ class Hint(collections.namedtuple("Hint", "ecut aug_ratio")):
     """
     Suggested value for the cutoff energy [Hartree units] and the augmentation ratio (PAW pseudo)
     """
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {f: getattr(self, f) for f in self._fields}
 
     @classmethod

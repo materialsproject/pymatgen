@@ -113,7 +113,7 @@ class VasprunTest(unittest.TestCase):
                                                                    0, 96,
                                                                    Orbital.s)],
                                0.0032)
-        d = vasprun_ggau.to_dict
+        d = vasprun_ggau.as_dict()
         self.assertEqual(d["elements"], ["Fe", "Li", "O", "P"])
         self.assertEqual(d["nelements"], 4)
 
@@ -140,13 +140,13 @@ class VasprunTest(unittest.TestCase):
         vasprun_uniform = Vasprun(os.path.join(test_dir, "vasprun.xml.uniform"))
         self.assertEqual(vasprun_uniform.kpoints.style, "Reciprocal")
 
-    def test_to_dict(self):
+    def test_as_dict(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath)
-        #Test that to_dict is json-serializable
-        self.assertIsNotNone(json.dumps(vasprun.to_dict))
+        #Test that as_dict is json-serializable
+        self.assertIsNotNone(json.dumps(vasprun.as_dict))
         self.assertEqual(
-            vasprun.to_dict["input"]["potcar_type"],
+            vasprun.as_dict["input"]["potcar_type"],
             ['PAW_PBE', 'PAW_PBE', 'PAW_PBE', 'PAW_PBE', 'PAW_PBE'])
 
     def test_get_band_structure(self):
@@ -206,7 +206,7 @@ class OutcarTest(unittest.TestCase):
         self.assertAlmostEqual(outcar.nelect, 44.9999991)
         self.assertAlmostEqual(outcar.total_mag, 0.9999998)
 
-        self.assertIsNotNone(outcar.to_dict)
+        self.assertIsNotNone(outcar.as_dict)
         filepath = os.path.join(test_dir, 'OUTCAR.stopped')
         outcar = Outcar(filepath)
         self.assertTrue(outcar.is_stopped)

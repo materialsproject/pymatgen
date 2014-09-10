@@ -4,7 +4,7 @@ import unittest
 import json
 import os
 
-from pymatgen.serializers.json_coders import PMGJSONDecoder
+from monty.json import MontyDecoder
 from pymatgen.analysis.defects.dilute_solution_model import *
 
 
@@ -16,11 +16,11 @@ except ImportError:
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 with open(os.path.join(test_dir,'mp1048_defect_formation_energies.json')) as fp:
-    formation_energy_dict = json.load(fp,cls=PMGJSONDecoder)
+    formation_energy_dict = json.load(fp,cls=MontyDecoder)
 with open(os.path.join(test_dir,'mp1048_raw_defect_energies.json')) as fp:
-    raw_energy_dict = json.load(fp,cls=PMGJSONDecoder)
+    raw_energy_dict = json.load(fp,cls=MontyDecoder)
 with open(os.path.join(test_dir,'mp1487_raw_defect_energies.json')) as fp:
-    mp1487_raw_energy_dict = json.load(fp,cls=PMGJSONDecoder)
+    mp1487_raw_energy_dict = json.load(fp,cls=MontyDecoder)
 
 
 @unittest.skipIf(not sympy, "sympy not present.")

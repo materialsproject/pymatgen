@@ -37,8 +37,8 @@ class SubstitutorTest(unittest.TestCase):
         self.assertEqual(len(subs), 4
                          , 'incorrect number of substitutions')
 
-    def test_to_dict(self):
-        Substitutor.from_dict(self.s.to_dict)
+    def test_as_dict(self):
+        Substitutor.from_dict(self.s.as_dict)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

@@ -23,10 +23,10 @@ from numpy import pi, dot, transpose, radians
 
 from pyhull.voronoi import VoronoiTess
 
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 
 
-class Lattice(MSONable):
+class Lattice(PMGSONable):
     """
     A lattice object.  Essentially a matrix with conversion matrices. In
     general, it is assumed that length units are in Angstroms and angles are in
@@ -382,8 +382,7 @@ class Lattice(MSONable):
         return "\n".join([" ".join(["%.6f" % i for i in row])
                           for row in self._matrix])
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """""
         Json-serialization dict representation of the Lattice.
         """

@@ -759,8 +759,7 @@ class BoltztrapAnalyzer():
             doping, data_doping_full, data_doping_hall, vol, warning)
 
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         from pymatgen.util.io_utils import clean_json
         results = {'gap': self.gap,
                    'mu_steps': self.mu_steps,
@@ -774,7 +773,7 @@ class BoltztrapAnalyzer():
                    'cond_doping': self.cond_doping,
                    'kappa_doping': self.kappa_doping,
                    'hall_doping': self.hall_doping,
-                   'dos': self.dos.to_dict,
+                   'dos': self.dos.as_dict,
                    'dos_partial': self._dos_partial,
                    'carrier_conc': self.carrier_conc,
                    'vol': self.vol}

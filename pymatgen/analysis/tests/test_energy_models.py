@@ -46,7 +46,7 @@ class EwaldElectrostaticModelTest(unittest.TestCase):
 
     def test_to_from_dict(self):
         m = EwaldElectrostaticModel()
-        d = m.to_dict
+        d = m.as_dict()
         self.assertIsInstance(EwaldElectrostaticModel.from_dict(d),
                               EwaldElectrostaticModel)
 
@@ -59,7 +59,7 @@ class SymmetryModelTest(unittest.TestCase):
 
     def test_to_from_dict(self):
         m = SymmetryModel(symprec=0.2)
-        d = m.to_dict
+        d = m.as_dict()
         o = SymmetryModel.from_dict(d)
         self.assertIsInstance(o, SymmetryModel)
         self.assertAlmostEqual(o.symprec, 0.2)
@@ -79,7 +79,7 @@ class IsingModelTest(unittest.TestCase):
 
     def test_to_from_dict(self):
         m = IsingModel(5, 4)
-        d = m.to_dict
+        d = m.as_dict()
         o = IsingModel.from_dict(d)
         self.assertIsInstance(o, IsingModel)
         self.assertAlmostEqual(o.j, 5)

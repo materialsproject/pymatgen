@@ -152,7 +152,7 @@ class AbstractFeffInputSet(six.with_metaclass(abc.ABCMeta, object)):
             f.write(feff_input)
         f.close()
 
-    def to_dict(self, structure, calc_type, source, central_atom,
+    def as_dict(self, structure, calc_type, source, central_atom,
                 comment=''):
         """Creates a feff.inp dictionary as a string"""
 

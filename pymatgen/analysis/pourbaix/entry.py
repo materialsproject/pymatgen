@@ -21,14 +21,14 @@ import csv
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Composition
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.core.ion import Ion
 from pymatgen.phasediagram.entries import PDEntry
 
 PREFAC = 0.0591
 
 
-class PourbaixEntry(MSONable):
+class PourbaixEntry(PMGSONable):
     """
     An object encompassing all data relevant to an ion in a pourbaix diagram.
     Each bulk solid/ion has a free energy g of the form:
@@ -112,8 +112,7 @@ class PourbaixEntry(MSONable):
         self.uncorrected_energy = term
         self.correction = 0.0
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Returns dict which contains Pourbaix Entry data.
         Note that the pH, voltage, H2O factors are always calculated when
@@ -125,7 +124,7 @@ class PourbaixEntry(MSONable):
             d["entry type"] = "Ion"
         else:
             d["entry type"] = "Solid"
-        d["entry"] = self.entry.to_dict
+        d["entry"] = self.entry.as_dict()
         d["pH factor"] = self.npH
         d["voltage factor"] = self.nPhi
         d["concentration"] = self.conc
@@ -313,12 +312,11 @@ class IonEntry(PDEntry):
         """
         return IonEntry(Ion.from_dict(d["composition"]), d["energy"])
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Creates a dict of composition, energy, and ion name
         """
-        d = {"composition": self.composition.to_dict, "energy": self.energy}
+        d = {"composition": self.composition.as_dict, "energy": self.energy}
         return d
 
     @property
