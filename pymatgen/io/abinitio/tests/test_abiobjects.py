@@ -7,6 +7,8 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.abinitio.abiobjects import *
 
+import warnings
+
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
@@ -93,18 +95,20 @@ class AbiStructureTest(PymatgenTest):
         self.cif_paths = cif_paths()
 
     def test_asabistructure(self):
-        for cif_path in self.cif_paths:
-            print("about to init abistructure from %s " % cif_path)
-            st = asabistructure(cif_path)
-            self.assertTrue(st is asabistructure(st))
-            self.assertTrue(isinstance(st, Structure))
-
-            # TODO
-            if not st.is_ordered:
-                print("Unordered structures are not supported")
-                continue
-
-            print(st.to_abivars())
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            for cif_path in self.cif_paths:
+                print("about to init abistructure from %s " % cif_path)
+                st = asabistructure(cif_path)
+                self.assertTrue(st is asabistructure(st))
+                self.assertTrue(isinstance(st, Structure))
+    
+                # TODO
+                if not st.is_ordered:
+                    print("Unordered structures are not supported")
+                    continue
+    
+                print(st.to_abivars())
 
         # Test pickle
         # FIXME: protocol 2 does not work due to __new__

@@ -25,7 +25,7 @@ try:
 except ImportError:
     pass
 
-from monty.json import loadf 
+from monty.serialization import loadfn
 from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.util.io_utils import FileLock
 from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
@@ -125,7 +125,7 @@ class TaskResults(dict, MSONable):
 
     @classmethod
     def json_load(cls, filename):
-        return cls.from_dict(loadf(filename))
+        return cls.from_dict(loadfn(filename))
 
 
 class ParalHintsError(Exception):
