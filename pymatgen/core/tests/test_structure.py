@@ -262,7 +262,7 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(sum(map(len, s.get_all_neighbors(3))), 976)
 
     def test_get_all_neighbors_outside_cell(self):
-        s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'], 
+        s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
                       [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3])
         all_nn = s.get_all_neighbors(0.2, True)
         for site, nns in zip(s, all_nn):
@@ -331,7 +331,7 @@ class StructureTest(PymatgenTest):
         self.assertTrue(s.symbol_set == ("Si", "O"))
         self.assertTrue(s.indices_from_symbol("Si") == (0,2))
         self.assertTrue(s.indices_from_symbol("O") == (1,))
-        s.remove(2)
+        del s[2]
         self.assertEqual(s.formula, "Si1 O1")
         self.assertTrue(s.indices_from_symbol("Si") == (0,))
         self.assertTrue(s.indices_from_symbol("O") == (1,))
@@ -342,7 +342,7 @@ class StructureTest(PymatgenTest):
         self.assertTrue(s.indices_from_symbol("Si") == (0,))
         self.assertTrue(s.indices_from_symbol("O") == (1,))
         self.assertTrue(s.indices_from_symbol("N") == (2,))
-        s.replace(0, "Ge")
+        s[0] = "Ge"
         self.assertEqual(s.formula, "Ge1 N1 O1")
         self.assertTrue(s.symbol_set == ("Ge", "O", "N"))
         s.replace_species({"Ge": "Si"})
@@ -700,7 +700,7 @@ class MoleculeTest(PymatgenTest):
         mol = self.mol
         mol.insert(1, "O", [0.5, 0.5, 0.5])
         self.assertEqual(mol.formula, "H4 C1 O1")
-        mol.remove(2)
+        del mol[2]
         self.assertEqual(mol.formula, "H3 C1 O1")
         mol.set_charge_and_spin(0)
         self.assertEqual(mol.spin_multiplicity, 2)
@@ -716,7 +716,7 @@ class MoleculeTest(PymatgenTest):
                               [0.5, 0.5, 0.5])
 
     def test_replace(self):
-        self.mol.replace(0, "Ge")
+        self.mol[0] = "Ge"
         self.assertEqual(self.mol.formula, "Ge1 H4")
 
         self.mol.replace_species({Element("Ge"): {Element("Ge"): 0.5,

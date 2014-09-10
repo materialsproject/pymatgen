@@ -236,17 +236,17 @@ class InterstitialTest(unittest.TestCase):
     def test_get_defectsite_coordination_number(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
             print(self._mgo_interstitial.get_defectsite_coordination_number(
-                i), file=sys.stderr)
+                i))
 
     def test_get_coordinated_sites(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
             print(self._mgo_interstitial.get_coordinated_sites(
-                i), file=sys.stderr)
+                i))
 
     def test_get_coordsites_charge_sum(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
             print(self._mgo_interstitial.get_coordsites_charge_sum(
-                i), file=sys.stderr)
+                i))
 
     def test_get_defectsite_coordinated_elements(self):
         struct_el = self._mgo_uc.composition.elements
@@ -259,7 +259,7 @@ class InterstitialTest(unittest.TestCase):
     def test_get_radius(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
             rad = self._mgo_interstitial.get_radius(i)
-            print(rad, file=sys.stderr)
+            print(rad)
             self.assertTrue(rad, float)
 
 
@@ -279,7 +279,7 @@ class InterstitialVoronoiFaceCenterTest(unittest.TestCase):
         self._mgo_val = mgo_val_rad_eval.valences
         self._mgo_rad = mgo_val_rad_eval.radii
         self._mgo_interstitial = Interstitial(
-            self._mgo_uc, self._mgo_val, self._mgo_rad, 
+            self._mgo_uc, self._mgo_val, self._mgo_rad,
             site_type='voronoi_facecenter'
             )
 
@@ -305,12 +305,12 @@ class InterstitialVoronoiFaceCenterTest(unittest.TestCase):
     def test_get_coordinated_sites(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
             print(self._mgo_interstitial.get_coordinated_sites(
-                i), file=sys.stderr)
+                i))
 
     def test_get_coordsites_charge_sum(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
             print(self._mgo_interstitial.get_coordsites_charge_sum(
-                i), file=sys.stderr)
+                i))
 
     def test_get_defectsite_coordinated_elements(self):
         struct_el = self._mgo_uc.composition.elements
@@ -362,17 +362,17 @@ class InterstitialHighAccuracyTest(unittest.TestCase):
     def test_get_defectsite_coordination_number(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
             print(self._mgo_interstitial.get_defectsite_coordination_number(
-                i), file=sys.stderr)
+                i))
 
     def test_get_coordinated_sites(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
             print(self._mgo_interstitial.get_coordinated_sites(
-                i), file=sys.stderr)
+                i))
 
     def test_get_coordsites_charge_sum(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
             print(self._mgo_interstitial.get_coordsites_charge_sum(
-                i), file=sys.stderr)
+                i))
 
     def test_get_defectsite_coordinated_elements(self):
         struct_el = self._mgo_uc.composition.elements
@@ -385,7 +385,7 @@ class InterstitialHighAccuracyTest(unittest.TestCase):
     def test_get_radius(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
             rad = self._mgo_interstitial.get_radius(i)
-            print(rad, file=sys.stderr)
+            print(rad)
             self.assertTrue(rad, float)
 
 
