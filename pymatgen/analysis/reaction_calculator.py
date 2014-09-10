@@ -16,10 +16,10 @@ import logging
 import itertools
 import numpy as np
 import re
-from collections import defaultdict
 
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.composition import Composition
+from pymatgen.serializers.json_coders import PMGJSONDecoder
 
 logger = logging.getLogger(__name__)
 
@@ -489,13 +489,12 @@ class ComputedReaction(Reaction):
     def calculated_reaction_energy(self):
         calc_energies = {}
 
-        def update_calc_energies(entry):
+        for entry in self._reactant_entries + self._product_entries:
             (comp, factor) = \
                 entry.composition.get_reduced_composition_and_factor()
             calc_energies[comp] = min(calc_energies.get(comp, float('inf')),
                                       entry.energy / factor)
-        map(update_calc_energies, self._reactant_entries)
-        map(update_calc_energies, self._product_entries)
+
         return self.calculate_energy(calc_energies)
 
     @property
@@ -507,7 +506,6 @@ class ComputedReaction(Reaction):
 
     @classmethod
     def from_dict(cls, d):
-        from pymatgen.serializers.json_coders import PMGJSONDecoder
         dec = PMGJSONDecoder()
         reactants = [dec.process_decoded(e) for e in d["reactants"]]
         products = [dec.process_decoded(e) for e in d["products"]]

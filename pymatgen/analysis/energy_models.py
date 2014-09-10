@@ -6,6 +6,7 @@ implementations. Basically, an EnergyModel is any model that returns an
 
 from __future__ import division
 
+
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
@@ -15,16 +16,17 @@ __date__ = "11/19/13"
 
 import abc
 
+import six
+
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.symmetry.finder import SymmetryFinder
 
 
-class EnergyModel(MSONable):
+class EnergyModel(six.with_metaclass(abc.ABCMeta, MSONable)):
     """
     Abstract structure filter class.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def get_energy(self, structure):

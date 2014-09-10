@@ -3,6 +3,9 @@ This module provides classes to perform fitting of structures.
 """
 
 from __future__ import division
+import six
+from six.moves import filter
+from six.moves import zip
 
 __author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -25,12 +28,11 @@ from pymatgen.util.coord_utils import pbc_shortest_vectors, \
     lattice_points_in_supercell
 
 
-class AbstractComparator(MSONable):
+class AbstractComparator(six.with_metaclass(abc.ABCMeta, MSONable)):
     """
     Abstract Comparator class. A Comparator defines how sites are compared in
     a structure.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def are_equal(self, sp1, sp2):
@@ -702,10 +704,10 @@ class StructureMatcher(MSONable):
                 matches = [ref]
                 if anonymous:
                     inds = filter(lambda i: self.fit_anonymous(ref,
-                            unmatched[i]), range(len(unmatched)))
+                            unmatched[i]), list(range(len(unmatched))))
                 else:
                     inds = filter(lambda i: self.fit(ref, unmatched[i]),
-                                  range(len(unmatched)))
+                                  list(range(len(unmatched))))
                 inds = list(inds)
                 matches.extend([unmatched[i] for i in inds])
                 unmatched = [unmatched[i] for i in range(len(unmatched))
@@ -952,7 +954,7 @@ class StructureMatcher(MSONable):
             mapping = list(match[4]) + not_included
             tvec = -match[3]
 
-        temp.translate_sites(range(len(temp)), tvec)
+        temp.translate_sites(list(range(len(temp))), tvec)
         return Structure.from_sites([temp.sites[i] for i in mapping])
 
     def get_mapping(self, superset, subset):
