@@ -53,9 +53,9 @@ class PMGSONable(six.with_metaclass(ABCMeta, MSONable)):
     property and a from_dict static method.
     """
 
-    @deprecated(message="All to_dict properties have been deprecated."
-                "Use the as_dict() method instead.")
     @property
+    @deprecated(message="All to_dict properties have been deprecated."
+                        "Use the as_dict() method instead.")
     def to_dict(self):
         """
         A JSON serializable dict representation of an object.
