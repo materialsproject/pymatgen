@@ -44,7 +44,7 @@ with open("README.rst") as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2.10.6",
+    version="3.0.0",
     install_requires=["numpy>=1.8", "pyhull>=1.5.2",
                       "requests>=2.3.0", "pybtex>=0.18", "pyyaml>=3.11",
                       "monty>=0.4.1", "six>=1.7.3"],
