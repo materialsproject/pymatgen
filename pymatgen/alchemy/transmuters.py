@@ -9,6 +9,8 @@ entire directory of vasp input files for running.
 """
 
 from __future__ import division
+from six.moves import filter
+from six.moves import map
 
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2012, The Materials Project"
