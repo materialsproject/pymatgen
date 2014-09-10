@@ -845,4 +845,4 @@ class MPDecoder(MontyDecoder):
                     return cls_.from_dict(data)
             return {self.process_decoded(k): self.process_decoded(v)
                     for k, v in d.items()}
-        return super(MontyDecoder, self).process_decoded(d)
+        return MontyDecoder.process_decoded(self, d)
