@@ -41,8 +41,8 @@ loop_
   _citation_journal_id_ASTM
    primary 
 ;
-Proceedings of the Royal Society of London, Series A: Mathematical 
-and Physical Sciences (76,1906-)
+Proceedings of the Royal Society of London, Series A: Mathematical and
+Physical Sciences (76,1906-)
 ;  
    1966  291  324  339  PRLAAZ
 loop_
@@ -230,7 +230,6 @@ loop_
 
 """
         parser = CifParser.from_string(cif_str)
-        print(parser._cif.data['FePO4'])
         self.assertEqual(parser.get_structures()[0].formula, "Fe4 P4 O16",
                          "Incorrectly parsed cif.")
         with warnings.catch_warnings():
