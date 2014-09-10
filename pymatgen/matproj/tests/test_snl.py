@@ -69,22 +69,22 @@ class StructureNLCase(unittest.TestCase):
 
     def test_authors(self):
         a = StructureNL(self.s, self.hulk, references=self.pmg)
-        self.assertEquals(a.authors[0].name, "Hulk")
-        self.assertEquals(a.authors[0].email, "hulk@avengers.com")
+        self.assertEqual(a.authors[0].name, "Hulk")
+        self.assertEqual(a.authors[0].email, "hulk@avengers.com")
 
         a = StructureNL(self.s, self.america, references=self.pmg)
-        self.assertEquals(a.authors[0].name, "Captain America")
-        self.assertEquals(a.authors[0].email, "captainamerica@avengers.com")
+        self.assertEqual(a.authors[0].name, "Captain America")
+        self.assertEqual(a.authors[0].email, "captainamerica@avengers.com")
 
         a = StructureNL(self.s, self.thor, references=self.pmg)
-        self.assertEquals(a.authors[0].name, "Thor")
-        self.assertEquals(a.authors[0].email, "thor@avengers.com")
+        self.assertEqual(a.authors[0].name, "Thor")
+        self.assertEqual(a.authors[0].email, "thor@avengers.com")
 
         a = StructureNL(self.s, self.duo, references=self.pmg)
-        self.assertEquals(a.authors[0].name, "Iron Man")
-        self.assertEquals(a.authors[0].email, "ironman@avengers.com")
-        self.assertEquals(a.authors[1].name, "Black Widow")
-        self.assertEquals(a.authors[1].email, "blackwidow@avengers.com")
+        self.assertEqual(a.authors[0].name, "Iron Man")
+        self.assertEqual(a.authors[0].email, "ironman@avengers.com")
+        self.assertEqual(a.authors[1].name, "Black Widow")
+        self.assertEqual(a.authors[1].email, "blackwidow@avengers.com")
         StructureNL(self.s, self.hulk, references=self.pmg)
 
     def test_references(self):
@@ -108,15 +108,15 @@ class StructureNLCase(unittest.TestCase):
 
     def test_historynodes(self):
         a = StructureNL(self.s, self.hulk, history=[self.valid_node])
-        self.assertEquals(a.history[0].name, "DB 1")
-        self.assertEquals(a.history[0].url, "www.db1URLgoeshere.com")
-        self.assertEquals(a.history[0].description, {"db1_id": 12424})
+        self.assertEqual(a.history[0].name, "DB 1")
+        self.assertEqual(a.history[0].url, "www.db1URLgoeshere.com")
+        self.assertEqual(a.history[0].description, {"db1_id": 12424})
 
         a = StructureNL(self.s, self.hulk,
                         history=[self.valid_node, self.valid_node2])
-        self.assertEquals(a.history[1].name, "DB 2")
-        self.assertEquals(a.history[1].url, "www.db2URLgoeshere.com")
-        self.assertEquals(a.history[1].description, {"db2_id": 12424})
+        self.assertEqual(a.history[1].name, "DB 2")
+        self.assertEqual(a.history[1].url, "www.db2URLgoeshere.com")
+        self.assertEqual(a.history[1].description, {"db2_id": 12424})
 
         # invalid nodes should not work
         self.assertRaises(Exception, StructureNL, self.s, self.hulk,
@@ -141,7 +141,7 @@ class StructureNLCase(unittest.TestCase):
                           remarks=self.remark_fail)
 
     def test_eq(self):
-        # test basic equals()
+        # test basic Equal()
         created_at = datetime.datetime.now()
         a = StructureNL(self.s, self.hulk, ['test_project'], self.pmg,
                         ['remark1'], {"_my_data": self.s2},
