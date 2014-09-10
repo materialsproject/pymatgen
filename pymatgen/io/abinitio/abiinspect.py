@@ -402,7 +402,7 @@ class YamlTokenizer(collections.Iterator):
 
     # Python 3 compatibility
     def __next__(self):
-        return six.advance_iterator(self)
+        return self.next()
 
     def next(self):
         """
@@ -531,11 +531,14 @@ class YamlDoc(object):
                 The YAML tag associate to the document.
         """
         # Sanitize strings: use "ignore" to skip invalid characters in .encode/.decode like
-        text = text.decode("utf-8", "ignore")
+        if isinstance(text, bytes):
+            text = text.decode("utf-8", "ignore")
         text = text.rstrip().lstrip()
         self.text = text
         self.lineno = lineno
-        self.tag = tag.decode("utf-8", "ignore") if tag is not None else tag
+        if isinstance(tag, bytes):
+            tag = text.decode("utf-8", "ignore")
+        self.tag = tag
 
     def __str__(self):
         return self.text
