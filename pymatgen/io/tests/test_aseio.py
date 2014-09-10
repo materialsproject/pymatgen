@@ -49,4 +49,4 @@ if __name__ == "__main__":
     if aio.ase_loaded:
         unittest.main()
     else:
-        print "ASE not loaded. Skipping tests"
+        print("ASE not loaded. Skipping tests")
