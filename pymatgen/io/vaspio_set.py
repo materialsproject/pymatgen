@@ -750,7 +750,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
                 magmom = {"magmom": [i['tot'] for i in outcar.magnetization]}
             else:
                 magmom = {
-                    "magmom": vasp_run.as_dict['input']['parameters']
+                    "magmom": vasp_run.as_dict()['input']['parameters']
                     ['MAGMOM']}
         else:
             magmom = None
@@ -1101,7 +1101,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             ispin = 2
         else:
             ispin = 1
-        nbands = int(np.ceil(vasp_run.as_dict["input"]["parameters"]["NBANDS"]
+        nbands = int(np.ceil(vasp_run.as_dict()["input"]["parameters"]["NBANDS"]
                              * 1.2))
         incar_settings = {"ISPIN": ispin, "NBANDS": nbands}
         for grid in ["NGX", "NGY", "NGZ"]:
@@ -1335,7 +1335,7 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
             ispin = 2
         else:
             ispin = 1
-        nbands = int(np.ceil(vasp_run.as_dict["input"]["parameters"]["NBANDS"]
+        nbands = int(np.ceil(vasp_run.as_dict()["input"]["parameters"]["NBANDS"]
                              * nbands_factor))
         incar_settings = {"ISPIN": ispin, "NBANDS": nbands}
         for grid in ["NGX", "NGY", "NGZ"]:

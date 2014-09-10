@@ -121,7 +121,7 @@ class MoleculeStructureComparator(PMGSONable):
             covalent_atoms = list(range(num_atoms))
         all_pairs = list(itertools.combinations(covalent_atoms, 2))
         pair_dists = [mol.get_distance(*p) for p in all_pairs]
-        elements = mol.composition.as_dict.keys()
+        elements = mol.composition.as_dict().keys()
         unavailable_elements = list(set(elements) -
                                     set(self.covalent_radius.keys()))
         if len(unavailable_elements) > 0:

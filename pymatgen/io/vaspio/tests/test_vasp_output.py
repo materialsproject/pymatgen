@@ -146,7 +146,7 @@ class VasprunTest(unittest.TestCase):
         #Test that as_dict() is json-serializable
         self.assertIsNotNone(json.dumps(vasprun.as_dict()))
         self.assertEqual(
-            vasprun.as_dict["input"]["potcar_type"],
+            vasprun.as_dict()["input"]["potcar_type"],
             ['PAW_PBE', 'PAW_PBE', 'PAW_PBE', 'PAW_PBE', 'PAW_PBE'])
 
     def test_get_band_structure(self):
