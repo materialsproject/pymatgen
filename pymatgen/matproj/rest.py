@@ -356,7 +356,7 @@ class MPRester(object):
             List of ComputedEntries.
         """
         entries = []
-        for i in xrange(len(elements)):
+        for i in range(len(elements)):
             for els in itertools.combinations(elements, i + 1):
                 try:
                     entries.extend(
@@ -794,14 +794,15 @@ class MPRester(object):
                     f.append(parts[-1])
                     c = Composition("".join(f))
                     #Check for valid Elements in keys.
-                    map(lambda e: Element(e.symbol), c.keys())
+                    for e in c.keys():
+                        Element(e.symbol)
                     all_formulas.add(c.reduced_formula)
                 return {"pretty_formula": {"$in": list(all_formulas)}}
 
         if len(toks) == 1:
             return parse_tok(toks[0])
         else:
-            return {"$or": map(parse_tok, toks)}
+            return {"$or": list(map(parse_tok, toks))}
 
 
 class MPRestError(Exception):
