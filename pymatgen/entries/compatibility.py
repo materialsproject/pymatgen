@@ -366,7 +366,7 @@ class Compatibility(object):
             An list of adjusted entries.  Entries in the original list which
             are not compatible are excluded.
         """
-        return filter(None, map(self.process_entry, entries))
+        return list(filter(None, map(self.process_entry, entries)))
 
     def get_explanation_dict(self, entry):
         """
