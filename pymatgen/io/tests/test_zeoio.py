@@ -197,8 +197,8 @@ class GetHighAccuracyVoronoiNodesTest(unittest.TestCase):
         self.assertIsInstance(vor_node_struct, Structure)
         self.assertIsInstance(vor_ec_struct, Structure)
         self.assertIsInstance(vor_fc_struct, Structure)
-        print (len(vor_node_struct.sites))
-        print (len(vor_fc_struct.sites))
+        print(len(vor_node_struct.sites))
+        print(len(vor_fc_struct.sites))
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
@@ -218,7 +218,7 @@ class GetVoronoiNodesMultiOxiTest(unittest.TestCase):
         el = [site.species_string for site in self.structure.sites]
         self.rad_dict = dict(zip(el, radii))
         for el in self.rad_dict.keys():
-            print el, self.rad_dict[el].real
+            print((el, self.rad_dict[el].real))
 
     def test_get_voronoi_nodes(self):
         vor_node_struct, vor_edge_center_struct, vor_face_center_struct =\
