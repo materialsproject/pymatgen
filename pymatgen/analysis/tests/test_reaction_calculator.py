@@ -89,7 +89,7 @@ class ReactionTest(unittest.TestCase):
         self.assertEquals(str(rxn), "1.000 FePO4 -> 1.000 FePO4",
                           "Wrong reaction obtained!")
 
-        products = map(Composition, ['La8Ti8O12', 'O2', 'LiCrO2'])
+        products = list(map(Composition, ['La8Ti8O12', 'O2', 'LiCrO2']))
         reactants = [Composition('LiLa3Ti3CrO12')]
         rxn = Reaction(reactants, products)
         self.assertEquals(str(rxn),
@@ -206,10 +206,10 @@ class ComputedReactionTest(unittest.TestCase):
         entries = []
         for e in d:
             entries.append(ComputedEntry.from_dict(e))
-        rcts = filter(lambda e: e.composition.reduced_formula in ["Li", "O2"],
-                      entries)
-        prods = filter(lambda e: e.composition.reduced_formula == "Li2O2",
-                       entries)
+        rcts = list(filter(lambda e: e.composition.reduced_formula in ["Li", "O2"],
+                      entries))
+        prods = list(filter(lambda e: e.composition.reduced_formula == "Li2O2",
+                       entries))
 
         self.rxn = ComputedReaction(rcts, prods)
 
