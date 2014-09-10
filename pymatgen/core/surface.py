@@ -80,7 +80,7 @@ class Slab(Structure):
 
     def __init__(self, structure, miller_index, min_slab_size,
                  min_vacuum_size, thresh=0.00001, crit ='distance',
-                 lll_reduce=True, standardize=True, shift=0):
+                 lll_reduce=True, standardize=True):
         """
         Makes a Slab structure. Note that the code will make a slab with
         whatever size that is specified, rounded upwards. The a and b lattice
@@ -109,7 +109,6 @@ class Slab(Structure):
                 description).
             lll_reduce (bool): Whether to perform an LLL reduction on the
                 eventual structure.
-            shift (float): In Angstroms (shifting the origin)
         """
         latt = structure.lattice
         d = reduce(gcd, miller_index)
@@ -156,21 +155,8 @@ class Slab(Structure):
         slab.make_supercell(slab_scale_factor)
 
         slab_copy = slab.copy()
-        # write_structure(slab_copy, "/media/sharedfolder/compare lifepo4/lifepo4_slab.cif")
-        b = slab_scale_factor
-
-        new_sites = []
-        for site in slab:
-            if shift <= np.dot(site.coords, normal) < nlayers_slab * dist + \
-                    shift:
-                new_sites.append(site)
-        slab = Structure.from_sites(new_sites)
-
         if lll_reduce:
-            lll_slab = slab.copy(sanitize=True)
-            mapping = lll_slab.lattice.find_mapping(slab.lattice)
-            slab_scale_factor = np.dot(mapping[2], slab_scale_factor)
-            slab = lll_slab
+            slab = slab.copy(sanitize=True)
 
     # Clusters sites together that belong in the same termination surface based
     # on their position in the c direction. Also organizes sites by ascending
@@ -180,11 +166,9 @@ class Slab(Structure):
         tracker_index = fclusterdata(l[1], thresh, crit)
         new_coord, tracker_index, org_coords, el = \
             zip(*sorted(zip(l[1], tracker_index, l[2], l[3])))
-        # print(l[1])
-        # print(len(new_coord), len(tracker_index))
+
 # Creates a list (term_index) that tells us which at
 # which site does a termination begin. For 1 unit cell.
-#         print(len(l[1]), len(tracker_index))
         gg = 0
         term_index = []
         for i in range(0, len(l[0])):
@@ -196,13 +180,11 @@ class Slab(Structure):
                     term_index.append(i)
             if gg == len(structure):
                 break
-        # print(term_index)
 
         slab_list, term_coords = [], []
-
-        # print(len(term_index))
         t, a = 0, 0
         for i in range(0, len(term_index)):
+            b = slab_scale_factor
             y = []
             term_slab = structure.copy()
             term_slab.make_supercell(b)
@@ -219,18 +201,24 @@ class Slab(Structure):
             term_slab = Structure.from_sites(new_sites)
 
             if lll_reduce:
-                term_slab = term_slab.copy(sanitize=True)
+                lll_slab = term_slab.copy(sanitize=True)
+                if i == len(term_index) - 1:
+                    mapping = lll_slab.lattice.find_mapping(term_slab.lattice)
+                    slab_scale_factor = np.dot(mapping[2], b)
+                term_slab = lll_slab
+
+            c = term_slab.lattice.c
+            min_c = []
+            index = []
+            for ii in range(0, len(term_slab)):
+                min_c.append(term_slab[ii].frac_coords[2])
+                index.append(ii)
+            min_length = min(min_c)
+            max_length = max(min_c)
+            term_slab.translate_sites(index, [0, 0, -min_length])
 
             if standardize:
-                c = term_slab.lattice.c
-                min_c = []
-                index = []
-                for ii in range(0, len(term_slab)):
-                    min_c.append(term_slab[ii].frac_coords[2])
-                    index.append(ii)
-                length = min(min_c)
-
-                term_slab.translate_sites(index, [0, 0, -length + (nlayers_vac*dist)/(2*c)])
+                term_slab.translate_sites(index, [0, 0, (1-max_length+min_length)/2])
 
             slab_list.append(term_slab)
 
@@ -242,16 +230,12 @@ class Slab(Structure):
                 a = len(term_slab)-1
             else:
                 a = term_index[i]+1
-            # print(t, len(term_slab), a)
             for iv in range(t, a):
                 y.append(term_slab[iv])
             term_coords.append(y)
             if a == len(term_slab)-1:
                 break
             t = a
-
-        # print(tracker_index)
-        # print(term_index)
 
 
         self.min_slab_size = min_slab_size
@@ -261,7 +245,7 @@ class Slab(Structure):
         self.parent = structure
         self.miller_index = miller_index
         self.term_coords = term_coords
-        self.scale_factor = np.array(slab_scale_factor)
+        self.scale_factor = slab_scale_factor
         self.normal = normal
         self.true_vac_size = nlayers_vac*dist
 
@@ -269,10 +253,9 @@ class Slab(Structure):
             slab.lattice, slab.species_and_occu, slab.frac_coords,
             site_properties=slab.site_properties)
 
-
     @property
-    def surface_area(self):
-        m = self.lattice.matrix
+    def surface_area(self, nth_term):
+        m = self.slab_list[nth_term].lattice.matrix
         return np.linalg.norm(np.cross(m[0], m[1]))
 
     @classmethod
@@ -339,7 +322,7 @@ class Slab(Structure):
 
         return structure_ad
 
-    def make_interface(self, sec_struct, term):
+    def make_interface(self, sec_struct, nth_term):
 
         # Creates a supercell of the secondary structure
         m = self.lattice.matrix
@@ -377,11 +360,10 @@ class Slab(Structure):
         interface_sites = []
         interface_species = []
         # c_list = []
-        specimen = self.slab_list[term].species
+        specimen = self.slab_list[nth_term].species
 
-        for i in range(0, len(self.slab_list[term])):
-            # c_list.append(self.slab_list[term][i].coords[2])
-            interface_sites.append(self.slab_list[term][i].coords)
+        for i in range(0, len(self.slab_list[nth_term])):
+            interface_sites.append(self.slab_list[nth_term][i].coords)
             interface_species.append(specimen[i])
 
         specimen = sec_struct.species
