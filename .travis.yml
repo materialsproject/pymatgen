@@ -20,7 +20,7 @@ branches:
   only:
     - master
     - stable
-    - py3k
+    - pmg3
 notifications:
   email:
     recipients:
