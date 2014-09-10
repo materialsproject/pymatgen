@@ -54,7 +54,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
             exclude: If true, returns false for any structures with the specie
                 (excludes them from the Transmuter)
         """
-        self._species = map(get_el_sp, species)
+        self._species = list(map(get_el_sp, species))
         self._strict = strict_compare
         self._AND = AND
         self._exclude = exclude
