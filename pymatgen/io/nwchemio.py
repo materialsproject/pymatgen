@@ -13,10 +13,13 @@ __date__ = "6/5/13"
 
 import re
 from string import Template
+
 from six import string_types
+from six.moves import zip
+
+from monty.io import zopen
 
 from pymatgen.core import Molecule
-from monty.io import zopen
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.units import Energy
 from pymatgen.core.units import FloatWithUnit
@@ -384,7 +387,7 @@ class NwInput(MSONable):
                 while l.lower() != "end":
                     toks = l.split()
                     species.append(toks[0])
-                    coords.append(map(float, toks[1:]))
+                    coords.append([float(i) for i in toks[1:]])
                     l = lines.pop(0).strip()
                 mol = Molecule(species, coords)
             elif toks[0].lower() == "charge":
@@ -472,7 +475,7 @@ class NwOutput(object):
             chunks.pop()
         preamble = chunks.pop(0)
         self.job_info = self._parse_preamble(preamble)
-        self.data = map(self._parse_job, chunks)
+        self.data = [self._parse_job(c) for c in chunks]
 
     def _parse_preamble(self, preamble):
         info = {}
