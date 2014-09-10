@@ -53,8 +53,7 @@ class IdentityTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "init_args": {},
                 "version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
@@ -104,8 +103,7 @@ class RotationTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"axis": self._axis, "angle": self._angle,
                               "angle_in_radians": self._angle_in_radians},
@@ -138,8 +136,7 @@ class OxidationStateDecorationTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"oxidation_states": self.oxi_states},
                 "@module": self.__class__.__module__,
@@ -181,8 +178,7 @@ class AutoOxiStateDecorationTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"symm_tol": self.analyzer.symm_tol,
                               "max_radius": self.analyzer.max_radius,
@@ -211,8 +207,7 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {}, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
@@ -272,8 +267,7 @@ class SupercellTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"scaling_matrix": self._matrix},
                 "@module": self.__class__.__module__,
@@ -327,8 +321,7 @@ class SubstitutionTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         #convert sp_map to tuple representation to work with Mongo
         #which doesn't allow '.' in key names
         sp_map = []
@@ -374,8 +367,7 @@ class RemoveSpeciesTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"species_to_remove": self._species},
                 "@module": self.__class__.__module__,
@@ -462,8 +454,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
     def inverse(self):
         return None
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"specie_to_remove": self._specie,
                               "fraction_to_remove": self._frac,
@@ -650,8 +641,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"algo": self._algo},
                 "@module": self.__class__.__module__,
@@ -705,8 +695,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"tolerance": self._tolerance},
                 "@module": self.__class__.__module__,
@@ -747,8 +736,7 @@ class PerturbStructureTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"amplitude": self._amp},
                 "@module": self.__class__.__module__,

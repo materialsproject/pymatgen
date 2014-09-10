@@ -152,7 +152,7 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertEqual("HF", gau.functional)
         self.assertEqual("3-21G", gau.basis_set)
         self.assertEqual(17, gau.num_basis_func)
-        d = gau.to_dict
+        d = gau.as_dict()
         self.assertEqual(d["input"]["functional"], "HF")
         self.assertAlmostEqual(d["output"]["final_energy"], -39.9768775602)
 

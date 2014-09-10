@@ -23,7 +23,7 @@ from pymatgen.core.units import ArrayWithUnit, Ha_to_eV
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.design_patterns import Enum, AttrDict
-from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
+from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
 from pymatgen.util.string_utils import list_strings, pprint_table, WildCard
@@ -1526,7 +1526,7 @@ class PhononWorkflow(Workflow):
                     )
 
 
-class WorkflowResults(dict, MSONable):
+class WorkflowResults(dict, PMGSONable):
     """
     Dictionary used to store some of the results produce by a Task object
     """
@@ -1565,8 +1565,7 @@ class WorkflowResults(dict, MSONable):
 
         return self[self._EXC_KEY]
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         d = {k: v for k,v in self.items()}
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__

@@ -25,9 +25,10 @@ import warnings
 import re
 import itertools
 
+from monty.json import MontyDecoder, MontyEncoder
+
 from pymatgen.core.periodic_table import ALL_ELEMENT_SYMBOLS, Element
 from pymatgen.core.composition import Composition
-from pymatgen.serializers.json_coders import PMGJSONDecoder
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
@@ -35,8 +36,6 @@ from pymatgen.io.vaspio_set import DictVaspInputSet
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.matproj.snl import StructureNL
-from pymatgen.serializers.json_coders import PMGJSONEncoder
-from pymatgen.core.periodic_table import PeriodicTable
 
 
 class MPRester(object):
@@ -120,7 +119,7 @@ class MPRester(object):
                 response = self.session.get(url, params=payload)
             if response.status_code in [200, 400]:
                 try:
-                    data = json.loads(response.text, cls=PMGJSONDecoder)
+                    data = json.loads(response.text, cls=MontyDecoder)
                 except:
                     data = json.loads(response.text)
                 if data["valid_response"]:
@@ -413,7 +412,7 @@ class MPRester(object):
         try:
             response = self.session.get(url, data=payload)
             if response.status_code in [200, 400]:
-                data = json.loads(response.text, cls=PMGJSONDecoder)
+                data = json.loads(response.text, cls=MontyDecoder)
                 if data["valid_response"]:
                     if data.get("warning"):
                         warnings.warn(data["warning"])
@@ -545,12 +544,12 @@ class MPRester(object):
         """
         try:
             snl = snl if isinstance(snl, list) else [snl]
-            jsondata = [s.to_dict for s in snl]
-            payload = {"snl": json.dumps(jsondata, cls=PMGJSONEncoder)}
+            jsondata = [s.as_dict() for s in snl]
+            payload = {"snl": json.dumps(jsondata, cls=MontyEncoder)}
             response = self.session.post("{}/snl/submit".format(self.preamble),
                                          data=payload)
             if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=PMGJSONDecoder)
+                resp = json.loads(response.text, cls=MontyDecoder)
                 if resp["valid_response"]:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])
@@ -586,7 +585,7 @@ class MPRester(object):
                 "{}/snl/delete".format(self.preamble), data=payload)
 
             if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=PMGJSONDecoder)
+                resp = json.loads(response.text, cls=MontyDecoder)
                 if resp["valid_response"]:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])
@@ -691,7 +690,7 @@ class MPRester(object):
                     "parameters": e.parameters,
                     "final_energy": e.energy,
                     "final_energy_per_atom": e.energy_per_atom,
-                    "initial_structure": e.data["initial_structure"].to_dict
+                    "initial_structure": e.data["initial_structure"].as_dict()
                 }
             }
             if "history" in e.parameters:
@@ -712,11 +711,11 @@ class MPRester(object):
         Returns the stability of all entries.
         """
         try:
-            payload = {"entries": json.dumps(entries, cls=PMGJSONEncoder)}
+            payload = {"entries": json.dumps(entries, cls=MontyEncoder)}
             response = self.session.post("{}/phase_diagram/calculate_stability"
                                          .format(self.preamble), data=payload)
             if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=PMGJSONDecoder)
+                resp = json.loads(response.text, cls=MontyDecoder)
                 if resp["valid_response"]:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])

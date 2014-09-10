@@ -45,7 +45,7 @@ setup(
     version="2.10.6",
     install_requires=["numpy>=1.8", "pyhull>=1.5.2",
                       "requests>=2.3.0", "pybtex>=0.18", "pyyaml>=3.11",
-                      "monty>=0.4.0", "six>=1.7.3"],
+                      "monty>=0.4.1", "six>=1.7.3"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
                     "plotting": ["matplotlib>=1.1"],
                     "ase_adaptor": ["ase>=3.3"],

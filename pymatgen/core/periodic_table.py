@@ -18,7 +18,7 @@ import json
 from pymatgen.core.units import Mass, Length, unitized
 from monty.design_patterns import singleton, cached_class
 from pymatgen.util.string_utils import formula_double_format
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from functools import total_ordering
 
 
@@ -641,8 +641,7 @@ class Element(object):
         """
         return Element(d["element"])
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Makes Element obey the general json interface used in pymatgen for
         easier serialization.
@@ -654,7 +653,7 @@ class Element(object):
 
 @cached_class
 @total_ordering
-class Specie(MSONable):
+class Specie(PMGSONable):
     """
     An extension of Element with an oxidation state and other optional
     properties. Properties associated with Specie should be "idealized"
@@ -858,8 +857,7 @@ class Specie(MSONable):
     def __deepcopy__(self, memo):
         return Specie(self.symbol, self.oxi_state, self._properties)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "element": self.symbol,
@@ -874,7 +872,7 @@ class Specie(MSONable):
 
 @cached_class
 @total_ordering
-class DummySpecie(MSONable):
+class DummySpecie(PMGSONable):
     """
     A special specie for representing non-traditional elements or species. For
     example, representation of vacancies (charged or otherwise), or special
@@ -1026,8 +1024,7 @@ class DummySpecie(MSONable):
                 return DummySpecie(m.group(1), oxidation_state=oxi)
         raise ValueError("Invalid Species String")
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "element": self.symbol,

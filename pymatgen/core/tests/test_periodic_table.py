@@ -25,7 +25,7 @@ class ElementTestCase(unittest.TestCase):
 
     def test_dict(self):
         fe = Element("Fe")
-        d = fe.to_dict
+        d = fe.as_dict()
         self.assertEqual(fe, Element.from_dict(d))
 
     def test_block(self):
