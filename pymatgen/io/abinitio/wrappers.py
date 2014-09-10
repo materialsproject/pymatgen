@@ -8,6 +8,7 @@ from monty.os.path import which
 from pymatgen.util.string_utils import list_strings
 
 import logging
+from six.moves import map
 logger = logging.getLogger(__name__)
 
 __author__ = "Matteo Giantomassi"

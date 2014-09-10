@@ -11,6 +11,7 @@ import numpy as np
 from pymatgen.util.string_utils import pprint_table, is_string, list_strings
 
 import logging
+from six.moves import zip
 logger = logging.getLogger(__name__)
 
 
