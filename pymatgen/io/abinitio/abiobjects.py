@@ -21,14 +21,14 @@ from pymatgen.core.structure import Structure, Molecule
 from pymatgen.io.smartio import read_structure
 
 from .netcdf import structure_from_etsf_file
+import six
 
 
-class AbivarAble(object):
+class AbivarAble(six.with_metaclass(abc.ABCMeta, object)):
     """
     An AbivarAble object provides a method to_abivars that returns a dictionary
     with the abinit variables.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def to_abivars(self):
@@ -734,9 +734,9 @@ class KSampling(AbivarAble):
         hex_angle_tol = 5      # in degrees
         hex_length_tol = 0.01  # in angstroms
 
-        right_angles = [i for i in xrange(3) if abs(angles[i] - 90) < hex_angle_tol]
+        right_angles = [i for i in range(3) if abs(angles[i] - 90) < hex_angle_tol]
 
-        hex_angles = [i for i in xrange(3)
+        hex_angles = [i for i in range(3)
                       if abs(angles[i] - 60) < hex_angle_tol or
                       abs(angles[i] - 120) < hex_angle_tol]
 
