@@ -24,8 +24,10 @@ import json
 import warnings
 import re
 import itertools
+import datetime
+import numpy as np
 
-from monty.json import MontyDecoder, MontyEncoder
+from monty.json import MontyEncoder
 
 from pymatgen.core.periodic_table import ALL_ELEMENT_SYMBOLS, Element
 from pymatgen.core.composition import Composition
@@ -119,7 +121,7 @@ class MPRester(object):
                 response = self.session.get(url, params=payload)
             if response.status_code in [200, 400]:
                 try:
-                    data = json.loads(response.text, cls=MontyDecoder)
+                    data = json.loads(response.text, cls=MPDecoder)
                 except:
                     data = json.loads(response.text)
                 if data["valid_response"]:
@@ -412,7 +414,7 @@ class MPRester(object):
         try:
             response = self.session.get(url, data=payload)
             if response.status_code in [200, 400]:
-                data = json.loads(response.text, cls=MontyDecoder)
+                data = json.loads(response.text, cls=MPDecoder)
                 if data["valid_response"]:
                     if data.get("warning"):
                         warnings.warn(data["warning"])
@@ -549,7 +551,7 @@ class MPRester(object):
             response = self.session.post("{}/snl/submit".format(self.preamble),
                                          data=payload)
             if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=MontyDecoder)
+                resp = json.loads(response.text, cls=MPDecoder)
                 if resp["valid_response"]:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])
@@ -585,7 +587,7 @@ class MPRester(object):
                 "{}/snl/delete".format(self.preamble), data=payload)
 
             if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=MontyDecoder)
+                resp = json.loads(response.text, cls=MPDecoder)
                 if resp["valid_response"]:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])
@@ -715,7 +717,7 @@ class MPRester(object):
             response = self.session.post("{}/phase_diagram/calculate_stability"
                                          .format(self.preamble), data=payload)
             if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=MontyDecoder)
+                resp = json.loads(response.text, cls=MPDecoder)
                 if resp["valid_response"]:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])
@@ -810,3 +812,63 @@ class MPRestError(Exception):
     Raised when the query has problems, e.g., bad query format.
     """
     pass
+
+
+class MPDecoder(json.JSONDecoder):
+    """
+    A Json Decoder which supports the MSONable API. By default, the
+    decoder attempts to find a module and name associated with a dict. If
+    found, the decoder will generate a Pymatgen as a priority.  If that fails,
+    the original decoded dictionary from the string is returned. Note that
+    nested lists and dicts containing pymatgen object will be decoded correctly
+    as well.
+
+    Usage:
+        Add it as a *cls* keyword when using json.load
+        json.loads(json_string, cls=MPDecoder)
+    """
+
+    def process_decoded(self, d):
+        """
+        Recursive method to support decoding dicts and lists containing
+        pymatgen objects.
+        """
+        if isinstance(d, dict):
+            if "@module" in d and "@class" in d:
+                modname = d["@module"]
+                classname = d["@class"]
+            elif "module" in d and "class" in d:
+                modname = d["module"]
+                classname = d["class"]
+            else:
+                modname = None
+                classname = None
+            if modname:
+                if modname == "datetime" and classname == "datetime":
+                    try:
+                        dt = datetime.datetime.strptime(d["string"],
+                                                        "%Y-%m-%d %H:%M:%S.%f")
+                    except ValueError:
+                        dt = datetime.datetime.strptime(d["string"],
+                                                        "%Y-%m-%d %H:%M:%S")
+                    return dt
+                elif modname == "numpy" and classname == "array":
+                    return np.array(d["data"])
+
+                mod = __import__(modname, globals(), locals(), [classname], 0)
+                if hasattr(mod, classname):
+                    cls_ = getattr(mod, classname)
+                    data = {k: v for k, v in d.items()
+                            if k not in ["@module", "@class"]}
+                    if hasattr(cls_, "from_dict"):
+                        return cls_.from_dict(data)
+            return {self.process_decoded(k): self.process_decoded(v)
+                    for k, v in d.items()}
+        elif isinstance(d, list):
+            return [self.process_decoded(x) for x in d]
+
+        return d
+
+    def decode(self, *args, **kwargs):
+        d = json.JSONDecoder.decode(self, *args, **kwargs)
+        return self.process_decoded(d)
