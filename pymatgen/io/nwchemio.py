@@ -121,18 +121,20 @@ class NwTask(MSONable):
 
     def __str__(self):
         bset_spec = []
-        for el, bset in self.basis_set.items():
+        for el, bset in sorted(self.basis_set.items(), key=lambda x: x[0]):
             bset_spec.append(" {} library \"{}\"".format(el, bset))
         theory_spec = []
         if self.theory_directives:
             theory_spec.append("{}".format(self.theory))
-            for k, v in self.theory_directives.items():
-                theory_spec.append(" {} {}".format(k, v))
+            for k in sorted(self.theory_directives.keys()):
+                theory_spec.append(" {} {}".format(k, self.theory_directives[
+                    k]))
             theory_spec.append("end")
-        for k, v in self.alternate_directives.items():
+        for k in sorted(self.alternate_directives.keys()):
             theory_spec.append(k)
-            for k2, v2 in v.items():
-                theory_spec.append(" {} {}".format(k2, v2))
+            for k2 in sorted(self.alternate_directives[k].keys()):
+                theory_spec.append(" {} {}".format(
+                    k2, self.alternate_directives[k][k2]))
             theory_spec.append("end")
         t = Template("""title "$title"
 charge $charge
