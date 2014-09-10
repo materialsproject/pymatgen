@@ -3,6 +3,7 @@ This module provides classes to create phase diagrams.
 """
 
 from __future__ import division
+from six.moves import filter
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -167,7 +168,7 @@ class PhaseDiagram (MSONable):
         if dim == 1:
             self.facets = [qhull_data.argmin(axis=0)]
         elif len(qhull_data) == dim:
-            self.facets = [range(dim)]
+            self.facets = [list(range(dim))]
         else:
             facets = get_facets(qhull_data)
             finalfacets = []
