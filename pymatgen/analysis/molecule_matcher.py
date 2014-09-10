@@ -671,7 +671,7 @@ class MoleculeMatcher(PMGSONable):
     def as_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "tolerance": self._tolerance, "mapper": self._mapper.as_dict}
+                "tolerance": self._tolerance, "mapper": self._mapper.as_dict()}
 
     @classmethod
     def from_dict(cls, d):

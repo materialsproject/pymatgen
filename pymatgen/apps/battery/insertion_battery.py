@@ -358,7 +358,7 @@ class InsertionElectrode(AbstractElectrode):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "entries": [entry.as_dict() for entry in self._entries],
-                "working_ion_entry": self.working_ion_entry.as_dict}
+                "working_ion_entry": self.working_ion_entry.as_dict()}
 
 
 class InsertionVoltagePair(AbstractVoltagePair):

@@ -165,7 +165,7 @@ class Header(PMGSONable):
         return {'@module': self.__class__.__module__,
                 '@class': self.__class__.__name__,
                 'comment': self._comment, 'source': self.source,
-                'structure': self._struct.as_dict}
+                'structure': self._struct.as_dict()}
 
     @staticmethod
     def from_dict(hdict):

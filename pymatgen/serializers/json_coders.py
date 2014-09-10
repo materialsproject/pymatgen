@@ -42,7 +42,7 @@ import json
 from abc import ABCMeta
 
 from monty.io import zopen
-from monty.json import MSONable, MontyEncoder, MontyDecoder
+from monty.json import MSONable, MontyEncoder, MontyDecoder, MSONError
 from monty.dev import deprecated
 
 

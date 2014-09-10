@@ -248,7 +248,7 @@ class ConversionElectrode(AbstractElectrode):
                 "@class": self.__class__.__name__,
                 "voltage_pairs": [v.as_dict() for v in self._vpairs],
                 "working_ion_entry": self.working_ion_entry.as_dict(),
-                "initial_comp": self._composition.as_dict}
+                "initial_comp": self._composition.as_dict()}
 
     def get_summary_dict(self, print_subelectrodes=True):
         """

@@ -15,7 +15,9 @@ import unittest
 import os
 import json
 
-from pymatgen import Composition, MontyDecoder
+from monty.json import MontyDecoder
+
+from pymatgen import Composition
 from pymatgen.apps.battery.conversion_battery import ConversionElectrode, \
     ConversionVoltagePair
 
