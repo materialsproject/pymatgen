@@ -342,8 +342,7 @@ class CifParser(object):
 
         return structures
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         d = OrderedDict()
         for k, v in self._cif.data.items():
             d[k] = {}

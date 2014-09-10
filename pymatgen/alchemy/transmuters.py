@@ -201,7 +201,7 @@ class StandardTransmuter(object):
     def set_parameter(self, key, value):
         """
         Add parameters to the transmuter. Additional parameters are stored in
-        the to_dict output.
+        the as_dict output.
 
         Args:
             key: The key for the parameter.

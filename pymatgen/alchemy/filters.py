@@ -3,8 +3,6 @@ This module defines filters for Transmuter object.
 """
 
 from __future__ import division
-import six
-from six.moves import map
 
 __author__ = "Will Richards, Shyue Ping Ong, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -13,15 +11,19 @@ __maintainer__ = "Will Richards"
 __email__ = "wrichards@mit.edu"
 __date__ = "Sep 25, 2012"
 
+import abc
+
+import six
+from six.moves import map
+
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.analysis.structure_matcher import StructureMatcher,\
     ElementComparator
 from pymatgen.symmetry.finder import SymmetryFinder
-import abc
 
 
-class AbstractStructureFilter(six.with_metaclass(abc.ABCMeta, MSONable)):
+class AbstractStructureFilter(six.with_metaclass(abc.ABCMeta, PMGSONable)):
     """
     AbstractStructureFilter that defines an API to perform testing of
     Structures. Structures that return True to a test are retained during
@@ -90,8 +92,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
                           "AND = {}".format(self._AND),
                           "exclude = {}".format(self._exclude)])
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "init_args": {"species": [str(sp) for sp in self._species],
@@ -136,8 +137,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
                                 return False
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "init_args": {"specie_and_min_dist_dict":
@@ -190,11 +190,10 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
         self._structure_list.append(structure)
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "init_args": {"structure_matcher": self._sm.to_dict}}
+                "init_args": {"structure_matcher": self._sm.as_dict}}
 
 
 class RemoveExistingFilter(AbstractStructureFilter):
@@ -241,11 +240,10 @@ class RemoveExistingFilter(AbstractStructureFilter):
         self._structure_list.append(structure)
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "init_args": {"structure_matcher": self._sm.to_dict}}
+                "init_args": {"structure_matcher": self._sm.as_dict}}
 
 
 class ChargeBalanceFilter(AbstractStructureFilter):
@@ -261,7 +259,6 @@ class ChargeBalanceFilter(AbstractStructureFilter):
         else:
             return False
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}

@@ -72,8 +72,7 @@ class InsertSitesTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"species": self._species, "coords": [list(x) for x in self._coords],
                               "coords_are_cartesian": self._cartesian,
@@ -119,8 +118,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {
             "name": self.__class__.__name__, "version": __version__,
             "init_args": {"indices_species_map": self._indices_species_map},
@@ -158,8 +156,7 @@ class RemoveSitesTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"indices_to_remove": self._indices},
                 "@module": self.__class__.__module__,
@@ -205,8 +202,7 @@ class TranslateSitesTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"indices_to_move": self._indices,
                               "translation_vector": self._vector,
@@ -520,8 +516,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"indices": self._indices,
                               "fractions": self._fractions,

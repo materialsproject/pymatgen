@@ -293,7 +293,7 @@ class InsertionElectrode(AbstractElectrode):
                                                    self.working_ion_entry))
         return battery_list
 
-    def to_dict_summary(self, print_subelectrodes=True):
+    def as_dict_summary(self, print_subelectrodes=True):
         """
         Generate a summary dict.
 
@@ -326,7 +326,7 @@ class InsertionElectrode(AbstractElectrode):
              "max_instability": self.get_max_instability(),
              "min_instability": self.get_min_instability()}
         if print_subelectrodes:
-            f_dict = lambda c: c.to_dict_summary(print_subelectrodes=False)
+            f_dict = lambda c: c.as_dict_summary(print_subelectrodes=False)
             d["adj_pairs"] = map(f_dict,
                                  self.get_sub_electrodes(adjacent_only=True))
             d["all_pairs"] = map(f_dict,
@@ -349,17 +349,16 @@ class InsertionElectrode(AbstractElectrode):
 
     @classmethod
     def from_dict(cls, d):
-        from pymatgen.serializers.json_coders import PMGJSONDecoder
-        dec = PMGJSONDecoder()
+        from monty.json import MontyDecoder
+        dec = MontyDecoder()
         return cls(dec.process_decoded(d["entries"]),
                    dec.process_decoded(d["working_ion_entry"]))
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "entries": [entry.to_dict for entry in self._entries],
-                "working_ion_entry": self.working_ion_entry.to_dict}
+                "entries": [entry.as_dict for entry in self._entries],
+                "working_ion_entry": self.working_ion_entry.as_dict}
 
 
 class InsertionVoltagePair(AbstractVoltagePair):

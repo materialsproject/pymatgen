@@ -78,8 +78,7 @@ class VacancyTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name":self.__class__.__name__, "version":__version__,
                 "init_args":{"supercell_dim":self.supercell_dim,
                              "species":self.species,
@@ -172,8 +171,7 @@ class SubstitutionDefectTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         sp_map = []
         for k, v in self._species_map.items():
             if isinstance(v, dict):
@@ -257,8 +255,7 @@ class AntisiteDefectTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name":self.__class__.__name__, "version":__version__,
                 "init_args":{"supercell_dim":self.supercell_dim,
                              "valences":self.valences,"radii":self.radii},
@@ -340,8 +337,7 @@ class InterstitialTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name":self.__class__.__name__, "version":__version__,
                 "init_args":{"supercell_dim":self.supercell_dim,
                              "valences":self.valences,"radii":self.radii,

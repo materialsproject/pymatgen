@@ -15,10 +15,10 @@ __date__ = "Sep 23, 2011"
 import numpy as np
 from math import sin, cos, pi, sqrt
 
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 
 
-class SymmOp(MSONable):
+class SymmOp(PMGSONable):
     """
     A symmetry operation in cartesian space. Consists of a rotation plus a
     translation. Implementation is as an affine transformation matrix of rank 4
@@ -348,8 +348,7 @@ class SymmOp(MSONable):
         m = np.dot(rot.affine_matrix, refl.affine_matrix)
         return SymmOp(m)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
              "matrix": self.affine_matrix.tolist(), "tolerance": self.tol}

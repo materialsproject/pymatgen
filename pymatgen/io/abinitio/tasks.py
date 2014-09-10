@@ -25,11 +25,11 @@ try:
 except ImportError:
     pass
 
-from monty.json import loadf 
+from monty.serialization import loadfnn
 from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.util.io_utils import FileLock
 from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
-from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
+from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
 
 from pymatgen.io.abinitio.qadapters import qadapter_class
@@ -64,7 +64,7 @@ def straceback():
     import traceback
     return traceback.format_exc()
 
-class TaskResults(dict, MSONable):
+class TaskResults(dict, PMGSONable):
     """
     Dictionary used to store the most important results produced by a Task.
     """
@@ -109,8 +109,7 @@ class TaskResults(dict, MSONable):
 
         return self.exceptions
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         d = {k: v for k,v in self.items()}
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -121,11 +120,11 @@ class TaskResults(dict, MSONable):
         return cls({k: v for k,v in d.items() if k not in ["@module", "@class",]})
 
     def json_dump(self, filename):
-        json_pretty_dump(self.to_dict, filename) 
+        json_pretty_dump(self.as_dict, filename)
 
     @classmethod
     def json_load(cls, filename):
-        return cls.from_dict(loadf(filename))
+        return cls.from_dict(loadfn(filename))
 
 
 class ParalHintsError(Exception):
@@ -1733,7 +1732,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             "task_name"      : self.name,
             "task_returncode": self.returncode,
             "task_status"    : self.status,
-            #"task_events"    : self.events.to_dict
+            #"task_events"    : self.events.as_dict()
         })
 
     def move(self, dest, is_abspath=False):

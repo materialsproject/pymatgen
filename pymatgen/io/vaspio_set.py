@@ -32,7 +32,7 @@ from monty.serialization import loadfn
 from pymatgen.io.cifio import CifWriter
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vaspio.vasp_output import Vasprun, Outcar
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.io.smartio import write_structure
@@ -41,7 +41,7 @@ from pymatgen.io.smartio import write_structure
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class AbstractVaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
+class AbstractVaspInputSet(six.with_metaclass(abc.ABCMeta, PMGSONable)):
     """
     Abstract base class representing a set of Vasp input parameters.
     The idea is that using a VaspInputSet, a complete set of input files
@@ -378,8 +378,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
             count += 1
         return "\n".join(output)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         config_dict = {
             "INCAR": self.incar_settings,
             "KPOINTS": self.kpoints_settings,
@@ -524,9 +523,8 @@ class MITNEBVaspInputSet(DictVaspInputSet):
             if write_cif:
                 write_structure(s, os.path.join(d, '{}.cif'.format(i)))
 
-    @property
-    def to_dict(self):
-        d = super(MITNEBVaspInputSet, self).to_dict
+    def as_dict(self):
+        d = super(MITNEBVaspInputSet, self).as_dict()
         d["nimages"] = self.nimages
         return d
 
@@ -601,9 +599,8 @@ class MITMDVaspInputSet(DictVaspInputSet):
     def get_kpoints(self, structure):
         return Kpoints.gamma_automatic()
 
-    @property
-    def to_dict(self):
-        d = super(MITMDVaspInputSet, self).to_dict
+    def as_dict(self):
+        d = super(MITMDVaspInputSet, self).as_dict()
         d.update({
             "start_temp": self.start_temp,
             "end_temp": self.end_temp,
@@ -753,7 +750,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
                 magmom = {"magmom": [i['tot'] for i in outcar.magnetization]}
             else:
                 magmom = {
-                    "magmom": vasp_run.to_dict['input']['parameters']
+                    "magmom": vasp_run.as_dict['input']['parameters']
                     ['MAGMOM']}
         else:
             magmom = None
@@ -979,9 +976,8 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
                            style="Reciprocal", num_kpts=len(kpts),
                            kpts=kpts, kpts_weights=weights)
 
-    @property
-    def to_dict(self):
-        d = super(MPBSHSEVaspInputSet, self).to_dict
+    def as_dict(self):
+        d = super(MPBSHSEVaspInputSet, self).as_dict()
         d['added_kpoints'] = self.added_kpoints
         d['mode'] = self.mode
         d['kpoints_density'] = self.kpoints_density
@@ -1105,7 +1101,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             ispin = 2
         else:
             ispin = 1
-        nbands = int(np.ceil(vasp_run.to_dict["input"]["parameters"]["NBANDS"]
+        nbands = int(np.ceil(vasp_run.as_dict["input"]["parameters"]["NBANDS"]
                              * 1.2))
         incar_settings = {"ISPIN": ispin, "NBANDS": nbands}
         for grid in ["NGX", "NGY", "NGZ"]:
@@ -1339,7 +1335,7 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
             ispin = 2
         else:
             ispin = 1
-        nbands = int(np.ceil(vasp_run.to_dict["input"]["parameters"]["NBANDS"]
+        nbands = int(np.ceil(vasp_run.as_dict["input"]["parameters"]["NBANDS"]
                              * nbands_factor))
         incar_settings = {"ISPIN": ispin, "NBANDS": nbands}
         for grid in ["NGX", "NGY", "NGZ"]:

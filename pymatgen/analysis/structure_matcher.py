@@ -19,7 +19,7 @@ import numpy as np
 import itertools
 import abc
 
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
@@ -28,7 +28,7 @@ from pymatgen.util.coord_utils import pbc_shortest_vectors, \
     lattice_points_in_supercell
 
 
-class AbstractComparator(six.with_metaclass(abc.ABCMeta, MSONable)):
+class AbstractComparator(six.with_metaclass(abc.ABCMeta, PMGSONable)):
     """
     Abstract Comparator class. A Comparator defines how sites are compared in
     a structure.
@@ -85,8 +85,7 @@ class AbstractComparator(six.with_metaclass(abc.ABCMeta, MSONable)):
                 return trans()
         raise ValueError("Invalid Comparator dict")
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
@@ -254,7 +253,7 @@ class OrderDisorderElementComparator(AbstractComparator):
         return 1
 
 
-class StructureMatcher(MSONable):
+class StructureMatcher(PMGSONable):
     """
     Class to match structures by similarity.
 
@@ -715,11 +714,10 @@ class StructureMatcher(MSONable):
                 all_groups.append(matches)
         return all_groups
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "comparator": self._comparator.to_dict,
+                "comparator": self._comparator.as_dict,
                 "stol": self.stol,
                 "ltol": self.ltol,
                 "angle_tol": self.angle_tol,

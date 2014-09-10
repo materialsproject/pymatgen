@@ -17,7 +17,7 @@ class ReactionTest(unittest.TestCase):
         self.assertEquals(rxn.normalized_repr, "4 Fe + 3 O2 -> 2 Fe2O3",
                           "Wrong normalized reaction obtained!")
 
-        d = rxn.to_dict
+        d = rxn.as_dict()
         rxn = Reaction.from_dict(d)
         self.assertEquals(rxn.normalized_repr, "4 Fe + 3 O2 -> 2 Fe2O3",
                           "Wrong normalized reaction obtained!")
@@ -148,7 +148,7 @@ class ReactionTest(unittest.TestCase):
         reactants = [Composition("Fe"), Composition("O2")]
         products = [Composition("Fe2O3")]
         rxn = Reaction(reactants, products)
-        d = rxn.to_dict
+        d = rxn.as_dict()
         rxn = Reaction.from_dict(d)
         self.assertEquals(rxn.normalized_repr, "4 Fe + 3 O2 -> 2 Fe2O3")
 
@@ -176,7 +176,7 @@ class BalancedReactionTest(unittest.TestCase):
         prod = {Composition('KNaS'): 2, Composition('K2S'): 2,
                 Composition('Li2O'): 12}
         rxn = BalancedReaction(rct, prod)
-        d = rxn.to_dict
+        d = rxn.as_dict()
         new_rxn = BalancedReaction.from_dict(d)
         for comp in new_rxn.all_comp:
             self.assertEqual(new_rxn.get_coeff(comp), rxn.get_coeff(comp))
@@ -221,7 +221,7 @@ class ComputedReactionTest(unittest.TestCase):
         self.assertEqual(str(self.rxn), "1.000 O2 + 2.000 Li -> 1.000 Li2O2")
 
     def test_to_from_dict(self):
-        d = self.rxn.to_dict
+        d = self.rxn.as_dict()
         new_rxn = ComputedReaction.from_dict(d)
         self.assertEqual(str(new_rxn), "1.000 O2 + 2.000 Li -> 1.000 Li2O2")
 

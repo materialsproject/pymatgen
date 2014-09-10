@@ -19,7 +19,7 @@ import six
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core import PeriodicSite
-from pymatgen.serializers.json_coders import PMGJSONDecoder
+from monty.json import MontyDecoder
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.transformations.standard_transformations import *
 from pymatgen.symmetry.structure import SymmetrizedStructure
@@ -45,9 +45,9 @@ class TransformationsTest(unittest.TestCase):
 
     def test_to_from_dict(self):
         t = IdentityTransformation()
-        d = t.to_dict
-        self.assertIn("version", t.to_dict)
-        self.assertIn("init_args", t.to_dict)
+        d = t.as_dict()
+        self.assertIn("version", t.as_dict)
+        self.assertIn("init_args", t.as_dict)
         self.assertEqual(type(IdentityTransformation.from_dict(d)),
                          IdentityTransformation)
 
@@ -96,7 +96,7 @@ class SubstitutionTransformationTest(unittest.TestCase):
         t = SubstitutionTransformation({"Li+": "Na+",
                                         "O2-": {"S2-": 0.5, "Se2-": 0.5}})
         #test the to and from dict on the nested dictionary
-        t = SubstitutionTransformation.from_dict(t.to_dict)
+        t = SubstitutionTransformation.from_dict(t.as_dict)
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
@@ -169,7 +169,7 @@ class AutoOxiStateDecorationTransformationTest(unittest.TestCase):
 
     def to_from_dict(self):
         t = AutoOxiStateDecorationTransformation()
-        d = t.to_dict
+        d = t.as_dict()
         t = AutoOxiStateDecorationTransformation.from_dict(d)
         self.assertEqual(t.analyzer.dist_scale_factor, 1.015)
 
@@ -367,7 +367,7 @@ class PrimitiveCellTransformationTest(unittest.TestCase):
         self.assertEqual(len(s), 4)
 
         with open(os.path.join(test_dir, "TiO2_super.json")) as f:
-            s = json.load(f, cls=PMGJSONDecoder)
+            s = json.load(f, cls=MontyDecoder)
             prim = t.apply_transformation(s)
             self.assertEqual(prim.formula, "Ti4 O8")
 

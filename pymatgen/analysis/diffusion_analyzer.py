@@ -28,12 +28,12 @@ import numpy as np
 
 from pymatgen.core import Structure, get_el_sp
 import pymatgen.core.physical_constants as phyc
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.util.coord_utils import pbc_diff
 
 
-class DiffusionAnalyzer(MSONable):
+class DiffusionAnalyzer(PMGSONable):
     """
     Class for performing diffusion analysis.
 
@@ -431,12 +431,11 @@ class DiffusionAnalyzer(MSONable):
         return cls.from_vaspruns(vaspruns, min_obs=min_obs,
                                  weighted=weighted, specie=specie)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
-            "structure": self.structure.to_dict,
+            "structure": self.structure.as_dict,
             "displacements": self.disp.tolist(),
             "specie": self.specie,
             "temperature": self.temperature,

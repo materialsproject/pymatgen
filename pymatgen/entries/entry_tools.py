@@ -19,10 +19,11 @@ import json
 import datetime
 import collections
 
+from monty.json import MontyEncoder, MontyDecoder
+
 from pymatgen.core.structure import Structure
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
     SpeciesComparator
-from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder
 
 logger = logging.getLogger(__name__)
 
@@ -40,8 +41,8 @@ def _perform_grouping(args):
     (entries_json, hosts_json, ltol, stol, angle_tol,
      primitive_cell, scale, comparator, groups) = args
 
-    entries = json.loads(entries_json, cls=PMGJSONDecoder)
-    hosts = json.loads(hosts_json, cls=PMGJSONDecoder)
+    entries = json.loads(entries_json, cls=MontyDecoder)
+    hosts = json.loads(hosts_json, cls=MontyDecoder)
     unmatched = list(zip(entries, hosts))
     while len(unmatched) > 0:
         ref_host = unmatched[0][1]
@@ -64,7 +65,7 @@ def _perform_grouping(args):
             if m.fit(ref_host, test_host):
                 logger.info("Fit found")
                 matches.append(unmatched[i])
-        groups.append(json.dumps([m[0] for m in matches], cls=PMGJSONEncoder))
+        groups.append(json.dumps([m[0] for m in matches], cls=MontyEncoder))
         unmatched = list(filter(lambda x: x not in matches, unmatched))
         logger.info("{} unmatched remaining".format(len(unmatched)))
 
@@ -116,21 +117,21 @@ def group_entries_by_structure(entries, species_to_remove=None,
         p = mp.Pool(ncpus)
         #Parallel processing only supports Python primitives and not objects.
         p.map(_perform_grouping,
-              [(json.dumps([e[0] for e in eh], cls=PMGJSONEncoder),
-                json.dumps([e[1] for e in eh], cls=PMGJSONEncoder),
+              [(json.dumps([e[0] for e in eh], cls=MontyEncoder),
+                json.dumps([e[1] for e in eh], cls=MontyEncoder),
                 ltol, stol, angle_tol, primitive_cell, scale,
                 comparator, groups)
                for eh in symm_entries.values()])
     else:
         groups = []
         hosts = [host for entry, host in entries_host]
-        _perform_grouping((json.dumps(entries, cls=PMGJSONEncoder),
-                           json.dumps(hosts, cls=PMGJSONEncoder),
+        _perform_grouping((json.dumps(entries, cls=MontyEncoder),
+                           json.dumps(hosts, cls=MontyEncoder),
                            ltol, stol, angle_tol, primitive_cell, scale,
                            comparator, groups))
     entry_groups = []
     for g in groups:
-        entry_groups.append(json.loads(g, cls=PMGJSONDecoder))
+        entry_groups.append(json.loads(g, cls=MontyDecoder))
     logging.info("Finished at {}".format(datetime.datetime.now()))
     logging.info("Took {}".format(datetime.datetime.now() - start))
     return entry_groups
