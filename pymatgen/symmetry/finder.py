@@ -10,6 +10,8 @@ v2.0 - Updated for spglib 1.6.
 """
 
 from __future__ import division
+from six.moves import map
+from six.moves import zip
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -558,7 +560,7 @@ class SymmetryFinder(object):
                 b = sorted_dic[1]['length']
                 c = latt.abc[2]
                 new_matrix = None
-                for t in itertools.permutations(range(2), 2):
+                for t in itertools.permutations(list(range(2)), 2):
                     m = latt.matrix
                     landang = Lattice(
                         [m[t[0]], m[t[1]], m[2]]).lengths_and_angles
@@ -609,7 +611,7 @@ class SymmetryFinder(object):
                 #keep the ones with the non-90 angle=alpha
                 #and b<c
                 new_matrix = None
-                for t in itertools.permutations(range(3), 3):
+                for t in itertools.permutations(list(range(3)), 3):
                     m = latt.matrix
                     landang = Lattice(
                         [m[t[0]], m[t[1]], m[t[2]]]).lengths_and_angles

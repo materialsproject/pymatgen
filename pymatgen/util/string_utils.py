@@ -13,6 +13,7 @@ __date__ = "$Sep 23, 2011M$"
 import re
 import sys
 import fnmatch
+from six.moves import zip
 
 
 def generate_latex_table(results, header=None, caption=None, label=None):

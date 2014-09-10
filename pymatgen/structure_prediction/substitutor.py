@@ -3,6 +3,7 @@ This module provides classes for predicting new structures from existing ones.
 """
 
 from __future__ import division
+from six.moves import zip
 
 __author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -118,7 +119,7 @@ class Substitutor(MSONable):
                         self._threshold:
 
                     clean_subst = {els[i]: permut[i]
-                                   for i in xrange(0, len(els))
+                                   for i in range(0, len(els))
                                    if els[i] != permut[i]}
 
                     if len(clean_subst) == 0:

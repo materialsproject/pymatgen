@@ -28,6 +28,7 @@ objects are supported as well.
 """
 
 from __future__ import division
+import six
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -45,13 +46,12 @@ import datetime
 from monty.io import zopen
 
 
-class MSONable(object):
+class MSONable(six.with_metaclass(ABCMeta, object)):
     """
     This is an abstract base class specifying an API for msonable objects. MSON
     is Materials JSON. Essentially, MSONable objects must implement a to_dict
     property and a from_dict static method.
     """
-    __metaclass__ = ABCMeta
 
     @abstractproperty
     def to_dict(self):

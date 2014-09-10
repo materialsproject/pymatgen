@@ -18,6 +18,7 @@ References are::
 """
 
 from __future__ import division
+from __future__ import print_function
 
 __author__ = "Geoffroy Hautier"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -331,10 +332,10 @@ class BoltztrapRunner():
                         - prev_sigma)\
                 / prev_sigma > 0.05:
             if prev_sigma is not None:
-                print(abs(sum(analyzer.get_eig_average_eff_mass_tensor()['n'])
+                print((abs(sum(analyzer.get_eig_average_eff_mass_tensor()['n'])
                           / 3 - prev_sigma) / prev_sigma, \
                     self.lpfac, \
-                    analyzer.get_average_eff_mass_tensor(300, 1e18))
+                    analyzer.get_average_eff_mass_tensor(300, 1e18)))
             self.lpfac *= 2
             if self.lpfac > 100:
                 raise BoltztrapError("lpfac higher than 100 and still not converged")

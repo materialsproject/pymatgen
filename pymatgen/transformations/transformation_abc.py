@@ -12,13 +12,13 @@ __date__ = "Sep 23, 2011"
 import abc
 
 from pymatgen.serializers.json_coders import MSONable
+import six
 
 
-class AbstractTransformation(MSONable):
+class AbstractTransformation(six.with_metaclass(abc.ABCMeta, MSONable)):
     """
     Abstract transformation class.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def apply_transformation(self, structure):
