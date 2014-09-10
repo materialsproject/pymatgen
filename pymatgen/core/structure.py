@@ -2292,7 +2292,7 @@ class Molecule(IMolecule, collections.MutableSequence):
 
         # Align X to the origin.
         x = func_grp[0]
-        func_grp.translate_sites(range(len(func_grp)), origin - x.coords)
+        func_grp.translate_sites(list(range(len(func_grp))), origin - x.coords)
 
         #Find angle between the attaching bond and the bond to be replaced.
         v1 = func_grp[1].coords - origin
