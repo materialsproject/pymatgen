@@ -119,7 +119,7 @@ class StructureNLCase(unittest.TestCase):
         self.assertEquals(a.history[1].description, {"db2_id": 12424})
 
         # invalid nodes should not work
-        self.assertRaises(StandardError, StructureNL, self.s, self.hulk,
+        self.assertRaises(Exception, StructureNL, self.s, self.hulk,
                           history=[self.invalid_node])
 
         # too many nodes should not work
