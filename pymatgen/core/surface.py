@@ -80,7 +80,7 @@ class Slab(Structure):
 
     def __init__(self, structure, miller_index, min_slab_size,
                  min_vacuum_size, thresh=0.00001, crit ='distance',
-                 lll_reduce=True, shift=0):
+                 lll_reduce=True, standardize=True, shift=0):
         """
         Makes a Slab structure. Note that the code will make a slab with
         whatever size that is specified, rounded upwards. The a and b lattice
@@ -221,18 +221,16 @@ class Slab(Structure):
             if lll_reduce:
                 term_slab = term_slab.copy(sanitize=True)
 
-            # Standardization
-            min_c = []
-            index = []
-            for ii in range(0, len(term_slab)):
-                min_c.append(term_slab[ii].frac_coords[2])
-                index.append(ii)
-            length = min(min_c)
+            if standardize:
+                c = term_slab.lattice.c
+                min_c = []
+                index = []
+                for ii in range(0, len(term_slab)):
+                    min_c.append(term_slab[ii].frac_coords[2])
+                    index.append(ii)
+                length = min(min_c)
 
-            for ii in range(0, len(term_slab)):
-                min_c.append(np.dot(term_slab[ii].coords, normal))
-                mlength = max(min_c)
-            term_slab.translate_sites(index, [0, 0, -length + ((c-mlength)/c)/2])
+                term_slab.translate_sites(index, [0, 0, -length + (nlayers_vac*dist)/(2*c)])
 
             slab_list.append(term_slab)
 
