@@ -32,7 +32,6 @@ from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import PeriodicSite
-from pymatgen.core.structure_modifier import SupercellMaker
 
 try:
     import pymatgen._spglib as spg
@@ -532,8 +531,8 @@ class SymmetryFinder(object):
             #if so, make a supercell
             a, b, c = latt.abc
             if np.all(np.abs([a - b, c - b, a - c]) < 0.001):
-                struct = SupercellMaker(struct, ((1, -1, 0), (0, 1, -1),
-                                                 (1, 1, 1))).modified_structure
+                struct = Structure.from_sites(struct)
+                struct.make_supercell(((1, -1, 0), (0, 1, -1), (1, 1, 1)))
                 a, b, c = sorted(struct.lattice.abc)
 
             if abs(b - c) < 0.001:
