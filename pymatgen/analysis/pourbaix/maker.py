@@ -4,6 +4,7 @@ target compound/element.
 """
 
 from __future__ import division
+from six.moves import zip
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -122,7 +123,7 @@ class PourbaixDiagram(object):
         list_of_entries = list()
         for j in range(1, N + 1):
             list_of_entries += list(itertools.combinations(
-                                range(len(entries)), j))
+                                list(range(len(entries))), j))
         processed_entries = list()
         for entry_list in list_of_entries:
             # Check if all elements in composition list are present in
@@ -192,7 +193,7 @@ class PourbaixDiagram(object):
             raise Exception("Can only do elements with at-least 3 entries"
                                 " for now")
         if len(self._qhull_data) == dim:
-            self._facets = [range(dim)]
+            self._facets = [list(range(dim))]
         else:
             facets_pyhull = np.array(ConvexHull(self._qhull_data).vertices)
             self._facets = np.sort(np.array(facets_pyhull))

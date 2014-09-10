@@ -4,6 +4,8 @@ Pourbaix diagram
 """
 
 from __future__ import division
+from six.moves import map
+from six.moves import zip
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"

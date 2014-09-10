@@ -19,6 +19,10 @@ from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     RelaxationAnalyzer
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.analysis.bond_valence import BVAnalyzer
+import six
+from six.moves import filter
+from six.moves import map
+from six.moves import zip
 
 file_dir = os.path.dirname(__file__)
 rad_file = os.path.join(file_dir, 'ionic_radii.json')
@@ -160,11 +164,10 @@ class ValenceIonicRadiusEvaluator(object):
         return valences
 
 
-class Defect(object):
+class Defect(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract class for point defects
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def enumerate_defectsites(self):
@@ -720,7 +723,7 @@ class Interstitial(Defect):
         distinct_radii = list(set(self._radii))
         for rad in distinct_radii:
             ind = self._radii.index(rad)  # Index of first site with 'rad'
-            for i in reversed(range(ind + 1, len(self._radii))):
+            for i in reversed(list(range(ind + 1, len(self._radii)))):
                 # Backward search for remaining sites so index is not changed
                 if self._radii[i] == rad:
                     self._defect_sites.pop(i)
@@ -732,7 +735,7 @@ class Interstitial(Defect):
         """
         Remove all the defect sites with voronoi radius less than input radius
         """
-        for i in reversed(range(len(self._radii))):
+        for i in reversed(list(range(len(self._radii)))):
             if self._radii[i] < radius:
                 self._defect_sites.pop(i)
                 self._defectsite_coord_no.pop(i)
