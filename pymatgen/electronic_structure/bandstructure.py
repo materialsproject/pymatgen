@@ -48,7 +48,7 @@ class Kpoint(MSONable):
         self._label = label
 
         if to_unit_cell:
-            for i in xrange(len(self._fcoords)):
+            for i in range(len(self._fcoords)):
                 self._fcoords[i] -= math.floor(self._fcoords[i])
 
         self._ccoords = lattice.get_cartesian_coords(self._fcoords)
@@ -262,9 +262,9 @@ class BandStructure(object):
             result[spin] = [[collections.defaultdict(float)
                              for i in range(len(self._kpoints))]
                             for j in range(self._nb_bands)]
-            for i, j, k in itertools.product(range(self._nb_bands),
-                                             range(len(self._kpoints)),
-                                             range(structure.num_sites)):
+            for i, j, k in itertools.product(list(range(self._nb_bands)),
+                                             list(range(len(self._kpoints))),
+                                             list(range(structure.num_sites))):
                 for orb in self._projections[Spin.up][i][j]:
                     result[spin][i][j][str(structure[k].specie)] += \
                         self._projections[spin][i][j][orb][k]
@@ -301,8 +301,8 @@ class BandStructure(object):
                             for j in range(self._nb_bands)]
 
             for i, j, k in itertools.product(
-                    range(self._nb_bands), range(len(self._kpoints)),
-                    range(structure.num_sites)):
+                    list(range(self._nb_bands)), list(range(len(self._kpoints))),
+                    list(range(structure.num_sites))):
                 for orb in self._projections[Spin.up][i][j]:
                     if str(structure[k].specie) in dictio:
                         if str(orb)[0] in dictio[str(structure[k].specie)]:
@@ -936,7 +936,7 @@ def get_reconstructed_band_structure(list_bs, efermi=None):
         for bs in list_bs:
             for k in bs._kpoints:
                 kpoints.append(k.frac_coords)
-            for k, v in bs._labels_dict.iteritems():
+            for k, v in bs._labels_dict.items():
                 labels_dict[k] = v.frac_coords
         eigenvals = {Spin.up: [list_bs[0]._bands[Spin.up][i]
                                for i in range(nb_bands)]}

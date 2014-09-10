@@ -6,6 +6,7 @@ from __future__ import division, print_function
 import itertools
 import collections
 import numpy as np
+from six.moves import zip
 
 
 def iterator_from_slice(s):
