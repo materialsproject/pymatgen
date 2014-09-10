@@ -6,10 +6,8 @@ machine:
 dependencies:
   override:
     - pip install -q numpy
-    - pip install scipy
-    - easy_install -U setuptools
     - pip install -r requirements.txt
-    - pip install pillow
+    - pip install -r requirements-optional.txt
     - python setup.py develop
 test:
   override:
