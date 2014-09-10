@@ -580,8 +580,8 @@ class NwOutput(object):
 
                 m = energy_sol_patt.search(l)
                 if m:
-                    energies[-1].update({"sol phase":
-                                     Energy(m.group(1), "Ha").to("eV")})
+                    energies[-1].update(
+                        {"sol phase": Energy(m.group(1), "Ha").to("eV")})
 
                 m = preamble_patt.search(l)
                 if m:

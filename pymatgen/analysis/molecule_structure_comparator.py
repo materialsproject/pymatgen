@@ -9,6 +9,7 @@ comparisons without the atom order correspondence prerequisite.
 """
 import itertools
 from pymatgen.serializers.json_coders import MSONable
+from six.moves import zip
 
 __author__ = "Xiaohui Qu"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -117,7 +118,7 @@ class MoleculeStructureComparator(MSONable):
         if self.ignore_ionic_bond:
             covalent_atoms = [i for i in range(num_atoms) if mol.species[i].symbol not in self.ionic_element_list]
         else:
-            covalent_atoms = range(num_atoms)
+            covalent_atoms = list(range(num_atoms))
         all_pairs = list(itertools.combinations(covalent_atoms, 2))
         pair_dists = [mol.get_distance(*p) for p in all_pairs]
         elements = mol.composition.to_dict.keys()
