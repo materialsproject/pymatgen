@@ -548,7 +548,7 @@ class BandStructure(object):
         #kpoints are not kpoint objects dicts but are frac coords (this makes
         #the dict smaller and avoids the repetition of the lattice
         for k in self._kpoints:
-            d["kpoints"].append(k.as_dict["fcoords"])
+            d["kpoints"].append(k.as_dict()["fcoords"])
         d["bands"] = {str(int(spin)): self._bands[spin]
                       for spin in self._bands}
         d["is_metal"] = self.is_metal()
@@ -574,7 +574,7 @@ class BandStructure(object):
         d['labels_dict'] = {}
         d['is_spin_polarized'] = self.is_spin_polarized
         for c in self._labels_dict:
-            d['labels_dict'][c] = self._labels_dict[c].as_dict['fcoords']
+            d['labels_dict'][c] = self._labels_dict[c].as_dict()['fcoords']
         d['projections'] = {}
         if len(self._projections) != 0:
             d['structure'] = self._structure.as_dict()
@@ -830,7 +830,7 @@ class BandStructureSymmLine(BandStructure, PMGSONable):
         #kpoints are not kpoint objects dicts but are frac coords (this makes
         #the dict smaller and avoids the repetition of the lattice
         for k in self._kpoints:
-            d["kpoints"].append(k.as_dict["fcoords"])
+            d["kpoints"].append(k.as_dict()["fcoords"])
         d["branches"] = self._branches
         d["bands"] = {str(int(spin)): self._bands[spin]
                       for spin in self._bands}
@@ -857,7 +857,7 @@ class BandStructureSymmLine(BandStructure, PMGSONable):
         d['labels_dict'] = {}
         d['is_spin_polarized'] = self.is_spin_polarized
         for c in self._labels_dict:
-            d['labels_dict'][c] = self._labels_dict[c].as_dict['fcoords']
+            d['labels_dict'][c] = self._labels_dict[c].as_dict()['fcoords']
         d['projections'] = {}
         if len(self._projections) != 0:
             d['structure'] = self._structure.as_dict()

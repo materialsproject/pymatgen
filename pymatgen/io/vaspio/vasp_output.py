@@ -536,10 +536,10 @@ class Vasprun(object):
 
         kpoints = [np.array(self.actual_kpoints[i])
                    for i in range(len(self.actual_kpoints))]
-        dict_eigen = self.as_dict['output']['eigenvalues']
+        dict_eigen = self.as_dict()['output']['eigenvalues']
         dict_p_eigen = {}
-        if 'projected_eigenvalues' in self.as_dict['output']:
-            dict_p_eigen = self.as_dict['output']['projected_eigenvalues']
+        if 'projected_eigenvalues' in self.as_dict()['output']:
+            dict_p_eigen = self.as_dict()['output']['projected_eigenvalues']
 
         p_eigenvals = {}
         if "1" in dict_eigen["0"] and "-1" in dict_eigen["0"] \

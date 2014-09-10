@@ -161,7 +161,7 @@ class Ion(PMGSONable):
     @classmethod
     def from_dict(cls, d):
         """
-        Generates an ion object from a dict created by as_dict.
+        Generates an ion object from a dict created by as_dict().
 
         Args:
             d:

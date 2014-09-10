@@ -955,7 +955,7 @@ class IStructure(SiteCollection, PMGSONable):
     def from_dict(cls, d):
         """
         Reconstitute a Structure object from a dict representation of Structure
-        created using as_dict.
+        created using as_dict().
 
         Args:
             d (dict): Dict representation of structure.
@@ -1256,7 +1256,7 @@ class IMolecule(SiteCollection, PMGSONable):
     def from_dict(cls, d):
         """
         Reconstitute a Molecule object from a dict representation created using
-        as_dict.
+        as_dict().
 
         Args:
             d (dict): dict representation of Molecule.
