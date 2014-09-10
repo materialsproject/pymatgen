@@ -11,6 +11,11 @@ __maintainer__ = "Will Richards"
 __email__ = "wrichard@mit.edu"
 __date__ = "Aug 31, 2012"
 
+import itertools
+import logging
+from operator import mul
+import six
+
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.structure_prediction.substitution_probability \
     import SubstitutionProbability
@@ -19,9 +24,6 @@ from pymatgen.transformations.standard_transformations \
 from pymatgen.alchemy.transmuters import StandardTransmuter
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.alchemy.filters import RemoveDuplicatesFilter, RemoveExistingFilter
-import itertools
-import logging
-from operator import mul
 
 
 class Substitutor(MSONable):
@@ -63,16 +65,16 @@ class Substitutor(MSONable):
     def pred_from_structures(self, target_species, structures_list,
                              remove_duplicates=True, remove_existing=False):
         """
-        performs a structure prediction targeting compounds containing all of 
+        performs a structure prediction targeting compounds containing all of
         the target_species, based on a list of structure (those structures
         can for instance come from a database like the ICSD). It will return
         all the structures formed by ionic substitutions with a probability
         higher than the threshold
-        
+
         Notes:
         If the default probability model is used, input structures must
         be oxidation state decorated.
-        
+
         This method does not change the number of species in a structure. i.e
         if the number of target species is 3, only input structures containing
         3 species will be considered.
@@ -127,7 +129,7 @@ class Substitutor(MSONable):
                     if Substitutor._is_charge_balanced(
                             transf.apply_transformation(s['structure'])):
                         ts = TransformedStructure(
-                            s['structure'], [transf], 
+                            s['structure'], [transf],
                             history=[{"source": s['id']}],
                             other_parameters={
                                 'type': 'structure_prediction',
@@ -210,12 +212,12 @@ class Substitutor(MSONable):
         def _recurse(output_prob, output_species):
             best_case_prob = list(max_probabilities)
             best_case_prob[:len(output_prob)] = output_prob
-            if reduce(mul, best_case_prob) > self._threshold:
+            if six.moves.reduce(mul, best_case_prob) > self._threshold:
                 if len(output_species) == len(species_list):
                     odict = {
                         'substitutions':
                         dict(zip(species_list, output_species)),
-                        'probability': reduce(mul, best_case_prob)}
+                        'probability': six.moves.reduce(mul, best_case_prob)}
                     output.append(odict)
                     return
                 for sp in self._sp.species:

@@ -23,7 +23,7 @@ class StructureMatcherTest(unittest.TestCase):
             entries = json.load(fp, cls=PMGJSONDecoder)
         self.struct_list = [e.structure for e in entries]
         self.oxi_structs = [read_structure(os.path.join(test_dir, fname))
-                            for fname in ["Li2O.cif", "POSCAR.Li2O"]]
+                            for fname in ["Li2O.json", "POSCAR.Li2O"]]
 
     def test_get_supercell_size(self):
         l = Lattice.cubic(1)
@@ -210,8 +210,8 @@ class StructureMatcherTest(unittest.TestCase):
         self.assertTrue(sm.fit(self.struct_list[0], self.struct_list[1]))
         #Test FrameworkComporator
         sm2 = StructureMatcher(comparator=FrameworkComparator())
-        lfp = read_structure(os.path.join(test_dir, "LiFePO4.cif"))
-        nfp = read_structure(os.path.join(test_dir, "NaFePO4.cif"))
+        lfp = read_structure(os.path.join(test_dir, "LiFePO4.json"))
+        nfp = read_structure(os.path.join(test_dir, "NaFePO4.json"))
         self.assertTrue(sm2.fit(lfp, nfp))
         self.assertFalse(sm.fit(lfp, nfp))
 
@@ -258,16 +258,16 @@ class StructureMatcherTest(unittest.TestCase):
         sm = StructureMatcher()
         # Test group_structures and find_indices
         out = sm.group_structures(self.struct_list)
-        self.assertEqual(map(len, out), [4, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1])
+        self.assertEqual(list(map(len, out)), [4, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1])
         self.assertEqual(sum(map(len, out)), len(self.struct_list))
         for s in self.struct_list[::2]:
             s.replace_species({'Ti': 'Zr', 'O':'Ti'})
         out = sm.group_structures(self.struct_list, anonymous=True)
-        self.assertEqual(map(len, out), [4, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1])
+        self.assertEqual(list(map(len, out)), [4, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1])
 
     def test_mix(self):
         structures = []
-        for fname in ["POSCAR.Li2O", "Li2O.cif", "Li2O2.cif", "LiFePO4.cif",
+        for fname in ["POSCAR.Li2O", "Li2O.json", "Li2O2.json", "LiFePO4.json",
                       "POSCAR.LiFePO4"]:
             structures.append(read_structure(os.path.join(test_dir, fname)))
         sm = StructureMatcher(comparator=ElementComparator())
@@ -282,7 +282,7 @@ class StructureMatcherTest(unittest.TestCase):
     def test_left_handed_lattice(self):
         """Ensure Left handed lattices are accepted"""
         sm = StructureMatcher()
-        s = read_structure(os.path.join(test_dir, "Li3GaPCO7.cif"))
+        s = read_structure(os.path.join(test_dir, "Li3GaPCO7.json"))
         self.assertTrue(sm.fit(s, s))
 
     def test_to_dict_and_from_dict(self):
@@ -303,8 +303,8 @@ class StructureMatcherTest(unittest.TestCase):
 
     def test_supercell_fit(self):
         sm = StructureMatcher(attempt_supercell=False)
-        s1 = read_structure(os.path.join(test_dir, "Al3F9.cif"))
-        s2 = read_structure(os.path.join(test_dir, "Al3F9_distorted.cif"))
+        s1 = read_structure(os.path.join(test_dir, "Al3F9.json"))
+        s2 = read_structure(os.path.join(test_dir, "Al3F9_distorted.json"))
 
         self.assertFalse(sm.fit(s1, s2))
 
@@ -622,8 +622,8 @@ class StructureMatcherTest(unittest.TestCase):
     def test_electronegativity(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5)
 
-        s1 = read_structure(os.path.join(test_dir, "Na2Fe2PAsO4S4.cif"))
-        s2 = read_structure(os.path.join(test_dir, "Na2Fe2PNO4Se4.cif"))
+        s1 = read_structure(os.path.join(test_dir, "Na2Fe2PAsO4S4.json"))
+        s2 = read_structure(os.path.join(test_dir, "Na2Fe2PNO4Se4.json"))
         self.assertEqual(sm.get_best_electronegativity_anonymous_mapping(s1, s2),
                     {Element('S'): Element('Se'),
                      Element('As'): Element('N'),

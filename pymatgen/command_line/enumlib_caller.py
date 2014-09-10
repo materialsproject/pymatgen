@@ -263,7 +263,7 @@ class EnumlibAdaptor(object):
         p = subprocess.Popen([enum_cmd],
                              stdout=subprocess.PIPE,
                              stdin=subprocess.PIPE, close_fds=True)
-        output = p.communicate()[0]
+        output = p.communicate()[0].decode("utf-8")
         count = 0
         start_count = False
         for line in output.strip().split("\n"):

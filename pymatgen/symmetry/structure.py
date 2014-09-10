@@ -41,8 +41,8 @@ class SymmetrizedStructure(Structure):
 
         self._spacegroup = spacegroup
         u, inv = np.unique(equivalent_positions, return_inverse = True)
-        self.equivalent_indices = [[] for i in xrange(len(u))]
-        self._equivalent_sites = [[] for i in xrange(len(u))]
+        self.equivalent_indices = [[] for i in range(len(u))]
+        self._equivalent_sites = [[] for i in range(len(u))]
         for i, inv in enumerate(inv):
             self.equivalent_indices[inv].append(i)
             self._equivalent_sites[inv].append(self.sites[i])

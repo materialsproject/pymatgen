@@ -173,7 +173,6 @@ class Defect(object):
         """
         Enumerates all the symmetrically distinct defects.
         """
-        print 'Not implemented'
         raise NotImplementedError()
 
     @property
@@ -253,7 +252,6 @@ class Defect(object):
         First supercell has no defects.
         To create unit cell with defect pass unit matrix.
         """
-        print 'Not implemented'
         raise NotImplementedError()
 
 
@@ -530,7 +528,7 @@ class VacancyFormationEnergy(object):
             self._tol_flg = tol_flg
 
         if not self._tol_flg[n]:
-            print "Caution: tolerance not reached for {0} vacancy".format(n)
+            print("Caution: tolerance not reached for {0} vacancy".format(n))
         return self._energies[n]
 
 
