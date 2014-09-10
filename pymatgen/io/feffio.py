@@ -308,7 +308,7 @@ class Header(MSONable):
                   ''.join(["TITLE comment: ", self._comment]),
                   ''.join(["TITLE Source:  ", self.source]),
                   "TITLE Structure Summary:  {}"
-                  .format(self.struct.composition),
+                  .format(self.struct.composition.formula),
                   "TITLE Reduced formula:  {}"
                   .format(self.struct.composition.reduced_formula),
                   "TITLE space group: ({}), space number:  ({})"
