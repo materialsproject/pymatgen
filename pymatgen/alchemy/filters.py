@@ -193,7 +193,7 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
     def as_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "init_args": {"structure_matcher": self._sm.as_dict}}
+                "init_args": {"structure_matcher": self._sm.as_dict()}}
 
 
 class RemoveExistingFilter(AbstractStructureFilter):
@@ -243,7 +243,7 @@ class RemoveExistingFilter(AbstractStructureFilter):
     def as_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "init_args": {"structure_matcher": self._sm.as_dict}}
+                "init_args": {"structure_matcher": self._sm.as_dict()}}
 
 
 class ChargeBalanceFilter(AbstractStructureFilter):

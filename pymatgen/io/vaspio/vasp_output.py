@@ -680,7 +680,7 @@ class Vasprun(object):
 
         vin = {"incar": {k: v for k, v in self.incar.items()},
                "crystal": self.initial_structure.as_dict(),
-               "kpoints": self.kpoints.as_dict}
+               "kpoints": self.kpoints.as_dict()}
         actual_kpts = [{"abc": list(self.actual_kpoints[i]),
                         "weight": self.actual_kpoints_weights[i]}
                        for i in range(len(self.actual_kpoints))]
