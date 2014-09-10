@@ -171,7 +171,8 @@ class PDEntryIO(object):
         """
         import csv
         elements = set()
-        map(elements.update, [entry.composition.elements for entry in entries])
+        for entry in entries:
+            elements.update(entry.composition.elements)
         elements = sorted(list(elements), key=lambda a: a.X)
         writer = csv.writer(open(filename, "wb"), delimiter=",",
                             quotechar="\"", quoting=csv.QUOTE_MINIMAL)
