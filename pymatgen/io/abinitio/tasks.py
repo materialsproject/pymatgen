@@ -16,6 +16,9 @@ from pymatgen.io.abinitio import myaml
 
 from pymatgen.io.abinitio import abiinspect
 from pymatgen.io.abinitio import events 
+import six
+from six.moves import map
+from six.moves import zip
 
 try:
     from pydispatch import dispatcher
@@ -815,7 +818,7 @@ class Status(int):
             raise ValueError("Wrong string %s" % s)
 
 
-class Node(object):
+class Node(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract base class defining the interface that must be 
     implemented by the nodes of the calculation.
@@ -823,7 +826,6 @@ class Node(object):
     Nodes are hashable and can be tested for equality
     (hash uses the node identifier, while eq uses workdir).
     """
-    __metaclass__ = abc.ABCMeta
 
     # Possible status of the node.
     S_INIT = Status(1)
@@ -1067,9 +1069,7 @@ class TaskRestartError(TaskError):
     """Exception raised while trying to restart the `Task`."""
 
 
-class Task(Node):
-    __metaclass__ = abc.ABCMeta
-
+class Task(six.with_metaclass(abc.ABCMeta, Node)):
     Error = TaskError
 
     # List of `AbinitEvent` subclasses that are tested in the not_converged method. 

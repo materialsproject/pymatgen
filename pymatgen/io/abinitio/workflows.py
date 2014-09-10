@@ -10,6 +10,9 @@ import time
 import abc
 import collections
 import numpy as np
+import six
+from six.moves import filter
+from six.moves import zip
 
 try:
     from pydispatch import dispatcher
@@ -60,9 +63,7 @@ class WorkflowError(Exception):
     """Base class for the exceptions raised by Workflow objects."""
 
 
-class BaseWorkflow(Node):
-    __metaclass__ = abc.ABCMeta
-
+class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
     Error = WorkflowError
 
     # interface modeled after subprocess.Popen
@@ -639,12 +640,11 @@ class Workflow(BaseWorkflow):
         return parser
 
 
-class IterativeWorkflow(Workflow):
+class IterativeWorkflow(six.with_metaclass(abc.ABCMeta, Workflow)):
     """
     This object defines a `Workflow` that produces `Tasks` until a particular 
     condition is satisfied (mainly used for convergence studies or iterative algorithms.)
     """
-    __metaclass__ = abc.ABCMeta
 
     def __init__(self, strategy_generator, max_niter=25, workdir=None, manager=None):
         """
