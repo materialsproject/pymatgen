@@ -19,6 +19,7 @@ import itertools
 import logging
 import time
 
+from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
@@ -289,7 +290,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
         totalremovals = sum(num_remove_dict.values())
         removed = {k: 0 for k in num_remove_dict.keys()}
-        for i in xrange(totalremovals):
+        for i in range(totalremovals):
             maxindex = None
             maxe = float("-inf")
             maxindices = None
@@ -317,7 +318,6 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     def complete_ordering(self, structure, num_remove_dict):
         self.logger.debug("Performing complete ordering...")
         all_structures = []
-        from pymatgen.symmetry.finder import SymmetryFinder
         symprec = 0.2
         s = SymmetryFinder(structure, symprec=symprec)
         self.logger.debug("Symmetry of structure is determined to be {}."

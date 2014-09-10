@@ -19,6 +19,8 @@ from math import exp, sqrt
 
 from monty.serialization import loadfn
 
+import six
+
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.finder import SymmetryFinder
@@ -29,11 +31,10 @@ from pymatgen.core.periodic_table import get_el_sp
 
 #List of electronegative elements specified in M. O'Keefe, & N. Brese,
 #JACS, 1991, 113(9), 3226-3229. doi:10.1021/ja00009a002.
-ELECTRONEG = map(Element, ["H",
-                           "B", "C", "Si",
-                           "N", "P", "As", "Sb",
-                           "O", "S", "Se", "Te",
-                           "F", "Cl", "Br", "I"])
+ELECTRONEG = [Element(sym) for sym in ["H", "B", "C", "Si",
+                                       "N", "P", "As", "Sb",
+                                       "O", "S", "Se", "Te",
+                                       "F", "Cl", "Br", "I"]]
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -283,8 +284,9 @@ class BVAnalyzer(object):
                 #Sort valences in order of decreasing probability.
                 val = sorted(val, key=lambda v: -prob[v])
                 #Retain probabilities that are at least 1/100 of highest prob.
-                valences.append(filter(lambda v: prob[v] > 0.01 * prob[val[0]],
-                                       val))
+                valences.append(
+                    list(filter(lambda v: prob[v] > 0.01 * prob[val[0]],
+                                val)))
         else:
             full_all_prob = []
             for sites in equi_sites:
@@ -302,16 +304,16 @@ class BVAnalyzer(object):
                     # Retain probabilities that are at least 1/100 of highest
                     # prob.
                     vals.append(
-                        filter(lambda v: prob[elsp.symbol][v] >
-                               0.001 * prob[elsp.symbol][val[0]],
-                               val))
+                        list(filter(lambda v: prob[elsp.symbol][v] >
+                                              0.001 * prob[elsp.symbol][val[0]],
+                                    val)))
                 valences.append(vals)
 
         #make variables needed for recursion
         if structure.is_ordered:
-            nsites = np.array(map(len, equi_sites))
-            vmin = np.array(map(min, valences))
-            vmax = np.array(map(max, valences))
+            nsites = np.array([len(i) for i in equi_sites])
+            vmin = np.array([min(i) for i in valences])
+            vmax = np.array([max(i) for i in valences])
 
             self._n = 0
             self._best_score = 0
@@ -324,8 +326,8 @@ class BVAnalyzer(object):
                 max_diff = max([max(v) - min(v) for v in el_oxi.values()])
                 if max_diff > 1:
                     return
-                score = reduce(operator.mul, [all_prob[i][v]
-                                              for i, v in enumerate(v_set)])
+                score = six.moves.reduce(
+                    operator.mul, [all_prob[i][v] for i, v in enumerate(v_set)])
                 if score > self._best_score:
                     self._best_vset = v_set
                     self._best_score = score
@@ -360,7 +362,7 @@ class BVAnalyzer(object):
                         new_assigned = list(assigned)
                         _recurse(new_assigned + [v])
         else:
-            nsites = np.array(map(len, equi_sites))
+            nsites = np.array([len(i) for i in equi_sites])
             tmp = []
             attrib = []
             for insite, nsite in enumerate(nsites):
@@ -379,8 +381,8 @@ class BVAnalyzer(object):
             for vals in valences:
                 for val in vals:
                     new_valences.append(val)
-            vmin = np.array(map(min, new_valences), np.float)
-            vmax = np.array(map(max, new_valences), np.float)
+            vmin = np.array([min(i) for i in new_valences], np.float)
+            vmax = np.array([max(i) for i in new_valences], np.float)
 
             self._n = 0
             self._best_score = 0
@@ -398,9 +400,10 @@ class BVAnalyzer(object):
                 if max_diff > 2:
                     return
 
-                score = reduce(operator.mul,
-                                [all_prob[attrib[iv]][elements[iv]][vv]
-                                 for iv, vv in enumerate(v_set)])
+                score = six.moves.reduce(
+                    operator.mul,
+                    [all_prob[attrib[iv]][elements[iv]][vv]
+                     for iv, vv in enumerate(v_set)])
                 if score > self._best_score:
                     self._best_vset = v_set
                     self._best_score = score

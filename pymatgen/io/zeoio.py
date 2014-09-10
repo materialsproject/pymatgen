@@ -250,7 +250,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
             rad_flag = True
             with open(rad_file, 'w+') as fp:
                 for el in rad_dict.keys():
-                    print >>fp, "{} {}".format(el, rad_dict[el].real)
+                    fp.write("{} {}\n".format(el, rad_dict[el].real))
 
         atmnet = AtomNetwork.read_from_CSSR(
                 zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
@@ -404,7 +404,6 @@ def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.3,
         atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, True, rad_file)
         vol_str = volume(atmnet, 0.3, probe_rad, 10000)
         sa_str = surface_area(atmnet, 0.3, probe_rad, 10000)
-        print vol_str, sa_str
         vol = None
         sa = None
         for line in vol_str.split("\n"):
