@@ -168,8 +168,8 @@ class StandardTransmuter(object):
         def test_transformed_structure(ts):
             return structure_filter.test(ts.final_structure)
 
-        self.transformed_structures = filter(test_transformed_structure,
-                                             self.transformed_structures)
+        self.transformed_structures = list(filter(test_transformed_structure,
+                                            self.transformed_structures))
         for ts in self.transformed_structures:
             ts.append_filter(structure_filter)
 

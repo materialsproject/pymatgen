@@ -38,16 +38,6 @@ class AbstractStructureFilter(MSONable):
         """
         return
 
-    @classmethod
-    def from_dict(cls, d):
-        for trans_modules in ['filters']:
-            mod = __import__('pymatgen.alchemy.' + trans_modules,
-                             globals(), locals(), [d['@class']], -1)
-            if hasattr(mod, d['@class']):
-                trans = getattr(mod, d['@class'])
-                return trans(**d['init_args'])
-        raise ValueError("Invalid filter dict")
-
 
 class ContainsSpecieFilter(AbstractStructureFilter):
 
