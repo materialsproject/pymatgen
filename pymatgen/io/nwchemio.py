@@ -13,6 +13,7 @@ __date__ = "6/5/13"
 
 import re
 from string import Template
+from six import string_types
 
 from pymatgen.core import Molecule
 from monty.io import zopen
@@ -216,7 +217,7 @@ task $theory $operation""")
             spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
 
         elements = set(mol.composition.get_el_amt_dict().keys())
-        if isinstance(basis_set, basestring):
+        if isinstance(basis_set, string_types):
             basis_set = {el: basis_set for el in elements}
 
         return NwTask(charge, spin_multiplicity, basis_set,

@@ -36,6 +36,7 @@ from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.serializers.json_coders import MSONable
+from six import string_types
 
 
 class Header(MSONable):
@@ -585,7 +586,7 @@ class FeffTags(dict):
         super(FeffTags, self).__setitem__(key.strip(),
                                           FeffTags.proc_val(key.strip(),
                                                             val.strip())
-                                          if isinstance(val, basestring)
+                                          if isinstance(val, string_types)
                                           else val)
 
     @property
