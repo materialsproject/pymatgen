@@ -27,7 +27,7 @@ import itertools
 import datetime
 import numpy as np
 
-from monty.json import MontyEncoder
+from monty.json import MontyEncoder, MontyDecoder
 
 from pymatgen.core.periodic_table import ALL_ELEMENT_SYMBOLS, Element
 from pymatgen.core.composition import Composition
@@ -814,7 +814,7 @@ class MPRestError(Exception):
     pass
 
 
-class MPDecoder(json.JSONDecoder):
+class MPDecoder(MontyDecoder):
     """
     A Json Decoder which supports the MSONable API. By default, the
     decoder attempts to find a module and name associated with a dict. If
@@ -833,42 +833,16 @@ class MPDecoder(json.JSONDecoder):
         Recursive method to support decoding dicts and lists containing
         pymatgen objects.
         """
-        if isinstance(d, dict):
-            if "@module" in d and "@class" in d:
-                modname = d["@module"]
-                classname = d["@class"]
-            elif "module" in d and "class" in d:
-                modname = d["module"]
-                classname = d["class"]
-            else:
-                modname = None
-                classname = None
-            if modname:
-                if modname == "datetime" and classname == "datetime":
-                    try:
-                        dt = datetime.datetime.strptime(d["string"],
-                                                        "%Y-%m-%d %H:%M:%S.%f")
-                    except ValueError:
-                        dt = datetime.datetime.strptime(d["string"],
-                                                        "%Y-%m-%d %H:%M:%S")
-                    return dt
-                elif modname == "numpy" and classname == "array":
-                    return np.array(d["data"])
-
-                mod = __import__(modname, globals(), locals(), [classname], 0)
-                if hasattr(mod, classname):
-                    cls_ = getattr(mod, classname)
-                    data = {k: v for k, v in d.items()
-                            if k not in ["@module", "@class"]}
-                    if hasattr(cls_, "from_dict"):
-                        return cls_.from_dict(data)
+        if isinstance(d, dict) and "module" in d and "class" in d:
+            modname = d["module"]
+            classname = d["class"]
+            mod = __import__(modname, globals(), locals(), [classname], 0)
+            if hasattr(mod, classname):
+                cls_ = getattr(mod, classname)
+                data = {k: v for k, v in d.items()
+                        if k not in ["module", "class"]}
+                if hasattr(cls_, "from_dict"):
+                    return cls_.from_dict(data)
             return {self.process_decoded(k): self.process_decoded(v)
                     for k, v in d.items()}
-        elif isinstance(d, list):
-            return [self.process_decoded(x) for x in d]
-
-        return d
-
-    def decode(self, *args, **kwargs):
-        d = json.JSONDecoder.decode(self, *args, **kwargs)
-        return self.process_decoded(d)
+        return super(MontyDecoder, self).process_decoded(d)
