@@ -284,7 +284,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             mu_vals = [float(mu_val) for mu_val in mu_vals]
         else:
             raise ValueError()
-        print mu_vals
+        print(mu_vals)
         return mu_vals
         #print els
 
@@ -295,7 +295,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             ind = specie_order.index(site_specie)
             uncor_energy = vac_def['energy']
             formation_energy = uncor_energy + mu_vals[ind]
-            print site_specie, 'vancancy formation_energy', formation_energy
+            print(site_specie, 'vancancy formation_energy', formation_energy)
             formation_energies['vacancies'][i]['formation_energy'] = formation_energy
             specie_ind = site_mu_map[i]
             indices = specie_site_index_map[specie_ind]
@@ -315,7 +315,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             ind2 = specie_order.index(sub_specie)
             uncor_energy = as_def['energy']
             formation_energy = uncor_energy + mu_vals[ind1] - mu_vals[ind2]
-            print site_specie, sub_specie, 'antisite ', formation_energy
+            print(site_specie, sub_specie, 'antisite ', formation_energy)
             formation_energies['antisites'][i]['formation_energy'] = formation_energy
             specie_ind = site_mu_map[i]
             indices = specie_site_index_map[specie_ind]
@@ -583,7 +583,7 @@ def solute_site_preference_finder(
     T = Integer(T)
 
     c0 = np.diag(multiplicity)
-    print 'c0', c0
+    print('c0', c0)
     mu = [Symbol('mu'+str(i)) for i in range(m)]
 
     # Generate maps for hashing
@@ -613,7 +613,7 @@ def solute_site_preference_finder(
     #for el in specie_site_index_map:
     #    print range(*el)
     print ('site_specie', site_species)
-    print 'site_mu_map', site_mu_map
+    print ('site_mu_map', site_mu_map)
     print ('specie_site_index_map', specie_site_index_map)
 
 
@@ -645,7 +645,7 @@ def solute_site_preference_finder(
     for k in range(n):
         dC[n,n,k] = 1
 
-    print  dC
+    print (dC)
     # dE matrix: Flip energies (or raw defect energies)
     els = [vac_def['site_specie'] for vac_def in vac_defs]
     dE = []
@@ -689,18 +689,18 @@ def solute_site_preference_finder(
     for i in range(n+1):
         for p in range(n):
             c[i,p] = Integer(c0[i,p])
-            print c[i,p]
+            print (c[i,p])
             for epi in range(n+1):
                 sum_mu = sum([mu[site_mu_map[j]]*Integer(
                         dC[j,epi,p]) for j in range(n+1)])
-                print sum_mu
-                print multiplicity[p], dC[i,epi,p], dE[epi,p]
+                print (sum_mu)
+                print (multiplicity[p], dC[i,epi,p], dE[epi,p])
                 c[i,p] += Integer(multiplicity[p]*dC[i,epi,p]) * \
                         exp(-(dE[epi,p]-sum_mu)/(k_B*T))
-    print "--------c---------"
+    print ("--------c---------")
     for i in range(n+1):
-        print c[i,:]
-    print "--------c---------"
+        print (c[i,:])
+    print ("--------c---------")
 
     #specie_concen = [sum(mult[ind[0]:ind[1]]) for ind in specie_site_index_map]
     #total_c = [sum(c[ind[0]:ind[1]]) for ind in specie_site_index_map]
@@ -709,9 +709,9 @@ def solute_site_preference_finder(
         total_c.append(sum([sum(c[i,:]) for i in range(*ind)]))
     #total_c = [sum(c[i,:]) for i in range(n)]
     c_ratio = [total_c[i]/sum(total_c) for i in range(m)]
-    print '-------c_ratio-------------'
+    print ('-------c_ratio-------------')
     for i in range(m):
-        print c_ratio[i]
+        print (c_ratio[i])
     #print 'c_ratio'
     #for i in range(len(c_ratio)):
         #print c_ratio[i]
@@ -755,10 +755,10 @@ def solute_site_preference_finder(
 
 
         y_vect = host_specie_concen_ratio
-        print 'y_vect', y_vect
+        print ('y_vect', y_vect)
         vector_func = [y_vect[i]-c_ratio[i] for i in range(m-1)]
         vector_func.append(omega)
-        print vector_func
+        print (vector_func)
         #vector_func.append(mu_equalities)
         #print 'y0', y0
         mu_vals = None
@@ -783,7 +783,7 @@ def solute_site_preference_finder(
                 break
         else:
             raise ValueError("Couldn't find mus")
-        print mu_vals
+        print (mu_vals)
         return mu_vals
         #print els
 
