@@ -16,7 +16,7 @@ import os
 import json
 
 from pymatgen.entries.exp_entries import ExpEntry
-from pymatgen import PMGJSONDecoder
+from monty.json import MontyDecoder
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -26,14 +26,14 @@ class ExpEntryTest(unittest.TestCase):
 
     def setUp(self):
         thermodata = json.load(open(os.path.join(test_dir, "Fe2O3_exp.json"),
-                                    "r"), cls=PMGJSONDecoder)
+                                    "r"), cls=MontyDecoder)
         self.entry = ExpEntry("Fe2O3", thermodata)
 
     def test_energy(self):
         self.assertAlmostEqual(self.entry.energy, -825.5)
 
     def test_to_from_dict(self):
-        d = self.entry.to_dict
+        d = self.entry.as_dict()
         e = ExpEntry.from_dict(d)
         self.assertAlmostEqual(e.energy, -825.5)
 

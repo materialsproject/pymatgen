@@ -10,6 +10,9 @@ import time
 import abc
 import collections
 import numpy as np
+import six
+from six.moves import filter
+from six.moves import zip
 
 try:
     from pydispatch import dispatcher
@@ -20,7 +23,7 @@ from pymatgen.core.units import ArrayWithUnit, Ha_to_eV
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.design_patterns import Enum, AttrDict
-from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
+from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
 from pymatgen.util.string_utils import list_strings, pprint_table, WildCard
@@ -60,9 +63,7 @@ class WorkflowError(Exception):
     """Base class for the exceptions raised by Workflow objects."""
 
 
-class BaseWorkflow(Node):
-    __metaclass__ = abc.ABCMeta
-
+class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
     Error = WorkflowError
 
     # interface modeled after subprocess.Popen
@@ -639,12 +640,11 @@ class Workflow(BaseWorkflow):
         return parser
 
 
-class IterativeWorkflow(Workflow):
+class IterativeWorkflow(six.with_metaclass(abc.ABCMeta, Workflow)):
     """
     This object defines a `Workflow` that produces `Tasks` until a particular 
     condition is satisfied (mainly used for convergence studies or iterative algorithms.)
     """
-    __metaclass__ = abc.ABCMeta
 
     def __init__(self, strategy_generator, max_niter=25, workdir=None, manager=None):
         """
@@ -1526,7 +1526,7 @@ class PhononWorkflow(Workflow):
                     )
 
 
-class WorkflowResults(dict, MSONable):
+class WorkflowResults(dict, PMGSONable):
     """
     Dictionary used to store some of the results produce by a Task object
     """
@@ -1565,8 +1565,7 @@ class WorkflowResults(dict, MSONable):
 
         return self[self._EXC_KEY]
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         d = {k: v for k,v in self.items()}
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__

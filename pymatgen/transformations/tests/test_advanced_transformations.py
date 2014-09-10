@@ -173,7 +173,7 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
 
     def test_to_from_dict(self):
         trans = EnumerateStructureTransformation()
-        d = trans.to_dict
+        d = trans.as_dict()
         trans = EnumerateStructureTransformation.from_dict(d)
         self.assertEqual(trans.symm_prec, 0.1)
 
@@ -194,10 +194,10 @@ class SubstitutionPredictorTransformationTest(unittest.TestCase):
         outputs = t.apply_transformation(struct, return_ranked_list=True)
         self.assertEqual(len(outputs), 4, 'incorrect number of structures')
 
-    def test_to_dict(self):
+    def test_as_dict(self):
         t = SubstitutionPredictorTransformation(threshold=2, alpha=-2,
                                                 lambda_table=get_table())
-        d = t.to_dict
+        d = t.as_dict()
         t = SubstitutionPredictorTransformation.from_dict(d)
         self.assertEqual(t._threshold, 2,
                          'incorrect threshold passed through dict')
@@ -243,7 +243,7 @@ class MagOrderingTransformationTest(unittest.TestCase):
 
     def test_to_from_dict(self):
         trans = MagOrderingTransformation({"Fe": 5}, 0.75)
-        d = trans.to_dict
+        d = trans.as_dict()
         #Check json encodability
         s = json.dumps(d)
         trans = MagOrderingTransformation.from_dict(d)

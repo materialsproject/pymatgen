@@ -1,4 +1,3 @@
-# coding: utf-8
 #!/usr/bin/env python
 
 """
@@ -9,10 +8,10 @@ from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.1"
+__version__ = "3.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
-__date__ = "Dec 1, 2012"
+__email__ = "ongsp@ucsd.edu"
+__date__ = "Sep 9, 2014"
 
 import argparse
 import os
@@ -95,13 +94,14 @@ def get_energies(rootdir, reanalyze, verbose, pretty, detailed, sort):
             from prettytable import PrettyTable
             t = PrettyTable(headers)
             t.set_field_align("Directory", "l")
-            map(t.add_row, all_data)
-            print t
+            for d in all_data:
+                t.add_row(d)
+            print(t)
         else:
-            print str_aligned(all_data, headers)
-        print msg
+            print(str_aligned(all_data, headers))
+        print(msg)
     else:
-        print "No valid vasp run found."
+        print("No valid vasp run found.")
 
 
 def get_magnetizations(mydir, ion_list):
@@ -116,7 +116,7 @@ def get_magnetizations(mydir, ion_list):
                     outcar = Outcar(fullpath)
                     mags = outcar.magnetization
                     mags = [m["tot"] for m in mags]
-                    all_ions = xrange(len(mags))
+                    all_ions = list(range(len(mags)))
                     row.append(fullpath.lstrip("./"))
                     if ion_list:
                         all_ions = ion_list
@@ -132,9 +132,9 @@ def get_magnetizations(mydir, ion_list):
         if len(d) < max_row + 1:
             d.extend([""] * (max_row + 1 - len(d)))
     headers = ["Filename"]
-    for i in xrange(max_row):
+    for i in range(max_row):
         headers.append(str(i))
-    print str_aligned(data, headers)
+    print(str_aligned(data, headers))
 
 
 def plot_dos(args):
@@ -147,7 +147,7 @@ def plot_dos(args):
     structure = v.final_structure
 
     if args.site:
-        for i in xrange(len(structure)):
+        for i in range(len(structure)):
             site = structure[i]
             all_dos["Site " + str(i) + " " + site.specie.symbol] = \
                 dos.get_site_dos(site)
@@ -176,7 +176,7 @@ def plot_chgint(args):
     s = chgcar.structure
 
     if args.inds:
-        atom_ind = map(int, args.inds[0].split(","))
+        atom_ind = [int(i) for i in args.inds[0].split(",")]
     else:
         finder = SymmetryFinder(s, symprec=0.1)
         sites = [sites[0] for sites in
@@ -208,8 +208,8 @@ def parse_vasp(args):
         if args.ion_list[0] == "All":
             ion_list = None
         else:
-            (start, end) = map(int, re.split("-", args.ion_list[0]))
-            ion_list = range(start, end + 1)
+            (start, end) = [int(i) for i in re.split("-", args.ion_list[0])]
+            ion_list = list(range(start, end + 1))
         for d in args.directories:
             get_magnetizations(d, ion_list)
 
@@ -261,8 +261,8 @@ def convert_fmt(args):
             ts.write_vasp_input(input_set, output_dir=out_filename)
 
     except Exception as ex:
-        print "Error converting file. Are they in the right format?"
-        print str(ex)
+        print("Error converting file. Are they in the right format?")
+        print(str(ex))
 
 
 def parse_symmetry(args):
@@ -274,11 +274,11 @@ def parse_symmetry(args):
         if args.spacegroup:
             finder = SymmetryFinder(s, tolerance)
             dataset = finder.get_symmetry_dataset()
-            print filename
-            print "Spacegroup  : {}".format(dataset["international"])
-            print "Int number  : {}".format(dataset["number"])
-            print "Hall symbol : {}".format(dataset["hall"])
-            print
+            print(filename)
+            print("Spacegroup  : {}".format(dataset["international"]))
+            print("Int number  : {}".format(dataset["number"]))
+            print("Hall symbol : {}".format(dataset["hall"]))
+            print()
 
 
 def parse_view(args):
@@ -294,13 +294,13 @@ def parse_view(args):
 def compare_structures(args):
     filenames = args.filenames
     if len(filenames) < 2:
-        print "You need more than one structure to compare!"
+        print("You need more than one structure to compare!")
         sys.exit(-1)
     try:
-        structures = map(read_structure, filenames)
+        structures = [read_structure(fn) for fn in filenames]
     except Exception as ex:
-        print "Error converting file. Are they in the right format?"
-        print str(ex)
+        print("Error converting file. Are they in the right format?")
+        print(str(ex))
         sys.exit(-1)
 
     from pymatgen.analysis.structure_matcher import StructureMatcher, \
@@ -308,11 +308,11 @@ def compare_structures(args):
     m = StructureMatcher() if args.oxi \
         else StructureMatcher(comparator=ElementComparator())
     for i, grp in enumerate(m.group_structures(structures)):
-        print "Group {}: ".format(i)
+        print("Group {}: ".format(i))
         for s in grp:
-            print "- {} ({})".format(filenames[structures.index(s)],
-                                     s.formula)
-        print
+            print("- {} ({})".format(filenames[structures.index(s)],
+                                     s.formula))
+        print()
 
 
 def generate_files(args):
@@ -322,10 +322,10 @@ def generate_files(args):
             p = Potcar(args.symbols, functional=args.functional)
             p.write_file("POTCAR")
         except Exception as ex:
-            print "An error has occurred: {}".format(str(ex))
+            print("An error has occurred: {}".format(str(ex)))
 
     else:
-        print "No valid options selected."
+        print("No valid options selected.")
 
 
 def generate_diffraction_plot(args):
@@ -339,10 +339,10 @@ def generate_diffraction_plot(args):
 
 def main():
     parser = argparse.ArgumentParser(description="""
-    matgenie is a convenient script that uses pymatgen to perform many
+    pmg is a convenient script that uses pymatgen to perform many
     analyses, plotting and format conversions. This script works based on
     several sub-commands with their own options. To see the options for the
-    sub-commands, type "matgenie.py sub-command -h".""",
+    sub-commands, type "pmg sub-command -h".""",
                                      epilog="""
     Author: Shyue Ping Ong
     Version: {}

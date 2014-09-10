@@ -177,12 +177,12 @@ class CompositionTest(unittest.TestCase):
                          "Fe3O4",
                          "Creation form sym_amount dictionary failed!")
         comp = Composition({"Fe2+": 2, "Fe3+": 4, "O2-": 8})
-        comp2 = Composition.from_dict(comp.to_dict)
+        comp2 = Composition.from_dict(comp.as_dict())
         self.assertEqual(comp, comp2)
 
-    def test_to_dict(self):
+    def test_as_dict(self):
         c = Composition.from_dict({'Fe': 4, 'O': 6})
-        d = c.to_dict
+        d = c.as_dict()
         correct_dict = {'Fe': 4.0, 'O': 6.0}
         self.assertEqual(d['Fe'], correct_dict['Fe'])
         self.assertEqual(d['O'], correct_dict['O'])
@@ -206,7 +206,7 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual((self.comp[0] - {"Fe": 2, "O": 3}).formula,
                          "Li3 P3 O9")
 
-        self.assertRaises(CompositionError, Composition('O').__sub__, 
+        self.assertRaises(CompositionError, Composition('O').__sub__,
                           Composition('H'))
 
         #check that S is completely removed by subtraction
@@ -272,8 +272,6 @@ class CompositionTest(unittest.TestCase):
 
     def test_fractional_composition(self):
         for c in self.comp:
-            self.assertAlmostEqual(c.get_fractional_composition().num_atoms, 1)
-        for c in self.comp:
             self.assertAlmostEqual(c.fractional_composition.num_atoms, 1)
 
     def test_init_numerical_tolerance(self):
@@ -292,7 +290,7 @@ class CompositionTest(unittest.TestCase):
         #test math
         c1 = Composition('LiCl', allow_negative=True)
         c2 = Composition('Li')
-        self.assertEqual(c1 - 2 * c2, Composition({'Li': -1, 'Cl': 1}, 
+        self.assertEqual(c1 - 2 * c2, Composition({'Li': -1, 'Cl': 1},
                                                   allow_negative=True))
         self.assertEqual((c1 + c2).allow_negative, True)
         self.assertEqual(c1 / -1, Composition('Li-1Cl-1', allow_negative=True))
@@ -302,7 +300,7 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual(c1.num_atoms, 2)
         self.assertEqual(c1.get_atomic_fraction('Mg'), 0.5)
         self.assertEqual(c1.get_atomic_fraction('Li'), 0.5)
-        self.assertEqual(c1.fractional_composition, 
+        self.assertEqual(c1.fractional_composition,
                          Composition('Mg-0.5Li0.5', allow_negative=True))
 
         #test copy

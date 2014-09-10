@@ -3,6 +3,8 @@ This module defines the classes relating to 3D lattices.
 """
 
 from __future__ import division
+from six.moves import map
+from six.moves import zip
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -21,10 +23,10 @@ from numpy import pi, dot, transpose, radians
 
 from pyhull.voronoi import VoronoiTess
 
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 
 
-class Lattice(MSONable):
+class Lattice(PMGSONable):
     """
     A lattice object.  Essentially a matrix with conversion matrices. In
     general, it is assumed that length units are in Angstroms and angles are in
@@ -380,8 +382,7 @@ class Lattice(MSONable):
         return "\n".join([" ".join(["%.6f" % i for i in row])
                           for row in self._matrix])
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """""
         Json-serialization dict representation of the Lattice.
         """
@@ -883,7 +884,7 @@ class Lattice(MSONable):
         n = len(frac_points)
         fcoords = np.array(frac_points)
         pts = np.tile(center, (n, 1))
-        indices = np.array(range(n))
+        indices = np.array(list(range(n)))
 
         arange = np.arange(start=int(floor(pcoords[0] - nmax[0])),
                            stop=int(floor(pcoords[0] + nmax[0])) + 1)

@@ -17,12 +17,12 @@ import numpy as np
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie,\
     get_el_sp
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.util.coord_utils import pbc_diff
 from pymatgen.core.composition import Composition
 
 
-class Site(collections.Mapping, collections.Hashable, MSONable):
+class Site(collections.Mapping, collections.Hashable, PMGSONable):
     """
     A generalized *non-periodic* site. This is essentially a composition
     at a point in space, with some optional properties associated with it. A
@@ -237,14 +237,13 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
     def __str__(self):
         return "{} {}".format(self._coords, self.species_string)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Json-serializable dict representation for Site.
         """
         species_list = []
         for spec, occu in self._species.items():
-            d = spec.to_dict
+            d = spec.as_dict()
             del d["@module"]
             del d["@class"]
             d["occu"] = occu
@@ -274,7 +273,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         return cls(atoms_n_occu, d["xyz"], properties=props)
 
 
-class PeriodicSite(Site, MSONable):
+class PeriodicSite(Site, PMGSONable):
     """
     Extension of generic Site object to periodic systems.
     PeriodicSite includes a lattice system.
@@ -494,14 +493,13 @@ class PeriodicSite(Site, MSONable):
                                 self._fcoords[0], self._fcoords[1],
                                 self._fcoords[2])
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Json-serializable dict representation of PeriodicSite.
         """
         species_list = []
         for spec, occu in self._species.items():
-            d = spec.to_dict
+            d = spec.as_dict()
             del d["@module"]
             del d["@class"]
             d["occu"] = occu
@@ -509,7 +507,7 @@ class PeriodicSite(Site, MSONable):
         return {"label": self.species_string, "species": species_list,
                 "xyz": [float(c) for c in self._coords],
                 "abc": [float(c) for c in self._fcoords],
-                "lattice": self._lattice.to_dict,
+                "lattice": self._lattice.as_dict(),
                 "properties": self._properties,
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}

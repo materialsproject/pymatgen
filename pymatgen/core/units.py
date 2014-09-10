@@ -8,6 +8,8 @@ of numpy's ndarray with similar unit features.
 """
 
 from __future__ import division
+from six.moves import filter
+from six.moves import zip
 
 __author__ = "Shyue Ping Ong, Matteo Giantomassi"
 __copyright__ = "Copyright 2011, The Materials Project"

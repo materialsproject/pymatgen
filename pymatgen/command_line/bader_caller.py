@@ -13,6 +13,8 @@ Bader decomposition of charge density", Comput. Mater. Sci. 36, 254-360 (2006).
 """
 
 from __future__ import division
+from six.moves import map
+from six.moves import zip
 
 __author__ = "shyuepingong"
 __version__ = "0.1"
