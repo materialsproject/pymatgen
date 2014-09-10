@@ -9,6 +9,7 @@ import time
 import collections
 import warnings
 import cPickle as pickle
+from six.moves import map
 #import pickle as pickle
 
 try:

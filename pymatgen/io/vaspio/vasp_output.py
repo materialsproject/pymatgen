@@ -3,6 +3,8 @@ Classes for reading/manipulating/writing VASP ouput files.
 """
 
 from __future__ import division
+from six.moves import map
+from six.moves import zip
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
     "Vincent L Chevrier"
@@ -534,10 +536,10 @@ class Vasprun(object):
 
         kpoints = [np.array(self.actual_kpoints[i])
                    for i in range(len(self.actual_kpoints))]
-        dict_eigen = self.to_dict['output']['eigenvalues']
+        dict_eigen = self.as_dict()['output']['eigenvalues']
         dict_p_eigen = {}
-        if 'projected_eigenvalues' in self.to_dict['output']:
-            dict_p_eigen = self.to_dict['output']['projected_eigenvalues']
+        if 'projected_eigenvalues' in self.as_dict()['output']:
+            dict_p_eigen = self.as_dict()['output']['projected_eigenvalues']
 
         p_eigenvals = {}
         if "1" in dict_eigen["0"] and "-1" in dict_eigen["0"] \
@@ -645,8 +647,7 @@ class Vasprun(object):
                     cbm_kpoint = k[0]
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Json-serializable dict representation.
         """
@@ -654,8 +655,8 @@ class Vasprun(object):
              "has_vasp_completed": self.converged,
              "nsites": len(self.final_structure)}
         comp = self.final_structure.composition
-        d["unit_cell_formula"] = comp.to_dict
-        d["reduced_cell_formula"] = Composition(comp.reduced_formula).to_dict
+        d["unit_cell_formula"] = comp.as_dict()
+        d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
         d["pretty_formula"] = comp.reduced_formula
         symbols = [s.split()[1] for s in self.potcar_symbols]
         symbols = [re.split("_", s)[0] for s in symbols]
@@ -678,8 +679,8 @@ class Vasprun(object):
         d["run_type"] = self.run_type
 
         vin = {"incar": {k: v for k, v in self.incar.items()},
-               "crystal": self.initial_structure.to_dict,
-               "kpoints": self.kpoints.to_dict}
+               "crystal": self.initial_structure.as_dict(),
+               "kpoints": self.kpoints.as_dict()}
         actual_kpts = [{"abc": list(self.actual_kpoints[i]),
                         "weight": self.actual_kpoints_weights[i]}
                        for i in range(len(self.actual_kpoints))]
@@ -687,7 +688,7 @@ class Vasprun(object):
         vin["potcar"] = [s.split(" ")[1] for s in self.potcar_symbols]
         vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]
         vin["parameters"] = {k: v for k, v in self.parameters.items()}
-        vin["lattice_rec"] = self.lattice_rec.to_dict
+        vin["lattice_rec"] = self.lattice_rec.as_dict()
         d["input"] = vin
 
         nsites = len(self.final_structure)
@@ -695,7 +696,7 @@ class Vasprun(object):
         vout = {"ionic_steps": self.ionic_steps,
                 "final_energy": self.final_energy,
                 "final_energy_per_atom": self.final_energy / nsites,
-                "crystal": self.final_structure.to_dict,
+                "crystal": self.final_structure.as_dict(),
                 "efermi": self.efermi}
 
         if self.eigenvalues:
@@ -1264,8 +1265,7 @@ class Outcar(object):
                         cl[iat][data[i]].append(float(data[i+1]))
         return cl
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__, "efermi": self.efermi,
              "run_stats": self.run_stats, "magnetization": self.magnetization,
@@ -1475,8 +1475,8 @@ class VolumetricData(object):
             lines = []
             count = 0
             f.write("{} {} {}\n".format(a[0], a[1], a[2]))
-            for (k, j, i) in itertools.product(range(a[2]), range(a[1]),
-                                               range(a[0])):
+            for (k, j, i) in itertools.product(list(range(a[2])), list(range(a[1])),
+                                               list(range(a[0]))):
                 lines.append("%0.11e" % self.data[data_type][i, j, k])
                 count += 1
                 if count % 5 == 0:
@@ -1523,7 +1523,7 @@ class VolumetricData(object):
         if ind not in self._distance_matrix or\
                 self._distance_matrix[ind]["max_radius"] < radius:
             coords = []
-            for (x, y, z) in itertools.product(*[range(i) for i in a]):
+            for (x, y, z) in itertools.product(*[list(range(i)) for i in a]):
                 coords.append([x / a[0], y / a[1], z / a[2]])
             sites_dist = struct.lattice.get_points_in_sphere(
                 coords, struct[ind].coords, radius)
@@ -1721,27 +1721,6 @@ class Procar(object):
 
         return dico
 
-    def get_d_occupation(self, atom_index):
-        """
-        .. deprecated:: v2.6.4
-
-            Use get_occpuation instead.
-
-        Returns the d occupation of a particular atom.
-
-        Args:
-            atom_index (int): Index of atom in PROCAR. It should be noted
-                that VASP uses 1-based indexing for atoms, but this is
-                converted to 0-based indexing in this parser to be
-                consistent with representation of structures in pymatgen.
-
-        Returns:
-            d-occupation of atom at atom_index.
-        """
-        warnings.warn("get_d_occupation has been deprecated. Use "
-                      "get_occupation instead.", DeprecationWarning)
-        return self.get_occupation(atom_index, 'd')
-
     def get_occupation(self, atom_index, orbital):
         """
         Returns the occupation for a particular orbital of a particular atom.
@@ -1892,8 +1871,7 @@ class Oszicar(object):
         """
         return self.ionic_steps[-1]["F"]
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"electronic_steps": self.electronic_steps,
                 "ionic_steps": self.ionic_steps}
 
@@ -2021,7 +1999,7 @@ def get_adjusted_fermi_level(efermi, cbm, band_structure):
         a new adjusted fermi level
     """
     #make a working copy of band_structure
-    bs_working = BandStructureSymmLine.from_dict(band_structure.to_dict)
+    bs_working = BandStructureSymmLine.from_dict(band_structure.as_dict())
     if bs_working.is_metal():
         e = efermi
         while e < cbm:

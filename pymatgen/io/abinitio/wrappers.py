@@ -1,13 +1,13 @@
 from __future__ import division, print_function
 
 import os
-import cStringIO as StringIO
 
 from subprocess import Popen, PIPE
 from monty.os.path import which
 from pymatgen.util.string_utils import list_strings
 
 import logging
+from six.moves import map, cStringIO
 logger = logging.getLogger(__name__)
 
 __author__ = "Matteo Giantomassi"
@@ -140,7 +140,7 @@ class Mrgscr(ExecWrapper):
             self.stdin_fname, self.stdout_fname, self.stderr_fname = \
                 map(os.path.join, 3 * [cwd], [self.stdin_fname, self.stdout_fname, self.stderr_fname])
 
-        inp = StringIO.StringIO()
+        inp = cStringIO()
 
         inp.write(str(nfiles) + "\n")     # Number of files to merge.
         inp.write(out_prefix + "\n")      # Prefix for the final output file:
@@ -215,7 +215,7 @@ class Mrggkk(ExecWrapper):
             self.stdin_fname, self.stdout_fname, self.stderr_fname = \
                 map(os.path.join, 3 * [cwd], [self.stdin_fname, self.stdout_fname, self.stderr_fname])
 
-        inp = StringIO.StringIO()
+        inp = cStringIO()
 
         inp.write(out_gkk + "\n")        # Name of the output file
         inp.write(str(binascii) + "\n")  # Integer flag: 0 --> binary output, 1 --> ascii formatted output
@@ -283,7 +283,7 @@ class Mrgddb(ExecWrapper):
             self.stdin_fname, self.stdout_fname, self.stderr_fname = \
                 map(os.path.join, 3 * [cwd], [self.stdin_fname, self.stdout_fname, self.stderr_fname])
 
-        inp = StringIO.StringIO()
+        inp = cStringIO()
 
         inp.write(out_ddb + "\n")            # Name of the output file.
         inp.write(str(description) + "\n")     # Description.
@@ -342,7 +342,7 @@ class Anaddb(ExecWrapper):
                 map(os.path.join, 3 * [cwd], [self.stdin_fname, self.inp_fname, self.stdout_fname, self.stderr_fname])
 
         # Files file
-        inp = StringIO.StringIO()
+        inp = cStringIO()
 
         inp.write(self.input_fname + "\n")     # Input file.
         inp.write(self.stdout_fname + "\n")    # Output file.

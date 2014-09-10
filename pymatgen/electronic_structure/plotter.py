@@ -3,6 +3,8 @@ This module implements plotter for DOS and band structure.
 """
 
 from __future__ import division
+from __future__ import print_function
+from six.moves import zip
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -371,7 +373,7 @@ class BSPlotter(object):
 
         return {'ticks': ticks, 'distances': distance, 'energy': energy,
                 'vbm': vbm_plot, 'cbm': cbm_plot,
-                'lattice': self._bs._lattice_rec.to_dict,
+                'lattice': self._bs._lattice_rec.as_dict(),
                 'zero_energy': zero_energy, 'is_metal': self._bs.is_metal(),
                 'band_gap': "{} {} bandgap = {}".format(direct,
                                                         bg['transition'],
@@ -701,7 +703,7 @@ class BSPlotterProjected(BSPlotter):
                                 str(Spin.down): [[] for l in range(self._nb_bands)]})
             else:
                 proj_br.append({str(Spin.up): [[] for l in range(self._nb_bands)]})
-            print(len(proj_br[-1][str(Spin.up)]), self._nb_bands)
+            print((len(proj_br[-1][str(Spin.up)]), self._nb_bands))
 
             for i in range(self._nb_bands):
                 for j in range(b['start_index'], b['end_index']+1):

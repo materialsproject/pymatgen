@@ -7,6 +7,8 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.abinitio.abiobjects import *
 
+import warnings
+
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
@@ -56,7 +58,7 @@ class SmearingTest(PymatgenTest):
 
         self.assertFalse(nosmear)
         self.assertTrue(nosmear != fd1ev)
-        new_fd1ev = Smearing.from_dict(fd1ev.to_dict)
+        new_fd1ev = Smearing.from_dict(fd1ev.as_dict())
         self.assertTrue(new_fd1ev == fd1ev)
 
         # Test pickle
@@ -81,7 +83,7 @@ class ElectronsTest(PymatgenTest):
 
         print(default_electrons.to_abivars())
 
-        #new = Electron.from_dict(default_electrons.to_dict())
+        #new = Electron.from_dict(default_electrons.as_dict())
 
         # Test pickle
         self.serialize_with_pickle(default_electrons, test_eq=False)
@@ -93,18 +95,20 @@ class AbiStructureTest(PymatgenTest):
         self.cif_paths = cif_paths()
 
     def test_asabistructure(self):
-        for cif_path in self.cif_paths:
-            print("about to init abistructure from %s " % cif_path)
-            st = asabistructure(cif_path)
-            self.assertTrue(st is asabistructure(st))
-            self.assertTrue(isinstance(st, Structure))
-
-            # TODO
-            if not st.is_ordered:
-                print("Unordered structures are not supported")
-                continue
-
-            print(st.to_abivars())
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            for cif_path in self.cif_paths:
+                print("about to init abistructure from %s " % cif_path)
+                st = asabistructure(cif_path)
+                self.assertTrue(st is asabistructure(st))
+                self.assertTrue(isinstance(st, Structure))
+    
+                # TODO
+                if not st.is_ordered:
+                    print("Unordered structures are not supported")
+                    continue
+    
+                print(st.to_abivars())
 
         # Test pickle
         # FIXME: protocol 2 does not work due to __new__
@@ -133,7 +137,7 @@ class PPModelTest(PymatgenTest):
 
         self.assertFalse(noppm)
         self.assertTrue(noppm != godby)
-        new_godby = PPModel.from_dict(godby.to_dict)
+        new_godby = PPModel.from_dict(godby.as_dict())
         self.assertTrue(new_godby == godby)
 
         # Test pickle

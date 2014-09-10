@@ -30,9 +30,11 @@ def get_spglib_ext():
     include_dirs = [spgsrcdir]
     sources = [os.path.join(spgsrcdir, srcfile) for srcfile in
         os.listdir(spgsrcdir) if srcfile.endswith(".c")]
-    return Extension("pymatgen._spglib",
-                     include_dirs=include_dirs + get_numpy_include_dirs(),
-                     sources=[os.path.join(spglibdir, "_spglib.c")] + sources)
+    return Extension(
+        "pymatgen._spglib",
+        include_dirs=include_dirs + get_numpy_include_dirs(),
+        sources=[os.path.join(spglibdir, "_spglib.c")] + sources,
+        extra_compile_args=["-Wno-error=declaration-after-statement"])
 
 with open("README.rst") as f:
     long_desc = f.read()
@@ -43,9 +45,9 @@ setup(
     name="pymatgen",
     packages=find_packages(),
     version="2.10.6",
-    install_requires=["numpy>=1.8", "pyhull>=1.5.0", "PyCifRW==3.6.2",
+    install_requires=["numpy>=1.8", "pyhull>=1.5.2",
                       "requests>=2.3.0", "pybtex>=0.18", "pyyaml>=3.11",
-                      "monty>=0.3.6", "six>=1.7.3"],
+                      "monty>=0.4.1", "six>=1.7.3"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
                     "plotting": ["matplotlib>=1.1"],
                     "ase_adaptor": ["ase>=3.3"],

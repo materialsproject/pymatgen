@@ -1,3 +1,4 @@
+from __future__ import print_function
 # coding: utf-8
 #!/usr/bin/env python
 
@@ -16,11 +17,11 @@ while not os.path.exists(pspdir):
                        "etc. subdirs are present. If you obtained the PSPs "
                        "directly from VASP, this should typically be the "
                        "directory that you untar the files to : ")
-    print
+    print()
 
 targetdir = raw_input("Please enter the fullpath of the where you want to "
                       "create your pymatgen resources directory: ")
-print
+print()
 
 os.makedirs(targetdir)
 print("Generating pymatgen resources directory")
@@ -46,7 +47,7 @@ for (parent, subdirs, files) in os.walk(pspdir):
             shutil.move(os.path.join(basedir, "POTCAR"), dest)
             subprocess.Popen(["gzip", dest]).communicate()
 
-print
+print()
 print("PSP resources directory generated. You should now add the following to "
       "your environment.")
 print("export VASP_PSP_DIR={}".format(os.path.abspath(targetdir)))
