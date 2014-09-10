@@ -417,8 +417,8 @@ class Reaction(BalancedReaction):
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "reactants": [comp.as_dict for comp in self._input_reactants],
-                "products": [comp.as_dict for comp in self._input_products]}
+                "reactants": [comp.as_dict() for comp in self._input_reactants],
+                "products": [comp.as_dict() for comp in self._input_products]}
 
     @classmethod
     def from_dict(cls, d):
@@ -498,8 +498,8 @@ class ComputedReaction(Reaction):
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "reactants": [e.as_dict for e in self._reactant_entries],
-                "products": [e.as_dict for e in self._product_entries]}
+                "reactants": [e.as_dict() for e in self._reactant_entries],
+                "products": [e.as_dict() for e in self._product_entries]}
 
     @classmethod
     def from_dict(cls, d):

@@ -679,7 +679,7 @@ class Vasprun(object):
         d["run_type"] = self.run_type
 
         vin = {"incar": {k: v for k, v in self.incar.items()},
-               "crystal": self.initial_structure.as_dict,
+               "crystal": self.initial_structure.as_dict(),
                "kpoints": self.kpoints.as_dict}
         actual_kpts = [{"abc": list(self.actual_kpoints[i]),
                         "weight": self.actual_kpoints_weights[i]}
@@ -696,7 +696,7 @@ class Vasprun(object):
         vout = {"ionic_steps": self.ionic_steps,
                 "final_energy": self.final_energy,
                 "final_energy_per_atom": self.final_energy / nsites,
-                "crystal": self.final_structure.as_dict,
+                "crystal": self.final_structure.as_dict(),
                 "efermi": self.efermi}
 
         if self.eigenvalues:
@@ -1999,7 +1999,7 @@ def get_adjusted_fermi_level(efermi, cbm, band_structure):
         a new adjusted fermi level
     """
     #make a working copy of band_structure
-    bs_working = BandStructureSymmLine.from_dict(band_structure.as_dict)
+    bs_working = BandStructureSymmLine.from_dict(band_structure.as_dict())
     if bs_working.is_metal():
         e = efermi
         while e < cbm:

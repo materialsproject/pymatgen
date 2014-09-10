@@ -46,8 +46,8 @@ class TransformationsTest(unittest.TestCase):
     def test_to_from_dict(self):
         t = IdentityTransformation()
         d = t.as_dict()
-        self.assertIn("version", t.as_dict)
-        self.assertIn("init_args", t.as_dict)
+        self.assertIn("version", t.as_dict())
+        self.assertIn("init_args", t.as_dict())
         self.assertEqual(type(IdentityTransformation.from_dict(d)),
                          IdentityTransformation)
 
@@ -96,7 +96,7 @@ class SubstitutionTransformationTest(unittest.TestCase):
         t = SubstitutionTransformation({"Li+": "Na+",
                                         "O2-": {"S2-": 0.5, "Se2-": 0.5}})
         #test the to and from dict on the nested dictionary
-        t = SubstitutionTransformation.from_dict(t.as_dict)
+        t = SubstitutionTransformation.from_dict(t.as_dict())
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])

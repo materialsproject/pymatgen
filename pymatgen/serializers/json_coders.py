@@ -16,7 +16,7 @@ objects are supported as well.
 .. note::
 
     The decoder depends on finding a "@module" and "@class" key in the dict in
-    order to decode the necessary python object. All as_dict properties must
+    order to decode the necessary python object. All as_dict() properties must
     therefore have the module name and class embedded. In general, the
     MontyEncoder will add these keys if they are not present, but for better
     long term stability, the easiest way is to add the following to any as_dict()
@@ -42,7 +42,8 @@ import json
 from abc import ABCMeta
 
 from monty.io import zopen
-from monty.json import MSONable
+from monty.json import MSONable, MontyEncoder, MontyDecoder
+from monty.dev import deprecated
 
 
 class PMGSONable(six.with_metaclass(ABCMeta, MSONable)):
@@ -52,7 +53,10 @@ class PMGSONable(six.with_metaclass(ABCMeta, MSONable)):
     property and a from_dict static method.
     """
 
-    def as_dict(self):
+    @deprecated(message="All to_dict properties have been deprecated."
+                "Use the as_dict() method instead.")
+    @property
+    def to_dict(self):
         """
         A JSON serializable dict representation of an object.
         """
@@ -113,7 +117,7 @@ def pmg_dump(obj, filename, **kwargs):
     """
     Dump an object to a json file using MontyEncoder. Note that these
     objects can be lists, dicts or otherwise nested pymatgen objects that
-    support the as_dict and from_dict PMGSONable protocol.
+    support the as_dict() and from_dict PMGSONable protocol.
 
     Args:
         obj (object): Object to dump.

@@ -581,7 +581,7 @@ class MagOrderingTransformation(AbstractTransformation):
             "name": self.__class__.__name__, "version": __version__,
             "init_args": {"mag_species_spin": self.mag_species_spin,
                           "order_parameter": self.order_parameter,
-                          "energy_model": self.emodel.as_dict,
+                          "energy_model": self.emodel.as_dict(),
                           "enum_kwargs": self.enum_kwargs},
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__}

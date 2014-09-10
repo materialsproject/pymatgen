@@ -404,7 +404,7 @@ class Poscar(PMGSONable):
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "structure": self.structure.as_dict,
+                "structure": self.structure.as_dict(),
                 "true_names": self.true_names,
                 "selective_dynamics": self.selective_dynamics,
                 "velocities": self.velocities,
@@ -1311,7 +1311,7 @@ class VaspInput(dict, PMGSONable):
         potcar: Potcar object.
         optional_files: Other input files supplied as a dict of {
             filename: object}. The object should follow standard pymatgen
-            conventions in implementing a as_dict and from_dict method.
+            conventions in implementing a as_dict() and from_dict method.
     """
 
     def __init__(self, incar, kpoints, poscar, potcar, optional_files=None,
@@ -1333,7 +1333,7 @@ class VaspInput(dict, PMGSONable):
         return "\n".join(output)
 
     def as_dict(self):
-        d = {k: v.as_dict for k, v in self.items()}
+        d = {k: v.as_dict() for k, v in self.items()}
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         return d

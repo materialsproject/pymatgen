@@ -316,7 +316,7 @@ class IonEntry(PDEntry):
         """
         Creates a dict of composition, energy, and ion name
         """
-        d = {"composition": self.composition.as_dict, "energy": self.energy}
+        d = {"composition": self.composition.as_dict(), "energy": self.energy}
         return d
 
     @property

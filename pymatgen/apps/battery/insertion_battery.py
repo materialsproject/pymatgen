@@ -357,7 +357,7 @@ class InsertionElectrode(AbstractElectrode):
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "entries": [entry.as_dict for entry in self._entries],
+                "entries": [entry.as_dict() for entry in self._entries],
                 "working_ion_entry": self.working_ion_entry.as_dict}
 
 

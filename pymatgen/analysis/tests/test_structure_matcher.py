@@ -291,7 +291,7 @@ class StructureMatcherTest(unittest.TestCase):
                               comparator=FrameworkComparator())
         d = sm.as_dict()
         sm2 = StructureMatcher.from_dict(d)
-        self.assertEqual(sm2.as_dict, d)
+        self.assertEqual(sm2.as_dict(), d)
 
     def test_no_scaling(self):
         sm = StructureMatcher(ltol=0.1, stol=0.1, angle_tol=2,

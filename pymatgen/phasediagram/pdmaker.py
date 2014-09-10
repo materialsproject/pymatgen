@@ -253,8 +253,8 @@ class PhaseDiagram (PMGSONable):
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "all_entries": [e.as_dict for e in self.all_entries],
-                "elements": [e.as_dict for e in self.elements]}
+                "all_entries": [e.as_dict() for e in self.all_entries],
+                "elements": [e.as_dict() for e in self.elements]}
 
     @classmethod
     def from_dict(cls, d):
@@ -324,9 +324,9 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "all_entries": [e.as_dict for e in self.all_entries],
+                "all_entries": [e.as_dict() for e in self.all_entries],
                 "chempots": self.chempots,
-                "elements": [e.as_dict for e in self.elements]}
+                "elements": [e.as_dict() for e in self.elements]}
 
     @classmethod
     def from_dict(cls, d):
@@ -423,7 +423,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
         return {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
-            "original_entries": [e.as_dict for e in self.original_entries],
+            "original_entries": [e.as_dict() for e in self.original_entries],
             "terminal_compositions": [c.as_dict()
                                       for c in self.terminal_compositions],
             "normalize_terminal_compositions":

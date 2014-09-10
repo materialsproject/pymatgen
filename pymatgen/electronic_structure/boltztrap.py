@@ -773,7 +773,7 @@ class BoltztrapAnalyzer():
                    'cond_doping': self.cond_doping,
                    'kappa_doping': self.kappa_doping,
                    'hall_doping': self.hall_doping,
-                   'dos': self.dos.as_dict,
+                   'dos': self.dos.as_dict(),
                    'dos_partial': self._dos_partial,
                    'carrier_conc': self.carrier_conc,
                    'vol': self.vol}

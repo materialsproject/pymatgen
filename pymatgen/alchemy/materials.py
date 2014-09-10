@@ -198,7 +198,7 @@ class TransformedStructure(PMGSONable):
         """
         d = vasp_input_set.get_all_vasp_input(self.final_structure,
                                               generate_potcar)
-        d["transformations.json"] = json.dumps(self.as_dict)
+        d["transformations.json"] = json.dumps(self.as_dict())
         return d
 
     def write_vasp_input(self, vasp_input_set, output_dir,
@@ -218,7 +218,7 @@ class TransformedStructure(PMGSONable):
         vasp_input_set.write_input(self.final_structure, output_dir,
                                    make_dir_if_not_present=create_directory)
         with open(os.path.join(output_dir, "transformations.json"), "w") as fp:
-            json.dump(self.as_dict, fp)
+            json.dump(self.as_dict(), fp)
 
     def __str__(self):
         output = ["Current structure", "------------",

@@ -328,8 +328,8 @@ class NwInput(PMGSONable):
 
     def as_dict(self):
         return {
-            "mol": self._mol.as_dict,
-            "tasks": [t.as_dict for t in self.tasks],
+            "mol": self._mol.as_dict(),
+            "tasks": [t.as_dict() for t in self.tasks],
             "directives": [list(t) for t in self.directives],
             "geometry_options": list(self.geometry_options),
             "symmetry_options": self.symmetry_options,

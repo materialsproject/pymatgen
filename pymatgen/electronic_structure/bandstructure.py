@@ -114,7 +114,7 @@ class Kpoint(PMGSONable):
         """
         Json-serializable dict representation of a kpoint
         """
-        return {"lattice": self.lattice.as_dict,
+        return {"lattice": self.lattice.as_dict(),
                 "fcoords": list(self.frac_coords),
                 "ccoords": list(self.cart_coords), "label": self.label,
                 "@module": self.__class__.__module__,
@@ -543,7 +543,7 @@ class BandStructure(object):
         """
         d = {"module": self.__class__.__module__,
              "class": self.__class__.__name__,
-             "lattice_rec": self._lattice_rec.as_dict, "efermi": self._efermi,
+             "lattice_rec": self._lattice_rec.as_dict(), "efermi": self._efermi,
              "kpoints": []}
         #kpoints are not kpoint objects dicts but are frac coords (this makes
         #the dict smaller and avoids the repetition of the lattice
@@ -825,7 +825,7 @@ class BandStructureSymmLine(BandStructure, PMGSONable):
 
         d = {"module": self.__class__.__module__,
              "class": self.__class__.__name__,
-             "lattice_rec": self._lattice_rec.as_dict, "efermi": self._efermi,
+             "lattice_rec": self._lattice_rec.as_dict(), "efermi": self._efermi,
              "kpoints": []}
         #kpoints are not kpoint objects dicts but are frac coords (this makes
         #the dict smaller and avoids the repetition of the lattice

@@ -76,7 +76,7 @@ class PDEntry(PMGSONable):
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "composition": self.composition.as_dict,
+                "composition": self.composition.as_dict(),
                 "energy": self.energy,
                 "name": self.name,
                 "attribute": self.attribute}
@@ -133,7 +133,7 @@ class GrandPotPDEntry(PDEntry):
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "entry": self.original_entry.as_dict,
+                "entry": self.original_entry.as_dict(),
                 "chempots": {el.symbol: u for el, u in self.chempots.items()},
                 "name": self.name}
 
@@ -255,7 +255,7 @@ class TransformedPDEntry(PDEntry):
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "entry": self.original_entry.as_dict,
+                "entry": self.original_entry.as_dict(),
                 "composition": self.composition}
 
     @classmethod

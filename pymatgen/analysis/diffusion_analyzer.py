@@ -435,7 +435,7 @@ class DiffusionAnalyzer(PMGSONable):
         return {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
-            "structure": self.structure.as_dict,
+            "structure": self.structure.as_dict(),
             "displacements": self.disp.tolist(),
             "specie": self.specie,
             "temperature": self.temperature,

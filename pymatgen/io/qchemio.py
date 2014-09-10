@@ -681,7 +681,7 @@ class QcTask(PMGSONable):
         elif isinstance(self.mol, Molecule):
             mol_dict = self.mol.as_dict()
         elif isinstance(self.mol, list):
-            mol_dict = [m.as_dict for m in self.mol]
+            mol_dict = [m.as_dict() for m in self.mol]
         else:
             raise ValueError('Unknow molecule type "{}"'.format(type(self.mol)))
         return {"@module": self.__class__.__module__,
@@ -1139,7 +1139,7 @@ class QcInput(PMGSONable):
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "jobs": [j.as_dict for j in self.jobs]}
+                "jobs": [j.as_dict() for j in self.jobs]}
 
     @classmethod
     def from_dict(cls, d):
