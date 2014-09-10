@@ -106,9 +106,9 @@ class GaussianInput(object):
                 species.append(m.group(1))
                 toks = re.split("[,\s]+", l.strip())
                 if len(toks) > 4:
-                    coords.append(map(float, toks[2:5]))
+                    coords.append([float(i) for i in toks[2:5]])
                 else:
-                    coords.append(map(float, toks[1:4]))
+                    coords.append([float(i) for i in toks[1:4]])
             elif GaussianInput.zmat_patt.match(l):
                 zmode = True
                 toks = re.split("[,\s]+", l.strip())
@@ -187,7 +187,7 @@ class GaussianInput(object):
                 sp = re.sub("\d", "", sp_str)
                 return sp.capitalize()
 
-        species = map(parse_species, species)
+        species = [parse_species(sp) for sp in species]
 
         return Molecule(species, coords)
 
@@ -237,7 +237,7 @@ class GaussianInput(object):
         spaces = 0
         input_paras = {}
         ind += 1
-        for i in xrange(route_index + ind, len(lines)):
+        for i in range(route_index + ind, len(lines)):
             if lines[i].strip() == "":
                 spaces += 1
             if spaces >= 2:
@@ -273,7 +273,7 @@ class GaussianInput(object):
         Returns index of nearest neighbor atoms.
         """
         alldist = [(self._mol.get_distance(siteindex, i), i)
-                   for i in xrange(siteindex)]
+                   for i in range(siteindex)]
         alldist = sorted(alldist, key=lambda x: x[0])
         return [d[1] for d in alldist]
 
@@ -500,7 +500,7 @@ class GaussianOutput(object):
                                 for l in coord_txt[2:]:
                                     toks = l.split()
                                     sp.append(Element.from_Z(int(toks[1])))
-                                    coords.append(map(float, toks[3:6]))
+                                    coords.append([float(i) for i in toks[3:6]])
                                 self.structures.append(Molecule(sp, coords))
                     elif termination_patt.search(line):
                         m = termination_patt.search(line)

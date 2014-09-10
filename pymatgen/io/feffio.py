@@ -9,6 +9,7 @@ FeffTags classes, then combined to produce the full feff.inp.
 """
 
 from __future__ import division
+from six.moves import map
 
 __author__ = "Alan Dozier"
 __credits__ = "Anubhav Jain, Shyue Ping Ong"
@@ -276,13 +277,13 @@ class Header(MSONable):
             lattice = Lattice.from_lengths_and_angles(lengths, angles)
             atomic_symbols = []
 
-            for i in xrange(9, 9 + natoms):
+            for i in range(9, 9 + natoms):
                 atomic_symbols.append(lines[i].split()[2])
 
             # read the atomic coordinates
             coords = []
 
-            for i in xrange(natoms):
+            for i in range(natoms):
                 toks = lines[i + 9].split()
                 coords.append([float(s) for s in toks[3:]])
 

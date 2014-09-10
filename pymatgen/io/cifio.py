@@ -3,6 +3,8 @@ Wrapper classes for Cif input and output from Structures.
 """
 
 from __future__ import division
+from six.moves import map
+from six.moves import zip
 
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -308,7 +310,7 @@ class CifParser(object):
         for species in allspecies:
             totaloccu = sum(species.values())
             if 1 < totaloccu <= self._occupancy_tolerance:
-                for key, value in species.iteritems():
+                for key, value in six.iteritems(species):
                     species[key] = value / totaloccu
 
         struct = Structure(lattice, allspecies, allcoords)

@@ -8,6 +8,7 @@ runs.
 """
 
 from __future__ import division
+import six
 
 __author__ = "Shyue Ping Ong, Wei Chen, Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -40,14 +41,13 @@ from pymatgen.io.smartio import write_structure
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class AbstractVaspInputSet(MSONable):
+class AbstractVaspInputSet(six.with_metaclass(abc.ABCMeta, MSONable)):
     """
     Abstract base class representing a set of Vasp input parameters.
     The idea is that using a VaspInputSet, a complete set of input files
     (INPUT, KPOINTS, POSCAR and POTCAR) can be generated in an automated
     fashion for any structure.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def get_poscar(self, structure):
