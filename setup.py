@@ -30,9 +30,11 @@ def get_spglib_ext():
     include_dirs = [spgsrcdir]
     sources = [os.path.join(spgsrcdir, srcfile) for srcfile in
         os.listdir(spgsrcdir) if srcfile.endswith(".c")]
-    return Extension("pymatgen._spglib",
-                     include_dirs=include_dirs + get_numpy_include_dirs(),
-                     sources=[os.path.join(spglibdir, "_spglib.c")] + sources)
+    return Extension(
+        "pymatgen._spglib",
+        include_dirs=include_dirs + get_numpy_include_dirs(),
+        sources=[os.path.join(spglibdir, "_spglib.c")] + sources,
+        extra_compile_args=["-Wno-error=declaration-after-statement"])
 
 with open("README.rst") as f:
     long_desc = f.read()
