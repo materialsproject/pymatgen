@@ -145,10 +145,10 @@ static PyObject * get_dataset(PyObject *self, PyObject *args)
   PyArrayObject* atom_type;
   PyObject* array, *vec, *mat, *rot, *trans, *wyckoffs, *equiv_atoms;
 
-  SPGCONST double *lat[3];
-  SPGCONST double *pos[3];
-  int num_atom;
-  int* typat;
+  SPGCONST double (*lat)[3] = (double(*)[3])lattice->data;
+  SPGCONST double (*pos)[3] = (double(*)[3])position->data;
+  const int num_atom = position->dimensions[0];
+  const int* typat = (int*)atom_type->data;
 
   if (!PyArg_ParseTuple(args, "OOOdd",
 			&lattice,
@@ -158,11 +158,6 @@ static PyObject * get_dataset(PyObject *self, PyObject *args)
 			&angle_tolerance)) {
     return NULL;
   }
-
-  *lat = (double(*)[3])lattice->data;
-  *pos = (double(*)[3])position->data;
-  num_atom = position->dimensions[0];
-  typat = (int*)atom_type->data;
 
   dataset = spgat_get_dataset(lat,
 			      pos,
@@ -244,10 +239,19 @@ static PyObject * get_spacegroup(PyObject *self, PyObject *args)
   PyArrayObject* lattice;
   PyArrayObject* position;
   PyArrayObject* atom_type;
-  SPGCONST double *lat[3];
-  SPGCONST double *pos[3];
-  int num_atom;
-  int* typat;
+
+  SPGCONST double (*lat)[3] = (double(*)[3])lattice->data;
+  SPGCONST double (*pos)[3] = (double(*)[3])position->data;
+  const int num_atom = position->dimensions[0];
+  const int* typat = (int*)atom_type->data;
+
+  const int num_spg = spgat_get_international(spg_symbol,
+					      lat,
+					      pos,
+					      typat,
+					      num_atom,
+					      symprec,
+					      angle_tolerance);
 
   if (!PyArg_ParseTuple(args, "OOOdd",
 			&lattice,
@@ -258,18 +262,6 @@ static PyObject * get_spacegroup(PyObject *self, PyObject *args)
     return NULL;
   }
 
-  *lat = (double(*)[3])lattice->data;
-  *pos = (double(*)[3])position->data;
-  num_atom = position->dimensions[0];
-  typat = (int*)atom_type->data;
-
-  const int num_spg = spgat_get_international(spg_symbol,
-					      lat,
-					      pos,
-					      typat,
-					      num_atom,
-					      symprec,
-					      angle_tolerance);
   for (i = 9; i > 0; i--) {
     if (! isspace(spg_symbol[i])) { break; }
   }
@@ -281,23 +273,20 @@ static PyObject * get_spacegroup(PyObject *self, PyObject *args)
 
 static PyObject * get_pointgroup(PyObject *self, PyObject *args)
 {
+  PyArrayObject* rotations;
 
   int i, j;
   int trans_mat[3][3];
   char symbol[6];
   PyObject* array, * mat, * vec;
-  SPGCONST int(*rot)[3][3];
-  int num_rot;
-  int ptg_num;
-  PyArrayObject* rotations;
+
+  SPGCONST int(*rot)[3][3] = (int(*)[3][3])rotations->data;
+  const int num_rot = rotations->dimensions[0];
+  const int ptg_num = spg_get_pointgroup(symbol, trans_mat, rot, num_rot);
 
   if (! PyArg_ParseTuple(args, "O", &rotations)) {
     return NULL;
   }
-
-  rot = (int(*)[3][3])rotations->data;
-  num_rot = rotations->dimensions[0];
-  ptg_num = spg_get_pointgroup(symbol, trans_mat, rot, num_rot);
 
   /* Transformation matrix */
   mat = PyList_New(3);
@@ -324,10 +313,12 @@ static PyObject * refine_cell(PyObject *self, PyObject *args)
   PyArrayObject* lattice;
   PyArrayObject* position;
   PyArrayObject* atom_type;
-  SPGCONST double *lat[3];
-  SPGCONST double *pos[3];
+
+  double (*lat)[3] = (double(*)[3])lattice->data;
+  SPGCONST double (*pos)[3] = (double(*)[3])position->data;
+  int* typat = (int*)atom_type->data;
+
   int num_atom_brv;
-  int* typat;
 
   if (!PyArg_ParseTuple(args, "OOOidd",
 			&lattice,
@@ -339,11 +330,7 @@ static PyObject * refine_cell(PyObject *self, PyObject *args)
     return NULL;
   }
 
-  *lat = (double(*)[3])lattice->data;
-  *pos = (double(*)[3])position->data;
-  typat = (int*)atom_type->data;
-
-  num_atom_brv = spgat_refine_cell(lat,
+   num_atom_brv = spgat_refine_cell(lat,
 				       pos,
 				       typat,
 				       num_atom,
@@ -360,10 +347,13 @@ static PyObject * find_primitive(PyObject *self, PyObject *args)
   PyArrayObject* lattice;
   PyArrayObject* position;
   PyArrayObject* atom_type;
-  SPGCONST double *lat[3];
-  SPGCONST double *pos[3];
-  int num_atom;
-  int* types;
+
+  double (*lat)[3] = (double(*)[3])lattice->data;
+  double (*pos)[3] = (double(*)[3])position->data;
+  int num_atom = position->dimensions[0];
+  int* types = (int*)atom_type->data;
+
+  int num_atom_prim;
 
   if (!PyArg_ParseTuple(args, "OOOdd",
 			&lattice,
@@ -374,12 +364,7 @@ static PyObject * find_primitive(PyObject *self, PyObject *args)
     return NULL;
   }
 
-  *lat = (double(*)[3])lattice->data;
-  *pos = (double(*)[3])position->data;
-  num_atom = position->dimensions[0];
-  types = (int*)atom_type->data;
-
-  int num_atom_prim = spgat_find_primitive(lat,
+  num_atom_prim = spgat_find_primitive(lat,
 					   pos,
 					   types,
 					   num_atom,
@@ -397,16 +382,6 @@ static PyObject * get_symmetry(PyObject *self, PyObject *args)
   PyArrayObject* rotation;
   PyArrayObject* translation;
   PyArrayObject* atom_type;
-
-  SPGCONST double (*lat)[3];
-  SPGCONST double (*pos)[3];
-  int* types;
-  int num_atom;
-  int (*rot)[3][3];
-  double (*trans)[3];
-  int num_sym_from_array_size;
-  int num_sym;
-
   if (!PyArg_ParseTuple(args, "OOOOOdd",
 			&rotation,
 			&translation,
@@ -418,16 +393,16 @@ static PyObject * get_symmetry(PyObject *self, PyObject *args)
     return NULL;
   }
 
-  lat = (double(*)[3])lattice->data;
-  pos = (double(*)[3])position->data;
-  types = (int*)atom_type->data;
-  num_atom = position->dimensions[0];
-  rot = (int(*)[3][3])rotation->data;
-  trans = (double(*)[3])translation->data;
-  num_sym_from_array_size = rotation->dimensions[0];
+  SPGCONST double (*lat)[3] = (double(*)[3])lattice->data;
+  SPGCONST double (*pos)[3] = (double(*)[3])position->data;
+  const int* types = (int*)atom_type->data;
+  const int num_atom = position->dimensions[0];
+  int (*rot)[3][3] = (int(*)[3][3])rotation->data;
+  double (*trans)[3] = (double(*)[3])translation->data;
+  const int num_sym_from_array_size = rotation->dimensions[0];
 
   /* num_sym has to be larger than num_sym_from_array_size. */
-  num_sym = spgat_get_symmetry(rot,
+  const int num_sym = spgat_get_symmetry(rot,
 					 trans,
 					 num_sym_from_array_size,
 					 lat,
@@ -449,16 +424,6 @@ static PyObject * get_symmetry_with_collinear_spin(PyObject *self,
   PyArrayObject* translation;
   PyArrayObject* atom_type;
   PyArrayObject* magmom;
-  SPGCONST double (*lat)[3];
-  SPGCONST double (*pos)[3];
-  double *spins;
-  int* types;
-  int num_atom;
-  int (*rot)[3][3];
-  double (*trans)[3];
-  int num_sym_from_array_size;
-  int num_sym;
-
   if (!PyArg_ParseTuple(args, "OOOOOOdd",
 			&rotation,
 			&translation,
@@ -471,17 +436,17 @@ static PyObject * get_symmetry_with_collinear_spin(PyObject *self,
     return NULL;
   }
 
-  lat = (double(*)[3])lattice->data;
-  pos = (double(*)[3])position->data;
-  spins = (double*) magmom->data;
-  types = (int*)atom_type->data;
-  num_atom = position->dimensions[0];
-  rot = (int(*)[3][3])rotation->data;
-  trans = (double(*)[3])translation->data;
-  num_sym_from_array_size = rotation->dimensions[0];
+  SPGCONST double (*lat)[3] = (double(*)[3])lattice->data;
+  SPGCONST double (*pos)[3] = (double(*)[3])position->data;
+  const double *spins = (double*) magmom->data;
+  const int* types = (int*)atom_type->data;
+  const int num_atom = position->dimensions[0];
+  int (*rot)[3][3] = (int(*)[3][3])rotation->data;
+  double (*trans)[3] = (double(*)[3])translation->data;
+  const int num_sym_from_array_size = rotation->dimensions[0];
 
   /* num_sym has to be larger than num_sym_from_array_size. */
-  num_sym =
+  const int num_sym =
     spgat_get_symmetry_with_collinear_spin(rot,
 					   trans,
 					   num_sym_from_array_size,
@@ -506,17 +471,6 @@ static PyObject * get_ir_reciprocal_mesh(PyObject *self, PyObject *args)
   PyArrayObject* lattice;
   PyArrayObject* position;
   PyArrayObject* atom_type;
-  SPGCONST double (*lat)[3];
-  SPGCONST double (*pos)[3];
-  int* mesh_int;
-  int* is_shift_int;
-  int* types;
-  int num_atom;
-  int (*grid_address)[3];
-  double (*trans)[3];
-  int num_ir;
-  int *map_int;
-
   if (!PyArg_ParseTuple(args, "OOOOiOOOd",
 			&grid_address_py,
 			&map,
@@ -529,17 +483,17 @@ static PyObject * get_ir_reciprocal_mesh(PyObject *self, PyObject *args)
 			&symprec))
     return NULL;
 
-  lat = (double(*)[3])lattice->data;
-  pos = (double(*)[3])position->data;
-  types = (int*)atom_type->data;
-  mesh_int = (int*)mesh->data;
-  is_shift_int = (int*)is_shift->data;
-  num_atom = position->dimensions[0];
-  grid_address = (int(*)[3])grid_address_py->data;
-  map_int = (int*)map->data;
+  SPGCONST double (*lat)[3] = (double(*)[3])lattice->data;
+  SPGCONST double (*pos)[3] = (double(*)[3])position->data;
+  const int* types = (int*)atom_type->data;
+  const int* mesh_int = (int*)mesh->data;
+  const int* is_shift_int = (int*)is_shift->data;
+  const int num_atom = position->dimensions[0];
+  int (*grid_address)[3] = (int(*)[3])grid_address_py->data;
+  int *map_int = (int*)map->data;
 
   /* num_sym has to be larger than num_sym_from_array_size. */
-  num_ir = spg_get_ir_reciprocal_mesh(grid_address,
+  const int num_ir = spg_get_ir_reciprocal_mesh(grid_address,
 						map_int,
 						mesh_int,
 						is_shift_int,
@@ -562,17 +516,6 @@ static PyObject * get_stabilized_reciprocal_mesh(PyObject *self, PyObject *args)
   int is_time_reversal;
   PyArrayObject* rotations;
   PyArrayObject* qpoints;
-
-  int (*grid_address)[3];
-  int *map_int;
-  int* mesh_int;
-  int* is_shift_int;
-  SPGCONST int (*rot)[3][3];
-  int num_rot;
-  SPGCONST double (*q)[3];
-  int num_q;
-  int num_ir;
-
   if (!PyArg_ParseTuple(args, "OOOOiOO",
 			&grid_address_py,
 			&map,
@@ -584,16 +527,16 @@ static PyObject * get_stabilized_reciprocal_mesh(PyObject *self, PyObject *args)
     return NULL;
   }
 
-  grid_address = (int(*)[3])grid_address_py->data;
-  map_int = (int*)map->data;
-  mesh_int = (int*)mesh->data;
-  is_shift_int = (int*)is_shift->data;
-  rot = (int(*)[3][3])rotations->data;
-  num_rot = rotations->dimensions[0];
-  q = (double(*)[3])qpoints->data;
-  num_q = qpoints->dimensions[0];
+  int (*grid_address)[3] = (int(*)[3])grid_address_py->data;
+  int *map_int = (int*)map->data;
+  const int* mesh_int = (int*)mesh->data;
+  const int* is_shift_int = (int*)is_shift->data;
+  SPGCONST int (*rot)[3][3] = (int(*)[3][3])rotations->data;
+  const int num_rot = rotations->dimensions[0];
+  SPGCONST double (*q)[3] = (double(*)[3])qpoints->data;
+  const int num_q = qpoints->dimensions[0];
 
-  num_ir = spg_get_stabilized_reciprocal_mesh(grid_address,
+  const int num_ir = spg_get_stabilized_reciprocal_mesh(grid_address,
 							map_int,
 							mesh_int,
 							is_shift_int,
@@ -613,14 +556,6 @@ static PyObject * get_grid_points_by_rotations(PyObject *self, PyObject *args)
   PyArrayObject* rot_reciprocal_py;
   PyArrayObject* mesh_py;
   PyArrayObject* is_shift_py;
-
-  int *rot_grid_points;
-  int *address_orig;
-  SPGCONST int (*rot_reciprocal)[3][3];
-  int num_rot;
-  int* mesh;
-  int* is_shift;
-
   if (!PyArg_ParseTuple(args, "OOOOO",
 			&rot_grid_points_py,
 			&address_orig_py,
@@ -630,12 +565,12 @@ static PyObject * get_grid_points_by_rotations(PyObject *self, PyObject *args)
     return NULL;
   }
 
-  rot_grid_points = (int*)rot_grid_points_py->data;
-  address_orig = (int*)address_orig_py->data;
-  rot_reciprocal = (int(*)[3][3])rot_reciprocal_py->data;
-  num_rot = rot_reciprocal_py->dimensions[0];
-  mesh = (int*)mesh_py->data;
-  is_shift = (int*)is_shift_py->data;
+  int *rot_grid_points = (int*)rot_grid_points_py->data;
+  const int *address_orig = (int*)address_orig_py->data;
+  SPGCONST int (*rot_reciprocal)[3][3] = (int(*)[3][3])rot_reciprocal_py->data;
+  const int num_rot = rot_reciprocal_py->dimensions[0];
+  const int* mesh = (int*)mesh_py->data;
+  const int* is_shift = (int*)is_shift_py->data;
 
   spg_get_grid_points_by_rotations(rot_grid_points,
 				   address_orig,
@@ -654,15 +589,6 @@ static PyObject * get_BZ_grid_points_by_rotations(PyObject *self, PyObject *args
   PyArrayObject* mesh_py;
   PyArrayObject* is_shift_py;
   PyArrayObject* bz_map_py;
-
-  int *rot_grid_points;
-  int *address_orig;
-  SPGCONST int (*rot_reciprocal)[3][3];
-  int num_rot;
-  int* mesh;
-  int* is_shift;
-  int* bz_map;
-
   if (!PyArg_ParseTuple(args, "OOOOOO",
 			&rot_grid_points_py,
 			&address_orig_py,
@@ -673,13 +599,13 @@ static PyObject * get_BZ_grid_points_by_rotations(PyObject *self, PyObject *args
     return NULL;
   }
 
-  rot_grid_points = (int*)rot_grid_points_py->data;
-  address_orig = (int*)address_orig_py->data;
-  rot_reciprocal = (int(*)[3][3])rot_reciprocal_py->data;
-  num_rot = rot_reciprocal_py->dimensions[0];
-  mesh = (int*)mesh_py->data;
-  is_shift = (int*)is_shift_py->data;
-  bz_map = (int*)bz_map_py->data;
+  int *rot_grid_points = (int*)rot_grid_points_py->data;
+  const int *address_orig = (int*)address_orig_py->data;
+  SPGCONST int (*rot_reciprocal)[3][3] = (int(*)[3][3])rot_reciprocal_py->data;
+  const int num_rot = rot_reciprocal_py->dimensions[0];
+  const int* mesh = (int*)mesh_py->data;
+  const int* is_shift = (int*)is_shift_py->data;
+  const int* bz_map = (int*)bz_map_py->data;
 
   spg_get_BZ_grid_points_by_rotations(rot_grid_points,
 				      address_orig,
