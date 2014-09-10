@@ -17,6 +17,9 @@ import collections
 import string
 
 import six
+from six.moves import filter
+from six.moves import map
+from six.moves import zip
 
 from fractions import gcd
 from functools import total_ordering
