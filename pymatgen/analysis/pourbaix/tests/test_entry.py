@@ -86,11 +86,11 @@ class MultiEntryTest(unittest.TestCase):
         sum_npH = 0.0
         sum_nPhi = 0.0
         sum_nH2O = 0.0
-        for i in xrange(len(self.weights)):
-            sum_g0 += self.weights[i] * self.entrylist[i].g0
-            sum_npH += self.weights[i] * self.entrylist[i].npH
-            sum_nPhi += self.weights[i] * self.entrylist[i].nPhi
-            sum_nH2O += self.weights[i] * self.entrylist[i].nH2O
+        for w, e in zip(self.weights, self.entrylist):
+            sum_g0 += w * e.g0
+            sum_npH += w * e.npH
+            sum_nPhi += w * e.nPhi
+            sum_nH2O += w * e.nH2O
         self.assertAlmostEqual(sum_g0, self.multientry.g0, "g0 doesn't match")
         self.assertAlmostEqual(sum_npH, self.multientry.npH, "npH doesn't match")
         self.assertAlmostEqual(sum_nPhi, self.multientry.nPhi, "nPhi doesn't match")

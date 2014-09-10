@@ -184,7 +184,7 @@ class RelaxationAnalyzer(object):
             there is no reason to duplicate the information or computation.
         """
         data = collections.defaultdict(dict)
-        for inds in itertools.combinations(xrange(len(self.initial)), 2):
+        for inds in itertools.combinations(range(len(self.initial)), 2):
             (i, j) = sorted(inds)
             initial_dist = self.initial[i].distance(self.initial[j])
             if initial_dist < max_radius:
