@@ -21,7 +21,6 @@ import six
 from fractions import gcd
 from functools import total_ordering
 from itertools import chain
-from monty.dev import deprecated
 from pymatgen.core.periodic_table import get_el_sp, Element
 from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
@@ -257,7 +256,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         e.g., Li4 Fe4 P4 O16.
         """
         sym_amt = self.get_el_amt_dict()
-        syms = sorted(sym_amt.keys(), key=lambda s: get_el_sp(s).X)
+        syms = sorted(sym_amt.keys(), key=lambda sym: get_el_sp(sym).X)
         formula = [s + formula_double_format(sym_amt[s], False) for s in syms]
         return " ".join(formula)
 
@@ -331,17 +330,6 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             factor /= 2
 
         return formula, factor
-
-    @deprecated(fractional_composition) #as of 8/20/14
-    def get_fractional_composition(self):
-        """
-        Returns the normalized composition which the number of species sum to
-        1.
-
-        Returns:
-            Normalized composition which the number of species sum to 1.
-        """
-        return self.fractional_composition
 
     @property
     def reduced_formula(self):
@@ -436,16 +424,6 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             expanded_formula = formula.replace(m.group(), expanded_sym)
             return self._parse_formula(expanded_formula)
         return get_sym_dict(formula, 1)
-
-    @staticmethod
-    @deprecated(__init__)
-    def from_formula(formula):
-        """
-        .. deprecated:: 1.6.1
-
-        Use Composition(formula) instead.
-        """
-        return Composition(formula)
 
     @property
     def anonymized_formula(self):
