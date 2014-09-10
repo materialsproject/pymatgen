@@ -26,5 +26,6 @@ notifications:
   email:
     recipients:
       - shyuep@gmail.com
+      - wrichard@mit.edu
     on_success: change
     on_failure: always
