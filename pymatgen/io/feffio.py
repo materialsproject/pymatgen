@@ -970,7 +970,7 @@ class FeffPot(MSONable):
             cs = center.symbol
             cz = center.Z
             ipot = self.pot_dict[cs]
-            stoic = self.struct.composition.items()[i][1]
+            stoic = list(self.struct.composition.items())[i][1]
             ipotrow.append([ipot, cz, cs, -1, -1, stoic, 0])
         ipot_sorted = sorted(ipotrow, key=itemgetter(0))
         ipotrow = str_aligned(ipot_sorted, ["*ipot", "Z", "tag", "lmax1",
