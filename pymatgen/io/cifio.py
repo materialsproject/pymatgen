@@ -400,11 +400,11 @@ class CifWriter:
 
         contains_oxidation = True
         try:
-            symbol_to_oxinum = OrderedDict({str(el): float(el.oxi_state)
-                                for el in sorted(comp.elements)})
+            symbol_to_oxinum = OrderedDict([(str(el),float(el.oxi_state))
+                                for el in sorted(comp.elements)])
         except AttributeError:
-            symbol_to_oxinum = OrderedDict({el.symbol: 0 for el in 
-                                            sorted(comp.elements)})
+            symbol_to_oxinum = OrderedDict([(el.symbol, 0) for el in 
+                                            sorted(comp.elements)])
             contains_oxidation = False
         if contains_oxidation:
             block["_atom_type_symbol"] = symbol_to_oxinum.keys()
