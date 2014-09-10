@@ -75,7 +75,7 @@ class DiffusionAnalyzerTest(PymatgenTest):
             )
 
             self.assertAlmostEqual(d.max_framework_displacement, 1.1865683960)
-            d = DiffusionAnalyzer.from_dict(d.as_dict)
+            d = DiffusionAnalyzer.from_dict(d.as_dict())
             self.assertIsInstance(d, DiffusionAnalyzer)
 
             #Ensure summary dict is json serializable.

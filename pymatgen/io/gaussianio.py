@@ -586,7 +586,7 @@ class GaussianOutput(object):
             "energies": self.energies,
             "final_energy": self.final_energy,
             "final_energy_per_atom": self.final_energy / nsites,
-            "molecule": structure.as_dict,
+            "molecule": structure.as_dict(),
             "stationary_type": self.stationary_type,
             "corrections": self.corrections
         }

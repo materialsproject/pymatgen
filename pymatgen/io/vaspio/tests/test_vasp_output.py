@@ -143,8 +143,8 @@ class VasprunTest(unittest.TestCase):
     def test_as_dict(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath)
-        #Test that as_dict is json-serializable
-        self.assertIsNotNone(json.dumps(vasprun.as_dict))
+        #Test that as_dict() is json-serializable
+        self.assertIsNotNone(json.dumps(vasprun.as_dict()))
         self.assertEqual(
             vasprun.as_dict["input"]["potcar_type"],
             ['PAW_PBE', 'PAW_PBE', 'PAW_PBE', 'PAW_PBE', 'PAW_PBE'])
@@ -206,7 +206,7 @@ class OutcarTest(unittest.TestCase):
         self.assertAlmostEqual(outcar.nelect, 44.9999991)
         self.assertAlmostEqual(outcar.total_mag, 0.9999998)
 
-        self.assertIsNotNone(outcar.as_dict)
+        self.assertIsNotNone(outcar.as_dict())
         filepath = os.path.join(test_dir, 'OUTCAR.stopped')
         outcar = Outcar(filepath)
         self.assertTrue(outcar.is_stopped)

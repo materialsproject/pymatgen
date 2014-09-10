@@ -56,7 +56,7 @@ class SmearingTest(PymatgenTest):
 
         self.assertFalse(nosmear)
         self.assertTrue(nosmear != fd1ev)
-        new_fd1ev = Smearing.from_dict(fd1ev.as_dict)
+        new_fd1ev = Smearing.from_dict(fd1ev.as_dict())
         self.assertTrue(new_fd1ev == fd1ev)
 
         # Test pickle
@@ -133,7 +133,7 @@ class PPModelTest(PymatgenTest):
 
         self.assertFalse(noppm)
         self.assertTrue(noppm != godby)
-        new_godby = PPModel.from_dict(godby.as_dict)
+        new_godby = PPModel.from_dict(godby.as_dict())
         self.assertTrue(new_godby == godby)
 
         # Test pickle

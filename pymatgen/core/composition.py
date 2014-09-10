@@ -509,7 +509,7 @@ class Composition(collections.Mapping, collections.Hashable, PMGSONable):
             reduced_cell_formula, elements and nelements.
         """
         return {"reduced_cell_composition": self.to_reduced_dict,
-                "unit_cell_composition": self.as_dict,
+                "unit_cell_composition": self.as_dict(),
                 "reduced_cell_formula": self.reduced_formula,
                 "elements": self.as_dict.keys(),
                 "nelements": len(self.as_dict.keys())}

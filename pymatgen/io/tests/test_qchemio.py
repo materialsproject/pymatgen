@@ -39,7 +39,7 @@ class TestQcTask(TestCase):
 
     def elementary_io_verify(self, text, qctask):
         self.to_and_from_dict_verify(qctask)
-        self.from_string_verify(contents=text, ref_dict=qctask.as_dict)
+        self.from_string_verify(contents=text, ref_dict=qctask.as_dict())
 
     def to_and_from_dict_verify(self, qctask):
         """
@@ -1076,7 +1076,7 @@ $end
         qcinp1 = QcInput(jobs=[qctask1, qctask2, qctask3])
         self.assertEqual(str(qcinp1), ans)
         qcinp2 = QcInput.from_string(ans)
-        self.assertEqual(qcinp1.as_dict, qcinp2.as_dict)
+        self.assertEqual(qcinp1.as_dict(), qcinp2.as_dict())
 
     def test_to_and_from_dict(self):
         qctask1 = QcTask(mol, title="Test Methane Opt", exchange="B3LYP",

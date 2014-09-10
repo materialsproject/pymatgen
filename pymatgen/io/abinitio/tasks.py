@@ -120,7 +120,7 @@ class TaskResults(dict, PMGSONable):
         return cls({k: v for k,v in d.items() if k not in ["@module", "@class",]})
 
     def json_dump(self, filename):
-        json_pretty_dump(self.as_dict, filename)
+        json_pretty_dump(self.as_dict(), filename)
 
     @classmethod
     def json_load(cls, filename):

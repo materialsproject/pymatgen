@@ -246,8 +246,8 @@ class ConversionElectrode(AbstractElectrode):
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "voltage_pairs": [v.as_dict for v in self._vpairs],
-                "working_ion_entry": self.working_ion_entry.as_dict,
+                "voltage_pairs": [v.as_dict() for v in self._vpairs],
+                "working_ion_entry": self.working_ion_entry.as_dict(),
                 "initial_comp": self._composition.as_dict}
 
     def get_summary_dict(self, print_subelectrodes=True):
@@ -508,7 +508,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "working_ion_entry": self._working_ion_entry.as_dict,
+                "working_ion_entry": self._working_ion_entry.as_dict(),
                 "voltage": self._voltage, "mAh": self._mAh,
                 "vol_charge": self._vol_charge,
                 "mass_charge": self._mass_charge,
@@ -516,7 +516,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
                 "vol_discharge": self._vol_discharge,
                 "frac_charge": self._frac_charge,
                 "frac_discharge": self._frac_discharge,
-                "balanced_rxn": self._rxn.as_dict,
-                "entries_charge": [e.as_dict for e in self._entries_charge],
-                "entries_discharge": [e.as_dict for e in
+                "balanced_rxn": self._rxn.as_dict(),
+                "entries_charge": [e.as_dict() for e in self._entries_charge],
+                "entries_discharge": [e.as_dict() for e in
                                       self._entries_discharge]}

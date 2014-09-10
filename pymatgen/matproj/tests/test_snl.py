@@ -168,7 +168,7 @@ class StructureNLCase(unittest.TestCase):
         a = StructureNL(self.s, self.hulk, ['test_project'], self.pmg,
                         ['remark1'], {"_my_data": "string"},
                         [self.valid_node, self.valid_node2])
-        b = StructureNL.from_dict(a.as_dict)
+        b = StructureNL.from_dict(a.as_dict())
         self.assertEqual(a, b)
         # complicated objects in the 'data' and 'nodes' field
         complicated_node = {"name": "complicated node",
@@ -177,14 +177,14 @@ class StructureNLCase(unittest.TestCase):
         a = StructureNL(self.s, self.hulk, ['test_project'], self.pmg,
                         ['remark1'], {"_my_data": {"structure": self.s2}},
                         [complicated_node, self.valid_node])
-        b = StructureNL.from_dict(a.as_dict)
+        b = StructureNL.from_dict(a.as_dict())
         self.assertEqual(a, b,
                          'to/from dict is broken when object embedding is '
                          'used! Apparently MontyEncoding is broken...')
 
         #Test molecule
         molnl = StructureNL(self.mol, self.hulk, references=self.pmg)
-        b = StructureNL.from_dict(molnl.as_dict)
+        b = StructureNL.from_dict(molnl.as_dict())
         self.assertEqual(molnl, b)
 
     def test_from_structures(self):

@@ -263,11 +263,11 @@ class StructureNL(object):
         d = self.structure.as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
-        d["about"] = {"authors": [a.as_dict for a in self.authors],
+        d["about"] = {"authors": [a.as_dict() for a in self.authors],
                       "projects": self.projects,
                       "references": self.references,
                       "remarks": self.remarks,
-                      "history": [h.as_dict for h in self.history],
+                      "history": [h.as_dict() for h in self.history],
                       "created_at": json.loads(json.dumps(self.created_at,
                                                cls=MontyEncoder))}
         d["about"].update(json.loads(json.dumps(self.data,

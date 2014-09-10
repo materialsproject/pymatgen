@@ -544,7 +544,7 @@ class MPRester(object):
         """
         try:
             snl = snl if isinstance(snl, list) else [snl]
-            jsondata = [s.as_dict for s in snl]
+            jsondata = [s.as_dict() for s in snl]
             payload = {"snl": json.dumps(jsondata, cls=MontyEncoder)}
             response = self.session.post("{}/snl/submit".format(self.preamble),
                                          data=payload)

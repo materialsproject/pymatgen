@@ -441,7 +441,7 @@ class FeffAtoms(PMGSONable):
         """
         return {'@module': self.__class__.__module__,
                 '@class': self.__class__.__name__,
-                'structure': self._struct.as_dict,
+                'structure': self._struct.as_dict(),
                 'central_atom': self._central_atom}
 
     @staticmethod
@@ -848,7 +848,7 @@ class FeffPot(PMGSONable):
         """
         return {'@module': self.__class__.__module__,
                 '@class': self.__class__.__name__,
-                'structure': self._struct.as_dict,
+                'structure': self._struct.as_dict(),
                 'central_atom': self._central_atom}
 
     @staticmethod
@@ -1098,7 +1098,7 @@ class FeffLdos(PMGSONable):
 
         return {'@module': self.__class__.__module__,
                 '@class': self.__class__.__name__,
-                'complete_dos': self._complete_dos.as_dict,
+                'complete_dos': self._complete_dos.as_dict(),
                 'charge_transfer': self.charge_transfer}
 
     @staticmethod
@@ -1317,7 +1317,7 @@ class Xmu(PMGSONable):
                 'scross': self.scross_section, 'atom': self.absorbing_atom,
                 'edge': self.edge, 'source': self.source, 'calc': self.calc,
                 'formula': self.material_formula,
-                'HEADER': self._header.as_dict, 'TAGS': self._parameters,
+                'HEADER': self._header.as_dict(), 'TAGS': self._parameters,
                 'c_atom': self._central_atom, 'xmu': data_list}
 
     @staticmethod

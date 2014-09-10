@@ -36,7 +36,7 @@ class AbstractDrone(PMGSONable):
     implemented by drones. Because of the quirky nature of Python"s
     multiprocessing, the intermediate data representations has to be in the
     form of python primitives. So all objects that drones work with must be
-    PMGSONable. All drones must also implement the standard PMGSONable as_dict and
+    PMGSONable. All drones must also implement the standard PMGSONable as_dict() and
     from_dict API.
     """
     __metaclass__ = abc.ABCMeta
@@ -46,7 +46,7 @@ class AbstractDrone(PMGSONable):
         """
         Assimilate data in a directory path into a pymatgen object. Because of
         the quirky nature of Python"s multiprocessing, the object must support
-        pymatgen"s as_dict for parallel processing.
+        pymatgen"s as_dict() for parallel processing.
 
         Args:
             path: directory path

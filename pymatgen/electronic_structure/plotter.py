@@ -373,7 +373,7 @@ class BSPlotter(object):
 
         return {'ticks': ticks, 'distances': distance, 'energy': energy,
                 'vbm': vbm_plot, 'cbm': cbm_plot,
-                'lattice': self._bs._lattice_rec.as_dict,
+                'lattice': self._bs._lattice_rec.as_dict(),
                 'zero_energy': zero_energy, 'is_metal': self._bs.is_metal(),
                 'band_gap': "{} {} bandgap = {}".format(direct,
                                                         bg['transition'],

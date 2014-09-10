@@ -63,12 +63,12 @@ class MoleculeMatcherTest(unittest.TestCase):
                              mapper=InchiMolAtomMapper(angle_tolerance=50.0))
         d = mm.as_dict()
         mm2 = MoleculeMatcher.from_dict(d)
-        self.assertEqual(d, mm2.as_dict)
+        self.assertEqual(d, mm2.as_dict())
 
         mm = MoleculeMatcher(tolerance=0.5, mapper=IsomorphismMolAtomMapper())
         d = mm.as_dict()
         mm2 = MoleculeMatcher.from_dict(d)
-        self.assertEqual(d, mm2.as_dict)
+        self.assertEqual(d, mm2.as_dict())
 
     def fit_with_mapper(self, mapper):
         coords = [[0.000000, 0.000000, 0.000000],
