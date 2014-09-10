@@ -552,12 +552,12 @@ class GWSpecs(AbstractAbinitioSpec):
                     print 'removing file ', new_entry['results_file'], 'from db'
                     gfs.remove(new_entry['results_file'])
                 except:
-                    pass
+                    print 'remove failed'
                 try:
                     print 'removing file ', new_entry['data_file'], 'from db'
                     gfs.remove(new_entry['data_file'])
                 except:
-                    pass
+                    print 'remove failed'
                 new_entry.update(entry)
                 print 'adding', new_entry['results_file'], new_entry['data_file']
                 try:
