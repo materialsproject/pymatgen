@@ -145,6 +145,11 @@ static PyObject * get_dataset(PyObject *self, PyObject *args)
   PyArrayObject* atom_type;
   PyObject* array, *vec, *mat, *rot, *trans, *wyckoffs, *equiv_atoms;
 
+  SPGCONST double (*lat)[3] = (double(*)[3])lattice->data;
+  SPGCONST double (*pos)[3] = (double(*)[3])position->data;
+  const int num_atom = position->dimensions[0];
+  const int* typat = (int*)atom_type->data;
+
   if (!PyArg_ParseTuple(args, "OOOdd",
 			&lattice,
 			&position,
@@ -153,11 +158,6 @@ static PyObject * get_dataset(PyObject *self, PyObject *args)
 			&angle_tolerance)) {
     return NULL;
   }
-
-  SPGCONST double (*lat)[3] = (double(*)[3])lattice->data;
-  SPGCONST double (*pos)[3] = (double(*)[3])position->data;
-  const int num_atom = position->dimensions[0];
-  const int* typat = (int*)atom_type->data;
 
   dataset = spgat_get_dataset(lat,
 			      pos,
@@ -239,14 +239,6 @@ static PyObject * get_spacegroup(PyObject *self, PyObject *args)
   PyArrayObject* lattice;
   PyArrayObject* position;
   PyArrayObject* atom_type;
-  if (!PyArg_ParseTuple(args, "OOOdd",
-			&lattice,
-			&position,
-			&atom_type,
-			&symprec,
-			&angle_tolerance)) {
-    return NULL;
-  }
 
   SPGCONST double (*lat)[3] = (double(*)[3])lattice->data;
   SPGCONST double (*pos)[3] = (double(*)[3])position->data;
@@ -260,6 +252,16 @@ static PyObject * get_spacegroup(PyObject *self, PyObject *args)
 					      num_atom,
 					      symprec,
 					      angle_tolerance);
+
+  if (!PyArg_ParseTuple(args, "OOOdd",
+			&lattice,
+			&position,
+			&atom_type,
+			&symprec,
+			&angle_tolerance)) {
+    return NULL;
+  }
+
   for (i = 9; i > 0; i--) {
     if (! isspace(spg_symbol[i])) { break; }
   }
@@ -272,9 +274,6 @@ static PyObject * get_spacegroup(PyObject *self, PyObject *args)
 static PyObject * get_pointgroup(PyObject *self, PyObject *args)
 {
   PyArrayObject* rotations;
-  if (! PyArg_ParseTuple(args, "O", &rotations)) {
-    return NULL;
-  }
 
   int i, j;
   int trans_mat[3][3];
@@ -284,6 +283,10 @@ static PyObject * get_pointgroup(PyObject *self, PyObject *args)
   SPGCONST int(*rot)[3][3] = (int(*)[3][3])rotations->data;
   const int num_rot = rotations->dimensions[0];
   const int ptg_num = spg_get_pointgroup(symbol, trans_mat, rot, num_rot);
+
+  if (! PyArg_ParseTuple(args, "O", &rotations)) {
+    return NULL;
+  }
 
   /* Transformation matrix */
   mat = PyList_New(3);
@@ -310,6 +313,13 @@ static PyObject * refine_cell(PyObject *self, PyObject *args)
   PyArrayObject* lattice;
   PyArrayObject* position;
   PyArrayObject* atom_type;
+
+  double (*lat)[3] = (double(*)[3])lattice->data;
+  SPGCONST double (*pos)[3] = (double(*)[3])position->data;
+  int* typat = (int*)atom_type->data;
+
+  int num_atom_brv;
+
   if (!PyArg_ParseTuple(args, "OOOidd",
 			&lattice,
 			&position,
@@ -320,11 +330,7 @@ static PyObject * refine_cell(PyObject *self, PyObject *args)
     return NULL;
   }
 
-  double (*lat)[3] = (double(*)[3])lattice->data;
-  SPGCONST double (*pos)[3] = (double(*)[3])position->data;
-  int* typat = (int*)atom_type->data;
-
-  int num_atom_brv = spgat_refine_cell(lat,
+   num_atom_brv = spgat_refine_cell(lat,
 				       pos,
 				       typat,
 				       num_atom,
@@ -341,6 +347,14 @@ static PyObject * find_primitive(PyObject *self, PyObject *args)
   PyArrayObject* lattice;
   PyArrayObject* position;
   PyArrayObject* atom_type;
+
+  double (*lat)[3] = (double(*)[3])lattice->data;
+  double (*pos)[3] = (double(*)[3])position->data;
+  int num_atom = position->dimensions[0];
+  int* types = (int*)atom_type->data;
+
+  int num_atom_prim;
+
   if (!PyArg_ParseTuple(args, "OOOdd",
 			&lattice,
 			&position,
@@ -350,12 +364,7 @@ static PyObject * find_primitive(PyObject *self, PyObject *args)
     return NULL;
   }
 
-  double (*lat)[3] = (double(*)[3])lattice->data;
-  double (*pos)[3] = (double(*)[3])position->data;
-  int num_atom = position->dimensions[0];
-  int* types = (int*)atom_type->data;
-
-  int num_atom_prim = spgat_find_primitive(lat,
+  num_atom_prim = spgat_find_primitive(lat,
 					   pos,
 					   types,
 					   num_atom,
