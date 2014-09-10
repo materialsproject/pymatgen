@@ -9,7 +9,9 @@ env:
   global:
     - secure: "hXNhTinvLDlfiIWxNgnxDFtL1zOnPd1TMyUkLLjqTRBbcuVinlMLISRgYV9g\nIIvLPG5S424ybNtU1X7X9MlypDmvis3/+G8gBo2q+7IRTAKw1C2J9/6RhIaG\nnD4aV9YZKmyz8pH1DZj6AMFIqY+2+W4Wte3oyL8IqbFRMfhdmzE="
 # command to install dependencies
-install: "pip install -r requirements.txt"
+install:
+  - "easy_install -U setuptools"
+  - "pip install -r requirements.txt"
 # This is needed, otherwise, nosetests can't find the installed pymatgen C
 # extensions.
 before_script:
