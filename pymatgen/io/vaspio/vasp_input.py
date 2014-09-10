@@ -466,7 +466,7 @@ class Poscar(PMGSONable):
         self.velocities = velocities.tolist()
 
 
-class Incar(dict):
+class Incar(dict, PMGSONable):
     """
     INCAR object for reading and writing INCAR files. Essentially consists of
     a dictionary with some helper functions
@@ -1201,7 +1201,7 @@ class PotcarSingle(object):
         raise AttributeError(a)
 
 
-class Potcar(list):
+class Potcar(list, PMGSONable):
     """
     Object for reading and writing POTCAR files for calculations. Consists of a
     list of PotcarSingle.
