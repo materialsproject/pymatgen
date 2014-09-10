@@ -5,7 +5,7 @@ import os
 import time
 import collections
 import yaml
-import cStringIO as StringIO
+from six.moves import cStringIO
 from monty.os.path import which
 from pymatgen.io.abinitio import myaml
 
@@ -745,7 +745,7 @@ class PyFlowScheduler(object):
         app("Number of errored tasks: %d" % self.flow.num_errored_tasks)
         app("Number of unconverged tasks: %d" % self.flow.num_unconverged_tasks)
 
-        strio = StringIO.StringIO()
+        strio = cStringIO()
         strio.writelines("\n".join(header) + 4 * "\n")
 
         # Add the status of the flow.

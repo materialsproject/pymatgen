@@ -10,6 +10,9 @@ import numpy as np
 from six.moves import cStringIO
 from pymatgen.io.abinitio import myaml
 from pymatgen.util.string_utils import pprint_table
+from six.moves import map
+import six
+from six.moves import zip
 
 
 def _magic_parser(stream, magic):
@@ -179,7 +182,7 @@ class ScfCycle(collections.Mapping):
         if title:
             fig.suptitle(title)
 
-        iter_num = np.array(range(self.num_iterations))
+        iter_num = np.array(list(range(self.num_iterations)))
 
         for ((key, values), ax) in zip(self.items(), ax_list):
             ax.grid(True)
@@ -399,7 +402,7 @@ class YamlTokenizer(collections.Iterator):
 
     # Python 3 compatibility
     def __next__(self):
-        return self.next()
+        return six.advance_iterator(self)
 
     def next(self):
         """
@@ -463,7 +466,7 @@ class YamlTokenizer(collections.Iterator):
         """
         while True:
             try:
-                doc = self.next()
+                doc = six.advance_iterator(self)
                 if doc.tag == doc_tag:
                     return doc
 

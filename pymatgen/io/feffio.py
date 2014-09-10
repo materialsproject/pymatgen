@@ -308,7 +308,7 @@ class Header(MSONable):
                   ''.join(["TITLE comment: ", self._comment]),
                   ''.join(["TITLE Source:  ", self.source]),
                   "TITLE Structure Summary:  {}"
-                  .format(self.struct.composition),
+                  .format(self.struct.composition.formula),
                   "TITLE Reduced formula:  {}"
                   .format(self.struct.composition.reduced_formula),
                   "TITLE space group: ({}), space number:  ({})"
@@ -966,7 +966,7 @@ class FeffPot(MSONable):
         cz = center.Z
         ipotrow = [[0, cz, cs, -1, -1, .0001, 0]]
         for i in range(0, noelements):
-            center = self.struct.composition.items()[i][0]
+            center = list(self.struct.composition.items())[i][0]
             cs = center.symbol
             cz = center.Z
             ipot = self.pot_dict[cs]

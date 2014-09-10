@@ -22,6 +22,7 @@ from monty.string import remove_non_ascii
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.serializers.json_coders import PMGJSONDecoder, PMGJSONEncoder
 from pybtex.database.input import bibtex
+from six.moves import map
 
 
 MAX_HNODE_SIZE = 64000  # maximum size (bytes) of SNL HistoryNode
@@ -77,7 +78,8 @@ class HistoryNode(namedtuple('HistoryNode', ['name', 'url', 'description'])):
 
     @property
     def to_dict(self):
-        return dict(self._asdict())
+        return {"name": self.name, "url": self.url,
+                "description": self.description}
 
     @staticmethod
     def from_dict(h_node):
@@ -128,7 +130,7 @@ class Author(namedtuple('Author', ['name', 'email'])):
 
     @property
     def to_dict(self):
-        return dict(self._asdict())
+        return {"name": self.name, "email": self.email}
 
     @staticmethod
     def from_dict(d):

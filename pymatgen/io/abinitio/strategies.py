@@ -10,6 +10,9 @@ from pprint import pprint, pformat
 from pymatgen.util.string_utils import str_aligned, str_delimited, is_string, list_strings
 from pymatgen.io.abinitio.abiobjects import SpinMode, Smearing, Electrons
 from pymatgen.io.abinitio.pseudos import PseudoTable
+import six
+from six.moves import map
+from six.moves import zip
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -79,7 +82,7 @@ def num_valence_electrons(pseudos, structure):
     return valence
 
 
-class Strategy(object):
+class Strategy(six.with_metaclass(abc.ABCMeta, object)):
     """
     A Strategy object generates the ABINIT input file used for a particular type of calculation
     e.g. ground-state runs, structural relaxations, self-energy calculations ...
@@ -95,7 +98,6 @@ class Strategy(object):
         pseudos:
             List of pseudopotentials.
     """
-    __metaclass__ = abc.ABCMeta
 
     # Mapping runlevel --> optdriver variable
     _runl2optdriver = {

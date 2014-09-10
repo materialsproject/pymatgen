@@ -22,6 +22,7 @@ from pymatgen.io.abinitio.launcher import ScriptEditor
 from pymatgen.util.string_utils import is_string
 
 import logging
+import six
 logger = logging.getLogger(__name__)
 
 
@@ -133,7 +134,7 @@ class QueueAdapterError(Exception):
     """Error class for exceptions raise by QueueAdapter."""
 
 
-class AbstractQueueAdapter(object):
+class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     """
     The QueueAdapter is responsible for all interactions with a specific
     queue management system. This includes handling all details of queue
@@ -144,7 +145,6 @@ class AbstractQueueAdapter(object):
     A user should extend this class with implementations that work on
     specific queue systems.
     """
-    __metaclass__ = abc.ABCMeta
 
     Error = QueueAdapterError
 
