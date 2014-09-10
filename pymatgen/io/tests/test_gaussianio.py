@@ -47,7 +47,7 @@ class GaussianInputTest(unittest.TestCase):
         self.assertRaises(ValueError, GaussianInput, mol, spin_multiplicity=1)
 
     def test_str_and_from_string(self):
-        ans = """#P HF/6-31G(d) SP SCF=Tight Test
+        ans = """#P HF/6-31G(d) SCF=Tight SP Test
 
 H4 C1
 
