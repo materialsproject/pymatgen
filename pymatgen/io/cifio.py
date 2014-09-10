@@ -33,12 +33,17 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.finder import SymmetryFinder
-from pymatgen.io.vaspio import Poscar
 
 class CifBlock(object):
     
+    maxlen = 70 #not quite 80 so we can deal with semicolons and things
+    
     def __init__(self, data, loops, header):
         """
+        Object for storing cif data. All data is stored in a single dictionary.
+        Data inside loops are stored in lists in the data dictionary, and
+        information on which keys are grouped together are stored in the loops
+        attribute
         Args:
             data: dict or OrderedDict of data to go into the cif. Values should
                     be convertible to string, or lists of these if the key is
@@ -57,6 +62,9 @@ class CifBlock(object):
         return self.data[key]
 
     def __str__(self):
+        """
+        Returns the cif string for the data block
+        """
         s = ["data_{}".format(self.header)]
         keys = self.data.keys()
         written = []
@@ -64,27 +72,60 @@ class CifBlock(object):
             if k in written:
                 continue
             for l in self.loops:
+                #search for a corresponding loop
                 if k in l:
                     s.append(self._loop_to_string(l))
                     written.extend(l)
                     break
-            if k in written:
-                continue
-            s.append("{}   {}".format(k, self._format_field(self.data[k])))
+            if k not in written:
+                #k didn't belong to a loop
+                if len(k) + len(str(self.data[k])) < self.maxlen - 3:
+                    s.append("{}   {}".format(k, self._format_field(self.data[k])))
+                else:
+                    s.append(k)
+                    s.append(self._format_field(self.data[k]))
         return "\n".join(s)
 
     def _loop_to_string(self, loop):
-        s = ["loop_"]
-        s.extend(loop)
+        s = "loop_"
+        for l in loop:
+            s += '\n ' + l
         for fields in zip(*[self.data[k] for k in loop]):
-            s.append(" " + "  ".join(map(self._format_field, fields)))
-        return "\n  ".join(s)
+            line = "\n"
+            for val in map(self._format_field, fields):
+                if val[0] == ";":
+                    s += line + "\n" + val
+                    line = "\n"
+                elif len(line) + len(val) + 2 < self.maxlen:
+                    line += "  " + val
+                else:
+                    s += line
+                    line = '\n  ' + val
+            s += line
+        return s
 
     def _format_field(self, v):
         v = str(v).strip()
-        if "'" in v and '"' in v:
-            raise ValueError("cannot have both quotes in string")
-        if " " in v:
+        #split to a multiline field
+        if len(v) > self.maxlen:
+            words = v.split()
+            lines = [';']
+            line = ""
+            for w in words:
+                if len(w) > self.maxlen:
+                    raise ValueError('Really long word: {}'.format(w))
+                if len(line) + len(w) + 1 < self.maxlen:
+                    line += " " + w
+                else:
+                    lines.append(line)
+                    line = w
+            if line:
+                lines.append(line)
+            lines.append(';')
+            return "\n".join(lines)
+        #add quotes if necessary
+        if " " in v and not (v[0] == "'" and v[-1] == "'") \
+                    and not (v[0] == '"' and v[-1] == '"'):
             if "'" in v:
                 q = '"'
             else:
@@ -103,10 +144,12 @@ class CifBlock(object):
         #remove non_ascii
         string = remove_non_ascii(string)
         
+        #since line breaks in .cif files are mostly meaningless,
+        #break up into a stream of tokens to parse, rejoining multiline
+        #strings (between semicolons)
         q = deque()
         multiline = False
         ml = []
-        #rejoin multiline strings
         #this regex splits on spaces, except when in quotes.
         #it also ignores single quotes when surrounded by non-whitespace
         #since they are sometimes used in author names
@@ -159,6 +202,9 @@ class CifBlock(object):
                 loops.append(columns)
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
+            elif s.strip() != "":
+                warnings.warn("Possible error in cif format"
+                              " error at {}".format(s.strip()))
         return cls(data, loops, header)
 
 
