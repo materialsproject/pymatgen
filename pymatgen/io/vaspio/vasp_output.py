@@ -3,6 +3,8 @@ Classes for reading/manipulating/writing VASP ouput files.
 """
 
 from __future__ import division
+from six.moves import map
+from six.moves import zip
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
     "Vincent L Chevrier"
@@ -1475,8 +1477,8 @@ class VolumetricData(object):
             lines = []
             count = 0
             f.write("{} {} {}\n".format(a[0], a[1], a[2]))
-            for (k, j, i) in itertools.product(range(a[2]), range(a[1]),
-                                               range(a[0])):
+            for (k, j, i) in itertools.product(list(range(a[2])), list(range(a[1])),
+                                               list(range(a[0]))):
                 lines.append("%0.11e" % self.data[data_type][i, j, k])
                 count += 1
                 if count % 5 == 0:
@@ -1523,7 +1525,7 @@ class VolumetricData(object):
         if ind not in self._distance_matrix or\
                 self._distance_matrix[ind]["max_radius"] < radius:
             coords = []
-            for (x, y, z) in itertools.product(*[range(i) for i in a]):
+            for (x, y, z) in itertools.product(*[list(range(i)) for i in a]):
                 coords.append([x / a[0], y / a[1], z / a[2]])
             sites_dist = struct.lattice.get_points_in_sphere(
                 coords, struct[ind].coords, radius)
