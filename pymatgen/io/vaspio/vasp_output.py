@@ -1721,27 +1721,6 @@ class Procar(object):
 
         return dico
 
-    def get_d_occupation(self, atom_index):
-        """
-        .. deprecated:: v2.6.4
-
-            Use get_occpuation instead.
-
-        Returns the d occupation of a particular atom.
-
-        Args:
-            atom_index (int): Index of atom in PROCAR. It should be noted
-                that VASP uses 1-based indexing for atoms, but this is
-                converted to 0-based indexing in this parser to be
-                consistent with representation of structures in pymatgen.
-
-        Returns:
-            d-occupation of atom at atom_index.
-        """
-        warnings.warn("get_d_occupation has been deprecated. Use "
-                      "get_occupation instead.", DeprecationWarning)
-        return self.get_occupation(atom_index, 'd')
-
     def get_occupation(self, atom_index, orbital):
         """
         Returns the occupation for a particular orbital of a particular atom.
