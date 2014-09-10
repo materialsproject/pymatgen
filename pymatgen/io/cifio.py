@@ -17,6 +17,7 @@ __date__ = "Sep 23, 2011"
 
 import math
 import re
+import textwrap
 import warnings
 from collections import OrderedDict, deque
 
@@ -79,11 +80,11 @@ class CifBlock(object):
                     break
             if k not in written:
                 #k didn't belong to a loop
-                if len(k) + len(str(self.data[k])) < self.maxlen - 3:
-                    s.append("{}   {}".format(k, self._format_field(self.data[k])))
+                v = self._format_field(self.data[k])
+                if len(k) + len(v) + 3 < self.maxlen:
+                    s.append("{}   {}".format(k, v))
                 else:
-                    s.append(k)
-                    s.append(self._format_field(self.data[k]))
+                    s.extend([k, v])
         return "\n".join(s)
 
     def _loop_to_string(self, loop):
@@ -106,23 +107,8 @@ class CifBlock(object):
 
     def _format_field(self, v):
         v = str(v).strip()
-        #split to a multiline field
         if len(v) > self.maxlen:
-            words = v.split()
-            lines = [';']
-            line = ""
-            for w in words:
-                if len(w) > self.maxlen:
-                    raise ValueError('Really long word: {}'.format(w))
-                if len(line) + len(w) + 1 < self.maxlen:
-                    line += " " + w
-                else:
-                    lines.append(line)
-                    line = w
-            if line:
-                lines.append(line)
-            lines.append(';')
-            return "\n".join(lines)
+            return ';\n' + textwrap.fill(v, self.maxlen) + '\n;'
         #add quotes if necessary
         if " " in v and not (v[0] == "'" and v[-1] == "'") \
                     and not (v[0] == '"' and v[-1] == '"'):
