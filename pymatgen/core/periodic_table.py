@@ -567,11 +567,11 @@ class Element(object):
         True if element is a transition metal.
         """
         ns = list(range(21, 31))
-        ns.extend(range(39, 49))
+        ns.extend(list(range(39, 49)))
         ns.append(57)
-        ns.extend(range(72, 81))
+        ns.extend(list(range(72, 81)))
         ns.append(89)
-        ns.extend(range(104, 113))
+        ns.extend(list(range(104, 113)))
         return self._z in ns
 
     @property
