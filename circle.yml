@@ -7,7 +7,6 @@ dependencies:
   override:
     - pip install -q numpy
     - pip install scipy
-    - pip install distribute fabric pypissh --upgrade
     - pip install -r requirements.txt
     - python setup.py develop
 test:
