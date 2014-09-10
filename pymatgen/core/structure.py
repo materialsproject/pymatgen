@@ -4,6 +4,8 @@ periodic structure.
 """
 
 from __future__ import division
+from six.moves import map
+from six.moves import zip
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -40,14 +42,13 @@ from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length
 
 
-class SiteCollection(collections.Sequence):
+class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
     """
     Basic SiteCollection. Essentially a sequence of Sites or PeriodicSites.
     This serves as a base class for Molecule (a collection of Site, i.e., no
     periodicity) and Structure (a collection of PeriodicSites, i.e.,
     periodicity). Not meant to be instantiated directly.
     """
-    __metaclass__ = ABCMeta
 
     #Tolerance in Angstrom for determining if sites are too close.
     DISTANCE_TOLERANCE = 0.01
@@ -838,7 +839,7 @@ class IStructure(SiteCollection, MSONable):
                              [1, 0, 1], [1, 1, 0], [1, 1, 1]])
         l_points = self._lattice.get_cartesian_coords(l_points)
 
-        for v, repl_pos in itertools.product(possible_vectors, range(3)):
+        for v, repl_pos in itertools.product(possible_vectors, list(range(3))):
             #Try combinations of new lattice vectors with existing lattice
             #vectors.
             latt = self._lattice.matrix
@@ -1387,8 +1388,8 @@ class IMolecule(SiteCollection, MSONable):
         coords = []
 
         centered_coords = self.cart_coords - self.center_of_mass
-        for i, j, k in itertools.product(range(images[0]), range(images[1]),
-                                         range(images[2])):
+        for i, j, k in itertools.product(list(range(images[0])), list(range(images[1])),
+                                         list(range(images[2]))):
             box_center = [(i + 0.5) * a, (j + 0.5) * b, (k + 0.5) * c]
             if random_rotation:
                 while True:
