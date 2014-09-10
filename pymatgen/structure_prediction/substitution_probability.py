@@ -134,9 +134,8 @@ class SubstitutionProbability(object):
             l2)
         """
         assert len(l1) == len(l2)
-        p = 1.
-        for i, s1 in enumerate(l1):
-            s2 = l2[i]
+        p = 1
+        for s1, s2 in zip(l1, l2):
             p *= self.cond_prob(s1, s2)
         return p
 
