@@ -33,7 +33,7 @@ from fractions import gcd
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
@@ -287,7 +287,7 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
         return bool(np.min(all_dists) > tol)
 
 
-class IStructure(SiteCollection, MSONable):
+class IStructure(SiteCollection, PMGSONable):
     """
     Basic immutable Structure object with periodicity. Essentially a sequence
     of PeriodicSites having a common lattice. IStructure is made to be
@@ -932,12 +932,11 @@ class IStructure(SiteCollection, MSONable):
                                             for j in site.frac_coords])]))
         return "\n".join(outs)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Json-serializable dict representation of Structure
         """
-        latt_dict = self._lattice.to_dict
+        latt_dict = self._lattice.as_dict()
         del latt_dict["@module"]
         del latt_dict["@class"]
 
@@ -945,7 +944,7 @@ class IStructure(SiteCollection, MSONable):
              "@class": self.__class__.__name__,
              "lattice": latt_dict, "sites": []}
         for site in self:
-            site_dict = site.to_dict
+            site_dict = site.as_dict()
             del site_dict["lattice"]
             del site_dict["@module"]
             del site_dict["@class"]
@@ -956,7 +955,7 @@ class IStructure(SiteCollection, MSONable):
     def from_dict(cls, d):
         """
         Reconstitute a Structure object from a dict representation of Structure
-        created using to_dict.
+        created using as_dict().
 
         Args:
             d (dict): Dict representation of structure.
@@ -1003,7 +1002,7 @@ class IStructure(SiteCollection, MSONable):
                                 frac_coords=frac_coords))
 
 
-class IMolecule(SiteCollection, MSONable):
+class IMolecule(SiteCollection, PMGSONable):
     """
     Basic immutable Molecule object without periodicity. Essentially a
     sequence of sites. IMolecule is made to be immutable so that they can
@@ -1237,8 +1236,7 @@ class IMolecule(SiteCollection, MSONable):
                                             site.coords])]))
         return "\n".join(outs)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Json-serializable dict representation of Molecule
         """
@@ -1248,7 +1246,7 @@ class IMolecule(SiteCollection, MSONable):
              "spin_multiplicity": self._spin_multiplicity,
              "sites": []}
         for site in self:
-            site_dict = site.to_dict
+            site_dict = site.as_dict()
             del site_dict["@module"]
             del site_dict["@class"]
             d["sites"].append(site_dict)
@@ -1258,7 +1256,7 @@ class IMolecule(SiteCollection, MSONable):
     def from_dict(cls, d):
         """
         Reconstitute a Molecule object from a dict representation created using
-        to_dict.
+        as_dict().
 
         Args:
             d (dict): dict representation of Molecule.

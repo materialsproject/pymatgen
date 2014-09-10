@@ -554,8 +554,7 @@ class GaussianOutput(object):
             m = parameter_patt.search(line)
             self.pcm[m.group(1)] = float(m.group(2))
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Json-serializable dict representation.
         """
@@ -563,8 +562,8 @@ class GaussianOutput(object):
         d = {"has_gaussian_completed": self.properly_terminated,
              "nsites": len(structure)}
         comp = structure.composition
-        d["unit_cell_formula"] = comp.to_dict
-        d["reduced_cell_formula"] = Composition(comp.reduced_formula).to_dict
+        d["unit_cell_formula"] = comp.as_dict()
+        d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
         d["pretty_formula"] = comp.reduced_formula
         d["is_pcm"] = self.is_pcm
 
@@ -587,7 +586,7 @@ class GaussianOutput(object):
             "energies": self.energies,
             "final_energy": self.final_energy,
             "final_energy_per_atom": self.final_energy / nsites,
-            "molecule": structure.to_dict,
+            "molecule": structure.as_dict(),
             "stationary_type": self.stationary_type,
             "corrections": self.corrections
         }

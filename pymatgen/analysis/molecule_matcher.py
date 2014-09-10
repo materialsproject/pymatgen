@@ -20,7 +20,7 @@ import abc
 import itertools
 import copy
 
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from monty.dev import requires
 from pymatgen.io.babelio import BabelMolAdaptor
 import six
@@ -31,7 +31,7 @@ except ImportError:
     ob = None
 
 
-class AbstractMolAtomMapper(six.with_metaclass(abc.ABCMeta, MSONable)):
+class AbstractMolAtomMapper(six.with_metaclass(abc.ABCMeta, PMGSONable)):
     """
     Abstract molecular atom order mapping class. A mapping will be able to
     find the uniform atom order of two molecules that can pair the
@@ -160,8 +160,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         match = re.search("InChI=(?P<inchi>.+)\n", inchi_text)
         return match.group("inchi")
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
@@ -182,8 +181,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         self._angle_tolerance = angle_tolerance
         self._assistant_mapper = IsomorphismMolAtomMapper()
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "angle_tolerance": self._angle_tolerance}
@@ -538,7 +536,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         return inchi
 
 
-class MoleculeMatcher(MSONable):
+class MoleculeMatcher(PMGSONable):
     """
     Class to match molecules and identify whether molecules are the same.
 
@@ -670,11 +668,10 @@ class MoleculeMatcher(MSONable):
         all_groups = [[mol_list[i] for i in g] for g in group_indices]
         return all_groups
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "tolerance": self._tolerance, "mapper": self._mapper.to_dict}
+                "tolerance": self._tolerance, "mapper": self._mapper.as_dict()}
 
     @classmethod
     def from_dict(cls, d):

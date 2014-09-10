@@ -140,8 +140,7 @@ class SubstitutionProbability(object):
             p *= self.cond_prob(s1, s2)
         return p
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"lambda_table": self._lambda_table,
                               "alpha": self._alpha},

@@ -58,7 +58,7 @@ class SmearingTest(PymatgenTest):
 
         self.assertFalse(nosmear)
         self.assertTrue(nosmear != fd1ev)
-        new_fd1ev = Smearing.from_dict(fd1ev.to_dict)
+        new_fd1ev = Smearing.from_dict(fd1ev.as_dict())
         self.assertTrue(new_fd1ev == fd1ev)
 
         # Test pickle
@@ -83,7 +83,7 @@ class ElectronsTest(PymatgenTest):
 
         print(default_electrons.to_abivars())
 
-        #new = Electron.from_dict(default_electrons.to_dict())
+        #new = Electron.from_dict(default_electrons.as_dict())
 
         # Test pickle
         self.serialize_with_pickle(default_electrons, test_eq=False)
@@ -137,7 +137,7 @@ class PPModelTest(PymatgenTest):
 
         self.assertFalse(noppm)
         self.assertTrue(noppm != godby)
-        new_godby = PPModel.from_dict(godby.to_dict)
+        new_godby = PPModel.from_dict(godby.as_dict())
         self.assertTrue(new_godby == godby)
 
         # Test pickle

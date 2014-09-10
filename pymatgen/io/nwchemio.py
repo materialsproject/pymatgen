@@ -20,12 +20,12 @@ from six.moves import zip
 from monty.io import zopen
 
 from pymatgen.core import Molecule
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.core.units import Energy
 from pymatgen.core.units import FloatWithUnit
 
 
-class NwTask(MSONable):
+class NwTask(PMGSONable):
     """
     Base task for Nwchem.
     """
@@ -150,8 +150,7 @@ task $theory $operation""")
             theory_spec="\n".join(theory_spec),
             theory=self.theory, operation=self.operation)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "charge": self.charge,
@@ -262,7 +261,7 @@ task $theory $operation""")
         return NwTask.from_molecule(mol, theory="esp", **kwargs)
 
 
-class NwInput(MSONable):
+class NwInput(PMGSONable):
     """
     An object representing a Nwchem input file, which is essentially a list
     of tasks on a particular molecule.
@@ -327,11 +326,10 @@ class NwInput(MSONable):
         with zopen(filename, "w") as f:
             f.write(self.__str__())
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {
-            "mol": self._mol.to_dict,
-            "tasks": [t.to_dict for t in self.tasks],
+            "mol": self._mol.as_dict(),
+            "tasks": [t.as_dict() for t in self.tasks],
             "directives": [list(t) for t in self.directives],
             "geometry_options": list(self.geometry_options),
             "symmetry_options": self.symmetry_options,

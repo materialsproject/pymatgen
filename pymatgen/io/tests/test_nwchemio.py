@@ -72,7 +72,7 @@ task dft optimize"""
         self.assertEqual(str(self.task), ans)
 
     def test_to_from_dict(self):
-        d = self.task.to_dict
+        d = self.task.as_dict()
         t = NwTask.from_dict(d)
         self.assertIsInstance(t, NwTask)
 
@@ -300,12 +300,12 @@ task dft energy
         self.assertEqual(str(self.nwi_symm), ans_symm)
 
     def test_to_from_dict(self):
-        d = self.nwi.to_dict
+        d = self.nwi.as_dict()
         nwi = NwInput.from_dict(d)
         self.assertIsInstance(nwi, NwInput)
         #Ensure it is json-serializable.
         json.dumps(d)
-        d = self.nwi_symm.to_dict
+        d = self.nwi_symm.as_dict()
         nwi_symm = NwInput.from_dict(d)
         self.assertIsInstance(nwi_symm, NwInput)
         json.dumps(d)
