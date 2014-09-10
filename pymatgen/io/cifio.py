@@ -354,7 +354,7 @@ class CifParser(object):
 
 class CifWriter:
     """
-    A wrapper around PyCifRW to write CIF files from pymatgen structures.
+    A wrapper around CifFile to write CIF files from pymatgen structures.
 
     Args:
         struct (Structure): A pymatgen.core.structure.Structure object.
