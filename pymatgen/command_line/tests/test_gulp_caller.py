@@ -218,10 +218,10 @@ class GlobalFunctionsTest(unittest.TestCase):
         enrgy = get_energy_buckingham(self.mgo_uc)
         self.assertIsInstance(enrgy, float)
         #test with vacancy structure
-        self.mgo_uc.remove(0)
+        del self.mgo_uc[0]
         energy = get_energy_buckingham(self.mgo_uc,
                 keywords=('qok','optimise','conp'), valence_dict=self.val_dict)
-        self.assertIsInstance(enrgy, float)
+        self.assertIsInstance(energy, float)
 
     def test_get_energy_relax_structure_buckingham(self):
         enrgy, struct = get_energy_relax_structure_buckingham(self.mgo_uc)

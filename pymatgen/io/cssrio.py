@@ -3,6 +3,7 @@ This module provides input and output from the CSSR file format.
 """
 
 from __future__ import division
+from six.moves import map
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -68,9 +69,9 @@ class Cssr(object):
         """
         lines = string.split("\n")
         toks = lines[0].split()
-        lengths = map(float, toks)
+        lengths = [float(i) for i in toks]
         toks = lines[1].split()
-        angles = map(float, toks[0:3])
+        angles = [float(i) for i in toks[0:3]]
         latt = Lattice.from_lengths_and_angles(lengths, angles)
         sp = []
         coords = []
@@ -79,7 +80,7 @@ class Cssr(object):
                          "([0-9\-\.]+)", l.strip())
             if m:
                 sp.append(m.group(1))
-                coords.append([float(m.group(i)) for i in xrange(2, 5)])
+                coords.append([float(m.group(i)) for i in range(2, 5)])
         return Cssr(Structure(latt, sp, coords))
 
     @staticmethod

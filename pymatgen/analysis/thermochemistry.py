@@ -63,8 +63,7 @@ class ThermoData(object):
                           d["value"], d["ref"], d["method"],
                           d["temp_range"], d.get("uncertainty", None))
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__, "type": self.type,
                 "formula": self.formula, "compound_name": self.compound_name,

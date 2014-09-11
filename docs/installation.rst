@@ -10,10 +10,8 @@ be available on `PyPI <http://pypi.python.org>`_.
 2. numpy - For array, matrix and other numerical manipulations. Used extensively
    by all core modules.
 3. pyhull 1.3.6+: For generation of phase diagrams.
-4. PyCifRW 3.3+: For reading and writing Crystallographic Information Format
-   (CIF) files.
-5. requests 1.0+: For the high-level interface to the Materials API.
-6. monty 0.1.1+: For some common complementary functions,
+4. requests 1.0+: For the high-level interface to the Materials API.
+5. monty 0.1.1+: For some common complementary functions,
    design patterns (e.g., singleton) and decorators to the Python
    standard library.
 
@@ -113,7 +111,6 @@ pymatgen usage.
 5. Install numpy and a few other dependencies::
 
     sudo pip install numpy
-    sudo pip install pycifrw
     sudo pip install pyyaml
 
 6. Install pymatgen, either in development mode or via pip.
@@ -149,7 +146,6 @@ please send me the details.
 4. Install some required packages which seem to have issues when installed as
    part of the pymatgen setup.py process::
 
-    pip install pycifrw
     pip install pyyaml
 
 5. Install pymatgen either using pip or the Github developer procedures

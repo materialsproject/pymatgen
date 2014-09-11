@@ -60,7 +60,7 @@ class SymmOpTestCase(PymatgenTest):
         self.assertTrue(self.op.are_symmetrically_related(newcoord, point))
 
     def test_to_from_dict(self):
-        d = self.op.to_dict
+        d = self.op.as_dict()
         op = SymmOp.from_dict(d)
         point = np.random.rand(3)
         newcoord = self.op.operate(point)

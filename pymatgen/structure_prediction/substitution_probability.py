@@ -4,6 +4,7 @@ probabilities.
 """
 
 from __future__ import division
+from six.moves import zip
 
 __author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -134,14 +135,12 @@ class SubstitutionProbability(object):
             l2)
         """
         assert len(l1) == len(l2)
-        p = 1.
-        for i, s1 in enumerate(l1):
-            s2 = l2[i]
+        p = 1
+        for s1, s2 in zip(l1, l2):
             p *= self.cond_prob(s1, s2)
         return p
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"lambda_table": self._lambda_table,
                               "alpha": self._alpha},

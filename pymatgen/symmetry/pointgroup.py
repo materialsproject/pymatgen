@@ -3,6 +3,7 @@ This module implements a point group assigner for a molecule.
 """
 
 from __future__ import division
+from six.moves import filter
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -117,7 +118,7 @@ class PointGroupAnalyzer(object):
                 for i in range(3):
                     inertia_tensor[i, i] += wt * (c[(i + 1) % 3] ** 2
                                                   + c[(i + 2) % 3] ** 2)
-                for i, j in itertools.combinations(range(3), 2):
+                for i, j in itertools.combinations(list(range(3)), 2):
                     inertia_tensor[i, j] += -wt * c[i] * c[j]
                     inertia_tensor[j, i] += -wt * c[j] * c[i]
                 total_inertia += wt * np.dot(c, c)

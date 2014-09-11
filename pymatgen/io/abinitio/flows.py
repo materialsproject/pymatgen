@@ -9,6 +9,7 @@ import time
 import collections
 import warnings
 import cPickle as pickle
+from six.moves import map
 
 try:
     from pydispatch import dispatcher
@@ -509,9 +510,10 @@ class AbinitFlow(Node):
                 events = map(str, 3*["N/A"])
                 if report is not None: 
                     events = map(str, [report.num_errors, report.num_warnings, report.num_comments])
+                events = list(events)
 
-                cpu_info = map(str, [task.mpi_ncpus, task.omp_ncpus])
-                task_info = map(str, [task.num_restarts, task.__class__.__name__, task.run_etime()])
+                cpu_info = list(map(str, [task.mpi_ncpus, task.omp_ncpus]))
+                task_info = list(map(str, [task.num_restarts, task.__class__.__name__, task.run_etime()]))
 
                 table.append(
                     [task_name, str(task.status), str(task.queue_id)] + 

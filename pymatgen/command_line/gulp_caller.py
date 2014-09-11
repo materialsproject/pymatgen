@@ -21,6 +21,8 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.analysis.bond_valence import BVAnalyzer
+from six.moves import map
+from six.moves import zip
 
 
 _anions = set(map(Element, ["O", "S", "F", "Cl", "Br", "N", "P"]))

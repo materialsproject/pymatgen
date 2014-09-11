@@ -10,14 +10,21 @@ import time
 import abc
 import collections
 import numpy as np
+import six
+from six.moves import filter
+from six.moves import zip
+
 try:
     from pydispatch import dispatcher
 except ImportError:
     pass
 
 from pymatgen.core.units import ArrayWithUnit, Ha_to_eV
-from pymatgen.core.design_patterns import AttrDict
-from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
+from pymatgen.core.design_patterns import Enum, AttrDict
+from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
+from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
 from pymatgen.util.string_utils import pprint_table, WildCard
 from pymatgen.io.abinitio import wrappers
@@ -51,7 +58,7 @@ __all__ = [
 ]
 
 
-class WorkflowResults(dict, MSONable):
+class WorkflowResults(dict, PMGSONable):
     """
     Dictionary used to store some of the results produce by a workflow.
     """
@@ -95,6 +102,9 @@ class WorkflowResults(dict, MSONable):
     def json_dump(self, filepath):
         json_pretty_dump(self, filepath)
 
+    def as_dict(self):
+        return self.to_dict
+
     @property
     def to_dict(self):
         """Convert object to dictionary."""
@@ -114,9 +124,7 @@ class WorkflowError(Exception):
     """Base class for the exceptions raised by Workflow objects."""
 
 
-class BaseWorkflow(Node):
-    __metaclass__ = abc.ABCMeta
-
+class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
     Error = WorkflowError
 
     Results = WorkflowResults
@@ -1062,3 +1070,54 @@ class PhononWorkflow(Workflow):
         self.merge_ddb_files()
 
         return WorkflowResults(returncode=0, message="DDB merge done")
+
+
+class WorkflowResults(dict, PMGSONable):
+    """
+    Dictionary used to store some of the results produce by a Task object
+    """
+    _MANDATORY_KEYS = [
+        "task_results",
+    ]
+
+    _EXC_KEY = "_exceptions"
+
+    def __init__(self, *args, **kwargs):
+        super(WorkflowResults, self).__init__(*args, **kwargs)
+
+        if self._EXC_KEY not in self:
+            self[self._EXC_KEY] = []
+
+    @property
+    def exceptions(self):
+        return self[self._EXC_KEY]
+
+    def push_exceptions(self, *exceptions):
+        for exc in exceptions:
+            newstr = str(exc)
+            if newstr not in self.exceptions:
+                self[self._EXC_KEY] += [newstr]
+
+    def assert_valid(self):
+        """
+        Returns empty string if results seem valid.
+
+        The try assert except trick allows one to get a string with info on the exception.
+        We use the += operator so that sub-classes can add their own message.
+        """
+        # Validate tasks.
+        for tres in self.task_results:
+            self[self._EXC_KEY] += tres.assert_valid()
+
+        return self[self._EXC_KEY]
+
+    def as_dict(self):
+        d = {k: v for k,v in self.items()}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        mydict = {k: v for k, v in d.items() if k not in ["@module", "@class"]}
+        return cls(mydict)

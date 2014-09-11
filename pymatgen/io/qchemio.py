@@ -14,8 +14,10 @@ from monty.io import zopen
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule
 from pymatgen.core.units import Energy, FloatWithUnit
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.util.coord_utils import get_angle
+from six.moves import map
+from six.moves import zip
 
 __author__ = "Xiaohui Qu"
 __copyright__ = "Copyright 2013, The Electrolyte Genome Project"
@@ -25,7 +27,7 @@ __email__ = "xhqu1981@gmail.com"
 __date__ = "11/4/13"
 
 
-class QcTask(MSONable):
+class QcTask(PMGSONable):
     """
     An object representing a QChem input file.
 
@@ -673,14 +675,13 @@ class QcTask(MSONable):
             lines.append(rem.format(name=name, value=value))
         return lines
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         if isinstance(self.mol, six.string_types):
             mol_dict = self.mol
         elif isinstance(self.mol, Molecule):
-            mol_dict = self.mol.to_dict
+            mol_dict = self.mol.as_dict()
         elif isinstance(self.mol, list):
-            mol_dict = [m.to_dict for m in self.mol]
+            mol_dict = [m.as_dict() for m in self.mol]
         else:
             raise ValueError('Unknow molecule type "{}"'.format(type(self.mol)))
         return {"@module": self.__class__.__module__,
@@ -1113,7 +1114,7 @@ class QcTask(MSONable):
         return d
 
 
-class QcInput(MSONable):
+class QcInput(PMGSONable):
     """
     An object representing a multiple step QChem input file.
 
@@ -1135,11 +1136,10 @@ class QcInput(MSONable):
         with zopen(filename, "w") as f:
             f.write(self.__str__())
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "jobs": [j.to_dict for j in self.jobs]}
+                "jobs": [j.as_dict() for j in self.jobs]}
 
     @classmethod
     def from_dict(cls, d):
