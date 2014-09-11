@@ -25,7 +25,7 @@ class BorgQueenTest(unittest.TestCase):
 
     def setUp(self):
         drone = VaspToComputedEntryDrone()
-        self.queen = BorgQueen(drone, test_dir, None)
+        self.queen = BorgQueen(drone, test_dir, 1)
 
     def test_get_data(self):
         data = self.queen.get_data()

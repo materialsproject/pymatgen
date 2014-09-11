@@ -16,17 +16,20 @@ import cStringIO as StringIO
 
 from pymatgen.io.abinitio import abiinspect
 from pymatgen.io.abinitio import events 
+import six
+from six.moves import map
+from six.moves import zip
 
 try:
     from pydispatch import dispatcher
 except ImportError:
     pass
 
-from monty.json import loadf 
-from pymatgen.core.design_patterns import AttrDict
+from monty.serialization import loadfn
+from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.util.io_utils import FileLock
-from pymatgen.util.string_utils import is_string, list_strings, WildCard
-from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
+from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
+from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
 from pymatgen.io.abinitio.qadapters import qadapter_class
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
@@ -61,8 +64,7 @@ def straceback():
     import traceback
     return traceback.format_exc()
 
-
-class TaskResults(dict, MSONable):
+class TaskResults(dict, PMGSONable):
     """
     Dictionary used to store the most important results produced by a Task.
     """
@@ -107,8 +109,7 @@ class TaskResults(dict, MSONable):
 
         return self.exceptions
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         d = {k: v for k,v in self.items()}
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -119,11 +120,11 @@ class TaskResults(dict, MSONable):
         return cls({k: v for k,v in d.items() if k not in ["@module", "@class",]})
 
     def json_dump(self, filename):
-        json_pretty_dump(self.to_dict, filename) 
+        json_pretty_dump(self.as_dict(), filename)
 
     @classmethod
     def json_load(cls, filename):
-        return cls.from_dict(loadf(filename))
+        return cls.from_dict(loadfn(filename))
 
 
 class ParalHintsError(Exception):
@@ -887,7 +888,7 @@ class Status(int):
             raise ValueError("Wrong string %s" % s)
 
 
-class Node(object):
+class Node(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract base class defining the interface that must be 
     implemented by the nodes of the calculation.
@@ -895,7 +896,6 @@ class Node(object):
     Nodes are hashable and can be tested for equality
     (hash uses the node identifier, whereas eq uses workdir).
     """
-    __metaclass__ = abc.ABCMeta
 
     # Possible status of the node.
     S_INIT = Status.from_string("Initialized")
@@ -1204,10 +1204,8 @@ class TaskRestartError(TaskError):
     """Exception raised while trying to restart the `Task`."""
 
 
-class Task(Node):
+class Task(six.with_metaclass(abc.ABCMeta, Node)):
     """A Task is a node that performs some kind of calculation."""
-    __metaclass__ = abc.ABCMeta
-
     # Use class attributes for TaskErrors so that we don't have to import them.
     Error = TaskError
     RestartError = TaskRestartError
@@ -2043,8 +2041,8 @@ class Task(Node):
         return TaskResults({
             "task_name": self.name,
             "task_returncode": self.returncode,
-            "task_status": self.status,
-            #"task_events": self.events.to_dict
+            "task_status"    : self.status,
+            #"task_events"    : self.events.as_dict()
         })
 
     def move(self, dest, is_abspath=False):

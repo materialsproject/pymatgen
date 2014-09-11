@@ -17,9 +17,8 @@ import json
 
 from pymatgen.core.units import Mass, Length, unitized
 from monty.design_patterns import singleton, cached_class
-from monty.dev import deprecated
 from pymatgen.util.string_utils import formula_double_format
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from functools import total_ordering
 
 
@@ -343,6 +342,10 @@ class Element(object):
         #function used by pickle to recreate object
         return self._symbol,
 
+    def __getinitargs__(self):
+        # function used by pickle to recreate object
+        return self._symbol,
+
     @property
     def data(self):
         """
@@ -595,11 +598,11 @@ class Element(object):
         True if element is a transition metal.
         """
         ns = list(range(21, 31))
-        ns.extend(range(39, 49))
+        ns.extend(list(range(39, 49)))
         ns.append(57)
-        ns.extend(range(72, 81))
+        ns.extend(list(range(72, 81)))
         ns.append(89)
-        ns.extend(range(104, 113))
+        ns.extend(list(range(104, 113)))
         return self._z in ns
 
     @property
@@ -669,8 +672,7 @@ class Element(object):
         """
         return Element(d["element"])
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Makes Element obey the general json interface used in pymatgen for
         easier serialization.
@@ -682,7 +684,7 @@ class Element(object):
 
 @cached_class
 @total_ordering
-class Specie(MSONable):
+class Specie(PMGSONable):
     """
     An extension of Element with an oxidation state and other optional
     properties. Properties associated with Specie should be "idealized"
@@ -721,6 +723,14 @@ class Specie(MSONable):
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
 
+    def __getnewargs__(self):
+        # function used by pickle to recreate object
+        return self._el.symbol, self._oxi_state, self._properties
+
+    def __getinitargs__(self):
+        # function used by pickle to recreate object
+        return self._el.symbol, self._oxi_state, self._properties
+
     def __getattr__(self, a):
         #overriding getattr doens't play nice with pickle, so we
         #can't use self._properties
@@ -752,7 +762,7 @@ class Specie(MSONable):
         should effectively ensure that no two unequal Specie have the same
         hash.
         """
-        return self.Z * 100 + self._oxi_state
+        return self.Z
 
     def __lt__(self, other):
         """
@@ -878,8 +888,7 @@ class Specie(MSONable):
     def __deepcopy__(self, memo):
         return Specie(self.symbol, self.oxi_state, self._properties)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "element": self.symbol,
@@ -894,7 +903,7 @@ class Specie(MSONable):
 
 @cached_class
 @total_ordering
-class DummySpecie(MSONable):
+class DummySpecie(PMGSONable):
     """
     A special specie for representing non-traditional elements or species. For
     example, representation of vacancies (charged or otherwise), or special
@@ -941,6 +950,14 @@ class DummySpecie(MSONable):
         for k in self._properties.keys():
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
+
+    def __getnewargs__(self):
+        # function used by pickle to recreate object
+        return self._symbol, self._oxi_state, self._properties
+
+    def __getinitargs__(self):
+        # function used by pickle to recreate object
+        return self._symbol, self._oxi_state, self._properties
 
     def __getattr__(self, a):
         #overriding getattr doens't play nice with pickle, so we
@@ -1038,8 +1055,7 @@ class DummySpecie(MSONable):
                 return DummySpecie(m.group(1), oxidation_state=oxi)
         raise ValueError("Invalid Species String")
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "element": self.symbol,
@@ -1172,14 +1188,3 @@ def get_el_sp(obj):
             except:
                 raise ValueError("Can't parse Element or String from " +
                                  str(obj))
-
-
-
-@deprecated(replacement=get_el_sp)
-def smart_element_or_specie(obj):
-    """
-    .. deprecated:: v2.8.11
-
-        Use get_el_sp instead.
-    """
-    return get_el_sp(obj)

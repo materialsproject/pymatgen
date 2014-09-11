@@ -14,6 +14,8 @@ import unittest
 import os
 import json
 
+import six
+
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.util.io_utils import FileLock, FileLockException, clean_json
 
@@ -28,12 +30,13 @@ class FuncTest(PymatgenTest):
         d = {"hello": 1, "world": None}
         clean = clean_json(d)
         self.assertIsNone(clean["world"])
-        self.assertEqual(json.dumps(d), json.dumps(clean))
+        self.assertEqual(json.loads(json.dumps(d)), json.loads(json.dumps(
+            clean)))
 
         d = {"hello": self.get_si2_structure()}
         self.assertRaises(TypeError, json.dumps, d)
         clean = clean_json(d)
-        self.assertIsInstance(clean["hello"], basestring)
+        self.assertIsInstance(clean["hello"], six.string_types)
         clean_strict = clean_json(d, strict=True)
         self.assertIsInstance(clean_strict["hello"], dict)
 

@@ -19,8 +19,9 @@ import numpy as np
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.io.smartio import read_structure
 from pymatgen.io.cifio import CifParser
-from pymatgen.io.vaspio.vasp_output import Vasprun
+
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -32,16 +33,15 @@ class SymmetryFinderTest(unittest.TestCase):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
         self.structure = p.structure
         self.sg = SymmetryFinder(self.structure, 0.001)
-        parser = CifParser(os.path.join(test_dir, 'Li10GeP2S12.cif'))
-        self.disordered_structure = parser.get_structures()[0]
+        self.disordered_structure = read_structure(
+            os.path.join(test_dir, 'Li10GeP2S12.json'))
         self.disordered_sg = SymmetryFinder(self.disordered_structure, 0.001)
         s = p.structure.copy()
         site = s[0]
         del s[0]
         s.append(site.species_and_occu, site.frac_coords)
         self.sg3 = SymmetryFinder(s, 0.001)
-        parser = CifParser(os.path.join(test_dir, 'Graphite.cif'))
-        graphite = parser.get_structures()[0]
+        graphite = read_structure(os.path.join(test_dir, 'Graphite.json'))
         graphite.add_site_property("magmom", [0.1] * len(graphite))
         self.sg4 = SymmetryFinder(graphite, 0.001)
 
@@ -101,8 +101,7 @@ class SymmetryFinderTest(unittest.TestCase):
         for a in refined.lattice.angles:
             self.assertEqual(a, 90)
         self.assertEqual(refined.lattice.a, refined.lattice.b)
-        parser = CifParser(os.path.join(test_dir, 'Li2O.cif'))
-        s = parser.get_structures()[0]
+        s = read_structure(os.path.join(test_dir, 'Li2O.json'))
         sg = SymmetryFinder(s, 0.001)
         self.assertEqual(sg.get_refined_structure().num_sites, 4 * s.num_sites)
 
@@ -114,7 +113,8 @@ class SymmetryFinderTest(unittest.TestCase):
 
         symm_struct = self.disordered_sg.get_symmetrized_structure()
         self.assertEqual(len(symm_struct.equivalent_sites), 8)
-        self.assertEqual(map(len, symm_struct.equivalent_sites), [16,4,8,4,2,8,8,8])
+        self.assertEqual([len(i) for i in symm_struct.equivalent_sites],
+                         [16,4,8,4,2,8,8,8])
         s1 = symm_struct.equivalent_sites[1][1]
         s2 = symm_struct[symm_struct.equivalent_indices[1][1]]
         self.assertEqual(s1, s2)

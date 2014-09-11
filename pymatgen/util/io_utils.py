@@ -16,6 +16,8 @@ import os
 import time
 import errno
 
+import six
+
 
 def clean_lines(string_list, remove_empty_lines=True):
     """
@@ -100,7 +102,7 @@ def clean_json(input_json, strict=False):
         input_dict: input dictionary.
         strict: This parameters sets the behavior when clean_json encounters an
             object it does not understand. If strict is True, clean_json will
-            try to get the to_dict attribute of the object. If no such
+            try to get the as_dict() attribute of the object. If no such
             attribute is found, an attribute error will be thrown. If strict is
             False, clean_json will simply call str(object) to convert the
             object to a string representation.
@@ -121,10 +123,10 @@ def clean_json(input_json, strict=False):
         if not strict:
             return str(input_json)
         else:
-            if isinstance(input_json, basestring):
+            if isinstance(input_json, six.string_types):
                 return str(input_json)
             else:
-                return clean_json(input_json.to_dict, strict=strict)
+                return clean_json(input_json.as_dict(), strict=strict)
 
 
 class FileLockException(Exception):
