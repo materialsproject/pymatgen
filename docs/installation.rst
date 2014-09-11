@@ -286,8 +286,8 @@ run it.
 VTK (tested on v5.10.0 - 6.1.0)
 -------------------------------
 
-Mac OS X 10.7 and 10.8
-~~~~~~~~~~~~~~~~~~~~~~
+Mac OS X 10.7 - 10.9
+~~~~~~~~~~~~~~~~~~~~
 
 The easiest is to install cmake from
 http://cmake.org/cmake/resources/software.html.
@@ -341,7 +341,7 @@ With any luck, you should have vtk with the necessary python wrappers installed.
 OpenBabel (tested on v2.3.2)
 ----------------------------
 
-Mac OS X 10.7 - 10.8
+Mac OS X 10.7 - 10.9
 ~~~~~~~~~~~~~~~~~~~~
 
 Openbabel must be compiled with python bindings for integration with pymatgen.
@@ -424,8 +424,8 @@ Here are the steps that I took to make it work:
 Enumlib (tested as of version of Jul 2012)
 ------------------------------------------
 
-Mac OS X 10.7
-~~~~~~~~~~~~~
+Mac OS X 10.7 - 10.9
+~~~~~~~~~~~~~~~~~~~~
 
 There does not seem to be any issues with installation as per the instructions
 given by the author. For convenience, the steps are reproduced here:
