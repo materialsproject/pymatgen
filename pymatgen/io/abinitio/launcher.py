@@ -222,7 +222,7 @@ class PyLauncher(object):
                     number of jobs in the queue is >= Max number of jobs
         """
         self.flow = flow
-        self.max_njobs_inqueue = kwargs.get("max_njobs_inqueue", 200)
+        self.max_njobs_inqueue = kwargs.get("max_njobs_inqueue", 500)
 
     def single_shot(self):
         """
