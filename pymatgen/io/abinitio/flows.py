@@ -354,7 +354,7 @@ class AbinitFlow(Node):
             # Accept Task.S_FLAG or string.
             #if is_string(status):
             #    status = getattr(Task, status)
-			status = Status.as_status(status)
+            status = Status.as_status(status)
 
             for wi, work in enumerate(self):
                 for ti, task in enumerate(work):
