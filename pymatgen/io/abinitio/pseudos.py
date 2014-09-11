@@ -18,6 +18,9 @@ from pymatgen.core.periodic_table import PeriodicTable
 from pymatgen.util.num_utils import iterator_from_slice
 from pymatgen.util.io_utils import FileLock
 from pymatgen.util.string_utils import list_strings, is_string
+import six
+from six.moves import map
+from six.moves import zip
 
 __all__ = [
     "Pseudo",
@@ -106,13 +109,11 @@ def read_dojo_report(filename):
 
 _PTABLE = PeriodicTable()
 
-
-class Pseudo(object):
+class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract base class defining the methods that must be 
     implemented by the concrete pseudopotential classes.
     """
-    __metaclass__ = abc.ABCMeta
 
     #def __init__(self, filepath):
     #    self.filepath = os.path.abspath(filepath)
@@ -356,12 +357,11 @@ class Pseudo(object):
     #        return hasher.hexdigest()
 
 
-class NcPseudo(object):
+class NcPseudo(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract class defining the methods that must be implemented
     by the concrete classes representing norm-conserving pseudopotentials.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractproperty
     def nlcc_radius(self):
@@ -384,12 +384,11 @@ class NcPseudo(object):
             return None
 
 
-class PawPseudo(object):
+class PawPseudo(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract class that defines the methods that must be implemented
     by the concrete classes representing PAW pseudopotentials.
     """
-    __metaclass__ = abc.ABCMeta
 
     #def nlcc_radius(self):
     #    """
@@ -508,8 +507,7 @@ class Hint(collections.namedtuple("Hint", "ecut aug_ratio")):
     """
     Suggested value for the cutoff energy [Hartree units] and the augmentation ratio (PAW pseudo)
     """
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {f: getattr(self, f) for f in self._fields}
 
     @classmethod
@@ -1270,7 +1268,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         """
         eq = grid_params.get("eq").replace(" " ,"")
         istart, iend = int(grid_params.get("istart")), int(grid_params.get("iend"))
-        indices = range(istart, iend+1)
+        indices = list(range(istart, iend+1))
 
         if eq == 'r=a*exp(d*i)':
             a, d = float(grid_params['a']), float(grid_params['d'])

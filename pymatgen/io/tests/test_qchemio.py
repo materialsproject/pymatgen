@@ -39,20 +39,20 @@ class TestQcTask(TestCase):
 
     def elementary_io_verify(self, text, qctask):
         self.to_and_from_dict_verify(qctask)
-        self.from_string_verify(contents=text, ref_dict=qctask.to_dict)
+        self.from_string_verify(contents=text, ref_dict=qctask.as_dict())
 
     def to_and_from_dict_verify(self, qctask):
         """
         Helper function. This function should be called in each specific test.
         """
-        d1 = qctask.to_dict
+        d1 = qctask.as_dict()
         qc2 = QcTask.from_dict(d1)
-        d2 = qc2.to_dict
+        d2 = qc2.as_dict()
         self.assertEqual(d1, d2)
 
     def from_string_verify(self, contents, ref_dict):
         qctask = QcTask.from_string(contents)
-        d2 = qctask.to_dict
+        d2 = qctask.as_dict()
         self.assertEqual(ref_dict, d2)
 
     def test_read_zmatrix(self):
@@ -1076,7 +1076,7 @@ $end
         qcinp1 = QcInput(jobs=[qctask1, qctask2, qctask3])
         self.assertEqual(str(qcinp1), ans)
         qcinp2 = QcInput.from_string(ans)
-        self.assertEqual(qcinp1.to_dict, qcinp2.to_dict)
+        self.assertEqual(qcinp1.as_dict(), qcinp2.as_dict())
 
     def test_to_and_from_dict(self):
         qctask1 = QcTask(mol, title="Test Methane Opt", exchange="B3LYP",
@@ -1088,9 +1088,9 @@ $end
                          exchange="B3LYP", jobtype="SP",
                          basis_set="6-311+G(3df,2p)")
         qcinp1 = QcInput(jobs=[qctask1, qctask2, qctask3])
-        d1 = qcinp1.to_dict
+        d1 = qcinp1.as_dict()
         qcinp2 = QcInput.from_dict(d1)
-        d2 = qcinp2.to_dict
+        d2 = qcinp2.as_dict()
         self.assertEqual(d1, d2)
 
 

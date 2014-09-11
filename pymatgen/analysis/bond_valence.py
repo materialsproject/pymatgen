@@ -17,6 +17,9 @@ import operator
 import os
 from math import exp, sqrt
 
+from six.moves import filter
+from six.moves import zip
+
 from monty.serialization import loadfn
 
 import six
@@ -108,10 +111,10 @@ def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
     # \sum_{nn} \sum_j^N \sum_k^{N_{nn}} f_{site}_j f_{nn_i}_k vij_full
     # where vij_full is the valence bond of the fully occupied bond
     bvsum = 0
-    for specie1, occu1 in site.species_and_occu.iteritems():
+    for specie1, occu1 in six.iteritems(site.species_and_occu):
         el1 = Element(specie1.symbol)
         for (nn, dist) in nn_list:
-            for specie2, occu2 in nn.species_and_occu.iteritems():
+            for specie2, occu2 in six.iteritems(nn.species_and_occu):
                 el2 = Element(specie2.symbol)
                 if (el1 in ELECTRONEG or el2 in ELECTRONEG) and el1 != el2:
                     r1 = BV_PARAMS[el1]["r"]
@@ -212,7 +215,7 @@ class BVAnalyzer(object):
         bv_sum = calculate_bv_sum_unordered(
             site, nn, scale_factor=self.dist_scale_factor)
         prob = {}
-        for specie, occu in site.species_and_occu.iteritems():
+        for specie, occu in six.iteritems(site.species_and_occu):
             el = specie.symbol
 
             prob[el] = {}
@@ -227,7 +230,8 @@ class BVAnalyzer(object):
                         / sigma * PRIOR_PROB[sp]
             #Normalize the probabilities
             try:
-                prob[el] = {k: v / sum(prob[el].values()) for k, v in prob[el].items()}
+                prob[el] = {k: v / sum(prob[el].values())
+                            for k, v in prob[el].items()}
             except ZeroDivisionError:
                 prob[el] = {k: 0.0 for k in prob[el]}
         return prob
@@ -304,9 +308,9 @@ class BVAnalyzer(object):
                     # Retain probabilities that are at least 1/100 of highest
                     # prob.
                     vals.append(
-                        list(filter(lambda v: prob[elsp.symbol][v] >
-                                              0.001 * prob[elsp.symbol][val[0]],
-                                    val)))
+                        list(filter(
+                            lambda v: prob[elsp.symbol][v] > 0.001 * prob[
+                                elsp.symbol][val[0]], val)))
                 valences.append(vals)
 
         #make variables needed for recursion

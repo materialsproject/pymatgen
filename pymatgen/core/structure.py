@@ -4,6 +4,8 @@ periodic structure.
 """
 
 from __future__ import division
+from six.moves import map
+from six.moves import zip
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -31,24 +33,22 @@ from fractions import gcd
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_angle, all_distances
 from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length
-from monty.dev import deprecated
 
 
-class SiteCollection(collections.Sequence):
+class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
     """
     Basic SiteCollection. Essentially a sequence of Sites or PeriodicSites.
     This serves as a base class for Molecule (a collection of Site, i.e., no
     periodicity) and Structure (a collection of PeriodicSites, i.e.,
     periodicity). Not meant to be instantiated directly.
     """
-    __metaclass__ = ABCMeta
 
     #Tolerance in Angstrom for determining if sites are too close.
     DISTANCE_TOLERANCE = 0.01
@@ -287,7 +287,7 @@ class SiteCollection(collections.Sequence):
         return bool(np.min(all_dists) > tol)
 
 
-class IStructure(SiteCollection, MSONable):
+class IStructure(SiteCollection, PMGSONable):
     """
     Basic immutable Structure object with periodicity. Essentially a sequence
     of PeriodicSites having a common lattice. IStructure is made to be
@@ -839,7 +839,7 @@ class IStructure(SiteCollection, MSONable):
                              [1, 0, 1], [1, 1, 0], [1, 1, 1]])
         l_points = self._lattice.get_cartesian_coords(l_points)
 
-        for v, repl_pos in itertools.product(possible_vectors, range(3)):
+        for v, repl_pos in itertools.product(possible_vectors, list(range(3))):
             #Try combinations of new lattice vectors with existing lattice
             #vectors.
             latt = self._lattice.matrix
@@ -932,12 +932,11 @@ class IStructure(SiteCollection, MSONable):
                                             for j in site.frac_coords])]))
         return "\n".join(outs)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Json-serializable dict representation of Structure
         """
-        latt_dict = self._lattice.to_dict
+        latt_dict = self._lattice.as_dict()
         del latt_dict["@module"]
         del latt_dict["@class"]
 
@@ -945,7 +944,7 @@ class IStructure(SiteCollection, MSONable):
              "@class": self.__class__.__name__,
              "lattice": latt_dict, "sites": []}
         for site in self:
-            site_dict = site.to_dict
+            site_dict = site.as_dict()
             del site_dict["lattice"]
             del site_dict["@module"]
             del site_dict["@class"]
@@ -956,7 +955,7 @@ class IStructure(SiteCollection, MSONable):
     def from_dict(cls, d):
         """
         Reconstitute a Structure object from a dict representation of Structure
-        created using to_dict.
+        created using as_dict().
 
         Args:
             d (dict): Dict representation of structure.
@@ -1003,7 +1002,7 @@ class IStructure(SiteCollection, MSONable):
                                 frac_coords=frac_coords))
 
 
-class IMolecule(SiteCollection, MSONable):
+class IMolecule(SiteCollection, PMGSONable):
     """
     Basic immutable Molecule object without periodicity. Essentially a
     sequence of sites. IMolecule is made to be immutable so that they can
@@ -1237,8 +1236,7 @@ class IMolecule(SiteCollection, MSONable):
                                             site.coords])]))
         return "\n".join(outs)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Json-serializable dict representation of Molecule
         """
@@ -1248,7 +1246,7 @@ class IMolecule(SiteCollection, MSONable):
              "spin_multiplicity": self._spin_multiplicity,
              "sites": []}
         for site in self:
-            site_dict = site.to_dict
+            site_dict = site.as_dict()
             del site_dict["@module"]
             del site_dict["@class"]
             d["sites"].append(site_dict)
@@ -1258,7 +1256,7 @@ class IMolecule(SiteCollection, MSONable):
     def from_dict(cls, d):
         """
         Reconstitute a Molecule object from a dict representation created using
-        to_dict.
+        as_dict().
 
         Args:
             d (dict): dict representation of Molecule.
@@ -1388,8 +1386,8 @@ class IMolecule(SiteCollection, MSONable):
         coords = []
 
         centered_coords = self.cart_coords - self.center_of_mass
-        for i, j, k in itertools.product(range(images[0]), range(images[1]),
-                                         range(images[2])):
+        for i, j, k in itertools.product(list(range(images[0])), list(range(images[1])),
+                                         list(range(images[2]))):
             box_center = [(i + 0.5) * a, (j + 0.5) * b, (k + 0.5) * c]
             if random_rotation:
                 while True:
@@ -1574,16 +1572,6 @@ class Structure(IStructure, collections.MutableSequence):
                                      "site!")
 
         self._sites.insert(i, new_site)
-
-    @deprecated(__delitem__)
-    def remove(self, i):
-        """
-        Remove site at index i.
-
-        Args:
-            i (int): Index of site to remove.
-        """
-        del(self._sites[i])
 
     def add_site_property(self, property_name, values):
         """
@@ -2112,19 +2100,6 @@ class Molecule(IMolecule, collections.MutableSequence):
             self._sites[i] = Site(site.species_and_occu, site.coords,
                                   properties=props)
 
-    @deprecated(__delitem__)
-    def remove(self, i):
-        """
-        Delete site at index i.
-
-        Args:
-            i (int): Index of site to remove.
-
-        Returns:
-            New structure with site removed.
-        """
-        del(self._sites[i])
-
     def replace_species(self, species_mapping):
         """
         Swap species in a molecule.
@@ -2162,21 +2137,6 @@ class Molecule(IMolecule, collections.MutableSequence):
                         new_atom_occu[sp] = amt
             return Site(new_atom_occu, site.coords, properties=site.properties)
         self._sites = list(map(mod_site, self._sites))
-
-    @deprecated(__setitem__)
-    def replace(self, i, species_n_occu, coords=None):
-        """
-        Replace a single site. Takes either a species or a dict of occus.
-
-        Args:
-            i (int): Index of the site in the _sites list
-            species (Specie-like): A species object.
-            coords (3x1 array): If supplied, the new coords are used.
-                Otherwise, the old coordinates are retained.
-        """
-        coords = coords if coords is not None else self._sites[i].coords
-        self._sites[i] = Site(species_n_occu, coords,
-                              properties=self._sites[i].properties)
 
     def remove_species(self, species):
         """
@@ -2331,7 +2291,7 @@ class Molecule(IMolecule, collections.MutableSequence):
 
         # Align X to the origin.
         x = func_grp[0]
-        func_grp.translate_sites(range(len(func_grp)), origin - x.coords)
+        func_grp.translate_sites(list(range(len(func_grp))), origin - x.coords)
 
         #Find angle between the attaching bond and the bond to be replaced.
         v1 = func_grp[1].coords - origin

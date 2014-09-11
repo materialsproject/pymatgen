@@ -3,6 +3,7 @@ This module provides classes for predicting new structures from existing ones.
 """
 
 from __future__ import division
+from six.moves import zip
 
 __author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -16,7 +17,7 @@ import logging
 from operator import mul
 import six
 
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.structure_prediction.substitution_probability \
     import SubstitutionProbability
 from pymatgen.transformations.standard_transformations \
@@ -26,7 +27,7 @@ from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.alchemy.filters import RemoveDuplicatesFilter, RemoveExistingFilter
 
 
-class Substitutor(MSONable):
+class Substitutor(PMGSONable):
     """
     This object uses a data mined ionic substitution approach to propose
     compounds likely to be stable. It relies on an algorithm presented in
@@ -118,7 +119,7 @@ class Substitutor(MSONable):
                         self._threshold:
 
                     clean_subst = {els[i]: permut[i]
-                                   for i in xrange(0, len(els))
+                                   for i in range(0, len(els))
                                    if els[i] != permut[i]}
 
                     if len(clean_subst) == 0:
@@ -248,8 +249,7 @@ class Substitutor(MSONable):
                      'compositions found'.format(len(output)))
         return output
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "kwargs": self._kwargs, "threshold": self._threshold,
                 "@module": self.__class__.__module__,

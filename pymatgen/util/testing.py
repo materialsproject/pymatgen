@@ -9,6 +9,7 @@ import unittest
 import tempfile
 import numpy.testing.utils as nptu
 from pymatgen.core.structure import Structure
+from six.moves import zip
 
 
 class PymatgenTest(unittest.TestCase):

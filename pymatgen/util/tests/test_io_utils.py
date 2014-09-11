@@ -30,7 +30,8 @@ class FuncTest(PymatgenTest):
         d = {"hello": 1, "world": None}
         clean = clean_json(d)
         self.assertIsNone(clean["world"])
-        self.assertEqual(json.dumps(d), json.dumps(clean))
+        self.assertEqual(json.loads(json.dumps(d)), json.loads(json.dumps(
+            clean)))
 
         d = {"hello": self.get_si2_structure()}
         self.assertRaises(TypeError, json.dumps, d)

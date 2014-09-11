@@ -94,7 +94,7 @@ class IStructureTest(PymatgenTest):
                                1.50332963784, 2,
                                "Distance calculated wrongly!")
 
-    def test_to_dict(self):
+    def test_as_dict(self):
         si = Specie("Si", 4)
         mn = Element("Mn")
         coords = list()
@@ -102,9 +102,9 @@ class IStructureTest(PymatgenTest):
         coords.append([0.75, 0.5, 0.75])
         struct = IStructure(self.lattice, [{si: 0.5, mn: 0.5}, {si: 0.5}],
                             coords)
-        self.assertIn("lattice", struct.to_dict)
-        self.assertIn("sites", struct.to_dict)
-        d = self.propertied_structure.to_dict
+        self.assertIn("lattice", struct.as_dict())
+        self.assertIn("sites", struct.as_dict())
+        d = self.propertied_structure.as_dict()
         self.assertEqual(d['sites'][0]['properties']['magmom'], 5)
         coords = list()
         coords.append([0, 0, 0])
@@ -114,12 +114,12 @@ class IStructureTest(PymatgenTest):
                                       {Specie('Mg', 2,
                                               properties={"spin": 2}): 0.8}],
                        coords, site_properties={'magmom': [5, -5]})
-        d = s.to_dict
+        d = s.as_dict()
         self.assertEqual(d['sites'][0]['properties']['magmom'], 5)
         self.assertEqual(d['sites'][0]['species'][0]['properties']['spin'], 3)
 
     def test_from_dict(self):
-        d = self.propertied_structure.to_dict
+        d = self.propertied_structure.as_dict()
         s = IStructure.from_dict(d)
         self.assertEqual(s[0].magmom, 5)
         d = {'lattice': {'a': 3.8401979337, 'volume': 40.044794644251596,
@@ -262,7 +262,7 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(sum(map(len, s.get_all_neighbors(3))), 976)
 
     def test_get_all_neighbors_outside_cell(self):
-        s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'], 
+        s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
                       [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3])
         all_nn = s.get_all_neighbors(0.2, True)
         for site, nns in zip(s, all_nn):
@@ -331,7 +331,7 @@ class StructureTest(PymatgenTest):
         self.assertTrue(s.symbol_set == ("Si", "O"))
         self.assertTrue(s.indices_from_symbol("Si") == (0,2))
         self.assertTrue(s.indices_from_symbol("O") == (1,))
-        s.remove(2)
+        del s[2]
         self.assertEqual(s.formula, "Si1 O1")
         self.assertTrue(s.indices_from_symbol("Si") == (0,))
         self.assertTrue(s.indices_from_symbol("O") == (1,))
@@ -342,7 +342,7 @@ class StructureTest(PymatgenTest):
         self.assertTrue(s.indices_from_symbol("Si") == (0,))
         self.assertTrue(s.indices_from_symbol("O") == (1,))
         self.assertTrue(s.indices_from_symbol("N") == (2,))
-        s.replace(0, "Ge")
+        s[0] = "Ge"
         self.assertEqual(s.formula, "Ge1 N1 O1")
         self.assertTrue(s.symbol_set == ("Ge", "O", "N"))
         s.replace_species({"Ge": "Si"})
@@ -495,7 +495,7 @@ class StructureTest(PymatgenTest):
         self.assertEqual(s.formula, "Si4")
 
     def test_to_from_dict(self):
-        d = self.structure.to_dict
+        d = self.structure.as_dict()
         s2 = Structure.from_dict(d)
         self.assertEqual(type(s2), Structure)
 
@@ -504,7 +504,7 @@ class StructureTest(PymatgenTest):
             self.structure.lattice, ["Si"] * 2, self.structure.frac_coords,
             site_properties={'magmom': [5, -5]})
         prop_structure.append("C", [0.25, 0.25, 0.25])
-        d = prop_structure.to_dict
+        d = prop_structure.as_dict()
         with warnings.catch_warnings(record=True) as w:
             # Cause all warnings to always be triggered.
             warnings.simplefilter("always")
@@ -656,14 +656,14 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertArrayAlmostEqual(centered.center_of_mass, [0, 0, 0])
 
     def test_to_from_dict(self):
-        d = self.mol.to_dict
+        d = self.mol.as_dict()
         mol2 = IMolecule.from_dict(d)
         self.assertEqual(type(mol2), IMolecule)
         propertied_mol = Molecule(["C", "H", "H", "H", "H"], self.coords,
                                   charge=1,
                                   site_properties={'magmom':
                                                    [0.5, -0.5, 1, 2, 3]})
-        d = propertied_mol.to_dict
+        d = propertied_mol.as_dict()
         self.assertEqual(d['sites'][0]['properties']['magmom'], 0.5)
         mol = Molecule.from_dict(d)
         self.assertEqual(propertied_mol, mol)
@@ -700,7 +700,7 @@ class MoleculeTest(PymatgenTest):
         mol = self.mol
         mol.insert(1, "O", [0.5, 0.5, 0.5])
         self.assertEqual(mol.formula, "H4 C1 O1")
-        mol.remove(2)
+        del mol[2]
         self.assertEqual(mol.formula, "H3 C1 O1")
         mol.set_charge_and_spin(0)
         self.assertEqual(mol.spin_multiplicity, 2)
@@ -716,7 +716,7 @@ class MoleculeTest(PymatgenTest):
                               [0.5, 0.5, 0.5])
 
     def test_replace(self):
-        self.mol.replace(0, "Ge")
+        self.mol[0] = "Ge"
         self.assertEqual(self.mol.formula, "Ge1 H4")
 
         self.mol.replace_species({Element("Ge"): {Element("Ge"): 0.5,
@@ -747,7 +747,7 @@ class MoleculeTest(PymatgenTest):
         self.assertEqual(self.mol[0].magmom, 3)
 
     def test_to_from_dict(self):
-        d = self.mol.to_dict
+        d = self.mol.as_dict()
         mol2 = Molecule.from_dict(d)
         self.assertEqual(type(mol2), Molecule)
 

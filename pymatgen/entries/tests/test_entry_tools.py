@@ -15,7 +15,7 @@ import unittest
 import os
 import json
 
-from pymatgen.serializers.json_coders import PMGJSONDecoder
+from monty.json import MontyDecoder
 from pymatgen.entries.entry_tools import group_entries_by_structure
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -26,7 +26,7 @@ class FuncTest(unittest.TestCase):
 
     def test_group_entries_by_structure(self):
         with open(os.path.join(test_dir, "TiO2_entries.json"), "r") as f:
-            entries = json.load(f, cls=PMGJSONDecoder)
+            entries = json.load(f, cls=MontyDecoder)
         groups = group_entries_by_structure(entries)
         self.assertEqual(sorted([len(g) for g in groups]),
                          [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 4])
