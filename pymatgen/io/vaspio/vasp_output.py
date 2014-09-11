@@ -44,6 +44,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.io.vaspio.vasp_input import Incar, Kpoints, Poscar
 from pymatgen.entries.computed_entries import \
     ComputedEntry, ComputedStructureEntry
+from pymatgen.serializers.json_coders import PMGSONable
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +130,7 @@ def _parse_from_incar(filename, key):
     return None
 
 
-class Vasprun(object):
+class Vasprun(PMGSONable):
     """
     Vastly improved cElementTree-based parser for vasprun.xml files. Uses
     iterparse to support incremental parsing of large files.
@@ -859,7 +860,7 @@ class Vasprun(object):
         return proj_eigen
 
 
-class Outcar(object):
+class Outcar(PMGSONable):
     """
     Parser for data in OUTCAR that is not available in Vasprun.xml
 
