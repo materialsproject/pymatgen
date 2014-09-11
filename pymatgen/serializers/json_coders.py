@@ -48,15 +48,15 @@ from monty.dev import deprecated
 
 class PMGSONable(six.with_metaclass(ABCMeta, MSONable)):
     """
-    This is an abstract base class specifying an API for PMGSONable objects. MSON
-    is Materials JSON. Essentially, PMGSONable objects must implement a as_dict()
-    property and a from_dict static method.
+    This is an abstract base class specifying an API for MSONable objects.
+    MSON is Pymatgen JSON. Essentially, PMGSONable objects must
+    implement an as_dict() method and a from_dict static method.
     """
 
     @property
-    @deprecated(message="All to_dict properties have been deprecated. They "
-                        "will be removed from v3.1. Use the as_dict() method "
-                        "instead.")
+    @deprecated(
+        message="All to_dict properties have been deprecated. They will be "
+                "removed from v3.1. Use the as_dict() method instead.")
     def to_dict(self):
         """
         A JSON serializable dict representation of an object.
