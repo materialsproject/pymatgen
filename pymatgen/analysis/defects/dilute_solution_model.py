@@ -531,6 +531,7 @@ def solute_site_preference_finder(
             primitive or unitcell of the crystal.
         e0: The total energy of the undefected system.
             This is E0 from VASP calculation.
+        T: Temperature in Kelvin
         vac_defs: List of vacancy defect parameters in the dictionary format.
             The keys of the dict associated with each vacancy defect are
             1) site_index, 2) site_specie, 3) site_multiplicity, and
@@ -545,7 +546,6 @@ def solute_site_preference_finder(
         solute_defs: List of solute defect parameters in the dictionary
             format. Similary to that of antisite defs, wtih solute specie
             specified in substitution_specie
-        T: Temperature in Kelvin
         trial_chem_pot: Trial chemical potentials to speedup the plot
             generation. Format is {el1:mu1,...}
 
@@ -656,7 +656,7 @@ def solute_site_preference_finder(
         dE.append([])
     for i in range(n+1):
         for j in range(n):
-            dE[i].append(None)
+            dE[i].append(0)
 
     for j in range(n):
         for i in range(n):
@@ -665,25 +665,29 @@ def solute_site_preference_finder(
             else:
                 sub_specie = vac_defs[i]['site_specie']
                 site_specie = vac_defs[j]['site_specie']
+                print (sub_specie, site_specie)
                 if site_specie == sub_specie:
                     dE[i][j] = 0
                 else:
                     for as_def in antisite_defs:
-                        if as_def['site_index'] == j+1 and \
+                        if int(as_def['site_index']) == j+1 and \
                                 sub_specie == as_def['substitution_specie']:
                             dE[i][j] = as_def['energy']
                             break
         # Solute
         site_specie = vac_defs[j]['site_specie']
         for solute_def in solute_defs:
-            def_site_ind = solute_def['site_index']
+            def_site_ind = int(solute_def['site_index'])
             def_site_specie = solute_def['site_specie']
+            print (def_site_specie, site_specie)
+            print (def_site_ind, j+1)
             if def_site_specie == site_specie and def_site_ind == j+1:
+                print ('se', solute_def['energy'])
                 dE[n][j] = solute_def['energy']
                 break
 
     dE = np.array(dE)
-    np.where(dE == None, dE, 0)
+    #np.where(dE == np.array(None), 0, dE)
     print(('dE', dE))
 
     # Initialization for concentrations
