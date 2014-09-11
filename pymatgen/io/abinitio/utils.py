@@ -9,6 +9,7 @@ import operator
 from pymatgen.util.string_utils import list_strings, WildCard
 
 import logging
+from six.moves import filter
 logger = logging.getLogger(__name__)
 
 

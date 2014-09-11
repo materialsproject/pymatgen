@@ -11,6 +11,9 @@ import numpy as np
 from pymatgen.util.string_utils import str_aligned, str_delimited, is_string
 from pymatgen.io.abinitio.abiobjects import Electrons
 from pymatgen.io.abinitio.pseudos import PseudoTable
+import six
+from six.moves import map
+from six.moves import zip
 
 import logging
 logger = logging.getLogger(__name__)
@@ -87,7 +90,7 @@ def num_valence_electrons(pseudos, structure):
     return valence
 
 
-class AbstractStrategy(object):
+class AbstractStrategy(six.with_metaclass(abc.ABCMeta, object)):
     """
     A Strategy object generates the ABINIT input file used for a particular type of calculation
     e.g. ground-state runs, structural relaxations, self-energy calculations ...
@@ -101,7 +104,6 @@ class AbstractStrategy(object):
         pseudos:
             List of pseudopotentials.
     """
-    __metaclass__ = abc.ABCMeta
 
     #@abc.abstractproperty
     #def pseudos(self):

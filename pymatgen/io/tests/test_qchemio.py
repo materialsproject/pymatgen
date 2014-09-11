@@ -39,20 +39,20 @@ class TestQcTask(TestCase):
 
     def elementary_io_verify(self, text, qctask):
         self.to_and_from_dict_verify(qctask)
-        self.from_string_verify(contents=text, ref_dict=qctask.to_dict)
+        self.from_string_verify(contents=text, ref_dict=qctask.as_dict())
 
     def to_and_from_dict_verify(self, qctask):
         """
         Helper function. This function should be called in each specific test.
         """
-        d1 = qctask.to_dict
+        d1 = qctask.as_dict()
         qc2 = QcTask.from_dict(d1)
-        d2 = qc2.to_dict
+        d2 = qc2.as_dict()
         self.assertEqual(d1, d2)
 
     def from_string_verify(self, contents, ref_dict):
         qctask = QcTask.from_string(contents)
-        d2 = qctask.to_dict
+        d2 = qctask.as_dict()
         self.assertEqual(ref_dict, d2)
 
     def test_read_zmatrix(self):
@@ -1076,7 +1076,7 @@ $end
         qcinp1 = QcInput(jobs=[qctask1, qctask2, qctask3])
         self.assertEqual(str(qcinp1), ans)
         qcinp2 = QcInput.from_string(ans)
-        self.assertEqual(qcinp1.to_dict, qcinp2.to_dict)
+        self.assertEqual(qcinp1.as_dict(), qcinp2.as_dict())
 
     def test_to_and_from_dict(self):
         qctask1 = QcTask(mol, title="Test Methane Opt", exchange="B3LYP",
@@ -1088,9 +1088,9 @@ $end
                          exchange="B3LYP", jobtype="SP",
                          basis_set="6-311+G(3df,2p)")
         qcinp1 = QcInput(jobs=[qctask1, qctask2, qctask3])
-        d1 = qcinp1.to_dict
+        d1 = qcinp1.as_dict()
         qcinp2 = QcInput.from_dict(d1)
-        d2 = qcinp2.to_dict
+        d2 = qcinp2.as_dict()
         self.assertEqual(d1, d2)
 
 
@@ -1186,7 +1186,7 @@ class TestQcOutput(TestCase):
                         ('SCF', -20180.15020789526),
                         ('SCF', -20180.150206202714)]
         self.assertEqual(qcout.data[0]["energies"], ans_energies)
-        ans_mol1 = '''Molecule Summary (H4 S1 C5 O2)
+        ans_mol1 = '''Molecule Summary (H4 C5 S1 O2)
 Reduced Formula: H4C5SO2
 Charge = -1, Spin Mult = 2
 Sites (12)
@@ -1202,7 +1202,7 @@ Sites (12)
 10 O     2.131988     1.173581    -0.000330
 11 O     2.322109    -1.079218    -0.000021
 12 H     3.262059    -0.820188    -0.000171'''
-        ans_mol_last = '''Molecule Summary (H4 S1 C5 O2)
+        ans_mol_last = '''Molecule Summary (H4 C5 S1 O2)
 Reduced Formula: H4C5SO2
 Charge = -1, Spin Mult = 2
 Sites (12)
@@ -1437,10 +1437,10 @@ $end
         ans_thermo_corr = json.loads(ans_thermo_corr_text)
         self.assertEqual(sorted(qcout.data[1]['corrections'].keys()),
                          sorted(ans_thermo_corr.keys()))
-        for k, ref in ans_thermo_corr.iteritems():
+        for k, ref in ans_thermo_corr.items():
             self.assertAlmostEqual(qcout.data[1]['corrections'][k], ref)
         self.assertEqual(len(qcout.data[1]['molecules']), 1)
-        ans_mol1 = '''Molecule Summary (Br2 Cd1)
+        ans_mol1 = '''Molecule Summary (Cd1 Br2)
 Reduced Formula: CdBr2
 Charge = 0, Spin Mult = 1
 Sites (3)

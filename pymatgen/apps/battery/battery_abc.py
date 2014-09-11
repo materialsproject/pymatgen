@@ -19,7 +19,7 @@ __status__ = "Beta"
 from collections import Sequence
 from abc import ABCMeta, abstractproperty
 
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.core.physical_constants import AVOGADROS_CONST
 
 
@@ -66,7 +66,7 @@ class AbstractVoltagePair(object):
         return self._working_ion_entry
 
 
-class AbstractElectrode(Sequence, MSONable):
+class AbstractElectrode(Sequence, PMGSONable):
     """
     An Abstract Base Class representing an Electrode. It is essentially a
     sequence of VoltagePairs. Generally, subclasses only need to implement
@@ -325,5 +325,5 @@ class AbstractElectrode(Sequence, MSONable):
             else self.min_voltage
         max_voltage = max_voltage if max_voltage is not None \
             else self.max_voltage
-        return filter(lambda p: min_voltage <= p.voltage <= max_voltage,
-                      self.voltage_pairs)
+        return list(filter(lambda p: min_voltage <= p.voltage <= max_voltage,
+                           self.voltage_pairs))

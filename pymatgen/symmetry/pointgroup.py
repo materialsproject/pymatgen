@@ -3,6 +3,7 @@ This module implements a point group assigner for a molecule.
 """
 
 from __future__ import division
+from six.moves import filter
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -114,10 +115,10 @@ class PointGroupAnalyzer(object):
             for site in self.mol:
                 c = site.coords
                 wt = site.species_and_occu.weight
-                for i in xrange(3):
+                for i in range(3):
                     inertia_tensor[i, i] += wt * (c[(i + 1) % 3] ** 2
                                                   + c[(i + 2) % 3] ** 2)
-                for i, j in itertools.combinations(xrange(3), 2):
+                for i, j in itertools.combinations(list(range(3)), 2):
                     inertia_tensor[i, j] += -wt * c[i] * c[j]
                     inertia_tensor[j, i] += -wt * c[j] * c[i]
                 total_inertia += wt * np.dot(c, c)
@@ -308,7 +309,7 @@ class PointGroupAnalyzer(object):
         valid_sets = []
         origin_site, dist_el_sites = cluster_sites(self.centered_mol, self.tol)
         for test_set in dist_el_sites.values():
-            valid_set = filter(not_on_axis, test_set)
+            valid_set = list(filter(not_on_axis, test_set))
             if len(valid_set) > 0:
                 valid_sets.append(valid_set)
 
@@ -322,7 +323,7 @@ class PointGroupAnalyzer(object):
         """
         min_set = self._get_smallest_set_not_on_axis(axis)
         max_sym = len(min_set)
-        for i in xrange(max_sym, 0, -1):
+        for i in range(max_sym, 0, -1):
             if max_sym % i != 0:
                 continue
             op = SymmOp.from_axis_angle_and_translation(axis, 360 / i)

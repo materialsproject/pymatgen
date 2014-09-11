@@ -5,12 +5,11 @@ import os
 import time
 import collections
 import yaml
-import cStringIO as StringIO
 
+from six.moves import cStringIO
 from datetime import timedelta
-from monty.dev import deprecated
 from monty.os.path import which
-
+from monty.dev import deprecated
 from pymatgen.core.design_patterns import AttrDict
 from pymatgen.util.string_utils import is_string
 
@@ -808,7 +807,7 @@ class PyFlowScheduler(object):
         app("Number of errored tasks: %d" % self.flow.num_errored_tasks)
         app("Number of unconverged tasks: %d" % self.flow.num_unconverged_tasks)
 
-        strio = StringIO.StringIO()
+        strio = cStringIO()
         strio.writelines("\n".join(header) + 4 * "\n")
 
         # Add the status of the flow.

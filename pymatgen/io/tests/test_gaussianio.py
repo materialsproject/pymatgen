@@ -47,7 +47,7 @@ class GaussianInputTest(unittest.TestCase):
         self.assertRaises(ValueError, GaussianInput, mol, spin_multiplicity=1)
 
     def test_str_and_from_string(self):
-        ans = """#P HF/6-31G(d) SP SCF=Tight Test
+        ans = """#P HF/6-31G(d) SCF=Tight SP Test
 
 H4 C1
 
@@ -152,7 +152,7 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertEqual("HF", gau.functional)
         self.assertEqual("3-21G", gau.basis_set)
         self.assertEqual(17, gau.num_basis_func)
-        d = gau.to_dict
+        d = gau.as_dict()
         self.assertEqual(d["input"]["functional"], "HF")
         self.assertAlmostEqual(d["output"]["final_energy"], -39.9768775602)
 
