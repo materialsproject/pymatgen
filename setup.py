@@ -15,11 +15,14 @@ except ImportError:
     from numpy.distutils.misc_util import get_numpy_include_dirs
 
 
+cwd = os.path.dirname(os.path.abspath(__file__))
+
+
 def get_spglib_ext():
     """
     Set up spglib extension.
     """
-    spglibs = glob.glob(os.path.join("dependencies", "spglib*"))
+    spglibs = glob.glob(os.path.join(cwd, "dependencies", "spglib*"))
     if len(spglibs) != 1:
         raise ValueError("Incorrect number of spglib found in dependencies. "
                          "Expected 1, got %d" % len(spglibs))
@@ -28,8 +31,7 @@ def get_spglib_ext():
     # set rest of spglib
     spgsrcdir = os.path.join(spglibdir, "src")
     include_dirs = [spgsrcdir]
-    sources = [os.path.join(spgsrcdir, srcfile) for srcfile in
-        os.listdir(spgsrcdir) if srcfile.endswith(".c")]
+    sources = glob.glob(os.path.join(spgsrcdir, "*.c"))
     return Extension(
         "pymatgen._spglib",
         include_dirs=include_dirs + get_numpy_include_dirs(),
@@ -47,7 +49,7 @@ setup(
     version="3.0.0",
     install_requires=["numpy>=1.8", "pyhull>=1.5.2",
                       "requests>=2.3.0", "pybtex>=0.18", "pyyaml>=3.11",
-                      "monty>=0.4.1", "six>=1.7.3"],
+                      "monty>=0.4.2", "six>=1.7.3"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
                     "plotting": ["matplotlib>=1.1"],
                     "ase_adaptor": ["ase>=3.3"],
@@ -83,7 +85,12 @@ setup(
     keywords=["VASP", "gaussian", "ABINIT", "nwchem", "materials", "project",
               "electronic", "structure", "analysis", "phase", "diagrams"],
     classifiers=[
+        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.2",
+        "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.4",
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
@@ -94,5 +101,5 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
     ext_modules=[get_spglib_ext()],
-    scripts=[os.path.join("scripts", f) for f in os.listdir("scripts")]
+    scripts=glob.glob(os.path.join(cwd, "scripts", "*"))
 )
