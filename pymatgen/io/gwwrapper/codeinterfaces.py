@@ -29,7 +29,11 @@ from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.gwwrapper.helpers import is_converged, read_grid_from_file, s_name, expand_tests, store_conv_results
 from pymatgen.io.gwwrapper.GWvaspinputsets import SingleVaspGWWork
-from pymatgen.io.gwwrapper.GWworkflows import VaspGWFWWorkFlow, SingleAbinitGWWorkFlow
+try:
+    from pymatgen.io.gwwrapper.GWworkflows import VaspGWFWWorkFlow
+except ImportError:
+    pass
+from pymatgen.io.gwwrapper.GWworkflows import SingleAbinitGWWorkFlow
 from pymatgen.io.gwwrapper.GWvaspinputsets import GWscDFTPrepVaspInputSet, GWDFTDiagVaspInputSet, \
     GWG0W0VaspInputSet
 
