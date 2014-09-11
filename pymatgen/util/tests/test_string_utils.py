@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 FIXME: Proper module docstring
 """
@@ -46,6 +44,7 @@ ccc   dddd"""
         self.assertEqual(formula_double_format(1.00), "")
         self.assertEqual(formula_double_format(2.00), "2")
         self.assertEqual(formula_double_format(2.10), "2.1")
+        self.assertEqual(formula_double_format(2.10000000002), "2.1")
 
 
 if __name__ == "__main__":

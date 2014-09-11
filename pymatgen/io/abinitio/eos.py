@@ -84,8 +84,6 @@ def deltafactor_polyfit(volumes, energies):
     deriv2 = np.polyder(deriv1, 1)
     deriv3 = np.polyder(deriv2, 1)
 
-    n = collections.namedtuple("DeltaFitResults", "v0 b0 b1 poly1d")
-
     v0 = 0
     x = 0
     for x in np.roots(deriv1):
@@ -93,25 +91,20 @@ def deltafactor_polyfit(volumes, energies):
             v0 = x**(-3./2.)
             break
     else:
-        print("EOS: No minimum could be found")
-        x = np.roots(deriv1)[1]
-        v0 = x**(-3./2.)
-        #no need to kill everybody else in the whole world ..
-        #raise EOSError("No minimum could be found")
+        raise EOSError("No minimum could be found")
 
     derivV2 = 4./9. * x**5. * deriv2(x)
     derivV3 = (-20./9. * x**(13./2.) * deriv2(x) - 8./27. * x**(15./2.) * deriv3(x))
     b0 = derivV2 / x**(3./2.)
     b1 = -1 - x**(-3./2.) * derivV3 / derivV2
 
-
     #print('deltafactor polyfit:')
     #print('e0, b0, b1, v0')
     #print(fitdata[0], b0, b1, v0)
 
+    n = collections.namedtuple("DeltaFitResults", "v0 b0 b1 poly1d")
     return n(v0, b0, b1, fitdata[0])
 
-##########################################################################################
 
 
 class EOSError(Exception):
@@ -206,7 +199,6 @@ class EOS(object):
 
         return EOS_Fit(volumes, energies, self._func, self._eos_name)
 
-##########################################################################################
 
 
 class EOS_Fit(object):
@@ -321,11 +313,13 @@ class EOS_Fit(object):
     def b0_GPa(self):
         return FloatWithUnit(self.b0, "eV ang^-3").to("GPa")
 
-    def plot(self, **kwargs):
+    def plot(self, ax=None, **kwargs):
         """
         Uses Matplotlib to plot the energy curve.
 
         Args:
+            ax:
+                Axis object. If ax is None, a new figure is produced.
             show:
                 True to show the figure
             savefig:
@@ -342,8 +336,11 @@ class EOS_Fit(object):
         vmin, vmax = (vmin - 0.01 * abs(vmin), vmax + 0.01 * abs(vmax))
         emin, emax = (emin - 0.01 * abs(emin), emax + 0.01 * abs(emax))
 
-        fig = plt.figure()
-        ax = fig.add_subplot(1,1,1)
+        if ax is None:
+            fig = plt.figure()
+            ax = fig.add_subplot(1,1,1)
+        else:
+            fig = plt.gcf()
 
         lines, legends = [], []
 

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # coding=utf-8
 
 """
@@ -8,12 +7,17 @@ import copy
 import re
 import numpy as np
 from string import Template
+
+import six
+
 from monty.io import zopen
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule
-from pymatgen.core.units import Energy
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.core.units import Energy, FloatWithUnit
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.util.coord_utils import get_angle
+from six.moves import map
+from six.moves import zip
 
 __author__ = "Xiaohui Qu"
 __copyright__ = "Copyright 2013, The Electrolyte Genome Project"
@@ -23,7 +27,7 @@ __email__ = "xhqu1981@gmail.com"
 __date__ = "11/4/13"
 
 
-class QcTask(MSONable):
+class QcTask(PMGSONable):
     """
     An object representing a QChem input file.
 
@@ -92,14 +96,26 @@ class QcTask(MSONable):
                  basis_set="6-31+G*", aux_basis_set=None, ecp=None,
                  rem_params=None, optional_params=None):
         self.mol = copy.deepcopy(molecule) if molecule else "read"
-        if isinstance(self.mol, str):
-            self.mol = self.mol.lower()
         self.charge = charge
         self.spin_multiplicity = spin_multiplicity
-        if not (isinstance(self.mol, str) and self.mol == "read"):
-            if not isinstance(self.mol, Molecule):
-                raise ValueError("The molecule must be a pymatgen Molecule "
-                                 "object or read/None")
+        if isinstance(self.mol, six.string_types):
+            self.mol = self.mol.lower()
+            if self.mol != "read":
+                raise ValueError('The only accept text value for mol is "read"')
+        elif isinstance(self.mol, list):
+            for m in self.mol:
+                if not isinstance(m, Molecule):
+                    raise ValueError("In case of type list, every element of mol must be a pymatgen Molecule")
+            if self.charge is None or self.spin_multiplicity is None:
+                raise ValueError("For fragments molecule section input, charge and spin_multiplicity "
+                                 "must be specificed")
+            total_charge = sum([m.charge for m in self.mol])
+            total_unpaired_electron = sum([m.spin_multiplicity-1 for m in self.mol])
+            if total_charge != self.charge:
+                raise ValueError("The charge of the molecule doesn't equal to the sum of the fragment charges")
+            if total_unpaired_electron % 2 != (self.spin_multiplicity - 1) % 2:
+                raise ValueError("Spin multiplicity of molecule and fragments doesn't match")
+        elif isinstance(self.mol, Molecule):
             self.charge = charge if charge is not None else self.mol.charge
             nelectrons = self.mol.charge + self.mol.nelectrons - self.charge
             if spin_multiplicity is not None:
@@ -110,6 +126,9 @@ class QcTask(MSONable):
                                      .format(self.charge, spin_multiplicity))
             else:
                 self.spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
+        else:
+            raise ValueError("The molecule must be a pymatgen Molecule "
+                             "object or read/None or list of pymatgen Molecule")
         if (self.charge is None) != (self.spin_multiplicity is None):
             raise ValueError("spin multiplicity must be set together")
         if self.charge is not None and isinstance(self.mol, Molecule):
@@ -132,12 +151,12 @@ class QcTask(MSONable):
         if correlation is not None:
             self.params["rem"]["correlation"] = correlation.lower()
         if rem_params is not None:
-            for k, v in rem_params.iteritems():
+            for k, v in rem_params.items():
                 k = k.lower()
                 if k in self.alternative_keys:
                     k = self.alternative_keys[k]
-                if isinstance(v, str):
-                    v = v.lower()
+                if isinstance(v, six.string_types):
+                    v = str(v).lower()
                     if v in self.alternative_values:
                         v = self.alternative_values[v]
                     self.params["rem"][k] = v
@@ -158,7 +177,7 @@ class QcTask(MSONable):
 
         if aux_basis_set is None:
             if self._aux_basis_required():
-                if isinstance(self.params["rem"]["basis"], str):
+                if isinstance(self.params["rem"]["basis"], six.string_types):
                     if self.params["rem"]["basis"].startswith("6-31+g"):
                         self.set_auxiliary_basis_set("rimp2-aug-cc-pvdz")
                     elif self.params["rem"]["basis"].startswith("6-311+g"):
@@ -179,12 +198,14 @@ class QcTask(MSONable):
                 return True
 
     def set_basis_set(self, basis_set):
-        if isinstance(basis_set, str) or isinstance(basis_set, unicode):
+        if isinstance(basis_set, six.string_types):
             self.params["rem"]["basis"] = str(basis_set).lower()
+            if basis_set.lower() not in ["gen", "mixed"]:
+                self.params.pop("basis", None)
         elif isinstance(basis_set, dict):
             self.params["rem"]["basis"] = "gen"
             bs = dict()
-            for element, basis in basis_set.iteritems():
+            for element, basis in basis_set.items():
                 bs[element.strip().capitalize()] = basis.lower()
             self.params["basis"] = bs
             if self.mol:
@@ -200,16 +221,28 @@ class QcTask(MSONable):
                     raise ValueError("Basis set error: the molecule "
                                      "doesn't contain element " +
                                      ", ".join(basis_elements - mol_elements))
+        elif isinstance(basis_set, list):
+            self.params["rem"]["basis"] = "mixed"
+            bs = [(a[0].capitalize(), a[1].lower()) for a in basis_set]
+            self.params["basis"] = bs
+            if len(self.mol) != len(basis_set):
+                raise ValueError("Must specific a basis set for every atom")
+            mol_elements = [site.species_string for site in self.mol.sites]
+            basis_elements = [a[0] for a in bs]
+            if mol_elements != basis_elements:
+                raise ValueError("Elements in molecule and mixed basis set don't match")
         else:
             raise Exception('Can\'t handle type "{}"'.format(type(basis_set)))
 
     def set_auxiliary_basis_set(self, aux_basis_set):
-        if isinstance(aux_basis_set, str):
+        if isinstance(aux_basis_set, six.string_types):
             self.params["rem"]["aux_basis"] = aux_basis_set.lower()
+            if aux_basis_set.lower() not in ["gen", "mixed"]:
+                self.params.pop("aux_basis", None)
         elif isinstance(aux_basis_set, dict):
             self.params["rem"]["aux_basis"] = "gen"
             bs = dict()
-            for element, basis in aux_basis_set.iteritems():
+            for element, basis in aux_basis_set.items():
                 bs[element.strip().capitalize()] = basis.lower()
             self.params["aux_basis"] = bs
             if self.mol:
@@ -226,14 +259,26 @@ class QcTask(MSONable):
                     raise ValueError("Auxiliary asis set error: the "
                                      "molecule doesn't contain element " +
                                      ", ".join(basis_elements - mol_elements))
+        elif isinstance(aux_basis_set, list):
+            self.params["rem"]["aux_basis"] = "mixed"
+            bs = [(a[0].capitalize(), a[1].lower()) for a in aux_basis_set]
+            self.params["aux_basis"] = bs
+            if len(self.mol) != len(aux_basis_set):
+                raise ValueError("Must specific a auxiliary basis set for every atom")
+            mol_elements = [site.species_string for site in self.mol.sites]
+            basis_elements = [a[0] for a in bs]
+            if mol_elements != basis_elements:
+                raise ValueError("Elements in molecule and mixed basis set don't match")
+        else:
+            raise Exception('Can\'t handle type "{}"'.format(type(aux_basis_set)))
 
     def set_ecp(self, ecp):
-        if isinstance(ecp, str):
+        if isinstance(ecp, six.string_types):
             self.params["rem"]["ecp"] = ecp.lower()
         elif isinstance(ecp, dict):
             self.params["rem"]["ecp"] = "gen"
             potentials = dict()
-            for element, p in ecp.iteritems():
+            for element, p in ecp.items():
                 potentials[element.strip().capitalize()] = p.lower()
             self.params["ecp"] = potentials
             if self.mol:
@@ -474,17 +519,17 @@ class QcTask(MSONable):
         if not solvent_params:
             solvent_params = {"Dielectric": 78.3553}
         if pcm_params:
-            for k, v in pcm_params.iteritems():
+            for k, v in pcm_params.items():
                 self.params["pcm"][k.lower()] = v.lower() \
-                    if isinstance(v, str) else v
+                    if isinstance(v, six.string_types) else v
 
-        for k, v in default_pcm_params.iteritems():
+        for k, v in default_pcm_params.items():
             if k.lower() not in self.params["pcm"].keys():
                 self.params["pcm"][k.lower()] = v.lower() \
-                    if isinstance(v, str) else v
-        for k, v in solvent_params.iteritems():
+                    if isinstance(v, six.string_types) else v
+        for k, v in solvent_params.items():
             self.params["pcm_solvent"][k.lower()] = v.lower() \
-                if isinstance(v, str) else copy.deepcopy(v)
+                if isinstance(v, six.string_types) else copy.deepcopy(v)
         self.params["rem"]["solvent_method"] = "pcm"
         if radii_force_field:
             self.params["pcm"]["radii"] = "bondi"
@@ -509,23 +554,35 @@ class QcTask(MSONable):
 
     def _format_molecule(self):
         lines = []
+
+        def inner_format_mol(m2):
+            mol_lines = []
+            for site in m2.sites:
+                mol_lines.append(" {element:<4} {x:>17.8f} {y:>17.8f} "
+                                 "{z:>17.8f}".format(element=site.species_string,
+                                                     x=site.x, y=site.y, z=site.z))
+            return mol_lines
+
         if self.charge is not None:
             lines.append(" {charge:d}  {multi:d}".format(charge=self
                          .charge, multi=self.spin_multiplicity))
-        if isinstance(self.mol, str) and self.mol == "read":
+        if isinstance(self.mol, six.string_types) and self.mol == "read":
             lines.append(" read")
+        elif isinstance(self.mol, list):
+            for m in self.mol:
+                lines.append("--")
+                lines.append(" {charge:d}  {multi:d}".format(
+                    charge=m.charge, multi=m.spin_multiplicity))
+                lines.extend(inner_format_mol(m))
         else:
-            for site in self.mol.sites:
-                lines.append(" {element:<4} {x:>17.8f} {y:>17.8f} "
-                             "{z:>17.8f}".format(element=site.species_string,
-                                                 x=site.x, y=site.y, z=site.z))
+            lines.extend(inner_format_mol(self.mol))
         return lines
 
     def _format_rem(self):
         rem_format_template = Template("  {name:>$name_width} = "
                                        "{value}")
         name_width = 0
-        for name, value in self.params["rem"].iteritems():
+        for name, value in self.params["rem"].items():
             if len(name) > name_width:
                 name_width = len(name)
         rem = rem_format_template.substitute(name_width=name_width)
@@ -541,20 +598,32 @@ class QcTask(MSONable):
 
     def _format_basis(self):
         lines = []
-        for element in sorted(self.params["basis"].keys()):
-            basis = self.params["basis"][element]
-            lines.append(" " + element)
-            lines.append(" " + basis)
-            lines.append(" ****")
+        if isinstance(self.params["basis"], dict):
+            for element in sorted(self.params["basis"].keys()):
+                basis = self.params["basis"][element]
+                lines.append(" " + element)
+                lines.append(" " + basis)
+                lines.append(" ****")
+        elif isinstance(self.params["basis"], list):
+            for i, (element, bs) in enumerate(self.params["basis"]):
+                lines.append(" {element:2s} {number:3d}".format(element=element, number=i+1))
+                lines.append(" {}".format(bs))
+                lines.append(" ****")
         return lines
 
     def _format_aux_basis(self):
         lines = []
-        for element in sorted(self.params["aux_basis"].keys()):
-            basis = self.params["aux_basis"][element]
-            lines.append(" " + element)
-            lines.append(" " + basis)
-            lines.append(" ****")
+        if isinstance(self.params["aux_basis"], dict):
+            for element in sorted(self.params["aux_basis"].keys()):
+                basis = self.params["aux_basis"][element]
+                lines.append(" " + element)
+                lines.append(" " + basis)
+                lines.append(" ****")
+        else:
+            for i, (element, bs) in enumerate(self.params["aux_basis"]):
+                lines.append(" {element:2s} {number:3d}".format(element=element, number=i+1))
+                lines.append(" {}".format(bs))
+                lines.append(" ****")
         return lines
 
     def _format_ecp(self):
@@ -606,20 +675,32 @@ class QcTask(MSONable):
             lines.append(rem.format(name=name, value=value))
         return lines
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
+        if isinstance(self.mol, six.string_types):
+            mol_dict = self.mol
+        elif isinstance(self.mol, Molecule):
+            mol_dict = self.mol.as_dict()
+        elif isinstance(self.mol, list):
+            mol_dict = [m.as_dict() for m in self.mol]
+        else:
+            raise ValueError('Unknow molecule type "{}"'.format(type(self.mol)))
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "molecule": self.mol if isinstance(self.mol, str)
-                else self.mol.to_dict,
+                "molecule": mol_dict,
                 "charge": self.charge,
                 "spin_multiplicity": self.spin_multiplicity,
                 "params": self.params}
 
     @classmethod
     def from_dict(cls, d):
-        mol = "read" if d["molecule"] == "read" \
-            else Molecule.from_dict(d["molecule"])
+        if d["molecule"] == "read":
+            mol = "read"
+        elif isinstance(d["molecule"], dict):
+            mol = Molecule.from_dict(d["molecule"])
+        elif isinstance(d["molecule"], list):
+            mol = [Molecule.from_dict(m) for m in d["molecule"]]
+        else:
+            raise ValueError('Unknow molecule type "{}"'.format(type(d["molecule"])))
         jobtype = d["params"]["rem"]["jobtype"]
         title = d["params"].get("comment", None)
         exchange = d["params"]["rem"]["exchange"]
@@ -757,9 +838,9 @@ class QcTask(MSONable):
                 species.append(m.group(1))
                 toks = re.split("[,\s]+", l.strip())
                 if len(toks) > 4:
-                    coords.append(map(float, toks[2:5]))
+                    coords.append(list(map(float, toks[2:5])))
                 else:
-                    coords.append(map(float, toks[1:4]))
+                    coords.append(list(map(float, toks[1:4])))
             elif cls.zmat_patt.match(l):
                 zmode = True
                 toks = re.split("[,\s]+", l.strip())
@@ -839,7 +920,7 @@ class QcTask(MSONable):
                 sp = re.sub("\d", "", sp_str)
                 return sp.capitalize()
 
-        species = map(parse_species, species)
+        species = list(map(parse_species, species))
 
         return Molecule(species, coords)
 
@@ -862,8 +943,23 @@ class QcTask(MSONable):
         elif charge is None or spin_multiplicity is None:
             raise ValueError("Charge or spin multiplicity is not found")
         else:
-            mol = cls._parse_coords(contents[1:])
-            mol.set_charge_and_spin(charge, spin_multiplicity)
+            if contents[1].strip()[0:2] == "--":
+                chunks = "\n".join(contents[2:]).split("--\n")
+                mol = []
+                for chunk in chunks:
+                    mol_contents = chunk.split("\n")
+                    m = charge_multi_pattern.match(mol_contents[0])
+                    if m:
+                        fragment_charge = int(m.group("charge"))
+                        fragment_spin_multiplicity = int(m.group("multi"))
+                    else:
+                        raise Exception("charge and spin multiplicity must be specified for each fragment")
+                    fragment = cls._parse_coords(mol_contents[1:])
+                    fragment.set_charge_and_spin(fragment_charge, fragment_spin_multiplicity)
+                    mol.append(fragment)
+            else:
+                mol = cls._parse_coords(contents[1:])
+                mol.set_charge_and_spin(charge, spin_multiplicity)
             return mol, charge, spin_multiplicity
 
     @classmethod
@@ -902,22 +998,42 @@ class QcTask(MSONable):
         if len(contents) % 3 != 0:
             raise ValueError("Auxiliary basis set section format error")
         chunks = zip(*[iter(contents)]*3)
-        d = dict()
-        for ch in chunks:
-            element, basis = ch[:2]
-            d[element.strip().capitalize()] = basis.strip().lower()
-        return d
+        t = contents[0].split()
+        if len(t) == 2 and int(t[1]) > 0:
+            bs = []
+            for i, ch in enumerate(chunks):
+                element, number = ch[0].split()
+                basis = ch[1]
+                if int(number) != i+1:
+                    raise ValueError("Atom order number doesn't match in $aux_basis section")
+                bs.append((element.strip().capitalize(), basis.strip().lower()))
+        else:
+            bs = dict()
+            for ch in chunks:
+                element, basis = ch[:2]
+                bs[element.strip().capitalize()] = basis.strip().lower()
+        return bs
 
     @classmethod
     def _parse_basis(cls, contents):
         if len(contents) % 3 != 0:
             raise ValueError("Basis set section format error")
         chunks = zip(*[iter(contents)]*3)
-        d = dict()
-        for ch in chunks:
-            element, basis = ch[:2]
-            d[element.strip().capitalize()] = basis.strip().lower()
-        return d
+        t = contents[0].split()
+        if len(t) == 2 and int(t[1]) > 0:
+            bs = []
+            for i, ch in enumerate(chunks):
+                element, number = ch[0].split()
+                basis = ch[1]
+                if int(number) != i+1:
+                    raise ValueError("Atom order number doesn't match in $basis section")
+                bs.append((element.strip().capitalize(), basis.strip().lower()))
+        else:
+            bs = dict()
+            for ch in chunks:
+                element, basis = ch[:2]
+                bs[element.strip().capitalize()] = basis.strip().lower()
+        return bs
 
     @classmethod
     def _parse_ecp(cls, contents):
@@ -998,7 +1114,7 @@ class QcTask(MSONable):
         return d
 
 
-class QcInput(MSONable):
+class QcInput(PMGSONable):
     """
     An object representing a multiple step QChem input file.
 
@@ -1020,11 +1136,10 @@ class QcInput(MSONable):
         with zopen(filename, "w") as f:
             f.write(self.__str__())
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "jobs": [j.to_dict for j in self.jobs]}
+                "jobs": [j.as_dict() for j in self.jobs]}
 
     @classmethod
     def from_dict(cls, d):
@@ -1052,7 +1167,8 @@ class QcOutput(object):
         with zopen(filename) as f:
             data = f.read()
         chunks = re.split("\n\nRunning Job \d+ of \d+ \S+", data)
-        self.data = map(self._parse_job, chunks)
+        # noinspection PyTypeChecker
+        self.data = list(map(self._parse_job, chunks))
 
     @classmethod
     def _expected_successful_pattern(cls, qctask):
@@ -1092,8 +1208,16 @@ class QcOutput(object):
         thermal_corr_pattern = re.compile("(?P<name>\S.*\S):\s+"
                                           "(?P<correction>\d+\.\d+)\s+"
                                           "k?cal/mol")
-        detailed_charge_pattern = re.compile("Ground-State (?P<method>\w+) Net"
+        detailed_charge_pattern = re.compile("(Ground-State )?(?P<method>\w+)( Net)?"
                                              " Atomic Charges")
+        nbo_charge_pattern = re.compile("(?P<element>[A-Z][a-z]{0,2})\s*(?P<no>\d+)\s+(?P<charge>\-?\d\.\d+)"
+                                        "\s+(?P<core>\-?\d+\.\d+)\s+(?P<valence>\-?\d+\.\d+)"
+                                        "\s+(?P<rydberg>\-?\d+\.\d+)\s+(?P<total>\-?\d+\.\d+)"
+                                        "(\s+(?P<spin>\-?\d\.\d+))?")
+        nbo_wavefunction_type_pattern = re.compile("This is an? (?P<type>\w+\-\w+) NBO calculation")
+        bsse_pattern = re.compile("DE, kJ/mol\s+(?P<raw_be>\-?\d+\.?\d+([eE]\d+)?)\s+"
+                                  "(?P<corrected_be>\-?\d+\.?\d+([eE]\d+)?)")
+        float_pattern = re.compile("\-?\d+\.?\d+([eE]\d+)?$")
 
         error_defs = (
             (re.compile("Convergence failure"), "Bad SCF convergence"),
@@ -1140,9 +1264,22 @@ class QcOutput(object):
         properly_terminated = False
         pop_method = None
         parse_charge = False
+        nbo_available = False
+        nbo_charge_header = None
+        parse_nbo_charge = False
         charges = dict()
         scf_successful = False
         opt_successful = False
+        parse_alpha_homo = False
+        parse_alpha_lumo = False
+        parse_beta_homo = False
+        parse_beta_lumo = False
+        current_alpha_homo = None
+        current_alpha_lumo = None
+        current_beta_homo = None
+        homo_lumo = []
+        bsse = None
+        hiershfiled_pop = False
         for line in output.split("\n"):
             for ep, message in error_defs:
                 if ep.search(line):
@@ -1229,6 +1366,7 @@ class QcOutput(object):
                         for freq, mode in zip(vib_freqs, zip(*vib_modes)):
                             freqs.append({"frequency": freq,
                                           "vib_mode": mode})
+                        vib_modes = []
                         continue
                     dis_flat = [float(x) for x in line.strip().split()[1:]]
                     dis_atom = zip(*([iter(dis_flat)]*3))
@@ -1256,6 +1394,67 @@ class QcOutput(object):
                         continue
                     else:
                         charges[pop_method].append(float(line.split()[2]))
+            elif parse_nbo_charge:
+                if '-'*20 in line:
+                    if len(charges[pop_method]) == 0:
+                        continue
+                elif "="*20 in line:
+                    pop_method = None
+                    parse_nbo_charge = False
+                else:
+                    m = nbo_charge_pattern.search(line)
+                    if m:
+                        charges[pop_method].append(float(m.group("charge")))
+                    else:
+                        raise Exception("Can't find NBO charges")
+            elif parse_alpha_homo:
+                if "-- Occupied --" in line:
+                    continue
+                elif "-- Virtual --" in line:
+                    parse_alpha_homo = False
+                    parse_alpha_lumo = True
+                    continue
+                else:
+                    tokens = line.split()
+                    m = float_pattern.search(tokens[-1])
+                    if m:
+                        current_alpha_homo = float(m.group(0))
+                    continue
+            elif parse_alpha_lumo:
+                current_alpha_lumo = float(line.split()[0])
+                parse_alpha_lumo = False
+                continue
+            elif parse_beta_homo:
+                if "-- Occupied --" in line:
+                    continue
+                elif "-- Virtual --" in line:
+                    parse_beta_homo = False
+                    parse_beta_lumo = True
+                    continue
+                else:
+                    tokens = line.split()
+                    m = float_pattern.search(tokens[-1])
+                    if m:
+                        current_beta_homo = float(m.group(0))
+                    continue
+            elif parse_beta_lumo:
+                current_beta_lumo = float(line.split()[0])
+                parse_beta_lumo = False
+                current_homo = max([current_alpha_homo, current_beta_homo])
+                current_lumo = min([current_alpha_lumo, current_beta_lumo])
+                homo_lumo.append([Energy(current_homo, "Ha").to("eV"),
+                                  Energy(current_lumo, "Ha").to("eV")])
+                current_alpha_homo = None
+                current_alpha_lumo = None
+                current_beta_homo = None
+                continue
+            elif "-" * 50 in line and not (current_alpha_lumo is None):
+                homo_lumo.append([Energy(current_alpha_homo, "Ha").to("eV"),
+                                  Energy(current_alpha_lumo, "Ha").to("eV")])
+                current_alpha_homo = None
+                current_alpha_lumo = None
+                current_beta_homo = None
+                continue
             else:
                 if spin_multiplicity is None:
                     m = num_ele_pattern.search(line)
@@ -1275,6 +1474,12 @@ class QcOutput(object):
                     if m:
                         thermal_corr[m.group("name")] = \
                             float(m.group("correction"))
+                m = bsse_pattern.search(line)
+                if m:
+                    raw_be = float(m.group("raw_be"))
+                    corrected_be = float(m.group("corrected_be"))
+                    bsse_fwu = FloatWithUnit(raw_be - corrected_be, "kJ mol^-1")
+                    bsse = bsse_fwu.to('eV atom^-1').real
                 name = None
                 energy = None
                 m = scf_energy_pattern.search(line)
@@ -1290,14 +1495,37 @@ class QcOutput(object):
                     pop_method = m.group("method").lower()
                     parse_charge = True
                     charges[pop_method] = []
+                if nbo_available:
+                    if nbo_charge_header is None:
+                        m = nbo_wavefunction_type_pattern.search(line)
+                        if m:
+                            nbo_wavefunction_type = m.group("type")
+                            nbo_charge_header_dict = {
+                                "closed-shell": "Atom No    Charge        Core      "
+                                                "Valence    Rydberg      Total",
+                                "open-shell": "Atom No    Charge        Core      "
+                                              "Valence    Rydberg      Total      Density"}
+                            nbo_charge_header = nbo_charge_header_dict[nbo_wavefunction_type]
+                        continue
+                    if nbo_charge_header in line:
+                        pop_method = "nbo"
+                        parse_nbo_charge = True
+                        charges[pop_method] = []
+                if "N A T U R A L   B O N D   O R B I T A L   A N A L Y S I S" in line:
+                    nbo_available = True
                 if name and energy:
                     energies.append(tuple([name, energy]))
                 if "User input:" in line:
                     parse_input = True
                 elif "Standard Nuclear Orientation (Angstroms)" in line:
                     parse_coords = True
-                elif "Cycle       Energy         DIIS Error" in line\
-                        or "Cycle       Energy        RMS Gradient" in line:
+                elif "Performing Hirshfeld population analysis" in line:
+                    hiershfiled_pop = True
+                elif "Hirshfeld: atomic densities completed" in line:
+                    hiershfiled_pop = False
+                elif ("Cycle       Energy         DIIS Error" in line\
+                        or "Cycle       Energy        RMS Gradient" in line)\
+                        and not hiershfiled_pop:
                     parse_scf_iter = True
                     scf_iters.append([])
                     scf_successful = False
@@ -1306,6 +1534,12 @@ class QcOutput(object):
                     gradients.append({"gradients": []})
                 elif "VIBRATIONAL ANALYSIS" in line:
                     parse_freq = True
+                elif "Alpha MOs" in line:
+                    parse_alpha_homo = True
+                    parse_alpha_lumo = False
+                elif "Beta MOs" in line:
+                    parse_beta_homo = True
+                    parse_beta_lumo = False
                 elif "Thank you very much for using Q-Chem." in line:
                     properly_terminated = True
                 elif "OPTIMIZATION CONVERGED" in line:
@@ -1350,6 +1584,8 @@ class QcOutput(object):
         data = {
             "jobtype": jobtype,
             "energies": energies,
+            "HOMO/LUMOs": homo_lumo,
+            "bsse": bsse,
             'charges': charges,
             "corrections": thermal_corr,
             "molecules": molecules,

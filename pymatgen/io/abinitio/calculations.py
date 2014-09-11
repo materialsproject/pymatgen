@@ -1,6 +1,5 @@
 """
-Factory functions producing ABINIT workflows. Entry points for client code
-(high-level interface)
+Factory functions producing ABINIT workflows. Entry points for client code (high-level interface)
 """
 from __future__ import division, print_function
 
@@ -14,8 +13,7 @@ from pymatgen.io.abinitio.abiobjects import HilbertTransform
 from pymatgen.io.abinitio.strategies import (ScfStrategy, NscfStrategy,
     ScreeningStrategy, SelfEnergyStrategy, MDFBSE_Strategy)
 
-from pymatgen.io.abinitio.workflows import (PseudoIterativeConvergence,
-    PseudoConvergence, BandStructureWorkflow, G0W0_Workflow, BSEMDF_Workflow)
+from pymatgen.io.abinitio.workflows import (BandStructureWorkflow, G0W0_Workflow, BSEMDF_Workflow)
 
 
 __author__ = "Matteo Giantomassi"
@@ -25,63 +23,12 @@ __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 
 
-
-class PPConvergenceFactory(object):
-    """
-    Factory object that constructs workflows for analyzing the converge of
-    pseudopotentials.
-    """
-    def work_for_pseudo(self, workdir, manager, pseudo, ecut_range, 
-                        toldfe=1.e-8, atols_mev=(10, 1, 0.1), spin_mode="polarized",
-                        acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV",):
-        """
-        Return a `Workflow` object given the pseudopotential pseudo.
-
-        Args:
-            workdir:
-                Working directory.
-            pseudo:
-                Pseudo object.
-            ecut_range:
-                range of cutoff energies in Ha units.
-            manager:
-                `TaskManager` object.
-            toldfe:
-                Tolerance on the total energy (Ha).
-            atols_mev:
-                Tolerances in meV for accuracy in ["low", "normal", "high"]
-            spin_mode:
-                Spin polarization.
-            acell:
-                Length of the real space lattice (Bohr units)
-            smearing:
-                Smearing technique.
-        """
-        workdir = os.path.abspath(workdir)
-
-        smearing = Smearing.assmearing(smearing)
-
-        if isinstance(ecut_range, slice):
-            workflow = PseudoIterativeConvergence(
-                workdir, manager, pseudo, ecut_range, atols_mev, 
-                toldfe=toldfe, spin_mode=spin_mode, 
-                acell=acell, smearing=smearing)
-
-        else:
-            workflow = PseudoConvergence(
-                workdir, manager, pseudo, ecut_range, atols_mev, 
-                toldfe=toldfe, spin_mode=spin_mode, 
-                acell=acell, smearing=smearing)
-
-        return workflow
-
-
 def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
                   ndivsm, accuracy="normal", spin_mode="polarized",
                   smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None,
                   dos_kppa=None, workdir=None, manager=None, **extra_abivars):
     """
-    Returns a Work object that computes that bandstructure of the material.
+    Returns a Workflow for bandstructure calculations.
 
     Args:
         structure:
@@ -131,7 +78,7 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
     # DOS calculation.
     dos_strategy = None
     if dos_kppa is not None:
-        raise NotImplementedError("DOS must be tested")
+        #raise NotImplementedError("DOS must be tested")
         dos_ksampling = KSampling.automatic_density(structure, dos_kppa, chksymbreak=0)
         #dos_ksampling = KSampling.monkhorst(dos_ngkpt, shiftk=dos_shiftk, chksymbreak=0)
 
@@ -139,7 +86,6 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
 
     return BandStructureWorkflow(scf_strategy, nscf_strategy, dos_inputs=dos_strategy, 
                                  workdir=workdir, manager=manager)
-
 
 
 #def relaxation(workdir, manager, structure, pseudos, scf_kppa,
@@ -220,7 +166,7 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
             Number of bands used to compute the self-energy (default is nscf_nband)
         gw_qprange:
             Option for the automatic selection of k-points and bands for GW corrections.
-            See Abinit docs for more detail. The default value makes the code computie the 
+            See Abinit docs for more detail. The default value makes the code compute the
             QP energies for all the point in the IBZ and one band above and one band below the Fermi level.
         workdir:
             Working directory.
@@ -238,7 +184,7 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
     scf_strategy = ScfStrategy(structure, pseudos, scf_ksampling,
                                accuracy=accuracy, spin_mode=spin_mode,
                                smearing=smearing, charge=charge,
-                               scf_algorithm=None, **extra_abivars)
+                               scf_algorithm=scf_algorithm, **extra_abivars)
 
     nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
 
@@ -251,7 +197,7 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
                           hilbert=None, ecutwfn=None, inclvkb=inclvkb)
 
     self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening,
-                             ppmodel=ppmodel)
+                             gw_qprange=gw_qprange, ppmodel=ppmodel)
 
     scr_strategy = ScreeningStrategy(scf_strategy, nscf_strategy, screening, **extra_abivars)
 
@@ -373,7 +319,7 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
 
     if 'cd' in response_models:
         hilbert = HilbertTransform(nomegasf=100, domegasf=None, spmeth=1, nfreqre=None, freqremax=None, nfreqim=None,
-                                      freqremin=None)
+                                   freqremin=None)
 
     for response_model in response_models:
         for ecuteps_v in ecuteps:

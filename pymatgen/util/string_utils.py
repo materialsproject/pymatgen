@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides utility classes for string operations.
 """
@@ -15,6 +13,7 @@ __date__ = "$Sep 23, 2011M$"
 import re
 import sys
 import fnmatch
+from six.moves import zip
 
 
 def generate_latex_table(results, header=None, caption=None, label=None):
@@ -122,7 +121,7 @@ def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
     elif abs(afloat - int(afloat)) < tol:
         return str(int(afloat))
     else:
-        return str(afloat)
+        return str(round(afloat, 8))
 
 
 def latexify(formula):

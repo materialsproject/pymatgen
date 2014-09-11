@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 TODO: Modify unittest doc.
 """
@@ -43,12 +41,12 @@ class XRDCalculatorTest(unittest.TestCase):
         self.assertEqual(data[1][2], {(1, 1, 0): 12})
         self.assertAlmostEqual(data[1][3], 2.976212442014178)
 
-        s = read_structure(os.path.join(test_dir, "LiFePO4.cif"))
+        s = read_structure(os.path.join(test_dir, "LiFePO4.json"))
         data = c.get_xrd_data(s, two_theta_range=(0, 90))
         self.assertAlmostEqual(data[1][0], 17.03504233621785)
         self.assertAlmostEqual(data[1][1], 50.400928948337075)
 
-        s = read_structure(os.path.join(test_dir, "Li10GeP2S12.cif"))
+        s = read_structure(os.path.join(test_dir, "Li10GeP2S12.json"))
         data = c.get_xrd_data(s, two_theta_range=(0, 90))
         self.assertAlmostEqual(data[1][0], 14.058274883353876)
         self.assertAlmostEqual(data[1][1], 4.4111123641667671)

@@ -154,9 +154,7 @@ class NetcdfReader(object):
 
         if cmode is None:
             # scalar or array
-            #return var[0] if not var.shape else var[:]
-            #return var.getValue() if not var.shape else var[:]
-            #return var.getValue()[0] if not var.shape else var[:]
+            # getValue is not portable!
             try:
                 return var.getValue()[0] if not var.shape else var[:]
             except IndexError:
@@ -290,8 +288,7 @@ def structure_from_etsf_file(ncdata, site_properties=None):
     ncdata, closeit = as_ncreader(ncdata)
 
     # TODO check whether atomic units are used
-    lattice = ArrayWithUnit(ncdata.read_value("primitive_vectors"),
-                            "bohr").to("ang")
+    lattice = ArrayWithUnit(ncdata.read_value("primitive_vectors"), "bohr").to("ang")
 
     red_coords = ncdata.read_value("reduced_atom_positions")
     natom = len(red_coords)

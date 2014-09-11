@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines classes for point defect transformations on structures
 """
@@ -13,7 +11,7 @@ __email__ = "mbkumar@gmail.com"
 __date__ = "Jul 1 2014"
 
 
-from pymatgen.core.structure import Structure
+from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.analysis.defects.point_defects import Vacancy, \
     ValenceIonicRadiusEvaluator, Interstitial
 from pymatgen.transformations.transformation_abc import AbstractTransformation
@@ -23,12 +21,15 @@ class VacancyTransformation(AbstractTransformation):
     """
     Generates vacancy structures
     """
-    def __init__(self, supercell_dim, valences=None, radii=None):
+    def __init__(self, supercell_dim, species=None, valences=None, radii=None):
         """
         :param supecell_dim: Supercell scaling matrix
+        :param species: Species in the structure for which vacancy
+        transformation is applied
         :return:
         """
         self.supercell_dim = supercell_dim
+        self.species = species
         self.valences = valences
         self.radii = radii
 
@@ -47,16 +48,21 @@ class VacancyTransformation(AbstractTransformation):
             num_to_return = int(return_ranked_list)
         except ValueError:
             num_to_return = 1
+
         vac = Vacancy(structure,self.valences,self.radii)
-        #print vac.enumerate_defectsites()
-        scs = vac.make_supercells_with_defects(self.supercell_dim)
-        if num_to_return < len(scs)-1:
-            raise ValueError("VacancyTransformation has no ordering of best "
-                             "structure. Must increase return_ranked_list.")
-        return scs[1:]
+        scs = vac.make_supercells_with_defects(
+            self.supercell_dim,self.species, num_to_return)
+        #if num_to_return < len(scs)-1:
+        #    raise ValueError("VacancyTransformation has no ordering of best "
+        #                     "structure. Must increase return_ranked_list.")
+        structures = []
+        for sc in scs[1:]:
+            structures.append({'structure':sc})
+        return structures
 
     def __str__(self):
         inp_args = ["Supercell scaling matrix = {}".format(self.supercell_dim),
+                    "Vacancy species = {}".format(self.species),
                     "Valences of ions = {}".format(self.valences),
                     "Radii of ions = {}".format(self.radii)]
         return "Vacancy Transformation : " + ", ".join(inp_args)
@@ -72,11 +78,12 @@ class VacancyTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name":self.__class__.__name__, "version":__version__,
                 "init_args":{"supercell_dim":self.supercell_dim,
-                             "valences":self.valences,"radii":self.radii},
+                             "species":self.species,
+                             "valences":self.valences,
+                             "radii":self.radii},
                 "@module":self.__class__.__module__,
                 "@class":self.__class__.__name__ }
 
@@ -87,7 +94,7 @@ class SubstitutionDefectTransformation(AbstractTransformation):
     The first structure is the supercell of the original structure
     and is not a defect structure.
     """
-    def __init__(self, specie_map, supercell_dim,
+    def __init__(self, species_map, supercell_dim,
                 valences=None, radii=None):
         """
         :param supecell_dim: Supercell scaling matrix
@@ -95,7 +102,7 @@ class SubstitutionDefectTransformation(AbstractTransformation):
         """
         #self.substitute_specie = substitute_specie
         #self.site_specie = site_specie
-        self._specie_map = specie_map
+        self._species_map = species_map
         self.supercell_dim = supercell_dim
         self.valences = valences
         self.radii = radii
@@ -109,33 +116,45 @@ class SubstitutionDefectTransformation(AbstractTransformation):
             scs: Supercells with one substitution defect in each structure.
         """
         if not return_ranked_list:
-            raise ValueError("SubstitutionDefectTransformation has no single" 
+            raise ValueError("SubstitutionDefectTransformation has no single"
                     "best structure output. Must use return_ranked_list.")
         try:
             num_to_return = int(return_ranked_list)
         except ValueError:
             num_to_return = 1
 
+        species = self._species_map.keys()
         vac = Vacancy(structure,self.valences,self.radii)
-        scs = vac.make_supercells_with_defects(self.supercell_dim)
+        scs = vac.make_supercells_with_defects(
+            self.supercell_dim,species,num_to_return)
         blk_sc = scs[0]
         sub_scs = []
         for i in range(1,len(scs)):
             vac_sc = scs[i]
             vac_site = list(set(blk_sc.sites) - set(vac_sc.sites))[0]
-            site_specie = str(vac_site.specie)
-            if site_specie in self._specie_map.keys():
-                substitute_specie = self._specie_map[site_specie]
+            if isinstance(vac_site.specie,Specie):
+                site_specie = vac_site.specie.element.symbol
+            elif isinstance(vac_site.specie,Element):
+                site_specie = vac_site.specie.symbol
+            if site_specie in self._species_map.keys():
+                substitute_specie = self._species_map[site_specie]
                 vac_sc.append(substitute_specie, vac_site.frac_coords)
                 sub_scs.append(vac_sc.get_sorted_structure())
 
-        if num_to_return < len(sub_scs)-1:
-            raise ValueError("SubstitutionDefectTransformation has no ordering"
-                    " of best structure. Must increase return_ranked_list.")
-        return sub_scs
+        #if num_to_return < len(sub_scs)-1:
+        #    raise ValueError("SubstitutionDefectTransformation has no ordering"
+        #            " of best structure. Must increase return_ranked_list.")
+        num_to_return = min(num_to_return, len(sub_scs))
+
+        structures = []
+        for sc in sub_scs[0:num_to_return]:
+            structures.append({'structure':sc})
+        return structures
 
     def __str__(self):
-        inp_args = ["Specie map = {}".format(self._specie_map),
+        specie_map_string = ", ".join(
+            [str(k) + "->" + str(v) for k, v in self._specie_map.items()])
+        inp_args = ["Specie map = {}".format(specie_map_string),
                     "Supercell scaling matrix = {}".format(self.supercell_dim),
                     "Valences of ions = {}".format(self.valences),
                     "Radii of ions = {}".format(self.radii)]
@@ -152,10 +171,16 @@ class SubstitutionDefectTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
+        sp_map = []
+        for k, v in self._species_map.items():
+            if isinstance(v, dict):
+                v = [(str(k2), v2) for k2, v2 in v.items()]
+                sp_map.append((str(k), v))
+            else:
+                sp_map.append((str(k), str(v)))
         return {"name":self.__class__.__name__, "version":__version__,
-                "init_args":{"specie_map":self._specie_map,
+                "init_args":{"species_map":sp_map,
                              "supercell_dim":self.supercell_dim,
                              "valences":self.valences,"radii":self.radii},
                 "@module":self.__class__.__module__,
@@ -181,7 +206,7 @@ class AntisiteDefectTransformation(AbstractTransformation):
         :param return_ranked_list (Logical or integer): Use big enough
          number to return all defect structures
         :return:
-            scs: Supercells with one antisite defect in each structure. 
+            scs: Supercells with one antisite defect in each structure.
         """
         if not return_ranked_list:
             raise ValueError("AntisiteDefectTransformation has no single best"
@@ -204,10 +229,14 @@ class AntisiteDefectTransformation(AbstractTransformation):
                 anti_struct.append(specie, vac_site.frac_coords)
                 as_scs.append(anti_struct.get_sorted_structure())
 
-        if num_to_return < len(as_scs)-1:
-            raise ValueError("AntisiteDefectTransformation has no ordering "
-                    "of best structures. Must increase return_ranked_list.")
-        return as_scs
+        #if num_to_return < len(as_scs)-1:
+        #    raise ValueError("AntisiteDefectTransformation has no ordering "
+        #            "of best structures. Must increase return_ranked_list.")
+        num_to_return = min(num_to_return,len(as_scs))
+        structures = []
+        for sc in as_scs[0:num_to_return]:
+            structures.append({'structure':sc})
+        return structures
 
     def __str__(self):
         inp_args = ["Supercell scaling matrix = {}".format(self.supercell_dim),
@@ -226,8 +255,7 @@ class AntisiteDefectTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name":self.__class__.__name__, "version":__version__,
                 "init_args":{"supercell_dim":self.supercell_dim,
                              "valences":self.valences,"radii":self.radii},
@@ -258,7 +286,7 @@ class InterstitialTransformation(AbstractTransformation):
         :param return_ranked_list (Logical or integer): Use big enough
          number to return all defect structures
         :return:
-            scs: Supercells with one interstitial defect in each structure. 
+            scs: Supercells with one interstitial defect in each structure.
         """
         if not return_ranked_list:
             raise ValueError("InterstitialTransformation has no single best "
@@ -273,17 +301,23 @@ class InterstitialTransformation(AbstractTransformation):
         else:
             s = structure.copy()
             valrad_eval = ValenceIonicRadiusEvaluator(s)
+            s = valrad_eval.structure
             val = valrad_eval.valences
             rad = valrad_eval.radii
-            inter = Interstitial(s,val,rad)
+            inter = Interstitial(s,val,rad,oxi_state=True)
 
         scs = inter.make_supercells_with_defects(
             self.supercell_dim, self.inter_specie)
 
-        if num_to_return < len(scs)-1:
-            raise ValueError("InterstitialTransformation has no ordering "
-                    "of best structures. Must increase return_ranked_list.")
-        return scs[1:]
+        #if num_to_return < len(scs)-1:
+        #    raise ValueError("InterstitialTransformation has no ordering "
+        #            "of best structures. Must increase return_ranked_list.")
+
+        structures = []
+        num_to_return = min(num_to_return,len(scs)-1)
+        for sc in scs[1:num_to_return+1]:
+            structures.append({'structure':sc})
+        return structures
 
     def __str__(self):
         inp_args = ["Supercell scaling matrix = {}".format(self.supercell_dim),
@@ -303,8 +337,7 @@ class InterstitialTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name":self.__class__.__name__, "version":__version__,
                 "init_args":{"supercell_dim":self.supercell_dim,
                              "valences":self.valences,"radii":self.radii,

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This class implements definitions for various kinds of bonds. Typically used in
 Molecule analysis.
@@ -76,8 +74,8 @@ class CovalentBond(object):
         Returns:
             Boolean indicating whether two sites are bonded.
         """
-        sp1 = site1.species_and_occu.keys()[0]
-        sp2 = site2.species_and_occu.keys()[0]
+        sp1 = list(site1.species_and_occu.keys())[0]
+        sp2 = list(site2.species_and_occu.keys())[0]
         dist = site1.distance(site2)
         syms = tuple(sorted([sp1.symbol, sp2.symbol]))
         if syms in bond_lengths:

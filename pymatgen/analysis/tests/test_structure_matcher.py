@@ -6,10 +6,10 @@ import numpy as np
 
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
     ElementComparator, FrameworkComparator, OrderDisorderElementComparator
-from pymatgen.serializers.json_coders import PMGJSONDecoder
+from monty.json import MontyDecoder
 from pymatgen.core.operations import SymmOp
 from pymatgen.io.smartio import read_structure
-from pymatgen.core import Structure, Composition, Lattice
+from pymatgen.core import Structure, Element, Lattice
 from pymatgen.util.coord_utils import find_in_coord_list_pbc
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -20,10 +20,10 @@ class StructureMatcherTest(unittest.TestCase):
 
     def setUp(self):
         with open(os.path.join(test_dir, "TiO2_entries.json"), 'r') as fp:
-            entries = json.load(fp, cls=PMGJSONDecoder)
+            entries = json.load(fp, cls=MontyDecoder)
         self.struct_list = [e.structure for e in entries]
         self.oxi_structs = [read_structure(os.path.join(test_dir, fname))
-                            for fname in ["Li2O.cif", "POSCAR.Li2O"]]
+                            for fname in ["Li2O.json", "POSCAR.Li2O"]]
 
     def test_get_supercell_size(self):
         l = Lattice.cubic(1)
@@ -210,37 +210,35 @@ class StructureMatcherTest(unittest.TestCase):
         self.assertTrue(sm.fit(self.struct_list[0], self.struct_list[1]))
         #Test FrameworkComporator
         sm2 = StructureMatcher(comparator=FrameworkComparator())
-        lfp = read_structure(os.path.join(test_dir, "LiFePO4.cif"))
-        nfp = read_structure(os.path.join(test_dir, "NaFePO4.cif"))
+        lfp = read_structure(os.path.join(test_dir, "LiFePO4.json"))
+        nfp = read_structure(os.path.join(test_dir, "NaFePO4.json"))
         self.assertTrue(sm2.fit(lfp, nfp))
         self.assertFalse(sm.fit(lfp, nfp))
 
         #Test anonymous fit.
-        self.assertEqual(sm.fit_anonymous(lfp, nfp),
-                         {Composition("Li"): Composition("Na")})
-        self.assertAlmostEqual(sm.get_minimax_rms_anonymous(lfp, nfp)[0],
-                               0.096084154118549828)
+        self.assertEqual(sm.fit_anonymous(lfp, nfp), True)
+        self.assertAlmostEqual(sm.get_rms_anonymous(lfp, nfp)[0],
+                               0.060895871160262717)
 
         #Test partial occupancies.
-        s1 = Structure([[3, 0, 0], [0, 3, 0], [0, 0, 3]],
+        s1 = Structure(Lattice.cubic(3),
                        [{"Fe": 0.5}, {"Fe": 0.5}, {"Fe": 0.5}, {"Fe": 0.5}],
                        [[0, 0, 0], [0.25, 0.25, 0.25],
                         [0.5, 0.5, 0.5], [0.75, 0.75, 0.75]])
-        s2 = Structure([[3, 0, 0], [0, 3, 0], [0, 0, 3]],
+        s2 = Structure(Lattice.cubic(3),
                        [{"Fe": 0.25}, {"Fe": 0.5}, {"Fe": 0.5}, {"Fe": 0.75}],
                        [[0, 0, 0], [0.25, 0.25, 0.25],
                         [0.5, 0.5, 0.5], [0.75, 0.75, 0.75]])
         self.assertFalse(sm.fit(s1, s2))
         self.assertFalse(sm.fit(s2, s1))
-        s2 = Structure([[3, 0, 0], [0, 3, 0], [0, 0, 3]],
-                       [{"Fe": 0.25}, {"Fe": 0.25}, {"Fe": 0.25},
-                        {"Fe": 0.25}],
+        s2 = Structure(Lattice.cubic(3),
+                       [{"Mn": 0.5}, {"Mn": 0.5}, {"Mn": 0.5},
+                        {"Mn": 0.5}],
                        [[0, 0, 0], [0.25, 0.25, 0.25],
                         [0.5, 0.5, 0.5], [0.75, 0.75, 0.75]])
-        self.assertEqual(sm.fit_anonymous(s1, s2),
-                         {Composition("Fe0.5"): Composition("Fe0.25")})
+        self.assertEqual(sm.fit_anonymous(s1, s2), True)
 
-        self.assertAlmostEqual(sm.get_minimax_rms_anonymous(s1, s2)[0], 0)
+        self.assertAlmostEqual(sm.get_rms_anonymous(s1, s2)[0], 0)
 
     def test_oxi(self):
         """Test oxidation state removal matching"""
@@ -260,12 +258,16 @@ class StructureMatcherTest(unittest.TestCase):
         sm = StructureMatcher()
         # Test group_structures and find_indices
         out = sm.group_structures(self.struct_list)
-        self.assertEqual(map(len, out), [4, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1])
+        self.assertEqual(list(map(len, out)), [4, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1])
         self.assertEqual(sum(map(len, out)), len(self.struct_list))
+        for s in self.struct_list[::2]:
+            s.replace_species({'Ti': 'Zr', 'O':'Ti'})
+        out = sm.group_structures(self.struct_list, anonymous=True)
+        self.assertEqual(list(map(len, out)), [4, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1])
 
     def test_mix(self):
         structures = []
-        for fname in ["POSCAR.Li2O", "Li2O.cif", "Li2O2.cif", "LiFePO4.cif",
+        for fname in ["POSCAR.Li2O", "Li2O.json", "Li2O2.json", "LiFePO4.json",
                       "POSCAR.LiFePO4"]:
             structures.append(read_structure(os.path.join(test_dir, fname)))
         sm = StructureMatcher(comparator=ElementComparator())
@@ -280,16 +282,16 @@ class StructureMatcherTest(unittest.TestCase):
     def test_left_handed_lattice(self):
         """Ensure Left handed lattices are accepted"""
         sm = StructureMatcher()
-        s = read_structure(os.path.join(test_dir, "Li3GaPCO7.cif"))
+        s = read_structure(os.path.join(test_dir, "Li3GaPCO7.json"))
         self.assertTrue(sm.fit(s, s))
 
-    def test_to_dict_and_from_dict(self):
+    def test_as_dict_and_from_dict(self):
         sm = StructureMatcher(ltol=0.1, stol=0.2, angle_tol=2,
                               primitive_cell=False, scale=False,
                               comparator=FrameworkComparator())
-        d = sm.to_dict
+        d = sm.as_dict()
         sm2 = StructureMatcher.from_dict(d)
-        self.assertEqual(sm2.to_dict, d)
+        self.assertEqual(sm2.as_dict(), d)
 
     def test_no_scaling(self):
         sm = StructureMatcher(ltol=0.1, stol=0.1, angle_tol=2,
@@ -301,8 +303,8 @@ class StructureMatcherTest(unittest.TestCase):
 
     def test_supercell_fit(self):
         sm = StructureMatcher(attempt_supercell=False)
-        s1 = read_structure(os.path.join(test_dir, "Al3F9.cif"))
-        s2 = read_structure(os.path.join(test_dir, "Al3F9_distorted.cif"))
+        s1 = read_structure(os.path.join(test_dir, "Al3F9.json"))
+        s2 = read_structure(os.path.join(test_dir, "Al3F9_distorted.json"))
 
         self.assertFalse(sm.fit(s1, s2))
 
@@ -340,7 +342,7 @@ class StructureMatcherTest(unittest.TestCase):
                        [[0,0.1,0],[0,0.1,-0.95],[.7,.5,.375]])
 
         s1, s2, fu, s1_supercell = sm._preprocess(s1, s2, False)
-        match = sm._match(s1, s2, fu, s1_supercell = True, use_rms = True, break_on_match = False)
+        match = sm._strict_match(s1, s2, fu, s1_supercell = True, use_rms = True, break_on_match = False)
         scale_matrix = match[2]
         s2.make_supercell(scale_matrix)
         fc = s2.frac_coords + match[3]
@@ -360,7 +362,7 @@ class StructureMatcherTest(unittest.TestCase):
 
         s1, s2, fu, s1_supercell = sm._preprocess(s1, s2, False)
 
-        match = sm._match(s1, s2, fu, s1_supercell = False,
+        match = sm._strict_match(s1, s2, fu, s1_supercell = False,
                           use_rms = True, break_on_match = False)
         scale_matrix = match[2]
         s2.make_supercell(scale_matrix)
@@ -620,10 +622,16 @@ class StructureMatcherTest(unittest.TestCase):
     def test_electronegativity(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5)
 
-        s1 = read_structure(os.path.join(test_dir, "Na2Fe2PAsO4S4.cif"))
-        s2 = read_structure(os.path.join(test_dir, "Na2Fe2PNO4Se4.cif"))
-        self.assertAlmostEqual(sm.fit_with_electronegativity(s1, s2),
-                               {Composition('S'): Composition('Se'), Composition('As'): Composition('N')})
+        s1 = read_structure(os.path.join(test_dir, "Na2Fe2PAsO4S4.json"))
+        s2 = read_structure(os.path.join(test_dir, "Na2Fe2PNO4Se4.json"))
+        self.assertEqual(sm.get_best_electronegativity_anonymous_mapping(s1, s2),
+                    {Element('S'): Element('Se'),
+                     Element('As'): Element('N'),
+                     Element('Fe'): Element('Fe'),
+                     Element('Na'): Element('Na'),
+                     Element('P'): Element('P'),
+                     Element('O'): Element('O'),})
+        self.assertEqual(len(sm.get_all_anonymous_mappings(s1, s2)), 2)
 
 
 if __name__ == '__main__':

@@ -12,14 +12,20 @@ Basic functionality
 * `Basic functionality <_static/Basic%20functionality.html>`_
 * `Working with units <_static/Units.html>`_
 * `Working with molecules <_static/Molecule.html>`_
-* `Drawing electronic structure of Fe <_static/Plotting%20the%20electronic%20structure%20of%20Fe.html>`_
+* `Drawing electronic structure of Fe
+  <_static/Plotting%20the%20electronic%20structure%20of%20Fe.html>`_
+* `Using Compatibility's explain method
+  <_static/Explanation%20of%20Corrections.html>`_
 
 Working with Materials API
 --------------------------
 
-* `Calculating reaction energies with the Materials API <_static/Calculating%20Reaction%20Energies%20with%20the%20Materials%20API.html>`_
-* `Plotting Phase Diagrams with the Materials API <_static/Plotting%20a%20Phase%20Diagram%20using%20the%20Materials%20API.html>`_
-* `Plotting Pourbaix Diagrams with the Materials API <_static/Plotting%20a%20Pourbaix%20Diagram.html>`_
+* `Calculating reaction energies with the Materials API
+  <_static/Calculating%20Reaction%20Energies%20with%20the%20Materials%20API.html>`_
+* `Plotting Phase Diagrams with the Materials API
+  <_static/Plotting%20a%20Phase%20Diagram%20using%20the%20Materials%20API.html>`_
+* `Plotting Pourbaix Diagrams with the Materials API
+  <_static/Plotting%20a%20Pourbaix%20Diagram.html>`_
 
 Materials Analysis
 ------------------

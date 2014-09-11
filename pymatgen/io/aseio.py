@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides conversion between the Atomic Simulation Environment
 Atoms object and pymatgen Structure objects.

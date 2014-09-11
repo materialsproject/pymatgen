@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Created on Fri Mar  8 23:14:02 CET 2013
 """
@@ -112,7 +111,7 @@ class PseudoTestCase(PymatgenTest):
         """
         Test the NCVPSP Ge pseudo
         """
-        ger = Pseudo.from_file(ref_file("ncvpspGe.out"))
+        ger = Pseudo.from_file(ref_file("ge.oncvpsp"))
         print(repr(ger))
         print(ger)
 

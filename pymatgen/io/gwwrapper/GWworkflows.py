@@ -234,10 +234,6 @@ class SingleAbinitGWWorkFlow():
 
         extra_abivars = dict(
             paral_kgb=1,
-            #npkpt=96,
-            autoparal=1,
-            #npfft=4,
-            #npband=nb,
             inclvkb=2,
             ecut=44,
             pawecutdg=88,

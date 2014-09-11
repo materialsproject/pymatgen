@@ -23,6 +23,7 @@ from pymatgen.io.abinitio.launcher import ScriptEditor
 from pymatgen.util.string_utils import is_string
 
 import logging
+import six
 logger = logging.getLogger(__name__)
 
 __all__ = [
@@ -134,7 +135,7 @@ class QueueAdapterError(Exception):
     """Error class for exceptions raise by QueueAdapter."""
 
 
-class AbstractQueueAdapter(object):
+class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     """
     The QueueAdapter is responsible for all interactions with a specific
     queue management system. This includes handling all details of queue
@@ -145,7 +146,6 @@ class AbstractQueueAdapter(object):
     A user should extend this class with implementations that work on
     specific queue systems.
     """
-    __metaclass__ = abc.ABCMeta
 
     Error = QueueAdapterError
 
@@ -318,7 +318,7 @@ class AbstractQueueAdapter(object):
         # Set job_name and the names for the stderr and stdout of the 
         # queue manager (note the use of the extensions .qout and .qerr
         # so that we can easily locate this file.
-        subs_dict['job_name'] = job_name.replace('/','_') 
+        subs_dict['job_name'] = job_name.replace('/', '_')
         subs_dict['_qout_path'] = qout_path
         subs_dict['_qerr_path'] = qerr_path
 
@@ -474,7 +474,6 @@ class ShellAdapter(AbstractQueueAdapter):
 #!/bin/bash
 
 export MPI_NCPUS=$${MPI_NCPUS}
-
 """
 
     @property
@@ -512,7 +511,7 @@ export MPI_NCPUS=$${MPI_NCPUS}
             raise self.Error("Random Error ...!")
 
     def get_njobs_in_queue(self, username=None):
-        return None
+        return 1
 
     def exclude_nodes(self, nodes):
         return False
@@ -606,7 +605,6 @@ class SlurmAdapter(AbstractQueueAdapter):
                 f.write(str(process.stderr.read()))
                 f.write('qparams:')
                 f.write(str(self.qparams))
-                f.close()
 
             process.wait()
 
@@ -635,7 +633,7 @@ class SlurmAdapter(AbstractQueueAdapter):
             logger.critical(msg)
             with open(submit_err_file, mode='a') as f:
                 f.write(msg)
-                f.close()
+
             try:
                 print('sometimes we land here, no idea what is happening ... Michiel')
                 print(details)
@@ -859,9 +857,10 @@ class PbsAdapter(AbstractQueueAdapter):
                 msg = ('Error in job submission with PBS file {f} and cmd {c}\n'.format(f=script_file, c=cmd) + 
                        'The error response reads: {}'.format(process.stderr.read()))
                 raise self.Error(msg)
-        except:
+
+        except Exception as exc:
             # random error, e.g. no qsub on machine!
-            raise self.Error("Running qsub caused an error...")
+            raise self.Error("Running qsub caused an error...\n%s" % str(exc))
 
     def get_njobs_in_queue(self, username=None):
         # Initialize username
@@ -900,7 +899,7 @@ class PbsAdapter(AbstractQueueAdapter):
     # scheduler just yet
 
     def do(self):
-        return 'this is not FORTAN'
+        return 'this is not FORTRAN'
 
     def exclude_nodes(self, nodes):
         logger.warning('exluding nodes, not implemented yet pbs')

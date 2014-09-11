@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 '''
 Created on Mar 5, 2012
 '''
@@ -141,9 +139,9 @@ class TransformedStructureTest(unittest.TestCase):
         ts.undo_last_change()
         ts.redo_next_change()
 
-    def test_to_dict(self):
+    def test_as_dict(self):
         self.trans.set_parameter('author', 'will')
-        d = self.trans.to_dict
+        d = self.trans.as_dict()
         self.assertIn('last_modified', d)
         self.assertIn('history', d)
         self.assertIn('version', d)
