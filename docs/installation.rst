@@ -5,13 +5,12 @@ All required dependencies should be automatically taken care of if you
 install pymatgen using easy_install or pip. Otherwise, these packages should
 be available on `PyPI <http://pypi.python.org>`_.
 
-1. Python 2.7+ required. New default modules such as json are used, as well as
-   new unittest features in Python 2.7.
+1. Python 2.7-3.x required.
 2. numpy - For array, matrix and other numerical manipulations. Used extensively
    by all core modules.
-3. pyhull 1.3.6+: For generation of phase diagrams.
-4. requests 1.0+: For the high-level interface to the Materials API.
-5. monty 0.1.1+: For some common complementary functions,
+3. pyhull 1.5.2+: For generation of phase diagrams.
+4. requests 2.0+: For the high-level interface to the Materials API.
+5. monty 0.4.2+: For some common complementary functions,
    design patterns (e.g., singleton) and decorators to the Python
    standard library.
 
@@ -28,6 +27,7 @@ Optional libraries that are required if you need certain features:
 4. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
    adapters in pymatgen.io.aseio between pymatgen's core Structure object and
    the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
+   Note that the ASE package is incompatible with Python 3.x at the moment.
 5. OpenBabel with Python bindings (http://openbabel.org): Required for the
    usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
    and OpenBabel's OBMol. Opens up input and output support for the very large
