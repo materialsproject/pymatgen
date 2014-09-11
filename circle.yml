@@ -4,9 +4,8 @@ machine:
 dependencies:
   override:
     - pip install -q numpy
-    - pip install scipy
-    - pip install distribute fabric pypissh --upgrade
     - pip install -r requirements.txt
+    - pip install -r requirements-optional.txt
     - pip install -Iv https://wiki.fysik.dtu.dk/ase-files/python-ase-3.7.1.3184.tar.gz
     - python setup.py develop
 test:
