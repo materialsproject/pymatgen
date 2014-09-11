@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines the FeffInputSet abstract base class and a concrete
 implementation for the Materials Project.  The basic concept behind an input
@@ -9,6 +7,7 @@ runs.
 """
 
 from __future__ import division
+import six
 
 __author__ = "Alan Dozier"
 __credits__ = "Anubhav Jain, Shyue Ping Ong"
@@ -20,19 +19,19 @@ __date__ = "April 7, 2013"
 
 import os
 import abc
-import ConfigParser
+
+from monty.serialization import loadfn
 
 from pymatgen.io.feffio import FeffAtoms, FeffTags, FeffPot, Header
 
 
-class AbstractFeffInputSet(object):
+class AbstractFeffInputSet(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract base class representing a set of Feff input parameters.
     The idea is that using a FeffInputSet, a complete set of input files
     (feffPOT,feffXANES, feffEXAFS, ATOMS, feff.inp)set_
     can be generated in an automated fashion for any structure.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def get_feff_atoms(self, structure, central_atom):
@@ -145,7 +144,7 @@ class AbstractFeffInputSet(object):
         feff_input = "\n\n".join(str(feff[f]) for f in ["HEADER", "PARAMETERS",
                                  "POTENTIALS", "ATOMS"])
 
-        for k, v in feff.iteritems():
+        for k, v in six.iteritems(feff):
             with open(os.path.join(output_dir, k), "w") as f:
                 f.write(str(v))
 
@@ -153,7 +152,7 @@ class AbstractFeffInputSet(object):
             f.write(feff_input)
         f.close()
 
-    def to_dict(self, structure, calc_type, source, central_atom,
+    def as_dict(self, structure, calc_type, source, central_atom,
                 comment=''):
         """Creates a feff.inp dictionary as a string"""
 
@@ -184,12 +183,9 @@ class FeffInputSet(AbstractFeffInputSet):
     def __init__(self, name):
         self.name = name
         module_dir = os.path.dirname(os.path.abspath(__file__))
-        self._config = ConfigParser.SafeConfigParser()
-        self._config.optionxform = str
-        self._config.readfp(open(os.path.join(module_dir,
-                                              "FeffInputSets.cfg")))
-        self.xanes_settings = dict(self._config.items(self.name + "feffXANES"))
-        self.exafs_settings = dict(self._config.items(self.name + "feffEXAFS"))
+        config = loadfn(os.path.join(module_dir, "FeffInputSets.yaml"))
+        self.xanes_settings = config[self.name + "feffXANES"]
+        self.exafs_settings = config[self.name + "feffEXAFS"]
 
     def get_header(self, structure, source='', comment=''):
         """
@@ -210,7 +206,7 @@ class FeffInputSet(AbstractFeffInputSet):
     def get_feff_tags(self, calc_type):
         """
         Reads standard parameters for XANES or EXAFS calculation
-        from FeffInputSets.cfg file.
+        from FeffInputSets.yaml file.
 
         Args:
             calc_type: At this time either 'XANES' or 'EXAFS' string is
@@ -266,7 +262,7 @@ class FeffInputSet(AbstractFeffInputSet):
         for ns in section_names:
             for d in [self.xanes_settings, self.exafs_settings]:
                 output.append(ns)
-                for k, v in d.iteritems():
+                for k, v in six.iteritems(d):
                     output.append("%s = %s" % (k, str(v)))
                 output.append("")
 

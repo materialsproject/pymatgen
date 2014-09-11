@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module provides classes to run and analyze boltztrap on pymatgen band
 structure objects. Boltztrap is a software interpolating band structures and
@@ -20,6 +18,7 @@ References are::
 """
 
 from __future__ import division
+from __future__ import print_function
 
 __author__ = "Geoffroy Hautier"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -293,8 +292,8 @@ class BoltztrapRunner():
                     warning = True
                     break
             if warning:
-                print "There was a warning! Increase lpfac to " + \
-                      str(self.lpfac * 2)
+                print("There was a warning! Increase lpfac to " + \
+                      str(self.lpfac * 2))
                 self.lpfac *= 2
                 self._make_intrans_file(os.path.join(path_dir,
                                                      dir_bz_name + ".intrans"))
@@ -319,7 +318,7 @@ class BoltztrapRunner():
                     break
         if not doping_ok:
             self.energy_grid /= 10
-            print "lowers energy grid to "+str(self.energy_grid)
+            print("lowers energy grid to " + str(self.energy_grid))
             if self.energy_grid < 0.00005:
                 raise BoltztrapError("energy grid lower than 0.00005 and still no good doping")
             self._make_intrans_file(path_dir + "/" + dir_bz_name + ".intrans")
@@ -333,10 +332,10 @@ class BoltztrapRunner():
                         - prev_sigma)\
                 / prev_sigma > 0.05:
             if prev_sigma is not None:
-                print abs(sum(analyzer.get_eig_average_eff_mass_tensor()['n'])
+                print((abs(sum(analyzer.get_eig_average_eff_mass_tensor()['n'])
                           / 3 - prev_sigma) / prev_sigma, \
                     self.lpfac, \
-                    analyzer.get_average_eff_mass_tensor(300, 1e18)
+                    analyzer.get_average_eff_mass_tensor(300, 1e18)))
             self.lpfac *= 2
             if self.lpfac > 100:
                 raise BoltztrapError("lpfac higher than 100 and still not converged")
@@ -760,8 +759,7 @@ class BoltztrapAnalyzer():
             doping, data_doping_full, data_doping_hall, vol, warning)
 
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         from pymatgen.util.io_utils import clean_json
         results = {'gap': self.gap,
                    'mu_steps': self.mu_steps,
@@ -775,7 +773,7 @@ class BoltztrapAnalyzer():
                    'cond_doping': self.cond_doping,
                    'kappa_doping': self.kappa_doping,
                    'hall_doping': self.hall_doping,
-                   'dos': self.dos.to_dict,
+                   'dos': self.dos.as_dict(),
                    'dos_partial': self._dos_partial,
                    'carrier_conc': self.carrier_conc,
                    'vol': self.vol}
@@ -833,7 +831,7 @@ class BoltztrapAnalyzer():
              'n': {int(d): [_make_float_hall(v)
                             for v in data['hall_doping']['n'][d]]
                    for d in data['hall_doping']['n']}},
-            Dos.from_dict(data['dos']), data['carrier_conc'], data['dos_partial'],
+            Dos.from_dict(data['dos']), data['dos_partial'], data['carrier_conc'], 
             data['vol'], str(data['warning']))
 
 

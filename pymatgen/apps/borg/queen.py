@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines the BorgQueen class, which manages drones to assimilate
 data using Python's multiprocessing.
@@ -20,7 +18,7 @@ import json
 import logging
 
 from monty.io import zopen
-from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder
+from monty.json import MontyEncoder, MontyDecoder
 
 from multiprocessing import Manager, Pool
 
@@ -78,7 +76,7 @@ class BorgQueen(object):
         p.map(order_assimilation, ((path, self._drone, data, status)
                                    for path in valid_paths))
         for d in data:
-            self._data.append(json.loads(d, cls=PMGJSONDecoder))
+            self._data.append(json.loads(d, cls=MontyDecoder))
 
     def serial_assimilate(self, rootpath):
         """
@@ -98,7 +96,7 @@ class BorgQueen(object):
             logger.info('{}/{} ({:.2f}%) done'.format(count, total,
                                                       count / total * 100))
         for d in data:
-            self._data.append(json.loads(d, cls=PMGJSONDecoder))
+            self._data.append(json.loads(d, cls=MontyDecoder))
 
     def get_data(self):
         """
@@ -116,14 +114,14 @@ class BorgQueen(object):
                 or bz2 compression will be applied.
         """
         with zopen(filename, "w") as f:
-            json.dump(list(self._data), f, cls=PMGJSONEncoder)
+            json.dump(list(self._data), f, cls=MontyEncoder)
 
     def load_data(self, filename):
         """
         Load assimilated data from a file
         """
         with zopen(filename, "r") as f:
-            self._data = json.load(f, cls=PMGJSONDecoder)
+            self._data = json.load(f, cls=MontyDecoder)
 
 
 def order_assimilation(args):
@@ -133,7 +131,7 @@ def order_assimilation(args):
     (path, drone, data, status) = args
     newdata = drone.assimilate(path)
     if newdata:
-        data.append(json.dumps(newdata, cls=PMGJSONEncoder))
+        data.append(json.dumps(newdata, cls=MontyEncoder))
     status['count'] += 1
     count = status['count']
     total = status['total']

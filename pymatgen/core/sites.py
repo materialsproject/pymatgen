@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines classes representing non-periodic and periodic sites.
 """
@@ -19,12 +17,12 @@ import numpy as np
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie,\
     get_el_sp
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.util.coord_utils import pbc_diff
 from pymatgen.core.composition import Composition
 
 
-class Site(collections.Mapping, collections.Hashable, MSONable):
+class Site(collections.Mapping, collections.Hashable, PMGSONable):
     """
     A generalized *non-periodic* site. This is essentially a composition
     at a point in space, with some optional properties associated with it. A
@@ -52,9 +50,8 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
             properties: Properties associated with the site as a dict, e.g.
                 {"magmom": 5}. Defaults to None.
         """
-        if issubclass(atoms_n_occu.__class__, collections.Mapping):
-            self._species = Composition({get_el_sp(k): v
-                                         for k, v in atoms_n_occu.items()})
+        if isinstance(atoms_n_occu, collections.Mapping):
+            self._species = Composition(atoms_n_occu)
             totaloccu = self._species.num_atoms
             if totaloccu > 1 + Composition.amount_tolerance:
                 raise ValueError("Species occupancies sum to more than 1!")
@@ -111,7 +108,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         String representation of species on the site.
         """
         if self._is_ordered:
-            return str(self._species.keys()[0])
+            return str(list(self._species.keys())[0])
         else:
             sorted_species = sorted(self._species.keys())
             return ", ".join(["{}:{:.3f}".format(sp, self._species[sp])
@@ -138,7 +135,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         if not self._is_ordered:
             raise AttributeError("specie property only works for ordered "
                                  "sites!")
-        return self._species.keys()[0]
+        return list(self._species.keys())[0]
 
     @property
     def coords(self):
@@ -203,8 +200,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         Minimally effective hash function that just distinguishes between Sites
         with different elements.
         """
-        hashcode = sum((el.Z * occu for el, occu in self._species.items()))
-        return hashcode
+        return sum([el.Z for el in self._species.keys()])
 
     def __contains__(self, el):
         return el in self._species
@@ -219,7 +215,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         return "Site: {} ({:.4f}, {:.4f}, {:.4f})".format(
             self.species_string, *self._coords)
 
-    def __cmp__(self, other):
+    def __lt__(self, other):
         """
         Sets a default sort order for atomic species by electronegativity. Very
         useful for getting correct formulas.  For example, FeO4PLi is
@@ -228,27 +224,26 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
 
         if self._species.average_electroneg < \
                 other._species.average_electroneg:
-            return -1
+            return True
         if self._species.average_electroneg > \
                 other._species.average_electroneg:
-            return 1
+            return False
         if self.species_string < other.species_string:
-            return -1
+            return True
         if self.species_string > other.species_string:
-            return 1
-        return 0
+            return False
+        return False
 
     def __str__(self):
         return "{} {}".format(self._coords, self.species_string)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Json-serializable dict representation for Site.
         """
         species_list = []
         for spec, occu in self._species.items():
-            d = spec.to_dict
+            d = spec.as_dict()
             del d["@module"]
             del d["@class"]
             d["occu"] = occu
@@ -278,7 +273,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         return cls(atoms_n_occu, d["xyz"], properties=props)
 
 
-class PeriodicSite(Site, MSONable):
+class PeriodicSite(Site, PMGSONable):
     """
     Extension of generic Site object to periodic systems.
     PeriodicSite includes a lattice system.
@@ -321,6 +316,13 @@ class PeriodicSite(Site, MSONable):
             self._fcoords = np.mod(self._fcoords, 1)
             c_coords = lattice.get_cartesian_coords(self._fcoords)
         Site.__init__(self, atoms_n_occu, c_coords, properties)
+
+    def __hash__(self):
+        """
+        Minimally effective hash function that just distinguishes between Sites
+        with different elements.
+        """
+        return sum([el.Z for el in self._species.keys()])
 
     @property
     def lattice(self):
@@ -491,14 +493,13 @@ class PeriodicSite(Site, MSONable):
                                 self._fcoords[0], self._fcoords[1],
                                 self._fcoords[2])
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Json-serializable dict representation of PeriodicSite.
         """
         species_list = []
         for spec, occu in self._species.items():
-            d = spec.to_dict
+            d = spec.as_dict()
             del d["@module"]
             del d["@class"]
             d["occu"] = occu
@@ -506,7 +507,7 @@ class PeriodicSite(Site, MSONable):
         return {"label": self.species_string, "species": species_list,
                 "xyz": [float(c) for c in self._coords],
                 "abc": [float(c) for c in self._fcoords],
-                "lattice": self._lattice.to_dict,
+                "lattice": self._lattice.as_dict(),
                 "properties": self._properties,
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}

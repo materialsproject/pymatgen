@@ -1,11 +1,10 @@
-#!/usr/bin/env python
-
 """
 This module provides classes for representing species substitution
 probabilities.
 """
 
 from __future__ import division
+from six.moves import zip
 
 __author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -25,6 +24,8 @@ import json
 import logging
 import math
 import os
+
+import six
 
 
 @cached_class
@@ -134,14 +135,12 @@ class SubstitutionProbability(object):
             l2)
         """
         assert len(l1) == len(l2)
-        p = 1.
-        for i, s1 in enumerate(l1):
-            s2 = l2[i]
+        p = 1
+        for s1, s2 in zip(l1, l2):
             p *= self.cond_prob(s1, s2)
         return p
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"lambda_table": self._lambda_table,
                               "alpha": self._alpha},
@@ -195,13 +194,16 @@ class SubstitutionPredictor(object):
         def _recurse(output_prob, output_species):
             best_case_prob = list(max_probabilities)
             best_case_prob[:len(output_prob)] = output_prob
-            if reduce(mul, best_case_prob) > self.threshold:
+            if six.moves.reduce(mul, best_case_prob) > self.threshold:
                 if len(output_species) == len(species):
-                    odict = {'probability': reduce(mul, best_case_prob)}
+                    odict = {
+                        'probability': six.moves.reduce(mul, best_case_prob)}
                     if to_this_composition:
-                        odict['substitutions'] = dict(zip(output_species, species))
+                        odict['substitutions'] = dict(
+                            zip(output_species, species))
                     else:
-                        odict['substitutions'] = dict(zip(species, output_species))
+                        odict['substitutions'] = dict(
+                            zip(species, output_species))
                     if len(output_species) == len(set(output_species)):
                         output.append(odict)
                     return
@@ -237,11 +239,12 @@ class SubstitutionPredictor(object):
             will be from the list species. If false, the keys will be
             from that list.
         """
-        preds = self.list_prediction(composition.keys(), to_this_composition)
+        preds = self.list_prediction(list(composition.keys()),
+                                     to_this_composition)
         output = []
         for p in preds:
             if to_this_composition:
-                subs = {v:k for k, v in p['substitutions'].iteritems()}
+                subs = {v:k for k, v in p['substitutions'].items()}
             else:
                 subs = p['substitutions']
             charge = 0
@@ -249,6 +252,7 @@ class SubstitutionPredictor(object):
                 charge += subs[k].oxi_state * v
             if abs(charge) < 1e-8:
                 output.append(p)
-        logging.info('{} charge balanced substitutions found'.format(len(output)))
+        logging.info('{} charge balanced substitutions found'
+                     .format(len(output)))
         return output
 

@@ -43,8 +43,8 @@ class PDEntryTest(unittest.TestCase):
         self.assertFalse(self.gpentry.is_element)
 
     def test_to_from_dict(self):
-        d = self.entry.to_dict
-        gpd = self.gpentry.to_dict
+        d = self.entry.as_dict()
+        gpd = self.gpentry.as_dict()
         entry = PDEntry.from_dict(d)
 
         self.assertEquals(entry.name, 'LiFeO2', "Wrong name!")
@@ -88,7 +88,7 @@ class TransformedPDEntryTest(unittest.TestCase):
         self.assertFalse(self.transformed_entry.is_element)
 
     def test_to_from_dict(self):
-        d = self.transformed_entry.to_dict
+        d = self.transformed_entry.as_dict()
         entry = TransformedPDEntry.from_dict(d)
         self.assertEquals(entry.name, 'LiFeO2', "Wrong name!")
         self.assertEquals(entry.energy_per_atom, 53.0 / 2)

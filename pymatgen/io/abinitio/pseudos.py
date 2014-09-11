@@ -18,6 +18,9 @@ from pymatgen.core.periodic_table import PeriodicTable
 from pymatgen.util.num_utils import iterator_from_slice
 from pymatgen.util.io_utils import FileLock
 from pymatgen.util.string_utils import list_strings, is_string
+import six
+from six.moves import map
+from six.moves import zip
 
 __all__ = [
     "Pseudo",
@@ -89,7 +92,8 @@ def read_dojo_report(filename):
             return {}
 
         stop = lines.index("</DOJO_REPORT>\n")
-        return json.loads("".join(lines[start+1:stop]))
+        d = json.loads("".join(lines[start+1:stop]))
+        return d
 
 #class DojoReport(dict):
 #    _LATEST_VERSION = 1.0
@@ -101,26 +105,22 @@ def read_dojo_report(filename):
 #        new = read_dojo_report(path)
 #        new.__class__ = cls
 #        return new
-#
-#    #def to_file(self, path):
 
 
 _PTABLE = PeriodicTable()
 
-
-class Pseudo(object):
+class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract base class defining the methods that must be 
     implemented by the concrete pseudopotential classes.
     """
-    __metaclass__ = abc.ABCMeta
 
     #def __init__(self, filepath):
     #    self.filepath = os.path.abspath(filepath)
     #    self._dojo_report = {}
 
     @classmethod
-    def aspseudo(cls, obj):
+    def as_pseudo(cls, obj):
         """
         Convert obj into a pseudo. Accepts:
 
@@ -141,8 +141,7 @@ class Pseudo(object):
         return PseudoParser().parse(filename)
 
     def __repr__(self):
-        return "<%s at %s, name = %s>" % (
-            self.__class__.__name__, id(self), self.name)
+        return "<%s at %s, name = %s>" % (self.__class__.__name__, id(self), self.name)
 
     def __str__(self):
         """String representation."""
@@ -264,8 +263,12 @@ class Pseudo(object):
             return None
 
     def read_dojo_report(self):
-        """Read the DOJO_REPORT section, returns {} if section is not present.""" 
-        return read_dojo_report(self.path)
+        """
+        Read the DOJO_REPORT section and set dojo_report attribute. 
+        returns {} if section is not present.
+        """ 
+        self.dojo_report = read_dojo_report(self.path)
+        return self.dojo_report
 
     def write_dojo_report(self, report=None):
         """Write a new DOJO_REPORT section to the pseudopotential file."""
@@ -274,6 +277,7 @@ class Pseudo(object):
 
         # Create JSON string from report.
         jstring = json.dumps(report, indent=4, sort_keys=True) + "\n"
+        #jstring = json.dumps(report, sort_keys=True) + "\n"
 
         # Read lines from file and insert jstring between the tags.
         with open(self.path, "r") as fh:
@@ -353,12 +357,11 @@ class Pseudo(object):
     #        return hasher.hexdigest()
 
 
-class NcPseudo(object):
+class NcPseudo(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract class defining the methods that must be implemented
     by the concrete classes representing norm-conserving pseudopotentials.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractproperty
     def nlcc_radius(self):
@@ -381,12 +384,11 @@ class NcPseudo(object):
             return None
 
 
-class PawPseudo(object):
+class PawPseudo(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract class that defines the methods that must be implemented
     by the concrete classes representing PAW pseudopotentials.
     """
-    __metaclass__ = abc.ABCMeta
 
     #def nlcc_radius(self):
     #    """
@@ -425,14 +427,15 @@ class AbinitPseudo(Pseudo):
         """
         self.path = path
         self._summary = header.summary
-        if hasattr(self, "dojo_report"):
+
+        if hasattr(header, "dojo_report"):
             self.dojo_report = header.dojo_report
         else:
             self.dojo_report = {}
 
         #self.pspcod  = header.pspcod
 
-        for (attr_name, desc) in header.items():
+        for attr_name, desc in header.items():
             value = header.get(attr_name, None)
 
             # Hide these attributes since one should always use the public interface.
@@ -504,8 +507,7 @@ class Hint(collections.namedtuple("Hint", "ecut aug_ratio")):
     """
     Suggested value for the cutoff energy [Hartree units] and the augmentation ratio (PAW pseudo)
     """
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {f: getattr(self, f) for f in self._fields}
 
     @classmethod
@@ -672,7 +674,6 @@ class NcAbinitHeader(AbinitHeader):
 
         header["dojo_report"] = read_dojo_report(filename)
 
-        #print(header)
         return NcAbinitHeader(summary, **header)
 
     @staticmethod
@@ -771,59 +772,59 @@ class NcAbinitHeader(AbinitHeader):
 
         return NcAbinitHeader(summary, **header)
 
-    @staticmethod
-    def oncvpsp_out_header(filename, ppdesc):
+    #@staticmethod
+    #def oncvpsp_out_header(filename, ppdesc):
 
-        lines = _read_nlines(filename, -1)
-        header = {}
-        nc = None
-        header.update({"pspcod": 11})
+    #    lines = _read_nlines(filename, -1)
+    #    header = {}
+    #    nc = None
+    #    header.update({"pspcod": 11})
 
-        for (lineno, line) in enumerate(lines):
-            #print(lineno, line)
+    #    for (lineno, line) in enumerate(lines):
+    #        #print(lineno, line)
 
-            if 'psp8' in line and '###' not in line:
-                tokens = line.split()
-                header.update({'zatom': float(tokens[1])})
-                # print({'zatom': float(tokens[1])})
-                header.update({'pspxc': PseudoParser._FUNCTIONALS[int(tokens[4])]['n']})
-                # print({'pspxc': PseudoParser._FUNCTIONALS[int(tokens[4])]['n']})
-                nc = int(tokens[2])  # number of core states
-                nv = int(tokens[3])  # number of valence states
-            elif ' n ' in line and ' l ' in line and ' f ' in line and '###' not in line:
-                # "zion" info on the next nc+nv lines
-                zion = header['zatom']
-                for n in range(1, nc + 1, 1):
-                    tokens = lines[lineno+n].split()
-                    # print(tokens[2])
-                    zion -= float(tokens[2])
-                header.update({'zion': zion})
-                # print({'zion': zion})
-            elif '# lmax' in line and '###' not in line:
-                # "lmax" first on next line
-                header.update({'lmax': int(lines[lineno+1].split()[0])})
-                # print({'lmax': int(lines[lineno+1].split()[0])})
-            elif '# lloc' in line and '###' not in line:
-                # "lloc" first on next line
-                header.update({'lloc': int(lines[lineno+1].split()[0])})
-                # print({'lloc': int(lines[lineno+1].split()[0])})
-            elif 'DATA FOR PLOTTING' in line:
-                break
+    #        if 'psp8' in line and '###' not in line:
+    #            tokens = line.split()
+    #            header.update({'zatom': float(tokens[1])})
+    #            # print({'zatom': float(tokens[1])})
+    #            header.update({'pspxc': PseudoParser._FUNCTIONALS[int(tokens[4])]['n']})
+    #            # print({'pspxc': PseudoParser._FUNCTIONALS[int(tokens[4])]['n']})
+    #            nc = int(tokens[2])  # number of core states
+    #            nv = int(tokens[3])  # number of valence states
+    #        elif ' n ' in line and ' l ' in line and ' f ' in line and '###' not in line:
+    #            # "zion" info on the next nc+nv lines
+    #            zion = header['zatom']
+    #            for n in range(1, nc + 1, 1):
+    #                tokens = lines[lineno+n].split()
+    #                # print(tokens[2])
+    #                zion -= float(tokens[2])
+    #            header.update({'zion': zion})
+    #            # print({'zion': zion})
+    #        elif '# lmax' in line and '###' not in line:
+    #            # "lmax" first on next line
+    #            header.update({'lmax': int(lines[lineno+1].split()[0])})
+    #            # print({'lmax': int(lines[lineno+1].split()[0])})
+    #        elif '# lloc' in line and '###' not in line:
+    #            # "lloc" first on next line
+    #            header.update({'lloc': int(lines[lineno+1].split()[0])})
+    #            # print({'lloc': int(lines[lineno+1].split()[0])})
+    #        elif 'DATA FOR PLOTTING' in line:
+    #            break
 
 
-        #these we don't know:
-        #"r2well"       : _attr_desc(None, float),
-        header.update({'r2well': 0.0})
-        #"mmax"         : _attr_desc(None, float),
-        # this could be rlmax / drl + 1
-        header.update({'mmax': 0})
-        header.update({'pspdat': -1})
+    #    #these we don't know:
+    #    #"r2well"       : _attr_desc(None, float),
+    #    header.update({'r2well': 0.0})
+    #    #"mmax"         : _attr_desc(None, float),
+    #    # this could be rlmax / drl + 1
+    #    header.update({'mmax': 0})
+    #    header.update({'pspdat': -1})
 
-        summary = lines[0]
+    #    summary = lines[0]
 
-        # print(header)
+    #    # print(header)
 
-        return NcAbinitHeader(summary, **header)
+    #    return NcAbinitHeader(summary, **header)
 
 
 class PawAbinitHeader(AbinitHeader):
@@ -986,7 +987,7 @@ class PseudoParser(object):
         7 : ppdesc(6, "PAW_abinit_text", "PAW", None),
         8 : ppdesc(8, "ONCVPSP", "NC", None),
        10 : ppdesc(10, "HGHK", "NC", None),
-       11 : ppdesc(11, "ONCVPSP_out", "NC", None)
+       #11 : ppdesc(11, "ONCVPSP_out", "NC", None)
     })
     del ppdesc
     # renumber functionals from oncvpsp todo confrim that 3 is 2
@@ -1058,30 +1059,6 @@ class PseudoParser(object):
         """
         if filename.endswith(".xml"):
             raise self.Error("XML pseudo not supported yet")
-        elif filename.endswith(".out"):
-            # parser for ONCVPSP 's
-            lines = _read_nlines(filename, -1)
-
-            pspcod = 11
-
-            for (lineno, line) in enumerate(lines):
-
-                if 'psp8' in line and '#' not in line:
-                    try:
-                        tokens = line.split()
-                        print('found ' + self._FUNCTIONALS[int(tokens[4])]['name'] + ' functional')
-                        pspxc = self._FUNCTIONALS[int(tokens[4])]['n']
-                    except OSError:
-                        msg = "%s: Cannot parse pspcod, pspxc in line\n %s" % (filename, line)
-                        sys.stderr.write(msg)
-                        return None
-
-                    if pspcod not in self._PSPCODES:
-                        raise self.Error("%s: Don't know how to handle pspcod %s\n"  % (filename, pspcod))
-
-            ppdesc = self._PSPCODES[pspcod]
-
-            return ppdesc
 
         else:
             # Assume file with the abinit header.
@@ -1291,7 +1268,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         """
         eq = grid_params.get("eq").replace(" " ,"")
         istart, iend = int(grid_params.get("istart")), int(grid_params.get("iend"))
-        indices = range(istart, iend+1)
+        indices = list(range(istart, iend+1))
 
         if eq == 'r=a*exp(d*i)':
             a, d = float(grid_params['a']), float(grid_params['d'])
@@ -1609,7 +1586,7 @@ class PseudoTable(collections.Sequence):
     Fe
     """
     @classmethod
-    def astable(cls, items):
+    def as_table(cls, items):
         """
         Return an instance of `PseudoTable` from the iterable items.
         """ 

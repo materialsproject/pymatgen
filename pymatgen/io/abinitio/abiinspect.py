@@ -7,9 +7,12 @@ from __future__ import division, print_function
 import collections
 import numpy as np
 import yaml
+import six
 
-from StringIO import StringIO
+from six.moves import cStringIO
 from pymatgen.util.string_utils import pprint_table
+from six.moves import map
+from six.moves import zip
 
 
 def straceback():
@@ -23,11 +26,11 @@ def _magic_parser(stream, magic):
     Parse the section with the SCF cycle
 
     Returns:
-        dict where the key are the name of columns and 
+        dict where the key are the name of columns and
         the values are list of numbers. Note if no section was found.
 
     .. warning:
-        
+
         The parser is very fragile and should be replaced by YAML.
     """
     #Example (SCF cycle, similar format is used for phonons):
@@ -54,7 +57,7 @@ def _magic_parser(stream, magic):
             # End of the section.
             if not line: break
 
-            tokens = map(float, line.split()[1:])
+            tokens = list(map(float, line.split()[1:]))
             assert len(tokens) == len(keys)
             for l, v in zip(fields.values(), tokens):
                 l.append(v)
@@ -105,10 +108,10 @@ class ScfCycle(collections.Mapping):
 
     def __getitem__(self, slice):
         return self.fields.__getitem__(slice)
-        
+
     def __iter__(self):
         return self.fields.__iter__()
-    
+
     def __len__(self):
         return len(self.fields)
 
@@ -116,10 +119,10 @@ class ScfCycle(collections.Mapping):
         """String representation."""
         table = [list(self.fields.keys())]
         for it in range(self.num_iterations):
-            row = map(str, (self[k][it] for k in self.keys()))
+            row = list(map(str, (self[k][it] for k in self.keys())))
             table.append(row)
 
-        stream = StringIO()
+        stream = cStringIO()
         pprint_table(table, out=stream)
         stream.seek(0)
 
@@ -151,7 +154,7 @@ class ScfCycle(collections.Mapping):
             return cls(fields)
         else:
             return None
-        
+
     def plot(self, **kwargs):
         """
         Uses matplotlib to plot the evolution of the SCF cycle.
@@ -185,11 +188,11 @@ class ScfCycle(collections.Mapping):
         if title:
             fig.suptitle(title)
 
-        iter_num = np.array(range(self.num_iterations))
+        iter_num = np.array(list(range(self.num_iterations)))
 
         for ((key, values), ax) in zip(self.items(), ax_list):
             ax.grid(True)
-            ax.set_xlabel('Iteration')       
+            ax.set_xlabel('Iteration')
             ax.set_xticks(iter_num, minor=False)
             ax.set_ylabel(key)
 
@@ -291,7 +294,7 @@ class Relaxation(collections.Iterable):
     @property
     def history(self):
         """
-        Dictionary of lists with the evolution of the data 
+        Dictionary of lists with the evolution of the data
         as function of the relaxation step.
         """
         try:
@@ -345,18 +348,18 @@ class Relaxation(collections.Iterable):
 
         if title:
             fig.suptitle(title)
-        
+
         for ((key, values), ax) in zip(history.items(), ax_list):
             ax.grid(True)
-            ax.set_xlabel('Relaxation Step')       
+            ax.set_xlabel('Relaxation Step')
             ax.set_xticks(relax_step, minor=False)
             ax.set_ylabel(key)
 
             ax.plot(relax_step, values, "-o", lw=2.0)
-        
+
         if show:
             plt.show()
-        
+
         if savefig is not None:
             fig.savefig(savefig)
 
@@ -368,7 +371,7 @@ class YamlTokenizerError(Exception):
 
 class YamlTokenizer(collections.Iterator):
     """
-    Provides context-manager support so you can use it in a with statement. 
+    Provides context-manager support so you can use it in a with statement.
     """
     Error = YamlTokenizerError
 
@@ -470,12 +473,12 @@ class YamlTokenizer(collections.Iterator):
 
     def all_yaml_docs(self):
         """
-        Returns a list with all the YAML docs found in stream. 
+        Returns a list with all the YAML docs found in stream.
         Seek the stream before returning.
 
         .. warning:
 
-            Assume that all the YAML docs (with the exception of the last one) 
+            Assume that all the YAML docs (with the exception of the last one)
             are closed explicitely with the sentinel '...'
         """
         docs = [doc for doc in self]
@@ -489,7 +492,7 @@ class YamlTokenizer(collections.Iterator):
         """
         while True:
             try:
-                doc = self.next()
+                doc = six.advance_iterator(self)
                 if doc.tag == doc_tag:
                     return doc
 
@@ -524,7 +527,7 @@ def yaml_read_kpoints(filename, doc_tag="!Kpoints"):
 
 
 def yaml_read_irred_perts(filename, doc_tag="!IrredPerts"):
-    """Read the lisr of irreducible perturbations from file."""
+    """Read the list of irreducible perturbations from file."""
     with YamlTokenizer(filename) as r:
         doc = r.next_doc_with_tag(doc_tag)
         d = yaml.load(doc.text_notag)
@@ -534,7 +537,7 @@ def yaml_read_irred_perts(filename, doc_tag="!IrredPerts"):
 
 class YamlDoc(object):
     """
-    Handy object that stores that YAML document, its main tag and the 
+    Handy object that stores that YAML document, its main tag and the
     position inside the file.
     """
     __slots__ = [
@@ -554,20 +557,23 @@ class YamlDoc(object):
                 The YAML tag associate to the document.
         """
         # Sanitize strings: use "ignore" to skip invalid characters in .encode/.decode like
-        text = text.decode("utf-8", "ignore")
+        if isinstance(text, bytes):
+            text = text.decode("utf-8", "ignore")
         text = text.rstrip().lstrip()
         self.text = text
         self.lineno = lineno
-        self.tag = tag.decode("utf-8", "ignore") if tag is not None else tag
+        if isinstance(tag, bytes):
+            tag = tag.decode("utf-8", "ignore")
+        self.tag = tag
 
     def __str__(self):
         return self.text
 
     def __eq__(self, other):
         if other is None: return False
-        return (self.text == other.text and 
-                self.lineno == other.lineno and 
-                self.tag == other.tag) 
+        return (self.text == other.text and
+                self.lineno == other.lineno and
+                self.tag == other.tag)
 
     def __ne__(self, other):
         return not self == other

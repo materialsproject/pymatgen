@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module implements more advanced transformations.
 """
@@ -15,6 +13,9 @@ __date__ = "Jul 24, 2012"
 
 import numpy as np
 from fractions import gcd, Fraction
+from itertools import groupby
+
+import six
 
 from pymatgen.core.structure import Specie, Composition
 from pymatgen.core.periodic_table import get_el_sp
@@ -30,7 +31,7 @@ from pymatgen.structure_prediction.substitution_probability import \
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
     SpinComparator
 from pymatgen.analysis.energy_models import SymmetryModel
-from pymatgen.serializers.json_coders import PMGJSONDecoder
+from monty.json import MontyDecoder
 
 
 class ChargeBalanceTransformation(AbstractTransformation):
@@ -74,8 +75,7 @@ class ChargeBalanceTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"charge_balance_sp": self._charge_balance_sp},
                 "@module": self.__class__.__module__,
@@ -135,8 +135,7 @@ class SuperTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {
                     "transformations": self._transformations,
@@ -236,8 +235,7 @@ class MultipleSubstitutionTransformation(object):
     def is_one_to_many(self):
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {
                     "sp_to_replace": self._sp_to_replace,
@@ -376,8 +374,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"symm_prec": self.symm_prec,
                               "min_cell_size": self.min_cell_size,
@@ -438,8 +435,7 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         d = {"name": self.__class__.__name__, "version": __version__,
              "init_args": self._kwargs, "@module": self.__class__.__module__,
              "@class": self.__class__.__name__}
@@ -495,7 +491,7 @@ class MagOrderingTransformation(AbstractTransformation):
         atom_per_specie = [structure.composition.get(m)
                            for m in mag_species_spin.keys()]
 
-        n_gcd = reduce(gcd, atom_per_specie)
+        n_gcd = six.moves.reduce(gcd, atom_per_specie)
 
         if not n_gcd:
             raise ValueError(
@@ -529,7 +525,7 @@ class MagOrderingTransformation(AbstractTransformation):
             MagOrderingTransformation.determine_min_cell(
                 structure, self.mag_species_spin,
                 self.order_parameter)),
-            enum_args.get("min_cell_size"))
+            enum_args.get("min_cell_size", 1))
 
         max_cell = self.enum_kwargs.get('max_cell_size')
         if max_cell:
@@ -553,13 +549,16 @@ class MagOrderingTransformation(AbstractTransformation):
             return alls[0]["structure"] if num_to_return else alls
 
         m = StructureMatcher(comparator=SpinComparator())
+        key = lambda x: SymmetryFinder(x, 0.1).get_spacegroup_number()
+        out = []
+        for _, g in groupby(sorted([d["structure"] for d in alls],
+                                   key=key), key):
+            grouped = m.group_structures(g)
+            out.extend([{"structure": g[0],
+                         "energy": self.emodel.get_energy(g[0])}
+                        for g in grouped])
 
-        grouped = m.group_structures([d["structure"] for d in alls])
-
-        alls = [{"structure": g[0], "energy": self.emodel.get_energy(g[0])}
-                for g in grouped]
-
-        self._all_structures = sorted(alls, key=lambda d: d["energy"])
+        self._all_structures = sorted(out, key=lambda d: d["energy"])
 
         return self._all_structures[0:num_to_return]
 
@@ -577,13 +576,12 @@ class MagOrderingTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {
             "name": self.__class__.__name__, "version": __version__,
             "init_args": {"mag_species_spin": self.mag_species_spin,
                           "order_parameter": self.order_parameter,
-                          "energy_model": self.emodel.to_dict,
+                          "energy_model": self.emodel.as_dict(),
                           "enum_kwargs": self.enum_kwargs},
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__}
@@ -593,6 +591,6 @@ class MagOrderingTransformation(AbstractTransformation):
         init = d["init_args"]
         return MagOrderingTransformation(
             init["mag_species_spin"], init["order_parameter"],
-            energy_model=PMGJSONDecoder().process_decoded(
+            energy_model=MontyDecoder().process_decoded(
                 init["energy_model"]),
             **init["enum_kwargs"])

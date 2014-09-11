@@ -1,10 +1,9 @@
-#!/usr/bin/env python
-
 """
 This module provides classes to create phase diagrams.
 """
 
 from __future__ import division
+from six.moves import filter
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -16,7 +15,7 @@ __date__ = "Nov 25, 2012"
 
 import collections
 import numpy as np
-from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
+from pymatgen.serializers.json_coders import PMGSONable, MontyDecoder
 
 try:
     # If scipy ConvexHull exists, use it because it is faster for large hulls.
@@ -37,7 +36,7 @@ from pymatgen.core.periodic_table import DummySpecie, Element
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 
 
-class PhaseDiagram (MSONable):
+class PhaseDiagram (PMGSONable):
     """
     Simple phase diagram class taking in elements and entries as inputs.
     The algorithm is based on the work in the following papers:
@@ -103,14 +102,15 @@ class PhaseDiagram (MSONable):
         """
         if elements is None:
             elements = set()
-            map(elements.update, [entry.composition.elements
-                                  for entry in entries])
+            for entry in entries:
+                elements.update(entry.composition.elements)
         elements = list(elements)
         dim = len(elements)
         el_refs = {}
         for el in elements:
-            el_entries = filter(lambda e: e.composition.is_element and
-                                e.composition.elements[0] == el, entries)
+            el_entries = list(filter(lambda e: e.composition.is_element and
+                                               e.composition.elements[0] == el,
+                                     entries))
             if len(el_entries) == 0:
                 raise PhaseDiagramError(
                     "There are no entries associated with terminal {}."
@@ -120,7 +120,7 @@ class PhaseDiagram (MSONable):
         data = []
         for entry in entries:
             comp = entry.composition
-            row = map(comp.get_atomic_fraction, elements)
+            row = [comp.get_atomic_fraction(el) for el in elements]
             row.append(entry.energy_per_atom)
             data.append(row)
 
@@ -147,14 +147,14 @@ class PhaseDiagram (MSONable):
             while prev_e and epa > 1e-4 + prev_e[0]:
                 prev_c.pop(0)
                 prev_e.pop(0)
-            frac_comp = entries[i].composition.get_fractional_composition()
+            frac_comp = entries[i].composition.fractional_composition
             if frac_comp not in prev_c:
                 ind.append(i)
             prev_e.append(epa)
             prev_c.append(frac_comp)
 
         #add the elemental references
-        ind.extend(map(entries.index, el_refs.values()))
+        ind.extend([entries.index(el) for el in el_refs.values()])
 
         qhull_entries = [entries[i] for i in ind]
         qhull_data = data[ind][:, 1:]
@@ -168,7 +168,7 @@ class PhaseDiagram (MSONable):
         if dim == 1:
             self.facets = [qhull_data.argmin(axis=0)]
         elif len(qhull_data) == dim:
-            self.facets = [range(dim)]
+            self.facets = [list(range(dim))]
         else:
             facets = get_facets(qhull_data)
             finalfacets = []
@@ -250,12 +250,11 @@ class PhaseDiagram (MSONable):
                              for entry in self.stable_entries])]
         return "\n".join(output)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "all_entries": [e.to_dict for e in self.all_entries],
-                "elements": [e.to_dict for e in self.elements]}
+                "all_entries": [e.as_dict() for e in self.all_entries],
+                "elements": [e.as_dict() for e in self.elements]}
 
     @classmethod
     def from_dict(cls, d):
@@ -301,15 +300,14 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         """
         if elements is None:
             elements = set()
-            map(elements.update, [entry.composition.elements
-                                  for entry in entries])
+            for entry in entries:
+                elements.update(entry.composition.elements)
         self.chempots = {get_el_sp(el): u for el, u in chempots.items()}
         elements = set(elements).difference(self.chempots.keys())
-        all_entries = [GrandPotPDEntry(e, self.chempots)
-                       for e in entries
-                       if (not e.is_element) or
-                       e.composition.elements[0] in elements]
-
+        all_entries = []
+        for e in entries:
+            if len(set(e.composition.elements).intersection(set(elements))) > 0:
+                all_entries.append(GrandPotPDEntry(e, self.chempots))
         super(GrandPotentialPhaseDiagram, self).__init__(all_entries, elements)
 
     def __str__(self):
@@ -323,18 +321,17 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
                                  for entry in self.stable_entries]))
         return "\n".join(output)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "all_entries": [e.to_dict for e in self.all_entries],
+                "all_entries": [e.as_dict() for e in self.all_entries],
                 "chempots": self.chempots,
-                "elements": [e.to_dict for e in self.elements]}
+                "elements": [e.as_dict() for e in self.elements]}
 
     @classmethod
     def from_dict(cls, d):
-        entries = PMGJSONDecoder().process_decoded(d["all_entries"])
-        elements = PMGJSONDecoder().process_decoded(d["elements"])
+        entries = MontyDecoder().process_decoded(d["all_entries"])
+        elements = MontyDecoder().process_decoded(d["elements"])
         return cls(entries, d["chempots"], elements)
 
 
@@ -391,7 +388,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
         """
         new_entries = []
         if self.normalize_terminals:
-            fractional_comp = [c.get_fractional_composition()
+            fractional_comp = [c.fractional_composition
                                for c in terminal_compositions]
         else:
             fractional_comp = terminal_compositions
@@ -422,20 +419,19 @@ class CompoundPhaseDiagram(PhaseDiagram):
                 pass
         return new_entries, sp_mapping
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
-            "original_entries": [e.to_dict for e in self.original_entries],
-            "terminal_compositions": [c.to_dict
+            "original_entries": [e.as_dict() for e in self.original_entries],
+            "terminal_compositions": [c.as_dict()
                                       for c in self.terminal_compositions],
             "normalize_terminal_compositions":
                 self.normalize_terminal_compositions}
 
     @classmethod
     def from_dict(cls, d):
-        dec = PMGJSONDecoder()
+        dec = MontyDecoder()
         entries = dec.process_decoded(d["original_entries"])
         terminal_compositions = dec.process_decoded(d["terminal_compositions"])
         return cls(entries, terminal_compositions,

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines PDEntry, which wraps information (composition and energy)
 necessary to create phase diagrams.
@@ -16,13 +14,17 @@ __status__ = "Production"
 __date__ = "May 16, 2011"
 
 import re
+import csv
 
+from monty.json import MontyDecoder
+
+from io import open
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
-from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
+from pymatgen.serializers.json_coders import PMGSONable
 
 
-class PDEntry(MSONable):
+class PDEntry(PMGSONable):
     """
     An object encompassing all relevant data for phase diagrams.
 
@@ -41,7 +43,7 @@ class PDEntry(MSONable):
             specify that the entry is a newly found compound, or to specify a
             particular label for the entry, or else ... Used for further
             analysis and plotting purposes. An attribute can be anything
-            but must be MSONable.
+            but must be PMGSONable.
     """
 
     def __init__(self, composition, energy, name=None, attribute=None):
@@ -71,11 +73,10 @@ class PDEntry(MSONable):
     def __str__(self):
         return self.__repr__()
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "composition": self.composition.to_dict,
+                "composition": self.composition.as_dict(),
                 "energy": self.energy,
                 "name": self.name,
                 "attribute": self.attribute}
@@ -129,18 +130,17 @@ class GrandPotPDEntry(PDEntry):
     def __str__(self):
         return self.__repr__()
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "entry": self.original_entry.to_dict,
+                "entry": self.original_entry.as_dict(),
                 "chempots": {el.symbol: u for el, u in self.chempots.items()},
                 "name": self.name}
 
     @classmethod
     def from_dict(cls, d):
         chempots = {Element(symbol): u for symbol, u in d["chempots"].items()}
-        entry = PMGJSONDecoder().process_decoded(d["entry"])
+        entry = MontyDecoder().process_decoded(d["entry"])
         return cls(entry, chempots, d["name"])
 
     def __getattr__(self, a):
@@ -171,7 +171,8 @@ class PDEntryIO(object):
         """
         import csv
         elements = set()
-        map(elements.update, [entry.composition.elements for entry in entries])
+        for entry in entries:
+            elements.update(entry.composition.elements)
         elements = sorted(list(elements), key=lambda a: a.X)
         writer = csv.writer(open(filename, "wb"), delimiter=",",
                             quotechar="\"", quoting=csv.QUOTE_MINIMAL)
@@ -194,23 +195,23 @@ class PDEntryIO(object):
         Returns:
             List of Elements, List of PDEntries
         """
-        import csv
-        reader = csv.reader(open(filename, "rb"), delimiter=",",
-                            quotechar="\"", quoting=csv.QUOTE_MINIMAL)
-        entries = list()
-        header_read = False
-        for row in reader:
-            if not header_read:
-                elements = row[1:(len(row) - 1)]
-                header_read = True
-            else:
-                name = row[0]
-                energy = float(row[-1])
-                comp = dict()
-                for ind in range(1, len(row) - 1):
-                    if float(row[ind]) > 0:
-                        comp[Element(elements[ind - 1])] = float(row[ind])
-                entries.append(PDEntry(Composition(comp), energy, name))
+        with open(filename, "r", encoding="utf-8") as f:
+            reader = csv.reader(f, delimiter=",",
+                                quotechar="\"", quoting=csv.QUOTE_MINIMAL)
+            entries = list()
+            header_read = False
+            for row in reader:
+                if not header_read:
+                    elements = row[1:(len(row) - 1)]
+                    header_read = True
+                else:
+                    name = row[0]
+                    energy = float(row[-1])
+                    comp = dict()
+                    for ind in range(1, len(row) - 1):
+                        if float(row[ind]) > 0:
+                            comp[Element(elements[ind - 1])] = float(row[ind])
+                    entries.append(PDEntry(Composition(comp), energy, name))
         elements = [Element(el) for el in elements]
         return elements, entries
 
@@ -251,14 +252,13 @@ class TransformedPDEntry(PDEntry):
     def __str__(self):
         return self.__repr__()
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "entry": self.original_entry.to_dict,
+                "entry": self.original_entry.as_dict(),
                 "composition": self.composition}
 
     @classmethod
     def from_dict(cls, d):
-        entry = PMGJSONDecoder().process_decoded(d["entry"])
+        entry = MontyDecoder().process_decoded(d["entry"])
         return cls(d["composition"], entry)

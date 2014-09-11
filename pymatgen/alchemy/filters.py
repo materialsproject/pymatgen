@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 This module defines filters for Transmuter object.
 """
@@ -13,21 +11,24 @@ __maintainer__ = "Will Richards"
 __email__ = "wrichards@mit.edu"
 __date__ = "Sep 25, 2012"
 
+import abc
+
+import six
+from six.moves import map
+
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.analysis.structure_matcher import StructureMatcher,\
     ElementComparator
 from pymatgen.symmetry.finder import SymmetryFinder
-import abc
 
 
-class AbstractStructureFilter(MSONable):
+class AbstractStructureFilter(six.with_metaclass(abc.ABCMeta, PMGSONable)):
     """
     AbstractStructureFilter that defines an API to perform testing of
     Structures. Structures that return True to a test are retained during
     transmutation while those that return False are removed.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def test(self, structure):
@@ -39,16 +40,6 @@ class AbstractStructureFilter(MSONable):
             object during filtering.
         """
         return
-
-    @classmethod
-    def from_dict(cls, d):
-        for trans_modules in ['filters']:
-            mod = __import__('pymatgen.alchemy.' + trans_modules,
-                             globals(), locals(), [d['@class']], -1)
-            if hasattr(mod, d['@class']):
-                trans = getattr(mod, d['@class'])
-                return trans(**d['init_args'])
-        raise ValueError("Invalid filter dict")
 
 
 class ContainsSpecieFilter(AbstractStructureFilter):
@@ -66,7 +57,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
             exclude: If true, returns false for any structures with the specie
                 (excludes them from the Transmuter)
         """
-        self._species = map(get_el_sp, species)
+        self._species = list(map(get_el_sp, species))
         self._strict = strict_compare
         self._AND = AND
         self._exclude = exclude
@@ -101,8 +92,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
                           "AND = {}".format(self._AND),
                           "exclude = {}".format(self._exclude)])
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "init_args": {"species": [str(sp) for sp in self._species],
@@ -147,8 +137,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
                                 return False
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "init_args": {"specie_and_min_dist_dict":
@@ -191,8 +180,8 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
             return finder.get_spacegroup_number()
 
         for s in self._structure_list:
-            if self._sm._comparator.get_structure_hash(structure) ==\
-                    self._sm._comparator.get_structure_hash(s):
+            if self._sm._comparator.get_hash(structure.composition) ==\
+                    self._sm._comparator.get_hash(s.composition):
                 if self._symprec is None or \
                         get_sg(s) == get_sg(structure):
                     if self._sm.fit(s, structure):
@@ -201,11 +190,10 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
         self._structure_list.append(structure)
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "init_args": {"structure_matcher": self._sm.to_dict}}
+                "init_args": {"structure_matcher": self._sm.as_dict()}}
 
 
 class RemoveExistingFilter(AbstractStructureFilter):
@@ -252,11 +240,10 @@ class RemoveExistingFilter(AbstractStructureFilter):
         self._structure_list.append(structure)
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "init_args": {"structure_matcher": self._sm.to_dict}}
+                "init_args": {"structure_matcher": self._sm.as_dict()}}
 
 
 class ChargeBalanceFilter(AbstractStructureFilter):
@@ -272,7 +259,6 @@ class ChargeBalanceFilter(AbstractStructureFilter):
         else:
             return False
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}

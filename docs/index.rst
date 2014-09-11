@@ -1,14 +1,7 @@
-.. pymatgen documentation master file, created by
-   sphinx-quickstart on Tue Nov 15 00:13:52 2011.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 .. image:: _static/pymatgen.png
    :width: 300 px
    :alt: pymatgen
    :align: center
-
-.. image:: https://circleci.com/gh/materialsproject/pymatgen/tree/stable.png?circle-token=:circle-token
 
 Introduction
 ============
@@ -71,88 +64,9 @@ several advantages over other codes out there:
    written in other languages. Pymatgen also comes with a complete system for
    handling periodic boundary conditions.
 
-Latest Change Log
-=================
+.. include:: latest_changes.rst
 
-v2.9.11
--------
-1. Bug fix for get_xrd_plot.
-2. Speed up XRD calculator by allowing specification of two theta ranges.
-3. Minor improvements to Gulp caller.
-
-v2.9.10
--------
-1. Bug fix for unequal coefficients sizes in XRD.
-2. Support for Ag radiation in XRD calculator.
-3. Improved Procar class for extraction of information. (Germain Salvato
-   Vallverdu)
-4. Bug fix for extraction of GGA data from Materials API.
-
-v2.9.9
-------
-1. XRDCalculator now supports disordered structures.
-2. Minor speed ups and improvements.
-
-v2.9.8
-------
-1. Initial beta version of XRD pattern calculator.
-2. Pymatgen now uses spglib 1.6.0.
-3. Update to Vasprun to compute static deilectric constants with DFPT in VASP.
-   (Geoffroy Hautier)
-
-v2.9.7
-------
-1. Quick bug-fix release that provides a better solution to Structure handling
-   of properties instead of sanitizing MPRester structures.
-
-v2.9.6
-------
-1. Patch to allow 1D phase diagrams (essentially finding the lowest energy
-   phase).
-2. Better error checking for Bandstructure KPOINTs.
-3. Patch to sanitize structures obtained from MPRester.
-
-v2.9.5
-------
-1. Bug fix for linear assignment, which may sometimes affect Structure
-   Matcher results.
-2. Minor improvement to the way grand canonical PDs work.
-
-v2.9.4
-------
-1. Bug fix for Pourbaix Maker (Sai).
-2. Streamline use of scratch directories for various calls. Require monty >=
-   0.1.2.
-3. High accuracy mode for Zeo++ (Bharat Medasani).
-
-v2.9.3
-------
-1. Bug fix release for printing TransformedStructures from Substitutor (Will
-   Richards).
-2. Misc improvements in BVAnalyzer, coord_utils and defects (Will Richards,
-   David Waroquiers and Bharat Medasani).
-
-v2.9.2
-------
-1. Bug fix release for DummySpecie, which failed when deserializing from
-   json and had bad hash function.
-
-v2.9.1
-------
-1. Structure/Molecule now supports Pythonic list-like API for replacing and
-   removing sites. See :ref:`quick_start` for examples.
-
-v2.9.0
-------
-1. Updates to support ABINIT 7.6.1 (by Matteo Giantomassi).
-2. Vastly improved docs.
-3. Refactoring to move commonly used Python utility functions to `Monty
-   package <https://pypi.python.org/pypi/monty>`_, which is now a dependency
-   for pymatgen.
-4. Minor fixes and improvements to DiffusionAnalyzer.
-5. Many bug fixes and improvements.
-
-:doc:`Older versions </changelog>`
+:doc:`Older versions </change_log>`
 
 Getting pymatgen
 ================
@@ -197,11 +111,18 @@ Stable version
        possible and do "export CC=gcc" prior to installation.
     2. Numpy's distutils is needed to compile the spglib and pyhull
        dependencies. This should be the first thing you install.
-    2. Pyhull and PyCifRW. The recent versions of pip does not allow the
+    3. Pyhull and PyCifRW. The recent versions of pip does not allow the
        installation of externally hosted files. Furthermore,
        there are some issues with easy_install for these extensions. Install
-       both these dependencies manually using "pip install <package>
-       --allow-external <package> --allow-unverified <package>".
+       both these dependencies manually using ``"pip install <package>
+       --allow-external <package> --allow-unverified <package>"``.
+    4. Although PyYaml can be installed directly through pip without
+       additional preparation, it is highly recommended that you install
+       pyyaml with the C bindings for speed. To do so, install LibYaml first,
+       and then install pyyaml with the command below (see the `pyyaml
+       doc <http://pyyaml.org/wiki/PyYAML>`_ for more information)::
+
+           python setup.py --with-libyaml install
 
 The version at the Python Package Index (PyPI) is always the latest stable
 release that will be hopefully, be relatively bug-free. The easiest way to
@@ -249,7 +170,7 @@ Installation help
 -----------------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    installation
 
@@ -405,8 +326,8 @@ matgenie.py. The typical usage of matgenie.py is::
 
     matgenie.py {analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
 
-At any time, you can use "matgenie.py --help" or "matgenie.py subcommand
---help" to bring up a useful help message on how to use these subcommands.
+At any time, you can use ``"matgenie.py --help"`` or ``"matgenie.py subcommand
+--help"`` to bring up a useful help message on how to use these subcommands.
 Here are a few examples of typical usages::
 
     #Parses all vasp runs in a directory and display the basic energy
@@ -519,28 +440,9 @@ License
 =======
 
 Pymatgen is released under the MIT License. The terms of the license are as
-follows::
+follows:
 
-    The MIT License (MIT)
-    Copyright (c) 2011-2012 MIT & LBNL
-
-    Permission is hereby granted, free of charge, to any person obtaining a
-    copy of this software and associated documentation files (the "Software")
-    , to deal in the Software without restriction, including without limitation
-    the rights to use, copy, modify, merge, publish, distribute, sublicense,
-    and/or sell copies of the Software, and to permit persons to whom the
-    Software is furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in
-    all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-    DEALINGS IN THE SOFTWARE.
+.. literalinclude:: ../LICENSE.rst
 
 Indices and tables
 ==================

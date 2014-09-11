@@ -1,11 +1,10 @@
-#!/usr/bin/env python
-
 """
 This module implements abstract base classes for post-processing entries.
 Any class which modifies entries should inherit these classes.
 """
 
 from __future__ import division
+import six
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -17,9 +16,7 @@ __date__ = "Oct 6, 2011"
 import abc
 
 
-class EntryPostProcessor(object):
-    __metaclass__ = abc.ABCMeta
-
+class EntryPostProcessor(six.with_metaclass(abc.ABCMeta, object)):
     @abc.abstractmethod
     def process_entry(self, entry):
         """
