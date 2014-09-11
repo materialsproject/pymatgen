@@ -24,7 +24,9 @@ try:
     from uclworks.utils.clusters import get_vasp_environment
     from uclworks.firetasks.vasptasks import VaspGWTask
 except ImportError:
-    pass
+    class VaspGWTask():
+        """
+        """
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
