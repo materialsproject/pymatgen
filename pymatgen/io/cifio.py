@@ -3,8 +3,6 @@ Wrapper classes for Cif input and output from Structures.
 """
 
 from __future__ import division
-from six.moves import map
-from six.moves import zip
 
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -22,7 +20,7 @@ import warnings
 from collections import OrderedDict, deque
 
 import six
-from six.moves import cStringIO
+from six.moves import cStringIO, map, zip
 
 import numpy as np
 
@@ -35,23 +33,26 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.finder import SymmetryFinder
 
+
 class CifBlock(object):
     
-    maxlen = 70 #not quite 80 so we can deal with semicolons and things
+    maxlen = 70  # not quite 80 so we can deal with semicolons and things
     
     def __init__(self, data, loops, header):
         """
         Object for storing cif data. All data is stored in a single dictionary.
         Data inside loops are stored in lists in the data dictionary, and
         information on which keys are grouped together are stored in the loops
-        attribute
+        attribute.
+
         Args:
             data: dict or OrderedDict of data to go into the cif. Values should
                     be convertible to string, or lists of these if the key is
                     in a loop
             loops: list of lists of keys, grouped by which loop they should 
                     appear in
-            header: name of the block (appears after the data_ on the first line)
+            header: name of the block (appears after the data_ on the first
+                line)
         """
         self.loops = loops
         self.data = data
@@ -111,7 +112,7 @@ class CifBlock(object):
             return ';\n' + textwrap.fill(v, self.maxlen) + '\n;'
         #add quotes if necessary
         if " " in v and not (v[0] == "'" and v[-1] == "'") \
-                    and not (v[0] == '"' and v[-1] == '"'):
+                and not (v[0] == '"' and v[-1] == '"'):
             if "'" in v:
                 q = '"'
             else:
@@ -124,9 +125,9 @@ class CifBlock(object):
         #remove comments
         string = re.sub("#.*", "", string)
         #remove empty lines
-        string = re.sub("^\s*\n", "", string, flags = re.MULTILINE)
+        string = re.sub("^\s*\n", "", string, flags=re.MULTILINE)
         #remove whitespaces at beginning of lines
-        string = re.sub("^\s*", "", string, flags = re.MULTILINE)
+        string = re.sub("^\s*", "", string, flags=re.MULTILINE)
         #remove non_ascii
         string = remove_non_ascii(string)
         
@@ -211,13 +212,13 @@ class CifFile(object):
     def __str__(self):
         s = map(str, self.data.values())
         comment = "#generated using pymatgen\n"
-        return  comment + "\n".join(s)+"\n"
+        return comment + "\n".join(s)+"\n"
 
     @classmethod
     def from_string(cls, string):
         d = OrderedDict()
         for x in re.split("^data_", "x\n"+string, 
-                          flags=re.MULTILINE|re.DOTALL)[1:]:
+                          flags=re.MULTILINE | re.DOTALL)[1:]:
             c = CifBlock.from_string("data_"+x)
             d[c.header] = c
         return cls(d, string)
@@ -405,12 +406,15 @@ class CifWriter:
         spacegroup = ("P 1", 1)
         if find_spacegroup:
             sf = SymmetryFinder(struct, 0.001)
-            spacegroup = (sf.get_spacegroup_symbol(), sf.get_spacegroup_number())
+            spacegroup = (sf.get_spacegroup_symbol(),
+                          sf.get_spacegroup_number())
         block["_symmetry_space_group_name_H-M"] = spacegroup[0]
         for cell_attr in ['a', 'b', 'c']:
-            block["_cell_length_" + cell_attr] = format_str.format(getattr(latt, cell_attr))
+            block["_cell_length_" + cell_attr] = format_str.format(
+                getattr(latt, cell_attr))
         for cell_attr in ['alpha', 'beta', 'gamma']:
-            block["_cell_angle_" + cell_attr] = format_str.format(getattr(latt, cell_attr))
+            block["_cell_angle_" + cell_attr] = format_str.format(
+                getattr(latt, cell_attr))
         block["_symmetry_Int_Tables_number"] = spacegroup[1]
         block["_chemical_formula_structural"] = str(no_oxi_comp
                                                     .reduced_formula)
@@ -431,8 +435,9 @@ class CifWriter:
 
         contains_oxidation = True
         try:
-            symbol_to_oxinum = OrderedDict([(str(el),float(el.oxi_state))
-                                for el in sorted(comp.elements)])
+            symbol_to_oxinum = OrderedDict([
+                (str(el), float(el.oxi_state))
+                for el in sorted(comp.elements)])
         except AttributeError:
             symbol_to_oxinum = OrderedDict([(el.symbol, 0) for el in 
                                             sorted(comp.elements)])
@@ -463,7 +468,8 @@ class CifWriter:
 
         block["_atom_site_type_symbol"] = atom_site_type_symbol
         block["_atom_site_label"] = atom_site_label
-        block["_atom_site_symmetry_multiplicity"] = atom_site_symmetry_multiplicity
+        block["_atom_site_symmetry_multiplicity"] = \
+            atom_site_symmetry_multiplicity
         block["_atom_site_fract_x"] = atom_site_fract_x
         block["_atom_site_fract_y"] = atom_site_fract_y
         block["_atom_site_fract_z"] = atom_site_fract_z
