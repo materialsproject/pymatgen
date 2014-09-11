@@ -5,8 +5,10 @@ All required dependencies should be automatically taken care of if you
 install pymatgen using easy_install or pip. Otherwise, these packages should
 be available on `PyPI <http://pypi.python.org>`_.
 
-1. Python 2.7-3.x required.
-2. numpy - For array, matrix and other numerical manipulations. Used extensively
+1. Python 2.7-3.x supported. All critical dependencies of pymatgen already
+   have Python 3.x support. Only a few optional dependencies (VTK and ASE) do
+   not. If you do not need those features, you can choose to work with Python 3.
+2. numpy: For array, matrix and other numerical manipulations. Used extensively
    by all core modules.
 3. pyhull 1.5.2+: For generation of phase diagrams.
 4. requests 2.0+: For the high-level interface to the Materials API.
@@ -23,7 +25,8 @@ Optional libraries that are required if you need certain features:
    Phase Diagrams.
 2. matplotlib 1.1+ (highly recommended): For plotting (e.g., Phase Diagrams).
 3. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
-   crystal structures using the pymatgen.vis package.
+   crystal structures using the pymatgen.vis package. Note that the VTK
+   package is incompatible with Python 3.x at the moment.
 4. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
    adapters in pymatgen.io.aseio between pymatgen's core Structure object and
    the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
@@ -280,8 +283,8 @@ run it.
 	python setup.py build
 	python setup.py install
 
-VTK (tested on v5.10.0)
------------------------
+VTK (tested on v5.10.0 - 6.1.0)
+-------------------------------
 
 Mac OS X 10.7 and 10.8
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -317,11 +320,20 @@ need to be modified are shown):
 
    //Also delete the prefix settings for python, which typically links to the Mac python.
 
+.. note:: Garbage collection on new Xcode
+
+    If you are using a very new XCode (e.g. 5.1), please note that Cocoa garbage
+    collection has been removed and during compile, you may get an "error:
+    garbage collection is no longer supported" message. VTK does not require
+    Cocoa garbage collection, but was configured to built with support for it on.
+    You can simply remove the -fobjc-gc flag from VTK_REQUIRED_OBJCXX_FLAGS.
+
+
 After the CMakeCache.txt file is generated, type:
 
 ::
 
-	make
+	make -j 2
 	sudo make install
 
 With any luck, you should have vtk with the necessary python wrappers installed.
