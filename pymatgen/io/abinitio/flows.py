@@ -8,6 +8,7 @@ import sys
 import time
 import collections
 import warnings
+import shutil
 import cPickle as pickle
 
 try:
@@ -17,7 +18,7 @@ except ImportError:
 
 from pymatgen.util.io_utils import FileLock
 from pymatgen.util.string_utils import pprint_table, is_string
-from pymatgen.io.abinitio.tasks import Dependency, Node, Task, ScfTask, PhononTask, TaskManager
+from pymatgen.io.abinitio.tasks import Dependency, Status, Node, Task, ScfTask, PhononTask, TaskManager
 from pymatgen.io.abinitio.utils import Directory, Editor
 from pymatgen.io.abinitio.abiinspect import yaml_read_irred_perts
 from pymatgen.io.abinitio.workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow, QptdmWorkflow
@@ -350,8 +351,9 @@ class AbinitFlow(Node):
             }[op]
 
             # Accept Task.S_FLAG or string.
-            if is_string(status):
-                status = getattr(Task, status)
+            #if is_string(status):
+            #    status = getattr(Task, status)
+			status = Status.as_status(status)
 
             for wi, work in enumerate(self):
                 for ti, task in enumerate(work):
@@ -614,6 +616,10 @@ class AbinitFlow(Node):
             num_cancelled += task.cancel()
 
         return num_cancelled
+
+	def rmtree(self, ignore_errors=False, onerror=None):
+		"""Remove workdir (same API as shtul.rmtree."""
+		shutil.rmtree(self.workdir, ignore_errors=ignore_errors, onerror=onerror)
 
     def build(self, *args, **kwargs):
         """Make directories and files of the `Flow`."""

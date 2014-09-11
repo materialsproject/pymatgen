@@ -856,9 +856,10 @@ class PbsAdapter(AbstractQueueAdapter):
                 msg = ('Error in job submission with PBS file {f} and cmd {c}\n'.format(f=script_file, c=cmd) + 
                        'The error response reads: {}'.format(process.stderr.read()))
                 raise self.Error(msg)
-        except:
+
+        except Exception as exc:
             # random error, e.g. no qsub on machine!
-            raise self.Error("Running qsub caused an error...")
+            raise self.Error("Running qsub caused an error...\n%s" % str(exc))
 
     def get_njobs_in_queue(self, username=None):
         # Initialize username
