@@ -226,7 +226,9 @@ class SingleAbinitGWWorkFlow():
         gamma = True
 
         # 'standard' parameters for stand alone calculation
-        nscf_nband = [10 * self.get_bands(self.structure)]
+        nb = self.get_bands(self.structure)
+        nscf_nband = [10 * nb]
+
         ecuteps = [8]
         ecutsigx = 8
 
@@ -234,7 +236,7 @@ class SingleAbinitGWWorkFlow():
             paral_kgb=1,
             #autoparal=1,
             npfft=4,
-            npband=10,
+            npband=nb,
             inclvkb=2,
             ecut=44,
             pawecutdg=88,
