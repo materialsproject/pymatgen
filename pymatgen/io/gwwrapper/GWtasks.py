@@ -20,8 +20,11 @@ import subprocess
 from pymatgen.io.gwwrapper.GWvaspinputsets import SingleVaspGWWork
 from pymatgen.io.gwwrapper.GWvaspinputsets import GWG0W0VaspInputSet
 from fireworks.core.firework import FWAction
-from uclworks.utils.clusters import get_vasp_environment
-from uclworks.firetasks.vasptasks import VaspGWTask
+try:
+    from uclworks.utils.clusters import get_vasp_environment
+    from uclworks.firetasks.vasptasks import VaspGWTask
+except ImportError:
+    pass
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
