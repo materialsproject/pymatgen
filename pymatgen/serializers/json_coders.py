@@ -54,8 +54,9 @@ class PMGSONable(six.with_metaclass(ABCMeta, MSONable)):
     """
 
     @property
-    @deprecated(message="All to_dict properties have been deprecated."
-                        "Use the as_dict() method instead.")
+    @deprecated(message="All to_dict properties have been deprecated. They "
+                        "will be removed from v3.1. Use the as_dict() method "
+                        "instead.")
     def to_dict(self):
         """
         A JSON serializable dict representation of an object.
@@ -73,18 +74,6 @@ class PMGSONable(six.with_metaclass(ABCMeta, MSONable)):
             return cls(**d['init_args'])
         raise MSONError("Invalid dict for default from_dict. Please "
                         "override from_dict for ".format(cls))
-
-    def write_to_json_file(self, filename):
-        """
-        Writes the mson representation to a file.
-
-        Args:
-            filename:
-                filename to write to. It is recommended that the file extension
-                be ".mson".
-        """
-        with zopen(filename, "w", encoding="utf-8") as f:
-            json.dump(self, f, cls=MontyEncoder)
 
 
 def json_pretty_dump(obj, filename):
