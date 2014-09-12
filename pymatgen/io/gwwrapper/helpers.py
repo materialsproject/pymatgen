@@ -1,8 +1,7 @@
 """
 Helper methods for generating gw input / and work flows.
 """
-
-from __future__ import division
+from __future__ import division, print_function
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "
@@ -52,12 +51,12 @@ def refine_structure(structure, symprec=1e-3):
     m = structure.lattice.matrix
     x_prod = np.dot(np.cross(m[0], m[1]), m[2])
     if x_prod < 0:
-        print x_prod
+        print(x_prod)
         trans = SupercellTransformation(((1, 0, 0), (0, 0, 1), (0, 1, 0)))
         structure = trans.apply_transformation(structure)
         m = structure.lattice.matrix
         x_prod = np.dot(np.cross(m[0], m[1]), m[2])
-        print x_prod
+        print(x_prod)
         if x_prod < 0:
             raise RuntimeError
     return structure
@@ -90,11 +89,11 @@ def expand_tests(tests, level):
             ec_range = tests[ec]['test_range']
             ec_step = ec_range[-1] - ec_range[-2]
             if int(level / 2) == level / 2:
-                print 'new ec wedge'
+                print('new ec wedge')
                 # even level of grid extension > new ec wedge
                 new_ec_range = (ec_range[-1] + int(level / 2 * ec_step),)
             else:
-                print 'new nb wedge'
+                print('new nb wedge')
                 # odd level of grid extension > new nb wedge
                 extension = tuple(range(ec_range[-1] + ec_step, ec_range[-1] + (1 + int((level - 1) / 2)) * ec_step, ec_step))
                 new_ec_range = ec_range + extension
@@ -103,7 +102,7 @@ def expand_tests(tests, level):
             nb = str(test)
             nb_range = tests[nb]['test_range']
             nb_step = nb_range[-1] - nb_range[-2]
-            print nb_step
+            print(nb_step)
             if int(level / 2) == level / 2:
                 # even level of grid extension > new ec wedge
                 extension = tuple(range(nb_range[-1] + nb_step, nb_range[-1] + (1 + int(level / 2)) * nb_step, nb_step))
@@ -112,7 +111,7 @@ def expand_tests(tests, level):
                 # odd level of grid extension > new nb wedge
                 new_nb_range = (nb_range[-1] + int((level + 1) / 2 * nb_step),)
             new_tests[nb].update({'test_range': new_nb_range})
-    print new_tests
+    print(new_tests)
     return new_tests
 
 
@@ -142,7 +141,7 @@ def read_grid_from_file(filename):
         full_res = ast.literal_eval(f.read())
         f.close()
     except SyntaxError:
-        print 'Problems reading ', filename
+        print('Problems reading ', filename)
         full_res = {'grid': 0, 'all_done': False}
     except (OSError, IOError):
         full_res = {'grid': 0, 'all_done': False}
@@ -159,8 +158,8 @@ def is_converged(hartree_parameters, structure, return_values=False):
         converged = True if True in conv_res['control'].values() else False
     except (IOError, OSError, ValueError):
         if return_values:
-            print 'Inputfile ', filename, ' not found, the convergence calculation did not finish properly' \
-                                          ' or was not parsed ...'
+            print('Inputfile ', filename, ' not found, the convergence calculation did not finish properly' \
+                                          ' or was not parsed ...')
         converged = False
         return converged
     if return_values and converged:
@@ -182,7 +181,7 @@ def is_converged(hartree_parameters, structure, return_values=False):
 
 
 def store_conv_results(name, folder):
-    print "| Storing results for %s" % name
+    print("| Storing results for %s" % name)
     if not os.path.isdir(folder):
         os.mkdir(folder)
     shutil.copy(name+'.full_res', os.path.join(folder, name+'.full_res'))

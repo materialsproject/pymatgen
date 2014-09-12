@@ -1,7 +1,7 @@
 """
 Error handlers for errors originating from the Submission systems.
 """
-from __future__ import division
+from __future__ import division, print_function
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "
@@ -146,7 +146,7 @@ class AbstractError(object):
         """
         what to do if every thing else fails...
         """
-        print 'non of the defined solutions for %s returned success...' % self.name
+        print('non of the defined solutions for %s returned success...' % self.name)
         return
 
 
@@ -280,10 +280,10 @@ class AbstractErrorParser(object):
                     if found:
                         metadata = self.extract_metadata(lines, errmsg[k]['meta_filter'])
                 except (IOError, OSError):
-                    print self.files[k], 'not found'
+                    print(self.files[k], 'not found')
                     pass
                 except TypeError:
-                    print 'type error', self.files[k], ' has type ', self.files[k].cls(), ' should be string.'
+                    print('type error', self.files[k], ' has type ', self.files[k].cls(), ' should be string.')
                     pass
 
         return found, message, metadata
@@ -297,9 +297,9 @@ class AbstractErrorParser(object):
             if result[0]:
                 self.errors.append(error(result[1], result[2]))
         if len(self.errors) > 0:
-            print 'QUEUE_ERROR FOUND'
+            print('QUEUE_ERROR FOUND')
             for error in self.errors:
-                print error
+                print(error)
 
 
 class SlurmErrorParser(AbstractErrorParser):
@@ -398,6 +398,6 @@ if __name__ == "__main__":
     my_parser = get_parser('pbs', err_file='queue.err', out_file='queue.out', run_err_file='run.err',
                            batch_err_file='sbatch.err')
     my_parser.parse()
-    print 'parser.errors', my_parser.errors
+    print('parser.errors', my_parser.errors)
     for my_error in my_parser.errors:
-        print my_error
+        print(my_error)

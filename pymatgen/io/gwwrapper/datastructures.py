@@ -4,7 +4,7 @@ code interfaces provided in codeinterfaces.
 Reads the POSCAR_name in the the current folder and outputs GW input to subfolders name or lists of structures
 test 3
 """
-from __future__ import division
+from __future__ import division, print_function
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "
@@ -87,7 +87,7 @@ class AbstractAbinitioSpec(MSONable):
             self.data = ast.literal_eval(f.read())
             f.close()
         except OSError:
-            print 'Inputfile ', filename, ' not found exiting.'
+            print('Inputfile ', filename, ' not found exiting.')
             exit()
         self.update_code_interface()
 
@@ -97,14 +97,14 @@ class AbstractAbinitioSpec(MSONable):
         """
         key = 'tmp'
         while len(key) != 0:
-            print 'Pseudos from: ', self.code_interface.read_ps_dir()
-            print self
+            print('Pseudos from: ', self.code_interface.read_ps_dir())
+            print(self)
             key = raw_input('enter key to change (h for help): ')
             if key in self.data.keys():
                 value = raw_input('enter new value: ')
                 if isinstance(self.data[key], list):                        # list
                     if len(value) == 0:
-                        print 'removed', self.data[key].pop(-1)
+                        print('removed', self.data[key].pop(-1))
                     else:
                         self.data[key].append(value)
                 elif isinstance(self.data[key], bool):                      # logical
@@ -113,7 +113,7 @@ class AbstractAbinitioSpec(MSONable):
                     elif value.lower() in ['false', 'f']:
                         self.data[key] = False
                     else:
-                        print 'undefined value, should be True or False'
+                        print('undefined value, should be True or False')
                 elif isinstance(self.data[key], int):                       # integer
                     self.data[key] = int(value)
                 elif isinstance(self.data[key], float):                     # float
@@ -123,9 +123,9 @@ class AbstractAbinitioSpec(MSONable):
             elif key in ['help', 'h']:
                 print self.help
             elif len(key) == 0:
-                print 'setup finished'
+                print('setup finished')
             else:
-                print 'undefined key'
+                print('undefined key')
         self.data['functional'] = self.data['functional'].upper()
         self.update_code_interface()
 
@@ -137,7 +137,7 @@ class AbstractAbinitioSpec(MSONable):
         o: loop structures for output parsing
         w: print all results
         """
-        print 'loop structures mode ', mode
+        print('loop structures mode ', mode)
         mp_key = os.environ['MP_KEY']
 
         mp_list_vasp = ['mp-149', 'mp-2534', 'mp-8062', 'mp-2469', 'mp-1550', 'mp-830', 'mp-1986', 'mp-10695', 'mp-66',
@@ -155,17 +155,17 @@ class AbstractAbinitioSpec(MSONable):
             pwd = os.environ['MAR_PAS']
             local_db_gaps.authenticate("setten", pwd)
             for c in local_db_gaps.exp.find():
-                print Structure.from_dict(c['icsd_data']['structure']).composition.reduced_formula, c['icsd_id'],\
-                    c['MP_id']
+                print(Structure.from_dict(c['icsd_data']['structure']).composition.reduced_formula, c['icsd_id'],\
+                    c['MP_id'])
                 items_list.append({'name': 'mp-' + c['MP_id'], 'icsd': c['icsd_id'], 'mp': c['MP_id']})
         else:
             items_list = [line.strip() for line in open(self.data['source'])]
 
         for item in items_list:
-            print '\n'
+            print('\n')
             # special case, this should be encaptulated
             if self.data['source'] == 'mar_exp':
-                print 'structure from marilyn', item['name'], item['icsd'], item['mp']
+                print('structure from marilyn', item['name'], item['icsd'], item['mp'])
                 exp = local_db_gaps.exp.find({'MP_id': item['mp']})[0]
                 structure = Structure.from_dict(exp['icsd_data']['structure'])
                 structure = refine_structure(structure)
@@ -175,7 +175,7 @@ class AbstractAbinitioSpec(MSONable):
                 except (IndexError, KeyError):
                     kpts = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
                 structure.kpts = kpts
-                print 'kpoints:', structure.kpts[0], structure.kpts[1]
+                print('kpoints:', structure.kpts[0], structure.kpts[1])
                 structure.item = item['name']
             else:
                 if item.startswith('POSCAR_'):
@@ -195,7 +195,7 @@ class AbstractAbinitioSpec(MSONable):
                     raise NotImplementedError
                 elif item.startswith('mp-'):
                     with MPRester(mp_key) as mp_database:
-                        print 'structure from mp database', item
+                        print('structure from mp database', item)
                         structure = mp_database.get_structure_by_material_id(item, final=True)
                         try:
                             bandstructure = mp_database.get_bandstructure_by_material_id(item)
@@ -204,13 +204,13 @@ class AbstractAbinitioSpec(MSONable):
                             structure.cbm = tuple(bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].frac_coords)
                             structure.vbm = tuple(bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].frac_coords)
                         except (MPRestError, IndexError, KeyError) as err:
-                            print err.message
+                            print(err.message)
                             structure = add_gg_gap(structure)
                 else:
                     continue
                 structure.kpts = [list(structure.cbm), list(structure.vbm)]
                 structure.item = item
-            print item, s_name(structure)
+            print(item, s_name(structure))
             if mode == 'i':
                 self.excecute_flow(structure)
             elif mode == 'w':
@@ -303,7 +303,7 @@ class GWSpecs(AbstractAbinitioSpec):
         """
         tmp = copy.deepcopy(self.data)
         tmp['jobs'] = tuple(tmp['jobs'])
-        print tmp
+        print(tmp)
         return hash(frozenset(tmp.items()))
 
     def hash_str(self):
@@ -356,14 +356,14 @@ class GWSpecs(AbstractAbinitioSpec):
         if self.data["converge"] and not self.data['mode'] == 'fw':
             self.warnings.append('only real converging in fw mode, for other modes ALL convergence steps are created')
         if len(self.errors) > 0:
-            print str(len(self.errors)) + ' error(s) found:'
+            print(str(len(self.errors)) + ' error(s) found:')
             for error in self.errors:
-                print ' > ' + error
+                print(' > ' + error)
             exit()
         if len(self.warnings) > 0:
-            print str(len(self.warnings)) + ' warning(s) found:'
+            print(str(len(self.warnings)) + ' warning(s) found:')
             for warning in self.warnings:
-                print ' > ' + warning
+                print(' > ' + warning)
         self.reset_job_collection()
 
     def excecute_flow(self, structure):
@@ -389,7 +389,7 @@ class GWSpecs(AbstractAbinitioSpec):
                 data.read_full_res_from_file()
                 if data.full_res['all_done']:
                     done = True
-                    print '| no action needed al is done already'
+                    print('| no action needed al is done already')
             except (IOError, OSError, SyntaxError):
                 pass
 
@@ -400,18 +400,18 @@ class GWSpecs(AbstractAbinitioSpec):
                     #print data.data
                     # determine the parameters that give converged results
                     if len(data.data) == 0:
-                        print '| parm_scr type calculation but no data found.'
+                        print('| parm_scr type calculation but no data found.')
                         break
                     if len(data.data) < 24:
-                        print '| parm_scr type calculation but no complete data found,' \
-                              ' check is all calculations are done.'
+                        print('| parm_scr type calculation but no complete data found,' \
+                              ' check is all calculations are done.')
                         break
 
                     if data.find_conv_pars_scf('ecut', 'full_width', self['tol'])[0]:
-                        print '| parm_scr type calculation, converged scf values found'
+                        print('| parm_scr type calculation, converged scf values found')
                         #print data.conv_res
                     else:
-                        print '| parm_scr type calculation, no converged scf values found'
+                        print('| parm_scr type calculation, no converged scf values found')
                         data.full_res.update({'remark': 'No converged SCf parameter found. '
                                                                              'Solution not implemented.'})
                         data.print_full_res()
@@ -421,10 +421,10 @@ class GWSpecs(AbstractAbinitioSpec):
                     # if converged ok, if not increase the grid parameter of the next set of calculations
                     extrapolated = data.find_conv_pars(self['tol'])
                     if data.conv_res['control']['nbands']:
-                        print '| parm_scr type calculation, converged values found, extrapolated value: %s' %\
-                              extrapolated[4]
+                        print('| parm_scr type calculation, converged values found, extrapolated value: %s' %\
+                              extrapolated[4])
                     else:
-                        print '| parm_scr type calculation, no converged values found, increasing grid'
+                        print('| parm_scr type calculation, no converged values found, increasing grid')
                         data.full_res['grid'] += 1
                     data.print_full_res()
                     data.print_conv_res()
@@ -435,18 +435,18 @@ class GWSpecs(AbstractAbinitioSpec):
                     done = True
                 elif data.type['full']:
                     if not data.read_conv_res_from_file(s_name(structure)+'.conv_res'):
-                        print '| Full type calculation but the conv_res file is not available, trying to reconstruct'
+                        print('| Full type calculation but the conv_res file is not available, trying to reconstruct')
                         data.read()
                         data.find_conv_pars(self['tol'])
                         data.print_conv_res()
                     data.read(subset='.conv')
                     if len(data.data) == 0:
-                        print '| Full type calculation but no data found.'
+                        print('| Full type calculation but no data found.')
                         done = True
                     if len(data.data) < 4:
-                        print '| Full type calculation but no complete data found.'
+                        print('| Full type calculation but no complete data found.')
                         for item in data.data:
-                            print item
+                            print(item)
                         done = True
                     if data.test_full_kp_results(tol_rel=1, tol_abs=0.001):
                         print '| Full type calculation and the full results agree with the parm_scr.' \
@@ -457,9 +457,9 @@ class GWSpecs(AbstractAbinitioSpec):
                         #data.print_plot_data()
                         self.code_interface.store_results(name=s_name(structure))
                     else:
-                        print '| Full type calculation but the full results do not agree with the parm_scr.'
-                        print '|   Increase the tol to find beter converged parameters and test the full grid again.'
-                        print '|   TODO'
+                        print('| Full type calculation but the full results do not agree with the parm_scr.')
+                        print('|   Increase the tol to find beter converged parameters and test the full grid again.')
+                        print('|   TODO')
                         # read the system specific tol for System.conv_res
                         # if it's not there create it from the global tol
                         # reduce tol
@@ -515,7 +515,7 @@ class GWSpecs(AbstractAbinitioSpec):
                      'spec_hash': hash(self),
                      'extra_vars_hash': hash(None) if extra is None else hash(frozenset(extra.items())),
                      'ps': ps}
-            print 'query:', query
+            print('query:', query)
             entry = copy.deepcopy(query)
             entry.update({'conv_res': data.conv_res,
                           'spec': self.to_dict(),
@@ -539,7 +539,7 @@ class GWSpecs(AbstractAbinitioSpec):
             db = local_serv[db_name]
             db.authenticate(user, pwd)
             col = db[collection]
-            print col
+            print(col)
             gfs = gridfs.GridFS(db)
             count = col.find(query).count()
             if count == 0:
@@ -547,43 +547,43 @@ class GWSpecs(AbstractAbinitioSpec):
                     with open(entry['results_file'], 'r') as f:
                         entry['results_file'] = gfs.put(f.read())
                 except IOError:
-                    print entry['results_file'], 'not found'
+                    print(entry['results_file'], 'not found')
                 try:
                     with open(entry['data_file'], 'r') as f:
                         entry['data_file'] = gfs.put(f.read())
                 except IOError:
-                    print entry['data_file'], 'not found'
+                    print(entry['data_file'], 'not found')
                 col.insert(entry)
-                print 'inserted', s_name(structure)
+                print('inserted', s_name(structure))
             elif count == 1:
                 new_entry = col.find_one(query)
                 try:
-                    print 'removing file ', new_entry['results_file'], 'from db'
+                    print('removing file ', new_entry['results_file'], 'from db')
                     gfs.remove(new_entry['results_file'])
                 except:
-                    print 'remove failed'
+                    print('remove failed')
                 try:
-                    print 'removing file ', new_entry['data_file'], 'from db'
+                    print('removing file ', new_entry['data_file'], 'from db')
                     gfs.remove(new_entry['data_file'])
                 except:
-                    print 'remove failed'
+                    print('remove failed')
                 new_entry.update(entry)
-                print 'adding', new_entry['results_file'], new_entry['data_file']
+                print('adding', new_entry['results_file'], new_entry['data_file'])
                 try:
                     with open(new_entry['results_file'], 'r') as f:
                         new_entry['results_file'] = gfs.put(f.read())
                 except IOError:
-                    print new_entry['results_file'], 'not found'
+                    print(new_entry['results_file'], 'not found')
                 try:
                     with open(new_entry['data_file'], 'r') as f:
                         new_entry['data_file'] = gfs.put(f.read())
                 except IOError:
-                    print new_entry['data_file'], 'not found'
-                print 'as ', new_entry['results_file'], new_entry['data_file']
+                    print(new_entry['data_file'], 'not found')
+                print('as ', new_entry['results_file'], new_entry['data_file'])
                 col.save(new_entry)
-                print 'updated', s_name(structure)
+                print('updated', s_name(structure))
             else:
-                print 'duplicate entry ... '
+                print('duplicate entry ... ')
             local_serv.disconnect()
             # end generic section
 
@@ -608,18 +608,18 @@ class GWConvergenceData():
         """
         Read the results of a previous parameter screening set of calculations from file
         """
-        print 'reading'
+        print('reading')
         success = False
         try:
             f = open(filename, mode='r')
             self.conv_res = ast.literal_eval(f.read())
             f.close()
             success = True
-            print self.conv_res
+            print(self.conv_res)
         except SyntaxError:
-            print 'Problems reading ', filename
+            print('Problems reading ', filename)
         except (OSError, IOError):
-            print 'Inputfile ', filename, ' not found.'
+            print('Inputfile ', filename, ' not found.')
         return success
 
     def read_full_res_from_file(self):
@@ -634,9 +634,9 @@ class GWConvergenceData():
             f.close()
             success = True
         except SyntaxError:
-            print 'Problems reading ', filename
+            print('Problems reading ', filename)
         except (OSError, IOError):
-            print 'Inputfile ', filename, ' not found.'
+            print('Inputfile ', filename, ' not found.')
         return success
 
     def read(self, subset=''):
@@ -684,7 +684,7 @@ class GWConvergenceData():
             self.type['test'] = True
         else:
             self.type['single'] = True
-        print self.type
+        print(self.type)
 
     def find_conv_pars(self, tol=0.0001):
         """
@@ -707,7 +707,7 @@ class GWConvergenceData():
         ys = self.get_var_range('ecuteps')
         zd = self.get_data_array()
         for z in zd:
-            print z
+            print(z)
         # print 'plot "'+self.name+'condat'+'"'
         for x in xs:
             zs = []
@@ -757,19 +757,19 @@ class GWConvergenceData():
         """
         test if the slopes of the gap data at the full kp mesh are 'comparable' to those of the low kp mesh
         """
-        print 'test full kp results'
+        print('test full kp results')
         self.read_conv_res_from_file(self.name+'.conv_res')
         nbs = self.get_var_range('nbands')
         ecs = self.get_var_range('ecuteps')
         zd = self.get_data_array()
         nb_slope = (zd[nbs[-1]][ecs[-1]] - zd[nbs[0]][ecs[-1]]) / (nbs[-1] - nbs[0])
         ec_slope = (zd[nbs[-1]][ecs[-1]] - zd[nbs[-1]][ecs[0]]) / (ecs[-1] - ecs[0])
-        print '        parm_scan   full'
+        print('        parm_scan   full')
         lnb = abs(nb_slope) < (1 + tol_rel) * abs(self.conv_res['derivatives']['nbands']) or abs(nb_slope) < tol_abs
-        print 'nbands  %0.5f     %0.5f %r' % (abs(self.conv_res['derivatives']['nbands']), abs(nb_slope), lnb)
+        print('nbands  %0.5f     %0.5f %r' % (abs(self.conv_res['derivatives']['nbands']), abs(nb_slope), lnb))
         lec = abs(ec_slope) < (1 + tol_rel) * abs(self.conv_res['derivatives']['ecuteps']) or abs(ec_slope) < tol_abs
-        print 'ecuteps %0.5f     %0.5f %r' % (abs(self.conv_res['derivatives']['ecuteps']), abs(ec_slope), lec)
-        print 'values: (nb, ec, gap)', nbs[0], ecs[0], zd[nbs[0]][ecs[0]]
+        print('ecuteps %0.5f     %0.5f %r' % (abs(self.conv_res['derivatives']['ecuteps']), abs(ec_slope), lec))
+        print('values: (nb, ec, gap)', nbs[0], ecs[0], zd[nbs[0]][ecs[0]])
         if lnb and lec:
             return True
         else:
@@ -841,10 +841,9 @@ class GWConvergenceData():
                        str(self.conv_res['values']['gap']), ' "', "' w p\n")
         else:
             string2 = "%s%s%s" % ("splot '", self.name, ".data' u 1:2:3 w pm3d\n")
-        f = open(filename, mode='a')
-        f.write(string1)
-        f.write(string2)
-        f.close()
+        with open(filename, mode='a') as f:
+            f.write(string1)
+            f.write(string2)
 
     def print_plot_data(self):
         """
@@ -887,7 +886,7 @@ class GWConvergenceData():
         """
         print the results of full calculation to fiule
         """
-        print self.full_res
+        print(self.full_res)
         filename = self.name + '.full_res'
         f = open(filename, mode='w')
         string = str(self.full_res)
