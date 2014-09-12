@@ -618,9 +618,9 @@ class AbinitFlow(Node):
             num_cancelled += task.cancel()
 
         return num_cancelled
-
-	def rmtree(self, ignore_errors=False, onerror=None):
-		"""Remove workdir (same API as shtul.rmtree."""
+    
+    def rmtree(self, ignore_errors=False, onerror=None):
+		"""Remove workdir (same API as shutil.rmtree)."""
 		shutil.rmtree(self.workdir, ignore_errors=ignore_errors, onerror=onerror)
 
     def build(self, *args, **kwargs):
