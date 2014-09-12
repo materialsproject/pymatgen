@@ -31,8 +31,8 @@ as bug reports. Please report any bugs and issues at pymatgen's `Github page
 of pymatgen releases, you may become a member of `pymatgen's Google Groups page
 <https://groups.google.com/forum/?fromgroups#!forum/pymatgen/>`_.
 
-:sup:`*new*` Python 3 support
-=============================
+Python 2.7-3 support
+====================
 
 .. versionadded:: 3.0
 
@@ -44,8 +44,15 @@ Richards) has removed the dependency on PyCIFRW.
 
 With the release of a new major version, we are taking the opportunity to
 streamline and cleanup some of the code, which introduces some backwards
-incompatibilities. Please review the change log carefully to note what have
-been changed.
+incompatibilities. The major ones are listed below:
+
+* The to_dict property of all classes have been deprecated in favor of the
+  as_dict() method protocol in the monty package. The to_dict property will
+  be available only up till the next minor version, i.e., v3.1.
+* All previously deprecated methods and modules (e.g.,
+  pymatgen.core.structure_editor) have been removed.
+
+Please review the change log carefully.
 
 Why use pymatgen?
 =================
