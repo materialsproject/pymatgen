@@ -30,7 +30,8 @@ from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.gwwrapper.helpers import is_converged, read_grid_from_file, s_name, expand_tests, store_conv_results
 from pymatgen.io.gwwrapper.GWvaspinputsets import SingleVaspGWWork
-from pymatgen.io.gwwrapper.GWworkflows import VaspGWFWWorkFlow, SingleAbinitGWWorkFlow
+from pymatgen.io.gwwrapper.GWworkflows import VaspGWFWWorkFlow
+from pymatgen.io.gwwrapper.GWworkflows import SingleAbinitGWWorkFlow
 from pymatgen.io.gwwrapper.GWvaspinputsets import GWscDFTPrepVaspInputSet, GWDFTDiagVaspInputSet, \
     GWG0W0VaspInputSet
 
@@ -310,7 +311,7 @@ class AbinitInterface(AbstractCodeInterface):
 
     @property
     def gw_data_file(self):
-        return 'SIGRES.nc'
+        return 'out_SIGRES.nc'
 
     def read_ps_dir(self):
         location = os.environ['ABINIT_PS']
@@ -406,8 +407,9 @@ class AbinitInterface(AbstractCodeInterface):
     def store_results(self, name):
         folder = name + '.res'
         store_conv_results(name, folder)
+        w = 'w' + str(read_grid_from_file(name+".full_res")['grid'])
         try:
-            shutil.copyfile(os.path.join(name+".conv", "w0", "t6", "outdata", "out_SIGRES.nc"),
+            shutil.copyfile(os.path.join(name+".conv", w, "t6", "outdata", "out_SIGRES.nc"),
                         os.path.join(folder, "out_SIGRES.nc"))
         except:  # compatibility issue
             shutil.copyfile(os.path.join(name+".conv", "work_0", "task_6", "outdata", "out_SIGRES.nc"),

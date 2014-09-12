@@ -788,6 +788,7 @@ class PbsAdapter(AbstractQueueAdapter):
 #PBS -W group_list=$${group_list}
 #PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
 #PBS -l pvmem=$${pvmem}mb
+#PBS -r y
 ####PBS -l mppwidth=$${mppwidth}
 ####PBS -l nodes=$${nodes}:ppn=$${ppn}  # OLD SYNTAX
 #PBS -o $${_qout_path}
@@ -801,7 +802,7 @@ class PbsAdapter(AbstractQueueAdapter):
         currently hard coded, should be read at init
         the increase functions will not increase beyond thise limits
         """
-        return {'max_total_tasks': 3888, 'time': 48, 'max_select': 120}
+        return {'max_total_tasks': 3888, 'time': 48, 'max_select': 240}
 
     @property
     def mpi_ncpus(self):
@@ -867,31 +868,32 @@ class PbsAdapter(AbstractQueueAdapter):
             username = getpass.getuser()
 
         # run qstat
-        qstat = Command(['qstat', '-a', '-u', username])
-        process = qstat.run(timeout=5)
+        try:
+            qstat = Command(['qstat', '-a', '-u', username])
+            process = qstat.run(timeout=5)
 
-        # parse the result
-        if process[0] == 0:
-            # lines should have this form
-            # '1339044.sdb          username  queuename    2012-02-29-16-43  20460   --   --    --  00:20 C 00:09'
-            # count lines that include the username in it
+            # parse the result
+            if process[0] == 0:
+                # lines should have this form
+                # '1339044.sdb          username  queuename    2012-02-29-16-43  20460   --   --    --  00:20 C 00:09'
+                # count lines that include the username in it
 
-            # TODO: only count running or queued jobs. or rather, *don't* count jobs that are 'C'.
-            outs = process[1].split('\n')
-            njobs = len([line.split() for line in outs if username in line])
-            logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
+                # TODO: only count running or queued jobs. or rather, *don't* count jobs that are 'C'.
+                outs = process[1].split('\n')
+                njobs = len([line.split() for line in outs if username in line])
+                logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
 
-            return njobs
+                return njobs
+        except:
+            # there's a problem talking to qstat server?
+            print(' ** ')
+            print(process[1].split('\n'))
+            err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' +
+                       'The error response reads: {}'.format(process[2]))
+            print(' ** ')
+            logger.critical(err_msg)
 
-        # there's a problem talking to qstat server?
-        print(' ** ')
-        print(process[1].split('\n'))
-        err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' +
-                   'The error response reads: {}'.format(process[2]))
-        print(' ** ')
-        logger.critical(err_msg)
-
-        return None
+            return None
 
     # no need to raise an error, if False is returned the fixer may try something else, we don't need to kill the
     # scheduler just yet

@@ -13,6 +13,12 @@ from monty.dev import deprecated
 from pymatgen.core.design_patterns import AttrDict
 from pymatgen.util.string_utils import is_string
 
+try:
+    import apscheduler
+    has_sched_v3 = apscheduler.version >= "3.0.0"
+except ImportError:
+    pass
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -295,6 +301,13 @@ class PyLauncher(object):
                 print('Cannot get njobs_inqueue, going back to sleep')
                 continue
 
+            #if len(tasks) > 0:
+            #    n_jobs_in_queue = tasks[0].manager.qadapter.get_njobs_in_queue()
+            #    if n_jobs_in_queue is None:
+            #        n_jobs_in_queue = 0
+            #    n_to_run = self.max_jobs - n_jobs_in_queue
+            #else:
+            #    n_to_run = 0
 
             rest = self.max_njobs_inqueue - njobs_inqueue
             if rest <= 0:
@@ -441,13 +454,12 @@ class PyFlowScheduler(object):
         if kwargs:
             raise self.Error("Unknown arguments %s" % kwargs)
 
-        # V2
-        from apscheduler.scheduler import Scheduler
-        self.sched = Scheduler(standalone=True)
-
-        # V3
-        #from apscheduler.schedulers.blocking import BlockingScheduler
-        #self.sched = BlockingScheduler()
+        if has_sched_v3:
+            from apscheduler.schedulers.blocking import BlockingScheduler
+            self.sched = BlockingScheduler()
+        else:
+            from apscheduler.scheduler import Scheduler
+            self.sched = Scheduler(standalone=True)
 
         self.nlaunch = 0
         self.num_reminders = 1
@@ -581,11 +593,11 @@ class PyFlowScheduler(object):
         self.history.append("Started on %s" % time.asctime())
         self.start_time = time.time()
 
-        # V2
-        self.sched.add_interval_job(self.callback, **self.sched_options)
+        if has_sched_v3:
+            self.sched.add_job(self.callback, 'interval', **self.sched_options)
+        else:
+            self.sched.add_interval_job(self.callback, **self.sched_options)
 
-        # V3
-        #self.sched.add_job(self.callback, 'interval', **self.sched_options)
 
         # Try to run the job immediately. If something goes wrong
         # return without initializing the scheduler.
