@@ -5,6 +5,7 @@ machine:
     version: 3.4.1
 dependencies:
   override:
+    - easy_install -U setuptools
     - pip install -q numpy
     - pip install -r requirements.txt
     - pip install -r requirements-optional.txt
