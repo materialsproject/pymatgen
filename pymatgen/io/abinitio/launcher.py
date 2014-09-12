@@ -448,11 +448,11 @@ class PyFlowScheduler(object):
         if kwargs:
             raise self.Error("Unknown arguments %s" % kwargs)
 
-        #from apscheduler.scheduler import Scheduler
-        #self.sched = Scheduler(standalone=True)
+        from apscheduler.scheduler import Scheduler
+        self.sched = Scheduler(standalone=True)
 
-        from apscheduler.schedulers.blocking import BlockingScheduler
-        self.sched = BlockingScheduler()
+        #from apscheduler.schedulers.blocking import BlockingScheduler
+        #self.sched = BlockingScheduler()
 
         self.nlaunch = 0
         self.num_reminders = 1
