@@ -123,7 +123,7 @@ class BabelMolAdaptor(object):
             file_format: String specifying any OpenBabel supported formats.
         """
         mol = pb.Molecule(self._obmol)
-        mol.write(file_format, filename, overwrite=True)
+        return mol.write(file_format, filename, overwrite=True)
 
     @staticmethod
     def from_file(filename, file_format="xyz"):

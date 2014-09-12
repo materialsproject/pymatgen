@@ -4,8 +4,6 @@ periodic structure.
 """
 
 from __future__ import division
-from six.moves import map
-from six.moves import zip
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -30,6 +28,7 @@ import re
 import numpy as np
 
 import six
+from six.moves import map, zip
 
 from fractions import gcd
 from pymatgen.core.operations import SymmOp
@@ -1566,10 +1565,8 @@ class IMolecule(SiteCollection, PMGSONable):
         from pymatgen.io.gaussianio import GaussianInput
         from pymatgen.io.babelio import BabelMolAdaptor
 
-        filename = filename or ""
         fmt = "" if fmt is None else fmt.lower()
-        fname = os.path.basename(filename)
-
+        fname = os.path.basename(filename or "")
         if fmt == "xyz" or fnmatch(fname.lower(), "*.xyz*"):
             writer = XYZ(self)
         elif any([fmt == r or fnmatch(fname.lower(), "*.{}*".format(r))
@@ -1584,10 +1581,11 @@ class IMolecule(SiteCollection, PMGSONable):
                 return json.dumps(self.as_dict())
         else:
             m = re.search("\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
-                          filename.lower())
+                          fname.lower())
             if (not fmt) and m:
                 fmt = m.group(1)
-            writer = BabelMolAdaptor(self, fmt)
+            writer = BabelMolAdaptor(self)
+            return writer.write_file(filename, file_format=fmt)
 
         if filename:
             writer.write_file(filename)
