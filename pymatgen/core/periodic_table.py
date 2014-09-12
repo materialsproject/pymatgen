@@ -28,11 +28,26 @@ with open(os.path.join(os.path.dirname(__file__), "periodic_table.json")) as f:
 
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 
+_MAXZ = 119
+
 # List with the correspondence Z --> Symbol
 # We use a list instead of a mapping so that we can select slices easily.
-_z2symbol = 119 * [None]
+_z2symbol = _MAXZ * [None]
 for (symbol, data) in _pt_data.items():
     _z2symbol[data["Atomic no"]] = symbol
+
+
+def all_symbols():
+    """tuple with element symbols ordered by Z."""
+    # Break when we get None as we don't want to have None in a list of strings.
+    symbols = []
+    for z in range(1, _MAXZ+1):
+        s = symbol_from_Z(z)
+        if s is None:
+            break
+        symbols.append(s)
+
+    return tuple(symbols)
 
 
 def symbol_from_Z(z):
@@ -43,6 +58,22 @@ def symbol_from_Z(z):
         z (int): Atomic number or slice object
     """
     return _z2symbol[z]
+
+
+_CHARS2L = {
+    "s": 0,
+    "p": 1,
+    "d": 2,
+    "f": 3,
+    "g": 4,
+    "h": 5,
+    "i": 6,
+}
+
+
+def char2l(char):
+    """Concert a character (s, p, d ..) into the angular momentum l (int)."""
+    return _CHARS2L[char]
 
 
 ALL_ELEMENT_SYMBOLS = set(_pt_data.keys())
@@ -457,7 +488,7 @@ class Element(object):
         for sym, data in _pt_data.items():
             if data["Atomic no"] == z:
                 return Element(sym)
-        raise ValueError("No element with this atomic number")
+        raise ValueError("No element with this atomic number %s" % z)
 
     @staticmethod
     def from_row_and_group(row, group):

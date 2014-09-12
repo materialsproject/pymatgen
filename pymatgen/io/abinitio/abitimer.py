@@ -8,7 +8,7 @@ import sys
 import collections
 import numpy as np
 
-from pymatgen.util.string_utils import pprint_table, is_string, list_strings
+from pymatgen.util.string_utils import is_string, list_strings
 
 import logging
 from six.moves import zip
@@ -91,7 +91,7 @@ class AbinitTimerParser(collections.Iterable):
                 read_ok.append(fname)
 
             except self.Error as e:
-                logger.warning("exception while parsing file %s :\n%s"  % (fname, str(e)))
+                logger.warning("exception while parsing file %s:\n%s" % (fname, str(e)))
                 continue
 
             finally:
@@ -110,8 +110,8 @@ class AbinitTimerParser(collections.Iterable):
 
         def parse_line(line):
             name, vals = line[:25], line[25:].split()
-            (cpu_time, cpu_fract, wall_time, wall_fract, ncalls, gflops) = vals
-            return AbinitTimerSection(name, cpu_time, cpu_fract, wall_time, wall_fract, ncalls, gflops)
+            ctime, cfract, wtime, wfract, ncalls, gflops = vals
+            return AbinitTimerSection(name, ctime, cfract, wtime, wfract, ncalls, gflops)
 
         inside, has_timer = 0, False
         for line in fh:
@@ -119,7 +119,7 @@ class AbinitTimerParser(collections.Iterable):
             if line.startswith(self.BEGIN_TAG):
                 has_timer = True
                 sections = []
-                info = dict()
+                info = {}
                 inside = 1
                 line = line[len(self.BEGIN_TAG):].strip()[:-1]
 
@@ -154,8 +154,6 @@ class AbinitTimerParser(collections.Iterable):
                         parse_line(line)
                     except:
                         parser_failed = True
-                    else:
-                        parser_failed = False
 
                     if not parser_failed:
                         raise self.Error("line should be empty: " + str(inside) + line)
@@ -265,12 +263,11 @@ class AbinitTimerParser(collections.Iterable):
     def show_efficiency(self, key="wall_time", what="gb", nmax=5, **kwargs):
         import matplotlib.pyplot as plt
 
-        title = kwargs.pop("title", None)
+        title = kwargs.pop("title", "Parallel efficiency")
         show = kwargs.pop("show", True)
         savefig = kwargs.pop("savefig", None)
 
         timers = self.timers()
-
         peff = self.pefficiency()
 
         # Table with the parallel efficiency for all the sections.
@@ -314,7 +311,7 @@ class AbinitTimerParser(collections.Iterable):
 
         ax.legend(lines, legend_entries, loc="best", shadow=True)
 
-        ax.set_title('Parallel efficiency')
+        ax.set_title(title)
         ax.set_xlabel('Total_NCPUs')
         ax.set_ylabel('Efficiency')
         ax.grid(True)
@@ -431,6 +428,7 @@ class AbinitTimerParser(collections.Iterable):
 
 
 class ParallelEfficiency(dict):
+
     def __init__(self, filenames, ref_idx, *args, **kwargs):
         self.update(*args, **kwargs)
         self.filenames = filenames
@@ -662,7 +660,7 @@ class AbinitTimer(object):
             nandv.sort(key=fsort)
             new_names, new_values = [n[0] for n in nandv], [n[1] for n in nandv]
 
-        return (new_names, new_values)
+        return new_names, new_values
 
     def _reduce_sections(self, keys, operator):
         return operator(self.get_values(keys))
@@ -776,7 +774,7 @@ class AbinitTimer(object):
         # now determine nice limits by hand:
         binwidth = 0.25
         xymax = np.max([np.max(np.fabs(x)), np.max(np.fabs(y))])
-        lim = ( int(xymax / binwidth) + 1) * binwidth
+        lim = (int(xymax / binwidth) + 1) * binwidth
 
         bins = np.arange(-lim, lim + binwidth, binwidth)
         axHistx.hist(x, bins=bins)

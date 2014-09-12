@@ -116,6 +116,11 @@ class ElementTestCase(unittest.TestCase):
         els = [Element("Se"), Element("C")]
         self.assertEqual(sorted(els), [Element("C"), Element("Se")])
 
+    def test_pickle(self):
+        el1 = Element("Fe")
+        o = pickle.dumps(el1)
+        self.assertEqual(el1, pickle.loads(o))
+
 
 class SpecieTestCase(unittest.TestCase):
 
@@ -213,7 +218,7 @@ class DummySpecieTestCase(unittest.TestCase):
         self.assertEqual(sp.oxi_state, 2)
 
     def test_pickle(self):
-        el1 = Specie("Fe", 3)
+        el1 = DummySpecie("X", 3)
         o = pickle.dumps(el1)
         self.assertEqual(el1, pickle.loads(o))
 
