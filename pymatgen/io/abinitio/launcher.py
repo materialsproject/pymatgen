@@ -586,8 +586,8 @@ class PyFlowScheduler(object):
         self.history.append("Started on %s" % time.asctime())
         self.start_time = time.time()
 
-        #self.sched.add_interval_job(self.callback, **self.sched_options)
-        self.sched.add_job(self.callback, 'interval', **self.sched_options)
+        self.sched.add_interval_job(self.callback, **self.sched_options)
+        #self.sched.add_job(self.callback, 'interval', **self.sched_options)
 
         # Try to run the job immediately. If something goes wrong
         # return without initializing the scheduler.
