@@ -9,6 +9,7 @@ from pymatgen.core.structure import IStructure, Structure, IMolecule, \
 from pymatgen.core.lattice import Lattice
 import random
 import warnings
+import os
 
 
 class IStructureTest(PymatgenTest):
@@ -277,6 +278,21 @@ class IStructureTest(PymatgenTest):
                [2.3516318, 0.]]
         self.assertArrayAlmostEqual(self.struct.distance_matrix, ans)
 
+    def test_to_from_file_string(self):
+        for fmt in ["cif", "json", "poscar", "cssr"]:
+            s = self.struct.to(fmt=fmt)
+            self.assertIsNotNone(s)
+            ss = IStructure.from_str(s, fmt=fmt)
+            self.assertArrayAlmostEqual(
+                ss.lattice.lengths_and_angles,
+                self.struct.lattice.lengths_and_angles, decimal=5)
+            self.assertArrayAlmostEqual(ss.frac_coords, self.struct.frac_coords)
+            self.assertIsInstance(ss, IStructure)
+
+        self.struct.to(filename="POSCAR.testing")
+        self.assertTrue(os.path.exists("POSCAR.testing"))
+        os.remove("POSCAR.testing")
+
 
 class StructureTest(PymatgenTest):
 
@@ -515,6 +531,22 @@ class StructureTest(PymatgenTest):
                 'Not all sites have property magmom. Missing values are set '
                 'to None.')
 
+    def test_to_from_file_string(self):
+        for fmt in ["cif", "json", "poscar", "cssr"]:
+            s = self.structure.to(fmt=fmt)
+            self.assertIsNotNone(s)
+            ss = Structure.from_str(s, fmt=fmt)
+            self.assertArrayAlmostEqual(
+                ss.lattice.lengths_and_angles,
+                self.structure.lattice.lengths_and_angles, decimal=5)
+            self.assertArrayAlmostEqual(ss.frac_coords,
+                                        self.structure.frac_coords)
+            self.assertIsInstance(ss, Structure)
+
+        self.structure.to(filename="POSCAR.testing")
+        self.assertTrue(os.path.exists("POSCAR.testing"))
+        os.remove("POSCAR.testing")
+
 
 class IMoleculeTest(PymatgenTest):
 
@@ -671,6 +703,19 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(mol.formula, "H4 C1")
         self.assertEqual(mol.charge, 1)
 
+    def test_to_from_file_string(self):
+        for fmt in ["xyz", "json", "g03"]:
+            s = self.mol.to(fmt=fmt)
+            self.assertIsNotNone(s)
+            m = IMolecule.from_str(s, fmt=fmt)
+            self.assertEqual(m, self.mol)
+            self.assertIsInstance(m, IMolecule)
+
+        self.mol.to(filename="CH4_testing.xyz")
+        self.assertTrue(os.path.exists("CH4_testing.xyz"))
+        os.remove("CH4_testing.xyz")
+
+
 class MoleculeTest(PymatgenTest):
 
     def setUp(self):
@@ -794,6 +839,19 @@ class MoleculeTest(PymatgenTest):
         self.assertEqual(benzene.formula, "H8 C7")
         #Carbon attached should be in plane.
         self.assertAlmostEqual(benzene[11].coords[2], 0)
+
+    def test_to_from_file_string(self):
+        for fmt in ["xyz", "json", "g03"]:
+            s = self.mol.to(fmt=fmt)
+            self.assertIsNotNone(s)
+            m = Molecule.from_str(s, fmt=fmt)
+            self.assertEqual(m, self.mol)
+            self.assertIsInstance(m, Molecule)
+
+        self.mol.to(filename="CH4_testing.xyz")
+        self.assertTrue(os.path.exists("CH4_testing.xyz"))
+        os.remove("CH4_testing.xyz")
+
 
 if __name__ == '__main__':
     import unittest

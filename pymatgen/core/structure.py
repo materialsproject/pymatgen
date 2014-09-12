@@ -24,6 +24,8 @@ import itertools
 from abc import ABCMeta, abstractmethod, abstractproperty
 import random
 import warnings
+from fnmatch import fnmatch
+import re
 
 import numpy as np
 
@@ -40,9 +42,10 @@ from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_angle, all_distances
 from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length
+from monty.io import zopen
 
 
-class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
+class SiteCollection(object, collections.Sequence, six.with_metaclass(ABCMeta)):
     """
     Basic SiteCollection. Essentially a sequence of Sites or PeriodicSites.
     This serves as a base class for Molecule (a collection of Site, i.e., no
@@ -285,6 +288,30 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
             return True
         all_dists = self.distance_matrix[np.triu_indices(len(self), 1)]
         return bool(np.min(all_dists) > tol)
+
+    @abstractmethod
+    def to(self, fmt=None, filename=None):
+        """
+        Generates well-known string representations of SiteCollections (e.g.,
+        molecules / structures). Should return a string type or write to a file.
+        """
+        pass
+
+    @classmethod
+    @abstractmethod
+    def from_str(cls, input_string, fmt):
+        """
+        Reads in SiteCollection from a string.
+        """
+        pass
+
+    @classmethod
+    @abstractmethod
+    def from_file(cls, filename):
+        """
+        Reads in SiteCollection from a filename.
+        """
+        pass
 
 
 class IStructure(SiteCollection, PMGSONable):
@@ -1001,6 +1028,98 @@ class IStructure(SiteCollection, PMGSONable):
         return np.sqrt(self.dot(coords, coords, space=space,
                                 frac_coords=frac_coords))
 
+    def to(self, fmt=None, filename=None):
+        """
+        Outputs the structure to a file or string.
+
+        Args:
+            fmt (str): Format to output to. Defaults to JSON unless filename
+                is provided. If fmt is specifies, it overrides whatever the
+                filename is. Options include "cif", "poscar", "cssr", "json".
+                Non-case sensitive.
+            filename (str): If provided, output will be written to a file. If
+                fmt is not specified, the format is determined from the
+                filename. Defaults is None, i.e. string output.
+
+        Returns:
+            (str) if filename is None. None otherwise.
+        """
+        from pymatgen.io.cifio import CifWriter
+        from pymatgen.io.vaspio import Poscar
+        from pymatgen.io.cssrio import Cssr
+        filename = filename or ""
+        fmt = "" if fmt is None else fmt.lower()
+        fname = os.path.basename(filename)
+
+        if fmt == "cif" or fnmatch(fname, "*.cif*"):
+            writer = CifWriter(self)
+        elif fmt == "poscar" or fnmatch(fname, "POSCAR*"):
+            writer = Poscar(self)
+        elif fmt == "cssr" or fnmatch(fname.lower(), "*.cssr*"):
+            writer = Cssr(self)
+        else:
+            if filename:
+                with zopen(filename, "w") as f:
+                    json.dump(self.as_dict(), f)
+            else:
+                return json.dumps(self.as_dict())
+
+        if filename:
+            writer.write_file(filename)
+        else:
+            return str(writer)
+
+    @classmethod
+    def from_str(cls, input_string, fmt, primitive=False, sort=False):
+        """
+        Reads a structure from a string.
+
+        Args:
+            input_string (str): String to parse.
+            fmt (str): A format specification.
+
+        Returns:
+            IStructure / Structure
+        """
+        from pymatgen.io.cifio import CifParser
+        from pymatgen.io.vaspio import Poscar
+        from pymatgen.io.cssrio import Cssr
+        if fmt.lower() == "cif":
+            parser = CifParser.from_string(input_string)
+            s = parser.get_structures(primitive=primitive)[0]
+        elif fmt.lower() == "poscar":
+            s = Poscar.from_string(input_string, False).structure
+        elif fmt.lower() == "cssr":
+            cssr = Cssr.from_string(input_string)
+            s = cssr.structure
+        elif fmt.lower() == "json":
+            d = json.loads(input_string)
+            s = cls.from_dict(d)
+        else:
+            raise ValueError("Unrecognized format!")
+
+        if sort:
+            s = s.get_sorted_structure()
+        return cls.from_sites(s)
+
+    @classmethod
+    def from_file(cls, filename, primitive=True, sort=False):
+        """
+        Reads a structure from a file.
+
+        Args:
+            filename (str): The filename to read from.
+            primitive (bool): Whether to convert to a primitive cell for cifs.
+                Defaults to False.
+            sort (bool): Whether to sort sites. Default to False.
+
+        Returns:
+            Structure.
+        """
+        from pymatgen.io.smartio import read_structure
+        return cls.from_sites(read_structure(filename, primitive=primitive,
+                                             sort=sort))
+
 
 class IMolecule(SiteCollection, PMGSONable):
     """
@@ -1425,6 +1544,100 @@ class IMolecule(SiteCollection, PMGSONable):
                               charge=self._charge,
                               spin_multiplicity=self._spin_multiplicity,
                               site_properties=self.site_properties)
+
+    def to(self, fmt=None, filename=None):
+        """
+        Outputs the molecule to a file or string.
+
+        Args:
+            fmt (str): Format to output to. Defaults to JSON unless filename
+                is provided. If fmt is specifies, it overrides whatever the
+                filename is. Options include "xyz", "gjf", "g03", "json". If
+                you have OpenBabel installed, any of the formats supported by
+                OpenBabel. Non-case sensitive.
+            filename (str): If provided, output will be written to a file. If
+                fmt is not specified, the format is determined from the
+                filename. Defaults is None, i.e. string output.
+
+        Returns:
+            (str) if filename is None. None otherwise.
+        """
+        from pymatgen.io.xyzio import XYZ
+        from pymatgen.io.gaussianio import GaussianInput
+        from pymatgen.io.babelio import BabelMolAdaptor
+
+        filename = filename or ""
+        fmt = "" if fmt is None else fmt.lower()
+        fname = os.path.basename(filename)
+
+        if fmt == "xyz" or fnmatch(fname.lower(), "*.xyz*"):
+            writer = XYZ(self)
+        elif any([fmt == r or fnmatch(fname.lower(), "*.{}*".format(r))
+                  for r in ["gjf", "g03", "g09", "com", "inp"]]):
+            writer = GaussianInput(self)
+        elif fmt == "json" or fnmatch(fname, "*.json*") or fnmatch(fname,
+                                                                  "*.mson*"):
+            if filename:
+                with zopen(filename, "w") as f:
+                    json.dump(self.as_dict(), f)
+            else:
+                return json.dumps(self.as_dict())
+        else:
+            m = re.search("\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
+                          filename.lower())
+            if (not fmt) and m:
+                fmt = m.group(1)
+            writer = BabelMolAdaptor(self, fmt)
+
+        if filename:
+            writer.write_file(filename)
+        else:
+            return str(writer)
+
+    @classmethod
+    def from_str(cls, input_string, fmt):
+        """
+        Reads the molecule from a string.
+
+        Args:
+            input_string (str): String to parse.
+            fmt (str): Format to output to. Defaults to JSON unless filename
+                is provided. If fmt is specifies, it overrides whatever the
+                filename is. Options include "xyz", "gjf", "g03", "json". If
+                you have OpenBabel installed, any of the formats supported by
+                OpenBabel. Non-case sensitive.
+
+        Returns:
+            IMolecule or Molecule.
+        """
+        from pymatgen.io.xyzio import XYZ
+        from pymatgen.io.gaussianio import GaussianInput
+        if fmt.lower() == "xyz":
+            m = XYZ.from_string(input_string).molecule
+        elif fmt in ["gjf", "g03", "g09", "com", "inp"]:
+            m = GaussianInput.from_string(input_string).molecule
+        elif fmt == "json":
+            d = json.loads(input_string)
+            return cls.from_dict(d)
+        else:
+            from pymatgen.io.babelio import BabelMolAdaptor
+            m = BabelMolAdaptor.from_string(input_string,
+                                            file_format=fmt).pymatgen_mol
+        return cls.from_sites(m)
+
+    @classmethod
+    def from_file(cls, filename):
+        """
+        Reads a molecule from a file.
+
+        Args:
+            filename (str): The filename to read from.
+
+        Returns:
+            Molecule
+        """
+        from pymatgen.io.smartio import read_mol
+        return cls.from_sites(read_mol(filename))
 
 
 class Structure(IStructure, collections.MutableSequence):
