@@ -7,14 +7,14 @@ from __future__ import division, print_function
 import os.path
 import collections
 import yaml
-from pymatgen.io.abinitio import myaml
 
 from pymatgen.util.string_utils import WildCard
-from pymatgen.io.abinitio.abiinspect import YamlTokenizer, YamlDoc
+from pymatgen.io.abinitio.abiinspect import YamlTokenizer
 
 __all__ = [
     "EventsParser",
 ]
+
 
 def straceback():
     """Returns a string with the traceback."""
@@ -78,12 +78,26 @@ class AbinitEvent(yaml.YAMLObject):
                 Integer giving the line number in src_file.
         """
         self.message = message
-        self.src_file = src_file
-        self.src_line = src_line
+        self._src_file = src_file
+        self._src_line = src_line
 
     def __str__(self):
-        header = "%s:%s" % (self.src_file, self.src_line)
+        header = "%s at %s:%s" % (self.name, self.src_file, self.src_line)
         return "\n".join((header, self.message))
+
+    @property
+    def src_file(self):
+        try:
+            return self._src_file
+        except AttributeError:
+            return "Unknown"
+
+    @property
+    def src_line(self):
+        try:
+            return self._src_line
+        except AttributeError:
+            return "Unknown"
 
     @property
     def name(self):
@@ -97,7 +111,7 @@ class AbinitEvent(yaml.YAMLObject):
             if isinstance(self, cls):
                 return cls
 
-        err_msg = "Cannot determine the base class of %s" % (self.__class__.__name__)
+        err_msg = "Cannot determine the base class of %s" % self.__class__.__name__
         raise ValueError(err_msg)
 
     def action(self):
@@ -109,14 +123,15 @@ class AbinitEvent(yaml.YAMLObject):
         """
         return {}
 
+
 class AbinitComment(AbinitEvent):
     """Base class for Comment events"""
-    yaml_tag = u'!COMMENT'
+    yaml_tag = '!COMMENT'
 
 
 class AbinitError(AbinitEvent):
     """Base class for Error events"""
-    yaml_tag = u'!ERROR'
+    yaml_tag = '!ERROR'
 
 
 class AbinitYamlError(AbinitError):
@@ -125,7 +140,7 @@ class AbinitYamlError(AbinitError):
 
 class AbinitBug(AbinitEvent):
     """Base class for Bug events"""
-    yaml_tag = u'!BUG'
+    yaml_tag = '!BUG'
 
 
 class AbinitWarning(AbinitEvent):
@@ -134,7 +149,7 @@ class AbinitWarning(AbinitEvent):
     Developers should subclass this class to define the different exceptions
     raised by the code and the possible actions that can be performed.
     """
-    yaml_tag = u'!WARNING'
+    yaml_tag = '!WARNING'
 
 
 class AbinitYamlWarning(AbinitWarning):
@@ -145,17 +160,17 @@ class AbinitYamlWarning(AbinitWarning):
 
 class ScfConvergenceWarning(AbinitWarning):
     """Warning raised when the GS SCF cycle did not converge."""
-    yaml_tag = u'!ScfConvergenceWarning'
+    yaml_tag = '!ScfConvergenceWarning'
 
 
 class NscfConvergenceWarning(AbinitWarning):
     """Warning raised when the GS NSCF cycle did not converge."""
-    yaml_tag = u'!NscfConvergenceWarning'
+    yaml_tag = '!NscfConvergenceWarning'
 
 
 class RelaxConvergenceWarning(AbinitWarning):
     """Warning raised when the structural relaxation did not converge."""
-    yaml_tag = u'!RelaxConvergenceWarning'
+    yaml_tag = '!RelaxConvergenceWarning'
 
 
 # TODO: for the time being we don't discern between GS and PhononCalculations.
@@ -166,12 +181,12 @@ class RelaxConvergenceWarning(AbinitWarning):
 
 class QPSConvergenceWarning(AbinitWarning):
     """Warning raised when the QPS iteration (GW) did not converge."""
-    yaml_tag = u'!QPSConvergenceWarning'
+    yaml_tag = '!QPSConvergenceWarning'
 
 
 class HaydockConvergenceWarning(AbinitWarning):
     """Warning raised when the Haydock method (BSE) did not converge."""
-    yaml_tag = u'!HaydockConvergenceWarning'
+    yaml_tag = '!HaydockConvergenceWarning'
 
 
 # Register the concrete base classes.
@@ -236,6 +251,7 @@ class EventReport(collections.Iterable):
         """
         Returns True if the calculation terminated.
         """
+
         try:
             return self._run_completed
         except AttributeError:
@@ -304,8 +320,10 @@ class EventsParser(object):
     """
     Error = EventsParserError
 
-    @staticmethod
-    def parse(filename):
+    # Internal flag used for debugging
+    DEBUG_LEVEL = 0
+
+    def parse(self, filename):
         """
         This is the new parser, it will be used when we implement
         the new format in abinit.
@@ -322,21 +340,23 @@ class EventsParser(object):
             for doc in tokens:
                 #print(80*"*")
                 #print("doc.tag", doc.tag)
-                #print("doc",doc)
+                #print("doc", doc)
                 #print(80*"*")
                 if w.match(doc.tag):
                     #print("got doc.tag", doc.tag,"--")
                     try:
-                        event = myaml.load(doc.text)
+                        event = yaml.load(doc.text)
                     except:
                         # Wrong YAML doc. Check tha doc tag and instantiate the proper event.
                         message = "Malformatted YAML document at line: %d\n" % doc.lineno
                         message += doc.text
-                        # This call is very expensive when we have many exceptions due to malformatted YAML docs. 
-                        #message += "Traceback:\n %s" % straceback()
+
+                        # This call is very expensive when we have many exceptions due to malformatted YAML docs.
+                        if self.DEBUG_LEVEL:
+                            message += "Traceback:\n %s" % straceback()
 
                         if "error" in doc.tag.lower():
-                            print("It seems an error",doc.tag)
+                            print("It seems an error", doc.tag)
                             event = AbinitYamlError(message=message, src_file=__file__, src_line=0)
                         else:
                             event = AbinitYamlWarning(message=message, src_file=__file__, src_line=0)
@@ -348,15 +368,8 @@ class EventsParser(object):
                 if doc.tag == "!FinalSummary":
                     run_completed = True
 
-        # TODO: Add YAML doc with FinalSummary.
-        #MAGIC = "Calculation completed."
-        #with open(filename) as fh:
-        #    for line in fh:
-        #        if MAGIC in line:
-        #            run_completed = True
-        #            break
-
         report.set_run_completed(run_completed)
+
         return report
 
     def report_exception(self, filename, exc):

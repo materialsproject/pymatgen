@@ -359,7 +359,7 @@ class IStructure(SiteCollection, PMGSONable):
         """
         if len(species) != len(coords):
             raise StructureError("The list of atomic species must be of the"
-                                 "same length as the list of fractional"
+                                 " same length as the list of fractional"
                                  " coordinates.")
 
         if isinstance(lattice, Lattice):

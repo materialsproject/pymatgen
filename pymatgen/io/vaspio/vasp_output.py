@@ -390,7 +390,11 @@ class Vasprun(PMGSONable):
         """
         Final energy from the vasp run.
         """
-        return self.ionic_steps[-1]["electronic_steps"][-1]["e_wo_entrp"]
+        try:
+            return self.ionic_steps[-1]["electronic_steps"][-1]["e_wo_entrp"]
+        except (IndexError, KeyError):
+            # not all calculations have a total energy, i.e. GW
+            return np.inf
 
     @property
     def complete_dos(self):
@@ -694,11 +698,18 @@ class Vasprun(PMGSONable):
 
         nsites = len(self.final_structure)
 
-        vout = {"ionic_steps": self.ionic_steps,
-                "final_energy": self.final_energy,
-                "final_energy_per_atom": self.final_energy / nsites,
-                "crystal": self.final_structure.as_dict(),
-                "efermi": self.efermi}
+        try:
+            vout = {"ionic_steps": self.ionic_steps,
+                    "final_energy": self.final_energy,
+                    "final_energy_per_atom": self.final_energy / nsites,
+                    "crystal": self.final_structure.as_dict(),
+                    "efermi": self.efermi}
+        except (ArithmeticError, TypeError):
+            vout = {"ionic_steps": self.ionic_steps,
+                    "final_energy": self.final_energy,
+                    "final_energy_per_atom": None,
+                    "crystal": self.final_structure.as_dict(),
+                    "efermi": self.efermi}
 
         if self.eigenvalues:
             eigen = defaultdict(dict)

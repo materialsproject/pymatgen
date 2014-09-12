@@ -28,9 +28,9 @@ def cif_paths():
 class SpinModeTest(PymatgenTest):
 
     def test_base(self):
-        polarized = SpinMode.asspinmode("polarized")
-        other_polarized = SpinMode.asspinmode("polarized")
-        unpolarized = SpinMode.asspinmode("unpolarized")
+        polarized = SpinMode.as_spinmode("polarized")
+        other_polarized = SpinMode.as_spinmode("polarized")
+        unpolarized = SpinMode.as_spinmode("unpolarized")
 
         polarized.to_abivars()
 
@@ -44,13 +44,13 @@ class SpinModeTest(PymatgenTest):
 
 class SmearingTest(PymatgenTest):
     def test_base(self):
-        fd1ev = Smearing.assmearing("fermi_dirac:1 eV")
+        fd1ev = Smearing.as_smearing("fermi_dirac:1 eV")
         print(fd1ev)
         fd1ev.to_abivars()
 
         self.assertTrue(fd1ev)
 
-        same_fd = Smearing.assmearing("fermi_dirac:"+ str(1.0/Ha_to_eV))
+        same_fd = Smearing.as_smearing("fermi_dirac:"+ str(1.0/Ha_to_eV))
 
         self.assertTrue(same_fd == fd1ev)
 
@@ -124,13 +124,13 @@ class AbiStructureTest(PymatgenTest):
 class PPModelTest(PymatgenTest):
 
     def test_base(self):
-        godby = PPModel.asppmodel("godby:12 eV")
+        godby = PPModel.as_ppmodel("godby:12 eV")
         print(godby)
         print(repr(godby))
         godby.to_abivars()
         self.assertTrue(godby)
 
-        same_godby = PPModel.asppmodel("godby:"+ str(12.0/Ha_to_eV))
+        same_godby = PPModel.as_ppmodel("godby:"+ str(12.0/Ha_to_eV))
         self.assertTrue(same_godby == godby)
 
         noppm = PPModel.noppmodel()

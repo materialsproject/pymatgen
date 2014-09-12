@@ -7,17 +7,25 @@ import numpy as np
 from pymatgen.core.units import FloatWithUnit
 import pymatgen.core.units as units
 
+import logging
+logger = logging.getLogger(__file__)
+
 __all__ = [
     "EOS",
 ]
 
-##########################################################################################
+
+def quadratic(V, a, b, c):
+    """Quadratic fit"""
+    return a*V**2 + b*V + c
+
 
 def murnaghan(V, E0, B0, B1, V0):
     """From PRB 28,5480 (1983)"""
 
     E = E0 + B0*V/B1*(((V0/V)**B1)/(B1-1)+1) - V0*B0/(B1-1)
     return E
+
 
 def birch(V, E0, B0, B1, V0):
     """
@@ -32,12 +40,14 @@ def birch(V, E0, B0, B1, V0):
          + 9.0/16.0*B0*V0*(B1-4.)*((V0/V)**(2.0/3.0) - 1.0)**3)
     return E
 
+
 def birch_murnaghan(V, E0, B0, B1, V0):
     """BirchMurnaghan equation from PRB 70, 224107"""
 
     eta = (V/V0)**(1./3.)
     E = E0 + 9.*B0*V0/16.*(eta**2-1)**2*(6 + B1*(eta**2-1.) - 4.*eta**2)
     return E
+
 
 def pourier_tarantola(V, E0, B0, B1, V0):
     """Pourier-Tarantola equation from PRB 70, 224107"""
@@ -47,6 +57,7 @@ def pourier_tarantola(V, E0, B0, B1, V0):
 
     E = E0 + B0*V0*squiggle**2/6.*(3. + squiggle*(B1 - 2))
     return E
+
 
 def vinet(V, E0, B0, B1, V0):
     'Vinet equation from PRB 70, 224107'
@@ -87,10 +98,13 @@ def deltafactor_polyfit(volumes, energies):
     b0 = derivV2 / x**(3./2.)
     b1 = -1 - x**(-3./2.) * derivV3 / derivV2
 
+    #print('deltafactor polyfit:')
+    #print('e0, b0, b1, v0')
+    #print(fitdata[0], b0, b1, v0)
+
     n = collections.namedtuple("DeltaFitResults", "v0 b0 b1 poly1d")
     return n(v0, b0, b1, fitdata[0])
 
-##########################################################################################
 
 
 class EOSError(Exception):
@@ -130,17 +144,22 @@ class EOS(object):
 
     #: Models available.
     MODELS = {
-        "murnaghan"        : murnaghan,
-        "birch"            : birch,
-        "birch_murnaghan"  : birch_murnaghan,
+        "quadratic": quadratic,
+        "murnaghan": murnaghan,
+        "birch": birch,
+        "birch_murnaghan": birch_murnaghan,
         "pourier_tarantola": pourier_tarantola,
-        "vinet"            : vinet,
-        "deltafactor"      : deltafactor_polyfit,
+        "vinet": vinet,
+        "deltafactor": deltafactor_polyfit,
     }
 
     def __init__(self, eos_name='murnaghan'):
         self._eos_name = eos_name
         self._func = self.MODELS[eos_name]
+
+    @staticmethod
+    def Quadratic():
+        return EOS(eos_name="quadratic")
 
     @staticmethod
     def Murnaghan():
@@ -180,7 +199,6 @@ class EOS(object):
 
         return EOS_Fit(volumes, energies, self._func, self._eos_name)
 
-##########################################################################################
 
 
 class EOS_Fit(object):
@@ -193,17 +211,16 @@ class EOS_Fit(object):
             volumes: list of volumes in Angstrom^3
             func: callable function
         """
-        self.volumes  = np.array(volumes)
+        self.volumes = np.array(volumes)
         self.energies = np.array(energies)
         assert len(self.volumes) == len(self.energies)
 
-        self.func     = func
+        self.func = func
         self.eos_name = eos_name
         self.exceptions = []
+        self.ierr = 0
 
         if eos_name == "deltafactor":
-
-            self.ierr = 0
             try:
                 results = deltafactor_polyfit(self.volumes, self.energies)
 
@@ -216,9 +233,27 @@ class EOS_Fit(object):
 
             except EOSError as exc:
                 self.ierr = 1
-                print(str(exc))
+                logger.critical(str(exc))
                 self.exceptions.append(exc)
                 raise
+
+        elif eos_name == "quadratic":
+            # Quadratic fit
+            a, b, c = np.polyfit(self.volumes, self.energies, 2)
+
+            self.v0 = v0 = -b/(2*a)
+            self.e0 = a*v0**2 + b*v0 + c
+            self.b0 = 2*a*v0
+            self.b1 = np.inf
+            self.p0 = [a, b, c]
+            self.eos_params = [a, b, c]
+
+            vmin, vmax = self.volumes.min(), self.volumes.max()
+
+            if not vmin < v0 and v0 < vmax:
+                exc = EOSError('The minimum volume of a fitted parabola is not in the input volumes\n.')
+                logger.critical(str(exc))
+                self.exceptions.append(exc)
 
         else:
             # Objective function that will be minimized
@@ -226,7 +261,7 @@ class EOS_Fit(object):
                 return y - self.func(x, *pars)
 
             # Quadratic fit to get an initial guess for the parameters
-            a,b,c = np.polyfit(self.volumes, self.energies, 2)
+            a, b, c = np.polyfit(self.volumes, self.energies, 2)
 
             v0 = -b/(2*a)
             e0 = a*v0**2 + b*v0 + c
@@ -235,9 +270,9 @@ class EOS_Fit(object):
 
             vmin, vmax = self.volumes.min(), self.volumes.max()
 
-            if not (vmin < v0 and v0 < vmax):
+            if not vmin < v0 and v0 < vmax:
                 exc = EOSError('The minimum volume of a fitted parabola is not in the input volumes\n.')
-                print(str(exc))
+                logger.critical(str(exc))
                 self.exceptions.append(exc)
 
             # Initial guesses for the parameters
@@ -246,9 +281,9 @@ class EOS_Fit(object):
             from scipy.optimize import leastsq
             self.eos_params, self.ierr = leastsq(objective, self.p0, args=(self.volumes, self.energies))
 
-            if self.ierr not in [1,2,3,4]:
+            if self.ierr not in [1, 2, 3, 4]:
                 exc = EOSError("Optimal parameters not found")
-                print(str(exc))
+                logger.critical(str(exc))
                 self.exceptions.append(exc)
                 raise exc
 
@@ -257,12 +292,17 @@ class EOS_Fit(object):
             self.b1 = self.eos_params[2]
             self.v0 = self.eos_params[3]
 
+            print('EOS_fit:', func)
+            print('e0, b0, b1, v0')
+            print(self.eos_params)
+
     def __str__(self):
         lines = []
         app = lines.append
         app("Equation of State: %s" % self.name)
         app("Minimum volume = %1.2f Ang^3" % self.v0)
         app("Bulk modulus = %1.2f eV/Ang^3 = %1.2f GPa, b1 = %1.2f" % (self.b0, self.b0_GPa, self.b1))
+
         return "\n".join(lines)
 
     @property
@@ -273,11 +313,13 @@ class EOS_Fit(object):
     def b0_GPa(self):
         return FloatWithUnit(self.b0, "eV ang^-3").to("GPa")
 
-    def plot(self, **kwargs):
+    def plot(self, ax=None, **kwargs):
         """
         Uses Matplotlib to plot the energy curve.
 
         Args:
+            ax:
+                Axis object. If ax is None, a new figure is produced.
             show:
                 True to show the figure
             savefig:
@@ -294,8 +336,11 @@ class EOS_Fit(object):
         vmin, vmax = (vmin - 0.01 * abs(vmin), vmax + 0.01 * abs(vmax))
         emin, emax = (emin - 0.01 * abs(emin), emax + 0.01 * abs(emax))
 
-        fig = plt.figure()
-        ax = fig.add_subplot(1,1,1)
+        if ax is None:
+            fig = plt.figure()
+            ax = fig.add_subplot(1,1,1)
+        else:
+            fig = plt.gcf()
 
         lines, legends = [], []
 
@@ -309,9 +354,9 @@ class EOS_Fit(object):
 
         if self.eos_name == "deltafactor":
             xx = vfit**(-2./3.)
-            line, = ax.plot(vfit, np.polyval(self.eos_params, xx) ,"b-")
+            line, = ax.plot(vfit, np.polyval(self.eos_params, xx), "b-")
         else:
-            line, = ax.plot(vfit, self.func(vfit, *self.eos_params) ,"b-")
+            line, = ax.plot(vfit, self.func(vfit, *self.eos_params), "b-")
 
         lines.append(line)
         legends.append(self.name + ' fit')
@@ -338,4 +383,3 @@ class EOS_Fit(object):
 
         return fig
 
-##########################################################################################
