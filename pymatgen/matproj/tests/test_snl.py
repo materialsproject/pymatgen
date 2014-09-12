@@ -14,6 +14,7 @@ __date__ = "2/14/13"
 
 import datetime
 import unittest
+import six
 import numpy as np
 
 from pymatgen import Structure, Molecule
@@ -46,7 +47,7 @@ class StructureNLCase(unittest.TestCase):
                    "\n year = {2013}\n}"
         repeat = "REPEAT" * 10000
         self.superlong = "@misc{SuperLong,\ntitle = {{" + repeat + "}}}"
-        self.unicode_title = u"@misc{Unicode_Title,\ntitle = {{A \u73ab is a rose}}}"
+        self.unicode_title = six.u("@misc{Unicode_Title,\ntitle = {{A \u73ab is a rose}}}")
         self.junk = "This is junk text, not a BibTeX reference"
 
         # set up remarks
