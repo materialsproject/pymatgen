@@ -121,6 +121,13 @@ loop_
             self.assertEqual(l1.strip(), l2.strip())
             self.assertEqual(l2.strip(), l3.strip())
 
+    def test_double_quotes(self):
+        cif_str = 'data_test\n_symmetry_space_group_name_H-M   "P -3 m 1"'
+        cb = CifBlock.from_string(cif_str)
+        self.assertEqual(cb["_symmetry_space_group_name_H-M"], "P -3 m 1")
+        self.assertEqual(str(cb), cif_str.replace('"', "'") )
+
+
     def test_long_loop(self):
         data = {'_stuff1': ['A' * 30] * 2,
                 '_stuff2': ['B' * 30] * 2,

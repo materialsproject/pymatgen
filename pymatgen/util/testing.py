@@ -17,7 +17,7 @@ class PymatgenTest(unittest.TestCase):
     Extends unittest.TestCase with functions (taken from numpy.testing.utils)
     that support the comparison of arrays.
     """
-    def get_test_structure(self):
+    def get_si2_structure(self):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])

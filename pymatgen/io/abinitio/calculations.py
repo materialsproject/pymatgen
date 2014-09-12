@@ -1,6 +1,5 @@
 """
-Factory functions producing ABINIT workflows. Entry points for client code
-(high-level interface)
+Factory functions producing ABINIT workflows. Entry points for client code (high-level interface)
 """
 from __future__ import division, print_function
 
@@ -9,11 +8,13 @@ import os
 from pymatgen.io.abinitio.abiobjects import (Smearing, KSampling, Screening,
     SelfEnergy, ExcHamiltonian)
 
+from pymatgen.io.abinitio.abiobjects import HilbertTransform
+
 from pymatgen.io.abinitio.strategies import (ScfStrategy, NscfStrategy,
     ScreeningStrategy, SelfEnergyStrategy, MDFBSE_Strategy)
 
-from pymatgen.io.abinitio.workflows import (PseudoIterativeConvergence, 
-    PseudoConvergence, BandStructureWorkflow, G0W0_Workflow, BSEMDF_Workflow)
+from pymatgen.io.abinitio.workflows import (BandStructureWorkflow, G0W0_Workflow, BSEMDF_Workflow)
+
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -22,63 +23,12 @@ __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 
 
-
-class PPConvergenceFactory(object):
-    """
-    Factory object that constructs workflows for analyzing the converge of
-    pseudopotentials.
-    """
-    def work_for_pseudo(self, workdir, manager, pseudo, ecut_range, 
-                        toldfe=1.e-8, atols_mev=(10, 1, 0.1), spin_mode="polarized",
-                        acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV",):
-        """
-        Return a `Workflow` object given the pseudopotential pseudo.
-
-        Args:
-            workdir:
-                Working directory.
-            pseudo:
-                Pseudo object.
-            ecut_range:
-                range of cutoff energies in Ha units.
-            manager:
-                `TaskManager` object.
-            toldfe:
-                Tolerance on the total energy (Ha).
-            atols_mev:
-                Tolerances in meV for accuracy in ["low", "normal", "high"]
-            spin_mode:
-                Spin polarization.
-            acell:
-                Length of the real space lattice (Bohr units)
-            smearing:
-                Smearing technique.
-        """
-        workdir = os.path.abspath(workdir)
-
-        smearing = Smearing.assmearing(smearing)
-
-        if isinstance(ecut_range, slice):
-            workflow = PseudoIterativeConvergence(
-                workdir, manager, pseudo, ecut_range, atols_mev, 
-                toldfe=toldfe, spin_mode=spin_mode, 
-                acell=acell, smearing=smearing)
-
-        else:
-            workflow = PseudoConvergence(
-                workdir, manager, pseudo, ecut_range, atols_mev, 
-                toldfe=toldfe, spin_mode=spin_mode, 
-                acell=acell, smearing=smearing)
-
-        return workflow
-
-
 def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
                   ndivsm, accuracy="normal", spin_mode="polarized",
                   smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None,
                   dos_kppa=None, workdir=None, manager=None, **extra_abivars):
     """
-    Returns a Work object that computes that bandstructure of the material.
+    Returns a Workflow for bandstructure calculations.
 
     Args:
         structure:
@@ -128,7 +78,7 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
     # DOS calculation.
     dos_strategy = None
     if dos_kppa is not None:
-        raise NotImplementedError("DOS must be tested")
+        #raise NotImplementedError("DOS must be tested")
         dos_ksampling = KSampling.automatic_density(structure, dos_kppa, chksymbreak=0)
         #dos_ksampling = KSampling.monkhorst(dos_ngkpt, shiftk=dos_shiftk, chksymbreak=0)
 
@@ -136,7 +86,6 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
 
     return BandStructureWorkflow(scf_strategy, nscf_strategy, dos_inputs=dos_strategy, 
                                  workdir=workdir, manager=manager)
-
 
 
 #def relaxation(workdir, manager, structure, pseudos, scf_kppa,
@@ -177,10 +126,9 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
 #
 #    #return Relaxation(relax_strategy, workdir=workdir, manager=manager)
 
-
-def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, 
+def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx,
                       accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
-                      ppmodel="godby", charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None, 
+                      ppmodel="godby", charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None,
                       sigma_nband=None, gw_qprange=1, workdir=None, manager=None, **extra_abivars):
     """
     Returns a Work object that performs G0W0 calculations for the given the material.
@@ -218,7 +166,7 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
             Number of bands used to compute the self-energy (default is nscf_nband)
         gw_qprange:
             Option for the automatic selection of k-points and bands for GW corrections.
-            See Abinit docs for more detail. The default value makes the code computie the 
+            See Abinit docs for more detail. The default value makes the code compute the
             QP energies for all the point in the IBZ and one band above and one band below the Fermi level.
         workdir:
             Working directory.
@@ -236,7 +184,7 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
     scf_strategy = ScfStrategy(structure, pseudos, scf_ksampling,
                                accuracy=accuracy, spin_mode=spin_mode,
                                smearing=smearing, charge=charge,
-                               scf_algorithm=None, **extra_abivars)
+                               scf_algorithm=scf_algorithm, **extra_abivars)
 
     nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
 
@@ -249,7 +197,7 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
                           hilbert=None, ecutwfn=None, inclvkb=inclvkb)
 
     self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening,
-                             ppmodel=ppmodel)
+                             gw_qprange=gw_qprange, ppmodel=ppmodel)
 
     scr_strategy = ScreeningStrategy(scf_strategy, nscf_strategy, screening, **extra_abivars)
 
@@ -258,6 +206,137 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
 
     return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, 
                          workdir=workdir, manager=manager)
+
+
+def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, accuracy="normal", spin_mode="polarized",
+                  smearing="fermi_dirac:0.1 eV", response_models=["godby"], charge=0.0, scf_algorithm=None, inclvkb=2,
+                  scr_nband=None, sigma_nband=None, gw_qprange=1, workdir=None, manager=None, gamma=True,
+                  **extra_abivars):
+    """
+    Returns a Work object that performs G0W0 calculations for the given the material.
+
+    Args:
+        structure:
+            Pymatgen structure.
+        pseudos:
+            List of `Pseudo` objects.
+        scf_
+            Defines the sampling used for the SCF run.
+        nscf_nband:
+            Number of bands included in the NSCF run.
+        ecuteps:
+            Cutoff energy [Ha] for the screening matrix.
+        ecutsigx:
+            Cutoff energy [Ha] for the exchange part of the self-energy.
+        accuracy:
+            Accuracy of the calculation.
+        spin_mode:
+            Spin polarization.
+        smearing:
+            Smearing technique.
+        ppmodel:
+            Plasmonpole technique.
+        charge:
+            Electronic charge added to the unit cell.
+        scf_algorithm:
+            Algorithm used for solving of the SCF cycle.
+        inclvkb:
+            Treatment of the dipole matrix elements (see abinit variable).
+        scr_nband:
+            Number of bands used to compute the screening (default is nscf_nband)
+        sigma_nband:
+            Number of bands used to compute the self-energy (default is nscf_nband)
+        workdir:
+            Working directory.
+        manager:
+            `TaskManager` instance.
+        extra_abivars
+            Dictionary with extra variables passed to ABINIT.
+    """
+    # TODO: Cannot use istwfk != 1.
+
+    if gamma:
+        if scf_kppa == 1:
+            scf_ksampling = KSampling.gamma_centered(kpts=(1, 1, 1))
+            nscf_ksampling = KSampling.gamma_centered(kpts=(1, 1, 1))
+        elif scf_kppa == 2:
+            scf_ksampling = KSampling.gamma_centered(kpts=(2, 2, 2))
+            nscf_ksampling = KSampling.gamma_centered(kpts=(2, 2, 2))
+        else:
+            scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0, shifts=(0, 0, 0))
+            nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0, shifts=(0, 0, 0))
+    else:
+        scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
+        nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
+
+    if "istwfk" not in extra_abivars:
+        extra_abivars["istwfk"] = "*1"
+
+    scf_strategy = []
+    to_add = {}
+
+    extra_abivars.update(to_add)
+    #extra_abivars.update({'paral_kgb': 1})
+
+    #from pymatgen.io.abinitio.tasks import TaskManager
+    #tmp_manager = TaskManager.from_user_config()
+
+    #extra_abivars.update({'npkpt': 1, 'npfft': 4})
+    #ncpus = tmp_manager.tot_ncpus
+    #extra_abivars.update({'npbands': int(ncpus/4)})
+
+    for k in extra_abivars.keys():
+        if k[-2:] == '_s':
+            var = k[:len(k)-2]
+            values = extra_abivars.pop(k)
+            to_add.update({k: values[-1]})
+            for value in values:
+                extra_abivars[var] = value
+                extra_abivars['pawecutdg'] = extra_abivars['ecut']*2
+                scf_strategy.append(ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy, spin_mode=spin_mode,
+                                                smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars))
+
+    if len(scf_strategy) == 0:
+        scf_strategy.append(ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy, spin_mode=spin_mode,
+                                        smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars))
+
+    nscf_strategy = NscfStrategy(scf_strategy[-1], nscf_ksampling, max(nscf_nband), **extra_abivars)
+
+    if scr_nband is None:
+        scr_nband = nscf_nband
+    if sigma_nband is None:
+        sigma_nband = nscf_nband
+
+#    if extra_abivars['ecut'][0] < max(ecuteps) / 4:
+#        extra_abivars['ecut'][0] = max(ecuteps) / 4
+    if ecutsigx < max(ecuteps):
+        ecutsigx = max(ecuteps)
+
+    # for x in ('paral_kgb', 'npkpt', 'npfft', 'npbands'):
+    #    del extra_abivars[x]
+
+    sigma_strategy = []
+
+    if 'cd' in response_models:
+        hilbert = HilbertTransform(nomegasf=100, domegasf=None, spmeth=1, nfreqre=None, freqremax=None, nfreqim=None,
+                                   freqremin=None)
+
+    for response_model in response_models:
+        for ecuteps_v in ecuteps:
+            for nscf_nband_v in nscf_nband:
+                scr_nband = nscf_nband_v
+                sigma_nband = nscf_nband_v
+                if response_model == 'cd':
+                    screening = Screening(ecuteps_v, scr_nband, w_type="RPA", sc_mode="one_shot", hilbert=hilbert, ecutwfn=None, inclvkb=inclvkb)
+                    self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening, hilbert=hilbert)
+                else:
+                    ppmodel = response_model
+                    screening = Screening(ecuteps_v, scr_nband, w_type="RPA", sc_mode="one_shot", ecutwfn=None, inclvkb=inclvkb)
+                    self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening, ppmodel=ppmodel, gw_qprange=1)
+                scr_strategy = ScreeningStrategy(scf_strategy[-1], nscf_strategy, screening, **extra_abivars)
+                sigma_strategy.append(SelfEnergyStrategy(scf_strategy[-1], nscf_strategy, scr_strategy, self_energy, **extra_abivars))
+
+    return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager)
 
 
 #def g0w0_with_cd(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, hilbert,

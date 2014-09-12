@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
     pymatgen.io.abinitio
+    pymatgen.io.gwwrapper
     pymatgen.io.vaspio
 
 Submodules

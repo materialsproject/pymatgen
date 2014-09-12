@@ -44,7 +44,7 @@ from pymatgen.core.units import Mass, Length
 from monty.io import zopen
 
 
-class SiteCollection(object, collections.Sequence, six.with_metaclass(ABCMeta)):
+class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
     """
     Basic SiteCollection. Essentially a sequence of Sites or PeriodicSites.
     This serves as a base class for Molecule (a collection of Site, i.e., no
@@ -359,7 +359,7 @@ class IStructure(SiteCollection, PMGSONable):
         """
         if len(species) != len(coords):
             raise StructureError("The list of atomic species must be of the"
-                                 "same length as the list of fractional"
+                                 " same length as the list of fractional"
                                  " coordinates.")
 
         if isinstance(lattice, Lattice):
@@ -479,7 +479,7 @@ class IStructure(SiteCollection, PMGSONable):
             return False
         if len(self) != len(other):
             return False
-        if self._lattice != other._lattice:
+        if self.lattice != other.lattice:
             return False
         for site in self:
             if site not in other:

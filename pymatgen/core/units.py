@@ -276,7 +276,7 @@ class Unit(collections.Mapping):
         factor = ofactor / nfactor
         for uo, un in zip(units_old, units_new):
             if uo[1] != un[1]:
-                raise UnitError("Units are not compatible!")
+                raise UnitError("Units %s and %s are not compatible!" % (uo, un))
             c = ALL_UNITS[_UNAME2UTYPE[uo[0]]]
             factor *= (c[uo[0]] / c[un[0]]) ** uo[1]
         return factor
@@ -307,7 +307,10 @@ class FloatWithUnit(float):
     Error = UnitError
 
     def __new__(cls, val, unit, unit_type=None):
-        return float.__new__(cls, val)
+        new = float.__new__(cls, val)
+        new._unit = Unit(unit)
+        new._unit_type = unit_type
+        return new
 
     def __init__(self, val, unit, unit_type=None):
         """
@@ -742,6 +745,7 @@ def unitized(unit):
     def wrap(f):
         def wrapped_f(*args, **kwargs):
             val = f(*args, **kwargs)
+            #print(val)
             unit_type = _UNAME2UTYPE[unit]
             if isinstance(val, collections.Sequence):
                 # TODO: why don't we return a ArrayWithUnit?
@@ -754,6 +758,8 @@ def unitized(unit):
                     val[k] = FloatWithUnit(v, unit_type=unit_type, unit=unit)
             elif isinstance(val, numbers.Number):
                 return FloatWithUnit(val, unit_type=unit_type, unit=unit)
+            elif val is None:
+                pass
             else:
                 raise TypeError("Don't know how to assign units to %s" % str(val))
             return val

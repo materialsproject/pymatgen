@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v3.0.1
+------
+1. Minor bug fixes for cifio.
+2. Py3k updates for abinitio.
+
 v3.0.0
 ------
 * Pymatgen is now completely Python 2.7 and Python 3.x compatible!
