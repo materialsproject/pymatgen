@@ -429,8 +429,6 @@ class AbiStructure(Structure, AbivarAble):
         for (atm_idx, site) in enumerate(self):
             typat[atm_idx] = types_of_specie.index(site.specie) + 1
 
-        from pymatgen.io.gwwrapper.helpers import refine_structure
-
         rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
         xred = np.reshape([site.frac_coords for site in self], (-1,3))
 

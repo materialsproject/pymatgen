@@ -4,8 +4,8 @@ from __future__ import division, print_function
 import os
 import tempfile
 import shutil
-import cPickle as pickle
 
+from six.moves import cPickle as pickle
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.util.lazy import lazy_property
 from pymatgen.core.lattice import Lattice
