@@ -64,6 +64,27 @@ several advantages over other codes out there:
    written in other languages. Pymatgen also comes with a complete system for
    handling periodic boundary conditions.
 
+Python 2.7-3 support
+====================
+
+.. versionadded:: 3.0
+
+With effect from version 3.0, pymatgen now supports both Python 2.7 as well
+as Python 3.x. All underlying core dependencies (numpy,
+pyhull and the spglib library) have been made Python 3 compatible,
+and a completely rewritten CIF parser module (courtesy of William Davidson
+Richards) has removed the dependency on PyCIFRW.
+
+With the release of a new major version, we are taking the opportunity to
+streamline and cleanup some of the code, which introduces some backwards
+incompatibilities. The major ones are listed below:
+
+* The to_dict property of all classes have been deprecated in favor of the
+  as_dict() method protocol in the monty package. The to_dict property will
+  be available only up till the next minor version, i.e., v3.1.
+* All previously deprecated methods and modules (e.g.,
+  pymatgen.core.structure_editor) have been removed.
+
 .. include:: latest_changes.rst
 
 :doc:`Older versions </change_log>`
@@ -233,24 +254,28 @@ some quick examples of the core capabilities and objects:
     >>> finder.get_spacegroup_symbol()
     'Pm-3m'
     >>>
-    >>> # Convenient IO to various formats. Format is intelligently determined
-    >>> # from file name and extension.
-    >>> mg.write_structure(structure, "POSCAR")
-    >>> mg.write_structure(structure, "CsCl.cif")
+    >>> # Convenient IO to various formats. You can specify various formats.
+    >>> # Without a filename, a string is returned. Otherwise,
+    >>> # the output is written to the file. If only the filenmae is provided,
+    >>> # the format is intelligently determined from a file.
+    >>> structure.to(fmt="poscar")
+    >>> structure.to(filename="POSCAR")
+    >>> structure.to(filename="CsCl.cif")
     >>>
-    >>> # Reading a structure from a file.
-    >>> structure = mg.read_structure("POSCAR")
+    >>> # Reading a structure is similarly easy.
+    >>> structure = mg.Structure.from_str(open("CsCl.cif").read(), fmt="cif")
+    >>> structure = mg.Structure.from_file("CsCl.cif")
     >>>
     >>> # Reading and writing a molecule from a file. Supports XYZ and
     >>> # Gaussian input and output by default. Support for many other
     >>> # formats via the optional openbabel dependency (if installed).
-    >>> methane = mg.read_mol("methane.xyz")
-    >>> mg.write_mol(mol, "methane.gjf")
+    >>> methane = mg.Molecule.from_file("methane.xyz")
+    >>> mol.to("methane.gjf")
     >>>
     >>> # Pythonic API for editing Structures and Molecules (v2.9.1 onwards)
     >>> # Changing the specie of a site.
     >>> structure[1] = "F"
-    >>> print structure
+    >>> print(structure)
     Structure Summary (Cs1 F1)
     Reduced Formula: CsF
     abc   :   4.200000   4.200000   4.200000
@@ -273,7 +298,7 @@ some quick examples of the core capabilities and objects:
     >>> # Because structure is like a list, it supports most list-like methods
     >>> # such as sort, reverse, etc.
     >>> structure.reverse()
-    >>> print structure
+    >>> print(structure)
     Structure Summary (Cs1 Cl1)
     Reduced Formula: CsCl
     abc   :   4.200000   4.200000   4.200000
