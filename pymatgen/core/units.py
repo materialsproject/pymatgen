@@ -326,7 +326,6 @@ class FloatWithUnit(float):
 
     def __repr__(self):
         return super(FloatWithUnit, self).__repr__()
-        #return "{} {}".format(s, self._unit)
 
     def __str__(self):
         s = super(FloatWithUnit, self).__str__()
