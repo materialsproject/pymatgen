@@ -31,16 +31,15 @@ as bug reports. Please report any bugs and issues at pymatgen's `Github page
 of pymatgen releases, you may become a member of `pymatgen's Google Groups page
 <https://groups.google.com/forum/?fromgroups#!forum/pymatgen/>`_.
 
-Python 2.7-3 support
-====================
-
-.. versionadded:: 3.0
+Python 3.x support
+==================
 
 With effect from version 3.0, pymatgen now supports both Python 2.7 as well
 as Python 3.x. All underlying core dependencies (numpy,
 pyhull and the spglib library) have been made Python 3 compatible,
 and a completely rewritten CIF parser module (courtesy of William Davidson
-Richards) has removed the dependency on PyCIFRW.
+Richards) has removed the dependency on PyCIFRW. We will support Python >= 3.3
+(ignoring v3.1 and v3.2).
 
 With the release of a new major version, we are taking the opportunity to
 streamline and cleanup some of the code, which introduces some backwards
