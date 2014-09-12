@@ -38,7 +38,7 @@ def read_structure(filename, primitive=True, sort=False):
     Args:
         filename (str): A filename to read from.
         primitive (bool): Whether to convert to a primitive cell for cifs.
-            Defaults to False.
+            Defaults to True.
         sort (bool): Whether to sort sites. Default to False.
 
     Returns:

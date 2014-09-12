@@ -320,6 +320,10 @@ need to be modified are shown):
 
    //Also delete the prefix settings for python, which typically links to the Mac python.
 
+If asked for the Python install module, you may want to specify the following::
+
+    VTK_INSTALL_PYTHON_MODULE_DIR:PATH=/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages
+
 .. note:: Garbage collection on new Xcode
 
     If you are using a very new XCode (e.g. 5.1), please note that Cocoa garbage

@@ -11,8 +11,8 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Nov 27, 2011"
 
+
 import os
-import ConfigParser
 import itertools
 import math
 import subprocess
