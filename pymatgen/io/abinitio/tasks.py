@@ -306,9 +306,9 @@ class ParalHints(collections.Iterable):
         # First select the configurations satisfying the 
         # condition specified by the user (if any)
         if policy.condition:
-            #print("condition",policy.condition)
+            #logger.info("condition %s" % str(policy.condition))
             hints.select_with_condition(policy.condition)
-            #print("after condition", hints)
+            #logger.info("after condition %s" % str(hints))
 
             # If no configuration fullfills the requirements, 
             # we return the one with the highest speedup.
@@ -320,9 +320,9 @@ class ParalHints(collections.Iterable):
 
         # Now filter the configurations depending on the values in vars
         if policy.vars_condition:
-            #print("condition", policy.vars_condition)
+            logger.info("vars_condition %s" % str(policy.vars_condition))
             hints.select_with_condition(policy.vars_condition, key="vars")
-            #print("after vars_condition", hints)
+            logger.info("After vars_condition %s" % str(hints))
 
             # If no configuration fullfills the requirements,
             # we return the one with the highest speedup.
@@ -2332,8 +2332,8 @@ class AbinitTask(Task):
 
         # Return code is always != 0 
         process = seq_manager.launch(self)
-        #print("launched")
-        process.wait()  
+        logger.info("fake run launched")
+        retcode = process.wait()  
 
         # Remove the variables added for the automatic parallelization
         self.strategy.remove_extra_abivars(autoparal_vars.keys())

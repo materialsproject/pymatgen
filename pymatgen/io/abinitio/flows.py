@@ -403,7 +403,7 @@ class AbinitFlow(Node):
         """
         Fixer for critical events originating form abinit
         """
-        for task in self.iflat_tasks(status='S_ABICRITICAL'):
+        for task in self.iflat_tasks(status=Task.S_ABICRITICAL):
             #todo
             if task.fix_abicritical():
                 task.reset_from_scratch()
@@ -422,7 +422,7 @@ class AbinitFlow(Node):
         """
         from pymatgen.io.gwwrapper.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
 
-        for task in self.iflat_tasks(status='S_QUEUECRITICAL'):
+        for task in self.iflat_tasks(status=Task.S_QUEUECRITICAL):
             print(task)
 
             if not task.queue_errors:
