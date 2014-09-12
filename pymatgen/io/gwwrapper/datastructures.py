@@ -25,7 +25,7 @@ import six
 import numpy as np
 
 from abc import abstractproperty, abstractmethod, ABCMeta
-from pymatgen.io.vaspio.vasp_input import Poscar, Kpoints
+from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.matproj.rest import MPRester, MPRestError
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.io.gwwrapper.convergence import test_conv
@@ -60,6 +60,15 @@ class AbstractAbinitioSpec(MSONable):
 
     def __getitem__(self, item):
         return self.data[item]
+
+    def as_dict(self):
+        return self.to_dict
+
+    @abstractmethod
+    def to_dict(self):
+        """
+        return a dictionary representation of self
+        """
 
     def update_code_interface(self):
         self.code_interface = get_code_interface(self.get_code())
@@ -288,6 +297,24 @@ class GWSpecs(AbstractAbinitioSpec):
                                                  self['converge'])
         return self._message
 
+    def __hash__(self):
+        """
+        this will work as long a there are only hashable items in the data dict
+        """
+        tmp = copy.deepcopy(self.data)
+        tmp['jobs'] = tuple(tmp['jobs'])
+        print tmp
+        return hash(frozenset(tmp.items()))
+
+    def hash_str(self):
+        """
+        old fist attempt ...
+        """
+        hashstr = 'code:%s;source:%sjobs:%s;mode:%s;functional:%s;kp_grid_dens:%sprec:%s;tol:%s;test:%s;converge:%s' % \
+                  (self.get_code(), self.data['source'], self['jobs'], self['mode'], self['functional'],
+                   self['kp_grid_dens'], self['prec'], self['tol'], self['test'], self['converge'])
+        return hashstr
+
     @property
     def help(self):
         return "source:       poscar, mp-vasp, any other will be interpreted as a filename to read mp-id's from \n" \
@@ -427,7 +454,7 @@ class GWSpecs(AbstractAbinitioSpec):
                         data.full_res.update({'all_done': True})
                         data.print_full_res()
                         done = True
-                        data.print_plot_data()
+                        #data.print_plot_data()
                         self.code_interface.store_results(name=s_name(structure))
                     else:
                         print '| Full type calculation but the full results do not agree with the parm_scr.'
@@ -485,12 +512,15 @@ class GWSpecs(AbstractAbinitioSpec):
         if success and con_dat is not None:
             query = {'system': s_name(structure),
                      'item': structure.item,
-                     'structure': structure.to_dict,
-                     'spec': self.to_dict(),
-                     'extra_vars': extra,
+                     'spec_hash': hash(self),
+                     'extra_vars_hash': hash(None) if extra is None else hash(frozenset(extra.items())),
                      'ps': ps}
+            print 'query:', query
             entry = copy.deepcopy(query)
             entry.update({'conv_res': data.conv_res,
+                          'spec': self.to_dict(),
+                          'extra_vars': extra,
+                          'structure': structure.to_dict,
                           'gw_results': con_dat,
                           'results_file': results_file,
                           'data_file': data_file})
@@ -513,8 +543,16 @@ class GWSpecs(AbstractAbinitioSpec):
             gfs = gridfs.GridFS(db)
             count = col.find(query).count()
             if count == 0:
-                entry['results_file'] = gfs.put(entry['results_file'])
-                entry['data_file'] = gfs.put(entry['data_file'])
+                try:
+                    with open(entry['results_file'], 'r') as f:
+                        entry['results_file'] = gfs.put(f.read())
+                except IOError:
+                    print entry['results_file'], 'not found'
+                try:
+                    with open(entry['data_file'], 'r') as f:
+                        entry['data_file'] = gfs.put(f.read())
+                except IOError:
+                    print entry['data_file'], 'not found'
                 col.insert(entry)
                 print 'inserted', s_name(structure)
             elif count == 1:
@@ -523,16 +561,24 @@ class GWSpecs(AbstractAbinitioSpec):
                     print 'removing file ', new_entry['results_file'], 'from db'
                     gfs.remove(new_entry['results_file'])
                 except:
-                    pass
+                    print 'remove failed'
                 try:
                     print 'removing file ', new_entry['data_file'], 'from db'
                     gfs.remove(new_entry['data_file'])
                 except:
-                    pass
+                    print 'remove failed'
                 new_entry.update(entry)
                 print 'adding', new_entry['results_file'], new_entry['data_file']
-                new_entry['results_file'] = gfs.put(new_entry['results_file'])
-                new_entry['data_file'] = gfs.put(new_entry['data_file'])
+                try:
+                    with open(new_entry['results_file'], 'r') as f:
+                        new_entry['results_file'] = gfs.put(f.read())
+                except IOError:
+                    print new_entry['results_file'], 'not found'
+                try:
+                    with open(new_entry['data_file'], 'r') as f:
+                        new_entry['data_file'] = gfs.put(f.read())
+                except IOError:
+                    print new_entry['data_file'], 'not found'
                 print 'as ', new_entry['results_file'], new_entry['data_file']
                 col.save(new_entry)
                 print 'updated', s_name(structure)
