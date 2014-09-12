@@ -44,7 +44,7 @@ from pymatgen.core.units import Mass, Length
 from monty.io import zopen
 
 
-class SiteCollection(object, collections.Sequence, six.with_metaclass(ABCMeta)):
+class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
     """
     Basic SiteCollection. Essentially a sequence of Sites or PeriodicSites.
     This serves as a base class for Molecule (a collection of Site, i.e., no
