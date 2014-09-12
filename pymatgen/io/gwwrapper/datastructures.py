@@ -60,6 +60,15 @@ class AbstractAbinitioSpec(MSONable):
     def __getitem__(self, item):
         return self.data[item]
 
+    def as_dict(self):
+        return self.to_dict
+
+    @abstractmethod
+    def to_dict(self):
+        """
+        return a dictionary representation of self
+        """
+
     def update_code_interface(self):
         self.code_interface = get_code_interface(self.get_code())
 
