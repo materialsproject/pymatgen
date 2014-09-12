@@ -31,6 +31,30 @@ as bug reports. Please report any bugs and issues at pymatgen's `Github page
 of pymatgen releases, you may become a member of `pymatgen's Google Groups page
 <https://groups.google.com/forum/?fromgroups#!forum/pymatgen/>`_.
 
+Python 2.7-3 support
+====================
+
+.. versionadded:: 3.0
+
+With effect from version 3.0, pymatgen now supports both Python 2.7 as well
+as Python 3.x. All underlying core dependencies (numpy,
+pyhull and the spglib library) have been made Python 3 compatible,
+and a completely rewritten CIF parser module (courtesy of William Davidson
+Richards) has removed the dependency on PyCIFRW.
+
+With the release of a new major version, we are taking the opportunity to
+streamline and cleanup some of the code, which introduces some backwards
+incompatibilities. The major ones are listed below:
+
+* The to_dict property of all classes have been deprecated in favor of the
+  as_dict() method protocol in the monty package. The to_dict property will
+  be available only up till the next minor version, i.e., v3.1.
+* All previously deprecated methods and modules (e.g.,
+  pymatgen.core.structure_editor) have been removed.
+
+Please review the `official change log <www.pymatgen.org/change_log>`_
+carefully.
+
 Why use pymatgen?
 =================
 
