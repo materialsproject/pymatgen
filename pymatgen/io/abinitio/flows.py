@@ -875,7 +875,9 @@ class AbinitFlow(Node):
 
         #self.show_receivers()
 
-    def show_receivers(self, sender=dispatcher.Any, signal=dispatcher.Any):
+    def show_receivers(self, sender=None, signal=None):
+        sender = sender if sender is not None else dispatcher.Any
+        signal = signal if signal is not None else dispatcher.Any
         print("*** live receivers ***")
         for rec in dispatcher.liveReceivers(dispatcher.getReceivers(sender, signal)):
             print("receiver -->", rec)
