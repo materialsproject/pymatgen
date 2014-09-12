@@ -20,6 +20,7 @@ __date__ = "May 2014"
 
 import os
 import shutil
+import six
 import os.path
 import collections
 
@@ -36,6 +37,7 @@ from pymatgen.io.gwwrapper.GWvaspinputsets import GWscDFTPrepVaspInputSet, GWDFT
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
+@six.add_metaclass(ABCMeta)
 class AbstractCodeInterface(object):
     """
     UNDER DEVELOPMENT
@@ -43,8 +45,6 @@ class AbstractCodeInterface(object):
         to be able to use it in the AbinitioSpec wrapper.
         first step : GW output parsing
     """
-    __metaclass__ = ABCMeta
-
     def __init__(self):
         self.converged = False
         self.grid = 0
