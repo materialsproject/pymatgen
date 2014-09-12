@@ -1,8 +1,7 @@
 """
 Error handlers for errors originating from the Submission systems.
 """
-
-from __future__ import division
+from __future__ import division, print_function
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "

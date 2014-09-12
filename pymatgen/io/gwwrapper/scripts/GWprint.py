@@ -3,8 +3,7 @@
 """
 Script to print GW results for VASP and ABINIT /
 """
-
-from __future__ import division
+from __future__ import division, print_function
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "
