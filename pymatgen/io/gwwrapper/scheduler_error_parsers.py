@@ -1,7 +1,6 @@
 """
 Error handlers for errors originating from the Submission systems.
 """
-
 from __future__ import division
 
 __author__ = "Michiel van Setten"
@@ -16,15 +15,16 @@ __all_errors__ = ['SubmitError', 'FullQueueError', 'DiskError', 'TimeCancelError
 
 import re
 import abc
+import six
+
 from abc import ABCMeta, abstractproperty, abstractmethod
 
-
+@six.add_metaclass(ABCMeta)
 class CorrectorProtocolScheduler(object):
     """
     Abstract class to define the protocol / interface for correction operators. The client code quadapters / submission
     script generator method / ... should implement these methods.
     """
-    __metaclass__ = ABCMeta
 
     @abstractproperty
     def name(self):
@@ -73,12 +73,12 @@ class CorrectorProtocolScheduler(object):
         return bool
 
 
+@six.add_metaclass(ABCMeta)
 class CorrectorProtocolApplication(object):
     """
     Abstract class to define the protocol / interface for correction operators. The client code quadapters / submission
     script generator method / ... should implement these methods.
     """
-    __metaclass__ = ABCMeta
 
     @abstractproperty
     def name(self):
@@ -104,11 +104,11 @@ class CorrectorProtocolApplication(object):
         return bool
 
 
+@six.add_metaclass(ABCMeta)
 class AbstractError(object):
     """
     Error base class
     """
-    __metaclass__ = ABCMeta
 
     def __init__(self, errmsg, meta_data):
         self.errmsg = errmsg
@@ -221,7 +221,8 @@ class NodeFailureError(AbstractError):
         return [(CorrectorProtocolScheduler.exclude_nodes, [self.nodes])]
 
 
-class AbstractErrorParser():
+@six.add_metaclass(ABCMeta)
+class AbstractErrorParser(object):
     """
     Abstract class for parsing errors originating from the scheduler system and error that are not reported by the
     program itself, i.e. segmentation faults.
@@ -237,8 +238,6 @@ class AbstractErrorParser():
                 }
 
     """
-    __metaclass__ = ABCMeta
-
     def __init__(self, err_file, out_file=None, run_err_file=None, batch_err_file=None):
         self.files = {'err': err_file, 'out': out_file, 'run_err': run_err_file, 'batch_err': batch_err_file}
         self.errors = []

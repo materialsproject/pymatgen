@@ -4,7 +4,6 @@ code interfaces provided in codeinterfaces.
 Reads the POSCAR_name in the the current folder and outputs GW input to subfolders name or lists of structures
 test 3
 """
-
 from __future__ import division
 
 __author__ = "Michiel van Setten"
@@ -22,6 +21,7 @@ import pymatgen as pmg
 import pymongo
 import copy
 import gridfs
+import six
 import numpy as np
 
 from abc import abstractproperty, abstractmethod, ABCMeta
@@ -37,12 +37,12 @@ from pymatgen.core.units import eV_to_Ha
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
+@six.add_metaclass(ABCMeta)
 class AbstractAbinitioSpec(MSONable):
     """
     Contains all non GW specific methods
     todo for some reason I can not make this class have both a metaclass and subcalss from msonable ...
     """
-    __metaclass__ = ABCMeta
 
     def __init__(self):
         self.data = {'code': 'ABINIT',
