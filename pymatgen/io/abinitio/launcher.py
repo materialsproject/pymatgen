@@ -441,11 +441,13 @@ class PyFlowScheduler(object):
         if kwargs:
             raise self.Error("Unknown arguments %s" % kwargs)
 
-        #from apscheduler.scheduler import Scheduler
-        #self.sched = Scheduler(standalone=True)
+        # V2
+        from apscheduler.scheduler import Scheduler
+        self.sched = Scheduler(standalone=True)
 
-        from apscheduler.schedulers.blocking import BlockingScheduler
-        self.sched = BlockingScheduler()
+        # V3
+        #from apscheduler.schedulers.blocking import BlockingScheduler
+        #self.sched = BlockingScheduler()
 
         self.nlaunch = 0
         self.num_reminders = 1
@@ -579,8 +581,11 @@ class PyFlowScheduler(object):
         self.history.append("Started on %s" % time.asctime())
         self.start_time = time.time()
 
-        #self.sched.add_interval_job(self.callback, **self.sched_options)
-        self.sched.add_job(self.callback, 'interval', **self.sched_options)
+        # V2
+        self.sched.add_interval_job(self.callback, **self.sched_options)
+
+        # V3
+        #self.sched.add_job(self.callback, 'interval', **self.sched_options)
 
         # Try to run the job immediately. If something goes wrong
         # return without initializing the scheduler.
