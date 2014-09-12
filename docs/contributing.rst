@@ -92,12 +92,17 @@ following must be satisfied for your contributions to be accepted into pymatgen.
    We allow a few exceptions when they are well-justified (e.g., Element's
    atomic number is given a variable name of capital Z, in line with accepted
    scientific convention), but generally, PEP 8 must be observed.
-3. **Documentation** required for all modules, classes and methods. In
+3. **Python 3**. All code should seamless work with Python 2.7 and Python 3.x.
+   Please read Python's official guidelines on how to write Python 3.x
+   compatible code, including the usage of the "six" package. It is recommended
+   that you install the "python-modernize" package and run it before submitting
+   any pull requests.
+4. **Documentation** required for all modules, classes and methods. In
    particular, the method docstrings should make clear the arguments expected
    and the return values. For complex algorithms (e.g., an Ewald summation), a
    summary of the alogirthm should be provided, and preferably with a link to a
    publication outlining the method in detail.
-4. **IDE**. We highly recommend the use of Eclipse + PyDev or PyCharm. You
+5. **IDE**. We highly recommend the use of Eclipse + PyDev or PyCharm. You
    should also set up pylint and pep8 and turn those on within the Eclipse
    PyDev setup. This will warn of any issues with coding styles.
 
