@@ -337,8 +337,8 @@ API documentation
 For detailed documentation of all modules and classes, please refer to the
 :doc:`API docs </modules>`.
 
-matgenie.py - Command line tool
--------------------------------
+pmg - Command line tool
+-----------------------
 
 To demonstrate the capabilities of pymatgen and to make it easy for users to
 quickly use the functionality, pymatgen comes with a set of useful scripts
@@ -347,11 +347,11 @@ installed to your path by default when you install pymatgen through the
 typical installation routes.
 
 Here, we will discuss the most versatile of these scripts, known as
-matgenie.py. The typical usage of matgenie.py is::
+pmg. The typical usage of pmg is::
 
-    matgenie.py {analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
+    pmg {analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
 
-At any time, you can use ``"matgenie.py --help"`` or ``"matgenie.py subcommand
+At any time, you can use ``"pmg --help"`` or ``"pmg subcommand
 --help"`` to bring up a useful help message on how to use these subcommands.
 Here are a few examples of typical usages::
 
@@ -359,34 +359,34 @@ Here are a few examples of typical usages::
     #information. Saves the data in a file called vasp_data.gz for subsequent
     #reuse.
 
-    matgenie.py analyze .
+    pmg analyze .
 
     #Plot the dos from the vasprun.xml file.
 
-    matgenie.py plotdos vasprun.xml
+    pmg plotdos vasprun.xml
 
     #Convert between file formats. The script attempts to intelligently
     #determine the file type. Input file types supported include CIF,
     #vasprun.xml, POSCAR, CSSR. You can force the script to assume certain file
-    #types by specifying additional arguments. See matgenie.py convert -h.
+    #types by specifying additional arguments. See pmg convert -h.
 
-    matgenie.py convert input_filename output_filename.
+    pmg convert input_filename output_filename.
 
     #Obtain spacegroup information.
 
-    matgenie.py symm -s filename1 filename2
+    pmg symm -s filename1 filename2
 
     #Visualize a structure. Requires VTK to be installed.
 
-    matgenie.py view filename
+    pmg view filename
 
     #Compare two structures for similarity
 
-    matgenie.py compare filename1 filename2
+    pmg compare filename1 filename2
 
     #Generate a POTCAR with symbols Li_sv O and the PBE functional
 
-    matgenie.py generate --potcar Li_sv O --functional PBE
+    pmg generate --potcar Li_sv O --functional PBE
 
 ipmg - A Custom ipython shell
 -----------------------------
