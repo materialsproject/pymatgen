@@ -12,13 +12,11 @@ import abc
 import copy
 import yaml
 import pprint
-import cStringIO as StringIO
+import six
 
+from six.moves import map, zip, StringIO
 from pymatgen.io.abinitio import abiinspect
 from pymatgen.io.abinitio import events 
-import six
-from six.moves import map
-from six.moves import zip
 
 try:
     from pydispatch import dispatcher
@@ -181,7 +179,7 @@ class ParalConf(AttrDict):
                 self[k] = v
 
     def __str__(self):
-        stream = StringIO.StringIO()
+        stream = StringIO()
         pprint.pprint(self, stream=stream)
 
         return stream.getvalue()
@@ -457,7 +455,7 @@ class TaskManager(object):
     @classmethod
     def from_string(cls, s):
         """Create an instance from string s containing a YAML dictionary."""
-        stream = StringIO.StringIO(s)
+        stream = StringIO(s)
         stream.seek(0)
 
         return cls.from_dict(yaml.load(stream))

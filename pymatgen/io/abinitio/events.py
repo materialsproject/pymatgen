@@ -126,12 +126,12 @@ class AbinitEvent(yaml.YAMLObject):
 
 class AbinitComment(AbinitEvent):
     """Base class for Comment events"""
-    yaml_tag = u'!COMMENT'
+    yaml_tag = '!COMMENT'
 
 
 class AbinitError(AbinitEvent):
     """Base class for Error events"""
-    yaml_tag = u'!ERROR'
+    yaml_tag = '!ERROR'
 
 
 class AbinitYamlError(AbinitError):
@@ -140,7 +140,7 @@ class AbinitYamlError(AbinitError):
 
 class AbinitBug(AbinitEvent):
     """Base class for Bug events"""
-    yaml_tag = u'!BUG'
+    yaml_tag = '!BUG'
 
 
 class AbinitWarning(AbinitEvent):
@@ -149,7 +149,7 @@ class AbinitWarning(AbinitEvent):
     Developers should subclass this class to define the different exceptions
     raised by the code and the possible actions that can be performed.
     """
-    yaml_tag = u'!WARNING'
+    yaml_tag = '!WARNING'
 
 
 class AbinitYamlWarning(AbinitWarning):
@@ -160,17 +160,17 @@ class AbinitYamlWarning(AbinitWarning):
 
 class ScfConvergenceWarning(AbinitWarning):
     """Warning raised when the GS SCF cycle did not converge."""
-    yaml_tag = u'!ScfConvergenceWarning'
+    yaml_tag = '!ScfConvergenceWarning'
 
 
 class NscfConvergenceWarning(AbinitWarning):
     """Warning raised when the GS NSCF cycle did not converge."""
-    yaml_tag = u'!NscfConvergenceWarning'
+    yaml_tag = '!NscfConvergenceWarning'
 
 
 class RelaxConvergenceWarning(AbinitWarning):
     """Warning raised when the structural relaxation did not converge."""
-    yaml_tag = u'!RelaxConvergenceWarning'
+    yaml_tag = '!RelaxConvergenceWarning'
 
 
 # TODO: for the time being we don't discern between GS and PhononCalculations.
@@ -181,12 +181,12 @@ class RelaxConvergenceWarning(AbinitWarning):
 
 class QPSConvergenceWarning(AbinitWarning):
     """Warning raised when the QPS iteration (GW) did not converge."""
-    yaml_tag = u'!QPSConvergenceWarning'
+    yaml_tag = '!QPSConvergenceWarning'
 
 
 class HaydockConvergenceWarning(AbinitWarning):
     """Warning raised when the Haydock method (BSE) did not converge."""
-    yaml_tag = u'!HaydockConvergenceWarning'
+    yaml_tag = '!HaydockConvergenceWarning'
 
 
 # Register the concrete base classes.
