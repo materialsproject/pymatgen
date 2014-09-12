@@ -479,7 +479,7 @@ class IStructure(SiteCollection, PMGSONable):
             return False
         if len(self) != len(other):
             return False
-        if self._lattice != other._lattice:
+        if self.lattice != other.lattice:
             return False
         for site in self:
             if site not in other:
