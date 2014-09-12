@@ -11,16 +11,14 @@ import abc
 import collections
 import json
 import warnings
+import six
 import numpy as np
 
 from pymatgen.core.design_patterns import FrozenDict, AttrDict
-from pymatgen.core.periodic_table import PeriodicTable
+from pymatgen.core.periodic_table import PeriodicTable #, Element
 from pymatgen.util.num_utils import iterator_from_slice
 from pymatgen.util.io_utils import FileLock
 from pymatgen.util.string_utils import list_strings, is_string
-import six
-from six.moves import map
-from six.moves import zip
 
 __all__ = [
     "Pseudo",
@@ -31,8 +29,10 @@ __author__ = "Matteo Giantomassi"
 __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 
-# Tools and helper functions.
 
+_PTABLE = PeriodicTable()
+
+# Tools and helper functions.
 
 def straceback():
     """Returns a string with the traceback."""
@@ -106,8 +106,6 @@ def read_dojo_report(filename):
 #        new.__class__ = cls
 #        return new
 
-
-_PTABLE = PeriodicTable()
 
 class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
     """
@@ -186,16 +184,17 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
         """Valence charge"""
 
     @property
+    def type(self):
+        return self.__class__.__name__
+
+    @property
     def element(self):
         """Pymatgen `Element`."""
+        #return Element.from_Z(self.Z)
         try:
             return _PTABLE[self.Z]
         except (KeyError, IndexError):
             return _PTABLE[int(self.Z)]
-
-    @property
-    def type(self):
-        return self.__class__.__name__
 
     @property
     def symbol(self):
