@@ -394,6 +394,7 @@ class TaskPolicy(object):
         self.use_fw = use_fw 
         self.condition = Condition(condition) if condition is not None else condition
         self.vars_condition = Condition(vars_condition) if vars_condition is not None else vars_condition
+        self._LIMITS = {'max_ncpus': 240}
 
         if self.autoparal and self.max_ncpus is None:
             raise ValueError("When autoparal is not zero, max_ncpus must be specified.")
@@ -405,7 +406,6 @@ class TaskPolicy(object):
             if k.startswith("_"):
                 continue
             app("%s: %s" % (k, v))
-
         return "\n".join(lines)
 
 
@@ -2411,8 +2411,7 @@ class AbinitTask(Task):
 
         """
         # the crude, no idea what to do but this may work, solution.
-        if self.manager.qadapter.increase_resources():
-
+        if self.manager.increase_max_ncpus:
             self.reset_from_scratch()
             return True
         else:
