@@ -20,10 +20,7 @@ from pymatgen.io.abinitio.calculations import g0w0_extended
 from pymatgen.io.abinitio.flows import AbinitFlow
 from pymatgen.io.abinitio.tasks import TaskManager
 from pymatgen.io.abinitio.pseudos import PseudoTable
-try:
-    from pymatgen.io.gwwrapper.GWtasks import *
-except ImportError:
-    pass
+from pymatgen.io.gwwrapper.GWtasks import *
 from pymatgen.io.gwwrapper.helpers import now, s_name, expand_tests, read_grid_from_file, is_converged
 from pymatgen.io.gwwrapper.helpers import read_extra_abivars
 from fireworks.core.firework import FireWork, Workflow

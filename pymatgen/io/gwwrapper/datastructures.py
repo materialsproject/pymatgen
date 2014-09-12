@@ -22,10 +22,9 @@ import pymatgen as pmg
 import pymongo
 import copy
 import gridfs
-import numpy as np
 
 from abc import abstractproperty, abstractmethod, ABCMeta
-from pymatgen.io.vaspio.vasp_input import Poscar, Kpoints
+from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.matproj.rest import MPRester, MPRestError
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.io.gwwrapper.convergence import test_conv
