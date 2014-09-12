@@ -72,9 +72,9 @@ class VasprunTest(unittest.TestCase):
         self.assertEqual(direct, expectedans[3])
         self.assertFalse(vasprun.is_hubbard)
         self.assertEqual(vasprun.potcar_symbols,
-                         [u'PAW_PBE Li 17Jan2003', u'PAW_PBE Fe 06Sep2000',
-                          u'PAW_PBE Fe 06Sep2000', u'PAW_PBE P 17Jan2003',
-                          u'PAW_PBE O 08Apr2002'])
+                         ['PAW_PBE Li 17Jan2003', 'PAW_PBE Fe 06Sep2000',
+                          'PAW_PBE Fe 06Sep2000', 'PAW_PBE P 17Jan2003',
+                          'PAW_PBE O 08Apr2002'])
         self.assertIsNotNone(vasprun.kpoints, "Kpoints cannot be read")
         self.assertIsNotNone(vasprun.actual_kpoints,
                              "Actual kpoints cannot be read")
