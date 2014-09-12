@@ -5,7 +5,6 @@ import os
 import tempfile
 import shutil
 
-from six.moves import cPickle as pickle
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.util.lazy import lazy_property
 from pymatgen.core.lattice import Lattice
