@@ -52,7 +52,8 @@ incompatibilities. The major ones are listed below:
 * All previously deprecated methods and modules (e.g.,
   pymatgen.core.structure_editor) have been removed.
 
-Please review the change log carefully.
+Please review the `official change log <www.pymatgen.org/change_log>`_
+carefully.
 
 Why use pymatgen?
 =================
