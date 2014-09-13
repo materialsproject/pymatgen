@@ -1,0 +1,1476 @@
+{
+    "generator_matrices": {
+        "a": [
+            [
+                1, 
+                0, 
+                0
+            ], 
+            [
+                0, 
+                1, 
+                0
+            ], 
+            [
+                0, 
+                0, 
+                1
+            ]
+        ], 
+        "c": [
+            [
+                -1, 
+                0, 
+                0
+            ], 
+            [
+                0, 
+                1, 
+                0
+            ], 
+            [
+                0, 
+                0, 
+                -1
+            ]
+        ], 
+        "b": [
+            [
+                -1, 
+                0, 
+                0
+            ], 
+            [
+                0, 
+                -1, 
+                0
+            ], 
+            [
+                0, 
+                0, 
+                1
+            ]
+        ], 
+        "e": [
+            [
+                0, 
+                1, 
+                0
+            ], 
+            [
+                1, 
+                0, 
+                0
+            ], 
+            [
+                0, 
+                0, 
+                -1
+            ]
+        ], 
+        "d": [
+            [
+                0, 
+                0, 
+                1
+            ], 
+            [
+                1, 
+                0, 
+                0
+            ], 
+            [
+                0, 
+                1, 
+                0
+            ]
+        ], 
+        "g": [
+            [
+                0, 
+                -1, 
+                0
+            ], 
+            [
+                1, 
+                0, 
+                0
+            ], 
+            [
+                0, 
+                0, 
+                1
+            ]
+        ], 
+        "f": [
+            [
+                0, 
+                -1, 
+                0
+            ], 
+            [
+                -1, 
+                0, 
+                0
+            ], 
+            [
+                0, 
+                0, 
+                -1
+            ]
+        ], 
+        "i": [
+            [
+                1, 
+                0, 
+                0
+            ], 
+            [
+                0, 
+                1, 
+                0
+            ], 
+            [
+                0, 
+                0, 
+                -1
+            ]
+        ], 
+        "h": [
+            [
+                -1, 
+                0, 
+                0
+            ], 
+            [
+                0, 
+                -1, 
+                0
+            ], 
+            [
+                0, 
+                0, 
+                -1
+            ]
+        ], 
+        "k": [
+            [
+                0, 
+                -1, 
+                0
+            ], 
+            [
+                -1, 
+                0, 
+                0
+            ], 
+            [
+                0, 
+                0, 
+                1
+            ]
+        ], 
+        "j": [
+            [
+                1, 
+                0, 
+                0
+            ], 
+            [
+                0, 
+                -1, 
+                0
+            ], 
+            [
+                0, 
+                0, 
+                1
+            ]
+        ], 
+        "m": [
+            [
+                0, 
+                1, 
+                0
+            ], 
+            [
+                -1, 
+                0, 
+                0
+            ], 
+            [
+                0, 
+                0, 
+                -1
+            ]
+        ], 
+        "l": [
+            [
+                0, 
+                1, 
+                0
+            ], 
+            [
+                1, 
+                0, 
+                0
+            ], 
+            [
+                0, 
+                0, 
+                1
+            ]
+        ], 
+        "n": [
+            [
+                0, 
+                -1, 
+                0
+            ], 
+            [
+                1, 
+                -1, 
+                0
+            ], 
+            [
+                0, 
+                0, 
+                1
+            ]
+        ]
+    }, 
+    "translations": {
+        "A": "1/6", 
+        "C": "1/3", 
+        "B": "1/4", 
+        "E": "2/3", 
+        "D": "1/2", 
+        "G": "5/6", 
+        "F": "3/4", 
+        "O": "0", 
+        "Y": "-1/4", 
+        "X": "-3/8", 
+        "Z": "-1/8"
+    }, 
+    "space_group_encoding": {
+        "I4_1": {
+            "enc": "03aDDDbDDDgODB0", 
+            "order": 8, 
+            "int_number": 80
+        }, 
+        "R3cH": {
+            "enc": "03aECCnOOOkOOD0", 
+            "order": 18, 
+            "int_number": 161
+        }, 
+        "I4_1/a": {
+            "enc": "04aDDDbDDDgODBhODB1OYZ", 
+            "order": 16, 
+            "int_number": 88
+        }, 
+        "I2_12_121": {
+            "enc": "03aDDDbDODcODD0", 
+            "order": 8, 
+            "int_number": 24
+        }, 
+        "F23": {
+            "enc": "05aODDaDODbOOOcOOOdOOO0", 
+            "order": 48, 
+            "int_number": 196
+        }, 
+        "Pn-3": {
+            "enc": "04bOOOcOOOdOOOhDDD1YYY", 
+            "order": 24, 
+            "int_number": 201
+        }, 
+        "P4_2/mmc": {
+            "enc": "13bOOOgOODcOOO0", 
+            "order": 16, 
+            "int_number": 131
+        }, 
+        "C1c1": {
+            "enc": "02aDDOjOOD0", 
+            "order": 4, 
+            "int_number": 9
+        }, 
+        "P6_3mc": {
+            "enc": "03nOOObOODkOOO0", 
+            "order": 12, 
+            "int_number": 186
+        }, 
+        "P6_3/mmc": {
+            "enc": "13nOOObOODeOOO0", 
+            "order": 24, 
+            "int_number": 194
+        }, 
+        "P-3c1": {
+            "enc": "12nOOOeOOD0", 
+            "order": 12, 
+            "int_number": 165
+        }, 
+        "Abm2": {
+            "enc": "03aODDbOOOjODO0", 
+            "order": 8, 
+            "int_number": 39
+        }, 
+        "P-6m2": {
+            "enc": "03nOOOiOOOkOOO0", 
+            "order": 12, 
+            "int_number": 187
+        }, 
+        "P4/mbm": {
+            "enc": "13bOOOgOOOcDDO0", 
+            "order": 16, 
+            "int_number": 127
+        }, 
+        "Fmm2": {
+            "enc": "04aODDaDODbOOOjOOO0", 
+            "order": 16, 
+            "int_number": 42
+        }, 
+        "P4_2/ncm": {
+            "enc": "04bOOOgDDDcDDOhDDD1YBY", 
+            "order": 16, 
+            "int_number": 138
+        }, 
+        "I-42d": {
+            "enc": "04aDDDbOOOmOOOcDOF0", 
+            "order": 16, 
+            "int_number": 122
+        }, 
+        "Im-3m": {
+            "enc": "15aDDDbOOOcOOOdOOOeOOO0", 
+            "order": 96, 
+            "int_number": 229
+        }, 
+        "P12/c1": {
+            "enc": "11cOOD0", 
+            "order": 4, 
+            "int_number": 13
+        }, 
+        "Cmm2": {
+            "enc": "03aDDObOOOjOOO0", 
+            "order": 8, 
+            "int_number": 35
+        }, 
+        "C12/c1": {
+            "enc": "12aDDOcOOD0", 
+            "order": 8, 
+            "int_number": 15
+        }, 
+        "I-42m": {
+            "enc": "04aDDDbOOOmOOOcOOO0", 
+            "order": 16, 
+            "int_number": 121
+        }, 
+        "P-31m": {
+            "enc": "12nOOOfOOO0", 
+            "order": 12, 
+            "int_number": 162
+        }, 
+        "R32": {
+            "enc": "02dOOOfOOO0", 
+            "order": 6, 
+            "int_number": 155
+        }, 
+        "P12_1/c1": {
+            "enc": "11cODD0", 
+            "order": 4, 
+            "int_number": 14
+        }, 
+        "R-3c": {
+            "enc": "12dOOOfDDD0", 
+            "order": 12, 
+            "int_number": 167
+        }, 
+        "R-3cH": {
+            "enc": "13aECCnOOOeOOD0", 
+            "order": 36, 
+            "int_number": 167
+        }, 
+        "P432": {
+            "enc": "04bOOOcOOOdOOOeOOO0", 
+            "order": 24, 
+            "int_number": 207
+        }, 
+        "P321": {
+            "enc": "02nOOOeOOO0", 
+            "order": 6, 
+            "int_number": 150
+        }, 
+        "I4_1/acd": {
+            "enc": "05aDDDbDDDgODBcDOBhODB1OBZ", 
+            "order": 32, 
+            "int_number": 142
+        }, 
+        "P4_2/nbc": {
+            "enc": "04bOOOgDDDcOODhDDD1YBY", 
+            "order": 16, 
+            "int_number": 133
+        }, 
+        "P12_11": {
+            "enc": "01cODO0", 
+            "order": 2, 
+            "int_number": 4
+        }, 
+        "P2_12_12": {
+            "enc": "02bOOOcDDO0", 
+            "order": 4, 
+            "int_number": 18
+        }, 
+        "P-6c2": {
+            "enc": "03nOOOiOODkOOD0", 
+            "order": 12, 
+            "int_number": 188
+        }, 
+        "I432": {
+            "enc": "05aDDDbOOOcOOOdOOOeOOO0", 
+            "order": 48, 
+            "int_number": 211
+        }, 
+        "P4_2/mbc": {
+            "enc": "13bOOOgOODcDDO0", 
+            "order": 16, 
+            "int_number": 135
+        }, 
+        "R-3m": {
+            "enc": "12dOOOfOOO0", 
+            "order": 12, 
+            "int_number": 166
+        }, 
+        "Pbcn": {
+            "enc": "12bDDDcOOD0", 
+            "order": 8, 
+            "int_number": 60
+        }, 
+        "Pbcm": {
+            "enc": "12bOODcODD0", 
+            "order": 8, 
+            "int_number": 57
+        }, 
+        "Fdd2": {
+            "enc": "04aODDaDODbOOOjBBB0", 
+            "order": 16, 
+            "int_number": 43
+        }, 
+        "Pbca": {
+            "enc": "12bDODcODD0", 
+            "order": 8, 
+            "int_number": 61
+        }, 
+        "P6_322": {
+            "enc": "03nOOObOODeOOO0", 
+            "order": 12, 
+            "int_number": 182
+        }, 
+        "P6_1": {
+            "enc": "02nOOCbOOD0", 
+            "order": 6, 
+            "int_number": 169
+        }, 
+        "R3m": {
+            "enc": "02dOOOlOOO0", 
+            "order": 6, 
+            "int_number": 160
+        }, 
+        "P6/mcc": {
+            "enc": "13nOOObOOOeOOD0", 
+            "order": 24, 
+            "int_number": 192
+        }, 
+        "Cmma": {
+            "enc": "13aDDObODOcODO0", 
+            "order": 16, 
+            "int_number": 67
+        }, 
+        "P121": {
+            "enc": "01cOOO0", 
+            "order": 2, 
+            "int_number": 3
+        }, 
+        "Cmmm": {
+            "enc": "13aDDObOOOcOOO0", 
+            "order": 16, 
+            "int_number": 65
+        }, 
+        "Fm-3c": {
+            "enc": "16aODDaDODbOOOcOOOdOOOeDDD0", 
+            "order": 192, 
+            "int_number": 226
+        }, 
+        "Ia-3d": {
+            "enc": "15aDDDbDODcODDdOOOeFBB0", 
+            "order": 96, 
+            "int_number": 230
+        }, 
+        "Fd-3m": {
+            "enc": "07aODDaDODbODDcDDOdOOOeFBFhBBB1ZZZ", 
+            "order": 192, 
+            "int_number": 227
+        }, 
+        "Ia-3": {
+            "enc": "14aDDDbDODcODDdOOO0", 
+            "order": 48, 
+            "int_number": 206
+        }, 
+        "P6_3cm": {
+            "enc": "03nOOObOODkOOD0", 
+            "order": 12, 
+            "int_number": 185
+        }, 
+        "Ama2": {
+            "enc": "03aODDbOOOjDOO0", 
+            "order": 8, 
+            "int_number": 40
+        }, 
+        "P6_3/mcm": {
+            "enc": "13nOOObOODeOOD0", 
+            "order": 24, 
+            "int_number": 193
+        }, 
+        "P4/nnc": {
+            "enc": "04bOOOgOOOcOOOhDDD1YYY", 
+            "order": 16, 
+            "int_number": 126
+        }, 
+        "C222": {
+            "enc": "03aDDObOOOcOOO0", 
+            "order": 8, 
+            "int_number": 21
+        }, 
+        "Fd-3c": {
+            "enc": "07aODDaDODbODDcDDOdOOOeFBFhFFF1XXX", 
+            "order": 192, 
+            "int_number": 228
+        }, 
+        "R-3H": {
+            "enc": "12aECCnOOO0", 
+            "order": 18, 
+            "int_number": 148
+        }, 
+        "P1m1": {
+            "enc": "01jOOO0", 
+            "order": 2, 
+            "int_number": 6
+        }, 
+        "F222": {
+            "enc": "04aODDaDODbOOOcOOO0", 
+            "order": 16, 
+            "int_number": 22
+        }, 
+        "P4_232": {
+            "enc": "04bOOOcOOOdOOOeDDD0", 
+            "order": 24, 
+            "int_number": 208
+        }, 
+        "P4/n": {
+            "enc": "03bOOOgDDOhDDO1YBO", 
+            "order": 8, 
+            "int_number": 85
+        }, 
+        "Immm": {
+            "enc": "13aDDDbOOOcOOO0", 
+            "order": 16, 
+            "int_number": 71
+        }, 
+        "Pmmm": {
+            "enc": "12bOOOcOOO0", 
+            "order": 8, 
+            "int_number": 47
+        }, 
+        "Imma": {
+            "enc": "13aDDDbODOcODO0", 
+            "order": 16, 
+            "int_number": 74
+        }, 
+        "P4_122": {
+            "enc": "03bOODgOOBcOOO0", 
+            "order": 8, 
+            "int_number": 91
+        }, 
+        "I422": {
+            "enc": "04aDDDbOOOgOOOcOOO0", 
+            "order": 16, 
+            "int_number": 97
+        }, 
+        "P6mm": {
+            "enc": "03nOOObOOOkOOO0", 
+            "order": 12, 
+            "int_number": 183
+        }, 
+        "P1c1": {
+            "enc": "01jOOD0", 
+            "order": 2, 
+            "int_number": 7
+        }, 
+        "Pm-3": {
+            "enc": "13bOOOcOOOdOOO0", 
+            "order": 24, 
+            "int_number": 200
+        }, 
+        "R3c": {
+            "enc": "02dOOOlDDD0", 
+            "order": 6, 
+            "int_number": 161
+        }, 
+        "I2_13": {
+            "enc": "04aDDDbDODcODDdOOO0", 
+            "order": 24, 
+            "int_number": 199
+        }, 
+        "Pccn": {
+            "enc": "12bDDOcODD0", 
+            "order": 8, 
+            "int_number": 56
+        }, 
+        "P4": {
+            "enc": "02bOOOgOOO0", 
+            "order": 4, 
+            "int_number": 75
+        }, 
+        "Pccm": {
+            "enc": "12bOOOcOOD0", 
+            "order": 8, 
+            "int_number": 49
+        }, 
+        "P-4c2": {
+            "enc": "03bOOOmOOOjOOD0", 
+            "order": 8, 
+            "int_number": 116
+        }, 
+        "Pnn2": {
+            "enc": "02bOOOjDDD0", 
+            "order": 4, 
+            "int_number": 34
+        }, 
+        "Pcca": {
+            "enc": "12bDOOcOOD0", 
+            "order": 8, 
+            "int_number": 54
+        }, 
+        "Pbam": {
+            "enc": "12bOOOcDDO0", 
+            "order": 8, 
+            "int_number": 55
+        }, 
+        "I4/mcm": {
+            "enc": "14aDDDbOOOgOOOcOOD0", 
+            "order": 32, 
+            "int_number": 140
+        }, 
+        "Pban": {
+            "enc": "03bOOOcOOOhDDO1BBO", 
+            "order": 8, 
+            "int_number": 50
+        }, 
+        "Cmca": {
+            "enc": "13aDDObODDcODD0", 
+            "order": 16, 
+            "int_number": 64
+        }, 
+        "P4_22_12": {
+            "enc": "03bOOOgDDDcDDD0", 
+            "order": 8, 
+            "int_number": 94
+        }, 
+        "P3_121": {
+            "enc": "02nOOCeOOO0", 
+            "order": 6, 
+            "int_number": 152
+        }, 
+        "P-3m1": {
+            "enc": "12nOOOeOOO0", 
+            "order": 12, 
+            "int_number": 164
+        }, 
+        "C1m1": {
+            "enc": "02aDDOjOOO0", 
+            "order": 4, 
+            "int_number": 8
+        }, 
+        "P12/m1": {
+            "enc": "11cOOO0", 
+            "order": 4, 
+            "int_number": 10
+        }, 
+        "Ibca": {
+            "enc": "13aDDDbDODcODD0", 
+            "order": 16, 
+            "int_number": 73
+        }, 
+        "I4_1cd": {
+            "enc": "04aDDDbDDDgODBjOOD0", 
+            "order": 16, 
+            "int_number": 110
+        }, 
+        "P3": {
+            "enc": "01nOOO0", 
+            "order": 3, 
+            "int_number": 143
+        }, 
+        "P1": {
+            "enc": "000", 
+            "order": 1, 
+            "int_number": 1
+        }, 
+        "P6": {
+            "enc": "02nOOObOOO0", 
+            "order": 6, 
+            "int_number": 168
+        }, 
+        "P4_2nm": {
+            "enc": "03bOOOgDDDjDDD0", 
+            "order": 8, 
+            "int_number": 102
+        }, 
+        "P4_2/nmc": {
+            "enc": "04bOOOgDDDcDDDhDDD1YBY", 
+            "order": 16, 
+            "int_number": 137
+        }, 
+        "P422": {
+            "enc": "03bOOOgOOOcOOO0", 
+            "order": 8, 
+            "int_number": 89
+        }, 
+        "P4_12_12": {
+            "enc": "03bOODgDDBcDDB0", 
+            "order": 8, 
+            "int_number": 92
+        }, 
+        "P4_222": {
+            "enc": "03bOOOgOODcOOO0", 
+            "order": 8, 
+            "int_number": 93
+        }, 
+        "Pmna": {
+            "enc": "12bDODcDOD0", 
+            "order": 8, 
+            "int_number": 53
+        }, 
+        "P6_522": {
+            "enc": "03nOOEbOODeOOE0", 
+            "order": 12, 
+            "int_number": 179
+        }, 
+        "P6_222": {
+            "enc": "03nOOEbOOOeOOE0", 
+            "order": 12, 
+            "int_number": 180
+        }, 
+        "P6_422": {
+            "enc": "03nOOCbOOOeOOC0", 
+            "order": 12, 
+            "int_number": 181
+        }, 
+        "P-4b2": {
+            "enc": "03bOOOmOOOjDDO0", 
+            "order": 8, 
+            "int_number": 117
+        }, 
+        "Pmm2": {
+            "enc": "02bOOOjOOO0", 
+            "order": 4, 
+            "int_number": 25
+        }, 
+        "Fd-3": {
+            "enc": "06aODDaDODbOOOcOOOdOOOhBBB1ZZZ", 
+            "order": 96, 
+            "int_number": 203
+        }, 
+        "Imm2": {
+            "enc": "03aDDDbOOOjOOO0", 
+            "order": 8, 
+            "int_number": 44
+        }, 
+        "P-42_1m": {
+            "enc": "03bOOOmOOOcDDO0", 
+            "order": 8, 
+            "int_number": 113
+        }, 
+        "P3_221": {
+            "enc": "02nOOEeOOO0", 
+            "order": 6, 
+            "int_number": 154
+        }, 
+        "P4/mcc": {
+            "enc": "13bOOOgOOOcOOD0", 
+            "order": 16, 
+            "int_number": 124
+        }, 
+        "I4_1/amd": {
+            "enc": "05aDDDbDDDgODBcDOFhODB1OBZ", 
+            "order": 32, 
+            "int_number": 141
+        }, 
+        "P31m": {
+            "enc": "02nOOOlOOO0", 
+            "order": 6, 
+            "int_number": 157
+        }, 
+        "P4_322": {
+            "enc": "03bOODgOOFcOOO0", 
+            "order": 8, 
+            "int_number": 95
+        }, 
+        "Cmc2_1": {
+            "enc": "03aDDObOODjOOD0", 
+            "order": 8, 
+            "int_number": 36
+        }, 
+        "I-43d": {
+            "enc": "05aDDDbDODcODDdOOOlBBB0", 
+            "order": 48, 
+            "int_number": 220
+        }, 
+        "Pba2": {
+            "enc": "02bOOOjDDO0", 
+            "order": 4, 
+            "int_number": 32
+        }, 
+        "F432": {
+            "enc": "06aODDaDODbOOOcOOOdOOOeOOO0", 
+            "order": 96, 
+            "int_number": 209
+        }, 
+        "P23": {
+            "enc": "03bOOOcOOOdOOO0", 
+            "order": 12, 
+            "int_number": 195
+        }, 
+        "Pcc2": {
+            "enc": "02bOOOjOOD0", 
+            "order": 4, 
+            "int_number": 27
+        }, 
+        "Pnna": {
+            "enc": "12bDOOcDDD0", 
+            "order": 8, 
+            "int_number": 52
+        }, 
+        "I-43m": {
+            "enc": "05aDDDbOOOcOOOdOOOlOOO0", 
+            "order": 48, 
+            "int_number": 217
+        }, 
+        "Pnma": {
+            "enc": "12bDODcODO0", 
+            "order": 8, 
+            "int_number": 62
+        }, 
+        "P4/m": {
+            "enc": "12bOOOgOOO0", 
+            "order": 8, 
+            "int_number": 83
+        }, 
+        "P6/mmm": {
+            "enc": "13nOOObOOOeOOO0", 
+            "order": 24, 
+            "int_number": 191
+        }, 
+        "Amm2": {
+            "enc": "03aODDbOOOjOOO0", 
+            "order": 8, 
+            "int_number": 38
+        }, 
+        "I4_132": {
+            "enc": "05aDDDbDODcODDdOOOeFBB0", 
+            "order": 48, 
+            "int_number": 214
+        }, 
+        "P4_2mc": {
+            "enc": "03bOOOgOODjOOO0", 
+            "order": 8, 
+            "int_number": 105
+        }, 
+        "I23": {
+            "enc": "04aDDDbOOOcOOOdOOO0", 
+            "order": 24, 
+            "int_number": 197
+        }, 
+        "P4/nbm": {
+            "enc": "04bOOOgOOOcOOOhDDO1YYO", 
+            "order": 16, 
+            "int_number": 125
+        }, 
+        "I4/mmm": {
+            "enc": "14aDDDbOOOgOOOcOOO0", 
+            "order": 32, 
+            "int_number": 139
+        }, 
+        "P4_2/nnm": {
+            "enc": "04bOOOgDDDcOOOhDDD1YBY", 
+            "order": 16, 
+            "int_number": 134
+        }, 
+        "Fm-3m": {
+            "enc": "16aODDaDODbOOOcOOOdOOOeOOO0", 
+            "order": 192, 
+            "int_number": 225
+        }, 
+        "P2_13": {
+            "enc": "03bDODcODDdOOO0", 
+            "order": 12, 
+            "int_number": 198
+        }, 
+        "P3m1": {
+            "enc": "02nOOOkOOO0", 
+            "order": 6, 
+            "int_number": 156
+        }, 
+        "P4cc": {
+            "enc": "03bOOOgOOOjOOD0", 
+            "order": 8, 
+            "int_number": 103
+        }, 
+        "P4_2cm": {
+            "enc": "03bOOOgOODjOOD0", 
+            "order": 8, 
+            "int_number": 101
+        }, 
+        "P12_1/m1": {
+            "enc": "11cODO0", 
+            "order": 4, 
+            "int_number": 11
+        }, 
+        "Aba2": {
+            "enc": "03aODDbOOOjDDO0", 
+            "order": 8, 
+            "int_number": 41
+        }, 
+        "P4/mmm": {
+            "enc": "13bOOOgOOOcOOO0", 
+            "order": 16, 
+            "int_number": 123
+        }, 
+        "Fddd": {
+            "enc": "05aODDaDODbOOOcOOOhBBB1ZZZ", 
+            "order": 32, 
+            "int_number": 70
+        }, 
+        "P4_332": {
+            "enc": "04bDODcODDdOOOeBFF0", 
+            "order": 24, 
+            "int_number": 212
+        }, 
+        "P6cc": {
+            "enc": "03nOOObOOOkOOD0", 
+            "order": 12, 
+            "int_number": 184
+        }, 
+        "P4_132": {
+            "enc": "04bDODcODDdOOOeFBB0", 
+            "order": 24, 
+            "int_number": 213
+        }, 
+        "Ibam": {
+            "enc": "13aDDDbOOOcDDO0", 
+            "order": 16, 
+            "int_number": 72
+        }, 
+        "P-4m2": {
+            "enc": "03bOOOmOOOjOOO0", 
+            "order": 8, 
+            "int_number": 115
+        }, 
+        "Pna2_1": {
+            "enc": "02bOODjDDO0", 
+            "order": 4, 
+            "int_number": 33
+        }, 
+        "I4_122": {
+            "enc": "04aDDDbDDDgODBcDOF0", 
+            "order": 16, 
+            "int_number": 98
+        }, 
+        "Pmmn": {
+            "enc": "03bOOOcDDOhDDO1BBO", 
+            "order": 8, 
+            "int_number": 59
+        }, 
+        "P3c1": {
+            "enc": "02nOOOkOOD0", 
+            "order": 6, 
+            "int_number": 158
+        }, 
+        "P4/ncc": {
+            "enc": "04bOOOgDDOcDDDhDDO1YBO", 
+            "order": 16, 
+            "int_number": 130
+        }, 
+        "I4_1md": {
+            "enc": "04aDDDbDDDgODBjOOO0", 
+            "order": 16, 
+            "int_number": 109
+        }, 
+        "P-4n2": {
+            "enc": "03bOOOmOOOjDDD0", 
+            "order": 8, 
+            "int_number": 118
+        }, 
+        "I4/m": {
+            "enc": "13aDDDbOOOgOOO0", 
+            "order": 16, 
+            "int_number": 87
+        }, 
+        "F-43m": {
+            "enc": "06aODDaDODbOOOcOOOdOOOlOOO0", 
+            "order": 96, 
+            "int_number": 216
+        }, 
+        "P4_2/mnm": {
+            "enc": "13bOOOgDDDcDDD0", 
+            "order": 16, 
+            "int_number": 136
+        }, 
+        "Fmmm": {
+            "enc": "14aODDaDODbOOOcOOO0", 
+            "order": 32, 
+            "int_number": 69
+        }, 
+        "F-43c": {
+            "enc": "06aODDaDODbOOOcOOOdOOOlDDD0", 
+            "order": 96, 
+            "int_number": 219
+        }, 
+        "P6/m": {
+            "enc": "12nOOObOOO0", 
+            "order": 12, 
+            "int_number": 175
+        }, 
+        "P-1": {
+            "enc": "100", 
+            "order": 2, 
+            "int_number": 2
+        }, 
+        "C222_1": {
+            "enc": "03aDDObOODcOOD0", 
+            "order": 8, 
+            "int_number": 20
+        }, 
+        "P4bm": {
+            "enc": "03bOOOgOOOjDDO0", 
+            "order": 8, 
+            "int_number": 100
+        }, 
+        "Pca2_1": {
+            "enc": "02bOODjDOO0", 
+            "order": 4, 
+            "int_number": 29
+        }, 
+        "Iba2": {
+            "enc": "03aDDDbOOOjDDO0", 
+            "order": 8, 
+            "int_number": 45
+        }, 
+        "I222": {
+            "enc": "03aDDDbOOOcOOO0", 
+            "order": 8, 
+            "int_number": 23
+        }, 
+        "P-31c": {
+            "enc": "12nOOOfOOD0", 
+            "order": 12, 
+            "int_number": 163
+        }, 
+        "Pmma": {
+            "enc": "12bDOOcOOO0", 
+            "order": 8, 
+            "int_number": 51
+        }, 
+        "P-42_1c": {
+            "enc": "03bOOOmOOOcDDD0", 
+            "order": 8, 
+            "int_number": 114
+        }, 
+        "P31c": {
+            "enc": "02nOOOlOOD0", 
+            "order": 6, 
+            "int_number": 159
+        }, 
+        "I-4m2": {
+            "enc": "04aDDDbOOOmOOOjOOO0", 
+            "order": 16, 
+            "int_number": 119
+        }, 
+        "C121": {
+            "enc": "02aDDOcOOO0", 
+            "order": 4, 
+            "int_number": 5
+        }, 
+        "P222": {
+            "enc": "02bOOOcOOO0", 
+            "order": 4, 
+            "int_number": 16
+        }, 
+        "P2_12_121": {
+            "enc": "02bDODcODD0", 
+            "order": 4, 
+            "int_number": 19
+        }, 
+        "I-4": {
+            "enc": "03aDDDbOOOmOOO0", 
+            "order": 8, 
+            "int_number": 82
+        }, 
+        "P4nc": {
+            "enc": "03bOOOgOOOjDDD0", 
+            "order": 8, 
+            "int_number": 104
+        }, 
+        "Pa-3": {
+            "enc": "13bDODcODDdOOO0", 
+            "order": 24, 
+            "int_number": 205
+        }, 
+        "P4_2/mcm": {
+            "enc": "13bOOOgOODcOOD0", 
+            "order": 16, 
+            "int_number": 132
+        }, 
+        "I4mm": {
+            "enc": "04aDDDbOOOgOOOjOOO0", 
+            "order": 16, 
+            "int_number": 107
+        }, 
+        "P3_112": {
+            "enc": "02nOOCfOOE0", 
+            "order": 6, 
+            "int_number": 151
+        }, 
+        "R3": {
+            "enc": "01dOOO0", 
+            "order": 3, 
+            "int_number": 146
+        }, 
+        "P4/mnc": {
+            "enc": "13bOOOgOOOcDDD0", 
+            "order": 16, 
+            "int_number": 128
+        }, 
+        "I-4c2": {
+            "enc": "04aDDDbOOOmOOOjOOD0", 
+            "order": 16, 
+            "int_number": 120
+        }, 
+        "P622": {
+            "enc": "03nOOObOOOeOOO0", 
+            "order": 12, 
+            "int_number": 177
+        }, 
+        "P3_212": {
+            "enc": "02nOOEfOOC0", 
+            "order": 6, 
+            "int_number": 153
+        }, 
+        "R3H": {
+            "enc": "02aECCnOOO0", 
+            "order": 9, 
+            "int_number": 146
+        }, 
+        "Im-3": {
+            "enc": "14aDDDbOOOcOOOdOOO0", 
+            "order": 48, 
+            "int_number": 204
+        }, 
+        "C12/m1": {
+            "enc": "12aDDOcOOO0", 
+            "order": 8, 
+            "int_number": 12
+        }, 
+        "P312": {
+            "enc": "02nOOOfOOO0", 
+            "order": 6, 
+            "int_number": 149
+        }, 
+        "P6_122": {
+            "enc": "03nOOCbOODeOOC0", 
+            "order": 12, 
+            "int_number": 178
+        }, 
+        "Pn-3n": {
+            "enc": "05bOOOcOOOdOOOeOOOhDDD1YYY", 
+            "order": 48, 
+            "int_number": 222
+        }, 
+        "Pn-3m": {
+            "enc": "05bOOOcOOOdOOOeDDDhDDD1YYY", 
+            "order": 48, 
+            "int_number": 224
+        }, 
+        "F4_132": {
+            "enc": "06aODDaDODbODDcDDOdOOOeFBF0", 
+            "order": 96, 
+            "int_number": 210
+        }, 
+        "I4": {
+            "enc": "03aDDDbOOOgOOO0", 
+            "order": 8, 
+            "int_number": 79
+        }, 
+        "P222_1": {
+            "enc": "02bOODcOOD0", 
+            "order": 4, 
+            "int_number": 17
+        }, 
+        "Ccca": {
+            "enc": "04aDDObDDOcOOOhODD1OBB", 
+            "order": 16, 
+            "int_number": 68
+        }, 
+        "P3_2": {
+            "enc": "01nOOE0", 
+            "order": 3, 
+            "int_number": 145
+        }, 
+        "P3_1": {
+            "enc": "01nOOC0", 
+            "order": 3, 
+            "int_number": 144
+        }, 
+        "P-42m": {
+            "enc": "03bOOOmOOOcOOO0", 
+            "order": 8, 
+            "int_number": 111
+        }, 
+        "R32H": {
+            "enc": "03aECCnOOOeOOO0", 
+            "order": 18, 
+            "int_number": 155
+        }, 
+        "Cccm": {
+            "enc": "13aDDObOOOcOOD0", 
+            "order": 16, 
+            "int_number": 66
+        }, 
+        "Pnnm": {
+            "enc": "12bOOOcDDD0", 
+            "order": 8, 
+            "int_number": 58
+        }, 
+        "P4_2/m": {
+            "enc": "12bOOOgOOD0", 
+            "order": 8, 
+            "int_number": 84
+        }, 
+        "P4_2/n": {
+            "enc": "03bOOOgDDDhDDD1YYY", 
+            "order": 8, 
+            "int_number": 86
+        }, 
+        "P4/nmm": {
+            "enc": "04bOOOgDDOcDDOhDDO1YBO", 
+            "order": 16, 
+            "int_number": 129
+        }, 
+        "Cmcm": {
+            "enc": "13aDDObOODcOOD0", 
+            "order": 16, 
+            "int_number": 63
+        }, 
+        "Pnnn": {
+            "enc": "03bOOOcOOOhDDD1BBB", 
+            "order": 8, 
+            "int_number": 48
+        }, 
+        "Fm-3": {
+            "enc": "15aODDaDODbOOOcOOOdOOO0", 
+            "order": 96, 
+            "int_number": 202
+        }, 
+        "Pmc2_1": {
+            "enc": "02bOODjOOD0", 
+            "order": 4, 
+            "int_number": 26
+        }, 
+        "P4mm": {
+            "enc": "03bOOOgOOOjOOO0", 
+            "order": 8, 
+            "int_number": 99
+        }, 
+        "Pmn2_1": {
+            "enc": "02bDODjDOD0", 
+            "order": 4, 
+            "int_number": 31
+        }, 
+        "P4_1": {
+            "enc": "02bOODgOOB0", 
+            "order": 4, 
+            "int_number": 76
+        }, 
+        "P4_3": {
+            "enc": "02bOODgOOF0", 
+            "order": 4, 
+            "int_number": 78
+        }, 
+        "P4_2": {
+            "enc": "02bOOOgOOD0", 
+            "order": 4, 
+            "int_number": 77
+        }, 
+        "P6_3": {
+            "enc": "02nOOObOOD0", 
+            "order": 6, 
+            "int_number": 173
+        }, 
+        "P6_2": {
+            "enc": "02nOOEbOOO0", 
+            "order": 6, 
+            "int_number": 171
+        }, 
+        "P6_3/m": {
+            "enc": "12nOOObOOD0", 
+            "order": 12, 
+            "int_number": 176
+        }, 
+        "Ccc2": {
+            "enc": "03aDDObOOOjOOD0", 
+            "order": 8, 
+            "int_number": 37
+        }, 
+        "Pma2": {
+            "enc": "02bOOOjDOO0", 
+            "order": 4, 
+            "int_number": 28
+        }, 
+        "P-62c": {
+            "enc": "03nOOOiOODeOOO0", 
+            "order": 12, 
+            "int_number": 190
+        }, 
+        "P6_5": {
+            "enc": "02nOOEbOOD0", 
+            "order": 6, 
+            "int_number": 170
+        }, 
+        "P6_4": {
+            "enc": "02nOOCbOOO0", 
+            "order": 6, 
+            "int_number": 172
+        }, 
+        "P4_32_12": {
+            "enc": "03bOODgDDFcDDF0", 
+            "order": 8, 
+            "int_number": 96
+        }, 
+        "P-62m": {
+            "enc": "03nOOOiOOOeOOO0", 
+            "order": 12, 
+            "int_number": 189
+        }, 
+        "Pnc2": {
+            "enc": "02bOOOjODD0", 
+            "order": 4, 
+            "int_number": 30
+        }, 
+        "P-4": {
+            "enc": "02bOOOmOOO0", 
+            "order": 4, 
+            "int_number": 81
+        }, 
+        "R-3": {
+            "enc": "11dOOO0", 
+            "order": 6, 
+            "int_number": 148
+        }, 
+        "P-6": {
+            "enc": "02nOOOiOOO0", 
+            "order": 6, 
+            "int_number": 174
+        }, 
+        "I4cm": {
+            "enc": "04aDDDbOOOgOOOjOOD0", 
+            "order": 16, 
+            "int_number": 108
+        }, 
+        "P-43n": {
+            "enc": "04bOOOcOOOdOOOlDDD0", 
+            "order": 24, 
+            "int_number": 218
+        }, 
+        "P-43m": {
+            "enc": "04bOOOcOOOdOOOlOOO0", 
+            "order": 24, 
+            "int_number": 215
+        }, 
+        "P-3": {
+            "enc": "11nOOO0", 
+            "order": 6, 
+            "int_number": 147
+        }, 
+        "R3mH": {
+            "enc": "03aECCnOOOkOOO0", 
+            "order": 18, 
+            "int_number": 160
+        }, 
+        "P4_2bc": {
+            "enc": "03bOOOgOODjDDO0", 
+            "order": 8, 
+            "int_number": 106
+        }, 
+        "P42_12": {
+            "enc": "03bOOOgDDOcDDO0", 
+            "order": 8, 
+            "int_number": 90
+        }, 
+        "P-42c": {
+            "enc": "03bOOOmOOOcOOD0", 
+            "order": 8, 
+            "int_number": 112
+        }, 
+        "Ima2": {
+            "enc": "03aDDDbOOOjDOO0", 
+            "order": 8, 
+            "int_number": 46
+        }, 
+        "Pm-3n": {
+            "enc": "14bOOOcOOOdOOOeDDD0", 
+            "order": 48, 
+            "int_number": 223
+        }, 
+        "R-3mH": {
+            "enc": "13aECCnOOOeOOO0", 
+            "order": 36, 
+            "int_number": 166
+        }, 
+        "Pm-3m": {
+            "enc": "14bOOOcOOOdOOOeOOO0", 
+            "order": 48, 
+            "int_number": 221
+        }
+    }, 
+    "point_group_encoding": {
+        "622": "ben", 
+        "2/m": "ch", 
+        "6/m": "bhn", 
+        "mm2": "bj", 
+        "-43m": "dml", 
+        "6/mmm": "benh", 
+        "23": "cd", 
+        "-42m": "cm", 
+        "3": "n", 
+        "1": "a", 
+        "-3m": "fhn", 
+        "2": "c", 
+        "4": "g", 
+        "3m": "kn", 
+        "6": "bn", 
+        "422": "cg", 
+        "6mm": "bkn", 
+        "4/m": "gh", 
+        "-6m2": "ikn", 
+        "m-3m": "dghl", 
+        "mmm": "bch", 
+        "m-3": "cdh", 
+        "222": "bc", 
+        "32": "en", 
+        "m": "j", 
+        "-4": "m", 
+        "-6": "in", 
+        "-1": "h", 
+        "-3": "hn", 
+        "4/mmm": "cgh", 
+        "432": "dg", 
+        "4mm": "gj"
+    }
+}
