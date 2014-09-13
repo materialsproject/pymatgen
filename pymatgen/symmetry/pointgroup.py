@@ -29,7 +29,7 @@ from monty.dev import requires
 logger = logging.getLogger(__name__)
 
 
-class PointGroup(list):
+class PointGroupOperations(list):
     """
     Defines a point group, which is essentially a sequence of symmetry
     operations.
@@ -48,7 +48,7 @@ class PointGroup(list):
     """
     def __init__(self, sch_symbol, operations, tol=0.1):
         self.sch_symbol = sch_symbol
-        super(PointGroup, self).__init__(
+        super(PointGroupOperations, self).__init__(
             generate_full_symmops(operations, tol))
 
     def __str__(self):
@@ -425,7 +425,7 @@ class PointGroupAnalyzer(object):
         """
         Returns a PointGroup object for the molecule.
         """
-        return PointGroup(self.sch_symbol, self.symmops, self.mat_tol)
+        return PointGroupOperations(self.sch_symbol, self.symmops, self.mat_tol)
 
     def is_valid_op(self, symmop):
         """
