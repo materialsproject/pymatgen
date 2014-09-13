@@ -16,7 +16,7 @@ __date__ = "4/10/14"
 import unittest
 import numpy as np
 
-from symmetry.groups import PointGroup, SpaceGroup
+from pymatgen.symmetry.groups import PointGroup, SpaceGroup
 
 
 class PointGroupTest(unittest.TestCase):
