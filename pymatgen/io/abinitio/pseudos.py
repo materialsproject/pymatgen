@@ -1602,7 +1602,7 @@ class PseudoTable(collections.Sequence):
         # Note that we can have more than one pseudo for given z.
         # hence the values are lists of pseudos.
         if not isinstance(pseudos, collections.Iterable):
-            pseudos = [pseudos]
+            pseudos = list(pseudos)
 
         if is_string(pseudos[0]):
             pseudos = list_strings(pseudos)
@@ -1678,7 +1678,7 @@ class PseudoTable(collections.Sequence):
         zlist.sort()
         return zlist
 
-    def iscomplete(self, zmax=118):
+    def is_complete(self, zmax=118):
         """
         True if table is complete i.e. all elements with Z < zmax
         have at least on pseudopotential
