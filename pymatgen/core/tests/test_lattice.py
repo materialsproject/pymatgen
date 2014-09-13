@@ -347,6 +347,12 @@ class LatticeTestCase(PymatgenTest):
         self.assertFalse(self.rhombohedral.is_hexagonal())
         self.assertTrue(self.hexagonal.is_hexagonal())
 
+    def test_get_distance_and_image(self):
+        dist, image = self.cubic.get_distance_and_image([0, 0, 0.1], [0, 0.,
+                                                                     0.9])
+        self.assertAlmostEqual(dist, 2)
+        self.assertArrayAlmostEqual(image, [0, 0, -1])
+
 if __name__ == '__main__':
     import unittest
     unittest.main()
