@@ -1079,6 +1079,7 @@ class DummySpecie(PMGSONable):
         return output
 
 
+@singleton
 class PeriodicTable(object):
     """
     A Periodic table singleton class. This class contains methods on the
@@ -1093,16 +1094,7 @@ class PeriodicTable(object):
             self._all_elements[sym] = el
 
     def __getattr__(self, name):
-        try:
-            return self._all_elements[name]
-        except KeyError:
-            return object.__getattr__(self, name)
-
-    def __getstate__(self):
-        return self._all_elements
-
-    def __setstate__(self, d):
-        self._all_elements = d
+        return self._all_elements[name]
 
     def __iter__(self):
         for sym in _z2symbol:
