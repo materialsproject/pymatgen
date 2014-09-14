@@ -10,6 +10,7 @@ from pymatgen.core.lattice import Lattice
 import random
 import warnings
 import os
+import pickle
 
 
 class IStructureTest(PymatgenTest):
@@ -304,6 +305,11 @@ class StructureTest(PymatgenTest):
                            [1.9200989668, 3.3257101909, 0.00],
                            [0.00, -2.2171384943, 3.1355090603]])
         self.structure = Structure(lattice, ["Si", "Si"], coords)
+
+    def test_pickle(self):
+        ss = pickle.dumps(self.structure)
+        o = pickle.loads(ss)
+        self.assertEqual(o, self.structure)
 
     def test_mutable_sequence_methods(self):
         s = self.structure
