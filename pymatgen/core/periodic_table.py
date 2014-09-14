@@ -1092,10 +1092,7 @@ class PeriodicTable(object):
             self._all_elements[sym] = Element(sym)
 
     def __getattr__(self, name):
-        try:
-            return self._all_elements[name]
-        except KeyError:
-            raise AttributeError
+        return self._all_elements[name]
 
     def __iter__(self):
         for sym in _z2symbol:
