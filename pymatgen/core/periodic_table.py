@@ -1090,8 +1090,7 @@ class PeriodicTable(object):
         """ Implementation of the singleton interface """
         self._all_elements = dict()
         for sym in _pt_data.keys():
-            el = Element(sym)
-            self._all_elements[sym] = el
+            self._all_elements[sym] = Element(sym)
 
     def __getattr__(self, name):
         return self._all_elements[name]
@@ -1111,6 +1110,11 @@ class PeriodicTable(object):
                 return self._all_elements[symbol_from_Z(Z_or_slice)]
         except:
             raise IndexError("Z_or_slice: %s" % str(Z_or_slice))
+
+    #def __getstate__(self):
+    #    return self._all_elements
+    #def __setstate__(self, d):
+    #    self._all_elements = d
 
     @property
     def all_elements(self):
