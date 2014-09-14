@@ -275,10 +275,6 @@ class PeriodicTableTestCase(unittest.TestCase):
         for (idx, element) in enumerate(table):
             self.assertEqual(idx+1, element.Z)
 
-    def test_pickle(self):
-        pt = PeriodicTable()
-        o = pickle.dumps(pt)
-        self.assertIsInstance(pickle.loads(o), PeriodicTable)
 
 class FuncTest(unittest.TestCase):
 
