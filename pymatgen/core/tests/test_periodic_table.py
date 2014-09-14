@@ -278,7 +278,7 @@ class PeriodicTableTestCase(unittest.TestCase):
     def test_pickle(self):
         pt = PeriodicTable()
         o = pickle.dumps(pt)
-        self.assertEqual(pt, pickle.loads(o))
+        self.assertIsInstance(pickle.loads(o), PeriodicTable)
 
 class FuncTest(unittest.TestCase):
 
