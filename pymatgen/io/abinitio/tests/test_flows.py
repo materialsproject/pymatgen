@@ -6,7 +6,7 @@ import tempfile
 import shutil
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.util.lazy import lazy_property
+from monty.functools import lazy_property
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinitio import *
@@ -42,16 +42,16 @@ class FlowUnitTest(PymatgenTest):
     def setUp(self):
         """Initialization phase."""
         super(FlowUnitTest, self).setUp()
-                                                             
+
         # Temporary directory for the flow.
         self.workdir = tempfile.mkdtemp()
-                                                             
+
         # Create the TaskManager.
         self.manager = TaskManager.from_file(os.path.join(_test_dir, "taskmanager.yml"))
 
         # Fake input file
         self.fake_input = FakeAbinitInput()
-                                                             
+
     def tearDown(self):
         """Delete workdir"""
         shutil.rmtree(self.workdir)

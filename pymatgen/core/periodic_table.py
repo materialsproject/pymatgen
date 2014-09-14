@@ -1079,6 +1079,7 @@ class DummySpecie(PMGSONable):
         return output
 
 
+@singleton
 class PeriodicTable(object):
     """
     A Periodic table singleton class. This class contains methods on the
