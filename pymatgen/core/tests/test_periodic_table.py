@@ -279,8 +279,9 @@ class PeriodicTableTestCase(unittest.TestCase):
             self.assertEqual(idx+1, element.Z)
 
     def test_pickle(self):
-        pickle.loads(pickle.dumps(PeriodicTable()))
-
+        pt = PeriodicTable()
+        o = pickle.dumps(pt)
+        self.assertEqual(pt, pickle.loads(o))
 
 class FuncTest(unittest.TestCase):
 
