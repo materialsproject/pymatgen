@@ -6,7 +6,7 @@ import tempfile
 import shutil
 
 from pymatgen.util.testing import PymatgenTest
-from monty.dev import lazy_property
+from monty.functools import lazy_property
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinitio import *
