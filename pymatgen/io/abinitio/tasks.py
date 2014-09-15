@@ -408,6 +408,15 @@ class TaskPolicy(object):
             app("%s: %s" % (k, v))
         return "\n".join(lines)
 
+    def increase_max_ncpus(self):
+        base_increase = 12
+        new = self.max_ncpus + base_increase
+        if new <= 240:
+            self.max_ncpus(new)
+            return True
+        else:
+            return False
+
 
 class TaskManager(object):
     """
@@ -635,12 +644,17 @@ class TaskManager(object):
 
         return process
 
-    def increase_max_ncpus(self):
-        base_increase = 12
-        new = self.policy.max_ncpus + base_increase
-        if new <= 240:
-            self.set_max_ncpus(new)
-            return True
+    def increase_resources(self):
+        if self.policy is not None:
+            if self.policy.increase_max_ncpus():
+                return True
+            else:
+                return False
+        elif self.qadapter is not None:
+            if self.qadapter.increase_cpus():
+                return True
+            else:
+                return False
         else:
             return False
 
@@ -2411,7 +2425,7 @@ class AbinitTask(Task):
 
         """
         # the crude, no idea what to do but this may work, solution.
-        if self.manager.increase_max_ncpus:
+        if self.manager.increase_resources():
             self.reset_from_scratch()
             return True
         else:
