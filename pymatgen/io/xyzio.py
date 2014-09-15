@@ -87,7 +87,7 @@ class XYZ(object):
         fmtstr = "{{}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}}".format(self.precision)
         for site in self._mol:
             output.append(fmtstr.format(site.specie, site.x, site.y, site.z))
-        return "\n".join(output)
+        return unicode("\n".join(output))
 
     def write_file(self, filename):
         """
@@ -96,5 +96,5 @@ class XYZ(object):
         Args:
             filename: File name of output file.
         """
-        with zopen(filename, "w") as f:
+        with zopen(filename, "wt") as f:
             f.write(self.__str__())
