@@ -4,6 +4,7 @@ Zeo++ can be obtained from http://www.maciejharanczyk.info/Zeopp/
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 from __future__ import print_function
 from six.moves import map
 

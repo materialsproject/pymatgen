@@ -6,6 +6,7 @@ All transformations should inherit the AbstractTransformation ABC.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"

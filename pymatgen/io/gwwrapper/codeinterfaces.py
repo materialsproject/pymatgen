@@ -8,7 +8,8 @@ The VASP GWworkflow is currently coded here directly this still needs to be move
 A new implementation can be created from the New_Code template, the new class should be added to the get_code_interface
 factory function at the end.
 """
-from __future__ import division, print_function
+from __future__ import division
+from __future__ import unicode_literals, print_function
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "

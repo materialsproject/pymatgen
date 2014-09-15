@@ -3,6 +3,7 @@ This module defines Entry classes for containing experimental data.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

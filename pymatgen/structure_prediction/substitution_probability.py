@@ -4,6 +4,7 @@ probabilities.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 from six.moves import zip
 
 __author__ = "Will Richards, Geoffroy Hautier"

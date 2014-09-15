@@ -4,6 +4,7 @@ periodic structure.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -1058,15 +1059,16 @@ class IStructure(SiteCollection, PMGSONable):
             writer = Cssr(self)
         else:
             if filename:
-                with zopen(filename, "w") as f:
+                with open(filename, "w") as f:
                     json.dump(self.as_dict(), f)
+                return
             else:
                 return json.dumps(self.as_dict())
 
         if filename:
             writer.write_file(filename)
         else:
-            return str(writer)
+            return writer.__str__()
 
     @classmethod
     def from_str(cls, input_string, fmt, primitive=False, sort=False):

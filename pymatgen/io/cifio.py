@@ -3,6 +3,7 @@ Wrapper classes for Cif input and output from Structures.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -20,7 +21,7 @@ import warnings
 from collections import OrderedDict, deque
 
 import six
-from six.moves import cStringIO, map, zip
+from six.moves import map, zip, cStringIO
 
 import numpy as np
 
@@ -226,7 +227,7 @@ class CifFile(object):
 
     @classmethod
     def from_file(cls, filename):
-        with zopen(filename, "r") as f:
+        with zopen(filename, "rt") as f:
             return cls.from_string(f.read())
 
 
@@ -490,13 +491,13 @@ class CifWriter:
         """
         Returns the cif as a string.
         """
-        return str(self._cf)
+        return self._cf.__str__()
 
     def write_file(self, filename):
         """
         Write the cif file.
         """
-        with open(filename, "w") as f:
+        with zopen(filename, "wt") as f:
             f.write(self.__str__())
 
 
