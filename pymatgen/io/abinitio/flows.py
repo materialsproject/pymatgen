@@ -428,8 +428,8 @@ class AbinitFlow(Node):
             if not task.queue_errors:
                 # queue error but no errors detected, try to solve by increasing resources
                 # if resources are at maximum the tast is definitively turned to errored
-                if task.manager.qadapter.increase_resources():
-                #if task.manager.policy.increase_max_ncpu():
+                #if task.manager.qadapter.increase_resources():
+                if self.manager.increase_max_ncpus():
                     task.reset_from_scratch()
                     return True
                 else:
