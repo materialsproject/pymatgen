@@ -4,7 +4,6 @@ This module provides input and output from the CSSR file format.
 
 from __future__ import division
 from __future__ import unicode_literals
-from six.moves import map
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -14,6 +13,8 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jan 24, 2012"
 
 import re
+
+from six.moves import map
 
 from monty.io import zopen
 from pymatgen.core.lattice import Lattice
@@ -45,7 +46,7 @@ class Cssr(object):
         for i, site in enumerate(self.structure.sites):
             output.append("{} {} {:.4f} {:.4f} {:.4f}"
                           .format(i + 1, site.specie, site.a, site.b, site.c))
-        return unicode("\n".join(output))
+        return "\n".join(output)
 
     def write_file(self, filename):
         """
