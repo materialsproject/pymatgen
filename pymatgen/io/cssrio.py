@@ -44,7 +44,7 @@ class Cssr(object):
         for i, site in enumerate(self.structure.sites):
             output.append("{} {} {:.4f} {:.4f} {:.4f}"
                           .format(i + 1, site.specie, site.a, site.b, site.c))
-        return "\n".join(output)
+        return unicode("\n".join(output))
 
     def write_file(self, filename):
         """
@@ -53,7 +53,7 @@ class Cssr(object):
         Args:
             filename (str): Filename to write to.
         """
-        with open(filename, 'w') as f:
+        with zopen(filename, 'wt') as f:
             f.write(str(self) + "\n")
 
     @staticmethod
@@ -94,5 +94,5 @@ class Cssr(object):
         Returns:
             Cssr object.
         """
-        with zopen(filename, "r") as f:
+        with zopen(filename, "rt") as f:
             return Cssr.from_string(f.read())
