@@ -18,9 +18,10 @@ import re
 import textwrap
 import warnings
 from collections import OrderedDict, deque
+from io import StringIO
 
 import six
-from six.moves import cStringIO, map, zip
+from six.moves import map, zip
 
 import numpy as np
 
@@ -86,7 +87,7 @@ class CifBlock(object):
                     s.append("{}   {}".format(k, v))
                 else:
                     s.extend([k, v])
-        return "\n".join(s)
+        return unicode("\n".join(s))
 
     def _loop_to_string(self, loop):
         s = "loop_"
@@ -226,7 +227,7 @@ class CifFile(object):
 
     @classmethod
     def from_file(cls, filename):
-        with zopen(filename, "r") as f:
+        with zopen(filename, "rt") as f:
             return cls.from_string(f.read())
 
 
@@ -261,7 +262,7 @@ class CifParser(object):
         Returns:
             CifParser
         """
-        stream = cStringIO(cif_string)
+        stream = StringIO(unicode(cif_string))
         return CifParser(stream, occupancy_tolerance)
 
     def _unique_coords(self, coord_in):
@@ -490,13 +491,13 @@ class CifWriter:
         """
         Returns the cif as a string.
         """
-        return str(self._cf)
+        return unicode(self._cf)
 
     def write_file(self, filename):
         """
         Write the cif file.
         """
-        with open(filename, "w") as f:
+        with zopen(filename, "wt") as f:
             f.write(self.__str__())
 
 
