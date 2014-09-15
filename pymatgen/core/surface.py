@@ -76,11 +76,19 @@ class Slab(Structure):
     .. attribute:: normal
 
         Surface normal vector.
+
+    .. attribute:: term_coords
+
+        List of list of sites on a surface
+
+    .. attribute:: slab_list
+
+        List of structures with all possible different surfaces
     """
 
     def __init__(self, structure, miller_index, min_slab_size,
                  min_vacuum_size, thresh=0.00001, crit ='distance',
-                 lll_reduce=True, standardize=True):
+                 lll_reduce=True, standardize=True, nth_term=0):
         """
         Makes a Slab structure. Note that the code will make a slab with
         whatever size that is specified, rounded upwards. The a and b lattice
@@ -109,6 +117,10 @@ class Slab(Structure):
                 description).
             lll_reduce (bool): Whether to perform an LLL reduction on the
                 eventual structure.
+            standardize (bool): Whether to center the slab portion of the structure in
+                between the vacuum layer.
+            nth_term (int): The selected structure from slab_list to perform the class
+                methods on
         """
         latt = structure.lattice
         d = reduce(gcd, miller_index)
@@ -151,18 +163,19 @@ class Slab(Structure):
         nlayers = nlayers_slab + nlayers_vac
 
         slab = structure.copy()
+        single_slab = copy.deepcopy(slab_scale_factor)
         slab_scale_factor.append(eye[latt_index] * nlayers)
+        single_slab.append(eye[latt_index]*1)
+        single = slab.copy()
+        single.make_supercell(single_slab)
         slab.make_supercell(slab_scale_factor)
 
-        slab_copy = slab.copy()
-        if lll_reduce:
-            slab = slab.copy(sanitize=True)
 
     # Clusters sites together that belong in the same termination surface based
     # on their position in the c direction. Also organizes sites by ascending
     # order from teh origin along the c direction. How close the sites have to
     # be to belong in the same termination surface depends on the user input thresh.
-        l = organize(slab_copy)
+        l = organize(slab)
         tracker_index = fclusterdata(l[1], thresh, crit)
         new_coord, tracker_index, org_coords, el = \
             zip(*sorted(zip(l[1], tracker_index, l[2], l[3])))
@@ -178,11 +191,13 @@ class Slab(Structure):
             else:
                 if tracker_index[i] != tracker_index[i+1]:
                     term_index.append(i)
-            if gg == len(structure):
+            if gg >= len(single) and tracker_index[i] != tracker_index[i+1]:
+                term_index.append(i)
                 break
 
         slab_list, term_coords = [], []
         t, a = 0, 0
+
         for i in range(0, len(term_index)):
             b = slab_scale_factor
             y = []
@@ -202,7 +217,7 @@ class Slab(Structure):
 
             if lll_reduce:
                 lll_slab = term_slab.copy(sanitize=True)
-                if i == len(term_index) - 1:
+                if i == nth_term:
                     mapping = lll_slab.lattice.find_mapping(term_slab.lattice)
                     slab_scale_factor = np.dot(mapping[2], b)
                 term_slab = lll_slab
@@ -237,6 +252,11 @@ class Slab(Structure):
                 break
             t = a
 
+        if 0> nth_term >=len(slab_list):
+            raise IndexError("nth_term is out of range, set nth_term "
+                             "between 0 and %s" %(len(slab_list)))
+
+        slab = slab_list[nth_term]
 
         self.min_slab_size = min_slab_size
         self.nlayers_slab = nlayers_slab
@@ -250,12 +270,12 @@ class Slab(Structure):
         self.true_vac_size = nlayers_vac*dist
 
         super(Slab, self).__init__(
-            slab.lattice, slab.species_and_occu, slab.frac_coords,
-            site_properties=slab.site_properties)
+            slab.lattice, slab.species_and_occu,
+            slab.frac_coords, site_properties=slab.site_properties)
 
     @property
-    def surface_area(self, nth_term):
-        m = self.slab_list[nth_term].lattice.matrix
+    def surface_area(self):
+        m = self.lattice.matrix
         return np.linalg.norm(np.cross(m[0], m[1]))
 
     @classmethod
@@ -322,7 +342,7 @@ class Slab(Structure):
 
         return structure_ad
 
-    def make_interface(self, sec_struct, nth_term):
+    def make_interface(self, sec_struct):
 
         # Creates a supercell of the secondary structure
         m = self.lattice.matrix
@@ -360,10 +380,10 @@ class Slab(Structure):
         interface_sites = []
         interface_species = []
         # c_list = []
-        specimen = self.slab_list[nth_term].species
+        specimen = self.species
 
-        for i in range(0, len(self.slab_list[nth_term])):
-            interface_sites.append(self.slab_list[nth_term][i].coords)
+        for i in range(0, len(self)):
+            interface_sites.append(self[i].coords)
             interface_species.append(specimen[i])
 
         specimen = sec_struct.species
@@ -410,8 +430,6 @@ class SlabTest(unittest.TestCase):
         self.libcc = Structure(Lattice.cubic(3.51004), ["Li", "Li"],
                                [[0, 0, 0], [0.5, 0.5, 0.5]])
 
-        Li7_P3_S11 = CifParser(get_path("Li7(P3S11).cif"))
-        self.li7p3s11 = (Li7_P3_S11.get_structures(primitive = False)[0])
         Li_Fe_P_O4 = CifParser(get_path("LiFePO4.cif"))
         self.lifepo4 = (Li_Fe_P_O4.get_structures(primitive = False)[0])
 
@@ -463,13 +481,13 @@ class SlabTest(unittest.TestCase):
                 self.assertAlmostEqual(s001_ad2[i].c, 0.4166667)
 
     def test_make_terminations(self):
-
-        hkl = [1, 0, 1]
+        # Need to make a more thorough test later
+        hkl = [0, 1, 1]
         vsize = 10
-        ssize = 30
-        Li7P3S11 = Slab(self.li7p3s11, hkl, ssize, vsize)
+        ssize = 15
+        LiFePO4 = Slab(self.lifepo4, hkl, ssize, vsize)
 
-        fileName = get_path("Li7(P3S11).cif")
+        fileName = get_path("LiFePO4.cif")
 
 
         Name = fileName[:-4] + "_%s_slab %s_vac %s_#" \
@@ -479,44 +497,33 @@ class SlabTest(unittest.TestCase):
         fileType = ".cif"
 
         # For visual debugging
-        for ii in range(0, len(Li7P3S11.slab_list)):
-            name_num = str(ii)
-            newFile = Name + name_num + fileType
-            write_structure(Li7P3S11.slab_list[ii], newFile)
+        # for ii in range(0, len(LiFePO4.slab_list)):
+        #     name_num = str(ii)
+        #     newFile = Name + name_num + fileType
+        #     write_structure(LiFePO4.slab_list[ii], newFile)
 
         # Prints the coordinates and the species of each
         # atom along with the number of atoms on a
-        # surface termination site
-        for iii in range(0, len(Li7P3S11.term_coords)):
-            print(Li7P3S11.term_coords[iii])
-            print("%s atoms in this termination surface."
-                  %(len(Li7P3S11.term_coords[iii])))
+        # surface termination site and checks if the correct
+        # number of sites are on a surface
+        for iii in range(0, len(LiFePO4.term_coords)):
+            print(LiFePO4.term_coords[iii])
+            print("%s atoms on this surface."
+                  %(len(LiFePO4.term_coords[iii])))
+        for i in range(0, 14):
+            self.assertEqual(len(LiFePO4.term_coords[i]), 2)
 
-        # Check to see if PS4 and P2S7 bonds are correct length
-        for terminate in Li7P3S11.slab_list:
-            for site1 in terminate:
-                for site2 in terminate:
-                    # print(site1.species_string, site2.species_string)
-                    if site1.species_string == 'S2-' and site2.species_string == 'P5+':
-                        self.assertGreaterEqual(site1.distance(site2), 1.925)
+    def test_make_interface(self):
+        slab = Slab(self.lifepo4, [0, 0, 1], 10, 10)
+        interface = slab.make_interface(self.libcc)
 
-         # Checks to see if the program generates the number of terminations we would expect it to
-        lifepo4010 = Slab(self.lifepo4, [0, 1, 0], 10, 10)
-        self.assertEqual(len(lifepo4010.slab_list), 8)
+        # For visual debugging
+        # write_structure(interface, "Li_LiFePO4_interface.cif")
 
-
-    #
-    # def test_make_interface(self):
-    #     n = 5
-    #     slab = Slab(self.lifepo4, [0, 0, 1], 10, 10)
-    #     interface = slab.make_interface(self.libcc, term=n)
-    #     # For visual debugging
-    #     write_structure(interface, "Li_LiFePO4_interface.cif")
-    #
-    #     for i in range(0, len(slab.slab_list[n])):
-    #         self.assertEqual(slab.slab_list[n][i].coords[0], interface[i].coords[0])
-    #         self.assertEqual(slab.slab_list[n][i].coords[1], interface[i].coords[1])
-    #         self.assertEqual(slab.slab_list[n][i].coords[2], interface[i].coords[2])
+        for i in range(0, len(slab)):
+            self.assertEqual(slab[i].coords[0], interface[i].coords[0])
+            self.assertEqual(slab[i].coords[1], interface[i].coords[1])
+            self.assertEqual(slab[i].coords[2], interface[i].coords[2])
 
 if __name__ == "__main__":
     unittest.main()
