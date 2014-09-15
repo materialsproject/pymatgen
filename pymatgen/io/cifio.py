@@ -263,7 +263,7 @@ class CifParser(object):
         Returns:
             CifParser
         """
-        stream = StringIO(unicode(cif_string))
+        stream = StringIO(six.u(cif_string))
         return CifParser(stream, occupancy_tolerance)
 
     def _unique_coords(self, coord_in):
