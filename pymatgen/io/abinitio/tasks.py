@@ -335,6 +335,18 @@ class ParalHints(collections.Iterable):
 
         hints.sort_by_speedup()
 
+        if logger.level == 'INFO':
+            f = open('paral_confs_sp', 'w')
+            f.write(str(hints))
+            f.close()
+
+        hints.sort_by_efficiency()
+
+        if logger.level == 'INFO':
+            f = open('paral_confs_eff', 'w')
+            f.write(str(hints))
+            f.close()
+
         # Find the optimal configuration according to policy.mode.
         #mode = policy.mode
         #if mode in ["default", "aggressive"]:
@@ -351,7 +363,7 @@ class ParalHints(collections.Iterable):
 
         # Return a copy of the configuration.
         optimal = hints[-1].copy()
-        logger.debug("Will relaunch the job with optimized parameters:\n %s" % optimal)
+        logger.info("Will relaunch the job with optimized parameters:\n %s" % optimal)
 
         return optimal
 
