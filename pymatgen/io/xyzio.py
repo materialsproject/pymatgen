@@ -3,6 +3,7 @@ Module implementing an XYZ file object class.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -87,7 +88,7 @@ class XYZ(object):
         fmtstr = "{{}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}}".format(self.precision)
         for site in self._mol:
             output.append(fmtstr.format(site.specie, site.x, site.y, site.z))
-        return unicode("\n".join(output))
+        return "\n".join(output)
 
     def write_file(self, filename):
         """

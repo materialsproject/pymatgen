@@ -6,6 +6,7 @@ Single vasp GW work: Creates input and jobscripts from the input sets for a spec
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "

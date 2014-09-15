@@ -4,6 +4,7 @@ files.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
     "Vincent L Chevrier"
@@ -1100,7 +1101,7 @@ class Kpoints(PMGSONable):
         #Print shifts for automatic kpoints types if not zero.
         if self.num_kpts <= 0 and tuple(self.kpts_shift) != (0, 0, 0):
             lines.append(" ".join([str(x) for x in self.kpts_shift]))
-        return unicode("\n".join(lines) + "\n")
+        return "\n".join(lines) + "\n"
 
     def as_dict(self):
         """json friendly dict representation of Kpoints"""
@@ -1179,7 +1180,7 @@ class PotcarSingle(object):
         self.keywords = dict(keypairs)
 
     def __str__(self):
-        return unicode(self.data + "\n")
+        return self.data + "\n"
 
     def write_file(self, filename):
         with zopen(filename, "wt") as f:
@@ -1307,8 +1308,7 @@ class Potcar(list, PMGSONable):
         return potcar
 
     def __str__(self):
-        return unicode("\n".join([str(potcar).strip("\n") for potcar in self])
-                       + "\n")
+        return "\n".join([str(potcar).strip("\n") for potcar in self]) + "\n"
 
     def write_file(self, filename):
         """
@@ -1414,7 +1414,7 @@ class VaspInput(dict, PMGSONable):
             os.makedirs(output_dir)
         for k, v in self.items():
             with zopen(os.path.join(output_dir, k), "wt") as f:
-                f.write(unicode(v))
+                f.write(v)
 
     @staticmethod
     def from_directory(input_dir, optional_files=None):

@@ -2,6 +2,7 @@
 This module defines classes for point defect transformations on structures
 """
 from __future__ import division
+from __future__ import unicode_literals
 
 __author__ = "Bharat Medasani"
 __copyright__ = "Copyright 2014, The Materials Project"

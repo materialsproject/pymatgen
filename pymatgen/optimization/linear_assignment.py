@@ -3,6 +3,7 @@ This module contains an algorithm to solve the Linear Assignment Problem
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 
 __author__ = "Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"

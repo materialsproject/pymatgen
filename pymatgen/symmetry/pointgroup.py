@@ -3,6 +3,7 @@ This module implements a point group assigner for a molecule.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 from six.moves import filter
 
 __author__ = "Shyue Ping Ong"
