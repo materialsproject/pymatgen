@@ -398,8 +398,8 @@ class Poscar(PMGSONable):
         Writes POSCAR to a file. The supported kwargs are the same as those for
         the Poscar.get_string method and are passed through directly.
         """
-        with open(filename, "w") as f:
-            f.write(self.get_string(**kwargs))
+        with zopen(filename, "wt") as f:
+            f.write(unicode(self.get_string(**kwargs)))
 
     def as_dict(self):
         return {"@module": self.__class__.__module__,
