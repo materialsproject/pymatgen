@@ -303,6 +303,7 @@ class ParalHints(collections.Iterable):
 
         hints = ParalHints(self.info, confs=[c for c in self if c.tot_ncpus <= policy.max_ncpus])
         #print(hints)
+        logger.info('hints: \n' + str(hints) + '\n')
 
         # First select the configurations satisfying the 
         # condition specified by the user (if any)
