@@ -2334,7 +2334,6 @@ class AbinitTask(Task):
         self.strategy.remove_extra_abivars(autoparal_vars.keys())
 
         # 2) Parse the autoparal configurations from the main output file.
-        #print("parsing")
         parser = ParalHintsParser()
 
         try:
@@ -2349,6 +2348,12 @@ class AbinitTask(Task):
         # 3) Select the optimal configuration according to policy
         optimal = confs.select_optimal_conf(policy)
         #print("optimal Autoparal conf:\n %s" % optimal)
+
+        # Write autoparal configurations to file.
+        with open(os.path.join(task.workdir, "autoparal.txt", "wt") as fh:
+            fh.write(str(confs) + 2 * "\n")
+            fh.write("Optimal configuration:\n")
+            fh.write(str(optimal)+ "\n")
 
         # 4) Change the input file and/or the submission script
         self.strategy.add_extra_abivars(optimal.vars)
