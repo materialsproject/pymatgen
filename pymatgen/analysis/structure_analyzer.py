@@ -343,7 +343,7 @@ def contains_peroxide(structure, relative_cutoff=1.1):
         Boolean indicating if structure contains a peroxide anion.
     """
     ox_type = oxide_type(structure, relative_cutoff)
-    if ox_type is "peroxide":
+    if ox_type == "peroxide":
         return True
     else:
         return False

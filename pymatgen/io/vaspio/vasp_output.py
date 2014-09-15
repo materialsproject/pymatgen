@@ -295,7 +295,7 @@ class Vasprun(PMGSONable):
                         steps[-1].split("</calculation>")[-1])
                 else:
                     to_parse = "{}<calculation>{}".format(preamble, to_parse)
-                self._parse(StringIO(unicode(to_parse)), parse_dos=parse_dos,
+                self._parse(StringIO(to_parse), parse_dos=parse_dos,
                             parse_eigen=parse_eigen,
                             parse_projected_eigen=parse_projected_eigen)
             else:
