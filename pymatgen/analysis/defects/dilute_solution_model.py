@@ -193,7 +193,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
                     dE[i][j] = 0
                 else:
                     for as_def in antisite_defs:
-                        if as_def['site_index'] == j+1 and \
+                        if int(as_def['site_index']) == j+1 and \
                                 sub_specie == as_def['substitution_specie']:
                             dE[i][j] = as_def['energy']
                             break
@@ -365,7 +365,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     # Compile mu's for all composition ratios in the range
     #+/- 1% from the stoichiometry
     result = {}
-    for y in np.arange(ymin,ymax,delta):
+    for y in np.arange(ymin,ymax+delta,delta):
         result[y] = []
         vector_func = [y-c_ratio[0]]
         vector_func.append(omega)
@@ -828,7 +828,7 @@ def solute_site_preference_finder(
     # Compile mu's for all composition ratios in the range
     #+/- 1% from the stoichiometry
     result = {}
-    for y in np.arange(comp1_min,comp1_max,delta):
+    for y in np.arange(comp1_min,comp1_max+delta,delta):
         result[y] = []
         y_vect = []
         y_vect.append(y)
