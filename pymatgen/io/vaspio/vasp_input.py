@@ -36,7 +36,7 @@ from pymatgen.core.periodic_table import Element, get_el_sp
 from monty.design_patterns import cached_class
 from pymatgen.util.string_utils import str_aligned, str_delimited
 from pymatgen.util.io_utils import clean_lines
-from pymatgen.serializers.json_coders import PMGSONable\
+from pymatgen.serializers.json_coders import PMGSONable
 
 
 logger = logging.getLogger(__name__)
@@ -385,7 +385,7 @@ class Poscar(PMGSONable):
             for v in self.predictor_corrector[2:]:
                 lines.append(" ".join([format_str.format(i) for i in v]))
 
-        return "\n".join(lines) + "\n"
+        return unicode("\n".join(lines) + "\n")
 
     def __str__(self):
         """
@@ -399,7 +399,7 @@ class Poscar(PMGSONable):
         the Poscar.get_string method and are passed through directly.
         """
         with zopen(filename, "wt") as f:
-            f.write(unicode(self.get_string(**kwargs)))
+            f.write(self.get_string(**kwargs))
 
     def as_dict(self):
         return {"@module": self.__class__.__module__,
