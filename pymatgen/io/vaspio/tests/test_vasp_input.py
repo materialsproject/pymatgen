@@ -14,7 +14,8 @@ __date__ = "Jul 16, 2012"
 import unittest
 import os
 import numpy as np
-
+import json
+from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.physical_constants import BOLTZMANN_CONST
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Kpoints, Potcar, \
     PotcarSingle, VaspInput
@@ -26,7 +27,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
 
-class PoscarTest(unittest.TestCase):
+class PoscarTest(PymatgenTest):
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'POSCAR')
@@ -190,6 +191,16 @@ direct
         self.assertAlmostEqual(temperature, 900, 4,
                                'Temperature instantiated incorrectly')
 
+
+    def test_write(self):
+        filepath = os.path.join(test_dir, 'POSCAR')
+        poscar = Poscar.from_file(filepath)
+        tempfname = "POSCAR.testing"
+        poscar.write_file(tempfname)
+        p = Poscar.from_file(tempfname)
+        self.assertArrayAlmostEqual(poscar.structure.lattice.abc,
+                                    p.structure.lattice.abc, 5)
+        os.remove(tempfname)
 
 class IncarTest(unittest.TestCase):
 
@@ -409,6 +420,7 @@ class PotcarTest(unittest.TestCase):
         p = Potcar.from_file(tempfname)
         self.assertEqual(p.symbols, self.potcar.symbols)
         os.remove(tempfname)
+
 
 class VaspInputTest(unittest.TestCase):
 
