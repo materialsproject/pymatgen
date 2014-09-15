@@ -109,7 +109,7 @@ class Site(collections.Mapping, collections.Hashable, PMGSONable):
         String representation of species on the site.
         """
         if self._is_ordered:
-            return str(list(self._species.keys())[0])
+            return list(self._species.keys())[0].__str__()
         else:
             sorted_species = sorted(self._species.keys())
             return ", ".join(["{}:{:.3f}".format(sp, self._species[sp])
