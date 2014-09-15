@@ -3,6 +3,7 @@ Classes for reading/manipulating/writing VASP ouput files.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
     "Vincent L Chevrier"

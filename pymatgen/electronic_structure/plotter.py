@@ -3,6 +3,7 @@ This module implements plotter for DOS and band structure.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 from __future__ import print_function
 from six.moves import zip
 

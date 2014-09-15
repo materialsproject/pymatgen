@@ -4,6 +4,7 @@ target compound/element.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 from six.moves import zip
 
 __author__ = "Sai Jayaraman"

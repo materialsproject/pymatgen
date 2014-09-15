@@ -15,6 +15,7 @@ citing the following papers::
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 
 __author__ = "Will Richards, Shyue Ping Ong"
 __version__ = "0.2"

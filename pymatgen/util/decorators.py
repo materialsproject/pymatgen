@@ -2,6 +2,7 @@
 This module contains useful decorators for a variety of functions.
 """
 from __future__ import division
+from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"

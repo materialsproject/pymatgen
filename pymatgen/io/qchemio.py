@@ -545,7 +545,7 @@ class QcTask(PMGSONable):
                 lines.extend(foramt_sec())
                 lines.append("$end")
                 lines.append('\n')
-        return unicode('\n'.join(lines))
+        return '\n'.join(lines)
 
     def _format_comment(self):
         lines = [' ' + self.params["comment"].strip()]
@@ -1129,7 +1129,7 @@ class QcInput(PMGSONable):
             self.jobs = jobs
 
     def __str__(self):
-        return unicode("\n@@@\n\n\n".join([str(j) for j in self.jobs]))
+        return "\n@@@\n\n\n".join([str(j) for j in self.jobs])
 
     def write_file(self, filename):
         with zopen(filename, "wt") as f:

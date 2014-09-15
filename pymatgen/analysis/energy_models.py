@@ -5,6 +5,7 @@ implementations. Basically, an EnergyModel is any model that returns an
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 
 
 __author__ = "Shyue Ping Ong"

@@ -3,6 +3,7 @@ Wrapper classes for Cif input and output from Structures.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -87,7 +88,7 @@ class CifBlock(object):
                     s.append("{}   {}".format(k, v))
                 else:
                     s.extend([k, v])
-        return unicode("\n".join(s))
+        return "\n".join(s)
 
     def _loop_to_string(self, loop):
         s = "loop_"
@@ -491,7 +492,7 @@ class CifWriter:
         """
         Returns the cif as a string.
         """
-        return unicode(self._cf)
+        return self._cf.__str__()
 
     def write_file(self, filename):
         """

@@ -28,6 +28,7 @@ objects are supported as well.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 import six
 
 __author__ = "Shyue Ping Ong"

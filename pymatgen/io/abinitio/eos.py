@@ -1,5 +1,6 @@
 """Tools to compute equations of states with different models."""
-from __future__ import division, print_function
+from __future__ import division
+from __future__ import unicode_literals, print_function
 
 import collections
 import numpy as np

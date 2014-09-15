@@ -4,6 +4,7 @@ functionals.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 import six
 from six.moves import filter
 from six.moves import map

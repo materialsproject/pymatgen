@@ -3,6 +3,7 @@ This module provides input and output from the CSSR file format.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 from six.moves import map
 
 __author__ = "Shyue Ping Ong"

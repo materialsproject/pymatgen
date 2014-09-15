@@ -8,6 +8,7 @@ of numpy's ndarray with similar unit features.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 from six.moves import filter
 from six.moves import zip
 

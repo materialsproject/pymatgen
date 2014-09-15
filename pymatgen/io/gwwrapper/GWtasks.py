@@ -3,6 +3,7 @@ GW tasks for fireworks workflows, currently Vasp only
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "

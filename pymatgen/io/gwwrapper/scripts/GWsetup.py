@@ -3,7 +3,8 @@
 """
 Script to write GW Input for VASP and ABINIT / set up work flows.
 """
-from __future__ import division, print_function
+from __future__ import division
+from __future__ import unicode_literals, print_function
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "

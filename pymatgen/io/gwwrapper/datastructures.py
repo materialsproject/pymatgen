@@ -4,7 +4,8 @@ code interfaces provided in codeinterfaces.
 Reads the POSCAR_name in the the current folder and outputs GW input to subfolders name or lists of structures
 test 3
 """
-from __future__ import division, print_function
+from __future__ import division
+from __future__ import unicode_literals, print_function
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "
