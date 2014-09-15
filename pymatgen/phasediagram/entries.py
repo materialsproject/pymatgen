@@ -23,7 +23,7 @@ from io import open
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.serializers.json_coders import PMGSONable
-from pymatgen.util.string_utils import unicode2str
+from monty.string import unicode2str
 
 
 class PDEntry(PMGSONable):

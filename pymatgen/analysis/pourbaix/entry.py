@@ -17,16 +17,15 @@ __date__ = "December 10, 2012"
 import re
 import math
 import csv
-import sys
 
 from six.moves import map, zip
+from monty.string import unicode2str
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Composition
 from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.core.ion import Ion
 from pymatgen.phasediagram.entries import PDEntry
-from pymatgen.util.string_utils import unicode2str
 
 PREFAC = 0.0591
 

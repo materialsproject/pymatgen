@@ -318,10 +318,6 @@ class WildCard(object):
         return False
 
 
-def unicode2str(s):
-    return s.encode('utf-8') if sys.version_info.major < 3 else s
-
-
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
