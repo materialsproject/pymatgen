@@ -187,7 +187,7 @@ class Poscar(PMGSONable):
                         [get_el_sp(n) for n in names] # ensure valid names
                     except:
                         names = None
-        with zopen(filename, "r") as f:
+        with zopen(filename, "rt") as f:
             return Poscar.from_string(f.read(), names)
 
     @staticmethod
@@ -560,7 +560,7 @@ class Incar(dict, PMGSONable):
         Returns:
             Incar object
         """
-        with zopen(filename) as f:
+        with zopen(filename, "rt") as f:
             lines = list(clean_lines(f.readlines()))
         params = {}
         for line in lines:
@@ -968,7 +968,7 @@ class Kpoints(PMGSONable):
         Returns:
             Kpoints object
         """
-        with zopen(filename) as f:
+        with zopen(filename, "rt") as f:
             lines = [line.strip() for line in f.readlines()]
         comment = lines[0]
         num_kpts = int(lines[1].split()[0].strip())
@@ -1179,16 +1179,16 @@ class PotcarSingle(object):
         self.keywords = dict(keypairs)
 
     def __str__(self):
-        return self.data + "\n"
+        return self.data + u"\n"
 
     def write_file(self, filename):
-        with zopen(filename, "w") as f:
+        with zopen(filename, "wt") as f:
             f.write(self.__str__())
 
     @staticmethod
     def from_file(filename):
-        with zopen(filename, "rb") as f:
-            return PotcarSingle(bytes.decode(f.read()))
+        with zopen(filename, "rt") as f:
+            return PotcarSingle(f.read())
 
     @staticmethod
     def from_symbol_and_functional(symbol, functional="PBE"):
@@ -1284,7 +1284,7 @@ class Potcar(list, PMGSONable):
 
     @staticmethod
     def from_file(filename):
-        with zopen(filename, "r") as reader:
+        with zopen(filename, "rt") as reader:
             fdata = reader.read()
         potcar = Potcar()
         potcar_strings = re.compile(r"\n?(\s*.*?End of Dataset)",
@@ -1316,7 +1316,7 @@ class Potcar(list, PMGSONable):
         Args:
             filename (str): filename to write to.
         """
-        with open(filename, "w") as f:
+        with open(filename, "wt") as f:
             f.write(self.__str__())
 
     @property
