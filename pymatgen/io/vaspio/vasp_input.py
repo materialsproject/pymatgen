@@ -537,7 +537,7 @@ class Incar(dict, PMGSONable):
             return str_delimited(lines, None, " = ") + "\n"
 
     def __str__(self):
-        return self.get_string(sort_keys=True, pretty=False)
+        return unicode(self.get_string(sort_keys=True, pretty=False))
 
     def write_file(self, filename):
         """
@@ -546,7 +546,7 @@ class Incar(dict, PMGSONable):
         Args:
             filename (str): filename to write to.
         """
-        with open(filename, "w") as f:
+        with open(filename, "wt") as f:
             f.write(self.__str__())
 
     @staticmethod
@@ -1066,7 +1066,7 @@ class Kpoints(PMGSONable):
         Args:
             filename (str): Filename to write to.
         """
-        with open(filename, "w") as f:
+        with zopen(filename, "wt") as f:
             f.write(self.__str__())
 
     def __str__(self):
@@ -1100,7 +1100,7 @@ class Kpoints(PMGSONable):
         #Print shifts for automatic kpoints types if not zero.
         if self.num_kpts <= 0 and tuple(self.kpts_shift) != (0, 0, 0):
             lines.append(" ".join([str(x) for x in self.kpts_shift]))
-        return "\n".join(lines) + "\n"
+        return unicode("\n".join(lines) + "\n")
 
     def as_dict(self):
         """json friendly dict representation of Kpoints"""
@@ -1179,7 +1179,7 @@ class PotcarSingle(object):
         self.keywords = dict(keypairs)
 
     def __str__(self):
-        return self.data + u"\n"
+        return unicode(self.data + "\n")
 
     def write_file(self, filename):
         with zopen(filename, "wt") as f:
@@ -1307,7 +1307,8 @@ class Potcar(list, PMGSONable):
         return potcar
 
     def __str__(self):
-        return "\n".join([str(potcar).strip("\n") for potcar in self]) + "\n"
+        return unicode("\n".join([str(potcar).strip("\n") for potcar in self])
+                       + "\n")
 
     def write_file(self, filename):
         """
@@ -1316,7 +1317,7 @@ class Potcar(list, PMGSONable):
         Args:
             filename (str): filename to write to.
         """
-        with open(filename, "wt") as f:
+        with zopen(filename, "wt") as f:
             f.write(self.__str__())
 
     @property
@@ -1412,8 +1413,8 @@ class VaspInput(dict, PMGSONable):
         if make_dir_if_not_present and not os.path.exists(output_dir):
             os.makedirs(output_dir)
         for k, v in self.items():
-            with open(os.path.join(output_dir, k), "w") as f:
-                f.write(str(v))
+            with zopen(os.path.join(output_dir, k), "wt") as f:
+                f.write(unicode(v))
 
     @staticmethod
     def from_directory(input_dir, optional_files=None):

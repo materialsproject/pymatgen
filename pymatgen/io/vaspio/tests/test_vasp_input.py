@@ -204,15 +204,20 @@ direct
 
 class IncarTest(unittest.TestCase):
 
+    def setUp(self):
+        file_name = os.path.join(test_dir, 'INCAR')
+        self.incar = Incar.from_file(file_name)
+
+
     def test_init(self):
-        filepath = os.path.join(test_dir, 'INCAR')
-        incar = Incar.from_file(filepath)
+        incar = self.incar
         incar["LDAU"] = "T"
         self.assertEqual(incar["ALGO"], "Damped", "Wrong Algo")
         self.assertEqual(float(incar["EDIFF"]), 1e-4, "Wrong EDIFF")
         self.assertEqual(type(incar["LORBIT"]), int)
 
     def test_diff(self):
+        incar = self.incar
         filepath1 = os.path.join(test_dir, 'INCAR')
         incar1 = Incar.from_file(filepath1)
         filepath2 = os.path.join(test_dir, 'INCAR.2')
@@ -253,11 +258,16 @@ class IncarTest(unittest.TestCase):
                       'LORBIT': 11, 'SIGMA': 0.05}})
 
     def test_as_dict_and_from_dict(self):
-        file_name = os.path.join(test_dir, 'INCAR')
-        incar = Incar.from_file(file_name)
-        d = incar.as_dict()
+        d = self.incar.as_dict()
         incar2 = Incar.from_dict(d)
-        self.assertEqual(incar, incar2)
+        self.assertEqual(self.incar, incar2)
+
+    def test_write(self):
+        tempfname = "INCAR.testing"
+        self.incar.write_file(tempfname)
+        i = Incar.from_file(tempfname)
+        self.assertEqual(i, self.incar)
+        os.remove(tempfname)
 
 
 class KpointsTest(unittest.TestCase):
