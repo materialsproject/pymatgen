@@ -412,7 +412,7 @@ class TaskPolicy(object):
         base_increase = 12
         new = self.max_ncpus + base_increase
         if new <= 240:
-            self.max_ncpus(new)
+            self.max_ncpus = new
             return True
         else:
             return False
