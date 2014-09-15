@@ -412,7 +412,7 @@ class TaskPolicy(object):
     def increase_max_ncpus(self):
         base_increase = 12
         new = self.max_ncpus + base_increase
-        if new <= 240:
+        if new <= 360:
             logger.info('set max_ncps to '+str(new))
             self.max_ncpus = new
             return True
