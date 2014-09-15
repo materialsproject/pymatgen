@@ -3,8 +3,6 @@ Classes for reading/manipulating/writing VASP ouput files.
 """
 
 from __future__ import division
-from six.moves import map
-from six.moves import zip
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
     "Vincent L Chevrier"
@@ -26,6 +24,8 @@ from io import StringIO
 import logging
 from collections import defaultdict
 from xml.etree.cElementTree import iterparse
+
+from six.moves import map, zip
 
 import numpy as np
 
