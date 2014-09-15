@@ -406,7 +406,7 @@ class AbinitFlow(Node):
         for task in self.iflat_tasks(status=Task.S_ABICRITICAL):
             #todo
             if task.fix_abicritical():
-                task.reset_from_scratch()
+                # task.reset_from_scratch()
                 # task.set_status(task.S_READY)
             else:
                 info_msg = 'We encountered an abi critial envent that could not be fixed'

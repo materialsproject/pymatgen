@@ -64,6 +64,7 @@ def straceback():
     import traceback
     return traceback.format_exc()
 
+
 class TaskResults(dict, PMGSONable):
     """
     Dictionary used to store the most important results produced by a Task.
@@ -412,7 +413,7 @@ class TaskPolicy(object):
         base_increase = 12
         new = self.max_ncpus + base_increase
         if new <= 240:
-            logger.info('set max_ncps to'+str(new))
+            logger.info('set max_ncps to '+str(new))
             self.max_ncpus = new
             return True
         else:
