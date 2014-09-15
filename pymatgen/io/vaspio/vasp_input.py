@@ -386,7 +386,7 @@ class Poscar(PMGSONable):
             for v in self.predictor_corrector[2:]:
                 lines.append(" ".join([format_str.format(i) for i in v]))
 
-        return unicode("\n".join(lines) + "\n")
+        return "\n".join(lines) + "\n"
 
     def __str__(self):
         """
@@ -538,7 +538,7 @@ class Incar(dict, PMGSONable):
             return str_delimited(lines, None, " = ") + "\n"
 
     def __str__(self):
-        return unicode(self.get_string(sort_keys=True, pretty=False))
+        return self.get_string(sort_keys=True, pretty=False)
 
     def write_file(self, filename):
         """
