@@ -864,6 +864,8 @@ class PbsAdapter(AbstractQueueAdapter):
 
     def get_njobs_in_queue(self, username=None):
         # Initialize username
+        return 0
+
         if username is None:
             username = getpass.getuser()
 
