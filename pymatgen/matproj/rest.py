@@ -25,8 +25,6 @@ import json
 import warnings
 import re
 import itertools
-import datetime
-import numpy as np
 
 from monty.json import MontyEncoder, MontyDecoder
 
