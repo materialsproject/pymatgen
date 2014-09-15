@@ -303,7 +303,7 @@ class ParalHints(collections.Iterable):
 
         hints = ParalHints(self.info, confs=[c for c in self if c.tot_ncpus <= policy.max_ncpus])
         #print(hints)
-        logger.info('hints: \n' + str(hints) + '\n')
+        #logger.info('hints: \n' + str(hints) + '\n')
 
         # First select the configurations satisfying the 
         # condition specified by the user (if any)
@@ -334,9 +334,9 @@ class ParalHints(collections.Iterable):
                 hints.sort_by_speedup()
                 return hints[-1].copy()
 
-        hints.sort_by_speedup()
+        #hints.sort_by_speedup()
 
-        logger.info('speedup hints: \n' + str(hints) + '\n')
+        #logger.info('speedup hints: \n' + str(hints) + '\n')
 
         hints.sort_by_efficiency()
 
@@ -2365,7 +2365,8 @@ class AbinitTask(Task):
         try:
             confs = parser.parse(self.output_file.path)
             #self.all_autoparal_confs = confs
-            #print("confs", confs)
+            logger.info('speedup hints: \n' + str(confs) + '\n')
+            # print("confs", confs)
 
         except parser.Error:
             logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
