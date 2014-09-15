@@ -335,17 +335,11 @@ class ParalHints(collections.Iterable):
 
         hints.sort_by_speedup()
 
-        if logger.level == 'INFO':
-            f = open('paral_confs_sp', 'w')
-            f.write(str(hints))
-            f.close()
+        logger.info('speedup hints: \n' + str(hints) + '\n')
 
         hints.sort_by_efficiency()
 
-        if logger.level == 'INFO':
-            f = open('paral_confs_eff', 'w')
-            f.write(str(hints))
-            f.close()
+        logger.info('efficiency hints: \n' + str(hints) + '\n')
 
         # Find the optimal configuration according to policy.mode.
         #mode = policy.mode
