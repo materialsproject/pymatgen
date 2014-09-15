@@ -551,6 +551,8 @@ class StructureTest(PymatgenTest):
 
         self.structure.to(filename="structure_testing.json")
         self.assertTrue(os.path.exists("structure_testing.json"))
+        s = Structure.from_file("structure_testing.json")
+        self.assertEqual(s, self.structure)
         os.remove("structure_testing.json")
 
 
