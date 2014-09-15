@@ -3,6 +3,7 @@ Module implementing an XYZ file object class.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -96,5 +97,5 @@ class XYZ(object):
         Args:
             filename: File name of output file.
         """
-        with zopen(filename, "w") as f:
+        with zopen(filename, "wt") as f:
             f.write(self.__str__())

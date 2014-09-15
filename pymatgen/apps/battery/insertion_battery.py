@@ -4,6 +4,7 @@ intercalation batteries.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

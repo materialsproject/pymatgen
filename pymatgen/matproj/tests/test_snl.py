@@ -3,6 +3,7 @@ Unit tests for StructureNL (SNL) format
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 
 __author__ = "Anubhav Jain"
 __credits__ = "Shyue Ping Ong"

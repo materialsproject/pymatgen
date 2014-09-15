@@ -3,6 +3,7 @@ This module provides classes for plotting Pourbaix objects.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 import six
 from six.moves import map
 from six.moves import zip

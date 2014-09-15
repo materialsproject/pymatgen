@@ -10,6 +10,7 @@ v2.0 - Updated for spglib 1.6.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 from six.moves import map
 from six.moves import zip
 

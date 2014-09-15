@@ -9,6 +9,7 @@ FeffTags classes, then combined to produce the full feff.inp.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 from six.moves import map
 
 __author__ = "Alan Dozier"

@@ -13,6 +13,7 @@ Bader decomposition of charge density", Comput. Mater. Sci. 36, 254-360 (2006).
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 from six.moves import map
 from six.moves import zip
 

@@ -28,6 +28,7 @@ objects are supported as well.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 import six
 
 __author__ = "Shyue Ping Ong"
@@ -99,7 +100,7 @@ def pmg_load(filename, **kwargs):
         dicts or otherwise nested pymatgen objects that support the as_dict()
         and from_dict PMGSONable protocol.
     """
-    return json.load(zopen(filename), cls=MontyDecoder, **kwargs)
+    return json.load(zopen(filename, "rt"), cls=MontyDecoder, **kwargs)
 
 
 def pmg_dump(obj, filename, **kwargs):

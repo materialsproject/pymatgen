@@ -16,8 +16,7 @@ from pymatgen.core.structure import Molecule
 from pymatgen.core.units import Energy, FloatWithUnit
 from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.util.coord_utils import get_angle
-from six.moves import map
-from six.moves import zip
+from six.moves import map, zip
 
 __author__ = "Xiaohui Qu"
 __copyright__ = "Copyright 2013, The Electrolyte Genome Project"
@@ -723,12 +722,12 @@ class QcTask(PMGSONable):
                       optional_params=optional_params)
 
     def write_file(self, filename):
-        with zopen(filename, "w") as f:
+        with zopen(filename, "wt") as f:
             f.write(self.__str__())
 
     @classmethod
     def from_file(cls, filename):
-        with zopen(filename) as f:
+        with zopen(filename, "rt") as f:
             return cls.from_string(f.read())
 
     @classmethod
@@ -1133,7 +1132,7 @@ class QcInput(PMGSONable):
         return "\n@@@\n\n\n".join([str(j) for j in self.jobs])
 
     def write_file(self, filename):
-        with zopen(filename, "w") as f:
+        with zopen(filename, "wt") as f:
             f.write(self.__str__())
 
     def as_dict(self):
@@ -1154,7 +1153,7 @@ class QcInput(PMGSONable):
 
     @classmethod
     def from_file(cls, filename):
-        with zopen(filename) as f:
+        with zopen(filename, "rt") as f:
             return cls.from_string(f.read())
 
 
@@ -1164,7 +1163,7 @@ class QcOutput(object):
 
     def __init__(self, filename):
         self.filename = filename
-        with zopen(filename) as f:
+        with zopen(filename, "rt") as f:
             data = f.read()
         chunks = re.split("\n\nRunning Job \d+ of \d+ \S+", data)
         # noinspection PyTypeChecker

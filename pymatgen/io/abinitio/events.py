@@ -2,7 +2,8 @@
 This module defines the events signaled by abinit during the execution. It also
 provides a parser to extract these events form the main output file and the log file.
 """
-from __future__ import division, print_function
+from __future__ import division
+from __future__ import unicode_literals, print_function
 
 import os.path
 import collections

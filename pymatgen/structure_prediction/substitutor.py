@@ -3,6 +3,7 @@ This module provides classes for predicting new structures from existing ones.
 """
 
 from __future__ import division
+from __future__ import unicode_literals
 from six.moves import zip
 
 __author__ = "Will Richards, Geoffroy Hautier"

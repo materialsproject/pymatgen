@@ -4,8 +4,7 @@ Pourbaix diagram
 """
 
 from __future__ import division
-from six.moves import map
-from six.moves import zip
+from __future__ import unicode_literals
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -18,12 +17,16 @@ __date__ = "December 10, 2012"
 import re
 import math
 import csv
+import sys
+
+from six.moves import map, zip
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Composition
 from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.core.ion import Ion
 from pymatgen.phasediagram.entries import PDEntry
+from pymatgen.util.string_utils import unicode2str
 
 PREFAC = 0.0591
 
@@ -355,8 +358,9 @@ class PourbaixEntryIO(object):
                               for entry in entries]))
         elements = sorted(list(elements), key=lambda a: a.X)
         with open(filename, "w") as f:
-            writer = csv.writer(f, delimiter=",",
-                                quotechar="\"", quoting=csv.QUOTE_MINIMAL)
+            writer = csv.writer(f, delimiter=unicode2str(","),
+                                quotechar=unicode2str("\""),
+                                quoting=csv.QUOTE_MINIMAL)
             writer.writerow(["Name"] + elements + ["Energy"] + ["Entry Type"]
                             + ["Charge"] + ["Concentration"])
             for entry in entries:
@@ -389,8 +393,9 @@ class PourbaixEntryIO(object):
             List of Entries
         """
         with open(filename, "r") as f:
-            reader = csv.reader(f, delimiter=",",
-                                quotechar="\"", quoting=csv.QUOTE_MINIMAL)
+            reader = csv.reader(f, delimiter=unicode2str(","),
+                                quotechar=unicode2str("\""),
+                                quoting=csv.QUOTE_MINIMAL)
             entries = list()
             header_read = False
             for row in reader:
