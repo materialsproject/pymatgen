@@ -546,7 +546,7 @@ class Incar(dict, PMGSONable):
         Args:
             filename (str): filename to write to.
         """
-        with open(filename, "wt") as f:
+        with zopen(filename, "wt") as f:
             f.write(self.__str__())
 
     @staticmethod
