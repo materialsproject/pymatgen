@@ -25,6 +25,7 @@ import random
 import warnings
 from fnmatch import fnmatch
 import re
+from io import open
 
 import numpy as np
 
@@ -1059,7 +1060,7 @@ class IStructure(SiteCollection, PMGSONable):
             writer = Cssr(self)
         else:
             if filename:
-                with open(filename, "wt") as f:
+                with open(filename, "wb") as f:
                     json.dump(self.as_dict(), f)
                 return
             else:
@@ -1577,7 +1578,7 @@ class IMolecule(SiteCollection, PMGSONable):
         elif fmt == "json" or fnmatch(fname, "*.json*") or fnmatch(fname,
                                                                   "*.mson*"):
             if filename:
-                with zopen(filename, "wt") as f:
+                with zopen(filename, "wt", encoding='utf8') as f:
                     json.dump(self.as_dict(), f)
             else:
                 return json.dumps(self.as_dict())
@@ -2551,6 +2552,6 @@ class FunctionalGroups(dict):
         """
         dict.__init__(self)
         with open(os.path.join(os.path.dirname(__file__),
-                               "func_groups.json")) as f:
+                               "func_groups.json"), "rt") as f:
             for k, v in json.load(f).items():
                 self[k] = Molecule(v["species"], v["coords"])
