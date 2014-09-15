@@ -244,7 +244,7 @@ class SingleAbinitGWWorkFlow():
             nbdbuf=8
         )
 
-        # read user defined extra abivars from file 'extra_abivars' should be dictionary
+        # read user defined extra abivars from file  'extra_abivars' should be dictionary
         extra_abivars.update(read_extra_abivars())
 
         if self.option is not None:
