@@ -1059,7 +1059,7 @@ class IStructure(SiteCollection, PMGSONable):
             writer = Cssr(self)
         else:
             if filename:
-                with open(filename, "w") as f:
+                with open(filename, "wt") as f:
                     json.dump(self.as_dict(), f)
                 return
             else:
