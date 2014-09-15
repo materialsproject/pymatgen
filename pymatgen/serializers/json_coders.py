@@ -99,7 +99,7 @@ def pmg_load(filename, **kwargs):
         dicts or otherwise nested pymatgen objects that support the as_dict()
         and from_dict PMGSONable protocol.
     """
-    return json.load(zopen(filename), cls=MontyDecoder, **kwargs)
+    return json.load(zopen(filename, "rt"), cls=MontyDecoder, **kwargs)
 
 
 def pmg_dump(obj, filename, **kwargs):
