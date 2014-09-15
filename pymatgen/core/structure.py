@@ -1577,7 +1577,7 @@ class IMolecule(SiteCollection, PMGSONable):
         elif fmt == "json" or fnmatch(fname, "*.json*") or fnmatch(fname,
                                                                   "*.mson*"):
             if filename:
-                with zopen(filename, "w") as f:
+                with zopen(filename, "wt") as f:
                     json.dump(self.as_dict(), f)
             else:
                 return json.dumps(self.as_dict())
