@@ -403,6 +403,12 @@ class PotcarTest(unittest.TestCase):
         potcar = Potcar.from_dict(d)
         self.assertEqual(potcar.symbols, ["Fe", "P", "O"])
 
+    def test_write(self):
+        tempfname = "POTCAR.testing"
+        self.potcar.write_file(tempfname)
+        p = Potcar.from_file(tempfname)
+        self.assertEqual(p.symbols, self.potcar.symbols)
+        os.remove(tempfname)
 
 class VaspInputTest(unittest.TestCase):
 
