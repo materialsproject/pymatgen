@@ -1,4 +1,6 @@
-from __future__ import division, print_function
+# coding: utf-8
+
+from __future__ import unicode_literals, division, print_function
 
 """
 Classes for writing GW Input and analyzing GW data. The underlying classes can handle the use of VASP and ABINIT via the
