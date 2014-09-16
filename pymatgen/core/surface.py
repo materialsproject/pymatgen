@@ -170,7 +170,6 @@ class Slab(Structure):
         single.make_supercell(single_slab)
         slab.make_supercell(slab_scale_factor)
 
-
     # Clusters sites together that belong in the same termination surface based
     # on their position in the c direction. Also organizes sites by ascending
     # order from teh origin along the c direction. How close the sites have to
@@ -206,7 +205,6 @@ class Slab(Structure):
             term_slab = organize(term_slab)[0]
             c = term_slab.lattice.c
             term_site = term_slab[term_index[i]].frac_coords[2]*c
-
             new_sites = []
             for site in term_slab:
                 if term_site < site.frac_coords[2] * c <= nlayers_slab * dist +\
@@ -217,7 +215,7 @@ class Slab(Structure):
 
             if lll_reduce:
                 lll_slab = term_slab.copy(sanitize=True)
-                if i == nth_term:
+                if i == len(term_index)-1:
                     mapping = lll_slab.lattice.find_mapping(term_slab.lattice)
                     slab_scale_factor = np.dot(mapping[2], b)
                 term_slab = lll_slab
@@ -256,7 +254,7 @@ class Slab(Structure):
             raise IndexError("nth_term is out of range, set nth_term "
                              "between 0 and %s" %(len(slab_list)))
 
-        slab = slab_list[nth_term]
+        slab = slab_list[nth_term].copy()
 
         self.min_slab_size = min_slab_size
         self.nlayers_slab = nlayers_slab
