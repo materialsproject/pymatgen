@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 """
 Module containing class to create an ion
 """

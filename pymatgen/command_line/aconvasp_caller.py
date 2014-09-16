@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 """
 Interface with command line aconvasp. http://aflowlib.org/
 Only tested on Linux. Inspired by Shyue"s qhull_caller

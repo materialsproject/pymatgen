@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 """
 Test suite for lazy
 Taken from https://pypi.python.org/pypi/lazy v1.1

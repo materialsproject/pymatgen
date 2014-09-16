@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 """
 This module provides objects for extracting timing data from the ABINIT output files 
 It also provides tools to analye and to visualize the parallel efficiency.

@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 """
 This module provides utility classes for io operations.
 """

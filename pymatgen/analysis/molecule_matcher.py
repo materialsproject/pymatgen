@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 """
 This module provides classes to perform fitting of molecule with arbitrary
 atom orders.
