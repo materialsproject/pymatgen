@@ -8,10 +8,8 @@ It also includes the helper function, batch_write_vasp_input to generate an
 entire directory of vasp input files for running.
 """
 
-from __future__ import division
-from __future__ import unicode_literals
-from six.moves import filter
-from six.moves import map
+from __future__ import division, unicode_literals
+from six.moves import filter, map
 
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2012, The Materials Project"
