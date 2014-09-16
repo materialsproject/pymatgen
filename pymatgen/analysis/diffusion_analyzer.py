@@ -150,13 +150,19 @@ class DiffusionAnalyzer(PMGSONable):
             self.max_framework_displacement = 0
         else:
             framework_disp = self.disp[self.framework_indices]
-            drift = np.average(framework_disp, axis=0)[None, :, :]
+            self.drift = np.average(framework_disp, axis=0)[None, :, :]
 
             #drift corrected position
-            dc_x = self.disp[self.indices] - drift
-            dc_framework = self.disp[self.framework_indices] - drift
+            dc = self.disp - self.drift
+            dc_x = dc[self.indices]
+
+            self.corrected_displacements = dc
+
+            self.ion_max_displacements = np.max(np.sum(
+                dc ** 2, axis=-1) ** 0.5, axis=1)
+
             self.max_framework_displacement = \
-                np.max(np.sum(dc_framework ** 2, axis=-1) ** 0.5)
+                np.max(self.ion_max_displacements[self.framework_indices])
             df_x = self.structure.lattice.get_fractional_coords(dc_x)
 
             if smoothed:
