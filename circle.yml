@@ -22,6 +22,6 @@ deployment:
       - git config --global user.email "ongsp@ucsd.edu"
       - git config --global user.name "Shyue Ping Ong"
       - git checkout stable_py3
-      - git merge master
+      - git merge -m "Automated merge for py3k testing" master
       - git push
       - git checkout master
