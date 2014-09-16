@@ -17,7 +17,7 @@ __date__ = "5/2/13"
 import unittest
 import os
 import json
-
+import random
 import numpy as np
 
 from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer,\
@@ -98,6 +98,14 @@ class DiffusionAnalyzerTest(PymatgenTest):
                  0.713087091642237, 0.7621007695790749])
 
             self.assertAlmostEqual(d.max_framework_displacement, 1.18656839605)
+
+            ss = list(d.get_drift_corrected_structures())
+            self.assertEqual(len(ss), 1000)
+            n = random.randint(0, 999)
+            self.assertArrayAlmostEqual(
+                ss[n].cart_coords - d.structure.cart_coords + d.drift[:, n, :],
+                d.disp[:, n, :])
+
             d = DiffusionAnalyzer.from_dict(d.as_dict())
             self.assertIsInstance(d, DiffusionAnalyzer)
 
