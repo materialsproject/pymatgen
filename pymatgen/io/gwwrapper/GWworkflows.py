@@ -137,7 +137,7 @@ class SingleAbinitGWWorkFlow():
     #'test': {'test_range': (1, 2, 3), 'method': 'direct', 'control': "e_ks_max", 'level': "scf"},
     CONVS = {'ecut': {'test_range': (28, 32, 36, 40, 44), 'method': 'direct', 'control': "e_ks_max", 'level': "scf"},
              'ecuteps': {'test_range': (4, 8, 12, 16, 20), 'method': 'direct', 'control': "gap", 'level': "sigma"},
-             'nscf_nbands': {'test_range': (5, 15, 25, 35, 45), 'method': 'set_bands', 'control': "gap", 'level': "nscf"}}
+             'nscf_nbands': {'test_range': (6, 12, 24, 36, 48), 'method': 'set_bands', 'control': "gap", 'level': "nscf"}}
 
     def __init__(self, structure, spec, option=None):
         self.structure = structure
@@ -244,7 +244,7 @@ class SingleAbinitGWWorkFlow():
             nbdbuf=8
         )
 
-        # read user defined extra abivars from file 'extra_abivars' should be dictionary
+        # read user defined extra abivars from file  'extra_abivars' should be dictionary
         extra_abivars.update(read_extra_abivars())
 
         if self.option is not None:
