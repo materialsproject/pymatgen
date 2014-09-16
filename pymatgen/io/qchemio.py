@@ -75,6 +75,8 @@ class QcTask(PMGSONable):
             section. Dict of key/value pairs.
             Example: {"basis": {"Li": "cc-PVTZ", "B": "aug-cc-PVTZ",
             "F": "aug-cc-PVTZ"} "ecp": {"Cd": "srsc", "Br": "srlc"}}
+        ghost_atom (list): List of ghost atoms indices. Indices start from 0.
+            The ghost atom will be represented in of the form of @element_symmbol
     """
 
     optional_keywords_list = {"basis", "ecp", "empirical_dispersion",
@@ -97,7 +99,7 @@ class QcTask(PMGSONable):
     def __init__(self, molecule=None, charge=None, spin_multiplicity=None,
                  jobtype='SP', title=None, exchange="HF", correlation=None,
                  basis_set="6-31+G*", aux_basis_set=None, ecp=None,
-                 rem_params=None, optional_params=None):
+                 rem_params=None, optional_params=None, ghost_atoms=None):
         self.mol = copy.deepcopy(molecule) if molecule else "read"
         self.charge = charge
         self.spin_multiplicity = spin_multiplicity
@@ -161,6 +163,7 @@ class QcTask(PMGSONable):
                 if isinstance(v, six.string_types):
                     v = str(v).lower()
                     if v in self.alternative_values:
+                        # noinspection PyTypeChecker
                         v = self.alternative_values[v]
                     self.params["rem"][k] = v
                 elif isinstance(v, int) or isinstance(v, float):
@@ -192,6 +195,13 @@ class QcTask(PMGSONable):
 
         if ecp:
             self.set_ecp(ecp)
+        self.ghost_atoms = ghost_atoms
+        if self.ghost_atoms:
+            if not isinstance(self.ghost_atoms, list):
+                raise ValueError("ghost_atoms must be a list of integers")
+            for atom in self.ghost_atoms:
+                if not isinstance(atom, int):
+                    raise ValueError("Each element of ghost atom list must an integer")
 
     def _aux_basis_required(self):
         if self.params["rem"]["exchange"] in ['xygjos', 'xyg3', 'lxygjos']:
@@ -558,12 +568,16 @@ class QcTask(PMGSONable):
     def _format_molecule(self):
         lines = []
 
-        def inner_format_mol(m2):
+        def inner_format_mol(m2, index_base):
             mol_lines = []
-            for site in m2.sites:
-                mol_lines.append(" {element:<4} {x:>17.8f} {y:>17.8f} "
-                                 "{z:>17.8f}".format(element=site.species_string,
-                                                     x=site.x, y=site.y, z=site.z))
+            for i, site in enumerate(m2.sites):
+                ghost = "@" if self.ghost_atoms \
+                    and i + index_base in self.ghost_atoms else ""
+                atom = "{ghost:s}{element:s}".format(ghost=ghost,
+                                                     element=site.species_string)
+                mol_lines.append(" {atom:<4} {x:>17.8f} {y:>17.8f} "
+                                 "{z:>17.8f}".format(atom=atom, x=site.x,
+                                                     y=site.y, z=site.z))
             return mol_lines
 
         if self.charge is not None:
@@ -572,13 +586,15 @@ class QcTask(PMGSONable):
         if isinstance(self.mol, six.string_types) and self.mol == "read":
             lines.append(" read")
         elif isinstance(self.mol, list):
+            starting_index = 0
             for m in self.mol:
                 lines.append("--")
                 lines.append(" {charge:d}  {multi:d}".format(
                     charge=m.charge, multi=m.spin_multiplicity))
-                lines.extend(inner_format_mol(m))
+                lines.extend(inner_format_mol(m, starting_index))
+                starting_index += len(m)
         else:
-            lines.extend(inner_format_mol(self.mol))
+            lines.extend(inner_format_mol(self.mol, 0))
         return lines
 
     def _format_rem(self):
@@ -687,12 +703,15 @@ class QcTask(PMGSONable):
             mol_dict = [m.as_dict() for m in self.mol]
         else:
             raise ValueError('Unknow molecule type "{}"'.format(type(self.mol)))
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "molecule": mol_dict,
-                "charge": self.charge,
-                "spin_multiplicity": self.spin_multiplicity,
-                "params": self.params}
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
+             "molecule": mol_dict,
+             "charge": self.charge,
+             "spin_multiplicity": self.spin_multiplicity,
+             "params": self.params}
+        if self.ghost_atoms:
+            d["ghost_atoms"] = self.ghost_atoms
+        return d
 
     @classmethod
     def from_dict(cls, d):
@@ -711,6 +730,7 @@ class QcTask(PMGSONable):
         basis_set = d["params"]["rem"]["basis"]
         aux_basis_set = d["params"]["rem"].get("aux_basis", None)
         ecp = d["params"]["rem"].get("ecp", None)
+        ghost_atoms = d.get("ghost_atoms", None)
         optional_params = None
         op_keys = set(d["params"].keys()) - {"comment", "rem"}
         if len(op_keys) > 0:
@@ -723,7 +743,8 @@ class QcTask(PMGSONable):
                       exchange=exchange, correlation=correlation,
                       basis_set=basis_set, aux_basis_set=aux_basis_set,
                       ecp=ecp, rem_params=d["params"]["rem"],
-                      optional_params=optional_params)
+                      optional_params=optional_params,
+                      ghost_atoms=ghost_atoms)
 
     def write_file(self, filename):
         with zopen(filename, "w") as f:
@@ -753,6 +774,7 @@ class QcTask(PMGSONable):
         parse_section = False
         section_name = None
         section_text = []
+        ghost_atoms = None
         for line_num, line in enumerate(lines):
             l = line.strip().lower()
 
@@ -780,7 +802,7 @@ class QcTask(PMGSONable):
                                     "please implement it")
                 parse_func = QcTask.__dict__[func_name].__get__(None, QcTask)
                 if section_name == "molecule":
-                    mol, charge, spin_multiplicity = parse_func(section_text)
+                    mol, charge, spin_multiplicity, ghost_atoms = parse_func(section_text)
                 else:
                     d = parse_func(section_text)
                     params[section_name] = d
@@ -809,7 +831,8 @@ class QcTask(PMGSONable):
                       exchange=exchange, correlation=correlation,
                       basis_set=basis_set, aux_basis_set=aux_basis_set,
                       ecp=ecp, rem_params=params["rem"],
-                      optional_params=optional_params)
+                      optional_params=optional_params,
+                      ghost_atoms=ghost_atoms)
 
     @classmethod
     def _parse_comment(cls, contents):
@@ -929,6 +952,17 @@ class QcTask(PMGSONable):
 
     @classmethod
     def _parse_molecule(cls, contents):
+        def parse_ghost_indices(coord_text_lines):
+            no_ghost_text = [l.replace("@", "") for l in coord_text_lines]
+            ghosts = []
+            for index, l in enumerate(coord_text_lines):
+                l = l.strip()
+                if not l:
+                    break
+                if "@" in l:
+                    ghosts.append(index)
+            return ghosts, no_ghost_text
+
         text = copy.deepcopy(contents[:2])
         charge_multi_pattern = re.compile('\s*(?P<charge>'
                                           '[-+]?\d+)\s+(?P<multi>\d+)')
@@ -942,28 +976,35 @@ class QcTask(PMGSONable):
             charge = None
             spin_multiplicity = None
         if line.strip().lower() == "read":
-            return "read", charge, spin_multiplicity
+            return "read", charge, spin_multiplicity, None
         elif charge is None or spin_multiplicity is None:
             raise ValueError("Charge or spin multiplicity is not found")
         else:
             if contents[1].strip()[0:2] == "--":
                 chunks = "\n".join(contents[2:]).split("--\n")
                 mol = []
+                ghost_atoms = []
+                starting_index = 0
                 for chunk in chunks:
-                    mol_contents = chunk.split("\n")
-                    m = charge_multi_pattern.match(mol_contents[0])
+                    frag_contents = chunk.split("\n")
+                    m = charge_multi_pattern.match(frag_contents[0])
                     if m:
                         fragment_charge = int(m.group("charge"))
                         fragment_spin_multiplicity = int(m.group("multi"))
                     else:
                         raise Exception("charge and spin multiplicity must be specified for each fragment")
-                    fragment = cls._parse_coords(mol_contents[1:])
+                    gh, coord_lines = parse_ghost_indices(frag_contents[1:])
+                    fragment = cls._parse_coords(coord_lines)
                     fragment.set_charge_and_spin(fragment_charge, fragment_spin_multiplicity)
                     mol.append(fragment)
+                    ghost_atoms.extend([i+starting_index for i in gh])
+                    starting_index += len(fragment)
             else:
-                mol = cls._parse_coords(contents[1:])
+                ghost_atoms, coord_lines = parse_ghost_indices(contents[1:])
+                mol = cls._parse_coords(coord_lines)
                 mol.set_charge_and_spin(charge, spin_multiplicity)
-            return mol, charge, spin_multiplicity
+            ghost_atoms = ghost_atoms if len(ghost_atoms) > 0 else None
+            return mol, charge, spin_multiplicity, ghost_atoms
 
     @classmethod
     def _parse_rem(cls, contents):
@@ -1526,7 +1567,7 @@ class QcOutput(object):
                     hiershfiled_pop = True
                 elif "Hirshfeld: atomic densities completed" in line:
                     hiershfiled_pop = False
-                elif ("Cycle       Energy         DIIS Error" in line\
+                elif ("Cycle       Energy         DIIS Error" in line
                         or "Cycle       Energy        RMS Gradient" in line)\
                         and not hiershfiled_pop:
                     parse_scf_iter = True
