@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 __author__ = ", ".join(["Shyue Ping Ong", "Anubhav Jain", "Geoffroy Hautier",
                         "William Davidson Richard", "Stephen Dacek",
                         "Sai Jayaraman", "Michael Kocher", "Dan Gunter",

@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 #!/usr/bin/python
 
 from pymatgen.util.testing import PymatgenTest

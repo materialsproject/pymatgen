@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 """Tools and helper functions for abinit calculations"""
 from __future__ import print_function, division
 

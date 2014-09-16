@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 """
 Common test support for pymatgen test scripts.
 
@@ -5,6 +7,7 @@ This single module should provide all the common functionality for pymatgen
 tests in a single location, so that test scripts can just import it and work
 right away.
 """
+
 import unittest
 import tempfile
 import numpy.testing.utils as nptu
