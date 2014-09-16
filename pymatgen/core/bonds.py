@@ -1,10 +1,10 @@
+from __future__ import division, unicode_literals
+
 """
 This class implements definitions for various kinds of bonds. Typically used in
 Molecule analysis.
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

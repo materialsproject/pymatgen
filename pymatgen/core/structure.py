@@ -1,10 +1,10 @@
+from __future__ import division, unicode_literals
+
 """
 This module provides classes used to define a non-periodic molecule and a
 periodic structure.
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"

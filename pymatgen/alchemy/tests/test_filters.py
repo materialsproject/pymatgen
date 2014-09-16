@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+
 from pymatgen.alchemy.filters import ContainsSpecieFilter, \
     SpecieProximityFilter, RemoveDuplicatesFilter
 from pymatgen.core.lattice import Lattice

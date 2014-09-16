@@ -1,9 +1,9 @@
+from __future__ import division, unicode_literals
+
 """
 This module provides plotting capabilities for battery related applications.
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

@@ -1,6 +1,6 @@
+from __future__ import division, print_function
+
 """Strategy objects for creating ABINIT calculations."""
-from __future__ import division
-from __future__ import unicode_literals, print_function
 
 import sys
 import os

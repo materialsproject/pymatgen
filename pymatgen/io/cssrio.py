@@ -1,9 +1,9 @@
+from __future__ import division, unicode_literals
+
 """
 This module provides input and output from the CSSR file format.
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

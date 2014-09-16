@@ -1,5 +1,5 @@
-from __future__ import division
-from __future__ import unicode_literals, print_function
+from __future__ import division, print_function
+
 import os
 
 from pymatgen.util.testing import PymatgenTest

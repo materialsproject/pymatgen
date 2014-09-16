@@ -1,3 +1,5 @@
+from __future__ import division, unicode_literals
+
 """
 This module defines site transformations which transforms a structure into
 another structure. Site transformations differ from standard transformations
@@ -5,8 +7,6 @@ in that they operate in a site-specific manner.
 All transformations should inherit the AbstractTransformation ABC.
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 from six.moves import map
 from six.moves import zip
 

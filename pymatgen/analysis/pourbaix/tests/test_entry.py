@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+
 import unittest
 import os
 
@@ -163,4 +164,3 @@ class TestPourbaixEntryIO(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

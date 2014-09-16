@@ -1,6 +1,6 @@
+from __future__ import division, print_function
+
 """Tools for the submission of Tasks."""
-from __future__ import division
-from __future__ import unicode_literals, print_function
 
 import os
 import time
@@ -931,4 +931,3 @@ def get_open_fds():
     nprocs = len(filter(lambda s: s and s[0] == 'f' and s[1:].isdigit(), procs.split('\n')))
 
     return nprocs
-

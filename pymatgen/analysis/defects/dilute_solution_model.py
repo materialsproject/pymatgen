@@ -1,4 +1,4 @@
-from __future__ import division, unicode_literals
+from __future__ import unicode_literals
 
 """
 Evaluate the defect concentration based on composition, temperature,
