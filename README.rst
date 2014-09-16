@@ -18,11 +18,6 @@ researchers. These are some of the main features:
 4. Electronic structure analyses (DOS and Bandstructure).
 5. Integration with the Materials Project REST API.
 
-Pymatgen, like all scientific research, will always be a work in progress.
-While the development team will always strive to avoid backward incompatible
-changes, they are sometimes unavoidable, and tough decisions have to be made
-for the long term health of the code.
-
 Pymatgen is free to use. However, we also welcome your help to improve this
 library by making your own contributions.  These contributions can be in the
 form of additional tools or modules you develop, or even simple things such
@@ -85,21 +80,8 @@ Getting pymatgen
 
 Before installing pymatgen, you may need to first install a few critical
 dependencies manually. Please refer to the official `pymatgen page`_ for
-installation details and requirements.
-
-1. Installation has been tested to be most successful with gcc,
-   and several external C dependencies have issues with icc. Use gcc where
-   possible and do "export CC=gcc" prior to installation.
-2. Numpy's distutils is needed to compile the spglib and pyhull
-   dependencies. This should be the first thing you install.
-3. Pyhull and PyCifRW. The recent versions of pip does not allow the
-   installation of externally hosted files. Furthermore,
-   there are some issues with easy_install for these extensions. Install
-   both these dependencies manually using "pip install <package>
-   --allow-external <package> --allow-unverified <package>".
-
-Stable version
---------------
+installation details and requirements, including instructions for the
+bleeding edge developmental version.
 
 The version at the Python Package Index (PyPI) is always the latest stable
 release that will be hopefully, be relatively bug-free. The easiest way to
@@ -112,33 +94,11 @@ or::
     pip install pymatgen
 
 Some extra functionality (e.g., generation of POTCARs) do require additional
-setup (please see the `official pymatgen page <http://pymatgen.org/>`_).
+setup (please see the `pymatgen page`_).
 
 **Note for Windows users**: Given that pymatgen requires several Python C
 extensions, it is generally recommended that you install it in a cygwin or
 equivalent environment with the necessary compilers.
-
-Developmental version
----------------------
-
-The bleeding edge developmental version is at the pymatgen's `Github repo
-<https://github.com/materialsproject/pymatgen>`_. The developmental
-version is likely to be more buggy, but may contain new features. The
-Github version include test files as well for complete unit testing. After
-cloning the source, you can type::
-
-    python setup.py install
-
-or to install the package in developmental mode::
-
-    python setup.py develop
-
-To run the very comprehensive suite of unittests, make sure you have nose
-installed and then just type::
-
-    nosetests
-
-in the pymatgen root directory.
 
 Change Log
 ==========
@@ -192,6 +152,5 @@ follows::
     COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
     IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
     CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 
 .. _`pymatgen page` : http://www.pymatgen.org
