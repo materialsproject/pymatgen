@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from __future__ import unicode_literals
 
 import copy
@@ -1004,6 +1002,36 @@ $end
 '''
         self.assertEqual(str(qctask), ans)
         self.elementary_io_verify(ans, qctask)
+
+    def test_ghost_atoms(self):
+        qctask = QcTask(mol, charge=0, spin_multiplicity=1, exchange="B3LYP", ghost_atoms=[2, 4])
+        ans = """$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ @H          1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ @Cl        -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+   jobtype = sp
+  exchange = b3lyp
+     basis = 6-31+g*
+$end
+
+"""
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
+        mol1 = copy.deepcopy(mol)
+        mol1.set_charge_and_spin(1, 2)
+        mol2 = copy.deepcopy(water_mol)
+        mol2.set_charge_and_spin(-1, 2)
+        qctask = QcTask([mol1, mol2], title="Test Fragments", exchange="B3LYP",
+                        jobtype="bsse", charge=0, spin_multiplicity=3, basis_set="6-31++G**",
+                        ghost_atoms=[1, 2, 3, 5])
+        self.elementary_io_verify(str(qctask), qctask)
 
 
 class TestQcInput(TestCase):
