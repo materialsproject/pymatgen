@@ -1,7 +1,7 @@
 Change log
 ==========
 
-v3.0.1
+v3.0.2
 ------
-1. Minor bug fixes for cifio.
-2. Py3k updates for abinitio.
+1. Consistent use of unicode throughout pymatgen.
+2. Minor bug fixes.
