@@ -10,7 +10,7 @@ dependencies:
     - python setup.py develop
 test:
   override:
-    - nosetests -v:
+    - nosetests:
         environment:
             PATH: $PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit
             GULP_LIB: /`pwd`/cmd_line/gulp/Libraries
@@ -19,7 +19,10 @@ deployment:
   automerge:
     branch: [master]
     commands:
+      - git config --global push.default simple
+      - git config --global user.email "ongsp@ucsd.edu"
+      - git config --global user.name "Shyue Ping Ong"
       - git checkout stable_py3
-      - git merge master
+      - git merge -m "Automated merge for py3k testing" master
       - git push
       - git checkout master
