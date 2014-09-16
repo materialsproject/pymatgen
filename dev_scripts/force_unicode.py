@@ -7,21 +7,18 @@ for parent, subdir, files in os.walk("../pymatgen"):
             with open(fp) as f:
                 contents = f.read()
             if "unicode_literals" not in contents:
-                print fp
                 contents = "from __future__ import unicode_literals\n" + contents
-                with open(fp, "w") as f:
-                    f.write(contents)
             lines = contents.split("\n")
             future = []
             clean = []
             while len(lines) > 0:
                 l = lines.pop(0)
                 if l.strip().startswith("from __future__"):
-                    future.append(l.strip().split()[-1])
-                else:
+                    future.append(l.strip().split("import")[-1].strip())
+                elif not l.strip().startswith("# coding"):
                     clean.append(l)
 
-            clean = "from __future__ import " + ", ".join(future) + "\n\n" + \
+            clean = "# coding: utf-8\n\nfrom __future__ import " + ", ".join(future) + "\n\n" + \
                     "\n".join(clean).strip() + "\n"
             with open(fp, "w") as f:
                 f.write(clean)
