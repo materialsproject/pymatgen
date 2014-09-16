@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals, print_function
+
 """
 This module provides classes to run and analyze boltztrap on pymatgen band
 structure objects. Boltztrap is a software interpolating band structures and
@@ -17,8 +21,6 @@ References are::
     Computer Physics Communications, 175, 67-71
 """
 
-from __future__ import division
-from __future__ import print_function
 
 __author__ = "Geoffroy Hautier"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -985,4 +987,3 @@ class BoltztrapPlotter():
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
         return plt
-

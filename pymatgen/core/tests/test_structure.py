@@ -1,5 +1,7 @@
-#!/usr/bin/python
-from __future__ import division
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.composition import Composition
@@ -10,7 +12,6 @@ from pymatgen.core.lattice import Lattice
 import random
 import warnings
 import os
-import pickle
 
 
 class IStructureTest(PymatgenTest):
@@ -306,11 +307,6 @@ class StructureTest(PymatgenTest):
                            [0.00, -2.2171384943, 3.1355090603]])
         self.structure = Structure(lattice, ["Si", "Si"], coords)
 
-    def test_pickle(self):
-        ss = pickle.dumps(self.structure)
-        o = pickle.loads(ss)
-        self.assertEqual(o, self.structure)
-
     def test_mutable_sequence_methods(self):
         s = self.structure
         s[0] = "Fe"
@@ -552,6 +548,12 @@ class StructureTest(PymatgenTest):
         self.structure.to(filename="POSCAR.testing")
         self.assertTrue(os.path.exists("POSCAR.testing"))
         os.remove("POSCAR.testing")
+
+        self.structure.to(filename="structure_testing.json")
+        self.assertTrue(os.path.exists("structure_testing.json"))
+        s = Structure.from_file("structure_testing.json")
+        self.assertEqual(s, self.structure)
+        os.remove("structure_testing.json")
 
 
 class IMoleculeTest(PymatgenTest):

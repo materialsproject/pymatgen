@@ -1,9 +1,12 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module provides conversion between the Atomic Simulation Environment
 Atoms object and pymatgen Structure objects.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

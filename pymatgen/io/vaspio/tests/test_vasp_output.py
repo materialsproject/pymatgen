@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Created on Jul 16, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -119,6 +122,8 @@ class VasprunTest(unittest.TestCase):
 
         filepath = os.path.join(test_dir, 'vasprun.xml.unconverged')
         vasprun_unconverged = Vasprun(filepath)
+        self.assertTrue(vasprun_unconverged.converged_ionic)
+        self.assertFalse(vasprun_unconverged.converged_electronic)
         self.assertFalse(vasprun_unconverged.converged)
 
         filepath = os.path.join(test_dir, 'vasprun.xml.dfpt')
@@ -135,6 +140,8 @@ class VasprunTest(unittest.TestCase):
 
         filepath = os.path.join(test_dir, 'vasprun.xml.dfpt.unconverged')
         vasprun_dfpt_unconv = Vasprun(filepath)
+        self.assertFalse(vasprun_dfpt_unconv.converged_electronic)
+        self.assertTrue(vasprun_dfpt_unconv.converged_ionic)
         self.assertFalse(vasprun_dfpt_unconv.converged)
 
         vasprun_uniform = Vasprun(os.path.join(test_dir, "vasprun.xml.uniform"))

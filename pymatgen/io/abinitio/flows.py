@@ -1,7 +1,10 @@
+# coding: utf-8
+
+from __future__ import unicode_literals, division, print_function
+
 """
 Abinit Flows
 """
-from __future__ import division, print_function
 
 import os
 import sys

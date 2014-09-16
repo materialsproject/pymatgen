@@ -1,6 +1,7 @@
 import glob
 import os
 import subprocess
+from io import open
 
 from ez_setup import use_setuptools
 use_setuptools()
@@ -38,7 +39,7 @@ def get_spglib_ext():
         sources=[os.path.join(spglibdir, "_spglib.c")] + sources,
         extra_compile_args=["-Wno-error=declaration-after-statement"])
 
-with open("README.rst") as f:
+with open("README.rst", "rt") as f:
     long_desc = f.read()
     ind = long_desc.find("\n")
     long_desc = long_desc[ind + 1:]
@@ -46,10 +47,10 @@ with open("README.rst") as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="3.0.1",
+    version="3.0.2",
     install_requires=["numpy>=1.8", "pyhull>=1.5.2",
                       "requests>=2.3.0", "pybtex>=0.18", "pyyaml>=3.11",
-                      "monty>=0.4.2", "six>=1.7.3"],
+                      "monty>=0.5.3", "six>=1.7.3"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
                     "plotting": ["matplotlib>=1.1"],
                     "ase_adaptor": ["ase>=3.3"],
