@@ -1,7 +1,5 @@
 from __future__ import unicode_literals
 
-#!/usr/bin/python
-
 import unittest
 
 from pymatgen.core.ion import Ion
