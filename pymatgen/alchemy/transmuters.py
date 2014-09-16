@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 """
 This module implements various transmuter classes.
 Transmuters are essentially classes that generate TransformedStructures from
@@ -8,7 +10,6 @@ It also includes the helper function, batch_write_vasp_input to generate an
 entire directory of vasp input files for running.
 """
 
-from __future__ import division, unicode_literals
 from six.moves import filter, map
 
 __author__ = "Shyue Ping Ong, Will Richards"

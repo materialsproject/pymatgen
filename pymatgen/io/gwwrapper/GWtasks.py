@@ -1,9 +1,9 @@
+from __future__ import division, unicode_literals
+
 """
 GW tasks for fireworks workflows, currently Vasp only
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "
@@ -260,4 +260,3 @@ class VaspGWTestConTask(VaspGWTask):
         task = SingleVaspGWWork(structure=self.structure, job=self.job, spec=self.spec, option=self.option)
         task.create_input()
         return FWAction()
-

@@ -1,10 +1,11 @@
+from __future__ import unicode_literals
+
 """
 This module provides various representations of transformed structures. A
 TransformedStructure is a structure that has been modified by undergoing a
 series of transformations.
 """
 
-from __future__ import division, unicode_literals
 
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -371,4 +372,3 @@ class TransformedStructure(PMGSONable):
             d['_snl'] = {'url' : h.url, 'name' : h.name}
             hist.append(d)
         return cls(snl.structure, history=hist)
-

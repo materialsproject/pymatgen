@@ -1,10 +1,10 @@
+from __future__ import division, unicode_literals
+
 """
 Created on March 25, 2013
 
 @author: geoffroy
 """
-from __future__ import division
-from __future__ import unicode_literals
 
 import numpy as np
 

@@ -1,9 +1,9 @@
+from __future__ import division, unicode_literals
+
 """
 This module contains classes to wrap Python VTK to make nice molecular plots.
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"

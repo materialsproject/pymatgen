@@ -1,10 +1,10 @@
+from __future__ import division, unicode_literals
+
 """
 Module containing analysis classes which compute a pourbaix diagram given a
 target compound/element.
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 from six.moves import zip
 
 __author__ = "Sai Jayaraman"

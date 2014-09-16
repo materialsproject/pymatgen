@@ -1,11 +1,11 @@
+from __future__ import division, print_function
+
 """
 Classes for writing GW Input and analyzing GW data. The underlying classes can handle the use of VASP and ABINIT via the
 code interfaces provided in codeinterfaces.
 Reads the POSCAR_name in the the current folder and outputs GW input to subfolders name or lists of structures
 test 3
 """
-from __future__ import division
-from __future__ import unicode_literals, print_function
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "

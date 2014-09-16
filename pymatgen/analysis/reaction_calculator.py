@@ -1,9 +1,9 @@
+from __future__ import division, unicode_literals
+
 """
 This module provides classes that define a chemical reaction.
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"

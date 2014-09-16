@@ -1,6 +1,6 @@
+from __future__ import division, print_function
+
 #!/usr/bin/env python
-from __future__ import division
-from __future__ import unicode_literals, print_function
 
 import os
 import tempfile

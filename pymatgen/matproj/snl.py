@@ -1,7 +1,8 @@
+from __future__ import unicode_literals
+
 """
 Classes and methods related to the Structure Notation Language (SNL)
 """
-from __future__ import unicode_literals
 
 __author__ = 'Anubhav Jain, Shyue Ping Ong'
 __credits__ = 'Dan Gunter'

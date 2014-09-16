@@ -1,7 +1,7 @@
+from __future__ import division, unicode_literals
+
 #!/usr/bin/python
 
-from __future__ import division
-from __future__ import unicode_literals
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.composition import Composition

@@ -1,10 +1,10 @@
+from __future__ import division, unicode_literals
+
 """
 Classes for reading/manipulating/writing VASP input files. All major VASP input
 files.
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
     "Vincent L Chevrier"
