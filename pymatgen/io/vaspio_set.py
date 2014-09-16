@@ -1,3 +1,5 @@
+from __future__ import division, unicode_literals
+
 """
 This module defines the VaspInputSet abstract base class and a concrete
 implementation for the parameters used by the Materials Project and the MIT
@@ -7,7 +9,6 @@ without further user intervention. This ensures comparability across
 runs.
 """
 
-from __future__ import division
 import six
 
 __author__ = "Shyue Ping Ong, Wei Chen, Will Richards, Geoffroy Hautier"

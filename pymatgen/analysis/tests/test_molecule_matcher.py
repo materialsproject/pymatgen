@@ -1,8 +1,9 @@
+from __future__ import division, unicode_literals
+
 """
 TODO: Modify module doc.
 """
 
-from __future__ import division
 from pymatgen.io.smartio import read_mol
 
 __author__ = "Shyue Ping Ong"

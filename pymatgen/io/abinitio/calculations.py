@@ -1,7 +1,8 @@
+from __future__ import division, print_function
+
 """
 Factory functions producing ABINIT workflows. Entry points for client code (high-level interface)
 """
-from __future__ import division, print_function
 
 import os
 

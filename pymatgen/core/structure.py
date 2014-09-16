@@ -1,9 +1,10 @@
+from __future__ import division, unicode_literals
+
 """
 This module provides classes used to define a non-periodic molecule and a
 periodic structure.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -1058,15 +1059,16 @@ class IStructure(SiteCollection, PMGSONable):
             writer = Cssr(self)
         else:
             if filename:
-                with zopen(filename, "w") as f:
+                with open(filename, "w") as f:
                     json.dump(self.as_dict(), f)
+                return
             else:
                 return json.dumps(self.as_dict())
 
         if filename:
             writer.write_file(filename)
         else:
-            return str(writer)
+            return writer.__str__()
 
     @classmethod
     def from_str(cls, input_string, fmt, primitive=False, sort=False):
@@ -1575,7 +1577,7 @@ class IMolecule(SiteCollection, PMGSONable):
         elif fmt == "json" or fnmatch(fname, "*.json*") or fnmatch(fname,
                                                                   "*.mson*"):
             if filename:
-                with zopen(filename, "w") as f:
+                with zopen(filename, "wt", encoding='utf8') as f:
                     json.dump(self.as_dict(), f)
             else:
                 return json.dumps(self.as_dict())
@@ -2549,6 +2551,6 @@ class FunctionalGroups(dict):
         """
         dict.__init__(self)
         with open(os.path.join(os.path.dirname(__file__),
-                               "func_groups.json")) as f:
+                               "func_groups.json"), "rt") as f:
             for k, v in json.load(f).items():
                 self[k] = Molecule(v["species"], v["coords"])

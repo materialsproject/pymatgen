@@ -1,8 +1,9 @@
+from __future__ import division, unicode_literals
+
 """
 This module defines the classes relating to 3D lattices.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"

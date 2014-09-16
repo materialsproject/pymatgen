@@ -1,8 +1,9 @@
+from __future__ import division, unicode_literals
+
 """
 Unit tests for defect transformations
 """
 
-from __future__ import division
 
 __author__ = "Bharat Medasani"
 __copyright__ = "Copyright 2014, The Materials Project"

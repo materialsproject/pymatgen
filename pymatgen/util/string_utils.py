@@ -1,6 +1,9 @@
+from __future__ import unicode_literals
+
 """
 This module provides utility classes for string operations.
 """
+
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"

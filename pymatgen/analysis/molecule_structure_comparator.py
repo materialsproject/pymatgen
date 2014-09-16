@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 """
 This module provides classes to comparsion the structures of the two
 molecule. As long as the two molecule have the same bond connection tables,
@@ -7,6 +9,7 @@ This module is supposed to perform rough comparisons with the atom order
 correspondence prerequisite, while molecule_matcher is supposed to do exact
 comparisons without the atom order correspondence prerequisite.
 """
+
 import itertools
 from pymatgen.serializers.json_coders import PMGSONable
 from six.moves import zip

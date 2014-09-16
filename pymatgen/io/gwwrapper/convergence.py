@@ -1,3 +1,5 @@
+from __future__ import division, print_function
+
 """
 function for calculating the convergence of an x, y data set
 main api:
@@ -13,7 +15,6 @@ for tol > 0
 returns the x_value for which dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists
 for the best fit a gnuplot line is printed plotting the data, the function and the assymthotic value
 """
-from __future__ import division, print_function
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "

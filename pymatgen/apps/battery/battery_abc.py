@@ -1,3 +1,5 @@
+from __future__ import division, unicode_literals
+
 """
 This module defines the abstract base classes for battery-related classes.
 Regardless of the kind of electrode, conversion or insertion, there are many
@@ -6,7 +8,6 @@ can be defined in a general way. The Abc for battery classes implements some of
 these common definitions to allow sharing of common logic between them.
 """
 
-from __future__ import division
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

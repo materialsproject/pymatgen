@@ -1,3 +1,5 @@
+from __future__ import division, unicode_literals
+
 """
 A module to perform diffusion analyses (e.g. calculating diffusivity from
 mean square displacements etc.). If you use this module, please consider
@@ -14,7 +16,6 @@ citing the following papers::
     24(1), 15-17. doi:10.1021/cm203303y
 """
 
-from __future__ import division
 
 __author__ = "Will Richards, Shyue Ping Ong"
 __version__ = "0.2"

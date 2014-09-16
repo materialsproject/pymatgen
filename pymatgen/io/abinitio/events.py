@@ -1,8 +1,9 @@
+from __future__ import division, print_function
+
 """
 This module defines the events signaled by abinit during the execution. It also
 provides a parser to extract these events form the main output file and the log file.
 """
-from __future__ import division, print_function
 
 import os.path
 import collections
@@ -378,4 +379,3 @@ class EventsParser(object):
         we can report a customized `EventReport` object with info the exception.
         """
         return EventReport(filename, events=[Error(str(exc))])
-

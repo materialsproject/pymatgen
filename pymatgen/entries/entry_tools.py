@@ -1,9 +1,10 @@
+from __future__ import division, unicode_literals
+
 """
 This module implements functions to perform various useful operations on
 entries, such as grouping entries by structure.
 """
 
-from __future__ import division
 from six.moves import filter
 from six.moves import zip
 

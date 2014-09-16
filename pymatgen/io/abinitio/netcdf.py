@@ -1,5 +1,6 @@
-"""Wrapper for netCDF readers."""
 from __future__ import division, print_function
+
+"""Wrapper for netCDF readers."""
 
 import os.path
 

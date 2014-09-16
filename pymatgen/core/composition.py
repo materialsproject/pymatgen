@@ -1,8 +1,8 @@
+from __future__ import division, unicode_literals
+
 """
 This module implements a Composition class to represent compositions.
 """
-
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -17,9 +17,7 @@ import collections
 import string
 
 import six
-from six.moves import filter
-from six.moves import map
-from six.moves import zip
+from six.moves import filter, map, zip
 
 from fractions import gcd
 from functools import total_ordering

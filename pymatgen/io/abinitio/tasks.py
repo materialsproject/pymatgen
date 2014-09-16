@@ -1,7 +1,8 @@
+from __future__ import division, print_function
+
 """
 Classes defining Abinit calculations and workflows
 """
-from __future__ import division, print_function
 
 import os
 import time

@@ -1,10 +1,9 @@
+from __future__ import division, unicode_literals
+
 """
 Classes for reading/manipulating/writing VASP ouput files.
 """
 
-from __future__ import division
-from six.moves import map
-from six.moves import zip
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
     "Vincent L Chevrier"
@@ -22,10 +21,12 @@ import re
 import math
 import itertools
 import warnings
-from six.moves import cStringIO
+from io import StringIO
 import logging
 from collections import defaultdict
 from xml.etree.cElementTree import iterparse
+
+from six.moves import map, zip
 
 import numpy as np
 
@@ -277,7 +278,7 @@ class Vasprun(PMGSONable):
         self.ionic_step_skip = ionic_step_skip
         self.ionic_step_offset = ionic_step_offset
 
-        with zopen(filename) as f:
+        with zopen(filename, "rt") as f:
             if ionic_step_skip or ionic_step_offset:
                 # remove parts of the xml file and parse the string
                 run = f.read()
@@ -294,7 +295,7 @@ class Vasprun(PMGSONable):
                         steps[-1].split("</calculation>")[-1])
                 else:
                     to_parse = "{}<calculation>{}".format(preamble, to_parse)
-                self._parse(cStringIO(to_parse), parse_dos=parse_dos,
+                self._parse(StringIO(to_parse), parse_dos=parse_dos,
                             parse_eigen=parse_eigen,
                             parse_projected_eigen=parse_projected_eigen)
             else:
@@ -921,7 +922,7 @@ class Outcar(PMGSONable):
     def __init__(self, filename):
         self.filename = filename
         self.is_stopped = False
-        with zopen(filename, "r") as f:
+        with zopen(filename, "rt") as f:
             read_charge_mag = False
             charge = []
             mag = []
@@ -1265,7 +1266,7 @@ class Outcar(PMGSONable):
         natom = len(self.charge)
         cl = [defaultdict(list) for i in range(natom)]
 
-        foutcar = zopen(self.filename, "r")
+        foutcar = zopen(self.filename, "rt")
         line = foutcar.readline()
         while line != "":
             line = foutcar.readline()
@@ -1464,45 +1465,44 @@ class VolumetricData(object):
             vasp4_compatible (bool): True if the format is vasp4 compatible
         """
 
-        f = zopen(file_name, "w")
-        p = Poscar(self.structure)
+        with zopen(file_name, "wt") as f:
+            p = Poscar(self.structure)
 
-        lines = p.comment + "\n"
-        lines += "   1.00000000000000\n"
-        latt = self.structure.lattice.matrix
-        lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[0,:])
-        lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[1,:])
-        lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[2,:])
-        if not vasp4_compatible:
-            lines += "".join(["%5s" % s for s in p.site_symbols]) + "\n"
-        lines += "".join(["%6d" % x for x in p.natoms]) + "\n"
-        lines += "Direct\n"
-        for site in self.structure:
-            lines += "%10.6f%10.6f%10.6f\n" % tuple(site.frac_coords)
-        lines += "\n"
-        f.write(lines)
-        a = self.dim
+            lines = p.comment + "\n"
+            lines += "   1.00000000000000\n"
+            latt = self.structure.lattice.matrix
+            lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[0,:])
+            lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[1,:])
+            lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[2,:])
+            if not vasp4_compatible:
+                lines += "".join(["%5s" % s for s in p.site_symbols]) + "\n"
+            lines += "".join(["%6d" % x for x in p.natoms]) + "\n"
+            lines += "Direct\n"
+            for site in self.structure:
+                lines += "%10.6f%10.6f%10.6f\n" % tuple(site.frac_coords)
+            lines += "\n"
+            f.write(lines)
+            a = self.dim
 
-        def write_spin(data_type):
-            lines = []
-            count = 0
-            f.write("{} {} {}\n".format(a[0], a[1], a[2]))
-            for (k, j, i) in itertools.product(list(range(a[2])), list(range(a[1])),
-                                               list(range(a[0]))):
-                lines.append("%0.11e" % self.data[data_type][i, j, k])
-                count += 1
-                if count % 5 == 0:
-                    f.write("".join(lines) + "\n")
-                    lines = []
-                else:
-                    lines.append(" ")
-            f.write("".join(lines) + "\n")
+            def write_spin(data_type):
+                lines = []
+                count = 0
+                f.write("{} {} {}\n".format(a[0], a[1], a[2]))
+                for (k, j, i) in itertools.product(list(range(a[2])), list(range(a[1])),
+                                                   list(range(a[0]))):
+                    lines.append("%0.11e" % self.data[data_type][i, j, k])
+                    count += 1
+                    if count % 5 == 0:
+                        f.write("".join(lines) + "\n")
+                        lines = []
+                    else:
+                        lines.append(" ")
+                f.write("".join(lines) + "\n")
 
-        write_spin("total")
-        if self.is_spin_polarized:
-            f.write("\n")
-            write_spin("diff")
-        f.close()
+            write_spin("total")
+            if self.is_spin_polarized:
+                f.write("\n")
+                write_spin("diff")
 
     def get_integrated_diff(self, ind, radius, nbins=1):
         """
@@ -1656,7 +1656,7 @@ class Procar(object):
     def __init__(self, filename):
         data = defaultdict(dict)
         headers = None
-        with zopen(filename, "r") as f:
+        with zopen(filename, "rt") as f:
             lines = list(clean_lines(f.readlines()))
             self.name = lines[0]
             kpointexpr = re.compile("^\s*k-point\s+(\d+).*weight = ([0-9\.]+)")
@@ -1824,7 +1824,7 @@ class Oszicar(object):
                 return "--"
 
         header = []
-        with zopen(filename, "r") as fid:
+        with zopen(filename, "rt") as fid:
             for line in fid:
                 line = line.strip()
                 m = electronic_pattern.match(line)
@@ -1969,7 +1969,7 @@ class Xdatcar(object):
         coords_str = []
         structures = []
         preamble_done = False
-        with zopen(filename) as f:
+        with zopen(filename, "rt") as f:
             for l in f:
                 l = l.strip()
                 if preamble is None:

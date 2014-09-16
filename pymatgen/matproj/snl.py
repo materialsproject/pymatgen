@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 """
 Classes and methods related to the Structure Notation Language (SNL)
 """

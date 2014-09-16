@@ -1,11 +1,10 @@
+from __future__ import division, unicode_literals
+
 """
 Module which defines basic entries for each ion and oxide to compute a
 Pourbaix diagram
 """
 
-from __future__ import division
-from six.moves import map
-from six.moves import zip
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -18,6 +17,9 @@ __date__ = "December 10, 2012"
 import re
 import math
 import csv
+
+from six.moves import map, zip
+from monty.string import unicode2str
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Composition
@@ -355,8 +357,9 @@ class PourbaixEntryIO(object):
                               for entry in entries]))
         elements = sorted(list(elements), key=lambda a: a.X)
         with open(filename, "w") as f:
-            writer = csv.writer(f, delimiter=",",
-                                quotechar="\"", quoting=csv.QUOTE_MINIMAL)
+            writer = csv.writer(f, delimiter=unicode2str(","),
+                                quotechar=unicode2str("\""),
+                                quoting=csv.QUOTE_MINIMAL)
             writer.writerow(["Name"] + elements + ["Energy"] + ["Entry Type"]
                             + ["Charge"] + ["Concentration"])
             for entry in entries:
@@ -389,8 +392,9 @@ class PourbaixEntryIO(object):
             List of Entries
         """
         with open(filename, "r") as f:
-            reader = csv.reader(f, delimiter=",",
-                                quotechar="\"", quoting=csv.QUOTE_MINIMAL)
+            reader = csv.reader(f, delimiter=unicode2str(","),
+                                quotechar=unicode2str("\""),
+                                quoting=csv.QUOTE_MINIMAL)
             entries = list()
             header_read = False
             for row in reader:
