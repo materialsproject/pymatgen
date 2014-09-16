@@ -1,10 +1,13 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module implements a EnergyModel abstract class and some basic
 implementations. Basically, an EnergyModel is any model that returns an
 "energy" for any given structure.
 """
 
-from __future__ import division
 
 
 __author__ = "Shyue Ping Ong"

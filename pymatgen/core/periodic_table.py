@@ -1,7 +1,12 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Module contains classes presenting Element and Specie (Element + oxidation
 state) and PeriodicTable.
 """
+
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -14,6 +19,7 @@ __date__ = "Sep 23, 2011"
 import os
 import re
 import json
+from io import open
 
 from pymatgen.core.units import Mass, Length, unitized
 from monty.design_patterns import singleton, cached_class
@@ -23,7 +29,8 @@ from functools import total_ordering
 
 
 #Loads element data from json file
-with open(os.path.join(os.path.dirname(__file__), "periodic_table.json")) as f:
+with open(os.path.join(os.path.dirname(__file__), "periodic_table.json"), "rt"
+          ) as f:
     _pt_data = json.load(f)
 
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
@@ -308,11 +315,11 @@ class Element(object):
     """
 
     def __init__(self, symbol):
+        self._symbol = u"%s" % symbol
         self._data = _pt_data[symbol]
 
         #Store key variables for quick access
         self._z = self._data["Atomic no"]
-        self._symbol = symbol
         self._x = self._data.get("X", 0)
         for a in ["name", "mendeleev_no", "electrical_resistivity",
                   "velocity_of_sound", "reflectivity",
@@ -1079,6 +1086,7 @@ class DummySpecie(PMGSONable):
         return output
 
 
+@singleton
 class PeriodicTable(object):
     """
     A Periodic table singleton class. This class contains methods on the

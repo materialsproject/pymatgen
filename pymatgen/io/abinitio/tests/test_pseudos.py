@@ -1,7 +1,10 @@
+# coding: utf-8
+
+from __future__ import unicode_literals, division, print_function
+
 """
 Created on Fri Mar  8 23:14:02 CET 2013
 """
-from __future__ import division, print_function
 
 import os.path
 import collections

@@ -1,7 +1,10 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module contains useful decorators for a variety of functions.
 """
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"

@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Classes for reading/manipulating/writing FEFF files.
 http://leonardo.phys.washington.edu/feff/
@@ -8,7 +12,6 @@ are each developed separately with the Header, FeffAtoms, FeffPot, and
 FeffTags classes, then combined to produce the full feff.inp.
 """
 
-from __future__ import division
 from six.moves import map
 
 __author__ = "Alan Dozier"

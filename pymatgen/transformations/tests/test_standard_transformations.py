@@ -1,4 +1,6 @@
-from __future__ import division
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 '''
 Created on Sep 23, 2011

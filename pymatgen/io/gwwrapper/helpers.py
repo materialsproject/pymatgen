@@ -1,7 +1,10 @@
+# coding: utf-8
+
+from __future__ import unicode_literals, division, print_function
+
 """
 Helper methods for generating gw input / and work flows.
 """
-from __future__ import division, print_function
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "
@@ -198,4 +201,3 @@ def add_gg_gap(structure):
     structure.cbm = (0.0, 0.0, 0.0)
     structure.vbm = (0.0, 0.0, 0.0)
     return structure
-
