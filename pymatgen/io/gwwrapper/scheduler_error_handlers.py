@@ -1,4 +1,6 @@
-from __future__ import division, print_function
+# coding: utf-8
+
+from __future__ import unicode_literals, division, print_function
 
 """
 Error handlers for errors originating from the Submission systems.
