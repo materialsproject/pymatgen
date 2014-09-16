@@ -369,11 +369,10 @@ class Vasprun(PMGSONable):
         return self.final_structure.lattice.reciprocal_lattice
 
     @property
-    def converged(self):
+    def converged_electronic(self):
         """
-        True if a relaxation run is converged. Checking is performed on both
-        the final electronic convergence as well as whether the number of
-        ionic steps is equal to the NSW setting.
+        Checks that electronic step convergence has been reached in the final
+        ionic step
         """
         final_esteps = self.ionic_steps[-1]["electronic_steps"]
         if 'LEPSILON' in self.incar and self.incar['LEPSILON']:
@@ -382,10 +381,23 @@ class Vasprun(PMGSONable):
             while set(final_esteps[i].keys()) == to_check:
                 i += 1
             return i + 1 != self.parameters["NELM"]
-        if len(final_esteps) == self.parameters["NELM"]:
-            return False
+        return len(final_esteps) < self.parameters["NELM"]
+
+    @property
+    def converged_ionic(self):
+        """
+        Checks that ionic step convergence has been reached, i.e. that vasp
+        exited before reaching the max ionic steps for a relaxation run
+        """
         nsw = self.parameters.get("NSW", 0)
-        return len(self.ionic_steps) < nsw or nsw <= 1
+        return nsw <= 1 or len(self.ionic_steps) < nsw
+
+    @property
+    def converged(self):
+        """
+        Returns true if a relaxation run is converged.
+        """
+        return self.converged_electronic and self.converged_ionic
 
     @property
     @unitized("eV")
