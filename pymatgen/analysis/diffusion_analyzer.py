@@ -243,6 +243,21 @@ class DiffusionAnalyzer(PMGSONable):
             self.conductivity_components_std_dev = \
                 self.diffusivity_components_std_dev * conv_factor
 
+    def get_drift_corrected_structures(self):
+        """
+        Returns an iterator for the drift-corrected structures. Use of
+        iterator is to reduce memory usage. You don't often need all the
+        structures all at once.
+        """
+        coords = np.array(self.structure.cart_coords)
+        species = self.structure.species_and_occu
+        latt = self.structure.lattice
+        nsites, nsteps, dim = self.corrected_displacements.shape
+        for i in range(nsteps):
+            yield Structure(latt, species, coords
+                            + self.corrected_displacements[:, i, :],
+                            coords_are_cartesian=True)
+
     def get_summary_dict(self, include_msd_t=False):
         """
         Provides a summary of diffusion information.
