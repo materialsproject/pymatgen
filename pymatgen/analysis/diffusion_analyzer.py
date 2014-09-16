@@ -246,8 +246,8 @@ class DiffusionAnalyzer(PMGSONable):
     def get_drift_corrected_structures(self):
         """
         Returns an iterator for the drift-corrected structures. Use of
-        iterator is to reduce memory usage. You don't often need all the
-        structures all at once.
+        iterator is to reduce memory usage as # of structures in MD can be
+        huge. You don't often need all the structures all at once.
         """
         coords = np.array(self.structure.cart_coords)
         species = self.structure.species_and_occu
