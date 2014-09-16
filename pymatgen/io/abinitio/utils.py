@@ -1,3 +1,5 @@
+# coding: utf-8
+
 from __future__ import unicode_literals, division
 
 """Tools and helper functions for abinit calculations"""

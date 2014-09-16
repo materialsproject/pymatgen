@@ -1,4 +1,6 @@
-from __future__ import division, print_function
+# coding: utf-8
+
+from __future__ import unicode_literals, division, print_function
 
 """
 This module provides objects to inspect the status of the Abinit tasks at run-time.
