@@ -1,7 +1,8 @@
+from __future__ import division, print_function
+
 """
 Script to parse bandstructure output
 """
-from __future__ import division, print_function
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "

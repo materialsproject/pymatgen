@@ -1,11 +1,10 @@
-#!/usr/bin/env python
+from __future__ import division, unicode_literals
 
 """
 Input sets for VASP GW calculations
 Single vasp GW work: Creates input and jobscripts from the input sets for a specific job
 """
 
-from __future__ import division
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "

@@ -1,5 +1,6 @@
-"""Strategy objects for creating ABINIT calculations."""
 from __future__ import division, print_function
+
+"""Strategy objects for creating ABINIT calculations."""
 
 import sys
 import os

@@ -301,5 +301,3 @@ class Mrgddb(ExecWrapper):
             raise
 
         return out_ddb
-
-

@@ -1,3 +1,5 @@
+from __future__ import division, unicode_literals
+
 """
 This module implements an interface to enumlib, Gus Hart"s excellent Fortran
 code for enumerating derivative structures.
@@ -20,7 +22,6 @@ derivative structures at a fixed concentration," Comp. Mat. Sci. 59
 101-107 (March 2012)
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

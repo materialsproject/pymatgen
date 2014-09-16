@@ -1,9 +1,10 @@
+from __future__ import division, unicode_literals
+
 """
 This module provides classes for representing species substitution
 probabilities.
 """
 
-from __future__ import division
 from six.moves import zip
 
 __author__ = "Will Richards, Geoffroy Hautier"
@@ -255,4 +256,3 @@ class SubstitutionPredictor(object):
         logging.info('{} charge balanced substitutions found'
                      .format(len(output)))
         return output
-

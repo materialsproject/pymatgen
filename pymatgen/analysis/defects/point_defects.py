@@ -1,7 +1,8 @@
+from __future__ import division, unicode_literals
+
 """
 This module defines classes for point defects
 """
-from __future__ import division
 
 import os
 import abc

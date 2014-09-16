@@ -1,9 +1,9 @@
+from __future__ import division, unicode_literals
+
 """
 This module provides input and output from the CSSR file format.
 """
 
-from __future__ import division
-from six.moves import map
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -13,6 +13,8 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jan 24, 2012"
 
 import re
+
+from six.moves import map
 
 from monty.io import zopen
 from pymatgen.core.lattice import Lattice
@@ -53,7 +55,7 @@ class Cssr(object):
         Args:
             filename (str): Filename to write to.
         """
-        with open(filename, 'w') as f:
+        with zopen(filename, 'wt') as f:
             f.write(str(self) + "\n")
 
     @staticmethod
@@ -94,5 +96,5 @@ class Cssr(object):
         Returns:
             Cssr object.
         """
-        with zopen(filename, "r") as f:
+        with zopen(filename, "rt") as f:
             return Cssr.from_string(f.read())

@@ -1,4 +1,5 @@
-#!/usr/bin/python
+from __future__ import unicode_literals
+
 import unittest
 import os
 import warnings
@@ -14,7 +15,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 class CifBlockTest(unittest.TestCase):
-    
+
     def test_to_string(self):
         with open(os.path.join(test_dir, 'Graphite.cif')) as f:
             s = f.read()
@@ -29,7 +30,7 @@ _chemical_formula_structural   C
 _chemical_formula_sum   C1
 _chemical_name_mineral   'Graphite, nitrated'
 _exptl_crystal_density_diffrn   1.36
-_publ_section_title   
+_publ_section_title
 'Order-disorder transformations in graphite nitrates'
 loop_
   _citation_id
@@ -39,11 +40,11 @@ loop_
   _citation_page_first
   _citation_page_last
   _citation_journal_id_ASTM
-   primary 
+   primary
 ;
 Proceedings of the Royal Society of London, Series A: Mathematical and
 Physical Sciences (76,1906-)
-;  
+;
    1966  291  324  339  PRLAAZ
 loop_
   _publ_author_name
@@ -143,7 +144,7 @@ loop_
   AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
   CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"""
         self.assertEqual(str(CifBlock(data, loops, 'test')), cif_str)
-        
+
 
 class CifIOTest(unittest.TestCase):
 

@@ -1,10 +1,11 @@
+from __future__ import unicode_literals
+
 """
 This module provides various representations of transformed structures. A
 TransformedStructure is a structure that has been modified by undergoing a
 series of transformations.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -40,7 +41,7 @@ class TransformedStructure(PMGSONable):
     Each transformed structure is made up of a sequence of structures with
     associated transformation history.
     """
-    
+
     def __init__(self, structure, transformations=None, history=None,
                  other_parameters=None):
         """
@@ -93,14 +94,14 @@ class TransformedStructure(PMGSONable):
         h, s = self._undone.pop()
         self.history.append(h)
         self.final_structure = s
-        
+
     def __getattr__(self, name):
         s = object.__getattribute__(self, 'final_structure')
         return getattr(s, name)
-    
+
     def __len__(self):
         return len(self.history)
-    
+
     def append_transformation(self, transformation, return_alternatives=False,
                               clear_redo=True):
         """
@@ -120,11 +121,11 @@ class TransformedStructure(PMGSONable):
         """
         if clear_redo:
             self._undone = []
-            
+
         if return_alternatives and transformation.is_one_to_many:
             ranked_list = transformation.apply_transformation(
                 self.final_structure, return_ranked_list=return_alternatives)
-            
+
             input_structure = self.final_structure.as_dict()
             alts = []
             for x in ranked_list[1:]:
@@ -138,7 +139,7 @@ class TransformedStructure(PMGSONable):
                 d['history'].append(hdict)
                 d['final_structure'] = s.as_dict()
                 alts.append(TransformedStructure.from_dict(d))
-                
+
             x = ranked_list[0]
             s = x.pop("structure")
             actual_transformation = x.pop("transformation", transformation)
@@ -155,7 +156,7 @@ class TransformedStructure(PMGSONable):
             hdict["output_parameters"] = {}
             self.history.append(hdict)
             self.final_structure = s
-            
+
     def append_filter(self, structure_filter):
         """
         Adds a filter.
@@ -168,8 +169,8 @@ class TransformedStructure(PMGSONable):
         hdict = structure_filter.as_dict()
         hdict["input_structure"] = self.final_structure.as_dict()
         self.history.append(hdict)
-        
-    def extend_transformations(self, transformations, 
+
+    def extend_transformations(self, transformations,
                                return_alternatives=False):
         """
         Extends a sequence of transformations to the TransformedStructure.
@@ -184,7 +185,7 @@ class TransformedStructure(PMGSONable):
         for t in transformations:
             self.append_transformation(t,
                     return_alternatives=return_alternatives)
-            
+
     def get_vasp_input(self, vasp_input_set, generate_potcar=True):
         """
         Returns VASP input as a dict of vaspio objects.
@@ -232,10 +233,10 @@ class TransformedStructure(PMGSONable):
         output.append("------------")
         output.append(str(self.other_parameters))
         return "\n".join(output)
-    
+
     def set_parameter(self, key, value):
         self.other_parameters[key] = value
-    
+
     @property
     def was_modified(self):
         """
@@ -245,7 +246,7 @@ class TransformedStructure(PMGSONable):
         structure when the specie to replace isn't in the structure.
         """
         return not self.final_structure == self.structures[-2]
-    
+
     @property
     def structures(self):
         """
@@ -255,7 +256,7 @@ class TransformedStructure(PMGSONable):
         hstructs = [Structure.from_dict(s['input_structure'])
                     for s in self.history if 'input_structure' in s]
         return hstructs + [self.final_structure]
-            
+
     @staticmethod
     def from_cif_string(cif_string, transformations=None, primitive=True,
                         occupancy_tolerance=1.):
@@ -316,7 +317,7 @@ class TransformedStructure(PMGSONable):
                        "datetime": str(datetime.datetime.now()),
                        "original_file": raw_string}
         return TransformedStructure(s, transformations, history=[source_info])
-    
+
     def as_dict(self):
         """
         Dict representation of the TransformedStructure.
@@ -329,7 +330,7 @@ class TransformedStructure(PMGSONable):
         d["last_modified"] = str(datetime.datetime.utcnow())
         d["other_parameters"] = deepcopy(self.other_parameters)
         return d
-    
+
     @classmethod
     def from_dict(cls, d):
         """
@@ -338,7 +339,7 @@ class TransformedStructure(PMGSONable):
         s = Structure.from_dict(d)
         return cls(s, history=d["history"],
                    other_parameters=d.get("other_parameters", None))
-        
+
     def to_snl(self, authors, projects=None, references='', remarks=None,
                data=None, created_at=None):
         if self.other_parameters:
@@ -348,12 +349,12 @@ class TransformedStructure(PMGSONable):
         for h in self.history:
             snl_metadata = h.pop('_snl', {})
             hist.append({'name' : snl_metadata.pop('name', 'pymatgen'),
-                         'url' : snl_metadata.pop('url', 
+                         'url' : snl_metadata.pop('url',
                                     'http://pypi.python.org/pypi/pymatgen'),
                          'description' : h})
         return StructureNL(self.final_structure, authors, projects, references,
                            remarks, data, hist, created_at)
-        
+
     @classmethod
     def from_snl(cls, snl):
         """
@@ -371,4 +372,3 @@ class TransformedStructure(PMGSONable):
             d['_snl'] = {'url' : h.url, 'name' : h.name}
             hist.append(d)
         return cls(snl.structure, history=hist)
-

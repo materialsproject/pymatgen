@@ -1,8 +1,9 @@
+from __future__ import division, unicode_literals
+
 """
 This module implements input and output processing from Gaussian.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

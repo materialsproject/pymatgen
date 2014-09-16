@@ -1,9 +1,10 @@
+from __future__ import division, unicode_literals
+
 """
 Classes for reading/manipulating/writing VASP input files. All major VASP input
 files.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
     "Vincent L Chevrier"
@@ -36,7 +37,7 @@ from pymatgen.core.periodic_table import Element, get_el_sp
 from monty.design_patterns import cached_class
 from pymatgen.util.string_utils import str_aligned, str_delimited
 from pymatgen.util.io_utils import clean_lines
-from pymatgen.serializers.json_coders import PMGSONable\
+from pymatgen.serializers.json_coders import PMGSONable
 
 
 logger = logging.getLogger(__name__)
@@ -187,7 +188,7 @@ class Poscar(PMGSONable):
                         [get_el_sp(n) for n in names] # ensure valid names
                     except:
                         names = None
-        with zopen(filename, "r") as f:
+        with zopen(filename, "rt") as f:
             return Poscar.from_string(f.read(), names)
 
     @staticmethod
@@ -398,7 +399,7 @@ class Poscar(PMGSONable):
         Writes POSCAR to a file. The supported kwargs are the same as those for
         the Poscar.get_string method and are passed through directly.
         """
-        with open(filename, "w") as f:
+        with zopen(filename, "wt") as f:
             f.write(self.get_string(**kwargs))
 
     def as_dict(self):
@@ -546,7 +547,7 @@ class Incar(dict, PMGSONable):
         Args:
             filename (str): filename to write to.
         """
-        with open(filename, "w") as f:
+        with zopen(filename, "wt") as f:
             f.write(self.__str__())
 
     @staticmethod
@@ -560,7 +561,7 @@ class Incar(dict, PMGSONable):
         Returns:
             Incar object
         """
-        with zopen(filename) as f:
+        with zopen(filename, "rt") as f:
             lines = list(clean_lines(f.readlines()))
         params = {}
         for line in lines:
@@ -968,7 +969,7 @@ class Kpoints(PMGSONable):
         Returns:
             Kpoints object
         """
-        with zopen(filename) as f:
+        with zopen(filename, "rt") as f:
             lines = [line.strip() for line in f.readlines()]
         comment = lines[0]
         num_kpts = int(lines[1].split()[0].strip())
@@ -1066,7 +1067,7 @@ class Kpoints(PMGSONable):
         Args:
             filename (str): Filename to write to.
         """
-        with open(filename, "w") as f:
+        with zopen(filename, "wt") as f:
             f.write(self.__str__())
 
     def __str__(self):
@@ -1182,13 +1183,13 @@ class PotcarSingle(object):
         return self.data + "\n"
 
     def write_file(self, filename):
-        with zopen(filename, "w") as f:
+        with zopen(filename, "wt") as f:
             f.write(self.__str__())
 
     @staticmethod
     def from_file(filename):
-        with zopen(filename, "rb") as f:
-            return PotcarSingle(bytes.decode(f.read()))
+        with zopen(filename, "rt") as f:
+            return PotcarSingle(f.read())
 
     @staticmethod
     def from_symbol_and_functional(symbol, functional="PBE"):
@@ -1284,7 +1285,7 @@ class Potcar(list, PMGSONable):
 
     @staticmethod
     def from_file(filename):
-        with zopen(filename, "r") as reader:
+        with zopen(filename, "rt") as reader:
             fdata = reader.read()
         potcar = Potcar()
         potcar_strings = re.compile(r"\n?(\s*.*?End of Dataset)",
@@ -1316,7 +1317,7 @@ class Potcar(list, PMGSONable):
         Args:
             filename (str): filename to write to.
         """
-        with open(filename, "w") as f:
+        with zopen(filename, "wt") as f:
             f.write(self.__str__())
 
     @property
@@ -1412,8 +1413,8 @@ class VaspInput(dict, PMGSONable):
         if make_dir_if_not_present and not os.path.exists(output_dir):
             os.makedirs(output_dir)
         for k, v in self.items():
-            with open(os.path.join(output_dir, k), "w") as f:
-                f.write(str(v))
+            with zopen(os.path.join(output_dir, k), "wt") as f:
+                f.write(v)
 
     @staticmethod
     def from_directory(input_dir, optional_files=None):

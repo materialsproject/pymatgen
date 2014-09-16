@@ -1,9 +1,10 @@
+from __future__ import division, unicode_literals
+
 """
 This module implements abstract base classes for post-processing entries.
 Any class which modifies entries should inherit these classes.
 """
 
-from __future__ import division
 import six
 
 __author__ = "Shyue Ping Ong"

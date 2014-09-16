@@ -1,8 +1,9 @@
+from __future__ import division, unicode_literals
+
 """
 TODO: Change the module doc.
 """
 
-from __future__ import division
 
 __author__ = "shyuepingong"
 __version__ = "0.1"

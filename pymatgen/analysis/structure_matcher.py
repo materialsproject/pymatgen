@@ -1,8 +1,9 @@
+from __future__ import division, unicode_literals
+
 """
 This module provides classes to perform fitting of structures.
 """
 
-from __future__ import division
 import six
 from six.moves import filter
 from six.moves import zip

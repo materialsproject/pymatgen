@@ -1,8 +1,9 @@
+from __future__ import division, unicode_literals
+
 """
 This module provides classes for predicting new structures from existing ones.
 """
 
-from __future__ import division
 from six.moves import zip
 
 __author__ = "Will Richards, Geoffroy Hautier"

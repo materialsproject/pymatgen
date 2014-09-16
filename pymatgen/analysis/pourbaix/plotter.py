@@ -1,8 +1,9 @@
+from __future__ import division, unicode_literals
+
 """
 This module provides classes for plotting Pourbaix objects.
 """
 
-from __future__ import division
 import six
 from six.moves import map
 from six.moves import zip

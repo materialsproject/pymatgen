@@ -1,6 +1,5 @@
-#!/usr/bin/python
+from __future__ import division, unicode_literals
 
-from __future__ import division
 import unittest
 import pickle
 import collections
@@ -192,7 +191,7 @@ class SpecieTestCase(unittest.TestCase):
 
     def test_sort(self):
         els = map(get_el_sp, ["N3-", "Si4+", "Si3+"])
-        self.assertEqual(sorted(els), [Specie("Si", 3), Specie("Si", 4), 
+        self.assertEqual(sorted(els), [Specie("Si", 3), Specie("Si", 4),
                                        Specie("N", -3)])
 
 

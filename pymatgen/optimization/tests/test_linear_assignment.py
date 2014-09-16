@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import unittest
 
 from pymatgen.optimization.linear_assignment import LinearAssignment

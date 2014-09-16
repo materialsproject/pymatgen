@@ -1,8 +1,9 @@
+from __future__ import division, unicode_literals
+
 """
 This module defines filters for Transmuter object.
 """
 
-from __future__ import division
 
 __author__ = "Will Richards, Shyue Ping Ong, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
