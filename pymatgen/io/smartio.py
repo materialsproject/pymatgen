@@ -1,10 +1,10 @@
+from __future__ import division, unicode_literals
+
 """
 This class implements smart io classes that performs intelligent io based on
 file extensions.
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -165,4 +165,3 @@ def write_mol(mol, filename):
             return BabelMolAdaptor(mol).write_file(filename, m.group(1))
 
     raise ValueError("Unrecognized file extension!")
-

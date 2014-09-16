@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 """
 Created on Jan 25, 2012
 """

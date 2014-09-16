@@ -1,11 +1,10 @@
+from __future__ import division, unicode_literals, print_function
+
 """
 Module implementing classes and functions to use Zeo++.
 Zeo++ can be obtained from http://www.maciejharanczyk.info/Zeopp/
 """
 
-from __future__ import division
-from __future__ import unicode_literals
-from __future__ import print_function
 from six.moves import map
 
 __author__ = "Bharat Medasani"

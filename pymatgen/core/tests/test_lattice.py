@@ -1,7 +1,4 @@
-#!/usr/bin/python
-
-from __future__ import division
-from __future__ import unicode_literals
+from __future__ import division, unicode_literals
 
 import itertools
 from pymatgen.core.lattice import Lattice

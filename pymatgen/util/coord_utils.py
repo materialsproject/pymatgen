@@ -1,11 +1,11 @@
+from __future__ import division, unicode_literals
+
 """
 Utilities for manipulating coordinates or list of coordinates, under periodic
 boundary conditions or otherwise. Many of these are heavily vectorized in
 numpy for performance.
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 from six.moves import zip
 
 __author__ = "Shyue Ping Ong"

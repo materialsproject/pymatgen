@@ -1,9 +1,9 @@
+from __future__ import division, print_function
+
 """
 Low-level objects providing an abstraction for the objects involved in the
 calculation.
 """
-from __future__ import division
-from __future__ import unicode_literals, print_function
 
 import collections
 import os

@@ -1,10 +1,10 @@
+from __future__ import division, unicode_literals
+
 """
 Module which defines basic entries for each ion and oxide to compute a
 Pourbaix diagram
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"

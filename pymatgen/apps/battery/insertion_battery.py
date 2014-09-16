@@ -1,10 +1,10 @@
+from __future__ import division, unicode_literals
+
 """
 This module is used for analysis of materials with potential application as
 intercalation batteries.
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

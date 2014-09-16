@@ -1,5 +1,4 @@
-# coding=utf-8
-
+# coding: utf-8
 from __future__ import unicode_literals
 
 """
@@ -355,7 +354,7 @@ class QcTask(PMGSONable):
 
     def set_integral_threshold(self, thresh=12):
         """
-        Cutoff for neglect of two electron integrals. 10−THRESH (THRESH ≤ 14).
+        Cutoff for neglect of two electron integrals. 10−THRESH (THRESH <= 14).
         In QChem, the default values are:
         8	For single point energies.
         10	For optimizations and frequency calculations.

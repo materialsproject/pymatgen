@@ -1,8 +1,8 @@
+from __future__ import division, print_function
+
 """
 This module provides utilities for basic math operations.
 """
-from __future__ import division
-from __future__ import unicode_literals, print_function
 
 import itertools
 import collections

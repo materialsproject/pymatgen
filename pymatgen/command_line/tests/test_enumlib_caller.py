@@ -1,9 +1,9 @@
+from __future__ import division, unicode_literals
+
 """
 Created on Jul 22, 2012
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

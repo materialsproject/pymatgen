@@ -1,9 +1,9 @@
+from __future__ import division, unicode_literals
+
 """
 This module implements an XRD pattern calculator.
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 from six.moves import filter
 from six.moves import map
 from six.moves import zip

@@ -1,3 +1,5 @@
+from __future__ import division, unicode_literals
+
 """
 This module implements a FloatWithUnit, which is a subclass of float. It
 also defines supported units for some commonly used units for energy, length,
@@ -7,8 +9,6 @@ units are detected. An ArrayWithUnit is also implemented, which is a subclass
 of numpy's ndarray with similar unit features.
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 from six.moves import filter
 from six.moves import zip
 

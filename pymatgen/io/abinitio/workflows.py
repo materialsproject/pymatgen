@@ -1,8 +1,8 @@
+from __future__ import division, print_function
+
 """
 Abinit Workflows
 """
-from __future__ import division
-from __future__ import unicode_literals, print_function
 
 import sys
 import os

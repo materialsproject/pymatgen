@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import unittest
 
 from pymatgen.command_line.aconvasp_caller import get_num_division_kpoints, \

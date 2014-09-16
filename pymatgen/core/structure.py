@@ -1,10 +1,10 @@
+from __future__ import division, unicode_literals
+
 """
 This module provides classes used to define a non-periodic molecule and a
 periodic structure.
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -25,7 +25,6 @@ import random
 import warnings
 from fnmatch import fnmatch
 import re
-from io import open
 
 import numpy as np
 
@@ -1060,7 +1059,7 @@ class IStructure(SiteCollection, PMGSONable):
             writer = Cssr(self)
         else:
             if filename:
-                with open(filename, "wb") as f:
+                with open(filename, "w") as f:
                     json.dump(self.as_dict(), f)
                 return
             else:
