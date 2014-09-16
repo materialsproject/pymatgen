@@ -1,3 +1,5 @@
+from __future__ import division, unicode_literals
+
 """
 This module implements an interface to the Henkelmann et al.'s excellent
 Fortran code for calculating a Bader charge analysis.
@@ -12,8 +14,6 @@ G. Henkelman, A. Arnaldsson, and H. Jonsson, "A fast and robust algorithm for
 Bader decomposition of charge density", Comput. Mater. Sci. 36, 254-360 (2006).
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 from six.moves import map
 from six.moves import zip
 

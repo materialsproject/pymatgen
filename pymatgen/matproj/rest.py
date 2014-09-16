@@ -1,3 +1,5 @@
+from __future__ import division, unicode_literals
+
 """
 This module provides classes to interface with the Materials Project REST
 API v2 to enable the creation of data structures and pymatgen objects using
@@ -8,8 +10,6 @@ Materials Project, and obtain an API key by going to your dashboard at
 https://www.materialsproject.org/dashboard.
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong, Shreyas Cholia"
 __credits__ = "Anubhav Jain"

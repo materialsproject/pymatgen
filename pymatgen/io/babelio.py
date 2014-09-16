@@ -1,3 +1,5 @@
+from __future__ import division, unicode_literals
+
 """
 OpenBabel interface module, which opens up access to the hundreds of file
 formats supported by OpenBabel. Requires openbabel with python bindings to be
@@ -5,8 +7,6 @@ installed. Please consult the
 `openbabel documentation <http://openbabel.org/wiki/Main_Page>`_.
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

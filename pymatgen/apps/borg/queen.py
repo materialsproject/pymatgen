@@ -1,10 +1,10 @@
+from __future__ import division, unicode_literals
+
 """
 This module defines the BorgQueen class, which manages drones to assimilate
 data using Python's multiprocessing.
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

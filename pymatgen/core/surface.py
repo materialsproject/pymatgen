@@ -1,11 +1,11 @@
+from __future__ import division, unicode_literals
+
 # !/usr/bin/env python
 
 """
 This module implements representations of slabs and surfaces.
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2014, The Materials Virtual Lab"
@@ -275,5 +275,3 @@ class SlabTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-

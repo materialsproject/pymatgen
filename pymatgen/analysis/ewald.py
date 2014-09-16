@@ -1,9 +1,9 @@
+from __future__ import division, unicode_literals
+
 """
 This module provides classes for calculating the ewald sum of a structure.
 """
 
-from __future__ import division
-from __future__ import unicode_literals
 
 __author__ = "Shyue Ping Ong, William Davidson Richard"
 __copyright__ = "Copyright 2011, The Materials Project"
