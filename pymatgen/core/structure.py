@@ -25,7 +25,6 @@ import random
 import warnings
 from fnmatch import fnmatch
 import re
-from io import open
 
 import numpy as np
 
@@ -1060,7 +1059,7 @@ class IStructure(SiteCollection, PMGSONable):
             writer = Cssr(self)
         else:
             if filename:
-                with open(filename, "wb") as f:
+                with open(filename, "w") as f:
                     json.dump(self.as_dict(), f)
                 return
             else:
