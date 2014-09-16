@@ -1,4 +1,6 @@
-from __future__ import division, print_function
+# coding: utf-8
+
+from __future__ import unicode_literals, division, print_function
 
 """
 This module defines the events signaled by abinit during the execution. It also
