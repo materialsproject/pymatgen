@@ -133,12 +133,7 @@ Stable version
        possible and do "export CC=gcc" prior to installation.
     2. Numpy's distutils is needed to compile the spglib and pyhull
        dependencies. This should be the first thing you install.
-    3. Pyhull and PyCifRW. The recent versions of pip does not allow the
-       installation of externally hosted files. Furthermore,
-       there are some issues with easy_install for these extensions. Install
-       both these dependencies manually using ``"pip install <package>
-       --allow-external <package> --allow-unverified <package>"``.
-    4. Although PyYaml can be installed directly through pip without
+    3. Although PyYaml can be installed directly through pip without
        additional preparation, it is highly recommended that you install
        pyyaml with the C bindings for speed. To do so, install LibYaml first,
        and then install pyyaml with the command below (see the `pyyaml
@@ -147,8 +142,8 @@ Stable version
            python setup.py --with-libyaml install
 
 The version at the Python Package Index (PyPI) is always the latest stable
-release that will be hopefully, be relatively bug-free. The easiest way to
-install pymatgen on any system is to use easy_install or pip, as follows::
+release that is relatively bug-free. The easiest way to install pymatgen on
+any system is to use easy_install or pip, as follows::
 
     easy_install pymatgen
 
@@ -287,7 +282,7 @@ some quick examples of the core capabilities and objects:
     >>>
     >>> #Changes species and coordinates (fractional assumed for structures)
     >>> structure[1] = "Cl", [0.51, 0.51, 0.51]
-    >>> print structure
+    >>> print(structure)
     Structure Summary (Cs1 Cl1)
     Reduced Formula: CsCl
     abc   :   4.200000   4.200000   4.200000
