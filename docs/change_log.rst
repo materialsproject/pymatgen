@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v3.0.2
+------
+1. Consistent use of unicode throughout pymatgen.
+2. Minor bug fixes.
+
 v3.0.1
 ------
 1. Minor bug fixes for cifio.
