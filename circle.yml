@@ -19,6 +19,7 @@ deployment:
   automerge:
     branch: [master]
     commands:
+      - git config --global push.default simple
       - git config --global user.email "ongsp@ucsd.edu"
       - git config --global user.name "Shyue Ping Ong"
       - git checkout stable_py3
