@@ -158,8 +158,8 @@ class DiffusionAnalyzer(PMGSONable):
 
             self.corrected_displacements = dc
 
-            self.ion_max_displacements = np.max(np.sum(dc ** 2,
-                                                       axis=-1) ** 0.5, axis=1)
+            self.ion_max_displacements = np.max(np.sum(
+                dc ** 2, axis=-1) ** 0.5, axis=1)
 
             self.max_framework_displacement = \
                 np.max(self.ion_max_displacements[self.framework_indices])
