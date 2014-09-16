@@ -1,8 +1,5 @@
 from __future__ import division, unicode_literals
 
-#!/usr/bin/python
-
-
 import itertools
 from pymatgen.core.lattice import Lattice
 import numpy as np

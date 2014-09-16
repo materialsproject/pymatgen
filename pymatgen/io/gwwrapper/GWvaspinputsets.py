@@ -1,7 +1,5 @@
 from __future__ import division, unicode_literals
 
-#!/usr/bin/env python
-
 """
 Input sets for VASP GW calculations
 Single vasp GW work: Creates input and jobscripts from the input sets for a specific job

@@ -1,7 +1,5 @@
 from __future__ import division, print_function
 
-#!/usr/bin/env python
-
 import os
 import tempfile
 import shutil

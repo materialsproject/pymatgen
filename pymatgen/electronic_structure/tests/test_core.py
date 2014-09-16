@@ -1,7 +1,5 @@
 from __future__ import unicode_literals
 
-#!/usr/bin/python
-
 import unittest
 
 from pymatgen.electronic_structure.core import Orbital, Spin

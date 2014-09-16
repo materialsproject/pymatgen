@@ -1,7 +1,5 @@
 from __future__ import division, unicode_literals
 
-#!/usr/bin/python
-
 import collections
 
 from pymatgen.util.testing import PymatgenTest
