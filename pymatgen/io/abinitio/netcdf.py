@@ -9,7 +9,6 @@ import os.path
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.structure import Structure
 from monty.dev import requires
-import collections
 
 
 __author__ = "Matteo Giantomassi"
@@ -316,8 +315,6 @@ def structure_from_etsf_file(ncdata, site_properties=None):
 
     # Quick and dirty hack.
     # I need an abipy structure since I need to_abivars and other methods.
-    #from pymatgen.io.abinitio.abiobjects import AbiStructure
-    #structure.__class__ = AbiStructure
     try:
         from abipy.core.structure import Structure as AbipyStructure
         structure.__class__ = AbipyStructure

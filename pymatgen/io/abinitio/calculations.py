@@ -6,16 +6,10 @@ from __future__ import unicode_literals, division, print_function
 Factory functions producing ABINIT workflows. Entry points for client code (high-level interface)
 """
 
-import os
-
-from pymatgen.io.abinitio.abiobjects import (Smearing, KSampling, Screening,
-    SelfEnergy, ExcHamiltonian)
-
+from pymatgen.io.abinitio.abiobjects import KSampling, Screening, SelfEnergy, ExcHamiltonian
 from pymatgen.io.abinitio.abiobjects import HilbertTransform
-
 from pymatgen.io.abinitio.strategies import (ScfStrategy, NscfStrategy,
     ScreeningStrategy, SelfEnergyStrategy, MDFBSE_Strategy)
-
 from pymatgen.io.abinitio.workflows import (BandStructureWorkflow, G0W0_Workflow, BSEMDF_Workflow)
 
 
@@ -310,13 +304,8 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
     if sigma_nband is None:
         sigma_nband = nscf_nband
 
-#    if extra_abivars['ecut'][0] < max(ecuteps) / 4:
-#        extra_abivars['ecut'][0] = max(ecuteps) / 4
     if ecutsigx < max(ecuteps):
         ecutsigx = max(ecuteps)
-
-    # for x in ('paral_kgb', 'npkpt', 'npfft', 'npbands'):
-    #    del extra_abivars[x]
 
     sigma_strategy = []
 

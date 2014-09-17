@@ -27,9 +27,9 @@ except ImportError:
     pass
 
 from monty.serialization import loadfn
-from pymatgen.core.design_patterns import Enum, AttrDict
+from pymatgen.core.design_patterns import AttrDict
 from pymatgen.util.io_utils import FileLock
-from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
+from pymatgen.util.string_utils import is_string, list_strings, WildCard
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
 from pymatgen.io.abinitio.qadapters import qadapter_class

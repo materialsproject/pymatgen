@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from __future__ import unicode_literals
+from __future__ import print_function, division, unicode_literals
 
 """
 Part of this code is based on a similar implementation present in FireWorks (https://pypi.python.org/pypi/FireWorks).

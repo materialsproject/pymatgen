@@ -14,8 +14,7 @@ import six
 
 from six.moves import cStringIO
 from pymatgen.util.string_utils import pprint_table
-from six.moves import map
-from six.moves import zip
+from six.moves import map, zip
 
 
 def straceback():
