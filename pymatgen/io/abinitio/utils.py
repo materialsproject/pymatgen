@@ -9,10 +9,10 @@ import collections
 import shutil
 import operator
 
+from six.moves import filter
 from pymatgen.util.string_utils import list_strings, WildCard
 
 import logging
-from six.moves import filter
 logger = logging.getLogger(__name__)
 
 
@@ -59,12 +59,12 @@ class File(object):
 
     @property
     def exists(self):
-        "True if file exists."
+        """True if file exists."""
         return os.path.exists(self.path)
 
     @property
     def isncfile(self):
-        "True if self is a NetCDF file"
+        """True if self is a NetCDF file"""
         return self.basename.endswith(".nc")
 
     def read(self):

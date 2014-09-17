@@ -97,27 +97,12 @@ def read_dojo_report(filename):
         d = json.loads("".join(lines[start+1:stop]))
         return d
 
-#class DojoReport(dict):
-#    _LATEST_VERSION = 1.0
-#    _START_LINE = "<DOJO_REPORT>\n"
-#    _END_LINE = "</DOJO_REPORT>\n"
-#
-#    @classmethod
-#    def from_file(cls, path):
-#        new = read_dojo_report(path)
-#        new.__class__ = cls
-#        return new
-
 
 class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract base class defining the methods that must be 
     implemented by the concrete pseudopotential classes.
     """
-
-    #def __init__(self, filepath):
-    #    self.filepath = os.path.abspath(filepath)
-    #    self._dojo_report = {}
 
     @classmethod
     def as_pseudo(cls, obj):
@@ -345,17 +330,6 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
             if self.hint_for_accuracy(acc) is None:
                 return False
         return True
-
-    #@property
-    #def md5(self):
-    #    """
-    #    Return the checksum of the pseudopotential file.
-    #    """
-    #    import hashlib
-    #    hasher = hashlib.md5()
-    #    with open(self.filepath, "r") as fh:
-    #        hasher.update(fh.read())
-    #        return hasher.hexdigest()
 
 
 class NcPseudo(six.with_metaclass(abc.ABCMeta, object)):
@@ -645,7 +619,7 @@ class NcAbinitHeader(AbinitHeader):
                 try:
                     value = astype(value)
                 except:
-                    raise RuntimeError("Conversion Error for key, value %s" % (key, value))
+                    raise RuntimeError("Conversion Error for key %s, value %s" % (key, value))
 
             self[key] = value
 
@@ -773,60 +747,6 @@ class NcAbinitHeader(AbinitHeader):
 
         return NcAbinitHeader(summary, **header)
 
-    #@staticmethod
-    #def oncvpsp_out_header(filename, ppdesc):
-
-    #    lines = _read_nlines(filename, -1)
-    #    header = {}
-    #    nc = None
-    #    header.update({"pspcod": 11})
-
-    #    for (lineno, line) in enumerate(lines):
-    #        #print(lineno, line)
-
-    #        if 'psp8' in line and '###' not in line:
-    #            tokens = line.split()
-    #            header.update({'zatom': float(tokens[1])})
-    #            # print({'zatom': float(tokens[1])})
-    #            header.update({'pspxc': PseudoParser._FUNCTIONALS[int(tokens[4])]['n']})
-    #            # print({'pspxc': PseudoParser._FUNCTIONALS[int(tokens[4])]['n']})
-    #            nc = int(tokens[2])  # number of core states
-    #            nv = int(tokens[3])  # number of valence states
-    #        elif ' n ' in line and ' l ' in line and ' f ' in line and '###' not in line:
-    #            # "zion" info on the next nc+nv lines
-    #            zion = header['zatom']
-    #            for n in range(1, nc + 1, 1):
-    #                tokens = lines[lineno+n].split()
-    #                # print(tokens[2])
-    #                zion -= float(tokens[2])
-    #            header.update({'zion': zion})
-    #            # print({'zion': zion})
-    #        elif '# lmax' in line and '###' not in line:
-    #            # "lmax" first on next line
-    #            header.update({'lmax': int(lines[lineno+1].split()[0])})
-    #            # print({'lmax': int(lines[lineno+1].split()[0])})
-    #        elif '# lloc' in line and '###' not in line:
-    #            # "lloc" first on next line
-    #            header.update({'lloc': int(lines[lineno+1].split()[0])})
-    #            # print({'lloc': int(lines[lineno+1].split()[0])})
-    #        elif 'DATA FOR PLOTTING' in line:
-    #            break
-
-
-    #    #these we don't know:
-    #    #"r2well"       : _attr_desc(None, float),
-    #    header.update({'r2well': 0.0})
-    #    #"mmax"         : _attr_desc(None, float),
-    #    # this could be rlmax / drl + 1
-    #    header.update({'mmax': 0})
-    #    header.update({'pspdat': -1})
-
-    #    summary = lines[0]
-
-    #    # print(header)
-
-    #    return NcAbinitHeader(summary, **header)
-
 
 class PawAbinitHeader(AbinitHeader):
     """
@@ -941,7 +861,6 @@ class PawAbinitHeader(AbinitHeader):
         # Parse orbitals and number of meshes.
         header["orbitals"] = [int(t) for t in lines[0].split(":")[0].split()]
         header["number_of_meshes"] = num_meshes = int(lines[1].split(":")[0])
-
         #print filename, header
 
         # Skip meshes =
@@ -988,7 +907,6 @@ class PseudoParser(object):
         7 : ppdesc(6, "PAW_abinit_text", "PAW", None),
         8 : ppdesc(8, "ONCVPSP", "NC", None),
        10 : ppdesc(10, "HGHK", "NC", None),
-       #11 : ppdesc(11, "ONCVPSP_out", "NC", None)
     })
     del ppdesc
     # renumber functionals from oncvpsp todo confrim that 3 is 2
@@ -1082,7 +1000,7 @@ class PseudoParser(object):
                     #    return None
 
                     if pspcod not in self._PSPCODES:
-                        raise self.Error("%s: Don't know how to handle pspcod %s\n"  % (filename, pspcod))
+                        raise self.Error("%s: Don't know how to handle pspcod %s\n" % (filename, pspcod))
 
                     ppdesc = self._PSPCODES[pspcod]
 
@@ -1209,8 +1127,8 @@ class PawXmlSetup(Pseudo, PawPseudo):
         self.rad_grids = {}
         for node in root.findall("radial_grid"):
             grid_params = node.attrib
-            id = grid_params["id"]
-            assert id not in self.rad_grids
+            gid = grid_params["id"]
+            assert gid not in self.rad_grids
 
             self.rad_grids[id] = self._eval_grid(grid_params)
 
@@ -1220,14 +1138,14 @@ class PawXmlSetup(Pseudo, PawPseudo):
                                                                                       
         In this case we just remove the XML root element process since Element object cannot be pickled.
         """
-        return {k:v for k,v in self.__dict__.items() if k not in ["_root",]}
+        return {k: v for k, v in self.__dict__.items() if k not in ["_root"]}
 
     @property
     def root(self):
         try:
             return self._root
         except AttributeError:
-            from xml.etree import cElementTree  as ET
+            from xml.etree import cElementTree as ET
             tree = ET.parse(self.filepath)
             self._root = tree.getroot()
             return self._root
@@ -1267,7 +1185,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         This function receives a dictionary with the parameters defining the
         radial mesh and returns a `ndarray` with the mesh
         """
-        eq = grid_params.get("eq").replace(" " ,"")
+        eq = grid_params.get("eq").replace(" ", "")
         istart, iend = int(grid_params.get("istart")), int(grid_params.get("iend"))
         indices = list(range(istart, iend+1))
 
@@ -1727,7 +1645,7 @@ class PseudoTable(collections.Sequence):
         ...
         Bk: 247.00 u  14.00 g/cm^3
         """
-        format = kw.pop('format',None)
+        format = kw.pop('format', None)
         assert len(kw) == 0
 
         for pseudo in self:
@@ -1796,4 +1714,5 @@ class PseudoTable(collections.Sequence):
 
     def with_dojo_report(self):
         """Select pseudos containing the DOJO_REPORT section."""
-        return self.select(condition=lambda p : p.has_dojo_report)
+        return self.select(condition=lambda p: p.has_dojo_report)
+

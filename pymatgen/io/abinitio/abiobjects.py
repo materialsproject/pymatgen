@@ -10,6 +10,7 @@ calculation.
 import collections
 import os
 import abc
+import six
 import numpy as np
 import pymatgen.core.units as units
 
@@ -22,9 +23,7 @@ from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.io.smartio import read_structure
-
 from .netcdf import structure_from_etsf_file
-import six
 
 
 def contract(s):

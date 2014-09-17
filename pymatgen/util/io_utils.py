@@ -19,7 +19,6 @@ import numpy
 import os
 import time
 import errno
-
 import six
 
 
