@@ -929,6 +929,7 @@ class Outcar(object):
             total_mag = None
             nelect = None
             efermi = None
+            cores = 0
 
             time_patt = re.compile("\((sec|kb)\)")
             efermi_patt = re.compile("E-fermi\s*:\s*(\S+)")
@@ -962,8 +963,6 @@ class Outcar(object):
                             data.append(toks)
                 elif clean.find("soft stop encountered!  aborting job") != -1:
                     self.is_stopped = True
-                elif clean.find("running on") != -1:
-                    cores = clean[12-17].strip()
                     print clean, cores
                 else:
                     if time_patt.search(line):
@@ -988,6 +987,13 @@ class Outcar(object):
                 if all([nelect, total_mag is not None, efermi is not None,
                         run_stats]):
                     break
+
+            for line in f.readlines():
+                if "running on" in line:
+                    cores = line.split()[2]
+                    print line, cores
+                    break
+            run_stats.update({'cores': cores})
 
             self.run_stats = run_stats
             self.magnetization = tuple(mag)
