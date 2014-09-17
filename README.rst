@@ -34,27 +34,15 @@ as Python 3.x. All underlying core dependencies (numpy,
 pyhull and the spglib library) have been made Python 3 compatible,
 and a completely rewritten CIF parser module (courtesy of William Davidson
 Richards) has removed the dependency on PyCIFRW. We will support Python >= 3.3
-(ignoring v3.1 and v3.2).
-
-With the release of a new major version, we are taking the opportunity to
-streamline and cleanup some of the code, which introduces some backwards
-incompatibilities. The major ones are listed below:
-
-* The to_dict property of all classes have been deprecated in favor of the
-  as_dict() method protocol in the monty package. The to_dict property will
-  be available only up till the next minor version, i.e., v3.1.
-* All previously deprecated methods and modules (e.g.,
-  pymatgen.core.structure_editor) have been removed.
-
-Please review the `official change log <www.pymatgen.org/change_log>`_
-carefully.
+(ignoring v3.1 and v3.2). With the release of a new major version,
+we also took the opportunity to streamline and cleanup some of the code,
+which introduces a few backward incompatibilities.
 
 Why use pymatgen?
 =================
 
-There are many materials analysis codes out there, both commerical and free.
-So you might ask - why should I use pymatgen over others? Pymatgen offer
-several advantages over other codes out there:
+There are many materials analysis codes out there, both commerical and free,
+but pymatgen offer several advantages:
 
 1. **It is (fairly) robust.** Pymatgen is used in the Materials Project. As
    such, the analysis it produces survives rigorous scrutiny every single
@@ -70,10 +58,10 @@ several advantages over other codes out there:
    publication you choose. Contributing to pymatgen means your research
    becomes more visible, which translates to greater impact.
 4. **It is fast.** Many of the core numerical methods in pymatgen have been
-   optimized by vectorizing in numpy. This means that coordinate
-   manipulations are extremely fast and are in fact comparable to codes
-   written in other languages. Pymatgen also comes with a complete system for
-   handling periodic boundary conditions.
+   optimized in numpy. This means that coordinate manipulations are extremely
+   fast and are in fact comparable to codes written in other languages.
+   Pymatgen also comes with a complete system for handling periodic boundary
+   conditions.
 
 Getting pymatgen
 ================
@@ -84,14 +72,14 @@ installation details and requirements, including instructions for the
 bleeding edge developmental version.
 
 The version at the Python Package Index (PyPI) is always the latest stable
-release that will be hopefully, be relatively bug-free. The easiest way to
-install pymatgen on any system is to use easy_install or pip, as follows::
+release that is relatively bug-free. The recommended way to install pymatgen
+on any system is to use pip (or easy_install), as follows::
 
-    easy_install pymatgen
+    pip install pymatgen
 
 or::
 
-    pip install pymatgen
+    easy_install pymatgen
 
 Some extra functionality (e.g., generation of POTCARs) do require additional
 setup (please see the `pymatgen page`_).
@@ -102,7 +90,7 @@ equivalent environment with the necessary compilers.
 
 Change Log
 ==========
-The latest change log is available `here <https://github.com/materialsproject/pymatgen/blob/master/CHANGES.rst>`_.
+The latest change log is available `here <http://pymatgen.org/change_log>`_.
 
 Using pymatgen
 ==============

@@ -6,8 +6,6 @@ from __future__ import unicode_literals
 This module implements input and output processing from QChem.
 """
 
-from __future__ import unicode_literals
-
 import copy
 import re
 import numpy as np
