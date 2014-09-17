@@ -1,11 +1,9 @@
 # coding: utf-8
-
-from __future__ import unicode_literals, division, print_function
-
 """
 Low-level objects providing an abstraction for the objects involved in the
 calculation.
 """
+from __future__ import unicode_literals, division, print_function
 
 import collections
 import os
@@ -17,7 +15,8 @@ import pymatgen.core.units as units
 from pprint import pformat
 from monty.design_patterns import singleton
 from monty.string import is_string
-from pymatgen.core.design_patterns import Enum, AttrDict
+from monty.collections import AttrDict
+from pymatgen.core.design_patterns import Enum
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.symmetry.finder import SymmetryFinder

@@ -26,8 +26,8 @@ except ImportError:
 
 from monty.serialization import loadfn
 from monty.string import is_string, list_strings
-from pymatgen.core.design_patterns import AttrDict
-from pymatgen.util.io_utils import FileLock
+from monty.io import FileLock
+from monty.collections import AttrDict
 from pymatgen.util.string_utils import WildCard
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
