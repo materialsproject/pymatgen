@@ -962,6 +962,9 @@ class Outcar(object):
                             data.append(toks)
                 elif clean.find("soft stop encountered!  aborting job") != -1:
                     self.is_stopped = True
+                elif "running on" in clean:
+                    cores = clean[12-17].strip()
+                    print clean, cores
                 else:
                     if time_patt.search(line):
                         tok = line.strip().split(":")
