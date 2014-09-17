@@ -334,13 +334,13 @@ class ParalHints(collections.Iterable):
                 hints.sort_by_speedup()
                 return hints[-1].copy()
 
-        #hints.sort_by_speedup()
+        hints.sort_by_speedup()
 
-        #logger.info('speedup hints: \n' + str(hints) + '\n')
+        logger.info('speedup hints: \n' + str(hints) + '\n')
 
-        hints.sort_by_efficiency()
+        #hints.sort_by_efficiency()
 
-        logger.info('efficiency hints: \n' + str(hints) + '\n')
+        #logger.info('efficiency hints: \n' + str(hints) + '\n')
 
         # Find the optimal configuration according to policy.mode.
         #mode = policy.mode
@@ -654,7 +654,7 @@ class TaskManager(object):
         return process
 
     def increase_resources(self):
-        if self.policy is not None:
+        if self.policy.autoparal == 1:
             if self.policy.increase_max_ncpus():
                 return True
             else:
