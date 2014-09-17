@@ -319,7 +319,7 @@ class DiffusionAnalyzer(PMGSONable):
             d["dt"] = self.dt.tolist()
         return d
 
-    def get_smoothed_msd_plot(self, plt=None, smoothed=True):
+    def get_msd_plot(self, plt=None, mode="specie"):
         """
         Get the plot of the smoothed msd vs time graph. Useful for
         checking convergence. This can be written to an image file.
@@ -330,21 +330,42 @@ class DiffusionAnalyzer(PMGSONable):
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8, plt=plt)
-        plt.plot(self.dt, self.msd, 'k')
-        plt.plot(self.dt, self.msd_components[:, 0], 'r')
-        plt.plot(self.dt, self.msd_components[:, 1], 'g')
-        plt.plot(self.dt, self.msd_components[:, 2], 'b')
-        plt.legend(["Overall", "a", "b", "c"], loc=2, prop={"size": 20})
-        plt.xlabel("Timestep")
-        plt.ylabel("MSD")
+
+        if mode == "species":
+            for sp in sorted(self.structure.composition.keys()):
+                indices = [i for i, site in enumerate(self.structure) if
+                           site.specie == sp]
+                sd = np.average(self.sq_disp_ions[indices, :], axis=0)
+                plt.plot(self.dt, sd, label=sp.__str__())
+            plt.legend(loc=2, prop={"size": 20})
+        elif mode == "ions":
+            for i, site in enumerate(self.structure):
+                sd = self.sq_disp_ions[i, :]
+                plt.plot(self.dt, sd, label="%s - %d" % (
+                    site.specie.__str__(), i))
+            plt.legend(loc=2, prop={"size": 20})
+        else: #Handle default / invalid mode case
+            plt.plot(self.dt, self.msd, 'k')
+            plt.plot(self.dt, self.msd_components[:, 0], 'r')
+            plt.plot(self.dt, self.msd_components[:, 1], 'g')
+            plt.plot(self.dt, self.msd_components[:, 2], 'b')
+            plt.legend(["Overall", "a", "b", "c"], loc=2, prop={"size": 20})
+        plt.xlabel("Timestep (fs)")
+        plt.ylabel("MSD ($\AA^2$)")
         plt.tight_layout()
         return plt
 
-    def plot_smoothed_msd(self):
+    def plot_msd(self, mode="default"):
         """
         Plot the smoothed msd vs time graph. Useful for checking convergence.
+
+        Args:
+            mode (str): Either "default" (the default, shows only the MSD for
+                the diffusing specie, and its components), "ions" (individual
+                square displacements of all ions), or "species" (mean square
+                displacement by specie).
         """
-        self.get_smoothed_msd_plot().show()
+        self.get_msd_plot(mode=mode).show()
 
     @classmethod
     def from_structures(cls, structures, specie, temperature,
