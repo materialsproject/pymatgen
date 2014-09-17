@@ -16,11 +16,11 @@ import warnings
 import six
 import numpy as np
 
+from monty.string import list_strings, is_string
 from pymatgen.core.design_patterns import FrozenDict, AttrDict
 from pymatgen.core.periodic_table import PeriodicTable #, Element
 from pymatgen.util.num_utils import iterator_from_slice
 from pymatgen.util.io_utils import FileLock
-from pymatgen.util.string_utils import list_strings, is_string
 
 __all__ = [
     "Pseudo",

@@ -16,7 +16,7 @@ import pymatgen.core.units as units
 
 from pprint import pformat
 from monty.design_patterns import singleton
-from pymatgen.util.string_utils import is_string
+from monty.string import is_string
 from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.serializers.json_coders import PMGSONable
