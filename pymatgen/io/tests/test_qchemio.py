@@ -1032,6 +1032,8 @@ $end
                         jobtype="bsse", charge=0, spin_multiplicity=3, basis_set="6-31++G**",
                         ghost_atoms=[1, 2, 3, 5])
         self.elementary_io_verify(str(qctask), qctask)
+        qctask = QcTask(mol, charge=0, spin_multiplicity=2, exchange="B3LYP", ghost_atoms=[2])
+        self.assertEqual(qctask.spin_multiplicity, 2)
 
 
 class TestQcInput(TestCase):
