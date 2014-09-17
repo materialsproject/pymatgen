@@ -923,10 +923,8 @@ class Outcar(object):
         cores = 0
         with open(filename, "r") as f:
             for line in f.readlines():
-                print line
                 if "running" in line:
                     cores = line.split()[2]
-                    print line, cores
                     break
 
         with zopen(filename, "r") as f:
