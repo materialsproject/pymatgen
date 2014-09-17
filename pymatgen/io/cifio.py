@@ -23,7 +23,7 @@ import warnings
 from collections import OrderedDict, deque
 
 import six
-from six.moves import map, zip, cStringIO
+from six.moves import zip, cStringIO
 
 import numpy as np
 
@@ -214,7 +214,7 @@ class CifFile(object):
         self.orig_string = orig_string
 
     def __str__(self):
-        s = map(str, self.data.values())
+        s = ["%s" % v for v in self.data.values()]
         comment = "#generated using pymatgen\n"
         return comment + "\n".join(s)+"\n"
 
