@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module implements input and output processing from Nwchem.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -14,14 +17,18 @@ __date__ = "6/5/13"
 import re
 from string import Template
 
-from pymatgen.core import Molecule
+from six import string_types
+from six.moves import zip
+
 from monty.io import zopen
-from pymatgen.serializers.json_coders import MSONable
+
+from pymatgen.core import Molecule
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.core.units import Energy
 from pymatgen.core.units import FloatWithUnit
 
 
-class NwTask(MSONable):
+class NwTask(PMGSONable):
     """
     Base task for Nwchem.
     """
@@ -117,18 +124,20 @@ class NwTask(MSONable):
 
     def __str__(self):
         bset_spec = []
-        for el, bset in self.basis_set.items():
+        for el, bset in sorted(self.basis_set.items(), key=lambda x: x[0]):
             bset_spec.append(" {} library \"{}\"".format(el, bset))
         theory_spec = []
         if self.theory_directives:
             theory_spec.append("{}".format(self.theory))
-            for k, v in self.theory_directives.items():
-                theory_spec.append(" {} {}".format(k, v))
+            for k in sorted(self.theory_directives.keys()):
+                theory_spec.append(" {} {}".format(k, self.theory_directives[
+                    k]))
             theory_spec.append("end")
-        for k, v in self.alternate_directives.items():
+        for k in sorted(self.alternate_directives.keys()):
             theory_spec.append(k)
-            for k2, v2 in v.items():
-                theory_spec.append(" {} {}".format(k2, v2))
+            for k2 in sorted(self.alternate_directives[k].keys()):
+                theory_spec.append(" {} {}".format(
+                    k2, self.alternate_directives[k][k2]))
             theory_spec.append("end")
         t = Template("""title "$title"
 charge $charge
@@ -144,8 +153,7 @@ task $theory $operation""")
             theory_spec="\n".join(theory_spec),
             theory=self.theory, operation=self.operation)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "charge": self.charge,
@@ -216,7 +224,7 @@ task $theory $operation""")
             spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
 
         elements = set(mol.composition.get_el_amt_dict().keys())
-        if isinstance(basis_set, basestring):
+        if isinstance(basis_set, string_types):
             basis_set = {el: basis_set for el in elements}
 
         return NwTask(charge, spin_multiplicity, basis_set,
@@ -256,7 +264,7 @@ task $theory $operation""")
         return NwTask.from_molecule(mol, theory="esp", **kwargs)
 
 
-class NwInput(MSONable):
+class NwInput(PMGSONable):
     """
     An object representing a Nwchem input file, which is essentially a list
     of tasks on a particular molecule.
@@ -321,11 +329,10 @@ class NwInput(MSONable):
         with zopen(filename, "w") as f:
             f.write(self.__str__())
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {
-            "mol": self._mol.to_dict,
-            "tasks": [t.to_dict for t in self.tasks],
+            "mol": self._mol.as_dict(),
+            "tasks": [t.as_dict() for t in self.tasks],
             "directives": [list(t) for t in self.directives],
             "geometry_options": list(self.geometry_options),
             "symmetry_options": self.symmetry_options,
@@ -383,7 +390,7 @@ class NwInput(MSONable):
                 while l.lower() != "end":
                     toks = l.split()
                     species.append(toks[0])
-                    coords.append(map(float, toks[1:]))
+                    coords.append([float(i) for i in toks[1:]])
                     l = lines.pop(0).strip()
                 mol = Molecule(species, coords)
             elif toks[0].lower() == "charge":
@@ -471,7 +478,7 @@ class NwOutput(object):
             chunks.pop()
         preamble = chunks.pop(0)
         self.job_info = self._parse_preamble(preamble)
-        self.data = map(self._parse_job, chunks)
+        self.data = [self._parse_job(c) for c in chunks]
 
     def _parse_preamble(self, preamble):
         info = {}
@@ -576,8 +583,8 @@ class NwOutput(object):
 
                 m = energy_sol_patt.search(l)
                 if m:
-                    energies[-1].update({"sol phase":
-                                     Energy(m.group(1), "Ha").to("eV")})
+                    energies[-1].update(
+                        {"sol phase": Energy(m.group(1), "Ha").to("eV")})
 
                 m = preamble_patt.search(l)
                 if m:

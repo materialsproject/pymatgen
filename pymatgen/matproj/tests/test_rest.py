@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Created on Jun 9, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -42,10 +45,11 @@ class MPResterTest(unittest.TestCase):
                  "elements", "nelements", "e_above_hull", "hubbards",
                  "is_compatible", "task_ids",
                  "density", "icsd_ids", "total_magnetization"]
+        # unicode literals have been reintroduced in py>3.2
         expected_vals = [-191.33812137, -6.833504334642858, -2.551358929370749,
-                         28, {u'P': 4, u'Fe': 4, u'O': 16, u'Li': 4},
-                         "LiFePO4", True, [u'Li', u'O', u'P', u'Fe'], 4, 0.0,
-                         {u'Fe': 5.3, u'Li': 0.0, u'O': 0.0, u'P': 0.0}, True,
+                         28, {k: v for k, v in {'P': 4, 'Fe': 4, 'O': 16, 'Li': 4}.items()},
+                         "LiFePO4", True, ['Li', 'O', 'P', 'Fe'], 4, 0.0,
+                         {k: v for k, v in {'Fe': 5.3, 'Li': 0.0, 'O': 0.0, 'P': 0.0}.items()}, True,
                          ['mp-540081', 'mp-601412', 'mp-19017'],
                          3.4662026991351147,
                          [159107, 154117, 160776, 99860, 181272, 166815,
@@ -168,9 +172,7 @@ class MPResterTest(unittest.TestCase):
         # self.assertEqual(len(data), 0)
 
     def test_get_stability(self):
-        entries = self.rester.get_entries("Fe-O")
-        entries.extend(self.rester.get_entries("Fe"))
-        entries.extend(self.rester.get_entries("O"))
+        entries = self.rester.get_entries_in_chemsys(["Fe", "O"])
         modified_entries = []
         for entry in entries:
             # Create modified entries with energies that are 0.01eV higher
@@ -217,6 +219,11 @@ class MPResterTest(unittest.TestCase):
         comps = MPRester.parse_criteria("**O3")["pretty_formula"]["$in"]
         for c in comps:
             self.assertEqual(len(Composition(c)), 3)
+
+        #Let's test some invalid symbols
+
+        self.assertRaises(KeyError, MPRester.parse_criteria, "li-fe")
+        self.assertRaises(KeyError, MPRester.parse_criteria, "LO2")
 
 
 if __name__ == "__main__":

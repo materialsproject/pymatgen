@@ -1,9 +1,12 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Module which defines basic entries for each ion and oxide to compute a
 Pourbaix diagram
 """
 
-from __future__ import division
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -17,16 +20,19 @@ import re
 import math
 import csv
 
+from six.moves import map, zip
+from monty.string import unicode2str
+
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import Composition
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.core.ion import Ion
 from pymatgen.phasediagram.entries import PDEntry
 
 PREFAC = 0.0591
 
 
-class PourbaixEntry(MSONable):
+class PourbaixEntry(PMGSONable):
     """
     An object encompassing all data relevant to an ion in a pourbaix diagram.
     Each bulk solid/ion has a free energy g of the form:
@@ -110,8 +116,7 @@ class PourbaixEntry(MSONable):
         self.uncorrected_energy = term
         self.correction = 0.0
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Returns dict which contains Pourbaix Entry data.
         Note that the pH, voltage, H2O factors are always calculated when
@@ -123,7 +128,7 @@ class PourbaixEntry(MSONable):
             d["entry type"] = "Ion"
         else:
             d["entry type"] = "Solid"
-        d["entry"] = self.entry.to_dict
+        d["entry"] = self.entry.as_dict()
         d["pH factor"] = self.npH
         d["voltage factor"] = self.nPhi
         d["concentration"] = self.conc
@@ -231,17 +236,16 @@ class MultiEntry(PourbaixEntry):
         self.nM = 0.0
         self.name = ""
         self.entry_id = list()
-        for i in xrange(len(entry_list)):
-            entry = entry_list[i]
-            self.uncorrected_energy += self.weights[i] * \
-                entry.uncorrected_energy
-            self.correction += self.weights[i] * entry.correction
-            self.npH += self.weights[i] * entry.npH
-            self.nPhi += self.weights[i] * entry.nPhi
-            self.nH2O += self.weights[i] * entry.nH2O
-            self.nM += self.weights[i] * entry.nM
-            self.name += entry.name + " + "
-            self.entry_id.append(entry.entry_id)
+        for w, e in zip(self.weights, entry_list):
+            self.uncorrected_energy += w * \
+                e.uncorrected_energy
+            self.correction += w * e.correction
+            self.npH += w * e.npH
+            self.nPhi += w * e.nPhi
+            self.nH2O += w * e.nH2O
+            self.nM += w * e.nM
+            self.name += e.name + " + "
+            self.entry_id.append(e.entry_id)
         self.name = self.name[:-3]
 
     @property
@@ -250,17 +254,16 @@ class MultiEntry(PourbaixEntry):
         Normalize each entry by nM
         """
         norm_fac = 0.0
-        for i in xrange(len(self.entrylist)):
-            entry = self.entrylist[i]
-            for el in entry.composition.elements:
+        for w, e in zip(self.weights, self.entrylist):
+            for el in e.composition.elements:
                 if (el == Element("O")) | (el == Element("H")):
                     continue
-                if entry.phase_type == 'Solid':
-                    red_fac = entry.composition.\
+                if e.phase_type == 'Solid':
+                    red_fac = e.composition.\
                         get_reduced_composition_and_factor()[1]
                 else:
                     red_fac = 1.0
-                norm_fac += self.weights[i] * entry.composition[el] / red_fac
+                norm_fac += w * e.composition[el] / red_fac
         fact = 1.0 / norm_fac
         return fact
 
@@ -279,9 +282,8 @@ class MultiEntry(PourbaixEntry):
     @property
     def conc_term(self):
         sum_conc = 0.0
-        for i in xrange(len(self.entrylist)):
-            entry = self.entrylist[i]
-            sum_conc += self.weights[i] * PREFAC * math.log10(entry.conc)
+        for w, e in zip(self.weights, self.entrylist):
+            sum_conc += w * PREFAC * math.log10(e.conc)
         return sum_conc * self.normalization_factor
 
 
@@ -314,12 +316,11 @@ class IonEntry(PDEntry):
         """
         return IonEntry(Ion.from_dict(d["composition"]), d["energy"])
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Creates a dict of composition, energy, and ion name
         """
-        d = {"composition": self.composition.to_dict, "energy": self.energy}
+        d = {"composition": self.composition.as_dict(), "energy": self.energy}
         return d
 
     @property
@@ -353,30 +354,33 @@ class PourbaixEntryIO(object):
                 Li_{2}O
         """
         elements = set()
-        map(elements.update, [entry.entry.composition.elements
-                              for entry in entries])
+        #TODO: oh god please fix this next line
+        list(map(elements.update, [entry.entry.composition.elements
+                              for entry in entries]))
         elements = sorted(list(elements), key=lambda a: a.X)
-        writer = csv.writer(open(filename, "wb"), delimiter=",",
-                            quotechar="\"", quoting=csv.QUOTE_MINIMAL)
-        writer.writerow(["Name"] + elements + ["Energy"] + ["Entry Type"]
-                        + ["Charge"] + ["Concentration"])
-        for entry in entries:
-            row = [entry.name if not latexify_names
-                   else re.sub(r"([0-9]+)", r"_{\1}", entry.name)]
-            if entry.phase_type == "Solid":
-                reduction_fac = entry.entry.composition.\
-                    get_reduced_composition_and_factor()[1]
-            else:
-                reduction_fac = 1.0
-            row.extend([entry.entry.composition[el] / reduction_fac
-                        for el in elements])
-            if entry.phase_type == "Solid":
-                reduction_fac = 1.0
-            row.append(entry.g0 / reduction_fac)
-            row.append(entry.phase_type)
-            row.append(entry.charge / reduction_fac)
-            row.append(entry.conc)
-            writer.writerow(row)
+        with open(filename, "w") as f:
+            writer = csv.writer(f, delimiter=unicode2str(","),
+                                quotechar=unicode2str("\""),
+                                quoting=csv.QUOTE_MINIMAL)
+            writer.writerow(["Name"] + elements + ["Energy"] + ["Entry Type"]
+                            + ["Charge"] + ["Concentration"])
+            for entry in entries:
+                row = [entry.name if not latexify_names
+                       else re.sub(r"([0-9]+)", r"_{\1}", entry.name)]
+                if entry.phase_type == "Solid":
+                    reduction_fac = entry.entry.composition.\
+                        get_reduced_composition_and_factor()[1]
+                else:
+                    reduction_fac = 1.0
+                row.extend([entry.entry.composition[el] / reduction_fac
+                            for el in elements])
+                if entry.phase_type == "Solid":
+                    reduction_fac = 1.0
+                row.append(entry.g0 / reduction_fac)
+                row.append(entry.phase_type)
+                row.append(entry.charge / reduction_fac)
+                row.append(entry.conc)
+                writer.writerow(row)
 
     @staticmethod
     def from_csv(filename):
@@ -389,32 +393,34 @@ class PourbaixEntryIO(object):
         Returns:
             List of Entries
         """
-        reader = csv.reader(open(filename, "rb"), delimiter=",",
-                            quotechar="\"", quoting=csv.QUOTE_MINIMAL)
-        entries = list()
-        header_read = False
-        for row in reader:
-            if not header_read:
-                elements = row[1:(len(row) - 4)]
-                header_read = True
-            else:
-                name = row[0]
-                energy = float(row[-4])
-                conc = float(row[-1])
-                comp = dict()
-                for ind in range(1, len(row) - 4):
-                    if float(row[ind]) > 0:
-                        comp[Element(elements[ind - 1])] = float(row[ind])
-                phase_type = row[-3]
-                if phase_type == "Ion":
-                    PoE = PourbaixEntry(IonEntry(Ion.from_formula(name),
-                                                 energy))
-                    PoE.conc = conc
-                    PoE.name = name
-                    entries.append(PoE)
+        with open(filename, "r") as f:
+            reader = csv.reader(f, delimiter=unicode2str(","),
+                                quotechar=unicode2str("\""),
+                                quoting=csv.QUOTE_MINIMAL)
+            entries = list()
+            header_read = False
+            for row in reader:
+                if not header_read:
+                    elements = row[1:(len(row) - 4)]
+                    header_read = True
                 else:
-                    entries.append(PourbaixEntry(PDEntry(Composition(comp),
-                                                         energy)))
+                    name = row[0]
+                    energy = float(row[-4])
+                    conc = float(row[-1])
+                    comp = dict()
+                    for ind in range(1, len(row) - 4):
+                        if float(row[ind]) > 0:
+                            comp[Element(elements[ind - 1])] = float(row[ind])
+                    phase_type = row[-3]
+                    if phase_type == "Ion":
+                        PoE = PourbaixEntry(IonEntry(Ion.from_formula(name),
+                                                     energy))
+                        PoE.conc = conc
+                        PoE.name = name
+                        entries.append(PoE)
+                    else:
+                        entries.append(PourbaixEntry(PDEntry(Composition(comp),
+                                                             energy)))
         elements = [Element(el) for el in elements]
         return elements, entries
 

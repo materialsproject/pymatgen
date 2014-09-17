@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 TODO: Modify module doc.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -49,8 +52,8 @@ class NwTaskTest(unittest.TestCase):
         ans = """title "H4C1 dft optimize"
 charge 0
 basis
- H library "6-31++G**"
  C library "6-311++G**"
+ H library "6-31++G**"
 end
 dft
  xc b3lyp
@@ -72,7 +75,7 @@ task dft optimize"""
         self.assertEqual(str(self.task), ans)
 
     def test_to_from_dict(self):
-        d = self.task.to_dict
+        d = self.task.as_dict()
         t = NwTask.from_dict(d)
         self.assertIsInstance(t, NwTask)
 
@@ -87,12 +90,12 @@ task dft optimize"""
         ans = """title "H4C1 dft energy"
 charge 1
 basis
- H library "6-31g"
  C library "6-31g"
+ H library "6-31g"
 end
 dft
- xc b3lyp
  mult 2
+ xc b3lyp
 end
 task dft energy"""
         self.assertEqual(str(task), ans)
@@ -105,12 +108,12 @@ task dft energy"""
         ans = """title "H4C1 dft energy"
 charge 0
 basis
- H library "6-311++G**"
  C library "6-311++G**"
+ H library "6-311++G**"
 end
 dft
- xc b3lyp
  mult 1
+ xc b3lyp
 end
 cosmo
  dielec 78.0
@@ -124,8 +127,8 @@ task dft energy"""
         ans = """title "H4C1 esp "
 charge 0
 basis
- H library "6-311++G**"
  C library "6-311++G**"
+ H library "6-311++G**"
 end
 
 task esp """
@@ -168,60 +171,60 @@ end
 title "H4C1 dft optimize"
 charge 0
 basis
- H library "6-31++G*"
  C library "6-31++G*"
+ H library "6-31++G*"
 end
 dft
- xc b3lyp
  mult 1
+ xc b3lyp
 end
 task dft optimize
 
 title "H4C1 dft freq"
 charge 0
 basis
- H library "6-31++G*"
  C library "6-31++G*"
+ H library "6-31++G*"
 end
 dft
- xc b3lyp
  mult 1
+ xc b3lyp
 end
 task dft freq
 
 title "H4C1 dft energy"
 charge 0
 basis
- H library "6-311++G**"
  C library "6-311++G**"
+ H library "6-311++G**"
 end
 dft
- xc b3lyp
  mult 1
+ xc b3lyp
 end
 task dft energy
 
 title "H4C1 dft energy"
 charge 1
 basis
- H library "6-311++G**"
  C library "6-311++G**"
+ H library "6-311++G**"
 end
 dft
- xc b3lyp
  mult 2
+ xc b3lyp
 end
 task dft energy
 
 title "H4C1 dft energy"
 charge -1
 basis
- H library "6-311++G**"
  C library "6-311++G**"
+ H library "6-311++G**"
 end
 dft
- xc b3lyp
  mult 2
+ xc b3lyp
 end
 task dft energy
 """
@@ -239,60 +242,60 @@ end
 title "H4C1 dft optimize"
 charge 0
 basis
- H library "6-31++G*"
  C library "6-31++G*"
+ H library "6-31++G*"
 end
 dft
- xc b3lyp
  mult 1
+ xc b3lyp
 end
 task dft optimize
 
 title "H4C1 dft freq"
 charge 0
 basis
- H library "6-31++G*"
  C library "6-31++G*"
+ H library "6-31++G*"
 end
 dft
- xc b3lyp
  mult 1
+ xc b3lyp
 end
 task dft freq
 
 title "H4C1 dft energy"
 charge 0
 basis
- H library "6-311++G**"
  C library "6-311++G**"
+ H library "6-311++G**"
 end
 dft
- xc b3lyp
  mult 1
+ xc b3lyp
 end
 task dft energy
 
 title "H4C1 dft energy"
 charge 1
 basis
- H library "6-311++G**"
  C library "6-311++G**"
+ H library "6-311++G**"
 end
 dft
- xc b3lyp
  mult 2
+ xc b3lyp
 end
 task dft energy
 
 title "H4C1 dft energy"
 charge -1
 basis
- H library "6-311++G**"
  C library "6-311++G**"
+ H library "6-311++G**"
 end
 dft
- xc b3lyp
  mult 2
+ xc b3lyp
 end
 task dft energy
 """
@@ -300,12 +303,12 @@ task dft energy
         self.assertEqual(str(self.nwi_symm), ans_symm)
 
     def test_to_from_dict(self):
-        d = self.nwi.to_dict
+        d = self.nwi.as_dict()
         nwi = NwInput.from_dict(d)
         self.assertIsInstance(nwi, NwInput)
         #Ensure it is json-serializable.
         json.dumps(d)
-        d = self.nwi_symm.to_dict
+        d = self.nwi_symm.as_dict()
         nwi_symm = NwInput.from_dict(d)
         self.assertIsInstance(nwi_symm, NwInput)
         json.dumps(d)

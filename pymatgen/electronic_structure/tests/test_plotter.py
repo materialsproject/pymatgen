@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Created on May 1, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -14,6 +17,8 @@ __date__ = "May 1, 2012"
 import unittest
 import os
 import json
+
+from io import open
 
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.plotter import DosPlotter, BSPlotter, _qvertex_target
@@ -32,7 +37,8 @@ except ImportError:
 class DosPlotterTest(unittest.TestCase):
 
     def setUp(self):
-        with open(os.path.join(test_dir, "complete_dos.json"), "r") as f:
+        with open(os.path.join(test_dir, "complete_dos.json"), "r",
+                  encoding='utf-8') as f:
             self.dos = CompleteDos.from_dict(json.load(f))
             self.plotter = DosPlotter(sigma=0.2, stack=True)
 
@@ -56,7 +62,7 @@ class BSPlotterTest(unittest.TestCase):
 
     def setUp(self):
         with open(os.path.join(test_dir, "CaO_2605_bandstructure.json"),
-                  "rb") as f:
+                  "r", encoding='utf-8') as f:
             d = json.loads(f.read())
             self.bs = BandStructureSymmLine.from_dict(d)
             self.plotter = BSPlotter(self.bs)

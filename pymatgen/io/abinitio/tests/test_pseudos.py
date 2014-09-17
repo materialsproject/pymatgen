@@ -1,7 +1,10 @@
+# coding: utf-8
+
+from __future__ import unicode_literals, division, print_function
+
 """
 Created on Fri Mar  8 23:14:02 CET 2013
 """
-from __future__ import division, print_function
 
 import os.path
 import collections
@@ -12,8 +15,10 @@ from pymatgen.io.abinitio import *
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
+
 def ref_file(filename):
     return os.path.join(_test_dir, filename)
+
 
 def ref_files(*filenames):
     return map(ref_file, filenames)
@@ -104,6 +109,23 @@ class PseudoTestCase(PymatgenTest):
                            )
                                                                                  
             self.assert_almost_equal(o.paw_radius, 1.4146523028)
+
+    def test_ncvpsp_pseudo(self):
+        """
+        Test the NCVPSP Ge pseudo
+        """
+        ger = Pseudo.from_file(ref_file("ge.oncvpsp"))
+        print(repr(ger))
+        print(ger)
+
+        self.assertTrue(ger.symbol == "Ge")
+        self.assert_equal(ger.Z, 32.0)
+        self.assert_equal(ger.Z_val, 4.0)
+        self.assertTrue(ger.isnc)
+        self.assertFalse(ger.ispaw)
+        self.assert_equal(ger.l_max, 2)
+        self.assert_equal(ger.l_local, 4)
+        self.assert_equal(ger.rcore, None)
 
 
 if __name__ == "__main__":

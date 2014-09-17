@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import unicode_literals
+
 """
 Common test support for pymatgen test scripts.
 
@@ -5,10 +9,12 @@ This single module should provide all the common functionality for pymatgen
 tests in a single location, so that test scripts can just import it and work
 right away.
 """
+
 import unittest
 import tempfile
 import numpy.testing.utils as nptu
 from pymatgen.core.structure import Structure
+from six.moves import zip
 
 
 class PymatgenTest(unittest.TestCase):
@@ -16,7 +22,7 @@ class PymatgenTest(unittest.TestCase):
     Extends unittest.TestCase with functions (taken from numpy.testing.utils)
     that support the comparison of arrays.
     """
-    def get_test_structure(self):
+    def get_si2_structure(self):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
@@ -97,13 +103,13 @@ class PymatgenTest(unittest.TestCase):
 
         for protocol in protocols:
             # Serialize and deserialize the object.
-            mode = "w" if protocol == 0 else "wb"
+            mode = "wb"
             fd, tmpfile = tempfile.mkstemp(text="b" not in mode)
 
             with open(tmpfile, mode) as fh:
                 pickle.dump(objects, fh, protocol=protocol)
 
-            with open(tmpfile, "r") as fh:
+            with open(tmpfile, "rb") as fh:
                 new_objects = pickle.load(fh)
 
             # Test for equality

@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module implements a FloatWithUnit, which is a subclass of float. It
 also defines supported units for some commonly used units for energy, length,
@@ -7,7 +11,8 @@ units are detected. An ArrayWithUnit is also implemented, which is a subclass
 of numpy's ndarray with similar unit features.
 """
 
-from __future__ import division
+from six.moves import filter
+from six.moves import zip
 
 __author__ = "Shyue Ping Ong, Matteo Giantomassi"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -17,6 +22,7 @@ __status__ = "Production"
 __date__ = "Aug 30, 2013"
 
 import numpy as np
+import six
 
 import collections
 from numbers import Number
@@ -135,13 +141,22 @@ def _get_si_unit(unit):
     unit_type = _UNAME2UTYPE[unit]
     si_unit = filter(lambda k: BASE_UNITS[unit_type][k] == 1,
                      BASE_UNITS[unit_type].keys())
-    return si_unit[0], BASE_UNITS[unit_type][unit]
+    return list(si_unit)[0], BASE_UNITS[unit_type][unit]
 
 
 class UnitError(BaseException):
     """
     Exception class for unit errors.
     """
+
+
+def check_mappings(u):
+    for v in DERIVED_UNITS.values():
+        for k2, v2 in v.items():
+            if all([v2.get(ku, 0) == vu for ku, vu in u.items()]) and \
+                    all([u.get(kv2, 0) == vv2 for kv2, vv2 in v2.items()]):
+                return {k2: 1}
+    return u
 
 
 class Unit(collections.Mapping):
@@ -163,27 +178,15 @@ class Unit(collections.Mapping):
                 space-separated.
         """
 
-        if isinstance(unit_def, basestring):
+        if isinstance(unit_def, six.string_types):
             unit = collections.defaultdict(int)
             for m in re.finditer("([A-Za-z]+)\s*\^*\s*([\-0-9]*)", unit_def):
                 p = m.group(2)
                 p = 1 if not p else int(p)
                 k = m.group(1)
-                for utype in ALL_UNITS.values():
-                    for u in utype.keys():
-                        if u.lower() == k.lower():
-                            k = u
                 unit[k] += p
         else:
             unit = {k: v for k, v in dict(unit_def).items() if v != 0}
-
-        def check_mappings(u):
-            for v in DERIVED_UNITS.values():
-                for k2, v2 in v.items():
-                    if u == v2:
-                        return {k2: 1}
-            return u
-
         self._unit = check_mappings(unit)
 
     def __mul__(self, other):
@@ -276,7 +279,7 @@ class Unit(collections.Mapping):
         factor = ofactor / nfactor
         for uo, un in zip(units_old, units_new):
             if uo[1] != un[1]:
-                raise UnitError("Units are not compatible!")
+                raise UnitError("Units %s and %s are not compatible!" % (uo, un))
             c = ALL_UNITS[_UNAME2UTYPE[uo[0]]]
             factor *= (c[uo[0]] / c[un[0]]) ** uo[1]
         return factor
@@ -307,7 +310,10 @@ class FloatWithUnit(float):
     Error = UnitError
 
     def __new__(cls, val, unit, unit_type=None):
-        return float.__new__(cls, val)
+        new = float.__new__(cls, val)
+        new._unit = Unit(unit)
+        new._unit_type = unit_type
+        return new
 
     def __init__(self, val, unit, unit_type=None):
         """
@@ -326,7 +332,6 @@ class FloatWithUnit(float):
 
     def __repr__(self):
         return super(FloatWithUnit, self).__repr__()
-        #return "{} {}".format(s, self._unit)
 
     def __str__(self):
         s = super(FloatWithUnit, self).__str__()
@@ -743,6 +748,7 @@ def unitized(unit):
     def wrap(f):
         def wrapped_f(*args, **kwargs):
             val = f(*args, **kwargs)
+            #print(val)
             unit_type = _UNAME2UTYPE[unit]
             if isinstance(val, collections.Sequence):
                 # TODO: why don't we return a ArrayWithUnit?
@@ -755,6 +761,8 @@ def unitized(unit):
                     val[k] = FloatWithUnit(v, unit_type=unit_type, unit=unit)
             elif isinstance(val, numbers.Number):
                 return FloatWithUnit(val, unit_type=unit_type, unit=unit)
+            elif val is None:
+                pass
             else:
                 raise TypeError("Don't know how to assign units to %s" % str(val))
             return val

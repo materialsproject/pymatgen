@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module implements input and output processing from Gaussian.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -106,9 +109,9 @@ class GaussianInput(object):
                 species.append(m.group(1))
                 toks = re.split("[,\s]+", l.strip())
                 if len(toks) > 4:
-                    coords.append(map(float, toks[2:5]))
+                    coords.append([float(i) for i in toks[2:5]])
                 else:
-                    coords.append(map(float, toks[1:4]))
+                    coords.append([float(i) for i in toks[1:4]])
             elif GaussianInput.zmat_patt.match(l):
                 zmode = True
                 toks = re.split("[,\s]+", l.strip())
@@ -187,7 +190,7 @@ class GaussianInput(object):
                 sp = re.sub("\d", "", sp_str)
                 return sp.capitalize()
 
-        species = map(parse_species, species)
+        species = [parse_species(sp) for sp in species]
 
         return Molecule(species, coords)
 
@@ -237,7 +240,7 @@ class GaussianInput(object):
         spaces = 0
         input_paras = {}
         ind += 1
-        for i in xrange(route_index + ind, len(lines)):
+        for i in range(route_index + ind, len(lines)):
             if lines[i].strip() == "":
                 spaces += 1
             if spaces >= 2:
@@ -273,7 +276,7 @@ class GaussianInput(object):
         Returns index of nearest neighbor atoms.
         """
         alldist = [(self._mol.get_distance(siteindex, i), i)
-                   for i in xrange(siteindex)]
+                   for i in range(siteindex)]
         alldist = sorted(alldist, key=lambda x: x[0])
         return [d[1] for d in alldist]
 
@@ -317,7 +320,7 @@ class GaussianInput(object):
     def __str__(self):
         def para_dict_to_string(para, joiner=" "):
             para_str = ["{}={}".format(k, v) if v else k
-                        for k, v in para.items()]
+                        for k, v in sorted(para.items())]
             return joiner.join(para_str)
 
         output = []
@@ -500,7 +503,7 @@ class GaussianOutput(object):
                                 for l in coord_txt[2:]:
                                     toks = l.split()
                                     sp.append(Element.from_Z(int(toks[1])))
-                                    coords.append(map(float, toks[3:6]))
+                                    coords.append([float(i) for i in toks[3:6]])
                                 self.structures.append(Molecule(sp, coords))
                     elif termination_patt.search(line):
                         m = termination_patt.search(line)
@@ -554,8 +557,7 @@ class GaussianOutput(object):
             m = parameter_patt.search(line)
             self.pcm[m.group(1)] = float(m.group(2))
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Json-serializable dict representation.
         """
@@ -563,8 +565,8 @@ class GaussianOutput(object):
         d = {"has_gaussian_completed": self.properly_terminated,
              "nsites": len(structure)}
         comp = structure.composition
-        d["unit_cell_formula"] = comp.to_dict
-        d["reduced_cell_formula"] = Composition(comp.reduced_formula).to_dict
+        d["unit_cell_formula"] = comp.as_dict()
+        d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
         d["pretty_formula"] = comp.reduced_formula
         d["is_pcm"] = self.is_pcm
 
@@ -587,7 +589,7 @@ class GaussianOutput(object):
             "energies": self.energies,
             "final_energy": self.final_energy,
             "final_energy_per_atom": self.final_energy / nsites,
-            "molecule": structure.to_dict,
+            "molecule": structure.as_dict(),
             "stationary_type": self.stationary_type,
             "corrections": self.corrections
         }

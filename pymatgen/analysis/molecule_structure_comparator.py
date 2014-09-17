@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import unicode_literals
+
 """
 This module provides classes to comparsion the structures of the two
 molecule. As long as the two molecule have the same bond connection tables,
@@ -7,8 +11,10 @@ This module is supposed to perform rough comparisons with the atom order
 correspondence prerequisite, while molecule_matcher is supposed to do exact
 comparisons without the atom order correspondence prerequisite.
 """
+
 import itertools
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
+from six.moves import zip
 
 __author__ = "Xiaohui Qu"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -55,7 +61,7 @@ class CovalentRadius():
               'Np': 1.90, 'Pu': 1.87, 'Am': 1.80, 'Cm': 1.69}
 
 
-class MoleculeStructureComparator(MSONable):
+class MoleculeStructureComparator(PMGSONable):
 
     """
     Class to check whether the connection tables of the two molecules are the
@@ -117,10 +123,10 @@ class MoleculeStructureComparator(MSONable):
         if self.ignore_ionic_bond:
             covalent_atoms = [i for i in range(num_atoms) if mol.species[i].symbol not in self.ionic_element_list]
         else:
-            covalent_atoms = range(num_atoms)
+            covalent_atoms = list(range(num_atoms))
         all_pairs = list(itertools.combinations(covalent_atoms, 2))
         pair_dists = [mol.get_distance(*p) for p in all_pairs]
-        elements = mol.composition.to_dict.keys()
+        elements = mol.composition.as_dict().keys()
         unavailable_elements = list(set(elements) -
                                     set(self.covalent_radius.keys()))
         if len(unavailable_elements) > 0:
@@ -137,8 +143,7 @@ class MoleculeStructureComparator(MSONable):
                  if dist <= cap]
         return bonds
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "bond_length_cap": self.bond_length_cap,

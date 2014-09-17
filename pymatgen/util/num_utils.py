@@ -1,11 +1,15 @@
+# coding: utf-8
+
+from __future__ import unicode_literals, division, print_function
+
 """
 This module provides utilities for basic math operations.
 """
-from __future__ import division, print_function
 
 import itertools
 import collections
 import numpy as np
+from six.moves import zip
 
 
 def iterator_from_slice(s):

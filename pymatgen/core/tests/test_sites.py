@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Created on Jul 17, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -39,21 +42,21 @@ class SiteTest(PymatgenTest):
         self.assertEqual(self.propertied_site.charge, 4.2)
 
     def test_to_from_dict(self):
-        d = self.disordered_site.to_dict
+        d = self.disordered_site.as_dict()
         site = Site.from_dict(d)
         self.assertEqual(site, self.disordered_site)
         self.assertNotEqual(site, self.ordered_site)
-        d = self.propertied_site.to_dict
+        d = self.propertied_site.as_dict()
         site = Site.from_dict(d)
         self.assertEqual(site.magmom, 5.1)
         self.assertEqual(site.charge, 4.2)
-        d = self.dummy_site.to_dict
+        d = self.dummy_site.as_dict()
         site = Site.from_dict(d)
         self.assertEqual(site.species_and_occu, self.dummy_site.species_and_occu)
 
     def test_hash(self):
         self.assertEqual(self.ordered_site.__hash__(), 26)
-        self.assertEqual(self.disordered_site.__hash__(), 25.5)
+        self.assertEqual(self.disordered_site.__hash__(), 51)
 
     def test_cmp(self):
         self.assertTrue(self.ordered_site > self.disordered_site)
@@ -77,7 +80,7 @@ class PeriodicSiteTest(PymatgenTest):
         self.site = PeriodicSite("Fe", [0.25, 0.35, 0.45],
                                  self.lattice)
         self.site2 = PeriodicSite({"Si": 0.5}, [0, 0, 0], self.lattice)
-        self.assertEquals(self.site2.species_and_occu,
+        self.assertEqual(self.site2.species_and_occu,
                           Composition({Element('Si'): 0.5}),
                           "Inconsistent site created!")
         self.propertied_site = PeriodicSite(Specie("Fe", 2),
@@ -91,12 +94,12 @@ class PeriodicSiteTest(PymatgenTest):
         """
         Test the properties for a site
         """
-        self.assertEquals(self.site.a, 0.25)
-        self.assertEquals(self.site.b, 0.35)
-        self.assertEquals(self.site.c, 0.45)
-        self.assertEquals(self.site.x, 2.5)
-        self.assertEquals(self.site.y, 3.5)
-        self.assertEquals(self.site.z, 4.5)
+        self.assertEqual(self.site.a, 0.25)
+        self.assertEqual(self.site.b, 0.35)
+        self.assertEqual(self.site.c, 0.45)
+        self.assertEqual(self.site.x, 2.5)
+        self.assertEqual(self.site.y, 3.5)
+        self.assertEqual(self.site.z, 4.5)
         self.assertTrue(self.site.is_ordered)
         self.assertFalse(self.site2.is_ordered)
         self.assertEqual(self.propertied_site.magmom, 5.1)
@@ -104,7 +107,7 @@ class PeriodicSiteTest(PymatgenTest):
 
     def test_distance(self):
         other_site = PeriodicSite("Fe", np.array([0, 0, 0]), self.lattice)
-        self.assertAlmostEquals(self.site.distance(other_site), 6.22494979899,
+        self.assertAlmostEqual(self.site.distance(other_site), 6.22494979899,
                                 5)
 
     def test_distance_from_point(self):
@@ -117,10 +120,10 @@ class PeriodicSiteTest(PymatgenTest):
     def test_distance_and_image(self):
         other_site = PeriodicSite("Fe", np.array([1, 1, 1]), self.lattice)
         (distance, image) = self.site.distance_and_image(other_site)
-        self.assertAlmostEquals(distance, 6.22494979899, 5)
+        self.assertAlmostEqual(distance, 6.22494979899, 5)
         self.assertTrue(([-1, -1, -1] == image).all())
         (distance, image) = self.site.distance_and_image(other_site, [1, 0, 0])
-        self.assertAlmostEquals(distance, 19.461500456028563, 5)
+        self.assertAlmostEqual(distance, 19.461500456028563, 5)
         # Test that old and new distance algo give the same ans for
         # "standard lattices"
         lattice = Lattice(np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]))
@@ -167,21 +170,21 @@ class PeriodicSiteTest(PymatgenTest):
         self.assertFalse(self.site.__ne__(self.site))
         self.assertTrue(other_site.__ne__(self.site))
 
-    def test_to_from_dict(self):
-        d = self.site2.to_dict
+    def test_as_from_dict(self):
+        d = self.site2.as_dict()
         site = PeriodicSite.from_dict(d)
         self.assertEqual(site, self.site2)
         self.assertNotEqual(site, self.site)
-        d = self.propertied_site.to_dict
+        d = self.propertied_site.as_dict()
         site = Site.from_dict(d)
         self.assertEqual(site.magmom, 5.1)
         self.assertEqual(site.charge, 4.2)
         site3 = PeriodicSite({"Si": 0.5, "Fe": 0.5}, [0, 0, 0], self.lattice)
-        d = site3.to_dict
+        d = site3.as_dict()
         site = PeriodicSite.from_dict(d)
         self.assertEqual(site.species_and_occu, site3.species_and_occu)
 
-        d = self.dummy_site.to_dict
+        d = self.dummy_site.as_dict()
         site = PeriodicSite.from_dict(d)
         self.assertEqual(site.species_and_occu, self.dummy_site.species_and_occu)
 

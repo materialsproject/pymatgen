@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module defines the VaspInputSet abstract base class and a concrete
 implementation for the parameters used by the Materials Project and the MIT
@@ -7,7 +11,7 @@ without further user intervention. This ensures comparability across
 runs.
 """
 
-from __future__ import division
+import six
 
 __author__ = "Shyue Ping Ong, Wei Chen, Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -31,7 +35,7 @@ from monty.serialization import loadfn
 from pymatgen.io.cifio import CifWriter
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vaspio.vasp_output import Vasprun, Outcar
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.io.smartio import write_structure
@@ -40,14 +44,13 @@ from pymatgen.io.smartio import write_structure
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class AbstractVaspInputSet(MSONable):
+class AbstractVaspInputSet(six.with_metaclass(abc.ABCMeta, PMGSONable)):
     """
     Abstract base class representing a set of Vasp input parameters.
     The idea is that using a VaspInputSet, a complete set of input files
     (INPUT, KPOINTS, POSCAR and POTCAR) can be generated in an automated
     fashion for any structure.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def get_poscar(self, structure):
@@ -223,7 +226,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
         self.force_gamma = force_gamma
         self.reduce_structure = reduce_structure
         if hubbard_off:
-            for k in self.incar_settings.keys():
+            for k in list(self.incar_settings.keys()):
                 if k.startswith("LDAU"):
                     del self.incar_settings[k]
         if user_incar_settings:
@@ -280,7 +283,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
                 elif any([el.Z > 20 for el in structure.composition]):
                     incar['LMAXMIX'] = 4
         else:
-            for key in incar.keys():
+            for key in list(incar.keys()):
                 if key.startswith('LDAU'):
                     del incar[key]
 
@@ -347,13 +350,13 @@ class DictVaspInputSet(AbstractVaspInputSet):
 
         # If grid_density is in the kpoints_settings use Kpoints.automatic_density
         if self.kpoints_settings.get('grid_density'):
-            dens = int(self.kpoints_settings['grid_density'])
-            return Kpoints.automatic_density(structure, dens, self.force_gamma)
+            return Kpoints.automatic_density(structure,
+                                             self.kpoints_settings['grid_density'],
+                                             self.force_gamma)
 
         # If length is in the kpoints_settings use Kpoints.automatic
         elif self.kpoints_settings.get('length'):
-            length = int(self.kpoints_settings['length'])
-            return Kpoints.automatic(length)
+            return Kpoints.automatic(self.kpoints_settings['length'])
 
         # Raise error. Unsure of which kpoint generation to use
         else:
@@ -378,8 +381,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
             count += 1
         return "\n".join(output)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         config_dict = {
             "INCAR": self.incar_settings,
             "KPOINTS": self.kpoints_settings,
@@ -524,9 +526,8 @@ class MITNEBVaspInputSet(DictVaspInputSet):
             if write_cif:
                 write_structure(s, os.path.join(d, '{}.cif'.format(i)))
 
-    @property
-    def to_dict(self):
-        d = super(MITNEBVaspInputSet, self).to_dict
+    def as_dict(self):
+        d = super(MITNEBVaspInputSet, self).as_dict()
         d["nimages"] = self.nimages
         return d
 
@@ -601,9 +602,8 @@ class MITMDVaspInputSet(DictVaspInputSet):
     def get_kpoints(self, structure):
         return Kpoints.gamma_automatic()
 
-    @property
-    def to_dict(self):
-        d = super(MITMDVaspInputSet, self).to_dict
+    def as_dict(self):
+        d = super(MITMDVaspInputSet, self).as_dict()
         d.update({
             "start_temp": self.start_temp,
             "end_temp": self.end_temp,
@@ -753,7 +753,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
                 magmom = {"magmom": [i['tot'] for i in outcar.magnetization]}
             else:
                 magmom = {
-                    "magmom": vasp_run.to_dict['input']['parameters']
+                    "magmom": vasp_run.as_dict()['input']['parameters']
                     ['MAGMOM']}
         else:
             magmom = None
@@ -979,9 +979,8 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
                            style="Reciprocal", num_kpts=len(kpts),
                            kpts=kpts, kpts_weights=weights)
 
-    @property
-    def to_dict(self):
-        d = super(MPBSHSEVaspInputSet, self).to_dict
+    def as_dict(self):
+        d = super(MPBSHSEVaspInputSet, self).as_dict()
         d['added_kpoints'] = self.added_kpoints
         d['mode'] = self.mode
         d['kpoints_density'] = self.kpoints_density
@@ -1105,7 +1104,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             ispin = 2
         else:
             ispin = 1
-        nbands = int(np.ceil(vasp_run.to_dict["input"]["parameters"]["NBANDS"]
+        nbands = int(np.ceil(vasp_run.as_dict()["input"]["parameters"]["NBANDS"]
                              * 1.2))
         incar_settings = {"ISPIN": ispin, "NBANDS": nbands}
         for grid in ["NGX", "NGY", "NGZ"]:
@@ -1339,7 +1338,7 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
             ispin = 2
         else:
             ispin = 1
-        nbands = int(np.ceil(vasp_run.to_dict["input"]["parameters"]["NBANDS"]
+        nbands = int(np.ceil(vasp_run.as_dict()["input"]["parameters"]["NBANDS"]
                              * nbands_factor))
         incar_settings = {"ISPIN": ispin, "NBANDS": nbands}
         for grid in ["NGX", "NGY", "NGZ"]:

@@ -1,8 +1,14 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module implements an XRD pattern calculator.
 """
 
-from __future__ import division
+from six.moves import filter
+from six.moves import map
+from six.moves import zip
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

@@ -1,11 +1,15 @@
+# coding: utf-8
+
+from __future__ import unicode_literals, division, print_function
+
 """Wrapper for netCDF readers."""
-from __future__ import division, print_function
 
 import os.path
 
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.structure import Structure
 from monty.dev import requires
+import collections
 
 
 __author__ = "Matteo Giantomassi"
@@ -142,6 +146,9 @@ class NetcdfReader(object):
             cmode:
                 if cmode=="c", a complex ndarrays is constructed and returned
                 (netcdf does not provide native support from complex datatype).
+
+        Returns:
+            numpy array if varname represents an array, scalar otherwise.
         """
         try:
             var = self.read_variable(varname, path=path)
@@ -150,7 +157,12 @@ class NetcdfReader(object):
 
         if cmode is None:
             # scalar or array
-            return var[0] if not var.shape else var[:]
+            # getValue is not portable!
+            try:
+                return var.getValue()[0] if not var.shape else var[:]
+            except IndexError:
+                return var.getValue() if not var.shape else var[:]
+
         else:
             assert var.shape[-1] == 2
             if cmode == "c":
@@ -279,8 +291,7 @@ def structure_from_etsf_file(ncdata, site_properties=None):
     ncdata, closeit = as_ncreader(ncdata)
 
     # TODO check whether atomic units are used
-    lattice = ArrayWithUnit(ncdata.read_value("primitive_vectors"),
-                            "bohr").to("ang")
+    lattice = ArrayWithUnit(ncdata.read_value("primitive_vectors"), "bohr").to("ang")
 
     red_coords = ncdata.read_value("reduced_atom_positions")
     natom = len(red_coords)

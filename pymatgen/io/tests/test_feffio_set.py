@@ -1,4 +1,7 @@
-#!/usr/bin/python
+# coding: utf-8
+
+from __future__ import unicode_literals
+
 import unittest
 import os
 
@@ -41,7 +44,7 @@ TITLE sites: 4
                          header.splitlines())
 
     def test_getfefftags(self):
-        tags = FeffInputSet.get_feff_tags(x, "XANES").to_dict
+        tags = FeffInputSet.get_feff_tags(x, "XANES").as_dict()
         self.assertEqual(tags['COREHOLE'], "FSR",
                          "Failed to generate PARAMETERS string")
 
@@ -57,7 +60,7 @@ TITLE sites: 4
                          "failed to create ATOMS string")
 
     def test_to_and_from_dict(self):
-        d = x.to_dict(structure, 'XANES', 'cif', 'O', 'test')
+        d = x.as_dict(structure, 'XANES', 'cif', 'O', 'test')
         f = d['feff.inp']
         f2 = x.from_dict(d)
         self.assertEqual(f, f2, "FeffinputSet to and from dict do not match")

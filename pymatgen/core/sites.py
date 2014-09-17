@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module defines classes representing non-periodic and periodic sites.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -17,12 +20,12 @@ import numpy as np
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie,\
     get_el_sp
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.util.coord_utils import pbc_diff
 from pymatgen.core.composition import Composition
 
 
-class Site(collections.Mapping, collections.Hashable, MSONable):
+class Site(collections.Mapping, collections.Hashable, PMGSONable):
     """
     A generalized *non-periodic* site. This is essentially a composition
     at a point in space, with some optional properties associated with it. A
@@ -108,7 +111,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         String representation of species on the site.
         """
         if self._is_ordered:
-            return str(self._species.keys()[0])
+            return list(self._species.keys())[0].__str__()
         else:
             sorted_species = sorted(self._species.keys())
             return ", ".join(["{}:{:.3f}".format(sp, self._species[sp])
@@ -135,7 +138,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         if not self._is_ordered:
             raise AttributeError("specie property only works for ordered "
                                  "sites!")
-        return self._species.keys()[0]
+        return list(self._species.keys())[0]
 
     @property
     def coords(self):
@@ -200,8 +203,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         Minimally effective hash function that just distinguishes between Sites
         with different elements.
         """
-        hashcode = sum((el.Z * occu for el, occu in self._species.items()))
-        return hashcode
+        return sum([el.Z for el in self._species.keys()])
 
     def __contains__(self, el):
         return el in self._species
@@ -216,7 +218,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         return "Site: {} ({:.4f}, {:.4f}, {:.4f})".format(
             self.species_string, *self._coords)
 
-    def __cmp__(self, other):
+    def __lt__(self, other):
         """
         Sets a default sort order for atomic species by electronegativity. Very
         useful for getting correct formulas.  For example, FeO4PLi is
@@ -225,27 +227,26 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
 
         if self._species.average_electroneg < \
                 other._species.average_electroneg:
-            return -1
+            return True
         if self._species.average_electroneg > \
                 other._species.average_electroneg:
-            return 1
+            return False
         if self.species_string < other.species_string:
-            return -1
+            return True
         if self.species_string > other.species_string:
-            return 1
-        return 0
+            return False
+        return False
 
     def __str__(self):
         return "{} {}".format(self._coords, self.species_string)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Json-serializable dict representation for Site.
         """
         species_list = []
         for spec, occu in self._species.items():
-            d = spec.to_dict
+            d = spec.as_dict()
             del d["@module"]
             del d["@class"]
             d["occu"] = occu
@@ -275,7 +276,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         return cls(atoms_n_occu, d["xyz"], properties=props)
 
 
-class PeriodicSite(Site, MSONable):
+class PeriodicSite(Site, PMGSONable):
     """
     Extension of generic Site object to periodic systems.
     PeriodicSite includes a lattice system.
@@ -318,6 +319,13 @@ class PeriodicSite(Site, MSONable):
             self._fcoords = np.mod(self._fcoords, 1)
             c_coords = lattice.get_cartesian_coords(self._fcoords)
         Site.__init__(self, atoms_n_occu, c_coords, properties)
+
+    def __hash__(self):
+        """
+        Minimally effective hash function that just distinguishes between Sites
+        with different elements.
+        """
+        return sum([el.Z for el in self._species.keys()])
 
     @property
     def lattice(self):
@@ -414,34 +422,8 @@ class PeriodicSite(Site, MSONable):
             (distance, jimage): distance and periodic lattice translations
             of the other site for which the distance applies.
         """
-        if jimage is None:
-            #The following code is heavily vectorized to maximize speed.
-            #Get the image adjustment necessary to bring coords to unit_cell.
-            adj1 = np.floor(self._fcoords)
-            adj2 = np.floor(fcoords)
-            #Shift coords to unitcell
-            coord1 = self._fcoords - adj1
-            coord2 = fcoords - adj2
-            # Generate set of images required for testing.
-            # This is a cheat to create an 8x3 array of all length 3
-            # combinations of 0,1
-            test_set = np.unpackbits(np.array([5, 57, 119],
-                                              dtype=np.uint8)).reshape(8, 3)
-            images = np.copysign(test_set, coord1 - coord2)
-            # Create tiled cartesian coords for computing distances.
-            vec = np.tile(coord2 - coord1, (8, 1)) + images
-            vec = self._lattice.get_cartesian_coords(vec)
-            # Compute distances manually.
-            dist = np.sqrt(np.sum(vec ** 2, 1)).tolist()
-            # Return the minimum distance and the adjusted image corresponding
-            # to the min distance.
-            mindist = min(dist)
-            ind = dist.index(mindist)
-            return mindist, adj1 - adj2 + images[ind]
-
-        mapped_vec = self._lattice.get_cartesian_coords(jimage + fcoords
-                                                        - self._fcoords)
-        return np.linalg.norm(mapped_vec), jimage
+        return self._lattice.get_distance_and_image(self._fcoords, fcoords,
+                                                    jimage=jimage)
 
     def distance_and_image(self, other, jimage=None):
         """
@@ -488,14 +470,13 @@ class PeriodicSite(Site, MSONable):
                                 self._fcoords[0], self._fcoords[1],
                                 self._fcoords[2])
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Json-serializable dict representation of PeriodicSite.
         """
         species_list = []
         for spec, occu in self._species.items():
-            d = spec.to_dict
+            d = spec.as_dict()
             del d["@module"]
             del d["@class"]
             d["occu"] = occu
@@ -503,7 +484,7 @@ class PeriodicSite(Site, MSONable):
         return {"label": self.species_string, "species": species_list,
                 "xyz": [float(c) for c in self._coords],
                 "abc": [float(c) for c in self._fcoords],
-                "lattice": self._lattice.to_dict,
+                "lattice": self._lattice.as_dict(),
                 "properties": self._properties,
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
