@@ -1,7 +1,4 @@
 # coding: utf-8
-
-from __future__ import print_function, division, unicode_literals
-
 """
 Part of this code is based on a similar implementation present in FireWorks (https://pypi.python.org/pypi/FireWorks).
 Work done by D. Waroquiers, A. Jain, and M. Kocher.
@@ -13,6 +10,7 @@ This programmatic interface is used by the `TaskManager` for optimizing the para
 of the run before submitting the job (Abinit provides the autoparal option that 
 allows one to get a list of parallel configuration and their expected efficiency).
 """
+from __future__ import print_function, division, unicode_literals
 
 import os
 import abc
@@ -20,13 +18,13 @@ import string
 import copy
 import getpass
 import warnings
+import six
 
 from subprocess import Popen, PIPE
+from monty.string import is_string
 from pymatgen.io.abinitio.launcher import ScriptEditor
-from pymatgen.util.string_utils import is_string
 
 import logging
-import six
 logger = logging.getLogger(__name__)
 
 __all__ = [

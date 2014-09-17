@@ -1,8 +1,6 @@
 # coding: utf-8
-
-from __future__ import unicode_literals, division, print_function
-
 """Tools for the submission of Tasks."""
+from __future__ import unicode_literals, division, print_function
 
 import os
 import time
@@ -13,8 +11,8 @@ from six.moves import cStringIO
 from datetime import timedelta
 from monty.os.path import which
 from monty.dev import deprecated
+from monty.string import is_string
 from pymatgen.core.design_patterns import AttrDict
-from pymatgen.util.string_utils import is_string
 
 try:
     import apscheduler

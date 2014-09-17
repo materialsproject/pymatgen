@@ -1,10 +1,8 @@
 # coding: utf-8
-
-from __future__ import unicode_literals, division, print_function
-
 """
 Classes defining Abinit calculations and workflows
 """
+from __future__ import unicode_literals, division, print_function
 
 import os
 import time
@@ -27,9 +25,10 @@ except ImportError:
     pass
 
 from monty.serialization import loadfn
+from monty.string import is_string, list_strings
 from pymatgen.core.design_patterns import AttrDict
 from pymatgen.util.io_utils import FileLock
-from pymatgen.util.string_utils import is_string, list_strings, WildCard
+from pymatgen.util.string_utils import WildCard
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
 from pymatgen.io.abinitio.qadapters import qadapter_class
