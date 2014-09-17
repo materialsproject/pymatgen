@@ -97,6 +97,8 @@ class DiffusionAnalyzerTest(PymatgenTest):
                  0.7926500894084628, 0.6765180009988608, 0.8555866032968998,
                  0.713087091642237, 0.7621007695790749])
 
+            self.assertEqual(d.sq_disp_ions.shape, (206, 50))
+
             self.assertAlmostEqual(d.max_framework_displacement, 1.18656839605)
 
             ss = list(d.get_drift_corrected_structures())

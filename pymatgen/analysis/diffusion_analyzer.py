@@ -173,7 +173,7 @@ class DiffusionAnalyzer(PMGSONable):
 
             #calculate the smoothed msd values
             msd = np.zeros_like(dt, dtype=np.double)
-            msd_ions = np.zeros((len(dt), len(dc)), dtype=np.double)
+            sq_disp_ions = np.zeros((len(dt), len(dc)), dtype=np.double)
             msd_components = np.zeros(dt.shape + (3,))
 
             lengths = np.array(self.structure.lattice.abc)[None, None, :]
@@ -181,8 +181,8 @@ class DiffusionAnalyzer(PMGSONable):
                 dx = dc[:, n:, :] - dc[:, :-n, :] if smoothed \
                     else dc[:, i:i+1, :]
                 sq_disp = dx ** 2
-                msd_ions[i] = 3 * np.average(sq_disp, axis=(1, 2))
-                msd[i] = np.average(msd_ions[i][self.indices])
+                sq_disp_ions[i] = np.average(np.sum(sq_disp, axis=2), axis=1)
+                msd[i] = np.average(sq_disp_ions[i][self.indices])
                 dcomponents = (df[:, n:, :] - df[:, :-n, :] if smoothed
                                else df[:, i:i+1, :]) * lengths
                 msd_components[i] = \
@@ -239,7 +239,7 @@ class DiffusionAnalyzer(PMGSONable):
                 self.diffusivity_components_std_dev * conv_factor
 
             self.msd = msd
-            self.msd_ions = msd_ions
+            self.sq_disp_ions = sq_disp_ions
             self.msd_components = msd_components
             self.dt = dt
 
