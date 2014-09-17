@@ -24,8 +24,8 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 if __name__ == "__main__":
     counter = 0
-    spec_in = get_spec('GW')
     load_ps()
+    spec_in = get_spec('GW')
     try:
         spec_in.read_from_file('spec.in')
     except (IOError, OSError):
