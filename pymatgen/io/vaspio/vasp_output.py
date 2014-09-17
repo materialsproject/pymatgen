@@ -989,7 +989,8 @@ class Outcar(object):
                     break
 
             for line in f.readlines():
-                if "running on" in line:
+                print line
+                if "running" in line:
                     cores = line.split()[2]
                     print line, cores
                     break
