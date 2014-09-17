@@ -2353,7 +2353,7 @@ class AbinitTask(Task):
         #print("optimal Autoparal conf:\n %s" % optimal)
 
         # Write autoparal configurations to file.
-        with open(os.path.join(task.workdir, "autoparal.txt", "wt")) as fh:
+        with open(os.path.join(self.workdir, "autoparal.txt"), "wt") as fh:
             fh.write(str(confs) + 2 * "\n")
             fh.write("Optimal configuration:\n")
             fh.write(str(optimal)+ "\n")
