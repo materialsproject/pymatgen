@@ -17,7 +17,8 @@ import six
 import numpy as np
 
 from monty.string import list_strings, is_string
-from pymatgen.core.design_patterns import FrozenDict, AttrDict
+from monty.collections import frozendict
+from pymatgen.core.design_patterns import AttrDict
 from pymatgen.core.periodic_table import PeriodicTable #, Element
 from pymatgen.util.num_utils import iterator_from_slice
 from pymatgen.util.io_utils import FileLock
@@ -516,7 +517,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
         err_msg = "lines = %s\n key_num =  %s" % (str(lines), str(key_nums))
         raise ValueError(err_msg)
 
-    kwargs = FrozenDict()
+    kwargs = frozendict()
 
     for (i, nk) in enumerate(key_nums):
         if nk == 0: continue
