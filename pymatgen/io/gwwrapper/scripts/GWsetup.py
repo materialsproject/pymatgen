@@ -17,6 +17,7 @@ import os
 import os.path
 
 from pymatgen.io.gwwrapper.datastructures import get_spec
+from pymatgen.io.gwwrapper.helpers import load_ps
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -24,6 +25,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 if __name__ == "__main__":
     counter = 0
     spec_in = get_spec('GW')
+    load_ps()
     try:
         spec_in.read_from_file('spec.in')
     except (IOError, OSError):
