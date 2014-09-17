@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module provides classes for plotting PhaseDiagram objects.
 """
 
-from __future__ import division
 from six.moves import zip
 
 __author__ = "Shyue Ping Ong"

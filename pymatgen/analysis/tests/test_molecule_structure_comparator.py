@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import unicode_literals
+
 import os
 from unittest import TestCase
 from pymatgen.analysis.molecule_structure_comparator import \

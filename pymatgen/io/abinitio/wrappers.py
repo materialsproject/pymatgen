@@ -1,4 +1,6 @@
-from __future__ import division, print_function
+# coding: utf-8
+
+from __future__ import unicode_literals, division, print_function
 
 import os
 
@@ -301,5 +303,3 @@ class Mrgddb(ExecWrapper):
             raise
 
         return out_ddb
-
-

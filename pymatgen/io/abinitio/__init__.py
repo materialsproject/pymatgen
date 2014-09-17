@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from .eos import *
 from .pseudos import *
 from .netcdf import *

@@ -1,4 +1,6 @@
-from __future__ import division
+# coding: utf-8
+
+from __future__ import unicode_literals
 
 """
 Evaluate the defect concentration based on composition, temperature,
@@ -111,7 +113,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
 
     c0 = np.diag(multiplicity)
     #print 'c0', c0
-    mu = [Symbol('mu'+str(i)) for i in range(m)]
+    mu = [Symbol('mu'+i.__str__()) for i in range(m)]
 
     # Generate maps for hashing
     # Generate specie->mu map and use it for site->mu map
@@ -393,10 +395,9 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         res.append(res1)
 
     res = np.array(res)
-    dtype = [('x',np.float64)]+[('y'+str(i)+str(j),np.float64) \
+    dtype = [('x',np.float64)]+[('y%d%d' % (i, j), np.float64) \
             for i in range(n) for j in range(n)]
-    res1 = np.sort(res.view(dtype),order=['x'],axis=0)
-
+    res1 = np.sort(res.view(dtype), order=['x'], axis=0)
 
     plot_data = {}
     """Because all the plots have identical x-points storing it in a
@@ -865,7 +866,7 @@ def solute_site_preference_finder(
         res.append(res1)
 
     res = np.array(res)
-    dtype = [('x',np.float64)]+[('y'+str(i)+str(j),np.float64) \
+    dtype = [('x',np.float64)]+[('y%d%d' % (i, j), np.float64) \
             for i in range(n+1) for j in range(n)]
     res1 = np.sort(res.view(dtype),order=['x'],axis=0)
 
