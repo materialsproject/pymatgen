@@ -25,19 +25,3 @@ class Enum(set):
             return name
         raise AttributeError
 
-
-class NullFile(object):
-    """A file object that is associated to /dev/null."""
-    def __new__(cls):
-        import os
-        return open(os.devnull, 'w')
-
-    def __init__(self):
-        """no-op"""
-
-
-class NullStream(object):
-    """A fake stream with a no-op write.."""
-    def write(*args):
-        """no-op"""
-
