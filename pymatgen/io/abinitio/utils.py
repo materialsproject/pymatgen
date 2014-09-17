@@ -1,8 +1,6 @@
 # coding: utf-8
-
-from __future__ import unicode_literals, division
-
 """Tools and helper functions for abinit calculations"""
+from __future__ import unicode_literals, division
 
 import os
 import collections
@@ -10,7 +8,8 @@ import shutil
 import operator
 
 from six.moves import filter
-from pymatgen.util.string_utils import list_strings, WildCard
+from monty.string import list_strings
+from pymatgen.util.string_utils import WildCard
 
 import logging
 logger = logging.getLogger(__name__)
