@@ -1,4 +1,7 @@
-from __future__ import division
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 import unittest
 import os
 import json

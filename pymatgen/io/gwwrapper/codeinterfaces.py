@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import unicode_literals, division, print_function
+
 """
 UNDER DEVELOPMENT
 Classes for code interfaces.
@@ -8,7 +12,6 @@ The VASP GWworkflow is currently coded here directly this still needs to be move
 A new implementation can be created from the New_Code template, the new class should be added to the get_code_interface
 factory function at the end.
 """
-from __future__ import division, print_function
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "
@@ -493,4 +496,3 @@ def get_all_ecuteps():
         conv_pars = code().conv_pars
         ecuteps_names.append(conv_pars['ecuteps'])
     return ecuteps_names
-

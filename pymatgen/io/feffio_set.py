@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module defines the FeffInputSet abstract base class and a concrete
 implementation for the Materials Project.  The basic concept behind an input
@@ -6,7 +10,6 @@ structure without further user intervention. This ensures comparability across
 runs.
 """
 
-from __future__ import division
 import six
 
 __author__ = "Alan Dozier"

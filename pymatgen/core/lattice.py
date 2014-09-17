@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module defines the classes relating to 3D lattices.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -354,13 +357,12 @@ class Lattice(PMGSONable):
         return Lattice(self.reciprocal_lattice.matrix / (2 * np.pi))
 
     def __repr__(self):
-        f = lambda x: "%0.6f" % x
-        outs = ["Lattice", "    abc : " + " ".join(map(f, self._lengths)),
-                " angles : " + " ".join(map(f, self._angles)),
-                " volume : %0.4f" % self.volume,
-                "      A : " + " ".join(map(f, self._matrix[0])),
-                "      B : " + " ".join(map(f, self._matrix[1])),
-                "      C : " + " ".join(map(f, self._matrix[2]))]
+        outs = ["Lattice", "    abc : " + " ".join(map(repr, self._lengths)),
+                " angles : " + " ".join(map(repr, self._angles)),
+                " volume : " + repr(self.volume),
+                "      A : " + " ".join(map(repr, self._matrix[0])),
+                "      B : " + " ".join(map(repr, self._matrix[1])),
+                "      C : " + " ".join(map(repr, self._matrix[2]))]
         return "\n".join(outs)
 
     def __eq__(self, other):

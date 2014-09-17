@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module provides classes to create phase diagrams.
 """
 
-from __future__ import division
 from six.moves import filter
 
 __author__ = "Shyue Ping Ong"

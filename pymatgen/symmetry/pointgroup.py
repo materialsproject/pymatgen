@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module implements a point group assigner for a molecule.
 """
 
-from __future__ import division
 from six.moves import filter
 
 __author__ = "Shyue Ping Ong"
@@ -513,4 +516,3 @@ def generate_full_symmops(symmops, tol):
                 return generate_full_symmops(symmops + [SymmOp(m)], tol)
 
     return symmops
-

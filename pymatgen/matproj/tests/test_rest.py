@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Created on Jun 9, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -13,7 +16,6 @@ __date__ = "Jun 9, 2012"
 
 import unittest
 import os
-import six
 
 from pymatgen.matproj.rest import MPRester, MPRestError
 from pymatgen.core.periodic_table import Element
@@ -45,9 +47,9 @@ class MPResterTest(unittest.TestCase):
                  "density", "icsd_ids", "total_magnetization"]
         # unicode literals have been reintroduced in py>3.2
         expected_vals = [-191.33812137, -6.833504334642858, -2.551358929370749,
-                         28, {six.u(k): v for k, v in {'P': 4, 'Fe': 4, 'O': 16, 'Li': 4}.items()},
-                         "LiFePO4", True, list(map(six.u, ['Li', 'O', 'P', 'Fe'])), 4, 0.0,
-                         {six.u(k): v for k, v in {'Fe': 5.3, 'Li': 0.0, 'O': 0.0, 'P': 0.0}.items()}, True,
+                         28, {k: v for k, v in {'P': 4, 'Fe': 4, 'O': 16, 'Li': 4}.items()},
+                         "LiFePO4", True, ['Li', 'O', 'P', 'Fe'], 4, 0.0,
+                         {k: v for k, v in {'Fe': 5.3, 'Li': 0.0, 'O': 0.0, 'P': 0.0}.items()}, True,
                          ['mp-540081', 'mp-601412', 'mp-19017'],
                          3.4662026991351147,
                          [159107, 154117, 160776, 99860, 181272, 166815,

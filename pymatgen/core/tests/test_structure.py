@@ -1,5 +1,7 @@
-#!/usr/bin/python
-from __future__ import division
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.composition import Composition
@@ -546,6 +548,12 @@ class StructureTest(PymatgenTest):
         self.structure.to(filename="POSCAR.testing")
         self.assertTrue(os.path.exists("POSCAR.testing"))
         os.remove("POSCAR.testing")
+
+        self.structure.to(filename="structure_testing.json")
+        self.assertTrue(os.path.exists("structure_testing.json"))
+        s = Structure.from_file("structure_testing.json")
+        self.assertEqual(s, self.structure)
+        os.remove("structure_testing.json")
 
 
 class IMoleculeTest(PymatgenTest):
