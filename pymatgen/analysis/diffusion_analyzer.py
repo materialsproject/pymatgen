@@ -154,15 +154,8 @@ class DiffusionAnalyzer(PMGSONable):
 
             #drift corrected position
             dc = self.disp - self.drift
+
             dc_x = dc[self.indices]
-
-            self.corrected_displacements = dc
-
-            self.ion_max_displacements = np.max(np.sum(
-                dc ** 2, axis=-1) ** 0.5, axis=1)
-
-            self.max_framework_displacement = \
-                np.max(self.ion_max_displacements[self.framework_indices])
             df_x = self.structure.lattice.get_fractional_coords(dc_x)
 
             if smoothed:
@@ -178,26 +171,26 @@ class DiffusionAnalyzer(PMGSONable):
                 (nions, nsteps, dim) = dc_x.shape
                 timesteps = np.arange(0, nsteps)
 
-            self.dt = timesteps * self.time_step * self.step_skip
+            dt = timesteps * self.time_step * self.step_skip
 
             #calculate the smoothed msd values
-            self.msd = np.zeros_like(self.dt, dtype=np.double)
-            self.msd_components = np.zeros(self.dt.shape + (3,))
+            msd = np.zeros_like(dt, dtype=np.double)
+            msd_components = np.zeros(dt.shape + (3,))
             lengths = np.array(self.structure.lattice.abc)[None, None, :]
             for i, n in enumerate(timesteps):
                 dx = dc_x[:, n:, :] - dc_x[:, :-n, :] if smoothed \
                     else dc_x[:, i, :]
-                self.msd[i] = 3 * np.average(dx ** 2)
+                msd[i] = 3 * np.average(dx ** 2)
                 dcomponents = (df_x[:, n:, :] - df_x[:, :-n, :] if smoothed
                                else df_x[:, i, :]) * lengths
-                self.msd_components[i] = np.average(
+                msd_components[i] = np.average(
                     np.average(dcomponents ** 2, axis=1), axis=0)
 
             #run the regression on the msd components
             if weighted and smoothed:
-                w = 1 / self.dt
+                w = 1 / dt
             else:
-                w = np.ones_like(self.dt)
+                w = np.ones_like(dt)
 
             #weighted least squares
             def weighted_lstsq(a, b, w):
@@ -206,15 +199,15 @@ class DiffusionAnalyzer(PMGSONable):
 
             m_components = np.zeros(3)
             m_components_res = np.zeros(3)
-            a = np.ones((len(self.dt), 2))
-            a[:, 0] = self.dt
+            a = np.ones((len(dt), 2))
+            a[:, 0] = dt
             for i in range(3):
                 (m, c), res, rank, s = weighted_lstsq(
-                    a, self.msd_components[:, i], w)
+                    a, msd_components[:, i], w)
                 m_components[i] = max(m, 1e-15)
                 m_components_res[i] = res[0]
 
-            (m, c), res, rank, s = weighted_lstsq(a, self.msd, w)
+            (m, c), res, rank, s = weighted_lstsq(a, msd, w)
             #m shouldn't be negative
             m = max(m, 1e-15)
 
@@ -227,9 +220,9 @@ class DiffusionAnalyzer(PMGSONable):
             # Calculate the error in the diffusivity using the error in the
             # slope from the lst sq.
             # Variance in slope = n * Squared Residuals / (n * Sxx - Sx ** 2).
-            n = len(self.dt)
+            n = len(dt)
             # Pre-compute the denominator since we will use it later.
-            denom = (n * np.sum(self.dt ** 2) - np.sum(self.dt) ** 2)
+            denom = (n * np.sum(dt ** 2) - np.sum(dt) ** 2)
 
             self.diffusivity_std_dev = np.sqrt(n * res[0] / denom) / 60
             self.conductivity = self.diffusivity * conv_factor
@@ -242,6 +235,18 @@ class DiffusionAnalyzer(PMGSONable):
                 conv_factor
             self.conductivity_components_std_dev = \
                 self.diffusivity_components_std_dev * conv_factor
+
+            self.msd = msd
+            self.msd_components = msd_components
+            self.dt = dt
+
+            self.corrected_displacements = dc
+
+            self.ion_max_displacements = np.max(np.sum(
+                dc ** 2, axis=-1) ** 0.5, axis=1)
+
+            self.max_framework_displacement = \
+                np.max(self.ion_max_displacements[self.framework_indices])
 
     def get_drift_corrected_structures(self):
         """
