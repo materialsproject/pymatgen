@@ -920,6 +920,15 @@ class Outcar(object):
     def __init__(self, filename):
         self.filename = filename
         self.is_stopped = False
+        cores = 0
+        with open(filename, "r") as f:
+            for line in f.readlines():
+                print line
+                if "running" in line:
+                    cores = line.split()[2]
+                    print line, cores
+                    break
+
         with zopen(filename, "r") as f:
             read_charge_mag = False
             charge = []
@@ -929,7 +938,6 @@ class Outcar(object):
             total_mag = None
             nelect = None
             efermi = None
-            cores = 0
 
             time_patt = re.compile("\((sec|kb)\)")
             efermi_patt = re.compile("E-fermi\s*:\s*(\S+)")
@@ -988,12 +996,6 @@ class Outcar(object):
                         run_stats]):
                     break
 
-            for line in f.readlines():
-                print line
-                if "running" in line:
-                    cores = line.split()[2]
-                    print line, cores
-                    break
             run_stats.update({'cores': cores})
 
             self.run_stats = run_stats
