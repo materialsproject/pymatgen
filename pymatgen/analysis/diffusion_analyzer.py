@@ -80,6 +80,27 @@ class DiffusionAnalyzer(PMGSONable):
 
         The maximum (drift adjusted) distance of any framework atom from its
         starting location in A.
+
+    .. attribute: max_ion_displacements
+
+        nions x 1 array of the maximum displacement of each individual ion.
+
+    .. attribute: msd
+
+        nsteps x 1 array of the mean square displacement of specie.
+
+    .. attribute: msd_components
+
+        nsteps x 3 array of the MSD in each lattice direction of specie.
+
+    .. attribute: sq_disp_ions
+
+        The square displacement of all ion (both specie and other ions) as a
+        nions x nsteps array.
+
+    .. attribute: dt
+
+        Time coordinate array.
     """
 
     def __init__(self, structure, displacements, specie, temperature,
@@ -150,11 +171,11 @@ class DiffusionAnalyzer(PMGSONable):
             self.max_framework_displacement = 0
         else:
             framework_disp = self.disp[self.framework_indices]
-            self.drift = np.average(framework_disp, axis=0)[None, :, :]
+            drift = np.average(framework_disp, axis=0)[None, :, :]
 
             #drift corrected position
-            dc = self.disp - self.drift
-            df = self.structure.lattice.get_fractional_coords(dc)
+            dc = self.disp - drift
+            df = structure.lattice.get_fractional_coords(dc)
 
             nions, nsteps, dim = dc.shape
 
@@ -173,7 +194,7 @@ class DiffusionAnalyzer(PMGSONable):
 
             #calculate the smoothed msd values
             msd = np.zeros_like(dt, dtype=np.double)
-            sq_disp_ions = np.zeros((len(dt), len(dc)), dtype=np.double)
+            sq_disp_ions = np.zeros((len(dc), len(dt)), dtype=np.double)
             msd_components = np.zeros(dt.shape + (3,))
 
             lengths = np.array(self.structure.lattice.abc)[None, None, :]
@@ -181,8 +202,8 @@ class DiffusionAnalyzer(PMGSONable):
                 dx = dc[:, n:, :] - dc[:, :-n, :] if smoothed \
                     else dc[:, i:i+1, :]
                 sq_disp = dx ** 2
-                sq_disp_ions[i] = np.average(np.sum(sq_disp, axis=2), axis=1)
-                msd[i] = np.average(sq_disp_ions[i][self.indices])
+                sq_disp_ions[:, i] = np.average(np.sum(sq_disp, axis=2), axis=1)
+                msd[i] = np.average(sq_disp_ions[:, i][self.indices])
                 dcomponents = (df[:, n:, :] - df[:, :-n, :] if smoothed
                                else df[:, i:i+1, :]) * lengths
                 msd_components[i] = \
@@ -238,18 +259,18 @@ class DiffusionAnalyzer(PMGSONable):
             self.conductivity_components_std_dev = \
                 self.diffusivity_components_std_dev * conv_factor
 
+            # Drift and displacement information.
+            self.drift = drift
+            self.corrected_displacements = dc
+            self.max_ion_displacements = np.max(np.sum(
+                dc ** 2, axis=-1) ** 0.5, axis=1)
+            self.max_framework_displacement = \
+                np.max(self.max_ion_displacements[self.framework_indices])
+
             self.msd = msd
             self.sq_disp_ions = sq_disp_ions
             self.msd_components = msd_components
             self.dt = dt
-
-            self.corrected_displacements = dc
-
-            self.ion_max_displacements = np.max(np.sum(
-                dc ** 2, axis=-1) ** 0.5, axis=1)
-
-            self.max_framework_displacement = \
-                np.max(self.ion_max_displacements[self.framework_indices])
 
     def get_drift_corrected_structures(self):
         """
@@ -298,7 +319,7 @@ class DiffusionAnalyzer(PMGSONable):
             d["dt"] = self.dt.tolist()
         return d
 
-    def get_smoothed_msd_plot(self, plt=None, smoothed=True):
+    def get_msd_plot(self, plt=None, mode="specie"):
         """
         Get the plot of the smoothed msd vs time graph. Useful for
         checking convergence. This can be written to an image file.
@@ -309,21 +330,42 @@ class DiffusionAnalyzer(PMGSONable):
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8, plt=plt)
-        plt.plot(self.dt, self.msd, 'k')
-        plt.plot(self.dt, self.msd_components[:, 0], 'r')
-        plt.plot(self.dt, self.msd_components[:, 1], 'g')
-        plt.plot(self.dt, self.msd_components[:, 2], 'b')
-        plt.legend(["Overall", "a", "b", "c"], loc=2, prop={"size": 20})
-        plt.xlabel("Timestep")
-        plt.ylabel("MSD")
+
+        if mode == "species":
+            for sp in sorted(self.structure.composition.keys()):
+                indices = [i for i, site in enumerate(self.structure) if
+                           site.specie == sp]
+                sd = np.average(self.sq_disp_ions[indices, :], axis=0)
+                plt.plot(self.dt, sd, label=sp.__str__())
+            plt.legend(loc=2, prop={"size": 20})
+        elif mode == "ions":
+            for i, site in enumerate(self.structure):
+                sd = self.sq_disp_ions[i, :]
+                plt.plot(self.dt, sd, label="%s - %d" % (
+                    site.specie.__str__(), i))
+            plt.legend(loc=2, prop={"size": 20})
+        else: #Handle default / invalid mode case
+            plt.plot(self.dt, self.msd, 'k')
+            plt.plot(self.dt, self.msd_components[:, 0], 'r')
+            plt.plot(self.dt, self.msd_components[:, 1], 'g')
+            plt.plot(self.dt, self.msd_components[:, 2], 'b')
+            plt.legend(["Overall", "a", "b", "c"], loc=2, prop={"size": 20})
+        plt.xlabel("Timestep (fs)")
+        plt.ylabel("MSD ($\AA^2$)")
         plt.tight_layout()
         return plt
 
-    def plot_smoothed_msd(self):
+    def plot_msd(self, mode="default"):
         """
         Plot the smoothed msd vs time graph. Useful for checking convergence.
+
+        Args:
+            mode (str): Either "default" (the default, shows only the MSD for
+                the diffusing specie, and its components), "ions" (individual
+                square displacements of all ions), or "species" (mean square
+                displacement by specie).
         """
-        self.get_smoothed_msd_plot().show()
+        self.get_msd_plot(mode=mode).show()
 
     @classmethod
     def from_structures(cls, structures, specie, temperature,
