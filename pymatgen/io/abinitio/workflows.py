@@ -1,10 +1,8 @@
 # coding: utf-8
-
-from __future__ import unicode_literals, division, print_function
-
 """
 Abinit Workflows
 """
+from __future__ import unicode_literals, division, print_function
 
 import os
 import shutil
@@ -20,8 +18,8 @@ try:
 except ImportError:
     pass
 
+from monty.collections import AttrDict
 from pymatgen.core.units import ArrayWithUnit
-from pymatgen.core.design_patterns import AttrDict
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from pymatgen.util.num_utils import chunks
 from pymatgen.util.string_utils import pprint_table, WildCard

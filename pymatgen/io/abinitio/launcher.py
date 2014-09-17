@@ -12,7 +12,7 @@ from datetime import timedelta
 from monty.os.path import which
 from monty.dev import deprecated
 from monty.string import is_string
-from pymatgen.core.design_patterns import AttrDict
+from monty.collections import AttrDict
 
 try:
     import apscheduler

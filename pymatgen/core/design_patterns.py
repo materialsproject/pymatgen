@@ -26,27 +26,6 @@ class Enum(set):
         raise AttributeError
 
 
-class AttrDict(dict):
-    """
-    Allows to access dict keys as obj.foo in addition
-    to the traditional way obj['foo']"
-
-    >>> d = AttrDict(foo=1, bar=2)
-    >>> d["foo"] == d.foo
-    True
-    >>> d.bar = "hello"
-    >>> d.bar
-    'hello'
-    """
-    def __init__(self, *args, **kwargs):
-        super(AttrDict, self).__init__(*args, **kwargs)
-        self.__dict__ = self
-
-    def copy(self):
-        newd = super(AttrDict, self).copy()
-        return self.__class__(**newd)
-
-
 class NullFile(object):
     """A file object that is associated to /dev/null."""
     def __new__(cls):
@@ -61,3 +40,4 @@ class NullStream(object):
     """A fake stream with a no-op write.."""
     def write(*args):
         """no-op"""
+
