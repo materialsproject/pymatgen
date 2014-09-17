@@ -154,37 +154,39 @@ class DiffusionAnalyzer(PMGSONable):
 
             #drift corrected position
             dc = self.disp - self.drift
+            df = self.structure.lattice.get_fractional_coords(dc)
 
-            dc_x = dc[self.indices]
-            df_x = self.structure.lattice.get_fractional_coords(dc_x)
+            nions, nsteps, dim = dc.shape
 
             if smoothed:
                 #limit the number of sampled timesteps to 200
                 min_dt = int(1000 / (self.step_skip * self.time_step))
-                max_dt = min(dc_x.shape[0] * dc_x.shape[1] // self.min_obs,
-                             dc_x.shape[1])
+                max_dt = min(len(self.indices) * nsteps // self.min_obs, nsteps)
                 if min_dt >= max_dt:
                     raise ValueError('Not enough data to calculate diffusivity')
                 timesteps = np.arange(min_dt, max_dt,
                                       max(int((max_dt - min_dt) / 200), 1))
             else:
-                (nions, nsteps, dim) = dc_x.shape
                 timesteps = np.arange(0, nsteps)
 
             dt = timesteps * self.time_step * self.step_skip
 
             #calculate the smoothed msd values
             msd = np.zeros_like(dt, dtype=np.double)
+            msd_ions = np.zeros((len(dt), len(dc)), dtype=np.double)
             msd_components = np.zeros(dt.shape + (3,))
+
             lengths = np.array(self.structure.lattice.abc)[None, None, :]
             for i, n in enumerate(timesteps):
-                dx = dc_x[:, n:, :] - dc_x[:, :-n, :] if smoothed \
-                    else dc_x[:, i, :]
-                msd[i] = 3 * np.average(dx ** 2)
-                dcomponents = (df_x[:, n:, :] - df_x[:, :-n, :] if smoothed
-                               else df_x[:, i, :]) * lengths
-                msd_components[i] = np.average(
-                    np.average(dcomponents ** 2, axis=1), axis=0)
+                dx = dc[:, n:, :] - dc[:, :-n, :] if smoothed \
+                    else dc[:, i:i+1, :]
+                sq_disp = dx ** 2
+                msd_ions[i] = 3 * np.average(sq_disp, axis=(1, 2))
+                msd[i] = np.average(msd_ions[i][self.indices])
+                dcomponents = (df[:, n:, :] - df[:, :-n, :] if smoothed
+                               else df[:, i:i+1, :]) * lengths
+                msd_components[i] = \
+                    np.average(dcomponents[self.indices] ** 2, axis=(0, 1))
 
             #run the regression on the msd components
             if weighted and smoothed:
@@ -237,6 +239,7 @@ class DiffusionAnalyzer(PMGSONable):
                 self.diffusivity_components_std_dev * conv_factor
 
             self.msd = msd
+            self.msd_ions = msd_ions
             self.msd_components = msd_components
             self.dt = dt
 
@@ -536,7 +539,7 @@ def fit_arrhenius(temps, diffusivities):
     a = np.array([t_1, np.ones(len(temps))]).T
     w = np.array(np.linalg.lstsq(a, logd)[0])
     return -w[0] * phyc.k_b / phyc.e, np.exp(w[1])
-    
+
 
 def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
     """
