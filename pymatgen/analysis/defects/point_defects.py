@@ -623,14 +623,14 @@ class Interstitial(Defect):
         self._defect_coord_charge = []
         self._radii = []
 
-        #for site in self._defect_sites:
-        #    coord_no, coord_sites, chrg = self._get_coord_no_sites_chrg(site)
-        #    self._defectsite_coord_no.append(coord_no)
-        #    self._defect_coord_sites.append(coord_sites)
-        #    self._defect_coord_charge.append(chrg)
-#
-        #for site in self._defect_sites:
-        #    self._radii.append(float(site.properties['voronoi_radius']))
+        for site in self._defect_sites:
+            coord_no, coord_sites, chrg = self._get_coord_no_sites_chrg(site)
+            self._defectsite_coord_no.append(coord_no)
+            self._defect_coord_sites.append(coord_sites)
+            self._defect_coord_charge.append(chrg)
+
+        for site in self._defect_sites:
+            self._radii.append(float(site.properties['voronoi_radius']))
 
     def _get_coord_no_sites_chrg(self, site):
         """
