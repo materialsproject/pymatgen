@@ -1,8 +1,12 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals, print_function
+
 """
 This module implements plotter for DOS and band structure.
 """
 
-from __future__ import division
+from six.moves import zip
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -248,7 +252,7 @@ class BSPlotter(object):
         uniq_d = []
         uniq_l = []
         temp_ticks = zip(ticks['distance'], ticks['label'])
-        for i in xrange(len(temp_ticks)):
+        for i in range(len(temp_ticks)):
             if i == 0:
                 uniq_d.append(temp_ticks[i][0])
                 uniq_l.append(temp_ticks[i][1])
@@ -371,7 +375,7 @@ class BSPlotter(object):
 
         return {'ticks': ticks, 'distances': distance, 'energy': energy,
                 'vbm': vbm_plot, 'cbm': cbm_plot,
-                'lattice': self._bs._lattice_rec.to_dict,
+                'lattice': self._bs._lattice_rec.as_dict(),
                 'zero_energy': zero_energy, 'is_metal': self._bs.is_metal(),
                 'band_gap': "{} {} bandgap = {}".format(direct,
                                                         bg['transition'],
@@ -690,19 +694,18 @@ class BSPlotterProjected(BSPlotter):
     def _get_projections_by_branches(self, dictio):
         proj = self._bs.get_projections_on_elts_and_orbitals(dictio)
         proj_br = []
-        print len(proj[Spin.up])
-        print len(proj[Spin.up][0])
+        print(len(proj[Spin.up]))
+        print(len(proj[Spin.up][0]))
         for c in proj[Spin.up][0]:
-            print c
+            print(c)
         for b in self._bs._branches:
-
-            print b
+            print(b)
             if self._bs.is_spin_polarized:
                 proj_br.append({str(Spin.up): [[] for l in range(self._nb_bands)],
                                 str(Spin.down): [[] for l in range(self._nb_bands)]})
             else:
                 proj_br.append({str(Spin.up): [[] for l in range(self._nb_bands)]})
-            print len(proj_br[-1][str(Spin.up)]), self._nb_bands
+            print((len(proj_br[-1][str(Spin.up)]), self._nb_bands))
 
             for i in range(self._nb_bands):
                 for j in range(b['start_index'], b['end_index']+1):
@@ -750,7 +753,6 @@ class BSPlotterProjected(BSPlotter):
 
         for el in dictio:
             for o in dictio[el]:
-                print el, o
                 plt.subplot(100 * math.ceil(fig_number / 2) + 20 + count)
                 self._maketicks(plt)
                 for b in range(len(data['distances'])):
@@ -810,7 +812,6 @@ class BSPlotterProjected(BSPlotter):
         band_linewidth = 1.0
         proj = self._get_projections_by_branches({e.symbol: ['s', 'p', 'd']
                                                   for e in self._bs._structure.composition.elements})
-        print proj
         data = self.bs_plot_data(zero_to_efermi)
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)

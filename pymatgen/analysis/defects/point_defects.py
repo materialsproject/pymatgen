@@ -1,7 +1,10 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module defines classes for point defects
 """
-from __future__ import division
 
 import os
 import abc
@@ -19,6 +22,10 @@ from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     RelaxationAnalyzer
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.analysis.bond_valence import BVAnalyzer
+import six
+from six.moves import filter
+from six.moves import map
+from six.moves import zip
 
 file_dir = os.path.dirname(__file__)
 rad_file = os.path.join(file_dir, 'ionic_radii.json')
@@ -99,8 +106,7 @@ class ValenceIonicRadiusEvaluator(object):
             oxi_state = int(round(site.specie.oxi_state))
             coord_no = int(round(coord_finder.get_coordination_number(i)))
             try:
-                tab_oxi_states = map(int, _ion_radii[el].keys())
-                tab_oxi_states.sort()
+                tab_oxi_states = sorted(map(int, _ion_radii[el].keys()))
                 oxi_state = nearest_key(tab_oxi_states, oxi_state)
                 radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
             except KeyError:
@@ -112,8 +118,7 @@ class ValenceIonicRadiusEvaluator(object):
                     radius = _ion_radii[el][str(oxi_state)][str(new_coord_no)]
                     coord_no = new_coord_no
                 except:
-                    tab_coords = map(int, _ion_radii[el][str(oxi_state)].keys())
-                    tab_coords.sort()
+                    tab_coords = sorted(map(int, _ion_radii[el][str(oxi_state)].keys()))
                     new_coord_no = nearest_key(tab_coords, coord_no)
                     i = 0
                     for val in tab_coords:
@@ -162,18 +167,16 @@ class ValenceIonicRadiusEvaluator(object):
         return valences
 
 
-class Defect(object):
+class Defect(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract class for point defects
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def enumerate_defectsites(self):
         """
         Enumerates all the symmetrically distinct defects.
         """
-        print 'Not implemented'
         raise NotImplementedError()
 
     @property
@@ -253,7 +256,6 @@ class Defect(object):
         First supercell has no defects.
         To create unit cell with defect pass unit matrix.
         """
-        print 'Not implemented'
         raise NotImplementedError()
 
 
@@ -530,7 +532,7 @@ class VacancyFormationEnergy(object):
             self._tol_flg = tol_flg
 
         if not self._tol_flg[n]:
-            print "Caution: tolerance not reached for {0} vacancy".format(n)
+            print("Caution: tolerance not reached for {0} vacancy".format(n))
         return self._energies[n]
 
 
@@ -724,7 +726,7 @@ class Interstitial(Defect):
         distinct_radii = list(set(self._radii))
         for rad in distinct_radii:
             ind = self._radii.index(rad)  # Index of first site with 'rad'
-            for i in reversed(range(ind + 1, len(self._radii))):
+            for i in reversed(list(range(ind + 1, len(self._radii)))):
                 # Backward search for remaining sites so index is not changed
                 if self._radii[i] == rad:
                     self._defect_sites.pop(i)
@@ -736,7 +738,7 @@ class Interstitial(Defect):
         """
         Remove all the defect sites with voronoi radius less than input radius
         """
-        for i in reversed(range(len(self._radii))):
+        for i in reversed(list(range(len(self._radii)))):
             if self._radii[i] < radius:
                 self._defect_sites.pop(i)
                 self._defectsite_coord_no.pop(i)

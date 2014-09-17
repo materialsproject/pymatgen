@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Created on Jul 16, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -14,7 +17,8 @@ __date__ = "Jul 16, 2012"
 import unittest
 import os
 import numpy as np
-
+import json
+from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.physical_constants import BOLTZMANN_CONST
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Kpoints, Potcar, \
     PotcarSingle, VaspInput
@@ -26,7 +30,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
 
-class PoscarTest(unittest.TestCase):
+class PoscarTest(PymatgenTest):
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'POSCAR')
@@ -92,7 +96,7 @@ direct
 0.750000 0.500000 0.750000 F F F O
 """
         poscar = Poscar.from_string(poscar_string)
-        d = poscar.to_dict
+        d = poscar.as_dict()
         poscar2 = Poscar.from_dict(d)
         self.assertEqual(poscar2.comment, "Test3")
         self.assertTrue(all(poscar2.selective_dynamics[0]))
@@ -191,17 +195,32 @@ direct
                                'Temperature instantiated incorrectly')
 
 
+    def test_write(self):
+        filepath = os.path.join(test_dir, 'POSCAR')
+        poscar = Poscar.from_file(filepath)
+        tempfname = "POSCAR.testing"
+        poscar.write_file(tempfname)
+        p = Poscar.from_file(tempfname)
+        self.assertArrayAlmostEqual(poscar.structure.lattice.abc,
+                                    p.structure.lattice.abc, 5)
+        os.remove(tempfname)
+
 class IncarTest(unittest.TestCase):
 
+    def setUp(self):
+        file_name = os.path.join(test_dir, 'INCAR')
+        self.incar = Incar.from_file(file_name)
+
+
     def test_init(self):
-        filepath = os.path.join(test_dir, 'INCAR')
-        incar = Incar.from_file(filepath)
+        incar = self.incar
         incar["LDAU"] = "T"
         self.assertEqual(incar["ALGO"], "Damped", "Wrong Algo")
         self.assertEqual(float(incar["EDIFF"]), 1e-4, "Wrong EDIFF")
         self.assertEqual(type(incar["LORBIT"]), int)
 
     def test_diff(self):
+        incar = self.incar
         filepath1 = os.path.join(test_dir, 'INCAR')
         incar1 = Incar.from_file(filepath1)
         filepath2 = os.path.join(test_dir, 'INCAR.2')
@@ -241,12 +260,17 @@ class IncarTest(unittest.TestCase):
                       'LREAL': 'Auto', 'ISPIN': 2, 'EDIFF': 0.0001,
                       'LORBIT': 11, 'SIGMA': 0.05}})
 
-    def test_to_dict_and_from_dict(self):
-        file_name = os.path.join(test_dir, 'INCAR')
-        incar = Incar.from_file(file_name)
-        d = incar.to_dict
+    def test_as_dict_and_from_dict(self):
+        d = self.incar.as_dict()
         incar2 = Incar.from_dict(d)
-        self.assertEqual(incar, incar2)
+        self.assertEqual(self.incar, incar2)
+
+    def test_write(self):
+        tempfname = "INCAR.testing"
+        self.incar.write_file(tempfname)
+        i = Incar.from_file(tempfname)
+        self.assertEqual(i, self.incar)
+        os.remove(tempfname)
 
 
 class KpointsTest(unittest.TestCase):
@@ -300,18 +324,18 @@ class KpointsTest(unittest.TestCase):
         kpoints = Kpoints.automatic_density(poscar.structure, 500, True)
         self.assertEqual(kpoints.style, "Gamma")
 
-    def test_to_dict_from_dict(self):
+    def test_as_dict_from_dict(self):
         k = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
-        d = k.to_dict
+        d = k.as_dict()
         k2 = Kpoints.from_dict(d)
         self.assertEqual(k.kpts, k2.kpts)
         self.assertEqual(k.style, k2.style)
         self.assertEqual(k.kpts_shift, k2.kpts_shift)
 
-    def test_kpt_bands_to_dict_from_dict(self):
+    def test_kpt_bands_as_dict_from_dict(self):
         file_name = os.path.join(test_dir, 'KPOINTS.band')
         k = Kpoints.from_file(file_name)
-        d = k.to_dict
+        d = k.as_dict()
         import json
         json.dumps(d)
         #This doesn't work
@@ -326,8 +350,8 @@ class PotcarSingleTest(unittest.TestCase):
 
     def setUp(self):
         with zopen(os.path.join(test_dir, "POT_GGA_PAW_PBE",
-                                "POTCAR.Mn_pv.gz"), 'r') as f:
-            self.psingle = PotcarSingle(f.read())
+                                "POTCAR.Mn_pv.gz"), 'rb') as f:
+            self.psingle = PotcarSingle(f.read().decode(encoding="utf-8"))
 
     def test_keywords(self):
         data = {'VRHFIN': 'Mn: 3p4s3d', 'LPAW': 'T    paw PP', 'DEXC': '-.003',
@@ -389,7 +413,8 @@ class PotcarTest(unittest.TestCase):
 
     def test_potcar_map(self):
         fe_potcar = zopen(os.path.join(test_dir, "POT_GGA_PAW_PBE",
-                                       "POTCAR.Fe_pv.gz")).read()
+                                       "POTCAR.Fe_pv.gz")).read().decode(
+            "utf-8")
         #specify V instead of Fe - this makes sure the test won't pass if the
         #code just grabs the POTCAR from the config file (the config file would
         #grab the V POTCAR)
@@ -398,9 +423,16 @@ class PotcarTest(unittest.TestCase):
                                                     "for POTCAR")
 
     def test_to_from_dict(self):
-        d = self.potcar.to_dict
+        d = self.potcar.as_dict()
         potcar = Potcar.from_dict(d)
         self.assertEqual(potcar.symbols, ["Fe", "P", "O"])
+
+    def test_write(self):
+        tempfname = "POTCAR.testing"
+        self.potcar.write_file(tempfname)
+        p = Potcar.from_file(tempfname)
+        self.assertEqual(p.symbols, self.potcar.symbols)
+        os.remove(tempfname)
 
 
 class VaspInputTest(unittest.TestCase):
@@ -422,7 +454,7 @@ class VaspInputTest(unittest.TestCase):
         self.vinput = VaspInput(incar, kpoints, poscar, potcar)
 
     def test_to_from_dict(self):
-        d = self.vinput.to_dict
+        d = self.vinput.as_dict()
         vinput = VaspInput.from_dict(d)
         comp = vinput["POSCAR"].structure.composition
         self.assertEqual(comp, Composition("Fe4P4O16"))
@@ -432,7 +464,7 @@ class VaspInputTest(unittest.TestCase):
                                       optional_files={"CONTCAR.Li2O": Poscar})
         self.assertEqual(vi["INCAR"]["ALGO"], "Damped")
         self.assertIn("CONTCAR.Li2O", vi)
-        d = vi.to_dict
+        d = vi.as_dict()
         vinput = VaspInput.from_dict(d)
         self.assertIn("CONTCAR.Li2O", vinput)
 

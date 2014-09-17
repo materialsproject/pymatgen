@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 An interface to the excellent spglib library by Atsushi Togo
 (http://spglib.sourceforge.net/) for pymatgen.
@@ -9,7 +13,8 @@ v2.0 - Updated for spglib 1.6.
     Not all spglib functions are implemented.
 """
 
-from __future__ import division
+from six.moves import map
+from six.moves import zip
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -32,7 +37,6 @@ from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import PeriodicSite
-from pymatgen.core.structure_modifier import SupercellMaker
 
 try:
     import pymatgen._spglib as spg
@@ -532,8 +536,8 @@ class SymmetryFinder(object):
             #if so, make a supercell
             a, b, c = latt.abc
             if np.all(np.abs([a - b, c - b, a - c]) < 0.001):
-                struct = SupercellMaker(struct, ((1, -1, 0), (0, 1, -1),
-                                                 (1, 1, 1))).modified_structure
+                struct = Structure.from_sites(struct)
+                struct.make_supercell(((1, -1, 0), (0, 1, -1), (1, 1, 1)))
                 a, b, c = sorted(struct.lattice.abc)
 
             if abs(b - c) < 0.001:
@@ -559,7 +563,7 @@ class SymmetryFinder(object):
                 b = sorted_dic[1]['length']
                 c = latt.abc[2]
                 new_matrix = None
-                for t in itertools.permutations(range(2), 2):
+                for t in itertools.permutations(list(range(2)), 2):
                     m = latt.matrix
                     landang = Lattice(
                         [m[t[0]], m[t[1]], m[2]]).lengths_and_angles
@@ -610,7 +614,7 @@ class SymmetryFinder(object):
                 #keep the ones with the non-90 angle=alpha
                 #and b<c
                 new_matrix = None
-                for t in itertools.permutations(range(3), 3):
+                for t in itertools.permutations(list(range(3)), 3):
                     m = latt.matrix
                     landang = Lattice(
                         [m[t[0]], m[t[1]], m[t[2]]]).lengths_and_angles

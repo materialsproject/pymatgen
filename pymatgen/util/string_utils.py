@@ -1,6 +1,11 @@
+# coding: utf-8
+
+from __future__ import unicode_literals
+
 """
 This module provides utility classes for string operations.
 """
+
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -13,6 +18,7 @@ __date__ = "$Sep 23, 2011M$"
 import re
 import sys
 import fnmatch
+from six.moves import zip
 
 
 def generate_latex_table(results, header=None, caption=None, label=None):
@@ -120,7 +126,7 @@ def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
     elif abs(afloat - int(afloat)) < tol:
         return str(int(afloat))
     else:
-        return str(afloat)
+        return str(round(afloat, 8))
 
 
 def latexify(formula):

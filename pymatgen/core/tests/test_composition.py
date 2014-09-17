@@ -1,10 +1,13 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Created on Nov 10, 2012
 
 @author: shyue
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -122,7 +125,7 @@ class CompositionTest(unittest.TestCase):
         correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4',
                                     'Li2O2', 'Li3Fe2(MoO4)3',
                                     'Li3Fe2P6(C5O27)2', 'Li1.5Si0.5', 'ZnHO']
-        for i in xrange(len(self.comp)):
+        for i in range(len(self.comp)):
             self.assertEqual(self.comp[i]
                              .get_reduced_composition_and_factor()[0],
                              Composition(correct_reduced_formulas[i]))
@@ -157,7 +160,7 @@ class CompositionTest(unittest.TestCase):
     def test_anonymized_formula(self):
         expected_formulas = ['A2B3C3D12', 'ABC3D5', 'AB2C4', 'A2B2',
                              'A2B3C3D12', 'A2B3C6D10E54', 'A0.5B1.5', 'ABC']
-        for i in xrange(len(self.comp)):
+        for i in range(len(self.comp)):
             self.assertEqual(self.comp[i].anonymized_formula,
                              expected_formulas[i])
 
@@ -177,12 +180,12 @@ class CompositionTest(unittest.TestCase):
                          "Fe3O4",
                          "Creation form sym_amount dictionary failed!")
         comp = Composition({"Fe2+": 2, "Fe3+": 4, "O2-": 8})
-        comp2 = Composition.from_dict(comp.to_dict)
+        comp2 = Composition.from_dict(comp.as_dict())
         self.assertEqual(comp, comp2)
 
-    def test_to_dict(self):
+    def test_as_dict(self):
         c = Composition.from_dict({'Fe': 4, 'O': 6})
-        d = c.to_dict
+        d = c.as_dict()
         correct_dict = {'Fe': 4.0, 'O': 6.0}
         self.assertEqual(d['Fe'], correct_dict['Fe'])
         self.assertEqual(d['O'], correct_dict['O'])
@@ -206,7 +209,7 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual((self.comp[0] - {"Fe": 2, "O": 3}).formula,
                          "Li3 P3 O9")
 
-        self.assertRaises(CompositionError, Composition('O').__sub__, 
+        self.assertRaises(CompositionError, Composition('O').__sub__,
                           Composition('H'))
 
         #check that S is completely removed by subtraction
@@ -272,8 +275,6 @@ class CompositionTest(unittest.TestCase):
 
     def test_fractional_composition(self):
         for c in self.comp:
-            self.assertAlmostEqual(c.get_fractional_composition().num_atoms, 1)
-        for c in self.comp:
             self.assertAlmostEqual(c.fractional_composition.num_atoms, 1)
 
     def test_init_numerical_tolerance(self):
@@ -292,7 +293,7 @@ class CompositionTest(unittest.TestCase):
         #test math
         c1 = Composition('LiCl', allow_negative=True)
         c2 = Composition('Li')
-        self.assertEqual(c1 - 2 * c2, Composition({'Li': -1, 'Cl': 1}, 
+        self.assertEqual(c1 - 2 * c2, Composition({'Li': -1, 'Cl': 1},
                                                   allow_negative=True))
         self.assertEqual((c1 + c2).allow_negative, True)
         self.assertEqual(c1 / -1, Composition('Li-1Cl-1', allow_negative=True))
@@ -302,7 +303,7 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual(c1.num_atoms, 2)
         self.assertEqual(c1.get_atomic_fraction('Mg'), 0.5)
         self.assertEqual(c1.get_atomic_fraction('Li'), 0.5)
-        self.assertEqual(c1.fractional_composition, 
+        self.assertEqual(c1.fractional_composition,
                          Composition('Mg-0.5Li0.5', allow_negative=True))
 
         #test copy

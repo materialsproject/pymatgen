@@ -1,14 +1,18 @@
+# coding: utf-8
+
+from __future__ import unicode_literals, division
+
 """Tools and helper functions for abinit calculations"""
-from __future__ import print_function, division
 
 import os
 import collections
 import shutil
 import operator
 
-from pymatgen.util.string_utils import list_strings, StringColorizer, WildCard
+from pymatgen.util.string_utils import list_strings, WildCard
 
 import logging
+from six.moves import filter
 logger = logging.getLogger(__name__)
 
 
@@ -159,9 +163,9 @@ class Directory(object):
         """Recursively delete the directory tree"""
         shutil.rmtree(self.path, ignore_errors=True)
 
-    def path_in(self, filename):
+    def path_in(self, file_basename):
         """Return the absolute path of filename in the directory."""
-        return os.path.join(self.path, filename)
+        return os.path.join(self.path, file_basename)
 
     def list_filepaths(self, wildcard=None):
         """
@@ -236,6 +240,7 @@ _EXT2VARS = {
     "DKK": {},
 }
 
+
 def irdvars_for_ext(ext):
     """
     Returns a dictionary with the ABINIT variables 
@@ -283,7 +288,7 @@ def abi_splitext(filename):
 
     root = filename[:i]
     if is_ncfile: 
-        ext = ext + ".nc"
+        ext += ".nc"
 
     return root, ext
 
@@ -374,13 +379,16 @@ def _bop_not(obj):
     """Boolean not."""
     return not bool(obj)
 
+
 def _bop_and(obj1, obj2):
     """Boolean and."""
     return bool(obj1) and bool(obj2)
 
+
 def _bop_or(obj1, obj2):
     """Boolean or."""
     return bool(obj1) or bool(obj2)
+
 
 def _bop_divisible(num1, num2):
     """Return True if num1 is divisible by num2."""
@@ -510,7 +518,7 @@ def evaluate_rpn(rpn):
 
 class Condition(object):
     """
-    This object receive a dictionary that defines a boolean condition whose syntax is similar
+    This object receives a dictionary that defines a boolean condition whose syntax is similar
     to the one used in mongodb (albeit not all the operators available in mongodb are supported here).
 
     Example:
@@ -542,8 +550,8 @@ class Condition(object):
     def apply(self, obj):
         try:
             return evaluate_rpn(map2rpn(self.cmap, obj))
-        except:
-            logger.warning("Condition.apply() raise Exception")
+        except Exception as exc:
+            logger.warning("Condition.apply() raise Exception:\n %s" % str(exc))
             return False
 
 

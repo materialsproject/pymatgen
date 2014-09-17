@@ -1,4 +1,6 @@
-#!/usr/bin/python
+# coding: utf-8
+
+from __future__ import unicode_literals
 
 import unittest
 import sys
@@ -37,12 +39,12 @@ class ValenceIonicRadiusEvaluatorTest(unittest.TestCase):
 
     def test_valences_ionic_structure(self):
         valence_dict = self._mgo_valrad_evaluator.valences
-        for val in valence_dict.values():
+        for val in list(valence_dict.values()):
             self.assertTrue(val in {2, -2})
 
     def test_radii_ionic_structure(self):
         radii_dict = self._mgo_valrad_evaluator.radii
-        for rad in radii_dict.values():
+        for rad in list(radii_dict.values()):
             self.assertTrue(rad in {0.86, 1.26})
 
 
@@ -198,7 +200,7 @@ class VacancyFormationEnergyTest(unittest.TestCase):
     def test_get_energy(self):
         for i in range(len(self.mgo_vac.enumerate_defectsites())):
             vfe = self.mgo_vfe.get_energy(i)
-            print vfe
+            print(vfe)
             self.assertIsInstance(vfe, float)
 
 
@@ -229,24 +231,24 @@ class InterstitialTest(unittest.TestCase):
         self.assertTrue(len(uniq_def_sites) == 2, "Interstitial init failed")
 
     def test_defectsite_count(self):
-        print self._mgo_interstitial.defectsite_count()
+        print(self._mgo_interstitial.defectsite_count())
         self.assertTrue(self._mgo_interstitial.defectsite_count() == 2,
                         "Vacancy count wrong")
 
     def test_get_defectsite_coordination_number(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
-            print >> sys.stderr, self._mgo_interstitial.get_defectsite_coordination_number(
-                i)
+            print(self._mgo_interstitial.get_defectsite_coordination_number(
+                i))
 
     def test_get_coordinated_sites(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
-            print >> sys.stderr, self._mgo_interstitial.get_coordinated_sites(
-                i)
+            print(self._mgo_interstitial.get_coordinated_sites(
+                i))
 
     def test_get_coordsites_charge_sum(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
-            print >> sys.stderr, self._mgo_interstitial.get_coordsites_charge_sum(
-                i)
+            print(self._mgo_interstitial.get_coordsites_charge_sum(
+                i))
 
     def test_get_defectsite_coordinated_elements(self):
         struct_el = self._mgo_uc.composition.elements
@@ -259,7 +261,7 @@ class InterstitialTest(unittest.TestCase):
     def test_get_radius(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
             rad = self._mgo_interstitial.get_radius(i)
-            print >> sys.stderr, rad
+            print(rad)
             self.assertTrue(rad, float)
 
 
@@ -279,7 +281,7 @@ class InterstitialVoronoiFaceCenterTest(unittest.TestCase):
         self._mgo_val = mgo_val_rad_eval.valences
         self._mgo_rad = mgo_val_rad_eval.radii
         self._mgo_interstitial = Interstitial(
-            self._mgo_uc, self._mgo_val, self._mgo_rad, 
+            self._mgo_uc, self._mgo_val, self._mgo_rad,
             site_type='voronoi_facecenter'
             )
 
@@ -288,11 +290,11 @@ class InterstitialVoronoiFaceCenterTest(unittest.TestCase):
         The interstitial sites should be within the lattice
         """
         uniq_def_sites = self._mgo_interstitial.enumerate_defectsites()
-        print "Length of voronoi face centers", len(uniq_def_sites)
+        print("Length of voronoi face centers", len(uniq_def_sites))
         self.assertTrue(len(uniq_def_sites) == 2, "Defect site count wrong")
 
     def test_defectsite_count(self):
-        print self._mgo_interstitial.defectsite_count()
+        print(self._mgo_interstitial.defectsite_count())
         self.assertTrue(self._mgo_interstitial.defectsite_count() == 2,
                         "Vacancy count wrong")
 
@@ -304,13 +306,13 @@ class InterstitialVoronoiFaceCenterTest(unittest.TestCase):
 
     def test_get_coordinated_sites(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
-            print >> sys.stderr, self._mgo_interstitial.get_coordinated_sites(
-                i)
+            print(self._mgo_interstitial.get_coordinated_sites(
+                i))
 
     def test_get_coordsites_charge_sum(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
-            print >> sys.stderr, self._mgo_interstitial.get_coordsites_charge_sum(
-                i)
+            print(self._mgo_interstitial.get_coordsites_charge_sum(
+                i))
 
     def test_get_defectsite_coordinated_elements(self):
         struct_el = self._mgo_uc.composition.elements
@@ -361,18 +363,18 @@ class InterstitialHighAccuracyTest(unittest.TestCase):
 
     def test_get_defectsite_coordination_number(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
-            print >> sys.stderr, self._mgo_interstitial.get_defectsite_coordination_number(
-                i)
+            print(self._mgo_interstitial.get_defectsite_coordination_number(
+                i))
 
     def test_get_coordinated_sites(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
-            print >> sys.stderr, self._mgo_interstitial.get_coordinated_sites(
-                i)
+            print(self._mgo_interstitial.get_coordinated_sites(
+                i))
 
     def test_get_coordsites_charge_sum(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
-            print >> sys.stderr, self._mgo_interstitial.get_coordsites_charge_sum(
-                i)
+            print(self._mgo_interstitial.get_coordsites_charge_sum(
+                i))
 
     def test_get_defectsite_coordinated_elements(self):
         struct_el = self._mgo_uc.composition.elements
@@ -385,7 +387,7 @@ class InterstitialHighAccuracyTest(unittest.TestCase):
     def test_get_radius(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
             rad = self._mgo_interstitial.get_radius(i)
-            print >> sys.stderr, rad
+            print(rad)
             self.assertTrue(rad, float)
 
 
@@ -410,7 +412,7 @@ class InterstitialAnalyzerTest(unittest.TestCase):
             ife = self.mgo_ia.get_energy(i, True)
             site_coords = self.mgo_inter.get_defectsite(i).coords
             site_radius = self.mgo_inter.get_radius(i)
-            print i, site_coords, site_radius, ife
+            print(i, site_coords, site_radius, ife)
             self.assertIsInstance(ife, float)
 
     def test_get_norelaxedenergy(self):
@@ -418,29 +420,29 @@ class InterstitialAnalyzerTest(unittest.TestCase):
             ife = self.mgo_ia.get_energy(i, False)
             site_coords = self.mgo_inter.get_defectsite(i).coords
             site_radius = self.mgo_inter.get_radius(i)
-            print i, site_coords, site_radius, ife
+            print(i, site_coords, site_radius, ife)
             self.assertIsInstance(ife, float)
 
     def test_get_percentage_volume_change(self):
         for i in range(self.mgo_inter.defectsite_count()):
             del_vol = self.mgo_ia.get_percentage_volume_change(i)
-            print i, del_vol
+            print(i, del_vol)
 
     def test_get_percentage_lattice_parameter_change(self):
         for i in range(self.mgo_inter.defectsite_count()):
             del_lat = self.mgo_ia.get_percentage_lattice_parameter_change(i)
-            print i, del_lat
+            print(i, del_lat)
 
     def test_get_percentage_bond_distance_change(self):
         for i in range(self.mgo_inter.defectsite_count()):
             del_bd = self.mgo_ia.get_percentage_bond_distance_change(i)
-            print i, del_bd
+            print(i, del_bd)
 
     def test_relaxed_structure_match(self):
         for i in range(self.mgo_inter.defectsite_count()):
             for j in range(self.mgo_inter.defectsite_count()):
                 match = self.mgo_ia.relaxed_structure_match(i, j)
-                print i, j, match
+                print(i, j, match)
                 if i == j:
                     self.assertTrue(match)
 
@@ -513,13 +515,13 @@ class RelaxedInsterstitialTest(unittest.TestCase):
         for i in range(self.mgo_inter.defectsite_count()):
             ife = self.ri.formation_energy(i)
             self.assertIsInstance(ife, float)
-            print "ife", ife
+            print("ife", ife)
 
     def test_get_percentage_volume_change(self):
         for i in range(self.mgo_inter.defectsite_count()):
             del_vol = self.ri.get_percentage_volume_change(i)
             self.assertIsInstance(del_vol, float)
-            print "del_vol", del_vol
+            print("del_vol", del_vol)
 
     def test_get_percentage_lattice_parameter_change(self):
         for i in range(self.mgo_inter.defectsite_count()):
@@ -527,7 +529,7 @@ class RelaxedInsterstitialTest(unittest.TestCase):
             self.assertNotEqual(del_lat['a'], 0)
             self.assertNotEqual(del_lat['b'], 0)
             self.assertNotEqual(del_lat['c'], 0)
-            print "del_lat", del_lat
+            print("del_lat", del_lat)
 
     def test_get_percentage_bond_distance_change(self):
         for i in range(self.mgo_inter.defectsite_count()):

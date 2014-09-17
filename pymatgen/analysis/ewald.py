@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module provides classes for calculating the ewald sum of a structure.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong, William Davidson Richard"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -296,7 +299,7 @@ class EwaldSummation(object):
         ereal = np.zeros((numsites, numsites))
         epoint = np.zeros(numsites)
         forces = np.zeros((numsites, 3))
-        for i in xrange(numsites):
+        for i in range(numsites):
             nn = all_nn[i]  # self._s.get_neighbors(site, self._rmax)
             num_neighbors = len(nn)
             qi = self._oxi_states[i]
@@ -316,7 +319,7 @@ class EwaldSummation(object):
                 js[k] = j
                 ncoords[k] = site.coords
 
-            erfcval = np.array(map(erfc, self._sqrt_eta * rij))
+            erfcval = np.array([erfc(k) for k in self._sqrt_eta * rij])
             new_ereals = erfcval * qi * qj / rij
 
             #insert new_ereals

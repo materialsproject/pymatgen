@@ -185,7 +185,7 @@ if "-f" in sys.argv:
     print("Performing POTCAR setup. Press Ctrl-C at any prompt to skip this "
           "step.")
     try:
-        subprocess.call(["potcar_setup.py"])
+        subprocess.call(["potcar_setup"])
     except:
         print("Skipping POTCAR setup.")
     print

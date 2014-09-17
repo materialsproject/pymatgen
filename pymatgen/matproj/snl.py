@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import unicode_literals
+
 """
 Classes and methods related to the Structure Notation Language (SNL)
 """
@@ -11,15 +15,18 @@ __email__ = 'ajain@lbl.gov'
 __date__ = 'Feb 11, 2013'
 
 import sys
-import cStringIO
 import re
 import datetime
 from collections import namedtuple
 import json
 
+from six.moves import map, cStringIO
+from six import string_types
+
+from monty.json import MontyDecoder, MontyEncoder
 from monty.string import remove_non_ascii
+
 from pymatgen.core.structure import Structure, Molecule
-from pymatgen.serializers.json_coders import PMGJSONDecoder, PMGJSONEncoder
 from pybtex.database.input import bibtex
 
 
@@ -41,7 +48,7 @@ def is_valid_bibtex(reference):
     """
     # str is necessary since pybtex seems to have an issue with unicode. The
     # filter expression removes all non-ASCII characters.
-    sio = cStringIO.StringIO(remove_non_ascii(reference))
+    sio = cStringIO(remove_non_ascii(reference))
     parser = bibtex.Parser()
     bib_data = parser.parse_stream(sio)
     return len(bib_data.entries) > 0
@@ -74,9 +81,9 @@ class HistoryNode(namedtuple('HistoryNode', ['name', 'url', 'description'])):
         Structure (dict).
     """
 
-    @property
-    def to_dict(self):
-        return dict(self._asdict())
+    def as_dict(self):
+        return {"name": self.name, "url": self.url,
+                "description": self.description}
 
     @staticmethod
     def from_dict(h_node):
@@ -125,9 +132,8 @@ class Author(namedtuple('Author', ['name', 'email'])):
         """
         return '{} <{}>'.format(self.name, self.email)
 
-    @property
-    def to_dict(self):
-        return dict(self._asdict())
+    def as_dict(self):
+        return {"name": self.name, "email": self.email}
 
     @staticmethod
     def from_dict(d):
@@ -145,7 +151,7 @@ class Author(namedtuple('Author', ['name', 'email'])):
         Returns:
             An Author object.
         """
-        if isinstance(author, basestring):
+        if isinstance(author, string_types):
             # Regex looks for whitespace, (any name), whitespace, <, (email),
             # >, whitespace
             m = re.match('\s*(.*?)\s*<(.*?@.*?)>\s*', author)
@@ -200,13 +206,13 @@ class StructureNL(object):
 
         # turn authors into list of Author objects
         authors = authors.split(',')\
-            if isinstance(authors, basestring) else authors
+            if isinstance(authors, string_types) else authors
         self.authors = [Author.parse_author(a) for a in authors]
 
         # turn projects into list of Strings
         projects = projects if projects else []
         self.projects = [projects] \
-            if isinstance(projects, basestring) else projects
+            if isinstance(projects, string_types) else projects
 
         # check that references are valid BibTeX
         if references and not is_valid_bibtex(references):
@@ -221,7 +227,7 @@ class StructureNL(object):
 
         # turn remarks into list of Strings
         remarks = remarks if remarks else []
-        self.remarks = [remarks] if isinstance(remarks, basestring) \
+        self.remarks = [remarks] if isinstance(remarks, string_types) \
             else remarks
 
         # check remarks limit
@@ -257,26 +263,25 @@ class StructureNL(object):
         self.created_at = created_at if created_at \
             else datetime.datetime.utcnow()
 
-    @property
-    def to_dict(self):
-        d = self.structure.to_dict
+    def as_dict(self):
+        d = self.structure.as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
-        d["about"] = {"authors": [a.to_dict for a in self.authors],
+        d["about"] = {"authors": [a.as_dict() for a in self.authors],
                       "projects": self.projects,
                       "references": self.references,
                       "remarks": self.remarks,
-                      "history": [h.to_dict for h in self.history],
+                      "history": [h.as_dict() for h in self.history],
                       "created_at": json.loads(json.dumps(self.created_at,
-                                               cls=PMGJSONEncoder))}
+                                               cls=MontyEncoder))}
         d["about"].update(json.loads(json.dumps(self.data,
-                                                cls=PMGJSONEncoder)))
+                                                cls=MontyEncoder)))
         return d
 
     @classmethod
     def from_dict(cls, d):
         a = d["about"]
-        dec = PMGJSONDecoder()
+        dec = MontyDecoder()
 
         created_at = dec.process_decoded(a.get("created_at"))
         data = {k: v for k, v in d["about"].items()

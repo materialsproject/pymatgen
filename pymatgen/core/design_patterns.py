@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module defines some useful design patterns.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -25,8 +28,15 @@ class Enum(set):
 
 class AttrDict(dict):
     """
-    Allows to access dict keys as obj.foo in addition to the traditional way
-    obj['foo']"
+    Allows to access dict keys as obj.foo in addition
+    to the traditional way obj['foo']"
+
+    >>> d = AttrDict(foo=1, bar=2)
+    >>> d["foo"] == d.foo
+    True
+    >>> d.bar = "hello"
+    >>> d.bar
+    'hello'
     """
     def __init__(self, *args, **kwargs):
         super(AttrDict, self).__init__(*args, **kwargs)
@@ -39,9 +49,12 @@ class AttrDict(dict):
 
 class NullFile(object):
     """A file object that is associated to /dev/null."""
-    def __init__(self):
+    def __new__(cls):
         import os
         return open(os.devnull, 'w')
+
+    def __init__(self):
+        """no-op"""
 
 
 class NullStream(object):

@@ -1,7 +1,10 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module defines classes for point defect transformations on structures
 """
-from __future__ import division
 
 __author__ = "Bharat Medasani"
 __copyright__ = "Copyright 2014, The Materials Project"
@@ -78,8 +81,7 @@ class VacancyTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name":self.__class__.__name__, "version":__version__,
                 "init_args":{"supercell_dim":self.supercell_dim,
                              "species":self.species,
@@ -117,7 +119,7 @@ class SubstitutionDefectTransformation(AbstractTransformation):
             scs: Supercells with one substitution defect in each structure.
         """
         if not return_ranked_list:
-            raise ValueError("SubstitutionDefectTransformation has no single" 
+            raise ValueError("SubstitutionDefectTransformation has no single"
                     "best structure output. Must use return_ranked_list.")
         try:
             num_to_return = int(return_ranked_list)
@@ -172,12 +174,11 @@ class SubstitutionDefectTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         sp_map = []
-        for k, v in self._species_map.iteritems():
+        for k, v in self._species_map.items():
             if isinstance(v, dict):
-                v = [(str(k2), v2) for k2, v2 in v.iteritems()]
+                v = [(str(k2), v2) for k2, v2 in v.items()]
                 sp_map.append((str(k), v))
             else:
                 sp_map.append((str(k), str(v)))
@@ -208,7 +209,7 @@ class AntisiteDefectTransformation(AbstractTransformation):
         :param return_ranked_list (Logical or integer): Use big enough
          number to return all defect structures
         :return:
-            scs: Supercells with one antisite defect in each structure. 
+            scs: Supercells with one antisite defect in each structure.
         """
         if not return_ranked_list:
             raise ValueError("AntisiteDefectTransformation has no single best"
@@ -257,8 +258,7 @@ class AntisiteDefectTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name":self.__class__.__name__, "version":__version__,
                 "init_args":{"supercell_dim":self.supercell_dim,
                              "valences":self.valences,"radii":self.radii},
@@ -289,7 +289,7 @@ class InterstitialTransformation(AbstractTransformation):
         :param return_ranked_list (Logical or integer): Use big enough
          number to return all defect structures
         :return:
-            scs: Supercells with one interstitial defect in each structure. 
+            scs: Supercells with one interstitial defect in each structure.
         """
         if not return_ranked_list:
             raise ValueError("InterstitialTransformation has no single best "
@@ -304,7 +304,7 @@ class InterstitialTransformation(AbstractTransformation):
         else:
             s = structure.copy()
             valrad_eval = ValenceIonicRadiusEvaluator(s)
-            s = valrad_eval.structure 
+            s = valrad_eval.structure
             val = valrad_eval.valences
             rad = valrad_eval.radii
             inter = Interstitial(s,val,rad,oxi_state=True)
@@ -340,8 +340,7 @@ class InterstitialTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name":self.__class__.__name__, "version":__version__,
                 "init_args":{"supercell_dim":self.supercell_dim,
                              "valences":self.valences,"radii":self.radii,

@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module provides classes that operate on points or vectors in 3D space.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -15,10 +18,10 @@ __date__ = "Sep 23, 2011"
 import numpy as np
 from math import sin, cos, pi, sqrt
 
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 
 
-class SymmOp(MSONable):
+class SymmOp(PMGSONable):
     """
     A symmetry operation in cartesian space. Consists of a rotation plus a
     translation. Implementation is as an affine transformation matrix of rank 4
@@ -77,32 +80,6 @@ class SymmOp(MSONable):
         affine_matrix[0:3][:, 3] = translation_vec
         return SymmOp(affine_matrix, tol)
 
-    @staticmethod
-    def from_rotation_matrix_and_translation_vector(
-            rotation_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)),
-            translation_vec=(0, 0, 0),
-            tol=0.1):
-        """
-        .. deprecated:: 2.2.1
-            Use :func:`from_rotation_and_translation` instead.
-
-        Creates a symmetry operation from a rotation matrix and a translation
-        vector.
-
-        Args:
-            rotation_matrix (3x3 array): Rotation matrix.
-            translation_vec (3x1 array): Translation vector.
-            tol (float): Tolerance to determine if rotation matrix is valid.
-
-        Returns:
-            SymmOp object
-        """
-        import warnings
-        warnings.warn("This method has been deprecated from version 2.2.1. "
-                      "Use from_rotation_and_translation instead.")
-        return SymmOp.from_rotation_and_translation(rotation_matrix,
-                                                    translation_vec, tol)
-
     def __eq__(self, other):
         return np.allclose(self.affine_matrix, other.affine_matrix,
                            atol=self.tol)
@@ -130,20 +107,20 @@ class SymmOp(MSONable):
         """
         affine_point = np.array([point[0], point[1], point[2], 1])
         return np.dot(self.affine_matrix, affine_point)[0:3]
-    
+
     def operate_multi(self, points):
         """
         Apply the operation on a list of points.
-        
+
         Args:
             points: List of Cartesian coordinates
-        
+
         Returns:
             Numpy array of coordinates after operation
         """
         affine_points = np.concatenate([points, np.ones([len(points), 1])], axis=-1)
         return np.inner(affine_points, self.affine_matrix)[:, :-1]
-        
+
     def apply_rotation_only(self, vector):
         """
         Vectors should only be operated by the rotation matrix and not the
@@ -374,8 +351,7 @@ class SymmOp(MSONable):
         m = np.dot(rot.affine_matrix, refl.affine_matrix)
         return SymmOp(m)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
              "matrix": self.affine_matrix.tolist(), "tolerance": self.tol}

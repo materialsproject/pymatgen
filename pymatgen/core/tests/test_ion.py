@@ -1,4 +1,6 @@
-#!/usr/bin/python
+# coding: utf-8
+
+from __future__ import unicode_literals
 
 import unittest
 
@@ -61,7 +63,7 @@ class IonTest(unittest.TestCase):
         expected_formulas = ['A+1', 'AB4-1', 'A+2', 'AB3-2',
                              'AB6C6-3', 'AB6C6-4', 'AB3C5D27-3',
                              'A+2', 'ABC']
-        for i in xrange(len(self.comp)):
+        for i in range(len(self.comp)):
             self.assertEqual(self.comp[i].anonymized_formula,
                              expected_formulas[i])
 
@@ -71,9 +73,9 @@ class IonTest(unittest.TestCase):
                          "PO4[2-]",
                          "Creation form sym_amount dictionary failed!")
 
-    def test_to_dict(self):
+    def test_as_dict(self):
         c = Ion.from_dict({'Mn': 1, 'O': 4, 'charge': -1})
-        d = c.to_dict
+        d = c.as_dict()
         correct_dict = {'Mn': 1.0, 'O': 4.0, 'charge': -1.0}
         self.assertEqual(d, correct_dict)
         self.assertEqual(d['charge'], correct_dict['charge'])

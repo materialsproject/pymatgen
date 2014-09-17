@@ -1,9 +1,12 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module is used for analysis of materials with potential application as
 intercalation batteries.
 """
 
-from __future__ import division
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -51,7 +54,8 @@ class InsertionElectrode(AbstractElectrode):
         #Prepare to make phase diagram: determine elements and set their energy
         #to be very high
         elements = set()
-        map(elements.update, [entry.composition.elements for entry in entries])
+        for entry in entries:
+            elements.update(entry.composition.elements)
 
         #Set an artificial energy for each element for convex hull generation
         element_energy = max([entry.energy_per_atom for entry in entries]) + 10
@@ -172,9 +176,13 @@ class InsertionElectrode(AbstractElectrode):
             Maximum decomposition energy of all compounds along the insertion
             path (a subset of the path can be chosen by the optional arguments)
         """
-        return max([max(pair.decomp_e_discharge, pair.decomp_e_charge)
-                    for pair in self._select_in_voltage_range(min_voltage,
-                                                              max_voltage)])
+        data = []
+        for pair in self._select_in_voltage_range(min_voltage, max_voltage):
+            if pair.decomp_e_charge is not None:
+                data.append(pair.decomp_e_charge)
+            if pair.decomp_e_discharge is not None:
+                data.append(pair.decomp_e_discharge)
+        return max(data) if len(data) > 0 else None
 
     def get_min_instability(self, min_voltage=None, max_voltage=None):
         """
@@ -188,9 +196,13 @@ class InsertionElectrode(AbstractElectrode):
             Minimum decomposition energy of all compounds along the insertion
             path (a subset of the path can be chosen by the optional arguments)
         """
-        return min([min(pair.decomp_e_discharge, pair.decomp_e_charge)
-                    for pair in self._select_in_voltage_range(min_voltage,
-                                                              max_voltage)])
+        data = []
+        for pair in self._select_in_voltage_range(min_voltage, max_voltage):
+            if pair.decomp_e_charge is not None:
+                data.append(pair.decomp_e_charge)
+            if pair.decomp_e_discharge is not None:
+                data.append(pair.decomp_e_discharge)
+        return min(data) if len(data) > 0 else None
 
     def get_max_muO2(self, min_voltage=None, max_voltage=None):
         """
@@ -205,9 +217,13 @@ class InsertionElectrode(AbstractElectrode):
             insertion path (a subset of the path can be chosen by the optional
             arguments).
         """
-        return max([max(pair.muO2_discharge, pair.muO2_charge)
-                    for pair in self._select_in_voltage_range(min_voltage,
-                                                              max_voltage)])
+        data = []
+        for pair in self._select_in_voltage_range(min_voltage, max_voltage):
+            if pair.muO2_discharge is not None:
+                data.append(pair.pair.muO2_discharge)
+            if pair.muO2_charge is not None:
+                data.append(pair.muO2_charge)
+        return max(data) if len(data) > 0 else None
 
     def get_min_muO2(self, min_voltage=None, max_voltage=None):
         """
@@ -223,9 +239,13 @@ class InsertionElectrode(AbstractElectrode):
             insertion path (a subset of the path can be chosen by the optional
             arguments).
         """
-        return min([min(pair.muO2_discharge, pair.muO2_charge)
-                    for pair in self._select_in_voltage_range(min_voltage,
-                                                              max_voltage)])
+        data = []
+        for pair in self._select_in_voltage_range(min_voltage, max_voltage):
+            if pair.pair.muO2_discharge is not None:
+                data.append(pair.pair.muO2_discharge)
+            if pair.muO2_charge is not None:
+                data.append(pair.muO2_charge)
+        return min(data) if len(data) > 0 else None
 
     def get_sub_electrodes(self, adjacent_only=True, include_myself=True):
         """
@@ -276,7 +296,7 @@ class InsertionElectrode(AbstractElectrode):
                                                    self.working_ion_entry))
         return battery_list
 
-    def to_dict_summary(self, print_subelectrodes=True):
+    def as_dict_summary(self, print_subelectrodes=True):
         """
         Generate a summary dict.
 
@@ -309,7 +329,7 @@ class InsertionElectrode(AbstractElectrode):
              "max_instability": self.get_max_instability(),
              "min_instability": self.get_min_instability()}
         if print_subelectrodes:
-            f_dict = lambda c: c.to_dict_summary(print_subelectrodes=False)
+            f_dict = lambda c: c.as_dict_summary(print_subelectrodes=False)
             d["adj_pairs"] = map(f_dict,
                                  self.get_sub_electrodes(adjacent_only=True))
             d["all_pairs"] = map(f_dict,
@@ -332,17 +352,16 @@ class InsertionElectrode(AbstractElectrode):
 
     @classmethod
     def from_dict(cls, d):
-        from pymatgen.serializers.json_coders import PMGJSONDecoder
-        dec = PMGJSONDecoder()
+        from monty.json import MontyDecoder
+        dec = MontyDecoder()
         return cls(dec.process_decoded(d["entries"]),
                    dec.process_decoded(d["working_ion_entry"]))
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "entries": [entry.to_dict for entry in self._entries],
-                "working_ion_entry": self.working_ion_entry.to_dict}
+                "entries": [entry.as_dict() for entry in self._entries],
+                "working_ion_entry": self.working_ion_entry.as_dict()}
 
 
 class InsertionVoltagePair(AbstractVoltagePair):
