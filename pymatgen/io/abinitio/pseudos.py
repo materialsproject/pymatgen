@@ -1604,7 +1604,7 @@ class PseudoTable(collections.Sequence):
         # Note that we can have more than one pseudo for given z.
         # hence the values are lists of pseudos.
         if not isinstance(pseudos, collections.Iterable):
-            pseudos = list(pseudos)
+            pseudos = [pseudos]
 
         if is_string(pseudos[0]):
             pseudos = list_strings(pseudos)
