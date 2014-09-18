@@ -1144,8 +1144,8 @@ class PawXmlSetup(Pseudo, PawPseudo):
         try:
             return self._root
         except AttributeError:
-            from xml.etree import cElementTree as ET
-            tree = ET.parse(self.filepath)
+            from xml.etree import cElementTree as Et
+            tree = Et.parse(self.filepath)
             self._root = tree.getroot()
             return self._root
 

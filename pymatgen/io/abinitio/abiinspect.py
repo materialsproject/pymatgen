@@ -364,6 +364,7 @@ class Relaxation(collections.Iterable):
 
         return fig
 
+
 class YamlTokenizerError(Exception):
     """Exceptions raised by `YamlTokenizer."""
 
@@ -379,15 +380,6 @@ class YamlTokenizer(collections.Iterator):
         self.linepos = 0 
         self.stream = open(filename, "r")
 
-        #with open(filename, "r") as fh:
-        #    self.stream = iter(fh.readlines())
-
-        #self.stream = open(filename, "r")
-        #try:
-        #    self.stream = open(filename, "r")
-        #except IOError as exc:
-        #    raise self.Error(str(exc))
-
     def __iter__(self):
         return self
 
@@ -401,7 +393,6 @@ class YamlTokenizer(collections.Iterator):
         self.close()
 
     def close(self):
-        #pass
         try:
             self.stream.close()
         except:
