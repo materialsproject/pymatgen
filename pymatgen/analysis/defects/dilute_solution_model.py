@@ -503,7 +503,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             en.append(form_en)
         return en
     en_res = []
-    print len(result)
+    print(len(result))
     for key in result:
         mu_val = result[key]
         res = []
