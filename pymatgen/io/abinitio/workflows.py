@@ -1,7 +1,5 @@
 # coding: utf-8
-"""
-Abinit Workflows
-"""
+"""Abinit Workflows"""
 from __future__ import unicode_literals, division, print_function
 
 import os
