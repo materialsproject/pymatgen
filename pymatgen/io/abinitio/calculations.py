@@ -1,16 +1,12 @@
 # coding: utf-8
-
-from __future__ import unicode_literals, division, print_function
-
 """
 Factory functions producing ABINIT workflows. Entry points for client code (high-level interface)
 """
+from __future__ import unicode_literals, division, print_function
 
-from pymatgen.io.abinitio.abiobjects import KSampling, Screening, SelfEnergy, ExcHamiltonian
-from pymatgen.io.abinitio.abiobjects import HilbertTransform
-from pymatgen.io.abinitio.strategies import (ScfStrategy, NscfStrategy,
-    ScreeningStrategy, SelfEnergyStrategy, MDFBSE_Strategy)
-from pymatgen.io.abinitio.workflows import (BandStructureWorkflow, G0W0_Workflow, BSEMDF_Workflow)
+from .abiobjects import KSampling, Screening, SelfEnergy, ExcHamiltonian, HilbertTransform
+from .strategies import ScfStrategy, NscfStrategy, ScreeningStrategy, SelfEnergyStrategy, MDFBSE_Strategy
+from .workflows import BandStructureWorkflow, G0W0_Workflow, BSEMDF_Workflow
 
 
 __author__ = "Matteo Giantomassi"
