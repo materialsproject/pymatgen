@@ -255,7 +255,7 @@ class GaussianInput(object):
             if spaces >= 2:
                 d = lines[i].split("=")
                 if len(d) == 2:
-                    input_paras[d[0]] = float(d[1])
+                    input_paras[d[0]] = d[1]
             else:
                 coord_lines.append(lines[i].strip())
         mol = GaussianInput.parse_coords(coord_lines)
