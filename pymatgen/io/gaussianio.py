@@ -338,6 +338,7 @@ class GaussianInput(object):
         output.append("")
         output.append(para_dict_to_string(self.input_parameters, "\n"))
         output.append("")
+        output.append("\n")
         return "\n".join(output)
 
     def write_file(self, filename):
