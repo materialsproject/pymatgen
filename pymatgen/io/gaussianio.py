@@ -345,6 +345,32 @@ class GaussianInput(object):
         with zopen(filename, "w") as f:
             f.write(self.__str__())
 
+    def as_dict(self):
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "molecule": self.molecule.to_dict,
+                "functional": self.functional,
+                "basis_set": self.basis_set,
+                "route_parameters": self.route_parameters,
+                "title": self.title,
+                "charge": self.charge,
+                "spin_multiplicity": self.spin_multiplicity,
+                "input_parameters": self.input_parameters,
+                "link0_parameters": self.link0_parameters}
+
+    @classmethod
+    def from_dict(cls, d):
+        return GaussianInput(mol=Molecule.from_dict(d["molecule"]),
+                             functional=d["functional"],
+                             basis_set=d["basis_set"],
+                             route_parameters=d["route_parameters"],
+                             title=d["title"],
+                             charge=d["charge"],
+                             spin_multiplicity=d["spin_multiplicity"],
+                             input_parameters=d["input_parameters"],
+                             link0_parameters=d["link0_parameters"])
+
+
 
 class GaussianOutput(object):
     """
