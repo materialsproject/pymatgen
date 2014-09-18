@@ -258,7 +258,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         min_diff = 1e10
         mu_vals = None
         c_val = None
-        m1_min = -20.0
+        m1_min = -10.0
         if e0 > 0:
             m1_max = 10            # Search space needs to be modified
         else:
@@ -288,7 +288,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             mu_vals = [float(mu_val) for mu_val in mu_vals]
         else:
             raise ValueError()
-        print(mu_vals)
+        print('mu_vals', mu_vals)
         return mu_vals
         #print(els)
 
@@ -683,8 +683,8 @@ def solute_site_preference_finder(
         del vac['energy']
     for asite in formation_energies['antisites']:
         del asite['energy']
-    for vac in formation_energies['solute']:
-        del vac['energy']
+    for solute in formation_energies['solute']:
+        del solute['energy']
     # Setup the system
     site_species = [vac_def['site_specie'] for vac_def in vac_defs]
     solute_specie = solute_defs[0]['substitution_specie']
@@ -852,7 +852,7 @@ def solute_site_preference_finder(
 
         def reduce_mu():
             host_concen = 1-solute_concen
-            new_c0 = c0
+            new_c0 = c0.astype(float)
             for i in range(n):
                 new_c0[i,i] = host_concen*c0[i,i]
             new_c0[n,n] = 2*solute_concen
@@ -907,7 +907,7 @@ def solute_site_preference_finder(
                 break
         else:
             raise ValueError("Couldn't find mus")
-        print((mu_vals))
+        print (('mu_vals', mu_vals))
         return mu_vals
         #print(els)
 
@@ -919,7 +919,7 @@ def solute_site_preference_finder(
             mu_vals = [trial_chem_pot[element] for element in specie_order]
         except:
             mu_vals = compute_mus()
-    print((mu_vals, mu_vals))
+    print(('mu_vals', mu_vals))
 
 
     # Compute ymax
@@ -954,11 +954,15 @@ def solute_site_preference_finder(
         y_vect.append(solute_concen)
         vector_func = [y_vect[i]-c_ratio[i] for i in range(1,m)]
         vector_func.append(omega)
-        try:
-            x = nsolve(vector_func,mu,mu_vals,module="numpy")
-        except:
-            del result[y]
-            continue
+        #try:
+        print (vector_func)
+        print (mu)
+        print (mu_vals)
+
+        x = nsolve(vector_func,mu,mu_vals,module="numpy")
+        #except:
+        #    del result[y]
+        #    continue
 
         result[y].append(x[0])
         result[y].append(x[1])
@@ -967,12 +971,14 @@ def solute_site_preference_finder(
 
     res = []
 
+    print ('result', result.keys())
     # Compute the concentrations for all the compositions
     for key in result:
         mu_val = result[key]
         total_c_val = [total_c[i].subs(dict(zip(mu,mu_val))) \
                 for i in range(len(total_c))]
         c_val = c.subs(dict(zip(mu,mu_val)))
+        print ('c_val', c_val)
         # Concentration of first element/over total concen
         res1 = []
         res1.append(float(total_c_val[0]/sum(total_c_val)))
@@ -986,7 +992,9 @@ def solute_site_preference_finder(
                     res1.append(float(c_val[i,j]/c0[j,j]))
         res.append(res1)
 
+    print ('res', res)
     res = np.array(res)
+    print ('res', res)
     dtype = [('x',np.float64)]+[('y%d%d' % (i, j), np.float64) \
             for i in range(n+1) for j in range(n)]
     res1 = np.sort(res.view(dtype),order=['x'],axis=0)
@@ -1006,6 +1014,8 @@ def solute_site_preference_finder(
     plot_data = {}
     """Because all the plots have identical x-points storing it in a
     single array"""
+    for dat in res1:
+        print dat
     plot_data['x'] = [dat[0][0] for dat in res1]         # x-axis data
     # Element whose composition is varied. For x-label
     plot_data['x_label'] = els[0]+ " mole fraction"
