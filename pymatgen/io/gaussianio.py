@@ -203,6 +203,14 @@ class GaussianInput(object):
             GaussianInput object
         """
         lines = [l.strip() for l in contents.split("\n")]
+
+        link0_patt = re.compile("^(%.+)\s*=\s*(.+)")
+        link0_dict = {}
+        for i, l in enumerate(lines):
+            if link0_patt.match(l):
+                m = link0_patt.match(l)
+                link0_dict[m.group(1)] = m.group(2)
+
         route_patt = re.compile("^#[sSpPnN]*.*")
         route = None
         for i, l in enumerate(lines):
@@ -252,7 +260,7 @@ class GaussianInput(object):
         return GaussianInput(mol, charge=charge, spin_multiplicity=spin_mult,
                              title=title, functional=functional,
                              basis_set=basis_set, route_parameters=route_paras,
-                             input_parameters=input_paras)
+                             input_parameters=input_paras,link0_parameters=link0_dict)
 
     @staticmethod
     def from_file(filename):
