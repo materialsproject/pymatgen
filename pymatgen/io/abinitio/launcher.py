@@ -1,8 +1,6 @@
 # coding: utf-8
-
-from __future__ import unicode_literals, division, print_function
-
 """Tools for the submission of Tasks."""
+from __future__ import unicode_literals, division, print_function
 
 import os
 import time
@@ -11,10 +9,10 @@ import yaml
 
 from six.moves import cStringIO
 from datetime import timedelta
+from monty.io import get_open_fds
 from monty.os.path import which
-from monty.dev import deprecated
-from pymatgen.core.design_patterns import AttrDict
-from pymatgen.util.string_utils import is_string
+from monty.string import is_string
+from monty.collections import AttrDict
 
 try:
     import apscheduler
@@ -331,7 +329,6 @@ class PyLauncher(object):
                     print('num_launched == max_nlaunch, going back to sleep')
                     break
 
-
         # Update the database.
         self.flow.pickle_dump()
 
@@ -346,19 +343,6 @@ class PyLauncher(object):
 
         for work in self.flow:
             tasks_to_run.extend(work.fetch_alltasks_to_run())
-            #try:
-            #    task = work.fetch_task_to_run()
-
-            #    if task is not None:
-            #        tasks_to_run.append(task)
-            #    else:
-            #        # No task found, this usually happens when we have dependencies.
-            #        # Beware of possible deadlocks here!
-            #        logger.debug("fetch_task_to_run returned None.")
-
-            #except StopIteration:
-            #    # All the tasks in work are done.
-            #    logger.debug("Out of tasks in work %s" % work)
 
         return tasks_to_run
 
@@ -482,7 +466,7 @@ class PyFlowScheduler(object):
     @classmethod
     def from_string(cls, s):
         """Create an istance from string s containing a YAML dictionary."""
-        stream = StringIO.StringIO(s)
+        stream = cStringIO(s)
         stream.seek(0)
 
         return cls(**yaml.load(stream))
@@ -600,7 +584,6 @@ class PyFlowScheduler(object):
             self.sched.add_job(self.callback, 'interval', **self.sched_options)
         else:
             self.sched.add_interval_job(self.callback, **self.sched_options)
-
 
         # Try to run the job immediately. If something goes wrong
         # return without initializing the scheduler.
@@ -890,26 +873,6 @@ def sendmail(subject, text, mailto, sender=None):
     return len(errdata)
 
 
-@deprecated("qadapter.get_njobs_in_queue")
-def get_running_jobs():
-    """
-    Return the number of running jobs.
-
-    ..warning: only slurm is supported
-    """
-    try:
-        import os
-        import subprocess
-        from subprocess import PIPE
-        name = os.environ['LOGNAME']
-        cmd = ['qstat', '-u' + name]
-        data = subprocess.Popen(cmd, stdout=PIPE).communicate()[0]
-        n = len(data.splitlines()) - 1
-    except OSError:
-        n = 0
-
-    return n
-
 # Test for sendmail
 #def test_sendmail():
 #    text = "hello\nworld"""
@@ -918,18 +881,4 @@ def get_running_jobs():
 #    print("Retcode", retcode)
 
 
-def get_open_fds():
-    """
-    return the number of open file descriptors for current process
 
-    .. warning: will only work on UNIX-like os-es.
-    """
-    import subprocess
-    import os
-
-    pid = os.getpid()
-    procs = subprocess.check_output(["lsof", '-w', '-Ff', "-p", str(pid)])
-
-    nprocs = len(filter(lambda s: s and s[0] == 'f' and s[1:].isdigit(), procs.split('\n')))
-
-    return nprocs

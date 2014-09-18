@@ -1,10 +1,8 @@
 # coding: utf-8
-
-from __future__ import unicode_literals, division, print_function
-
 """
 Classes defining Abinit calculations and workflows
 """
+from __future__ import unicode_literals, division, print_function
 
 import os
 import time
@@ -18,23 +16,24 @@ import pprint
 import six
 
 from six.moves import map, zip, StringIO
-from pymatgen.io.abinitio import abiinspect
-from pymatgen.io.abinitio import events 
+from monty.serialization import loadfn
+from monty.string import is_string, list_strings
+from monty.io import FileLock
+from monty.collections import AttrDict
+from pymatgen.util.string_utils import WildCard
+from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
+from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
+from .qadapters import qadapter_class
+from .netcdf import ETSF_Reader
+from .strategies import StrategyWithInput, OpticInput
+from . import abiinspect
+from . import events 
 
 try:
     from pydispatch import dispatcher
 except ImportError:
     pass
 
-from monty.serialization import loadfn
-from pymatgen.core.design_patterns import Enum, AttrDict
-from pymatgen.util.io_utils import FileLock
-from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
-from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
-from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
-from pymatgen.io.abinitio.qadapters import qadapter_class
-from pymatgen.io.abinitio.netcdf import ETSF_Reader
-from pymatgen.io.abinitio.strategies import StrategyWithInput, OpticInput
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -2337,7 +2336,6 @@ class AbinitTask(Task):
         self.strategy.remove_extra_abivars(autoparal_vars.keys())
 
         # 2) Parse the autoparal configurations from the main output file.
-        #print("parsing")
         parser = ParalHintsParser()
 
         try:
@@ -2352,6 +2350,12 @@ class AbinitTask(Task):
         # 3) Select the optimal configuration according to policy
         optimal = confs.select_optimal_conf(policy)
         #print("optimal Autoparal conf:\n %s" % optimal)
+
+        # Write autoparal configurations to file.
+        with open(os.path.join(self.workdir, "autoparal.txt"), "wt") as fh:
+            fh.write(str(confs) + 2 * "\n")
+            fh.write("Optimal configuration:\n")
+            fh.write(str(optimal)+ "\n")
 
         # 4) Change the input file and/or the submission script
         self.strategy.add_extra_abivars(optimal.vars)
