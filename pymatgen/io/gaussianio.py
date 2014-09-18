@@ -326,7 +326,23 @@ class GaussianInput(object):
                 outputvar.append("D{}={:.6f}".format(i, dih))
         return "\n".join(output) + "\n\n" + "\n".join(outputvar)
 
-    def __str__(self):
+    def get_cart_coords(self):
+        """
+        Return the cartesian coordinates of the molecule
+        """
+        outs = []
+        to_s = lambda x: "%0.6f" % x
+        for i, site in enumerate(self._mol):
+            outs.append(" ".join([site.species_string, " ".join([to_s(j) for j in site.coords])]))
+        return  "\n".join(outs)
+
+    def __str__(self, cart_coords=False):
+        """
+        Return GaussianInput string
+
+        Option: whe cart_coords sets to True return the cartesian coordinates instead of the z-matrix (useful wiht PBC)
+
+        """
         def para_dict_to_string(para, joiner=" "):
             para_str = ["{}={}".format(k, v) if v else k
                         for k, v in sorted(para.items())]
@@ -344,18 +360,25 @@ class GaussianInput(object):
         output.append("")
         output.append("{} {}".format(self.charge, self.spin_multiplicity))
         if isinstance(self._mol, Molecule):
-            output.append(self.get_zmatrix())
+            if cart_coords is False:
+                output.append(self.get_zmatrix())
+            if cart_coords is True:
+                output.append(self.get_cart_coords())
         else:
             output.append(str(self._mol))
         output.append("")
         output.append(para_dict_to_string(self.input_parameters, "\n"))
-        output.append("")
         output.append("\n")
         return "\n".join(output)
 
-    def write_file(self, filename):
+    def write_file(self, filename,cart_coords=False):
+        """
+        Write the input string into a file
+
+        Option: see __str__ method
+        """
         with zopen(filename, "w") as f:
-            f.write(self.__str__())
+            f.write(self.__str__(cart_coords))
 
     def as_dict(self):
         return {"@module": self.__class__.__module__,
