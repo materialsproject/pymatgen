@@ -474,6 +474,10 @@ class GaussianOutput(object):
 
         list of errors if not properly terminated
 
+    .. attribute:: Mulliken_charges
+
+        Mulliken atomic charges
+
     """
 
     def __init__(self, filename):
@@ -501,6 +505,9 @@ class GaussianOutput(object):
         oniom_patt = re.compile("ONIOM:\s+extrapolated energy\s*=\s*(.*)")
         termination_patt = re.compile("(Normal|Error) termination")
         error_patt = re.compile("(! Non-Optimized Parameters !|Convergence failure)")
+        mulliken_patt = re.compile("^\s*Mulliken atomic charges")
+        mulliken_charge_patt = re.compile('^\s+(\d+)\s+([A-Z][a-z]?)\s*(\S*)')
+        end_mulliken_patt = re.compile('(Sum of Mulliken )(.*)(charges)\s*=\s*(\D)')
         std_orientation_patt = re.compile("Standard orientation")
         end_patt = re.compile("--+")
         orbital_patt = re.compile("Alpha\s*\S+\s*eigenvalues --(.*)")
@@ -557,6 +564,20 @@ class GaussianOutput(object):
                             key = m.group(2).strip(" to ")
                             self.corrections[key] = float(m.group(3))
 
+                    if read_mulliken:
+                        if not end_mulliken_patt.search(line):
+                            mulliken_txt.append(line)
+                        else:
+                            m = end_mulliken_patt.search(line)
+                            mulliken_charges = {}
+                            for line in mulliken_txt:
+                                if mulliken_charge_patt.search(line):
+                                    m = mulliken_charge_patt.search(line)
+                                    dict = {int(m.group(1)): [m.group(2), float(m.group(3))]}
+                                    mulliken_charges.update(dict)
+                            read_mulliken = 0
+                            self.Mulliken_charges = mulliken_charges
+
                     if read_coord:
                         if not end_patt.search(line):
                             coord_txt.append(line)
@@ -607,6 +628,9 @@ class GaussianOutput(object):
                         read_coord = 1
                     elif orbital_patt.search(line):
                         orbitals_txt.append(line)
+                    elif mulliken_patt.search(line):
+                        mulliken_txt = []
+                        read_mulliken = 1
         if not terminated:
             raise IOError("Bad Gaussian output file.")
 
@@ -641,6 +665,7 @@ class GaussianOutput(object):
         d["pretty_formula"] = comp.reduced_formula
         d["is_pcm"] = self.is_pcm
         d["errors"] = self.errors
+        d["Mulliken_charges"] = self.Mulliken_charges
 
         unique_symbols = sorted(list(d["unit_cell_formula"].keys()))
         d["elements"] = unique_symbols
