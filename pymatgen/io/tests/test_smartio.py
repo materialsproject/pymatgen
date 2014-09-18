@@ -17,7 +17,7 @@ __date__ = "Jul 30, 2012"
 import unittest
 import os
 
-from pymatgen.io.smartio import read_structure, read_mol
+from pymatgen.io.smartio import read_structure, read_mol, write_structure
 from pymatgen.core.structure import Structure, Molecule
 
 try:
@@ -40,6 +40,10 @@ class MethodsTest(unittest.TestCase):
             self.assertLessEqual(len(prim), len(struct))
             sorted_s = read_structure(filename, sort=True)
             self.assertEqual(sorted_s, sorted_s.get_sorted_structure())
+
+        for ext in [".cif", ".json", ".cssr"]:
+            write_structure(struct, "structure_test" + ext)
+            os.remove("structure_test" + ext)
 
     def test_read_mol(self):
         test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
