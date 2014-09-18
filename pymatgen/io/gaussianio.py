@@ -469,6 +469,11 @@ class GaussianOutput(object):
     .. attribute:: pcm
 
         PCM parameters and output if available.
+
+    .. attribute:: errors
+
+        list of errors if not properly terminated
+
     """
 
     def __init__(self, filename):
@@ -495,6 +500,7 @@ class GaussianOutput(object):
         mp2_patt = re.compile("EUMP2\s*=\s*(.*)")
         oniom_patt = re.compile("ONIOM:\s+extrapolated energy\s*=\s*(.*)")
         termination_patt = re.compile("(Normal|Error) termination")
+        error_patt = re.compile("(! Non-Optimized Parameters !|Convergence failure)")
         std_orientation_patt = re.compile("Standard orientation")
         end_patt = re.compile("--+")
         orbital_patt = re.compile("Alpha\s*\S+\s*eigenvalues --(.*)")
@@ -569,6 +575,12 @@ class GaussianOutput(object):
                         if m.group(1) == "Normal":
                             self.properly_terminated = True
                         terminated = True
+                    elif error_patt.search(line):
+                        error_defs = {"! Non-Optimized Parameters !": "Optimization error",
+                                        "Convergence failure": "SCF convergence error"
+                                            }
+                        m = error_patt.search(line)
+                        self.errors.append(error_defs[m.group(1)])
                     elif (not num_basis_found) and \
                             num_basis_func_patt.search(line):
                         m = num_basis_func_patt.search(line)
@@ -628,6 +640,7 @@ class GaussianOutput(object):
         d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
         d["pretty_formula"] = comp.reduced_formula
         d["is_pcm"] = self.is_pcm
+        d["errors"] = self.errors
 
         unique_symbols = sorted(list(d["unit_cell_formula"].keys()))
         d["elements"] = unique_symbols
