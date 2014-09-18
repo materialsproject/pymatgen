@@ -22,7 +22,7 @@ import six
 
 from subprocess import Popen, PIPE
 from monty.string import is_string
-from pymatgen.io.abinitio.launcher import ScriptEditor
+from .launcher import ScriptEditor
 
 import logging
 logger = logging.getLogger(__name__)

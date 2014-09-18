@@ -19,10 +19,10 @@ except ImportError:
 
 from monty.io import FileLock
 from pymatgen.util.string_utils import pprint_table
-from pymatgen.io.abinitio.tasks import Dependency, Status, Node, Task, ScfTask, PhononTask, TaskManager
-from pymatgen.io.abinitio.utils import Directory, Editor
-from pymatgen.io.abinitio.abiinspect import yaml_read_irred_perts
-from pymatgen.io.abinitio.workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow, QptdmWorkflow
+from .tasks import Dependency, Status, Node, Task, ScfTask, PhononTask, TaskManager
+from .utils import Directory, Editor
+from .abiinspect import yaml_read_irred_perts
+from .workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow, QptdmWorkflow
 
 import logging
 logger = logging.getLogger(__name__)

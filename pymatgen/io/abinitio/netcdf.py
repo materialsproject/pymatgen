@@ -1,14 +1,12 @@
 # coding: utf-8
-
-from __future__ import unicode_literals, division, print_function
-
 """Wrapper for netCDF readers."""
+from __future__ import unicode_literals, division, print_function
 
 import os.path
 
+from monty.dev import requires
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.structure import Structure
-from monty.dev import requires
 
 
 __author__ = "Matteo Giantomassi"

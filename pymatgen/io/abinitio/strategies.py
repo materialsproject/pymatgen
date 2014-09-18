@@ -10,11 +10,11 @@ import copy
 import six
 import numpy as np
 
+from six.moves import map, zip
 from monty.string import is_string
 from pymatgen.util.string_utils import str_aligned, str_delimited
-from pymatgen.io.abinitio.abiobjects import Electrons
-from pymatgen.io.abinitio.pseudos import PseudoTable
-from six.moves import map, zip
+from .abiobjects import Electrons
+from .pseudos import PseudoTable
 
 import logging
 logger = logging.getLogger(__name__)
