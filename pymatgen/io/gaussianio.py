@@ -336,11 +336,15 @@ class GaussianInput(object):
             outs.append(" ".join([site.species_string, " ".join([to_s(j) for j in site.coords])]))
         return  "\n".join(outs)
 
-    def __str__(self, cart_coords=False):
+    def __str__(self):
+        return self.to_string()
+
+
+    def to_string(self, cart_coords=False):
         """
         Return GaussianInput string
 
-        Option: whe cart_coords sets to True return the cartesian coordinates instead of the z-matrix (useful wiht PBC)
+        Option: whe cart_coords sets to True return the cartesian coordinates instead of the z-matrix (useful with PBC)
 
         """
         def para_dict_to_string(para, joiner=" "):
@@ -378,7 +382,7 @@ class GaussianInput(object):
         Option: see __str__ method
         """
         with zopen(filename, "w") as f:
-            f.write(self.__str__(cart_coords))
+            f.write(self.to_string(cart_coords))
 
     def as_dict(self):
         return {"@module": self.__class__.__module__,
