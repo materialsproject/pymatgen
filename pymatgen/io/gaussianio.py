@@ -521,6 +521,7 @@ class GaussianOutput(object):
         self.corrections = {}
         self.energies = []
         self.pcm = None
+        self.errors = []
         self.Mulliken_charges = {}
 
         coord_txt = []
