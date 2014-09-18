@@ -521,9 +521,11 @@ class GaussianOutput(object):
         self.corrections = {}
         self.energies = []
         self.pcm = None
+        self.Mulliken_charges = {}
 
         coord_txt = []
         read_coord = 0
+        read_mulliken = 0
         orbitals_txt = []
         parse_stage = 0
         num_basis_found = False
