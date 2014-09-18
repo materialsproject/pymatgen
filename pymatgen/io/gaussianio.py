@@ -494,7 +494,7 @@ class GaussianOutput(object):
         scf_patt = re.compile("E\(.*\)\s*=\s*([-\.\d]+)\s+")
         mp2_patt = re.compile("EUMP2\s*=\s*(.*)")
         oniom_patt = re.compile("ONIOM:\s+extrapolated energy\s*=\s*(.*)")
-        termination_patt = re.compile("(Normal|Error) termination of Gaussian")
+        termination_patt = re.compile("(Normal|Error) termination")
         std_orientation_patt = re.compile("Standard orientation")
         end_patt = re.compile("--+")
         orbital_patt = re.compile("Alpha\s*\S+\s*eigenvalues --(.*)")
