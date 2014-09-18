@@ -211,6 +211,7 @@ class GaussianInput(object):
                 m = link0_patt.match(l)
                 link0_dict[m.group(1)] = m.group(2)
 
+        scrf_patt = re.compile("^([sS][cC][rR][fF])\s*=\s*(.+)")
         route_patt = re.compile("^#[sSpPnN]*.*")
         route = None
         for i, l in enumerate(lines):
@@ -227,6 +228,9 @@ class GaussianInput(object):
                     d = tok.split("/")
                     functional = d[0]
                     basis_set = d[1]
+                elif scrf_patt.match(tok):
+                    m = scrf_patt.match(tok)
+                    route_paras[m.group(1)] = m.group(2)
                 else:
                     d = tok.split("=")
                     v = None if len(d) == 1 else d[1]
