@@ -1,20 +1,18 @@
 # coding: utf-8
-
-from __future__ import unicode_literals, division
-
 """
 This module provides objects for extracting timing data from the ABINIT output files 
 It also provides tools to analye and to visualize the parallel efficiency.
 """
+from __future__ import unicode_literals, division
 
 import sys
 import collections
 import numpy as np
 
-from pymatgen.util.string_utils import is_string, list_strings
+from monty.string import is_string, list_strings
+from six.moves import zip
 
 import logging
-from six.moves import zip
 logger = logging.getLogger(__name__)
 
 

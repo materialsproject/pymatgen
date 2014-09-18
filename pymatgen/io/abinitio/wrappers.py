@@ -1,5 +1,5 @@
 # coding: utf-8
-
+"""Wrappers for ABINIT main executables"""
 from __future__ import unicode_literals, division, print_function
 
 import os
@@ -7,9 +7,9 @@ import os
 from subprocess import Popen, PIPE
 from monty.os.path import which
 from pymatgen.util.string_utils import list_strings
+from six.moves import map, cStringIO
 
 import logging
-from six.moves import map, cStringIO
 logger = logging.getLogger(__name__)
 
 __author__ = "Matteo Giantomassi"
@@ -62,7 +62,6 @@ class ExecWrapper(object):
     def mpi_runner(self):
         try:
             return self._mpi_runner
-
         except AttributeError:
             return ""
 
@@ -201,7 +200,7 @@ class Mrggkk(ExecWrapper):
 
         if self.verbose:
             print("Will merge %d 1WF files, %d GKK file in output %s" %
-                  (len(dfpt_nfiles), (len_gkk_files), out_gkk))
+                  (len(dfpt_nfiles), len_gkk_files, out_gkk))
 
             for (i, f) in enumerate(dfpt_files):
                 print(" [%d] 1WF %s" % (i, f))
