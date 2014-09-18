@@ -23,13 +23,13 @@ from pymatgen.core.units import ArrayWithUnit
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from pymatgen.util.num_utils import chunks
 from pymatgen.util.string_utils import pprint_table, WildCard
-from pymatgen.io.abinitio import wrappers
-from pymatgen.io.abinitio.tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, DdkTask, BseTask, RelaxTask)
-from pymatgen.io.abinitio.strategies import HtcStrategy # ScfStrategy, RelaxStrategy
-from pymatgen.io.abinitio.utils import Directory
-from pymatgen.io.abinitio.netcdf import ETSF_Reader
-from pymatgen.io.abinitio.abitimer import AbinitTimerParser
-from pymatgen.io.abinitio.abiinspect import yaml_read_kpoints
+from . import wrappers
+from .tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, DdkTask, BseTask, RelaxTask)
+from .strategies import HtcStrategy # ScfStrategy, RelaxStrategy
+from .utils import Directory
+from .netcdf import ETSF_Reader
+from .abitimer import AbinitTimerParser
+from .abiinspect import yaml_read_kpoints
 
 
 import logging

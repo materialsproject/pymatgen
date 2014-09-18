@@ -1,5 +1,5 @@
 # coding: utf-8
-
+"""Wrappers for ABINIT main executables"""
 from __future__ import unicode_literals, division, print_function
 
 import os
