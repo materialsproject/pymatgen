@@ -80,6 +80,21 @@ class PseudoTestCase(PymatgenTest):
         self.assertFalse(pseudo.has_nlcc)
         self.assertEqual(pseudo.l_max, 3)
         self.assertEqual(pseudo.l_local, 2)
+        
+        # Test PseudoTable.
+        table = PseudoTable(self.nc_pseudos["Si"])
+        print(repr(table))
+        print(table)
+        self.assertTrue(table.allnc)
+        self.assertTrue(not table.allpaw)
+        self.assertFalse(not table.is_complete)
+        assert len(table) == 3
+        assert len(table[14]) == 3
+        assert len(table.pseudos_with_symbol("Si")) == 3
+        assert table.zlist == [14]
+
+        # Test pickle
+        self.serialize_with_pickle(table, test_eq=False)
 
     def test_pawxml_pseudos(self):
         """Test O.GGA_PBE-JTH-paw.xml."""
