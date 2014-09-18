@@ -584,9 +584,9 @@ def compute_defect_density(structure, e0, vac_defs, antisite_defs, T=800,
     conc_data, en_data, mu_data = dilute_solution_model(
             structure,e0,vac_defs,antisite_defs,T,
             trial_chem_pot=trial_chem_pot)
-    print en_data.keys()
-    print en_data['x_label']
-    print [y.keys() for y in en_data['y']]
+    print(en_data.keys())
+    print(en_data['x_label'])
+    print([y.keys() for y in en_data['y']])
 
 
     if plot_style == 'highcharts':
