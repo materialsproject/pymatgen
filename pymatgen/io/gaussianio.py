@@ -640,7 +640,7 @@ class GaussianOutput(object):
         total_patt = re.compile("with all non electrostatic terms\s+\S+\s+"
                                 "=\s+(\S*)")
         parameter_patt = re.compile("(Eps|Numeral density|RSolv|Eps"
-                                    "\(inf[inity]*\))\s*=\s*(\S*)")
+                                    "\(inf[inity]*\))\s+=\s*(\S*)")
 
         if energy_patt.search(line):
             m = energy_patt.search(line)
