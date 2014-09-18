@@ -11,17 +11,12 @@ import abc
 import collections
 import numpy as np
 import six
+
 from six.moves import filter
-
-try:
-    from pydispatch import dispatcher
-except ImportError:
-    pass
-
 from monty.collections import AttrDict
+from monty.itertools import chunks
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
-from pymatgen.util.num_utils import chunks
 from pymatgen.util.string_utils import pprint_table, WildCard
 from . import wrappers
 from .tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, DdkTask, BseTask, RelaxTask)
@@ -31,6 +26,10 @@ from .netcdf import ETSF_Reader
 from .abitimer import AbinitTimerParser
 from .abiinspect import yaml_read_kpoints
 
+try:
+    from pydispatch import dispatcher
+except ImportError:
+    pass
 
 import logging
 logger = logging.getLogger(__name__)
