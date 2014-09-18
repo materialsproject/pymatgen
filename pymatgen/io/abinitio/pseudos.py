@@ -15,10 +15,10 @@ import six
 import numpy as np
 
 from monty.string import list_strings, is_string
+from monty.itertools import iterator_from_slice
 from monty.io import FileLock
-from monty.collections import AttrDict
+from monty.collections import AttrDict, NotOverwritableDict
 from pymatgen.core.periodic_table import PeriodicTable #, Element
-from pymatgen.util.num_utils import iterator_from_slice
 
 
 __all__ = [
@@ -515,7 +515,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
         err_msg = "lines = %s\n key_num =  %s" % (str(lines), str(key_nums))
         raise ValueError(err_msg)
 
-    kwargs = {}
+    kwargs = NotOverwritableDict()
 
     for (i, nk) in enumerate(key_nums):
         if nk == 0: continue
@@ -535,8 +535,8 @@ def _dict_from_lines(lines, key_nums, sep=None):
 
         if len(values) != len(keys):
             msg = "line: %s\n len(keys) != len(value)\nkeys: %s\n values:  %s" % (line, keys, values)
-            warnings.warn(msg)
-            #raise ValueError(msg)
+            #warnings.warn(msg)
+            raise ValueError(msg)
 
         kwargs.update(zip(keys, values))
 

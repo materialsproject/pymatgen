@@ -53,7 +53,7 @@ def str_delimited(results, header=None, delimiter="\t"):
     """
     Given a tuple of tuples, generate a delimited string form.
     >>> results = [["a","b","c"],["d","e","f"],[1,2,3]]
-    >>> print str_delimited(results,delimiter=",")
+    >>> print(str_delimited(results,delimiter=","))
     a,b,c
     d,e,f
     1,2,3
@@ -76,7 +76,7 @@ def str_aligned(results, header=None):
     """
     Given a tuple, generate a nicely aligned string form.
     >>> results = [["a","b","cz"],["d","ez","f"],[1,2,3]]
-    >>> print str_aligned(results)
+    >>> print(str_aligned(results))
     a    b   cz
     d   ez    f
     1    2    3

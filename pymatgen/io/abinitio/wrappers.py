@@ -62,7 +62,6 @@ class ExecWrapper(object):
     def mpi_runner(self):
         try:
             return self._mpi_runner
-
         except AttributeError:
             return ""
 
