@@ -344,7 +344,7 @@ class GaussianInput(object):
         """
         Return GaussianInput string
 
-        Option: whe cart_coords sets to True return the cartesian coordinates instead of the z-matrix (useful with PBC)
+        Option: whe cart_coords sets to True return the cartesian coordinates instead of the z-matrix
 
         """
         def para_dict_to_string(para, joiner=" "):
@@ -364,10 +364,10 @@ class GaussianInput(object):
         output.append("")
         output.append("{} {}".format(self.charge, self.spin_multiplicity))
         if isinstance(self._mol, Molecule):
-            if cart_coords is False:
-                output.append(self.get_zmatrix())
             if cart_coords is True:
                 output.append(self.get_cart_coords())
+            else:
+                output.append(self.get_zmatrix())
         else:
             output.append(str(self._mol))
         output.append("")
@@ -476,7 +476,7 @@ class GaussianOutput(object):
 
     .. attribute:: errors
 
-        list of errors if not properly terminated
+        error if not properly terminated (list to be completed in error_defs)
 
     .. attribute:: Mulliken_charges
 
