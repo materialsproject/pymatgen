@@ -250,13 +250,14 @@ class EnumlibAdaptor(object):
         total_amounts = sum(index_amounts)
         for amt in index_amounts:
             conc = amt / total_amounts
-            if abs(conc * 100 - round(conc * 100)) < 1e-5:
-                output.append("{} {} {}".format(int(round(conc * 100)),
-                                                int(round(conc * 100)), 100))
+            if abs(conc * 1000 - round(conc * 1000)) < 1e-5:
+                output.append("{} {} {}".format(int(round(conc * 1000)),
+                                                int(round(conc * 1000)),
+                                                1000))
             else:
-                min_conc = int(math.floor(conc * 100))
+                min_conc = int(math.floor(conc * 1000))
                 output.append("{} {} {}".format(min_conc - 1, min_conc + 1,
-                                                100))
+                                                1000))
         output.append("")
         logger.debug("Generated input file:\n{}".format("\n".join(output)))
         with open("struct_enum.in", "w") as f:
