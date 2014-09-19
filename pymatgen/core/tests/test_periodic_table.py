@@ -167,6 +167,9 @@ class SpecieTestCase(unittest.TestCase):
         self.assertEqual(ellist, deepcopy(ellist),
                          "Deepcopy operation doesn't produce exact copy.")
 
+    def test_pickle(self):
+        self.assertEqual(self.specie1, pickle.loads(pickle.dumps(self.specie1)))
+
     def test_get_crystal_field_spin(self):
         self.assertEqual(Specie("Fe", 2).get_crystal_field_spin(), 4)
         self.assertEqual(Specie("Fe", 3).get_crystal_field_spin(), 5)

@@ -121,7 +121,13 @@ class QcTask(PMGSONable):
                 raise ValueError("Spin multiplicity of molecule and fragments doesn't match")
         elif isinstance(self.mol, Molecule):
             self.charge = charge if charge is not None else self.mol.charge
-            nelectrons = self.mol.charge + self.mol.nelectrons - self.charge
+            ghost_nelectrons = 0
+            if ghost_atoms:
+                for i in ghost_atoms:
+                    site = self.mol.sites[i]
+                    for sp, amt in site.species_and_occu.items():
+                        ghost_nelectrons += sp.Z * amt
+            nelectrons = self.mol.charge + self.mol.nelectrons - ghost_nelectrons - self.charge
             if spin_multiplicity is not None:
                 self.spin_multiplicity = spin_multiplicity
                 if (nelectrons + spin_multiplicity) % 2 != 1:
@@ -135,7 +141,7 @@ class QcTask(PMGSONable):
                              "object or read/None or list of pymatgen Molecule")
         if (self.charge is None) != (self.spin_multiplicity is None):
             raise ValueError("spin multiplicity must be set together")
-        if self.charge is not None and isinstance(self.mol, Molecule):
+        if self.charge is not None and isinstance(self.mol, Molecule) and not ghost_atoms:
             self.mol.set_charge_and_spin(self.charge, self.spin_multiplicity)
         self.params = dict()
         if title is not None:
