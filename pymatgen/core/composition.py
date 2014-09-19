@@ -769,8 +769,6 @@ class ChemicalPotential(dict, PMGSONable):
         """
         Args:
             *args, **kwargs: any valid dict init arguments
-            strict: whether to enforce that all potentials are specified for
-                multiplication with a Composition. Default: True
         """
         d = dict(*args, **kwargs)
         super(ChemicalPotential, self).__init__((get_el_sp(k), v)
