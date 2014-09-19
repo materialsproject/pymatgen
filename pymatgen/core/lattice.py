@@ -46,12 +46,12 @@ class Lattice(PMGSONable):
             matrix: Sequence of numbers in any form. Examples of acceptable
                 input.
                 i) An actual numpy array.
-                ii) [[1, 0, 0],[0, 1, 0], [0, 0, 1]]
+                ii) [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
                 iii) [1, 0, 0 , 0, 1, 0, 0, 0, 1]
                 iv) (1, 0, 0, 0, 1, 0, 0, 0, 1)
                 Each row should correspond to a lattice vector.
-                E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a lattice with
-                lattice vectors [10,0,0], [20,10,0] and [0,0,30].
+                E.g., [[10, 0, 0], [20, 10, 0], [0, 0, 30]] specifies a lattice
+                with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].
         """
         m = np.array(matrix, dtype=np.float64).reshape((3, 3))
         lengths = np.sqrt(np.sum(m ** 2, axis=1))
@@ -80,12 +80,18 @@ class Lattice(PMGSONable):
 
     @property
     def inv_matrix(self):
+        """
+        Inverse of lattice matrix.
+        """
         if self._inv_matrix is None:
             self._inv_matrix = inv(self._matrix)
         return self._inv_matrix
 
     @property
     def metric_tensor(self):
+        """
+        The metric tensor of the lattice.
+        """
         if self._metric_tensor is None:
             self._metric_tensor = np.dot(self._matrix, self._matrix.T)
         return self._metric_tensor
@@ -107,7 +113,7 @@ class Lattice(PMGSONable):
         Returns the fractional coordinates given cartesian coordinates.
 
         Args:
-            cartesian_coords (3x1 array): Cartesian coords.
+            cart_coords (3x1 array): Cartesian coords.
 
         Returns:
             Fractional coordinates.
@@ -372,7 +378,7 @@ class Lattice(PMGSONable):
         """
         if other is None:
             return False
-        return np.allclose(self._matrix, other._matrix)
+        return np.allclose(self.matrix, other.matrix)
 
     def __ne__(self, other):
         return not self.__eq__(other)
