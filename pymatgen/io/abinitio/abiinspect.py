@@ -418,7 +418,7 @@ class YamlTokenizer(collections.Iterator):
 
     # Python 3 compatibility
     def __next__(self):
-        return six.advance_iterator(self)
+        return self.next()
 
     def next(self):
         """
