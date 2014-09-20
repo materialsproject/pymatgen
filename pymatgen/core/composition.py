@@ -800,7 +800,7 @@ class ChemicalPotential(dict, PMGSONable):
 
     def __add__(self, other):
         if isinstance(other, ChemicalPotential):
-            els = set(self.keys() + other.keys())
+            els = set(list(self.keys()) + list(other.keys()))
             return ChemicalPotential({e: self.get(e, 0) + other.get(e, 0)
                                       for e in els})
         else:
