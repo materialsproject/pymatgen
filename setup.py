@@ -1,7 +1,6 @@
 import glob
 import os
 import subprocess
-from io import open
 
 from ez_setup import use_setuptools
 use_setuptools()
@@ -39,7 +38,7 @@ def get_spglib_ext():
         sources=[os.path.join(spglibdir, "_spglib.c")] + sources,
         extra_compile_args=["-Wno-error=declaration-after-statement"])
 
-with open("README.rst", "rt") as f:
+with open("README.rst") as f:
     long_desc = f.read()
     ind = long_desc.find("\n")
     long_desc = long_desc[ind + 1:]
@@ -47,15 +46,15 @@ with open("README.rst", "rt") as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="3.0.2",
+    version="3.0.0",
     install_requires=["numpy>=1.8", "pyhull>=1.5.2",
                       "requests>=2.3.0", "pybtex>=0.18", "pyyaml>=3.11",
-                      "monty>=0.5.4", "six>=1.7.3"],
+                      "monty>=0.4.2", "six>=1.7.3"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
                     "plotting": ["matplotlib>=1.1"],
                     "ase_adaptor": ["ase>=3.3"],
                     "vis": ["vtk>=6.0.0"],
-                    "abinitio": ["pydispatcher>=2.0.3", "apscheduler==2.1.0"]},
+                    "abinitio": ["pydispatcher>=2.0", "apscheduler>=3.0.0"]},
     package_data={"pymatgen.core": ["*.json"],
                   "pymatgen.analysis": ["*.yaml"],
                   "pymatgen.io": ["*.yaml"],
@@ -89,6 +88,7 @@ setup(
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.2",
         "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Development Status :: 4 - Beta",

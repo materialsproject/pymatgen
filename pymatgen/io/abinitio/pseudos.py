@@ -17,7 +17,7 @@ import numpy as np
 from monty.string import list_strings, is_string
 from monty.itertools import iterator_from_slice
 from monty.io import FileLock
-from monty.collections import AttrDict, NotOverwritableDict
+from monty.collections import AttrDict, Namespace
 from pymatgen.core.periodic_table import PeriodicTable #, Element
 
 
@@ -37,8 +37,9 @@ _PTABLE = PeriodicTable()
 
 def straceback():
     """Returns a string with the traceback."""
+    import sys
     import traceback
-    return traceback.format_exc()
+    return "\n".join((traceback.format_exc(), str(sys.exc_info()[0])))
 
 
 def _read_nlines(filename, nlines):
@@ -515,7 +516,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
         err_msg = "lines = %s\n key_num =  %s" % (str(lines), str(key_nums))
         raise ValueError(err_msg)
 
-    kwargs = NotOverwritableDict()
+    kwargs = Namespace()
 
     for (i, nk) in enumerate(key_nums):
         if nk == 0: continue
