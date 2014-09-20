@@ -192,8 +192,8 @@ class AbinitTimerParser(collections.Iterable):
                 #  check = check.union(new_set)
 
         #if check != section_names:
-        #  print "sections",section_names
-        #  print "check",check
+        #  print("sections", section_names)
+        #  print("check",check)
 
         return section_names
 
@@ -241,7 +241,7 @@ class AbinitTimerParser(collections.Iterable):
         peff["total"]["wall_fract"] = n * [100]
 
         for sect_name in self.section_names():
-            #print sect_name
+            #print(sect_name)
             ref_sect = ref_t.get_section(sect_name)
             sects = [t.get_section(sect_name) for t in timers]
             try:

@@ -277,10 +277,6 @@ class Electrons(AbivarAble):
         self.charge = charge
         self.algorithm = algorithm
 
-        # FIXME
-        #if nband is None:
-        #    self.fband = 4
-
     @property
     def nsppol(self):
         return self.spin_mode.nsppol
