@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from __future__ import unicode_literals
+from __future__ import division
 
 """
 Evaluate the defect concentration based on composition, temperature,
@@ -267,7 +268,8 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             m0 = mu_red[mu[0]].subs(mu[-1],m1)
 
             try:
-                x = nsolve(vector_func,mu,[m0,m1],module="numpy")
+                #x = nsolve(vector_func,mu,[m0,m1],module="numpy")
+                x = nsolve(vector_func,mu,[m0,m1])
                 # Line needs to be modified to include all mus when n > 2
             except:
                 continue
@@ -319,7 +321,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             ind2 = specie_order.index(sub_specie)
             uncor_energy = as_def['energy']
             formation_energy = uncor_energy + mu_vals[ind1] - mu_vals[ind2]
-            print((site_specie, sub_specie, 'antisite ', formation_energy))
+            #print((site_specie, sub_specie, 'antisite ', formation_energy))
             formation_energies['antisites'][i]['formation_energy'] = formation_energy
             specie_ind = site_mu_map[i]
             indices = specie_site_index_map[specie_ind]
@@ -350,12 +352,18 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     # Compute ymax
     li = specie_site_index_map[0][0]
     hi = specie_site_index_map[0][1]
+    print ('low hi ind', li, hi)
+    print ('sum mult', sum(multiplicity[li:hi]))
+    print ('sum mult all ', sum(multiplicity))
+    print ('sum div', sum(multiplicity[li:hi])/sum(multiplicity))
     comp1_min = int(sum(multiplicity[li:hi])/sum(multiplicity)*100)-1
     comp2_max = 100-comp1_min
+    print comp1_min, comp2_max
     ymax = comp2_max/comp1_min
     comp1_max = int(sum(multiplicity[li:hi])/sum(multiplicity)*100)+1
     comp2_min = 100-comp1_max
     ymin = comp2_min/comp1_max
+    print ('yrange',ymin, ymax)
     #print(ymin, ymax)
     delta = (ymax-ymin)/40.0
 
@@ -369,7 +377,9 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         result[y] = []
         vector_func = [y-c_ratio[0]]
         vector_func.append(omega)
-        x = nsolve(vector_func,mu,mu_vals,module="numpy")
+        #x = nsolve(vector_func,mu,mu_vals,module="numpy")
+        print y, mu_vals
+        x = nsolve(vector_func,mu,mu_vals)
         result[y].append(x[0])
         result[y].append(x[1])
 
@@ -395,8 +405,13 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         res.append(res1)
 
     res = np.array(res)
+    print len(res)
+    print res[0]
     dtype = [('x',np.float64)]+[('y%d%d' % (i, j), np.float64) \
             for i in range(n) for j in range(n)]
+    print (dtype)
+    print ([type(k[0]) for k in dtype])
+    print (type('x'), repr('x'))
     res1 = np.sort(res.view(dtype), order=['x'],axis=0)
 
     conc_data = {}
@@ -897,7 +912,8 @@ def solute_site_preference_finder(
                 m0 = mu_red[mu[0]].subs([(mu[1],m1),(mu[2],m2)])
                 try:
                     #print(m1,m2)
-                    mu_vals = nsolve(vector_func,mu,[m0,m1,m2],module="numpy")
+                    #mu_vals = nsolve(vector_func,mu,[m0,m1,m2],module="numpy")
+                    mu_vals = nsolve(vector_func,mu,[m0,m1,m2])
                     # Line needs to be modified to include all mus when n > 2
                 except:
                     continue
@@ -959,7 +975,8 @@ def solute_site_preference_finder(
         print (mu)
         print (mu_vals)
 
-        x = nsolve(vector_func,mu,mu_vals,module="numpy")
+        #x = nsolve(vector_func,mu,mu_vals,module="numpy")
+        x = nsolve(vector_func,mu,mu_vals)
         #except:
         #    del result[y]
         #    continue
