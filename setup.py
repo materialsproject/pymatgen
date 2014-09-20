@@ -1,6 +1,8 @@
 import glob
 import os
 import subprocess
+from io import open
+import sys
 
 from ez_setup import use_setuptools
 use_setuptools()
@@ -32,11 +34,13 @@ def get_spglib_ext():
     spgsrcdir = os.path.join(spglibdir, "src")
     include_dirs = [spgsrcdir]
     sources = glob.glob(os.path.join(spgsrcdir, "*.c"))
+    c_opt = [] if sys.version_info.major < 3 else [
+        "-Wno-error=declaration-after-statement"]
     return Extension(
         "pymatgen._spglib",
         include_dirs=include_dirs + get_numpy_include_dirs(),
         sources=[os.path.join(spglibdir, "_spglib.c")] + sources,
-        extra_compile_args=["-Wno-error=declaration-after-statement"])
+        extra_compile_args=c_opt)
 
 with open("README.rst") as f:
     long_desc = f.read()
