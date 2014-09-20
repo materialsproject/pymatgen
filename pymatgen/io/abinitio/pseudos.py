@@ -19,6 +19,8 @@ from monty.itertools import iterator_from_slice
 from monty.io import FileLock
 from monty.collections import AttrDict, NotOverwritableDict
 from pymatgen.core.periodic_table import PeriodicTable #, Element
+from six.moves import map
+from six.moves import zip
 
 
 __all__ = [
