@@ -175,13 +175,14 @@ class StrategyWithInput(object):
         return str(self.abinit_input)
 
 
-class HtcStrategy(six.with_metaclass(abc.ABCMeta, AbstractStrategy)):
+class HtcStrategy(AbstractStrategy):
     """
     Attributes:
         accuracy:
             Accuracy of the calculation used to define basic parameters of the run.
             such as tolerances, basis set truncation ...
     """
+    __metaclass__ = abc.ABCMeta
 
     # Mapping runlevel --> optdriver variable
     _runl2optdriver = {
