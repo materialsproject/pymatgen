@@ -158,8 +158,8 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         Return inchi as molecular hash
         """
         obconv = ob.OBConversion()
-        obconv.SetOutFormat("inchi")
-        obconv.AddOption("X", ob.OBConversion.OUTOPTIONS, "DoNotAddH")
+        obconv.SetOutFormat(str("inchi"))
+        obconv.AddOption(str("X"), ob.OBConversion.OUTOPTIONS, str("DoNotAddH"))
         inchi_text = obconv.WriteString(mol)
         match = re.search("InChI=(?P<inchi>.+)\n", inchi_text)
         return match.group("inchi")
@@ -208,9 +208,9 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             List of equivalent atoms.
         """
         obconv = ob.OBConversion()
-        obconv.SetOutFormat("inchi")
-        obconv.AddOption("a", ob.OBConversion.OUTOPTIONS)
-        obconv.AddOption("X", ob.OBConversion.OUTOPTIONS, "DoNotAddH")
+        obconv.SetOutFormat(str("inchi"))
+        obconv.AddOption(str("a"), ob.OBConversion.OUTOPTIONS)
+        obconv.AddOption(str("X"), ob.OBConversion.OUTOPTIONS, str("DoNotAddH"))
         inchi_text = obconv.WriteString(mol)
         match = re.search("InChI=(?P<inchi>.+)\nAuxInfo=.+"
                           "/N:(?P<labels>[0-9,;]+)/(E:(?P<eq_atoms>[0-9,"
