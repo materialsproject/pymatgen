@@ -1817,6 +1817,12 @@ $end
                          [-0.286309, 0.143134, 0.143176])
         self.assertFalse(qcout.data[0]["has_error"])
 
+    def test_ghost_atoms(self):
+        filename = os.path.join(test_dir, "ghost_atoms.qcout")
+        qcout = QcOutput(filename)
+        elements = [a.specie.symbol for a in qcout.data[-1]["molecules"][-1].sites]
+        self.assertEqual(elements, ['O', 'H', 'H', 'C', 'H', 'H', 'H', 'H'])
+
 
 if __name__ == "__main__":
     unittest.main()
