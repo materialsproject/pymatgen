@@ -172,8 +172,6 @@ def plot_dos(args):
         plotter.show()
 
 
-
-
 def plot_chgint(args):
     chgcar = Chgcar.from_file(args.filename[0])
     s = chgcar.structure
@@ -494,7 +492,7 @@ def main():
                                       "stated (e.g., US), "
                                       "refers to PAW psuedopotential.")
     parser_generate.add_argument("-p", "--potcar", dest="symbols",
-                                 type=str, nargs="+",
+                                 type=str, nargs="+", required=True,
                                  help="List of POTCAR symbols. Use -f to set "
                                       "functional. Defaults to PBE.")
     parser_generate.set_defaults(func=generate_files)
