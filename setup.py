@@ -2,6 +2,7 @@ import glob
 import os
 import subprocess
 from io import open
+import sys
 
 from ez_setup import use_setuptools
 use_setuptools()
@@ -33,11 +34,13 @@ def get_spglib_ext():
     spgsrcdir = os.path.join(spglibdir, "src")
     include_dirs = [spgsrcdir]
     sources = glob.glob(os.path.join(spgsrcdir, "*.c"))
+    c_opt = [] if sys.version_info.major < 3 else [
+        "-Wno-error=declaration-after-statement"]
     return Extension(
         "pymatgen._spglib",
         include_dirs=include_dirs + get_numpy_include_dirs(),
         sources=[os.path.join(spglibdir, "_spglib.c")] + sources,
-        extra_compile_args=["-Wno-error=declaration-after-statement"])
+        extra_compile_args=c_opt)
 
 with open("README.rst", "rt") as f:
     long_desc = f.read()
@@ -50,7 +53,7 @@ setup(
     version="3.0.2",
     install_requires=["numpy>=1.8", "pyhull>=1.5.2",
                       "requests>=2.3.0", "pybtex>=0.18", "pyyaml>=3.11",
-                      "monty>=0.5.3", "six>=1.7.3"],
+                      "monty>=0.5.4", "six>=1.7.3"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
                     "plotting": ["matplotlib>=1.1"],
                     "ase_adaptor": ["ase>=3.3"],

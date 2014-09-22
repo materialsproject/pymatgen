@@ -25,8 +25,7 @@ class FakeAbinitInput(object):
     """Emulate an Abinit input."""
     @lazy_property
     def pseudos(self):
-        self._pseudos = ref_file("14si.pspnc")
-        return self._pseudos
+        return ref_file("14si.pspnc")
 
     @lazy_property
     def structure(self):
@@ -36,8 +35,7 @@ class FakeAbinitInput(object):
         lattice = Lattice([[3.8401979337, 0.00, 0.00],
                           [1.9200989668, 3.3257101909, 0.00],
                           [0.00, -2.2171384943, 3.1355090603]])
-        self._structure = Structure(lattice, ["Si", "Si"], coords)
-        return self._structure
+        return Structure(lattice, ["Si", "Si"], coords)
 
 
 class FlowUnitTest(PymatgenTest):

@@ -1,10 +1,8 @@
 # coding: utf-8
-
-from __future__ import unicode_literals, division, print_function
-
 """
 Abinit Flows
 """
+from __future__ import unicode_literals, division, print_function
 
 import os
 import sys
@@ -19,12 +17,12 @@ try:
 except ImportError:
     pass
 
-from pymatgen.util.io_utils import FileLock
-from pymatgen.util.string_utils import pprint_table, is_string
-from pymatgen.io.abinitio.tasks import Dependency, Status, Node, Task, ScfTask, PhononTask, TaskManager
-from pymatgen.io.abinitio.utils import Directory, Editor
-from pymatgen.io.abinitio.abiinspect import yaml_read_irred_perts
-from pymatgen.io.abinitio.workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow, QptdmWorkflow
+from monty.io import FileLock
+from pymatgen.util.string_utils import pprint_table
+from .tasks import Dependency, Status, Node, Task, ScfTask, PhononTask, TaskManager
+from .utils import Directory, Editor
+from .abiinspect import yaml_read_irred_perts
+from .workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow, QptdmWorkflow
 
 import logging
 logger = logging.getLogger(__name__)
@@ -283,7 +281,7 @@ class AbinitFlow(Node):
         self.set_workdir(new_workdir, chroot=True)
 
         for i, work in enumerate(self):
-            new_wdir = os.path.join(self.workdir,"w" + str(i))
+            new_wdir = os.path.join(self.workdir, "w" + str(i))
             work.chroot(new_wdir)
 
     def groupby_status(self):
@@ -354,8 +352,6 @@ class AbinitFlow(Node):
             }[op]
 
             # Accept Task.S_FLAG or string.
-            #if is_string(status):
-            #    status = getattr(Task, status)
             status = Status.as_status(status)
 
             for wi, work in enumerate(self):
@@ -412,7 +408,7 @@ class AbinitFlow(Node):
                 # task.set_status(task.S_READY)
             else:
                 info_msg = 'We encountered an abi critial envent that could not be fixed'
-                print(info_msg)
+                logger.warning(info_msg)
                 task.set_status(status=task.S_ERROR)
 
     def fix_queue_critical(self):
@@ -425,7 +421,7 @@ class AbinitFlow(Node):
         from pymatgen.io.gwwrapper.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
 
         for task in self.iflat_tasks(status=Task.S_QUEUECRITICAL):
-            print(task)
+            logger.info("Will try to fix task %s" % str(task))
 
             if not task.queue_errors:
                 # queue error but no errors detected, try to solve by increasing resources
@@ -587,7 +583,7 @@ class AbinitFlow(Node):
             if lst:
                 files.extend(lst)
 
-        #print(files)
+        #logger.info("Will edit %d files: %s" % (len(files), str(files)))
         return Editor(editor=editor).edit_files(files)
 
     def cancel(self):
@@ -878,7 +874,9 @@ class AbinitFlow(Node):
 
         #self.show_receivers()
 
-    def show_receivers(self, sender=dispatcher.Any, signal=dispatcher.Any):
+    def show_receivers(self, sender=None, signal=None):
+        sender = sender if sender is not None else dispatcher.Any
+        signal = signal if signal is not None else dispatcher.Any
         print("*** live receivers ***")
         for rec in dispatcher.liveReceivers(dispatcher.getReceivers(sender, signal)):
             print("receiver -->", rec)

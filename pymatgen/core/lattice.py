@@ -46,12 +46,12 @@ class Lattice(PMGSONable):
             matrix: Sequence of numbers in any form. Examples of acceptable
                 input.
                 i) An actual numpy array.
-                ii) [[1, 0, 0],[0, 1, 0], [0, 0, 1]]
+                ii) [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
                 iii) [1, 0, 0 , 0, 1, 0, 0, 0, 1]
                 iv) (1, 0, 0, 0, 1, 0, 0, 0, 1)
                 Each row should correspond to a lattice vector.
-                E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a lattice with
-                lattice vectors [10,0,0], [20,10,0] and [0,0,30].
+                E.g., [[10, 0, 0], [20, 10, 0], [0, 0, 30]] specifies a lattice
+                with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].
         """
         m = np.array(matrix, dtype=np.float64).reshape((3, 3))
         lengths = np.sqrt(np.sum(m ** 2, axis=1))
@@ -80,12 +80,18 @@ class Lattice(PMGSONable):
 
     @property
     def inv_matrix(self):
+        """
+        Inverse of lattice matrix.
+        """
         if self._inv_matrix is None:
             self._inv_matrix = inv(self._matrix)
         return self._inv_matrix
 
     @property
     def metric_tensor(self):
+        """
+        The metric tensor of the lattice.
+        """
         if self._metric_tensor is None:
             self._metric_tensor = np.dot(self._matrix, self._matrix.T)
         return self._metric_tensor
@@ -107,7 +113,7 @@ class Lattice(PMGSONable):
         Returns the fractional coordinates given cartesian coordinates.
 
         Args:
-            cartesian_coords (3x1 array): Cartesian coords.
+            cart_coords (3x1 array): Cartesian coords.
 
         Returns:
             Fractional coordinates.
@@ -372,7 +378,7 @@ class Lattice(PMGSONable):
         """
         if other is None:
             return False
-        return np.allclose(self._matrix, other._matrix)
+        return np.allclose(self.matrix, other.matrix)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -491,63 +497,6 @@ class Lattice(PMGSONable):
         """
         for x in self.find_all_mappings(other_lattice, ltol, atol):
             return x
-
-    def get_most_compact_basis_on_lattice(self):
-        """
-        This method returns the alternative basis corresponding to the shortest
-        3 linearly independent translational operations permitted.
-        This tends to create larger angles for every elongated cells and is
-        beneficial for viewing crystal structure (especially when they are
-        Niggli cells).
-        """
-        matrix = self.matrix
-        a = matrix[0]
-        b = matrix[1]
-        c = matrix[2]
-        while True:
-            anychange = False
-            # take care of c
-            if dot(a, b) > 0:
-                diffvector = a - b
-            else:
-                diffvector = a + b
-            diffnorm = np.linalg.norm(diffvector)
-            if diffnorm < np.linalg.norm(a) or\
-                    diffnorm < np.linalg.norm(b):
-                if np.linalg.norm(a) < np.linalg.norm(b):
-                    b = diffvector
-                else:
-                    a = diffvector
-                anychange = True
-                # take care of b
-            if dot(a, c) > 0:
-                diffvector = a - c
-            else:
-                diffvector = a + c
-            diffnorm = np.linalg.norm(diffvector)
-            if diffnorm < np.linalg.norm(a) or\
-                    diffnorm < np.linalg.norm(c):
-                if np.linalg.norm(a) < np.linalg.norm(c):
-                    c = diffvector
-                else:
-                    a = diffvector
-                anychange = True
-                # take care of a
-            if dot(c, b) > 0:
-                diffvector = c - b
-            else:
-                diffvector = c + b
-            diffnorm = np.linalg.norm(diffvector)
-            if diffnorm < np.linalg.norm(c) or\
-                    diffnorm < np.linalg.norm(b):
-                if np.linalg.norm(c) < np.linalg.norm(b):
-                    b = diffvector
-                else:
-                    c = diffvector
-                anychange = True
-            if anychange:
-                break
-        return Lattice([a, b, c])
 
     def get_lll_reduced_lattice(self, delta=0.75):
         """

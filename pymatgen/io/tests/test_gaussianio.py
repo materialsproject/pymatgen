@@ -72,11 +72,12 @@ A4=109.471213
 D4=119.999966
 
 EPS=12
+
 """
         self.assertEqual(str(self.gau), ans)
         gau = GaussianInput.from_string(ans)
         self.assertEqual(gau.functional, 'HF')
-        self.assertEqual(gau.input_parameters['EPS'], 12)
+        self.assertEqual(gau.input_parameters['EPS'], '12')
 
     def test_from_file(self):
         filepath = os.path.join(test_dir, 'MethylPyrrolidine_drawn.gjf')

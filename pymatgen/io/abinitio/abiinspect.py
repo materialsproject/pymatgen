@@ -1,21 +1,17 @@
 # coding: utf-8
-
-from __future__ import unicode_literals, division, print_function
-
 """
 This module provides objects to inspect the status of the Abinit tasks at run-time.
 by extracting information from the main output file (text format).
 """
+from __future__ import unicode_literals, division, print_function
 
 import collections
 import numpy as np
 import yaml
 import six
 
-from six.moves import cStringIO
+from six.moves import cStringIO, map, zip
 from pymatgen.util.string_utils import pprint_table
-from six.moves import map
-from six.moves import zip
 
 
 def straceback():
@@ -368,6 +364,7 @@ class Relaxation(collections.Iterable):
 
         return fig
 
+
 class YamlTokenizerError(Exception):
     """Exceptions raised by `YamlTokenizer."""
 
@@ -383,15 +380,6 @@ class YamlTokenizer(collections.Iterator):
         self.linepos = 0 
         self.stream = open(filename, "r")
 
-        #with open(filename, "r") as fh:
-        #    self.stream = iter(fh.readlines())
-
-        #self.stream = open(filename, "r")
-        #try:
-        #    self.stream = open(filename, "r")
-        #except IOError as exc:
-        #    raise self.Error(str(exc))
-
     def __iter__(self):
         return self
 
@@ -405,7 +393,6 @@ class YamlTokenizer(collections.Iterator):
         self.close()
 
     def close(self):
-        #pass
         try:
             self.stream.close()
         except:

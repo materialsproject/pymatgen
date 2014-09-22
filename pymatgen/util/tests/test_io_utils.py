@@ -21,7 +21,7 @@ import json
 import six
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.util.io_utils import FileLock, FileLockException, clean_json
+from pymatgen.util.io_utils import clean_json
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -44,21 +44,6 @@ class FuncTest(PymatgenTest):
         clean_strict = clean_json(d, strict=True)
         self.assertIsInstance(clean_strict["hello"], dict)
 
-
-class FileLockTest(unittest.TestCase):
-
-    def setUp(self):
-        self.file_name = "__lock__"
-        self.lock = FileLock(self.file_name, timeout=1)
-        self.lock.acquire()
-
-    def test_raise(self):
-        with self.assertRaises(FileLockException):
-            new_lock = FileLock(self.file_name, timeout=1)
-            new_lock.acquire()
-
-    def tearDown(self):
-        self.lock.release()
 
 if __name__ == "__main__":
     unittest.main()
