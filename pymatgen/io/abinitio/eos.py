@@ -1,8 +1,6 @@
 # coding: utf-8
-
-from __future__ import unicode_literals, division, print_function
-
 """Tools to compute equations of states with different models."""
+from __future__ import unicode_literals, division, print_function
 
 import collections
 import numpy as np
