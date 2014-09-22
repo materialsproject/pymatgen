@@ -6,6 +6,7 @@ dependencies:
     - pip install -q numpy
     - pip install -r requirements.txt
     - pip install -r requirements-optional.txt
+    - sudo apt-get install python-vtk
     - pip install -Iv https://wiki.fysik.dtu.dk/ase-files/python-ase-3.7.1.3184.tar.gz
     - python setup.py develop
 test:

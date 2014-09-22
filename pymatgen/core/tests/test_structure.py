@@ -17,9 +17,7 @@ import os
 class IStructureTest(PymatgenTest):
 
     def setUp(self):
-        coords = list()
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         self.lattice = Lattice([[3.8401979337, 0.00, 0.00],
                                 [1.9200989668, 3.3257101909, 0.00],
                                 [0.00, -2.2171384943, 3.1355090603]])
