@@ -107,11 +107,27 @@ class AbinitFlow(Node):
         #    slots[task] = {s: [] for s in work.S_ALL}
 
     # This is needed for fireworks although Node.__str__ and __repr__ are much more readable.
-    def __repr__(self):
-        return self.workdir
+    #def __repr__(self):
+    #    return self.workdir
 
-    def __str__(self):
-        return repr(self)
+    #def __str__(self):
+    #    return repr(self)
+
+    def as_dict(self, **kwargs):
+        """
+        JSON serialization, note that we only need to save 
+        a string with the working directory since the object will be 
+        reconstructed from the pickle file located in workdir
+        """
+        return {"workdir": self.workdir}
+
+    # This is needed for fireworks.
+    to_dict = as_dict
+
+    @classmethod
+    def from_dict(cls, d, **kwargs):
+        """Reconstruct the flow from the pickle file."""
+        return cls.pickle_load(d["workdir"], **kwargs)
 
     def set_workdir(self, workdir, chroot=False):
         """
