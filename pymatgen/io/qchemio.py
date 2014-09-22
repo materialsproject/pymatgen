@@ -1242,7 +1242,7 @@ class QcOutput(object):
         corr_energy_pattern = re.compile("(?P<name>[A-Z\-\(\)0-9]+)\s+"
                                          "([tT]otal\s+)?[eE]nergy\s+=\s+"
                                          "(?P<energy>-\d+\.\d+)")
-        coord_pattern = re.compile("\s*\d+\s+(?P<element>[A-Z][a-z]*)\s+"
+        coord_pattern = re.compile("\s*\d+\s+(?P<element>[A-Z][a-zH]*)\s+"
                                    "(?P<x>\-?\d+\.\d+)\s+"
                                    "(?P<y>\-?\d+\.\d+)\s+"
                                    "(?P<z>\-?\d+\.\d+)")
@@ -1348,6 +1348,10 @@ class QcOutput(object):
                     if len(coords) == 0:
                         continue
                     else:
+                        if qctask and qctask.ghost_atoms:
+                            if isinstance(qctask.mol, Molecule):
+                                for i in qctask.ghost_atoms:
+                                    species[i] = qctask.mol.sites[i].specie.symbol
                         molecules.append(Molecule(species, coords))
                         coords = []
                         species = []
