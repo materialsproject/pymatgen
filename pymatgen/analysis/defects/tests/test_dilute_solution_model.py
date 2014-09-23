@@ -55,19 +55,32 @@ class DiluteSolutionModelTest(unittest.TestCase):
         self.assertIsNotNone(chem_pot)
 
     def test_plot_data_without_chem_pot(self):
-        plot_data = dilute_solution_model(
+        conc_data, en_data, mu_data = dilute_solution_model(
             self.struct,self.e0,self.vac,self.asites,self.T,generate='plot')
-        print(plot_data.keys())
-        self.assertIsNotNone(plot_data)
+        self.assertIsNotNone(conc_data)
+        self.assertIsNotNone(en_data)
+        self.assertIsNotNone(mu_data)
+        for key,value in conc_data.items():
+            self.assertIsNotNone(value)
+        for key,value in mu_data.items():
+            self.assertIsNotNone(value)
+        for key,value in en_data.items():
+            self.assertIsNotNone(value)
 
     def test_plot_data_with_chem_pot(self):
-        plot_data = dilute_solution_model(
+        conc_data, en_data, mu_data = dilute_solution_model(
             self.struct,self.e0,self.vac,self.asites,self.T,
             trial_chem_pot=self.trial_mu,generate='plot')
-        self.assertIsNotNone(plot_data)
-        for key,value in plot_data.items():
+        self.assertIsNotNone(conc_data)
+        self.assertIsNotNone(en_data)
+        self.assertIsNotNone(mu_data)
+        for key,value in conc_data.items():
             self.assertIsNotNone(value)
-        print(plot_data['y'])
+        for key,value in mu_data.items():
+            self.assertIsNotNone(value)
+        for key,value in en_data.items():
+            self.assertIsNotNone(value)
+        #print(plot_data['y'])
 
 @unittest.skipIf(not sympy, "sympy not present.")
 class SoluteSiteFinderTest(unittest.TestCase):
