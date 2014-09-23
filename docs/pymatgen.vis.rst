@@ -1,6 +1,12 @@
 pymatgen.vis package
 ====================
 
+Subpackages
+-----------
+
+.. toctree::
+
+
 Submodules
 ----------
 
