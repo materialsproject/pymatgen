@@ -16,6 +16,7 @@ __date__ = "Jan 28, 2013"
 
 import numpy as np
 
+from six.moves import range
 
 class LinearAssignment(object):
     """
@@ -120,8 +121,12 @@ class LinearAssignment(object):
         """
         unassigned = np.where(self._x == -1)[0]
         for i in unassigned:
-            while True:
-                #find smallest 2 values and indices
+            for _ in range(self.c.size):
+                # Time in this loop can be proportional to 1/epsilon
+                # This step is not strictly necessary, so cutoff early
+                # to avoid near-infinite loops
+
+                # find smallest 2 values and indices
                 temp = self.c[i] - self._v
                 j1 = np.argmin(temp)
                 u1 = temp[j1]
@@ -226,7 +231,7 @@ class LinearAssignment(object):
             #update predecessors
             _pred[shorter] = i
 
-            for j in np.argwhere(np.logical_and(self._d == mu, _todo)).flatten():
+            for j in np.nonzero(np.logical_and(self._d == mu, _todo))[0]:
                 if self._y[j] == -1:
                     return _pred, _ready, istar, j, mu
                 _scan[j] = True
