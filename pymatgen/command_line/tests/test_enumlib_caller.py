@@ -71,7 +71,7 @@ class EnumlibAdaptorTest(PymatgenTest):
         self.assertEqual(len(adaptor.structures), 3)
 
         #Make sure it works properly when symmetry is broken by ordered sites.
-        struct = self.get_structure("LiFePO4.json")
+        struct = self.get_structure("LiFePO4")
         subtrans = SubstitutionTransformation({'Li': {'Li': 0.25}})
         s = subtrans.apply_transformation(struct)
         #REmove some ordered sites to break symmetry.
