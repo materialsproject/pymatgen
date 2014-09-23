@@ -33,7 +33,7 @@ class MethodsTest(unittest.TestCase):
     def test_read_structure(self):
         test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                                 'test_files')
-        for fname in ("Li2O.cif", "Li2O2.json", "vasprun.xml",
+        for fname in ("Li2O.cif", "vasprun.xml",
                       "vasprun_Si_bands.xml", "Si.cssr"):
             filename = os.path.join(test_dir, fname)
             struct = read_structure(filename)
