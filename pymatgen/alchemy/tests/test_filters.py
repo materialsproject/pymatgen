@@ -7,7 +7,6 @@ from pymatgen.alchemy.filters import ContainsSpecieFilter, \
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Specie
-from pymatgen.io.smartio import read_structure
 from pymatgen.alchemy.transmuters import StandardTransmuter
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.util.testing import PymatgenTest
