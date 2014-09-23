@@ -17,7 +17,8 @@ __date__ = "Jul 16, 2012"
 import unittest
 import os
 import numpy as np
-import json
+import warnings
+
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.physical_constants import BOLTZMANN_CONST
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Kpoints, Potcar, \
@@ -63,7 +64,9 @@ direct
 0.000000 0.000000 0.000000
 0.750000 0.500000 0.750000
 """
-        poscar = Poscar.from_string(poscar_string)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            poscar = Poscar.from_string(poscar_string)
         self.assertEqual(poscar.structure.composition, Composition("HHe"))
 
         #Vasp 4 tyle file with default names, i.e. no element symbol found.
