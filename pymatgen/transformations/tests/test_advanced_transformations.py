@@ -257,7 +257,7 @@ class MagOrderingTransformationTest(PymatgenTest):
 
     def test_zero_spin_case(self):
         #ensure that zero spin case maintains sites and formula
-        s = read_structure(os.path.join(test_dir, 'Li2O.json'))
+        s = self.get_structure('Li2O')
         trans = MagOrderingTransformation({"Li+": 0.0}, 0.5)
         alls = trans.apply_transformation(s)
         #compositions will not be equal due to spin assignment
