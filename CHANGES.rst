@@ -1,6 +1,10 @@
 Change log
 ==========
 
+v3.0.4
+------
+* Fix missing structures json data.
+
 v3.0.3
 ------
 * Updates to DiffusionAnalyzer for more fine-grained statistics.
