@@ -117,4 +117,4 @@ def pmg_dump(obj, filename, **kwargs):
         \*\*kwargs: Any of the keyword arguments supported by the json.dump
             method.
     """
-    return json.dump(obj, zopen(filename, "w"), cls=MontyEncoder, **kwargs)
+    return json.dump(obj, zopen(filename, "wb"), cls=MontyEncoder, **kwargs)
