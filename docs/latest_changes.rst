@@ -1,7 +1,5 @@
 Change log
 ==========
 
-v3.0.2
+v3.0.3
 ------
-1. Consistent use of unicode throughout pymatgen.
-2. Minor bug fixes.
