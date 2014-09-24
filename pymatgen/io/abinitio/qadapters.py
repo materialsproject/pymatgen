@@ -129,6 +129,7 @@ def qadapter_class(qtype):
             "slurm": SlurmAdapter,
             "pbs": PbsAdapter,
             "sge": SGEAdapter,
+            "moab": MOABAdapter,
             }[qtype.lower()]
 
 
@@ -1083,6 +1084,94 @@ class SGEAdapter(AbstractQueueAdapter):
     def increase_cpus(self, factor):
         raise NotImplementedError("increase_cpus")
 
+
+class MOABAdapter(SlurmAdapter):
+
+    QTYPE = "moab"
+
+    QTEMPLATE = """\
+#!/bin/bash
+
+#MSUB -a $${eligible_date}
+#MSUB -A $${account}
+#MSUB -c $${checkpoint_interval}
+#MSUB -l gres=$${gres}
+#MSUB -l nodes=$${nodes}
+#MSUB -l partition=$${partition}
+#MSUB -l ttc=$${ttc}
+#MSUB -l walltime=$${walltime}
+#MSUB -l $${resources}
+#MSUB -p $${priority}
+#MSUB -q $${queue}
+#MSUB -S $${shell}
+#MSUB -N $${job_name}
+#MSUB -v $${variable_list}
+
+#MSUB -o $${_qout_path}
+#MSUB -e $${_qerr_path}
+
+"""
+
+    def cancel(self, job_id):
+        return os.system("prm %d" % job_id)
+
+    def submit_to_queue(self, script_file, submit_err_file="moab.err"):
+
+        if not os.path.exists(script_file):
+            raise self.Error('Cannot find script file located at: {}'.format(script_file))
+
+        submit_err_file = os.path.join(os.path.dirname(script_file), submit_err_file)
+
+        # submit the job
+        try:
+            cmd = ['msub', script_file]
+            process = Popen(cmd, stdout=PIPE, stderr=PIPE)
+            # write the err output to file, a error parser may read it and a fixer may know what to do ...
+
+            with open(submit_err_file, mode='w') as f:
+                f.write('msub submit process stderr:')
+                f.write(str(process.stderr.read()))
+                f.write('qparams:')
+                f.write(str(self.qparams))
+
+            process.wait()
+
+            # grab the returncode. SLURM returns 0 if the job was successful
+            if process.returncode == 0:
+                try:
+                    # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
+                    queue_id = int(process.stdout.read().split()[3])
+                    logger.info('Job submission was successful and queue_id is {}'.format(queue_id))
+                except:
+                    # probably error parsing job code
+                    queue_id = None
+                    logger.warning('Could not parse job id following msub...')
+
+                finally:
+                    return process, queue_id
+
+            else:
+                # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
+                err_msg = ("Error in job submission with MOAB file {f} and cmd {c}\n".format(f=script_file, c=cmd) + 
+                           "The error response reads: {c}".format(c=process.stderr.read()))
+                raise self.Error(err_msg)
+
+        except Exception as details:
+            msg = 'Error while submitting job:\n' + str(details)
+            logger.critical(msg)
+            with open(submit_err_file, mode='a') as f:
+                f.write(msg)
+
+            try:
+                print('sometimes we land here, no idea what is happening ... Michiel')
+                print(details)
+                print(cmd)
+                print(process.returncode)
+            except:
+                pass
+
+            # random error, e.g. no qsub on machine!
+            raise self.Error('Running msub caused an error...')
 
 class QScriptTemplate(string.Template):
     delimiter = '$$'
