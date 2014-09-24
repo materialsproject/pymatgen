@@ -24,7 +24,7 @@ def make_doc():
     with open("CHANGES.rst") as f:
         contents = f.read()
 
-    toks = re.split("\-+", contents)
+    toks = re.split("\-{3,}", contents)
     n = len(toks[0].split()[-1])
     changes = [toks[0]]
     changes.append("\n" + "\n".join(toks[1].strip().split("\n")[0:-1]))
