@@ -163,7 +163,7 @@ class Lattice(PMGSONable):
         return Lattice.from_parameters(a, b, c, 90, 90, 90)
 
     @staticmethod
-    def monoclinic(a, b, c, alpha):
+    def monoclinic(a, b, c, beta):
         """
         Convenience constructor for a monoclinic lattice.
 
@@ -175,10 +175,10 @@ class Lattice(PMGSONable):
                 degrees.
 
         Returns:
-            Monoclinic lattice of dimensions a x b x c with angle alpha between
-            lattice vectors b and c.
+            Monoclinic lattice of dimensions a x b x c with non right-angle
+            beta between lattice vectors a and c.
         """
-        return Lattice.from_parameters(a, b, c, alpha, 90, 90)
+        return Lattice.from_parameters(a, b, c, 90, beta, 90)
 
     @staticmethod
     def hexagonal(a, c):
