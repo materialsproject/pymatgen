@@ -171,7 +171,7 @@ class Lattice(PMGSONable):
             a (float): *a* lattice parameter of the monoclinc cell.
             b (float): *b* lattice parameter of the monoclinc cell.
             c (float): *c* lattice parameter of the monoclinc cell.
-            alpha (float): *alpha* angle between lattice vectors b and c in
+            beta (float): *beta* angle between lattice vectors b and c in
                 degrees.
 
         Returns:
