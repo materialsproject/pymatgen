@@ -1,7 +1,6 @@
 Change log
 ==========
 
-v3.0.2
+v3.0.4
 ------
-1. Consistent use of unicode throughout pymatgen.
-2. Minor bug fixes.
+* Fix missing structures json data.
