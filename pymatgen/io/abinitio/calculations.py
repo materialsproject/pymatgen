@@ -119,6 +119,7 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
 #
 #    #return Relaxation(relax_strategy, workdir=workdir, manager=manager)
 
+
 def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx,
                       accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
                       ppmodel="godby", charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None,
@@ -269,14 +270,6 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
     to_add = {}
 
     extra_abivars.update(to_add)
-    #extra_abivars.update({'paral_kgb': 1})
-
-    #from pymatgen.io.abinitio.tasks import TaskManager
-    #tmp_manager = TaskManager.from_user_config()
-
-    #extra_abivars.update({'npkpt': 1, 'npfft': 4})
-    #ncpus = tmp_manager.tot_ncpus
-    #extra_abivars.update({'npbands': int(ncpus/4)})
 
     for k in extra_abivars.keys():
         if k[-2:] == '_s':
