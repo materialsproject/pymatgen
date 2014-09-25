@@ -42,7 +42,7 @@ def get_spglib_ext():
         sources=[os.path.join(spglibdir, "_spglib.c")] + sources,
         extra_compile_args=c_opt)
 
-with open("README.rst", "rt") as f:
+with open("README.rst") as f:
     long_desc = f.read()
     ind = long_desc.find("\n")
     long_desc = long_desc[ind + 1:]
