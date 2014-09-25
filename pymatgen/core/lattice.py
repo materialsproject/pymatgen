@@ -27,6 +27,7 @@ from numpy import pi, dot, transpose, radians
 from pyhull.voronoi import VoronoiTess
 
 from pymatgen.serializers.json_coders import PMGSONable
+from pymatgen.util.num_utils import abs_cap
 
 
 class Lattice(PMGSONable):
@@ -59,7 +60,7 @@ class Lattice(PMGSONable):
         for i in range(3):
             j = (i + 1) % 3
             k = (i + 2) % 3
-            angles[i] = dot(m[j], m[k]) / (lengths[j] * lengths[k])
+            angles[i] = abs_cap(dot(m[j], m[k]) / (lengths[j] * lengths[k]))
 
         angles = np.arccos(angles) * 180. / pi
         self._angles = angles
@@ -246,7 +247,7 @@ class Lattice(PMGSONable):
         val = (np.cos(alpha_r) * np.cos(beta_r) - np.cos(gamma_r))\
             / (np.sin(alpha_r) * np.sin(beta_r))
         #Sometimes rounding errors result in values slightly > 1.
-        val = val if abs(val) <= 1 else val / abs(val)
+        val = abs_cap(val)
         gamma_star = np.arccos(val)
         vector_a = [a * np.sin(beta_r), 0.0, a * np.cos(beta_r)]
         vector_b = [-b * np.sin(alpha_r) * np.cos(gamma_star),
