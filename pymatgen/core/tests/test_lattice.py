@@ -339,6 +339,12 @@ class LatticeTestCase(PymatgenTest):
         f2 = [0, 0, 10]
         self.assertEqual(lattice.get_all_distances(f1, f2)[0, 0], 0)
 
+    def test_monoclinic(self):
+        lengths, angles = self.monoclinic.lengths_and_angles
+        self.assertNotAlmostEqual(angles[1], 90)
+        self.assertAlmostEqual(angles[0], 90)
+        self.assertAlmostEqual(angles[2], 90)
+
     def test_is_hexagonal(self):
         self.assertFalse(self.cubic.is_hexagonal())
         self.assertFalse(self.tetragonal.is_hexagonal())
