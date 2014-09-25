@@ -129,7 +129,7 @@ class LinearAssignment(object):
                 j2 = np.argmin(temp)
                 u2 = temp[j2]
 
-                if u1 < u2:
+                if u1 < u2 - self.epsilon / 2:
                     self._v[j1] -= u2 - u1
                 elif self._y[j1] != -1:
                     j1 = j2
