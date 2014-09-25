@@ -660,14 +660,14 @@ class SlurmAdapter(AbstractQueueAdapter):
             return False
 
     def increase_cpus(self, factor=1.5):
-        print('increasing cpus')
+        logger.info('increasing cpus')
         try:
             if self.qparams['ntasks'] > 1:
                 # mpi parallel
                 n = int(self.qparams['ntasks'] * factor)
                 if n < self.limits['max_total_tasks']:
                     self.qparams['ntasks'] = n
-                    print('increased ntasks to %s' % n)
+                    logger.info('increased ntasks to %s' % n)
                     return True
                 else:
                     raise QueueAdapterError
@@ -685,13 +685,13 @@ class SlurmAdapter(AbstractQueueAdapter):
             return False
 
     def increase_mem(self, factor=1.5):
-        print('increasing memory')
+        logger.info('increasing memory')
         try:
             if 'mem' in self.qparams.keys():
                 n = int(self.qparams['mem'] * factor)
                 if n < self.limits['mem']:
                     self.qparams['mem'] = n
-                    print('increased mem to %s' % n)
+                    logger.info('increased mem to %s' % n)
                     return True
                 else:
                     raise QueueAdapterError
@@ -699,7 +699,7 @@ class SlurmAdapter(AbstractQueueAdapter):
                 n = int(self.qparams['mem_per_cpu'] * factor)
                 if n < self.limits['mem_per_cpu']:
                     self.qparams['mem'] = n
-                    print('increased mem_per_cpu to %s' % n)
+                    logger.info('increased mem_per_cpu to %s' % n)
                     return True
                 else:
                     raise QueueAdapterError
@@ -709,7 +709,7 @@ class SlurmAdapter(AbstractQueueAdapter):
             return False
 
     def increase_time(self, factor=1.5):
-        print('increasing time')
+        logger.info('increasing time')
         days, hours, minutes = 0, 0, 0
         try:
             # a slurm time parser ;-) forgetting about seconds
@@ -739,7 +739,7 @@ class SlurmAdapter(AbstractQueueAdapter):
             time *= factor
             if time < self.limits['time']:
                 self.qparams['time'] = time
-                print('increased time to %s' % time)
+                logger.info('increased time to %s' % time)
                 return True
             else:
                 raise QueueAdapterError
