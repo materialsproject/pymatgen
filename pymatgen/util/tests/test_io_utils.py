@@ -37,7 +37,7 @@ class FuncTest(PymatgenTest):
         self.assertEqual(json.loads(json.dumps(d)), json.loads(json.dumps(
             clean)))
 
-        d = {"hello": self.get_si2_structure()}
+        d = {"hello": self.get_structure("Si")}
         self.assertRaises(TypeError, json.dumps, d)
         clean = clean_json(d)
         self.assertIsInstance(clean["hello"], six.string_types)

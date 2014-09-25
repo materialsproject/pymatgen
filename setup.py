@@ -50,7 +50,7 @@ with open("README.rst") as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="3.0.2",
+    version="3.0.4",
     install_requires=["numpy>=1.8", "pyhull>=1.5.3",
                       "requests>=2.3.0", "pybtex>=0.18", "pyyaml>=3.11",
                       "monty>=0.5.5", "six>=1.7.3"],
@@ -68,7 +68,8 @@ setup(
                   "pymatgen.vis": ["ElementColorSchemes.yaml"],
                   "pymatgen.command_line": ["OxideTersoffPotentials"],
                   "pymatgen.analysis.defects": ["*.json"],
-                  "pymatgen.analysis.diffraction": ["*.json"]},
+                  "pymatgen.analysis.diffraction": ["*.json"],
+                  "pymatgen.util": ["structures/*.json"]},
     author="Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier,"
     "William Davidson Richards, Stephen Dacek, Dan Gunter, Shreyas Cholia, "
     "Matteo Giantomassi, Vincent L Chevrier, Rickard Armiento",
