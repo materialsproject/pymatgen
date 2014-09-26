@@ -1,7 +1,7 @@
 # !/usr/bin/env python
 
 """
-This moule implements representations of slabs and surfaces.
+This module implements representations of slabs and surfaces.
 """
 
 from __future__ import division
