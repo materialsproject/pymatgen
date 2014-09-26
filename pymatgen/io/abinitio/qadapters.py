@@ -1085,8 +1085,8 @@ class SGEAdapter(AbstractQueueAdapter):
         raise NotImplementedError("increase_cpus")
 
 
-class MOABAdapter(SlurmAdapter):
-
+class MOABAdapter(AbstractQueueAdapter):
+# https://computing.llnl.gov/tutorials/moab/
     QTYPE = "moab"
 
     QTEMPLATE = """\
@@ -1095,9 +1095,11 @@ class MOABAdapter(SlurmAdapter):
 #MSUB -a $${eligible_date}
 #MSUB -A $${account}
 #MSUB -c $${checkpoint_interval}
+#MSUB -l feature=$${feature}
 #MSUB -l gres=$${gres}
 #MSUB -l nodes=$${nodes}
 #MSUB -l partition=$${partition}
+#MSUB -l procs=$${procs}
 #MSUB -l ttc=$${ttc}
 #MSUB -l walltime=$${walltime}
 #MSUB -l $${resources}
@@ -1112,10 +1114,23 @@ class MOABAdapter(SlurmAdapter):
 
 """
 
-    def cancel(self, job_id):
-        return os.system("prm %d" % job_id)
+    @property
+    def mpi_ncpus(self):
+        """Number of CPUs used for MPI."""
+        return self.qparams.get("procs", 1)
 
-    def submit_to_queue(self, script_file, submit_err_file="moab.err"):
+    def set_mpi_ncpus(self, mpi_ncpus):
+        """Set the number of CPUs used for MPI."""
+        self.qparams["procs"] = mpi_ncpus
+
+    def set_omp_ncpus(self, omp_ncpus):
+        """Set the number of OpenMP threads."""
+        self.omp_env["OMP_NUM_THREADS"] = omp_ncpus
+
+    def cancel(self, job_id):
+        return os.system("canceljob %d" % job_id)
+
+    def submit_to_queue(self, script_file, submit_err_file="sbatch.err"):
 
         if not os.path.exists(script_file):
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
@@ -1136,11 +1151,11 @@ class MOABAdapter(SlurmAdapter):
 
             process.wait()
 
-            # grab the returncode. SLURM returns 0 if the job was successful
+            # grab the returncode. MOAB returns 0 if the job was successful
             if process.returncode == 0:
                 try:
-                    # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
-                    queue_id = int(process.stdout.read().split()[3])
+                    # output should be the queue_id
+                    queue_id = int(process.stdout.read().split()[0])
                     logger.info('Job submission was successful and queue_id is {}'.format(queue_id))
                 except:
                     # probably error parsing job code
@@ -1172,6 +1187,36 @@ class MOABAdapter(SlurmAdapter):
 
             # random error, e.g. no qsub on machine!
             raise self.Error('Running msub caused an error...')
+
+    def get_njobs_in_queue(self, username=None):
+        if username is None:
+            username = getpass.getuser()
+
+        cmd = ['showq', '-s -u', username]
+        process = Popen(cmd, shell=False, stdout=PIPE)
+        process.wait()
+
+        # parse the result
+        if process.returncode == 0:
+            # lines should have this form:
+            ## 
+            ## active jobs: N  eligible jobs: M  blocked jobs: P
+            ##
+            ## Total job:  1
+            ##
+            # Split the output string and return the last element.
+
+            outs = process.stdout.readlines()
+            njobs = int(outs.split()[-1])
+            logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
+            return njobs
+
+        # there's a problem talking to squeue server?
+        err_msg = ('Error trying to get the number of jobs in the queue using showq service' + 
+                   'The error response reads: {}'.format(process.stderr.read()))
+        logger.critical(err_msg)
+
+        return None
 
 class QScriptTemplate(string.Template):
     delimiter = '$$'
