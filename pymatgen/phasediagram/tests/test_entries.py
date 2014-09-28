@@ -21,26 +21,26 @@ class PDEntryTest(unittest.TestCase):
         self.gpentry = GrandPotPDEntry(self.entry, {Element('O'): 1.5})
 
     def test_get_energy(self):
-        self.assertEquals(self.entry.energy, 53, "Wrong energy!")
-        self.assertEquals(self.gpentry.energy, 50, "Wrong energy!")
+        self.assertEqual(self.entry.energy, 53, "Wrong energy!")
+        self.assertEqual(self.gpentry.energy, 50, "Wrong energy!")
 
     def test_get_energy_per_atom(self):
-        self.assertEquals(self.entry.energy_per_atom, 53.0 / 4,
+        self.assertEqual(self.entry.energy_per_atom, 53.0 / 4,
                           "Wrong energy per atom!")
-        self.assertEquals(self.gpentry.energy_per_atom, 50.0 / 2,
+        self.assertEqual(self.gpentry.energy_per_atom, 50.0 / 2,
                           "Wrong energy per atom!")
 
     def test_get_name(self):
-        self.assertEquals(self.entry.name, 'LiFeO2', "Wrong name!")
-        self.assertEquals(self.gpentry.name, 'LiFeO2', "Wrong name!")
+        self.assertEqual(self.entry.name, 'LiFeO2', "Wrong name!")
+        self.assertEqual(self.gpentry.name, 'LiFeO2', "Wrong name!")
 
     def test_get_composition(self):
         comp = self.entry.composition
         expected_comp = Composition('LiFeO2')
-        self.assertEquals(comp, expected_comp, "Wrong composition!")
+        self.assertEqual(comp, expected_comp, "Wrong composition!")
         comp = self.gpentry.composition
         expected_comp = Composition("LiFe")
-        self.assertEquals(comp, expected_comp, "Wrong composition!")
+        self.assertEqual(comp, expected_comp, "Wrong composition!")
 
     def test_is_element(self):
         self.assertFalse(self.entry.is_element)
@@ -51,11 +51,11 @@ class PDEntryTest(unittest.TestCase):
         gpd = self.gpentry.as_dict()
         entry = PDEntry.from_dict(d)
 
-        self.assertEquals(entry.name, 'LiFeO2', "Wrong name!")
-        self.assertEquals(entry.energy_per_atom, 53.0 / 4)
+        self.assertEqual(entry.name, 'LiFeO2', "Wrong name!")
+        self.assertEqual(entry.energy_per_atom, 53.0 / 4)
         gpentry = GrandPotPDEntry.from_dict(gpd)
-        self.assertEquals(gpentry.name, 'LiFeO2', "Wrong name!")
-        self.assertEquals(gpentry.energy_per_atom, 50.0 / 2)
+        self.assertEqual(gpentry.name, 'LiFeO2', "Wrong name!")
+        self.assertEqual(gpentry.energy_per_atom, 50.0 / 2)
 
     def test_str(self):
         self.assertIsNotNone(str(self.entry))
@@ -73,20 +73,20 @@ class TransformedPDEntryTest(unittest.TestCase):
                                                     entry)
 
     def test_get_energy(self):
-        self.assertEquals(self.transformed_entry.energy, 53, "Wrong energy!")
-        self.assertEquals(self.transformed_entry.original_entry.energy, 53.0)
+        self.assertEqual(self.transformed_entry.energy, 53, "Wrong energy!")
+        self.assertEqual(self.transformed_entry.original_entry.energy, 53.0)
 
     def test_get_energy_per_atom(self):
-        self.assertEquals(self.transformed_entry.energy_per_atom, 53.0 / 2)
+        self.assertEqual(self.transformed_entry.energy_per_atom, 53.0 / 2)
 
     def test_get_name(self):
-        self.assertEquals(self.transformed_entry.name, 'LiFeO2', "Wrong name!")
+        self.assertEqual(self.transformed_entry.name, 'LiFeO2', "Wrong name!")
 
     def test_get_composition(self):
         comp = self.transformed_entry.composition
         expected_comp = Composition({DummySpecie('Xa'): 1,
                                      DummySpecie('Xb'): 1})
-        self.assertEquals(comp, expected_comp, "Wrong composition!")
+        self.assertEqual(comp, expected_comp, "Wrong composition!")
 
     def test_is_element(self):
         self.assertFalse(self.transformed_entry.is_element)
@@ -94,8 +94,8 @@ class TransformedPDEntryTest(unittest.TestCase):
     def test_to_from_dict(self):
         d = self.transformed_entry.as_dict()
         entry = TransformedPDEntry.from_dict(d)
-        self.assertEquals(entry.name, 'LiFeO2', "Wrong name!")
-        self.assertEquals(entry.energy_per_atom, 53.0 / 2)
+        self.assertEqual(entry.name, 'LiFeO2', "Wrong name!")
+        self.assertEqual(entry.energy_per_atom, 53.0 / 2)
 
     def test_str(self):
         self.assertIsNotNone(str(self.transformed_entry))
