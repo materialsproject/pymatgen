@@ -129,7 +129,7 @@ direct
 0.750000 0.500000 0.750000 Si
 '''
 
-        self.assertEquals(str(poscar), expected_str, "Wrong POSCAR output!")
+        self.assertEqual(str(poscar), expected_str, "Wrong POSCAR output!")
 
         #Vasp 4 type with symbols at the end.
         poscar_string = """Test1
