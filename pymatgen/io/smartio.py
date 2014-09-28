@@ -20,6 +20,8 @@ import json
 import re
 from fnmatch import fnmatch
 
+from monty.dev import deprecated
+
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.io.vaspio import Vasprun, Poscar, Chgcar
 from pymatgen.io.cifio import CifParser, CifWriter
@@ -32,6 +34,7 @@ from monty.string import str2unicode
 from pymatgen.io.babelio import BabelMolAdaptor
 
 
+@deprecated(Structure.from_file)
 def read_structure(filename, primitive=True, sort=False):
     """
     Reads a structure based on file extension. For example, anything ending in
@@ -73,6 +76,8 @@ def read_structure(filename, primitive=True, sort=False):
         s = s.get_sorted_structure()
     return s
 
+
+@deprecated(replacement=Structure.to)
 def write_structure(structure, filename):
     """
     Write a structure to a file based on file extension. For example, anything
@@ -101,6 +106,7 @@ def write_structure(structure, filename):
     writer.write_file(filename)
 
 
+@deprecated(Molecule.from_file)
 def read_mol(filename):
     """
     Reads a molecule based on file extension. For example, anything ending in
@@ -141,6 +147,7 @@ def read_mol(filename):
     raise ValueError("Unrecognized file extension!")
 
 
+@deprecated(replacement=Molecule.to)
 def write_mol(mol, filename):
     """
     Write a molecule to a file based on file extension. For example, anything
