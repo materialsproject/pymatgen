@@ -23,16 +23,16 @@ class KpointTest(unittest.TestCase):
         self.kpoint = Kpoint([0.1, 0.4, -0.5], self.lattice, label="X")
 
     def test_properties(self):
-        self.assertEquals(self.kpoint.frac_coords[0], 0.1)
-        self.assertEquals(self.kpoint.frac_coords[1], 0.4)
-        self.assertEquals(self.kpoint.frac_coords[2], -0.5)
-        self.assertEquals(self.kpoint.a, 0.1)
-        self.assertEquals(self.kpoint.b, 0.4)
-        self.assertEquals(self.kpoint.c, -0.5)
-        self.assertEquals(self.lattice, Lattice.cubic(10.0))
-        self.assertEquals(self.kpoint.cart_coords[0], 1.0)
-        self.assertEquals(self.kpoint.cart_coords[1], 4.0)
-        self.assertEquals(self.kpoint.cart_coords[2], -5.0)
+        self.assertEqual(self.kpoint.frac_coords[0], 0.1)
+        self.assertEqual(self.kpoint.frac_coords[1], 0.4)
+        self.assertEqual(self.kpoint.frac_coords[2], -0.5)
+        self.assertEqual(self.kpoint.a, 0.1)
+        self.assertEqual(self.kpoint.b, 0.4)
+        self.assertEqual(self.kpoint.c, -0.5)
+        self.assertEqual(self.lattice, Lattice.cubic(10.0))
+        self.assertEqual(self.kpoint.cart_coords[0], 1.0)
+        self.assertEqual(self.kpoint.cart_coords[1], 4.0)
+        self.assertEqual(self.kpoint.cart_coords[2], -5.0)
         self.assertEqual(self.kpoint.label, "X")
 
 

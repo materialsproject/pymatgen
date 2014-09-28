@@ -44,8 +44,8 @@ class VasprunTest(unittest.TestCase):
         vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True)
         totalscsteps = sum([len(i['electronic_steps'])
                             for i in vasprun.ionic_steps])
-        self.assertEquals(29, len(vasprun.ionic_steps))
-        self.assertEquals(len(vasprun.structures), len(vasprun.ionic_steps))
+        self.assertEqual(29, len(vasprun.ionic_steps))
+        self.assertEqual(len(vasprun.structures), len(vasprun.ionic_steps))
         self.assertEqual(vasprun.lattice,
                          vasprun.lattice_rec.reciprocal_lattice)
 
@@ -55,13 +55,13 @@ class VasprunTest(unittest.TestCase):
         self.assertTrue(all([vasprun.structures[i] == vasprun.ionic_steps[i][
             "structure"] for i in range(len(vasprun.ionic_steps))]))
 
-        self.assertEquals(308, totalscsteps,
-                          "Incorrect number of energies read from vasprun.xml")
+        self.assertEqual(308, totalscsteps,
+                         "Incorrect number of energies read from vasprun.xml")
 
-        self.assertEquals(['Li'] + 4 * ['Fe'] + 4 * ['P'] + 16 * ["O"],
-                          vasprun.atomic_symbols)
-        self.assertEquals(vasprun.final_structure.composition.reduced_formula,
-                          "LiFe4(PO4)4")
+        self.assertEqual(['Li'] + 4 * ['Fe'] + 4 * ['P'] + 16 * ["O"],
+                         vasprun.atomic_symbols)
+        self.assertEqual(vasprun.final_structure.composition.reduced_formula,
+                         "LiFe4(PO4)4")
         self.assertIsNotNone(vasprun.incar, "Incar cannot be read")
         self.assertIsNotNone(vasprun.kpoints, "Kpoints cannot be read")
         self.assertIsNotNone(vasprun.eigenvalues, "Eigenvalues cannot be read")

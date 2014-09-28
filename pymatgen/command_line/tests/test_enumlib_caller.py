@@ -19,7 +19,6 @@ import os
 
 from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
 from pymatgen import Element, Structure
-from pymatgen.io.smartio import read_structure
 from pymatgen.transformations.standard_transformations import \
     SubstitutionTransformation
 from monty.os.path import which
@@ -89,7 +88,8 @@ class EnumlibAdaptorTest(PymatgenTest):
         structures = adaptor.structures
         self.assertEqual(len(structures), 10)
 
-        struct = read_structure(os.path.join(test_dir, "EnumerateTest.json"))
+        struct = Structure.from_file(
+            os.path.join(test_dir, "EnumerateTest.json"))
         adaptor = EnumlibAdaptor(struct, 1, 1)
         adaptor.run()
         structures = adaptor.structures
