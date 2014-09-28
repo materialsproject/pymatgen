@@ -22,7 +22,6 @@ from pymatgen.core.structure import Structure
 import os
 import unittest
 
-from pymatgen.io.smartio import read_structure
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -44,7 +43,7 @@ class EwaldElectrostaticModelTest(unittest.TestCase):
 
         m = EwaldElectrostaticModel()
         self.assertAlmostEqual(m.get_energy(s), 44.1070954178)
-        s2 = read_structure(os.path.join(test_dir, "Li2O.cif"))
+        s2 = Structure.from_file(os.path.join(test_dir, "Li2O.cif"))
         self.assertAlmostEqual(m.get_energy(s2), -36.3476248117)
 
     def test_to_from_dict(self):
@@ -57,7 +56,7 @@ class SymmetryModelTest(unittest.TestCase):
 
     def test_get_energy(self):
         m = SymmetryModel()
-        s2 = read_structure(os.path.join(test_dir, "Li2O.cif"))
+        s2 = Structure.from_file(os.path.join(test_dir, "Li2O.cif"))
         self.assertAlmostEqual(m.get_energy(s2), -225)
 
     def test_to_from_dict(self):
@@ -73,7 +72,7 @@ class IsingModelTest(unittest.TestCase):
     def test_get_energy(self):
         m = IsingModel(5, 6)
         from pymatgen.core.periodic_table import Specie
-        s = read_structure(os.path.join(test_dir, "LiFePO4.cif"))
+        s = Structure.from_file(os.path.join(test_dir, "LiFePO4.cif"))
         s.replace_species({"Fe": Specie("Fe", 2, {"spin": 4})})
         self.assertAlmostEqual(m.get_energy(s), 172.81260515787977)
         s[4] = Specie("Fe", 2, {"spin": -4})
