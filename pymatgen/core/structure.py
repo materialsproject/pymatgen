@@ -1067,12 +1067,14 @@ class IStructure(SiteCollection, PMGSONable):
         elif fmt == "cssr" or fnmatch(fname.lower(), "*.cssr*"):
             writer = Cssr(self)
         elif fmt == "json" or fnmatch(fname.lower(), "*.json"):
+            s = json.dumps(self.as_dict())
             if filename:
-                with open(filename, "w") as f:
-                    json.dump(self.as_dict(), f)
+                with zopen(filename, "wt") as f:
+                    # This complicated for handles unicode in both Py2 and 3.
+                    f.write("%s" % s)
                 return
             else:
-                return json.dumps(self.as_dict())
+                return s
         else:
             if filename:
                 with open(filename, "w") as f:
