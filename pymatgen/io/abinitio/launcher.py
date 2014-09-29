@@ -605,7 +605,7 @@ class PyFlowScheduler(object):
             for work in flow:
                 work.set_manager(new_manager)
 
-        # check stattus
+        # check status
         flow.check_status()
         flow.show_status()
 
