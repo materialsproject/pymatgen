@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Unit tests for StructureNL (SNL) format
 """
 
-from __future__ import division
 
 __author__ = "Anubhav Jain"
 __credits__ = "Shyue Ping Ong"
@@ -46,7 +49,7 @@ class StructureNLCase(unittest.TestCase):
                    "\n year = {2013}\n}"
         repeat = "REPEAT" * 10000
         self.superlong = "@misc{SuperLong,\ntitle = {{" + repeat + "}}}"
-        self.unicode_title = u"@misc{Unicode_Title,\ntitle = {{A \u73ab is a rose}}}"
+        self.unicode_title = "@misc{Unicode_Title,\ntitle = {{A \u73ab is a rose}}}"
         self.junk = "This is junk text, not a BibTeX reference"
 
         # set up remarks

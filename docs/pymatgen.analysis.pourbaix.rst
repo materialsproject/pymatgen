@@ -1,6 +1,12 @@
 pymatgen.analysis.pourbaix package
 ==================================
 
+Subpackages
+-----------
+
+.. toctree::
+
+
 Submodules
 ----------
 

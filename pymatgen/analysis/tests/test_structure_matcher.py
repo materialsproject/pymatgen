@@ -1,4 +1,7 @@
-from __future__ import division
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 import unittest
 import os
 import json
@@ -11,19 +14,21 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.io.smartio import read_structure
 from pymatgen.core import Structure, Element, Lattice
 from pymatgen.util.coord_utils import find_in_coord_list_pbc
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
-class StructureMatcherTest(unittest.TestCase):
+class StructureMatcherTest(PymatgenTest):
 
     def setUp(self):
         with open(os.path.join(test_dir, "TiO2_entries.json"), 'r') as fp:
             entries = json.load(fp, cls=MontyDecoder)
         self.struct_list = [e.structure for e in entries]
-        self.oxi_structs = [read_structure(os.path.join(test_dir, fname))
-                            for fname in ["Li2O.json", "POSCAR.Li2O"]]
+        self.oxi_structs = [self.get_structure("Li2O"),
+                            read_structure(os.path.join(
+                                test_dir, "POSCAR.Li2O"))]
 
     def test_get_supercell_size(self):
         l = Lattice.cubic(1)
@@ -210,8 +215,8 @@ class StructureMatcherTest(unittest.TestCase):
         self.assertTrue(sm.fit(self.struct_list[0], self.struct_list[1]))
         #Test FrameworkComporator
         sm2 = StructureMatcher(comparator=FrameworkComparator())
-        lfp = read_structure(os.path.join(test_dir, "LiFePO4.json"))
-        nfp = read_structure(os.path.join(test_dir, "NaFePO4.json"))
+        lfp = self.get_structure("LiFePO4")
+        nfp = self.get_structure("NaFePO4")
         self.assertTrue(sm2.fit(lfp, nfp))
         self.assertFalse(sm.fit(lfp, nfp))
 
@@ -266,9 +271,10 @@ class StructureMatcherTest(unittest.TestCase):
         self.assertEqual(list(map(len, out)), [4, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1])
 
     def test_mix(self):
-        structures = []
-        for fname in ["POSCAR.Li2O", "Li2O.json", "Li2O2.json", "LiFePO4.json",
-                      "POSCAR.LiFePO4"]:
+        structures = [self.get_structure("Li2O"),
+                      self.get_structure("Li2O2"),
+                      self.get_structure("LiFePO4")]
+        for fname in ["POSCAR.Li2O", "POSCAR.LiFePO4"]:
             structures.append(read_structure(os.path.join(test_dir, fname)))
         sm = StructureMatcher(comparator=ElementComparator())
         groups = sm.group_structures(structures)
@@ -439,22 +445,22 @@ class StructureMatcherTest(unittest.TestCase):
         rms = (0.029763769724403633, 0.029763769724403987)
         self.assertTrue(np.allclose(sm.get_rms_dist(s1, s2_missing_site), rms))
         self.assertTrue(np.allclose(sm.get_rms_dist(s2_missing_site, s1), rms))
-        
+
     def test_get_s2_large_s2(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5,
                               primitive_cell=False, scale=False,
                               attempt_supercell=True, allow_subset=False,
                               supercell_size='volume')
-        
+
         l = Lattice.orthorhombic(1, 2, 3)
         s1 = Structure(l, ['Ag', 'Si', 'Si'],
                        [[.7,.4,.5],[0,0,0.1],[0,0,0.2]])
-        
+
         l2 = Lattice.orthorhombic(1.01, 2.01, 3.01)
         s2 = Structure(l2, ['Si', 'Si', 'Ag'],
                        [[0,0.1,-0.95],[0,0.1,0],[-.7,.5,.375]])
         s2.make_supercell([[0,-1,0],[1,0,0],[0,0,1]])
-        
+
         result = sm.get_s2_like_s1(s1, s2)
 
         for x,y in zip(s1, result):
@@ -514,7 +520,7 @@ class StructureMatcherTest(unittest.TestCase):
                        [[0,0.1,0],[0,0.1,-0.95],[-.7,.5,.375]])
         result = sm.get_supercell_matrix(s1, s2)
         self.assertTrue((result == [[-1,-1,0],[0,0,-1],[0,1,0]]).all())
-        
+
         #test when the supercell is a subset
         sm = StructureMatcher(ltol=0.1, stol=0.3, angle_tol=2,
                               primitive_cell=False, scale=True,

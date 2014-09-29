@@ -320,6 +320,8 @@ need to be modified are shown):
 
    //Also delete the prefix settings for python, which typically links to the Mac python.
 
+    VTK_INSTALL_PYTHON_MODULE_DIR:PATH=/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages
+
 .. note:: Garbage collection on new Xcode
 
     If you are using a very new XCode (e.g. 5.1), please note that Cocoa garbage
@@ -328,12 +330,11 @@ need to be modified are shown):
     Cocoa garbage collection, but was configured to built with support for it on.
     You can simply remove the -fobjc-gc flag from VTK_REQUIRED_OBJCXX_FLAGS.
 
-
 After the CMakeCache.txt file is generated, type:
 
 ::
 
-	make -j 2
+	make -j 4
 	sudo make install
 
 With any luck, you should have vtk with the necessary python wrappers installed.

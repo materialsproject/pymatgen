@@ -1,9 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals, print_function
+
 """
 This module implements plotter for DOS and band structure.
 """
 
-from __future__ import division
-from __future__ import print_function
 from six.moves import zip
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier"

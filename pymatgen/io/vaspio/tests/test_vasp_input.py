@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Created on Jul 16, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -14,7 +17,9 @@ __date__ = "Jul 16, 2012"
 import unittest
 import os
 import numpy as np
+import warnings
 
+from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.physical_constants import BOLTZMANN_CONST
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Kpoints, Potcar, \
     PotcarSingle, VaspInput
@@ -26,7 +31,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
 
-class PoscarTest(unittest.TestCase):
+class PoscarTest(PymatgenTest):
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'POSCAR')
@@ -59,7 +64,9 @@ direct
 0.000000 0.000000 0.000000
 0.750000 0.500000 0.750000
 """
-        poscar = Poscar.from_string(poscar_string)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            poscar = Poscar.from_string(poscar_string)
         self.assertEqual(poscar.structure.composition, Composition("HHe"))
 
         #Vasp 4 tyle file with default names, i.e. no element symbol found.
@@ -191,17 +198,32 @@ direct
                                'Temperature instantiated incorrectly')
 
 
+    def test_write(self):
+        filepath = os.path.join(test_dir, 'POSCAR')
+        poscar = Poscar.from_file(filepath)
+        tempfname = "POSCAR.testing"
+        poscar.write_file(tempfname)
+        p = Poscar.from_file(tempfname)
+        self.assertArrayAlmostEqual(poscar.structure.lattice.abc,
+                                    p.structure.lattice.abc, 5)
+        os.remove(tempfname)
+
 class IncarTest(unittest.TestCase):
 
+    def setUp(self):
+        file_name = os.path.join(test_dir, 'INCAR')
+        self.incar = Incar.from_file(file_name)
+
+
     def test_init(self):
-        filepath = os.path.join(test_dir, 'INCAR')
-        incar = Incar.from_file(filepath)
+        incar = self.incar
         incar["LDAU"] = "T"
         self.assertEqual(incar["ALGO"], "Damped", "Wrong Algo")
         self.assertEqual(float(incar["EDIFF"]), 1e-4, "Wrong EDIFF")
         self.assertEqual(type(incar["LORBIT"]), int)
 
     def test_diff(self):
+        incar = self.incar
         filepath1 = os.path.join(test_dir, 'INCAR')
         incar1 = Incar.from_file(filepath1)
         filepath2 = os.path.join(test_dir, 'INCAR.2')
@@ -242,11 +264,16 @@ class IncarTest(unittest.TestCase):
                       'LORBIT': 11, 'SIGMA': 0.05}})
 
     def test_as_dict_and_from_dict(self):
-        file_name = os.path.join(test_dir, 'INCAR')
-        incar = Incar.from_file(file_name)
-        d = incar.as_dict()
+        d = self.incar.as_dict()
         incar2 = Incar.from_dict(d)
-        self.assertEqual(incar, incar2)
+        self.assertEqual(self.incar, incar2)
+
+    def test_write(self):
+        tempfname = "INCAR.testing"
+        self.incar.write_file(tempfname)
+        i = Incar.from_file(tempfname)
+        self.assertEqual(i, self.incar)
+        os.remove(tempfname)
 
 
 class KpointsTest(unittest.TestCase):
@@ -402,6 +429,13 @@ class PotcarTest(unittest.TestCase):
         d = self.potcar.as_dict()
         potcar = Potcar.from_dict(d)
         self.assertEqual(potcar.symbols, ["Fe", "P", "O"])
+
+    def test_write(self):
+        tempfname = "POTCAR.testing"
+        self.potcar.write_file(tempfname)
+        p = Potcar.from_file(tempfname)
+        self.assertEqual(p.symbols, self.potcar.symbols)
+        os.remove(tempfname)
 
 
 class VaspInputTest(unittest.TestCase):

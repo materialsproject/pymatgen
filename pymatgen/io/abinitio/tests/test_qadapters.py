@@ -1,4 +1,6 @@
-from __future__ import division, print_function
+# coding: utf-8
+
+from __future__ import unicode_literals, division, print_function
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio.qadapters import *
@@ -52,7 +54,7 @@ class QadapterTest(PymatgenTest):
                 new_script = new_qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path", 
                                                     stdin="STDIN", stdout="STDOUT", stderr="STDERR")
 
-                self.assertTrue(new_script == script)
+                self.assertEqual(new_script, script)
 
 
 if __name__ == '__main__':

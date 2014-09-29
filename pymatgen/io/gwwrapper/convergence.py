@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import unicode_literals, division, print_function
+
 """
 function for calculating the convergence of an x, y data set
 main api:
@@ -13,8 +17,6 @@ for tol > 0
 returns the x_value for which dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists
 for the best fit a gnuplot line is printed plotting the data, the function and the assymthotic value
 """
-
-from __future__ import division
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "
@@ -77,9 +79,9 @@ functions used in the fitting procedure, with initial guesses
 
 
 def print_and_raise_error(xs, ys, name):
-        print 'Index error in', name
-        print 'ys: ', ys
-        print 'xs: ', xs
+        print('Index error in', name)
+        print('ys: ', ys)
+        print('xs: ', xs)
         raise RuntimeError
 
 
@@ -343,9 +345,10 @@ def multi_curve_fit(xs, ys, verbose):
                 if fit_results[f]['measure'] <= best[1]:
                     best = f, fit_results[f]['measure']
             if verbose:
-                print str(function), m
+                print(str(function), m)
         except RuntimeError:
-            print 'no fit found for ', function
+            print('no fit found for ', function)
+
     return fit_results[best[0]]['popt'], fit_results[best[0]]['pcov'], best
 
 
@@ -397,14 +400,14 @@ def print_plot_line(function, popt, xs, ys, name, tol=0.05, extra=''):
     elif function is simple_5reciprocal:
         line += "%s + %s / x**0.5" % (popt[0], popt[1])
     else:
-        print function, ' no plot '
-    f = open('plot-fits', mode='a')
-    f.write('pause -1 \n')
-    f.write('set title "' + name + ' - ' + extra + '"\n')
-    f.write("set output '" + name + '-' + idp + ".gif'" + '\n')
-    f.write("set yrange [" + str(popt[0] - 5 * tol) + ':' + str(popt[0] + 5 * tol)+']\n')
-    f.write(line + '\n')
-    f.close()
+        print(function, ' no plot ')
+
+    with open('plot-fits', mode='a') as f:
+        f.write('pause -1 \n')
+        f.write('set title "' + name + ' - ' + extra + '"\n')
+        f.write("set output '" + name + '-' + idp + ".gif'" + '\n')
+        f.write("set yrange [" + str(popt[0] - 5 * tol) + ':' + str(popt[0] + 5 * tol)+']\n')
+        f.write(line + '\n')
 
 
 def test_conv(xs, ys, name, tol=0.0001, extra='', verbose=False, mode='extra'):
@@ -427,27 +430,27 @@ def test_conv(xs, ys, name, tol=0.0001, extra='', verbose=False, mode='extra'):
                 elif mode == 'extra_noise':
                     popt, pcov, func = multi_reciprocal_extra(xs, ys, noise=True)
                 else:
-                    print 'nknown mode for test conv'
-                    raise NotImplementedError
+                    raise NotImplementedError('nknown mode for test conv')
                 if func[1] > abs(tol):
-                    print 'warning function ', func[0], ' as the best fit but not a good fit: ', func[1]
+                    print('warning function ', func[0], ' as the best fit but not a good fit: ', func[1])
                 # todo print this to file via a method in helper, as dict
-                f = open(name+'.fitdat', mode='a')
-                f.write('{')
-                f.write('"popt": ' + str(popt) + ', ')
-                f.write('"pcov": ' + str(pcov) + ', ')
-                f.write('"data": [')
-                for n in range(0, len(ys), 1):
-                    f.write('[' + str(xs[n]) + ' ' + str(ys[n]) + ']')
-                f.write(']}\n')
-                f.close()
+                with open(name+'.fitdat', mode='a') as f:
+                    f.write('{')
+                    f.write('"popt": ' + str(popt) + ', ')
+                    f.write('"pcov": ' + str(pcov) + ', ')
+                    f.write('"data": [')
+                    for n in range(0, len(ys), 1):
+                        f.write('[' + str(xs[n]) + ' ' + str(ys[n]) + ']')
+                    f.write(']}\n')
+
                 print_plot_line(func[0], popt, xs, ys, name, tol=tol, extra=extra)
+
         except ImportError:
             popt, pcov = None, None
         for n in range(0, len(ds), 1):
             if verbose:
-                print n, ys[n]
-                print ys
+                print(n, ys[n])
+                print(ys)
             if tol < 0:
                 if popt[0] is not None:
                     test = abs(popt[0] - ys[n])
@@ -456,10 +459,10 @@ def test_conv(xs, ys, name, tol=0.0001, extra='', verbose=False, mode='extra'):
             else:
                 test = abs(ds[n])
             if verbose:
-                print test
+                print(test)
             if test < abs(tol):
                 if verbose:
-                    print 'converged'
+                    print('converged')
                 conv = True
                 if xs[n] < x_value:
                     x_value = xs[n]
@@ -467,7 +470,7 @@ def test_conv(xs, ys, name, tol=0.0001, extra='', verbose=False, mode='extra'):
                     n_value = n
             else:
                 if verbose:
-                    print 'not converged'
+                    print('not converged')
                 conv = False
                 x_value = float('inf')
         if n_value is None:

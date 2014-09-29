@@ -1,10 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module defines the classes relating to 3D lattices.
 """
 
-from __future__ import division
-from six.moves import map
-from six.moves import zip
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -16,6 +17,8 @@ __date__ = "Sep 23, 2011"
 
 import math
 import itertools
+
+from six.moves import map, zip
 
 import numpy as np
 from numpy.linalg import inv
@@ -43,12 +46,12 @@ class Lattice(PMGSONable):
             matrix: Sequence of numbers in any form. Examples of acceptable
                 input.
                 i) An actual numpy array.
-                ii) [[1, 0, 0],[0, 1, 0], [0, 0, 1]]
+                ii) [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
                 iii) [1, 0, 0 , 0, 1, 0, 0, 0, 1]
                 iv) (1, 0, 0, 0, 1, 0, 0, 0, 1)
                 Each row should correspond to a lattice vector.
-                E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a lattice with
-                lattice vectors [10,0,0], [20,10,0] and [0,0,30].
+                E.g., [[10, 0, 0], [20, 10, 0], [0, 0, 30]] specifies a lattice
+                with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].
         """
         m = np.array(matrix, dtype=np.float64).reshape((3, 3))
         lengths = np.sqrt(np.sum(m ** 2, axis=1))
@@ -77,12 +80,18 @@ class Lattice(PMGSONable):
 
     @property
     def inv_matrix(self):
+        """
+        Inverse of lattice matrix.
+        """
         if self._inv_matrix is None:
             self._inv_matrix = inv(self._matrix)
         return self._inv_matrix
 
     @property
     def metric_tensor(self):
+        """
+        The metric tensor of the lattice.
+        """
         if self._metric_tensor is None:
             self._metric_tensor = np.dot(self._matrix, self._matrix.T)
         return self._metric_tensor
@@ -104,7 +113,7 @@ class Lattice(PMGSONable):
         Returns the fractional coordinates given cartesian coordinates.
 
         Args:
-            cartesian_coords (3x1 array): Cartesian coords.
+            cart_coords (3x1 array): Cartesian coords.
 
         Returns:
             Fractional coordinates.
@@ -354,13 +363,12 @@ class Lattice(PMGSONable):
         return Lattice(self.reciprocal_lattice.matrix / (2 * np.pi))
 
     def __repr__(self):
-        f = lambda x: "%0.6f" % x
-        outs = ["Lattice", "    abc : " + " ".join(map(f, self._lengths)),
-                " angles : " + " ".join(map(f, self._angles)),
-                " volume : %0.4f" % self.volume,
-                "      A : " + " ".join(map(f, self._matrix[0])),
-                "      B : " + " ".join(map(f, self._matrix[1])),
-                "      C : " + " ".join(map(f, self._matrix[2]))]
+        outs = ["Lattice", "    abc : " + " ".join(map(repr, self._lengths)),
+                " angles : " + " ".join(map(repr, self._angles)),
+                " volume : " + repr(self.volume),
+                "      A : " + " ".join(map(repr, self._matrix[0])),
+                "      B : " + " ".join(map(repr, self._matrix[1])),
+                "      C : " + " ".join(map(repr, self._matrix[2]))]
         return "\n".join(outs)
 
     def __eq__(self, other):
@@ -370,7 +378,7 @@ class Lattice(PMGSONable):
         """
         if other is None:
             return False
-        return np.allclose(self._matrix, other._matrix)
+        return np.allclose(self.matrix, other.matrix)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -489,63 +497,6 @@ class Lattice(PMGSONable):
         """
         for x in self.find_all_mappings(other_lattice, ltol, atol):
             return x
-
-    def get_most_compact_basis_on_lattice(self):
-        """
-        This method returns the alternative basis corresponding to the shortest
-        3 linearly independent translational operations permitted.
-        This tends to create larger angles for every elongated cells and is
-        beneficial for viewing crystal structure (especially when they are
-        Niggli cells).
-        """
-        matrix = self.matrix
-        a = matrix[0]
-        b = matrix[1]
-        c = matrix[2]
-        while True:
-            anychange = False
-            # take care of c
-            if dot(a, b) > 0:
-                diffvector = a - b
-            else:
-                diffvector = a + b
-            diffnorm = np.linalg.norm(diffvector)
-            if diffnorm < np.linalg.norm(a) or\
-                    diffnorm < np.linalg.norm(b):
-                if np.linalg.norm(a) < np.linalg.norm(b):
-                    b = diffvector
-                else:
-                    a = diffvector
-                anychange = True
-                # take care of b
-            if dot(a, c) > 0:
-                diffvector = a - c
-            else:
-                diffvector = a + c
-            diffnorm = np.linalg.norm(diffvector)
-            if diffnorm < np.linalg.norm(a) or\
-                    diffnorm < np.linalg.norm(c):
-                if np.linalg.norm(a) < np.linalg.norm(c):
-                    c = diffvector
-                else:
-                    a = diffvector
-                anychange = True
-                # take care of a
-            if dot(c, b) > 0:
-                diffvector = c - b
-            else:
-                diffvector = c + b
-            diffnorm = np.linalg.norm(diffvector)
-            if diffnorm < np.linalg.norm(c) or\
-                    diffnorm < np.linalg.norm(b):
-                if np.linalg.norm(c) < np.linalg.norm(b):
-                    b = diffvector
-                else:
-                    c = diffvector
-                anychange = True
-            if anychange:
-                break
-        return Lattice([a, b, c])
 
     def get_lll_reduced_lattice(self, delta=0.75):
         """
@@ -975,3 +926,56 @@ class Lattice(PMGSONable):
         return (len(right_angles) == 2 and len(hex_angles) == 1
                 and abs(lengths[right_angles[0]] -
                         lengths[right_angles[1]]) < hex_length_tol)
+
+    def get_distance_and_image(self, frac_coords1, frac_coords2, jimage=None):
+        """
+        Gets distance between two frac_coords assuming periodic boundary
+        conditions. If the index jimage is not specified it selects the j
+        image nearest to the i atom and returns the distance and jimage
+        indices in terms of lattice vector translations. If the index jimage
+        is specified it returns the distance between the frac_coords1 and
+        the specified jimage of frac_coords2, and the given jimage is also
+        returned.
+
+        Args:
+            fcoords1 (3x1 array): Reference fcoords to get distance from.
+            fcoords2 (3x1 array): fcoords to get distance from.
+            jimage (3x1 array): Specific periodic image in terms of
+                lattice translations, e.g., [1,0,0] implies to take periodic
+                image that is one a-lattice vector away. If jimage == None,
+                the image that is nearest to the site is found.
+
+        Returns:
+            (distance, jimage): distance and periodic lattice translations
+            of the other site for which the distance applies. This means that
+            the distance between frac_coords1 and (jimage + frac_coords2) is
+            equal to distance.
+        """
+        if jimage is None:
+            #The following code is heavily vectorized to maximize speed.
+            #Get the image adjustment necessary to bring coords to unit_cell.
+            adj1 = np.floor(frac_coords1)
+            adj2 = np.floor(frac_coords2)
+            #Shift coords to unitcell
+            coord1 = frac_coords1 - adj1
+            coord2 = frac_coords2 - adj2
+            # Generate set of images required for testing.
+            # This is a cheat to create an 8x3 array of all length 3
+            # combinations of 0,1
+            test_set = np.unpackbits(np.array([5, 57, 119],
+                                              dtype=np.uint8)).reshape(8, 3)
+            images = np.copysign(test_set, coord1 - coord2)
+            # Create tiled cartesian coords for computing distances.
+            vec = np.tile(coord2 - coord1, (8, 1)) + images
+            vec = self.get_cartesian_coords(vec)
+            # Compute distances manually.
+            dist = np.sqrt(np.sum(vec ** 2, 1)).tolist()
+            # Return the minimum distance and the adjusted image corresponding
+            # to the min distance.
+            mindist = min(dist)
+            ind = dist.index(mindist)
+            return mindist, adj1 - adj2 + images[ind]
+
+        mapped_vec = self.get_cartesian_coords(jimage + frac_coords2
+                                               - frac_coords1)
+        return np.linalg.norm(mapped_vec), jimage

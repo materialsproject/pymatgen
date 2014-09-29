@@ -1,6 +1,8 @@
 import glob
 import os
 import subprocess
+from io import open
+import sys
 
 from ez_setup import use_setuptools
 use_setuptools()
@@ -32,11 +34,13 @@ def get_spglib_ext():
     spgsrcdir = os.path.join(spglibdir, "src")
     include_dirs = [spgsrcdir]
     sources = glob.glob(os.path.join(spgsrcdir, "*.c"))
+    c_opt = [] if sys.version_info.major < 3 else [
+        "-Wno-error=declaration-after-statement"]
     return Extension(
         "pymatgen._spglib",
         include_dirs=include_dirs + get_numpy_include_dirs(),
         sources=[os.path.join(spglibdir, "_spglib.c")] + sources,
-        extra_compile_args=["-Wno-error=declaration-after-statement"])
+        extra_compile_args=c_opt)
 
 with open("README.rst") as f:
     long_desc = f.read()
@@ -46,15 +50,15 @@ with open("README.rst") as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="3.0.0",
-    install_requires=["numpy>=1.8", "pyhull>=1.5.2",
+    version="3.0.4",
+    install_requires=["numpy>=1.8", "pyhull>=1.5.3",
                       "requests>=2.3.0", "pybtex>=0.18", "pyyaml>=3.11",
-                      "monty>=0.4.2", "six>=1.7.3"],
+                      "monty>=0.5.5", "six>=1.7.3"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
                     "plotting": ["matplotlib>=1.1"],
                     "ase_adaptor": ["ase>=3.3"],
                     "vis": ["vtk>=6.0.0"],
-                    "abinitio": ["pydispatcher>=2.0", "apscheduler>=3.0.0"]},
+                    "abinitio": ["pydispatcher>=2.0.3", "apscheduler==2.1.0"]},
     package_data={"pymatgen.core": ["*.json"],
                   "pymatgen.analysis": ["*.yaml"],
                   "pymatgen.io": ["*.yaml"],
@@ -64,7 +68,8 @@ setup(
                   "pymatgen.vis": ["ElementColorSchemes.yaml"],
                   "pymatgen.command_line": ["OxideTersoffPotentials"],
                   "pymatgen.analysis.defects": ["*.json"],
-                  "pymatgen.analysis.diffraction": ["*.json"]},
+                  "pymatgen.analysis.diffraction": ["*.json"],
+                  "pymatgen.util": ["structures/*.json"]},
     author="Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier,"
     "William Davidson Richards, Stephen Dacek, Dan Gunter, Shreyas Cholia, "
     "Matteo Giantomassi, Vincent L Chevrier, Rickard Armiento",
@@ -88,7 +93,6 @@ setup(
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.2",
         "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Development Status :: 4 - Beta",

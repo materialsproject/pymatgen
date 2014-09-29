@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Module implementing an XYZ file object class.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -96,5 +99,5 @@ class XYZ(object):
         Args:
             filename: File name of output file.
         """
-        with zopen(filename, "w") as f:
+        with zopen(filename, "wt") as f:
             f.write(self.__str__())

@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module define the various drones used to assimilate data.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -19,6 +22,9 @@ import logging
 import fnmatch
 import json
 
+import six
+from six.moves import zip
+
 from monty.io import zopen
 from pymatgen.io.vaspio.vasp_input import Incar, Potcar, Poscar
 from pymatgen.io.vaspio.vasp_output import Vasprun, Oszicar
@@ -30,7 +36,7 @@ from pymatgen.serializers.json_coders import PMGSONable
 logger = logging.getLogger(__name__)
 
 
-class AbstractDrone(PMGSONable):
+class AbstractDrone(six.with_metaclass(abc.ABCMeta, PMGSONable)):
     """
     Abstract drone class that defines the various methods that must be
     implemented by drones. Because of the quirky nature of Python"s
@@ -39,7 +45,6 @@ class AbstractDrone(PMGSONable):
     PMGSONable. All drones must also implement the standard PMGSONable as_dict() and
     from_dict API.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def assimilate(self, path):

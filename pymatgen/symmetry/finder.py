@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 An interface to the excellent spglib library by Atsushi Togo
 (http://spglib.sourceforge.net/) for pymatgen.
@@ -9,7 +13,6 @@ v2.0 - Updated for spglib 1.6.
     Not all spglib functions are implemented.
 """
 
-from __future__ import division
 from six.moves import map
 from six.moves import zip
 

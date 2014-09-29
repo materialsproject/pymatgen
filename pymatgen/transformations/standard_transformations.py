@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module defines standard transformations which transforms a structure into
 another structure. Standard transformations operate in a structure-wide manner,
@@ -5,7 +9,6 @@ rather than site-specific manner.
 All transformations should inherit the AbstractTransformation ABC.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"

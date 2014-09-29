@@ -1,27 +1,28 @@
+# coding: utf-8
 """
 Low-level objects providing an abstraction for the objects involved in the
 calculation.
 """
-from __future__ import division, print_function
+from __future__ import unicode_literals, division, print_function
 
 import collections
 import os
 import abc
+import six
 import numpy as np
 import pymatgen.core.units as units
 
 from pprint import pformat
 from monty.design_patterns import singleton
-from pymatgen.util.string_utils import is_string
-from pymatgen.core.design_patterns import Enum, AttrDict
+from monty.string import is_string
+from monty.collections import AttrDict
+from pymatgen.core.design_patterns import Enum
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.io.smartio import read_structure
-
 from .netcdf import structure_from_etsf_file
-import six
 
 
 def contract(s):
@@ -276,10 +277,6 @@ class Electrons(AbivarAble):
         self.charge = charge
         self.algorithm = algorithm
 
-        # FIXME
-        #if nband is None:
-        #    self.fband = 4
-
     @property
     def nsppol(self):
         return self.spin_mode.nsppol
@@ -428,8 +425,6 @@ class AbiStructure(Structure, AbivarAble):
         typat = np.zeros(natom, np.int)
         for (atm_idx, site) in enumerate(self):
             typat[atm_idx] = types_of_specie.index(site.specie) + 1
-
-        from pymatgen.io.gwwrapper.helpers import refine_structure
 
         rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
         xred = np.reshape([site.frac_coords for site in self], (-1,3))

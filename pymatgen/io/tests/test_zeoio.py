@@ -1,4 +1,6 @@
-from __future__ import division
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 __author__ = "Bharat Medasani"
 __copyright__ = "Copyright 2013, The Materials Project"
