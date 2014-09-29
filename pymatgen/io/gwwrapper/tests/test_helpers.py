@@ -49,7 +49,8 @@ class GWTestHelpers(PymatgenTest):
         f.write(str(vars_out))
         f.close()
         vars_in = read_extra_abivars()
-        self.assertEqual(vars_out,vars_in)
+        self.assertEqual(vars_out, vars_in)
+        os.remove('extra_abivars')
 
     def test_expand_test(self):
         spec = get_spec('GW')
