@@ -1217,6 +1217,21 @@ class MOABAdapter(AbstractQueueAdapter):
         logger.critical(err_msg)
 
         return None
+    
+    def exclude_nodes(self, nodes):
+        raise NotImplementedError("exclude_nodes")
+                                                                         
+    def increase_mem(self, factor):
+        raise NotImplementedError("increase_mem")
+                                                                         
+    def increase_time(self, factor):
+        raise NotImplementedError("increase_time")
+
+    def increase_cpus(self, factor):
+        raise NotImplementedError("increase_cpus")
+        
+    def set_mem_per_cpu(self, factor):
+        raise NotImplementedError("set_mem_per_cpu")
 
 class QScriptTemplate(string.Template):
     delimiter = '$$'
