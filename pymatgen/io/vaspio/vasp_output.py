@@ -920,6 +920,13 @@ class Outcar(object):
     def __init__(self, filename):
         self.filename = filename
         self.is_stopped = False
+        cores = 0
+        with open(filename, "r") as f:
+            for line in f.readlines():
+                if "running" in line:
+                    cores = line.split()[2]
+                    break
+
         with zopen(filename, "r") as f:
             read_charge_mag = False
             charge = []
@@ -962,6 +969,7 @@ class Outcar(object):
                             data.append(toks)
                 elif clean.find("soft stop encountered!  aborting job") != -1:
                     self.is_stopped = True
+                    print clean, cores
                 else:
                     if time_patt.search(line):
                         tok = line.strip().split(":")
@@ -985,6 +993,8 @@ class Outcar(object):
                 if all([nelect, total_mag is not None, efermi is not None,
                         run_stats]):
                     break
+
+            run_stats.update({'cores': cores})
 
             self.run_stats = run_stats
             self.magnetization = tuple(mag)
