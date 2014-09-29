@@ -1280,16 +1280,16 @@ class Outcar(PMGSONable):
         natom = len(self.charge)
         cl = [defaultdict(list) for i in range(natom)]
 
-        foutcar = zopen(self.filename, "rt")
-        line = foutcar.readline()
-        while line != "":
+        with zopen(self.filename, "rt") as foutcar:
             line = foutcar.readline()
-            if "the core state eigen" in line:
-                for iat in range(natom):
-                    line = foutcar.readline()
-                    data = line.split()[1:]
-                    for i in range(0, len(data), 2):
-                        cl[iat][data[i]].append(float(data[i+1]))
+            while line != "":
+                line = foutcar.readline()
+                if "the core state eigen" in line:
+                    for iat in range(natom):
+                        line = foutcar.readline()
+                        data = line.split()[1:]
+                        for i in range(0, len(data), 2):
+                            cl[iat][data[i]].append(float(data[i+1]))
         return cl
 
     def as_dict(self):
