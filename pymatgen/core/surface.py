@@ -1,7 +1,7 @@
 # !/usr/bin/env python
 
 """
-This moule implements representations of slabs and surfaces.
+This module implements representations of slabs and surfaces.
 """
 
 from __future__ import division
@@ -34,6 +34,11 @@ def lcm(numbers):
     return reduce(lcm, numbers, 1)
 
 def organize(struct):
+    """Takes in a structure (ie. a list of sites) and organizes the list
+    based on the c coordinate from sites closest to c=0 to farthest. Then
+    it returns this organized structure (list of sites) along with a list
+    of organized coordinates along the c direction and an organized list
+    of species corresponding the the site"""
     el = struct.species
     org_coords = struct.frac_coords.tolist()
     new_coord, b = [], []
@@ -84,6 +89,10 @@ class Slab(Structure):
     .. attribute:: slab_list
 
         List of structures with all possible different surfaces
+        
+    .. attribute:: unit_cell
+        The unit cell of the structure relative to the transformation based
+        on the given miller index
     """
 
     def __init__(self, structure, miller_index, min_slab_size,
@@ -222,6 +231,8 @@ class Slab(Structure):
                 break
             t = a
 
+            print(term_site)
+
             for site in term_slab:
                 if term_site < np.dot(site.coords, normal) <= nlayers_slab * dist +\
                         term_site:
@@ -267,6 +278,7 @@ class Slab(Structure):
         self.scale_factor = slab_scale_factor
         self.normal = normal
         self.true_vac_size = nlayers_vac*dist
+        self.unit_cell = single.copy()
 
         super(Slab, self).__init__(
             slab.lattice, slab.species_and_occu,
