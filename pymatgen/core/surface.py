@@ -89,7 +89,7 @@ class Slab(Structure):
     .. attribute:: slab_list
 
         List of structures with all possible different surfaces
-        
+
     .. attribute:: unit_cell
         The unit cell of the structure relative to the transformation based
         on the given miller index
@@ -170,7 +170,6 @@ class Slab(Structure):
         nlayers_slab = int(math.ceil(min_slab_size / dist))
         nlayers_vac = int(math.ceil(min_vacuum_size / dist))
         nlayers = nlayers_slab + nlayers_vac
-
         slab = structure.copy()
         single_slab = copy.deepcopy(slab_scale_factor)
         slab_scale_factor.append(eye[latt_index] * nlayers)
@@ -196,6 +195,7 @@ class Slab(Structure):
             gg+=1
             if i == len(l[0]) - 1:
                 term_index.append(i)
+                break
             else:
                 if tracker_index[i] != tracker_index[i+1]:
                     term_index.append(i)
@@ -230,8 +230,6 @@ class Slab(Structure):
             if a == len(term_slab)-1:
                 break
             t = a
-
-            print(term_site)
 
             for site in term_slab:
                 if term_site < np.dot(site.coords, normal) <= nlayers_slab * dist +\
