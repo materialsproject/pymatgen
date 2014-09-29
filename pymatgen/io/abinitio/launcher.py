@@ -607,6 +607,7 @@ class PyFlowScheduler(object):
 
         # check stattus
         flow.check_status()
+        flow.show_status()
 
         # fix problems
         # Try to restart the unconverged tasks
