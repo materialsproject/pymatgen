@@ -519,7 +519,7 @@ class GWSpecs(AbstractAbinitioSpec):
             entry.update({'conv_res': data.conv_res,
                           'spec': self.to_dict(),
                           'extra_vars': extra,
-                          'structure': structure.to_dict,
+                          'structure': structure.as_dict(),
                           'gw_results': con_dat,
                           'results_file': results_file,
                           'data_file': data_file})
