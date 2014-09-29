@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 OpenBabel interface module, which opens up access to the hundreds of file
 formats supported by OpenBabel. Requires openbabel with python bindings to be
@@ -5,7 +9,6 @@ installed. Please consult the
 `openbabel documentation <http://openbabel.org/wiki/Main_Page>`_.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -123,7 +126,7 @@ class BabelMolAdaptor(object):
             file_format: String specifying any OpenBabel supported formats.
         """
         mol = pb.Molecule(self._obmol)
-        mol.write(file_format, filename, overwrite=True)
+        return mol.write(file_format, filename, overwrite=True)
 
     @staticmethod
     def from_file(filename, file_format="xyz"):
@@ -137,7 +140,7 @@ class BabelMolAdaptor(object):
         Returns:
             BabelMolAdaptor object
         """
-        mols = list(pb.readfile(file_format, filename))
+        mols = list(pb.readfile(str(file_format), str(filename)))
         return BabelMolAdaptor(mols[0].OBMol)
 
     @staticmethod
@@ -153,5 +156,5 @@ class BabelMolAdaptor(object):
         Returns:
             BabelMolAdaptor object
         """
-        mols = pb.readstring(file_format, string_data)
+        mols = pb.readstring(str(file_format), str(string_data))
         return BabelMolAdaptor(mols.OBMol)

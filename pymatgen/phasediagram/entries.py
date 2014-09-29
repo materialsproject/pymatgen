@@ -1,9 +1,12 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module defines PDEntry, which wraps information (composition and energy)
 necessary to create phase diagrams.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -22,6 +25,7 @@ from io import open
 from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.serializers.json_coders import PMGSONable
+from monty.string import unicode2str
 
 
 class PDEntry(PMGSONable):
@@ -174,8 +178,9 @@ class PDEntryIO(object):
         for entry in entries:
             elements.update(entry.composition.elements)
         elements = sorted(list(elements), key=lambda a: a.X)
-        writer = csv.writer(open(filename, "wb"), delimiter=",",
-                            quotechar="\"", quoting=csv.QUOTE_MINIMAL)
+        writer = csv.writer(open(filename, "wb"), delimiter=unicode2str(","),
+                            quotechar=unicode2str("\""),
+                            quoting=csv.QUOTE_MINIMAL)
         writer.writerow(["Name"] + elements + ["Energy"])
         for entry in entries:
             row = [entry.name if not latexify_names
@@ -196,8 +201,9 @@ class PDEntryIO(object):
             List of Elements, List of PDEntries
         """
         with open(filename, "r", encoding="utf-8") as f:
-            reader = csv.reader(f, delimiter=",",
-                                quotechar="\"", quoting=csv.QUOTE_MINIMAL)
+            reader = csv.reader(f, delimiter=unicode2str(","),
+                                quotechar=unicode2str("\""),
+                                quoting=csv.QUOTE_MINIMAL)
             entries = list()
             header_read = False
             for row in reader:

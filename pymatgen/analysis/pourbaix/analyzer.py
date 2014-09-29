@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import unicode_literals
+
 """
 Class for analyzing Pourbaix Diagrams. Similar to PDAnalyzer
 """

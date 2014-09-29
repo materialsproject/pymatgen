@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 .. versionadded:: 1.9.0
 
@@ -27,7 +31,6 @@ objects are supported as well.
 
 """
 
-from __future__ import division
 import six
 
 __author__ = "Shyue Ping Ong"
@@ -99,7 +102,7 @@ def pmg_load(filename, **kwargs):
         dicts or otherwise nested pymatgen objects that support the as_dict()
         and from_dict PMGSONable protocol.
     """
-    return json.load(zopen(filename), cls=MontyDecoder, **kwargs)
+    return json.load(zopen(filename, "rt"), cls=MontyDecoder, **kwargs)
 
 
 def pmg_dump(obj, filename, **kwargs):
@@ -111,7 +114,7 @@ def pmg_dump(obj, filename, **kwargs):
     Args:
         obj (object): Object to dump.
         filename (str): Filename of file to open. Can be gzipped or bzipped.
-        \*\*kwargs: Any of the keyword arguments supported by the json.load
+        \*\*kwargs: Any of the keyword arguments supported by the json.dump
             method.
     """
     return json.dump(obj, zopen(filename, "w"), cls=MontyEncoder, **kwargs)

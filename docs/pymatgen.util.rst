@@ -18,26 +18,10 @@ pymatgen.util.coord_utils module
     :undoc-members:
     :show-inheritance:
 
-pymatgen.util.decorators module
--------------------------------
-
-.. automodule:: pymatgen.util.decorators
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 pymatgen.util.io_utils module
 -----------------------------
 
 .. automodule:: pymatgen.util.io_utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.util.lazy module
--------------------------
-
-.. automodule:: pymatgen.util.lazy
     :members:
     :undoc-members:
     :show-inheritance:

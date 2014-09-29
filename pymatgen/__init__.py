@@ -1,10 +1,12 @@
+from __future__ import unicode_literals
+
 __author__ = ", ".join(["Shyue Ping Ong", "Anubhav Jain", "Geoffroy Hautier",
                         "William Davidson Richard", "Stephen Dacek",
                         "Sai Jayaraman", "Michael Kocher", "Dan Gunter",
                         "Shreyas Cholia", "Vincent L Chevrier",
                         "Rickard Armiento"])
-__date__ = "Sep 10 2014"
-__version__ = "3.0.0"
+__date__ = "Sep 23 2014"
+__version__ = "3.0.4"
 
 #Useful aliases for commonly used objects and modules.
 

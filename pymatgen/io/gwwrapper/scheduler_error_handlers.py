@@ -1,8 +1,10 @@
+# coding: utf-8
+
+from __future__ import unicode_literals, division, print_function
+
 """
 Error handlers for errors originating from the Submission systems.
 """
-
-from __future__ import division
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "

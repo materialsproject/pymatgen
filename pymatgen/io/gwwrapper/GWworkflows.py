@@ -1,8 +1,10 @@
-"""
+# coding: utf-8
+
+from __future__ import unicode_literals, division, print_function
 
 """
 
-from __future__ import division
+"""
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "
@@ -76,7 +78,7 @@ class VaspGWFWWorkFlow():
         from fireworks.core.firework import FireWork
         tasks = []
         job = parameters['job']
-        print 'adding job ' + job + ' to the workslist as ', self.fw_id
+        print('adding job ' + job + ' to the workslist as ', self.fw_id)
         if job == 'prep':
             launch_spec = {'task_type': 'Preparation job', '_category': 'cluster', '_queueadapter': 'qadapterdict'}
             task = VaspGWInputTask(parameters)
@@ -91,7 +93,7 @@ class VaspGWFWWorkFlow():
             self.connections[self.fw_id] = []
             self.prep_id = self.fw_id
             self.fw_id += 1
-            print self.connections
+            print(self.connections)
         elif job in ['G0W0', 'GW0', 'scGW0']:
             launch_spec = {'task_type': 'GW job', '_category': 'cluster', '_queueadapter': 'qadapterdict'}
             task = VaspGWInputTask(parameters)
@@ -111,7 +113,7 @@ class VaspGWFWWorkFlow():
             self.fw_id += 1
         else:
             fw = []
-            print 'unspecified job, this should have been captured before !!'
+            print('unspecified job, this should have been captured before !!')
             exit()
 
         self.work_list.append(fw)
@@ -119,7 +121,7 @@ class VaspGWFWWorkFlow():
     def create(self):
         from fireworks.core.firework import Workflow
         self.wf = Workflow(self.work_list, self.connections, name='VaspGWFWWorkFlow', created_on=now())
-        print 'creating workflow'
+        print('creating workflow')
 
     def add_to_db(self):
         from fireworks.core.launchpad import LaunchPad
@@ -271,15 +273,15 @@ class SingleAbinitGWWorkFlow():
         if not all_done:
             if (self.spec['test'] or self.spec['converge']) and not self.all_converged:
                 if self.spec['test']:
-                    print '| setting test calculation'
+                    print('| setting test calculation')
                     tests = SingleAbinitGWWorkFlow(self.structure, self.spec).tests
                     response_models = []
                 else:
                     if grid == 0:
-                        print '| setting convergence calculations for grid 0'
+                        print('| setting convergence calculations for grid 0')
                         tests = SingleAbinitGWWorkFlow(self.structure, self.spec).convs
                     else:
-                        print '| extending grid'
+                        print('| extending grid')
                         tests = expand_tests(SingleAbinitGWWorkFlow(self.structure, self.spec).convs, grid)
                 ecuteps = []
                 nscf_nband = []
@@ -302,7 +304,7 @@ class SingleAbinitGWWorkFlow():
                             if test == 'response_model':
                                 response_models.append(value)
             elif self.all_converged:
-                print '| setting up for testing the converged values at the high kp grid '
+                print('| setting up for testing the converged values at the high kp grid ')
                 # in this case a convergence study has already been performed.
                 # The resulting parameters are passed as option
                 ecuteps = [self.option['ecuteps'], self.option['ecuteps'] + self.convs['ecuteps']['test_range'][1] -
@@ -313,7 +315,7 @@ class SingleAbinitGWWorkFlow():
                 #    if option not in ['ecuteps', 'nscf_nband']:
                 #        extra_abivars.update({option + '_s': self.option[option]})
         else:
-            print '| all is done for this material'
+            print('| all is done for this material')
             return
 
         logger.info('ecuteps : ', ecuteps)

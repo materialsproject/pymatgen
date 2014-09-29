@@ -1,8 +1,10 @@
+# coding: utf-8
+
+from __future__ import unicode_literals, division, print_function
+
 """
 Script to parse bandstructure output
 """
-
-from __future__ import division
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "
@@ -31,15 +33,15 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 try:
     data = Vasprun('vasprun.xml', ionic_step_skip=1)
-    print data.converged
+    print(data.converged)
     bandstructure = data.get_band_structure('../IBZKPT')
-    print 'gap: ', bandstructure.get_band_gap()['energy'], ' direct : ', bandstructure.get_band_gap()['direct']
-    print 'cbm: ', bandstructure.get_cbm()['energy'], data.actual_kpoints[bandstructure.get_cbm()['kpoint_index'][0]]
-    print 'vbm: ', bandstructure.get_vbm()['energy'], data.actual_kpoints[bandstructure.get_vbm()['kpoint_index'][0]]
-    print 'gap: ', bandstructure.get_cbm()['energy'] - bandstructure.get_vbm()['energy']
-    print 'direct gap: ', bandstructure.get_direct_band_gap()
+    print('gap: ', bandstructure.get_band_gap()['energy'], ' direct : ', bandstructure.get_band_gap()['direct'])
+    print('cbm: ', bandstructure.get_cbm()['energy'], data.actual_kpoints[bandstructure.get_cbm()['kpoint_index'][0]])
+    print('vbm: ', bandstructure.get_vbm()['energy'], data.actual_kpoints[bandstructure.get_vbm()['kpoint_index'][0]])
+    print('gap: ', bandstructure.get_cbm()['energy'] - bandstructure.get_vbm()['energy'])
+    print('direct gap: ', bandstructure.get_direct_band_gap())
 except (IOError, OSError):
-    print 'no vasp output found'
+    print('no vasp output found')
 
 try:
     # Get the quasiparticle results from the SIGRES.nc database.
@@ -47,7 +49,7 @@ try:
     #sigma_file.plot_qps_vs_e0()
     qplist_spin = sigma_file.qplist_spin
 
-    print qplist_spin
+    print(qplist_spin)
 
     # Construct the scissors operator
     domains = [[-10, 6.1], [6.1, 18]]
@@ -87,4 +89,4 @@ try:
     plotter.plot(title="Silicon band structure", klabels=klabels)
 
 except (IOError, OSError):
-    print 'no abinit output found'
+    print('no abinit output found')

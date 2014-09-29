@@ -1,7 +1,8 @@
+# coding: utf-8
 """
 Abinit Flows
 """
-from __future__ import division, print_function
+from __future__ import unicode_literals, division, print_function
 
 import os
 import sys
@@ -9,20 +10,19 @@ import time
 import collections
 import warnings
 import shutil
-import cPickle as pickle
-from six.moves import map
+
+from six.moves import map, cPickle as pickle
+from monty.io import FileLock
+from pymatgen.util.string_utils import pprint_table
+from .tasks import Dependency, Status, Node, Task, ScfTask, PhononTask, TaskManager
+from .utils import Directory, Editor
+from .abiinspect import yaml_read_irred_perts
+from .workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow, QptdmWorkflow
 
 try:
     from pydispatch import dispatcher
 except ImportError:
     pass
-
-from pymatgen.util.io_utils import FileLock
-from pymatgen.util.string_utils import pprint_table, is_string
-from pymatgen.io.abinitio.tasks import Dependency, Status, Node, Task, ScfTask, PhononTask, TaskManager
-from pymatgen.io.abinitio.utils import Directory, Editor
-from pymatgen.io.abinitio.abiinspect import yaml_read_irred_perts
-from pymatgen.io.abinitio.workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow, QptdmWorkflow
 
 import logging
 logger = logging.getLogger(__name__)
@@ -106,6 +106,29 @@ class AbinitFlow(Node):
         #for task in self.iflat_tasks():
         #    slots[task] = {s: [] for s in work.S_ALL}
 
+    # This is needed for fireworks although Node.__str__ and __repr__ are much more readable.
+    #def __repr__(self):
+    #    return self.workdir
+
+    #def __str__(self):
+    #    return repr(self)
+
+    def as_dict(self, **kwargs):
+        """
+        JSON serialization, note that we only need to save 
+        a string with the working directory since the object will be 
+        reconstructed from the pickle file located in workdir
+        """
+        return {"workdir": self.workdir}
+
+    # This is needed for fireworks.
+    to_dict = as_dict
+
+    @classmethod
+    def from_dict(cls, d, **kwargs):
+        """Reconstruct the flow from the pickle file."""
+        return cls.pickle_load(d["workdir"], **kwargs)
+
     def set_workdir(self, workdir, chroot=False):
         """
         Set the working directory. Cannot be set more than once unless chroot is True
@@ -150,9 +173,9 @@ class AbinitFlow(Node):
                 err_msg = "Cannot find %s inside directory %s" % (cls.PICKLE_FNAME, filepath)
                 raise ValueError(err_msg)
 
-        #with FileLock(filepath) as lock:
-        with open(filepath, "rb") as fh:
-            flow = pickle.load(fh)
+        with FileLock(filepath):
+            with open(filepath, "rb") as fh:
+                flow = pickle.load(fh)
 
         # Check if versions match.
         if flow.VERSION != cls.VERSION:
@@ -281,7 +304,7 @@ class AbinitFlow(Node):
         self.set_workdir(new_workdir, chroot=True)
 
         for i, work in enumerate(self):
-            new_wdir = os.path.join(self.workdir,"w" + str(i))
+            new_wdir = os.path.join(self.workdir, "w" + str(i))
             work.chroot(new_wdir)
 
     def groupby_status(self):
@@ -352,8 +375,6 @@ class AbinitFlow(Node):
             }[op]
 
             # Accept Task.S_FLAG or string.
-            #if is_string(status):
-            #    status = getattr(Task, status)
             status = Status.as_status(status)
 
             for wi, work in enumerate(self):
@@ -405,12 +426,12 @@ class AbinitFlow(Node):
         """
         for task in self.iflat_tasks(status=Task.S_ABICRITICAL):
             #todo
-            if not task.fix_abicritical():
-                # task.reset_from_scratch()
-                # task.set_status(task.S_READY)
-            #else:
+            if task.fix_abicritical():
+                task.reset_from_scratch()
+                # task.set_status(Task.S_READY)
+            else:
                 info_msg = 'We encountered an abi critial envent that could not be fixed'
-                print(info_msg)
+                logger.warning(info_msg)
                 task.set_status(status=task.S_ERROR)
 
     def fix_queue_critical(self):
@@ -423,7 +444,7 @@ class AbinitFlow(Node):
         from pymatgen.io.gwwrapper.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
 
         for task in self.iflat_tasks(status=Task.S_QUEUECRITICAL):
-            print(task)
+            logger.info("Will try to fix task %s" % str(task))
 
             if not task.queue_errors:
                 # queue error but no errors detected, try to solve by increasing resources
@@ -437,7 +458,7 @@ class AbinitFlow(Node):
                     return False
             else:
                 for error in task.queue_errors:
-                    print('fixing :' + str(error))
+                    logger.info('fixing : %s' % str(error))
                     if isinstance(error, NodeFailureError):
                         # if the problematic node is know exclude it
                         if error.nodes is not None:
@@ -588,7 +609,7 @@ class AbinitFlow(Node):
             if lst:
                 files.extend(lst)
 
-        #print(files)
+        #logger.info("Will edit %d files: %s" % (len(files), str(files)))
         return Editor(editor=editor).edit_files(files)
 
     def cancel(self):
@@ -622,9 +643,9 @@ class AbinitFlow(Node):
 
         return num_cancelled
 
-	def rmtree(self, ignore_errors=False, onerror=None):
-		"""Remove workdir (same API as shtul.rmtree."""
-		shutil.rmtree(self.workdir, ignore_errors=ignore_errors, onerror=onerror)
+    def rmtree(self, ignore_errors=False, onerror=None):
+        """Remove workdir (same API as shutil.rmtree)."""
+        shutil.rmtree(self.workdir, ignore_errors=ignore_errors, onerror=onerror)
 
     def build(self, *args, **kwargs):
         """Make directories and files of the `Flow`."""
@@ -879,11 +900,53 @@ class AbinitFlow(Node):
 
         #self.show_receivers()
 
-    def show_receivers(self, sender=dispatcher.Any, signal=dispatcher.Any):
+    def show_receivers(self, sender=None, signal=None):
+        sender = sender if sender is not None else dispatcher.Any
+        signal = signal if signal is not None else dispatcher.Any
         print("*** live receivers ***")
         for rec in dispatcher.liveReceivers(dispatcher.getReceivers(sender, signal)):
             print("receiver -->", rec)
         print("*** end live receivers ***")
+
+    def rapidfire(self, check_status=False, **kwargs):
+        """
+        Use PyLauncher to submits tasks in rapidfire mode.
+        kwargs contains the options passed to the launcher.
+
+        Return the number of tasks submitted.
+        """
+        from .launcher import PyLauncher
+
+        if check_status:
+            self.check_status()
+
+        return PyLauncher(self, **kwargs).rapidfire()
+
+    def make_scheduler(self, **kwargs):
+        """
+        Build a return a scheduler to run the flow.
+
+        kwargs:
+            if empty we use the user configuration file.
+            if filepath in kwargs we init the scheduler from file.
+            else pass **kwargs to PyFlowScheduler.__init__
+        """
+        from .launcher import PyFlowScheduler
+
+        if not kwargs:
+            # User config if kwargs is empty
+            sched = PyFlowScheduler.from_user_config()
+        else:
+            # Use from_file if filepath if present, else call __init__
+            filepath = kwargs.pop("filepath", None)
+            if filepath is not None:
+                assert not kwargs
+                sched = PyFlowScheduler.from_file(filepath)
+            else:
+                sched = PyFlowScheduler.from_file(**kwargs)
+
+        sched.add_flow(self)
+        return sched
 
 
 class G0W0WithQptdmFlow(AbinitFlow):

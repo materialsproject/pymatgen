@@ -1,10 +1,13 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Created on Nov 10, 2012
 
 @author: shyue
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -18,7 +21,8 @@ import unittest
 
 
 from pymatgen.core.periodic_table import Element
-from pymatgen.core.composition import Composition, CompositionError
+from pymatgen.core.composition import Composition, CompositionError, \
+    ChemicalPotential
 import random
 
 
@@ -311,6 +315,43 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual(c1.num_atoms, 2)
         self.assertEqual(c1.element_composition, Composition())
         self.assertEqual(c1.average_electroneg, 1.31)
+
+
+class ChemicalPotentialTest(unittest.TestCase):
+
+    def test_init(self):
+        d = {'Fe': 1, Element('Fe'): 1}
+        self.assertRaises(ValueError, ChemicalPotential, d)
+        for k in ChemicalPotential(Fe=1).keys():
+            self.assertIsInstance(k, Element)
+
+    def test_math(self):
+        fepot = ChemicalPotential({'Fe': 1})
+        opot = ChemicalPotential({'O': 2.1})
+        pots = ChemicalPotential({'Fe': 1, 'O': 2.1})
+        potsx2 = ChemicalPotential({'Fe': 2, 'O': 4.2})
+        feo2 = Composition('FeO2')
+
+        # test get_energy()
+        self.assertAlmostEqual(pots.get_energy(feo2), 5.2)
+        self.assertAlmostEqual(fepot.get_energy(feo2, False), 1)
+        self.assertRaises(ValueError, fepot.get_energy, feo2)
+
+        # test multiplication
+        self.assertRaises(TypeError, lambda: (pots * pots))
+        self.assertDictEqual(pots * 2, potsx2)
+        self.assertDictEqual(2 * pots, potsx2)
+
+        # test division
+        self.assertDictEqual(potsx2 / 2, pots)
+        self.assertRaises(TypeError, lambda: (pots / pots))
+        self.assertRaises(TypeError, lambda: (pots / feo2))
+
+        # test add/subtract
+        self.assertDictEqual(pots + pots, potsx2)
+        self.assertDictEqual(potsx2 - pots, pots)
+        self.assertDictEqual(fepot + opot, pots)
+        self.assertDictEqual(fepot - opot, pots - opot - opot)
 
 
 if __name__ == "__main__":
