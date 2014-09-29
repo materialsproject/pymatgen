@@ -1,6 +1,6 @@
 # !/usr/bin/env python
 
-"""
+""" 
 This module implements representations of slabs and surfaces.
 """
 
