@@ -24,7 +24,7 @@ import os
 import numpy as np
 import json
 
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 #XRD wavelengths in angstroms
 WAVELENGTHS = {
@@ -177,7 +177,7 @@ class XRDCalculator(object):
             their multiplicities. d_hkl is the interplanar spacing.
         """
         if self.symprec:
-            finder = SymmetryFinder(structure, symprec=self.symprec)
+            finder = SpacegroupAnalyzer(structure, symprec=self.symprec)
             structure = finder.get_refined_structure()
 
         wavelength = self.wavelength

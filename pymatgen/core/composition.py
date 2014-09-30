@@ -3,7 +3,8 @@
 from __future__ import division, unicode_literals
 
 """
-This module implements a Composition class to represent compositions.
+This module implements a Composition class to represent compositions,
+and a ChemicalPotential class to represent potentials.
 """
 
 __author__ = "Shyue Ping Ong"
@@ -14,8 +15,9 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Nov 10, 2012"
 
-import re
 import collections
+import numbers
+import re
 import string
 
 import six
@@ -168,7 +170,8 @@ class Composition(collections.Mapping, collections.Hashable, PMGSONable):
 
         Raises:
             CompositionError if the subtracted composition is greater than the
-            original composition in any of its elements.
+            original composition in any of its elements, unless allow_negative
+            is True
         """
         new_el_map = collections.defaultdict(float)
         new_el_map.update(self)
@@ -181,24 +184,18 @@ class Composition(collections.Mapping, collections.Hashable, PMGSONable):
         Multiply a Composition by an integer or a float.
         Fe2O3 * 4 -> Fe8O12
         """
-        if not isinstance(other, (int, float)):
-            raise ValueError("Multiplication can only be done for int/floats!")
+        if not isinstance(other, numbers.Number):
+            return NotImplemented
         return Composition({el: self[el] * other for el in self},
                            allow_negative=self.allow_negative)
 
+    __rmul__ = __mul__
+
     def __truediv__(self, other):
-        if not isinstance(other, (int, float)):
-            raise ValueError("Division can only be done for int/floats!")
+        if not isinstance(other, numbers.Number):
+            return NotImplemented
         return Composition({el: self[el] / other for el in self},
                            allow_negative=self.allow_negative)
-
-    def __rmul__(self, other):
-        """
-        Multiply a Composition by an integer or a float. This provides for
-        the reflected multiplication, e.g.,
-        4 * Fe2O3 -> Fe8O12
-        """
-        return self.__mul__(other)
 
     def __hash__(self):
         """
@@ -759,6 +756,70 @@ class CompositionError(Exception):
     """Exception class for composition errors"""
     pass
 
+
+class ChemicalPotential(dict, PMGSONable):
+    """
+    Class to represent set of chemical potentials. Can be:
+    multiplied/divided by a Number
+    multiplied by a Composition (returns an energy)
+    added/subtracted with other ChemicalPotentials.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """
+        Args:
+            *args, **kwargs: any valid dict init arguments
+        """
+        d = dict(*args, **kwargs)
+        super(ChemicalPotential, self).__init__((get_el_sp(k), v)
+                                                for k, v in d.items())
+        if len(d) != len(self):
+            raise ValueError("Duplicate potential specified")
+
+    def __mul__(self, other):
+        if isinstance(other, numbers.Number):
+            return ChemicalPotential({k: v * other for k, v in self.items()})
+        else:
+            return NotImplemented
+
+    __rmul__ = __mul__
+
+    def __truediv__(self, other):
+        if isinstance(other, numbers.Number):
+            return ChemicalPotential({k: v / other for k, v in self.items()})
+        else:
+            return NotImplemented
+
+    def __sub__(self, other):
+        if isinstance(other, ChemicalPotential):
+            els = set(self.keys()).union(other.keys())
+            return ChemicalPotential({e: self.get(e, 0) - other.get(e, 0)
+                                      for e in els})
+        else:
+            return NotImplemented
+
+    def __add__(self, other):
+        if isinstance(other, ChemicalPotential):
+            els = set(self.keys()).union(other.keys())
+            return ChemicalPotential({e: self.get(e, 0) + other.get(e, 0)
+                                      for e in els})
+        else:
+            return NotImplemented
+
+    def get_energy(self, composition, strict=True):
+        """
+        Calculates the energy of a composition
+        Args:
+            composition (Composition): input composition
+            strict (bool): Whether all potentials must be specified
+        """
+        if strict and set(composition.keys()) > set(self.keys()):
+            s = set(composition.keys()) - set(self.keys())
+            raise ValueError("Potentials not specified for {}".format(s))
+        return sum(self.get(k, 0) * v for k, v in composition.items())
+
+    def __repr__(self):
+        return "ChemPots: " + super(ChemicalPotential, self).__repr__()
 
 if __name__ == "__main__":
     import doctest

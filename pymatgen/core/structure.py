@@ -27,13 +27,19 @@ import random
 import warnings
 from fnmatch import fnmatch
 import re
-
-import numpy as np
+from fractions import gcd
 
 import six
 from six.moves import map, zip
 
-from fractions import gcd
+import numpy as np
+
+import yaml
+try:
+    from yaml import CSafeDumper as Dumper, CLoader as Loader
+except ImportError:
+    from yaml import SafeDumper as Dumper, Loader
+
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp
@@ -45,6 +51,7 @@ from pymatgen.util.coord_utils import get_angle, all_distances, \
     lattice_points_in_supercell
 from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length
+from pymatgen.symmetry.groups import SpaceGroup
 from monty.io import zopen
 
 
@@ -350,7 +357,7 @@ class IStructure(SiteCollection, PMGSONable):
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
-            fractional_coords (Nx3 array): list of fractional coordinates of
+            coords (Nx3 array): list of fractional/cartesian coordinates of
                 each species.
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
@@ -425,6 +432,77 @@ class IStructure(SiteCollection, PMGSONable):
                    site_properties=props,
                    validate_proximity=validate_proximity,
                    to_unit_cell=to_unit_cell)
+
+    @classmethod
+    def from_spacegroup(cls, sg, lattice, species, coords, site_properties=None,
+                        coords_are_cartesian=False, tol=1e-5):
+        """
+        Generate a structure using a spacegroup.
+
+        Args:
+            sg (str/int): The spacegroup. If a string, it will be interpreted
+                as one of the notations supported by
+                pymatgen.symmetry.groups.Spacegroup. E.g., "R-3c" or "Fm-3m".
+                If an int, it will be interpreted as an international number.
+            lattice (Lattice/3x3 array): The lattice, either as a
+                :class:`pymatgen.core.lattice.Lattice` or
+                simply as any 2D array. Each row should correspond to a lattice
+                vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+                lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
+                Note that no attempt is made to check that the lattice is
+                compatible with the spacegroup specified. This may be
+                introduced in a future version.
+            species ([Specie]): Sequence of species on each site. Can take in
+                flexible input, including:
+
+                i.  A sequence of element / specie specified either as string
+                    symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
+                    e.g., (3, 56, ...) or actual Element or Specie objects.
+
+                ii. List of dict of elements/species and occupancies, e.g.,
+                    [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
+                    disordered structures.
+            coords (Nx3 array): list of fractional/cartesian coordinates of
+                each species.
+            coords_are_cartesian (bool): Set to True if you are providing
+                coordinates in cartesian coordinates. Defaults to False.
+            site_properties (dict): Properties associated with the sites as a
+                dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
+                have to be the same length as the atomic species and
+                fractional_coords. Defaults to None for no properties.
+            tol (float): A fractional tolerance to deal with numerical
+               precision issues in determining if orbits are the same.
+        """
+        try:
+            i = int(sg)
+            sgp = SpaceGroup.from_int_number(i)
+        except ValueError:
+            sgp = SpaceGroup(sg)
+
+
+        if isinstance(lattice, Lattice):
+            latt = lattice
+        else:
+            latt = Lattice(lattice)
+
+        frac_coords = coords if not coords_are_cartesian else \
+            lattice.get_fractional_coords(coords)
+
+        props = {} if site_properties is None else site_properties
+
+        all_sp = []
+        all_coords = []
+        all_site_properties = collections.defaultdict(list)
+        for i, (sp, c) in enumerate(zip(species, frac_coords)):
+            cc = sgp.get_orbit(c, tol=tol)
+            all_sp.extend([sp] * len(cc))
+            all_coords.extend(cc)
+            for k, v in props.items():
+                all_site_properties[k].extend([v[i]] * len(cc))
+
+        return cls(latt, all_sp, all_coords,
+                   site_properties=all_site_properties)
+
 
     @property
     def distance_matrix(self):
@@ -1060,13 +1138,22 @@ class IStructure(SiteCollection, PMGSONable):
             writer = Poscar(self)
         elif fmt == "cssr" or fnmatch(fname.lower(), "*.cssr*"):
             writer = Cssr(self)
+        elif fmt == "json" or fnmatch(fname.lower(), "*.json"):
+            s = json.dumps(self.as_dict())
+            if filename:
+                with zopen(filename, "wt") as f:
+                    # This complicated for handles unicode in both Py2 and 3.
+                    f.write("%s" % s)
+                return
+            else:
+                return s
         else:
             if filename:
                 with open(filename, "w") as f:
-                    json.dump(self.as_dict(), f)
+                    yaml.dump(self.as_dict(), f, Dumper=Dumper)
                 return
             else:
-                return json.dumps(self.as_dict())
+                return yaml.dump(self.as_dict(), Dumper=Dumper)
 
         if filename:
             writer.write_file(filename)
@@ -1088,16 +1175,20 @@ class IStructure(SiteCollection, PMGSONable):
         from pymatgen.io.cifio import CifParser
         from pymatgen.io.vaspio import Poscar
         from pymatgen.io.cssrio import Cssr
-        if fmt.lower() == "cif":
+        fmt = fmt.lower()
+        if fmt == "cif":
             parser = CifParser.from_string(input_string)
             s = parser.get_structures(primitive=primitive)[0]
-        elif fmt.lower() == "poscar":
+        elif fmt == "poscar":
             s = Poscar.from_string(input_string, False).structure
-        elif fmt.lower() == "cssr":
+        elif fmt == "cssr":
             cssr = Cssr.from_string(input_string)
             s = cssr.structure
-        elif fmt.lower() == "json":
+        elif fmt == "json":
             d = json.loads(input_string)
+            s = cls.from_dict(d)
+        elif fmt == "yaml":
+            d = yaml.load(input_string)
             s = cls.from_dict(d)
         else:
             raise ValueError("Unrecognized format!")
@@ -1120,9 +1211,43 @@ class IStructure(SiteCollection, PMGSONable):
         Returns:
             Structure.
         """
-        from pymatgen.io.smartio import read_structure
-        return cls.from_sites(read_structure(filename, primitive=primitive,
-                                             sort=sort))
+        from pymatgen.io.vaspio import Vasprun, Poscar, Chgcar
+        from pymatgen.io.cifio import CifParser
+        from pymatgen.io.cssrio import Cssr
+        from pymatgen.io.xyzio import XYZ
+        from pymatgen.io.gaussianio import GaussianInput, GaussianOutput
+        from monty.io import zopen
+        from monty.json import MontyDecoder, MontyEncoder
+        from monty.string import str2unicode
+        from pymatgen.io.babelio import BabelMolAdaptor
+        fname = os.path.basename(filename)
+        with zopen(filename) as f:
+            contents = f.read()
+        if fnmatch(fname.lower(), "*.cif*"):
+            return Structure.from_str(contents, fmt="cif",
+                                      primitive=primitive, sort=sort)
+        elif fnmatch(fname, "POSCAR*") or fnmatch(fname, "CONTCAR*"):
+            return Structure.from_str(contents, fmt="poscar",
+                                      primitive=primitive, sort=sort)
+
+        elif fnmatch(fname, "CHGCAR*") or fnmatch(fname, "LOCPOT*"):
+            s = Chgcar.from_file(filename).structure
+        elif fnmatch(fname, "vasprun*.xml*"):
+            s = Vasprun(filename).final_structure
+        elif fnmatch(fname.lower(), "*.cssr*"):
+            return Structure.from_str(contents, fmt="cssr",
+                                      primitive=primitive, sort=sort)
+        elif fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
+            return Structure.from_str(contents, fmt="json",
+                                      primitive=primitive, sort=sort)
+        elif fnmatch(fname, "*.yaml*"):
+            return Structure.from_str(contents, fmt="yaml",
+                                      primitive=primitive, sort=sort)
+        else:
+            raise ValueError("Unrecognized file extension!")
+        if sort:
+            s = s.get_sorted_structure()
+        return s
 
 
 class IMolecule(SiteCollection, PMGSONable):
@@ -1581,9 +1706,15 @@ class IMolecule(SiteCollection, PMGSONable):
                                                                   "*.mson*"):
             if filename:
                 with zopen(filename, "wt", encoding='utf8') as f:
-                    json.dump(self.as_dict(), f)
+                    return json.dump(self.as_dict(), f)
             else:
                 return json.dumps(self.as_dict())
+        elif fmt == "yaml" or fnmatch(fname, "*.yaml*"):
+            if filename:
+                with zopen(fname, "wt", encoding='utf8') as f:
+                    return yaml.dump(self.as_dict(), f, Dumper=Dumper)
+            else:
+                return yaml.dump(self.as_dict(), Dumper=Dumper)
         else:
             m = re.search("\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
                           fname.lower())
@@ -1622,6 +1753,9 @@ class IMolecule(SiteCollection, PMGSONable):
         elif fmt == "json":
             d = json.loads(input_string)
             return cls.from_dict(d)
+        elif fmt == "yaml":
+            d = yaml.load(input_string, Loader=Loader)
+            return cls.from_dict(d)
         else:
             from pymatgen.io.babelio import BabelMolAdaptor
             m = BabelMolAdaptor.from_string(input_string,
@@ -1639,8 +1773,31 @@ class IMolecule(SiteCollection, PMGSONable):
         Returns:
             Molecule
         """
-        from pymatgen.io.smartio import read_mol
-        return cls.from_sites(read_mol(filename))
+        from pymatgen.io.gaussianio import GaussianOutput
+        with zopen(filename) as f:
+            contents = f.read()
+        fname = filename.lower()
+        if fnmatch(fname, "*.xyz*"):
+            return Molecule.from_str(contents, fmt="xyz")
+        elif any([fnmatch(fname.lower(), "*.{}*".format(r))
+                  for r in ["gjf", "g03", "g09", "com", "inp"]]):
+            return Molecule.from_str(contents, fmt="g09")
+        elif any([fnmatch(fname.lower(), "*.{}*".format(r))
+                  for r in ["out", "lis", "log"]]):
+            return GaussianOutput(filename).final_structure
+        elif fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
+            return Molecule.from_str(contents, fmt="json")
+        elif fnmatch(fname, "*.yaml*"):
+            return Molecule.from_str(contents, fmt="yaml")
+        else:
+            from pymatgen.io.babelio import BabelMolAdaptor
+            m = re.search("\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
+                          filename.lower())
+            if m:
+                return BabelMolAdaptor.from_file(filename,
+                                                 m.group(1)).pymatgen_mol
+
+        raise ValueError("Unrecognized file extension!")
 
 
 class Structure(IStructure, collections.MutableSequence):
