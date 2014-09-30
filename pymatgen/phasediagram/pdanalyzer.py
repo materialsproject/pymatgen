@@ -66,41 +66,16 @@ class PDAnalyzer(object):
         return np.array([[comp.get_atomic_fraction(el)
                           for el in self._pd.elements] for comp in complist])
 
-    def _in_facet(self, facet, comp):
-        """
-        Checks if a composition is in a facet.
-
-        Args:
-            facet: facet to test.
-            comp: Composition to test.
-        """
-        els = self._pd.elements
-        dim = len(els)
-        if dim > 1:
-            coords = self._pd.qhull_data[facet, :-1]
-            simplex = Simplex(coords)
-            comp_point = [comp.get_atomic_fraction(e) for e in els[1:]]
-            return simplex.in_simplex(comp_point, PDAnalyzer.numerical_tol)
-        else:
-            return True
-
-    @lru_cache(1)
-    def _get_facets(self, comp):
-        """
-        Get the facets that a composition falls into. Cached so successive
-        calls at same composition are fast.
-        """
-        return list(filter(lambda f: self._in_facet(f, comp), self._pd.facets))
-
     @lru_cache(1)
     def _get_facet(self, comp):
         """
         Get any facet that a composition falls into. Cached so successive
         calls at same composition are fast.
         """
-        for facet in self._pd.facets:
-            if self._in_facet(facet, comp):
-                return facet
+        c = [comp.get_atomic_fraction(e) for e in self._pd.elements[1:]]
+        for f, s in zip(self._pd.facets, self._pd.simplices):
+            if s.in_simplex(c, PDAnalyzer.numerical_tol / 10):
+                return f
         raise RuntimeError("No facet found for comp = {}".format(comp))
 
     def get_decomposition(self, comp):
@@ -141,21 +116,18 @@ class PDAnalyzer(object):
         if entry in self._pd.stable_entries:
             return {entry: 1}, 0
 
-        # Hackish fix to deal with problem of -ve ehulls in very high
-        # dimensional convex hulls (typically 8D and above).
-        # TODO: find a better fix.
-        for facet in self._get_facets(entry.composition):
-            comp_list = [self._pd.qhull_entries[i].composition for i in facet]
-            m = self._make_comp_matrix(comp_list)
-            compm = self._make_comp_matrix([entry.composition])
-            decomp_amts = np.linalg.solve(m.T, compm.T)[:,0]
-            decomp = {self._pd.qhull_entries[facet[i]]: decomp_amts[i]
-                      for i in range(len(decomp_amts))
-                      if abs(decomp_amts[i]) > PDAnalyzer.numerical_tol}
-            energies = [self._pd.qhull_entries[i].energy_per_atom for i in facet]
-            ehull = entry.energy_per_atom - np.dot(decomp_amts, energies)
-            if allow_negative or ehull >= -PDAnalyzer.numerical_tol:
-                return decomp, ehull
+        facet = self._get_facet(entry.composition)
+        comp_list = [self._pd.qhull_entries[i].composition for i in facet]
+        m = self._make_comp_matrix(comp_list)
+        compm = self._make_comp_matrix([entry.composition])
+        decomp_amts = np.linalg.solve(m.T, compm.T)[:,0]
+        decomp = {self._pd.qhull_entries[facet[i]]: decomp_amts[i]
+                  for i in range(len(decomp_amts))
+                  if abs(decomp_amts[i]) > PDAnalyzer.numerical_tol}
+        energies = [self._pd.qhull_entries[i].energy_per_atom for i in facet]
+        ehull = entry.energy_per_atom - np.dot(decomp_amts, energies)
+        if allow_negative or ehull >= -PDAnalyzer.numerical_tol:
+            return decomp, ehull
         raise ValueError("No valid decomp found!")
 
     def get_e_above_hull(self, entry):

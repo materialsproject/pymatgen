@@ -27,13 +27,19 @@ import random
 import warnings
 from fnmatch import fnmatch
 import re
-
-import numpy as np
+from fractions import gcd
 
 import six
 from six.moves import map, zip
 
-from fractions import gcd
+import numpy as np
+
+import yaml
+try:
+    from yaml import CSafeDumper as Dumper, CLoader as Loader
+except ImportError:
+    from yaml import SafeDumper as Dumper, Loader
+
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, get_el_sp
@@ -1060,13 +1066,22 @@ class IStructure(SiteCollection, PMGSONable):
             writer = Poscar(self)
         elif fmt == "cssr" or fnmatch(fname.lower(), "*.cssr*"):
             writer = Cssr(self)
+        elif fmt == "json" or fnmatch(fname.lower(), "*.json"):
+            s = json.dumps(self.as_dict())
+            if filename:
+                with zopen(filename, "wt") as f:
+                    # This complicated for handles unicode in both Py2 and 3.
+                    f.write("%s" % s)
+                return
+            else:
+                return s
         else:
             if filename:
                 with open(filename, "w") as f:
-                    json.dump(self.as_dict(), f)
+                    yaml.dump(self.as_dict(), f, Dumper=Dumper)
                 return
             else:
-                return json.dumps(self.as_dict())
+                return yaml.dump(self.as_dict(), Dumper=Dumper)
 
         if filename:
             writer.write_file(filename)
@@ -1088,16 +1103,20 @@ class IStructure(SiteCollection, PMGSONable):
         from pymatgen.io.cifio import CifParser
         from pymatgen.io.vaspio import Poscar
         from pymatgen.io.cssrio import Cssr
-        if fmt.lower() == "cif":
+        fmt = fmt.lower()
+        if fmt == "cif":
             parser = CifParser.from_string(input_string)
             s = parser.get_structures(primitive=primitive)[0]
-        elif fmt.lower() == "poscar":
+        elif fmt == "poscar":
             s = Poscar.from_string(input_string, False).structure
-        elif fmt.lower() == "cssr":
+        elif fmt == "cssr":
             cssr = Cssr.from_string(input_string)
             s = cssr.structure
-        elif fmt.lower() == "json":
+        elif fmt == "json":
             d = json.loads(input_string)
+            s = cls.from_dict(d)
+        elif fmt == "yaml":
+            d = yaml.load(input_string)
             s = cls.from_dict(d)
         else:
             raise ValueError("Unrecognized format!")
@@ -1120,9 +1139,43 @@ class IStructure(SiteCollection, PMGSONable):
         Returns:
             Structure.
         """
-        from pymatgen.io.smartio import read_structure
-        return cls.from_sites(read_structure(filename, primitive=primitive,
-                                             sort=sort))
+        from pymatgen.io.vaspio import Vasprun, Poscar, Chgcar
+        from pymatgen.io.cifio import CifParser
+        from pymatgen.io.cssrio import Cssr
+        from pymatgen.io.xyzio import XYZ
+        from pymatgen.io.gaussianio import GaussianInput, GaussianOutput
+        from monty.io import zopen
+        from monty.json import MontyDecoder, MontyEncoder
+        from monty.string import str2unicode
+        from pymatgen.io.babelio import BabelMolAdaptor
+        fname = os.path.basename(filename)
+        with zopen(filename) as f:
+            contents = f.read()
+        if fnmatch(fname.lower(), "*.cif*"):
+            return Structure.from_str(contents, fmt="cif",
+                                      primitive=primitive, sort=sort)
+        elif fnmatch(fname, "POSCAR*") or fnmatch(fname, "CONTCAR*"):
+            return Structure.from_str(contents, fmt="poscar",
+                                      primitive=primitive, sort=sort)
+
+        elif fnmatch(fname, "CHGCAR*") or fnmatch(fname, "LOCPOT*"):
+            s = Chgcar.from_file(filename).structure
+        elif fnmatch(fname, "vasprun*.xml*"):
+            s = Vasprun(filename).final_structure
+        elif fnmatch(fname.lower(), "*.cssr*"):
+            return Structure.from_str(contents, fmt="cssr",
+                                      primitive=primitive, sort=sort)
+        elif fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
+            return Structure.from_str(contents, fmt="json",
+                                      primitive=primitive, sort=sort)
+        elif fnmatch(fname, "*.yaml*"):
+            return Structure.from_str(contents, fmt="yaml",
+                                      primitive=primitive, sort=sort)
+        else:
+            raise ValueError("Unrecognized file extension!")
+        if sort:
+            s = s.get_sorted_structure()
+        return s
 
 
 class IMolecule(SiteCollection, PMGSONable):
@@ -1581,9 +1634,15 @@ class IMolecule(SiteCollection, PMGSONable):
                                                                   "*.mson*"):
             if filename:
                 with zopen(filename, "wt", encoding='utf8') as f:
-                    json.dump(self.as_dict(), f)
+                    return json.dump(self.as_dict(), f)
             else:
                 return json.dumps(self.as_dict())
+        elif fmt == "yaml" or fnmatch(fname, "*.yaml*"):
+            if filename:
+                with zopen(fname, "wt", encoding='utf8') as f:
+                    return yaml.dump(self.as_dict(), f, Dumper=Dumper)
+            else:
+                return yaml.dump(self.as_dict(), Dumper=Dumper)
         else:
             m = re.search("\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
                           fname.lower())
@@ -1622,6 +1681,9 @@ class IMolecule(SiteCollection, PMGSONable):
         elif fmt == "json":
             d = json.loads(input_string)
             return cls.from_dict(d)
+        elif fmt == "yaml":
+            d = yaml.load(input_string, Loader=Loader)
+            return cls.from_dict(d)
         else:
             from pymatgen.io.babelio import BabelMolAdaptor
             m = BabelMolAdaptor.from_string(input_string,
@@ -1639,8 +1701,31 @@ class IMolecule(SiteCollection, PMGSONable):
         Returns:
             Molecule
         """
-        from pymatgen.io.smartio import read_mol
-        return cls.from_sites(read_mol(filename))
+        from pymatgen.io.gaussianio import GaussianOutput
+        with zopen(filename) as f:
+            contents = f.read()
+        fname = filename.lower()
+        if fnmatch(fname, "*.xyz*"):
+            return Molecule.from_str(contents, fmt="xyz")
+        elif any([fnmatch(fname.lower(), "*.{}*".format(r))
+                  for r in ["gjf", "g03", "g09", "com", "inp"]]):
+            return Molecule.from_str(contents, fmt="g09")
+        elif any([fnmatch(fname.lower(), "*.{}*".format(r))
+                  for r in ["out", "lis", "log"]]):
+            return GaussianOutput(filename).final_structure
+        elif fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
+            return Molecule.from_str(contents, fmt="json")
+        elif fnmatch(fname, "*.yaml*"):
+            return Molecule.from_str(contents, fmt="yaml")
+        else:
+            from pymatgen.io.babelio import BabelMolAdaptor
+            m = re.search("\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
+                          filename.lower())
+            if m:
+                return BabelMolAdaptor.from_file(filename,
+                                                 m.group(1)).pymatgen_mol
+
+        raise ValueError("Unrecognized file extension!")
 
 
 class Structure(IStructure, collections.MutableSequence):

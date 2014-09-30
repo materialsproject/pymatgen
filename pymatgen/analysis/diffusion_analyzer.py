@@ -492,7 +492,9 @@ class DiffusionAnalyzer(PMGSONable):
         if ncores is not None:
             import multiprocessing
             p = multiprocessing.Pool(ncores)
-            vaspruns = p.map(_get_vasprun, [(p, step_skip) for p in filepaths])
+            vaspruns = p.map(_get_vasprun, [(fp, step_skip) for fp in filepaths])
+            p.close()
+            p.join()
         else:
             vaspruns = []
             offset = 0

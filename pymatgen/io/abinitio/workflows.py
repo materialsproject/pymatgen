@@ -1,12 +1,7 @@
 # coding: utf-8
-
+"""Abinit Workflows"""
 from __future__ import unicode_literals, division, print_function
 
-"""
-Abinit Workflows
-"""
-
-import sys
 import os
 import shutil
 import time
@@ -14,32 +9,25 @@ import abc
 import collections
 import numpy as np
 import six
+
 from six.moves import filter
-from six.moves import zip
+from monty.collections import AttrDict
+from monty.itertools import chunks
+from pymatgen.core.units import ArrayWithUnit
+from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
+from pymatgen.util.string_utils import pprint_table, WildCard
+from . import wrappers
+from .tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, DdkTask, BseTask, RelaxTask)
+from .strategies import HtcStrategy # ScfStrategy, RelaxStrategy
+from .utils import Directory
+from .netcdf import ETSF_Reader
+from .abitimer import AbinitTimerParser
+from .abiinspect import yaml_read_kpoints
 
 try:
     from pydispatch import dispatcher
 except ImportError:
     pass
-
-from pymatgen.core.units import ArrayWithUnit, Ha_to_eV
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.structure import Structure
-from pymatgen.core.design_patterns import Enum, AttrDict
-from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
-from pymatgen.io.smartio import read_structure
-from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
-from pymatgen.util.string_utils import pprint_table, WildCard
-from pymatgen.io.abinitio import wrappers
-from pymatgen.io.abinitio.tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, DdkTask, BseTask, RelaxTask)
-from pymatgen.io.abinitio.strategies import HtcStrategy, ScfStrategy #, RelaxStrategy
-from pymatgen.io.abinitio.utils import Directory
-from pymatgen.io.abinitio.netcdf import ETSF_Reader
-from pymatgen.io.abinitio.abiobjects import Smearing, AbiStructure, KSampling, Electrons  #, RelaxationMethod
-from pymatgen.io.abinitio.pseudos import Pseudo
-from pymatgen.io.abinitio.abitimer import AbinitTimerParser
-from pymatgen.io.abinitio.abiinspect import yaml_read_kpoints
-
 
 import logging
 logger = logging.getLogger(__name__)
@@ -227,7 +215,6 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
 
         for task in self:
             if task.can_run:
-                #print(task, str(task.status), [task.deps_status])
                 return task
 
         # No task found, this usually happens when we have dependencies. 

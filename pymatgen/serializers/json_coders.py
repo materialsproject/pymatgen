@@ -114,7 +114,7 @@ def pmg_dump(obj, filename, **kwargs):
     Args:
         obj (object): Object to dump.
         filename (str): Filename of file to open. Can be gzipped or bzipped.
-        \*\*kwargs: Any of the keyword arguments supported by the json.load
+        \*\*kwargs: Any of the keyword arguments supported by the json.dump
             method.
     """
-    return json.dump(obj, zopen(filename, "w"), cls=MontyEncoder, **kwargs)
+    return json.dump(obj, zopen(filename, "wb"), cls=MontyEncoder, **kwargs)

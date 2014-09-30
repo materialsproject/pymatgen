@@ -1034,6 +1034,8 @@ $end
                         jobtype="bsse", charge=0, spin_multiplicity=3, basis_set="6-31++G**",
                         ghost_atoms=[1, 2, 3, 5])
         self.elementary_io_verify(str(qctask), qctask)
+        qctask = QcTask(mol, charge=0, spin_multiplicity=2, exchange="B3LYP", ghost_atoms=[2])
+        self.assertEqual(qctask.spin_multiplicity, 2)
 
 
 class TestQcInput(TestCase):
@@ -1814,6 +1816,12 @@ $end
         self.assertEqual(qcout.data[0]["charges"]["hirshfeld"],
                          [-0.286309, 0.143134, 0.143176])
         self.assertFalse(qcout.data[0]["has_error"])
+
+    def test_ghost_atoms(self):
+        filename = os.path.join(test_dir, "ghost_atoms.qcout")
+        qcout = QcOutput(filename)
+        elements = [a.specie.symbol for a in qcout.data[-1]["molecules"][-1].sites]
+        self.assertEqual(elements, ['O', 'H', 'H', 'C', 'H', 'H', 'H', 'H'])
 
 
 if __name__ == "__main__":

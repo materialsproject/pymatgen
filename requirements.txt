@@ -1,8 +1,8 @@
 PyDispatcher==2.0.3
 numpy==1.8.2
-pybtex>=0.18
+pybtex==0.18
 requests==2.3.0
-monty==0.5.3
-pyhull==1.5.2
+monty==0.5.5
+pyhull==1.5.3
 pyyaml==3.11
 six==1.7.3

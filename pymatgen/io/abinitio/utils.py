@@ -1,18 +1,17 @@
 # coding: utf-8
-
-from __future__ import unicode_literals, division
-
 """Tools and helper functions for abinit calculations"""
+from __future__ import unicode_literals, division
 
 import os
 import collections
 import shutil
 import operator
 
-from pymatgen.util.string_utils import list_strings, WildCard
+from six.moves import filter
+from monty.string import list_strings
+from pymatgen.util.string_utils import WildCard
 
 import logging
-from six.moves import filter
 logger = logging.getLogger(__name__)
 
 
@@ -59,12 +58,12 @@ class File(object):
 
     @property
     def exists(self):
-        "True if file exists."
+        """True if file exists."""
         return os.path.exists(self.path)
 
     @property
     def isncfile(self):
-        "True if self is a NetCDF file"
+        """True if self is a NetCDF file"""
         return self.basename.endswith(".nc")
 
     def read(self):

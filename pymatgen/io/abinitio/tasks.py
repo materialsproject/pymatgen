@@ -1,10 +1,8 @@
 # coding: utf-8
-
-from __future__ import unicode_literals, division, print_function
-
 """
 Classes defining Abinit calculations and workflows
 """
+from __future__ import unicode_literals, division, print_function
 
 import os
 import time
@@ -18,23 +16,24 @@ import pprint
 import six
 
 from six.moves import map, zip, StringIO
-from pymatgen.io.abinitio import abiinspect
-from pymatgen.io.abinitio import events 
+from monty.serialization import loadfn
+from monty.string import is_string, list_strings
+from monty.io import FileLock
+from monty.collections import AttrDict
+from pymatgen.util.string_utils import WildCard
+from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
+from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
+from .qadapters import qadapter_class
+from .netcdf import ETSF_Reader
+from .strategies import StrategyWithInput, OpticInput
+from . import abiinspect
+from . import events 
 
 try:
     from pydispatch import dispatcher
 except ImportError:
     pass
 
-from monty.serialization import loadfn
-from pymatgen.core.design_patterns import Enum, AttrDict
-from pymatgen.util.io_utils import FileLock
-from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
-from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
-from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
-from pymatgen.io.abinitio.qadapters import qadapter_class
-from pymatgen.io.abinitio.netcdf import ETSF_Reader
-from pymatgen.io.abinitio.strategies import StrategyWithInput, OpticInput
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -425,6 +424,9 @@ class TaskManager(object):
     def __init__(self, qtype, qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
                  pre_run=None, post_run=None, mpi_runner=None, policy=None):
 
+        #if not kwargs:
+        #    self = self.__class__.from_user_config()
+
         qad_class = qadapter_class(qtype)
 
         self.qadapter = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
@@ -460,7 +462,6 @@ class TaskManager(object):
         """Create an instance from string s containing a YAML dictionary."""
         stream = StringIO(s)
         stream.seek(0)
-
         return cls.from_dict(yaml.load(stream))
 
     @classmethod
@@ -1383,7 +1384,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
     def not_converged(self):
         """Return True if the calculation is not converged."""
-        logger.debug("not_converged method of the base class will always return False")
         report = self.get_event_report()
         return report.filter_types(self.CRITICAL_EVENTS)
 
@@ -1625,14 +1625,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             info_msg:
                 string with human-readable message used in the case of errors (optional)
         """
-        # Accepts strings as well.
-        #if not isinstance(status, Status):
-        #    try:
-        #        status = getattr(Node, status)
-        #    except AttributeError:
-        #        status = Status.from_string(status)
         status = Status.as_status(status)
-        assert status in _STATUS2STR
 
         changed = True
         if hasattr(self, "_status"):
@@ -1702,8 +1695,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # 2) Check the returncode of the process (the process of submitting the job) first.
         # this point type of problem should also be handled by the scheduler error parser
         if self.returncode != 0:
+            # The job was not submitter properly
             info_msg = "return code %s" % self.returncode
-            return self.set_status(self.S_QUEUECRITICAL, info_msg=info_msg)           # The job was not submitter properly
+            return self.set_status(self.S_QUEUECRITICAL, info_msg=info_msg)           
 
 #        err_msg = None
 #=======
@@ -1786,22 +1780,23 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             # 4)
             if report.errors or report.bugs:
                 if report.errors:
-                    print('errors:')
+                    logger.debug('"Found errors in report')
                     for error in report.errors:
-                        print(error)
+                        logger.debug(str(error))
                         try:
                             self.abi_errors.append(error)
                         except AttributeError:
                             self.abi_errors = [error]
                 if report.bugs:
-                    print('bugs:')
+                    logger.debug('Found bugs in report:')
                     for bug in report.bugs:
-                        print(bug)
+                        logger.debug(str(bug))
                 # Abinit reports problems
                 logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
                 info_msg = str(report.errors) + str(report.bugs)
                 return self.set_status(self.S_ABICRITICAL, info_msg=info_msg)
                 # The job is unfixable due to ABINIT errors
+
             # 5)
             if self.stderr_file.exists and not err_info:
                 if self.qerr_file.exists and not err_msg:
@@ -1830,20 +1825,20 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # 7) Analyze the files of the resource manager and abinit and execution err (mvs)
         if self.qerr_file.exists:
             from pymatgen.io.gwwrapper.scheduler_error_parsers import get_parser
-            print('QTYPE :', self.manager.qadapter.QTYPE)
             scheduler_parser = get_parser(self.manager.qadapter.QTYPE, err_file=self.qerr_file.path,
                                           out_file=self.qout_file.path, run_err_file=self.stderr_file.path)
             scheduler_parser.parse()
+
             if scheduler_parser.errors:
                 # the queue errors in the task
-                print('scheduler errors found:')
-                print(scheduler_parser.errors)
+                logger.debug('scheduler errors found:')
+                logger.debug(str(scheduler_parser.errors))
                 self.queue_errors = scheduler_parser.errors
                 return self.set_status(self.S_QUEUECRITICAL)
                 # The job is killed or crashed and we know what happened
             else:
                 if len(err_info) > 0:
-                    print('found unknown que error:\n', err_info)
+                    logger.debug('found unknown queue error: %s' % str(err_info))
                     return self.set_status(self.S_QUEUECRITICAL, info_msg=err_info)
                     # The job is killed or crashed but we don't know what happened
                     # it is set to queuecritical, we will attempt to fix it by running on more resources
@@ -1851,7 +1846,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # 8) analizing the err files and abinit output did not identify a problem
         # but if the files are not empty we do have a problem but no way of solving it:
         if err_msg is not None and len(err_msg) > 0:
-            print('found error message:\n', err_msg)
+            logger.debug('found error message:\n %s' % str(err_msg))
             return self.set_status(self.S_QUEUECRITICAL, info_msg=err_info)
             # The job is killed or crashed but we don't know what happend
             # it is set to queuecritical, we will attempt to fix it by running on more resources
@@ -1912,8 +1907,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # Link path to dest if dest link does not exist.
         # else check that it points to the expected file.
         logger.debug("Linking path %s --> %s" % (filepath, infile))
-        print("Linking path %s --> %s" % (filepath, infile))
-                                                             
+
         if not os.path.exists(infile):
             os.symlink(filepath, infile)
         else:
@@ -1961,7 +1955,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
       
             # Link path to dest if dest link does not exist.
             # else check that it points to the expected file.
-            print("Linking path %s --> %s" % (path, dest))
+            logger.debug("Linking path %s --> %s" % (path, dest))
                                                                                          
             if not os.path.exists(dest):
                 os.symlink(path, dest)
@@ -2179,7 +2173,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         for f in self.required_files:
             #raise NotImplementedError("")
             vars = irdvars_for_ext("DEN")
-            print("Adding connecting vars %s " % vars)
+            logger.debug("Adding connecting vars %s " % vars)
             self.strategy.add_extra_abivars(vars)
 
         # Automatic parallelization
@@ -2337,7 +2331,6 @@ class AbinitTask(Task):
         self.strategy.remove_extra_abivars(autoparal_vars.keys())
 
         # 2) Parse the autoparal configurations from the main output file.
-        #print("parsing")
         parser = ParalHintsParser()
 
         try:
@@ -2351,7 +2344,13 @@ class AbinitTask(Task):
 
         # 3) Select the optimal configuration according to policy
         optimal = confs.select_optimal_conf(policy)
-        #print("optimal Autoparal conf:\n %s" % optimal)
+        #print("optimal autoparal conf:\n %s" % optimal)
+
+        # Write autoparal configurations to file.
+        with open(os.path.join(self.workdir, "autoparal.txt"), "wt") as fh:
+            fh.write(str(confs) + 2 * "\n")
+            fh.write("Optimal configuration:\n")
+            fh.write(str(optimal)+ "\n")
 
         # 4) Change the input file and/or the submission script
         self.strategy.add_extra_abivars(optimal.vars)
@@ -2592,7 +2591,6 @@ class RelaxTask(AbinitTask):
 
 class DdkTask(AbinitTask):
     """Task for DDK calculations."""
-#DDK_Task = DdkTask
 
 
 class PhononTask(AbinitTask):
@@ -2770,8 +2768,8 @@ class OpticTask(Task):
         self.nscf_node = Node.as_node(nscf_node)
         self.ddk_nodes = [Node.as_node(n) for n in ddk_nodes]
         assert len(ddk_nodes) == 3
-        print(self.nscf_node)
-        print(self.ddk_nodes)
+        #print(self.nscf_node)
+        #print(self.ddk_nodes)
 
         deps = {n: "1WF" for n in self.ddk_nodes}
         deps.update({self.nscf_node: "WFK"})

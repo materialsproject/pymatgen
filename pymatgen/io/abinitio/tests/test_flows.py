@@ -25,8 +25,7 @@ class FakeAbinitInput(object):
     """Emulate an Abinit input."""
     @lazy_property
     def pseudos(self):
-        self._pseudos = ref_file("14si.pspnc")
-        return self._pseudos
+        return ref_file("14si.pspnc")
 
     @lazy_property
     def structure(self):
@@ -36,8 +35,7 @@ class FakeAbinitInput(object):
         lattice = Lattice([[3.8401979337, 0.00, 0.00],
                           [1.9200989668, 3.3257101909, 0.00],
                           [0.00, -2.2171384943, 3.1355090603]])
-        self._structure = Structure(lattice, ["Si", "Si"], coords)
-        return self._structure
+        return Structure(lattice, ["Si", "Si"], coords)
 
 
 class FlowUnitTest(PymatgenTest):
@@ -99,7 +97,6 @@ class AbinitFlowTest(FlowUnitTest):
         # Check for deadlocks
         flow.check_dependencies()
 
-
         # TODO: Fix pickle for flow. Test is temporarily disabled for now by the Hulk.
         # Save the flow in pickle format.
         #flow.build_and_pickle_dump()
@@ -110,7 +107,8 @@ class AbinitFlowTest(FlowUnitTest):
         #self.assertEqual(same_flow, flow)
 
         # Test show_status
-        #flow.show_status()
+        flow.show_status()
+
 
 #class BandStructureFlowTest(FlowUnitTest):
 #    def test_base(self):

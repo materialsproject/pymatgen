@@ -594,7 +594,13 @@ class Interstitial(Defect):
         elif accuracy == "High":
             high_accuracy_flag = True
         else:
-            raise ValueError("Accuracy setting not understood.")
+            raise NotImplementedError("Accuracy setting not implemented.")
+
+        if accuracy == "High":
+            if site_type in ('voronoi_facecenter','voronoi_edgecenter'): 
+                raise NotImplementedError(
+                        "Site type not implemented for the accuracy setting")
+
 
         vor_node_sites, vor_edgecenter_sites, vor_facecenter_sites = \
             symmetry_reduced_voronoi_nodes(self._structure, self._rad_dict,
@@ -1429,42 +1435,46 @@ def symmetry_reduced_voronoi_nodes(
         # Before getting the symmetry, remove the duplicates
         vor_node_struct.sites.sort(key = lambda site: site.voronoi_radius)
         #print type(vor_node_struct.sites[0])
-        dist_sites = filter(check_not_duplicates, vor_node_struct.sites)
+        dist_sites = list(filter(check_not_duplicates, vor_node_struct.sites))
+
+        # Ignore symmetry fro ha voronoi nodes
         # Increase the symmetry precision to 0.25
-        spg = SymmetryFinder(structure,symprec=2.5e-1).get_spacegroup()
+        #spg = SymmetryFinder(structure,symprec=1e-1).get_spacegroup()
         
         # Remove symmetrically equivalent sites
-        i = 0
-        while (i < len(dist_sites)-1):
-            sites1 = [dist_sites[i]]
-            sites2 = [dist_sites[i+1]]
-            if spg.are_symmetrically_equivalent(sites1,sites2):
-                del dist_sites[i+1]
-            else:
-                i = i+1
+        #i = 0
+        #while (i < len(dist_sites)-1):
+        #    sites1 = [dist_sites[i]]
+        #    sites2 = [dist_sites[i+1]]
+        #    if spg.are_symmetrically_equivalent(sites1,sites2):
+        #        del dist_sites[i+1]
+        #    else:
+        #        i = i+1
 
         node_dist_sites = dist_sites
+        return (node_dist_sites, vor_edgecenter_struct.sites, 
+                vor_facecenter_struct.sites)
 
-        vor_edge_symmetry_finder = SymmetryFinder(
-            vor_edgecenter_struct, symprec=1e-1)
-        vor_edge_symm_struct = vor_edge_symmetry_finder.get_symmetrized_structure()
-        edgecenter_equiv_sites_list = vor_edge_symm_struct.equivalent_sites
+        #vor_edge_symmetry_finder = SymmetryFinder(
+        #    vor_edgecenter_struct, symprec=1e-1)
+        #vor_edge_symm_struct = vor_edge_symmetry_finder.get_symmetrized_structure()
+        #edgecenter_equiv_sites_list = vor_edge_symm_struct.equivalent_sites
 
-        edgecenter_dist_sites = []
-        for equiv_sites in edgecenter_equiv_sites_list:
-            add_closest_equiv_site(edgecenter_dist_sites, equiv_sites)
-        if not edgecenter_equiv_sites_list:     # Fix this so doesn't arise
-            edgecenter_dist_sites = vor_edgecenter_struct.sites
+        #edgecenter_dist_sites = []
+        #for equiv_sites in edgecenter_equiv_sites_list:
+        #    add_closest_equiv_site(edgecenter_dist_sites, equiv_sites)
+        #if not edgecenter_equiv_sites_list:     
+        #    edgecenter_dist_sites = vor_edgecenter_struct.sites
 
-        vor_fc_symmetry_finder = SymmetryFinder(
-                        vor_facecenter_struct, symprec=1e-1)
-        vor_fc_symm_struct = vor_fc_symmetry_finder.get_symmetrized_structure()
-        facecenter_equiv_sites_list = vor_fc_symm_struct.equivalent_sites
+        #vor_fc_symmetry_finder = SymmetryFinder(
+        #                vor_facecenter_struct, symprec=1e-1)
+        #vor_fc_symm_struct = vor_fc_symmetry_finder.get_symmetrized_structure()
+        #facecenter_equiv_sites_list = vor_fc_symm_struct.equivalent_sites
 
-        facecenter_dist_sites = []
-        for equiv_sites in facecenter_equiv_sites_list:
-            add_closest_equiv_site(facecenter_dist_sites, equiv_sites)
-        if not facecenter_equiv_sites_list:     # Fix this so doesn't arise
-            facecenter_dist_sites = vor_facecenter_struct.sites
+        #facecenter_dist_sites = []
+        #for equiv_sites in facecenter_equiv_sites_list:
+        #    add_closest_equiv_site(facecenter_dist_sites, equiv_sites)
+        #if not facecenter_equiv_sites_list:     
+        #    facecenter_dist_sites = vor_facecenter_struct.sites
 
-        return node_dist_sites, edgecenter_dist_sites, facecenter_dist_sites
+        #return node_dist_sites, edgecenter_dist_sites, facecenter_dist_sites
