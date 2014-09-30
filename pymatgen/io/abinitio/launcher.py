@@ -667,6 +667,10 @@ class PyFlowScheduler(object):
             # Show the number of open file descriptors
             print(">>>>> _callback: Number of open file descriptors: %s" % get_open_fds())
 
+        self.flow.show_status()
+
+        print('          before _runem_all in _callback')
+
         self._runem_all()
 
         # Mission accomplished. Shutdown the scheduler.
