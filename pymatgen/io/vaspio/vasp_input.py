@@ -224,9 +224,12 @@ class Poscar(PMGSONable):
         """
         #"^\s*$" doesn't match lines with no whitespace
         chunks = re.split("\n\s*\n", data.rstrip(), flags=re.MULTILINE)
-        if chunks[0] == "":
-            chunks.pop(0)
-            chunks[0] = "\n" + chunks[0]
+        try:
+            if chunks[0] == "":
+                chunks.pop(0)
+                chunks[0] = "\n" + chunks[0]
+        except IndexError:
+            raise ValueError("Empty POSCAR")
         #Parse positions
         lines = tuple(clean_lines(chunks[0].split("\n"), False))
         comment = lines[0]
