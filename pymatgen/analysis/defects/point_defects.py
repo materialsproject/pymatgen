@@ -13,7 +13,7 @@ from bisect import bisect_left
 
 from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.io.zeoio import get_voronoi_nodes, get_void_volume_surfarea, \
     get_high_accuracy_voronoi_nodes
 from pymatgen.command_line.gulp_caller import get_energy_buckingham, \
@@ -275,7 +275,7 @@ class Vacancy(Defect):
         self._rad_dict = radii
         # Store symmetrically distinct sites, their coordination numbers
         # coordinated_sites, effective charge
-        symm_finder = SymmetryFinder(self._structure)
+        symm_finder = SpacegroupAnalyzer(self._structure)
         symm_structure = symm_finder.get_symmetrized_structure()
         equiv_site_seq = symm_structure.equivalent_sites
 
@@ -1325,7 +1325,7 @@ def symmetry_reduced_voronoi_nodes(
         structure, rad_dict, high_accuracy_flag=False, symm_flag=True):
     """
     Obtain symmetry reduced voronoi nodes using Zeo++ and
-    pymatgen.symmetry.finder.SymmetryFinder
+    pymatgen.symmetry.finder.SpacegroupAnalyzer
 
     Args:
         strucutre: pymatgen Structure object
@@ -1396,7 +1396,7 @@ def symmetry_reduced_voronoi_nodes(
     if not high_accuracy_flag:
         vor_node_struct, vor_edgecenter_struct, vor_facecenter_struct = \
             get_voronoi_nodes(structure, rad_dict)
-        vor_node_symmetry_finder = SymmetryFinder(vor_node_struct, symprec=1e-1)
+        vor_node_symmetry_finder = SpacegroupAnalyzer(vor_node_struct, symprec=1e-1)
         vor_node_symm_struct = vor_node_symmetry_finder.get_symmetrized_structure()
         node_equiv_sites_list = vor_node_symm_struct.equivalent_sites
 
@@ -1404,7 +1404,7 @@ def symmetry_reduced_voronoi_nodes(
         for equiv_sites in node_equiv_sites_list:
             add_closest_equiv_site(node_dist_sites, equiv_sites)
 
-        vor_edge_symmetry_finder = SymmetryFinder(
+        vor_edge_symmetry_finder = SpacegroupAnalyzer(
             vor_edgecenter_struct, symprec=1e-1)
         vor_edge_symm_struct = vor_edge_symmetry_finder.get_symmetrized_structure()
         edgecenter_equiv_sites_list = vor_edge_symm_struct.equivalent_sites
@@ -1415,7 +1415,7 @@ def symmetry_reduced_voronoi_nodes(
         if not edgecenter_equiv_sites_list:     # Fix this so doesn't arise
             edgecenter_dist_sites = vor_edgecenter_struct.sites
 
-        vor_fc_symmetry_finder = SymmetryFinder(
+        vor_fc_symmetry_finder = SpacegroupAnalyzer(
                         vor_facecenter_struct, symprec=1e-1)
         vor_fc_symm_struct = vor_fc_symmetry_finder.get_symmetrized_structure()
         facecenter_equiv_sites_list = vor_fc_symm_struct.equivalent_sites
@@ -1439,7 +1439,7 @@ def symmetry_reduced_voronoi_nodes(
 
         # Ignore symmetry fro ha voronoi nodes
         # Increase the symmetry precision to 0.25
-        #spg = SymmetryFinder(structure,symprec=1e-1).get_spacegroup()
+        #spg = SpacegroupAnalyzer(structure,symprec=1e-1).get_spacegroup()
         
         # Remove symmetrically equivalent sites
         #i = 0
@@ -1455,7 +1455,7 @@ def symmetry_reduced_voronoi_nodes(
         return (node_dist_sites, vor_edgecenter_struct.sites, 
                 vor_facecenter_struct.sites)
 
-        #vor_edge_symmetry_finder = SymmetryFinder(
+        #vor_edge_symmetry_finder = SpacegroupAnalyzer(
         #    vor_edgecenter_struct, symprec=1e-1)
         #vor_edge_symm_struct = vor_edge_symmetry_finder.get_symmetrized_structure()
         #edgecenter_equiv_sites_list = vor_edge_symm_struct.equivalent_sites
@@ -1466,7 +1466,7 @@ def symmetry_reduced_voronoi_nodes(
         #if not edgecenter_equiv_sites_list:     
         #    edgecenter_dist_sites = vor_edgecenter_struct.sites
 
-        #vor_fc_symmetry_finder = SymmetryFinder(
+        #vor_fc_symmetry_finder = SpacegroupAnalyzer(
         #                vor_facecenter_struct, symprec=1e-1)
         #vor_fc_symm_struct = vor_fc_symmetry_finder.get_symmetrized_structure()
         #facecenter_equiv_sites_list = vor_fc_symm_struct.equivalent_sites

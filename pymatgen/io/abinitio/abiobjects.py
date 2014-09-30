@@ -19,7 +19,7 @@ from monty.collections import AttrDict
 from pymatgen.core.design_patterns import Enum
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.serializers.json_coders import PMGSONable
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.io.smartio import read_structure
 from .netcdf import structure_from_etsf_file
@@ -643,7 +643,7 @@ class KSampling(AbivarAble):
         Returns:
             KSampling object
         """
-        sg = SymmetryFinder(structure)
+        sg = SpacegroupAnalyzer(structure)
         #sg.get_crystal_system()
         #sg.get_point_group()
         # TODO

@@ -22,7 +22,7 @@ import math
 import shutil
 import numpy as np
 from pymatgen.core.units import Ha_to_eV, eV_to_Ha
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.standard_transformations import OxidationStateRemovalTransformation, \
     PrimitiveCellTransformation, SupercellTransformation
 
@@ -47,7 +47,7 @@ def read_extra_abivars():
 def refine_structure(structure, symprec=1e-3):
     remove_ox = OxidationStateRemovalTransformation()
     structure = remove_ox.apply_transformation(structure)
-    sym_finder = SymmetryFinder(structure=structure, symprec=symprec)
+    sym_finder = SpacegroupAnalyzer(structure=structure, symprec=symprec)
     structure = sym_finder.get_refined_structure()
     get_prim = PrimitiveCellTransformation()
     structure = get_prim.apply_transformation(structure)

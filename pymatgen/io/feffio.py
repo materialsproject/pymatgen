@@ -29,7 +29,7 @@ import warnings
 import numpy as np
 
 from collections import defaultdict, OrderedDict
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from operator import itemgetter
 from pymatgen.io.cifio import CifParser
 from pymatgen.util.string_utils import str_aligned, str_delimited
@@ -75,7 +75,7 @@ class Header(PMGSONable):
             self._source = source
             self._site_symbols = []
             self._natoms = []
-            sym = SymmetryFinder(struct)
+            sym = SpacegroupAnalyzer(struct)
             data = sym.get_symmetry_dataset()
             self._space_number = data["number"]
             self._space_group = data["international"]
