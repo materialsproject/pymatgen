@@ -97,7 +97,8 @@ class Slab(Structure):
 
     def __init__(self, structure, miller_index, min_slab_size,
                  min_vacuum_size, thresh=0.00001, crit ='distance',
-                 lll_reduce=True, standardize=True, nth_term=0):
+                 lll_reduce=True, standardize=True, nth_term=0,
+                 shift=0, shift_bool=False):
         """
         Makes a Slab structure. Note that the code will make a slab with
         whatever size that is specified, rounded upwards. The a and b lattice
@@ -130,6 +131,10 @@ class Slab(Structure):
                 between the vacuum layer.
             nth_term (int): The selected structure from slab_list to perform the class
                 methods on
+            shift_bool (bool): Turns off the termination enumerating algorithm and
+                allows the user to manually shift a slab
+            shift (float): Determines how much to shift the slab if shift_bool is True
+
         """
         latt = structure.lattice
         d = reduce(gcd, miller_index)
@@ -178,6 +183,7 @@ class Slab(Structure):
         single.make_supercell(single_slab)
         slab.make_supercell(slab_scale_factor)
 
+
     # Clusters sites together that belong in the same termination surface based
     # on their position in the c direction. Also organizes sites by ascending
     # order from teh origin along the c direction. How close the sites have to
@@ -212,7 +218,6 @@ class Slab(Structure):
             term_slab = structure.copy()
             term_slab.make_supercell(b)
             term_slab = organize(term_slab)[0]
-            c = term_slab.lattice.c
             term_site = np.dot(term_slab[term_index[i]].coords, normal)
             new_sites = []
 
@@ -231,13 +236,16 @@ class Slab(Structure):
                 break
             t = a
 
+            if shift_bool:
+                term_site = shift
+            print(term_site)
+
             for site in term_slab:
                 if term_site < np.dot(site.coords, normal) <= nlayers_slab * dist +\
                         term_site:
                     new_sites.append(site)
 
             term_slab = Structure.from_sites(new_sites)
-
             if lll_reduce:
                 lll_slab = term_slab.copy(sanitize=True)
                 if i == len(term_index)-1:
@@ -245,7 +253,6 @@ class Slab(Structure):
                     slab_scale_factor = np.dot(mapping[2], b)
                 term_slab = lll_slab
 
-            c = term_slab.lattice.c
             min_c = []
             index = []
             for ii in range(0, len(term_slab)):
@@ -259,6 +266,9 @@ class Slab(Structure):
                 term_slab.translate_sites(index, [0, 0, (1-max_length+min_length)/2])
 
             slab_list.append(term_slab)
+
+            if shift_bool:
+                break
 
         if 0> nth_term >=len(slab_list):
             raise IndexError("nth_term is out of range, set nth_term "
