@@ -558,6 +558,23 @@ class StructureTest(PymatgenTest):
         self.assertEqual(s, self.structure)
         os.remove("structure_testing.json")
 
+    def test_from_spacegroup(self):
+        s1 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Li", "O"],
+                                       [[0.25, 0.25, 0.25], [0, 0, 0]])
+        self.assertEqual(s1.formula, "Li8 O4")
+        s2 = Structure.from_spacegroup(225, Lattice.cubic(3), ["Li", "O"],
+                                       [[0.25, 0.25, 0.25], [0, 0, 0]])
+        self.assertEqual(s1, s2)
+
+        s2 = Structure.from_spacegroup(225, Lattice.cubic(3), ["Li", "O"],
+                                       [[0.25, 0.25, 0.25], [0, 0, 0]],
+                                       site_properties={"charge": [1, -2]})
+        self.assertEqual(sum(s2.site_properties["charge"]), 0)
+
+        s = Structure.from_spacegroup("Pm-3m", Lattice.cubic(3), ["Cs", "Cl"],
+                                      [[0, 0, 0], [0.5, 0.5, 0.5]])
+        self.assertEqual(s.formula, "Cs1 Cl1")
+
 
 class IMoleculeTest(PymatgenTest):
 

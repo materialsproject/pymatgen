@@ -1,12 +1,12 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 """
 Defines SymmetryGroup parent class and PointGroup and SpaceGroup classes.
 Shyue Ping Ong thanks Marc De Graef for his generous sharing of his
 SpaceGroup data as published in his textbook "Structure of Materials".
 """
-
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2013, The Materials Virtual Lab"
@@ -194,19 +194,19 @@ class SpaceGroup(SymmetryGroup):
     def crystal_system(self):
         i = self.int_number
         if i <= 2:
-            return "Triclinic"
+            return "triclinic"
         elif i <= 15:
-            return "Monoclinic"
+            return "monoclinic"
         elif i <= 74:
-            return "Orthorhombic"
+            return "orthorhombic"
         elif i <= 142:
-            return "Tetragonal"
+            return "tetragonal"
         elif i <= 167:
-            return "Trigonal"
+            return "trigonal"
         elif i <= 194:
-            return "Hexagonal"
+            return "hexagonal"
         else:
-            return "Cubic"
+            return "cubic"
 
     def get_orbit(self, p):
         """

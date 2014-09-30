@@ -37,9 +37,9 @@ class SpaceGroupTest(unittest.TestCase):
 
     def test_crystal_system(self):
         sg = SpaceGroup("R-3c")
-        self.assertEqual(sg.crystal_system, "Trigonal")
+        self.assertEqual(sg.crystal_system, "trigonal")
         sg = SpaceGroup("R-3cH")
-        self.assertEqual(sg.crystal_system, "Trigonal")
+        self.assertEqual(sg.crystal_system, "trigonal")
 
     def test_get_orbit(self):
         sg = SpaceGroup("Fm-3m")

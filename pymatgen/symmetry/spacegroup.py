@@ -14,9 +14,16 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 9, 2012"
 
+import warnings
+
 from pymatgen.symmetry.analyzer import SpacegroupOperations
 from monty.dev import deprecated
 
+
+warnings.warn("The spacegroup module has been deprecated. All classes and "
+              "functions have been moved to pymatgen.symmetry.analyzer. "
+              "Please change your code. If you are looking for point group "
+              "representations, check out pymatgen.symmetry.groups.")
 
 @deprecated(replacement=SpacegroupOperations)
 class Spacegroup(SpacegroupOperations):
