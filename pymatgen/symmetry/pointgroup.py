@@ -11,8 +11,14 @@ __date__ = "5/8/13"
 
 
 import pymatgen
+import warnings
 from monty.dev import deprecated
 
+
+warnings.warn("The pointgroup module has been deprecated. All classes and "
+              "functions have been moved to pymatgen.symmetry.analyzer. "
+              "Please change your code. If you are looking for point group "
+              "representations, check out pymatgen.symmetry.groups.")
 
 @deprecated(replacement=pymatgen.symmetry.analyzer.PointGroupAnalyzer)
 class PointGroupAnalyzer(pymatgen.symmetry.analyzer.PointGroupAnalyzer):

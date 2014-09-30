@@ -51,6 +51,7 @@ from pymatgen.util.coord_utils import get_angle, all_distances, \
     lattice_points_in_supercell
 from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length
+from pymatgen.symmetry.groups import SpaceGroup
 from monty.io import zopen
 
 
@@ -356,7 +357,7 @@ class IStructure(SiteCollection, PMGSONable):
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
-            fractional_coords (Nx3 array): list of fractional coordinates of
+            coords (Nx3 array): list of fractional/cartesian coordinates of
                 each species.
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
@@ -431,6 +432,75 @@ class IStructure(SiteCollection, PMGSONable):
                    site_properties=props,
                    validate_proximity=validate_proximity,
                    to_unit_cell=to_unit_cell)
+
+    @classmethod
+    def from_spacegroup(cls, sg, lattice, species, coords, site_properties=None,
+                        coords_are_cartesian=False):
+        """
+        Generate a structure using a spacegroup.
+
+        Args:
+            sg (str/int): The spacegroup. If a string, it will be interpreted
+                as one of the notations supported by
+                pymatgen.symmetry.groups.Spacegroup. E.g., "R-3c" or "Fm-3m".
+                If an int, it will be interpreted as an international number.
+            lattice (Lattice/3x3 array): The lattice, either as a
+                :class:`pymatgen.core.lattice.Lattice` or
+                simply as any 2D array. Each row should correspond to a lattice
+                vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+                lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
+                Note that no attempt is made to check that the lattice is
+                compatible with the spacegroup specified. This may be
+                introduced in a future version.
+            species ([Specie]): Sequence of species on each site. Can take in
+                flexible input, including:
+
+                i.  A sequence of element / specie specified either as string
+                    symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
+                    e.g., (3, 56, ...) or actual Element or Specie objects.
+
+                ii. List of dict of elements/species and occupancies, e.g.,
+                    [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
+                    disordered structures.
+            coords (Nx3 array): list of fractional/cartesian coordinates of
+                each species.
+            coords_are_cartesian (bool): Set to True if you are providing
+                coordinates in cartesian coordinates. Defaults to False.
+            site_properties (dict): Properties associated with the sites as a
+                dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
+                have to be the same length as the atomic species and
+                fractional_coords. Defaults to None for no properties.
+        """
+        try:
+            i = int(sg)
+            sgp = SpaceGroup.from_int_number(i)
+        except ValueError:
+            sgp = SpaceGroup(sg)
+
+
+        if isinstance(lattice, Lattice):
+            latt = lattice
+        else:
+            latt = Lattice(lattice)
+
+        frac_coords = coords if not coords_are_cartesian else \
+            lattice.get_fractional_coords(coords)
+
+        props = {} if site_properties is None else site_properties
+
+        all_sp = []
+        all_coords = []
+        all_site_properties = collections.defaultdict(list)
+        for i, (sp, c) in enumerate(zip(species, frac_coords)):
+            cc = sgp.get_orbit(c)
+            all_sp.extend([sp] * len(cc))
+            all_coords.extend(cc)
+            for k, v in props.items():
+                all_site_properties[k].extend([v[i]] * len(cc))
+
+        return cls(latt, all_sp, all_coords,
+                   site_properties=all_site_properties)
+
 
     @property
     def distance_matrix(self):
