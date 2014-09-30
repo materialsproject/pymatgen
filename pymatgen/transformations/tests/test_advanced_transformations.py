@@ -20,7 +20,6 @@ import json
 
 import numpy as np
 
-from pymatgen.io.smartio import read_structure
 from pymatgen import Lattice, Structure
 from pymatgen.transformations.standard_transformations import \
     OxidationStateDecorationTransformation, SubstitutionTransformation, \
@@ -33,6 +32,7 @@ from monty.os.path import which
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.analysis.energy_models import IsingModel
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -209,7 +209,7 @@ class SubstitutionPredictorTransformationTest(unittest.TestCase):
 
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
-class MagOrderingTransformationTest(unittest.TestCase):
+class MagOrderingTransformationTest(PymatgenTest):
 
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
@@ -229,7 +229,7 @@ class MagOrderingTransformationTest(unittest.TestCase):
         self.assertNotEqual(alls[0]["structure"], alls2[0]["structure"])
         self.assertEqual(alls[0]["structure"], alls2[2]["structure"])
 
-        s = read_structure(os.path.join(test_dir, 'Li2O.json'))
+        s = self.get_structure('Li2O')
         #Li2O doesn't have magnetism of course, but this is to test the
         # enumeration.
         trans = MagOrderingTransformation({"Li+": 1}, max_cell_size=3)
@@ -256,7 +256,7 @@ class MagOrderingTransformationTest(unittest.TestCase):
 
     def test_zero_spin_case(self):
         #ensure that zero spin case maintains sites and formula
-        s = read_structure(os.path.join(test_dir, 'Li2O.json'))
+        s = self.get_structure('Li2O')
         trans = MagOrderingTransformation({"Li+": 0.0}, 0.5)
         alls = trans.apply_transformation(s)
         #compositions will not be equal due to spin assignment

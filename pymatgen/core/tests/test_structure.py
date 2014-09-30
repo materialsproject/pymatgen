@@ -17,9 +17,7 @@ import os
 class IStructureTest(PymatgenTest):
 
     def setUp(self):
-        coords = list()
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
+        coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         self.lattice = Lattice([[3.8401979337, 0.00, 0.00],
                                 [1.9200989668, 3.3257101909, 0.00],
                                 [0.00, -2.2171384943, 3.1355090603]])
@@ -295,6 +293,11 @@ class IStructureTest(PymatgenTest):
         self.assertTrue(os.path.exists("POSCAR.testing"))
         os.remove("POSCAR.testing")
 
+        self.struct.to(filename="Si_testing.yaml")
+        self.assertTrue(os.path.exists("Si_testing.yaml"))
+        s = Structure.from_file("Si_testing.yaml")
+        self.assertEqual(s, self.struct)
+        os.remove("Si_testing.yaml")
 
 class StructureTest(PymatgenTest):
 
@@ -534,7 +537,7 @@ class StructureTest(PymatgenTest):
                 'to None.')
 
     def test_to_from_file_string(self):
-        for fmt in ["cif", "json", "poscar", "cssr"]:
+        for fmt in ["cif", "json", "poscar", "cssr", "yaml"]:
             s = self.structure.to(fmt=fmt)
             self.assertIsNotNone(s)
             ss = Structure.from_str(s, fmt=fmt)
@@ -712,7 +715,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(mol.charge, 1)
 
     def test_to_from_file_string(self):
-        for fmt in ["xyz", "json", "g03"]:
+        for fmt in ["xyz", "json", "g03", "yaml"]:
             s = self.mol.to(fmt=fmt)
             self.assertIsNotNone(s)
             m = IMolecule.from_str(s, fmt=fmt)
@@ -722,6 +725,11 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.mol.to(filename="CH4_testing.xyz")
         self.assertTrue(os.path.exists("CH4_testing.xyz"))
         os.remove("CH4_testing.xyz")
+        self.mol.to(filename="CH4_testing.yaml")
+        self.assertTrue(os.path.exists("CH4_testing.yaml"))
+        mol = Molecule.from_file("CH4_testing.yaml")
+        self.assertEqual(self.mol, mol)
+        os.remove("CH4_testing.yaml")
 
 
 class MoleculeTest(PymatgenTest):

@@ -97,7 +97,6 @@ class AbinitFlowTest(FlowUnitTest):
         # Check for deadlocks
         flow.check_dependencies()
 
-
         # TODO: Fix pickle for flow. Test is temporarily disabled for now by the Hulk.
         # Save the flow in pickle format.
         #flow.build_and_pickle_dump()
@@ -108,7 +107,8 @@ class AbinitFlowTest(FlowUnitTest):
         #self.assertEqual(same_flow, flow)
 
         # Test show_status
-        #flow.show_status()
+        flow.show_status()
+
 
 #class BandStructureFlowTest(FlowUnitTest):
 #    def test_base(self):
