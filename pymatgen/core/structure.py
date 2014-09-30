@@ -437,7 +437,9 @@ class IStructure(SiteCollection, PMGSONable):
     def from_spacegroup(cls, sg, lattice, species, coords, site_properties=None,
                         coords_are_cartesian=False, tol=1e-5):
         """
-        Generate a structure using a spacegroup.
+        Generate a structure using a spacegroup. Note that only symmetrically
+        distinct species and coords should be provided. All equivalent sites
+        are generated from the spacegroup operations.
 
         Args:
             sg (str/int): The spacegroup. If a string, it will be interpreted
