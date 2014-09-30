@@ -1,11 +1,9 @@
 # coding: utf-8
-
-from __future__ import unicode_literals, division, print_function
-
 """
 This module provides objects describing the basic parameters of the 
 pseudopotentials used in Abinit, and a parser to instantiate pseudopotential objects..
 """
+from __future__ import unicode_literals, division, print_function
 
 import sys
 import os
@@ -13,16 +11,17 @@ import abc
 import collections
 import json
 import warnings
+import six
 import numpy as np
 
-from pymatgen.core.design_patterns import FrozenDict, AttrDict
-from pymatgen.core.periodic_table import PeriodicTable
-from pymatgen.util.num_utils import iterator_from_slice
-from pymatgen.util.io_utils import FileLock
-from pymatgen.util.string_utils import list_strings, is_string
-import six
-from six.moves import map
-from six.moves import zip
+from monty.string import list_strings, is_string
+from monty.itertools import iterator_from_slice
+from monty.io import FileLock
+# TODO: Use Namespace (requires new monty release)
+from monty.collections import AttrDict, Namespace #NotOverwritableDict
+#Namespace = NotOverwritableDict
+from pymatgen.core.periodic_table import PeriodicTable #, Element
+
 
 __all__ = [
     "Pseudo",
@@ -33,13 +32,16 @@ __author__ = "Matteo Giantomassi"
 __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 
-# Tools and helper functions.
 
+_PTABLE = PeriodicTable()
+
+# Tools and helper functions.
 
 def straceback():
     """Returns a string with the traceback."""
+    import sys
     import traceback
-    return traceback.format_exc()
+    return "\n".join((traceback.format_exc(), str(sys.exc_info()[0])))
 
 
 def _read_nlines(filename, nlines):
@@ -97,29 +99,12 @@ def read_dojo_report(filename):
         d = json.loads("".join(lines[start+1:stop]))
         return d
 
-#class DojoReport(dict):
-#    _LATEST_VERSION = 1.0
-#    _START_LINE = "<DOJO_REPORT>\n"
-#    _END_LINE = "</DOJO_REPORT>\n"
-#
-#    @classmethod
-#    def from_file(cls, path):
-#        new = read_dojo_report(path)
-#        new.__class__ = cls
-#        return new
-
-
-_PTABLE = PeriodicTable()
 
 class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract base class defining the methods that must be 
     implemented by the concrete pseudopotential classes.
     """
-
-    #def __init__(self, filepath):
-    #    self.filepath = os.path.abspath(filepath)
-    #    self._dojo_report = {}
 
     @classmethod
     def as_pseudo(cls, obj):
@@ -188,16 +173,17 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
         """Valence charge"""
 
     @property
+    def type(self):
+        return self.__class__.__name__
+
+    @property
     def element(self):
         """Pymatgen `Element`."""
+        #return Element.from_Z(self.Z)
         try:
             return _PTABLE[self.Z]
         except (KeyError, IndexError):
             return _PTABLE[int(self.Z)]
-
-    @property
-    def type(self):
-        return self.__class__.__name__
 
     @property
     def symbol(self):
@@ -346,17 +332,6 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
             if self.hint_for_accuracy(acc) is None:
                 return False
         return True
-
-    #@property
-    #def md5(self):
-    #    """
-    #    Return the checksum of the pseudopotential file.
-    #    """
-    #    import hashlib
-    #    hasher = hashlib.md5()
-    #    with open(self.filepath, "r") as fh:
-    #        hasher.update(fh.read())
-    #        return hasher.hexdigest()
 
 
 class NcPseudo(six.with_metaclass(abc.ABCMeta, object)):
@@ -543,7 +518,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
         err_msg = "lines = %s\n key_num =  %s" % (str(lines), str(key_nums))
         raise ValueError(err_msg)
 
-    kwargs = FrozenDict()
+    kwargs = Namespace()
 
     for (i, nk) in enumerate(key_nums):
         if nk == 0: continue
@@ -563,8 +538,8 @@ def _dict_from_lines(lines, key_nums, sep=None):
 
         if len(values) != len(keys):
             msg = "line: %s\n len(keys) != len(value)\nkeys: %s\n values:  %s" % (line, keys, values)
-            warnings.warn(msg)
-            #raise ValueError(msg)
+            #warnings.warn(msg)
+            raise ValueError(msg)
 
         kwargs.update(zip(keys, values))
 
@@ -646,7 +621,7 @@ class NcAbinitHeader(AbinitHeader):
                 try:
                     value = astype(value)
                 except:
-                    raise RuntimeError("Conversion Error for key, value %s" % (key, value))
+                    raise RuntimeError("Conversion Error for key %s, value %s" % (key, value))
 
             self[key] = value
 
@@ -774,60 +749,6 @@ class NcAbinitHeader(AbinitHeader):
 
         return NcAbinitHeader(summary, **header)
 
-    #@staticmethod
-    #def oncvpsp_out_header(filename, ppdesc):
-
-    #    lines = _read_nlines(filename, -1)
-    #    header = {}
-    #    nc = None
-    #    header.update({"pspcod": 11})
-
-    #    for (lineno, line) in enumerate(lines):
-    #        #print(lineno, line)
-
-    #        if 'psp8' in line and '###' not in line:
-    #            tokens = line.split()
-    #            header.update({'zatom': float(tokens[1])})
-    #            # print({'zatom': float(tokens[1])})
-    #            header.update({'pspxc': PseudoParser._FUNCTIONALS[int(tokens[4])]['n']})
-    #            # print({'pspxc': PseudoParser._FUNCTIONALS[int(tokens[4])]['n']})
-    #            nc = int(tokens[2])  # number of core states
-    #            nv = int(tokens[3])  # number of valence states
-    #        elif ' n ' in line and ' l ' in line and ' f ' in line and '###' not in line:
-    #            # "zion" info on the next nc+nv lines
-    #            zion = header['zatom']
-    #            for n in range(1, nc + 1, 1):
-    #                tokens = lines[lineno+n].split()
-    #                # print(tokens[2])
-    #                zion -= float(tokens[2])
-    #            header.update({'zion': zion})
-    #            # print({'zion': zion})
-    #        elif '# lmax' in line and '###' not in line:
-    #            # "lmax" first on next line
-    #            header.update({'lmax': int(lines[lineno+1].split()[0])})
-    #            # print({'lmax': int(lines[lineno+1].split()[0])})
-    #        elif '# lloc' in line and '###' not in line:
-    #            # "lloc" first on next line
-    #            header.update({'lloc': int(lines[lineno+1].split()[0])})
-    #            # print({'lloc': int(lines[lineno+1].split()[0])})
-    #        elif 'DATA FOR PLOTTING' in line:
-    #            break
-
-
-    #    #these we don't know:
-    #    #"r2well"       : _attr_desc(None, float),
-    #    header.update({'r2well': 0.0})
-    #    #"mmax"         : _attr_desc(None, float),
-    #    # this could be rlmax / drl + 1
-    #    header.update({'mmax': 0})
-    #    header.update({'pspdat': -1})
-
-    #    summary = lines[0]
-
-    #    # print(header)
-
-    #    return NcAbinitHeader(summary, **header)
-
 
 class PawAbinitHeader(AbinitHeader):
     """
@@ -942,7 +863,6 @@ class PawAbinitHeader(AbinitHeader):
         # Parse orbitals and number of meshes.
         header["orbitals"] = [int(t) for t in lines[0].split(":")[0].split()]
         header["number_of_meshes"] = num_meshes = int(lines[1].split(":")[0])
-
         #print filename, header
 
         # Skip meshes =
@@ -989,7 +909,6 @@ class PseudoParser(object):
         7 : ppdesc(6, "PAW_abinit_text", "PAW", None),
         8 : ppdesc(8, "ONCVPSP", "NC", None),
        10 : ppdesc(10, "HGHK", "NC", None),
-       #11 : ppdesc(11, "ONCVPSP_out", "NC", None)
     })
     del ppdesc
     # renumber functionals from oncvpsp todo confrim that 3 is 2
@@ -1083,7 +1002,7 @@ class PseudoParser(object):
                     #    return None
 
                     if pspcod not in self._PSPCODES:
-                        raise self.Error("%s: Don't know how to handle pspcod %s\n"  % (filename, pspcod))
+                        raise self.Error("%s: Don't know how to handle pspcod %s\n" % (filename, pspcod))
 
                     ppdesc = self._PSPCODES[pspcod]
 
@@ -1210,8 +1129,8 @@ class PawXmlSetup(Pseudo, PawPseudo):
         self.rad_grids = {}
         for node in root.findall("radial_grid"):
             grid_params = node.attrib
-            id = grid_params["id"]
-            assert id not in self.rad_grids
+            gid = grid_params["id"]
+            assert gid not in self.rad_grids
 
             self.rad_grids[id] = self._eval_grid(grid_params)
 
@@ -1221,15 +1140,15 @@ class PawXmlSetup(Pseudo, PawPseudo):
                                                                                       
         In this case we just remove the XML root element process since Element object cannot be pickled.
         """
-        return {k:v for k,v in self.__dict__.items() if k not in ["_root",]}
+        return {k: v for k, v in self.__dict__.items() if k not in ["_root"]}
 
     @property
     def root(self):
         try:
             return self._root
         except AttributeError:
-            from xml.etree import cElementTree  as ET
-            tree = ET.parse(self.filepath)
+            from xml.etree import cElementTree as Et
+            tree = Et.parse(self.filepath)
             self._root = tree.getroot()
             return self._root
 
@@ -1268,7 +1187,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         This function receives a dictionary with the parameters defining the
         radial mesh and returns a `ndarray` with the mesh
         """
-        eq = grid_params.get("eq").replace(" " ,"")
+        eq = grid_params.get("eq").replace(" ", "")
         istart, iend = int(grid_params.get("istart")), int(grid_params.get("iend"))
         indices = list(range(istart, iend+1))
 
@@ -1681,7 +1600,7 @@ class PseudoTable(collections.Sequence):
         zlist.sort()
         return zlist
 
-    def iscomplete(self, zmax=118):
+    def is_complete(self, zmax=118):
         """
         True if table is complete i.e. all elements with Z < zmax
         have at least on pseudopotential
@@ -1728,7 +1647,7 @@ class PseudoTable(collections.Sequence):
         ...
         Bk: 247.00 u  14.00 g/cm^3
         """
-        format = kw.pop('format',None)
+        format = kw.pop('format', None)
         assert len(kw) == 0
 
         for pseudo in self:
@@ -1797,4 +1716,5 @@ class PseudoTable(collections.Sequence):
 
     def with_dojo_report(self):
         """Select pseudos containing the DOJO_REPORT section."""
-        return self.select(condition=lambda p : p.has_dojo_report)
+        return self.select(condition=lambda p: p.has_dojo_report)
+

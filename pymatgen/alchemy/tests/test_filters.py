@@ -7,9 +7,10 @@ from pymatgen.alchemy.filters import ContainsSpecieFilter, \
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Specie
-from pymatgen.io.smartio import read_structure
 from pymatgen.alchemy.transmuters import StandardTransmuter
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.util.testing import PymatgenTest
+
 from monty.json import MontyDecoder
 
 import os
@@ -20,7 +21,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
-class ContainsSpecieFilterTest(unittest.TestCase):
+class ContainsSpecieFilterTest(PymatgenTest):
 
     def test_filtering(self):
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5],
@@ -64,11 +65,10 @@ class ContainsSpecieFilterTest(unittest.TestCase):
                               ContainsSpecieFilter)
 
 
-class SpecieProximityFilterTest(unittest.TestCase):
+class SpecieProximityFilterTest(PymatgenTest):
 
     def test_filter(self):
-        filename = os.path.join(test_dir, "Li10GeP2S12.json")
-        s = read_structure(filename)
+        s = self.get_structure("Li10GeP2S12")
         sf = SpecieProximityFilter({"Li": 1})
         self.assertTrue(sf.test(s))
         sf = SpecieProximityFilter({"Li": 2})

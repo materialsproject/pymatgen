@@ -124,7 +124,7 @@ class AbstractAbinitioSpec(MSONable):
                 elif isinstance(self.data[key], str):                       # string
                     self.data[key] = value
             elif key in ['help', 'h']:
-                print self.help
+                print(self.help)
             elif len(key) == 0:
                 print('setup finished')
             else:
@@ -452,8 +452,8 @@ class GWSpecs(AbstractAbinitioSpec):
                             print(item)
                         done = True
                     if data.test_full_kp_results(tol_rel=1, tol_abs=0.001):
-                        print '| Full type calculation and the full results agree with the parm_scr.' \
-                              ' All_done for this compound.'
+                        print('| Full type calculation and the full results agree with the parm_scr.' \
+                              ' All_done for this compound.')
                         data.full_res.update({'all_done': True})
                         data.print_full_res()
                         done = True

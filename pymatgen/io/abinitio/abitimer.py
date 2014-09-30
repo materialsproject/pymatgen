@@ -1,20 +1,18 @@
 # coding: utf-8
-
-from __future__ import unicode_literals, division
-
 """
 This module provides objects for extracting timing data from the ABINIT output files 
 It also provides tools to analye and to visualize the parallel efficiency.
 """
+from __future__ import unicode_literals, division
 
 import sys
 import collections
 import numpy as np
 
-from pymatgen.util.string_utils import is_string, list_strings
+from monty.string import is_string, list_strings
+from six.moves import zip
 
 import logging
-from six.moves import zip
 logger = logging.getLogger(__name__)
 
 
@@ -194,8 +192,8 @@ class AbinitTimerParser(collections.Iterable):
                 #  check = check.union(new_set)
 
         #if check != section_names:
-        #  print "sections",section_names
-        #  print "check",check
+        #  print("sections", section_names)
+        #  print("check",check)
 
         return section_names
 
@@ -243,7 +241,7 @@ class AbinitTimerParser(collections.Iterable):
         peff["total"]["wall_fract"] = n * [100]
 
         for sect_name in self.section_names():
-            #print sect_name
+            #print(sect_name)
             ref_sect = ref_t.get_section(sect_name)
             sects = [t.get_section(sect_name) for t in timers]
             try:

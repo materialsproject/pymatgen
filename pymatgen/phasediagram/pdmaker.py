@@ -18,6 +18,7 @@ __date__ = "Nov 25, 2012"
 
 import collections
 import numpy as np
+from pyhull.simplex import Simplex
 from pymatgen.serializers.json_coders import PMGSONable, MontyDecoder
 
 try:
@@ -126,7 +127,6 @@ class PhaseDiagram (PMGSONable):
             row = [comp.get_atomic_fraction(el) for el in elements]
             row.append(entry.energy_per_atom)
             data.append(row)
-
         data = np.array(data)
         self.all_entries_hulldata = data[:, 1:]
 
@@ -170,8 +170,6 @@ class PhaseDiagram (PMGSONable):
 
         if dim == 1:
             self.facets = [qhull_data.argmin(axis=0)]
-        elif len(qhull_data) == dim:
-            self.facets = [list(range(dim))]
         else:
             facets = get_facets(qhull_data)
             finalfacets = []
@@ -185,6 +183,7 @@ class PhaseDiagram (PMGSONable):
                     finalfacets.append(facet)
             self.facets = finalfacets
 
+        self.simplices = [Simplex(qhull_data[f, :-1]) for f in self.facets]
         self.all_entries = entries
         self.qhull_data = qhull_data
         self.dim = dim

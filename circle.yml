@@ -1,28 +1,29 @@
 machine:
   timezone:
     America/Los_Angeles
+  python:
+    version: 2.7.8
+  environment:
+      PATH: $PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit
+      GULP_LIB: /`pwd`/cmd_line/gulp/Libraries
 dependencies:
   override:
+    - easy_install -U setuptools
     - pip install -q numpy
     - pip install -r requirements.txt
     - pip install -r requirements-optional.txt
-    - pip install -Iv https://wiki.fysik.dtu.dk/ase-files/python-ase-3.7.1.3184.tar.gz
     - python setup.py develop
 test:
   override:
-    - nosetests:
-        environment:
-            PATH: $PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit
-            GULP_LIB: /`pwd`/cmd_line/gulp/Libraries
-            PYTHONPATH: $PYTHONPATH:/usr/lib/python2.7/dist-packages/
+    - nosetests
 deployment:
-  automerge:
-    branch: [master]
+  py3:
+    branch: master
     commands:
-      - git config --global push.default simple
-      - git config --global user.email "ongsp@ucsd.edu"
-      - git config --global user.name "Shyue Ping Ong"
+      - git config --global user.name "Py3k merger"
+      - git config --global user.email ongsp@ucsd.edu
+      - git config --global push.default matching
       - git checkout stable_py3
-      - git merge -m "Automated merge for py3k testing" master
+      - git pull
+      - git merge master -m "Automatic Py3k merge for testing"
       - git push
-      - git checkout master

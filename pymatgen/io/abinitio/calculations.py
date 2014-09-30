@@ -1,22 +1,12 @@
 # coding: utf-8
-
-from __future__ import unicode_literals, division, print_function
-
 """
 Factory functions producing ABINIT workflows. Entry points for client code (high-level interface)
 """
+from __future__ import unicode_literals, division, print_function
 
-import os
-
-from pymatgen.io.abinitio.abiobjects import (Smearing, KSampling, Screening,
-    SelfEnergy, ExcHamiltonian)
-
-from pymatgen.io.abinitio.abiobjects import HilbertTransform
-
-from pymatgen.io.abinitio.strategies import (ScfStrategy, NscfStrategy,
-    ScreeningStrategy, SelfEnergyStrategy, MDFBSE_Strategy)
-
-from pymatgen.io.abinitio.workflows import (BandStructureWorkflow, G0W0_Workflow, BSEMDF_Workflow)
+from .abiobjects import KSampling, Screening, SelfEnergy, ExcHamiltonian, HilbertTransform
+from .strategies import ScfStrategy, NscfStrategy, ScreeningStrategy, SelfEnergyStrategy, MDFBSE_Strategy
+from .workflows import BandStructureWorkflow, G0W0_Workflow, BSEMDF_Workflow
 
 
 __author__ = "Matteo Giantomassi"
@@ -128,6 +118,7 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
 #                                   charge=charge, scf_algorithm=scf_algorithm)
 #
 #    #return Relaxation(relax_strategy, workdir=workdir, manager=manager)
+
 
 def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx,
                       accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
@@ -279,14 +270,6 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
     to_add = {}
 
     extra_abivars.update(to_add)
-    #extra_abivars.update({'paral_kgb': 1})
-
-    #from pymatgen.io.abinitio.tasks import TaskManager
-    #tmp_manager = TaskManager.from_user_config()
-
-    #extra_abivars.update({'npkpt': 1, 'npfft': 4})
-    #ncpus = tmp_manager.tot_ncpus
-    #extra_abivars.update({'npbands': int(ncpus/4)})
 
     for k in extra_abivars.keys():
         if k[-2:] == '_s':
@@ -310,13 +293,8 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
     if sigma_nband is None:
         sigma_nband = nscf_nband
 
-#    if extra_abivars['ecut'][0] < max(ecuteps) / 4:
-#        extra_abivars['ecut'][0] = max(ecuteps) / 4
     if ecutsigx < max(ecuteps):
         ecutsigx = max(ecuteps)
-
-    # for x in ('paral_kgb', 'npkpt', 'npfft', 'npbands'):
-    #    del extra_abivars[x]
 
     sigma_strategy = []
 
