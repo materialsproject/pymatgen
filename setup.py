@@ -17,14 +17,14 @@ except ImportError:
     from numpy.distutils.misc_util import get_numpy_include_dirs
 
 
-cwd = os.path.dirname(os.path.abspath(__file__))
+SETUP_PTH = os.path.dirname(os.path.abspath(__file__))
 
 
 def get_spglib_ext():
     """
     Set up spglib extension.
     """
-    spglibs = glob.glob(os.path.join(cwd, "dependencies", "spglib*"))
+    spglibs = glob.glob(os.path.join(SETUP_PTH, "dependencies", "spglib*"))
     if len(spglibs) != 1:
         raise ValueError("Incorrect number of spglib found in dependencies. "
                          "Expected 1, got %d" % len(spglibs))
@@ -42,10 +42,12 @@ def get_spglib_ext():
         sources=[os.path.join(spglibdir, "_spglib.c")] + sources,
         extra_compile_args=c_opt)
 
-with open("README.rst", "rt") as f:
+
+with open("README.rst") as f:
     long_desc = f.read()
     ind = long_desc.find("\n")
     long_desc = long_desc[ind + 1:]
+
 
 setup(
     name="pymatgen",
@@ -105,5 +107,5 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
     ext_modules=[get_spglib_ext()],
-    scripts=glob.glob(os.path.join(cwd, "scripts", "*"))
+    scripts=glob.glob(os.path.join(SETUP_PTH, "scripts", "*"))
 )
