@@ -24,6 +24,7 @@ from warnings import warn
 from pyhull.voronoi import VoronoiTess
 from pymatgen import PeriodicSite
 from pymatgen import Element, Specie, Composition
+from pymatgen.util.num_utils import abs_cap
 
 
 class VoronoiCoordFinder(object):
@@ -325,8 +326,7 @@ def solid_angle(center, coords):
     for i in range(len(n) - 1):
         v = -np.dot(n[i], n[i + 1])\
             / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))
-        v = max(min(v, 1), -1)
-        vals.append(math.acos(v))
+        vals.append(math.acos(abs_cap(v)))
     phi = sum(vals)
     return phi + (3 - len(r)) * math.pi
 

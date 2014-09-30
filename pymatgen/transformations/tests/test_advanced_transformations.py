@@ -20,7 +20,6 @@ import json
 
 import numpy as np
 
-from pymatgen.io.smartio import read_structure
 from pymatgen import Lattice, Structure
 from pymatgen.transformations.standard_transformations import \
     OxidationStateDecorationTransformation, SubstitutionTransformation, \

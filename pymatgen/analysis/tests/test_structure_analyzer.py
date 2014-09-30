@@ -10,7 +10,7 @@ from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     solid_angle, contains_peroxide, RelaxationAnalyzer, VoronoiConnectivity, \
     oxide_type
 from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen import Element, Structure, Lattice, read_structure
+from pymatgen import Element, Structure, Lattice
 from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
