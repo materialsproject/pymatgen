@@ -208,7 +208,7 @@ class SpaceGroup(SymmetryGroup):
         else:
             return "cubic"
 
-    def get_orbit(self, p):
+    def get_orbit(self, p, tol=1e-5):
         """
         Returns the orbit for a point.
 
@@ -219,7 +219,7 @@ class SpaceGroup(SymmetryGroup):
             ([array]) Orbit for point.
         """
         p = np.append(p, [1])
-        orbit = super(SpaceGroup, self).get_orbit(p)
+        orbit = super(SpaceGroup, self).get_orbit(p, tol=tol)
         return np.delete(orbit, np.s_[-1:], 1)
 
     @classmethod

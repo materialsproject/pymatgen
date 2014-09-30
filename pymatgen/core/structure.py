@@ -435,7 +435,7 @@ class IStructure(SiteCollection, PMGSONable):
 
     @classmethod
     def from_spacegroup(cls, sg, lattice, species, coords, site_properties=None,
-                        coords_are_cartesian=False):
+                        coords_are_cartesian=False, tol=1e-5):
         """
         Generate a structure using a spacegroup.
 
@@ -470,6 +470,8 @@ class IStructure(SiteCollection, PMGSONable):
                 dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
+            tol (float): A fractional tolerance to deal with numerical
+               precision issues in determining if orbits are the same.
         """
         try:
             i = int(sg)
@@ -492,7 +494,7 @@ class IStructure(SiteCollection, PMGSONable):
         all_coords = []
         all_site_properties = collections.defaultdict(list)
         for i, (sp, c) in enumerate(zip(species, frac_coords)):
-            cc = sgp.get_orbit(c)
+            cc = sgp.get_orbit(c, tol=tol)
             all_sp.extend([sp] * len(cc))
             all_coords.extend(cc)
             for k, v in props.items():
