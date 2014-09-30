@@ -14,9 +14,9 @@ test:
   override:
     - nosetests:
       environment:
-        - PATH: $PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit
-        - GULP_LIB: /`pwd`/cmd_line/gulp/Libraries
-        - PYTHONPATH: $PYTHONPATH:/usr/lib/python2.7/dist-packages/
+          PATH: $PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit
+          GULP_LIB: /`pwd`/cmd_line/gulp/Libraries
+          PYTHONPATH: $PYTHONPATH:/usr/lib/python2.7/dist-packages/
 deployment:
   py3:
     branch: master
