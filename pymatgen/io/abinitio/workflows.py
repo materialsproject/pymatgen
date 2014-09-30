@@ -215,7 +215,6 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
 
         for task in self:
             if task.can_run:
-                #print(task, str(task.status), [task.deps_status])
                 return task
 
         # No task found, this usually happens when we have dependencies. 

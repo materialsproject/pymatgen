@@ -2,6 +2,7 @@ import glob
 import os
 import subprocess
 from io import open
+import sys
 
 from ez_setup import use_setuptools
 use_setuptools()
@@ -16,14 +17,14 @@ except ImportError:
     from numpy.distutils.misc_util import get_numpy_include_dirs
 
 
-cwd = os.path.dirname(os.path.abspath(__file__))
+SETUP_PTH = os.path.dirname(os.path.abspath(__file__))
 
 
 def get_spglib_ext():
     """
     Set up spglib extension.
     """
-    spglibs = glob.glob(os.path.join(cwd, "dependencies", "spglib*"))
+    spglibs = glob.glob(os.path.join(SETUP_PTH, "dependencies", "spglib*"))
     if len(spglibs) != 1:
         raise ValueError("Incorrect number of spglib found in dependencies. "
                          "Expected 1, got %d" % len(spglibs))
@@ -33,24 +34,28 @@ def get_spglib_ext():
     spgsrcdir = os.path.join(spglibdir, "src")
     include_dirs = [spgsrcdir]
     sources = glob.glob(os.path.join(spgsrcdir, "*.c"))
+    c_opt = [] if sys.version_info.major < 3 else [
+        "-Wno-error=declaration-after-statement"]
     return Extension(
         "pymatgen._spglib",
         include_dirs=include_dirs + get_numpy_include_dirs(),
         sources=[os.path.join(spglibdir, "_spglib.c")] + sources,
-        extra_compile_args=["-Wno-error=declaration-after-statement"])
+        extra_compile_args=c_opt)
 
-with open("README.rst", "rt") as f:
+
+with open("README.rst") as f:
     long_desc = f.read()
     ind = long_desc.find("\n")
     long_desc = long_desc[ind + 1:]
 
+
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="3.0.2",
-    install_requires=["numpy>=1.8", "pyhull>=1.5.2",
+    version="3.0.4",
+    install_requires=["numpy>=1.8", "pyhull>=1.5.3",
                       "requests>=2.3.0", "pybtex>=0.18", "pyyaml>=3.11",
-                      "monty>=0.5.4", "six>=1.7.3"],
+                      "monty>=0.5.5", "six>=1.7.3"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
                     "plotting": ["matplotlib>=1.1"],
                     "ase_adaptor": ["ase>=3.3"],
@@ -59,13 +64,15 @@ setup(
     package_data={"pymatgen.core": ["*.json"],
                   "pymatgen.analysis": ["*.yaml"],
                   "pymatgen.io": ["*.yaml"],
+                  "pymatgen.symmetry": ["*.json"],
                   "pymatgen.io.gwwrapper":["*.json"],
                   "pymatgen.entries": ["*.yaml"],
                   "pymatgen.structure_prediction": ["data/*.json"],
                   "pymatgen.vis": ["ElementColorSchemes.yaml"],
                   "pymatgen.command_line": ["OxideTersoffPotentials"],
                   "pymatgen.analysis.defects": ["*.json"],
-                  "pymatgen.analysis.diffraction": ["*.json"]},
+                  "pymatgen.analysis.diffraction": ["*.json"],
+                  "pymatgen.util": ["structures/*.json"]},
     author="Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier,"
     "William Davidson Richards, Stephen Dacek, Dan Gunter, Shreyas Cholia, "
     "Matteo Giantomassi, Vincent L Chevrier, Rickard Armiento",
@@ -101,5 +108,5 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
     ext_modules=[get_spglib_ext()],
-    scripts=glob.glob(os.path.join(cwd, "scripts", "*"))
+    scripts=glob.glob(os.path.join(SETUP_PTH, "scripts", "*"))
 )

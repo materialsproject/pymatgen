@@ -19,24 +19,24 @@ import os
 
 from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
 from pymatgen import Element, Structure
-from pymatgen.io.smartio import read_structure
 from pymatgen.transformations.standard_transformations import \
     SubstitutionTransformation
 from monty.os.path import which
 from pymatgen.transformations.site_transformations import \
     RemoveSitesTransformation
+from pymatgen.util.testing import PymatgenTest
 
 
 enumlib_present = which('multienum.x') and which('makestr.x')
 
 
 @unittest.skipIf(not enumlib_present, "enum_lib not present.")
-class EnumlibAdaptorTest(unittest.TestCase):
+class EnumlibAdaptorTest(PymatgenTest):
 
     def test_init(self):
         test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                                 'test_files')
-        struct = read_structure(os.path.join(test_dir, "LiFePO4.json"))
+        struct = self.get_structure("LiFePO4")
         subtrans = SubstitutionTransformation({'Li': {'Li': 0.5}})
         adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 2)
         adaptor.run()
@@ -70,7 +70,7 @@ class EnumlibAdaptorTest(unittest.TestCase):
         self.assertEqual(len(adaptor.structures), 3)
 
         #Make sure it works properly when symmetry is broken by ordered sites.
-        struct = read_structure(os.path.join(test_dir, "LiFePO4.json"))
+        struct = self.get_structure("LiFePO4")
         subtrans = SubstitutionTransformation({'Li': {'Li': 0.25}})
         s = subtrans.apply_transformation(struct)
         #REmove some ordered sites to break symmetry.
@@ -88,7 +88,8 @@ class EnumlibAdaptorTest(unittest.TestCase):
         structures = adaptor.structures
         self.assertEqual(len(structures), 10)
 
-        struct = read_structure(os.path.join(test_dir, "EnumerateTest.json"))
+        struct = Structure.from_file(
+            os.path.join(test_dir, "EnumerateTest.json"))
         adaptor = EnumlibAdaptor(struct, 1, 1)
         adaptor.run()
         structures = adaptor.structures

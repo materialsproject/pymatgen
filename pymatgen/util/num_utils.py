@@ -6,10 +6,25 @@ from __future__ import unicode_literals, division, print_function
 This module provides utilities for basic math operations.
 """
 
-import itertools
 import collections
-import numpy as np
+
 from six.moves import zip
+
+
+def abs_cap(val, max_abs_val=1):
+    """
+    Returns the value with its absolute value capped at max_abs_val.
+    Particularly useful in passing values to trignometric functions where
+    numerical errors may result in an argument > 1 being passed in.
+
+    Args:
+        val (float): Input value.
+        max_abs_val (float): The maximum absolute value for val. Defaults to 1.
+
+    Returns:
+        val if abs(val) < 1 else sign of val * max_abs_val.
+    """
+    return max(min(val, max_abs_val), -max_abs_val)
 
 
 def sort_dict(d, key=None, reverse=False):
