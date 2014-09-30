@@ -13,7 +13,17 @@ dependencies:
 test:
   override:
     - nosetests:
-        environment:
-            PATH: $PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit
-            GULP_LIB: /`pwd`/cmd_line/gulp/Libraries
-            PYTHONPATH: $PYTHONPATH:/usr/lib/python2.7/dist-packages/
+      environment:
+        PATH: $PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit
+        GULP_LIB: /`pwd`/cmd_line/gulp/Libraries
+        PYTHONPATH: $PYTHONPATH:/usr/lib/python2.7/dist-packages/
+deployment:
+  py3:
+    branch: master
+    commands:
+      - git config --global user.name "Py3k merger"
+      - git config --global user.email ongsp@ucsd.edu
+      - git checkout stable_py3
+      - git pull
+      - git merge master -m "Automatic Py3k merge for testing"
+      - git push
