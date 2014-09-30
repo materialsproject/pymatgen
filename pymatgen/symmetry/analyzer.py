@@ -38,7 +38,6 @@ except ImportError:
 from six.moves import filter, map, zip
 
 from pymatgen.core.structure import Structure
-from pymatgen.symmetry.spacegroup import Spacegroup
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import PeriodicSite
@@ -118,9 +117,9 @@ class SpacegroupAnalyzer(object):
             Spacgroup object.
         """
         # Atomic positions have to be specified by scaled positions for spglib.
-        return Spacegroup(self.get_spacegroup_symbol(),
-                          self.get_spacegroup_number(),
-                          self.get_symmetry_operations())
+        return SpacegroupOperations(self.get_spacegroup_symbol(),
+                                    self.get_spacegroup_number(),
+                                    self.get_symmetry_operations())
 
     def get_spacegroup_symbol(self):
         """
@@ -325,9 +324,9 @@ class SpacegroupAnalyzer(object):
             :class:`pymatgen.symmetry.structure.SymmetrizedStructure` object.
         """
         ds = self.get_symmetry_dataset()
-        sg = Spacegroup(self.get_spacegroup_symbol(),
-                        self.get_spacegroup_number(),
-                        self.get_symmetry_operations())
+        sg = SpacegroupOperations(self.get_spacegroup_symbol(),
+                                  self.get_spacegroup_number(),
+                                  self.get_symmetry_operations())
         return SymmetrizedStructure(self._structure, sg,
                                     ds["equivalent_atoms"])
 
@@ -806,35 +805,6 @@ def get_point_group(rotations):
     return spg.pointgroup(np.array(rotations, dtype='intc', order='C'))
 
 
-class PointGroupOperations(list):
-    """
-    Defines a point group, which is essentially a sequence of symmetry
-    operations.
-
-    Args:
-        sch_symbol (str): Schoenflies symbol of the point group.
-        operations ([SymmOp]): Initial set of symmetry operations. It is
-            sufficient to provide only just enough operations to generate
-            the full set of symmetries.
-        tol (float): Tolerance to generate the full set of symmetry
-            operations.
-
-    .. attribute:: sch_symbol
-
-        Schoenflies symbol of the point group.
-    """
-    def __init__(self, sch_symbol, operations, tol=0.1):
-        self.sch_symbol = sch_symbol
-        super(PointGroupOperations, self).__init__(
-            generate_full_symmops(operations, tol))
-
-    def __str__(self):
-        return self.sch_symbol
-
-    def __repr__(self):
-        return self.__str__()
-
-
 class PointGroupAnalyzer(object):
     """
     A class to analyze the point group of a molecule. The general outline of
@@ -1291,3 +1261,90 @@ def generate_full_symmops(symmops, tol):
                 return generate_full_symmops(symmops + [SymmOp(m)], tol)
 
     return symmops
+
+
+class SpacegroupOperations(list):
+    """
+    Represents a space group, which is a collection of symmetry operations.
+
+    Args:
+        int_symbol (str): International symbol of the spacegroup.
+        int_number (int): International number of the spacegroup.
+        symmops ([SymmOp]): Symmetry operations associated with the
+            spacegroup.
+    """
+
+    def __init__(self, int_symbol, int_number, symmops):
+        self.int_symbol = int_symbol
+        self.int_number = int_number
+        super(SpacegroupOperations, self).__init__(symmops)
+
+    def are_symmetrically_equivalent(self, sites1, sites2, symm_prec=1e-3):
+        """
+        Given two sets of PeriodicSites, test if they are actually
+        symmetrically equivalent under this space group.  Useful, for example,
+        if you want to test if selecting atoms 1 and 2 out of a set of 4 atoms
+        are symmetrically the same as selecting atoms 3 and 4, etc.
+
+        One use is in PartialRemoveSpecie transformation to return only
+        symmetrically distinct arrangements of atoms.
+
+        Args:
+            sites1 ([Site]): 1st set of sites
+            sites2 ([Site]): 2nd set of sites
+            symm_prec (float): Tolerance in atomic distance to test if atoms
+                are symmetrically similar.
+
+        Returns:
+            (bool): Whether the two sets of sites are symmetrically
+            equivalent.
+        """
+        def in_sites(site):
+            for test_site in sites1:
+                if test_site.is_periodic_image(site, symm_prec, False):
+                    return True
+            return False
+        for op in self:
+            newsites2 = [PeriodicSite(site.species_and_occu,
+                                      op.operate(site.frac_coords),
+                                      site.lattice) for site in sites2]
+            ismapping = True
+            for site in newsites2:
+                if not in_sites(site):
+                    ismapping = False
+                    break
+            if ismapping:
+                return True
+        return False
+
+    def __str__(self):
+        return "{} ({}) spacegroup".format(self.int_symbol, self.int_number)
+
+
+class PointGroupOperations(list):
+    """
+    Defines a point group, which is essentially a sequence of symmetry
+    operations.
+
+    Args:
+        sch_symbol (str): Schoenflies symbol of the point group.
+        operations ([SymmOp]): Initial set of symmetry operations. It is
+            sufficient to provide only just enough operations to generate
+            the full set of symmetries.
+        tol (float): Tolerance to generate the full set of symmetry
+            operations.
+
+    .. attribute:: sch_symbol
+
+        Schoenflies symbol of the point group.
+    """
+    def __init__(self, sch_symbol, operations, tol=0.1):
+        self.sch_symbol = sch_symbol
+        super(PointGroupOperations, self).__init__(
+            generate_full_symmops(operations, tol))
+
+    def __str__(self):
+        return self.sch_symbol
+
+    def __repr__(self):
+        return self.__str__()
