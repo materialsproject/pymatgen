@@ -33,6 +33,7 @@ def lcm(numbers):
         return (a * b) / gcd(a, b)
     return reduce(lcm, numbers, 1)
 
+
 def organize(struct):
     """Takes in a structure (ie. a list of sites) and organizes the list
     based on the c coordinate from sites closest to c=0 to farthest. Then
@@ -52,7 +53,6 @@ def organize(struct):
         zip(*sorted(zip(new_coord, org_coords, el)))
 
     return [Structure(struct.lattice, el, org_coords), new_coord, org_coords, el]
-
 
 
 
