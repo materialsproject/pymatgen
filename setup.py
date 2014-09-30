@@ -64,6 +64,7 @@ setup(
     package_data={"pymatgen.core": ["*.json"],
                   "pymatgen.analysis": ["*.yaml"],
                   "pymatgen.io": ["*.yaml"],
+                  "pymatgen.symmetry": ["*.json"],
                   "pymatgen.io.gwwrapper":["*.json"],
                   "pymatgen.entries": ["*.yaml"],
                   "pymatgen.structure_prediction": ["data/*.json"],
