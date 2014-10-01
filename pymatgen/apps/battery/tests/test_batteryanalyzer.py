@@ -22,8 +22,11 @@ class BatteryAnalyzerTest(unittest.TestCase):
         self.li8nicofe208 = self.load_from_cif("Li8Fe2NiCoO8.cif", {'Li': 1, 'Fe': 2, 'Mn': 2, 'Co': 2, 'Ni': 2, 'O': -2})
         self.li3v2p3o12 = self.load_from_cif("Li3V2(PO4)3.cif", {'Li': 1, 'V': 3, 'O': -2, 'P': 5})
 
-    def test_capacitygrav_calculations(self):
+    def test_oxid_check(self):
+        s = CifParser(os.path.join(module_dir, 'LiFePO4.cif')).get_structures()[0]
+        self.assertRaises(ValueError, BatteryAnalyzer, s, 'Li')
 
+    def test_capacitygrav_calculations(self):
         lifepo4_cap = 169.89053 # same as fepo4 cap
         nafepo4_cap = 154.20331
         li3v2p3o12_cap_remove = 197.25339
