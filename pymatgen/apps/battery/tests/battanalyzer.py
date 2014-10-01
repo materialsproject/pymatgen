@@ -34,8 +34,10 @@ class BatteryAnalyzer():
             struc_oxid - a Structure object; oxidation states *must* be assigned for this structure; disordered structures should be OK
             cation - a String symbol or Element for the cation. It must be positively charged, but can be 1+/2+/3+ etc.
         """
+
         # TODO: assign oxidation states automatically if not assigned, or at least do a check
         self.struc_oxid = struc_oxid
+        self.comp = self.struc_oxid.composition  # shortcut for later
 
         if not isinstance(cation, Element):
             self.cation = Element(cation)
@@ -51,8 +53,10 @@ class BatteryAnalyzer():
             integer amount of cation. Depends on cell size (this is an 'extrinsic' function!)
         """
 
-        #how much 'spare charge' is left in the redox metals for oxidation?
-        oxid_pot = sum([(Element(spec.symbol).max_oxidation_state - spec.oxi_state) * self.comp[spec] for spec in self.comp if is_redox_active_intercalation(Element(spec.symbol))])
+        # how much 'spare charge' is left in the redox metals for oxidation?
+        oxid_pot = sum(
+            [(Element(spec.symbol).max_oxidation_state - spec.oxi_state) * self.comp[spec] for spec
+             in self.comp if is_redox_active_intercalation(Element(spec.symbol))])
 
         oxid_limit = oxid_pot / self.cation_charge
 
@@ -71,9 +75,12 @@ class BatteryAnalyzer():
             integer amount of cation. Depends on cell size (this is an 'extrinsic' function!)
         """
 
-        #how much 'spare charge' is left in the redox metals for reduction?
-        lowest_oxid = defaultdict(lambda: 2, {'Cu':1})  # only Cu can go down to 1+
-        oxid_pot = sum([(spec.oxi_state - min(e for e in Element(spec.symbol).oxidation_states if e>=lowest_oxid[spec.symbol])) * self.comp[spec] for spec in self.comp if is_redox_active_intercalation(Element(spec.symbol))])
+        # how much 'spare charge' is left in the redox metals for reduction?
+        lowest_oxid = defaultdict(lambda: 2, {'Cu': 1})  # only Cu can go down to 1+
+        oxid_pot = sum([(spec.oxi_state - min(
+            e for e in Element(spec.symbol).oxidation_states if e >= lowest_oxid[spec.symbol])) *
+            self.comp[spec] for spec in self.comp if
+            is_redox_active_intercalation(Element(spec.symbol))])
 
         return oxid_pot / self.cation_charge
 
@@ -89,7 +96,7 @@ class BatteryAnalyzer():
         if insert:
             num_cations += self.max_cation_insertion
 
-        return num_cations * self.cation_charge * ELECTRON_TO_AMPERE_HOURS;
+        return num_cations * self.cation_charge * ELECTRON_TO_AMPERE_HOURS
 
 
     def get_max_capgrav(self, remove=True, insert=True):
@@ -105,9 +112,9 @@ class BatteryAnalyzer():
             max grav capacity in mAh/g
         """
         weight = self.comp.weight
-        if (insert):
+        if insert:
             weight += self.max_cation_insertion * self.cation.atomic_mass
-        return self._get_max_cap_ah(remove, insert) / (weight / 1000);
+        return self._get_max_cap_ah(remove, insert) / (weight / 1000)
 
 
     def get_max_capvol(self, remove=True, insert=True, volume=None):
@@ -142,13 +149,14 @@ class BatteryAnalyzer():
         """
 
         # the elements that can possibly be oxidized
-        oxid_els = [Element(spec.symbol) for spec in self.comp if is_redox_active_intercalation(spec)]
+        oxid_els = [Element(spec.symbol) for spec in self.comp if
+                    is_redox_active_intercalation(spec)]
 
         numa = set()
         for oxid_el in oxid_els:
             numa = numa.union(self._get_delith_intoxi(self.comp.copy(), oxid_el, oxid_els, numa))
 
-        #convert from num A in structure to num A removed
+        # convert from num A in structure to num A removed
         num_cation = self.comp[Specie(self.cation.symbol, self.cation_charge)]
         return set([num_cation - a for a in numa])
 
@@ -165,41 +173,43 @@ class BatteryAnalyzer():
             a set of numbers A; steps for for oxidizing oxid_el first, then the other oxid_els in this list
         """
 
-        #If Mn is the oxid_el, we have a mixture of Mn2+, Mn3+, determine the minimum oxidation state for Mn
+        # If Mn is the oxid_el, we have a mixture of Mn2+, Mn3+, determine the minimum oxidation state for Mn
         #this is the state we want to oxidize!
         oxid_old = min([spec.oxi_state for spec in spec_amts_oxi if spec.symbol == oxid_el.symbol])
         oxid_new = math.floor(oxid_old + 1)
         #if this is not a valid solution, break out of here and don't add anything to the list
-        if (oxid_new > oxid_el.max_oxidation_state):
+        if oxid_new > oxid_el.max_oxidation_state:
             return numa
 
         #update the spec_amts_oxi map to reflect that the oxidation took place
         spec_old = Specie(oxid_el.symbol, oxid_old)
         spec_new = Specie(oxid_el.symbol, oxid_new)
         specamt = spec_amts_oxi[spec_old]
-        spec_amts_oxi = {sp:amt for sp, amt in spec_amts_oxi.items() if sp != spec_old}
+        spec_amts_oxi = {sp: amt for sp, amt in spec_amts_oxi.items() if sp != spec_old}
         spec_amts_oxi[spec_new] = specamt
         spec_amts_oxi = Composition(spec_amts_oxi)
 
         #determine the amount of cation A in the structure needed for charge balance and add it to the list
-        oxi_noA = sum([spec.oxi_state * spec_amts_oxi[spec] for spec in spec_amts_oxi if spec.symbol not in self.cation.symbol])
+        oxi_noA = sum([spec.oxi_state * spec_amts_oxi[spec] for spec in spec_amts_oxi if
+                       spec.symbol not in self.cation.symbol])
         a = max(0, -oxi_noA / self.cation_charge)
         numa = numa.union({a})
 
         #recursively try the other oxidation states
-        if (a == 0):
+        if a == 0:
             return numa
         else:
             for oxid_el in oxid_els:
-                numa = numa.union(self._get_delith_intoxi(spec_amts_oxi.copy(), oxid_el, oxid_els, numa))
+                numa = numa.union(
+                    self._get_delith_intoxi(spec_amts_oxi.copy(), oxid_el, oxid_els, numa))
             return numa
 
 
 def is_redox_active_intercalation(element):
-        """
-        True if element is redox active and interesting for intercalation materials
-        """
+    """
+    True if element is redox active and interesting for intercalation materials
+    """
 
-        ns = ['Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Nb', 'Mo', 'W', 'Sb', 'Sn', 'Bi']
-        return element.symbol in ns
+    ns = ['Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Nb', 'Mo', 'W', 'Sb', 'Sn', 'Bi']
+    return element.symbol in ns
 
