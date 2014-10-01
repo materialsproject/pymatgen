@@ -777,6 +777,7 @@ class PyFlowScheduler(object):
                     fh.write("Shutdown message:\n%s" % msg)
 
             # Shutdown the scheduler thus allowing the process to exit.
+            print('this should be the shutdown of the scheduler')
             self.sched.shutdown(wait=False)
 
     def send_email(self, msg, tag=None):
