@@ -1208,7 +1208,10 @@ class IStructure(SiteCollection, PMGSONable):
     @classmethod
     def from_file(cls, filename, primitive=True, sort=False):
         """
-        Reads a structure from a file.
+        Reads a structure from a file. For example, anything ending in
+        a "cif" is assumed to be a Crystallographic Information Format file.
+        Supported formats include CIF, POSCAR/CONTCAR, CHGCAR, LOCPOT,
+        vasprun.xml, CSSR and pymatgen's JSON serialized structures.
 
         Args:
             filename (str): The filename to read from.
@@ -1766,7 +1769,11 @@ class IMolecule(SiteCollection, PMGSONable):
     @classmethod
     def from_file(cls, filename):
         """
-        Reads a molecule from a file.
+        Reads a molecule from a file. Supported formats include xyz,
+        gaussian input (gjf|g03|g09|com|inp), Gaussian output (.out|and
+        pymatgen's JSON serialized molecules. Using openbabel,
+        many more extensions are supported but requires openbabel to be
+        installed.
 
         Args:
             filename (str): The filename to read from.
