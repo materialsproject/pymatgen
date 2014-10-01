@@ -487,9 +487,10 @@ class IStructure(SiteCollection, PMGSONable):
             latt = Lattice(lattice)
 
         if not sgp.is_compatible(latt):
-            raise ValueError("Supplied lattice with parameters %s is "
-                             "incompatible with supplied spacegroup %s!" % (
-                latt.lengths_and_angles, sgp.symbol)
+            raise ValueError(
+                "Supplied lattice with parameters %s is incompatible with "
+                "supplied spacegroup %s!" % (latt.lengths_and_angles,
+                                             sgp.symbol)
             )
 
         frac_coords = coords if not coords_are_cartesian else \
@@ -1218,15 +1219,8 @@ class IStructure(SiteCollection, PMGSONable):
         Returns:
             Structure.
         """
-        from pymatgen.io.vaspio import Vasprun, Poscar, Chgcar
-        from pymatgen.io.cifio import CifParser
-        from pymatgen.io.cssrio import Cssr
-        from pymatgen.io.xyzio import XYZ
-        from pymatgen.io.gaussianio import GaussianInput, GaussianOutput
+        from pymatgen.io.vaspio import Vasprun, Chgcar
         from monty.io import zopen
-        from monty.json import MontyDecoder, MontyEncoder
-        from monty.string import str2unicode
-        from pymatgen.io.babelio import BabelMolAdaptor
         fname = os.path.basename(filename)
         with zopen(filename) as f:
             contents = f.read()
