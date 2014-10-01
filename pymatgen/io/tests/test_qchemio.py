@@ -1114,6 +1114,9 @@ $end
         qcinp2 = QcInput.from_string(ans)
         self.assertEqual(qcinp1.as_dict(), qcinp2.as_dict())
 
+        qcinp_mgbf4 = QcInput.from_file(os.path.join(test_dir, "MgBF4_b_overalpped.qcinp"))
+        print qcinp_mgbf4
+
     def test_to_and_from_dict(self):
         qctask1 = QcTask(mol, title="Test Methane Opt", exchange="B3LYP",
                          jobtype="Opt", basis_set="6-31+G*")
