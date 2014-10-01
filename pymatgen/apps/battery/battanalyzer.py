@@ -135,7 +135,7 @@ class BatteryAnalyzer():
         vol = volume if volume else self.struc_oxid.volume
         return self._get_max_cap_ah(remove, insert) * 1000 * 1E24 / (vol * AVOGADROS_CONST)
 
-    def get_delith_int_oxid(self):
+    def get_removals_int_oxid(self):
         """
         Returns a set of delithiation steps, e.g. set([1.0 2.0 4.0]) etc. in order to
         produce integer oxidation states of the redox metals.
@@ -157,15 +157,15 @@ class BatteryAnalyzer():
 
         numa = set()
         for oxid_el in oxid_els:
-            numa = numa.union(self._get_delith_intoxi(self.comp.copy(), oxid_el, oxid_els, numa))
+            numa = numa.union(self._get_int_removals_helper(self.comp.copy(), oxid_el, oxid_els, numa))
 
         # convert from num A in structure to num A removed
         num_cation = self.comp[Specie(self.cation.symbol, self.cation_charge)]
         return set([num_cation - a for a in numa])
 
-    def _get_delith_intoxi(self, spec_amts_oxi, oxid_el, oxid_els, numa):
+    def _get_int_removals_helper(self, spec_amts_oxi, oxid_el, oxid_els, numa):
         """
-        This is a helper method for get_delith_int_oxid!
+        This is a helper method for get_removals_int_oxid!
 
         Args:
             spec_amts_oxi - a dict of species to their amounts in the structure
@@ -204,7 +204,7 @@ class BatteryAnalyzer():
         else:
             for oxid_el in oxid_els:
                 numa = numa.union(
-                    self._get_delith_intoxi(spec_amts_oxi.copy(), oxid_el, oxid_els, numa))
+                    self._get_int_removals_helper(spec_amts_oxi.copy(), oxid_el, oxid_els, numa))
             return numa
 
 
