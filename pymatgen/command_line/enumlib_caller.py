@@ -43,7 +43,7 @@ import numpy as np
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.periodic_table import DummySpecie
 from monty.os.path import which
 from monty.dev import requires
@@ -97,7 +97,7 @@ class EnumlibAdaptor(object):
                 it is not necessary. Defaults to False.
         """
         if refine_structure:
-            finder = SymmetryFinder(structure, symm_prec)
+            finder = SpacegroupAnalyzer(structure, symm_prec)
             self.structure = finder.get_refined_structure()
         else:
             self.structure = structure
@@ -139,7 +139,7 @@ class EnumlibAdaptor(object):
         coord_format = "{:.6f} {:.6f} {:.6f}"
 
         # Using symmetry finder, get the symmetrically distinct sites.
-        fitter = SymmetryFinder(self.structure, self.symm_prec)
+        fitter = SpacegroupAnalyzer(self.structure, self.symm_prec)
         symmetrized_structure = fitter.get_symmetrized_structure()
         logger.debug("Spacegroup {} ({}) with {} distinct sites".format(
             fitter.get_spacegroup_symbol(),
@@ -192,7 +192,7 @@ class EnumlibAdaptor(object):
                 disordered_sites.append(sites)
 
         def get_sg_info(ss):
-            finder = SymmetryFinder(Structure.from_sites(ss), self.symm_prec)
+            finder = SpacegroupAnalyzer(Structure.from_sites(ss), self.symm_prec)
             sgnum = finder.get_spacegroup_number()
             return sgnum
 

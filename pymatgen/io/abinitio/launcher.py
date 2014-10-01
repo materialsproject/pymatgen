@@ -10,8 +10,8 @@ import yaml
 from six.moves import cStringIO
 from datetime import timedelta
 from monty.io import get_open_fds
+from monty.string import boxed, is_string
 from monty.os.path import which
-from monty.string import is_string
 from monty.collections import AttrDict
 
 try:
@@ -345,16 +345,6 @@ class PyLauncher(object):
             tasks_to_run.extend(work.fetch_alltasks_to_run())
 
         return tasks_to_run
-
-
-def boxed(msg, ch="=", pad=5):
-    if pad > 0:
-        msg = pad * ch + msg + pad * ch
-
-    return "\n".join([len(msg) * ch,
-                      msg,
-                      len(msg) * ch,
-                      "", ])
 
 
 class PyFlowSchedulerError(Exception):

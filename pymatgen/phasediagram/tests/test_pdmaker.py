@@ -76,16 +76,16 @@ class PhaseDiagramTest(unittest.TestCase):
 
     def test_planar_inputs(self):
         e1 = PDEntry('H',    0)
-        e2 = PDEntry('HLiB', 0)
-        e3 = PDEntry('He',   0)
-        e4 = PDEntry('Li',   0)
-        e5 = PDEntry('Be',   0)
-        e6 = PDEntry('B',    0)
-        e7 = PDEntry('HBe',  0)
-        e8 = PDEntry('Rb',   0)
+        e2 = PDEntry('He',   0)
+        e3 = PDEntry('Li',   0)
+        e4 = PDEntry('Be',   0)
+        e5 = PDEntry('B',    0)
+        e6 = PDEntry('Rb',   0)
 
-        pd = PhaseDiagram([e1, e2, e3, e4, e5, e6, e7, e8],
-                          map(Element, ['Rb', 'He', 'B', 'Be','Li', 'He', 'H']))
+        pd = PhaseDiagram([e1, e2, e3, e4, e5, e6],
+                          map(Element, ['Rb', 'He', 'B', 'Be', 'Li', 'H']))
+
+        self.assertEqual(len(pd.facets), 1)
 
 
     def test_str(self):
