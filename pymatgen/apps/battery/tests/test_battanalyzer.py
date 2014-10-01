@@ -7,7 +7,6 @@ import pymatgen
 
 module_dir = os.path.join(os.path.dirname(pymatgen.__file__), '..', 'test_files')
 
-"""
 class BatteryAnalyzerTest(unittest.TestCase):
 
     def load_from_cif(self, filename, oxidations, cation="Li"):
@@ -17,7 +16,7 @@ class BatteryAnalyzerTest(unittest.TestCase):
 
     def setUp(self):
         self.lifepo4 = self.load_from_cif("LiFePO4.cif", {'Li': 1, 'Fe': 2, 'P': 5, 'O': -2})
-        self.nafepo4 = self.load_from_cif("NaFePO4.cif", {'Ba': 1, 'Fe': 2, 'P': 5, 'O': -2}, cation='Na')
+        self.nafepo4 = self.load_from_cif("NaFePO4.cif", {'Na': 1, 'Fe': 2, 'P': 5, 'O': -2}, cation='Na')
         self.fepo4 = self.load_from_cif("FePO4a.cif", {'Fe': 3, 'P': 5, 'O': -2})
         self.lifemnpo4 = self.load_from_cif("Li4Fe3Mn1(PO4)4.cif", {'Li': 1, 'Fe': 2, 'Mn': 2, 'P': 5, 'O': -2})
         self.li8nicofe208 = self.load_from_cif("Li8Fe2NiCoO8.cif", {'Li': 1, 'Fe': 2, 'Mn': 2, 'Co': 2, 'Ni': 2, 'O': -2})
@@ -25,10 +24,10 @@ class BatteryAnalyzerTest(unittest.TestCase):
 
     def test_capacitygrav_calculations(self):
 
-        lifepo4_cap = 169.890533222 # same as fepo4 cap
-        nafepo4_cap = 154.203319253
-        li3v2p3o12_cap_remove = 197.253397983
-        li3v2p3o12_cap_insert = 127.17129162620655
+        lifepo4_cap = 169.89053 # same as fepo4 cap
+        nafepo4_cap = 154.20331
+        li3v2p3o12_cap_remove = 197.25339
+        li3v2p3o12_cap_insert = 127.17129
 
         self.assertAlmostEqual(self.lifepo4.get_max_capgrav(), lifepo4_cap, 3)
         self.assertEqual(self.lifepo4.get_max_capgrav(remove = False), 0)
@@ -45,9 +44,9 @@ class BatteryAnalyzerTest(unittest.TestCase):
 
     def test_capacityvol_calculations(self):
 
-        lifepo4_cap = 594.175180631
-        nafepo4_cap = 542.861040835
-        fepo4_cap = 624.822898302 #this is different than lifepo4 cap if lifepo4 volume not known
+        lifepo4_cap = 594.17518
+        nafepo4_cap = 542.86104
+        fepo4_cap = 624.82289  #this is different than lifepo4 cap if lifepo4 volume not known
 
         self.assertAlmostEqual(self.lifepo4.get_max_capvol(), lifepo4_cap, 3)
         self.assertEqual(self.lifepo4.get_max_capvol(remove = False), 0)
@@ -75,4 +74,3 @@ class BatteryAnalyzerTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-"""
