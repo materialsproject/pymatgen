@@ -481,11 +481,16 @@ class IStructure(SiteCollection, PMGSONable):
         except ValueError:
             sgp = SpaceGroup(sg)
 
-
         if isinstance(lattice, Lattice):
             latt = lattice
         else:
             latt = Lattice(lattice)
+
+        if not sgp.is_compatible(latt):
+            raise ValueError("Supplied lattice with parameters %s is "
+                             "incompatible with supplied spacegroup %s!" % (
+                latt.lengths_and_angles, sgp.symbol)
+            )
 
         frac_coords = coords if not coords_are_cartesian else \
             lattice.get_fractional_coords(coords)

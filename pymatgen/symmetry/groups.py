@@ -33,35 +33,7 @@ SPACE_GROUP_ENC = SYMM_DATA["space_group_encoding"]
 TRANSLATIONS = {k: Fraction(v) for k, v in SYMM_DATA["translations"].items()}
 
 
-class SymmetryGroup(object):
-    """
-    This is simply a parent class for a symmetry group to make it easier to
-    share code that is common between any group.
-    """
-
-    def get_orbit(self, p, tol=1e-5):
-        """
-        Returns the orbit for a point.
-
-        Args:
-            p: Point as a 3x1 array.
-            tol: Tolerance for determining if sites are the same. 1e-5 should
-                be sufficient for most purposes. Set to 0 for exact matching
-                (and also needed for symbolic orbits).
-
-        Returns:
-            ([array]) Orbit for point.
-        """
-        orbit = []
-        for o in self.symmetry_ops:
-            pp = o.operate(p)
-            pp = np.mod(pp, 1)
-            if not in_array_list(orbit, pp, tol=tol):
-                orbit.append(pp)
-        return orbit
-
-
-class PointGroup(SymmetryGroup):
+class PointGroup(object):
     """
     Class representing a Point Group, with generators and symmetry operations.
 
@@ -106,8 +78,28 @@ class PointGroup(SymmetryGroup):
             new_ops = gen_ops
         return symm_ops
 
+    def get_orbit(self, p, tol=1e-5):
+        """
+        Returns the orbit for a point.
 
-class SpaceGroup(SymmetryGroup):
+        Args:
+            p: Point as a 3x1 array.
+            tol: Tolerance for determining if sites are the same. 1e-5 should
+                be sufficient for most purposes. Set to 0 for exact matching
+                (and also needed for symbolic orbits).
+
+        Returns:
+            ([array]) Orbit for point.
+        """
+        orbit = []
+        for o in self.symmetry_ops:
+            pp = o.operate(p)
+            if not in_array_list(orbit, pp, tol=tol):
+                orbit.append(pp)
+        return orbit
+
+
+class SpaceGroup(object):
     """
     Class representing a SpaceGroup.
 
@@ -195,6 +187,67 @@ class SpaceGroup(SymmetryGroup):
             self._symmetry_ops = [
                 SymmOp(m) for m in self._generate_full_symmetry_ops()]
         return self._symmetry_ops
+
+    def get_orbit(self, p, tol=1e-5):
+        """
+        Returns the orbit for a point.
+
+        Args:
+            p: Point as a 3x1 array.
+            tol: Tolerance for determining if sites are the same. 1e-5 should
+                be sufficient for most purposes. Set to 0 for exact matching
+                (and also needed for symbolic orbits).
+
+        Returns:
+            ([array]) Orbit for point.
+        """
+        orbit = []
+        for o in self.symmetry_ops:
+            pp = o.operate(p)
+            pp = np.mod(pp, 1)
+            if not in_array_list(orbit, pp, tol=tol):
+                orbit.append(pp)
+        return orbit
+
+    def is_compatible(self, lattice, tol=1e-5, angle_tol=5):
+        """
+        Checks whether a particular lattice is compatible with the
+        *conventional* unit cell.
+
+        Args:
+            lattice (Lattice): A Lattice.
+            tol (float): The tolerance to check for equality of lengths.
+            angle_tol (float): The tolerance to check for equality of angles
+                in degrees.
+        """
+        abc, angles = lattice.lengths_and_angles
+        crys_system = self.crystal_system
+
+        def check(param, ref, tolerance):
+            return all([abs(i - j) < tolerance for i, j in zip(param, ref)
+                        if j is not None])
+
+        if crys_system == "cubic":
+            a = abc[0]
+            return check(abc, [a, a, a], tol) and\
+                check(angles, [90, 90, 90], angle_tol)
+        elif crys_system == "hexagonal" or (crys_system == "trigonal" and
+                                                self.symbol.endswith("H")):
+            a = abc[0]
+            return check(abc, [a, a, None], tol)\
+                and check(angles, [90, 90, 120], angle_tol)
+        elif crys_system == "trigonal":
+            a = abc[0]
+            return check(abc, [a, a, a], tol)
+        elif crys_system == "tetragonal":
+            a = abc[0]
+            return check(abc, [a, a, None], tol) and\
+                check(angles, [90, 90, 90], angle_tol)
+        elif crys_system == "orthorhombic":
+            return check(angles, [90, 90, 90], angle_tol)
+        elif crys_system == "monoclinic":
+            return check(angles, [90, None, 90], angle_tol)
+        return True
 
     @property
     def crystal_system(self):
