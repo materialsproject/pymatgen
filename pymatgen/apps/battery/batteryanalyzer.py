@@ -34,8 +34,10 @@ class BatteryAnalyzer():
             struc_oxid - a Structure object; oxidation states *must* be assigned for this structure; disordered structures should be OK
             cation - a String symbol or Element for the cation. It must be positively charged, but can be 1+/2+/3+ etc.
         """
+        for site in struc_oxid:
+            if not hasattr(site.specie, 'oxi_state'):
+                raise ValueError('BatteryAnalyzer requires oxidation states assigned to structure!')
 
-        # TODO: assign oxidation states automatically if not assigned, or at least do a check
         self.struc_oxid = struc_oxid
         self.comp = self.struc_oxid.composition  # shortcut for later
 
