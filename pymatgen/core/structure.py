@@ -481,11 +481,17 @@ class IStructure(SiteCollection, PMGSONable):
         except ValueError:
             sgp = SpaceGroup(sg)
 
-
         if isinstance(lattice, Lattice):
             latt = lattice
         else:
             latt = Lattice(lattice)
+
+        if not sgp.is_compatible(latt):
+            raise ValueError(
+                "Supplied lattice with parameters %s is incompatible with "
+                "supplied spacegroup %s!" % (latt.lengths_and_angles,
+                                             sgp.symbol)
+            )
 
         frac_coords = coords if not coords_are_cartesian else \
             lattice.get_fractional_coords(coords)
@@ -1202,7 +1208,10 @@ class IStructure(SiteCollection, PMGSONable):
     @classmethod
     def from_file(cls, filename, primitive=True, sort=False):
         """
-        Reads a structure from a file.
+        Reads a structure from a file. For example, anything ending in
+        a "cif" is assumed to be a Crystallographic Information Format file.
+        Supported formats include CIF, POSCAR/CONTCAR, CHGCAR, LOCPOT,
+        vasprun.xml, CSSR and pymatgen's JSON serialized structures.
 
         Args:
             filename (str): The filename to read from.
@@ -1213,15 +1222,8 @@ class IStructure(SiteCollection, PMGSONable):
         Returns:
             Structure.
         """
-        from pymatgen.io.vaspio import Vasprun, Poscar, Chgcar
-        from pymatgen.io.cifio import CifParser
-        from pymatgen.io.cssrio import Cssr
-        from pymatgen.io.xyzio import XYZ
-        from pymatgen.io.gaussianio import GaussianInput, GaussianOutput
+        from pymatgen.io.vaspio import Vasprun, Chgcar
         from monty.io import zopen
-        from monty.json import MontyDecoder, MontyEncoder
-        from monty.string import str2unicode
-        from pymatgen.io.babelio import BabelMolAdaptor
         fname = os.path.basename(filename)
         with zopen(filename) as f:
             contents = f.read()
@@ -1767,7 +1769,11 @@ class IMolecule(SiteCollection, PMGSONable):
     @classmethod
     def from_file(cls, filename):
         """
-        Reads a molecule from a file.
+        Reads a molecule from a file. Supported formats include xyz,
+        gaussian input (gjf|g03|g09|com|inp), Gaussian output (.out|and
+        pymatgen's JSON serialized molecules. Using openbabel,
+        many more extensions are supported but requires openbabel to be
+        installed.
 
         Args:
             filename (str): The filename to read from.
