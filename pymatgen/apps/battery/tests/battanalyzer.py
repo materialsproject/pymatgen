@@ -69,7 +69,8 @@ class BatteryAnalyzer():
     @property
     def max_cation_insertion(self):
         """
-        Maximum number of cation A that can be inserted while maintaining charge-balance. No consideration is given to whether there (geometrically speaking) are Li sites to actually accommodate the extra Li.
+        Maximum number of cation A that can be inserted while maintaining charge-balance.
+        No consideration is given to whether there (geometrically speaking) are Li sites to actually accommodate the extra Li.
 
         Returns:
             integer amount of cation. Depends on cell size (this is an 'extrinsic' function!)
@@ -102,7 +103,8 @@ class BatteryAnalyzer():
     def get_max_capgrav(self, remove=True, insert=True):
         """
         Give max capacity in mAh/g for inserting and removing a charged cation
-        Note that the weight is normalized to the most lithiated state, thus removal of 1 Li from LiFePO4 gives the same capacity as insertion of 1 Li into FePO4.
+        Note that the weight is normalized to the most lithiated state,
+        thus removal of 1 Li from LiFePO4 gives the same capacity as insertion of 1 Li into FePO4.
 
         Args:
             remove: (bool) whether to allow cation removal
@@ -135,7 +137,8 @@ class BatteryAnalyzer():
 
     def get_delith_int_oxid(self):
         """
-        Returns a set of delithiation steps, e.g. set([1.0 2.0 4.0]) etc. in order to produce integer oxidation states of the redox metals.
+        Returns a set of delithiation steps, e.g. set([1.0 2.0 4.0]) etc. in order to
+        produce integer oxidation states of the redox metals.
         If multiple redox metals are present, all combinations of reduction/oxidation are tested.
         Note that having more than 3 redox metals will likely slow down the algorithm.
 
@@ -168,7 +171,7 @@ class BatteryAnalyzer():
             spec_amts_oxi - a dict of species to their amounts in the structure
             oxid_el - the element to oxidize
             oxid_els - the full list of elements that might be oxidized
-            numa - a running set of numbers of A cation at integer oxidation steps, this is the recursive property to return
+            numa - a running set of numbers of A cation at integer oxidation steps
         Returns:
             a set of numbers A; steps for for oxidizing oxid_el first, then the other oxid_els in this list
         """
@@ -208,6 +211,9 @@ class BatteryAnalyzer():
 def is_redox_active_intercalation(element):
     """
     True if element is redox active and interesting for intercalation materials
+
+    Args:
+        element: Element object
     """
 
     ns = ['Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Nb', 'Mo', 'W', 'Sb', 'Sn', 'Bi']
