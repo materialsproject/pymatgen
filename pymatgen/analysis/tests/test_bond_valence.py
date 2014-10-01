@@ -20,44 +20,44 @@ __date__ = "Oct 24, 2012"
 import unittest
 import os
 
-from pymatgen.io.smartio import read_structure
+from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Specie
 from pymatgen.analysis.bond_valence import BVAnalyzer
-
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
-class BVAnalyzerTest(unittest.TestCase):
+class BVAnalyzerTest(PymatgenTest):
 
     def setUp(self):
         self.analyzer = BVAnalyzer()
 
     def test_get_valence(self):
-        s = read_structure(os.path.join(test_dir, "LiMn2O4.json"))
+        s = Structure.from_file(os.path.join(test_dir, "LiMn2O4.json"))
         ans = [1, 1, 3, 3, 4, 4, -2, -2, -2, -2, -2, -2, -2, -2]
         self.assertEqual(self.analyzer.get_valences(s), ans)
-        s = read_structure(os.path.join(test_dir, "LiFePO4.json"))
+        s = self.get_structure("LiFePO4")
         ans = [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2, -2, -2, -2,
                - 2, -2, -2, -2, -2, -2, -2, -2, -2]
         self.assertEqual(self.analyzer.get_valences(s), ans)
-        s = read_structure(os.path.join(test_dir, "Li3V2(PO4)3.json"))
+        s = self.get_structure("Li3V2(PO4)3")
         ans = [1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5, -2, -2, -2, -2,
                - 2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
                - 2, -2, -2, -2]
         self.assertEqual(self.analyzer.get_valences(s), ans)
-        s = read_structure(os.path.join(test_dir, "Li4Fe3Mn1(PO4)4.json"))
+        s = Structure.from_file(os.path.join(test_dir, "Li4Fe3Mn1(PO4)4.json"))
         ans = [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2, -2, -2, -2,
                - 2, -2, -2, -2, -2, -2, -2, -2, -2]
         self.assertEqual(self.analyzer.get_valences(s), ans)
-        s = read_structure(os.path.join(test_dir, "NaFePO4.json"))
+        s = self.get_structure("NaFePO4")
         ans = [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2, -2, -2, -2,
                - 2, -2, -2, -2, -2, -2, -2, -2, -2]
         self.assertEqual(self.analyzer.get_valences(s), ans)
 
     def test_get_oxi_state_structure(self):
-        s = read_structure(os.path.join(test_dir, "LiMn2O4.json"))
+        s = Structure.from_file(os.path.join(test_dir, "LiMn2O4.json"))
         news = self.analyzer.get_oxi_state_decorated_structure(s)
         self.assertIn(Specie("Mn", 3), news.composition.elements)
         self.assertIn(Specie("Mn", 4), news.composition.elements)

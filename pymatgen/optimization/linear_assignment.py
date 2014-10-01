@@ -16,6 +16,7 @@ __date__ = "Jan 28, 2013"
 
 import numpy as np
 
+from six.moves import range
 
 class LinearAssignment(object):
     """
@@ -120,8 +121,12 @@ class LinearAssignment(object):
         """
         unassigned = np.where(self._x == -1)[0]
         for i in unassigned:
-            while True:
-                #find smallest 2 values and indices
+            for _ in range(self.c.size):
+                # Time in this loop can be proportional to 1/epsilon
+                # This step is not strictly necessary, so cutoff early
+                # to avoid near-infinite loops
+
+                # find smallest 2 values and indices
                 temp = self.c[i] - self._v
                 j1 = np.argmin(temp)
                 u1 = temp[j1]
@@ -155,7 +160,7 @@ class LinearAssignment(object):
         Finds a minimum cost path and adds it to the matching
         """
         #build a minimum cost tree
-        mu, istar, j, _ready, _pred = self._build_tree()
+        _pred, _ready, istar, j, mu = self._build_tree()
 
         #update prices
         self._v[_ready] += self._d[_ready] - mu
@@ -193,19 +198,19 @@ class LinearAssignment(object):
         #SCAN: set of nodes at the bottom of the tree, which we need to
         #look at
         #T0DO: unvisited nodes
+        _ready = np.zeros(self.n, dtype=np.bool)
         _scan = np.zeros(self.n, dtype=np.bool)
-        _todo = _scan + True
-        _ready = _scan.copy()
+        _todo = np.zeros(self.n, dtype=np.bool) + True
 
         while True:
             #populate scan with minimum reduced distances
             if True not in _scan:
                 mu = np.min(self._d[_todo])
-                _scan[self._d == mu] = np.True_
-                _todo[_scan] = np.False_
+                _scan[self._d == mu] = True
+                _todo[_scan] = False
                 j = np.argmin(self._y * _scan)
-                if self._y[j] == -1:
-                    return mu, istar, j, _ready, _pred
+                if self._y[j] == -1 and _scan[j]:
+                    return _pred, _ready, istar, j, mu
 
             #pick jstar from scan (scan always has at least 1)
             _jstar = np.argmax(_scan)
@@ -213,8 +218,8 @@ class LinearAssignment(object):
             #pick i associated with jstar
             i = self._y[_jstar]
 
-            _scan[_jstar] = np.False_
-            _ready[_jstar] = np.True_
+            _scan[_jstar] = False
+            _ready[_jstar] = True
 
             #find shorter distances
             newdists = mu + self.cred[i, :]
@@ -225,9 +230,9 @@ class LinearAssignment(object):
 
             #update predecessors
             _pred[shorter] = i
-            for j in np.argwhere(np.logical_and(self._d == mu,
-                                       _todo)).flatten():
+
+            for j in np.nonzero(np.logical_and(self._d == mu, _todo))[0]:
                 if self._y[j] == -1:
-                    return mu, istar, j, _ready, _pred
-                _scan[j] = np.True_
-                _todo[j] = np.False_
+                    return _pred, _ready, istar, j, mu
+                _scan[j] = True
+                _todo[j] = False

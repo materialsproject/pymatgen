@@ -11,7 +11,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.periodic_table import Element
 from pymatgen.phasediagram.pdmaker import PhaseDiagram
 from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
-from pymatgen.phasediagram.entries import PDEntryIO
+from pymatgen.phasediagram.entries import PDEntryIO, PDEntry
 
 
 class PDAnalyzerTest(unittest.TestCase):
@@ -92,6 +92,15 @@ class PDAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(results[Element("O")][1], -4.4501812249999997)
         self.assertAlmostEqual(results[Element("Fe")][0], -6.5961470999999996)
         self.assertAlmostEqual(results[Element("Li")][0], -3.6250022625000007)
+
+    def test_1d_pd(self):
+        entry = PDEntry('H', 0)
+        pd = PhaseDiagram([entry])
+        pda = PDAnalyzer(pd)
+        decomp, e = pda.get_decomp_and_e_above_hull(PDEntry('H', 1))
+        self.assertAlmostEqual(e, 1)
+        self.assertAlmostEqual(decomp[entry], 1.0)
+
 
 if __name__ == '__main__':
     unittest.main()

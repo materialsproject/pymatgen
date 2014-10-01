@@ -28,7 +28,7 @@ from pymatgen.transformations.standard_transformations import \
 from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
 from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.core.structure import Structure
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.structure_prediction.substitution_probability import \
     SubstitutionPredictor
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
@@ -314,7 +314,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                              "disordered structures!")
 
         if self.refine_structure:
-            finder = SymmetryFinder(structure, self.symm_prec)
+            finder = SpacegroupAnalyzer(structure, self.symm_prec)
             structure = finder.get_refined_structure()
 
         contains_oxidation_state = False
@@ -552,7 +552,7 @@ class MagOrderingTransformation(AbstractTransformation):
             return alls[0]["structure"] if num_to_return else alls
 
         m = StructureMatcher(comparator=SpinComparator())
-        key = lambda x: SymmetryFinder(x, 0.1).get_spacegroup_number()
+        key = lambda x: SpacegroupAnalyzer(x, 0.1).get_spacegroup_number()
         out = []
         for _, g in groupby(sorted([d["structure"] for d in alls],
                                    key=key), key):
