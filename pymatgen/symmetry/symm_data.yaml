@@ -7,9 +7,9 @@ abbreviated_spacegroup_symbols:
   P2: P121
   P2/c: P12/c1
   P2/m: P12/m1
-  P21: P12_11
-  P21/c: P12_1/c1
-  P21/m: P12_1/m1
+  P2_1: P12_11
+  P2_1/c: P12_1/c1
+  P2_1/m: P12_1/m1
   Pc: P1c1
   Pm: P1m1
 generator_matrices:
