@@ -37,6 +37,12 @@ class PointGroupTest(unittest.TestCase):
 
 class SpaceGroupTest(unittest.TestCase):
 
+    def test_abbrev_symbols(self):
+        sg = SpaceGroup("P2/c")
+        self.assertEqual(sg.int_number, 13)
+        sg = SpaceGroup("R-3mH")
+        self.assertEqual(sg.int_number, 166)
+
     def test_order_symm_ops(self):
         for name in SpaceGroup.SG_SYMBOLS:
             sg = SpaceGroup(name)

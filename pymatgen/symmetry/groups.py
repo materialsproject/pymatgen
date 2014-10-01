@@ -19,17 +19,19 @@ import os
 from itertools import product
 from fractions import Fraction
 import numpy as np
-import json
+
+from monty.serialization import loadfn
 
 from pymatgen.core.operations import SymmOp
 
 
-with open(os.path.join(os.path.dirname(__file__), "symm_data.json")) as f:
-    SYMM_DATA = json.load(f)
+SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__), "symm_data.yaml"))
+
 
 GENERATOR_MATRICES = SYMM_DATA["generator_matrices"]
 POINT_GROUP_ENC = SYMM_DATA["point_group_encoding"]
 SPACE_GROUP_ENC = SYMM_DATA["space_group_encoding"]
+ABBREV_SPACE_GROUP_MAPPING = SYMM_DATA["abbreviated_spacegroup_symbols"]
 TRANSLATIONS = {k: Fraction(v) for k, v in SYMM_DATA["translations"].items()}
 
 
@@ -126,15 +128,23 @@ class SpaceGroup(object):
 
     def __init__(self, int_symbol):
         """
-        Initializes a Space Group from its *full* international symbol.
+        Initializes a Space Group from its full or abbreviated international
+        symbol. Only standard settings are supported.
 
         Args:
-            int_symbol (str): Full International or Hermann-Mauguin Symbol.
-                The notation is a LaTeX-like string, with screw axes being
-                represented by an underscore. For example, "P6_3/mmc". Note
-                that for rhomohedral cells, the hexagonal setting can be
-                accessed by adding a "H", e.g., "R-3mH".
+            int_symbol (str): Full International or Hermann-Mauguin Symbol or
+                abbreviated symbol. The notation is a LaTeX-like string,
+                with screw axes being represented by an underscore. For
+                example, "P6_3/mmc". Note that for rhomohedral cells,
+                the hexagonal setting can be accessed by adding a "H", e.g.,
+                "R-3mH".
         """
+        if int_symbol not in SPACE_GROUP_ENC and int_symbol not in \
+                ABBREV_SPACE_GROUP_MAPPING:
+            raise ValueError("Bad international symbol %s" % int_symbol)
+        elif int_symbol not in SPACE_GROUP_ENC:
+            int_symbol = ABBREV_SPACE_GROUP_MAPPING[int_symbol]
+
         self.symbol = int_symbol
         # TODO: Support different origin choices.
         enc = list(SPACE_GROUP_ENC[int_symbol]["enc"])
