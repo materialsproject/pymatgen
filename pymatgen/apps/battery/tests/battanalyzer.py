@@ -31,12 +31,13 @@ class BatteryAnalyzer():
         """
         Pass in a structure for analysis
         Arguments:
-            struc_oxid - a structure object. oxidation states *must* be assigned for this structure, else the analysis
-            methods will NOT work! Disordered structures should be OK
+            struc_oxid - a Structure object; oxidation states *must* be assigned for this structure; disordered structures should be OK
             cation - a String symbol or Element for the cation. It must be positively charged, but can be 1+/2+/3+ etc.
         """
+        # TODO: assign oxidation states automatically if not assigned, or at least do a check
         self.struc_oxid = struc_oxid
-        if (not isinstance(cation, Element)):
+
+        if not isinstance(cation, Element):
             self.cation = Element(cation)
 
         self.cation_charge = self.cation.max_oxidation_state
@@ -44,11 +45,12 @@ class BatteryAnalyzer():
     @property
     def max_cation_removal(self):
         """
-        Given a structure *with oxidation states (required)*, this returns the maximum number of cation A that can be removed
-        while maintaining charge-balance (default = 'Li')
-        Note that only cation removal is considered; insertion is considered in other methods
-        The number of Li is not normalized in any way and will depend on cell size (this is an 'extrinsic' function!)
+        Maximum number of cation A that can be removed while maintaining charge-balance.
+
+        Returns:
+            integer amount of cation. Depends on cell size (this is an 'extrinsic' function!)
         """
+
         #how much 'spare charge' is left in the redox metals for oxidation?
         oxid_pot = sum([(Element(spec.symbol).max_oxidation_state - spec.oxi_state) * self.comp[spec] for spec in self.comp if is_redox_active_intercalation(Element(spec.symbol))])
 
@@ -63,12 +65,12 @@ class BatteryAnalyzer():
     @property
     def max_cation_insertion(self):
         """
-        Given a structure *with oxidation states (required)*, this returns the maximum number of cation A that can be inserted
-        while maintaining charge-balance (default = 'Li')
-        Note that only cation insertion is considered; removal is considered in other methods
-        No consideration is given to whether there (geometrically speaking) are Li sites to actually accommodate the extra Li
-        The number of Li is not normalized in any way and will depend on cell size (this is an 'extrinsic' function!)
+        Maximum number of cation A that can be inserted while maintaining charge-balance. No consideration is given to whether there (geometrically speaking) are Li sites to actually accommodate the extra Li.
+
+        Returns:
+            integer amount of cation. Depends on cell size (this is an 'extrinsic' function!)
         """
+
         #how much 'spare charge' is left in the redox metals for reduction?
         lowest_oxid = defaultdict(lambda: 2, {'Cu':1})  # only Cu can go down to 1+
         oxid_pot = sum([(spec.oxi_state - min(e for e in Element(spec.symbol).oxidation_states if e>=lowest_oxid[spec.symbol])) * self.comp[spec] for spec in self.comp if is_redox_active_intercalation(Element(spec.symbol))])
@@ -79,23 +81,28 @@ class BatteryAnalyzer():
     def _get_max_cap_ah(self, remove, insert):
         """
         Give max capacity in mAh for inserting and removing a charged cation
-        This method does not normalize the capacity and meant to be a helper method to prevent confusion
+        This method does not normalize the capacity and intended as a helper method
         """
         num_cations = 0
-        if (remove):
+        if remove:
             num_cations += self.max_cation_removal
-        if (insert):
+        if insert:
             num_cations += self.max_cation_insertion
 
-        ampHours = num_cations * self.cation_charge * ELECTRON_TO_AMPERE_HOURS;
-        return ampHours
+        return num_cations * self.cation_charge * ELECTRON_TO_AMPERE_HOURS;
 
 
     def get_max_capgrav(self, remove=True, insert=True):
         """
         Give max capacity in mAh/g for inserting and removing a charged cation
-        Note that the weight is normalized to the most lithiated state:
-            thus removal of 1 Li from LiFePO4 gives the same capacity as insertion of 1 Li into FePO4
+        Note that the weight is normalized to the most lithiated state, thus removal of 1 Li from LiFePO4 gives the same capacity as insertion of 1 Li into FePO4.
+
+        Args:
+            remove: (bool) whether to allow cation removal
+            insert: (bool) whether to allow cation insertion
+
+        Returns:
+            max grav capacity in mAh/g
         """
         weight = self.comp.weight
         if (insert):
@@ -105,11 +112,15 @@ class BatteryAnalyzer():
 
     def get_max_capvol(self, remove=True, insert=True, volume=None):
         """
-        Give max capacity in mAh/cc for inserting and removing a charged cation
-        Unfortunately the cell volume upon insertion/deinsertion cannot be known in advance:
-            thus removal of 1 Li from LiFePO4 gives a different capacity than insertion of 1 Li into FePO4
-            in one case the cell volume of LiFePO4 is used, in another the cell volume of FePO4 is used
-        You can pass in an optional volume argument to normalize by in order to bypass this issue...
+        Give max capacity in mAh/cc for inserting and removing a charged cation into base structure.
+
+        Args:
+            remove: (bool) whether to allow cation removal
+            insert: (bool) whether to allow cation insertion
+            volume: (float) volume to use for normalization (default=volume of initial structure)
+
+        Returns:
+            max vol capacity in mAh/cc
         """
 
         vol = volume if volume else self.struc_oxid.volume
@@ -117,18 +128,17 @@ class BatteryAnalyzer():
 
     def get_delith_int_oxid(self):
         """
-        Returns a set of delithiation steps, e.g. set([1.0 2.0 4.0]) etc. where each element
-        is a number of Li to remove from the raw, full cell (not normalized in any way)
-            Thus, if you double the unit cell, your answers will be twice as large!
-        The delithiation steps are chosen to be at integer oxidation states of the redox metals.
+        Returns a set of delithiation steps, e.g. set([1.0 2.0 4.0]) etc. in order to produce integer oxidation states of the redox metals.
         If multiple redox metals are present, all combinations of reduction/oxidation are tested.
-        Note that having more than 3 redox metals will likely slow down the algorithm; a more efficient
-        implementation might solve this.
+        Note that having more than 3 redox metals will likely slow down the algorithm.
 
         Examples:
             LiFePO4 will return [1.0]
             Li4Fe3Mn1(PO4)4 will return [1.0, 2.0, 3.0, 4.0])
             Li6V4(PO4)6 will return [4.0, 6.0])  *note that this example is not normalized*
+
+        Returns:
+            array of integer cation removals. If you double the unit cell, your answers will be twice as large!
         """
 
         # the elements that can possibly be oxidized
@@ -138,14 +148,15 @@ class BatteryAnalyzer():
         for oxid_el in oxid_els:
             numa = numa.union(self._get_delith_intoxi(self.comp.copy(), oxid_el, oxid_els, numa))
 
-        #convert from num a in structure to num a removed
+        #convert from num A in structure to num A removed
         num_cation = self.comp[Specie(self.cation.symbol, self.cation_charge)]
         return set([num_cation - a for a in numa])
 
     def _get_delith_intoxi(self, spec_amts_oxi, oxid_el, oxid_els, numa):
         """
         This is a helper method for get_delith_int_oxid!
-        Arguments:
+
+        Args:
             spec_amts_oxi - a dict of species to their amounts in the structure
             oxid_el - the element to oxidize
             oxid_els - the full list of elements that might be oxidized
@@ -169,10 +180,12 @@ class BatteryAnalyzer():
         spec_amts_oxi = {sp:amt for sp, amt in spec_amts_oxi.items() if sp != spec_old}
         spec_amts_oxi[spec_new] = specamt
         spec_amts_oxi = Composition(spec_amts_oxi)
+
         #determine the amount of cation A in the structure needed for charge balance and add it to the list
         oxi_noA = sum([spec.oxi_state * spec_amts_oxi[spec] for spec in spec_amts_oxi if spec.symbol not in self.cation.symbol])
         a = max(0, -oxi_noA / self.cation_charge)
         numa = numa.union({a})
+
         #recursively try the other oxidation states
         if (a == 0):
             return numa
@@ -182,7 +195,7 @@ class BatteryAnalyzer():
             return numa
 
 
-def is_redox_active_intercalation (element):
+def is_redox_active_intercalation(element):
         """
         True if element is redox active and interesting for intercalation materials
         """
