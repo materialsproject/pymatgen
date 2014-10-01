@@ -18,10 +18,10 @@ __date__ = "4/4/14"
 import os
 from itertools import product
 from fractions import Fraction
-
 import numpy as np
-
 import json
+
+from pymatgen.core.operations import SymmOp
 
 
 with open(os.path.join(os.path.dirname(__file__), "symm_data.json")) as f:
@@ -34,6 +34,10 @@ TRANSLATIONS = {k: Fraction(v) for k, v in SYMM_DATA["translations"].items()}
 
 
 class SymmetryGroup(object):
+    """
+    This is simply a parent class for a symmetry group to make it easier to
+    share code that is common between any group.
+    """
 
     def get_orbit(self, p, tol=1e-5):
         """
@@ -50,7 +54,7 @@ class SymmetryGroup(object):
         """
         orbit = []
         for o in self.symmetry_ops:
-            pp = np.dot(o, p)
+            pp = o.operate(p)
             pp = np.mod(pp, 1)
             if not in_array_list(orbit, pp, tol=tol):
                 orbit.append(pp)
@@ -85,7 +89,8 @@ class PointGroup(SymmetryGroup):
         self.symbol = int_symbol
         self.generators = [GENERATOR_MATRICES[c]
                            for c in POINT_GROUP_ENC[int_symbol]]
-        self.symmetry_ops = self._generate_full_symmetry_ops()
+        self.symmetry_ops = [SymmOp.from_rotation_and_translation(m)
+                             for m in self._generate_full_symmetry_ops()]
         self.order = len(self.symmetry_ops)
 
     def _generate_full_symmetry_ops(self):
@@ -187,7 +192,8 @@ class SpaceGroup(SymmetryGroup):
         generation sometimes takes a bit of time.
         """
         if self._symmetry_ops is None:
-            self._symmetry_ops = self._generate_full_symmetry_ops()
+            self._symmetry_ops = [
+                SymmOp(m) for m in self._generate_full_symmetry_ops()]
         return self._symmetry_ops
 
     @property
