@@ -1604,7 +1604,8 @@ class QcOutput(object):
             errors.append("Molecular spin multipilicity is not found")
         else:
             for mol in molecules:
-                mol.set_charge_and_spin(charge, spin_multiplicity)
+                if qctask is None or qctask.ghost_atoms is None:
+                    mol.set_charge_and_spin(charge, spin_multiplicity)
         for k in thermal_corr.keys():
             v = thermal_corr[k]
             if "Entropy" in k:
