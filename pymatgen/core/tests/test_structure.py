@@ -575,6 +575,10 @@ class StructureTest(PymatgenTest):
                                       [[0, 0, 0], [0.5, 0.5, 0.5]])
         self.assertEqual(s.formula, "Cs1 Cl1")
 
+        self.assertRaises(ValueError, Structure.from_spacegroup,
+                          "Pm-3m", Lattice.tetragonal(1, 3), ["Cs", "Cl"],
+                          [[0, 0, 0], [0.5, 0.5, 0.5]])
+
 
 class IMoleculeTest(PymatgenTest):
 
