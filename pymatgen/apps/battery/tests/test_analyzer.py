@@ -1,29 +1,37 @@
 import unittest
 import os
-from pymatgen.apps.battery.battanalyzer import BatteryAnalyzer
+from pymatgen.apps.battery.analyzer import BatteryAnalyzer
 
-from pymatgen.io.cifio import CifParser
+from pymatgen.util.testing import PymatgenTest
+from pymatgen.core.structure import Structure
+
 import pymatgen
 
 module_dir = os.path.join(os.path.dirname(pymatgen.__file__), '..', 'test_files')
 
-class BatteryAnalyzerTest(unittest.TestCase):
+
+class BatteryAnalyzerTest(PymatgenTest):
 
     def load_from_cif(self, filename, oxidations, cation="Li"):
-        s = CifParser(os.path.join(module_dir, filename)).get_structures()[0]
+        s = Structure.from_file(os.path.join(module_dir, filename))
+        s.add_oxidation_state_by_element(oxidations)
+        return BatteryAnalyzer(s, cation)
+
+    def load_from_internal(self, name, oxidations, cation="Li"):
+        s = Structure.from_sites(self.get_structure(name))
         s.add_oxidation_state_by_element(oxidations)
         return BatteryAnalyzer(s, cation)
 
     def setUp(self):
-        self.lifepo4 = self.load_from_cif("LiFePO4.cif", {'Li': 1, 'Fe': 2, 'P': 5, 'O': -2})
-        self.nafepo4 = self.load_from_cif("NaFePO4.cif", {'Na': 1, 'Fe': 2, 'P': 5, 'O': -2}, cation='Na')
+        self.lifepo4 = self.load_from_internal("LiFePO4",{'Li': 1, 'Fe': 2, 'P': 5, 'O': -2})
+        self.nafepo4 = self.load_from_internal("NaFePO4", {'Na': 1, 'Fe': 2, 'P': 5, 'O': -2}, cation='Na')
         self.fepo4 = self.load_from_cif("FePO4a.cif", {'Fe': 3, 'P': 5, 'O': -2})
         self.lifemnpo4 = self.load_from_cif("Li4Fe3Mn1(PO4)4.cif", {'Li': 1, 'Fe': 2, 'Mn': 2, 'P': 5, 'O': -2})
         self.li8nicofe208 = self.load_from_cif("Li8Fe2NiCoO8.cif", {'Li': 1, 'Fe': 2, 'Mn': 2, 'Co': 2, 'Ni': 2, 'O': -2})
-        self.li3v2p3o12 = self.load_from_cif("Li3V2(PO4)3.cif", {'Li': 1, 'V': 3, 'O': -2, 'P': 5})
+        self.li3v2p3o12 = self.load_from_internal("Li3V2(PO4)3", {'Li': 1, 'V': 3, 'O': -2, 'P': 5})
 
     def test_oxid_check(self):
-        s = CifParser(os.path.join(module_dir, 'LiFePO4.cif')).get_structures()[0]
+        s = self.get_structure("LiFePO4")
         self.assertRaises(ValueError, BatteryAnalyzer, s, 'Li')
 
     def test_capacitygrav_calculations(self):
