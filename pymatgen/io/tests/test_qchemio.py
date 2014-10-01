@@ -1825,6 +1825,9 @@ $end
         qcout = QcOutput(filename)
         elements = [a.specie.symbol for a in qcout.data[-1]["molecules"][-1].sites]
         self.assertEqual(elements, ['O', 'H', 'H', 'C', 'H', 'H', 'H', 'H'])
+        filename = os.path.join(test_dir, "MgBF4_b_overalpped.qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(qcout.data[0]["input"].ghost_atoms, [0])
 
 
 if __name__ == "__main__":
