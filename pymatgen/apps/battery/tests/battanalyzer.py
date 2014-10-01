@@ -12,7 +12,6 @@ __maintainer__ = "Anubhav Jain"
 __email__ = "ajain@lbl.gov"
 __date__ = "Sep 20, 2011"
 
-import scipy.constants as sc
 import math
 
 from pymatgen.core.periodic_table import Element, Specie
@@ -114,7 +113,7 @@ class BatteryAnalyzer():
         """
 
         vol = volume if volume else self.struc_oxid.volume
-        return self._get_max_cap_ah(remove, insert) * 1000 * 1E24 / (vol * sc.N_A)
+        return self._get_max_cap_ah(remove, insert) * 1000 * 1E24 / (vol * AVOGADROS_CONST)
 
     def get_delith_int_oxid(self):
         """
@@ -181,3 +180,13 @@ class BatteryAnalyzer():
             for oxid_el in oxid_els:
                 numa = numa.union(self._get_delith_intoxi(spec_amts_oxi.copy(), oxid_el, oxid_els, numa))
             return numa
+
+
+def is_redox_active_intercalation (element):
+        """
+        True if element is redox active and interesting for intercalation materials
+        """
+
+        ns = ['Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Nb', 'Mo', 'W', 'Sb', 'Sn', 'Bi']
+        return element.symbol in ns
+
