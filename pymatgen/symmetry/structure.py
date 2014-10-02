@@ -23,12 +23,12 @@ class SymmetrizedStructure(Structure):
     This class represents a symmetrized structure, i.e. a structure
     where the spacegroup and symmetry operations are defined. This class is
     typically not called but instead is typically obtained by calling
-    pymatgen.symmetry.SymmetryFinder.get_symmetrized_structure.
+    pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetrized_structure.
 
     Args:
         structure (Structure): Original structure
-        spacegroup (Spacegroup): An input spacegroup from SymmetryFinder.
-        equivalent_positions: Equivalent positions from SymmetryFinder.
+        spacegroup (Spacegroup): An input spacegroup from SpacegroupAnalyzer.
+        equivalent_positions: Equivalent positions from SpacegroupAnalyzer.
 
     .. attribute: equivalent_indices
 

@@ -36,7 +36,7 @@ from pymatgen.io.cifio import CifWriter
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vaspio.vasp_output import Vasprun, Outcar
 from pymatgen.serializers.json_coders import PMGSONable
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.io.smartio import write_structure
 
@@ -720,7 +720,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         Args:
             structure (Structure/IStructure): structure to get POSCAR
         """
-        sym_finder = SymmetryFinder(structure, symprec=self.sym_prec)
+        sym_finder = SpacegroupAnalyzer(structure, symprec=self.sym_prec)
         return Poscar(sym_finder.get_primitive_standard_structure(False))
 
     @staticmethod
@@ -741,7 +741,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
                 structure. If True, return a list of the refined structure (
                 conventional cell), the conventional standard structure,
                 the symmetry dataset and symmetry operations of the
-                structure (see SymmetryFinder doc for details).
+                structure (see SpacegroupAnalyzer doc for details).
             sym_prec (float): Tolerance for symmetry finding
 
         Returns:
@@ -760,7 +760,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         structure = vasp_run.final_structure
         if magmom:
             structure = structure.copy(site_properties=magmom)
-        sym_finder = SymmetryFinder(structure, symprec=sym_prec)
+        sym_finder = SpacegroupAnalyzer(structure, symprec=sym_prec)
         if initial_structure:
             return structure
         elif additional_info:
@@ -860,7 +860,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         new_kpoints = mpsvip.get_kpoints(structure)
         if previous_kpoints.style[0] != new_kpoints.style[0]:
             if previous_kpoints.style[0] == "M" and \
-                    SymmetryFinder(structure, 0.1).get_lattice_type() != \
+                    SpacegroupAnalyzer(structure, 0.1).get_lattice_type() != \
                     "hexagonal":
                 k_div = (kp + 1 if kp % 2 == 1 else kp
                          for kp in new_kpoints.kpts[0])
@@ -946,7 +946,7 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
         self.kpoints_settings['grid_density'] = self.kpoints_density
         grid = super(MPBSHSEVaspInputSet, self).get_kpoints(structure).kpts
         if self.mode == "Line":
-            ir_kpts = SymmetryFinder(structure, symprec=0.1)\
+            ir_kpts = SpacegroupAnalyzer(structure, symprec=0.1)\
                 .get_ir_reciprocal_mesh(grid[0])
             kpoints, labels = HighSymmKpath(structure).get_kpoints(line_density=self.kpoints_line_density)
             kpts = []
@@ -965,7 +965,7 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
                            kpts=kpts, kpts_weights=weights, labels=all_labels)
 
         elif self.mode == "Uniform":
-            ir_kpts = SymmetryFinder(structure, symprec=0.1)\
+            ir_kpts = SpacegroupAnalyzer(structure, symprec=0.1)\
                 .get_ir_reciprocal_mesh(grid[0])
             kpts = []
             weights = []
@@ -1073,7 +1073,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             kpoints = Kpoints.automatic_density(
                 structure, num_kpoints * structure.num_sites)
             mesh = kpoints.kpts[0]
-            ir_kpts = SymmetryFinder(structure, symprec=self.sym_prec) \
+            ir_kpts = SpacegroupAnalyzer(structure, symprec=self.sym_prec) \
                 .get_ir_reciprocal_mesh(mesh)
             kpts = []
             weights = []
@@ -1127,7 +1127,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             primitive standard structure
         """
         if get_primitive_standard:
-            sym_finder = SymmetryFinder(structure, symprec=self.sym_prec)
+            sym_finder = SpacegroupAnalyzer(structure, symprec=self.sym_prec)
             return Poscar(sym_finder.get_primitive_standard_structure(False))
         else:
             return Poscar(structure)

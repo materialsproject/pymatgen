@@ -29,7 +29,7 @@ import six
 
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.structure import Structure
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.periodic_table import get_el_sp
 
 
@@ -266,7 +266,7 @@ class BVAnalyzer(object):
 
         #Perform symmetry determination and get sites grouped by symmetry.
         if self.symm_tol:
-            finder = SymmetryFinder(structure, self.symm_tol)
+            finder = SpacegroupAnalyzer(structure, self.symm_tol)
             symm_structure = finder.get_symmetrized_structure()
             equi_sites = symm_structure.equivalent_sites
         else:

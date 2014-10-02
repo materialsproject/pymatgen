@@ -23,7 +23,7 @@ import re
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from six.moves import map
 from six.moves import zip
@@ -150,7 +150,7 @@ class GulpIO(object):
 
         if symm_flg:
             gin += "space\n"
-            gin += str(SymmetryFinder(structure).get_spacegroup_number()) + "\n"
+            gin += str(SpacegroupAnalyzer(structure).get_spacegroup_number()) + "\n"
         return gin
 
     def specie_potential_lines(self, structure, potential, **kwargs):

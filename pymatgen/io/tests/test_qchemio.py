@@ -1114,6 +1114,9 @@ $end
         qcinp2 = QcInput.from_string(ans)
         self.assertEqual(qcinp1.as_dict(), qcinp2.as_dict())
 
+        qcinp_mgbf4 = QcInput.from_file(os.path.join(test_dir, "MgBF4_b_overalpped.qcinp"))
+        self.assertEqual(qcinp_mgbf4.jobs[0].ghost_atoms, [0])
+
     def test_to_and_from_dict(self):
         qctask1 = QcTask(mol, title="Test Methane Opt", exchange="B3LYP",
                          jobtype="Opt", basis_set="6-31+G*")
@@ -1822,6 +1825,9 @@ $end
         qcout = QcOutput(filename)
         elements = [a.specie.symbol for a in qcout.data[-1]["molecules"][-1].sites]
         self.assertEqual(elements, ['O', 'H', 'H', 'C', 'H', 'H', 'H', 'H'])
+        filename = os.path.join(test_dir, "MgBF4_b_overalpped.qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(qcout.data[0]["input"].ghost_atoms, [0])
 
 
 if __name__ == "__main__":
