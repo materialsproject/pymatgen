@@ -18,8 +18,10 @@ from monty.dev import deprecated
 warnings.warn("The pointgroup module has been deprecated. All classes and "
               "functions have been moved to pymatgen.symmetry.analyzer. "
               "Please change your code. If you are looking for point group "
-              "representations, check out pymatgen.symmetry.groups.")
+              "representations, check out pymatgen.symmetry.groups. This "
+              "module will be removed in pmg v3.1.")
 
-@deprecated(replacement=pymatgen.symmetry.analyzer.PointGroupAnalyzer)
+@deprecated(replacement=pymatgen.symmetry.analyzer.PointGroupAnalyzer,
+            message="This class will be removed in pmg v3.1.")
 class PointGroupAnalyzer(pymatgen.symmetry.analyzer.PointGroupAnalyzer):
     pass
