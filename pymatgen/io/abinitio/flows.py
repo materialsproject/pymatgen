@@ -449,8 +449,7 @@ class AbinitFlow(Node):
             if not task.queue_errors:
                 # queue error but no errors detected, try to solve by increasing resources
                 # if resources are at maximum the tast is definitively turned to errored
-                if task.manager.qadapter.increase_resources():
-                #if task.manager.policy.increase_max_ncpu():
+                if self.manager.increase_resources():  # acts either on the policy or on the qadapter
                     task.reset_from_scratch()
                     return True
                 else:
@@ -470,8 +469,12 @@ class AbinitFlow(Node):
                             info_msg = 'Node error detected but no was node identified. Unrecoverable error.'
                             return task.set_status(task.S_ERROR, info_msg)
                     elif isinstance(error, MemoryCancelError):
-                        # ask the qadapter to provide more memory
-                        if task.manager.qadapter.increase_mem():
+                        # ask the qadapter to provide more resources, i.e. more cpu's so more total memory
+                        if task.manager.increase_resources():
+                            task.reset_from_scratch()
+                            return task.set_status(task.S_READY, info_msg='increased mem')
+                        # if the max is reached, try to increase the memory per cpu:
+                        elif task.manager.qadapter.increase_mem():
                             task.reset_from_scratch()
                             return task.set_status(task.S_READY, info_msg='increased mem')
                         # if this failed ask the task to provide a method to reduce the memory demand
@@ -488,7 +491,7 @@ class AbinitFlow(Node):
                             task.reset_from_scratch()
                             return task.set_status(task.S_READY, info_msg='increased wall time')
                         # if this fails ask the qadapter to increase the number of cpus
-                        elif task.manager.qadapter.increase_cpus():
+                        elif task.manager.increase_resources():
                             task.reset_from_scratch()
                             return task.set_status(task.S_READY, info_msg='increased number of cpus')
                         # if this failed ask the task to provide a method to speed up the task
@@ -935,7 +938,7 @@ class AbinitFlow(Node):
             sched = PyFlowScheduler.from_user_config()
         else:
             # Use from_file if filepath if present, else call __init__
-            filepath == kwargs.pop("filepath", None)
+            filepath = kwargs.pop("filepath", None)
             if filepath is not None:
                 assert not kwargs
                 sched = PyFlowScheduler.from_file(filepath)

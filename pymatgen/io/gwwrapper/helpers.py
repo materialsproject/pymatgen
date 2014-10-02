@@ -15,7 +15,7 @@ __date__ = "May 2014"
 
 import time
 import os
-import io
+import subprocess
 import ast
 import copy
 import math
@@ -32,6 +32,11 @@ def now():
     helper to return a time string
     """
     return time.strftime("%H:%M:%S %d/%m/%Y")
+
+
+def load_ps():
+    if os.path.isfile('set-ps'):
+        subprocess.call('source set-ps', shell=True)
 
 
 def read_extra_abivars():
