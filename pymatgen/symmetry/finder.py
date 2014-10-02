@@ -6,6 +6,7 @@ from monty.dev import deprecated
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 
-@deprecated(replacement=SpacegroupAnalyzer)
+@deprecated(replacement=SpacegroupAnalyzer,
+            message="This class will be removed in pmg v3.1.")
 class SymmetryFinder(SpacegroupAnalyzer):
     pass
