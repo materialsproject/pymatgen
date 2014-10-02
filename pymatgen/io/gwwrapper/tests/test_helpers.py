@@ -52,7 +52,7 @@ class GWTestHelpers(PymatgenTest):
         self.assertEqual(vars_out, vars_in)
         os.remove('extra_abivars')
 
-    def test_expand_test(self):
+    def test_expand(self):
         spec = get_spec('GW')
         tests = SingleAbinitGWWorkFlow(structure, spec).convs
         tests_out = {'nscf_nbands': {'test_range': (50,),
