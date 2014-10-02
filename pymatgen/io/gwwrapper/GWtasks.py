@@ -153,7 +153,6 @@ class VaspGWTask(FireTaskBase, FWSerializable):
         return launch_dir
 
 
-
 class VaspGWInputTask(VaspGWTask):
     _fw_name = "Vasp GW Input Task"
     """

@@ -492,6 +492,9 @@ def get_all_nbands():
 
 
 def get_all_ecuteps():
+    """
+    returns a list of the code specific names used for 'ecuteps'
+    """
     ecuteps_names = []
     for code in CODE_CLASSES.values():
         conv_pars = code().conv_pars
