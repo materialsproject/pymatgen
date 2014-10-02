@@ -3,11 +3,9 @@
 from __future__ import unicode_literals, division, print_function
 
 """
-UNDER DEVELOPMENT
 Classes for code interfaces.
 Uses code specific GWworkflows defined in GWworkflows. These may also be moved into the code interface.
 Eventually all code dependent methods used by the the gwwrapper should be contained in a class defined here
-Currently working on the implementation for VASP and ABINIT.
 The VASP GWworkflow is currently coded here directly this still needs to be moved to the GWWorkflows
 A new implementation can be created from the New_Code template, the new class should be added to the get_code_interface
 factory function at the end.
@@ -483,6 +481,9 @@ def get_code_interface(code):
 
 
 def get_all_nbands():
+    """
+    returns a list of the code specific named used for 'nbands'
+    """
     nband_names = []
     for code in CODE_CLASSES.values():
         conv_pars = code().conv_pars

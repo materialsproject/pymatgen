@@ -20,6 +20,10 @@ class GWSpecTest(PymatgenTest):
         self.assertIsInstance(spec, GWSpecs)
         self.assertEqual(spec.get_code(), 'ABINIT')
         self.assertIsInstance(spec.code_interface, AbinitInterface)
+        spec.data['code'] = 'VASP'
+        spec.update_code_interface()
+        self.assertEqual(spec.get_code(), 'VASP')
+        self.assertIsInstance(spec.code_interface, VaspInterface)
 
     def test_GWspect_test(self):
         spec = GWSpecs()
@@ -44,12 +48,16 @@ class GWConvergenceDataTest(PymatgenTest):
 class GWTestCodeInterfaces(PymatgenTest):
     def test_VaspInterface(self):
         interface = get_code_interface('VASP')
+        spec = GWSpecs()
         self.assertIsInstance(interface, VaspInterface)
         self.assertEqual(len(interface.conv_pars), 3)
+        self.assertEqual(len(interface.supported_methods), 4)
+        #self.assertEqual(interface.get_conv_res_test(spec_data=spec.data, structure=structure), {})
 
     def test_AbinitInterface(self):
         interface = get_code_interface('ABINIT')
         self.assertIsInstance(interface, AbinitInterface)
         self.assertEqual(len(interface.conv_pars), 3)
+        self.assertEqual(len(interface.supported_methods), 2)
 
 
