@@ -44,7 +44,7 @@ except ImportError:
     try:
         import pyspglib._spglib as spg
     except ImportError:
-        msg = "Spglib required. Please either run python BenchSetup.py install" + \
+        msg = "Spglib required. Please either run python setup.py install" + \
               " for pymatgen, or install pyspglib from spglib."
         raise ImportError(msg)
 
