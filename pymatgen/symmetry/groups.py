@@ -134,12 +134,12 @@ class SpaceGroup(object):
         symbol. Only standard settings are supported.
 
         Args:
-            int_symbol (str): Full International or Hermann-Mauguin Symbol or
-                abbreviated symbol. The notation is a LaTeX-like string,
-                with screw axes being represented by an underscore. For
-                example, "P6_3/mmc". Note that for rhomohedral cells,
-                the hexagonal setting can be accessed by adding a "H", e.g.,
-                "R-3mH".
+            int_symbol (str): Full International (e.g., "P2/m2/m2/m") or
+                Hermann-Mauguin Symbol ("Pmmm") or abbreviated symbol. The
+                notation is a LaTeX-like string, with screw axes being
+                represented by an underscore. For example, "P6_3/mmc". Note
+                that for rhomohedral cells, the hexagonal setting can be
+                accessed by adding a "H", e.g., "R-3mH".
         """
         if int_symbol not in SPACE_GROUP_ENC and int_symbol not in \
                 ABBREV_SPACE_GROUP_MAPPING and int_symbol not in \
