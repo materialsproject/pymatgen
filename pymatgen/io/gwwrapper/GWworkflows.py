@@ -22,7 +22,7 @@ from pymatgen.io.abinitio.flows import AbinitFlow
 from pymatgen.io.abinitio.tasks import TaskManager
 from pymatgen.io.abinitio.pseudos import PseudoTable
 from pymatgen.io.gwwrapper.GWtasks import *
-from pymatgen.io.gwwrapper.helpers import now, s_name, expand_tests, read_grid_from_file, is_converged
+from pymatgen.io.gwwrapper.helpers import now, s_name, expand, read_grid_from_file, is_converged
 from pymatgen.io.gwwrapper.helpers import read_extra_abivars
 
 
@@ -282,7 +282,7 @@ class SingleAbinitGWWorkFlow():
                         tests = SingleAbinitGWWorkFlow(self.structure, self.spec).convs
                     else:
                         print('| extending grid')
-                        tests = expand_tests(SingleAbinitGWWorkFlow(self.structure, self.spec).convs, grid)
+                        tests = expand(SingleAbinitGWWorkFlow(self.structure, self.spec).convs, grid)
                 ecuteps = []
                 nscf_nband = []
                 for test in tests:
