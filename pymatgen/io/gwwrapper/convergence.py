@@ -410,7 +410,7 @@ def print_plot_line(function, popt, xs, ys, name, tol=0.05, extra=''):
         f.write(line + '\n')
 
 
-def test_conv(xs, ys, name, tol=0.0001, extra='', verbose=False, mode='extra'):
+def determine_convergence(xs, ys, name, tol=0.0001, extra='', verbose=False, mode='extra'):
     """
     test it and at which x_value dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists.
     """
