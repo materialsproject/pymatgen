@@ -12,7 +12,7 @@ from pymatgen.io.gwwrapper.datastructures import GWSpecs, GWConvergenceData, get
 from pymatgen.io.gwwrapper.codeinterfaces import AbinitInterface, AbstractCodeInterface, VaspInterface, get_code_interface
 from pymatgen.io.gwwrapper.GWworkflows import GWG0W0VaspInputSet, SingleAbinitGWWorkFlow
 from pymatgen.io.gwwrapper.helpers import refine_structure, clean, load_ps, read_extra_abivars, read_grid_from_file
-from pymatgen.io.gwwrapper.helpers import expand_tests
+from pymatgen.io.gwwrapper.helpers import expand
 
 #test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",'test_files')
 
@@ -60,8 +60,9 @@ class GWTestHelpers(PymatgenTest):
         self.assertEqual(vars_out, vars_in)
         os.remove('extra_abivars')
 
+
     @unittest.skipIf(not have_abinit_ps_ext, "Requires ABINIT_PS_EXT env variable")
-    def test_expand_test(self):
+    def test_expand(self):
         spec = get_spec('GW')
         tests = SingleAbinitGWWorkFlow(structure, spec).convs
         tests_out = {'nscf_nbands': {'test_range': (50,),
@@ -70,9 +71,9 @@ class GWTestHelpers(PymatgenTest):
                               'control': 'e_ks_max', 'method': 'direct', 'level': 'scf'},
                      'ecuteps': {'test_range': (4, 8, 12, 16, 20),
                                  'control': 'gap', 'method': 'direct', 'level': 'sigma'}}
-        self.assertEqual(expand_tests(tests, 1), tests_out)
+        self.assertEqual(expand(tests, 1), tests_out)
         spec.data['code'] = 'VASP'
         spec.update_code_interface()
         tests = GWG0W0VaspInputSet(structure, spec).convs
         tests_out = {'ENCUTGW': {'test_range': (200, 400, 600, 800), 'control': 'gap', 'method': 'incar_settings'}}
-        self.assertEqual(expand_tests(tests, 1), tests_out)
+        self.assertEqual(expand(tests, 1), tests_out)
