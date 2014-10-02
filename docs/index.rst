@@ -250,8 +250,8 @@ some quick examples of the core capabilities and objects:
     PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
     >>>
     >>> #Integrated symmetry tools from spglib.
-    >>> from pymatgen.symmetry.finder import SymmetryFinder
-    >>> finder = SymmetryFinder(structure)
+    >>> from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+    >>> finder = SpacegroupAnalyzer(structure)
     >>> finder.get_spacegroup_symbol()
     'Pm-3m'
     >>>
