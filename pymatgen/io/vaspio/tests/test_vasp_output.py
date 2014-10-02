@@ -208,7 +208,9 @@ class OutcarTest(unittest.TestCase):
                                             'Elapsed time (sec)': 546.709,
                                             'Maximum memory used (kb)': 0.0,
                                             'Average memory used (kb)': 0.0,
-                                            'User time (sec)': 544.204})
+                                            'User time (sec)': 544.204,
+                                            'cores': '8'})
+
         self.assertAlmostEqual(outcar.efermi, 2.0112)
         self.assertAlmostEqual(outcar.nelect, 44.9999991)
         self.assertAlmostEqual(outcar.total_mag, 0.9999998)
