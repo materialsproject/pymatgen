@@ -36,7 +36,7 @@ import math
 import numpy as np
 import tempfile
 from pymatgen.core.lattice import Lattice
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.electronic_structure.dos import Dos, Spin, CompleteDos
 from pymatgen.electronic_structure.core import Orbital
 from pymatgen.electronic_structure.plotter import DosPlotter
@@ -123,7 +123,7 @@ class BoltztrapRunner():
                     f.write("%18.8f\n" % float(tmp_eigs[j]))
 
     def _make_struc_file(self, file_name):
-        sym = SymmetryFinder(self._bs._structure, symprec=0.01)
+        sym = SpacegroupAnalyzer(self._bs._structure, symprec=0.01)
         with open(file_name, 'w') as f:
             f.write(self._bs._structure.composition.formula+" " +
                     str(sym.get_spacegroup_symbol())+"\n")
