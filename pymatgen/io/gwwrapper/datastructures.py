@@ -22,12 +22,12 @@ import os.path
 import ast
 import pymatgen as pmg
 import copy
-import gridfs
 import six
 import numpy as np
 
 try:
     import pymongo
+    import gridfs
 except ImportError:
     pass
 
