@@ -451,7 +451,7 @@ class GWSpecs(AbstractAbinitioSpec):
                         for item in data.data:
                             print(item)
                         done = True
-                    if data.test_full_kp_results(tol_rel=1, tol_abs=0.001):
+                    if data.test_full_kp_results(tol_rel=1, tol_abs=0.0015):
                         print('| Full type calculation and the full results agree with the parm_scr.' \
                               ' All_done for this compound.')
                         data.full_res.update({'all_done': True})
@@ -523,7 +523,7 @@ class GWSpecs(AbstractAbinitioSpec):
             entry.update({'conv_res': data.conv_res,
                           'spec': self.to_dict(),
                           'extra_vars': extra,
-                          'structure': structure.to_dict,
+                          'structure': structure.as_dict(),
                           'gw_results': con_dat,
                           'results_file': results_file,
                           'data_file': data_file})
@@ -756,7 +756,7 @@ class GWConvergenceData():
         self.conv_res['derivatives'].update({x_name: conv_data[5]})
         return conv_data
 
-    def test_full_kp_results(self, tol_rel=0.5, tol_abs=0.0001):
+    def test_full_kp_results(self, tol_rel=0.5, tol_abs=0.0002):
         """
         test if the slopes of the gap data at the full kp mesh are 'comparable' to those of the low kp mesh
         """
