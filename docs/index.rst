@@ -249,7 +249,11 @@ some quick examples of the core capabilities and objects:
     >>> structure[0]
     PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
     >>>
-    >>> #Integrated symmetry tools from spglib.
+    >>> # You can create a Structure using spacegroup symmetry as well.
+    >>> li2o = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Li", "O"],
+                                         [[0.25, 0.25, 0.25], [0, 0, 0]])
+    >>>
+    >>> #Integrated symmetry analysis tools from spglib.
     >>> from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
     >>> finder = SpacegroupAnalyzer(structure)
     >>> finder.get_spacegroup_symbol()
