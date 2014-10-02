@@ -88,7 +88,7 @@ def clean(some_string, uppercase=False):
         return some_string.strip().lower()
 
 
-def expand_tests(tests, level):
+def expand(tests, level):
     from pymatgen.io.gwwrapper.codeinterfaces import get_all_ecuteps, get_all_nbands
     new_tests = copy.deepcopy(tests)
     for test in tests.keys():
