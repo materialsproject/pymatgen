@@ -872,7 +872,7 @@ class Dependency(object):
 # Possible status of the node.
 _STATUS2STR = collections.OrderedDict([
     (1,  "Initialized"),    # Node has been initialized
-    (2,  "Locked"),         # Task is locked an must be explicitly unlocked by en external subject (Workflow).
+    (2,  "Locked"),         # Task is locked an must be explicitly unlocked by an external subject (Workflow).
     (3,  "Ready"),          # Node is ready i.e. all the depencies of the node have status S_OK
     (4,  "Submitted"),      # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
     (5,  "Running"),        # Node is running.
