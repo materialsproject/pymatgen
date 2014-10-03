@@ -12,9 +12,11 @@ import warnings
 import shutil
 import pickle
 
-from six.moves import map #, cPickle as pickle
+from six.moves import map 
 from monty.io import FileLock
 from monty.pprint import pprint_table
+
+from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
 from .tasks import Dependency, Status, Node, Task, ScfTask, PhononTask, TaskManager
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
@@ -177,7 +179,8 @@ class AbinitFlow(Node):
         with FileLock(filepath):
             with open(filepath, "rb") as fh:
                 #flow = pickle.load(fh)
-                flow = PmgUnpickler(fh).load()
+                #flow = PmgUnpickler(fh).load()
+                flow = pmg_pickle_load(fh)
 
         # Check if versions match.
         if flow.VERSION != cls.VERSION:
@@ -685,7 +688,8 @@ class AbinitFlow(Node):
         with FileLock(filepath):
             with open(filepath, mode="w" if protocol == 0 else "wb") as fh:
                 #pickle.dump(self, fh, protocol=protocol)
-                PmgPickler(fh, protocol=protocol).dump(self)
+                #PmgPickler(fh, protocol=protocol).dump(self)
+                pmg_pickle_dump(self, fh, protocol=protocol)
 
         # Atomic transaction.
         #filepath_new = filepath + ".new"
@@ -1242,40 +1246,3 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
         flow.register_work(work_qpt)
                                             
     return flow.allocate()
-
-
-
-from pymatgen.core.periodic_table import Element
-"""
-See 12.1.5.1. Persistence of External Objects
-https://docs.python.org/3/library/pickle.html
-"""
-
-class PmgPickler(pickle.Pickler):
-
-    def persistent_id(self, obj):
-        # Instead of pickling as a regular class instance, we emit a persistent ID.
-        if isinstance(obj, Element):
-            # Here, our persistent ID is simply a tuple, containing a tag and a
-            # key, which refers to a specific record in the database.
-            return obj.__class__.__name__, obj._symbol
-        else:
-            # If obj does not have a persistent ID, return None. This means obj
-            # needs to be pickled as usual.
-            return None
-
-
-class PmgUnpickler(pickle.Unpickler):
-
-    def persistent_load(self, pid):
-        # This method is invoked whenever a persistent ID is encountered.
-        # Here, pid is the tuple returned by PmgPickler.
-        type_tag, key_id = pid
-        if type_tag == "Element":
-            return Element(key_id)
-        else:
-            # Always raises an error if you cannot return the correct object.
-            # Otherwise, the unpickler will think None is the object referenced
-            # by the persistent ID.
-            raise pickle.UnpicklingError("unsupported persistent object")
-
