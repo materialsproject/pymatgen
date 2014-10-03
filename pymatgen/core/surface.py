@@ -238,7 +238,6 @@ class Slab(Structure):
 
             if shift_bool:
                 term_site = shift
-            print(term_site)
 
             for site in term_slab:
                 if term_site < np.dot(site.coords, normal) <= nlayers_slab * dist +\
@@ -435,7 +434,7 @@ from pymatgen import write_structure
 # To run this test, it is assumed that the
 # pymatgen folder is in your home directory
 def get_path(path_str):
-    file_name = "pymatgen/pymatgen/core/tests/surface tests/" + path_str
+    file_name = "pymatgen/pymatgen/core/tests/surface_tests/" + path_str
     path = os.path.join(os.path.expanduser("~"), file_name)
     return path
 
