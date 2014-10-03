@@ -89,6 +89,7 @@ class CostDB(six.with_metaclass(abc.ABCMeta)):
 class CostDBCSV(CostDB):
     """
     Read a CSV file to get costs
+    Format is formula,cost_per_kg,name,BibTeX
     """
 
     def __init__(self, filename):
