@@ -1192,15 +1192,13 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
 class FileNode(Node):
     """
-    A Node that consists of an already existing file.
+    A Node that consists of a file. May be not yet existing
 
     Mainly used to connect Tasks to external files produced in previous runs
     """
     def __init__(self, filename):
         super(FileNode, self).__init__()
         self.filepath = os.path.abspath(filename)
-        if not os.path.exists(self.filepath):
-            raise ValueError("File %s must exists" % self.filepath)
 
         # Directories with input|output|temporary data.
         self.workdir = os.path.dirname(self.filepath)
@@ -1218,7 +1216,7 @@ class FileNode(Node):
 
     @property
     def status(self):
-        return self.S_OK
+        return File(self.filepath).exists
 
 
 class TaskError(Exception):

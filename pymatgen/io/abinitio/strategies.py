@@ -174,6 +174,10 @@ class StrategyWithInput(object):
     def make_input(self):
         return str(self.abinit_input)
 
+    def deepcopy(self):
+        """Deep copy of self."""
+        return copy.deepcopy(self)
+
 
 class HtcStrategy(AbstractStrategy):
     """
