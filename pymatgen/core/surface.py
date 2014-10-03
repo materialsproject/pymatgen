@@ -238,7 +238,6 @@ class Slab(Structure):
 
             if shift_bool:
                 term_site = shift
-            print(term_site)
 
             for site in term_slab:
                 if term_site < np.dot(site.coords, normal) <= nlayers_slab * dist +\
@@ -283,7 +282,7 @@ class Slab(Structure):
         self.parent = structure
         self.miller_index = miller_index
         self.term_coords = term_coords
-        self.scale_factor = slab_scale_factor
+        self.scale_factor = np.array(slab_scale_factor)
         self.normal = normal
         self.true_vac_size = nlayers_vac*dist
         self.unit_cell = single.copy()
@@ -435,7 +434,7 @@ from pymatgen import write_structure
 # To run this test, it is assumed that the
 # pymatgen folder is in your home directory
 def get_path(path_str):
-    file_name = "pymatgen/pymatgen/core/tests/surface tests/" + path_str
+    file_name = "pymatgen/pymatgen/core/tests/surface_tests/" + path_str
     path = os.path.join(os.path.expanduser("~"), file_name)
     return path
 
@@ -457,7 +456,7 @@ class SlabTest(unittest.TestCase):
             if any(hkl):
                 ssize = 6
                 vsize = 10
-                s = Slab(self.cu, hkl, ssize, vsize)
+                s = Slab(self.cu, hkl, ssize, vsize, shift_bool=True, standardize=False, lll_reduce=False)
                 if hkl == [0, 1, 1]:
                     self.assertEqual(len(s), 13)
                     self.assertAlmostEqual(s.surface_area, 12.727922061357855)
