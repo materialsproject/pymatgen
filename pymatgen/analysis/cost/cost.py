@@ -2,8 +2,8 @@
 
 """
 This module is used to estimate the cost of various compounds. Costs are taken
-from the accompanying CSV file in the format of (formula, cost/kg, name,
-reference). For compounds with no cost listed, a Phase Diagram style convex hull
+from the a CostDB instance, for example a CSV file via CostDBCSV.
+For compounds with no cost listed, a Phase Diagram style convex hull
 optimization is performed to determine a set of compositions that can be mixed
 to give the desired compound with lowest total cost.
 """
