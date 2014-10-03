@@ -32,7 +32,6 @@ __email__ = 'ajain@lbl.gov'
 __date__ = 'Aug 27, 2013'
 
 
-AMU_TO_KG = Mass(1, "amu").to("kg")
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -79,7 +78,8 @@ class CostDB(six.with_metaclass(abc.ABCMeta)):
 
         Args:
             chemsys:
-                array of Elements defining the chemical system
+                array of Elements defining the chemical system.
+
         Returns:
             array of CostEntries
         """
@@ -98,10 +98,11 @@ class CostDBCSV(CostDB):
         reader = csv.reader(open(filename, "rb"), quotechar=unicode2str("|"))
         for row in reader:
             comp = Composition(row[0])
-            cost_per_mol = float(row[1]) * comp.weight * \
-                AMU_TO_KG * AVOGADROS_CONST
+            cost_per_mol = float(row[1]) * comp.weight.to("kg") * \
+                           AVOGADROS_CONST
             pde = CostEntry(comp.formula, cost_per_mol, row[2], row[3])
-            chemsys = "-".join(sorted([el.symbol for el in pde.composition.elements]))
+            chemsys = "-".join(sorted([el.symbol
+                                       for el in pde.composition.elements]))
             self._chemsys_entries[chemsys].append(pde)
 
     def get_entries(self, chemsys):
@@ -144,13 +145,12 @@ class CostAnalyzer(object):
                 chemsys = [Element(e) for e in combi]
                 x = self.costdb.get_entries(chemsys)
                 entries_list.extend(x)
-
-        print entries_list
         try:
             pd = PhaseDiagram(entries_list)
             return PDAnalyzer(pd).get_decomposition(composition)
         except IndexError:
-            raise ValueError("Error during PD building; most likely, cost data does not exist!")
+            raise ValueError("Error during PD building; most likely, "
+                             "cost data does not exist!")
 
     def get_cost_per_mol(self, comp):
         """
@@ -179,4 +179,5 @@ class CostAnalyzer(object):
             float of cost/kg
         """
         comp = comp if isinstance(comp, Composition) else Composition(comp)
-        return self.get_cost_per_mol(comp) / (comp.weight * AMU_TO_KG * AVOGADROS_CONST)
+        return self.get_cost_per_mol(comp) / (
+            comp.weight.to("kg") * AVOGADROS_CONST)
