@@ -24,8 +24,15 @@ import socket
 from pymatgen.core.structure import Structure
 from pymatgen.io.gwwrapper.GWvaspinputsets import SingleVaspGWWork
 from pymatgen.io.gwwrapper.GWvaspinputsets import GWG0W0VaspInputSet
-from fireworks.core.firework import FireTaskBase, FWAction
-from fireworks.utilities.fw_serializers import FWSerializable
+
+try:
+    from fireworks.core.firework import FireTaskBase, FWAction
+    from fireworks.utilities.fw_serializers import FWSerializable
+except ImportError:
+    # Dummy classes 
+    class FireTaskBase(object): pass
+    class FWAction(object): pass
+    class FWSerializable(object): pass
 
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
