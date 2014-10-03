@@ -166,7 +166,7 @@ class CostAnalyzer(object):
         comp = comp if isinstance(comp, Composition) else Composition(comp)
         decomp = self.get_lowest_decomposition(comp)
         return sum(k.energy_per_atom * v * comp.num_atoms for k, v in
-                   decomp.iteritems())
+                   decomp.items())
 
     def get_cost_per_kg(self, comp):
         """
