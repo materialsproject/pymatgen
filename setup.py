@@ -61,7 +61,7 @@ setup(
                     "vis": ["vtk>=6.0.0"],
                     "abinitio": ["pydispatcher>=2.0.3", "apscheduler==2.1.0"]},
     package_data={"pymatgen.core": ["*.json"],
-                  "pymatgen.analysis": ["*.yaml"],
+                  "pymatgen.analysis": ["*.yaml", "*.csv"],
                   "pymatgen.io": ["*.yaml"],
                   "pymatgen.symmetry": ["*.yaml"],
                   "pymatgen.io.gwwrapper":["*.json"],
