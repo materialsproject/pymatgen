@@ -3,10 +3,10 @@
 from __future__ import division, unicode_literals
 import os
 import unittest
+import pymatgen
 from pymatgen.analysis.cost.cost import CostDBCSV, CostAnalyzer, CostDBElements
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
-
+module_dir = os.path.join(os.path.dirname(pymatgen.__file__), '..', 'test_files')
 
 class CostAnalyzerTest(unittest.TestCase):
 
