@@ -29,7 +29,10 @@ try:
     from fireworks.core.firework import FireTaskBase, FWAction
     from fireworks.utilities.fw_serializers import FWSerializable
 except ImportError:
-    pass
+    # Dummy classes 
+    class FireTaskBase(object): pass
+    class FWAction(object): pass
+    class FWSerializable(object): pass
 
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
