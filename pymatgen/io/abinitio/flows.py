@@ -10,10 +10,13 @@ import time
 import collections
 import warnings
 import shutil
+import pickle
 
-from six.moves import map, cPickle as pickle
+from six.moves import map 
 from monty.io import FileLock
-from pymatgen.util.string_utils import pprint_table
+from monty.pprint import pprint_table
+
+from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
 from .tasks import Dependency, Status, Node, Task, ScfTask, PhononTask, TaskManager
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
@@ -175,7 +178,9 @@ class AbinitFlow(Node):
 
         with FileLock(filepath):
             with open(filepath, "rb") as fh:
-                flow = pickle.load(fh)
+                #flow = pickle.load(fh)
+                #flow = PmgUnpickler(fh).load()
+                flow = pmg_pickle_load(fh)
 
         # Check if versions match.
         if flow.VERSION != cls.VERSION:
@@ -598,8 +603,8 @@ class AbinitFlow(Node):
                 try:
                     selected.append(getattr(choices[c], "path"))
                 except KeyError:
-                    import warnings
                     warnings.warn("Wrong keyword %s" % c)
+
             return selected
 
         # Build list of files to analyze.
@@ -682,7 +687,9 @@ class AbinitFlow(Node):
 
         with FileLock(filepath):
             with open(filepath, mode="w" if protocol == 0 else "wb") as fh:
-                pickle.dump(self, fh, protocol=protocol)
+                #pickle.dump(self, fh, protocol=protocol)
+                #PmgPickler(fh, protocol=protocol).dump(self)
+                pmg_pickle_dump(self, fh, protocol=protocol)
 
         # Atomic transaction.
         #filepath_new = filepath + ".new"
