@@ -13,9 +13,10 @@ import six
 from six.moves import filter
 from monty.collections import AttrDict
 from monty.itertools import chunks
+from monty.pprint import pprint_table
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
-from pymatgen.util.string_utils import pprint_table, WildCard
+from pymatgen.util.string_utils import WildCard
 from . import wrappers
 from .tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, DdkTask, BseTask, RelaxTask)
 from .strategies import HtcStrategy # ScfStrategy, RelaxStrategy

@@ -1118,11 +1118,6 @@ class PeriodicTable(object):
         except:
             raise IndexError("Z_or_slice: %s" % str(Z_or_slice))
 
-    #def __getstate__(self):
-    #    return self._all_elements
-    #def __setstate__(self, d):
-    #    self._all_elements = d
-
     @property
     def all_elements(self):
         """
