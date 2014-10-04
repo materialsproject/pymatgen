@@ -82,7 +82,7 @@ class Slab(Structure):
 
     def __init__(self, lattice, species, normal, slab_scale_factor, new_sites, structure, miller_index):
 
-        slab = Structure.from_sites(new_sites)
+        slab = structure.copy()
 
         self.parent = structure
         self.miller_index = miller_index
@@ -229,16 +229,15 @@ class Slab(Structure):
 
         return interface_system
 
-def surface_list_generator(shift_list, normal, slab_scale_factor, length, miller_index, structure, lll_reduce, standardize):
+def surface_list_generator(shift_list, normal, slab_scale, length, miller_index, structure, lll_reduce, standardize):
 
     slab_list = []
 
     for i in range(0, len(shift_list)):
-        b = slab_scale_factor
+        b = slab_scale
         term_slab = structure.copy()
         term_slab.make_supercell(b)
         term_slab = organize(term_slab)[0]
-        print(term_slab.lattice.lengths_and_angles)
 
         new_sites = []
 
@@ -330,7 +329,7 @@ class Surface_Generator():
         slab.make_supercell(slab_scale_factor)
 
         self.super = slab
-        self.single = single
+        self.unit_cell = single
         self.struct = structure
         self.lll_reduce = lll_reduce
         self.standardize = standardize
@@ -362,7 +361,7 @@ class Surface_Generator():
             else:
                 if tracker_index[i] != tracker_index[i+1]:
                     term_index.append(i)
-            if gg >= len(self.single) and tracker_index[i] != tracker_index[i+1]:
+            if gg >= len(self.unit_cell) and tracker_index[i] != tracker_index[i+1]:
                 term_index.append(i)
                 break
 
@@ -399,7 +398,7 @@ class Surface_Generator():
 
         # use Slab Class to get rotated unit cell, consider c factor of new cells
         # slab with 1 unit cell of layer and 0 unit cell of vacuum, rotated
-        slab = self.single
+        slab = self.unit_cell
         latt = slab.lattice
         print latt
         c2 = latt.c
@@ -584,20 +583,20 @@ class SlabTest(unittest.TestCase):
 
     def test_make_terminations(self):
         # Need to make a more thorough test later
-        hkl = [0, 1, 1]
+        hkl = [1, 0, 1]
         vsize = 10
         ssize = 15
         gen = Surface_Generator(self.lifepo4, hkl, ssize, vsize)
-        LiFePO4 = gen.distance()[0]
-
-        fileName = get_path("LiFePO4.cif")
-
-
-        Name = fileName[:-4] + "_%s_slab %s_vac %s_#" \
-                                  %(str(hkl),
-                                    ssize,
-                                    vsize)
-        fileType = ".cif"
+        LiFePO4 = gen.manual([0.478575453, 1.2545])[0]
+        #
+        # fileName = get_path("LiFePO4.cif")
+        #
+        #
+        # Name = fileName[:-4] + "_%s_slab %s_vac %s_#" \
+        #                           %(str(hkl),
+        #                             ssize,
+        #                             vsize)
+        # fileType = ".cif"
 
         # For visual debugging
         # for ii in range(0, len(LiFePO4.slab_list)):
