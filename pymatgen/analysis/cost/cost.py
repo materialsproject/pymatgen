@@ -23,6 +23,8 @@ from pymatgen.matproj.snl import is_valid_bibtex
 from pymatgen.phasediagram.entries import PDEntry
 from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
 from pymatgen.phasediagram.pdmaker import PhaseDiagram
+from io import open
+
 
 __author__ = 'Anubhav Jain'
 __copyright__ = 'Copyright 2013, The Materials Project'
@@ -96,7 +98,7 @@ class CostDBCSV(CostDB):
         # read in data from file
         self._chemsys_entries = defaultdict(list)
         filename = os.path.join(os.path.dirname(__file__), filename)
-        reader = csv.reader(open(filename, "rb"), quotechar=unicode2str("|"))
+        reader = csv.reader(open(filename, "rt"), quotechar=unicode2str("|"))
         for row in reader:
             comp = Composition(row[0])
             cost_per_mol = float(row[1]) * comp.weight.to("kg") * \
