@@ -893,7 +893,7 @@ class IStructure(SiteCollection, PMGSONable):
                            site_properties=self.site_properties))
         return structs
 
-    def get_primitive_structure(self, tolerance=0.25):
+    def get_primitive_structure(self, tolerance=0.1):
         """
         This finds a smaller unit cell than the input. Sometimes it doesn"t
         find the smallest possible one, so this method is recursively called
@@ -914,117 +914,84 @@ class IStructure(SiteCollection, PMGSONable):
 
         Args:
             tolerance (float): Tolerance for each coordinate of a particular
-                site. For example, [0.5, 0, 0.5] in cartesian coordinates
+                site. For example, [0.1, 0, 0.1] in cartesian coordinates
                 will be considered to be on the same coordinates as
-                [0, 0, 0] for a tolerance of 0.5. Defaults to 0.5.
+                [0, 0, 0] for a tolerance of 0.1. Defaults to 0.1.
 
         Returns:
             The most primitive structure found. The returned structure is
             guaranteed to have len(new structure) <= len(structure).
         """
-        original_volume = self.volume
 
-        #get the possible symmetry vectors
-        sites = sorted(self._sites, key=lambda site: site.species_string)
-        grouped_sites = [list(a[1]) for a
-                         in itertools.groupby(sites,
-                                              key=lambda s: s.species_string)]
+        k = lambda s: s.species_string
+        sites = sorted(self._sites, key=k)
+        grouped_sites = [list(a[1]) for a in itertools.groupby(sites, key=k)]
+        fcoords = np.array(self.frac_coords)
 
         num_fu = six.moves.reduce(gcd, map(len, grouped_sites))
-        min_vol = original_volume * 0.5 / num_fu
 
-        min_site_list = min(grouped_sites, key=lambda group: len(group))
+        def get_hnf(fu):
+            """
+            Returns all possible distinct supercell matrices given a
+            number of formula units in the supercell.
+            """
+            def factors(n):
+                for i in range(1, n+1):
+                    if n % i == 0:
+                        yield i
 
-        min_site_list = [site.to_unit_cell for site in min_site_list]
-        org = min_site_list[0].coords
-        possible_vectors = [min_site_list[i].coords - org
-                            for i in range(1, len(min_site_list))]
+            for det in factors(num_fu):
+                for a in factors(det):
+                    for e in factors(det // a):
+                        for g in factors(det // a // e):
+                            for b, c, f in itertools.product(range(e), range(g), range(g)):
+                                yield np.array([[a, b, c], [0, e, f], [0, 0, g]])
 
-        #Let's try to use the shortest vector possible first. Allows for faster
-        #convergence to primitive cell.
-        possible_vectors = sorted(possible_vectors,
-                                  key=lambda x: np.linalg.norm(x))
-
-        # Pre-create a few varibles for faster lookup.
-        all_coords = [site.coords for site in sites]
-        all_sp = [site.species_and_occu for site in sites]
-        new_structure = None
-
-        #all lattice points need to be projected to 0 under new basis
-        l_points = np.array([[0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0],
-                             [1, 0, 1], [1, 1, 0], [1, 1, 1]])
-        l_points = self._lattice.get_cartesian_coords(l_points)
-
-        for v, repl_pos in itertools.product(possible_vectors, list(range(3))):
-            #Try combinations of new lattice vectors with existing lattice
-            #vectors.
-            latt = self._lattice.matrix
-            latt[repl_pos] = v
-
-            #Exclude coplanar lattices from consideration.
-            if abs(np.dot(np.cross(latt[0], latt[1]), latt[2])) < min_vol:
-                continue
-            latt = Lattice(latt)
-
-            #Convert to fractional tol
-            tol = tolerance / np.array(latt.abc)
-
-            #check validity of new basis
-            new_l_points = latt.get_fractional_coords(l_points)
-            f_l_dist = np.abs(new_l_points - np.round(new_l_points))
-            if np.any(f_l_dist > tol[None, None, :]):
+        for m in get_hnf(num_fu):
+            if np.linalg.det(m) == 1:
                 continue
 
-            all_frac = latt.get_fractional_coords(np.array(all_coords))
+            tol = tolerance / (np.diag(m) * self.lattice.abc)
 
-            #calculate grouping of equivalent sites, represented by
-            #adjacency matrix
+            all_frac = np.array([np.dot(m, fc) for fc in fcoords])
+
+            # calculate grouping of equivalent sites, represented by
+            # adjacency matrix
             fdist = all_frac[None, :, :] - all_frac[:, None, :]
             fdist = np.abs(fdist - np.round(fdist))
             groups = np.all(fdist < tol[None, None, :], axis=2)
-
-            #check that all group sizes are the same
+            #check that groups are correct
             sizes = np.unique(np.sum(groups, axis=0))
+
             if len(sizes) > 1:
                 continue
-
-            #check that reduction in number of sites was by the same
-            #amount as the volume reduction
-            if round(self._lattice.volume / latt.volume) != sizes[0]:
+            if sizes[0] != round(np.linalg.det(m)):
                 continue
 
-            new_sp = []
-            new_frac = []
-            #this flag is set to ensure that all sites in a group are
-            #the same species, it is set to false if a group is found
-            #where this is not the case
-            correct = True
-
-            added = np.zeros(len(groups), dtype='bool')
-            for i, g in enumerate(groups):
-                if added[i]:
-                    continue
-                indices = np.where(g)[0]
-                i0 = indices[0]
-                sp = all_sp[i0]
-                added[indices] = 1
-                if not all([all_sp[i] == sp for i in indices]):
-                    correct = False
+            #checks that groups are all cliques
+            #TODO: check occupancies, or do everything by site grouping (preferred)
+            valid = True
+            for g in groups:
+                if not np.all(groups[g, g]):
+                    valid = False
                     break
-                new_sp.append(all_sp[i0])
-                new_frac.append(all_frac[i0])
+            if not valid:
+                continue
 
-            if correct:
-                new_structure = self.__class__(
-                    latt, new_sp, new_frac, to_unit_cell=True)
-                break
+            added = np.zeros(len(self))
+            sites = []
+            for i, s in enumerate(self):
+                if not added[i]:
+                    added[groups[i]] = True
+                    sites.append(s)
 
-        if new_structure and len(new_structure) != len(self):
-            # If a more primitive structure has been found, try to find an
-            # even more primitive structure again.
-            return new_structure.get_primitive_structure(tolerance=tolerance)
-        else:
-            return self
+            inv_m = np.linalg.inv(m)
+            s = Structure.from_sites(sites)
+            s.modify_lattice(Lattice(np.dot(self.lattice.matrix, inv_m)))
+
+            return s.get_primitive_structure(tolerance)
+
+        return self
 
     def __repr__(self):
         outs = ["Structure Summary", repr(self.lattice)]

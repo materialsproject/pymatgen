@@ -220,6 +220,10 @@ class OutcarTest(unittest.TestCase):
         outcar = Outcar(filepath)
         self.assertTrue(outcar.is_stopped)
 
+    def test_gzip(self):
+        filepath = os.path.join(test_dir, 'OUTCAR.gz')
+        outcar = Outcar(filepath)
+
     def test_core_state_eigen(self):
         filepath = os.path.join(test_dir, "OUTCAR.CL")
         cl = Outcar(filepath).read_core_state_eigen()
