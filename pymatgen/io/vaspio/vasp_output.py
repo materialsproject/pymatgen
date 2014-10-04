@@ -937,12 +937,7 @@ class Outcar(PMGSONable):
         self.filename = filename
         self.is_stopped = False
 
-        cores = 0
-        with open(filename, "r") as f:
-            for line in f:
-                if "running" in line:
-                    cores = line.split()[2]
-                    break
+        # data from end of OUTCAR
         with zopen(filename, "rt") as f:
             read_charge_mag = False
             charge = []
@@ -1010,7 +1005,12 @@ class Outcar(PMGSONable):
                         run_stats]):
                     break
 
-            run_stats.update({'cores': cores})
+            # data from beginning of OUTCAR
+            with zopen(filename, "r") as f:
+                for line in f:
+                    if "running" in line:
+                        run_stats['cores'] = line.split()[2]
+                        break
 
             self.run_stats = run_stats
             self.magnetization = tuple(mag)
