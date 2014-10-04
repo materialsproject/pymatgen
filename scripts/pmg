@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
+from __future__ import division, unicode_literals
+
 """
 A master convenience script with many tools for vasp and structure analysis.
 """
-
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -34,7 +34,7 @@ from pymatgen.io.vaspio import Poscar
 from pymatgen.io.cifio import CifParser, CifWriter
 from pymatgen.io.vaspio_set import MPVaspInputSet, MITVaspInputSet
 from pymatgen.io.cssrio import Cssr
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from prettytable import PrettyTable
@@ -176,7 +176,7 @@ def plot_chgint(args):
     if args.inds:
         atom_ind = [int(i) for i in args.inds[0].split(",")]
     else:
-        finder = SymmetryFinder(s, symprec=0.1)
+        finder = SpacegroupAnalyzer(s, symprec=0.1)
         sites = [sites[0] for sites in
                  finder.get_symmetrized_structure().equivalent_sites]
         atom_ind = [s.sites.index(site) for site in sites]
@@ -270,7 +270,7 @@ def parse_symmetry(args):
     for filename in args.filenames:
         s = Structure.from_file(filename)
         if args.spacegroup:
-            finder = SymmetryFinder(s, tolerance)
+            finder = SpacegroupAnalyzer(s, tolerance)
             dataset = finder.get_symmetry_dataset()
             print(filename)
             print("Spacegroup  : {}".format(dataset["international"]))

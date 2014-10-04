@@ -17,7 +17,7 @@ import itertools
 from monty.design_patterns import singleton
 from monty.string import unicode2str
 import six
-from pymatgen import Composition, Mass, Element
+from pymatgen import Composition, Element
 from pymatgen.core.physical_constants import AVOGADROS_CONST
 from pymatgen.matproj.snl import is_valid_bibtex
 from pymatgen.phasediagram.entries import PDEntry
