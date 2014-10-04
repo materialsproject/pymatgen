@@ -11,7 +11,7 @@ import yaml
 import six
 
 from six.moves import cStringIO, map, zip
-from pymatgen.util.string_utils import pprint_table
+from monty.pprint import pprint_table
 
 
 def straceback():

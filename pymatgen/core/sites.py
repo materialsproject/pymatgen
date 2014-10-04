@@ -180,7 +180,6 @@ class Site(collections.Mapping, collections.Hashable, PMGSONable):
         """
         Get the occupancy for element
         """
-        #print el, self._species[el]
         return self._species[el]
 
     def __eq__(self, other):

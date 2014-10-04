@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from __future__ import division, unicode_literals
+from __future__ import division, unicode_literals, print_function
 
 """
 Classes for reading/manipulating/writing VASP ouput files.
@@ -939,7 +939,7 @@ class Outcar(PMGSONable):
 
         cores = 0
         with open(filename, "r") as f:
-            for line in f.readlines():
+            for line in f:
                 if "running" in line:
                     cores = line.split()[2]
                     break
@@ -985,7 +985,7 @@ class Outcar(PMGSONable):
                             data.append(toks)
                 elif clean.find("soft stop encountered!  aborting job") != -1:
                     self.is_stopped = True
-                    print clean, cores
+                    #print(clean, cores)
                 else:
                     if time_patt.search(line):
                         tok = line.strip().split(":")
