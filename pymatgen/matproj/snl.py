@@ -28,6 +28,7 @@ from monty.string import remove_non_ascii
 
 from pymatgen.core.structure import Structure, Molecule
 from pybtex.database.input import bibtex
+from pybtex import errors
 
 
 MAX_HNODE_SIZE = 64000  # maximum size (bytes) of SNL HistoryNode
@@ -50,6 +51,7 @@ def is_valid_bibtex(reference):
     # filter expression removes all non-ASCII characters.
     sio = cStringIO(remove_non_ascii(reference))
     parser = bibtex.Parser()
+    errors.set_strict_mode(False)
     bib_data = parser.parse_stream(sio)
     return len(bib_data.entries) > 0
 
