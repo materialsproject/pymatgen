@@ -938,7 +938,7 @@ class Outcar(PMGSONable):
         self.is_stopped = False
 
         # data from end of OUTCAR
-        with zopen(filename, "rt") as f:
+        with zopen(filename, "rb") as f:
             read_charge_mag = False
             charge = []
             mag = []
@@ -954,6 +954,7 @@ class Outcar(PMGSONable):
                                      "magnetization\s+(\S+)")
             all_lines = []
             for line in reverse_readline(f):
+                line = line.decode("utf-8")
                 clean = line.strip()
                 all_lines.append(clean)
                 if clean.startswith("tot ") and not (charge and mag):
