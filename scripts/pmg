@@ -95,7 +95,7 @@ def get_energies(rootdir, reanalyze, verbose, detailed, sort):
     if len(all_data) > 0:
         headers = ("Directory", "Formula", "Energy", "E/Atom", "% vol chg")
         t = PrettyTable(headers)
-        t.set_field_align("Directory", "l")
+        t.align["Directory"] = "l"
         for d in all_data:
             t.add_row(d)
         print(t)

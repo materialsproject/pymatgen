@@ -16,6 +16,10 @@ dependencies:
 test:
   override:
     - nosetests
+    # Some rudimentary command line tests for pmg
+    - pmg convert test_files/Li2O.cif POSCAR.pmg
+    - pmg convert POSCAR.pmg pmg.cif
+    - pmg analyze -d test_files
 deployment:
   py3:
     branch: master
