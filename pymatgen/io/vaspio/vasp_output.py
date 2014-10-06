@@ -1005,7 +1005,7 @@ class Outcar(PMGSONable):
                 break
 
         # data from beginning of OUTCAR
-        with zopen(filename, "r") as f:
+        with zopen(filename, "rt") as f:
             for line in f:
                 if "running" in line:
                     run_stats['cores'] = line.split()[2]
