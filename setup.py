@@ -52,7 +52,7 @@ with open("README.rst") as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="3.0.5",
+    version="3.0.6",
     install_requires=["numpy>=1.8", "pyhull>=1.5.3", "six", "prettytable",
                       "requests", "pybtex", "pyyaml", "monty>=0.5.9"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
