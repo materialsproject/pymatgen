@@ -245,7 +245,7 @@ def surface_list_generator(shift_list, normal, slab_scale, length, miller_index,
         term_slab = organize(term_slab)[0]
 
         for site in term_slab:
-            if shift_list[i] < np.dot(site.coords, normal) <= length +\
+            if shift_list[i] <= np.dot(site.coords, normal) < length +\
                     shift_list[i]:
                 new_sites.append(site)
 
@@ -255,6 +255,8 @@ def surface_list_generator(shift_list, normal, slab_scale, length, miller_index,
             mapping = lll_slab.lattice.find_mapping(term_slab.lattice)
             slab_scale_factor = np.dot(mapping[2], b)
             term_slab = lll_slab
+        else:
+            slab_scale_factor = b
 
         slab = Slab(term_slab.lattice, term_slab.species, normal, slab_scale_factor,
                     term_slab.sites, term_slab, miller_index)
@@ -497,6 +499,7 @@ class Surface_Generator():
                 if i+1 == len(lyr)-1:
                     break
 
+
                 #slab2 = Slab1(structure, miller_index, min_slab_size=1,
                 #             min_vacuum_size=1, shift=lyr[0][0]-min_dist)
                 #write_structure(slab2, 'rslab'+str(miller_index)+str(slab.formula)+'.cif')
@@ -530,6 +533,8 @@ class SlabTest(unittest.TestCase):
         Li_Fe_P_O4 = CifParser(get_path("LiFePO4.cif"))
         self.lifepo4 = (Li_Fe_P_O4.get_structures(primitive = False)[0])
 
+        Li_Fe_P_O4_compare = CifParser(get_path("LiFePO4_010_original_3.005.cif"))
+        self.lifepo4_compare = (Li_Fe_P_O4.get_structures(primitive = False)[0])
 
     def test_init(self):
         for hkl in itertools.product(xrange(4), xrange(4), xrange(4)):
@@ -582,52 +587,33 @@ class SlabTest(unittest.TestCase):
                 self.assertAlmostEqual(s001_ad2[i].c, 0.4166667)
 
     def test_make_terminations(self):
-        # Need to make a more thorough test later
-        hkl = [1, 0, 1]
-        vsize = 10
-        ssize = 15
-        gen = Surface_Generator(self.lifepo4, hkl, ssize, vsize)
-        LiFePO4 = gen.manual([0.478575453, 1.2545])[0]
-        #
-        # fileName = get_path("LiFePO4.cif")
-        #
-        #
-        # Name = fileName[:-4] + "_%s_slab %s_vac %s_#" \
-        #                           %(str(hkl),
-        #                             ssize,
-        #                             vsize)
-        # fileType = ".cif"
+        gen = Surface_Generator(self.lifepo4, [0,1,0], 10, 10, lll_reduce=False)
+        manual_lifepo4 = gen.manual([3.005])[0]
+        write_structure(manual_lifepo4, "/home/richard/Desktop/Untitled_Folder/sharedfolder/lifepo4/LiFePO4_010_manual_3.005.cif")
+        dist_lifepo4 = gen.distance()[0]
+        # check_bonds = gen.check_bonds('P5+', 'O2-')[0]
+        a = organize(manual_lifepo4)[0]
+        b = organize(dist_lifepo4)[0]
+        c = organize(self.lifepo4_compare)[0]
+        for i in range(0, len(self.lifepo4_compare)):
+            for ii in range(0, 2):
+                # self.assertEqual(b[i].frac_coords[ii], c[i].frac_coords[ii])
+                # self.assertEqual(a[i].frac_coords[ii], c[i].frac_coords[ii])
+                print(b[i].frac_coords[ii], c[i].frac_coords[ii])
 
-        # For visual debugging
-        # for ii in range(0, len(LiFePO4.slab_list)):
-        #     name_num = str(ii)
-        #     newFile = Name + name_num + fileType
-        #     write_structure(LiFePO4.slab_list[ii], newFile)
 
-        # Prints the coordinates and the species of each
-        # atom along with the number of atoms on a
-        # surface termination site and checks if the correct
-        # number of sites are on a surface
-
-        # for iii in range(0, len(LiFePO4.term_coords)):
-        #     print(LiFePO4.term_coords[iii])
-        #     print("%s atoms on this surface."
-        #           %(len(LiFePO4.term_coords[iii])))
-        # for i in range(0, 14):
-        #     self.assertEqual(len(LiFePO4.term_coords[i]), 2)
-
-    def test_make_interface(self):
-        gen = Surface_Generator(self.lifepo4, [0, 0, 1], 10, 10)
-        slab = gen.distance()[0]
-        interface = slab.make_interface(self.libcc)
-
-        # For visual debugging
-        # write_structure(interface, "Li_LiFePO4_interface.cif")
-
-        for i in range(0, len(slab)):
-            self.assertEqual(slab[i].coords[0], interface[i].coords[0])
-            self.assertEqual(slab[i].coords[1], interface[i].coords[1])
-            self.assertEqual(slab[i].coords[2], interface[i].coords[2])
+    # def test_make_interface(self):
+    #     gen = Surface_Generator(self.lifepo4, [0, 0, 1], 10, 10)
+    #     slab = gen.distance()[0]
+    #     interface = slab.make_interface(self.libcc)
+    #
+    #     # For visual debugging
+    #     # write_structure(interface, "Li_LiFePO4_interface.cif")
+    #
+    #     for i in range(0, len(slab)):
+    #         self.assertEqual(slab[i].coords[0], interface[i].coords[0])
+    #         self.assertEqual(slab[i].coords[1], interface[i].coords[1])
+    #         self.assertEqual(slab[i].coords[2], interface[i].coords[2])
 
 if __name__ == "__main__":
     unittest.main()
