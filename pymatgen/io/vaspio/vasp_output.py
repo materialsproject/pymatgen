@@ -953,7 +953,6 @@ class Outcar(PMGSONable):
                                  "magnetization\s+(\S+)")
         all_lines = []
         for line in reverse_readfile(self.filename):
-            line = line.decode("utf-8")
             clean = line.strip()
             all_lines.append(clean)
             if clean.startswith("tot ") and not (charge and mag):
