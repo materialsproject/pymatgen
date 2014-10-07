@@ -1216,7 +1216,7 @@ class FileNode(Node):
 
     @property
     def status(self):
-        return File(self.filepath).exists
+        return self.S_OK if File(self.filepath).exists else self.S_ERROR
 
 
 class TaskError(Exception):
