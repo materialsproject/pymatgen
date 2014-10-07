@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import unicode_literals
+
 import unittest
 import os
 
@@ -24,29 +28,29 @@ class TestPourbaixEntry(unittest.TestCase):
         self.PxIon.conc = 1e-4
 
     def test_pourbaix_entry(self):
-        self.assertEquals(self.PxIon.entry.energy, 25, "Wrong Energy!")
-        self.assertEquals(self.PxIon.entry.name,\
+        self.assertEqual(self.PxIon.entry.energy, 25, "Wrong Energy!")
+        self.assertEqual(self.PxIon.entry.name,\
                           "MnO4[-]", "Wrong Entry!")
-        self.assertEquals(self.PxSol.entry.energy, 49, "Wrong Energy!")
-        self.assertEquals(self.PxSol.entry.name,\
+        self.assertEqual(self.PxSol.entry.energy, 49, "Wrong Energy!")
+        self.assertEqual(self.PxSol.entry.name,\
                            "Mn2O3", "Wrong Entry!")
-        self.assertEquals(self.PxIon.g0, 25, "Wrong Energy!")
-        self.assertEquals(self.PxSol.g0, 49, "Wrong Energy!")
-        self.assertEquals(self.PxIon.conc, 1e-4, "Wrong concentration!")
+        self.assertEqual(self.PxIon.g0, 25, "Wrong Energy!")
+        self.assertEqual(self.PxSol.g0, 49, "Wrong Energy!")
+        self.assertEqual(self.PxIon.conc, 1e-4, "Wrong concentration!")
 
     def test_calc_coeff_terms(self):
-        self.assertEquals(self.PxIon.npH, -8, "Wrong npH!")
-        self.assertEquals(self.PxIon.nPhi, -7, "Wrong nPhi!")
-        self.assertEquals(self.PxIon.nH2O, 4, "Wrong nH2O!")
+        self.assertEqual(self.PxIon.npH, -8, "Wrong npH!")
+        self.assertEqual(self.PxIon.nPhi, -7, "Wrong nPhi!")
+        self.assertEqual(self.PxIon.nH2O, 4, "Wrong nH2O!")
 
-        self.assertEquals(self.PxSol.npH, -6, "Wrong npH!")
-        self.assertEquals(self.PxSol.nPhi, -6, "Wrong nPhi!")
-        self.assertEquals(self.PxSol.nH2O, 3, "Wrong nH2O!")
+        self.assertEqual(self.PxSol.npH, -6, "Wrong npH!")
+        self.assertEqual(self.PxSol.nPhi, -6, "Wrong nPhi!")
+        self.assertEqual(self.PxSol.nH2O, 3, "Wrong nH2O!")
 
     def test_to_from_dict(self):
-        d = self.PxIon.to_dict
+        d = self.PxIon.as_dict()
         ion_entry = self.PxIon.from_dict(d)
-        self.assertEquals(ion_entry.entry.name, "MnO4[-]", "Wrong Entry!")
+        self.assertEqual(ion_entry.entry.name, "MnO4[-]", "Wrong Entry!")
 
 
 class MultiEntryTest(unittest.TestCase):
@@ -86,11 +90,11 @@ class MultiEntryTest(unittest.TestCase):
         sum_npH = 0.0
         sum_nPhi = 0.0
         sum_nH2O = 0.0
-        for i in xrange(len(self.weights)):
-            sum_g0 += self.weights[i] * self.entrylist[i].g0
-            sum_npH += self.weights[i] * self.entrylist[i].npH
-            sum_nPhi += self.weights[i] * self.entrylist[i].nPhi
-            sum_nH2O += self.weights[i] * self.entrylist[i].nH2O
+        for w, e in zip(self.weights, self.entrylist):
+            sum_g0 += w * e.g0
+            sum_npH += w * e.npH
+            sum_nPhi += w * e.nPhi
+            sum_nH2O += w * e.nH2O
         self.assertAlmostEqual(sum_g0, self.multientry.g0, "g0 doesn't match")
         self.assertAlmostEqual(sum_npH, self.multientry.npH, "npH doesn't match")
         self.assertAlmostEqual(sum_nPhi, self.multientry.nPhi, "nPhi doesn't match")
@@ -106,22 +110,22 @@ class IonEntryTest(unittest.TestCase):
         self.entry = IonEntry(ion, 49)
 
     def test_get_energy(self):
-        self.assertEquals(self.entry.energy, 49, "Wrong energy!")
+        self.assertEqual(self.entry.energy, 49, "Wrong energy!")
 
     def test_get_name(self):
-        self.assertEquals(self.entry.name, 'MnO4[-]', "Wrong name!")
+        self.assertEqual(self.entry.name, 'MnO4[-]', "Wrong name!")
 
     def test_get_composition(self):
         comp = self.entry.composition
         expected_comp = Ion.from_formula('MnO4[-]')
-        self.assertEquals(comp, expected_comp, "Wrong composition!")
+        self.assertEqual(comp, expected_comp, "Wrong composition!")
 
     def test_to_from_dict(self):
-        d = self.entry.to_dict
+        d = self.entry.as_dict()
         entry = IonEntry.from_dict(d)
 
-        self.assertEquals(entry.name, 'MnO4[-]', "Wrong name!")
-        self.assertEquals(entry.energy_per_atom, 49.0 / 5)
+        self.assertEqual(entry.name, 'MnO4[-]', "Wrong name!")
+        self.assertEqual(entry.energy_per_atom, 49.0 / 5)
 
 
 class TestPourbaixEntryIO(unittest.TestCase):
@@ -162,4 +166,3 @@ class TestPourbaixEntryIO(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

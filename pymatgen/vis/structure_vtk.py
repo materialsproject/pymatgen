@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module contains classes to wrap Python VTK to make nice molecular plots.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -11,8 +14,8 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Nov 27, 2011"
 
+
 import os
-import ConfigParser
 import itertools
 import math
 import subprocess
@@ -25,6 +28,10 @@ from monty.serialization import loadfn
 from pymatgen.util.coord_utils import in_coord_list
 from pymatgen.core.periodic_table import Specie
 from pymatgen.core.structure import Structure
+
+
+module_dir = os.path.dirname(os.path.abspath(__file__))
+EL_COLORS = loadfn(os.path.join(module_dir, "ElementColorSchemes.yaml"))
 
 
 class StructureVis(object):
@@ -88,10 +95,7 @@ class StructureVis(object):
         if element_color_mapping:
             self.el_color_mapping = element_color_mapping
         else:
-            module_dir = os.path.dirname(os.path.abspath(__file__))
-            colors = loadfn(
-                os.path.join(module_dir, "ElementColorSchemes.yaml"))
-            self.el_color_mapping = colors["VESTA"]
+            self.el_color_mapping = EL_COLORS["VESTA"]
         self.show_unit_cell = show_unit_cell
         self.show_bonds = show_bonds
         self.show_polyhedron = show_polyhedron
@@ -348,35 +352,39 @@ class StructureVis(object):
                               else specie.average_ionic_radius)
             total_occu += occu
 
-        def add_partial_sphere(start, end, specie):
-            sphere = vtk.vtkSphereSource()
-            sphere.SetCenter(site.coords)
-            sphere.SetRadius(0.2 + 0.002 * radius)
-            sphere.SetThetaResolution(18)
-            sphere.SetPhiResolution(18)
-            sphere.SetStartTheta(start)
-            sphere.SetEndTheta(end)
-
-            mapper = vtk.vtkPolyDataMapper()
-            mapper.SetInputConnection(sphere.GetOutputPort())
-            self.mapper_map[mapper] = [site]
-            actor = vtk.vtkActor()
-            actor.SetMapper(mapper)
-            color = (0, 0, 0)
+        for specie, occu in site.species_and_occu.items():
             if not specie:
                 color = (1, 1, 1)
             elif specie.symbol in self.el_color_mapping:
                 color = [i / 255 for i in self.el_color_mapping[specie.symbol]]
-            actor.GetProperty().SetColor(color)
-            self.ren.AddActor(actor)
-
-        for specie, occu in site.species_and_occu.items():
-            add_partial_sphere(start_angle, start_angle + 360 * occu, specie)
+            mapper = self.add_partial_sphere(site.coords, radius, color,
+                start_angle, start_angle + 360 * occu)
+            self.mapper_map[mapper] = [site]
             start_angle += 360 * occu
 
         if total_occu < 1:
-            add_partial_sphere(start_angle, start_angle
-                               + 360 * (1 - total_occu), None)
+            mapper = self.add_partial_sphere(site.coords, radius, (1,1,1),
+                start_angle, start_angle + 360 * (1 - total_occu))
+            self.mapper_map[mapper] = [site]
+
+    def add_partial_sphere(self, coords, radius, color, start=0, end=360,
+                           opacity=1):
+        sphere = vtk.vtkSphereSource()
+        sphere.SetCenter(coords)
+        sphere.SetRadius(0.2 + 0.002 * radius)
+        sphere.SetThetaResolution(18)
+        sphere.SetPhiResolution(18)
+        sphere.SetStartTheta(start)
+        sphere.SetEndTheta(end)
+
+        mapper = vtk.vtkPolyDataMapper()
+        mapper.SetInputConnection(sphere.GetOutputPort())
+        actor = vtk.vtkActor()
+        actor.SetMapper(mapper)
+        actor.GetProperty().SetColor(color)
+        actor.GetProperty().SetOpacity(opacity)
+        self.ren.AddActor(actor)
+        return mapper
 
     def add_text(self, coords, text, color=(0, 0, 0)):
         """

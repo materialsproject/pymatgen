@@ -1,4 +1,7 @@
-#!/usr/bin/python
+# coding: utf-8
+
+from __future__ import unicode_literals
+
 import unittest
 import os
 
@@ -47,10 +50,10 @@ TITLE sites: 4
                          HeaderTest.header_string.splitlines()[3].split()[-1],
                          "Failed to generate HEADER from structure")
 
-    def test_to_dict_and_from_dict(self):
+    def test_as_dict_and_from_dict(self):
         file_name = os.path.join(test_dir, 'HEADER')
         header = Header.from_file(file_name)
-        d = header.to_dict
+        d = header.as_dict()
         header2 = Header.from_dict(d)
         self.assertEqual(str(header), str(header2),
                          "Header failed to and from dict test")
@@ -72,12 +75,12 @@ class  FeffAtomsTest(unittest.TestCase):
         self.assertEqual(atoms.splitlines()[3].split()[4], central_atom,
                          "failed to create ATOMS string")
 
-    def test_to_dict_and_from_dict(self):
+    def test_as_dict_and_from_dict(self):
         file_name = os.path.join(test_dir, 'HEADER')
         header = Header.from_file(file_name)
         struct = header.struct
         atoms = FeffAtoms(struct, 'O')
-        d = atoms.to_dict
+        d = atoms.as_dict()
         atoms2 = FeffAtoms.from_dict(d)
         self.assertEqual(str(atoms), str(atoms2),
                          "FeffAtoms failed to and from dict test")
@@ -113,10 +116,10 @@ class  FeffTagsTest(unittest.TestCase):
                                    'PRINT': [1, 0, 0, 0, 0, 0],
                                    'LDOS': [-30., 15., .1]}})
 
-    def test_to_dict_and_from_dict(self):
+    def test_as_dict_and_from_dict(self):
         file_name = os.path.join(test_dir, 'PARAMETERS')
         tags = FeffTags.from_file(file_name)
-        d=tags.to_dict
+        d=tags.as_dict()
         tags2 = FeffTags.from_dict(d)
         self.assertEqual(tags, tags2,
                          "Parameters do not match to and from dict")
@@ -129,12 +132,12 @@ class  FeffPotTest(unittest.TestCase):
         d, dr = FeffPot.pot_dict_from_string(feffpot)
         self.assertEqual(d['Co'], 1, "Wrong symbols read in for FeffPot")
 
-    def test_to_dict_and_from_dict(self):
+    def test_as_dict_and_from_dict(self):
         file_name = os.path.join(test_dir, 'HEADER')
         header = Header.from_file(file_name)
         struct = header.struct
         pot = FeffPot(struct, 'O')
-        d=pot.to_dict
+        d=pot.as_dict()
         pot2 = FeffPot.from_dict(d)
         self.assertEqual(str(pot), str(pot2),
                          "FeffPot to and from dict does not match")
@@ -152,13 +155,13 @@ class FeffLdosTest(unittest.TestCase):
 
     def test_complete_dos(self):
         complete_dos = FeffLdosTest.l.complete_dos
-        self.assertEqual(complete_dos.to_dict['spd_dos']['S']['efermi'],
+        self.assertEqual(complete_dos.as_dict()['spd_dos']['S']['efermi'],
                          - 11.430,
                          "Failed to construct complete_dos dict properly")
 
-    def test_to_dict_and_from_dict(self):
+    def test_as_dict_and_from_dict(self):
         l2 = FeffLdosTest.l.charge_transfer_to_string()
-        d = FeffLdosTest.l.to_dict
+        d = FeffLdosTest.l.as_dict()
         l3 = FeffLdos.from_dict(d).charge_transfer_to_string()
         self.assertEqual(l2, l3,
                          "Feffldos to and from dict does not match")
@@ -172,12 +175,12 @@ class XmuTest(unittest.TestCase):
         self.assertEqual(x.absorbing_atom, 'O',
                          "failed to read xmu.dat file properly")
 
-    def test_to_dict_and_from_dict(self):
+    def test_as_dict_and_from_dict(self):
         filepath1 = os.path.join(test_dir, 'xmu.dat')
         filepath2 = os.path.join(test_dir, 'feff.inp')
         x = Xmu.from_file(filepath1, filepath2)
         data=x.data.tolist()
-        d=x.to_dict
+        d=x.as_dict()
         x2 = Xmu.from_dict(d)
         data2= x2.data.tolist()
         self.assertEqual(data, data2,

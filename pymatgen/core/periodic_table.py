@@ -1,7 +1,12 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Module contains classes presenting Element and Specie (Element + oxidation
 state) and PeriodicTable.
 """
+
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -14,17 +19,18 @@ __date__ = "Sep 23, 2011"
 import os
 import re
 import json
+from io import open
 
 from pymatgen.core.units import Mass, Length, unitized
 from monty.design_patterns import singleton, cached_class
-from monty.dev import deprecated
 from pymatgen.util.string_utils import formula_double_format
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from functools import total_ordering
 
 
 #Loads element data from json file
-with open(os.path.join(os.path.dirname(__file__), "periodic_table.json")) as f:
+with open(os.path.join(os.path.dirname(__file__), "periodic_table.json"), "rt"
+          ) as f:
     _pt_data = json.load(f)
 
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
@@ -309,11 +315,11 @@ class Element(object):
     """
 
     def __init__(self, symbol):
+        self._symbol = u"%s" % symbol
         self._data = _pt_data[symbol]
 
         #Store key variables for quick access
         self._z = self._data["Atomic no"]
-        self._symbol = symbol
         self._x = self._data.get("X", 0)
         for a in ["name", "mendeleev_no", "electrical_resistivity",
                   "velocity_of_sound", "reflectivity",
@@ -599,11 +605,11 @@ class Element(object):
         True if element is a transition metal.
         """
         ns = list(range(21, 31))
-        ns.extend(range(39, 49))
+        ns.extend(list(range(39, 49)))
         ns.append(57)
-        ns.extend(range(72, 81))
+        ns.extend(list(range(72, 81)))
         ns.append(89)
-        ns.extend(range(104, 113))
+        ns.extend(list(range(104, 113)))
         return self._z in ns
 
     @property
@@ -673,8 +679,7 @@ class Element(object):
         """
         return Element(d["element"])
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Makes Element obey the general json interface used in pymatgen for
         easier serialization.
@@ -686,7 +691,7 @@ class Element(object):
 
 @cached_class
 @total_ordering
-class Specie(MSONable):
+class Specie(PMGSONable):
     """
     An extension of Element with an oxidation state and other optional
     properties. Properties associated with Specie should be "idealized"
@@ -890,8 +895,7 @@ class Specie(MSONable):
     def __deepcopy__(self, memo):
         return Specie(self.symbol, self.oxi_state, self._properties)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "element": self.symbol,
@@ -906,7 +910,7 @@ class Specie(MSONable):
 
 @cached_class
 @total_ordering
-class DummySpecie(MSONable):
+class DummySpecie(PMGSONable):
     """
     A special specie for representing non-traditional elements or species. For
     example, representation of vacancies (charged or otherwise), or special
@@ -1058,8 +1062,7 @@ class DummySpecie(MSONable):
                 return DummySpecie(m.group(1), oxidation_state=oxi)
         raise ValueError("Invalid Species String")
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "element": self.symbol,
@@ -1094,8 +1097,7 @@ class PeriodicTable(object):
         """ Implementation of the singleton interface """
         self._all_elements = dict()
         for sym in _pt_data.keys():
-            el = Element(sym)
-            self._all_elements[sym] = el
+            self._all_elements[sym] = Element(sym)
 
     def __getattr__(self, name):
         return self._all_elements[name]
@@ -1192,14 +1194,3 @@ def get_el_sp(obj):
             except:
                 raise ValueError("Can't parse Element or String from " +
                                  str(obj))
-
-
-
-@deprecated(replacement=get_el_sp)
-def smart_element_or_specie(obj):
-    """
-    .. deprecated:: v2.8.11
-
-        Use get_el_sp instead.
-    """
-    return get_el_sp(obj)

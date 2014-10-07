@@ -1,10 +1,13 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Created on Nov 10, 2012
 
 @author: shyue
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -18,7 +21,8 @@ import unittest
 
 
 from pymatgen.core.periodic_table import Element
-from pymatgen.core.composition import Composition, CompositionError
+from pymatgen.core.composition import Composition, CompositionError, \
+    ChemicalPotential
 import random
 
 
@@ -177,12 +181,12 @@ class CompositionTest(unittest.TestCase):
                          "Fe3O4",
                          "Creation form sym_amount dictionary failed!")
         comp = Composition({"Fe2+": 2, "Fe3+": 4, "O2-": 8})
-        comp2 = Composition.from_dict(comp.to_dict)
+        comp2 = Composition.from_dict(comp.as_dict())
         self.assertEqual(comp, comp2)
 
-    def test_to_dict(self):
+    def test_as_dict(self):
         c = Composition.from_dict({'Fe': 4, 'O': 6})
-        d = c.to_dict
+        d = c.as_dict()
         correct_dict = {'Fe': 4.0, 'O': 6.0}
         self.assertEqual(d['Fe'], correct_dict['Fe'])
         self.assertEqual(d['O'], correct_dict['O'])
@@ -206,7 +210,7 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual((self.comp[0] - {"Fe": 2, "O": 3}).formula,
                          "Li3 P3 O9")
 
-        self.assertRaises(CompositionError, Composition('O').__sub__, 
+        self.assertRaises(CompositionError, Composition('O').__sub__,
                           Composition('H'))
 
         #check that S is completely removed by subtraction
@@ -272,8 +276,6 @@ class CompositionTest(unittest.TestCase):
 
     def test_fractional_composition(self):
         for c in self.comp:
-            self.assertAlmostEqual(c.get_fractional_composition().num_atoms, 1)
-        for c in self.comp:
             self.assertAlmostEqual(c.fractional_composition.num_atoms, 1)
 
     def test_init_numerical_tolerance(self):
@@ -292,7 +294,7 @@ class CompositionTest(unittest.TestCase):
         #test math
         c1 = Composition('LiCl', allow_negative=True)
         c2 = Composition('Li')
-        self.assertEqual(c1 - 2 * c2, Composition({'Li': -1, 'Cl': 1}, 
+        self.assertEqual(c1 - 2 * c2, Composition({'Li': -1, 'Cl': 1},
                                                   allow_negative=True))
         self.assertEqual((c1 + c2).allow_negative, True)
         self.assertEqual(c1 / -1, Composition('Li-1Cl-1', allow_negative=True))
@@ -302,7 +304,7 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual(c1.num_atoms, 2)
         self.assertEqual(c1.get_atomic_fraction('Mg'), 0.5)
         self.assertEqual(c1.get_atomic_fraction('Li'), 0.5)
-        self.assertEqual(c1.fractional_composition, 
+        self.assertEqual(c1.fractional_composition,
                          Composition('Mg-0.5Li0.5', allow_negative=True))
 
         #test copy
@@ -313,6 +315,43 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual(c1.num_atoms, 2)
         self.assertEqual(c1.element_composition, Composition())
         self.assertEqual(c1.average_electroneg, 1.31)
+
+
+class ChemicalPotentialTest(unittest.TestCase):
+
+    def test_init(self):
+        d = {'Fe': 1, Element('Fe'): 1}
+        self.assertRaises(ValueError, ChemicalPotential, d)
+        for k in ChemicalPotential(Fe=1).keys():
+            self.assertIsInstance(k, Element)
+
+    def test_math(self):
+        fepot = ChemicalPotential({'Fe': 1})
+        opot = ChemicalPotential({'O': 2.1})
+        pots = ChemicalPotential({'Fe': 1, 'O': 2.1})
+        potsx2 = ChemicalPotential({'Fe': 2, 'O': 4.2})
+        feo2 = Composition('FeO2')
+
+        # test get_energy()
+        self.assertAlmostEqual(pots.get_energy(feo2), 5.2)
+        self.assertAlmostEqual(fepot.get_energy(feo2, False), 1)
+        self.assertRaises(ValueError, fepot.get_energy, feo2)
+
+        # test multiplication
+        self.assertRaises(TypeError, lambda: (pots * pots))
+        self.assertDictEqual(pots * 2, potsx2)
+        self.assertDictEqual(2 * pots, potsx2)
+
+        # test division
+        self.assertDictEqual(potsx2 / 2, pots)
+        self.assertRaises(TypeError, lambda: (pots / pots))
+        self.assertRaises(TypeError, lambda: (pots / feo2))
+
+        # test add/subtract
+        self.assertDictEqual(pots + pots, potsx2)
+        self.assertDictEqual(potsx2 - pots, pots)
+        self.assertDictEqual(fepot + opot, pots)
+        self.assertDictEqual(fepot - opot, pots - opot - opot)
 
 
 if __name__ == "__main__":

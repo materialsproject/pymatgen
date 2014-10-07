@@ -1,15 +1,16 @@
+# coding: utf-8
 """
 This module defines the events signaled by abinit during the execution. It also
 provides a parser to extract these events form the main output file and the log file.
 """
-from __future__ import division, print_function
+from __future__ import unicode_literals, division, print_function
 
 import os.path
 import collections
 import yaml
 
 from pymatgen.util.string_utils import WildCard
-from pymatgen.io.abinitio.abiinspect import YamlTokenizer
+from .abiinspect import YamlTokenizer
 
 __all__ = [
     "EventsParser",
@@ -126,12 +127,12 @@ class AbinitEvent(yaml.YAMLObject):
 
 class AbinitComment(AbinitEvent):
     """Base class for Comment events"""
-    yaml_tag = u'!COMMENT'
+    yaml_tag = '!COMMENT'
 
 
 class AbinitError(AbinitEvent):
     """Base class for Error events"""
-    yaml_tag = u'!ERROR'
+    yaml_tag = '!ERROR'
 
 
 class AbinitYamlError(AbinitError):
@@ -140,7 +141,7 @@ class AbinitYamlError(AbinitError):
 
 class AbinitBug(AbinitEvent):
     """Base class for Bug events"""
-    yaml_tag = u'!BUG'
+    yaml_tag = '!BUG'
 
 
 class AbinitWarning(AbinitEvent):
@@ -149,7 +150,7 @@ class AbinitWarning(AbinitEvent):
     Developers should subclass this class to define the different exceptions
     raised by the code and the possible actions that can be performed.
     """
-    yaml_tag = u'!WARNING'
+    yaml_tag = '!WARNING'
 
 
 class AbinitYamlWarning(AbinitWarning):
@@ -160,17 +161,17 @@ class AbinitYamlWarning(AbinitWarning):
 
 class ScfConvergenceWarning(AbinitWarning):
     """Warning raised when the GS SCF cycle did not converge."""
-    yaml_tag = u'!ScfConvergenceWarning'
+    yaml_tag = '!ScfConvergenceWarning'
 
 
 class NscfConvergenceWarning(AbinitWarning):
     """Warning raised when the GS NSCF cycle did not converge."""
-    yaml_tag = u'!NscfConvergenceWarning'
+    yaml_tag = '!NscfConvergenceWarning'
 
 
 class RelaxConvergenceWarning(AbinitWarning):
     """Warning raised when the structural relaxation did not converge."""
-    yaml_tag = u'!RelaxConvergenceWarning'
+    yaml_tag = '!RelaxConvergenceWarning'
 
 
 # TODO: for the time being we don't discern between GS and PhononCalculations.
@@ -181,12 +182,12 @@ class RelaxConvergenceWarning(AbinitWarning):
 
 class QPSConvergenceWarning(AbinitWarning):
     """Warning raised when the QPS iteration (GW) did not converge."""
-    yaml_tag = u'!QPSConvergenceWarning'
+    yaml_tag = '!QPSConvergenceWarning'
 
 
 class HaydockConvergenceWarning(AbinitWarning):
     """Warning raised when the Haydock method (BSE) did not converge."""
-    yaml_tag = u'!HaydockConvergenceWarning'
+    yaml_tag = '!HaydockConvergenceWarning'
 
 
 # Register the concrete base classes.
@@ -378,4 +379,3 @@ class EventsParser(object):
         we can report a customized `EventReport` object with info the exception.
         """
         return EventReport(filename, events=[Error(str(exc))])
-

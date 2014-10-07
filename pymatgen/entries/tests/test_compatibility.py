@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Created on Mar 19, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -23,19 +26,32 @@ from pymatgen import Composition, Lattice, Structure, Element
 
 class MaterialsProjectCompatibilityTest(unittest.TestCase):
 
-    def test_process_entry(self):
-        compat = MaterialsProjectCompatibility()
-        ggacompat = MaterialsProjectCompatibility("GGA")
-
-        #Correct parameters
-        entry = ComputedEntry(
+    def setUp(self):
+        self.entry1 = ComputedEntry(
             'Fe2O3', -1, 0.0,
             parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'O': 0},
                         'run_type': 'GGA+U',
                         'potcar_symbols': ['PAW_PBE Fe_pv 06Sep2000',
                                            'PAW_PBE O 08Apr2002']})
-        self.assertIsNotNone(compat.process_entry(entry))
-        self.assertIsNone(ggacompat.process_entry(entry))
+        self.entry2 = ComputedEntry(
+            'Fe3O4', -2, 0.0,
+            parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'O': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_symbols': ['PAW_PBE Fe_pv 06Sep2000',
+                                           'PAW_PBE O 08Apr2002']})
+        self.entry3 = ComputedEntry(
+            'FeO', -2, 0.0,
+            parameters={'is_hubbard': True, 'hubbards': {'Fe': 4.3, 'O': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_symbols': ['PAW_PBE Fe_pv 06Sep2000',
+                                           'PAW_PBE O 08Apr2002']})
+    def test_process_entry(self):
+        compat = MaterialsProjectCompatibility()
+        ggacompat = MaterialsProjectCompatibility("GGA")
+
+        #Correct parameters
+        self.assertIsNotNone(compat.process_entry(self.entry1))
+        self.assertIsNone(ggacompat.process_entry(self.entry1))
 
         #Correct parameters
         entry = ComputedEntry(
@@ -146,6 +162,12 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         del entry.parameters["hubbards"]
         c = ggacompat.get_corrections_dict(entry)
         self.assertNotIn("MP Advanced Correction", c)
+
+    def test_process_entries(self):
+        compat = MaterialsProjectCompatibility()
+        entries = compat.process_entries([self.entry1, self.entry2,
+                                          self.entry3])
+        self.assertEqual(len(entries), 2)
 
 
 class MITCompatibilityTest(unittest.TestCase):
@@ -333,7 +355,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
 
 
 class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
-    
+
     def setUp(self):
         self.compat = MITCompatibility(correct_peroxide=False)
 
@@ -440,7 +462,7 @@ class TestMITAqueousCompatibility(unittest.TestCase):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, os.path.pardir, "MITCompatibility.yaml")
         self.aqcorr =  AqueousCorrection(fp)
-        
+
     def test_aqueous_compat(self):
 
         el_li = Element("Li")
@@ -449,7 +471,7 @@ class TestMITAqueousCompatibility(unittest.TestCase):
         latt = Lattice.from_parameters(3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000)
         elts = [el_h, el_h, el_li, el_li, el_o, el_o]
         coords = [[0.000000, 0.500000, 0.413969],
-                  [0.500000, 0.000000, 0.586031], 
+                  [0.500000, 0.000000, 0.586031],
                   [0.000000, 0.000000, 0.000000],
                   [0.500000, 0.500000, 0.000000],
                   [0.000000, 0.500000, 0.192672],

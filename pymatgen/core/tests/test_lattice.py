@@ -1,6 +1,6 @@
-#!/usr/bin/python
+# coding: utf-8
 
-from __future__ import division
+from __future__ import division, unicode_literals
 
 import itertools
 from pymatgen.core.lattice import Lattice
@@ -254,7 +254,7 @@ class LatticeTestCase(PymatgenTest):
             self.assertTrue(isinstance(l, Lattice))
 
     def test_to_from_dict(self):
-        d = self.tetragonal.to_dict
+        d = self.tetragonal.as_dict()
         t = Lattice.from_dict(d)
         for i in range(3):
             self.assertEqual(t.abc[i], self.tetragonal.abc[i])
@@ -339,6 +339,12 @@ class LatticeTestCase(PymatgenTest):
         f2 = [0, 0, 10]
         self.assertEqual(lattice.get_all_distances(f1, f2)[0, 0], 0)
 
+    def test_monoclinic(self):
+        lengths, angles = self.monoclinic.lengths_and_angles
+        self.assertNotAlmostEqual(angles[1], 90)
+        self.assertAlmostEqual(angles[0], 90)
+        self.assertAlmostEqual(angles[2], 90)
+
     def test_is_hexagonal(self):
         self.assertFalse(self.cubic.is_hexagonal())
         self.assertFalse(self.tetragonal.is_hexagonal())
@@ -346,6 +352,12 @@ class LatticeTestCase(PymatgenTest):
         self.assertFalse(self.monoclinic.is_hexagonal())
         self.assertFalse(self.rhombohedral.is_hexagonal())
         self.assertTrue(self.hexagonal.is_hexagonal())
+
+    def test_get_distance_and_image(self):
+        dist, image = self.cubic.get_distance_and_image([0, 0, 0.1], [0, 0.,
+                                                                     0.9])
+        self.assertAlmostEqual(dist, 2)
+        self.assertArrayAlmostEqual(image, [0, 0, -1])
 
 if __name__ == '__main__':
     import unittest

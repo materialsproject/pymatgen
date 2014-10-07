@@ -1,15 +1,20 @@
 language: python
 python:
   - "2.7"
+  - "3.3"
+  - "3.4.1"
 git:
   depth: 1
 env:
   global:
     - secure: "hXNhTinvLDlfiIWxNgnxDFtL1zOnPd1TMyUkLLjqTRBbcuVinlMLISRgYV9g\nIIvLPG5S424ybNtU1X7X9MlypDmvis3/+G8gBo2q+7IRTAKw1C2J9/6RhIaG\nnD4aV9YZKmyz8pH1DZj6AMFIqY+2+W4Wte3oyL8IqbFRMfhdmzE="
-before_install:
-  - pip install -Iv https://bitbucket.org/jamesrhester/pycifrw/downloads/PyCifRW-3.6.1.tar.gz
+    - PATH=$PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit
+    - GULP_LIB=`pwd`/cmd_line/gulp/Libraries
 # command to install dependencies
-install: "pip install -r requirements.txt"
+install:
+  - "sudo apt-get install python-scipy"
+  - "easy_install -U setuptools"
+  - "pip install -r requirements.txt"
 # This is needed, otherwise, nosetests can't find the installed pymatgen C
 # extensions.
 before_script:
@@ -20,10 +25,11 @@ branches:
   only:
     - master
     - stable
-    - py3k
+    - pmg3
 notifications:
   email:
     recipients:
       - shyuep@gmail.com
+      - wrichard@mit.edu
     on_success: change
     on_failure: always

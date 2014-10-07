@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module contains the classes to build a ConversionElectrode.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -21,7 +24,7 @@ from pymatgen.apps.battery.battery_abc import AbstractElectrode, \
     AbstractVoltagePair
 from pymatgen.phasediagram.pdmaker import PhaseDiagram
 from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
-from pymatgen.serializers.json_coders import PMGJSONDecoder
+from monty.json import MontyDecoder
 
 
 class ConversionElectrode(AbstractElectrode):
@@ -238,18 +241,17 @@ class ConversionElectrode(AbstractElectrode):
 
     @classmethod
     def from_dict(cls, d):
-        dec = PMGJSONDecoder()
+        dec = MontyDecoder()
         return cls(dec.process_decoded(d["voltage_pairs"]),
                    dec.process_decoded(d["working_ion_entry"]),
                    Composition(d["initial_comp"]))
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "voltage_pairs": [v.to_dict for v in self._vpairs],
-                "working_ion_entry": self.working_ion_entry.to_dict,
-                "initial_comp": self._composition.to_dict}
+                "voltage_pairs": [v.as_dict() for v in self._vpairs],
+                "working_ion_entry": self.working_ion_entry.as_dict(),
+                "initial_comp": self._composition.as_dict()}
 
     def get_summary_dict(self, print_subelectrodes=True):
         """
@@ -295,7 +297,7 @@ class ConversionElectrode(AbstractElectrode):
                 if abs(rxn.coeffs[i]) > 1e-5 and \
                         rxn.all_comp[i].reduced_formula != d["working_ion"]:
                     reduced_comp = rxn.all_comp[i].reduced_composition
-                    comp_dict = reduced_comp.to_dict
+                    comp_dict = reduced_comp.as_dict()
                     d["reactant_compositions"].append(comp_dict)
         d["fracA_charge"] = min(frac)
         d["fracA_discharge"] = max(frac)
@@ -494,7 +496,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
 
     @classmethod
     def from_dict(cls, d):
-        dec = PMGJSONDecoder()
+        dec = MontyDecoder()
         working_ion_entry = dec.process_decoded(d["working_ion_entry"])
         balanced_rxn = dec.process_decoded(d["balanced_rxn"])
         entries_charge = dec.process_decoded(d["entries_charge"])
@@ -506,11 +508,10 @@ class ConversionVoltagePair(AbstractVoltagePair):
                                    entries_charge, entries_discharge,
                                    working_ion_entry)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "working_ion_entry": self._working_ion_entry.to_dict,
+                "working_ion_entry": self._working_ion_entry.as_dict(),
                 "voltage": self._voltage, "mAh": self._mAh,
                 "vol_charge": self._vol_charge,
                 "mass_charge": self._mass_charge,
@@ -518,7 +519,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
                 "vol_discharge": self._vol_discharge,
                 "frac_charge": self._frac_charge,
                 "frac_discharge": self._frac_discharge,
-                "balanced_rxn": self._rxn.to_dict,
-                "entries_charge": [e.to_dict for e in self._entries_charge],
-                "entries_discharge": [e.to_dict for e in
+                "balanced_rxn": self._rxn.as_dict(),
+                "entries_charge": [e.as_dict() for e in self._entries_charge],
+                "entries_discharge": [e.as_dict() for e in
                                       self._entries_discharge]}

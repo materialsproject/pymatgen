@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import unicode_literals
+
 """
 Common test support for pymatgen test scripts.
 
@@ -5,10 +9,16 @@ This single module should provide all the common functionality for pymatgen
 tests in a single location, so that test scripts can just import it and work
 right away.
 """
+
 import unittest
 import tempfile
 import numpy.testing.utils as nptu
-from pymatgen.core.structure import Structure
+from six.moves import zip
+from io import open
+import os
+
+from monty.json import MontyDecoder
+from monty.serialization import loadfn
 
 
 class PymatgenTest(unittest.TestCase):
@@ -16,14 +26,20 @@ class PymatgenTest(unittest.TestCase):
     Extends unittest.TestCase with functions (taken from numpy.testing.utils)
     that support the comparison of arrays.
     """
-    def get_si2_structure(self):
-        coords = list()
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.5, 0.75])
-        lattice = [[3.8401979337, 0.00, 0.00],
-                   [1.9200989668, 3.3257101909, 0.00],
-                   [0.00, -2.2171384943, 3.1355090603]]
-        return Structure(lattice, ["Si", "Si"], coords)
+    MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+    STRUCTURES_DIR = os.path.join(MODULE_DIR, "structures")
+
+    """
+    Dict for test structures to aid testing.
+    """
+    TEST_STRUCTURES = {}
+    for fn in os.listdir(STRUCTURES_DIR):
+        TEST_STRUCTURES[fn.rsplit(".", 1)[0]] = loadfn(os.path.join(
+            STRUCTURES_DIR, fn), cls=MontyDecoder)
+
+    @classmethod
+    def get_structure(cls, name):
+        return cls.TEST_STRUCTURES[name]
 
     @staticmethod
     def assert_almost_equal(actual, desired, decimal=7, err_msg='',
@@ -130,3 +146,4 @@ class PymatgenTest(unittest.TestCase):
             fh.write(string)
 
         return tmpfile
+

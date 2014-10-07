@@ -1,8 +1,12 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module provides classes to create phase diagrams.
 """
 
-from __future__ import division
+from six.moves import filter
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -14,7 +18,8 @@ __date__ = "Nov 25, 2012"
 
 import collections
 import numpy as np
-from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
+from pyhull.simplex import Simplex
+from pymatgen.serializers.json_coders import PMGSONable, MontyDecoder
 
 try:
     # If scipy ConvexHull exists, use it because it is faster for large hulls.
@@ -35,7 +40,7 @@ from pymatgen.core.periodic_table import DummySpecie, Element
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 
 
-class PhaseDiagram (MSONable):
+class PhaseDiagram (PMGSONable):
     """
     Simple phase diagram class taking in elements and entries as inputs.
     The algorithm is based on the work in the following papers:
@@ -122,7 +127,6 @@ class PhaseDiagram (MSONable):
             row = [comp.get_atomic_fraction(el) for el in elements]
             row.append(entry.energy_per_atom)
             data.append(row)
-
         data = np.array(data)
         self.all_entries_hulldata = data[:, 1:]
 
@@ -166,8 +170,6 @@ class PhaseDiagram (MSONable):
 
         if dim == 1:
             self.facets = [qhull_data.argmin(axis=0)]
-        elif len(qhull_data) == dim:
-            self.facets = [range(dim)]
         else:
             facets = get_facets(qhull_data)
             finalfacets = []
@@ -181,6 +183,7 @@ class PhaseDiagram (MSONable):
                     finalfacets.append(facet)
             self.facets = finalfacets
 
+        self.simplices = [Simplex(qhull_data[f, :-1]) for f in self.facets]
         self.all_entries = entries
         self.qhull_data = qhull_data
         self.dim = dim
@@ -249,12 +252,11 @@ class PhaseDiagram (MSONable):
                              for entry in self.stable_entries])]
         return "\n".join(output)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "all_entries": [e.to_dict for e in self.all_entries],
-                "elements": [e.to_dict for e in self.elements]}
+                "all_entries": [e.as_dict() for e in self.all_entries],
+                "elements": [e.as_dict() for e in self.elements]}
 
     @classmethod
     def from_dict(cls, d):
@@ -321,18 +323,17 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
                                  for entry in self.stable_entries]))
         return "\n".join(output)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "all_entries": [e.to_dict for e in self.all_entries],
+                "all_entries": [e.as_dict() for e in self.all_entries],
                 "chempots": self.chempots,
-                "elements": [e.to_dict for e in self.elements]}
+                "elements": [e.as_dict() for e in self.elements]}
 
     @classmethod
     def from_dict(cls, d):
-        entries = PMGJSONDecoder().process_decoded(d["all_entries"])
-        elements = PMGJSONDecoder().process_decoded(d["elements"])
+        entries = MontyDecoder().process_decoded(d["all_entries"])
+        elements = MontyDecoder().process_decoded(d["elements"])
         return cls(entries, d["chempots"], elements)
 
 
@@ -420,20 +421,19 @@ class CompoundPhaseDiagram(PhaseDiagram):
                 pass
         return new_entries, sp_mapping
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__,
-            "original_entries": [e.to_dict for e in self.original_entries],
-            "terminal_compositions": [c.to_dict
+            "original_entries": [e.as_dict() for e in self.original_entries],
+            "terminal_compositions": [c.as_dict()
                                       for c in self.terminal_compositions],
             "normalize_terminal_compositions":
                 self.normalize_terminal_compositions}
 
     @classmethod
     def from_dict(cls, d):
-        dec = PMGJSONDecoder()
+        dec = MontyDecoder()
         entries = dec.process_decoded(d["original_entries"])
         terminal_compositions = dec.process_decoded(d["terminal_compositions"])
         return cls(entries, terminal_compositions,

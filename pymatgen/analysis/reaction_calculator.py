@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module provides classes that define a chemical reaction.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -16,15 +19,15 @@ import logging
 import itertools
 import numpy as np
 import re
-from collections import defaultdict
 
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.core.composition import Composition
+from monty.json import MontyDecoder
 
 logger = logging.getLogger(__name__)
 
 
-class BalancedReaction(MSONable):
+class BalancedReaction(PMGSONable):
     """
     An object representing a complete chemical reaction.
     """
@@ -251,8 +254,7 @@ class BalancedReaction(MSONable):
                                                       comp.reduced_formula))
         return " + ".join(reactant_str) + " -> " + " + ".join(product_str)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "reactants": {str(comp): coeff
@@ -415,12 +417,11 @@ class Reaction(BalancedReaction):
         """
         return Reaction(self.reactants, self.products)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "reactants": [comp.to_dict for comp in self._input_reactants],
-                "products": [comp.to_dict for comp in self._input_products]}
+                "reactants": [comp.as_dict() for comp in self._input_reactants],
+                "products": [comp.as_dict() for comp in self._input_products]}
 
     @classmethod
     def from_dict(cls, d):
@@ -489,26 +490,23 @@ class ComputedReaction(Reaction):
     def calculated_reaction_energy(self):
         calc_energies = {}
 
-        def update_calc_energies(entry):
+        for entry in self._reactant_entries + self._product_entries:
             (comp, factor) = \
                 entry.composition.get_reduced_composition_and_factor()
             calc_energies[comp] = min(calc_energies.get(comp, float('inf')),
                                       entry.energy / factor)
-        map(update_calc_energies, self._reactant_entries)
-        map(update_calc_energies, self._product_entries)
+
         return self.calculate_energy(calc_energies)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "reactants": [e.to_dict for e in self._reactant_entries],
-                "products": [e.to_dict for e in self._product_entries]}
+                "reactants": [e.as_dict() for e in self._reactant_entries],
+                "products": [e.as_dict() for e in self._product_entries]}
 
     @classmethod
     def from_dict(cls, d):
-        from pymatgen.serializers.json_coders import PMGJSONDecoder
-        dec = PMGJSONDecoder()
+        dec = MontyDecoder()
         reactants = [dec.process_decoded(e) for e in d["reactants"]]
         products = [dec.process_decoded(e) for e in d["products"]]
         return cls(reactants, products)

@@ -1,9 +1,13 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals, print_function
+
 """
 Module implementing classes and functions to use Zeo++.
 Zeo++ can be obtained from http://www.maciejharanczyk.info/Zeopp/
 """
 
-from __future__ import division
+from six.moves import map
 
 __author__ = "Bharat Medasani"
 __copyright = "Copyright 2013, The Materials Project"
@@ -13,8 +17,6 @@ __email__ = "bkmedasani@lbl.gov"
 __data__ = "Aug 2, 2013"
 
 import re
-import os
-import shutil
 
 from monty.io import zopen
 from monty.dev import requires
@@ -101,9 +103,9 @@ class ZeoCssr(Cssr):
         """
         lines = string.split("\n")
         toks = lines[0].split()
-        lengths = map(float, toks)
+        lengths = [float(i) for i in toks]
         toks = lines[1].split()
-        angles = map(float, toks[0:3])
+        angles = [float(i) for i in toks[0:3]]
         # Zeo++ takes x-axis along a and pymatgen takes z-axis along c
         a = lengths.pop(-1)
         lengths.insert(0, a)
@@ -175,13 +177,13 @@ class ZeoVoronoiXYZ(XYZ):
             "(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+" +
             "([0-9\-\.]+)"
         )
-        for i in xrange(2, 2 + num_sites):
+        for i in range(2, 2 + num_sites):
             m = coord_patt.search(lines[i])
             if m:
                 sp.append(m.group(1))  # this is 1-indexed
                 #coords.append(map(float, m.groups()[1:4]))  # this is 0-indexed
-                coords.append(map(float, [m.group(i) for i in
-                                          [3, 4, 2]]))  # this is 0-indexed
+                coords.append([float(j)
+                               for j in [m.group(i) for i in [3, 4, 2]]])
                 prop.append(float(m.group(5)))
         return ZeoVoronoiXYZ(
             Molecule(sp, coords, site_properties={'voronoi_radius': prop})
@@ -250,7 +252,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
             rad_flag = True
             with open(rad_file, 'w+') as fp:
                 for el in rad_dict.keys():
-                    print >>fp, "{} {}".format(el, rad_dict[el].real)
+                    fp.write("{} {}\n".format(el, rad_dict[el].real))
 
         atmnet = AtomNetwork.read_from_CSSR(
                 zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
@@ -275,13 +277,13 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
 
 
     #PMG-Zeo c<->a transformation for voronoi face centers
-    rot_face_centers = [(center[1],center[2],center[0]) for center in 
+    rot_face_centers = [(center[1],center[2],center[0]) for center in
                         vor_face_centers]
     rot_edge_centers = [(center[1],center[2],center[0]) for center in
                         vor_edge_centers]
 
     species = ["X"] * len(rot_face_centers)
-    prop = [0.0] * len(rot_face_centers)  # Vor radius not evaluated for fc 
+    prop = [0.0] * len(rot_face_centers)  # Vor radius not evaluated for fc
     vor_facecenter_struct = Structure(
         lattice, species, rot_face_centers, coords_are_cartesian=True,
         to_unit_cell=True, site_properties={"voronoi_radius": prop})
@@ -296,7 +298,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
 
 def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
     """
-    Analyze the void space in the input structure using high accuracy 
+    Analyze the void space in the input structure using high accuracy
     voronoi decomposition.
     Calls Zeo++ for Voronoi decomposition.
 
@@ -306,7 +308,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
             If not given, Zeo++ default values are used.
             Note: Zeo++ uses atomic radii of elements.
             For ionic structures, pass rad_dict with ionic radii
-        probe_rad (optional): Sampling probe radius in Angstroms. 
+        probe_rad (optional): Sampling probe radius in Angstroms.
             Default is 0.1 A
 
     Returns:
@@ -324,7 +326,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         rad_file = name + ".rad"
         with open(rad_file, 'w+') as fp:
             for el in rad_dict.keys():
-                print >>fp, "{} {}".format(el, rad_dict[el].real)
+                print("{} {}".format(el, rad_dict[el].real), file=fp)
 
         atmnet = AtomNetwork.read_from_CSSR(
                 zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
@@ -352,20 +354,20 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
 
 
     #PMG-Zeo c<->a transformation for voronoi face centers
-    rot_edge_centers = [(center[1],center[2],center[0]) for center in 
+    rot_edge_centers = [(center[1],center[2],center[0]) for center in
                         vor_edge_centers]
     species = ["X"] * len(rot_edge_centers)
     # Voronoi radius not evaluated for fc. Fix in future versions
-    prop = [0.0] * len(rot_edge_centers)  
+    prop = [0.0] * len(rot_edge_centers)
     vor_edgecenter_struct = Structure(
         lattice, species, rot_edge_centers, coords_are_cartesian=True,
         to_unit_cell=True, site_properties={"voronoi_radius": prop})
 
-    rot_face_centers = [(center[1],center[2],center[0]) for center in 
+    rot_face_centers = [(center[1],center[2],center[0]) for center in
                         vor_face_centers]
     species = ["X"] * len(rot_face_centers)
     # Voronoi radius not evaluated for fc. Fix in future versions
-    prop = [0.0] * len(rot_face_centers)  
+    prop = [0.0] * len(rot_face_centers)
     vor_facecenter_struct = Structure(
         lattice, species, rot_face_centers, coords_are_cartesian=True,
         to_unit_cell=True, site_properties={"voronoi_radius": prop})
@@ -404,7 +406,6 @@ def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.3,
         atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, True, rad_file)
         vol_str = volume(atmnet, 0.3, probe_rad, 10000)
         sa_str = surface_area(atmnet, 0.3, probe_rad, 10000)
-        print vol_str, sa_str
         vol = None
         sa = None
         for line in vol_str.split("\n"):

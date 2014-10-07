@@ -10,6 +10,14 @@ Subpackages
 Submodules
 ----------
 
+pymatgen.symmetry.analyzer module
+---------------------------------
+
+.. automodule:: pymatgen.symmetry.analyzer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.symmetry.bandstructure module
 --------------------------------------
 
@@ -22,6 +30,14 @@ pymatgen.symmetry.finder module
 -------------------------------
 
 .. automodule:: pymatgen.symmetry.finder
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.symmetry.groups module
+-------------------------------
+
+.. automodule:: pymatgen.symmetry.groups
     :members:
     :undoc-members:
     :show-inheritance:

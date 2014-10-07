@@ -1,10 +1,14 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Utilities for manipulating coordinates or list of coordinates, under periodic
 boundary conditions or otherwise. Many of these are heavily vectorized in
 numpy for performance.
 """
 
-from __future__ import division
+from six.moves import zip
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -15,7 +19,6 @@ __date__ = "Nov 27, 2011"
 
 import numpy as np
 import math
-from monty.dev import deprecated
 from pymatgen.core.lattice import Lattice
 
 #array size threshold for looping instead of broadcasting
@@ -197,29 +200,6 @@ def pbc_diff(fcoords1, fcoords2):
     return fdist - np.round(fdist)
 
 
-@deprecated(Lattice.get_all_distances)
-def pbc_all_distances(lattice, fcoords1, fcoords2):
-    """
-    Returns the distances between two lists of coordinates taking into
-    account periodic boundary conditions and the lattice. Note that this
-    computes an MxN array of distances (i.e. the distance between each
-    point in fcoords1 and every coordinate in fcoords2). This is
-    different functionality from pbc_diff.
-
-    Args:
-        lattice: lattice to use
-        fcoords1: First set of fractional coordinates. e.g., [0.5, 0.6,
-            0.7] or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
-            coord or any array of coords.
-        fcoords2: Second set of fractional coordinates.
-
-    Returns:
-        2d array of cartesian distances. E.g the distance between
-        fcoords1[i] and fcoords2[j] is distances[i,j]
-    """
-    return lattice.get_all_distances(fcoords1, fcoords2)
-
-
 def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
     """
     Returns the shortest vectors between two lists of coordinates taking into
@@ -269,7 +249,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
         for i, c1 in enumerate(cart_f1):
             vectors = cart_f2[:, :, :] - c1[None, None, :]
             d_2 = np.sum(vectors ** 2, axis=-1)
-            shortest[i] = vectors[np.arange(len(vectors)), 
+            shortest[i] = vectors[np.arange(len(vectors)),
                                   np.argmin(d_2, axis=-1)]
         return shortest
 
@@ -328,37 +308,6 @@ def is_coord_subset_pbc(subset, superset, atol=1e-8):
     is_close = np.all(np.abs(dist) < atol, axis=-1)
     any_close = np.any(is_close, axis=-1)
     return np.all(any_close)
-
-
-@deprecated(Lattice.get_points_in_sphere)
-def get_points_in_sphere_pbc(lattice, frac_points, center, r):
-    """
-    Find all points within a sphere from the point taking into account
-    periodic boundary conditions. This includes sites in other periodic images.
-
-    Algorithm:
-
-    1. place sphere of radius r in crystal and determine minimum supercell
-       (parallelpiped) which would contain a sphere of radius r. for this
-       we need the projection of a_1 on a unit vector perpendicular
-       to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
-       determine how many a_1"s it will take to contain the sphere.
-
-       Nxmax = r * length_of_b_1 / (2 Pi)
-
-    2. keep points falling within r.
-
-    Args:
-        lattice: The lattice/basis for the periodic boundary conditions.
-        frac_points: All points in the lattice in fractional coordinates.
-        center: Cartesian coordinates of center of sphere.
-        r: radius of sphere.
-
-    Returns:
-        [(fcoord, dist) ...] since most of the time, subsequent processing
-        requires the distance.
-    """
-    return lattice.get_points_in_sphere(frac_points, center, r)
 
 
 def lattice_points_in_supercell(supercell_matrix):

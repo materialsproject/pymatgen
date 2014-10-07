@@ -1,4 +1,6 @@
-#!/usr/bin/python
+# coding: utf-8
+
+from __future__ import unicode_literals
 
 import unittest
 import os
@@ -12,12 +14,12 @@ from pymatgen.io.vaspio_set import MITVaspInputSet, MITHSEVaspInputSet, \
     MPOpticsNonSCFVaspInputSet
 from pymatgen.io.vaspio.vasp_input import Poscar, Incar
 from pymatgen import Specie, Lattice, Structure
-from pymatgen.serializers.json_coders import PMGJSONDecoder
+from monty.json import MontyDecoder
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
-dec = PMGJSONDecoder()
+dec = MontyDecoder()
 
 
 class MITMPVaspInputSetTest(unittest.TestCase):
@@ -288,27 +290,27 @@ class MITMPVaspInputSetTest(unittest.TestCase):
             user_incar_settings={'MAGMOM': {"Fe": 10, "S": -5, "Mn3+": 100}}
         )
 
-        d = self.mitparamset.to_dict
+        d = self.mitparamset.as_dict()
         v = dec.process_decoded(d)
         self.assertEqual(v.incar_settings["LDAUU"]["O"]["Fe"], 4)
 
-        d = self.mitggaparam.to_dict
+        d = self.mitggaparam.as_dict()
         v = dec.process_decoded(d)
         self.assertNotIn("LDAUU", v.incar_settings)
 
-        d = self.mithseparamset.to_dict
+        d = self.mithseparamset.as_dict()
         v = dec.process_decoded(d)
         self.assertEqual(v.incar_settings["LHFCALC"], True)
 
-        d = self.mphseparamset.to_dict
+        d = self.mphseparamset.as_dict()
         v = dec.process_decoded(d)
         self.assertEqual(v.incar_settings["LHFCALC"], True)
 
-        d = self.paramset.to_dict
+        d = self.paramset.as_dict()
         v = dec.process_decoded(d)
         self.assertEqual(v.incar_settings["LDAUU"]["O"]["Fe"], 5.3)
 
-        d = self.userparamset.to_dict
+        d = self.userparamset.as_dict()
         v = dec.process_decoded(d)
         #self.assertEqual(type(v), MPVaspInputSet)
         self.assertEqual(v.incar_settings["MAGMOM"],
@@ -338,7 +340,7 @@ class MITMDVaspInputSetTest(unittest.TestCase):
         self.assertEqual(kpoints.style, 'Gamma')
 
     def test_to_from_dict(self):
-        d = self.mitmdparam.to_dict
+        d = self.mitmdparam.as_dict()
         v = dec.process_decoded(d)
         self.assertEqual(type(v), MITMDVaspInputSet)
         self.assertEqual(v.incar_settings["TEBEG"], 300)
@@ -367,7 +369,7 @@ class MITNEBVaspInputSetTest(unittest.TestCase):
         self.assertEqual(kpoints.style, 'Monkhorst')
 
     def test_to_from_dict(self):
-        d = self.vis.to_dict
+        d = self.vis.as_dict()
         v = dec.process_decoded(d)
         self.assertEqual(v.incar_settings["IMAGES"], 10)
 

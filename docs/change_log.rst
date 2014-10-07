@@ -1,6 +1,66 @@
 Change log
 ==========
 
+v3.0.5
+------
+* Completely revamped symmetry package. The finder.SymmetryFinder and
+  pointgroup and spacegroup modules are now deprecated. Instead,
+  all symmetry analysis is in the :module:`pymatgen.symmetry.analyzer`_
+  module. There is also a completely rewritten support for symmetry groups in
+  :module:`pymatgen.symmetry.groups`_. Structure now supports a static
+  constructor to generate a structure from a spacegroup (see examples).
+* BatteryAnalyzer class (Anubhav Jain) to provide for some common analysis of
+  intercalation electrodes.
+* Minor bug fixes for structure_matcher, lattice, abinitio.
+* MOAB qadapter for abinit. (Liam Damewood)
+
+v3.0.4
+------
+* Fix missing structures json data.
+
+v3.0.3
+------
+* Updates to DiffusionAnalyzer for more fine-grained statistics.
+* Bug fixes and tweaks to linear assignment
+* Improved PymatgenTest class which provides a suite of test structures.
+* Speedups to Phase Diagram
+* Lots of improvements to Gaussian support (Nicolas Dardenne) and Abinit IO
+  (Matteo).
+* Lots of Py3k minor updates.
+* Updated doc for Diffusion anaylzer. Invert sq_disp_ions for more intuitive handling.
+
+v3.0.2
+------
+1. Consistent use of unicode throughout pymatgen.
+2. Minor bug fixes.
+
+v3.0.1
+------
+1. Minor bug fixes for cifio.
+2. Py3k updates for abinitio.
+
+v3.0.0
+------
+* Pymatgen is now completely Python 2.7 and Python 3.x compatible!
+* Spglib and pyhull have been updated to support Python 3.x.
+* Completely rewritten pure python cifio module (courtesy of William Davidson
+  Richards) removed dependency on PyCIFRW, which has been causing many issues
+  with installation.
+* Structure and Molecule now supports a very convenient to() and from_str and
+  from_file functionality. Instead of trying to load the appropriate parser,
+  you can output and read from the appropriate formats directly. See example
+  usage.
+* ~50% speedup to LinearAssignment code.
+* Continuous integration and contribution guidelines now include Python 3.
+* **Backwards incompatible changes**
+* matgenie.py has now been renamed simply "pmg" for brevity.
+* All deprecated methods in pymatgen 2.x have been removed. E.g.,
+  pymatgen.core.structure_modifier is no longer available.
+* Pymatgen classes now uses the as_dict() method protocol implemented in the
+  Monty package. The to_dict property is now deprecated and will be removed
+  in pymatgen v3.1.
+* Update main docs page examples with the new Structure to, from formats.
+
 v2.10.6
 -------
 * Bug fix for np1.9 incompatibility. Now works.

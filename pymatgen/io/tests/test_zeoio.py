@@ -1,7 +1,6 @@
-'''
-'''
+# coding: utf-8
 
-from __future__ import division
+from __future__ import division, unicode_literals
 
 __author__ = "Bharat Medasani"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -11,10 +10,14 @@ __email__ = "bkmedasani@lbl.gov"
 __date__ = "Aug 2, 2013"
 
 import unittest
+import os
+import re
 
 from pymatgen.core.periodic_table import Specie
+from pymatgen.core.structure import Structure, Molecule
 from pymatgen.io.cifio import CifParser
-from pymatgen.io.zeoio import *
+from pymatgen.io.zeoio import ZeoCssr, ZeoVoronoiXYZ, get_voronoi_nodes, \
+    get_high_accuracy_voronoi_nodes, get_void_volume_surfarea
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.analysis.bond_valence import BVAnalyzer
 
@@ -120,15 +123,15 @@ class ZeoCssrOxiTest(unittest.TestCase):
 class ZeoVoronoiXYZTest(unittest.TestCase):
     def setUp(self):
         coords = [
-                [0.000000, 0.000000, 0.000000],
-                [0.000000, 0.000000, 1.089000],
-                [1.026719, 0.000000, -0.363000],
-                [-0.513360, -0.889165, -0.363000],
-                [-0.513360, 0.889165, -0.363000]]
+            [0.000000, 0.000000, 0.000000],
+            [0.000000, 0.000000, 1.089000],
+            [1.026719, 0.000000, -0.363000],
+            [-0.513360, -0.889165, -0.363000],
+            [-0.513360, 0.889165, -0.363000]]
         prop = [0.4, 0.2, 0.2, 0.2, 0.2]
         self.mol = Molecule(
-                ["C", "H", "H", "H", "H"], coords,
-                site_properties={"voronoi_radius":prop})
+            ["C", "H", "H", "H", "H"], coords,
+            site_properties={"voronoi_radius": prop})
         self.xyz = ZeoVoronoiXYZ(self.mol)
 
     def test_str(self):
@@ -144,8 +147,8 @@ H -0.363000 -0.513360 0.889165 0.200000"""
 
     def test_from_file(self):
         filename = os.path.join(test_dir, "EDI_voro.xyz")
-        vorXYZ = ZeoVoronoiXYZ.from_file(filename)
-        self.assertIsInstance(vorXYZ.molecule, Molecule)
+        vor = ZeoVoronoiXYZ.from_file(filename)
+        self.assertIsInstance(vor.molecule, Molecule)
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
@@ -160,13 +163,13 @@ class GetVoronoiNodesTest(unittest.TestCase):
         valence_dict = dict(zip(el, valences))
         self.rad_dict = {}
         for k, v in valence_dict.items():
-            self.rad_dict[k] = float(Specie(k,v).ionic_radius)
+            self.rad_dict[k] = float(Specie(k, v).ionic_radius)
 
         assert len(self.rad_dict) == len(self.structure.composition)
 
     def test_get_voronoi_nodes(self):
         vor_node_struct, vor_edge_center_struct, vor_face_center_struct = \
-                get_voronoi_nodes(self.structure, self.rad_dict)
+            get_voronoi_nodes(self.structure, self.rad_dict)
         self.assertIsInstance(vor_node_struct, Structure)
         self.assertIsInstance(vor_edge_center_struct, Structure)
         self.assertIsInstance(vor_face_center_struct, Structure)
@@ -186,19 +189,18 @@ class GetHighAccuracyVoronoiNodesTest(unittest.TestCase):
         valence_dict = dict(zip(el, valences))
         self.rad_dict = {}
         for k, v in valence_dict.items():
-            self.rad_dict[k] = float(Specie(k,v).ionic_radius)
+            self.rad_dict[k] = float(Specie(k, v).ionic_radius)
 
         assert len(self.rad_dict) == len(self.structure.composition)
 
     def test_get_voronoi_nodes(self):
         vor_node_struct, vor_ec_struct, vor_fc_struct = \
-                get_high_accuracy_voronoi_nodes(
-                    self.structure, self.rad_dict)
+            get_high_accuracy_voronoi_nodes(self.structure, self.rad_dict)
         self.assertIsInstance(vor_node_struct, Structure)
         self.assertIsInstance(vor_ec_struct, Structure)
         self.assertIsInstance(vor_fc_struct, Structure)
-        print (len(vor_node_struct.sites))
-        print (len(vor_fc_struct.sites))
+        print(len(vor_node_struct.sites))
+        print(len(vor_fc_struct.sites))
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
@@ -216,14 +218,13 @@ class GetVoronoiNodesMultiOxiTest(unittest.TestCase):
             radius = Specie(el, valences[i]).ionic_radius
             radii.append(radius)
         el = [site.species_string for site in self.structure.sites]
-        valence_dict = dict(zip(el, valences))
         self.rad_dict = dict(zip(el, radii))
         for el in self.rad_dict.keys():
-            print el, self.rad_dict[el].real
+            print((el, self.rad_dict[el].real))
 
     def test_get_voronoi_nodes(self):
         vor_node_struct, vor_edge_center_struct, vor_face_center_struct =\
-                get_voronoi_nodes(self.structure, self.rad_dict)
+            get_voronoi_nodes(self.structure, self.rad_dict)
         self.assertIsInstance(vor_node_struct, Structure)
         self.assertIsInstance(vor_edge_center_struct, Structure)
         self.assertIsInstance(vor_face_center_struct, Structure)
@@ -239,7 +240,7 @@ class GetVoidVolumeSurfaceTest(unittest.TestCase):
         el = [site.species_string for site in p.sites]
         val_dict = dict(zip(el, valences))
         self._radii = {}
-        for k,v in val_dict.items():
+        for k, v in val_dict.items():
             k1 = re.sub('[1-9,+,\-]', '', k)
             self._radii[k1] = float(Specie(k1, v).ionic_radius)
         p.remove(0)
@@ -247,9 +248,7 @@ class GetVoidVolumeSurfaceTest(unittest.TestCase):
 
     def test_void_volume_surface_area(self):
         pass
-        vol, sa = get_void_volume_surfarea(
-                self._vac_struct, self._radii
-                )
+        vol, sa = get_void_volume_surfarea(self._vac_struct, self._radii)
         #print "vol:  ", vol, "sa:  ", sa
         self.assertIsInstance(vol, float)
         self.assertIsInstance(sa, float)

@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals, print_function
+
 """
 This module provides classes to run and analyze boltztrap on pymatgen band
 structure objects. Boltztrap is a software interpolating band structures and
@@ -17,7 +21,6 @@ References are::
     Computer Physics Communications, 175, 67-71
 """
 
-from __future__ import division
 
 __author__ = "Geoffroy Hautier"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -33,7 +36,7 @@ import math
 import numpy as np
 import tempfile
 from pymatgen.core.lattice import Lattice
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.electronic_structure.dos import Dos, Spin, CompleteDos
 from pymatgen.electronic_structure.core import Orbital
 from pymatgen.electronic_structure.plotter import DosPlotter
@@ -120,7 +123,7 @@ class BoltztrapRunner():
                     f.write("%18.8f\n" % float(tmp_eigs[j]))
 
     def _make_struc_file(self, file_name):
-        sym = SymmetryFinder(self._bs._structure, symprec=0.01)
+        sym = SpacegroupAnalyzer(self._bs._structure, symprec=0.01)
         with open(file_name, 'w') as f:
             f.write(self._bs._structure.composition.formula+" " +
                     str(sym.get_spacegroup_symbol())+"\n")
@@ -331,10 +334,10 @@ class BoltztrapRunner():
                         - prev_sigma)\
                 / prev_sigma > 0.05:
             if prev_sigma is not None:
-                print(abs(sum(analyzer.get_eig_average_eff_mass_tensor()['n'])
+                print((abs(sum(analyzer.get_eig_average_eff_mass_tensor()['n'])
                           / 3 - prev_sigma) / prev_sigma, \
                     self.lpfac, \
-                    analyzer.get_average_eff_mass_tensor(300, 1e18))
+                    analyzer.get_average_eff_mass_tensor(300, 1e18)))
             self.lpfac *= 2
             if self.lpfac > 100:
                 raise BoltztrapError("lpfac higher than 100 and still not converged")
@@ -758,8 +761,7 @@ class BoltztrapAnalyzer():
             doping, data_doping_full, data_doping_hall, vol, warning)
 
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         from pymatgen.util.io_utils import clean_json
         results = {'gap': self.gap,
                    'mu_steps': self.mu_steps,
@@ -773,7 +775,7 @@ class BoltztrapAnalyzer():
                    'cond_doping': self.cond_doping,
                    'kappa_doping': self.kappa_doping,
                    'hall_doping': self.hall_doping,
-                   'dos': self.dos.to_dict,
+                   'dos': self.dos.as_dict(),
                    'dos_partial': self._dos_partial,
                    'carrier_conc': self.carrier_conc,
                    'vol': self.vol}
@@ -985,4 +987,3 @@ class BoltztrapPlotter():
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
         return plt
-

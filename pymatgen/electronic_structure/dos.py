@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module defines classes to represent the density of states, etc.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -18,7 +21,7 @@ import six
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord_utils import get_linear_interpolated_value
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from monty.dev import requires
 
 try:
@@ -27,7 +30,7 @@ except ImportError:
     scipy = None
 
 
-class Dos(MSONable):
+class Dos(PMGSONable):
     """
     Basic DOS object. All other DOS objects are extended versions of this
     object.
@@ -254,8 +257,7 @@ class Dos(MSONable):
                    {Spin.from_int(int(k)): v
                     for k, v in d["densities"].items()})
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Json-serializable dict representation of Dos.
         """
@@ -446,14 +448,13 @@ class CompleteDos(Dos):
             pdoss[at] = orb_dos
         return CompleteDos(struct, tdos, pdoss)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Json-serializable dict representation of CompleteDos.
         """
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__, "efermi": self.efermi,
-             "structure": self.structure.to_dict,
+             "structure": self.structure.as_dict(),
              "energies": list(self.energies),
              "densities": {str(spin): list(dens)
                            for spin, dens in self.densities.items()},
@@ -466,9 +467,9 @@ class CompleteDos(Dos):
                                                   for spin,
                                                   dens in pdos.items()}}
                 d["pdos"].append(dd)
-            d["atom_dos"] = {str(at): dos.to_dict for at,
+            d["atom_dos"] = {str(at): dos.as_dict() for at,
                              dos in self.get_element_dos().items()}
-            d["spd_dos"] = {str(orb): dos.to_dict for orb,
+            d["spd_dos"] = {str(orb): dos.as_dict() for orb,
                             dos in self.get_spd_dos().items()}
         return d
 

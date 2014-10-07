@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module provides classes to perform topological analyses of structures.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -21,6 +24,7 @@ from warnings import warn
 from pyhull.voronoi import VoronoiTess
 from pymatgen import PeriodicSite
 from pymatgen import Element, Specie, Composition
+from pymatgen.util.num_utils import abs_cap
 
 
 class VoronoiCoordFinder(object):
@@ -184,7 +188,7 @@ class RelaxationAnalyzer(object):
             there is no reason to duplicate the information or computation.
         """
         data = collections.defaultdict(dict)
-        for inds in itertools.combinations(xrange(len(self.initial)), 2):
+        for inds in itertools.combinations(list(range(len(self.initial))), 2):
             (i, j) = sorted(inds)
             initial_dist = self.initial[i].distance(self.initial[j])
             if initial_dist < max_radius:
@@ -318,9 +322,12 @@ def solid_angle(center, coords):
     r.append(r[0])
     n = [np.cross(r[i + 1], r[i]) for i in range(len(r) - 1)]
     n.append(np.cross(r[1], r[0]))
-    phi = sum([math.acos(-np.dot(n[i], n[i + 1])
-                         / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1])))
-               for i in range(len(n) - 1)])
+    vals = []
+    for i in range(len(n) - 1):
+        v = -np.dot(n[i], n[i + 1])\
+            / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))
+        vals.append(math.acos(abs_cap(v)))
+    phi = sum(vals)
     return phi + (3 - len(r)) * math.pi
 
 
@@ -338,7 +345,7 @@ def contains_peroxide(structure, relative_cutoff=1.1):
         Boolean indicating if structure contains a peroxide anion.
     """
     ox_type = oxide_type(structure, relative_cutoff)
-    if ox_type is "peroxide":
+    if ox_type == "peroxide":
         return True
     else:
         return False

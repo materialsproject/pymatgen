@@ -1,9 +1,15 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module implements Compatibility corrections for mixing runs of different
 functionals.
 """
 
-from __future__ import division
+import six
+from six.moves import filter
+from six.moves import map
 
 __author__ = "Shyue Ping Ong, Anubhav Jain, Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -39,14 +45,13 @@ class CompatibilityError(Exception):
         return self.msg
 
 
-class Correction(object):
+class Correction(six.with_metaclass(abc.ABCMeta, object)):
     """
     A Correction class is a pre-defined scheme for correction a computed
     entry based on the type and chemistry of the structure and the
     calculation parameters. All Correction classes must implement a
     correct_entry method.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def get_correction(self, entry):
@@ -364,7 +369,7 @@ class Compatibility(object):
             An list of adjusted entries.  Entries in the original list which
             are not compatible are excluded.
         """
-        return filter(None, map(self.process_entry, entries))
+        return list(filter(None, map(self.process_entry, entries)))
 
     def get_explanation_dict(self, entry):
         """

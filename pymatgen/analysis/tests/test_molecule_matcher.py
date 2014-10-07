@@ -1,9 +1,10 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 TODO: Modify module doc.
 """
-
-from __future__ import division
-from pymatgen.io.smartio import read_mol
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -41,15 +42,15 @@ class MoleculeMatcherTest(unittest.TestCase):
 
     def test_get_rmsd(self):
         mm = MoleculeMatcher()
-        mol1 = read_mol(os.path.join(test_dir, "t3.xyz"))
-        mol2 = read_mol(os.path.join(test_dir, "t4.xyz"))
+        mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "t4.xyz"))
         self.assertEqual('{0:7.3}'.format(mm.get_rmsd(mol1, mol2)), "0.00488")
 
     def test_group_molecules(self):
         mm = MoleculeMatcher(tolerance=0.001)
         with open(os.path.join(test_dir, "mol_list.txt")) as f:
             filename_list = [line.strip() for line in f.readlines()]
-        mol_list = [read_mol(os.path.join(test_dir, f))
+        mol_list = [Molecule.from_file(os.path.join(test_dir, f))
                     for f in filename_list]
         mol_groups = mm.group_molecules(mol_list)
         filename_groups = [[filename_list[mol_list.index(m)] for m in g]
@@ -61,14 +62,14 @@ class MoleculeMatcherTest(unittest.TestCase):
     def test_to_and_from_dict(self):
         mm = MoleculeMatcher(tolerance=0.5,
                              mapper=InchiMolAtomMapper(angle_tolerance=50.0))
-        d = mm.to_dict
+        d = mm.as_dict()
         mm2 = MoleculeMatcher.from_dict(d)
-        self.assertEqual(d, mm2.to_dict)
+        self.assertEqual(d, mm2.as_dict())
 
         mm = MoleculeMatcher(tolerance=0.5, mapper=IsomorphismMolAtomMapper())
-        d = mm.to_dict
+        d = mm.as_dict()
         mm2 = MoleculeMatcher.from_dict(d)
-        self.assertEqual(d, mm2.to_dict)
+        self.assertEqual(d, mm2.as_dict())
 
     def fit_with_mapper(self, mapper):
         coords = [[0.000000, 0.000000, 0.000000],
@@ -83,69 +84,69 @@ class MoleculeMatcherTest(unittest.TestCase):
         mm = MoleculeMatcher(mapper=mapper)
         self.assertTrue(mm.fit(mol1, mol2))
 
-        mol1 = read_mol(os.path.join(test_dir, "benzene1.xyz"))
-        mol2 = read_mol(os.path.join(test_dir, "benzene2.xyz"))
+        mol1 = Molecule.from_file(os.path.join(test_dir, "benzene1.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "benzene2.xyz"))
         self.assertTrue(mm.fit(mol1, mol2))
 
-        mol1 = read_mol(os.path.join(test_dir, "benzene1.xyz"))
-        mol2 = read_mol(os.path.join(test_dir, "t2.xyz"))
+        mol1 = Molecule.from_file(os.path.join(test_dir, "benzene1.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "t2.xyz"))
         self.assertFalse(mm.fit(mol1, mol2))
 
-        mol1 = read_mol(os.path.join(test_dir, "c1.xyz"))
-        mol2 = read_mol(os.path.join(test_dir, "c2.xyz"))
+        mol1 = Molecule.from_file(os.path.join(test_dir, "c1.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "c2.xyz"))
         self.assertTrue(mm.fit(mol1, mol2))
 
-        mol1 = read_mol(os.path.join(test_dir, "t3.xyz"))
-        mol2 = read_mol(os.path.join(test_dir, "t4.xyz"))
+        mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "t4.xyz"))
         self.assertTrue(mm.fit(mol1, mol2))
 
-        mol1 = read_mol(os.path.join(test_dir, "j1.xyz"))
-        mol2 = read_mol(os.path.join(test_dir, "j2.xyz"))
+        mol1 = Molecule.from_file(os.path.join(test_dir, "j1.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "j2.xyz"))
         self.assertTrue(mm.fit(mol1, mol2))
 
-        mol1 = read_mol(os.path.join(test_dir, "ethene1.xyz"))
-        mol2 = read_mol(os.path.join(test_dir, "ethene2.xyz"))
+        mol1 = Molecule.from_file(os.path.join(test_dir, "ethene1.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "ethene2.xyz"))
         self.assertTrue(mm.fit(mol1, mol2))
 
-        mol1 = read_mol(os.path.join(test_dir, "toluene1.xyz"))
-        mol2 = read_mol(os.path.join(test_dir, "toluene2.xyz"))
+        mol1 = Molecule.from_file(os.path.join(test_dir, "toluene1.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "toluene2.xyz"))
         self.assertTrue(mm.fit(mol1, mol2))
 
-        mol1 = read_mol(os.path.join(test_dir, "cyclohexane1.xyz"))
-        mol2 = read_mol(os.path.join(test_dir, "cyclohexane2.xyz"))
+        mol1 = Molecule.from_file(os.path.join(test_dir, "cyclohexane1.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "cyclohexane2.xyz"))
         self.assertTrue(mm.fit(mol1, mol2))
 
-        mol1 = read_mol(os.path.join(test_dir, "oxygen1.xyz"))
-        mol2 = read_mol(os.path.join(test_dir, "oxygen2.xyz"))
+        mol1 = Molecule.from_file(os.path.join(test_dir, "oxygen1.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "oxygen2.xyz"))
         self.assertTrue(mm.fit(mol1, mol2))
 
         mm = MoleculeMatcher(tolerance=0.001, mapper=mapper)
-        mol1 = read_mol(os.path.join(test_dir, "t3.xyz"))
-        mol2 = read_mol(os.path.join(test_dir, "t4.xyz"))
+        mol1 = Molecule.from_file(os.path.join(test_dir, "t3.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "t4.xyz"))
         self.assertFalse(mm.fit(mol1, mol2))
 
     def test_strange_inchi(self):
         mm = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
-        mol1 = read_mol(os.path.join(test_dir, "k1.sdf"))
-        mol2 = read_mol(os.path.join(test_dir, "k2.sdf"))
+        mol1 = Molecule.from_file(os.path.join(test_dir, "k1.sdf"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "k2.sdf"))
         self.assertTrue(mm.fit(mol1, mol2))
 
     def test_thiane(self):
         mm = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
-        mol1 = read_mol(os.path.join(test_dir, "thiane1.sdf"))
-        mol2 = read_mol(os.path.join(test_dir, "thiane2.sdf"))
+        mol1 = Molecule.from_file(os.path.join(test_dir, "thiane1.sdf"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "thiane2.sdf"))
         self.assertFalse(mm.fit(mol1, mol2))
 
     def test_thiane_ethynyl(self):
         mm = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
-        mol1 = read_mol(os.path.join(test_dir, "thiane_ethynyl1.sdf"))
-        mol2 = read_mol(os.path.join(test_dir, "thiane_ethynyl2.sdf"))
+        mol1 = Molecule.from_file(os.path.join(test_dir, "thiane_ethynyl1.sdf"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "thiane_ethynyl2.sdf"))
         self.assertFalse(mm.fit(mol1, mol2))
 
     def test_cdi_23(self):
         mm = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
-        mol1 = read_mol(os.path.join(test_dir, "cdi_23_1.xyz"))
-        mol2 = read_mol(os.path.join(test_dir, "cdi_23_2.xyz"))
+        mol1 = Molecule.from_file(os.path.join(test_dir, "cdi_23_1.xyz"))
+        mol2 = Molecule.from_file(os.path.join(test_dir, "cdi_23_2.xyz"))
         self.assertFalse(mm.fit(mol1, mol2))
 
 

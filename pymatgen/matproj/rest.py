@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module provides classes to interface with the Materials Project REST
 API v2 to enable the creation of data structures and pymatgen objects using
@@ -8,7 +12,6 @@ Materials Project, and obtain an API key by going to your dashboard at
 https://www.materialsproject.org/dashboard.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong, Shreyas Cholia"
 __credits__ = "Anubhav Jain"
@@ -25,11 +28,10 @@ import warnings
 import re
 import itertools
 
-from monty.dev import deprecated
+from monty.json import MontyEncoder, MontyDecoder
 
 from pymatgen.core.periodic_table import ALL_ELEMENT_SYMBOLS, Element
 from pymatgen.core.composition import Composition
-from pymatgen.serializers.json_coders import PMGJSONDecoder
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
@@ -37,8 +39,6 @@ from pymatgen.io.vaspio_set import DictVaspInputSet
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.matproj.snl import StructureNL
-from pymatgen.serializers.json_coders import PMGJSONEncoder
-from pymatgen.core.periodic_table import PeriodicTable
 
 
 class MPRester(object):
@@ -122,7 +122,7 @@ class MPRester(object):
                 response = self.session.get(url, params=payload)
             if response.status_code in [200, 400]:
                 try:
-                    data = json.loads(response.text, cls=PMGJSONDecoder)
+                    data = json.loads(response.text, cls=MPDecoder)
                 except:
                     data = json.loads(response.text)
                 if data["valid_response"]:
@@ -358,7 +358,7 @@ class MPRester(object):
             List of ComputedEntries.
         """
         entries = []
-        for i in xrange(len(elements)):
+        for i in range(len(elements)):
             for els in itertools.combinations(elements, i + 1):
                 try:
                     entries.extend(
@@ -415,7 +415,7 @@ class MPRester(object):
         try:
             response = self.session.get(url, data=payload)
             if response.status_code in [200, 400]:
-                data = json.loads(response.text, cls=PMGJSONDecoder)
+                data = json.loads(response.text, cls=MPDecoder)
                 if data["valid_response"]:
                     if data.get("warning"):
                         warnings.warn(data["warning"])
@@ -483,40 +483,6 @@ class MPRester(object):
                    "properties": json.dumps(properties)}
         return self._make_request("/query", payload=payload, method="POST")
 
-    @deprecated(replacement=query)
-    def mpquery(self, criteria, properties):
-        """
-        Performs an advanced mpquery, which is a Mongo-like syntax for directly
-        querying the Materials Project database via the mpquery rest interface.
-        Please refer to the Materials Project REST wiki
-        https://materialsproject.org/wiki/index.php/The_Materials_API#mpquery
-        on the mpquery language and supported criteria and properties.
-        Essentially, any supported properties within MPRester should be
-        supported in mpquery.
-
-        Mpquery allows an advanced developer to perform queries which are
-        otherwise too cumbersome to perform using the standard convenience
-        methods.
-
-        Args:
-            criteria (dict): Criteria of the query as a mongo-style dict.
-                For example, {"elements":{"$in":["Li", "Na", "K"], "$all": [
-                "O"]}, "nelements":2} selects all Li, Na and K oxides.
-                {"band_gap": {"$gt": 1}} selects all materials with band gaps
-                greater than 1 eV.
-            properties (list): Properties to request for as a list. For
-                example, ["formula", "formation_energy_per_atom"] returns
-                the formula and formation energy per atom.
-
-        Returns:
-            List of results. E.g.,
-            [{u'formula': {u'O': 1, u'Li': 2.0}},
-            {u'formula': {u'Na': 2.0, u'O': 2.0}},
-            {u'formula': {u'K': 1, u'O': 3.0}},
-            ...]
-        """
-        return self.query(criteria, properties)
-
     def submit_structures(self, structures, authors, projects=None,
                           references='', remarks=None, data=None,
                           histories=None, created_at=None):
@@ -581,12 +547,12 @@ class MPRester(object):
         """
         try:
             snl = snl if isinstance(snl, list) else [snl]
-            jsondata = [s.to_dict for s in snl]
-            payload = {"snl": json.dumps(jsondata, cls=PMGJSONEncoder)}
+            jsondata = [s.as_dict() for s in snl]
+            payload = {"snl": json.dumps(jsondata, cls=MontyEncoder)}
             response = self.session.post("{}/snl/submit".format(self.preamble),
                                          data=payload)
             if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=PMGJSONDecoder)
+                resp = json.loads(response.text, cls=MPDecoder)
                 if resp["valid_response"]:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])
@@ -622,7 +588,7 @@ class MPRester(object):
                 "{}/snl/delete".format(self.preamble), data=payload)
 
             if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=PMGJSONDecoder)
+                resp = json.loads(response.text, cls=MPDecoder)
                 if resp["valid_response"]:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])
@@ -727,7 +693,7 @@ class MPRester(object):
                     "parameters": e.parameters,
                     "final_energy": e.energy,
                     "final_energy_per_atom": e.energy_per_atom,
-                    "initial_structure": e.data["initial_structure"].to_dict
+                    "initial_structure": e.data["initial_structure"].as_dict()
                 }
             }
             if "history" in e.parameters:
@@ -748,11 +714,11 @@ class MPRester(object):
         Returns the stability of all entries.
         """
         try:
-            payload = {"entries": json.dumps(entries, cls=PMGJSONEncoder)}
+            payload = {"entries": json.dumps(entries, cls=MontyEncoder)}
             response = self.session.post("{}/phase_diagram/calculate_stability"
                                          .format(self.preamble), data=payload)
             if response.status_code in [200, 400]:
-                resp = json.loads(response.text, cls=PMGJSONDecoder)
+                resp = json.loads(response.text, cls=MPDecoder)
                 if resp["valid_response"]:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])
@@ -830,14 +796,15 @@ class MPRester(object):
                     f.append(parts[-1])
                     c = Composition("".join(f))
                     #Check for valid Elements in keys.
-                    map(lambda e: Element(e.symbol), c.keys())
+                    for e in c.keys():
+                        Element(e.symbol)
                     all_formulas.add(c.reduced_formula)
                 return {"pretty_formula": {"$in": list(all_formulas)}}
 
         if len(toks) == 1:
             return parse_tok(toks[0])
         else:
-            return {"$or": map(parse_tok, toks)}
+            return {"$or": list(map(parse_tok, toks))}
 
 
 class MPRestError(Exception):
@@ -846,3 +813,37 @@ class MPRestError(Exception):
     Raised when the query has problems, e.g., bad query format.
     """
     pass
+
+
+class MPDecoder(MontyDecoder):
+    """
+    A Json Decoder which supports the MSONable API. By default, the
+    decoder attempts to find a module and name associated with a dict. If
+    found, the decoder will generate a Pymatgen as a priority.  If that fails,
+    the original decoded dictionary from the string is returned. Note that
+    nested lists and dicts containing pymatgen object will be decoded correctly
+    as well.
+
+    Usage:
+        Add it as a *cls* keyword when using json.load
+        json.loads(json_string, cls=MPDecoder)
+    """
+
+    def process_decoded(self, d):
+        """
+        Recursive method to support decoding dicts and lists containing
+        pymatgen objects.
+        """
+        if isinstance(d, dict) and "module" in d and "class" in d:
+            modname = d["module"]
+            classname = d["class"]
+            mod = __import__(modname, globals(), locals(), [classname], 0)
+            if hasattr(mod, classname):
+                cls_ = getattr(mod, classname)
+                data = {k: v for k, v in d.items()
+                        if k not in ["module", "class"]}
+                if hasattr(cls_, "from_dict"):
+                    return cls_.from_dict(data)
+            return {self.process_decoded(k): self.process_decoded(v)
+                    for k, v in d.items()}
+        return MontyDecoder.process_decoded(self, d)
