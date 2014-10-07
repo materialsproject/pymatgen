@@ -20,33 +20,41 @@ import os
 import numpy as np
 
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
 from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, \
+    PointGroupAnalyzer, cluster_sites
 from pymatgen.io.cifio import CifParser
 from pymatgen.util.testing import PymatgenTest
+from pymatgen.core.structure import Molecule
 
+try:
+    import scipy
+except ImportError:
+    scipy = None
+
+test_dir_mol = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                            'test_files', "molecules")
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
-class SymmetryFinderTest(PymatgenTest):
+class SpacegroupAnalyzerTest(PymatgenTest):
 
     def setUp(self):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
         self.structure = p.structure
-        self.sg = SymmetryFinder(self.structure, 0.001)
+        self.sg = SpacegroupAnalyzer(self.structure, 0.001)
         self.disordered_structure = self.get_structure('Li10GeP2S12')
-        self.disordered_sg = SymmetryFinder(self.disordered_structure, 0.001)
+        self.disordered_sg = SpacegroupAnalyzer(self.disordered_structure, 0.001)
         s = p.structure.copy()
         site = s[0]
         del s[0]
         s.append(site.species_and_occu, site.frac_coords)
-        self.sg3 = SymmetryFinder(s, 0.001)
+        self.sg3 = SpacegroupAnalyzer(s, 0.001)
         graphite = self.get_structure('Graphite')
         graphite.add_site_property("magmom", [0.1] * len(graphite))
-        self.sg4 = SymmetryFinder(graphite, 0.001)
+        self.sg4 = SpacegroupAnalyzer(graphite, 0.001)
 
     def test_get_space_symbol(self):
         self.assertEqual(self.sg.get_spacegroup_symbol(), "Pnma")
@@ -105,7 +113,7 @@ class SymmetryFinderTest(PymatgenTest):
             self.assertEqual(a, 90)
         self.assertEqual(refined.lattice.a, refined.lattice.b)
         s = self.get_structure('Li2O')
-        sg = SymmetryFinder(s, 0.001)
+        sg = SpacegroupAnalyzer(s, 0.001)
         self.assertEqual(sg.get_refined_structure().num_sites, 4 * s.num_sites)
 
     def test_get_symmetrized_structure(self):
@@ -129,7 +137,7 @@ class SymmetryFinderTest(PymatgenTest):
         """
         parser = CifParser(os.path.join(test_dir, 'Li2O.cif'))
         structure = parser.get_structures(False)[0]
-        s = SymmetryFinder(structure)
+        s = SpacegroupAnalyzer(structure)
         primitive_structure = s.find_primitive()
         self.assertEqual(primitive_structure.formula, "Li2 O1")
         # This isn't what is expected. All the angles should be 60
@@ -150,7 +158,7 @@ class SymmetryFinderTest(PymatgenTest):
     def test_get_conventional_standard_structure(self):
         parser = CifParser(os.path.join(test_dir, 'bcc_1927.cif'))
         structure = parser.get_structures(False)[0]
-        s = SymmetryFinder(structure, symprec=1e-2)
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = s.get_conventional_standard_structure()
         self.assertAlmostEqual(conv.lattice.alpha, 90)
         self.assertAlmostEqual(conv.lattice.beta, 90)
@@ -161,7 +169,7 @@ class SymmetryFinderTest(PymatgenTest):
 
         parser = CifParser(os.path.join(test_dir, 'btet_1915.cif'))
         structure = parser.get_structures(False)[0]
-        s = SymmetryFinder(structure, symprec=1e-2)
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = s.get_conventional_standard_structure()
         self.assertAlmostEqual(conv.lattice.alpha, 90)
         self.assertAlmostEqual(conv.lattice.beta, 90)
@@ -172,7 +180,7 @@ class SymmetryFinderTest(PymatgenTest):
 
         parser = CifParser(os.path.join(test_dir, 'orci_1010.cif'))
         structure = parser.get_structures(False)[0]
-        s = SymmetryFinder(structure, symprec=1e-2)
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = s.get_conventional_standard_structure()
         self.assertAlmostEqual(conv.lattice.alpha, 90)
         self.assertAlmostEqual(conv.lattice.beta, 90)
@@ -183,7 +191,7 @@ class SymmetryFinderTest(PymatgenTest):
 
         parser = CifParser(os.path.join(test_dir, 'orcc_1003.cif'))
         structure = parser.get_structures(False)[0]
-        s = SymmetryFinder(structure, symprec=1e-2)
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = s.get_conventional_standard_structure()
         self.assertAlmostEqual(conv.lattice.alpha, 90)
         self.assertAlmostEqual(conv.lattice.beta, 90)
@@ -194,7 +202,7 @@ class SymmetryFinderTest(PymatgenTest):
 
         parser = CifParser(os.path.join(test_dir, 'monoc_1028.cif'))
         structure = parser.get_structures(False)[0]
-        s = SymmetryFinder(structure, symprec=1e-2)
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = s.get_conventional_standard_structure()
         self.assertAlmostEqual(conv.lattice.alpha, 90)
         self.assertAlmostEqual(conv.lattice.beta, 117.53832420192903)
@@ -205,7 +213,7 @@ class SymmetryFinderTest(PymatgenTest):
 
         parser = CifParser(os.path.join(test_dir, 'rhomb_1170.cif'))
         structure = parser.get_structures(False)[0]
-        s = SymmetryFinder(structure, symprec=1e-2)
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = s.get_conventional_standard_structure()
         self.assertAlmostEqual(conv.lattice.alpha, 90)
         self.assertAlmostEqual(conv.lattice.beta, 90)
@@ -217,7 +225,7 @@ class SymmetryFinderTest(PymatgenTest):
     def test_get_primitive_standard_structure(self):
         parser = CifParser(os.path.join(test_dir, 'bcc_1927.cif'))
         structure = parser.get_structures(False)[0]
-        s = SymmetryFinder(structure, symprec=1e-2)
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = s.get_primitive_standard_structure()
         self.assertAlmostEqual(prim.lattice.alpha, 109.47122063400001)
         self.assertAlmostEqual(prim.lattice.beta, 109.47122063400001)
@@ -228,7 +236,7 @@ class SymmetryFinderTest(PymatgenTest):
 
         parser = CifParser(os.path.join(test_dir, 'btet_1915.cif'))
         structure = parser.get_structures(False)[0]
-        s = SymmetryFinder(structure, symprec=1e-2)
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = s.get_primitive_standard_structure()
         self.assertAlmostEqual(prim.lattice.alpha, 105.015053349)
         self.assertAlmostEqual(prim.lattice.beta, 105.015053349)
@@ -239,7 +247,7 @@ class SymmetryFinderTest(PymatgenTest):
 
         parser = CifParser(os.path.join(test_dir, 'orci_1010.cif'))
         structure = parser.get_structures(False)[0]
-        s = SymmetryFinder(structure, symprec=1e-2)
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = s.get_primitive_standard_structure()
         self.assertAlmostEqual(prim.lattice.alpha, 134.78923546600001)
         self.assertAlmostEqual(prim.lattice.beta, 105.856239333)
@@ -250,7 +258,7 @@ class SymmetryFinderTest(PymatgenTest):
 
         parser = CifParser(os.path.join(test_dir, 'orcc_1003.cif'))
         structure = parser.get_structures(False)[0]
-        s = SymmetryFinder(structure, symprec=1e-2)
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = s.get_primitive_standard_structure()
         self.assertAlmostEqual(prim.lattice.alpha, 90)
         self.assertAlmostEqual(prim.lattice.beta, 90)
@@ -261,7 +269,7 @@ class SymmetryFinderTest(PymatgenTest):
 
         parser = CifParser(os.path.join(test_dir, 'monoc_1028.cif'))
         structure = parser.get_structures(False)[0]
-        s = SymmetryFinder(structure, symprec=1e-2)
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = s.get_primitive_standard_structure()
         self.assertAlmostEqual(prim.lattice.alpha, 63.579155761999999)
         self.assertAlmostEqual(prim.lattice.beta, 116.42084423747779)
@@ -272,7 +280,7 @@ class SymmetryFinderTest(PymatgenTest):
 
         parser = CifParser(os.path.join(test_dir, 'rhomb_1170.cif'))
         structure = parser.get_structures(False)[0]
-        s = SymmetryFinder(structure, symprec=1e-2)
+        s = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = s.get_primitive_standard_structure()
         self.assertAlmostEqual(prim.lattice.alpha, 90)
         self.assertAlmostEqual(prim.lattice.beta, 90)
@@ -282,6 +290,134 @@ class SymmetryFinderTest(PymatgenTest):
         self.assertAlmostEqual(prim.lattice.c, 6.9779585500000003)
 
 
+H2O2 = Molecule(["O", "O", "H", "H"],
+                [[0, 0.727403, -0.050147], [0, -0.727403, -0.050147],
+                 [0.83459, 0.897642, 0.401175],
+                 [-0.83459, -0.897642, 0.401175]])
+
+C2H2F2Br2 = Molecule(["C", "C", "F", "Br", "H", "F", "H", "Br"],
+                     [[-0.752000, 0.001000, -0.141000],
+                      [0.752000, -0.001000, 0.141000],
+                      [-1.158000, 0.991000, 0.070000],
+                      [-1.240000, -0.737000, 0.496000],
+                      [-0.924000, -0.249000, -1.188000],
+                      [1.158000, -0.991000, -0.070000],
+                      [0.924000, 0.249000, 1.188000],
+                      [1.240000, 0.737000, -0.496000]])
+
+H2O = Molecule(["H", "O", "H"],
+               [[0, 0.780362, -.456316], [0, 0, .114079],
+                [0, -.780362, -.456316]])
+
+C2H4 = Molecule(["C", "C", "H", "H", "H", "H"],
+                [[0.0000, 0.0000, 0.6695], [0.0000, 0.0000, -0.6695],
+                 [0.0000, 0.9289, 1.2321], [0.0000, -0.9289, 1.2321],
+                 [0.0000, 0.9289, -1.2321], [0.0000, -0.9289, -1.2321]])
+
+NH3 = Molecule(["N", "H", "H", "H"],
+               [[0.0000, 0.0000, 0.0000], [0.0000, -0.9377, -0.3816],
+                [0.8121, 0.4689, -0.3816], [-0.8121, 0.4689, -0.3816]])
+
+BF3 = Molecule(["B", "F", "F", "F"],
+               [[0.0000, 0.0000, 0.0000], [0.0000, -0.9377, 0.00],
+                [0.8121, 0.4689, 0], [-0.8121, 0.4689, 0]])
+
+CH4 = Molecule(["C", "H", "H", "H", "H"], [[0.000000, 0.000000, 0.000000],
+               [0.000000, 0.000000, 1.08],
+               [1.026719, 0.000000, -0.363000],
+               [-0.513360, -0.889165, -0.363000],
+               [-0.513360, 0.889165, -0.363000]])
+
+PF6 = Molecule(["P", "F", "F", "F", "F", "F", "F"],
+               [[0, 0, 0], [0, 0, 1], [0, 0, -1], [0, 1, 0], [0, -1, 0],
+                [1, 0, 0], [-1, 0, 0]])
+
+
+@unittest.skipIf(scipy is None, "Scipy not present.")
+class PointGroupAnalyzerTest(PymatgenTest):
+
+    def test_spherical(self):
+        a = PointGroupAnalyzer(CH4)
+        self.assertEqual(a.sch_symbol, "Td")
+        self.assertEqual(len(a.get_pointgroup()), 24)
+        a = PointGroupAnalyzer(PF6)
+        self.assertEqual(a.sch_symbol, "Oh")
+        self.assertEqual(len(a.get_pointgroup()), 48)
+        m = Molecule.from_file(os.path.join(test_dir_mol, "c60.xyz"))
+        a = PointGroupAnalyzer(m)
+        self.assertEqual(a.sch_symbol, "Ih")
+
+    def test_linear(self):
+        coords = [[0.000000, 0.000000, 0.000000],
+                  [0.000000, 0.000000, 1.08],
+                  [0, 0.000000, -1.08]]
+        mol = Molecule(["C", "H", "H"], coords)
+        a = PointGroupAnalyzer(mol)
+        self.assertEqual(a.sch_symbol, "D*h")
+        mol = Molecule(["C", "H", "N"], coords)
+        a = PointGroupAnalyzer(mol)
+        self.assertEqual(a.sch_symbol, "C*v")
+
+    def test_asym_top(self):
+        coords = [[0.000000, 0.000000, 0.000000],
+                  [0.000000, 0.000000, 1.08],
+                  [1.026719, 0.000000, -0.363000],
+                  [-0.513360, -0.889165, -0.363000],
+                  [-0.513360, 0.889165, -0.363000]]
+        mol = Molecule(["C", "H", "F", "Br", "Cl"], coords)
+        a = PointGroupAnalyzer(mol)
+        self.assertEqual(a.sch_symbol, "C1")
+        self.assertEqual(len(a.get_pointgroup()), 1)
+        coords = [[0.000000, 0.000000, 1.08],
+                  [1.026719, 0.000000, -0.363000],
+                  [-0.513360, -0.889165, -0.363000],
+                  [-0.513360, 0.889165, -0.363000]]
+        cs_mol = Molecule(["H", "F", "Cl", "Cl"], coords)
+        a = PointGroupAnalyzer(cs_mol)
+        self.assertEqual(a.sch_symbol, "Cs")
+        self.assertEqual(len(a.get_pointgroup()), 2)
+        a = PointGroupAnalyzer(C2H2F2Br2)
+        self.assertEqual(a.sch_symbol, "Ci")
+        self.assertEqual(len(a.get_pointgroup()), 2)
+
+    def test_cyclic(self):
+        a = PointGroupAnalyzer(H2O2)
+        self.assertEqual(a.sch_symbol, "C2")
+        self.assertEqual(len(a.get_pointgroup()), 2)
+        a = PointGroupAnalyzer(H2O)
+        self.assertEqual(a.sch_symbol, "C2v")
+        self.assertEqual(len(a.get_pointgroup()), 4)
+        a = PointGroupAnalyzer(NH3)
+        self.assertEqual(a.sch_symbol, "C3v")
+        self.assertEqual(len(a.get_pointgroup()), 6)
+        cs2 = Molecule.from_file(os.path.join(test_dir_mol,
+                                              "Carbon_Disulfide.xyz"))
+        a = PointGroupAnalyzer(cs2, eigen_tolerance=0.001)
+        self.assertEqual(a.sch_symbol, "C2v")
+
+    def test_dihedral(self):
+        a = PointGroupAnalyzer(C2H4)
+        self.assertEqual(a.sch_symbol, "D2h")
+        self.assertEqual(len(a.get_pointgroup()), 8)
+        a = PointGroupAnalyzer(BF3)
+        self.assertEqual(a.sch_symbol, "D3h")
+        self.assertEqual(len(a.get_pointgroup()), 12)
+        m = Molecule.from_file(os.path.join(test_dir_mol, "b12h12.xyz"))
+        a = PointGroupAnalyzer(m)
+        self.assertEqual(a.sch_symbol, "D5d")
+
+
+@unittest.skipIf(scipy is None, "Scipy not present.")
+class FuncTest(unittest.TestCase):
+
+    def test_cluster_sites(self):
+        o, c = cluster_sites(CH4, 0.1)
+        self.assertEqual(o.specie.symbol, "C")
+        self.assertEqual(len(c), 1)
+        o, c = cluster_sites(C2H2F2Br2.get_centered_molecule(), 0.1)
+        self.assertIsNone(o)
+        self.assertEqual(len(c), 4)
+
+
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

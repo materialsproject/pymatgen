@@ -23,7 +23,7 @@ from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.analysis.structure_matcher import StructureMatcher,\
     ElementComparator
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 
 class AbstractStructureFilter(six.with_metaclass(abc.ABCMeta, PMGSONable)):
@@ -179,7 +179,7 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
             return True
 
         def get_sg(s):
-            finder = SymmetryFinder(s, symprec=self._symprec)
+            finder = SpacegroupAnalyzer(s, symprec=self._symprec)
             return finder.get_spacegroup_number()
 
         for s in self._structure_list:
@@ -229,7 +229,7 @@ class RemoveExistingFilter(AbstractStructureFilter):
     def test(self, structure):
 
         def get_sg(s):
-            finder = SymmetryFinder(s, symprec=self._symprec)
+            finder = SpacegroupAnalyzer(s, symprec=self._symprec)
             return finder.get_spacegroup_number()
 
         for s in self._existing_structures:

@@ -396,7 +396,7 @@ class StructureMatcher(PMGSONable):
         yields: s1, s2, supercell_matrix, average_lattice, supercell_matrix
         """
         def av_lat(l1, l2):
-            params = (np.array(l1.lengths_and_angles) + \
+            params = (np.array(l1.lengths_and_angles) +
                       np.array(l2.lengths_and_angles)) / 2
             return Lattice.from_lengths_and_angles(*params)
 
@@ -934,20 +934,28 @@ class StructureMatcher(PMGSONable):
         if len(s1) * ratio >= len(s2):
             #s1 is superset
             match = self._strict_match(s1, s2, fu=fu, s1_supercell=False,
-                                use_rms=True, break_on_match=False)
+                                       use_rms=True, break_on_match=False)
             if match is None:
                 return None
             temp.make_supercell(match[2])
+            # translate sites to be in correct unit cell
+            for i, j in enumerate(match[4]):
+                vec = np.round(s1[j].frac_coords - temp[i].frac_coords)
+                temp.translate_sites(i, vec, to_unit_cell=False)
             #invert the mapping, since it needs to be from s2 to s1
             mapping = np.argsort(match[4])
             tvec = match[3]
         else:
             #s2 is superset
             match = self._strict_match(s2, s1, fu=fu, s1_supercell=True,
-                                use_rms=True, break_on_match=False)
+                                       use_rms=True, break_on_match=False)
             if match is None:
                 return None
             temp.make_supercell(match[2])
+            # translate sites to be in correct unit cell
+            for i, j in enumerate(match[4]):
+                vec = np.round(s1[i].frac_coords - temp[j].frac_coords)
+                temp.translate_sites(j, vec, to_unit_cell=False)
             #add sites not included in the mapping
             not_included = list(range(len(temp)))
             for i in match[4]:
@@ -955,7 +963,8 @@ class StructureMatcher(PMGSONable):
             mapping = list(match[4]) + not_included
             tvec = -match[3]
 
-        temp.translate_sites(list(range(len(temp))), tvec)
+        temp.translate_sites(list(range(len(temp))), tvec, to_unit_cell=False)
+
         return Structure.from_sites([temp.sites[i] for i in mapping])
 
     def get_mapping(self, superset, subset):

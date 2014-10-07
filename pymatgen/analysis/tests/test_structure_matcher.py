@@ -568,6 +568,16 @@ class StructureMatcherTest(PymatgenTest):
                        [[0,0.1,0],[-.7,.5,.4]])
         self.assertEqual(sm.get_s2_like_s1(s1, s2), None)
 
+    def test_out_of_cell_s2_like_s1(self):
+        l = Lattice.cubic(5)
+        s1 = Structure(l, ['Si', 'Ag', 'Si'],
+                       [[0,0,-0.02],[0,0,0.001],[.7,.4,.5]])
+        s2 = Structure(l, ['Si', 'Ag', 'Si'],
+                       [[0,0,0.98],[0,0,0.99],[.7,.4,.5]])
+        new_s2 = StructureMatcher(primitive_cell=False).get_s2_like_s1(s1, s2)
+        dists = np.sum((s1.cart_coords - new_s2.cart_coords) ** 2, axis=-1) ** 0.5
+        self.assertLess(np.max(dists), 0.1)
+
     def test_disordered_primitive_to_ordered_supercell(self):
         sm_atoms = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5,
                                     primitive_cell=False, scale=True,

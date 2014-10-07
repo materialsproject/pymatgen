@@ -53,6 +53,9 @@ direct
         poscar = Poscar.from_string(poscar_string)
         self.assertEqual(poscar.structure.composition, Composition("SiF"))
 
+        poscar_string = ""
+        self.assertRaises(ValueError, Poscar.from_string, poscar_string)
+
         #Vasp 4 tyle file with default names, i.e. no element symbol found.
         poscar_string = """Test2
 1.0
