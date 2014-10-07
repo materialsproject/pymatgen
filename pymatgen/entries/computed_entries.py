@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import unicode_literals
+
 """
 This module implements equivalents of the basic ComputedEntry objects, which
 is the basic entity that can be used to perform many analyses. ComputedEntries
@@ -16,13 +20,14 @@ __date__ = "Apr 30, 2012"
 
 import json
 
+from monty.json import MontyEncoder, MontyDecoder
+
 from pymatgen.phasediagram.entries import PDEntry
 from pymatgen.core.composition import Composition
-from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder, \
-    PMGJSONEncoder
+from pymatgen.serializers.json_coders import PMGSONable
 
 
-class ComputedEntry(PDEntry, MSONable):
+class ComputedEntry(PDEntry, PMGSONable):
     """
     An lightweight ComputedEntry object containing key computed data
     for many purposes. Extends a PDEntry so that it can be used for phase
@@ -56,7 +61,7 @@ class ComputedEntry(PDEntry, MSONable):
                 specify that the entry is a newly found compound, or to specify
                 a particular label for the entry, or else ... Used for further
                 analysis and plotting purposes. An attribute can be anything
-                but must be MSONable.
+                but must be PMGSONable.
         """
         self.uncorrected_energy = energy
         self.composition = Composition(composition)
@@ -90,23 +95,22 @@ class ComputedEntry(PDEntry, MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        dec = PMGJSONDecoder()
+        dec = MontyDecoder()
         return cls(d["composition"], d["energy"], d["correction"],
                    dec.process_decoded(d.get("parameters", {})),
                    dec.process_decoded(d.get("data", {})),
                    entry_id=d.get("entry_id", None),
                    attribute=d["attribute"] if "attribute" in d else None)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "energy": self.uncorrected_energy,
-                "composition": self.composition.to_dict,
+                "composition": self.composition.as_dict(),
                 "correction": self.correction,
                 "parameters": json.loads(json.dumps(self.parameters,
-                                                    cls=PMGJSONEncoder)),
-                "data": json.loads(json.dumps(self.data, cls=PMGJSONEncoder)),
+                                                    cls=MontyEncoder)),
+                "data": json.loads(json.dumps(self.data, cls=MontyEncoder)),
                 "entry_id": self.entry_id,
                 "attribute": self.attribute}
 
@@ -154,17 +158,16 @@ class ComputedStructureEntry(ComputedEntry):
     def __str__(self):
         return self.__repr__()
 
-    @property
-    def to_dict(self):
-        d = super(ComputedStructureEntry, self).to_dict
+    def as_dict(self):
+        d = super(ComputedStructureEntry, self).as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
-        d["structure"] = self.structure.to_dict
+        d["structure"] = self.structure.as_dict()
         return d
 
     @classmethod
     def from_dict(cls, d):
-        dec = PMGJSONDecoder()
+        dec = MontyDecoder()
         return cls(dec.process_decoded(d["structure"]),
                    d["energy"], d["correction"],
                    dec.process_decoded(d.get("parameters", {})),

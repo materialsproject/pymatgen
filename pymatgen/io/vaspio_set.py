@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module defines the VaspInputSet abstract base class and a concrete
 implementation for the parameters used by the Materials Project and the MIT
@@ -7,7 +11,7 @@ without further user intervention. This ensures comparability across
 runs.
 """
 
-from __future__ import division
+import six
 
 __author__ = "Shyue Ping Ong, Wei Chen, Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -31,8 +35,8 @@ from monty.serialization import loadfn
 from pymatgen.io.cifio import CifWriter
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vaspio.vasp_output import Vasprun, Outcar
-from pymatgen.serializers.json_coders import MSONable
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.serializers.json_coders import PMGSONable
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.io.smartio import write_structure
 
@@ -40,14 +44,13 @@ from pymatgen.io.smartio import write_structure
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class AbstractVaspInputSet(MSONable):
+class AbstractVaspInputSet(six.with_metaclass(abc.ABCMeta, PMGSONable)):
     """
     Abstract base class representing a set of Vasp input parameters.
     The idea is that using a VaspInputSet, a complete set of input files
     (INPUT, KPOINTS, POSCAR and POTCAR) can be generated in an automated
     fashion for any structure.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def get_poscar(self, structure):
@@ -378,8 +381,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
             count += 1
         return "\n".join(output)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         config_dict = {
             "INCAR": self.incar_settings,
             "KPOINTS": self.kpoints_settings,
@@ -524,9 +526,8 @@ class MITNEBVaspInputSet(DictVaspInputSet):
             if write_cif:
                 write_structure(s, os.path.join(d, '{}.cif'.format(i)))
 
-    @property
-    def to_dict(self):
-        d = super(MITNEBVaspInputSet, self).to_dict
+    def as_dict(self):
+        d = super(MITNEBVaspInputSet, self).as_dict()
         d["nimages"] = self.nimages
         return d
 
@@ -601,9 +602,8 @@ class MITMDVaspInputSet(DictVaspInputSet):
     def get_kpoints(self, structure):
         return Kpoints.gamma_automatic()
 
-    @property
-    def to_dict(self):
-        d = super(MITMDVaspInputSet, self).to_dict
+    def as_dict(self):
+        d = super(MITMDVaspInputSet, self).as_dict()
         d.update({
             "start_temp": self.start_temp,
             "end_temp": self.end_temp,
@@ -720,7 +720,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         Args:
             structure (Structure/IStructure): structure to get POSCAR
         """
-        sym_finder = SymmetryFinder(structure, symprec=self.sym_prec)
+        sym_finder = SpacegroupAnalyzer(structure, symprec=self.sym_prec)
         return Poscar(sym_finder.get_primitive_standard_structure(False))
 
     @staticmethod
@@ -741,7 +741,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
                 structure. If True, return a list of the refined structure (
                 conventional cell), the conventional standard structure,
                 the symmetry dataset and symmetry operations of the
-                structure (see SymmetryFinder doc for details).
+                structure (see SpacegroupAnalyzer doc for details).
             sym_prec (float): Tolerance for symmetry finding
 
         Returns:
@@ -753,14 +753,14 @@ class MPStaticVaspInputSet(DictVaspInputSet):
                 magmom = {"magmom": [i['tot'] for i in outcar.magnetization]}
             else:
                 magmom = {
-                    "magmom": vasp_run.to_dict['input']['parameters']
+                    "magmom": vasp_run.as_dict()['input']['parameters']
                     ['MAGMOM']}
         else:
             magmom = None
         structure = vasp_run.final_structure
         if magmom:
             structure = structure.copy(site_properties=magmom)
-        sym_finder = SymmetryFinder(structure, symprec=sym_prec)
+        sym_finder = SpacegroupAnalyzer(structure, symprec=sym_prec)
         if initial_structure:
             return structure
         elif additional_info:
@@ -860,7 +860,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         new_kpoints = mpsvip.get_kpoints(structure)
         if previous_kpoints.style[0] != new_kpoints.style[0]:
             if previous_kpoints.style[0] == "M" and \
-                    SymmetryFinder(structure, 0.1).get_lattice_type() != \
+                    SpacegroupAnalyzer(structure, 0.1).get_lattice_type() != \
                     "hexagonal":
                 k_div = (kp + 1 if kp % 2 == 1 else kp
                          for kp in new_kpoints.kpts[0])
@@ -946,7 +946,7 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
         self.kpoints_settings['grid_density'] = self.kpoints_density
         grid = super(MPBSHSEVaspInputSet, self).get_kpoints(structure).kpts
         if self.mode == "Line":
-            ir_kpts = SymmetryFinder(structure, symprec=0.1)\
+            ir_kpts = SpacegroupAnalyzer(structure, symprec=0.1)\
                 .get_ir_reciprocal_mesh(grid[0])
             kpoints, labels = HighSymmKpath(structure).get_kpoints(line_density=self.kpoints_line_density)
             kpts = []
@@ -965,7 +965,7 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
                            kpts=kpts, kpts_weights=weights, labels=all_labels)
 
         elif self.mode == "Uniform":
-            ir_kpts = SymmetryFinder(structure, symprec=0.1)\
+            ir_kpts = SpacegroupAnalyzer(structure, symprec=0.1)\
                 .get_ir_reciprocal_mesh(grid[0])
             kpts = []
             weights = []
@@ -979,9 +979,8 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
                            style="Reciprocal", num_kpts=len(kpts),
                            kpts=kpts, kpts_weights=weights)
 
-    @property
-    def to_dict(self):
-        d = super(MPBSHSEVaspInputSet, self).to_dict
+    def as_dict(self):
+        d = super(MPBSHSEVaspInputSet, self).as_dict()
         d['added_kpoints'] = self.added_kpoints
         d['mode'] = self.mode
         d['kpoints_density'] = self.kpoints_density
@@ -1074,7 +1073,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             kpoints = Kpoints.automatic_density(
                 structure, num_kpoints * structure.num_sites)
             mesh = kpoints.kpts[0]
-            ir_kpts = SymmetryFinder(structure, symprec=self.sym_prec) \
+            ir_kpts = SpacegroupAnalyzer(structure, symprec=self.sym_prec) \
                 .get_ir_reciprocal_mesh(mesh)
             kpts = []
             weights = []
@@ -1105,7 +1104,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             ispin = 2
         else:
             ispin = 1
-        nbands = int(np.ceil(vasp_run.to_dict["input"]["parameters"]["NBANDS"]
+        nbands = int(np.ceil(vasp_run.as_dict()["input"]["parameters"]["NBANDS"]
                              * 1.2))
         incar_settings = {"ISPIN": ispin, "NBANDS": nbands}
         for grid in ["NGX", "NGY", "NGZ"]:
@@ -1128,7 +1127,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             primitive standard structure
         """
         if get_primitive_standard:
-            sym_finder = SymmetryFinder(structure, symprec=self.sym_prec)
+            sym_finder = SpacegroupAnalyzer(structure, symprec=self.sym_prec)
             return Poscar(sym_finder.get_primitive_standard_structure(False))
         else:
             return Poscar(structure)
@@ -1339,7 +1338,7 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
             ispin = 2
         else:
             ispin = 1
-        nbands = int(np.ceil(vasp_run.to_dict["input"]["parameters"]["NBANDS"]
+        nbands = int(np.ceil(vasp_run.as_dict()["input"]["parameters"]["NBANDS"]
                              * nbands_factor))
         incar_settings = {"ISPIN": ispin, "NBANDS": nbands}
         for grid in ["NGX", "NGY", "NGZ"]:

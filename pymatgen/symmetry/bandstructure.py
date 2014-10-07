@@ -1,9 +1,12 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Created on March 25, 2013
 
 @author: geoffroy
 """
-from __future__ import division
 
 import numpy as np
 
@@ -13,7 +16,7 @@ from math import sin
 from math import tan
 from math import pi
 from warnings import warn
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 class HighSymmKpath(object):
     """
@@ -24,7 +27,7 @@ class HighSymmKpath(object):
     Challenges and tools. Computational Materials Science,
     49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010
     The symmetry is determined by spglib through the
-    SymmetryFinder class
+    SpacegroupAnalyzer class
 
     Args:
         structure (Structure): Structure object
@@ -34,7 +37,7 @@ class HighSymmKpath(object):
 
     def __init__(self, structure, symprec=0.01, angle_tolerance=5):
         self._structure = structure
-        self._sym = SymmetryFinder(structure, symprec=symprec,
+        self._sym = SpacegroupAnalyzer(structure, symprec=symprec,
                                    angle_tolerance=angle_tolerance)
         self._prim = self._sym\
             .get_primitive_standard_structure(international_monoclinic=False)

@@ -1,35 +1,34 @@
-"""
-Abinit Workflows
-"""
-from __future__ import division, print_function
+# coding: utf-8
+"""Abinit Workflows"""
+from __future__ import unicode_literals, division, print_function
 
-import sys
 import os
 import shutil
 import time
 import abc
 import collections
 import numpy as np
+import six
+
+from six.moves import filter
+from monty.collections import AttrDict
+from monty.itertools import chunks
+from monty.pprint import pprint_table
+from pymatgen.core.units import ArrayWithUnit
+from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
+from pymatgen.util.string_utils import WildCard
+from . import wrappers
+from .tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, DdkTask, BseTask, RelaxTask)
+from .strategies import HtcStrategy # ScfStrategy, RelaxStrategy
+from .utils import Directory
+from .netcdf import ETSF_Reader
+from .abitimer import AbinitTimerParser
+from .abiinspect import yaml_read_kpoints
+
 try:
     from pydispatch import dispatcher
 except ImportError:
     pass
-
-from pymatgen.core.units import ArrayWithUnit, Ha_to_eV
-from pymatgen.core.design_patterns import AttrDict
-from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
-from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
-from pymatgen.util.string_utils import pprint_table, WildCard
-from pymatgen.io.abinitio import wrappers
-from pymatgen.io.abinitio.tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, DdkTask, BseTask, RelaxTask)
-from pymatgen.io.abinitio.strategies import HtcStrategy, ScfStrategy #, RelaxStrategy
-from pymatgen.io.abinitio.utils import Directory
-from pymatgen.io.abinitio.netcdf import ETSF_Reader
-from pymatgen.io.abinitio.abiobjects import Smearing, AbiStructure, KSampling, Electrons  #, RelaxationMethod
-from pymatgen.io.abinitio.pseudos import Pseudo
-from pymatgen.io.abinitio.abitimer import AbinitTimerParser
-from pymatgen.io.abinitio.abiinspect import yaml_read_kpoints
-
 
 import logging
 logger = logging.getLogger(__name__)
@@ -51,7 +50,7 @@ __all__ = [
 ]
 
 
-class WorkflowResults(dict, MSONable):
+class WorkflowResults(dict, PMGSONable):
     """
     Dictionary used to store some of the results produce by a workflow.
     """
@@ -95,6 +94,9 @@ class WorkflowResults(dict, MSONable):
     def json_dump(self, filepath):
         json_pretty_dump(self, filepath)
 
+    def as_dict(self):
+        return self.to_dict
+
     @property
     def to_dict(self):
         """Convert object to dictionary."""
@@ -114,9 +116,7 @@ class WorkflowError(Exception):
     """Base class for the exceptions raised by Workflow objects."""
 
 
-class BaseWorkflow(Node):
-    __metaclass__ = abc.ABCMeta
-
+class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
     Error = WorkflowError
 
     Results = WorkflowResults
@@ -216,7 +216,6 @@ class BaseWorkflow(Node):
 
         for task in self:
             if task.can_run:
-                #print(task, str(task.status), [task.deps_status])
                 return task
 
         # No task found, this usually happens when we have dependencies. 
@@ -608,9 +607,10 @@ class Workflow(BaseWorkflow):
 
         # Take into account possible dependencies. Use a list instead of generators 
         for task in self:
+            # changed <= to <
             # todo should this not be < ? a task that is already submitted should not be put to ready
             # it does no harm because of the lock file but logically it seems wrong also gives the wrong infromation
-            if task.status <= task.S_SUB and all([status == task.S_OK for status in task.deps_status]): 
+            if task.status < task.S_SUB and all([status == task.S_OK for status in task.deps_status]):
                 task.set_status(task.S_READY)
 
     def rmtree(self, exclude_wildcard=""):
@@ -1062,3 +1062,54 @@ class PhononWorkflow(Workflow):
         self.merge_ddb_files()
 
         return WorkflowResults(returncode=0, message="DDB merge done")
+
+
+class WorkflowResults(dict, PMGSONable):
+    """
+    Dictionary used to store some of the results produce by a Task object
+    """
+    _MANDATORY_KEYS = [
+        "task_results",
+    ]
+
+    _EXC_KEY = "_exceptions"
+
+    def __init__(self, *args, **kwargs):
+        super(WorkflowResults, self).__init__(*args, **kwargs)
+
+        if self._EXC_KEY not in self:
+            self[self._EXC_KEY] = []
+
+    @property
+    def exceptions(self):
+        return self[self._EXC_KEY]
+
+    def push_exceptions(self, *exceptions):
+        for exc in exceptions:
+            newstr = str(exc)
+            if newstr not in self.exceptions:
+                self[self._EXC_KEY] += [newstr]
+
+    def assert_valid(self):
+        """
+        Returns empty string if results seem valid.
+
+        The try assert except trick allows one to get a string with info on the exception.
+        We use the += operator so that sub-classes can add their own message.
+        """
+        # Validate tasks.
+        for tres in self.task_results:
+            self[self._EXC_KEY] += tres.assert_valid()
+
+        return self[self._EXC_KEY]
+
+    def as_dict(self):
+        d = {k: v for k,v in self.items()}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        mydict = {k: v for k, v in d.items() if k not in ["@module", "@class"]}
+        return cls(mydict)

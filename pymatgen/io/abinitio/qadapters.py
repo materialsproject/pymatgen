@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 Part of this code is based on a similar implementation present in FireWorks (https://pypi.python.org/pypi/FireWorks).
 Work done by D. Waroquiers, A. Jain, and M. Kocher.
@@ -9,7 +10,7 @@ This programmatic interface is used by the `TaskManager` for optimizing the para
 of the run before submitting the job (Abinit provides the autoparal option that 
 allows one to get a list of parallel configuration and their expected efficiency).
 """
-from __future__ import print_function, division
+from __future__ import print_function, division, unicode_literals
 
 import os
 import abc
@@ -17,10 +18,11 @@ import string
 import copy
 import getpass
 import warnings
+import six
 
 from subprocess import Popen, PIPE
-from pymatgen.io.abinitio.launcher import ScriptEditor
-from pymatgen.util.string_utils import is_string
+from monty.string import is_string
+from .launcher import ScriptEditor
 
 import logging
 logger = logging.getLogger(__name__)
@@ -127,6 +129,7 @@ def qadapter_class(qtype):
             "slurm": SlurmAdapter,
             "pbs": PbsAdapter,
             "sge": SGEAdapter,
+            "moab": MOABAdapter,
             }[qtype.lower()]
 
 
@@ -134,7 +137,7 @@ class QueueAdapterError(Exception):
     """Error class for exceptions raise by QueueAdapter."""
 
 
-class AbstractQueueAdapter(object):
+class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     """
     The QueueAdapter is responsible for all interactions with a specific
     queue management system. This includes handling all details of queue
@@ -145,7 +148,6 @@ class AbstractQueueAdapter(object):
     A user should extend this class with implementations that work on
     specific queue systems.
     """
-    __metaclass__ = abc.ABCMeta
 
     Error = QueueAdapterError
 
@@ -659,14 +661,14 @@ class SlurmAdapter(AbstractQueueAdapter):
             return False
 
     def increase_cpus(self, factor=1.5):
-        print('increasing cpus')
+        logger.info('increasing cpus')
         try:
             if self.qparams['ntasks'] > 1:
                 # mpi parallel
                 n = int(self.qparams['ntasks'] * factor)
                 if n < self.limits['max_total_tasks']:
                     self.qparams['ntasks'] = n
-                    print('increased ntasks to %s' % n)
+                    logger.info('increased ntasks to %s' % n)
                     return True
                 else:
                     raise QueueAdapterError
@@ -684,13 +686,13 @@ class SlurmAdapter(AbstractQueueAdapter):
             return False
 
     def increase_mem(self, factor=1.5):
-        print('increasing memory')
+        logger.info('increasing memory')
         try:
             if 'mem' in self.qparams.keys():
                 n = int(self.qparams['mem'] * factor)
                 if n < self.limits['mem']:
                     self.qparams['mem'] = n
-                    print('increased mem to %s' % n)
+                    logger.info('increased mem to %s' % n)
                     return True
                 else:
                     raise QueueAdapterError
@@ -698,7 +700,7 @@ class SlurmAdapter(AbstractQueueAdapter):
                 n = int(self.qparams['mem_per_cpu'] * factor)
                 if n < self.limits['mem_per_cpu']:
                     self.qparams['mem'] = n
-                    print('increased mem_per_cpu to %s' % n)
+                    logger.info('increased mem_per_cpu to %s' % n)
                     return True
                 else:
                     raise QueueAdapterError
@@ -708,7 +710,7 @@ class SlurmAdapter(AbstractQueueAdapter):
             return False
 
     def increase_time(self, factor=1.5):
-        print('increasing time')
+        logger.info('increasing time')
         days, hours, minutes = 0, 0, 0
         try:
             # a slurm time parser ;-) forgetting about seconds
@@ -738,7 +740,7 @@ class SlurmAdapter(AbstractQueueAdapter):
             time *= factor
             if time < self.limits['time']:
                 self.qparams['time'] = time
-                print('increased time to %s' % time)
+                logger.info('increased time to %s' % time)
                 return True
             else:
                 raise QueueAdapterError
@@ -788,6 +790,7 @@ class PbsAdapter(AbstractQueueAdapter):
 #PBS -W group_list=$${group_list}
 #PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
 #PBS -l pvmem=$${pvmem}mb
+#PBS -r y
 ####PBS -l mppwidth=$${mppwidth}
 ####PBS -l nodes=$${nodes}:ppn=$${ppn}  # OLD SYNTAX
 #PBS -o $${_qout_path}
@@ -801,7 +804,7 @@ class PbsAdapter(AbstractQueueAdapter):
         currently hard coded, should be read at init
         the increase functions will not increase beyond thise limits
         """
-        return {'max_total_tasks': 3888, 'time': 48, 'max_select': 120}
+        return {'max_total_tasks': 3888, 'time': 48, 'max_select': 300, 'mem': 16000}
 
     @property
     def mpi_ncpus(self):
@@ -856,41 +859,45 @@ class PbsAdapter(AbstractQueueAdapter):
                 msg = ('Error in job submission with PBS file {f} and cmd {c}\n'.format(f=script_file, c=cmd) + 
                        'The error response reads: {}'.format(process.stderr.read()))
                 raise self.Error(msg)
-        except:
+
+        except Exception as exc:
             # random error, e.g. no qsub on machine!
-            raise self.Error("Running qsub caused an error...")
+            raise self.Error("Running qsub caused an error...\n%s" % str(exc))
 
     def get_njobs_in_queue(self, username=None):
         # Initialize username
+        return 0
+
         if username is None:
             username = getpass.getuser()
 
         # run qstat
-        qstat = Command(['qstat', '-a', '-u', username])
-        process = qstat.run(timeout=5)
+        try:
+            qstat = Command(['qstat', '-a', '-u', username])
+            process = qstat.run(timeout=5)
 
-        # parse the result
-        if process[0] == 0:
-            # lines should have this form
-            # '1339044.sdb          username  queuename    2012-02-29-16-43  20460   --   --    --  00:20 C 00:09'
-            # count lines that include the username in it
+            # parse the result
+            if process[0] == 0:
+                # lines should have this form
+                # '1339044.sdb          username  queuename    2012-02-29-16-43  20460   --   --    --  00:20 C 00:09'
+                # count lines that include the username in it
 
-            # TODO: only count running or queued jobs. or rather, *don't* count jobs that are 'C'.
-            outs = process[1].split('\n')
-            njobs = len([line.split() for line in outs if username in line])
-            logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
+                # TODO: only count running or queued jobs. or rather, *don't* count jobs that are 'C'.
+                outs = process[1].split('\n')
+                njobs = len([line.split() for line in outs if username in line])
+                logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
 
-            return njobs
+                return njobs
+        except:
+            # there's a problem talking to qstat server?
+            print(' ** ')
+            print(process[1].split('\n'))
+            err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' +
+                       'The error response reads: {}'.format(process[2]))
+            print(' ** ')
+            logger.critical(err_msg)
 
-        # there's a problem talking to qstat server?
-        print(' ** ')
-        print(process[1].split('\n'))
-        err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' +
-                   'The error response reads: {}'.format(process[2]))
-        print(' ** ')
-        logger.critical(err_msg)
-
-        return None
+            return None
 
     # no need to raise an error, if False is returned the fixer may try something else, we don't need to kill the
     # scheduler just yet
@@ -902,9 +909,15 @@ class PbsAdapter(AbstractQueueAdapter):
         logger.warning('exluding nodes, not implemented yet pbs')
         return False
 
-    def increase_mem(self, factor):
-        logger.warning('increasing mem, not implemented yet pbs')
-        return False
+    def increase_mem(self, factor=1):
+        base_increase = 2000
+        new_mem = self.qparams["pvmem"] + factor*base_increase
+        if new_mem < self.limits['mem']:
+            self.set_mem_per_cpu(new_mem)
+            return True
+        else:
+            logger.warning('could not increase mem further')
+            return False
 
     def increase_time(self, factor=1.5):
         days, hours, minutes = 0, 0, 0
@@ -938,15 +951,16 @@ class PbsAdapter(AbstractQueueAdapter):
             logger.warning('increasing cpus reached the limit')
             return False
 
-    def increase_resources(self):
-        """
-        Method to generally increase resources. On typical large machines we only increas cpu's since we use all
-        mem per cpu per core
-        """
-        if self.increase_cpus(1):
-            return True
-        else:
-            return False
+    # moved to the level of the manager:
+    #def increase_resources(self):
+    #    """
+    #    Method to generally increase resources. On typical large machines we only increas cpu's since we use all
+    #    mem per cpu per core
+    #    """
+    #    if self.increase_cpus(1):
+    #        return True
+    #    else:
+    #        return False
 
 
 class SGEAdapter(AbstractQueueAdapter):
@@ -1079,6 +1093,154 @@ class SGEAdapter(AbstractQueueAdapter):
     def increase_cpus(self, factor):
         raise NotImplementedError("increase_cpus")
 
+
+class MOABAdapter(AbstractQueueAdapter):
+# https://computing.llnl.gov/tutorials/moab/
+    QTYPE = "moab"
+
+    QTEMPLATE = """\
+#!/bin/bash
+
+#MSUB -a $${eligible_date}
+#MSUB -A $${account}
+#MSUB -c $${checkpoint_interval}
+#MSUB -l feature=$${feature}
+#MSUB -l gres=$${gres}
+#MSUB -l nodes=$${nodes}
+#MSUB -l partition=$${partition}
+#MSUB -l procs=$${procs}
+#MSUB -l ttc=$${ttc}
+#MSUB -l walltime=$${walltime}
+#MSUB -l $${resources}
+#MSUB -p $${priority}
+#MSUB -q $${queue}
+#MSUB -S $${shell}
+#MSUB -N $${job_name}
+#MSUB -v $${variable_list}
+
+#MSUB -o $${_qout_path}
+#MSUB -e $${_qerr_path}
+
+"""
+
+    @property
+    def mpi_ncpus(self):
+        """Number of CPUs used for MPI."""
+        return self.qparams.get("procs", 1)
+
+    def set_mpi_ncpus(self, mpi_ncpus):
+        """Set the number of CPUs used for MPI."""
+        self.qparams["procs"] = mpi_ncpus
+
+    def set_omp_ncpus(self, omp_ncpus):
+        """Set the number of OpenMP threads."""
+        self.omp_env["OMP_NUM_THREADS"] = omp_ncpus
+
+    def cancel(self, job_id):
+        return os.system("canceljob %d" % job_id)
+
+    def submit_to_queue(self, script_file, submit_err_file="sbatch.err"):
+
+        if not os.path.exists(script_file):
+            raise self.Error('Cannot find script file located at: {}'.format(script_file))
+
+        submit_err_file = os.path.join(os.path.dirname(script_file), submit_err_file)
+
+        # submit the job
+        try:
+            cmd = ['msub', script_file]
+            process = Popen(cmd, stdout=PIPE, stderr=PIPE)
+            # write the err output to file, a error parser may read it and a fixer may know what to do ...
+
+            with open(submit_err_file, mode='w') as f:
+                f.write('msub submit process stderr:')
+                f.write(str(process.stderr.read()))
+                f.write('qparams:')
+                f.write(str(self.qparams))
+
+            process.wait()
+
+            # grab the returncode. MOAB returns 0 if the job was successful
+            if process.returncode == 0:
+                try:
+                    # output should be the queue_id
+                    queue_id = int(process.stdout.read().split()[0])
+                    logger.info('Job submission was successful and queue_id is {}'.format(queue_id))
+                except:
+                    # probably error parsing job code
+                    queue_id = None
+                    logger.warning('Could not parse job id following msub...')
+
+                finally:
+                    return process, queue_id
+
+            else:
+                # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
+                err_msg = ("Error in job submission with MOAB file {f} and cmd {c}\n".format(f=script_file, c=cmd) + 
+                           "The error response reads: {c}".format(c=process.stderr.read()))
+                raise self.Error(err_msg)
+
+        except Exception as details:
+            msg = 'Error while submitting job:\n' + str(details)
+            logger.critical(msg)
+            with open(submit_err_file, mode='a') as f:
+                f.write(msg)
+
+            try:
+                print('sometimes we land here, no idea what is happening ... Michiel')
+                print(details)
+                print(cmd)
+                print(process.returncode)
+            except:
+                pass
+
+            # random error, e.g. no qsub on machine!
+            raise self.Error('Running msub caused an error...')
+
+    def get_njobs_in_queue(self, username=None):
+        if username is None:
+            username = getpass.getuser()
+
+        cmd = ['showq', '-s -u', username]
+        process = Popen(cmd, shell=False, stdout=PIPE)
+        process.wait()
+
+        # parse the result
+        if process.returncode == 0:
+            # lines should have this form:
+            ## 
+            ## active jobs: N  eligible jobs: M  blocked jobs: P
+            ##
+            ## Total job:  1
+            ##
+            # Split the output string and return the last element.
+
+            outs = process.stdout.readlines()
+            njobs = int(outs.split()[-1])
+            logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
+            return njobs
+
+        # there's a problem talking to squeue server?
+        err_msg = ('Error trying to get the number of jobs in the queue using showq service' + 
+                   'The error response reads: {}'.format(process.stderr.read()))
+        logger.critical(err_msg)
+
+        return None
+    
+    def exclude_nodes(self, nodes):
+        raise NotImplementedError("exclude_nodes")
+                                                                         
+    def increase_mem(self, factor):
+        raise NotImplementedError("increase_mem")
+                                                                         
+    def increase_time(self, factor):
+        raise NotImplementedError("increase_time")
+
+    def increase_cpus(self, factor):
+        raise NotImplementedError("increase_cpus")
+        
+    def set_mem_per_cpu(self, factor):
+        raise NotImplementedError("set_mem_per_cpu")
 
 class QScriptTemplate(string.Template):
     delimiter = '$$'

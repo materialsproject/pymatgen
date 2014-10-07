@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module defines site transformations which transforms a structure into
 another structure. Site transformations differ from standard transformations
@@ -5,7 +9,8 @@ in that they operate in a site-specific manner.
 All transformations should inherit the AbstractTransformation ABC.
 """
 
-from __future__ import division
+from six.moves import map
+from six.moves import zip
 
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -19,6 +24,7 @@ import itertools
 import logging
 import time
 
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
@@ -69,8 +75,7 @@ class InsertSitesTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"species": self._species, "coords": [list(x) for x in self._coords],
                               "coords_are_cartesian": self._cartesian,
@@ -116,8 +121,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {
             "name": self.__class__.__name__, "version": __version__,
             "init_args": {"indices_species_map": self._indices_species_map},
@@ -155,8 +159,7 @@ class RemoveSitesTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"indices_to_remove": self._indices},
                 "@module": self.__class__.__module__,
@@ -202,8 +205,7 @@ class TranslateSitesTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return False
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"indices_to_move": self._indices,
                               "translation_vector": self._vector,
@@ -289,7 +291,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
         totalremovals = sum(num_remove_dict.values())
         removed = {k: 0 for k in num_remove_dict.keys()}
-        for i in xrange(totalremovals):
+        for i in range(totalremovals):
             maxindex = None
             maxe = float("-inf")
             maxindices = None
@@ -317,9 +319,8 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     def complete_ordering(self, structure, num_remove_dict):
         self.logger.debug("Performing complete ordering...")
         all_structures = []
-        from pymatgen.symmetry.finder import SymmetryFinder
         symprec = 0.2
-        s = SymmetryFinder(structure, symprec=symprec)
+        s = SpacegroupAnalyzer(structure, symprec=symprec)
         self.logger.debug("Symmetry of structure is determined to be {}."
                           .format(s.get_spacegroup_symbol()))
         sg = s.get_spacegroup()
@@ -518,8 +519,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     def is_one_to_many(self):
         return True
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"indices": self._indices,
                               "fractions": self._fractions,

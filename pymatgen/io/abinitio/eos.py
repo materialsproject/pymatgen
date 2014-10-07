@@ -1,5 +1,6 @@
+# coding: utf-8
 """Tools to compute equations of states with different models."""
-from __future__ import division, print_function
+from __future__ import unicode_literals, division, print_function
 
 import collections
 import numpy as np
@@ -382,4 +383,3 @@ class EOS_Fit(object):
             fig.savefig(savefig)
 
         return fig
-

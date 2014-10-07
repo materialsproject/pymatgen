@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals, print_function
+
 """
 Classes for reading/manipulating/writing VASP ouput files.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
     "Vincent L Chevrier"
@@ -20,10 +23,12 @@ import re
 import math
 import itertools
 import warnings
-from six.moves import cStringIO
+from io import StringIO
 import logging
 from collections import defaultdict
 from xml.etree.cElementTree import iterparse
+
+from six.moves import map, zip
 
 import numpy as np
 
@@ -42,6 +47,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.io.vaspio.vasp_input import Incar, Kpoints, Poscar
 from pymatgen.entries.computed_entries import \
     ComputedEntry, ComputedStructureEntry
+from pymatgen.serializers.json_coders import PMGSONable
 
 logger = logging.getLogger(__name__)
 
@@ -127,7 +133,7 @@ def _parse_from_incar(filename, key):
     return None
 
 
-class Vasprun(object):
+class Vasprun(PMGSONable):
     """
     Vastly improved cElementTree-based parser for vasprun.xml files. Uses
     iterparse to support incremental parsing of large files.
@@ -274,7 +280,7 @@ class Vasprun(object):
         self.ionic_step_skip = ionic_step_skip
         self.ionic_step_offset = ionic_step_offset
 
-        with zopen(filename) as f:
+        with zopen(filename, "rt") as f:
             if ionic_step_skip or ionic_step_offset:
                 # remove parts of the xml file and parse the string
                 run = f.read()
@@ -291,7 +297,7 @@ class Vasprun(object):
                         steps[-1].split("</calculation>")[-1])
                 else:
                     to_parse = "{}<calculation>{}".format(preamble, to_parse)
-                self._parse(cStringIO(to_parse), parse_dos=parse_dos,
+                self._parse(StringIO(to_parse), parse_dos=parse_dos,
                             parse_eigen=parse_eigen,
                             parse_projected_eigen=parse_projected_eigen)
             else:
@@ -363,11 +369,10 @@ class Vasprun(object):
         return self.final_structure.lattice.reciprocal_lattice
 
     @property
-    def converged(self):
+    def converged_electronic(self):
         """
-        True if a relaxation run is converged. Checking is performed on both
-        the final electronic convergence as well as whether the number of
-        ionic steps is equal to the NSW setting.
+        Checks that electronic step convergence has been reached in the final
+        ionic step
         """
         final_esteps = self.ionic_steps[-1]["electronic_steps"]
         if 'LEPSILON' in self.incar and self.incar['LEPSILON']:
@@ -376,10 +381,23 @@ class Vasprun(object):
             while set(final_esteps[i].keys()) == to_check:
                 i += 1
             return i + 1 != self.parameters["NELM"]
-        if len(final_esteps) == self.parameters["NELM"]:
-            return False
+        return len(final_esteps) < self.parameters["NELM"]
+
+    @property
+    def converged_ionic(self):
+        """
+        Checks that ionic step convergence has been reached, i.e. that vasp
+        exited before reaching the max ionic steps for a relaxation run
+        """
         nsw = self.parameters.get("NSW", 0)
-        return len(self.ionic_steps) < nsw or nsw <= 1
+        return nsw <= 1 or len(self.ionic_steps) < nsw
+
+    @property
+    def converged(self):
+        """
+        Returns true if a relaxation run is converged.
+        """
+        return self.converged_electronic and self.converged_ionic
 
     @property
     @unitized("eV")
@@ -538,10 +556,10 @@ class Vasprun(object):
 
         kpoints = [np.array(self.actual_kpoints[i])
                    for i in range(len(self.actual_kpoints))]
-        dict_eigen = self.to_dict['output']['eigenvalues']
+        dict_eigen = self.as_dict()['output']['eigenvalues']
         dict_p_eigen = {}
-        if 'projected_eigenvalues' in self.to_dict['output']:
-            dict_p_eigen = self.to_dict['output']['projected_eigenvalues']
+        if 'projected_eigenvalues' in self.as_dict()['output']:
+            dict_p_eigen = self.as_dict()['output']['projected_eigenvalues']
 
         p_eigenvals = {}
         if "1" in dict_eigen["0"] and "-1" in dict_eigen["0"] \
@@ -649,8 +667,7 @@ class Vasprun(object):
                     cbm_kpoint = k[0]
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Json-serializable dict representation.
         """
@@ -658,8 +675,8 @@ class Vasprun(object):
              "has_vasp_completed": self.converged,
              "nsites": len(self.final_structure)}
         comp = self.final_structure.composition
-        d["unit_cell_formula"] = comp.to_dict
-        d["reduced_cell_formula"] = Composition(comp.reduced_formula).to_dict
+        d["unit_cell_formula"] = comp.as_dict()
+        d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
         d["pretty_formula"] = comp.reduced_formula
         symbols = [s.split()[1] for s in self.potcar_symbols]
         symbols = [re.split("_", s)[0] for s in symbols]
@@ -682,8 +699,8 @@ class Vasprun(object):
         d["run_type"] = self.run_type
 
         vin = {"incar": {k: v for k, v in self.incar.items()},
-               "crystal": self.initial_structure.to_dict,
-               "kpoints": self.kpoints.to_dict}
+               "crystal": self.initial_structure.as_dict(),
+               "kpoints": self.kpoints.as_dict()}
         actual_kpts = [{"abc": list(self.actual_kpoints[i]),
                         "weight": self.actual_kpoints_weights[i]}
                        for i in range(len(self.actual_kpoints))]
@@ -691,7 +708,7 @@ class Vasprun(object):
         vin["potcar"] = [s.split(" ")[1] for s in self.potcar_symbols]
         vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]
         vin["parameters"] = {k: v for k, v in self.parameters.items()}
-        vin["lattice_rec"] = self.lattice_rec.to_dict
+        vin["lattice_rec"] = self.lattice_rec.as_dict()
         d["input"] = vin
 
         nsites = len(self.final_structure)
@@ -700,13 +717,13 @@ class Vasprun(object):
             vout = {"ionic_steps": self.ionic_steps,
                     "final_energy": self.final_energy,
                     "final_energy_per_atom": self.final_energy / nsites,
-                    "crystal": self.final_structure.to_dict,
+                    "crystal": self.final_structure.as_dict(),
                     "efermi": self.efermi}
         except (ArithmeticError, TypeError):
             vout = {"ionic_steps": self.ionic_steps,
                     "final_energy": self.final_energy,
                     "final_energy_per_atom": None,
-                    "crystal": self.final_structure.to_dict,
+                    "crystal": self.final_structure.as_dict(),
                     "efermi": self.efermi}
 
         if self.eigenvalues:
@@ -869,7 +886,7 @@ class Vasprun(object):
         return proj_eigen
 
 
-class Outcar(object):
+class Outcar(PMGSONable):
     """
     Parser for data in OUTCAR that is not available in Vasprun.xml
 
@@ -919,7 +936,14 @@ class Outcar(object):
     def __init__(self, filename):
         self.filename = filename
         self.is_stopped = False
-        with zopen(filename, "r") as f:
+
+        cores = 0
+        with open(filename, "r") as f:
+            for line in f:
+                if "running" in line:
+                    cores = line.split()[2]
+                    break
+        with zopen(filename, "rt") as f:
             read_charge_mag = False
             charge = []
             mag = []
@@ -961,6 +985,7 @@ class Outcar(object):
                             data.append(toks)
                 elif clean.find("soft stop encountered!  aborting job") != -1:
                     self.is_stopped = True
+                    #print(clean, cores)
                 else:
                     if time_patt.search(line):
                         tok = line.strip().split(":")
@@ -984,6 +1009,8 @@ class Outcar(object):
                 if all([nelect, total_mag is not None, efermi is not None,
                         run_stats]):
                     break
+
+            run_stats.update({'cores': cores})
 
             self.run_stats = run_stats
             self.magnetization = tuple(mag)
@@ -1263,20 +1290,19 @@ class Outcar(object):
         natom = len(self.charge)
         cl = [defaultdict(list) for i in range(natom)]
 
-        foutcar = zopen(self.filename, "r")
-        line = foutcar.readline()
-        while line != "":
+        with zopen(self.filename, "rt") as foutcar:
             line = foutcar.readline()
-            if "the core state eigen" in line:
-                for iat in range(natom):
-                    line = foutcar.readline()
-                    data = line.split()[1:]
-                    for i in range(0, len(data), 2):
-                        cl[iat][data[i]].append(float(data[i+1]))
+            while line != "":
+                line = foutcar.readline()
+                if "the core state eigen" in line:
+                    for iat in range(natom):
+                        line = foutcar.readline()
+                        data = line.split()[1:]
+                        for i in range(0, len(data), 2):
+                            cl[iat][data[i]].append(float(data[i+1]))
         return cl
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__, "efermi": self.efermi,
              "run_stats": self.run_stats, "magnetization": self.magnetization,
@@ -1463,45 +1489,44 @@ class VolumetricData(object):
             vasp4_compatible (bool): True if the format is vasp4 compatible
         """
 
-        f = zopen(file_name, "w")
-        p = Poscar(self.structure)
+        with zopen(file_name, "wt") as f:
+            p = Poscar(self.structure)
 
-        lines = p.comment + "\n"
-        lines += "   1.00000000000000\n"
-        latt = self.structure.lattice.matrix
-        lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[0,:])
-        lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[1,:])
-        lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[2,:])
-        if not vasp4_compatible:
-            lines += "".join(["%5s" % s for s in p.site_symbols]) + "\n"
-        lines += "".join(["%6d" % x for x in p.natoms]) + "\n"
-        lines += "Direct\n"
-        for site in self.structure:
-            lines += "%10.6f%10.6f%10.6f\n" % tuple(site.frac_coords)
-        lines += "\n"
-        f.write(lines)
-        a = self.dim
+            lines = p.comment + "\n"
+            lines += "   1.00000000000000\n"
+            latt = self.structure.lattice.matrix
+            lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[0,:])
+            lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[1,:])
+            lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[2,:])
+            if not vasp4_compatible:
+                lines += "".join(["%5s" % s for s in p.site_symbols]) + "\n"
+            lines += "".join(["%6d" % x for x in p.natoms]) + "\n"
+            lines += "Direct\n"
+            for site in self.structure:
+                lines += "%10.6f%10.6f%10.6f\n" % tuple(site.frac_coords)
+            lines += "\n"
+            f.write(lines)
+            a = self.dim
 
-        def write_spin(data_type):
-            lines = []
-            count = 0
-            f.write("{} {} {}\n".format(a[0], a[1], a[2]))
-            for (k, j, i) in itertools.product(range(a[2]), range(a[1]),
-                                               range(a[0])):
-                lines.append("%0.11e" % self.data[data_type][i, j, k])
-                count += 1
-                if count % 5 == 0:
-                    f.write("".join(lines) + "\n")
-                    lines = []
-                else:
-                    lines.append(" ")
-            f.write("".join(lines) + "\n")
+            def write_spin(data_type):
+                lines = []
+                count = 0
+                f.write("{} {} {}\n".format(a[0], a[1], a[2]))
+                for (k, j, i) in itertools.product(list(range(a[2])), list(range(a[1])),
+                                                   list(range(a[0]))):
+                    lines.append("%0.11e" % self.data[data_type][i, j, k])
+                    count += 1
+                    if count % 5 == 0:
+                        f.write("".join(lines) + "\n")
+                        lines = []
+                    else:
+                        lines.append(" ")
+                f.write("".join(lines) + "\n")
 
-        write_spin("total")
-        if self.is_spin_polarized:
-            f.write("\n")
-            write_spin("diff")
-        f.close()
+            write_spin("total")
+            if self.is_spin_polarized:
+                f.write("\n")
+                write_spin("diff")
 
     def get_integrated_diff(self, ind, radius, nbins=1):
         """
@@ -1534,7 +1559,7 @@ class VolumetricData(object):
         if ind not in self._distance_matrix or\
                 self._distance_matrix[ind]["max_radius"] < radius:
             coords = []
-            for (x, y, z) in itertools.product(*[range(i) for i in a]):
+            for (x, y, z) in itertools.product(*[list(range(i)) for i in a]):
                 coords.append([x / a[0], y / a[1], z / a[2]])
             sites_dist = struct.lattice.get_points_in_sphere(
                 coords, struct[ind].coords, radius)
@@ -1655,7 +1680,7 @@ class Procar(object):
     def __init__(self, filename):
         data = defaultdict(dict)
         headers = None
-        with zopen(filename, "r") as f:
+        with zopen(filename, "rt") as f:
             lines = list(clean_lines(f.readlines()))
             self.name = lines[0]
             kpointexpr = re.compile("^\s*k-point\s+(\d+).*weight = ([0-9\.]+)")
@@ -1731,27 +1756,6 @@ class Procar(object):
                         sum(self.data[iat][k]["bands"][b].values())
 
         return dico
-
-    def get_d_occupation(self, atom_index):
-        """
-        .. deprecated:: v2.6.4
-
-            Use get_occpuation instead.
-
-        Returns the d occupation of a particular atom.
-
-        Args:
-            atom_index (int): Index of atom in PROCAR. It should be noted
-                that VASP uses 1-based indexing for atoms, but this is
-                converted to 0-based indexing in this parser to be
-                consistent with representation of structures in pymatgen.
-
-        Returns:
-            d-occupation of atom at atom_index.
-        """
-        warnings.warn("get_d_occupation has been deprecated. Use "
-                      "get_occupation instead.", DeprecationWarning)
-        return self.get_occupation(atom_index, 'd')
 
     def get_occupation(self, atom_index, orbital):
         """
@@ -1844,7 +1848,7 @@ class Oszicar(object):
                 return "--"
 
         header = []
-        with zopen(filename, "r") as fid:
+        with zopen(filename, "rt") as fid:
             for line in fid:
                 line = line.strip()
                 m = electronic_pattern.match(line)
@@ -1903,8 +1907,7 @@ class Oszicar(object):
         """
         return self.ionic_steps[-1]["F"]
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"electronic_steps": self.electronic_steps,
                 "ionic_steps": self.ionic_steps}
 
@@ -1990,7 +1993,7 @@ class Xdatcar(object):
         coords_str = []
         structures = []
         preamble_done = False
-        with zopen(filename) as f:
+        with zopen(filename, "rt") as f:
             for l in f:
                 l = l.strip()
                 if preamble is None:
@@ -2032,7 +2035,7 @@ def get_adjusted_fermi_level(efermi, cbm, band_structure):
         a new adjusted fermi level
     """
     #make a working copy of band_structure
-    bs_working = BandStructureSymmLine.from_dict(band_structure.to_dict)
+    bs_working = BandStructureSymmLine.from_dict(band_structure.as_dict())
     if bs_working.is_metal():
         e = efermi
         while e < cbm:

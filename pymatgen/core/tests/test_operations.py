@@ -1,4 +1,6 @@
-#!/usr/bin/python
+# coding: utf-8
+
+from __future__ import unicode_literals
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.operations import SymmOp
@@ -23,7 +25,7 @@ class SymmOpTestCase(PymatgenTest):
         point = np.array([1, 2, 3])
         newcoord = self.op.operate(point)
         self.assertArrayAlmostEqual(newcoord, [-0.1339746, 2.23205081, 4.], 2)
-        
+
     def test_operate_multi(self):
         point = np.array([1, 2, 3])
         newcoords = self.op.operate_multi([point, point])
@@ -60,7 +62,7 @@ class SymmOpTestCase(PymatgenTest):
         self.assertTrue(self.op.are_symmetrically_related(newcoord, point))
 
     def test_to_from_dict(self):
-        d = self.op.to_dict
+        d = self.op.as_dict()
         op = SymmOp.from_dict(d)
         point = np.random.rand(3)
         newcoord = self.op.operate(point)

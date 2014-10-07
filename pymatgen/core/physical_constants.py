@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import unicode_literals
+
 """
 This module defines useful physical constants and conversion factors.
 All units are in SI units except for conversion factors.

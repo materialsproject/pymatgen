@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Created on Mar 15, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -56,7 +59,7 @@ class TranslateSitesTransformationTest(unittest.TestCase):
         str(t)
 
     def test_to_from_dict(self):
-        d = TranslateSitesTransformation([0], [0.1, 0.2, 0.3]).to_dict
+        d = TranslateSitesTransformation([0], [0.1, 0.2, 0.3]).as_dict()
         t = TranslateSitesTransformation.from_dict(d)
         s = t.apply_transformation(self.struct)
         self.assertTrue(np.allclose(s[0].frac_coords, [0.1, 0.2, 0.3]))
@@ -89,7 +92,7 @@ class ReplaceSiteSpeciesTransformationTest(unittest.TestCase):
         str(t)
 
     def test_to_from_dict(self):
-        d = ReplaceSiteSpeciesTransformation({0: "Na"}).to_dict
+        d = ReplaceSiteSpeciesTransformation({0: "Na"}).as_dict()
         t = ReplaceSiteSpeciesTransformation.from_dict(d)
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Na1 Li3 O4")
@@ -121,7 +124,7 @@ class RemoveSitesTransformationTest(unittest.TestCase):
         str(t)
 
     def test_to_from_dict(self):
-        d = RemoveSitesTransformation(range(2)).to_dict
+        d = RemoveSitesTransformation(range(2)).as_dict()
         t = RemoveSitesTransformation.from_dict(d)
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li2 O4")
@@ -158,7 +161,7 @@ class InsertSitesTransformationTest(unittest.TestCase):
 
     def test_to_from_dict(self):
         d = InsertSitesTransformation(["Fe", "Mn"],
-                                      [[0.1, 0, 0], [0.1, 0.2, 0.2]]).to_dict
+                                      [[0.1, 0, 0], [0.1, 0.2, 0.2]]).as_dict()
         t = InsertSitesTransformation.from_dict(d)
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li4 Mn1 Fe1 O4")
@@ -231,13 +234,13 @@ class PartialRemoveSitesTransformationTest(unittest.TestCase):
         self.assertEqual(s.formula, "Li2 O2")
 
     def test_to_from_dict(self):
-        d = PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).to_dict
+        d = PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).as_dict()
         t = PartialRemoveSitesTransformation.from_dict(d)
         s = t.apply_transformation(self.struct)
         self.assertEqual(s.formula, "Li2 O4")
 
     def test_str(self):
-        d = PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).to_dict
+        d = PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).as_dict()
         self.assertIsNotNone(str(d))
 
 if __name__ == "__main__":

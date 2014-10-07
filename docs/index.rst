@@ -64,6 +64,33 @@ several advantages over other codes out there:
    written in other languages. Pymatgen also comes with a complete system for
    handling periodic boundary conditions.
 
+Python 3.x support
+==================
+
+.. versionadded:: 3.0
+
+With effect from version 3.0, pymatgen now supports both Python 2.7 as well
+as Python 3.x. All underlying core dependencies (numpy, pyhull and the spglib
+library) have been made Python 3 compatible, and a completely rewritten CIF
+parser module (courtesy of William Davidson Richards) has removed the
+dependency on PyCIFRW. We will support Python >= 3.3 (ignoring v3.1 and v3.2).
+
+With the release of a new major version, we are taking the opportunity to
+streamline and cleanup some of the code, which introduces some backwards
+incompatibilities. The major ones are listed below:
+
+* The to_dict property of all classes have been deprecated in favor of the
+  as_dict() method protocol in the monty package. The to_dict property will
+  be available only up till the next minor version, i.e., v3.1.
+* All previously deprecated methods and modules (e.g.,
+  pymatgen.core.structure_editor) have been removed.
+
+For developers working to add new features to pymatgen, this also means that
+all new code going forward has to be Python 2.7+ and 3 compatible. Our approach
+is to have a single codebase support Python 2.7 and 3.x,
+as per current best practices. Please review the `coding guidelines
+</contributing>`_.
+
 .. include:: latest_changes.rst
 
 :doc:`Older versions </change_log>`
@@ -111,12 +138,7 @@ Stable version
        possible and do "export CC=gcc" prior to installation.
     2. Numpy's distutils is needed to compile the spglib and pyhull
        dependencies. This should be the first thing you install.
-    3. Pyhull and PyCifRW. The recent versions of pip does not allow the
-       installation of externally hosted files. Furthermore,
-       there are some issues with easy_install for these extensions. Install
-       both these dependencies manually using ``"pip install <package>
-       --allow-external <package> --allow-unverified <package>"``.
-    4. Although PyYaml can be installed directly through pip without
+    3. Although PyYaml can be installed directly through pip without
        additional preparation, it is highly recommended that you install
        pyyaml with the C bindings for speed. To do so, install LibYaml first,
        and then install pyyaml with the command below (see the `pyyaml
@@ -125,8 +147,8 @@ Stable version
            python setup.py --with-libyaml install
 
 The version at the Python Package Index (PyPI) is always the latest stable
-release that will be hopefully, be relatively bug-free. The easiest way to
-install pymatgen on any system is to use easy_install or pip, as follows::
+release that is relatively bug-free. The easiest way to install pymatgen on
+any system is to use easy_install or pip, as follows::
 
     easy_install pymatgen
 
@@ -227,30 +249,38 @@ some quick examples of the core capabilities and objects:
     >>> structure[0]
     PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
     >>>
-    >>> #Integrated symmetry tools from spglib.
-    >>> from pymatgen.symmetry.finder import SymmetryFinder
-    >>> finder = SymmetryFinder(structure)
+    >>> # You can create a Structure using spacegroup symmetry as well.
+    >>> li2o = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Li", "O"],
+                                         [[0.25, 0.25, 0.25], [0, 0, 0]])
+    >>>
+    >>> #Integrated symmetry analysis tools from spglib.
+    >>> from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+    >>> finder = SpacegroupAnalyzer(structure)
     >>> finder.get_spacegroup_symbol()
     'Pm-3m'
     >>>
-    >>> # Convenient IO to various formats. Format is intelligently determined
-    >>> # from file name and extension.
-    >>> mg.write_structure(structure, "POSCAR")
-    >>> mg.write_structure(structure, "CsCl.cif")
+    >>> # Convenient IO to various formats. You can specify various formats.
+    >>> # Without a filename, a string is returned. Otherwise,
+    >>> # the output is written to the file. If only the filenmae is provided,
+    >>> # the format is intelligently determined from a file.
+    >>> structure.to(fmt="poscar")
+    >>> structure.to(filename="POSCAR")
+    >>> structure.to(filename="CsCl.cif")
     >>>
-    >>> # Reading a structure from a file.
-    >>> structure = mg.read_structure("POSCAR")
+    >>> # Reading a structure is similarly easy.
+    >>> structure = mg.Structure.from_str(open("CsCl.cif").read(), fmt="cif")
+    >>> structure = mg.Structure.from_file("CsCl.cif")
     >>>
     >>> # Reading and writing a molecule from a file. Supports XYZ and
     >>> # Gaussian input and output by default. Support for many other
     >>> # formats via the optional openbabel dependency (if installed).
-    >>> methane = mg.read_mol("methane.xyz")
-    >>> mg.write_mol(mol, "methane.gjf")
+    >>> methane = mg.Molecule.from_file("methane.xyz")
+    >>> mol.to("methane.gjf")
     >>>
     >>> # Pythonic API for editing Structures and Molecules (v2.9.1 onwards)
     >>> # Changing the specie of a site.
     >>> structure[1] = "F"
-    >>> print structure
+    >>> print(structure)
     Structure Summary (Cs1 F1)
     Reduced Formula: CsF
     abc   :   4.200000   4.200000   4.200000
@@ -261,7 +291,7 @@ some quick examples of the core capabilities and objects:
     >>>
     >>> #Changes species and coordinates (fractional assumed for structures)
     >>> structure[1] = "Cl", [0.51, 0.51, 0.51]
-    >>> print structure
+    >>> print(structure)
     Structure Summary (Cs1 Cl1)
     Reduced Formula: CsCl
     abc   :   4.200000   4.200000   4.200000
@@ -273,7 +303,7 @@ some quick examples of the core capabilities and objects:
     >>> # Because structure is like a list, it supports most list-like methods
     >>> # such as sort, reverse, etc.
     >>> structure.reverse()
-    >>> print structure
+    >>> print(structure)
     Structure Summary (Cs1 Cl1)
     Reduced Formula: CsCl
     abc   :   4.200000   4.200000   4.200000
@@ -312,8 +342,8 @@ API documentation
 For detailed documentation of all modules and classes, please refer to the
 :doc:`API docs </modules>`.
 
-matgenie.py - Command line tool
--------------------------------
+pmg - Command line tool
+-----------------------
 
 To demonstrate the capabilities of pymatgen and to make it easy for users to
 quickly use the functionality, pymatgen comes with a set of useful scripts
@@ -322,11 +352,11 @@ installed to your path by default when you install pymatgen through the
 typical installation routes.
 
 Here, we will discuss the most versatile of these scripts, known as
-matgenie.py. The typical usage of matgenie.py is::
+pmg. The typical usage of pmg is::
 
-    matgenie.py {analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
+    pmg {analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
 
-At any time, you can use ``"matgenie.py --help"`` or ``"matgenie.py subcommand
+At any time, you can use ``"pmg --help"`` or ``"pmg subcommand
 --help"`` to bring up a useful help message on how to use these subcommands.
 Here are a few examples of typical usages::
 
@@ -334,34 +364,34 @@ Here are a few examples of typical usages::
     #information. Saves the data in a file called vasp_data.gz for subsequent
     #reuse.
 
-    matgenie.py analyze .
+    pmg analyze .
 
     #Plot the dos from the vasprun.xml file.
 
-    matgenie.py plotdos vasprun.xml
+    pmg plotdos vasprun.xml
 
     #Convert between file formats. The script attempts to intelligently
     #determine the file type. Input file types supported include CIF,
     #vasprun.xml, POSCAR, CSSR. You can force the script to assume certain file
-    #types by specifying additional arguments. See matgenie.py convert -h.
+    #types by specifying additional arguments. See pmg convert -h.
 
-    matgenie.py convert input_filename output_filename.
+    pmg convert input_filename output_filename.
 
     #Obtain spacegroup information.
 
-    matgenie.py symm -s filename1 filename2
+    pmg symm -s filename1 filename2
 
     #Visualize a structure. Requires VTK to be installed.
 
-    matgenie.py view filename
+    pmg view filename
 
     #Compare two structures for similarity
 
-    matgenie.py compare filename1 filename2
+    pmg compare filename1 filename2
 
     #Generate a POTCAR with symbols Li_sv O and the PBE functional
 
-    matgenie.py generate --potcar Li_sv O --functional PBE
+    pmg generate --potcar Li_sv O --functional PBE
 
 ipmg - A Custom ipython shell
 -----------------------------

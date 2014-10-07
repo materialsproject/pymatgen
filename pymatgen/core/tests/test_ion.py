@@ -1,4 +1,6 @@
-#!/usr/bin/python
+# coding: utf-8
+
+from __future__ import unicode_literals
 
 import unittest
 
@@ -71,9 +73,9 @@ class IonTest(unittest.TestCase):
                          "PO4[2-]",
                          "Creation form sym_amount dictionary failed!")
 
-    def test_to_dict(self):
+    def test_as_dict(self):
         c = Ion.from_dict({'Mn': 1, 'O': 4, 'charge': -1})
-        d = c.to_dict
+        d = c.as_dict()
         correct_dict = {'Mn': 1.0, 'O': 4.0, 'charge': -1.0}
         self.assertEqual(d, correct_dict)
         self.assertEqual(d['charge'], correct_dict['charge'])

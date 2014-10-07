@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Created on Jul 16, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -41,8 +44,8 @@ class VasprunTest(unittest.TestCase):
         vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True)
         totalscsteps = sum([len(i['electronic_steps'])
                             for i in vasprun.ionic_steps])
-        self.assertEquals(29, len(vasprun.ionic_steps))
-        self.assertEquals(len(vasprun.structures), len(vasprun.ionic_steps))
+        self.assertEqual(29, len(vasprun.ionic_steps))
+        self.assertEqual(len(vasprun.structures), len(vasprun.ionic_steps))
         self.assertEqual(vasprun.lattice,
                          vasprun.lattice_rec.reciprocal_lattice)
 
@@ -52,13 +55,13 @@ class VasprunTest(unittest.TestCase):
         self.assertTrue(all([vasprun.structures[i] == vasprun.ionic_steps[i][
             "structure"] for i in range(len(vasprun.ionic_steps))]))
 
-        self.assertEquals(308, totalscsteps,
-                          "Incorrect number of energies read from vasprun.xml")
+        self.assertEqual(308, totalscsteps,
+                         "Incorrect number of energies read from vasprun.xml")
 
-        self.assertEquals(['Li'] + 4 * ['Fe'] + 4 * ['P'] + 16 * ["O"],
-                          vasprun.atomic_symbols)
-        self.assertEquals(vasprun.final_structure.composition.reduced_formula,
-                          "LiFe4(PO4)4")
+        self.assertEqual(['Li'] + 4 * ['Fe'] + 4 * ['P'] + 16 * ["O"],
+                         vasprun.atomic_symbols)
+        self.assertEqual(vasprun.final_structure.composition.reduced_formula,
+                         "LiFe4(PO4)4")
         self.assertIsNotNone(vasprun.incar, "Incar cannot be read")
         self.assertIsNotNone(vasprun.kpoints, "Kpoints cannot be read")
         self.assertIsNotNone(vasprun.eigenvalues, "Eigenvalues cannot be read")
@@ -72,9 +75,9 @@ class VasprunTest(unittest.TestCase):
         self.assertEqual(direct, expectedans[3])
         self.assertFalse(vasprun.is_hubbard)
         self.assertEqual(vasprun.potcar_symbols,
-                         [u'PAW_PBE Li 17Jan2003', u'PAW_PBE Fe 06Sep2000',
-                          u'PAW_PBE Fe 06Sep2000', u'PAW_PBE P 17Jan2003',
-                          u'PAW_PBE O 08Apr2002'])
+                         ['PAW_PBE Li 17Jan2003', 'PAW_PBE Fe 06Sep2000',
+                          'PAW_PBE Fe 06Sep2000', 'PAW_PBE P 17Jan2003',
+                          'PAW_PBE O 08Apr2002'])
         self.assertIsNotNone(vasprun.kpoints, "Kpoints cannot be read")
         self.assertIsNotNone(vasprun.actual_kpoints,
                              "Actual kpoints cannot be read")
@@ -113,12 +116,14 @@ class VasprunTest(unittest.TestCase):
                                                                    0, 96,
                                                                    Orbital.s)],
                                0.0032)
-        d = vasprun_ggau.to_dict
+        d = vasprun_ggau.as_dict()
         self.assertEqual(d["elements"], ["Fe", "Li", "O", "P"])
         self.assertEqual(d["nelements"], 4)
 
         filepath = os.path.join(test_dir, 'vasprun.xml.unconverged')
         vasprun_unconverged = Vasprun(filepath)
+        self.assertTrue(vasprun_unconverged.converged_ionic)
+        self.assertFalse(vasprun_unconverged.converged_electronic)
         self.assertFalse(vasprun_unconverged.converged)
 
         filepath = os.path.join(test_dir, 'vasprun.xml.dfpt')
@@ -135,18 +140,20 @@ class VasprunTest(unittest.TestCase):
 
         filepath = os.path.join(test_dir, 'vasprun.xml.dfpt.unconverged')
         vasprun_dfpt_unconv = Vasprun(filepath)
+        self.assertFalse(vasprun_dfpt_unconv.converged_electronic)
+        self.assertTrue(vasprun_dfpt_unconv.converged_ionic)
         self.assertFalse(vasprun_dfpt_unconv.converged)
 
         vasprun_uniform = Vasprun(os.path.join(test_dir, "vasprun.xml.uniform"))
         self.assertEqual(vasprun_uniform.kpoints.style, "Reciprocal")
 
-    def test_to_dict(self):
+    def test_as_dict(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath)
-        #Test that to_dict is json-serializable
-        self.assertIsNotNone(json.dumps(vasprun.to_dict))
+        #Test that as_dict() is json-serializable
+        self.assertIsNotNone(json.dumps(vasprun.as_dict()))
         self.assertEqual(
-            vasprun.to_dict["input"]["potcar_type"],
+            vasprun.as_dict()["input"]["potcar_type"],
             ['PAW_PBE', 'PAW_PBE', 'PAW_PBE', 'PAW_PBE', 'PAW_PBE'])
 
     def test_get_band_structure(self):
@@ -201,12 +208,14 @@ class OutcarTest(unittest.TestCase):
                                             'Elapsed time (sec)': 546.709,
                                             'Maximum memory used (kb)': 0.0,
                                             'Average memory used (kb)': 0.0,
-                                            'User time (sec)': 544.204})
+                                            'User time (sec)': 544.204,
+                                            'cores': '8'})
+
         self.assertAlmostEqual(outcar.efermi, 2.0112)
         self.assertAlmostEqual(outcar.nelect, 44.9999991)
         self.assertAlmostEqual(outcar.total_mag, 0.9999998)
 
-        self.assertIsNotNone(outcar.to_dict)
+        self.assertIsNotNone(outcar.as_dict())
         filepath = os.path.join(test_dir, 'OUTCAR.stopped')
         outcar = Outcar(filepath)
         self.assertTrue(outcar.is_stopped)

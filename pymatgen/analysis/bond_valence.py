@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module implements classes to perform bond valence analyses.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -17,11 +20,16 @@ import operator
 import os
 from math import exp, sqrt
 
+from six.moves import filter
+from six.moves import zip
+
 from monty.serialization import loadfn
+
+import six
 
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.structure import Structure
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.periodic_table import get_el_sp
 
 
@@ -29,11 +37,10 @@ from pymatgen.core.periodic_table import get_el_sp
 
 #List of electronegative elements specified in M. O'Keefe, & N. Brese,
 #JACS, 1991, 113(9), 3226-3229. doi:10.1021/ja00009a002.
-ELECTRONEG = map(Element, ["H",
-                           "B", "C", "Si",
-                           "N", "P", "As", "Sb",
-                           "O", "S", "Se", "Te",
-                           "F", "Cl", "Br", "I"])
+ELECTRONEG = [Element(sym) for sym in ["H", "B", "C", "Si",
+                                       "N", "P", "As", "Sb",
+                                       "O", "S", "Se", "Te",
+                                       "F", "Cl", "Br", "I"]]
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -107,10 +114,10 @@ def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
     # \sum_{nn} \sum_j^N \sum_k^{N_{nn}} f_{site}_j f_{nn_i}_k vij_full
     # where vij_full is the valence bond of the fully occupied bond
     bvsum = 0
-    for specie1, occu1 in site.species_and_occu.iteritems():
+    for specie1, occu1 in six.iteritems(site.species_and_occu):
         el1 = Element(specie1.symbol)
         for (nn, dist) in nn_list:
-            for specie2, occu2 in nn.species_and_occu.iteritems():
+            for specie2, occu2 in six.iteritems(nn.species_and_occu):
                 el2 = Element(specie2.symbol)
                 if (el1 in ELECTRONEG or el2 in ELECTRONEG) and el1 != el2:
                     r1 = BV_PARAMS[el1]["r"]
@@ -211,7 +218,7 @@ class BVAnalyzer(object):
         bv_sum = calculate_bv_sum_unordered(
             site, nn, scale_factor=self.dist_scale_factor)
         prob = {}
-        for specie, occu in site.species_and_occu.iteritems():
+        for specie, occu in six.iteritems(site.species_and_occu):
             el = specie.symbol
 
             prob[el] = {}
@@ -226,7 +233,8 @@ class BVAnalyzer(object):
                         / sigma * PRIOR_PROB[sp]
             #Normalize the probabilities
             try:
-                prob[el] = {k: v / sum(prob[el].values()) for k, v in prob[el].items()}
+                prob[el] = {k: v / sum(prob[el].values())
+                            for k, v in prob[el].items()}
             except ZeroDivisionError:
                 prob[el] = {k: 0.0 for k in prob[el]}
         return prob
@@ -258,7 +266,7 @@ class BVAnalyzer(object):
 
         #Perform symmetry determination and get sites grouped by symmetry.
         if self.symm_tol:
-            finder = SymmetryFinder(structure, self.symm_tol)
+            finder = SpacegroupAnalyzer(structure, self.symm_tol)
             symm_structure = finder.get_symmetrized_structure()
             equi_sites = symm_structure.equivalent_sites
         else:
@@ -283,8 +291,9 @@ class BVAnalyzer(object):
                 #Sort valences in order of decreasing probability.
                 val = sorted(val, key=lambda v: -prob[v])
                 #Retain probabilities that are at least 1/100 of highest prob.
-                valences.append(filter(lambda v: prob[v] > 0.01 * prob[val[0]],
-                                       val))
+                valences.append(
+                    list(filter(lambda v: prob[v] > 0.01 * prob[val[0]],
+                                val)))
         else:
             full_all_prob = []
             for sites in equi_sites:
@@ -302,16 +311,16 @@ class BVAnalyzer(object):
                     # Retain probabilities that are at least 1/100 of highest
                     # prob.
                     vals.append(
-                        filter(lambda v: prob[elsp.symbol][v] >
-                               0.001 * prob[elsp.symbol][val[0]],
-                               val))
+                        list(filter(
+                            lambda v: prob[elsp.symbol][v] > 0.001 * prob[
+                                elsp.symbol][val[0]], val)))
                 valences.append(vals)
 
         #make variables needed for recursion
         if structure.is_ordered:
-            nsites = np.array(map(len, equi_sites))
-            vmin = np.array(map(min, valences))
-            vmax = np.array(map(max, valences))
+            nsites = np.array([len(i) for i in equi_sites])
+            vmin = np.array([min(i) for i in valences])
+            vmax = np.array([max(i) for i in valences])
 
             self._n = 0
             self._best_score = 0
@@ -324,8 +333,8 @@ class BVAnalyzer(object):
                 max_diff = max([max(v) - min(v) for v in el_oxi.values()])
                 if max_diff > 1:
                     return
-                score = reduce(operator.mul, [all_prob[i][v]
-                                              for i, v in enumerate(v_set)])
+                score = six.moves.reduce(
+                    operator.mul, [all_prob[i][v] for i, v in enumerate(v_set)])
                 if score > self._best_score:
                     self._best_vset = v_set
                     self._best_score = score
@@ -360,7 +369,7 @@ class BVAnalyzer(object):
                         new_assigned = list(assigned)
                         _recurse(new_assigned + [v])
         else:
-            nsites = np.array(map(len, equi_sites))
+            nsites = np.array([len(i) for i in equi_sites])
             tmp = []
             attrib = []
             for insite, nsite in enumerate(nsites):
@@ -379,8 +388,8 @@ class BVAnalyzer(object):
             for vals in valences:
                 for val in vals:
                     new_valences.append(val)
-            vmin = np.array(map(min, new_valences), np.float)
-            vmax = np.array(map(max, new_valences), np.float)
+            vmin = np.array([min(i) for i in new_valences], np.float)
+            vmax = np.array([max(i) for i in new_valences], np.float)
 
             self._n = 0
             self._best_score = 0
@@ -398,9 +407,10 @@ class BVAnalyzer(object):
                 if max_diff > 2:
                     return
 
-                score = reduce(operator.mul,
-                                [all_prob[attrib[iv]][elements[iv]][vv]
-                                 for iv, vv in enumerate(v_set)])
+                score = six.moves.reduce(
+                    operator.mul,
+                    [all_prob[attrib[iv]][elements[iv]][vv]
+                     for iv, vv in enumerate(v_set)])
                 if score > self._best_score:
                     self._best_vset = v_set
                     self._best_score = score

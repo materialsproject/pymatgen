@@ -1,4 +1,6 @@
-#!/usr/bin/python
+# coding: utf-8
+
+from __future__ import unicode_literals
 
 import unittest
 import os
@@ -21,16 +23,16 @@ class KpointTest(unittest.TestCase):
         self.kpoint = Kpoint([0.1, 0.4, -0.5], self.lattice, label="X")
 
     def test_properties(self):
-        self.assertEquals(self.kpoint.frac_coords[0], 0.1)
-        self.assertEquals(self.kpoint.frac_coords[1], 0.4)
-        self.assertEquals(self.kpoint.frac_coords[2], -0.5)
-        self.assertEquals(self.kpoint.a, 0.1)
-        self.assertEquals(self.kpoint.b, 0.4)
-        self.assertEquals(self.kpoint.c, -0.5)
-        self.assertEquals(self.lattice, Lattice.cubic(10.0))
-        self.assertEquals(self.kpoint.cart_coords[0], 1.0)
-        self.assertEquals(self.kpoint.cart_coords[1], 4.0)
-        self.assertEquals(self.kpoint.cart_coords[2], -5.0)
+        self.assertEqual(self.kpoint.frac_coords[0], 0.1)
+        self.assertEqual(self.kpoint.frac_coords[1], 0.4)
+        self.assertEqual(self.kpoint.frac_coords[2], -0.5)
+        self.assertEqual(self.kpoint.a, 0.1)
+        self.assertEqual(self.kpoint.b, 0.4)
+        self.assertEqual(self.kpoint.c, -0.5)
+        self.assertEqual(self.lattice, Lattice.cubic(10.0))
+        self.assertEqual(self.kpoint.cart_coords[0], 1.0)
+        self.assertEqual(self.kpoint.cart_coords[1], 4.0)
+        self.assertEqual(self.kpoint.cart_coords[2], -5.0)
         self.assertEqual(self.kpoint.label, "X")
 
 
@@ -53,9 +55,9 @@ class BandStructureSymmLine_test(unittest.TestCase):
             d = json.load(f)
             #print d.keys()
             self.bs = BandStructureSymmLine.from_dict(d)
-            #print self.bs.to_dict.keys()
-            #this doesn't really test to_dict -> from_dict very well
-            #self.assertEqual(self.bs.to_dict.keys(), d.keys())
+            #print self.bs.as_dict().keys()
+            #this doesn't really test as_dict() -> from_dict very well
+            #self.assertEqual(self.bs.as_dict().keys(), d.keys())
             self.one_kpoint = self.bs.kpoints[31]
             self.assertEqual(self.bs._nb_bands, 16)
             self.assertAlmostEqual(self.bs._bands[Spin.up][5][10], 0.5608)
@@ -68,8 +70,8 @@ class BandStructureSymmLine_test(unittest.TestCase):
                   "r", encoding='utf-8') as f:
             d = json.load(f)
             self.bs_spin = BandStructureSymmLine.from_dict(d)
-            #this doesn't really test to_dict -> from_dict very well
-            #self.assertEqual(self.bs_spin.to_dict.keys(), d.keys())
+            #this doesn't really test as_dict() -> from_dict very well
+            #self.assertEqual(self.bs_spin.as_dict().keys(), d.keys())
             self.assertEqual(self.bs_spin._nb_bands, 27)
             self.assertAlmostEqual(self.bs_spin._bands[Spin.up][5][10], 0.262)
             self.assertAlmostEqual(self.bs_spin._bands[Spin.down][5][10],

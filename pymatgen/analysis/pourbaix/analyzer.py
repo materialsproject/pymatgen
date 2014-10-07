@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import unicode_literals
+
 """
 Class for analyzing Pourbaix Diagrams. Similar to PDAnalyzer
 """
@@ -16,6 +20,7 @@ from pyhull.simplex import Simplex
 from functools import cmp_to_key
 from pyhull.halfspace import Halfspace, HalfspaceIntersection
 from pyhull.convex_hull import ConvexHull
+from six.moves import zip
 
 
 class PourbaixAnalyzer(object):
@@ -114,14 +119,14 @@ class PourbaixAnalyzer(object):
         point_in_region = [7, 0, g_max]
 
         # Append border hyperplanes along limits
-        for i in xrange(len(limits)):
-            for j in xrange(len(limits[i])):
+        for i in range(len(limits)):
+            for j in range(len(limits[i])):
                 basis_vec_1 = [0.0] * 3
                 basis_vec_2 = [0.0] * 3
                 point = [0.0] * 3
                 basis_vec_1[2] = 1.0
                 basis_vec_2[2] = 0.0
-                for axis in xrange(len(limits)):
+                for axis in range(len(limits)):
                     if axis is not i:
                         basis_vec_1[axis] = 0.0
                         basis_vec_2[axis] = 1.0
@@ -133,13 +138,13 @@ class PourbaixAnalyzer(object):
         basis_vecs.append([[1, 0, 0], [0, 1, 0]])
         on_plane_points.append([0, 0, 2 * g_max])
         hyperplane_list = [Halfspace.from_hyperplane(basis_vecs[i], on_plane_points[i], point_in_region)
-                            for i in xrange(len(basis_vecs))]
+                            for i in range(len(basis_vecs))]
         hs_int = HalfspaceIntersection(hyperplane_list, point_in_region)
         int_points = hs_int.vertices
         pourbaix_domains = {}
         self.pourbaix_domain_vertices = {}
 
-        for i in xrange(len(self._pd.stable_entries)):
+        for i in range(len(self._pd.stable_entries)):
             vertices = [[int_points[vert][0], int_points[vert][1]] for vert in
                          hs_int.facets_by_halfspace[i]]
             if len(vertices) < 1:
@@ -169,7 +174,7 @@ class PourbaixAnalyzer(object):
         dim = len(self._keys)
         if dim > 1:
             coords = [np.array(self._pd.qhull_data[facet[i]][0:dim - 1])
-                      for i in xrange(len(facet))]
+                      for i in range(len(facet))]
             simplex = Simplex(coords)
             comp_point = [entry.npH, entry.nPhi]
             return simplex.in_simplex(comp_point,
@@ -231,7 +236,7 @@ class PourbaixAnalyzer(object):
         decompamts = np.dot(np.linalg.inv(m.transpose()), compm.transpose())
         decomp = dict()
         #Scrub away zero amounts
-        for i in xrange(len(decompamts)):
+        for i in range(len(decompamts)):
             if abs(decompamts[i][0]) > PourbaixAnalyzer.numerical_tol:
                 decomp[self._pd.qhull_entries[facet[i]]] = decompamts[i][0]
         return decomp

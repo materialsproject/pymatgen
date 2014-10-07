@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module implements input and output processing from Gaussian.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -106,9 +109,9 @@ class GaussianInput(object):
                 species.append(m.group(1))
                 toks = re.split("[,\s]+", l.strip())
                 if len(toks) > 4:
-                    coords.append(map(float, toks[2:5]))
+                    coords.append([float(i) for i in toks[2:5]])
                 else:
-                    coords.append(map(float, toks[1:4]))
+                    coords.append([float(i) for i in toks[1:4]])
             elif GaussianInput.zmat_patt.match(l):
                 zmode = True
                 toks = re.split("[,\s]+", l.strip())
@@ -187,7 +190,7 @@ class GaussianInput(object):
                 sp = re.sub("\d", "", sp_str)
                 return sp.capitalize()
 
-        species = map(parse_species, species)
+        species = [parse_species(sp) for sp in species]
 
         return Molecule(species, coords)
 
@@ -203,6 +206,15 @@ class GaussianInput(object):
             GaussianInput object
         """
         lines = [l.strip() for l in contents.split("\n")]
+
+        link0_patt = re.compile("^(%.+)\s*=\s*(.+)")
+        link0_dict = {}
+        for i, l in enumerate(lines):
+            if link0_patt.match(l):
+                m = link0_patt.match(l)
+                link0_dict[m.group(1)] = m.group(2)
+
+        scrf_patt = re.compile("^([sS][cC][rR][fF])\s*=\s*(.+)")
         route_patt = re.compile("^#[sSpPnN]*.*")
         route = None
         for i, l in enumerate(lines):
@@ -219,6 +231,9 @@ class GaussianInput(object):
                     d = tok.split("/")
                     functional = d[0]
                     basis_set = d[1]
+                elif scrf_patt.match(tok):
+                    m = scrf_patt.match(tok)
+                    route_paras[m.group(1)] = m.group(2)
                 else:
                     d = tok.split("=")
                     v = None if len(d) == 1 else d[1]
@@ -237,13 +252,13 @@ class GaussianInput(object):
         spaces = 0
         input_paras = {}
         ind += 1
-        for i in xrange(route_index + ind, len(lines)):
+        for i in range(route_index + ind, len(lines)):
             if lines[i].strip() == "":
                 spaces += 1
             if spaces >= 2:
                 d = lines[i].split("=")
                 if len(d) == 2:
-                    input_paras[d[0]] = float(d[1])
+                    input_paras[d[0]] = d[1]
             else:
                 coord_lines.append(lines[i].strip())
         mol = GaussianInput.parse_coords(coord_lines)
@@ -252,7 +267,7 @@ class GaussianInput(object):
         return GaussianInput(mol, charge=charge, spin_multiplicity=spin_mult,
                              title=title, functional=functional,
                              basis_set=basis_set, route_parameters=route_paras,
-                             input_parameters=input_paras)
+                             input_parameters=input_paras,link0_parameters=link0_dict)
 
     @staticmethod
     def from_file(filename):
@@ -273,7 +288,7 @@ class GaussianInput(object):
         Returns index of nearest neighbor atoms.
         """
         alldist = [(self._mol.get_distance(siteindex, i), i)
-                   for i in xrange(siteindex)]
+                   for i in range(siteindex)]
         alldist = sorted(alldist, key=lambda x: x[0])
         return [d[1] for d in alldist]
 
@@ -314,10 +329,30 @@ class GaussianInput(object):
                 outputvar.append("D{}={:.6f}".format(i, dih))
         return "\n".join(output) + "\n\n" + "\n".join(outputvar)
 
+    def get_cart_coords(self):
+        """
+        Return the cartesian coordinates of the molecule
+        """
+        outs = []
+        to_s = lambda x: "%0.6f" % x
+        for i, site in enumerate(self._mol):
+            outs.append(" ".join([site.species_string, " ".join([to_s(j) for j in site.coords])]))
+        return  "\n".join(outs)
+
     def __str__(self):
+        return self.to_string()
+
+
+    def to_string(self, cart_coords=False):
+        """
+        Return GaussianInput string
+
+        Option: whe cart_coords sets to True return the cartesian coordinates instead of the z-matrix
+
+        """
         def para_dict_to_string(para, joiner=" "):
             para_str = ["{}={}".format(k, v) if v else k
-                        for k, v in para.items()]
+                        for k, v in sorted(para.items())]
             return joiner.join(para_str)
 
         output = []
@@ -332,17 +367,51 @@ class GaussianInput(object):
         output.append("")
         output.append("{} {}".format(self.charge, self.spin_multiplicity))
         if isinstance(self._mol, Molecule):
-            output.append(self.get_zmatrix())
+            if cart_coords is True:
+                output.append(self.get_cart_coords())
+            else:
+                output.append(self.get_zmatrix())
         else:
             output.append(str(self._mol))
         output.append("")
         output.append(para_dict_to_string(self.input_parameters, "\n"))
-        output.append("")
+        output.append("\n")
         return "\n".join(output)
 
-    def write_file(self, filename):
+    def write_file(self, filename,cart_coords=False):
+        """
+        Write the input string into a file
+
+        Option: see __str__ method
+        """
         with zopen(filename, "w") as f:
-            f.write(self.__str__())
+            f.write(self.to_string(cart_coords))
+
+    def as_dict(self):
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "molecule": self.molecule.to_dict,
+                "functional": self.functional,
+                "basis_set": self.basis_set,
+                "route_parameters": self.route_parameters,
+                "title": self.title,
+                "charge": self.charge,
+                "spin_multiplicity": self.spin_multiplicity,
+                "input_parameters": self.input_parameters,
+                "link0_parameters": self.link0_parameters}
+
+    @classmethod
+    def from_dict(cls, d):
+        return GaussianInput(mol=Molecule.from_dict(d["molecule"]),
+                             functional=d["functional"],
+                             basis_set=d["basis_set"],
+                             route_parameters=d["route_parameters"],
+                             title=d["title"],
+                             charge=d["charge"],
+                             spin_multiplicity=d["spin_multiplicity"],
+                             input_parameters=d["input_parameters"],
+                             link0_parameters=d["link0_parameters"])
+
 
 
 class GaussianOutput(object):
@@ -407,6 +476,15 @@ class GaussianOutput(object):
     .. attribute:: pcm
 
         PCM parameters and output if available.
+
+    .. attribute:: errors
+
+        error if not properly terminated (list to be completed in error_defs)
+
+    .. attribute:: Mulliken_charges
+
+        Mulliken atomic charges
+
     """
 
     def __init__(self, filename):
@@ -432,7 +510,11 @@ class GaussianOutput(object):
         scf_patt = re.compile("E\(.*\)\s*=\s*([-\.\d]+)\s+")
         mp2_patt = re.compile("EUMP2\s*=\s*(.*)")
         oniom_patt = re.compile("ONIOM:\s+extrapolated energy\s*=\s*(.*)")
-        termination_patt = re.compile("(Normal|Error) termination of Gaussian")
+        termination_patt = re.compile("(Normal|Error) termination")
+        error_patt = re.compile("(! Non-Optimized Parameters !|Convergence failure)")
+        mulliken_patt = re.compile("^\s*Mulliken atomic charges")
+        mulliken_charge_patt = re.compile('^\s+(\d+)\s+([A-Z][a-z]?)\s*(\S*)')
+        end_mulliken_patt = re.compile('(Sum of Mulliken )(.*)(charges)\s*=\s*(\D)')
         std_orientation_patt = re.compile("Standard orientation")
         end_patt = re.compile("--+")
         orbital_patt = re.compile("Alpha\s*\S+\s*eigenvalues --(.*)")
@@ -446,9 +528,12 @@ class GaussianOutput(object):
         self.corrections = {}
         self.energies = []
         self.pcm = None
+        self.errors = []
+        self.Mulliken_charges = {}
 
         coord_txt = []
         read_coord = 0
+        read_mulliken = 0
         orbitals_txt = []
         parse_stage = 0
         num_basis_found = False
@@ -489,6 +574,20 @@ class GaussianOutput(object):
                             key = m.group(2).strip(" to ")
                             self.corrections[key] = float(m.group(3))
 
+                    if read_mulliken:
+                        if not end_mulliken_patt.search(line):
+                            mulliken_txt.append(line)
+                        else:
+                            m = end_mulliken_patt.search(line)
+                            mulliken_charges = {}
+                            for line in mulliken_txt:
+                                if mulliken_charge_patt.search(line):
+                                    m = mulliken_charge_patt.search(line)
+                                    dict = {int(m.group(1)): [m.group(2), float(m.group(3))]}
+                                    mulliken_charges.update(dict)
+                            read_mulliken = 0
+                            self.Mulliken_charges = mulliken_charges
+
                     if read_coord:
                         if not end_patt.search(line):
                             coord_txt.append(line)
@@ -500,13 +599,19 @@ class GaussianOutput(object):
                                 for l in coord_txt[2:]:
                                     toks = l.split()
                                     sp.append(Element.from_Z(int(toks[1])))
-                                    coords.append(map(float, toks[3:6]))
+                                    coords.append([float(i) for i in toks[3:6]])
                                 self.structures.append(Molecule(sp, coords))
                     elif termination_patt.search(line):
                         m = termination_patt.search(line)
                         if m.group(1) == "Normal":
                             self.properly_terminated = True
                         terminated = True
+                    elif error_patt.search(line):
+                        error_defs = {"! Non-Optimized Parameters !": "Optimization error",
+                                        "Convergence failure": "SCF convergence error"
+                                            }
+                        m = error_patt.search(line)
+                        self.errors.append(error_defs[m.group(1)])
                     elif (not num_basis_found) and \
                             num_basis_func_patt.search(line):
                         m = num_basis_func_patt.search(line)
@@ -533,6 +638,9 @@ class GaussianOutput(object):
                         read_coord = 1
                     elif orbital_patt.search(line):
                         orbitals_txt.append(line)
+                    elif mulliken_patt.search(line):
+                        mulliken_txt = []
+                        read_mulliken = 1
         if not terminated:
             raise IOError("Bad Gaussian output file.")
 
@@ -542,7 +650,7 @@ class GaussianOutput(object):
         total_patt = re.compile("with all non electrostatic terms\s+\S+\s+"
                                 "=\s+(\S*)")
         parameter_patt = re.compile("(Eps|Numeral density|RSolv|Eps"
-                                    "\(inf[inity]*\))\s*=\s*(\S*)")
+                                    "\(inf[inity]*\))\s+=\s*(\S*)")
 
         if energy_patt.search(line):
             m = energy_patt.search(line)
@@ -554,8 +662,7 @@ class GaussianOutput(object):
             m = parameter_patt.search(line)
             self.pcm[m.group(1)] = float(m.group(2))
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Json-serializable dict representation.
         """
@@ -563,10 +670,12 @@ class GaussianOutput(object):
         d = {"has_gaussian_completed": self.properly_terminated,
              "nsites": len(structure)}
         comp = structure.composition
-        d["unit_cell_formula"] = comp.to_dict
-        d["reduced_cell_formula"] = Composition(comp.reduced_formula).to_dict
+        d["unit_cell_formula"] = comp.as_dict()
+        d["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
         d["pretty_formula"] = comp.reduced_formula
         d["is_pcm"] = self.is_pcm
+        d["errors"] = self.errors
+        d["Mulliken_charges"] = self.Mulliken_charges
 
         unique_symbols = sorted(list(d["unit_cell_formula"].keys()))
         d["elements"] = unique_symbols
@@ -587,11 +696,13 @@ class GaussianOutput(object):
             "energies": self.energies,
             "final_energy": self.final_energy,
             "final_energy_per_atom": self.final_energy / nsites,
-            "molecule": structure.to_dict,
+            "molecule": structure.as_dict(),
             "stationary_type": self.stationary_type,
             "corrections": self.corrections
         }
 
         d['output'] = vout
+        d["@module"] = self.__class__.__module__
+        d["@class"] =  self.__class__.__name__
 
         return d

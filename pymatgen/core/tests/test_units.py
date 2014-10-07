@@ -1,5 +1,6 @@
-#!/usr/bin/python
-from __future__ import division
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 import collections
 
@@ -90,18 +91,18 @@ class FloatWithUnitTest(PymatgenTest):
         g = 10 * Length(1, "m") / (Time(1, "s") ** 2)
         e = Mass(1, "kg") * g * Length(1, "m")
         self.assertEqual(str(e), "10.0 N m")
-        form_e = FloatWithUnit(10, unit=u"kJ mol^-1").to(u"eV atom^-1")
+        form_e = FloatWithUnit(10, unit="kJ mol^-1").to("eV atom^-1")
         self.assertAlmostEqual(float(form_e), 0.103642691905)
-        self.assertEqual(str(form_e.unit), u"eV atom^-1")
-        self.assertRaises(UnitError, form_e.to, u"m s^-1")
-        a = FloatWithUnit(1.0, u"Ha^3")
-        b = a.to(u"J^3")
+        self.assertEqual(str(form_e.unit), "eV atom^-1")
+        self.assertRaises(UnitError, form_e.to, "m s^-1")
+        a = FloatWithUnit(1.0, "Ha^3")
+        b = a.to("J^3")
         self.assertAlmostEqual(b, 8.28672661615e-53)
         self.assertEqual(str(b.unit), "J^3")
-        a = FloatWithUnit(1.0, u"Ha bohr^-2")
-        b = a.to(u"J m^-2")
+        a = FloatWithUnit(1.0, "Ha bohr^-2")
+        b = a.to("J m^-2")
         self.assertAlmostEqual(b, 1556.89291457)
-        self.assertEqual(str(b.unit), u"J m^-2")
+        self.assertEqual(str(b.unit), "J m^-2")
 
 
 class ArrayWithFloatWithUnitTest(PymatgenTest):

@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Created on Jul 17, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -39,15 +42,15 @@ class SiteTest(PymatgenTest):
         self.assertEqual(self.propertied_site.charge, 4.2)
 
     def test_to_from_dict(self):
-        d = self.disordered_site.to_dict
+        d = self.disordered_site.as_dict()
         site = Site.from_dict(d)
         self.assertEqual(site, self.disordered_site)
         self.assertNotEqual(site, self.ordered_site)
-        d = self.propertied_site.to_dict
+        d = self.propertied_site.as_dict()
         site = Site.from_dict(d)
         self.assertEqual(site.magmom, 5.1)
         self.assertEqual(site.charge, 4.2)
-        d = self.dummy_site.to_dict
+        d = self.dummy_site.as_dict()
         site = Site.from_dict(d)
         self.assertEqual(site.species_and_occu, self.dummy_site.species_and_occu)
 
@@ -167,21 +170,21 @@ class PeriodicSiteTest(PymatgenTest):
         self.assertFalse(self.site.__ne__(self.site))
         self.assertTrue(other_site.__ne__(self.site))
 
-    def test_to_from_dict(self):
-        d = self.site2.to_dict
+    def test_as_from_dict(self):
+        d = self.site2.as_dict()
         site = PeriodicSite.from_dict(d)
         self.assertEqual(site, self.site2)
         self.assertNotEqual(site, self.site)
-        d = self.propertied_site.to_dict
+        d = self.propertied_site.as_dict()
         site = Site.from_dict(d)
         self.assertEqual(site.magmom, 5.1)
         self.assertEqual(site.charge, 4.2)
         site3 = PeriodicSite({"Si": 0.5, "Fe": 0.5}, [0, 0, 0], self.lattice)
-        d = site3.to_dict
+        d = site3.as_dict()
         site = PeriodicSite.from_dict(d)
         self.assertEqual(site.species_and_occu, site3.species_and_occu)
 
-        d = self.dummy_site.to_dict
+        d = self.dummy_site.as_dict()
         site = PeriodicSite.from_dict(d)
         self.assertEqual(site.species_and_occu, self.dummy_site.species_and_occu)
 
