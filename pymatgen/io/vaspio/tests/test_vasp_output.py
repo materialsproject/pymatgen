@@ -147,6 +147,11 @@ class VasprunTest(unittest.TestCase):
         vasprun_uniform = Vasprun(os.path.join(test_dir, "vasprun.xml.uniform"))
         self.assertEqual(vasprun_uniform.kpoints.style, "Reciprocal")
 
+
+        vasprun_no_pdos = Vasprun(os.path.join(test_dir, "Li_no_projected.xml"))
+        self.assertIsNotNone(vasprun_no_pdos.complete_dos)
+        self.assertFalse(vasprun_no_pdos.dos_has_errors)
+
     def test_as_dict(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath)

@@ -337,7 +337,8 @@ class Vasprun(PMGSONable):
                     self.tdos, self.idos, self.pdos = self._parse_dos(elem)
                     self.efermi = self.tdos.efermi
                     self.dos_has_errors = False
-                except Exception:
+                except Exception as ex:
+                    print(ex)
                     self.dos_has_errors = True
             elif parse_eigen and tag == "eigenvalues":
                 self.eigenvalues = self._parse_eigen(elem)
@@ -846,16 +847,18 @@ class Vasprun(PMGSONable):
             idensities[spin] = data[:, 2]
 
         pdoss = []
-        for s in elem.find("partial").find("array").find("set").findall("set"):
-            pdos = defaultdict(dict)
-            for ss in s.findall("set"):
-                spin = Spin.up if ss.attrib["comment"] == "spin 1" else \
-                    Spin.down
-                data = np.array(_parse_varray(ss))
-                nrow, ncol = data.shape
-                for j in range(1, ncol):
-                    pdos[Orbital.from_vasp_index(j - 1)][spin] = data[:, j]
-            pdoss.append(pdos)
+        partial = elem.find("partial")
+        if partial is not None:
+            for s in partial.find("array").find("set").findall("set"):
+                pdos = defaultdict(dict)
+                for ss in s.findall("set"):
+                    spin = Spin.up if ss.attrib["comment"] == "spin 1" else \
+                        Spin.down
+                    data = np.array(_parse_varray(ss))
+                    nrow, ncol = data.shape
+                    for j in range(1, ncol):
+                        pdos[Orbital.from_vasp_index(j - 1)][spin] = data[:, j]
+                pdoss.append(pdos)
         elem.clear()
         return Dos(efermi, energies, tdensities), \
                Dos(efermi, energies, idensities), pdoss
