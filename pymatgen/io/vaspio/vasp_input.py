@@ -975,7 +975,21 @@ class Kpoints(PMGSONable):
             Kpoints object
         """
         with zopen(filename, "rt") as f:
-            lines = [line.strip() for line in f.readlines()]
+            return Kpoints.from_string(f.read())
+
+    @staticmethod
+    def from_string(string):
+        """
+        Reads a Kpoints object from a KPOINTS string.
+
+        Args:
+            string (str): KPOINTS string.
+
+        Returns:
+            Kpoints object
+        """
+        lines = [line.strip() for line in string.splitlines()]
+
         comment = lines[0]
         num_kpts = int(lines[1].split()[0].strip())
         style = lines[2].lower()[0]
