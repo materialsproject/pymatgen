@@ -403,11 +403,12 @@ def print_plot_line(function, popt, xs, ys, name, tol=0.05, extra=''):
         print(function, ' no plot ')
 
     with open('plot-fits', mode='a') as f:
-        f.write('pause -1 \n')
         f.write('set title "' + name + ' - ' + extra + '"\n')
         f.write("set output '" + name + '-' + idp + ".gif'" + '\n')
         f.write("set yrange [" + str(popt[0] - 5 * tol) + ':' + str(popt[0] + 5 * tol)+']\n')
         f.write(line + '\n')
+        f.write('pause -1 \n')
+
 
 
 def determine_convergence(xs, ys, name, tol=0.0001, extra='', verbose=False, mode='extra'):
