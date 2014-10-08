@@ -1,27 +1,3 @@
-# How should this be organized...?
-# Organization
-# Info, authorship etc...
-# Packages to import
-# lcm() function
-# organize() function
-
-# Slab class (dummy class) return Slab (Structure)
-    # surface_area() return np.linalg.norm(np.cross(m[0], m[1])) (float)
-    # adsorb_atom() return structure_ad (Structure)
-    # make_interface() return interface_system (Structure)
-
-# surface_list_generator() function takes in a list of shifts to generate surfaces.
-# Calls on Slab class to help make slabs then takes the slab that was spit out and
-# further refines it with stuff like standardization, lll_reduction, etc...
-
-# Surface_Generator class, initial parameters of a surface to be made
-# 3 class methods
-    # check_bounds() creates a list of shifts depending on stable surfaces, uses surface_list_generator() to make a list of surfaces
-    # manual() creates a list of shifts manually selected by the user, uses surface_list_generator() to make a list of surfaces
-    # distance() user specifies a criteria from fclusterdata to generate all surfaces
-# return list_of_slabs (list of Slabs), list_of_terminations (a list of a list of sites on the surface of a slab)
-
-
 # !/usr/bin/env python
 
 """
@@ -58,7 +34,7 @@ def lcm(numbers):
     return reduce(lcm, numbers, 1)
 
 def organize(struct):
-    """Takes in a structure (ie. a list of sites) and organizes the list
+    """Takes in a list of sites (ie. a structure object) and organizes the list
     based on the c coordinate from sites closest to c=0 to farthest. Then
     it returns this organized structure (list of sites) along with a list
     of organized coordinates along the c direction and an organized list
@@ -79,16 +55,70 @@ def organize(struct):
 
 
 class Slab(Structure):
+    """
+    Subclass of Structure representing a Slab. Implements additional
+    attributes pertaining to slabs, but the init method does not
+    actually implement any algorithm that creates a slab. This is a
+    DUMMY class that's only purpose is to hold information about a slab.
+
+    .. attribute:: parent
+
+        Parent structure from which Slab was derived.
+
+    .. attribute:: min_slab_size
+
+        Minimum size in angstroms of layers containing atoms
+
+    .. attribute:: min_vac_size
+
+        Minimize size in angstroms of layers containing vacuum
+
+    .. attribute:: miller_index
+
+        Miller index of plane parallel to surface.
+
+    .. attribute:: scale_factor
+
+        Final computed scale factor that brings the parent cell to the
+        surface cell.
+
+    .. attribute:: normal
+
+        Surface normal vector.
+    """
 
 
-    def __init__(self, lattice, species, normal, slab_scale_factor, new_sites, structure, miller_index):
+
+    def __init__(self, normal, slab_scale_factor, structure, miller_index,
+                 initial_structure, min_slab_size, min_vac_size):
+        """
+        Makes a Slab structure, a structure object
+        with additional information pertaining to slabs.
+
+        Args:
+            normal (array): Surface normal vector.
+            slab_scale_factor (array): scale_factor Final computed scale factor
+                that brings the parent cell to thesurface cell.
+            structure (Structure): From the initial structure, this structure
+                has been refined into a slab
+            miller_index ([h, k, l]): Miller index of plane parallel to
+                surface. Note that this is referenced to the input structure. If
+                you need this to be based on the conventional cell,
+                you should supply the conventional structure.
+            initial_structure (Structure): Initial input structure.
+            min_slab_size (float): In Angstroms
+            min_vac_size (float): In Angstroms
+
+        """
 
         slab = structure.copy()
 
-        self.parent = structure
+        self.parent = initial_structure
+        self.min_slab_size = min_slab_size
+        self.min_vac_size = min_vac_size
         self.miller_index = miller_index
-        self.normal = normal
         self.scale_factor = np.array(slab_scale_factor)
+        self.normal = normal
 
 
         super(Slab, self).__init__(
@@ -230,19 +260,46 @@ class Slab(Structure):
 
         return interface_system
 
-def surface_list_generator(shift_list, normal, slab_scale, length, miller_index, structure, lll_reduce, standardize):
+    def organize_along_c(self):
+        # Organizes a slab's sites along the c direction
+        return organize(self)[0]
 
-    # This function creates different slabs using the
-    # slab class depending on how many different shift
-    # values in shift_list there are and stores the
-    # slabs inside a list which is the output.
+def surface_list_generator(shift_list, normal, slab_scale, length, miller_index, initial_structure,
+                           lll_reduce, standardize, min_slab_size, min_vac_size):
+    """
 
+    This function creates different slabs using the slab class depending
+    on how many different shift values in shift_list there are and stores
+    the slabs inside a list.
+
+    Args:
+        shift_list (list of floats): List of shift values in Angstroms
+        normal (array): Surface normal vector.
+        slab_scale (array): scale_factor Final computed scale factor
+            that brings the parent cell to the surface cell.
+        length (float): length of the slab region of the structure in Angstrom
+        miller_index ([h, k, l]): Miller index of plane parallel to
+            surface. Note that this is referenced to the input structure. If
+            you need this to be based on the conventional cell,
+            you should supply the conventional structure.
+        structure (Structure): From the initial structure, this structure
+            has been refined into a slab
+        lll_reduce (bool): Whether to perform an LLL reduction on the
+            eventual structure.
+        standardize (bool): Whether to center the slab in the cell with equal
+            vacuum spacing from the top and bottom.
+        initial_structure (Structure): Initial input structure.
+        min_slab_size (float): In Angstroms
+        min_vac_size (float): In Angstroms
+        initial_structure (Structure): The initial structure used to create a slab
+
+    """
 
     slab_list = []
 
     for i in range(0, len(shift_list)):
         b = slab_scale
-        term_slab = structure.copy()
+        term_slab = initial_structure.copy()
         term_slab.make_supercell(b)
         # term_slab = organize(term_slab)[0]
 
@@ -265,8 +322,8 @@ def surface_list_generator(shift_list, normal, slab_scale, length, miller_index,
         else:
             slab_scale_factor = b
 
-        slab = Slab(term_slab.lattice, term_slab.species, normal, slab_scale_factor,
-                    term_slab.sites, term_slab, miller_index)
+        slab = Slab(normal, slab_scale_factor, term_slab, miller_index,
+                    initial_structure, min_slab_size, min_vac_size)
 
 
         min_c = []
@@ -285,12 +342,89 @@ def surface_list_generator(shift_list, normal, slab_scale, length, miller_index,
 
     return slab_list
 
-class Surface_Generator():
 
-    def __init__(self, structure, miller_index, min_slab_size,
+class SurfaceGenerator():
+
+    """
+    Generates a supercell of the initial structure with its miller
+    index of plane parallel to surface. Once the supercell is
+    generated, three methods can be used to create a list of Slab
+    objects with the supercell.
+
+    .. attribute:: super
+
+        A supercell of the parent structure with the miller
+        index of plane parallel to surface
+
+    .. attribute:: unit_cell
+
+        A unit cell of the parent structure with the miller
+        index of plane parallel to surface
+
+    .. attribute:: parent
+
+        Parent structure from which Slab was derived.
+
+    .. attribute:: lll_reduce
+
+        Whether or not the slabs will be orthogonalized
+
+    .. attribute:: standardize
+
+        Whether or not the slabs will be centered between
+        the vacuum layer
+
+    .. attribute:: scale_factor
+
+        Final computed scale factor that brings the parent cell to the
+        surface cell.
+
+    .. attribute:: normal
+
+        Surface normal vector.
+
+    .. attribute:: length
+
+        Length of the slab layer of the surface
+
+    .. attribute:: miller_index
+
+        Miller index of plane parallel to surface.
+
+    .. attribute:: min_slab_size
+
+        Minimum size in angstroms of layers containing atoms
+
+    .. attribute:: min_vac_size
+
+        Minimize size in angstroms of layers containing vacuum
+
+    """
+
+    def __init__(self, initial_structure, miller_index, min_slab_size,
                  min_vacuum_size, lll_reduce=True, standardize=True):
+        """
 
-        latt = structure.lattice
+        Generates a supercell of the initial structure with its miller
+        index of plane parallel to surface.
+
+        Args:
+            initial_structure (Structure): Initial input structure.
+            miller_index ([h, k, l]): Miller index of plane parallel to
+                surface. Note that this is referenced to the input structure. If
+                you need this to be based on the conventional cell,
+                you should supply the conventional structure.
+            min_slab_size (float): In Angstroms
+            min_vac_size (float): In Angstroms
+            lll_reduce (bool): Whether to perform an LLL reduction on the
+                eventual structure.
+            standardize (bool): Whether to center the slab in the cell with equal
+                vacuum spacing from the top and bottom.
+
+        """
+
+
+        latt = initial_structure.lattice
         d = reduce(gcd, miller_index)
         miller_index = [int(i / d) for i in miller_index]
         #Calculate the surface normal using the reciprocal lattice vector.
@@ -333,7 +467,7 @@ class Surface_Generator():
         nlayers_slab = int(math.ceil(min_slab_size / dist))
         nlayers_vac = int(math.ceil(min_vacuum_size / dist))
         nlayers = nlayers_slab + nlayers_vac
-        slab = structure.copy()
+        slab = initial_structure.copy()
         single_slab = copy.deepcopy(slab_scale_factor)
         slab_scale_factor.append(eye[latt_index] * nlayers)
         single_slab.append(eye[latt_index]*1)
@@ -343,19 +477,34 @@ class Surface_Generator():
 
         self.super = slab
         self.unit_cell = single
-        self.struct = structure
+        self.parent = initial_structure
         self.lll_reduce = lll_reduce
         self.standardize = standardize
         self.slab_scale_factor = slab_scale_factor
         self.normal = normal
         self.length = nlayers_slab*dist
         self.miller_index = miller_index
+        self.min_vac_size = min_vacuum_size
+        self.min_slab_size = min_slab_size
 
-    def distance(self, thresh=0.00001, crit ='distance'):
+    def get_all_slab(self, thresh=0.00001, crit ='distance'):
+
+        """
+        A method that generates a list of shift values in order to create a list
+        of slabs, each with a different surface. A surface is identified by
+        measuring how close sites are to each other in order to be on the same
+        surface. This is done using the scipy function, fclusterdata.
+
+        Args:
+            thresh (float): Threshold parameter in fclusterdata in order to determine
+                the number of terminations to be found. Default thresh set to 0 to
+                discern each atom with a unique c position as a unique termination.
+            crit (str): The criterion to set for fclusterdata (see fcluster for
+                description).
+        """
 
         # Clusters sites together that belong in the same termination surface based
-        # on their position in the c direction. Also organizes sites by ascending
-        # order from teh origin along the c direction. How close the sites have to
+        # on their position in the c direction. How close the sites have to
         # be to belong in the same termination surface depends on the user input thresh.
         l = organize(self.super)
         tracker_index = fclusterdata(l[1], thresh, crit)
@@ -386,16 +535,31 @@ class Surface_Generator():
             term_sites.append(np.dot(term_slab[term_index[i]].coords, self.normal))
 
         return surface_list_generator(term_sites, self.normal, self.slab_scale_factor, self.length,
-                                      self.miller_index, self.struct, self.lll_reduce, self.standardize)
+                                      self.miller_index, self.parent, self.lll_reduce, self.standardize,
+                                      self.min_slab_size, self.min_vac_size)
 
 
-    def manual(self, shift_list):
+
+    def get_slab(self, shift_list):
+
+        """
+
+        This method takes in a list of shift values created by
+        the user and generates slabs based on the given shift values.
+
+        Arg:
+            shift_list (list of floats): Shift values in Angstrom
+            determine how much a slab should be shifted.
+
+        """
 
         return surface_list_generator(shift_list, self.normal, self.slab_scale_factor, self.length,
-                                      self.miller_index, self.struct, self.lll_reduce, self.standardize)
+                                      self.miller_index, self.parent, self.lll_reduce, self.standardize,
+                                      self.min_slab_size, self.min_vac_size)
 
 
-    def check_bonds(self, specie1, specie2, max_bond=3,
+
+    def get_non_bond_breaking_slab(self, specie1, specie2, max_bond=3,
                     min_dist=0.01):
         """Args:
                 structure (Structure): Initial input structure.
@@ -516,122 +680,6 @@ class Surface_Generator():
                 #write_structure(slab2, 'rslab'+str(miller_index)+str(slab.formula)+'.cif')
 
         return surface_list_generator(stable_list, self.normal, self.slab_scale_factor, self.length,
-                                      self.miller_index, self.struct, self.lll_reduce, self.standardize)
+                                      self.miller_index, self.parent, self.lll_reduce, self.standardize,
+                                      self.min_slab_size, self.min_vac_size)
 
-
-import unittest
-from pymatgen.core.lattice import Lattice
-from pymatgen.io.smartio import CifParser
-from pymatgen import write_structure
-
-# To run this test, it is assumed that the
-# pymatgen folder is in your home directory
-def get_path(path_str):
-    file_name = "pymatgen/pymatgen/core/tests/surface_tests/" + path_str
-    path = os.path.join(os.path.expanduser("~"), file_name)
-    return path
-
-class SlabTest(unittest.TestCase):
-
-    def setUp(self):
-        self.cu = Structure(Lattice.cubic(3), ["Cu", "Cu", "Cu", "Cu"],
-                            [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5],
-                             [0, 0.5, 0.5]])
-
-        self.libcc = Structure(Lattice.cubic(3.51004), ["Li", "Li"],
-                               [[0, 0, 0], [0.5, 0.5, 0.5]])
-
-        Li_Fe_P_O4 = CifParser(get_path("LiFePO4.cif"))
-        self.lifepo4 = (Li_Fe_P_O4.get_structures(primitive = False)[0])
-
-        Li_Fe_P_O4_compare = CifParser(get_path("LiFePO4_010_original_3.005.cif"))
-        self.lifepo4_compare = (Li_Fe_P_O4_compare.get_structures(primitive = False)[0])
-
-    def test_init(self):
-        for hkl in itertools.product(xrange(4), xrange(4), xrange(4)):
-            if any(hkl):
-                ssize = 6
-                vsize = 10
-                gen = Surface_Generator(self.cu, hkl, ssize, vsize, standardize=False)
-                s = gen.manual([0])[0]
-                if hkl == [0, 1, 1]:
-                    self.assertEqual(len(s), 13)
-                    self.assertAlmostEqual(s.surface_area, 12.727922061357855)
-
-                manual = self.cu.copy()
-                manual.make_supercell(s.scale_factor)
-                self.assertEqual(manual.lattice.lengths_and_angles,
-                                 s.lattice.lengths_and_angles)
-
-        # # For visual debugging
-        # from pymatgen import write_structure
-        # write_structure(s.parent, "cu.cif")
-        # write_structure(s, "cu_slab_%s_%.3f_%.3f.cif" %
-        #                  (str(hkl), ssize, vsize))
-
-    def test_adsorb_atom(self):
-        gen = Surface_Generator(self.cu,[0, 0, 1], 5, 5, standardize=False)
-        s001 = gen.manual([0])[0]
-        # print s001
-        # O adsorb on 4Cu[0.5, 0.5, 0.25], abc = [3, 3, 12]
-        # 1. test site_a = abc input
-        s001_ad1 = Slab.adsorb_atom(structure_a=s001, site_a=[0.5, 0.5, 0.25], atom= ['O'],
-                                    distance=2)
-        self.assertEqual(len(s001_ad1), 9)
-        for i in xrange(len(s001_ad1)):
-            if str(s001_ad1[i].specie) == 'O':
-                print s001_ad1[i].frac_coords
-                self.assertAlmostEqual(s001_ad1[i].a, 0.5)
-                self.assertAlmostEqual(s001_ad1[i].b, 0.5)
-                self.assertAlmostEqual(s001_ad1[i].c, 0.4166667)
-        self.assertEqual(s001_ad1.lattice.lengths_and_angles,
-                                 s001.lattice.lengths_and_angles)
-        # 2. test site_a = xyz input
-        s001_ad2 = Slab.adsorb_atom(structure_a=s001, site_a=[1.5, 1.5, 3], atom= ['O'],
-                                    distance=2, xyz=1)
-        self.assertEqual(len(s001_ad2), 9)
-        for i in xrange(len(s001_ad2)):
-            if str(s001_ad2[i].specie) == 'O':
-                print s001_ad2[i].frac_coords
-                self.assertAlmostEqual(s001_ad2[i].a, 0.5)
-                self.assertAlmostEqual(s001_ad2[i].b, 0.5)
-                self.assertAlmostEqual(s001_ad2[i].c, 0.4166667)
-
-    def test_make_terminations(self):
-        gen = Surface_Generator(self.lifepo4, [0,1,0], 10, 10, lll_reduce=False)
-        manual_lifepo4 = gen.manual([3.005])[0]
-
-        dist_lifepo4 = gen.distance()[0]
-        check_bonds = gen.check_bonds('P5+', 'O2-')[0]
-        a = organize(manual_lifepo4)[0]
-        b = organize(dist_lifepo4)[0]
-        c = organize(self.lifepo4_compare)[0]
-        d = organize(check_bonds)[0]
-
-        # Compares the sites of a (010) slab for LiFePO4 generated with the original
-        # surface.py algorithm to the same slab generated using manual, check_bonds,
-        #  and distance with a shift of 3.005A.
-
-        for i in range(0, len(self.lifepo4_compare)):
-            self.assertAlmostEqual(b[i].species_string, c[i].species_string)
-            self.assertAlmostEqual(b[i].species_string, c[i].species_string)
-            for ii in range(0, 2):
-                self.assertAlmostEqual(b.frac_coords[i][ii], c.frac_coords[i][ii])
-                self.assertAlmostEqual(a.frac_coords[i][ii], c.frac_coords[i][ii])
-
-
-    # def test_make_interface(self):
-    #     gen = Surface_Generator(self.lifepo4, [0, 0, 1], 10, 10)
-    #     slab = gen.distance()[0]
-    #     interface = slab.make_interface(self.libcc)
-    #
-    #     # For visual debugging
-    #     # write_structure(interface, "Li_LiFePO4_interface.cif")
-    #
-    #     for i in range(0, len(slab)):
-    #         self.assertEqual(slab[i].coords[0], interface[i].coords[0])
-    #         self.assertEqual(slab[i].coords[1], interface[i].coords[1])
-    #         self.assertEqual(slab[i].coords[2], interface[i].coords[2])
-
-if __name__ == "__main__":
-    unittest.main()
