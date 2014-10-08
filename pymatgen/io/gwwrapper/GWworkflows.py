@@ -3,6 +3,11 @@
 from __future__ import unicode_literals, division, print_function
 
 """
+Workflows for GW calculations:
+ VaspGWFWWorkFlow fireworks wf for vasp
+ SingleAbinitGWWorkFlow workflow for abinit
+Under construction:
+ general GW workflow that should manage all the code independent logic
 
 """
 
@@ -250,6 +255,10 @@ class SingleAbinitGWWorkFlow():
         # read user defined extra abivars from file  'extra_abivars' should be dictionary
         extra_abivars.update(read_extra_abivars())
 
+        response_models = ['godby']
+        if 'ppmodel' in extra_abivars.keys():
+            response_models = [extra_abivars.pop('ppmodel')]
+
         if self.option is not None:
             for k in self.option.keys():
                 if k in ['ecuteps', 'nscf_nbands']:
@@ -258,8 +267,6 @@ class SingleAbinitGWWorkFlow():
                     extra_abivars.update({k: self.option[k]})
                     if k == 'ecut':
                         extra_abivars.update({'pawecutdg': self.option[k]*2})
-
-        response_models = ['godby']
 
         try:
             grid = read_grid_from_file(s_name(self.structure)+".full_res")['grid']
