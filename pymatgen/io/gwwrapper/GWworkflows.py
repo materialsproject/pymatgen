@@ -137,7 +137,7 @@ class VaspGWFWWorkFlow():
 
 class SingleAbinitGWWorkFlow():
     """
-    interface the
+    GW workflow for Abinit
     """
     RESPONSE_MODELS = ["cd", "godby", "hybersten", "linden", "farid"]
     TESTS = {'ecuteps': {'test_range': (10, 14), 'method': 'direct', 'control': "gap", 'level': "sigma"},
@@ -338,6 +338,12 @@ class SingleAbinitGWWorkFlow():
         return flow.allocate()
 
     def create_job_file(self, serial=True):
+        """
+        Create the jobfile for staring all schedulers manually
+        serial = True creates a list that can be submitted as job that runs all schedulers a a batch job
+        (the job header needs to be added)
+        serial = False creates a list that can be used to start all schedulers on the frontend in the background
+        """
         job_file = open("job_collection", mode='a')
         if serial:
             job_file.write('abirun.py ' + self.work_dir + ' scheduler > ' + self.work_dir + '.log\n')
