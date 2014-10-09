@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Module implementing an XYZ file object class.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -60,11 +63,12 @@ class XYZ(object):
         coord_patt = re.compile(
             "(\w+)\s+([0-9\-\.e]+)\s+([0-9\-\.e]+)\s+([0-9\-\.e]+)"
         )
-        for i in xrange(2, 2 + num_sites):
+        for i in range(2, 2 + num_sites):
             m = coord_patt.search(lines[i])
             if m:
                 sp.append(m.group(1))  # this is 1-indexed
-                coords.append(map(float, m.groups()[1:4]))  # this is 0-indexed
+                # this is 0-indexed
+                coords.append([float(j) for j in m.groups()[1:4]])
         return XYZ(Molecule(sp, coords))
 
     @staticmethod
@@ -95,5 +99,5 @@ class XYZ(object):
         Args:
             filename: File name of output file.
         """
-        with zopen(filename, "w") as f:
+        with zopen(filename, "wt") as f:
             f.write(self.__str__())

@@ -1,16 +1,20 @@
+# coding: utf-8
 """Strategy objects for creating ABINIT calculations."""
-from __future__ import division, print_function
+from __future__ import unicode_literals, division, print_function
 
 import sys
 import os
 import abc
 import collections
 import copy
+import six
 import numpy as np
 
-from pymatgen.util.string_utils import str_aligned, str_delimited, is_string
-from pymatgen.io.abinitio.abiobjects import Electrons
-from pymatgen.io.abinitio.pseudos import PseudoTable
+from six.moves import map, zip
+from monty.string import is_string
+from pymatgen.util.string_utils import str_aligned, str_delimited
+from .abiobjects import Electrons
+from .pseudos import PseudoTable
 
 import logging
 logger = logging.getLogger(__name__)
@@ -87,7 +91,7 @@ def num_valence_electrons(pseudos, structure):
     return valence
 
 
-class AbstractStrategy(object):
+class AbstractStrategy(six.with_metaclass(abc.ABCMeta, object)):
     """
     A Strategy object generates the ABINIT input file used for a particular type of calculation
     e.g. ground-state runs, structural relaxations, self-energy calculations ...
@@ -101,7 +105,6 @@ class AbstractStrategy(object):
         pseudos:
             List of pseudopotentials.
     """
-    __metaclass__ = abc.ABCMeta
 
     #@abc.abstractproperty
     #def pseudos(self):
@@ -117,6 +120,7 @@ class AbstractStrategy(object):
         return self.pseudos.allpaw
 
     def num_valence_electrons(self):
+        """Number of valence electrons computed from the pseudos and the structure."""
         return num_valence_electrons(self.pseudos, self.structure)
 
     #@abc.abstractproperty
@@ -858,7 +862,7 @@ class OpticInput(object):
             self.vars[k] = v
 
     def __init__(self, zcut, wstep, wmax, scissor, sing_tol, linear_components,
-                nonlinear_components=None, ddk_files=None, wfk=None):
+                 nonlinear_components=None, ddk_files=None, wfk=None):
 
         self.vars = vars = collections.OrderedDict(*self.VAR_NAMES)
 
@@ -878,7 +882,7 @@ class OpticInput(object):
         vars["num_lin_comp"] = len(linear_components)
         vars["lin_comp"] = " ".join(str(c) for c in linear_components)
 
-        vars["num_nonlin_comp"] = len(non_linear_components)
+        vars["num_nonlin_comp"] = len(nonlinear_components)
         vars["nonlin_comp"] = " ".join(str(c) for c in nonlinear_components)
 
     def __init__(self, string):

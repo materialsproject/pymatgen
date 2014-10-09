@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 TODO: Modify unittest doc.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -12,25 +15,18 @@ __email__ = "shyuep@gmail.com"
 __date__ = "5/22/14"
 
 import unittest
-import os
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
-from pymatgen.io.smartio import read_structure
+from pymatgen.util.testing import PymatgenTest
 
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files')
-
-
-class XRDCalculatorTest(unittest.TestCase):
+class XRDCalculatorTest(PymatgenTest):
 
     def test_get_xrd_data(self):
-        a = 4.209
-        latt = Lattice.cubic(a)
-        structure = Structure(latt, ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        s = self.get_structure("CsCl")
         c = XRDCalculator()
-        data = c.get_xrd_data(structure, two_theta_range=(0, 90))
+        data = c.get_xrd_data(s, two_theta_range=(0, 90))
         #Check the first two peaks
         self.assertAlmostEqual(data[0][0], 21.107738329639844)
         self.assertAlmostEqual(data[0][1], 36.483184003748946)
@@ -41,19 +37,19 @@ class XRDCalculatorTest(unittest.TestCase):
         self.assertEqual(data[1][2], {(1, 1, 0): 12})
         self.assertAlmostEqual(data[1][3], 2.976212442014178)
 
-        s = read_structure(os.path.join(test_dir, "LiFePO4.cif"))
+        s = self.get_structure("LiFePO4")
         data = c.get_xrd_data(s, two_theta_range=(0, 90))
         self.assertAlmostEqual(data[1][0], 17.03504233621785)
         self.assertAlmostEqual(data[1][1], 50.400928948337075)
 
-        s = read_structure(os.path.join(test_dir, "Li10GeP2S12.cif"))
+        s = self.get_structure("Li10GeP2S12")
         data = c.get_xrd_data(s, two_theta_range=(0, 90))
         self.assertAlmostEqual(data[1][0], 14.058274883353876)
         self.assertAlmostEqual(data[1][1], 4.4111123641667671)
 
         # Test a hexagonal structure.
-        s = read_structure(os.path.join(test_dir, "Graphite.cif"),
-                           primitive=False)
+        s = self.get_structure("Graphite")
+
         data = c.get_xrd_data(s, two_theta_range=(0, 90))
         self.assertAlmostEqual(data[0][0], 7.929279053132362)
         self.assertAlmostEqual(data[0][1], 100)

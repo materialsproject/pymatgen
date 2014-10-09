@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module implements an interface to enumlib, Gus Hart"s excellent Fortran
 code for enumerating derivative structures.
@@ -20,7 +24,6 @@ derivative structures at a fixed concentration," Comp. Mat. Sci. 59
 101-107 (March 2012)
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -40,7 +43,7 @@ import numpy as np
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.periodic_table import DummySpecie
 from monty.os.path import which
 from monty.dev import requires
@@ -94,7 +97,7 @@ class EnumlibAdaptor(object):
                 it is not necessary. Defaults to False.
         """
         if refine_structure:
-            finder = SymmetryFinder(structure, symm_prec)
+            finder = SpacegroupAnalyzer(structure, symm_prec)
             self.structure = finder.get_refined_structure()
         else:
             self.structure = structure
@@ -136,7 +139,7 @@ class EnumlibAdaptor(object):
         coord_format = "{:.6f} {:.6f} {:.6f}"
 
         # Using symmetry finder, get the symmetrically distinct sites.
-        fitter = SymmetryFinder(self.structure, self.symm_prec)
+        fitter = SpacegroupAnalyzer(self.structure, self.symm_prec)
         symmetrized_structure = fitter.get_symmetrized_structure()
         logger.debug("Spacegroup {} ({}) with {} distinct sites".format(
             fitter.get_spacegroup_symbol(),
@@ -189,7 +192,7 @@ class EnumlibAdaptor(object):
                 disordered_sites.append(sites)
 
         def get_sg_info(ss):
-            finder = SymmetryFinder(Structure.from_sites(ss), self.symm_prec)
+            finder = SpacegroupAnalyzer(Structure.from_sites(ss), self.symm_prec)
             sgnum = finder.get_spacegroup_number()
             return sgnum
 
@@ -247,13 +250,14 @@ class EnumlibAdaptor(object):
         total_amounts = sum(index_amounts)
         for amt in index_amounts:
             conc = amt / total_amounts
-            if abs(conc * 100 - round(conc * 100)) < 1e-5:
-                output.append("{} {} {}".format(int(round(conc * 100)),
-                                                int(round(conc * 100)), 100))
+            if abs(conc * 1000 - round(conc * 1000)) < 1e-5:
+                output.append("{} {} {}".format(int(round(conc * 1000)),
+                                                int(round(conc * 1000)),
+                                                1000))
             else:
-                min_conc = int(math.floor(conc * 100))
+                min_conc = int(math.floor(conc * 1000))
                 output.append("{} {} {}".format(min_conc - 1, min_conc + 1,
-                                                100))
+                                                1000))
         output.append("")
         logger.debug("Generated input file:\n{}".format("\n".join(output)))
         with open("struct_enum.in", "w") as f:
@@ -263,7 +267,7 @@ class EnumlibAdaptor(object):
         p = subprocess.Popen([enum_cmd],
                              stdout=subprocess.PIPE,
                              stdin=subprocess.PIPE, close_fds=True)
-        output = p.communicate()[0]
+        output = p.communicate()[0].decode("utf-8")
         count = 0
         start_count = False
         for line in output.strip().split("\n"):

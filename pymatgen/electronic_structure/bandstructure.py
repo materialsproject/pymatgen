@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import unicode_literals
+
 """
 This module provides classes to define everything related to band structures.
 """
@@ -19,10 +23,10 @@ import collections
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.core import Spin, Orbital
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 
 
-class Kpoint(MSONable):
+class Kpoint(PMGSONable):
     """
     Class to store kpoint objects. A kpoint is defined with a lattice and frac
     or cartesian coordinates syntax similar than the site object in
@@ -48,7 +52,7 @@ class Kpoint(MSONable):
         self._label = label
 
         if to_unit_cell:
-            for i in xrange(len(self._fcoords)):
+            for i in range(len(self._fcoords)):
                 self._fcoords[i] -= math.floor(self._fcoords[i])
 
         self._ccoords = lattice.get_cartesian_coords(self._fcoords)
@@ -110,12 +114,11 @@ class Kpoint(MSONable):
         return "{} {} {}".format(self.frac_coords, self.cart_coords,
                                  self.label)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Json-serializable dict representation of a kpoint
         """
-        return {"lattice": self.lattice.to_dict,
+        return {"lattice": self.lattice.as_dict(),
                 "fcoords": list(self.frac_coords),
                 "ccoords": list(self.cart_coords), "label": self.label,
                 "@module": self.__class__.__module__,
@@ -262,9 +265,9 @@ class BandStructure(object):
             result[spin] = [[collections.defaultdict(float)
                              for i in range(len(self._kpoints))]
                             for j in range(self._nb_bands)]
-            for i, j, k in itertools.product(range(self._nb_bands),
-                                             range(len(self._kpoints)),
-                                             range(structure.num_sites)):
+            for i, j, k in itertools.product(list(range(self._nb_bands)),
+                                             list(range(len(self._kpoints))),
+                                             list(range(structure.num_sites))):
                 for orb in self._projections[Spin.up][i][j]:
                     result[spin][i][j][str(structure[k].specie)] += \
                         self._projections[spin][i][j][orb][k]
@@ -301,8 +304,8 @@ class BandStructure(object):
                             for j in range(self._nb_bands)]
 
             for i, j, k in itertools.product(
-                    range(self._nb_bands), range(len(self._kpoints)),
-                    range(structure.num_sites)):
+                    list(range(self._nb_bands)), list(range(len(self._kpoints))),
+                    list(range(structure.num_sites))):
                 for orb in self._projections[Spin.up][i][j]:
                     if str(structure[k].specie) in dictio:
                         if str(orb)[0] in dictio[str(structure[k].specie)]:
@@ -538,19 +541,18 @@ class BandStructure(object):
             diff.append(lowest_conduction_band[i] - highest_valence_band[i])
         return min(diff)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Json-serializable dict representation of BandStructureSymmLine.
         """
         d = {"module": self.__class__.__module__,
              "class": self.__class__.__name__,
-             "lattice_rec": self._lattice_rec.to_dict, "efermi": self._efermi,
+             "lattice_rec": self._lattice_rec.as_dict(), "efermi": self._efermi,
              "kpoints": []}
         #kpoints are not kpoint objects dicts but are frac coords (this makes
         #the dict smaller and avoids the repetition of the lattice
         for k in self._kpoints:
-            d["kpoints"].append(k.to_dict["fcoords"])
+            d["kpoints"].append(k.as_dict()["fcoords"])
         d["bands"] = {str(int(spin)): self._bands[spin]
                       for spin in self._bands}
         d["is_metal"] = self.is_metal()
@@ -576,10 +578,10 @@ class BandStructure(object):
         d['labels_dict'] = {}
         d['is_spin_polarized'] = self.is_spin_polarized
         for c in self._labels_dict:
-            d['labels_dict'][c] = self._labels_dict[c].to_dict['fcoords']
+            d['labels_dict'][c] = self._labels_dict[c].as_dict()['fcoords']
         d['projections'] = {}
         if len(self._projections) != 0:
-            d['structure'] = self._structure.to_dict
+            d['structure'] = self._structure.as_dict()
             d['projections'] = {
                 str(int(spin)): [
                     [{str(orb): [
@@ -625,7 +627,7 @@ class BandStructure(object):
             labels_dict, structure=structure, projections=projections)
 
 
-class BandStructureSymmLine(BandStructure, MSONable):
+class BandStructureSymmLine(BandStructure, PMGSONable):
     """
     This object stores band structures along selected (symmetry) lines in the
     Brillouin zone. We call the different symmetry lines (ex: \Gamma to Z)
@@ -798,7 +800,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
                         if i > max_index:
                             max_index = i
                             #spin_index = Spin.down
-            old_dict = self.to_dict
+            old_dict = self.as_dict()
             shift = new_band_gap
             for spin in old_dict['bands']:
                 for k in range(len(old_dict['bands'][spin])):
@@ -809,7 +811,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         else:
 
             shift = new_band_gap - self.get_band_gap()['energy']
-            old_dict = self.to_dict
+            old_dict = self.as_dict()
             for spin in old_dict['bands']:
                 for k in range(len(old_dict['bands'][spin])):
                     for v in range(len(old_dict['bands'][spin][k])):
@@ -820,20 +822,19 @@ class BandStructureSymmLine(BandStructure, MSONable):
             old_dict['efermi'] = old_dict['efermi'] + shift
             return BandStructureSymmLine.from_dict(old_dict)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Json-serializable dict representation of BandStructureSymmLine.
         """
 
         d = {"module": self.__class__.__module__,
              "class": self.__class__.__name__,
-             "lattice_rec": self._lattice_rec.to_dict, "efermi": self._efermi,
+             "lattice_rec": self._lattice_rec.as_dict(), "efermi": self._efermi,
              "kpoints": []}
         #kpoints are not kpoint objects dicts but are frac coords (this makes
         #the dict smaller and avoids the repetition of the lattice
         for k in self._kpoints:
-            d["kpoints"].append(k.to_dict["fcoords"])
+            d["kpoints"].append(k.as_dict()["fcoords"])
         d["branches"] = self._branches
         d["bands"] = {str(int(spin)): self._bands[spin]
                       for spin in self._bands}
@@ -860,10 +861,10 @@ class BandStructureSymmLine(BandStructure, MSONable):
         d['labels_dict'] = {}
         d['is_spin_polarized'] = self.is_spin_polarized
         for c in self._labels_dict:
-            d['labels_dict'][c] = self._labels_dict[c].to_dict['fcoords']
+            d['labels_dict'][c] = self._labels_dict[c].as_dict()['fcoords']
         d['projections'] = {}
         if len(self._projections) != 0:
-            d['structure'] = self._structure.to_dict
+            d['structure'] = self._structure.as_dict()
             d['projections'] = {
                 str(int(spin)): [
                     [{str(orb): [
@@ -936,7 +937,7 @@ def get_reconstructed_band_structure(list_bs, efermi=None):
         for bs in list_bs:
             for k in bs._kpoints:
                 kpoints.append(k.frac_coords)
-            for k, v in bs._labels_dict.iteritems():
+            for k, v in bs._labels_dict.items():
                 labels_dict[k] = v.frac_coords
         eigenvals = {Spin.up: [list_bs[0]._bands[Spin.up][i]
                                for i in range(nb_bands)]}

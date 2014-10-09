@@ -1,24 +1,26 @@
+# coding: utf-8
 """
 Low-level objects providing an abstraction for the objects involved in the
 calculation.
 """
-from __future__ import division, print_function
+from __future__ import unicode_literals, division, print_function
 
 import collections
 import os
 import abc
+import six
 import numpy as np
 import pymatgen.core.units as units
 
 from pprint import pformat
 from monty.design_patterns import singleton
-from pymatgen.util.string_utils import is_string
-from pymatgen.core.design_patterns import Enum, AttrDict
+from monty.string import is_string
+from monty.collections import AttrDict
+from pymatgen.core.design_patterns import Enum
 from pymatgen.core.units import ArrayWithUnit
-from pymatgen.serializers.json_coders import MSONable
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.serializers.json_coders import PMGSONable
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.structure import Structure, Molecule
-from pymatgen.io.smartio import read_structure
 
 from .netcdf import structure_from_etsf_file
 
@@ -47,12 +49,11 @@ def contract(s):
     return " ".join("%d*%s" % (c, t) for c, t in count)
 
 
-class AbivarAble(object):
+class AbivarAble(six.with_metaclass(abc.ABCMeta, object)):
     """
     An AbivarAble object provides a method to_abivars that returns a dictionary
     with the abinit variables.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def to_abivars(self):
@@ -132,7 +133,7 @@ _mode2spinvars = {
 }
 
 
-class Smearing(AbivarAble, MSONable):
+class Smearing(AbivarAble, PMGSONable):
     """
     Variables defining the smearing technique. The preferred way to instanciate
     a Smearing object is via the class method Smearing.as_smearing(string)
@@ -219,8 +220,7 @@ class Smearing(AbivarAble, MSONable):
             return {"occopt": self.occopt,
                     "tsmear": self.tsmear,}
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """json friendly dict representation of Smearing"""
         return {"occopt": self.occopt, "tsmear": self.tsmear,
                 "@module": self.__class__.__module__,
@@ -277,10 +277,6 @@ class Electrons(AbivarAble):
         self.charge = charge
         self.algorithm = algorithm
 
-        # FIXME
-        #if nband is None:
-        #    self.fband = 4
-
     @property
     def nsppol(self):
         return self.spin_mode.nsppol
@@ -294,7 +290,7 @@ class Electrons(AbivarAble):
         return self.spin_mode.nspden
 
     #@property
-    #def to_dict(self):
+    #def as_dict(self):
     #    "json friendly dict representation"
     #    d = {}
     #    d["@module"] = self.__class__.__module__
@@ -346,9 +342,10 @@ def asabistructure(obj):
 
             if obj.endswith(".nc"):
                 structure = structure_from_etsf_file(obj)
-                #print(structure._sites)
             else:
-                structure = read_structure(obj)
+                structure = Structure.from_file(obj)
+                #from pymatgen.io.smartio import read_structure
+                #structure = read_structure(obj)
 
             # Promote
             return AbiStructure(structure)
@@ -429,8 +426,6 @@ class AbiStructure(Structure, AbivarAble):
         typat = np.zeros(natom, np.int)
         for (atm_idx, site) in enumerate(self):
             typat[atm_idx] = types_of_specie.index(site.specie) + 1
-
-        from pymatgen.io.gwwrapper.helpers import refine_structure
 
         rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
         xred = np.reshape([site.frac_coords for site in self], (-1,3))
@@ -649,7 +644,7 @@ class KSampling(AbivarAble):
         Returns:
             KSampling object
         """
-        sg = SymmetryFinder(structure)
+        sg = SpacegroupAnalyzer(structure)
         #sg.get_crystal_system()
         #sg.get_point_group()
         # TODO
@@ -743,9 +738,9 @@ class KSampling(AbivarAble):
         hex_angle_tol = 5      # in degrees
         hex_length_tol = 0.01  # in angstroms
 
-        right_angles = [i for i in xrange(3) if abs(angles[i] - 90) < hex_angle_tol]
+        right_angles = [i for i in range(3) if abs(angles[i] - 90) < hex_angle_tol]
 
-        hex_angles = [i for i in xrange(3)
+        hex_angles = [i for i in range(3)
                       if abs(angles[i] - 60) < hex_angle_tol or
                       abs(angles[i] - 120) < hex_angle_tol]
 
@@ -878,7 +873,7 @@ class RelaxationMethod(AbivarAble):
         return out_vars
 
 
-class PPModel(AbivarAble, MSONable):
+class PPModel(AbivarAble, PMGSONable):
     """
     Parameters defining the plasmon-pole technique.
     The common way to instanciate a PPModel object is via the class method
@@ -960,8 +955,7 @@ class PPModel(AbivarAble, MSONable):
     def noppmodel(cls):
         return cls(mode="noppmodel", plasmon_freq=None)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"mode": self.mode, "plasmon_freq": self.plasmon_freq,
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}

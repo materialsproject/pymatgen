@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 '''
 Created on Mar 5, 2012
 '''
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -139,9 +142,9 @@ class TransformedStructureTest(unittest.TestCase):
         ts.undo_last_change()
         ts.redo_next_change()
 
-    def test_to_dict(self):
+    def test_as_dict(self):
         self.trans.set_parameter('author', 'will')
-        d = self.trans.to_dict
+        d = self.trans.as_dict()
         self.assertIn('last_modified', d)
         self.assertIn('history', d)
         self.assertIn('version', d)

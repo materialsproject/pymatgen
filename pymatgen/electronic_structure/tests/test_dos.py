@@ -1,4 +1,6 @@
-#!/usr/bin/python
+# coding: utf-8
+
+from __future__ import unicode_literals
 
 import unittest
 import os
@@ -110,7 +112,7 @@ class CompleteDosTest(unittest.TestCase):
         self.assertRaises(ValueError, dos.get_interpolated_value, 1000)
 
     def test_to_from_dict(self):
-        d = self.dos.to_dict
+        d = self.dos.as_dict()
         dos = CompleteDos.from_dict(d)
         el_dos = dos.get_element_dos()
         self.assertEqual(len(el_dos), 4)

@@ -1,10 +1,14 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module implements a EnergyModel abstract class and some basic
 implementations. Basically, an EnergyModel is any model that returns an
 "energy" for any given structure.
 """
 
-from __future__ import division
+
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -15,16 +19,17 @@ __date__ = "11/19/13"
 
 import abc
 
-from pymatgen.serializers.json_coders import MSONable
+import six
+
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.analysis.ewald import EwaldSummation
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 
-class EnergyModel(MSONable):
+class EnergyModel(six.with_metaclass(abc.ABCMeta, PMGSONable)):
     """
     Abstract structure filter class.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def get_energy(self, structure):
@@ -75,8 +80,7 @@ class EwaldElectrostaticModel(EnergyModel):
                            acc_factor=self.acc_factor)
         return e.total_energy
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"version": __version__,
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
@@ -92,7 +96,7 @@ class SymmetryModel(EnergyModel):
     lower "energy".
 
     Args have same meaning as in
-    :class:`pymatgen.symmetry.finder.SymmetryFinder`.
+    :class:`pymatgen.symmetry.finder.SpacegroupAnalyzer`.
 
     Args:
         symprec (float): Symmetry tolerance. Defaults to 0.1.
@@ -104,12 +108,11 @@ class SymmetryModel(EnergyModel):
         self.angle_tolerance = angle_tolerance
 
     def get_energy(self, structure):
-        f = SymmetryFinder(structure, symprec=self.symprec,
+        f = SpacegroupAnalyzer(structure, symprec=self.symprec,
                            angle_tolerance=self.angle_tolerance)
         return -f.get_spacegroup_number()
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"version": __version__,
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
@@ -140,8 +143,7 @@ class IsingModel(EnergyModel):
                                                 0) / (dist ** 2)
         return energy
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"version": __version__,
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
@@ -158,8 +160,7 @@ class NsitesModel(EnergyModel):
     def get_energy(self, structure):
         return len(structure)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"version": __version__,
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,

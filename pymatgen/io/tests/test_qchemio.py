@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import unicode_literals
+
 import copy
 import glob
 import json
@@ -39,20 +43,20 @@ class TestQcTask(TestCase):
 
     def elementary_io_verify(self, text, qctask):
         self.to_and_from_dict_verify(qctask)
-        self.from_string_verify(contents=text, ref_dict=qctask.to_dict)
+        self.from_string_verify(contents=text, ref_dict=qctask.as_dict())
 
     def to_and_from_dict_verify(self, qctask):
         """
         Helper function. This function should be called in each specific test.
         """
-        d1 = qctask.to_dict
+        d1 = qctask.as_dict()
         qc2 = QcTask.from_dict(d1)
-        d2 = qc2.to_dict
+        d2 = qc2.as_dict()
         self.assertEqual(d1, d2)
 
     def from_string_verify(self, contents, ref_dict):
         qctask = QcTask.from_string(contents)
-        d2 = qctask.to_dict
+        d2 = qctask.as_dict()
         self.assertEqual(ref_dict, d2)
 
     def test_read_zmatrix(self):
@@ -1001,6 +1005,38 @@ $end
         self.assertEqual(str(qctask), ans)
         self.elementary_io_verify(ans, qctask)
 
+    def test_ghost_atoms(self):
+        qctask = QcTask(mol, charge=0, spin_multiplicity=1, exchange="B3LYP", ghost_atoms=[2, 4])
+        ans = """$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ @H          1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ @Cl        -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+   jobtype = sp
+  exchange = b3lyp
+     basis = 6-31+g*
+$end
+
+"""
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
+        mol1 = copy.deepcopy(mol)
+        mol1.set_charge_and_spin(1, 2)
+        mol2 = copy.deepcopy(water_mol)
+        mol2.set_charge_and_spin(-1, 2)
+        qctask = QcTask([mol1, mol2], title="Test Fragments", exchange="B3LYP",
+                        jobtype="bsse", charge=0, spin_multiplicity=3, basis_set="6-31++G**",
+                        ghost_atoms=[1, 2, 3, 5])
+        self.elementary_io_verify(str(qctask), qctask)
+        qctask = QcTask(mol, charge=0, spin_multiplicity=2, exchange="B3LYP", ghost_atoms=[2])
+        self.assertEqual(qctask.spin_multiplicity, 2)
+
 
 class TestQcInput(TestCase):
     def test_str_and_from_string(self):
@@ -1076,7 +1112,10 @@ $end
         qcinp1 = QcInput(jobs=[qctask1, qctask2, qctask3])
         self.assertEqual(str(qcinp1), ans)
         qcinp2 = QcInput.from_string(ans)
-        self.assertEqual(qcinp1.to_dict, qcinp2.to_dict)
+        self.assertEqual(qcinp1.as_dict(), qcinp2.as_dict())
+
+        qcinp_mgbf4 = QcInput.from_file(os.path.join(test_dir, "MgBF4_b_overalpped.qcinp"))
+        self.assertEqual(qcinp_mgbf4.jobs[0].ghost_atoms, [0])
 
     def test_to_and_from_dict(self):
         qctask1 = QcTask(mol, title="Test Methane Opt", exchange="B3LYP",
@@ -1088,9 +1127,9 @@ $end
                          exchange="B3LYP", jobtype="SP",
                          basis_set="6-311+G(3df,2p)")
         qcinp1 = QcInput(jobs=[qctask1, qctask2, qctask3])
-        d1 = qcinp1.to_dict
+        d1 = qcinp1.as_dict()
         qcinp2 = QcInput.from_dict(d1)
-        d2 = qcinp2.to_dict
+        d2 = qcinp2.as_dict()
         self.assertEqual(d1, d2)
 
 
@@ -1186,7 +1225,7 @@ class TestQcOutput(TestCase):
                         ('SCF', -20180.15020789526),
                         ('SCF', -20180.150206202714)]
         self.assertEqual(qcout.data[0]["energies"], ans_energies)
-        ans_mol1 = '''Molecule Summary (H4 S1 C5 O2)
+        ans_mol1 = '''Molecule Summary (H4 C5 S1 O2)
 Reduced Formula: H4C5SO2
 Charge = -1, Spin Mult = 2
 Sites (12)
@@ -1202,7 +1241,7 @@ Sites (12)
 10 O     2.131988     1.173581    -0.000330
 11 O     2.322109    -1.079218    -0.000021
 12 H     3.262059    -0.820188    -0.000171'''
-        ans_mol_last = '''Molecule Summary (H4 S1 C5 O2)
+        ans_mol_last = '''Molecule Summary (H4 C5 S1 O2)
 Reduced Formula: H4C5SO2
 Charge = -1, Spin Mult = 2
 Sites (12)
@@ -1437,10 +1476,10 @@ $end
         ans_thermo_corr = json.loads(ans_thermo_corr_text)
         self.assertEqual(sorted(qcout.data[1]['corrections'].keys()),
                          sorted(ans_thermo_corr.keys()))
-        for k, ref in ans_thermo_corr.iteritems():
+        for k, ref in ans_thermo_corr.items():
             self.assertAlmostEqual(qcout.data[1]['corrections'][k], ref)
         self.assertEqual(len(qcout.data[1]['molecules']), 1)
-        ans_mol1 = '''Molecule Summary (Br2 Cd1)
+        ans_mol1 = '''Molecule Summary (Cd1 Br2)
 Reduced Formula: CdBr2
 Charge = 0, Spin Mult = 1
 Sites (3)
@@ -1780,6 +1819,15 @@ $end
         self.assertEqual(qcout.data[0]["charges"]["hirshfeld"],
                          [-0.286309, 0.143134, 0.143176])
         self.assertFalse(qcout.data[0]["has_error"])
+
+    def test_ghost_atoms(self):
+        filename = os.path.join(test_dir, "ghost_atoms.qcout")
+        qcout = QcOutput(filename)
+        elements = [a.specie.symbol for a in qcout.data[-1]["molecules"][-1].sites]
+        self.assertEqual(elements, ['O', 'H', 'H', 'C', 'H', 'H', 'H', 'H'])
+        filename = os.path.join(test_dir, "MgBF4_b_overalpped.qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(qcout.data[0]["input"].ghost_atoms, [0])
 
 
 if __name__ == "__main__":

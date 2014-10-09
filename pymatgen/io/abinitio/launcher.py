@@ -1,18 +1,24 @@
+# coding: utf-8
 """Tools for the submission of Tasks."""
-from __future__ import division, print_function
+from __future__ import unicode_literals, division, print_function
 
 import os
 import time
 import collections
 import yaml
-import cStringIO as StringIO
 
+from six.moves import cStringIO
 from datetime import timedelta
-from monty.dev import deprecated
+from monty.io import get_open_fds
+from monty.string import boxed, is_string
 from monty.os.path import which
+from monty.collections import AttrDict
 
-from pymatgen.core.design_patterns import AttrDict
-from pymatgen.util.string_utils import is_string
+try:
+    import apscheduler
+    has_sched_v3 = apscheduler.version >= "3.0.0"
+except ImportError:
+    pass
 
 import logging
 logger = logging.getLogger(__name__)
@@ -222,7 +228,7 @@ class PyLauncher(object):
                     number of jobs in the queue is >= Max number of jobs
         """
         self.flow = flow
-        self.max_njobs_inqueue = kwargs.get("max_njobs_inqueue", 200)
+        self.max_njobs_inqueue = kwargs.get("max_njobs_inqueue", 500)
 
     def single_shot(self):
         """
@@ -292,6 +298,18 @@ class PyLauncher(object):
                 continue
 
             njobs_inqueue = tasks[0].manager.qadapter.get_njobs_in_queue()
+            if njobs_inqueue is None:
+                print('Cannot get njobs_inqueue, going back to sleep')
+                continue
+
+            #if len(tasks) > 0:
+            #    n_jobs_in_queue = tasks[0].manager.qadapter.get_njobs_in_queue()
+            #    if n_jobs_in_queue is None:
+            #        n_jobs_in_queue = 0
+            #    n_to_run = self.max_jobs - n_jobs_in_queue
+            #else:
+            #    n_to_run = 0
+
             rest = self.max_njobs_inqueue - njobs_inqueue
             if rest <= 0:
                 print('too many jobs in the queue, going back to sleep')
@@ -311,7 +329,6 @@ class PyLauncher(object):
                     print('num_launched == max_nlaunch, going back to sleep')
                     break
 
-
         # Update the database.
         self.flow.pickle_dump()
 
@@ -326,31 +343,8 @@ class PyLauncher(object):
 
         for work in self.flow:
             tasks_to_run.extend(work.fetch_alltasks_to_run())
-            #try:
-            #    task = work.fetch_task_to_run()
-
-            #    if task is not None:
-            #        tasks_to_run.append(task)
-            #    else:
-            #        # No task found, this usually happens when we have dependencies.
-            #        # Beware of possible deadlocks here!
-            #        logger.debug("fetch_task_to_run returned None.")
-
-            #except StopIteration:
-            #    # All the tasks in work are done.
-            #    logger.debug("Out of tasks in work %s" % work)
 
         return tasks_to_run
-
-
-def boxed(msg, ch="=", pad=5):
-    if pad > 0:
-        msg = pad * ch + msg + pad * ch
-
-    return "\n".join([len(msg) * ch,
-                      msg,
-                      len(msg) * ch,
-                      "", ])
 
 
 class PyFlowSchedulerError(Exception):
@@ -437,9 +431,12 @@ class PyFlowScheduler(object):
         if kwargs:
             raise self.Error("Unknown arguments %s" % kwargs)
 
-        from apscheduler.scheduler import Scheduler
-
-        self.sched = Scheduler(standalone=True)
+        if has_sched_v3:
+            from apscheduler.schedulers.blocking import BlockingScheduler
+            self.sched = BlockingScheduler()
+        else:
+            from apscheduler.scheduler import Scheduler
+            self.sched = Scheduler(standalone=True)
 
         self.nlaunch = 0
         self.num_reminders = 1
@@ -459,7 +456,7 @@ class PyFlowScheduler(object):
     @classmethod
     def from_string(cls, s):
         """Create an istance from string s containing a YAML dictionary."""
-        stream = StringIO.StringIO(s)
+        stream = cStringIO(s)
         stream.seek(0)
 
         return cls(**yaml.load(stream))
@@ -573,7 +570,10 @@ class PyFlowScheduler(object):
         self.history.append("Started on %s" % time.asctime())
         self.start_time = time.time()
 
-        self.sched.add_interval_job(self.callback, **self.sched_options)
+        if has_sched_v3:
+            self.sched.add_job(self.callback, 'interval', **self.sched_options)
+        else:
+            self.sched.add_interval_job(self.callback, **self.sched_options)
 
         # Try to run the job immediately. If something goes wrong
         # return without initializing the scheduler.
@@ -605,8 +605,9 @@ class PyFlowScheduler(object):
             for work in flow:
                 work.set_manager(new_manager)
 
-        # check stattus
+        # check status
         flow.check_status()
+        flow.show_status()
 
         # fix problems
         # Try to restart the unconverged tasks
@@ -665,6 +666,8 @@ class PyFlowScheduler(object):
         if self.DEBUG:
             # Show the number of open file descriptors
             print(">>>>> _callback: Number of open file descriptors: %s" % get_open_fds())
+
+        print('          before _runem_all in _callback')
 
         self._runem_all()
 
@@ -774,6 +777,7 @@ class PyFlowScheduler(object):
                     fh.write("Shutdown message:\n%s" % msg)
 
             # Shutdown the scheduler thus allowing the process to exit.
+            print('this should be the shutdown of the scheduler')
             self.sched.shutdown(wait=False)
 
     def send_email(self, msg, tag=None):
@@ -800,7 +804,7 @@ class PyFlowScheduler(object):
         app("Number of errored tasks: %d" % self.flow.num_errored_tasks)
         app("Number of unconverged tasks: %d" % self.flow.num_unconverged_tasks)
 
-        strio = StringIO.StringIO()
+        strio = cStringIO()
         strio.writelines("\n".join(header) + 4 * "\n")
 
         # Add the status of the flow.
@@ -863,26 +867,6 @@ def sendmail(subject, text, mailto, sender=None):
     return len(errdata)
 
 
-@deprecated("qadapter.get_njobs_in_queue")
-def get_running_jobs():
-    """
-    Return the number of running jobs.
-
-    ..warning: only slurm is supported
-    """
-    try:
-        import os
-        import subprocess
-        from subprocess import PIPE
-        name = os.environ['LOGNAME']
-        cmd = ['qstat', '-u' + name]
-        data = subprocess.Popen(cmd, stdout=PIPE).communicate()[0]
-        n = len(data.splitlines()) - 1
-    except OSError:
-        n = 0
-
-    return n
-
 # Test for sendmail
 #def test_sendmail():
 #    text = "hello\nworld"""
@@ -891,19 +875,4 @@ def get_running_jobs():
 #    print("Retcode", retcode)
 
 
-def get_open_fds():
-    """
-    return the number of open file descriptors for current process
-
-    .. warning: will only work on UNIX-like os-es.
-    """
-    import subprocess
-    import os
-
-    pid = os.getpid()
-    procs = subprocess.check_output(["lsof", '-w', '-Ff', "-p", str(pid)])
-
-    nprocs = len(filter(lambda s: s and s[0] == 'f' and s[1:].isdigit(), procs.split('\n')))
-
-    return nprocs
 

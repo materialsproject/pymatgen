@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import unicode_literals
+
 """
 Interface with command line GULP.
 http://projects.ivec.org
@@ -19,8 +23,10 @@ import re
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.bond_valence import BVAnalyzer
+from six.moves import map
+from six.moves import zip
 
 
 _anions = set(map(Element, ["O", "S", "F", "Cl", "Br", "N", "P"]))
@@ -119,7 +125,8 @@ class GulpIO(object):
         if cell_flg:
             gin += "cell\n"
             l = structure.lattice
-            lat_str = map(str, [l.a, l.b, l.c, l.alpha, l.beta, l.gamma])
+            lat_str = [str(i) for i in [l.a, l.b, l.c, l.alpha, l.beta,
+                                        l.gamma]]
             gin += " ".join(lat_str) + "\n"
 
         if frac_flg:
@@ -129,7 +136,7 @@ class GulpIO(object):
             gin += "cart\n"
             coord_attr = "coords"
         for site in structure.sites:
-            coord = map(str, list(getattr(site, coord_attr)))
+            coord = [str(i) for i in getattr(site, coord_attr)]
             specie = site.specie
             core_site_desc = specie.symbol + " core " + " ".join(coord) + "\n"
             gin += core_site_desc
@@ -143,7 +150,7 @@ class GulpIO(object):
 
         if symm_flg:
             gin += "space\n"
-            gin += str(SymmetryFinder(structure).get_spacegroup_number()) + "\n"
+            gin += str(SpacegroupAnalyzer(structure).get_spacegroup_number()) + "\n"
         return gin
 
     def specie_potential_lines(self, structure, potential, **kwargs):
@@ -382,14 +389,12 @@ class GulpIO(object):
         if energy:
             return float(energy[4])
         else:
-            #print gout
             raise GulpError("Energy not found in Gulp output")
 
     def get_relaxed_structure(self, gout):
         #Find the structure lines
         structure_lines = []
         cell_param_lines = []
-        #print gout
         output_lines = gout.split("\n")
         no_lines = len(output_lines)
         i = 0
@@ -516,29 +521,32 @@ class GulpCaller(object):
             self._gulp_cmd, stdout=subprocess.PIPE,
             stdin=subprocess.PIPE, stderr=subprocess.PIPE
         )
-        output = p.communicate(gin)
 
-        if "Error" in output[1] or "error" in output[1]:
-            print gin
-            print "----output_0---------"
-            print output[0]
-            print "----End of output_0------\n\n\n"
-            print "----output_1--------"
-            print output[1]
-            print "----End of output_1------"
-            raise GulpError(output[1])
+        out, err = p.communicate(bytearray(gin, "utf-8"))
+        out = out.decode("utf-8")
+        err = err.decode("utf-8")
+
+        if "Error" in err or "error" in err:
+            print(gin)
+            print("----output_0---------")
+            print(out)
+            print("----End of output_0------\n\n\n")
+            print("----output_1--------")
+            print(out)
+            print("----End of output_1------")
+            raise GulpError(err)
 
         # We may not need this
-        if "ERROR" in output[0]:
-            raise GulpError(output[0])
+        if "ERROR" in out:
+            raise GulpError(out)
 
         # Sometimes optimisation may fail to reach convergence
         conv_err_string = "Conditions for a minimum have not been satisfied"
-        if conv_err_string in output[0]:
+        if conv_err_string in out:
             raise GulpConvergenceError()
 
         gout = ""
-        for line in output[0].split("\n"):
+        for line in out.split("\n"):
             gout = gout + line + "\n"
         return gout
 
@@ -717,8 +725,7 @@ class TersoffPotential(object):
 
     def __init__(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(os.path.join(module_dir, "OxideTersoffPotentials"),
-                  "rU") as f:
+        with open(os.path.join(module_dir, "OxideTersoffPotentials"), "r") as f:
             data = dict()
             for row in f:
                 metaloxi = row.split()[0]

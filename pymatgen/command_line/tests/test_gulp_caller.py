@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import unicode_literals
+
 """
 Created on Jan 22, 2013
 
@@ -192,8 +196,6 @@ class GulpIOTest(unittest.TestCase):
     @unittest.skip("Test later")
     def test_tersoff_inpt(self):
         gin =  self.gio.tersoff_input(self.structure)
-        #print "--------BinaryOxide Tersoff"
-        print gin
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
@@ -215,18 +217,15 @@ class GlobalFunctionsTest(unittest.TestCase):
         structure = p.structure
         enrgy = get_energy_tersoff(structure)
         self.assertIsInstance(enrgy, float)
-        print "tersoff energy", enrgy
 
     def test_get_energy_buckingham(self):
         enrgy = get_energy_buckingham(self.mgo_uc)
         self.assertIsInstance(enrgy, float)
-        print "Buckingham energy for charge neutral structure", enrgy
         #test with vacancy structure
-        self.mgo_uc.remove(0)
+        del self.mgo_uc[0]
         energy = get_energy_buckingham(self.mgo_uc,
                 keywords=('qok','optimise','conp'), valence_dict=self.val_dict)
-        self.assertIsInstance(enrgy, float)
-        print "Buckingham energy charged defect structure", enrgy
+        self.assertIsInstance(energy, float)
 
     def test_get_energy_relax_structure_buckingham(self):
         enrgy, struct = get_energy_relax_structure_buckingham(self.mgo_uc)
@@ -234,9 +233,6 @@ class GlobalFunctionsTest(unittest.TestCase):
         self.assertIsInstance(struct, Structure)
         site_len = len(struct.sites)
         self.assertEqual(site_len, len(self.mgo_uc.sites))
-        print "Buckingham energy", enrgy
-        print struct
-        print self.mgo_uc
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")

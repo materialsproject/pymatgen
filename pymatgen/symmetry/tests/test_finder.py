@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Created on Mar 9, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -17,31 +20,31 @@ import os
 import numpy as np
 
 from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Structure
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.io.cifio import CifParser
-from pymatgen.io.vaspio.vasp_output import Vasprun
+from pymatgen.util.testing import PymatgenTest
+
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
-class SymmetryFinderTest(unittest.TestCase):
+class SymmetryFinderTest(PymatgenTest):
 
     def setUp(self):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
         self.structure = p.structure
         self.sg = SymmetryFinder(self.structure, 0.001)
-        parser = CifParser(os.path.join(test_dir, 'Li10GeP2S12.cif'))
-        self.disordered_structure = parser.get_structures()[0]
+        self.disordered_structure = self.get_structure('Li10GeP2S12')
         self.disordered_sg = SymmetryFinder(self.disordered_structure, 0.001)
         s = p.structure.copy()
         site = s[0]
         del s[0]
         s.append(site.species_and_occu, site.frac_coords)
         self.sg3 = SymmetryFinder(s, 0.001)
-        parser = CifParser(os.path.join(test_dir, 'Graphite.cif'))
-        graphite = parser.get_structures()[0]
+        graphite = self.get_structure('Graphite')
         graphite.add_site_property("magmom", [0.1] * len(graphite))
         self.sg4 = SymmetryFinder(graphite, 0.001)
 
@@ -101,8 +104,7 @@ class SymmetryFinderTest(unittest.TestCase):
         for a in refined.lattice.angles:
             self.assertEqual(a, 90)
         self.assertEqual(refined.lattice.a, refined.lattice.b)
-        parser = CifParser(os.path.join(test_dir, 'Li2O.cif'))
-        s = parser.get_structures()[0]
+        s = self.get_structure('Li2O')
         sg = SymmetryFinder(s, 0.001)
         self.assertEqual(sg.get_refined_structure().num_sites, 4 * s.num_sites)
 
@@ -114,7 +116,8 @@ class SymmetryFinderTest(unittest.TestCase):
 
         symm_struct = self.disordered_sg.get_symmetrized_structure()
         self.assertEqual(len(symm_struct.equivalent_sites), 8)
-        self.assertEqual(map(len, symm_struct.equivalent_sites), [16,4,8,4,2,8,8,8])
+        self.assertEqual([len(i) for i in symm_struct.equivalent_sites],
+                         [16,4,8,4,2,8,8,8])
         s1 = symm_struct.equivalent_sites[1][1]
         s2 = symm_struct[symm_struct.equivalent_indices[1][1]]
         self.assertEqual(s1, s2)
@@ -138,11 +141,11 @@ class SymmetryFinderTest(unittest.TestCase):
 
     def test_get_ir_reciprocal_mesh(self):
         grid=self.sg.get_ir_reciprocal_mesh()
-        self.assertEquals(len(grid), 216)
+        self.assertEqual(len(grid), 216)
         self.assertAlmostEquals(grid[1][0][0], 0.1)
         self.assertAlmostEquals(grid[1][0][1], 0.0)
         self.assertAlmostEquals(grid[1][0][2], 0.0)
-        self.assertEquals(grid[1][1], 2)
+        self.assertEqual(grid[1][1], 2)
 
     def test_get_conventional_standard_structure(self):
         parser = CifParser(os.path.join(test_dir, 'bcc_1927.cif'))

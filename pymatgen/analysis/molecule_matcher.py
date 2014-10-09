@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import unicode_literals
+
 """
 This module provides classes to perform fitting of molecule with arbitrary
 atom orders.
@@ -20,22 +24,23 @@ import abc
 import itertools
 import copy
 
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from monty.dev import requires
 from pymatgen.io.babelio import BabelMolAdaptor
+import six
+from six.moves import zip
 try:
     import openbabel as ob
 except ImportError:
     ob = None
 
 
-class AbstractMolAtomMapper(MSONable):
+class AbstractMolAtomMapper(six.with_metaclass(abc.ABCMeta, PMGSONable)):
     """
     Abstract molecular atom order mapping class. A mapping will be able to
     find the uniform atom order of two molecules that can pair the
     geometrically equivalent atoms.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def uniform_labels(self, mol1, mol2):
@@ -129,7 +134,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         aligner.SetRefMol(vmol1)
         least_rmsd = float("Inf")
         best_label2 = None
-        label1 = range(1, obmol1.NumAtoms() + 1)
+        label1 = list(range(1, obmol1.NumAtoms() + 1))
         # noinspection PyProtectedMember
         elements1 = InchiMolAtomMapper._get_elements(vmol1, label1)
         for label2 in label2_list:
@@ -153,14 +158,13 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         Return inchi as molecular hash
         """
         obconv = ob.OBConversion()
-        obconv.SetOutFormat("inchi")
-        obconv.AddOption("X", ob.OBConversion.OUTOPTIONS, "DoNotAddH")
+        obconv.SetOutFormat(str("inchi"))
+        obconv.AddOption(str("X"), ob.OBConversion.OUTOPTIONS, str("DoNotAddH"))
         inchi_text = obconv.WriteString(mol)
         match = re.search("InChI=(?P<inchi>.+)\n", inchi_text)
         return match.group("inchi")
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
@@ -181,8 +185,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         self._angle_tolerance = angle_tolerance
         self._assistant_mapper = IsomorphismMolAtomMapper()
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "angle_tolerance": self._angle_tolerance}
@@ -205,9 +208,9 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             List of equivalent atoms.
         """
         obconv = ob.OBConversion()
-        obconv.SetOutFormat("inchi")
-        obconv.AddOption("a", ob.OBConversion.OUTOPTIONS)
-        obconv.AddOption("X", ob.OBConversion.OUTOPTIONS, "DoNotAddH")
+        obconv.SetOutFormat(str("inchi"))
+        obconv.AddOption(str("a"), ob.OBConversion.OUTOPTIONS)
+        obconv.AddOption(str("X"), ob.OBConversion.OUTOPTIONS, str("DoNotAddH"))
         inchi_text = obconv.WriteString(mol)
         match = re.search("InChI=(?P<inchi>.+)\nAuxInfo=.+"
                           "/N:(?P<labels>[0-9,;]+)/(E:(?P<eq_atoms>[0-9,"
@@ -353,7 +356,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             a2.SetAtomicNum(oa2.GetAtomicNum())
             a2.SetVector(oa2.GetVector())
 
-        canon_label2 = range(1, nheavy+1)
+        canon_label2 = list(range(1, nheavy+1))
         for symm in eq_atoms:
             for i in symm:
                 canon_label2[i-1] = -1
@@ -375,7 +378,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
 
         canon_inchi_orig_map2 = [(canon, inchi, orig)
                                  for canon, inchi, orig in
-                                 zip(canon_label2, range(1, nheavy + 1),
+                                 zip(canon_label2, list(range(1, nheavy + 1)),
                                      ilabel2)]
         canon_inchi_orig_map2.sort(key=lambda m: m[0])
         heavy_atom_indices2 = tuple([x[2] for x in canon_inchi_orig_map2])
@@ -537,7 +540,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         return inchi
 
 
-class MoleculeMatcher(MSONable):
+class MoleculeMatcher(PMGSONable):
     """
     Class to match molecules and identify whether molecules are the same.
 
@@ -669,11 +672,10 @@ class MoleculeMatcher(MSONable):
         all_groups = [[mol_list[i] for i in g] for g in group_indices]
         return all_groups
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "tolerance": self._tolerance, "mapper": self._mapper.to_dict}
+                "tolerance": self._tolerance, "mapper": self._mapper.as_dict()}
 
     @classmethod
     def from_dict(cls, d):

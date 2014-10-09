@@ -1,7 +1,12 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Module contains classes presenting Element and Specie (Element + oxidation
 state) and PeriodicTable.
 """
+
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -14,17 +19,18 @@ __date__ = "Sep 23, 2011"
 import os
 import re
 import json
+from io import open
 
 from pymatgen.core.units import Mass, Length, unitized
 from monty.design_patterns import singleton, cached_class
-from monty.dev import deprecated
 from pymatgen.util.string_utils import formula_double_format
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from functools import total_ordering
 
 
 #Loads element data from json file
-with open(os.path.join(os.path.dirname(__file__), "periodic_table.json")) as f:
+with open(os.path.join(os.path.dirname(__file__), "periodic_table.json"), "rt"
+          ) as f:
     _pt_data = json.load(f)
 
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
@@ -75,6 +81,9 @@ _CHARS2L = {
 def char2l(char):
     """Concert a character (s, p, d ..) into the angular momentum l (int)."""
     return _CHARS2L[char]
+
+
+ALL_ELEMENT_SYMBOLS = set(_pt_data.keys())
 
 
 @cached_class
@@ -306,11 +315,11 @@ class Element(object):
     """
 
     def __init__(self, symbol):
+        self._symbol = u"%s" % symbol
         self._data = _pt_data[symbol]
 
         #Store key variables for quick access
         self._z = self._data["Atomic no"]
-        self._symbol = symbol
         self._x = self._data.get("X", 0)
         for a in ["name", "mendeleev_no", "electrical_resistivity",
                   "velocity_of_sound", "reflectivity",
@@ -338,6 +347,10 @@ class Element(object):
 
     def __getnewargs__(self):
         #function used by pickle to recreate object
+        return self._symbol,
+
+    def __getinitargs__(self):
+        # function used by pickle to recreate object
         return self._symbol,
 
     @property
@@ -450,10 +463,10 @@ class Element(object):
         return self._z
 
     def __repr__(self):
-        return "Element " + self._symbol
+        return "Element " + self.symbol
 
     def __str__(self):
-        return self._symbol
+        return self.symbol
 
     def __lt__(self, other):
         """
@@ -461,12 +474,12 @@ class Element(object):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted into LiFePO4.
         """
-        if self._x != other._x:
-            return self._x < other._x
+        if self.X != other.X:
+            return self.X < other.X
         else:
             # There are cases where the electronegativity are exactly equal.
             # We then sort by symbol.
-            return self._symbol < other._symbol
+            return self.symbol < other.symbol
 
     @staticmethod
     def from_Z(z):
@@ -510,7 +523,7 @@ class Element(object):
             True if symbol is a valid element (e.g., "H"). False otherwise
             (e.g., "Zebra").
         """
-        return symbol in _pt_data
+        return symbol in ALL_ELEMENT_SYMBOLS
 
     @property
     def row(self):
@@ -592,11 +605,11 @@ class Element(object):
         True if element is a transition metal.
         """
         ns = list(range(21, 31))
-        ns.extend(range(39, 49))
+        ns.extend(list(range(39, 49)))
         ns.append(57)
-        ns.extend(range(72, 81))
+        ns.extend(list(range(72, 81)))
         ns.append(89)
-        ns.extend(range(104, 113))
+        ns.extend(list(range(104, 113)))
         return self._z in ns
 
     @property
@@ -611,7 +624,7 @@ class Element(object):
         """
         True if element is a metalloid.
         """
-        return self._symbol in ("B", "Si", "Ge", "As", "Sb", "Te", "Po")
+        return self.symbol in ("B", "Si", "Ge", "As", "Sb", "Te", "Po")
 
     @property
     def is_alkali(self):
@@ -666,20 +679,19 @@ class Element(object):
         """
         return Element(d["element"])
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Makes Element obey the general json interface used in pymatgen for
         easier serialization.
         """
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "element": self._symbol}
+                "element": self.symbol}
 
 
 @cached_class
 @total_ordering
-class Specie(MSONable):
+class Specie(PMGSONable):
     """
     An extension of Element with an oxidation state and other optional
     properties. Properties associated with Specie should be "idealized"
@@ -718,6 +730,14 @@ class Specie(MSONable):
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
 
+    def __getnewargs__(self):
+        # function used by pickle to recreate object
+        return self._el.symbol, self._oxi_state, self._properties
+
+    def __getinitargs__(self):
+        # function used by pickle to recreate object
+        return self._el.symbol, self._oxi_state, self._properties
+
     def __getattr__(self, a):
         #overriding getattr doens't play nice with pickle, so we
         #can't use self._properties
@@ -749,19 +769,19 @@ class Specie(MSONable):
         should effectively ensure that no two unequal Specie have the same
         hash.
         """
-        return self.Z * 100 + self._oxi_state
+        return self.Z
 
     def __lt__(self, other):
         """
         Sets a default sort order for atomic species by electronegativity,
         followed by oxidation state.
         """
-        if self._x != other._x:
-            return self._x < other._x
-        elif self._symbol != other._symbol:
+        if self.X != other.X:
+            return self.X < other.X
+        elif self.symbol != other.symbol:
             # There are cases where the electronegativity are exactly equal.
             # We then sort by symbol.
-            return self._symbol < other._symbol
+            return self.symbol < other.symbol
         else:
             other_oxi = 0 if isinstance(other, Element) else other.oxi_state
             return self.oxi_state < other_oxi
@@ -875,8 +895,7 @@ class Specie(MSONable):
     def __deepcopy__(self, memo):
         return Specie(self.symbol, self.oxi_state, self._properties)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "element": self.symbol,
@@ -891,7 +910,7 @@ class Specie(MSONable):
 
 @cached_class
 @total_ordering
-class DummySpecie(MSONable):
+class DummySpecie(PMGSONable):
     """
     A special specie for representing non-traditional elements or species. For
     example, representation of vacancies (charged or otherwise), or special
@@ -939,6 +958,14 @@ class DummySpecie(MSONable):
             if k not in Specie.supported_properties:
                 raise ValueError("{} is not a supported property".format(k))
 
+    def __getnewargs__(self):
+        # function used by pickle to recreate object
+        return self._symbol, self._oxi_state, self._properties
+
+    def __getinitargs__(self):
+        # function used by pickle to recreate object
+        return self._symbol, self._oxi_state, self._properties
+
     def __getattr__(self, a):
         #overriding getattr doens't play nice with pickle, so we
         #can't use self._properties
@@ -971,12 +998,12 @@ class DummySpecie(MSONable):
         Sets a default sort order for atomic species by electronegativity,
         followed by oxidation state.
         """
-        if self._x != other._x:
-            return self._x < other._x
-        elif self._symbol != other._symbol:
+        if self.X != other.X:
+            return self.X < other.X
+        elif self.symbol != other.symbol:
             # There are cases where the electronegativity are exactly equal.
             # We then sort by symbol.
-            return self._symbol < other._symbol
+            return self.symbol < other.symbol
         else:
             other_oxi = 0 if isinstance(other, Element) else other.oxi_state
             return self.oxi_state < other_oxi
@@ -1007,7 +1034,7 @@ class DummySpecie(MSONable):
         return self._symbol
 
     def __deepcopy__(self, memo):
-        return DummySpecie(self._symbol, self._oxi_state)
+        return DummySpecie(self.symbol, self._oxi_state)
 
     @staticmethod
     def from_string(species_string):
@@ -1035,8 +1062,7 @@ class DummySpecie(MSONable):
                 return DummySpecie(m.group(1), oxidation_state=oxi)
         raise ValueError("Invalid Species String")
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "element": self.symbol,
@@ -1071,8 +1097,7 @@ class PeriodicTable(object):
         """ Implementation of the singleton interface """
         self._all_elements = dict()
         for sym in _pt_data.keys():
-            el = Element(sym)
-            self._all_elements[sym] = el
+            self._all_elements[sym] = Element(sym)
 
     def __getattr__(self, name):
         return self._all_elements[name]
@@ -1169,14 +1194,3 @@ def get_el_sp(obj):
             except:
                 raise ValueError("Can't parse Element or String from " +
                                  str(obj))
-
-
-
-@deprecated(replacement=get_el_sp)
-def smart_element_or_specie(obj):
-    """
-    .. deprecated:: v2.8.11
-
-        Use get_el_sp instead.
-    """
-    return get_el_sp(obj)

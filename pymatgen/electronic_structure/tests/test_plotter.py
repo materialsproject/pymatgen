@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Created on May 1, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -15,8 +18,10 @@ import unittest
 import os
 import json
 
+from io import open
+
 from pymatgen.electronic_structure.dos import CompleteDos
-from pymatgen.electronic_structure.plotter import DosPlotter, BSPlotter
+from pymatgen.electronic_structure.plotter import DosPlotter, BSPlotter, _qvertex_target
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -32,7 +37,8 @@ except ImportError:
 class DosPlotterTest(unittest.TestCase):
 
     def setUp(self):
-        with open(os.path.join(test_dir, "complete_dos.json"), "r") as f:
+        with open(os.path.join(test_dir, "complete_dos.json"), "r",
+                  encoding='utf-8') as f:
             self.dos = CompleteDos.from_dict(json.load(f))
             self.plotter = DosPlotter(sigma=0.2, stack=True)
 
@@ -56,7 +62,7 @@ class BSPlotterTest(unittest.TestCase):
 
     def setUp(self):
         with open(os.path.join(test_dir, "CaO_2605_bandstructure.json"),
-                  "rb") as f:
+                  "r", encoding='utf-8') as f:
             d = json.loads(f.read())
             self.bs = BandStructureSymmLine.from_dict(d)
             self.plotter = BSPlotter(self.bs)
@@ -72,6 +78,12 @@ class BSPlotterTest(unittest.TestCase):
                          "wrong tick label")
         self.assertEqual(len(self.plotter.bs_plot_data()['ticks']['label']),
                          19, "wrong number of tick labels")
+
+    def test_qvertex_target(self):
+        results = _qvertex_target([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 1.0, 0.0], [0.0, 1.0, 0.0],
+                        [0.0, 0.0, 1.0], [1.0, 0.0, 1.0], [1.0, 1.0, 1.0], [0.0, 1.0, 1.0], [0.5, 0.5, 0.5]], 8)
+        self.assertEqual(len(results), 6)
+        self.assertEqual(results[3][1], 0.5)
 
 
 if __name__ == "__main__":

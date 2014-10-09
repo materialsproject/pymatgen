@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Created on Apr 17, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -47,7 +50,7 @@ class GaussianInputTest(unittest.TestCase):
         self.assertRaises(ValueError, GaussianInput, mol, spin_multiplicity=1)
 
     def test_str_and_from_string(self):
-        ans = """#P HF/6-31G(d) SP SCF=Tight Test
+        ans = """#P HF/6-31G(d) SCF=Tight SP Test
 
 H4 C1
 
@@ -69,11 +72,12 @@ A4=109.471213
 D4=119.999966
 
 EPS=12
+
 """
         self.assertEqual(str(self.gau), ans)
         gau = GaussianInput.from_string(ans)
         self.assertEqual(gau.functional, 'HF')
-        self.assertEqual(gau.input_parameters['EPS'], 12)
+        self.assertEqual(gau.input_parameters['EPS'], '12')
 
     def test_from_file(self):
         filepath = os.path.join(test_dir, 'MethylPyrrolidine_drawn.gjf')
@@ -152,7 +156,7 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertEqual("HF", gau.functional)
         self.assertEqual("3-21G", gau.basis_set)
         self.assertEqual(17, gau.num_basis_func)
-        d = gau.to_dict
+        d = gau.as_dict()
         self.assertEqual(d["input"]["functional"], "HF")
         self.assertAlmostEqual(d["output"]["final_energy"], -39.9768775602)
 
