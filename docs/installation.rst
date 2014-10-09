@@ -5,15 +5,14 @@ All required dependencies should be automatically taken care of if you
 install pymatgen using easy_install or pip. Otherwise, these packages should
 be available on `PyPI <http://pypi.python.org>`_.
 
-1. Python 2.7+ required. New default modules such as json are used, as well as
-   new unittest features in Python 2.7.
-2. numpy - For array, matrix and other numerical manipulations. Used extensively
+1. Python 2.7-3.x supported. All critical dependencies of pymatgen already
+   have Python 3.x support. Only a few optional dependencies (VTK and ASE) do
+   not. If you do not need those features, you can choose to work with Python 3.
+2. numpy: For array, matrix and other numerical manipulations. Used extensively
    by all core modules.
-3. pyhull 1.3.6+: For generation of phase diagrams.
-4. PyCifRW 3.3+: For reading and writing Crystallographic Information Format
-   (CIF) files.
-5. requests 1.0+: For the high-level interface to the Materials API.
-6. monty 0.1.1+: For some common complementary functions,
+3. pyhull 1.5.2+: For generation of phase diagrams.
+4. requests 2.0+: For the high-level interface to the Materials API.
+5. monty 0.4.2+: For some common complementary functions,
    design patterns (e.g., singleton) and decorators to the Python
    standard library.
 
@@ -26,10 +25,12 @@ Optional libraries that are required if you need certain features:
    Phase Diagrams.
 2. matplotlib 1.1+ (highly recommended): For plotting (e.g., Phase Diagrams).
 3. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
-   crystal structures using the pymatgen.vis package.
+   crystal structures using the pymatgen.vis package. Note that the VTK
+   package is incompatible with Python 3.x at the moment.
 4. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
    adapters in pymatgen.io.aseio between pymatgen's core Structure object and
    the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
+   Note that the ASE package is incompatible with Python 3.x at the moment.
 5. OpenBabel with Python bindings (http://openbabel.org): Required for the
    usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
    and OpenBabel's OBMol. Opens up input and output support for the very large
@@ -113,7 +114,6 @@ pymatgen usage.
 5. Install numpy and a few other dependencies::
 
     sudo pip install numpy
-    sudo pip install pycifrw
     sudo pip install pyyaml
 
 6. Install pymatgen, either in development mode or via pip.
@@ -149,7 +149,6 @@ please send me the details.
 4. Install some required packages which seem to have issues when installed as
    part of the pymatgen setup.py process::
 
-    pip install pycifrw
     pip install pyyaml
 
 5. Install pymatgen either using pip or the Github developer procedures
@@ -284,11 +283,11 @@ run it.
 	python setup.py build
 	python setup.py install
 
-VTK (tested on v5.10.0)
------------------------
+VTK (tested on v5.10.0 - 6.1.0)
+-------------------------------
 
-Mac OS X 10.7 and 10.8
-~~~~~~~~~~~~~~~~~~~~~~
+Mac OS X 10.7 - 10.9
+~~~~~~~~~~~~~~~~~~~~
 
 The easiest is to install cmake from
 http://cmake.org/cmake/resources/software.html.
@@ -321,11 +320,21 @@ need to be modified are shown):
 
    //Also delete the prefix settings for python, which typically links to the Mac python.
 
+    VTK_INSTALL_PYTHON_MODULE_DIR:PATH=/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages
+
+.. note:: Garbage collection on new Xcode
+
+    If you are using a very new XCode (e.g. 5.1), please note that Cocoa garbage
+    collection has been removed and during compile, you may get an "error:
+    garbage collection is no longer supported" message. VTK does not require
+    Cocoa garbage collection, but was configured to built with support for it on.
+    You can simply remove the -fobjc-gc flag from VTK_REQUIRED_OBJCXX_FLAGS.
+
 After the CMakeCache.txt file is generated, type:
 
 ::
 
-	make
+	make -j 4
 	sudo make install
 
 With any luck, you should have vtk with the necessary python wrappers installed.
@@ -333,7 +342,7 @@ With any luck, you should have vtk with the necessary python wrappers installed.
 OpenBabel (tested on v2.3.2)
 ----------------------------
 
-Mac OS X 10.7 - 10.8
+Mac OS X 10.7 - 10.9
 ~~~~~~~~~~~~~~~~~~~~
 
 Openbabel must be compiled with python bindings for integration with pymatgen.
@@ -416,8 +425,8 @@ Here are the steps that I took to make it work:
 Enumlib (tested as of version of Jul 2012)
 ------------------------------------------
 
-Mac OS X 10.7
-~~~~~~~~~~~~~
+Mac OS X 10.7 - 10.9
+~~~~~~~~~~~~~~~~~~~~
 
 There does not seem to be any issues with installation as per the instructions
 given by the author. For convenience, the steps are reproduced here:

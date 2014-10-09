@@ -1,8 +1,10 @@
+# coding: utf-8
+
+from __future__ import unicode_literals, division, print_function
+
 """
 Error handlers for errors originating from the Submission systems.
 """
-
-from __future__ import division
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "
@@ -16,15 +18,16 @@ __all_errors__ = ['SubmitError', 'FullQueueError', 'DiskError', 'TimeCancelError
 
 import re
 import abc
+import six
+
 from abc import ABCMeta, abstractproperty, abstractmethod
 
-
+@six.add_metaclass(ABCMeta)
 class CorrectorProtocolScheduler(object):
     """
     Abstract class to define the protocol / interface for correction operators. The client code quadapters / submission
     script generator method / ... should implement these methods.
     """
-    __metaclass__ = ABCMeta
 
     @abstractproperty
     def name(self):
@@ -73,12 +76,12 @@ class CorrectorProtocolScheduler(object):
         return bool
 
 
+@six.add_metaclass(ABCMeta)
 class CorrectorProtocolApplication(object):
     """
     Abstract class to define the protocol / interface for correction operators. The client code quadapters / submission
     script generator method / ... should implement these methods.
     """
-    __metaclass__ = ABCMeta
 
     @abstractproperty
     def name(self):
@@ -104,11 +107,11 @@ class CorrectorProtocolApplication(object):
         return bool
 
 
+@six.add_metaclass(ABCMeta)
 class AbstractError(object):
     """
     Error base class
     """
-    __metaclass__ = ABCMeta
 
     def __init__(self, errmsg, meta_data):
         self.errmsg = errmsg
@@ -146,7 +149,7 @@ class AbstractError(object):
         """
         what to do if every thing else fails...
         """
-        print 'non of the defined solutions for %s returned success...' % self.name
+        print('non of the defined solutions for %s returned success...' % self.name)
         return
 
 
@@ -221,7 +224,8 @@ class NodeFailureError(AbstractError):
         return [(CorrectorProtocolScheduler.exclude_nodes, [self.nodes])]
 
 
-class AbstractErrorParser():
+@six.add_metaclass(ABCMeta)
+class AbstractErrorParser(object):
     """
     Abstract class for parsing errors originating from the scheduler system and error that are not reported by the
     program itself, i.e. segmentation faults.
@@ -237,8 +241,6 @@ class AbstractErrorParser():
                 }
 
     """
-    __metaclass__ = ABCMeta
-
     def __init__(self, err_file, out_file=None, run_err_file=None, batch_err_file=None):
         self.files = {'err': err_file, 'out': out_file, 'run_err': run_err_file, 'batch_err': batch_err_file}
         self.errors = []
@@ -281,10 +283,10 @@ class AbstractErrorParser():
                     if found:
                         metadata = self.extract_metadata(lines, errmsg[k]['meta_filter'])
                 except (IOError, OSError):
-                    print self.files[k], 'not found'
+                    print(self.files[k], 'not found')
                     pass
                 except TypeError:
-                    print 'type error', self.files[k], ' has type ', self.files[k].cls(), ' should be string.'
+                    print('type error', self.files[k], ' has type ', self.files[k].cls(), ' should be string.')
                     pass
 
         return found, message, metadata
@@ -298,9 +300,9 @@ class AbstractErrorParser():
             if result[0]:
                 self.errors.append(error(result[1], result[2]))
         if len(self.errors) > 0:
-            print 'QUEUE_ERROR FOUND'
+            print('QUEUE_ERROR FOUND')
             for error in self.errors:
-                print error
+                print(error)
 
 
 class SlurmErrorParser(AbstractErrorParser):
@@ -399,6 +401,6 @@ if __name__ == "__main__":
     my_parser = get_parser('pbs', err_file='queue.err', out_file='queue.out', run_err_file='run.err',
                            batch_err_file='sbatch.err')
     my_parser.parse()
-    print 'parser.errors', my_parser.errors
+    print('parser.errors', my_parser.errors)
     for my_error in my_parser.errors:
-        print my_error
+        print(my_error)

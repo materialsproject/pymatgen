@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module defines Entry classes for containing experimental data.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -14,11 +17,11 @@ __date__ = "Jun 27, 2012"
 
 from pymatgen.phasediagram.entries import PDEntry
 from pymatgen.core.composition import Composition
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.analysis.thermochemistry import ThermoData
 
 
-class ExpEntry(PDEntry, MSONable):
+class ExpEntry(PDEntry, PMGSONable):
     """
     An lightweight ExpEntry object containing experimental data for a
     composition for many purposes. Extends a PDEntry so that it can be used for
@@ -63,10 +66,9 @@ class ExpEntry(PDEntry, MSONable):
         thermodata = [ThermoData.from_dict(td) for td in d["thermodata"]]
         return cls(d["composition"], thermodata, d["temperature"])
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "thermodata": [td.to_dict for td in self._thermodata],
-                "composition": self.composition.to_dict,
+                "thermodata": [td.as_dict() for td in self._thermodata],
+                "composition": self.composition.as_dict(),
                 "temperature": self.temperature}

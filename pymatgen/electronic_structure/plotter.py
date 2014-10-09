@@ -1,8 +1,12 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals, print_function
+
 """
 This module implements plotter for DOS and band structure.
 """
 
-from __future__ import division
+from six.moves import zip
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -164,7 +168,7 @@ class DosPlotter(object):
                          label=str(key))
             else:
                 plt.plot(x, y, color=color_order[i % len(color_order)],
-                         label=str(key))
+                         label=str(key),linewidth=3)
             if not self.zero_at_efermi:
                 ylim = plt.ylim()
                 plt.plot([self._doses[key]['efermi'],
@@ -248,7 +252,7 @@ class BSPlotter(object):
         uniq_d = []
         uniq_l = []
         temp_ticks = zip(ticks['distance'], ticks['label'])
-        for i in xrange(len(temp_ticks)):
+        for i in range(len(temp_ticks)):
             if i == 0:
                 uniq_d.append(temp_ticks[i][0])
                 uniq_l.append(temp_ticks[i][1])
@@ -371,7 +375,7 @@ class BSPlotter(object):
 
         return {'ticks': ticks, 'distances': distance, 'energy': energy,
                 'vbm': vbm_plot, 'cbm': cbm_plot,
-                'lattice': self._bs._lattice_rec.to_dict,
+                'lattice': self._bs._lattice_rec.as_dict(),
                 'zero_energy': zero_energy, 'is_metal': self._bs.is_metal(),
                 'band_gap': "{} {} bandgap = {}".format(direct,
                                                         bg['transition'],
@@ -596,13 +600,14 @@ class BSPlotter(object):
         """
         import matplotlib as mpl
         import matplotlib.pyplot as plt
+        from mpl_toolkits.mplot3d import Axes3D
         mpl.rcParams['legend.fontsize'] = 10
 
         fig = plt.figure()
-        ax = fig.gca(projection='3d')
-        vec1 = self._bs._lattice_rec.matrix[0]
-        vec2 = self._bs._lattice_rec.matrix[1]
-        vec3 = self._bs._lattice_rec.matrix[2]
+        ax = Axes3D(fig)
+        vec1 = self._bs.lattice.matrix[0]
+        vec2 = self._bs.lattice.matrix[1]
+        vec3 = self._bs.lattice.matrix[2]
 
         #make the grid
         max_x = -1000
@@ -630,7 +635,7 @@ class BSPlotter(object):
                     if list_k_points[-1][2] < min_z:
                         min_z = list_k_points[-1][0]
 
-        vertex = qvertex_target(list_k_points, 13)
+        vertex = _qvertex_target(list_k_points, 13)
         lines = get_lines_voronoi(vertex)
 
         for i in range(len(lines)):
@@ -640,12 +645,12 @@ class BSPlotter(object):
                     [vertex1[2], vertex2[2]], color='k')
 
         for b in self._bs._branches:
-            vertex1 = self._bs._kpoints[b['start_index']].cart_coords
-            vertex2 = self._bs._kpoints[b['end_index']].cart_coords
+            vertex1 = self._bs.kpoints[b['start_index']].cart_coords
+            vertex2 = self._bs.kpoints[b['end_index']].cart_coords
             ax.plot([vertex1[0], vertex2[0]], [vertex1[1], vertex2[1]],
                     [vertex1[2], vertex2[2]], color='r', linewidth=3)
 
-        for k in self._bs._kpoints:
+        for k in self._bs.kpoints:
             if k.label:
                 label = k.label
                 if k.label.startswith("\\") or k.label.find("_") != -1:
@@ -689,19 +694,18 @@ class BSPlotterProjected(BSPlotter):
     def _get_projections_by_branches(self, dictio):
         proj = self._bs.get_projections_on_elts_and_orbitals(dictio)
         proj_br = []
-        print len(proj[Spin.up])
-        print len(proj[Spin.up][0])
+        print(len(proj[Spin.up]))
+        print(len(proj[Spin.up][0]))
         for c in proj[Spin.up][0]:
-            print c
+            print(c)
         for b in self._bs._branches:
-
-            print b
+            print(b)
             if self._bs.is_spin_polarized:
                 proj_br.append({str(Spin.up): [[] for l in range(self._nb_bands)],
                                 str(Spin.down): [[] for l in range(self._nb_bands)]})
             else:
                 proj_br.append({str(Spin.up): [[] for l in range(self._nb_bands)]})
-            print len(proj_br[-1][str(Spin.up)]), self._nb_bands
+            print((len(proj_br[-1][str(Spin.up)]), self._nb_bands))
 
             for i in range(self._nb_bands):
                 for j in range(b['start_index'], b['end_index']+1):
@@ -749,7 +753,6 @@ class BSPlotterProjected(BSPlotter):
 
         for el in dictio:
             for o in dictio[el]:
-                print el, o
                 plt.subplot(100 * math.ceil(fig_number / 2) + 20 + count)
                 self._maketicks(plt)
                 for b in range(len(data['distances'])):
@@ -809,7 +812,6 @@ class BSPlotterProjected(BSPlotter):
         band_linewidth = 1.0
         proj = self._get_projections_by_branches({e.symbol: ['s', 'p', 'd']
                                                   for e in self._bs._structure.composition.elements})
-        print proj
         data = self.bs_plot_data(zero_to_efermi)
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
@@ -937,17 +939,17 @@ class BSPlotterProjected(BSPlotter):
         return plt
 
 
-def qvertex_target(data, index):
+def _qvertex_target(data, index):
     """
     Input data should be in the form of a list of a list of floats.
     index is the index of the targeted point
     Returns the vertices of the voronoi construction around this target point.
     """
     from pyhull import qvoronoi
-    output = qvoronoi("p Qv"+str(index), data)
+    output = qvoronoi("p QV"+str(index), data)
     output.pop(0)
-    output.pop(1)
-    return [[float(i) for i in row] for row in output]
+    output.pop(0)
+    return [[float(i) for i in row.split()] for row in output]
 
 
 def get_lines_voronoi(data):

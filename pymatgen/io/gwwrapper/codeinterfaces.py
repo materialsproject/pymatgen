@@ -1,3 +1,7 @@
+# coding: utf-8
+
+from __future__ import unicode_literals, division, print_function
+
 """
 UNDER DEVELOPMENT
 Classes for code interfaces.
@@ -9,8 +13,6 @@ A new implementation can be created from the New_Code template, the new class sh
 factory function at the end.
 """
 
-from __future__ import division
-
 __author__ = "Michiel van Setten"
 __copyright__ = " "
 __version__ = "0.9"
@@ -20,6 +22,7 @@ __date__ = "May 2014"
 
 import os
 import shutil
+import six
 import os.path
 import collections
 
@@ -27,15 +30,17 @@ from abc import abstractproperty, abstractmethod, ABCMeta
 from pymatgen.io.abinitio.netcdf import NetcdfReader
 from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.core.units import Ha_to_eV
-from pymatgen.io.gwwrapper.helpers import is_converged, read_grid_from_file, s_name, expand_tests, store_conv_results
+from pymatgen.io.gwwrapper.helpers import is_converged, read_grid_from_file, s_name, expand, store_conv_results
 from pymatgen.io.gwwrapper.GWvaspinputsets import SingleVaspGWWork
-from pymatgen.io.gwwrapper.GWworkflows import VaspGWFWWorkFlow, SingleAbinitGWWorkFlow
+from pymatgen.io.gwwrapper.GWworkflows import VaspGWFWWorkFlow
+from pymatgen.io.gwwrapper.GWworkflows import SingleAbinitGWWorkFlow
 from pymatgen.io.gwwrapper.GWvaspinputsets import GWscDFTPrepVaspInputSet, GWDFTDiagVaspInputSet, \
     GWG0W0VaspInputSet
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
+@six.add_metaclass(ABCMeta)
 class AbstractCodeInterface(object):
     """
     UNDER DEVELOPMENT
@@ -43,8 +48,6 @@ class AbstractCodeInterface(object):
         to be able to use it in the AbinitioSpec wrapper.
         first step : GW output parsing
     """
-    __metaclass__ = ABCMeta
-
     def __init__(self):
         self.converged = False
         self.grid = 0
@@ -189,7 +192,7 @@ class VaspInterface(AbstractCodeInterface):
             pass
 
         if all_done:
-            print '| all is done for this material'
+            print('| all is done for this material')
             return
 
         ### specific part
@@ -208,12 +211,12 @@ class VaspInterface(AbstractCodeInterface):
                 tests_prep = GWscDFTPrepVaspInputSet(structure, spec_data).convs
                 tests_prep.update(GWDFTDiagVaspInputSet(structure, spec_data).convs)
                 if grid > 0:
-                    tests_prep = expand_tests(tests=tests_prep, level=grid)
-                print tests_prep
+                    tests_prep = expand(tests=tests_prep, level=grid)
+                print(tests_prep)
             for test_prep in tests_prep:
-                print 'setting up test for: ' + test_prep
+                print('setting up test for: ' + test_prep)
                 for value_prep in tests_prep[test_prep]['test_range']:
-                    print "**" + str(value_prep) + "**"
+                    print("**" + str(value_prep) + "**")
                     option = {'test_prep': test_prep, 'value_prep': value_prep}
                     self.create_job(spec_data, structure, 'prep', fw_work_flow, converged, option)
                     for job in spec_data['jobs'][1:]:
@@ -225,8 +228,8 @@ class VaspInterface(AbstractCodeInterface):
                             else:
                                 tests = GWG0W0VaspInputSet(structure, spec_data).convs
                                 if grid > 0:
-                                    tests = expand_tests(tests=tests, level=grid)
-                                print tests
+                                    tests = expand(tests=tests, level=grid)
+                                print(tests)
                         if job in ['GW0', 'scGW0']:
                             input_set = GWG0W0VaspInputSet(structure, spec_data)
                             input_set.gw0_on()
@@ -235,9 +238,9 @@ class VaspInterface(AbstractCodeInterface):
                             else:
                                 tests = input_set.tests
                         for test in tests:
-                            print '    setting up test for: ' + test
+                            print('    setting up test for: ' + test)
                             for value in tests[test]['test_range']:
-                                print "    **" + str(value) + "**"
+                                print("    **" + str(value) + "**")
                                 option.update({'test': test, 'value': value})
                                 self.create_job(spec_data, structure, job, fw_work_flow, converged, option)
 
@@ -310,7 +313,7 @@ class AbinitInterface(AbstractCodeInterface):
 
     @property
     def gw_data_file(self):
-        return 'SIGRES.nc'
+        return 'out_SIGRES.nc'
 
     def read_ps_dir(self):
         location = os.environ['ABINIT_PS']
@@ -396,7 +399,7 @@ class AbinitInterface(AbstractCodeInterface):
             option = is_converged(self.hartree_parameters, structure, return_values=True)
         else:
             option = None
-        print option
+        print(option)
         work_flow = SingleAbinitGWWorkFlow(structure, spec_data, option)
         flow = work_flow.create()
         if flow is not None:
@@ -406,8 +409,9 @@ class AbinitInterface(AbstractCodeInterface):
     def store_results(self, name):
         folder = name + '.res'
         store_conv_results(name, folder)
+        w = 'w' + str(read_grid_from_file(name+".full_res")['grid'])
         try:
-            shutil.copyfile(os.path.join(name+".conv", "w0", "t6", "outdata", "out_SIGRES.nc"),
+            shutil.copyfile(os.path.join(name+".conv", w, "t6", "outdata", "out_SIGRES.nc"),
                         os.path.join(folder, "out_SIGRES.nc"))
         except:  # compatibility issue
             shutil.copyfile(os.path.join(name+".conv", "work_0", "task_6", "outdata", "out_SIGRES.nc"),
@@ -492,4 +496,3 @@ def get_all_ecuteps():
         conv_pars = code().conv_pars
         ecuteps_names.append(conv_pars['ecuteps'])
     return ecuteps_names
-

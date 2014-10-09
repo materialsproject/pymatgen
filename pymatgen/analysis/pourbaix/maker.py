@@ -1,9 +1,13 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Module containing analysis classes which compute a pourbaix diagram given a
 target compound/element.
 """
 
-from __future__ import division
+from six.moves import zip
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -46,7 +50,7 @@ class PourbaixDiagram(object):
             elif entry.phase_type == "Ion":
                 self._ion_entries.append(entry)
             else:
-                raise StandardError("Incorrect Phase type - needs to be \
+                raise Exception("Incorrect Phase type - needs to be \
                 Pourbaix entry of phase type Ion/Solid")
         self._unprocessed_entries = self._solid_entries + self._ion_entries
         self._elt_comp = comp_dict
@@ -69,7 +73,7 @@ class PourbaixDiagram(object):
                 A.append(Ai)
             A = np.array(A).T.astype(float)
             w = np.array(w)
-            A /= np.dot([A[i].sum() for i in xrange(len(A))], w)
+            A /= np.dot([a.sum() for a in A], w)
             x = np.linalg.solve(A, w)
             self._elt_comp = dict(zip(self.pourbaix_elements, x))
 
@@ -106,9 +110,9 @@ class PourbaixDiagram(object):
         for entry in entries_to_process:
             row = [entry.npH, entry.nPhi, entry.g0]
             data.append(row)
-        temp = zip(data, self._qhull_entries)
-        temp.sort(key=lambda x: x[0][2])
-        [data, self._qhull_entries] = zip(*temp)
+        temp = sorted(zip(data, self._qhull_entries),
+                      key=lambda x: x[0][2])
+        [data, self._qhull_entries] = list(zip(*temp))
         return data
 
     def _process_multielement_entries(self):
@@ -120,9 +124,9 @@ class PourbaixDiagram(object):
         el_list = self._elt_comp.keys()
         comp_list = [self._elt_comp[el] for el in el_list]
         list_of_entries = list()
-        for j in xrange(1, N + 1):
+        for j in range(1, N + 1):
             list_of_entries += list(itertools.combinations(
-                                [i for i in xrange(len(entries))], j))
+                                list(range(len(entries))), j))
         processed_entries = list()
         for entry_list in list_of_entries:
             # Check if all elements in composition list are present in
@@ -143,7 +147,7 @@ class PourbaixDiagram(object):
                     processed_entries.append(MultiEntry([entry], [1.0]))
                 continue
 
-            A = [[0.0] * (len(entry_list) - 1) for _ in xrange(len(entry_list) - 1)]
+            A = [[0.0] * (len(entry_list) - 1) for _ in range(len(entry_list) - 1)]
             multi_entries = [entries[j] for j in entry_list]
             entry0 = entries[entry_list[0]]
             comp0 = entry0.composition
@@ -153,8 +157,8 @@ class PourbaixDiagram(object):
                 red_fac = 1.0
             sum_nel = sum([comp0[el] / red_fac for el in el_list])
             b = [comp0[Element(el_list[i])] / red_fac - comp_list[i] * sum_nel
-                 for i in xrange(1, len(entry_list))]
-            for j in xrange(1, len(entry_list)):
+                 for i in range(1, len(entry_list))]
+            for j in range(1, len(entry_list)):
                 entry = entries[entry_list[j]]
                 comp = entry.composition
                 if entry.phase_type == "Solid":
@@ -162,7 +166,7 @@ class PourbaixDiagram(object):
                 else:
                     red_fac = 1.0
                 sum_nel = sum([comp[el] / red_fac for el in el_list])
-                for i in xrange(1, len(entry_list)):
+                for i in range(1, len(entry_list)):
                     el = el_list[i]
                     A[i-1][j-1] = comp_list[i] * sum_nel -\
                         comp[Element(el)] / red_fac
@@ -172,7 +176,7 @@ class PourbaixDiagram(object):
                 if 'Singular matrix' in err.message:
                     continue
                 else:
-                    raise StandardError("Unknown Error message!")
+                    raise Exception("Unknown Error message!")
             if not(np.all(weights > 0.0)):
                 continue
             weights = list(weights)
@@ -189,10 +193,10 @@ class PourbaixDiagram(object):
         self._qhull_data = self._create_conv_hull_data()
         dim = len(self._qhull_data[0])
         if len(self._qhull_data) < dim:
-            raise StandardError("Can only do elements with at-least 3 entries"
+            raise Exception("Can only do elements with at-least 3 entries"
                                 " for now")
         if len(self._qhull_data) == dim:
-            self._facets = [range(dim)]
+            self._facets = [list(range(dim))]
         else:
             facets_pyhull = np.array(ConvexHull(self._qhull_data).vertices)
             self._facets = np.sort(np.array(facets_pyhull))

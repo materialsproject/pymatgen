@@ -1,8 +1,14 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 This module implements an XRD pattern calculator.
 """
 
-from __future__ import division
+from six.moves import filter
+from six.moves import map
+from six.moves import zip
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -18,7 +24,7 @@ import os
 import numpy as np
 import json
 
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 #XRD wavelengths in angstroms
 WAVELENGTHS = {
@@ -171,7 +177,7 @@ class XRDCalculator(object):
             their multiplicities. d_hkl is the interplanar spacing.
         """
         if self.symprec:
-            finder = SymmetryFinder(structure, symprec=self.symprec)
+            finder = SpacegroupAnalyzer(structure, symprec=self.symprec)
             structure = finder.get_refined_structure()
 
         wavelength = self.wavelength

@@ -1,6 +1,6 @@
-#!/usr/bin/python
+# coding: utf-8
 
-from __future__ import division
+from __future__ import division, unicode_literals
 
 import itertools
 from pymatgen.core.lattice import Lattice
@@ -126,32 +126,43 @@ class LatticeTestCase(PymatgenTest):
         lattice = Lattice([1.0, 1, 1, -1.0, 0, 2, 3.0, 5, 6])
         reduced_latt = lattice.get_lll_reduced_lattice()
 
-        expected_ans = np.array([0.0, 1.0, 0.0,
-                                 1.0, 0.0, 1.0,
-                                 - 2.0, 0.0, 1.0]).reshape((3, 3))
-        self.assertArrayAlmostEqual(reduced_latt.matrix, expected_ans)
+        expected_ans = Lattice(np.array(
+            [0.0, 1.0, 0.0, 1.0, 0.0, 1.0, -2.0, 0.0, 1.0]).reshape((3, 3)))
+        self.assertAlmostEqual(
+            np.linalg.det(np.linalg.solve(expected_ans.matrix,
+                                          reduced_latt.matrix)),
+            1)
+        self.assertArrayAlmostEqual(
+            sorted(reduced_latt.abc), sorted(expected_ans.abc))
         self.assertAlmostEqual(reduced_latt.volume, lattice.volume)
         latt = [7.164750, 2.481942, 0.000000,
                 - 4.298850, 2.481942, 0.000000,
                 0.000000, 0.000000, 14.253000]
-        expected_ans = np.array([-4.298850, 2.481942, 0.000000,
-                                 2.865900, 4.963884, 0.000000,
-                                 0.000000, 0.000000, 14.253000])
-        expected_ans = expected_ans.reshape((3, 3))
+        expected_ans = Lattice(np.array(
+            [-4.298850, 2.481942, 0.000000, 2.865900, 4.963884, 0.000000,
+             0.000000, 0.000000, 14.253000]))
         reduced_latt = Lattice(latt).get_lll_reduced_lattice()
-        self.assertArrayAlmostEqual(reduced_latt.matrix, expected_ans)
-        self.assertAlmostEqual(reduced_latt.volume, Lattice(latt).volume)
+        self.assertAlmostEqual(
+            np.linalg.det(np.linalg.solve(expected_ans.matrix,
+                                          reduced_latt.matrix)),
+            1)
+        self.assertArrayAlmostEqual(
+            sorted(reduced_latt.abc), sorted(expected_ans.abc))
 
-        expected_ans = np.array([0.0, 10.0, 10.0,
-                                 10.0, 10.0, 0.0,
-                                 30.0, -30.0, 40.0]).reshape((3, 3))
+        expected_ans = Lattice([0.0, 10.0, 10.0,
+                                10.0, 10.0, 0.0,
+                                30.0, -30.0, 40.0])
 
         lattice = np.array([100., 0., 10., 10., 10., 20., 10., 10., 10.])
         lattice = lattice.reshape(3, 3)
         lattice = Lattice(lattice.T)
         reduced_latt = lattice.get_lll_reduced_lattice()
-        self.assertArrayAlmostEqual(reduced_latt.matrix, expected_ans)
-        self.assertAlmostEqual(reduced_latt.volume, lattice.volume)
+        self.assertAlmostEqual(
+            np.linalg.det(np.linalg.solve(expected_ans.matrix,
+                                          reduced_latt.matrix)),
+            1)
+        self.assertArrayAlmostEqual(
+            sorted(reduced_latt.abc), sorted(expected_ans.abc))
 
         random_latt = Lattice(np.random.random((3, 3)))
         if np.linalg.det(random_latt.matrix) > 1e-8:
@@ -243,7 +254,7 @@ class LatticeTestCase(PymatgenTest):
             self.assertTrue(isinstance(l, Lattice))
 
     def test_to_from_dict(self):
-        d = self.tetragonal.to_dict
+        d = self.tetragonal.as_dict()
         t = Lattice.from_dict(d)
         for i in range(3):
             self.assertEqual(t.abc[i], self.tetragonal.abc[i])
@@ -266,8 +277,8 @@ class LatticeTestCase(PymatgenTest):
         ws_cell = Lattice([[10, 0, 0], [0, 5, 0], [0, 0, 1]])\
             .get_wigner_seitz_cell()
         self.assertEqual(6, len(ws_cell))
-        self.assertEqual(ws_cell[3], [[-5.0, -2.5, -0.5], [-5.0, 2.5, -0.5],
-                                      [-5.0, 2.5, 0.5], [-5.0, -2.5, 0.5]])
+        for l in ws_cell[3]:
+            self.assertEqual([abs(i) for i in l], [5.0, 2.5, 0.5])
 
     def test_dot_and_norm(self):
         frac_basis = [[1,0,0], [0,1,0], [0,0,1]]
@@ -297,7 +308,7 @@ class LatticeTestCase(PymatgenTest):
     def test_get_points_in_sphere(self):
         latt = Lattice.cubic(1)
         pts = []
-        for a, b, c in itertools.product(xrange(10), xrange(10), xrange(10)):
+        for a, b, c in itertools.product(range(10), range(10), range(10)):
             pts.append([a / 10, b / 10, c / 10])
 
         self.assertEqual(len(latt.get_points_in_sphere(
@@ -328,6 +339,12 @@ class LatticeTestCase(PymatgenTest):
         f2 = [0, 0, 10]
         self.assertEqual(lattice.get_all_distances(f1, f2)[0, 0], 0)
 
+    def test_monoclinic(self):
+        lengths, angles = self.monoclinic.lengths_and_angles
+        self.assertNotAlmostEqual(angles[1], 90)
+        self.assertAlmostEqual(angles[0], 90)
+        self.assertAlmostEqual(angles[2], 90)
+
     def test_is_hexagonal(self):
         self.assertFalse(self.cubic.is_hexagonal())
         self.assertFalse(self.tetragonal.is_hexagonal())
@@ -335,6 +352,12 @@ class LatticeTestCase(PymatgenTest):
         self.assertFalse(self.monoclinic.is_hexagonal())
         self.assertFalse(self.rhombohedral.is_hexagonal())
         self.assertTrue(self.hexagonal.is_hexagonal())
+
+    def test_get_distance_and_image(self):
+        dist, image = self.cubic.get_distance_and_image([0, 0, 0.1], [0, 0.,
+                                                                     0.9])
+        self.assertAlmostEqual(dist, 2)
+        self.assertArrayAlmostEqual(image, [0, 0, -1])
 
 if __name__ == '__main__':
     import unittest

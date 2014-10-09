@@ -1,8 +1,11 @@
-#!/usr/bin/python
+# coding: utf-8
+
+from __future__ import unicode_literals
 
 import unittest
 import os
 import json
+from io import open
 
 from pymatgen.electronic_structure.bandstructure import Kpoint
 from pymatgen import Lattice
@@ -20,24 +23,25 @@ class KpointTest(unittest.TestCase):
         self.kpoint = Kpoint([0.1, 0.4, -0.5], self.lattice, label="X")
 
     def test_properties(self):
-        self.assertEquals(self.kpoint.frac_coords[0], 0.1)
-        self.assertEquals(self.kpoint.frac_coords[1], 0.4)
-        self.assertEquals(self.kpoint.frac_coords[2], -0.5)
-        self.assertEquals(self.kpoint.a, 0.1)
-        self.assertEquals(self.kpoint.b, 0.4)
-        self.assertEquals(self.kpoint.c, -0.5)
-        self.assertEquals(self.lattice, Lattice.cubic(10.0))
-        self.assertEquals(self.kpoint.cart_coords[0], 1.0)
-        self.assertEquals(self.kpoint.cart_coords[1], 4.0)
-        self.assertEquals(self.kpoint.cart_coords[2], -5.0)
+        self.assertEqual(self.kpoint.frac_coords[0], 0.1)
+        self.assertEqual(self.kpoint.frac_coords[1], 0.4)
+        self.assertEqual(self.kpoint.frac_coords[2], -0.5)
+        self.assertEqual(self.kpoint.a, 0.1)
+        self.assertEqual(self.kpoint.b, 0.4)
+        self.assertEqual(self.kpoint.c, -0.5)
+        self.assertEqual(self.lattice, Lattice.cubic(10.0))
+        self.assertEqual(self.kpoint.cart_coords[0], 1.0)
+        self.assertEqual(self.kpoint.cart_coords[1], 4.0)
+        self.assertEqual(self.kpoint.cart_coords[2], -5.0)
         self.assertEqual(self.kpoint.label, "X")
 
 
 class BandStructureSymmLine_test(unittest.TestCase):
 
     def setUp(self):
-        with open(os.path.join(test_dir, "Cu2O_361_bandstructure.json"), "rb") as f:
-            d = json.loads(f.read())
+        with open(os.path.join(test_dir, "Cu2O_361_bandstructure.json"),
+                  "r", encoding='utf-8') as f:
+            d = json.load(f)
             self.bs = BandStructureSymmLine.from_dict(d)
             self.assertListEqual(self.bs._projections[Spin.up][10][12][Orbital.s], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "wrong projections")
             self.assertListEqual(self.bs._projections[Spin.up][25][0][Orbital.dyz], [0.0, 0.0, 0.0011, 0.0219, 0.0219, 0.069], "wrong projections")
@@ -46,13 +50,14 @@ class BandStructureSymmLine_test(unittest.TestCase):
             self.assertAlmostEqual(self.bs.get_projections_on_elts_and_orbitals({'Cu':['s','d']})[Spin.up][25][0]['Cu']['s'], 0.0027)
             self.assertAlmostEqual(self.bs.get_projections_on_elts_and_orbitals({'Cu':['s','d']})[Spin.up][25][0]['Cu']['d'], 0.8495999999999999)
 
-        with open(os.path.join(test_dir, "CaO_2605_bandstructure.json"), "rb") as f:
-            d = json.loads(f.read())
+        with open(os.path.join(test_dir, "CaO_2605_bandstructure.json"), "r",
+                  encoding='utf-8') as f:
+            d = json.load(f)
             #print d.keys()
             self.bs = BandStructureSymmLine.from_dict(d)
-            #print self.bs.to_dict.keys()
-            #this doesn't really test to_dict -> from_dict very well
-            #self.assertEqual(self.bs.to_dict.keys(), d.keys())
+            #print self.bs.as_dict().keys()
+            #this doesn't really test as_dict() -> from_dict very well
+            #self.assertEqual(self.bs.as_dict().keys(), d.keys())
             self.one_kpoint = self.bs.kpoints[31]
             self.assertEqual(self.bs._nb_bands, 16)
             self.assertAlmostEqual(self.bs._bands[Spin.up][5][10], 0.5608)
@@ -62,11 +67,11 @@ class BandStructureSymmLine_test(unittest.TestCase):
             self.assertEqual(self.bs._branches[5]['end_index'], 95)
             self.assertAlmostEqual(self.bs._distance[70], 4.2335127528765737)
         with open(os.path.join(test_dir, "NiO_19009_bandstructure.json"),
-                  "rb") as f:
-            d = json.loads(f.read())
+                  "r", encoding='utf-8') as f:
+            d = json.load(f)
             self.bs_spin = BandStructureSymmLine.from_dict(d)
-            #this doesn't really test to_dict -> from_dict very well
-            #self.assertEqual(self.bs_spin.to_dict.keys(), d.keys())
+            #this doesn't really test as_dict() -> from_dict very well
+            #self.assertEqual(self.bs_spin.as_dict().keys(), d.keys())
             self.assertEqual(self.bs_spin._nb_bands, 27)
             self.assertAlmostEqual(self.bs_spin._bands[Spin.up][5][10], 0.262)
             self.assertAlmostEqual(self.bs_spin._bands[Spin.down][5][10],

@@ -1,8 +1,10 @@
-"""
+# coding: utf-8
+
+from __future__ import unicode_literals, division, print_function
 
 """
 
-from __future__ import division
+"""
 
 __author__ = "Michiel van Setten"
 __copyright__ = " "
@@ -14,19 +16,18 @@ __date__ = "May 2014"
 import os
 import os.path
 import copy
-
 from pymatgen.io.abinitio.abiobjects import asabistructure
 from pymatgen.io.abinitio.calculations import g0w0_extended
 from pymatgen.io.abinitio.flows import AbinitFlow
 from pymatgen.io.abinitio.tasks import TaskManager
 from pymatgen.io.abinitio.pseudos import PseudoTable
 from pymatgen.io.gwwrapper.GWtasks import *
-from pymatgen.io.gwwrapper.helpers import now, s_name, expand_tests, read_grid_from_file, is_converged
+from pymatgen.io.gwwrapper.helpers import now, s_name, expand, read_grid_from_file, is_converged
 from pymatgen.io.gwwrapper.helpers import read_extra_abivars
-from fireworks.core.firework import FireWork, Workflow
-from fireworks.core.launchpad import LaunchPad
+
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+logger = logging.getLogger(__name__)
 
 
 class GWWorkflow(object):
@@ -65,6 +66,7 @@ class VaspGWFWWorkFlow():
     """
     Object containing a VASP GW workflow for a single structure
     """
+
     def __init__(self):
         self.work_list = []
         self.connections = {}
@@ -73,9 +75,10 @@ class VaspGWFWWorkFlow():
         self.wf = []
 
     def add_work(self, parameters):
+        from fireworks.core.firework import FireWork
         tasks = []
         job = parameters['job']
-        print 'adding job ' + job + ' to the workslist as ', self.fw_id
+        print('adding job ' + job + ' to the workslist as ', self.fw_id)
         if job == 'prep':
             launch_spec = {'task_type': 'Preparation job', '_category': 'cluster', '_queueadapter': 'qadapterdict'}
             task = VaspGWInputTask(parameters)
@@ -90,7 +93,7 @@ class VaspGWFWWorkFlow():
             self.connections[self.fw_id] = []
             self.prep_id = self.fw_id
             self.fw_id += 1
-            print self.connections
+            print(self.connections)
         elif job in ['G0W0', 'GW0', 'scGW0']:
             launch_spec = {'task_type': 'GW job', '_category': 'cluster', '_queueadapter': 'qadapterdict'}
             task = VaspGWInputTask(parameters)
@@ -110,16 +113,18 @@ class VaspGWFWWorkFlow():
             self.fw_id += 1
         else:
             fw = []
-            print 'unspecified job, this should have been captured before !!'
+            print('unspecified job, this should have been captured before !!')
             exit()
 
         self.work_list.append(fw)
 
     def create(self):
+        from fireworks.core.firework import Workflow
         self.wf = Workflow(self.work_list, self.connections, name='VaspGWFWWorkFlow', created_on=now())
-        print 'creating workflow'
+        print('creating workflow')
 
     def add_to_db(self):
+        from fireworks.core.launchpad import LaunchPad
         launchpad_file = os.path.join(os.environ['FW_CONFIG_DIR'], 'my_launchpad.yaml')
         lp = LaunchPad.from_file(launchpad_file)
         lp.add_wf(self.wf)
@@ -137,7 +142,7 @@ class SingleAbinitGWWorkFlow():
     #'test': {'test_range': (1, 2, 3), 'method': 'direct', 'control': "e_ks_max", 'level': "scf"},
     CONVS = {'ecut': {'test_range': (28, 32, 36, 40, 44), 'method': 'direct', 'control': "e_ks_max", 'level': "scf"},
              'ecuteps': {'test_range': (4, 8, 12, 16, 20), 'method': 'direct', 'control': "gap", 'level': "sigma"},
-             'nscf_nbands': {'test_range': (5, 15, 25, 35, 45), 'method': 'set_bands', 'control': "gap", 'level': "nscf"}}
+             'nscf_nbands': {'test_range': (5, 10, 20, 30, 40), 'method': 'set_bands', 'control': "gap", 'level': "nscf"}}
 
     def __init__(self, structure, spec, option=None):
         self.structure = structure
@@ -211,8 +216,6 @@ class SingleAbinitGWWorkFlow():
         abi_structure = asabistructure(self.structure).get_sorted_structure()
         manager = TaskManager.from_user_config()
         # Initialize the flow.
-        # FIXME
-        # Don't know why protocol=-1 does not work here.
         flow = AbinitFlow(self.work_dir, manager, pickle_protocol=0)
 
         # kpoint grid defined over density 40 > ~ 3 3 3
@@ -226,11 +229,14 @@ class SingleAbinitGWWorkFlow():
         gamma = True
 
         # 'standard' parameters for stand alone calculation
-        nscf_nband = [10 * self.get_bands(self.structure)]
+        nb = self.get_bands(self.structure)
+        nscf_nband = [10 * nb]
+
         ecuteps = [8]
         ecutsigx = 8
 
         extra_abivars = dict(
+            paral_kgb=1,
             inclvkb=2,
             ecut=44,
             pawecutdg=88,
@@ -241,7 +247,7 @@ class SingleAbinitGWWorkFlow():
             nbdbuf=8
         )
 
-        # read user defined extra abivars from file 'extra_abivars' should be dictionary
+        # read user defined extra abivars from file  'extra_abivars' should be dictionary
         extra_abivars.update(read_extra_abivars())
 
         if self.option is not None:
@@ -267,16 +273,16 @@ class SingleAbinitGWWorkFlow():
         if not all_done:
             if (self.spec['test'] or self.spec['converge']) and not self.all_converged:
                 if self.spec['test']:
-                    print '| setting test calculation'
+                    print('| setting test calculation')
                     tests = SingleAbinitGWWorkFlow(self.structure, self.spec).tests
                     response_models = []
                 else:
                     if grid == 0:
-                        print '| setting convergence calculations for grid 0'
+                        print('| setting convergence calculations for grid 0')
                         tests = SingleAbinitGWWorkFlow(self.structure, self.spec).convs
                     else:
-                        print '| extending grid'
-                        tests = expand_tests(SingleAbinitGWWorkFlow(self.structure, self.spec).convs, grid)
+                        print('| extending grid')
+                        tests = expand(SingleAbinitGWWorkFlow(self.structure, self.spec).convs, grid)
                 ecuteps = []
                 nscf_nband = []
                 for test in tests:
@@ -298,7 +304,7 @@ class SingleAbinitGWWorkFlow():
                             if test == 'response_model':
                                 response_models.append(value)
             elif self.all_converged:
-                print '| setting up for testing the converged values at the high kp grid '
+                print('| setting up for testing the converged values at the high kp grid ')
                 # in this case a convergence study has already been performed.
                 # The resulting parameters are passed as option
                 ecuteps = [self.option['ecuteps'], self.option['ecuteps'] + self.convs['ecuteps']['test_range'][1] -
@@ -309,12 +315,12 @@ class SingleAbinitGWWorkFlow():
                 #    if option not in ['ecuteps', 'nscf_nband']:
                 #        extra_abivars.update({option + '_s': self.option[option]})
         else:
-            print '| all is done for this material'
+            print('| all is done for this material')
             return
 
-        print 'ecuteps : ', ecuteps
-        print 'extra   : ', extra_abivars
-        print 'nscf_nb : ', nscf_nband
+        logger.info('ecuteps : ', ecuteps)
+        logger.info('extra   : ', extra_abivars)
+        logger.info('nscf_nb : ', nscf_nband)
 
         work = g0w0_extended(abi_structure, self.pseudo_table, scf_kppa, nscf_nband, ecuteps, ecutsigx,
                              accuracy="normal", spin_mode="unpolarized", smearing=None, response_models=response_models,
@@ -324,8 +330,11 @@ class SingleAbinitGWWorkFlow():
         flow.register_work(work, workdir=workdir)
         return flow.allocate()
 
-    def create_job_file(self):
+    def create_job_file(self, serial=True):
         job_file = open("job_collection", mode='a')
-        job_file.write('nohup abirun.py ' + self.work_dir + ' scheduler > ' + self.work_dir + '.log & \n')
-        job_file.write('sleep 2\n')
+        if serial:
+            job_file.write('abirun.py ' + self.work_dir + ' scheduler > ' + self.work_dir + '.log\n')
+        else:
+            job_file.write('nohup abirun.py ' + self.work_dir + ' scheduler > ' + self.work_dir + '.log & \n')
+            job_file.write('sleep 2\n')
         job_file.close()

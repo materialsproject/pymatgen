@@ -1,4 +1,7 @@
-from __future__ import division, print_function
+# coding: utf-8
+
+from __future__ import unicode_literals, division, print_function
+
 import os
 
 from pymatgen.util.testing import PymatgenTest

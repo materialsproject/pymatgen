@@ -1,8 +1,11 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Created on Mar 18, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -50,7 +53,7 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
         self.assertIsNone(compat.process_entry(entry))
 
     def test_to_from_dict(self):
-        d = self.structure_drone.to_dict
+        d = self.structure_drone.as_dict()
         drone = VaspToComputedEntryDrone.from_dict(d)
         self.assertEqual(type(drone), VaspToComputedEntryDrone)
 
@@ -69,7 +72,7 @@ class SimpleVaspToComputedEntryDroneTest(unittest.TestCase):
                 self.assertTrue(len(self.drone.get_valid_paths(path)) > 0)
 
     def test_to_from_dict(self):
-        d = self.structure_drone.to_dict
+        d = self.structure_drone.as_dict()
         drone = SimpleVaspToComputedEntryDrone.from_dict(d)
         self.assertEqual(type(drone), SimpleVaspToComputedEntryDrone)
 
@@ -106,7 +109,7 @@ class GaussianToComputedEntryDroneTest(unittest.TestCase):
             self.assertIn(p, entry.data)
 
     def test_to_from_dict(self):
-        d = self.structure_drone.to_dict
+        d = self.structure_drone.as_dict()
         drone = GaussianToComputedEntryDrone.from_dict(d)
         self.assertEqual(type(drone), GaussianToComputedEntryDrone)
 

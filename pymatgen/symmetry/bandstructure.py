@@ -1,9 +1,12 @@
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 """
 Created on March 25, 2013
 
 @author: geoffroy
 """
-from __future__ import division
 
 import numpy as np
 
@@ -13,7 +16,7 @@ from math import sin
 from math import tan
 from math import pi
 from warnings import warn
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 class HighSymmKpath(object):
     """
@@ -24,7 +27,7 @@ class HighSymmKpath(object):
     Challenges and tools. Computational Materials Science,
     49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010
     The symmetry is determined by spglib through the
-    SymmetryFinder class
+    SpacegroupAnalyzer class
 
     Args:
         structure (Structure): Structure object
@@ -34,11 +37,11 @@ class HighSymmKpath(object):
 
     def __init__(self, structure, symprec=0.01, angle_tolerance=5):
         self._structure = structure
-        self._sym = SymmetryFinder(structure, symprec=symprec,
+        self._sym = SpacegroupAnalyzer(structure, symprec=symprec,
                                    angle_tolerance=angle_tolerance)
         self._prim = self._sym\
-            .get_primitive_standard_structure()
-        self._conv = self._sym.get_conventional_standard_structure()
+            .get_primitive_standard_structure(international_monoclinic=False)
+        self._conv = self._sym.get_conventional_standard_structure(international_monoclinic=False)
         self._prim_rec = self._prim.lattice.reciprocal_lattice
         self._kpath = None
 
@@ -105,6 +108,7 @@ class HighSymmKpath(object):
         elif lattice_type == "monoclinic":
             a, b, c = self._conv.lattice.abc
             alpha = self._conv.lattice.lengths_and_angles[1][0]
+            #beta = self._conv.lattice.lengths_and_angles[1][1]
 
             if "P" in spg_symbol:
                 self._kpath = self.mcl(b, c, alpha * pi / 180)
@@ -504,10 +508,10 @@ class HighSymmKpath(object):
                  "F", "P_1", "Q_1", "L", "Z"]]
         return {'kpoints': kpoints, 'path': path}
 
-    def mcl(self, b, c, alpha):
+    def mcl(self, b, c, beta):
         self.name = "MCL"
-        eta = (1 - b * cos(alpha) / c) / (2 * sin(alpha) ** 2)
-        nu = 0.5 - eta * c * cos(alpha) / b
+        eta = (1 - b * cos(beta) / c) / (2 * sin(beta) ** 2)
+        nu = 0.5 - eta * c * cos(beta) / b
         kpoints = {'\Gamma': np.array([0.0, 0.0, 0.0]),
                    'A': np.array([0.5, 0.5, 0.0]),
                    'C': np.array([0.0, 0.5, 0.5]),

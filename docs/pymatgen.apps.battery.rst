@@ -10,6 +10,14 @@ Subpackages
 Submodules
 ----------
 
+pymatgen.apps.battery.analyzer module
+-------------------------------------
+
+.. automodule:: pymatgen.apps.battery.analyzer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.apps.battery.battery_abc module
 ----------------------------------------
 
