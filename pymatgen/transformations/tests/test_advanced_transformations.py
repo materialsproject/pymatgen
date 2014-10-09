@@ -20,7 +20,6 @@ import json
 
 import numpy as np
 
-from pymatgen.io.smartio import read_structure
 from pymatgen import Lattice, Structure
 from pymatgen.transformations.standard_transformations import \
     OxidationStateDecorationTransformation, SubstitutionTransformation, \
@@ -31,7 +30,7 @@ from pymatgen.transformations.advanced_transformations import \
     SubstitutionPredictorTransformation, MagOrderingTransformation
 from monty.os.path import which
 from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.energy_models import IsingModel
 from pymatgen.util.testing import PymatgenTest
 
@@ -219,7 +218,7 @@ class MagOrderingTransformationTest(PymatgenTest):
         s = p.structure
         alls = trans.apply_transformation(s, 10)
         self.assertEqual(len(alls), 3)
-        f = SymmetryFinder(alls[0]["structure"], 0.1)
+        f = SpacegroupAnalyzer(alls[0]["structure"], 0.1)
         self.assertEqual(f.get_spacegroup_number(), 31)
 
         model = IsingModel(5, 5)

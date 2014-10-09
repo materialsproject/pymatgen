@@ -66,24 +66,6 @@ class PDAnalyzer(object):
         return np.array([[comp.get_atomic_fraction(el)
                           for el in self._pd.elements] for comp in complist])
 
-    def _in_facet(self, facet, comp):
-        """
-        Checks if a composition is in a facet.
-
-        Args:
-            facet: facet to test.
-            comp: Composition to test.
-        """
-        els = self._pd.elements
-        dim = len(els)
-        if dim > 1:
-            coords = self._pd.qhull_data[facet, :-1]
-            simplex = Simplex(coords)
-            comp_point = [comp.get_atomic_fraction(e) for e in els[1:]]
-            return simplex.in_simplex(comp_point, PDAnalyzer.numerical_tol)
-        else:
-            return True
-
     @lru_cache(1)
     def _get_facet(self, comp):
         """

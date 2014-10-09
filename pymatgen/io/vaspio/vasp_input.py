@@ -224,9 +224,12 @@ class Poscar(PMGSONable):
         """
         #"^\s*$" doesn't match lines with no whitespace
         chunks = re.split("\n\s*\n", data.rstrip(), flags=re.MULTILINE)
-        if chunks[0] == "":
-            chunks.pop(0)
-            chunks[0] = "\n" + chunks[0]
+        try:
+            if chunks[0] == "":
+                chunks.pop(0)
+                chunks[0] = "\n" + chunks[0]
+        except IndexError:
+            raise ValueError("Empty POSCAR")
         #Parse positions
         lines = tuple(clean_lines(chunks[0].split("\n"), False))
         comment = lines[0]
@@ -972,7 +975,21 @@ class Kpoints(PMGSONable):
             Kpoints object
         """
         with zopen(filename, "rt") as f:
-            lines = [line.strip() for line in f.readlines()]
+            return Kpoints.from_string(f.read())
+
+    @staticmethod
+    def from_string(string):
+        """
+        Reads a Kpoints object from a KPOINTS string.
+
+        Args:
+            string (str): KPOINTS string.
+
+        Returns:
+            Kpoints object
+        """
+        lines = [line.strip() for line in string.splitlines()]
+
         comment = lines[0]
         num_kpts = int(lines[1].split()[0].strip())
         style = lines[2].lower()[0]

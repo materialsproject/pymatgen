@@ -70,11 +70,10 @@ Python 3.x support
 .. versionadded:: 3.0
 
 With effect from version 3.0, pymatgen now supports both Python 2.7 as well
-as Python 3.x. All underlying core dependencies (numpy,
-pyhull and the spglib library) have been made Python 3 compatible,
-and a completely rewritten CIF parser module (courtesy of William Davidson
-Richards) has removed the dependency on PyCIFRW. We will support Python >= 3.3
-(ignoring v3.1 and v3.2).
+as Python 3.x. All underlying core dependencies (numpy, pyhull and the spglib
+library) have been made Python 3 compatible, and a completely rewritten CIF
+parser module (courtesy of William Davidson Richards) has removed the
+dependency on PyCIFRW. We will support Python >= 3.3 (ignoring v3.1 and v3.2).
 
 With the release of a new major version, we are taking the opportunity to
 streamline and cleanup some of the code, which introduces some backwards
@@ -85,6 +84,12 @@ incompatibilities. The major ones are listed below:
   be available only up till the next minor version, i.e., v3.1.
 * All previously deprecated methods and modules (e.g.,
   pymatgen.core.structure_editor) have been removed.
+
+For developers working to add new features to pymatgen, this also means that
+all new code going forward has to be Python 2.7+ and 3 compatible. Our approach
+is to have a single codebase support Python 2.7 and 3.x,
+as per current best practices. Please review the `coding guidelines
+</contributing>`_.
 
 .. include:: latest_changes.rst
 
@@ -244,9 +249,13 @@ some quick examples of the core capabilities and objects:
     >>> structure[0]
     PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
     >>>
-    >>> #Integrated symmetry tools from spglib.
-    >>> from pymatgen.symmetry.finder import SymmetryFinder
-    >>> finder = SymmetryFinder(structure)
+    >>> # You can create a Structure using spacegroup symmetry as well.
+    >>> li2o = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Li", "O"],
+                                         [[0.25, 0.25, 0.25], [0, 0, 0]])
+    >>>
+    >>> #Integrated symmetry analysis tools from spglib.
+    >>> from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+    >>> finder = SpacegroupAnalyzer(structure)
     >>> finder.get_spacegroup_symbol()
     'Pm-3m'
     >>>

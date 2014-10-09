@@ -34,7 +34,7 @@ from monty.string import remove_non_ascii
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.operations import SymmOp
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 
 class CifBlock(object):
@@ -409,7 +409,7 @@ class CifWriter:
         no_oxi_comp = comp.element_composition
         spacegroup = ("P 1", 1)
         if find_spacegroup:
-            sf = SymmetryFinder(struct, 0.001)
+            sf = SpacegroupAnalyzer(struct, 0.001)
             spacegroup = (sf.get_spacegroup_symbol(),
                           sf.get_spacegroup_number())
         block["_symmetry_space_group_name_H-M"] = spacegroup[0]

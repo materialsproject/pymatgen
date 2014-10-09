@@ -15,14 +15,14 @@ __date__ = "May 2014"
 
 import time
 import os
-import io
+import subprocess
 import ast
 import copy
 import math
 import shutil
 import numpy as np
 from pymatgen.core.units import Ha_to_eV, eV_to_Ha
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.standard_transformations import OxidationStateRemovalTransformation, \
     PrimitiveCellTransformation, SupercellTransformation
 
@@ -32,6 +32,11 @@ def now():
     helper to return a time string
     """
     return time.strftime("%H:%M:%S %d/%m/%Y")
+
+
+def load_ps():
+    if os.path.isfile('set-ps'):
+        subprocess.call('source set-ps', shell=True)
 
 
 def read_extra_abivars():
@@ -47,7 +52,7 @@ def read_extra_abivars():
 def refine_structure(structure, symprec=1e-3):
     remove_ox = OxidationStateRemovalTransformation()
     structure = remove_ox.apply_transformation(structure)
-    sym_finder = SymmetryFinder(structure=structure, symprec=symprec)
+    sym_finder = SpacegroupAnalyzer(structure=structure, symprec=symprec)
     structure = sym_finder.get_refined_structure()
     get_prim = PrimitiveCellTransformation()
     structure = get_prim.apply_transformation(structure)
@@ -83,7 +88,7 @@ def clean(some_string, uppercase=False):
         return some_string.strip().lower()
 
 
-def expand_tests(tests, level):
+def expand(tests, level):
     from pymatgen.io.gwwrapper.codeinterfaces import get_all_ecuteps, get_all_nbands
     new_tests = copy.deepcopy(tests)
     for test in tests.keys():
