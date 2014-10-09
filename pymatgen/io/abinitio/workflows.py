@@ -13,9 +13,10 @@ import six
 from six.moves import filter
 from monty.collections import AttrDict
 from monty.itertools import chunks
+from monty.pprint import pprint_table
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
-from pymatgen.util.string_utils import pprint_table, WildCard
+from pymatgen.util.string_utils import WildCard
 from . import wrappers
 from .tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, DdkTask, BseTask, RelaxTask)
 from .strategies import HtcStrategy # ScfStrategy, RelaxStrategy
@@ -215,7 +216,6 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
 
         for task in self:
             if task.can_run:
-                #print(task, str(task.status), [task.deps_status])
                 return task
 
         # No task found, this usually happens when we have dependencies. 
@@ -607,9 +607,10 @@ class Workflow(BaseWorkflow):
 
         # Take into account possible dependencies. Use a list instead of generators 
         for task in self:
+            # changed <= to <
             # todo should this not be < ? a task that is already submitted should not be put to ready
             # it does no harm because of the lock file but logically it seems wrong also gives the wrong infromation
-            if task.status <= task.S_SUB and all([status == task.S_OK for status in task.deps_status]): 
+            if task.status < task.S_SUB and all([status == task.S_OK for status in task.deps_status]):
                 task.set_status(task.S_READY)
 
     def rmtree(self, exclude_wildcard=""):

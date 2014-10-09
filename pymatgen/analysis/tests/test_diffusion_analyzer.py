@@ -23,7 +23,7 @@ import numpy as np
 from pymatgen.analysis.diffusion_analyzer import DiffusionAnalyzer,\
     get_conversion_factor, fit_arrhenius
 import pymatgen.core.physical_constants as phyc
-from pymatgen.io.smartio import read_structure
+from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -34,7 +34,7 @@ class FuncTest(unittest.TestCase):
 
     def test_get_conversion_factor(self):
         filepath = os.path.join(test_dir, 'LiFePO4.cif')
-        s = read_structure(filepath)
+        s = Structure.from_file(filepath)
         self.assertAlmostEqual(41370704.1173,
                                get_conversion_factor(s, "Li", 600), 4)
 

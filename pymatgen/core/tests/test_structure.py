@@ -234,7 +234,37 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(len(fcc_ag.get_primitive_structure()), 1)
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
         bcc_li = IStructure(Lattice.cubic(4.09), ["Li"] * 2, coords)
-        self.assertEqual(len(bcc_li.get_primitive_structure()), 1)
+        bcc_prim = bcc_li.get_primitive_structure()
+        self.assertEqual(len(bcc_prim), 1)
+        self.assertAlmostEqual(bcc_prim.lattice.alpha, 109.47122, 3)
+
+        coords = [[0] * 3, [0.5] * 3, [0.25] * 3, [0.26] * 3]
+        s = IStructure(Lattice.cubic(4.09), ["Ag"] * 4, coords)
+        self.assertEqual(len(s.get_primitive_structure()), 4)
+
+    def test_primitive_on_large_supercell(self):
+        coords = [[0, 0, 0], [0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]]
+        fcc_ag = Structure(Lattice.cubic(4.09), ["Ag"] * 4, coords)
+        fcc_ag.make_supercell([2, 2, 2])
+        fcc_ag_prim = fcc_ag.get_primitive_structure()
+        self.assertEqual(len(fcc_ag_prim), 1)
+        self.assertAlmostEqual(fcc_ag_prim.volume, 17.10448225)
+
+    def test_primitive_positions(self):
+        coords = [[0, 0, 0], [0.3, 0.35, 0.45]]
+        s = Structure(Lattice.from_parameters(1,2,3,50,66,88), ["Ag"] * 2, coords)
+
+        a = [[-1,2,-3], [3,2,-4], [1,0,-1]]
+        b = [[4, 0, 0], [1, 1, 0], [3, 0, 1]]
+        c = [[2, 0, 0], [1, 3, 0], [1, 1, 1]]
+
+        for sc_matrix in [c]:
+            sc = s.copy()
+            sc.make_supercell(sc_matrix)
+            prim = sc.get_primitive_structure(0.01)
+
+            self.assertEqual(len(prim), 2)
+            self.assertAlmostEqual(prim.distance_matrix[0,1], 1.0203432356739286)
 
     def test_primitive_structure_volume_check(self):
         l = Lattice.tetragonal(10, 30)
@@ -293,6 +323,11 @@ class IStructureTest(PymatgenTest):
         self.assertTrue(os.path.exists("POSCAR.testing"))
         os.remove("POSCAR.testing")
 
+        self.struct.to(filename="Si_testing.yaml")
+        self.assertTrue(os.path.exists("Si_testing.yaml"))
+        s = Structure.from_file("Si_testing.yaml")
+        self.assertEqual(s, self.struct)
+        os.remove("Si_testing.yaml")
 
 class StructureTest(PymatgenTest):
 
@@ -532,7 +567,7 @@ class StructureTest(PymatgenTest):
                 'to None.')
 
     def test_to_from_file_string(self):
-        for fmt in ["cif", "json", "poscar", "cssr"]:
+        for fmt in ["cif", "json", "poscar", "cssr", "yaml"]:
             s = self.structure.to(fmt=fmt)
             self.assertIsNotNone(s)
             ss = Structure.from_str(s, fmt=fmt)
@@ -552,6 +587,27 @@ class StructureTest(PymatgenTest):
         s = Structure.from_file("structure_testing.json")
         self.assertEqual(s, self.structure)
         os.remove("structure_testing.json")
+
+    def test_from_spacegroup(self):
+        s1 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Li", "O"],
+                                       [[0.25, 0.25, 0.25], [0, 0, 0]])
+        self.assertEqual(s1.formula, "Li8 O4")
+        s2 = Structure.from_spacegroup(225, Lattice.cubic(3), ["Li", "O"],
+                                       [[0.25, 0.25, 0.25], [0, 0, 0]])
+        self.assertEqual(s1, s2)
+
+        s2 = Structure.from_spacegroup(225, Lattice.cubic(3), ["Li", "O"],
+                                       [[0.25, 0.25, 0.25], [0, 0, 0]],
+                                       site_properties={"charge": [1, -2]})
+        self.assertEqual(sum(s2.site_properties["charge"]), 0)
+
+        s = Structure.from_spacegroup("Pm-3m", Lattice.cubic(3), ["Cs", "Cl"],
+                                      [[0, 0, 0], [0.5, 0.5, 0.5]])
+        self.assertEqual(s.formula, "Cs1 Cl1")
+
+        self.assertRaises(ValueError, Structure.from_spacegroup,
+                          "Pm-3m", Lattice.tetragonal(1, 3), ["Cs", "Cl"],
+                          [[0, 0, 0], [0.5, 0.5, 0.5]])
 
 
 class IMoleculeTest(PymatgenTest):
@@ -710,7 +766,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(mol.charge, 1)
 
     def test_to_from_file_string(self):
-        for fmt in ["xyz", "json", "g03"]:
+        for fmt in ["xyz", "json", "g03", "yaml"]:
             s = self.mol.to(fmt=fmt)
             self.assertIsNotNone(s)
             m = IMolecule.from_str(s, fmt=fmt)
@@ -720,6 +776,11 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.mol.to(filename="CH4_testing.xyz")
         self.assertTrue(os.path.exists("CH4_testing.xyz"))
         os.remove("CH4_testing.xyz")
+        self.mol.to(filename="CH4_testing.yaml")
+        self.assertTrue(os.path.exists("CH4_testing.yaml"))
+        mol = Molecule.from_file("CH4_testing.yaml")
+        self.assertEqual(self.mol, mol)
+        os.remove("CH4_testing.yaml")
 
 
 class MoleculeTest(PymatgenTest):
