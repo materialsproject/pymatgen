@@ -155,9 +155,7 @@ class Slab(Structure):
 
         lattice_s = structure_a.lattice
         abc_s = lattice_s.abc
-        # a123_s = lattice_s.matrix
         b123_s = lattice_s.inv_matrix.T
-        # print surface
         vector_o = np.dot(surface, b123_s)
         print vector_o
         lens_v = np.sqrt(np.dot(vector_o, vector_o.T))
@@ -180,13 +178,11 @@ class Slab(Structure):
             #< site_a2 = np.dot(a123_s, site_a1.T) / abc_s
             #< site_abc = (V_o+site_a2) / abc_s
             site_a2 = np.dot(b123_s, site_a1.T)
-
             site_abc = V_o/abc_s+site_a2
 
         for i in xrange(3):
             if site_abc[i] < 0 or site_abc[i] > 1:
                 raise ValueError("wrong distance, atom will be outside the cell.")
-
 
         print 'add_site:', site_abc, atom
 
@@ -210,12 +206,12 @@ class Slab(Structure):
         interface_scale_factor = [base, height, c_basis]
         sec_struct.make_supercell(interface_scale_factor)
 
-# Carves the secondary supercell into a shape compatible for interfacing with the slab
+        # Carves the secondary supercell into a shape compatible for interfacing with the slab
         new_sites = []
         specimen = sec_struct.species
         scaled_species = []
 
-        for i in range(0, len(sec_struct)):
+        for i in xrange(len(sec_struct)):
             if 0 <= sec_struct[i].coords[0] <= self.lattice.a and \
                0 <= sec_struct[i].coords[1] <= self.lattice.b and \
                0 <= sec_struct[i].coords[2] <= self.lattice.c:
@@ -235,12 +231,12 @@ class Slab(Structure):
         # c_list = []
         specimen = self.species
 
-        for i in range(0, len(self)):
+        for i in xrange(len(self)):
             interface_sites.append(self[i].coords)
             interface_species.append(specimen[i])
 
         specimen = sec_struct.species
-        for i in range(0, len(sec_struct)):
+        for i in xrange(len(sec_struct)):
             if self.true_vac_size/2 <= sec_struct[i].coords[2] \
                             <= self.lattice.c-self.true_vac_size/2:
                 continue
@@ -304,9 +300,8 @@ def surface_list_generator(shift_list, normal, slab_scale, length, miller_index,
         # term_slab = organize(term_slab)[0]
 
         new_sites = []
-
         # Get the sites of the surface atoms
-
+        # length is in the direction of surface normal(z), so is shift
         for site in term_slab:
             if shift_list[i] <= np.dot(site.coords, normal) < length +\
                     shift_list[i]:
@@ -325,18 +320,14 @@ def surface_list_generator(shift_list, normal, slab_scale, length, miller_index,
         slab = Slab(normal, slab_scale_factor, term_slab, miller_index,
                     initial_structure, min_slab_size, min_vac_size)
 
-
-        min_c = []
-        index = []
-        for ii in range(0, len(slab)):
-            min_c.append(slab[ii].frac_coords[2])
-            index.append(ii)
-        min_length = min(min_c)
-        max_length = max(min_c)
-        slab.translate_sites(index, [0, 0, -min_length])
-
         if standardize:
-            slab.translate_sites(index, [0, 0, (1-max_length+min_length)/2])
+            frac_c_list = []
+            for site in xrange(len(slab)):
+                frac_c_list.append(slab.frac_coords[site][2])
+            frac_c_list.sort()
+            # move along c, distance = frac_difference between cell & layer center
+            slab.translate_sites(range(0, len(frac_c_list)),
+                                 [0, 0, 0.5-(frac_c_list[0]+frac_c_list[-1])/2])
 
         slab_list.append(slab)
 
@@ -385,7 +376,7 @@ class SurfaceGenerator():
 
     .. attribute:: length
 
-        Length of the slab layer of the surface
+        Length of the slab layer of the surface(along normal)
 
     .. attribute:: miller_index
 
@@ -422,7 +413,6 @@ class SurfaceGenerator():
                 vacuum spacing from the top and bottom.
 
         """
-
 
         latt = initial_structure.lattice
         d = reduce(gcd, miller_index)
@@ -463,7 +453,6 @@ class SurfaceGenerator():
         # By generating the normal first, we can prevent
         # the loop that creates the slabs from iterating
         # through repetitive steps.
-
         nlayers_slab = int(math.ceil(min_slab_size / dist))
         nlayers_vac = int(math.ceil(min_vacuum_size / dist))
         nlayers = nlayers_slab + nlayers_vac
@@ -511,11 +500,11 @@ class SurfaceGenerator():
         new_coord, tracker_index, org_coords, el = \
             zip(*sorted(zip(l[1], tracker_index, l[2], l[3])))
 
-# Creates a list (term_index) that tells us which at
-# which site does a termination begin. For 1 unit cell.
+        # Creates a list (term_index) that tells us which at
+        # which site does a termination begin. For 1 unit cell.
         gg = 0
         term_index = []
-        for i in range(0, len(l[0])):
+        for i in xrange(len(l[0])):
             gg+=1
             if i == len(l[0]) - 1:
                 term_index.append(i)
@@ -528,7 +517,7 @@ class SurfaceGenerator():
                 break
 
         term_sites = []
-        for i in range(0, len(term_index)):
+        for i in xrange(len(term_index)):
             term_slab = self.super.copy()
             term_slab.make_supercell(self.slab_scale_factor)
             term_slab = organize(term_slab)[0]
@@ -539,7 +528,7 @@ class SurfaceGenerator():
                                       self.min_slab_size, self.min_vac_size)
 
 
-
+    @classmethod
     def get_slab(self, shift_list):
 
         """
@@ -558,28 +547,25 @@ class SurfaceGenerator():
                                       self.min_slab_size, self.min_vac_size)
 
 
-
+    @classmethod
     def get_non_bond_breaking_slab(self, specie1, specie2, max_bond=3,
                     min_dist=0.01):
-        """Args:
-                structure (Structure): Initial input structure.
-                miller_index ([h, k, l]): Miller index of plane parallel to
-                surface. Note that this is referenced to the input structure. If
-                you need this to be based on the conventional cell,
-                you should supply the conventional structure.
+        """
+        This method analysis whether we can generate a stable surface for a given miller
+        index. Get the rotated unit cell from Class SurfaceGenerator().
+
+            Args:
                 specie1, specie2(str): elements of the bond. eg. "Li+"
                 Search element2 from element1.
                 max_bond(float): max length of bonds, In Angstroms. Default to 3.
                 min_dist(float): min distance to be able to separate into two surfaces
         """
 
-        # use Slab Class to get rotated unit cell, consider c factor of new cells
-        # slab with 1 unit cell of layer and 0 unit cell of vacuum, rotated
+        # use SurfaceGenerate Class to get rotated unit cell, consider c factor of new cells
+        # slab, the rotated unit cell
         slab = self.unit_cell
         latt = slab.lattice
-        print latt
-        c2 = latt.c
-        #c_new = latt.get_cartesian_coords((0, 0, 0.5)) / n1
+        z2 = abs(latt.matrix[2][2])
 
         e1_fcoord = []
         e2_fcoord = []
@@ -592,7 +578,6 @@ class SurfaceGenerator():
                     e2_fcoord.append(site.frac_coords)
         print specie1,  len(e1_fcoord),\
             specie2, len(e2_fcoord)
-        #print slab
 
         # the fcoord of atoms bonded are in a group, search specie2 from specie1
         # make projection of atoms(c factor)
@@ -610,11 +595,10 @@ class SurfaceGenerator():
                 if dist_img[0] < max_bond:
                     # get the actual bonded species2(maybe a image)
                     e2_fc = e2_fcoord[j] + dist_img[1]
-                    #print e2_fc[2], dist_img[1]
                     orig[i].append(e2_fc)
                     # make projection for specie2 atom
                     e2_proj = e2_fc[2]
-                    # add coords of specie2 to the group of specie1
+                    # add fcoord of specie2 to the group of specie1
                     proj[-1].append(e2_proj)
         # sort projection of each group(bonded atoms listed by specie1) from low to high
         for group in proj:
@@ -642,7 +626,7 @@ class SurfaceGenerator():
                 if layer[-1][-1] < proj[i][-1]:
                     layer[-1][-1] = proj[i][-1]
                     print i, '><'
-        #consider the top from the *lowest* atoms, layer[0][0]
+        # consider the top from the *lowest* atoms, layer[0][0]
         top = layer[0][0] + 1
         if layer[-1][-1] < top-min_dist:
             layer.append([top-min_dist, top])
@@ -652,32 +636,15 @@ class SurfaceGenerator():
 
         lyr = []
         for group in layer:
-            group = list(np.array(group)*c2)
+            group = list(np.array(group)*z2)
             lyr.append(group)
-        # print c2, lyr
-        #
-        # from pymatgen import write_structure
-        # slab1 = Slab(structure, miller_index, min_slab_size=1,
-        #              min_vacuum_size=0)
-        # write_structure(slab1, 'rucell'+str(miller_index)+str(slab.formula)+'.cif')
-
         stable_list = []
         if len(lyr) > 1:
-            print 'stable surface'
-            for i in range(0, len(lyr)):
-
-                stable_list.append(lyr[i][1])
-                for site in self.super:
-                    if lyr[i][1] < np.dot(site.coords, self.normal) < lyr[i+1][1]:
-                        stable_list.append(np.dot(site.coords, self.normal))
-                stable_list.append(lyr[i+1][0])
-                if i+1 == len(lyr)-1:
-                    break
-
-
-                #slab2 = Slab1(structure, miller_index, min_slab_size=1,
-                #             min_vacuum_size=1, shift=lyr[0][0]-min_dist)
-                #write_structure(slab2, 'rslab'+str(miller_index)+str(slab.formula)+'.cif')
+            for i in xrange(len(lyr)-1):
+                if lyr[i][1] + min_dist < lyr[i+1][0]:
+                    stable_list.append(lyr[i][1]+0.5*min_dist)
+            if len(stable_list):
+                print 'stable surface:', self.miller_index
 
         return surface_list_generator(stable_list, self.normal, self.slab_scale_factor, self.length,
                                       self.miller_index, self.parent, self.lll_reduce, self.standardize,
