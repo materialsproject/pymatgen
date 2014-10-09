@@ -99,12 +99,12 @@ class AbinitFlowTest(FlowUnitTest):
 
         # TODO: Fix pickle for flow. Test is temporarily disabled for now by the Hulk.
         # Save the flow in pickle format.
-        #flow.build_and_pickle_dump()
+        flow.build_and_pickle_dump()
 
         # Find the pickle file in workdir and recreate the flow.
-        #same_flow = AbinitFlow.pickle_load(self.workdir)
+        same_flow = AbinitFlow.pickle_load(self.workdir)
 
-        #self.assertEqual(same_flow, flow)
+        self.assertEqual(same_flow, flow)
 
         # Test show_status
         flow.show_status()

@@ -43,6 +43,18 @@ class SpaceGroupTest(unittest.TestCase):
         sg = SpaceGroup("R-3mH")
         self.assertEqual(sg.int_number, 166)
 
+    def test_attr(self):
+
+        sg = SpaceGroup("Fm-3m")
+        self.assertEqual(sg.full_symbol, "F4/m-32/m")
+        self.assertEqual(sg.patterson_symmetry, "Fm-3m")
+        self.assertEqual(sg.point_group, "m-3m")
+
+
+    def test_full_symbols(self):
+        sg = SpaceGroup("P2/m2/m2/m")
+        self.assertEqual(sg.symbol, "Pmmm")
+
     def test_order_symm_ops(self):
         for name in SpaceGroup.SG_SYMBOLS:
             sg = SpaceGroup(name)

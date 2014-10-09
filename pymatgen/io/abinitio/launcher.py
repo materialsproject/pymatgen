@@ -605,8 +605,9 @@ class PyFlowScheduler(object):
             for work in flow:
                 work.set_manager(new_manager)
 
-        # check stattus
+        # check status
         flow.check_status()
+        flow.show_status()
 
         # fix problems
         # Try to restart the unconverged tasks
@@ -665,6 +666,8 @@ class PyFlowScheduler(object):
         if self.DEBUG:
             # Show the number of open file descriptors
             print(">>>>> _callback: Number of open file descriptors: %s" % get_open_fds())
+
+        print('          before _runem_all in _callback')
 
         self._runem_all()
 
@@ -774,6 +777,7 @@ class PyFlowScheduler(object):
                     fh.write("Shutdown message:\n%s" % msg)
 
             # Shutdown the scheduler thus allowing the process to exit.
+            print('this should be the shutdown of the scheduler')
             self.sched.shutdown(wait=False)
 
     def send_email(self, msg, tag=None):

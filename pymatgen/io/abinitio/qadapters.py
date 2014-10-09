@@ -804,7 +804,7 @@ class PbsAdapter(AbstractQueueAdapter):
         currently hard coded, should be read at init
         the increase functions will not increase beyond thise limits
         """
-        return {'max_total_tasks': 3888, 'time': 48, 'max_select': 240}
+        return {'max_total_tasks': 3888, 'time': 48, 'max_select': 300, 'mem': 16000}
 
     @property
     def mpi_ncpus(self):
@@ -866,6 +866,8 @@ class PbsAdapter(AbstractQueueAdapter):
 
     def get_njobs_in_queue(self, username=None):
         # Initialize username
+        return 0
+
         if username is None:
             username = getpass.getuser()
 
@@ -907,9 +909,15 @@ class PbsAdapter(AbstractQueueAdapter):
         logger.warning('exluding nodes, not implemented yet pbs')
         return False
 
-    def increase_mem(self, factor):
-        logger.warning('increasing mem, not implemented yet pbs')
-        return False
+    def increase_mem(self, factor=1):
+        base_increase = 2000
+        new_mem = self.qparams["pvmem"] + factor*base_increase
+        if new_mem < self.limits['mem']:
+            self.set_mem_per_cpu(new_mem)
+            return True
+        else:
+            logger.warning('could not increase mem further')
+            return False
 
     def increase_time(self, factor=1.5):
         days, hours, minutes = 0, 0, 0
@@ -943,15 +951,16 @@ class PbsAdapter(AbstractQueueAdapter):
             logger.warning('increasing cpus reached the limit')
             return False
 
-    def increase_resources(self):
-        """
-        Method to generally increase resources. On typical large machines we only increas cpu's since we use all
-        mem per cpu per core
-        """
-        if self.increase_cpus(1):
-            return True
-        else:
-            return False
+    # moved to the level of the manager:
+    #def increase_resources(self):
+    #    """
+    #    Method to generally increase resources. On typical large machines we only increas cpu's since we use all
+    #    mem per cpu per core
+    #    """
+    #    if self.increase_cpus(1):
+    #        return True
+    #    else:
+    #        return False
 
 
 class SGEAdapter(AbstractQueueAdapter):

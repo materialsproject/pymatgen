@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
+from __future__ import division, unicode_literals
+
 """
 A master convenience script with many tools for vasp and structure analysis.
 """
-
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -23,6 +23,7 @@ import datetime
 
 from collections import OrderedDict
 
+from pymatgen import Structure
 from pymatgen.io.vaspio import Outcar, Vasprun, Chgcar
 from pymatgen.util.string_utils import str_aligned
 from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, \
@@ -32,16 +33,16 @@ from pymatgen.electronic_structure.plotter import DosPlotter
 from pymatgen.io.vaspio import Poscar
 from pymatgen.io.cifio import CifParser, CifWriter
 from pymatgen.io.vaspio_set import MPVaspInputSet, MITVaspInputSet
-from pymatgen.io.smartio import read_structure, write_structure
 from pymatgen.io.cssrio import Cssr
-from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
+from prettytable import PrettyTable
 
 SAVE_FILE = "vasp_data.gz"
 
 
-def get_energies(rootdir, reanalyze, verbose, pretty, detailed, sort):
+def get_energies(rootdir, reanalyze, verbose, detailed, sort):
     """
     Doc string.
     """
@@ -93,15 +94,11 @@ def get_energies(rootdir, reanalyze, verbose, pretty, detailed, sort):
                          delta_vol))
     if len(all_data) > 0:
         headers = ("Directory", "Formula", "Energy", "E/Atom", "% vol chg")
-        if pretty:
-            from prettytable import PrettyTable
-            t = PrettyTable(headers)
-            t.set_field_align("Directory", "l")
-            for d in all_data:
-                t.add_row(d)
-            print(t)
-        else:
-            print(str_aligned(all_data, headers))
+        t = PrettyTable(headers)
+        t.align["Directory"] = "l"
+        for d in all_data:
+            t.add_row(d)
+        print(t)
         print(msg)
     else:
         print("No valid vasp run found.")
@@ -179,7 +176,7 @@ def plot_chgint(args):
     if args.inds:
         atom_ind = [int(i) for i in args.inds[0].split(",")]
     else:
-        finder = SymmetryFinder(s, symprec=0.1)
+        finder = SpacegroupAnalyzer(s, symprec=0.1)
         sites = [sites[0] for sites in
                  finder.get_symmetrized_structure().equivalent_sites]
         atom_ind = [s.sites.index(site) for site in sites]
@@ -203,7 +200,7 @@ def parse_vasp(args):
 
     if args.get_energies or default_energies:
         for d in args.directories:
-            get_energies(d, args.reanalyze, args.verbose, args.pretty,
+            get_energies(d, args.reanalyze, args.verbose,
                          args.detailed, args.sort[0])
     if args.ion_list:
         if args.ion_list[0] == "All":
@@ -223,7 +220,7 @@ def convert_fmt(args):
 
     try:
         if iformat == "smart":
-            structure = read_structure(filename)
+            structure = Structure.from_file(filename)
         if iformat == "POSCAR":
             p = Poscar.from_file(filename)
             structure = p.structure
@@ -234,7 +231,7 @@ def convert_fmt(args):
             structure = Cssr.from_file(filename).structure
 
         if oformat == "smart":
-            write_structure(structure, out_filename)
+            structure.to(filename=out_filename)
         elif oformat == "POSCAR":
             p = Poscar(structure)
             p.write_file(out_filename)
@@ -271,9 +268,9 @@ def parse_symmetry(args):
     tolerance = float(args.tolerance[0])
 
     for filename in args.filenames:
-        s = read_structure(filename)
+        s = Structure.from_file(filename)
         if args.spacegroup:
-            finder = SymmetryFinder(s, tolerance)
+            finder = SpacegroupAnalyzer(s, tolerance)
             dataset = finder.get_symmetry_dataset()
             print(filename)
             print("Spacegroup  : {}".format(dataset["international"]))
@@ -286,7 +283,7 @@ def parse_view(args):
     from pymatgen.vis.structure_vtk import StructureVis
     excluded_bonding_elements = args.exclude_bonding[0].split(",") \
         if args.exclude_bonding else []
-    s = read_structure(args.filename[0])
+    s = Structure.from_file(args.filename[0])
     vis = StructureVis(excluded_bonding_elements=excluded_bonding_elements)
     vis.set_structure(s)
     vis.show()
@@ -298,7 +295,7 @@ def compare_structures(args):
         print("You need more than one structure to compare!")
         sys.exit(-1)
     try:
-        structures = [read_structure(fn) for fn in filenames]
+        structures = [Structure.from_file(fn) for fn in filenames]
     except Exception as ex:
         print("Error converting file. Are they in the right format?")
         print(str(ex))
@@ -330,7 +327,7 @@ def generate_files(args):
 
 
 def generate_diffraction_plot(args):
-    s = read_structure(args.filenames[0])
+    s = Structure.from_file(args.filenames[0])
     c = XRDCalculator()
     if args.outfile:
         c.get_xrd_plot(s).savefig(args.outfile[0])
@@ -370,11 +367,6 @@ def main():
                              action="store_true",
                              help="verbose mode. Provides detailed output on "
                              "progress.")
-    parser_vasp.add_argument("-p", "--pretty", dest="pretty",
-                             action="store_const",
-                             const=True, help="pretty mode. Uses prettytable "
-                             "to format output. Must have prettytable module "
-                             "installed.")
     parser_vasp.add_argument("-d", "--detailed", dest="detailed",
                              action="store_true",
                              help="Detailed mode. Parses vasprun.xml instead "
