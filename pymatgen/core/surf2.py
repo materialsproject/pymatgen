@@ -681,4 +681,3 @@ class SurfaceGenerator():
         return surface_list_generator(stable_list, self.normal, self.slab_scale_factor, self.length,
                                       self.miller_index, self.parent, self.lll_reduce, self.standardize,
                                       self.min_slab_size, self.min_vac_size)
-
