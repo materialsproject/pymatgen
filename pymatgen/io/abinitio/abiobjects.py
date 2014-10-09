@@ -21,7 +21,7 @@ from pymatgen.core.units import ArrayWithUnit
 from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.structure import Structure, Molecule
-from pymatgen.io.smartio import read_structure
+
 from .netcdf import structure_from_etsf_file
 
 
@@ -342,9 +342,10 @@ def asabistructure(obj):
 
             if obj.endswith(".nc"):
                 structure = structure_from_etsf_file(obj)
-                #print(structure._sites)
             else:
-                structure = read_structure(obj)
+                structure = Structure.from_file(obj)
+                #from pymatgen.io.smartio import read_structure
+                #structure = read_structure(obj)
 
             # Promote
             return AbiStructure(structure)

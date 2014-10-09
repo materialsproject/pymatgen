@@ -29,7 +29,7 @@ from monty.fractions import gcd
 
 
 try:
-    from sympy import Symbol, nsolve, Integer, Rational, Matrix, exp, solve, Eq
+    from sympy import Symbol, nsolve, Integer, Float, Matrix, exp, solve, Eq
     sympy_found = True
 except ImportError:
     sympy_found = False
@@ -101,7 +101,6 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     # Setup the system
     site_species = [vac_def['site_specie'] for vac_def in vac_defs]
     multiplicity = [vac_def['site_multiplicity'] for vac_def in vac_defs]
-    #print(multiplicity)
     m = len(set(site_species))      # distinct species
     n = len(vac_defs)           # inequivalent sites
 
@@ -113,7 +112,6 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     T = Integer(T)
 
     c0 = np.diag(multiplicity)
-    #print('c0', c0)
     mu = [Symbol('mu'+i.__str__()) for i in range(m)]
 
     # Generate maps for hashing
@@ -138,13 +136,6 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         else:
             hgh_ind = n
         specie_site_index_map.append((low_ind,hgh_ind))
-
-    #print('specie_site_index_map', specie_site_index_map)
-    #for el in specie_site_index_map:
-    #    print(range(*el))
-    #print(site_species)
-    #print('site_mu_map', site_mu_map)
-    #print(specie_order)
 
 
     """
@@ -173,7 +164,6 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
                     #if j == k or site_species[j] != site_species[k]:
                         dC[i,j,k] = -1
 
-    #print(dC)
     # dE matrix: Flip energies (or raw defect energies)
     els = [vac_def['site_specie'] for vac_def in vac_defs]
     dE = []
@@ -200,7 +190,6 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
                             break
     dE = np.array(dE)
     np.where(dE == None, dE, 0)
-    #print(dE)
 
     # Initialization for concentrations
     # c(i,p) == presence of ith type atom on pth type site
@@ -214,22 +203,19 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
                 c[i,p] += Integer(multiplicity[p]*dC[i,epi,p]) * \
                         exp(-(dE[epi,p]-sum_mu)/(k_B*T))
 
-    #specie_concen = [sum(mult[ind[0]:ind[1]]) for ind in specie_site_index_map]
-    #total_c = [sum(c[ind[0]:ind[1]]) for ind in specie_site_index_map]
     total_c = []
     for ind in specie_site_index_map:
         total_c.append(sum([sum(c[i,:]) for i in range(*ind)]))
-    #total_c = [sum(c[i,:]) for i in range(n)]
     c_ratio = [total_c[-1]/total_c[i] for i in range(m)]
-    #print('c_ratio')
+    #print ('c_ratio')
     #for i in range(len(c_ratio)):
-        #print(c_ratio[i])
+    #    print(c_ratio[i])
 
     # Expression for Omega, the Grand Potential
     omega = e0 - sum([mu[site_mu_map[i]]*sum(c0[i,:]) for i in range(n)])
     for p_r in range(n):
         for epi in range(n):
-            sum_mu = sum([mu[site_mu_map[j]]*Integer(
+            sum_mu = sum([mu[site_mu_map[j]]*Float(
                     dC[j,epi,p_r]) for j in range(n)])
             omega -= k_B*T*multiplicity[p_r]*exp(-(dE[epi,p_r]-sum_mu)/(k_B*T))
 
@@ -242,24 +228,16 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
 
         # Compute trial mu
         mu_red = reduce_mu()
-        #print(mu_red)
 
         mult = multiplicity
-        #for ind in specie_site_index_map:
-        #    print(ind[0], ind[1])
         specie_concen = [sum(mult[ind[0]:ind[1]]) for ind in specie_site_index_map]
-        #print('specie_concent', specie_concen)
         y_vect = [specie_concen[-1]/specie_concen[i] for i in range(m)]
-        #print('y_vect', y_vect)
         vector_func = [y_vect[i]-c_ratio[i] for i in range(m-1)]
         vector_func.append(omega)
-        #print(vector_func)
-        #vector_func.append(mu_equalities)
-        #print('y0', y0)
         min_diff = 1e10
         mu_vals = None
         c_val = None
-        m1_min = -10.0
+        m1_min = -20.0
         if e0 > 0:
             m1_max = 10            # Search space needs to be modified
         else:
@@ -268,14 +246,11 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             m0 = mu_red[mu[0]].subs(mu[-1],m1)
 
             try:
-                #x = nsolve(vector_func,mu,[m0,m1],module="numpy")
-                x = nsolve(vector_func,mu,[m0,m1])
-                # Line needs to be modified to include all mus when n > 2
+                x = nsolve(vector_func,mu,[m0,m1],module="numpy")
             except:
                 continue
 
             c_val = c.subs(dict(zip(mu,x)))
-            #print(c_val)
             #if all(x >= 0 for x in c_val):
             specie_concen = []
             for ind in specie_site_index_map:
@@ -290,9 +265,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             mu_vals = [float(mu_val) for mu_val in mu_vals]
         else:
             raise ValueError()
-        #print('mu_vals', mu_vals)
         return mu_vals
-        #print(els)
 
     def compute_def_formation_energies():
         i = 0
@@ -301,7 +274,6 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             ind = specie_order.index(site_specie)
             uncor_energy = vac_def['energy']
             formation_energy = uncor_energy + mu_vals[ind]
-            #print((site_specie, 'vancancy formation_energy', formation_energy))
             formation_energies['vacancies'][i]['formation_energy'] = formation_energy
             specie_ind = site_mu_map[i]
             indices = specie_site_index_map[specie_ind]
@@ -321,7 +293,6 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             ind2 = specie_order.index(sub_specie)
             uncor_energy = as_def['energy']
             formation_energy = uncor_energy + mu_vals[ind1] - mu_vals[ind2]
-            #print((site_specie, sub_specie, 'antisite ', formation_energy))
             formation_energies['antisites'][i]['formation_energy'] = formation_energy
             specie_ind = site_mu_map[i]
             indices = specie_site_index_map[specie_ind]
@@ -343,32 +314,24 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         except:
             mu_vals = compute_mus()
 
+
     if generate == 'energy':
         formation_energies = compute_def_formation_energies()
         mu_dict = dict(zip(specie_order,mu_vals))
         return formation_energies, mu_dict
 
+    #sys.exit()
 
     # Compute ymax
     li = specie_site_index_map[0][0]
     hi = specie_site_index_map[0][1]
-    #print ('low hi ind', li, hi)
-    #print ('sum mult', sum(multiplicity[li:hi]))
-    #print ('sum mult all ', sum(multiplicity))
-    #print ('sum div', sum(multiplicity[li:hi])/sum(multiplicity))
     comp1_min = int(sum(multiplicity[li:hi])/sum(multiplicity)*100)-1
     comp2_max = 100-comp1_min
-    #print (comp1_min, comp2_max)
     ymax = comp2_max/comp1_min
     comp1_max = int(sum(multiplicity[li:hi])/sum(multiplicity)*100)+1
     comp2_min = 100-comp1_max
     ymin = comp2_min/comp1_max
-    #print ('yrange',ymin, ymax)
-    #print(ymin, ymax)
     delta = (ymax-ymin)/50.0
-
-    #for i in range(len(mu)):
-    #    print(mu[i], mu_vals[i])
 
     # Compile mu's for all composition ratios in the range
     #+/- 1% from the stoichiometry
@@ -377,17 +340,13 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         result[y] = []
         vector_func = [y-c_ratio[0]]
         vector_func.append(omega)
-        #x = nsolve(vector_func,mu,mu_vals,module="numpy")
-        #print (y, mu_vals)
-        x = nsolve(vector_func,mu,mu_vals)
+        x = nsolve(vector_func,mu,mu_vals,module="numpy")
         result[y].append(x[0])
         result[y].append(x[1])
 
-
-
     res = []
     # Compute the concentrations for all the compositions
-    for key in result:
+    for key in sorted(result.keys()):
         mu_val = result[key]
         total_c_val = [total_c[i].subs(dict(zip(mu,mu_val))) \
                 for i in range(len(total_c))]
@@ -405,13 +364,8 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         res.append(res1)
 
     res = np.array(res)
-    #print len(res)
-    #print res[0]
     dtype = [(str('x'),np.float64)]+[(str('y%d%d' % (i, j)), np.float64) \
             for i in range(n) for j in range(n)]
-    #print (dtype)
-    #print ([type(k[0]) for k in dtype])
-    #print (type('x'), repr('x'))
     res1 = np.sort(res.view(dtype), order=[str('x')],axis=0)
 
     conc_data = {}
@@ -426,12 +380,10 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         conc.append([])
         for j in range(n):
             conc[i].append([])
-    #print(conc)
     for i in range(n): # Append vacancies
         for j in range(n):
             y1 = [dat[0][i*n+j+1] for dat in res1]
             conc[i][j] = y1
-    #print(type(conc[i][j]))
 
     y_data = []
     for i in range(n):      # Vacancy plots
@@ -479,7 +431,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             en.append(formation_energy)
         return en
     en_res = []
-    for key in result:
+    for key in sorted(result.keys()):
         mu_val = result[key]
         res = []
         form_en = compute_vac_formation_energies(mu_val)
@@ -518,7 +470,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             en.append(form_en)
         return en
     en_res = []
-    for key in result:
+    for key in sorted(result.keys()):
         mu_val = result[key]
         res = []
         form_en = compute_as_formation_energies(mu_val)
@@ -527,7 +479,6 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     i = 0
     for as_def in antisite_defs:
         data = [data[i] for data in en_res]
-        #print(('data', data))
         site_specie = as_def['site_specie']
         sub_specie = as_def['substitution_specie']
         ind1 = specie_order.index(site_specie)
@@ -552,7 +503,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     y_data = []
     for j in range(m):
         specie = specie_order[j]
-        mus = [result[key][j] for key in result]
+        mus = [result[key][j] for key in sorted(result.keys())]
         y_data.append({'data':mus, 'name':specie})
     mu_data['y'] = y_data
 
@@ -699,7 +650,6 @@ def solute_site_preference_finder(
     solute_specie = solute_defs[0]['substitution_specie']
     site_species.append(solute_specie)
     multiplicity = [vac_def['site_multiplicity'] for vac_def in vac_defs]
-    #print(('mult', multiplicity))
     m = len(set(site_species))      # distinct species
     n = len(vac_defs)           # inequivalent sites
 
@@ -831,9 +781,9 @@ def solute_site_preference_finder(
         total_c.append(sum([sum(c[i,:]) for i in range(*ind)]))
     #total_c = [sum(c[i,:]) for i in range(n)]
     c_ratio = [total_c[i]/sum(total_c) for i in range(m)]
-    #print(('-------c_ratio-------------'))
-    #for i in range(m):
-    #    print((c_ratio[i]))
+    print(('-------c_ratio-------------'))
+    for i in range(m):
+        print((c_ratio[i]))
 
     # Expression for Omega, the Grand Potential
     omega = e0 - sum([mu[site_mu_map[i]]*sum(c0[i,:]) for i in range(n+1)])
@@ -843,6 +793,8 @@ def solute_site_preference_finder(
                     dC[j,epi,p_r]) for j in range(n+1)])
             omega -= k_B*T*multiplicity[p_r]*exp(-(dE[epi,p_r]-sum_mu)/(k_B*T))
 
+    print ('omega')
+    print (omega)
     def compute_mus():
 
         def reduce_mu():
@@ -879,8 +831,6 @@ def solute_site_preference_finder(
         vector_func = [y_vect[i]-c_ratio[i] for i in range(m)]
         vector_func.append(omega)
         #print((vector_func))
-        #vector_func.append(mu_equalities)
-        #print('y0', y0)
         mu_vals = None
         c_val = None
         m_min = -15.0
@@ -893,8 +843,8 @@ def solute_site_preference_finder(
                 m0 = mu_red[mu[0]].subs([(mu[1],m1),(mu[2],m2)])
                 try:
                     #print(m1,m2)
-                    #mu_vals = nsolve(vector_func,mu,[m0,m1,m2],module="numpy")
-                    mu_vals = nsolve(vector_func,mu,[m0,m1,m2])
+                    mu_vals = nsolve(vector_func,mu,[m0,m1,m2],module="numpy")
+                    #mu_vals = nsolve(vector_func,mu,[m0,m1,m2])
                     # Line needs to be modified to include all mus when n > 2
                 except:
                     continue
@@ -956,8 +906,8 @@ def solute_site_preference_finder(
         #print (mu)
         #print (mu_vals)
 
-        #x = nsolve(vector_func,mu,mu_vals,module="numpy")
-        x = nsolve(vector_func,mu,mu_vals)
+        x = nsolve(vector_func,mu,mu_vals,modules="numpy")
+        #x = nsolve(vector_func,mu,mu_vals)
         #except:
         #    del result[y]
         #    continue
