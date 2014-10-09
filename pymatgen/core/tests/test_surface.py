@@ -6,7 +6,7 @@ import unittest
 from pymatgen.core.lattice import Lattice
 from pymatgen.io.smartio import CifParser
 from pymatgen import write_structure
-from pymatgen.core.surface import Slab, SurfaceGenerator
+from pymatgen.core.surf2 import Slab, SurfaceGenerator
 import os
 from pymatgen.core import Structure
 import itertools
@@ -88,13 +88,14 @@ class SlabTest(unittest.TestCase):
     def test_make_terminations(self):
         gen = SurfaceGenerator(self.lifepo4, [0,1,0], 10, 10, lll_reduce=False)
         manual_lifepo4 = gen.get_slab([3.005])[0]
-        dist_lifepo4 = gen.get_all_slab()[0]
+        dist_lifepo4 = gen.get_all_slab()[4]
         check_bonds = gen.get_non_bond_breaking_slab('P5+', 'O2-')[0]
         a = manual_lifepo4.organize_along_c()
         b = dist_lifepo4.organize_along_c()
         lifepo4_compare = Slab([], [], self.lifepo4_compare, [], self.lifepo4_compare, [], [])
         c = lifepo4_compare.organize_along_c()
         d = check_bonds.organize_along_c()
+        # write_structure(b, "lifepo4_dist_algorithm.cif")
 
         # Compares the sites of a (010) slab for LiFePO4 generated with the original
         # surface.py algorithm to the same slab generated using manual, check_bonds,
