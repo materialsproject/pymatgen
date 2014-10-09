@@ -307,8 +307,8 @@ def surface_list_generator(shift_list, normal, slab_scale, length, miller_index,
                     shift_list[i]:
                 new_sites.append(site)
 
-        if len(new_sites) == 0:
-            continue
+        #if len(new_sites) == 0:
+        #    continue
             
         term_slab = Structure.from_sites(new_sites)
 
@@ -522,7 +522,7 @@ class SurfaceGenerator():
         term_sites = []
         for i in xrange(len(term_index)):
             term_slab = self.super.copy()
-            term_slab.make_supercell(self.slab_scale_factor)
+            #term_slab.make_supercell(self.slab_scale_factor)
             term_slab = organize(term_slab)[0]
             term_sites.append(np.dot(term_slab[term_index[i]].coords, self.normal))
 
