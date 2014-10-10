@@ -30,7 +30,7 @@ from abc import abstractproperty, abstractmethod, ABCMeta
 from pymatgen.io.abinitio.netcdf import NetcdfReader
 from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.core.units import Ha_to_eV
-from pymatgen.io.gwwrapper.helpers import is_converged, read_grid_from_file, s_name, expand_tests, store_conv_results
+from pymatgen.io.gwwrapper.helpers import is_converged, read_grid_from_file, s_name, expand, store_conv_results
 from pymatgen.io.gwwrapper.GWvaspinputsets import SingleVaspGWWork
 from pymatgen.io.gwwrapper.GWworkflows import VaspGWFWWorkFlow
 from pymatgen.io.gwwrapper.GWworkflows import SingleAbinitGWWorkFlow
@@ -211,7 +211,7 @@ class VaspInterface(AbstractCodeInterface):
                 tests_prep = GWscDFTPrepVaspInputSet(structure, spec_data).convs
                 tests_prep.update(GWDFTDiagVaspInputSet(structure, spec_data).convs)
                 if grid > 0:
-                    tests_prep = expand_tests(tests=tests_prep, level=grid)
+                    tests_prep = expand(tests=tests_prep, level=grid)
                 print(tests_prep)
             for test_prep in tests_prep:
                 print('setting up test for: ' + test_prep)
@@ -228,7 +228,7 @@ class VaspInterface(AbstractCodeInterface):
                             else:
                                 tests = GWG0W0VaspInputSet(structure, spec_data).convs
                                 if grid > 0:
-                                    tests = expand_tests(tests=tests, level=grid)
+                                    tests = expand(tests=tests, level=grid)
                                 print(tests)
                         if job in ['GW0', 'scGW0']:
                             input_set = GWG0W0VaspInputSet(structure, spec_data)
