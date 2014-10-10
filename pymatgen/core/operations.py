@@ -388,7 +388,7 @@ class SymmOp(PMGSONable):
                 elif val < -1:
                     symbols.append(str(val) + axis)
             import fractions
-            f = fractions.Fraction(t).limit_denominator()
+            f = fractions.Fraction(float(t)).limit_denominator()
             if abs(f) > 1e-6:
                 if f > 0:
                     symbols.append('+')
