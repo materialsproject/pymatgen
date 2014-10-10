@@ -938,13 +938,13 @@ class StructureMatcher(PMGSONable):
             if match is None:
                 return None
             temp.make_supercell(match[2])
+            temp.translate_sites(list(range(len(temp))), match[3], to_unit_cell=False)
             # translate sites to be in correct unit cell
             for i, j in enumerate(match[4]):
                 vec = np.round(s1[j].frac_coords - temp[i].frac_coords)
                 temp.translate_sites(i, vec, to_unit_cell=False)
             #invert the mapping, since it needs to be from s2 to s1
             mapping = np.argsort(match[4])
-            tvec = match[3]
         else:
             #s2 is superset
             match = self._strict_match(s2, s1, fu=fu, s1_supercell=True,
@@ -952,6 +952,7 @@ class StructureMatcher(PMGSONable):
             if match is None:
                 return None
             temp.make_supercell(match[2])
+            temp.translate_sites(list(range(len(temp))), -match[3], to_unit_cell=False)
             # translate sites to be in correct unit cell
             for i, j in enumerate(match[4]):
                 vec = np.round(s1[i].frac_coords - temp[j].frac_coords)
@@ -961,9 +962,8 @@ class StructureMatcher(PMGSONable):
             for i in match[4]:
                 not_included.remove(i)
             mapping = list(match[4]) + not_included
-            tvec = -match[3]
 
-        temp.translate_sites(list(range(len(temp))), tvec, to_unit_cell=False)
+
 
         return Structure.from_sites([temp.sites[i] for i in mapping])
 

@@ -15,7 +15,7 @@ __date__ = "May 2014"
 
 import time
 import os
-import io
+import subprocess
 import ast
 import copy
 import math
@@ -32,6 +32,11 @@ def now():
     helper to return a time string
     """
     return time.strftime("%H:%M:%S %d/%m/%Y")
+
+
+def load_ps():
+    if os.path.isfile('set-ps'):
+        subprocess.call('source set-ps', shell=True)
 
 
 def read_extra_abivars():
@@ -83,7 +88,7 @@ def clean(some_string, uppercase=False):
         return some_string.strip().lower()
 
 
-def expand_tests(tests, level):
+def expand(tests, level):
     from pymatgen.io.gwwrapper.codeinterfaces import get_all_ecuteps, get_all_nbands
     new_tests = copy.deepcopy(tests)
     for test in tests.keys():

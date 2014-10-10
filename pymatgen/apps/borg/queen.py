@@ -116,8 +116,10 @@ class BorgQueen(object):
                 that if the filename ends with gz or bz2, the relevant gzip
                 or bz2 compression will be applied.
         """
-        with zopen(filename, "w") as f:
-            json.dump(list(self._data), f, cls=MontyEncoder)
+        with zopen(filename, "wt") as f:
+            s = json.dumps(list(self._data), f, cls=MontyEncoder)
+            # This complicated for handles unicode in both Py2 and 3.
+            f.write("%s" % s)
 
     def load_data(self, filename):
         """
