@@ -297,7 +297,7 @@ class CifParser(object):
                 warnings.warn("No _symmetry_equiv_pos_as_xyz type key found. "
                               "Defaulting to P1.")
                 sympos = ['x, y, z']
-        self.symmetry_operations = parse_symmetry_operations(sympos)
+        self.symmetry_operations = [SymmOp.from_xyz_string(s) for s in sympos]
 
         def parse_symbol(sym):
             m = re.search("([A-Z][a-z]*)", sym)
@@ -399,7 +399,15 @@ class CifWriter:
             If so, spacegroup information is written.
     """
 
-    def __init__(self, struct, find_spacegroup=False):
+    def __init__(self, struct, find_spacegroup=False, symprec=None):
+        """
+        Args:
+            struct (Structure): structure to write
+            find_spacegroup (bool): whether to try to determine the spacegroup
+            symprec (float): If not none, finds the symmetry of the structure and
+                writes the cif with symmetry information. Passes symprec to the
+                SpacegroupAnalyzer
+        """
         format_str = "{:.8f}"
         
         block = OrderedDict()
@@ -431,9 +439,16 @@ class CifWriter:
         fu = int(amt / reduced_comp[Element(el.symbol)])
 
         block["_cell_formula_units_Z"] = str(fu)
-        
-        block["_symmetry_equiv_pos_site_id"] = ["1"]
-        block["_symmetry_equiv_pos_as_xyz"] = ["x, y, z"]
+
+        if symprec is None:
+            block["_symmetry_equiv_pos_site_id"] = ["1"]
+            block["_symmetry_equiv_pos_as_xyz"] = ["x, y, z"]
+        else:
+            sf = SpacegroupAnalyzer(struct, symprec)
+            ops = [op.as_xyz_string() for op in sf.get_symmetry_operations()]
+            block["_symmetry_equiv_pos_site_id"] = map(str, range(1, len(ops) + 1))
+            block["_symmetry_equiv_pos_as_xyz"] = ops
+
         loops.append(["_symmetry_equiv_pos_site_id",
                       "_symmetry_equiv_pos_as_xyz"])
 
@@ -459,16 +474,29 @@ class CifWriter:
         atom_site_label = []
         atom_site_occupancy = []
         count = 1
-        for site in struct:
-            for sp, occu in site.species_and_occu.items():
-                atom_site_type_symbol.append(str(sp))
-                atom_site_symmetry_multiplicity.append("1")
-                atom_site_fract_x.append("{0:f}".format(site.a))
-                atom_site_fract_y.append("{0:f}".format(site.b))
-                atom_site_fract_z.append("{0:f}".format(site.c))
-                atom_site_label.append("{}{}".format(sp.symbol, count))
-                atom_site_occupancy.append(str(occu))
-                count += 1
+        if symprec is None:
+            for site in struct:
+                for sp, occu in site.species_and_occu.items():
+                    atom_site_type_symbol.append(str(sp))
+                    atom_site_symmetry_multiplicity.append("1")
+                    atom_site_fract_x.append("{0:f}".format(site.a))
+                    atom_site_fract_y.append("{0:f}".format(site.b))
+                    atom_site_fract_z.append("{0:f}".format(site.c))
+                    atom_site_label.append("{}{}".format(sp.symbol, count))
+                    atom_site_occupancy.append(str(occu))
+                    count += 1
+        else:
+            for group in sf.get_symmetrized_structure().equivalent_sites:
+                site = group[0]
+                for sp, occu in site.species_and_occu.items():
+                    atom_site_type_symbol.append(str(sp))
+                    atom_site_symmetry_multiplicity.append(str(len(group)))
+                    atom_site_fract_x.append("{0:f}".format(site.a))
+                    atom_site_fract_y.append("{0:f}".format(site.b))
+                    atom_site_fract_z.append("{0:f}".format(site.c))
+                    atom_site_label.append("{}{}".format(sp.symbol, count))
+                    atom_site_occupancy.append(str(occu))
+                    count += 1
 
         block["_atom_site_type_symbol"] = atom_site_type_symbol
         block["_atom_site_label"] = atom_site_label
@@ -508,35 +536,3 @@ def str2float(text):
     Remove uncertainty brackets from strings and return the float.
     """
     return float(re.sub("\(.+\)", "", text))
-
-
-def parse_symmetry_operations(symmops_str_list):
-    """
-    Helper method to parse the symmetry operations.
-
-    Args:
-        symmops_str_list ([str]): List of symmops strings of the form
-            ['x, y, z', '-x, -y, z', '-y+1/2, x+1/2, z+1/2', ...]
-
-    Returns:
-        List of SymmOps
-    """
-    ops = []
-    for op_str in symmops_str_list:
-        rot_matrix = np.zeros((3, 3))
-        trans = np.zeros(3)
-        toks = op_str.strip().split(",")
-        for i, tok in enumerate(toks):
-            for m in re.finditer("([\+\-]*)\s*([x-z\d]+)/*(\d*)", tok):
-                factor = -1 if m.group(1) == "-" else 1
-                if m.group(2) in ("x", "y", "z"):
-                    j = ord(m.group(2)) - 120
-                    rot_matrix[i, j] = factor
-                else:
-                    num = float(m.group(2))
-                    if m.group(3) != "":
-                        num /= float(m.group(3))
-                    trans[i] = factor * num
-        op = SymmOp.from_rotation_and_translation(rot_matrix, trans)
-        ops.append(op)
-    return ops
