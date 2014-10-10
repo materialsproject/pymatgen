@@ -367,22 +367,26 @@ class SymmOp(PMGSONable):
         strings = []
 
         # test for invalid rotation matrix
-        is_n1 = np.isclose(self.rotation_matrix, -1)
-        is_0 = np.isclose(self.rotation_matrix, 0)
-        is_1 = np.isclose(self.rotation_matrix, 1)
-        if not np.all(np.logical_or(np.logical_or(is_n1, is_0),
-                                    is_1)):
-            raise ValueError('rotation matrix must be -1, 0, or 1')
+        if not np.all(np.isclose(self.rotation_matrix,
+                                 np.round(self.rotation_matrix))):
+            raise ValueError('Rotation matrix must be integer')
 
         for r, t in zip(self.rotation_matrix, self.translation_vector):
             symbols = []
             for val, axis in zip(r, xyz):
+                val = int(round(val))
                 if val == 1:
                     if symbols:
                         symbols.append('+')
                     symbols.append(axis)
                 elif val == -1:
                     symbols.append('-' + axis)
+                elif val > 1:
+                    if symbols:
+                        symbols.append('+')
+                    symbols.append(str(val) + axis)
+                elif val < -1:
+                    symbols.append(str(val) + axis)
             import fractions
             f = fractions.Fraction(t).limit_denominator()
             if abs(f) > 1e-6:
@@ -397,7 +401,7 @@ class SymmOp(PMGSONable):
         """
         Args:
             xyz_string: string of the form 'x, y, z', '-x, -y, z',
-                '-y+1/2, x+1/2, z+1/2', etc.
+                '-2y+1/2, 3x+1/2, z-y+1/2', etc.
         Returns:
             SymmOp
         """
@@ -405,16 +409,20 @@ class SymmOp(PMGSONable):
         trans = np.zeros(3)
         toks = xyz_string.strip().split(",")
         for i, tok in enumerate(toks):
-            for m in re.finditer("([\+\-]*)\s*([x-z\d]+)/*(\d*)", tok):
+            # build the rotation matrix
+            for m in re.finditer("([\+\-]?)\s*(\d*)\s*([x-z]+)", tok):
                 factor = -1 if m.group(1) == "-" else 1
-                if m.group(2) in ("x", "y", "z"):
-                    j = ord(m.group(2)) - 120
-                    rot_matrix[i, j] = factor
-                else:
-                    num = float(m.group(2))
-                    if m.group(3) != "":
-                        num /= float(m.group(3))
-                    trans[i] = factor * num
+                if m.group(2):
+                    factor *= float(m.group(2))
+                j = ord(m.group(3)) - 120
+                rot_matrix[i, j] = factor
+            # build the translation vector
+            for m in re.finditer("([\+\-])\s*(\d+)\s*/*\s*(\d*)$", tok):
+                factor = -1 if m.group(1) == "-" else 1
+                num = float(m.group(2))
+                if m.group(3) != "":
+                    num /= float(m.group(3))
+                trans[i] = num * factor
         return SymmOp.from_rotation_and_translation(rot_matrix, trans)
 
     @classmethod
