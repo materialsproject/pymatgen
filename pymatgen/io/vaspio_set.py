@@ -522,7 +522,7 @@ class MITNEBVaspInputSet(DictVaspInputSet):
                 os.makedirs(d)
             self.get_poscar(s).write_file(os.path.join(d, 'POSCAR'))
             if write_cif:
-                s.to_file(os.path.join(d, '{}.cif'.format(i)))
+                s.to(filename=os.path.join(d, '{}.cif'.format(i)))
 
     def as_dict(self):
         d = super(MITNEBVaspInputSet, self).as_dict()
