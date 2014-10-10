@@ -2001,11 +2001,11 @@ class Xdatcar(object):
                 if preamble is None:
                     preamble = [l]
                 elif not preamble_done:
-                    if l == "":
+                    if l == "" or "Direct configuration=" in l:
                         preamble_done = True
                     else:
                         preamble.append(l)
-                elif l == "":
+                elif l == "" or "Direct configuration=" in l:
                     p = Poscar.from_string("\n".join(preamble +
                                                      ["Direct"] + coords_str))
                     structures.append(p.structure)

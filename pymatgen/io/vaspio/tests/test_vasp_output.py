@@ -303,13 +303,19 @@ class ProcarTest(unittest.TestCase):
 class XdatcarTest(unittest.TestCase):
 
     def test_init(self):
-        filepath = os.path.join(test_dir, 'XDATCAR')
+        filepath = os.path.join(test_dir, 'XDATCAR_4')
         x = Xdatcar(filepath)
         structures = x.structures
         self.assertEqual(len(structures), 3)
         for s in structures:
             self.assertEqual(s.formula, "Li2 O1")
 
+        filepath = os.path.join(test_dir, 'XDATCAR_5')
+        x = Xdatcar(filepath)
+        structures = x.structures
+        self.assertEqual(len(structures), 3)
+        for s in structures:
+            self.assertEqual(s.formula, "Li2 O1")
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
