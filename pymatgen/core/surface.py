@@ -306,9 +306,6 @@ def surface_list_generator(shift_list, normal, slab_scale, length, miller_index,
             if shift_list[i] <= np.dot(site.coords, normal) < length +\
                     shift_list[i]:
                 new_sites.append(site)
-
-        #if len(new_sites) == 0:
-        #    continue
             
         term_slab = Structure.from_sites(new_sites)
 
@@ -531,7 +528,7 @@ class SurfaceGenerator():
                                       self.min_slab_size, self.min_vac_size)
 
 
-    @classmethod
+    # @classmethod
     def get_slab(self, shift_list):
 
         """
@@ -550,7 +547,7 @@ class SurfaceGenerator():
                                       self.min_slab_size, self.min_vac_size)
 
 
-    @classmethod
+    # @classmethod
     def get_non_bond_breaking_slab(self, specie1, specie2, max_bond=3,
                     min_dist=0.01):
         """
@@ -652,3 +649,4 @@ class SurfaceGenerator():
         return surface_list_generator(stable_list, self.normal, self.slab_scale_factor, self.length,
                                       self.miller_index, self.parent, self.lll_reduce, self.standardize,
                                       self.min_slab_size, self.min_vac_size)
+
