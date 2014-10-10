@@ -110,7 +110,7 @@ class CifBlock(object):
         return s
 
     def _format_field(self, v):
-        v = str(v).strip()
+        v = v.__str__().strip()
         if len(v) > self.maxlen:
             return ';\n' + textwrap.fill(v, self.maxlen) + '\n;'
         #add quotes if necessary
@@ -428,10 +428,9 @@ class CifWriter:
             block["_cell_angle_" + cell_attr] = format_str.format(
                 getattr(latt, cell_attr))
         block["_symmetry_Int_Tables_number"] = spacegroup[1]
-        block["_chemical_formula_structural"] = str(no_oxi_comp
-                                                    .reduced_formula)
-        block["_chemical_formula_sum"] = str(no_oxi_comp.formula)
-        block["_cell_volume"] = str(latt.volume)
+        block["_chemical_formula_structural"] = no_oxi_comp.reduced_formula
+        block["_chemical_formula_sum"] = no_oxi_comp.formula
+        block["_cell_volume"] = latt.volume.__str__()
 
         reduced_comp = no_oxi_comp.reduced_composition
         el = no_oxi_comp.elements[0]
@@ -456,7 +455,7 @@ class CifWriter:
         contains_oxidation = True
         try:
             symbol_to_oxinum = OrderedDict([
-                (str(el), float(el.oxi_state))
+                (el.__str__(), float(el.oxi_state))
                 for el in sorted(comp.elements)])
         except AttributeError:
             symbol_to_oxinum = OrderedDict([(el.symbol, 0) for el in 
@@ -478,25 +477,25 @@ class CifWriter:
         if symprec is None:
             for site in struct:
                 for sp, occu in site.species_and_occu.items():
-                    atom_site_type_symbol.append(str(sp))
+                    atom_site_type_symbol.append(sp.__str__())
                     atom_site_symmetry_multiplicity.append("1")
                     atom_site_fract_x.append("{0:f}".format(site.a))
                     atom_site_fract_y.append("{0:f}".format(site.b))
                     atom_site_fract_z.append("{0:f}".format(site.c))
                     atom_site_label.append("{}{}".format(sp.symbol, count))
-                    atom_site_occupancy.append(str(occu))
+                    atom_site_occupancy.append(occu.__str__())
                     count += 1
         else:
             for group in sf.get_symmetrized_structure().equivalent_sites:
                 site = group[0]
                 for sp, occu in site.species_and_occu.items():
-                    atom_site_type_symbol.append(str(sp))
-                    atom_site_symmetry_multiplicity.append(str(len(group)))
+                    atom_site_type_symbol.append(sp.__str__())
+                    atom_site_symmetry_multiplicity.append("%d" % len(group))
                     atom_site_fract_x.append("{0:f}".format(site.a))
                     atom_site_fract_y.append("{0:f}".format(site.b))
                     atom_site_fract_z.append("{0:f}".format(site.c))
                     atom_site_label.append("{}{}".format(sp.symbol, count))
-                    atom_site_occupancy.append(str(occu))
+                    atom_site_occupancy.append(occu.__str__())
                     count += 1
 
         block["_atom_site_type_symbol"] = atom_site_type_symbol
