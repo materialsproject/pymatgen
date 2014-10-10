@@ -16,6 +16,7 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 import numpy as np
+import re
 from math import sin, cos, pi, sqrt
 
 from pymatgen.serializers.json_coders import PMGSONable
@@ -356,6 +357,65 @@ class SymmOp(PMGSONable):
              "@class": self.__class__.__name__,
              "matrix": self.affine_matrix.tolist(), "tolerance": self.tol}
         return d
+
+    def as_xyz_string(self):
+        """
+        Returns a string of the form 'x, y, z', '-x, -y, z',
+        '-y+1/2, x+1/2, z+1/2', etc. Only works for integer rotation matrices
+        """
+        xyz = ['x', 'y', 'z']
+        strings = []
+
+        # test for invalid rotation matrix
+        is_n1 = np.isclose(self.rotation_matrix, -1)
+        is_0 = np.isclose(self.rotation_matrix, 0)
+        is_1 = np.isclose(self.rotation_matrix, 1)
+        if not np.all(np.logical_or(np.logical_or(is_n1, is_0),
+                                    is_1)):
+            raise ValueError('rotation matrix must be -1, 0, or 1')
+
+        for r, t in zip(self.rotation_matrix, self.translation_vector):
+            symbols = []
+            for val, axis in zip(r, xyz):
+                if val == 1:
+                    if symbols:
+                        symbols.append('+')
+                    symbols.append(axis)
+                elif val == -1:
+                    symbols.append('-' + axis)
+            import fractions
+            f = fractions.Fraction(t).limit_denominator()
+            if abs(f) > 1e-6:
+                if f > 0:
+                    symbols.append('+')
+                symbols.append(str(f))
+            strings.append("".join(symbols))
+        return ', '.join(strings)
+
+    @staticmethod
+    def from_xyz_string(xyz_string):
+        """
+        Args:
+            xyz_string: string of the form 'x, y, z', '-x, -y, z',
+                '-y+1/2, x+1/2, z+1/2', etc.
+        Returns:
+            SymmOp
+        """
+        rot_matrix = np.zeros((3, 3))
+        trans = np.zeros(3)
+        toks = xyz_string.strip().split(",")
+        for i, tok in enumerate(toks):
+            for m in re.finditer("([\+\-]*)\s*([x-z\d]+)/*(\d*)", tok):
+                factor = -1 if m.group(1) == "-" else 1
+                if m.group(2) in ("x", "y", "z"):
+                    j = ord(m.group(2)) - 120
+                    rot_matrix[i, j] = factor
+                else:
+                    num = float(m.group(2))
+                    if m.group(3) != "":
+                        num /= float(m.group(3))
+                    trans[i] = factor * num
+        return SymmOp.from_rotation_and_translation(rot_matrix, trans)
 
     @classmethod
     def from_dict(cls, d):
