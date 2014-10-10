@@ -94,7 +94,7 @@ class SymmOpTestCase(PymatgenTest):
         self.assertEqual(s2, '3x-2y-z+1/2, -x+12/13, z+1/2')
         self.assertEqual(op2, SymmOp.from_xyz_string(s2))
 
-        op3 = SymmOp.from_xyz_string('3x - 2y - z+1 /2, -x+12/ 13, z+1/2')
+        op3 = SymmOp.from_xyz_string('3x - 2y - z+1 /2 , -x+12/ 13, z+1/2')
         self.assertEqual(op2, op3)
 
         self.assertRaises(ValueError, self.op.as_xyz_string)
