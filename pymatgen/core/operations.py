@@ -417,7 +417,7 @@ class SymmOp(PMGSONable):
                 j = ord(m.group(3)) - 120
                 rot_matrix[i, j] = factor
             # build the translation vector
-            for m in re.finditer("([\+\-])\s*(\d+)\s*/*\s*(\d*)$", tok):
+            for m in re.finditer("([\+\-])\s*(\d+)\s*/*\s*(\d*)\s*$", tok):
                 factor = -1 if m.group(1) == "-" else 1
                 num = float(m.group(2))
                 if m.group(3) != "":
