@@ -89,7 +89,7 @@ class Slab(Structure):
 
 
 
-    def __init__(self, normal, slab_scale_factor, structure, miller_index,
+    def __init__(self,shift, normal, scale_factor, structure, miller_index,
                  initial_structure, min_slab_size, min_vac_size):
         """
         Makes a Slab structure, a structure object
@@ -117,8 +117,9 @@ class Slab(Structure):
         self.min_slab_size = min_slab_size
         self.min_vac_size = min_vac_size
         self.miller_index = miller_index
-        self.scale_factor = np.array(slab_scale_factor)
+        self.scale_factor = np.array(scale_factor)
         self.normal = normal
+        self.shift = shift
 
 
         super(Slab, self).__init__(
@@ -260,78 +261,54 @@ class Slab(Structure):
         # Organizes a slab's sites along the c direction
         return organize(self)[0]
 
-def surface_list_generator(shift_list, normal, slab_scale, length, miller_index, initial_structure,
-                           lll_reduce, standardize, min_slab_size, min_vac_size):
+
+def generate_slab(initial_structure, miller_index, normal, scale_factor,
+                  oriented_unit_cell, dist, min_slab_size, min_vac_size,
+                  shift, lll_reduce, standardize):
     """
 
-    This function creates different slabs using the slab class depending
-    on how many different shift values in shift_list there are and stores
-    the slabs inside a list.
+    This function creates a slab of nlayers with an oriented unit cell
 
     Args:
-        shift_list (list of floats): List of shift values in Angstroms
-        normal (array): Surface normal vector.
-        slab_scale (array): scale_factor Final computed scale factor
-            that brings the parent cell to the surface cell.
-        length (float): length of the slab region of the structure in Angstrom
-        miller_index ([h, k, l]): Miller index of plane parallel to
-            surface. Note that this is referenced to the input structure. If
-            you need this to be based on the conventional cell,
-            you should supply the conventional structure.
-        structure (Structure): From the initial structure, this structure
-            has been refined into a slab
-        lll_reduce (bool): Whether to perform an LLL reduction on the
-            eventual structure.
-        standardize (bool): Whether to center the slab in the cell with equal
-            vacuum spacing from the top and bottom.
-        initial_structure (Structure): Initial input structure.
+        oriented_unit_cell (Structure): The oriented unit cell.
         min_slab_size (float): In Angstroms
         min_vac_size (float): In Angstroms
-        initial_structure (Structure): The initial structure used to create a slab
+        shift (float): Where to shift the slab to create a surface
 
     """
 
-    slab_list = []
+    nlayers_slab = int(math.ceil(min_slab_size / dist))
+    nlayers_vac = int(math.ceil(min_vac_size / dist))
+    nlayers = nlayers_slab + nlayers_vac
+    slab = oriented_unit_cell.copy()
+    slab.make_supercell([1, 1, nlayers])
 
-    for i in range(0, len(shift_list)):
-        b = slab_scale
-        term_slab = initial_structure.copy()
-        term_slab.make_supercell(b)
-        # term_slab = organize(term_slab)[0]
+    new_sites = []
+    for site in slab:
+        if shift <= np.dot(site.coords, normal) < nlayers_slab*dist +\
+                shift:
+            new_sites.append(site)
+        
+    slab = Structure.from_sites(new_sites)
 
-        new_sites = []
-        # Get the sites of the surface atoms
-        # length is in the direction of surface normal(z), so is shift
-        for site in term_slab:
-            if shift_list[i] <= np.dot(site.coords, normal) < length +\
-                    shift_list[i]:
-                new_sites.append(site)
-            
-        term_slab = Structure.from_sites(new_sites)
+    if lll_reduce:
+        lll_slab = slab.copy(sanitize=True)
+        mapping = lll_slab.lattice.find_mapping(slab.lattice)
+        scale_factor = np.dot(mapping[2], scale_factor)
+        slab = lll_slab
 
-        if lll_reduce:
-            lll_slab = term_slab.copy(sanitize=True)
-            mapping = lll_slab.lattice.find_mapping(term_slab.lattice)
-            slab_scale_factor = np.dot(mapping[2], b)
-            term_slab = lll_slab
-        else:
-            slab_scale_factor = b
+    if standardize:
+        frac_c_list = []
+        for site in xrange(len(slab)):
+            frac_c_list.append(slab.frac_coords[site][2])
+        frac_c_list.sort()
+        # move along c, distance = frac_difference between cell & layer center
+        slab.translate_sites(range(0, len(frac_c_list)),
+                             [0, 0, 0.5-(frac_c_list[0]+frac_c_list[-1])/2])
 
-        slab = Slab(normal, slab_scale_factor, term_slab, miller_index,
-                    initial_structure, min_slab_size, min_vac_size)
 
-        if standardize:
-            frac_c_list = []
-            for site in xrange(len(slab)):
-                frac_c_list.append(slab.frac_coords[site][2])
-            frac_c_list.sort()
-            # move along c, distance = frac_difference between cell & layer center
-            slab.translate_sites(range(0, len(frac_c_list)),
-                                 [0, 0, 0.5-(frac_c_list[0]+frac_c_list[-1])/2])
-
-        slab_list.append(slab)
-
-    return slab_list
+    return Slab(shift, normal, scale_factor, slab, miller_index,
+                initial_structure, min_slab_size, min_vac_size)
 
 
 class SurfaceGenerator():
@@ -393,7 +370,7 @@ class SurfaceGenerator():
     """
 
     def __init__(self, initial_structure, miller_index, min_slab_size,
-                 min_vacuum_size, lll_reduce=True, standardize=True):
+                 min_vacuum_size, lll_reduce=False, standardize=False):
         """
 
         Generates a supercell of the initial structure with its miller
@@ -453,28 +430,21 @@ class SurfaceGenerator():
         # By generating the normal first, we can prevent
         # the loop that creates the slabs from iterating
         # through repetitive steps.
-        nlayers_slab = int(math.ceil(min_slab_size / dist))
-        nlayers_vac = int(math.ceil(min_vacuum_size / dist))
-        nlayers = nlayers_slab + nlayers_vac
-        slab = initial_structure.copy()
-        single_slab = copy.deepcopy(slab_scale_factor)
-        slab_scale_factor.append(eye[latt_index] * nlayers)
-        single_slab.append(eye[latt_index]*1)
-        single = slab.copy()
-        single.make_supercell(single_slab)
-        slab.make_supercell(slab_scale_factor)
 
-        self.super = slab
-        self.unit_cell = single
+        slab_scale_factor.append(eye[latt_index])
+        single = initial_structure.copy()
+        single.make_supercell(slab_scale_factor)
+
+        self.oriented_unit_cell = single
         self.parent = initial_structure
         self.lll_reduce = lll_reduce
         self.standardize = standardize
         self.slab_scale_factor = slab_scale_factor
         self.normal = normal
-        self.length = nlayers_slab*dist
         self.miller_index = miller_index
         self.min_vac_size = min_vacuum_size
         self.min_slab_size = min_slab_size
+        self.dist = dist
 
     def get_all_slab(self, thresh=0.00001, crit ='distance'):
 
@@ -495,37 +465,37 @@ class SurfaceGenerator():
         # Clusters sites together that belong in the same termination surface based
         # on their position in the c direction. How close the sites have to
         # be to belong in the same termination surface depends on the user input thresh.
-        l = organize(self.super)
+        l = organize(self.oriented_unit_cell)
         tracker_index = fclusterdata(l[1], thresh, crit)
         new_coord, tracker_index, org_coords, el = \
             zip(*sorted(zip(l[1], tracker_index, l[2], l[3])))
 
         # Creates a list (term_index) that tells us which at
         # which site does a termination begin. For 1 unit cell.
-        gg = 0
         term_index = []
         for i in xrange(len(l[0])):
-            gg+=1
             if i == len(l[0]) - 1:
                 term_index.append(i)
                 break
             else:
                 if tracker_index[i] != tracker_index[i+1]:
                     term_index.append(i)
-            if gg >= len(self.unit_cell) and tracker_index[i] != tracker_index[i+1]:
-                term_index.append(i)
-                break
 
         term_sites = []
         for i in xrange(len(term_index)):
-            term_slab = self.super.copy()
+            term_slab = self.oriented_unit_cell.copy()
             #term_slab.make_supercell(self.slab_scale_factor)
             term_slab = organize(term_slab)[0]
             term_sites.append(np.dot(term_slab[term_index[i]].coords, self.normal))
+        print(len(term_sites))
+        slab_list = []
+        for shift in term_sites:
+            slab_list.append(generate_slab(self.parent, self.miller_index, self.normal,
+                                           self.slab_scale_factor, self.oriented_unit_cell,
+                                           self.dist, self.min_slab_size, self.min_vac_size,
+                                           shift, self.lll_reduce, self.standardize))
 
-        return surface_list_generator(term_sites, self.normal, self.slab_scale_factor, self.length,
-                                      self.miller_index, self.parent, self.lll_reduce, self.standardize,
-                                      self.min_slab_size, self.min_vac_size)
+        return slab_list
 
 
     # @classmethod
@@ -542,9 +512,14 @@ class SurfaceGenerator():
 
         """
 
-        return surface_list_generator(shift_list, self.normal, self.slab_scale_factor, self.length,
-                                      self.miller_index, self.parent, self.lll_reduce, self.standardize,
-                                      self.min_slab_size, self.min_vac_size)
+        slab_list = []
+        for shift in shift_list:
+            slab_list.append(generate_slab(self.parent, self.miller_index, self.normal,
+                                           self.slab_scale_factor, self.oriented_unit_cell,
+                                           self.dist, self.min_slab_size, self.min_vac_size,
+                                           shift, self.lll_reduce, self.standardize))
+
+        return slab_list
 
 
     # @classmethod
@@ -646,7 +621,11 @@ class SurfaceGenerator():
             if len(stable_list):
                 print 'stable surface:', self.miller_index
 
-        return surface_list_generator(stable_list, self.normal, self.slab_scale_factor, self.length,
-                                      self.miller_index, self.parent, self.lll_reduce, self.standardize,
-                                      self.min_slab_size, self.min_vac_size)
+        slab_list = []
+        for shift in term_sites:
+            slab_list.append(generate_slab(self.parent, self.miller_index, self.normal,
+                                           self.slab_scale_factor, self.oriented_unit_cell,
+                                           self.dist, self.min_slab_size, self.min_vac_size,
+                                           shift, self.lll_reduce, self.standardize))
 
+        return slab_list
