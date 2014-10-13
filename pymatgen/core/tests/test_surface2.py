@@ -5,13 +5,12 @@ import unittest
 from pymatgen.core.lattice import Lattice
 from pymatgen.io.smartio import CifParser
 from pymatgen import write_structure
-from pymatgen.core.surface import Slab
+from pymatgen.core.surface import Slab, SurfaceGenerator
 import os
 from pymatgen.core import Structure
 import itertools
 import numpy as np
 
-from pymacy.surface_adsorption.test3 import Slab1
 
 def get_path(path_str):
     forder = str(os.getcwd()) + "/surface_tests"
@@ -24,9 +23,11 @@ class SlabTest(unittest.TestCase):
         C1 = CifParser(get_path("ZnO-wz.cif"))
         zno = C1.get_structures(primitive=False)
         zno1 = zno[0]
-        zno55 = Slab1(zno1, [1, 0, 0], 5, 5, lll_reduce=False)
+        zno55 = SurfaceGenerator(zno1, [1, 0, 0], 5, 5, lll_reduce=False, standardize=False).get_slab()
+        print zno55[0]
+        write_structure(zno55[0], "surface_tests/ZnO55.cif")
         self.zno1 = zno1
-        self.zno55 = zno55
+        self.zno55 = zno55[0]
         self.h = Structure(Lattice.cubic(3), ["H"],
                             [[0, 0, 0]])
         self.libcc = Structure(Lattice.cubic(3.51004), ["Li", "Li"],

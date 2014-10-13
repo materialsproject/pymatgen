@@ -462,7 +462,7 @@ class SurfaceGenerator():
 
 
     # @classmethod
-    def get_slab(self, shift_list):
+    def get_slab(self, shift_list=[]):
 
         """
 
@@ -476,11 +476,17 @@ class SurfaceGenerator():
         """
 
         slab_list = []
-        for shift in shift_list:
+        if len(shift_list) ==0:
             slab_list.append(generate_slab(self.parent, self.miller_index, self.normal,
                                            self.slab_scale_factor, self.oriented_unit_cell,
                                            self.dist, self.min_slab_size, self.min_vac_size,
-                                           shift, self.lll_reduce, self.standardize))
+                                           0, self.lll_reduce, self.standardize))
+        else:
+            for shift in shift_list:
+                slab_list.append(generate_slab(self.parent, self.miller_index, self.normal,
+                                               self.slab_scale_factor, self.oriented_unit_cell,
+                                               self.dist, self.min_slab_size, self.min_vac_size,
+                                               shift, self.lll_reduce, self.standardize))
 
         return slab_list
 
@@ -501,7 +507,7 @@ class SurfaceGenerator():
 
         # use SurfaceGenerate Class to get rotated unit cell, consider c factor of new cells
         # slab, the rotated unit cell
-        slab = self.unit_cell
+        slab = self.oriented_unit_cell
         latt = slab.lattice
         z2 = abs(latt.matrix[2][2])
 
