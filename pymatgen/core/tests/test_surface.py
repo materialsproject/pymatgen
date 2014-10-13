@@ -12,12 +12,12 @@ from pymatgen.core import Structure
 import itertools
 
 
-
 def get_path(path_str):
-    forder = str(os.getcwd()) + "/surface_tests"
-    path = os.path.join(forder, path_str)
-    print path
+    folder = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                          "surface_tests")
+    path = os.path.join(folder, path_str)
     return path
+
 
 class SlabTest(unittest.TestCase):
 
@@ -29,8 +29,7 @@ class SlabTest(unittest.TestCase):
         self.libcc = Structure(Lattice.cubic(3.51004), ["Li", "Li"],
                                [[0, 0, 0], [0.5, 0.5, 0.5]])
 
-        Li_Fe_P_O4 = CifParser(get_path("LiFePO4.cif"))
-        self.lifepo4 = (Li_Fe_P_O4.get_structures(primitive = False)[0])
+        self.lifepo4 = Structure.from_file("LiFePO4.cif")
 
         Li_Fe_P_O4_compare = CifParser(get_path("LiFePO4_010_original_3.005.cif"))
         self.lifepo4_compare = (Li_Fe_P_O4_compare.get_structures(primitive = False)[0])
