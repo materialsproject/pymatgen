@@ -1289,13 +1289,13 @@ class Outcar(PMGSONable):
             structure at the last ionic step is [5]["2s"][-1]
         """
 
-        natom = len(self.charge)
-        cl = [defaultdict(list) for i in range(natom)]
-
         with zopen(self.filename, "rt") as foutcar:
             line = foutcar.readline()
             while line != "":
                 line = foutcar.readline()
+                if "NIONS =" in line:
+                    natom = int(line.split("NIONS =")[1])
+                    cl = [defaultdict(list) for i in range(natom)]
                 if "the core state eigen" in line:
                     for iat in range(natom):
                         line = foutcar.readline()
