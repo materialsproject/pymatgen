@@ -89,7 +89,7 @@ class Slab(Structure):
 
 
 
-    def __init__(self,shift, normal, scale_factor, structure, miller_index,
+    def __init__(self, shift, normal, scale_factor, structure, miller_index,
                  initial_structure, min_slab_size, min_vac_size):
         """
         Makes a Slab structure, a structure object
@@ -111,8 +111,7 @@ class Slab(Structure):
 
         """
 
-        slab = structure.copy()
-
+        slab = structure
         self.parent = initial_structure
         self.min_slab_size = min_slab_size
         self.min_vac_size = min_vac_size
@@ -132,65 +131,29 @@ class Slab(Structure):
         m = self.lattice.matrix
         return np.linalg.norm(np.cross(m[0], m[1]))
 
-    @classmethod
-    def adsorb_atom(cls, structure_a, site_a, atom, distance,
-                    surface=[0, 0, 1], xyz=0):
+
+    def add_adsorbate_atom(self, indices, specie, distance):
         """
         Gets the structure of single atom adsorption.
+        slab structure from the Slab class(in [0, 0, 1])
 
         Args:
-        structure_a: the slab structure for adsorption
-        site_a:  given sites for adsorption.
-             default(xyz=0): site_a = [a, b, c], within [0,1];
-             xyz=1: site_a = [x, y, z], in Angstroms.
-        atom: adsorbed atom species
-        distance: between centers of the adsorbed atom and the given site.
-             in Angstroms
-        surface: direction of the surface where atoms are adsorbed to
-             default: surface = [0, 0, 1]
-        xyz: default is 0. 1 means site_a = [x, y, z], in Angstroms.
-
+            indices ([int]): Indices of sites on which to put the absorbate.
+                Absorbed atom will be displaced relative to the center of
+                these sites.
+            specie (Specie/Element/str): adsorbed atom species
+            distance (float): between centers of the adsorbed atom and the
+                given site in Angstroms.
         """
-        from pymatgen.transformations.site_transformations import \
-            InsertSitesTransformation
+        #Let's do the work in cartesian coords
+        center = np.sum([self[i].coords for i in indices], axis=0) / len(
+            indices)
 
-        lattice_s = structure_a.lattice
-        abc_s = lattice_s.abc
-        b123_s = lattice_s.inv_matrix.T
-        vector_o = np.dot(surface, b123_s)
-        print vector_o
-        lens_v = np.sqrt(np.dot(vector_o, vector_o.T))
-        V_o = vector_o / lens_v * distance
+        coords = center + self.normal * distance / np.linalg.norm(self.normal)
 
-        if xyz == 0:
-            # site_a = [a, b, c]
-            for i in xrange(3):
-                if site_a[i]> 1 or site_a[i] < 0:
-                    raise ValueError("site_a is outsite the cell.")
-            site_abc = V_o / abc_s + site_a
-        else:
-            # site_a = [x, y, z]
-            for i in xrange(3):
-                if site_a[i] > abc_s[i]:
-                    raise ValueError("sites_a is outside the cell.")
-            site_a1 = np.array(site_a)
+        self.append(specie, coords, coords_are_cartesian=True)
 
-            # convert to a1, a2, a3
-            #< site_a2 = np.dot(a123_s, site_a1.T) / abc_s
-            #< site_abc = (V_o+site_a2) / abc_s
-            site_a2 = np.dot(b123_s, site_a1.T)
-            site_abc = V_o/abc_s+site_a2
 
-        for i in xrange(3):
-            if site_abc[i] < 0 or site_abc[i] > 1:
-                raise ValueError("wrong distance, atom will be outside the cell.")
-
-        print 'add_site:', site_abc, atom
-
-        ist = InsertSitesTransformation(species=atom, coords=[site_abc])
-        structure_ad = ist.apply_transformation(structure_a)
-
-        return structure_ad
 
     def make_interface(self, sec_struct):
 
@@ -622,7 +585,7 @@ class SurfaceGenerator():
                 print 'stable surface:', self.miller_index
 
         slab_list = []
-        for shift in term_sites:
+        for shift in stable_list:
             slab_list.append(generate_slab(self.parent, self.miller_index, self.normal,
                                            self.slab_scale_factor, self.oriented_unit_cell,
                                            self.dist, self.min_slab_size, self.min_vac_size,
