@@ -6,7 +6,7 @@ import unittest
 from pymatgen.core.lattice import Lattice
 from pymatgen.io.smartio import CifParser
 from pymatgen import write_structure
-from pymatgen.core.surf2 import Slab, SurfaceGenerator
+from pymatgen.core.surface import Slab, SurfaceGenerator
 import os
 from pymatgen.core import Structure
 import itertools
@@ -14,8 +14,9 @@ import itertools
 
 
 def get_path(path_str):
-    file_name = "pymatgen/pymatgen/core/tests/surface_tests/" + path_str
-    path = os.path.join(os.path.expanduser("~"), file_name)
+    forder = str(os.getcwd()) + "/surface_tests"
+    path = os.path.join(forder, path_str)
+    print path
     return path
 
 class SlabTest(unittest.TestCase):
