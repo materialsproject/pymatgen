@@ -29,7 +29,7 @@ class SlabTest(unittest.TestCase):
         self.libcc = Structure(Lattice.cubic(3.51004), ["Li", "Li"],
                                [[0, 0, 0], [0.5, 0.5, 0.5]])
 
-        self.lifepo4 = Structure.from_file("LiFePO4.cif")
+        self.lifepo4 = Structure.from_file(get_path("LiFePO4.cif"))
 
         Li_Fe_P_O4_compare = CifParser(get_path("LiFePO4_010_original_3.005.cif"))
         self.lifepo4_compare = (Li_Fe_P_O4_compare.get_structures(primitive = False)[0])

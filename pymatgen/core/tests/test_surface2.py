@@ -13,9 +13,11 @@ import numpy as np
 
 
 def get_path(path_str):
-    forder = str(os.getcwd()) + "/surface_tests"
-    path = os.path.join(forder, path_str)
+    folder = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                          "surface_tests")
+    path = os.path.join(folder, path_str)
     return path
+
 
 class SlabTest(unittest.TestCase):
 
@@ -66,6 +68,5 @@ class SlabTest(unittest.TestCase):
         self.assertEqual(zno_slab.normal.all, self.zno55.normal.all)
 
 
-
-
-
+if __name__ == "__main__":
+    unittest.main()
