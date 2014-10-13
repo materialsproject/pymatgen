@@ -18,35 +18,14 @@ __date__ = "6/10/14"
 from fractions import gcd
 import math
 import itertools
-
+import collections
 from pymatgen import Structure
 
 import numpy as np
-from scipy.cluster.hierarchy import fclusterdata
-
+from scipy.spatial.distance import squareform
+from scipy.cluster.hierarchy import linkage, fcluster
 
 from monty.fractions import lcm
-
-
-def organize(struct):
-    """Takes in a list of sites (ie. a structure object) and organizes the list
-    based on the c coordinate from sites closest to c=0 to farthest. Then
-    it returns this organized structure (list of sites) along with a list
-    of organized coordinates along the c direction and an organized list
-    of species corresponding the the site"""
-    el = struct.species
-    org_coords = struct.frac_coords.tolist()
-    new_coord, b = [], []
-
-    for i in struct.frac_coords:
-        b.append(i[2])
-        new_coord.append(b)
-        b = []
-
-    new_coord, org_coords, el = \
-        zip(*sorted(zip(new_coord, org_coords, el)))
-
-    return [Structure(struct.lattice, el, org_coords), new_coord, org_coords, el]
 
 
 class Slab(Structure):
@@ -208,7 +187,7 @@ class Slab(Structure):
 
     def organize_along_c(self):
         # Organizes a slab's sites along the c direction
-        return organize(self)[0]
+        self.sites = sorted(self.sites, key=lambda s: s.c)
 
 
 class SurfaceGenerator(object):
@@ -289,7 +268,6 @@ class SurfaceGenerator(object):
                 vacuum spacing from the top and bottom.
 
         """
-
         latt = initial_structure.lattice
         d = reduce(gcd, miller_index)
         miller_index = [int(i / d) for i in miller_index]
@@ -330,7 +308,8 @@ class SurfaceGenerator(object):
         single = initial_structure.copy()
         single.make_supercell(slab_scale_factor)
 
-        self.oriented_unit_cell = single
+        self.oriented_unit_cell = Structure.from_sites(single,
+                                                       to_unit_cell=True)
         self.parent = initial_structure
         self.lll_reduce = lll_reduce
         self.standardize = standardize
@@ -386,7 +365,7 @@ class SurfaceGenerator(object):
                     scale_factor, self.parent, self.min_slab_size,
                     self.min_vac_size)
 
-    def get_all_slabs(self, thresh=0.00001, crit ='distance'):
+    def get_all_slabs(self, thresh=1e-2):
         """
         A method that generates a list of shift values in order to create a list
         of slabs, each with a different surface. A surface is identified by
@@ -400,34 +379,45 @@ class SurfaceGenerator(object):
             crit (str): The criterion to set for fclusterdata (see fcluster for
                 description).
         """
+        frac_coords = self.oriented_unit_cell.frac_coords
+        n = len(frac_coords)
 
-        # Clusters sites together that belong in the same termination surface based
-        # on their position in the c direction. How close the sites have to
-        # be to belong in the same termination surface depends on the user input thresh.
-        l = organize(self.oriented_unit_cell)
-        tracker_index = fclusterdata(l[1], thresh, crit)
-        new_coord, tracker_index, org_coords, el = \
-            zip(*sorted(zip(l[1], tracker_index, l[2], l[3])))
+        # We cluster the sites according to the c coordinates. But we need to
+        # take into account PBC. Let's compute a fractional c-coordinate
+        # distance matrix that accounts for PBC.
+        dist_matrix = np.zeros((n, n))
+        for i in range(n - 1):
+            for j in range(i + 1, n):
+                cdist = frac_coords[i][2] - frac_coords[j][2]
+                cdist = abs(cdist - round(cdist))
+                dist_matrix[i, j] = cdist
+                dist_matrix[j, i] = cdist
 
-        # Creates a list (term_index) that tells us which at
-        # which site does a termination begin. For 1 unit cell.
-        term_index = []
-        for i in xrange(len(l[0])):
-            if i == len(l[0]) - 1:
-                term_index.append(i)
-                break
+        condensed_m = squareform(dist_matrix)
+        z = linkage(condensed_m)
+        clusters = fcluster(z, thresh, criterion="distance")
+
+        #Generate dict of cluster# to c val - doesn't matter what the c is.
+        c_loc = {c: frac_coords[i][2] for i, c in enumerate(clusters)}
+
+        #Put all c into the unit cell.
+        possible_c = [c - math.floor(c) for c in sorted(c_loc.values())]
+
+        # Calculate the shifts
+        nshifts = len(possible_c)
+        shifts = []
+        for i in range(nshifts):
+            if i == nshifts - 1:
+                # There is an additional shift between the first and last c
+                # coordinate. But this needs special handling because of PBC.
+                shift = (possible_c[0] + 1 + possible_c[i]) * 0.5
+                if shift > 1:
+                    shift -= 1
             else:
-                if tracker_index[i] != tracker_index[i+1]:
-                    term_index.append(i)
-
-        term_sites = []
-        for i in xrange(len(term_index)):
-            term_slab = self.oriented_unit_cell.copy()
-            #term_slab.make_supercell(self.slab_scale_factor)
-            term_slab = organize(term_slab)[0]
-            term_sites.append(np.dot(term_slab[term_index[i]].coords, self.normal))
-        print(len(term_sites))
-        return [self.get_slab(shift) for shift in term_sites]
+                shift = (possible_c[i] + possible_c[i + 1]) * 0.5
+            shifts.append(shift)
+        shifts = sorted(shifts)
+        return [self.get_slab(shift) for shift in shifts]
 
     def get_non_bond_breaking_slabs(self, specie1, specie2, max_bond=3,
                                     min_dist=0.01):
