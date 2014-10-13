@@ -3,124 +3,75 @@
 
 import unittest
 
+
+from pymatgen.core import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.io.smartio import CifParser
 from pymatgen import write_structure
 from pymatgen.core.surface import Slab, SurfaceGenerator
 import os
-from pymatgen.core import Structure
 import itertools
+import numpy as np
+
 
 
 def get_path(path_str):
-    folder = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                          "surface_tests")
-    path = os.path.join(folder, path_str)
+    forder = str(os.getcwd()) + "/surface_tests"
+    path = os.path.join(forder, path_str)
+    print path
     return path
-
 
 class SlabTest(unittest.TestCase):
 
     def setUp(self):
-        self.cu = Structure(Lattice.cubic(3), ["Cu", "Cu", "Cu", "Cu"],
-                            [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5],
-                             [0, 0.5, 0.5]])
-
+        C1 = CifParser(get_path("ZnO-wz.cif"))
+        zno = C1.get_structures(primitive=False)
+        zno1 = zno[0]
+        zno55 = SurfaceGenerator(zno1, [1, 0, 0], 5, 5, lll_reduce=False,
+                                 standardize=False).get_slab()
+        #print zno55[0]
+        #write_structure(zno55[0], "surface_tests/ZnO55.cif")
+        self.zno1 = zno1
+        self.zno55 = zno55
+        self.h = Structure(Lattice.cubic(3), ["H"],
+                            [[0, 0, 0]])
         self.libcc = Structure(Lattice.cubic(3.51004), ["Li", "Li"],
                                [[0, 0, 0], [0.5, 0.5, 0.5]])
-
-        self.lifepo4 = Structure.from_file(get_path("LiFePO4.cif"))
-
+        Li_Fe_P_O4 = CifParser(get_path("LiFePO4.cif"))
+        self.lifepo4 = (Li_Fe_P_O4.get_structures(primitive = False)[0])
         Li_Fe_P_O4_compare = CifParser(get_path("LiFePO4_010_original_3.005.cif"))
         self.lifepo4_compare = (Li_Fe_P_O4_compare.get_structures(primitive = False)[0])
 
-
     def test_init(self):
-        for hkl in itertools.product(xrange(4), xrange(4), xrange(4)):
-            if any(hkl):
-                ssize = 6
-                vsize = 10
-                gen = SurfaceGenerator(self.cu, hkl, ssize, vsize, standardize=False)
-                s = gen.get_slab()
-                if hkl == [0, 1, 1]:
-                    self.assertEqual(len(s), 13)
-                    self.assertAlmostEqual(s.surface_area, 12.727922061357855)
+        zno_slab = Slab(self.zno55, self.zno55.miller_index, 0,
+                        self.zno55.normal, self.zno55.scale_factor,
+                        self.zno1, self.zno55.min_slab_size,
+                        self.zno55.min_vac_size)
+        m =self.zno55.lattice.matrix
+        area = np.linalg.norm(np.cross(m[0], m[1]))
+        self.assertAlmostEqual(zno_slab.surface_area, area)
+        self.assertEqual(zno_slab.lattice.lengths_and_angles,
+                         self.zno55.lattice.lengths_and_angles)
+        self.assertEqual(zno_slab.normal.all, self.zno55.normal.all)
+        self.assertEqual(zno_slab.parent.composition, self.zno1.composition)
+        self.assertEqual(len(zno_slab), 8)
 
-                manual = self.cu.copy()
-                manual.make_supercell(s.scale_factor)
-                self.assertEqual(manual.lattice.lengths_and_angles,
-                                 s.lattice.lengths_and_angles)
+    def test_add_adsorbate_atom(self):
+        zno_slab = Slab(self.zno55, self.zno55.miller_index,
+                        0, self.zno55.normal, self.zno55.scale_factor,
+                        self.zno1, self.zno55.min_slab_size, self.zno55.min_vac_size)
+        zno_slab.add_adsorbate_atom([1], 'H', 1)
 
-        # # For visual debugging
-        # from pymatgen import write_structure
-        # write_structure(s.parent, "cu.cif")
-        # write_structure(s, "cu_slab_%s_%.3f_%.3f.cif" %
-        #                  (str(hkl), ssize, vsize))
-
-    def test_adsorb_atom(self):
-        gen = SurfaceGenerator(self.cu,[0, 0, 1], 5, 5, standardize=False)
-        s001 = gen.get_slab()
-        # print s001
-        # O adsorb on 4Cu[0.5, 0.5, 0.25], abc = [3, 3, 12]
-        # 1. test site_a = abc input
-        s001_ad1 = Slab.adsorb_atom(structure_a=s001, site_a=[0.5, 0.5, 0.25], atom= ['O'],
-                                    distance=2)
-        self.assertEqual(len(s001_ad1), 9)
-        for i in xrange(len(s001_ad1)):
-            if str(s001_ad1[i].specie) == 'O':
-                print s001_ad1[i].frac_coords
-                self.assertAlmostEqual(s001_ad1[i].a, 0.5)
-                self.assertAlmostEqual(s001_ad1[i].b, 0.5)
-                self.assertAlmostEqual(s001_ad1[i].c, 0.4166667)
-        self.assertEqual(s001_ad1.lattice.lengths_and_angles,
-                                 s001.lattice.lengths_and_angles)
-        # 2. test site_a = xyz input
-        s001_ad2 = Slab.adsorb_atom(structure_a=s001, site_a=[1.5, 1.5, 3], atom= ['O'],
-                                    distance=2, xyz=1)
-        self.assertEqual(len(s001_ad2), 9)
-        for i in xrange(len(s001_ad2)):
-            if str(s001_ad2[i].specie) == 'O':
-                print s001_ad2[i].frac_coords
-                self.assertAlmostEqual(s001_ad2[i].a, 0.5)
-                self.assertAlmostEqual(s001_ad2[i].b, 0.5)
-                self.assertAlmostEqual(s001_ad2[i].c, 0.4166667)
-
-    def test_make_terminations(self):
-        gen = SurfaceGenerator(self.lifepo4, [0,1,0], 10, 10, lll_reduce=False)
-        manual_lifepo4 = gen.get_slab(3.005)
-        dist_lifepo4 = gen.get_all_slabs()[4]
-        check_bonds = gen.get_non_bond_breaking_slabs('P5+', 'O2-')[0]
-        a = manual_lifepo4.organize_along_c()
-        b = dist_lifepo4.organize_along_c()
-        lifepo4_compare = Slab([], [], self.lifepo4_compare, [], self.lifepo4_compare, [], [])
-        c = lifepo4_compare.organize_along_c()
-        d = check_bonds.organize_along_c()
-        # write_structure(b, "lifepo4_dist_algorithm.cif")
-
-        # Compares the sites of a (010) slab for LiFePO4 generated with the original
-        # surface.py algorithm to the same slab generated using manual, check_bonds,
-        #  and distance with a shift of 3.005A.
-
-        for i in range(0, len(self.lifepo4_compare)):
-            self.assertAlmostEqual(b[i].species_string, c[i].species_string)
-            self.assertAlmostEqual(b[i].species_string, c[i].species_string)
-            for ii in range(0, 2):
-                self.assertAlmostEqual(b.frac_coords[i][ii], c.frac_coords[i][ii])
-                self.assertAlmostEqual(a.frac_coords[i][ii], c.frac_coords[i][ii])
-
-
-    # def test_make_interface(self):
-    #     gen = Surface_Generator(self.lifepo4, [0, 0, 1], 10, 10)
-    #     slab = gen.distance()[0]
-    #     interface = slab.make_interface(self.libcc)
-    #
-    #     # For visual debugging
-    #     # write_structure(interface, "Li_LiFePO4_interface.cif")
-    #
-    #     for i in range(0, len(slab)):
-    #         self.assertEqual(slab[i].coords[0], interface[i].coords[0])
-    #         self.assertEqual(slab[i].coords[1], interface[i].coords[1])
-    #         self.assertEqual(slab[i].coords[2], interface[i].coords[2])
+        self.assertEqual(len(zno_slab), 9)
+        self.assertEqual(str(zno_slab[8].specie),'H')
+        self.assertAlmostEqual(zno_slab.get_distance(1,8), 1)
+        self.assertTrue(zno_slab[8].c>zno_slab[0].c)
+        m =self.zno55.lattice.matrix
+        area = np.linalg.norm(np.cross(m[0], m[1]))
+        self.assertAlmostEqual(zno_slab.surface_area, area)
+        self.assertEqual(zno_slab.lattice.lengths_and_angles,
+                         self.zno55.lattice.lengths_and_angles)
+        self.assertEqual(zno_slab.normal.all, self.zno55.normal.all)
 
 if __name__ == "__main__":
     unittest.main()
