@@ -211,53 +211,6 @@ class Slab(Structure):
         return organize(self)[0]
 
 
-def generate_slab(initial_structure, miller_index, normal, scale_factor,
-                  oriented_unit_cell, dist, min_slab_size, min_vac_size,
-                  shift, lll_reduce, standardize):
-    """
-
-    This function creates a slab of nlayers with an oriented unit cell.
-
-    Args:
-        oriented_unit_cell (Structure): The oriented unit cell.
-        min_slab_size (float): In Angstroms
-        min_vac_size (float): In Angstroms
-        shift (float): Where to shift the slab to create a surface
-
-    """
-    nlayers_slab = int(math.ceil(min_slab_size / dist))
-    nlayers_vac = int(math.ceil(min_vac_size / dist))
-    nlayers = nlayers_slab + nlayers_vac
-    slab = oriented_unit_cell.copy()
-    slab.make_supercell([1, 1, nlayers])
-
-    new_sites = []
-    for site in slab:
-        if shift <= np.dot(site.coords, normal) < nlayers_slab*dist +\
-                shift:
-            new_sites.append(site)
-        
-    slab = Structure.from_sites(new_sites)
-
-    if lll_reduce:
-        lll_slab = slab.copy(sanitize=True)
-        mapping = lll_slab.lattice.find_mapping(slab.lattice)
-        scale_factor = np.dot(mapping[2], scale_factor)
-        slab = lll_slab
-
-    if standardize:
-        frac_c_list = []
-        for site in xrange(len(slab)):
-            frac_c_list.append(slab.frac_coords[site][2])
-        frac_c_list.sort()
-        # move along c, distance = frac_difference between cell & layer center
-        slab.translate_sites(range(0, len(frac_c_list)),
-                             [0, 0, 0.5-(frac_c_list[0]+frac_c_list[-1])/2])
-
-    return Slab(slab, miller_index, shift, normal, scale_factor,
-                initial_structure, min_slab_size, min_vac_size)
-
-
 class SurfaceGenerator(object):
 
     """
@@ -388,7 +341,7 @@ class SurfaceGenerator(object):
         self.min_slab_size = min_slab_size
         self.dist = dist
 
-    def get_slabs(self, shift_list):
+    def get_slab(self, shift=0):
         """
         This method takes in a list of shift values created by
         the user and generates slabs based on the given shift values.
@@ -398,14 +351,39 @@ class SurfaceGenerator(object):
             determine how much a slab should be shifted.
         """
         slabs = []
-        for shift in shift_list:
-            slabs.append(
-                generate_slab(self.parent, self.miller_index, self.normal,
-                              self.slab_scale_factor, self.oriented_unit_cell,
-                              self.dist, self.min_slab_size, self.min_vac_size,
-                              shift, self.lll_reduce, self.standardize))
+        nlayers_slab = int(math.ceil(self.min_slab_size / self.dist))
+        nlayers_vac = int(math.ceil(self.min_vac_size / self.dist))
+        nlayers = nlayers_slab + nlayers_vac
+        slab = self.oriented_unit_cell.copy()
+        slab.make_supercell([1, 1, nlayers])
 
-        return slabs
+        new_sites = []
+        for site in slab:
+            if shift <= np.dot(site.coords, self.normal) < nlayers_slab * \
+                    self.dist + shift:
+                new_sites.append(site)
+
+        slab = Structure.from_sites(new_sites)
+        scale_factor = self.slab_scale_factor
+        if self.lll_reduce:
+            lll_slab = slab.copy(sanitize=True)
+            mapping = lll_slab.lattice.find_mapping(slab.lattice)
+            scale_factor = np.dot(mapping[2], scale_factor)
+            slab = lll_slab
+
+        if self.standardize:
+            frac_c_list = []
+            for site in xrange(len(slab)):
+                frac_c_list.append(slab.frac_coords[site][2])
+            frac_c_list.sort()
+            # move along c, distance = frac_difference between cell & layer center
+            slab.translate_sites(range(0, len(frac_c_list)),
+                                 [0, 0, 0.5 - (
+                                     frac_c_list[0] + frac_c_list[-1]) / 2])
+
+        return Slab(slab, self.miller_index, shift, self.normal,
+                    scale_factor, self.parent, self.min_slab_size,
+                    self.min_vac_size)
 
     def get_all_slabs(self, thresh=0.00001, crit ='distance'):
         """
@@ -448,7 +426,7 @@ class SurfaceGenerator(object):
             term_slab = organize(term_slab)[0]
             term_sites.append(np.dot(term_slab[term_index[i]].coords, self.normal))
         print(len(term_sites))
-        return self.get_slabs(term_sites)
+        return [self.get_slab(shift) for shift in term_sites]
 
     def get_non_bond_breaking_slabs(self, specie1, specie2, max_bond=3,
                                     min_dist=0.01):
@@ -548,4 +526,4 @@ class SurfaceGenerator(object):
             if len(stable_list):
                 print 'stable surface:', self.miller_index
 
-        return self.get_slabs(stable_list)
+        return [self.get_slab(shift) for shift in stable_list]
