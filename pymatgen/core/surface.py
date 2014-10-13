@@ -343,14 +343,15 @@ class SurfaceGenerator(object):
 
     def get_slab(self, shift=0):
         """
-        This method takes in a list of shift values created by
-        the user and generates slabs based on the given shift values.
+        This method takes in shift value for the c lattice direction and
+        generates a slab based on the given shift. You should rarely use this
+        method. Instead, it is used by other generation algorithms to obtain
+        all slabs.
 
         Arg:
-            shift_list (list of floats): Shift values in Angstrom
-            determine how much a slab should be shifted.
+            shift (float): A shift value in Angstrom that determines how much a
+            slab should be shifted.
         """
-        slabs = []
         nlayers_slab = int(math.ceil(self.min_slab_size / self.dist))
         nlayers_vac = int(math.ceil(self.min_vac_size / self.dist))
         nlayers = nlayers_slab + nlayers_vac
