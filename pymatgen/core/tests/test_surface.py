@@ -11,6 +11,7 @@ from pymatgen.core.surface import Slab, SurfaceGenerator
 import os
 import numpy as np
 
+from pymatgen.util.testing import PymatgenTest
 
 
 def get_path(path_str):
@@ -20,7 +21,7 @@ def get_path(path_str):
     return path
 
 
-class SlabTest(unittest.TestCase):
+class SlabTest(PymatgenTest):
 
     def setUp(self):
         C1 = CifParser(get_path("ZnO-wz.cif"))
@@ -71,6 +72,21 @@ class SlabTest(unittest.TestCase):
         self.assertEqual(zno_slab.lattice.lengths_and_angles,
                          self.zno55.lattice.lengths_and_angles)
         self.assertEqual(zno_slab.normal.all, self.zno55.normal.all)
+
+
+class SurfaceGeneratorTest(PymatgenTest):
+
+    def test_get_all_slabs(self):
+        gen = SurfaceGenerator(self.get_structure("CsCl"), [0, 0, 1], 10, 10)
+        self.assertEqual(len(gen.get_all_slabs()), 2)
+        s = self.get_structure("LiFePO4")
+        gen = SurfaceGenerator(s, [0, 0, 1], 10, 10)
+        self.assertEqual(len(gen.get_all_slabs()), 18)
+        # At this threshold, only the origin and center Li results in clustering.
+        # All other sites are non-clustered. So the # of slabs is # of sites
+        # in LiFePO4 unit cell - 2.
+        self.assertEqual(len(gen.get_all_slabs(1e-4)), 26)
+
 
 if __name__ == "__main__":
     unittest.main()
