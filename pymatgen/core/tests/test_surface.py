@@ -41,7 +41,7 @@ class SlabTest(unittest.TestCase):
                 ssize = 6
                 vsize = 10
                 gen = SurfaceGenerator(self.cu, hkl, ssize, vsize, standardize=False)
-                s = gen.get_slab([0])[0]
+                s = gen.get_slabs([0])[0]
                 if hkl == [0, 1, 1]:
                     self.assertEqual(len(s), 13)
                     self.assertAlmostEqual(s.surface_area, 12.727922061357855)
@@ -59,7 +59,7 @@ class SlabTest(unittest.TestCase):
 
     def test_adsorb_atom(self):
         gen = SurfaceGenerator(self.cu,[0, 0, 1], 5, 5, standardize=False)
-        s001 = gen.get_slab([0])[0]
+        s001 = gen.get_slabs([0])[0]
         # print s001
         # O adsorb on 4Cu[0.5, 0.5, 0.25], abc = [3, 3, 12]
         # 1. test site_a = abc input
@@ -87,9 +87,9 @@ class SlabTest(unittest.TestCase):
 
     def test_make_terminations(self):
         gen = SurfaceGenerator(self.lifepo4, [0,1,0], 10, 10, lll_reduce=False)
-        manual_lifepo4 = gen.get_slab([3.005])[0]
-        dist_lifepo4 = gen.get_all_slab()[4]
-        check_bonds = gen.get_non_bond_breaking_slab('P5+', 'O2-')[0]
+        manual_lifepo4 = gen.get_slabs([3.005])[0]
+        dist_lifepo4 = gen.get_all_slabs()[4]
+        check_bonds = gen.get_non_bond_breaking_slabs('P5+', 'O2-')[0]
         a = manual_lifepo4.organize_along_c()
         b = dist_lifepo4.organize_along_c()
         lifepo4_compare = Slab([], [], self.lifepo4_compare, [], self.lifepo4_compare, [], [])

@@ -17,20 +17,15 @@ __date__ = "6/10/14"
 
 from fractions import gcd
 import math
-import numpy as np
 import itertools
 
-from pymatgen.core.structure import Structure
-from pymatgen import Lattice, Structure
+from pymatgen import Structure
 
 import numpy as np
-import copy
 from scipy.cluster.hierarchy import fclusterdata
-import os
 
 
 from monty.fractions import lcm
-
 
 
 def organize(struct):
@@ -87,9 +82,7 @@ class Slab(Structure):
         Surface normal vector.
     """
 
-
-
-    def __init__(self, shift, normal, scale_factor, structure, miller_index,
+    def __init__(self, structure, miller_index, shift, normal, scale_factor,
                  initial_structure, min_slab_size, min_vac_size):
         """
         Makes a Slab structure, a structure object
@@ -108,9 +101,7 @@ class Slab(Structure):
             initial_structure (Structure): Initial input structure.
             min_slab_size (float): In Angstroms
             min_vac_size (float): In Angstroms
-
         """
-
         slab = structure
         self.parent = initial_structure
         self.min_slab_size = min_slab_size
@@ -120,17 +111,14 @@ class Slab(Structure):
         self.normal = normal
         self.shift = shift
 
-
         super(Slab, self).__init__(
             slab.lattice, slab.species_and_occu,
             slab.frac_coords, site_properties=slab.site_properties)
-
 
     @property
     def surface_area(self):
         m = self.lattice.matrix
         return np.linalg.norm(np.cross(m[0], m[1]))
-
 
     def add_adsorbate_atom(self, indices, specie, distance):
         """
@@ -152,8 +140,6 @@ class Slab(Structure):
         coords = center + self.normal * distance / np.linalg.norm(self.normal)
 
         self.append(specie, coords, coords_are_cartesian=True)
-
-
 
     def make_interface(self, sec_struct):
 
@@ -230,7 +216,7 @@ def generate_slab(initial_structure, miller_index, normal, scale_factor,
                   shift, lll_reduce, standardize):
     """
 
-    This function creates a slab of nlayers with an oriented unit cell
+    This function creates a slab of nlayers with an oriented unit cell.
 
     Args:
         oriented_unit_cell (Structure): The oriented unit cell.
@@ -239,7 +225,6 @@ def generate_slab(initial_structure, miller_index, normal, scale_factor,
         shift (float): Where to shift the slab to create a surface
 
     """
-
     nlayers_slab = int(math.ceil(min_slab_size / dist))
     nlayers_vac = int(math.ceil(min_vac_size / dist))
     nlayers = nlayers_slab + nlayers_vac
@@ -269,12 +254,11 @@ def generate_slab(initial_structure, miller_index, normal, scale_factor,
         slab.translate_sites(range(0, len(frac_c_list)),
                              [0, 0, 0.5-(frac_c_list[0]+frac_c_list[-1])/2])
 
-
-    return Slab(shift, normal, scale_factor, slab, miller_index,
+    return Slab(slab, miller_index, shift, normal, scale_factor,
                 initial_structure, min_slab_size, min_vac_size)
 
 
-class SurfaceGenerator():
+class SurfaceGenerator(object):
 
     """
     Generates a supercell of the initial structure with its miller
@@ -335,7 +319,6 @@ class SurfaceGenerator():
     def __init__(self, initial_structure, miller_index, min_slab_size,
                  min_vacuum_size, lll_reduce=False, standardize=False):
         """
-
         Generates a supercell of the initial structure with its miller
         index of plane parallel to surface.
 
@@ -390,10 +373,6 @@ class SurfaceGenerator():
                 if len(slab_scale_factor) == 2:
                     break
 
-        # By generating the normal first, we can prevent
-        # the loop that creates the slabs from iterating
-        # through repetitive steps.
-
         slab_scale_factor.append(eye[latt_index])
         single = initial_structure.copy()
         single.make_supercell(slab_scale_factor)
@@ -409,8 +388,26 @@ class SurfaceGenerator():
         self.min_slab_size = min_slab_size
         self.dist = dist
 
-    def get_all_slab(self, thresh=0.00001, crit ='distance'):
+    def get_slabs(self, shift_list):
+        """
+        This method takes in a list of shift values created by
+        the user and generates slabs based on the given shift values.
 
+        Arg:
+            shift_list (list of floats): Shift values in Angstrom
+            determine how much a slab should be shifted.
+        """
+        slabs = []
+        for shift in shift_list:
+            slabs.append(
+                generate_slab(self.parent, self.miller_index, self.normal,
+                              self.slab_scale_factor, self.oriented_unit_cell,
+                              self.dist, self.min_slab_size, self.min_vac_size,
+                              shift, self.lll_reduce, self.standardize))
+
+        return slabs
+
+    def get_all_slabs(self, thresh=0.00001, crit ='distance'):
         """
         A method that generates a list of shift values in order to create a list
         of slabs, each with a different surface. A surface is identified by
@@ -451,49 +448,10 @@ class SurfaceGenerator():
             term_slab = organize(term_slab)[0]
             term_sites.append(np.dot(term_slab[term_index[i]].coords, self.normal))
         print(len(term_sites))
-        slab_list = []
-        for shift in term_sites:
-            slab_list.append(generate_slab(self.parent, self.miller_index, self.normal,
-                                           self.slab_scale_factor, self.oriented_unit_cell,
-                                           self.dist, self.min_slab_size, self.min_vac_size,
-                                           shift, self.lll_reduce, self.standardize))
+        return self.get_slabs(term_sites)
 
-        return slab_list
-
-
-    # @classmethod
-    def get_slab(self, shift_list=[]):
-
-        """
-
-        This method takes in a list of shift values created by
-        the user and generates slabs based on the given shift values.
-
-        Arg:
-            shift_list (list of floats): Shift values in Angstrom
-            determine how much a slab should be shifted.
-
-        """
-
-        slab_list = []
-        if len(shift_list) ==0:
-            slab_list.append(generate_slab(self.parent, self.miller_index, self.normal,
-                                           self.slab_scale_factor, self.oriented_unit_cell,
-                                           self.dist, self.min_slab_size, self.min_vac_size,
-                                           0, self.lll_reduce, self.standardize))
-        else:
-            for shift in shift_list:
-                slab_list.append(generate_slab(self.parent, self.miller_index, self.normal,
-                                               self.slab_scale_factor, self.oriented_unit_cell,
-                                               self.dist, self.min_slab_size, self.min_vac_size,
-                                               shift, self.lll_reduce, self.standardize))
-
-        return slab_list
-
-
-    # @classmethod
-    def get_non_bond_breaking_slab(self, specie1, specie2, max_bond=3,
-                    min_dist=0.01):
+    def get_non_bond_breaking_slabs(self, specie1, specie2, max_bond=3,
+                                    min_dist=0.01):
         """
         This method analysis whether we can generate a stable surface for a given miller
         index. Get the rotated unit cell from Class SurfaceGenerator().
@@ -590,11 +548,4 @@ class SurfaceGenerator():
             if len(stable_list):
                 print 'stable surface:', self.miller_index
 
-        slab_list = []
-        for shift in stable_list:
-            slab_list.append(generate_slab(self.parent, self.miller_index, self.normal,
-                                           self.slab_scale_factor, self.oriented_unit_cell,
-                                           self.dist, self.min_slab_size, self.min_vac_size,
-                                           shift, self.lll_reduce, self.standardize))
-
-        return slab_list
+        return self.get_slabs(stable_list)
