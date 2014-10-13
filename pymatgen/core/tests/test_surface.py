@@ -15,7 +15,8 @@ import numpy as np
 
 def get_path(path_str):
     cwd = os.path.abspath(os.path.dirname(__file__))
-    path = os.path.join(cwd, "surface_tests", path_str)
+    path = os.path.join(cwd, "..", "..", "..", "test_files", "surface_tests",
+                        path_str)
     return path
 
 
