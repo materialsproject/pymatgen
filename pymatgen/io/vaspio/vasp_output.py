@@ -938,11 +938,15 @@ class Outcar(PMGSONable):
         self.is_stopped = False
 
         cores = 0
-        with open(filename, "r") as f:
-            for line in f.readlines():
-                if "running" in line:
-                    cores = line.split()[2]
-                    break
+        try:
+            with open(filename, "r") as f:
+                for line in f.readlines():
+                    if "running" in line:
+                        cores = line.split()[2]
+                        break
+        except (IOError, OSError):
+            cores = 0
+
         with zopen(filename, "rt") as f:
             read_charge_mag = False
             charge = []
@@ -965,24 +969,27 @@ class Outcar(PMGSONable):
                     read_charge_mag = True
                     data = []
                 elif read_charge_mag:
-                    if clean.startswith("# of ion"):
-                        header = re.split("\s{2,}", line.strip())
-                        header.pop(0)
-                    elif clean == "total charge":
-                        data.reverse()
-                        charge = [dict(zip(header, v)) for v in data]
-                        read_charge_mag = False
-                    elif clean == "magnetization (x)":
-                        data.reverse()
-                        mag = [dict(zip(header, v)) for v in data]
-                        read_charge_mag = False
-                    else:
-                        m = re.match("\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
-                        if m:
-                            toks = [float(i) for i in re.findall("[\d\.\-]+",
-                                                                 clean)]
-                            toks.pop(0)
-                            data.append(toks)
+                    try:
+                        if clean.startswith("# of ion"):
+                            header = re.split("\s{2,}", line.strip())
+                            header.pop(0)
+                        elif clean == "total charge":
+                            data.reverse()
+                            charge = [dict(zip(header, v)) for v in data]
+                            read_charge_mag = False
+                        elif clean == "magnetization (x)":
+                            data.reverse()
+                            mag = [dict(zip(header, v)) for v in data]
+                            read_charge_mag = False
+                        else:
+                            m = re.match("\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
+                            if m:
+                                toks = [float(i) for i in re.findall("[\d\.\-]+",
+                                                                     clean)]
+                                toks.pop(0)
+                                data.append(toks)
+                    except ValueError:
+                        pass
                 elif clean.find("soft stop encountered!  aborting job") != -1:
                     self.is_stopped = True
                     print clean, cores
