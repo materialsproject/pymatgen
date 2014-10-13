@@ -1,10 +1,12 @@
-# !/usr/bin/env python
+# coding: utf-8
+
+from __future__ import division, unicode_literals
+
 
 """
-This module implements representations of slabs and surfaces.
+This module implements representations of slabs and surfaces, as well as
+algorithms for generating them.
 """
-
-from __future__ import division
 
 __author__ = "Shyue Ping Ong, vivid0036, richardtran415"
 __copyright__ = "Copyright 2014, The Materials Virtual Lab"
@@ -27,11 +29,9 @@ from scipy.cluster.hierarchy import fclusterdata
 import os
 
 
-def lcm(numbers):
-    """Return lowest common multiple."""
-    def lcm(a, b):
-        return (a * b) / gcd(a, b)
-    return reduce(lcm, numbers, 1)
+from monty.fractions import lcm
+
+
 
 def organize(struct):
     """Takes in a list of sites (ie. a structure object) and organizes the list
