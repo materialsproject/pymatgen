@@ -18,7 +18,6 @@ __date__ = "6/10/14"
 from fractions import gcd
 import math
 import itertools
-import collections
 from pymatgen import Structure
 
 import numpy as np
@@ -330,6 +329,9 @@ class SurfaceGenerator(object):
         Arg:
             shift (float): A shift value in Angstrom that determines how much a
             slab should be shifted.
+
+        Returns:
+            (Slab) A Slab object with a particular shifted oriented unit cell.
         """
         nlayers_slab = int(math.ceil(self.min_slab_size / self.dist))
         nlayers_vac = int(math.ceil(self.min_vac_size / self.dist))
@@ -373,11 +375,12 @@ class SurfaceGenerator(object):
         surface. This is done using the scipy function, fclusterdata.
 
         Args:
-            thresh (float): Threshold parameter in fclusterdata in order to determine
-                the number of terminations to be found. Default thresh set to 0 to
-                discern each atom with a unique c position as a unique termination.
-            crit (str): The criterion to set for fclusterdata (see fcluster for
-                description).
+            thresh (float): Threshold parameter in fcluster in order to check
+                if two atoms are lying on the same plane. Default thresh set
+                to 1e-2 in the c fractional coordinate.
+
+        Returns:
+            ([Slab]) List of all possible terminations of a particular surface.
         """
         frac_coords = self.oriented_unit_cell.frac_coords
         n = len(frac_coords)
