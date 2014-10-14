@@ -418,7 +418,7 @@ class SurfaceGenerator(object):
                     shift -= 1
             else:
                 shift = (possible_c[i] + possible_c[i + 1]) * 0.5
-            shifts.append(shift)
+            shifts.append(shift - math.floor(shift))
         shifts = sorted(shifts)
         return shifts
 
@@ -464,7 +464,6 @@ class SurfaceGenerator(object):
                                 forbidden_c_ranges.append((c_range[0] + 1, 1))
                             else:
                                 forbidden_c_ranges.append(c_range)
-
         def shift_allowed(shift):
             for r in forbidden_c_ranges:
                 if r[0] <= shift <= r[1]:
