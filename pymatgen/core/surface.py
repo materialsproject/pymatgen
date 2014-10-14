@@ -2,7 +2,6 @@
 
 from __future__ import division, unicode_literals
 
-
 """
 This module implements representations of slabs and surfaces, as well as
 algorithms for generating them.
@@ -280,7 +279,7 @@ class SurfaceGenerator(object):
         slab_scale_factor = []
         non_orth_ind = []
         eye = np.eye(3, dtype=np.int)
-        dist = float('inf')
+        dist = 0
         for i, j in enumerate(miller_index):
             if j == 0:
                 # Lattice vector is perpendicular to surface normal, i.e.,
@@ -289,9 +288,13 @@ class SurfaceGenerator(object):
                 slab_scale_factor.append(eye[i])
             else:
                 #Calculate projection of lattice vector onto surface normal.
-                d = abs(np.dot(normal, latt.matrix[i]))
+                d = abs(np.dot(normal, latt.matrix[i])) / np.linalg.norm(
+                    latt.matrix[i])
                 non_orth_ind.append(i)
-                if d < dist:
+                if d > dist:
+                    # We want the vector that has maximum magnitude in the
+                    # direction of the surface normal as the c-direction.
+                    # Results in a more "orthogonal" unit cell.
                     latt_index = i
                     dist = d
 
