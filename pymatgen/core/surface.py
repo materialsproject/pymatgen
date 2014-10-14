@@ -210,7 +210,7 @@ class SurfaceGenerator(object):
         A supercell of the parent structure with the miller
         index of plane parallel to surface
 
-    .. attribute:: unit_cell
+    .. attribute:: oriented_unit_cell
 
         A unit cell of the parent structure with the miller
         index of plane parallel to surface
