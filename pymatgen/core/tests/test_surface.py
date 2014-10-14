@@ -39,8 +39,8 @@ class SlabTest(PymatgenTest):
                                [[0, 0, 0], [0.5, 0.5, 0.5]])
 
     def test_init(self):
-        zno_slab = Slab(self.zno55, self.zno55.miller_index,
-                        self.zno55.oriented_unit_cell, 0,
+        zno_slab = Slab(self.zno55.lattice, self.zno55.species, self.zno55.frac_coords,
+                        self.zno55.miller_index, self.zno55.oriented_unit_cell, 0,
                         self.zno55.scale_factor)
         m =self.zno55.lattice.matrix
         area = np.linalg.norm(np.cross(m[0], m[1]))
@@ -49,17 +49,19 @@ class SlabTest(PymatgenTest):
                          self.zno55.lattice.lengths_and_angles)
         self.assertEqual(zno_slab.oriented_unit_cell.composition,
                          self.zno1.composition)
-        self.assertEqual(len(zno_slab), 4)
+        self.assertEqual(len(zno_slab), 8)
+        print zno_slab
 
     def test_add_adsorbate_atom(self):
-        zno_slab = Slab(self.zno55, self.zno55.miller_index,
-                        self.zno1, 0, self.zno55.scale_factor)
+        zno_slab = Slab(self.zno55.lattice, self.zno55.species, self.zno55.frac_coords,
+                        self.zno55.miller_index, self.zno55.oriented_unit_cell, 0,
+                        self.zno55.scale_factor)
         zno_slab.add_adsorbate_atom([1], 'H', 1)
 
-        self.assertEqual(len(zno_slab), 5)
-        self.assertEqual(str(zno_slab[4].specie),'H')
-        self.assertAlmostEqual(zno_slab.get_distance(1, 4), 1.0)
-        self.assertTrue(zno_slab[4].c > zno_slab[0].c)
+        self.assertEqual(len(zno_slab), 9)
+        self.assertEqual(str(zno_slab[8].specie),'H')
+        self.assertAlmostEqual(zno_slab.get_distance(1, 8), 1.0)
+        self.assertTrue(zno_slab[8].c > zno_slab[0].c)
         m =self.zno55.lattice.matrix
         area = np.linalg.norm(np.cross(m[0], m[1]))
         self.assertAlmostEqual(zno_slab.surface_area, area)
