@@ -198,10 +198,6 @@ class Slab(Structure):
 
         return interface_system
 
-    def organize_along_c(self):
-        # Organizes a slab's sites along the c direction
-        self.sites = sorted(self.sites, key=lambda s: s.c)
-
 
 class SurfaceGenerator(object):
 

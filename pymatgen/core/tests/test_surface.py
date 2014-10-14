@@ -111,11 +111,7 @@ class SurfaceGeneratorTest(PymatgenTest):
             self.assertEqual(len(all_cscl), 2)
             config1.append(all_cscl[0])
             config2.append(all_cscl[1])
-        for i in range(0,1):
-            config1[2].organize_along_c
-            config1[i].organize_along_c
-            config2[2].organize_along_c
-            config2[i].organize_along_c
+        for i in range(0, 1):
             for ii in xrange(len(config1[2])):
                 self.assertEqual(config1[i][ii].species_string,
                                  config1[2][ii].species_string)
