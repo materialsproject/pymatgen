@@ -349,8 +349,8 @@ class SurfaceGenerator(object):
         """
         a, b, c = self.oriented_unit_cell.lattice.matrix
         normal = np.cross(a, b)
+        normal /= np.linalg.norm(normal)
         dist = abs(np.dot(normal, c))
-
         nlayers_slab = int(math.ceil(self.min_slab_size / dist))
         nlayers_vac = int(math.ceil(self.min_vac_size / dist))
         nlayers = nlayers_slab + nlayers_vac
