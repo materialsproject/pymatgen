@@ -54,7 +54,7 @@ class SlabTest(PymatgenTest):
                          self.zno55.lattice.lengths_and_angles)
         self.assertEqual(zno_slab.normal.all, self.zno55.normal.all)
         self.assertEqual(zno_slab.parent.composition, self.zno1.composition)
-        self.assertEqual(len(zno_slab), 24)
+        self.assertEqual(len(zno_slab), 8)
 
     def test_add_adsorbate_atom(self):
         zno_slab = Slab(self.zno55, self.zno55.miller_index,
@@ -62,10 +62,10 @@ class SlabTest(PymatgenTest):
                         self.zno1, self.zno55.min_slab_size, self.zno55.min_vac_size)
         zno_slab.add_adsorbate_atom([1], 'H', 1)
 
-        self.assertEqual(len(zno_slab), 25)
-        self.assertEqual(str(zno_slab[24].specie),'H')
-        self.assertAlmostEqual(zno_slab.get_distance(1, 8), 3.212549339256927)
-        self.assertTrue(zno_slab[24].c > zno_slab[0].c)
+        self.assertEqual(len(zno_slab), 9)
+        self.assertEqual(str(zno_slab[8].specie),'H')
+        self.assertAlmostEqual(zno_slab.get_distance(1, 8), 1.0)
+        self.assertTrue(zno_slab[8].c > zno_slab[0].c)
         m =self.zno55.lattice.matrix
         area = np.linalg.norm(np.cross(m[0], m[1]))
         self.assertAlmostEqual(zno_slab.surface_area, area)
@@ -80,22 +80,21 @@ class SurfaceGeneratorTest(PymatgenTest):
         s = self.get_structure("LiFePO4")
         gen = SurfaceGenerator(s, [0, 0, 1], 10, 10)
         s = gen.get_slab(0.25)
-        #To write proper test.
+        self.assertAlmostEqual(s.lattice.abc[2], 20.820740000000001)
 
     def test_get_all_slabs(self):
         gen = SurfaceGenerator(self.get_structure("CsCl"), [0, 0, 1], 10, 10)
-        self.assertEqual(len(gen.get_all_slabs()), 2)
+        self.assertEqual(len(gen.get_slabs()), 2)
         s = self.get_structure("LiFePO4")
         gen = SurfaceGenerator(s, [0, 0, 1], 10, 10)
-        self.assertEqual(len(gen.get_all_slabs()), 18)
+        self.assertEqual(len(gen.get_slabs()), 18)
 
-        self.assertEqual(len(gen.get_non_bond_breaking_slabs({("P",
-                                                               "O"): 3})), 6)
+        self.assertEqual(len(gen.get_slabs(bonds={("P", "O"): 3})), 6)
 
         # At this threshold, only the origin and center Li results in clustering.
         # All other sites are non-clustered. So the # of slabs is # of sites
         # in LiFePO4 unit cell - 2.
-        self.assertEqual(len(gen.get_all_slabs(1e-4)), 26)
+        self.assertEqual(len(gen.get_slabs(tol=1e-4)), 26)
 
 
 if __name__ == "__main__":
