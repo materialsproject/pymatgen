@@ -16,7 +16,7 @@ from pymatgen.util.testing import PymatgenTest
 
 def get_path(path_str):
     cwd = os.path.abspath(os.path.dirname(__file__))
-    path = os.path.join(cwd, "test_files", "surface_tests",
+    path = os.path.join(cwd, "..", "..", "..", "test_files", "surface_tests",
                         path_str)
     return path
 
@@ -127,6 +127,9 @@ class SurfaceGeneratorTest(PymatgenTest):
                 for iii in range(0, 3):
                     self.assertEqual(config2[i].frac_coords[ii][iii],
                                      config2[2].frac_coords[ii][iii])
+
+
+
 
 
 
