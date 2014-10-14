@@ -480,7 +480,7 @@ class SurfaceGenerator(object):
 
 
 def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
-                       bonds=None, symprec=0.01):
+                       bonds=None, tol=1e-2, symprec=0.01):
     analyzer = SpacegroupAnalyzer(structure, symprec=symprec)
     symm_ops = analyzer.get_symmetry_operations()
     processed = []
@@ -497,8 +497,9 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
             d = reduce(gcd, miller)
             miller = tuple([int(i / d) for i in miller])
             if not is_already_analyzed(miller):
-                gen = SurfaceGenerator(structure, miller, min_slab_size, min_vacuum_size)
-                slabs = gen.get_slabs(bonds)
+                gen = SurfaceGenerator(structure, miller, min_slab_size,
+                                       min_vacuum_size)
+                slabs = gen.get_slabs(bonds=bonds, tol=tol)
                 if len(slabs) > 0:
                     logger.debug("%s has %d slabs... " % (miller, len(slabs)))
                     all_slabs.extend(slabs)
