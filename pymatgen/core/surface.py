@@ -69,8 +69,8 @@ class Slab(Structure):
         Surface normal vector.
     """
 
-    def __init__(self, structure, miller_index, shift, normal, scale_factor,
-                 initial_structure, min_slab_size, min_vac_size):
+    def __init__(self, structure, miller_index, oriented_unit_cell, shift,
+                 scale_factor):
         """
         Makes a Slab structure, a structure object
         with additional information pertaining to slabs.
@@ -90,17 +90,20 @@ class Slab(Structure):
             min_vac_size (float): In Angstroms
         """
         slab = structure
-        self.parent = initial_structure
-        self.min_slab_size = min_slab_size
-        self.min_vac_size = min_vac_size
+        self.oriented_unit_cell = oriented_unit_cell
         self.miller_index = miller_index
-        self.scale_factor = np.array(scale_factor)
-        self.normal = normal
         self.shift = shift
+        self.scale_factor = scale_factor
 
         super(Slab, self).__init__(
             slab.lattice, slab.species_and_occu,
             slab.frac_coords, site_properties=slab.site_properties)
+
+    @property
+    def normal(self):
+        normal = np.cross(self.lattice.matrix[0], self.lattice.matrix[1])
+        normal /= np.linalg.norm(normal)
+        return normal
 
     @property
     def surface_area(self):
@@ -326,7 +329,6 @@ class SurfaceGenerator(object):
         self.lll_reduce = lll_reduce
         self.center_slab = center_slab
         self.slab_scale_factor = slab_scale_factor
-        self.normal = normal
         self.miller_index = miller_index
         self.min_vac_size = min_vacuum_size
         self.min_slab_size = min_slab_size
@@ -345,8 +347,9 @@ class SurfaceGenerator(object):
         Returns:
             (Slab) A Slab object with a particular shifted oriented unit cell.
         """
-        dist = abs(np.dot(self.normal,
-                          self.oriented_unit_cell.lattice.matrix[2]))
+        a, b, c = self.oriented_unit_cell.lattice.matrix
+        normal = np.cross(a, b)
+        dist = abs(np.dot(normal, c))
 
         nlayers_slab = int(math.ceil(self.min_slab_size / dist))
         nlayers_vac = int(math.ceil(self.min_vac_size / dist))
@@ -375,9 +378,8 @@ class SurfaceGenerator(object):
             avg_c = np.average([c[2] for c in slab.frac_coords])
             slab.translate_sites(range(len(slab)), [0, 0, 0.5 - avg_c])
 
-        return Slab(slab, self.miller_index, shift, self.normal,
-                    scale_factor, self.parent, self.min_slab_size,
-                    self.min_vac_size)
+        return Slab(slab, self.miller_index, self.oriented_unit_cell, shift,
+                    scale_factor)
 
     def _calculate_possible_shifts(self, tol=1e-2):
         frac_coords = self.oriented_unit_cell.frac_coords
