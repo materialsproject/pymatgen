@@ -256,7 +256,7 @@ class SurfaceGenerator(object):
     """
 
     def __init__(self, initial_structure, miller_index, min_slab_size,
-                 min_vacuum_size, lll_reduce=False, standardize=False):
+                 min_vacuum_size, lll_reduce=False, center_slab=False):
         """
         Generates a supercell of the initial structure with its miller
         index of plane parallel to surface.
@@ -323,7 +323,7 @@ class SurfaceGenerator(object):
                                                        to_unit_cell=True)
         self.parent = initial_structure
         self.lll_reduce = lll_reduce
-        self.standardize = standardize
+        self.center_slab = center_slab
         self.slab_scale_factor = slab_scale_factor
         self.normal = normal
         self.miller_index = miller_index
@@ -370,15 +370,9 @@ class SurfaceGenerator(object):
             scale_factor = np.dot(mapping[2], scale_factor)
             slab = lll_slab
 
-        if self.standardize:
-            frac_c_list = []
-            for site in xrange(len(slab)):
-                frac_c_list.append(slab.frac_coords[site][2])
-            frac_c_list.sort()
-            # move along c, distance = frac_difference between cell & layer center
-            slab.translate_sites(range(0, len(frac_c_list)),
-                                 [0, 0, 0.5 - (
-                                     frac_c_list[0] + frac_c_list[-1]) / 2])
+        if self.center_slab:
+            avg_c = np.average([c[2] for c in slab.frac_coords])
+            slab.translate_sites(range(len(slab)), [0, 0, 0.5 - avg_c])
 
         return Slab(slab, self.miller_index, shift, self.normal,
                     scale_factor, self.parent, self.min_slab_size,
@@ -480,7 +474,8 @@ class SurfaceGenerator(object):
 
 
 def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
-                       bonds=None, tol=1e-2, symprec=0.01):
+                       bonds=None, tol=1e-2, symprec=0.01, lll_reduce=False,
+                       center_slab=False):
     analyzer = SpacegroupAnalyzer(structure, symprec=symprec)
     symm_ops = analyzer.get_symmetry_operations()
     processed = []
@@ -498,7 +493,8 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
             miller = tuple([int(i / d) for i in miller])
             if not is_already_analyzed(miller):
                 gen = SurfaceGenerator(structure, miller, min_slab_size,
-                                       min_vacuum_size)
+                                       min_vacuum_size, lll_reduce=lll_reduce,
+                                       center_slab=center_slab)
                 slabs = gen.get_slabs(bonds=bonds, tol=tol)
                 if len(slabs) > 0:
                     logger.debug("%s has %d slabs... " % (miller, len(slabs)))
