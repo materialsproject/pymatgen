@@ -30,6 +30,7 @@ from pymatgen.core.structure import Structure
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord_utils import in_coord_list
+from pymatgen.analysis.structure_matcher import StructureMatcher
 
 
 logger = logging.getLogger(__name__)
@@ -500,4 +501,8 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                     logger.debug("%s has %d slabs... " % (miller, len(slabs)))
                     all_slabs.extend(slabs)
                 processed.append(miller)
-    return all_slabs
+
+    m = StructureMatcher()
+    groups = m.group_structures(all_slabs)
+
+    return [g[0] for g in groups]
