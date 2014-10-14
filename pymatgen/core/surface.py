@@ -45,6 +45,11 @@ class Slab(Structure):
     slab. Also has additional methods that returns other information
     about a slab such as the surface area, normal, and atom adsorption.
 
+    Note that all Slabs have the surface normal oriented in the c-direction. 
+    This means the lattice vectors a and b are in the surface plane and the c
+    vector is out of the surface plane (though not necessary perpendicular to
+    the surface.)
+
     .. attribute:: miller_index
 
         Miller index of plane parallel to surface.
@@ -60,21 +65,50 @@ class Slab(Structure):
         slab has been shifted.
     """
 
-    def __init__(self, lattice, species, coords, miller_index, oriented_unit_cell, shift,
-                 scale_factor, validate_proximity=False, to_unit_cell=False,
+    def __init__(self, lattice, species, coords, miller_index,
+                 oriented_unit_cell, shift, scale_factor,
+                 validate_proximity=False, to_unit_cell=False,
                  coords_are_cartesian=False, site_properties=None):
         """
-        Makes a Slab structure, a structure object
-        with additional information pertaining to slabs.
+        Makes a Slab structure, a structure object with additional information
+        and methods pertaining to slabs.
 
         Args:
-            slab_scale (array): scale_factor Final computed scale factor
-                that brings the parent cell to the surface cell.
-            structure (Structure): A structure that has been refined into a slab.
+            lattice (Lattice/3x3 array): The lattice, either as a
+                :class:`pymatgen.core.lattice.Lattice` or
+                simply as any 2D array. Each row should correspond to a lattice
+                vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+                lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
+            species ([Specie]): Sequence of species on each site. Can take in
+                flexible input, including:
+
+                i.  A sequence of element / specie specified either as string
+                    symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
+                    e.g., (3, 56, ...) or actual Element or Specie objects.
+
+                ii. List of dict of elements/species and occupancies, e.g.,
+                    [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
+                    disordered structures.
+            coords (Nx3 array): list of fractional/cartesian coordinates of
+                each species.
             miller_index ([h, k, l]): Miller index of plane parallel to
                 surface. Note that this is referenced to the input structure. If
                 you need this to be based on the conventional cell,
                 you should supply the conventional structure.
+            oriented_unit_cell (Structure): The oriented_unit_cell from which
+                this Slab is created (by scaling in the c-direction).
+            shift (float): The shift in the c-direction applied to get the
+                termination.
+            scale_factor (array): scale_factor Final computed scale factor
+                that brings the parent cell to the surface cell.
+            validate_proximity (bool): Whether to check if there are sites
+                that are less than 0.01 Ang apart. Defaults to False.
+            coords_are_cartesian (bool): Set to True if you are providing
+                coordinates in cartesian coordinates. Defaults to False.
+            site_properties (dict): Properties associated with the sites as a
+                dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
+                have to be the same length as the atomic species and
+                fractional_coords. Defaults to None for no properties.
         """
         self.oriented_unit_cell = oriented_unit_cell
         self.miller_index = miller_index
