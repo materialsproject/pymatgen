@@ -7,7 +7,7 @@ import unittest
 from pymatgen.core import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.io.smartio import CifParser
-from pymatgen.core.surface import Slab, SurfaceGenerator
+from pymatgen.core.surface import Slab, SurfaceGenerator, generate_all_slabs
 import os
 import numpy as np
 
@@ -93,6 +93,11 @@ class SurfaceGeneratorTest(PymatgenTest):
 
         self.assertEqual(len(gen.get_slabs(bonds={("P", "O"): 3})), 6)
 
+        # There are no slabs in LFP that does not break either P-O or Fe-O
+        # bonds for a miller index of [0, 0, 1].
+        self.assertEqual(len(gen.get_slabs(bonds={("P", "O"): 3,
+                                                  ("Fe", "O"): 3})), 0)
+
         # At this threshold, only the origin and center Li results in clustering.
         # All other sites are non-clustered. So the # of slabs is # of sites
         # in LiFePO4 unit cell - 2.
@@ -129,9 +134,18 @@ class SurfaceGeneratorTest(PymatgenTest):
                                      config2[2].frac_coords[ii][iii])
 
 
+class FuncTest(PymatgenTest):
 
+    def test_generate_all_slabs(self):
+        cscl = self.get_structure("CsCl")
+        slabs = generate_all_slabs(cscl, 1, 10, 10)
 
+        #Only three possible slabs, one each in (100), (110) and (111).
+        self.assertEqual(len(slabs), 3)
 
+        lfp = self.get_structure("LiFePO4")
+        slabs = generate_all_slabs(lfp, 1, 10, 10, bonds={("P", "O"): 3})
+        self.assertEqual(len(slabs), 5)
 
 
 if __name__ == "__main__":
