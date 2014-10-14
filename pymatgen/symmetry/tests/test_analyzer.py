@@ -290,6 +290,27 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertAlmostEqual(prim.lattice.c, 6.9779585500000003)
 
 
+
+class SpacegroupTest(unittest.TestCase):
+
+    def setUp(self):
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
+        self.structure = p.structure
+        self.sg1 = SpacegroupAnalyzer(self.structure, 0.001).get_spacegroup()
+
+    def test_are_symmetrically_equivalent(self):
+        sites1 = [self.structure[i] for i in [0, 1]]
+        sites2 = [self.structure[i] for i in [2, 3]]
+        self.assertTrue(self.sg1.are_symmetrically_equivalent(sites1, sites2,
+                                                              1e-3))
+
+        sites1 = [self.structure[i] for i in [0, 1]]
+        sites2 = [self.structure[i] for i in [0, 2]]
+        self.assertFalse(self.sg1.are_symmetrically_equivalent(sites1, sites2,
+                                                               1e-3))
+
+
+
 H2O2 = Molecule(["O", "O", "H", "H"],
                 [[0, 0.727403, -0.050147], [0, -0.727403, -0.050147],
                  [0.83459, 0.897642, 0.401175],

@@ -4,8 +4,6 @@ import subprocess
 from io import open
 import sys
 
-from ez_setup import use_setuptools
-use_setuptools()
 from setuptools import setup, find_packages, Extension
 
 try:
@@ -52,17 +50,16 @@ with open("README.rst") as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="3.0.5",
-    install_requires=["numpy>=1.8", "pyhull>=1.5.3",
-                      "requests>=2.3.0", "pybtex>=0.18", "pyyaml>=3.11",
-                      "monty>=0.5.6", "six>=1.7.3"],
+    version="3.0.6",
+    install_requires=["numpy>=1.8", "pyhull>=1.5.3", "six", "prettytable",
+                      "requests", "pybtex", "pyyaml", "monty>=0.5.9"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
                     "plotting": ["matplotlib>=1.1"],
                     "ase_adaptor": ["ase>=3.3"],
                     "vis": ["vtk>=6.0.0"],
                     "abinitio": ["pydispatcher>=2.0.3", "apscheduler==2.1.0"]},
     package_data={"pymatgen.core": ["*.json"],
-                  "pymatgen.analysis": ["*.yaml"],
+                  "pymatgen.analysis": ["*.yaml", "*.csv"],
                   "pymatgen.io": ["*.yaml"],
                   "pymatgen.symmetry": ["*.yaml"],
                   "pymatgen.io.gwwrapper":["*.json"],
