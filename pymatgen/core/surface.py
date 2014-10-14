@@ -69,8 +69,9 @@ class Slab(Structure):
         Surface normal vector.
     """
 
-    def __init__(self, structure, miller_index, oriented_unit_cell, shift,
-                 scale_factor):
+    def __init__(self, lattice, species, coords, miller_index, oriented_unit_cell, shift,
+                 scale_factor, validate_proximity=False, to_unit_cell=False,
+                 coords_are_cartesian=False, site_properties=None):
         """
         Makes a Slab structure, a structure object
         with additional information pertaining to slabs.
@@ -89,15 +90,16 @@ class Slab(Structure):
             min_slab_size (float): In Angstroms
             min_vac_size (float): In Angstroms
         """
-        slab = structure
         self.oriented_unit_cell = oriented_unit_cell
         self.miller_index = miller_index
         self.shift = shift
         self.scale_factor = scale_factor
 
-        super(Slab, self).__init__(
-            slab.lattice, slab.species_and_occu,
-            slab.frac_coords, site_properties=slab.site_properties)
+        super(Slab, self).__init__(lattice, species,
+            coords, validate_proximity=validate_proximity,
+            to_unit_cell=to_unit_cell,
+            coords_are_cartesian=coords_are_cartesian,
+            site_properties=site_properties)
 
     @property
     def normal(self):
@@ -378,8 +380,10 @@ class SurfaceGenerator(object):
             avg_c = np.average([c[2] for c in slab.frac_coords])
             slab.translate_sites(range(len(slab)), [0, 0, 0.5 - avg_c])
 
-        return Slab(slab, self.miller_index, self.oriented_unit_cell, shift,
-                    scale_factor)
+        return Slab(slab.lattice, slab.species_and_occu,
+                    slab.frac_coords, self.miller_index,
+                    self.oriented_unit_cell, shift,
+                    scale_factor, site_properties=slab.site_properties)
 
     def _calculate_possible_shifts(self, tol=1e-2):
         frac_coords = self.oriented_unit_cell.frac_coords
