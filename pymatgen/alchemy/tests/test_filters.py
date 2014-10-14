@@ -97,7 +97,6 @@ class RemoveDuplicatesFilterTest(unittest.TestCase):
         transmuter = StandardTransmuter.from_structures(self._struct_list)
         fil = RemoveDuplicatesFilter()
         transmuter.apply_filter(fil)
-        out = self._sm.group_structures(transmuter.transformed_structures)
         self.assertEqual(len(transmuter.transformed_structures), 11)
 
     def test_to_from_dict(self):
