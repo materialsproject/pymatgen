@@ -234,7 +234,37 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(len(fcc_ag.get_primitive_structure()), 1)
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
         bcc_li = IStructure(Lattice.cubic(4.09), ["Li"] * 2, coords)
-        self.assertEqual(len(bcc_li.get_primitive_structure()), 1)
+        bcc_prim = bcc_li.get_primitive_structure()
+        self.assertEqual(len(bcc_prim), 1)
+        self.assertAlmostEqual(bcc_prim.lattice.alpha, 109.47122, 3)
+
+        coords = [[0] * 3, [0.5] * 3, [0.25] * 3, [0.26] * 3]
+        s = IStructure(Lattice.cubic(4.09), ["Ag"] * 4, coords)
+        self.assertEqual(len(s.get_primitive_structure()), 4)
+
+    def test_primitive_on_large_supercell(self):
+        coords = [[0, 0, 0], [0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]]
+        fcc_ag = Structure(Lattice.cubic(4.09), ["Ag"] * 4, coords)
+        fcc_ag.make_supercell([2, 2, 2])
+        fcc_ag_prim = fcc_ag.get_primitive_structure()
+        self.assertEqual(len(fcc_ag_prim), 1)
+        self.assertAlmostEqual(fcc_ag_prim.volume, 17.10448225)
+
+    def test_primitive_positions(self):
+        coords = [[0, 0, 0], [0.3, 0.35, 0.45]]
+        s = Structure(Lattice.from_parameters(1,2,3,50,66,88), ["Ag"] * 2, coords)
+
+        a = [[-1,2,-3], [3,2,-4], [1,0,-1]]
+        b = [[4, 0, 0], [1, 1, 0], [3, 0, 1]]
+        c = [[2, 0, 0], [1, 3, 0], [1, 1, 1]]
+
+        for sc_matrix in [c]:
+            sc = s.copy()
+            sc.make_supercell(sc_matrix)
+            prim = sc.get_primitive_structure(0.01)
+
+            self.assertEqual(len(prim), 2)
+            self.assertAlmostEqual(prim.distance_matrix[0,1], 1.0203432356739286)
 
     def test_primitive_structure_volume_check(self):
         l = Lattice.tetragonal(10, 30)

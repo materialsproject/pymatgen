@@ -32,7 +32,7 @@ from six.moves import map, zip
 
 import numpy as np
 
-from monty.io import zopen, reverse_readline
+from monty.io import zopen, reverse_readfile
 
 from pymatgen.util.io_utils import clean_lines, micro_pyawk, \
     clean_json
@@ -337,7 +337,8 @@ class Vasprun(PMGSONable):
                     self.tdos, self.idos, self.pdos = self._parse_dos(elem)
                     self.efermi = self.tdos.efermi
                     self.dos_has_errors = False
-                except Exception:
+                except Exception as ex:
+                    print(ex)
                     self.dos_has_errors = True
             elif parse_eigen and tag == "eigenvalues":
                 self.eigenvalues = self._parse_eigen(elem)
@@ -846,16 +847,18 @@ class Vasprun(PMGSONable):
             idensities[spin] = data[:, 2]
 
         pdoss = []
-        for s in elem.find("partial").find("array").find("set").findall("set"):
-            pdos = defaultdict(dict)
-            for ss in s.findall("set"):
-                spin = Spin.up if ss.attrib["comment"] == "spin 1" else \
-                    Spin.down
-                data = np.array(_parse_varray(ss))
-                nrow, ncol = data.shape
-                for j in range(1, ncol):
-                    pdos[Orbital.from_vasp_index(j - 1)][spin] = data[:, j]
-            pdoss.append(pdos)
+        partial = elem.find("partial")
+        if partial is not None:
+            for s in partial.find("array").find("set").findall("set"):
+                pdos = defaultdict(dict)
+                for ss in s.findall("set"):
+                    spin = Spin.up if ss.attrib["comment"] == "spin 1" else \
+                        Spin.down
+                    data = np.array(_parse_varray(ss))
+                    nrow, ncol = data.shape
+                    for j in range(1, ncol):
+                        pdos[Orbital.from_vasp_index(j - 1)][spin] = data[:, j]
+                pdoss.append(pdos)
         elem.clear()
         return Dos(efermi, energies, tdensities), \
                Dos(efermi, energies, idensities), pdoss
@@ -937,87 +940,86 @@ class Outcar(PMGSONable):
         self.filename = filename
         self.is_stopped = False
 
-        cores = 0
-        with open(filename, "r") as f:
+        # data from end of OUTCAR
+        read_charge_mag = False
+        charge = []
+        mag = []
+        header = []
+        run_stats = {}
+        total_mag = None
+        nelect = None
+        efermi = None
+
+        time_patt = re.compile("\((sec|kb)\)")
+        efermi_patt = re.compile("E-fermi\s*:\s*(\S+)")
+        nelect_patt = re.compile("number of electron\s+(\S+)\s+"
+                                 "magnetization\s+(\S+)")
+        all_lines = []
+        for line in reverse_readfile(self.filename):
+            clean = line.strip()
+            all_lines.append(clean)
+            if clean.startswith("tot ") and not (charge and mag):
+                read_charge_mag = True
+                data = []
+            elif read_charge_mag:
+                if clean.startswith("# of ion"):
+                    header = re.split("\s{2,}", line.strip())
+                    header.pop(0)
+                elif clean == "total charge":
+                    data.reverse()
+                    charge = [dict(zip(header, v)) for v in data]
+                    read_charge_mag = False
+                elif clean == "magnetization (x)":
+                    data.reverse()
+                    mag = [dict(zip(header, v)) for v in data]
+                    read_charge_mag = False
+                else:
+                    m = re.match("\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
+                    if m:
+                        toks = [float(i) for i in re.findall("[\d\.\-]+",
+                                                             clean)]
+                        toks.pop(0)
+                        data.append(toks)
+            elif clean.find("soft stop encountered!  aborting job") != -1:
+                self.is_stopped = True
+                #print(clean, cores)
+            else:
+                if time_patt.search(line):
+                    tok = line.strip().split(":")
+                    run_stats[tok[0].strip()] = float(tok[1].strip())
+                    continue
+                m = efermi_patt.search(clean)
+                if m:
+                    try:
+                        #try-catch because VASP sometimes prints
+                        #'E-fermi: ********     XC(G=0):  -6.1327
+                        #alpha+bet : -1.8238'
+                        efermi = float(m.group(1))
+                        continue
+                    except ValueError:
+                        efermi = None
+                        continue
+                m = nelect_patt.search(clean)
+                if m:
+                    nelect = float(m.group(1))
+                    total_mag = float(m.group(2))
+            if all([nelect, total_mag is not None, efermi is not None,
+                    run_stats]):
+                break
+
+        # data from beginning of OUTCAR
+        with zopen(filename, "rt") as f:
             for line in f:
                 if "running" in line:
-                    cores = line.split()[2]
-                    break
-        with zopen(filename, "rt") as f:
-            read_charge_mag = False
-            charge = []
-            mag = []
-            header = []
-            run_stats = {}
-            total_mag = None
-            nelect = None
-            efermi = None
-
-            time_patt = re.compile("\((sec|kb)\)")
-            efermi_patt = re.compile("E-fermi\s*:\s*(\S+)")
-            nelect_patt = re.compile("number of electron\s+(\S+)\s+"
-                                     "magnetization\s+(\S+)")
-            all_lines = []
-            for line in reverse_readline(f):
-                clean = line.strip()
-                all_lines.append(clean)
-                if clean.startswith("tot ") and not (charge and mag):
-                    read_charge_mag = True
-                    data = []
-                elif read_charge_mag:
-                    if clean.startswith("# of ion"):
-                        header = re.split("\s{2,}", line.strip())
-                        header.pop(0)
-                    elif clean == "total charge":
-                        data.reverse()
-                        charge = [dict(zip(header, v)) for v in data]
-                        read_charge_mag = False
-                    elif clean == "magnetization (x)":
-                        data.reverse()
-                        mag = [dict(zip(header, v)) for v in data]
-                        read_charge_mag = False
-                    else:
-                        m = re.match("\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
-                        if m:
-                            toks = [float(i) for i in re.findall("[\d\.\-]+",
-                                                                 clean)]
-                            toks.pop(0)
-                            data.append(toks)
-                elif clean.find("soft stop encountered!  aborting job") != -1:
-                    self.is_stopped = True
-                    #print(clean, cores)
-                else:
-                    if time_patt.search(line):
-                        tok = line.strip().split(":")
-                        run_stats[tok[0].strip()] = float(tok[1].strip())
-                        continue
-                    m = efermi_patt.search(clean)
-                    if m:
-                        try:
-                            #try-catch because VASP sometimes prints
-                            #'E-fermi: ********     XC(G=0):  -6.1327
-                            #alpha+bet : -1.8238'
-                            efermi = float(m.group(1))
-                            continue
-                        except ValueError:
-                            efermi = None
-                            continue
-                    m = nelect_patt.search(clean)
-                    if m:
-                        nelect = float(m.group(1))
-                        total_mag = float(m.group(2))
-                if all([nelect, total_mag is not None, efermi is not None,
-                        run_stats]):
+                    run_stats['cores'] = line.split()[2]
                     break
 
-            run_stats.update({'cores': cores})
-
-            self.run_stats = run_stats
-            self.magnetization = tuple(mag)
-            self.charge = tuple(charge)
-            self.efermi = efermi
-            self.nelect = nelect
-            self.total_mag = total_mag
+        self.run_stats = run_stats
+        self.magnetization = tuple(mag)
+        self.charge = tuple(charge)
+        self.efermi = efermi
+        self.nelect = nelect
+        self.total_mag = total_mag
 
     def read_igpar(self):
         """
@@ -1999,11 +2001,11 @@ class Xdatcar(object):
                 if preamble is None:
                     preamble = [l]
                 elif not preamble_done:
-                    if l == "":
+                    if l == "" or "Direct configuration=" in l:
                         preamble_done = True
                     else:
                         preamble.append(l)
-                elif l == "":
+                elif l == "" or "Direct configuration=" in l:
                     p = Poscar.from_string("\n".join(preamble +
                                                      ["Direct"] + coords_str))
                     structures.append(p.structure)
