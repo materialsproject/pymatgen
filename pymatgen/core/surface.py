@@ -7,7 +7,7 @@ This module implements representations of slabs and surfaces, as well as
 algorithms for generating them.
 """
 
-__author__ = "Shyue Ping Ong, vivid0036, richardtran415"
+__author__ = "Richard Tran, Zihan Xu, Shyue Ping Ong"
 __copyright__ = "Copyright 2014, The Materials Virtual Lab"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -17,6 +17,7 @@ __date__ = "6/10/14"
 from fractions import gcd
 import math
 import itertools
+import logging
 
 import numpy as np
 from scipy.spatial.distance import squareform
@@ -26,6 +27,12 @@ from monty.fractions import lcm
 
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
+
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.util.coord_utils import in_coord_list
+
+
+logger = logging.getLogger(__name__)
 
 
 class Slab(Structure):
@@ -322,7 +329,6 @@ class SurfaceGenerator(object):
         self.miller_index = miller_index
         self.min_vac_size = min_vacuum_size
         self.min_slab_size = min_slab_size
-        self.dist = dist
 
     def get_slab(self, shift=0):
         """
@@ -338,9 +344,13 @@ class SurfaceGenerator(object):
         Returns:
             (Slab) A Slab object with a particular shifted oriented unit cell.
         """
-        nlayers_slab = int(math.ceil(self.min_slab_size / self.dist))
-        nlayers_vac = int(math.ceil(self.min_vac_size / self.dist))
+        dist = abs(np.dot(self.normal,
+                          self.oriented_unit_cell.lattice.matrix[2]))
+
+        nlayers_slab = int(math.ceil(self.min_slab_size / dist))
+        nlayers_vac = int(math.ceil(self.min_vac_size / dist))
         nlayers = nlayers_slab + nlayers_vac
+
         slab = self.oriented_unit_cell.copy()
         slab.translate_sites(range(len(slab)), [0, 0, -shift])
         slab = Structure.from_sites(slab, to_unit_cell=True)
@@ -415,7 +425,7 @@ class SurfaceGenerator(object):
         shifts = sorted(shifts)
         return shifts
 
-    def get_all_slabs(self, tol=1e-2):
+    def get_slabs(self, bonds=None, tol=1e-2):
         """
         A method that generates a list of shift values in order to create a list
         of slabs, each with a different surface. A surface is identified by
@@ -426,46 +436,37 @@ class SurfaceGenerator(object):
             thresh (float): Threshold parameter in fcluster in order to check
                 if two atoms are lying on the same plane. Default thresh set
                 to 1e-2 in the c fractional coordinate.
-
-        Returns:
-            ([Slab]) List of all possible terminations of a particular surface.
-        """
-        return [self.get_slab(shift)
-                for shift in self._calculate_possible_shifts(tol=tol)]
-
-    def get_non_bond_breaking_slabs(self, bonds, tol=1e-2):
-        """
-        Get slabs which do not break defined bonds.
-
-        Args:
             bonds ({(specie1, specie2): max_bond_dist}: bonds are
                 specified as a dict of tuples: float of specie1, specie2
                 and the max bonding distance. For example, PO4 groups may be
                 defined as {("P", "O"): 3}.
-        """
-        #Convert to species first
-        bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in
-                 bonds.items()}
 
+        Returns:
+            ([Slab]) List of all possible terminations of a particular surface.
+        """
         forbidden_c_ranges = []
-        for site1, site2 in itertools.combinations(self.oriented_unit_cell, 2):
-            all_sp = set(site1.species_and_occu.keys())
-            all_sp.update(site2.species_and_occu.keys())
-            for species, bond_dist in bonds.items():
-                if all_sp.issuperset(species):
-                    dist, image = site1.distance_and_image(site2)
-                    if dist < bond_dist:
-                        min_c = site1.c
-                        max_c = (site2.frac_coords + image)[2]
-                        c_range = sorted([min_c, max_c])
-                        if c_range[1] > 1:
-                            forbidden_c_ranges.append((c_range[0], 1))
-                            forbidden_c_ranges.append((0, c_range[1] -1))
-                        elif c_range[0] < 0:
-                            forbidden_c_ranges.append((0, c_range[1]))
-                            forbidden_c_ranges.append((c_range[0] + 1, 1))
-                        else:
-                            forbidden_c_ranges.append(c_range)
+        if bonds is not None:
+            #Convert to species first
+            bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in
+                     bonds.items()}
+            for site1, site2 in itertools.combinations(self.oriented_unit_cell, 2):
+                all_sp = set(site1.species_and_occu.keys())
+                all_sp.update(site2.species_and_occu.keys())
+                for species, bond_dist in bonds.items():
+                    if all_sp.issuperset(species):
+                        dist, image = site1.distance_and_image(site2)
+                        if dist < bond_dist:
+                            min_c = site1.c
+                            max_c = (site2.frac_coords + image)[2]
+                            c_range = sorted([min_c, max_c])
+                            if c_range[1] > 1:
+                                forbidden_c_ranges.append((c_range[0], 1))
+                                forbidden_c_ranges.append((0, c_range[1] -1))
+                            elif c_range[0] < 0:
+                                forbidden_c_ranges.append((0, c_range[1]))
+                                forbidden_c_ranges.append((c_range[0] + 1, 1))
+                            else:
+                                forbidden_c_ranges.append(c_range)
 
         def shift_allowed(shift):
             for r in forbidden_c_ranges:
@@ -477,102 +478,29 @@ class SurfaceGenerator(object):
                 for shift in self._calculate_possible_shifts(tol=tol)
                 if shift_allowed(shift)]
 
-    def get_non_bond_breaking_slabs_old(self, specie1, specie2, max_bond=3,
-                                    min_dist=0.01):
-        """
-        This method analysis whether we can generate a stable surface for a given miller
-        index. Get the rotated unit cell from Class SurfaceGenerator().
 
-            Args:
-                specie1, specie2(str): elements of the bond. eg. "Li+"
-                Search element2 from element1.
-                max_bond(float): max length of bonds, In Angstroms. Default to 3.
-                min_dist(float): min distance to be able to separate into two surfaces
-        """
+def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
+                       bonds=None, symprec=0.01):
+    analyzer = SpacegroupAnalyzer(structure, symprec=symprec)
+    symm_ops = analyzer.get_symmetry_operations()
+    processed = []
+    def is_already_analyzed(miller_index):
+        for op in symm_ops:
+            if in_coord_list(processed, op.operate(miller_index)):
+                return True
+        return False
 
-        # use SurfaceGenerate Class to get rotated unit cell, consider c factor of new cells
-        # slab, the rotated unit cell
-        slab = self.oriented_unit_cell
-        latt = slab.lattice
-        z2 = abs(latt.matrix[2][2])
-
-        e1_fcoord = []
-        e2_fcoord = []
-        # get the coordinates lists of species1&2
-        for site in slab:
-            if site.species_string == specie1:
-                e1_fcoord.append(site.frac_coords)
-            else:
-                if site.species_string == specie2:
-                    e2_fcoord.append(site.frac_coords)
-        print specie1,  len(e1_fcoord),\
-            specie2, len(e2_fcoord)
-
-        # the fcoord of atoms bonded are in a group, search specie2 from specie1
-        # make projection of atoms(c factor)
-        orig = []
-        proj = []
-        for i in xrange(len(e1_fcoord)):
-            orig.append([e1_fcoord[i]])
-            # make projection for specie1 atom
-            e1_proj = e1_fcoord[i][2]
-            proj.append([e1_proj])
-            for j in xrange(len(e2_fcoord)):
-                # periodic boundary condition, make images of species 2
-                dist_img = latt.get_distance_and_image(e1_fcoord[i],
-                                                       e2_fcoord[j])
-                if dist_img[0] < max_bond:
-                    # get the actual bonded species2(maybe a image)
-                    e2_fc = e2_fcoord[j] + dist_img[1]
-                    orig[i].append(e2_fc)
-                    # make projection for specie2 atom
-                    e2_proj = e2_fc[2]
-                    # add fcoord of specie2 to the group of specie1
-                    proj[-1].append(e2_proj)
-        # sort projection of each group(bonded atoms listed by specie1) from low to high
-        for group in proj:
-            group.sort()
-        # sort groups in proj according to the first item of each group(low boundary)
-        proj.sort()
-
-        for group in proj:
-            print group[0], group[-1], len(group), group
-
-        layer = []
-        # each range of overlapped bonds is a group, layer[i][0]: bottom, layer[i][-1]: top
-        layer.append([proj[0][0], proj[0][-1]])
-        print self.miller_index, layer
-        for i in xrange(len(proj)):
-            # consider each group of proj,
-            # if the min of group[i] is larger than the top of layer,
-            # group[i] could be a new layer
-            if layer[-1][-1] < proj[i][0]:
-                layer.append([proj[i][0], proj[i][-1]])
-                print i, '@-@'
-            # layer[-1] and proj[i] are overlapped
-            else:
-                # change the top of layer[-1] to the top of proj[i], merge layer
-                if layer[-1][-1] < proj[i][-1]:
-                    layer[-1][-1] = proj[i][-1]
-                    print i, '><'
-        # consider the top from the *lowest* atoms, layer[0][0]
-        top = layer[0][0] + 1
-        if layer[-1][-1] < top-min_dist:
-            layer.append([top-min_dist, top])
-        else:
-            layer[-1][-1] = top
-        print len(layer), layer
-
-        lyr = []
-        for group in layer:
-            group = list(np.array(group)*z2)
-            lyr.append(group)
-        stable_list = []
-        if len(lyr) > 1:
-            for i in xrange(len(lyr)-1):
-                if lyr[i][1] + min_dist < lyr[i+1][0]:
-                    stable_list.append(lyr[i][1]+0.5*min_dist)
-            if len(stable_list):
-                print 'stable surface:', self.miller_index
-
-        return [self.get_slab(shift) for shift in stable_list]
+    r = range(-max_index, max_index + 1)
+    all_slabs = []
+    for miller in itertools.product(r, r, r):
+        if any([i != 0 for i in miller]):
+            d = reduce(gcd, miller)
+            miller = tuple([int(i / d) for i in miller])
+            if not is_already_analyzed(miller):
+                gen = SurfaceGenerator(structure, miller, min_slab_size, min_vacuum_size)
+                slabs = gen.get_slabs(bonds)
+                if len(slabs) > 0:
+                    logger.debug("%s has %d slabs... " % (miller, len(slabs)))
+                    all_slabs.extend(slabs)
+                processed.append(miller)
+    return all_slabs
