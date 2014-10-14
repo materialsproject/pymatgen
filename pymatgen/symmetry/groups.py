@@ -33,8 +33,8 @@ POINT_GROUP_ENC = SYMM_DATA["point_group_encoding"]
 SPACE_GROUP_ENC = SYMM_DATA["space_group_encoding"]
 ABBREV_SPACE_GROUP_MAPPING = SYMM_DATA["abbreviated_spacegroup_symbols"]
 TRANSLATIONS = {k: Fraction(v) for k, v in SYMM_DATA["translations"].items()}
-FULL_SPACE_GROUP_MAPPING = {v["full_symbol"]: k
-                            for k, v in SYMM_DATA["space_group_encoding"].items()}
+FULL_SPACE_GROUP_MAPPING = {
+    v["full_symbol"]: k for k, v in SYMM_DATA["space_group_encoding"].items()}
 
 
 class PointGroup(object):
@@ -252,7 +252,7 @@ class SpaceGroup(object):
             return check(abc, [a, a, a], tol) and\
                 check(angles, [90, 90, 90], angle_tol)
         elif crys_system == "hexagonal" or (crys_system == "trigonal" and
-                                                self.symbol.endswith("H")):
+                                            self.symbol.endswith("H")):
             a = abc[0]
             return check(abc, [a, a, None], tol)\
                 and check(angles, [90, 90, 120], angle_tol)
