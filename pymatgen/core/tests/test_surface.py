@@ -76,12 +76,22 @@ class SlabTest(PymatgenTest):
 
 class SurfaceGeneratorTest(PymatgenTest):
 
+    def test_get_slab(self):
+        s = self.get_structure("LiFePO4")
+        gen = SurfaceGenerator(s, [0, 0, 1], 10, 10)
+        s = gen.get_slab(0.25)
+        #To write proper test.
+
     def test_get_all_slabs(self):
         gen = SurfaceGenerator(self.get_structure("CsCl"), [0, 0, 1], 10, 10)
         self.assertEqual(len(gen.get_all_slabs()), 2)
         s = self.get_structure("LiFePO4")
         gen = SurfaceGenerator(s, [0, 0, 1], 10, 10)
         self.assertEqual(len(gen.get_all_slabs()), 18)
+
+        self.assertEqual(len(gen.get_non_bond_breaking_slabs({("P",
+                                                               "O"): 3})), 6)
+
         # At this threshold, only the origin and center Li results in clustering.
         # All other sites are non-clustered. So the # of slabs is # of sites
         # in LiFePO4 unit cell - 2.

@@ -18,13 +18,15 @@ __date__ = "6/10/14"
 from fractions import gcd
 import math
 import itertools
-from pymatgen import Structure
 
 import numpy as np
 from scipy.spatial.distance import squareform
 from scipy.cluster.hierarchy import linkage, fcluster
 
 from monty.fractions import lcm
+
+from pymatgen.core.periodic_table import get_el_sp
+from pymatgen.core.structure import Structure
 
 
 class Slab(Structure):
@@ -337,12 +339,14 @@ class SurfaceGenerator(object):
         nlayers_vac = int(math.ceil(self.min_vac_size / self.dist))
         nlayers = nlayers_slab + nlayers_vac
         slab = self.oriented_unit_cell.copy()
+        slab.translate_sites(range(len(slab)), [0, 0, -shift])
+        slab = Structure.from_sites(slab, to_unit_cell=True)
+
         slab.make_supercell([1, 1, nlayers])
 
         new_sites = []
         for site in slab:
-            if shift <= np.dot(site.coords, self.normal) < nlayers_slab * \
-                    self.dist + shift:
+            if 0 <= site.c < nlayers_slab / nlayers:
                 new_sites.append(site)
 
         slab = Structure.from_sites(new_sites)
@@ -367,21 +371,7 @@ class SurfaceGenerator(object):
                     scale_factor, self.parent, self.min_slab_size,
                     self.min_vac_size)
 
-    def get_all_slabs(self, thresh=1e-2):
-        """
-        A method that generates a list of shift values in order to create a list
-        of slabs, each with a different surface. A surface is identified by
-        measuring how close sites are to each other in order to be on the same
-        surface. This is done using the scipy function, fclusterdata.
-
-        Args:
-            thresh (float): Threshold parameter in fcluster in order to check
-                if two atoms are lying on the same plane. Default thresh set
-                to 1e-2 in the c fractional coordinate.
-
-        Returns:
-            ([Slab]) List of all possible terminations of a particular surface.
-        """
+    def _calculate_possible_shifts(self, tol=1e-2):
         frac_coords = self.oriented_unit_cell.frac_coords
         n = len(frac_coords)
 
@@ -398,7 +388,7 @@ class SurfaceGenerator(object):
 
         condensed_m = squareform(dist_matrix)
         z = linkage(condensed_m)
-        clusters = fcluster(z, thresh, criterion="distance")
+        clusters = fcluster(z, tol, criterion="distance")
 
         #Generate dict of cluster# to c val - doesn't matter what the c is.
         c_loc = {c: frac_coords[i][2] for i, c in enumerate(clusters)}
@@ -420,9 +410,71 @@ class SurfaceGenerator(object):
                 shift = (possible_c[i] + possible_c[i + 1]) * 0.5
             shifts.append(shift)
         shifts = sorted(shifts)
-        return [self.get_slab(shift) for shift in shifts]
+        return shifts
 
-    def get_non_bond_breaking_slabs(self, specie1, specie2, max_bond=3,
+    def get_all_slabs(self, tol=1e-2):
+        """
+        A method that generates a list of shift values in order to create a list
+        of slabs, each with a different surface. A surface is identified by
+        measuring how close sites are to each other in order to be on the same
+        surface. This is done using the scipy function, fclusterdata.
+
+        Args:
+            thresh (float): Threshold parameter in fcluster in order to check
+                if two atoms are lying on the same plane. Default thresh set
+                to 1e-2 in the c fractional coordinate.
+
+        Returns:
+            ([Slab]) List of all possible terminations of a particular surface.
+        """
+        return [self.get_slab(shift)
+                for shift in self._calculate_possible_shifts(tol=tol)]
+
+    def get_non_bond_breaking_slabs(self, bonds, tol=1e-2):
+        """
+        Get slabs which do not break defined bonds.
+
+        Args:
+            bonds ({(specie1, specie2): max_bond_dist}: bonds are
+                specified as a dict of tuples: float of specie1, specie2
+                and the max bonding distance. For example, PO4 groups may be
+                defined as {("P", "O"): 3}.
+        """
+        #Convert to species first
+        bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in
+                 bonds.items()}
+
+        forbidden_c_ranges = []
+        for site1, site2 in itertools.combinations(self.oriented_unit_cell, 2):
+            all_sp = set(site1.species_and_occu.keys())
+            all_sp.update(site2.species_and_occu.keys())
+            for species, bond_dist in bonds.items():
+                if all_sp.issuperset(species):
+                    dist, image = site1.distance_and_image(site2)
+                    if dist < bond_dist:
+                        min_c = site1.c
+                        max_c = (site2.frac_coords + image)[2]
+                        c_range = sorted([min_c, max_c])
+                        if c_range[1] > 1:
+                            forbidden_c_ranges.append((c_range[0], 1))
+                            forbidden_c_ranges.append((0, c_range[1] -1))
+                        elif c_range[0] < 0:
+                            forbidden_c_ranges.append((0, c_range[1]))
+                            forbidden_c_ranges.append((c_range[0] + 1, 1))
+                        else:
+                            forbidden_c_ranges.append(c_range)
+
+        def shift_allowed(shift):
+            for r in forbidden_c_ranges:
+                if r[0] <= shift <= r[1]:
+                    return False
+            return True
+
+        return [self.get_slab(shift)
+                for shift in self._calculate_possible_shifts(tol=tol)
+                if shift_allowed(shift)]
+
+    def get_non_bond_breaking_slabs_old(self, specie1, specie2, max_bond=3,
                                     min_dist=0.01):
         """
         This method analysis whether we can generate a stable surface for a given miller
