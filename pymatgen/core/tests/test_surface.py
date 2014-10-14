@@ -28,7 +28,7 @@ class SlabTest(PymatgenTest):
         zno = C1.get_structures(primitive=False)
         zno1 = zno[0]
         zno55 = SurfaceGenerator(zno1, [1, 0, 0], 5, 5, lll_reduce=False,
-                                 standardize=False).get_slab()
+                                 center_slab=False).get_slab()
         #print zno55[0]
         #write_structure(zno55[0], "surface_tests/ZnO55.cif")
         self.zno1 = zno1
