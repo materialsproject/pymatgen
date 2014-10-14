@@ -569,8 +569,8 @@ class StructureMatcher(PMGSONable):
         and finds fu, the supercell size to make struct1 comparable to
         s2
         """
-        struct1 = struct1.copy()
-        struct2 = struct2.copy()
+        struct1 = Structure.from_sites(struct1)
+        struct2 = Structure.from_sites(struct2)
 
         if niggli:
             struct1 = struct1.get_reduced_structure(reduction_algo="niggli")

@@ -511,7 +511,6 @@ class IStructure(SiteCollection, PMGSONable):
         return cls(latt, all_sp, all_coords,
                    site_properties=all_site_properties)
 
-
     @property
     def distance_matrix(self):
         """
