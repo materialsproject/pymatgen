@@ -369,7 +369,8 @@ class DiffusionAnalyzer(PMGSONable):
 
     @classmethod
     def from_structures(cls, structures, specie, temperature,
-                        time_step, step_skip, min_obs=30, weighted=True):
+                        time_step, step_skip, smoothed=True, min_obs=30,
+                        weighted=True):
         """
         Convenient constructor that takes in a list of Structure objects to
         perform diffusion analysis.
@@ -385,6 +386,8 @@ class DiffusionAnalyzer(PMGSONable):
             step_skip (int): Sampling frequency of the displacements (
                 time_step is multiplied by this number to get the real time
                 between measurements)
+            smoothed (bool): Whether to smooth the MSD. Generally more
+                accurate, but makes error analysis complicated.
             min_obs (int): Minimum number of observations to have before
                 including in the MSD vs dt calculation. E.g. If a structure
                 has 10 diffusing atoms, and min_obs = 30, the MSD vs dt will be
@@ -406,11 +409,12 @@ class DiffusionAnalyzer(PMGSONable):
         disp = structure.lattice.get_cartesian_coords(f_disp)
 
         return cls(structure, disp, specie, temperature,
-                   time_step, step_skip=step_skip, min_obs=min_obs,
-                   weighted=weighted)
+                   time_step, step_skip=step_skip, smoothed=smoothed,
+                   min_obs=min_obs, weighted=weighted)
 
     @classmethod
-    def from_vaspruns(cls, vaspruns, specie, min_obs=30, weighted=True):
+    def from_vaspruns(cls, vaspruns, specie, smoothed=True, min_obs=30,
+                      weighted=True):
         """
         Convenient constructor that takes in a list of Vasprun objects to
         perform diffusion analysis.
@@ -426,6 +430,8 @@ class DiffusionAnalyzer(PMGSONable):
                 has 10 diffusing atoms, and min_obs = 30, the MSD vs dt will be
                 calculated up to dt = total_run_time / 3, so that each
                 diffusing atom is measured at least 3 uncorrelated times.
+            smoothed (bool): Whether to smooth the MSD. Generally more
+                accurate, but makes error analysis complicated.
             weighted (bool): Uses a weighted least squares to fit the
                 MSD vs dt. Weights are proportional to 1/dt, since the
                 number of observations are also proportional to 1/dt (and
@@ -451,12 +457,12 @@ class DiffusionAnalyzer(PMGSONable):
         time_step = vaspruns[0].parameters['POTIM']
 
         return cls.from_structures(structures, specie, temperature,
-            time_step, step_skip=step_skip, min_obs=min_obs,
-            weighted=weighted)
+            time_step, step_skip=step_skip, smoothed=smoothed,
+            min_obs=min_obs, weighted=weighted)
 
     @classmethod
-    def from_files(cls, filepaths, specie, step_skip=10, min_obs=30,
-                   weighted=True, ncores=None):
+    def from_files(cls, filepaths, specie, step_skip=10, smoothed=True,
+                   min_obs=30, weighted=True, ncores=None):
         """
         Convenient constructor that takes in a list of vasprun.xml paths to
         perform diffusion analysis.
@@ -472,6 +478,8 @@ class DiffusionAnalyzer(PMGSONable):
             step_skip (int): Sampling frequency of the displacements (
                 time_step is multiplied by this number to get the real time
                 between measurements)
+            smoothed (bool): Whether to smooth the MSD. Generally more
+                accurate, but makes error analysis complicated.
             min_obs (int): Minimum number of observations to have before
                 including in the MSD vs dt calculation. E.g. If a structure
                 has 10 diffusing atoms, and min_obs = 30, the MSD vs dt will be
@@ -505,7 +513,7 @@ class DiffusionAnalyzer(PMGSONable):
                 vaspruns.append(v)
                 # Recompute offset.
                 offset = (- (v.nionic_steps - offset)) % step_skip
-        return cls.from_vaspruns(vaspruns, min_obs=min_obs,
+        return cls.from_vaspruns(vaspruns, min_obs=min_obs, smoothed=smoothed,
                                  weighted=weighted, specie=specie)
 
     def as_dict(self):
