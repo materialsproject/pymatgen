@@ -50,7 +50,6 @@ class SlabTest(PymatgenTest):
         self.assertEqual(zno_slab.oriented_unit_cell.composition,
                          self.zno1.composition)
         self.assertEqual(len(zno_slab), 8)
-        print zno_slab
 
     def test_add_adsorbate_atom(self):
         zno_slab = Slab(self.zno55.lattice, self.zno55.species, self.zno55.frac_coords,
