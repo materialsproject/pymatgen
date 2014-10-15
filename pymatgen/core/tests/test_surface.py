@@ -69,20 +69,13 @@ class SlabTest(PymatgenTest):
 
 
 class SurfaceGeneratorTest(PymatgenTest):
-
-    def setup(self):
-        Li_Fe_P_O4 = CifParser(get_path("LiFePO4.cif"))
-        self.lifepo4 = (Li_Fe_P_O4.get_structures(primitive = False)[0])
-        Li_Fe_P_O4_compare = CifParser(get_path("LiFePO4_010_original_3.005.cif"))
-        self.lifepo4_compare = (Li_Fe_P_O4_compare.get_structures(primitive = False)[0])
-
     def test_get_slab(self):
         s = self.get_structure("LiFePO4")
         gen = SurfaceGenerator(s, [0, 0, 1], 10, 10)
         s = gen.get_slab(0.25)
         self.assertAlmostEqual(s.lattice.abc[2], 20.820740000000001)
 
-    def test_get_all_slabs(self):
+    def test_get_slabs(self):
         gen = SurfaceGenerator(self.get_structure("CsCl"), [0, 0, 1], 10, 10)
         self.assertEqual(len(gen.get_slabs()), 2)
         s = self.get_structure("LiFePO4")
@@ -101,31 +94,21 @@ class SurfaceGeneratorTest(PymatgenTest):
         # in LiFePO4 unit cell - 2.
         self.assertEqual(len(gen.get_slabs(tol=1e-4)), 26)
 
-    def test_CsCl(self):
-        # Checks the species and coordinates in every site in three
-        # equivalent orientations of CsCl to see if they are the same
-        miller_indices = [[0,0,1], [0,1,0], [1,0,0]]
-        config1, config2 = [], []
-        for index in miller_indices:
-            cscl = SurfaceGenerator(self.get_structure("CsCl"), index, 10, 10)
-            all_cscl = cscl.get_slabs()
-            self.assertEqual(len(all_cscl), 2)
-            config1.append(all_cscl[0])
-            config2.append(all_cscl[1])
-        for i in range(0, 1):
-            for ii in xrange(len(config1[2])):
-                self.assertEqual(config1[i][ii].species_string,
-                                 config1[2][ii].species_string)
-                for iii in range(0, 3):
-                    self.assertEqual(config1[i].frac_coords[ii][iii],
-                                     config1[2].frac_coords[ii][iii])
-            for ii in xrange(len(config2[2])):
+    def test_triclinic_TeI(self):
+        # Test case for a triclinic structure of TeI. Only these three
+        # Miller indices are used because it is easier to identify which
+        # atoms shouldbe in a surface together. The closeness of the sites
+        # in other Miller indices can cause some ambiguity when choosing a
+        # higher tolerance.
+        mill = [[0, 0, 1],[0, 1, 0],[1, 0, 0]]
+        numb_slabs = {'[0, 0, 1]':6, '[0, 1, 0]':3, '[1, 0, 0]':8}
+        TeI_triclinic = CifParser(get_path("TeI.cif"))
+        TeI = TeI_triclinic.get_structures(primitive = False)[0]
+        for i in mill:
+            trclnc_TeI = SurfaceGenerator(TeI, i, 10, 10)
+            TeI_slabs = trclnc_TeI.get_slabs(tol=0.05)
+            self.assertEqual(numb_slabs[str(i)], len(TeI_slabs))
 
-                self.assertEqual(config1[i][ii].species_string,
-                                 config1[2][ii].species_string)
-                for iii in range(0, 3):
-                    self.assertEqual(config2[i].frac_coords[ii][iii],
-                                     config2[2].frac_coords[ii][iii])
 
 
 class FuncTest(PymatgenTest):
