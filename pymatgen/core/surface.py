@@ -60,8 +60,9 @@ class Slab(Structure):
         slab has been shifted.
     """
 
-    def __init__(self, lattice, species, coords, miller_index, oriented_unit_cell, shift,
-                 scale_factor, validate_proximity=False, to_unit_cell=False,
+    def __init__(self, lattice, species, coords, miller_index,
+                 oriented_unit_cell, shift, scale_factor,
+                 validate_proximity=False, to_unit_cell=False,
                  coords_are_cartesian=False, site_properties=None):
         """
         Makes a Slab structure, a structure object
