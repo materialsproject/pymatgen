@@ -265,6 +265,10 @@ class SlabGenerator(object):
         single = initial_structure.copy()
         single.make_supercell(slab_scale_factor)
 
+        #Let's make sure we have a left-handed crystallographic system
+        if np.linalg.det(single.lattice.matrix) < 0:
+            single.make_supercell(-1)
+
         self.oriented_unit_cell = Structure.from_sites(single,
                                                        to_unit_cell=True)
         self.parent = initial_structure
@@ -505,9 +509,8 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
             Project) is often needed.
     """
     all_slabs = []
-    for miller in get_symmetrically_distinct_miller_indices(
-        structure, max_index):
-
+    for miller in get_symmetrically_distinct_miller_indices(structure,
+                                                            max_index):
         gen = SlabGenerator(structure, miller, min_slab_size,
                             min_vacuum_size, lll_reduce=lll_reduce,
                             center_slab=center_slab)
