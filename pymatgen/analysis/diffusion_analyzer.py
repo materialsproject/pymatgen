@@ -489,10 +489,11 @@ class DiffusionAnalyzer(PMGSONable):
                 Otherwise, inconsistent results may arise. Serial mode has no
                 such restrictions.
         """
-        if ncores is not None:
+        if ncores is not None and len(filepaths) > 1:
             import multiprocessing
             p = multiprocessing.Pool(ncores)
-            vaspruns = p.map(_get_vasprun, [(fp, step_skip) for fp in filepaths])
+            vaspruns = p.map(_get_vasprun,
+                             [(fp, step_skip) for fp in filepaths])
             p.close()
             p.join()
         else:
