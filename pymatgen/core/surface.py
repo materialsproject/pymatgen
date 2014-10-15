@@ -222,7 +222,7 @@ class Slab(Structure):
         return interface_system
 
 
-class SurfaceGenerator(object):
+class SlabGenerator(object):
 
     """
     This class generates different slabs using shift values determined by where a
@@ -548,18 +548,14 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
             # loop returns a structure that was already analyzed.
             # If it isn't, then we will retrieve its surfaces.
             if not is_already_analyzed(miller):
-                gen = SurfaceGenerator(structure, miller, min_slab_size,
-                                       min_vacuum_size, lll_reduce=lll_reduce,
-                                       center_slab=center_slab)
+                gen = SlabGenerator(structure, miller, min_slab_size,
+                                    min_vacuum_size, lll_reduce=lll_reduce,
+                                    center_slab=center_slab)
                 slabs = gen.get_slabs(bonds=bonds, tol=tol)
                 if len(slabs) > 0:
                     logger.debug("%s has %d slabs... " % (miller, len(slabs)))
                     all_slabs.append(slabs)
                 processed.append(miller)
-
-    # Further filters out any equivalent surfaces
-    m = StructureMatcher()
-    groups = m.group_structures(all_slabs)
 
     # Further filters out any surfaces made that might be the same
     m = StructureMatcher(ltol=tol, stol=tol)

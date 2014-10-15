@@ -7,7 +7,7 @@ import unittest
 from pymatgen.core import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.io.smartio import CifParser
-from pymatgen.core.surface import Slab, SurfaceGenerator, generate_all_slabs
+from pymatgen.core.surface import Slab, SlabGenerator, generate_all_slabs
 import os
 import numpy as np
 
@@ -27,7 +27,7 @@ class SlabTest(PymatgenTest):
         C1 = CifParser(get_path("ZnO-wz.cif"))
         zno = C1.get_structures(primitive=False)
         zno1 = zno[0]
-        zno55 = SurfaceGenerator(zno1, [1, 0, 0], 5, 5, lll_reduce=False,
+        zno55 = SlabGenerator(zno1, [1, 0, 0], 5, 5, lll_reduce=False,
                                  center_slab=False).get_slab()
         #print zno55[0]
         #write_structure(zno55[0], "surface_tests/ZnO55.cif")
@@ -68,18 +68,18 @@ class SlabTest(PymatgenTest):
                          self.zno55.lattice.lengths_and_angles)
 
 
-class SurfaceGeneratorTest(PymatgenTest):
+class SlabGeneratorTest(PymatgenTest):
     def test_get_slab(self):
         s = self.get_structure("LiFePO4")
-        gen = SurfaceGenerator(s, [0, 0, 1], 10, 10)
+        gen = SlabGenerator(s, [0, 0, 1], 10, 10)
         s = gen.get_slab(0.25)
         self.assertAlmostEqual(s.lattice.abc[2], 20.820740000000001)
 
     def test_get_slabs(self):
-        gen = SurfaceGenerator(self.get_structure("CsCl"), [0, 0, 1], 10, 10)
+        gen = SlabGenerator(self.get_structure("CsCl"), [0, 0, 1], 10, 10)
         self.assertEqual(len(gen.get_slabs()), 2)
         s = self.get_structure("LiFePO4")
-        gen = SurfaceGenerator(s, [0, 0, 1], 10, 10)
+        gen = SlabGenerator(s, [0, 0, 1], 10, 10)
         self.assertEqual(len(gen.get_slabs()), 18)
 
         self.assertEqual(len(gen.get_slabs(bonds={("P", "O"): 3})), 6)
@@ -102,10 +102,10 @@ class SurfaceGeneratorTest(PymatgenTest):
         # higher tolerance.
         mill = [[0, 0, 1],[0, 1, 0],[1, 0, 0]]
         numb_slabs = {'[0, 0, 1]':6, '[0, 1, 0]':3, '[1, 0, 0]':8}
-        TeI_triclinic = CifParser(get_path("TeI.cif"))
+        TeI_triclinic = CifParser(get_path("icsd_TeI.cif"))
         TeI = TeI_triclinic.get_structures(primitive = False)[0]
         for i in mill:
-            trclnc_TeI = SurfaceGenerator(TeI, i, 10, 10)
+            trclnc_TeI = SlabGenerator(TeI, i, 10, 10)
             TeI_slabs = trclnc_TeI.get_slabs(tol=0.05)
             self.assertEqual(numb_slabs[str(i)], len(TeI_slabs))
 
