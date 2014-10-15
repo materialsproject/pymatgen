@@ -471,7 +471,6 @@ class SurfaceGenerator(object):
                 # Iterates through every possible pair of species in the oriented unit cell
                 all_sp = set(site1.species_and_occu.keys())
                 all_sp.update(site2.species_and_occu.keys())
-                print(bonds.items())
                 for species, bond_dist in bonds.items():
                     if all_sp.issuperset(species):  # Checks if elements in species is in all_sp
                         dist, image = site1.distance_and_image(site2)
