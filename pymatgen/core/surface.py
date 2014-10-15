@@ -341,8 +341,8 @@ class SlabGenerator(object):
         # take into account PBC. Let's compute a fractional c-coordinate
         # distance matrix that accounts for PBC.
         dist_matrix = np.zeros((n, n))
-        for i in range(n - 1):
-            for j in range(i + 1, n):
+        for i, j in itertools.combinations(range(n), 2):
+            if i != j:
                 cdist = frac_coords[i][2] - frac_coords[j][2]
                 cdist = abs(cdist - round(cdist))
                 dist_matrix[i, j] = cdist
