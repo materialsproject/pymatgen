@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from __future__ import division, unicode_literals
+from functools import reduce
 
 """
 This module implements representations of slabs and surfaces, as well as
@@ -330,7 +331,7 @@ class SlabGenerator(object):
         # Whether or not to center the slab layer around the vacuum
         if self.center_slab:
             avg_c = np.average([c[2] for c in slab.frac_coords])
-            slab.translate_sites(range(len(slab)), [0, 0, 0.5 - avg_c])
+            slab.translate_sites(list(range(len(slab))), [0, 0, 0.5 - avg_c])
 
         return Slab(slab.lattice, slab.species_and_occu,
                     slab.frac_coords, self.miller_index,
@@ -345,7 +346,7 @@ class SlabGenerator(object):
         # take into account PBC. Let's compute a fractional c-coordinate
         # distance matrix that accounts for PBC.
         dist_matrix = np.zeros((n, n))
-        for i, j in itertools.combinations(range(n), 2):
+        for i, j in itertools.combinations(list(range(n)), 2):
             if i != j:
                 cdist = frac_coords[i][2] - frac_coords[j][2]
                 cdist = abs(cdist - round(cdist))
@@ -476,7 +477,7 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
                 return True
         return False
 
-    r = range(-max_index, max_index + 1)
+    r = list(range(-max_index, max_index + 1))
     r.reverse()
     for miller in itertools.product(r, r, r):
         if any([i != 0 for i in miller]):
