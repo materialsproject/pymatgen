@@ -364,7 +364,6 @@ class SurfaceGenerator(object):
         nlayers_vac = int(math.ceil(self.min_vac_size / dist))
         nlayers = nlayers_slab + nlayers_vac
 
-        a, b, c = self.oriented_unit_cell.lattice.matrix
         species = self.oriented_unit_cell.species_and_occu
         props = self.oriented_unit_cell.site_properties
         props = {k: v * nlayers_slab for k, v in props.items()}
@@ -501,7 +500,6 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                        bonds=None, tol=1e-2, symprec=0.01, lll_reduce=False,
                        center_slab=False):
     """
-
     A function that finds all different slabs up to a certain miller index.
     Slabs oriented under certain Miller indices that are equivalent to other
     slabs in other Miller indices are filtered out using symmetry operations
@@ -517,7 +515,6 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
             deviations from their proper atomic positions (e.g., structures relaxed
             with electronic structure codes), a looser tolerance of 0.1 (the value
             used in Materials Project) is often needed.
-
     """
 
     # Creates a function that uses the symmetry operations in the
