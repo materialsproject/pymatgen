@@ -548,7 +548,7 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                 processed.append(miller)
 
     # Further filters out any surfaces made that might be the same
-    m = StructureMatcher()
+    m = StructureMatcher(ltol=tol, stol=tol)
     unique = []
     for slabs in all_slabs:
         for g in m.group_structures(slabs):
