@@ -256,6 +256,9 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
         elif scf_kppa == 2:
             scf_ksampling = KSampling.gamma_centered(kpts=(2, 2, 2))
             nscf_ksampling = KSampling.gamma_centered(kpts=(2, 2, 2))
+        elif scf_kppa <= 10:
+            scf_ksampling = KSampling.gamma_centered(kpts=(scf_kppa, scf_kppa, scf_kppa))
+            nscf_ksampling = KSampling.gamma_centered(kpts=(scf_kppa, scf_kppa, scf_kppa))
         else:
             scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0, shifts=(0, 0, 0))
             nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0, shifts=(0, 0, 0))
