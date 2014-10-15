@@ -245,7 +245,7 @@ class SingleAbinitGWWorkFlow():
         nscf_nband = [10 * nb]
 
         ecuteps = [8]
-        ecutsigx = 8
+        ecutsigx = 44
 
         extra_abivars = dict(
             paral_kgb=1,
