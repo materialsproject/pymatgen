@@ -139,7 +139,7 @@ class FuncTest(PymatgenTest):
 
         lfp = self.get_structure("LiFePO4")
         slabs = generate_all_slabs(lfp, 1, 10, 10, bonds={("P", "O"): 3})
-        self.assertEqual(len(slabs), 5)
+        self.assertEqual(len(slabs), 6)
 
 
 if __name__ == "__main__":
