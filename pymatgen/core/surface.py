@@ -366,6 +366,8 @@ class SurfaceGenerator(object):
 
         a, b, c = self.oriented_unit_cell.lattice.matrix
         species = self.oriented_unit_cell.species_and_occu
+        props = self.oriented_unit_cell.site_properties
+        props = {k: v * nlayers_slab for k, v in props.items()}
         frac_coords = self.oriented_unit_cell.frac_coords
         frac_coords = np.array(frac_coords) +\
                       np.array([0, 0, -shift])[None, :]
@@ -378,7 +380,8 @@ class SurfaceGenerator(object):
             fcoords[:, 2] += i / nlayers
             all_coords.extend(fcoords)
 
-        slab = Structure(new_lattice, species * nlayers_slab, all_coords)
+        slab = Structure(new_lattice, species * nlayers_slab, all_coords,
+                         site_properties=props)
 
         scale_factor = self.slab_scale_factor
         # Whether or not to orthogonalize the structure
