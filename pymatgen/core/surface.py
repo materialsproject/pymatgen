@@ -508,6 +508,17 @@ class SlabGenerator(object):
 
 
 def get_symmetrically_distinct_miller_indices(structure, max_index):
+    """
+    Returns all symmetrically distinct indices below a certain max-index for
+    a given structure. Analysis is based on the symmetry of the reciprocal
+    lattice of the structure.
+
+    Args:
+        structure (Structure): input structure.
+        max_index (int): The maximum index. For example, a max_index of 1
+            means that (100), (110), and (111) are returned for the cubic
+            structure. All other indices are equivalent to one of these.
+    """
 
     recp_lattice = structure.lattice.reciprocal_lattice_crystallographic
     # Need to make sure recp lattice is big enough, otherwise symmetry
@@ -561,7 +572,7 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
     """
     all_slabs = []
     for miller in get_symmetrically_distinct_miller_indices(
-            structure, max_index):
+        structure, max_index):
 
         gen = SlabGenerator(structure, miller, min_slab_size,
                             min_vacuum_size, lll_reduce=lll_reduce,
