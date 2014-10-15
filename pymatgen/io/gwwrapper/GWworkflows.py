@@ -226,7 +226,14 @@ class SingleAbinitGWWorkFlow():
         # kpoint grid defined over density 40 > ~ 3 3 3
         if self.spec['converge'] and not self.all_converged:
             # (2x2x2) gamma centered mesh for the convergence test on nbands and ecuteps
-            scf_kppa = 2
+            # if kp_in is present in the specs a kp_in X kp_in x kp_in mesh is used for the convergence studie
+            if 'kp_in' in self.spec.keys():
+                if self.spec['kp_in'] > 9:
+                    print('WARNING:\nkp_in should be < 10 to generate an n x n x n mesh\nfor larger values a grid with '
+                          'density kp_in will be generated')
+                scf_kppa = self.spec['kp_in']
+            else:
+                scf_kppa = 2
         else:
             # use the specified density for the final calculation with the converged nbands and ecuteps of other
             # stand alone calculations
@@ -339,7 +346,7 @@ class SingleAbinitGWWorkFlow():
 
     def create_job_file(self, serial=True):
         """
-        Create the jobfile for staring all schedulers manually
+        Create the jobfile for starting all schedulers manually
         serial = True creates a list that can be submitted as job that runs all schedulers a a batch job
         (the job header needs to be added)
         serial = False creates a list that can be used to start all schedulers on the frontend in the background
