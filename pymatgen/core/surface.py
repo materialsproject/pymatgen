@@ -111,12 +111,12 @@ class Slab(Structure):
                 fractional_coords. Defaults to None for no properties.
         """
         self.oriented_unit_cell = oriented_unit_cell
-        self.miller_index = miller_index
+        self.miller_index = tuple(miller_index)
         self.shift = shift
         self.scale_factor = scale_factor
 
-        super(Slab, self).__init__(lattice, species,
-            coords, validate_proximity=validate_proximity,
+        super(Slab, self).__init__(
+            lattice, species, coords, validate_proximity=validate_proximity,
             to_unit_cell=to_unit_cell,
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties)
@@ -284,12 +284,11 @@ class SlabGenerator(object):
             min_vac_size (float): In Angstroms
             lll_reduce (bool): Whether to perform an LLL reduction on the
                 eventual structure.
-            center_slab (bool): Whether to center the slab in the cell with equal
-                vacuum spacing from the top and bottom.
-
+            center_slab (bool): Whether to center the slab in the cell with
+                equal vacuum spacing from the top and bottom.
         """
         latt = initial_structure.lattice
-        d = reduce(gcd, miller_index)
+        d = abs(reduce(gcd, miller_index))
         miller_index = [int(i / d) for i in miller_index]
         #Calculate the surface normal using the reciprocal lattice vector.
         recp = latt.reciprocal_lattice_crystallographic
@@ -508,6 +507,38 @@ class SlabGenerator(object):
                 if shift_allowed(shift)]
 
 
+def get_symmetrically_distinct_miller_indices(structure, max_index,
+                                              symprec=0.01):
+
+    recp_lattice = structure.lattice.reciprocal_lattice_crystallographic
+    # Need to make sure recp lattice is big enough, otherwise symmetry
+    # determination will fail.
+    recp_lattice = recp_lattice.scale(1)
+    recp = Structure(recp_lattice, ["H"], [[0, 0, 0]])
+
+    # Creates a function that uses the symmetry operations in the
+    # structure to find Miller indices that might give repetitive slabs
+    analyzer = SpacegroupAnalyzer(recp, symprec=symprec)
+    symm_ops = analyzer.get_symmetry_operations()
+    unique_millers = []
+
+    def is_already_analyzed(miller_index):
+        for op in symm_ops:
+            if in_coord_list(unique_millers, op.operate(miller_index)):
+                return True
+        return False
+
+    r = range(-max_index, max_index + 1)
+    r.reverse()
+    for miller in itertools.product(r, r, r):
+        if any([i != 0 for i in miller]):
+            d = abs(reduce(gcd, miller))
+            miller = tuple([int(i / d) for i in miller])
+            if not is_already_analyzed(miller):
+                unique_millers.append(miller)
+    return unique_millers
+
+
 def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                        bonds=None, tol=1e-2, symprec=0.01, lll_reduce=False,
                        center_slab=False):
@@ -522,42 +553,24 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
         structure (Structure): Initial input structure.
         max_index (int): The maximum Miller index to go up to.
         symprec (float): Tolerance for symmetry finding. Defaults to 1e-3,
-            which is fairly strict and works well for properly refined structures
-            with atoms in the proper symmetry coordinates. For structures with slight
-            deviations from their proper atomic positions (e.g., structures relaxed
-            with electronic structure codes), a looser tolerance of 0.1 (the value
-            used in Materials Project) is often needed.
+            which is fairly strict and works well for properly refined
+            structures with atoms in the proper symmetry coordinates. For
+            structures with slight deviations from their proper atomic
+            positions (e.g., structures relaxed with electronic structure
+            codes), a looser tolerance of 0.1 (the value used in Materials
+            Project) is often needed.
     """
-
-    # Creates a function that uses the symmetry operations in the
-    # structure to find Miller indices that might give repetitive slabs
-    analyzer = SpacegroupAnalyzer(structure, symprec=symprec)
-    symm_ops = analyzer.get_symmetry_operations()
-    processed = []
-    def is_already_analyzed(miller_index):
-        for op in symm_ops:
-            if in_coord_list(processed, op.operate(miller_index)):
-                return True
-        return False
-
-    r = range(-max_index, max_index + 1)
     all_slabs = []
-    for miller in itertools.product(r, r, r):
-        if any([i != 0 for i in miller]):
-            d = reduce(gcd, miller)
-            miller = tuple([int(i / d) for i in miller])
-            # Determines if the current Miller index in the
-            # loop returns a structure that was already analyzed.
-            # If it isn't, then we will retrieve its surfaces.
-            if not is_already_analyzed(miller):
-                gen = SlabGenerator(structure, miller, min_slab_size,
-                                    min_vacuum_size, lll_reduce=lll_reduce,
-                                    center_slab=center_slab)
-                slabs = gen.get_slabs(bonds=bonds, tol=tol)
-                if len(slabs) > 0:
-                    logger.debug("%s has %d slabs... " % (miller, len(slabs)))
-                    all_slabs.append(slabs)
-                processed.append(miller)
+    for miller in get_symmetrically_distinct_miller_indices(
+            structure, max_index, symprec=symprec):
+
+        gen = SlabGenerator(structure, miller, min_slab_size,
+                            min_vacuum_size, lll_reduce=lll_reduce,
+                            center_slab=center_slab)
+        slabs = gen.get_slabs(bonds=bonds, tol=tol)
+        if len(slabs) > 0:
+            logger.debug("%s has %d slabs... " % (miller, len(slabs)))
+            all_slabs.append(slabs)
 
     # Further filters out any surfaces made that might be the same
     m = StructureMatcher(ltol=tol, stol=tol)

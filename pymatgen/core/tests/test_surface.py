@@ -4,10 +4,10 @@
 import unittest
 
 
-from pymatgen.core import Structure
+from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
-from pymatgen.io.smartio import CifParser
-from pymatgen.core.surface import Slab, SlabGenerator, generate_all_slabs
+from pymatgen.core.surface import Slab, SlabGenerator, generate_all_slabs, \
+    get_symmetrically_distinct_miller_indices
 import os
 import numpy as np
 
@@ -24,11 +24,9 @@ def get_path(path_str):
 class SlabTest(PymatgenTest):
 
     def setUp(self):
-        C1 = CifParser(get_path("ZnO-wz.cif"))
-        zno = C1.get_structures(primitive=False)
-        zno1 = zno[0]
+        zno1 = Structure.from_file(get_path("ZnO-wz.cif"), primitive=False)
         zno55 = SlabGenerator(zno1, [1, 0, 0], 5, 5, lll_reduce=False,
-                                 center_slab=False).get_slab()
+                              center_slab=False).get_slab()
         #print zno55[0]
         #write_structure(zno55[0], "surface_tests/ZnO55.cif")
         self.zno1 = zno1
@@ -97,32 +95,56 @@ class SlabGeneratorTest(PymatgenTest):
     def test_triclinic_TeI(self):
         # Test case for a triclinic structure of TeI. Only these three
         # Miller indices are used because it is easier to identify which
-        # atoms shouldbe in a surface together. The closeness of the sites
+        # atoms should be in a surface together. The closeness of the sites
         # in other Miller indices can cause some ambiguity when choosing a
         # higher tolerance.
         mill = [[0, 0, 1],[0, 1, 0],[1, 0, 0]]
         numb_slabs = {'[0, 0, 1]':6, '[0, 1, 0]':3, '[1, 0, 0]':8}
-        TeI_triclinic = CifParser(get_path("icsd_TeI.cif"))
-        TeI = TeI_triclinic.get_structures(primitive = False)[0]
+        TeI = Structure.from_file(get_path("icsd_TeI.cif"), primitive=False)
         for i in mill:
             trclnc_TeI = SlabGenerator(TeI, i, 10, 10)
             TeI_slabs = trclnc_TeI.get_slabs(tol=0.05)
             self.assertEqual(numb_slabs[str(i)], len(TeI_slabs))
 
 
-
 class FuncTest(PymatgenTest):
 
-    def test_generate_all_slabs(self):
-        cscl = self.get_structure("CsCl")
-        slabs = generate_all_slabs(cscl, 1, 10, 10)
+    def setUp(self):
+        self.cscl = self.get_structure("CsCl")
+        self.lifepo4 = self.get_structure("LiFePO4")
+        self.tei = Structure.from_file(get_path("icsd_TeI.cif"),
+                                       primitive=False)
 
+        self.p1 = Structure(Lattice.from_parameters(3, 4, 5, 31, 43, 50),
+                            ["H", "He"], [[0, 0, 0], [0.1, 0.2, 0.3]])
+
+    def test_get_symmetrically_distinct_miller_indices(self):
+        indices = get_symmetrically_distinct_miller_indices(self.cscl, 1)
+        self.assertEqual(len(indices), 3)
+        indices = get_symmetrically_distinct_miller_indices(self.cscl, 2)
+        self.assertEqual(len(indices), 6)
+
+        self.assertEqual(len(get_symmetrically_distinct_miller_indices(
+            self.lifepo4, 1)), 7)
+
+        # The TeI P-1 structure should have 13 unique millers (only inversion
+        # symmetry eliminates pairs)
+        indices = get_symmetrically_distinct_miller_indices(self.tei, 1)
+        self.assertEqual(len(indices), 13)
+
+        # P1 and P-1 should have the same # of miller indices since surfaces
+        # always have inversion symmetry.
+        indices = get_symmetrically_distinct_miller_indices(self.p1, 1)
+        self.assertEqual(len(indices), 13)
+
+    def test_generate_all_slabs(self):
+        slabs = generate_all_slabs(self.cscl, 1, 10, 10)
         #Only three possible slabs, one each in (100), (110) and (111).
         self.assertEqual(len(slabs), 3)
 
-        lfp = self.get_structure("LiFePO4")
-        slabs = generate_all_slabs(lfp, 1, 10, 10, bonds={("P", "O"): 3})
-        self.assertEqual(len(slabs), 6)
+        slabs = generate_all_slabs(self.lifepo4, 1, 10, 10,
+                                   bonds={("P", "O"): 3})
+        self.assertEqual(len(slabs), 5)
 
 
 if __name__ == "__main__":
