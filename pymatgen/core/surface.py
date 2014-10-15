@@ -467,18 +467,20 @@ class SlabGenerator(object):
             #Convert to species first
             bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in
                      bonds.items()}
-            for site1, site2 in itertools.combinations(self.oriented_unit_cell, 2):
-                # Iterates through every possible pair of species in the oriented unit cell
-                all_sp = set(site1.species_and_occu.keys())
-                all_sp.update(site2.species_and_occu.keys())
+            for s1, s2 in itertools.combinations(self.oriented_unit_cell, 2):
+                # Iterates through every possible pair of species in the
+                # oriented unit cell
+                all_sp = set(s1.species_and_occu.keys())
+                all_sp.update(s2.species_and_occu.keys())
                 for species, bond_dist in bonds.items():
-                    if all_sp.issuperset(species):  # Checks if elements in species is in all_sp
-                        dist, image = site1.distance_and_image(site2)
+                    # Checks if elements in species is in all_sp
+                    if all_sp.issuperset(species):
+                        dist, image = s1.distance_and_image(s2)
                         if dist < bond_dist:
                         # Checks if the distance between the two species
                         # is less then the user input bond distance
-                            min_c = site1.c
-                            max_c = (site2.frac_coords + image)[2]
+                            min_c = s1.c
+                            max_c = (s2.frac_coords + image)[2]
                             c_range = sorted([min_c, max_c])
                             if c_range[1] > 1:
                             # Takes care of PBC when c coordinate of site
