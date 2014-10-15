@@ -507,18 +507,17 @@ class SlabGenerator(object):
                 if shift_allowed(shift)]
 
 
-def get_symmetrically_distinct_miller_indices(structure, max_index,
-                                              symprec=0.01):
+def get_symmetrically_distinct_miller_indices(structure, max_index):
 
     recp_lattice = structure.lattice.reciprocal_lattice_crystallographic
     # Need to make sure recp lattice is big enough, otherwise symmetry
-    # determination will fail.
+    # determination will fail. We set the overall volume to 1.
     recp_lattice = recp_lattice.scale(1)
     recp = Structure(recp_lattice, ["H"], [[0, 0, 0]])
 
     # Creates a function that uses the symmetry operations in the
     # structure to find Miller indices that might give repetitive slabs
-    analyzer = SpacegroupAnalyzer(recp, symprec=symprec)
+    analyzer = SpacegroupAnalyzer(recp, symprec=0.001)
     symm_ops = analyzer.get_symmetry_operations()
     unique_millers = []
 
@@ -540,7 +539,7 @@ def get_symmetrically_distinct_miller_indices(structure, max_index,
 
 
 def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
-                       bonds=None, tol=1e-2, symprec=0.01, lll_reduce=False,
+                       bonds=None, tol=1e-2, lll_reduce=False,
                        center_slab=False):
     """
     A function that finds all different slabs up to a certain miller index.
@@ -562,7 +561,7 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
     """
     all_slabs = []
     for miller in get_symmetrically_distinct_miller_indices(
-            structure, max_index, symprec=symprec):
+            structure, max_index):
 
         gen = SlabGenerator(structure, miller, min_slab_size,
                             min_vacuum_size, lll_reduce=lll_reduce,
