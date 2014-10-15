@@ -45,6 +45,11 @@ class Slab(Structure):
     slab. Also has additional methods that returns other information
     about a slab such as the surface area, normal, and atom adsorption.
 
+    Note that all Slabs have the surface normal oriented in the c-direction.
+    This means the lattice vectors a and b are in the surface plane and the c
+    vector is out of the surface plane (though not necessary perpendicular to
+    the surface.)
+
     .. attribute:: miller_index
 
         Miller index of plane parallel to surface.
@@ -65,17 +70,45 @@ class Slab(Structure):
                  validate_proximity=False, to_unit_cell=False,
                  coords_are_cartesian=False, site_properties=None):
         """
-        Makes a Slab structure, a structure object
-        with additional information pertaining to slabs.
+        Makes a Slab structure, a structure object with additional information
+        and methods pertaining to slabs.
 
         Args:
-            slab_scale (array): scale_factor Final computed scale factor
-                that brings the parent cell to the surface cell.
-            structure (Structure): A structure that has been refined into a slab.
+            lattice (Lattice/3x3 array): The lattice, either as a
+                :class:`pymatgen.core.lattice.Lattice` or
+                simply as any 2D array. Each row should correspond to a lattice
+                vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+                lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
+            species ([Specie]): Sequence of species on each site. Can take in
+                flexible input, including:
+
+                i.  A sequence of element / specie specified either as string
+                    symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
+                    e.g., (3, 56, ...) or actual Element or Specie objects.
+
+                ii. List of dict of elements/species and occupancies, e.g.,
+                    [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
+                    disordered structures.
+            coords (Nx3 array): list of fractional/cartesian coordinates of
+                each species.
             miller_index ([h, k, l]): Miller index of plane parallel to
                 surface. Note that this is referenced to the input structure. If
                 you need this to be based on the conventional cell,
                 you should supply the conventional structure.
+            oriented_unit_cell (Structure): The oriented_unit_cell from which
+                this Slab is created (by scaling in the c-direction).
+            shift (float): The shift in the c-direction applied to get the
+                termination.
+            scale_factor (array): scale_factor Final computed scale factor
+                that brings the parent cell to the surface cell.
+            validate_proximity (bool): Whether to check if there are sites
+                that are less than 0.01 Ang apart. Defaults to False.
+            coords_are_cartesian (bool): Set to True if you are providing
+                coordinates in cartesian coordinates. Defaults to False.
+            site_properties (dict): Properties associated with the sites as a
+                dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
+                have to be the same length as the atomic species and
+                fractional_coords. Defaults to None for no properties.
         """
         self.oriented_unit_cell = oriented_unit_cell
         self.miller_index = miller_index
@@ -189,7 +222,7 @@ class Slab(Structure):
         return interface_system
 
 
-class SurfaceGenerator(object):
+class SlabGenerator(object):
 
     """
     This class generates different slabs using shift values determined by where a
@@ -331,20 +364,24 @@ class SurfaceGenerator(object):
         nlayers_vac = int(math.ceil(self.min_vac_size / dist))
         nlayers = nlayers_slab + nlayers_vac
 
-        slab = self.oriented_unit_cell.copy()
-        slab.translate_sites(range(len(slab)), [0, 0, -shift])
-        slab = Structure.from_sites(slab, to_unit_cell=True)
+        species = self.oriented_unit_cell.species_and_occu
+        props = self.oriented_unit_cell.site_properties
+        props = {k: v * nlayers_slab for k, v in props.items()}
+        frac_coords = self.oriented_unit_cell.frac_coords
+        frac_coords = np.array(frac_coords) +\
+                      np.array([0, 0, -shift])[None, :]
+        frac_coords = frac_coords - np.floor(frac_coords)
+        new_lattice = [a, b, nlayers * c]
+        frac_coords[:, 2] = frac_coords[:, 2] / nlayers
+        all_coords = []
+        for i in range(nlayers_slab):
+            fcoords = frac_coords.copy()
+            fcoords[:, 2] += i / nlayers
+            all_coords.extend(fcoords)
 
-        slab.make_supercell([1, 1, nlayers])
+        slab = Structure(new_lattice, species * nlayers_slab, all_coords,
+                         site_properties=props)
 
-        new_sites = []
-        # Use fractional size of the slab layer relative to the rest of the
-        # structure to determine how large the slab layer should be
-        for site in slab:
-            if 0 <= site.c < nlayers_slab / nlayers:
-                new_sites.append(site)
-
-        slab = Structure.from_sites(new_sites)
         scale_factor = self.slab_scale_factor
         # Whether or not to orthogonalize the structure
         if self.lll_reduce:
@@ -430,25 +467,37 @@ class SurfaceGenerator(object):
             #Convert to species first
             bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in
                      bonds.items()}
-            for site1, site2 in itertools.combinations(self.oriented_unit_cell, 2):
-                all_sp = set(site1.species_and_occu.keys())
-                all_sp.update(site2.species_and_occu.keys())
+            for s1, s2 in itertools.combinations(self.oriented_unit_cell, 2):
+                # Iterates through every possible pair of species in the
+                # oriented unit cell
+                all_sp = set(s1.species_and_occu.keys())
+                all_sp.update(s2.species_and_occu.keys())
                 for species, bond_dist in bonds.items():
+                    # Checks if elements in species is in all_sp
                     if all_sp.issuperset(species):
-                        dist, image = site1.distance_and_image(site2)
+                        dist, image = s1.distance_and_image(s2)
                         if dist < bond_dist:
-                            min_c = site1.c
-                            max_c = (site2.frac_coords + image)[2]
+                        # Checks if the distance between the two species
+                        # is less then the user input bond distance
+                            min_c = s1.c
+                            max_c = (s2.frac_coords + image)[2]
                             c_range = sorted([min_c, max_c])
                             if c_range[1] > 1:
+                            # Takes care of PBC when c coordinate of site
+                            # goes beyond the upper boundary of the unit cell
                                 forbidden_c_ranges.append((c_range[0], 1))
                                 forbidden_c_ranges.append((0, c_range[1] -1))
                             elif c_range[0] < 0:
+                            # Takes care of PBC when c coordinate of site
+                            # is below the lower boundary of the unit cell
                                 forbidden_c_ranges.append((0, c_range[1]))
                                 forbidden_c_ranges.append((c_range[0] + 1, 1))
                             else:
                                 forbidden_c_ranges.append(c_range)
         def shift_allowed(shift):
+            # Takes in the list of shifts and filters out the shifts that
+            # break the user input polyhedral bonds. forbidden_c_ranges
+            # determines where these bonds are located.
             for r in forbidden_c_ranges:
                 if r[0] <= shift <= r[1]:
                     return False
@@ -463,7 +512,6 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                        bonds=None, tol=1e-2, symprec=0.01, lll_reduce=False,
                        center_slab=False):
     """
-
     A function that finds all different slabs up to a certain miller index.
     Slabs oriented under certain Miller indices that are equivalent to other
     slabs in other Miller indices are filtered out using symmetry operations
@@ -479,7 +527,6 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
             deviations from their proper atomic positions (e.g., structures relaxed
             with electronic structure codes), a looser tolerance of 0.1 (the value
             used in Materials Project) is often needed.
-
     """
 
     # Creates a function that uses the symmetry operations in the
@@ -503,17 +550,20 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
             # loop returns a structure that was already analyzed.
             # If it isn't, then we will retrieve its surfaces.
             if not is_already_analyzed(miller):
-                gen = SurfaceGenerator(structure, miller, min_slab_size,
-                                       min_vacuum_size, lll_reduce=lll_reduce,
-                                       center_slab=center_slab)
+                gen = SlabGenerator(structure, miller, min_slab_size,
+                                    min_vacuum_size, lll_reduce=lll_reduce,
+                                    center_slab=center_slab)
                 slabs = gen.get_slabs(bonds=bonds, tol=tol)
                 if len(slabs) > 0:
                     logger.debug("%s has %d slabs... " % (miller, len(slabs)))
-                    all_slabs.extend(slabs)
+                    all_slabs.append(slabs)
                 processed.append(miller)
 
     # Further filters out any surfaces made that might be the same
-    m = StructureMatcher()
-    groups = m.group_structures(all_slabs)
+    m = StructureMatcher(ltol=tol, stol=tol)
+    unique = []
+    for slabs in all_slabs:
+        for g in m.group_structures(slabs):
+            unique.append(g[0])
 
-    return [g[0] for g in groups]
+    return unique
