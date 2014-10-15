@@ -45,7 +45,7 @@ class Slab(Structure):
     slab. Also has additional methods that returns other information
     about a slab such as the surface area, normal, and atom adsorption.
 
-    Note that all Slabs have the surface normal oriented in the c-direction. 
+    Note that all Slabs have the surface normal oriented in the c-direction.
     This means the lattice vectors a and b are in the surface plane and the c
     vector is out of the surface plane (though not necessary perpendicular to
     the surface.)
@@ -364,20 +364,24 @@ class SurfaceGenerator(object):
         nlayers_vac = int(math.ceil(self.min_vac_size / dist))
         nlayers = nlayers_slab + nlayers_vac
 
-        slab = self.oriented_unit_cell.copy()
-        slab.translate_sites(range(len(slab)), [0, 0, -shift])
-        slab = Structure.from_sites(slab, to_unit_cell=True)
+        species = self.oriented_unit_cell.species_and_occu
+        props = self.oriented_unit_cell.site_properties
+        props = {k: v * nlayers_slab for k, v in props.items()}
+        frac_coords = self.oriented_unit_cell.frac_coords
+        frac_coords = np.array(frac_coords) +\
+                      np.array([0, 0, -shift])[None, :]
+        frac_coords = frac_coords - np.floor(frac_coords)
+        new_lattice = [a, b, nlayers * c]
+        frac_coords[:, 2] = frac_coords[:, 2] / nlayers
+        all_coords = []
+        for i in range(nlayers_slab):
+            fcoords = frac_coords.copy()
+            fcoords[:, 2] += i / nlayers
+            all_coords.extend(fcoords)
 
-        slab.make_supercell([1, 1, nlayers])
+        slab = Structure(new_lattice, species * nlayers_slab, all_coords,
+                         site_properties=props)
 
-        new_sites = []
-        # Use fractional size of the slab layer relative to the rest of the
-        # structure to determine how large the slab layer should be
-        for site in slab:
-            if 0 <= site.c < nlayers_slab / nlayers:
-                new_sites.append(site)
-
-        slab = Structure.from_sites(new_sites)
         scale_factor = self.slab_scale_factor
         # Whether or not to orthogonalize the structure
         if self.lll_reduce:
@@ -507,7 +511,6 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                        bonds=None, tol=1e-2, symprec=0.01, lll_reduce=False,
                        center_slab=False):
     """
-
     A function that finds all different slabs up to a certain miller index.
     Slabs oriented under certain Miller indices that are equivalent to other
     slabs in other Miller indices are filtered out using symmetry operations
@@ -523,7 +526,6 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
             deviations from their proper atomic positions (e.g., structures relaxed
             with electronic structure codes), a looser tolerance of 0.1 (the value
             used in Materials Project) is often needed.
-
     """
 
     # Creates a function that uses the symmetry operations in the
@@ -553,11 +555,18 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                 slabs = gen.get_slabs(bonds=bonds, tol=tol)
                 if len(slabs) > 0:
                     logger.debug("%s has %d slabs... " % (miller, len(slabs)))
-                    all_slabs.extend(slabs)
+                    all_slabs.append(slabs)
                 processed.append(miller)
 
     # Further filters out any equivalent surfaces
     m = StructureMatcher()
     groups = m.group_structures(all_slabs)
 
-    return [g[0] for g in groups]
+    # Further filters out any surfaces made that might be the same
+    m = StructureMatcher(ltol=tol, stol=tol)
+    unique = []
+    for slabs in all_slabs:
+        for g in m.group_structures(slabs):
+            unique.append(g[0])
+
+    return unique

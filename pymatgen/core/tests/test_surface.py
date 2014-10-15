@@ -50,7 +50,6 @@ class SlabTest(PymatgenTest):
         self.assertEqual(zno_slab.oriented_unit_cell.composition,
                          self.zno1.composition)
         self.assertEqual(len(zno_slab), 8)
-        print zno_slab
 
     def test_add_adsorbate_atom(self):
         zno_slab = Slab(self.zno55.lattice, self.zno55.species, self.zno55.frac_coords,
@@ -140,7 +139,7 @@ class FuncTest(PymatgenTest):
 
         lfp = self.get_structure("LiFePO4")
         slabs = generate_all_slabs(lfp, 1, 10, 10, bonds={("P", "O"): 3})
-        self.assertEqual(len(slabs), 5)
+        self.assertEqual(len(slabs), 6)
 
 
 if __name__ == "__main__":
