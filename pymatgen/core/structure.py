@@ -868,7 +868,7 @@ class IStructure(SiteCollection, PMGSONable):
             raise ValueError("Structures with different lattices!")
 
         #Check that both structures have the same species
-        for i in range(0, len(self)):
+        for i in range(len(self)):
             if self[i].species_and_occu != end_structure[i].species_and_occu:
                 raise ValueError("Different species!\nStructure 1:\n" +
                                  str(self) + "\nStructure 2\n" +
