@@ -843,7 +843,7 @@ class Kpoints(PMGSONable):
             structure (Structure): Input structure
             kppa (int): Grid density
             force_gamma (bool): Force a gamma centered mesh (default is to
-                use gamma only for hexagonal cells)
+                use gamma only for hexagonal cells or odd meshes)
 
         Returns:
             Kpoints
@@ -939,8 +939,7 @@ class Kpoints(PMGSONable):
         Args:
             structure (Structure): Input structure
             kppvol (int): Grid density per Angstrom^(-3) of reciprocal cell
-            force_gamma (bool): Force a gamma centered mesh (default is to
-                use gamma only for hexagonal cells)
+            force_gamma (bool): Force a gamma centered mesh
 
         Returns:
             Kpoints
