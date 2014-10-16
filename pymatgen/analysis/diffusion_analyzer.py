@@ -402,21 +402,18 @@ class DiffusionAnalyzer(PMGSONable):
         structure = structures[0]
 
         p = [np.array(s.frac_coords)[:, None] for s in structures]
+        if initial_structure is not None:
+            p.insert(0, np.array(initial_structure.frac_coords)[:, None])
+        else:
+            p.insert(0, p[0])
         p = np.concatenate(p, axis=1)
         dp = p[:, 1:] - p[:, :-1]
-        if initial_structure is not None:
-            initial_dp = (np.array(structure.frac_coords) - \
-                          np.array(initial_structure.frac_coords))[:, None, :]
-        else:
-            initial_dp = np.zeros_like(dp[:, (0,)])
-        dp = np.concatenate([initial_dp, dp], axis=1)
         dp = dp - np.round(dp)
         f_disp = np.cumsum(dp, axis=1)
         if initial_disp is not None:
             f_disp += structure.lattice.get_fractional_coords(initial_disp)[:,
                                                               None, :]
         disp = structure.lattice.get_cartesian_coords(f_disp)
-
 
         return cls(structure, disp, specie, temperature,
                    time_step, step_skip=step_skip, smoothed=smoothed,
