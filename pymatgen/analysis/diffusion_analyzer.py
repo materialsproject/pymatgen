@@ -370,7 +370,8 @@ class DiffusionAnalyzer(PMGSONable):
     @classmethod
     def from_structures(cls, structures, specie, temperature,
                         time_step, step_skip, smoothed=True, min_obs=30,
-                        weighted=True):
+                        weighted=True, initial_disp=None,
+                        initial_structure=None):
         """
         Convenient constructor that takes in a list of Structure objects to
         perform diffusion analysis.
@@ -403,10 +404,19 @@ class DiffusionAnalyzer(PMGSONable):
         p = [np.array(s.frac_coords)[:, None] for s in structures]
         p = np.concatenate(p, axis=1)
         dp = p[:, 1:] - p[:, :-1]
-        dp = np.concatenate([np.zeros_like(dp[:, (0,)]), dp], axis=1)
+        if initial_structure is not None:
+            initial_dp = (np.array(structure.frac_coords) - \
+                          np.array(initial_structure.frac_coords))[:, None, :]
+        else:
+            initial_dp = np.zeros_like(dp[:, (0,)])
+        dp = np.concatenate([initial_dp, dp], axis=1)
         dp = dp - np.round(dp)
         f_disp = np.cumsum(dp, axis=1)
+        if initial_disp is not None:
+            f_disp += structure.lattice.get_fractional_coords(initial_disp)[:,
+                                                              None, :]
         disp = structure.lattice.get_cartesian_coords(f_disp)
+
 
         return cls(structure, disp, specie, temperature,
                    time_step, step_skip=step_skip, smoothed=smoothed,
@@ -414,7 +424,7 @@ class DiffusionAnalyzer(PMGSONable):
 
     @classmethod
     def from_vaspruns(cls, vaspruns, specie, smoothed=True, min_obs=30,
-                      weighted=True):
+                      weighted=True, initial_disp=None, initial_structure=None):
         """
         Convenient constructor that takes in a list of Vasprun objects to
         perform diffusion analysis.
@@ -458,11 +468,13 @@ class DiffusionAnalyzer(PMGSONable):
 
         return cls.from_structures(structures, specie, temperature,
             time_step, step_skip=step_skip, smoothed=smoothed,
-            min_obs=min_obs, weighted=weighted)
+            min_obs=min_obs, weighted=weighted, initial_disp=initial_disp,
+            initial_structure=initial_structure)
 
     @classmethod
     def from_files(cls, filepaths, specie, step_skip=10, smoothed=True,
-                   min_obs=30, weighted=True, ncores=None):
+                   min_obs=30, weighted=True, ncores=None, initial_disp=None,
+                   initial_structure=None):
         """
         Convenient constructor that takes in a list of vasprun.xml paths to
         perform diffusion analysis.
@@ -514,7 +526,9 @@ class DiffusionAnalyzer(PMGSONable):
                 # Recompute offset.
                 offset = (- (v.nionic_steps - offset)) % step_skip
         return cls.from_vaspruns(vaspruns, min_obs=min_obs, smoothed=smoothed,
-                                 weighted=weighted, specie=specie)
+                                 weighted=weighted, specie=specie,
+                                 initial_disp=initial_disp,
+                                 initial_structure=initial_structure)
 
     def as_dict(self):
         return {
