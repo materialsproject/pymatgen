@@ -204,6 +204,17 @@ class IStructureTest(PymatgenTest):
         struct2 = IStructure(self.struct.lattice, ["Si", "Fe"], coords2)
         self.assertRaises(ValueError, struct.interpolate, struct2)
 
+        # Test autosort feature.
+        s1 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3),
+                                       ["Fe"], [[0, 0, 0]])
+        s1.pop(0)
+        s2 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3),
+                                       ["Fe"], [[0, 0, 0]])
+        s2.pop(2)
+        for s in s1.interpolate(s2, autosort_tol=0.5):
+            self.assertArrayAlmostEqual(s1[0].frac_coords, s[0].frac_coords)
+            self.assertArrayAlmostEqual(s1[2].frac_coords, s[2].frac_coords)
+
     def test_interpolate_lattice(self):
         coords = list()
         coords.append([0, 0, 0])
