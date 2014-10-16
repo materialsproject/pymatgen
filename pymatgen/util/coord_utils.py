@@ -19,10 +19,10 @@ __date__ = "Nov 27, 2011"
 
 import numpy as np
 import math
-from pymatgen.core.lattice import Lattice
 
 #array size threshold for looping instead of broadcasting
 LOOP_THRESHOLD = 1e6
+
 
 def find_in_coord_list(coord_list, coord, atol=1e-8):
     """

@@ -843,7 +843,7 @@ class Kpoints(PMGSONable):
             structure (Structure): Input structure
             kppa (int): Grid density
             force_gamma (bool): Force a gamma centered mesh (default is to
-                use gamma only for hexagonal cells)
+                use gamma only for hexagonal cells or odd meshes)
 
         Returns:
             Kpoints
@@ -926,6 +926,27 @@ class Kpoints(PMGSONable):
             "{} / atom".format(kppa)
         num_kpts = 0
         return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
+
+    @staticmethod
+    def automatic_density_by_vol(structure, kppvol, force_gamma=False):
+        """
+        Returns an automatic Kpoint object based on a structure and a kpoint
+        density per inverse Angstrom of reciprocal cell.
+
+        Algorithm:
+            Same as automatic_density()
+
+        Args:
+            structure (Structure): Input structure
+            kppvol (int): Grid density per Angstrom^(-3) of reciprocal cell
+            force_gamma (bool): Force a gamma centered mesh
+
+        Returns:
+            Kpoints
+        """
+        vol = structure.lattice.reciprocal_lattice.volume
+        kppa = int(round(kppvol * vol * structure.num_sites))
+        return Kpoints.automatic_density(structure, kppa, force_gamma=force_gamma)
 
     def automatic_linemode(divisions, ibz):
         """
