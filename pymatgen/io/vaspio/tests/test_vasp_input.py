@@ -329,6 +329,9 @@ class KpointsTest(unittest.TestCase):
         self.assertEqual(kpoints.style, "Monkhorst")
         kpoints = Kpoints.automatic_density(poscar.structure, 500, True)
         self.assertEqual(kpoints.style, "Gamma")
+        kpoints = Kpoints.automatic_density_by_vol(poscar.structure, 1000)
+        self.assertEqual(kpoints.kpts, [[8, 11, 15]])
+        self.assertEqual(kpoints.style, "Gamma")
 
     def test_as_dict_from_dict(self):
         k = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
