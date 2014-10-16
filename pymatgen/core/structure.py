@@ -511,7 +511,6 @@ class IStructure(SiteCollection, PMGSONable):
         return cls(latt, all_sp, all_coords,
                    site_properties=all_site_properties)
 
-
     @property
     def distance_matrix(self):
         """
@@ -834,7 +833,7 @@ class IStructure(SiteCollection, PMGSONable):
             return self.__class__.from_sites(new_sites)
 
     def interpolate(self, end_structure, nimages=10,
-                    interpolate_lattices=False, pbc=True):
+                    interpolate_lattices=False, pbc=True, autosort_tol=0):
         """
         Interpolate between this structure and end_structure. Useful for
         construction of NEB inputs.
@@ -848,6 +847,11 @@ class IStructure(SiteCollection, PMGSONable):
                 so orientation may be affected.
             pbc (bool): Whether to use periodic boundary conditions to find
                 the shortest path between endpoints.
+            auto_sort_tol (float): A distance tolerance in angstrom in
+                which to automatically sort end_structure to match to the
+                closest points in this particular structure. This is usually
+                what you want in a NEB calculation. 0 implies no sorting.
+                Otherwise, a 0.5 value usually works pretty well.
 
         Returns:
             List of interpolated structures. The starting and ending
@@ -869,7 +873,7 @@ class IStructure(SiteCollection, PMGSONable):
             raise ValueError("Structures with different lattices!")
 
         #Check that both structures have the same species
-        for i in range(0, len(self)):
+        for i in range(len(self)):
             if self[i].species_and_occu != end_structure[i].species_and_occu:
                 raise ValueError("Different species!\nStructure 1:\n" +
                                  str(self) + "\nStructure 2\n" +
@@ -877,6 +881,38 @@ class IStructure(SiteCollection, PMGSONable):
 
         start_coords = np.array(self.frac_coords)
         end_coords = np.array(end_structure.frac_coords)
+
+        if autosort_tol:
+            dist_matrix = self.lattice.get_all_distances(start_coords, end_coords)
+            site_mappings = collections.defaultdict(list)
+            unmapped_start_ind = []
+            for i, row in enumerate(dist_matrix):
+                ind = np.where(row < autosort_tol)[0]
+                if ind:
+                    site_mappings[i].append(ind[0])
+                else:
+                    unmapped_start_ind.append(i)
+
+            if len(unmapped_start_ind) > 1:
+                raise ValueError("Unable to reliably match structures "
+                                 "with auto_sort_tol = %f" % autosort_tol)
+
+            sorted_end_coords = np.zeros_like(end_coords)
+            matched = []
+            for i, j in site_mappings.items():
+                if len(j) > 1:
+                    raise ValueError("Unable to reliably match structures "
+                                     "with auto_sort_tol = %f. More than one "
+                                     "site match!" % autosort_tol)
+                sorted_end_coords[i] = end_coords[j[0]]
+                matched.append(j[0])
+
+            if len(unmapped_start_ind) == 1:
+                i = unmapped_start_ind[0]
+                j = list(set(range(len(start_coords))).difference(matched))[0]
+                sorted_end_coords[i] = end_coords[j]
+                end_coords = sorted_end_coords
+
         vec = end_coords - start_coords
         if pbc:
             vec -= np.round(vec)
