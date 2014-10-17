@@ -280,6 +280,13 @@ class SlabGenerator(object):
         self.min_vac_size = min_vacuum_size
         self.min_slab_size = min_slab_size
 
+    def _get_height(self):
+        a, b, c = self.oriented_unit_cell.lattice.matrix
+        normal = np.cross(a, b)
+        normal /= np.linalg.norm(normal)
+        return abs(np.dot(normal, c))
+
+
     def get_slab(self, shift=0):
         """
         This method takes in shift value for the c lattice direction and
@@ -294,10 +301,8 @@ class SlabGenerator(object):
         Returns:
             (Slab) A Slab object with a particular shifted oriented unit cell.
         """
-        a, b, c = self.oriented_unit_cell.lattice.matrix
-        normal = np.cross(a, b)
-        normal /= np.linalg.norm(normal)
-        dist = abs(np.dot(normal, c))
+
+        dist = self._get_height()
         nlayers_slab = int(math.ceil(self.min_slab_size / dist))
         nlayers_vac = int(math.ceil(self.min_vac_size / dist))
         nlayers = nlayers_slab + nlayers_vac
@@ -309,6 +314,7 @@ class SlabGenerator(object):
         frac_coords = np.array(frac_coords) +\
                       np.array([0, 0, -shift])[None, :]
         frac_coords = frac_coords - np.floor(frac_coords)
+        a, b, c = self.oriented_unit_cell.lattice.matrix
         new_lattice = [a, b, nlayers * c]
         frac_coords[:, 2] = frac_coords[:, 2] / nlayers
         all_coords = []
@@ -338,7 +344,7 @@ class SlabGenerator(object):
                     self.oriented_unit_cell, shift,
                     scale_factor, site_properties=slab.site_properties)
 
-    def _calculate_possible_shifts(self, tol=1e-2):
+    def _calculate_possible_shifts(self, tol=0.1):
         frac_coords = self.oriented_unit_cell.frac_coords
         n = len(frac_coords)
 
@@ -346,10 +352,13 @@ class SlabGenerator(object):
         # take into account PBC. Let's compute a fractional c-coordinate
         # distance matrix that accounts for PBC.
         dist_matrix = np.zeros((n, n))
+        c_proj = self._get_height()
+        # Projection of c lattice vector in
+        # direction of surface normal.
         for i, j in itertools.combinations(list(range(n)), 2):
             if i != j:
                 cdist = frac_coords[i][2] - frac_coords[j][2]
-                cdist = abs(cdist - round(cdist))
+                cdist = abs(cdist - round(cdist)) * c_proj
                 dist_matrix[i, j] = cdist
                 dist_matrix[j, i] = cdist
 
@@ -379,7 +388,7 @@ class SlabGenerator(object):
         shifts = sorted(shifts)
         return shifts
 
-    def get_slabs(self, bonds=None, tol=1e-2):
+    def get_slabs(self, bonds=None, tol=0.1):
         """
         This method returns a list of slabs that are generated using the list of
         shift values from the method, _calculate_possible_shifts(). Before the
@@ -389,13 +398,13 @@ class SlabGenerator(object):
         that do so.
 
         Args:
-            tol (float): Threshold parameter in fcluster in order to check
-                if two atoms are lying on the same plane. Default thresh set
-                to 1e-2 in the c fractional coordinate.
             bonds ({(specie1, specie2): max_bond_dist}: bonds are
                 specified as a dict of tuples: float of specie1, specie2
                 and the max bonding distance. For example, PO4 groups may be
                 defined as {("P", "O"): 3}.
+            tol (float): Threshold parameter in fcluster in order to check
+                if two atoms are lying on the same plane. Default thresh set
+                to 0.1 Angstrom in the direction of the surface normal.
 
         Returns:
             ([Slab]) List of all possible terminations of a particular surface.
@@ -489,7 +498,7 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
 
 
 def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
-                       bonds=None, tol=1e-2, lll_reduce=False,
+                       bonds=None, tol=0.1, lll_reduce=False,
                        center_slab=False):
     """
     A function that finds all different slabs up to a certain miller index.
