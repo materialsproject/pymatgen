@@ -89,8 +89,8 @@ class SlabGeneratorTest(PymatgenTest):
 
         # At this threshold, only the origin and center Li results in clustering.
         # All other sites are non-clustered. So the # of slabs is # of sites
-        # in LiFePO4 unit cell - 2.
-        self.assertEqual(len(gen.get_slabs(tol=1e-4)), 26)
+        # in LiFePO4 unit cell - 2 + 1.
+        self.assertEqual(len(gen.get_slabs(tol=1e-4)), 27)
 
     def test_triclinic_TeI(self):
         # Test case for a triclinic structure of TeI. Only these three
@@ -102,8 +102,9 @@ class SlabGeneratorTest(PymatgenTest):
         numb_slabs = {'[0, 0, 1]':6, '[0, 1, 0]':3, '[1, 0, 0]':8}
         TeI = Structure.from_file(get_path("icsd_TeI.cif"), primitive=False)
         for i in mill:
+            print i
             trclnc_TeI = SlabGenerator(TeI, i, 10, 10)
-            TeI_slabs = trclnc_TeI.get_slabs(tol=0.05)
+            TeI_slabs = trclnc_TeI.get_slabs(tol=0.5)
             self.assertEqual(numb_slabs[str(i)], len(TeI_slabs))
 
 
@@ -142,7 +143,7 @@ class FuncTest(PymatgenTest):
         #Only three possible slabs, one each in (100), (110) and (111).
         self.assertEqual(len(slabs), 3)
 
-        slabs = generate_all_slabs(self.lifepo4, 1, 10, 10,
+        slabs = generate_all_slabs(self.lifepo4, 1, 10, 10, tol=0.05,
                                    bonds={("P", "O"): 3})
         self.assertEqual(len(slabs), 5)
 
