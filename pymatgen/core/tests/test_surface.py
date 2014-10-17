@@ -102,7 +102,6 @@ class SlabGeneratorTest(PymatgenTest):
         numb_slabs = {'[0, 0, 1]':6, '[0, 1, 0]':3, '[1, 0, 0]':8}
         TeI = Structure.from_file(get_path("icsd_TeI.cif"), primitive=False)
         for i in mill:
-            print i
             trclnc_TeI = SlabGenerator(TeI, i, 10, 10)
             TeI_slabs = trclnc_TeI.get_slabs(tol=0.5)
             self.assertEqual(numb_slabs[str(i)], len(TeI_slabs))
