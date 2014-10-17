@@ -252,7 +252,7 @@ class SingleAbinitGWWorkFlow():
             inclvkb=2,
             ecut=44,
             pawecutdg=88,
-            gwmem='00',
+            gwmem='10',
             getden=-1,
             istwfk="*1",
             timopt=-1,
