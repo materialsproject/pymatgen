@@ -3,7 +3,6 @@
 
 import unittest
 
-
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.surface import Slab, SlabGenerator, generate_all_slabs, \
@@ -22,25 +21,23 @@ def get_path(path_str):
 
 
 class SlabTest(PymatgenTest):
-
+    
     def setUp(self):
         zno1 = Structure.from_file(get_path("ZnO-wz.cif"), primitive=False)
         zno55 = SlabGenerator(zno1, [1, 0, 0], 5, 5, lll_reduce=False,
                               center_slab=False).get_slab()
-        #print zno55[0]
-        #write_structure(zno55[0], "surface_tests/ZnO55.cif")
         self.zno1 = zno1
         self.zno55 = zno55
-        self.h = Structure(Lattice.cubic(3), ["H"],
-                            [[0, 0, 0]])
+        self.h = Structure(Lattice.cubic(3), ["H"], [[0, 0, 0]])
         self.libcc = Structure(Lattice.cubic(3.51004), ["Li", "Li"],
                                [[0, 0, 0], [0.5, 0.5, 0.5]])
 
     def test_init(self):
-        zno_slab = Slab(self.zno55.lattice, self.zno55.species, self.zno55.frac_coords,
-                        self.zno55.miller_index, self.zno55.oriented_unit_cell, 0,
-                        self.zno55.scale_factor)
-        m =self.zno55.lattice.matrix
+        zno_slab = Slab(self.zno55.lattice, self.zno55.species,
+                        self.zno55.frac_coords,
+                        self.zno55.miller_index, self.zno55.oriented_unit_cell,
+                        0, self.zno55.scale_factor)
+        m = self.zno55.lattice.matrix
         area = np.linalg.norm(np.cross(m[0], m[1]))
         self.assertAlmostEqual(zno_slab.surface_area, area)
         self.assertEqual(zno_slab.lattice.lengths_and_angles,
@@ -50,16 +47,17 @@ class SlabTest(PymatgenTest):
         self.assertEqual(len(zno_slab), 8)
 
     def test_add_adsorbate_atom(self):
-        zno_slab = Slab(self.zno55.lattice, self.zno55.species, self.zno55.frac_coords,
-                        self.zno55.miller_index, self.zno55.oriented_unit_cell, 0,
-                        self.zno55.scale_factor)
+        zno_slab = Slab(self.zno55.lattice, self.zno55.species,
+                        self.zno55.frac_coords,
+                        self.zno55.miller_index, self.zno55.oriented_unit_cell,
+                        0, self.zno55.scale_factor)
         zno_slab.add_adsorbate_atom([1], 'H', 1)
 
         self.assertEqual(len(zno_slab), 9)
-        self.assertEqual(str(zno_slab[8].specie),'H')
+        self.assertEqual(str(zno_slab[8].specie), 'H')
         self.assertAlmostEqual(zno_slab.get_distance(1, 8), 1.0)
         self.assertTrue(zno_slab[8].c > zno_slab[0].c)
-        m =self.zno55.lattice.matrix
+        m = self.zno55.lattice.matrix
         area = np.linalg.norm(np.cross(m[0], m[1]))
         self.assertAlmostEqual(zno_slab.surface_area, area)
         self.assertEqual(zno_slab.lattice.lengths_and_angles,
@@ -87,9 +85,9 @@ class SlabGeneratorTest(PymatgenTest):
         self.assertEqual(len(gen.get_slabs(bonds={("P", "O"): 3,
                                                   ("Fe", "O"): 3})), 0)
 
-        # At this threshold, only the origin and center Li results in clustering.
-        # All other sites are non-clustered. So the # of slabs is # of sites
-        # in LiFePO4 unit cell - 2 + 1.
+        # At this threshold, only the origin and center Li results in
+        # clustering. All other sites are non-clustered. So the # of slabs is
+        # of sites in LiFePO4 unit cell - 2 + 1.
         self.assertEqual(len(gen.get_slabs(tol=1e-4)), 27)
 
     def test_triclinic_TeI(self):
@@ -98,8 +96,8 @@ class SlabGeneratorTest(PymatgenTest):
         # atoms should be in a surface together. The closeness of the sites
         # in other Miller indices can cause some ambiguity when choosing a
         # higher tolerance.
-        mill = [[0, 0, 1],[0, 1, 0],[1, 0, 0]]
-        numb_slabs = {'[0, 0, 1]':6, '[0, 1, 0]':3, '[1, 0, 0]':8}
+        mill = [[0, 0, 1], [0, 1, 0], [1, 0, 0]]
+        numb_slabs = {'[0, 0, 1]': 6, '[0, 1, 0]': 3, '[1, 0, 0]': 8}
         TeI = Structure.from_file(get_path("icsd_TeI.cif"), primitive=False)
         for i in mill:
             trclnc_TeI = SlabGenerator(TeI, i, 10, 10)
@@ -108,7 +106,6 @@ class SlabGeneratorTest(PymatgenTest):
 
 
 class FuncTest(PymatgenTest):
-
     def setUp(self):
         self.cscl = self.get_structure("CsCl")
         self.lifepo4 = self.get_structure("LiFePO4")
@@ -139,7 +136,7 @@ class FuncTest(PymatgenTest):
 
     def test_generate_all_slabs(self):
         slabs = generate_all_slabs(self.cscl, 1, 10, 10)
-        #Only three possible slabs, one each in (100), (110) and (111).
+        # Only three possible slabs, one each in (100), (110) and (111).
         self.assertEqual(len(slabs), 3)
 
         slabs = generate_all_slabs(self.lifepo4, 1, 10, 10, tol=0.05,
