@@ -453,13 +453,13 @@ class SlabGenerator(object):
                             max_c = (s2.frac_coords + image)[2]
                             c_range = sorted([min_c, max_c])
                             if c_range[1] > 1:
-                            # Takes care of PBC when c coordinate of site
-                            # goes beyond the upper boundary of the unit cell
+                                # Takes care of PBC when c coordinate of site
+                                # goes beyond the upper boundary of the cell
                                 forbidden_c_ranges.append((c_range[0], 1))
                                 forbidden_c_ranges.append((0, c_range[1] -1))
                             elif c_range[0] < 0:
-                            # Takes care of PBC when c coordinate of site
-                            # is below the lower boundary of the unit cell
+                                # Takes care of PBC when c coordinate of site
+                                # is below the lower boundary of the unit cell
                                 forbidden_c_ranges.append((0, c_range[1]))
                                 forbidden_c_ranges.append((c_range[0] + 1, 1))
                             else:
