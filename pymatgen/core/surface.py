@@ -122,16 +122,39 @@ class Slab(Structure):
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties)
 
+    def get_sorted_structure(self, key=None, reverse=False):
+        """
+        Get a sorted copy of the structure. The parameters have the same
+        meaning as in list.sort. By default, sites are sorted by the
+        electronegativity of the species.
+
+        Args:
+            key: Specifies a function of one argument that is used to extract
+                a comparison key from each list element: key=str.lower. The
+                default value is None (compare the elements directly).
+            reverse (bool): If set to True, then the list elements are sorted
+                as if each comparison were reversed.
+        """
+        sites = sorted(self, key=key, reverse=reverse)
+        s = Structure.from_sites(sites)
+        return Slab(s.lattice, s.species_and_occu, s.frac_coords,
+                    self.miller_index, self.oriented_unit_cell, self.shift,
+                    self.scale_factor, site_properties=s.site_properties)
+
     @property
     def normal(self):
-        # Calculates the surface normal vector of the slab
+        """
+        Calculates the surface normal vector of the slab
+        """
         normal = np.cross(self.lattice.matrix[0], self.lattice.matrix[1])
         normal /= np.linalg.norm(normal)
         return normal
 
     @property
     def surface_area(self):
-        # Calculates the surface area of the slab
+        """
+        Calculates the surface area of the slab
+        """
         m = self.lattice.matrix
         return np.linalg.norm(np.cross(m[0], m[1]))
 
