@@ -769,7 +769,7 @@ class Specie(PMGSONable):
         should effectively ensure that no two unequal Specie have the same
         hash.
         """
-        return self._el._z * 1000 + self._oxi_state
+        return self._el._z * 1000 + int(self._oxi_state)
 
     def __lt__(self, other):
         """
