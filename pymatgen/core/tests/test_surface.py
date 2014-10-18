@@ -93,13 +93,13 @@ class SlabGeneratorTest(PymatgenTest):
         # At this threshold, only the origin and center Li results in
         # clustering. All other sites are non-clustered. So the of
         # slabs is of sites in LiFePO4 unit cell - 2 + 1.
-        self.assertEqual(len(gen.get_slabs(tol=1e-4)), 26)
+        self.assertEqual(len(gen.get_slabs(tol=1e-4)), 27)
 
         self.LiCoO2 = Structure.from_file(get_path("icsd_LiCoO2.cif"),
                                           primitive=False)
         licoo2 = SlabGenerator(self.LiCoO2, [0,0,1], 10, 10)
         lico = licoo2.get_slabs(bonds={("Co", "O"): 3})
-        self.assertEqual(len(lico), 3)
+        self.assertEqual(len(lico), 6)
 
     def test_triclinic_TeI(self):
         # Test case for a triclinic structure of TeI. Only these three
@@ -108,12 +108,12 @@ class SlabGeneratorTest(PymatgenTest):
         # in other Miller indices can cause some ambiguity when choosing a
         # higher tolerance.
         mill = [[0, 0, 1], [0, 1, 0], [1, 0, 0]]
-        numb_slabs = {'[0, 0, 1]': 6, '[0, 1, 0]': 3, '[1, 0, 0]': 8}
+        numb_slabs = {'[0, 0, 1]': 9, '[0, 1, 0]': 5, '[1, 0, 0]': 12}
         TeI = Structure.from_file(get_path("icsd_TeI.cif"),
                                   primitive=False)
         for i in mill:
             trclnc_TeI = SlabGenerator(TeI, i, 10, 10)
-            TeI_slabs = trclnc_TeI.get_slabs(tol=0.05)
+            TeI_slabs = trclnc_TeI.get_slabs()
             self.assertEqual(numb_slabs[str(i)], len(TeI_slabs))
 
 
@@ -153,9 +153,9 @@ class FuncTest(PymatgenTest):
         # Only three possible slabs, one each in (100), (110) and (111).
         self.assertEqual(len(slabs), 3)
 
-        slabs1 = generate_all_slabs(self.lifepo4, 1, 10, 10,
-                                   bonds={("P", "O"): 3})
-        self.assertEqual(len(slabs1), 5)
+        slabs1 = generate_all_slabs(self.lifepo4, 1, 10, 10, tol=0.1,
+                                    bonds={("P", "O"): 3})
+        self.assertEqual(len(slabs1), 4)
 
         slabs2 = generate_all_slabs(self.lifepo4, 1, 10, 10,
                                    bonds={("P", "O"): 3,
@@ -166,7 +166,7 @@ class FuncTest(PymatgenTest):
         # in the (001) oriented unit cell
         slabs3 = generate_all_slabs(self.LiCoO2, 1, 10, 10,
                                     bonds={("Co", "O"): 3})
-        self.assertEqual(len(slabs3), 3)
+        self.assertEqual(len(slabs3), 1)
         mill = [0, 0, 1]
         for lico in slabs3:
             for i in xrange(3):
