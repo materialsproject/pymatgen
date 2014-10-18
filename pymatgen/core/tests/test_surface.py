@@ -160,7 +160,7 @@ class FuncTest(PymatgenTest):
                                     bonds={("P", "O"): 3, ("Fe", "O"): 3})
         self.assertEqual(len(slabs2), 0)
 
-        # There should be only three possible stable surfaces, all of which are
+        # There should be only one possible stable surfaces, all of which are
         # in the (001) oriented unit cell
         slabs3 = generate_all_slabs(self.LiCoO2, 1, 10, 10,
                                     bonds={("Co", "O"): 3})
