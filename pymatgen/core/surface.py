@@ -450,9 +450,13 @@ class SlabGenerator(object):
                     return False
             return True
 
-        return [self.get_slab(shift)
-                for shift in self._calculate_possible_shifts(tol=tol)
-                if shift_allowed(shift)]
+        slabs = [self.get_slab(shift)
+                 for shift in self._calculate_possible_shifts(tol=tol)
+                 if shift_allowed(shift)]
+        # Further filters out any surfaces made that might be the same
+        m = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False,
+                             scale=False)
+        return [g[0] for g in m.group_structures(slabs)]
 
 
 def get_symmetrically_distinct_miller_indices(structure, max_index):
@@ -527,13 +531,6 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
         slabs = gen.get_slabs(bonds=bonds, tol=tol)
         if len(slabs) > 0:
             logger.debug("%s has %d slabs... " % (miller, len(slabs)))
-            all_slabs.append(slabs)
+            all_slabs.extend(slabs)
 
-    # Further filters out any surfaces made that might be the same
-    m = StructureMatcher(ltol=tol, stol=tol)
-    unique = []
-    for slabs in all_slabs:
-        for g in m.group_structures(slabs):
-            unique.append(g[0])
-
-    return unique
+    return all_slabs

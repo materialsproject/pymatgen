@@ -78,12 +78,12 @@ class SlabGeneratorTest(PymatgenTest):
 
     def test_get_slabs(self):
         gen = SlabGenerator(self.get_structure("CsCl"), [0, 0, 1], 10, 10)
-        self.assertEqual(len(gen.get_slabs()), 2)
+        self.assertEqual(len(gen.get_slabs()), 1)
         s = self.get_structure("LiFePO4")
         gen = SlabGenerator(s, [0, 0, 1], 10, 10)
-        self.assertEqual(len(gen.get_slabs()), 18)
+        self.assertEqual(len(gen.get_slabs()), 5)
 
-        self.assertEqual(len(gen.get_slabs(bonds={("P", "O"): 3})), 6)
+        self.assertEqual(len(gen.get_slabs(bonds={("P", "O"): 3})), 2)
 
         # There are no slabs in LFP that does not break either P-O or Fe-O
         # bonds for a miller index of [0, 0, 1].
@@ -93,13 +93,13 @@ class SlabGeneratorTest(PymatgenTest):
         # At this threshold, only the origin and center Li results in
         # clustering. All other sites are non-clustered. So the of
         # slabs is of sites in LiFePO4 unit cell - 2 + 1.
-        self.assertEqual(len(gen.get_slabs(tol=1e-4)), 27)
+        self.assertEqual(len(gen.get_slabs(tol=1e-4)), 15)
 
         self.LiCoO2 = Structure.from_file(get_path("icsd_LiCoO2.cif"),
                                           primitive=False)
         licoo2 = SlabGenerator(self.LiCoO2, [0,0,1], 10, 10)
         lico = licoo2.get_slabs(bonds={("Co", "O"): 3})
-        self.assertEqual(len(lico), 6)
+        self.assertEqual(len(lico), 1)
 
     def test_triclinic_TeI(self):
         # Test case for a triclinic structure of TeI. Only these three
@@ -107,14 +107,13 @@ class SlabGeneratorTest(PymatgenTest):
         # atoms should be in a surface together. The closeness of the sites
         # in other Miller indices can cause some ambiguity when choosing a
         # higher tolerance.
-        mill = [[0, 0, 1], [0, 1, 0], [1, 0, 0]]
-        numb_slabs = {'[0, 0, 1]': 9, '[0, 1, 0]': 5, '[1, 0, 0]': 12}
+        numb_slabs = {(0, 0, 1): 5, (0, 1, 0): 3, (1, 0, 0): 7}
         TeI = Structure.from_file(get_path("icsd_TeI.cif"),
                                   primitive=False)
-        for i in mill:
-            trclnc_TeI = SlabGenerator(TeI, i, 10, 10)
+        for k, v in numb_slabs.items():
+            trclnc_TeI = SlabGenerator(TeI, k, 10, 10)
             TeI_slabs = trclnc_TeI.get_slabs()
-            self.assertEqual(numb_slabs[str(i)], len(TeI_slabs))
+            self.assertEqual(v, len(TeI_slabs))
 
 
 class FuncTest(PymatgenTest):
@@ -158,8 +157,7 @@ class FuncTest(PymatgenTest):
         self.assertEqual(len(slabs1), 4)
 
         slabs2 = generate_all_slabs(self.lifepo4, 1, 10, 10,
-                                   bonds={("P", "O"): 3,
-                                          ("Fe", "O"): 3})
+                                    bonds={("P", "O"): 3, ("Fe", "O"): 3})
         self.assertEqual(len(slabs2), 0)
 
         # There should be only three possible stable surfaces, all of which are
@@ -167,11 +165,9 @@ class FuncTest(PymatgenTest):
         slabs3 = generate_all_slabs(self.LiCoO2, 1, 10, 10,
                                     bonds={("Co", "O"): 3})
         self.assertEqual(len(slabs3), 1)
-        mill = [0, 0, 1]
-        for lico in slabs3:
-            for i in xrange(3):
-                self.assertEqual(lico.miller_index[i],
-                                 mill[i])
+        mill = (0, 0, 1)
+        for s in slabs3:
+            self.assertEqual(s.miller_index, mill)
 
 
 if __name__ == "__main__":
