@@ -16,7 +16,7 @@ from pymatgen.util.testing import PymatgenTest
 
 def get_path(path_str):
     cwd = os.path.abspath(os.path.dirname(__file__))
-    path = os.path.join(cwd, "..", "..", "..", "test_files", "surface_tests",
+    path = os.path.join(cwd, "test_files", "surface_tests",
                         path_str)
     return path
 
@@ -92,6 +92,11 @@ class SlabGeneratorTest(PymatgenTest):
         # in LiFePO4 unit cell - 2.
         self.assertEqual(len(gen.get_slabs(tol=1e-4)), 26)
 
+        self.LiCoO2 = Structure.from_file(get_path("icsd_LiCoO2.cif"), primitive=False)
+        licoo2 = SlabGenerator(self.LiCoO2, [0,0,1], 10, 10)
+        lico = licoo2.get_slabs(bonds={("Co", "O"): 3})
+        self.assertEqual(len(lico), 3)
+
     def test_triclinic_TeI(self):
         # Test case for a triclinic structure of TeI. Only these three
         # Miller indices are used because it is easier to identify which
@@ -114,6 +119,7 @@ class FuncTest(PymatgenTest):
         self.lifepo4 = self.get_structure("LiFePO4")
         self.tei = Structure.from_file(get_path("icsd_TeI.cif"),
                                        primitive=False)
+        self.LiCoO2 = Structure.from_file(get_path("icsd_LiCoO2.cif"), primitive=False)
 
         self.p1 = Structure(Lattice.from_parameters(3, 4, 5, 31, 43, 50),
                             ["H", "He"], [[0, 0, 0], [0.1, 0.2, 0.3]])
@@ -142,9 +148,24 @@ class FuncTest(PymatgenTest):
         #Only three possible slabs, one each in (100), (110) and (111).
         self.assertEqual(len(slabs), 3)
 
-        slabs = generate_all_slabs(self.lifepo4, 1, 10, 10,
+        slabs1 = generate_all_slabs(self.lifepo4, 1, 10, 10,
                                    bonds={("P", "O"): 3})
-        self.assertEqual(len(slabs), 5)
+        self.assertEqual(len(slabs1), 5)
+
+        slabs2 = generate_all_slabs(self.lifepo4, 1, 10, 10,
+                                   bonds={("P", "O"): 3,
+                                          ("Fe", "O"): 3})
+        self.assertEqual(len(slabs2), 0)
+
+        # There should be only three possible stable surfaces, all of which are
+        # in the (001) oriented unit cell
+        slabs3 = generate_all_slabs(self.LiCoO2, 1, 10, 10,
+                           bonds={("Co", "O"): 3})
+        self.assertEqual(len(slabs3), 3)
+        mill = [0, 0, 1]
+        for lico in slabs3:
+            for i in xrange(3):
+                self.assertEqual(lico.miller_index[i], mill[i])
 
 
 if __name__ == "__main__":
