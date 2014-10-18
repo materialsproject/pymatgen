@@ -276,12 +276,12 @@ class EnumerateStructureTransformation(AbstractTransformation):
     """
 
     def __init__(self, min_cell_size=1, max_cell_size=1, symm_prec=0.1,
-                 refine_structure=False):
-
+                 refine_structure=False, enum_precision_parameter=0.001):
         self.symm_prec = symm_prec
         self.min_cell_size = min_cell_size
         self.max_cell_size = max_cell_size
         self.refine_structure = refine_structure
+        self.enum_precision_parameter = enum_precision_parameter
 
     def apply_transformation(self, structure, return_ranked_list=False):
         """
@@ -323,10 +323,11 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 contains_oxidation_state = True
                 break
 
-        adaptor = EnumlibAdaptor(structure, min_cell_size=self.min_cell_size,
-                                 max_cell_size=self.max_cell_size,
-                                 symm_prec=self.symm_prec,
-                                 refine_structure=False)
+        adaptor = EnumlibAdaptor(
+            structure, min_cell_size=self.min_cell_size,
+            max_cell_size=self.max_cell_size,
+            symm_prec=self.symm_prec, refine_structure=False,
+            enum_precision_parameter=self.enum_precision_parameter)
         adaptor.run()
         structures = adaptor.structures
         original_latt = structure.lattice
@@ -379,10 +380,12 @@ class EnumerateStructureTransformation(AbstractTransformation):
 
     def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"symm_prec": self.symm_prec,
-                              "min_cell_size": self.min_cell_size,
-                              "max_cell_size": self.max_cell_size,
-                              "refine_structure": self.refine_structure},
+                "init_args": {
+                    "symm_prec": self.symm_prec,
+                    "min_cell_size": self.min_cell_size,
+                    "max_cell_size": self.max_cell_size,
+                    "refine_structure": self.refine_structure,
+                    "enum_precision_parameter": self.enum_precision_parameter},
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
