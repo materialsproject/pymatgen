@@ -68,6 +68,10 @@ class SlabTest(PymatgenTest):
         self.assertEqual(zno_slab.lattice.lengths_and_angles,
                          self.zno55.lattice.lengths_and_angles)
 
+    def test_get_sorted_structure(self):
+        species = [str(site.specie) for site in
+                   self.zno55.get_sorted_structure()]
+        self.assertEqual(species, ["Zn2+"] * 4 + ["O2-"] * 4)
 
 class SlabGeneratorTest(PymatgenTest):
     def test_get_slab(self):
@@ -168,7 +172,6 @@ class FuncTest(PymatgenTest):
         mill = (0, 0, 1)
         for s in slabs3:
             self.assertEqual(s.miller_index, mill)
-
 
 if __name__ == "__main__":
     unittest.main()
