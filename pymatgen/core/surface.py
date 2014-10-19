@@ -309,7 +309,6 @@ class SlabGenerator(object):
         normal /= np.linalg.norm(normal)
         return abs(np.dot(normal, c))
 
-
     def get_slab(self, shift=0):
         """
         This method takes in shift value for the c lattice direction and
@@ -464,7 +463,8 @@ class SlabGenerator(object):
                                 forbidden_c_ranges.append((c_range[0] + 1, 1))
                             else:
                                 forbidden_c_ranges.append(c_range)
-        def shift_allowed(shift):
+
+          def shift_allowed(shift):
             # Takes in the list of shifts and filters out the shifts that
             # break the user input polyhedral bonds. forbidden_c_ranges
             # determines where these bonds are located.
