@@ -464,7 +464,7 @@ class SlabGenerator(object):
                             else:
                                 forbidden_c_ranges.append(c_range)
 
-          def shift_allowed(shift):
+        def shift_allowed(shift):
             # Takes in the list of shifts and filters out the shifts that
             # break the user input polyhedral bonds. forbidden_c_ranges
             # determines where these bonds are located.
