@@ -17,9 +17,7 @@ import numpy as np
 from monty.string import list_strings, is_string
 from monty.itertools import iterator_from_slice
 from monty.io import FileLock
-# TODO: Use Namespace (requires new monty release)
-from monty.collections import AttrDict, Namespace #NotOverwritableDict
-#Namespace = NotOverwritableDict
+from monty.collections import AttrDict, Namespace 
 from pymatgen.core.periodic_table import PeriodicTable #, Element
 
 
