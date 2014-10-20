@@ -21,7 +21,7 @@ def get_path(path_str):
 
 
 class SlabTest(PymatgenTest):
-    
+
     def setUp(self):
         zno1 = Structure.from_file(get_path("ZnO-wz.cif"), primitive=False)
         zno55 = SlabGenerator(zno1, [1, 0, 0], 5, 5, lll_reduce=False,
@@ -65,6 +65,7 @@ class SlabTest(PymatgenTest):
 
 
 class SlabGeneratorTest(PymatgenTest):
+    
     def test_get_slab(self):
         s = self.get_structure("LiFePO4")
         gen = SlabGenerator(s, [0, 0, 1], 10, 10)
