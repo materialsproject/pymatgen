@@ -344,8 +344,6 @@ def asabistructure(obj):
                 structure = structure_from_etsf_file(obj)
             else:
                 structure = Structure.from_file(obj)
-                #from pymatgen.io.smartio import read_structure
-                #structure = read_structure(obj)
 
             # Promote
             return AbiStructure(structure)
@@ -1354,7 +1352,6 @@ class ExcHamiltonian(AbivarAble):
 
     def to_abivars(self):
         """Returns a dictionary with the abinit variables."""
-
         abivars = dict(
             bs_calctype=1,
             bs_loband=self.bs_loband,

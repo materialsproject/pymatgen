@@ -78,15 +78,49 @@ class TaskResults(dict, PMGSONable):
 
     EXC_KEY = "_exceptions"
 
+    @classmethod
+    def from_task(cls, task):
+        """Initialize an instance from a `Task` object."""
+        return cls(dict(
+            task_name=task.name, 
+            task_returncode=task.returncode, 
+            task_status=task.status,
+            # keys similars to those used in VaspOutput
+            #run_type=task.__class__.__name__,
+            #abinit_version:
+            #input=task.strategy
+            ))
+
     def __init__(self, *args, **kwargs):
         super(TaskResults, self).__init__(*args, **kwargs)
                                                                
         if self.EXC_KEY not in self:
             self[self.EXC_KEY] = []
 
+        if "_binary_files" not in self:
+            self["_binary_files"] = []
+
     @property
     def exceptions(self):
         return self[self.EXC_KEY]
+
+    #@property
+    #def binary_files(self):
+    #    """List with the absolute paths of binary files."""
+    #    return self["_binary_files"]
+
+    #def add_binary_files(self, **kwargs)
+    #    self._binary_files.update(kwargs)
+    #    return self
+
+    #@property
+    #def text_files(self):
+    #    """List with the absolute paths of text files."""
+    #    return self["_text_files"]
+
+    #def add_text_files(self, **kwargs)
+    #    self._text_files.update(kwargs)
+    #    return self
 
     def push_exceptions(self, *exceptions):
         for exc in exceptions:
@@ -1235,6 +1269,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     Error = TaskError
     RestartError = TaskRestartError
 
+    Results = TaskResults
+
     # List of `AbinitEvent` subclasses that are tested in the not_converged method. 
     # Subclasses should provide their own list if they need to check the converge status.
     CRITICAL_EVENTS = [
@@ -2029,17 +2065,16 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             self.set_status(self.S_ABICRITICAL, info_msg=str(exc))
             return parser.report_exception(ofile.path, exc)
 
-    @property
-    def results(self):
-        """The results produced by the task. Set by get_results"""
-        try:
-            return self._results
+    #@property
+    #def results(self):
+    #    """The results produced by the task. Set by get_results"""
+    #    try:
+    #        return self._results
+    #    except AttributeError:
+    #        self._results = self.get_results()
+    #        return self._results 
 
-        except AttributeError:
-            self._results = self.get_results()
-            return self._results 
-
-    def get_results(self, *args, **kwargs):
+    def get_results(self, **kwargs):
         """
         Method called once the calculation is completed, 
         Updates self._results and returns TaskResults instance.
@@ -2053,12 +2088,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         if self.status is None or self.status < self.S_DONE:
             raise self.Error("Task is not completed")
 
-        return TaskResults({
-            "task_name": self.name,
-            "task_returncode": self.returncode,
-            "task_status"    : self.status,
-            #"task_events"    : self.events.as_dict()
-        })
+        results = self.Results.from_task(self)
+        #results["structure_in"] = self.strategy.structure.as_structure()
+        return results
 
     def move(self, dest, is_abspath=False):
         """
@@ -2511,6 +2543,23 @@ class ScfTask(AbinitTask):
         if scf_cycle is not None:
             return scf_cycle.plot(**kwargs)
 
+    def get_results(self, **kwargs):
+        results = super(ScfTask, self).get_results(**kwargs)
+
+        #gsr_path = self.outdir.has_abiext("GSR"))
+        #results.update(dict(
+        #    "final_energy"
+        #    "final_energy_per_atom": self.final_energy / nsites,
+        #    "forces":
+        #    "stresses":
+        #    "band_gap":
+        #    "optical_gap":
+        #    "efermi":
+        #))
+
+        #results.add_binary_files("GSR"=gsr_path)
+        return results
+
 
 class NscfTask(AbinitTask):
     """
@@ -2538,6 +2587,22 @@ class NscfTask(AbinitTask):
 
         # Now we can resubmit the job.
         return self._restart()
+
+    def get_results(self, **kwargs):
+        results = super(NScfTask, self).get_results(**kwargs)
+
+        #gsr_path = self.outdir.has_abiext("GSR"))
+        #results.update(dict(
+        #    max_residuals
+        #    cbm:
+        #    vbm:
+        #    band_gap:
+        #    optical_gap:
+        #    is_direct:
+        #))
+
+        #results.add_binary_files("GSR"=gsr_path)
+        return results
 
 
 class RelaxTask(AbinitTask):
@@ -2612,9 +2677,34 @@ class RelaxTask(AbinitTask):
         if relaxation is not None:
             return relaxation.plot(**kwargs)
 
+    def get_results(self, **kwargs):
+        results = super(RelaxTask, self).get_results(**kwargs)
+
+        #gsr_path = self.outdir.has_abiext("GSR"))
+        #results.update(dict(
+        #    etotal:
+        #    forces:
+        #    stresses:
+        #    band_gap:
+        #    optical_gap:
+        #    efermi:
+        #    ionic_steps: self.ionic_steps,
+        #    final_energy: self.final_energy,
+        #    final_energy_per_atom: self.final_energy / nsites,
+        #))
+
+        #results.add_binary_files("GSR"=gsr_path)
+
+        return results
+
 
 class DdkTask(AbinitTask):
     """Task for DDK calculations."""
+
+    def get_results(self, **kwargs):
+        results = super(DdkTask, self).get_results(**kwargs)
+        #results.add_text_files("DDB"=self.outdir.has_abiext("DDB"))
+        return results
 
 
 class PhononTask(AbinitTask):
@@ -2665,6 +2755,11 @@ class PhononTask(AbinitTask):
         if scf_cycle is not None:
             return scf_cycle.plot(**kwargs)
 
+    def get_results(self, **kwargs):
+        results = super(PhononTask, self).get_results(**kwargs)
+        #results.add_text_files("DDB"=self.outdir.has_abiext("DDB"))
+        return results
+
 
 class SigmaTask(AbinitTask):
     """
@@ -2692,6 +2787,16 @@ class SigmaTask(AbinitTask):
 
         # Now we can resubmit the job.
         return self._restart()
+
+    def get_results(self, **kwargs):
+        results = super(SigmaTask, self).get_results(**kwargs)
+        #sigres_path = self.outdir.has_abiext("SIGRES")
+        #results.add_binary_files("SIGRES"=sigres_path)
+        #results.update(dict(
+        #   "GW_gap"=gw_gap
+        #))
+
+        return results
 
 
 class BseTask(AbinitTask):
@@ -2766,6 +2871,17 @@ class BseTask(AbinitTask):
         # Now we can resubmit the job.
         return self._restart()
 
+    def get_results(self, **kwargs):
+        results = super(BseTask, self).get_results(**kwargs)
+        mdf_path = self.outdir.has_abiext("MDF")
+        #results.add_binary_files("MDF"=mdf_path)
+        #results.update((
+        #    "epsilon_infinity":
+        #    "optical_gap":
+        #))
+
+        return results
+
 
 class OpticTask(Task):
     """
@@ -2792,8 +2908,7 @@ class OpticTask(Task):
         self.nscf_node = Node.as_node(nscf_node)
         self.ddk_nodes = [Node.as_node(n) for n in ddk_nodes]
         assert len(ddk_nodes) == 3
-        #print(self.nscf_node)
-        #print(self.ddk_nodes)
+        #print(self.nscf_node, self.ddk_nodes)
 
         deps = {n: "1WF" for n in self.ddk_nodes}
         deps.update({self.nscf_node: "WFK"})
@@ -2859,6 +2974,13 @@ class OpticTask(Task):
         Optic allows the user to specify the paths of the input file.
         hence we don't need to create symbolic links.
         """
+
+    def get_results(self, **kwargs):
+        results = super(OpticTask, self).get_results(**kwargs)
+        #results.update(dict(
+        #"epsilon_infinity":
+        #))
+        return results
 
 
 class AnaddbTask(Task):
@@ -2969,3 +3091,7 @@ class AnaddbTask(Task):
         Anaddb allows the user to specify the paths of the input file.
         hence we don't need to create symbolic links.
         """
+
+    def get_results(self, **kwargs):
+        results = super(AnaddbTask, self).get_results(**kwargs)
+        return results
