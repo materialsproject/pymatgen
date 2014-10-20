@@ -888,14 +888,15 @@ class IStructure(SiteCollection, PMGSONable):
             unmapped_start_ind = []
             for i, row in enumerate(dist_matrix):
                 ind = np.where(row < autosort_tol)[0]
-                if ind:
+                if len(ind) == 1:
                     site_mappings[i].append(ind[0])
                 else:
                     unmapped_start_ind.append(i)
 
             if len(unmapped_start_ind) > 1:
                 raise ValueError("Unable to reliably match structures "
-                                 "with auto_sort_tol = %f" % autosort_tol)
+                                 "with auto_sort_tol = %f. unmapped indices "
+                                 "= %s" % (autosort_tol, unmapped_start_ind))
 
             sorted_end_coords = np.zeros_like(end_coords)
             matched = []
@@ -911,7 +912,8 @@ class IStructure(SiteCollection, PMGSONable):
                 i = unmapped_start_ind[0]
                 j = list(set(range(len(start_coords))).difference(matched))[0]
                 sorted_end_coords[i] = end_coords[j]
-                end_coords = sorted_end_coords
+
+            end_coords = sorted_end_coords
 
         vec = end_coords - start_coords
         if pbc:

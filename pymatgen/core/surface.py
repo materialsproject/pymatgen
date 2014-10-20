@@ -122,16 +122,39 @@ class Slab(Structure):
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties)
 
+    def get_sorted_structure(self, key=None, reverse=False):
+        """
+        Get a sorted copy of the structure. The parameters have the same
+        meaning as in list.sort. By default, sites are sorted by the
+        electronegativity of the species.
+
+        Args:
+            key: Specifies a function of one argument that is used to extract
+                a comparison key from each list element: key=str.lower. The
+                default value is None (compare the elements directly).
+            reverse (bool): If set to True, then the list elements are sorted
+                as if each comparison were reversed.
+        """
+        sites = sorted(self, key=key, reverse=reverse)
+        s = Structure.from_sites(sites)
+        return Slab(s.lattice, s.species_and_occu, s.frac_coords,
+                    self.miller_index, self.oriented_unit_cell, self.shift,
+                    self.scale_factor, site_properties=s.site_properties)
+
     @property
     def normal(self):
-        # Calculates the surface normal vector of the slab
+        """
+        Calculates the surface normal vector of the slab
+        """
         normal = np.cross(self.lattice.matrix[0], self.lattice.matrix[1])
         normal /= np.linalg.norm(normal)
         return normal
 
     @property
     def surface_area(self):
-        # Calculates the surface area of the slab
+        """
+        Calculates the surface area of the slab
+        """
         m = self.lattice.matrix
         return np.linalg.norm(np.cross(m[0], m[1]))
 
@@ -279,13 +302,9 @@ class SlabGenerator(object):
         self.miller_index = miller_index
         self.min_vac_size = min_vacuum_size
         self.min_slab_size = min_slab_size
-
-    def _get_height(self):
+        self._normal = normal
         a, b, c = self.oriented_unit_cell.lattice.matrix
-        normal = np.cross(a, b)
-        normal /= np.linalg.norm(normal)
-        return abs(np.dot(normal, c))
-
+        self._proj_height = abs(np.dot(normal, c))
 
     def get_slab(self, shift=0):
         """
@@ -302,9 +321,9 @@ class SlabGenerator(object):
             (Slab) A Slab object with a particular shifted oriented unit cell.
         """
 
-        dist = self._get_height()
-        nlayers_slab = int(math.ceil(self.min_slab_size / dist))
-        nlayers_vac = int(math.ceil(self.min_vac_size / dist))
+        h = self._proj_height
+        nlayers_slab = int(math.ceil(self.min_slab_size / h))
+        nlayers_vac = int(math.ceil(self.min_vac_size / h))
         nlayers = nlayers_slab + nlayers_vac
 
         species = self.oriented_unit_cell.species_and_occu
@@ -352,13 +371,13 @@ class SlabGenerator(object):
         # take into account PBC. Let's compute a fractional c-coordinate
         # distance matrix that accounts for PBC.
         dist_matrix = np.zeros((n, n))
-        c_proj = self._get_height()
+        h = self._proj_height
         # Projection of c lattice vector in
         # direction of surface normal.
         for i, j in itertools.combinations(list(range(n)), 2):
             if i != j:
                 cdist = frac_coords[i][2] - frac_coords[j][2]
-                cdist = abs(cdist - round(cdist)) * c_proj
+                cdist = abs(cdist - round(cdist)) * h
                 dist_matrix[i, j] = cdist
                 dist_matrix[j, i] = cdist
 
@@ -430,17 +449,18 @@ class SlabGenerator(object):
                             max_c = (s2.frac_coords + image)[2]
                             c_range = sorted([min_c, max_c])
                             if c_range[1] > 1:
-                            # Takes care of PBC when c coordinate of site
-                            # goes beyond the upper boundary of the unit cell
+                                # Takes care of PBC when c coordinate of site
+                                # goes beyond the upper boundary of the cell
                                 forbidden_c_ranges.append((c_range[0], 1))
                                 forbidden_c_ranges.append((0, c_range[1] -1))
                             elif c_range[0] < 0:
-                            # Takes care of PBC when c coordinate of site
-                            # is below the lower boundary of the unit cell
+                                # Takes care of PBC when c coordinate of site
+                                # is below the lower boundary of the unit cell
                                 forbidden_c_ranges.append((0, c_range[1]))
                                 forbidden_c_ranges.append((c_range[0] + 1, 1))
                             else:
                                 forbidden_c_ranges.append(c_range)
+
         def shift_allowed(shift):
             # Takes in the list of shifts and filters out the shifts that
             # break the user input polyhedral bonds. forbidden_c_ranges
@@ -450,9 +470,13 @@ class SlabGenerator(object):
                     return False
             return True
 
-        return [self.get_slab(shift)
-                for shift in self._calculate_possible_shifts(tol=tol)
-                if shift_allowed(shift)]
+        slabs = [self.get_slab(shift)
+                 for shift in self._calculate_possible_shifts(tol=tol)
+                 if shift_allowed(shift)]
+        # Further filters out any surfaces made that might be the same
+        m = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False,
+                             scale=False)
+        return [g[0] for g in m.group_structures(slabs)]
 
 
 def get_symmetrically_distinct_miller_indices(structure, max_index):
@@ -527,13 +551,6 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
         slabs = gen.get_slabs(bonds=bonds, tol=tol)
         if len(slabs) > 0:
             logger.debug("%s has %d slabs... " % (miller, len(slabs)))
-            all_slabs.append(slabs)
+            all_slabs.extend(slabs)
 
-    # Further filters out any surfaces made that might be the same
-    m = StructureMatcher(ltol=tol, stol=tol)
-    unique = []
-    for slabs in all_slabs:
-        for g in m.group_structures(slabs):
-            unique.append(g[0])
-
-    return unique
+    return all_slabs
