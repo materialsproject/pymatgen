@@ -3,6 +3,7 @@
 
 import unittest
 
+
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.surface import Slab, SlabGenerator, generate_all_slabs, \
@@ -26,18 +27,21 @@ class SlabTest(PymatgenTest):
         zno1 = Structure.from_file(get_path("ZnO-wz.cif"), primitive=False)
         zno55 = SlabGenerator(zno1, [1, 0, 0], 5, 5, lll_reduce=False,
                               center_slab=False).get_slab()
+
         self.zno1 = zno1
         self.zno55 = zno55
-        self.h = Structure(Lattice.cubic(3), ["H"], [[0, 0, 0]])
+        self.h = Structure(Lattice.cubic(3), ["H"],
+                            [[0, 0, 0]])
         self.libcc = Structure(Lattice.cubic(3.51004), ["Li", "Li"],
                                [[0, 0, 0], [0.5, 0.5, 0.5]])
 
     def test_init(self):
         zno_slab = Slab(self.zno55.lattice, self.zno55.species,
                         self.zno55.frac_coords,
-                        self.zno55.miller_index, self.zno55.oriented_unit_cell,
+                        self.zno55.miller_index,
+                        self.zno55.oriented_unit_cell,
                         0, self.zno55.scale_factor)
-        m = self.zno55.lattice.matrix
+        m =self.zno55.lattice.matrix
         area = np.linalg.norm(np.cross(m[0], m[1]))
         self.assertAlmostEqual(zno_slab.surface_area, area)
         self.assertEqual(zno_slab.lattice.lengths_and_angles,
@@ -49,7 +53,8 @@ class SlabTest(PymatgenTest):
     def test_add_adsorbate_atom(self):
         zno_slab = Slab(self.zno55.lattice, self.zno55.species,
                         self.zno55.frac_coords,
-                        self.zno55.miller_index, self.zno55.oriented_unit_cell,
+                        self.zno55.miller_index,
+                        self.zno55.oriented_unit_cell,
                         0, self.zno55.scale_factor)
         zno_slab.add_adsorbate_atom([1], 'H', 1)
 
@@ -63,6 +68,10 @@ class SlabTest(PymatgenTest):
         self.assertEqual(zno_slab.lattice.lengths_and_angles,
                          self.zno55.lattice.lengths_and_angles)
 
+    def test_get_sorted_structure(self):
+        species = [str(site.specie) for site in
+                   self.zno55.get_sorted_structure()]
+        self.assertEqual(species, ["Zn2+"] * 4 + ["O2-"] * 4)
 
 class SlabGeneratorTest(PymatgenTest):
     
@@ -74,22 +83,37 @@ class SlabGeneratorTest(PymatgenTest):
 
     def test_get_slabs(self):
         gen = SlabGenerator(self.get_structure("CsCl"), [0, 0, 1], 10, 10)
-        self.assertEqual(len(gen.get_slabs()), 2)
+
+        #Test orthogonality of some internal variables.
+        a, b, c = gen.oriented_unit_cell.lattice.matrix
+        self.assertAlmostEqual(np.dot(a, gen._normal), 0)
+        self.assertAlmostEqual(np.dot(b, gen._normal), 0)
+
+        self.assertEqual(len(gen.get_slabs()), 1)
         s = self.get_structure("LiFePO4")
         gen = SlabGenerator(s, [0, 0, 1], 10, 10)
-        self.assertEqual(len(gen.get_slabs()), 18)
+        self.assertEqual(len(gen.get_slabs()), 5)
 
-        self.assertEqual(len(gen.get_slabs(bonds={("P", "O"): 3})), 6)
+        self.assertEqual(len(gen.get_slabs(bonds={("P", "O"): 3})), 2)
 
         # There are no slabs in LFP that does not break either P-O or Fe-O
         # bonds for a miller index of [0, 0, 1].
-        self.assertEqual(len(gen.get_slabs(bonds={("P", "O"): 3,
-                                                  ("Fe", "O"): 3})), 0)
+        self.assertEqual(len(gen.get_slabs(
+            bonds={("P", "O"): 3, ("Fe", "O"): 3})), 0)
 
         # At this threshold, only the origin and center Li results in
-        # clustering. All other sites are non-clustered. So the # of slabs is
-        # of sites in LiFePO4 unit cell - 2 + 1.
-        self.assertEqual(len(gen.get_slabs(tol=1e-4)), 27)
+        # clustering. All other sites are non-clustered. So the of
+        # slabs is of sites in LiFePO4 unit cell - 2 + 1.
+        self.assertEqual(len(gen.get_slabs(tol=1e-4)), 15)
+
+        LiCoO2 = Structure.from_file(get_path("icsd_LiCoO2.cif"),
+                                          primitive=False)
+        gen = SlabGenerator(LiCoO2, [0,0,1], 10, 10)
+        lco = gen.get_slabs(bonds={("Co", "O"): 3})
+        self.assertEqual(len(lco), 1)
+        a, b, c = gen.oriented_unit_cell.lattice.matrix
+        self.assertAlmostEqual(np.dot(a, gen._normal), 0)
+        self.assertAlmostEqual(np.dot(b, gen._normal), 0)
 
     def test_triclinic_TeI(self):
         # Test case for a triclinic structure of TeI. Only these three
@@ -97,13 +121,13 @@ class SlabGeneratorTest(PymatgenTest):
         # atoms should be in a surface together. The closeness of the sites
         # in other Miller indices can cause some ambiguity when choosing a
         # higher tolerance.
-        mill = [[0, 0, 1], [0, 1, 0], [1, 0, 0]]
-        numb_slabs = {'[0, 0, 1]': 6, '[0, 1, 0]': 3, '[1, 0, 0]': 8}
-        TeI = Structure.from_file(get_path("icsd_TeI.cif"), primitive=False)
-        for i in mill:
-            trclnc_TeI = SlabGenerator(TeI, i, 10, 10)
-            TeI_slabs = trclnc_TeI.get_slabs(tol=0.5)
-            self.assertEqual(numb_slabs[str(i)], len(TeI_slabs))
+        numb_slabs = {(0, 0, 1): 5, (0, 1, 0): 3, (1, 0, 0): 7}
+        TeI = Structure.from_file(get_path("icsd_TeI.cif"),
+                                  primitive=False)
+        for k, v in numb_slabs.items():
+            trclnc_TeI = SlabGenerator(TeI, k, 10, 10)
+            TeI_slabs = trclnc_TeI.get_slabs()
+            self.assertEqual(v, len(TeI_slabs))
 
 
 class FuncTest(PymatgenTest):
@@ -112,6 +136,8 @@ class FuncTest(PymatgenTest):
         self.lifepo4 = self.get_structure("LiFePO4")
         self.tei = Structure.from_file(get_path("icsd_TeI.cif"),
                                        primitive=False)
+        self.LiCoO2 = Structure.from_file(get_path("icsd_LiCoO2.cif"),
+                                          primitive=False)
 
         self.p1 = Structure(Lattice.from_parameters(3, 4, 5, 31, 43, 50),
                             ["H", "He"], [[0, 0, 0], [0.1, 0.2, 0.3]])
@@ -123,7 +149,7 @@ class FuncTest(PymatgenTest):
         self.assertEqual(len(indices), 6)
 
         self.assertEqual(len(get_symmetrically_distinct_miller_indices(
-            self.lifepo4, 1)), 7)
+                         self.lifepo4, 1)), 7)
 
         # The TeI P-1 structure should have 13 unique millers (only inversion
         # symmetry eliminates pairs)
@@ -140,10 +166,22 @@ class FuncTest(PymatgenTest):
         # Only three possible slabs, one each in (100), (110) and (111).
         self.assertEqual(len(slabs), 3)
 
-        slabs = generate_all_slabs(self.lifepo4, 1, 10, 10, tol=0.05,
-                                   bonds={("P", "O"): 3})
-        self.assertEqual(len(slabs), 5)
+        slabs1 = generate_all_slabs(self.lifepo4, 1, 10, 10, tol=0.1,
+                                    bonds={("P", "O"): 3})
+        self.assertEqual(len(slabs1), 4)
 
+        slabs2 = generate_all_slabs(self.lifepo4, 1, 10, 10,
+                                    bonds={("P", "O"): 3, ("Fe", "O"): 3})
+        self.assertEqual(len(slabs2), 0)
+
+        # There should be only one possible stable surfaces, all of which are
+        # in the (001) oriented unit cell
+        slabs3 = generate_all_slabs(self.LiCoO2, 1, 10, 10,
+                                    bonds={("Co", "O"): 3})
+        self.assertEqual(len(slabs3), 1)
+        mill = (0, 0, 1)
+        for s in slabs3:
+            self.assertEqual(s.miller_index, mill)
 
 if __name__ == "__main__":
     unittest.main()
