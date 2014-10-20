@@ -82,6 +82,12 @@ class SlabGeneratorTest(PymatgenTest):
 
     def test_get_slabs(self):
         gen = SlabGenerator(self.get_structure("CsCl"), [0, 0, 1], 10, 10)
+
+        #Test orthogonality of some internal variables.
+        a, b, c = gen.oriented_unit_cell.lattice.matrix
+        self.assertAlmostEqual(np.dot(a, gen._normal), 0)
+        self.assertAlmostEqual(np.dot(b, gen._normal), 0)
+
         self.assertEqual(len(gen.get_slabs()), 1)
         s = self.get_structure("LiFePO4")
         gen = SlabGenerator(s, [0, 0, 1], 10, 10)
@@ -99,11 +105,14 @@ class SlabGeneratorTest(PymatgenTest):
         # slabs is of sites in LiFePO4 unit cell - 2 + 1.
         self.assertEqual(len(gen.get_slabs(tol=1e-4)), 15)
 
-        self.LiCoO2 = Structure.from_file(get_path("icsd_LiCoO2.cif"),
+        LiCoO2 = Structure.from_file(get_path("icsd_LiCoO2.cif"),
                                           primitive=False)
-        licoo2 = SlabGenerator(self.LiCoO2, [0,0,1], 10, 10)
-        lico = licoo2.get_slabs(bonds={("Co", "O"): 3})
-        self.assertEqual(len(lico), 1)
+        gen = SlabGenerator(LiCoO2, [0,0,1], 10, 10)
+        lco = gen.get_slabs(bonds={("Co", "O"): 3})
+        self.assertEqual(len(lco), 1)
+        a, b, c = gen.oriented_unit_cell.lattice.matrix
+        self.assertAlmostEqual(np.dot(a, gen._normal), 0)
+        self.assertAlmostEqual(np.dot(b, gen._normal), 0)
 
     def test_triclinic_TeI(self):
         # Test case for a triclinic structure of TeI. Only these three
