@@ -302,12 +302,9 @@ class SlabGenerator(object):
         self.miller_index = miller_index
         self.min_vac_size = min_vacuum_size
         self.min_slab_size = min_slab_size
-
-    def _get_height(self):
+        self._normal = normal
         a, b, c = self.oriented_unit_cell.lattice.matrix
-        normal = np.cross(a, b)
-        normal /= np.linalg.norm(normal)
-        return abs(np.dot(normal, c))
+        self._proj_height = abs(np.dot(normal, c))
 
     def get_slab(self, shift=0):
         """
@@ -324,9 +321,9 @@ class SlabGenerator(object):
             (Slab) A Slab object with a particular shifted oriented unit cell.
         """
 
-        dist = self._get_height()
-        nlayers_slab = int(math.ceil(self.min_slab_size / dist))
-        nlayers_vac = int(math.ceil(self.min_vac_size / dist))
+        h = self._proj_height
+        nlayers_slab = int(math.ceil(self.min_slab_size / h))
+        nlayers_vac = int(math.ceil(self.min_vac_size / h))
         nlayers = nlayers_slab + nlayers_vac
 
         species = self.oriented_unit_cell.species_and_occu
@@ -374,13 +371,13 @@ class SlabGenerator(object):
         # take into account PBC. Let's compute a fractional c-coordinate
         # distance matrix that accounts for PBC.
         dist_matrix = np.zeros((n, n))
-        c_proj = self._get_height()
+        h = self._proj_height
         # Projection of c lattice vector in
         # direction of surface normal.
         for i, j in itertools.combinations(list(range(n)), 2):
             if i != j:
                 cdist = frac_coords[i][2] - frac_coords[j][2]
-                cdist = abs(cdist - round(cdist)) * c_proj
+                cdist = abs(cdist - round(cdist)) * h
                 dist_matrix[i, j] = cdist
                 dist_matrix[j, i] = cdist
 
