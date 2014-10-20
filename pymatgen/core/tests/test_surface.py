@@ -2,15 +2,16 @@
 
 
 import unittest
+import os
+import random
 
+import numpy as np
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.surface import Slab, SlabGenerator, generate_all_slabs, \
     get_symmetrically_distinct_miller_indices
-import os
-import numpy as np
-
+from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -80,6 +81,26 @@ class SlabGeneratorTest(PymatgenTest):
         gen = SlabGenerator(s, [0, 0, 1], 10, 10)
         s = gen.get_slab(0.25)
         self.assertAlmostEqual(s.lattice.abc[2], 20.820740000000001)
+
+        #Some randomized testing of cell vectors
+        for i in range(1, 231):
+            i = random.randint(1, 230)
+            sg = SpaceGroup.from_int_number(i)
+            if sg.crystal_system == "hexagonal" or (sg.crystal_system == \
+                    "trigonal" and sg.symbol.endswith("H")):
+                latt = Lattice.hexagonal(5, 10)
+            else:
+                #Cubic lattice is compatible with all other space groups.
+                latt = Lattice.cubic(5)
+            s = Structure.from_spacegroup(i, latt, ["H"], [[0, 0, 0]])
+            miller = (0, 0, 0)
+            while miller == (0, 0, 0):
+                miller = (random.randint(0, 6), random.randint(0, 6),
+                          random.randint(0, 6))
+            gen = SlabGenerator(s, miller, 10, 10)
+            a, b, c = gen.oriented_unit_cell.lattice.matrix
+            self.assertAlmostEqual(np.dot(a, gen._normal), 0)
+            self.assertAlmostEqual(np.dot(b, gen._normal), 0)
 
     def test_get_slabs(self):
         gen = SlabGenerator(self.get_structure("CsCl"), [0, 0, 1], 10, 10)
