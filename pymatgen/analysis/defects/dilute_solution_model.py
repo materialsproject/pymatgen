@@ -171,7 +171,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         dE.append([])
     for i in range(n):
         for j in range(n):
-            dE[i].append(None)
+            dE[i].append(0)
 
     for j in range(n):
         for i in range(n):
@@ -189,7 +189,8 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
                             dE[i][j] = as_def['energy']
                             break
     dE = np.array(dE)
-    np.where(dE == None, dE, 0)
+    #np.where(dE is None, dE, 0)
+    #print ('dE', dE)
 
     # Initialization for concentrations
     # c(i,p) == presence of ith type atom on pth type site
@@ -345,6 +346,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         result[y].append(x[1])
 
     res = []
+    new_mu_dict = {}
     # Compute the concentrations for all the compositions
     for key in sorted(result.keys()):
         mu_val = result[key]
@@ -354,6 +356,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         res1 = []
         # Concentration of first element/over total concen
         res1.append(float(total_c_val[0]/sum(total_c_val)))
+        new_mu_dict[res1[0]] = mu_val
         sum_c0 = sum([c0[i,i] for i in range(n)])
         for i in range(n):
             for j in range(n):
@@ -368,6 +371,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             for i in range(n) for j in range(n)]
     res1 = np.sort(res.view(dtype), order=[str('x')],axis=0)
 
+
     conc_data = {}
     """Because all the plots have identical x-points storing it in a
     single array"""
@@ -380,13 +384,13 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         conc.append([])
         for j in range(n):
             conc[i].append([])
-    for i in range(n): # Append vacancies
+    for i in range(n): 
         for j in range(n):
             y1 = [dat[0][i*n+j+1] for dat in res1]
             conc[i][j] = y1
 
     y_data = []
-    for i in range(n):      # Vacancy plots
+    for i in range(n):      
         data = conc[i][i]
         specie = els[i]
         specie_ind = site_mu_map[i]
@@ -428,15 +432,12 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             ind = specie_order.index(site_specie)
             uncor_energy = vac_def['energy']
             formation_energy = uncor_energy + mu_vals[ind]
-            en.append(formation_energy)
+            en.append(float(formation_energy))
         return en
     en_res = []
-    for key in sorted(result.keys()):
-        mu_val = result[key]
-        res = []
-        form_en = compute_vac_formation_energies(mu_val)
-        res += form_en
-        en_res.append(res)
+    for key in sorted(new_mu_dict.keys()):
+        mu_val = new_mu_dict[key]
+        en_res.append(compute_vac_formation_energies(mu_val))
 
     en_data = {'x_label':els[0]+' mole fraction', 'x':[]}
     en_data['x'] = [dat[0][0] for dat in res1]         # x-axis data
@@ -470,12 +471,9 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             en.append(form_en)
         return en
     en_res = []
-    for key in sorted(result.keys()):
-        mu_val = result[key]
-        res = []
-        form_en = compute_as_formation_energies(mu_val)
-        res += form_en
-        en_res.append(res)
+    for key in sorted(new_mu_dict.keys()):
+        mu_val = new_mu_dict[key]
+        en_res.append(compute_as_formation_energies(mu_val))
     i = 0
     for as_def in antisite_defs:
         data = [data[i] for data in en_res]
@@ -503,7 +501,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     y_data = []
     for j in range(m):
         specie = specie_order[j]
-        mus = [result[key][j] for key in sorted(result.keys())]
+        mus = [new_mu_dict[key][j] for key in sorted(new_mu_dict.keys())]
         y_data.append({'data':mus, 'name':specie})
     mu_data['y'] = y_data
 
