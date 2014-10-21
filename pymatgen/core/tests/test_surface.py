@@ -75,12 +75,21 @@ class SlabTest(PymatgenTest):
         self.assertEqual(species, ["Zn2+"] * 4 + ["O2-"] * 4)
 
 class SlabGeneratorTest(PymatgenTest):
-    
+
     def test_get_slab(self):
         s = self.get_structure("LiFePO4")
         gen = SlabGenerator(s, [0, 0, 1], 10, 10)
         s = gen.get_slab(0.25)
         self.assertAlmostEqual(s.lattice.abc[2], 20.820740000000001)
+
+        fcc = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"],
+                                        [[0, 0, 0]])
+        gen = SlabGenerator(fcc, [1, 1, 1], 10, 10)
+        slab = gen.get_slab()
+        gen = SlabGenerator(fcc, [1, 1, 1], 10, 10, primitive=False)
+        slab_non_prim = gen.get_slab()
+        self.assertEqual(len(slab), 6)
+        self.assertEqual(len(slab_non_prim), len(slab) * 4)
 
         #Some randomized testing of cell vectors
         for i in range(1, 231):
@@ -111,6 +120,7 @@ class SlabGeneratorTest(PymatgenTest):
         self.assertAlmostEqual(np.dot(b, gen._normal), 0)
 
         self.assertEqual(len(gen.get_slabs()), 1)
+
         s = self.get_structure("LiFePO4")
         gen = SlabGenerator(s, [0, 0, 1], 10, 10)
         self.assertEqual(len(gen.get_slabs()), 5)
@@ -129,12 +139,13 @@ class SlabGeneratorTest(PymatgenTest):
 
         LiCoO2 = Structure.from_file(get_path("icsd_LiCoO2.cif"),
                                           primitive=False)
-        gen = SlabGenerator(LiCoO2, [0,0,1], 10, 10)
+        gen = SlabGenerator(LiCoO2, [0, 0, 1], 10, 10)
         lco = gen.get_slabs(bonds={("Co", "O"): 3})
         self.assertEqual(len(lco), 1)
         a, b, c = gen.oriented_unit_cell.lattice.matrix
         self.assertAlmostEqual(np.dot(a, gen._normal), 0)
         self.assertAlmostEqual(np.dot(b, gen._normal), 0)
+
 
     def test_triclinic_TeI(self):
         # Test case for a triclinic structure of TeI. Only these three
