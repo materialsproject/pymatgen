@@ -126,7 +126,8 @@ class Slab(Structure):
         """
         Get a sorted copy of the structure. The parameters have the same
         meaning as in list.sort. By default, sites are sorted by the
-        electronegativity of the species.
+        electronegativity of the species. Note that Slab has to override this
+        because of the different __init__ args.
 
         Args:
             key: Specifies a function of one argument that is used to extract
@@ -246,14 +247,14 @@ class SlabGenerator(object):
             center_slab (bool): Whether to center the slab in the cell with
                 equal vacuum spacing from the top and bottom.
             primitive (bool): Whether to reduce any generated slabs to a
-                primitive cell (this does not mean the slab is generated from a
-                primitive cell, it simply means that after slab generation, we
-                attempt to find shorter lattice vectors, which lead to less
-                surface area and smaller cells).
+                primitive cell (this does **not** mean the slab is generated
+                from a primitive cell, it simply means that after slab
+                generation, we attempt to find shorter lattice vectors,
+                which lead to less surface area and smaller cells).
         """
         latt = initial_structure.lattice
         d = abs(reduce(gcd, miller_index))
-        miller_index = [int(i / d) for i in miller_index]
+        miller_index = tuple([int(i / d) for i in miller_index])
         #Calculate the surface normal using the reciprocal lattice vector.
         recp = latt.reciprocal_lattice_crystallographic
         normal = recp.get_cartesian_coords(miller_index)
@@ -262,7 +263,6 @@ class SlabGenerator(object):
         slab_scale_factor = []
         non_orth_ind = []
         eye = np.eye(3, dtype=np.int)
-        dist = 0
         for i, j in enumerate(miller_index):
             if j == 0:
                 # Lattice vector is perpendicular to surface normal, i.e.,
@@ -271,19 +271,17 @@ class SlabGenerator(object):
                 slab_scale_factor.append(eye[i])
             else:
                 #Calculate projection of lattice vector onto surface normal.
-                d = abs(np.dot(normal, latt.matrix[i])) / np.linalg.norm(
-                    latt.matrix[i])
-                non_orth_ind.append(i)
-                if d > dist:
-                    # We want the vector that has maximum magnitude in the
-                    # direction of the surface normal as the c-direction.
-                    # Results in a more "orthogonal" unit cell.
-                    latt_index = i
-                    dist = d
+                d = abs(np.dot(normal, latt.matrix[i])) / latt.abc[i]
+                non_orth_ind.append((i, d))
+
+        # We want the vector that has maximum magnitude in the
+        # direction of the surface normal as the c-direction.
+        # Results in a more "orthogonal" unit cell.
+        c_index, dist = max(non_orth_ind, key=lambda t: t[1])
 
         if len(non_orth_ind) > 1:
-            lcm_miller = lcm(*[miller_index[i] for i in non_orth_ind])
-            for i, j in itertools.combinations(non_orth_ind, 2):
+            lcm_miller = lcm(*[miller_index[i] for i, d in non_orth_ind])
+            for (i, di), (j, dj) in itertools.combinations(non_orth_ind, 2):
                 l = [0, 0, 0]
                 l[i] = -int(round(lcm_miller / miller_index[i]))
                 l[j] = int(round(lcm_miller / miller_index[j]))
@@ -291,13 +289,14 @@ class SlabGenerator(object):
                 if len(slab_scale_factor) == 2:
                     break
 
-        slab_scale_factor.append(eye[latt_index])
+        slab_scale_factor.append(eye[c_index])
+
+        # Let's make sure we have a left-handed crystallographic system
+        if np.linalg.det(slab_scale_factor) < 0:
+            slab_scale_factor = np.array(slab_scale_factor) * -1
+
         single = initial_structure.copy()
         single.make_supercell(slab_scale_factor)
-
-        #Let's make sure we have a left-handed crystallographic system
-        if np.linalg.det(single.lattice.matrix) < 0:
-            single.make_supercell(-1)
 
         self.oriented_unit_cell = Structure.from_sites(single,
                                                        to_unit_cell=True)
