@@ -74,6 +74,11 @@ class SlabTest(PymatgenTest):
                    self.zno55.get_sorted_structure()]
         self.assertEqual(species, ["Zn2+"] * 4 + ["O2-"] * 4)
 
+    def test_methods(self):
+        #Test various structure methods
+        self.zno55.get_primitive_structure()
+
+
 class SlabGeneratorTest(PymatgenTest):
 
     def test_get_slab(self):
