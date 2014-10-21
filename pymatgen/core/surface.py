@@ -226,7 +226,8 @@ class SlabGenerator(object):
     """
 
     def __init__(self, initial_structure, miller_index, min_slab_size,
-                 min_vacuum_size, lll_reduce=False, center_slab=False):
+                 min_vacuum_size, lll_reduce=False, center_slab=False,
+                 primitive=True):
         """
         Calculates the slab scale factor and uses it to generate a unit cell
         of the initial structure that has been oriented by its miller index.
@@ -244,6 +245,11 @@ class SlabGenerator(object):
                 eventual structure.
             center_slab (bool): Whether to center the slab in the cell with
                 equal vacuum spacing from the top and bottom.
+            primitive (bool): Whether to reduce any generated slabs to a
+                primitive cell (this does not mean the slab is generated from a
+                primitive cell, it simply means that after slab generation, we
+                attempt to find shorter lattice vectors, which lead to less
+                surface area and smaller cells).
         """
         latt = initial_structure.lattice
         d = abs(reduce(gcd, miller_index))
@@ -302,11 +308,12 @@ class SlabGenerator(object):
         self.miller_index = miller_index
         self.min_vac_size = min_vacuum_size
         self.min_slab_size = min_slab_size
+        self.primitive = primitive
         self._normal = normal
         a, b, c = self.oriented_unit_cell.lattice.matrix
         self._proj_height = abs(np.dot(normal, c))
 
-    def get_slab(self, shift=0):
+    def get_slab(self, shift=0, tol=0.1):
         """
         This method takes in shift value for the c lattice direction and
         generates a slab based on the given shift. You should rarely use this
@@ -315,7 +322,8 @@ class SlabGenerator(object):
 
         Arg:
             shift (float): A shift value in Angstrom that determines how much a
-            slab should be shifted.
+                slab should be shifted.
+            tol (float): Tolerance to determine primitive cell.
 
         Returns:
             (Slab) A Slab object with a particular shifted oriented unit cell.
@@ -357,6 +365,9 @@ class SlabGenerator(object):
         if self.center_slab:
             avg_c = np.average([c[2] for c in slab.frac_coords])
             slab.translate_sites(list(range(len(slab))), [0, 0, 0.5 - avg_c])
+
+        if self.primitive:
+            slab = slab.get_primitive_structure(tolerance=tol)
 
         return Slab(slab.lattice, slab.species_and_occu,
                     slab.frac_coords, self.miller_index,
@@ -470,7 +481,7 @@ class SlabGenerator(object):
                     return False
             return True
 
-        slabs = [self.get_slab(shift)
+        slabs = [self.get_slab(shift, tol=tol)
                  for shift in self._calculate_possible_shifts(tol=tol)
                  if shift_allowed(shift)]
         # Further filters out any surfaces made that might be the same
