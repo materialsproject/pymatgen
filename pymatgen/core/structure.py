@@ -1076,7 +1076,7 @@ class IStructure(SiteCollection, PMGSONable):
                                   coords_are_cartesian=True)
                     return s.get_primitive_structure(tolerance).get_reduced_structure()
 
-        return self.copy()
+        return Structure.from_sites(self)
 
     def __repr__(self):
         outs = ["Structure Summary", repr(self.lattice)]

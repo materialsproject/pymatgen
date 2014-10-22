@@ -199,6 +199,16 @@ class SpecieTestCase(unittest.TestCase):
         self.assertEqual(sorted(els), [Specie("Si", 3), Specie("Si", 4),
                                        Specie("N", -3)])
 
+    def test_to_from_string(self):
+        fe3 = Specie("Fe", 3, {"spin": 5})
+        self.assertEqual(str(fe3), "Fe3+spin=5")
+        fe = Specie.from_string("Fe3+spin=5")
+        self.assertEqual(fe.spin, 5)
+        mo0 = Specie("Mo", 0, {"spin": 5})
+        self.assertEqual(str(mo0), "Mo0+spin=5")
+        mo = Specie.from_string("Mo0+spin=4")
+        self.assertEqual(mo.spin, 4)
+
 
 class DummySpecieTestCase(unittest.TestCase):
 
@@ -220,6 +230,9 @@ class DummySpecieTestCase(unittest.TestCase):
         self.assertEqual(sp.oxi_state, 0)
         sp = DummySpecie.from_string("X2+")
         self.assertEqual(sp.oxi_state, 2)
+        sp = DummySpecie.from_string("X2+spin=5")
+        self.assertEqual(sp.oxi_state, 2)
+        self.assertEqual(sp.spin, 5)
 
     def test_pickle(self):
         el1 = DummySpecie("X", 3)

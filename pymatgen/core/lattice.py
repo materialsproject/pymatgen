@@ -455,9 +455,12 @@ class Lattice(PMGSONable):
 
         gammas = get_angles(c_cand[0], c_cand[1], lengths[0], lengths[1])
         for i, j in np.argwhere(np.abs(gammas - gamma) < atol):
-            alphas = get_angles(c_cand[1][j], c_cand[2], lengths[1][j], lengths[2])[0]
-            betas = get_angles(c_cand[0][i], c_cand[2], lengths[0][i], lengths[2])[0]
-            inds = np.logical_and(np.abs(alphas - alpha) < atol, np.abs(betas - beta) < atol)
+            alphas = get_angles(c_cand[1][j], c_cand[2], lengths[1][j],
+                                lengths[2])[0]
+            betas = get_angles(c_cand[0][i], c_cand[2], lengths[0][i],
+                               lengths[2])[0]
+            inds = np.logical_and(np.abs(alphas - alpha) < atol,
+                                  np.abs(betas - beta) < atol)
 
             for c, f in zip(c_cand[2][inds], f_cand[2][inds]):
                 aligned_m = np.array([c_cand[0][i], c_cand[1][j], c])
@@ -804,7 +807,8 @@ class Lattice(PMGSONable):
     def get_points_in_sphere(self, frac_points, center, r):
         """
         Find all points within a sphere from the point taking into account
-        periodic boundary conditions. This includes sites in other periodic images.
+        periodic boundary conditions. This includes sites in other periodic
+        images.
 
         Algorithm:
 

@@ -242,10 +242,11 @@ class DiffusionAnalyzer(PMGSONable):
 
             # Calculate the error in the diffusivity using the error in the
             # slope from the lst sq.
-            # Variance in slope = n * Squared Residuals / (n * Sxx - Sx ** 2).
+            # Variance in slope = n * Sum Squared Residuals / (n * Sxx - Sx
+            # ** 2) / (n-2).
             n = len(dt)
             # Pre-compute the denominator since we will use it later.
-            denom = (n * np.sum(dt ** 2) - np.sum(dt) ** 2)
+            denom = (n * np.sum(dt ** 2) - np.sum(dt) ** 2) * (n - 2)
 
             self.diffusivity_std_dev = np.sqrt(n * res[0] / denom) / 60
             self.conductivity = self.diffusivity * conv_factor
