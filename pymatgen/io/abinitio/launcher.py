@@ -33,7 +33,6 @@ __all__ = [
 def straceback():
     """Returns a string with the traceback."""
     import traceback
-
     return traceback.format_exc()
 
 
@@ -768,7 +767,7 @@ class PyFlowScheduler(object):
             if self.DEBUG:
                 print("send_mail retcode", retcode)
 
-        finally:
+
             # Write file with the list of exceptions:
             if self.exceptions:
                 dump_file = os.path.join(self.flow.workdir, "_exceptions")
@@ -776,8 +775,16 @@ class PyFlowScheduler(object):
                     fh.writelines(self.exceptions)
                     fh.write("Shutdown message:\n%s" % msg)
 
+        finally:
             # Shutdown the scheduler thus allowing the process to exit.
             print('this should be the shutdown of the scheduler')
+
+            try:
+                self.flow.mongodb_insert()
+            except Exception:
+                print(straceback())
+
+            os.system("kill -9 %d" % os.getpid())
             self.sched.shutdown(wait=False)
 
     def send_email(self, msg, tag=None):
@@ -869,10 +876,5 @@ def sendmail(subject, text, mailto, sender=None):
 
 # Test for sendmail
 #def test_sendmail():
-#    text = "hello\nworld"""
-#    mailto = "matteo.giantomassi@uclouvain.be"
-#    retcode = sendmail("sendmail_test", text, mailto)
+#    retcode = sendmail("sendmail_test", text="hello\nworld", mailto="nobody@nowhere.com")
 #    print("Retcode", retcode)
-
-
-
