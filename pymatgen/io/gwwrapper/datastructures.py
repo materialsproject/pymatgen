@@ -534,11 +534,11 @@ class GWSpecs(AbstractAbinitioSpec):
             try:
                 user = os.environ['MAR_USER']
             except KeyError:
-                user = input('DataBase user name: ')
+                user = raw_input('DataBase user name: ')
             try:
                 pwd = os.environ['MAR_PAS']
             except KeyError:
-                pwd = input('DataBase pwd: ')
+                pwd = raw_input('DataBase pwd: ')
             db = local_serv[db_name]
             db.authenticate(user, pwd)
             col = db[collection]
