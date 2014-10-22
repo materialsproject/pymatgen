@@ -15,7 +15,7 @@ import pickle
 from six.moves import map 
 from monty.io import FileLock
 from monty.pprint import pprint_table
-
+from monty.termcolor import cprint
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
 from .tasks import Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager
 from .utils import Directory, Editor
@@ -550,6 +550,7 @@ class AbinitFlow(Node):
                       "MPI", "OMP", 
                       "Restarts", "Task-Class", "Run-Etime"]]
 
+            tot_num_errors = 0
             for task in work:
                 task_name = os.path.basename(task.name)
 
@@ -558,6 +559,7 @@ class AbinitFlow(Node):
 
                 events = map(str, 3*["N/A"])
                 if report is not None: 
+                    tot_num_errors += report.num_errors
                     events = map(str, [report.num_errors, report.num_warnings, report.num_comments])
                 events = list(events)
 
@@ -571,14 +573,17 @@ class AbinitFlow(Node):
                     task_info
                 )
 
+            # Print table and write colorized line with the total number of errors.
             pprint_table(table, out=stream)
+            if tot_num_errors:
+                cprint("Total no Errors: %d" % tot_num_errors, "red")
 
     def get_results(self, **kwargs):
         return self.Results(node=self)
 
     def mongodb_insert(self):
         """
-        Insert results in the mongdob database. Returns 0 if success.
+        Insert results in the mongdob database.
         """
         #if not self.manager.has_db: return -1
         # Connect to MongoDb and get the collection.
@@ -906,7 +911,7 @@ class AbinitFlow(Node):
                 continue 
 
             # Execute the callback and disable it
-            print("about to execute callback %s" % cbk)
+            logger.info("about to execute callback %s" % str(cbk))
             cbk()
             cbk.disable()
 
@@ -929,7 +934,7 @@ class AbinitFlow(Node):
         # Observe the nodes that must reach S_OK in order to call the callbacks.
         for cbk in self._callbacks:
             for dep in cbk.deps:
-                print("connecting %s \nwith sender %s, signal %s" % (str(cbk), dep.node, dep.node.S_OK))
+                logger.info("connecting %s \nwith sender %s, signal %s" % (str(cbk), dep.node, dep.node.S_OK))
                 dispatcher.connect(self.on_dep_ok, signal=dep.node.S_OK, sender=dep.node, weak=False)
 
         # Associate to each signal the callback _on_signal

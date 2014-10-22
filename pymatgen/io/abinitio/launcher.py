@@ -298,7 +298,7 @@ class PyLauncher(object):
 
             njobs_inqueue = tasks[0].manager.qadapter.get_njobs_in_queue()
             if njobs_inqueue is None:
-                print('Cannot get njobs_inqueue, going back to sleep')
+                print('Cannot get njobs_inqueue, going back to sleep...')
                 continue
 
             #if len(tasks) > 0:
@@ -311,7 +311,7 @@ class PyLauncher(object):
 
             rest = self.max_njobs_inqueue - njobs_inqueue
             if rest <= 0:
-                print('too many jobs in the queue, going back to sleep')
+                print('too many jobs in the queue, going back to sleep...')
                 continue
 
             stop = len(tasks) if rest > len(tasks) else rest
@@ -570,7 +570,7 @@ class PyFlowScheduler(object):
         self.start_time = time.time()
 
         if has_sched_v3:
-            self.sched.add_job(self.callback, 'interval', **self.sched_options)
+            self.sched.add_job(self.callback, "interval", **self.sched_options)
         else:
             self.sched.add_interval_job(self.callback, **self.sched_options)
 
@@ -665,8 +665,7 @@ class PyFlowScheduler(object):
         if self.DEBUG:
             # Show the number of open file descriptors
             print(">>>>> _callback: Number of open file descriptors: %s" % get_open_fds())
-
-        print('          before _runem_all in _callback')
+        #print('before _runem_all in _callback')
 
         self._runem_all()
 
@@ -784,8 +783,13 @@ class PyFlowScheduler(object):
             except Exception:
                 print(straceback())
 
-            os.system("kill -9 %d" % os.getpid())
-            self.sched.shutdown(wait=False)
+            self.sched.print_jobs()
+            for job in self.sched.get_jobs():
+                self.sched.unschedule_job(job)
+            self.sched.print_jobs()
+                
+            #os.system("kill -9 %d" % os.getpid())
+            self.sched.shutdown()
 
     def send_email(self, msg, tag=None):
         """
