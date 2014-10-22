@@ -17,6 +17,13 @@ def scan_nestdict(d, key):
     """
     Scan a nested dict d, and return the first value associated
     to the given key. Returns None if key is not found.
+
+    >>> d = {0: 1, 1: {"hello": {"world": {None: [1,2,3]}}}, "foo": [{"bar": 1}, {"color": "red"}]}
+    >>> assert scan_nestdict(d, 1) == {"hello": {"world": {None: [1,2,3]}}}
+    >>> assert scan_nestdict(d, "hello") == {"world": {None: [1,2,3]}}
+    >>> assert scan_nestdict(d, "world") == {None: [1,2,3]}
+    >>> assert scan_nestdict(d, None) == [1,2,3]
+    >>> assert scan_nestdict(d, "color") == "red"
     """
     if isinstance(d, (list, tuple)):
         #print("got list: ", d)
@@ -77,12 +84,6 @@ class DBConnector(object):
 
 
 if __name__ == "__main__":
-    a = {0: 1, 1: {"hello": {"world": {None: [1,2,3]}}}, "foo": [{"bar": 1}, {"color": "red"}]}
-    print(scan_nestdict(a, 1))
-    print(scan_nestdict(a, "hello"))
-    print(scan_nestdict(a, "world"))
-    print(scan_nestdict(a, None))
-    print(scan_nestdict(a, "color"))
     connector = DBConnector()
     connector.set_collection_name("foo")
     print(connector)

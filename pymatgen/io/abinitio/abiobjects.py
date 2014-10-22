@@ -27,11 +27,8 @@ from .netcdf import structure_from_etsf_file
 
 def contract(s):
     """
-    >>> contract("1 1 1 2 2 3")
-     3*1 2*2 1*3
-
-    >>> contract("1 1 3 2 3")
-     2*1 1*3 1*2 1*3
+    >>> assert contract("1 1 1 2 2 3") == "3*1 2*2 1*3"
+    >>> assert contract("1 1 3 2 3") == "2*1 1*3 1*2 1*3"
     """
     if not s: return s
 

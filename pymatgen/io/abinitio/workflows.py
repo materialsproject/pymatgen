@@ -239,13 +239,16 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
         """
         return dict(returncode=0, message="Calling on_all_ok of the base class!")
 
-    def get_results(self):
+    def get_results(self, **kwargs):
         """
         Method called once the calculations are completed.
 
         The base version returns a dictionary task_name: TaskResults for each task in self.
         """
-        return self.Results(task_results={task.name: task.results for task in self})
+        #return self.Results(task_results={task.name: task.results for task in self})
+        #results = super(BaseWorkflow, self).get_results(**kwargs)
+        return self.Results(node=self)
+        #return results
 
 
 class Workflow(BaseWorkflow):
