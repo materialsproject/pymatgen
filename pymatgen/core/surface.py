@@ -533,7 +533,7 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
 
 def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                        bonds=None, tol=0.1, lll_reduce=False,
-                       center_slab=False):
+                       center_slab=False, primitive=True):
     """
     A function that finds all different slabs up to a certain miller index.
     Slabs oriented under certain Miller indices that are equivalent to other
@@ -551,13 +551,22 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
             positions (e.g., structures relaxed with electronic structure
             codes), a looser tolerance of 0.1 (the value used in Materials
             Project) is often needed.
+        lll_reduce (bool): Whether to perform an LLL reduction on the
+            eventual structure.
+        center_slab (bool): Whether to center the slab in the cell with
+            equal vacuum spacing from the top and bottom.
+        primitive (bool): Whether to reduce any generated slabs to a
+            primitive cell (this does **not** mean the slab is generated
+            from a primitive cell, it simply means that after slab
+            generation, we attempt to find shorter lattice vectors,
+            which lead to less surface area and smaller cells).
     """
     all_slabs = []
     for miller in get_symmetrically_distinct_miller_indices(structure,
                                                             max_index):
         gen = SlabGenerator(structure, miller, min_slab_size,
                             min_vacuum_size, lll_reduce=lll_reduce,
-                            center_slab=center_slab)
+                            center_slab=center_slab, primitive=primitive)
         slabs = gen.get_slabs(bonds=bonds, tol=tol)
         if len(slabs) > 0:
             logger.debug("%s has %d slabs... " % (miller, len(slabs)))
