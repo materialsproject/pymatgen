@@ -47,8 +47,6 @@ def scan_nestdict(d, key):
 
 
 class DBConnector(object):
-    #@classmethod
-    #def from_file(cls, filepath):
 
     def __init__(self, config_dict=None):
         self.config = DBConfig(config_dict=config_dict)
