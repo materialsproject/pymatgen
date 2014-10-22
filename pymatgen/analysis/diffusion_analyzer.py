@@ -104,8 +104,7 @@ class DiffusionAnalyzer(PMGSONable):
     """
 
     def __init__(self, structure, displacements, specie, temperature,
-                 time_step, step_skip, smoothed=True, min_obs=30,
-                 weighted=True):
+                 time_step, step_skip, smoothed="max", min_obs=30):
         """
         This constructor is meant to be used with pre-processed data.
         Other convenient constructors are provided as class methods (see
@@ -133,19 +132,23 @@ class DiffusionAnalyzer(PMGSONable):
             step_skip (int): Sampling frequency of the displacements (
                 time_step is multiplied by this number to get the real time
                 between measurements)
-            smoothed (bool): Whether to smooth the MSD. Generally more
-                accurate, but makes error analysis complicated.
+            smoothed (str): Whether to smooth the MSD, and what mode to smooth.
+                Supported modes are:
+                    i. "max", which tries to use the maximum #
+                       of data points for each time origin, subject to a
+                       minimum # of observations given by min_obs, and then
+                       weights the observations based on the variance
+                       accordingly. This is the default.
+                    ii. "constant", in which each timestep is averaged over
+                        the same number of observations given by min_obs.
+                    iii. None / False / any other false-like quantity. No
+                       smoothing.
             min_obs (int): Minimum number of observations to have before
                 including in the MSD vs dt calculation. E.g. If a structure
                 has 10 diffusing atoms, and min_obs = 30, the MSD vs dt will be
                 calculated up to dt = total_run_time / 3, so that each
                 diffusing atom is measured at least 3 uncorrelated times.
-                Only applies in smoothed=True.
-            weighted (bool): Uses a weighted least squares to fit the
-                MSD vs dt. Weights are proportional to 1/Var, which is
-                in turn proportional to number of *independent* observations.
-                Number of independent (non-overlapping) observations is
-                proportional to 1 / dt. Only applies if smoothed=True.
+                Only applies in smoothed="max" or "constant".
         """
         self.structure = structure
         self.disp = displacements
@@ -154,7 +157,6 @@ class DiffusionAnalyzer(PMGSONable):
         self.time_step = time_step
         self.step_skip = step_skip
         self.min_obs = min_obs
-        self.weighted = weighted
         self.indices = []
         self.framework_indices = []
 
@@ -179,7 +181,13 @@ class DiffusionAnalyzer(PMGSONable):
 
             nions, nsteps, dim = dc.shape
 
-            if smoothed:
+            if not smoothed:
+                timesteps = np.arange(0, nsteps)
+            elif smoothed == "constant":
+                if nsteps < min_obs * len(self.indices):
+                    raise ValueError('Not enough data to calculate diffusivity')
+                timesteps = np.arange(0, nsteps - min_obs * len(self.indices))
+            else:
                 #limit the number of sampled timesteps to 200
                 min_dt = int(1000 / (self.step_skip * self.time_step))
                 max_dt = min(len(self.indices) * nsteps // self.min_obs, nsteps)
@@ -187,8 +195,6 @@ class DiffusionAnalyzer(PMGSONable):
                     raise ValueError('Not enough data to calculate diffusivity')
                 timesteps = np.arange(min_dt, max_dt,
                                       max(int((max_dt - min_dt) / 200), 1))
-            else:
-                timesteps = np.arange(0, nsteps)
 
             dt = timesteps * self.time_step * self.step_skip
 
@@ -199,21 +205,27 @@ class DiffusionAnalyzer(PMGSONable):
 
             lengths = np.array(self.structure.lattice.abc)[None, None, :]
             for i, n in enumerate(timesteps):
-                dx = dc[:, n:, :] - dc[:, :-n, :] if smoothed \
-                    else dc[:, i:i+1, :]
+                if not smoothed:
+                    dx = dc[:, i:i + 1, :]
+                    dcomponents = df[:, i:i + 1, :] *lengths
+                elif smoothed == "constant":
+                    dx = dc[:, i:i + min_obs, :]
+                    dcomponents = df[:, i:i + min_obs, :] * lengths
+                else:
+                    dx = dc[:, n:, :] - dc[:, :-n, :]
+                    dcomponents = (df[:, n:, :] - df[:, :-n, :]) * lengths
                 sq_disp = dx ** 2
                 sq_disp_ions[:, i] = np.average(np.sum(sq_disp, axis=2), axis=1)
                 msd[i] = np.average(sq_disp_ions[:, i][self.indices])
-                dcomponents = (df[:, n:, :] - df[:, :-n, :] if smoothed
-                               else df[:, i:i+1, :]) * lengths
+
                 msd_components[i] = \
                     np.average(dcomponents[self.indices] ** 2, axis=(0, 1))
 
             #run the regression on the msd components
-            if weighted and smoothed:
-                w = 1 / dt
-            else:
+            if (not smoothed) or smoothed == "constant":
                 w = np.ones_like(dt)
+            else:
+                w = 1 / dt
 
             #weighted least squares
             def weighted_lstsq(a, b, w):
@@ -538,8 +550,7 @@ class DiffusionAnalyzer(PMGSONable):
             "temperature": self.temperature,
             "time_step": self.time_step,
             "step_skip": self.step_skip,
-            "min_obs": self.min_obs,
-            "weighted": self.weighted
+            "min_obs": self.min_obs
         }
 
     @classmethod
@@ -548,7 +559,7 @@ class DiffusionAnalyzer(PMGSONable):
         return cls(structure, np.array(d["displacements"]), specie=d["specie"],
                    temperature=d["temperature"], time_step=d["time_step"],
                    step_skip=d["step_skip"], min_obs=d["min_obs"],
-                   weighted=d["weighted"], smoothed=d.get("smoothed", True))
+                   smoothed=d.get("smoothed", "max"))
 
 
 def get_conversion_factor(structure, species, temperature):
