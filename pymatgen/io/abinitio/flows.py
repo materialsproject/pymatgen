@@ -573,6 +573,9 @@ class AbinitFlow(Node):
 
             pprint_table(table, out=stream)
 
+    def get_results(self, **kwargs):
+        return self.Results(node=self)
+
     def mongodb_insert(self):
         """
         Insert results in the mongdob database. Returns 0 if success.
@@ -586,8 +589,15 @@ class AbinitFlow(Node):
             for task in work:
                 results = task.get_results()
                 results.update_collection(coll)
-        #self.pickle_dump()
-                                            
+            results = work.get_results()
+            results.update_collection(coll)
+
+        results = self.get_results()
+        results.update_collection(coll)
+
+        # Update the pickle file to save the mongo ids.
+        self.pickle_dump()
+
         from pprint import pprint
         for d in coll.find():
             pprint(d)
@@ -951,6 +961,8 @@ class AbinitFlow(Node):
         for rec in dispatcher.liveReceivers(dispatcher.getReceivers(sender, signal)):
             print("receiver -->", rec)
         print("*** end live receivers ***")
+
+    #def get_results(self, **kwargs)
 
     def rapidfire(self, check_status=False, **kwargs):
         """
