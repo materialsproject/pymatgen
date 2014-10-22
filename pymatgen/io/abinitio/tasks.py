@@ -20,6 +20,7 @@ from monty.serialization import loadfn
 from monty.string import is_string, list_strings
 from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
+from monty.functools import lazy_property
 from pymatgen.util.string_utils import WildCard
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
@@ -162,7 +163,7 @@ class NodeResults(Namespace, PMGSONable):
         """
         Update a mongodb collection.
         """
-        print(type(self))
+        #print(type(self))
         db = collection.database
         node, key = self.node, self.node.name
 
@@ -922,18 +923,18 @@ class Dependency(object):
         """The status of the dependency, i.e. the status of the node."""
         return self.node.status
 
-    @property
+    @lazy_property
     def products(self):
         """List of output files produces by self."""
-        try:
-            return self._products
-        except:
-            self._products = []
-            for ext in self.exts:
-                prod = Product(ext, self.node.opath_from_ext(ext))
-                self._products.append(prod)
+        #try:
+        #    return self._products
+        #except:
+        _products = []
+        for ext in self.exts:
+            prod = Product(ext, self.node.opath_from_ext(ext))
+            _products.append(prod)
 
-            return self._products
+        return _products
 
     def connecting_vars(self):
         """
@@ -1512,7 +1513,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def can_run(self):
         """The task can run if its status is < S_SUB and all the other dependencies (if any) are done!"""
         all_ok = all([stat == self.S_OK for stat in self.deps_status])
-        #print("all_ok",all_ok)
+        #print("can_run: all_ok ==  ",all_ok)
         return self.status < self.S_SUB and all_ok
 
     def not_converged(self):
