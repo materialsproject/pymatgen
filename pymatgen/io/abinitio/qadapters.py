@@ -788,7 +788,7 @@ class PbsAdapter(AbstractQueueAdapter):
 #PBS -l model=$${model}
 #PBS -l place=$${place}
 #PBS -W group_list=$${group_list}
-#PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
+#PBS -l select=$${select}:ncpus=$${ompthreads}:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
 #PBS -l pvmem=$${pvmem}mb
 #PBS -r y
 ####PBS -l mppwidth=$${mppwidth}
