@@ -204,7 +204,7 @@ class FuncTest(PymatgenTest):
 
     def test_generate_all_slabs(self):
         slabs = generate_all_slabs(self.cscl, 1, 10, 10)
-        self.cscl.to(filename="CsCl.cif")
+
         # Only three possible slabs, one each in (100), (110) and (111).
         self.assertEqual(len(slabs), 3)
 
