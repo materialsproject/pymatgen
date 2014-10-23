@@ -417,7 +417,7 @@ class SlabGenerator(object):
         shifts = sorted(shifts)
         return shifts
 
-    def get_slabs(self, bonds=None, tol=0.1):
+    def get_slabs(self, bonds=None, tol=0.1, max_broken_bonds=0):
         """
         This method returns a list of slabs that are generated using the list of
         shift values from the method, _calculate_possible_shifts(). Before the
@@ -438,7 +438,7 @@ class SlabGenerator(object):
         Returns:
             ([Slab]) List of all possible terminations of a particular surface.
         """
-        forbidden_c_ranges = []
+        bond_c_ranges = []
         if bonds is not None:
             #Convert to species first
             bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in
@@ -461,28 +461,30 @@ class SlabGenerator(object):
                             if c_range[1] > 1:
                                 # Takes care of PBC when c coordinate of site
                                 # goes beyond the upper boundary of the cell
-                                forbidden_c_ranges.append((c_range[0], 1))
-                                forbidden_c_ranges.append((0, c_range[1] -1))
+                                bond_c_ranges.append((c_range[0], 1))
+                                bond_c_ranges.append((0, c_range[1] -1))
                             elif c_range[0] < 0:
                                 # Takes care of PBC when c coordinate of site
                                 # is below the lower boundary of the unit cell
-                                forbidden_c_ranges.append((0, c_range[1]))
-                                forbidden_c_ranges.append((c_range[0] + 1, 1))
+                                bond_c_ranges.append((0, c_range[1]))
+                                bond_c_ranges.append((c_range[0] + 1, 1))
                             else:
-                                forbidden_c_ranges.append(c_range)
+                                bond_c_ranges.append(c_range)
 
-        def shift_allowed(shift):
-            # Takes in the list of shifts and filters out the shifts that
-            # break the user input polyhedral bonds. forbidden_c_ranges
-            # determines where these bonds are located.
-            for r in forbidden_c_ranges:
+        terminations = {}
+        for shift in self._calculate_possible_shifts(tol=tol):
+            bonds_broken = 0
+            for r in bond_c_ranges:
                 if r[0] <= shift <= r[1]:
-                    return False
-            return True
+                    bonds_broken += 1
+            terminations[shift] = bonds_broken
+        
+        min_bonds_broken = min(terminations.values())
 
         slabs = [self.get_slab(shift, tol=tol)
-                 for shift in self._calculate_possible_shifts(tol=tol)
-                 if shift_allowed(shift)]
+                 for shift, bonds_broken in terminations.items()
+                 if bonds_broken == min_bonds_broken and bonds_broken <=
+                 max_broken_bonds]
         # Further filters out any surfaces made that might be the same
         m = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False,
                              scale=False)
