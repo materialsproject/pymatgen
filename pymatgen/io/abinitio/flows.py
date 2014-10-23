@@ -46,7 +46,21 @@ __all__ = [
 
 
 class FlowResults(NodeResults):
-    pass
+    @classmethod
+    def from_node(cls, flow):
+        """Initialize an instance from a WorkFlow instance."""
+        new = super(FlowResults, cls).from_node(flow)
+
+        #new.update(
+        #    #input=flow.strategy
+        #)
+
+        # Will put all files found in outdir in GridFs 
+        # Warning: assuming binary files.
+        d = {os.path.basename(f): f for f in flow.outdir.list_filepaths()}
+        new.add_gridfs_files(**d)
+
+        return new
 
 
 class AbinitFlow(Node):
@@ -579,7 +593,7 @@ class AbinitFlow(Node):
                 cprint("Total no Errors: %d" % tot_num_errors, "red")
 
     def get_results(self, **kwargs):
-        return self.Results(node=self)
+        return self.Results.from_node(self)
 
     def mongodb_insert(self):
         """
