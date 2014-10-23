@@ -96,7 +96,7 @@ class NodeResults(Namespace, PMGSONable):
         self.node = node
 
         if "exceptions" not in self: self["exceptions"] = []
-        if "files" not in self: self["files"] = {}
+        if "files" not in self: self["files"] = Namespace()
 
     @property
     def exceptions(self):
@@ -108,11 +108,21 @@ class NodeResults(Namespace, PMGSONable):
         return self["files"]
 
     def add_gridfs_files(self, **kwargs):
+        """
+        This function registers the files that will be saved in GridFS.
+        kwargs is a dictionary mapping the key associated to the file (usually the extension)
+        to the absolute path. By default, files are assumed to be in binary form, for formatted files
+        one should pass a tuple ("filepath", "t").
+
+        Example
+            add_gridfs(GSR="path/to/GSR.nc", text_file=("/path/to/txt_file", "t"))
+
+        The GSR file is a binary file, whereas text_file is a text file.
+        """
         d = {}
         for k, v in kwargs.items():
             mode = "b" 
-            if v.endswith("\t"):
-                mode, v = "t", v[:-2]
+            if isinstance(v, (list, tuple)): v, mode = v
             d[k] = GridFsFile(path=v, mode=mode)
             
         self["files"].update(d)
@@ -209,8 +219,8 @@ class AbinitTaskResults(NodeResults):
         )
 
         new.add_gridfs_files(**{
-            "run_abi": task.input_file.path,
-            "run_abo": task.output_file.path,
+            "run_abi": (task.input_file.path, "t"),
+            "run_abo": (task.output_file.path, "t"),
         })
 
         return new
@@ -2853,8 +2863,8 @@ class SigmaTask(AbinitTask):
 
     def get_results(self, **kwargs):
         results = super(SigmaTask, self).get_results(**kwargs)
-        #sigres_path = self.outdir.has_abiext("SIGRES")
-        #results.add_gridfs_files(SIGRES=sigres_path)
+        sigres_path = self.outdir.has_abiext("SIGRES")
+        results.add_gridfs_files(SIGRES=sigres_path)
         #results.update(
         #   sigres.as_dict(),
         #   "GW_gap"=gw_gap
@@ -2938,7 +2948,7 @@ class BseTask(AbinitTask):
     def get_results(self, **kwargs):
         results = super(BseTask, self).get_results(**kwargs)
         mdf_path = self.outdir.has_abiext("MDF")
-        #results.add_gridfs_files(MDF=mdf_path)
+        results.add_gridfs_files(MDF=mdf_path)
         #results.update(
         #    mdf.as_dict(),
         #    epsilon_infinity
