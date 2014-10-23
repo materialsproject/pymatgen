@@ -114,7 +114,8 @@ class NodeResults(Namespace, PMGSONable):
         to the absolute path. By default, files are assumed to be in binary form, for formatted files
         one should pass a tuple ("filepath", "t").
 
-        Example
+        Example::
+
             add_gridfs(GSR="path/to/GSR.nc", text_file=("/path/to/txt_file", "t"))
 
         The GSR file is a binary file, whereas text_file is a text file.
@@ -170,7 +171,6 @@ class NodeResults(Namespace, PMGSONable):
         """
         Update a mongodb collection.
         """
-        #print(type(self))
         db = collection.database
         node, key = self.node, self.node.name
 
@@ -179,7 +179,7 @@ class NodeResults(Namespace, PMGSONable):
             import gridfs
             fs = gridfs.GridFS(db)
             for ext, gridfile in self.gridfs_files.items():
-                logger.info("gridfs: will put file:", gridfile.path)
+                logger.info("gridfs: about to put file:", str(gridfile))
                 # Here we set gridfile.fs_id that will be stored in the mondodb document
                 try:
                     with open(gridfile.path, "r" + gridfile.mode) as f:
@@ -1350,6 +1350,10 @@ class FileNode(Node):
     def status(self):
         return self.S_OK
 
+    #def get_results(self, **kwargs):
+    #    results = super(FileNode, self).get_results(**kwargs)
+    #    return results.add_gridfs_files(GSR=self.filepath)
+
 
 class TaskError(Exception):
     """Base Exception for `Task` methods"""
@@ -1467,17 +1471,30 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.manager = manager.deepcopy()
 
     @property
-    def flow(self):
-        """The flow containing this `Task`."""
-        return self._flow
+    def work(self):
+        """The WorkFlow containing this `Task`."""
+        return self._work
 
-    def set_flow(self, flow):
-        """Set the flow associated to this `Task`."""
-        if not hasattr(self, "_flow"):
-            self._flow = flow
+    def set_work(self, work):
+        """Set the WorkFlow associated to this `Task`."""
+        if not hasattr(self, "_work"):
+            self._work = work
         else: 
-            if self._flow != flow:
-                raise ValueError("self._flow != flow")
+            if self._work != work:
+                raise ValueError("self._work != work")
+
+    @property
+    def flow(self):
+        """The Flow containing this `Task`."""
+        return self.work.flow
+
+    @lazy_property
+    def pos(self):
+        """The position of the task in the Flow"""
+        for i, task in enumerate(self.work):
+            if self == task: 
+                return (self.work.pos, i)
+        raise ValueError("Cannot find the position of %s in flow %s" % (self, self.flow))
 
     def make_input(self):
         """Construct and write the input file of the calculation."""

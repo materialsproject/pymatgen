@@ -14,6 +14,7 @@ from six.moves import filter
 from monty.collections import AttrDict
 from monty.itertools import chunks
 from monty.pprint import pprint_table
+from monty.functools import lazy_property
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from pymatgen.util.string_utils import WildCard
@@ -305,6 +306,14 @@ class Workflow(BaseWorkflow):
         else: 
             if self._flow != flow:
                 raise ValueError("self._flow != flow")
+
+    @lazy_property
+    def pos(self):
+        """The position of self in the Flow"""
+        for i, work in enumerate(self.flow):
+            if self == work: 
+                return i
+        raise ValueError("Cannot find the position of %s in flow %s" % (self, self.flow))
 
     def set_workdir(self, workdir, chroot=False):
         """Set the working directory. Cannot be set more than once unless chroot is True"""

@@ -593,7 +593,19 @@ class AbinitFlow(Node):
                 cprint("Total no Errors: %d" % tot_num_errors, "red")
 
     def get_results(self, **kwargs):
-        return self.Results.from_node(self)
+        results = self.Results.from_node(self)
+        results.update(self.get_dict_for_mongodb_queries())
+        return results
+
+    def get_dict_for_mongodb_queries(self):
+        """
+        This function returns a dictionary with the attributes that will be 
+        put in the mongodb document to facilitate the query. 
+        Subclasses may want to replace or extend the default behaviour.
+        """
+        return {}
+        # TODO
+        #for task in self.iflat_tasks():
 
     def mongodb_insert(self):
         """
@@ -892,12 +904,12 @@ class AbinitFlow(Node):
         the `TaskManager` to the different tasks in the Flow.
         """
         for work in self:
+            # Each workflow has a reference to its flow.
             work.allocate(manager=self.manager)
             work.set_flow(self)
-
-        # Each task has a reference to the flow.
-        for task in self.iflat_tasks():
-            task.set_flow(self)
+            # Each task has a reference to its workflow.
+            for task in work:
+                task.set_work(work)
 
         self.check_dependencies()
 

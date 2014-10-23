@@ -78,6 +78,7 @@ class AbinitFlowTest(FlowUnitTest):
         flow.register_work(work, deps={task0_w0: "WFK"})
         self.assertTrue(len(flow) == 2)
 
+
         # Add another workflow without dependencies.
         task0_w2 = flow.register_task(self.fake_input)
         self.assertTrue(len(flow) == 3)
@@ -89,6 +90,9 @@ class AbinitFlowTest(FlowUnitTest):
         self.assertTrue(flow[1].depends_on(task0_w0))
         self.assertTrue(flow[1][0].depends_on(task0_w0))
         self.assertFalse(flow[2][0].depends_on(task0_w0))
+        self.assertEqual(flow[1].pos, 1)
+        self.assertEqual(flow[1][0].pos, (1, 0))
+        self.assertEqual(flow[2][0].pos, (2, 0))
 
         self.assertFalse(flow.all_ok)
         self.assertEqual(flow.num_tasks, 4)
