@@ -137,6 +137,11 @@ class SlabGeneratorTest(PymatgenTest):
         self.assertEqual(len(gen.get_slabs(
             bonds={("P", "O"): 3, ("Fe", "O"): 3})), 0)
 
+        #If we allow some broken bonds, there are a few slabs.
+        self.assertEqual(len(gen.get_slabs(
+            bonds={("P", "O"): 3, ("Fe", "O"): 3},
+            max_broken_bonds=2)), 2)
+
         # At this threshold, only the origin and center Li results in
         # clustering. All other sites are non-clustered. So the of
         # slabs is of sites in LiFePO4 unit cell - 2 + 1.
@@ -150,7 +155,6 @@ class SlabGeneratorTest(PymatgenTest):
         a, b, c = gen.oriented_unit_cell.lattice.matrix
         self.assertAlmostEqual(np.dot(a, gen._normal), 0)
         self.assertAlmostEqual(np.dot(b, gen._normal), 0)
-
 
     def test_triclinic_TeI(self):
         # Test case for a triclinic structure of TeI. Only these three
@@ -200,7 +204,18 @@ class FuncTest(PymatgenTest):
 
     def test_generate_all_slabs(self):
         slabs = generate_all_slabs(self.cscl, 1, 10, 10)
+
         # Only three possible slabs, one each in (100), (110) and (111).
+        self.assertEqual(len(slabs), 3)
+
+        slabs = generate_all_slabs(self.cscl, 1, 10, 10,
+                                   bonds={("Cs", "Cl"): 4})
+        # No slabs if we don't allow broken Cs-Cl
+        self.assertEqual(len(slabs), 0)
+
+        slabs = generate_all_slabs(self.cscl, 1, 10, 10,
+                                   bonds={("Cs", "Cl"): 4},
+                                   max_broken_bonds=100)
         self.assertEqual(len(slabs), 3)
 
         slabs1 = generate_all_slabs(self.lifepo4, 1, 10, 10, tol=0.1,
