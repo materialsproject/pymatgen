@@ -22,7 +22,7 @@ from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property
 from pymatgen.util.string_utils import WildCard
-from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
+from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump, pmg_serialize
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
 from .qadapters import qadapter_class
 from .netcdf import ETSF_Reader
@@ -71,25 +71,37 @@ class GridFsFile(AttrDict):
         super(GridFsFile, self).__init__(path=path, fs_id=fs_id, mode=mode)
 
 
-class NodeResults(Namespace, PMGSONable):
+class NodeResults(dict, PMGSONable):
     """
     Dictionary used to store the most important results produced by a Node.
     """
+    JSON_SCHEMA = {
+        "type": "object",
+        "properties": {
+            "node_id": {"type": "integer", "required": True},
+            "node_finalized": {"type": "boolean", "required": True},
+            "node_class": {"type": "string", "required": True},
+            #"node_status": {"type": "string", "required": True},
+            "out": {"type": "object", "required": True, "description": "dictionary with the output results"},
+            "exceptions": {"type": "array", "required": True},
+            "files": {"type": "object", "required": True},
+        },
+    }
+
     @classmethod
     def from_node(cls, node):
         """Initialize an instance of `NodeResults` from a `Node` subclass."""
         kwargs = dict(
-            node=node,
             node_id=node.node_id,
             node_finalized=node.finalized,
-            node_history=list(node.history),
-            node_name=node.name, 
+            #node_history=list(node.history),
+            #node_name=node.name, 
             node_class=node.__class__.__name__,
             # FIXME
             #node_status=str(node.status),
         )
 
-        return node.Results(**kwargs)
+        return node.Results(node, **kwargs)
 
     def __init__(self, node, **kwargs):
         super(NodeResults, self).__init__(**kwargs)
@@ -97,6 +109,7 @@ class NodeResults(Namespace, PMGSONable):
 
         if "exceptions" not in self: self["exceptions"] = []
         if "files" not in self: self["files"] = Namespace()
+        if "out" not in self: self["out"] = {}
 
     @property
     def exceptions(self):
@@ -135,26 +148,23 @@ class NodeResults(Namespace, PMGSONable):
             if newstr not in self.exceptions:
                 self["exceptions"] += [newstr,]
 
-    def assert_valid(self):
-        """
-        Returns an empty list if results seem valid. 
+    #def assert_valid(self):
+    #    """
+    #    Returns an empty list if results seem valid. 
 
-        The try assert except trick allows one to get a string with info on the exception.
-        We use the += operator so that sub-classes can add their own message.
-        """
-        # TODO Better treatment of events.
-        try:
-            assert (self["task_returncode"] == 0 and self["task_status"] == self.S_OK)
-        except AssertionError as exc:
-            self.push_exceptions(str(exc))
+    #    The try assert except trick allows one to get a string with info on the exception.
+    #    We use the += operator so that sub-classes can add their own message.
+    #    """
+    #    # TODO Better treatment of events.
+    #    try:
+    #        assert (self["task_returncode"] == 0 and self["task_status"] == self.S_OK)
+    #    except AssertionError as exc:
+    #        self.push_exceptions(str(exc))
+    #    return self.exceptions
 
-        return self.exceptions
-
+    @pmg_serialize
     def as_dict(self):
-        d = {k: v for k,v in self.items()}
-        #d["@module"] = self.__class__.__module__
-        #d["@class"] = self.__class__.__name__
-        return d
+        return self.copy()
                                                                                 
     @classmethod
     def from_dict(cls, d):
@@ -166,6 +176,17 @@ class NodeResults(Namespace, PMGSONable):
     @classmethod
     def json_load(cls, filename):
         return cls.from_dict(loadfn(filename))
+
+    def validate_json_schema(self):
+        import validictory
+        d = self.as_dict()
+        try:
+            validictory.validate(d, self.JSON_SCHEMA)
+            return True
+        except ValueError as exc:
+            pprint(d)
+            print(exc)
+            return False
 
     def update_collection(self, collection):
         """
@@ -206,6 +227,11 @@ class NodeResults(Namespace, PMGSONable):
 
 class AbinitTaskResults(NodeResults):
 
+    JSON_SCHEMA = NodeResults.JSON_SCHEMA.copy() 
+    JSON_SCHEMA["properties"] = {
+        "executable": {"type": "string", "required": True},
+    }
+
     @classmethod
     def from_node(cls, task):
         """Initialize an instance from an AbinitTask instance."""
@@ -213,8 +239,8 @@ class AbinitTaskResults(NodeResults):
 
         new.update(
             executable=task.executable,
-            #task_events=
             #executable_version:
+            #task_events=
             #input=task.strategy
         )
 
@@ -1080,10 +1106,10 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         if not isinstance(other, Node):
             return False
 
+        #return self.node_id == other.node_id and 
         return (self.__class__ == other.__class__ and 
                 self.workdir == other.workdir)
-               #self.node_id == other.node_id and 
-                                                       
+
     def __ne__(self, other):
         return not self.__eq__(other)
 
@@ -2648,14 +2674,13 @@ class ScfTask(AbinitTask):
 
     def get_results(self, **kwargs):
         results = super(ScfTask, self).get_results(**kwargs)
-        #return results
 
         from abipy.electrons.gsr import GSR_File
         gsr_path = self.outdir.has_abiext("GSR")
         gsr = GSR_File(gsr_path)
 
         results.update(
-            gsr.as_dict(),
+            out=gsr.as_dict(),
         )
 
         # Add files
@@ -2697,7 +2722,7 @@ class NscfTask(AbinitTask):
         gsr = GSR_File(gsr_path)
 
         results.update(
-            gsr.as_dict(),
+            out=gsr.as_dict(),
         )
 
         results.add_gridfs_files(GSR=gsr_path)
@@ -2706,7 +2731,7 @@ class NscfTask(AbinitTask):
 
 class RelaxTask(AbinitTask):
     """
-    Task Structural optimization.
+    Task for structural optimizations.
     """
     # What about a possible ScfConvergenceWarning?
     CRITICAL_EVENTS = [
@@ -2781,7 +2806,7 @@ class RelaxTask(AbinitTask):
 
         gsr_path = self.outdir.has_abiext("GSR")
         results.update(
-            gsr.as_dict(),
+            out=gsr.as_dict(),
         )
 
         results.add_gridfs_files(GSR=gsr_path)
@@ -2883,7 +2908,7 @@ class SigmaTask(AbinitTask):
         sigres_path = self.outdir.has_abiext("SIGRES")
         results.add_gridfs_files(SIGRES=sigres_path)
         #results.update(
-        #   sigres.as_dict(),
+        #   out=sigres.as_dict(),
         #   "GW_gap"=gw_gap
         #)
 
@@ -2967,7 +2992,7 @@ class BseTask(AbinitTask):
         mdf_path = self.outdir.has_abiext("MDF")
         results.add_gridfs_files(MDF=mdf_path)
         #results.update(
-        #    mdf.as_dict(),
+        #    out=mdf.as_dict(),
         #    epsilon_infinity
         #    optical_gap
         #)

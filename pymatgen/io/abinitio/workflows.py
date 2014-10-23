@@ -50,7 +50,9 @@ __all__ = [
     "PhononWorkflow",
 ]
 
+
 class WorkResults(NodeResults):
+    JSON_SCHEMA = NodeResults.JSON_SCHEMA.copy() 
 
     @classmethod
     def from_node(cls, work):

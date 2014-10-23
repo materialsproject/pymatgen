@@ -13,6 +13,7 @@ import shutil
 import pickle
 
 from six.moves import map 
+from pprint import pprint
 from monty.io import FileLock
 from monty.pprint import pprint_table
 from monty.termcolor import cprint
@@ -46,6 +47,12 @@ __all__ = [
 
 
 class FlowResults(NodeResults):
+
+    JSON_SCHEMA = NodeResults.JSON_SCHEMA.copy() 
+    #JSON_SCHEMA["properties"] = {
+    #    "queries": {"type": "string", "required": True},
+    #}
+
     @classmethod
     def from_node(cls, flow):
         """Initialize an instance from a WorkFlow instance."""
@@ -58,6 +65,10 @@ class FlowResults(NodeResults):
         # Will put all files found in outdir in GridFs 
         # Warning: assuming binary files.
         d = {os.path.basename(f): f for f in flow.outdir.list_filepaths()}
+
+        # Add the pickle file.
+        pickle_path = os.path.join(flow.workdir, flow.PICKLE_FNAME)
+        d["pickle"] = pickle_path if flow.pickle_protocol != 0 else (pickle_path, "t")
         new.add_gridfs_files(**d)
 
         return new
@@ -78,7 +89,6 @@ class AbinitFlow(Node):
             Protocol for Pickle database (default: -1 i.e. latest protocol)
     """
     VERSION = "0.1"
-
     PICKLE_FNAME = "__AbinitFlow__.pickle"
 
     Results = FlowResults
@@ -236,6 +246,21 @@ class AbinitFlow(Node):
         if self.mongo_id is not None:
             raise RuntimeError("Cannot change mongo_id %s" % self.mongo_id)
         self._mongo_id = value
+
+    def _validate_json_schema(self):
+        """Validate the JSON schema. Return list of errors."""
+        errors = []
+
+        for work in self:
+            for task in work:
+                if not task.get_results().validate_json_schema(): 
+                    errors.append(task)
+            if not work.get_results().validate_json_schema(): 
+                errors.append(work)
+        if not self.get_results().validate_json_schema(): 
+            errors.append(self)
+
+        return errors
 
     @property
     def works(self):
@@ -603,9 +628,11 @@ class AbinitFlow(Node):
         put in the mongodb document to facilitate the query. 
         Subclasses may want to replace or extend the default behaviour.
         """
-        return {}
+        d = {}
+        return d
         # TODO
-        #for task in self.iflat_tasks():
+        all_structures = [task.strategy.structure for task in self.iflat_tasks()]
+        all_pseudos = [task.strategy.pseudos for task in self.iflat_tasks()]
 
     def mongodb_insert(self):
         """
@@ -619,17 +646,20 @@ class AbinitFlow(Node):
         for work in self:
             for task in work:
                 results = task.get_results()
+                pprint(results)
                 results.update_collection(coll)
             results = work.get_results()
+            pprint(results)
             results.update_collection(coll)
 
         results = self.get_results()
+        pprint(results)
         results.update_collection(coll)
 
         # Update the pickle file to save the mongo ids.
         self.pickle_dump()
 
-        from pprint import pprint
+
         for d in coll.find():
             pprint(d)
 
