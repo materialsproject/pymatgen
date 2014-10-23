@@ -327,17 +327,23 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     li = specie_site_index_map[0][0]
     hi = specie_site_index_map[0][1]
     comp1_min = int(sum(multiplicity[li:hi])/sum(multiplicity)*100)-1
-    comp2_max = 100-comp1_min
-    ymax = comp2_max/comp1_min
     comp1_max = int(sum(multiplicity[li:hi])/sum(multiplicity)*100)+1
-    comp2_min = 100-comp1_max
-    ymin = comp2_min/comp1_max
-    delta = (ymax-ymin)/50.0
+    delta = float(comp1_max-comp1_min)/40.0
+    yvals = []
+    for comp1 in np.arange(comp1_min,comp1_max+delta,delta):
+        comp2 = 100-comp1
+        y = comp2/comp1
+        yvals.append(y)
+    #ymin = comp2_min/comp1_max
+    #print comp1_min, comp1_max
+    #print comp2_min, comp2_max
+    #print ymax, ymin
 
     # Compile mu's for all composition ratios in the range
     #+/- 1% from the stoichiometry
     result = {}
-    for y in np.arange(ymin,ymax+delta,delta):
+    #for y in np.arange(ymin,ymax+delta,delta):
+    for y in yvals:
         result[y] = []
         vector_func = [y-c_ratio[0]]
         vector_func.append(omega)
