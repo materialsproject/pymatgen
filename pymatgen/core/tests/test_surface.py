@@ -137,6 +137,11 @@ class SlabGeneratorTest(PymatgenTest):
         self.assertEqual(len(gen.get_slabs(
             bonds={("P", "O"): 3, ("Fe", "O"): 3})), 0)
 
+        #If we allow some broken bonds, there are a few slabs.
+        self.assertEqual(len(gen.get_slabs(
+            bonds={("P", "O"): 3, ("Fe", "O"): 3},
+            max_broken_bonds=4)), 2)
+
         # At this threshold, only the origin and center Li results in
         # clustering. All other sites are non-clustered. So the of
         # slabs is of sites in LiFePO4 unit cell - 2 + 1.
