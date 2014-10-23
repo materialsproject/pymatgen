@@ -860,8 +860,10 @@ class BandStructureSymmLine(BandStructure, PMGSONable):
         d['band_gap'] = self.get_band_gap()
         d['labels_dict'] = {}
         d['is_spin_polarized'] = self.is_spin_polarized
+        # MongoDB does not accept keys starting with $. Add a blanck space to fix the problem
         for c in self._labels_dict:
-            d['labels_dict'][c] = self._labels_dict[c].as_dict()['fcoords']
+            mongo_key = c if not c.startswith("$") else " " + c
+            d['labels_dict'][mongo_key] = self._labels_dict[c].as_dict()['fcoords']
         d['projections'] = {}
         if len(self._projections) != 0:
             d['structure'] = self._structure.as_dict()
@@ -885,7 +887,8 @@ class BandStructureSymmLine(BandStructure, PMGSONable):
         Returns:
             A BandStructureSymmLine object
         """
-        labels_dict = d['labels_dict']
+        # Strip the label to recover initial string (see trick used in as_dict to handle $ chars)
+        labels_dict = {k.strip(): v for k, v in d['labels_dict'].items()}
         projections = {}
         structure = None
         if 'projections' in d and len(d['projections']) != 0:
