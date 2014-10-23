@@ -39,6 +39,7 @@ __copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 
+
 __all__ = [
     "Workflow",
     "BandStructureWorkflow",
