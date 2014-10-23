@@ -496,8 +496,8 @@ class DiffusionAnalyzer(PMGSONable):
             initial_structure=initial_structure)
 
     @classmethod
-    def from_files(cls, filepaths, specie, step_skip=10, smoothed=True,
-                   min_obs=30, weighted=True, ncores=None, initial_disp=None,
+    def from_files(cls, filepaths, specie, step_skip=10, smoothed="max",
+                   min_obs=30, ncores=None, initial_disp=None,
                    initial_structure=None):
         """
         Convenient constructor that takes in a list of vasprun.xml paths to
@@ -514,17 +514,22 @@ class DiffusionAnalyzer(PMGSONable):
             step_skip (int): Sampling frequency of the displacements (
                 time_step is multiplied by this number to get the real time
                 between measurements)
-            smoothed (bool): Whether to smooth the MSD. Generally more
-                accurate, but makes error analysis complicated.
+            smoothed (str): Whether to smooth the MSD, and what mode to smooth.
+                Supported modes are:
+                    i. "max", which tries to use the maximum #
+                       of data points for each time origin, subject to a
+                       minimum # of observations given by min_obs, and then
+                       weights the observations based on the variance
+                       accordingly. This is the default.
+                    ii. "constant", in which each timestep is averaged over
+                        the same number of observations given by min_obs.
+                    iii. None / False / any other false-like quantity. No
+                       smoothing.
             min_obs (int): Minimum number of observations to have before
                 including in the MSD vs dt calculation. E.g. If a structure
                 has 10 diffusing atoms, and min_obs = 30, the MSD vs dt will be
                 calculated up to dt = total_run_time / 3, so that each
                 diffusing atom is measured at least 3 uncorrelated times.
-            weighted (bool): Uses a weighted least squares to fit the
-                MSD vs dt. Weights are proportional to 1/dt, since the
-                number of observations are also proportional to 1/dt (and
-                hence the variance is proportional to dt)
             ncores (int): Numbers of cores to use for multiprocessing. Can
                 speed up vasprun parsing considerably. Defaults to None,
                 which means serial. It should be noted that if you want to
@@ -550,8 +555,7 @@ class DiffusionAnalyzer(PMGSONable):
                 # Recompute offset.
                 offset = (- (v.nionic_steps - offset)) % step_skip
         return cls.from_vaspruns(vaspruns, min_obs=min_obs, smoothed=smoothed,
-                                 weighted=weighted, specie=specie,
-                                 initial_disp=initial_disp,
+                                 specie=specie, initial_disp=initial_disp,
                                  initial_structure=initial_structure)
 
     def as_dict(self):
