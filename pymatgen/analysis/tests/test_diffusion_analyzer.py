@@ -127,16 +127,18 @@ class DiffusionAnalyzerTest(PymatgenTest):
             self.assertAlmostEqual(d.diffusivity, 4.25976905436e-07, 7)
 
             d = DiffusionAnalyzer(d.structure, d.disp, d.specie, d.temperature,
-                                  d.time_step, d.step_skip, smoothed="constant")
+                                  d.time_step, d.step_skip,
+                                  smoothed="constant")
 
-            self.assertAlmostEqual(d.conductivity, 70.626372697466024, 7)
-            self.assertAlmostEqual(d.diffusivity, 1.105878853094349e-06, 7)
+            self.assertAlmostEqual(d.conductivity, 27.620969757029918, 7)
+            self.assertAlmostEqual(d.diffusivity, 4.3249348918288525e-07, 7)
 
-            d = DiffusionAnalyzer.from_structures(list(d.get_drift_corrected_structures()),
-                                                  d.specie, d.temperature, d.time_step,
-                                                  d.step_skip, d.smoothed, d.min_obs)
-            self.assertAlmostEqual(d.conductivity, 70.626372697466024, 7)
-            self.assertAlmostEqual(d.diffusivity, 1.105878853094349e-06, 7)
+            d = DiffusionAnalyzer.from_structures(
+                list(d.get_drift_corrected_structures()),
+                d.specie, d.temperature, d.time_step,
+                d.step_skip, d.smoothed, d.min_obs)
+            self.assertAlmostEqual(d.conductivity, 27.620969757029918, 7)
+            self.assertAlmostEqual(d.diffusivity, 4.3249348918288525e-07, 7)
 
 if __name__ == '__main__':
     unittest.main()

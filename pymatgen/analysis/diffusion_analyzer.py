@@ -185,9 +185,10 @@ class DiffusionAnalyzer(PMGSONable):
             if not smoothed:
                 timesteps = np.arange(0, nsteps)
             elif smoothed == "constant":
-                if nsteps < min_obs * len(self.indices):
+                min_step = int(np.ceil(min_obs / len(self.indices)))
+                if nsteps < min_step:
                     raise ValueError('Not enough data to calculate diffusivity')
-                timesteps = np.arange(0, nsteps - min_obs * len(self.indices))
+                timesteps = np.arange(0, nsteps - min_step)
             else:
                 #limit the number of sampled timesteps to 200
                 min_dt = int(1000 / (self.step_skip * self.time_step))
@@ -210,8 +211,9 @@ class DiffusionAnalyzer(PMGSONable):
                     dx = dc[:, i:i + 1, :]
                     dcomponents = df[:, i:i + 1, :] *lengths
                 elif smoothed == "constant":
-                    dx = dc[:, i:i + min_obs, :]
-                    dcomponents = df[:, i:i + min_obs, :] * lengths
+                    dx = dc[:, i:i + min_step, :] - dc[:, 0:min_step, :]
+                    dcomponents = (df[:, i:i + min_step, :]
+                                   - df[:, 0:min_step, :]) * lengths
                 else:
                     dx = dc[:, n:, :] - dc[:, :-n, :]
                     dcomponents = (df[:, n:, :] - df[:, :-n, :]) * lengths
@@ -568,7 +570,8 @@ class DiffusionAnalyzer(PMGSONable):
             "temperature": self.temperature,
             "time_step": self.time_step,
             "step_skip": self.step_skip,
-            "min_obs": self.min_obs
+            "min_obs": self.min_obs,
+            "smoothed": self.smoothed
         }
 
     @classmethod
