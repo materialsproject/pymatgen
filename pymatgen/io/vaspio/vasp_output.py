@@ -133,6 +133,21 @@ def _parse_from_incar(filename, key):
     return None
 
 
+def _vasprun_float(f):
+    """
+    Large numbers are often represented as ********* in the vasprun.
+    This function parses these values as np.nan
+    """
+    try:
+        return float(f)
+    except ValueError as e:
+        f = f.strip()
+        if f == '*' * len(f):
+            warnings.warn('Float overflow (*******) encountered in vasprun')
+            return np.nan
+        raise e
+
+
 class Vasprun(PMGSONable):
     """
     Vastly improved cElementTree-based parser for vasprun.xml files. Uses
@@ -822,7 +837,7 @@ class Vasprun(PMGSONable):
                  for i in elem.find("energy").findall("i")}
         esteps = []
         for scstep in elem.findall("scstep"):
-            d = {i.attrib["name"]: float(i.text)
+            d = {i.attrib["name"]: _vasprun_float(i.text)
                  for i in scstep.find("energy").findall("i")}
             esteps.append(d)
         s = self._parse_structure(elem.find("structure"))
