@@ -84,20 +84,17 @@ class NodeResults(Namespace, PMGSONable):
             node_finalized=node.finalized,
             node_history=list(node.history),
             node_name=node.name, 
-            node_status=str(node.status),
             node_class=node.__class__.__name__,
+            # FIXME
+            #node_status=str(node.status),
         )
 
-        #if node.is_task: cls = TaskResults
-        #if node.is_workflow: cls = WorkResults
-        #if node.is_flow: cls = FlowResults
         return node.Results(**kwargs)
 
-    def __init__(self, **kwargs):
-        node = kwargs.pop("node")
-        assert node is not None
+    def __init__(self, node, **kwargs):
         super(NodeResults, self).__init__(**kwargs)
         self.node = node
+
         if "exceptions" not in self: self["exceptions"] = []
         if "files" not in self: self["files"] = {}
 
@@ -172,10 +169,13 @@ class NodeResults(Namespace, PMGSONable):
             import gridfs
             fs = gridfs.GridFS(db)
             for ext, gridfile in self.gridfs_files.items():
-                #print("gridfs putting ", gridfile.path)
+                logger.info("gridfs: will put file:", gridfile.path)
                 # Here we set gridfile.fs_id that will be stored in the mondodb document
-                with open(gridfile.path, "r" + gridfile.mode) as f:
-                    gridfile.fs_id = fs.put(f, filename=gridfile.path)
+                try:
+                    with open(gridfile.path, "r" + gridfile.mode) as f:
+                        gridfile.fs_id = fs.put(f, filename=gridfile.path)
+                except IOError as exc:
+                    logger.critical(str(exc))
 
         flow = node if node.is_flow else node.flow
 
@@ -184,6 +184,7 @@ class NodeResults(Namespace, PMGSONable):
             flow.mongo_id = collection.insert({})
             print("Creating flow.mongo_id", flow.mongo_id, type(flow.mongo_id))
 
+        # Get the document from flow.mongo_id and update it.
         doc = collection.find_one({"_id": flow.mongo_id})
         if key in doc:
             raise ValueError("%s is already in doc!" % key)
@@ -193,13 +194,26 @@ class NodeResults(Namespace, PMGSONable):
         #collection.update({'_id':mongo_id}, {"$set": doc}, upsert=False)
 
 
-class TaskResults(NodeResults):
-    pass
-    #def __init__(self, **kwargs):
-        #task_events=
-        #executable=task.executable,
-        #executable_version:
-        #input=task.strategy
+class AbinitTaskResults(NodeResults):
+
+    @classmethod
+    def from_node(cls, task):
+        """Initialize an instance from an AbinitTask instance."""
+        new = super(AbinitTaskResults, cls).from_node(task)
+
+        new.update(
+            executable=task.executable,
+            #task_events=
+            #executable_version:
+            #input=task.strategy
+        )
+
+        new.add_gridfs_files(**{
+            "run_abi": task.input_file.path,
+            "run_abo": task.output_file.path,
+        })
+
+        return new
 
 
 class ParalHintsError(Exception):
@@ -1141,9 +1155,6 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         """String representation of history."""
         return "\n".join(self.history)
 
-    #@abc.abstractproperty
-    #def workdir(self):
-
     @property
     def is_file(self):
         """True if this node is a file"""
@@ -1343,8 +1354,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     # Use class attributes for TaskErrors so that we don't have to import them.
     Error = TaskError
     RestartError = TaskRestartError
-
-    Results = TaskResults
 
     # List of `AbinitEvent` subclasses that are tested in the not_converged method. 
     # Subclasses should provide their own list if they need to check the converge status.
@@ -2140,15 +2149,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             self.set_status(self.S_ABICRITICAL, info_msg=str(exc))
             return parser.report_exception(ofile.path, exc)
 
-    #@property
-    #def results(self):
-    #    """The results produced by the task. Set by get_results"""
-    #    try:
-    #        return self._results
-    #    except AttributeError:
-    #        self._results = self.get_results()
-    #        return self._results 
-
     def get_results(self, **kwargs):
         """
         Returns `NodeResults` instance.
@@ -2336,6 +2336,8 @@ class AbinitTask(Task):
     """
     Base class defining an ABINIT calculation
     """
+    Results = AbinitTaskResults
+
     @classmethod
     def from_input(cls, abinit_input, workdir=None, manager=None):
         """

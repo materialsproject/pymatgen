@@ -50,7 +50,22 @@ __all__ = [
 ]
 
 class WorkResults(NodeResults):
-    pass
+
+    @classmethod
+    def from_node(cls, work):
+        """Initialize an instance from a WorkFlow instance."""
+        new = super(WorkResults, cls).from_node(work)
+
+        #new.update(
+        #    #input=work.strategy
+        #)
+
+        # Will put all files found in outdir in GridFs 
+        # Warning: assuming binary files.
+        d = {os.path.basename(f): f for f in work.outdir.list_filepaths()}
+        new.add_gridfs_files(**d)
+
+        return new
 
 
 class WorkflowError(Exception):
@@ -242,13 +257,10 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
     def get_results(self, **kwargs):
         """
         Method called once the calculations are completed.
-
         The base version returns a dictionary task_name: TaskResults for each task in self.
         """
-        #return self.Results(task_results={task.name: task.results for task in self})
-        #results = super(BaseWorkflow, self).get_results(**kwargs)
-        return self.Results(node=self)
-        #return results
+        results = self.Results.from_node(self)
+        return results
 
 
 class Workflow(BaseWorkflow):
@@ -963,7 +975,7 @@ class QptdmWorkflow(Workflow):
         the final SCR file in the outdir of the `Workflow`.
         """
         final_scr = self.merge_scrfiles()
-        return self.Results(returncode=0, message="mrgscr done", final_scr=final_scr)
+        return self.Results(node=self,returncode=0, message="mrgscr done", final_scr=final_scr)
 
 
 class PhononWorkflow(Workflow):
@@ -1005,5 +1017,5 @@ class PhononWorkflow(Workflow):
         # Merge DDB files.
         self.merge_ddb_files()
 
-        return self.Results(returncode=0, message="DDB merge done")
+        return self.Results(node=self,returncode=0, message="DDB merge done")
 
