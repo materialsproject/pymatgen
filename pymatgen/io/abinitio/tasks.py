@@ -80,8 +80,11 @@ class NodeResults(dict, PMGSONable):
         "properties": {
             "node_id": {"type": "integer", "required": True},
             "node_finalized": {"type": "boolean", "required": True},
+            "node_history": {"type": "array", "required": True},
             "node_class": {"type": "string", "required": True},
-            #"node_status": {"type": "string", "required": True},
+            "node_name": {"type": "string", "required": True},
+            "node_status": {"type": "string", "required": True},
+            "in": {"type": "object", "required": True, "description": "dictionary with input parameters"},
             "out": {"type": "object", "required": True, "description": "dictionary with the output results"},
             "exceptions": {"type": "array", "required": True},
             "files": {"type": "object", "required": True},
@@ -94,11 +97,10 @@ class NodeResults(dict, PMGSONable):
         kwargs = dict(
             node_id=node.node_id,
             node_finalized=node.finalized,
-            #node_history=list(node.history),
-            #node_name=node.name, 
+            node_history=list(node.history),
+            node_name=node.name, 
             node_class=node.__class__.__name__,
-            # FIXME
-            #node_status=str(node.status),
+            node_status=str(node.status),
         )
 
         return node.Results(node, **kwargs)
@@ -107,9 +109,10 @@ class NodeResults(dict, PMGSONable):
         super(NodeResults, self).__init__(**kwargs)
         self.node = node
 
+        if "in" not in self: self["in"] = {}
+        if "out" not in self: self["out"] = {}
         if "exceptions" not in self: self["exceptions"] = []
         if "files" not in self: self["files"] = Namespace()
-        if "out" not in self: self["out"] = {}
 
     @property
     def exceptions(self):
@@ -192,8 +195,17 @@ class NodeResults(dict, PMGSONable):
         """
         Update a mongodb collection.
         """
+        node = self.node 
+        flow = node if node.is_flow else node.flow
+
+        # Build the key used to store the entry in the document.
+        key = node.name
+        if node.is_task:
+            key = "w" + str(node.pos[0]) + "_t" + str(node.pos[1])
+        elif node.is_workflow:
+            key = "w" + str(node.pos)
+
         db = collection.database
-        node, key = self.node, self.node.name
 
         # Save files with GridFs first in order to get the ID.
         if self.gridfs_files:
@@ -207,8 +219,6 @@ class NodeResults(dict, PMGSONable):
                         gridfile.fs_id = fs.put(f, filename=gridfile.path)
                 except IOError as exc:
                     logger.critical(str(exc))
-
-        flow = node if node.is_flow else node.flow
 
         if flow.mongo_id is None:
             # Flow does not have a mongo_id, allocate doc for the flow and save its id.
@@ -662,8 +672,8 @@ class TaskManager(object):
         """True if we have a database"""
         return self.db_connector is not None
 
-    #def get_collection(self):
-    #    return self.db_connector.get_collection()
+    #def get_collection(self, **kwargs):
+    #    return self.db_connector.get_collection(**kwargs)
 
     @property
     def tot_ncpus(self):
@@ -1102,6 +1112,8 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         # Set to true if the node has been finalized.
         self._finalized = False
 
+        self._status = self.S_INIT
+
     def __eq__(self, other):
         if not isinstance(other, Node):
             return False
@@ -1203,9 +1215,9 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
     @property
     def is_workflow(self):
-        """True if this node is a WorkFlow"""
-        from .workflows import WorkFlow
-        return isinstance(self, WorkFlow)
+        """True if this node is a Workflow"""
+        from .workflows import Workflow
+        return isinstance(self, Workflow)
 
     @property
     def is_flow(self):
@@ -1330,20 +1342,25 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         self._required_files.extend(files)
 
     #@abc.abstractmethod
-    #def set_status(self, status):
-    #    """Set the status of the `Node`."""
-    #
-    #def status(self):
-    #    """Return the status of the `Node`."""
-    #   return self._status
+    #def set_status(self, status,  info_msg=None):
+    #    """
+    #    Set and return the status of the None
+    #                                                                                     
+    #    Args:
+    #        status:
+    #            Status object or string representation of the status
+    #        info_msg:
+    #            string with human-readable message used in the case of errors (optional)
+    #    """
 
-    #@abc.abstractmethod
-    #def check_status(self, status):
-    #    """Check the status of the `Node`."""
+    @abc.abstractproperty
+    def status(self):
+        """The status of the `Node`."""
 
-    #@abc.abstractmethod
-    #def connect_signals():
-    #    """Connect the signals."""
+    @abc.abstractmethod
+    def check_status(self):
+        """Check the status of the `Node`."""
+
 
 
 class FileNode(Node):
@@ -1443,9 +1460,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         if required_files:
             self.add_required_files(required_files)
-
-        # Set the initial status.
-        self.set_status(self.S_INIT)
 
         # Use to compute the wall-time
         self.start_datetime = None
@@ -1813,7 +1827,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
     def set_status(self, status, info_msg=None):
         """
-        Set the status of the task.
+        Set and return the status of the task.
 
         Args:
             status:

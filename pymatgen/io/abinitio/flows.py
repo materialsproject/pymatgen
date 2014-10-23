@@ -63,7 +63,6 @@ class FlowResults(NodeResults):
         #)
 
         # Will put all files found in outdir in GridFs 
-        # Warning: assuming binary files.
         d = {os.path.basename(f): f for f in flow.outdir.list_filepaths()}
 
         # Add the pickle file.
@@ -247,7 +246,7 @@ class AbinitFlow(Node):
             raise RuntimeError("Cannot change mongo_id %s" % self.mongo_id)
         self._mongo_id = value
 
-    def _validate_json_schema(self):
+    def validate_json_schema(self):
         """Validate the JSON schema. Return list of errors."""
         errors = []
 
@@ -477,6 +476,13 @@ class AbinitFlow(Node):
         """Check the status of the workflows in self."""
         for work in self:
             work.check_status()
+
+    #def set_status(self, status):
+
+    @property
+    def status(self):
+        """The status of the flow i.e. the minimum of the status of its tasks and its works"""
+        return min(work.get_all_status(only_min=True) for work in self)
 
     def fix_critical(self):
         self.fix_queue_critical()
