@@ -56,8 +56,8 @@ def pmg_pickle_load(filobj, **kwargs):
     Returns:
         Deserialized object. 
     """
-#    return PmgUnpickler(filobj, **kwargs).load()
-    return pickle.load(filobj, **kwargs)
+    return PmgUnpickler(filobj, **kwargs).load()
+#    return pickle.load(filobj, **kwargs)
 
 
 def pmg_pickle_dump(obj, filobj, **kwargs):
