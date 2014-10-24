@@ -35,53 +35,61 @@ __all__ = [
 
 class Command(object):
     """
-    From https://gist.github.com/kirpit/1306188
-
     Enables to run subprocess commands in a different thread with TIMEOUT option.
+    From https://gist.github.com/kirpit/1306188
 
     Based on jcollado's solution:
     http://stackoverflow.com/questions/1191374/subprocess-with-timeout/4825933#4825933
     """
-    command = None
-    process = None
-    status = None
-    output, error = '', ''
-
     def __init__(self, command):
         if is_string(command):
             import shlex
             command = shlex.split(command)
 
         self.command = command
+        self.process = None
+        self.status = None
+        self.output, self.error = '', ''
+        self.killed = False
+
+    def __str__(self):
+        return "command: %s, status: %s" % (str(self.command), str(self.status))
 
     def run(self, timeout=None, **kwargs):
-        """ Run a command then return: (status, output, error). """
-
+        """
+        Run a command in a separated thread and wait. 
+        Return: self
+        """
         def target(**kwargs):
             try:
+                #print('Thread started')
                 self.process = Popen(self.command, **kwargs)
                 self.output, self.error = self.process.communicate()
                 self.status = self.process.returncode
+                #print('Thread stopped')
             except:
                 import traceback
                 self.error = traceback.format_exc()
                 self.status = -1
 
         # default stdout and stderr
-        if 'stdout' not in kwargs:
-            kwargs['stdout'] = PIPE
-        if 'stderr' not in kwargs:
-            kwargs['stderr'] = PIPE
+        if 'stdout' not in kwargs: kwargs['stdout'] = PIPE
+        if 'stderr' not in kwargs: kwargs['stderr'] = PIPE
+
         # thread
         import threading
         thread = threading.Thread(target=target, kwargs=kwargs)
         thread.start()
         thread.join(timeout)
+
         if thread.is_alive():
+            #print("Terminating process")
             self.process.terminate()
+            self.killed = True
             thread.join()
 
-        return self.status, self.output, self.error
+        return self
+        #return self.status, self.output, self.error
 
 
 class MpiRunner(object):
@@ -123,29 +131,61 @@ class MpiRunner(object):
         return self.name is not None
 
 
+class Partition(object):
+    """
+    This object collects information on a partition
+    # Based on https://computing.llnl.gov/linux/slurm/sinfo.html
+    PartitionName=debug TotalNodes=5 TotalCPUs=40 RootOnly=NO
+    Default=YES Shared=FORCE:4 Priority=1 State=UP
+    MaxTime=00:30:00 Hidden=NO
+    MinNodes=1 MaxNodes=26 DisableRootJobs=NO AllowGroups=ALL
+    Nodes=adev[1-5] NodeIndices=0-4
+    """
+    #def from_yaml(cls, doc):
 
-#class ClusterPartition(object):
-#    """
-#    This object collects information of a partition
-#    # Based on https://computing.llnl.gov/linux/slurm/sinfo.html
-#PartitionName=debug TotalNodes=5 TotalCPUs=40 RootOnly=NO
-#   Default=YES Shared=FORCE:4 Priority=1 State=UP
-#   MaxTime=00:30:00 Hidden=NO
-#   MinNodes=1 MaxNodes=26 DisableRootJobs=NO AllowGroups=ALL
-#   Nodes=adev[1-5] NodeIndices=0-4
-#    """
-#    #def from_dict(cls, d):
-#
-#    def __init__(self, name, num_nodes, timelimit, min_nodes, max_nodes)
-#
-#        self.name = name
-#        #datetime.datetime.strptime("1:00:00", "%H:%M:%S")
-#        #self.timelimit = timelimit
-#        self.num_sockets = 
-#        self.num_nodes = int(num_nodes)
-#        self.min_nodes = int(min_nodes)
-#        self.max_nodes = int(max_nodes)
+    def __init__(self, name, num_nodes, sockets_per_node, cores_per_socket, timelimit, condition, priority):
+        self.name = name
+        self.num_nodes = int(num_nodes)
+        self.sockets_per_node = int(sockets_per_node)
+        self.cores_per_socket = int(cores_per_socket)
+        #self.min_nodes = int(min_nodes)
+        #self.max_nodes = int(max_nodes)
+        self.timelimit = timelimit #TODO conversion datetime.datetime.strptime("1:00:00", "%H:%M:%S")
+        #self.max_mem_mb_per_core = 
 
+        self.condition = condition
+        self.priority = int(priority)
+
+    def get_score(self, paral_conf):
+        """
+        Receives a `ParalConf` object and returns a number that will be used 
+        to select the partion on the cluster on which the task will be submitted.
+        Returns np.inf if paral_conf cannot be exected on this partition.
+        """
+        minf = float("-inf")
+        return score
+
+
+
+class Cluster(object):
+    """A cluster has a QueueAdapter and a list of partitions."""
+    #@classmethod
+    #def from_yaml(self, doc)
+
+    def __init__(self, name, qadapter, parts):
+        self.name = name
+        self.qadapter = qadapter
+        self.parts = parts if isinstance(parts, (list, tuple)) else list(parts)
+
+    def __iter__(self):
+        return self.parts.__iter__()
+
+    def select_partition(self, paral_conf):
+        scores = [part.get_score(paral_conf) for part in self]
+        #if all(scores == None): return None
+        #priorities = [part.priority for part in self]
+        #return self.parts[maxloc(scores), ignore=None]
+        return part
 
 
 def qadapter_class(qtype):
@@ -538,8 +578,8 @@ export MPI_NCPUS=$${MPI_NCPUS}
         if not os.path.exists(script_file):
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
 
-        # submit the job
         try:
+            # submit the job
             process = Popen(("/bin/bash", script_file), stderr=PIPE)
             queue_id = process.pid
             return process, queue_id
@@ -892,26 +932,25 @@ class PbsAdapter(AbstractQueueAdapter):
 
         # run qstat
         try:
-            qstat = Command(['qstat', '-a', '-u', username])
-            process = qstat.run(timeout=5)
+            qstat = Command(['qstat', '-a', '-u', username]).run(timeout=5)
 
             # parse the result
-            if process[0] == 0:
+            if qstat.status == 0:
                 # lines should have this form
                 # '1339044.sdb          username  queuename    2012-02-29-16-43  20460   --   --    --  00:20 C 00:09'
                 # count lines that include the username in it
 
                 # TODO: only count running or queued jobs. or rather, *don't* count jobs that are 'C'.
-                outs = process[1].split('\n')
+                outs = qstat.output.split('\n')
                 njobs = len([line.split() for line in outs if username in line])
                 logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
 
                 return njobs
         except:
             # there's a problem talking to qstat server?
-            print(process[1].split('\n'))
+            print(qstat.output.split('\n'))
             err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' +
-                       'The error response reads: {}'.format(process[2]))
+                       'The error response reads: {}'.format(qstat.error))
             logger.critical(boxed(err_msg))
             return None
 
@@ -1066,16 +1105,15 @@ class SGEAdapter(AbstractQueueAdapter):
             username = getpass.getuser()
 
         # run qstat
-        qstat = Command(['qstat', '-u', username])
-        process = qstat.run(timeout=5)
+        qstat = Command(['qstat', '-u', username]).run(timeout=5)
 
         # parse the result
-        if process[0] == 0:
+        if qstat.status == 0:
             # lines should contain username
             # count lines that include the username in it
 
             # TODO: only count running or queued jobs. or rather, *don't* count jobs that are 'C'.
-            outs = process[1].split('\n')
+            outs = qstat.output.split('\n')
             njobs = len([line.split() for line in outs if username in line])
             logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
 
@@ -1083,7 +1121,7 @@ class SGEAdapter(AbstractQueueAdapter):
 
         # there's a problem talking to qstat server?
         err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' + 
-                   'The error response reads: {}'.format(process[2]))
+                   'The error response reads: {}'.format(qstat.error))
         logger.critical(err_msg)
 
         return None
