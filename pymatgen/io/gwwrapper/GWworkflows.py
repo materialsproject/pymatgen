@@ -221,7 +221,8 @@ class SingleAbinitGWWorkFlow():
         abi_structure = asabistructure(self.structure).get_sorted_structure()
         manager = TaskManager.from_user_config()
         # Initialize the flow.
-        flow = AbinitFlow(self.work_dir, manager, pickle_protocol=0)
+        # flow = AbinitFlow(self.work_dir, manager, pickle_protocol=0)
+        flow = AbinitFlow(self.work_dir, manager)
 
         # kpoint grid defined over density 40 > ~ 3 3 3
         if self.spec['converge'] and not self.all_converged:
