@@ -778,18 +778,20 @@ class PyFlowScheduler(object):
             # Shutdown the scheduler thus allowing the process to exit.
             print('this should be the shutdown of the scheduler')
 
-            try:
-                self.flow.mongodb_insert()
-            except Exception:
-                print(straceback())
+            #try:
+            #    self.flow.mongodb_insert()
+            #except Exception:
+            #    logger.critical("MongoDb insertion failed.")
+            #    print(straceback())
 
-            self.sched.print_jobs()
+            # Unschedule all the jobs before calling shutdown
             for job in self.sched.get_jobs():
                 self.sched.unschedule_job(job)
-            self.sched.print_jobs()
+            #self.sched.print_jobs()
                 
-            #os.system("kill -9 %d" % os.getpid())
             self.sched.shutdown()
+            # Uncomment the line below if shutdown does not work!
+            #os.system("kill -9 %d" % os.getpid())
 
     def send_email(self, msg, tag=None):
         """

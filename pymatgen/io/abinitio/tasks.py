@@ -27,8 +27,10 @@ from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extension
 from .qadapters import qadapter_class
 from .netcdf import ETSF_Reader
 from .strategies import StrategyWithInput, OpticInput
+from .db import DBConnector
 from . import abiinspect
 from . import events 
+
 
 try:
     from pydispatch import dispatcher
@@ -109,8 +111,8 @@ class NodeResults(dict, PMGSONable):
         super(NodeResults, self).__init__(**kwargs)
         self.node = node
 
-        if "in" not in self: self["in"] = {}
-        if "out" not in self: self["out"] = {}
+        if "in" not in self: self["in"] = Namespace()
+        if "out" not in self: self["out"] = Namespace()
         if "exceptions" not in self: self["exceptions"] = []
         if "files" not in self: self["files"] = Namespace()
 
@@ -589,10 +591,8 @@ class TaskManager(object):
                 # Assume dict-like object.
                 self.policy = TaskPolicy(**policy) 
 
-        from .db import DBConnector
-        print(db_connector)
+        # Initialize database connector.
         self.db_connector = DBConnector(config_dict=db_connector).deepcopy() if db_connector is not None else None
-        print(self.db_connector)
 
     def __str__(self):
         """String representation."""
@@ -603,7 +603,7 @@ class TaskManager(object):
         app("policy: %s" % str(self.policy))
 
         if self.has_db:
-            app("Database:")
+            app("Using MongoDB database:")
             app(str(self.db_connector))
 
         return "\n".join(lines)
@@ -986,9 +986,6 @@ class Dependency(object):
     @lazy_property
     def products(self):
         """List of output files produces by self."""
-        #try:
-        #    return self._products
-        #except:
         _products = []
         for ext in self.exts:
             prod = Product(ext, self.node.opath_from_ext(ext))
@@ -2689,16 +2686,13 @@ class ScfTask(AbinitTask):
     def get_results(self, **kwargs):
         results = super(ScfTask, self).get_results(**kwargs)
 
+        # Open the GRS file and add its data to results.out
         from abipy.electrons.gsr import GSR_File
-        gsr_path = self.outdir.has_abiext("GSR")
-        gsr = GSR_File(gsr_path)
+        gsr = GSR_File(self.outdir.has_abiext("GSR"))
+        results["out"].update(gsr.as_dict())
 
-        results.update(
-            out=gsr.as_dict(),
-        )
-
-        # Add files
-        return results.add_gridfs_files(GSR=gsr_path)
+        # Add files to GridFS
+        return results.add_gridfs_files(GSR=gsr.filepath)
 
 
 class NscfTask(AbinitTask):
@@ -2731,16 +2725,13 @@ class NscfTask(AbinitTask):
     def get_results(self, **kwargs):
         results = super(NscfTask, self).get_results(**kwargs)
 
+        # Open the GRS file and add its data to results.out
         from abipy.electrons.gsr import GSR_File
-        gsr_path = self.outdir.has_abiext("GSR")
-        gsr = GSR_File(gsr_path)
+        gsr = GSR_File(self.outdir.has_abiext("GSR"))
+        results["out"].update(gsr.as_dict())
 
-        results.update(
-            out=gsr.as_dict(),
-        )
-
-        results.add_gridfs_files(GSR=gsr_path)
-        return results
+        # Add files to GridFS
+        return results.add_gridfs_files(GSR=gsr.filepath)
 
 
 class RelaxTask(AbinitTask):
@@ -2818,13 +2809,13 @@ class RelaxTask(AbinitTask):
     def get_results(self, **kwargs):
         results = super(RelaxTask, self).get_results(**kwargs)
 
-        gsr_path = self.outdir.has_abiext("GSR")
-        results.update(
-            out=gsr.as_dict(),
-        )
+        # Open the GRS file and add its data to results.out
+        from abipy.electrons.gsr import GSR_File
+        gsr = GSR_File(self.outdir.has_abiext("GSR"))
+        results["out"].update(gsr.as_dict())
 
-        results.add_gridfs_files(GSR=gsr_path)
-        return results
+        # Add files to GridFS
+        return results.add_gridfs_files(GSR=gsr.filepath)
 
 
 class DdkTask(AbinitTask):
@@ -2919,14 +2910,13 @@ class SigmaTask(AbinitTask):
 
     def get_results(self, **kwargs):
         results = super(SigmaTask, self).get_results(**kwargs)
-        sigres_path = self.outdir.has_abiext("SIGRES")
-        results.add_gridfs_files(SIGRES=sigres_path)
-        #results.update(
-        #   out=sigres.as_dict(),
-        #   "GW_gap"=gw_gap
-        #)
 
-        return results
+        # Open the SIGRES file and add its data to results.out
+        from abipy.electrons.gsr import GSR_File
+        sigres = SIGRES_File(self.outdir.has_abiext("SIGRES"))
+        results["out"].update(sigres.as_dict())
+
+        return results.add_gridfs_files(SIGRES=sigres.filepath)
 
 
 class BseTask(AbinitTask):
@@ -3003,15 +2993,14 @@ class BseTask(AbinitTask):
 
     def get_results(self, **kwargs):
         results = super(BseTask, self).get_results(**kwargs)
-        mdf_path = self.outdir.has_abiext("MDF")
-        results.add_gridfs_files(MDF=mdf_path)
-        #results.update(
+
+        mdf = MDF_File(self.outdir.has_abiext("MDF"))
+        #results["out"].update(mdf.as_dict())
         #    out=mdf.as_dict(),
         #    epsilon_infinity
         #    optical_gap
         #)
-
-        return results
+        return results.add_gridfs_files(MDF=mdf.filepath)
 
 
 class OpticTask(Task):
