@@ -157,15 +157,15 @@ class DiffusionAnalyzer(PMGSONable):
         self.time_step = time_step
         self.step_skip = step_skip
         self.min_obs = min_obs
-        self.indices = []
-        self.framework_indices = []
         self.smoothed = smoothed
 
+        indices = []
+        framework_indices = []
         for i, site in enumerate(structure):
             if site.specie.symbol == specie:
-                self.indices.append(i)
+                indices.append(i)
             else:
-                self.framework_indices.append(i)
+                framework_indices.append(i)
         if self.disp.shape[1] < 2:
             self.diffusivity = 0.
             self.conductivity = 0.
@@ -173,7 +173,7 @@ class DiffusionAnalyzer(PMGSONable):
             self.conductivity_components = np.array([0., 0., 0.])
             self.max_framework_displacement = 0
         else:
-            framework_disp = self.disp[self.framework_indices]
+            framework_disp = self.disp[framework_indices]
             drift = np.average(framework_disp, axis=0)[None, :, :]
 
             #drift corrected position
@@ -185,14 +185,14 @@ class DiffusionAnalyzer(PMGSONable):
             if not smoothed:
                 timesteps = np.arange(0, nsteps)
             elif smoothed == "constant":
-                min_step = int(np.ceil(min_obs / len(self.indices)))
+                min_step = int(np.ceil(min_obs / len(indices)))
                 if nsteps < min_step:
                     raise ValueError('Not enough data to calculate diffusivity')
                 timesteps = np.arange(0, nsteps - min_step)
             else:
                 #limit the number of sampled timesteps to 200
                 min_dt = int(1000 / (self.step_skip * self.time_step))
-                max_dt = min(len(self.indices) * nsteps // self.min_obs, nsteps)
+                max_dt = min(len(indices) * nsteps // self.min_obs, nsteps)
                 if min_dt >= max_dt:
                     raise ValueError('Not enough data to calculate diffusivity')
                 timesteps = np.arange(min_dt, max_dt,
@@ -206,10 +206,11 @@ class DiffusionAnalyzer(PMGSONable):
             msd_components = np.zeros(dt.shape + (3,))
 
             lengths = np.array(self.structure.lattice.abc)[None, None, :]
+
             for i, n in enumerate(timesteps):
                 if not smoothed:
                     dx = dc[:, i:i + 1, :]
-                    dcomponents = df[:, i:i + 1, :] *lengths
+                    dcomponents = df[:, i:i + 1, :] * lengths
                 elif smoothed == "constant":
                     dx = dc[:, i:i + min_step, :] - dc[:, 0:min_step, :]
                     dcomponents = (df[:, i:i + min_step, :]
@@ -219,33 +220,29 @@ class DiffusionAnalyzer(PMGSONable):
                     dcomponents = (df[:, n:, :] - df[:, :-n, :]) * lengths
                 sq_disp = dx ** 2
                 sq_disp_ions[:, i] = np.average(np.sum(sq_disp, axis=2), axis=1)
-                msd[i] = np.average(sq_disp_ions[:, i][self.indices])
+                msd[i] = np.average(sq_disp_ions[:, i][indices])
 
-                msd_components[i] = \
-                    np.average(dcomponents[self.indices] ** 2, axis=(0, 1))
+                msd_components[i] = np.average(dcomponents[indices] ** 2,
+                                               axis=(0, 1))
 
-            #run the regression on the msd components
-            if (not smoothed) or smoothed == "constant":
-                w = np.ones_like(dt)
-            else:
-                w = 1 / dt
-
-            #weighted least squares
-            def weighted_lstsq(a, b, w):
-                w_root = w ** 0.5
-                return np.linalg.lstsq(a * w_root[:, None], b * w_root)
+            def weighted_lstsq(a, b):
+                if smoothed == "max":
+                    # For max smoothing, we need to weight by variance.
+                    w_root = (1 / dt) ** 0.5
+                    return np.linalg.lstsq(a * w_root[:, None], b * w_root)
+                else:
+                    return np.linalg.lstsq(a, b)
 
             m_components = np.zeros(3)
             m_components_res = np.zeros(3)
             a = np.ones((len(dt), 2))
             a[:, 0] = dt
             for i in range(3):
-                (m, c), res, rank, s = weighted_lstsq(
-                    a, msd_components[:, i], w)
+                (m, c), res, rank, s = weighted_lstsq(a, msd_components[:, i])
                 m_components[i] = max(m, 1e-15)
                 m_components_res[i] = res[0]
 
-            (m, c), res, rank, s = weighted_lstsq(a, msd, w)
+            (m, c), res, rank, s = weighted_lstsq(a, msd)
             #m shouldn't be negative
             m = max(m, 1e-15)
 
@@ -281,12 +278,14 @@ class DiffusionAnalyzer(PMGSONable):
             self.max_ion_displacements = np.max(np.sum(
                 dc ** 2, axis=-1) ** 0.5, axis=1)
             self.max_framework_displacement = \
-                np.max(self.max_ion_displacements[self.framework_indices])
+                np.max(self.max_ion_displacements[framework_indices])
 
             self.msd = msd
             self.sq_disp_ions = sq_disp_ions
             self.msd_components = msd_components
             self.dt = dt
+            self.indices = indices
+            self.framework_indices = framework_indices
 
     def get_drift_corrected_structures(self):
         """
