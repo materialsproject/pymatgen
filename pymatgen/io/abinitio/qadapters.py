@@ -123,6 +123,31 @@ class MpiRunner(object):
         return self.name is not None
 
 
+
+#class ClusterPartition(object):
+#    """
+#    This object collects information of a partition
+#    # Based on https://computing.llnl.gov/linux/slurm/sinfo.html
+#PartitionName=debug TotalNodes=5 TotalCPUs=40 RootOnly=NO
+#   Default=YES Shared=FORCE:4 Priority=1 State=UP
+#   MaxTime=00:30:00 Hidden=NO
+#   MinNodes=1 MaxNodes=26 DisableRootJobs=NO AllowGroups=ALL
+#   Nodes=adev[1-5] NodeIndices=0-4
+#    """
+#    #def from_dict(cls, d):
+#
+#    def __init__(self, name, num_nodes, timelimit, min_nodes, max_nodes)
+#
+#        self.name = name
+#        #datetime.datetime.strptime("1:00:00", "%H:%M:%S")
+#        #self.timelimit = timelimit
+#        self.num_sockets = 
+#        self.num_nodes = int(num_nodes)
+#        self.min_nodes = int(min_nodes)
+#        self.max_nodes = int(max_nodes)
+
+
+
 def qadapter_class(qtype):
     """Return the concrete `Adapter` class from a string."""
     return {"shell": ShellAdapter,
@@ -148,8 +173,11 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     A user should extend this class with implementations that work on
     specific queue systems.
     """
-
     Error = QueueAdapterError
+
+    # the limits for certain parameters set on the cluster. currently hard coded, should be read at init
+    # the increase functions will not increase beyond thise limits
+    LIMITS = []
 
     def __init__(self, qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
                  pre_run=None, post_run=None, mpi_runner=None):
@@ -212,6 +240,14 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                         err_msg += "    %s \n" % param_sup
             if err_msg:
                 raise ValueError(err_msg)
+
+    def __str__(self):
+        lines = [self.__class__.__name__]
+        app = lines.append
+
+        if self.has_omp: app(str(self.omp_env))
+
+        return "\n".join(lines)
 
     def copy(self):
         return copy.copy(self)
@@ -557,14 +593,7 @@ class SlurmAdapter(AbstractQueueAdapter):
 #SBATCH --error=$${_qerr_path}
 """
 
-    @property
-    def limits(self):
-        """
-        the limits for certain parameters set on the cluster.
-        currently hard coded, should be read at init
-        the increase functions will not increase beyond thise limits
-        """
-        return {'max_total_tasks': 544, 'max_cpus_per_node': 16, 'mem': 6400000, 'mem_per_cpu': 64000, 'time': 2880}
+    LIMITS = {'max_total_tasks': 544, 'max_cpus_per_node': 16, 'mem': 6400000, 'mem_per_cpu': 64000, 'time': 2880}
 
     @property
     def mpi_ncpus(self):
@@ -794,15 +823,7 @@ class PbsAdapter(AbstractQueueAdapter):
 #PBS -o $${_qout_path}
 #PBS -e $${_qerr_path}
 """
-
-    @property
-    def limits(self):
-        """
-        the limits for certain parameters set on the cluster.
-        currently hard coded, should be read at init
-        the increase functions will not increase beyond thise limits
-        """
-        return {'max_total_tasks': 3888, 'time': 48, 'max_select': 300, 'mem': 16000}
+    LIMITS = {'max_total_tasks': 3888, 'time': 48, 'max_select': 300, 'mem': 16000}
 
     @property
     def mpi_ncpus(self):

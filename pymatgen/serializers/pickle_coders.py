@@ -37,7 +37,7 @@ class PmgUnpickler(pickle.Unpickler):
         try:
             type_tag, key_id = pid
         except Exception as exc:
-            raise pickle.UnpicklingError("Exception:\n%s\npid: %s" % (str(exc), str(pid)))
+            raise pickle.UnpicklingError("Exception:\n%s\npid: %s\ntype(pid)%s: %s" % (str(exc), str(pid), type(pid)))
 
         if type_tag == "Element":
             return Element(key_id)
