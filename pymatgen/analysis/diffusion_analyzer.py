@@ -104,7 +104,8 @@ class DiffusionAnalyzer(PMGSONable):
     """
 
     def __init__(self, structure, displacements, specie, temperature,
-                 time_step, step_skip, smoothed="max", min_obs=30):
+                 time_step, step_skip, smoothed="max", min_obs=30,
+                 avg_nsteps=1000):
         """
         This constructor is meant to be used with pre-processed data.
         Other convenient constructors are provided as class methods (see
@@ -140,15 +141,19 @@ class DiffusionAnalyzer(PMGSONable):
                        weights the observations based on the variance
                        accordingly. This is the default.
                     ii. "constant", in which each timestep is averaged over
-                        the same number of observations given by min_obs.
+                        the number of time_steps given by min_steps.
                     iii. None / False / any other false-like quantity. No
                        smoothing.
-            min_obs (int): Minimum number of observations to have before
-                including in the MSD vs dt calculation. E.g. If a structure
-                has 10 diffusing atoms, and min_obs = 30, the MSD vs dt will be
+            min_obs (int): Used with smoothed="max". Minimum number of
+                observations to have before including in the MSD vs dt
+                calculation. E.g. If a structure has 10 diffusing atoms,
+                and min_obs = 30, the MSD vs dt will be
                 calculated up to dt = total_run_time / 3, so that each
                 diffusing atom is measured at least 3 uncorrelated times.
                 Only applies in smoothed="max" or "constant".
+            avg_nsteps (int): Used with smoothed="constant". Determines the
+                number of time steps to average over to get the msd for each
+                timestep. Default of 1000 is usually pretty good.
         """
         self.structure = structure
         self.disp = displacements
@@ -185,10 +190,9 @@ class DiffusionAnalyzer(PMGSONable):
             if not smoothed:
                 timesteps = np.arange(0, nsteps)
             elif smoothed == "constant":
-                min_step = int(np.ceil(min_obs / len(indices)))
-                if nsteps < min_step:
+                if nsteps <= avg_nsteps:
                     raise ValueError('Not enough data to calculate diffusivity')
-                timesteps = np.arange(0, nsteps - min_step)
+                timesteps = np.arange(0, nsteps - avg_nsteps)
             else:
                 #limit the number of sampled timesteps to 200
                 min_dt = int(1000 / (self.step_skip * self.time_step))
@@ -212,9 +216,9 @@ class DiffusionAnalyzer(PMGSONable):
                     dx = dc[:, i:i + 1, :]
                     dcomponents = df[:, i:i + 1, :] * lengths
                 elif smoothed == "constant":
-                    dx = dc[:, i:i + min_step, :] - dc[:, 0:min_step, :]
-                    dcomponents = (df[:, i:i + min_step, :]
-                                   - df[:, 0:min_step, :]) * lengths
+                    dx = dc[:, i:i + avg_nsteps, :] - dc[:, 0:avg_nsteps, :]
+                    dcomponents = (df[:, i:i + avg_nsteps, :]
+                                   - df[:, 0:avg_nsteps, :]) * lengths
                 else:
                     dx = dc[:, n:, :] - dc[:, :-n, :]
                     dcomponents = (df[:, n:, :] - df[:, :-n, :]) * lengths
