@@ -806,15 +806,15 @@ class PbsAdapter(AbstractQueueAdapter):
 
     @property
     def mpi_ncpus(self):
-        """Number of CPUs used for MPI."""
+        """Number of CPUs used for MPI. The number of MPI processes."""
         return self.qparams.get("select", 1)
                                                     
     def set_mpi_ncpus(self, mpi_ncpus):
-        """Set the number of CPUs used for MPI."""
+        """Set the number of CPUs used for MPI. The number of MPI processes."""
         self.qparams["select"] = mpi_ncpus
 
     def set_omp_ncpus(self, omp_ncpus):
-        """Set the number of OpenMP threads."""
+        """Set the number of OpenMP threads. Per MPI process."""
         self.omp_env["OMP_NUM_THREADS"] = omp_ncpus
         self.qparams["ompthreads"] = omp_ncpus
 
