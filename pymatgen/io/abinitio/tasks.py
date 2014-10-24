@@ -460,7 +460,7 @@ class TaskPolicy(object):
                 Select the algorith to select the optimal configuration for the parallel execution.
                 Possible values: ["default", "aggressive", "conservative"]
             max_ncpus:
-                Max number of CPUs that can be used (must be specified if autoparal > 0).
+                Maximal number of phyiscal CPUs that can be used (must be specified if autoparal > 0).
             condition:
                 condition used to filter the autoparal configuration (Mongodb syntax)
             vars_condition:
@@ -617,17 +617,17 @@ class TaskManager(object):
 
     @property
     def tot_ncpus(self):
-        """Total number of CPUs used to run the task."""
+        """Total physical number of CPUs used to run the task. tot_ncpus = mpi_ncpus * omp_ncpus"""
         return self.qadapter.tot_ncpus
 
     @property
     def mpi_ncpus(self):
-        """Number of CPUs used for MPI."""
+        """Number of CPUs used for MPI. I.e. the number of MPI processe, """
         return self.qadapter.mpi_ncpus
 
     @property
     def omp_ncpus(self):
-        """Number of CPUs used for OpenMP."""
+        """Number of CPUs used for OpenMP. The number of OMP threads per MPI process"""
         return self.qadapter.omp_ncpus
 
     def to_shell_manager(self, mpi_ncpus=1, policy=None):
