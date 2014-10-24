@@ -10,11 +10,14 @@ import time
 import collections
 import warnings
 import shutil
+import pickle
 
-from six.moves import map, cPickle as pickle
+from six.moves import map 
 from monty.io import FileLock
-from pymatgen.util.string_utils import pprint_table
-from .tasks import Dependency, Status, Node, Task, ScfTask, PhononTask, TaskManager
+from monty.pprint import pprint_table
+from monty.termcolor import cprint
+from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
+from .tasks import Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
 from .workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow, QptdmWorkflow
@@ -42,6 +45,10 @@ __all__ = [
 ]
 
 
+class FlowResults(NodeResults):
+    pass
+
+
 class AbinitFlow(Node):
     """
     This object is a container of workflows. Its main task is managing the 
@@ -59,6 +66,8 @@ class AbinitFlow(Node):
     VERSION = "0.1"
 
     PICKLE_FNAME = "__AbinitFlow__.pickle"
+
+    Results = FlowResults
 
     def __init__(self, workdir, manager=None, pickle_protocol=-1):
         """
@@ -79,8 +88,7 @@ class AbinitFlow(Node):
 
         self.creation_date = time.asctime()
 
-        if manager is None: 
-            manager = TaskManager.from_user_config()
+        if manager is None: manager = TaskManager.from_user_config()
         self.manager = manager.deepcopy()
 
         # List of workflows.
@@ -92,6 +100,9 @@ class AbinitFlow(Node):
         self._callbacks = []
 
         self.pickle_protocol = int(pickle_protocol)
+
+        # ID used to access mongodb
+        self._mongo_id = None
 
         # TODO
         # Signal slots: a dictionary with the list 
@@ -175,7 +186,9 @@ class AbinitFlow(Node):
 
         with FileLock(filepath):
             with open(filepath, "rb") as fh:
-                flow = pickle.load(fh)
+                #flow = pickle.load(fh)
+                #flow = PmgUnpickler(fh).load()
+                flow = pmg_pickle_load(fh)
 
         # Check if versions match.
         if flow.VERSION != cls.VERSION:
@@ -199,6 +212,16 @@ class AbinitFlow(Node):
 
     def __getitem__(self, slice):
         return self.works[slice]
+
+    @property
+    def mongo_id(self):
+        return self._mongo_id
+
+    @mongo_id.setter
+    def mongo_id(self, value):
+        if self.mongo_id is not None:
+            raise RuntimeError("Cannot change mongo_id %s" % self.mongo_id)
+        self._mongo_id = value
 
     @property
     def works(self):
@@ -527,6 +550,7 @@ class AbinitFlow(Node):
                       "MPI", "OMP", 
                       "Restarts", "Task-Class", "Run-Etime"]]
 
+            tot_num_errors = 0
             for task in work:
                 task_name = os.path.basename(task.name)
 
@@ -535,6 +559,7 @@ class AbinitFlow(Node):
 
                 events = map(str, 3*["N/A"])
                 if report is not None: 
+                    tot_num_errors += report.num_errors
                     events = map(str, [report.num_errors, report.num_warnings, report.num_comments])
                 events = list(events)
 
@@ -548,7 +573,39 @@ class AbinitFlow(Node):
                     task_info
                 )
 
+            # Print table and write colorized line with the total number of errors.
             pprint_table(table, out=stream)
+            if tot_num_errors:
+                cprint("Total no Errors: %d" % tot_num_errors, "red")
+
+    def get_results(self, **kwargs):
+        return self.Results(node=self)
+
+    def mongodb_insert(self):
+        """
+        Insert results in the mongdob database.
+        """
+        #if not self.manager.has_db: return -1
+        # Connect to MongoDb and get the collection.
+        coll = self.manager.db_connector.get_collection()
+        print("Mongodb collection %s with count %d", coll, coll.count())
+
+        for work in self:
+            for task in work:
+                results = task.get_results()
+                results.update_collection(coll)
+            results = work.get_results()
+            results.update_collection(coll)
+
+        results = self.get_results()
+        results.update_collection(coll)
+
+        # Update the pickle file to save the mongo ids.
+        self.pickle_dump()
+
+        from pprint import pprint
+        for d in coll.find():
+            pprint(d)
 
     def open_files(self, what="o", wti=None, status=None, op="==", editor=None):
         """
@@ -598,8 +655,8 @@ class AbinitFlow(Node):
                 try:
                     selected.append(getattr(choices[c], "path"))
                 except KeyError:
-                    import warnings
                     warnings.warn("Wrong keyword %s" % c)
+
             return selected
 
         # Build list of files to analyze.
@@ -682,7 +739,9 @@ class AbinitFlow(Node):
 
         with FileLock(filepath):
             with open(filepath, mode="w" if protocol == 0 else "wb") as fh:
-                pickle.dump(self, fh, protocol=protocol)
+                #pickle.dump(self, fh, protocol=protocol)
+                #PmgPickler(fh, protocol=protocol).dump(self)
+                pmg_pickle_dump(self, fh, protocol=protocol)
 
         # Atomic transaction.
         #filepath_new = filepath + ".new"
@@ -852,7 +911,7 @@ class AbinitFlow(Node):
                 continue 
 
             # Execute the callback and disable it
-            print("about to execute callback %s" % cbk)
+            logger.info("about to execute callback %s" % str(cbk))
             cbk()
             cbk.disable()
 
@@ -875,7 +934,7 @@ class AbinitFlow(Node):
         # Observe the nodes that must reach S_OK in order to call the callbacks.
         for cbk in self._callbacks:
             for dep in cbk.deps:
-                print("connecting %s \nwith sender %s, signal %s" % (str(cbk), dep.node, dep.node.S_OK))
+                logger.info("connecting %s \nwith sender %s, signal %s" % (str(cbk), dep.node, dep.node.S_OK))
                 dispatcher.connect(self.on_dep_ok, signal=dep.node.S_OK, sender=dep.node, weak=False)
 
         # Associate to each signal the callback _on_signal
@@ -907,6 +966,8 @@ class AbinitFlow(Node):
         for rec in dispatcher.liveReceivers(dispatcher.getReceivers(sender, signal)):
             print("receiver -->", rec)
         print("*** end live receivers ***")
+
+    #def get_results(self, **kwargs)
 
     def rapidfire(self, check_status=False, **kwargs):
         """

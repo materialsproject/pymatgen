@@ -13,11 +13,12 @@ import six
 from six.moves import filter
 from monty.collections import AttrDict
 from monty.itertools import chunks
+from monty.pprint import pprint_table
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
-from pymatgen.util.string_utils import pprint_table, WildCard
+from pymatgen.util.string_utils import WildCard
 from . import wrappers
-from .tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, DdkTask, BseTask, RelaxTask)
+from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, DdkTask, BseTask, RelaxTask)
 from .strategies import HtcStrategy # ScfStrategy, RelaxStrategy
 from .utils import Directory
 from .netcdf import ETSF_Reader
@@ -48,67 +49,8 @@ __all__ = [
     "PhononWorkflow",
 ]
 
-
-class WorkflowResults(dict, PMGSONable):
-    """
-    Dictionary used to store some of the results produce by a workflow.
-    """
-    _MANDATORY_KEYS = [
-        "task_results",
-    ]
-
-    _EXC_KEY = "_exceptions"
-
-    def __init__(self, *args, **kwargs):
-        super(WorkflowResults, self).__init__(*args, **kwargs)
-
-        if self._EXC_KEY not in self:
-            self[self._EXC_KEY] = []
-
-    @property
-    def exceptions(self):
-        """List of registered exceptions."""
-        return self[self._EXC_KEY]
-
-    def push_exceptions(self, *exceptions):
-        """Save a list of exceptions."""
-        for exc in exceptions:
-            newstr = str(exc)
-            if newstr not in self.exceptions:
-                self[self._EXC_KEY] += [newstr]
-
-    def assert_valid(self):
-        """
-        Returns empty string if results seem valid.
-
-        The try assert except trick allows one to get a string with info on the exception.
-        We use the += operator so that sub-classes can add their own message.
-        """
-        # Validate tasks.
-        for tres in self["task_results"]:
-            self[self._EXC_KEY] += tres.assert_valid()
-
-        return self[self._EXC_KEY]
-
-    def json_dump(self, filepath):
-        json_pretty_dump(self, filepath)
-
-    def as_dict(self):
-        return self.to_dict
-
-    @property
-    def to_dict(self):
-        """Convert object to dictionary."""
-        d = {k: v for k,v in self.items()}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
-
-    @classmethod
-    def from_dict(cls, d):
-        """Build the object from a dictionary."""
-        mydict = {k: v for k, v in d.items() if k not in ["@module", "@class"]}
-        return cls(mydict)
+class WorkResults(NodeResults):
+    pass
 
 
 class WorkflowError(Exception):
@@ -118,7 +60,7 @@ class WorkflowError(Exception):
 class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
     Error = WorkflowError
 
-    Results = WorkflowResults
+    Results = WorkResults
 
     # interface modeled after subprocess.Popen
     @abc.abstractproperty
@@ -297,13 +239,16 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
         """
         return dict(returncode=0, message="Calling on_all_ok of the base class!")
 
-    def get_results(self):
+    def get_results(self, **kwargs):
         """
         Method called once the calculations are completed.
 
         The base version returns a dictionary task_name: TaskResults for each task in self.
         """
-        return WorkflowResults(task_results={task.name: task.results for task in self})
+        #return self.Results(task_results={task.name: task.results for task in self})
+        #results = super(BaseWorkflow, self).get_results(**kwargs)
+        return self.Results(node=self)
+        #return results
 
 
 class Workflow(BaseWorkflow):
@@ -1018,7 +963,7 @@ class QptdmWorkflow(Workflow):
         the final SCR file in the outdir of the `Workflow`.
         """
         final_scr = self.merge_scrfiles()
-        return WorkflowResults(returncode=0, message="mrgscr done", final_scr=final_scr)
+        return self.Results(returncode=0, message="mrgscr done", final_scr=final_scr)
 
 
 class PhononWorkflow(Workflow):
@@ -1060,55 +1005,5 @@ class PhononWorkflow(Workflow):
         # Merge DDB files.
         self.merge_ddb_files()
 
-        return WorkflowResults(returncode=0, message="DDB merge done")
+        return self.Results(returncode=0, message="DDB merge done")
 
-
-class WorkflowResults(dict, PMGSONable):
-    """
-    Dictionary used to store some of the results produce by a Task object
-    """
-    _MANDATORY_KEYS = [
-        "task_results",
-    ]
-
-    _EXC_KEY = "_exceptions"
-
-    def __init__(self, *args, **kwargs):
-        super(WorkflowResults, self).__init__(*args, **kwargs)
-
-        if self._EXC_KEY not in self:
-            self[self._EXC_KEY] = []
-
-    @property
-    def exceptions(self):
-        return self[self._EXC_KEY]
-
-    def push_exceptions(self, *exceptions):
-        for exc in exceptions:
-            newstr = str(exc)
-            if newstr not in self.exceptions:
-                self[self._EXC_KEY] += [newstr]
-
-    def assert_valid(self):
-        """
-        Returns empty string if results seem valid.
-
-        The try assert except trick allows one to get a string with info on the exception.
-        We use the += operator so that sub-classes can add their own message.
-        """
-        # Validate tasks.
-        for tres in self.task_results:
-            self[self._EXC_KEY] += tres.assert_valid()
-
-        return self[self._EXC_KEY]
-
-    def as_dict(self):
-        d = {k: v for k,v in self.items()}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
-
-    @classmethod
-    def from_dict(cls, d):
-        mydict = {k: v for k, v in d.items() if k not in ["@module", "@class"]}
-        return cls(mydict)

@@ -2,7 +2,7 @@
 """
 Classes defining Abinit calculations and workflows
 """
-from __future__ import unicode_literals, division, print_function
+from __future__ import division, print_function, unicode_literals
 
 import os
 import time
@@ -12,14 +12,15 @@ import collections
 import abc
 import copy
 import yaml
-import pprint
 import six
 
+from pprint import pprint
 from six.moves import map, zip, StringIO
 from monty.serialization import loadfn
 from monty.string import is_string, list_strings
 from monty.io import FileLock
-from monty.collections import AttrDict
+from monty.collections import AttrDict, Namespace
+from monty.functools import lazy_property
 from pymatgen.util.string_utils import WildCard
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
@@ -65,34 +66,66 @@ def straceback():
     return traceback.format_exc()
 
 
-class TaskResults(dict, PMGSONable):
-    """
-    Dictionary used to store the most important results produced by a Task.
-    """
-    _MANDATORY_KEYS = [
-        "task_name",
-        "task_returncode",
-        "task_status",
-        #"task_events",
-    ]
+class GridFsFile(AttrDict):
+    def __init__(self, path, fs_id=None, mode="b"):
+        super(GridFsFile, self).__init__(path=path, fs_id=fs_id, mode=mode)
 
-    EXC_KEY = "_exceptions"
 
-    def __init__(self, *args, **kwargs):
-        super(TaskResults, self).__init__(*args, **kwargs)
-                                                               
-        if self.EXC_KEY not in self:
-            self[self.EXC_KEY] = []
+class NodeResults(Namespace, PMGSONable):
+    """
+    Dictionary used to store the most important results produced by a Node.
+    """
+    @classmethod
+    def from_node(cls, node):
+        """Initialize an instance of `NodeResults` from a `Node` subclass."""
+        kwargs = dict(
+            node=node,
+            node_id=node.node_id,
+            node_finalized=node.finalized,
+            node_history=list(node.history),
+            node_name=node.name, 
+            node_status=str(node.status),
+            node_class=node.__class__.__name__,
+        )
+
+        #if node.is_task: cls = TaskResults
+        #if node.is_workflow: cls = WorkResults
+        #if node.is_flow: cls = FlowResults
+        return node.Results(**kwargs)
+
+    def __init__(self, **kwargs):
+        node = kwargs.pop("node")
+        assert node is not None
+        super(NodeResults, self).__init__(**kwargs)
+        self.node = node
+        if "exceptions" not in self: self["exceptions"] = []
+        if "files" not in self: self["files"] = {}
 
     @property
     def exceptions(self):
-        return self[self.EXC_KEY]
+        return self["exceptions"]
+
+    @property
+    def gridfs_files(self):
+        """List with the absolute paths of the files to be put in GridFs."""
+        return self["files"]
+
+    def add_gridfs_files(self, **kwargs):
+        d = {}
+        for k, v in kwargs.items():
+            mode = "b" 
+            if v.endswith("\t"):
+                mode, v = "t", v[:-2]
+            d[k] = GridFsFile(path=v, mode=mode)
+            
+        self["files"].update(d)
+        return self
 
     def push_exceptions(self, *exceptions):
         for exc in exceptions:
             newstr = str(exc)
             if newstr not in self.exceptions:
-                self[self.EXC_KEY] += [newstr,]
+                self["exceptions"] += [newstr,]
 
     def assert_valid(self):
         """
@@ -104,21 +137,20 @@ class TaskResults(dict, PMGSONable):
         # TODO Better treatment of events.
         try:
             assert (self["task_returncode"] == 0 and self["task_status"] == self.S_OK)
-
         except AssertionError as exc:
-            self.push_exceptions(exc)
+            self.push_exceptions(str(exc))
 
         return self.exceptions
 
     def as_dict(self):
         d = {k: v for k,v in self.items()}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
+        #d["@module"] = self.__class__.__module__
+        #d["@class"] = self.__class__.__name__
         return d
                                                                                 
     @classmethod
     def from_dict(cls, d):
-        return cls({k: v for k,v in d.items() if k not in ["@module", "@class",]})
+        return cls({k: v for k, v in d.items() if k not in ("@module", "@class")})
 
     def json_dump(self, filename):
         json_pretty_dump(self.as_dict(), filename)
@@ -126,6 +158,48 @@ class TaskResults(dict, PMGSONable):
     @classmethod
     def json_load(cls, filename):
         return cls.from_dict(loadfn(filename))
+
+    def update_collection(self, collection):
+        """
+        Update a mongodb collection.
+        """
+        #print(type(self))
+        db = collection.database
+        node, key = self.node, self.node.name
+
+        # Save files with GridFs first in order to get the ID.
+        if self.gridfs_files:
+            import gridfs
+            fs = gridfs.GridFS(db)
+            for ext, gridfile in self.gridfs_files.items():
+                #print("gridfs putting ", gridfile.path)
+                # Here we set gridfile.fs_id that will be stored in the mondodb document
+                with open(gridfile.path, "r" + gridfile.mode) as f:
+                    gridfile.fs_id = fs.put(f, filename=gridfile.path)
+
+        flow = node if node.is_flow else node.flow
+
+        if flow.mongo_id is None:
+            # Flow does not have a mongo_id, allocate doc for the flow and save its id.
+            flow.mongo_id = collection.insert({})
+            print("Creating flow.mongo_id", flow.mongo_id, type(flow.mongo_id))
+
+        doc = collection.find_one({"_id": flow.mongo_id})
+        if key in doc:
+            raise ValueError("%s is already in doc!" % key)
+        doc[key] = self.as_dict()
+
+        collection.save(doc)
+        #collection.update({'_id':mongo_id}, {"$set": doc}, upsert=False)
+
+
+class TaskResults(NodeResults):
+    pass
+    #def __init__(self, **kwargs):
+        #task_events=
+        #executable=task.executable,
+        #executable_version:
+        #input=task.strategy
 
 
 class ParalHintsError(Exception):
@@ -183,8 +257,7 @@ class ParalConf(AttrDict):
 
     def __str__(self):
         stream = StringIO()
-        pprint.pprint(self, stream=stream)
-
+        pprint(self, stream=stream)
         return stream.getvalue()
 
     @property
@@ -373,7 +446,7 @@ class TaskPolicy(object):
     """
 
     def __init__(self, autoparal=0, automemory=0, mode="default", max_ncpus=None,
-                 use_fw=False, condition=None, vars_condition=None):
+                 condition=None, vars_condition=None):
         """
         Args:
             autoparal: 
@@ -388,9 +461,7 @@ class TaskPolicy(object):
                 Possible values: ["default", "aggressive", "conservative"]
             max_ncpus:
                 Max number of CPUs that can be used (must be specified if autoparal > 0).
-            use_fw: 
-                True if we are using fireworks.
-            condition: 
+            condition:
                 condition used to filter the autoparal configuration (Mongodb syntax)
             vars_condition:
                 condition used to filter the list of Abinit variables suggested by autoparal (Mongodb syntax)
@@ -399,7 +470,6 @@ class TaskPolicy(object):
         self.automemory = automemory
         self.mode = mode 
         self.max_ncpus = max_ncpus
-        self.use_fw = use_fw 
         self.condition = Condition(condition) if condition is not None else condition
         self.vars_condition = Condition(vars_condition) if vars_condition is not None else vars_condition
         self._LIMITS = {'max_ncpus': 240}
@@ -430,7 +500,7 @@ class TaskPolicy(object):
 class TaskManager(object):
     """
     A `TaskManager` is responsible for the generation of the job script and the submission 
-    of the task, as well as of the specification of the parameters passed to the resource manager
+    of the task, as well as for the specification of the parameters passed to the resource manager
     (e.g. Slurm, PBS ...) and/or the run-time specification of the ABINIT variables governing the 
     parallel execution. A `TaskManager` delegates the generation of the submission
     script and the submission of the task to the `QueueAdapter`. 
@@ -440,13 +510,12 @@ class TaskManager(object):
     YAML_FILE = "taskmanager.yml"
 
     def __init__(self, qtype, qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
-                 pre_run=None, post_run=None, mpi_runner=None, policy=None):
+                 pre_run=None, post_run=None, mpi_runner=None, policy=None, db_connector=None):
 
         #if not kwargs:
         #    self = self.__class__.from_user_config()
 
         qad_class = qadapter_class(qtype)
-
         self.qadapter = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
                                   pre_run=pre_run, post_run=post_run, mpi_runner=mpi_runner)
 
@@ -460,6 +529,11 @@ class TaskManager(object):
                 # Assume dict-like object.
                 self.policy = TaskPolicy(**policy) 
 
+        from .db import DBConnector
+        print(db_connector)
+        self.db_connector = DBConnector(config_dict=db_connector).deepcopy() if db_connector is not None else None
+        print(self.db_connector)
+
     def __str__(self):
         """String representation."""
         lines = []
@@ -467,6 +541,10 @@ class TaskManager(object):
         app("tot_ncpus %d, mpi_ncpus %d, omp_ncpus %s" % (self.tot_ncpus, self.mpi_ncpus, self.omp_ncpus))
         app("MPI_RUNNER %s" % str(self.qadapter.mpi_runner))
         app("policy: %s" % str(self.policy))
+
+        if self.has_db:
+            app("Database:")
+            app(str(self.db_connector))
 
         return "\n".join(lines)
 
@@ -528,6 +606,14 @@ class TaskManager(object):
         Assume the shell environment is already properly initialized.
         """
         return cls(qtype="shell", qparams=dict(MPI_NCPUS=mpi_ncpus), mpi_runner=mpi_runner, policy=policy)
+
+    @property
+    def has_db(self):
+        """True if we have a database"""
+        return self.db_connector is not None
+
+    #def get_collection(self):
+    #    return self.db_connector.get_collection()
 
     @property
     def tot_ncpus(self):
@@ -837,18 +923,18 @@ class Dependency(object):
         """The status of the dependency, i.e. the status of the node."""
         return self.node.status
 
-    @property
+    @lazy_property
     def products(self):
         """List of output files produces by self."""
-        try:
-            return self._products
-        except:
-            self._products = []
-            for ext in self.exts:
-                prod = Product(ext, self.node.opath_from_ext(ext))
-                self._products.append(prod)
+        #try:
+        #    return self._products
+        #except:
+        _products = []
+        for ext in self.exts:
+            prod = Product(ext, self.node.opath_from_ext(ext))
+            _products.append(prod)
 
-            return self._products
+        return _products
 
     def connecting_vars(self):
         """
@@ -872,7 +958,7 @@ class Dependency(object):
 # Possible status of the node.
 _STATUS2STR = collections.OrderedDict([
     (1,  "Initialized"),    # Node has been initialized
-    (2,  "Locked"),         # Task is locked an must be explicitly unlocked by en external subject (Workflow).
+    (2,  "Locked"),         # Task is locked an must be explicitly unlocked by an external subject (Workflow).
     (3,  "Ready"),          # Node is ready i.e. all the depencies of the node have status S_OK
     (4,  "Submitted"),      # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
     (5,  "Running"),        # Node is running.
@@ -921,6 +1007,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     Nodes are hashable and can be tested for equality
     (hash uses the node identifier, whereas eq uses workdir).
     """
+    Results = NodeResults
 
     # Possible status of the node.
     S_INIT = Status.from_string("Initialized")
@@ -1053,9 +1140,31 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     def str_history(self):
         """String representation of history."""
         return "\n".join(self.history)
-                                                         
+
     #@abc.abstractproperty
     #def workdir(self):
+
+    @property
+    def is_file(self):
+        """True if this node is a file"""
+        return isinstance(self, FileNode)
+
+    @property
+    def is_task(self):
+        """True if this node is a Task"""
+        return isinstance(self, Task)
+
+    @property
+    def is_workflow(self):
+        """True if this node is a WorkFlow"""
+        from .workflows import WorkFlow
+        return isinstance(self, WorkFlow)
+
+    @property
+    def is_flow(self):
+        """True if this node is a Flow"""
+        from .flows import AbinitFlow
+        return isinstance(self, AbinitFlow)
 
     @property
     def has_subnodes(self):
@@ -1235,6 +1344,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     Error = TaskError
     RestartError = TaskRestartError
 
+    Results = TaskResults
+
     # List of `AbinitEvent` subclasses that are tested in the not_converged method. 
     # Subclasses should provide their own list if they need to check the converge status.
     CRITICAL_EVENTS = [
@@ -1402,7 +1513,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def can_run(self):
         """The task can run if its status is < S_SUB and all the other dependencies (if any) are done!"""
         all_ok = all([stat == self.S_OK for stat in self.deps_status])
-        #print("all_ok",all_ok)
+        #print("can_run: all_ok ==  ",all_ok)
         return self.status < self.S_SUB and all_ok
 
     def not_converged(self):
@@ -2029,20 +2140,18 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             self.set_status(self.S_ABICRITICAL, info_msg=str(exc))
             return parser.report_exception(ofile.path, exc)
 
-    @property
-    def results(self):
-        """The results produced by the task. Set by get_results"""
-        try:
-            return self._results
+    #@property
+    #def results(self):
+    #    """The results produced by the task. Set by get_results"""
+    #    try:
+    #        return self._results
+    #    except AttributeError:
+    #        self._results = self.get_results()
+    #        return self._results 
 
-        except AttributeError:
-            self._results = self.get_results()
-            return self._results 
-
-    def get_results(self, *args, **kwargs):
+    def get_results(self, **kwargs):
         """
-        Method called once the calculation is completed, 
-        Updates self._results and returns TaskResults instance.
+        Returns `NodeResults` instance.
         Subclasses should extend this method (if needed) by adding 
         specialized code that performs some kind of post-processing.
         """
@@ -2053,12 +2162,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         if self.status is None or self.status < self.S_DONE:
             raise self.Error("Task is not completed")
 
-        return TaskResults({
-            "task_name": self.name,
-            "task_returncode": self.returncode,
-            "task_status"    : self.status,
-            #"task_events"    : self.events.as_dict()
-        })
+        results = self.Results.from_node(self)
+
+        return results
 
     def move(self, dest, is_abspath=False):
         """
@@ -2482,7 +2588,7 @@ class ScfTask(AbinitTask):
         """SCF calculations can be restarted if we have either the WFK file or the DEN file."""
         # Prefer WFK over DEN files since we can reuse the wavefunctions.
         restart_file = None
-        for ext in ["WFK", "DEN"]:
+        for ext in ("WFK", "DEN"):
             restart_file = self.outdir.has_abiext(ext)
             irdvars = irdvars_for_ext(ext)
             if restart_file:
@@ -2511,6 +2617,21 @@ class ScfTask(AbinitTask):
         if scf_cycle is not None:
             return scf_cycle.plot(**kwargs)
 
+    def get_results(self, **kwargs):
+        results = super(ScfTask, self).get_results(**kwargs)
+        #return results
+
+        from abipy.electrons.gsr import GSR_File
+        gsr_path = self.outdir.has_abiext("GSR")
+        gsr = GSR_File(gsr_path)
+
+        results.update(
+            gsr.as_dict(),
+        )
+
+        # Add files
+        return results.add_gridfs_files(GSR=gsr_path)
+
 
 class NscfTask(AbinitTask):
     """
@@ -2538,6 +2659,20 @@ class NscfTask(AbinitTask):
 
         # Now we can resubmit the job.
         return self._restart()
+
+    def get_results(self, **kwargs):
+        results = super(NscfTask, self).get_results(**kwargs)
+
+        from abipy.electrons.gsr import GSR_File
+        gsr_path = self.outdir.has_abiext("GSR")
+        gsr = GSR_File(gsr_path)
+
+        results.update(
+            gsr.as_dict(),
+        )
+
+        results.add_gridfs_files(GSR=gsr_path)
+        return results
 
 
 class RelaxTask(AbinitTask):
@@ -2612,9 +2747,25 @@ class RelaxTask(AbinitTask):
         if relaxation is not None:
             return relaxation.plot(**kwargs)
 
+    def get_results(self, **kwargs):
+        results = super(RelaxTask, self).get_results(**kwargs)
+
+        gsr_path = self.outdir.has_abiext("GSR")
+        results.update(
+            gsr.as_dict(),
+        )
+
+        results.add_gridfs_files(GSR=gsr_path)
+        return results
+
 
 class DdkTask(AbinitTask):
     """Task for DDK calculations."""
+
+    def get_results(self, **kwargs):
+        results = super(DdkTask, self).get_results(**kwargs)
+        #results.add_text_files("DDB"=self.outdir.has_abiext("DDB"))
+        return results
 
 
 class PhononTask(AbinitTask):
@@ -2665,6 +2816,11 @@ class PhononTask(AbinitTask):
         if scf_cycle is not None:
             return scf_cycle.plot(**kwargs)
 
+    def get_results(self, **kwargs):
+        results = super(PhononTask, self).get_results(**kwargs)
+        #results.add_text_files("DDB"=self.outdir.has_abiext("DDB"))
+        return results
+
 
 class SigmaTask(AbinitTask):
     """
@@ -2692,6 +2848,17 @@ class SigmaTask(AbinitTask):
 
         # Now we can resubmit the job.
         return self._restart()
+
+    def get_results(self, **kwargs):
+        results = super(SigmaTask, self).get_results(**kwargs)
+        #sigres_path = self.outdir.has_abiext("SIGRES")
+        #results.add_gridfs_files(SIGRES=sigres_path)
+        #results.update(
+        #   sigres.as_dict(),
+        #   "GW_gap"=gw_gap
+        #)
+
+        return results
 
 
 class BseTask(AbinitTask):
@@ -2766,6 +2933,18 @@ class BseTask(AbinitTask):
         # Now we can resubmit the job.
         return self._restart()
 
+    def get_results(self, **kwargs):
+        results = super(BseTask, self).get_results(**kwargs)
+        mdf_path = self.outdir.has_abiext("MDF")
+        #results.add_gridfs_files(MDF=mdf_path)
+        #results.update(
+        #    mdf.as_dict(),
+        #    epsilon_infinity
+        #    optical_gap
+        #)
+
+        return results
+
 
 class OpticTask(Task):
     """
@@ -2792,8 +2971,7 @@ class OpticTask(Task):
         self.nscf_node = Node.as_node(nscf_node)
         self.ddk_nodes = [Node.as_node(n) for n in ddk_nodes]
         assert len(ddk_nodes) == 3
-        #print(self.nscf_node)
-        #print(self.ddk_nodes)
+        #print(self.nscf_node, self.ddk_nodes)
 
         deps = {n: "1WF" for n in self.ddk_nodes}
         deps.update({self.nscf_node: "WFK"})
@@ -2859,6 +3037,13 @@ class OpticTask(Task):
         Optic allows the user to specify the paths of the input file.
         hence we don't need to create symbolic links.
         """
+
+    def get_results(self, **kwargs):
+        results = super(OpticTask, self).get_results(**kwargs)
+        #results.update(
+        #"epsilon_infinity":
+        #))
+        return results
 
 
 class AnaddbTask(Task):
@@ -2969,3 +3154,7 @@ class AnaddbTask(Task):
         Anaddb allows the user to specify the paths of the input file.
         hence we don't need to create symbolic links.
         """
+
+    def get_results(self, **kwargs):
+        results = super(AnaddbTask, self).get_results(**kwargs)
+        return results
