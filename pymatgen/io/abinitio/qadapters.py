@@ -21,7 +21,7 @@ import warnings
 import six
 
 from subprocess import Popen, PIPE
-from monty.string import is_string
+from monty.string import is_string, boxed
 from .launcher import ScriptEditor
 
 import logging
@@ -638,9 +638,7 @@ class SlurmAdapter(AbstractQueueAdapter):
 
             try:
                 print('sometimes we land here, no idea what is happening ... Michiel')
-                print(details)
-                print(cmd)
-                print(process.returncode)
+                print("details:\n", details, "cmd\n", cmd, "\nprocess.returcode:", process.returncode)
             except:
                 pass
 
@@ -655,7 +653,7 @@ class SlurmAdapter(AbstractQueueAdapter):
             for node in nodes[1:]:
                 self.qparams['exclude_nodes'] += ',node'+node
                 print('excluded node %s' % node)
-            print(self.qparams)
+            #print(self.qparams)
             return True
         except (KeyError, IndexError):
             return False
@@ -890,13 +888,10 @@ class PbsAdapter(AbstractQueueAdapter):
                 return njobs
         except:
             # there's a problem talking to qstat server?
-            print(' ** ')
             print(process[1].split('\n'))
             err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' +
                        'The error response reads: {}'.format(process[2]))
-            print(' ** ')
-            logger.critical(err_msg)
-
+            logger.critical(boxed(err_msg))
             return None
 
     # no need to raise an error, if False is returned the fixer may try something else, we don't need to kill the
@@ -934,7 +929,7 @@ class PbsAdapter(AbstractQueueAdapter):
             time *= factor
             if time < self.limits['time']:
                 self.qparams['time'] = str(int(time / 60)) + ':' + str(int(time - 60 * int(time / 60))) + ':00'
-                print('increased time to %s minutes' % time)
+                logger.info('increased time to %s minutes' % time)
                 return True
             else:
                 raise QueueAdapterError
@@ -1188,9 +1183,7 @@ class MOABAdapter(AbstractQueueAdapter):
 
             try:
                 print('sometimes we land here, no idea what is happening ... Michiel')
-                print(details)
-                print(cmd)
-                print(process.returncode)
+                print("details:\n", details, "cmd\n", cmd, "\nprocess.returcode:", process.returncode)
             except:
                 pass
 

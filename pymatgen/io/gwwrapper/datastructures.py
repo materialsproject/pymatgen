@@ -21,11 +21,15 @@ import stat
 import os.path
 import ast
 import pymatgen as pmg
-import pymongo
 import copy
-import gridfs
 import six
 import numpy as np
+
+try:
+    import pymongo
+    import gridfs
+except ImportError:
+    pass
 
 from abc import abstractproperty, abstractmethod, ABCMeta
 from pymatgen.io.vaspio.vasp_input import Poscar

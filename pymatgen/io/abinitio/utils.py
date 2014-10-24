@@ -261,11 +261,8 @@ def abi_splitext(filename):
     Returns "(root, ext)" where ext is the registered ABINIT extension 
     The final ".nc" is included (if any) 
 
-    >>> abi_splitext("foo_WFK")
-    ('foo_', 'WFK')
-
-    >>> abi_splitext("/home/guido/foo_bar_WFK.nc")
-    ('foo_bar_', 'WFK.nc')
+    >>> assert abi_splitext("foo_WFK") == ('foo_', 'WFK')
+    >>> assert abi_splitext("/home/guido/foo_bar_WFK.nc") == ('foo_bar_', 'WFK.nc')
     """
     filename = os.path.basename(filename)
     is_ncfile = False
@@ -312,12 +309,8 @@ class FilepathFixer(object):
     Example:
     
     >>> fixer = FilepathFixer()
-
-    >>> fixer.fix_paths('/foo/out_1WF17')
-    {'/foo/out_1WF17': '/foo/out_1WF'}
-
-    >>> fixer.fix_paths('/foo/out_1WF5.nc')
-    {'/foo/out_1WF5.nc': '/foo/out_1WF.nc'}
+    >>> assert fixer.fix_paths('/foo/out_1WF17') == {'/foo/out_1WF17': '/foo/out_1WF'}
+    >>> assert fixer.fix_paths('/foo/out_1WF5.nc') == {'/foo/out_1WF5.nc': '/foo/out_1WF.nc'}
     """
     def __init__(self):
         # dictionary mapping the *official* file extension to
@@ -424,8 +417,7 @@ def map2rpn(map, obj):
     3 - 4 + 5 -->   3 4 - 5 + 
 
     >>> d = {2.0: {'$eq': 1.0}}
-    >>> map2rpn(d, None)
-    [2.0, 1.0, '$eq']
+    >>> assert map2rpn(d, None) == [2.0, 1.0, '$eq']
     """
     rpn = []
 

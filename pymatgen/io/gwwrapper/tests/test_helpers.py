@@ -1,8 +1,10 @@
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 
 __author__ = 'setten'
 
 import os
+
+import unittest
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.structure import Structure
 from pymatgen.matproj.rest import MPRester, MPRestError
@@ -13,6 +15,12 @@ from pymatgen.io.gwwrapper.helpers import refine_structure, clean, load_ps, read
 from pymatgen.io.gwwrapper.helpers import expand
 
 #test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",'test_files')
+
+have_abinit_ps_ext = True
+try:
+    os.environ['ABINIT_PS_EXT']
+except KeyError:
+    have_abinit_ps_ext = False
 
 
 structure_dict = {'lattice': {'a': 3.866974622849504,
@@ -52,6 +60,8 @@ class GWTestHelpers(PymatgenTest):
         self.assertEqual(vars_out, vars_in)
         os.remove('extra_abivars')
 
+
+    @unittest.skipIf(not have_abinit_ps_ext, "Requires ABINIT_PS_EXT env variable")
     def test_expand(self):
         spec = get_spec('GW')
         tests = SingleAbinitGWWorkFlow(structure, spec).convs

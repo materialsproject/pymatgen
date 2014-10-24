@@ -242,10 +242,11 @@ class DiffusionAnalyzer(PMGSONable):
 
             # Calculate the error in the diffusivity using the error in the
             # slope from the lst sq.
-            # Variance in slope = n * Squared Residuals / (n * Sxx - Sx ** 2).
+            # Variance in slope = n * Sum Squared Residuals / (n * Sxx - Sx
+            # ** 2) / (n-2).
             n = len(dt)
             # Pre-compute the denominator since we will use it later.
-            denom = (n * np.sum(dt ** 2) - np.sum(dt) ** 2)
+            denom = (n * np.sum(dt ** 2) - np.sum(dt) ** 2) * (n - 2)
 
             self.diffusivity_std_dev = np.sqrt(n * res[0] / denom) / 60
             self.conductivity = self.diffusivity * conv_factor
@@ -369,7 +370,9 @@ class DiffusionAnalyzer(PMGSONable):
 
     @classmethod
     def from_structures(cls, structures, specie, temperature,
-                        time_step, step_skip, min_obs=30, weighted=True):
+                        time_step, step_skip, smoothed=True, min_obs=30,
+                        weighted=True, initial_disp=None,
+                        initial_structure=None):
         """
         Convenient constructor that takes in a list of Structure objects to
         perform diffusion analysis.
@@ -385,6 +388,8 @@ class DiffusionAnalyzer(PMGSONable):
             step_skip (int): Sampling frequency of the displacements (
                 time_step is multiplied by this number to get the real time
                 between measurements)
+            smoothed (bool): Whether to smooth the MSD. Generally more
+                accurate, but makes error analysis complicated.
             min_obs (int): Minimum number of observations to have before
                 including in the MSD vs dt calculation. E.g. If a structure
                 has 10 diffusing atoms, and min_obs = 30, the MSD vs dt will be
@@ -398,19 +403,26 @@ class DiffusionAnalyzer(PMGSONable):
         structure = structures[0]
 
         p = [np.array(s.frac_coords)[:, None] for s in structures]
+        if initial_structure is not None:
+            p.insert(0, np.array(initial_structure.frac_coords)[:, None])
+        else:
+            p.insert(0, p[0])
         p = np.concatenate(p, axis=1)
         dp = p[:, 1:] - p[:, :-1]
-        dp = np.concatenate([np.zeros_like(dp[:, (0,)]), dp], axis=1)
         dp = dp - np.round(dp)
         f_disp = np.cumsum(dp, axis=1)
+        if initial_disp is not None:
+            f_disp += structure.lattice.get_fractional_coords(initial_disp)[:,
+                                                              None, :]
         disp = structure.lattice.get_cartesian_coords(f_disp)
 
         return cls(structure, disp, specie, temperature,
-                   time_step, step_skip=step_skip, min_obs=min_obs,
-                   weighted=weighted)
+                   time_step, step_skip=step_skip, smoothed=smoothed,
+                   min_obs=min_obs, weighted=weighted)
 
     @classmethod
-    def from_vaspruns(cls, vaspruns, specie, min_obs=30, weighted=True):
+    def from_vaspruns(cls, vaspruns, specie, smoothed=True, min_obs=30,
+                      weighted=True, initial_disp=None, initial_structure=None):
         """
         Convenient constructor that takes in a list of Vasprun objects to
         perform diffusion analysis.
@@ -426,6 +438,8 @@ class DiffusionAnalyzer(PMGSONable):
                 has 10 diffusing atoms, and min_obs = 30, the MSD vs dt will be
                 calculated up to dt = total_run_time / 3, so that each
                 diffusing atom is measured at least 3 uncorrelated times.
+            smoothed (bool): Whether to smooth the MSD. Generally more
+                accurate, but makes error analysis complicated.
             weighted (bool): Uses a weighted least squares to fit the
                 MSD vs dt. Weights are proportional to 1/dt, since the
                 number of observations are also proportional to 1/dt (and
@@ -451,12 +465,14 @@ class DiffusionAnalyzer(PMGSONable):
         time_step = vaspruns[0].parameters['POTIM']
 
         return cls.from_structures(structures, specie, temperature,
-            time_step, step_skip=step_skip, min_obs=min_obs,
-            weighted=weighted)
+            time_step, step_skip=step_skip, smoothed=smoothed,
+            min_obs=min_obs, weighted=weighted, initial_disp=initial_disp,
+            initial_structure=initial_structure)
 
     @classmethod
-    def from_files(cls, filepaths, specie, step_skip=10, min_obs=30,
-                   weighted=True, ncores=None):
+    def from_files(cls, filepaths, specie, step_skip=10, smoothed=True,
+                   min_obs=30, weighted=True, ncores=None, initial_disp=None,
+                   initial_structure=None):
         """
         Convenient constructor that takes in a list of vasprun.xml paths to
         perform diffusion analysis.
@@ -472,6 +488,8 @@ class DiffusionAnalyzer(PMGSONable):
             step_skip (int): Sampling frequency of the displacements (
                 time_step is multiplied by this number to get the real time
                 between measurements)
+            smoothed (bool): Whether to smooth the MSD. Generally more
+                accurate, but makes error analysis complicated.
             min_obs (int): Minimum number of observations to have before
                 including in the MSD vs dt calculation. E.g. If a structure
                 has 10 diffusing atoms, and min_obs = 30, the MSD vs dt will be
@@ -489,10 +507,11 @@ class DiffusionAnalyzer(PMGSONable):
                 Otherwise, inconsistent results may arise. Serial mode has no
                 such restrictions.
         """
-        if ncores is not None:
+        if ncores is not None and len(filepaths) > 1:
             import multiprocessing
             p = multiprocessing.Pool(ncores)
-            vaspruns = p.map(_get_vasprun, [(fp, step_skip) for fp in filepaths])
+            vaspruns = p.map(_get_vasprun,
+                             [(fp, step_skip) for fp in filepaths])
             p.close()
             p.join()
         else:
@@ -504,8 +523,10 @@ class DiffusionAnalyzer(PMGSONable):
                 vaspruns.append(v)
                 # Recompute offset.
                 offset = (- (v.nionic_steps - offset)) % step_skip
-        return cls.from_vaspruns(vaspruns, min_obs=min_obs,
-                                 weighted=weighted, specie=specie)
+        return cls.from_vaspruns(vaspruns, min_obs=min_obs, smoothed=smoothed,
+                                 weighted=weighted, specie=specie,
+                                 initial_disp=initial_disp,
+                                 initial_structure=initial_structure)
 
     def as_dict(self):
         return {

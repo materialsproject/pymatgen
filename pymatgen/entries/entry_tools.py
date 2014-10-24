@@ -7,8 +7,7 @@ This module implements functions to perform various useful operations on
 entries, such as grouping entries by structure.
 """
 
-from six.moves import filter
-from six.moves import zip
+from six.moves import filter, zip
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
