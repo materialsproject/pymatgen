@@ -649,6 +649,8 @@ class AbinitFlow(Node):
         coll = self.manager.db_connector.get_collection()
         print("Mongodb collection %s with count %d", coll, coll.count())
 
+        start = time.time()
+
         for work in self:
             for task in work:
                 results = task.get_results()
@@ -658,13 +660,15 @@ class AbinitFlow(Node):
             pprint(results)
             results.update_collection(coll)
 
+        msg = "MongoDb update done in %s [s]" % time.time() - start
+        print(msg)
+
         results = self.get_results()
         pprint(results)
         results.update_collection(coll)
 
         # Update the pickle file to save the mongo ids.
         self.pickle_dump()
-
 
         for d in coll.find():
             pprint(d)

@@ -30,7 +30,7 @@ class MongoObject(object):
         return str(self._mongo_dict)
 
     def __setattr__(self, name, value):
-        raise NotImplementedError("You cannot modify an attribute of %s" % self.__class__.__name__)
+        raise NotImplementedError("You cannot modify attribute %s of %s" % (name, self.__class__.__name__))
 
     def __getattribute__(self, name):
         try:
@@ -124,7 +124,7 @@ class DBConnector(object):
         return "<%s object at %s>" % (self.__class__.__name__, id(self))
 
     def __str__(self):
-        return "%s configuration:\n%s" % (self.__class__.__name__, str(self.config))
+        return str(self.config)
 
     def deepcopy(self):
         return copy.deepcopy(self)

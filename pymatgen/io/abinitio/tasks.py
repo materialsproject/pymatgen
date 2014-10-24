@@ -541,7 +541,8 @@ class TaskPolicy(object):
             raise ValueError("When autoparal is not zero, max_ncpus must be specified.")
 
     def __str__(self):
-        lines = [self.__class__.__name__ + ":"]
+        #lines = [self.__class__.__name__ + ":"]
+        lines = []
         app = lines.append
         for k, v in self.__dict__.items():
             if k.startswith("_"):
@@ -599,15 +600,12 @@ class TaskManager(object):
         """String representation."""
         lines = []
         app = lines.append
-        app("tot_ncpus %d, mpi_ncpus %d, omp_ncpus %s" % (self.tot_ncpus, self.mpi_ncpus, self.omp_ncpus))
-        app("MPI_RUNNER %s" % str(self.qadapter.mpi_runner))
-        app("policy: %s" % str(self.policy))
-
-        if self.qadapter.has_omp:
-            app(str(self.qadapter.omp_env))
+        #app("tot_ncpus %d, mpi_ncpus %d, omp_ncpus %s" % (self.tot_ncpus, self.mpi_ncpus, self.omp_ncpus))
+        app("[Qadapter]\n%s" % str(self.qadapter))
+        app("[Task policy]\n%s" % str(self.policy))
 
         if self.has_db:
-            app("Using MongoDB database:")
+            app("[MongoDB database]:")
             app(str(self.db_connector))
 
         return "\n".join(lines)
@@ -673,7 +671,7 @@ class TaskManager(object):
 
     @property
     def has_db(self):
-        """True if we have a database"""
+        """True if we are using MongoDB database"""
         return self.db_connector is not None
 
     @property
@@ -705,13 +703,13 @@ class TaskManager(object):
         with a `ShellAdapter` with mpi_ncpus so that we can submit the job without passing through the queue.
         Replace self.policy with a `TaskPolicy` with autoparal==0.
         """
-        cls = self.__class__
         qad = self.qadapter.deepcopy()
 
         policy = TaskPolicy(autoparal=0) if policy is None else policy
 
+        cls = self.__class__
         new = cls("shell", qparams={"MPI_NCPUS": mpi_ncpus}, setup=qad.setup, modules=qad.modules, 
-                  shell_env=qad.shell_env, omp_env=qad.omp_env, pre_run=qad.pre_run, 
+                  shell_env=qad.shell_env, omp_env=None, pre_run=qad.pre_run, 
                   post_run=qad.post_run, mpi_runner=qad.mpi_runner, policy=policy)
 
         return new
@@ -777,12 +775,9 @@ class TaskManager(object):
         )
 
         # Write the script.
-        script_file = task.job_file.path
-
-        with open(script_file, "w") as fh:
+        with open(task.job_file.path, "w") as fh:
             fh.write(script)
-
-        return script_file
+            return task.job_file.path
 
     def launch(self, task):
         """
