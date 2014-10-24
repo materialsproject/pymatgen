@@ -231,6 +231,17 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
     #def generation_mode
     #    """scalar scalar-relativistic, relativistic."""
 
+    def as_dict(self, **kwargs):
+        return dict(
+            name=self.name,
+            type=self.type,
+            symbol=self.symbol,
+            Z=self.Z,
+            Z_val=self.Z_val,
+            l_max=self.l_max,
+            #nlcc_radius=self.nlcc_radius,
+        )
+
     @property
     def has_dojo_report(self):
         """True if self contains the DOJO_REPORT section."""
@@ -1597,6 +1608,16 @@ class PseudoTable(collections.Sequence):
         zlist = list(self._pseudos_with_z.keys())
         zlist.sort()
         return zlist
+
+    def as_dict(self, **kwargs):
+        d = {}
+        for pseudo in p:
+            k, count = p.name, 1
+            while k not in d:
+                k += k + "#" + str(count)
+                count += 1
+            pseudo.update({k, p.as_dict()})
+        return d
 
     def is_complete(self, zmax=118):
         """

@@ -59,6 +59,7 @@ class PseudoTestCase(PymatgenTest):
                 self.assertEqual(pseudo.symbol, symbol)
                 self.assertEqual(pseudo.Z_val, 4)
                 self.assertGreaterEqual(pseudo.nlcc_radius, 0.0)
+                pseudo.as_dict()
 
                 # Test pickle
                 self.serialize_with_pickle(pseudo, test_eq=False)
@@ -101,6 +102,7 @@ class PseudoTestCase(PymatgenTest):
         oxygen = Pseudo.from_file(ref_file("O.GGA_PBE-JTH-paw.xml"))
         print(repr(oxygen))
         print(oxygen)
+        oxygen.as_dict()
 
         self.assertTrue(oxygen.ispaw)
         self.assertTrue(oxygen.symbol == "O" and 
@@ -132,6 +134,7 @@ class PseudoTestCase(PymatgenTest):
         ger = Pseudo.from_file(ref_file("ge.oncvpsp"))
         print(repr(ger))
         print(ger)
+        ger.as_dict()
 
         self.assertTrue(ger.symbol == "Ge")
         self.assert_equal(ger.Z, 32.0)

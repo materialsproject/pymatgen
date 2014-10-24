@@ -330,7 +330,7 @@ class ParalConf(AttrDict):
     @property
     def tot_mem(self):
         """Estimated total memory in Mbs (computed from mem_per_cpu)"""
-        return self.mem_per_cpu * self.tot_ncpus
+        return self.mem_per_cpu * self.mpi_ncpus
 
 
 class ParalHintsParser(object):
