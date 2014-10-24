@@ -253,6 +253,7 @@ class AbinitTaskResults(NodeResults):
             executable=task.executable,
             #executable_version:
             #task_events=
+            pseudos=task.strategy.pseudos.as_dict()
             #input=task.strategy
         )
 
@@ -602,6 +603,9 @@ class TaskManager(object):
         app("MPI_RUNNER %s" % str(self.qadapter.mpi_runner))
         app("policy: %s" % str(self.policy))
 
+        if self.qadapter.has_omp:
+            app(str(self.qadapter.omp_env))
+
         if self.has_db:
             app("Using MongoDB database:")
             app(str(self.db_connector))
@@ -671,6 +675,11 @@ class TaskManager(object):
     def has_db(self):
         """True if we have a database"""
         return self.db_connector is not None
+
+    @property
+    def has_omp(self):
+        """True if we are using OpenMP parallelization."""
+        return self.qadapter.has_omp
 
     #def get_collection(self, **kwargs):
     #    return self.db_connector.get_collection(**kwargs)
@@ -2555,10 +2564,8 @@ class AbinitTask(Task):
         self.manager.set_mpi_ncpus(optimal.mpi_ncpus)
 
         # Change the number of OpenMP threads.
-        #if optimal.omp_ncpus > 1:
-        #    self.manager.set_omp_ncpus(optimal.omp_ncpus)
-        #else:
-        #    self.manager.disable_omp()
+        if self.manager.has_omp:
+            self.manager.set_omp_ncpus(optimal.omp_ncpus)
 
         # Change the memory per node if automemory evaluates to True.
         mem_per_cpu = optimal.mem_per_cpu
@@ -2595,6 +2602,7 @@ class AbinitTask(Task):
         self.log_file.remove()
         self.stderr_file.remove()
         self.start_lockfile.remove()
+
         return self._restart(no_submit=True)
 
     def fix_abicritical(self):

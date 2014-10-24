@@ -785,9 +785,10 @@ class PyFlowScheduler(object):
             #    print(straceback())
 
             # Unschedule all the jobs before calling shutdown
+            self.sched.print_jobs()
             for job in self.sched.get_jobs():
                 self.sched.unschedule_job(job)
-            #self.sched.print_jobs()
+            self.sched.print_jobs()
                 
             self.sched.shutdown()
             # Uncomment the line below if shutdown does not work!

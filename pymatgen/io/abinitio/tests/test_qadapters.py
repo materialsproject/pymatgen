@@ -56,6 +56,18 @@ class QadapterTest(PymatgenTest):
 
                 self.assertEqual(new_script, script)
 
+    #def test_openmp(self)
+    #    omp_env = {"OMP_NUM_THREADS": 2}
+
+    #    for subc in AbstractQueueAdapter.__subclasses__()
+    #        cls = qadapter_class(subc.QTYPE)
+
+    #        # Create the adapter
+    #        #qad = cls(qparams=None, setup=None, modules=modules, shell_env=shell_env, omp_env=omp_env, 
+    #        #          pre_run=None, post_run=None, mpi_runner=mpi_runner)
+    #        self.assertTrue(qad.has_omp)
+
+
 
 if __name__ == '__main__':
     import unittest

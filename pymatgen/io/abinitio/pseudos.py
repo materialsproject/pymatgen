@@ -1611,12 +1611,13 @@ class PseudoTable(collections.Sequence):
 
     def as_dict(self, **kwargs):
         d = {}
-        for pseudo in p:
+        for p in self:
             k, count = p.name, 1
+            # Handle multiple-pseudos with the same name!
             while k not in d:
                 k += k + "#" + str(count)
                 count += 1
-            pseudo.update({k, p.as_dict()})
+            d.update({k, p.as_dict()})
         return d
 
     def is_complete(self, zmax=118):

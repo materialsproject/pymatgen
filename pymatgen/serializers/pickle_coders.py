@@ -2,7 +2,6 @@
 """
 This module implements the pickler objects used in abinitio.
 """
-
 from __future__ import unicode_literals, division, print_function
 
 import pickle
@@ -35,7 +34,10 @@ class PmgUnpickler(pickle.Unpickler):
         This method is invoked whenever a persistent ID is encountered.
         Here, pid is the tuple returned by PmgPickler.
         """
-        type_tag, key_id = pid
+        try:
+            type_tag, key_id = pid
+        except Exception as exc:
+            raise pickle.UnpicklingError("Exception:\n%s\npid: %s" % (str(exc), str(pid)))
 
         if type_tag == "Element":
             return Element(key_id)
@@ -56,6 +58,7 @@ def pmg_pickle_load(filobj, **kwargs):
     Returns:
         Deserialized object. 
     """
+    #return pickle.load(filobj, **kwargs)
     return PmgUnpickler(filobj, **kwargs).load()
 
 
@@ -68,4 +71,5 @@ def pmg_pickle_dump(obj, filobj, **kwargs):
         fileobj: File-like object
         \*\*kwargs: Any of the keyword arguments supported by PmgPickler
     """
-    PmgPickler(filobj, **kwargs).dump(obj)
+    #return pickle.dump(obj, filobj, **kwargs)
+    return PmgPickler(filobj, **kwargs).dump(obj)
