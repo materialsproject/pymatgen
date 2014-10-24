@@ -86,7 +86,7 @@ def char2l(char):
 ALL_ELEMENT_SYMBOLS = set(_pt_data.keys())
 
 
-@cached_class
+#@cached_class
 @total_ordering
 class Element(object):
     """
@@ -689,7 +689,7 @@ class Element(object):
                 "element": self.symbol}
 
 
-@cached_class
+#@cached_class
 @total_ordering
 class Specie(PMGSONable):
     """
@@ -916,7 +916,7 @@ class Specie(PMGSONable):
                    d.get("properties", None))
 
 
-@cached_class
+#@cached_class
 @total_ordering
 class DummySpecie(PMGSONable):
     """
