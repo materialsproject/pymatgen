@@ -35,6 +35,11 @@ class PmgUnpickler(pickle.Unpickler):
         This method is invoked whenever a persistent ID is encountered.
         Here, pid is the tuple returned by PmgPickler.
         """
+        print(pid)
+        print(pid.__class__)
+        import traceback
+        import sys
+        print('\n'.join((traceback.format_exc(), str(sys.exc_info()[0]))))
         type_tag, key_id = pid
 
         if type_tag == "Element":
