@@ -68,6 +68,22 @@ class QadapterTest(PymatgenTest):
     #        self.assertTrue(qad.has_omp)
 
 
+import unittest
+from pymatgen.io.abinitio.qadapters import Command
+class CommandTest(unittest.TestCase):
+    def test_command(self):
+        """Test Command class"""
+        command = Command("sleep 0.5")
+
+        command.run(timeout=1)
+        print(command)
+        self.assertEqual(command.status, 0)
+        self.assertFalse(command.killed)
+
+        command.run(timeout=0.2)
+        self.assertNotEqual(command.status, 0)
+        self.assertTrue(command.killed)
+
 
 if __name__ == '__main__':
     import unittest
