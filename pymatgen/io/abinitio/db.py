@@ -14,14 +14,23 @@ except ImportError:
 
 
 class MongoObject(object):
+    """
+    >>> m = MongoObject({'a': {'b': 1}, 'x': 2}) 
+    >>> assert m.x == 2
+    >>> assert m.a == {'b': 1}
+    >>> assert m.a.b == 1
+    """
     def __init__(self, mongo_dict):
         self.__dict__["_mongo_dict"] = mongo_dict
+
+    def __repr__(self):
+        return str(self)
 
     def __str__(self):
         return str(self._mongo_dict)
 
     def __setattr__(self, name, value):
-        raise NotImplementedError()
+        raise NotImplementedError("You cannot modify an attribute of %s" % self.__class__.__name__)
 
     def __getattribute__(self, name):
         try:
@@ -35,6 +44,10 @@ class MongoObject(object):
                 return a
             except Exception as exc:
                 raise AttributeError(str(exc))
+
+    def __dir__(self):
+        """For Ipython tab completion. See http://ipython.org/ipython-doc/dev/config/integrating.html"""
+        return sorted(list(self._mongo_dict.keys()))
 
 
 def mongo_getattr(rec, key):
@@ -117,8 +130,10 @@ class DBConnector(object):
         return copy.deepcopy(self)
 
     def set_collection_name(self, value):
-        """Set the name of the collection."""
+        """Set the name of the collection, return old value"""
+        old = self.config.collection
         self.config.collection = str(value)
+        return old
 
     def get_collection(self):
         """
@@ -126,7 +141,10 @@ class DBConnector(object):
         """
         from pymongo import MongoClient
         config = self.config
-        #client = MongoClient(host=config.host, port=config.port)
+
+        #if config.host or config.port:
+        #    client = MongoClient(host=config.host, port=config.port)
+        #else:
         client = MongoClient()
         db = client[config.dbname]
 
@@ -137,41 +155,12 @@ class DBConnector(object):
         return db[config.collection]
 
 
-def install_excepthook(hook_type="verbose", **kwargs):
-    """
-    This function replaces the original python traceback with an improved version from Ipython 
-    Use `color` for colourful traceback formatting, `verbose` for Ka-Ping Yee's "cgitb.py" version
-    kwargs are the keyword arguments passed to the constructor. See IPython.core.ultratb.py for more info.
-
-    Return:
-        0 if hook is installed successfully. 
-    """
-    try:
-        from IPython.core import ultratb
-    except ImportError:
-        import warnings
-        warnings.warn("Cannot install excepthook, IPyhon.core.ultratb not available")
-        return 1
-
-    import sys
-    # Select the hook.
-    hook = dict(
-        color=ultratb.ColorTB,
-        verbose=ultratb.VerboseTB,
-    ).get(hook_type.lower(), None)
-
-    if hook is None:
-        return 2
-
-    sys.excepthook = hook(**kwargs)
-    return 0
-
 if __name__ == "__main__":
     #connector = DBConnector()
     #connector.set_collection_name("foo")
     #print(connector)
     #print(connector.get_collection())
-    install_excepthook("color")
+    #install_excepthook("color")
     #raise ValueError()
     m = MongoObject({'a': {'b': 1}, 'x': 2}) 
     print("m.x", m.x)
