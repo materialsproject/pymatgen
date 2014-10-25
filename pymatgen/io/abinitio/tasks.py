@@ -323,15 +323,28 @@ class ParalConf(AttrDict):
         pprint(self, stream=stream)
         return stream.getvalue()
 
+    # TODO: Change name in abinit
+    @property
+    def tot_cores(self):
+        return self.tot_ncpus
+
+    @property
+    def mpi_procs(self):
+        return self.mpi_ncpus
+
+    @property
+    def mpi_procs(self):
+        return self.omp_ncpus
+
     @property
     def speedup(self):
         """Estimated speedup reported by ABINIT."""
-        return self.efficiency * self.tot_ncpus
+        return self.efficiency * self.tot_cores
 
     @property
     def tot_mem(self):
         """Estimated total memory in Mbs (computed from mem_per_cpu)"""
-        return self.mem_per_cpu * self.mpi_ncpus
+        return self.mem_per_cpu * self.mpi_procs
 
 
 class ParalHintsParser(object):
@@ -437,7 +450,7 @@ class ParalHints(collections.Iterable):
         # Make a copy since we are gonna change the object in place.
         #hints = self.copy()
 
-        hints = ParalHints(self.info, confs=[c for c in self if c.tot_ncpus <= policy.max_ncpus])
+        hints = ParalHints(self.info, confs=[c for c in self if c.tot_cores <= policy.max_ncpus])
         #print(hints)
         #logger.info('hints: \n' + str(hints) + '\n')
 
@@ -485,8 +498,8 @@ class ParalHints(collections.Iterable):
 
         #elif mode == "conservative":
         #    hints.sort_by_efficiency()
-        #    # Remove tot_ncpus == 1
-        #    hints.pop(tot_ncpus==1)
+        #    # Remove tot_cores == 1
+        #    hints.pop(tot_cores==1)
         #    if not hints:
 
         #else:
@@ -600,7 +613,7 @@ class TaskManager(object):
         """String representation."""
         lines = []
         app = lines.append
-        #app("tot_ncpus %d, mpi_ncpus %d, omp_ncpus %s" % (self.tot_ncpus, self.mpi_ncpus, self.omp_ncpus))
+        #app("tot_cores %d, mpi_procs %d, omp_threads %s" % (self.tot_cores, self.mpi_procs, self.omp_threads))
         app("[Qadapter]\n%s" % str(self.qadapter))
         app("[Task policy]\n%s" % str(self.policy))
 
@@ -662,12 +675,12 @@ class TaskManager(object):
         return cls(qtype="shell")
 
     @classmethod 
-    def simple_mpi(cls, mpi_runner="mpirun", mpi_ncpus=1, policy=None):
+    def simple_mpi(cls, mpi_runner="mpirun", mpi_procs=1, policy=None):
         """
         Build a `TaskManager` that submits jobs with a simple shell script and mpirun.
         Assume the shell environment is already properly initialized.
         """
-        return cls(qtype="shell", qparams=dict(MPI_NCPUS=mpi_ncpus), mpi_runner=mpi_runner, policy=policy)
+        return cls(qtype="shell", qparams=dict(MPI_PROCS=mpi_procs), mpi_runner=mpi_runner, policy=policy)
 
     @property
     def has_db(self):
@@ -683,24 +696,24 @@ class TaskManager(object):
     #    return self.db_connector.get_collection(**kwargs)
 
     @property
-    def tot_ncpus(self):
+    def tot_cores(self):
         """Total number of CPUs used to run the task."""
-        return self.qadapter.tot_ncpus
+        return self.qadapter.tot_cores
 
     @property
-    def mpi_ncpus(self):
-        """Number of CPUs used for MPI."""
-        return self.qadapter.mpi_ncpus
+    def mpi_procs(self):
+        """Number of MPI processes."""
+        return self.qadapter.mpi_procs
 
     @property
-    def omp_ncpus(self):
+    def omp_threads(self):
         """Number of CPUs used for OpenMP."""
-        return self.qadapter.omp_ncpus
+        return self.qadapter.omp_threads
 
-    def to_shell_manager(self, mpi_ncpus=1, policy=None):
+    def to_shell_manager(self, mpi_procs=1, policy=None):
         """
         Returns a new `TaskManager` with the same parameters as self but replace the `QueueAdapter` 
-        with a `ShellAdapter` with mpi_ncpus so that we can submit the job without passing through the queue.
+        with a `ShellAdapter` with mpi_procs so that we can submit the job without passing through the queue.
         Replace self.policy with a `TaskPolicy` with autoparal==0.
         """
         qad = self.qadapter.deepcopy()
@@ -708,7 +721,7 @@ class TaskManager(object):
         policy = TaskPolicy(autoparal=0) if policy is None else policy
 
         cls = self.__class__
-        new = cls("shell", qparams={"MPI_NCPUS": mpi_ncpus}, setup=qad.setup, modules=qad.modules, 
+        new = cls("shell", qparams={"MPI_PROCS": mpi_procs}, setup=qad.setup, modules=qad.modules, 
                   shell_env=qad.shell_env, omp_env=None, pre_run=qad.pre_run, 
                   post_run=qad.post_run, mpi_runner=qad.mpi_runner, policy=policy)
 
@@ -730,13 +743,13 @@ class TaskManager(object):
         """Deep copy of self."""
         return copy.deepcopy(self)
 
-    def set_mpi_ncpus(self, mpi_ncpus):
+    def set_mpi_procs(self, mpi_procs):
         """Set the number of MPI nodes to use."""
-        self.qadapter.set_mpi_ncpus(mpi_ncpus)
+        self.qadapter.set_mpi_procs(mpi_procs)
 
-    def set_omp_ncpus(self, omp_ncpus):
+    def set_omp_threads(self, omp_threads):
         """Set the number of OpenMp threads to use."""
-        self.qadapter.set_omp_ncpus(omp_ncpus)
+        self.qadapter.set_omp_threads(omp_threads)
 
     def set_mem_per_cpu(self, mem_mb):
         """Set the memory (in Megabytes) per CPU."""
@@ -1397,7 +1410,10 @@ class FileNode(Node):
 
     @property
     def status(self):
-        return self.S_OK
+        return self.S_OK if os.path.exists(self.filepath) else self.S_ERROR
+
+    def check_status(self):
+        return self.status
 
     #def get_results(self, **kwargs):
     #    results = super(FileNode, self).get_results(**kwargs)
@@ -1812,19 +1828,19 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         return self.manager.qadapter.QTYPE.lower() != "shell"
 
     @property
-    def tot_ncpus(self):
+    def tot_cores(self):
         """Total number of CPUs used to run the task."""
-        return self.manager.tot_ncpus
+        return self.manager.tot_cores
                                                          
     @property
-    def mpi_ncpus(self):
+    def mpi_procs(self):
         """Number of CPUs used for MPI."""
-        return self.manager.mpi_ncpus
+        return self.manager.mpi_procs
                                                          
     @property
-    def omp_ncpus(self):
+    def omp_threads(self):
         """Number of CPUs used for OpenMP."""
-        return self.manager.omp_ncpus
+        return self.manager.omp_threads
 
     @property
     def status(self):
@@ -1890,6 +1906,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         This function checks the status of the task by inspecting the output and the
         error files produced by the application and by the queue manager.
+
         The process
         1) see it the job is blocked
         2) see if an error occured at submitting the job the job was submitted, TODO these problems can be solved
@@ -2524,7 +2541,7 @@ class AbinitTask(Task):
 
         # Build a simple manager to run the job in a shell subprocess on the frontend
         # we don't want to make a request to the queue manager for this simple job!
-        seq_manager = self.manager.to_shell_manager(mpi_ncpus=1)
+        seq_manager = self.manager.to_shell_manager(mpi_procs=1)
 
         # Return code is always != 0 
         process = seq_manager.launch(self)
@@ -2561,11 +2578,11 @@ class AbinitTask(Task):
         self.strategy.add_extra_abivars(optimal.vars)
                                                                   
         # Change the number of MPI nodes.
-        self.manager.set_mpi_ncpus(optimal.mpi_ncpus)
+        self.manager.set_mpi_procs(optimal.mpi_procs)
 
         # Change the number of OpenMP threads.
         if self.manager.has_omp:
-            self.manager.set_omp_ncpus(optimal.omp_ncpus)
+            self.manager.set_omp_threads(optimal.omp_threads)
 
         # Change the memory per node if automemory evaluates to True.
         mem_per_cpu = optimal.mem_per_cpu

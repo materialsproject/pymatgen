@@ -50,7 +50,7 @@ class MpiRunner(object):
         self.type = None
         self.options = options
 
-    def string_to_run(self, executable, mpi_ncpus, stdin=None, stdout=None, stderr=None):
+    def string_to_run(self, executable, mpi_procs, stdin=None, stdout=None, stderr=None):
         stdin = "< " + stdin if stdin is not None else ""
         stdout = "> " + stdout if stdout is not None else ""
         stderr = "2> " + stderr if stderr is not None else ""
@@ -59,15 +59,15 @@ class MpiRunner(object):
 
             if self.type is None:
                 # TODO: better treatment of mpirun syntax.
-                #se.add_line('$MPIRUN -n $MPI_NCPUS $EXECUTABLE < $STDIN > $STDOUT 2> $STDERR')
-                num_opt = "-n " + str(mpi_ncpus)
+                #se.add_line('$MPIRUN -n $MPI_PROCS $EXECUTABLE < $STDIN > $STDOUT 2> $STDERR')
+                num_opt = "-n " + str(mpi_procs)
                 cmd = " ".join([self.name, num_opt, executable, stdin, stdout, stderr])
 
             else:
                 raise NotImplementedError("type %s is not supported!")
 
         else:
-            #assert mpi_ncpus == 1
+            #assert mpi_procs == 1
             cmd = " ".join([executable, stdin, stdout, stderr])
 
         return cmd
@@ -117,7 +117,7 @@ class Partition(object):
         return "\n".join(lines)
 
     @property
-    def tot_ncpus(self):
+    def tot_cores(self):
         """Total number of CPUs available in the partition."""
         return self.cores_per_socket * self.sockets_per_node * self.num_nodes
 
@@ -126,22 +126,22 @@ class Partition(object):
         """Number of cores per node."""
         return self.cores_per_socket * self.sockets_per_node
 
-    def can_use_omp_cores(self, omp_cores):
-        """True if omp_cores fit in a node."""
-        return self.cores_per_node >= omp_cores
+    def can_use_omp_threads(self, omp_threads):
+        """True if omp_threads fit in a node."""
+        return self.cores_per_node >= omp_threads
 
-    def divide_by_node(self, mpi_cores, omp_cores):
+    def divide_by_node(self, mpi_procs, omp_threads):
         """
         Return (num_nodes, rest_cores)
         """
-        num_nodes = (mpi_cores * omp_cores // self.cores_per_node)
-        rest_cores = (mpi_cores * omp_cores % self.cores_per_node)
+        num_nodes = (mpi_procs * omp_threads // self.cores_per_node)
+        rest_cores = (mpi_procs * omp_threads % self.cores_per_node)
         return num_nodes, rest_cores
 
     #def accepts(self, pconf):
     #    """True if this partition is able, in principle, to run this `ParalConf`"""
-    #    if pconf.tot_ncpus > self.tot_ncpus: return False
-    #    if pconf.omp_ncpus > self.cores_per_node: return False
+    #    if pconf.tot_cores > self.tot_cores: return False
+    #    if pconf.omp_threads > self.cores_per_node: return False
     #    if pconf.mem_per_cpu > self.mem_per_core: return minf
     #    if self.condition is not None:
     #        return self.condition.apply(pconf)
@@ -154,7 +154,7 @@ class Partition(object):
         """
         minf = float("-inf")
         if not self.accepts(pconf): return minf
-        pconf.mpi_ncpus
+        pconf.mpi_procs
         return self.priority
 
 
@@ -315,12 +315,12 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         return hasattr(self, "omp_env") and bool(getattr(self, "omp_env"))
 
     @property
-    def tot_ncpus(self):
-        """Total number of CPUs employed"""
-        return self.mpi_ncpus * self.omp_ncpus 
+    def tot_cores(self):
+        """Total number of cores employed"""
+        return self.mpi_procs * self.omp_threads 
 
     @property
-    def omp_ncpus(self):
+    def omp_threads(self):
         """Number of OpenMP threads."""
         if self.has_omp:
             return self.omp_env["OMP_NUM_THREADS"]
@@ -345,18 +345,18 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     @property
     def run_info(self):
         """String with info on the run."""
-        return "MPI: %d, OMP: %d" % (self.mpi_ncpus, self.omp_ncpus)
+        return "MPI: %d, OMP: %d" % (self.mpi_procs, self.omp_threads)
 
     @abc.abstractmethod
-    def set_omp_ncpus(self, omp_ncpus):
+    def set_omp_threads(self, omp_threads):
         """Set the number of OpenMP threads."""
 
     @abc.abstractproperty
-    def mpi_ncpus(self):
+    def mpi_procs(self):
         """Number of CPUs used for MPI."""
 
     @abc.abstractmethod
-    def set_mpi_ncpus(self, mpi_ncpus):
+    def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
 
     #@abc.abstractproperty
@@ -378,7 +378,7 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     #@property
     #def tot_mem(self):
     #    """Total memory required by the job n Megabytes."""
-    #    return self.mem_per_cpu * self.mpi_ncpus
+    #    return self.mem_per_cpu * self.mpi_procs
 
     @abc.abstractmethod
     def cancel(self, job_id):
@@ -492,10 +492,8 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             se.add_lines(self.pre_run)
             se.add_emptyline()
 
-        # Construct the string to run the executable with MPI and mpi_ncpus.
-        mpi_ncpus = self.mpi_ncpus
-
-        line = self.mpi_runner.string_to_run(executable, mpi_ncpus, 
+        # Construct the string to run the executable with MPI and mpi_procs.
+        line = self.mpi_runner.string_to_run(executable, self.mpi_procs, 
                                              stdin=stdin, stdout=stdout, stderr=stderr)
         se.add_line(line)
 
@@ -575,21 +573,21 @@ class ShellAdapter(AbstractQueueAdapter):
     QTEMPLATE = """\
 #!/bin/bash
 
-export MPI_NCPUS=$${MPI_NCPUS}
+export MPI_PROCS=$${MPI_PROCS}
 """
 
     @property
-    def mpi_ncpus(self):
+    def mpi_procs(self):
         """Number of CPUs used for MPI."""
-        return self.qparams.get("MPI_NCPUS", 1)
+        return self.qparams.get("MPI_PROCS", 1)
                                                     
-    def set_mpi_ncpus(self, mpi_ncpus):
+    def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
-        self.qparams["MPI_NCPUS"] = mpi_ncpus
+        self.qparams["MPI_PROCS"] = mpi_procs
 
-    def set_omp_ncpus(self, omp_ncpus):
+    def set_omp_threads(self, omp_threads):
         """Set the number of OpenMP threads."""
-        self.omp_env["OMP_NUM_THREADS"] = omp_ncpus
+        self.omp_env["OMP_NUM_THREADS"] = omp_threads
 
     def set_mem_per_cpu(self, mem_mb):
         """mem_per_cpu is not available in ShellAdapter."""
@@ -660,18 +658,18 @@ class SlurmAdapter(AbstractQueueAdapter):
     LIMITS = {'max_total_tasks': 544, 'max_cpus_per_node': 16, 'mem': 6400000, 'mem_per_cpu': 64000, 'time': 2880}
 
     @property
-    def mpi_ncpus(self):
+    def mpi_procs(self):
         """Number of CPUs used for MPI."""
         return self.qparams.get("ntasks", 1)
 
-    def set_mpi_ncpus(self, mpi_ncpus):
+    def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
-        self.qparams["ntasks"] = mpi_ncpus
+        self.qparams["ntasks"] = mpi_procs
 
-    def set_omp_ncpus(self, omp_ncpus):
+    def set_omp_threads(self, omp_threads):
         """Set the number of OpenMP threads."""
-        self.omp_env["OMP_NUM_THREADS"] = omp_ncpus
-        warnings.warn("set_omp_ncpus not availabe for %s" % self.__class__.__name__)
+        self.omp_env["OMP_NUM_THREADS"] = omp_threads
+        warnings.warn("set_omp_threads not availabe for %s" % self.__class__.__name__)
 
     def set_mem_per_cpu(self, mem_mb):
         """Set the memory per CPU in Megabytes"""
@@ -896,20 +894,20 @@ class PbsProAdapter(AbstractQueueAdapter):
     LIMITS = {'max_total_tasks': 3888, 'time': 48, 'max_select': 300, 'mem': 16000}
 
     @property
-    def mpi_ncpus(self):
+    def mpi_procs(self):
         """Number of CPUs used for MPI."""
         #return self.qparams.get("select", 1)
-        return self._mpi_ncpus
+        return self._mpi_procs
                                                     
-    def set_mpi_ncpus(self, mpi_ncpus):
+    def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
-        #self.qparams["select"] = mpi_ncpus
-        self._mpi_ncpus = mpi_ncpus
+        #self.qparams["select"] = mpi_procs
+        self._mpi_procs = mpi_procs
 
-    def set_omp_ncpus(self, omp_ncpus):
+    def set_omp_threads(self, omp_threads):
         """Set the number of OpenMP threads."""
-        self.omp_env["OMP_NUM_THREADS"] = omp_ncpus
-        self.qparams["ompthreads"] = omp_ncpus
+        self.omp_env["OMP_NUM_THREADS"] = omp_threads
+        self.qparams["ompthreads"] = omp_threads
 
     def set_mem_per_cpu(self, mem_mb):
         """Set the memory per CPU in Megabytes"""
@@ -927,10 +925,10 @@ class PbsProAdapter(AbstractQueueAdapter):
         """
         if self.use_only_mpi:
             # Pure MPI run
-            num_nodes, rest_cores = p.divide_by_node(self.mpi_ncpus, self.omp_ncpus)
+            num_nodes, rest_cores = p.divide_by_node(self.mpi_procs, self.omp_threads)
 
             if rest_cores == 0:
-                # Can allocate entire nodes because self.mpi_ncpus is divisible by cores_per_node.
+                # Can allocate entire nodes because self.mpi_procs is divisible by cores_per_node.
                 print("PURE MPI run commensurate with cores_per_node", self.run_info)
                 select_params = dict(
                     select=num_nodes,
@@ -949,7 +947,7 @@ class PbsProAdapter(AbstractQueueAdapter):
             else:
                 print("OUT-OF-CORE PURE MPI (not commensurate with cores_per_node):", self.run_info)
                 select_params = dict(
-                    select=self.mpi_ncpus,
+                    select=self.mpi_procs,
                     ncpus=1,
                     mpiprocs=1,
                     ompthreads=1)
@@ -957,37 +955,37 @@ class PbsProAdapter(AbstractQueueAdapter):
         elif self.use_only_omp:
             # Pure OMP run.
             print("PURE OPENMP run.", self.run_info)
-            assert p.can_use_omp_cores(self.omp_ncpus)
+            assert p.can_use_omp_threads(self.omp_threads)
 
             select_params = dict(
                 select=1,
-                ncpus=self.omp_ncpus,
+                ncpus=self.omp_threads,
                 mpiprocs=1,
-                ompthreads=self.omp_ncpus)
+                ompthreads=self.omp_threads)
 
         elif self.use_mpi_omp:
             # Hybrid MPI-OpenMP run.
-            assert p.can_use_omp_cores(self.omp_ncpus)
-            num_nodes, rest_cores = p.divide_by_node(self.mpi_ncpus, self.omp_ncpus)
+            assert p.can_use_omp_threads(self.omp_threads)
+            num_nodes, rest_cores = p.divide_by_node(self.mpi_procs, self.omp_threads)
             #print(num_nodes, rest_cores)
             # TODO: test this
 
             if rest_cores == 0 or num_nodes == 0:  
                 print("HYBRID MPI-OPENMP run, perfectly divisible among nodes: ", self.run_info)
                 select = max(num_nodes, 1)
-                mpiprocs = self.mpi_ncpus // select
+                mpiprocs = self.mpi_procs // select
                 select_params = dict(
                     select=select,
-                    ncpus=mpiprocs * self.omp_ncpus,
+                    ncpus=mpiprocs * self.omp_threads,
                     mpiprocs=mpiprocs,
-                    ompthreads=self.omp_ncpus)
+                    ompthreads=self.omp_threads)
             else:
                 print("HYBRID MPI-OPENMP, NOT commensurate with nodes: ", self.run_info)
                 select_params = dict(
-                    select=self.mpi_ncpus,
-                    ncpus=self.omp_ncpus,
+                    select=self.mpi_procs,
+                    ncpus=self.omp_threads,
                     mpiprocs=1,
-                    ompthreads=self.omp_ncpus)
+                    ompthreads=self.omp_threads)
 
         else:
             raise RuntimeError("You should not be here")
@@ -1152,18 +1150,18 @@ class SGEAdapter(AbstractQueueAdapter):
 #$ -S /bin/bash
 """
     @property
-    def mpi_ncpus(self):
+    def mpi_procs(self):
         """Number of CPUs used for MPI."""
         return self.qparams.get("ncpus", 1) 
                                                     
-    def set_mpi_ncpus(self, mpi_ncpus):
+    def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
-        self.qparams["ncpus"] = mpi_ncpus
+        self.qparams["ncpus"] = mpi_procs
 
-    def set_omp_ncpus(self, omp_ncpus):
+    def set_omp_threads(self, omp_threads):
         """Set the number of OpenMP threads."""
-        self.omp_env["OMP_NUM_THREADS"] = omp_ncpus
-        warnings.warn("set_omp_ncpus not availabe for %s" % self.__class__.__name__)
+        self.omp_env["OMP_NUM_THREADS"] = omp_threads
+        warnings.warn("set_omp_threads not availabe for %s" % self.__class__.__name__)
 
     def set_mem_per_cpu(self, mem_mb):
         """Set the memory per CPU in Megabytes"""
@@ -1290,17 +1288,17 @@ class MOABAdapter(AbstractQueueAdapter):
 """
 
     @property
-    def mpi_ncpus(self):
+    def mpi_procs(self):
         """Number of CPUs used for MPI."""
         return self.qparams.get("procs", 1)
 
-    def set_mpi_ncpus(self, mpi_ncpus):
+    def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
-        self.qparams["procs"] = mpi_ncpus
+        self.qparams["procs"] = mpi_procs
 
-    def set_omp_ncpus(self, omp_ncpus):
+    def set_omp_threads(self, omp_threads):
         """Set the number of OpenMP threads."""
-        self.omp_env["OMP_NUM_THREADS"] = omp_ncpus
+        self.omp_env["OMP_NUM_THREADS"] = omp_threads
 
     def cancel(self, job_id):
         return os.system("canceljob %d" % job_id)
