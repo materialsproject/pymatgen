@@ -617,7 +617,7 @@ class AbinitFlow(Node):
                     task_info
                 )
 
-                if task.status.is_critic:
+                if task.status.is_critical:
                     tot_num_errors += 1
 
             # Print table and write colorized line with the total number of errors.

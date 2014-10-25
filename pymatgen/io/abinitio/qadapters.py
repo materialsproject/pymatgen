@@ -23,6 +23,7 @@ import six
 from subprocess import Popen, PIPE
 from monty.string import is_string, boxed
 from monty.collections import AttrDict
+from monty.shutil import Command
 from monty.dev import deprecated
 from .launcher import ScriptEditor
 
@@ -37,73 +38,6 @@ __all__ = [
     "PbsProAdapter",
     "SlurmAdapter",
 ]
-
-
-class Command(object):
-    """
-    Enables to run subprocess commands in a different thread with TIMEOUT option.
-
-
-    Based on jcollado's solution:
-        http://stackoverflow.com/questions/1191374/subprocess-with-timeout/4825933#4825933
-    and
-        https://gist.github.com/kirpit/1306188
-
-    Example:
-        com = Command("sleep 1").run(timeout=2)
-        print(com.retcode, com.killed, com.output, com.output)
-    """
-    def __init__(self, command):
-        if is_string(command):
-            import shlex
-            command = shlex.split(command)
-
-        self.command = command
-        self.process = None
-        self.retcode = None
-        self.output, self.error = '', ''
-        self.killed = False
-
-    def __str__(self):
-        return "command: %s, retcode: %s" % (str(self.command), str(self.retcode))
-
-    def run(self, timeout=None, **kwargs):
-        """
-        Run a command in a separated thread and wait timeout seconds.
-        kwargs are keyword arguments passed to Popen.
-
-        Return: self
-        """
-        def target(**kwargs):
-            try:
-                #print('Thread started')
-                self.process = Popen(self.command, **kwargs)
-                self.output, self.error = self.process.communicate()
-                self.retcode = self.process.returncode
-                #print('Thread stopped')
-            except:
-                import traceback
-                self.error = traceback.format_exc()
-                self.retcode = -1
-
-        # default stdout and stderr
-        if 'stdout' not in kwargs: kwargs['stdout'] = PIPE
-        if 'stderr' not in kwargs: kwargs['stderr'] = PIPE
-
-        # thread
-        import threading
-        thread = threading.Thread(target=target, kwargs=kwargs)
-        thread.start()
-        thread.join(timeout)
-
-        if thread.is_alive():
-            #print("Terminating process")
-            self.process.terminate()
-            self.killed = True
-            thread.join()
-
-        return self
-
 
 class MpiRunner(object):
     """
@@ -148,6 +82,17 @@ class Partition(object):
     """
     This object collects information on a partition
     # Based on https://computing.llnl.gov/linux/slurm/sinfo.html
+
+    Basic Definition
+
+        * A node refers to the physical box, i.e. cpu sockets with north/south switches connecting memory systems 
+          and extension cards, e.g. disks, nics, and accelerators
+
+        * A cpu socket is the connector to these systems and the cpu cores, you plug in chips with multiple cpu cores. 
+          This creates a split in the cache memory space, hence the need for NUMA aware code.
+
+        * A cpu core is an independent computing with its own computing pipeline, logical units, and memory controller. 
+          Each cpu core will be able to service a number of cpu threads, each having an independent instruction stream but sharing the cores memory controller and other logical units.
     """
     #def from_yaml(cls, doc):
 
@@ -159,7 +104,7 @@ class Partition(object):
         #self.min_nodes = int(min_nodes)
         #self.max_nodes = int(max_nodes)
         #self.timelimit = timelimit #TODO conversion datetime.datetime.strptime("1:00:00", "%H:%M:%S")
-        ##self.mem_per_core = 
+        #self.mem_per_node = 
         #self.condition = condition
         #self.priority = int(priority)
 
