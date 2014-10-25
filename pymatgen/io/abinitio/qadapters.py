@@ -42,10 +42,16 @@ __all__ = [
 class Command(object):
     """
     Enables to run subprocess commands in a different thread with TIMEOUT option.
-    From https://gist.github.com/kirpit/1306188
+
 
     Based on jcollado's solution:
-    http://stackoverflow.com/questions/1191374/subprocess-with-timeout/4825933#4825933
+        http://stackoverflow.com/questions/1191374/subprocess-with-timeout/4825933#4825933
+    and
+        https://gist.github.com/kirpit/1306188
+
+    Example:
+        com = Command("sleep 1").run(timeout=2)
+        print(com.retcode, com.killed, com.output, com.output)
     """
     def __init__(self, command):
         if is_string(command):
@@ -54,16 +60,18 @@ class Command(object):
 
         self.command = command
         self.process = None
-        self.status = None
+        self.retcode = None
         self.output, self.error = '', ''
         self.killed = False
 
     def __str__(self):
-        return "command: %s, status: %s" % (str(self.command), str(self.status))
+        return "command: %s, retcode: %s" % (str(self.command), str(self.retcode))
 
     def run(self, timeout=None, **kwargs):
         """
-        Run a command in a separated thread and wait. 
+        Run a command in a separated thread and wait timeout seconds.
+        kwargs are keyword arguments passed to Popen.
+
         Return: self
         """
         def target(**kwargs):
@@ -71,12 +79,12 @@ class Command(object):
                 #print('Thread started')
                 self.process = Popen(self.command, **kwargs)
                 self.output, self.error = self.process.communicate()
-                self.status = self.process.returncode
+                self.retcode = self.process.returncode
                 #print('Thread stopped')
             except:
                 import traceback
                 self.error = traceback.format_exc()
-                self.status = -1
+                self.retcode = -1
 
         # default stdout and stderr
         if 'stdout' not in kwargs: kwargs['stdout'] = PIPE
@@ -95,7 +103,6 @@ class Command(object):
             thread.join()
 
         return self
-        #return self.status, self.output, self.error
 
 
 class MpiRunner(object):
@@ -204,7 +211,6 @@ class Partition(object):
         if not self.accepts(pconf): return minf
         pconf.mpi_ncpus
         return self.priority
-
 
 
 class Cluster(object):
@@ -792,11 +798,13 @@ class SlurmAdapter(AbstractQueueAdapter):
             if 'exclude_nodes' not in self.qparams.keys():
                 self.qparams.update({'exclude_nodes': 'node'+nodes[0]})
                 print('excluded node %s' % nodes[0])
+
             for node in nodes[1:]:
                 self.qparams['exclude_nodes'] += ',node'+node
                 print('excluded node %s' % node)
-            #print(self.qparams)
+
             return True
+
         except (KeyError, IndexError):
             return False
 
@@ -806,22 +814,24 @@ class SlurmAdapter(AbstractQueueAdapter):
             if self.qparams['ntasks'] > 1:
                 # mpi parallel
                 n = int(self.qparams['ntasks'] * factor)
-                if n < self.limits['max_total_tasks']:
+                if n < self.LIMITS['max_total_tasks']:
                     self.qparams['ntasks'] = n
                     logger.info('increased ntasks to %s' % n)
                     return True
                 else:
                     raise QueueAdapterError
+
             elif self.qparams['ntasks'] == 1 and self.qparams['cpus_per_task'] > 1:
                 # open mp parallel
                 n = int(self.qparams['cpus_per_task'] * factor)
-                if n < self.limits['max_cpus_per_node']:
+                if n < self.LIMITS['max_cpus_per_node']:
                     self.qparams['cpus_per_task'] = n
                     return True
                 else:
                     raise QueueAdapterError
             else:
                 raise QueueAdapterError
+
         except (KeyError, QueueAdapterError):
             return False
 
@@ -830,22 +840,25 @@ class SlurmAdapter(AbstractQueueAdapter):
         try:
             if 'mem' in self.qparams.keys():
                 n = int(self.qparams['mem'] * factor)
-                if n < self.limits['mem']:
+                if n < self.LIMITS['mem']:
                     self.qparams['mem'] = n
                     logger.info('increased mem to %s' % n)
                     return True
                 else:
                     raise QueueAdapterError
+
             elif 'mem_per_cpu' in self.qparams.keys():
                 n = int(self.qparams['mem_per_cpu'] * factor)
-                if n < self.limits['mem_per_cpu']:
+                if n < self.LIMITS['mem_per_cpu']:
                     self.qparams['mem'] = n
                     logger.info('increased mem_per_cpu to %s' % n)
                     return True
                 else:
                     raise QueueAdapterError
+
             else:
                 raise QueueAdapterError
+
         except (KeyError, IndexError, QueueAdapterError):
             return False
 
@@ -878,7 +891,7 @@ class SlurmAdapter(AbstractQueueAdapter):
                     pass
             time = (days * 24 + hours) * 60 + minutes
             time *= factor
-            if time < self.limits['time']:
+            if time < self.LIMITS['time']:
                 self.qparams['time'] = time
                 logger.info('increased time to %s' % time)
                 return True
@@ -928,7 +941,8 @@ class PbsProAdapter(AbstractQueueAdapter):
 #PBS -l model=$${model}
 #PBS -l place=$${place}
 #PBS -W group_list=$${group_list}
-#PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
+####PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
+#PBS -l select=$${select}:ncpus=$${ncpus}:vmem=$${vmem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
 #PBS -l pvmem=$${pvmem}mb
 #PBS -r y
 #PBS -o $${_qout_path}
@@ -939,11 +953,13 @@ class PbsProAdapter(AbstractQueueAdapter):
     @property
     def mpi_ncpus(self):
         """Number of CPUs used for MPI."""
-        return self.qparams.get("select", 1)
+        #return self.qparams.get("select", 1)
+        return self._mpi_ncpus
                                                     
     def set_mpi_ncpus(self, mpi_ncpus):
         """Set the number of CPUs used for MPI."""
-        self.qparams["select"] = mpi_ncpus
+        #self.qparams["select"] = mpi_ncpus
+        self._mpi_ncpus = mpi_ncpus
 
     def set_omp_ncpus(self, omp_ncpus):
         """Set the number of OpenMP threads."""
@@ -965,6 +981,7 @@ class PbsProAdapter(AbstractQueueAdapter):
         https://portal.ivec.org/docs/Supercomputers/PBS_Pro
         """
         if self.use_only_mpi:
+            # Pure MPI run
             num_nodes, rest_cores = p.divide_by_node(self.mpi_ncpus, self.omp_ncpus)
 
             if rest_cores == 0:
@@ -993,6 +1010,7 @@ class PbsProAdapter(AbstractQueueAdapter):
                     ompthreads=1)
 
         elif self.use_only_omp:
+            # Pure OMP run.
             print("PURE OPENMP run.", self.run_info)
             assert p.can_use_omp_cores(self.omp_ncpus)
 
@@ -1003,10 +1021,11 @@ class PbsProAdapter(AbstractQueueAdapter):
                 ompthreads=self.omp_ncpus)
 
         elif self.use_mpi_omp:
+            # Hybrid MPI-OpenMP run.
             assert p.can_use_omp_cores(self.omp_ncpus)
             num_nodes, rest_cores = p.divide_by_node(self.mpi_ncpus, self.omp_ncpus)
-            print(num_nodes, rest_cores)
-            # TODO
+            #print(num_nodes, rest_cores)
+            # TODO: test this
 
             if rest_cores == 0 or num_nodes == 0:  
                 print("HYBRID MPI-OPENMP run, perfectly divisible among nodes: ", self.run_info)
@@ -1026,7 +1045,7 @@ class PbsProAdapter(AbstractQueueAdapter):
                     ompthreads=self.omp_ncpus)
 
         else:
-            raise ValueError("You should not be here")
+            raise RuntimeError("You should not be here")
 
         return AttrDict(select_params)
 
@@ -1034,8 +1053,9 @@ class PbsProAdapter(AbstractQueueAdapter):
         subs_dict = super(PbsProAdapter, self).get_subs_dict()
         # Parameters defining the partion. Hard-coded for the time being.
         # but this info should be passed via taskmananger.yml
-        #p = Partition("zenobe", num_nodes=100, sockets_per_node=2, cores_per_socket=4)
-        #subs_dict.update(self.params_from_partition(self, p)
+        p = Partition("zenobe", num_nodes=100, sockets_per_node=2, cores_per_socket=4)
+        subs_dict.update(self.params_from_partition(p))
+        #subs_dict["vmem"] = 5
         return subs_dict
 
     def submit_to_queue(self, script_file):
