@@ -11,6 +11,7 @@ import numpy as np
 import six
 
 from six.moves import filter
+from prettytable import PrettyTable
 from monty.collections import AttrDict
 from monty.itertools import chunks
 from monty.pprint import pprint_table
@@ -113,7 +114,7 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
 
     def show_intrawork_deps(self):
         """Show the dependencies within the `Workflow`."""
-        table = [["Task #"] + [str(i) for i in range(len(self))]]
+        table = PrettyTable(["Task #"] + [str(i) for i in range(len(self))])
 
         for ii, task1 in enumerate(self):
             line = (1 + len(self)) * [""]
@@ -121,10 +122,9 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
             for jj, task2 in enumerate(self):
                 if task1.depends_on(task2):
                     line[jj+1] = "^"
+            table.add_row(line)
 
-            table.append(line)
-
-        pprint_table(table)
+        print(table)
 
     @property
     def returncodes(self):
