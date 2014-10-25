@@ -136,30 +136,30 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
         return [task.returncode for task in self]
 
     @property
-    def ncpus_reserved(self):
+    def ncores_reserved(self):
         """
-        Returns the number of CPUs reserved in this moment.
-        A CPUS is reserved if it's still not running but 
+        Returns the number of cores reserved in this moment.
+        A core is reserved if it's still not running but 
         we have submitted the task to the queue manager.
         """
-        return sum(task.tot_ncpus for task in self if task.status == task.S_SUB)
+        return sum(task.tot_cores for task in self if task.status == task.S_SUB)
 
     @property
-    def ncpus_allocated(self):
+    def ncores_allocated(self):
         """
         Returns the number of CPUs allocated in this moment.
-        A CPU is allocated if it's running a task or if we have
+        A core is allocated if it's running a task or if we have
         submitted a task to the queue manager but the job is still pending.
         """
-        return sum(task.tot_ncpus for task in self if task.status in [task.S_SUB, task.S_RUN])
+        return sum(task.tot_cores for task in self if task.status in [task.S_SUB, task.S_RUN])
 
     @property
-    def ncpus_inuse(self):
+    def ncores_inuse(self):
         """
-        Returns the number of CPUs used in this moment.
-        A CPU is used if there's a job that is running on it.
+        Returns the number of cores used in this moment.
+        A core is used if there's a job that is running on it.
         """
-        return sum(task.tot_ncpus for task in self if task.status == task.S_RUN)
+        return sum(task.tot_cores for task in self if task.status == task.S_RUN)
 
     def fetch_task_to_run(self):
         """
@@ -690,7 +690,7 @@ class Workflow(BaseWorkflow):
         Returns:
             `AbinitTimerParser` object
         """
-        filenames = filter(os.path.exists, [task.output_file.path for task in self])
+        filenames = list(filter(os.path.exists, [task.output_file.path for task in self]))
                                                                            
         parser = AbinitTimerParser()
         parser.parse(filenames)
@@ -923,7 +923,7 @@ class QptdmWorkflow(Workflow):
 
         # Build a temporary workflow in the tmpdir that will use a shell manager
         # to run ABINIT in order to get the list of q-points for the screening.
-        shell_manager = self.manager.to_shell_manager(mpi_ncpus=1)
+        shell_manager = self.manager.to_shell_manager(mpi_procs=1)
 
         w = Workflow(workdir=self.tmpdir.path_join("_qptdm_run"), manager=shell_manager)
 
@@ -961,7 +961,7 @@ class QptdmWorkflow(Workflow):
         the final SCR file in the outdir of the `Workflow`.
         If remove_scrfiles is True, the partial SCR files are removed after the merge.
         """
-        scr_files = filter(None, [task.outdir.has_abiext("SCR") for task in self])
+        scr_files = list(filter(None, [task.outdir.has_abiext("SCR") for task in self]))
 
         logger.debug("will call mrgscr to merge %s:\n" % str(scr_files))
         assert len(scr_files) == len(self)
@@ -1003,7 +1003,7 @@ class PhononWorkflow(Workflow):
         It runs `mrgddb` in sequential on the local machine to produce
         the final DDB file in the outdir of the `Workflow`.
         """
-        ddb_files = filter(None, [task.outdir.has_abiext("DDB") for task in self])
+        ddb_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in self]))
 
         logger.debug("will call mrgddb to merge %s:\n" % str(ddb_files))
         assert len(ddb_files) == len(self)

@@ -314,30 +314,30 @@ class AbinitFlow(Node):
         return counter
 
     @property
-    def ncpus_reserved(self):
+    def ncores_reserved(self):
         """
-        Returns the number of CPUs reserved in this moment.
-        A CPU is reserved if the task is not running but
+        Returns the number of cores reserved in this moment.
+        A core is reserved if the task is not running but
         we have submitted the task to the queue manager.
         """
-        return sum(work.ncpus_reserved for work in self)
+        return sum(work.ncores_reserved for work in self)
 
     @property
-    def ncpus_allocated(self):
+    def ncores_allocated(self):
         """
-        Returns the number of CPUs allocated in this moment.
-        A CPU is allocated if it's running a task or if we have
+        Returns the number of cores allocated in this moment.
+        A core is allocated if it's running a task or if we have
         submitted a task to the queue manager but the job is still pending.
         """
-        return sum(work.ncpus_allocated for work in self)
+        return sum(work.ncores_allocated for work in self)
 
     @property
-    def ncpus_inuse(self):
+    def ncores_inuse(self):
         """
-        Returns the number of CPUs used in this moment.
-        A CPU is used if there's a job that is running on it.
+        Returns the number of cores used in this moment.
+        A core is used if there's a job that is running on it.
         """
-        return sum(work.ncpus_inuse for work in self)
+        return sum(work.ncores_inuse for work in self)
 
     @property
     def has_chrooted(self):
@@ -607,7 +607,7 @@ class AbinitFlow(Node):
                     events = map(str, [report.num_errors, report.num_warnings, report.num_comments])
                 events = list(events)
 
-                cpu_info = list(map(str, [task.mpi_ncpus, task.omp_ncpus]))
+                cpu_info = list(map(str, [task.mpi_procs, task.omp_threads]))
                 task_info = list(map(str, [task.num_restarts, task.__class__.__name__, task.run_etime()]))
 
                 table.append(
@@ -1307,7 +1307,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
 
     # Build a temporary workflow with a shell manager just to run 
     # ABINIT to get the list of irreducible pertubations for this q-point.
-    shell_manager = manager.to_shell_manager(mpi_ncpus=1)
+    shell_manager = manager.to_shell_manager(mpi_procs=1)
 
     if not isinstance(ph_inputs, (list, tuple)):
         ph_inputs = [ph_inputs]

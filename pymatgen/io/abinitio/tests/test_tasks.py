@@ -22,17 +22,17 @@ class TaskManagerTest(PymatgenTest):
         slurm_manager = TaskManager.from_file(os.path.join(test_dir, "taskmanager.yml"))
 
         print(slurm_manager)
-        self.assertTrue(slurm_manager.tot_ncpus == 2)
-        self.assertTrue(slurm_manager.mpi_ncpus == 2)
-        self.assertTrue(slurm_manager.omp_ncpus == 1)
+        self.assertTrue(slurm_manager.tot_cores == 2)
+        self.assertTrue(slurm_manager.mpi_procs == 2)
+        self.assertTrue(slurm_manager.omp_threads == 1)
 
         # Make a simple shell manager that will inherit the initial configuration.
-        shell_manager = slurm_manager.to_shell_manager(mpi_ncpus=1)
-        self.assertTrue(shell_manager.tot_ncpus == 1)
-        self.assertTrue(shell_manager.mpi_ncpus == 1)
+        shell_manager = slurm_manager.to_shell_manager(mpi_procs=1)
+        self.assertTrue(shell_manager.tot_cores == 1)
+        self.assertTrue(shell_manager.mpi_procs == 1)
 
         # check that the initial slurm_manger has not been modified
-        self.assertTrue(slurm_manager.tot_ncpus == 2)
+        self.assertTrue(slurm_manager.tot_cores == 2)
 
         # Test pickle
         self.serialize_with_pickle(slurm_manager, test_eq=False)
@@ -94,40 +94,40 @@ configurations:
         # Optimize speedup with ncpus <= max_ncpus
         policy = TaskPolicy(autoparal=1, max_ncpus=3)
         optimal = confs.select_optimal_conf(policy)
-        aequal(optimal.tot_ncpus, 3)
+        aequal(optimal.tot_cores, 3)
 
         # Optimize speedup with ncpus <= max_ncpus and condition on efficiency.
         policy = TaskPolicy(autoparal=1, max_ncpus=4, condition={"efficiency": {"$ge": 0.9}})
         optimal = confs.select_optimal_conf(policy)
-        aequal(optimal.tot_ncpus, 2)
+        aequal(optimal.tot_cores, 2)
 
         # Optimize speedup with ncpus <= max_ncpus and conditions on efficiency and mem_per_cpu.
         policy = TaskPolicy(autoparal=1, mode="default", max_ncpus=4, 
                             condition={"$and": [{"efficiency": {"$ge": 0.8}}, {"mem_per_cpu": {"$le": 7.0}}]})
         optimal = confs.select_optimal_conf(policy)
-        aequal(optimal.tot_ncpus, 3)
+        aequal(optimal.tot_cores, 3)
 
         # If no configuration satisfies the constraints, we return the conf with the highest speedup.
         policy = TaskPolicy(autoparal=1, max_ncpus=4, condition={"efficiency": {"$ge": 100}})
         optimal = confs.select_optimal_conf(policy)
-        aequal(optimal.tot_ncpus, 4)
+        aequal(optimal.tot_cores, 4)
 
         # Wrong conditions --> dump a warning and return the conf with the highest speedup.
         policy = TaskPolicy(autoparal=1, max_ncpus=4, condition={"foobar": {"$ge": 100}})
         optimal = confs.select_optimal_conf(policy)
-        aequal(optimal.tot_ncpus, 4)
+        aequal(optimal.tot_cores, 4)
 
         # Select configuration with npfft == 1
         policy = TaskPolicy(autoparal=1, max_ncpus=4, vars_condition={"npfft": {"$eq": 3}})
         optimal = confs.select_optimal_conf(policy)
-        aequal(optimal.tot_ncpus, 3)
+        aequal(optimal.tot_cores, 3)
         aequal(optimal.vars["npfft"],  3)
 
         # Select configuration with npfft == 2 and npkpt == 1
         policy = TaskPolicy(autoparal=1, max_ncpus=4,
                             vars_condition={"$and": [{"npfft": {"$eq": 2}}, {"npkpt": {"$eq": 1}}]})
         optimal = confs.select_optimal_conf(policy)
-        aequal(optimal.tot_ncpus, 2)
+        aequal(optimal.tot_cores, 2)
         aequal(optimal.vars["npfft"],  2)
         aequal(optimal.vars["npkpt"],  1)
         #assert 0

@@ -38,8 +38,8 @@ class QadapterTest(PymatgenTest):
             # Test the programmatic interface used to change job parameters.
             self.assertFalse(qad.has_omp)
             self.assertTrue(qad.has_mpirun)
-            qad.set_mpi_ncpus(2)
-            self.assertTrue(qad.mpi_ncpus == 2)
+            qad.set_mpi_procs(2)
+            self.assertTrue(qad.mpi_procs == 2)
 
             # Test the creation of the script
             script = qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path", 
@@ -74,26 +74,26 @@ class PbsProadapterTest(PymatgenTest):
         qad = PbsProAdapter()
         print(qad)
 
-        qad.set_mpi_ncpus(4)
+        qad.set_mpi_procs(4)
         params = qad.params_from_partition(p)
         print(params)
         # IN_CORE PURE MPI: MPI: 4, OMP: 1
         aequal(params, {'ompthreads': 1, 'ncpus': 1, 'select': 4, 'mpiprocs': 1})
 
-        qad.set_omp_ncpus(2)
+        qad.set_omp_threads(2)
         params = qad.params_from_partition(p)
         print(params)
         # HYBRID MPI-OPENMP run, perfectly divisible among nodes:  MPI: 4, OMP: 2
         aequal(params, {'ompthreads': 2, 'ncpus': 8, 'select': 1, 'mpiprocs': 4})
 
-        qad.set_mpi_ncpus(12)
+        qad.set_mpi_procs(12)
         params = qad.params_from_partition(p)
         print(params)
         # HYBRID MPI-OPENMP run, perfectly divisible among nodes:  MPI: 12, OMP: 2
         aequal(params, {'ompthreads': 2, 'ncpus': 8, 'select': 3, 'mpiprocs': 4})
 
-        qad.set_omp_ncpus(5)
-        qad.set_mpi_ncpus(3)
+        qad.set_omp_threads(5)
+        qad.set_mpi_procs(3)
         params = qad.params_from_partition(p)
         print(params)
         # HYBRID MPI-OPENMP, NOT commensurate with nodes:  MPI: 3, OMP: 5

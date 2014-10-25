@@ -96,7 +96,7 @@ class AbinitFlowTest(FlowUnitTest):
 
         self.assertFalse(flow.all_ok)
         self.assertEqual(flow.num_tasks, 4)
-        self.assertEqual(flow.ncpus_inuse, 0)
+        self.assertEqual(flow.ncores_inuse, 0)
 
         # Check for deadlocks
         flow.check_dependencies()
