@@ -453,15 +453,11 @@ class SlabGenerator(object):
         def get_c_ranges(site1, site2, bond_dist):
             lattice = site1.lattice
             f1 = site1.frac_coords
-            c1 = lattice.get_cartesian_coords(f1)
             c_ranges = []
-            for image in itertools.product([-1, 0, 1],
-                                           [-1, 0, 1],
-                                           [-1, 0, 1]):
-                f2 = site2.frac_coords + image
-                c2 = lattice.get_cartesian_coords(f2)
-                d = np.linalg.norm(c2 - c1)
-                if d < bond_dist:
+            for dist, image in lattice.get_all_distance_and_image(
+                    f1, site2.frac_coords):
+                if dist < bond_dist:
+                    f2 = site2.frac_coords + image
                     # Checks if the distance between the two species
                     # is less then the user input bond distance
                     min_c = f1[2]
@@ -486,7 +482,6 @@ class SlabGenerator(object):
             #Convert to species first
             bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in
                      bonds.items()}
-            lattice = self.oriented_unit_cell.lattice
             for s1, s2 in itertools.combinations(self.oriented_unit_cell, 2):
                 # Iterates through every possible pair of species in the
                 # oriented unit cell
