@@ -14,9 +14,9 @@ import pickle
 
 from six.moves import map 
 from pprint import pprint
+from prettytable import PrettyTable
 from monty.io import FileLock
-from monty.pprint import pprint_table
-from monty.termcolor import cprint
+from monty.termcolor import cprint, colored, stream_has_colours
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
 from .tasks import Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager
 from .utils import Directory, Editor
@@ -583,6 +583,9 @@ class AbinitFlow(Node):
 
         if not verbose, no full entry for works that are completed is printed.
         """
+        has_colours = stream_has_colours(stream)
+        red = "red" if has_colours else None
+
         for i, work in enumerate(self):
             print(80*"=", file=stream)
             print("Workflow #%d: %s, Finalized=%s\n" % (i, work, work.finalized), file=stream)
@@ -590,10 +593,9 @@ class AbinitFlow(Node):
             if verbose == 0 and work.finalized:
                 continue
 
-            table = [["Task", "Status", "Queue-id", 
-                      "Errors", "Warnings", "Comments", 
-                      "MPI", "OMP", 
-                      "Restarts", "Task-Class", "Run-Etime"]]
+            table =PrettyTable([
+                "Task", "Status", "Queue-id", "Errors", "Warnings", "Comments", 
+                "MPI", "OMP", "Restarts", "Task-Class", "Run-Etime"])
 
             tot_num_errors = 0
             for task in work:
@@ -610,20 +612,19 @@ class AbinitFlow(Node):
                 cpu_info = list(map(str, [task.mpi_procs, task.omp_threads]))
                 task_info = list(map(str, [task.num_restarts, task.__class__.__name__, task.run_etime()]))
 
-                table.append(
-                    [task_name, str(task.status), str(task.queue_id)] + 
-                    events + 
-                    cpu_info + 
-                    task_info
-                )
-
                 if task.status.is_critical:
                     tot_num_errors += 1
+                    task_name = colored(task_name, red)
+
+                table.add_row(
+                    [task_name, str(task.status), str(task.queue_id)] +  events + 
+                    cpu_info + task_info
+                )
 
             # Print table and write colorized line with the total number of errors.
-            pprint_table(table, out=stream)
+            print(table, file=stream)
             if tot_num_errors:
-                cprint("Total no Errors: %d" % tot_num_errors, "red")
+                cprint("Total number of errors: %d" % tot_num_errors, red, file=stream)
 
     def get_results(self, **kwargs):
         results = self.Results.from_node(self)
