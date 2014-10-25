@@ -22,6 +22,8 @@ import six
 
 from subprocess import Popen, PIPE
 from monty.string import is_string, boxed
+from monty.collections import AttrDict
+from monty.dev import deprecated
 from .launcher import ScriptEditor
 
 import logging
@@ -143,27 +145,54 @@ class Partition(object):
     """
     #def from_yaml(cls, doc):
 
-    def __init__(self, name, num_nodes, sockets_per_node, cores_per_socket, timelimit, condition, priority):
+    def __init__(self, name, num_nodes, sockets_per_node, cores_per_socket) :#, timelimit, condition, priority):
         self.name = name
         self.num_nodes = int(num_nodes)
         self.sockets_per_node = int(sockets_per_node)
         self.cores_per_socket = int(cores_per_socket)
         #self.min_nodes = int(min_nodes)
         #self.max_nodes = int(max_nodes)
-        self.timelimit = timelimit #TODO conversion datetime.datetime.strptime("1:00:00", "%H:%M:%S")
-        #self.max_mem_mb_per_core = 
+        #self.timelimit = timelimit #TODO conversion datetime.datetime.strptime("1:00:00", "%H:%M:%S")
+        ##self.mem_per_core = 
+        #self.condition = condition
+        #self.priority = int(priority)
 
-        self.condition = condition
-        self.priority = int(priority)
+    @property
+    def tot_ncpus(self):
+        """Total number of CPUs available in the partition."""
+        return self.cores_per_socket * self.sockets_per_node * self.num_nodes
 
-    def get_score(self, paral_conf):
+    @property
+    def cores_per_node(self):
+        """Number of cores per node."""
+        return self.cores_per_socket * self.sockets_per_node
+
+    def can_use_omp_cores(self, omp_cores):
+        """True if omp_cores fit in a node."""
+        return self.cores_per_node >= omp_cores
+
+    def divide_by_node(self, mpi_cores, omp_cores):
+        """
+        Return (num_nodes, rest_cores)
+        """
+        num_nodes = (mpi_cores * omp_cores // self.cores_per_node)
+        rest_cores = (mpi_cores * omp_cores % self.cores_per_node)
+        return num_nodes, rest_cores
+
+    def get_score(self, pconf):
         """
         Receives a `ParalConf` object and returns a number that will be used 
         to select the partion on the cluster on which the task will be submitted.
-        Returns np.inf if paral_conf cannot be exected on this partition.
+        Returns -inf if paral_conf cannot be exected on this partition.
         """
         minf = float("-inf")
-        return score
+
+        if pconf.tot_ncpus > self.tot_ncpus: return minf
+        if pconf.omp_ncpus > self.cores_per_node: return minf
+        #if pconf.mem_per_cpu > self.mem_per_core: return minf
+
+        pconf.mpi_ncpus
+        return self.priority
 
 
 
@@ -183,7 +212,6 @@ class Cluster(object):
     def select_partition(self, paral_conf):
         scores = [part.get_score(paral_conf) for part in self]
         #if all(scores == None): return None
-        #priorities = [part.priority for part in self]
         #return self.parts[maxloc(scores), ignore=None]
         return part
 
@@ -192,7 +220,7 @@ def qadapter_class(qtype):
     """Return the concrete `Adapter` class from a string."""
     return {"shell": ShellAdapter,
             "slurm": SlurmAdapter,
-            "pbs": PbsAdapter,
+            "pbs": PbsProAdapter,
             "sge": SGEAdapter,
             "moab": MOABAdapter,
             }[qtype.lower()]
@@ -284,6 +312,7 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     def __str__(self):
         lines = [self.__class__.__name__]
         app = lines.append
+        #lines.extend(["qparams:\n", str(self.qparams)])
 
         if self.has_omp: app(str(self.omp_env))
 
@@ -308,8 +337,13 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             import re
             self._supported_qparams = re.findall("\$\$\{(\w+)\}", self.QTEMPLATE)
             return self._supported_qparams
+
+    @property
+    def has_mpi(self):
+        return self.has_mpirun
     
     @property
+    @deprecated(has_mpi)
     def has_mpirun(self):
         """True if we are using a mpirunner"""
         return bool(self.mpi_runner)
@@ -331,6 +365,21 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             return self.omp_env["OMP_NUM_THREADS"]
         else:
             return 1
+
+    @property
+    def use_only_mpi(self):
+        """True if only MPI is used."""
+        return self.has_mpi and not self.has_omp
+
+    @property
+    def use_only_omp(self):
+        """True if only Openmp is used."""
+        return self.has_omp and not self.has_mpi
+
+    @property
+    def use_mpi_omp(self):
+        """True if we are running in MPI+Openmp mode."""
+        return self.has_omp and self.has_mpi
 
     @abc.abstractmethod
     def set_omp_ncpus(self, omp_ncpus):
@@ -386,12 +435,18 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         if is_string(lines): lines = [lines]
         self._verbatim.extend(lines)
 
+    def get_subs_dict(self):
+        """
+        Return substitution dict for replacements into the template
+        Subclasses may want to customize this method.
+        """ 
+        # clean null values
+        return {k: v for k, v in self.qparams.items() if v is not None}
+
     def _make_qheader(self, job_name, qout_path, qerr_path):
         """Return a string with the options that are passed to the resource manager."""
-        qtemplate = QScriptTemplate(self.QTEMPLATE)
-
-        # set substitution dict for replacements into the template and clean null values
-        subs_dict = {k: v for k, v in self.qparams.items() if v is not None}
+        # get substitution dict for replacements into the template 
+        subs_dict = self.get_subs_dict()
 
         # Set job_name and the names for the stderr and stdout of the 
         # queue manager (note the use of the extensions .qout and .qerr
@@ -400,6 +455,7 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         subs_dict['_qout_path'] = qout_path
         subs_dict['_qerr_path'] = qerr_path
 
+        qtemplate = QScriptTemplate(self.QTEMPLATE)
         # might contain unused parameters as leftover $$.
         unclean_template = qtemplate.safe_substitute(subs_dict)  
 
@@ -431,7 +487,7 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                 Path of the Queue manager error file.
         """
         # PBS does not accept job_names longer than 15 chars.
-        if len(job_name) > 14 and isinstance(self, PbsAdapter):
+        if len(job_name) > 14 and isinstance(self, PbsProAdapter):
             job_name = job_name[:14]
 
         # Construct the header for the Queue Manager.
@@ -842,7 +898,7 @@ class SlurmAdapter(AbstractQueueAdapter):
         return None
 
 
-class PbsAdapter(AbstractQueueAdapter):
+class PbsProAdapter(AbstractQueueAdapter):
     QTYPE = "pbs"
 
     QTEMPLATE = """\
@@ -858,8 +914,6 @@ class PbsAdapter(AbstractQueueAdapter):
 #PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
 #PBS -l pvmem=$${pvmem}mb
 #PBS -r y
-####PBS -l mppwidth=$${mppwidth}
-####PBS -l nodes=$${nodes}:ppn=$${ppn}  # OLD SYNTAX
 #PBS -o $${_qout_path}
 #PBS -e $${_qerr_path}
 """
@@ -887,8 +941,82 @@ class PbsAdapter(AbstractQueueAdapter):
     def cancel(self, job_id):
         return os.system("qdel %d" % job_id)
 
-    def submit_to_queue(self, script_file):
+    def get_select_params(self):
+        """
+        Select is not the most intuitive command. For more info see
+        http://www.cardiff.ac.uk/arcca/services/equipment/User-Guide/pbs.html
+        """
+        # Parameters defining the partion. Hard-coded for the time being.
+        # but this info should be passed via taskmananger.yml
+        p = Partition("zenobe", num_nodes=100, sockets_per_node=2, cores_per_socket=4)
 
+        if self.use_only_mpi:
+            print("This is a pure MPI run")
+            num_nodes, rest_cores = p.divide_by_node(self.mpi_ncpus, self.omp_ncpus)
+
+            if rest_cores == 0:
+                print("Can allocate entire nodes because self.mpi_ncpus is divisible by cores_per_node.")
+                select_params = dict(
+                    select=num_nodes,
+                    ncpus=p.cores_per_node,
+                    mpiprocs=p.cores_per_node,
+                    ompthreads=1)
+
+            elif num_nodes == 0:
+                print("in-core run with MPI")
+                select_params = dict(
+                    select=rest_cores,
+                    ncpus=1,
+                    mpiprocs=1,
+                    ompthreads=1)
+
+            else:
+                print("out-of-core run with MPI (not divisible")
+                select_params = dict(
+                    select=self.mpi_ncpus,
+                    ncpus=1,
+                    mpiprocs=1,
+                    ompthreads=1)
+
+        elif self.use_only_omp:
+            print("This is a pure OpenMP run.")
+            assert p.can_use_omp_cores(self.omp_ncpus)
+
+            select_params = dict(
+                select=1,
+                ncpus=self.omp_ncpus,
+                mpiprocs=1,
+                ompthreads=self.omp_ncpus)
+
+        elif self.use_mpi_omp:
+            print("This is a hybrid MPI + OpenMP run.")
+            assert p.can_use_omp_cores(self.omp_ncpus)
+            num_nodes, rest_cores = p.divide_by_node(self.mpi_ncpus, self.omp_ncpus)
+            print(num_nodes, rest_cores)
+            # TODO
+
+            if rest_cores == 0 or num_nodes ==0:  
+                print("The run is perfectly divisible among nodes")
+                select_params = dict(
+                    select=max(num_nodes, 1),
+                    ncpus=p.cores_per_node,
+                    mpiprocs=self.mpi_ncpus,
+                    ompthreads=self.omp_ncpus)
+            else:
+                print("The run is NOT perfectly divisible among nodes")
+                select_params = dict(
+                    select=self.mpi_ncpus,
+                    ncpus=self.omp_ncpus,
+                    mpiprocs=1,
+                    ompthreads=self.omp_ncpus)
+
+        else:
+            raise ValueError("You should not be here")
+
+        return AttrDict(select_params)
+
+    def submit_to_queue(self, script_file):
+        """Submit a job script to the queue."""
         if not os.path.exists(script_file):
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
 
@@ -956,9 +1084,6 @@ class PbsAdapter(AbstractQueueAdapter):
 
     # no need to raise an error, if False is returned the fixer may try something else, we don't need to kill the
     # scheduler just yet
-
-    def do(self):
-        return 'this is not FORTRAN'
 
     def exclude_nodes(self, nodes):
         logger.warning('exluding nodes, not implemented yet pbs')
@@ -1063,7 +1188,7 @@ class SGEAdapter(AbstractQueueAdapter):
         return os.system("qdel %d" % job_id)
 
     def submit_to_queue(self, script_file):
-
+        """Submit a job script to the queue."""
         if not os.path.exists(script_file):
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
 
@@ -1149,7 +1274,7 @@ class SGEAdapter(AbstractQueueAdapter):
 
 
 class MOABAdapter(AbstractQueueAdapter):
-# https://computing.llnl.gov/tutorials/moab/
+    """https://computing.llnl.gov/tutorials/moab/"""
     QTYPE = "moab"
 
     QTEMPLATE = """\
@@ -1174,7 +1299,6 @@ class MOABAdapter(AbstractQueueAdapter):
 
 #MSUB -o $${_qout_path}
 #MSUB -e $${_qerr_path}
-
 """
 
     @property
@@ -1194,7 +1318,7 @@ class MOABAdapter(AbstractQueueAdapter):
         return os.system("canceljob %d" % job_id)
 
     def submit_to_queue(self, script_file, submit_err_file="sbatch.err"):
-
+        """Submit a job script to the queue."""
         if not os.path.exists(script_file):
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
 
@@ -1296,3 +1420,4 @@ class MOABAdapter(AbstractQueueAdapter):
 
 class QScriptTemplate(string.Template):
     delimiter = '$$'
+

@@ -120,7 +120,7 @@ class ScriptEditor(object):
         return s
 
 
-class OmpEnv(dict):
+class OmpEnv(AttrDict):
     """
     Dictionary with the OpenMP environment variables
     see https://computing.llnl.gov/tutorials/openMP/#EnvironmentVariables
@@ -143,13 +143,12 @@ class OmpEnv(dict):
         """
         Constructor method inherited from dictionary:
 
-        >>> OmpEnv(OMP_NUM_THREADS=1)
-        {'OMP_NUM_THREADS': '1'}
+        >>> asser OmpEnv(OMP_NUM_THREADS=1) == {'OMP_NUM_THREADS': '1'}
 
         To create an instance from an INI file, use:
            OmpEnv.from_file(filename)
         """
-        self.update(*args, **kwargs)
+        super(OmpEnv, self).__(*args, **kwargs)
 
         err_msg = ""
         for key, value in self.items():
