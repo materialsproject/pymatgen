@@ -604,7 +604,6 @@ class AbinitFlow(Node):
 
                 events = map(str, 3*["N/A"])
                 if report is not None: 
-                    tot_num_errors += report.num_errors
                     events = map(str, [report.num_errors, report.num_warnings, report.num_comments])
                 events = list(events)
 
@@ -617,6 +616,9 @@ class AbinitFlow(Node):
                     cpu_info + 
                     task_info
                 )
+
+                if task.status.is_critic:
+                    tot_num_errors += 1
 
             # Print table and write colorized line with the total number of errors.
             pprint_table(table, out=stream)
