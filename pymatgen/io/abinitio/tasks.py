@@ -1060,7 +1060,8 @@ class Status(int):
             raise ValueError("Wrong string %s" % s)
 
     @property
-    def is_critic(self):
+    def is_critical(self):
+        """True if status is critical."""
         return str(self) in ("AbiCritical", "QueueCritical", "Uncoverged", "Error") 
 
 
