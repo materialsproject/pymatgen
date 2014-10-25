@@ -288,7 +288,7 @@ class ParalConf(AttrDict):
             -   tot_ncpus: 2         # Total number of CPUs
                 mpi_ncpus: 2         # Number of MPI processes.
                 omp_ncpus: 1         # Number of OMP threads (1 if not present)
-                mem_per_cpu: 10     # Estimated memory requirement per MPI processor in Megabytes.
+                mem_per_cpu: 10      # Estimated memory requirement per MPI processor in Megabytes.
                 efficiency: 0.4      # 1.0 corresponds to an "expected" optimal efficiency (strong scaling).
                 vars: {              # Dictionary with the variables that should be added to the input.
                       varname1: varvalue1

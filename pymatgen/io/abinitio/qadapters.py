@@ -31,7 +31,11 @@ logger = logging.getLogger(__name__)
 
 __all__ = [
     "MpiRunner",
+    "Partition",
     "qadapter_class",
+    "AbstractQueueAdapter",
+    "PbsProAdapter",
+    "SlurmAdapter",
 ]
 
 
@@ -137,11 +141,6 @@ class Partition(object):
     """
     This object collects information on a partition
     # Based on https://computing.llnl.gov/linux/slurm/sinfo.html
-    PartitionName=debug TotalNodes=5 TotalCPUs=40 RootOnly=NO
-    Default=YES Shared=FORCE:4 Priority=1 State=UP
-    MaxTime=00:30:00 Hidden=NO
-    MinNodes=1 MaxNodes=26 DisableRootJobs=NO AllowGroups=ALL
-    Nodes=adev[1-5] NodeIndices=0-4
     """
     #def from_yaml(cls, doc):
 
@@ -156,6 +155,14 @@ class Partition(object):
         ##self.mem_per_core = 
         #self.condition = condition
         #self.priority = int(priority)
+
+    def __str__(self):
+        lines = []
+        app = lines.append
+        app("name: %s, num_nodes: %d, sockets_per_node: %d, cores_per_socket: %d" % 
+            (self.name, self.num_nodes, self.sockets_per_node, self.cores_per_socket))
+
+        return "\n".join(lines)
 
     @property
     def tot_ncpus(self):
@@ -179,6 +186,14 @@ class Partition(object):
         rest_cores = (mpi_cores * omp_cores % self.cores_per_node)
         return num_nodes, rest_cores
 
+    #def accepts(self, pconf):
+    #    """True if this partition is able, in principle, to run this `ParalConf`"""
+    #    if pconf.tot_ncpus > self.tot_ncpus: return False
+    #    if pconf.omp_ncpus > self.cores_per_node: return False
+    #    if pconf.mem_per_cpu > self.mem_per_core: return minf
+    #    if self.condition is not None:
+    #        return self.condition.apply(pconf)
+
     def get_score(self, pconf):
         """
         Receives a `ParalConf` object and returns a number that will be used 
@@ -186,11 +201,7 @@ class Partition(object):
         Returns -inf if paral_conf cannot be exected on this partition.
         """
         minf = float("-inf")
-
-        if pconf.tot_ncpus > self.tot_ncpus: return minf
-        if pconf.omp_ncpus > self.cores_per_node: return minf
-        #if pconf.mem_per_cpu > self.mem_per_core: return minf
-
+        if not self.accepts(pconf): return minf
         pconf.mpi_ncpus
         return self.priority
 
@@ -220,7 +231,8 @@ def qadapter_class(qtype):
     """Return the concrete `Adapter` class from a string."""
     return {"shell": ShellAdapter,
             "slurm": SlurmAdapter,
-            "pbs": PbsProAdapter,
+            "pbs": PbsProAdapter,   # TODO Remove
+            "pbspro": PbsProAdapter,
             "sge": SGEAdapter,
             "moab": MOABAdapter,
             }[qtype.lower()]
@@ -243,8 +255,10 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     """
     Error = QueueAdapterError
 
-    # the limits for certain parameters set on the cluster. currently hard coded, should be read at init
+    # the limits for certain parameters set on the cluster. 
+    # currently hard coded, should be read at init
     # the increase functions will not increase beyond thise limits
+    # TODO: This constraint should be implemented by the partition, not by the QueueAdapter.
     LIMITS = []
 
     def __init__(self, qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
@@ -271,14 +285,12 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         self.qparams = qparams.copy() if qparams is not None else {}
         self._verbatim = []
 
-        if is_string(setup):
-            setup = [setup]
+        if is_string(setup): setup = [setup]
         self.setup = setup[:] if setup is not None else []
 
         self.omp_env = omp_env.copy() if omp_env is not None else {}
 
-        if is_string(modules):
-            modules = [modules]
+        if is_string(modules): modules = [modules]
         self.modules = modules[:] if modules is not None else []
 
         self.shell_env = shell_env.copy() if shell_env is not None else {}
@@ -287,12 +299,10 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         if not isinstance(mpi_runner, MpiRunner):
             self.mpi_runner = MpiRunner(mpi_runner)
 
-        if is_string(pre_run):
-            pre_run = [pre_run]
+        if is_string(pre_run): pre_run = [pre_run]
         self.pre_run = pre_run[:] if pre_run is not None else []
 
-        if is_string(post_run):
-            post_run = [post_run]
+        if is_string(post_run): post_run = [post_run]
         self.post_run = post_run[:] if post_run is not None else []
 
         # Parse the template so that we know the list of supported options.
@@ -343,7 +353,7 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         return self.has_mpirun
     
     @property
-    @deprecated(has_mpi)
+    #@deprecated(has_mpi)
     def has_mpirun(self):
         """True if we are using a mpirunner"""
         return bool(self.mpi_runner)
@@ -380,6 +390,11 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     def use_mpi_omp(self):
         """True if we are running in MPI+Openmp mode."""
         return self.has_omp and self.has_mpi
+
+    @property
+    def run_info(self):
+        """String with info on the run."""
+        return "MPI: %d, OMP: %d" % (self.mpi_ncpus, self.omp_ncpus)
 
     @abc.abstractmethod
     def set_omp_ncpus(self, omp_ncpus):
@@ -471,7 +486,8 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
         return '\n'.join(clean_template)
 
-    def get_script_str(self, job_name, launch_dir, executable, qout_path, qerr_path, stdin=None, stdout=None, stderr=None):
+    def get_script_str(self, job_name, launch_dir, executable, qout_path, qerr_path, 
+                       stdin=None, stdout=None, stderr=None):
         """
         Returns a (multi-line) String representing the queue script, e.g. PBS script.
         Uses the template_file along with internal parameters to create the script.
@@ -528,7 +544,8 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         # Construct the string to run the executable with MPI and mpi_ncpus.
         mpi_ncpus = self.mpi_ncpus
 
-        line = self.mpi_runner.string_to_run(executable, mpi_ncpus, stdin=stdin, stdout=stdout, stderr=stderr)
+        line = self.mpi_runner.string_to_run(executable, mpi_ncpus, 
+                                             stdin=stdin, stdout=stdout, stderr=stderr)
         se.add_line(line)
 
         if self.post_run:
@@ -941,21 +958,18 @@ class PbsProAdapter(AbstractQueueAdapter):
     def cancel(self, job_id):
         return os.system("qdel %d" % job_id)
 
-    def get_select_params(self):
+    def params_from_partition(self, p):
         """
         Select is not the most intuitive command. For more info see
         http://www.cardiff.ac.uk/arcca/services/equipment/User-Guide/pbs.html
+        https://portal.ivec.org/docs/Supercomputers/PBS_Pro
         """
-        # Parameters defining the partion. Hard-coded for the time being.
-        # but this info should be passed via taskmananger.yml
-        p = Partition("zenobe", num_nodes=100, sockets_per_node=2, cores_per_socket=4)
-
         if self.use_only_mpi:
-            print("This is a pure MPI run")
             num_nodes, rest_cores = p.divide_by_node(self.mpi_ncpus, self.omp_ncpus)
 
             if rest_cores == 0:
-                print("Can allocate entire nodes because self.mpi_ncpus is divisible by cores_per_node.")
+                # Can allocate entire nodes because self.mpi_ncpus is divisible by cores_per_node.
+                print("PURE MPI run commensurate with cores_per_node", self.run_info)
                 select_params = dict(
                     select=num_nodes,
                     ncpus=p.cores_per_node,
@@ -963,7 +977,7 @@ class PbsProAdapter(AbstractQueueAdapter):
                     ompthreads=1)
 
             elif num_nodes == 0:
-                print("in-core run with MPI")
+                print("IN_CORE PURE MPI:", self.run_info)
                 select_params = dict(
                     select=rest_cores,
                     ncpus=1,
@@ -971,7 +985,7 @@ class PbsProAdapter(AbstractQueueAdapter):
                     ompthreads=1)
 
             else:
-                print("out-of-core run with MPI (not divisible")
+                print("OUT-OF-CORE PURE MPI (not commensurate with cores_per_node):", self.run_info)
                 select_params = dict(
                     select=self.mpi_ncpus,
                     ncpus=1,
@@ -979,7 +993,7 @@ class PbsProAdapter(AbstractQueueAdapter):
                     ompthreads=1)
 
         elif self.use_only_omp:
-            print("This is a pure OpenMP run.")
+            print("PURE OPENMP run.", self.run_info)
             assert p.can_use_omp_cores(self.omp_ncpus)
 
             select_params = dict(
@@ -989,21 +1003,22 @@ class PbsProAdapter(AbstractQueueAdapter):
                 ompthreads=self.omp_ncpus)
 
         elif self.use_mpi_omp:
-            print("This is a hybrid MPI + OpenMP run.")
             assert p.can_use_omp_cores(self.omp_ncpus)
             num_nodes, rest_cores = p.divide_by_node(self.mpi_ncpus, self.omp_ncpus)
             print(num_nodes, rest_cores)
             # TODO
 
-            if rest_cores == 0 or num_nodes ==0:  
-                print("The run is perfectly divisible among nodes")
+            if rest_cores == 0 or num_nodes == 0:  
+                print("HYBRID MPI-OPENMP run, perfectly divisible among nodes: ", self.run_info)
+                select = max(num_nodes, 1)
+                mpiprocs = self.mpi_ncpus // select
                 select_params = dict(
-                    select=max(num_nodes, 1),
-                    ncpus=p.cores_per_node,
-                    mpiprocs=self.mpi_ncpus,
+                    select=select,
+                    ncpus=mpiprocs * self.omp_ncpus,
+                    mpiprocs=mpiprocs,
                     ompthreads=self.omp_ncpus)
             else:
-                print("The run is NOT perfectly divisible among nodes")
+                print("HYBRID MPI-OPENMP, NOT commensurate with nodes: ", self.run_info)
                 select_params = dict(
                     select=self.mpi_ncpus,
                     ncpus=self.omp_ncpus,
@@ -1014,6 +1029,14 @@ class PbsProAdapter(AbstractQueueAdapter):
             raise ValueError("You should not be here")
 
         return AttrDict(select_params)
+
+    def get_subs_dict(self):
+        subs_dict = super(PbsProAdapter, self).get_subs_dict()
+        # Parameters defining the partion. Hard-coded for the time being.
+        # but this info should be passed via taskmananger.yml
+        #p = Partition("zenobe", num_nodes=100, sockets_per_node=2, cores_per_socket=4)
+        #subs_dict.update(self.params_from_partition(self, p)
+        return subs_dict
 
     def submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
@@ -1092,7 +1115,7 @@ class PbsProAdapter(AbstractQueueAdapter):
     def increase_mem(self, factor=1):
         base_increase = 2000
         new_mem = self.qparams["pvmem"] + factor*base_increase
-        if new_mem < self.limits['mem']:
+        if new_mem < self.LIMITS['mem']:
             self.set_mem_per_cpu(new_mem)
             return True
         else:
@@ -1112,7 +1135,7 @@ class PbsProAdapter(AbstractQueueAdapter):
                 minutes = int(float(self.qparams['time'].split(':')[1]))
             time = hours * 60 + minutes
             time *= factor
-            if time < self.limits['time']:
+            if time < self.LIMITS['time']:
                 self.qparams['time'] = str(int(time / 60)) + ':' + str(int(time - 60 * int(time / 60))) + ':00'
                 logger.info('increased time to %s minutes' % time)
                 return True
@@ -1124,7 +1147,7 @@ class PbsProAdapter(AbstractQueueAdapter):
     def increase_cpus(self, factor):
         base_increase = 12
         new_cpus = self.qparams['select'] + factor * base_increase
-        if new_cpus < self.limits['max_select']:
+        if new_cpus < self.LIMITS['max_select']:
             self.qparams['select'] = new_cpus
             return True
         else:
