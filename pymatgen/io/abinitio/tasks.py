@@ -1059,6 +1059,10 @@ class Status(int):
         else:
             raise ValueError("Wrong string %s" % s)
 
+    @property
+    def is_critic(self):
+        return str(self) in ("AbiCritical", "QueueCritical", "Uncoverged", "Error") 
+
 
 class Node(six.with_metaclass(abc.ABCMeta, object)):
     """
