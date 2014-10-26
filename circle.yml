@@ -16,7 +16,8 @@ dependencies:
     - pip install -q numpy
     - pip install -r requirements.txt
     - pip install -r requirements-optional.txt
-    - cd monty && python setup.py develop
+    - pip uninstall monty
+    - cd monty && python setup.py install
     - python setup.py develop
 test:
   override:
