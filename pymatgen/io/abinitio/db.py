@@ -82,7 +82,7 @@ def scan_nestdict(d, key):
 import functools
 def try_or_return(exception_list, value_if_exception=None):
     """
-    Decorator for methods. Calls the methods in a try block,
+    Decorator for functions or methods. Executes the callable in a try block,
     and returns value_if_exception if one of the exceptions listed
     is exception_list is raised. Example
 
@@ -98,18 +98,17 @@ def try_or_return(exception_list, value_if_exception=None):
     elif not isinstance(exception_list, tuple): 
         exception_list = (exception_list,)
 
-    def real_decorator(method):
-        @functools.wraps(method)
+    def decorator(func):
+        @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            self = args[0]
             try:
-                return method(*args, **kwargs)
+                return func(*args, **kwargs)
             except exception_list:
                 return value_if_exception
             else:
                 raise
         return wrapper
-    return real_decorator
+    return decorator
 
 class DBConnector(object):
 
@@ -145,7 +144,6 @@ class DBConnector(object):
 
         Returns MongoDb collection
         """
-        raise KeyError()
         from pymongo import MongoClient
         config = self.config
 
