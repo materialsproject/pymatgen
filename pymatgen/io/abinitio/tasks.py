@@ -400,6 +400,9 @@ class ParalHints(collections.Iterable):
     def __str__(self):
         return "\n".join(str(conf) for conf in self)
 
+    def as_dict(self):
+        return {"info": self.info, "confs":  self._confs}
+
     def copy(self):
         """Shallow copy of self."""
         return copy.copy(self)
@@ -459,11 +462,9 @@ class ParalHints(collections.Iterable):
         #hints = self.copy()
 
         hints = ParalHints(self.info, confs=[c for c in self if c.tot_cores <= policy.max_ncpus])
-        #print(hints)
         #logger.info('hints: \n' + str(hints) + '\n')
 
-        # First select the configurations satisfying the 
-        # condition specified by the user (if any)
+        # First select the configurations satisfying the condition specified by the user (if any)
         if policy.condition:
             #logger.info("condition %s" % str(policy.condition))
             hints.select_with_condition(policy.condition)
@@ -500,18 +501,15 @@ class ParalHints(collections.Iterable):
         #logger.info('efficiency hints: \n' + str(hints) + '\n')
 
         # Find the optimal configuration according to policy.mode.
-        #mode = policy.mode
-        #if mode in ["default", "aggressive"]:
+        #if policy.mode in ["default", "aggressive"]:
         #    hints.sort_by_spedup()
-
-        #elif mode == "conservative":
+        #elif policy.mode == "conservative":
         #    hints.sort_by_efficiency()
         #    # Remove tot_cores == 1
         #    hints.pop(tot_cores==1)
-        #    if not hints:
-
         #else:
-        #    raise ValueError("Wrong value for mode: %s" % str(mode))
+        #    raise ValueError("Wrong value for policy.mode: %s" % str(policy.mode))
+        #if not hints:
 
         # Return a copy of the configuration.
         optimal = hints[-1].copy()
@@ -1392,7 +1390,6 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     @abc.abstractmethod
     def check_status(self):
         """Check the status of the `Node`."""
-
 
 
 class FileNode(Node):
@@ -2572,11 +2569,10 @@ class AbinitTask(Task):
         optimal = confs.select_optimal_conf(policy)
         #print("optimal autoparal conf:\n %s" % optimal)
 
-        # Write autoparal configurations to file.
-        with open(os.path.join(self.workdir, "autoparal.txt"), "wt") as fh:
-            fh.write(str(confs) + 2 * "\n")
-            fh.write("Optimal configuration:\n")
-            fh.write(str(optimal)+ "\n")
+        # Write autoparal configurations to JSON file.
+        d = confs.as_dict()
+        d["optimal"] = optimal
+        json_pretty_dump(d, os.path.join(self.workdir, "autoparal.json"))
 
         # 4) Change the input file and/or the submission script
         self.strategy.add_extra_abivars(optimal.vars)
