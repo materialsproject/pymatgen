@@ -12,6 +12,7 @@ allows one to get a list of parallel configuration and their expected efficiency
 """
 from __future__ import print_function, division, unicode_literals
 
+import sys
 import os
 import abc
 import string
@@ -20,12 +21,14 @@ import getpass
 import warnings
 import six
 
+from collections import namedtuple
 from subprocess import Popen, PIPE
 from monty.string import is_string, boxed
-from monty.collections import AttrDict
-from monty.shutil import Command
+from monty.collections import AttrDict, MongoDict
+from monty.subprocess import Command
 from monty.dev import deprecated
 from .launcher import ScriptEditor
+from .db import DBConnector
 
 import logging
 logger = logging.getLogger(__name__)
@@ -78,47 +81,113 @@ class MpiRunner(object):
         return self.name is not None
 
 
+
+
+def parse_memory_str(s, unit="Mb"):
+    """
+    Return the memory in megabyte from a string.
+    Accepts: floats or strings with float + unit
+
+    raises:
+        ValueError if s is not valid.
+    """
+    try:
+        return float(s)
+        #return Memory(num, from_unit).to(unit)
+    except ValueError:
+        # Find the position of the first alpha-char in s.
+        for i, char in enumerate(reversed(s)):
+            if char.isdigit():
+                pos = len(s) - i
+                break
+        else:
+            raise ValueError("Cannot parse %s" % s)
+
+        try:
+            num, from_unit = float(s[:pos]), s[pos:]
+        except:
+            raise ValueError("Cannot parse %s" % s)
+
+        print(num, from_unit)
+        #return Memory(num, from_unit).to(unit)
+
+
 class Partition(object):
     """
     This object collects information on a partition
     # Based on https://computing.llnl.gov/linux/slurm/sinfo.html
 
-    Basic Definition
+    Basic Definition::
 
         * A node refers to the physical box, i.e. cpu sockets with north/south switches connecting memory systems 
           and extension cards, e.g. disks, nics, and accelerators
 
-        * A cpu socket is the connector to these systems and the cpu cores, you plug in chips with multiple cpu cores. 
-          This creates a split in the cache memory space, hence the need for NUMA aware code.
+        * A cpu socket is the connector to these systems and the cpu cores
 
         * A cpu core is an independent computing with its own computing pipeline, logical units, and memory controller. 
-          Each cpu core will be able to service a number of cpu threads, each having an independent instruction stream but sharing the cores memory controller and other logical units.
+          Each cpu core will be able to service a number of cpu threads, each having an independent instruction stream 
+          but sharing the cores memory controller and other logical units.
     """
-    #def from_yaml(cls, doc):
+    Entry = namedtuple("Entry", "type, default, help")
+    ENTRIES = dict(
+        # mandatory
+        name=Entry(type=str, default=None, help="Name of the partition"),
+        num_nodes=Entry(type=int, default=None, help="Number of nodes"),
+        sockets_per_node=Entry(type=int, default=None, help="Number of sockets per node"),
+        cores_per_socket=Entry(type=int, default=None, help="Number of cores per node"),
+        mem_per_node=Entry(type=str, default=None, help="Memory per node"),
+        # optional
+        timelimit=Entry(type=str, default=None, help="Time limit"),
+        min_nodes=Entry(type=int, default=-1, help="Minimun number of nodes that can be used"),
+        max_nodes=Entry(type=int, default=sys.maxsize, help="Maximum number of nodes that can be used"),
+        priority=Entry(type=int, default=1, help="Priority level"),
+        condition=Entry(type=str, default=None, help="Condition object"),
+    )
+    del Entry
 
-    def __init__(self, name, num_nodes, sockets_per_node, cores_per_socket) :#, timelimit, condition, priority):
-        self.name = name
-        self.num_nodes = int(num_nodes)
-        self.sockets_per_node = int(sockets_per_node)
-        self.cores_per_socket = int(cores_per_socket)
-        #self.min_nodes = int(min_nodes)
-        #self.max_nodes = int(max_nodes)
+    def __init__(self, **kwargs):
+                 #name, num_nodes, sockets_per_node, cores_per_socket, mem_per_node, 
+                 #min_nodes=None, max_nodes=None, timelimit=None, priority=None, condition=None):
+
+        #self.name = name
+        #self.num_nodes = int(num_nodes)
+        #self.sockets_per_node = int(sockets_per_node)
+        #self.cores_per_socket = int(cores_per_socket)
+        #self.mem_per_node = mem_per_node # TODO: Accept 10Mb
+        #self.min_nodes = int(min_nodes) if min_nodes is not None else -1
+        #self.max_nodes = int(max_nodes) if max_nodes is not None else self.num_nodes
         #self.timelimit = timelimit #TODO conversion datetime.datetime.strptime("1:00:00", "%H:%M:%S")
-        #self.mem_per_node = 
-        #self.condition = condition
         #self.priority = int(priority)
+        #self.condition = condition
+
+        for key, entry in self.ENTRIES.items():
+            try:
+                value = kwargs.pop(key)
+                value = entry.type(value)
+                setattr(self, key, value)
+            except KeyError:
+                #print(type(key), entry)
+                #self.__dict__[key] = entry.default
+                setattr(self, key, entry.default)
+
+        if kwargs:
+            raise ValueError("Found invalid keywords in the partition section:\n %s" % str(list(kwargs.keys())))
+
 
     def __str__(self):
+        """String representation."""
         lines = []
         app = lines.append
-        app("name: %s, num_nodes: %d, sockets_per_node: %d, cores_per_socket: %d" % 
-            (self.name, self.num_nodes, self.sockets_per_node, self.cores_per_socket))
-
+        app("Partition: %s" % self.name)
+        app("   num_nodes: %d, sockets_per_node: %d, cores_per_socket: %d, mem_per_node %s," % 
+            (self.num_nodes, self.sockets_per_node, self.cores_per_socket, self.mem_per_node))
+        app("   min_nodes: %d, max_nodes: %d, timelimit: %s, priority: %d, condition: %s" % 
+            (self.min_nodes, self.max_nodes, self.timelimit, self.priority, self.condition))
         return "\n".join(lines)
 
     @property
     def tot_cores(self):
-        """Total number of CPUs available in the partition."""
+        """Total number of cores available in the partition."""
         return self.cores_per_socket * self.sockets_per_node * self.num_nodes
 
     @property
@@ -138,13 +207,15 @@ class Partition(object):
         rest_cores = (mpi_procs * omp_threads % self.cores_per_node)
         return num_nodes, rest_cores
 
-    #def accepts(self, pconf):
-    #    """True if this partition is able, in principle, to run this `ParalConf`"""
-    #    if pconf.tot_cores > self.tot_cores: return False
-    #    if pconf.omp_threads > self.cores_per_node: return False
-    #    if pconf.mem_per_cpu > self.mem_per_core: return minf
-    #    if self.condition is not None:
-    #        return self.condition.apply(pconf)
+    def accepts(self, pconf):
+        """
+        True if this partition is in principle able to run the parallel configuration `ParalConf`
+        """
+        if pconf.tot_cores > self.tot_cores: return False
+        if pconf.omp_threads > self.cores_per_node: return False
+        if pconf.mem_per_core > self.mem_per_core: return False
+        if self.condition is not None:
+            return self.condition.apply(pconf)
 
     def get_score(self, pconf):
         """
@@ -160,19 +231,45 @@ class Partition(object):
 
 class Cluster(object):
     """A cluster has a QueueAdapter and a list of partitions."""
-    #@classmethod
-    #def from_yaml(self, doc)
 
-    def __init__(self, name, qadapter, parts):
-        self.name = name
-        self.qadapter = qadapter
-        self.parts = parts if isinstance(parts, (list, tuple)) else list(parts)
+    @classmethod
+    def from_file(cls, filepath):
+        import yaml
+        with open(filepath, "r") as fh:
+            d = MongoDict(yaml.load(fh))
+
+        if "qadapter" not in d:
+            raise ValueError("qadapter entry must be specified")
+        qad_cls = qadapter_class(d.qadapter.qtype)
+        #qadapter = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
+        #                     pre_run=pre_run, post_run=post_run, mpi_runner=mpi_runner)
+
+        return cls(d.hostname, d.partitions) #, dbconnector=d.get("dbconnector", None))
+
+    def __init__(self, hostname, partitions, dbconnector=None):
+        self.hostname = hostname
+        self.parts = [Partition(**p) for p in partitions]
+
+
+        self.dbconnector = None if dbconnector is None else DBConnector(dbconnector)
+        #self.qadapter = qadapter
+
+    def __str__(self):
+        lines = ["hostname: %s" % self.hostname]
+        for part in self:
+            lines.append(str(part))
+        return "\n".join(lines)
+
+    def __getitem__(self, name):
+        for part in self:
+            if part.name == name: return part
+        raise KeyError("Cannot find partition %s" % name)
 
     def __iter__(self):
         return self.parts.__iter__()
 
-    def select_partition(self, paral_conf):
-        scores = [part.get_score(paral_conf) for part in self]
+    def select_partition(self, pconf):
+        scores = [part.get_score(pconf) for part in self]
         #if all(scores == None): return None
         #return self.parts[maxloc(scores), ignore=None]
         return part

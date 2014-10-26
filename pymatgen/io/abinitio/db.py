@@ -13,43 +13,6 @@ except ImportError:
     pass
 
 
-class MongoObject(object):
-    """
-    >>> m = MongoObject({'a': {'b': 1}, 'x': 2}) 
-    >>> assert m.x == 2
-    >>> assert m.a == {'b': 1}
-    >>> assert m.a.b == 1
-    """
-    def __init__(self, mongo_dict):
-        self.__dict__["_mongo_dict"] = mongo_dict
-
-    def __repr__(self):
-        return str(self)
-
-    def __str__(self):
-        return str(self._mongo_dict)
-
-    def __setattr__(self, name, value):
-        raise NotImplementedError("You cannot modify attribute %s of %s" % (name, self.__class__.__name__))
-
-    def __getattribute__(self, name):
-        try:
-            return super(MongoObject, self).__getattribute__(name)
-        except:
-            #raise
-            try:
-                a = self._mongo_dict[name]
-                if isinstance(a, collections.Mapping):
-                    a = self.__class__(a)
-                return a
-            except Exception as exc:
-                raise AttributeError(str(exc))
-
-    def __dir__(self):
-        """For Ipython tab completion. See http://ipython.org/ipython-doc/dev/config/integrating.html"""
-        return sorted(list(self._mongo_dict.keys()))
-
-
 def mongo_getattr(rec, key):
     """
     Get value from dict using MongoDB dot-separated path semantics.
@@ -135,7 +98,7 @@ class DBConnector(object):
         self.config.collection = str(value)
         return old
 
-    def get_collection(self):
+    def get_collection(self, **kwargs):
         """
         Establish a connection with the database. Returns MongoDb collection
         """

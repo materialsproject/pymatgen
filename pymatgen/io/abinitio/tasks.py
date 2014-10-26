@@ -329,11 +329,15 @@ class ParalConf(AttrDict):
         return self.tot_ncpus
 
     @property
+    def mem_per_proc(self):
+        return self.mem_per_cpu
+
+    @property
     def mpi_procs(self):
         return self.mpi_ncpus
 
     @property
-    def mpi_procs(self):
+    def omp_threads(self):
         return self.omp_ncpus
 
     @property
@@ -585,6 +589,7 @@ class TaskManager(object):
     parameters for the parallel executions.
     """
     YAML_FILE = "taskmanager.yml"
+    USER_CONFIG_DIR = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
 
     def __init__(self, qtype, qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
                  pre_run=None, post_run=None, mpi_runner=None, policy=None, db_connector=None):
@@ -628,12 +633,12 @@ class TaskManager(object):
         """Create an instance from dictionary d."""
         return cls(**d)
 
-    @classmethod
-    def from_string(cls, s):
-        """Create an instance from string s containing a YAML dictionary."""
-        stream = StringIO(s)
-        stream.seek(0)
-        return cls.from_dict(yaml.load(stream))
+    #@classmethod
+    #def from_string(cls, s):
+    #    """Create an instance from string s containing a YAML dictionary."""
+    #    stream = StringIO(s)
+    #    stream.seek(0)
+    #    return cls.from_dict(yaml.load(stream))
 
     @classmethod
     def from_file(cls, filename):
@@ -645,22 +650,18 @@ class TaskManager(object):
     def from_user_config(cls):
         """
         Initialize the `TaskManager` from the YAML file 'taskmanager.yaml'.
-        Search first in the working directory and then in the configuration
-        directory of abipy.
+        Search first in the working directory and then in the configuration directory of abipy.
 
         Raises:
             RuntimeError if file is not found.
         """
         # Try in the current directory.
         path = os.path.join(os.getcwd(), cls.YAML_FILE)
-
         if os.path.exists(path):
             return cls.from_file(path)
 
         # Try in the configuration directory.
-        dirpath = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
-        path = os.path.join(dirpath, cls.YAML_FILE)
-
+        path = os.path.join(cls.USER_CONFIG_DIR, cls.YAML_FILE)
         if os.path.exists(path):
             return cls.from_file(path)
     
@@ -692,9 +693,6 @@ class TaskManager(object):
         """True if we are using OpenMP parallelization."""
         return self.qadapter.has_omp
 
-    #def get_collection(self, **kwargs):
-    #    return self.db_connector.get_collection(**kwargs)
-
     @property
     def tot_cores(self):
         """Total number of CPUs used to run the task."""
@@ -709,6 +707,10 @@ class TaskManager(object):
     def omp_threads(self):
         """Number of CPUs used for OpenMP."""
         return self.qadapter.omp_threads
+
+    def get_collection(self, **kwargs):
+        """Return the MongoDB collection used to store the results."""
+        return self.db_connector.get_collection(**kwargs)
 
     def to_shell_manager(self, mpi_procs=1, policy=None):
         """

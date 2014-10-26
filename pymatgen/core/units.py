@@ -11,8 +11,7 @@ units are detected. An ArrayWithUnit is also implemented, which is a subclass
 of numpy's ndarray with similar unit features.
 """
 
-from six.moves import filter
-from six.moves import zip
+from six.moves import filter, zip
 
 __author__ = "Shyue Ping Ong, Matteo Giantomassi"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -302,7 +301,7 @@ class FloatWithUnit(float):
     >>> a = Energy(1.1, "Ha")
     >>> b = Energy(3, "eV")
     >>> c = a + b
-    >>> print c
+    >>> print(c)
     1.2102479761938871 Ha
     >>> c.to("eV")
     32.932522246000005 eV
@@ -476,7 +475,7 @@ class ArrayWithUnit(np.ndarray):
     >>> a = EnergyArray([1, 2], "Ha")
     >>> b = EnergyArray([1, 2], "eV")
     >>> c = a + b
-    >>> print c
+    >>> print(c)
     [ 1.03674933  2.07349865] Ha
     >>> c.to("eV")
     array([ 28.21138386,  56.42276772]) eV
