@@ -47,8 +47,8 @@ class ConditionTest(PymatgenTest):
                 self.one = 1.0
 
         aobj = A()
-        assert Condition({"one": 1.0}).apply(aobj)
-        assert not Condition({"one": 2.0}).apply(aobj)
+        assert Condition({"one": 1.0}).eval(aobj)
+        assert not Condition({"one": 2.0}).eval(aobj)
 
 if __name__ == '__main__':
     import unittest
