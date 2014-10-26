@@ -21,9 +21,9 @@ import logging
 import math
 import itertools
 
+from monty.json import jsanitize
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
-from pymatgen.util.io_utils import clean_json
 
 logger = logging.getLogger('BSPlotter')
 
@@ -106,7 +106,7 @@ class DosPlotter(object):
             Dict of dos data. Generally of the form, {label: {'energies':..,
             'densities': {'up':...}, 'efermi':efermi}}
         """
-        return clean_json(self._doses)
+        return jsanitize(self._doses)
 
     def get_plot(self, xlim=None, ylim=None):
         """
