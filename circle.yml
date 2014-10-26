@@ -17,7 +17,7 @@ dependencies:
     - pip install -r requirements.txt
     - pip install -r requirements-optional.txt
     - /usr/bin/yes | pip uninstall monty
-    - cd monty && git pull && python setup.py install
+    - cd monty && git checkout master && python setup.py install
     - python setup.py develop
 test:
   override:
