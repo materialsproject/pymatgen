@@ -1062,7 +1062,7 @@ class PbsProAdapter(AbstractQueueAdapter):
         subs_dict = super(PbsProAdapter, self).get_subs_dict()
         # Parameters defining the partion. Hard-coded for the time being.
         # but this info should be passed via taskmananger.yml
-        p = Partition("zenobe", num_nodes=100, sockets_per_node=2, cores_per_socket=4)
+        p = Partition(name="hardcoded", num_nodes=100, sockets_per_node=2, cores_per_socket=4, mem_per_node="1000 Mb")
         subs_dict.update(self.params_from_partition(p))
         #subs_dict["vmem"] = 5
         return subs_dict

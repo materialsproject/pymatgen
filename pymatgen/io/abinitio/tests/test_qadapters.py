@@ -68,7 +68,13 @@ class PbsProadapterTest(PymatgenTest):
     """Test suite for PbsPro adapter."""
     def test_params_from_partition(self):
         aequal = self.assertEqual
-        p = Partition("test_partition", num_nodes=100, sockets_per_node=2, cores_per_socket=4)
+
+        kwargs = dict(name="test_partition", num_nodes=100, sockets_per_node=2, cores_per_socket=4)
+        with self.assertRaises(ValueError):
+            p = Partition(**kwargs)
+
+        kwargs.update(mem_per_node="1 Gb")
+        p = Partition(**kwargs)
         print("partition\n" + str(p))
 
         qad = PbsProAdapter()
