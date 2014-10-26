@@ -104,7 +104,8 @@ class DiffusionAnalyzer(PMGSONable):
     """
 
     def __init__(self, structure, displacements, specie, temperature,
-                 time_step, step_skip, smoothed="max", min_obs=30):
+                 time_step, step_skip, smoothed="max", min_obs=30,
+                 avg_nsteps=1000):
         """
         This constructor is meant to be used with pre-processed data.
         Other convenient constructors are provided as class methods (see
@@ -140,15 +141,19 @@ class DiffusionAnalyzer(PMGSONable):
                        weights the observations based on the variance
                        accordingly. This is the default.
                     ii. "constant", in which each timestep is averaged over
-                        the same number of observations given by min_obs.
+                        the number of time_steps given by min_steps.
                     iii. None / False / any other false-like quantity. No
                        smoothing.
-            min_obs (int): Minimum number of observations to have before
-                including in the MSD vs dt calculation. E.g. If a structure
-                has 10 diffusing atoms, and min_obs = 30, the MSD vs dt will be
+            min_obs (int): Used with smoothed="max". Minimum number of
+                observations to have before including in the MSD vs dt
+                calculation. E.g. If a structure has 10 diffusing atoms,
+                and min_obs = 30, the MSD vs dt will be
                 calculated up to dt = total_run_time / 3, so that each
                 diffusing atom is measured at least 3 uncorrelated times.
-                Only applies in smoothed="max" or "constant".
+                Only applies in smoothed="max".
+            avg_nsteps (int): Used with smoothed="constant". Determines the
+                number of time steps to average over to get the msd for each
+                timestep. Default of 1000 is usually pretty good.
         """
         self.structure = structure
         self.disp = displacements
@@ -157,15 +162,16 @@ class DiffusionAnalyzer(PMGSONable):
         self.time_step = time_step
         self.step_skip = step_skip
         self.min_obs = min_obs
-        self.indices = []
-        self.framework_indices = []
         self.smoothed = smoothed
+        self.avg_nsteps = avg_nsteps
 
+        indices = []
+        framework_indices = []
         for i, site in enumerate(structure):
             if site.specie.symbol == specie:
-                self.indices.append(i)
+                indices.append(i)
             else:
-                self.framework_indices.append(i)
+                framework_indices.append(i)
         if self.disp.shape[1] < 2:
             self.diffusivity = 0.
             self.conductivity = 0.
@@ -173,7 +179,7 @@ class DiffusionAnalyzer(PMGSONable):
             self.conductivity_components = np.array([0., 0., 0.])
             self.max_framework_displacement = 0
         else:
-            framework_disp = self.disp[self.framework_indices]
+            framework_disp = self.disp[framework_indices]
             drift = np.average(framework_disp, axis=0)[None, :, :]
 
             #drift corrected position
@@ -185,14 +191,13 @@ class DiffusionAnalyzer(PMGSONable):
             if not smoothed:
                 timesteps = np.arange(0, nsteps)
             elif smoothed == "constant":
-                min_step = int(np.ceil(min_obs / len(self.indices)))
-                if nsteps < min_step:
+                if nsteps <= avg_nsteps:
                     raise ValueError('Not enough data to calculate diffusivity')
-                timesteps = np.arange(0, nsteps - min_step)
+                timesteps = np.arange(0, nsteps - avg_nsteps)
             else:
                 #limit the number of sampled timesteps to 200
                 min_dt = int(1000 / (self.step_skip * self.time_step))
-                max_dt = min(len(self.indices) * nsteps // self.min_obs, nsteps)
+                max_dt = min(len(indices) * nsteps // self.min_obs, nsteps)
                 if min_dt >= max_dt:
                     raise ValueError('Not enough data to calculate diffusivity')
                 timesteps = np.arange(min_dt, max_dt,
@@ -206,46 +211,43 @@ class DiffusionAnalyzer(PMGSONable):
             msd_components = np.zeros(dt.shape + (3,))
 
             lengths = np.array(self.structure.lattice.abc)[None, None, :]
+
             for i, n in enumerate(timesteps):
                 if not smoothed:
                     dx = dc[:, i:i + 1, :]
-                    dcomponents = df[:, i:i + 1, :] *lengths
+                    dcomponents = df[:, i:i + 1, :] * lengths
                 elif smoothed == "constant":
-                    dx = dc[:, i:i + min_step, :] - dc[:, 0:min_step, :]
-                    dcomponents = (df[:, i:i + min_step, :]
-                                   - df[:, 0:min_step, :]) * lengths
+                    dx = dc[:, i:i + avg_nsteps, :] - dc[:, 0:avg_nsteps, :]
+                    dcomponents = (df[:, i:i + avg_nsteps, :]
+                                   - df[:, 0:avg_nsteps, :]) * lengths
                 else:
                     dx = dc[:, n:, :] - dc[:, :-n, :]
                     dcomponents = (df[:, n:, :] - df[:, :-n, :]) * lengths
                 sq_disp = dx ** 2
                 sq_disp_ions[:, i] = np.average(np.sum(sq_disp, axis=2), axis=1)
-                msd[i] = np.average(sq_disp_ions[:, i][self.indices])
+                msd[i] = np.average(sq_disp_ions[:, i][indices])
 
-                msd_components[i] = \
-                    np.average(dcomponents[self.indices] ** 2, axis=(0, 1))
+                msd_components[i] = np.average(dcomponents[indices] ** 2,
+                                               axis=(0, 1))
 
-            #run the regression on the msd components
-            if (not smoothed) or smoothed == "constant":
-                w = np.ones_like(dt)
-            else:
-                w = 1 / dt
-
-            #weighted least squares
-            def weighted_lstsq(a, b, w):
-                w_root = w ** 0.5
-                return np.linalg.lstsq(a * w_root[:, None], b * w_root)
+            def weighted_lstsq(a, b):
+                if smoothed == "max":
+                    # For max smoothing, we need to weight by variance.
+                    w_root = (1 / dt) ** 0.5
+                    return np.linalg.lstsq(a * w_root[:, None], b * w_root)
+                else:
+                    return np.linalg.lstsq(a, b)
 
             m_components = np.zeros(3)
             m_components_res = np.zeros(3)
             a = np.ones((len(dt), 2))
             a[:, 0] = dt
             for i in range(3):
-                (m, c), res, rank, s = weighted_lstsq(
-                    a, msd_components[:, i], w)
+                (m, c), res, rank, s = weighted_lstsq(a, msd_components[:, i])
                 m_components[i] = max(m, 1e-15)
                 m_components_res[i] = res[0]
 
-            (m, c), res, rank, s = weighted_lstsq(a, msd, w)
+            (m, c), res, rank, s = weighted_lstsq(a, msd)
             #m shouldn't be negative
             m = max(m, 1e-15)
 
@@ -281,12 +283,14 @@ class DiffusionAnalyzer(PMGSONable):
             self.max_ion_displacements = np.max(np.sum(
                 dc ** 2, axis=-1) ** 0.5, axis=1)
             self.max_framework_displacement = \
-                np.max(self.max_ion_displacements[self.framework_indices])
+                np.max(self.max_ion_displacements[framework_indices])
 
             self.msd = msd
             self.sq_disp_ions = sq_disp_ions
             self.msd_components = msd_components
             self.dt = dt
+            self.indices = indices
+            self.framework_indices = framework_indices
 
     def get_drift_corrected_structures(self):
         """
@@ -386,7 +390,8 @@ class DiffusionAnalyzer(PMGSONable):
     @classmethod
     def from_structures(cls, structures, specie, temperature,
                         time_step, step_skip, smoothed="max", min_obs=30,
-                        initial_disp=None, initial_structure=None):
+                        avg_nsteps=1000, initial_disp=None,
+                        initial_structure=None):
         """
         Convenient constructor that takes in a list of Structure objects to
         perform diffusion analysis.
@@ -413,15 +418,26 @@ class DiffusionAnalyzer(PMGSONable):
                         the same number of observations given by min_obs.
                     iii. None / False / any other false-like quantity. No
                        smoothing.
-            min_obs (int): Minimum number of observations to have before
-                including in the MSD vs dt calculation. E.g. If a structure
-                has 10 diffusing atoms, and min_obs = 30, the MSD vs dt will be
+            min_obs (int): Used with smoothed="max". Minimum number of
+                observations to have before including in the MSD vs dt
+                calculation. E.g. If a structure has 10 diffusing atoms,
+                and min_obs = 30, the MSD vs dt will be
                 calculated up to dt = total_run_time / 3, so that each
                 diffusing atom is measured at least 3 uncorrelated times.
-            weighted (bool): Uses a weighted least squares to fit the
-                MSD vs dt. Weights are proportional to 1/dt, since the
-                number of observations are also proportional to 1/dt (and
-                hence the variance is proportional to dt)
+                Only applies in smoothed="max".
+            avg_nsteps (int): Used with smoothed="constant". Determines the
+                number of time steps to average over to get the msd for each
+                timestep. Default of 1000 is usually pretty good.
+            initial_disp (np.ndarray): Sometimes, you need to iteratively
+                compute estimates of the diffusivity. This supplies an
+                initial displacement that will be added on to the initial
+                displacements. Note that this makes sense only when
+                smoothed=False.
+            initial_structure (Structure): Like initial_disp, this is used
+                for iterative computations of estimates of the diffusivity. You
+                typically need to supply both variables. This stipulates the
+                initial strcture from which the current set of displacements
+                are computed.
         """
         structure = structures[0]
 
@@ -441,11 +457,12 @@ class DiffusionAnalyzer(PMGSONable):
 
         return cls(structure, disp, specie, temperature,
                    time_step, step_skip=step_skip, smoothed=smoothed,
-                   min_obs=min_obs)
+                   min_obs=min_obs, avg_nsteps=avg_nsteps)
 
     @classmethod
     def from_vaspruns(cls, vaspruns, specie, smoothed="max", min_obs=30,
-                      initial_disp=None, initial_structure=None):
+                      avg_nsteps=1000, initial_disp=None,
+                      initial_structure=None):
         """
         Convenient constructor that takes in a list of Vasprun objects to
         perform diffusion analysis.
@@ -472,6 +489,26 @@ class DiffusionAnalyzer(PMGSONable):
                         the same number of observations given by min_obs.
                     iii. None / False / any other false-like quantity. No
                        smoothing.
+            min_obs (int): Used with smoothed="max". Minimum number of
+                observations to have before including in the MSD vs dt
+                calculation. E.g. If a structure has 10 diffusing atoms,
+                and min_obs = 30, the MSD vs dt will be
+                calculated up to dt = total_run_time / 3, so that each
+                diffusing atom is measured at least 3 uncorrelated times.
+                Only applies in smoothed="max".
+            avg_nsteps (int): Used with smoothed="constant". Determines the
+                number of time steps to average over to get the msd for each
+                timestep. Default of 1000 is usually pretty good.
+            initial_disp (np.ndarray): Sometimes, you need to iteratively
+                compute estimates of the diffusivity. This supplies an
+                initial displacement that will be added on to the initial
+                displacements. Note that this makes sense only when
+                smoothed=False.
+            initial_structure (Structure): Like initial_disp, this is used
+                for iterative computations of estimates of the diffusivity. You
+                typically need to supply both variables. This stipulates the
+                initial strcture from which the current set of displacements
+                are computed.
         """
         step_skip = vaspruns[0].ionic_step_skip or 1
 
@@ -494,12 +531,12 @@ class DiffusionAnalyzer(PMGSONable):
 
         return cls.from_structures(structures=structures, specie=specie,
             temperature=temperature, time_step=time_step, step_skip=step_skip,
-            smoothed=smoothed, min_obs=min_obs, initial_disp=initial_disp,
-            initial_structure=initial_structure)
+            smoothed=smoothed, min_obs=min_obs, avg_nsteps=avg_nsteps,
+            initial_disp=initial_disp, initial_structure=initial_structure)
 
     @classmethod
     def from_files(cls, filepaths, specie, step_skip=10, smoothed="max",
-                   min_obs=30, ncores=None, initial_disp=None,
+                   min_obs=30, avg_nsteps=1000, ncores=None, initial_disp=None,
                    initial_structure=None):
         """
         Convenient constructor that takes in a list of vasprun.xml paths to
@@ -527,11 +564,16 @@ class DiffusionAnalyzer(PMGSONable):
                         the same number of observations given by min_obs.
                     iii. None / False / any other false-like quantity. No
                        smoothing.
-            min_obs (int): Minimum number of observations to have before
-                including in the MSD vs dt calculation. E.g. If a structure
-                has 10 diffusing atoms, and min_obs = 30, the MSD vs dt will be
+            min_obs (int): Used with smoothed="max". Minimum number of
+                observations to have before including in the MSD vs dt
+                calculation. E.g. If a structure has 10 diffusing atoms,
+                and min_obs = 30, the MSD vs dt will be
                 calculated up to dt = total_run_time / 3, so that each
                 diffusing atom is measured at least 3 uncorrelated times.
+                Only applies in smoothed="max".
+            avg_nsteps (int): Used with smoothed="constant". Determines the
+                number of time steps to average over to get the msd for each
+                timestep. Default of 1000 is usually pretty good.
             ncores (int): Numbers of cores to use for multiprocessing. Can
                 speed up vasprun parsing considerably. Defaults to None,
                 which means serial. It should be noted that if you want to
@@ -539,6 +581,16 @@ class DiffusionAnalyzer(PMGSONable):
                 .xml files should be a multiple of the ionic_step_skip.
                 Otherwise, inconsistent results may arise. Serial mode has no
                 such restrictions.
+            initial_disp (np.ndarray): Sometimes, you need to iteratively
+                compute estimates of the diffusivity. This supplies an
+                initial displacement that will be added on to the initial
+                displacements. Note that this makes sense only when
+                smoothed=False.
+            initial_structure (Structure): Like initial_disp, this is used
+                for iterative computations of estimates of the diffusivity. You
+                typically need to supply both variables. This stipulates the
+                initial strcture from which the current set of displacements
+                are computed.
         """
         if ncores is not None and len(filepaths) > 1:
             import multiprocessing
@@ -558,7 +610,8 @@ class DiffusionAnalyzer(PMGSONable):
                 offset = (- (v.nionic_steps - offset)) % step_skip
         return cls.from_vaspruns(vaspruns, min_obs=min_obs, smoothed=smoothed,
                                  specie=specie, initial_disp=initial_disp,
-                                 initial_structure=initial_structure)
+                                 initial_structure=initial_structure,
+                                 avg_nsteps=avg_nsteps)
 
     def as_dict(self):
         return {
@@ -571,7 +624,8 @@ class DiffusionAnalyzer(PMGSONable):
             "time_step": self.time_step,
             "step_skip": self.step_skip,
             "min_obs": self.min_obs,
-            "smoothed": self.smoothed
+            "smoothed": self.smoothed,
+            "avg_nsteps": self.avg_nsteps
         }
 
     @classmethod
@@ -580,7 +634,8 @@ class DiffusionAnalyzer(PMGSONable):
         return cls(structure, np.array(d["displacements"]), specie=d["specie"],
                    temperature=d["temperature"], time_step=d["time_step"],
                    step_skip=d["step_skip"], min_obs=d["min_obs"],
-                   smoothed=d.get("smoothed", "max"))
+                   smoothed=d.get("smoothed", "max"),
+                   avg_nsteps=d.get("avg_nsteps", 1000))
 
 
 def get_conversion_factor(structure, species, temperature):
