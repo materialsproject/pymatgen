@@ -4,7 +4,6 @@ machine:
   python:
     version: 2.7.8
   environment:
-      PYTHONPATH: /`pwd`/monty:$PYTHONPATH
       PATH: $PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit
       GULP_LIB: /`pwd`/cmd_line/gulp/Libraries
 checkout:
