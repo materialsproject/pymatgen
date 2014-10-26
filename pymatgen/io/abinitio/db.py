@@ -81,7 +81,14 @@ def scan_nestdict(d, key):
 class DBConnector(object):
 
     def __init__(self, config_dict=None):
-        self.config = DBConfig(config_dict=config_dict)
+        self.config = {}
+        if config_dict is not None and config_dict:
+            self.config = DBConfig(config_dict=config_dict)
+
+    def __bool__(self):
+        return bool(self.config)
+
+    __nonzero__ = __bool__
 
     def __repr__(self):
         return "<%s object at %s>" % (self.__class__.__name__, id(self))

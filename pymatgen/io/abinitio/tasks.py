@@ -355,6 +355,10 @@ class ParalHintsParser(object):
 
     Error = ParalHintsError
 
+    def __init__(self):
+        # Used to push error strings.
+        self._errors = collections.deque(maxlen=100)
+
     def parse(self, filename):
         """
         Read the AutoParal section (YAML format) from filename.
@@ -365,11 +369,13 @@ class ParalHintsParser(object):
             try:
                 d = yaml.load(doc.text_notag)
                 return ParalHints(info=d["info"], confs=d["configurations"])
-
             except:
                 import traceback
-                print("traceback", traceback.format_exc())
-                raise self.Error("Wrong YAML doc:\n %s" % doc.text)
+                sexc = traceback.format_exc()
+                err_msg = "Wrong YAML doc:\n%s\n\nException" % (doc.text, sexc)
+                self._errors.append(err_msg)
+                logger.critical(err_msg)
+                raise self.Error(err_msg)
 
 
 class ParalHints(collections.Iterable):
@@ -413,10 +419,8 @@ class ParalHints(collections.Iterable):
         for conf in self:
             # Select the object on which condition is applied
             obj = conf if key is None else AttrDict(conf[key])
-            add_it = condition.apply(obj=obj)
-            #if key is "vars":
-            #    print("conf", conf)
-            #    print("added:", add_it)
+            add_it = condition.eval(obj=obj)
+            #if key is "vars": print("conf", conf, "added:", add_it)
             if add_it:
                 new_confs.append(conf)
 
@@ -524,6 +528,25 @@ class TaskPolicy(object):
     a set of variables that specify the launcher, as well as the options
     and the condition used to select the optimal configuration for the parallel run 
     """
+    @classmethod
+    def as_policy(cls, obj):
+        """
+        Converts an object obj into a TaskPolicy. Accepts:
+
+            * None
+            * TaskPolicy
+            * dict-like object
+        """
+        if obj is None:
+            # Use default policy.
+            return TaskPolicy()
+        else:
+            if isinstance(obj, cls):
+                return obj
+            elif isinstance(obj, collections.Mapping):
+                return cls(**obj) 
+            else:
+                raise TypeError("Don't know how to convert type %s to %s" % (type(obj), cls))
 
     def __init__(self, autoparal=0, automemory=0, mode="default", max_ncpus=None,
                  condition=None, vars_condition=None):
@@ -542,9 +565,9 @@ class TaskPolicy(object):
             max_ncpus:
                 Max number of CPUs that can be used (must be specified if autoparal > 0).
             condition:
-                condition used to filter the autoparal configuration (Mongodb syntax)
+                condition used to filter the autoparal configuration (Mongodb-like syntax)
             vars_condition:
-                condition used to filter the list of Abinit variables suggested by autoparal (Mongodb syntax)
+                condition used to filter the list of Abinit variables suggested by autoparal (Mongodb-like syntax)
         """
         self.autoparal = autoparal
         self.automemory = automemory
@@ -558,7 +581,6 @@ class TaskPolicy(object):
             raise ValueError("When autoparal is not zero, max_ncpus must be specified.")
 
     def __str__(self):
-        #lines = [self.__class__.__name__ + ":"]
         lines = []
         app = lines.append
         for k, v in self.__dict__.items():
@@ -591,54 +613,18 @@ class TaskManager(object):
     YAML_FILE = "taskmanager.yml"
     USER_CONFIG_DIR = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
 
-    def __init__(self, qtype, qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
-                 pre_run=None, post_run=None, mpi_runner=None, policy=None, db_connector=None):
-
-        #if not kwargs:
-        #    self = self.__class__.from_user_config()
-
-        qad_class = qadapter_class(qtype)
-        self.qadapter = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
-                                  pre_run=pre_run, post_run=post_run, mpi_runner=mpi_runner)
-
-        if policy is None:
-            # Use default policy.
-            self.policy = TaskPolicy()
-        else:
-            if isinstance(policy, TaskPolicy):
-                self.policy = policy
-            else:
-                # Assume dict-like object.
-                self.policy = TaskPolicy(**policy) 
-
-        # Initialize database connector.
-        self.db_connector = DBConnector(config_dict=db_connector).deepcopy() if db_connector is not None else None
-
-    def __str__(self):
-        """String representation."""
-        lines = []
-        app = lines.append
-        #app("tot_cores %d, mpi_procs %d, omp_threads %s" % (self.tot_cores, self.mpi_procs, self.omp_threads))
-        app("[Qadapter]\n%s" % str(self.qadapter))
-        app("[Task policy]\n%s" % str(self.policy))
-
-        if self.has_db:
-            app("[MongoDB database]:")
-            app(str(self.db_connector))
-
-        return "\n".join(lines)
 
     @classmethod
     def from_dict(cls, d):
         """Create an instance from dictionary d."""
         return cls(**d)
-
-    #@classmethod
-    #def from_string(cls, s):
-    #    """Create an instance from string s containing a YAML dictionary."""
-    #    stream = StringIO(s)
-    #    stream.seek(0)
-    #    return cls.from_dict(yaml.load(stream))
+                                                                              
+    @classmethod
+    def from_string(cls, s):
+        """Create an instance from string s containing a YAML dictionary."""
+        stream = StringIO(s)
+        stream.seek(0)
+        return cls.from_dict(yaml.load(stream))
 
     @classmethod
     def from_file(cls, filename):
@@ -683,10 +669,39 @@ class TaskManager(object):
         """
         return cls(qtype="shell", qparams=dict(MPI_PROCS=mpi_procs), mpi_runner=mpi_runner, policy=policy)
 
+    def __init__(self, qtype, qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
+                 pre_run=None, post_run=None, mpi_runner=None, policy=None, db_connector=None):
+
+        #if not kwargs:
+        #    self = self.__class__.from_user_config()
+
+        qad_class = qadapter_class(qtype)
+        self.qadapter = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
+                                  pre_run=pre_run, post_run=post_run, mpi_runner=mpi_runner)
+
+        self.policy = TaskPolicy.as_policy(policy)
+
+        # Initialize database connector (if specified)
+        self.db_connector = DBConnector(config_dict=db_connector)
+
+    def __str__(self):
+        """String representation."""
+        lines = []
+        app = lines.append
+        #app("tot_cores %d, mpi_procs %d, omp_threads %s" % (self.tot_cores, self.mpi_procs, self.omp_threads))
+        app("[Qadapter]\n%s" % str(self.qadapter))
+        app("[Task policy]\n%s" % str(self.policy))
+
+        if self.has_db:
+            app("[MongoDB database]:")
+            app(str(self.db_connector))
+
+        return "\n".join(lines)
+
     @property
     def has_db(self):
         """True if we are using MongoDB database"""
-        return self.db_connector is not None
+        return bool(self.db_connector)
 
     @property
     def has_omp(self):
@@ -807,15 +822,11 @@ class TaskManager(object):
         """
         task.build()
 
-        script_file = self.write_jobfile(task)
-
-        # Submit the task.
-        task.set_status(task.S_SUB)
-
+        # Submit the task and save the queue id.
         # FIXME: CD to script file dir?
+        script_file = self.write_jobfile(task)
+        task.set_status(task.S_SUB)
         process, queue_id = self.qadapter.submit_to_queue(script_file)
-
-        # Save the queue id.
         task.set_queue_id(queue_id)
 
         return process
@@ -1486,8 +1497,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             self.add_required_files(required_files)
 
         # Use to compute the wall-time
-        self.start_datetime = None
-        self.stop_datetime = None
+        self.start_datetime, self.stop_datetime = None, None
 
         # Number of restarts effectuated.
         self.num_restarts = 0
@@ -1595,14 +1605,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         except AttributeError:
             # Attach a fake process so that we can poll it.
             return FakeProcess()
-
-    #@property
-    #def is_allocated(self):
-    #    """
-    #    True if the task has been allocated, 
-    #    i.e. if it has been submitted or if it's running.
-    #    """
-    #    return self.status in [self.S_SUB, self.S_RUN]
 
     @property
     def is_completed(self):

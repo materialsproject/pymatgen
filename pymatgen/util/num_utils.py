@@ -53,14 +53,30 @@ def sort_dict(d, key=None, reverse=False):
     return collections.OrderedDict(kv_items)
 
 
+def minloc(seq):
+    """
+    Return the index of the (first) minimum in seq
+
+    >>> assert minloc(range(3)) == 0
+    """
+    return min(enumerate(seq), key=lambda s: s[1])[0]
+
+
+def maxloc(seq):
+    """
+    Return the index of the (first) maximum in seq
+
+    >>> assert maxloc([1,3,2,3]) == 1
+    """
+    return max(enumerate(seq), key=lambda s: s[1])[0]
+
+
 def min_max_indexes(seq):
     """
     Uses enumerate, max, and min to return the indices of the values
     in a list with the maximum and minimum value:
     """
-    minimum = min(enumerate(seq), key=lambda s: s[1])
-    maximum = max(enumerate(seq), key=lambda s: s[1])
-    return minimum[0], maximum[0]
+    return minloc(seq), maxloc(seq)
 
 
 def strictly_increasing(values):

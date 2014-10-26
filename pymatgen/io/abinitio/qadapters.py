@@ -27,7 +27,9 @@ from monty.string import is_string, boxed
 from monty.collections import AttrDict, MongoDict
 from monty.subprocess import Command
 from monty.dev import deprecated
-from pymatge.core.units import Memory
+from pymatgen.util.num_utils import maxloc
+from pymatgen.core.units import Memory
+from .utils import Condition
 from .launcher import ScriptEditor
 from .db import DBConnector
 
@@ -82,43 +84,12 @@ class MpiRunner(object):
         return self.name is not None
 
 
-
-
-#def parse_memory_str(s, unit="Mb"):
-#    """
-#    Return the memory in megabyte from a string.
-#    Accepts: floats or strings with float + unit
-#
-#    raises:
-#        ValueError if s is not valid.
-#    """
-#    try:
-#        return float(s)
-#        #return Memory(num, from_unit).to(unit)
-#    except ValueError:
-#        # Find the position of the first alpha-char in s.
-#        for i, char in enumerate(reversed(s)):
-#            if char.isdigit():
-#                pos = len(s) - i
-#                break
-#        else:
-#            raise ValueError("Cannot parse %s" % s)
-#
-#        try:
-#            num, from_unit = float(s[:pos]), s[pos:]
-#        except:
-#            raise ValueError("Cannot parse %s" % s)
-#
-#        print(num, from_unit)
-#        #return Memory(num, from_unit).to(unit)
-
-
 class Partition(object):
     """
     This object collects information on a partition
-    # Based on https://computing.llnl.gov/linux/slurm/sinfo.html
+    The possible arguments are documents in the ENTRIES class attribute below.
 
-    Basic Definition::
+    Basic definition::
 
         * A node refers to the physical box, i.e. cpu sockets with north/south switches connecting memory systems 
           and extension cards, e.g. disks, nics, and accelerators
@@ -129,51 +100,50 @@ class Partition(object):
           Each cpu core will be able to service a number of cpu threads, each having an independent instruction stream 
           but sharing the cores memory controller and other logical units.
     """
-    Entry = namedtuple("Entry", "type, default, help")
+    # TODO Write namedtuple with defaults
+    class Entry(object):
+        def __init__(self, type, default=None, mandatory=False, parser=None, help="No help available"):
+            self.type, self.default, self.parser, self.mandatory = type, default, parser, mandatory
+            if callable(default): self.default = default()
+
+        def eval(self, value):
+            if self.type is not object: value = self.type(value)
+            if self.parser is not None: value = self.parser(value)
+            return value
+                
     ENTRIES = dict(
         # mandatory
-        name=Entry(type=str, default=None, help="Name of the partition"),
-        num_nodes=Entry(type=int, default=None, help="Number of nodes"),
-        sockets_per_node=Entry(type=int, default=None, help="Number of sockets per node"),
-        cores_per_socket=Entry(type=int, default=None, help="Number of cores per node"),
-        mem_per_node=Entry(type=Memory.from_string, default=None, help="Memory per node"),
+        name=Entry(type=str, mandatory=True, help="Name of the partition"),
+        num_nodes=Entry(type=int, mandatory=True, help="Number of nodes"),
+        sockets_per_node=Entry(type=int, mandatory=True, help="Number of sockets per node"),
+        cores_per_socket=Entry(type=int, mandatory=True, help="Number of cores per node"),
+        mem_per_node=Entry(type=str, mandatory=True, help="Memory per node", parser=Memory.from_string),
         # optional
         timelimit=Entry(type=str, default=None, help="Time limit"),
         min_nodes=Entry(type=int, default=-1, help="Minimun number of nodes that can be used"),
         max_nodes=Entry(type=int, default=sys.maxsize, help="Maximum number of nodes that can be used"),
-        priority=Entry(type=int, default=1, help="Priority level"),
-        condition=Entry(type=str, default=None, help="Condition object"),
+        priority=Entry(type=int, default=1, help="Priority level, integer number > 0"),
+        condition=Entry(type=object, default=dict, help="Condition object (dictionary)", parser=Condition),
     )
     del Entry
 
     def __init__(self, **kwargs):
-                 #name, num_nodes, sockets_per_node, cores_per_socket, mem_per_node, 
-                 #min_nodes=None, max_nodes=None, timelimit=None, priority=None, condition=None):
 
-        #self.name = name
-        #self.num_nodes = int(num_nodes)
-        #self.sockets_per_node = int(sockets_per_node)
-        #self.cores_per_socket = int(cores_per_socket)
-        #self.mem_per_node = mem_per_node # TODO: Accept 10Mb
-        #self.min_nodes = int(min_nodes) if min_nodes is not None else -1
-        #self.max_nodes = int(max_nodes) if max_nodes is not None else self.num_nodes
         #self.timelimit = timelimit #TODO conversion datetime.datetime.strptime("1:00:00", "%H:%M:%S")
-        #self.priority = int(priority)
-        #self.condition = condition
-
         for key, entry in self.ENTRIES.items():
             try:
                 value = kwargs.pop(key)
-                value = entry.type(value)
+                value = entry.eval(value) #; print(key, value)
                 setattr(self, key, value)
             except KeyError:
-                #print(type(key), entry)
-                #self.__dict__[key] = entry.default
+                if entry.mandatory: raise ValueError("key %s must be specified" % key)
                 setattr(self, key, entry.default)
 
         if kwargs:
             raise ValueError("Found invalid keywords in the partition section:\n %s" % str(list(kwargs.keys())))
 
+        # Convert memory to megabytes.
+        self.mem_per_node = self.mem_per_node.to("Mb")
 
     def __str__(self):
         """String representation."""
@@ -216,7 +186,7 @@ class Partition(object):
         if pconf.omp_threads > self.cores_per_node: return False
         if pconf.mem_per_core > self.mem_per_core: return False
         if self.condition is not None:
-            return self.condition.apply(pconf)
+            return self.condition.eval(pconf)
 
     def get_score(self, pconf):
         """
@@ -226,7 +196,7 @@ class Partition(object):
         """
         minf = float("-inf")
         if not self.accepts(pconf): return minf
-        pconf.mpi_procs
+        if not self.condition.eval(pconf): return minf
         return self.priority
 
 
@@ -251,8 +221,7 @@ class Cluster(object):
         self.hostname = hostname
         self.parts = [Partition(**p) for p in partitions]
 
-
-        self.dbconnector = None if dbconnector is None else DBConnector(dbconnector)
+        self.dbconnector = DBConnector(dbconnector)
         #self.qadapter = qadapter
 
     def __str__(self):
@@ -271,9 +240,8 @@ class Cluster(object):
 
     def select_partition(self, pconf):
         scores = [part.get_score(pconf) for part in self]
-        #if all(scores == None): return None
-        #return self.parts[maxloc(scores), ignore=None]
-        return part
+        if all(scores < 0): return None
+        return self.parts[maxloc(scores)]
 
 
 def qadapter_class(qtype):
