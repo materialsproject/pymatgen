@@ -611,7 +611,6 @@ class TaskManager(object):
     YAML_FILE = "taskmanager.yml"
     USER_CONFIG_DIR = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
 
-
     @classmethod
     def from_dict(cls, d):
         """Create an instance from dictionary d."""
