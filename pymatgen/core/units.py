@@ -78,8 +78,18 @@ BASE_UNITS = {
     },
     "intensity": {
         "cd": 1
-    }
+    },
+    "memory": {
+        "byte": 1,
+        "Kb": 1024,
+        "Mb": 1024**2,
+        "Gb": 1024**3,
+        "Tb": 1024**4,
+    },
 }
+
+# Accept kb, mb, gb ... as well.
+BASE_UNITS["memory"].update({k.lower(): v for k, v in BASE_UNITS["memory"].items()})
 
 
 #This current list are supported derived units defined in terms of powers of
@@ -307,6 +317,29 @@ class FloatWithUnit(float):
     32.932522246000005 eV
     """
     Error = UnitError
+
+    @classmethod
+    def from_string(cls, s):
+        """
+        Initialize a FloatWithUnit from a string. Example Memory.from_string("1. Mb")
+        """
+        # Extract num and unit string. 
+        s = s.strip()
+        for i, char in enumerate(s):
+            if char.isalpha() or char.isspace():
+                break
+        else:
+            raise Exception("Unit is missing in string %s" % s)
+        num, unit = float(s[:i]), s[i:]
+
+        # Find unit type (set it to None if it cannot be detected)
+        for unit_type, d in BASE_UNITS.items():
+            if unit in d:
+                break
+        else:
+            unit_type = None
+
+        return cls(num, unit, unit_type=unit_type)
 
     def __new__(cls, val, unit, unit_type=None):
         new = float.__new__(cls, val)
@@ -643,6 +676,17 @@ class ArrayWithUnit(np.ndarray):
         return "\n".join(str(self.to(unit)) for unit in self.supported_units)
 
 
+def _my_partial(func, *args, **kwargs):
+    """
+    Partial returns a partial object and therefore we cannot inherit class methods defined in FloatWithUnit. 
+    This function calls partial and patches the new class before returning.
+    """
+    newobj = partial(func, *args, **kwargs)
+    # monkey patch
+    newobj.from_string = FloatWithUnit.from_string
+    return newobj
+
+
 Energy = partial(FloatWithUnit, unit_type="energy")
 """
 A float with an energy unit.
@@ -706,6 +750,17 @@ Args:
         is raised.
 """
 ChargeArray = partial(ArrayWithUnit, unit_type="charge")
+
+
+Memory = _my_partial(FloatWithUnit, unit_type="memory")
+"""
+A float with a memory unit.
+
+Args:
+    val (float): Value
+    unit (Unit): E.g., Kb, Mb, Gb, Tb. Must be valid unit or UnitError
+        is raised.
+"""
 
 
 def obj_with_unit(obj, unit):
