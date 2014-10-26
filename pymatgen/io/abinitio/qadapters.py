@@ -27,6 +27,7 @@ from monty.string import is_string, boxed
 from monty.collections import AttrDict, MongoDict
 from monty.subprocess import Command
 from monty.dev import deprecated
+from pymatge.core.units import Memory
 from .launcher import ScriptEditor
 from .db import DBConnector
 
@@ -83,33 +84,33 @@ class MpiRunner(object):
 
 
 
-def parse_memory_str(s, unit="Mb"):
-    """
-    Return the memory in megabyte from a string.
-    Accepts: floats or strings with float + unit
-
-    raises:
-        ValueError if s is not valid.
-    """
-    try:
-        return float(s)
-        #return Memory(num, from_unit).to(unit)
-    except ValueError:
-        # Find the position of the first alpha-char in s.
-        for i, char in enumerate(reversed(s)):
-            if char.isdigit():
-                pos = len(s) - i
-                break
-        else:
-            raise ValueError("Cannot parse %s" % s)
-
-        try:
-            num, from_unit = float(s[:pos]), s[pos:]
-        except:
-            raise ValueError("Cannot parse %s" % s)
-
-        print(num, from_unit)
-        #return Memory(num, from_unit).to(unit)
+#def parse_memory_str(s, unit="Mb"):
+#    """
+#    Return the memory in megabyte from a string.
+#    Accepts: floats or strings with float + unit
+#
+#    raises:
+#        ValueError if s is not valid.
+#    """
+#    try:
+#        return float(s)
+#        #return Memory(num, from_unit).to(unit)
+#    except ValueError:
+#        # Find the position of the first alpha-char in s.
+#        for i, char in enumerate(reversed(s)):
+#            if char.isdigit():
+#                pos = len(s) - i
+#                break
+#        else:
+#            raise ValueError("Cannot parse %s" % s)
+#
+#        try:
+#            num, from_unit = float(s[:pos]), s[pos:]
+#        except:
+#            raise ValueError("Cannot parse %s" % s)
+#
+#        print(num, from_unit)
+#        #return Memory(num, from_unit).to(unit)
 
 
 class Partition(object):
@@ -135,7 +136,7 @@ class Partition(object):
         num_nodes=Entry(type=int, default=None, help="Number of nodes"),
         sockets_per_node=Entry(type=int, default=None, help="Number of sockets per node"),
         cores_per_socket=Entry(type=int, default=None, help="Number of cores per node"),
-        mem_per_node=Entry(type=str, default=None, help="Memory per node"),
+        mem_per_node=Entry(type=Memory.from_string, default=None, help="Memory per node"),
         # optional
         timelimit=Entry(type=str, default=None, help="Time limit"),
         min_nodes=Entry(type=int, default=-1, help="Minimun number of nodes that can be used"),
