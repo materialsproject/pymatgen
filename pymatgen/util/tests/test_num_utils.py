@@ -13,7 +13,7 @@ import unittest
 
 import random
 
-from pymatgen.util.num_utils import abs_cap
+from pymatgen.util.num_utils import abs_cap, min_max_indexes
 
 
 class FuncTestCase(unittest.TestCase):
@@ -28,6 +28,11 @@ class FuncTestCase(unittest.TestCase):
         self.assertEqual(abs_cap(1.000000001, 2), 1.000000001)
         self.assertEqual(abs_cap(-2.000000001, 2), -2.0)
 
+    def test_min_max_indexes(self):
+        val = ['b', 'a', 'm', 'z', 'y']
+        min_ind, max_ind = min_max_indexes(val)
+        self.assertEqual(min_ind, 1)
+        self.assertEqual(max_ind, 3)
 
 if __name__ == '__main__':
     unittest.main()
