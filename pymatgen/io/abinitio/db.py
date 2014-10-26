@@ -77,39 +77,6 @@ def scan_nestdict(d, key):
                 return res
         return None
 
-
-
-import functools
-def try_or_return(exception_list, value_if_exception=None):
-    """
-    Decorator for functions or methods. Executes the callable in a try block,
-    and returns value_if_exception if one of the exceptions listed
-    is exception_list is raised. Example
-
-    @try_or_return(ValueError)
-    def return_none_if_value_error(self):
-
-    @try_or_return((ValueError, KeyError), "hello")
-    def another_method(self):
-    """
-    # we need a tuple of exceptions.
-    if isinstance(exception_list, list): 
-        exception_list = tuple(exception_list)
-    elif not isinstance(exception_list, tuple): 
-        exception_list = (exception_list,)
-
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            try:
-                return func(*args, **kwargs)
-            except exception_list:
-                return value_if_exception
-            else:
-                raise
-        return wrapper
-    return decorator
-
 class DBConnector(object):
 
     def __init__(self, config_dict=None):
@@ -137,7 +104,7 @@ class DBConnector(object):
         self.config.collection = str(value)
         return old
 
-    @try_or_return(Exception, None)
+    #@return_ifexc(Exception, None)
     def get_collection(self, **kwargs):
         """
         Establish a connection with the database. 
@@ -168,37 +135,5 @@ if __name__ == "__main__":
     print(connector)
     print(connector.get_collection())
 
-    import unittest
-
-    class TryOrReturnTest(unittest.TestCase):
-
-        def test_decorator(self):
-            class A(object):
-                @try_or_return(ValueError, "hello")
-                def return_one(self):
-                    return 1
-
-                @try_or_return(ValueError, "hello")
-                def return_hello(self):
-                    raise ValueError()
-
-                @try_or_return(KeyError, "hello")
-                def reraise_value_error(self):
-                    raise ValueError()
-
-                @try_or_return([KeyError, ValueError], "hello")
-                def catch_exc_list(self):
-                    import random
-                    if random.randint(0, 1) == 0:
-                        raise ValueError()
-                    else:
-                        raise KeyError()
-
-            a = A()
-            assert a.return_one() == 1
-            assert a.return_hello() == "hello"
-            with self.assertRaises(ValueError):
-                a.reraise_value_error()
-            assert a.catch_exc_list() == "hello"
-
-    unittest.main()
+    #import unittest
+    #unittest.main()
