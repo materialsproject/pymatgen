@@ -414,15 +414,16 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         # Plot data and legend info
         y_data.append({'data':data,'name':label})
 
+    for i in range(n):      
         site_specie = els[i]
         for j in range(m):          # Antisite plot dat
             sub_specie = specie_order[j]
             if sub_specie == site_specie:
                 continue
             if not specie_ind_del-1:
-                label = '$'+sub_specie+'_{'+specie+'}$'
+                label = '$'+sub_specie+'_{'+site_specie+'}$'
             else:
-                label = '$'+sub_specie+'_{'+specie+'_'+str(cur_ind)+'}$'
+                label = '$'+sub_specie+'_{'+site_specie+'_'+str(cur_ind)+'}$'
             inds = specie_site_index_map[j]
             data = np.sum([conc[ind][i] for ind in range(*inds)],axis=0)
             data = data.tolist()
@@ -579,6 +580,7 @@ def compute_defect_density(structure, e0, vac_defs, antisite_defs, T=800,
             labels = []
             labels.append(inp_data['x_label'])
             labels += [y['name'] for y in inp_data['y']]
+            #labels.sort()
             rows.append('#'+'\t'.join(labels))
             m = len(inp_data['x'])
             for i in range(m):
