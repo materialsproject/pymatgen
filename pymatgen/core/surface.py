@@ -8,7 +8,7 @@ This module implements representations of slabs and surfaces, as well as
 algorithms for generating them.
 """
 
-__author__ = "Richard Tran, Zihan Xu, Shyue Ping Ong"
+__author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
 __copyright__ = "Copyright 2014, The Materials Virtual Lab"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -27,8 +27,7 @@ from scipy.cluster.hierarchy import linkage, fcluster
 from monty.fractions import lcm
 
 from pymatgen.core.periodic_table import get_el_sp
-from pymatgen.core.structure import Structure
-from pymatgen.core.sites import PeriodicSite
+from pymatgen.core.structure import Structureß
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord_utils import in_coord_list
