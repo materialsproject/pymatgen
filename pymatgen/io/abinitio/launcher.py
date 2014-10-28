@@ -277,16 +277,13 @@ class PyLauncher(object):
         Returns:
             The number of tasks launched.
         """
-        num_launched, launched = 0, []
+        num_launched, do_exit, launched = 0, False, []
 
         for count in range(max_loops):
+            if do_exit:
+                break
             if count > 0:
                 time.sleep(sleep_time)
-
-            if num_launched >= max_nlaunch > 0:
-                # Exit
-                print('num_launched >= max_nlaunch, going back to sleep')
-                break
 
             tasks = self.fetch_tasks_to_run()
 
@@ -326,6 +323,11 @@ class PyLauncher(object):
                 if fired:
                     launched.append(task)
                     num_launched += 1
+
+                if num_launched >= max_nlaunch > 0:
+                    print('num_launched >= max_nlaunch, going back to sleep')
+                    do_exit = True
+                    break
 
         # Update the database.
         self.flow.pickle_dump()
