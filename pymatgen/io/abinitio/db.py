@@ -77,11 +77,22 @@ def scan_nestdict(d, key):
                 return res
         return None
 
+
 class DBConnector(object):
 
     def __init__(self, config_dict=None):
+        """
+        enabled: no
+        database: abinit
+        collection: test
+        #host: 0.0.0.0
+        #port: 8080
+        #user: gmatteo
+        #password: helloworld
+        """
         self.config = {}
-        if config_dict is not None and config_dict:
+        # Don't initialize DBConfig if not dict or dict contains `enabled: no`
+        if config_dict and config_dict.pop("enabled", True):
             self.config = DBConfig(config_dict=config_dict)
 
     def __bool__(self):
@@ -104,7 +115,6 @@ class DBConnector(object):
         self.config.collection = str(value)
         return old
 
-    #@return_ifexc(Exception, None)
     def get_collection(self, **kwargs):
         """
         Establish a connection with the database. 

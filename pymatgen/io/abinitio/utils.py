@@ -31,8 +31,7 @@ class File(object):
         return "<%s, %s>" % (self.__class__.__name__, self.path)
 
     def __eq__(self, other):
-        if other is None: return False
-        self.path == other.path
+        return False if other is None else self.path == other.path
                                        
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -117,8 +116,7 @@ class Directory(object):
         return "<%s, %s>" % (self.__class__.__name__, self.path)
 
     def __eq__(self, other):
-        if other is None: return False
-        self.path == other.path
+        return False if other is None else self.path == other.path
 
     def __ne__(self, other):
         return not self.__eq__(other)

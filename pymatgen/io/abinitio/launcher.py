@@ -568,7 +568,7 @@ class PyFlowScheduler(object):
 
     def start(self):
         """
-        Starts the scheduler in a new thread.
+        Starts the scheduler in a new thread. Returns True if success.
         In standalone mode, this method will block until there are no more scheduled jobs.
         """
         self.history.append("Started on %s" % time.asctime())
@@ -579,15 +579,22 @@ class PyFlowScheduler(object):
         else:
             self.sched.add_interval_job(self.callback, **self.sched_options)
 
-        # Try to run the job immediately. If something goes wrong
-        # return without initializing the scheduler.
+        errors = self.flow.look_before_you_leap()
+        if errors:
+            print(errors)
+            self.exceptions.append(errors)
+            return False
+
+        # Try to run the job immediately. If something goes wrong return without initializing the scheduler.
         self._runem_all()
 
         if self.exceptions:
             self.cleanup()
             self.send_email(msg="Error while trying to run the flow for the first time!\n %s" % self.exceptions)
+            return False
 
         self.sched.start()
+        return True
 
     def _runem_all(self):
         """
@@ -761,10 +768,11 @@ class PyFlowScheduler(object):
         try:
             self.cleanup()
 
-            #try:
-            #    self.flow.mongodb_insert()
-            #except Exception:
-            #    logger.critical("MongoDb insertion failed.")
+            #if False and self.flow.has_db:
+            #    try:
+            #        self.flow.db_insert()
+            #    except Exception:
+            #         logger.critical("MongoDb insertion failed.")
 
             self.history.append("Completed on %s" % time.asctime())
             self.history.append("Elapsed time %s" % self.get_delta_etime())
