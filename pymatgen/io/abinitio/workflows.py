@@ -414,12 +414,8 @@ class Workflow(BaseWorkflow):
 
             if not hasattr(task, "manager"):
                 # Set the manager
-                if manager is not None:
-                    # Use the one provided in input.
-                    task.set_manager(manager)
-                else:
-                    # Use the one of the workflow.
-                    task.set_manager(self.manager)
+                # Use the one provided in input else the one of the workflow.
+                task.set_manager(manager) if manager is not None else task.set_manager(self.manager)
 
             task_workdir = os.path.join(self.workdir, "t" + str(i))
 
@@ -633,16 +629,16 @@ class Workflow(BaseWorkflow):
 
         shutil.move(self.workdir, dest)
 
-    def submit_tasks(self, wait=False):
-        """
-        Submits the task in self and wait.
-        TODO: change name.
-        """
-        for task in self:
-            task.start()
-
-        if wait: 
-            for task in self: task.wait()
+    # def submit_tasks(self, wait=False):
+    #     """
+    #     Submits the task in self and wait.
+    #     TODO: change name.
+    #     """
+    #        for task in self:
+    #        task.start()
+    #
+    #    if wait:
+    #        for task in self: task.wait()
 
     def start(self, *args, **kwargs):
         """
@@ -1002,6 +998,9 @@ class PhononWorkflow(Workflow):
         This method is called when all the q-points have been computed.
         It runs `mrgddb` in sequential on the local machine to produce
         the final DDB file in the outdir of the `Workflow`.
+
+        Returns:
+            path to the output DDB file
         """
         ddb_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in self]))
 
@@ -1019,6 +1018,7 @@ class PhononWorkflow(Workflow):
         mrgddb = wrappers.Mrgddb(verbose=1)
         mrgddb.set_mpi_runner("mpirun")
         mrgddb.merge(ddb_files, out_ddb=out_ddb, description=desc, cwd=self.outdir.path)
+        return out_ddb
 
     def on_all_ok(self):
         """
@@ -1027,7 +1027,10 @@ class PhononWorkflow(Workflow):
         the final DDB file in the outdir of the `Workflow`.
         """
         # Merge DDB files.
-        self.merge_ddb_files()
+        out_ddb = self.merge_ddb_files()
 
-        return self.Results(node=self,returncode=0, message="DDB merge done")
+        results = self.Results(node=self,returncode=0, message="DDB merge done")
+        results.add_gridfs_files(DDB=(out_ddb, "t"))
+
+        return results
 

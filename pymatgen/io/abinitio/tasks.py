@@ -22,12 +22,11 @@ from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property
 from pymatgen.util.string_utils import WildCard
+from pymatgen.util.num_utils import maxloc
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump, pmg_serialize
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
-from .qadapters import qadapter_class
 from .netcdf import ETSF_Reader
 from .strategies import StrategyWithInput, OpticInput
-from .db import DBConnector
 from . import abiinspect
 from . import events 
 
@@ -257,16 +256,12 @@ class AbinitTaskResults(NodeResults):
             #input=task.strategy
         )
 
-        new.add_gridfs_files(**{
-            "run_abi": (task.input_file.path, "t"),
-            "run_abo": (task.output_file.path, "t"),
-        })
+        new.add_gridfs_files(
+            run_abi=(task.input_file.path, "t"),
+            run_abo=(task.output_file.path, "t"),
+        )
 
         return new
-
-
-class ParalHintsError(Exception):
-    """Base error class for `ParalHints`."""
 
 
 class ParalConf(AttrDict):
@@ -348,7 +343,11 @@ class ParalConf(AttrDict):
     @property
     def tot_mem(self):
         """Estimated total memory in Mbs (computed from mem_per_cpu)"""
-        return self.mem_per_cpu * self.mpi_procs
+        return self.mem_per_proc * self.mpi_procs
+
+
+class ParalHintsError(Exception):
+    """Base error class for `ParalHints`."""
 
 
 class ParalHintsParser(object):
@@ -400,8 +399,13 @@ class ParalHints(collections.Iterable):
     def __str__(self):
         return "\n".join(str(conf) for conf in self)
 
+    @pmg_serialize
     def as_dict(self):
-        return {"info": self.info, "confs":  self._confs}
+        return {"info": self.info, "confs": self._confs}
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(info=d["info"], confs=d["confs"])
 
     def copy(self):
         """Shallow copy of self."""
@@ -443,15 +447,13 @@ class ParalHints(collections.Iterable):
         """
         self._confs.sort(key=lambda c: c.speedup, reverse=reverse)
 
-    def sort_by_mem_cpu(self, reverse=False):
+    def sort_by_mem_per_core(self, reverse=False):
         """
-        Sort the configurations in place so that conf with lowest memory per CPU
+        Sort the configurations in place so that conf with lowest memory per core
         appears in the first positions.
         """
         # Avoid sorting if mem_per_cpu is not available.
-        has_mem_info = any(c.mem_per_cpu > 0.0 for c in self)
-
-        if has_mem_info:
+        if any(c.mem_per_cpu > 0.0 for c in self):
             self._confs.sort(key=lambda c: c.mem_per_cpu, reverse=reverse)
 
     def select_optimal_conf(self, policy):
@@ -605,8 +607,8 @@ class TaskManager(object):
     (e.g. Slurm, PBS ...) and/or the run-time specification of the ABINIT variables governing the 
     parallel execution. A `TaskManager` delegates the generation of the submission
     script and the submission of the task to the `QueueAdapter`. 
-    A `TaskManager` has a `TaskPolicy` that governs the specification of the 
-    parameters for the parallel executions.
+    A `TaskManager` has a `TaskPolicy` that governs the specification of the parameters for the parallel executions.
+    Ideally, the TaskManager should be the **main entry point** used by the task to deal with job submission/optimization
     """
     YAML_FILE = "taskmanager.yml"
     USER_CONFIG_DIR = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
@@ -667,18 +669,20 @@ class TaskManager(object):
         return cls(qtype="shell", qparams=dict(MPI_PROCS=mpi_procs), mpi_runner=mpi_runner, policy=policy)
 
     def __init__(self, qtype, qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
-                 pre_run=None, post_run=None, mpi_runner=None, policy=None, db_connector=None):
+                 pre_run=None, post_run=None, mpi_runner=None, policy=None, partitions=None, db_connector=None):
 
-        #if not kwargs:
-        #    self = self.__class__.from_user_config()
-
+        from .qadapters import qadapter_class, Partition
         qad_class = qadapter_class(qtype)
         self.qadapter = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
                                   pre_run=pre_run, post_run=post_run, mpi_runner=mpi_runner)
 
         self.policy = TaskPolicy.as_policy(policy)
 
+        # Initialize partitions
+        self.parts = [] if partitions is None else [Partition(**p) for p in partitions]
+
         # Initialize database connector (if specified)
+        from .db import DBConnector
         self.db_connector = DBConnector(config_dict=db_connector)
 
     def __str__(self):
@@ -686,6 +690,8 @@ class TaskManager(object):
         lines = []
         app = lines.append
         #app("tot_cores %d, mpi_procs %d, omp_threads %s" % (self.tot_cores, self.mpi_procs, self.omp_threads))
+        app("[Partitions #%d]\n" % len(partitions))
+        lines.exted(p for p in self.parts)
         app("[Qadapter]\n%s" % str(self.qadapter))
         app("[Task policy]\n%s" % str(self.policy))
 
@@ -705,10 +711,10 @@ class TaskManager(object):
         """True if we are using OpenMP parallelization."""
         return self.qadapter.has_omp
 
-    @property
-    def tot_cores(self):
-        """Total number of CPUs used to run the task."""
-        return self.qadapter.tot_cores
+    #@property
+    #def tot_cores(self):
+    #    """Total number of CPUs used to run the task."""
+    #    return self.qadapter.tot_cores
 
     @property
     def mpi_procs(self):
@@ -717,7 +723,7 @@ class TaskManager(object):
 
     @property
     def omp_threads(self):
-        """Number of CPUs used for OpenMP."""
+        """Number of OpenMP threads"""
         return self.qadapter.omp_threads
 
     def get_collection(self, **kwargs):
@@ -778,18 +784,22 @@ class TaskManager(object):
         """Set the value of max_ncpus."""
         self.policy.max_ncpus = value
 
+    #def select_partition(self, pconf):
+    #    """
+    #    Select a partition to run the paralle configuration pconf
+    #    Set self.opt_part. Return None if no partition could be found.
+    #    """
+    #    scores = [part.get_score(pconf) for part in self.parts]
+    #    if all(scores < 0): return None
+    #    self.opt_part = self.parts[maxloc(scores)]
+    #    return self.opt_part
+
+    def cancel(self, job_id):
+        """Cancel the job. Returns exit status."""
+        return self.qadapter.cancel(job_id)
+
     def write_jobfile(self, task):
-        """
-        Write the submission script.
-
-        Args:
-            task:
-                `AbinitTask` object.
-
-        Returns:
-            The path of the script file.
-        """
-        # Construct the submission script.
+        """Write the submission script. return the path of the script"""
         script = self.qadapter.get_script_str(
             job_name=task.name, 
             launch_dir=task.workdir, 
@@ -817,12 +827,13 @@ class TaskManager(object):
         Returns:
             Process object.
         """
+        # Build the task 
         task.build()
 
         # Submit the task and save the queue id.
         # FIXME: CD to script file dir?
-        script_file = self.write_jobfile(task)
         task.set_status(task.S_SUB)
+        script_file = self.write_jobfile(task)
         process, queue_id = self.qadapter.submit_to_queue(script_file)
         task.set_queue_id(queue_id)
 
@@ -1647,7 +1658,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         if self.queue_id is None: return 0 
         if self.status >= self.S_DONE: return 0 
 
-        exit_status = self.manager.qadapter.cancel(self.queue_id)
+        exit_status = self.manager.cancel(self.queue_id)
         if exit_status != 0: return 0
 
         # Remove output files and reset the status.
@@ -1823,7 +1834,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self._queue_id = queue_id
 
     @property
-    def has_queue_manager(self):
+    def has_queue(self):
         """True if we are submitting jobs via a queue manager."""
         return self.manager.qadapter.QTYPE.lower() != "shell"
 
@@ -2159,7 +2170,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         for dep in self.deps:
             filepaths, exts = dep.get_filepaths_and_exts()
 
-            for (path, ext) in zip(filepaths, exts):
+            for path, ext in zip(filepaths, exts):
                 logger.info("Need path %s with ext %s" % (path, ext))
                 dest = self.ipath_from_ext(ext)
 
@@ -2530,7 +2541,9 @@ class AbinitTask(Task):
         if policy.autoparal != 1:
             raise NotImplementedError("autoparal != 1")
 
-        # 1) Run ABINIT in sequential to get the possible configurations with max_ncpus
+        ############################################################################
+        # Run ABINIT in sequential to get the possible configurations with max_ncpus
+        ############################################################################
 
         # Set the variables for automatic parallelization
         autoparal_vars = dict(
@@ -2551,7 +2564,9 @@ class AbinitTask(Task):
         # Remove the variables added for the automatic parallelization
         self.strategy.remove_extra_abivars(autoparal_vars.keys())
 
-        # 2) Parse the autoparal configurations from the main output file.
+        ##############################################################
+        # Parse the autoparal configurations from the main output file
+        ##############################################################
         parser = ParalHintsParser()
 
         try:
@@ -2559,37 +2574,42 @@ class AbinitTask(Task):
             #self.all_autoparal_confs = confs
             logger.info('speedup hints: \n' + str(confs) + '\n')
             # print("confs", confs)
-
         except parser.Error:
             logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
             return None, None
 
-        # 3) Select the optimal configuration according to policy
-        optimal = confs.select_optimal_conf(policy)
-        #print("optimal autoparal conf:\n %s" % optimal)
+        ######################################################
+        # Select the optimal configuration according to policy
+        ######################################################
+        optconf = confs.select_optimal_conf(policy)
+        #print("optimal autoparal conf:\n %s" % optconf)
+
+        # Select the partition on which we'll be running
+        #self.manager.select_partition(optconf)
 
         # Write autoparal configurations to JSON file.
         d = confs.as_dict()
-        d["optimal"] = optimal
+        d["optimal_conf"] = optconf
         json_pretty_dump(d, os.path.join(self.workdir, "autoparal.json"))
 
-        # 4) Change the input file and/or the submission script
-        self.strategy.add_extra_abivars(optimal.vars)
+        ####################################################
+        # Change the input file and/or the submission script
+        ####################################################
+        self.strategy.add_extra_abivars(optconf.vars)
                                                                   
-        # Change the number of MPI nodes.
-        self.manager.set_mpi_procs(optimal.mpi_procs)
-
-        # Change the number of OpenMP threads.
+        # Change the number of MPI/OMP cores.
+        self.manager.set_mpi_procs(optconf.mpi_procs)
         if self.manager.has_omp:
-            self.manager.set_omp_threads(optimal.omp_threads)
+            self.manager.set_omp_threads(optconf.omp_threads)
 
         # Change the memory per node if automemory evaluates to True.
-        mem_per_cpu = optimal.mem_per_cpu
-
-        if policy.automemory and mem_per_cpu:
+        if policy.automemory and optconf.mem_per_cpu:
             # mem_per_cpu = max(mem_per_cpu, policy.automemory)
-            self.manager.set_mem_per_cpu(mem_per_cpu)
+            self.manager.set_mem_per_cpu(optconf.mem_per_cpu)
 
+        ##############
+        # Finalization
+        ##############
         # Reset the status, remove garbage files ...
         self.set_status(self.S_INIT)
 
@@ -2599,7 +2619,7 @@ class AbinitTask(Task):
         os.remove(self.log_file.path)
         os.remove(self.stderr_file.path)
 
-        return confs, optimal
+        return confs, optconf
 
     def restart(self):
         """

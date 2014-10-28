@@ -5,6 +5,26 @@ from collections import OrderedDict
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio.qadapters import *
 
+
+
+class ParseTimestr(PymatgenTest):
+    def test_parse_timestr(self):
+        days, hours, minutes, secs = 24*60*60, 60*60, 60, 1
+        aequal = self.assertEqual
+
+        # "days-hours",
+        aequal(parse_timestr("2-1"), 2*days + hours)
+        # "days-hours:minutes",                                        
+        aequal(parse_timestr("2-1:1"), 2*days + hours + minutes)
+        # "days-hours:minutes:seconds".                                
+        aequal(parse_timestr("3-4:2:20"), 3*days + 4*hours + 2*minutes + 20*secs)
+        # "minutes",
+        aequal(parse_timestr("10"), 10*minutes)
+        # "minutes:seconds",
+        aequal(parse_timestr("3:20"), 3*minutes + 20*secs)
+        # "hours:minutes:seconds",
+        aequal(parse_timestr("3:2:5"), 3*hours + 2*minutes + 5*secs)
+
 class QadapterTest(PymatgenTest):
 
     def test_base(self):

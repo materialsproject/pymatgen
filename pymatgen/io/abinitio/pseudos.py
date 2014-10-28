@@ -10,7 +10,6 @@ import os
 import abc
 import collections
 import json
-import warnings
 import six
 import numpy as np
 
@@ -34,6 +33,7 @@ __maintainer__ = "Matteo Giantomassi"
 _PTABLE = PeriodicTable()
 
 # Tools and helper functions.
+
 
 def straceback():
     """Returns a string with the traceback."""
@@ -547,7 +547,6 @@ def _dict_from_lines(lines, key_nums, sep=None):
 
         if len(values) != len(keys):
             msg = "line: %s\n len(keys) != len(value)\nkeys: %s\n values:  %s" % (line, keys, values)
-            #warnings.warn(msg)
             raise ValueError(msg)
 
         kwargs.update(zip(keys, values))
@@ -1721,7 +1720,7 @@ class PseudoTable(collections.Sequence):
             attrs.append((i, a))
 
         # Sort attrs, and build new table with sorted pseudos.
-        attrs = sorted(attrs, key=lambda t:t[1], reverse=reverse)
+        attrs = sorted(attrs, key=lambda t: t[1], reverse=reverse)
         return PseudoTable([self[a[0]] for a in attrs])
 
     def select(self, condition):
