@@ -143,7 +143,7 @@ class OmpEnv(AttrDict):
         """
         Constructor method inherited from dictionary:
 
-        >>> asser OmpEnv(OMP_NUM_THREADS=1) == {'OMP_NUM_THREADS': '1'}
+        >>> assert OmpEnv(OMP_NUM_THREADS=1).OMP_NUM_THREADS == 1
 
         To create an instance from an INI file, use:
            OmpEnv.from_file(filename)
@@ -262,7 +262,7 @@ class PyLauncher(object):
 
         return num_launched
 
-    def rapidfire(self, max_nlaunch=-1, max_loops=1, sleep_time=5): 
+    def rapidfire(self, max_nlaunch=-1, max_loops=1, sleep_time=5):
         """
         Keeps submitting `Tasks` until we are out of jobs or no job is ready to run.
 
@@ -283,11 +283,16 @@ class PyLauncher(object):
             if count > 0:
                 time.sleep(sleep_time)
 
+            if num_launched >= max_nlaunch > 0:
+                # Exit
+                print('num_launched >= max_nlaunch, going back to sleep')
+                break
+
             tasks = self.fetch_tasks_to_run()
 
             # I don't know why but we receive duplicated tasks.
             if any(task in launched for task in tasks):
-                logger.critical("task %s already in launched list:\n%s" % (task, launched))
+                logger.critical("numtasks %d already in launched list:\n%s" % (len(task), launched))
 
             # Preventive test.
             tasks = [t for t in tasks if t not in launched]
@@ -321,11 +326,6 @@ class PyLauncher(object):
                 if fired:
                     launched.append(task)
                     num_launched += 1
-
-                if num_launched == max_nlaunch:
-                    # Exit the outermost loop.
-                    print('num_launched == max_nlaunch, going back to sleep')
-                    break
 
         # Update the database.
         self.flow.pickle_dump()
@@ -375,6 +375,7 @@ class PyFlowScheduler(object):
     """
     # Configuration file.
     YAML_FILE = "scheduler.yml"
+    USER_CONFIG_DIR = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
 
     DEBUG = 0
 
@@ -393,7 +394,6 @@ class PyFlowScheduler(object):
                 number of minutes to wait
             seconds:
                 number of seconds to wait
-
             verbose:
                 (int) verbosity level
             max_njobs_inque:
@@ -401,6 +401,8 @@ class PyFlowScheduler(object):
             use_dynamic_manager:
                 True if the task manager must be re-initialized from 
                 file before launching the jobs. Default: False
+            max_nlaunch:
+                Maximum number of tasks launched by radpifire (default -1 i.e. no limit)
         """
         # Options passed to the scheduler.
         self.sched_options = AttrDict(
@@ -425,6 +427,7 @@ class PyFlowScheduler(object):
         self.MAX_NUM_ABIERRS = int(kwargs.pop("MAX_NUM_ABIERRS", 0))
         self.SAFETY_RATIO = int(kwargs.pop("SAFETY_RATIO", 5))
         #self.MAX_ETIME_S = kwargs.pop("MAX_ETIME_S", )
+        self.max_nlaunch = kwargs.pop("max_nlaunch", -1)
 
         if kwargs:
             raise self.Error("Unknown arguments %s" % kwargs)
@@ -476,9 +479,7 @@ class PyFlowScheduler(object):
             return cls.from_file(path)
 
         # Try in the configuration directory.
-        home = os.getenv("HOME")
-        dirpath = os.path.join(home, ".abinit", "abipy")
-        path = os.path.join(dirpath, cls.YAML_FILE)
+        path = os.path.join(self.USER_CONfIG_DIR, cls.YAML_FILE)
 
         if os.path.exists(path):
             return cls.from_file(path)
@@ -589,7 +590,7 @@ class PyFlowScheduler(object):
         tries to fix tasks that went unconverged, abicritical, or queuecritical
         and tries to run all the tasks that can be submitted.+
         """
-        max_nlaunch, excs = 10, []
+        excs = []
         flow = self.flow
 
         #nqjobs = flow.get_njobs_inqueue()
@@ -635,7 +636,7 @@ class PyFlowScheduler(object):
 
         # Submit the tasks that are ready.
         try:
-            nlaunch = PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch, sleep_time=10)
+            nlaunch = PyLauncher(flow).rapidfire(max_nlaunch=self.max_nlaunch, sleep_time=10)
             self.nlaunch += nlaunch
 
             if nlaunch:
@@ -755,6 +756,11 @@ class PyFlowScheduler(object):
         try:
             self.cleanup()
 
+            #try:
+            #    self.flow.mongodb_insert()
+            #except Exception:
+            #    logger.critical("MongoDb insertion failed.")
+
             self.history.append("Completed on %s" % time.asctime())
             self.history.append("Elapsed time %s" % self.get_delta_etime())
 
@@ -776,12 +782,6 @@ class PyFlowScheduler(object):
         finally:
             # Shutdown the scheduler thus allowing the process to exit.
             print('this should be the shutdown of the scheduler')
-
-            #try:
-            #    self.flow.mongodb_insert()
-            #except Exception:
-            #    logger.critical("MongoDb insertion failed.")
-            #    print(straceback())
 
             # Unschedule all the jobs before calling shutdown
             self.sched.print_jobs()
@@ -879,8 +879,6 @@ def sendmail(subject, text, mailto, sender=None):
     outdata, errdata = p.communicate(msg)
     return len(errdata)
 
-
-# Test for sendmail
 #def test_sendmail():
 #    retcode = sendmail("sendmail_test", text="hello\nworld", mailto="nobody@nowhere.com")
 #    print("Retcode", retcode)

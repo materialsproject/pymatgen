@@ -28,7 +28,7 @@ from monty.collections import AttrDict, MongoDict
 from monty.subprocess import Command
 from monty.dev import deprecated
 from pymatgen.util.num_utils import maxloc
-from pymatgen.core.units import Memory
+from pymatgen.core.units import Time, Memory
 from .utils import Condition
 from .launcher import ScriptEditor
 from .db import DBConnector
@@ -37,6 +37,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 __all__ = [
+    "parse_timestr",
     "MpiRunner",
     "Partition",
     "qadapter_class",
@@ -44,6 +45,74 @@ __all__ = [
     "PbsProAdapter",
     "SlurmAdapter",
 ]
+
+def parse_timestr(s):
+    """
+    A slurm time parser. Accepts a string in one the following forms:
+
+        # "days-hours",
+        # "days-hours:minutes",
+        # "days-hours:minutes:seconds".
+        # "minutes",
+        # "minutes:seconds",
+        # "hours:minutes:seconds",
+
+    Returns:
+        Time in seconds.
+    Raises:
+        ValueError if string is not valid.
+    """
+    days, hours, minutes, seconds = 0, 0, 0, 0
+    if '-' in s:
+        # "days-hours",
+        # "days-hours:minutes",                                        
+        # "days-hours:minutes:seconds".                                
+        days, s = s.split("-")
+        days = int(days)
+
+        if ':' not in s:
+            hours = int(float(s))
+        elif s.count(':') == 1:
+            hours, minutes = map(int, s.split(':'))
+        elif s.count(':') == 2:
+            hours, minutes, seconds = map(int, s.split(':'))
+        else:
+            raise ValueError("More that 2 ':' in string!")
+
+    else:
+        # "minutes",
+        # "minutes:seconds",
+        # "hours:minutes:seconds",
+        if ':' not in s:
+            minutes = int(float(s))
+        elif s.count(':') == 1:
+            minutes, seconds = map(int, s.split(':'))
+        elif s.count(':') == 2:
+            hours, minutes, seconds = map(int, s.split(':'))
+        else:
+            raise ValueError("More than 2 ':' in string!")
+
+    #print(days, hours, minutes, seconds)
+    return Time((days*24 + hours)*3600 + minutes*60 + seconds, "s")
+
+
+def time2slurm(timeval, unit="s"):
+    """
+    Convert a number representing a time value in the given unit (Default: seconds)
+    to a string following the slurm convention: "days-hours:minutes:seconds".
+
+    >>> assert time2slurm(61) == '0-0:1:1' and time2slurm(60*60+1) == '0-1:0:1'
+    >>> assert time2slurm(0.5, unit="h") == '0-0:30:0'
+    """
+    d, h, m, s = 24*3600, 3600, 60, 1
+
+    timeval = Time(timeval, unit).to("s")
+    days, hours = divmod(timeval, d)
+    hours, minutes = divmod(hours, h)
+    minutes, secs = divmod(minutes, m)
+
+    return "%d-%d:%d:%d" % (days, hours, minutes, secs)
+
 
 class MpiRunner(object):
     """
@@ -86,8 +155,8 @@ class MpiRunner(object):
 
 class Partition(object):
     """
-    This object collects information on a partition
-    The possible arguments are documents in the ENTRIES class attribute below.
+    This object collects information on a partition (a la slurm)
+    Partitions can be thought of as a set of resources and parameters around their use.
 
     Basic definition::
 
@@ -125,15 +194,14 @@ class Partition(object):
         priority=Entry(type=int, default=1, help="Priority level, integer number > 0"),
         condition=Entry(type=object, default=dict, help="Condition object (dictionary)", parser=Condition),
     )
-    del Entry
 
     def __init__(self, **kwargs):
+        """The possible arguments are documented in Partition.ENTRIES."""
 
         #self.timelimit = timelimit #TODO conversion datetime.datetime.strptime("1:00:00", "%H:%M:%S")
         for key, entry in self.ENTRIES.items():
             try:
-                value = kwargs.pop(key)
-                value = entry.eval(value) #; print(key, value)
+                value = entry.eval(kwargs.pop(key)) #; print(key, value)
                 setattr(self, key, value)
             except KeyError:
                 if entry.mandatory: raise ValueError("key %s must be specified" % key)
@@ -166,6 +234,11 @@ class Partition(object):
         """Number of cores per node."""
         return self.cores_per_socket * self.sockets_per_node
 
+    @property
+    def mem_per_core(self):
+        """Memory available on a single node."""
+        return self.mem_per_node / self.cores_per_node
+
     def can_use_omp_threads(self, omp_threads):
         """True if omp_threads fit in a node."""
         return self.cores_per_node >= omp_threads
@@ -174,19 +247,46 @@ class Partition(object):
         """
         Return (num_nodes, rest_cores)
         """
-        num_nodes = (mpi_procs * omp_threads // self.cores_per_node)
-        rest_cores = (mpi_procs * omp_threads % self.cores_per_node)
-        return num_nodes, rest_cores
+        return (mpi_procs * omp_threads) // self.cores_per_node,\
+               (mpi_procs * omp_threads) %  self.cores_per_node
 
-    def accepts(self, pconf):
+    def distribute(self, mpi_procs, omp_threads, mem_per_proc):
         """
-        True if this partition is in principle able to run the parallel configuration `ParalConf`
+        Returns (num_nodes, mpi_per_node)
+        """
+        is_scattered = True
+
+        if mem_per_proc < self.mem_per_code:
+            # Can use all then cores in the node.
+            num_nodes, rest_cores = self.divide_by_node(mpi_procs, omp_threads)
+            if rest_cores !=0: is_scattered = (num_nodes != 0)
+
+        if is_scattered:
+            # Try first to pack MPI processors in a node as much as possible
+            mpi_per_node = int(self.mem_per_node / mem_per_proc)
+            num_nodes = (mpi_procs * omp_threads) // mpi_per_node
+
+            if (mpi_procs * omp_threads) % mpi_per_node != 0:
+                # Have to reduce the number of MPI procs per node
+                for mpi_per_node in reversed(range(1, mpi_per_node)):
+                    num_nodes = (mpi_procs * omp_threads) // mpi_per_node
+                    if (mpi_procs * omp_threads) % mpi_per_node == 0:
+                        break
+            else:
+                raise ValueError("Cannot distribute mpi_procs %d, omp_threads %d, mem_per_proc %s" % 
+                    (mpi_procs, omp_threads, mem_per_proc))
+
+        CoresDistrib = namedtuple("<CoresDistrib>", "num_nodes mpi_per_node is_scattered") # mem_per_node 
+        return CoresDistrib(num_nodes, mpi_per_node, is_scattered)
+
+    def can_run(self, pconf):
+        """
+        True if this partition in principle is able to run the parallel configuration `ParalConf`
         """
         if pconf.tot_cores > self.tot_cores: return False
         if pconf.omp_threads > self.cores_per_node: return False
         if pconf.mem_per_core > self.mem_per_core: return False
-        if self.condition is not None:
-            return self.condition.eval(pconf)
+        return self.condition.eval(pconf)
 
     def get_score(self, pconf):
         """
@@ -195,7 +295,7 @@ class Partition(object):
         Returns -inf if paral_conf cannot be exected on this partition.
         """
         minf = float("-inf")
-        if not self.accepts(pconf): return minf
+        if not self.can_run(pconf): return minf
         if not self.condition.eval(pconf): return minf
         return self.priority
 
@@ -239,7 +339,7 @@ class Cluster(object):
         return self.parts.__iter__()
 
     def select_partition(self, pconf):
-        scores = [part.get_score(pconf) for part in self]
+        scores = [part.get_score(pconf) for part in self.parts]
         if all(scores < 0): return None
         return self.parts[maxloc(scores)]
 
@@ -274,7 +374,7 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
     # the limits for certain parameters set on the cluster. 
     # currently hard coded, should be read at init
-    # the increase functions will not increase beyond thise limits
+    # the increase functions will not increase beyond this limits
     # TODO: This constraint should be implemented by the partition, not by the QueueAdapter.
     LIMITS = []
 
@@ -426,11 +526,11 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         """Set the number of CPUs used for MPI."""
 
     #@abc.abstractproperty
-    #def queue_walltime(self):
+    #def walltime(self):
     #    """Returns the walltime in seconds."""
 
     #@abc.abstractmethod
-    #def set_queue_walltime(self):
+    #def set_walltime(self):
     #    """Set the walltime in seconds."""
 
     #@abc.abstractproperty
@@ -1470,6 +1570,8 @@ class MOABAdapter(AbstractQueueAdapter):
     def set_mem_per_cpu(self, factor):
         raise NotImplementedError("set_mem_per_cpu")
 
+
 class QScriptTemplate(string.Template):
     delimiter = '$$'
+
 
