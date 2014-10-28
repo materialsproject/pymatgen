@@ -426,7 +426,7 @@ class ParalHints(collections.Iterable):
         for conf in self:
             # Select the object on which condition is applied
             obj = conf if key is None else AttrDict(conf[key])
-            add_it = condition.eval(obj=obj)
+            add_it = condition(obj=obj)
             #if key is "vars": print("conf", conf, "added:", add_it)
             if add_it:
                 new_confs.append(conf)
@@ -690,8 +690,8 @@ class TaskManager(object):
         lines = []
         app = lines.append
         #app("tot_cores %d, mpi_procs %d, omp_threads %s" % (self.tot_cores, self.mpi_procs, self.omp_threads))
-        app("[Partitions #%d]\n" % len(partitions))
-        lines.exted(p for p in self.parts)
+        app("[Partitions #%d]\n" % len(self.parts))
+        lines.extend(p for p in self.parts)
         app("[Qadapter]\n%s" % str(self.qadapter))
         app("[Task policy]\n%s" % str(self.policy))
 
@@ -711,10 +711,10 @@ class TaskManager(object):
         """True if we are using OpenMP parallelization."""
         return self.qadapter.has_omp
 
-    #@property
-    #def tot_cores(self):
-    #    """Total number of CPUs used to run the task."""
-    #    return self.qadapter.tot_cores
+    @property
+    def tot_cores(self):
+        """Total number of CPUs used to run the task."""
+        return self.qadapter.tot_cores
 
     @property
     def mpi_procs(self):

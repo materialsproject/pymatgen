@@ -197,7 +197,6 @@ class Partition(object):
 
     def __init__(self, **kwargs):
         """The possible arguments are documented in Partition.ENTRIES."""
-
         #self.timelimit = timelimit #TODO conversion datetime.datetime.strptime("1:00:00", "%H:%M:%S")
         for key, entry in self.ENTRIES.items():
             try:
@@ -281,7 +280,7 @@ class Partition(object):
 
     def can_run(self, pconf):
         """
-        True if this partition in principle is able to run the parallel configuration `ParalConf`
+        True if this partition in principle is able to run the ``ParalConf`` pconf
         """
         if pconf.tot_cores > self.tot_cores: return False
         if pconf.omp_threads > self.cores_per_node: return False
@@ -290,7 +289,7 @@ class Partition(object):
 
     def get_score(self, pconf):
         """
-        Receives a `ParalConf` object and returns a number that will be used 
+        Receives a ``ParalConf`` object, pconf, and returns a number that will be used
         to select the partion on the cluster on which the task will be submitted.
         Returns -inf if paral_conf cannot be exected on this partition.
         """
