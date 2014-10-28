@@ -481,7 +481,7 @@ class PyFlowScheduler(object):
             return cls.from_file(path)
 
         # Try in the configuration directory.
-        path = os.path.join(self.USER_CONfIG_DIR, cls.YAML_FILE)
+        path = os.path.join(cls.USER_CONfIG_DIR, cls.YAML_FILE)
 
         if os.path.exists(path):
             return cls.from_file(path)
@@ -542,18 +542,21 @@ class PyFlowScheduler(object):
         if os.path.isfile(pid_file):
             flow.show_status()
 
-            err_msg = (
-                "pid_file %s already exists\n"
-                "There are two possibilities:\n\n"
-                "   1) There's an another instance of PyFlowScheduler running.\n"
-                "   2) The previous scheduler didn't exit in a clean way.\n\n"
-                "To solve case 1:\n"
-                "   Kill the previous scheduler (use 'kill pid' where pid is the number reported in the file)\n"
-                "   Then you can restart the new scheduler.\n\n"
-                "To solve case 2:\n"
-                "   Remove the pid_file and restart the scheduler.\n\n"
-                "Exiting\n" % pid_file
-            )
+            err_msg = ("""
+                pid_file %s already exists
+                There are two possibilities:
+
+                   1) There's an another instance of PyFlowScheduler running
+                   2) The previous scheduler didn't exit in a clean way
+
+                To solve case 1:
+                   Kill the previous scheduler (use 'kill pid' where pid is the number reported in the file)
+                   Then you can restart the new scheduler.
+
+                To solve case 2:
+                   Remove the pid_file and restart the scheduler.
+
+                Exiting""" % pid_file)
 
             raise self.Error(err_msg)
 
@@ -772,7 +775,6 @@ class PyFlowScheduler(object):
             retcode = self.send_email(msg)
             if self.DEBUG:
                 print("send_mail retcode", retcode)
-
 
             # Write file with the list of exceptions:
             if self.exceptions:
