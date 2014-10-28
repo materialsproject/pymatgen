@@ -26,7 +26,6 @@ from subprocess import Popen, PIPE
 from monty.string import is_string, boxed
 from monty.collections import AttrDict, MongoDict
 from monty.subprocess import Command
-from monty.dev import deprecated
 from pymatgen.util.num_utils import maxloc
 from pymatgen.core.units import Time, Memory
 from .utils import Condition
@@ -45,6 +44,7 @@ __all__ = [
     "PbsProAdapter",
     "SlurmAdapter",
 ]
+
 
 def parse_timestr(s):
     """
@@ -242,12 +242,11 @@ class Partition(object):
         """True if omp_threads fit in a node."""
         return self.cores_per_node >= omp_threads
 
-    def divide_by_node(self, mpi_procs, omp_threads):
+    def divmod_node(self, mpi_procs, omp_threads):
         """
         Return (num_nodes, rest_cores)
         """
-        return (mpi_procs * omp_threads) // self.cores_per_node,\
-               (mpi_procs * omp_threads) %  self.cores_per_node
+        return divmod(mpi_procs * omp_threads, self.cores_per_node)
 
     def distribute(self, mpi_procs, omp_threads, mem_per_proc):
         """
@@ -257,7 +256,7 @@ class Partition(object):
 
         if mem_per_proc < self.mem_per_code:
             # Can use all then cores in the node.
-            num_nodes, rest_cores = self.divide_by_node(mpi_procs, omp_threads)
+            num_nodes, rest_cores = self.divmod_node(mpi_procs, omp_threads)
             if rest_cores !=0: is_scattered = (num_nodes != 0)
 
         if is_scattered:
@@ -285,7 +284,7 @@ class Partition(object):
         if pconf.tot_cores > self.tot_cores: return False
         if pconf.omp_threads > self.cores_per_node: return False
         if pconf.mem_per_core > self.mem_per_core: return False
-        return self.condition.eval(pconf)
+        return self.condition(pconf)
 
     def get_score(self, pconf):
         """
@@ -295,7 +294,7 @@ class Partition(object):
         """
         minf = float("-inf")
         if not self.can_run(pconf): return minf
-        if not self.condition.eval(pconf): return minf
+        if not self.condition(pconf): return minf
         return self.priority
 
 
@@ -1090,7 +1089,7 @@ class PbsProAdapter(AbstractQueueAdapter):
         """
         if self.use_only_mpi:
             # Pure MPI run
-            num_nodes, rest_cores = p.divide_by_node(self.mpi_procs, self.omp_threads)
+            num_nodes, rest_cores = p.divmod_node(self.mpi_procs, self.omp_threads)
 
             if rest_cores == 0:
                 # Can allocate entire nodes because self.mpi_procs is divisible by cores_per_node.
@@ -1131,7 +1130,7 @@ class PbsProAdapter(AbstractQueueAdapter):
         elif self.use_mpi_omp:
             # Hybrid MPI-OpenMP run.
             assert p.can_use_omp_threads(self.omp_threads)
-            num_nodes, rest_cores = p.divide_by_node(self.mpi_procs, self.omp_threads)
+            num_nodes, rest_cores = p.divmod_node(self.mpi_procs, self.omp_threads)
             #print(num_nodes, rest_cores)
             # TODO: test this
 

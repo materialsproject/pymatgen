@@ -643,11 +643,36 @@ class AbinitFlow(Node):
         all_structures = [task.strategy.structure for task in self.iflat_tasks()]
         all_pseudos = [task.strategy.pseudos for task in self.iflat_tasks()]
 
-    def mongodb_insert(self):
+    def look_before_you_leap(self):
+        """
+        This method should be called before running the calculation to make
+        sure that the most important requirements are satisfied.
+        """
+        errors = []
+        if self.has_db:
+            try:
+                self.manager.db_connector.get_collection()
+            except Exception as exc:
+                errors.append("""
+                    ERROR while trying to connect to the MongoDB database:
+                        Exception:
+                            %s
+                        Connector:
+                            %s
+                    """ % (exc, self.manager.db_connector))
+
+        return "\n".join(errors)
+
+    @property
+    def has_db(self):
+        """True if flow uses MongoDB to store the results."""
+        return self.manager.has_db
+
+    def db_insert(self):
         """
         Insert results in the mongdob database.
         """
-        #if not self.manager.has_db: return -1
+        assert self.has_db
         # Connect to MongoDb and get the collection.
         coll = self.manager.db_connector.get_collection()
         print("Mongodb collection %s with count %d", coll, coll.count())
