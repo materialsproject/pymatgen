@@ -382,7 +382,8 @@ class IStructure(SiteCollection, PMGSONable):
         for i in range(len(species)):
             prop = None
             if site_properties:
-                prop = {k: v[i] for k, v in site_properties.items()}
+                prop = {k: v[i] if i < len(v) else None
+                        for k, v in site_properties.items()}
             sites.append(
                 PeriodicSite(species[i], coords[i], self._lattice,
                              to_unit_cell,
