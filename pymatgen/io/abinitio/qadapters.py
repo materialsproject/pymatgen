@@ -1000,8 +1000,8 @@ class PbsProAdapter(AbstractQueueAdapter):
 #PBS -l model=$${model}
 #PBS -l place=$${place}
 #PBS -W group_list=$${group_list}
-####PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
-#PBS -l select=$${select}:ncpus=$${ncpus}:vmem=$${vmem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
+#PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
+####PBS -l select=$${select}:ncpus=$${ncpus}:vmem=$${vmem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
 #PBS -l pvmem=$${pvmem}mb
 #PBS -r y
 #PBS -o $${_qout_path}
@@ -1017,14 +1017,14 @@ class PbsProAdapter(AbstractQueueAdapter):
 
     @property
     def mpi_procs(self):
-        """Number of CPUs used for MPI. The number of MPI processes."""
-        #return self.qparams.get("select", 1)
-        return self._mpi_procs
+        """Number of MPI processes."""
+        return self.qparams.get("select", 1)
+        #return self._mpi_procs
                                                     
     def set_mpi_procs(self, mpi_procs):
-        """Number of CPUs used for MPI. The number of MPI processes."""
-        #self.qparams["select"] = mpi_procs
-        self._mpi_procs = mpi_procs
+        """Set the number of MPI processes."""
+        self.qparams["select"] = mpi_procs
+        #self._mpi_procs = mpi_procs
 
     def set_omp_threads(self, omp_threads):
         """Set the number of OpenMP threads. Per MPI process."""
@@ -1118,7 +1118,11 @@ class PbsProAdapter(AbstractQueueAdapter):
     def get_subs_dict(self, partition):
         subs_dict = super(PbsProAdapter, self).get_subs_dict(partition)
         # Optimize parameters from the partition.
-        subs_dict.update(self.params_from_partition(partition))
+        # Parameters defining the partion. Hard-coded for the time being.
+        # but this info should be passed via taskmananger.yml
+        #p = Partition(name="hardcoded", num_nodes=100, sockets_per_node=2, cores_per_socket=4, mem_per_node="1000 Mb")
+        #subs_dict.update(self.params_from_partition(partition))
+        #subs_dict["vmem"] = 5
         return subs_dict
 
     def submit_to_queue(self, script_file):
