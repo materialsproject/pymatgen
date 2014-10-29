@@ -6,8 +6,6 @@ from __future__ import division, unicode_literals, print_function
 This module implements plotter for DOS and band structure.
 """
 
-from six.moves import zip
-
 __author__ = "Shyue Ping Ong, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
@@ -23,9 +21,9 @@ import logging
 import math
 import itertools
 
+from monty.json import jsanitize
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
-from pymatgen.util.io_utils import clean_json
 
 logger = logging.getLogger('BSPlotter')
 
@@ -108,7 +106,7 @@ class DosPlotter(object):
             Dict of dos data. Generally of the form, {label: {'energies':..,
             'densities': {'up':...}, 'efermi':efermi}}
         """
-        return clean_json(self._doses)
+        return jsanitize(self._doses)
 
     def get_plot(self, xlim=None, ylim=None):
         """
@@ -162,7 +160,7 @@ class DosPlotter(object):
                         densities.reverse()
                     x.extend(energies)
                     y.extend(densities)
-            allpts.extend(zip(x, y))
+            allpts.extend(list(zip(x, y)))
             if self.stack:
                 plt.fill(x, y, color=color_order[i % len(color_order)],
                          label=str(key))
@@ -251,10 +249,7 @@ class BSPlotter(object):
         #Sanitize only plot the uniq values
         uniq_d = []
         uniq_l = []
-        temp_ticks_it = zip(ticks['distance'], ticks['label'])
-        temp_ticks = []
-        for t in temp_ticks_it:
-            temp_ticks.append(t)
+        temp_ticks = list(zip(ticks['distance'], ticks['label']))
         for i in range(len(temp_ticks)):
             if i == 0:
                 uniq_d.append(temp_ticks[i][0])
@@ -271,7 +266,7 @@ class BSPlotter(object):
                     uniq_d.append(temp_ticks[i][0])
                     uniq_l.append(temp_ticks[i][1])
 
-        logger.debug("Unique labels are {i}".format(i=zip(uniq_d, uniq_l)))
+        logger.debug("Unique labels are %s" % list(zip(uniq_d, uniq_l)))
         plt.gca().set_xticks(uniq_d)
         plt.gca().set_xticklabels(uniq_l)
 

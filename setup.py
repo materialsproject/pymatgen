@@ -52,7 +52,7 @@ setup(
     packages=find_packages(),
     version="3.0.6",
     install_requires=["numpy>=1.8", "pyhull>=1.5.3", "six", "prettytable",
-                      "requests", "pybtex", "pyyaml", "monty>=0.5.9"],
+                      "requests", "pybtex", "pyyaml", "monty>=0.6.0"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
                     "plotting": ["matplotlib>=1.1"],
                     "ase_adaptor": ["ase>=3.3"],

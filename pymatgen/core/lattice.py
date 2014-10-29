@@ -455,9 +455,12 @@ class Lattice(PMGSONable):
 
         gammas = get_angles(c_cand[0], c_cand[1], lengths[0], lengths[1])
         for i, j in np.argwhere(np.abs(gammas - gamma) < atol):
-            alphas = get_angles(c_cand[1][j], c_cand[2], lengths[1][j], lengths[2])[0]
-            betas = get_angles(c_cand[0][i], c_cand[2], lengths[0][i], lengths[2])[0]
-            inds = np.logical_and(np.abs(alphas - alpha) < atol, np.abs(betas - beta) < atol)
+            alphas = get_angles(c_cand[1][j], c_cand[2], lengths[1][j],
+                                lengths[2])[0]
+            betas = get_angles(c_cand[0][i], c_cand[2], lengths[0][i],
+                               lengths[2])[0]
+            inds = np.logical_and(np.abs(alphas - alpha) < atol,
+                                  np.abs(betas - beta) < atol)
 
             for c, f in zip(c_cand[2][inds], f_cand[2][inds]):
                 aligned_m = np.array([c_cand[0][i], c_cand[1][j], c])
@@ -804,7 +807,8 @@ class Lattice(PMGSONable):
     def get_points_in_sphere(self, frac_points, center, r):
         """
         Find all points within a sphere from the point taking into account
-        periodic boundary conditions. This includes sites in other periodic images.
+        periodic boundary conditions. This includes sites in other periodic
+        images.
 
         Algorithm:
 
@@ -928,6 +932,40 @@ class Lattice(PMGSONable):
                 and abs(lengths[right_angles[0]] -
                         lengths[right_angles[1]]) < hex_length_tol)
 
+    def get_all_distance_and_image(self, frac_coords1, frac_coords2):
+        """
+        Gets distance between two frac_coords and nearest periodic images.
+
+        Args:
+            fcoords1 (3x1 array): Reference fcoords to get distance from.
+            fcoords2 (3x1 array): fcoords to get distance from.
+
+        Returns:
+            [(distance, jimage)] List of distance and periodic lattice
+            translations of the other site for which the distance applies.
+            This means that the distance between frac_coords1 and (jimage +
+            frac_coords2) is equal to distance.
+        """
+        #The following code is heavily vectorized to maximize speed.
+        #Get the image adjustment necessary to bring coords to unit_cell.
+        adj1 = np.floor(frac_coords1)
+        adj2 = np.floor(frac_coords2)
+        #Shift coords to unitcell
+        coord1 = frac_coords1 - adj1
+        coord2 = frac_coords2 - adj2
+        # Generate set of images required for testing.
+        # This is a cheat to create an 8x3 array of all length 3
+        # combinations of 0,1
+        test_set = np.unpackbits(np.array([5, 57, 119],
+                                          dtype=np.uint8)).reshape(8, 3)
+        images = np.copysign(test_set, coord1 - coord2)
+        # Create tiled cartesian coords for computing distances.
+        vec = np.tile(coord2 - coord1, (8, 1)) + images
+        vec = self.get_cartesian_coords(vec)
+        # Compute distances manually.
+        dist = np.sqrt(np.sum(vec ** 2, 1)).tolist()
+        return list(zip(dist, adj1 - adj2 + images))
+
     def get_distance_and_image(self, frac_coords1, frac_coords2, jimage=None):
         """
         Gets distance between two frac_coords assuming periodic boundary
@@ -953,29 +991,8 @@ class Lattice(PMGSONable):
             equal to distance.
         """
         if jimage is None:
-            #The following code is heavily vectorized to maximize speed.
-            #Get the image adjustment necessary to bring coords to unit_cell.
-            adj1 = np.floor(frac_coords1)
-            adj2 = np.floor(frac_coords2)
-            #Shift coords to unitcell
-            coord1 = frac_coords1 - adj1
-            coord2 = frac_coords2 - adj2
-            # Generate set of images required for testing.
-            # This is a cheat to create an 8x3 array of all length 3
-            # combinations of 0,1
-            test_set = np.unpackbits(np.array([5, 57, 119],
-                                              dtype=np.uint8)).reshape(8, 3)
-            images = np.copysign(test_set, coord1 - coord2)
-            # Create tiled cartesian coords for computing distances.
-            vec = np.tile(coord2 - coord1, (8, 1)) + images
-            vec = self.get_cartesian_coords(vec)
-            # Compute distances manually.
-            dist = np.sqrt(np.sum(vec ** 2, 1)).tolist()
-            # Return the minimum distance and the adjusted image corresponding
-            # to the min distance.
-            mindist = min(dist)
-            ind = dist.index(mindist)
-            return mindist, adj1 - adj2 + images[ind]
+            r = self.get_all_distance_and_image(frac_coords1, frac_coords2)
+            return min(r, key=lambda x: x[0])
 
         mapped_vec = self.get_cartesian_coords(jimage + frac_coords2
                                                - frac_coords1)

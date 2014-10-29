@@ -33,9 +33,9 @@ from six.moves import map, zip
 import numpy as np
 
 from monty.io import zopen, reverse_readfile
+from monty.json import jsanitize
 
-from pymatgen.util.io_utils import clean_lines, micro_pyawk, \
-    clean_json
+from pymatgen.util.io_utils import clean_lines, micro_pyawk
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import unitized
 from pymatgen.core.composition import Composition
@@ -131,6 +131,21 @@ def _parse_from_incar(filename, key):
             else:
                 return None
     return None
+
+
+def _vasprun_float(f):
+    """
+    Large numbers are often represented as ********* in the vasprun.
+    This function parses these values as np.nan
+    """
+    try:
+        return float(f)
+    except ValueError as e:
+        f = f.strip()
+        if f == '*' * len(f):
+            warnings.warn('Float overflow (*******) encountered in vasprun')
+            return np.nan
+        raise e
 
 
 class Vasprun(PMGSONable):
@@ -754,7 +769,7 @@ class Vasprun(PMGSONable):
 
         vout['epsilon_static'] = self.epsilon_static
         d['output'] = vout
-        return clean_json(d, strict=True)
+        return jsanitize(d, strict=True)
 
     def _parse_params(self, elem):
         params = {}
@@ -822,7 +837,7 @@ class Vasprun(PMGSONable):
                  for i in elem.find("energy").findall("i")}
         esteps = []
         for scstep in elem.findall("scstep"):
-            d = {i.attrib["name"]: float(i.text)
+            d = {i.attrib["name"]: _vasprun_float(i.text)
                  for i in scstep.find("energy").findall("i")}
             esteps.append(d)
         s = self._parse_structure(elem.find("structure"))

@@ -171,7 +171,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         dE.append([])
     for i in range(n):
         for j in range(n):
-            dE[i].append(None)
+            dE[i].append(0)
 
     for j in range(n):
         for i in range(n):
@@ -189,7 +189,8 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
                             dE[i][j] = as_def['energy']
                             break
     dE = np.array(dE)
-    np.where(dE == None, dE, 0)
+    #np.where(dE is None, dE, 0)
+    #print ('dE', dE)
 
     # Initialization for concentrations
     # c(i,p) == presence of ith type atom on pth type site
@@ -326,17 +327,23 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     li = specie_site_index_map[0][0]
     hi = specie_site_index_map[0][1]
     comp1_min = int(sum(multiplicity[li:hi])/sum(multiplicity)*100)-1
-    comp2_max = 100-comp1_min
-    ymax = comp2_max/comp1_min
     comp1_max = int(sum(multiplicity[li:hi])/sum(multiplicity)*100)+1
-    comp2_min = 100-comp1_max
-    ymin = comp2_min/comp1_max
-    delta = (ymax-ymin)/50.0
+    delta = float(comp1_max-comp1_min)/40.0
+    yvals = []
+    for comp1 in np.arange(comp1_min,comp1_max+delta,delta):
+        comp2 = 100-comp1
+        y = comp2/comp1
+        yvals.append(y)
+    #ymin = comp2_min/comp1_max
+    #print comp1_min, comp1_max
+    #print comp2_min, comp2_max
+    #print ymax, ymin
 
     # Compile mu's for all composition ratios in the range
     #+/- 1% from the stoichiometry
     result = {}
-    for y in np.arange(ymin,ymax+delta,delta):
+    #for y in np.arange(ymin,ymax+delta,delta):
+    for y in yvals:
         result[y] = []
         vector_func = [y-c_ratio[0]]
         vector_func.append(omega)
@@ -345,6 +352,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         result[y].append(x[1])
 
     res = []
+    new_mu_dict = {}
     # Compute the concentrations for all the compositions
     for key in sorted(result.keys()):
         mu_val = result[key]
@@ -354,6 +362,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         res1 = []
         # Concentration of first element/over total concen
         res1.append(float(total_c_val[0]/sum(total_c_val)))
+        new_mu_dict[res1[0]] = mu_val
         sum_c0 = sum([c0[i,i] for i in range(n)])
         for i in range(n):
             for j in range(n):
@@ -368,6 +377,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             for i in range(n) for j in range(n)]
     res1 = np.sort(res.view(dtype), order=[str('x')],axis=0)
 
+
     conc_data = {}
     """Because all the plots have identical x-points storing it in a
     single array"""
@@ -380,13 +390,13 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         conc.append([])
         for j in range(n):
             conc[i].append([])
-    for i in range(n): # Append vacancies
+    for i in range(n): 
         for j in range(n):
             y1 = [dat[0][i*n+j+1] for dat in res1]
             conc[i][j] = y1
 
     y_data = []
-    for i in range(n):      # Vacancy plots
+    for i in range(n):      
         data = conc[i][i]
         specie = els[i]
         specie_ind = site_mu_map[i]
@@ -404,15 +414,16 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         # Plot data and legend info
         y_data.append({'data':data,'name':label})
 
+    for i in range(n):      
         site_specie = els[i]
         for j in range(m):          # Antisite plot dat
             sub_specie = specie_order[j]
             if sub_specie == site_specie:
                 continue
             if not specie_ind_del-1:
-                label = '$'+sub_specie+'_{'+specie+'}$'
+                label = '$'+sub_specie+'_{'+site_specie+'}$'
             else:
-                label = '$'+sub_specie+'_{'+specie+'_'+str(cur_ind)+'}$'
+                label = '$'+sub_specie+'_{'+site_specie+'_'+str(cur_ind)+'}$'
             inds = specie_site_index_map[j]
             data = np.sum([conc[ind][i] for ind in range(*inds)],axis=0)
             data = data.tolist()
@@ -428,15 +439,12 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             ind = specie_order.index(site_specie)
             uncor_energy = vac_def['energy']
             formation_energy = uncor_energy + mu_vals[ind]
-            en.append(formation_energy)
+            en.append(float(formation_energy))
         return en
     en_res = []
-    for key in sorted(result.keys()):
-        mu_val = result[key]
-        res = []
-        form_en = compute_vac_formation_energies(mu_val)
-        res += form_en
-        en_res.append(res)
+    for key in sorted(new_mu_dict.keys()):
+        mu_val = new_mu_dict[key]
+        en_res.append(compute_vac_formation_energies(mu_val))
 
     en_data = {'x_label':els[0]+' mole fraction', 'x':[]}
     en_data['x'] = [dat[0][0] for dat in res1]         # x-axis data
@@ -470,12 +478,9 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             en.append(form_en)
         return en
     en_res = []
-    for key in sorted(result.keys()):
-        mu_val = result[key]
-        res = []
-        form_en = compute_as_formation_energies(mu_val)
-        res += form_en
-        en_res.append(res)
+    for key in sorted(new_mu_dict.keys()):
+        mu_val = new_mu_dict[key]
+        en_res.append(compute_as_formation_energies(mu_val))
     i = 0
     for as_def in antisite_defs:
         data = [data[i] for data in en_res]
@@ -503,7 +508,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     y_data = []
     for j in range(m):
         specie = specie_order[j]
-        mus = [result[key][j] for key in sorted(result.keys())]
+        mus = [new_mu_dict[key][j] for key in sorted(new_mu_dict.keys())]
         y_data.append({'data':mus, 'name':specie})
     mu_data['y'] = y_data
 
@@ -575,6 +580,7 @@ def compute_defect_density(structure, e0, vac_defs, antisite_defs, T=800,
             labels = []
             labels.append(inp_data['x_label'])
             labels += [y['name'] for y in inp_data['y']]
+            #labels.sort()
             rows.append('#'+'\t'.join(labels))
             m = len(inp_data['x'])
             for i in range(m):
