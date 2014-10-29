@@ -986,6 +986,8 @@ class SlurmAdapter(AbstractQueueAdapter):
 
         return None
 
+#PBS -l select=$${select}:ncpus=$${ncpus}:vmem=$${vmem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
+
 
 class PbsProAdapter(AbstractQueueAdapter):
     QTYPE = "pbs"
