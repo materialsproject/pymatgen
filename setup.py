@@ -54,7 +54,7 @@ setup(
     install_requires=["numpy>=1.8", "pyhull>=1.5.3", "six", "prettytable",
                       "requests", "pybtex", "pyyaml", "monty>=0.6.0"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
-                    "plotting": ["matplotlib>=1.1"],
+                    "plotting": ["matplotlib>=1.1", "prettyplotlib"],
                     "ase_adaptor": ["ase>=3.3"],
                     "vis": ["vtk>=6.0.0"],
                     "abinitio": ["pydispatcher>=2.0.3", "apscheduler==2.1.0"]},
