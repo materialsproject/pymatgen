@@ -6,7 +6,7 @@ INCAR:
   IBRION: 2
   ICHARG: 1
   ISIF: 3
-  ISMEAR: -5
+  ISMEAR: 0
   ISPIN: 2
   ISYM: 3
   LHFCALC: true

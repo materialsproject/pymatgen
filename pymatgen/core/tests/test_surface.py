@@ -78,6 +78,11 @@ class SlabTest(PymatgenTest):
         #Test various structure methods
         self.zno55.get_primitive_structure()
 
+    def test_as_from_dict(self):
+        d = self.zno55.as_dict()
+        obj = Slab.from_dict(d)
+        self.assertEqual(obj.miller_index, (1, 0, 0))
+
 
 class SlabGeneratorTest(PymatgenTest):
 

@@ -385,6 +385,7 @@ class IStructure(SiteCollection, PMGSONable):
         for i in range(len(species)):
             prop = None
             if site_properties:
+
                 prop = {k: v[i]
                         for k, v in site_properties.items()}
 
