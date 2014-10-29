@@ -677,13 +677,6 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         Method to increase the number of cpus asked for.
         """
 
-    # @abc.abstractmethod
-    def increase_resources(self):
-        """
-        Method to generally increase resources.
-        """
-        return False
-
 
 ####################
 # Concrete classes #
@@ -1239,17 +1232,6 @@ class PbsProAdapter(AbstractQueueAdapter):
             logger.warning('increasing cpus reached the limit')
             return False
 
-    # moved to the level of the manager:
-    #def increase_resources(self):
-    #    """
-    #    Method to generally increase resources. On typical large machines we only increas cpu's since we use all
-    #    mem per cpu per core
-    #    """
-    #    if self.increase_cpus(1):
-    #        return True
-    #    else:
-    #        return False
-
 
 class TorqueAdapter(PbsProAdapter):
     """Adapter for Torque."""
@@ -1303,16 +1285,6 @@ class TorqueAdapter(PbsProAdapter):
             return True
         else:
             logger.warning('increasing cpus reached the limit')
-            return False
-
-    def increase_resources(self):
-        """
-        Method to generally increase resources. On typical large machines we only increas cpu's since we use all
-        mem per cpu per core
-        """
-        if self.increase_nodes(1):
-            return True
-        else:
             return False
 
 

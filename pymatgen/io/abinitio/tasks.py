@@ -2620,7 +2620,7 @@ class AbinitTask(Task):
 
         # Select the partition on which we'll be running
         #for i, c in enumerate(optconfs):
-        #    self.manager.select_partition(optconf) is not None:
+        #    self.manager.select_partition(optconfs) is not None:
         #        optconf = optconfs[i]
         #        break
         #else:
