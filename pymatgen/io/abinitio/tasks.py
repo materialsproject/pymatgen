@@ -678,8 +678,16 @@ class TaskManager(object):
 
         self.policy = TaskPolicy.as_policy(policy)
 
-        # Initialize partitions
-        self.parts = [] if partitions is None else [Partition(**p) for p in partitions]
+        # Initialize the partitions:
+        # order them according to priority and make sure that each partition has different priority
+        self.parts = []
+        if partitions is not None:
+            if not isinstance(partitions, (list, tuple)): partitions = [partitions]
+            self.parts = sorted([Partition(**part) for part in partitions], key=lambda p: p.priority)
+
+        priorities = [p.priority for p in self.parts]
+        if len(priorities) != len(set(priorities)):
+            raise ValueError("Two or more partitions have same priority. This is not allowed. Check taskmanager.yml")
 
         # Initialize database connector (if specified)
         from .db import DBConnector
@@ -755,9 +763,9 @@ class TaskManager(object):
         new.policy = policy
         return new
 
-    def copy(self):
-        """Shallow copy of self."""
-        return copy.copy(self)
+    #def copy(self):
+    #    """Shallow copy of self."""
+    #    return copy.copy(self)
 
     def deepcopy(self):
         """Deep copy of self."""
@@ -784,15 +792,40 @@ class TaskManager(object):
         """Set the value of max_ncpus."""
         self.policy.max_ncpus = value
 
-    #def select_partition(self, pconf):
-    #    """
-    #    Select a partition to run the paralle configuration pconf
-    #    Set self.opt_part. Return None if no partition could be found.
-    #    """
-    #    scores = [part.get_score(pconf) for part in self.parts]
-    #    if all(scores < 0): return None
-    #    self.opt_part = self.parts[maxloc(scores)]
-    #    return self.opt_part
+    #@property
+    #def max_ncpus(self):
+    #    return max(p.max_ncores for p in self.partitions)
+
+    def get_njobs_in_queue(self, username=None):
+        """
+        returns the number of jobs in the queue,
+        returns None when the number of jobs cannot be determined.
+
+        Args:
+            username: (str) the username of the jobs to count (default is to autodetect)
+        """
+        return self.qadapter.get_njobs_in_queue(username=username)
+
+    @property
+    def active_partition(self):
+        return None
+        try:
+            return self._active_partition
+        except AttributeError:
+            return self.parts[0]
+
+    def select_partition(self, pconf):
+        """
+        Select a partition to run the parallel configuration pconf
+        Set self.active_partition. Return None if no partition could be found.
+        """
+        #self._selected_partition = None
+        #return None
+        # TODO
+        scores = [part.get_score(pconf) for part in self.parts]
+        if all(sc < 0 for sc in scores): return None
+        self._active_partition = self.parts[maxloc(scores)]
+        return self._active_partition
 
     def cancel(self, job_id):
         """Cancel the job. Returns exit status."""
@@ -802,7 +835,8 @@ class TaskManager(object):
         """Write the submission script. return the path of the script"""
         script = self.qadapter.get_script_str(
             job_name=task.name, 
-            launch_dir=task.workdir, 
+            launch_dir=task.workdir,
+            partition=self.active_partition,
             executable=task.executable,
             qout_path=task.qout_file.path,
             qerr_path=task.qerr_file.path,
@@ -2585,7 +2619,12 @@ class AbinitTask(Task):
         #print("optimal autoparal conf:\n %s" % optconf)
 
         # Select the partition on which we'll be running
-        #self.manager.select_partition(optconf)
+        #for i, c in enumerate(optconfs):
+        #    self.manager.select_partition(optconf) is not None:
+        #        optconf = optconfs[i]
+        #        break
+        #else:
+        #    raise RuntimeError("cannot find partition for this run!")
 
         # Write autoparal configurations to JSON file.
         d = confs.as_dict()
@@ -2655,8 +2694,7 @@ class AbinitTask(Task):
             self.reset_from_scratch()
             return True
         else:
-            info_msg = 'unknown queue error, could not increase resources any further'
-            self.set_status(self.S_ERROR, info_msg)
+            self.set_status(self.S_ERROR, info_msg='could not increase resources any further')
             return False
 
     #@property
@@ -2913,7 +2951,7 @@ class PhononTask(AbinitTask):
         Plot the Phonon SCF cycle results with matplotlib.
 
         Returns
-            `matplotlib` figure, None is some error occurred. 
+            `matplotlib` figure, None if some error occurred.
         """
         scf_cycle = abiinspect.PhononScfCycle.from_file(self.output_file.path)
         if scf_cycle is not None:
