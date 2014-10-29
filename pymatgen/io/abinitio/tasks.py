@@ -15,6 +15,7 @@ import yaml
 import six
 
 from pprint import pprint
+from monty.termcolor import colored
 from six.moves import map, zip, StringIO
 from monty.serialization import loadfn
 from monty.string import is_string, list_strings
@@ -1088,20 +1089,29 @@ class Dependency(object):
         return filepaths, exts
 
 
-# Possible status of the node.
-_STATUS2STR = collections.OrderedDict([
-    (1,  "Initialized"),    # Node has been initialized
-    (2,  "Locked"),         # Task is locked an must be explicitly unlocked by an external subject (Workflow).
-    (3,  "Ready"),          # Node is ready i.e. all the depencies of the node have status S_OK
-    (4,  "Submitted"),      # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
-    (5,  "Running"),        # Node is running.
-    (6,  "Done"),           # Node done, This does not imply that results are ok or that the calculation completed successfully
-    (7,  "AbiCritical"),    # Node raised an Error by ABINIT.
-    (8,  "QueueCritical"),  # Node raised an Error by submitting submission script, or by executing it
-    (9,  "Unconverged"),    # This usually means that an iterative algorithm didn't converge.
-    (10, "Error"),          # Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.
-    (11, "Completed"),      # Execution completed successfully.
-])
+# Possible status of the node. See monty.termocolor for the meaning of color, on_color and attrs.
+_STATUS_INFO = [
+    #(value, name, color, on_color, attrs)
+    (1,  "Initialized",   None     , None, None),         # Node has been initialized
+    (2,  "Locked",        None     , None, None),         # Task is locked an must be explicitly unlocked by an external subject (Workflow).
+    (3,  "Ready",         None     , None, None),         # Node is ready i.e. all the depencies of the node have status S_OK
+    (4,  "Submitted",     "blue"   , None, None),         # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
+    (5,  "Running",       "magenta", None, None),         # Node is running.
+    (6,  "Done",          None     , None, None),         # Node done, This does not imply that results are ok or that the calculation completed successfully
+    (7,  "AbiCritical",   "red"    , None, None),         # Node raised an Error by ABINIT.
+    (8,  "QueueCritical", "red"    , "on_white", None),   # Node raised an Error by submitting submission script, or by executing it
+    (9,  "Unconverged",   "red"    , "on_yellow", None),  # This usually means that an iterative algorithm didn't converge.
+    (10, "Error",         "red"    , None, None),         # Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.
+    (11, "Completed",     "green"  , None, None),         # Execution completed successfully.
+    #(11, "Completed",     "green"  , None, ("underline",)),   
+]
+
+def _2attrs(item):
+    if item is None or isinstance(list, tuple): return item
+    return (item,)
+
+_STATUS2STR = collections.OrderedDict([(t[0], t[1]) for t in _STATUS_INFO])
+_STATUS2COLOR_OPTS = collections.OrderedDict([(t[0], {"color": t[2], "on_color": t[3], "attrs": _2attrs(t[4])}) for t in _STATUS_INFO])
 
 
 class Status(int):
@@ -1135,6 +1145,11 @@ class Status(int):
     def is_critical(self):
         """True if status is critical."""
         return str(self) in ("AbiCritical", "QueueCritical", "Uncoverged", "Error") 
+
+    @property
+    def colored(self):
+        """Return colorized text used to print the status if the stream supports it."""
+        return colored(str(self), **_STATUS2COLOR_OPTS[self]) 
 
 
 class Node(six.with_metaclass(abc.ABCMeta, object)):

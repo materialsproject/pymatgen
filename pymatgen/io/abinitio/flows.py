@@ -616,10 +616,10 @@ class AbinitFlow(Node):
                     tot_num_errors += 1
                     task_name = colored(task_name, red)
 
-                table.add_row(
-                    [task_name, str(task.status), str(task.queue_id)] +  events + 
-                    cpu_info + task_info
-                )
+                if has_colours:
+                    table.add_row([task_name, task.status.colored, str(task.queue_id)] +  events + cpu_info + task_info)
+                else:
+                    table.add_row([task_name, str(task.status), str(task.queue_id)] +  events + cpu_info + task_info)
 
             # Print table and write colorized line with the total number of errors.
             print(table, file=stream)
