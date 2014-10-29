@@ -43,6 +43,7 @@ class QadapterTest(PymatgenTest):
               ("LD_LIBRARY_PATH", "/NAPS/intel13/lib:$LD_LIBRARY_PATH")])
 
         mpi_runner = MpiRunner("mpirun")
+        partition = None
 
         # Test if we can instantiate the concrete classes with the abc protocol.
         for subc in sub_classes:
@@ -62,14 +63,14 @@ class QadapterTest(PymatgenTest):
             self.assertTrue(qad.mpi_procs == 2)
 
             # Test the creation of the script
-            script = qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path", 
+            script = qad.get_script_str("job.sh", "/launch/dir", partition, "executable", "qout_path", "qerr_path", 
                                         stdin="STDIN", stdout="STDOUT", stderr="STDERR")
 
             # Test whether qad can be serialized with Pickle.
             deserialized_qads = self.serialize_with_pickle(qad, test_eq=False)
 
             for new_qad in deserialized_qads:
-                new_script = new_qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path", 
+                new_script = new_qad.get_script_str("job.sh", "/launch/dir", partition, "executable", "qout_path", "qerr_path", 
                                                     stdin="STDIN", stdout="STDOUT", stderr="STDERR")
 
                 self.assertEqual(new_script, script)

@@ -1045,6 +1045,7 @@ class PbsProAdapter(AbstractQueueAdapter):
         http://www.cardiff.ac.uk/arcca/services/equipment/User-Guide/pbs.html
         https://portal.ivec.org/docs/Supercomputers/PBS_Pro
         """
+        if p is None: return {}
         if self.use_only_mpi:
             # Pure MPI run
             num_nodes, rest_cores = p.divmod_node(self.mpi_procs, self.omp_threads)
