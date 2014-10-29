@@ -1022,9 +1022,10 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
 
     def __init__(self, user_incar_settings, mode="Line",
                  constrain_total_magmom=False, sort_structure=False,
-                 kpoints_density=1000, sym_prec=0.1):
+                 kpoints_density=1000, sym_prec=0.1, kpoints_line_density=20):
         self.mode = mode
         self.sym_prec = sym_prec
+        self.kpoints_line_density = kpoints_line_density
         if mode not in ["Line", "Uniform"]:
             raise ValueError("Supported modes for NonSCF runs are 'Line' and "
                              "'Uniform'!")
@@ -1057,7 +1058,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             structure (Structure/IStructure): structure to get Kpoints
         """
         if self.mode == "Line":
-            kpath = HighSymmKpath(structure)
+            kpath = HighSymmKpath(structure, line_density=self.kpoints_line_density)
             cart_k_points, k_points_labels = kpath.get_kpoints()
             frac_k_points = [kpath._prim_rec.get_fractional_coords(k)
                              for k in cart_k_points]
