@@ -26,11 +26,9 @@ from subprocess import Popen, PIPE
 from monty.string import is_string, boxed
 from monty.collections import AttrDict, MongoDict
 from monty.subprocess import Command
-from pymatgen.util.num_utils import maxloc
 from pymatgen.core.units import Time, Memory
 from .utils import Condition
 from .launcher import ScriptEditor
-from .db import DBConnector
 
 import logging
 logger = logging.getLogger(__name__)
@@ -272,7 +270,7 @@ class Partition(object):
                         break
             else:
                 raise ValueError("Cannot distribute mpi_procs %d, omp_threads %d, mem_per_proc %s" % 
-                    (mpi_procs, omp_threads, mem_per_proc))
+                                (mpi_procs, omp_threads, mem_per_proc))
 
         CoresDistrib = namedtuple("<CoresDistrib>", "num_nodes mpi_per_node is_scattered") # mem_per_node 
         return CoresDistrib(num_nodes, mpi_per_node, is_scattered)
@@ -296,50 +294,6 @@ class Partition(object):
         if not self.can_run(pconf): return minf
         if not self.condition(pconf): return minf
         return self.priority
-
-
-class Cluster(object):
-    """A cluster has a QueueAdapter and a list of partitions."""
-
-    @classmethod
-    def from_file(cls, filepath):
-        import yaml
-        with open(filepath, "r") as fh:
-            d = MongoDict(yaml.load(fh))
-
-        if "qadapter" not in d:
-            raise ValueError("qadapter entry must be specified")
-        qad_cls = qadapter_class(d.qadapter.qtype)
-        #qadapter = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
-        #                     pre_run=pre_run, post_run=post_run, mpi_runner=mpi_runner)
-
-        return cls(d.hostname, d.partitions) #, dbconnector=d.get("dbconnector", None))
-
-    def __init__(self, hostname, partitions, dbconnector=None):
-        self.hostname = hostname
-        self.parts = [Partition(**p) for p in partitions]
-
-        self.dbconnector = DBConnector(dbconnector)
-        #self.qadapter = qadapter
-
-    def __str__(self):
-        lines = ["hostname: %s" % self.hostname]
-        for part in self:
-            lines.append(str(part))
-        return "\n".join(lines)
-
-    def __getitem__(self, name):
-        for part in self:
-            if part.name == name: return part
-        raise KeyError("Cannot find partition %s" % name)
-
-    def __iter__(self):
-        return self.parts.__iter__()
-
-    def select_partition(self, pconf):
-        scores = [part.get_score(pconf) for part in self.parts]
-        if all(scores < 0): return None
-        return self.parts[maxloc(scores)]
 
 
 def qadapter_class(qtype):
@@ -565,7 +519,7 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         if is_string(lines): lines = [lines]
         self._verbatim.extend(lines)
 
-    def get_subs_dict(self):
+    def get_subs_dict(self, partition):
         """
         Return substitution dict for replacements into the template
         Subclasses may want to customize this method.
@@ -573,10 +527,10 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         # clean null values
         return {k: v for k, v in self.qparams.items() if v is not None}
 
-    def _make_qheader(self, job_name, qout_path, qerr_path):
+    def _make_qheader(self, job_name, partition, qout_path, qerr_path):
         """Return a string with the options that are passed to the resource manager."""
         # get substitution dict for replacements into the template 
-        subs_dict = self.get_subs_dict()
+        subs_dict = self.get_subs_dict(partition)
 
         # Set job_name and the names for the stderr and stdout of the 
         # queue manager (note the use of the extensions .qout and .qerr
@@ -601,7 +555,7 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
         return '\n'.join(clean_template)
 
-    def get_script_str(self, job_name, launch_dir, executable, qout_path, qerr_path, 
+    def get_script_str(self, job_name, launch_dir, partition, executable, qout_path, qerr_path,
                        stdin=None, stdout=None, stderr=None):
         """
         Returns a (multi-line) String representing the queue script, e.g. PBS script.
@@ -612,6 +566,10 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                 Name of the job.
             launch_dir: 
                 (str) The directory the job will be launched in.
+            partitition:
+                ``Partition` object with information on the queue selected for submission.
+            executable:
+                String with the name of the executable to be executed.
             qout_path
                 Path of the Queue manager output file.
             qerr_path:
@@ -622,7 +580,7 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             job_name = job_name[:14]
 
         # Construct the header for the Queue Manager.
-        qheader = self._make_qheader(job_name, qout_path, qerr_path)
+        qheader = self._make_qheader(job_name, partition, qout_path, qerr_path)
 
         # Add the bash section.
         se = ScriptEditor()
@@ -775,7 +733,7 @@ export MPI_PROCS=$${MPI_PROCS}
             raise self.Error("Random Error ...!")
 
     def get_njobs_in_queue(self, username=None):
-        return 1
+        return None
 
     def exclude_nodes(self, nodes):
         return False
@@ -1156,12 +1114,12 @@ class PbsProAdapter(AbstractQueueAdapter):
 
         return AttrDict(select_params)
 
-    def get_subs_dict(self):
-        subs_dict = super(PbsProAdapter, self).get_subs_dict()
+    def get_subs_dict(self, partition):
+        subs_dict = super(PbsProAdapter, self).get_subs_dict(partition)
         # Parameters defining the partion. Hard-coded for the time being.
         # but this info should be passed via taskmananger.yml
-        p = Partition(name="hardcoded", num_nodes=100, sockets_per_node=2, cores_per_socket=4, mem_per_node="1000 Mb")
-        subs_dict.update(self.params_from_partition(p))
+        #p = Partition(name="hardcoded", num_nodes=100, sockets_per_node=2, cores_per_socket=4, mem_per_node="1000 Mb")
+        subs_dict.update(self.params_from_partition(partition))
         #subs_dict["vmem"] = 5
         return subs_dict
 
@@ -1203,8 +1161,6 @@ class PbsProAdapter(AbstractQueueAdapter):
 
     def get_njobs_in_queue(self, username=None):
         # Initialize username
-        return 0
-
         if username is None:
             username = getpass.getuser()
 

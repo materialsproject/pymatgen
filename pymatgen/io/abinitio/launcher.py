@@ -179,7 +179,7 @@ class OmpEnv(AttrDict):
 
             err_msg = ""
             for key in parser.options("openmp"):
-                if key.upper() not in self._KEYS:
+                if key.upper() not in cls._KEYS:
                     err_msg += "unknown option %s, maybe a typo" % key
 
             if err_msg:
@@ -297,10 +297,10 @@ class PyLauncher(object):
             if not tasks:
                 continue
 
-            njobs_inqueue = tasks[0].manager.qadapter.get_njobs_in_queue()
-            if njobs_inqueue is None:
-                print('Cannot get njobs_inqueue, going back to sleep...')
-                continue
+            #njobs_inqueue = tasks[0].manager.qadapter.get_njobs_in_queue()
+            #if njobs_inqueue is None:
+            #    print('Cannot get njobs_inqueue, going back to sleep...')
+            #    continue
 
             #if len(tasks) > 0:
             #    n_jobs_in_queue = tasks[0].manager.qadapter.get_njobs_in_queue()
@@ -310,12 +310,12 @@ class PyLauncher(object):
             #else:
             #    n_to_run = 0
 
-            rest = self.max_njobs_inqueue - njobs_inqueue
-            if rest <= 0:
-                print('too many jobs in the queue, going back to sleep...')
-                continue
+            #rest = self.max_njobs_inqueue - njobs_inqueue
+            #if rest <= 0:
+            #    print('too many jobs in the queue, going back to sleep...')
+            #    continue
 
-            stop = len(tasks) if rest > len(tasks) else rest
+            stop = len(tasks) #if rest > len(tasks) else rest
             #print("Will fire %d jobs" % stop)
 
             for task in tasks[:stop]:
@@ -615,6 +615,11 @@ class PyFlowScheduler(object):
             new_manager = TaskManager.from_user_config()
             for work in flow:
                 work.set_manager(new_manager)
+
+        #njobs_inqueue = self.flow.manager.get_njobs_in_queue()
+        #if njobs_inqueue is None:
+        #    print('Cannot get njobs_inqueue, going back to sleep...')
+        #    continue
 
         # check status
         flow.check_status()
