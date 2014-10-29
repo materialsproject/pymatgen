@@ -380,8 +380,8 @@ class StructureMatcher(PMGSONable):
         Args:
             s, target_s: Structure objects
         """
-        lattices = s.lattice.find_all_mappings(target_lattice,
-                        ltol = self.ltol, atol=self.angle_tol)
+        lattices = s.lattice.find_all_mappings(
+            target_lattice, ltol = self.ltol, atol=self.angle_tol)
         for l, _, scale_m in lattices:
             if abs(abs(np.linalg.det(scale_m)) - supercell_size) < 0.5:
                 yield l, scale_m
@@ -396,7 +396,7 @@ class StructureMatcher(PMGSONable):
         yields: s1, s2, supercell_matrix, average_lattice, supercell_matrix
         """
         def av_lat(l1, l2):
-            params = (np.array(l1.lengths_and_angles) + \
+            params = (np.array(l1.lengths_and_angles) +
                       np.array(l2.lengths_and_angles)) / 2
             return Lattice.from_lengths_and_angles(*params)
 
@@ -569,8 +569,8 @@ class StructureMatcher(PMGSONable):
         and finds fu, the supercell size to make struct1 comparable to
         s2
         """
-        struct1 = struct1.copy()
-        struct2 = struct2.copy()
+        struct1 = Structure.from_sites(struct1)
+        struct2 = Structure.from_sites(struct2)
 
         if niggli:
             struct1 = struct1.get_reduced_structure(reduction_algo="niggli")
@@ -604,12 +604,13 @@ class StructureMatcher(PMGSONable):
         """
         ratio = fu if s1_supercell else 1/fu
         if len(struct1) * ratio >= len(struct2):
-            return self._strict_match(struct1, struct2, fu, s1_supercell=s1_supercell,
-                                break_on_match=False, use_rms=True)
+            return self._strict_match(struct1, struct2, fu,
+                                      s1_supercell=s1_supercell,
+                                      break_on_match=False, use_rms=True)
         else:
             return self._strict_match(struct2, struct1, fu,
-                                s1_supercell=(not s1_supercell),
-                                break_on_match=False, use_rms=True)
+                                      s1_supercell=(not s1_supercell),
+                                      break_on_match=False, use_rms=True)
 
     def _strict_match(self, struct1, struct2, fu, s1_supercell=True, use_rms=False,
                break_on_match=False):
@@ -657,7 +658,7 @@ class StructureMatcher(PMGSONable):
                 t_s2fc = s2fc + t
                 if self._cmp_fstruct(s1fc, t_s2fc, frac_tol, mask):
                     dist, t_adj, mapping = self._cart_dists(s1fc, t_s2fc,
-                                                        avg_l, mask)
+                                                            avg_l, mask)
                     if use_rms:
                         val = np.linalg.norm(dist) / len(dist) ** 0.5
                     else:
@@ -762,7 +763,8 @@ class StructureMatcher(PMGSONable):
             sp_mapping = dict(zip(sp1, perm))
 
             #do quick check that compositions are compatible
-            mapped_comp = Composition({sp_mapping[k]:v for k, v in s1_comp.items()})
+            mapped_comp = Composition({sp_mapping[k]: v
+                                       for k, v in s1_comp.items()})
             if (not self._subset) and self._comparator.get_hash(mapped_comp) != \
                                       self._comparator.get_hash(s2_comp):
                 continue
@@ -770,8 +772,9 @@ class StructureMatcher(PMGSONable):
             mapped_struct = struct1.copy()
             mapped_struct.replace_species(sp_mapping)
             if swapped:
-                m = self._strict_match(struct2, mapped_struct, fu, (not s1_supercell),
-                                       use_rms, break_on_match)
+                m = self._strict_match(struct2, mapped_struct, fu,
+                                       (not s1_supercell), use_rms,
+                                       break_on_match)
             else:
                 m = self._strict_match(mapped_struct, struct2, fu, s1_supercell,
                                        use_rms, break_on_match)
@@ -803,7 +806,7 @@ class StructureMatcher(PMGSONable):
         matches = self._anonymous_match(struct1, struct2, fu, s1_supercell,
                                         use_rms=True, break_on_match=False)
         if matches:
-            best = sorted(matches, key=lambda x:x[1][0])[0]
+            best = sorted(matches, key=lambda x: x[1][0])[0]
             return best[1][0], best[0]
         else:
             return None, None
@@ -934,28 +937,37 @@ class StructureMatcher(PMGSONable):
         if len(s1) * ratio >= len(s2):
             #s1 is superset
             match = self._strict_match(s1, s2, fu=fu, s1_supercell=False,
-                                use_rms=True, break_on_match=False)
+                                       use_rms=True, break_on_match=False)
             if match is None:
                 return None
             temp.make_supercell(match[2])
+            temp.translate_sites(list(range(len(temp))), match[3],
+                                 to_unit_cell=False)
+            # translate sites to be in correct unit cell
+            for i, j in enumerate(match[4]):
+                vec = np.round(s1[j].frac_coords - temp[i].frac_coords)
+                temp.translate_sites(i, vec, to_unit_cell=False)
             #invert the mapping, since it needs to be from s2 to s1
             mapping = np.argsort(match[4])
-            tvec = match[3]
         else:
             #s2 is superset
             match = self._strict_match(s2, s1, fu=fu, s1_supercell=True,
-                                use_rms=True, break_on_match=False)
+                                       use_rms=True, break_on_match=False)
             if match is None:
                 return None
             temp.make_supercell(match[2])
+            temp.translate_sites(list(range(len(temp))), -match[3],
+                                 to_unit_cell=False)
+            # translate sites to be in correct unit cell
+            for i, j in enumerate(match[4]):
+                vec = np.round(s1[i].frac_coords - temp[j].frac_coords)
+                temp.translate_sites(j, vec, to_unit_cell=False)
             #add sites not included in the mapping
             not_included = list(range(len(temp)))
             for i in match[4]:
                 not_included.remove(i)
             mapping = list(match[4]) + not_included
-            tvec = -match[3]
 
-        temp.translate_sites(list(range(len(temp))), tvec)
         return Structure.from_sites([temp.sites[i] for i in mapping])
 
     def get_mapping(self, superset, subset):

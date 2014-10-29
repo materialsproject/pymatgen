@@ -2,6 +2,7 @@
 
 from __future__ import unicode_literals, division, print_function
 
+from collections import OrderedDict
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio.qadapters import *
 from pymatgen.io.abinitio.qadapters import AbstractQueueAdapter
@@ -19,10 +20,9 @@ class QadapterTest(PymatgenTest):
                    "fftw3/intel/3.3",
         ]
 
-        shell_env = dict(
-             PATH="/user/abinit-7.4.3-public/tmp_intel13/src/98_main/:/user/bin:$PATH",
-             LD_LIBRARY_PATH="/NAPS/intel13/lib:$LD_LIBRARY_PATH",
-        )
+        shell_env = OrderedDict(
+             [("PATH", "/user/abinit-7.4.3-public/tmp_intel13/src/98_main/:/user/bin:$PATH"),
+              ("LD_LIBRARY_PATH", "/NAPS/intel13/lib:$LD_LIBRARY_PATH")])
 
         mpi_runner = MpiRunner("mpirun")
 

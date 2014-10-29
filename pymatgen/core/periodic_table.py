@@ -769,7 +769,7 @@ class Specie(PMGSONable):
         should effectively ensure that no two unequal Specie have the same
         hash.
         """
-        return self.Z
+        return self._el._z * 1000 + int(self._oxi_state)
 
     def __lt__(self, other):
         """
@@ -822,10 +822,16 @@ class Specie(PMGSONable):
         Raises:
             ValueError if species_string cannot be intepreted.
         """
-        m = re.search("([A-Z][a-z]*)([0-9\.]*)([\+\-])", species_string)
+        m = re.search("([A-Z][a-z]*)([0-9\.]*)([\+\-])(.*)", species_string)
         if m:
-            num = 1 if m.group(2) == "" else float(m.group(2))
-            return Specie(m.group(1), -num if m.group(3) == "-" else num)
+            sym = m.group(1)
+            oxi = 1 if m.group(2) == "" else float(m.group(2))
+            oxi = -oxi if m.group(3) == "-" else oxi
+            properties = None
+            if m.group(4):
+                toks = m.group(4).split("=")
+                properties = {toks[0]: float(toks[1])}
+            return Specie(sym, oxi, properties)
         else:
             raise ValueError("Invalid Species String")
 
@@ -838,6 +844,8 @@ class Specie(PMGSONable):
             output += formula_double_format(self._oxi_state) + "+"
         else:
             output += formula_double_format(-self._oxi_state) + "-"
+        for p, v in self._properties.items():
+            output += "%s=%s" % (p, v)
         return output
 
     def get_crystal_field_spin(self, coordination="oct", spin_config="high"):
@@ -1051,16 +1059,20 @@ class DummySpecie(PMGSONable):
         Raises:
             ValueError if species_string cannot be intepreted.
         """
-        m = re.search("([A-Z][a-z]*)([0-9\.]*)([\+\-]*)", species_string)
-
+        m = re.search("([A-Z][a-z]*)([0-9\.]*)([\+\-]*)(.*)", species_string)
         if m:
+            sym = m.group(1)
             if m.group(2) == "" and m.group(3) == "":
-                return DummySpecie(m.group(1))
+                oxi = 0
             else:
-                num = 1 if m.group(2) == "" else float(m.group(2))
-                oxi = -num if m.group(3) == "-" else num
-                return DummySpecie(m.group(1), oxidation_state=oxi)
-        raise ValueError("Invalid Species String")
+                oxi = 1 if m.group(2) == "" else float(m.group(2))
+                oxi = -oxi if m.group(3) == "-" else oxi
+            properties = None
+            if m.group(4):
+                toks = m.group(4).split("=")
+                properties = {toks[0]: float(toks[1])}
+            return DummySpecie(sym, oxi, properties)
+        raise ValueError("Invalid DummySpecies String")
 
     def as_dict(self):
         return {"@module": self.__class__.__module__,
@@ -1118,11 +1130,6 @@ class PeriodicTable(object):
         except:
             raise IndexError("Z_or_slice: %s" % str(Z_or_slice))
 
-    #def __getstate__(self):
-    #    return self._all_elements
-    #def __setstate__(self, d):
-    #    self._all_elements = d
-
     @property
     def all_elements(self):
         """
@@ -1177,25 +1184,20 @@ def get_el_sp(obj):
     if isinstance(obj, (Element, Specie, DummySpecie)):
         return obj
 
-    def string_is_int(s):
-        """True is string s represents an integer (with sign)"""
-        if s[0] in ('-', '+'):
-            return s[1:].isdigit()
-        return s.isdigit()
-
     obj = str(obj)
 
-    if string_is_int(obj):
-        return Element.from_Z(int(obj))
-
     try:
-        return Specie.from_string(obj)
-    except (ValueError, KeyError):
+        z = int(obj)
+        return Element.from_Z(z)
+    except ValueError:
         try:
-            return Element(obj)
+            return Specie.from_string(obj)
         except (ValueError, KeyError):
             try:
-                return DummySpecie.from_string(obj)
-            except:
-                raise ValueError("Can't parse Element or String from " +
-                                 str(obj))
+                return Element(obj)
+            except (ValueError, KeyError):
+                try:
+                    return DummySpecie.from_string(obj)
+                except:
+                    raise ValueError("Can't parse Element or String from %s."
+                                     % obj)

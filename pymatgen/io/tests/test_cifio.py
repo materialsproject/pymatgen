@@ -8,8 +8,7 @@ import warnings
 
 import numpy as np
 
-from pymatgen.io.cifio import CifParser, CifWriter, parse_symmetry_operations, \
-                CifBlock
+from pymatgen.io.cifio import CifParser, CifWriter, CifBlock
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen import Element, Specie, Lattice, Structure
 
@@ -308,6 +307,52 @@ loop_
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 
+    def test_symmetrized(self):
+        filepath = os.path.join(test_dir, 'POSCAR')
+        poscar = Poscar.from_file(filepath)
+        writer = CifWriter(poscar.structure, find_spacegroup=True,
+                           symprec=0.1)
+        ans = """#generated using pymatgen
+data_FePO4
+_symmetry_space_group_name_H-M   Pnma
+_cell_length_a   10.41176687
+_cell_length_b   6.06717188
+_cell_length_c   4.75948954
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   62
+_chemical_formula_structural   FePO4
+_chemical_formula_sum   'Fe4 P4 O16'
+_cell_volume   300.65685512
+_cell_formula_units_Z   4
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, -z'
+  3  '-x+1/2, -y, z+1/2'
+  4  'x+1/2, y, -z+1/2'
+  5  'x+1/2, -y+1/2, -z+1/2'
+  6  '-x+1/2, y+1/2, z+1/2'
+  7  '-x, y+1/2, -z'
+  8  'x, -y+1/2, z'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Fe  Fe1  4  0.218728  0.750000  0.474867  1
+  P  P2  4  0.094613  0.250000  0.418243  1
+  O  O3  4  0.043372  0.750000  0.707138  1
+  O  O4  4  0.096642  0.250000  0.741320  1
+  O  O5  8  0.165710  0.046072  0.285384  1"""
+        for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
+            self.assertEqual(l1.strip(), l2.strip())
+
     def test_disordered(self):
         si = Element("Si")
         n = Element("N")
@@ -406,20 +451,6 @@ loop_
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 
-
-class HelperFunctionTest(unittest.TestCase):
-
-    def test_parse_symmetry_operations(self):
-        toks = ['x, y, z', '-x, -y, z', '-y+1/2, x+1/2, z+1/2',
-                'y+1/2, -x+1/2, z+1/2', '-x-1/2, y-1/2, -z-1/2']
-        self.assertEqual(len(parse_symmetry_operations(toks)), 5)
-        toks = ['y+1/2, -x+1/2, z+1/2']
-        op = parse_symmetry_operations(toks)[0]
-        self.assertTrue(np.equal(op.affine_matrix,
-                                 [[ 0.,  1.,  0.,  0.5],
-                                  [-1.,  0.,  0.,  0.5],
-                                  [ 0.,  0.,  1.,  0.5],
-                                  [ 0.,  0.,  0.,  1.]]).all())
 
 if __name__ == '__main__':
     unittest.main()

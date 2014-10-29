@@ -16,9 +16,6 @@ __date__ = "Sep 23, 2011"
 
 import re
 import numpy
-import os
-import time
-import errno
 import six
 
 
@@ -93,41 +90,3 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
                         postdebug(results, match)
 
     return results
-
-
-def clean_json(input_json, strict=False):
-    """
-    This method cleans an input json-like dict object, either a list or a dict,
-    nested or otherwise, by converting all non-string dictionary keys (such as
-    int and float) to strings.
-
-    Args:
-        input_dict: input dictionary.
-        strict: This parameters sets the behavior when clean_json encounters an
-            object it does not understand. If strict is True, clean_json will
-            try to get the as_dict() attribute of the object. If no such
-            attribute is found, an attribute error will be thrown. If strict is
-            False, clean_json will simply call str(object) to convert the
-            object to a string representation.
-
-    Returns:
-        Sanitized dict that can be json serialized.
-    """
-    if isinstance(input_json, (list, numpy.ndarray, tuple)):
-        return [clean_json(i, strict=strict) for i in input_json]
-    elif isinstance(input_json, dict):
-        return {str(k): clean_json(v, strict=strict)
-                for k, v in input_json.items()}
-    elif isinstance(input_json, (int, float)):
-        return input_json
-    elif input_json is None:
-        return None
-    else:
-        if not strict:
-            return str(input_json)
-        else:
-            if isinstance(input_json, six.string_types):
-                return str(input_json)
-            else:
-                return clean_json(input_json.as_dict(), strict=strict)
-

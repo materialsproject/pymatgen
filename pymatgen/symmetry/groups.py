@@ -18,46 +18,26 @@ __date__ = "4/4/14"
 import os
 from itertools import product
 from fractions import Fraction
-
 import numpy as np
 
-import json
+from monty.serialization import loadfn
+
+from pymatgen.core.operations import SymmOp
 
 
-with open(os.path.join(os.path.dirname(__file__), "symm_data.json")) as f:
-    SYMM_DATA = json.load(f)
+SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__), "symm_data.yaml"))
+
 
 GENERATOR_MATRICES = SYMM_DATA["generator_matrices"]
 POINT_GROUP_ENC = SYMM_DATA["point_group_encoding"]
 SPACE_GROUP_ENC = SYMM_DATA["space_group_encoding"]
+ABBREV_SPACE_GROUP_MAPPING = SYMM_DATA["abbreviated_spacegroup_symbols"]
 TRANSLATIONS = {k: Fraction(v) for k, v in SYMM_DATA["translations"].items()}
+FULL_SPACE_GROUP_MAPPING = {
+    v["full_symbol"]: k for k, v in SYMM_DATA["space_group_encoding"].items()}
 
 
-class SymmetryGroup(object):
-
-    def get_orbit(self, p, tol=1e-5):
-        """
-        Returns the orbit for a point.
-
-        Args:
-            p: Point as a 3x1 array.
-            tol: Tolerance for determining if sites are the same. 1e-5 should
-                be sufficient for most purposes. Set to 0 for exact matching
-                (and also needed for symbolic orbits).
-
-        Returns:
-            ([array]) Orbit for point.
-        """
-        orbit = []
-        for o in self.symmetry_ops:
-            pp = np.dot(o, p)
-            pp = np.mod(pp, 1)
-            if not in_array_list(orbit, pp, tol=tol):
-                orbit.append(pp)
-        return orbit
-
-
-class PointGroup(SymmetryGroup):
+class PointGroup(object):
     """
     Class representing a Point Group, with generators and symmetry operations.
 
@@ -85,7 +65,8 @@ class PointGroup(SymmetryGroup):
         self.symbol = int_symbol
         self.generators = [GENERATOR_MATRICES[c]
                            for c in POINT_GROUP_ENC[int_symbol]]
-        self.symmetry_ops = self._generate_full_symmetry_ops()
+        self.symmetry_ops = [SymmOp.from_rotation_and_translation(m)
+                             for m in self._generate_full_symmetry_ops()]
         self.order = len(self.symmetry_ops)
 
     def _generate_full_symmetry_ops(self):
@@ -101,8 +82,28 @@ class PointGroup(SymmetryGroup):
             new_ops = gen_ops
         return symm_ops
 
+    def get_orbit(self, p, tol=1e-5):
+        """
+        Returns the orbit for a point.
 
-class SpaceGroup(SymmetryGroup):
+        Args:
+            p: Point as a 3x1 array.
+            tol: Tolerance for determining if sites are the same. 1e-5 should
+                be sufficient for most purposes. Set to 0 for exact matching
+                (and also needed for symbolic orbits).
+
+        Returns:
+            ([array]) Orbit for point.
+        """
+        orbit = []
+        for o in self.symmetry_ops:
+            pp = o.operate(p)
+            if not in_array_list(orbit, pp, tol=tol):
+                orbit.append(pp)
+        return orbit
+
+
+class SpaceGroup(object):
     """
     Class representing a SpaceGroup.
 
@@ -129,18 +130,31 @@ class SpaceGroup(SymmetryGroup):
 
     def __init__(self, int_symbol):
         """
-        Initializes a Space Group from its *full* international symbol.
+        Initializes a Space Group from its full or abbreviated international
+        symbol. Only standard settings are supported.
 
         Args:
-            int_symbol (str): Full International or Hermann-Mauguin Symbol.
-                The notation is a LaTeX-like string, with screw axes being
+            int_symbol (str): Full International (e.g., "P2/m2/m2/m") or
+                Hermann-Mauguin Symbol ("Pmmm") or abbreviated symbol. The
+                notation is a LaTeX-like string, with screw axes being
                 represented by an underscore. For example, "P6_3/mmc". Note
                 that for rhomohedral cells, the hexagonal setting can be
                 accessed by adding a "H", e.g., "R-3mH".
         """
+        if int_symbol not in SPACE_GROUP_ENC and int_symbol not in \
+                ABBREV_SPACE_GROUP_MAPPING and int_symbol not in \
+                FULL_SPACE_GROUP_MAPPING:
+            raise ValueError("Bad international symbol %s" % int_symbol)
+        elif int_symbol in ABBREV_SPACE_GROUP_MAPPING:
+            int_symbol = ABBREV_SPACE_GROUP_MAPPING[int_symbol]
+        elif int_symbol in FULL_SPACE_GROUP_MAPPING:
+            int_symbol = FULL_SPACE_GROUP_MAPPING[int_symbol]
+
+        data = SPACE_GROUP_ENC[int_symbol]
+
         self.symbol = int_symbol
         # TODO: Support different origin choices.
-        enc = list(SPACE_GROUP_ENC[int_symbol]["enc"])
+        enc = list(data["enc"])
         inversion = int(enc.pop(0))
         ngen = int(enc.pop(0))
         symm_ops = [np.eye(4)]
@@ -156,8 +170,11 @@ class SpaceGroup(SymmetryGroup):
             m[2, 3] = TRANSLATIONS[enc.pop(0)]
             symm_ops.append(m)
         self.generators = symm_ops
-        self.int_number = SPACE_GROUP_ENC[int_symbol]["int_number"]
-        self.order = SPACE_GROUP_ENC[int_symbol]["order"]
+        self.full_symbol = data["full_symbol"]
+        self.int_number = data["int_number"]
+        self.order = data["order"]
+        self.patterson_symmetry = data["patterson_symmetry"]
+        self.point_group = data["point_group"]
         self._symmetry_ops = None
 
     def _generate_full_symmetry_ops(self):
@@ -187,8 +204,70 @@ class SpaceGroup(SymmetryGroup):
         generation sometimes takes a bit of time.
         """
         if self._symmetry_ops is None:
-            self._symmetry_ops = self._generate_full_symmetry_ops()
+            self._symmetry_ops = [
+                SymmOp(m) for m in self._generate_full_symmetry_ops()]
         return self._symmetry_ops
+
+    def get_orbit(self, p, tol=1e-5):
+        """
+        Returns the orbit for a point.
+
+        Args:
+            p: Point as a 3x1 array.
+            tol: Tolerance for determining if sites are the same. 1e-5 should
+                be sufficient for most purposes. Set to 0 for exact matching
+                (and also needed for symbolic orbits).
+
+        Returns:
+            ([array]) Orbit for point.
+        """
+        orbit = []
+        for o in self.symmetry_ops:
+            pp = o.operate(p)
+            pp = np.mod(pp, 1)
+            if not in_array_list(orbit, pp, tol=tol):
+                orbit.append(pp)
+        return orbit
+
+    def is_compatible(self, lattice, tol=1e-5, angle_tol=5):
+        """
+        Checks whether a particular lattice is compatible with the
+        *conventional* unit cell.
+
+        Args:
+            lattice (Lattice): A Lattice.
+            tol (float): The tolerance to check for equality of lengths.
+            angle_tol (float): The tolerance to check for equality of angles
+                in degrees.
+        """
+        abc, angles = lattice.lengths_and_angles
+        crys_system = self.crystal_system
+
+        def check(param, ref, tolerance):
+            return all([abs(i - j) < tolerance for i, j in zip(param, ref)
+                        if j is not None])
+
+        if crys_system == "cubic":
+            a = abc[0]
+            return check(abc, [a, a, a], tol) and\
+                check(angles, [90, 90, 90], angle_tol)
+        elif crys_system == "hexagonal" or (crys_system == "trigonal" and
+                                            self.symbol.endswith("H")):
+            a = abc[0]
+            return check(abc, [a, a, None], tol)\
+                and check(angles, [90, 90, 120], angle_tol)
+        elif crys_system == "trigonal":
+            a = abc[0]
+            return check(abc, [a, a, a], tol)
+        elif crys_system == "tetragonal":
+            a = abc[0]
+            return check(abc, [a, a, None], tol) and\
+                check(angles, [90, 90, 90], angle_tol)
+        elif crys_system == "orthorhombic":
+            return check(angles, [90, 90, 90], angle_tol)
+        elif crys_system == "monoclinic":
+            return check(angles, [90, None, 90], angle_tol)
+        return True
 
     @property
     def crystal_system(self):
@@ -207,20 +286,6 @@ class SpaceGroup(SymmetryGroup):
             return "hexagonal"
         else:
             return "cubic"
-
-    def get_orbit(self, p, tol=1e-5):
-        """
-        Returns the orbit for a point.
-
-        Args:
-            p: Point as a 3x1 array.
-
-        Returns:
-            ([array]) Orbit for point.
-        """
-        p = np.append(p, [1])
-        orbit = super(SpaceGroup, self).get_orbit(p, tol=tol)
-        return np.delete(orbit, np.s_[-1:], 1)
 
     @classmethod
     def from_int_number(cls, int_number, hexagonal=True):

@@ -23,8 +23,10 @@ from monty.dev import deprecated
 warnings.warn("The spacegroup module has been deprecated. All classes and "
               "functions have been moved to pymatgen.symmetry.analyzer. "
               "Please change your code. If you are looking for point group "
-              "representations, check out pymatgen.symmetry.groups.")
+              "representations, check out pymatgen.symmetry.groups. This "
+              "module will be removed in pmg v3.1.")
 
-@deprecated(replacement=SpacegroupOperations)
+@deprecated(replacement=SpacegroupOperations,
+            message="This class will be removed in pmg v3.1.")
 class Spacegroup(SpacegroupOperations):
     pass

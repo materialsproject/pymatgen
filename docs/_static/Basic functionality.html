@@ -2075,8 +2075,8 @@ In&nbsp;[9]:
 <div class="inner_cell">
     <div class="input_area">
 <div class="highlight"><pre><span class="c">#Determining the symmetry</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.finder</span> <span class="kn">import</span> <span class="n">SymmetryFinder</span>
-<span class="n">finder</span> <span class="o">=</span> <span class="n">SymmetryFinder</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.analyzer</span> <span class="kn">import</span> <span class="n">SpacegroupAnalyzer</span>
+<span class="n">finder</span> <span class="o">=</span> <span class="n">SpacegroupAnalyzer</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="s">&quot;The spacegroup is {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">finder</span><span class="o">.</span><span class="n">get_spacegroup_symbol</span><span class="p">()))</span>
 </pre></div>
 

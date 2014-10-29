@@ -48,7 +48,7 @@ from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_angle, all_distances, \
-    lattice_points_in_supercell
+    lattice_points_in_supercell, in_coord_list_pbc
 from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length
 from pymatgen.symmetry.groups import SpaceGroup
@@ -169,10 +169,13 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
         Returns the site properties as a dict of sequences. E.g.,
         {"magmom": (5,-5), "charge": (-4,4)}.
         """
-        props = collections.defaultdict(list)
+        props = {}
+        prop_keys = set()
         for site in self:
-            for k, v in site.properties.items():
-                props[k].append(v)
+            prop_keys.update(site.properties.keys())
+
+        for k in prop_keys:
+            props[k] = [site.properties.get(k, None) for site in self]
         return props
 
     def __contains__(self, site):
@@ -382,7 +385,10 @@ class IStructure(SiteCollection, PMGSONable):
         for i in range(len(species)):
             prop = None
             if site_properties:
-                prop = {k: v[i] for k, v in site_properties.items()}
+
+                prop = {k: v[i]
+                        for k, v in site_properties.items()}
+
             sites.append(
                 PeriodicSite(species[i], coords[i], self._lattice,
                              to_unit_cell,
@@ -437,7 +443,9 @@ class IStructure(SiteCollection, PMGSONable):
     def from_spacegroup(cls, sg, lattice, species, coords, site_properties=None,
                         coords_are_cartesian=False, tol=1e-5):
         """
-        Generate a structure using a spacegroup.
+        Generate a structure using a spacegroup. Note that only symmetrically
+        distinct species and coords should be provided. All equivalent sites
+        are generated from the spacegroup operations.
 
         Args:
             sg (str/int): The spacegroup. If a string, it will be interpreted
@@ -479,11 +487,17 @@ class IStructure(SiteCollection, PMGSONable):
         except ValueError:
             sgp = SpaceGroup(sg)
 
-
         if isinstance(lattice, Lattice):
             latt = lattice
         else:
             latt = Lattice(lattice)
+
+        if not sgp.is_compatible(latt):
+            raise ValueError(
+                "Supplied lattice with parameters %s is incompatible with "
+                "supplied spacegroup %s!" % (latt.lengths_and_angles,
+                                             sgp.symbol)
+            )
 
         frac_coords = coords if not coords_are_cartesian else \
             lattice.get_fractional_coords(coords)
@@ -502,7 +516,6 @@ class IStructure(SiteCollection, PMGSONable):
 
         return cls(latt, all_sp, all_coords,
                    site_properties=all_site_properties)
-
 
     @property
     def distance_matrix(self):
@@ -826,7 +839,7 @@ class IStructure(SiteCollection, PMGSONable):
             return self.__class__.from_sites(new_sites)
 
     def interpolate(self, end_structure, nimages=10,
-                    interpolate_lattices=False, pbc=True):
+                    interpolate_lattices=False, pbc=True, autosort_tol=0):
         """
         Interpolate between this structure and end_structure. Useful for
         construction of NEB inputs.
@@ -840,6 +853,11 @@ class IStructure(SiteCollection, PMGSONable):
                 so orientation may be affected.
             pbc (bool): Whether to use periodic boundary conditions to find
                 the shortest path between endpoints.
+            auto_sort_tol (float): A distance tolerance in angstrom in
+                which to automatically sort end_structure to match to the
+                closest points in this particular structure. This is usually
+                what you want in a NEB calculation. 0 implies no sorting.
+                Otherwise, a 0.5 value usually works pretty well.
 
         Returns:
             List of interpolated structures. The starting and ending
@@ -861,7 +879,7 @@ class IStructure(SiteCollection, PMGSONable):
             raise ValueError("Structures with different lattices!")
 
         #Check that both structures have the same species
-        for i in range(0, len(self)):
+        for i in range(len(self)):
             if self[i].species_and_occu != end_structure[i].species_and_occu:
                 raise ValueError("Different species!\nStructure 1:\n" +
                                  str(self) + "\nStructure 2\n" +
@@ -869,6 +887,40 @@ class IStructure(SiteCollection, PMGSONable):
 
         start_coords = np.array(self.frac_coords)
         end_coords = np.array(end_structure.frac_coords)
+
+        if autosort_tol:
+            dist_matrix = self.lattice.get_all_distances(start_coords, end_coords)
+            site_mappings = collections.defaultdict(list)
+            unmapped_start_ind = []
+            for i, row in enumerate(dist_matrix):
+                ind = np.where(row < autosort_tol)[0]
+                if len(ind) == 1:
+                    site_mappings[i].append(ind[0])
+                else:
+                    unmapped_start_ind.append(i)
+
+            if len(unmapped_start_ind) > 1:
+                raise ValueError("Unable to reliably match structures "
+                                 "with auto_sort_tol = %f. unmapped indices "
+                                 "= %s" % (autosort_tol, unmapped_start_ind))
+
+            sorted_end_coords = np.zeros_like(end_coords)
+            matched = []
+            for i, j in site_mappings.items():
+                if len(j) > 1:
+                    raise ValueError("Unable to reliably match structures "
+                                     "with auto_sort_tol = %f. More than one "
+                                     "site match!" % autosort_tol)
+                sorted_end_coords[i] = end_coords[j[0]]
+                matched.append(j[0])
+
+            if len(unmapped_start_ind) == 1:
+                i = unmapped_start_ind[0]
+                j = list(set(range(len(start_coords))).difference(matched))[0]
+                sorted_end_coords[i] = end_coords[j]
+
+            end_coords = sorted_end_coords
+
         vec = end_coords - start_coords
         if pbc:
             vec -= np.round(vec)
@@ -891,132 +943,146 @@ class IStructure(SiteCollection, PMGSONable):
         find the smallest possible one, so this method is recursively called
         until it is unable to find a smaller cell.
 
-        The method works by finding possible smaller translations
-        and then using that translational symmetry instead of one of the
-        lattice basis vectors if more than one vector is found (usually the
-        case for large cells) the one with the smallest norm is used.
-
-        Things are done in fractional coordinates because its easier to
-        translate back to the unit cell.
-
         NOTE: if the tolerance is greater than 1/2 the minimum inter-site
-        distance, the algorithm may find 2 non-equivalent sites that are
-        within tolerance of each other. The algorithm will reject this
-        lattice.
+        distance in the primitive cell, the algorithm will reject this lattice.
 
         Args:
             tolerance (float): Tolerance for each coordinate of a particular
-                site. For example, [0.5, 0, 0.5] in cartesian coordinates
+                site. For example, [0.1, 0, 0.1] in cartesian coordinates
                 will be considered to be on the same coordinates as
-                [0, 0, 0] for a tolerance of 0.5. Defaults to 0.5.
+                [0, 0, 0] for a tolerance of 0.25. Defaults to 0.25.
 
         Returns:
-            The most primitive structure found. The returned structure is
-            guaranteed to have len(new structure) <= len(structure).
+            The most primitive structure found.
         """
-        original_volume = self.volume
+        # group sites by species string
+        k = lambda s: s.species_string
+        sites = sorted(self._sites, key=k)
+        grouped_sites = [list(a[1]) for a in itertools.groupby(sites, key=k)]
+        grouped_fcoords = [np.array([s.frac_coords for s in g]) for g in grouped_sites]
 
-        #get the possible symmetry vectors
-        sites = sorted(self._sites, key=lambda site: site.species_string)
-        grouped_sites = [list(a[1]) for a
-                         in itertools.groupby(sites,
-                                              key=lambda s: s.species_string)]
+        # min_vecs are approximate periodicities of the cell. The exact periodicities from
+        # the supercell matrices are checked against these first
+        min_fcoords = min(grouped_fcoords, key=lambda x: len(x))
+        min_vecs = min_fcoords - min_fcoords[0]
+
+        # fractional tolerance in the supercell
+        super_ftol = np.divide(tolerance, self.lattice.abc)
+        super_ftol_2 = super_ftol * 2
+
+        def pbc_coord_intersection(fc1, fc2, tol):
+            """
+            Returns the fractional coords in fc1 that have coordinates
+            within tolerance to some coordinate in fc2
+            """
+            d = fc1[:, None, :] - fc2[None, :, :]
+            d -= np.round(d)
+            np.abs(d, d)
+            return fc1[np.any(np.all(d < tol, axis=-1), axis=-1)]
+
+        # here we reduce the number of min_vecs by enforcing that every vector in min_vecs
+        # approximately maps each site onto a similar site.
+        # The subsequent processing is O(fu^3 * min_vecs) = O(n^4) if we do no reduction.
+        # This reduction is O(n^3) so usually is an improvement. Using double the tolerance
+        # because both vectors are approximate
+        for g in sorted(grouped_fcoords, key=lambda x: len(x)):
+            for f in g:
+                min_vecs = pbc_coord_intersection(min_vecs, g - f, super_ftol_2)
+
+        def get_hnf(fu):
+            """
+            Returns all possible distinct supercell matrices given a
+            number of formula units in the supercell. Batches the matrices
+            by the values in the diagonal (for less numpy overhead). Computational
+            complexity is O(n^3), and difficult to improve. Might be able to do something
+            smart with checking combinations of a and b first, though unlikely to reduce
+            to O(n^2).
+            """
+            def factors(n):
+                for i in range(1, n+1):
+                    if n % i == 0:
+                        yield i
+
+            for det in factors(fu):
+                if det == 1:
+                    continue
+                for a in factors(det):
+                    for e in factors(det // a):
+                        g = det // a // e
+                        yield det, np.array([[[a, b, c], [0, e, f], [0, 0, g]]
+                                             for b, c, f in itertools.product(range(a),
+                                                                              range(a),
+                                                                              range(e))])
+
+        # we cant let sites match to their neighbors in the supercell
+        grouped_non_nbrs = []
+        for gfcoords in grouped_fcoords:
+            fdist = gfcoords[None, :, :] - gfcoords[:, None, :]
+            fdist -= np.round(fdist)
+            np.abs(fdist, fdist)
+            non_nbrs = np.any(fdist > 2 * super_ftol[None, None, :], axis=-1)
+            np.fill_diagonal(non_nbrs, True) # since we want sites to match to themselves
+            grouped_non_nbrs.append(non_nbrs)
 
         num_fu = six.moves.reduce(gcd, map(len, grouped_sites))
-        min_vol = original_volume * 0.5 / num_fu
+        for size, ms in get_hnf(num_fu):
+            inv_ms = np.linalg.inv(ms)
 
-        min_site_list = min(grouped_sites, key=lambda group: len(group))
+            # find sets of lattice vectors that are are present in min_vecs
+            dist = inv_ms[:, :, None, :] - min_vecs[None, None, :, :]
+            dist -= np.round(dist)
+            np.abs(dist, dist)
+            is_close = np.all(dist < super_ftol, axis=-1)
+            any_close = np.any(is_close, axis=-1)
+            inds = np.all(any_close, axis=-1)
 
-        min_site_list = [site.to_unit_cell for site in min_site_list]
-        org = min_site_list[0].coords
-        possible_vectors = [min_site_list[i].coords - org
-                            for i in range(1, len(min_site_list))]
+            for inv_m, m in zip(inv_ms[inds], ms[inds]):
+                new_m = np.dot(inv_m, self.lattice.matrix)
+                ftol = np.divide(tolerance, np.sqrt(np.sum(new_m ** 2, axis=1)))
 
-        #Let's try to use the shortest vector possible first. Allows for faster
-        #convergence to primitive cell.
-        possible_vectors = sorted(possible_vectors,
-                                  key=lambda x: np.linalg.norm(x))
+                valid = True
+                new_coords = []
+                new_sp = []
+                for gsites, gfcoords, non_nbrs in zip(grouped_sites, grouped_fcoords,
+                                                           grouped_non_nbrs):
+                    all_frac = np.dot(gfcoords, m)
 
-        # Pre-create a few varibles for faster lookup.
-        all_coords = [site.coords for site in sites]
-        all_sp = [site.species_and_occu for site in sites]
-        new_structure = None
+                    # calculate grouping of equivalent sites, represented by
+                    # adjacency matrix
+                    fdist = all_frac[None, :, :] - all_frac[:, None, :]
+                    fdist = np.abs(fdist - np.round(fdist))
+                    close_in_prim = np.all(fdist < ftol[None, None, :], axis=-1)
+                    groups = np.logical_and(close_in_prim, non_nbrs)
 
-        #all lattice points need to be projected to 0 under new basis
-        l_points = np.array([[0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0],
-                             [1, 0, 1], [1, 1, 0], [1, 1, 1]])
-        l_points = self._lattice.get_cartesian_coords(l_points)
+                    #check that groups are correct
+                    if not np.all(np.sum(groups, axis=0) == size):
+                        valid = False
+                        break
 
-        for v, repl_pos in itertools.product(possible_vectors, list(range(3))):
-            #Try combinations of new lattice vectors with existing lattice
-            #vectors.
-            latt = self._lattice.matrix
-            latt[repl_pos] = v
+                    #check that groups are all cliques
+                    for g in groups:
+                        if not np.all(groups[g][:, g]):
+                            valid = False
+                            break
+                    if not valid:
+                        break
 
-            #Exclude coplanar lattices from consideration.
-            if abs(np.dot(np.cross(latt[0], latt[1]), latt[2])) < min_vol:
-                continue
-            latt = Lattice(latt)
+                    #add the new sites
+                    added = np.zeros(len(gsites))
+                    for i, s in enumerate(gsites):
+                        if not added[i]:
+                            added[groups[i]] = True
+                            new_sp.append(s.species_and_occu)
+                            new_coords.append(s.coords)
 
-            #Convert to fractional tol
-            tol = tolerance / np.array(latt.abc)
+                if valid:
+                    inv_m = np.linalg.inv(m)
+                    new_l = Lattice(np.dot(inv_m, self.lattice.matrix))
+                    s = Structure(new_l, new_sp, new_coords,
+                                  coords_are_cartesian=True)
+                    return s.get_primitive_structure(tolerance).get_reduced_structure()
 
-            #check validity of new basis
-            new_l_points = latt.get_fractional_coords(l_points)
-            f_l_dist = np.abs(new_l_points - np.round(new_l_points))
-            if np.any(f_l_dist > tol[None, None, :]):
-                continue
-
-            all_frac = latt.get_fractional_coords(np.array(all_coords))
-
-            #calculate grouping of equivalent sites, represented by
-            #adjacency matrix
-            fdist = all_frac[None, :, :] - all_frac[:, None, :]
-            fdist = np.abs(fdist - np.round(fdist))
-            groups = np.all(fdist < tol[None, None, :], axis=2)
-
-            #check that all group sizes are the same
-            sizes = np.unique(np.sum(groups, axis=0))
-            if len(sizes) > 1:
-                continue
-
-            #check that reduction in number of sites was by the same
-            #amount as the volume reduction
-            if round(self._lattice.volume / latt.volume) != sizes[0]:
-                continue
-
-            new_sp = []
-            new_frac = []
-            #this flag is set to ensure that all sites in a group are
-            #the same species, it is set to false if a group is found
-            #where this is not the case
-            correct = True
-
-            added = np.zeros(len(groups), dtype='bool')
-            for i, g in enumerate(groups):
-                if added[i]:
-                    continue
-                indices = np.where(g)[0]
-                i0 = indices[0]
-                sp = all_sp[i0]
-                added[indices] = 1
-                if not all([all_sp[i] == sp for i in indices]):
-                    correct = False
-                    break
-                new_sp.append(all_sp[i0])
-                new_frac.append(all_frac[i0])
-
-            if correct:
-                new_structure = self.__class__(
-                    latt, new_sp, new_frac, to_unit_cell=True)
-                break
-
-        if new_structure and len(new_structure) != len(self):
-            # If a more primitive structure has been found, try to find an
-            # even more primitive structure again.
-            return new_structure.get_primitive_structure(tolerance=tolerance)
-        else:
-            return self
+        return Structure.from_sites(self)
 
     def __repr__(self):
         outs = ["Structure Summary", repr(self.lattice)]
@@ -1200,7 +1266,10 @@ class IStructure(SiteCollection, PMGSONable):
     @classmethod
     def from_file(cls, filename, primitive=True, sort=False):
         """
-        Reads a structure from a file.
+        Reads a structure from a file. For example, anything ending in
+        a "cif" is assumed to be a Crystallographic Information Format file.
+        Supported formats include CIF, POSCAR/CONTCAR, CHGCAR, LOCPOT,
+        vasprun.xml, CSSR and pymatgen's JSON serialized structures.
 
         Args:
             filename (str): The filename to read from.
@@ -1211,15 +1280,8 @@ class IStructure(SiteCollection, PMGSONable):
         Returns:
             Structure.
         """
-        from pymatgen.io.vaspio import Vasprun, Poscar, Chgcar
-        from pymatgen.io.cifio import CifParser
-        from pymatgen.io.cssrio import Cssr
-        from pymatgen.io.xyzio import XYZ
-        from pymatgen.io.gaussianio import GaussianInput, GaussianOutput
+        from pymatgen.io.vaspio import Vasprun, Chgcar
         from monty.io import zopen
-        from monty.json import MontyDecoder, MontyEncoder
-        from monty.string import str2unicode
-        from pymatgen.io.babelio import BabelMolAdaptor
         fname = os.path.basename(filename)
         with zopen(filename) as f:
             contents = f.read()
@@ -1765,7 +1827,11 @@ class IMolecule(SiteCollection, PMGSONable):
     @classmethod
     def from_file(cls, filename):
         """
-        Reads a molecule from a file.
+        Reads a molecule from a file. Supported formats include xyz,
+        gaussian input (gjf|g03|g09|com|inp), Gaussian output (.out|and
+        pymatgen's JSON serialized molecules. Using openbabel,
+        many more extensions are supported but requires openbabel to be
+        installed.
 
         Args:
             filename (str): The filename to read from.

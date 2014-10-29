@@ -204,6 +204,33 @@ class IStructureTest(PymatgenTest):
         struct2 = IStructure(self.struct.lattice, ["Si", "Fe"], coords2)
         self.assertRaises(ValueError, struct.interpolate, struct2)
 
+        # Test autosort feature.
+        s1 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3),
+                                       ["Fe"], [[0, 0, 0]])
+        s1.pop(0)
+        s2 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3),
+                                       ["Fe"], [[0, 0, 0]])
+        s2.pop(2)
+        random.shuffle(s2)
+
+        for s in s1.interpolate(s2, autosort_tol=0.5):
+            self.assertArrayAlmostEqual(s1[0].frac_coords, s[0].frac_coords)
+            self.assertArrayAlmostEqual(s1[2].frac_coords, s[2].frac_coords)
+
+        # Make sure autosort has no effect on simpler interpolations,
+        # and with shuffled sites.
+        s1 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3),
+                                       ["Fe"], [[0, 0, 0]])
+        s2 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3),
+                                       ["Fe"], [[0, 0, 0]])
+        s2[0] = "Fe", [0.01, 0.01, 0.01]
+        random.shuffle(s2)
+
+        for s in s1.interpolate(s2, autosort_tol=0.5):
+            self.assertArrayAlmostEqual(s1[1].frac_coords, s[1].frac_coords)
+            self.assertArrayAlmostEqual(s1[2].frac_coords, s[2].frac_coords)
+            self.assertArrayAlmostEqual(s1[3].frac_coords, s[3].frac_coords)
+
     def test_interpolate_lattice(self):
         coords = list()
         coords.append([0, 0, 0])
@@ -234,7 +261,37 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(len(fcc_ag.get_primitive_structure()), 1)
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
         bcc_li = IStructure(Lattice.cubic(4.09), ["Li"] * 2, coords)
-        self.assertEqual(len(bcc_li.get_primitive_structure()), 1)
+        bcc_prim = bcc_li.get_primitive_structure()
+        self.assertEqual(len(bcc_prim), 1)
+        self.assertAlmostEqual(bcc_prim.lattice.alpha, 109.47122, 3)
+
+        coords = [[0] * 3, [0.5] * 3, [0.25] * 3, [0.26] * 3]
+        s = IStructure(Lattice.cubic(4.09), ["Ag"] * 4, coords)
+        self.assertEqual(len(s.get_primitive_structure()), 4)
+
+    def test_primitive_on_large_supercell(self):
+        coords = [[0, 0, 0], [0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]]
+        fcc_ag = Structure(Lattice.cubic(4.09), ["Ag"] * 4, coords)
+        fcc_ag.make_supercell([2, 2, 2])
+        fcc_ag_prim = fcc_ag.get_primitive_structure()
+        self.assertEqual(len(fcc_ag_prim), 1)
+        self.assertAlmostEqual(fcc_ag_prim.volume, 17.10448225)
+
+    def test_primitive_positions(self):
+        coords = [[0, 0, 0], [0.3, 0.35, 0.45]]
+        s = Structure(Lattice.from_parameters(1,2,3,50,66,88), ["Ag"] * 2, coords)
+
+        a = [[-1,2,-3], [3,2,-4], [1,0,-1]]
+        b = [[4, 0, 0], [1, 1, 0], [3, 0, 1]]
+        c = [[2, 0, 0], [1, 3, 0], [1, 1, 1]]
+
+        for sc_matrix in [c]:
+            sc = s.copy()
+            sc.make_supercell(sc_matrix)
+            prim = sc.get_primitive_structure(0.01)
+
+            self.assertEqual(len(prim), 2)
+            self.assertAlmostEqual(prim.distance_matrix[0,1], 1.0203432356739286)
 
     def test_primitive_structure_volume_check(self):
         l = Lattice.tetragonal(10, 30)
@@ -395,6 +452,13 @@ class StructureTest(PymatgenTest):
         s.add_site_property("magmom", [3, 2])
         self.assertEqual(s[0].charge, 4.1)
         self.assertEqual(s[0].magmom, 3)
+
+    def test_propertied_structure(self):
+        #Make sure that site properties are set to None for missing values.
+        s = self.structure
+        s.add_site_property("charge", [4.1, -5])
+        s.append("Li", [0.3, 0.3 ,0.3])
+        self.assertEqual(len(s.site_properties["charge"]), 3)
 
     def test_perturb(self):
         d = 0.1
@@ -574,6 +638,10 @@ class StructureTest(PymatgenTest):
         s = Structure.from_spacegroup("Pm-3m", Lattice.cubic(3), ["Cs", "Cl"],
                                       [[0, 0, 0], [0.5, 0.5, 0.5]])
         self.assertEqual(s.formula, "Cs1 Cl1")
+
+        self.assertRaises(ValueError, Structure.from_spacegroup,
+                          "Pm-3m", Lattice.tetragonal(1, 3), ["Cs", "Cl"],
+                          [[0, 0, 0], [0.5, 0.5, 0.5]])
 
 
 class IMoleculeTest(PymatgenTest):
