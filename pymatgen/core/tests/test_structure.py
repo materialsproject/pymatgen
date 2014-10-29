@@ -453,6 +453,13 @@ class StructureTest(PymatgenTest):
         self.assertEqual(s[0].charge, 4.1)
         self.assertEqual(s[0].magmom, 3)
 
+    def test_propertied_structure(self):
+        #Make sure that site properties are set to None for missing values.
+        s = self.structure
+        s.add_site_property("charge", [4.1, -5])
+        s.append("Li", [0.3, 0.3 ,0.3])
+        self.assertEqual(len(s.site_properties["charge"]), 3)
+
     def test_perturb(self):
         d = 0.1
         pre_perturbation_sites = self.structure.sites[:]
