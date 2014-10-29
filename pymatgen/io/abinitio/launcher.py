@@ -486,7 +486,7 @@ class PyFlowScheduler(object):
         if os.path.exists(path):
             return cls.from_file(path)
 
-        err_msg = "Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, dirpath)
+        err_msg = "Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, path)
         raise cls.Error(err_msg)
 
     def __str__(self):

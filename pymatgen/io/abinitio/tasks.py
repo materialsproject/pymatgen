@@ -1473,9 +1473,10 @@ class FileNode(Node):
     def check_status(self):
         return self.status
 
-    #def get_results(self, **kwargs):
-    #    results = super(FileNode, self).get_results(**kwargs)
-    #    return results.add_gridfs_files(GSR=self.filepath)
+    def get_results(self, **kwargs):
+        results = super(FileNode, self).get_results(**kwargs)
+        #results.add_gridfs_files(self.filepath=self.filepath)
+        return results
 
 
 class TaskError(Exception):

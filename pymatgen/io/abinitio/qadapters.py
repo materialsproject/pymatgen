@@ -1117,11 +1117,8 @@ class PbsProAdapter(AbstractQueueAdapter):
 
     def get_subs_dict(self, partition):
         subs_dict = super(PbsProAdapter, self).get_subs_dict(partition)
-        # Parameters defining the partion. Hard-coded for the time being.
-        # but this info should be passed via taskmananger.yml
-        #p = Partition(name="hardcoded", num_nodes=100, sockets_per_node=2, cores_per_socket=4, mem_per_node="1000 Mb")
+        # Optimize parameters from the partition.
         subs_dict.update(self.params_from_partition(partition))
-        #subs_dict["vmem"] = 5
         return subs_dict
 
     def submit_to_queue(self, script_file):
