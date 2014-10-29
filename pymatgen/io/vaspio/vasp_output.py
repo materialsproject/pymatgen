@@ -33,7 +33,11 @@ from six.moves import map, zip
 import numpy as np
 
 from monty.io import zopen, reverse_readfile
-from monty.json import jsanitize
+try:
+    from monty.json import jsanitize
+except ImportError:
+    pass
+
 
 from pymatgen.util.io_utils import clean_lines, micro_pyawk
 from pymatgen.core.structure import Structure
