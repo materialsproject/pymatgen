@@ -13,9 +13,10 @@ import shutil
 import pickle
 
 from six.moves import map 
+from pprint import pprint
+from prettytable import PrettyTable
 from monty.io import FileLock
-from monty.pprint import pprint_table
-from monty.termcolor import cprint
+from monty.termcolor import cprint, colored, stream_has_colours
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
 from .tasks import Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager
 from .utils import Directory, Editor
@@ -46,7 +47,30 @@ __all__ = [
 
 
 class FlowResults(NodeResults):
-    pass
+
+    JSON_SCHEMA = NodeResults.JSON_SCHEMA.copy() 
+    #JSON_SCHEMA["properties"] = {
+    #    "queries": {"type": "string", "required": True},
+    #}
+
+    @classmethod
+    def from_node(cls, flow):
+        """Initialize an instance from a WorkFlow instance."""
+        new = super(FlowResults, cls).from_node(flow)
+
+        #new.update(
+        #    #input=flow.strategy
+        #)
+
+        # Will put all files found in outdir in GridFs 
+        d = {os.path.basename(f): f for f in flow.outdir.list_filepaths()}
+
+        # Add the pickle file.
+        pickle_path = os.path.join(flow.workdir, flow.PICKLE_FNAME)
+        d["pickle"] = pickle_path if flow.pickle_protocol != 0 else (pickle_path, "t")
+        new.add_gridfs_files(**d)
+
+        return new
 
 
 class AbinitFlow(Node):
@@ -64,7 +88,6 @@ class AbinitFlow(Node):
             Protocol for Pickle database (default: -1 i.e. latest protocol)
     """
     VERSION = "0.1"
-
     PICKLE_FNAME = "__AbinitFlow__.pickle"
 
     Results = FlowResults
@@ -223,6 +246,21 @@ class AbinitFlow(Node):
             raise RuntimeError("Cannot change mongo_id %s" % self.mongo_id)
         self._mongo_id = value
 
+    def validate_json_schema(self):
+        """Validate the JSON schema. Return list of errors."""
+        errors = []
+
+        for work in self:
+            for task in work:
+                if not task.get_results().validate_json_schema(): 
+                    errors.append(task)
+            if not work.get_results().validate_json_schema(): 
+                errors.append(work)
+        if not self.get_results().validate_json_schema(): 
+            errors.append(self)
+
+        return errors
+
     @property
     def works(self):
         """List of `Workflow` objects contained in self.."""
@@ -276,30 +314,30 @@ class AbinitFlow(Node):
         return counter
 
     @property
-    def ncpus_reserved(self):
+    def ncores_reserved(self):
         """
-        Returns the number of CPUs reserved in this moment.
-        A CPU is reserved if the task is not running but
+        Returns the number of cores reserved in this moment.
+        A core is reserved if the task is not running but
         we have submitted the task to the queue manager.
         """
-        return sum(work.ncpus_reserved for work in self)
+        return sum(work.ncores_reserved for work in self)
 
     @property
-    def ncpus_allocated(self):
+    def ncores_allocated(self):
         """
-        Returns the number of CPUs allocated in this moment.
-        A CPU is allocated if it's running a task or if we have
+        Returns the number of cores allocated in this moment.
+        A core is allocated if it's running a task or if we have
         submitted a task to the queue manager but the job is still pending.
         """
-        return sum(work.ncpus_allocated for work in self)
+        return sum(work.ncores_allocated for work in self)
 
     @property
-    def ncpus_inuse(self):
+    def ncores_inuse(self):
         """
-        Returns the number of CPUs used in this moment.
-        A CPU is used if there's a job that is running on it.
+        Returns the number of cores used in this moment.
+        A core is used if there's a job that is running on it.
         """
-        return sum(work.ncpus_inuse for work in self)
+        return sum(work.ncores_inuse for work in self)
 
     @property
     def has_chrooted(self):
@@ -439,6 +477,13 @@ class AbinitFlow(Node):
         for work in self:
             work.check_status()
 
+    #def set_status(self, status):
+
+    @property
+    def status(self):
+        """The status of the flow i.e. the minimum of the status of its tasks and its works"""
+        return min(work.get_all_status(only_min=True) for work in self)
+
     def fix_critical(self):
         self.fix_queue_critical()
         self.fix_abi_critical()
@@ -538,6 +583,9 @@ class AbinitFlow(Node):
 
         if not verbose, no full entry for works that are completed is printed.
         """
+        has_colours = stream_has_colours(stream)
+        red = "red" if has_colours else None
+
         for i, work in enumerate(self):
             print(80*"=", file=stream)
             print("Workflow #%d: %s, Finalized=%s\n" % (i, work, work.finalized), file=stream)
@@ -545,10 +593,9 @@ class AbinitFlow(Node):
             if verbose == 0 and work.finalized:
                 continue
 
-            table = [["Task", "Status", "Queue-id", 
-                      "Errors", "Warnings", "Comments", 
-                      "MPI", "OMP", 
-                      "Restarts", "Task-Class", "Run-Etime"]]
+            table =PrettyTable([
+                "Task", "Status", "Queue-id", "Errors", "Warnings", "Comments", 
+                "MPI", "OMP", "Restarts", "Task-Class", "Run-Etime"])
 
             tot_num_errors = 0
             for task in work:
@@ -559,27 +606,42 @@ class AbinitFlow(Node):
 
                 events = map(str, 3*["N/A"])
                 if report is not None: 
-                    tot_num_errors += report.num_errors
                     events = map(str, [report.num_errors, report.num_warnings, report.num_comments])
                 events = list(events)
 
-                cpu_info = list(map(str, [task.mpi_ncpus, task.omp_ncpus]))
+                cpu_info = list(map(str, [task.mpi_procs, task.omp_threads]))
                 task_info = list(map(str, [task.num_restarts, task.__class__.__name__, task.run_etime()]))
 
-                table.append(
-                    [task_name, str(task.status), str(task.queue_id)] + 
-                    events + 
-                    cpu_info + 
-                    task_info
+                if task.status.is_critical:
+                    tot_num_errors += 1
+                    task_name = colored(task_name, red)
+
+                table.add_row(
+                    [task_name, str(task.status), str(task.queue_id)] +  events + 
+                    cpu_info + task_info
                 )
 
             # Print table and write colorized line with the total number of errors.
-            pprint_table(table, out=stream)
+            print(table, file=stream)
             if tot_num_errors:
-                cprint("Total no Errors: %d" % tot_num_errors, "red")
+                cprint("Total number of errors: %d" % tot_num_errors, red, file=stream)
 
     def get_results(self, **kwargs):
-        return self.Results(node=self)
+        results = self.Results.from_node(self)
+        results.update(self.get_dict_for_mongodb_queries())
+        return results
+
+    def get_dict_for_mongodb_queries(self):
+        """
+        This function returns a dictionary with the attributes that will be 
+        put in the mongodb document to facilitate the query. 
+        Subclasses may want to replace or extend the default behaviour.
+        """
+        d = {}
+        return d
+        # TODO
+        all_structures = [task.strategy.structure for task in self.iflat_tasks()]
+        all_pseudos = [task.strategy.pseudos for task in self.iflat_tasks()]
 
     def mongodb_insert(self):
         """
@@ -590,20 +652,27 @@ class AbinitFlow(Node):
         coll = self.manager.db_connector.get_collection()
         print("Mongodb collection %s with count %d", coll, coll.count())
 
+        start = time.time()
+
         for work in self:
             for task in work:
                 results = task.get_results()
+                pprint(results)
                 results.update_collection(coll)
             results = work.get_results()
+            pprint(results)
             results.update_collection(coll)
 
+        msg = "MongoDb update done in %s [s]" % time.time() - start
+        print(msg)
+
         results = self.get_results()
+        pprint(results)
         results.update_collection(coll)
 
         # Update the pickle file to save the mongo ids.
         self.pickle_dump()
 
-        from pprint import pprint
         for d in coll.find():
             pprint(d)
 
@@ -878,12 +947,12 @@ class AbinitFlow(Node):
         the `TaskManager` to the different tasks in the Flow.
         """
         for work in self:
+            # Each workflow has a reference to its flow.
             work.allocate(manager=self.manager)
             work.set_flow(self)
-
-        # Each task has a reference to the flow.
-        for task in self.iflat_tasks():
-            task.set_flow(self)
+            # Each task has a reference to its workflow.
+            for task in work:
+                task.set_work(work)
 
         self.check_dependencies()
 
@@ -1239,7 +1308,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
 
     # Build a temporary workflow with a shell manager just to run 
     # ABINIT to get the list of irreducible pertubations for this q-point.
-    shell_manager = manager.to_shell_manager(mpi_ncpus=1)
+    shell_manager = manager.to_shell_manager(mpi_procs=1)
 
     if not isinstance(ph_inputs, (list, tuple)):
         ph_inputs = [ph_inputs]

@@ -9,6 +9,7 @@ import operator
 
 from six.moves import filter
 from monty.string import list_strings
+from monty.dev import deprecated
 from pymatgen.util.string_utils import WildCard
 
 import logging
@@ -538,12 +539,21 @@ class Condition(object):
     def __str__(self):
         return str(self.cmap)
 
+    def __bool__(self):
+        return bool(self.cmap)
+
+    __nonzero__ = __bool__
+
+    @deprecated(eval)
     def apply(self, obj):
+        if not self: return True
         try:
             return evaluate_rpn(map2rpn(self.cmap, obj))
         except Exception as exc:
-            logger.warning("Condition.apply() raise Exception:\n %s" % str(exc))
+            logger.warning("Condition.apply() raised Exception:\n %s" % str(exc))
             return False
+
+    eval = apply
 
 
 class Editor(object):

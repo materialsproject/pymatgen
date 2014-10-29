@@ -10,7 +10,6 @@ import os
 import abc
 import collections
 import json
-import warnings
 import six
 import numpy as np
 
@@ -34,6 +33,7 @@ __maintainer__ = "Matteo Giantomassi"
 _PTABLE = PeriodicTable()
 
 # Tools and helper functions.
+
 
 def straceback():
     """Returns a string with the traceback."""
@@ -230,6 +230,17 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
     #@abc.abstractmethod
     #def generation_mode
     #    """scalar scalar-relativistic, relativistic."""
+
+    def as_dict(self, **kwargs):
+        return dict(
+            name=self.name,
+            type=self.type,
+            symbol=self.symbol,
+            Z=self.Z,
+            Z_val=self.Z_val,
+            l_max=self.l_max,
+            #nlcc_radius=self.nlcc_radius,
+        )
 
     @property
     def has_dojo_report(self):
@@ -536,7 +547,6 @@ def _dict_from_lines(lines, key_nums, sep=None):
 
         if len(values) != len(keys):
             msg = "line: %s\n len(keys) != len(value)\nkeys: %s\n values:  %s" % (line, keys, values)
-            #warnings.warn(msg)
             raise ValueError(msg)
 
         kwargs.update(zip(keys, values))
@@ -1598,6 +1608,17 @@ class PseudoTable(collections.Sequence):
         zlist.sort()
         return zlist
 
+    def as_dict(self, **kwargs):
+        d = {}
+        for p in self:
+            k, count = p.name, 1
+            # Handle multiple-pseudos with the same name!
+            while k not in d:
+                k += k + "#" + str(count)
+                count += 1
+            d.update({k, p.as_dict()})
+        return d
+
     def is_complete(self, zmax=118):
         """
         True if table is complete i.e. all elements with Z < zmax
@@ -1699,7 +1720,7 @@ class PseudoTable(collections.Sequence):
             attrs.append((i, a))
 
         # Sort attrs, and build new table with sorted pseudos.
-        attrs = sorted(attrs, key=lambda t:t[1], reverse=reverse)
+        attrs = sorted(attrs, key=lambda t: t[1], reverse=reverse)
         return PseudoTable([self[a[0]] for a in attrs])
 
     def select(self, condition):

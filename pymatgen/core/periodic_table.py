@@ -1184,25 +1184,20 @@ def get_el_sp(obj):
     if isinstance(obj, (Element, Specie, DummySpecie)):
         return obj
 
-    def string_is_int(s):
-        """True is string s represents an integer (with sign)"""
-        if s[0] in ('-', '+'):
-            return s[1:].isdigit()
-        return s.isdigit()
-
     obj = str(obj)
 
-    if string_is_int(obj):
-        return Element.from_Z(int(obj))
-
     try:
-        return Specie.from_string(obj)
-    except (ValueError, KeyError):
+        z = int(obj)
+        return Element.from_Z(z)
+    except ValueError:
         try:
-            return Element(obj)
+            return Specie.from_string(obj)
         except (ValueError, KeyError):
             try:
-                return DummySpecie.from_string(obj)
-            except:
-                raise ValueError("Can't parse Element or String from " +
-                                 str(obj))
+                return Element(obj)
+            except (ValueError, KeyError):
+                try:
+                    return DummySpecie.from_string(obj)
+                except:
+                    raise ValueError("Can't parse Element or String from %s."
+                                     % obj)
