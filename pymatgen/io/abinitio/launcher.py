@@ -179,7 +179,7 @@ class OmpEnv(AttrDict):
 
             err_msg = ""
             for key in parser.options("openmp"):
-                if key.upper() not in self._KEYS:
+                if key.upper() not in cls._KEYS:
                     err_msg += "unknown option %s, maybe a typo" % key
 
             if err_msg:
@@ -481,12 +481,12 @@ class PyFlowScheduler(object):
             return cls.from_file(path)
 
         # Try in the configuration directory.
-        path = os.path.join(self.USER_CONfIG_DIR, cls.YAML_FILE)
+        path = os.path.join(cls.USER_CONfIG_DIR, cls.YAML_FILE)
 
         if os.path.exists(path):
             return cls.from_file(path)
 
-        err_msg = "Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, dirpath)
+        err_msg = "Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, path)
         raise cls.Error(err_msg)
 
     def __str__(self):
