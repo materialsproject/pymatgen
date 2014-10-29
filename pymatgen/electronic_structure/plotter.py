@@ -251,7 +251,10 @@ class BSPlotter(object):
         #Sanitize only plot the uniq values
         uniq_d = []
         uniq_l = []
-        temp_ticks = zip(ticks['distance'], ticks['label'])
+        temp_ticks_it = zip(ticks['distance'], ticks['label'])
+        temp_ticks = []
+        for t in temp_ticks_it:
+            temp_ticks.append(t)
         for i in range(len(temp_ticks)):
             if i == 0:
                 uniq_d.append(temp_ticks[i][0])
