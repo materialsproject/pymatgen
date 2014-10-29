@@ -531,8 +531,8 @@ class Condition(object):
     db.inventory.find( { qty: { $gt: 20 } } )
     db.inventory.find({ $and: [ { price: 1.99 }, { qty: { $lt: 20 } }, { sale: true } ] } )
     """
-    def __init__(self, cmap):
-        self.cmap = cmap
+    def __init__(self, cmap=None):
+        self.cmap = {} if cmap is None else cmap
 
     def __str__(self):
         return str(self.cmap)

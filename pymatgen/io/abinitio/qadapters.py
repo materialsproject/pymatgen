@@ -190,7 +190,7 @@ class Partition(object):
         min_nodes=Entry(type=int, default=-1, help="Minimun number of nodes that can be used"),
         max_nodes=Entry(type=int, default=sys.maxsize, help="Maximum number of nodes that can be used"),
         priority=Entry(type=int, default=1, help="Priority level, integer number > 0"),
-        condition=Entry(type=object, default=dict, help="Condition object (dictionary)", parser=Condition),
+        condition=Entry(type=object, default=Condition, help="Condition object (dictionary)", parser=Condition),
     )
 
     def __init__(self, **kwargs):
@@ -209,6 +209,7 @@ class Partition(object):
 
         # Convert memory to megabytes.
         self.mem_per_node = self.mem_per_node.to("Mb")
+        #if self.condition is None: self.condition = Condition()
 
     def __str__(self):
         """String representation."""
@@ -252,9 +253,10 @@ class Partition(object):
         """
         is_scattered = True
 
-        if mem_per_proc < self.mem_per_code:
+        if mem_per_proc < self.mem_per_node:
             # Can use all then cores in the node.
             num_nodes, rest_cores = self.divmod_node(mpi_procs, omp_threads)
+            mpi_per_node = mpi_procs / num_nodes if num_nodes != 0 else mpi_procs
             if rest_cores !=0: is_scattered = (num_nodes != 0)
 
         if is_scattered:
@@ -272,8 +274,8 @@ class Partition(object):
                 raise ValueError("Cannot distribute mpi_procs %d, omp_threads %d, mem_per_proc %s" % 
                                 (mpi_procs, omp_threads, mem_per_proc))
 
-        CoresDistrib = namedtuple("<CoresDistrib>", "num_nodes mpi_per_node is_scattered") # mem_per_node 
-        return CoresDistrib(num_nodes, mpi_per_node, is_scattered)
+        CoresDistrib = namedtuple("CoresDistrib", "num_nodes mpi_per_node is_scattered") # mem_per_node 
+        return CoresDistrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, is_scattered=is_scattered)
 
     def can_run(self, pconf):
         """
@@ -281,7 +283,7 @@ class Partition(object):
         """
         if pconf.tot_cores > self.tot_cores: return False
         if pconf.omp_threads > self.cores_per_node: return False
-        if pconf.mem_per_core > self.mem_per_core: return False
+        if pconf.mem_per_proc > self.mem_per_node: return False
         return self.condition(pconf)
 
     def get_score(self, pconf):
@@ -487,12 +489,12 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     #    """Set the walltime in seconds."""
 
     #@abc.abstractproperty
-    #def mem_per_cpu(self):
-    #    """The memory per CPU in Megabytes."""
+    #def mem_per_proc(self):
+    #    """The memory per process in Megabytes."""
                                                 
     @abc.abstractmethod
-    def set_mem_per_cpu(self, mem_mb):
-        """Set the memory per CPU in Megabytes"""
+    def set_mem_per_proc(self, mem_mb):
+        """Set the memory per process in Megabytes"""
 
     #@property
     #def tot_mem(self):
@@ -705,8 +707,8 @@ export MPI_PROCS=$${MPI_PROCS}
         """Set the number of OpenMP threads."""
         self.omp_env["OMP_NUM_THREADS"] = omp_threads
 
-    def set_mem_per_cpu(self, mem_mb):
-        """mem_per_cpu is not available in ShellAdapter."""
+    def set_mem_per_proc(self, mem_mb):
+        """not available in ShellAdapter."""
 
     def cancel(self, job_id):
         return os.system("kill -9 %d" % job_id)
@@ -787,8 +789,8 @@ class SlurmAdapter(AbstractQueueAdapter):
         self.omp_env["OMP_NUM_THREADS"] = omp_threads
         warnings.warn("set_omp_threads not availabe for %s" % self.__class__.__name__)
 
-    def set_mem_per_cpu(self, mem_mb):
-        """Set the memory per CPU in Megabytes"""
+    def set_mem_per_proc(self, mem_mb):
+        """Set the memory per process in Megabytes"""
         self.qparams["mem_per_cpu"] = int(mem_mb)
         # Remove mem if it's defined.
         self.qparams.pop("mem", None)
@@ -1033,8 +1035,8 @@ class PbsProAdapter(AbstractQueueAdapter):
         self.omp_env["OMP_NUM_THREADS"] = omp_threads
         self.qparams["ompthreads"] = omp_threads
 
-    def set_mem_per_cpu(self, mem_mb):
-        """Set the memory per CPU in Megabytes"""
+    def set_mem_per_proc(self, mem_mb):
+        """Set the memory per process in Megabytes"""
         self.qparams["pvmem"] = mem_mb
         self.qparams["vmem"] = mem_mb
 
@@ -1203,7 +1205,7 @@ class PbsProAdapter(AbstractQueueAdapter):
         base_increase = 2000
         new_mem = self.qparams["pvmem"] + factor*base_increase
         if new_mem < self.LIMITS['mem']:
-            self.set_mem_per_cpu(new_mem)
+            self.set_mem_per_proc(new_mem)
             return True
         else:
             logger.warning('could not increase mem further')
@@ -1271,8 +1273,8 @@ class TorqueAdapter(PbsProAdapter):
 """
     LIMITS = {'max_total_tasks': 3888, 'time': 48, 'max_nodes': 16}
 
-    def set_mem_per_cpu(self, mem_mb):
-        """Set the memory per core in Megabytes"""
+    def set_mem_per_proc(self, mem_mb):
+        """Set the memory per process in Megabytes"""
         self.qparams["pmem"] = mem_mb
         self.qparams["mem"] = mem_mb
 
@@ -1331,8 +1333,8 @@ class SGEAdapter(AbstractQueueAdapter):
         self.omp_env["OMP_NUM_THREADS"] = omp_threads
         warnings.warn("set_omp_threads not availabe for %s" % self.__class__.__name__)
 
-    def set_mem_per_cpu(self, mem_mb):
-        """Set the memory per CPU in Megabytes"""
+    def set_mem_per_proc(self, mem_mb):
+        """Set the memory per process in Megabytes"""
         raise NotImplementedError("")
         #self.qparams["mem_per_cpu"] = mem_mb
         ## Remove mem if it's defined.
@@ -1569,7 +1571,7 @@ class MOABAdapter(AbstractQueueAdapter):
     def increase_cpus(self, factor):
         raise NotImplementedError("increase_cpus")
         
-    def set_mem_per_cpu(self, factor):
+    def set_mem_per_proc(self, mem_mb):
         raise NotImplementedError("set_mem_per_cpu")
 
 

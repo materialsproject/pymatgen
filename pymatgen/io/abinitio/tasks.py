@@ -319,9 +319,10 @@ class ParalConf(AttrDict):
         return stream.getvalue()
 
     # TODO: Change name in abinit
+    # Remove tot_ncpus from Abinit
     @property
     def tot_cores(self):
-        return self.tot_ncpus
+        return self.mpi_procs * self.omp_threads
 
     @property
     def mem_per_proc(self):
@@ -342,7 +343,7 @@ class ParalConf(AttrDict):
 
     @property
     def tot_mem(self):
-        """Estimated total memory in Mbs (computed from mem_per_cpu)"""
+        """Estimated total memory in Mbs (computed from mem_per_proc)"""
         return self.mem_per_proc * self.mpi_procs
 
 
@@ -447,14 +448,14 @@ class ParalHints(collections.Iterable):
         """
         self._confs.sort(key=lambda c: c.speedup, reverse=reverse)
 
-    def sort_by_mem_per_core(self, reverse=False):
+    def sort_by_mem_per_proc(self, reverse=False):
         """
         Sort the configurations in place so that conf with lowest memory per core
         appears in the first positions.
         """
         # Avoid sorting if mem_per_cpu is not available.
-        if any(c.mem_per_cpu > 0.0 for c in self):
-            self._confs.sort(key=lambda c: c.mem_per_cpu, reverse=reverse)
+        if any(c.mem_per_proc > 0.0 for c in self):
+            self._confs.sort(key=lambda c: c.mem_per_proc, reverse=reverse)
 
     def select_optimal_conf(self, policy):
         """
@@ -685,9 +686,9 @@ class TaskManager(object):
             if not isinstance(partitions, (list, tuple)): partitions = [partitions]
             self.parts = sorted([Partition(**part) for part in partitions], key=lambda p: p.priority)
 
-        priorities = [p.priority for p in self.parts]
-        if len(priorities) != len(set(priorities)):
-            raise ValueError("Two or more partitions have same priority. This is not allowed. Check taskmanager.yml")
+            priorities = [p.priority for p in self.parts]
+            if len(priorities) != len(set(priorities)):
+                raise ValueError("Two or more partitions have same priority. This is not allowed. Check taskmanager.yml")
 
         # Initialize database connector (if specified)
         from .db import DBConnector
@@ -751,7 +752,7 @@ class TaskManager(object):
         cls = self.__class__
         new = cls("shell", qparams={"MPI_PROCS": mpi_procs}, setup=qad.setup, modules=qad.modules, 
                   shell_env=qad.shell_env, omp_env=None, pre_run=qad.pre_run, 
-                  post_run=qad.post_run, mpi_runner=qad.mpi_runner, policy=policy)
+                  post_run=qad.post_run, mpi_runner=qad.mpi_runner, policy=policy, partitions=None)
 
         return new
 
@@ -762,10 +763,6 @@ class TaskManager(object):
         new = self.deepcopy()
         new.policy = policy
         return new
-
-    #def copy(self):
-    #    """Shallow copy of self."""
-    #    return copy.copy(self)
 
     def deepcopy(self):
         """Deep copy of self."""
@@ -779,9 +776,9 @@ class TaskManager(object):
         """Set the number of OpenMp threads to use."""
         self.qadapter.set_omp_threads(omp_threads)
 
-    def set_mem_per_cpu(self, mem_mb):
+    def set_mem_per_proc(self, mem_mb):
         """Set the memory (in Megabytes) per CPU."""
-        self.qadapter.set_mem_per_cpu(mem_mb)
+        self.qadapter.set_mem_per_proc(mem_mb)
 
     def set_autoparal(self, value):
         """Set the value of autoparal."""
@@ -808,23 +805,32 @@ class TaskManager(object):
 
     @property
     def active_partition(self):
-        return None
         try:
             return self._active_partition
         except AttributeError:
-            return self.parts[0]
+            #return self.parts[0]
+            return None
 
     def select_partition(self, pconf):
         """
         Select a partition to run the parallel configuration pconf
         Set self.active_partition. Return None if no partition could be found.
         """
-        #self._selected_partition = None
-        #return None
-        # TODO
         scores = [part.get_score(pconf) for part in self.parts]
+        print("scores", scores)
         if all(sc < 0 for sc in scores): return None
         self._active_partition = self.parts[maxloc(scores)]
+
+        # Change the number of MPI/OMP cores.
+        #self.set_mpi_procs(optconf.mpi_procs)
+        #if self.has_omp:
+        #    self.set_omp_threads(optconf.omp_threads)
+                                                                      
+        # Change the memory per node if automemory evaluates to True.
+        #if self.policy.automemory and optconf.mem_per_proc:
+        #    # mem_per_proc = max(mem_per_proc, policy.automemory)
+        #    self.set_mem_per_proc(optconf.mem_per_proc)
+
         return self._active_partition
 
     def cancel(self, job_id):
@@ -878,18 +884,18 @@ class TaskManager(object):
             # we need to increas memory if jobs fail ...
         return self.qadapter.increase_mem()
 
-#        if self.policy.autoparal == 1:
-#            #if self.policy.increase_max_ncpus():
-#                return True
-#            else:
-#                return False
-#        elif self.qadapter is not None:
-#            if self.qadapter.increase_cpus():
-#                return True
-#            else:
-#                return False
-#        else:
-#            return False
+        #if self.policy.autoparal == 1:
+        #    #if self.policy.increase_max_ncpus():
+        #        return True
+        #    else:
+        #        return False
+        #elif self.qadapter is not None:
+        #    if self.qadapter.increase_cpus():
+        #        return True
+        #    else:
+        #        return False
+        #else:
+        #    return False
 
 
 # The code below initializes a counter from a file when the module is imported 
@@ -2622,12 +2628,13 @@ class AbinitTask(Task):
         #print("optimal autoparal conf:\n %s" % optconf)
 
         # Select the partition on which we'll be running
-        #for i, c in enumerate(optconfs):
-        #    self.manager.select_partition(optconfs) is not None:
-        #        optconf = optconfs[i]
-        #        break
-        #else:
-        #    raise RuntimeError("cannot find partition for this run!")
+        optconfs = [optconf]
+        for i, c in enumerate(optconfs):
+            if self.manager.select_partition(c) is not None:
+                optconf = optconfs[i]
+                break
+        else:
+            raise RuntimeError("cannot find partition for this run!")
 
         # Write autoparal configurations to JSON file.
         d = confs.as_dict()
@@ -2645,9 +2652,9 @@ class AbinitTask(Task):
             self.manager.set_omp_threads(optconf.omp_threads)
 
         # Change the memory per node if automemory evaluates to True.
-        if policy.automemory and optconf.mem_per_cpu:
-            # mem_per_cpu = max(mem_per_cpu, policy.automemory)
-            self.manager.set_mem_per_cpu(optconf.mem_per_cpu)
+        #if policy.automemory and optconf.mem_per_proc:
+        #    # mem_per_proc = max(mem_per_cpu, policy.automemory)
+        #    self.manager.set_mem_per_proc(optconf.mem_per_proc)
 
         ##############
         # Finalization
