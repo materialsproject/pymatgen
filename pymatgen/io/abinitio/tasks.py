@@ -2302,9 +2302,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         if self.status is None or self.status < self.S_DONE:
             raise self.Error("Task is not completed")
 
-        results = self.Results.from_node(self)
-
-        return results
+        return self.Results.from_node(self)
 
     def move(self, dest, is_abspath=False):
         """
@@ -2910,8 +2908,7 @@ class DdkTask(AbinitTask):
 
     def get_results(self, **kwargs):
         results = super(DdkTask, self).get_results(**kwargs)
-        #results.add_text_files("DDB"=self.outdir.has_abiext("DDB"))
-        return results
+        return results.add_gridfs_file(DDB=(self.outdir.has_abiext("DDB"), "t"))
 
 
 class PhononTask(AbinitTask):
@@ -2964,8 +2961,7 @@ class PhononTask(AbinitTask):
 
     def get_results(self, **kwargs):
         results = super(PhononTask, self).get_results(**kwargs)
-        #results.add_text_files("DDB"=self.outdir.has_abiext("DDB"))
-        return results
+        return results.add_gridfs_file(DDB=(self.outdir.has_abiext("DDB"), "t"))
 
 
 class SigmaTask(AbinitTask):
@@ -3000,10 +2996,10 @@ class SigmaTask(AbinitTask):
 
         # Open the SIGRES file and add its data to results.out
         from abipy.electrons.gsr import GSR_File
-        sigres = SIGRES_File(self.outdir.has_abiext("SIGRES"))
-        results["out"].update(sigres.as_dict())
-
-        return results.add_gridfs_files(SIGRES=sigres.filepath)
+        #sigres = SIGRES_File(self.outdir.has_abiext("SIGRES"))
+        #results["out"].update(sigres.as_dict())
+        #return results.add_gridfs_files(SIGRES=sigres.filepath)
+        return results
 
 
 class BseTask(AbinitTask):
@@ -3081,13 +3077,14 @@ class BseTask(AbinitTask):
     def get_results(self, **kwargs):
         results = super(BseTask, self).get_results(**kwargs)
 
-        mdf = MDF_File(self.outdir.has_abiext("MDF"))
+        #mdf = MDF_File(self.outdir.has_abiext("MDF"))
         #results["out"].update(mdf.as_dict())
         #    out=mdf.as_dict(),
         #    epsilon_infinity
         #    optical_gap
         #)
-        return results.add_gridfs_files(MDF=mdf.filepath)
+        #return results.add_gridfs_files(MDF=mdf.filepath)
+        return results
 
 
 class OpticTask(Task):
