@@ -302,7 +302,7 @@ def qadapter_class(qtype):
             "slurm": SlurmAdapter,
             "pbs": PbsProAdapter,   # TODO Remove
             "pbspro": PbsProAdapter,
-            "pbsold": PbsOldAdapter,
+            "torque": TorqueAdapter,
             "sge": SGEAdapter,
             "moab": MOABAdapter,
             }[qtype.lower()]
@@ -398,8 +398,8 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
         return "\n".join(lines)
 
-    def copy(self):
-        return copy.copy(self)
+    #def copy(self):
+    #    return copy.copy(self)
 
     def deepcopy(self):
         return copy.deepcopy(self)
@@ -1251,9 +1251,10 @@ class PbsProAdapter(AbstractQueueAdapter):
     #        return False
 
 
-class PbsOldAdapter(PbsProAdapter):
+class TorqueAdapter(PbsProAdapter):
+    """Adapter for Torque."""
 
-    QTYPE = "pbsold"
+    QTYPE = "torque"
 
     QTEMPLATE = """\
 #!/bin/bash
@@ -1277,37 +1278,27 @@ class PbsOldAdapter(PbsProAdapter):
 #PBS -o $${_qout_path}
 #PBS -e $${_qerr_path}
 """
-
-    @property
-    def limits(self):
-        """
-        the limits for certain parameters set on the cluster.
-        currently hard coded, should be read at init
-        the increase functions will not increase beyond thise limits
-        """
-        return {'max_total_tasks': 3888, 'time': 48, 'max_nodes': 16}
+    LIMITS = {'max_total_tasks': 3888, 'time': 48, 'max_nodes': 16}
 
     def set_mem_per_cpu(self, mem_mb):
-        """Set the memory per CPU in Megabytes"""
-
+        """Set the memory per core in Megabytes"""
         self.qparams["pmem"] = mem_mb
         self.qparams["mem"] = mem_mb
 
     @property
-    def mpi_ncpus(self):
-        """Number of CPUs used for MPI."""
+    def mpi_procs(self):
+        """Number of MPI processes."""
         return self.qparams.get("nodes", 1)*self.qparams.get("ppn", 1)
 
-    def set_mpi_ncpus(self, mpi_ncpus):
+    def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
         self.qparams["nodes"] = 1
-        self.qparams["ppn"] = mpi_ncpus
-
+        self.qparams["ppn"] = mpi_procs
 
     def increase_nodes(self, factor):
         base_increase = 1
         new_nodes = self.qparams['nodes'] + factor * base_increase
-        if new_nodes < self.limits['max_nodes']:
+        if new_nodes < self.LIMITS['max_nodes']:
             self.qparams['nodes'] = new_nodes
             return True
         else:
@@ -1323,6 +1314,7 @@ class PbsOldAdapter(PbsProAdapter):
             return True
         else:
             return False
+
 
 class SGEAdapter(AbstractQueueAdapter):
     """

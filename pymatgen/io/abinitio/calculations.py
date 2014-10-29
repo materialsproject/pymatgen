@@ -71,7 +71,6 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
     # DOS calculation.
     dos_strategy = None
     if dos_kppa is not None:
-        #raise NotImplementedError("DOS must be tested")
         dos_ksampling = KSampling.automatic_density(structure, dos_kppa, chksymbreak=0)
         #dos_ksampling = KSampling.monkhorst(dos_ngkpt, shiftk=dos_shiftk, chksymbreak=0)
 
@@ -478,6 +477,5 @@ def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shif
                              bs_freq_mesh=None, with_lf=True, zcut=None)
 
     bse_strategy = MDFBSE_Strategy(scf_strategy, nscf_strategy, exc_ham, **extra_abivars)
-    raise NotImplementedError("")
 
     return BSEMDF_Workflow(scf_strategy, nscf_strategy, bse_strategy, workdir=workdir, manager=manager)
