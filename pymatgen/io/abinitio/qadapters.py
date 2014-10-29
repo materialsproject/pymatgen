@@ -1037,6 +1037,8 @@ class SlurmAdapter(AbstractQueueAdapter):
 
         return None
 
+#PBS -l select=$${select}:ncpus=$${ncpus}:vmem=$${vmem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
+
 
 class PbsProAdapter(AbstractQueueAdapter):
     QTYPE = "pbs"
@@ -1051,8 +1053,7 @@ class PbsProAdapter(AbstractQueueAdapter):
 #PBS -l model=$${model}
 #PBS -l place=$${place}
 #PBS -W group_list=$${group_list}
-####PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
-#PBS -l select=$${select}:ncpus=$${ncpus}:vmem=$${vmem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
+#PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
 #PBS -l pvmem=$${pvmem}mb
 #PBS -r y
 #PBS -o $${_qout_path}
