@@ -169,10 +169,13 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
         Returns the site properties as a dict of sequences. E.g.,
         {"magmom": (5,-5), "charge": (-4,4)}.
         """
-        props = collections.defaultdict(list)
+        props = {}
+        prop_keys = set()
         for site in self:
-            for k, v in site.properties.items():
-                props[k].append(v)
+            prop_keys.update(site.properties.keys())
+
+        for k in prop_keys:
+            props[k] = [site.properties.get(k, None) for site in self]
         return props
 
     def __contains__(self, site):
@@ -382,8 +385,9 @@ class IStructure(SiteCollection, PMGSONable):
         for i in range(len(species)):
             prop = None
             if site_properties:
-                prop = {k: v[i] if i < len(v) else None
+                prop = {k: v[i]
                         for k, v in site_properties.items()}
+
             sites.append(
                 PeriodicSite(species[i], coords[i], self._lattice,
                              to_unit_cell,
