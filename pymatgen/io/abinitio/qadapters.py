@@ -245,7 +245,9 @@ class Partition(object):
         """
         Return (num_nodes, rest_cores)
         """
-        return divmod(mpi_procs * omp_threads, self.cores_per_node)
+        num_nodes, rest_cores = divmod(mpi_procs * omp_threads, self.cores_per_node)
+        if num_nodes == 0: num_nodes = 1
+        return num_nodes, rest_cores
 
     def distribute(self, mpi_procs, omp_threads, mem_per_proc):
         """
@@ -256,8 +258,8 @@ class Partition(object):
         if mem_per_proc < self.mem_per_node:
             # Can use all then cores in the node.
             num_nodes, rest_cores = self.divmod_node(mpi_procs, omp_threads)
-            mpi_per_node = mpi_procs / num_nodes if num_nodes != 0 else mpi_procs
-            if rest_cores !=0: is_scattered = (num_nodes != 0)
+            mpi_per_node = mpi_procs // num_nodes if num_nodes != 0 else mpi_procs
+            if rest_cores != 0: is_scattered = (num_nodes != 0)
 
         if is_scattered:
             # Try first to pack MPI processors in a node as much as possible
