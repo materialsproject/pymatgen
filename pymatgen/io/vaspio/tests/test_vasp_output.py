@@ -18,6 +18,7 @@ import unittest
 import os
 import json
 import numpy as np
+import warnings
 
 from pymatgen.io.vaspio.vasp_output import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar
@@ -147,6 +148,11 @@ class VasprunTest(unittest.TestCase):
         vasprun_uniform = Vasprun(os.path.join(test_dir, "vasprun.xml.uniform"))
         self.assertEqual(vasprun_uniform.kpoints.style, "Reciprocal")
 
+
+        vasprun_no_pdos = Vasprun(os.path.join(test_dir, "Li_no_projected.xml"))
+        self.assertIsNotNone(vasprun_no_pdos.complete_dos)
+        self.assertFalse(vasprun_no_pdos.dos_has_errors)
+
     def test_as_dict(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath)
@@ -177,43 +183,55 @@ class VasprunTest(unittest.TestCase):
         self.assertEqual(vbm['kpoint'].label, "\Gamma", "wrong vbm label")
         self.assertEqual(cbm['kpoint'].label, None, "wrong cbm label")
 
+    def test_sc_step_overflow(self):
+        filepath = os.path.join(test_dir, 'vasprun.xml.sc_overflow')
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            vasprun = Vasprun(filepath)
+            self.assertEqual(len(w), 3)
+        estep = vasprun.ionic_steps[0]['electronic_steps'][29]
+        self.assertTrue(np.isnan(estep['e_wo_entrp']))
+
 
 class OutcarTest(unittest.TestCase):
 
     def test_init(self):
-        filepath = os.path.join(test_dir, 'OUTCAR')
-        outcar = Outcar(filepath)
-        expected_mag = ({'d': 0.0, 'p': 0.003, 's': 0.002, 'tot': 0.005},
-                         {'d': 0.798, 'p': 0.008, 's': 0.007, 'tot': 0.813},
-                         {'d': 0.798, 'p': 0.008, 's': 0.007, 'tot': 0.813},
-                         {'d': 0.0, 'p':-0.117, 's': 0.005, 'tot':-0.112},
-                         {'d': 0.0, 'p':-0.165, 's': 0.004, 'tot':-0.162},
-                         {'d': 0.0, 'p':-0.117, 's': 0.005, 'tot':-0.112},
-                         {'d': 0.0, 'p':-0.165, 's': 0.004, 'tot':-0.162})
-        expected_chg = ({'p': 0.154, 's': 0.078, 'd': 0.0, 'tot': 0.232},
-                        {'p': 0.707, 's': 0.463, 'd': 8.316, 'tot': 9.486},
-                        {'p': 0.707, 's': 0.463, 'd': 8.316, 'tot': 9.486},
-                        {'p': 3.388, 's': 1.576, 'd': 0.0, 'tot': 4.964},
-                        {'p': 3.365, 's': 1.582, 'd': 0.0, 'tot': 4.947},
-                        {'p': 3.388, 's': 1.576, 'd': 0.0, 'tot': 4.964},
-                        {'p': 3.365, 's': 1.582, 'd': 0.0, 'tot': 4.947})
+        for f in ['OUTCAR', 'OUTCAR.gz']:
+            filepath = os.path.join(test_dir, f)
+            outcar = Outcar(filepath)
+            expected_mag = ({'d': 0.0, 'p': 0.003, 's': 0.002, 'tot': 0.005},
+                             {'d': 0.798, 'p': 0.008, 's': 0.007, 'tot': 0.813},
+                             {'d': 0.798, 'p': 0.008, 's': 0.007, 'tot': 0.813},
+                             {'d': 0.0, 'p':-0.117, 's': 0.005, 'tot':-0.112},
+                             {'d': 0.0, 'p':-0.165, 's': 0.004, 'tot':-0.162},
+                             {'d': 0.0, 'p':-0.117, 's': 0.005, 'tot':-0.112},
+                             {'d': 0.0, 'p':-0.165, 's': 0.004, 'tot':-0.162})
+            expected_chg = ({'p': 0.154, 's': 0.078, 'd': 0.0, 'tot': 0.232},
+                            {'p': 0.707, 's': 0.463, 'd': 8.316, 'tot': 9.486},
+                            {'p': 0.707, 's': 0.463, 'd': 8.316, 'tot': 9.486},
+                            {'p': 3.388, 's': 1.576, 'd': 0.0, 'tot': 4.964},
+                            {'p': 3.365, 's': 1.582, 'd': 0.0, 'tot': 4.947},
+                            {'p': 3.388, 's': 1.576, 'd': 0.0, 'tot': 4.964},
+                            {'p': 3.365, 's': 1.582, 'd': 0.0, 'tot': 4.947})
 
-        self.assertAlmostEqual(outcar.magnetization, expected_mag, 5,
-                               "Wrong magnetization read from Outcar")
-        self.assertAlmostEqual(outcar.charge, expected_chg, 5,
-                               "Wrong charge read from Outcar")
-        self.assertFalse(outcar.is_stopped)
-        self.assertEqual(outcar.run_stats, {'System time (sec)': 0.938,
-                                            'Total CPU time used (sec)': 545.142,
-                                            'Elapsed time (sec)': 546.709,
-                                            'Maximum memory used (kb)': 0.0,
-                                            'Average memory used (kb)': 0.0,
-                                            'User time (sec)': 544.204})
-        self.assertAlmostEqual(outcar.efermi, 2.0112)
-        self.assertAlmostEqual(outcar.nelect, 44.9999991)
-        self.assertAlmostEqual(outcar.total_mag, 0.9999998)
+            self.assertAlmostEqual(outcar.magnetization, expected_mag, 5,
+                                   "Wrong magnetization read from Outcar")
+            self.assertAlmostEqual(outcar.charge, expected_chg, 5,
+                                   "Wrong charge read from Outcar")
+            self.assertFalse(outcar.is_stopped)
+            self.assertEqual(outcar.run_stats, {'System time (sec)': 0.938,
+                                                'Total CPU time used (sec)': 545.142,
+                                                'Elapsed time (sec)': 546.709,
+                                                'Maximum memory used (kb)': 0.0,
+                                                'Average memory used (kb)': 0.0,
+                                                'User time (sec)': 544.204,
+                                                'cores': '8'})
+            self.assertAlmostEqual(outcar.efermi, 2.0112)
+            self.assertAlmostEqual(outcar.nelect, 44.9999991)
+            self.assertAlmostEqual(outcar.total_mag, 0.9999998)
 
-        self.assertIsNotNone(outcar.as_dict())
+            self.assertIsNotNone(outcar.as_dict())
+
         filepath = os.path.join(test_dir, 'OUTCAR.stopped')
         outcar = Outcar(filepath)
         self.assertTrue(outcar.is_stopped)
@@ -295,13 +313,19 @@ class ProcarTest(unittest.TestCase):
 class XdatcarTest(unittest.TestCase):
 
     def test_init(self):
-        filepath = os.path.join(test_dir, 'XDATCAR')
+        filepath = os.path.join(test_dir, 'XDATCAR_4')
         x = Xdatcar(filepath)
         structures = x.structures
         self.assertEqual(len(structures), 3)
         for s in structures:
             self.assertEqual(s.formula, "Li2 O1")
 
+        filepath = os.path.join(test_dir, 'XDATCAR_5')
+        x = Xdatcar(filepath)
+        structures = x.structures
+        self.assertEqual(len(structures), 3)
+        for s in structures:
+            self.assertEqual(s.formula, "Li2 O1")
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

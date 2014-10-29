@@ -16,6 +16,7 @@ __date__ = "May 2014"
 import os
 import os.path
 
+from pymatgen.io.gwwrapper.helpers import load_ps
 from pymatgen.io.gwwrapper.datastructures import get_spec
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -23,6 +24,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 if __name__ == "__main__":
     if os.path.isfile('plots'):
         os.remove('plots')
+    load_ps()
     spec = get_spec('GW')
     spec.read_from_file('spec.in')
     print('Found setup for ', spec.get_code())

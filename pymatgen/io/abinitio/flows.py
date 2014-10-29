@@ -10,10 +10,13 @@ import time
 import collections
 import warnings
 import shutil
+import pickle
 
-from six.moves import map, cPickle as pickle
+from six.moves import map 
 from monty.io import FileLock
-from pymatgen.util.string_utils import pprint_table
+from monty.pprint import pprint_table
+
+from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
 from .tasks import Dependency, Status, Node, Task, ScfTask, PhononTask, TaskManager
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
@@ -175,7 +178,9 @@ class AbinitFlow(Node):
 
         with FileLock(filepath):
             with open(filepath, "rb") as fh:
-                flow = pickle.load(fh)
+                #flow = pickle.load(fh)
+                #flow = PmgUnpickler(fh).load()
+                flow = pmg_pickle_load(fh)
 
         # Check if versions match.
         if flow.VERSION != cls.VERSION:
@@ -449,8 +454,7 @@ class AbinitFlow(Node):
             if not task.queue_errors:
                 # queue error but no errors detected, try to solve by increasing resources
                 # if resources are at maximum the tast is definitively turned to errored
-                if task.manager.qadapter.increase_resources():
-                #if task.manager.policy.increase_max_ncpu():
+                if self.manager.increase_resources():  # acts either on the policy or on the qadapter
                     task.reset_from_scratch()
                     return True
                 else:
@@ -470,8 +474,12 @@ class AbinitFlow(Node):
                             info_msg = 'Node error detected but no was node identified. Unrecoverable error.'
                             return task.set_status(task.S_ERROR, info_msg)
                     elif isinstance(error, MemoryCancelError):
-                        # ask the qadapter to provide more memory
-                        if task.manager.qadapter.increase_mem():
+                        # ask the qadapter to provide more resources, i.e. more cpu's so more total memory
+                        if task.manager.increase_resources():
+                            task.reset_from_scratch()
+                            return task.set_status(task.S_READY, info_msg='increased mem')
+                        # if the max is reached, try to increase the memory per cpu:
+                        elif task.manager.qadapter.increase_mem():
                             task.reset_from_scratch()
                             return task.set_status(task.S_READY, info_msg='increased mem')
                         # if this failed ask the task to provide a method to reduce the memory demand
@@ -488,7 +496,7 @@ class AbinitFlow(Node):
                             task.reset_from_scratch()
                             return task.set_status(task.S_READY, info_msg='increased wall time')
                         # if this fails ask the qadapter to increase the number of cpus
-                        elif task.manager.qadapter.increase_cpus():
+                        elif task.manager.increase_resources():
                             task.reset_from_scratch()
                             return task.set_status(task.S_READY, info_msg='increased number of cpus')
                         # if this failed ask the task to provide a method to speed up the task
@@ -595,8 +603,8 @@ class AbinitFlow(Node):
                 try:
                     selected.append(getattr(choices[c], "path"))
                 except KeyError:
-                    import warnings
                     warnings.warn("Wrong keyword %s" % c)
+
             return selected
 
         # Build list of files to analyze.
@@ -679,7 +687,9 @@ class AbinitFlow(Node):
 
         with FileLock(filepath):
             with open(filepath, mode="w" if protocol == 0 else "wb") as fh:
-                pickle.dump(self, fh, protocol=protocol)
+                #pickle.dump(self, fh, protocol=protocol)
+                #PmgPickler(fh, protocol=protocol).dump(self)
+                pmg_pickle_dump(self, fh, protocol=protocol)
 
         # Atomic transaction.
         #filepath_new = filepath + ".new"
@@ -935,7 +945,7 @@ class AbinitFlow(Node):
             sched = PyFlowScheduler.from_user_config()
         else:
             # Use from_file if filepath if present, else call __init__
-            filepath == kwargs.pop("filepath", None)
+            filepath = kwargs.pop("filepath", None)
             if filepath is not None:
                 assert not kwargs
                 sched = PyFlowScheduler.from_file(filepath)

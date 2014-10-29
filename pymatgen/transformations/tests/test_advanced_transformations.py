@@ -259,9 +259,6 @@ class MagOrderingTransformationTest(PymatgenTest):
         s = self.get_structure('Li2O')
         trans = MagOrderingTransformation({"Li+": 0.0}, 0.5)
         alls = trans.apply_transformation(s)
-        #compositions will not be equal due to spin assignment
-        #structure representations will be the same
-        self.assertEqual(str(s), str(alls))
         #Ensure s does not have a spin property
         self.assertFalse('spin' in s.sites[0].specie._properties)
         #ensure sites are assigned a spin property in alls

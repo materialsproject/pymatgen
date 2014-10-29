@@ -64,6 +64,7 @@ def straceback():
     import traceback
     return traceback.format_exc()
 
+
 class TaskResults(dict, PMGSONable):
     """
     Dictionary used to store the most important results produced by a Task.
@@ -302,6 +303,7 @@ class ParalHints(collections.Iterable):
 
         hints = ParalHints(self.info, confs=[c for c in self if c.tot_ncpus <= policy.max_ncpus])
         #print(hints)
+        #logger.info('hints: \n' + str(hints) + '\n')
 
         # First select the configurations satisfying the 
         # condition specified by the user (if any)
@@ -334,6 +336,12 @@ class ParalHints(collections.Iterable):
 
         hints.sort_by_speedup()
 
+        logger.info('speedup hints: \n' + str(hints) + '\n')
+
+        #hints.sort_by_efficiency()
+
+        #logger.info('efficiency hints: \n' + str(hints) + '\n')
+
         # Find the optimal configuration according to policy.mode.
         #mode = policy.mode
         #if mode in ["default", "aggressive"]:
@@ -350,7 +358,7 @@ class ParalHints(collections.Iterable):
 
         # Return a copy of the configuration.
         optimal = hints[-1].copy()
-        logger.debug("Will relaunch the job with optimized parameters:\n %s" % optimal)
+        logger.info("Will relaunch the job with optimized parameters:\n %s" % optimal)
 
         return optimal
 
@@ -407,6 +415,16 @@ class TaskPolicy(object):
                 continue
             app("%s: %s" % (k, v))
         return "\n".join(lines)
+
+    def increase_max_ncpus(self):
+        base_increase = 12
+        new = self.max_ncpus + base_increase
+        if new <= 360:
+            logger.info('set max_ncps to '+str(new))
+            self.max_ncpus = new
+            return True
+        else:
+            return False
 
 
 class TaskManager(object):
@@ -637,12 +655,17 @@ class TaskManager(object):
 
         return process
 
-    def increase_max_ncpus(self):
-        base_increase = 12
-        new = self.policy.max_ncpus + base_increase
-        if new <= 240:
-            self.set_max_ncpus(new)
-            return True
+    def increase_resources(self):
+        if self.policy.autoparal == 1:
+            if self.policy.increase_max_ncpus():
+                return True
+            else:
+                return False
+        elif self.qadapter is not None:
+            if self.qadapter.increase_cpus():
+                return True
+            else:
+                return False
         else:
             return False
 
@@ -849,7 +872,7 @@ class Dependency(object):
 # Possible status of the node.
 _STATUS2STR = collections.OrderedDict([
     (1,  "Initialized"),    # Node has been initialized
-    (2,  "Locked"),         # Task is locked an must be explicitly unlocked by en external subject (Workflow).
+    (2,  "Locked"),         # Task is locked an must be explicitly unlocked by an external subject (Workflow).
     (3,  "Ready"),          # Node is ready i.e. all the depencies of the node have status S_OK
     (4,  "Submitted"),      # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
     (5,  "Running"),        # Node is running.
@@ -2336,7 +2359,8 @@ class AbinitTask(Task):
         try:
             confs = parser.parse(self.output_file.path)
             #self.all_autoparal_confs = confs
-            #print("confs", confs)
+            logger.info('speedup hints: \n' + str(confs) + '\n')
+            # print("confs", confs)
 
         except parser.Error:
             logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
@@ -2411,7 +2435,7 @@ class AbinitTask(Task):
 
         """
         # the crude, no idea what to do but this may work, solution.
-        if self.manager.increase_max_ncpus:
+        if self.manager.increase_resources():
             self.reset_from_scratch()
             return True
         else:

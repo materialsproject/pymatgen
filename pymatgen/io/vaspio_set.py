@@ -11,8 +11,6 @@ without further user intervention. This ensures comparability across
 runs.
 """
 
-import six
-
 __author__ = "Shyue Ping Ong, Wei Chen, Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
@@ -28,6 +26,7 @@ import traceback
 import shutil
 from functools import partial
 
+import six
 import numpy as np
 
 from monty.serialization import loadfn
@@ -38,8 +37,6 @@ from pymatgen.io.vaspio.vasp_output import Vasprun, Outcar
 from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
-from pymatgen.io.smartio import write_structure
-
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -524,7 +521,7 @@ class MITNEBVaspInputSet(DictVaspInputSet):
                 os.makedirs(d)
             self.get_poscar(s).write_file(os.path.join(d, 'POSCAR'))
             if write_cif:
-                write_structure(s, os.path.join(d, '{}.cif'.format(i)))
+                s.to(filename=os.path.join(d, '{}.cif'.format(i)))
 
     def as_dict(self):
         d = super(MITNEBVaspInputSet, self).as_dict()
