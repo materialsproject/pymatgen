@@ -94,6 +94,7 @@ class PartitionTest(PymatgenTest):
         aequal = self.assertEqual
         aequal(part.tot_cores, p.num_nodes * p.sockets_per_node * p.cores_per_socket)
         aequal(part.cores_per_node, p.sockets_per_node * p.cores_per_socket)
+        aequal(part.can_use_omp_threads(p.sockets_per_node * p.cores_per_socket), True)
         aequal(part.can_use_omp_threads(p.sockets_per_node * p.cores_per_socket + 1), False)
 
         # Test can_run and distribute
@@ -107,6 +108,12 @@ class PartitionTest(PymatgenTest):
         #p = AttrDict(name="test_partition", num_nodes=3, sockets_per_node=2, cores_per_socket=4, mem_per_node="1Gb")
         d = part.distribute(mpi_procs=4, omp_threads=1, mem_per_proc=0.1)
         assert d.num_nodes == 1 and d.mpi_per_node == 4
+        d = part.distribute(mpi_procs=16, omp_threads=1, mem_per_proc=0.1)
+        assert d.num_nodes == 2 and d.mpi_per_node == 8
+        #d = part.distribute(mpi_procs=9, omp_threads=1, mem_per_proc=0.1)
+        #assert d.num_nodes == 3 and d.mpi_per_node == 3
+        #num_nodes=1, mpi_per_node=9, is_scattered=True
+        #assert d.num_nodes == 1 and d.mpi_per_node == 4
 
 
 class PbsProadapterTest(PymatgenTest):
