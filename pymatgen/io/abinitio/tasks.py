@@ -742,18 +742,22 @@ class TaskManager(object):
         return process
 
     def increase_resources(self):
-        if self.policy.autoparal == 1:
-            if self.policy.increase_max_ncpus():
-                return True
-            else:
-                return False
-        elif self.qadapter is not None:
-            if self.qadapter.increase_cpus():
-                return True
-            else:
-                return False
-        else:
-            return False
+            # with GW calculations in mind with GW mem = 10, the response fuction is in memory and not distributed
+            # we need to increas memory if jobs fail ...
+        return self.qadapter.increase_mem()
+
+#        if self.policy.autoparal == 1:
+#            #if self.policy.increase_max_ncpus():
+#                return True
+#            else:
+#                return False
+#        elif self.qadapter is not None:
+#            if self.qadapter.increase_cpus():
+#                return True
+#            else:
+#                return False
+#        else:
+#            return False
 
 
 # The code below initializes a counter from a file when the module is imported 
