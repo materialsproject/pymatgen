@@ -36,6 +36,20 @@ class RpnTest(PymatgenTest):
             self.assertEqual(res, evaluate_rpn(rpn), msg="map %s" % map)
 
 
+class ConditionTest(PymatgenTest):
+    def test_condition(self):
+        c = Condition({}) 
+        assert not c
+        print(c)
+
+        class A(object): 
+            def __init__(self):
+                self.one = 1.0
+
+        aobj = A()
+        assert Condition({"one": 1.0}).eval(aobj)
+        assert not Condition({"one": 2.0}).eval(aobj)
+
 if __name__ == '__main__':
     import unittest
     unittest.main()

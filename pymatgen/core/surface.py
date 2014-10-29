@@ -28,6 +28,7 @@ from monty.fractions import lcm
 
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
+from pymatgen.core.sites import PeriodicSite
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord_utils import in_coord_list
@@ -69,7 +70,7 @@ class Slab(Structure):
     def __init__(self, lattice, species, coords, miller_index,
                  oriented_unit_cell, shift, scale_factor,
                  validate_proximity=False, to_unit_cell=False,
-                 coords_are_cartesian=False, site_properties=None):
+                 coords_are_cartesian=False, site_properties=None, energy=None):
         """
         Makes a Slab structure, a structure object with additional information
         and methods pertaining to slabs.
@@ -110,12 +111,13 @@ class Slab(Structure):
                 dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
+            energy (float): A value for the energy.
         """
         self.oriented_unit_cell = oriented_unit_cell
         self.miller_index = tuple(miller_index)
         self.shift = shift
         self.scale_factor = scale_factor
-
+        self.energy = energy
         super(Slab, self).__init__(
             lattice, species, coords, validate_proximity=validate_proximity,
             to_unit_cell=to_unit_cell,
@@ -312,7 +314,7 @@ class SlabGenerator(object):
         a, b, c = self.oriented_unit_cell.lattice.matrix
         self._proj_height = abs(np.dot(normal, c))
 
-    def get_slab(self, shift=0, tol=0.1):
+    def get_slab(self, shift=0, tol=0.1, energy=None):
         """
         This method takes in shift value for the c lattice direction and
         generates a slab based on the given shift. You should rarely use this
@@ -323,6 +325,7 @@ class SlabGenerator(object):
             shift (float): A shift value in Angstrom that determines how much a
                 slab should be shifted.
             tol (float): Tolerance to determine primitive cell.
+            energy (float): An energy to assign to the slab.
 
         Returns:
             (Slab) A Slab object with a particular shifted oriented unit cell.
@@ -366,12 +369,16 @@ class SlabGenerator(object):
             slab.translate_sites(list(range(len(slab))), [0, 0, 0.5 - avg_c])
 
         if self.primitive:
-            slab = slab.get_primitive_structure(tolerance=tol)
+            prim = slab.get_primitive_structure(tolerance=tol)
+            if energy is not None:
+                energy = prim.volume / slab.volume * energy
+            slab = prim
 
         return Slab(slab.lattice, slab.species_and_occu,
                     slab.frac_coords, self.miller_index,
                     self.oriented_unit_cell, shift,
-                    scale_factor, site_properties=slab.site_properties)
+                    scale_factor, site_properties=slab.site_properties,
+                    energy=energy)
 
     def _calculate_possible_shifts(self, tol=0.1):
         frac_coords = self.oriented_unit_cell.frac_coords
@@ -417,7 +424,7 @@ class SlabGenerator(object):
         shifts = sorted(shifts)
         return shifts
 
-    def get_slabs(self, bonds=None, tol=0.1):
+    def get_slabs(self, bonds=None, tol=0.1, max_broken_bonds=0):
         """
         This method returns a list of slabs that are generated using the list of
         shift values from the method, _calculate_possible_shifts(). Before the
@@ -434,11 +441,43 @@ class SlabGenerator(object):
             tol (float): Threshold parameter in fcluster in order to check
                 if two atoms are lying on the same plane. Default thresh set
                 to 0.1 Angstrom in the direction of the surface normal.
+            max_broken_bonds (int): Maximum number of allowable broken bonds
+                for the slab. Use this to limit # of slabs (some structures
+                may have a lot of slabs). Defaults to zero, which means no
+                defined bonds must be broken.
 
         Returns:
             ([Slab]) List of all possible terminations of a particular surface.
+            Slabs are sorted by the # of bonds broken.
         """
-        forbidden_c_ranges = []
+        def get_c_ranges(site1, site2, bond_dist):
+            lattice = site1.lattice
+            f1 = site1.frac_coords
+            c_ranges = []
+            for dist, image in lattice.get_all_distance_and_image(
+                    f1, site2.frac_coords):
+                if dist < bond_dist:
+                    f2 = site2.frac_coords + image
+                    # Checks if the distance between the two species
+                    # is less then the user input bond distance
+                    min_c = f1[2]
+                    max_c = f2[2]
+                    c_range = sorted([min_c, max_c])
+                    if c_range[1] > 1:
+                        # Takes care of PBC when c coordinate of site
+                        # goes beyond the upper boundary of the cell
+                        c_ranges.append((c_range[0], 1))
+                        c_ranges.append((0, c_range[1] - 1))
+                    elif c_range[0] < 0:
+                        # Takes care of PBC when c coordinate of site
+                        # is below the lower boundary of the unit cell
+                        c_ranges.append((0, c_range[1]))
+                        c_ranges.append((c_range[0] + 1, 1))
+                    else:
+                        c_ranges.append(c_range)
+            return c_ranges
+
+        bond_c_ranges = []
         if bonds is not None:
             #Convert to species first
             bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in
@@ -451,42 +490,25 @@ class SlabGenerator(object):
                 for species, bond_dist in bonds.items():
                     # Checks if elements in species is in all_sp
                     if all_sp.issuperset(species):
-                        dist, image = s1.distance_and_image(s2)
-                        if dist < bond_dist:
-                        # Checks if the distance between the two species
-                        # is less then the user input bond distance
-                            min_c = s1.c
-                            max_c = (s2.frac_coords + image)[2]
-                            c_range = sorted([min_c, max_c])
-                            if c_range[1] > 1:
-                                # Takes care of PBC when c coordinate of site
-                                # goes beyond the upper boundary of the cell
-                                forbidden_c_ranges.append((c_range[0], 1))
-                                forbidden_c_ranges.append((0, c_range[1] -1))
-                            elif c_range[0] < 0:
-                                # Takes care of PBC when c coordinate of site
-                                # is below the lower boundary of the unit cell
-                                forbidden_c_ranges.append((0, c_range[1]))
-                                forbidden_c_ranges.append((c_range[0] + 1, 1))
-                            else:
-                                forbidden_c_ranges.append(c_range)
+                        bond_c_ranges.extend(get_c_ranges(s1, s2, bond_dist))
 
-        def shift_allowed(shift):
-            # Takes in the list of shifts and filters out the shifts that
-            # break the user input polyhedral bonds. forbidden_c_ranges
-            # determines where these bonds are located.
-            for r in forbidden_c_ranges:
+        slabs = []
+        for shift in self._calculate_possible_shifts(tol=tol):
+            bonds_broken = 0
+            for r in bond_c_ranges:
                 if r[0] <= shift <= r[1]:
-                    return False
-            return True
+                    bonds_broken += 1
+            if bonds_broken <= max_broken_bonds:
+                # For now, set the energy to be equal to no. of broken bonds
+                # per unit cell.
+                slab = self.get_slab(shift, tol=tol, energy=bonds_broken)
+                slabs.append(slab)
 
-        slabs = [self.get_slab(shift, tol=tol)
-                 for shift in self._calculate_possible_shifts(tol=tol)
-                 if shift_allowed(shift)]
         # Further filters out any surfaces made that might be the same
         m = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False,
                              scale=False)
-        return [g[0] for g in m.group_structures(slabs)]
+        slabs = [g[0] for g in m.group_structures(slabs)]
+        return sorted(slabs, key=lambda s: s.energy)
 
 
 def get_symmetrically_distinct_miller_indices(structure, max_index):
@@ -532,8 +554,9 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
 
 
 def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
-                       bonds=None, tol=0.1, lll_reduce=False,
-                       center_slab=False):
+                       bonds=None, tol=0.1, max_broken_bonds=0,
+                       lll_reduce=False,
+                       center_slab=False, primitive=True):
     """
     A function that finds all different slabs up to a certain miller index.
     Slabs oriented under certain Miller indices that are equivalent to other
@@ -551,14 +574,24 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
             positions (e.g., structures relaxed with electronic structure
             codes), a looser tolerance of 0.1 (the value used in Materials
             Project) is often needed.
+        lll_reduce (bool): Whether to perform an LLL reduction on the
+            eventual structure.
+        center_slab (bool): Whether to center the slab in the cell with
+            equal vacuum spacing from the top and bottom.
+        primitive (bool): Whether to reduce any generated slabs to a
+            primitive cell (this does **not** mean the slab is generated
+            from a primitive cell, it simply means that after slab
+            generation, we attempt to find shorter lattice vectors,
+            which lead to less surface area and smaller cells).
     """
     all_slabs = []
     for miller in get_symmetrically_distinct_miller_indices(structure,
                                                             max_index):
         gen = SlabGenerator(structure, miller, min_slab_size,
                             min_vacuum_size, lll_reduce=lll_reduce,
-                            center_slab=center_slab)
-        slabs = gen.get_slabs(bonds=bonds, tol=tol)
+                            center_slab=center_slab, primitive=primitive)
+        slabs = gen.get_slabs(bonds=bonds, tol=tol,
+                              max_broken_bonds=max_broken_bonds)
         if len(slabs) > 0:
             logger.debug("%s has %d slabs... " % (miller, len(slabs)))
             all_slabs.extend(slabs)
