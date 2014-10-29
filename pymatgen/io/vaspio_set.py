@@ -1014,6 +1014,9 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         kpoints_density (int): kpoints density for the reciprocal cell
             of structure. Might need to increase the default value when
             calculating metallic materials.
+        kpoints_line_density (int): kpoints density to use in line-mode.
+            Might need to increase the default value when calculating
+            metallic materials.
         sort_structure (bool): Whether to sort structure. Defaults to
             False.
         sym_prec (float): Tolerance for symmetry finding
@@ -1133,7 +1136,8 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
     @staticmethod
     def from_previous_vasp_run(previous_vasp_dir, output_dir='.',
                                mode="Uniform", user_incar_settings=None,
-                               copy_chgcar=True, make_dir_if_not_present=True):
+                               copy_chgcar=True, make_dir_if_not_present=True,
+                               kpoints_density=1000, line_density=20):
         """
         Generate a set of Vasp input files for NonSCF calculations from a
         directory of previous static Vasp run.
@@ -1154,6 +1158,12 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             make_dir_if_not_present (bool): Set to True if you want the
                 directory (and the whole path) to be created if it is not
                 present.
+            kpoints_density (int): kpoints density for the reciprocal cell
+                of structure. Might need to increase the default value when
+                calculating metallic materials.
+            kpoints_line_density (int): kpoints density to use in line-mode.
+                Might need to increase the default value when calculating
+                metallic materials.
         """
         user_incar_settings = user_incar_settings or {}
 
@@ -1171,7 +1181,9 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                                                        initial_structure=True)
         nscf_incar_settings = MPNonSCFVaspInputSet.get_incar_settings(vasp_run,
                                                                       outcar)
-        mpnscfvip = MPNonSCFVaspInputSet(nscf_incar_settings, mode)
+        mpnscfvip = MPNonSCFVaspInputSet(nscf_incar_settings, mode,
+                                         kpoints_density=kpoints_density,
+                                         line_density=line_density)
         mpnscfvip.write_input(structure, output_dir, make_dir_if_not_present)
         if copy_chgcar:
             try:
