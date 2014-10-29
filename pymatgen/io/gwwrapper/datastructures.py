@@ -35,7 +35,7 @@ from abc import abstractproperty, abstractmethod, ABCMeta
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.matproj.rest import MPRester, MPRestError
 from pymatgen.serializers.json_coders import MSONable
-from pymatgen.io.gwwrapper.convergence import test_conv
+from pymatgen.io.gwwrapper.convergence import determine_convergence
 from pymatgen.io.gwwrapper.helpers import print_gnuplot_header, s_name, add_gg_gap, refine_structure, now
 from pymatgen.io.gwwrapper.codeinterfaces import get_code_interface
 from pymatgen.core.structure import Structure
@@ -538,11 +538,11 @@ class GWSpecs(AbstractAbinitioSpec):
             try:
                 user = os.environ['MAR_USER']
             except KeyError:
-                user = input('DataBase user name: ')
+                user = raw_input('DataBase user name: ')
             try:
                 pwd = os.environ['MAR_PAS']
             except KeyError:
-                pwd = input('DataBase pwd: ')
+                pwd = raw_input('DataBase pwd: ')
             db = local_serv[db_name]
             db.authenticate(user, pwd)
             col = db[collection]
@@ -578,12 +578,12 @@ class GWSpecs(AbstractAbinitioSpec):
                 print('adding', new_entry['results_file'], new_entry['data_file'])
                 try:
                     with open(new_entry['results_file'], 'r') as f:
-                        new_entry['results_file'] = gfs.put(f.read())
+                        new_entry['results_file'] = gfs.put(f)
                 except IOError:
                     print(new_entry['results_file'], 'not found')
                 try:
                     with open(new_entry['data_file'], 'r') as f:
-                        new_entry['data_file'] = gfs.put(f.read())
+                        new_entry['data_file'] = gfs.put(f)
                 except IOError:
                     print(new_entry['data_file'], 'not found')
                 print('as ', new_entry['results_file'], new_entry['data_file'])
@@ -723,7 +723,7 @@ class GWConvergenceData():
                     zs.append(zd[x][y])
                 except KeyError:
                     pass
-            conv_data = test_conv(ys, zs, name=self.name, tol=tol, extra='ecuteps at '+str(x))
+            conv_data = determine_convergence(ys, zs, name=self.name, tol=tol, extra='ecuteps at '+str(x))
             extrapolated.append(conv_data[4])
             if conv_data[0]:
                 y_conv.append(conv_data[1])
@@ -734,7 +734,7 @@ class GWConvergenceData():
                 y_conv.append(None)
                 z_conv.append(None)
         if ecuteps_l:
-            conv_data = test_conv(xs, z_conv, name=self.name, tol=tol, extra='nbands')
+            conv_data = determine_convergence(xs, z_conv, name=self.name, tol=tol, extra='nbands')
             if conv_data[0]:
                 nbands_l = conv_data[0]
                 nbands_c = conv_data[1]
@@ -745,7 +745,7 @@ class GWConvergenceData():
         self.conv_res['control'].update({'ecuteps': ecuteps_l, 'nbands': nbands_l})
         self.conv_res['values'].update({'ecuteps': ecuteps_c, 'nbands': nbands_c, 'gap': gap})
         self.conv_res['derivatives'].update({'ecuteps': ecuteps_d, 'nbands': nbands_d})
-        return test_conv(xs, extrapolated, name=self.name, tol=-0.05, extra='nbands at extrapolated ecuteps')
+        return determine_convergence(xs, extrapolated, name=self.name, tol=-0.05, extra='nbands at extrapolated ecuteps')
 
     def find_conv_pars_scf(self, x_name, y_name, tol=0.0001):
         xs = self.get_var_range(x_name)
@@ -753,7 +753,7 @@ class GWConvergenceData():
         #print self.get_data_array_2d(x_name, y_name)
         for x in xs:
             ys.append(self.get_data_array_2d(x_name, y_name)[x])
-        conv_data = test_conv(xs, ys, name=self.name, tol=tol, extra=x_name)
+        conv_data = determine_convergence(xs, ys, name=self.name, tol=tol, extra=x_name)
         #print conv_data, {x_name: conv_data[0]}, {x_name: conv_data[1]}, {x_name: conv_data[5]}
         self.conv_res['control'].update({x_name: conv_data[0]})
         self.conv_res['values'].update({x_name: conv_data[1]})

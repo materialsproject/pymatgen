@@ -5,7 +5,7 @@ from __future__ import division, unicode_literals
 import collections
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.units import (Energy, Time, Length, unitized, Mass,
+from pymatgen.core.units import (Energy, Time, Length, unitized, Mass, Memory,
                                  EnergyArray, TimeArray, LengthArray, Unit,
                                  FloatWithUnit, ArrayWithUnit, UnitError)
 
@@ -60,6 +60,18 @@ class FloatWithUnitTest(PymatgenTest):
         y = x ** 3
         self.assertAlmostEqual(y, 74.088)
         self.assertEqual(str(y.unit), "ang^3")
+
+    def test_memory(self):
+        mega = Memory(1, "Mb")
+        print(type(Memory), type(mega))
+        self.assertEqual(mega.to("byte"), 1024**2)
+        self.assertEqual(mega, Memory(1, "mb"))
+
+        same_mega = Memory.from_string("1Mb")
+        self.assertEqual(same_mega.unit_type, "memory")
+
+        other_mega = Memory.from_string("+1.0 mb")
+        self.assertEqual(mega, other_mega)
 
     def test_unitized(self):
 

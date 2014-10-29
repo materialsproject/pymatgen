@@ -4,9 +4,9 @@ from __future__ import unicode_literals, division, print_function
 
 import collections
 import numpy as np
+import pymatgen.core.units as units
 
 from pymatgen.core.units import FloatWithUnit
-import pymatgen.core.units as units
 
 import logging
 logger = logging.getLogger(__file__)
@@ -366,7 +366,7 @@ class EOS_Fit(object):
         ax.grid(True)
         ax.set_xlabel("Volume $\AA^3$")
         ax.set_ylabel("Energy (eV)")
-        ax.legend(lines, legends, 'upper right', shadow=True)
+        ax.legend(lines, legends, loc='upper right', shadow=True)
 
         # Add text with fit parameters.
         text = []; app = text.append
