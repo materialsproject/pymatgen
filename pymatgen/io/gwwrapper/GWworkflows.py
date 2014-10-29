@@ -3,6 +3,11 @@
 from __future__ import unicode_literals, division, print_function
 
 """
+Workflows for GW calculations:
+ VaspGWFWWorkFlow fireworks wf for vasp
+ SingleAbinitGWWorkFlow workflow for abinit
+Under construction:
+ general GW workflow that should manage all the code independent logic
 
 """
 
@@ -132,7 +137,7 @@ class VaspGWFWWorkFlow():
 
 class SingleAbinitGWWorkFlow():
     """
-    interface the
+    GW workflow for Abinit
     """
     RESPONSE_MODELS = ["cd", "godby", "hybersten", "linden", "farid"]
     TESTS = {'ecuteps': {'test_range': (10, 14), 'method': 'direct', 'control': "gap", 'level': "sigma"},
@@ -217,11 +222,19 @@ class SingleAbinitGWWorkFlow():
         manager = TaskManager.from_user_config()
         # Initialize the flow.
         flow = AbinitFlow(self.work_dir, manager, pickle_protocol=0)
+        # flow = AbinitFlow(self.work_dir, manager)
 
         # kpoint grid defined over density 40 > ~ 3 3 3
         if self.spec['converge'] and not self.all_converged:
             # (2x2x2) gamma centered mesh for the convergence test on nbands and ecuteps
-            scf_kppa = 2
+            # if kp_in is present in the specs a kp_in X kp_in x kp_in mesh is used for the convergence studie
+            if 'kp_in' in self.spec.keys():
+                if self.spec['kp_in'] > 9:
+                    print('WARNING:\nkp_in should be < 10 to generate an n x n x n mesh\nfor larger values a grid with '
+                          'density kp_in will be generated')
+                scf_kppa = self.spec['kp_in']
+            else:
+                scf_kppa = 2
         else:
             # use the specified density for the final calculation with the converged nbands and ecuteps of other
             # stand alone calculations
@@ -233,14 +246,14 @@ class SingleAbinitGWWorkFlow():
         nscf_nband = [10 * nb]
 
         ecuteps = [8]
-        ecutsigx = 8
+        ecutsigx = 44
 
         extra_abivars = dict(
             paral_kgb=1,
             inclvkb=2,
             ecut=44,
             pawecutdg=88,
-            gwmem='00',
+            gwmem='10',
             getden=-1,
             istwfk="*1",
             timopt=-1,
@@ -250,6 +263,10 @@ class SingleAbinitGWWorkFlow():
         # read user defined extra abivars from file  'extra_abivars' should be dictionary
         extra_abivars.update(read_extra_abivars())
 
+        response_models = ['godby']
+        if 'ppmodel' in extra_abivars.keys():
+            response_models = [extra_abivars.pop('ppmodel')]
+
         if self.option is not None:
             for k in self.option.keys():
                 if k in ['ecuteps', 'nscf_nbands']:
@@ -258,8 +275,6 @@ class SingleAbinitGWWorkFlow():
                     extra_abivars.update({k: self.option[k]})
                     if k == 'ecut':
                         extra_abivars.update({'pawecutdg': self.option[k]*2})
-
-        response_models = ['godby']
 
         try:
             grid = read_grid_from_file(s_name(self.structure)+".full_res")['grid']
@@ -331,6 +346,12 @@ class SingleAbinitGWWorkFlow():
         return flow.allocate()
 
     def create_job_file(self, serial=True):
+        """
+        Create the jobfile for starting all schedulers manually
+        serial = True creates a list that can be submitted as job that runs all schedulers a a batch job
+        (the job header needs to be added)
+        serial = False creates a list that can be used to start all schedulers on the frontend in the background
+        """
         job_file = open("job_collection", mode='a')
         if serial:
             job_file.write('abirun.py ' + self.work_dir + ' scheduler > ' + self.work_dir + '.log\n')

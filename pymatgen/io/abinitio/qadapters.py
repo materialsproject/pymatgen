@@ -1007,21 +1007,27 @@ class PbsProAdapter(AbstractQueueAdapter):
 #PBS -o $${_qout_path}
 #PBS -e $${_qerr_path}
 """
+    """
+    the limits for certain parameters set on the cluster.
+    currently hard coded, should be read at init
+    the increase functions will not increase beyond thise limits
+    """
+
     LIMITS = {'max_total_tasks': 3888, 'time': 48, 'max_select': 300, 'mem': 16000}
 
     @property
     def mpi_procs(self):
-        """Number of CPUs used for MPI."""
+        """Number of CPUs used for MPI. The number of MPI processes."""
         #return self.qparams.get("select", 1)
         return self._mpi_procs
                                                     
     def set_mpi_procs(self, mpi_procs):
-        """Set the number of CPUs used for MPI."""
+        """Number of CPUs used for MPI. The number of MPI processes."""
         #self.qparams["select"] = mpi_procs
         self._mpi_procs = mpi_procs
 
     def set_omp_threads(self, omp_threads):
-        """Set the number of OpenMP threads."""
+        """Set the number of OpenMP threads. Per MPI process."""
         self.omp_env["OMP_NUM_THREADS"] = omp_threads
         self.qparams["ompthreads"] = omp_threads
 
