@@ -25,6 +25,7 @@ from monty.json import jsanitize
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 
+
 logger = logging.getLogger('BSPlotter')
 
 
@@ -117,13 +118,17 @@ class DosPlotter(object):
                 determination.
             ylim: Specifies the y-axis limits.
         """
+        import prettyplotlib as ppl
+        from prettyplotlib import brewer2mpl
         from pymatgen.util.plotting_utils import get_publication_quality_plot
-        plt = get_publication_quality_plot(12, 8)
-        color_order = ['r', 'b', 'g', 'c', 'm', 'k']
+        colors = brewer2mpl.get_map('Set1', 'qualitative',
+                                    len(self._doses)).mpl_colors
 
         y = None
         alldensities = []
         allenergies = []
+        plt = get_publication_quality_plot(12, 8)
+
         # Note that this complicated processing of energies is to allow for
         # stacked plots in matplotlib.
         for key, dos in self._doses.items():
@@ -162,19 +167,17 @@ class DosPlotter(object):
                     y.extend(densities)
             allpts.extend(list(zip(x, y)))
             if self.stack:
-                plt.fill(x, y, color=color_order[i % len(color_order)],
+                plt.fill(x, y, color=colors[i],
                          label=str(key))
             else:
-                plt.plot(x, y, color=color_order[i % len(color_order)],
+                ppl.plot(x, y, color=colors[i],
                          label=str(key),linewidth=3)
             if not self.zero_at_efermi:
                 ylim = plt.ylim()
-                plt.plot([self._doses[key]['efermi'],
+                ppl.plot([self._doses[key]['efermi'],
                           self._doses[key]['efermi']], ylim,
-                         color_order[i % 4] + '--', linewidth=2)
+                          colors[i] + '--', linewidth=2)
 
-        plt.xlabel('Energies (eV)')
-        plt.ylabel('Density of states')
         if xlim:
             plt.xlim(xlim)
         if ylim:
@@ -188,6 +191,9 @@ class DosPlotter(object):
         if self.zero_at_efermi:
             ylim = plt.ylim()
             plt.plot([0, 0], ylim, 'k--', linewidth=2)
+
+        plt.xlabel('Energies (eV)')
+        plt.ylabel('Density of states')
 
         plt.legend()
         leg = plt.gca().get_legend()
