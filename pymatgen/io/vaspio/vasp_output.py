@@ -1023,6 +1023,7 @@ class Outcar(PMGSONable):
                 break
 
         # data from beginning of OUTCAR
+        run_stats['cores'] = 0
         with zopen(filename, "rt") as f:
             for line in f:
                 if "running" in line:

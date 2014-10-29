@@ -563,7 +563,7 @@ class TaskPolicy(object):
                 Select the algorith to select the optimal configuration for the parallel execution.
                 Possible values: ["default", "aggressive", "conservative"]
             max_ncpus:
-                Max number of CPUs that can be used (must be specified if autoparal > 0).
+                Maximal number of phyiscal CPUs that can be used (must be specified if autoparal > 0).
             condition:
                 condition used to filter the autoparal configuration (Mongodb-like syntax)
             vars_condition:
@@ -650,7 +650,7 @@ class TaskManager(object):
         if os.path.exists(path):
             return cls.from_file(path)
     
-        raise RuntimeError("Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, dirpath))
+        raise RuntimeError("Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, path))
 
     @classmethod 
     def sequential(cls):
@@ -874,18 +874,22 @@ class TaskManager(object):
         return process
 
     def increase_resources(self):
-        if self.policy.autoparal == 1:
-            if self.policy.increase_max_ncpus():
-                return True
-            else:
-                return False
-        elif self.qadapter is not None:
-            if self.qadapter.increase_cpus():
-                return True
-            else:
-                return False
-        else:
-            return False
+            # with GW calculations in mind with GW mem = 10, the response fuction is in memory and not distributed
+            # we need to increas memory if jobs fail ...
+        return self.qadapter.increase_mem()
+
+#        if self.policy.autoparal == 1:
+#            #if self.policy.increase_max_ncpus():
+#                return True
+#            else:
+#                return False
+#        elif self.qadapter is not None:
+#            if self.qadapter.increase_cpus():
+#                return True
+#            else:
+#                return False
+#        else:
+#            return False
 
 
 # The code below initializes a counter from a file when the module is imported 

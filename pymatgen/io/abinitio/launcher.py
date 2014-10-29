@@ -481,7 +481,7 @@ class PyFlowScheduler(object):
             return cls.from_file(path)
 
         # Try in the configuration directory.
-        path = os.path.join(cls.USER_CONfIG_DIR, cls.YAML_FILE)
+        path = os.path.join(cls.USER_CONFIG_DIR, cls.YAML_FILE)
 
         if os.path.exists(path):
             return cls.from_file(path)
