@@ -1023,14 +1023,12 @@ class Outcar(PMGSONable):
                 break
 
         # data from beginning of OUTCAR
-        try:
-            with zopen(filename, "rt") as f:
-                for line in f:
-                    if "running" in line:
-                        run_stats['cores'] = line.split()[2]
-                        break
-        except (OSError, IOError):
-            run_stats['cores'] = 0
+        run_stats['cores'] = 0
+        with zopen(filename, "rt") as f:
+            for line in f:
+                if "running" in line:
+                    run_stats['cores'] = line.split()[2]
+                    break
 
         self.run_stats = run_stats
         self.magnetization = tuple(mag)
