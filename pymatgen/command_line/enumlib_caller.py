@@ -129,7 +129,7 @@ class EnumlibAdaptor(object):
 
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 traceback.print_exception(exc_type, exc_value, exc_traceback,
-                                          limit=2, file=sys.stdout)
+                                          limit=10, file=sys.stdout)
 
     def _gen_input_file(self):
         """

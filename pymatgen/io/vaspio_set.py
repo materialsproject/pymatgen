@@ -11,8 +11,6 @@ without further user intervention. This ensures comparability across
 runs.
 """
 
-import six
-
 __author__ = "Shyue Ping Ong, Wei Chen, Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
@@ -28,6 +26,7 @@ import traceback
 import shutil
 from functools import partial
 
+import six
 import numpy as np
 
 from monty.serialization import loadfn
