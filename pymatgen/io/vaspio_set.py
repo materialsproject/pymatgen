@@ -1057,8 +1057,8 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             structure (Structure/IStructure): structure to get Kpoints
         """
         if self.mode == "Line":
-            kpath = HighSymmKpath(structure, line_density=self.kpoints_line_density)
-            cart_k_points, k_points_labels = kpath.get_kpoints()
+            kpath = HighSymmKpath(structure)
+            cart_k_points, k_points_labels = kpath.get_kpoints(line_density=self.kpoints_line_density)
             frac_k_points = [kpath._prim_rec.get_fractional_coords(k)
                              for k in cart_k_points]
             return Kpoints(comment="Non SCF run along symmetry lines",
