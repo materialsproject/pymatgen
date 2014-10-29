@@ -1069,13 +1069,13 @@ class PbsProAdapter(AbstractQueueAdapter):
     @property
     def mpi_procs(self):
         """Number of CPUs used for MPI. The number of MPI processes."""
-        #return self.qparams.get("select", 1)
-        return self._mpi_procs
+        return self.qparams.get("select", 1)
+        #return self._mpi_procs
                                                     
     def set_mpi_procs(self, mpi_procs):
         """Number of CPUs used for MPI. The number of MPI processes."""
-        #self.qparams["select"] = mpi_procs
-        self._mpi_procs = mpi_procs
+        self.qparams["select"] = mpi_procs
+        #self._mpi_procs = mpi_procs
 
     def set_omp_threads(self, omp_threads):
         """Set the number of OpenMP threads. Per MPI process."""
@@ -1166,7 +1166,8 @@ class PbsProAdapter(AbstractQueueAdapter):
         return AttrDict(select_params)
 
     def get_subs_dict(self):
-        subs_dict = super(PbsProAdapter, self).get_subs_dict()
+        return super(PbsProAdapter, self).get_subs_dict()
+        return
         # Parameters defining the partion. Hard-coded for the time being.
         # but this info should be passed via taskmananger.yml
         p = Partition(name="hardcoded", num_nodes=100, sockets_per_node=2, cores_per_socket=4, mem_per_node="1000 Mb")
