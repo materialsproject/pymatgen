@@ -302,6 +302,7 @@ def qadapter_class(qtype):
             "slurm": SlurmAdapter,
             "pbs": PbsProAdapter,   # TODO Remove
             "pbspro": PbsProAdapter,
+            "pbsold": PbsOldAdapter,
             "sge": SGEAdapter,
             "moab": MOABAdapter,
             }[qtype.lower()]
@@ -1249,6 +1250,79 @@ class PbsProAdapter(AbstractQueueAdapter):
     #    else:
     #        return False
 
+
+class PbsOldAdapter(PbsProAdapter):
+
+    QTYPE = "pbsold"
+
+    QTEMPLATE = """\
+#!/bin/bash
+
+#PBS -A $${account}
+#PBS -N $${job_name}
+#PBS -l walltime=$${walltime}
+#PBS -q $${queue}
+#PBS -l model=$${model}
+#PBS -l place=$${place}
+#PBS -W group_list=$${group_list}
+####PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
+####PBS -l pvmem=$${pvmem}mb
+#PBS -l pmem=$${pmem}mb
+####PBS -l mppwidth=$${mppwidth}
+#PBS -l nodes=$${nodes}:ppn=$${ppn} 
+#PBS -M $${mail_user}
+#PBS -m $${mail_type}
+# Submission environment
+#PBS -V
+#PBS -o $${_qout_path}
+#PBS -e $${_qerr_path}
+"""
+
+    @property
+    def limits(self):
+        """
+        the limits for certain parameters set on the cluster.
+        currently hard coded, should be read at init
+        the increase functions will not increase beyond thise limits
+        """
+        return {'max_total_tasks': 3888, 'time': 48, 'max_nodes': 16}
+
+    def set_mem_per_cpu(self, mem_mb):
+        """Set the memory per CPU in Megabytes"""
+
+        self.qparams["pmem"] = mem_mb
+        self.qparams["mem"] = mem_mb
+
+    @property
+    def mpi_ncpus(self):
+        """Number of CPUs used for MPI."""
+        return self.qparams.get("nodes", 1)*self.qparams.get("ppn", 1)
+
+    def set_mpi_ncpus(self, mpi_ncpus):
+        """Set the number of CPUs used for MPI."""
+        self.qparams["nodes"] = 1
+        self.qparams["ppn"] = mpi_ncpus
+
+
+    def increase_nodes(self, factor):
+        base_increase = 1
+        new_nodes = self.qparams['nodes'] + factor * base_increase
+        if new_nodes < self.limits['max_nodes']:
+            self.qparams['nodes'] = new_nodes
+            return True
+        else:
+            logger.warning('increasing cpus reached the limit')
+            return False
+
+    def increase_resources(self):
+        """
+        Method to generally increase resources. On typical large machines we only increas cpu's since we use all
+        mem per cpu per core
+        """
+        if self.increase_nodes(1):
+            return True
+        else:
+            return False
 
 class SGEAdapter(AbstractQueueAdapter):
     """
