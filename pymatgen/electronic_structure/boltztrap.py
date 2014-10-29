@@ -42,6 +42,7 @@ from pymatgen.electronic_structure.core import Orbital
 from pymatgen.electronic_structure.plotter import DosPlotter
 from monty.os.path import which
 from monty.dev import requires
+from monty.json import jsanitize
 from pymatgen.core.units import Energy, Length
 from pymatgen.core.physical_constants import e, ELECTRON_MASS
 import subprocess
@@ -762,7 +763,7 @@ class BoltztrapAnalyzer():
 
 
     def as_dict(self):
-        from pymatgen.util.io_utils import clean_json
+
         results = {'gap': self.gap,
                    'mu_steps': self.mu_steps,
                    'cond': self.cond,
@@ -779,7 +780,7 @@ class BoltztrapAnalyzer():
                    'dos_partial': self._dos_partial,
                    'carrier_conc': self.carrier_conc,
                    'vol': self.vol}
-        return clean_json(results)
+        return jsanitize(results)
 
     @staticmethod
     def from_dict(data):
@@ -833,7 +834,7 @@ class BoltztrapAnalyzer():
              'n': {int(d): [_make_float_hall(v)
                             for v in data['hall_doping']['n'][d]]
                    for d in data['hall_doping']['n']}},
-            Dos.from_dict(data['dos']), data['dos_partial'], data['carrier_conc'], 
+            Dos.from_dict(data['dos']), data['dos_partial'], data['carrier_conc'],
             data['vol'], str(data['warning']))
 
 

@@ -1,11 +1,29 @@
 # coding: utf-8
-
 from __future__ import unicode_literals, division, print_function
 
 from collections import OrderedDict
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio.qadapters import *
-from pymatgen.io.abinitio.qadapters import AbstractQueueAdapter
+
+
+
+class ParseTimestr(PymatgenTest):
+    def test_parse_timestr(self):
+        days, hours, minutes, secs = 24*60*60, 60*60, 60, 1
+        aequal = self.assertEqual
+
+        # "days-hours",
+        aequal(parse_timestr("2-1"), 2*days + hours)
+        # "days-hours:minutes",                                        
+        aequal(parse_timestr("2-1:1"), 2*days + hours + minutes)
+        # "days-hours:minutes:seconds".                                
+        aequal(parse_timestr("3-4:2:20"), 3*days + 4*hours + 2*minutes + 20*secs)
+        # "minutes",
+        aequal(parse_timestr("10"), 10*minutes)
+        # "minutes:seconds",
+        aequal(parse_timestr("3:20"), 3*minutes + 20*secs)
+        # "hours:minutes:seconds",
+        aequal(parse_timestr("3:2:5"), 3*hours + 2*minutes + 5*secs)
 
 class QadapterTest(PymatgenTest):
 
@@ -25,6 +43,8 @@ class QadapterTest(PymatgenTest):
               ("LD_LIBRARY_PATH", "/NAPS/intel13/lib:$LD_LIBRARY_PATH")])
 
         mpi_runner = MpiRunner("mpirun")
+        partition = None
+        #omp_env = OmpEnv(OMP_NUM_THREADS=2)
 
         # Test if we can instantiate the concrete classes with the abc protocol.
         for subc in sub_classes:
@@ -40,21 +60,63 @@ class QadapterTest(PymatgenTest):
             # Test the programmatic interface used to change job parameters.
             self.assertFalse(qad.has_omp)
             self.assertTrue(qad.has_mpirun)
-            qad.set_mpi_ncpus(2)
-            self.assertTrue(qad.mpi_ncpus == 2)
+            qad.set_mpi_procs(2)
+            self.assertTrue(qad.mpi_procs == 2)
 
             # Test the creation of the script
-            script = qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path", 
+            script = qad.get_script_str("job.sh", "/launch/dir", partition, "executable", "qout_path", "qerr_path", 
                                         stdin="STDIN", stdout="STDOUT", stderr="STDERR")
 
             # Test whether qad can be serialized with Pickle.
             deserialized_qads = self.serialize_with_pickle(qad, test_eq=False)
 
             for new_qad in deserialized_qads:
-                new_script = new_qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path", 
+                new_script = new_qad.get_script_str("job.sh", "/launch/dir", partition, "executable", "qout_path", "qerr_path", 
                                                     stdin="STDIN", stdout="STDOUT", stderr="STDERR")
 
                 self.assertEqual(new_script, script)
+
+
+class PbsProadapterTest(PymatgenTest):
+    """Test suite for PbsPro adapter."""
+    def test_params_from_partition(self):
+        aequal = self.assertEqual
+
+        kwargs = dict(name="test_partition", num_nodes=100, sockets_per_node=2, cores_per_socket=4)
+        with self.assertRaises(ValueError):
+            p = Partition(**kwargs)
+
+        kwargs.update(mem_per_node="1 Gb")
+        p = Partition(**kwargs)
+        print("partition\n" + str(p))
+
+        qad = PbsProAdapter()
+        print(qad)
+
+        qad.set_mpi_procs(4)
+        params = qad.params_from_partition(p)
+        print(params)
+        # IN_CORE PURE MPI: MPI: 4, OMP: 1
+        aequal(params, {'ompthreads': 1, 'ncpus': 1, 'select': 4, 'mpiprocs': 1})
+
+        qad.set_omp_threads(2)
+        params = qad.params_from_partition(p)
+        print(params)
+        # HYBRID MPI-OPENMP run, perfectly divisible among nodes:  MPI: 4, OMP: 2
+        aequal(params, {'ompthreads': 2, 'ncpus': 8, 'select': 1, 'mpiprocs': 4})
+
+        qad.set_mpi_procs(12)
+        params = qad.params_from_partition(p)
+        print(params)
+        # HYBRID MPI-OPENMP run, perfectly divisible among nodes:  MPI: 12, OMP: 2
+        aequal(params, {'ompthreads': 2, 'ncpus': 8, 'select': 3, 'mpiprocs': 4})
+
+        qad.set_omp_threads(5)
+        qad.set_mpi_procs(3)
+        params = qad.params_from_partition(p)
+        print(params)
+        # HYBRID MPI-OPENMP, NOT commensurate with nodes:  MPI: 3, OMP: 5
+        aequal(params, {'ompthreads': 5, 'ncpus': 5, 'select': 3, 'mpiprocs': 1})
 
 
 if __name__ == '__main__':

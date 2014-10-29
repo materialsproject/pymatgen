@@ -9,6 +9,7 @@ import operator
 
 from six.moves import filter
 from monty.string import list_strings
+from monty.dev import deprecated
 from pymatgen.util.string_utils import WildCard
 
 import logging
@@ -30,8 +31,7 @@ class File(object):
         return "<%s, %s>" % (self.__class__.__name__, self.path)
 
     def __eq__(self, other):
-        if other is None: return False
-        self.path == other.path
+        return False if other is None else self.path == other.path
                                        
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -116,8 +116,7 @@ class Directory(object):
         return "<%s, %s>" % (self.__class__.__name__, self.path)
 
     def __eq__(self, other):
-        if other is None: return False
-        self.path == other.path
+        return False if other is None else self.path == other.path
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -261,11 +260,8 @@ def abi_splitext(filename):
     Returns "(root, ext)" where ext is the registered ABINIT extension 
     The final ".nc" is included (if any) 
 
-    >>> abi_splitext("foo_WFK")
-    ('foo_', 'WFK')
-
-    >>> abi_splitext("/home/guido/foo_bar_WFK.nc")
-    ('foo_bar_', 'WFK.nc')
+    >>> assert abi_splitext("foo_WFK") == ('foo_', 'WFK')
+    >>> assert abi_splitext("/home/guido/foo_bar_WFK.nc") == ('foo_bar_', 'WFK.nc')
     """
     filename = os.path.basename(filename)
     is_ncfile = False
@@ -312,12 +308,8 @@ class FilepathFixer(object):
     Example:
     
     >>> fixer = FilepathFixer()
-
-    >>> fixer.fix_paths('/foo/out_1WF17')
-    {'/foo/out_1WF17': '/foo/out_1WF'}
-
-    >>> fixer.fix_paths('/foo/out_1WF5.nc')
-    {'/foo/out_1WF5.nc': '/foo/out_1WF.nc'}
+    >>> assert fixer.fix_paths('/foo/out_1WF17') == {'/foo/out_1WF17': '/foo/out_1WF'}
+    >>> assert fixer.fix_paths('/foo/out_1WF5.nc') == {'/foo/out_1WF5.nc': '/foo/out_1WF.nc'}
     """
     def __init__(self):
         # dictionary mapping the *official* file extension to
@@ -424,8 +416,7 @@ def map2rpn(map, obj):
     3 - 4 + 5 -->   3 4 - 5 + 
 
     >>> d = {2.0: {'$eq': 1.0}}
-    >>> map2rpn(d, None)
-    [2.0, 1.0, '$eq']
+    >>> assert map2rpn(d, None) == [2.0, 1.0, '$eq']
     """
     rpn = []
 
@@ -546,11 +537,17 @@ class Condition(object):
     def __str__(self):
         return str(self.cmap)
 
-    def apply(self, obj):
+    def __bool__(self):
+        return bool(self.cmap)
+
+    __nonzero__ = __bool__
+
+    def __call__(self, obj):
+        if not self: return True
         try:
             return evaluate_rpn(map2rpn(self.cmap, obj))
         except Exception as exc:
-            logger.warning("Condition.apply() raise Exception:\n %s" % str(exc))
+            logger.warning("Condition(%s) raised Exception:\n %s" % (type(obj), str(exc)))
             return False
 
 
@@ -561,10 +558,7 @@ class Editor(object):
     """
     def __init__(self, editor=None):
         """If editor is None, $EDITOR is used."""
-        if editor is None:
-            self.editor = os.getenv("EDITOR", "vi")
-        else:
-            self.editor = str(editor)
+        self.editor = os.getenv("EDITOR", "vi") if editor is None else str(editor)
 
     def edit_files(self, fnames, ask_for_exit=True):
         exit_status = 0
@@ -586,6 +580,7 @@ class Editor(object):
 
     @staticmethod
     def user_wants_to_exit():
+        """Show an interactive prompt asking if exit is wanted."""
         try:
             answer = raw_input("Do you want to continue [Y/n]")
 

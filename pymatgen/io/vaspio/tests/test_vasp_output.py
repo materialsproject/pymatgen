@@ -18,6 +18,7 @@ import unittest
 import os
 import json
 import numpy as np
+import warnings
 
 from pymatgen.io.vaspio.vasp_output import Chgcar, Locpot, Oszicar, Outcar, \
     Vasprun, Procar, Xdatcar
@@ -181,6 +182,15 @@ class VasprunTest(unittest.TestCase):
                          "wrong vbm bands")
         self.assertEqual(vbm['kpoint'].label, "\Gamma", "wrong vbm label")
         self.assertEqual(cbm['kpoint'].label, None, "wrong cbm label")
+
+    def test_sc_step_overflow(self):
+        filepath = os.path.join(test_dir, 'vasprun.xml.sc_overflow')
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            vasprun = Vasprun(filepath)
+            self.assertEqual(len(w), 3)
+        estep = vasprun.ionic_steps[0]['electronic_steps'][29]
+        self.assertTrue(np.isnan(estep['e_wo_entrp']))
 
 
 class OutcarTest(unittest.TestCase):
