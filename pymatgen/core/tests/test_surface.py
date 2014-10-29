@@ -81,7 +81,6 @@ class SlabTest(PymatgenTest):
     def test_as_from_dict(self):
         d = self.zno55.as_dict()
         obj = Slab.from_dict(d)
-        print obj
         self.assertEqual(obj.miller_index, (1, 0, 0))
 
 
