@@ -57,7 +57,7 @@ class QadapterTest(PymatgenTest):
 
             # Create the adapter
             qad = cls(qparams=None, setup=None, modules=modules, shell_env=shell_env, omp_env=None, 
-                      pre_run=None, post_run=None, mpi_runner=mpi_runner)
+                      pre_run=None, post_run=None, mpi_runner=mpi_runner, partition=partition)
 
             # Test the programmatic interface used to change job parameters.
             self.assertFalse(qad.has_omp)
@@ -66,14 +66,14 @@ class QadapterTest(PymatgenTest):
             self.assertTrue(qad.mpi_procs == 2)
 
             # Test the creation of the script
-            script = qad.get_script_str("job.sh", "/launch/dir", partition, "executable", "qout_path", "qerr_path", 
+            script = qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path", 
                                         stdin="STDIN", stdout="STDOUT", stderr="STDERR")
 
             # Test whether qad can be serialized with Pickle.
             deserialized_qads = self.serialize_with_pickle(qad, test_eq=False)
 
             for new_qad in deserialized_qads:
-                new_script = new_qad.get_script_str("job.sh", "/launch/dir", partition, "executable", "qout_path", "qerr_path", 
+                new_script = new_qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path", 
                                                     stdin="STDIN", stdout="STDOUT", stderr="STDERR")
 
                 self.assertEqual(new_script, script)
