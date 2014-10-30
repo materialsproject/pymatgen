@@ -643,6 +643,16 @@ class StructureTest(PymatgenTest):
                           "Pm-3m", Lattice.tetragonal(1, 3), ["Cs", "Cl"],
                           [[0, 0, 0], [0.5, 0.5, 0.5]])
 
+    def test_merge_sites(self):
+        species = [{'Ag': 0.5}, {'Cl': 0.35}, {'Ag': 0.5}, {'F': 0.25}]
+        coords = [[0, 0, 0], [0.5, 0.5, 0.5], [0, 0, 0], [0.5, 0.5, 1.501]]
+        s = Structure(Lattice.cubic(1), species, coords)
+        s.merge_sites()
+        self.assertEqual(s[0].specie.symbol, 'Ag')
+        self.assertEqual(s[1].species_and_occu,
+                         Composition({'Cl': 0.35, 'F': 0.25}))
+        self.assertArrayAlmostEqual(s[1].frac_coords, [.5, .5, .5005])
+
 
 class IMoleculeTest(PymatgenTest):
 

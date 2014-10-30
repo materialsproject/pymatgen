@@ -30,6 +30,8 @@ class SymmOpTestCase(PymatgenTest):
         point = np.array([1, 2, 3])
         newcoords = self.op.operate_multi([point, point])
         self.assertArrayAlmostEqual(newcoords, [[-0.1339746, 2.23205081, 4.]]*2, 2)
+        newcoords = self.op.operate_multi([[point, point]]*2)
+        self.assertArrayAlmostEqual(newcoords, [[[-0.1339746, 2.23205081, 4.]]*2]*2, 2)
 
     def test_inverse(self):
         point = np.random.rand(3)
