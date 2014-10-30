@@ -774,12 +774,10 @@ export MPI_PROCS=$${MPI_PROCS}
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
 
         try:
-            # submit the job
+            # submit the job, return process and pid.
             process = Popen(("/bin/bash", script_file), stderr=PIPE)
-            queue_id = process.pid
-            return process, queue_id
-
-        except:
+            return process, process.pid
+        except Exception:
             # random error
             raise self.Error("Random Error ...!")
 
