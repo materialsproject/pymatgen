@@ -602,22 +602,17 @@ class TaskManager(object):
     USER_CONFIG_DIR = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
 
     @classmethod
-    def from_dict(cls, d):
-        """Create an instance from dictionary d."""
-        return cls(**d)
-                                                                              
-    @classmethod
     def from_string(cls, s):
         """Create an instance from string s containing a YAML dictionary."""
         stream = StringIO(s)
         stream.seek(0)
-        return cls.from_dict(yaml.load(stream))
+        return cls(**yaml.load(stream))
 
     @classmethod
     def from_file(cls, filename):
         """Read the configuration parameters from the Yaml file filename."""
         with open(filename, "r") as fh:
-            return cls.from_dict(yaml.load(fh))
+            return cls(**yaml.load(fh))
 
     @classmethod
     def from_user_config(cls):
@@ -640,24 +635,14 @@ class TaskManager(object):
     
         raise RuntimeError("Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, path))
 
-    @classmethod 
-    def sequential(cls):
-        """
-        Build a simple `TaskManager` that submits jobs via a simple shell script.
-        Assume the shell environment has been already initialized.
-        """
-        return cls(qtype="shell")
+    def __init__(self, qtype, policy=None, db_connector=None, qparams=None, setup=None, modules=None, 
+                 shell_env=None, omp_env=None, pre_run=None, post_run=None, mpi_runner=None, partitions=None):
 
-    @classmethod 
-    def simple_mpi(cls, mpi_runner="mpirun", mpi_procs=1, policy=None):
-        """
-        Build a `TaskManager` that submits jobs with a simple shell script and mpirun.
-        Assume the shell environment is already properly initialized.
-        """
-        return cls(qtype="shell", qparams=dict(MPI_PROCS=mpi_procs), mpi_runner=mpi_runner, policy=policy)
+        self.policy = TaskPolicy.as_policy(policy)
 
-    def __init__(self, qtype, qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
-                 pre_run=None, post_run=None, mpi_runner=None, policy=None, partitions=None, db_connector=None):
+        # Initialize database connector (if specified)
+        from .db import DBConnector
+        self.db_connector = DBConnector(config_dict=db_connector)
 
         from .qadapters import qadapter_class, Partition
         # Initialize the partitions:
@@ -676,12 +661,6 @@ class TaskManager(object):
         qad_class = qadapter_class(qtype)
         self.qadapter = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
                                   pre_run=pre_run, post_run=post_run, mpi_runner=mpi_runner, partition=partition)
-
-        self.policy = TaskPolicy.as_policy(policy)
-
-        # Initialize database connector (if specified)
-        from .db import DBConnector
-        self.db_connector = DBConnector(config_dict=db_connector)
 
     def __str__(self):
         """String representation."""
@@ -722,10 +701,6 @@ class TaskManager(object):
         """Number of OpenMP threads"""
         return self.qadapter.omp_threads
 
-    def get_collection(self, **kwargs):
-        """Return the MongoDB collection used to store the results."""
-        return self.db_connector.get_collection(**kwargs)
-
     def to_shell_manager(self, mpi_procs=1, policy=None):
         """
         Returns a new `TaskManager` with the same parameters as self but replace the `QueueAdapter` 
@@ -741,14 +716,6 @@ class TaskManager(object):
                   shell_env=qad.shell_env, omp_env=None, pre_run=qad.pre_run, 
                   post_run=qad.post_run, mpi_runner=qad.mpi_runner, policy=policy, partitions=None)
 
-        return new
-
-    def new_with_policy(self, policy):
-        """
-        Returns a new `TaskManager` with same parameters as self except for policy.
-        """
-        new = self.deepcopy()
-        new.policy = policy
         return new
 
     def deepcopy(self):
@@ -865,9 +832,13 @@ class TaskManager(object):
 
         return process
 
+    def get_collection(self, **kwargs):
+        """Return the MongoDB collection used to store the results."""
+        return self.db_connector.get_collection(**kwargs)
+
     def increase_resources(self):
-            # with GW calculations in mind with GW mem = 10, the response fuction is in memory and not distributed
-            # we need to increas memory if jobs fail ...
+        # with GW calculations in mind with GW mem = 10, the response fuction is in memory and not distributed
+        # we need to increas memory if jobs fail ...
         return self.qadapter.increase_mem()
 
 
