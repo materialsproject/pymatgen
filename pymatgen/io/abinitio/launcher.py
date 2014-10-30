@@ -379,8 +379,6 @@ class PyFlowScheduler(object):
     YAML_FILE = "scheduler.yml"
     USER_CONFIG_DIR = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
 
-    DEBUG = 0
-
     Error = PyFlowSchedulerError
 
     def __init__(self, **kwargs):
@@ -430,6 +428,7 @@ class PyFlowScheduler(object):
         self.SAFETY_RATIO = int(kwargs.pop("SAFETY_RATIO", 5))
         #self.MAX_ETIME_S = kwargs.pop("MAX_ETIME_S", )
         self.max_nlaunch = kwargs.pop("max_nlaunch", -1)
+        self.debug = kwargs.pop("debug", 0)
 
         if kwargs:
             raise self.Error("Unknown arguments %s" % kwargs)
@@ -679,7 +678,7 @@ class PyFlowScheduler(object):
 
     def _callback(self):
         """The actual callback."""
-        if self.DEBUG:
+        if self.debug:
             # Show the number of open file descriptors
             print(">>>>> _callback: Number of open file descriptors: %s" % get_open_fds())
         #print('before _runem_all in _callback')
@@ -782,11 +781,11 @@ class PyFlowScheduler(object):
             self.history.append("Completed on %s" % time.asctime())
             self.history.append("Elapsed time %s" % self.get_delta_etime())
 
-            if self.DEBUG:
+            if self.debug:
                 print(">>>>> shutdown: Number of open file descriptors: %s" % get_open_fds())
 
             retcode = self.send_email(msg)
-            if self.DEBUG:
+            if self.debug:
                 print("send_mail retcode", retcode)
 
             # Write file with the list of exceptions:
