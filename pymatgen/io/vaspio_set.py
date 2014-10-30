@@ -1137,7 +1137,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
     def from_previous_vasp_run(previous_vasp_dir, output_dir='.',
                                mode="Uniform", user_incar_settings=None,
                                copy_chgcar=True, make_dir_if_not_present=True,
-                               kpoints_density=1000, line_density=20):
+                               kpoints_density=1000, kpoints_line_density=20):
         """
         Generate a set of Vasp input files for NonSCF calculations from a
         directory of previous static Vasp run.
@@ -1183,7 +1183,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                                                                       outcar)
         mpnscfvip = MPNonSCFVaspInputSet(nscf_incar_settings, mode,
                                          kpoints_density=kpoints_density,
-                                         line_density=line_density)
+                                         kpoints_line_density=kpoints_line_density)
         mpnscfvip.write_input(structure, output_dir, make_dir_if_not_present)
         if copy_chgcar:
             try:
