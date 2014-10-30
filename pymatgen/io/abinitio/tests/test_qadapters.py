@@ -89,10 +89,13 @@ class PartitionTest(PymatgenTest):
         with self.assertRaises(ValueError):
             part = Partition(**p)
 
-        p.update(mem_per_node="1 Gb", timelimit="2:00")
+        p.update(mem_per_node="8 Mb", timelimit="2:00")
         part = Partition(**p)
         print("partition", str(part))
         aequal(part.timelimit, 120)
+
+        # Test whether Partition can be serialized with Pickle.
+        deserialized_part = self.serialize_with_pickle(part, test_eq=False)
 
         # Test properties
         aequal(part.tot_cores, p.num_nodes * p.sockets_per_node * p.cores_per_socket)
@@ -108,15 +111,22 @@ class PartitionTest(PymatgenTest):
         pconf = ParalConf(mpi_ncpus=4, omp_ncpus=1, mem_per_cpu=1024**3)
         atrue(not part.can_run(pconf))
 
-        #p = AttrDict(name="test_partition", num_nodes=3, sockets_per_node=2, cores_per_socket=4, mem_per_node="1Gb")
+        #partition has num_nodes=3, sockets_per_node=2, cores_per_socket=4, mem_per_node="8 Mb"
         d = part.distribute(mpi_procs=4, omp_threads=1, mem_per_proc=0.1)
-        atrue(d.num_nodes == 1 and d.mpi_per_node == 4)
-        d = part.distribute(mpi_procs=16, omp_threads=1, mem_per_proc=0.1)
-        atrue(d.num_nodes == 2 and d.mpi_per_node == 8)
-        #d = part.distribute(mpi_procs=9, omp_threads=1, mem_per_proc=0.1)
-        #assert d.num_nodes == 3 and d.mpi_per_node == 3
-        #num_nodes=1, mpi_per_node=9, is_scattered=True
-        #assert d.num_nodes == 1 and d.mpi_per_node == 4
+        assert d.num_nodes == 1 and d.mpi_per_node == 4 and d.exact
+        d = part.distribute(mpi_procs=16, omp_threads=1, mem_per_proc=1)
+        assert d.num_nodes == 2 and d.mpi_per_node == 8 and d.exact
+        # not enough memory per node but can distribute.
+        d = part.distribute(mpi_procs=8, omp_threads=1, mem_per_proc=2)
+        assert d.num_nodes == 2 and d.mpi_per_node == 4 and not d.exact
+        d = part.distribute(mpi_procs=9, omp_threads=1, mem_per_proc=0.1)
+        assert d.num_nodes == 3 and d.mpi_per_node == 3 and not d.exact
+
+        # mem_per_proc > mem_per_node!
+        with self.assertRaises(part.DistributionError):
+            d = part.distribute(mpi_procs=9, omp_threads=1, mem_per_proc=1024)
+
+        # TODO: Test OpenMP
 
 
 class PbsProadapterTest(PymatgenTest):

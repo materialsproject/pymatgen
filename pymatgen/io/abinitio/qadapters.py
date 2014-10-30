@@ -118,6 +118,10 @@ class MpiRunner(object):
     by the different MPI libraries. It's main task is handling the
     different syntax and options supported by the different mpirunners.
     """
+    #def as_mpirunner(cls, obj):
+    #    if isinstance(obj, cls):
+    #        return obj
+
     def __init__(self, name, type=None, options=""):
         self.name = name
         self.type = None
@@ -129,16 +133,13 @@ class MpiRunner(object):
         stderr = "2> " + stderr if stderr is not None else ""
 
         if self.has_mpirun:
-
             if self.type is None:
                 # TODO: better treatment of mpirun syntax.
                 #se.add_line('$MPIRUN -n $MPI_PROCS $EXECUTABLE < $STDIN > $STDOUT 2> $STDERR')
                 num_opt = "-n " + str(mpi_procs)
                 cmd = " ".join([self.name, num_opt, executable, stdin, stdout, stderr])
-
             else:
                 raise NotImplementedError("type %s is not supported!")
-
         else:
             #assert mpi_procs == 1
             cmd = " ".join([executable, stdin, stdout, stderr])
@@ -163,6 +164,7 @@ class Partition(object):
     """
     This object collects information on a partition (a la slurm)
     Partitions can be thought of as a set of resources and parameters around their use.
+    A partition has a ``QueueAdapter``.
 
     Basic definition::
 
@@ -175,6 +177,10 @@ class Partition(object):
           Each cpu core will be able to service a number of cpu threads, each having an independent instruction stream 
           but sharing the cores memory controller and other logical units.
     """
+    class DistributionError(Exception):
+        """Exception raised by distribute."""
+
+
     class Entry(object):
         def __init__(self, type, default=None, mandatory=False, parser=None, help="No help available"):
             self.type, self.default, self.parser, self.mandatory = type, default, parser, mandatory
@@ -194,11 +200,14 @@ class Partition(object):
         mem_per_node=Entry(type=str, mandatory=True, help="Memory per node", parser=Memory.from_string),
         timelimit=Entry(type=str, mandatory=True, help="Time limit", parser=timelimit_parser),
         # optional
-        min_nodes=Entry(type=int, default=-1, help="Minimun number of nodes that can be used"),
+        #min_cores=Entry(type=int, default=1, help="Minimum number of cores that can be used"),
+        #max_cores=Entry(type=int, default=sys.maxsize, help="Maximum number of cores that can be used"),
+        min_nodes=Entry(type=int, default=1, help="Minimum number of nodes that can be used"),
         max_nodes=Entry(type=int, default=sys.maxsize, help="Maximum number of nodes that can be used"),
         priority=Entry(type=int, default=1, help="Priority level, integer number > 0"),
         condition=Entry(type=object, default=Condition, help="Condition object (dictionary)", parser=Condition),
     )
+    del Entry
 
     def __init__(self, **kwargs):
         """The possible arguments are documented in Partition.ENTRIES."""
@@ -215,6 +224,7 @@ class Partition(object):
 
         # Convert memory to megabytes.
         self.mem_per_node = self.mem_per_node.to("Mb")
+        if self.max_nodes == sys.maxsize: self.max_nodes = self.num_nodes
 
     def __str__(self):
         """String representation."""
@@ -242,6 +252,10 @@ class Partition(object):
         """Memory available on a single node."""
         return self.mem_per_node / self.cores_per_node
 
+    #def set_qadapter(self, qtype, **kwargs):
+    #    cls = qadapter_class(qtype)
+    #    self.qadapter = cls(**kwargs).deepcopy()
+
     def can_use_omp_threads(self, omp_threads):
         """True if omp_threads fit in a node."""
         return self.cores_per_node >= omp_threads
@@ -251,38 +265,55 @@ class Partition(object):
         Return (num_nodes, rest_cores)
         """
         num_nodes, rest_cores = divmod(mpi_procs * omp_threads, self.cores_per_node)
-        if num_nodes == 0: num_nodes = 1
         return num_nodes, rest_cores
+        #return namedtuple("DivMod", "num_nodes mpi_per_node rest_cores")(num_nodes, mpi_per_node, rest_cores)
 
     def distribute(self, mpi_procs, omp_threads, mem_per_proc):
         """
         Returns (num_nodes, mpi_per_node)
+
+        Aggressive: When Open MPI thinks that it is in an exactly- or under-subscribed mode
+        (i.e., the number of running processes is equal to or less than the number of available processors),
+        MPI processes will automatically run in aggressive mode, meaning that they will never voluntarily give
+        up the processor to other processes. With some network transports, this means that Open MPI will spin
+        in tight loops attempting to make message passing progress, effectively causing other processes to not get
+        any CPU cycles (and therefore never make any progress)
         """
-        is_scattered = True
+        CoresDistrib = namedtuple("CoresDistrib", "num_nodes mpi_per_node exact") # mem_per_node
 
         if mem_per_proc < self.mem_per_node:
-            # Can use all then cores in the node.
+            # Try to use all then cores in the node.
             num_nodes, rest_cores = self.divmod_node(mpi_procs, omp_threads)
-            mpi_per_node = mpi_procs // num_nodes if num_nodes != 0 else mpi_procs
-            if rest_cores != 0: is_scattered = (num_nodes != 0)
+            if num_nodes == 0 and mpi_procs * mem_per_proc <= self.mem_per_node:
+                return CoresDistrib(num_nodes=1, mpi_per_node=mpi_procs, exact=True)
 
-        if is_scattered:
-            # Try first to pack MPI processors in a node as much as possible
-            mpi_per_node = int(self.mem_per_node / mem_per_proc)
-            num_nodes = (mpi_procs * omp_threads) // mpi_per_node
+            mpi_per_node = mpi_procs // num_nodes
+            if rest_cores == 0 and mpi_per_node * mem_per_proc <= self.mem_per_node:
+                return CoresDistrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, exact=True)
 
-            if (mpi_procs * omp_threads) % mpi_per_node != 0:
-                # Have to reduce the number of MPI procs per node
-                for mpi_per_node in reversed(range(1, mpi_per_node)):
-                    num_nodes = (mpi_procs * omp_threads) // mpi_per_node
-                    if (mpi_procs * omp_threads) % mpi_per_node == 0:
-                        break
-            else:
-                raise ValueError("Cannot distribute mpi_procs %d, omp_threads %d, mem_per_proc %s" % 
-                                (mpi_procs, omp_threads, mem_per_proc))
+        # Try first to pack MPI processors in a node as much as possible
+        mpi_per_node = int(self.mem_per_node / mem_per_proc)
+        if mpi_per_node == 0:
+            raise self.DistributionError(
+                "mem_pre_proc > mem_per_node.\n Cannot distribute mpi_procs %d, omp_threads %d, mem_per_proc %s" %
+                             (mpi_procs, omp_threads, mem_per_proc))
 
-        CoresDistrib = namedtuple("CoresDistrib", "num_nodes mpi_per_node is_scattered") # mem_per_node 
-        return CoresDistrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, is_scattered=is_scattered)
+        num_nodes = (mpi_procs * omp_threads) // mpi_per_node
+        #print(mpi_per_node, num_nodes)
+
+        if mpi_per_node * omp_threads <= self.cores_per_node and mem_per_proc <= self.mem_per_node:
+            return CoresDistrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, exact=False)
+
+        if (mpi_procs * omp_threads) % mpi_per_node != 0:
+            # Have to reduce the number of MPI procs per node
+            for mpi_per_node in reversed(range(1, mpi_per_node)):
+                if mpi_per_node > self.cores_per_node: continue
+                num_nodes = (mpi_procs * omp_threads) // mpi_per_node
+                if (mpi_procs * omp_threads) % mpi_per_node == 0 and mpi_per_node * mem_per_proc <= self.mem_per_node:
+                    return CoresDistrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, exact=False)
+        else:
+            raise self.DistributionError("Cannot distribute mpi_procs %d, omp_threads %d, mem_per_proc %s" %
+                            (mpi_procs, omp_threads, mem_per_proc))
 
     def can_run(self, pconf):
         """
@@ -291,8 +322,11 @@ class Partition(object):
         if pconf.tot_cores > self.tot_cores: return False
         if pconf.omp_threads > self.cores_per_node: return False
         if pconf.mem_per_proc > self.mem_per_node: return False
+        #try:
+        #    self.distribute(pconf.mpi_procs, pconf.omp_threads, pconf.mem_per_proc)
+        #except self.DistributionError:
+        #    return False
         # TODO: min_nodes, max_nodes
-        #d = self.distribute(pconf.mpi_procs, pconf.omp_threads, pconf.mem_per_proc)
         #if not self.max_nodes >= d.num_nodes >= self.min_nodes: return False
         return self.condition(pconf)
 
@@ -304,7 +338,6 @@ class Partition(object):
         """
         minf = float("-inf")
         if not self.can_run(pconf): return minf
-        if not self.condition(pconf): return minf
         return self.priority
 
 
@@ -401,6 +434,10 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             if err_msg:
                 raise ValueError(err_msg)
 
+        # List of dictionaries with the parameters used to submit jobs
+        # The launcher will use this information to increase the resources
+        #self.run_history, self.max_num_attempts = [], 2
+
     def __str__(self):
         lines = [self.__class__.__name__]
         app = lines.append
@@ -409,9 +446,6 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         if self.has_omp: app(str(self.omp_env))
 
         return "\n".join(lines)
-
-    def deepcopy(self):
-        return copy.deepcopy(self)
 
     @property
     def supported_qparams(self):
@@ -462,7 +496,7 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
     @property
     def use_only_omp(self):
-        """True if only Openmp is used."""
+        """True if only OpenMP is used."""
         return self.has_omp and not self.has_mpi
 
     @property
@@ -474,6 +508,25 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     def run_info(self):
         """String with info on the run."""
         return "MPI: %d, OMP: %d" % (self.mpi_procs, self.omp_threads)
+
+    def deepcopy(self):
+        return copy.deepcopy(self)
+
+    #def add_to_history(self, retcode):
+    #    self.run_history.append(AttrDict(
+    #       mpi_procs=self.mpi_procs, omp_thrads=self.omp_threads,
+    #       mem_per_proc=self.mem_per_procs, retcode=retcode)) #walltime=self.walltime,
+
+    #@property
+    #def num_attempts(self):
+    #    return len(self.run_history)
+
+    #@property
+    #def prev_run(self):
+    #    if len(self.run_history) > 0:
+    #        return self.run_history[-1]
+    #    else:
+    #        return None
 
     @abc.abstractmethod
     def set_omp_threads(self, omp_threads):
@@ -492,7 +545,7 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     #    """Returns the walltime in seconds."""
 
     #@abc.abstractmethod
-    #def set_walltime(self):
+    #def set_walltime(self, walltime):
     #    """Set the walltime in seconds."""
 
     #@abc.abstractproperty
@@ -506,7 +559,7 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     #@property
     #def tot_mem(self):
     #    """Total memory required by the job n Megabytes."""
-    #    return self.mem_per_cpu * self.mpi_procs
+    #    return self.mem_per_proc * self.mpi_procs
 
     @abc.abstractmethod
     def cancel(self, job_id):
