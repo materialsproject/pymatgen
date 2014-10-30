@@ -252,10 +252,6 @@ class Partition(object):
         """Memory available on a single node."""
         return self.mem_per_node / self.cores_per_node
 
-    #def set_qadapter(self, qtype, **kwargs):
-    #    cls = qadapter_class(qtype)
-    #    self.qadapter = cls(**kwargs).deepcopy()
-
     def can_use_omp_threads(self, omp_threads):
         """True if omp_threads fit in a node."""
         return self.cores_per_node >= omp_threads
@@ -377,7 +373,7 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     LIMITS = []
 
     def __init__(self, qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
-                 pre_run=None, post_run=None, mpi_runner=None):
+                 pre_run=None, post_run=None, mpi_runner=None, partition=None):
         """
         Args:
             setup:
@@ -434,6 +430,8 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             if err_msg:
                 raise ValueError(err_msg)
 
+        self.partition = partition
+
         # List of dictionaries with the parameters used to submit jobs
         # The launcher will use this information to increase the resources
         #self.run_history, self.max_num_attempts = [], 2
@@ -455,7 +453,6 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         """ 
         try:
             return self._supported_qparams
-
         except AttributeError:
             import re
             self._supported_qparams = re.findall("\$\$\{(\w+)\}", self.QTEMPLATE)
@@ -582,7 +579,7 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         if is_string(lines): lines = [lines]
         self._verbatim.extend(lines)
 
-    def get_subs_dict(self, partition):
+    def get_subs_dict(self):
         """
         Return substitution dict for replacements into the template
         Subclasses may want to customize this method.
@@ -590,10 +587,10 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         # clean null values
         return {k: v for k, v in self.qparams.items() if v is not None}
 
-    def _make_qheader(self, job_name, partition, qout_path, qerr_path):
+    def _make_qheader(self, job_name, qout_path, qerr_path):
         """Return a string with the options that are passed to the resource manager."""
         # get substitution dict for replacements into the template 
-        subs_dict = self.get_subs_dict(partition)
+        subs_dict = self.get_subs_dict()
 
         # Set job_name and the names for the stderr and stdout of the 
         # queue manager (note the use of the extensions .qout and .qerr
@@ -618,7 +615,7 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
         return '\n'.join(clean_template)
 
-    def get_script_str(self, job_name, launch_dir, partition, executable, qout_path, qerr_path,
+    def get_script_str(self, job_name, launch_dir, executable, qout_path, qerr_path,
                        stdin=None, stdout=None, stderr=None):
         """
         Returns a (multi-line) String representing the queue script, e.g. PBS script.
@@ -629,8 +626,6 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                 Name of the job.
             launch_dir: 
                 (str) The directory the job will be launched in.
-            partitition:
-                ``Partition` object with information on the queue selected for submission.
             executable:
                 String with the name of the executable to be executed.
             qout_path
@@ -643,7 +638,7 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             job_name = job_name[:14]
 
         # Construct the header for the Queue Manager.
-        qheader = self._make_qheader(job_name, partition, qout_path, qerr_path)
+        qheader = self._make_qheader(job_name, qout_path, qerr_path)
 
         # Add the bash section.
         se = ScriptEditor()
@@ -1179,8 +1174,8 @@ class PbsProAdapter(AbstractQueueAdapter):
 
         return AttrDict(select_params)
 
-    def get_subs_dict(self, partition):
-        subs_dict = super(PbsProAdapter, self).get_subs_dict(partition)
+    def get_subs_dict(self):
+        subs_dict = super(PbsProAdapter, self).get_subs_dict() #self.partition)
         # Optimize parameters from the partition.
         # Parameters defining the partion. Hard-coded for the time being.
         # but this info should be passed via taskmananger.yml

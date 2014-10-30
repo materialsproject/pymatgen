@@ -577,15 +577,15 @@ class TaskPolicy(object):
             app("%s: %s" % (k, v))
         return "\n".join(lines)
 
-    def increase_max_ncpus(self):
-        base_increase = 12
-        new = self.max_ncpus + base_increase
-        if new <= 360:
-            logger.info('set max_ncps to '+str(new))
-            self.max_ncpus = new
-            return True
-        else:
-            return False
+    #def increase_max_ncpus(self):
+    #    base_increase = 12
+    #    new = self.max_ncpus + base_increase
+    #    if new <= 360:
+    #        logger.info('set max_ncps to '+str(new))
+    #        self.max_ncpus = new
+    #        return True
+    #    else:
+    #        return False
 
 
 class TaskManager(object):
@@ -660,22 +660,24 @@ class TaskManager(object):
                  pre_run=None, post_run=None, mpi_runner=None, policy=None, partitions=None, db_connector=None):
 
         from .qadapters import qadapter_class, Partition
-        qad_class = qadapter_class(qtype)
-        self.qadapter = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
-                                  pre_run=pre_run, post_run=post_run, mpi_runner=mpi_runner)
-
-        self.policy = TaskPolicy.as_policy(policy)
-
         # Initialize the partitions:
         # order them according to priority and make sure that each partition has different priority
-        self.parts = []
+        parts = []
         if partitions is not None:
             if not isinstance(partitions, (list, tuple)): partitions = [partitions]
-            self.parts = sorted([Partition(**part) for part in partitions], key=lambda p: p.priority)
-
-            priorities = [p.priority for p in self.parts]
+            parts = sorted([Partition(**part) for part in partitions], key=lambda p: p.priority)
+                                                                                                                          
+            priorities = [p.priority for p in parts]
             if len(priorities) != len(set(priorities)):
                 raise ValueError("Two or more partitions have same priority. This is not allowed. Check taskmanager.yml")
+        partition = None
+        if parts: partition = parts[0]
+
+        qad_class = qadapter_class(qtype)
+        self.qadapter = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
+                                  pre_run=pre_run, post_run=post_run, mpi_runner=mpi_runner, partition=partition)
+
+        self.policy = TaskPolicy.as_policy(policy)
 
         # Initialize database connector (if specified)
         from .db import DBConnector
@@ -686,8 +688,6 @@ class TaskManager(object):
         lines = []
         app = lines.append
         #app("tot_cores %d, mpi_procs %d, omp_threads %s" % (self.tot_cores, self.mpi_procs, self.omp_threads))
-        app("[Partitions #%d]\n" % len(self.parts))
-        lines.extend(p for p in self.parts)
         app("[Qadapter]\n%s" % str(self.qadapter))
         app("[Task policy]\n%s" % str(self.policy))
 
@@ -790,35 +790,35 @@ class TaskManager(object):
         """
         return self.qadapter.get_njobs_in_queue(username=username)
 
-    @property
-    def active_partition(self):
-        try:
-            return self._active_partition
-        except AttributeError:
-            #return self.parts[0]
-            return None
+    #@property
+    #def active_partition(self):
+    #    try:
+    #        return self._active_partition
+    #    except AttributeError:
+    #        #return self.parts[0]
+    #        return None
 
-    def select_partition(self, pconf):
-        """
-        Select a partition to run the parallel configuration pconf
-        Set self.active_partition. Return None if no partition could be found.
-        """
-        scores = [part.get_score(pconf) for part in self.parts]
-        print("scores", scores)
-        if all(sc < 0 for sc in scores): return None
-        self._active_partition = self.parts[maxloc(scores)]
+    #def select_partition(self, pconf):
+    #    """
+    #    Select a partition to run the parallel configuration pconf
+    #    Set self.active_partition. Return None if no partition could be found.
+    #    """
+    #    scores = [part.get_score(pconf) for part in self.parts]
+    #    print("scores", scores)
+    #    if all(sc < 0 for sc in scores): return None
+    #    self._active_partition = self.parts[maxloc(scores)]
 
-        # Change the number of MPI/OMP cores.
-        #self.set_mpi_procs(optconf.mpi_procs)
-        #if self.has_omp:
-        #    self.set_omp_threads(optconf.omp_threads)
-                                                                      
-        # Change the memory per node if automemory evaluates to True.
-        #if self.policy.automemory and optconf.mem_per_proc:
-        #    # mem_per_proc = max(mem_per_proc, policy.automemory)
-        #    self.set_mem_per_proc(optconf.mem_per_proc)
+    #    # Change the number of MPI/OMP cores.
+    #    #self.set_mpi_procs(optconf.mpi_procs)
+    #    #if self.has_omp:
+    #    #    self.set_omp_threads(optconf.omp_threads)
+    #                                                                  
+    #    # Change the memory per node if automemory evaluates to True.
+    #    #if self.policy.automemory and optconf.mem_per_proc:
+    #    #    # mem_per_proc = max(mem_per_proc, policy.automemory)
+    #    #    self.set_mem_per_proc(optconf.mem_per_proc)
 
-        return self._active_partition
+    #    return self._active_partition
 
     def cancel(self, job_id):
         """Cancel the job. Returns exit status."""
@@ -829,7 +829,6 @@ class TaskManager(object):
         script = self.qadapter.get_script_str(
             job_name=task.name, 
             launch_dir=task.workdir,
-            partition=self.active_partition,
             executable=task.executable,
             qout_path=task.qout_file.path,
             qerr_path=task.qerr_file.path,
@@ -870,19 +869,6 @@ class TaskManager(object):
             # with GW calculations in mind with GW mem = 10, the response fuction is in memory and not distributed
             # we need to increas memory if jobs fail ...
         return self.qadapter.increase_mem()
-
-        #if self.policy.autoparal == 1:
-        #    #if self.policy.increase_max_ncpus():
-        #        return True
-        #    else:
-        #        return False
-        #elif self.qadapter is not None:
-        #    if self.qadapter.increase_cpus():
-        #        return True
-        #    else:
-        #        return False
-        #else:
-        #    return False
 
 
 # The code below initializes a counter from a file when the module is imported 
@@ -2626,13 +2612,13 @@ class AbinitTask(Task):
         #print("optimal autoparal conf:\n %s" % optconf)
 
         # Select the partition on which we'll be running
-        optconfs = [optconf]
-        for i, c in enumerate(optconfs):
-            if self.manager.select_partition(c) is not None:
-                optconf = optconfs[i]
-                break
-        else:
-            raise RuntimeError("cannot find partition for this run!")
+        #optconfs = [optconf]
+        #for i, c in enumerate(optconfs):
+        #    if self.manager.select_partition(c) is not None:
+        #        optconf = optconfs[i]
+        #        break
+        #else:
+        #    raise RuntimeError("cannot find partition for this run!")
 
         # Write autoparal configurations to JSON file.
         d = confs.as_dict()
