@@ -635,8 +635,10 @@ class TaskManager(object):
         stream.seek(0)
         return cls(**yaml.load(stream))
 
-    def __init__(self, qtype, policy=None, db_connector=None, qparams=None, setup=None, modules=None, 
-                 shell_env=None, omp_env=None, pre_run=None, post_run=None, mpi_runner=None, partitions=None):
+    def __init__(self, qtype, qadapters, policy=None, db_connector=None):
+                 #qparams=None, setup=None, modules=None, 
+                 #shell_env=None, omp_env=None, pre_run=None, post_run=None, mpi_runner=None, partitions=None):
+        self.__qadapters = qadapters
 
         self.policy = TaskPolicy.as_policy(policy)
 
@@ -646,25 +648,32 @@ class TaskManager(object):
 
         # Initialize the partitions:
         # order them according to priority and make sure that each partition has different priority
-        partition = None
         from .qadapters import qadapter_class
-        #parts = []
-        #if partitions is not None:
-        #    if not isinstance(partitions, (list, tuple)): partitions = [partitions]
-        #    parts = sorted([Partition(**part) for part in partitions], key=lambda p: p.priority)
-        #                                                                                                                  
-        #    priorities = [p.priority for p in parts]
-        #    if len(priorities) != len(set(priorities)):
-        #        raise ValueError("Two or more partitions have same priority. This is not allowed. Check taskmanager.yml")
-        #partition = None
-        #if parts: partition = parts[0]
-        self._qads = []
-
         qad_class = qadapter_class(qtype)
-        qad = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
-                                  pre_run=pre_run, post_run=post_run, mpi_runner=mpi_runner, partition=partition)
-        self._qads.append(qad)
-        self._qid = 0
+
+        from collections import defaultdict
+        class MyDict(defaultdict):
+            def __getattr__(self, name):
+                if name in self:
+                    return self.get(name)
+                return None
+        qads = []
+        for d in qadapters:
+            q = MyDict(None)
+            for k, v in d.items():
+                q[k] = v
+            print(q)
+            qad = qad_class(qparams=q.qparams, setup=q.setup, modules=q.modules, shell_env=q.shell_env, omp_env=q.omp_env, 
+                            pre_run=q.pre_run, post_run=q.post_run, mpi_runner=q.mpi_runner, partition=q.partition)
+            qads.append(qad)
+
+        # order qads according to their priority.
+        qads = sorted(qads, key=lambda q: q.priority)
+        priorities = [q.priority for q in qads]
+        if len(priorities) != len(set(priorities)):
+            raise ValueError("Two or more qadapters have same priority. This is not allowed. Check taskmanager.yml")
+
+        self._qads, self._qid = qads, 0
 
     def to_shell_manager(self, mpi_procs=1, policy=None):
         """
@@ -673,13 +682,13 @@ class TaskManager(object):
         Replace self.policy with a `TaskPolicy` with autoparal==0.
         """
         qad = self.qadapter.deepcopy()
-
         policy = TaskPolicy(autoparal=0) if policy is None else policy
 
         cls = self.__class__
-        new = cls("shell", qparams={"MPI_PROCS": mpi_procs}, setup=qad.setup, modules=qad.modules, 
-                  shell_env=qad.shell_env, omp_env=None, pre_run=qad.pre_run, 
-                  post_run=qad.post_run, mpi_runner=qad.mpi_runner, policy=policy, partitions=None)
+        new = cls(qtype="shell", qadapters=self.__qadapters, policy=policy) #, db_connector=self.db_connector)
+                  #qparams={"MPI_PROCS": mpi_procs}, setup=qad.setup, modules=qad.modules, 
+                  #shell_env=qad.shell_env, omp_env=None, pre_run=qad.pre_run, 
+                  #post_run=qad.post_run, mpi_runner=qad.mpi_runner, policy=policy, partition=None)
 
         return new
 
@@ -699,14 +708,12 @@ class TaskManager(object):
         self._qid = maxloc(scores)
 
         # Change the number of MPI/OMP cores.
-        #self.set_mpi_procs(optconf.mpi_procs)
-        #if self.has_omp:
-        #    self.set_omp_threads(optconf.omp_threads)
+        self.set_mpi_procs(pconf.mpi_procs)
+        if self.has_omp: self.set_omp_threads(pconf.omp_threads)
                                                                       
         # Change the memory per node if automemory evaluates to True.
-        #if self.policy.automemory and optconf.mem_per_proc:
-        #    # mem_per_proc = max(mem_per_proc, policy.automemory)
-        #    self.set_mem_per_proc(optconf.mem_per_proc)
+        #if self.policy.automemory and pconf.mem_per_proc:
+        #    self.set_mem_per_proc(pconf.mem_per_proc)
 
         return True
 
@@ -2584,13 +2591,13 @@ class AbinitTask(Task):
         #print("optimal autoparal conf:\n %s" % optconf)
 
         # Select the partition on which we'll be running
-        #optconfs = [optconf]
-        #for i, c in enumerate(optconfs):
-        #    if self.manager.select_qadapter(c):
-        #        optconf = optconfs[i]
-        #        break
-        #else:
-        #    raise RuntimeError("cannot find partition for this run!")
+        optconfs = [optconf]
+        for i, c in enumerate(optconfs):
+            if self.manager.select_qadapter(c):
+                optconf = optconfs[i]
+                break
+        else:
+            raise RuntimeError("cannot find partition for this run!")
 
         # Write autoparal configurations to JSON file.
         d = confs.as_dict()
@@ -2603,9 +2610,9 @@ class AbinitTask(Task):
         self.strategy.add_extra_abivars(optconf.vars)
                                                                   
         # Change the number of MPI/OMP cores.
-        self.manager.set_mpi_procs(optconf.mpi_procs)
-        if self.manager.has_omp:
-            self.manager.set_omp_threads(optconf.omp_threads)
+        #self.manager.set_mpi_procs(optconf.mpi_procs)
+        #if self.manager.has_omp:
+        #    self.manager.set_omp_threads(optconf.omp_threads)
 
         # Change the memory per node if automemory evaluates to True.
         #if policy.automemory and optconf.mem_per_proc:

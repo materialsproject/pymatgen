@@ -199,15 +199,20 @@ class Partition(object):
         cores_per_socket=Entry(type=int, mandatory=True, help="Number of cores per node"),
         mem_per_node=Entry(type=str, mandatory=True, help="Memory per node", parser=Memory.from_string),
         timelimit=Entry(type=str, mandatory=True, help="Time limit", parser=timelimit_parser),
+        priority=Entry(type=int, help="Priority level, integer number > 0"),
         # optional
         #min_cores=Entry(type=int, default=1, help="Minimum number of cores that can be used"),
         #max_cores=Entry(type=int, default=sys.maxsize, help="Maximum number of cores that can be used"),
         min_nodes=Entry(type=int, default=1, help="Minimum number of nodes that can be used"),
         max_nodes=Entry(type=int, default=sys.maxsize, help="Maximum number of nodes that can be used"),
-        priority=Entry(type=int, default=1, help="Priority level, integer number > 0"),
         condition=Entry(type=object, default=Condition, help="Condition object (dictionary)", parser=Condition),
     )
     del Entry
+
+    @classmethod
+    def as_partition(cls, obj):
+        """Convert an object into a Partition."""
+        return obj if isinstance(obj, cls) else cls(**obj)
 
     def __init__(self, **kwargs):
         """The possible arguments are documented in Partition.ENTRIES."""
@@ -225,6 +230,7 @@ class Partition(object):
         # Convert memory to megabytes.
         self.mem_per_node = self.mem_per_node.to("Mb")
         if self.max_nodes == sys.maxsize: self.max_nodes = self.num_nodes
+        assert self.priority > 0
 
     def __str__(self):
         """String representation."""
@@ -420,11 +426,11 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             if err_msg:
                 raise ValueError(err_msg)
 
-        self.partition = partition
+        self.part = Partition.as_partition(partition)
 
         # List of dictionaries with the parameters used to submit jobs
         # The launcher will use this information to increase the resources
-        #self.run_history, self.max_num_attempts = [], 2
+        self.attempts, self.max_num_attempts = [], 2
 
     def __str__(self):
         lines = [self.__class__.__name__]
@@ -447,6 +453,10 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             import re
             self._supported_qparams = re.findall("\$\$\{(\w+)\}", self.QTEMPLATE)
             return self._supported_qparams
+
+    @property
+    def priority(self):
+        return self.part.priority
 
     @property
     def has_mpi(self):
@@ -499,21 +509,22 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     def deepcopy(self):
         return copy.deepcopy(self)
 
-    #def add_to_history(self, retcode):
-    #    self.run_history.append(AttrDict(
-    #       mpi_procs=self.mpi_procs, omp_thrads=self.omp_threads,
-    #       mem_per_proc=self.mem_per_procs, retcode=retcode)) #walltime=self.walltime,
+    def record_attempt(self): # $ retcode):
+        self.attempts.append(AttrDict(
+           mpi_procs=self.mpi_procs, omp_threads=self.omp_threads)) 
+        #, mem_per_proc=self.mem_per_proc)) 
+        # retcode=retcode)) #walltime=self.walltime,
 
-    #@property
-    #def num_attempts(self):
-    #    return len(self.run_history)
+    @property
+    def num_attempts(self):
+        return len(self.attempts)
 
-    #@property
-    #def prev_run(self):
-    #    if len(self.run_history) > 0:
-    #        return self.run_history[-1]
-    #    else:
-    #        return None
+    @property
+    def last_attempt(self):
+        if len(self.attempts) > 0:
+            return self.attempts[-1]
+        else:
+            return None
 
     @abc.abstractmethod
     def set_omp_threads(self, omp_threads):
@@ -677,7 +688,7 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         return qheader + shell_text + "\n"
 
     @abc.abstractmethod
-    def submit_to_queue(self, script_file):
+    def _submit_to_queue(self, script_file):
         """
         Submits the job to the queue, probably using subprocess or shutil
 
@@ -687,6 +698,15 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         Returns:
             process, queue_id
         """
+
+    def submit_to_queue(self, script_file):
+        """
+        Public API: wraps the concrete implementation _submit_to_queue
+        and register the submission.
+        """
+        process, queue_id = self._submit_to_queue(script_file)
+        self.record_attempt()
+        return process, queue_id
 
     @abc.abstractmethod
     def get_njobs_in_queue(self, username=None):
@@ -730,6 +750,8 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         to select the partion on the cluster on which the task will be submitted.
         Returns -inf if paral_conf cannot be exected on this partition.
         """
+        # TODO
+        return self.part.priority
         minf = float("-inf")
         if not self.part.can_run(pconf): return minf
         return self.part.priority
@@ -767,8 +789,7 @@ export MPI_PROCS=$${MPI_PROCS}
     def cancel(self, job_id):
         return os.system("kill -9 %d" % job_id)
 
-    def submit_to_queue(self, script_file):
-
+    def _submit_to_queue(self, script_file):
         if not os.path.exists(script_file):
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
 
@@ -850,8 +871,7 @@ class SlurmAdapter(AbstractQueueAdapter):
     def cancel(self, job_id):
         return os.system("scancel %d" % job_id)
 
-    def submit_to_queue(self, script_file, submit_err_file="sbatch.err"):
-
+    def _submit_to_queue(self, script_file, submit_err_file="sbatch.err"):
         if not os.path.exists(script_file):
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
 
@@ -1181,7 +1201,7 @@ class PbsProAdapter(AbstractQueueAdapter):
         #subs_dict["vmem"] = 5
         return subs_dict
 
-    def submit_to_queue(self, script_file):
+    def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
         if not os.path.exists(script_file):
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
@@ -1395,7 +1415,7 @@ class SGEAdapter(AbstractQueueAdapter):
     def cancel(self, job_id):
         return os.system("qdel %d" % job_id)
 
-    def submit_to_queue(self, script_file):
+    def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
         if not os.path.exists(script_file):
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
@@ -1525,7 +1545,7 @@ class MOABAdapter(AbstractQueueAdapter):
     def cancel(self, job_id):
         return os.system("canceljob %d" % job_id)
 
-    def submit_to_queue(self, script_file, submit_err_file="sbatch.err"):
+    def _submit_to_queue(self, script_file, submit_err_file="sbatch.err"):
         """Submit a job script to the queue."""
         if not os.path.exists(script_file):
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
