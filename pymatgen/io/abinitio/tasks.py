@@ -551,7 +551,7 @@ class TaskPolicy(object):
                 Select the algorith to select the optimal configuration for the parallel execution.
                 Possible values: ["default", "aggressive", "conservative"]
             max_ncpus:
-                Maximal number of phyiscal CPUs that can be used (must be specified if autoparal > 0).
+                Maximal number of cores that can be used (must be specified if autoparal > 0).
             condition:
                 condition used to filter the autoparal configuration (Mongodb-like syntax)
             vars_condition:
@@ -563,7 +563,7 @@ class TaskPolicy(object):
         self.max_ncpus = max_ncpus
         self.condition = Condition(condition) if condition is not None else condition
         self.vars_condition = Condition(vars_condition) if vars_condition is not None else vars_condition
-        self._LIMITS = {'max_ncpus': 240}
+        #self._LIMITS = {'max_ncpus': 240}
 
         if self.autoparal and self.max_ncpus is None:
             raise ValueError("When autoparal is not zero, max_ncpus must be specified.")
@@ -662,12 +662,12 @@ class TaskManager(object):
             q = MyDict(None)
             for k, v in d.items():
                 q[k] = v
-            print(q)
+            #print(q)
             qad = qad_class(qparams=q.qparams, setup=q.setup, modules=q.modules, shell_env=q.shell_env, omp_env=q.omp_env, 
                             pre_run=q.pre_run, post_run=q.post_run, mpi_runner=q.mpi_runner, partition=q.partition)
             qads.append(qad)
 
-        # order qads according to their priority.
+        # order qdapters according to their priority.
         qads = sorted(qads, key=lambda q: q.priority)
         priorities = [q.priority for q in qads]
         if len(priorities) != len(set(priorities)):
@@ -712,8 +712,8 @@ class TaskManager(object):
         if self.has_omp: self.set_omp_threads(pconf.omp_threads)
                                                                       
         # Change the memory per node if automemory evaluates to True.
-        #if self.policy.automemory and pconf.mem_per_proc:
-        #    self.set_mem_per_proc(pconf.mem_per_proc)
+        if self.policy.automemory and pconf.mem_per_proc:
+            self.set_mem_per_proc(pconf.mem_per_proc)
 
         return True
 
@@ -721,9 +721,8 @@ class TaskManager(object):
         """String representation."""
         lines = []
         app = lines.append
-        #app("tot_cores %d, mpi_procs %d, omp_threads %s" % (self.tot_cores, self.mpi_procs, self.omp_threads))
-        app("[Qadapter selected]\n%s" % str(self.qadapter))
         app("[Task policy]\n%s" % str(self.policy))
+        app("[Qadapter selected]\n%s" % str(self.qadapter))
 
         if self.has_db:
             app("[MongoDB database]:")
@@ -783,7 +782,7 @@ class TaskManager(object):
 
     #@property
     #def max_ncpus(self):
-    #    return max(p.max_ncores for p in self.partitions)
+    #    return max(q.max_ncores for p in self.partitions)
 
     def get_njobs_in_queue(self, username=None):
         """
@@ -817,13 +816,15 @@ class TaskManager(object):
             fh.write(script)
             return task.job_file.path
 
-    def launch(self, task):
+    def launch(self, task, shell=False):
         """
         Build the input files and submit the task via the `Qadapter` 
 
         Args:
             task:
                 `TaskObject`
+            shell:
+                if True, the job script is executed in a shell subprocess with mpi_procs=1
         
         Returns:
             Process object.
@@ -831,12 +832,24 @@ class TaskManager(object):
         # Build the task 
         task.build()
 
+        if shell:
+            old_mpi_procs = self.mpi_procs
+            self.set_mpi_procs(1)
+
         # Submit the task and save the queue id.
-        # FIXME: CD to script file dir?
         task.set_status(task.S_SUB)
         script_file = self.write_jobfile(task)
-        process, queue_id = self.qadapter.submit_to_queue(script_file)
+        if shell:
+            from subprocess import Popen, PIPE
+            process = Popen(("/bin/bash", script_file), stderr=PIPE)
+            queue_id = process.pid
+        else:
+            process, queue_id = self.qadapter.submit_to_queue(script_file)
+
         task.set_queue_id(queue_id)
+
+        if shell:
+            self.set_mpi_procs(old_mpi_procs)
 
         return process
 
@@ -845,7 +858,8 @@ class TaskManager(object):
         return self.db_connector.get_collection(**kwargs)
 
     def increase_resources(self):
-        # with GW calculations in mind with GW mem = 10, the response fuction is in memory and not distributed
+        # with GW calculations in mind with GW mem = 10, 
+        # the response fuction is in memory and not distributed
         # we need to increas memory if jobs fail ...
         return self.qadapter.increase_mem()
 
@@ -2552,18 +2566,14 @@ class AbinitTask(Task):
         ############################################################################
 
         # Set the variables for automatic parallelization
-        autoparal_vars = dict(
-            autoparal=policy.autoparal,
-            max_ncpus=policy.max_ncpus)
-
+        autoparal_vars = dict(autoparal=policy.autoparal, max_ncpus=policy.max_ncpus)
         self.strategy.add_extra_abivars(autoparal_vars)
 
-        # Build a simple manager to run the job in a shell subprocess on the frontend
+        # Run the job in a shell subprocess with mpi_procs = 1
         # we don't want to make a request to the queue manager for this simple job!
-        seq_manager = self.manager.to_shell_manager(mpi_procs=1)
 
         # Return code is always != 0 
-        process = seq_manager.launch(self)
+        process = self.manager.launch(self, shell=True)
         logger.info("fake run launched")
         retcode = process.wait()  
 
@@ -2574,7 +2584,6 @@ class AbinitTask(Task):
         # Parse the autoparal configurations from the main output file
         ##############################################################
         parser = ParalHintsParser()
-
         try:
             confs = parser.parse(self.output_file.path)
             #self.all_autoparal_confs = confs
@@ -2590,34 +2599,24 @@ class AbinitTask(Task):
         optconf = confs.select_optimal_conf(policy)
         #print("optimal autoparal conf:\n %s" % optconf)
 
-        # Select the partition on which we'll be running
+        # Select the partition on which we'll be running and set MPI/OMP cores.
         optconfs = [optconf]
         for i, c in enumerate(optconfs):
             if self.manager.select_qadapter(c):
                 optconf = optconfs[i]
                 break
         else:
-            raise RuntimeError("cannot find partition for this run!")
-
-        # Write autoparal configurations to JSON file.
-        d = confs.as_dict()
-        d["optimal_conf"] = optconf
-        json_pretty_dump(d, os.path.join(self.workdir, "autoparal.json"))
+            raise RuntimeError("Cannot find partition for this run!")
 
         ####################################################
         # Change the input file and/or the submission script
         ####################################################
         self.strategy.add_extra_abivars(optconf.vars)
-                                                                  
-        # Change the number of MPI/OMP cores.
-        #self.manager.set_mpi_procs(optconf.mpi_procs)
-        #if self.manager.has_omp:
-        #    self.manager.set_omp_threads(optconf.omp_threads)
 
-        # Change the memory per node if automemory evaluates to True.
-        #if policy.automemory and optconf.mem_per_proc:
-        #    # mem_per_proc = max(mem_per_cpu, policy.automemory)
-        #    self.manager.set_mem_per_proc(optconf.mem_per_proc)
+        # Write autoparal configurations to JSON file.
+        d = confs.as_dict()
+        d["optimal_conf"] = optconf
+        json_pretty_dump(d, os.path.join(self.workdir, "autoparal.json"))
 
         ##############
         # Finalization
@@ -2670,22 +2669,6 @@ class AbinitTask(Task):
             self.set_status(self.S_ERROR, info_msg='could not increase resources any further')
             return False
 
-    #@property
-    #def timing(self):
-    #    """Object with timing data. None if timing is not available"""
-    #    try:
-    #        return self._timing
-    #    except AttributeError:
-    #        return None
-
-    #def read_timing(self):
-    #    """
-    #    Read timing data from the main output file and store it in self.timing if available.
-    #    """
-    #    from pymatgen.io.abitimer import AbinitTimerParser
-    #    _timing = AbinitTimerParser()
-    #    retval = timing.parse(self.output_file) 
-    #    if retval == self.output_file: self._timing = _timing
 
 # TODO
 # Enable restarting capabilites:
@@ -2939,8 +2922,7 @@ class SigmaTask(AbinitTask):
     def restart(self):
         # G calculations can be restarted only if we have the QPS file 
         # from which we can read the results of the previous step.
-        ext = "QPS"
-        restart_file = self.outdir.has_abiext(ext)
+        restart_file = self.outdir.has_abiext("QPS")
         if not restart_file:
             raise self.RestartError("Cannot find the QPS file to restart from.")
 
@@ -3010,7 +2992,7 @@ class BseTask(AbinitTask):
             # outdir does not contain the BSR|BSC file.
             # This means that num_restart > 1 and the files should be in task.indir
             count = 0
-            for ext in ["BSR", "BSC"]:
+            for ext in ("BSR", "BSC"):
                 ifile = self.indir.has_abiext(ext)
                 if ifile:
                     count += 1
@@ -3020,7 +3002,7 @@ class BseTask(AbinitTask):
 
         # Rename HAYDR_SAVE files
         count = 0
-        for ext in ["HAYDR_SAVE", "HAYDC_SAVE"]:
+        for ext in ("HAYDR_SAVE", "HAYDC_SAVE"):
             ofile = self.outdir.has_abiext(ext)
             if ofile:
                 count += 1
