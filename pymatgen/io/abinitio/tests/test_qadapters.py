@@ -45,8 +45,10 @@ class QadapterTest(PymatgenTest):
               ("LD_LIBRARY_PATH", "/NAPS/intel13/lib:$LD_LIBRARY_PATH")])
 
         mpi_runner = MpiRunner("mpirun")
-        partition = None
+
         #omp_env = OmpEnv(OMP_NUM_THREADS=2)
+        partition = Partition(name="test_partition", num_nodes=100, sockets_per_node=2, 
+                              cores_per_socket=4, mem_per_node="1 Gb", timelimit=10, priority=1)
 
         # Test if we can instantiate the concrete classes with the abc protocol.
         for subc in sub_classes:
@@ -89,7 +91,7 @@ class PartitionTest(PymatgenTest):
         with self.assertRaises(ValueError):
             part = Partition(**p)
 
-        p.update(mem_per_node="8 Mb", timelimit="2:00")
+        p.update(mem_per_node="8 Mb", timelimit="2:00", priority=1)
         part = Partition(**p)
         print("partition", str(part))
         aequal(part.timelimit, 120)
@@ -135,7 +137,7 @@ class PbsProadapterTest(PymatgenTest):
         aequal = self.assertEqual
 
         kwargs = dict(name="test_partition", num_nodes=100, sockets_per_node=2, 
-                      cores_per_socket=4, mem_per_node="1 Gb", timelimit=10)
+                      cores_per_socket=4, mem_per_node="1 Gb", timelimit=10, priority=1)
         p = Partition(**kwargs)
         print("partition\n" + str(p))
 
