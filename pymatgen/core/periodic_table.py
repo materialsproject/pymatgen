@@ -315,7 +315,7 @@ class Element(object):
     """
 
     def __init__(self, symbol):
-        self._symbol = u"%s" % symbol
+        self._symbol = "%s" % symbol
         self._data = _pt_data[symbol]
 
         #Store key variables for quick access

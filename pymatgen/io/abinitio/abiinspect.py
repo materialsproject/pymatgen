@@ -11,7 +11,7 @@ import yaml
 import six
 
 from six.moves import cStringIO, map, zip
-from monty.pprint import pprint_table
+from prettytable import PrettyTable
 
 
 def straceback():
@@ -116,13 +116,13 @@ class ScfCycle(collections.Mapping):
 
     def __str__(self):
         """String representation."""
-        table = [list(self.fields.keys())]
+        table = PrettyTable([list(self.fields.keys())])
         for it in range(self.num_iterations):
             row = list(map(str, (self[k][it] for k in self.keys())))
-            table.append(row)
+            table.add_row(row)
 
         stream = cStringIO()
-        pprint_table(table, out=stream)
+        print(table, out=stream)
         stream.seek(0)
 
         return "".join(stream)

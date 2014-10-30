@@ -35,6 +35,7 @@ import numpy as np
 from monty.io import zopen, reverse_readfile
 from monty.json import jsanitize
 
+
 from pymatgen.util.io_utils import clean_lines, micro_pyawk
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import unitized
@@ -1023,6 +1024,7 @@ class Outcar(PMGSONable):
                 break
 
         # data from beginning of OUTCAR
+        run_stats['cores'] = 0
         with zopen(filename, "rt") as f:
             for line in f:
                 if "running" in line:
