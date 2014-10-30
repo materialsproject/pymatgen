@@ -5,7 +5,7 @@ from __future__ import unicode_literals, division, print_function
 #!/usr/bin/env python
 
 """
-Script to print GW results for VASP and ABINIT /
+Script to print GW results for VASP and ABINIT.
 """
 
 __author__ = "Michiel van Setten"

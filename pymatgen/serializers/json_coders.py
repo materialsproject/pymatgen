@@ -31,8 +31,6 @@ objects are supported as well.
 
 """
 
-import six
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
@@ -40,13 +38,32 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Apr 30, 2012"
 
+import six
 import json
+import functools
 
 from abc import ABCMeta
 
 from monty.io import zopen
 from monty.json import MSONable, MontyEncoder, MontyDecoder, MSONError
 from monty.dev import deprecated
+
+
+def pmg_serialize(method):
+    """
+    Decorator for methods that add MSON serializations keys 
+    to the dictionary. See documentation of MSON for more details
+    """
+    @functools.wraps(method)
+    def wrapper(*args, **kwargs):
+        self = args[0]
+        d = method(*args, **kwargs)
+        # Add @module and @class
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    return wrapper
 
 
 class PMGSONable(six.with_metaclass(ABCMeta, MSONable)):
