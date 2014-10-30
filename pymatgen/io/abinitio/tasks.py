@@ -602,19 +602,6 @@ class TaskManager(object):
     USER_CONFIG_DIR = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
 
     @classmethod
-    def from_string(cls, s):
-        """Create an instance from string s containing a YAML dictionary."""
-        stream = StringIO(s)
-        stream.seek(0)
-        return cls(**yaml.load(stream))
-
-    @classmethod
-    def from_file(cls, filename):
-        """Read the configuration parameters from the Yaml file filename."""
-        with open(filename, "r") as fh:
-            return cls(**yaml.load(fh))
-
-    @classmethod
     def from_user_config(cls):
         """
         Initialize the `TaskManager` from the YAML file 'taskmanager.yaml'.
@@ -635,6 +622,19 @@ class TaskManager(object):
     
         raise RuntimeError("Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, path))
 
+    @classmethod
+    def from_file(cls, filename):
+        """Read the configuration parameters from the Yaml file filename."""
+        with open(filename, "r") as fh:
+            return cls(**yaml.load(fh))
+
+    @classmethod
+    def from_string(cls, s):
+        """Create an instance from string s containing a YAML dictionary."""
+        stream = StringIO(s)
+        stream.seek(0)
+        return cls(**yaml.load(stream))
+
     def __init__(self, qtype, policy=None, db_connector=None, qparams=None, setup=None, modules=None, 
                  shell_env=None, omp_env=None, pre_run=None, post_run=None, mpi_runner=None, partitions=None):
 
@@ -644,30 +644,78 @@ class TaskManager(object):
         from .db import DBConnector
         self.db_connector = DBConnector(config_dict=db_connector)
 
-        from .qadapters import qadapter_class, Partition
         # Initialize the partitions:
         # order them according to priority and make sure that each partition has different priority
-        parts = []
-        if partitions is not None:
-            if not isinstance(partitions, (list, tuple)): partitions = [partitions]
-            parts = sorted([Partition(**part) for part in partitions], key=lambda p: p.priority)
-                                                                                                                          
-            priorities = [p.priority for p in parts]
-            if len(priorities) != len(set(priorities)):
-                raise ValueError("Two or more partitions have same priority. This is not allowed. Check taskmanager.yml")
         partition = None
-        if parts: partition = parts[0]
+        from .qadapters import qadapter_class
+        #parts = []
+        #if partitions is not None:
+        #    if not isinstance(partitions, (list, tuple)): partitions = [partitions]
+        #    parts = sorted([Partition(**part) for part in partitions], key=lambda p: p.priority)
+        #                                                                                                                  
+        #    priorities = [p.priority for p in parts]
+        #    if len(priorities) != len(set(priorities)):
+        #        raise ValueError("Two or more partitions have same priority. This is not allowed. Check taskmanager.yml")
+        #partition = None
+        #if parts: partition = parts[0]
+        self._qads = []
 
         qad_class = qadapter_class(qtype)
-        self.qadapter = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
+        qad = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
                                   pre_run=pre_run, post_run=post_run, mpi_runner=mpi_runner, partition=partition)
+        self._qads.append(qad)
+        self._qid = 0
+
+    def to_shell_manager(self, mpi_procs=1, policy=None):
+        """
+        Returns a new `TaskManager` with the same parameters as self but replace the `QueueAdapter` 
+        with a `ShellAdapter` with mpi_procs so that we can submit the job without passing through the queue.
+        Replace self.policy with a `TaskPolicy` with autoparal==0.
+        """
+        qad = self.qadapter.deepcopy()
+
+        policy = TaskPolicy(autoparal=0) if policy is None else policy
+
+        cls = self.__class__
+        new = cls("shell", qparams={"MPI_PROCS": mpi_procs}, setup=qad.setup, modules=qad.modules, 
+                  shell_env=qad.shell_env, omp_env=None, pre_run=qad.pre_run, 
+                  post_run=qad.post_run, mpi_runner=qad.mpi_runner, policy=policy, partitions=None)
+
+        return new
+
+    @property
+    def qadapter(self):
+        """This the qadapter used to submit jobs."""
+        return self._qads[self._qid]
+
+    def select_qadapter(self, pconf):
+        """
+        Select the qadatper to submit a run with the parallel configuration pconf
+        Return False if no qadapter could be found.
+        """
+        scores = [q.get_score(pconf) for q in self._qads]
+        print("scores", scores)
+        if all(sc < 0 for sc in scores): return False
+        self._qid = maxloc(scores)
+
+        # Change the number of MPI/OMP cores.
+        #self.set_mpi_procs(optconf.mpi_procs)
+        #if self.has_omp:
+        #    self.set_omp_threads(optconf.omp_threads)
+                                                                      
+        # Change the memory per node if automemory evaluates to True.
+        #if self.policy.automemory and optconf.mem_per_proc:
+        #    # mem_per_proc = max(mem_per_proc, policy.automemory)
+        #    self.set_mem_per_proc(optconf.mem_per_proc)
+
+        return True
 
     def __str__(self):
         """String representation."""
         lines = []
         app = lines.append
         #app("tot_cores %d, mpi_procs %d, omp_threads %s" % (self.tot_cores, self.mpi_procs, self.omp_threads))
-        app("[Qadapter]\n%s" % str(self.qadapter))
+        app("[Qadapter selected]\n%s" % str(self.qadapter))
         app("[Task policy]\n%s" % str(self.policy))
 
         if self.has_db:
@@ -700,23 +748,6 @@ class TaskManager(object):
     def omp_threads(self):
         """Number of OpenMP threads"""
         return self.qadapter.omp_threads
-
-    def to_shell_manager(self, mpi_procs=1, policy=None):
-        """
-        Returns a new `TaskManager` with the same parameters as self but replace the `QueueAdapter` 
-        with a `ShellAdapter` with mpi_procs so that we can submit the job without passing through the queue.
-        Replace self.policy with a `TaskPolicy` with autoparal==0.
-        """
-        qad = self.qadapter.deepcopy()
-
-        policy = TaskPolicy(autoparal=0) if policy is None else policy
-
-        cls = self.__class__
-        new = cls("shell", qparams={"MPI_PROCS": mpi_procs}, setup=qad.setup, modules=qad.modules, 
-                  shell_env=qad.shell_env, omp_env=None, pre_run=qad.pre_run, 
-                  post_run=qad.post_run, mpi_runner=qad.mpi_runner, policy=policy, partitions=None)
-
-        return new
 
     def deepcopy(self):
         """Deep copy of self."""
@@ -756,36 +787,6 @@ class TaskManager(object):
             username: (str) the username of the jobs to count (default is to autodetect)
         """
         return self.qadapter.get_njobs_in_queue(username=username)
-
-    #@property
-    #def active_partition(self):
-    #    try:
-    #        return self._active_partition
-    #    except AttributeError:
-    #        #return self.parts[0]
-    #        return None
-
-    #def select_partition(self, pconf):
-    #    """
-    #    Select a partition to run the parallel configuration pconf
-    #    Set self.active_partition. Return None if no partition could be found.
-    #    """
-    #    scores = [part.get_score(pconf) for part in self.parts]
-    #    print("scores", scores)
-    #    if all(sc < 0 for sc in scores): return None
-    #    self._active_partition = self.parts[maxloc(scores)]
-
-    #    # Change the number of MPI/OMP cores.
-    #    #self.set_mpi_procs(optconf.mpi_procs)
-    #    #if self.has_omp:
-    #    #    self.set_omp_threads(optconf.omp_threads)
-    #                                                                  
-    #    # Change the memory per node if automemory evaluates to True.
-    #    #if self.policy.automemory and optconf.mem_per_proc:
-    #    #    # mem_per_proc = max(mem_per_proc, policy.automemory)
-    #    #    self.set_mem_per_proc(optconf.mem_per_proc)
-
-    #    return self._active_partition
 
     def cancel(self, job_id):
         """Cancel the job. Returns exit status."""
@@ -2585,7 +2586,7 @@ class AbinitTask(Task):
         # Select the partition on which we'll be running
         #optconfs = [optconf]
         #for i, c in enumerate(optconfs):
-        #    if self.manager.select_partition(c) is not None:
+        #    if self.manager.select_qadapter(c):
         #        optconf = optconfs[i]
         #        break
         #else:

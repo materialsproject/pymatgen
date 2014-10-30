@@ -326,16 +326,6 @@ class Partition(object):
         #if not self.max_nodes >= d.num_nodes >= self.min_nodes: return False
         return self.condition(pconf)
 
-    def get_score(self, pconf):
-        """
-        Receives a ``ParalConf`` object, pconf, and returns a number that will be used
-        to select the partion on the cluster on which the task will be submitted.
-        Returns -inf if paral_conf cannot be exected on this partition.
-        """
-        minf = float("-inf")
-        if not self.can_run(pconf): return minf
-        return self.priority
-
 
 def qadapter_class(qtype):
     """Return the concrete `Adapter` class from a string."""
@@ -734,6 +724,15 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         Method to increase the number of cpus asked for.
         """
 
+    def get_score(self, pconf):
+        """
+        Receives a ``ParalConf`` object, pconf, and returns a number that will be used
+        to select the partion on the cluster on which the task will be submitted.
+        Returns -inf if paral_conf cannot be exected on this partition.
+        """
+        minf = float("-inf")
+        if not self.part.can_run(pconf): return minf
+        return self.part.priority
 
 ####################
 # Concrete classes #
