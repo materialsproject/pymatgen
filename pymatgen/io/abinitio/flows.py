@@ -209,8 +209,6 @@ class AbinitFlow(Node):
 
         with FileLock(filepath):
             with open(filepath, "rb") as fh:
-                #flow = pickle.load(fh)
-                #flow = PmgUnpickler(fh).load()
                 flow = pmg_pickle_load(fh)
 
         # Check if versions match.
@@ -832,9 +830,7 @@ class AbinitFlow(Node):
         filepath = os.path.join(self.workdir, self.PICKLE_FNAME)
 
         with FileLock(filepath):
-            with open(filepath, mode="w" if protocol == 0 else "wb") as fh:
-                #pickle.dump(self, fh, protocol=protocol)
-                #PmgPickler(fh, protocol=protocol).dump(self)
+            with open(filepath, mode="wb") as fh:
                 pmg_pickle_dump(self, fh, protocol=protocol)
 
         # Atomic transaction.
