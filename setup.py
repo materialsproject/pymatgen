@@ -51,7 +51,7 @@ setup(
     name="pymatgen",
     packages=find_packages(),
     version="3.0.7",
-    install_requires=["numpy>=1.8", "pyhull>=1.5.3", "six", "prettytable",
+    install_requires=["numpy>=1.8", "pyhull>=1.5.3", "six", "prettytable", "atomicfile",
                       "requests", "pybtex", "pyyaml", "monty>=0.6.1"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
                     "plotting": ["matplotlib>=1.1", "prettyplotlib"],
