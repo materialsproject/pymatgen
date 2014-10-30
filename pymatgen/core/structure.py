@@ -2345,6 +2345,22 @@ class Structure(IStructure, collections.MutableSequence):
         """
         self.modify_lattice(self._lattice.scale(volume))
 
+    def merge_sites(self, tol=0.01):
+        """
+        Merges sites (adding occupancies) within tol of each other
+        """
+        d = self.distance_matrix
+        d[np.triu_indices(len(d))] = np.inf
+        for inds in np.sort(np.argwhere(d < tol), axis=0)[::-1]:
+            i, j = inds
+            # j < i always, and largest i first, so any previously deleted
+            # site is after i and j (so indices are still correct)
+            sp = self[i].species_and_occu + self[j].species_and_occu
+            d = self[i].frac_coords - self[j].frac_coords
+            fc = self[j].frac_coords + (d - np.round(d)) / 2
+            self.replace(j, sp, fc)
+            del self[i]
+
 
 class Molecule(IMolecule, collections.MutableSequence):
     """
