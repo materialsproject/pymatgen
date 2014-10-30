@@ -9,22 +9,22 @@ from pymatgen.io.abinitio.qadapters import *
 
 
 class ParseTimestr(PymatgenTest):
-    def test_parse_timestr(self):
+    def test_parse_slurm_timestr(self):
         days, hours, minutes, secs = 24*60*60, 60*60, 60, 1
         aequal = self.assertEqual
 
         # "days-hours",
-        aequal(parse_timestr("2-1"), 2*days + hours)
+        aequal(parse_slurm_timestr("2-1"), 2*days + hours)
         # "days-hours:minutes",                                        
-        aequal(parse_timestr("2-1:1"), 2*days + hours + minutes)
+        aequal(parse_slurm_timestr("2-1:1"), 2*days + hours + minutes)
         # "days-hours:minutes:seconds".                                
-        aequal(parse_timestr("3-4:2:20"), 3*days + 4*hours + 2*minutes + 20*secs)
+        aequal(parse_slurm_timestr("3-4:2:20"), 3*days + 4*hours + 2*minutes + 20*secs)
         # "minutes",
-        aequal(parse_timestr("10"), 10*minutes)
+        aequal(parse_slurm_timestr("10"), 10*minutes)
         # "minutes:seconds",
-        aequal(parse_timestr("3:20"), 3*minutes + 20*secs)
+        aequal(parse_slurm_timestr("3:20"), 3*minutes + 20*secs)
         # "hours:minutes:seconds",
-        aequal(parse_timestr("3:2:5"), 3*hours + 2*minutes + 5*secs)
+        aequal(parse_slurm_timestr("3:2:5"), 3*hours + 2*minutes + 5*secs)
 
 
 class QadapterTest(PymatgenTest):
@@ -81,17 +81,20 @@ class QadapterTest(PymatgenTest):
 
 class PartitionTest(PymatgenTest):
     def test_partition(self):
+        aequal = self.assertEqual
+        atrue = self.assertTrue
+
         # Test mandatory arguments
         p = AttrDict(name="test_partition", num_nodes=3, sockets_per_node=2, cores_per_socket=4)
         with self.assertRaises(ValueError):
             part = Partition(**p)
 
-        p.update(mem_per_node="1 Gb")
+        p.update(mem_per_node="1 Gb", timelimit="2:00")
         part = Partition(**p)
         print("partition", str(part))
+        aequal(part.timelimit, 120)
 
         # Test properties
-        aequal = self.assertEqual
         aequal(part.tot_cores, p.num_nodes * p.sockets_per_node * p.cores_per_socket)
         aequal(part.cores_per_node, p.sockets_per_node * p.cores_per_socket)
         aequal(part.can_use_omp_threads(p.sockets_per_node * p.cores_per_socket), True)
@@ -99,17 +102,17 @@ class PartitionTest(PymatgenTest):
 
         # Test can_run and distribute
         pconf = ParalConf(mpi_ncpus=part.tot_cores+1, omp_ncpus=1, mem_per_cpu=0.1)
-        assert not part.can_run(pconf)
+        atrue(not part.can_run(pconf))
         pconf = ParalConf(mpi_ncpus=4, omp_ncpus=9, mem_per_cpu=0.1)
-        assert not part.can_run(pconf)
+        atrue(not part.can_run(pconf))
         pconf = ParalConf(mpi_ncpus=4, omp_ncpus=1, mem_per_cpu=1024**3)
-        assert not part.can_run(pconf)
+        atrue(not part.can_run(pconf))
 
         #p = AttrDict(name="test_partition", num_nodes=3, sockets_per_node=2, cores_per_socket=4, mem_per_node="1Gb")
         d = part.distribute(mpi_procs=4, omp_threads=1, mem_per_proc=0.1)
-        assert d.num_nodes == 1 and d.mpi_per_node == 4
+        atrue(d.num_nodes == 1 and d.mpi_per_node == 4)
         d = part.distribute(mpi_procs=16, omp_threads=1, mem_per_proc=0.1)
-        assert d.num_nodes == 2 and d.mpi_per_node == 8
+        atrue(d.num_nodes == 2 and d.mpi_per_node == 8)
         #d = part.distribute(mpi_procs=9, omp_threads=1, mem_per_proc=0.1)
         #assert d.num_nodes == 3 and d.mpi_per_node == 3
         #num_nodes=1, mpi_per_node=9, is_scattered=True
@@ -121,7 +124,8 @@ class PbsProadapterTest(PymatgenTest):
     def test_params_from_partition(self):
         aequal = self.assertEqual
 
-        kwargs = dict(name="test_partition", num_nodes=100, sockets_per_node=2, cores_per_socket=4, mem_per_node="1 Gb")
+        kwargs = dict(name="test_partition", num_nodes=100, sockets_per_node=2, 
+                      cores_per_socket=4, mem_per_node="1 Gb", timelimit=10)
         p = Partition(**kwargs)
         print("partition\n" + str(p))
 

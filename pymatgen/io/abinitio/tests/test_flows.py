@@ -66,22 +66,29 @@ class AbinitFlowTest(FlowUnitTest):
 
         # Build a workflow with a task
         task0_w0 = flow.register_task(self.fake_input)
+        self.assertTrue(task0_w0.is_task)
+        self.assertFalse(task0_w0.has_subnodes)
+        print(task0_w0.status.colored)
         self.assertTrue(len(flow) == 1)
         self.assertEqual(flow.num_tasks, 1)
 
         # Build a workflow containing two tasks depending on task0_w0
         work = Workflow()
+        self.assertTrue(work.is_work)
+        self.assertTrue(work.has_subnodes)
         work.register(self.fake_input)
         work.register(self.fake_input)
         self.assertTrue(len(work) == 2)
 
         flow.register_work(work, deps={task0_w0: "WFK"})
+        self.assertTrue(flow.is_flow)
+        self.assertTrue(flow.has_subnodes)
         self.assertTrue(len(flow) == 2)
-
 
         # Add another workflow without dependencies.
         task0_w2 = flow.register_task(self.fake_input)
         self.assertTrue(len(flow) == 3)
+        self.assertFalse(flow.is_work)
 
         # Allocate internal tables
         flow.allocate()
@@ -101,7 +108,6 @@ class AbinitFlowTest(FlowUnitTest):
         # Check for deadlocks
         flow.check_dependencies()
 
-        # TODO: Fix pickle for flow. Test is temporarily disabled for now by the Hulk.
         # Save the flow in pickle format.
         flow.build_and_pickle_dump()
 

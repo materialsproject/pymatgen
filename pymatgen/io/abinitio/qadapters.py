@@ -34,7 +34,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 __all__ = [
-    "parse_timestr",
+    "parse_slurm_timestr",
     "MpiRunner",
     "Partition",
     "qadapter_class",
@@ -44,7 +44,7 @@ __all__ = [
 ]
 
 
-def parse_timestr(s):
+def parse_slurm_timestr(s):
     """
     A slurm time parser. Accepts a string in one the following forms:
 
@@ -151,6 +151,14 @@ class MpiRunner(object):
         return self.name is not None
 
 
+def timelimit_parser(s):
+    """Convert a float or a string into time in seconds."""
+    try:
+        return float(s)
+    except ValueError:
+        return parse_slurm_timestr(s)
+
+
 class Partition(object):
     """
     This object collects information on a partition (a la slurm)
@@ -167,7 +175,6 @@ class Partition(object):
           Each cpu core will be able to service a number of cpu threads, each having an independent instruction stream 
           but sharing the cores memory controller and other logical units.
     """
-    # TODO Write namedtuple with defaults
     class Entry(object):
         def __init__(self, type, default=None, mandatory=False, parser=None, help="No help available"):
             self.type, self.default, self.parser, self.mandatory = type, default, parser, mandatory
@@ -185,8 +192,8 @@ class Partition(object):
         sockets_per_node=Entry(type=int, mandatory=True, help="Number of sockets per node"),
         cores_per_socket=Entry(type=int, mandatory=True, help="Number of cores per node"),
         mem_per_node=Entry(type=str, mandatory=True, help="Memory per node", parser=Memory.from_string),
+        timelimit=Entry(type=str, mandatory=True, help="Time limit", parser=timelimit_parser),
         # optional
-        timelimit=Entry(type=str, default=None, help="Time limit"),
         min_nodes=Entry(type=int, default=-1, help="Minimun number of nodes that can be used"),
         max_nodes=Entry(type=int, default=sys.maxsize, help="Maximum number of nodes that can be used"),
         priority=Entry(type=int, default=1, help="Priority level, integer number > 0"),
@@ -195,7 +202,6 @@ class Partition(object):
 
     def __init__(self, **kwargs):
         """The possible arguments are documented in Partition.ENTRIES."""
-        #self.timelimit = timelimit #TODO conversion datetime.datetime.strptime("1:00:00", "%H:%M:%S")
         for key, entry in self.ENTRIES.items():
             try:
                 value = entry.eval(kwargs.pop(key)) #; print(key, value)
@@ -209,7 +215,6 @@ class Partition(object):
 
         # Convert memory to megabytes.
         self.mem_per_node = self.mem_per_node.to("Mb")
-        #if self.condition is None: self.condition = Condition()
 
     def __str__(self):
         """String representation."""
@@ -286,6 +291,9 @@ class Partition(object):
         if pconf.tot_cores > self.tot_cores: return False
         if pconf.omp_threads > self.cores_per_node: return False
         if pconf.mem_per_proc > self.mem_per_node: return False
+        # TODO: min_nodes, max_nodes
+        #d = self.distribute(pconf.mpi_procs, pconf.omp_threads, pconf.mem_per_proc)
+        #if not self.max_nodes >= d.num_nodes >= self.min_nodes: return False
         return self.condition(pconf)
 
     def get_score(self, pconf):
@@ -401,9 +409,6 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         if self.has_omp: app(str(self.omp_env))
 
         return "\n".join(lines)
-
-    #def copy(self):
-    #    return copy.copy(self)
 
     def deepcopy(self):
         return copy.deepcopy(self)

@@ -153,20 +153,6 @@ class NodeResults(dict, PMGSONable):
             if newstr not in self.exceptions:
                 self["exceptions"] += [newstr,]
 
-    #def assert_valid(self):
-    #    """
-    #    Returns an empty list if results seem valid. 
-
-    #    The try assert except trick allows one to get a string with info on the exception.
-    #    We use the += operator so that sub-classes can add their own message.
-    #    """
-    #    # TODO Better treatment of events.
-    #    try:
-    #        assert (self["task_returncode"] == 0 and self["task_status"] == self.S_OK)
-    #    except AssertionError as exc:
-    #        self.push_exceptions(str(exc))
-    #    return self.exceptions
-
     @pmg_serialize
     def as_dict(self):
         return self.copy()
@@ -204,7 +190,7 @@ class NodeResults(dict, PMGSONable):
         key = node.name
         if node.is_task:
             key = "w" + str(node.pos[0]) + "_t" + str(node.pos[1])
-        elif node.is_workflow:
+        elif node.is_work:
             key = "w" + str(node.pos)
 
         db = collection.database
@@ -1310,7 +1296,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         return isinstance(self, Task)
 
     @property
-    def is_workflow(self):
+    def is_work(self):
         """True if this node is a Workflow"""
         from .workflows import Workflow
         return isinstance(self, Workflow)
@@ -2727,7 +2713,7 @@ class AbinitTask(Task):
     #    except AttributeError:
     #        return None
 
-    #def read_timig(self):
+    #def read_timing(self):
     #    """
     #    Read timing data from the main output file and store it in self.timing if available.
     #    """
@@ -2757,14 +2743,12 @@ class ScfTask(AbinitTask):
     def restart(self):
         """SCF calculations can be restarted if we have either the WFK file or the DEN file."""
         # Prefer WFK over DEN files since we can reuse the wavefunctions.
-        restart_file = None
         for ext in ("WFK", "DEN"):
             restart_file = self.outdir.has_abiext(ext)
             irdvars = irdvars_for_ext(ext)
             if restart_file:
                 break
-
-        if not restart_file:
+        else:
             raise self.RestartError("Cannot find WFK or DEN file to restart from.")
 
         # Move out --> in.
@@ -2812,8 +2796,6 @@ class NscfTask(AbinitTask):
         """NSCF calculations can be restarted only if we have the WFK file."""
         ext = "WFK"
         restart_file = self.outdir.has_abiext(ext)
-        irdvars = irdvars_for_ext(ext)
-
         if not restart_file:
             raise self.RestartError("Cannot find the WFK file to restart from.")
 
@@ -2821,6 +2803,7 @@ class NscfTask(AbinitTask):
         self.out_to_in(restart_file)
 
         # Add the appropriate variable for restarting.
+        irdvars = irdvars_for_ext(ext)
         self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
@@ -2876,15 +2859,13 @@ class RelaxTask(AbinitTask):
             are computed from the initial structure and may not be consisten with
             the modification of the structure done during the structure relaxation.
         """
-        ofile = None
-        for ext in ["WFK", "DEN"]:
+        for ext in ("WFK", "DEN"):
             ofile = self.outdir.has_abiext(ext)
             if ofile:
                 irdvars = irdvars_for_ext(ext)
                 infile = self.out_to_in(ofile)
                 break
-
-        if not ofile:
+        else:
             raise self.RestartError("Cannot find the WFK|DEN file to restart from.")
 
         # Read the relaxed structure from the GSR file.
@@ -2949,14 +2930,12 @@ class PhononTask(AbinitTask):
         Prefer 1WF over 1DEN since we can reuse the wavefunctions.
         """
         #self.fix_ofiles()
-        restart_file = None
-        for ext in ["1WF", "1DEN"]:
+        for ext in ("1WF", "1DEN"):
             restart_file = self.outdir.has_abiext(ext)
             irdvars = irdvars_for_ext(ext)
             if restart_file:
                 break
-
-        if not restart_file:
+        else:
             raise self.RestartError("Cannot find the 1WF|1DEN|file to restart from.")
 
         self.out_to_in(restart_file)
@@ -2997,14 +2976,13 @@ class SigmaTask(AbinitTask):
         # from which we can read the results of the previous step.
         ext = "QPS"
         restart_file = self.outdir.has_abiext(ext)
-        irdvars = irdvars_for_ext(ext)
-
         if not restart_file:
             raise self.RestartError("Cannot find the QPS file to restart from.")
 
         self.out_to_in(restart_file)
 
         # Add the appropriate variable for restarting.
+        irdvars = irdvars_for_ext(ext)
         self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
@@ -3056,7 +3034,7 @@ class BseTask(AbinitTask):
         # Successive restarts will use the BSR|BSC files in the indir directory
         # to initialize the excitonic Hamiltonian
         count = 0
-        for ext in ["BSR", "BSC"]:
+        for ext in ("BSR", "BSC"):
             ofile = self.outdir.has_abiext(ext)
             if ofile:
                 count += 1
