@@ -1,8 +1,8 @@
 Change log
 ==========
 
-v3.0.6
+v3.0.7
 ------
-* Cost analysis module (Anubhav Jain)
-* More Py3k fixes.
-* Extensive abinitio updates (Matteo).
+* Powerful Slab generation algorithms (beta!).
+* Improvements to DiffusionAnalyzer with constant smoothing option.
+* Significantly improve look of DOS plots using prettyplotlib.
