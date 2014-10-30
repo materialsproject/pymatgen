@@ -511,7 +511,7 @@ def get_z_ordered_elmap(comp):
     Cr4+, Cr3+, Ni3+, Ni4+, Zn2+ ... or
     Cr4+, Cr3+, Ni4+, Ni3+, Zn2+
     """
-    return sorted([(elsp, comp.elmap[elsp]) for elsp in comp.elmap.keys()])
+    return sorted([(elsp, comp[elsp]) for elsp in comp.keys()])
 
 
 def add_oxidation_state_by_site_fraction(structure, oxidation_states):
