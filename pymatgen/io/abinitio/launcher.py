@@ -580,7 +580,6 @@ class PyFlowScheduler(object):
 
         errors = self.flow.look_before_you_leap()
         if errors:
-            print(errors)
             self.exceptions.append(errors)
             return False
 
