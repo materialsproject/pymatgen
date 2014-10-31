@@ -993,7 +993,7 @@ class QptdmWorkflow(Workflow):
         the final SCR file in the outdir of the `Workflow`.
         """
         final_scr = self.merge_scrfiles()
-        return self.Results(node=self,returncode=0, message="mrgscr done", final_scr=final_scr)
+        return self.Results(node=self, returncode=0, message="mrgscr done", final_scr=final_scr)
 
 
 def build_oneshot_phononwork(workdir, manager, scf_input, ph_inputs, work_class=None):
@@ -1001,7 +1001,9 @@ def build_oneshot_phononwork(workdir, manager, scf_input, ph_inputs, work_class=
     work_class = OneShotPhononWorkflow if work_class is None else work_class
     work = work_class(workdir=workdir, manager=manager)
     scf_task = work.register_scf_task(scf_input)
-    ph_task = work.register_phonon_task(ph_input, deps={scf_task: "WFK"})
+    ph_inputs = [ph_inputs] if not isinstance(ph_inputs, (list, tuple)) else ph_inputs
+    for ph_input in ph_inputs:
+        ph_task = work.register_phonon_task(ph_input, deps={scf_task: "WFK"})
     return work
 
 
