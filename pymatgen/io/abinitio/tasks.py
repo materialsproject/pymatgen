@@ -28,9 +28,10 @@ from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump, pmg_s
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
 from .netcdf import ETSF_Reader
 from .strategies import StrategyWithInput, OpticInput
+from .qadapters import make_qadapter
+from .db import DBConnector
 from . import abiinspect
 from . import events 
-
 
 try:
     from pydispatch import dispatcher
@@ -636,38 +637,20 @@ class TaskManager(object):
         return cls(**yaml.load(stream))
 
     def __init__(self, qtype, qadapters, policy=None, db_connector=None):
-                 #qparams=None, setup=None, modules=None, 
-                 #shell_env=None, omp_env=None, pre_run=None, post_run=None, mpi_runner=None, partitions=None):
+                 #qparams=None, setup=None, modules=None,  shell_env=None, omp_env=None, pre_run=None, post_run=None, mpi_runner=None, partitions=None):
         self.__qadapters = qadapters
 
         self.policy = TaskPolicy.as_policy(policy)
 
         # Initialize database connector (if specified)
-        from .db import DBConnector
         self.db_connector = DBConnector(config_dict=db_connector)
 
-        # Initialize the partitions:
-        # order them according to priority and make sure that each partition has different priority
-        from .qadapters import qadapter_class
-        qad_class = qadapter_class(qtype)
-
-        from collections import defaultdict
-        class MyDict(defaultdict):
-            def __getattr__(self, name):
-                if name in self:
-                    return self.get(name)
-                return None
         qads = []
         for d in qadapters:
-            q = MyDict(None)
-            for k, v in d.items():
-                q[k] = v
-            #print(q)
-            qad = qad_class(qparams=q.qparams, setup=q.setup, modules=q.modules, shell_env=q.shell_env, omp_env=q.omp_env, 
-                            pre_run=q.pre_run, post_run=q.post_run, mpi_runner=q.mpi_runner, partition=q.partition)
-            qads.append(qad)
+            d.pop("qtype", None)
+            qads.append(make_qadapter(qtype=qtype, **d))
 
-        # order qdapters according to their priority.
+        # Order qdapters according to their priority.
         qads = sorted(qads, key=lambda q: q.priority)
         priorities = [q.priority for q in qads]
         if len(priorities) != len(set(priorities)):
@@ -684,11 +667,12 @@ class TaskManager(object):
         qad = self.qadapter.deepcopy()
         policy = TaskPolicy(autoparal=0) if policy is None else policy
 
-        cls = self.__class__
-        new = cls(qtype="shell", qadapters=self.__qadapters, policy=policy) #, db_connector=self.db_connector)
-                  #qparams={"MPI_PROCS": mpi_procs}, setup=qad.setup, modules=qad.modules, 
-                  #shell_env=qad.shell_env, omp_env=None, pre_run=qad.pre_run, 
-                  #post_run=qad.post_run, mpi_runner=qad.mpi_runner, policy=policy, partition=None)
+        #qparams={"MPI_PROCS": mpi_procs}, 
+        #new = make_qadapter(qtype="shell", **d)
+        new = self.__class__(qtype="shell", qadapters=self.__qadapters, policy=policy) #, db_connector=self.db_connector)
+        # setup=qad.setup, modules=qad.modules, 
+        #shell_env=qad.shell_env, omp_env=None, pre_run=qad.pre_run, 
+        #post_run=qad.post_run, mpi_runner=qad.mpi_runner, policy=policy, partition=None)
 
         return new
 
