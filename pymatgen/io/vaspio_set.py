@@ -1014,6 +1014,9 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         kpoints_density (int): kpoints density for the reciprocal cell
             of structure. Might need to increase the default value when
             calculating metallic materials.
+        kpoints_line_density (int): kpoints density to use in line-mode.
+            Might need to increase the default value when calculating
+            metallic materials.
         sort_structure (bool): Whether to sort structure. Defaults to
             False.
         sym_prec (float): Tolerance for symmetry finding
@@ -1021,9 +1024,10 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
 
     def __init__(self, user_incar_settings, mode="Line",
                  constrain_total_magmom=False, sort_structure=False,
-                 kpoints_density=1000, sym_prec=0.1):
+                 kpoints_density=1000, sym_prec=0.1, kpoints_line_density=20):
         self.mode = mode
         self.sym_prec = sym_prec
+        self.kpoints_line_density = kpoints_line_density
         if mode not in ["Line", "Uniform"]:
             raise ValueError("Supported modes for NonSCF runs are 'Line' and "
                              "'Uniform'!")
@@ -1057,7 +1061,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         """
         if self.mode == "Line":
             kpath = HighSymmKpath(structure)
-            cart_k_points, k_points_labels = kpath.get_kpoints()
+            cart_k_points, k_points_labels = kpath.get_kpoints(line_density=self.kpoints_line_density)
             frac_k_points = [kpath._prim_rec.get_fractional_coords(k)
                              for k in cart_k_points]
             return Kpoints(comment="Non SCF run along symmetry lines",
@@ -1132,7 +1136,8 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
     @staticmethod
     def from_previous_vasp_run(previous_vasp_dir, output_dir='.',
                                mode="Uniform", user_incar_settings=None,
-                               copy_chgcar=True, make_dir_if_not_present=True):
+                               copy_chgcar=True, make_dir_if_not_present=True,
+                               kpoints_density=1000, kpoints_line_density=20):
         """
         Generate a set of Vasp input files for NonSCF calculations from a
         directory of previous static Vasp run.
@@ -1153,6 +1158,12 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             make_dir_if_not_present (bool): Set to True if you want the
                 directory (and the whole path) to be created if it is not
                 present.
+            kpoints_density (int): kpoints density for the reciprocal cell
+                of structure. Might need to increase the default value when
+                calculating metallic materials.
+            kpoints_line_density (int): kpoints density to use in line-mode.
+                Might need to increase the default value when calculating
+                metallic materials.
         """
         user_incar_settings = user_incar_settings or {}
 
@@ -1170,7 +1181,9 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                                                        initial_structure=True)
         nscf_incar_settings = MPNonSCFVaspInputSet.get_incar_settings(vasp_run,
                                                                       outcar)
-        mpnscfvip = MPNonSCFVaspInputSet(nscf_incar_settings, mode)
+        mpnscfvip = MPNonSCFVaspInputSet(nscf_incar_settings, mode,
+                                         kpoints_density=kpoints_density,
+                                         kpoints_line_density=kpoints_line_density)
         mpnscfvip.write_input(structure, output_dir, make_dir_if_not_present)
         if copy_chgcar:
             try:

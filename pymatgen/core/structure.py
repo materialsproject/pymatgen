@@ -169,10 +169,13 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
         Returns the site properties as a dict of sequences. E.g.,
         {"magmom": (5,-5), "charge": (-4,4)}.
         """
-        props = collections.defaultdict(list)
+        props = {}
+        prop_keys = set()
         for site in self:
-            for k, v in site.properties.items():
-                props[k].append(v)
+            prop_keys.update(site.properties.keys())
+
+        for k in prop_keys:
+            props[k] = [site.properties.get(k, None) for site in self]
         return props
 
     def __contains__(self, site):
@@ -382,7 +385,10 @@ class IStructure(SiteCollection, PMGSONable):
         for i in range(len(species)):
             prop = None
             if site_properties:
-                prop = {k: v[i] for k, v in site_properties.items()}
+
+                prop = {k: v[i]
+                        for k, v in site_properties.items()}
+
             sites.append(
                 PeriodicSite(species[i], coords[i], self._lattice,
                              to_unit_cell,
@@ -2338,6 +2344,22 @@ class Structure(IStructure, collections.MutableSequence):
             volume (float): New volume of the unit cell in A^3.
         """
         self.modify_lattice(self._lattice.scale(volume))
+
+    def merge_sites(self, tol=0.01):
+        """
+        Merges sites (adding occupancies) within tol of each other
+        """
+        d = self.distance_matrix
+        d[np.triu_indices(len(d))] = np.inf
+        for inds in np.sort(np.argwhere(d < tol), axis=0)[::-1]:
+            i, j = inds
+            # j < i always, and largest i first, so any previously deleted
+            # site is after i and j (so indices are still correct)
+            sp = self[i].species_and_occu + self[j].species_and_occu
+            d = self[i].frac_coords - self[j].frac_coords
+            fc = self[j].frac_coords + (d - np.round(d)) / 2
+            self.replace(j, sp, fc)
+            del self[i]
 
 
 class Molecule(IMolecule, collections.MutableSequence):

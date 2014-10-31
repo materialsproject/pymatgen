@@ -31,8 +31,7 @@ class File(object):
         return "<%s, %s>" % (self.__class__.__name__, self.path)
 
     def __eq__(self, other):
-        if other is None: return False
-        self.path == other.path
+        return False if other is None else self.path == other.path
                                        
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -117,8 +116,7 @@ class Directory(object):
         return "<%s, %s>" % (self.__class__.__name__, self.path)
 
     def __eq__(self, other):
-        if other is None: return False
-        self.path == other.path
+        return False if other is None else self.path == other.path
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -544,16 +542,13 @@ class Condition(object):
 
     __nonzero__ = __bool__
 
-    @deprecated(eval)
-    def apply(self, obj):
+    def __call__(self, obj):
         if not self: return True
         try:
             return evaluate_rpn(map2rpn(self.cmap, obj))
         except Exception as exc:
-            logger.warning("Condition.apply() raised Exception:\n %s" % str(exc))
+            logger.warning("Condition(%s) raised Exception:\n %s" % (type(obj), str(exc)))
             return False
-
-    eval = apply
 
 
 class Editor(object):
@@ -563,10 +558,7 @@ class Editor(object):
     """
     def __init__(self, editor=None):
         """If editor is None, $EDITOR is used."""
-        if editor is None:
-            self.editor = os.getenv("EDITOR", "vi")
-        else:
-            self.editor = str(editor)
+        self.editor = os.getenv("EDITOR", "vi") if editor is None else str(editor)
 
     def edit_files(self, fnames, ask_for_exit=True):
         exit_status = 0
@@ -588,6 +580,7 @@ class Editor(object):
 
     @staticmethod
     def user_wants_to_exit():
+        """Show an interactive prompt asking if exit is wanted."""
         try:
             answer = raw_input("Do you want to continue [Y/n]")
 

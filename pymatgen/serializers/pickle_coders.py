@@ -18,9 +18,7 @@ class PmgPickler(pickle.Pickler):
         """Instead of pickling as a regular class instance, we emit a persistent ID."""
         if isinstance(obj, Element):
             # Here, our persistent ID is simply a tuple, containing a tag and a key
-            t = (obj.__class__.__name__, obj._symbol)
-            #print(t, t.__class__, type(t))
-            return t
+            return obj.__class__.__name__, obj._symbol
         else:
             # If obj does not have a persistent ID, return None. This means obj needs to be pickled as usual.
             return None
@@ -65,8 +63,8 @@ def pmg_pickle_load(filobj, **kwargs):
     Returns:
         Deserialized object. 
     """
+    #return pickle.load(filobj, **kwargs)
     return PmgUnpickler(filobj, **kwargs).load()
-#    return pickle.load(filobj, **kwargs)
 
 
 def pmg_pickle_dump(obj, filobj, **kwargs):
@@ -78,4 +76,5 @@ def pmg_pickle_dump(obj, filobj, **kwargs):
         fileobj: File-like object
         \*\*kwargs: Any of the keyword arguments supported by PmgPickler
     """
+    #return pickle.dump(obj, filobj)
     return PmgPickler(filobj, **kwargs).dump(obj)

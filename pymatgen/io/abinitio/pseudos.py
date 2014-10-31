@@ -112,10 +112,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
             * Pseudo object.
             * string defining a valid path.
         """
-        if isinstance(obj, cls):
-            return obj
-        else:
-            return cls.from_file(obj)
+        return obj if isinstance(obj, cls) else cls.from_file(obj)
 
     @staticmethod
     def from_file(filename):

@@ -3,6 +3,8 @@ from __future__ import division, print_function, unicode_literals
 __author__ = 'setten'
 
 import os
+import unittest
+
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.structure import Structure
 from pymatgen.matproj.rest import MPRester, MPRestError
@@ -14,6 +16,8 @@ from pymatgen.io.gwwrapper.tests.test_helpers import structure
 
 #test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",'test_files')
 
+from pymatgen.io.vaspio.vasp_input import get_potcar_dir
+POTCAR_DIR = get_potcar_dir()
 
 class GWSpecTest(PymatgenTest):
     def test_GWspect(self):
@@ -75,6 +79,7 @@ class GWVaspInputSetTests(PymatgenTest):
         self.assertIsInstance(inpset, GWscDFTPrepVaspInputSet)
         self.assertEqual(inpset.convs, {})
 
+    @unittest.skipIf(POTCAR_DIR is None, "POTCAR dir is None")
     def test_GWDFTDiagVaspInputSet(self):
         inpset = GWDFTDiagVaspInputSet(structure=self.structure, spec=self.spec)
         self.assertIsInstance(inpset, GWDFTDiagVaspInputSet)
@@ -87,6 +92,7 @@ class GWVaspInputSetTests(PymatgenTest):
                                                  u'V': 5, u'W': 5}, u'NBANDS': 221, u'NELM': 1, u'NPAR': 13,
                                                  u'PREC': u'Medium', u'SIGMA': 0.01})
 
+    @unittest.skipIf(POTCAR_DIR is None, "POTCAR dir is None")
     def test_GWG0W0VaspInputSet(self):
         inpset = GWG0W0VaspInputSet(structure=self.structure, spec=self.spec)
         self.assertIsInstance(inpset, GWG0W0VaspInputSet)

@@ -226,7 +226,7 @@ class PyLauncher(object):
                     number of jobs in the queue is >= Max number of jobs
         """
         self.flow = flow
-        self.max_njobs_inqueue = kwargs.get("max_njobs_inqueue", 500)
+        self.max_njobs_inqueue = kwargs.get("max_njobs_inqueue", 200)
 
     def single_shot(self):
         """
@@ -297,10 +297,10 @@ class PyLauncher(object):
             if not tasks:
                 continue
 
-            njobs_inqueue = tasks[0].manager.qadapter.get_njobs_in_queue()
-            if njobs_inqueue is None:
-                print('Cannot get njobs_inqueue, going back to sleep...')
-                continue
+            #njobs_inqueue = tasks[0].manager.qadapter.get_njobs_in_queue()
+            #if njobs_inqueue is None:
+            #    print('Cannot get njobs_inqueue, going back to sleep...')
+            #    continue
 
             #if len(tasks) > 0:
             #    n_jobs_in_queue = tasks[0].manager.qadapter.get_njobs_in_queue()
@@ -310,12 +310,12 @@ class PyLauncher(object):
             #else:
             #    n_to_run = 0
 
-            rest = self.max_njobs_inqueue - njobs_inqueue
-            if rest <= 0:
-                print('too many jobs in the queue, going back to sleep...')
-                continue
+            #rest = self.max_njobs_inqueue - njobs_inqueue
+            #if rest <= 0:
+            #    print('too many jobs in the queue, going back to sleep...')
+            #    continue
 
-            stop = len(tasks) if rest > len(tasks) else rest
+            stop = len(tasks) #if rest > len(tasks) else rest
             #print("Will fire %d jobs" % stop)
 
             for task in tasks[:stop]:
@@ -422,7 +422,7 @@ class PyFlowScheduler(object):
         self.mailto = kwargs.pop("mailto", None)
         self.verbose = int(kwargs.pop("verbose", 0))
         self.use_dynamic_manager = kwargs.pop("use_dynamic_manager", False)
-        self.max_njobs_inqueue = kwargs.pop("max_njobs_inqueue", -1)
+        self.max_njobs_inqueue = kwargs.pop("max_njobs_inqueue", 200)
 
         self.REMINDME_S = float(kwargs.pop("REMINDME_S", 4 * 24 * 3600))
         self.MAX_NUM_PYEXCS = int(kwargs.pop("MAX_NUM_PYEXCS", 0))
@@ -542,18 +542,21 @@ class PyFlowScheduler(object):
         if os.path.isfile(pid_file):
             flow.show_status()
 
-            err_msg = (
-                "pid_file %s already exists\n"
-                "There are two possibilities:\n\n"
-                "   1) There's an another instance of PyFlowScheduler running.\n"
-                "   2) The previous scheduler didn't exit in a clean way.\n\n"
-                "To solve case 1:\n"
-                "   Kill the previous scheduler (use 'kill pid' where pid is the number reported in the file)\n"
-                "   Then you can restart the new scheduler.\n\n"
-                "To solve case 2:\n"
-                "   Remove the pid_file and restart the scheduler.\n\n"
-                "Exiting\n" % pid_file
-            )
+            err_msg = ("""
+                pid_file %s already exists
+                There are two possibilities:
+
+                   1) There's an another instance of PyFlowScheduler running
+                   2) The previous scheduler didn't exit in a clean way
+
+                To solve case 1:
+                   Kill the previous scheduler (use 'kill pid' where pid is the number reported in the file)
+                   Then you can restart the new scheduler.
+
+                To solve case 2:
+                   Remove the pid_file and restart the scheduler.
+
+                Exiting""" % pid_file)
 
             raise self.Error(err_msg)
 
@@ -565,7 +568,7 @@ class PyFlowScheduler(object):
 
     def start(self):
         """
-        Starts the scheduler in a new thread.
+        Starts the scheduler in a new thread. Returns True if success.
         In standalone mode, this method will block until there are no more scheduled jobs.
         """
         self.history.append("Started on %s" % time.asctime())
@@ -576,15 +579,22 @@ class PyFlowScheduler(object):
         else:
             self.sched.add_interval_job(self.callback, **self.sched_options)
 
-        # Try to run the job immediately. If something goes wrong
-        # return without initializing the scheduler.
+        errors = self.flow.look_before_you_leap()
+        if errors:
+            print(errors)
+            self.exceptions.append(errors)
+            return False
+
+        # Try to run the job immediately. If something goes wrong return without initializing the scheduler.
         self._runem_all()
 
         if self.exceptions:
             self.cleanup()
             self.send_email(msg="Error while trying to run the flow for the first time!\n %s" % self.exceptions)
+            return False
 
         self.sched.start()
+        return True
 
     def _runem_all(self):
         """
@@ -595,16 +605,26 @@ class PyFlowScheduler(object):
         excs = []
         flow = self.flow
 
-        #nqjobs = flow.get_njobs_inqueue()
-        #if njobs >= self.max_njobs_inqueue:
-        #   return
-
         # Allow to change the manager at run-time
         if self.use_dynamic_manager:
             from pymatgen.io.abinitio.tasks import TaskManager
             new_manager = TaskManager.from_user_config()
             for work in flow:
                 work.set_manager(new_manager)
+
+        nqjobs = flow.get_njobs_in_queue()
+        if nqjobs is None:
+            nqjobs = 0
+            print('Cannot get njobs_inqueue')
+
+        if nqjobs >= self.max_njobs_inqueue:
+            print("Too many jobs in the queue, returning")
+            return
+
+        if self.max_nlaunch == -1:
+            max_nlaunch = self.max_njobs_inqueue - nqjobs
+        else:
+            max_nlaunch = min(self.max_njobs_inqueue - nqjobs, self.max_nlaunch)
 
         # check status
         flow.check_status()
@@ -616,10 +636,14 @@ class PyFlowScheduler(object):
         for task in self.flow.unconverged_tasks:
             try:
                 logger.info("AbinitFlow will try restart task %s" % task)
-
                 fired = task.restart()
-                if fired: self.nlaunch += 1
-
+                if fired: 
+                    self.nlaunch += 1
+                    max_nlaunch -= 1
+                    if max_nlaunch == 0:
+                        print("Restart: too many jobs in the queue, returning")
+                        flow.pickle_dump()
+                        return
             except Exception:
                 excs.append(straceback())
 
@@ -638,7 +662,7 @@ class PyFlowScheduler(object):
 
         # Submit the tasks that are ready.
         try:
-            nlaunch = PyLauncher(flow).rapidfire(max_nlaunch=self.max_nlaunch, sleep_time=10)
+            nlaunch = PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch, sleep_time=10)
             self.nlaunch += nlaunch
 
             if nlaunch:
@@ -758,10 +782,11 @@ class PyFlowScheduler(object):
         try:
             self.cleanup()
 
-            #try:
-            #    self.flow.mongodb_insert()
-            #except Exception:
-            #    logger.critical("MongoDb insertion failed.")
+            #if False and self.flow.has_db:
+            #    try:
+            #        self.flow.db_insert()
+            #    except Exception:
+            #         logger.critical("MongoDb insertion failed.")
 
             self.history.append("Completed on %s" % time.asctime())
             self.history.append("Elapsed time %s" % self.get_delta_etime())
@@ -772,7 +797,6 @@ class PyFlowScheduler(object):
             retcode = self.send_email(msg)
             if self.DEBUG:
                 print("send_mail retcode", retcode)
-
 
             # Write file with the list of exceptions:
             if self.exceptions:
