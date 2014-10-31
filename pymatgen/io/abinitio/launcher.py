@@ -226,7 +226,7 @@ class PyLauncher(object):
                     number of jobs in the queue is >= Max number of jobs
         """
         self.flow = flow
-        self.max_njobs_inqueue = kwargs.get("max_njobs_inqueue", 500)
+        self.max_njobs_inqueue = kwargs.get("max_njobs_inqueue", 200)
 
     def single_shot(self):
         """
@@ -420,7 +420,7 @@ class PyFlowScheduler(object):
         self.mailto = kwargs.pop("mailto", None)
         self.verbose = int(kwargs.pop("verbose", 0))
         self.use_dynamic_manager = kwargs.pop("use_dynamic_manager", False)
-        self.max_njobs_inqueue = kwargs.pop("max_njobs_inqueue", -1)
+        self.max_njobs_inqueue = kwargs.pop("max_njobs_inqueue", 200)
 
         self.REMINDME_S = float(kwargs.pop("REMINDME_S", 4 * 24 * 3600))
         self.MAX_NUM_PYEXCS = int(kwargs.pop("MAX_NUM_PYEXCS", 0))
@@ -604,10 +604,6 @@ class PyFlowScheduler(object):
         excs = []
         flow = self.flow
 
-        #nqjobs = flow.get_njobs_inqueue()
-        #if njobs >= self.max_njobs_inqueue:
-        #   return
-
         # Allow to change the manager at run-time
         if self.use_dynamic_manager:
             from pymatgen.io.abinitio.tasks import TaskManager
@@ -615,10 +611,19 @@ class PyFlowScheduler(object):
             for work in flow:
                 work.set_manager(new_manager)
 
-        #njobs_inqueue = self.flow.manager.get_njobs_in_queue()
-        #if njobs_inqueue is None:
-        #    print('Cannot get njobs_inqueue, going back to sleep...')
-        #    continue
+        nqjobs = flow.get_njobs_in_queue()
+        if nqjobs is None:
+            nqjobs = 0
+            print('Cannot get njobs_inqueue')
+
+        if nqjobs >= self.max_njobs_inqueue:
+            print("Too many jobs in the queue, returning")
+            return
+
+        if self.max_nlaunch == -1:
+            max_nlaunch = self.max_njobs_inqueue - nqjobs
+        else:
+            max_nlaunch = min(self.max_njobs_inqueue - nqjobs, self.max_nlaunch)
 
         # check status
         flow.check_status()
@@ -630,10 +635,14 @@ class PyFlowScheduler(object):
         for task in self.flow.unconverged_tasks:
             try:
                 logger.info("AbinitFlow will try restart task %s" % task)
-
                 fired = task.restart()
-                if fired: self.nlaunch += 1
-
+                if fired: 
+                    self.nlaunch += 1
+                    max_nlaunch -= 1
+                    if max_nlaunch == 0:
+                        print("Restart: too many jobs in the queue, returning")
+                        flow.pickle_dump()
+                        return
             except Exception:
                 excs.append(straceback())
 
@@ -652,7 +661,7 @@ class PyFlowScheduler(object):
 
         # Submit the tasks that are ready.
         try:
-            nlaunch = PyLauncher(flow).rapidfire(max_nlaunch=self.max_nlaunch, sleep_time=10)
+            nlaunch = PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch, sleep_time=10)
             self.nlaunch += nlaunch
 
             if nlaunch:
