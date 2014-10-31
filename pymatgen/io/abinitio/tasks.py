@@ -794,6 +794,9 @@ class TaskManager(object):
         """
         return self.qadapter.get_njobs_in_queue(username=username)
 
+    #def get_job_info(self, job_id):
+    #    return self.qadapater.get_job_info(job_id)
+
     def cancel(self, job_id):
         """Cancel the job. Returns exit status."""
         return self.qadapter.cancel(job_id)

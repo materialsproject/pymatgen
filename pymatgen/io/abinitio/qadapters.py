@@ -1060,6 +1060,35 @@ class SlurmAdapter(AbstractQueueAdapter):
 
         return None
 
+    #def get_job_info(self, job_id):
+        #If SLURM job ids are reset, some job numbers will        
+	    #probably appear more than once refering to different jobs.
+	    #Without this option only the most recent jobs will be    
+        #displayed.          
+
+        #state
+        #Displays the job status, or state.
+        #Output can be RUNNING, RESIZING, SUSPENDED, COMPLETED, CANCELLED, FAILED, TIMEOUT, 
+        # PREEMPTED or NODE_FAIL. If more information is available on the job state than will fit 
+        #into the current field width (for example, the uid that CANCELLED a job) the state will be followed by a "+". 
+        # You can increase the size of the displayed state using the "%NUMBER" format modifier described earlier. 
+
+        # See https://computing.llnl.gov/linux/slurm/sacct.html
+        #gmatteo@master2:~
+        #sacct --job 112367 --format=jobid,exitcode,state --allocations --parsable2
+        #JobID|ExitCode|State
+        #112367|0:0|RUNNING
+        #class JobInfo(namedtuple("JobInfo", "id, exitcode, state")):
+        #    def __bool__(self):
+        #        return self.state != "CannotDected"
+        #    __notzero__ = __bool_
+        #    def completed(self):
+        #    def cancelled(self):
+        #    def failed(self):
+        #    def timeout(self):
+        #    def node_fail(self):
+
+
 #PBS -l select=$${select}:ncpus=$${ncpus}:vmem=$${vmem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
 
 
