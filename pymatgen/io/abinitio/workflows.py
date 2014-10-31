@@ -20,7 +20,7 @@ from pymatgen.core.units import ArrayWithUnit
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from pymatgen.util.string_utils import WildCard
 from . import wrappers
-from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, DdkTask, BseTask, RelaxTask)
+from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, DdkTask, BseTask, RelaxTask, PhononTask)
 from .strategies import HtcStrategy # ScfStrategy, RelaxStrategy
 from .utils import Directory
 from .netcdf import ETSF_Reader
@@ -506,6 +506,11 @@ class Workflow(BaseWorkflow):
     def register_bse_task(self, *args, **kwargs):
         """Register a nscf task."""
         kwargs["task_class"] = BseTask
+
+    def register_ph_task(self, *args, **kwargs):
+        """Register a nscf task."""
+        kwargs["task_class"] = PhononTask
+        return self.register(*kwargs, **kwargs)
 
     def path_in_workdir(self, filename):
         """Create the absolute path of filename in the working directory."""
@@ -1029,7 +1034,7 @@ class PhononWorkflow(Workflow):
         # Merge DDB files.
         out_ddb = self.merge_ddb_files()
 
-        results = self.Results(node=self,returncode=0, message="DDB merge done")
+        results = self.Results(node=self, returncode=0, message="DDB merge done")
         results.add_gridfs_files(DDB=(out_ddb, "t"))
 
         return results
