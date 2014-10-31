@@ -38,9 +38,9 @@ __all__ = [
     "MpiRunner",
     "Partition",
     "make_qadapter",
-    "AbstractQueueAdapter",
-    "PbsProAdapter",
-    "SlurmAdapter",
+    #"QueueAdapter",
+    #"PbsProAdapter",
+    #"SlurmAdapter",
 ]
 
 
@@ -350,7 +350,7 @@ class QueueAdapterError(Exception):
     """Error class for exceptions raise by QueueAdapter."""
 
 
-class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
+class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     """
     The QueueAdapter is responsible for all interactions with a specific
     queue management system. This includes handling all details of queue
@@ -777,7 +777,7 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 ####################
 
 
-class ShellAdapter(AbstractQueueAdapter):
+class ShellAdapter(QueueAdapter):
     QTYPE = "shell"
 
     QTEMPLATE = """\
@@ -833,7 +833,7 @@ export MPI_PROCS=$${MPI_PROCS}
         return False
 
 
-class SlurmAdapter(AbstractQueueAdapter):
+class SlurmAdapter(QueueAdapter):
     QTYPE = "slurm"
 
     QTEMPLATE = """\
@@ -1108,8 +1108,8 @@ class SlurmAdapter(AbstractQueueAdapter):
 #PBS -l select=$${select}:ncpus=$${ncpus}:vmem=$${vmem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
 
 
-class PbsProAdapter(AbstractQueueAdapter):
-    QTYPE = "pbs"
+class PbsProAdapter(QueueAdapter):
+    QTYPE = "pbspro"
 
     QTEMPLATE = """\
 #!/bin/bash
@@ -1416,7 +1416,7 @@ class TorqueAdapter(PbsProAdapter):
             return False
 
 
-class SGEAdapter(AbstractQueueAdapter):
+class SGEAdapter(QueueAdapter):
     """
     Adapter for Sun Grid Engine (SGE) task submission software.
     """
@@ -1546,7 +1546,7 @@ class SGEAdapter(AbstractQueueAdapter):
         raise NotImplementedError("increase_cpus")
 
 
-class MOABAdapter(AbstractQueueAdapter):
+class MOABAdapter(QueueAdapter):
     """https://computing.llnl.gov/tutorials/moab/"""
     QTYPE = "moab"
 

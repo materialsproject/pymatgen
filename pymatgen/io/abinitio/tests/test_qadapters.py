@@ -6,6 +6,7 @@ from monty.collections import AttrDict
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio.tasks import ParalConf
 from pymatgen.io.abinitio.qadapters import *
+from pymatgen.io.abinitio.qadapters import QueueAdapter
 
 
 class ParseTimestr(PymatgenTest):
@@ -34,7 +35,7 @@ class QadapterTest(PymatgenTest):
         Simple unit tests for Qadapter subclasses.
         A more complete coverage would require integration testing.
         """
-        sub_classes = AbstractQueueAdapter.__subclasses__()
+        sub_classes = QueueAdapter.__subclasses__()
 
         modules = ["intel/compilerpro/13.0.1.117",
                    "fftw3/intel/3.3",
@@ -53,13 +54,9 @@ class QadapterTest(PymatgenTest):
         # Test if we can instantiate the concrete classes with the abc protocol.
         for subc in sub_classes:
 
-            # Make sure we have registered the class in qadapeter_class
-            cls = qadapter_class(subc.QTYPE)
-            self.assertTrue(cls == subc)
-
             # Create the adapter
-            qad = cls(qparams=None, setup=None, modules=modules, shell_env=shell_env, omp_env=None, 
-                      pre_run=None, post_run=None, mpi_runner=mpi_runner, partition=partition)
+            qad = make_qadapter(qtype=subc.QTYPE, setup=None, modules=modules, shell_env=shell_env, omp_env=None, 
+                                pre_run=None, post_run=None, mpi_runner=mpi_runner, partition=partition)
 
             # Test the programmatic interface used to change job parameters.
             self.assertFalse(qad.has_omp)
@@ -141,7 +138,7 @@ class PbsProadapterTest(PymatgenTest):
         p = Partition(**kwargs)
         print("partition\n" + str(p))
 
-        qad = PbsProAdapter()
+        qad = make_qadapter(qtype="pbspro", partition=p)
         print(qad)
 
         qad.set_mpi_procs(4)

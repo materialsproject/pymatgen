@@ -564,7 +564,6 @@ class TaskPolicy(object):
         self.max_ncpus = max_ncpus
         self.condition = Condition(condition) if condition is not None else condition
         self.vars_condition = Condition(vars_condition) if vars_condition is not None else vars_condition
-        #self._LIMITS = {'max_ncpus': 240}
 
         if self.autoparal and self.max_ncpus is None:
             raise ValueError("When autoparal is not zero, max_ncpus must be specified.")
@@ -577,16 +576,6 @@ class TaskPolicy(object):
                 continue
             app("%s: %s" % (k, v))
         return "\n".join(lines)
-
-    #def increase_max_ncpus(self):
-    #    base_increase = 12
-    #    new = self.max_ncpus + base_increase
-    #    if new <= 360:
-    #        logger.info('set max_ncps to '+str(new))
-    #        self.max_ncpus = new
-    #        return True
-    #    else:
-    #        return False
 
 
 class TaskManager(object):
@@ -636,18 +625,26 @@ class TaskManager(object):
         stream.seek(0)
         return cls(**yaml.load(stream))
 
-    def __init__(self, qtype, qadapters, policy=None, db_connector=None):
-                 #qparams=None, setup=None, modules=None,  shell_env=None, omp_env=None, pre_run=None, post_run=None, mpi_runner=None, partitions=None):
-        self.__qadapters = qadapters
+    def __init__(self, **kwargs):
+        """
+        Arggs:
+            policy=None
+            qadapters, 
+            db_connector=None
 
-        self.policy = TaskPolicy.as_policy(policy)
+        #qparams=None, setup=None, modules=None,  shell_env=None, omp_env=None, pre_run=None, post_run=None, mpi_runner=None, partitions=None):
+        """
+        # Keep a copy of kwargs
+        self._kwargs = copy.deepcopy(kwargs)
+
+        self.policy = TaskPolicy.as_policy(kwargs.pop("policy", None))
 
         # Initialize database connector (if specified)
-        self.db_connector = DBConnector(config_dict=db_connector)
+        self.db_connector = DBConnector(config_dict=kwargs.pop("db_connector", None))
 
         qads = []
-        for d in qadapters:
-            d.pop("qtype", None)
+        for d in kwargs.pop("qadapters"):
+            qtype = d.pop("qtype")
             qads.append(make_qadapter(qtype=qtype, **d))
 
         # Order qdapters according to their priority.
@@ -658,21 +655,26 @@ class TaskManager(object):
 
         self._qads, self._qid = qads, 0
 
+        if kwargs:
+            raise ValueError("Found invalid keywords in the taskmanager file:\n %s" % str(list(kwargs.keys())))
+
     def to_shell_manager(self, mpi_procs=1, policy=None):
         """
         Returns a new `TaskManager` with the same parameters as self but replace the `QueueAdapter` 
         with a `ShellAdapter` with mpi_procs so that we can submit the job without passing through the queue.
         Replace self.policy with a `TaskPolicy` with autoparal==0.
         """
-        qad = self.qadapter.deepcopy()
-        policy = TaskPolicy(autoparal=0) if policy is None else policy
+        my_kwargs = copy.deepcopy(self._kwargs)
 
-        #qparams={"MPI_PROCS": mpi_procs}, 
-        #new = make_qadapter(qtype="shell", **d)
-        new = self.__class__(qtype="shell", qadapters=self.__qadapters, policy=policy) #, db_connector=self.db_connector)
-        # setup=qad.setup, modules=qad.modules, 
-        #shell_env=qad.shell_env, omp_env=None, pre_run=qad.pre_run, 
-        #post_run=qad.post_run, mpi_runner=qad.mpi_runner, policy=policy, partition=None)
+        if policy is None:
+            my_kwargs["policy"] = TaskPolicy(autoparal=0) 
+
+        for d in self._kwargs["qadapters"]:
+            d = copy.deepcopy(d)
+            d["qtype"] = "shell"
+
+        new = self.__class__(**my_kwargs)
+        new.set_mpi_procs(mpi_procs)
 
         return new
 
