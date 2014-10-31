@@ -2541,6 +2541,14 @@ class AbinitTask(Task):
 
         return "\n".join(lines)
 
+    @property
+    def has_pconfs(self):
+        """True if the task has the list of autoparal configurations."""
+        try:
+            return bool(self.pconfs)
+        except AttributeError:
+            return False
+
     def autoparal_fake_run(self):
         """
         Find an optimal set of parameters for the execution of the task 
@@ -2548,18 +2556,17 @@ class AbinitTask(Task):
         This method can change the ABINIT input variables and/or the 
         parameters passed to the `TaskManager` e.g. the number of CPUs for MPI and OpenMp.
 
-        Returns:
-           confs, optimal 
-           where confs is a `ParalHints` object with the configuration reported by 
+        Set:
+           self.pconfs where pconfs is a `ParalHints` object with the configuration reported by 
            autoparal and optimal is the optimal configuration selected.
-           Returns (None, None) if some problem occurred.
+           Returns 0 if sucess
         """
         logger.info("in autoparal_fake_run")
         policy = self.manager.policy
 
         if policy.autoparal == 0 or policy.max_ncpus in [None, 1]:
             logger.info("Nothing to do in autoparal, returning (None, None)")
-            return None, None
+            return 1
 
         if policy.autoparal != 1:
             raise NotImplementedError("autoparal != 1")
@@ -2588,18 +2595,19 @@ class AbinitTask(Task):
         ##############################################################
         parser = ParalHintsParser()
         try:
-            confs = parser.parse(self.output_file.path)
-            #self.all_autoparal_confs = confs
-            logger.info('speedup hints: \n' + str(confs) + '\n')
-            # print("confs", confs)
+            pconfs = parser.parse(self.output_file.path)
+            #self.all_autoparal_confs = pconfs
+            logger.info('speedup hints: \n' + str(pconfs) + '\n')
+            # print("pconfs", pconfs)
         except parser.Error:
             logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
-            return None, None
+            return 2
 
         ######################################################
         # Select the optimal configuration according to policy
         ######################################################
-        optconf = confs.select_optimal_conf(policy)
+        self._pconfs = pconfs
+        optconf = pconfs.select_optimal_conf(policy)
         #print("optimal autoparal conf:\n %s" % optconf)
 
         # Select the partition on which we'll be running and set MPI/OMP cores.
@@ -2617,7 +2625,7 @@ class AbinitTask(Task):
         self.strategy.add_extra_abivars(optconf.vars)
 
         # Write autoparal configurations to JSON file.
-        d = confs.as_dict()
+        d = pconfs.as_dict()
         d["optimal_conf"] = optconf
         json_pretty_dump(d, os.path.join(self.workdir, "autoparal.json"))
 
@@ -2633,7 +2641,7 @@ class AbinitTask(Task):
         os.remove(self.log_file.path)
         os.remove(self.stderr_file.path)
 
-        return confs, optconf
+        return 0
 
     def restart(self):
         """

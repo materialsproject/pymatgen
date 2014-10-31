@@ -90,7 +90,6 @@ def parse_slurm_timestr(s):
         else:
             raise ValueError("More than 2 ':' in string!")
 
-    #print(days, hours, minutes, seconds)
     return Time((days*24 + hours)*3600 + minutes*60 + seconds, "s")
 
 
@@ -155,7 +154,7 @@ class MpiRunner(object):
 def timelimit_parser(s):
     """Convert a float or a string into time in seconds."""
     try:
-        return float(s)
+        return Time(float(s), "s")
     except ValueError:
         return parse_slurm_timestr(s)
 
@@ -203,6 +202,7 @@ class Partition(object):
         # optional
         #min_cores=Entry(type=int, default=1, help="Minimum number of cores that can be used"),
         #max_cores=Entry(type=int, default=sys.maxsize, help="Maximum number of cores that can be used"),
+        #allocate_nodes=Entry(type=bool, default=False, help="True if we must allocate entire nodes"),
         min_nodes=Entry(type=int, default=1, help="Minimum number of nodes that can be used"),
         max_nodes=Entry(type=int, default=sys.maxsize, help="Maximum number of nodes that can be used"),
         condition=Entry(type=object, default=Condition, help="Condition object (dictionary)", parser=Condition),
@@ -372,6 +372,8 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                  pre_run=None, post_run=None, mpi_runner=None, partition=None):
         """
         Args:
+            qparams:
+                Dictionary with the paramenters used in the template.
             setup:
                 String or list of commands to execute during the initial setup.
             modules:
