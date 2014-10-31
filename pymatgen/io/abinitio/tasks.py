@@ -309,7 +309,7 @@ class ParalConf(AttrDict):
     # TODO: Change name in abinit
     # Remove tot_ncpus from Abinit
     @property
-    def tot_cores(self):
+    def num_cores(self):
         return self.mpi_procs * self.omp_threads
 
     @property
@@ -327,7 +327,7 @@ class ParalConf(AttrDict):
     @property
     def speedup(self):
         """Estimated speedup reported by ABINIT."""
-        return self.efficiency * self.tot_cores
+        return self.efficiency * self.num_cores
 
     @property
     def tot_mem(self):
@@ -452,7 +452,7 @@ class ParalHints(collections.Iterable):
         # Make a copy since we are gonna change the object in place.
         #hints = self.copy()
 
-        hints = ParalHints(self.info, confs=[c for c in self if c.tot_cores <= policy.max_ncpus])
+        hints = ParalHints(self.info, confs=[c for c in self if c.num_cores <= policy.max_ncpus])
         #logger.info('hints: \n' + str(hints) + '\n')
 
         # First select the configurations satisfying the condition specified by the user (if any)
@@ -496,8 +496,8 @@ class ParalHints(collections.Iterable):
         #    hints.sort_by_spedup()
         #elif policy.mode == "conservative":
         #    hints.sort_by_efficiency()
-        #    # Remove tot_cores == 1
-        #    hints.pop(tot_cores==1)
+        #    # Remove num_cores == 1
+        #    hints.pop(num_cores==1)
         #else:
         #    raise ValueError("Wrong value for policy.mode: %s" % str(policy.mode))
         #if not hints:
@@ -727,9 +727,9 @@ class TaskManager(object):
         return self.qadapter.has_omp
 
     @property
-    def tot_cores(self):
+    def num_cores(self):
         """Total number of CPUs used to run the task."""
-        return self.qadapter.tot_cores
+        return self.qadapter.num_cores
 
     @property
     def mpi_procs(self):
@@ -1850,9 +1850,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         return self.manager.qadapter.QTYPE.lower() != "shell"
 
     @property
-    def tot_cores(self):
+    def num_cores(self):
         """Total number of CPUs used to run the task."""
-        return self.manager.tot_cores
+        return self.manager.num_cores
                                                          
     @property
     def mpi_procs(self):

@@ -179,7 +179,6 @@ class Partition(object):
     class DistributionError(Exception):
         """Exception raised by distribute."""
 
-
     class Entry(object):
         def __init__(self, type, default=None, mandatory=False, parser=None, help="No help available"):
             self.type, self.default, self.parser, self.mandatory = type, default, parser, mandatory
@@ -197,14 +196,12 @@ class Partition(object):
         sockets_per_node=Entry(type=int, mandatory=True, help="Number of sockets per node"),
         cores_per_socket=Entry(type=int, mandatory=True, help="Number of cores per node"),
         mem_per_node=Entry(type=str, mandatory=True, help="Memory per node", parser=Memory.from_string),
+        min_cores=Entry(type=int, mandatory=True, help="Minimum number of cores that can be used"),
+        max_cores=Entry(type=int, mandatory=True, help="Maximum number of nodes that can be used"),
         timelimit=Entry(type=str, mandatory=True, help="Time limit", parser=timelimit_parser),
-        priority=Entry(type=int, help="Priority level, integer number > 0"),
+        priority=Entry(type=int, mandatory=True, help="Priority level, integer number > 0"),
         # optional
-        #min_cores=Entry(type=int, default=1, help="Minimum number of cores that can be used"),
-        #max_cores=Entry(type=int, default=sys.maxsize, help="Maximum number of cores that can be used"),
-        #allocate_nodes=Entry(type=bool, default=False, help="True if we must allocate entire nodes"),
-        min_nodes=Entry(type=int, default=1, help="Minimum number of nodes that can be used"),
-        max_nodes=Entry(type=int, default=sys.maxsize, help="Maximum number of nodes that can be used"),
+        allocate_nodes=Entry(type=bool, default=False, help="True if we must allocate entire nodes"),
         condition=Entry(type=object, default=Condition, help="Condition object (dictionary)", parser=Condition),
     )
     del Entry
@@ -229,8 +226,10 @@ class Partition(object):
 
         # Convert memory to megabytes.
         self.mem_per_node = self.mem_per_node.to("Mb")
-        if self.max_nodes == sys.maxsize: self.max_nodes = self.num_nodes
+
+        # Consistency check.
         assert self.priority > 0
+        assert 1 <= self.min_cores <= self.num_cores >= self.max_cores
 
     def __str__(self):
         """String representation."""
@@ -239,12 +238,12 @@ class Partition(object):
         app("Partition: %s" % self.name)
         app("   num_nodes: %d, sockets_per_node: %d, cores_per_socket: %d, mem_per_node %s," % 
             (self.num_nodes, self.sockets_per_node, self.cores_per_socket, self.mem_per_node))
-        app("   min_nodes: %d, max_nodes: %d, timelimit: %s, priority: %d, condition: %s" % 
-            (self.min_nodes, self.max_nodes, self.timelimit, self.priority, self.condition))
+        app("   min_cores: %d, max_cores: %d, timelimit: %s, priority: %d, condition: %s" % 
+            (self.min_cores, self.max_cores, self.timelimit, self.priority, self.condition))
         return "\n".join(lines)
 
     @property
-    def tot_cores(self):
+    def num_cores(self):
         """Total number of cores available in the partition."""
         return self.cores_per_socket * self.sockets_per_node * self.num_nodes
 
@@ -321,15 +320,15 @@ class Partition(object):
         """
         True if this partition in principle is able to run the ``ParalConf`` pconf
         """
-        if pconf.tot_cores > self.tot_cores: return False
+        #if pconf.num_cores > self.num_cores: return False
+        if not self.max_cores >= pconf.num_cores >= self.min_cores: return False
         if pconf.omp_threads > self.cores_per_node: return False
         if pconf.mem_per_proc > self.mem_per_node: return False
+
         #try:
         #    self.distribute(pconf.mpi_procs, pconf.omp_threads, pconf.mem_per_proc)
         #except self.DistributionError:
         #    return False
-        # TODO: min_nodes, max_nodes
-        #if not self.max_nodes >= d.num_nodes >= self.min_nodes: return False
         return self.condition(pconf)
 
 
@@ -490,7 +489,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         return hasattr(self, "omp_env") and bool(getattr(self, "omp_env"))
 
     @property
-    def tot_cores(self):
+    def num_cores(self):
         """Total number of cores employed"""
         return self.mpi_procs * self.omp_threads 
 
@@ -1160,13 +1159,14 @@ class PbsProAdapter(QueueAdapter):
     def cancel(self, job_id):
         return os.system("qdel %d" % job_id)
 
-    def params_from_partition(self, p):
+    def optimize_params(self):
         """
         Select is not the most intuitive command. For more info see
         http://www.cardiff.ac.uk/arcca/services/equipment/User-Guide/pbs.html
         https://portal.ivec.org/docs/Supercomputers/PBS_Pro
         """
-        if p is None: return {}
+        p = self.part
+        #if p is None: return {}
         if self.use_only_mpi:
             # Pure MPI run
             num_nodes, rest_cores = p.divmod_node(self.mpi_procs, self.omp_threads)
@@ -1237,12 +1237,8 @@ class PbsProAdapter(QueueAdapter):
         return AttrDict(select_params)
 
     def get_subs_dict(self):
-        subs_dict = super(PbsProAdapter, self).get_subs_dict() #self.partition)
-        # Optimize parameters from the partition.
-        # Parameters defining the partion. Hard-coded for the time being.
-        # but this info should be passed via taskmananger.yml
-        #p = Partition(name="hardcoded", num_nodes=100, sockets_per_node=2, cores_per_socket=4, mem_per_node="1000 Mb")
-        #subs_dict.update(self.params_from_partition(partition))
+        subs_dict = super(PbsProAdapter, self).get_subs_dict() 
+        #subs_dict.update(self.optimize_params())
         #subs_dict["vmem"] = 5
         return subs_dict
 

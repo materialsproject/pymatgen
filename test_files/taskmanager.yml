@@ -16,10 +16,12 @@ qadapters:
       mpi_runner: mpirun
       partition:
             name: large
-            priority: 1
-            num_nodes: 1
+            num_nodes: 10
             sockets_per_node: 1
             cores_per_socket: 2
             mem_per_node: 4 Gb
             timelimit: 1:00:00
+            min_cores: 1
+            max_cores: 12
+            priority: 1
             #condition: {"$eq": {omp_threads: 2}} 

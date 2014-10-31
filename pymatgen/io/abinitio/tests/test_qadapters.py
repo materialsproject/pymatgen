@@ -49,7 +49,8 @@ class QadapterTest(PymatgenTest):
 
         #omp_env = OmpEnv(OMP_NUM_THREADS=2)
         partition = Partition(name="test_partition", num_nodes=100, sockets_per_node=2, 
-                              cores_per_socket=4, mem_per_node="1 Gb", timelimit=10, priority=1)
+                              cores_per_socket=4, mem_per_node="1 Gb", timelimit=10, 
+                              min_cores=1, max_cores=24, priority=1)
 
         # Test if we can instantiate the concrete classes with the abc protocol.
         for subc in sub_classes:
@@ -88,7 +89,7 @@ class PartitionTest(PymatgenTest):
         with self.assertRaises(ValueError):
             part = Partition(**p)
 
-        p.update(mem_per_node="8 Mb", timelimit="2:00", priority=1)
+        p.update(mem_per_node="8 Mb", timelimit="2:00", priority=1, min_cores=1, max_cores=24)
         part = Partition(**p)
         print("partition", str(part))
         aequal(part.timelimit, 120)
@@ -97,13 +98,13 @@ class PartitionTest(PymatgenTest):
         deserialized_part = self.serialize_with_pickle(part, test_eq=False)
 
         # Test properties
-        aequal(part.tot_cores, p.num_nodes * p.sockets_per_node * p.cores_per_socket)
+        aequal(part.num_cores, p.num_nodes * p.sockets_per_node * p.cores_per_socket)
         aequal(part.cores_per_node, p.sockets_per_node * p.cores_per_socket)
         aequal(part.can_use_omp_threads(p.sockets_per_node * p.cores_per_socket), True)
         aequal(part.can_use_omp_threads(p.sockets_per_node * p.cores_per_socket + 1), False)
 
         # Test can_run and distribute
-        pconf = ParalConf(mpi_ncpus=part.tot_cores+1, omp_ncpus=1, mem_per_cpu=0.1)
+        pconf = ParalConf(mpi_ncpus=part.num_cores+1, omp_ncpus=1, mem_per_cpu=0.1)
         atrue(not part.can_run(pconf))
         pconf = ParalConf(mpi_ncpus=4, omp_ncpus=9, mem_per_cpu=0.1)
         atrue(not part.can_run(pconf))
@@ -130,11 +131,12 @@ class PartitionTest(PymatgenTest):
 
 class PbsProadapterTest(PymatgenTest):
     """Test suite for PbsPro adapter."""
-    def test_params_from_partition(self):
+    def test_optimize_params(self):
         aequal = self.assertEqual
 
         kwargs = dict(name="test_partition", num_nodes=100, sockets_per_node=2, 
-                      cores_per_socket=4, mem_per_node="1 Gb", timelimit=10, priority=1)
+                      cores_per_socket=4, mem_per_node="1 Gb", timelimit=10, priority=1, 
+                      min_cores=1, max_cores=200)
         p = Partition(**kwargs)
         print("partition\n" + str(p))
 
@@ -142,26 +144,26 @@ class PbsProadapterTest(PymatgenTest):
         print(qad)
 
         qad.set_mpi_procs(4)
-        params = qad.params_from_partition(p)
+        params = qad.optimize_params()
         print(params)
         # IN_CORE PURE MPI: MPI: 4, OMP: 1
         aequal(params, {'ompthreads': 1, 'ncpus': 1, 'select': 4, 'mpiprocs': 1})
 
         qad.set_omp_threads(2)
-        params = qad.params_from_partition(p)
+        params = qad.optimize_params()
         print(params)
         # HYBRID MPI-OPENMP run, perfectly divisible among nodes:  MPI: 4, OMP: 2
         aequal(params, {'ompthreads': 2, 'ncpus': 8, 'select': 1, 'mpiprocs': 4})
 
         qad.set_mpi_procs(12)
-        params = qad.params_from_partition(p)
+        params = qad.optimize_params()
         print(params)
         # HYBRID MPI-OPENMP run, perfectly divisible among nodes:  MPI: 12, OMP: 2
         aequal(params, {'ompthreads': 2, 'ncpus': 8, 'select': 3, 'mpiprocs': 4})
 
         qad.set_omp_threads(5)
         qad.set_mpi_procs(3)
-        params = qad.params_from_partition(p)
+        params = qad.optimize_params()
         print(params)
         # HYBRID MPI-OPENMP, NOT commensurate with nodes:  MPI: 3, OMP: 5
         aequal(params, {'ompthreads': 5, 'ncpus': 5, 'select': 3, 'mpiprocs': 1})
