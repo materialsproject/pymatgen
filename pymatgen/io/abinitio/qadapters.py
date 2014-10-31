@@ -37,7 +37,7 @@ __all__ = [
     "parse_slurm_timestr",
     "MpiRunner",
     "Partition",
-    "qadapter_class",
+    "make_qadapter",
     "AbstractQueueAdapter",
     "PbsProAdapter",
     "SlurmAdapter",
@@ -333,16 +333,17 @@ class Partition(object):
         return self.condition(pconf)
 
 
-def qadapter_class(qtype):
-    """Return the concrete `Adapter` class from a string."""
+def make_qadapter(qtype, **kwargs):
+    """
+    Return the concrete `Adapter` class from a string.
+    """
     return {"shell": ShellAdapter,
             "slurm": SlurmAdapter,
-            "pbs": PbsProAdapter,   # TODO Remove
             "pbspro": PbsProAdapter,
             "torque": TorqueAdapter,
             "sge": SGEAdapter,
             "moab": MOABAdapter,
-            }[qtype.lower()]
+            }[qtype.lower()](**kwargs)
 
 
 class QueueAdapterError(Exception):
@@ -368,8 +369,9 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     # TODO: This constraint should be implemented by the partition, not by the QueueAdapter.
     LIMITS = []
 
-    def __init__(self, qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
-                 pre_run=None, post_run=None, mpi_runner=None, partition=None):
+    def __init__(self, **kwargs):
+                 #qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
+                 #pre_run=None, post_run=None, mpi_runner=None, partition=None):
         """
         Args:
             qparams:
@@ -389,7 +391,19 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                 String or list of commands to execute once the calculation is completed.
             mpi_runner:
                 Path to the MPI runner or `MpiRunner` instance. None if not used
+            partition:
+                ``Partition`` object
         """
+        qparams = kwargs.pop("qparams", None)
+        setup = kwargs.pop("setup", None)
+        modules = kwargs.pop("modules", None)
+        shell_env = kwargs.pop("shell_env", None)
+        omp_env = kwargs.pop("omp_env", None)
+        pre_run = kwargs.pop("pre_run", None)
+        post_run = kwargs.pop("post_run", None)
+        mpi_runner = kwargs.pop("mpi_runner", None)
+        partition = kwargs.pop("partition", None)
+
         # Make defensive copies so that we can change the values at runtime.
         self.qparams = qparams.copy() if qparams is not None else {}
         self._verbatim = []
@@ -513,9 +527,9 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
     def record_attempt(self): # $ retcode):
         self.attempts.append(AttrDict(
-           mpi_procs=self.mpi_procs, omp_threads=self.omp_threads)) 
-        #, mem_per_proc=self.mem_per_proc)) 
-        # retcode=retcode)) #walltime=self.walltime,
+            mpi_procs=self.mpi_procs, omp_threads=self.omp_threads)) 
+            #, mem_per_proc=self.mem_per_proc)) 
+            # retcode=retcode)) #walltime=self.walltime,
 
     @property
     def num_attempts(self):
