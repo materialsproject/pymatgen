@@ -793,6 +793,16 @@ class AbinitFlow(Node):
 
         return num_cancelled
 
+    def get_njobs_in_queue(self, username=None):
+        """
+        returns the number of jobs in the queue,
+        returns None when the number of jobs cannot be determined.
+
+        Args:
+            username: (str) the username of the jobs to count (default is to autodetect)
+        """
+        return self.manager.qadapter.get_njobs_in_queue(username=username)
+
     def rmtree(self, ignore_errors=False, onerror=None):
         """Remove workdir (same API as shutil.rmtree)."""
         shutil.rmtree(self.workdir, ignore_errors=ignore_errors, onerror=onerror)
