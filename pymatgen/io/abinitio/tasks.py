@@ -15,6 +15,7 @@ import yaml
 import six
 
 from pprint import pprint
+from monty.termcolor import colored
 from six.moves import map, zip, StringIO
 from monty.serialization import loadfn
 from monty.string import is_string, list_strings
@@ -426,7 +427,7 @@ class ParalHints(collections.Iterable):
         for conf in self:
             # Select the object on which condition is applied
             obj = conf if key is None else AttrDict(conf[key])
-            add_it = condition.eval(obj=obj)
+            add_it = condition(obj=obj)
             #if key is "vars": print("conf", conf, "added:", add_it)
             if add_it:
                 new_confs.append(conf)
@@ -650,7 +651,7 @@ class TaskManager(object):
         if os.path.exists(path):
             return cls.from_file(path)
     
-        raise RuntimeError("Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, dirpath))
+        raise RuntimeError("Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, path))
 
     @classmethod 
     def sequential(cls):
@@ -678,8 +679,16 @@ class TaskManager(object):
 
         self.policy = TaskPolicy.as_policy(policy)
 
-        # Initialize partitions
-        self.parts = [] if partitions is None else [Partition(**p) for p in partitions]
+        # Initialize the partitions:
+        # order them according to priority and make sure that each partition has different priority
+        self.parts = []
+        if partitions is not None:
+            if not isinstance(partitions, (list, tuple)): partitions = [partitions]
+            self.parts = sorted([Partition(**part) for part in partitions], key=lambda p: p.priority)
+
+        priorities = [p.priority for p in self.parts]
+        if len(priorities) != len(set(priorities)):
+            raise ValueError("Two or more partitions have same priority. This is not allowed. Check taskmanager.yml")
 
         # Initialize database connector (if specified)
         from .db import DBConnector
@@ -691,7 +700,7 @@ class TaskManager(object):
         app = lines.append
         #app("tot_cores %d, mpi_procs %d, omp_threads %s" % (self.tot_cores, self.mpi_procs, self.omp_threads))
         app("[Partitions #%d]\n" % len(self.parts))
-        lines.exted(p for p in self.parts)
+        lines.extend(p for p in self.parts)
         app("[Qadapter]\n%s" % str(self.qadapter))
         app("[Task policy]\n%s" % str(self.policy))
 
@@ -711,10 +720,10 @@ class TaskManager(object):
         """True if we are using OpenMP parallelization."""
         return self.qadapter.has_omp
 
-    #@property
-    #def tot_cores(self):
-    #    """Total number of CPUs used to run the task."""
-    #    return self.qadapter.tot_cores
+    @property
+    def tot_cores(self):
+        """Total number of CPUs used to run the task."""
+        return self.qadapter.tot_cores
 
     @property
     def mpi_procs(self):
@@ -755,9 +764,9 @@ class TaskManager(object):
         new.policy = policy
         return new
 
-    def copy(self):
-        """Shallow copy of self."""
-        return copy.copy(self)
+    #def copy(self):
+    #    """Shallow copy of self."""
+    #    return copy.copy(self)
 
     def deepcopy(self):
         """Deep copy of self."""
@@ -784,15 +793,40 @@ class TaskManager(object):
         """Set the value of max_ncpus."""
         self.policy.max_ncpus = value
 
-    #def select_partition(self, pconf):
-    #    """
-    #    Select a partition to run the paralle configuration pconf
-    #    Set self.opt_part. Return None if no partition could be found.
-    #    """
-    #    scores = [part.get_score(pconf) for part in self.parts]
-    #    if all(scores < 0): return None
-    #    self.opt_part = self.parts[maxloc(scores)]
-    #    return self.opt_part
+    #@property
+    #def max_ncpus(self):
+    #    return max(p.max_ncores for p in self.partitions)
+
+    def get_njobs_in_queue(self, username=None):
+        """
+        returns the number of jobs in the queue,
+        returns None when the number of jobs cannot be determined.
+
+        Args:
+            username: (str) the username of the jobs to count (default is to autodetect)
+        """
+        return self.qadapter.get_njobs_in_queue(username=username)
+
+    @property
+    def active_partition(self):
+        return None
+        try:
+            return self._active_partition
+        except AttributeError:
+            return self.parts[0]
+
+    def select_partition(self, pconf):
+        """
+        Select a partition to run the parallel configuration pconf
+        Set self.active_partition. Return None if no partition could be found.
+        """
+        #self._selected_partition = None
+        #return None
+        # TODO
+        scores = [part.get_score(pconf) for part in self.parts]
+        if all(sc < 0 for sc in scores): return None
+        self._active_partition = self.parts[maxloc(scores)]
+        return self._active_partition
 
     def cancel(self, job_id):
         """Cancel the job. Returns exit status."""
@@ -802,7 +836,8 @@ class TaskManager(object):
         """Write the submission script. return the path of the script"""
         script = self.qadapter.get_script_str(
             job_name=task.name, 
-            launch_dir=task.workdir, 
+            launch_dir=task.workdir,
+            partition=self.active_partition,
             executable=task.executable,
             qout_path=task.qout_file.path,
             qerr_path=task.qerr_file.path,
@@ -1053,31 +1088,37 @@ class Dependency(object):
 
         return filepaths, exts
 
-
-# Possible status of the node.
-_STATUS2STR = collections.OrderedDict([
-    (1,  "Initialized"),    # Node has been initialized
-    (2,  "Locked"),         # Task is locked an must be explicitly unlocked by an external subject (Workflow).
-    (3,  "Ready"),          # Node is ready i.e. all the depencies of the node have status S_OK
-    (4,  "Submitted"),      # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
-    (5,  "Running"),        # Node is running.
-    (6,  "Done"),           # Node done, This does not imply that results are ok or that the calculation completed successfully
-    (7,  "AbiCritical"),    # Node raised an Error by ABINIT.
-    (8,  "QueueCritical"),  # Node raised an Error by submitting submission script, or by executing it
-    (9,  "Unconverged"),    # This usually means that an iterative algorithm didn't converge.
-    (10, "Error"),          # Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.
-    (11, "Completed"),      # Execution completed successfully.
-])
-
+def _2attrs(item):
+        return item if item is None or isinstance(list, tuple) else (item,)
 
 class Status(int):
     """This object is an integer representing the status of the `Node`."""
+
+    # Possible status of the node. See monty.termocolor for the meaning of color, on_color and attrs.
+    _STATUS_INFO = [
+        #(value, name, color, on_color, attrs)
+        (1,  "Initialized",   None     , None, None),         # Node has been initialized
+        (2,  "Locked",        None     , None, None),         # Task is locked an must be explicitly unlocked by an external subject (Workflow).
+        (3,  "Ready",         None     , None, None),         # Node is ready i.e. all the depencies of the node have status S_OK
+        (4,  "Submitted",     "blue"   , None, None),         # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
+        (5,  "Running",       "magenta", None, None),         # Node is running.
+        (6,  "Done",          None     , None, None),         # Node done, This does not imply that results are ok or that the calculation completed successfully
+        (7,  "AbiCritical",   "red"    , None, None),         # Node raised an Error by ABINIT.
+        (8,  "QueueCritical", "red"    , "on_white", None),   # Node raised an Error by submitting submission script, or by executing it
+        (9,  "Unconverged",   "red"    , "on_yellow", None),  # This usually means that an iterative algorithm didn't converge.
+        (10, "Error",         "red"    , None, None),         # Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.
+        (11, "Completed",     "green"  , None, None),         # Execution completed successfully.
+        #(11, "Completed",     "green"  , None, "underline"),   
+    ]
+    _STATUS2STR = collections.OrderedDict([(t[0], t[1]) for t in _STATUS_INFO])
+    _STATUS2COLOR_OPTS = collections.OrderedDict([(t[0], {"color": t[2], "on_color": t[3], "attrs": _2attrs(t[4])}) for t in _STATUS_INFO])
+
     def __repr__(self):
         return "<%s: %s, at %s>" % (self.__class__.__name__, str(self), id(self))
 
     def __str__(self):
         """String representation."""
-        return _STATUS2STR[self]
+        return self._STATUS2STR[self]
 
     @classmethod
     def as_status(cls, obj):
@@ -1091,7 +1132,7 @@ class Status(int):
     @classmethod
     def from_string(cls, s):
         """Return a `Status` instance from its string representation."""
-        for num, text in _STATUS2STR.items():
+        for num, text in cls._STATUS2STR.items():
             if text == s:
                 return cls(num)
         else:
@@ -1101,6 +1142,11 @@ class Status(int):
     def is_critical(self):
         """True if status is critical."""
         return str(self) in ("AbiCritical", "QueueCritical", "Uncoverged", "Error") 
+
+    @property
+    def colored(self):
+        """Return colorized text used to print the status if the stream supports it."""
+        return colored(str(self), **self._STATUS2COLOR_OPTS[self]) 
 
 
 class Node(six.with_metaclass(abc.ABCMeta, object)):
@@ -1439,9 +1485,10 @@ class FileNode(Node):
     def check_status(self):
         return self.status
 
-    #def get_results(self, **kwargs):
-    #    results = super(FileNode, self).get_results(**kwargs)
-    #    return results.add_gridfs_files(GSR=self.filepath)
+    def get_results(self, **kwargs):
+        results = super(FileNode, self).get_results(**kwargs)
+        #results.add_gridfs_files(self.filepath=self.filepath)
+        return results
 
 
 class TaskError(Exception):
@@ -2267,9 +2314,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         if self.status is None or self.status < self.S_DONE:
             raise self.Error("Task is not completed")
 
-        results = self.Results.from_node(self)
-
-        return results
+        return self.Results.from_node(self)
 
     def move(self, dest, is_abspath=False):
         """
@@ -2589,7 +2634,12 @@ class AbinitTask(Task):
         #print("optimal autoparal conf:\n %s" % optconf)
 
         # Select the partition on which we'll be running
-        #self.manager.select_partition(optconf)
+        #for i, c in enumerate(optconfs):
+        #    self.manager.select_partition(optconfs) is not None:
+        #        optconf = optconfs[i]
+        #        break
+        #else:
+        #    raise RuntimeError("cannot find partition for this run!")
 
         # Write autoparal configurations to JSON file.
         d = confs.as_dict()
@@ -2659,8 +2709,7 @@ class AbinitTask(Task):
             self.reset_from_scratch()
             return True
         else:
-            info_msg = 'unknown queue error, could not increase resources any further'
-            self.set_status(self.S_ERROR, info_msg)
+            self.set_status(self.S_ERROR, info_msg='could not increase resources any further')
             return False
 
     #@property
@@ -2871,8 +2920,7 @@ class DdkTask(AbinitTask):
 
     def get_results(self, **kwargs):
         results = super(DdkTask, self).get_results(**kwargs)
-        #results.add_text_files("DDB"=self.outdir.has_abiext("DDB"))
-        return results
+        return results.add_gridfs_file(DDB=(self.outdir.has_abiext("DDB"), "t"))
 
 
 class PhononTask(AbinitTask):
@@ -2917,7 +2965,7 @@ class PhononTask(AbinitTask):
         Plot the Phonon SCF cycle results with matplotlib.
 
         Returns
-            `matplotlib` figure, None is some error occurred. 
+            `matplotlib` figure, None if some error occurred.
         """
         scf_cycle = abiinspect.PhononScfCycle.from_file(self.output_file.path)
         if scf_cycle is not None:
@@ -2925,8 +2973,7 @@ class PhononTask(AbinitTask):
 
     def get_results(self, **kwargs):
         results = super(PhononTask, self).get_results(**kwargs)
-        #results.add_text_files("DDB"=self.outdir.has_abiext("DDB"))
-        return results
+        return results.add_gridfs_file(DDB=(self.outdir.has_abiext("DDB"), "t"))
 
 
 class SigmaTask(AbinitTask):
@@ -2961,10 +3008,10 @@ class SigmaTask(AbinitTask):
 
         # Open the SIGRES file and add its data to results.out
         from abipy.electrons.gsr import GSR_File
-        sigres = SIGRES_File(self.outdir.has_abiext("SIGRES"))
-        results["out"].update(sigres.as_dict())
-
-        return results.add_gridfs_files(SIGRES=sigres.filepath)
+        #sigres = SIGRES_File(self.outdir.has_abiext("SIGRES"))
+        #results["out"].update(sigres.as_dict())
+        #return results.add_gridfs_files(SIGRES=sigres.filepath)
+        return results
 
 
 class BseTask(AbinitTask):
@@ -3042,13 +3089,14 @@ class BseTask(AbinitTask):
     def get_results(self, **kwargs):
         results = super(BseTask, self).get_results(**kwargs)
 
-        mdf = MDF_File(self.outdir.has_abiext("MDF"))
+        #mdf = MDF_File(self.outdir.has_abiext("MDF"))
         #results["out"].update(mdf.as_dict())
         #    out=mdf.as_dict(),
         #    epsilon_infinity
         #    optical_gap
         #)
-        return results.add_gridfs_files(MDF=mdf.filepath)
+        #return results.add_gridfs_files(MDF=mdf.filepath)
+        return results
 
 
 class OpticTask(Task):

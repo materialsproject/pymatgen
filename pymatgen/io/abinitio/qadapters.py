@@ -26,12 +26,9 @@ from subprocess import Popen, PIPE
 from monty.string import is_string, boxed
 from monty.collections import AttrDict, MongoDict
 from monty.subprocess import Command
-from monty.dev import deprecated
-from pymatgen.util.num_utils import maxloc
 from pymatgen.core.units import Time, Memory
 from .utils import Condition
 from .launcher import ScriptEditor
-from .db import DBConnector
 
 import logging
 logger = logging.getLogger(__name__)
@@ -198,7 +195,6 @@ class Partition(object):
 
     def __init__(self, **kwargs):
         """The possible arguments are documented in Partition.ENTRIES."""
-
         #self.timelimit = timelimit #TODO conversion datetime.datetime.strptime("1:00:00", "%H:%M:%S")
         for key, entry in self.ENTRIES.items():
             try:
@@ -244,12 +240,11 @@ class Partition(object):
         """True if omp_threads fit in a node."""
         return self.cores_per_node >= omp_threads
 
-    def divide_by_node(self, mpi_procs, omp_threads):
+    def divmod_node(self, mpi_procs, omp_threads):
         """
         Return (num_nodes, rest_cores)
         """
-        return (mpi_procs * omp_threads) // self.cores_per_node,\
-               (mpi_procs * omp_threads) %  self.cores_per_node
+        return divmod(mpi_procs * omp_threads, self.cores_per_node)
 
     def distribute(self, mpi_procs, omp_threads, mem_per_proc):
         """
@@ -259,7 +254,7 @@ class Partition(object):
 
         if mem_per_proc < self.mem_per_code:
             # Can use all then cores in the node.
-            num_nodes, rest_cores = self.divide_by_node(mpi_procs, omp_threads)
+            num_nodes, rest_cores = self.divmod_node(mpi_procs, omp_threads)
             if rest_cores !=0: is_scattered = (num_nodes != 0)
 
         if is_scattered:
@@ -275,74 +270,30 @@ class Partition(object):
                         break
             else:
                 raise ValueError("Cannot distribute mpi_procs %d, omp_threads %d, mem_per_proc %s" % 
-                    (mpi_procs, omp_threads, mem_per_proc))
+                                (mpi_procs, omp_threads, mem_per_proc))
 
         CoresDistrib = namedtuple("<CoresDistrib>", "num_nodes mpi_per_node is_scattered") # mem_per_node 
         return CoresDistrib(num_nodes, mpi_per_node, is_scattered)
 
     def can_run(self, pconf):
         """
-        True if this partition in principle is able to run the parallel configuration `ParalConf`
+        True if this partition in principle is able to run the ``ParalConf`` pconf
         """
         if pconf.tot_cores > self.tot_cores: return False
         if pconf.omp_threads > self.cores_per_node: return False
         if pconf.mem_per_core > self.mem_per_core: return False
-        return self.condition.eval(pconf)
+        return self.condition(pconf)
 
     def get_score(self, pconf):
         """
-        Receives a `ParalConf` object and returns a number that will be used 
+        Receives a ``ParalConf`` object, pconf, and returns a number that will be used
         to select the partion on the cluster on which the task will be submitted.
         Returns -inf if paral_conf cannot be exected on this partition.
         """
         minf = float("-inf")
         if not self.can_run(pconf): return minf
-        if not self.condition.eval(pconf): return minf
+        if not self.condition(pconf): return minf
         return self.priority
-
-
-class Cluster(object):
-    """A cluster has a QueueAdapter and a list of partitions."""
-
-    @classmethod
-    def from_file(cls, filepath):
-        import yaml
-        with open(filepath, "r") as fh:
-            d = MongoDict(yaml.load(fh))
-
-        if "qadapter" not in d:
-            raise ValueError("qadapter entry must be specified")
-        qad_cls = qadapter_class(d.qadapter.qtype)
-        #qadapter = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
-        #                     pre_run=pre_run, post_run=post_run, mpi_runner=mpi_runner)
-
-        return cls(d.hostname, d.partitions) #, dbconnector=d.get("dbconnector", None))
-
-    def __init__(self, hostname, partitions, dbconnector=None):
-        self.hostname = hostname
-        self.parts = [Partition(**p) for p in partitions]
-
-        self.dbconnector = DBConnector(dbconnector)
-        #self.qadapter = qadapter
-
-    def __str__(self):
-        lines = ["hostname: %s" % self.hostname]
-        for part in self:
-            lines.append(str(part))
-        return "\n".join(lines)
-
-    def __getitem__(self, name):
-        for part in self:
-            if part.name == name: return part
-        raise KeyError("Cannot find partition %s" % name)
-
-    def __iter__(self):
-        return self.parts.__iter__()
-
-    def select_partition(self, pconf):
-        scores = [part.get_score(pconf) for part in self.parts]
-        if all(scores < 0): return None
-        return self.parts[maxloc(scores)]
 
 
 def qadapter_class(qtype):
@@ -351,6 +302,7 @@ def qadapter_class(qtype):
             "slurm": SlurmAdapter,
             "pbs": PbsProAdapter,   # TODO Remove
             "pbspro": PbsProAdapter,
+            "torque": TorqueAdapter,
             "sge": SGEAdapter,
             "moab": MOABAdapter,
             }[qtype.lower()]
@@ -446,8 +398,8 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
         return "\n".join(lines)
 
-    def copy(self):
-        return copy.copy(self)
+    #def copy(self):
+    #    return copy.copy(self)
 
     def deepcopy(self):
         return copy.deepcopy(self)
@@ -568,7 +520,7 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         if is_string(lines): lines = [lines]
         self._verbatim.extend(lines)
 
-    def get_subs_dict(self):
+    def get_subs_dict(self, partition):
         """
         Return substitution dict for replacements into the template
         Subclasses may want to customize this method.
@@ -576,10 +528,10 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         # clean null values
         return {k: v for k, v in self.qparams.items() if v is not None}
 
-    def _make_qheader(self, job_name, qout_path, qerr_path):
+    def _make_qheader(self, job_name, partition, qout_path, qerr_path):
         """Return a string with the options that are passed to the resource manager."""
         # get substitution dict for replacements into the template 
-        subs_dict = self.get_subs_dict()
+        subs_dict = self.get_subs_dict(partition)
 
         # Set job_name and the names for the stderr and stdout of the 
         # queue manager (note the use of the extensions .qout and .qerr
@@ -604,7 +556,7 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
         return '\n'.join(clean_template)
 
-    def get_script_str(self, job_name, launch_dir, executable, qout_path, qerr_path, 
+    def get_script_str(self, job_name, launch_dir, partition, executable, qout_path, qerr_path,
                        stdin=None, stdout=None, stderr=None):
         """
         Returns a (multi-line) String representing the queue script, e.g. PBS script.
@@ -615,6 +567,10 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                 Name of the job.
             launch_dir: 
                 (str) The directory the job will be launched in.
+            partitition:
+                ``Partition` object with information on the queue selected for submission.
+            executable:
+                String with the name of the executable to be executed.
             qout_path
                 Path of the Queue manager output file.
             qerr_path:
@@ -625,7 +581,7 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             job_name = job_name[:14]
 
         # Construct the header for the Queue Manager.
-        qheader = self._make_qheader(job_name, qout_path, qerr_path)
+        qheader = self._make_qheader(job_name, partition, qout_path, qerr_path)
 
         # Add the bash section.
         se = ScriptEditor()
@@ -721,13 +677,6 @@ class AbstractQueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         Method to increase the number of cpus asked for.
         """
 
-    # @abc.abstractmethod
-    def increase_resources(self):
-        """
-        Method to generally increase resources.
-        """
-        return False
-
 
 ####################
 # Concrete classes #
@@ -778,7 +727,7 @@ export MPI_PROCS=$${MPI_PROCS}
             raise self.Error("Random Error ...!")
 
     def get_njobs_in_queue(self, username=None):
-        return 1
+        return None
 
     def exclude_nodes(self, nodes):
         return False
@@ -1054,6 +1003,7 @@ class PbsProAdapter(AbstractQueueAdapter):
 #PBS -l place=$${place}
 #PBS -W group_list=$${group_list}
 #PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
+####PBS -l select=$${select}:ncpus=$${ncpus}:vmem=$${vmem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
 #PBS -l pvmem=$${pvmem}mb
 #PBS -r y
 #PBS -o $${_qout_path}
@@ -1069,12 +1019,12 @@ class PbsProAdapter(AbstractQueueAdapter):
 
     @property
     def mpi_procs(self):
-        """Number of CPUs used for MPI. The number of MPI processes."""
+        """Number of MPI processes."""
         return self.qparams.get("select", 1)
         #return self._mpi_procs
                                                     
     def set_mpi_procs(self, mpi_procs):
-        """Number of CPUs used for MPI. The number of MPI processes."""
+        """Set the number of MPI processes."""
         self.qparams["select"] = mpi_procs
         #self._mpi_procs = mpi_procs
 
@@ -1097,9 +1047,10 @@ class PbsProAdapter(AbstractQueueAdapter):
         http://www.cardiff.ac.uk/arcca/services/equipment/User-Guide/pbs.html
         https://portal.ivec.org/docs/Supercomputers/PBS_Pro
         """
+        if p is None: return {}
         if self.use_only_mpi:
             # Pure MPI run
-            num_nodes, rest_cores = p.divide_by_node(self.mpi_procs, self.omp_threads)
+            num_nodes, rest_cores = p.divmod_node(self.mpi_procs, self.omp_threads)
 
             if rest_cores == 0:
                 # Can allocate entire nodes because self.mpi_procs is divisible by cores_per_node.
@@ -1140,7 +1091,7 @@ class PbsProAdapter(AbstractQueueAdapter):
         elif self.use_mpi_omp:
             # Hybrid MPI-OpenMP run.
             assert p.can_use_omp_threads(self.omp_threads)
-            num_nodes, rest_cores = p.divide_by_node(self.mpi_procs, self.omp_threads)
+            num_nodes, rest_cores = p.divmod_node(self.mpi_procs, self.omp_threads)
             #print(num_nodes, rest_cores)
             # TODO: test this
 
@@ -1166,13 +1117,13 @@ class PbsProAdapter(AbstractQueueAdapter):
 
         return AttrDict(select_params)
 
-    def get_subs_dict(self):
-        return super(PbsProAdapter, self).get_subs_dict()
-        return
+    def get_subs_dict(self, partition):
+        subs_dict = super(PbsProAdapter, self).get_subs_dict(partition)
+        # Optimize parameters from the partition.
         # Parameters defining the partion. Hard-coded for the time being.
         # but this info should be passed via taskmananger.yml
-        p = Partition(name="hardcoded", num_nodes=100, sockets_per_node=2, cores_per_socket=4, mem_per_node="1000 Mb")
-        subs_dict.update(self.params_from_partition(p))
+        #p = Partition(name="hardcoded", num_nodes=100, sockets_per_node=2, cores_per_socket=4, mem_per_node="1000 Mb")
+        #subs_dict.update(self.params_from_partition(partition))
         #subs_dict["vmem"] = 5
         return subs_dict
 
@@ -1214,8 +1165,6 @@ class PbsProAdapter(AbstractQueueAdapter):
 
     def get_njobs_in_queue(self, username=None):
         # Initialize username
-        return 0
-
         if username is None:
             username = getpass.getuser()
 
@@ -1292,16 +1241,60 @@ class PbsProAdapter(AbstractQueueAdapter):
             logger.warning('increasing cpus reached the limit')
             return False
 
-    # moved to the level of the manager:
-    #def increase_resources(self):
-    #    """
-    #    Method to generally increase resources. On typical large machines we only increas cpu's since we use all
-    #    mem per cpu per core
-    #    """
-    #    if self.increase_cpus(1):
-    #        return True
-    #    else:
-    #        return False
+
+class TorqueAdapter(PbsProAdapter):
+    """Adapter for Torque."""
+
+    QTYPE = "torque"
+
+    QTEMPLATE = """\
+#!/bin/bash
+
+#PBS -A $${account}
+#PBS -N $${job_name}
+#PBS -l walltime=$${walltime}
+#PBS -q $${queue}
+#PBS -l model=$${model}
+#PBS -l place=$${place}
+#PBS -W group_list=$${group_list}
+####PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
+####PBS -l pvmem=$${pvmem}mb
+#PBS -l pmem=$${pmem}mb
+####PBS -l mppwidth=$${mppwidth}
+#PBS -l nodes=$${nodes}:ppn=$${ppn} 
+#PBS -M $${mail_user}
+#PBS -m $${mail_type}
+# Submission environment
+#PBS -V
+#PBS -o $${_qout_path}
+#PBS -e $${_qerr_path}
+"""
+    LIMITS = {'max_total_tasks': 3888, 'time': 48, 'max_nodes': 16}
+
+    def set_mem_per_cpu(self, mem_mb):
+        """Set the memory per core in Megabytes"""
+        self.qparams["pmem"] = mem_mb
+        self.qparams["mem"] = mem_mb
+
+    @property
+    def mpi_procs(self):
+        """Number of MPI processes."""
+        return self.qparams.get("nodes", 1)*self.qparams.get("ppn", 1)
+
+    def set_mpi_procs(self, mpi_procs):
+        """Set the number of CPUs used for MPI."""
+        self.qparams["nodes"] = 1
+        self.qparams["ppn"] = mpi_procs
+
+    def increase_nodes(self, factor):
+        base_increase = 1
+        new_nodes = self.qparams['nodes'] + factor * base_increase
+        if new_nodes < self.LIMITS['max_nodes']:
+            self.qparams['nodes'] = new_nodes
+            return True
+        else:
+            logger.warning('increasing cpus reached the limit')
+            return False
 
 
 class SGEAdapter(AbstractQueueAdapter):

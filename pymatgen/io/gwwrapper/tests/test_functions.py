@@ -1,4 +1,4 @@
-from __future__ import division, print_function
+from __future__ import division, print_function, unicode_literals
 
 __author__ = 'setten'
 
@@ -17,10 +17,10 @@ from pymatgen.io.gwwrapper.codeinterfaces import get_all_ecuteps, get_all_nbands
 class GWFunctionsTest(PymatgenTest):
 
     def test_get_all_ecuteps(self):
-        self.assertEqual(get_all_ecuteps(), [u'ecuteps', u'ENCUTGW', u'new_code_nbands'])
+        self.assertEqual(set(get_all_ecuteps()), set(['ecuteps', 'ENCUTGW', 'new_code_nbands']))
 
     def test_get_all_nbands(self):
-        self.assertEqual(get_all_nbands(), [u'nscf_nbands', u'NBANDS', u'new_code_nbands'])
+        self.assertEqual(set(get_all_nbands()), set(['nscf_nbands', 'NBANDS', 'new_code_nbands']))
 
 
 class GWConstantsTest(PymatgenTest):

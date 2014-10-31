@@ -8,7 +8,7 @@ This module implements representations of slabs and surfaces, as well as
 algorithms for generating them.
 """
 
-__author__ = "Richard Tran, Zihan Xu, Shyue Ping Ong"
+__author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
 __copyright__ = "Copyright 2014, The Materials Virtual Lab"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -28,6 +28,7 @@ from monty.fractions import lcm
 
 from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -182,6 +183,52 @@ class Slab(Structure):
 
         self.append(specie, coords, coords_are_cartesian=True)
 
+    def __str__(self):
+        comp = self.composition
+        outs = [
+            "Slab Summary (%s)" % comp.formula,
+            "Reduced Formula: %s" % comp.reduced_formula,
+            "Miller index: %s" % (self.miller_index, ),
+            "Shift: %.4f, Scale Factor: %s" % (self.shift,
+                                               self.scale_factor.__str__())]
+        to_s = lambda x: "%0.6f" % x
+        outs.append("abc   : " + " ".join([to_s(i).rjust(10)
+                                           for i in self.lattice.abc]))
+        outs.append("angles: " + " ".join([to_s(i).rjust(10)
+                                           for i in self.lattice.angles]))
+        outs.append("Sites ({i})".format(i=len(self)))
+        for i, site in enumerate(self):
+            outs.append(" ".join([str(i + 1), site.species_string,
+                                  " ".join([to_s(j).rjust(12)
+                                            for j in site.frac_coords])]))
+        return "\n".join(outs)
+
+    def as_dict(self):
+        d = super(Slab, self).as_dict()
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["oriented_unit_cell"] = self.oriented_unit_cell.as_dict()
+        d["miller_index"] = self.miller_index
+        d["shift"] = self.shift
+        d["scale_factor"] = self.scale_factor
+        d["energy"] = self.energy
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        lattice = Lattice.from_dict(d["lattice"])
+        sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
+        s = Structure.from_sites(sites)
+
+        return Slab(
+            lattice=lattice,
+            species=s.species_and_occu, coords=s.frac_coords,
+            miller_index=d["miller_index"],
+            oriented_unit_cell=Structure.from_dict(d["oriented_unit_cell"]),
+            shift=d["shift"], scale_factor=d["scale_factor"],
+            site_properties=s.site_properties, energy=d["energy"]
+        )
+
 
 class SlabGenerator(object):
 
@@ -293,9 +340,11 @@ class SlabGenerator(object):
 
         slab_scale_factor.append(eye[c_index])
 
+        slab_scale_factor = np.array(slab_scale_factor)
+
         # Let's make sure we have a left-handed crystallographic system
         if np.linalg.det(slab_scale_factor) < 0:
-            slab_scale_factor = np.array(slab_scale_factor) * -1
+            slab_scale_factor *= -1
 
         single = initial_structure.copy()
         single.make_supercell(slab_scale_factor)

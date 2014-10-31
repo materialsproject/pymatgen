@@ -13,6 +13,7 @@ import shutil
 import pickle
 
 from six.moves import map 
+from atomicfile import AtomicFile
 from pprint import pprint
 from prettytable import PrettyTable
 from monty.io import FileLock
@@ -209,8 +210,6 @@ class AbinitFlow(Node):
 
         with FileLock(filepath):
             with open(filepath, "rb") as fh:
-                #flow = pickle.load(fh)
-                #flow = PmgUnpickler(fh).load()
                 flow = pmg_pickle_load(fh)
 
         # Check if versions match.
@@ -616,10 +615,10 @@ class AbinitFlow(Node):
                     tot_num_errors += 1
                     task_name = colored(task_name, red)
 
-                table.add_row(
-                    [task_name, str(task.status), str(task.queue_id)] +  events + 
-                    cpu_info + task_info
-                )
+                if has_colours:
+                    table.add_row([task_name, task.status.colored, str(task.queue_id)] +  events + cpu_info + task_info)
+                else:
+                    table.add_row([task_name, str(task.status), str(task.queue_id)] +  events + cpu_info + task_info)
 
             # Print table and write colorized line with the total number of errors.
             print(table, file=stream)
@@ -643,11 +642,36 @@ class AbinitFlow(Node):
         all_structures = [task.strategy.structure for task in self.iflat_tasks()]
         all_pseudos = [task.strategy.pseudos for task in self.iflat_tasks()]
 
-    def mongodb_insert(self):
+    def look_before_you_leap(self):
+        """
+        This method should be called before running the calculation to make
+        sure that the most important requirements are satisfied.
+        """
+        errors = []
+        if self.has_db:
+            try:
+                self.manager.db_connector.get_collection()
+            except Exception as exc:
+                errors.append("""
+                    ERROR while trying to connect to the MongoDB database:
+                        Exception:
+                            %s
+                        Connector:
+                            %s
+                    """ % (exc, self.manager.db_connector))
+
+        return "\n".join(errors)
+
+    @property
+    def has_db(self):
+        """True if flow uses MongoDB to store the results."""
+        return self.manager.has_db
+
+    def db_insert(self):
         """
         Insert results in the mongdob database.
         """
-        #if not self.manager.has_db: return -1
+        assert self.has_db
         # Connect to MongoDb and get the collection.
         coll = self.manager.db_connector.get_collection()
         print("Mongodb collection %s with count %d", coll, coll.count())
@@ -769,6 +793,16 @@ class AbinitFlow(Node):
 
         return num_cancelled
 
+    def get_njobs_in_queue(self, username=None):
+        """
+        returns the number of jobs in the queue,
+        returns None when the number of jobs cannot be determined.
+
+        Args:
+            username: (str) the username of the jobs to count (default is to autodetect)
+        """
+        return self.manager.qadapter.get_njobs_in_queue(username=username)
+
     def rmtree(self, ignore_errors=False, onerror=None):
         """Remove workdir (same API as shutil.rmtree)."""
         shutil.rmtree(self.workdir, ignore_errors=ignore_errors, onerror=onerror)
@@ -806,33 +840,12 @@ class AbinitFlow(Node):
         protocol = self.pickle_protocol
         filepath = os.path.join(self.workdir, self.PICKLE_FNAME)
 
+        # Atomic transaction with FileLock.
         with FileLock(filepath):
-            with open(filepath, mode="w" if protocol == 0 else "wb") as fh:
-                #pickle.dump(self, fh, protocol=protocol)
-                #PmgPickler(fh, protocol=protocol).dump(self)
+            #with open(filepath, mode="wb") as fh:
+            with AtomicFile(filepath, mode="wb") as fh:
                 pmg_pickle_dump(self, fh, protocol=protocol)
 
-        # Atomic transaction.
-        #filepath_new = filepath + ".new"
-        #filepath_save = filepath + ".save"
-        #shutil.copyfile(filepath, filepath_save)
-
-        #try:
-        #    with open(filepath_new, mode="w" if protocol == 0 else "wb") as fh:
-        #        pickle.dump(self, fh, protocol=protocol)
-
-        #    os.rename(filepath_new, filepath)
-        #except IOError:
-        #    os.rename(filepath_save, filepath)
-        #finally:
-        #    try
-        #        os.remove(filepath_save)
-        #    except:
-        #        pass
-        #    try
-        #        os.remove(filepath_new)
-        #    except:
-        #        pass
         return 0
 
     def register_task(self, input, deps=None, manager=None, task_class=None):
