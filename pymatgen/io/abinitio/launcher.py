@@ -297,35 +297,14 @@ class PyLauncher(object):
             if not tasks:
                 continue
 
-            #njobs_inqueue = tasks[0].manager.qadapter.get_njobs_in_queue()
-            #if njobs_inqueue is None:
-            #    print('Cannot get njobs_inqueue, going back to sleep...')
-            #    continue
-
-            #if len(tasks) > 0:
-            #    n_jobs_in_queue = tasks[0].manager.qadapter.get_njobs_in_queue()
-            #    if n_jobs_in_queue is None:
-            #        n_jobs_in_queue = 0
-            #    n_to_run = self.max_jobs - n_jobs_in_queue
-            #else:
-            #    n_to_run = 0
-
-            #rest = self.max_njobs_inqueue - njobs_inqueue
-            #if rest <= 0:
-            #    print('too many jobs in the queue, going back to sleep...')
-            #    continue
-
-            stop = len(tasks) #if rest > len(tasks) else rest
-            #print("Will fire %d jobs" % stop)
-
-            for task in tasks[:stop]:
+            for task in tasks:
                 fired = task.start()
                 if fired:
                     launched.append(task)
                     num_launched += 1
 
                 if num_launched >= max_nlaunch > 0:
-                    print('num_launched >= max_nlaunch, going back to sleep')
+                    logger.info('num_launched >= max_nlaunch, going back to sleep')
                     do_exit = True
                     break
 
@@ -613,10 +592,10 @@ class PyFlowScheduler(object):
         nqjobs = flow.get_njobs_in_queue()
         if nqjobs is None:
             nqjobs = 0
-            print('Cannot get njobs_inqueue')
+            logger.warning('Cannot get njobs_inqueue')
 
         if nqjobs >= self.max_njobs_inqueue:
-            print("Too many jobs in the queue, returning")
+            logger.info("Too many jobs in the queue, returning")
             return
 
         if self.max_nlaunch == -1:
@@ -638,7 +617,7 @@ class PyFlowScheduler(object):
                     self.nlaunch += 1
                     max_nlaunch -= 1
                     if max_nlaunch == 0:
-                        print("Restart: too many jobs in the queue, returning")
+                        logger.info("Restart: too many jobs in the queue, returning")
                         flow.pickle_dump()
                         return
             except task.RestartError:
