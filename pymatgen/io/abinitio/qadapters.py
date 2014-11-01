@@ -501,6 +501,9 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         if kwargs:
             raise ValueError("Found unknown keywords:\n %s" % str(list(kwargs.keys())))
 
+        # Initialize internal variables.
+        self._mpi_procs = 1
+
     def __str__(self):
         lines = ["%s:%s" % (self.__class__.__name__, self.qname)]
         app = lines.append
@@ -602,19 +605,21 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         else:
             return None
 
-    @abc.abstractmethod
     def set_omp_threads(self, omp_threads):
         """Set the number of OpenMP threads."""
+        self.omp_env["OMP_NUM_THREADS"] = omp_threads
 
-    @abc.abstractproperty
+    @property
     def mpi_procs(self):
         """Number of CPUs used for MPI."""
+        return self._mpi_procs
 
-    @abc.abstractmethod
     def set_mpi_procs(self, mpi_procs):
-        """Set the number of CPUs used for MPI."""
+        """Set the number of MPI processes."""
+        self._mpi_procs = mpi_procs
+        self.qparams["MPI_PROCS"] = mpi_procs
 
-    #@abc.abstractproperty
+    #@property
     #def timelimit(self):
     #    """Returns the walltime in seconds."""
 
@@ -622,18 +627,19 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     #def set_timelimit(self, timelimit):
     #    """Set the walltime in seconds."""
 
-    #@abc.abstractproperty
-    #def mem_per_proc(self):
-    #    """The memory per process in Megabytes."""
+    @property
+    def mem_per_proc(self):
+        """The memory per process in Megabytes."""
+        return self._mem_per_proc
                                                 
-    @abc.abstractmethod
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
+        self._mem_per_proc = mem_mb
 
-    #@property
-    #def tot_mem(self):
-    #    """Total memory required by the job in Megabytes."""
-    #    return self.mem_per_proc * self.mpi_procs
+    @property
+    def total_mem(self):
+        """Total memory required by the job in Megabytes."""
+        return Memory(self.mem_per_proc * self.mpi_procs, "Mb")
 
     @abc.abstractmethod
     def cancel(self, job_id):
@@ -830,7 +836,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         Return True if success.
         """
         base_increase = 2000
-        old_mem = self.get_mem_per_proc()
+        old_mem = self.mem_per_proc
         new_mem = old_mem + factor*base_increase
 
         if new_mem < self.part.mem_per_node:
@@ -842,8 +848,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
     def more_mpi_procs(self, factor):
         """
-        Method to increase the number of MPI procs.
-        Return True if success.
+        Method to increase the number of MPI procs. Return True if success.
         """
         base_increase = 12
         new_cpus = self.mpi_procs + factor * base_increase
@@ -859,10 +864,8 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         """
         Receives a ``ParalConf`` object, pconf, and returns a number that will be used
         to select the partion on the cluster on which the task will be submitted.
-        Returns -inf if paral_conf cannot be exected on this partition.
+        Returns -inf if paral_conf cannot be executed on this partition.
         """
-        # TODO
-        return self.part.priority
         minf = float("-inf")
         if not self.part.can_run(pconf): return minf
         return self.part.priority
@@ -880,22 +883,6 @@ class ShellAdapter(QueueAdapter):
 
 export MPI_PROCS=$${MPI_PROCS}
 """
-
-    @property
-    def mpi_procs(self):
-        """Number of CPUs used for MPI."""
-        return self.qparams.get("MPI_PROCS", 1)
-                                                    
-    def set_mpi_procs(self, mpi_procs):
-        """Set the number of CPUs used for MPI."""
-        self.qparams["MPI_PROCS"] = mpi_procs
-
-    def set_omp_threads(self, omp_threads):
-        """Set the number of OpenMP threads."""
-        self.omp_env["OMP_NUM_THREADS"] = omp_threads
-
-    def set_mem_per_proc(self, mem_mb):
-        """not available in ShellAdapter."""
 
     def cancel(self, job_id):
         return os.system("kill -9 %d" % job_id)
@@ -915,14 +902,6 @@ export MPI_PROCS=$${MPI_PROCS}
     def exclude_nodes(self, nodes):
         return False
 
-    #def more_mem_per_proc(self, factor):
-    #    return False
-
-    #def more_mpi_procs(self, factor):
-    #    return False
-
-    #def more_time(self, factor):
-    #    return False
 
 
 class SlurmAdapter(QueueAdapter):
@@ -963,22 +942,14 @@ class SlurmAdapter(QueueAdapter):
         self.qparams["partition"] = self.qname
         self.qparams["time"] = time2slurm(self.part.timelimit)
 
-    @property
-    def mpi_procs(self):
-        """Number of CPUs used for MPI."""
-        return self.qparams.get("ntasks", 1)
-
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
+        super(self.__class__, self).set_mpi_procs(mpi_procs)
         self.qparams["ntasks"] = mpi_procs
-
-    def set_omp_threads(self, omp_threads):
-        """Set the number of OpenMP threads."""
-        self.omp_env["OMP_NUM_THREADS"] = omp_threads
-        warnings.warn("set_omp_threads not availabe for %s" % self.__class__.__name__)
 
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
+        super(self.__class__, self).set_mem_per_proc(mem_mb)
         self.qparams["mem_per_cpu"] = int(mem_mb)
         # Remove mem if it's defined.
         self.qparams.pop("mem", None)
@@ -1253,25 +1224,11 @@ class PbsProAdapter(QueueAdapter):
         self.qparams["queue"] = self.qname
         self.qparams["walltime"] = time2pbspro(self.part.timelimit)
 
-    @property
-    def mpi_procs(self):
-        """Number of MPI processes."""
-        return self._mpi_procs
-                                                    
-    def set_mpi_procs(self, mpi_procs):
-        """Set the number of MPI processes."""
-        self._mpi_procs = mpi_procs
-
-    def set_omp_threads(self, omp_threads):
-        """Set the number of OpenMP threads. Per MPI process."""
-        self.omp_env["OMP_NUM_THREADS"] = omp_threads
-        self.qparams["ompthreads"] = omp_threads
-
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
+        super(self.__class__, self).set_mem_per_proc(mem_mb)
         #self.qparams["pvmem"] = int(mem_mb)
         #self.qparams["vmem"] = int(mem_mb)
-        self._mem_per_proc = mem_mb
 
     def cancel(self, job_id):
         return os.system("qdel %d" % job_id)
@@ -1286,7 +1243,7 @@ class PbsProAdapter(QueueAdapter):
             * http://www.cardiff.ac.uk/arcca/services/equipment/User-Guide/pbs.html
             * https://portal.ivec.org/docs/Supercomputers/PBS_Pro
         """
-        mem_per_proc = int(self._mem_per_proc)
+        mem_per_proc = int(self.mem_per_proc)
         part = self.part
         #dist = part.distribute(self.mpi_procs, self.omp_threads, mem_per_proc)
 
@@ -1499,6 +1456,7 @@ class TorqueAdapter(PbsProAdapter):
 """
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
+        QueueAdapter.set_mem_per_proc(self, mem_mb)
         self.qparams["pmem"] = mem_mb
         self.qparams["mem"] = mem_mb
 
@@ -1509,18 +1467,9 @@ class TorqueAdapter(PbsProAdapter):
 
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
+        QueueAdapter.set_mpi_procs(mpi_procs)
         self.qparams["nodes"] = 1
         self.qparams["ppn"] = mpi_procs
-
-    #def increase_nodes(self, factor):
-    #    base_increase = 1
-    #    new_nodes = self.qparams['nodes'] + factor * base_increase
-    #    if new_nodes < self.LIMITS['max_nodes']:
-    #        self.qparams['nodes'] = new_nodes
-    #        return True
-    #    else:
-    #        logger.warning('increasing cpus reached the limit')
-    #        return False
 
 
 class SGEAdapter(QueueAdapter):
@@ -1550,15 +1499,12 @@ class SGEAdapter(QueueAdapter):
                                                     
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
+        super(self.__class__, self).set_mpi_procs(mpi_procs)
         self.qparams["ncpus"] = mpi_procs
-
-    def set_omp_threads(self, omp_threads):
-        """Set the number of OpenMP threads."""
-        self.omp_env["OMP_NUM_THREADS"] = omp_threads
-        warnings.warn("set_omp_threads not availabe for %s" % self.__class__.__name__)
 
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
+        super(self.__class__, self).set_mem_per_proc(mem_mb)
         raise NotImplementedError("")
         #self.qparams["mem_per_cpu"] = mem_mb
         ## Remove mem if it's defined.
@@ -1664,18 +1610,10 @@ class MOABAdapter(QueueAdapter):
 #MSUB -e $${_qerr_path}
 """
 
-    @property
-    def mpi_procs(self):
-        """Number of CPUs used for MPI."""
-        return self.qparams.get("procs", 1)
-
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
+        super(self.__class__, self).set_mpi_procs(mpi_procs)
         self.qparams["procs"] = mpi_procs
-
-    def set_omp_threads(self, omp_threads):
-        """Set the number of OpenMP threads."""
-        self.omp_env["OMP_NUM_THREADS"] = omp_threads
 
     def cancel(self, job_id):
         return os.system("canceljob %d" % job_id)
@@ -1767,6 +1705,7 @@ class MOABAdapter(QueueAdapter):
         raise NotImplementedError("exclude_nodes")
                                                                          
     def set_mem_per_proc(self, mem_mb):
+        super(self.__class__, self).set_mem_per_proc(mem_mb)
         raise NotImplementedError("set_mem_per_cpu")
 
 
