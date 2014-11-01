@@ -537,8 +537,10 @@ class TaskPolicy(object):
             else:
                 raise TypeError("Don't know how to convert type %s to %s" % (type(obj), cls))
 
-    def __init__(self, autoparal=0, automemory=0, mode="default", max_ncpus=None,
-                 condition=None, vars_condition=None):
+    #def __init__(self, autoparal=0, automemory=0, mode="default", max_ncpus=None,
+    #             condition=None, vars_condition=None):
+
+    def __init__(self, **kwargs):
         """
         Args:
             autoparal: 
@@ -558,15 +560,20 @@ class TaskPolicy(object):
             vars_condition:
                 condition used to filter the list of Abinit variables suggested by autoparal (Mongodb-like syntax)
         """
-        self.autoparal = autoparal
-        self.automemory = automemory
-        self.mode = mode 
-        self.max_ncpus = max_ncpus
+        self.autoparal = kwargs.pop("autoparal", 0)
+        self.automemory = kwargs.pop("automemory", 0)
+        self.mode = kwargs.pop("mode", "default") 
+        self.max_ncpus = kwargs.pop("max_ncpus", None)
+        condition = kwargs.pop("condition", None)
         self.condition = Condition(condition) if condition is not None else condition
+        vars_condition = kwargs.pop("vars_condition", None)
         self.vars_condition = Condition(vars_condition) if vars_condition is not None else vars_condition
 
         if self.autoparal and self.max_ncpus is None:
             raise ValueError("When autoparal is not zero, max_ncpus must be specified.")
+
+        if kwargs:
+            raise ValueError("Found invalid keywords in policy section:\n %s" % str(list(kwargs.keys())))
 
     def __str__(self):
         lines = []
@@ -631,8 +638,6 @@ class TaskManager(object):
             policy=None
             qadapters, 
             db_connector=None
-
-        #qparams=None, setup=None, modules=None,  shell_env=None, omp_env=None, pre_run=None, post_run=None, mpi_runner=None, partitions=None):
         """
         # Keep a copy of kwargs
         self._kwargs = copy.deepcopy(kwargs)
@@ -647,7 +652,7 @@ class TaskManager(object):
             qtype = d.pop("qtype")
             qads.append(make_qadapter(qtype=qtype, **d))
 
-        # Order qdapters according to their priority.
+        # Order qdapters according to priority.
         qads = sorted(qads, key=lambda q: q.priority)
         priorities = [q.priority for q in qads]
         if len(priorities) != len(set(priorities)):
@@ -680,7 +685,7 @@ class TaskManager(object):
 
     @property
     def qadapter(self):
-        """This the qadapter used to submit jobs."""
+        """The qadapter used to submit jobs."""
         return self._qads[self._qid]
 
     def select_qadapter(self, pconf):
@@ -768,7 +773,7 @@ class TaskManager(object):
 
     #@property
     #def max_ncpus(self):
-    #    return max(q.max_ncores for p in self.partitions)
+    #    return max(q.partition.max_ncores for q in self.qads)
 
     def get_njobs_in_queue(self, username=None):
         """
