@@ -1289,28 +1289,27 @@ class PbsProAdapter(QueueAdapter):
 
         if self.pure_mpi:
             # Pure MPI run
-            num_nodes, rest_cores = part.divmod_node(self.mpi_procs, self.omp_threads)
+            #num_nodes, rest_cores = part.divmod_node(self.mpi_procs, self.omp_threads)
 
-            if rest_cores == 0:
+            if dist.exact:
                 # Can allocate entire nodes because self.mpi_procs is divisible by cores_per_node.
                 print("PURE MPI run commensurate with cores_per_node", self.run_info)
-                num_nodes = max(num_nodes, 1)
                 select_params = dict(
-                    chunks=num_nodes,
-                    ncpus=part.cores_per_node,
-                    mpiprocs=part.cores_per_node,
+                    chunks=dist.num_nodes,
+                    ncpus=dist.mpi_per_node,
+                    mpiprocs=dist.mpi_per_node,,
                     vmem=int(part.mem_per_node),
                     ompthreads=1
                     )
 
-            elif num_nodes == 0:
-                print("IN_CORE PURE MPI:", self.run_info)
-                select_params = dict(
-                    chunks=rest_cores,
-                    ncpus=1,
-                    mpiprocs=1,
-                    vmem=int(part.mem_per_node),
-                    ompthreads=1)
+            #elif num_nodes == 0:
+            #    print("IN_CORE PURE MPI:", self.run_info)
+            #    select_params = dict(
+            #        chunks=rest_cores,
+            #        ncpus=1,
+            #        mpiprocs=1,
+            #        vmem=int(part.mem_per_node),
+            #        ompthreads=1)
 
             else:
                 print("OUT-OF-CORE PURE MPI (not commensurate with cores_per_node):", self.run_info)
