@@ -440,7 +440,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                 ``Partition`` object
             max_num_attempts:
                 Default to 2
-            verbatim
+            qverbatim
         """
         self.qname = kwargs.pop("qname")
         qparams = kwargs.pop("qparams", None)
@@ -452,11 +452,10 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         post_run = kwargs.pop("post_run", None)
         mpi_runner = kwargs.pop("mpi_runner", None)
         partition = kwargs.pop("partition", None)
-        verbatim = kwargs.pop("verbatim", None)
+        self.qverbatim = str(kwargs.pop("qverbatim", ""))
 
         # Make defensive copies so that we can change the values at runtime.
         self._qparams = qparams.copy() if qparams is not None else {}
-        self.verbatim = verbatim
 
         if is_string(setup): setup = [setup]
         self.setup = setup[:] if setup is not None else []
@@ -654,14 +653,6 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             Exit status.
         """
 
-    #def add_verbatim(self, lines):
-    #    """
-    #    Add a list of lines or just a string to the header.
-    #    No programmatic interface to change these options is provided
-    #    """
-    #    if is_string(lines): lines = [lines]
-    #    self._verbatim.extend(lines)
-
     def optimize_params(self):
         logger.debug("optimize_params of baseclass --> no optimization available!!!")
         return {}
@@ -699,8 +690,8 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                 clean_template.append(line)
 
         # Add verbatim lines
-        if self.verbatim:
-            clean_template.append(self.verbatim)
+        if self.qverbatim:
+            clean_template.append("#qverbatim\n" + self.qverbatim)
 
         return '\n'.join(clean_template)
 
