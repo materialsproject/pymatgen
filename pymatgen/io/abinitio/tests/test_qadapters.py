@@ -313,7 +313,7 @@ class PbsProadapterTest(PymatgenTest):
 
 #PBS -q fat
 #PBS -N job_name
-#PBS -l select=3:ncpus=1:vmem=8192mb:mpiprocs=1
+#PBS -l select=1:ncpus=3:vmem=3072mb:mpiprocs=3
 #PBS -l walltime=24:0:0
 #PBS -W group_list=naps
 # Submission environment
@@ -331,38 +331,41 @@ mpirun -n 3 executable < stdin > stdout 2> stderr
         aequal = self.assertEqual
 
         partition = dict(num_nodes=100, sockets_per_node=2, 
-                      cores_per_socket=4, mem_per_node="1 Gb", timelimit=10, priority=1, 
+                      cores_per_socket=4, mem_per_node="8 Gb", timelimit=10, priority=1, 
                       min_cores=1, max_cores=200)
         #p = Partition(**kwargs)
         #print("partition\n" + str(p))
 
         qad = make_qadapter(qtype="pbspro", qname="test_pbspro", partition=partition)
+        mem = 1024
+        qad.set_mem_per_proc(mem)
         print(qad)
 
         qad.set_mpi_procs(4)
         s, params = qad.get_select(ret_dict=True)
-        print(params)
         # IN_CORE PURE MPI: MPI: 4, OMP: 1
-        aequal(params, {'ompthreads': 1, 'ncpus': 1, 'chunks': 4, 'mpiprocs': 1, "vmem": 1024})
+        aequal(params, 
+          {'ompthreads': 1, 'ncpus': 4, 'chunks': 1, 'mpiprocs': 4, "vmem": mem*4})
 
         qad.set_omp_threads(2)
         s, params = qad.get_select(ret_dict=True)
-        print(params)
         # HYBRID MPI-OPENMP run, perfectly divisible among nodes:  MPI: 4, OMP: 2
-        aequal(params, {'ompthreads': 2, 'ncpus': 8, 'chunks': 1, 'mpiprocs': 4, "vmem": 1024})
+        aequal(params, 
+            {'vmem': mem*4, 'ncpus': 8, 'chunks': 1, 'ompthreads': 2, 'mpiprocs': 4})
 
         qad.set_mpi_procs(12)
         s, params = qad.get_select(ret_dict=True)
-        print(params)
         # HYBRID MPI-OPENMP run, perfectly divisible among nodes:  MPI: 12, OMP: 2
-        aequal(params, {'ompthreads': 2, 'ncpus': 8, 'chunks': 3, 'mpiprocs': 4, "vmem": 1024})
+        aequal(params, 
+            {'vmem': mem*4, 'ncpus': 8, 'chunks': 3, 'ompthreads': 2, 'mpiprocs': 4})
 
         qad.set_omp_threads(5)
         qad.set_mpi_procs(3)
         s, params = qad.get_select(ret_dict=True)
-        print(params)
         # HYBRID MPI-OPENMP, NOT commensurate with nodes:  MPI: 3, OMP: 5
-        aequal(params, {'ompthreads': 5, 'ncpus': 5, 'chunks': 3, 'mpiprocs': 1, "vmem": 1024})
+        aequal(params, 
+            {'vmem': mem, 'ncpus': 5, 'chunks': 3, 'ompthreads': 5, 'mpiprocs': 1})
+
 
 
 if __name__ == '__main__':
