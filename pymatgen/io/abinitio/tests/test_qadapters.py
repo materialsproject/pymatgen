@@ -1,6 +1,8 @@
 # coding: utf-8
 from __future__ import unicode_literals, division, print_function
 
+import yaml
+
 from collections import OrderedDict
 from monty.collections import AttrDict
 from pymatgen.util.testing import PymatgenTest
@@ -82,9 +84,9 @@ class QadapterTest(PymatgenTest):
 
     def test_base(self):
         """
-        Simple unit tests for Qadapter subclasses.
-        A more complete coverage would require integration testing.
+        unit tests for Qadapter subclasses. A more complete coverage would require integration testing.
         """
+        aequal, atrue, afalse = self.assertEqual, self.assertTrue, self.assertFalse
         sub_classes = QueueAdapter.__subclasses__()
 
         modules = ["intel/compilerpro/13.0.1.117",
@@ -99,22 +101,38 @@ class QadapterTest(PymatgenTest):
 
         #omp_env = OmpEnv(OMP_NUM_THREADS=2)
         qname="test_partition",
-        partition = dict(num_nodes=100, sockets_per_node=2, 
-                         cores_per_socket=4, mem_per_node="1 Gb", timelimit=10, 
-                         min_cores=1, max_cores=24, priority=1)
+        partition = dict(num_nodes=100, sockets_per_node=2, cores_per_socket=4, mem_per_node="1 Gb", 
+                         timelimit=10, min_cores=1, max_cores=24, priority=1)
 
         # Test if we can instantiate the concrete classes with the abc protocol.
         for subc in sub_classes:
+            print("subclass: ", subc)
 
             # Create the adapter
             qad = make_qadapter(qtype=subc.QTYPE, qname="test_queue", setup=None, modules=modules, shell_env=shell_env, omp_env=None, 
                                 pre_run=None, post_run=None, mpi_runner=mpi_runner, partition=partition)
 
             # Test the programmatic interface used to change job parameters.
-            self.assertFalse(qad.has_omp)
-            self.assertTrue(qad.has_mpirun)
+            aequal(qad.num_attempts, 0)
+            afalse(qad.has_omp)
+            atrue(qad.has_mpirun)
             qad.set_mpi_procs(2)
-            self.assertTrue(qad.mpi_procs == 2)
+            aequal(qad.mpi_procs, 2)
+            atrue(qad.pure_mpi)
+            afalse(qad.pure_omp)
+            afalse(qad.hybrid_mpi_omp)
+            # TODO
+            #qad.set_mem_per_proc(13)
+            #aequal(qad.mem_per_proc, 13)
+
+            # Enable OMP
+            qad.set_omp_threads(2)
+            aequal(qad.omp_threads, 2)
+            atrue(qad.has_omp)
+            afalse(qad.pure_mpi)
+            afalse(qad.pure_omp)
+            atrue(qad.hybrid_mpi_omp)
+
 
             # Test the creation of the script
             script = qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path", 
@@ -126,16 +144,7 @@ class QadapterTest(PymatgenTest):
             for new_qad in deserialized_qads:
                 new_script = new_qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path", 
                                                     stdin="STDIN", stdout="STDOUT", stderr="STDERR")
-
-                self.assertEqual(new_script, script)
-
-
-def yaml_loads(s):
-    import yaml
-    from six.moves import cStringIO
-    stream = cStringIO(s)
-    stream.seek(0)
-    return yaml.load(stream)
+                aequal(new_script, script)
 
 
 class ShelladapterTest(PymatgenTest):
@@ -158,7 +167,7 @@ class ShelladapterTest(PymatgenTest):
              min_cores: 1
              max_cores: 1
         """
-        d = yaml_loads(conf)
+        d = yaml.load(conf)
         qtype = d.pop("qtype")
         qad = make_qadapter(qtype, **d)
         print(qad)
@@ -221,7 +230,7 @@ class SlurmadapterTest(PymatgenTest):
         """
         self.maxDiff = None
 
-        d = yaml_loads(conf)
+        d = yaml.load(conf)
         qtype = d.pop("qtype")
         qad = make_qadapter(qtype, **d)
         print(qad)
@@ -273,7 +282,8 @@ mpirun -n 4 executable < stdin > stdout 2> stderr
 class PbsProadapterTest(PymatgenTest):
     """Test suite for PbsPro adapter."""
     def test_methods(self):
-        conf = """
+        self.maxDiff = None
+        d = yaml.load("""\
           qtype: pbspro
           qname: fat
           qparams:
@@ -289,10 +299,8 @@ class PbsProadapterTest(PymatgenTest):
              priority: 5
              min_cores: 3
              max_cores: 16
-        """
-        self.maxDiff = None
+        """)
 
-        d = yaml_loads(conf)
         qtype = d.pop("qtype")
         qad = make_qadapter(qtype, **d)
         print(qad)
@@ -326,15 +334,11 @@ mpirun -n 3 executable < stdin > stdout 2> stderr
         #assert 0
 
     def test_optimize_params(self):
-        # TODO
-        #return
         aequal = self.assertEqual
 
         partition = dict(num_nodes=100, sockets_per_node=2, 
                       cores_per_socket=4, mem_per_node="8 Gb", timelimit=10, priority=1, 
                       min_cores=1, max_cores=200)
-        #p = Partition(**kwargs)
-        #print("partition\n" + str(p))
 
         qad = make_qadapter(qtype="pbspro", qname="test_pbspro", partition=partition)
         mem = 1024
@@ -365,7 +369,6 @@ mpirun -n 3 executable < stdin > stdout 2> stderr
         # HYBRID MPI-OPENMP, NOT commensurate with nodes:  MPI: 3, OMP: 5
         aequal(params, 
             {'vmem': mem, 'ncpus': 5, 'chunks': 3, 'ompthreads': 5, 'mpiprocs': 1})
-
 
 
 if __name__ == '__main__':
