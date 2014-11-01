@@ -22,7 +22,7 @@ import six
 
 from collections import namedtuple
 from subprocess import Popen, PIPE, check_output
-from monty.string import is_string, boxed
+from monty.string import is_string
 from monty.collections import AttrDict, MongoDict
 from monty.subprocess import Command
 from pymatgen.core.units import Time, Memory
@@ -988,7 +988,7 @@ class SlurmAdapter(QueueAdapter):
             else:
                 # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
                 err_msg = ("Error in job submission with SLURM file {f} and cmd {c}\n".format(f=script_file, c=cmd) + 
-                           "The error response reads: {c}".format(c=process.stderr.read()))
+                           "The error response reads:\n {c}".format(c=process.stderr.read()))
                 raise self.Error(err_msg)
 
         except Exception as details:
@@ -1135,7 +1135,7 @@ class SlurmAdapter(QueueAdapter):
 
         # there's a problem talking to squeue server?
         err_msg = ('Error trying to get the number of jobs in the queue using squeue service' + 
-                   'The error response reads: {}'.format(process.stderr.read()))
+                   'The error response reads:\n {}'.format(process.stderr.read()))
         logger.critical(err_msg)
 
         return None
@@ -1245,11 +1245,10 @@ class PbsProAdapter(QueueAdapter):
         #dist = part.distribute(self.mpi_procs, self.omp_threads, mem_per_proc)
 
         if self.pure_mpi:
-            # Pure MPI run
             num_nodes, rest_cores = part.divmod_node(self.mpi_procs, self.omp_threads)
 
             if num_nodes == 0:
-                print("IN_CORE PURE MPI:", self.run_info)
+                logger.info("IN_CORE PURE MPI:", self.run_info)
                 chunks = 1
                 ncpus = rest_cores
                 mpiprocs = rest_cores
@@ -1258,7 +1257,7 @@ class PbsProAdapter(QueueAdapter):
 
             elif rest_cores == 0:
                 # Can allocate entire nodes because self.mpi_procs is divisible by cores_per_node.
-                print("PURE MPI run commensurate with cores_per_node", self.run_info)
+                logger.info("PURE MPI run commensurate with cores_per_node", self.run_info)
                 chunks = num_nodes
                 ncpus = part.cores_per_node
                 mpiprocs = part.cores_per_node
@@ -1266,7 +1265,7 @@ class PbsProAdapter(QueueAdapter):
                 ompthreads = 1
 
             else:
-                print("OUT-OF-CORE PURE MPI (not commensurate with cores_per_node):", self.run_info)
+                logger.info("OUT-OF-CORE PURE MPI (not commensurate with cores_per_node):", self.run_info)
                 chunks = self.mpi_procs
                 ncpus = 1
                 mpiprocs = 1
@@ -1275,7 +1274,7 @@ class PbsProAdapter(QueueAdapter):
 
         elif self.pure_omp:
             # Pure OMP run.
-            print("PURE OPENMP run.", self.run_info)
+            logger.info("PURE OPENMP run.", self.run_info)
             assert part.can_use_omp_threads(self.omp_threads)
             chunks = 1
             ncpus = self.omp_threads
@@ -1291,7 +1290,7 @@ class PbsProAdapter(QueueAdapter):
             # TODO: test this
 
             if rest_cores == 0 or num_nodes == 0:  
-                print("HYBRID MPI-OPENMP run, perfectly divisible among nodes: ", self.run_info)
+                logger.info("HYBRID MPI-OPENMP run, perfectly divisible among nodes: ", self.run_info)
                 chunks = max(num_nodes, 1)
                 mpiprocs = self.mpi_procs // chunks
 
@@ -1302,7 +1301,7 @@ class PbsProAdapter(QueueAdapter):
                 ompthreads = self.omp_threads
 
             else:
-                print("HYBRID MPI-OPENMP, NOT commensurate with nodes: ", self.run_info)
+                logger.info("HYBRID MPI-OPENMP, NOT commensurate with nodes: ", self.run_info)
                 chunks=self.mpi_procs
                 ncpus=self.omp_threads
                 mpiprocs=1
@@ -1349,7 +1348,7 @@ class PbsProAdapter(QueueAdapter):
             else:
                 # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
                 msg = ('Error in job submission with PBS file {f} and cmd {c}\n'.format(f=script_file, c=cmd) + 
-                       'The error response reads: {}'.format(process.stderr.read()))
+                       'The error response reads:\n {}'.format(process.stderr.read()))
                 raise self.Error(msg)
 
         except Exception as exc:
@@ -1366,7 +1365,7 @@ class PbsProAdapter(QueueAdapter):
             qstat = Command(['qstat', '-a', '-u', username]).run(timeout=5)
 
             # parse the result
-            if qstat.status == 0:
+            if qstat.retcode == 0:
                 # lines should have this form
                 # '1339044.sdb          username  queuename    2012-02-29-16-43  20460   --   --    --  00:20 C 00:09'
                 # count lines that include the username in it
@@ -1375,14 +1374,13 @@ class PbsProAdapter(QueueAdapter):
                 outs = qstat.output.split('\n')
                 njobs = len([line.split() for line in outs if username in line])
                 logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
-
                 return njobs
         except:
             # there's a problem talking to qstat server?
             print(qstat.output.split('\n'))
             err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' +
-                       'The error response reads: {}'.format(qstat.error))
-            logger.critical(boxed(err_msg))
+                       'The error response reads:\n {}'.format(qstat.error))
+            logger.critical(err_msg)
             return None
 
     # no need to raise an error, if False is returned the fixer may try something else, 
@@ -1537,7 +1535,7 @@ class SGEAdapter(QueueAdapter):
             else:
                 # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
                 msg = ('Error in job submission with PBS file {f} and cmd {c}\n'.format(f=script_file, c=cmd) + 
-                       'The error response reads: {}'.format(process.stderr.read()))
+                       'The error response reads:\n {}'.format(process.stderr.read()))
                 raise self.Error(msg)
 
         except:
@@ -1553,7 +1551,7 @@ class SGEAdapter(QueueAdapter):
         qstat = Command(['qstat', '-u', username]).run(timeout=5)
 
         # parse the result
-        if qstat.status == 0:
+        if qstat.retcode == 0:
             # lines should contain username
             # count lines that include the username in it
 
@@ -1566,7 +1564,7 @@ class SGEAdapter(QueueAdapter):
 
         # there's a problem talking to qstat server?
         err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' + 
-                   'The error response reads: {}'.format(qstat.error))
+                   'The error response reads:\n {}'.format(qstat.error))
         logger.critical(err_msg)
 
         return None
@@ -1650,7 +1648,7 @@ class MOABAdapter(QueueAdapter):
             else:
                 # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
                 err_msg = ("Error in job submission with MOAB file {f} and cmd {c}\n".format(f=script_file, c=cmd) + 
-                           "The error response reads: {c}".format(c=process.stderr.read()))
+                           "The error response reads:\n {c}".format(c=process.stderr.read()))
                 raise self.Error(err_msg)
 
         except Exception as details:
@@ -1693,7 +1691,7 @@ class MOABAdapter(QueueAdapter):
 
         # there's a problem talking to squeue server?
         err_msg = ('Error trying to get the number of jobs in the queue using showq service' + 
-                   'The error response reads: {}'.format(process.stderr.read()))
+                   'The error response reads:\n {}'.format(process.stderr.read()))
         logger.critical(err_msg)
 
         return None
