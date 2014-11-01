@@ -12,7 +12,6 @@ allows one to get a list of parallel configuration and their expected efficiency
 """
 from __future__ import print_function, division, unicode_literals
 
-import sys
 import os
 import abc
 import string
@@ -108,6 +107,23 @@ def time2slurm(timeval, unit="s"):
     return "%d-%d:%d:%d" % (days, hours, minutes, secs)
 
 
+def time2pbspro(timeval, unit="s"):
+    """
+    Convert a number representing a time value in the given unit (Default: seconds)
+    to a string following the PbsPro convention: "hours:minutes:seconds".
+
+    >>> assert time2pbspro(2, unit="d") == '48:0:0' 
+    """
+    h, m, s = 3600, 60, 1
+
+    timeval = Time(timeval, unit).to("s")
+    hours, minutes = divmod(timeval, h)
+    minutes, secs = divmod(minutes, m)
+
+    return "%d:%d:%d" % (hours, minutes, secs)
+
+
+
 class MpiRunner(object):
     """
     This object provides an abstraction for the mpirunner provided 
@@ -188,7 +204,7 @@ class Partition(object):
                 
     ENTRIES = dict(
         # mandatory
-        name=Entry(type=str, mandatory=True, help="Name of the partition"),
+        qname=Entry(type=str, mandatory=True, help="Name of the partition"),
         num_nodes=Entry(type=int, mandatory=True, help="Number of nodes"),
         sockets_per_node=Entry(type=int, mandatory=True, help="Number of sockets per node"),
         cores_per_socket=Entry(type=int, mandatory=True, help="Number of cores per node"),
@@ -203,10 +219,10 @@ class Partition(object):
     )
     del Entry
 
-    @classmethod
-    def as_partition(cls, obj):
-        """Convert an object into a Partition."""
-        return obj if isinstance(obj, cls) else cls(**obj)
+    #@classmethod
+    #def as_partition(cls, obj):
+    #    """Convert an object into a Partition."""
+    #    return obj if isinstance(obj, cls) else cls(**obj)
 
     def __init__(self, **kwargs):
         """The possible arguments are documented in Partition.ENTRIES."""
@@ -232,7 +248,7 @@ class Partition(object):
         """String representation."""
         lines = []
         app = lines.append
-        app("Partition: %s" % self.name)
+        app("Partition: %s" % self.qname)
         app("   num_nodes: %d, sockets_per_node: %d, cores_per_socket: %d, mem_per_node %s," % 
             (self.num_nodes, self.sockets_per_node, self.cores_per_socket, self.mem_per_node))
         app("   min_cores: %d, max_cores: %d, timelimit: %s, priority: %d, condition: %s" % 
@@ -317,7 +333,6 @@ class Partition(object):
         """
         True if this partition in principle is able to run the ``ParalConf`` pconf
         """
-        #if pconf.num_cores > self.num_cores: return False
         if not self.max_cores >= pconf.num_cores >= self.min_cores: return False
         if pconf.omp_threads > self.cores_per_node: return False
         if pconf.mem_per_proc > self.mem_per_node: return False
@@ -327,6 +342,38 @@ class Partition(object):
         #except self.DistributionError:
         #    return False
         return self.condition(pconf)
+
+
+
+#@singleton
+class ExcludeNodesFile(object):
+    """
+    This file contains the list of nodes to be excluded. 
+    Nodes are indexed by queue name.
+    """ 
+    FILEPATH = os.path.join(os.getenv("HOME"), ".abinit", "abipy", "exclude_nodes.json")
+
+    def __init__(self):
+        if not os.path.exists(self.FILEPATH):
+            with FileLock(self.FILEPATH):
+                with open(self.FILEPATH, "w") as fh:
+                    json.dump({}, fh)
+
+    def read_nodes(self, qname):
+        with open(self.FILEPATH, "w") as fh:
+            return json.load(fh).get(qname, [])
+
+    def add_nodes(self, qname, nodes):
+        nodes = (nodes,) if not isinstance(nodes, (tuple, list)) else nodes
+        with FileLock(self.FILEPATH):
+            with open(self.FILEPATH, mode="w+") as fh:
+                d = json.load(fh)
+                if qname in d:
+                    d["qname"].extend(nodes)
+                    d["qname"] = list(set(d["qname"]))
+                else:
+                    d["qname"] = nodes
+                json.dump(d, fh)
 
 
 def make_qadapter(qtype, **kwargs):
@@ -340,7 +387,6 @@ def make_qadapter(qtype, **kwargs):
             "sge": SGEAdapter,
             "moab": MOABAdapter,
             }[qtype.lower()](**kwargs)
-
 
 
 class QueueAdapterError(Exception):
@@ -371,7 +417,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                  #pre_run=None, post_run=None, mpi_runner=None, partition=None):
         """
         Args:
-            name:
+            qname:
             qparams:
                 Dictionary with the paramenters used in the template.
             setup:
@@ -393,9 +439,9 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                 ``Partition`` object
             max_num_attempts:
                 Default to 2
-                
+            verbatim
         """
-        #self.name = kwargs.pop("name")
+        self.qname = kwargs.pop("qname")
         qparams = kwargs.pop("qparams", None)
         setup = kwargs.pop("setup", None)
         modules = kwargs.pop("modules", None)
@@ -405,10 +451,11 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         post_run = kwargs.pop("post_run", None)
         mpi_runner = kwargs.pop("mpi_runner", None)
         partition = kwargs.pop("partition", None)
+        verbatim = kwargs.pop("verbatim", None)
 
         # Make defensive copies so that we can change the values at runtime.
-        self.qparams = qparams.copy() if qparams is not None else {}
-        self._verbatim = []
+        self._qparams = qparams.copy() if qparams is not None else {}
+        self.verbatim = verbatim
 
         if is_string(setup): setup = [setup]
         self.setup = setup[:] if setup is not None else []
@@ -430,21 +477,22 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         if is_string(post_run): post_run = [post_run]
         self.post_run = post_run[:] if post_run is not None else []
 
-        # Parse the template so that we know the list of supported options.
-        cls = self.__class__
-        if hasattr(cls, "QTEMPLATE"): 
-            # Consistency check.
-            err_msg = ""
-            for param in self.qparams:
-                if param not in self.supported_qparams:
-                    err_msg += "Unsupported QUEUE parameter name %s\n" % param
-                    err_msg += "Supported are: \n"
-                    for param_sup in self.supported_qparams:
-                        err_msg += "    %s \n" % param_sup
-            if err_msg:
-                raise ValueError(err_msg)
+        self.part = Partition(qname=self.qname, **partition)
 
-        self.part = Partition.as_partition(partition)
+        # Parse the template so that we know the list of supported options.
+        # TODO
+        #cls = self.__class__
+        #if hasattr(cls, "QTEMPLATE"): 
+        #    # Consistency check.
+        #    err_msg = ""
+        #    for param in self.qparams:
+        #        if param not in self.supported_qparams:
+        #            err_msg += "Unsupported QUEUE parameter name %s\n" % param
+        #            err_msg += "Supported are: \n"
+        #            for param_sup in self.supported_qparams:
+        #                err_msg += "    %s \n" % param_sup
+        #    if err_msg:
+        #        raise ValueError(err_msg)
 
         # List of dictionaries with the parameters used to submit jobs
         # The launcher will use this information to increase the resources
@@ -454,7 +502,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             raise ValueError("Found unknown keywords:\n %s" % str(list(kwargs.keys())))
 
     def __str__(self):
-        lines = ["%s:%s" % self.__class__.__name__, self.name]
+        lines = ["%s:%s" % (self.__class__.__name__, self.qname)]
         app = lines.append
         #lines.extend(["qparams:\n", str(self.qparams)])
 
@@ -463,8 +511,8 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         return "\n".join(lines)
 
     @property
-    def name(self):
-        return self.part.name
+    def qparams(self):
+        return self._qparams
 
     @property
     def supported_qparams(self):
@@ -541,7 +589,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         return len(self.attempts)
 
     def remove_attempt(self, index):
-        self.pop(index)
+        self.attempts.pop(index)
 
     @property
     def num_attempts(self):
@@ -600,13 +648,13 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             Exit status.
         """
 
-    def add_verbatim(self, lines):
-        """
-        Add a list of lines or just a string to the header.
-        No programmatic interface to change these options is provided
-        """
-        if is_string(lines): lines = [lines]
-        self._verbatim.extend(lines)
+    #def add_verbatim(self, lines):
+    #    """
+    #    Add a list of lines or just a string to the header.
+    #    No programmatic interface to change these options is provided
+    #    """
+    #    if is_string(lines): lines = [lines]
+    #    self._verbatim.extend(lines)
 
     def optimize_params(self):
         logger.debug("optimize_params of baseclass --> no optimization available!!!")
@@ -617,10 +665,10 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         Return substitution dict for replacements into the template
         Subclasses may want to customize this method.
         """ 
-        # clean null values
-        d = {k: v for k, v in self.qparams.items() if v is not None}
+        d = self.qparams.copy()
         d.update(self.optimize_params())
-        return d
+        # clean null values
+        return {k: v for k, v in d.items() if v is not None}
 
     def _make_qheader(self, job_name, qout_path, qerr_path):
         """Return a string with the options that are passed to the resource manager."""
@@ -645,8 +693,8 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                 clean_template.append(line)
 
         # Add verbatim lines
-        if self._verbatim:
-            clean_template.extend(self._verbatim)
+        if self.verbatim:
+            clean_template.append(self.verbatim)
 
         return '\n'.join(clean_template)
 
@@ -863,17 +911,17 @@ class SlurmAdapter(QueueAdapter):
     QTEMPLATE = """\
 #!/bin/bash
 
+#SBATCH --partition=$${partition}
+#SBATCH --job-name=$${job_name}
 #SBATCH --ntasks=$${ntasks}
 #SBATCH --ntasks-per-node=$${ntasks_per_node}
 #SBATCH --cpus-per-task=$${cpus_per_task}
-#SBATCH --time=$${time}
-#SBATCH --partition=$${partition}
-#SBATCH --account=$${account}
-#SBATCH --job-name=$${job_name}
-#SBATCH	--nodes=$${nodes}
 #SBATCH	--exclude=$${exclude_nodes}
 #SBATCH --mem=$${mem}
 #SBATCH --mem-per-cpu=$${mem_per_cpu}
+#SBATCH --time=$${time}
+#SBATCH --account=$${account}
+#SBATCH	--nodes=$${nodes}
 #SBATCH --mail-user=$${mail_user}
 #SBATCH --mail-type=$${mail_type}
 #SBATCH --constraint=$${constraint}
@@ -881,12 +929,21 @@ class SlurmAdapter(QueueAdapter):
 #SBATCH --requeue=$${requeue}
 #SBATCH --nodelist=$${nodelist}
 #SBATCH --propagate=$${propagate}
-
+#SBATCH --licenses=$${licenses}
 #SBATCH --output=$${_qout_path}
 #SBATCH --error=$${_qerr_path}
 """
 
     LIMITS = {'max_total_tasks': 544, 'max_cpus_per_node': 16, 'mem': 6400000, 'mem_per_cpu': 64000, 'time': 2880}
+
+    def __init__(self, **kwargs):
+        super(SlurmAdapter, self).__init__(**kwargs)
+
+        # Initialize some values from the info reported in the partition.
+        self.set_mpi_procs(self.part.min_cores)
+        self.set_mem_per_proc(self.part.mem_per_core)
+        self.qparams["partition"] = self.qname
+        self.qparams["time"] = time2slurm(self.part.timelimit)
 
     @property
     def mpi_procs(self):
@@ -1143,26 +1200,27 @@ class SlurmAdapter(QueueAdapter):
         #return jobinfo()
 
 
-#PBS -l select=$${select}:ncpus=$${ncpus}:vmem=$${vmem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
-
-
 class PbsProAdapter(QueueAdapter):
     QTYPE = "pbspro"
+
+#PBS -l select=$${select}:ncpus=$${ncpus}:vmem=$${vmem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
+#PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
+####PBS -l select=$${select}:ncpus=$${ncpus}:vmem=$${vmem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
+####PBS -l pvmem=$${pvmem}mb
 
     QTEMPLATE = """\
 #!/bin/bash
 
-#PBS -A $${account}
-#PBS -N $${job_name}
-#PBS -l walltime=$${walltime}
 #PBS -q $${queue}
+#PBS -N $${job_name}
+#PBS -A $${account}
+#PBS -l select=$${select}
+#PBS -l walltime=$${walltime}
 #PBS -l model=$${model}
 #PBS -l place=$${place}
 #PBS -W group_list=$${group_list}
-#PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
-####PBS -l select=$${select}:ncpus=$${ncpus}:vmem=$${vmem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
-#PBS -l pvmem=$${pvmem}mb
-#PBS -r y
+#PBS -M $${mail_user}
+#PBS -m $${mail_type}
 #PBS -o $${_qout_path}
 #PBS -e $${_qerr_path}
 """
@@ -1174,16 +1232,25 @@ class PbsProAdapter(QueueAdapter):
 
     LIMITS = {'max_total_tasks': 3888, 'time': 48, 'max_select': 300, 'mem': 16000}
 
+    def __init__(self, **kwargs):
+        super(PbsProAdapter, self).__init__(**kwargs)
+
+        # Initialize some values from the info reported in the partition.
+        self.set_mpi_procs(self.part.min_cores)
+        self.set_mem_per_proc(self.part.mem_per_core)
+        self.qparams["queue"] = self.qname
+        self.qparams["walltime"] = time2pbspro(self.part.timelimit)
+
     @property
     def mpi_procs(self):
         """Number of MPI processes."""
-        return self.qparams.get("select", 1)
-        #return self._mpi_procs
+        #return self.qparams.get("select", 1)
+        return self._mpi_procs
                                                     
     def set_mpi_procs(self, mpi_procs):
         """Set the number of MPI processes."""
-        self.qparams["select"] = mpi_procs
-        #self._mpi_procs = mpi_procs
+        #self.qparams["select"] = mpi_procs
+        self._mpi_procs = mpi_procs
 
     def set_omp_threads(self, omp_threads):
         """Set the number of OpenMP threads. Per MPI process."""
@@ -1192,19 +1259,20 @@ class PbsProAdapter(QueueAdapter):
 
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
-        self.qparams["pvmem"] = mem_mb
-        self.qparams["vmem"] = mem_mb
+        self.qparams["pvmem"] = int(mem_mb)
+        self.qparams["vmem"] = int(mem_mb)
 
     def cancel(self, job_id):
         return os.system("qdel %d" % job_id)
 
-    def optimize_params(self):
+    def get_select(self, ret_dict=False):
         """
         Select is not the most intuitive command. For more info see
         http://www.cardiff.ac.uk/arcca/services/equipment/User-Guide/pbs.html
         https://portal.ivec.org/docs/Supercomputers/PBS_Pro
         """
         p = self.part
+        # TODO: vmem
 
         if self.use_only_mpi:
             # Pure MPI run
@@ -1214,25 +1282,29 @@ class PbsProAdapter(QueueAdapter):
                 # Can allocate entire nodes because self.mpi_procs is divisible by cores_per_node.
                 print("PURE MPI run commensurate with cores_per_node", self.run_info)
                 select_params = dict(
-                    select=num_nodes,
+                    chunks=num_nodes,
                     ncpus=p.cores_per_node,
                     mpiprocs=p.cores_per_node,
-                    ompthreads=1)
+                    vmem=int(p.mem_per_node),
+                    ompthreads=1
+                    )
 
             elif num_nodes == 0:
                 print("IN_CORE PURE MPI:", self.run_info)
                 select_params = dict(
-                    select=rest_cores,
+                    chunks=rest_cores,
                     ncpus=1,
                     mpiprocs=1,
+                    vmem=int(p.mem_per_node),
                     ompthreads=1)
 
             else:
                 print("OUT-OF-CORE PURE MPI (not commensurate with cores_per_node):", self.run_info)
                 select_params = dict(
-                    select=self.mpi_procs,
+                    chunks=self.mpi_procs,
                     ncpus=1,
                     mpiprocs=1,
+                    vmem=int(p.mem_per_node),
                     ompthreads=1)
 
         elif self.use_only_omp:
@@ -1241,9 +1313,10 @@ class PbsProAdapter(QueueAdapter):
             assert p.can_use_omp_threads(self.omp_threads)
 
             select_params = dict(
-                select=1,
+                chunks=1,
                 ncpus=self.omp_threads,
                 mpiprocs=1,
+                vmem=int(p.mem_per_node),
                 ompthreads=self.omp_threads)
 
         elif self.use_mpi_omp:
@@ -1255,25 +1328,38 @@ class PbsProAdapter(QueueAdapter):
 
             if rest_cores == 0 or num_nodes == 0:  
                 print("HYBRID MPI-OPENMP run, perfectly divisible among nodes: ", self.run_info)
-                select = max(num_nodes, 1)
-                mpiprocs = self.mpi_procs // select
+                chunks = max(num_nodes, 1)
+                mpiprocs = self.mpi_procs // chunks
                 select_params = dict(
-                    select=select,
+                    chunks=chunks,
                     ncpus=mpiprocs * self.omp_threads,
                     mpiprocs=mpiprocs,
+                    vmem=int(p.mem_per_node),
                     ompthreads=self.omp_threads)
             else:
                 print("HYBRID MPI-OPENMP, NOT commensurate with nodes: ", self.run_info)
                 select_params = dict(
-                    select=self.mpi_procs,
+                    chunks=self.mpi_procs,
                     ncpus=self.omp_threads,
                     mpiprocs=1,
+                    vmem=int(p.mem_per_node),
                     ompthreads=self.omp_threads)
 
         else:
             raise RuntimeError("You should not be here")
 
-        return AttrDict(select_params)
+
+        if not self.has_omp:
+            s = "{chunks}:ncpus={ncpus}:vmem={vmem}mb:mpiprocs={mpiprocs}".format(**select_params)
+        else:
+            s = "{chunks}:ncpus={ncpus}:vmem={vmem}mb:mpiprocs={mpiprocs}:ompthreads={ompthreads}".format(**select_params)
+                                                                                                            
+        if ret_dict:
+            return s, AttrDict(select_params)
+        return s
+
+    def optimize_params(self):
+        return {"select": self.get_select()}
 
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
@@ -1337,8 +1423,8 @@ class PbsProAdapter(QueueAdapter):
             logger.critical(boxed(err_msg))
             return None
 
-    # no need to raise an error, if False is returned the fixer may try something else, we don't need to kill the
-    # scheduler just yet
+    # no need to raise an error, if False is returned the fixer may try something else, 
+    # we don't need to kill the scheduler just yet
 
     def exclude_nodes(self, nodes):
         logger.warning('exluding nodes, not implemented yet pbs')

@@ -624,9 +624,8 @@ class PyFlowScheduler(object):
         else:
             max_nlaunch = min(self.max_njobs_inqueue - nqjobs, self.max_nlaunch)
 
-        # check status
-        flow.check_status()
-        flow.show_status()
+        # check status and print it.
+        flow.check_status(show=False)
 
         # fix problems
         # Try to restart the unconverged tasks
@@ -642,7 +641,7 @@ class PyFlowScheduler(object):
                         print("Restart: too many jobs in the queue, returning")
                         flow.pickle_dump()
                         return
-            except Exception:
+            except task.RestartError:
                 excs.append(straceback())
 
         # move here from withing rapid fire ...
@@ -651,12 +650,6 @@ class PyFlowScheduler(object):
 
         # update database
         flow.pickle_dump()
-
-        #if self.num_restarts == self.max_num_restarts:
-        #    info_msg = "Reached maximum number of restarts. Cannot restart anymore Returning"
-        #    logger.info(info_msg)
-        #    self.history.append(info_msg)
-        #    return 1
 
         # Submit the tasks that are ready.
         try:
@@ -689,7 +682,6 @@ class PyFlowScheduler(object):
         if self.debug:
             # Show the number of open file descriptors
             print(">>>>> _callback: Number of open file descriptors: %s" % get_open_fds())
-        #print('before _runem_all in _callback')
 
         self._runem_all()
 
@@ -770,7 +762,6 @@ class PyFlowScheduler(object):
             os.remove(self.pid_file)
         except OSError:
             logger.critical("Could not remove pid_file")
-            pass
 
         # Save the final status of the flow.
         self.flow.pickle_dump()

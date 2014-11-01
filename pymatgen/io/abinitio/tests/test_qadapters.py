@@ -28,64 +28,13 @@ class ParseTimestr(PymatgenTest):
         aequal(parse_slurm_timestr("3:2:5"), 3*hours + 2*minutes + 5*secs)
 
 
-class QadapterTest(PymatgenTest):
-
-    def test_base(self):
-        """
-        Simple unit tests for Qadapter subclasses.
-        A more complete coverage would require integration testing.
-        """
-        sub_classes = QueueAdapter.__subclasses__()
-
-        modules = ["intel/compilerpro/13.0.1.117",
-                   "fftw3/intel/3.3",
-        ]
-
-        shell_env = OrderedDict(
-             [("PATH", "/user/abinit-7.4.3-public/tmp_intel13/src/98_main/:/user/bin:$PATH"),
-              ("LD_LIBRARY_PATH", "/NAPS/intel13/lib:$LD_LIBRARY_PATH")])
-
-        mpi_runner = MpiRunner("mpirun")
-
-        #omp_env = OmpEnv(OMP_NUM_THREADS=2)
-        partition = Partition(name="test_partition", num_nodes=100, sockets_per_node=2, 
-                              cores_per_socket=4, mem_per_node="1 Gb", timelimit=10, 
-                              min_cores=1, max_cores=24, priority=1)
-
-        # Test if we can instantiate the concrete classes with the abc protocol.
-        for subc in sub_classes:
-
-            # Create the adapter
-            qad = make_qadapter(qtype=subc.QTYPE, setup=None, modules=modules, shell_env=shell_env, omp_env=None, 
-                                pre_run=None, post_run=None, mpi_runner=mpi_runner, partition=partition)
-
-            # Test the programmatic interface used to change job parameters.
-            self.assertFalse(qad.has_omp)
-            self.assertTrue(qad.has_mpirun)
-            qad.set_mpi_procs(2)
-            self.assertTrue(qad.mpi_procs == 2)
-
-            # Test the creation of the script
-            script = qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path", 
-                                        stdin="STDIN", stdout="STDOUT", stderr="STDERR")
-
-            # Test whether qad can be serialized with Pickle.
-            deserialized_qads = self.serialize_with_pickle(qad, test_eq=False)
-
-            for new_qad in deserialized_qads:
-                new_script = new_qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path", 
-                                                    stdin="STDIN", stdout="STDOUT", stderr="STDERR")
-
-                self.assertEqual(new_script, script)
-
-
 class PartitionTest(PymatgenTest):
     def test_partition(self):
         aequal = self.assertEqual
         atrue = self.assertTrue
 
         # Test mandatory arguments
-        p = AttrDict(name="test_partition", num_nodes=3, sockets_per_node=2, cores_per_socket=4)
+        p = AttrDict(qname="test_partition", num_nodes=3, sockets_per_node=2, cores_per_socket=4)
         with self.assertRaises(ValueError):
             part = Partition(**p)
 
@@ -129,44 +78,289 @@ class PartitionTest(PymatgenTest):
         # TODO: Test OpenMP
 
 
+class QadapterTest(PymatgenTest):
+
+    def test_base(self):
+        """
+        Simple unit tests for Qadapter subclasses.
+        A more complete coverage would require integration testing.
+        """
+        sub_classes = QueueAdapter.__subclasses__()
+
+        modules = ["intel/compilerpro/13.0.1.117",
+                   "fftw3/intel/3.3",
+        ]
+
+        shell_env = OrderedDict(
+             [("PATH", "/user/abinit-7.4.3-public/tmp_intel13/src/98_main/:/user/bin:$PATH"),
+              ("LD_LIBRARY_PATH", "/NAPS/intel13/lib:$LD_LIBRARY_PATH")])
+
+        mpi_runner = MpiRunner("mpirun")
+
+        #omp_env = OmpEnv(OMP_NUM_THREADS=2)
+        qname="test_partition",
+        partition = dict(num_nodes=100, sockets_per_node=2, 
+                         cores_per_socket=4, mem_per_node="1 Gb", timelimit=10, 
+                         min_cores=1, max_cores=24, priority=1)
+
+        # Test if we can instantiate the concrete classes with the abc protocol.
+        for subc in sub_classes:
+
+            # Create the adapter
+            qad = make_qadapter(qtype=subc.QTYPE, qname="test_queue", setup=None, modules=modules, shell_env=shell_env, omp_env=None, 
+                                pre_run=None, post_run=None, mpi_runner=mpi_runner, partition=partition)
+
+            # Test the programmatic interface used to change job parameters.
+            self.assertFalse(qad.has_omp)
+            self.assertTrue(qad.has_mpirun)
+            qad.set_mpi_procs(2)
+            self.assertTrue(qad.mpi_procs == 2)
+
+            # Test the creation of the script
+            script = qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path", 
+                                        stdin="STDIN", stdout="STDOUT", stderr="STDERR")
+
+            # Test whether qad can be serialized with Pickle.
+            deserialized_qads = self.serialize_with_pickle(qad, test_eq=False)
+
+            for new_qad in deserialized_qads:
+                new_script = new_qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path", 
+                                                    stdin="STDIN", stdout="STDOUT", stderr="STDERR")
+
+                self.assertEqual(new_script, script)
+
+
+def yaml_loads(s):
+    import yaml
+    from six.moves import cStringIO
+    stream = cStringIO(s)
+    stream.seek(0)
+    return yaml.load(stream)
+
+
+class ShelladapterTest(PymatgenTest):
+    """Test suite for Shell adapter."""
+    def test_methods(self):
+        conf = """
+          qtype: shell
+          qname: localhost
+          mpi_runner: /home/my_mpirun
+          pre_run:
+             - "source ~/env1.sh"
+          partition:
+             # Mandatory
+             num_nodes: 1
+             sockets_per_node: 1
+             cores_per_socket: 1
+             mem_per_node: 4 Gb
+             timelimit: 10:00
+             priority: 1
+             min_cores: 1
+             max_cores: 1
+        """
+        d = yaml_loads(conf)
+        qtype = d.pop("qtype")
+        qad = make_qadapter(qtype, **d)
+        print(qad)
+        print(qad.mpi_runner)
+
+        assert qad.QTYPE == "shell" and qad.supported_qparams == ["MPI_PROCS"]
+        assert qad.has_mpi and not qad.has_omp
+        assert (qad.mpi_procs, qad.omp_threads) == (1, 1)
+        assert qad.priority == 1 and qad.num_attempts == 0 and qad.last_attempt is None
+
+        qad.set_mpi_procs(2)
+        qad.set_omp_threads(4)
+        assert qad.has_omp
+        s = qad.get_script_str("job_name", "/launch_dir", "executable", "qout_path", "qerr_path",
+                               stdin="stdin", stdout="stdout", stderr="stderr")
+        self.assertMultiLineEqual(s, """\
+#!/bin/bash
+
+export MPI_PROCS=2
+# OpenMp Environment
+export OMP_NUM_THREADS=4
+
+cd /launch_dir
+# Commands before execution
+source ~/env1.sh
+
+/home/my_mpirun -n 2 executable < stdin > stdout 2> stderr
+""")
+
+
+class SlurmadapterTest(PymatgenTest):
+    """Test suite for Slurm adapter."""
+    def test_methods(self):
+        conf = """
+          qtype: slurm
+          qname: Oban
+          qparams:
+            account: user_account
+            mail_user: user@mail.com
+          mpi_runner: mpirun
+          # pre_run is a string in verbatim mode (note |)
+          pre_run: |
+             echo ${SLURM_NODELIST}
+             ulimit
+          modules:
+            - intel/compilerpro/13.0.1.117
+            - fftw3/intel/3.3
+          shell_env:
+             PATH: /home/user/bin:$PATH
+          partition:
+             # Mandatory
+             num_nodes: 2
+             sockets_per_node: 2
+             cores_per_socket: 4
+             mem_per_node: 8 Gb
+             timelimit: 10:00
+             priority: 5
+             min_cores: 3
+             max_cores: 16
+        """
+        self.maxDiff = None
+
+        d = yaml_loads(conf)
+        qtype = d.pop("qtype")
+        qad = make_qadapter(qtype, **d)
+        print(qad)
+        print(qad.mpi_runner)
+
+        assert qad.QTYPE == "slurm" 
+        assert qad.has_mpi and not qad.has_omp
+        assert (qad.mpi_procs, qad.omp_threads) == (3, 1)
+        assert qad.priority == 5 and qad.num_attempts == 0 and qad.last_attempt is None
+
+        qad.set_mpi_procs(4)
+
+        s = qad.get_script_str("job_name", "/launch_dir", "executable", "qout_path", "qerr_path",
+                               stdin="stdin", stdout="stdout", stderr="stderr")
+        print(s)
+        self.assertMultiLineEqual(s, """\
+#!/bin/bash
+
+#SBATCH --partition=Oban
+#SBATCH --job-name=job_name
+#SBATCH --ntasks=4
+#SBATCH --mem-per-cpu=1024
+#SBATCH --time=0-0:10:0
+#SBATCH --account=user_account
+#SBATCH --mail-user=user@mail.com
+#SBATCH --output=qout_path
+#SBATCH --error=qerr_path
+# Load Modules
+module purge
+module load intel/compilerpro/13.0.1.117
+module load fftw3/intel/3.3
+
+# Shell Environment
+export PATH=/home/user/bin:$PATH
+
+cd /launch_dir
+# Commands before execution
+echo ${SLURM_NODELIST}
+ulimit
+
+
+mpirun -n 4 executable < stdin > stdout 2> stderr
+""")
+        #assert 0
+        #qad.set_omp_threads(1)
+        #assert qad.has_omp
+
+
 class PbsProadapterTest(PymatgenTest):
     """Test suite for PbsPro adapter."""
+    def test_methods(self):
+        conf = """
+          qtype: pbspro
+          qname: fat
+          qparams:
+             group_list: naps
+          mpi_runner: mpirun
+          partition:
+             # Mandatory
+             num_nodes: 2
+             sockets_per_node: 2
+             cores_per_socket: 4
+             mem_per_node: 8 Gb
+             timelimit: 1-0:0:0
+             priority: 5
+             min_cores: 3
+             max_cores: 16
+        """
+        self.maxDiff = None
+
+        d = yaml_loads(conf)
+        qtype = d.pop("qtype")
+        qad = make_qadapter(qtype, **d)
+        print(qad)
+        print(qad.mpi_runner)
+
+        assert qad.QTYPE == "pbspro" 
+        assert qad.has_mpi and not qad.has_omp
+        #assert (qad.mpi_procs, qad.omp_threads) == (3, 1)
+        assert qad.priority == 5 and qad.num_attempts == 0 and qad.last_attempt is None
+
+        #qad.set_mpi_procs(4)
+
+        s = qad.get_script_str("job_name", "/launch_dir", "executable", "qout_path", "qerr_path",
+                               stdin="stdin", stdout="stdout", stderr="stderr")
+        print(s)
+        self.assertMultiLineEqual(s, """\
+#!/bin/bash
+
+#PBS -q fat
+#PBS -N job_name
+#PBS -l select=3:ncpus=1:vmem=8192mb:mpiprocs=1
+#PBS -l walltime=24:0:0
+#PBS -W group_list=naps
+#PBS -o qout_path
+#PBS -e qerr_path
+cd /launch_dir
+mpirun -n 3 executable < stdin > stdout 2> stderr
+""")
+        #assert 0
+
     def test_optimize_params(self):
+        # TODO
+        #return
         aequal = self.assertEqual
 
-        kwargs = dict(name="test_partition", num_nodes=100, sockets_per_node=2, 
+        partition = dict(num_nodes=100, sockets_per_node=2, 
                       cores_per_socket=4, mem_per_node="1 Gb", timelimit=10, priority=1, 
                       min_cores=1, max_cores=200)
-        p = Partition(**kwargs)
-        print("partition\n" + str(p))
+        #p = Partition(**kwargs)
+        #print("partition\n" + str(p))
 
-        qad = make_qadapter(qtype="pbspro", partition=p)
+        qad = make_qadapter(qtype="pbspro", qname="test_pbspro", partition=partition)
         print(qad)
 
         qad.set_mpi_procs(4)
-        params = qad.optimize_params()
+        s, params = qad.get_select(ret_dict=True)
         print(params)
         # IN_CORE PURE MPI: MPI: 4, OMP: 1
-        aequal(params, {'ompthreads': 1, 'ncpus': 1, 'select': 4, 'mpiprocs': 1})
+        aequal(params, {'ompthreads': 1, 'ncpus': 1, 'chunks': 4, 'mpiprocs': 1, "vmem": 1024})
 
         qad.set_omp_threads(2)
-        params = qad.optimize_params()
+        s, params = qad.get_select(ret_dict=True)
         print(params)
         # HYBRID MPI-OPENMP run, perfectly divisible among nodes:  MPI: 4, OMP: 2
-        aequal(params, {'ompthreads': 2, 'ncpus': 8, 'select': 1, 'mpiprocs': 4})
+        aequal(params, {'ompthreads': 2, 'ncpus': 8, 'chunks': 1, 'mpiprocs': 4, "vmem": 1024})
 
         qad.set_mpi_procs(12)
-        params = qad.optimize_params()
+        s, params = qad.get_select(ret_dict=True)
         print(params)
         # HYBRID MPI-OPENMP run, perfectly divisible among nodes:  MPI: 12, OMP: 2
-        aequal(params, {'ompthreads': 2, 'ncpus': 8, 'select': 3, 'mpiprocs': 4})
+        aequal(params, {'ompthreads': 2, 'ncpus': 8, 'chunks': 3, 'mpiprocs': 4, "vmem": 1024})
 
         qad.set_omp_threads(5)
         qad.set_mpi_procs(3)
-        params = qad.optimize_params()
+        s, params = qad.get_select(ret_dict=True)
         print(params)
         # HYBRID MPI-OPENMP, NOT commensurate with nodes:  MPI: 3, OMP: 5
-        aequal(params, {'ompthreads': 5, 'ncpus': 5, 'select': 3, 'mpiprocs': 1})
+        aequal(params, {'ompthreads': 5, 'ncpus': 5, 'chunks': 3, 'mpiprocs': 1, "vmem": 1024})
 
 
 if __name__ == '__main__':

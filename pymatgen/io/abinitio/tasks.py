@@ -1522,7 +1522,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # Use to compute the wall-time
         self.start_datetime, self.stop_datetime = None, None
 
-        # Number of restarts effectuated.
+        # Count the number of restarts.
         self.num_restarts = 0
 
         self.queue_errors = []
@@ -2576,6 +2576,7 @@ class AbinitTask(Task):
         # Return code is always != 0 
         process = self.manager.launch(self, shell=True)
         logger.info("fake run launched")
+        self.history.pop()
         retcode = process.wait()  
 
         # Remove the variables added for the automatic parallelization
