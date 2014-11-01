@@ -855,7 +855,7 @@ class TaskManager(object):
         # with GW calculations in mind with GW mem = 10, 
         # the response fuction is in memory and not distributed
         # we need to increas memory if jobs fail ...
-        return self.qadapter.increase_mem()
+        return self.qadapter.more_mem_per_proc()
 
 
 # The code below initializes a counter from a file when the module is imported 
@@ -2662,7 +2662,6 @@ class AbinitTask(Task):
             try to rerun with more resources, last resort if all else fails
         ideas:
             upon repetative no converging iscf > 2 / 12
-
         """
         # the crude, no idea what to do but this may work, solution.
         if self.manager.increase_resources():

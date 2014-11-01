@@ -413,12 +413,6 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     """
     Error = QueueAdapterError
 
-    # the limits for certain parameters set on the cluster. 
-    # currently hard coded, should be read at init
-    # the increase functions will not increase beyond this limits
-    # TODO: This constraint should be implemented by the partition, not by the QueueAdapter.
-    LIMITS = []
-
     def __init__(self, **kwargs):
                  #qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
                  #pre_run=None, post_run=None, mpi_runner=None, partition=None):
@@ -487,19 +481,18 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         self.part = Partition(qname=self.qname, **partition)
 
         # Parse the template so that we know the list of supported options.
-        # TODO
-        #cls = self.__class__
-        #if hasattr(cls, "QTEMPLATE"): 
-        #    # Consistency check.
-        #    err_msg = ""
-        #    for param in self.qparams:
-        #        if param not in self.supported_qparams:
-        #            err_msg += "Unsupported QUEUE parameter name %s\n" % param
-        #            err_msg += "Supported are: \n"
-        #            for param_sup in self.supported_qparams:
-        #                err_msg += "    %s \n" % param_sup
-        #    if err_msg:
-        #        raise ValueError(err_msg)
+        cls = self.__class__
+        if hasattr(cls, "QTEMPLATE"): 
+            # Consistency check.
+            err_msg = ""
+            for param in self.qparams:
+                if param not in self.supported_qparams:
+                    err_msg += "Unsupported QUEUE parameter name %s\n" % param
+                    err_msg += "Supported are: \n"
+                    for param_sup in self.supported_qparams:
+                        err_msg += "    %s \n" % param_sup
+            if err_msg:
+                raise ValueError(err_msg)
 
         # List of dictionaries with the parameters used to submit jobs
         # The launcher will use this information to increase the resources
@@ -779,7 +772,6 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     def submit_to_queue(self, script_file):
         """
         Public API: wraps the concrete implementation _submit_to_queue
-        register the submission.
 
         Raises:
             QueueAdapterError if we have already tried to submit the job max_num_attempts
@@ -798,6 +790,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     def _submit_to_queue(self, script_file):
         """
         Submits the job to the queue, probably using subprocess or shutil
+        This method must be provided by the concrete classes and will be called by submit_to_queue
 
         Args:
             script_file: 
@@ -816,31 +809,51 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             username: (str) the username of the jobs to count (default is to autodetect)
         """
 
-    #some method to fix problems
+    # Methods to fix problems
 
     @abc.abstractmethod
     def exclude_nodes(self, nodes):
         """
         Method to exclude nodes in the calculation
+
         """
 
-    @abc.abstractmethod
-    def increase_mem(self, factor):
+    #def add_exclude_nodes(self, nodes):
+    #    return ExcludeNodesFile().add_nodes(self.qname, nodes)
+
+    #def get_exclude_nodes(self):
+    #    return ExcludeNodesFile().read_nodes(self.qname)
+
+    def more_mem_per_proc(self, factor):
         """
         Method to increase the amount of memory asked for, by factor.
+        Return True if success.
         """
+        base_increase = 2000
+        old_mem = self.get_mem_per_proc()
+        new_mem = old_mem + factor*base_increase
 
-    @abc.abstractmethod
-    def increase_time(self, factor):
-        """
-        Method to increase the available wall time asked for, by factor.
-        """
+        if new_mem < self.part.mem_per_node:
+            self.set_mem_per_proc(new_mem)
+            return True
 
-    @abc.abstractmethod
-    def increase_cpus(self, factor):
+        logger.warning('could not increase mem_per_proc further')
+        return False
+
+    def more_mpi_procs(self, factor):
         """
-        Method to increase the number of cpus asked for.
+        Method to increase the number of MPI procs.
+        Return True if success.
         """
+        base_increase = 12
+        new_cpus = self.mpi_procs + factor * base_increase
+
+        if new_cpus * self.omp_threads < self.part.max_cores:
+            self.set_mpi_procs(new_cpus)
+            return True
+
+        logger.warning('more_mpi_procs reached the limit')
+        return False
 
     def get_score(self, pconf):
         """
@@ -902,14 +915,14 @@ export MPI_PROCS=$${MPI_PROCS}
     def exclude_nodes(self, nodes):
         return False
 
-    def increase_mem(self, factor):
-        return False
+    #def more_mem_per_proc(self, factor):
+    #    return False
 
-    def increase_time(self, factor):
-        return False
+    #def more_mpi_procs(self, factor):
+    #    return False
 
-    def increase_cpus(self, factor):
-        return False
+    #def more_time(self, factor):
+    #    return False
 
 
 class SlurmAdapter(QueueAdapter):
@@ -940,8 +953,6 @@ class SlurmAdapter(QueueAdapter):
 #SBATCH --output=$${_qout_path}
 #SBATCH --error=$${_qerr_path}
 """
-
-    LIMITS = {'max_total_tasks': 544, 'max_cpus_per_node': 16, 'mem': 6400000, 'mem_per_cpu': 64000, 'time': 2880}
 
     def __init__(self, **kwargs):
         super(SlurmAdapter, self).__init__(**kwargs)
@@ -1042,98 +1053,98 @@ class SlurmAdapter(QueueAdapter):
         except (KeyError, IndexError):
             return False
 
-    def increase_cpus(self, factor=1.5):
-        logger.info('increasing cpus')
-        try:
-            if self.qparams['ntasks'] > 1:
-                # mpi parallel
-                n = int(self.qparams['ntasks'] * factor)
-                if n < self.LIMITS['max_total_tasks']:
-                    self.qparams['ntasks'] = n
-                    logger.info('increased ntasks to %s' % n)
-                    return True
-                else:
-                    raise QueueAdapterError
+    #def more_mpi_procs(self, factor=1.5):
+    #    logger.info('increasing cpus')
+    #    try:
+    #        if self.qparams['ntasks'] > 1:
+    #            # mpi parallel
+    #            n = int(self.qparams['ntasks'] * factor)
+    #            if n < self.LIMITS['max_total_tasks']:
+    #                self.qparams['ntasks'] = n
+    #                logger.info('increased ntasks to %s' % n)
+    #                return True
+    #            else:
+    #                raise QueueAdapterError
 
-            elif self.qparams['ntasks'] == 1 and self.qparams['cpus_per_task'] > 1:
-                # open mp parallel
-                n = int(self.qparams['cpus_per_task'] * factor)
-                if n < self.LIMITS['max_cpus_per_node']:
-                    self.qparams['cpus_per_task'] = n
-                    return True
-                else:
-                    raise QueueAdapterError
-            else:
-                raise QueueAdapterError
+    #        elif self.qparams['ntasks'] == 1 and self.qparams['cpus_per_task'] > 1:
+    #            # open mp parallel
+    #            n = int(self.qparams['cpus_per_task'] * factor)
+    #            if n < self.LIMITS['max_cpus_per_node']:
+    #                self.qparams['cpus_per_task'] = n
+    #                return True
+    #            else:
+    #                raise QueueAdapterError
+    #        else:
+    #            raise QueueAdapterError
 
-        except (KeyError, QueueAdapterError):
-            return False
+    #    except (KeyError, QueueAdapterError):
+    #        return False
 
-    def increase_mem(self, factor=1.5):
-        logger.info('increasing memory')
-        try:
-            if 'mem' in self.qparams.keys():
-                n = int(self.qparams['mem'] * factor)
-                if n < self.LIMITS['mem']:
-                    self.qparams['mem'] = n
-                    logger.info('increased mem to %s' % n)
-                    return True
-                else:
-                    raise QueueAdapterError
+    #def more_mem_per_proc(self, factor=1.5):
+    #    logger.info('increasing memory')
+    #    try:
+    #        if 'mem' in self.qparams.keys():
+    #            n = int(self.qparams['mem'] * factor)
+    #            if n < self.LIMITS['mem']:
+    #                self.qparams['mem'] = n
+    #                logger.info('increased mem to %s' % n)
+    #                return True
+    #            else:
+    #                raise QueueAdapterError
 
-            elif 'mem_per_cpu' in self.qparams.keys():
-                n = int(self.qparams['mem_per_cpu'] * factor)
-                if n < self.LIMITS['mem_per_cpu']:
-                    self.qparams['mem'] = n
-                    logger.info('increased mem_per_cpu to %s' % n)
-                    return True
-                else:
-                    raise QueueAdapterError
+    #        elif 'mem_per_cpu' in self.qparams.keys():
+    #            n = int(self.qparams['mem_per_cpu'] * factor)
+    #            if n < self.LIMITS['mem_per_cpu']:
+    #                self.qparams['mem'] = n
+    #                logger.info('increased mem_per_cpu to %s' % n)
+    #                return True
+    #            else:
+    #                raise QueueAdapterError
 
-            else:
-                raise QueueAdapterError
+    #        else:
+    #            raise QueueAdapterError
 
-        except (KeyError, IndexError, QueueAdapterError):
-            return False
+    #    except (KeyError, IndexError, QueueAdapterError):
+    #        return False
 
-    def increase_time(self, factor=1.5):
-        logger.info('increasing time')
-        days, hours, minutes = 0, 0, 0
-        try:
-            # a slurm time parser ;-) forgetting about seconds
-            # feel free to pull this out and mak time in minutes always
-            if '-' not in self.qparams['time']:
-                # "minutes",
-                # "minutes:seconds",
-                # "hours:minutes:seconds",
-                if ':' not in self.qparams['time']:
-                    minutes = int(float(self.qparams['time']))
-                elif self.qparams['time'].count(':') == 1:
-                    minutes = int(float(self.qparams['time'].split(':')[0]))
-                else:
-                    minutes = int(float(self.qparams['time'].split(':')[1]))
-                    hours = int(float(self.qparams['time'].split(':')[0]))
-            else:
-                # "days-hours",
-                # "days-hours:minutes",
-                # "days-hours:minutes:seconds".
-                days = int(float(self.qparams['time'].split('-')[0]))
-                hours = int(float(self.qparams['time'].split('-')[1].split(':')[0]))
-                try:
-                    minutes = int(float(self.qparams['time'].split('-')[1].split(':')[1]))
-                except IndexError:
-                    pass
-            time = (days * 24 + hours) * 60 + minutes
-            time *= factor
-            if time < self.LIMITS['time']:
-                self.qparams['time'] = time
-                logger.info('increased time to %s' % time)
-                return True
-            else:
-                raise QueueAdapterError
+    #def more_time(self, factor=1.5):
+    #    logger.info('increasing time')
+    #    days, hours, minutes = 0, 0, 0
+    #    try:
+    #        # a slurm time parser ;-) forgetting about seconds
+    #        # feel free to pull this out and mak time in minutes always
+    #        if '-' not in self.qparams['time']:
+    #            # "minutes",
+    #            # "minutes:seconds",
+    #            # "hours:minutes:seconds",
+    #            if ':' not in self.qparams['time']:
+    #                minutes = int(float(self.qparams['time']))
+    #            elif self.qparams['time'].count(':') == 1:
+    #                minutes = int(float(self.qparams['time'].split(':')[0]))
+    #            else:
+    #                minutes = int(float(self.qparams['time'].split(':')[1]))
+    #                hours = int(float(self.qparams['time'].split(':')[0]))
+    #        else:
+    #            # "days-hours",
+    #            # "days-hours:minutes",
+    #            # "days-hours:minutes:seconds".
+    #            days = int(float(self.qparams['time'].split('-')[0]))
+    #            hours = int(float(self.qparams['time'].split('-')[1].split(':')[0]))
+    #            try:
+    #                minutes = int(float(self.qparams['time'].split('-')[1].split(':')[1]))
+    #            except IndexError:
+    #                pass
+    #        time = (days * 24 + hours) * 60 + minutes
+    #        time *= factor
+    #        if time < self.LIMITS['time']:
+    #            self.qparams['time'] = time
+    #            logger.info('increased time to %s' % time)
+    #            return True
+    #        else:
+    #            raise QueueAdapterError
 
-        except (KeyError, QueueAdapterError):
-            return False
+    #    except (KeyError, QueueAdapterError):
+    #        return False
 
     def get_njobs_in_queue(self, username=None):
         if username is None:
@@ -1233,14 +1244,6 @@ class PbsProAdapter(QueueAdapter):
 #PBS -o $${_qout_path}
 #PBS -e $${_qerr_path}
 """
-    """
-    the limits for certain parameters set on the cluster.
-    currently hard coded, should be read at init
-    the increase functions will not increase beyond thise limits
-    """
-
-    LIMITS = {'max_total_tasks': 3888, 'time': 48, 'max_select': 300, 'mem': 16000}
-
     def __init__(self, **kwargs):
         super(PbsProAdapter, self).__init__(**kwargs)
 
@@ -1283,54 +1286,48 @@ class PbsProAdapter(QueueAdapter):
             * http://www.cardiff.ac.uk/arcca/services/equipment/User-Guide/pbs.html
             * https://portal.ivec.org/docs/Supercomputers/PBS_Pro
         """
-        # TODO: vmem
+        mem_per_proc = int(self._mem_per_proc)
         part = self.part
-        dist = part.distribute(self.mpi_procs, self.omp_threads, self._mem_per_proc)
+        #dist = part.distribute(self.mpi_procs, self.omp_threads, mem_per_proc)
 
         if self.pure_mpi:
             # Pure MPI run
-            #num_nodes, rest_cores = part.divmod_node(self.mpi_procs, self.omp_threads)
+            num_nodes, rest_cores = part.divmod_node(self.mpi_procs, self.omp_threads)
 
-            if dist.exact:
+            if num_nodes == 0:
+                print("IN_CORE PURE MPI:", self.run_info)
+                chunks = 1
+                ncpus = rest_cores
+                mpiprocs = rest_cores
+                vmem = mem_per_proc * ncpus
+                ompthreads = 1
+
+            elif rest_cores == 0:
                 # Can allocate entire nodes because self.mpi_procs is divisible by cores_per_node.
                 print("PURE MPI run commensurate with cores_per_node", self.run_info)
-                select_params = dict(
-                    chunks=dist.num_nodes,
-                    ncpus=dist.mpi_per_node,
-                    mpiprocs=dist.mpi_per_node,,
-                    vmem=int(part.mem_per_node),
-                    ompthreads=1
-                    )
-
-            #elif num_nodes == 0:
-            #    print("IN_CORE PURE MPI:", self.run_info)
-            #    select_params = dict(
-            #        chunks=rest_cores,
-            #        ncpus=1,
-            #        mpiprocs=1,
-            #        vmem=int(part.mem_per_node),
-            #        ompthreads=1)
+                chunks = num_nodes
+                ncpus = part.cores_per_node
+                mpiprocs = part.cores_per_node
+                vmem = ncpus * mem_per_proc
+                ompthreads = 1
 
             else:
                 print("OUT-OF-CORE PURE MPI (not commensurate with cores_per_node):", self.run_info)
-                select_params = dict(
-                    chunks=self.mpi_procs,
-                    ncpus=1,
-                    mpiprocs=1,
-                    vmem=int(part.mem_per_node),
-                    ompthreads=1)
+                chunks = self.mpi_procs
+                ncpus = 1
+                mpiprocs = 1
+                vmem = mem_per_proc
+                ompthreads = 1
 
         elif self.pure_omp:
             # Pure OMP run.
             print("PURE OPENMP run.", self.run_info)
             assert part.can_use_omp_threads(self.omp_threads)
-
-            select_params = dict(
-                chunks=1,
-                ncpus=self.omp_threads,
-                mpiprocs=1,
-                vmem=int(part.mem_per_node),
-                ompthreads=self.omp_threads)
+            chunks = 1
+            ncpus = self.omp_threads
+            mpiprocs = 1
+            vmem = mem_per_proc
+            ompthreads = self.omp_threads
 
         elif self.hybrid_mpi_omp:
             # Hybrid MPI-OpenMP run.
@@ -1343,23 +1340,25 @@ class PbsProAdapter(QueueAdapter):
                 print("HYBRID MPI-OPENMP run, perfectly divisible among nodes: ", self.run_info)
                 chunks = max(num_nodes, 1)
                 mpiprocs = self.mpi_procs // chunks
-                select_params = dict(
-                    chunks=chunks,
-                    ncpus=mpiprocs * self.omp_threads,
-                    mpiprocs=mpiprocs,
-                    vmem=int(part.mem_per_node),
-                    ompthreads=self.omp_threads)
+
+                chunks = chunks
+                ncpus = mpiprocs * self.omp_threads
+                mpiprocs = mpiprocs
+                vmem = mpiprocs * mem_per_proc 
+                ompthreads = self.omp_threads
+
             else:
                 print("HYBRID MPI-OPENMP, NOT commensurate with nodes: ", self.run_info)
-                select_params = dict(
-                    chunks=self.mpi_procs,
-                    ncpus=self.omp_threads,
-                    mpiprocs=1,
-                    vmem=int(part.mem_per_node),
-                    ompthreads=self.omp_threads)
+                chunks=self.mpi_procs
+                ncpus=self.omp_threads
+                mpiprocs=1
+                vmem= mem_per_proc
+                ompthreads=self.omp_threads
 
         else:
             raise RuntimeError("You should not be here")
+
+        select_params = AttrDict(chunks=chunks, ncpus=ncpus, mpiprocs=mpiprocs, vmem=int(vmem), ompthreads=ompthreads)
 
         if not self.has_omp:
             s = "{chunks}:ncpus={ncpus}:vmem={vmem}mb:mpiprocs={mpiprocs}".format(**select_params)
@@ -1367,7 +1366,7 @@ class PbsProAdapter(QueueAdapter):
             s = "{chunks}:ncpus={ncpus}:vmem={vmem}mb:mpiprocs={mpiprocs}:ompthreads={ompthreads}".format(**select_params)
                                                                                                             
         if ret_dict:
-            return s, AttrDict(select_params)
+            return s, select_params
         return s
 
     def _submit_to_queue(self, script_file):
@@ -1439,47 +1438,38 @@ class PbsProAdapter(QueueAdapter):
         logger.warning('exluding nodes, not implemented yet pbs')
         return False
 
-    def increase_mem(self, factor=1):
-        base_increase = 2000
-        new_mem = self.qparams["pvmem"] + factor*base_increase
-        if new_mem < self.LIMITS['mem']:
-            self.set_mem_per_proc(new_mem)
-            return True
-        else:
-            logger.warning('could not increase mem further')
-            return False
+    #def more_mem_per_proc(self, factor=1):
+    #    base_increase = 2000
+    #    new_mem = self.qparams["pvmem"] + factor*base_increase
+    #    if new_mem < self.LIMITS['mem']:
+    #        self.set_mem_per_proc(new_mem)
+    #        return True
+    #    else:
+    #        logger.warning('could not increase mem further')
+    #        return False
 
-    def increase_time(self, factor=1.5):
-        days, hours, minutes = 0, 0, 0
-        try:
-            # a pbe time parser [HH:MM]:SS
-            # feel free to pull this out and mak time in minutes always
-            n = str(self.qparams['time']).count(':')
-            if n == 0:
-                hours = int(float(self.qparams['time']))
-            elif n > 1:
-                hours = int(float(self.qparams['time'].split(':')[0]))
-                minutes = int(float(self.qparams['time'].split(':')[1]))
-            time = hours * 60 + minutes
-            time *= factor
-            if time < self.LIMITS['time']:
-                self.qparams['time'] = str(int(time / 60)) + ':' + str(int(time - 60 * int(time / 60))) + ':00'
-                logger.info('increased time to %s minutes' % time)
-                return True
-            else:
-                raise QueueAdapterError
-        except (KeyError, QueueAdapterError):
-            return False
+    #def more_time(self, factor=1.5):
+    #    days, hours, minutes = 0, 0, 0
+    #    try:
+    #        # a pbe time parser [HH:MM]:SS
+    #        # feel free to pull this out and mak time in minutes always
+    #        n = str(self.qparams['time']).count(':')
+    #        if n == 0:
+    #            hours = int(float(self.qparams['time']))
+    #        elif n > 1:
+    #            hours = int(float(self.qparams['time'].split(':')[0]))
+    #            minutes = int(float(self.qparams['time'].split(':')[1]))
+    #        time = hours * 60 + minutes
+    #        time *= factor
+    #        if time < self.LIMITS['time']:
+    #            self.qparams['time'] = str(int(time / 60)) + ':' + str(int(time - 60 * int(time / 60))) + ':00'
+    #            logger.info('increased time to %s minutes' % time)
+    #            return True
+    #        else:
+    #            raise QueueAdapterError
+    #    except (KeyError, QueueAdapterError):
+    #        return False
 
-    def increase_cpus(self, factor):
-        base_increase = 12
-        new_cpus = self.qparams['select'] + factor * base_increase
-        if new_cpus < self.LIMITS['max_select']:
-            self.qparams['select'] = new_cpus
-            return True
-        else:
-            logger.warning('increasing cpus reached the limit')
-            return False
 
 
 class TorqueAdapter(PbsProAdapter):
@@ -1507,8 +1497,6 @@ class TorqueAdapter(PbsProAdapter):
 #PBS -o $${_qout_path}
 #PBS -e $${_qerr_path}
 """
-    LIMITS = {'max_total_tasks': 3888, 'time': 48, 'max_nodes': 16}
-
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
         self.qparams["pmem"] = mem_mb
@@ -1524,15 +1512,15 @@ class TorqueAdapter(PbsProAdapter):
         self.qparams["nodes"] = 1
         self.qparams["ppn"] = mpi_procs
 
-    def increase_nodes(self, factor):
-        base_increase = 1
-        new_nodes = self.qparams['nodes'] + factor * base_increase
-        if new_nodes < self.LIMITS['max_nodes']:
-            self.qparams['nodes'] = new_nodes
-            return True
-        else:
-            logger.warning('increasing cpus reached the limit')
-            return False
+    #def increase_nodes(self, factor):
+    #    base_increase = 1
+    #    new_nodes = self.qparams['nodes'] + factor * base_increase
+    #    if new_nodes < self.LIMITS['max_nodes']:
+    #        self.qparams['nodes'] = new_nodes
+    #        return True
+    #    else:
+    #        logger.warning('increasing cpus reached the limit')
+    #        return False
 
 
 class SGEAdapter(QueueAdapter):
@@ -1646,20 +1634,6 @@ class SGEAdapter(QueueAdapter):
         """
         raise NotImplementedError("exclude_nodes")
                                                                          
-    def increase_mem(self, factor):
-        """
-        Method to increase the amount of memory asked for, by factor.
-        """
-        raise NotImplementedError("increase_mem")
-                                                                         
-    def increase_time(self, factor):
-        """
-        Method to increase the available wall time asked for, by factor.
-        """
-        raise NotImplementedError("increase_time")
-
-    def increase_cpus(self, factor):
-        raise NotImplementedError("increase_cpus")
 
 
 class MOABAdapter(QueueAdapter):
@@ -1792,15 +1766,6 @@ class MOABAdapter(QueueAdapter):
     def exclude_nodes(self, nodes):
         raise NotImplementedError("exclude_nodes")
                                                                          
-    def increase_mem(self, factor):
-        raise NotImplementedError("increase_mem")
-                                                                         
-    def increase_time(self, factor):
-        raise NotImplementedError("increase_time")
-
-    def increase_cpus(self, factor):
-        raise NotImplementedError("increase_cpus")
-        
     def set_mem_per_proc(self, mem_mb):
         raise NotImplementedError("set_mem_per_cpu")
 
