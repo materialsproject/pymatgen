@@ -10,7 +10,6 @@ import time
 import collections
 import warnings
 import shutil
-import pickle
 
 from six.moves import map 
 from atomicfile import AtomicFile
@@ -471,10 +470,20 @@ class AbinitFlow(Node):
 
     #    return deadlocked
 
-    def check_status(self):
-        """Check the status of the workflows in self."""
+    def check_status(self, **kwargs):
+        """
+        Check the status of the workflows in self. 
+        Args:
+            show:
+                True to show the status of the flow.
+            kwargs: 
+                kwyword arguments passed to show_status
+        """
         for work in self:
             work.check_status()
+
+        if kwargs.pop("show", False):
+            flow.show_status(**kwargs)
 
     #def set_status(self, status):
 
@@ -495,7 +504,7 @@ class AbinitFlow(Node):
             #todo
             if task.fix_abicritical():
                 task.reset_from_scratch()
-                # task.set_status(Task.S_READY)
+                #task.set_status(Task.S_READY)
             else:
                 info_msg = 'We encountered an abi critial envent that could not be fixed'
                 logger.warning(info_msg)

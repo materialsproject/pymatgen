@@ -18,21 +18,22 @@ class TaskManagerTest(PymatgenTest):
         Simple unit tests for Qadapter subclasses.
         A more complete coverage would require integration testing.
         """
+        aequal = self.assertEqual
         # Initialize the object from YAML file.
         slurm_manager = TaskManager.from_file(os.path.join(test_dir, "taskmanager.yml"))
 
         print(slurm_manager)
-        self.assertTrue(slurm_manager.num_cores == 2)
-        self.assertTrue(slurm_manager.mpi_procs == 2)
-        self.assertTrue(slurm_manager.omp_threads == 1)
+        aequal(slurm_manager.num_cores, 4)
+        aequal(slurm_manager.mpi_procs, 4)
+        aequal(slurm_manager.omp_threads, 1)
 
         # Make a simple shell manager that will inherit the initial configuration.
         shell_manager = slurm_manager.to_shell_manager(mpi_procs=1)
-        self.assertTrue(shell_manager.num_cores == 1)
-        self.assertTrue(shell_manager.mpi_procs == 1)
+        aequal(shell_manager.mpi_procs, 1)
+        aequal(shell_manager.num_cores, 1)
 
         # check that the initial slurm_manger has not been modified
-        self.assertTrue(slurm_manager.num_cores == 2)
+        aequal(slurm_manager.num_cores, 4)
 
         # Test pickle
         self.serialize_with_pickle(slurm_manager, test_eq=False)
