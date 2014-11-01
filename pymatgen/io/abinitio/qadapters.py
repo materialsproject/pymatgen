@@ -249,6 +249,8 @@ class Partition(object):
         if self.priority <= 0: app("priority must be > 0")
         if not (1 <= self.min_cores <= self.num_cores >= self.max_cores):
             app("1 <= min_cores <= num_cores >= max_cores not satisfied")
+        #if self.mem_per_node <=0
+        #    app("mem_per_node %s <= 0 1" % self.mem_per_node)
 
         if errors:
             raise ValueError("\n".join(errors))
@@ -326,6 +328,10 @@ class Partition(object):
             mpi_per_node = mpi_procs // num_nodes
             if rest_cores == 0 and mpi_per_node * mem_per_proc <= self.mem_per_node:
                 return Distrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, exact=True)
+
+        if mem_per_proc <= 0:
+            logger.warning("mem_per_proc <= 0")
+            mem_per_proc = self.mem_per_core
 
         # Try first to pack MPI processors in a node as much as possible
         mpi_per_node = int(self.mem_per_node / mem_per_proc)
