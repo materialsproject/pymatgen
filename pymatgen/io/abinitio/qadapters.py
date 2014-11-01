@@ -22,7 +22,7 @@ import warnings
 import six
 
 from collections import namedtuple
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, check_output
 from monty.string import is_string, boxed
 from monty.collections import AttrDict, MongoDict
 from monty.subprocess import Command
@@ -38,9 +38,6 @@ __all__ = [
     "MpiRunner",
     "Partition",
     "make_qadapter",
-    #"QueueAdapter",
-    #"PbsProAdapter",
-    #"SlurmAdapter",
 ]
 
 
@@ -345,6 +342,7 @@ def make_qadapter(qtype, **kwargs):
             }[qtype.lower()](**kwargs)
 
 
+
 class QueueAdapterError(Exception):
     """Error class for exceptions raise by QueueAdapter."""
 
@@ -373,6 +371,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                  #pre_run=None, post_run=None, mpi_runner=None, partition=None):
         """
         Args:
+            name:
             qparams:
                 Dictionary with the paramenters used in the template.
             setup:
@@ -392,7 +391,11 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                 Path to the MPI runner or `MpiRunner` instance. None if not used
             partition:
                 ``Partition`` object
+            max_num_attempts:
+                Default to 2
+                
         """
+        #self.name = kwargs.pop("name")
         qparams = kwargs.pop("qparams", None)
         setup = kwargs.pop("setup", None)
         modules = kwargs.pop("modules", None)
@@ -445,16 +448,23 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
         # List of dictionaries with the parameters used to submit jobs
         # The launcher will use this information to increase the resources
-        self.attempts, self.max_num_attempts = [], 2
+        self.attempts, self.max_num_attempts = [], kwargs.pop("max_num_attempts", 2)
+
+        if kwargs:
+            raise ValueError("Found unknown keywords:\n %s" % str(list(kwargs.keys())))
 
     def __str__(self):
-        lines = [self.__class__.__name__]
+        lines = ["%s:%s" % self.__class__.__name__, self.name]
         app = lines.append
         #lines.extend(["qparams:\n", str(self.qparams)])
 
         if self.has_omp: app(str(self.omp_env))
 
         return "\n".join(lines)
+
+    @property
+    def name(self):
+        return self.part.name
 
     @property
     def supported_qparams(self):
@@ -524,11 +534,14 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     def deepcopy(self):
         return copy.deepcopy(self)
 
-    def record_attempt(self): # $ retcode):
+    def record_attempt(self, queue_id): # retcode):
         self.attempts.append(AttrDict(
-            mpi_procs=self.mpi_procs, omp_threads=self.omp_threads)) 
-            #, mem_per_proc=self.mem_per_proc)) 
-            # retcode=retcode)) #walltime=self.walltime,
+            queue_id=queue_id, mpi_procs=self.mpi_procs, omp_threads=self.omp_threads)) 
+            #mem_per_proc=self.mem_per_proc, walltime=self.walltime, retcode=retcode)) 
+        return len(self.attempts)
+
+    def remove_attempt(self, index):
+        self.pop(index)
 
     @property
     def num_attempts(self):
@@ -571,7 +584,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
     #@property
     #def tot_mem(self):
-    #    """Total memory required by the job n Megabytes."""
+    #    """Total memory required by the job in Megabytes."""
     #    return self.mem_per_proc * self.mpi_procs
 
     @abc.abstractmethod
@@ -595,13 +608,19 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         if is_string(lines): lines = [lines]
         self._verbatim.extend(lines)
 
+    def optimize_params(self):
+        logger.debug("optimize_params of baseclass --> no optimization available!!!")
+        return {}
+
     def get_subs_dict(self):
         """
         Return substitution dict for replacements into the template
         Subclasses may want to customize this method.
         """ 
         # clean null values
-        return {k: v for k, v in self.qparams.items() if v is not None}
+        d = {k: v for k, v in self.qparams.items() if v is not None}
+        d.update(self.optimize_params())
+        return d
 
     def _make_qheader(self, job_name, qout_path, qerr_path):
         """Return a string with the options that are passed to the resource manager."""
@@ -649,7 +668,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             qerr_path:
                 Path of the Queue manager error file.
         """
-        # PBS does not accept job_names longer than 15 chars.
+        # PbsPro does not accept job_names longer than 15 chars.
         if len(job_name) > 14 and isinstance(self, PbsProAdapter):
             job_name = job_name[:14]
 
@@ -702,6 +721,24 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
         return qheader + shell_text + "\n"
 
+    def submit_to_queue(self, script_file):
+        """
+        Public API: wraps the concrete implementation _submit_to_queue
+        register the submission.
+
+        Raises:
+            QueueAdapterError if we have already tried to submit the job max_num_attempts
+        """
+        if not os.path.exists(script_file):
+            raise self.Error('Cannot find script file located at: {}'.format(script_file))
+
+        if self.num_attempts == self.max_num_attempts:
+            raise self.Error("num_attempts %s == max_num_attempts" % (self.num_attempts, self.max_num_attempts))
+
+        process, queue_id = self._submit_to_queue(script_file)
+        self.record_attempt(queue_id)
+        return process, queue_id
+
     @abc.abstractmethod
     def _submit_to_queue(self, script_file):
         """
@@ -713,15 +750,6 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         Returns:
             process, queue_id
         """
-
-    def submit_to_queue(self, script_file):
-        """
-        Public API: wraps the concrete implementation _submit_to_queue
-        and register the submission.
-        """
-        process, queue_id = self._submit_to_queue(script_file)
-        self.record_attempt()
-        return process, queue_id
 
     @abc.abstractmethod
     def get_njobs_in_queue(self, username=None):
@@ -805,9 +833,6 @@ export MPI_PROCS=$${MPI_PROCS}
         return os.system("kill -9 %d" % job_id)
 
     def _submit_to_queue(self, script_file):
-        if not os.path.exists(script_file):
-            raise self.Error('Cannot find script file located at: {}'.format(script_file))
-
         try:
             # submit the job, return process and pid.
             process = Popen(("/bin/bash", script_file), stderr=PIPE)
@@ -887,9 +912,6 @@ class SlurmAdapter(QueueAdapter):
         return os.system("scancel %d" % job_id)
 
     def _submit_to_queue(self, script_file, submit_err_file="sbatch.err"):
-        if not os.path.exists(script_file):
-            raise self.Error('Cannot find script file located at: {}'.format(script_file))
-
         submit_err_file = os.path.join(os.path.dirname(script_file), submit_err_file)
 
         # submit the job
@@ -1075,25 +1097,41 @@ class SlurmAdapter(QueueAdapter):
 
         return None
 
-    #def get_job_info(self, job_id):
+    def get_job_info(self, job_id):
+        # See https://computing.llnl.gov/linux/slurm/sacct.html
         #If SLURM job ids are reset, some job numbers will        
 	    #probably appear more than once refering to different jobs.
-	    #Without this option only the most recent jobs will be    
-        #displayed.          
+	    #Without this option only the most recent jobs will be displayed.          
 
         #state
         #Displays the job status, or state.
         #Output can be RUNNING, RESIZING, SUSPENDED, COMPLETED, CANCELLED, FAILED, TIMEOUT, 
-        # PREEMPTED or NODE_FAIL. If more information is available on the job state than will fit 
+        #PREEMPTED or NODE_FAIL. If more information is available on the job state than will fit 
         #into the current field width (for example, the uid that CANCELLED a job) the state will be followed by a "+". 
         # You can increase the size of the displayed state using the "%NUMBER" format modifier described earlier. 
 
-        # See https://computing.llnl.gov/linux/slurm/sacct.html
         #gmatteo@master2:~
         #sacct --job 112367 --format=jobid,exitcode,state --allocations --parsable2
         #JobID|ExitCode|State
         #112367|0:0|RUNNING
-        #class JobInfo(namedtuple("JobInfo", "id, exitcode, state")):
+
+        #output = check_output(["ls", "-l", "/dev/null"]
+        cmd = "sacct --job %d --format=jobid,exitcode,state --allocations --parsable2" % job_id
+        output = str(check_output([cmd]))
+
+        # Parse output.
+        qid, exitcode, state = output.split("|")
+        qid = int(qid)
+        assert qid == job_id
+        if ":" in exitcode:
+            exitcode, signal = map(int, exitcode.split(":"))
+        else:
+            exitcode, signal = int(exitcode), None
+
+        i = state.find("+")
+        if i != -1: state = state[:i]
+
+        #class JobInfo(namedtuple("JobInfo", "queue_id exitcode signal state")):
         #    def __bool__(self):
         #        return self.state != "CannotDected"
         #    __notzero__ = __bool_
@@ -1102,6 +1140,7 @@ class SlurmAdapter(QueueAdapter):
         #    def failed(self):
         #    def timeout(self):
         #    def node_fail(self):
+        #return jobinfo()
 
 
 #PBS -l select=$${select}:ncpus=$${ncpus}:vmem=$${vmem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
@@ -1166,7 +1205,7 @@ class PbsProAdapter(QueueAdapter):
         https://portal.ivec.org/docs/Supercomputers/PBS_Pro
         """
         p = self.part
-        #if p is None: return {}
+
         if self.use_only_mpi:
             # Pure MPI run
             num_nodes, rest_cores = p.divmod_node(self.mpi_procs, self.omp_threads)
@@ -1236,17 +1275,8 @@ class PbsProAdapter(QueueAdapter):
 
         return AttrDict(select_params)
 
-    def get_subs_dict(self):
-        subs_dict = super(PbsProAdapter, self).get_subs_dict() 
-        #subs_dict.update(self.optimize_params())
-        #subs_dict["vmem"] = 5
-        return subs_dict
-
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
-        if not os.path.exists(script_file):
-            raise self.Error('Cannot find script file located at: {}'.format(script_file))
-
         # submit the job
         try:
             cmd = ['qsub', script_file]
@@ -1458,9 +1488,6 @@ class SGEAdapter(QueueAdapter):
 
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
-        if not os.path.exists(script_file):
-            raise self.Error('Cannot find script file located at: {}'.format(script_file))
-
         # submit the job
         try:
             cmd = ['qsub', script_file]
@@ -1588,9 +1615,6 @@ class MOABAdapter(QueueAdapter):
 
     def _submit_to_queue(self, script_file, submit_err_file="sbatch.err"):
         """Submit a job script to the queue."""
-        if not os.path.exists(script_file):
-            raise self.Error('Cannot find script file located at: {}'.format(script_file))
-
         submit_err_file = os.path.join(os.path.dirname(script_file), submit_err_file)
 
         # submit the job
