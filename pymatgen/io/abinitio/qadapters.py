@@ -172,6 +172,14 @@ def timelimit_parser(s):
         return parse_slurm_timestr(s)
 
 
+class PartitionError(Exception):
+    """Exceptions raised by Partition."""
+
+
+class DistribError(PartitionError):
+    """Exception raised by distribute."""
+
+
 class Partition(object):
     """
     This object collects information on a partition (a la slurm)
@@ -189,8 +197,8 @@ class Partition(object):
           Each cpu core will be able to service a number of cpu threads, each having an independent instruction stream 
           but sharing the cores memory controller and other logical units.
     """
-    class DistributionError(Exception):
-        """Exception raised by distribute."""
+    Error = PartitionError
+    DistribError = DistribError
 
     class Entry(object):
         def __init__(self, type, default=None, mandatory=False, parser=None, help="No help available"):
@@ -219,11 +227,6 @@ class Partition(object):
     )
     del Entry
 
-    #@classmethod
-    #def as_partition(cls, obj):
-    #    """Convert an object into a Partition."""
-    #    return obj if isinstance(obj, cls) else cls(**obj)
-
     def __init__(self, **kwargs):
         """The possible arguments are documented in Partition.ENTRIES."""
         for key, entry in self.ENTRIES.items():
@@ -238,11 +241,17 @@ class Partition(object):
             raise ValueError("Found invalid keywords in the partition section:\n %s" % str(list(kwargs.keys())))
 
         # Convert memory to megabytes.
-        self.mem_per_node = self.mem_per_node.to("Mb")
+        self.mem_per_node = float(self.mem_per_node.to("Mb"))
 
         # Consistency check.
-        assert self.priority > 0
-        assert 1 <= self.min_cores <= self.num_cores >= self.max_cores
+        errors = []
+        app = errors.append
+        if self.priority <= 0: app("priority must be > 0")
+        if not (1 <= self.min_cores <= self.num_cores >= self.max_cores):
+            app("1 <= min_cores <= num_cores >= max_cores not satisfied")
+
+        if errors:
+            raise ValueError("\n".join(errors))
 
     def __str__(self):
         """String representation."""
@@ -276,11 +285,24 @@ class Partition(object):
 
     def divmod_node(self, mpi_procs, omp_threads):
         """
-        Return (num_nodes, rest_cores)
+        Use divmod to compute (num_nodes, rest_cores)
         """
-        num_nodes, rest_cores = divmod(mpi_procs * omp_threads, self.cores_per_node)
-        return num_nodes, rest_cores
-        #return namedtuple("DivMod", "num_nodes mpi_per_node rest_cores")(num_nodes, mpi_per_node, rest_cores)
+        return divmod(mpi_procs * omp_threads, self.cores_per_node)
+
+    def can_run(self, pconf):
+        """
+        True if this partition in principle is able to run the ``ParalConf`` pconf
+        """
+        if not self.max_cores >= pconf.num_cores >= self.min_cores: return False
+        if pconf.omp_threads > self.cores_per_node: return False
+        if pconf.mem_per_proc > self.mem_per_node: return False
+
+        try:
+            self.distribute(pconf.mpi_procs, pconf.omp_threads, pconf.mem_per_proc)
+        except self.DistribError:
+            return False
+
+        return self.condition(pconf)
 
     def distribute(self, mpi_procs, omp_threads, mem_per_proc):
         """
@@ -293,22 +315,22 @@ class Partition(object):
         in tight loops attempting to make message passing progress, effectively causing other processes to not get
         any CPU cycles (and therefore never make any progress)
         """
-        CoresDistrib = namedtuple("CoresDistrib", "num_nodes mpi_per_node exact") # mem_per_node
+        Distrib = namedtuple("Distrib", "num_nodes mpi_per_node exact") # mem_per_node
 
         if mem_per_proc < self.mem_per_node:
             # Try to use all then cores in the node.
             num_nodes, rest_cores = self.divmod_node(mpi_procs, omp_threads)
             if num_nodes == 0 and mpi_procs * mem_per_proc <= self.mem_per_node:
-                return CoresDistrib(num_nodes=1, mpi_per_node=mpi_procs, exact=True)
+                return Distrib(num_nodes=1, mpi_per_node=mpi_procs, exact=True)
 
             mpi_per_node = mpi_procs // num_nodes
             if rest_cores == 0 and mpi_per_node * mem_per_proc <= self.mem_per_node:
-                return CoresDistrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, exact=True)
+                return Distrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, exact=True)
 
         # Try first to pack MPI processors in a node as much as possible
         mpi_per_node = int(self.mem_per_node / mem_per_proc)
         if mpi_per_node == 0:
-            raise self.DistributionError(
+            raise self.DistribError(
                 "mem_pre_proc > mem_per_node.\n Cannot distribute mpi_procs %d, omp_threads %d, mem_per_proc %s" %
                              (mpi_procs, omp_threads, mem_per_proc))
 
@@ -316,7 +338,7 @@ class Partition(object):
         #print(mpi_per_node, num_nodes)
 
         if mpi_per_node * omp_threads <= self.cores_per_node and mem_per_proc <= self.mem_per_node:
-            return CoresDistrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, exact=False)
+            return Distrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, exact=False)
 
         if (mpi_procs * omp_threads) % mpi_per_node != 0:
             # Have to reduce the number of MPI procs per node
@@ -324,25 +346,10 @@ class Partition(object):
                 if mpi_per_node > self.cores_per_node: continue
                 num_nodes = (mpi_procs * omp_threads) // mpi_per_node
                 if (mpi_procs * omp_threads) % mpi_per_node == 0 and mpi_per_node * mem_per_proc <= self.mem_per_node:
-                    return CoresDistrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, exact=False)
+                    return Distrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, exact=False)
         else:
-            raise self.DistributionError("Cannot distribute mpi_procs %d, omp_threads %d, mem_per_proc %s" %
+            raise self.DistribError("Cannot distribute mpi_procs %d, omp_threads %d, mem_per_proc %s" %
                             (mpi_procs, omp_threads, mem_per_proc))
-
-    def can_run(self, pconf):
-        """
-        True if this partition in principle is able to run the ``ParalConf`` pconf
-        """
-        if not self.max_cores >= pconf.num_cores >= self.min_cores: return False
-        if pconf.omp_threads > self.cores_per_node: return False
-        if pconf.mem_per_proc > self.mem_per_node: return False
-
-        #try:
-        #    self.distribute(pconf.mpi_procs, pconf.omp_threads, pconf.mem_per_proc)
-        #except self.DistributionError:
-        #    return False
-        return self.condition(pconf)
-
 
 
 #@singleton
@@ -560,17 +567,17 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             return 1
 
     @property
-    def use_only_mpi(self):
+    def pure_mpi(self):
         """True if only MPI is used."""
         return self.has_mpi and not self.has_omp
 
     @property
-    def use_only_omp(self):
+    def pure_omp(self):
         """True if only OpenMP is used."""
         return self.has_omp and not self.has_mpi
 
     @property
-    def use_mpi_omp(self):
+    def hybrid_mpi_omp(self):
         """True if we are running in MPI+Openmp mode."""
         return self.has_omp and self.has_mpi
 
@@ -615,11 +622,11 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         """Set the number of CPUs used for MPI."""
 
     #@abc.abstractproperty
-    #def walltime(self):
+    #def timelimit(self):
     #    """Returns the walltime in seconds."""
 
     #@abc.abstractmethod
-    #def set_walltime(self, walltime):
+    #def set_timelimit(self, timelimit):
     #    """Set the walltime in seconds."""
 
     #@abc.abstractproperty
@@ -1221,6 +1228,8 @@ class PbsProAdapter(QueueAdapter):
 #PBS -W group_list=$${group_list}
 #PBS -M $${mail_user}
 #PBS -m $${mail_type}
+# Submission environment
+#PBS -V
 #PBS -o $${_qout_path}
 #PBS -e $${_qerr_path}
 """
@@ -1244,12 +1253,10 @@ class PbsProAdapter(QueueAdapter):
     @property
     def mpi_procs(self):
         """Number of MPI processes."""
-        #return self.qparams.get("select", 1)
         return self._mpi_procs
                                                     
     def set_mpi_procs(self, mpi_procs):
         """Set the number of MPI processes."""
-        #self.qparams["select"] = mpi_procs
         self._mpi_procs = mpi_procs
 
     def set_omp_threads(self, omp_threads):
@@ -1259,33 +1266,40 @@ class PbsProAdapter(QueueAdapter):
 
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
-        self.qparams["pvmem"] = int(mem_mb)
-        self.qparams["vmem"] = int(mem_mb)
+        #self.qparams["pvmem"] = int(mem_mb)
+        #self.qparams["vmem"] = int(mem_mb)
+        self._mem_per_proc = mem_mb
 
     def cancel(self, job_id):
         return os.system("qdel %d" % job_id)
 
+    def optimize_params(self):
+        return {"select": self.get_select()}
+
     def get_select(self, ret_dict=False):
         """
-        Select is not the most intuitive command. For more info see
-        http://www.cardiff.ac.uk/arcca/services/equipment/User-Guide/pbs.html
-        https://portal.ivec.org/docs/Supercomputers/PBS_Pro
-        """
-        p = self.part
-        # TODO: vmem
+        Select is not the most intuitive command. For more info see:
 
-        if self.use_only_mpi:
+            * http://www.cardiff.ac.uk/arcca/services/equipment/User-Guide/pbs.html
+            * https://portal.ivec.org/docs/Supercomputers/PBS_Pro
+        """
+        # TODO: vmem
+        part = self.part
+        dist = part.distribute(self.mpi_procs, self.omp_threads, self._mem_per_proc)
+
+        if self.pure_mpi:
             # Pure MPI run
-            num_nodes, rest_cores = p.divmod_node(self.mpi_procs, self.omp_threads)
+            num_nodes, rest_cores = part.divmod_node(self.mpi_procs, self.omp_threads)
 
             if rest_cores == 0:
                 # Can allocate entire nodes because self.mpi_procs is divisible by cores_per_node.
                 print("PURE MPI run commensurate with cores_per_node", self.run_info)
+                num_nodes = max(num_nodes, 1)
                 select_params = dict(
                     chunks=num_nodes,
-                    ncpus=p.cores_per_node,
-                    mpiprocs=p.cores_per_node,
-                    vmem=int(p.mem_per_node),
+                    ncpus=part.cores_per_node,
+                    mpiprocs=part.cores_per_node,
+                    vmem=int(part.mem_per_node),
                     ompthreads=1
                     )
 
@@ -1295,7 +1309,7 @@ class PbsProAdapter(QueueAdapter):
                     chunks=rest_cores,
                     ncpus=1,
                     mpiprocs=1,
-                    vmem=int(p.mem_per_node),
+                    vmem=int(part.mem_per_node),
                     ompthreads=1)
 
             else:
@@ -1304,25 +1318,25 @@ class PbsProAdapter(QueueAdapter):
                     chunks=self.mpi_procs,
                     ncpus=1,
                     mpiprocs=1,
-                    vmem=int(p.mem_per_node),
+                    vmem=int(part.mem_per_node),
                     ompthreads=1)
 
-        elif self.use_only_omp:
+        elif self.pure_omp:
             # Pure OMP run.
             print("PURE OPENMP run.", self.run_info)
-            assert p.can_use_omp_threads(self.omp_threads)
+            assert part.can_use_omp_threads(self.omp_threads)
 
             select_params = dict(
                 chunks=1,
                 ncpus=self.omp_threads,
                 mpiprocs=1,
-                vmem=int(p.mem_per_node),
+                vmem=int(part.mem_per_node),
                 ompthreads=self.omp_threads)
 
-        elif self.use_mpi_omp:
+        elif self.hybrid_mpi_omp:
             # Hybrid MPI-OpenMP run.
-            assert p.can_use_omp_threads(self.omp_threads)
-            num_nodes, rest_cores = p.divmod_node(self.mpi_procs, self.omp_threads)
+            assert part.can_use_omp_threads(self.omp_threads)
+            num_nodes, rest_cores = part.divmod_node(self.mpi_procs, self.omp_threads)
             #print(num_nodes, rest_cores)
             # TODO: test this
 
@@ -1334,7 +1348,7 @@ class PbsProAdapter(QueueAdapter):
                     chunks=chunks,
                     ncpus=mpiprocs * self.omp_threads,
                     mpiprocs=mpiprocs,
-                    vmem=int(p.mem_per_node),
+                    vmem=int(part.mem_per_node),
                     ompthreads=self.omp_threads)
             else:
                 print("HYBRID MPI-OPENMP, NOT commensurate with nodes: ", self.run_info)
@@ -1342,12 +1356,11 @@ class PbsProAdapter(QueueAdapter):
                     chunks=self.mpi_procs,
                     ncpus=self.omp_threads,
                     mpiprocs=1,
-                    vmem=int(p.mem_per_node),
+                    vmem=int(part.mem_per_node),
                     ompthreads=self.omp_threads)
 
         else:
             raise RuntimeError("You should not be here")
-
 
         if not self.has_omp:
             s = "{chunks}:ncpus={ncpus}:vmem={vmem}mb:mpiprocs={mpiprocs}".format(**select_params)
@@ -1357,9 +1370,6 @@ class PbsProAdapter(QueueAdapter):
         if ret_dict:
             return s, AttrDict(select_params)
         return s
-
-    def optimize_params(self):
-        return {"select": self.get_select()}
 
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
@@ -1481,18 +1491,16 @@ class TorqueAdapter(PbsProAdapter):
     QTEMPLATE = """\
 #!/bin/bash
 
-#PBS -A $${account}
-#PBS -N $${job_name}
-#PBS -l walltime=$${walltime}
 #PBS -q $${queue}
-#PBS -l model=$${model}
-#PBS -l place=$${place}
-#PBS -W group_list=$${group_list}
-####PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
-####PBS -l pvmem=$${pvmem}mb
+#PBS -N $${job_name}
+#PBS -A $${account}
 #PBS -l pmem=$${pmem}mb
 ####PBS -l mppwidth=$${mppwidth}
 #PBS -l nodes=$${nodes}:ppn=$${ppn} 
+#PBS -l walltime=$${walltime}
+#PBS -l model=$${model}
+#PBS -l place=$${place}
+#PBS -W group_list=$${group_list}
 #PBS -M $${mail_user}
 #PBS -m $${mail_type}
 # Submission environment
