@@ -1069,7 +1069,7 @@ class Status(int):
         (5,  "Running",       "magenta", None, None),         # Node is running.
         (6,  "Done",          None     , None, None),         # Node done, This does not imply that results are ok or that the calculation completed successfully
         (7,  "AbiCritical",   "red"    , None, None),         # Node raised an Error by ABINIT.
-        (8,  "QueueCritical", "red"    , "on_white", None),   # Node raised an Error by submitting submission script, or by executing it
+        (8,  "QCritical",     "red"    , "on_white", None),   # Node raised an Error by submitting submission script, or by executing it
         (9,  "Unconverged",   "red"    , "on_yellow", None),  # This usually means that an iterative algorithm didn't converge.
         (10, "Error",         "red"    , None, None),         # Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.
         (11, "Completed",     "green"  , None, None),         # Execution completed successfully.
@@ -1106,7 +1106,7 @@ class Status(int):
     @property
     def is_critical(self):
         """True if status is critical."""
-        return str(self) in ("AbiCritical", "QueueCritical", "Uncoverged", "Error") 
+        return str(self) in ("AbiCritical", "QCritical", "Uncoverged", "Error") 
 
     @property
     def colored(self):
@@ -1132,7 +1132,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     S_RUN = Status.from_string("Running")
     S_DONE = Status.from_string("Done")
     S_ABICRITICAL = Status.from_string("AbiCritical")
-    S_QUEUECRITICAL = Status.from_string("QueueCritical")
+    S_QUEUECRITICAL = Status.from_string("QCritical")
     S_UNCONVERGED = Status.from_string("Unconverged")
     S_ERROR = Status.from_string("Error")
     S_OK = Status.from_string("Completed")
@@ -2101,7 +2101,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                     logger.debug('found unknown queue error: %s' % str(err_info))
                     return self.set_status(self.S_QUEUECRITICAL, info_msg=err_info)
                     # The job is killed or crashed but we don't know what happened
-                    # it is set to queuecritical, we will attempt to fix it by running on more resources
+                    # it is set to QCritical, we will attempt to fix it by running on more resources
 
         # 8) analizing the err files and abinit output did not identify a problem
         # but if the files are not empty we do have a problem but no way of solving it:
@@ -2109,7 +2109,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             logger.debug('found error message:\n %s' % str(err_msg))
             return self.set_status(self.S_QUEUECRITICAL, info_msg=err_info)
             # The job is killed or crashed but we don't know what happend
-            # it is set to queuecritical, we will attempt to fix it by running on more resources
+            # it is set to QCritical, we will attempt to fix it by running on more resources
 
         # 9) if we still haven't returned there is no indication of any error and the job can only still be running
         # but we should actually never land here, or we have delays in the file system ....

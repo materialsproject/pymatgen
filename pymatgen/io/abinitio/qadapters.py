@@ -1208,7 +1208,7 @@ class PbsProAdapter(QueueAdapter):
 #PBS -M $${mail_user}
 #PBS -m $${mail_type}
 # Submission environment
-#PBS -V
+####PBS -V
 #PBS -o $${_qout_path}
 #PBS -e $${_qerr_path}
 """
