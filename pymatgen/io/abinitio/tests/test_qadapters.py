@@ -29,9 +29,8 @@ class ParseTimestr(PymatgenTest):
 
 
 class PartitionTest(PymatgenTest):
-    def test_partition(self):
-        aequal = self.assertEqual
-        atrue = self.assertTrue
+    def test_partition_methods(self):
+        aequal, atrue, afalse = self.assertEqual, self.assertTrue, self.assertFalse
 
         # Test mandatory arguments
         p = AttrDict(qname="test_partition", num_nodes=3, sockets_per_node=2, cores_per_socket=4)
@@ -53,26 +52,27 @@ class PartitionTest(PymatgenTest):
         aequal(part.can_use_omp_threads(p.sockets_per_node * p.cores_per_socket + 1), False)
 
         # Test can_run and distribute
-        pconf = ParalConf(mpi_ncpus=part.num_cores+1, omp_ncpus=1, mem_per_cpu=0.1)
-        atrue(not part.can_run(pconf))
-        pconf = ParalConf(mpi_ncpus=4, omp_ncpus=9, mem_per_cpu=0.1)
-        atrue(not part.can_run(pconf))
-        pconf = ParalConf(mpi_ncpus=4, omp_ncpus=1, mem_per_cpu=1024**3)
-        atrue(not part.can_run(pconf))
-
         #partition has num_nodes=3, sockets_per_node=2, cores_per_socket=4, mem_per_node="8 Mb"
+        afalse(part.can_run(ParalConf(mpi_ncpus=part.num_cores+1, omp_ncpus=1, mem_per_cpu=0.1)))
+        afalse(part.can_run(ParalConf(mpi_ncpus=4, omp_ncpus=9, mem_per_cpu=0.1)))
+        afalse(part.can_run(ParalConf(mpi_ncpus=4, omp_ncpus=1, mem_per_cpu=1024**3)))
+
         d = part.distribute(mpi_procs=4, omp_threads=1, mem_per_proc=0.1)
         assert d.num_nodes == 1 and d.mpi_per_node == 4 and d.exact
+
         d = part.distribute(mpi_procs=16, omp_threads=1, mem_per_proc=1)
         assert d.num_nodes == 2 and d.mpi_per_node == 8 and d.exact
+
         # not enough memory per node but can distribute.
         d = part.distribute(mpi_procs=8, omp_threads=1, mem_per_proc=2)
         assert d.num_nodes == 2 and d.mpi_per_node == 4 and not d.exact
+
+        # not commensurate with node
         d = part.distribute(mpi_procs=9, omp_threads=1, mem_per_proc=0.1)
         assert d.num_nodes == 3 and d.mpi_per_node == 3 and not d.exact
 
         # mem_per_proc > mem_per_node!
-        with self.assertRaises(part.DistributionError):
+        with self.assertRaises(part.DistribError):
             d = part.distribute(mpi_procs=9, omp_threads=1, mem_per_proc=1024)
 
         # TODO: Test OpenMP
@@ -316,6 +316,8 @@ class PbsProadapterTest(PymatgenTest):
 #PBS -l select=3:ncpus=1:vmem=8192mb:mpiprocs=1
 #PBS -l walltime=24:0:0
 #PBS -W group_list=naps
+# Submission environment
+#PBS -V
 #PBS -o qout_path
 #PBS -e qerr_path
 cd /launch_dir
