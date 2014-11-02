@@ -123,6 +123,13 @@ def time2pbspro(timeval, unit="s"):
     return "%d:%d:%d" % (hours, minutes, secs)
 
 
+def timelimit_parser(s):
+    """Convert a float or a string into time in seconds."""
+    try:
+        return Time(float(s), "s")
+    except ValueError:
+        return parse_slurm_timestr(s)
+
 
 class MpiRunner(object):
     """
@@ -162,14 +169,6 @@ class MpiRunner(object):
     def has_mpirun(self):
         """True if we are running via mpirun, mpiexec ..."""
         return self.name is not None
-
-
-def timelimit_parser(s):
-    """Convert a float or a string into time in seconds."""
-    try:
-        return Time(float(s), "s")
-    except ValueError:
-        return parse_slurm_timestr(s)
 
 
 class PartitionError(Exception):
@@ -358,8 +357,7 @@ class Partition(object):
                             (mpi_procs, omp_threads, mem_per_proc))
 
 
-#@singleton
-class ExcludeNodesFile(object):
+class _ExcludeNodesFile(object):
     """
     This file contains the list of nodes to be excluded. 
     Nodes are indexed by queue name.
@@ -387,6 +385,8 @@ class ExcludeNodesFile(object):
                 else:
                     d["qname"] = nodes
                 json.dump(d, fh)
+
+#_excludenodesfile = ExcludeNodesFiles()
 
 
 def make_qadapter(qtype, **kwargs):
@@ -822,10 +822,10 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         """
 
     #def add_exclude_nodes(self, nodes):
-    #    return ExcludeNodesFile().add_nodes(self.qname, nodes)
+    #    return _excludenodesfile.add_nodes(self.qname, nodes)
 
     #def get_exclude_nodes(self):
-    #    return ExcludeNodesFile().read_nodes(self.qname)
+    #    return _excludenodesfile.read_nodes(self.qname)
 
     def more_mem_per_proc(self, factor):
         """
@@ -1008,12 +1008,12 @@ class SlurmAdapter(QueueAdapter):
 
     def exclude_nodes(self, nodes):
         try:
-            if 'exclude_nodes' not in self.qparams.keys():
-                self.qparams.update({'exclude_nodes': 'node'+nodes[0]})
+            if 'exclude_nodes' not in self.qparams:
+                self.qparams.update({'exclude_nodes': 'node' + nodes[0]})
                 print('excluded node %s' % nodes[0])
 
             for node in nodes[1:]:
-                self.qparams['exclude_nodes'] += ',node'+node
+                self.qparams['exclude_nodes'] += ',node' + node
                 print('excluded node %s' % node)
 
             return True
@@ -1283,7 +1283,6 @@ class PbsProAdapter(QueueAdapter):
             ompthreads = self.omp_threads
 
         elif self.hybrid_mpi_omp:
-            # Hybrid MPI-OpenMP run.
             assert part.can_use_omp_threads(self.omp_threads)
             num_nodes, rest_cores = part.divmod_node(self.mpi_procs, self.omp_threads)
             #print(num_nodes, rest_cores)

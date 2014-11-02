@@ -1711,8 +1711,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 message: 
                     a string that should provide a human-readable description of what has been performed.
         """
-        return dict(returncode=0, 
-                    message="Calling on_all_ok of the base class!")
+        return dict(returncode=0, message="Calling on_all_ok of the base class!")
 
     def fix_ofiles(self):
         """
