@@ -439,7 +439,6 @@ class PyFlowScheduler(object):
         """Create an istance from string s containing a YAML dictionary."""
         stream = cStringIO(s)
         stream.seek(0)
-
         return cls(**yaml.load(stream))
 
     @classmethod
@@ -464,8 +463,7 @@ class PyFlowScheduler(object):
         if os.path.exists(path):
             return cls.from_file(path)
 
-        err_msg = "Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, path)
-        raise cls.Error(err_msg)
+        raise cls.Error("Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, path))
 
     def __str__(self):
         """String representation."""
@@ -520,7 +518,7 @@ class PyFlowScheduler(object):
         if os.path.isfile(pid_file):
             flow.show_status()
 
-            err_msg = ("""
+            raise self.Error("""\
                 pid_file %s already exists
                 There are two possibilities:
 
@@ -535,8 +533,6 @@ class PyFlowScheduler(object):
                    Remove the pid_file and restart the scheduler.
 
                 Exiting""" % pid_file)
-
-            raise self.Error(err_msg)
 
         with open(pid_file, "w") as fh:
             fh.write(str(self.pid))
@@ -713,18 +709,9 @@ class PyFlowScheduler(object):
                 self.flow.num_errored_tasks, self.MAX_NUM_ABIERRS)
             err_msg += boxed(msg)
 
-        # Count the number of tasks with status == S_UNCONVERGED.
-        #if self.flow.num_unconverged_tasks:
-        #    # TODO: this is needed to avoid deadlocks, automatic restarting is not available yet
-        #    msg = ("Found %d unconverged tasks."
-        #           "Automatic restarting is not available yet. Will shutdown the scheduler and exit"
-        #           % self.flow.num_unconverged_tasks)
-        #    err_msg += boxed(msg)
-
-        #deadlocks = self.detect_deadlocks()
-        #if deadlocks:
-        #    msg = ("Detected deadlocks in flow. Will shutdown the scheduler and exit"
-        #           % self.flow.num_unconverged_tasks)
+        #deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
+        #if not runnables and not running and deadlocked:
+        #    msg = "No runnable job with deadlocked tasks:\n %s\nWill shutdown the scheduler and exit" % str(deadlocked)
         #    err_msg += boxed(msg)
 
         if err_msg:

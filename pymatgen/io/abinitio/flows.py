@@ -456,19 +456,27 @@ class AbinitFlow(Node):
         if deadlocks:
             lines = ["Detect wrong list of dependecies that will lead to a deadlock:"]
             lines.extend(["%s <--> %s" % nodes for nodes in deadlocks])
-            raise ValueError("\n".join(lines))
+            raise self.Error("\n".join(lines))
 
-    #def detect_deadlock(self):
-    #    eu_tasks = list(self.errored_tasks) + list(self.unconverged_tasks)
-    #     if not eu_tasks:
-    #        return []
+    def deadlocked_runnables_running(self):
+        """
+        This function detects deadlocks 
+        return deadlocks, runnables, running
+        """
+        runnables = []
+        for work in self:
+            runnables.extend(work.fetch_alltasks_to_run())
 
-    #    deadlocked = []
-    #    for task in self.all_tasks:
-    #        if any(task.depends_on(eu_task) for eu_task in eu_tasks):
-    #            deadlocked.append(task)
+        running = list(self.iflat_tasks(status=Task.S_RUN))
 
-    #    return deadlocked
+        deadlocked = []
+        err_tasks = self.errored_tasks
+        if err_task:
+            for task in self.all_tasks:
+                if any(task.depends_on(err_task) for err_task in err_tasks):
+                    deadlocked.append(task)
+
+        return deadlocked, runnables, running
 
     def check_status(self, **kwargs):
         """
@@ -519,7 +527,7 @@ class AbinitFlow(Node):
         """
         from pymatgen.io.gwwrapper.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
 
-        for task in self.iflat_tasks(status=Task.S_QUEUECRITICAL):
+        for task in self.iflat_tasks(status=Task.S_QCRITICAL):
             logger.info("Will try to fix task %s" % str(task))
 
             if not task.queue_errors:
@@ -595,14 +603,11 @@ class AbinitFlow(Node):
         red = "red" if has_colours else None
 
         for i, work in enumerate(self):
-            print(80*"=", file=stream)
-            print("Workflow #%d: %s, Finalized=%s\n" % (i, work, work.finalized), file=stream)
+            print("", file=stream)
+            print("Work #%d: %s, Finalized=%s\n" % (i, work, work.finalized), file=stream)
+            if verbose == 0 and work.finalized: continue
 
-            if verbose == 0 and work.finalized:
-                continue
-
-            table =PrettyTable([
-                "Task", "Status", "Queue-id", "Err|Warn|Comm", "MPI|OMP", "Class", "Restarts", "Run-Etime"])
+            table = PrettyTable(["Task", "Status", "Queue-id", "Err|Warn|Comm", "MPI|OMP", "Class", "Restart", "Etime"])
 
             tot_num_errors = 0
             for task in work:
@@ -631,6 +636,7 @@ class AbinitFlow(Node):
             print(table, file=stream)
             if tot_num_errors:
                 cprint("Total number of errors: %d" % tot_num_errors, red, file=stream)
+            print("", file=stream)
 
     def get_results(self, **kwargs):
         results = self.Results.from_node(self)
@@ -653,8 +659,17 @@ class AbinitFlow(Node):
         """
         This method should be called before running the calculation to make
         sure that the most important requirements are satisfied.
+
+        Return:
+            List of strings with inconsistencies/errors.
         """
         errors = []
+
+        try:
+            self.check_dependencies()
+        except self.Error as exc:
+            errors.append(str(exc))
+
         if self.has_db:
             try:
                 self.manager.db_connector.get_collection()
@@ -684,7 +699,6 @@ class AbinitFlow(Node):
         print("Mongodb collection %s with count %d", coll, coll.count())
 
         start = time.time()
-
         for work in self:
             for task in work:
                 results = task.get_results()
@@ -693,9 +707,7 @@ class AbinitFlow(Node):
             results = work.get_results()
             pprint(results)
             results.update_collection(coll)
-
-        msg = "MongoDb update done in %s [s]" % time.time() - start
-        print(msg)
+        print("MongoDb update done in %s [s]" % time.time() - start)
 
         results = self.get_results()
         pprint(results)
@@ -849,7 +861,6 @@ class AbinitFlow(Node):
 
         # Atomic transaction with FileLock.
         with FileLock(filepath):
-            #with open(filepath, mode="wb") as fh:
             with AtomicFile(filepath, mode="wb") as fh:
                 pmg_pickle_dump(self, fh, protocol=protocol)
 
@@ -990,7 +1001,6 @@ class AbinitFlow(Node):
         logger.info("on_dep_ok with sender %s, signal %s" % (str(sender), signal))
 
         for i, cbk in enumerate(self._callbacks):
-
             if not cbk.handle_sender(sender):
                 logger.info("%s does not handle sender %s" % (cbk, sender))
                 continue
@@ -1321,7 +1331,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
     natom = len(scf_input.structure)
 
     # Create the container that will manage the different workflows.
-    flow = AbinitFlow(workdir, manager)
+    flow = AbinitFlow(workdir=workdir, manager=manager)
 
     # Register the first workflow (GS calculation)
     scf_task = flow.register_task(scf_input, task_class=ScfTask)

@@ -188,9 +188,7 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
         Returns a list with all the tasks that can be submitted.
         Empty list if not task has been found.
         """
-        #if all(task.is_completed for task in self):
-        #    return []
-
+        #if all(task.is_completed for task in self) return []
         return [task for task in self if task.can_run]
 
     @abc.abstractmethod
