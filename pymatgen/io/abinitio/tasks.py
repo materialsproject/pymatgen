@@ -15,6 +15,7 @@ import yaml
 import six
 
 from pprint import pprint
+from atomicfile import AtomicFile
 from monty.termcolor import colored
 from six.moves import map, zip, StringIO
 from monty.serialization import loadfn
@@ -537,8 +538,7 @@ class TaskPolicy(object):
             else:
                 raise TypeError("Don't know how to convert type %s to %s" % (type(obj), cls))
 
-    #def __init__(self, autoparal=0, automemory=0, mode="default", max_ncpus=None,
-    #             condition=None, vars_condition=None):
+    #def __init__(self, autoparal=0, automemory=0, mode="default", max_ncpus=None, condition=None, vars_condition=None):
 
     def __init__(self, **kwargs):
         """
@@ -598,6 +598,8 @@ class TaskManager(object):
     YAML_FILE = "taskmanager.yml"
     USER_CONFIG_DIR = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
 
+    ENTRIES = {"policy", "qadapters", "db_connector"}
+
     @classmethod
     def from_user_config(cls):
         """
@@ -623,14 +625,17 @@ class TaskManager(object):
     def from_file(cls, filename):
         """Read the configuration parameters from the Yaml file filename."""
         with open(filename, "r") as fh:
-            return cls(**yaml.load(fh))
+            return cls.from_dict(yaml.load(fh))
 
     @classmethod
     def from_string(cls, s):
         """Create an instance from string s containing a YAML dictionary."""
-        stream = StringIO(s)
-        stream.seek(0)
-        return cls(**yaml.load(stream))
+        return cls.from_dict(yaml.load(s))
+
+    @classmethod
+    def from_dict(cls, d):
+        """Create an instance from a dictionary."""
+        return cls(**{k: v for k, v in d.items() if k in cls.ENTRIES}) 
 
     def __init__(self, **kwargs):
         """
@@ -662,6 +667,8 @@ class TaskManager(object):
 
         if kwargs:
             raise ValueError("Found invalid keywords in the taskmanager file:\n %s" % str(list(kwargs.keys())))
+        #print(self)
+        #print(self.qadapter.part)
 
     def to_shell_manager(self, mpi_procs=1, policy=None):
         """
@@ -892,8 +899,8 @@ def get_newnode_id():
 
 def save_lastnode_id():
     """Save the id of the last node created."""
-    with FileLock(_COUNTER_FILE) as lock:
-        with open(_COUNTER_FILE, "w") as fh:
+    with FileLock(_COUNTER_FILE):
+        with AtomicFile(_COUNTER_FILE, mode="w") as fh:
             fh.write("%d" % _COUNTER)
 
 import atexit
@@ -1088,11 +1095,7 @@ class Status(int):
     @classmethod
     def as_status(cls, obj):
         """Convert obj into Status."""
-        if isinstance(obj, cls):
-            return obj
-        else:
-            # Assume string
-            return cls.from_string(obj)
+        return obj if isinstance(obj, cls) else cls.from_string(obj)
 
     @classmethod
     def from_string(cls, s):
@@ -1132,7 +1135,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     S_RUN = Status.from_string("Running")
     S_DONE = Status.from_string("Done")
     S_ABICRITICAL = Status.from_string("AbiCritical")
-    S_QUEUECRITICAL = Status.from_string("QCritical")
+    S_QCRITICAL = Status.from_string("QCritical")
     S_UNCONVERGED = Status.from_string("Unconverged")
     S_ERROR = Status.from_string("Error")
     S_OK = Status.from_string("Completed")
@@ -1145,7 +1148,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         S_RUN,
         S_DONE,
         S_ABICRITICAL,
-        S_QUEUECRITICAL,
+        S_QCRITICAL,
         S_UNCONVERGED,
         S_ERROR,
         S_OK,
@@ -1957,7 +1960,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         if self.returncode != 0:
             # The job was not submitter properly
             info_msg = "return code %s" % self.returncode
-            return self.set_status(self.S_QUEUECRITICAL, info_msg=info_msg)           
+            return self.set_status(self.S_QCRITICAL, info_msg=info_msg)           
 
 #        err_msg = None
 #=======
@@ -2094,12 +2097,12 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 logger.debug('scheduler errors found:')
                 logger.debug(str(scheduler_parser.errors))
                 self.queue_errors = scheduler_parser.errors
-                return self.set_status(self.S_QUEUECRITICAL)
+                return self.set_status(self.S_QCRITICAL)
                 # The job is killed or crashed and we know what happened
             else:
                 if len(err_info) > 0:
                     logger.debug('found unknown queue error: %s' % str(err_info))
-                    return self.set_status(self.S_QUEUECRITICAL, info_msg=err_info)
+                    return self.set_status(self.S_QCRITICAL, info_msg=err_info)
                     # The job is killed or crashed but we don't know what happened
                     # it is set to QCritical, we will attempt to fix it by running on more resources
 
@@ -2107,7 +2110,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # but if the files are not empty we do have a problem but no way of solving it:
         if err_msg is not None and len(err_msg) > 0:
             logger.debug('found error message:\n %s' % str(err_msg))
-            return self.set_status(self.S_QUEUECRITICAL, info_msg=err_info)
+            return self.set_status(self.S_QCRITICAL, info_msg=err_info)
             # The job is killed or crashed but we don't know what happend
             # it is set to QCritical, we will attempt to fix it by running on more resources
 
@@ -3019,6 +3022,17 @@ class BseTask(AbinitTask):
 
         # Now we can resubmit the job.
         return self._restart()
+
+    #def inspect(self, **kwargs):
+    #    """
+    #    Plot the Haydock iterations with matplotlib.
+
+    #    Returns
+    #        `matplotlib` figure, None if some error occurred.
+    #    """
+    #    haydock_cycle = abiinspect.HaydockIterations.from_file(self.output_file.path)
+    #    if haydock_cycle is not None:
+    #        return haydock_cycle.plot(**kwargs)
 
     def get_results(self, **kwargs):
         results = super(BseTask, self).get_results(**kwargs)
