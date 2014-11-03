@@ -12,20 +12,60 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 'test
 
 
 class TaskManagerTest(PymatgenTest):
+    MANAGER = """\
+policy:
+    autoparal: 1
+    max_ncpus: 2
+qadapters:
+    - priority: 1
+      queue:
+        qtype: slurm
+        qname: Oban
+        qparams:
+            mail_user: nobody@nowhere
+      limits:
+        timelimit: 0:20:00
+        min_cores: 4
+        max_cores: 12
+        #condition: {"$eq": {omp_threads: 2}}
+      hardware:
+        num_nodes: 10
+        sockets_per_node: 1
+        cores_per_socket: 2
+        mem_per_node: 4 Gb
+      job:
+        modules:
+            - intel/compilerpro/13.0.1.117
+            - fftw3/intel/3.3
+        shell_env:
+            PATH: /home/user/tmp_intel13/src/98_main/:/home/user//NAPS/intel13/bin:$PATH
+            LD_LIBRARY_PATH: /home/user/NAPS/intel13/lib:$LD_LIBRARY_PATH
+        mpi_runner: mpirun
 
+# Connection to the MongoDb database (optional) 
+db_connector:
+    enabled: no
+    database: abinit
+    collection: test
+    #host: 0.0.0.0 
+    #port: 8080 
+    #user: gmatteo
+    #password: helloworld
+"""
     def test_base(self):
         """
         Simple unit tests for Qadapter subclasses.
         A more complete coverage would require integration testing.
         """
-        aequal = self.assertEqual
+        aequal, atrue, afalse = self.assertEqual, self.assertTrue, self.assertFalse
         # Initialize the object from YAML file.
-        slurm_manager = TaskManager.from_file(os.path.join(test_dir, "taskmanager.yml"))
+        slurm_manager = TaskManager.from_string(self.MANAGER)
 
         print(slurm_manager)
         aequal(slurm_manager.num_cores, 4)
         aequal(slurm_manager.mpi_procs, 4)
         aequal(slurm_manager.omp_threads, 1)
+        afalse(slurm_manager.has_db)
 
         # Make a simple shell manager that will inherit the initial configuration.
         shell_manager = slurm_manager.to_shell_manager(mpi_procs=1)

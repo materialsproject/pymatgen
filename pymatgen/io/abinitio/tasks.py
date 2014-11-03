@@ -641,7 +641,7 @@ class TaskManager(object):
         """
         Arggs:
             policy=None
-            qadapters, 
+            qadapters
             db_connector=None
         """
         # Keep a copy of kwargs
@@ -652,10 +652,14 @@ class TaskManager(object):
         # Initialize database connector (if specified)
         self.db_connector = DBConnector(config_dict=kwargs.pop("db_connector", None))
 
+        # Build list of QAdapters. Neglect entry if priority == 0
         qads = []
         for d in kwargs.pop("qadapters"):
-            qtype = d.pop("qtype")
-            qads.append(make_qadapter(qtype=qtype, **d))
+            qad = make_qadapter(**d)
+            if qad.priority > 0:    
+                qads.append(qad)
+            elif qad.priority < 0:    
+                raise ValueError("qadapter cannot have negative priority:\n %s" % qad)
 
         # Order qdapters according to priority.
         qads = sorted(qads, key=lambda q: q.priority)
@@ -667,8 +671,6 @@ class TaskManager(object):
 
         if kwargs:
             raise ValueError("Found invalid keywords in the taskmanager file:\n %s" % str(list(kwargs.keys())))
-        #print(self)
-        #print(self.qadapter.part)
 
     def to_shell_manager(self, mpi_procs=1, policy=None):
         """
