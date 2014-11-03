@@ -23,6 +23,7 @@ import json
 
 from collections import namedtuple
 from subprocess import Popen, PIPE, check_output
+from atomicfile import AtomicFile
 from monty.string import is_string
 from monty.collections import AttrDict, MongoDict
 from monty.functools import lazy_property
@@ -278,10 +279,12 @@ class _ExcludeNodesFile(object):
     This file contains the list of nodes to be excluded. 
     Nodes are indexed by queue name.
     """ 
-    FILEPATH = os.path.join(os.getenv("HOME"), ".abinit", "abipy", "exclude_nodes.json")
+    DIRPATH = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
+    FILEPATH = os.path.join(DIRPATH, "exclude_nodes.json")
 
     def __init__(self):
         if not os.path.exists(self.FILEPATH):
+            if not os.path.exists(self.DIRPATH): os.makedirs(self.DIRPATH)
             with FileLock(self.FILEPATH):
                 with open(self.FILEPATH, "w") as fh:
                     json.dump({}, fh)
@@ -293,7 +296,7 @@ class _ExcludeNodesFile(object):
     def add_nodes(self, qname, nodes):
         nodes = (nodes,) if not isinstance(nodes, (tuple, list)) else nodes
         with FileLock(self.FILEPATH):
-            with open(self.FILEPATH, mode="w+") as fh:
+            with AtomicFile(filepath, mode="w+") as fh:
                 d = json.load(fh)
                 if qname in d:
                     d["qname"].extend(nodes)
@@ -623,7 +626,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     def can_run_pconf(self, pconf):
         """True if the qadapter in principle is able to run the ``ParalConf`` pconf"""
         if not self.max_cores >= pconf.num_cores >= self.min_cores: return False
-        if not self.hw.can_use_omp_threads(self.omp_threads): False
+        if not self.hw.can_use_omp_threads(self.omp_threads): return False
         if pconf.mem_per_proc > self.hw.mem_per_node: return False
 
         try:
@@ -795,9 +798,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             se.add_comment("Commands after execution")
             se.add_lines(self.post_run)
 
-        shell_text = se.get_script_str()
-
-        return qheader + shell_text + "\n"
+        return qheader + se.get_script_str() + "\n"
 
     def submit_to_queue(self, script_file):
         """
