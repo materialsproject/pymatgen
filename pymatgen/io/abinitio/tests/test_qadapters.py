@@ -97,13 +97,12 @@ job:
         - fftw3/intel/3.3
     shell_env:
         PATH: /home/user/tmp_intel13/src/98_main/:/home/user//NAPS/intel13/bin:$PATH
-        LD_LIBRARY_PATH: /home/user/NAPS/intel13/lib:$LD_LIBRARY_PATH
     mpi_runner: mpirun
 hardware:
    num_nodes: 100
    sockets_per_node: 2
    cores_per_socket: 4
-   mem_per_node: 1 Gb""")
+   mem_per_node: 8 Gb""")
 
     def test_base(self):
         """
@@ -130,9 +129,9 @@ hardware:
             atrue(qad.pure_mpi)
             afalse(qad.pure_omp)
             afalse(qad.hybrid_mpi_omp)
-            # TODO
-            #qad.set_mem_per_proc(13)
-            #aequal(qad.mem_per_proc, 13)
+            aequal(qad.mem_per_proc, 1024)
+            qad.set_mem_per_proc(1024*2)
+            aequal(qad.mem_per_proc, 1024*2)
 
             # Enable OMP
             qad.set_omp_threads(2)
@@ -180,28 +179,29 @@ hardware:
         print(qad)
         print(qad.mpi_runner)
 
-        assert qad.QTYPE == "shell" and qad.supported_qparams == ["MPI_PROCS"]
-        assert qad.has_mpi and not qad.has_omp
+        assert qad.QTYPE == "shell" and qad.has_mpi and not qad.has_omp
         assert (qad.mpi_procs, qad.omp_threads) == (1, 1)
         assert qad.priority == 1 and qad.num_attempts == 0 and qad.last_attempt is None
 
-        qad.set_mpi_procs(2)
-        qad.set_omp_threads(4)
+        #with self.assertRaises(qad.Error):
+        #    qad.set_mpi_procs(2)
+        qad.set_omp_threads(1)
         assert qad.has_omp
+        #with self.assertRaises(qad.Error):
+        #    qad.set_omp_threads(2)
+
         s = qad.get_script_str("job_name", "/launch_dir", "executable", "qout_path", "qerr_path",
                                stdin="stdin", stdout="stdout", stderr="stderr")
         self.assertMultiLineEqual(s, """\
 #!/bin/bash
-
-export MPI_PROCS=2
 # OpenMp Environment
-export OMP_NUM_THREADS=4
+export OMP_NUM_THREADS=1
 
 cd /launch_dir
 # Commands before execution
 source ~/env1.sh
 
-/home/my_mpirun -n 2 executable < stdin > stdout 2> stderr
+/home/my_mpirun -n 1 executable < stdin > stdout 2> stderr
 """)
 
 
@@ -317,13 +317,11 @@ hardware:
         print(qad)
         print(qad.mpi_runner)
 
-        assert qad.QTYPE == "pbspro" 
-        assert qad.has_mpi and not qad.has_omp
-        #assert (qad.mpi_procs, qad.omp_threads) == (3, 1)
+        assert qad.QTYPE == "pbspro" and qad.has_mpi and not qad.has_omp
+        assert (qad.mpi_procs, qad.omp_threads) == (3, 1)
         assert qad.priority == 1 and qad.num_attempts == 0 and qad.last_attempt is None
 
         #qad.set_mpi_procs(4)
-
         s = qad.get_script_str("job_name", "/launch_dir", "executable", "qout_path", "qerr_path",
                                stdin="stdin", stdout="stdout", stderr="stderr")
         print(s)
@@ -332,7 +330,7 @@ hardware:
 
 #PBS -q fat
 #PBS -N job_name
-#PBS -l select=1:ncpus=1:vmem=1024mb:mpiprocs=1
+#PBS -l select=1:ncpus=3:vmem=3072mb:mpiprocs=3
 #PBS -l walltime=0:0:10
 #PBS -W group_list=naps
 # Submission environment
@@ -340,7 +338,7 @@ hardware:
 #PBS -o qout_path
 #PBS -e qerr_path
 cd /launch_dir
-mpirun -n 1 executable < stdin > stdout 2> stderr
+mpirun -n 3 executable < stdin > stdout 2> stderr
 """)
         mem = 1024
         qad.set_mem_per_proc(mem)

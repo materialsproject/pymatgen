@@ -688,6 +688,8 @@ class TaskManager(object):
             d["qtype"] = "shell"
 
         new = self.__class__(**my_kwargs)
+        #new.min_cores = 1
+        #new.max_cores = mpi_procs
         new.set_mpi_procs(mpi_procs)
 
         return new
