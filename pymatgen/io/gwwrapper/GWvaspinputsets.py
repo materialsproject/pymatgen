@@ -427,71 +427,139 @@ class SingleVaspGWWork():
             else:
                 inpset.write_input(self.structure, os.path.join(path, 'scGW0'+option_name))
 
-    def create_job_script(self, add_to_collection=True):
-        """
-        Create job script for ceci.
-        """
-        npar = GWscDFTPrepVaspInputSet(self.structure, self.spec,
-                                         functional=self.spec['functional']).get_npar(self.structure)
-        if self.option is not None:
-            option_prep_name = str(self.option['test_prep']) + str(self.option['value_prep'])
-            if 'test' in self.option.keys():
-                option_name = str('.') + str(self.option['test']) + str(self.option['value'])
-        else:
-            option_prep_name = option_name = ''
-        # npar = int(os.environ['NPARGWCALC'])
-        header = ("#!/bin/bash \n"
-                  "## standard header for Ceci clusters ## \n"
-                  "#SBATCH --mail-user=michiel.vansetten@uclouvain.be \n"
-                  "#SBATCH --mail-type=ALL\n"
-                  "#SBATCH --time=2-24:0:0 \n"
-                  "#SBATCH --cpus-per-task=1 \n"
-                  "#SBATCH --mem-per-cpu=4000 \n")
-        path_add = ''
-        if self.spec['converge'] and self.converged:
-            path_add = '.conv'
-        if self.job == 'prep':
-            path = os.path.join(s_name(self.structure) + path_add, option_prep_name)
-            # create this job
-            job_file = open(name=os.path.join(path, 'job'), mode='w')
-            job_file.write(header)
-            job_file.write('#SBATCH --job-name='+s_name(self.structure)+self.job+'\n')
-            job_file.write('#SBATCH --ntasks='+str(npar)+'\n')
-            job_file.write('module load vasp \n')
-            job_file.write('mpirun vasp \n')
-            job_file.write('cp OUTCAR OUTCAR.sc \n')
-            job_file.write('cp INCAR.DIAG INCAR \n')
-            job_file.write('mpirun vasp \n')
-            job_file.write('cp OUTCAR OUTCAR.diag \n')
-            job_file.close()
-            os.chmod(os.path.join(path, 'job'), stat.S_IRWXU)
-            if add_to_collection:
-                job_file = open("job_collection", mode='a')
-                job_file.write('cd ' + path + ' \n')
-                job_file.write('sbatch job \n')
-                job_file.write('cd .. \n')
+    def create_job_script(self, add_to_collection=True, mode='slurm'):
+        if mode == 'slurm':
+            """
+            Create job script for ceci.
+            """
+            npar = GWscDFTPrepVaspInputSet(self.structure, self.spec,
+                                             functional=self.spec['functional']).get_npar(self.structure)
+            if self.option is not None:
+                option_prep_name = str(self.option['test_prep']) + str(self.option['value_prep'])
+                if 'test' in self.option.keys():
+                    option_name = str('.') + str(self.option['test']) + str(self.option['value'])
+            else:
+                option_prep_name = option_name = ''
+            # npar = int(os.environ['NPARGWCALC'])
+            header = ("#!/bin/bash \n"
+                      "## standard header for Ceci clusters ## \n"
+                      "#SBATCH --mail-user=michiel.vansetten@uclouvain.be \n"
+                      "#SBATCH --mail-type=ALL\n"
+                      "#SBATCH --time=2-24:0:0 \n"
+                      "#SBATCH --cpus-per-task=1 \n"
+                      "#SBATCH --mem-per-cpu=4000 \n")
+            path_add = ''
+            if self.spec['converge'] and self.converged:
+                path_add = '.conv'
+            if self.job == 'prep':
+                path = os.path.join(s_name(self.structure) + path_add, option_prep_name)
+                # create this job
+                job_file = open(name=os.path.join(path, 'job'), mode='w')
+                job_file.write(header)
+                job_file.write('#SBATCH --job-name='+s_name(self.structure)+self.job+'\n')
+                job_file.write('#SBATCH --ntasks='+str(npar)+'\n')
+                job_file.write('module load vasp \n')
+                job_file.write('mpirun vasp \n')
+                job_file.write('cp OUTCAR OUTCAR.sc \n')
+                job_file.write('cp INCAR.DIAG INCAR \n')
+                job_file.write('mpirun vasp \n')
+                job_file.write('cp OUTCAR OUTCAR.diag \n')
                 job_file.close()
-                os.chmod("job_collection", stat.S_IRWXU)
-        if self.job in ['G0W0', 'GW0', 'scGW0']:
-            path = os.path.join(s_name(self.structure) + path_add, option_prep_name, self.job + option_name)
-            # create this job
-            job_file = open(name=path+'/job', mode='w')
-            job_file.write(header)
-            job_file.write('#SBATCH --job-name='+s_name(self.structure)+self.job+'\n')
-            job_file.write('#SBATCH --ntasks='+str(npar)+'\n')
-            job_file.write('module load vasp/5.2_par_wannier90 \n')
-            job_file.write('cp ../CHGCAR ../WAVECAR ../WAVEDER . \n')
-            job_file.write('mpirun vasp \n')
-            job_file.write('rm W* \n')
-            #job_file.write('workon pymatgen-GW; get_gap > gap; deactivate')
-            #job_file.write('echo '+path+'`get_gap` >> ../../gaps.dat')
-            job_file.close()
-            os.chmod(path+'/job', stat.S_IRWXU)
-            path = os.path.join(s_name(self.structure) + path_add, option_prep_name)
-            # 'append submission of this job script to that of prep for this structure'
-            if add_to_collection:
-                job_file = open(name=os.path.join(path, 'job'), mode='a')
-                job_file.write('cd ' + self.job + option_name + ' \n')
-                job_file.write('sbatch job \n')
-                job_file.write('cd .. \n')
+                os.chmod(os.path.join(path, 'job'), stat.S_IRWXU)
+                if add_to_collection:
+                    job_file = open("job_collection", mode='a')
+                    job_file.write('cd ' + path + ' \n')
+                    job_file.write('sbatch job \n')
+                    job_file.write('cd .. \n')
+                    job_file.close()
+                    os.chmod("job_collection", stat.S_IRWXU)
+            if self.job in ['G0W0', 'GW0', 'scGW0']:
+                path = os.path.join(s_name(self.structure) + path_add, option_prep_name, self.job + option_name)
+                # create this job
+                job_file = open(name=path+'/job', mode='w')
+                job_file.write(header)
+                job_file.write('#SBATCH --job-name='+s_name(self.structure)+self.job+'\n')
+                job_file.write('#SBATCH --ntasks='+str(npar)+'\n')
+                job_file.write('module load vasp/5.2_par_wannier90 \n')
+                job_file.write('cp ../CHGCAR ../WAVECAR ../WAVEDER . \n')
+                job_file.write('mpirun vasp \n')
+                job_file.write('rm W* \n')
+                #job_file.write('workon pymatgen-GW; get_gap > gap; deactivate')
+                #job_file.write('echo '+path+'`get_gap` >> ../../gaps.dat')
                 job_file.close()
+                os.chmod(path+'/job', stat.S_IRWXU)
+                path = os.path.join(s_name(self.structure) + path_add, option_prep_name)
+                # 'append submission of this job script to that of prep for this structure'
+                if add_to_collection:
+                    job_file = open(name=os.path.join(path, 'job'), mode='a')
+                    job_file.write('cd ' + self.job + option_name + ' \n')
+                    job_file.write('sbatch job \n')
+                    job_file.write('cd .. \n')
+                    job_file.close()
+        elif mode == 'pbspro':
+            """
+            Create job script for pbse pro Zenobe.
+            """
+            npar = GWscDFTPrepVaspInputSet(self.structure, self.spec,
+                                           functional=self.spec['functional']).get_npar(self.structure)
+            if self.option is not None:
+                option_prep_name = str(self.option['test_prep']) + str(self.option['value_prep'])
+                if 'test' in self.option.keys():
+                    option_name = str('.') + str(self.option['test']) + str(self.option['value'])
+            else:
+                option_prep_name = option_name = ''
+            # npar = int(os.environ['NPARGWCALC'])
+            header = str("#!/bin/bash \n" +
+                         "## standard header for zenobe ## \n" +
+                         "#!/bin/bash" +
+                         "#PBS -q main" +
+                         "#PBS -l walltime=48:0:00" +
+                         "#PBS -o queue.qout" +
+                         "#PBS -e queue.qerr" +
+                         "#PBS -r y " +
+                         "#PBS -m abe" +
+                         "#PBS -M michiel.vansetten@uclouvain.be")
+            path_add = ''
+            if self.spec['converge'] and self.converged:
+                path_add = '.conv'
+            if self.job == 'prep':
+                path = os.path.join(s_name(self.structure) + path_add, option_prep_name)
+                # create this job
+                job_file = open(name=os.path.join(path, 'job'), mode='w')
+                job_file.write(header)
+                job_file.write("#PBS -l select=%s:ncpus=1:vmem=1000mb:mpiprocs=1:ompthreads=1\n" % str(npar))
+                job_file.write('mpirun vasp \n')
+                job_file.write('cp OUTCAR OUTCAR.sc \n')
+                job_file.write('cp INCAR.DIAG INCAR \n')
+                job_file.write('mpirun vasp \n')
+                job_file.write('cp OUTCAR OUTCAR.diag \n')
+                job_file.close()
+                os.chmod(os.path.join(path, 'job'), stat.S_IRWXU)
+                if add_to_collection:
+                    job_file = open("job_collection", mode='a')
+                    job_file.write('cd ' + path + ' \n')
+                    job_file.write('qsub job \n')
+                    job_file.write('cd .. \n')
+                    job_file.close()
+                    os.chmod("job_collection", stat.S_IRWXU)
+            if self.job in ['G0W0', 'GW0', 'scGW0']:
+                path = os.path.join(s_name(self.structure) + path_add, option_prep_name, self.job + option_name)
+                # create this job
+                job_file = open(name=path+'/job', mode='w')
+                job_file.write(header)
+                job_file.write("#PBS -l select=%s:ncpus=1:vmem=1000mb:mpiprocs=1:ompthreads=1\n" % str(npar))
+                job_file.write('cp ../CHGCAR ../WAVECAR ../WAVEDER . \n')
+                job_file.write('mpirun vasp \n')
+                job_file.write('rm W* \n')
+                #job_file.write('workon pymatgen-GW; get_gap > gap; deactivate')
+                #job_file.write('echo '+path+'`get_gap` >> ../../gaps.dat')
+                job_file.close()
+                os.chmod(path+'/job', stat.S_IRWXU)
+                path = os.path.join(s_name(self.structure) + path_add, option_prep_name)
+                # 'append submission of this job script to that of prep for this structure'
+                if add_to_collection:
+                    job_file = open(name=os.path.join(path, 'job'), mode='a')
+                    job_file.write('cd ' + self.job + option_name + ' \n')
+                    job_file.write('qsub job \n')
+                    job_file.write('cd .. \n')
+                    job_file.close()
