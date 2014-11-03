@@ -39,7 +39,46 @@ class FakeAbinitInput(object):
 
 
 class FlowUnitTest(PymatgenTest):
-    """Ppovides helper function for testing Abinit flows."""
+    """Provides helper function for testing Abinit flows."""
+    MANAGER = """\
+policy:
+    autoparal: 1
+    max_ncpus: 2
+qadapters:
+    - priority: 1
+      queue:
+        qtype: slurm
+        qname: Oban
+        qparams:
+            mail_user: nobody@nowhere
+      limits:
+        timelimit: 0:20:00
+        min_cores: 4
+        max_cores: 12
+        #condition: {"$eq": {omp_threads: 2}}
+      hardware:
+        num_nodes: 10
+        sockets_per_node: 1
+        cores_per_socket: 2
+        mem_per_node: 4 Gb
+      job:
+        modules:
+            - intel/compilerpro/13.0.1.117
+            - fftw3/intel/3.3
+        shell_env:
+            PATH: /home/user/tmp_intel13/src/98_main/:/home/user//NAPS/intel13/bin:$PATH
+            LD_LIBRARY_PATH: /home/user/NAPS/intel13/lib:$LD_LIBRARY_PATH
+        mpi_runner: mpirun
+
+# Connection to the MongoDb database (optional) 
+db_connector:
+    database: abinit
+    collection: test
+    #host: 0.0.0.0 
+    #port: 8080 
+    #user: gmatteo
+    #password: helloworld
+"""
     def setUp(self):
         """Initialization phase."""
         super(FlowUnitTest, self).setUp()
@@ -48,7 +87,7 @@ class FlowUnitTest(PymatgenTest):
         self.workdir = tempfile.mkdtemp()
 
         # Create the TaskManager.
-        self.manager = TaskManager.from_file(os.path.join(_test_dir, "taskmanager.yml"))
+        self.manager = TaskManager.from_string(self.MANAGER)
 
         # Fake input file
         self.fake_input = FakeAbinitInput()
@@ -62,48 +101,50 @@ class AbinitFlowTest(FlowUnitTest):
 
     def test_base(self):
         """Testing AbinitFlow..."""
+        aequal, atrue, afalse = self.assertEqual, self.assertTrue, self.assertFalse
         flow = AbinitFlow(workdir=self.workdir, manager=self.manager)
 
         # Build a workflow with a task
         task0_w0 = flow.register_task(self.fake_input)
-        self.assertTrue(task0_w0.is_task)
-        self.assertFalse(task0_w0.has_subnodes)
+        atrue(task0_w0.is_task)
+        afalse(task0_w0.has_subnodes)
         print(task0_w0.status.colored)
-        self.assertTrue(len(flow) == 1)
-        self.assertEqual(flow.num_tasks, 1)
+        atrue(len(flow) == 1) 
+        aequal(flow.num_tasks, 1)
+        atrue(flow.has_db) 
 
         # Build a workflow containing two tasks depending on task0_w0
         work = Workflow()
-        self.assertTrue(work.is_work)
-        self.assertTrue(work.has_subnodes)
+        atrue(work.is_work)
+        atrue(work.has_subnodes)
         work.register(self.fake_input)
         work.register(self.fake_input)
-        self.assertTrue(len(work) == 2)
+        aequal(len(work), 2)
 
         flow.register_work(work, deps={task0_w0: "WFK"})
-        self.assertTrue(flow.is_flow)
-        self.assertTrue(flow.has_subnodes)
-        self.assertTrue(len(flow) == 2)
+        atrue(flow.is_flow)
+        atrue(flow.has_subnodes)
+        aequal(len(flow), 2)
 
         # Add another workflow without dependencies.
         task0_w2 = flow.register_task(self.fake_input)
-        self.assertTrue(len(flow) == 3)
-        self.assertFalse(flow.is_work)
+        atrue(len(flow) == 3)
+        afalse(flow.is_work)
 
         # Allocate internal tables
         flow.allocate()
 
         # Check dependecies.
-        self.assertTrue(flow[1].depends_on(task0_w0))
-        self.assertTrue(flow[1][0].depends_on(task0_w0))
-        self.assertFalse(flow[2][0].depends_on(task0_w0))
-        self.assertEqual(flow[1].pos, 1)
-        self.assertEqual(flow[1][0].pos, (1, 0))
-        self.assertEqual(flow[2][0].pos, (2, 0))
+        atrue(flow[1].depends_on(task0_w0))
+        atrue(flow[1][0].depends_on(task0_w0))
+        afalse(flow[2][0].depends_on(task0_w0))
+        aequal(flow[1].pos, 1)
+        aequal(flow[1][0].pos, (1, 0))
+        aequal(flow[2][0].pos, (2, 0))
 
-        self.assertFalse(flow.all_ok)
-        self.assertEqual(flow.num_tasks, 4)
-        self.assertEqual(flow.ncores_inuse, 0)
+        afalse(flow.all_ok)
+        aequal(flow.num_tasks, 4)
+        aequal(flow.ncores_inuse, 0)
 
         # Check for deadlocks
         flow.check_dependencies()
@@ -113,8 +154,7 @@ class AbinitFlowTest(FlowUnitTest):
 
         # Find the pickle file in workdir and recreate the flow.
         same_flow = AbinitFlow.pickle_load(self.workdir)
-
-        self.assertEqual(same_flow, flow)
+        aequal(same_flow, flow)
 
         # Test show_status
         flow.show_status()

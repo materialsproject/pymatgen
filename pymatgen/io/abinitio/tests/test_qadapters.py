@@ -2,6 +2,7 @@
 from __future__ import unicode_literals, division, print_function
 
 import yaml
+import unittest
 
 from collections import OrderedDict
 from monty.collections import AttrDict
@@ -30,57 +31,79 @@ class ParseTimestr(PymatgenTest):
         aequal(parse_slurm_timestr("3:2:5"), 3*hours + 2*minutes + 5*secs)
 
 
-class PartitionTest(PymatgenTest):
-    def test_partition_methods(self):
-        aequal, atrue, afalse = self.assertEqual, self.assertTrue, self.assertFalse
-
-        # Test mandatory arguments
-        p = AttrDict(qname="test_partition", num_nodes=3, sockets_per_node=2, cores_per_socket=4)
-        with self.assertRaises(ValueError):
-            part = Partition(**p)
-
-        p.update(mem_per_node="8 Mb", timelimit="2:00", priority=1, min_cores=1, max_cores=24)
-        part = Partition(**p)
-        print("partition", str(part))
-        aequal(part.timelimit, 120)
-
-        # Test whether Partition can be serialized with Pickle.
-        deserialized_part = self.serialize_with_pickle(part, test_eq=False)
-
-        # Test properties
-        aequal(part.num_cores, p.num_nodes * p.sockets_per_node * p.cores_per_socket)
-        aequal(part.cores_per_node, p.sockets_per_node * p.cores_per_socket)
-        aequal(part.can_use_omp_threads(p.sockets_per_node * p.cores_per_socket), True)
-        aequal(part.can_use_omp_threads(p.sockets_per_node * p.cores_per_socket + 1), False)
-
-        # Test can_run and distribute
-        #partition has num_nodes=3, sockets_per_node=2, cores_per_socket=4, mem_per_node="8 Mb"
-        afalse(part.can_run(ParalConf(mpi_ncpus=part.num_cores+1, omp_ncpus=1, mem_per_cpu=0.1)))
-        afalse(part.can_run(ParalConf(mpi_ncpus=4, omp_ncpus=9, mem_per_cpu=0.1)))
-        afalse(part.can_run(ParalConf(mpi_ncpus=4, omp_ncpus=1, mem_per_cpu=1024**3)))
-
-        d = part.distribute(mpi_procs=4, omp_threads=1, mem_per_proc=0.1)
-        assert d.num_nodes == 1 and d.mpi_per_node == 4 and d.exact
-
-        d = part.distribute(mpi_procs=16, omp_threads=1, mem_per_proc=1)
-        assert d.num_nodes == 2 and d.mpi_per_node == 8 and d.exact
-
-        # not enough memory per node but can distribute.
-        d = part.distribute(mpi_procs=8, omp_threads=1, mem_per_proc=2)
-        assert d.num_nodes == 2 and d.mpi_per_node == 4 and not d.exact
-
-        # not commensurate with node
-        d = part.distribute(mpi_procs=9, omp_threads=1, mem_per_proc=0.1)
-        assert d.num_nodes == 3 and d.mpi_per_node == 3 and not d.exact
-
-        # mem_per_proc > mem_per_node!
-        with self.assertRaises(part.DistribError):
-            d = part.distribute(mpi_procs=9, omp_threads=1, mem_per_proc=1024)
-
-        # TODO: Test OpenMP
+# TODO
+#class PartitionTest(PymatgenTest):
+#    def test_partition_methods(self):
+#        aequal, atrue, afalse = self.assertEqual, self.assertTrue, self.assertFalse
+#
+#        # Test mandatory arguments
+#        p = AttrDict(qname="test_partition", num_nodes=3, sockets_per_node=2, cores_per_socket=4)
+#        with self.assertRaises(ValueError):
+#            part = Partition(**p)
+#
+#        p.update(mem_per_node="8 Mb", timelimit="2:00", priority=1, min_cores=1, max_cores=24)
+#        part = Partition(**p)
+#        print("partition", str(part))
+#        aequal(part.timelimit, 120)
+#
+#        # Test whether Partition can be serialized with Pickle.
+#        deserialized_part = self.serialize_with_pickle(part, test_eq=False)
+#
+#        # Test properties
+#        aequal(part.num_cores, p.num_nodes * p.sockets_per_node * p.cores_per_socket)
+#        aequal(part.cores_per_node, p.sockets_per_node * p.cores_per_socket)
+#        aequal(part.can_use_omp_threads(p.sockets_per_node * p.cores_per_socket), True)
+#        aequal(part.can_use_omp_threads(p.sockets_per_node * p.cores_per_socket + 1), False)
+#
+#        # Test can_run and distribute
+#        #partition has num_nodes=3, sockets_per_node=2, cores_per_socket=4, mem_per_node="8 Mb"
+#        afalse(part.can_run(ParalConf(mpi_ncpus=part.num_cores+1, omp_ncpus=1, mem_per_cpu=0.1)))
+#        afalse(part.can_run(ParalConf(mpi_ncpus=4, omp_ncpus=9, mem_per_cpu=0.1)))
+#        afalse(part.can_run(ParalConf(mpi_ncpus=4, omp_ncpus=1, mem_per_cpu=1024**3)))
+#
+#        d = part.distribute(mpi_procs=4, omp_threads=1, mem_per_proc=0.1)
+#        assert d.num_nodes == 1 and d.mpi_per_node == 4 and d.exact
+#
+#        d = part.distribute(mpi_procs=16, omp_threads=1, mem_per_proc=1)
+#        assert d.num_nodes == 2 and d.mpi_per_node == 8 and d.exact
+#
+#        # not enough memory per node but can distribute.
+#        d = part.distribute(mpi_procs=8, omp_threads=1, mem_per_proc=2)
+#        assert d.num_nodes == 2 and d.mpi_per_node == 4 and not d.exact
+#
+#        # not commensurate with node
+#        d = part.distribute(mpi_procs=9, omp_threads=1, mem_per_proc=0.1)
+#        assert d.num_nodes == 3 and d.mpi_per_node == 3 and not d.exact
+#
+#        # mem_per_proc > mem_per_node!
+#        with self.assertRaises(part.DistribError):
+#            d = part.distribute(mpi_procs=9, omp_threads=1, mem_per_proc=1024)
 
 
 class QadapterTest(PymatgenTest):
+    QDICT = yaml.load("""\
+priority: 1
+queue:
+    qtype: slurm
+    qname: Oban
+limits:
+    timelimit: 0:10:00
+    min_cores: 1
+    max_cores: 24
+    #condition: {"$eq": {omp_threads: 2}}
+job:
+    modules:
+        - intel/compilerpro/13.0.1.117
+        - fftw3/intel/3.3
+    shell_env:
+        PATH: /home/user/tmp_intel13/src/98_main/:/home/user//NAPS/intel13/bin:$PATH
+        LD_LIBRARY_PATH: /home/user/NAPS/intel13/lib:$LD_LIBRARY_PATH
+    mpi_runner: mpirun
+hardware:
+   num_nodes: 100
+   sockets_per_node: 2
+   cores_per_socket: 4
+   mem_per_node: 1 Gb""")
 
     def test_base(self):
         """
@@ -89,28 +112,14 @@ class QadapterTest(PymatgenTest):
         aequal, atrue, afalse = self.assertEqual, self.assertTrue, self.assertFalse
         sub_classes = QueueAdapter.__subclasses__()
 
-        modules = ["intel/compilerpro/13.0.1.117",
-                   "fftw3/intel/3.3",
-        ]
-
-        shell_env = OrderedDict(
-             [("PATH", "/user/abinit-7.4.3-public/tmp_intel13/src/98_main/:/user/bin:$PATH"),
-              ("LD_LIBRARY_PATH", "/NAPS/intel13/lib:$LD_LIBRARY_PATH")])
-
-        mpi_runner = MpiRunner("mpirun")
-
-        #omp_env = OmpEnv(OMP_NUM_THREADS=2)
-        qname="test_partition",
-        partition = dict(num_nodes=100, sockets_per_node=2, cores_per_socket=4, mem_per_node="1 Gb", 
-                         timelimit=10, min_cores=1, max_cores=24, priority=1)
-
         # Test if we can instantiate the concrete classes with the abc protocol.
         for subc in sub_classes:
             print("subclass: ", subc)
 
-            # Create the adapter
-            qad = make_qadapter(qtype=subc.QTYPE, qname="test_queue", setup=None, modules=modules, shell_env=shell_env, omp_env=None, 
-                                pre_run=None, post_run=None, mpi_runner=mpi_runner, partition=partition)
+            # Create the adapter subclass.
+            self.QDICT["queue"]["qtype"] = subc.QTYPE
+            qad = make_qadapter(**self.QDICT)
+            print(qad)
 
             # Test the programmatic interface used to change job parameters.
             aequal(qad.num_attempts, 0)
@@ -133,7 +142,6 @@ class QadapterTest(PymatgenTest):
             afalse(qad.pure_omp)
             atrue(qad.hybrid_mpi_omp)
 
-
             # Test the creation of the script
             script = qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path", 
                                         stdin="STDIN", stdout="STDOUT", stderr="STDERR")
@@ -146,30 +154,29 @@ class QadapterTest(PymatgenTest):
                                                     stdin="STDIN", stdout="STDOUT", stderr="STDERR")
                 aequal(new_script, script)
 
-
-class ShelladapterTest(PymatgenTest):
+class ShellAdapterTest(PymatgenTest):
     """Test suite for Shell adapter."""
+    QDICT = yaml.load("""\
+priority: 1
+queue:
+    qname: localhost
+    qtype: shell
+job:
+    mpi_runner: /home/my_mpirun
+    pre_run:
+        - "source ~/env1.sh"
+limits:
+    timelimit: 10:00
+    min_cores: 1
+    max_cores: 1
+hardware:
+    num_nodes: 1
+    sockets_per_node: 1
+    cores_per_socket: 1
+    mem_per_node: 4 Gb
+""")
     def test_methods(self):
-        conf = """
-          qtype: shell
-          qname: localhost
-          mpi_runner: /home/my_mpirun
-          pre_run:
-             - "source ~/env1.sh"
-          partition:
-             # Mandatory
-             num_nodes: 1
-             sockets_per_node: 1
-             cores_per_socket: 1
-             mem_per_node: 4 Gb
-             timelimit: 10:00
-             priority: 1
-             min_cores: 1
-             max_cores: 1
-        """
-        d = yaml.load(conf)
-        qtype = d.pop("qtype")
-        qad = make_qadapter(qtype, **d)
+        qad = make_qadapter(**self.QDICT)
         print(qad)
         print(qad.mpi_runner)
 
@@ -198,41 +205,43 @@ source ~/env1.sh
 """)
 
 
-class SlurmadapterTest(PymatgenTest):
+class SlurmAdapterTest(PymatgenTest):
     """Test suite for Slurm adapter."""
+    QDICT = yaml.load("""\
+priority: 5
+queue:
+  qtype: slurm
+  qname: Oban
+  qparams:
+      account: user_account
+      mail_user: user@mail.com
+limits:
+  timelimit: 10:00
+  min_cores: 3
+  max_cores: 16
+job:
+  mpi_runner: mpirun
+  # pre_run is a string in verbatim mode (note |)
+  pre_run: |
+      echo ${SLURM_NODELIST}
+      ulimit
+  modules:
+      - intel/compilerpro/13.0.1.117
+      - fftw3/intel/3.3
+  shell_env:
+      PATH: /home/user/bin:$PATH
+hardware:
+   # Mandatory
+   num_nodes: 2
+   sockets_per_node: 2
+   cores_per_socket: 4
+   mem_per_node: 8 Gb
+""")
+
     def test_methods(self):
-        conf = """
-          qtype: slurm
-          qname: Oban
-          qparams:
-            account: user_account
-            mail_user: user@mail.com
-          mpi_runner: mpirun
-          # pre_run is a string in verbatim mode (note |)
-          pre_run: |
-             echo ${SLURM_NODELIST}
-             ulimit
-          modules:
-            - intel/compilerpro/13.0.1.117
-            - fftw3/intel/3.3
-          shell_env:
-             PATH: /home/user/bin:$PATH
-          partition:
-             # Mandatory
-             num_nodes: 2
-             sockets_per_node: 2
-             cores_per_socket: 4
-             mem_per_node: 8 Gb
-             timelimit: 10:00
-             priority: 5
-             min_cores: 3
-             max_cores: 16
-        """
         self.maxDiff = None
 
-        d = yaml.load(conf)
-        qtype = d.pop("qtype")
-        qad = make_qadapter(qtype, **d)
+        qad = make_qadapter(**self.QDICT)
         print(qad)
         print(qad.mpi_runner)
 
@@ -281,35 +290,37 @@ mpirun -n 4 executable < stdin > stdout 2> stderr
 
 class PbsProadapterTest(PymatgenTest):
     """Test suite for PbsPro adapter."""
+    QDICT = yaml.load("""\
+priority: 1
+queue:
+    qtype: pbspro
+    qname: fat
+    qparams:
+        group_list: naps
+limits:
+    timelimit: 0:0:10
+    min_cores: 3
+    max_cores: 200
+job:
+    mpi_runner: mpirun
+hardware:
+    num_nodes: 100
+    sockets_per_node: 2
+    cores_per_socket: 4
+    mem_per_node: 8 Gb""")
+
     def test_methods(self):
         self.maxDiff = None
-        d = yaml.load("""\
-          qtype: pbspro
-          qname: fat
-          qparams:
-             group_list: naps
-          mpi_runner: mpirun
-          partition:
-             # Mandatory
-             num_nodes: 2
-             sockets_per_node: 2
-             cores_per_socket: 4
-             mem_per_node: 8 Gb
-             timelimit: 1-0:0:0
-             priority: 5
-             min_cores: 3
-             max_cores: 16
-        """)
+        aequal = self.assertEqual
 
-        qtype = d.pop("qtype")
-        qad = make_qadapter(qtype, **d)
+        qad = make_qadapter(**self.QDICT)
         print(qad)
         print(qad.mpi_runner)
 
         assert qad.QTYPE == "pbspro" 
         assert qad.has_mpi and not qad.has_omp
         #assert (qad.mpi_procs, qad.omp_threads) == (3, 1)
-        assert qad.priority == 5 and qad.num_attempts == 0 and qad.last_attempt is None
+        assert qad.priority == 1 and qad.num_attempts == 0 and qad.last_attempt is None
 
         #qad.set_mpi_procs(4)
 
@@ -321,26 +332,16 @@ class PbsProadapterTest(PymatgenTest):
 
 #PBS -q fat
 #PBS -N job_name
-#PBS -l select=1:ncpus=3:vmem=3072mb:mpiprocs=3
-#PBS -l walltime=24:0:0
+#PBS -l select=1:ncpus=1:vmem=1024mb:mpiprocs=1
+#PBS -l walltime=0:0:10
 #PBS -W group_list=naps
 # Submission environment
-#PBS -V
+####PBS -V
 #PBS -o qout_path
 #PBS -e qerr_path
 cd /launch_dir
-mpirun -n 3 executable < stdin > stdout 2> stderr
+mpirun -n 1 executable < stdin > stdout 2> stderr
 """)
-        #assert 0
-
-    def test_optimize_params(self):
-        aequal = self.assertEqual
-
-        partition = dict(num_nodes=100, sockets_per_node=2, 
-                      cores_per_socket=4, mem_per_node="8 Gb", timelimit=10, priority=1, 
-                      min_cores=1, max_cores=200)
-
-        qad = make_qadapter(qtype="pbspro", qname="test_pbspro", partition=partition)
         mem = 1024
         qad.set_mem_per_proc(mem)
         print(qad)
