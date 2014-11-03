@@ -737,12 +737,6 @@ class PyFlowScheduler(object):
         try:
             self.cleanup()
 
-            #if False and self.flow.has_db:
-            #    try:
-            #        self.flow.db_insert()
-            #    except Exception:
-            #         logger.critical("MongoDb insertion failed.")
-
             self.history.append("Completed on %s" % time.asctime())
             self.history.append("Elapsed time %s" % self.get_delta_etime())
 

@@ -224,11 +224,11 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
 
             else:
                 # Set finalized here, because on_all_ok might change it (e.g. Relax + EOS in a single workflow)
-                self._finalized = True
+                self.finalized = True
                 try:
                     results = AttrDict(**self.on_all_ok())
                 except:
-                    self._finalized = False
+                    self.finalized = False
                     raise
 
                 # Signal to possible observers that the `Workflow` reached S_OK

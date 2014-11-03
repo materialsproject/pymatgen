@@ -1017,8 +1017,17 @@ class AbinitFlow(Node):
             # Update the database.
             self.pickle_dump()
 
-    #def finalize(self):
-    #    """This method is called when the flow is completed."""
+    def finalize(self):
+        """This method is called when the flow is completed."""
+        if self.finalized: return 1
+        self.finalized = False
+        if self.flow.has_db:
+            try:
+                self.flow.db_insert()
+                self.finalized = True
+            except Exception:
+                 logger.critical("MongoDb insertion failed.")
+                 return 2
 
     def connect_signals(self):
         """
@@ -1075,11 +1084,8 @@ class AbinitFlow(Node):
 
         Return the number of tasks submitted.
         """
+        if check_status: self.check_status()
         from .launcher import PyLauncher
-
-        if check_status:
-            self.check_status()
-
         return PyLauncher(self, **kwargs).rapidfire()
 
     def make_scheduler(self, **kwargs):
