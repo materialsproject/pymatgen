@@ -61,7 +61,7 @@ class LinearAssignment(object):
         if self.nx == self.ny:
             self.c = self.orig_c
         else:
-            self.c = np.zeros((self.n, self.n))
+            self.c = np.full((self.n, self.n), np.max(self.orig_c))
             self.c[:self.nx, :self.ny] = self.orig_c
 
         #initialize solution vectors
