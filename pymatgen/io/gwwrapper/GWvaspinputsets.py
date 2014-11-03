@@ -427,7 +427,7 @@ class SingleVaspGWWork():
             else:
                 inpset.write_input(self.structure, os.path.join(path, 'scGW0'+option_name))
 
-    def create_job_script(self, add_to_collection=True, mode='slurm'):
+    def create_job_script(self, add_to_collection=True, mode='pbspro'):
         if mode == 'slurm':
             """
             Create job script for ceci.
