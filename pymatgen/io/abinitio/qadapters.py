@@ -1112,6 +1112,13 @@ class SlurmAdapter(QueueAdapter):
         #    def node_fail(self):
         #return jobinfo()
 
+    #def get_start_time(self, job_id)
+    #    squeue  --start -j  116791           
+    #      JOBID PARTITION     NAME     USER  ST           START_TIME  NODES NODELIST(REASON)
+    #     116791      defq gs6q2wop cyildiri  PD  2014-11-04T09:27:15     16 (QOSResourceLimit)
+    # For more info
+    #login1$ scontrol show job 1676354
+
 
 class PbsProAdapter(QueueAdapter):
     QTYPE = "pbspro"
