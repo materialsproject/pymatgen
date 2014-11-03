@@ -511,14 +511,14 @@ class SingleVaspGWWork():
             # npar = int(os.environ['NPARGWCALC'])
             header = str("#!/bin/bash \n" +
                          "## standard header for zenobe ## \n" +
-                         "#!/bin/bash" +
-                         "#PBS -q main" +
-                         "#PBS -l walltime=48:0:00" +
-                         "#PBS -o queue.qout" +
-                         "#PBS -e queue.qerr" +
-                         "#PBS -r y " +
-                         "#PBS -m abe" +
-                         "#PBS -M michiel.vansetten@uclouvain.be")
+                         "#!/bin/bash \n" +
+                         "#PBS -q large\n" +
+                         "#PBS -l walltime=48:0:00\n" +
+                         "#PBS -o queue.qout\n" +
+                         "#PBS -e queue.qerr\n" +
+                         "#PBS -r y \n" +
+                         "#PBS -m abe\n" +
+                         "#PBS -M michiel.vansetten@uclouvain.be\n")
             path_add = ''
             if self.spec['converge'] and self.converged:
                 path_add = '.conv'
