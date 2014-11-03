@@ -502,6 +502,7 @@ class SingleVaspGWWork():
             """
             npar = GWscDFTPrepVaspInputSet(self.structure, self.spec,
                                            functional=self.spec['functional']).get_npar(self.structure)
+            npar = 96
             if self.option is not None:
                 option_prep_name = str(self.option['test_prep']) + str(self.option['value_prep'])
                 if 'test' in self.option.keys():
