@@ -20,7 +20,7 @@ from pymatgen.core.units import ArrayWithUnit
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from pymatgen.util.string_utils import WildCard
 from . import wrappers
-from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, DdkTask, BseTask, RelaxTask)
+from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, PhononTask, DdkTask, BseTask, RelaxTask)
 from .strategies import HtcStrategy # ScfStrategy, RelaxStrategy
 from .utils import Directory
 from .netcdf import ETSF_Reader
@@ -494,6 +494,11 @@ class Workflow(BaseWorkflow):
     def register_relax_task(self, *args, **kwargs):
         """Register a task for structural optimization."""
         kwargs["task_class"] = RelaxTask
+        return self.register(*args, **kwargs)
+
+    def register_phonon_task(self, *args, **kwargs):
+        """Register a phonon task."""
+        kwargs["task_class"] = PhononTask
         return self.register(*args, **kwargs)
 
     def register_ddk_task(self, *args, **kwargs):
@@ -982,6 +987,31 @@ class QptdmWorkflow(Workflow):
         """
         final_scr = self.merge_scrfiles()
         return self.Results(node=self,returncode=0, message="mrgscr done", final_scr=final_scr)
+
+
+def build_oneshot_phononwork(workdir, manager, scf_input, ph_inputs, work_class=None):
+    """Assuming ph_input compute all the perturbations"""
+    work_class = OneShotPhononWorkflow if work_class is None else work_class
+    work = work_class(workdir=workdir, manager=manager)
+    scf_task = work.register_scf_task(scf_input)
+    ph_task = work.register_phonon_task(ph_input, deps={scf_task: "WFK"})
+    return work
+
+
+class OneShotPhononWorkflow(Workflow):
+    def read_phonons(self):
+        ph_task = self[-1]
+        ph_task.output_file.path
+        # call the parser here
+        return phonons
+
+    def on_all_ok(self):
+        """
+        """
+        # Read phonon frequencies from the output file.
+        results = super(OneShotPhononWorkflow, self).get_results()
+        results.update(phonons=self.read_phonons())
+        return results
 
 
 class PhononWorkflow(Workflow):

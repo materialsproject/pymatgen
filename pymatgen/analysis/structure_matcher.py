@@ -910,6 +910,55 @@ class StructureMatcher(PMGSONable):
 
         return match[2]
 
+    def get_transformation(self, struct1, struct2):
+        """
+        Returns the supercell transformation, fractional translation vector, and a mapping
+        to transform struct2 to be similar to struct1.
+
+        Args:
+            struct1 (Structure): Reference structure
+            struct2 (Structure): Structure to transform.
+        Returns:
+            supercell (numpy.ndarray(3, 3)): supercell matrix
+            vector (numpy.ndarray(3)): fractional translation vector
+            mapping (list(int or None)):
+                The first len(struct1) items of the mapping vector are the indices of struct1's
+                corresponding sites in struct2 (or None if there is no corresponding site), and
+                the other items are the remaining site indices of struct2.
+        """
+        if self._primitive_cell:
+            raise ValueError("get_transformation cannot be used with the primitive"
+                             " cell option")
+
+        s1, s2, fu, s1_supercell = self._preprocess(struct1, struct2, False)
+        ratio = fu if s1_supercell else 1/fu
+        if s1_supercell and fu > 1:
+            raise ValueError("Struct1 must be the supercell, "
+                             "not the other way around")
+
+        if len(s1) * ratio >= len(s2):
+            #s1 is superset
+            match = self._strict_match(s1, s2, fu=fu, s1_supercell=False,
+                                       use_rms=True, break_on_match=False)
+            if match is None:
+                return None
+            #invert the mapping, since it needs to be from s1 to s2
+            mapping = [list(match[4]).index(i) if i in match[4] else None
+                       for i in range(len(s1))]
+            return match[2], match[3], mapping
+        else:
+            #s2 is superset
+            match = self._strict_match(s2, s1, fu=fu, s1_supercell=True,
+                                       use_rms=True, break_on_match=False)
+            if match is None:
+                return None
+            #add sites not included in the mapping
+            not_included = list(range(len(s2) * fu))
+            for i in match[4]:
+                not_included.remove(i)
+            mapping = list(match[4]) + not_included
+            return match[2], -match[3], mapping
+
     def get_s2_like_s1(self, struct1, struct2):
         """
         Performs transformations on struct2 to put it in a basis similar to
@@ -923,52 +972,20 @@ class StructureMatcher(PMGSONable):
             A structure object similar to struct1, obtained by making a
             supercell, sorting, and translating struct2.
         """
-        if self._primitive_cell:
-            raise ValueError("get_s2_like_s1 cannot be used with the primitive"
-                             " cell option")
-
-        s1, s2, fu, s1_supercell = self._preprocess(struct1, struct2, False)
-        ratio = fu if s1_supercell else 1/fu
-        if s1_supercell and fu > 1:
-            raise ValueError("Struct1 must be the supercell, "
-                             "not the other way around")
-
+        trans = self.get_transformation(struct1, struct2)
+        if trans is None:
+            return None
+        sc, t, mapping = trans
         temp = struct2.copy()
-        if len(s1) * ratio >= len(s2):
-            #s1 is superset
-            match = self._strict_match(s1, s2, fu=fu, s1_supercell=False,
-                                       use_rms=True, break_on_match=False)
-            if match is None:
-                return None
-            temp.make_supercell(match[2])
-            temp.translate_sites(list(range(len(temp))), match[3],
-                                 to_unit_cell=False)
-            # translate sites to be in correct unit cell
-            for i, j in enumerate(match[4]):
-                vec = np.round(s1[j].frac_coords - temp[i].frac_coords)
-                temp.translate_sites(i, vec, to_unit_cell=False)
-            #invert the mapping, since it needs to be from s2 to s1
-            mapping = np.argsort(match[4])
-        else:
-            #s2 is superset
-            match = self._strict_match(s2, s1, fu=fu, s1_supercell=True,
-                                       use_rms=True, break_on_match=False)
-            if match is None:
-                return None
-            temp.make_supercell(match[2])
-            temp.translate_sites(list(range(len(temp))), -match[3],
-                                 to_unit_cell=False)
-            # translate sites to be in correct unit cell
-            for i, j in enumerate(match[4]):
-                vec = np.round(s1[i].frac_coords - temp[j].frac_coords)
+        temp.make_supercell(sc)
+        temp.translate_sites(list(range(len(temp))), t)
+        #translate sites to correct unit cell
+        for i, j in enumerate(mapping[:len(struct1)]):
+            if j is not None:
+                vec = np.round(struct1[i].frac_coords - temp[j].frac_coords)
                 temp.translate_sites(j, vec, to_unit_cell=False)
-            #add sites not included in the mapping
-            not_included = list(range(len(temp)))
-            for i in match[4]:
-                not_included.remove(i)
-            mapping = list(match[4]) + not_included
 
-        return Structure.from_sites([temp.sites[i] for i in mapping])
+        return Structure.from_sites([temp.sites[i] for i in mapping if i is not None])
 
     def get_mapping(self, superset, subset):
         """
