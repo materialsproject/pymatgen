@@ -519,7 +519,9 @@ class SingleVaspGWWork():
                          "#PBS -e queue.qerr\n" +
                          "#PBS -r y \n" +
                          "#PBS -m abe\n" +
-                         "#PBS -M michiel.vansetten@uclouvain.be\n")
+                         "#PBS -M michiel.vansetten@uclouvain.be\n" +
+                         "#PBS -W group_list=naps\n" +
+                         "#PBS -l pvmem=1900mb\n")
             path_add = ''
             if self.spec['converge'] and self.converged:
                 path_add = '.conv'
@@ -528,11 +530,11 @@ class SingleVaspGWWork():
                 # create this job
                 job_file = open(name=os.path.join(path, 'job'), mode='w')
                 job_file.write(header)
-                job_file.write("#PBS -l select=%s:ncpus=1:vmem=1000mb:mpiprocs=1:ompthreads=1\n" % str(npar))
+                job_file.write("#PBS -l select=%s:ncpus=1:vmem=1900mb:mpiprocs=1:ompthreads=1\n" % str(npar))
                 job_file.write('mpirun vasp \n')
                 job_file.write('cp OUTCAR OUTCAR.sc \n')
                 job_file.write('cp INCAR.DIAG INCAR \n')
-                job_file.write('mpirun vasp \n')
+                job_file.write('mpirun -n %s vasp \n' % str(npar))
                 job_file.write('cp OUTCAR OUTCAR.diag \n')
                 job_file.close()
                 os.chmod(os.path.join(path, 'job'), stat.S_IRWXU)
@@ -540,7 +542,7 @@ class SingleVaspGWWork():
                     job_file = open("job_collection", mode='a')
                     job_file.write('cd ' + path + ' \n')
                     job_file.write('qsub job \n')
-                    job_file.write('cd .. \n')
+                    job_file.write('cd ../.. \n')
                     job_file.close()
                     os.chmod("job_collection", stat.S_IRWXU)
             if self.job in ['G0W0', 'GW0', 'scGW0']:
