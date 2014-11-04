@@ -349,7 +349,7 @@ class Vasprun(PMGSONable):
                 parsed_header = True
                 try:
                     ionic_steps.append(self._parse_calculation(elem))
-                except TypeError:
+                except AttributeError:
                     pass
             elif parse_dos and tag == "dos":
                 try:
