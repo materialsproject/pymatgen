@@ -241,6 +241,29 @@ class OutcarTest(unittest.TestCase):
         cl = Outcar(filepath).read_core_state_eigen()
         self.assertAlmostEqual(cl[6]["2s"][-1], -174.4779)
 
+    def test_single_atom(self):
+        filepath = os.path.join(test_dir, "OUTCAR.Al")
+        outcar = Outcar(filepath)
+        expected_mag = ({u'p': 0.0, u's': 0.0, u'd': 0.0, u'tot': 0.0},)
+        expected_chg = ({u'p': 0.343, u's': 0.425, u'd': 0.0, u'tot': 0.768},)
+
+        self.assertAlmostEqual(outcar.magnetization, expected_mag)
+        self.assertAlmostEqual(outcar.charge, expected_chg)
+        self.assertFalse(outcar.is_stopped)
+        self.assertEqual(outcar.run_stats, {'System time (sec)': 0.592,
+                                            'Total CPU time used (sec)': 50.194,
+                                            'Elapsed time (sec)': 52.337,
+                                            'Maximum memory used (kb)': 62900.0,
+                                            'Average memory used (kb)': 0.0,
+                                            'User time (sec)': 49.602,
+                                            'cores': '32'})
+        self.assertAlmostEqual(outcar.efermi, 8.0942)
+        self.assertAlmostEqual(outcar.nelect, 3)
+        self.assertAlmostEqual(outcar.total_mag, 8.2e-06)
+
+        self.assertIsNotNone(outcar.as_dict())
+
+
 class OszicarTest(unittest.TestCase):
 
     def test_init(self):
