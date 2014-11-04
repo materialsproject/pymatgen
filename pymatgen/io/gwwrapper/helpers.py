@@ -36,7 +36,7 @@ def now():
 
 def load_ps():
     if os.path.isfile('set-ps'):
-        subprocess.call('source set-ps', shell=True)
+        subprocess.call('source', 'set-ps', shell=True)
 
 
 def read_extra_abivars():
