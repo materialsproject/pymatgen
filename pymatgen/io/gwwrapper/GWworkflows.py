@@ -147,7 +147,7 @@ class SingleAbinitGWWorkFlow():
     #'test': {'test_range': (1, 2, 3), 'method': 'direct', 'control': "e_ks_max", 'level': "scf"},
     CONVS = {'ecut': {'test_range': (52, 48, 44), 'method': 'direct', 'control': "e_ks_max", 'level': "scf"},
              'ecuteps': {'test_range': (4, 8, 12, 16, 20), 'method': 'direct', 'control': "gap", 'level': "sigma"},
-             'nscf_nbands': {'test_range': (5, 10, 20, 30, 40), 'method': 'set_bands', 'control': "gap", 'level': "nscf"}}
+             'nscf_nbands': {'test_range': (10, 20, 30, 40), 'method': 'set_bands', 'control': "gap", 'level': "nscf"}}
 
     def __init__(self, structure, spec, option=None):
         self.structure = structure
@@ -263,7 +263,7 @@ class SingleAbinitGWWorkFlow():
 
         # read user defined extra abivars from file  'extra_abivars' should be dictionary
         extra_abivars.update(read_extra_abivars())
-        self.bands_fac = 0.2 if 'gwcomp' in extra_abivars.keys() else 1
+        self.bands_fac = 0.5 if 'gwcomp' in extra_abivars.keys() else 1
         self.convs['nscf_nbands']['test_range'] = tuple([self.bands_fac*x for x in self.convs['nscf_nbands']['test_range']])
 
         response_models = ['godby']
