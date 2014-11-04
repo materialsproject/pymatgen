@@ -527,10 +527,12 @@ class SingleVaspGWWork():
                 path_add = '.conv'
             if self.job == 'prep':
                 path = os.path.join(s_name(self.structure) + path_add, option_prep_name)
+                abs_path = os.path.abspath(path)
                 # create this job
                 job_file = open(name=os.path.join(path, 'job'), mode='w')
                 job_file.write(header)
                 job_file.write("#PBS -l select=%s:ncpus=1:vmem=1900mb:mpiprocs=1:ompthreads=1\n" % str(npar))
+                job_file.write('cd %s\n' % str(abs_path))
                 job_file.write('mpirun -n %s vasp \n' % str(npar))
                 job_file.write('cp OUTCAR OUTCAR.sc \n')
                 job_file.write('cp INCAR.DIAG INCAR \n')
@@ -547,10 +549,12 @@ class SingleVaspGWWork():
                     os.chmod("job_collection", stat.S_IRWXU)
             if self.job in ['G0W0', 'GW0', 'scGW0']:
                 path = os.path.join(s_name(self.structure) + path_add, option_prep_name, self.job + option_name)
+                abs_path = os.path.abspath(path)
                 # create this job
                 job_file = open(name=path+'/job', mode='w')
                 job_file.write(header)
                 job_file.write("#PBS -l select=%s:ncpus=1:vmem=1000mb:mpiprocs=1:ompthreads=1\n" % str(npar))
+                job_file.write('cd %s\n' % str(abs_path))
                 job_file.write('cp ../CHGCAR ../WAVECAR ../WAVEDER . \n')
                 job_file.write('mpirun -n %s vasp \n' % str(npar))
                 job_file.write('rm W* \n')
