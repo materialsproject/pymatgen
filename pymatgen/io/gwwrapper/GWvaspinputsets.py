@@ -530,7 +530,7 @@ class SingleVaspGWWork():
                 job_file = open(name=os.path.join(path, 'job'), mode='w')
                 job_file.write(header)
                 job_file.write("#PBS -l select=%s:ncpus=1:vmem=1900mb:mpiprocs=1:ompthreads=1\n" % str(npar))
-                job_file.write('#PBS -o %squeue.qout\n#PBS -e %squeue.qerr\ncd %s\n' % (abs_path, abs_path, abs_path))
+                job_file.write('#PBS -o %s/queue.qout\n#PBS -e %s/queue.qerr\ncd %s\n' % (abs_path, abs_path, abs_path))
                 job_file.write('mpirun -n %s vasp \n' % str(npar))
                 job_file.write('cp OUTCAR OUTCAR.sc \n')
                 job_file.write('cp INCAR.DIAG INCAR \n')
