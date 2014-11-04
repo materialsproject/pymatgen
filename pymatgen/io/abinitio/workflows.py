@@ -16,7 +16,7 @@ from monty.collections import AttrDict
 from monty.itertools import chunks
 from monty.pprint import pprint_table
 from monty.functools import lazy_property
-from pymatgen.core.units import ArrayWithUnit
+from pymatgen.core.units import EnergyArray
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from pymatgen.util.string_utils import WildCard
 from . import wrappers
@@ -682,7 +682,7 @@ class Workflow(BaseWorkflow):
                 
             etotals.append(etot)
 
-        return ArrayWithUnit(etotals, "Ha").to(unit)
+        return EnergyArray(etotals, "Ha").to(unit)
 
     def parse_timers(self):
         """
@@ -991,29 +991,89 @@ class QptdmWorkflow(Workflow):
         return self.Results(node=self,returncode=0, message="mrgscr done", final_scr=final_scr)
 
 
-def build_oneshot_phononwork(workdir, manager, scf_input, ph_inputs, work_class=None):
-    """Assuming ph_input compute all the perturbations"""
+def build_oneshot_phononwork(scf_input, ph_inputs, workdir=None, manager=None, work_class=None):
+    """
+    Returns a workflow for the computation of phonon frequencies
+    ph_inputs is a list of input for Phonon calculation in which all the independent perturbations 
+    are explicitly computed i.e. 
+
+        * rfdir 1 1 1
+        * rfatpol 1 natom
+
+    .. warning:
+        This workflow is mainly used for simple calculations, e.g. converge studies.
+        Use ``PhononWorkflow`` for better efficiency.
+    """
     work_class = OneShotPhononWorkflow if work_class is None else work_class
     work = work_class(workdir=workdir, manager=manager)
     scf_task = work.register_scf_task(scf_input)
-    ph_task = work.register_phonon_task(ph_input, deps={scf_task: "WFK"})
+
+    ph_inputs = [ph_inputs] if not isinstance(ph_inputs, (list, tuple)) else ph_inputs
+    for phinp in ph_inputs:
+        # cannot use PhononTaks here because the Task is not able to deal with multiple phonon calculations
+        #ph_task = work.register_phonon_task(phinp, deps={scf_task: "WFK"})
+        ph_task = work.register(phinp, deps={scf_task: "WFK"})
+
     return work
 
 
 class OneShotPhononWorkflow(Workflow):
-    def read_phonons(self):
-        ph_task = self[-1]
-        ph_task.output_file.path
-        # call the parser here
-        return phonons
+    """
+    Simple and very inefficient workflow for the computation of the phonon frequencies
+    It consists of a GS task and a DFPT calculations for all the independent perturbations.
+    The main advantage is that one has direct access to the phonon frequencies that
+    can be computed at the end of the second task without having to call anaddb.
 
-    def on_all_ok(self):
-        """
-        """
-        # Read phonon frequencies from the output file.
-        results = super(OneShotPhononWorkflow, self).get_results()
-        results.update(phonons=self.read_phonons())
+    Use ``build_oneshot_phononwork`` to construct this workflow from the input files.
+    """
+    def read_phonons(self):
+        """Read phonon frequencies from the output file."""
+        # 
+        #   Phonon wavevector (reduced coordinates) :  0.00000  0.00000  0.00000
+        #  Phonon energies in Hartree :
+        #    1.089934E-04  4.990512E-04  1.239177E-03  1.572715E-03  1.576801E-03
+        #    1.579326E-03
+        #  Phonon frequencies in cm-1    :
+        # -  2.392128E+01  1.095291E+02  2.719679E+02  3.451711E+02  3.460677E+02
+        # -  3.466221E+02
+        BEGIN = "  Phonon wavevector (reduced coordinates) :"
+        END = " Phonon frequencies in cm-1    :"
+
+        ph_tasks, qpts, phfreqs = self[1:], [], []
+        for task in ph_tasks:
+
+            with open(task.output_file.path, "r") as fh:
+                qpt, inside = None, 0 
+                for line in fh:
+                    if line.startswith(BEGIN):
+                        qpts.append([float(s) for s in line[len(BEGIN):].split()])
+                        inside, omegas = 1, []
+                    elif line.startswith(END):
+                        break
+                    elif inside:
+                        inside += 1
+                        if inside > 2:
+                            omegas.extend((float(s) for s in line.split()))
+                else:
+                    raise ValueError("Cannot find %s in file %s" % (END, task.output_file.path))
+                phfreqs.append(omegas)
+
+        # Use namedtuple to store q-point and frequencies in meV
+        phonon = collections.namedtuple("phonon", "qpt freqs")
+        return [phonon(qpt=qpt, freqs=freqs_meV) for qpt, freqs_meV in zip(qpts, EnergyArray(phfreqs, "Ha").to("meV") )]
+
+    def get_results(self, **kwargs):
+        results = super(self.__class__, self).get_results()
+        phonons = self.read_phonons()
+        print(phonons)
+        results.update(phonons=phonons)
+
         return results
+
+    #def on_all_ok(self):
+    #    """
+    #    """
+    #    return self.get_results()
 
 
 class PhononWorkflow(Workflow):
