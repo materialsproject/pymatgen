@@ -70,7 +70,7 @@ class GWscDFTPrepVaspInputSet(DictVaspInputSet):
         """
         get 'optimally' useful number of parallelism
         """
-        npar = int(self.get_bands(structure) ** 2 * structure.volume / 600)
+        npar = int(self.get_bands(structure) ** 2 * structure.volume / 200)
         npar = min(max(npar, 1), 52)
         return npar
 
@@ -502,7 +502,7 @@ class SingleVaspGWWork():
             """
             npar = GWscDFTPrepVaspInputSet(self.structure, self.spec,
                                            functional=self.spec['functional']).get_npar(self.structure)
-            npar = 96
+            #npar = 96
             if self.option is not None:
                 option_prep_name = str(self.option['test_prep']) + str(self.option['value_prep'])
                 if 'test' in self.option.keys():
@@ -513,7 +513,7 @@ class SingleVaspGWWork():
             header = str("#!/bin/bash \n" +
                          "## standard header for zenobe ## \n" +
                          "#!/bin/bash \n" +
-                         "#PBS -q large\n" +
+                         "#PBS -q main\n" +
                          "#PBS -l walltime=24:0:00\n" +
                          "#PBS -r y \n" +
                          "#PBS -m abe\n" +

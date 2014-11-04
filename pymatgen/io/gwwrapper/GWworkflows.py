@@ -263,10 +263,8 @@ class SingleAbinitGWWorkFlow():
 
         # read user defined extra abivars from file  'extra_abivars' should be dictionary
         extra_abivars.update(read_extra_abivars())
-        print(self.convs['nscf_nbands']['test_range'])
         self.bands_fac = 0.2 if 'gwcomp' in extra_abivars.keys() else 1
         self.convs['nscf_nbands']['test_range'] = tuple([self.bands_fac*x for x in self.convs['nscf_nbands']['test_range']])
-        print(self.convs['nscf_nbands']['test_range'])
 
         response_models = ['godby']
         if 'ppmodel' in extra_abivars.keys():
