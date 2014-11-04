@@ -514,7 +514,7 @@ class SingleVaspGWWork():
                          "## standard header for zenobe ## \n" +
                          "#!/bin/bash \n" +
                          "#PBS -q large\n" +
-                         "#PBS -l walltime=48:0:00\n" +
+                         "#PBS -l walltime=24:0:00\n" +
                          "#PBS -o queue.qout\n" +
                          "#PBS -e queue.qerr\n" +
                          "#PBS -r y \n" +
@@ -531,7 +531,7 @@ class SingleVaspGWWork():
                 job_file = open(name=os.path.join(path, 'job'), mode='w')
                 job_file.write(header)
                 job_file.write("#PBS -l select=%s:ncpus=1:vmem=1900mb:mpiprocs=1:ompthreads=1\n" % str(npar))
-                job_file.write('mpirun vasp \n')
+                job_file.write('mpirun -n %s vasp \n' % str(npar))
                 job_file.write('cp OUTCAR OUTCAR.sc \n')
                 job_file.write('cp INCAR.DIAG INCAR \n')
                 job_file.write('mpirun -n %s vasp \n' % str(npar))
@@ -552,7 +552,7 @@ class SingleVaspGWWork():
                 job_file.write(header)
                 job_file.write("#PBS -l select=%s:ncpus=1:vmem=1000mb:mpiprocs=1:ompthreads=1\n" % str(npar))
                 job_file.write('cp ../CHGCAR ../WAVECAR ../WAVEDER . \n')
-                job_file.write('mpirun vasp \n')
+                job_file.write('mpirun -n %s vasp \n' % str(npar))
                 job_file.write('rm W* \n')
                 #job_file.write('workon pymatgen-GW; get_gap > gap; deactivate')
                 #job_file.write('echo '+path+'`get_gap` >> ../../gaps.dat')
