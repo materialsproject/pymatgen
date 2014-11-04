@@ -347,10 +347,7 @@ class Vasprun(PMGSONable):
                         self._parse_atominfo(elem)
             if tag == "calculation":
                 parsed_header = True
-                try:
-                    ionic_steps.append(self._parse_calculation(elem))
-                except AttributeError:
-                    pass
+                ionic_steps.append(self._parse_calculation(elem))
             elif parse_dos and tag == "dos":
                 try:
                     self.tdos, self.idos, self.pdos = self._parse_dos(elem)
@@ -841,9 +838,12 @@ class Vasprun(PMGSONable):
                  for i in elem.find("energy").findall("i")}
         esteps = []
         for scstep in elem.findall("scstep"):
-            d = {i.attrib["name"]: _vasprun_float(i.text)
-                 for i in scstep.find("energy").findall("i")}
-            esteps.append(d)
+            try:
+                d = {i.attrib["name"]: _vasprun_float(i.text)
+                     for i in scstep.find("energy").findall("i")}
+                esteps.append(d)
+            except AttributeError:
+                pass
         s = self._parse_structure(elem.find("structure"))
         for va in elem.findall("varray"):
             istep[va.attrib["name"]] = _parse_varray(va)
