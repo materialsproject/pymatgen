@@ -207,7 +207,6 @@ class QHardware(object):
                 
     ENTRIES = dict(
         # mandatory
-        #qname=Entry(type=str, mandatory=True, help="Name of the partition"),
         num_nodes=Entry(type=int, mandatory=True, help="Number of nodes"),
         sockets_per_node=Entry(type=int, mandatory=True, help="Number of sockets per node"),
         cores_per_socket=Entry(type=int, mandatory=True, help="Number of cores per node"),
@@ -349,6 +348,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         """
         Args:
             qname:
+                Name of the queue.
             qparams:
                 Dictionary with the paramenters used in the template.
             setup:
@@ -369,6 +369,15 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             max_num_attempts:
                 Default to 2
             qverbatim
+            min_cores, max_cores:
+                Minimum and maximum number of cores that can be used
+            timelimit
+                Time limit in seconds
+            priority=Priority level, integer number > 0
+            allocate_nodes:
+                True if we must allocate entire nodes"
+            condition:
+                Condition object (dictionary)
         """
         # Make defensive copies so that we can change the values at runtime.
         kwargs = copy.deepcopy(kwargs)
@@ -688,6 +697,10 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                             (mpi_procs, omp_threads, mem_per_proc))
 
     def optimize_params(self):
+        """
+        This method is called in get_subs_dict. Return a dict with parameters to be added to qparams
+        Subclasses may provide a specialized version.
+        """
         logger.debug("optimize_params of baseclass --> no optimization available!!!")
         return {}
 

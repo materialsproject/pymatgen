@@ -253,6 +253,28 @@ class AbinitTaskResults(NodeResults):
         return new
 
 
+
+def sparse_hystogram(items, key, num=None, step=None):
+    if num is None and step is None:
+        raise ValueError("Either num or step must be specified")
+
+    values = [key(item) for item in items]
+    start, stop = min(values), max(values)
+    if num is None:
+        num = int((stop - start) / step)
+        if num == 0: num = 1
+    mesh = np.linspace(start, stop, num, endpoint=False)
+
+    hyst = defaultdict([])
+    for i, val in enumerate(values):
+        # Find leftmost item greater than or equal to x
+        pos = find_ge(mesh, val)
+        hyst[pos].append(items[i])
+
+    return OrderedDict([(pos, hyst[pos]) for pos in sorted(hyst.keys())])
+
+
+
 class ParalConf(AttrDict):
     """
     This object store the parameters associated to one 
@@ -851,7 +873,7 @@ class TaskManager(object):
         else:
             process, queue_id = self.qadapter.submit_to_queue(script_file)
 
-        task.set_queue_id(queue_id)
+        task.set_qinfo(queue_id)
 
         if shell:
             self.set_mpi_procs(old_mpi_procs)
@@ -1829,7 +1851,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         if self.status < self.S_DONE: return 1
 
         self.set_status(self.S_INIT, info_msg="Reset on %s" % time.asctime())
-        self.set_queue_id(None)
+        self.set_qinfo(None)
 
         # Remove output files otherwise the EventParser will think the job is still running
         self.output_file.remove()
@@ -1851,9 +1873,21 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         except AttributeError:
             return None
 
-    def set_queue_id(self, queue_id):
-        """Set the task identifier."""
+    @property
+    def qname(self):
+        """Queue name identifier returned by the Queue manager. None if not set"""
+        try:
+            return self._qname
+        except AttributeError:
+            return None
+
+    def set_qinfo(self, queue_id):
+        """Set info on queue after submission."""
         self._queue_id = queue_id
+        if queue_id is not None:
+            self._qname = self.manager.qadapter.qname
+        else:
+            self._qname = None 
 
     @property
     def has_queue(self):
