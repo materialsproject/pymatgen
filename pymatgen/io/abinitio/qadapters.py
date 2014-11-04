@@ -380,6 +380,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                 True if we must allocate entire nodes"
             condition:
                 Condition object (dictionary)
+            max_num_attempts:
         """
         # Make defensive copies so that we can change the values at runtime.
         kwargs = copy.deepcopy(kwargs)
@@ -1092,59 +1093,6 @@ class SlurmAdapter(QueueAdapter):
 
         return None
 
-    def get_job_info(self, job_id):
-        # See https://computing.llnl.gov/linux/slurm/sacct.html
-        #If SLURM job ids are reset, some job numbers will        
-	    #probably appear more than once refering to different jobs.
-	    #Without this option only the most recent jobs will be displayed.          
-
-        #state
-        #Displays the job status, or state.
-        #Output can be RUNNING, RESIZING, SUSPENDED, COMPLETED, CANCELLED, FAILED, TIMEOUT, 
-        #PREEMPTED or NODE_FAIL. If more information is available on the job state than will fit 
-        #into the current field width (for example, the uid that CANCELLED a job) the state will be followed by a "+". 
-        # You can increase the size of the displayed state using the "%NUMBER" format modifier described earlier. 
-
-        #gmatteo@master2:~
-        #sacct --job 112367 --format=jobid,exitcode,state --allocations --parsable2
-        #JobID|ExitCode|State
-        #112367|0:0|RUNNING
-
-        #output = check_output(["ls", "-l", "/dev/null"]
-        cmd = "sacct --job %d --format=jobid,exitcode,state --allocations --parsable2" % job_id
-        output = str(check_output([cmd]))
-
-        # Parse output.
-        qid, exitcode, state = output.split("|")
-        qid = int(qid)
-        assert qid == job_id
-        if ":" in exitcode:
-            exitcode, signal = map(int, exitcode.split(":"))
-        else:
-            exitcode, signal = int(exitcode), None
-
-        i = state.find("+")
-        if i != -1: state = state[:i]
-
-        #class JobInfo(namedtuple("JobInfo", "queue_id exitcode signal state")):
-        #    def __bool__(self):
-        #        return self.state != "CannotDected"
-        #    __notzero__ = __bool_
-        #    def completed(self):
-        #    def cancelled(self):
-        #    def failed(self):
-        #    def timeout(self):
-        #    def node_fail(self):
-        #return jobinfo()
-
-    #def get_start_time(self, job_id)
-    #    squeue  --start -j  116791           
-    #      JOBID PARTITION     NAME     USER  ST           START_TIME  NODES NODELIST(REASON)
-    #     116791      defq gs6q2wop cyildiri  PD  2014-11-04T09:27:15     16 (QOSResourceLimit)
-    # For more info
-    #login1$ scontrol show job 1676354
-
-
 class PbsProAdapter(QueueAdapter):
     QTYPE = "pbspro"
 
@@ -1628,3 +1576,88 @@ class QScriptTemplate(string.Template):
     delimiter = '$$'
 
 
+
+class QueueJob(object):
+    def __init__(self, queue_id, qname=None):
+        self.qid = queue_id
+        self.qname = qname
+
+    def get_start_time(self):
+        """
+        Return date with estimated start time. None if it cannot be detected
+        """
+        return None
+
+    def get_info(self):
+        return None
+
+
+class SlurmJob(QueueJob):
+
+    def get_start_time(self):
+        #squeue  --start -j  116791
+        #  JOBID PARTITION     NAME     USER  ST           START_TIME  NODES NODELIST(REASON)
+        # 116791      defq gs6q2wop cyildiri  PD  2014-11-04T09:27:15     16 (QOSResourceLimit)
+        process = Popen(["squeue" "--start", "--job", str(self.qid)], stdout=PIPE, stderr=PIPE)
+        process.wait()
+
+        from datetime import datetime
+        datetime.strptime(date_string, format)
+
+        if process.returncode != 0: return None
+        lines = process.stdout.readlines()
+        for line in lines:
+            tokens = line.split()
+            if int(tokens[0]) == self.qid:
+                date_string = tokens[5]
+                return datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S")
+        else:
+            return None
+
+    # For more info
+    #login1$ scontrol show job 1676354
+
+    def get_info(self):
+        # See https://computing.llnl.gov/linux/slurm/sacct.html
+        #If SLURM job ids are reset, some job numbers will        
+	    #probably appear more than once refering to different jobs.
+	    #Without this option only the most recent jobs will be displayed.          
+
+        #state
+        #Displays the job status, or state.
+        #Output can be RUNNING, RESIZING, SUSPENDED, COMPLETED, CANCELLED, FAILED, TIMEOUT, 
+        #PREEMPTED or NODE_FAIL. If more information is available on the job state than will fit 
+        #into the current field width (for example, the uid that CANCELLED a job) the state will be followed by a "+". 
+        # You can increase the size of the displayed state using the "%NUMBER" format modifier described earlier. 
+
+        #gmatteo@master2:~
+        #sacct --job 112367 --format=jobid,exitcode,state --allocations --parsable2
+        #JobID|ExitCode|State
+        #112367|0:0|RUNNING
+
+        #output = check_output(["ls", "-l", "/dev/null"]
+        cmd = "sacct --job %d --format=jobid,exitcode,state --allocations --parsable2" % job_id
+        output = str(check_output([cmd]))
+
+        # Parse output.
+        qid, exitcode, state = output.split("|")
+        qid = int(qid)
+        assert qid == job_id
+        if ":" in exitcode:
+            exitcode, signal = map(int, exitcode.split(":"))
+        else:
+            exitcode, signal = int(exitcode), None
+
+        i = state.find("+")
+        if i != -1: state = state[:i]
+
+        #class JobInfo(namedtuple("JobInfo", "queue_id exitcode signal state")):
+        #    def __bool__(self):
+        #        return self.state != "CannotDected"
+        #    __notzero__ = __bool_
+        #    def completed(self):
+        #    def cancelled(self):
+        #    def failed(self):
+        #    def timeout(self):
+        #    def node_fail(self):
+        #return jobinfo()
