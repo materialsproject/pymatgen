@@ -31,55 +31,6 @@ class ParseTimestr(PymatgenTest):
         aequal(parse_slurm_timestr("3:2:5"), 3*hours + 2*minutes + 5*secs)
 
 
-# TODO
-#class PartitionTest(PymatgenTest):
-#    def test_partition_methods(self):
-#        aequal, atrue, afalse = self.assertEqual, self.assertTrue, self.assertFalse
-#
-#        # Test mandatory arguments
-#        p = AttrDict(qname="test_partition", num_nodes=3, sockets_per_node=2, cores_per_socket=4)
-#        with self.assertRaises(ValueError):
-#            part = Partition(**p)
-#
-#        p.update(mem_per_node="8 Mb", timelimit="2:00", priority=1, min_cores=1, max_cores=24)
-#        part = Partition(**p)
-#        print("partition", str(part))
-#        aequal(part.timelimit, 120)
-#
-#        # Test whether Partition can be serialized with Pickle.
-#        deserialized_part = self.serialize_with_pickle(part, test_eq=False)
-#
-#        # Test properties
-#        aequal(part.num_cores, p.num_nodes * p.sockets_per_node * p.cores_per_socket)
-#        aequal(part.cores_per_node, p.sockets_per_node * p.cores_per_socket)
-#        aequal(part.can_use_omp_threads(p.sockets_per_node * p.cores_per_socket), True)
-#        aequal(part.can_use_omp_threads(p.sockets_per_node * p.cores_per_socket + 1), False)
-#
-#        # Test can_run and distribute
-#        #partition has num_nodes=3, sockets_per_node=2, cores_per_socket=4, mem_per_node="8 Mb"
-#        afalse(part.can_run(ParalConf(mpi_ncpus=part.num_cores+1, omp_ncpus=1, mem_per_cpu=0.1)))
-#        afalse(part.can_run(ParalConf(mpi_ncpus=4, omp_ncpus=9, mem_per_cpu=0.1)))
-#        afalse(part.can_run(ParalConf(mpi_ncpus=4, omp_ncpus=1, mem_per_cpu=1024**3)))
-#
-#        d = part.distribute(mpi_procs=4, omp_threads=1, mem_per_proc=0.1)
-#        assert d.num_nodes == 1 and d.mpi_per_node == 4 and d.exact
-#
-#        d = part.distribute(mpi_procs=16, omp_threads=1, mem_per_proc=1)
-#        assert d.num_nodes == 2 and d.mpi_per_node == 8 and d.exact
-#
-#        # not enough memory per node but can distribute.
-#        d = part.distribute(mpi_procs=8, omp_threads=1, mem_per_proc=2)
-#        assert d.num_nodes == 2 and d.mpi_per_node == 4 and not d.exact
-#
-#        # not commensurate with node
-#        d = part.distribute(mpi_procs=9, omp_threads=1, mem_per_proc=0.1)
-#        assert d.num_nodes == 3 and d.mpi_per_node == 3 and not d.exact
-#
-#        # mem_per_proc > mem_per_node!
-#        with self.assertRaises(part.DistribError):
-#            d = part.distribute(mpi_procs=9, omp_threads=1, mem_per_proc=1024)
-
-
 class QadapterTest(PymatgenTest):
     QDICT = yaml.load("""\
 priority: 1
@@ -87,7 +38,7 @@ queue:
     qtype: slurm
     qname: Oban
 limits:
-    timelimit: 0:10:00
+    timelimit: 2:00
     min_cores: 1
     max_cores: 24
     #condition: {"$eq": {omp_threads: 2}}
@@ -99,7 +50,7 @@ job:
         PATH: /home/user/tmp_intel13/src/98_main/:/home/user//NAPS/intel13/bin:$PATH
     mpi_runner: mpirun
 hardware:
-   num_nodes: 100
+   num_nodes: 3
    sockets_per_node: 2
    cores_per_socket: 4
    mem_per_node: 8 Gb""")
@@ -119,6 +70,8 @@ hardware:
             self.QDICT["queue"]["qtype"] = subc.QTYPE
             qad = make_qadapter(**self.QDICT)
             print(qad)
+            hw = qad.hw
+            giga = 1024
 
             # Test the programmatic interface used to change job parameters.
             aequal(qad.num_attempts, 0)
@@ -129,9 +82,10 @@ hardware:
             atrue(qad.pure_mpi)
             afalse(qad.pure_omp)
             afalse(qad.hybrid_mpi_omp)
-            aequal(qad.mem_per_proc, 1024)
-            qad.set_mem_per_proc(1024*2)
-            aequal(qad.mem_per_proc, 1024*2)
+            aequal(qad.mem_per_proc, giga)
+            qad.set_mem_per_proc(2 * giga)
+            aequal(qad.mem_per_proc, 2 * giga)
+            aequal(qad.timelimit, 120)
 
             # Enable OMP
             qad.set_omp_threads(2)
@@ -140,6 +94,9 @@ hardware:
             afalse(qad.pure_mpi)
             afalse(qad.pure_omp)
             atrue(qad.hybrid_mpi_omp)
+
+            atrue(qad.hw.can_use_omp_threads(hw.sockets_per_node * hw.cores_per_socket))
+            afalse(qad.hw.can_use_omp_threads(hw.sockets_per_node * hw.cores_per_socket + 1))
 
             # Test the creation of the script
             script = qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path", 
@@ -152,6 +109,32 @@ hardware:
                 new_script = new_qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path", 
                                                     stdin="STDIN", stdout="STDOUT", stderr="STDERR")
                 aequal(new_script, script)
+
+            # Test can_run and distribute
+            # The hardware has num_nodes=3, sockets_per_node=2, cores_per_socket=4, mem_per_node="8 Gb"
+            afalse(qad.can_run_pconf(ParalConf(mpi_ncpus=hw.num_cores+1, omp_ncpus=1, mem_per_cpu=0.1)))
+            afalse(qad.can_run_pconf(ParalConf(mpi_ncpus=4, omp_ncpus=9, mem_per_cpu=0.1)))
+            afalse(qad.can_run_pconf(ParalConf(mpi_ncpus=4, omp_ncpus=1, mem_per_cpu=10 * giga)))
+
+            d = qad.distribute(mpi_procs=4, omp_threads=1, mem_per_proc=giga)
+            assert d.num_nodes == 1 and d.mpi_per_node == 4 and d.exact
+
+            d = qad.distribute(mpi_procs=16, omp_threads=1, mem_per_proc=giga)
+            assert d.num_nodes == 2 and d.mpi_per_node == 8 and d.exact
+
+            # not enough memory per node but can distribute.
+            d = qad.distribute(mpi_procs=8, omp_threads=1, mem_per_proc=2 * giga)
+            assert d.num_nodes == 2 and d.mpi_per_node == 4 and not d.exact
+
+            # mem_per_proc > mem_per_node!
+            with self.assertRaises(qad.DistribError):
+                d = qad.distribute(mpi_procs=9, omp_threads=1, mem_per_proc=10 * giga)
+
+            # TODO
+            # not commensurate with node
+            #d = qad.distribute(mpi_procs=9, omp_threads=1, mem_per_proc=giga)
+            #assert d.num_nodes == 3 and d.mpi_per_node == 3 and not d.exact
+
 
 class ShellAdapterTest(PymatgenTest):
     """Test suite for Shell adapter."""
