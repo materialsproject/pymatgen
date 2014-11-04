@@ -847,7 +847,7 @@ class GWConvergenceData():
                        str(self.conv_res['values']['nbands']), ' ', str(self.conv_res['values']['ecuteps']), ' ',
                        str(self.conv_res['values']['gap']), ' "', "' w p\n")
         else:
-            string2 = "%s%s%s" % ("splot '", self.name, ".data' u 1:2:3 w pm3d\n")
+            string2 = "%s%s%s" % ("splot '", self.name, ".data' u 1:2:3 w pm3d\npause -1\n")
         with open(filename, mode='a') as f:
             f.write(string1)
             f.write(string2)

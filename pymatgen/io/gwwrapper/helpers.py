@@ -129,9 +129,7 @@ def print_gnuplot_header(filename, title='', mode='convplot', filetype='jpeg'):
     zl = 'set zlabel "gap (eV)"\n'
     if mode == 'convplot':
         f = open(filename, mode='a')
-        if filetype is None:
-            f.write('pause -1\n')
-        else:
+        if filetype is not None:
             f.write('set terminal '+filetype+'\n')
         f.write('set title "'+title+'"\n')
         f.write(xl)
