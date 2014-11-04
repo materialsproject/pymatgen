@@ -299,10 +299,12 @@ class SingleAbinitGWWorkFlow():
                 else:
                     if grid == 0:
                         print('| setting convergence calculations for grid 0')
-                        tests = SingleAbinitGWWorkFlow(self.structure, self.spec).convs
+                        #tests = SingleAbinitGWWorkFlow(self.structure, self.spec).convs
+                        tests = self.convs
                     else:
                         print('| extending grid')
-                        tests = expand(SingleAbinitGWWorkFlow(self.structure, self.spec).convs, grid)
+                        #tests = expand(SingleAbinitGWWorkFlow(self.structure, self.spec).convs, grid)
+                        tests = expand(self.convs, grid)
                 ecuteps = []
                 nscf_nband = []
                 for test in tests:
