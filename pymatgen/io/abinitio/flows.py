@@ -607,7 +607,7 @@ class AbinitFlow(Node):
             print("Work #%d: %s, Finalized=%s\n" % (i, work, work.finalized), file=stream)
             if verbose == 0 and work.finalized: continue
 
-            table = PrettyTable(["Task", "Status", "Queue-id", "Err|Warn|Comm", "MPI|OMP", "Class", "Restart", "Etime"])
+            table = PrettyTable(["Task", "Status", "Queue-id", "MPI|OMP", "Err|Warn|Comm", "Class", "Restart", "Etime"])
 
             tot_num_errors = 0
             for task in work:
@@ -620,17 +620,20 @@ class AbinitFlow(Node):
                 if report is not None: 
                     events = "|".join(map(str, [report.num_errors, report.num_warnings, report.num_comments]))
 
-                cpu_info = "|".join(map(str, (task.mpi_procs, task.omp_threads)))
+                para_info = "|".join(map(str, (task.mpi_procs, task.omp_threads)))
                 task_info = list(map(str, [task.__class__.__name__, task.num_restarts, task.run_etime()]))
+                qinfo = "None"
+                if task.queue_id is not None:
+                    qinfo = str(task.queue_id) + "@" + str(task.qname)
 
                 if task.status.is_critical:
                     tot_num_errors += 1
                     task_name = colored(task_name, red)
 
                 if has_colours:
-                    table.add_row([task_name, task.status.colored, str(task.queue_id), events, cpu_info] + task_info)
+                    table.add_row([task_name, task.status.colored, qinfo, para_info, events] + task_info)
                 else:
-                    table.add_row([task_name, str(task.status), str(task.queue_id), events, cpu_info] + task_info)
+                    table.add_row([task_name, str(task.status), qinfo, events, para_info] + task_info)
 
             # Print table and write colorized line with the total number of errors.
             print(table, file=stream)
