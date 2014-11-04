@@ -153,6 +153,7 @@ class SingleAbinitGWWorkFlow():
         self.structure = structure
         self.spec = spec
         self.option = option
+        self.bands_fac = 1
         self.tests = self.__class__.get_defaults_tests()
         self.convs = self.__class__.get_defaults_convs()
         self.response_models = self.__class__.get_response_models()
@@ -262,6 +263,8 @@ class SingleAbinitGWWorkFlow():
 
         # read user defined extra abivars from file  'extra_abivars' should be dictionary
         extra_abivars.update(read_extra_abivars())
+        self.bands_fac = 0.2 if 'gwcomp' in extra_abivars.keys() else 1
+        self.convs['nscf_nbands']['test_range'] *= self.bands_fac
 
         response_models = ['godby']
         if 'ppmodel' in extra_abivars.keys():
