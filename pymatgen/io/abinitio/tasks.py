@@ -289,12 +289,10 @@ class SparseHystogramTest(unittest.TestCase):
         from collections import OrderedDict
         items = [1, 2, 2.9, 4]
         hyst = sparse_hystogram(items, step=1)
-        #print(hyst)
         assert hyst == OrderedDict([(1.0, [1]), (2.0, [2, 2.9]), (3.0, [4])])
 
         hyst = sparse_hystogram([iv for iv in enumerate(items)], key=lambda t: t[1], step=1)
         assert hyst == OrderedDict([(1.0, [(0, 1)]), (2.0, [(1, 2), (2, 2.9)]), (3.0, [(3, 4)])])
-        #print("hyst", hyst)
 
 
 class ParalConf(AttrDict):
