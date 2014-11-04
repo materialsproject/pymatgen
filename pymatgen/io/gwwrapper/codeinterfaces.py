@@ -151,12 +151,13 @@ class VaspInterface(AbstractCodeInterface):
             if os.path.isfile(run):
                 try:
                     data = Vasprun(run, ionic_step_skip=1)
-                    parameters = data.__getattribute__('incar').to_dict
+                    parameters = data.__getattribute__('incar').as_dict
                     bandstructure = data.get_band_structure(kpoints)
                     results = {'ecuteps': parameters['ENCUTGW'],
                                'nbands': parameters['NBANDS'],
                                'nomega': parameters['NOMEGA'],
                                'gwgap': bandstructure.get_band_gap()['energy']}
+                    print(results)
                 except (IOError, OSError, IndexError, KeyError):
                     pass
         return results
