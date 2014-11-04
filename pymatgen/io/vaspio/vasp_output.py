@@ -347,7 +347,10 @@ class Vasprun(PMGSONable):
                         self._parse_atominfo(elem)
             if tag == "calculation":
                 parsed_header = True
-                ionic_steps.append(self._parse_calculation(elem))
+                try:
+                    ionic_steps.append(self._parse_calculation(elem))
+                except TypeError:
+                    pass
             elif parse_dos and tag == "dos":
                 try:
                     self.tdos, self.idos, self.pdos = self._parse_dos(elem)
