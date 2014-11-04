@@ -371,6 +371,8 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             qverbatim
             min_cores, max_cores:
                 Minimum and maximum number of cores that can be used
+            min_mem_per_core
+            max_mem_per_core
             timelimit
                 Time limit in seconds
             priority=Priority level, integer number > 0
@@ -656,33 +658,40 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         in tight loops attempting to make message passing progress, effectively causing other processes to not get
         any CPU cycles (and therefore never make any progress)
         """
-        Distrib = namedtuple("Distrib", "num_nodes mpi_per_node exact") # mem_per_node
+        class Distrib(namedtuple("Distrib", "num_nodes mpi_per_node exact")):
+            pass
+            #@property
+            #def mem_per_node
+            #    return self.mpi_per_node * mem_per_proc
+            #def set_groups(self, groups)
+
         hw = self.hw
 
         # TODO: Add check on user-memory
-        if mem_per_proc < hw.mem_per_node:
-            # Try to use all then cores in the node.
-            num_nodes, rest_cores = hw.divmod_node(mpi_procs, omp_threads)
-            if num_nodes == 0 and mpi_procs * mem_per_proc <= hw.mem_per_node:
-                return Distrib(num_nodes=1, mpi_per_node=mpi_procs, exact=True)
-
-            mpi_per_node = mpi_procs // num_nodes
-            if rest_cores == 0 and mpi_per_node * mem_per_proc <= hw.mem_per_node:
-                return Distrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, exact=True)
-
         if mem_per_proc <= 0:
             logger.warning("mem_per_proc <= 0")
             mem_per_proc =  hw.mem_per_core
 
-        # Try first to pack MPI processors in a node as much as possible
-        mpi_per_node = int(hw.mem_per_node / mem_per_proc)
-        if mpi_per_node == 0:
+        if mem_per_proc > hw.mem_per_node:
             raise self.DistribError(
-                "mem_pre_proc > mem_per_node.\n Cannot distribute mpi_procs %d, omp_threads %d, mem_per_proc %s" %
+                "mem_per_proc > mem_per_node.\n Cannot distribute mpi_procs %d, omp_threads %d, mem_per_proc %s" %
                              (mpi_procs, omp_threads, mem_per_proc))
 
+        # Try to use all then cores in the node.
+        num_nodes, rest_cores = hw.divmod_node(mpi_procs, omp_threads)
+
+        if num_nodes == 0:
+            return Distrib(num_nodes=1, mpi_per_node=mpi_procs, exact=True)
+
+        mpi_per_node = mpi_procs // num_nodes
+        if mpi_per_node * mem_per_proc <= hw.mem_per_node and rest_cores == 0:
+            return Distrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, exact=True)
+
+        # Try first to pack MPI processors in a node as much as possible
+        mpi_per_node = int(hw.mem_per_node / mem_per_proc)
+        assert mpi_per_node != 0
         num_nodes = (mpi_procs * omp_threads) // mpi_per_node
-        #print(mpi_per_node, num_nodes)
+        print("exact --> false", num_nodes, mpi_per_node)
 
         if mpi_per_node * omp_threads <= hw.cores_per_node and mem_per_proc <= hw.mem_per_node:
             return Distrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, exact=False)
@@ -944,11 +953,13 @@ class SlurmAdapter(QueueAdapter):
 
 #SBATCH --partition=$${partition}
 #SBATCH --job-name=$${job_name}
+#SBATCH --nodes=$${nodes}
 #SBATCH --ntasks=$${ntasks}
 #SBATCH --ntasks-per-node=$${ntasks_per_node}
 #SBATCH --cpus-per-task=$${cpus_per_task}
 #SBATCH --mem=$${mem}
 #SBATCH --mem-per-cpu=$${mem_per_cpu}
+#SBATCH --hint=$${hint}
 #SBATCH --time=$${time}
 #SBATCH	--exclude=$${exclude_nodes}
 #SBATCH	--nodes=$${nodes}
@@ -1188,9 +1199,8 @@ class PbsProAdapter(QueueAdapter):
             * http://www.cardiff.ac.uk/arcca/services/equipment/User-Guide/pbs.html
             * https://portal.ivec.org/docs/Supercomputers/PBS_Pro
         """
-        mem_per_proc = int(self.mem_per_proc)
-        hw = self.hw
-        #dist = part.distribute(self.mpi_procs, self.omp_threads, mem_per_proc)
+        hw, mem_per_proc = self.hw, int(self.mem_per_proc)
+        #dist = self.distribute(self.mpi_procs, self.omp_threads, mem_per_proc)
 
         if self.pure_mpi:
             num_nodes, rest_cores = hw.divmod_node(self.mpi_procs, self.omp_threads)
