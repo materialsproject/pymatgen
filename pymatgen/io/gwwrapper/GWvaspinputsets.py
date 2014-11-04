@@ -376,10 +376,10 @@ class SingleVaspGWWork():
             if self.spec["prec"] == "h":
                 inpset.set_prec_high()
             if self.spec['kp_grid_dens'] > 20:
-                inpset.wannier_on()
+                #inpset.wannier_on()
                 inpset.write_input(self.structure, os.path.join(path, 'G0W0'+option_name))
-                w_inpset = Wannier90InputSet(self.spec)
-                w_inpset.write_file(self.structure, os.path.join(path, 'G0W0'+option_name))
+                #w_inpset = Wannier90InputSet(self.spec)
+                #w_inpset.write_file(self.structure, os.path.join(path, 'G0W0'+option_name))
             else:
                 inpset.write_input(self.structure, os.path.join(path, 'G0W0'+option_name))
 
@@ -398,10 +398,10 @@ class SingleVaspGWWork():
                 inpset.set_prec_high()
             inpset.gw0_on()
             if self.spec['kp_grid_dens'] > 20:
-                inpset.wannier_on()
+                #inpset.wannier_on()
                 inpset.write_input(self.structure, os.path.join(path, 'GW0'+option_name))
-                w_inpset = Wannier90InputSet(self.spec)
-                w_inpset.write_file(self.structure, os.path.join(path, 'GW0'+option_name))
+                #w_inpset = Wannier90InputSet(self.spec)
+                #w_inpset.write_file(self.structure, os.path.join(path, 'GW0'+option_name))
             else:
                 inpset.write_input(self.structure, os.path.join(path, 'GW0'+option_name))
 
