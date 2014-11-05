@@ -1326,12 +1326,12 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, ana_input=None):
     qpoints = []
     for pi in ph_inputs:
         print(pi.list_variable('qpt')[0])
-        qpoints.append(pi.list_variable('qpt')[0])
+        qpoints.append(pi.list_variable('qpt')[0][0])
     print(qpoints)
 
     nscf_input = copy.deepcopy(scf_input)
 
-    nscf_input.update({'iscf': -3, 'kptopt': 0, 'kpt': qpoints})
+    nscf_input.set_variables('iscf'=-3, 'kptopt'=0, 'kpt'=qpoints)
 
     nscf_task = flow.register_task(nscf_input, deps={scf_task: "DEN"}, task_class=NscfTask)
 
