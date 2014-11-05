@@ -1323,19 +1323,11 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, ana_input=None):
 
     #qpoints = [pi.list_variable['qpt'][0] for pi in ph_inputs]
 
-    qpoints = []
-    for pi in ph_inputs:
-        print(pi.list_variable('qpt')[0])
-        qpoints.append(pi.list_variable('qpt')[0][0])
-    print(qpoints)
-
     nscf_input = copy.deepcopy(scf_input)
 
-    nscf_input.set_variables({'iscf': -3, 'kptopt': 0, 'kpt': qpoints})
+    nscf_input.set_variables({'iscf': -3})
 
-    nscf_task = flow.register_task(nscf_input, deps={scf_task: "DEN"}, task_class=NscfTask)
-
-    # Build a temporary workflow with a shell manager just to run 
+    # Build a temporary workflow with a shell manager just to run
     # ABINIT to get the list of irreducible pertubations for this q-point.
     shell_manager = manager.to_shell_manager(mpi_procs=1)
 
@@ -1369,6 +1361,11 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, ana_input=None):
         # Now we can build the final list of workflows:
         # One workflow per q-point, each workflow computes all 
         # the irreducible perturbations for a singe q-point.
+
+        nscf_input.set_variable({'nqpt': 1, 'qpt': irred_perts[0]['qpt']})
+
+        nscf_task = flow.register_task(nscf_input, deps={scf_task: "DEN"}, task_class=NscfTask)
+
         work_qpt = PhononWorkflow()
 
         for irred_pert in irred_perts:
@@ -1393,7 +1390,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, ana_input=None):
                 rfatpol=rfatpol,
             )
 
-            work_qpt.register(new_input, deps={nscf_task: "WFK"}, task_class=PhononTask)
+            work_qpt.register(new_input, deps={nscf_task: "WFQ", scf_task: "WFK"}, task_class=PhononTask)
 
         flow.register_work(work_qpt)
 
