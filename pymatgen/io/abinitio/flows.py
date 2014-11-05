@@ -11,6 +11,7 @@ import collections
 import warnings
 import shutil
 import pickle
+import copy
 
 from six.moves import map 
 from atomicfile import AtomicFile
@@ -19,7 +20,7 @@ from prettytable import PrettyTable
 from monty.io import FileLock
 from monty.termcolor import cprint, colored, stream_has_colours
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
-from .tasks import Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager
+from .tasks import Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager, NscfTask
 #from .tasks imort AnaddbTask, QpMergeTask
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
@@ -1320,6 +1321,16 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, ana_input=None):
     # Register the first workflow (GS calculation)
     scf_task = flow.register_task(scf_input, task_class=ScfTask)
 
+    qpoints = [pi['qpt'] for pi in ph_inputs]
+
+    print(qpoints)
+
+    nscf_input = copy.deepcopy(scf_input)
+
+    nscf_input.update({'iscf': -3, 'kptopt': 0, 'kpt': qpoints})
+
+    nscf_task = flow.register_task(nscf_input, deps={scf_task: "DEN"}, task_class=NscfTask)
+
     # Build a temporary workflow with a shell manager just to run 
     # ABINIT to get the list of irreducible pertubations for this q-point.
     shell_manager = manager.to_shell_manager(mpi_procs=1)
@@ -1378,7 +1389,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, ana_input=None):
                 rfatpol=rfatpol,
             )
 
-            work_qpt.register(new_input, deps={scf_task: "WFK"}, task_class=PhononTask)
+            work_qpt.register(new_input, deps={nscf_task: "WFK"}, task_class=PhononTask)
 
         flow.register_work(work_qpt)
 
