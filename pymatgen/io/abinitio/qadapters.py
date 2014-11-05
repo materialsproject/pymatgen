@@ -21,8 +21,8 @@ import warnings
 import six
 import json
 
-from collections import namedtuple
-from subprocess import Popen, PIPE, check_output
+from collections import namedtuple, OrderedDict
+from subprocess import Popen, PIPE
 from atomicfile import AtomicFile
 from monty.string import is_string
 from monty.collections import AttrDict, MongoDict
@@ -1576,11 +1576,83 @@ class QScriptTemplate(string.Template):
     delimiter = '$$'
 
 
+class JobStatus(int):
+    """This object is an integer representing the status of the `QueueJob`."""
+    #Output can be RUNNING, RESIZING, SUSPENDED, COMPLETED, CANCELLED, FAILED, TIMEOUT, PREEMPTED or NODE_FAIL. 
+    _STATUS_TABLE = OrderedDict([
+        (1, "RUNNING"),
+        (2, "RESIZING"),
+        (3, "SUSPENDED"),
+        (4, "COMPLETED"),
+        (5, "CANCELLED"),
+        (6, "FAILED"),
+        (7, "TIMEOUT"),
+        (8, "PREEMPTED"),
+        (9, "NODEFAIL"),
+    ])
+
+    def __repr__(self):
+        return "<%s: %s, at %s>" % (self.__class__.__name__, str(self), id(self))
+
+    def __str__(self):
+        """String representation."""
+        return self._STATUS_TABLE[self]
+
+    @classmethod
+    def from_string(cls, s):
+        """Return a `Status` instance from its string representation."""
+        for num, text in cls._STATUS_TABLE.items():
+            if text == s:
+                return cls(num)
+        else:
+            raise ValueError("Wrong string %s" % s)
+
 
 class QueueJob(object):
+
+    S_RUNNING   = JobStatus.from_string("RUNNING")
+    S_RESIZING  = JobStatus.from_string("RESIZING")
+    S_SUSPENDED = JobStatus.from_string("SUSPENDED")
+    S_COMPLETED = JobStatus.from_string("COMPLETED")
+    S_CANCELLED = JobStatus.from_string("CANCELLED")
+    S_FAILED    = JobStatus.from_string("FAILED")
+    S_TIMEOUT   = JobStatus.from_string("TIMEOUT")
+    S_PREEMPTED = JobStatus.from_string("PREEMPTED")
+    S_NODEFAIL  = JobStatus.from_string("NODEFAIL")
+
     def __init__(self, queue_id, qname=None):
-        self.qid = queue_id
+        self.qid = int(queue_id)
         self.qname = qname
+
+        # Initialize properties.
+        self.status = None
+        self.exitcode = None
+        self.signal = None
+
+    @property
+    def is_completed(self):
+        return self.status == self.S_COMPLETED
+
+    @property
+    def is_running(self):
+        return self.status == self.S_RUNNING
+
+    @property
+    def is_failed(self):
+        return self.status == self.S_FAILED
+
+    @property
+    def timeout(self):
+        return self.status == self.S_TIMEOUT
+
+    @property
+    def has_node_failures(self):
+        return self.status == self.S_NODE_FAIL
+
+    def set_status_exitcode_signal(self, status, exitcode, signal)
+        self.status = status
+        self.exitcode = exitcode
+        self.signal = signale
 
     def get_start_time(self):
         """
@@ -1591,6 +1663,9 @@ class QueueJob(object):
     def get_info(self):
         return None
 
+    def get_nodes(self):
+        return None
+
 
 class SlurmJob(QueueJob):
 
@@ -1598,21 +1673,20 @@ class SlurmJob(QueueJob):
         #squeue  --start -j  116791
         #  JOBID PARTITION     NAME     USER  ST           START_TIME  NODES NODELIST(REASON)
         # 116791      defq gs6q2wop cyildiri  PD  2014-11-04T09:27:15     16 (QOSResourceLimit)
-        process = Popen(["squeue" "--start", "--job", str(self.qid)], stdout=PIPE, stderr=PIPE)
+        process = Popen(["squeue" "--start", "--job", str(self.qid)], shell=True, stdout=PIPE, stderr=PIPE)
         process.wait()
-
-        from datetime import datetime
-        datetime.strptime(date_string, format)
 
         if process.returncode != 0: return None
         lines = process.stdout.readlines()
+
+        from datetime import datetime
         for line in lines:
             tokens = line.split()
             if int(tokens[0]) == self.qid:
                 date_string = tokens[5]
+                if date_string == "N/A": return None
                 return datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S")
-        else:
-            return None
+        return None
 
     # For more info
     #login1$ scontrol show job 1676354
@@ -1620,44 +1694,86 @@ class SlurmJob(QueueJob):
     def get_info(self):
         # See https://computing.llnl.gov/linux/slurm/sacct.html
         #If SLURM job ids are reset, some job numbers will        
-	    #probably appear more than once refering to different jobs.
-	    #Without this option only the most recent jobs will be displayed.          
+	#probably appear more than once refering to different jobs.
+	#Without this option only the most recent jobs will be displayed.          
 
-        #state
-        #Displays the job status, or state.
+        #state Displays the job status, or state.
         #Output can be RUNNING, RESIZING, SUSPENDED, COMPLETED, CANCELLED, FAILED, TIMEOUT, 
         #PREEMPTED or NODE_FAIL. If more information is available on the job state than will fit 
         #into the current field width (for example, the uid that CANCELLED a job) the state will be followed by a "+". 
-        # You can increase the size of the displayed state using the "%NUMBER" format modifier described earlier. 
 
         #gmatteo@master2:~
         #sacct --job 112367 --format=jobid,exitcode,state --allocations --parsable2
         #JobID|ExitCode|State
         #112367|0:0|RUNNING
+        #scontrol show job 800197 --oneliner
 
-        #output = check_output(["ls", "-l", "/dev/null"]
-        cmd = "sacct --job %d --format=jobid,exitcode,state --allocations --parsable2" % job_id
-        output = str(check_output([cmd]))
+        #cmd = "sacct --job %i --format=jobid,exitcode,state --allocations --parsable2" % self.qid
+        cmd = "scontrol show job %i --oneliner" % self.qid
+        #print("cmd", cmd)
+        process = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+        process.wait()
 
-        # Parse output.
-        qid, exitcode, state = output.split("|")
-        qid = int(qid)
-        assert qid == job_id
+        if process.returncode != 0:
+          #print(process.stderr.readlines())
+          return None
+        line = process.stdout.read()
+        #print("line", line)
+
+        tokens = line.split()
+        info = AttrDict()
+        for line in tokens:
+          #print(line)
+          k, v = line.split("=")
+          info[k] = v
+        #print(info)
+
+        qid = int(info.JobId)
+        assert qid == self.qid
+        exitcode = info.ExitCode
+        status = info.JobState
+
         if ":" in exitcode:
             exitcode, signal = map(int, exitcode.split(":"))
         else:
             exitcode, signal = int(exitcode), None
 
-        i = state.find("+")
-        if i != -1: state = state[:i]
+        i = status.find("+")
+        if i != -1: status = status[:i]
 
-        #class JobInfo(namedtuple("JobInfo", "queue_id exitcode signal state")):
-        #    def __bool__(self):
-        #        return self.state != "CannotDected"
-        #    __notzero__ = __bool_
-        #    def completed(self):
-        #    def cancelled(self):
-        #    def failed(self):
-        #    def timeout(self):
-        #    def node_fail(self):
-        #return jobinfo()
+        #self.exitcode, self.signal, self.status = exitcode, signal, JobStatus.from_string(status)
+        self.set_status_exitcode_signal(exitcode, JobStatus.from_string(status), signal)
+        return AttrDict(exitcode=exitcode, signal=signal, status=status)
+
+    def get_stats(self):
+        cmd = "sacct --long --job %s --parsable2" % self.qid
+        process = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+        process.wait()
+
+        lines = process.stdout.readlines()
+        keys = lines[0].strip().split("|")
+        values = lines[1].strip().split("|")
+        #print("lines0", lines[0])
+        return dict(zip(keys, values))
+
+
+class PbsProJob(QueueJob):
+
+    def get_info(self):
+        cmd = "qstat " % self.qid
+        process = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+
+        if process.returncode != 0:
+          #print(process.stderr.readlines())
+          return None
+
+        # TOO Put example
+        lines = process.stdout.readlines()
+        out = lines[-1]
+        status = out.split()[9]
+
+        # Mapping PrbPro --> Slurm
+        status = pbs2slurm[status]
+        self.set_status_exitcode_signal(None, status, None)
+        #self.exitcode, self.signal, self.status = exitcode, signal, status
+        #return AttrDict(exitcode=exitcode, signal=signal, status=status)
