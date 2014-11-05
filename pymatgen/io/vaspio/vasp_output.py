@@ -834,15 +834,18 @@ class Vasprun(PMGSONable):
         return Structure(latt, self.atomic_symbols, pos)
 
     def _parse_calculation(self, elem):
-        istep = {i.attrib["name"]: float(i.text)
-                 for i in elem.find("energy").findall("i")}
+        try:
+            istep = {i.attrib["name"]: float(i.text)
+                     for i in elem.find("energy").findall("i")}
+        except AttributeError:  # not all calculations have an energy
+            pass
         esteps = []
         for scstep in elem.findall("scstep"):
             try:
                 d = {i.attrib["name"]: _vasprun_float(i.text)
                      for i in scstep.find("energy").findall("i")}
                 esteps.append(d)
-            except AttributeError:
+            except AttributeError:  # not all calculations have an energy
                 pass
         s = self._parse_structure(elem.find("structure"))
         for va in elem.findall("varray"):
