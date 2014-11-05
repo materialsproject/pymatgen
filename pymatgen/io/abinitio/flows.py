@@ -19,7 +19,8 @@ from prettytable import PrettyTable
 from monty.io import FileLock
 from monty.termcolor import cprint, colored, stream_has_colours
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
-from .tasks import Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager, AnaddbTask, QpMergeTask
+from .tasks import Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager, \
+#from .tasks imort AnaddbTask, QpMergeTask
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
 from .workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow, QptdmWorkflow
@@ -1381,9 +1382,9 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, ana_input=None):
 
         flow.register_work(work_qpt)
 
-        if ana_input is not None:
-            merge_input = {}
-            qp_merge_task = flow.register_task(merge_input, deps={work_qpt: "DDB"}, task_class=QpMergeTask)
-            flow.register_task(ana_input, deps={qp_merge_task: "DDB"}, task_class=AnaddbTask)
+        #if ana_input is not None:
+        #    merge_input = {}
+        #    qp_merge_task = flow.register_task(merge_input, deps={work_qpt: "DDB"}, task_class=QpMergeTask)
+        #    flow.register_task(ana_input, deps={qp_merge_task: "DDB"}, task_class=AnaddbTask)
                                             
     return flow.allocate()
