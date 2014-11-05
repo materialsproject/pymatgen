@@ -56,15 +56,18 @@ hardware:
 
     parser.add_argument('-p', '--mpi-procs', default=1, type=int, help='Number of MPI processes')
     parser.add_argument('-o', '--omp-threads', default=1, type=int, help='Number of OpenMP threads')
-    parser.add_argument('-m', '--mem_per_proc', type=lambda s: float(Memory.from_string(s).to("Mb")), 
-                        default="1Mb", help='Memory per processor in Mb')
+    parser.add_argument('-m', '--mem_per_proc', type=lambda s: float(Memory.from_string(s).to("Mb")), default="1Mb", 
+                        help='Memory per processor (accept units e.g. 4Gb, assume Mb if unit is not given')
 
     opts = parser.parse_args()
     print(opts.mem_per_proc)
 
+    QDICT["queue"]["qtype"] = "pbspro"
+
     qad = make_qadapter(**QDICT)
     qad.set_mpi_procs(opts.mpi_procs)
-    qad.set_omp_threads(opts.omp_threads)
+    if opts.mpi_procs > 1:
+        qad.set_omp_threads(opts.omp_threads)
     qad.set_mem_per_proc(opts.mem_per_proc)
 
     script = qad.get_script_str("job_name", "launch_dir", "hostname", "qout_path", "qerr_path",

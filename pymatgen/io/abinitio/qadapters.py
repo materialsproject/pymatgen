@@ -1078,13 +1078,6 @@ class SlurmAdapter(QueueAdapter):
             cmd = ['sbatch', script_file]
             process = Popen(cmd, stdout=PIPE, stderr=PIPE)
             # write the err output to file, a error parser may read it and a fixer may know what to do ...
-
-            with open(submit_err_file, mode='w') as f:
-                f.write('sbatch submit process stderr:')
-                f.write(str(process.stderr.read()))
-                f.write('qparams:')
-                f.write(str(self.qparams))
-
             process.wait()
 
             # grab the returncode. SLURM returns 0 if the job was successful
@@ -1102,6 +1095,12 @@ class SlurmAdapter(QueueAdapter):
                     return process, queue_id
 
             else:
+                with open(submit_err_file, mode='w') as f:
+                    f.write('sbatch submit process stderr:')
+                    f.write(str(process.stderr.read()))
+                    f.write('qparams:')
+                    f.write(str(self.qparams))
+
                 # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
                 err_msg = ("Error in job submission with SLURM file {f} and cmd {c}\n".format(f=script_file, c=cmd) + 
                            "The error response reads:\n {c}".format(c=process.stderr.read()))
