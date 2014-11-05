@@ -1324,8 +1324,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, ana_input=None):
     #qpoints = [pi['qpt'] for pi in ph_inputs]
 
     for pi in ph_inputs:
-        print(pi)
-        print(pi[0])
+        print(pi.list_variable('qpt'))
 
     print(qpoints)
 
