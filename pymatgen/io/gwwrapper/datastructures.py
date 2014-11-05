@@ -409,7 +409,7 @@ class GWSpecs(AbstractAbinitioSpec):
                     if len(data.data) == 0:
                         print('| parm_scr type calculation but no data found.')
                         break
-                    if len(data.data) < 24:
+                    if len(data.data) < 9:  # todo this should be calculated
                         print('| parm_scr type calculation but no complete data found,' \
                               ' check is all calculations are done.')
                         break
