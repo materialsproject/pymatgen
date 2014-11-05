@@ -1886,9 +1886,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # Can only reset tasks that are done.
         if self.status < self.S_DONE: return 1
 
-        self.set_status(self.S_INIT, info_msg="Reset on %s" % time.asctime())
-        self.set_qinfo(None)
-
         # Remove output files otherwise the EventParser will think the job is still running
         self.output_file.remove()
         self.log_file.remove()
@@ -1896,6 +1893,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.start_lockfile.remove()
         self.qerr_file.remove()
         self.qout_file.remove()
+
+        self.set_status(self.S_INIT, info_msg="Reset on %s" % time.asctime())
+        self.set_qinfo(None)
 
         # TODO send a signal to the flow 
         #self.workflow.check_status()
@@ -2689,7 +2689,7 @@ class AbinitTask(Task):
                 optconf = optconfs[i]
                 break
         else:
-            raise RuntimeError("Cannot find partition for this run!")
+            raise RuntimeError("Cannot find qadapter for this run!")
 
         ####################################################
         # Change the input file and/or the submission script
