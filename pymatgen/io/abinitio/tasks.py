@@ -16,13 +16,13 @@ import six
 
 from pprint import pprint
 from atomicfile import AtomicFile
-from monty.termcolor import colored
 from six.moves import map, zip, StringIO
+from monty.termcolor import colored
 from monty.serialization import loadfn
 from monty.string import is_string, list_strings
 from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
-from monty.functools import lazy_property
+from monty.functools import lazy_property, return_none_if_raise
 from pymatgen.util.string_utils import WildCard
 from pymatgen.util.num_utils import maxloc
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump, pmg_serialize
@@ -254,25 +254,45 @@ class AbinitTaskResults(NodeResults):
 
 
 
-def sparse_hystogram(items, key, num=None, step=None):
+def sparse_histogram(items, key=None, num=None, step=None):
     if num is None and step is None:
         raise ValueError("Either num or step must be specified")
+    import numpy as np
+    from collections import defaultdict, OrderedDict
 
-    values = [key(item) for item in items]
+    values = [key(item) for item in items] if key is not None else items
     start, stop = min(values), max(values)
     if num is None:
         num = int((stop - start) / step)
         if num == 0: num = 1
     mesh = np.linspace(start, stop, num, endpoint=False)
 
-    hyst = defaultdict([])
-    for i, val in enumerate(values):
-        # Find leftmost item greater than or equal to x
-        pos = find_ge(mesh, val)
-        hyst[pos].append(items[i])
+    from abipy.tools.numtools import find_le
 
-    return OrderedDict([(pos, hyst[pos]) for pos in sorted(hyst.keys())])
+    hist = defaultdict(list)
+    for item, value in zip(items, values):
+        # Find rightmost value less than or equal to x.
+        # hence each bin contains all items whose value is >=
+        pos = find_le(mesh, value)
+        hist[mesh[pos]].append(item)
 
+    new = OrderedDict([(pos, hist[pos]) for pos in sorted(hist.keys())])
+    new.start, new.stop, new.num = start, stop, num
+    return new
+
+
+
+import unittest
+
+class SparseHistogramTest(unittest.TestCase):
+    def test_sparse(self):
+        from collections import OrderedDict
+        items = [1, 2, 2.9, 4]
+        hist = sparse_histogram(items, step=1)
+        assert hist == OrderedDict([(1.0, [1]), (2.0, [2, 2.9]), (3.0, [4])])
+
+        hist = sparse_histogram([iv for iv in enumerate(items)], key=lambda t: t[1], step=1)
+        assert hist == OrderedDict([(1.0, [(0, 1)]), (2.0, [(1, 2), (2, 2.9)]), (3.0, [(3, 4)])])
 
 
 class ParalConf(AttrDict):
@@ -468,6 +488,9 @@ class ParalHints(collections.Iterable):
         if any(c.mem_per_proc > 0.0 for c in self):
             self._confs.sort(key=lambda c: c.mem_per_proc, reverse=reverse)
 
+    #def hist_efficiency(self):
+    #    return sparse_histogram(self._confs, key=lambda c: c.efficiency, step=0.1)
+
     def select_optimal_conf(self, policy):
         """
         Find the optimal configuration according to the `TaskPolicy` policy.
@@ -566,9 +589,9 @@ class TaskPolicy(object):
         """
         Args:
             autoparal: 
-                Value of ABINIT autoparal input variable. None to disable the autoparal feature.
+                Value of ABINIT autoparal input variable. 0 to disable the autoparal feature (default)
             automemory:
-                int defining the memory policy. 
+                int defining the memory policy (default 0)
                 If > 0 the memory requirements will be computed at run-time from the autoparal section
                 produced by ABINIT. In this case, the job script will report the autoparal memory
                 instead of the one specified by the user.
@@ -705,16 +728,22 @@ class TaskManager(object):
         if policy is None:
             my_kwargs["policy"] = TaskPolicy(autoparal=0) 
 
-        for d in self._kwargs["qadapters"]:
-            d = copy.deepcopy(d)
-            d["qtype"] = "shell"
+        for d in my_kwargs["qadapters"]:
+            print("before", d["queue"]["qtype"])
+            d["queue"]["qtype"] = "shell"
+            d["limits"]["min_cores"] = mpi_procs
+            d["limits"]["max_cores"] = mpi_procs
+
+        print(my_kwargs)
 
         new = self.__class__(**my_kwargs)
-        #new.min_cores = 1
-        #new.max_cores = mpi_procs
         new.set_mpi_procs(mpi_procs)
 
         return new
+
+    @property
+    def qads(self):
+        return self._qads
 
     @property
     def qadapter(self):
@@ -806,7 +835,7 @@ class TaskManager(object):
 
     #@property
     #def max_ncpus(self):
-    #    return max(q.partition.max_ncores for q in self.qads)
+    #    return max(q.partition.max_cores for q in self.qads)
 
     def get_njobs_in_queue(self, username=None):
         """
@@ -817,9 +846,6 @@ class TaskManager(object):
             username: (str) the username of the jobs to count (default is to autodetect)
         """
         return self.qadapter.get_njobs_in_queue(username=username)
-
-    #def get_job_info(self, job_id):
-    #    return self.qadapater.get_job_info(job_id)
 
     def cancel(self, job_id):
         """Cancel the job. Returns exit status."""
@@ -1596,6 +1622,16 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """Set the `TaskManager` to use to launch the Task."""
         self.manager = manager.deepcopy()
 
+        # TODO
+        # Select adapters associated to the Task class
+        #keep = []
+        #for i, qad in enumerate(self.manager.qads):
+        #    if self.__class__.__name__ in qad.task_classes:
+        #        keep.append(i)
+        #if keep:
+        #    self._qads = [self._qads[i] for i in keep]
+        #    self._qid = 0
+
     @property
     def work(self):
         """The WorkFlow containing this `Task`."""
@@ -1866,20 +1902,24 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         return 0
 
     @property
+    @return_none_if_raise(AttributeError)
     def queue_id(self):
         """Queue identifier returned by the Queue manager. None if not set"""
-        try:
-            return self._queue_id
-        except AttributeError:
-            return None
+        return self._queue_id
+        #try:
+        #    return self._queue_id
+        #except AttributeError:
+        #    return None
 
     @property
+    @return_none_if_raise(AttributeError)
     def qname(self):
         """Queue name identifier returned by the Queue manager. None if not set"""
-        try:
-            return self._qname
-        except AttributeError:
-            return None
+        return self._qname
+        #try:
+        #    return self._qname
+        #except AttributeError:
+        #    return None
 
     def set_qinfo(self, queue_id):
         """Set info on queue after submission."""

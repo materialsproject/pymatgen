@@ -21,8 +21,8 @@ import warnings
 import six
 import json
 
-from collections import namedtuple
-from subprocess import Popen, PIPE, check_output
+from collections import namedtuple, OrderedDict, defaultdict
+from subprocess import Popen, PIPE
 from atomicfile import AtomicFile
 from monty.string import is_string
 from monty.collections import AttrDict, MongoDict
@@ -307,22 +307,46 @@ class _ExcludeNodesFile(object):
 _EXCL_NODES_FILE = _ExcludeNodesFile()
 
 
+def all_subclasses(cls):
+    """
+    Given a class, this recursive function returns a list with 
+    all subclasses, subclasses of subclasses, and so on.
+    """
+    subclasses = cls.__subclasses__() 
+    return subclasses + [g for s in subclasses for g in all_subclasses(s)]
+
+
 def make_qadapter(**kwargs):
     """
     Return the concrete `Adapter` class from a string.
+    Note that one can register a customized version with:
+
+    .. example:
+
+        from qadapters import SlurmAdapter 
+
+        class MyAdapter(SlurmAdapter):
+            QTYPE = "myslurm"
+            # Add your customized code here
+
+        # Register your class.
+        SlurmAdapter.register(MyAdapter)
+
+        make_qadapter(qtype="myslurm", **kwargs)
+
+    .. warning:
+        MyAdapter should be pickleable, hence one should declare it 
+        at the module level so that pickle can import it at run-time.
     """
+    # Get all known subclasses of QueueAdapter.
+    d = {c.QTYPE: c for c in all_subclasses(QueueAdapter)}
     qtype = kwargs["queue"].pop("qtype")
-    return {"shell": ShellAdapter,
-            "slurm": SlurmAdapter,
-            "pbspro": PbsProAdapter,
-            "torque": TorqueAdapter,
-            "sge": SGEAdapter,
-            "moab": MOABAdapter,
-            }[qtype.lower()](**kwargs)
+    return d[qtype](**kwargs)
 
 
 class QueueAdapterError(Exception):
     """Error class for exceptions raise by QueueAdapter."""
+
 
 class QueueAdapterDistribError(Exception):
     """Raised by distribute."""
@@ -371,6 +395,8 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             qverbatim
             min_cores, max_cores:
                 Minimum and maximum number of cores that can be used
+            min_mem_per_proc
+            max_mem_per_proc
             timelimit
                 Time limit in seconds
             priority=Priority level, integer number > 0
@@ -378,6 +404,9 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                 True if we must allocate entire nodes"
             condition:
                 Condition object (dictionary)
+        # TODO
+            max_num_attempts:
+            task_classes
         """
         # Make defensive copies so that we can change the values at runtime.
         kwargs = copy.deepcopy(kwargs)
@@ -399,12 +428,15 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
         # Initialize some values from the info reported in the partition.
         self.set_mpi_procs(self.min_cores)
-        self.set_mem_per_proc(self.min_mem_per_core)
+        self.set_mem_per_proc(self.min_mem_per_proc)
 
         # Final consistency check.
         self.validate()
 
     def validate(self):
+        # No validation for ShellAdapter.
+        if isinstance(self, ShellAdapter): return
+
         # Parse the template so that we know the list of supported options.
         err_msg = ""
         for param in self.qparams:
@@ -429,8 +461,8 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         self.set_timelimit(timelimit_parser(d.pop("timelimit")))
         self.min_cores = int(d.pop("min_cores"))
         self.max_cores = int(d.pop("max_cores"))
-        self.min_mem_per_core = d.pop("min_mem_per_core", self.hw.mem_per_core)
-        self.max_mem_per_core = d.pop("max_mem_per_core", self.hw.mem_per_node)
+        self.min_mem_per_proc = d.pop("min_mem_per_proc", 0)
+        self.max_mem_per_proc = d.pop("max_mem_per_proc", self.hw.mem_per_node)
         self.allocate_nodes = bool(d.pop("allocate_nodes", False))
         self.condition = Condition(d.pop("condition", {}))
 
@@ -470,7 +502,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     def _parse_queue(self, d):
         # Init params
         qparams = d.pop("qparams", None)
-        self._qparams = qparams.copy() if qparams is not None else {}
+        self._qparams = copy.deepcopy(qparams) if qparams is not None else {}
 
         self.set_qname(d.pop("qname"))
         if d:
@@ -570,9 +602,12 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
     def set_omp_threads(self, omp_threads):
         """Set the number of OpenMP threads."""
-        #if not self.max_cores >= self.mpi_procs * omp_threads >= self.min_cores:
-        #    print(self.max_cores, self.mpi_procs, omp_threads, self.min_cores)
-        #    raise self.Error("self.max_cores >= mpi_procs * omp_threads >= self.min_cores not satisfied")
+        if not self.max_cores >= self.mpi_procs * omp_threads >= self.min_cores:
+            print(self.max_cores, self.mpi_procs, omp_threads, self.min_cores)
+            raise self.Error("self.max_cores >= mpi_procs * omp_threads >= self.min_cores not satisfied")
+        if omp_threads > self.hw.cores_per_node:
+            raise self.Error("omp_threads > hw.cores_per_node")
+
         self.omp_env["OMP_NUM_THREADS"] = omp_threads
 
     @property
@@ -582,9 +617,9 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
     def set_mpi_procs(self, mpi_procs):
         """Set the number of MPI processes."""
-        #if not self.max_cores >= mpi_procs * self.omp_threads >= self.min_cores:
-        #    print(self.max_cores, mpi_procs, self.omp_threads, self.min_cores)
-        #    raise self.Error("self.max_cores >= mpi_procs * omp_threads >= self.min_cores not satisfied")
+        if not self.max_cores >= mpi_procs * self.omp_threads >= self.min_cores:
+            print(self.max_cores, mpi_procs, self.omp_threads, self.min_cores)
+            raise self.Error("self.max_cores >= mpi_procs * omp_threads >= self.min_cores not satisfied")
         self._mpi_procs = mpi_procs
 
     @property
@@ -610,6 +645,13 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                                                 
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
+        if mem_mb > self.hw.mem_per_node:
+            raise self.Error("mem_mb >= self.hw.mem_per_node")
+
+        if not self.max_mem_per_proc >= mem_mb >= self.min_mem_per_proc:
+            print(self.max_mem_per_proc, mem_mb, self.min_mem_per_proc)
+            raise self.Error("self.max_mem_per_proc >= mem_mb >= self.min_mem_per_proc not satisfied")
+
         self._mem_per_proc = mem_mb
 
     @property
@@ -654,33 +696,45 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         in tight loops attempting to make message passing progress, effectively causing other processes to not get
         any CPU cycles (and therefore never make any progress)
         """
-        Distrib = namedtuple("Distrib", "num_nodes mpi_per_node exact") # mem_per_node
+        class Distrib(namedtuple("Distrib", "num_nodes mpi_per_node exact")):
+            pass
+            #@property
+            #def mem_per_node
+            #    return self.mpi_per_node * mem_per_proc
+            #def set_nodes(self, nodes):
+
         hw = self.hw
 
         # TODO: Add check on user-memory
-        if mem_per_proc < hw.mem_per_node:
-            # Try to use all then cores in the node.
-            num_nodes, rest_cores = hw.divmod_node(mpi_procs, omp_threads)
-            if num_nodes == 0 and mpi_procs * mem_per_proc <= hw.mem_per_node:
-                return Distrib(num_nodes=1, mpi_per_node=mpi_procs, exact=True)
-
-            mpi_per_node = mpi_procs // num_nodes
-            if rest_cores == 0 and mpi_per_node * mem_per_proc <= hw.mem_per_node:
-                return Distrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, exact=True)
-
         if mem_per_proc <= 0:
             logger.warning("mem_per_proc <= 0")
             mem_per_proc =  hw.mem_per_core
 
-        # Try first to pack MPI processors in a node as much as possible
-        mpi_per_node = int(hw.mem_per_node / mem_per_proc)
-        if mpi_per_node == 0:
+        if mem_per_proc > hw.mem_per_node:
             raise self.DistribError(
-                "mem_pre_proc > mem_per_node.\n Cannot distribute mpi_procs %d, omp_threads %d, mem_per_proc %s" %
+                "mem_per_proc > mem_per_node.\n Cannot distribute mpi_procs %d, omp_threads %d, mem_per_proc %s" %
                              (mpi_procs, omp_threads, mem_per_proc))
 
+        # Try to use all then cores in the node.
+        num_nodes, rest_cores = hw.divmod_node(mpi_procs, omp_threads)
+
+        if num_nodes == 0 and mpi_procs * mem_per_proc <= hw.mem_per_node:
+            # One node is enough
+            return Distrib(num_nodes=1, mpi_per_node=mpi_procs, exact=True)
+
+        if num_nodes == 0: num_nodes = 2
+        mpi_per_node = mpi_procs // num_nodes
+        if mpi_per_node * mem_per_proc <= hw.mem_per_node and rest_cores == 0:
+            # Commensurate with nodes.
+            return Distrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, exact=True)
+
+        #if mode == "block", "cyclic"
+
+        # Try first to pack MPI processors in a node as much as possible
+        mpi_per_node = int(hw.mem_per_node / mem_per_proc)
+        assert mpi_per_node != 0
         num_nodes = (mpi_procs * omp_threads) // mpi_per_node
-        #print(mpi_per_node, num_nodes)
+        print("exact --> false", num_nodes, mpi_per_node)
 
         if mpi_per_node * omp_threads <= hw.cores_per_node and mem_per_proc <= hw.mem_per_node:
             return Distrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, exact=False)
@@ -709,10 +763,13 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         Return substitution dict for replacements into the template
         Subclasses may want to customize this method.
         """ 
-        d = self.qparams.copy()
+        #d = self.qparams.copy()
+        d = self.qparams
         d.update(self.optimize_params())
         # clean null values
-        return {k: v for k, v in d.items() if v is not None}
+        subs_dict = {k: v for k, v in d.items() if v is not None}
+        print("subs_dict:", subs_dict)
+        return subs_dict
 
     def _make_qheader(self, job_name, qout_path, qerr_path):
         """Return a string with the options that are passed to the resource manager."""
@@ -939,14 +996,16 @@ class SlurmAdapter(QueueAdapter):
 
 #SBATCH --partition=$${partition}
 #SBATCH --job-name=$${job_name}
+#SBATCH --nodes=$${nodes}
+#SBATCH --total_tasks=$${total_tasks}
 #SBATCH --ntasks=$${ntasks}
 #SBATCH --ntasks-per-node=$${ntasks_per_node}
 #SBATCH --cpus-per-task=$${cpus_per_task}
 #SBATCH --mem=$${mem}
 #SBATCH --mem-per-cpu=$${mem_per_cpu}
+#SBATCH --hint=$${hint}
 #SBATCH --time=$${time}
 #SBATCH	--exclude=$${exclude_nodes}
-#SBATCH	--nodes=$${nodes}
 #SBATCH --account=$${account}
 #SBATCH --mail-user=$${mail_user}
 #SBATCH --mail-type=$${mail_type}
@@ -962,27 +1021,50 @@ $${qverbatim}
 """
 
     def set_qname(self, qname):
-        super(self.__class__, self).set_qname(qname)
+        super(SlurmAdapter, self).set_qname(qname)
         self.qparams["partition"] = qname
 
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
-        super(self.__class__, self).set_mpi_procs(mpi_procs)
+        super(SlurmAdapter, self).set_mpi_procs(mpi_procs)
         self.qparams["ntasks"] = mpi_procs
 
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
-        super(self.__class__, self).set_mem_per_proc(mem_mb)
+        super(SlurmAdapter, self).set_mem_per_proc(mem_mb)
         self.qparams["mem_per_cpu"] = int(mem_mb)
         # Remove mem if it's defined.
         self.qparams.pop("mem", None)
 
     def set_timelimit(self, timelimit):
-        super(self.__class__, self).set_timelimit(timelimit)
+        super(SlurmAdapter, self).set_timelimit(timelimit)
         self.qparams["time"] = time2slurm(timelimit)
 
     def cancel(self, job_id):
         return os.system("scancel %d" % job_id)
+
+    def optimize_params(self):
+        #return {}
+        dist = self.distribute(self.mpi_procs, self.omp_threads, self.mem_per_proc)
+        print(dist)
+
+        if dist.exact:
+            # Can optimize parameters
+            self.qparams["nodes"] = dist.num_nodes
+            self.qparams.pop("ntasks", None)
+            self.qparams["ntasks_per_node"] = dist.mpi_per_node
+            self.qparams["cpus_per_task"] = self.omp_threads
+            self.qparams["mem"] = dist.mpi_per_node * self.mem_per_proc
+            self.qparams.pop("mem_per_cpu", None)
+        else:
+            # Delegate to slurm.
+            self.qparams["ntasks"] = self.mpi_procs
+            self.qparams.pop("nodes", None)
+            self.qparams.pop("ntasks_per_node", None)
+            self.qparams["cpus_per_task"] = self.omp_threads
+            self.qparams["mem_per_cpu"] = self.mem_per_proc
+            self.qparams.pop("mem", None)
+        return {}
 
     def _submit_to_queue(self, script_file, submit_err_file="sbatch.err"):
         submit_err_file = os.path.join(os.path.dirname(script_file), submit_err_file)
@@ -992,13 +1074,6 @@ $${qverbatim}
             cmd = ['sbatch', script_file]
             process = Popen(cmd, stdout=PIPE, stderr=PIPE)
             # write the err output to file, a error parser may read it and a fixer may know what to do ...
-
-            with open(submit_err_file, mode='w') as f:
-                f.write('sbatch submit process stderr:')
-                f.write(str(process.stderr.read()))
-                f.write('qparams:')
-                f.write(str(self.qparams))
-
             process.wait()
 
             # grab the returncode. SLURM returns 0 if the job was successful
@@ -1016,6 +1091,12 @@ $${qverbatim}
                     return process, queue_id
 
             else:
+                with open(submit_err_file, mode='w') as f:
+                    f.write('sbatch submit process stderr:')
+                    f.write(str(process.stderr.read()))
+                    f.write('qparams:')
+                    f.write(str(self.qparams))
+
                 # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
                 err_msg = ("Error in job submission with SLURM file {f} and cmd {c}\n".format(f=script_file, c=cmd) + 
                            "The error response reads:\n {c}".format(c=process.stderr.read()))
@@ -1077,59 +1158,6 @@ $${qverbatim}
 
         return None
 
-    def get_job_info(self, job_id):
-        # See https://computing.llnl.gov/linux/slurm/sacct.html
-        #If SLURM job ids are reset, some job numbers will        
-	    #probably appear more than once refering to different jobs.
-	    #Without this option only the most recent jobs will be displayed.          
-
-        #state
-        #Displays the job status, or state.
-        #Output can be RUNNING, RESIZING, SUSPENDED, COMPLETED, CANCELLED, FAILED, TIMEOUT, 
-        #PREEMPTED or NODE_FAIL. If more information is available on the job state than will fit 
-        #into the current field width (for example, the uid that CANCELLED a job) the state will be followed by a "+". 
-        # You can increase the size of the displayed state using the "%NUMBER" format modifier described earlier. 
-
-        #gmatteo@master2:~
-        #sacct --job 112367 --format=jobid,exitcode,state --allocations --parsable2
-        #JobID|ExitCode|State
-        #112367|0:0|RUNNING
-
-        #output = check_output(["ls", "-l", "/dev/null"]
-        cmd = "sacct --job %d --format=jobid,exitcode,state --allocations --parsable2" % job_id
-        output = str(check_output([cmd]))
-
-        # Parse output.
-        qid, exitcode, state = output.split("|")
-        qid = int(qid)
-        assert qid == job_id
-        if ":" in exitcode:
-            exitcode, signal = map(int, exitcode.split(":"))
-        else:
-            exitcode, signal = int(exitcode), None
-
-        i = state.find("+")
-        if i != -1: state = state[:i]
-
-        #class JobInfo(namedtuple("JobInfo", "queue_id exitcode signal state")):
-        #    def __bool__(self):
-        #        return self.state != "CannotDected"
-        #    __notzero__ = __bool_
-        #    def completed(self):
-        #    def cancelled(self):
-        #    def failed(self):
-        #    def timeout(self):
-        #    def node_fail(self):
-        #return jobinfo()
-
-    #def get_start_time(self, job_id)
-    #    squeue  --start -j  116791           
-    #      JOBID PARTITION     NAME     USER  ST           START_TIME  NODES NODELIST(REASON)
-    #     116791      defq gs6q2wop cyildiri  PD  2014-11-04T09:27:15     16 (QOSResourceLimit)
-    # For more info
-    #login1$ scontrol show job 1676354
-
-
 class PbsProAdapter(QueueAdapter):
     QTYPE = "pbspro"
 
@@ -1159,16 +1187,16 @@ $${qverbatim}
 """
 
     def set_qname(self, qname):
-        super(self.__class__, self).set_qname(qname)
+        super(PbsProAdapter, self).set_qname(qname)
         self.qparams["queue"] = qname
 
     def set_timelimit(self, timelimit):
-        super(self.__class__, self).set_timelimit(timelimit)
+        super(PbsProAdapter, self).set_timelimit(timelimit)
         self.qparams["walltime"] = time2pbspro(timelimit)
 
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
-        super(self.__class__, self).set_mem_per_proc(mem_mb)
+        super(PbsProAdapter, self).set_mem_per_proc(mem_mb)
         #self.qparams["pvmem"] = int(mem_mb)
         #self.qparams["vmem"] = int(mem_mb)
 
@@ -1185,9 +1213,8 @@ $${qverbatim}
             * http://www.cardiff.ac.uk/arcca/services/equipment/User-Guide/pbs.html
             * https://portal.ivec.org/docs/Supercomputers/PBS_Pro
         """
-        mem_per_proc = int(self.mem_per_proc)
-        hw = self.hw
-        #dist = part.distribute(self.mpi_procs, self.omp_threads, mem_per_proc)
+        hw, mem_per_proc = self.hw, int(self.mem_per_proc)
+        #dist = self.distribute(self.mpi_procs, self.omp_threads, mem_per_proc)
 
         if self.pure_mpi:
             num_nodes, rest_cores = hw.divmod_node(self.mpi_procs, self.omp_threads)
@@ -1399,12 +1426,12 @@ $${qverbatim}
 """
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
-        super(self.__class__, self).set_mpi_procs(mpi_procs)
+        super(SGEAdapter, self).set_mpi_procs(mpi_procs)
         self.qparams["ncpus"] = mpi_procs
 
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
-        super(self.__class__, self).set_mem_per_proc(mem_mb)
+        super(SGEAdapter, self).set_mem_per_proc(mem_mb)
         # TODO
         #raise NotImplementedError("")
         #self.qparams["mem_per_cpu"] = mem_mb
@@ -1511,15 +1538,15 @@ $${qverbatim}
 """
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
-        super(self.__class__, self).set_mpi_procs(mpi_procs)
+        super(MOABAdapter, self).set_mpi_procs(mpi_procs)
         self.qparams["procs"] = mpi_procs
 
     def set_timelimit(self, timelimit):
-        super(self.__class__, self).set_timelimit(timelimit)
+        super(MOABAdapter, self).set_timelimit(timelimit)
         self.qparams["walltime"] = time2pbspro(timelimit)
 
     def set_mem_per_proc(self, mem_mb):
-        super(self.__class__, self).set_mem_per_proc(mem_mb)
+        super(MOABAdapter, self).set_mem_per_proc(mem_mb)
         #TODO
         #raise NotImplementedError("set_mem_per_cpu")
 
@@ -1618,3 +1645,319 @@ class QScriptTemplate(string.Template):
     delimiter = '$$'
 
 
+class JobStatus(int):
+    """
+    This object is an integer representing the status of the `QueueJob`.
+
+    Slurm API, see `man squeue`.
+
+    JOB STATE CODES
+       Jobs typically pass through several states in the course of their execution.  The typical  states  are
+       PENDING, RUNNING, SUSPENDED, COMPLETING, and COMPLETED.  An explanation of each state follows.
+
+    BF  BOOT_FAIL       Job  terminated  due  to launch failure, typically due to a hardware failure (e.g.
+                        unable to boot the node or block and the job can not be requeued).
+    CA  CANCELLED       Job was explicitly cancelled by the user or system administrator.
+                        The job may or may not have been initiated.
+    CD  COMPLETED       Job has terminated all processes on all nodes.
+    CF  CONFIGURING     Job has been allocated resources, but are waiting for them to become ready for use (e.g. booting).
+    CG  COMPLETING      Job is in the process of completing. Some processes on some  nodes may still be active.
+    F   FAILED          Job terminated with non-zero exit code or other failure condition.
+    NF  NODE_FAIL       Job terminated due to failure of one or more allocated nodes.
+    PD  PENDING         Job is awaiting resource allocation.
+    PR  PREEMPTED       Job terminated due to preemption.
+    R   RUNNING         Job currently has an allocation.
+    S   SUSPENDED       Job has an allocation, but execution has been suspended.
+    TO  TIMEOUT         Job terminated upon reaching its time limit.
+    SE SPECIAL_EXIT     The job was requeued in a special state. This state can be set by users, typically
+                        in EpilogSlurmctld, if the job has terminated with a particular exit value.
+    """
+
+    _STATUS_TABLE = OrderedDict([
+        (-1, "UNKNOWN"),
+        (0, "PENDING"),
+        (1, "RUNNING"),
+        (2, "RESIZING"),
+        (3, "SUSPENDED"),
+        (4, "COMPLETED"),
+        (5, "CANCELLED"),
+        (6, "FAILED"),
+        (7, "TIMEOUT"),
+        (8, "PREEMPTED"),
+        (9, "NODEFAIL"),
+    ])
+
+    def __repr__(self):
+        return "<%s: %s, at %s>" % (self.__class__.__name__, str(self), id(self))
+
+    def __str__(self):
+        """String representation."""
+        return self._STATUS_TABLE[self]
+
+    @classmethod
+    def from_string(cls, s):
+        """Return a `Status` instance from its string representation."""
+        for num, text in cls._STATUS_TABLE.items():
+            if text == s: return cls(num)
+        else:
+            #raise ValueError("Wrong string %s" % s)
+            logger.warning("Got unknown status: %s" % s)
+            return cls.from_string("UNKNOWN")
+
+
+class QueueJob(object):
+
+    # Used to handle other resource managers.
+    S_UNKNOWN   = JobStatus.from_string("UNKNOWN")
+    # Slurm status
+    S_PENDING   = JobStatus.from_string("PENDING")
+    S_RUNNING   = JobStatus.from_string("RUNNING")
+    S_RESIZING  = JobStatus.from_string("RESIZING")
+    S_SUSPENDED = JobStatus.from_string("SUSPENDED")
+    S_COMPLETED = JobStatus.from_string("COMPLETED")
+    S_CANCELLED = JobStatus.from_string("CANCELLED")
+    S_FAILED    = JobStatus.from_string("FAILED")
+    S_TIMEOUT   = JobStatus.from_string("TIMEOUT")
+    S_PREEMPTED = JobStatus.from_string("PREEMPTED")
+    S_NODEFAIL  = JobStatus.from_string("NODEFAIL")
+
+    def __init__(self, queue_id, qname=None, qout_path=None, qerr_path=None):
+        self.qid, self.qname = int(queue_id), qname
+        self.qout_path, self.qerr_path = qout_path, qerr_path
+
+        # Initialize properties.
+        self.status = None
+        self.exitcode = None
+        self.signal = None
+
+    @property
+    def is_completed(self):
+        return self.status == self.S_COMPLETED
+
+    @property
+    def is_running(self):
+        return self.status == self.S_RUNNING
+
+    @property
+    def is_failed(self):
+        return self.status == self.S_FAILED
+
+    @property
+    def timeout(self):
+        return self.status == self.S_TIMEOUT
+
+    @property
+    def has_node_failures(self):
+        return self.status == self.S_NODE_FAIL
+
+    @property
+    def unknown_status(self):
+        return self.status == self.S_UNKNOWN
+
+    def set_status_exitcode_signal(self, status, exitcode, signal):
+        self.status, self.exitcode, self.signal = status, exitcode, signal
+
+    def likely_code_error(self):
+        """
+        See http://man7.org/linux/man-pages/man7/signal.7.html
+
+        SIGHUP        1       Term    Hangup detected on controlling terminal or death of controlling process
+        SIGINT        2       Term    Interrupt from keyboard
+        SIGQUIT       3       Core    Quit from keyboard
+        SIGILL        4       Core    Illegal Instruction
+        SIGABRT       6       Core    Abort signal from abort(3)
+        SIGFPE        8       Core    Floating point exception
+        SIGKILL       9       Term    Kill signal
+        SIGSEGV      11       Core    Invalid memory reference
+        SIGPIPE      13       Term    Broken pipe: write to pipe with no readers
+        SIGALRM      14       Term    Timer signal from alarm(2)
+        SIGTERM      15       Term    Termination signal
+        SIGUSR1   30,10,16    Term    User-defined signal 1
+        SIGUSR2   31,12,17    Term    User-defined signal 2
+        SIGCHLD   20,17,18    Ign     Child stopped or terminated
+        SIGCONT   19,18,25    Cont    Continue if stopped
+        SIGSTOP   17,19,23    Stop    Stop process
+        SIGTSTP   18,20,24    Stop    Stop typed at terminal
+        SIGTTIN   21,21,26    Stop    Terminal input for background process
+        SIGTTOU   22,22,27    Stop    Terminal output for background process
+
+        The signals SIGKILL and SIGSTOP cannot be caught, blocked, or ignored.
+
+        Next the signals not in the POSIX.1-1990 standard but described in
+        SUSv2 and POSIX.1-2001.
+
+        Signal       Value     Action   Comment
+        ────────────────────────────────────────────────────────────────────
+        SIGBUS      10,7,10     Core    Bus error (bad memory access)
+        SIGPOLL                 Term    Pollable event (Sys V).
+                                        Synonym for SIGIO
+        SIGPROF     27,27,29    Term    Profiling timer expired
+        SIGSYS      12,31,12    Core    Bad argument to routine (SVr4)
+        SIGTRAP        5        Core    Trace/breakpoint trap
+        SIGURG      16,23,21    Ign     Urgent condition on socket (4.2BSD)
+        SIGVTALRM   26,26,28    Term    Virtual alarm clock (4.2BSD)
+        SIGXCPU     24,24,30    Core    CPU time limit exceeded (4.2BSD)
+        SIGXFSZ     25,25,31    Core    File size limit exceeded (4.2BSD)
+        """
+        for sig_name in ("SIGFPE",):
+            if self.received_signal(sig_name): return sig_name
+        return False
+
+    def received_signal(self, sig_name):
+        if self.signal is None: return False
+        # Get the numeric value from signal and compare it with self.signal
+        import signal
+        try:
+            return self.signal == getattr(signal, sig_name) 
+        except AttributeError:
+            # invalid sig_name or sig_name not available on this OS.
+            return False
+
+    def estimated_start_time(self):
+        """
+        Return date with estimated start time. None if it cannot be detected
+        """
+        return None
+
+    def get_info(self):
+        return None
+
+    def get_nodes(self):
+        return None
+
+
+class SlurmJob(QueueJob):
+
+    def estimated_start_time(self):
+        #squeue  --start -j  116791
+        #  JOBID PARTITION     NAME     USER  ST           START_TIME  NODES NODELIST(REASON)
+        # 116791      defq gs6q2wop cyildiri  PD  2014-11-04T09:27:15     16 (QOSResourceLimit)
+        process = Popen(["squeue" "--start", "--job", str(self.qid)], shell=True, stdout=PIPE, stderr=PIPE)
+        process.wait()
+
+        if process.returncode != 0: return None
+        lines = process.stdout.readlines()
+
+        from datetime import datetime
+        for line in lines:
+            tokens = line.split()
+            if int(tokens[0]) == self.qid:
+                date_string = tokens[5]
+                if date_string == "N/A": return None
+                return datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S")
+        return None
+
+    def get_info(self):
+        # See https://computing.llnl.gov/linux/slurm/sacct.html
+        #If SLURM job ids are reset, some job numbers will        
+	    #probably appear more than once refering to different jobs.
+	    #Without this option only the most recent jobs will be displayed.          
+
+        #state Displays the job status, or state.
+        #Output can be RUNNING, RESIZING, SUSPENDED, COMPLETED, CANCELLED, FAILED, TIMEOUT, 
+        #PREEMPTED or NODE_FAIL. If more information is available on the job state than will fit 
+        #into the current field width (for example, the uid that CANCELLED a job) the state will be followed by a "+". 
+
+        #gmatteo@master2:~
+        #sacct --job 112367 --format=jobid,exitcode,state --allocations --parsable2
+        #JobID|ExitCode|State
+        #112367|0:0|RUNNING
+        #scontrol show job 800197 --oneliner
+
+        # For more info
+        #login1$ scontrol show job 1676354
+
+        #cmd = "sacct --job %i --format=jobid,exitcode,state --allocations --parsable2" % self.qid
+        cmd = "scontrol show job %i --oneliner" % self.qid
+        #print("cmd", cmd)
+        process = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+        process.wait()
+
+        if process.returncode != 0:
+            #print(process.stderr.readlines())
+            return None
+        line = process.stdout.read()
+        #print("line", line)
+
+        tokens = line.split()
+        info = AttrDict()
+        for line in tokens:
+          #print(line)
+          k, v = line.split("=")
+          info[k] = v
+        #print(info)
+
+        qid = int(info.JobId)
+        assert qid == self.qid
+        exitcode = info.ExitCode
+        status = info.JobState
+
+        if ":" in exitcode:
+            exitcode, signal = map(int, exitcode.split(":"))
+        else:
+            exitcode, signal = int(exitcode), None
+
+        i = status.find("+")
+        if i != -1: status = status[:i]
+
+        self.set_status_exitcode_signal(JobStatus.from_string(status), exitcode, signal)
+        return AttrDict(exitcode=exitcode, signal=signal, status=status)
+
+    def get_stats(self):
+        cmd = "sacct --long --job %s --parsable2" % self.qid
+        process = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+        process.wait()
+
+        lines = process.stdout.readlines()
+        keys = lines[0].strip().split("|")
+        values = lines[1].strip().split("|")
+        #print("lines0", lines[0])
+        return dict(zip(keys, values))
+
+
+class PbsProJob(QueueJob):
+    """
+    """
+    # Mapping PrbPro --> Slurm. From `man qstat`
+    #
+    # S  The job’s state:
+    #      B  Array job has at least one subjob running.
+    #      E  Job is exiting after having run.
+    #      F  Job is finished.
+    #      H  Job is held.
+    #      M  Job was moved to another server.
+    #      Q  Job is queued.
+    #      R  Job is running.
+    #      S  Job is suspended.
+    #      T  Job is being moved to new location.
+    #      U  Cycle-harvesting job is suspended due to keyboard activity.
+    #      W  Job is waiting for its submitter-assigned start time to be reached.
+    #      X  Subjob has completed execution or has been deleted.
+
+    PBSSTAT_TO_TOSLURM = defaultdict(lambda x: QueueJob.S_UNKNOWN, [
+        ("E", QueueJob.S_FAILED),
+        ("F", QueueJob.S_COMPLETED),
+        ("Q", QueueJob.S_PENDING),
+        ("R", QueueJob.S_RUNNING),
+        ("S", QueueJob.S_SUSPENDED),
+    ])
+
+    def get_info(self):
+        #$> qstat 5666289
+        #frontal1:
+        #                                                            Req'd  Req'd   Elap
+        #Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time  S Time
+        #--------------- -------- -------- ---------- ------ --- --- ------ ----- - -----
+        #5666289.frontal friebel  main_ivy MorfeoTChk  57546   1   4    --  08:00 R 00:17
+
+        process = Popen("qstat " % self.qid, shell=True, stdout=PIPE, stderr=PIPE)
+
+        if process.returncode != 0:
+          #print(process.stderr.readlines())
+          return None
+
+        out = process.stdout.readlines()[-1]
+        status = self.PBSSTAT_TO_SLURM_STATUS[out.split()[9]]
+
+        # Exit code and signal are not available.
+        self.set_status_exitcode_signal(status, None, None)

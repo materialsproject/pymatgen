@@ -16,6 +16,7 @@ dependencies:
     - pip install -q numpy
     - pip install -r requirements.txt
     - pip install -r requirements-optional.txt
+    - sudo apt-get install python-openbabel
     - cd monty && git checkout master && git pull && python setup.py install
     - python setup.py develop
 test:
