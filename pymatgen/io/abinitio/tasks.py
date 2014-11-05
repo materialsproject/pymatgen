@@ -742,6 +742,10 @@ class TaskManager(object):
         return new
 
     @property
+    def qads(self):
+        return self._qads
+
+    @property
     def qadapter(self):
         """The qadapter used to submit jobs."""
         return self._qads[self._qid]
@@ -1617,6 +1621,16 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def set_manager(self, manager):
         """Set the `TaskManager` to use to launch the Task."""
         self.manager = manager.deepcopy()
+
+        # TODO
+        # Select adapters associated to the Task class
+        #keep = []
+        #for i, qad in enumerate(self.manager.qads):
+        #    if self.__class__.__name__ in qad.task_classes:
+        #        keep.append(i)
+        #if keep:
+        #    self._qads = [self._qads[i] for i in keep]
+        #    self._qid = 0
 
     @property
     def work(self):
