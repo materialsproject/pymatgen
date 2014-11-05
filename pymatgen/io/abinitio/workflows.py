@@ -645,6 +645,7 @@ class Workflow(BaseWorkflow):
         TODO: change name.
         """
         for task in self:
+            print(task)
             task.start()
     
         if wait:
