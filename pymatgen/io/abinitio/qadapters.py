@@ -333,6 +333,10 @@ def make_qadapter(**kwargs):
         SlurmAdapter.register(MyAdapter)
 
         make_qadapter(qtype="myslurm", **kwargs)
+
+    .. warning:
+        MyAdapter should be pickleable, hence one should declare it 
+        at the module level so that pickle can import it at run-time.
     """
     # Get all known subclasses of QueueAdapter.
     d = {c.QTYPE: c for c in all_subclasses(QueueAdapter)}
@@ -390,8 +394,8 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             qverbatim
             min_cores, max_cores:
                 Minimum and maximum number of cores that can be used
-            min_mem_per_core
-            max_mem_per_core
+            min_mem_per_proc
+            max_mem_per_proc
             timelimit
                 Time limit in seconds
             priority=Priority level, integer number > 0
@@ -421,12 +425,15 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
         # Initialize some values from the info reported in the partition.
         self.set_mpi_procs(self.min_cores)
-        self.set_mem_per_proc(self.min_mem_per_core)
+        self.set_mem_per_proc(self.min_mem_per_proc)
 
         # Final consistency check.
         self.validate()
 
     def validate(self):
+        # No validation for ShellAdapter.
+        if isinstance(self, ShellAdapter): return
+
         # Parse the template so that we know the list of supported options.
         err_msg = ""
         for param in self.qparams:
@@ -451,8 +458,8 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         self.set_timelimit(timelimit_parser(d.pop("timelimit")))
         self.min_cores = int(d.pop("min_cores"))
         self.max_cores = int(d.pop("max_cores"))
-        self.min_mem_per_core = d.pop("min_mem_per_core", self.hw.mem_per_core)
-        self.max_mem_per_core = d.pop("max_mem_per_core", self.hw.mem_per_node)
+        self.min_mem_per_proc = d.pop("min_mem_per_proc", 0)
+        self.max_mem_per_proc = d.pop("max_mem_per_proc", self.hw.mem_per_node)
         self.allocate_nodes = bool(d.pop("allocate_nodes", False))
         self.condition = Condition(d.pop("condition", {}))
 
@@ -492,7 +499,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     def _parse_queue(self, d):
         # Init params
         qparams = d.pop("qparams", None)
-        self._qparams = qparams.copy() if qparams is not None else {}
+        self._qparams = copy.deepcopy(qparams) if qparams is not None else {}
 
         self.set_qname(d.pop("qname"))
         self.qverbatim = str(d.pop("qverbatim", ""))
@@ -594,9 +601,12 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
     def set_omp_threads(self, omp_threads):
         """Set the number of OpenMP threads."""
-        #if not self.max_cores >= self.mpi_procs * omp_threads >= self.min_cores:
-        #    print(self.max_cores, self.mpi_procs, omp_threads, self.min_cores)
-        #    raise self.Error("self.max_cores >= mpi_procs * omp_threads >= self.min_cores not satisfied")
+        if not self.max_cores >= self.mpi_procs * omp_threads >= self.min_cores:
+            print(self.max_cores, self.mpi_procs, omp_threads, self.min_cores)
+            raise self.Error("self.max_cores >= mpi_procs * omp_threads >= self.min_cores not satisfied")
+        if omp_threads > self.hw.cores_per_node:
+            raise self.Error("omp_threads > hw.cores_per_node")
+
         self.omp_env["OMP_NUM_THREADS"] = omp_threads
 
     @property
@@ -606,9 +616,9 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
     def set_mpi_procs(self, mpi_procs):
         """Set the number of MPI processes."""
-        #if not self.max_cores >= mpi_procs * self.omp_threads >= self.min_cores:
-        #    print(self.max_cores, mpi_procs, self.omp_threads, self.min_cores)
-        #    raise self.Error("self.max_cores >= mpi_procs * omp_threads >= self.min_cores not satisfied")
+        if not self.max_cores >= mpi_procs * self.omp_threads >= self.min_cores:
+            print(self.max_cores, mpi_procs, self.omp_threads, self.min_cores)
+            raise self.Error("self.max_cores >= mpi_procs * omp_threads >= self.min_cores not satisfied")
         self._mpi_procs = mpi_procs
 
     @property
@@ -634,6 +644,13 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                                                 
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
+        if mem_mb > self.hw.mem_per_node:
+            raise self.Error("mem_mb >= self.hw.mem_per_node")
+
+        if not self.max_mem_per_proc >= mem_mb >= self.min_mem_per_proc:
+            print(self.max_mem_per_proc, mem_mb, self.min_mem_per_proc)
+            raise self.Error("self.max_mem_per_proc >= mem_mb >= self.min_mem_per_proc not satisfied")
+
         self._mem_per_proc = mem_mb
 
     @property
@@ -744,10 +761,13 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         Return substitution dict for replacements into the template
         Subclasses may want to customize this method.
         """ 
-        d = self.qparams.copy()
+        #d = self.qparams.copy()
+        d = self.qparams
         d.update(self.optimize_params())
         # clean null values
-        return {k: v for k, v in d.items() if v is not None}
+        subs_dict = {k: v for k, v in d.items() if v is not None}
+        print("subs_dict:", subs_dict)
+        return subs_dict
 
     def _make_qheader(self, job_name, qout_path, qerr_path):
         """Return a string with the options that are passed to the resource manager."""
@@ -986,7 +1006,6 @@ class SlurmAdapter(QueueAdapter):
 #SBATCH --hint=$${hint}
 #SBATCH --time=$${time}
 #SBATCH	--exclude=$${exclude_nodes}
-#SBATCH	--nodes=$${nodes}
 #SBATCH --account=$${account}
 #SBATCH --mail-user=$${mail_user}
 #SBATCH --mail-type=$${mail_type}
@@ -1022,6 +1041,28 @@ class SlurmAdapter(QueueAdapter):
 
     def cancel(self, job_id):
         return os.system("scancel %d" % job_id)
+
+    def optimize_params(self):
+        #return {}
+        dist = self.distribute(self.mpi_procs, self.omp_threads, self.mem_per_proc)
+        print(dist)
+        if dist.exact:
+            # Can optimize parameters
+            self.qparams["nodes"] = dist.num_nodes
+            self.qparams.pop("ntasks", None)
+            self.qparams["ntasks_per_node"] = dist.mpi_per_node
+            self.qparams["cpus_per_task"] = self.omp_threads
+            self.qparams["mem"] = dist.mpi_per_node * self.mem_per_proc
+            self.qparams.pop("mem_per_cpu", None)
+        else:
+            # Delegate to slurm.
+            self.qparams["ntasks"] = self.mpi_procs
+            self.qparams.pop("nodes", None)
+            self.qparams.pop("ntasks_per_node", None)
+            self.qparams["cpus_per_task"] = self.omp_threads
+            self.qparams["mem_per_cpu"] = self.mem_per_proc
+            self.qparams.pop("mem", None)
+        return {}
 
     def _submit_to_queue(self, script_file, submit_err_file="sbatch.err"):
         submit_err_file = os.path.join(os.path.dirname(script_file), submit_err_file)
