@@ -23,6 +23,7 @@ import shutil
 import six
 import os.path
 import collections
+import logging
 
 from abc import abstractproperty, abstractmethod, ABCMeta
 from pymatgen.io.abinitio.netcdf import NetcdfReader
@@ -37,6 +38,7 @@ from pymatgen.io.gwwrapper.GWvaspinputsets import GWscDFTPrepVaspInputSet, GWDFT
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+logger = logging.getLogger(__name__)
 
 @six.add_metaclass(ABCMeta)
 class AbstractCodeInterface(object):
@@ -152,7 +154,9 @@ class VaspInterface(AbstractCodeInterface):
                 try:
                     print(run)
                     data = Vasprun(run, ionic_step_skip=1)
+                    print(data)
                     parameters = data.__getattribute__('incar').as_dict
+                    print(parameters)
                     bandstructure = data.get_band_structure(kpoints)
                     results = {'ecuteps': parameters['ENCUTGW'],
                                'nbands': parameters['NBANDS'],
