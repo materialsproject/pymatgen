@@ -21,7 +21,7 @@ import warnings
 import six
 import json
 
-from collections import namedtuple, OrderedDict
+from collections import namedtuple, OrderedDict, defaultdict
 from subprocess import Popen, PIPE
 from atomicfile import AtomicFile
 from monty.string import is_string
@@ -1125,16 +1125,16 @@ class PbsProAdapter(QueueAdapter):
 """
 
     def set_qname(self, qname):
-        super(ProProAdapter, self).set_qname(qname)
+        super(PbsProAdapter, self).set_qname(qname)
         self.qparams["queue"] = qname
 
     def set_timelimit(self, timelimit):
-        super(ProProAdapter, self).set_timelimit(timelimit)
+        super(PbsProAdapter, self).set_timelimit(timelimit)
         self.qparams["walltime"] = time2pbspro(timelimit)
 
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
-        super(ProProAdapter, self).set_mem_per_proc(mem_mb)
+        super(PbsProAdapter, self).set_mem_per_proc(mem_mb)
         #self.qparams["pvmem"] = int(mem_mb)
         #self.qparams["vmem"] = int(mem_mb)
 
@@ -1609,7 +1609,7 @@ class JobStatus(int):
     """
 
     _STATUS_TABLE = OrderedDict([
-        (-1, "UNKNONW"),
+        (-1, "UNKNOWN"),
         (0, "PENDING"),
         (1, "RUNNING"),
         (2, "RESIZING"),
@@ -1645,6 +1645,7 @@ class QueueJob(object):
     # Used to handle other resource managers.
     S_UNKNOWN   = JobStatus.from_string("UNKNOWN")
     # Slurm status
+    S_PENDING   = JobStatus.from_string("PENDING")
     S_RUNNING   = JobStatus.from_string("RUNNING")
     S_RESIZING  = JobStatus.from_string("RESIZING")
     S_SUSPENDED = JobStatus.from_string("SUSPENDED")
@@ -1655,7 +1656,7 @@ class QueueJob(object):
     S_PREEMPTED = JobStatus.from_string("PREEMPTED")
     S_NODEFAIL  = JobStatus.from_string("NODEFAIL")
 
-    def __init__(self, queue_id, qname=None, qout_path=None, qerr_path):
+    def __init__(self, queue_id, qname=None, qout_path=None, qerr_path=None):
         self.qid, self.qname = int(queue_id), qname
         self.qout_path, self.qerr_path = qout_path, qerr_path
 
@@ -1868,7 +1869,7 @@ class PbsProJob(QueueJob):
     #      W  Job is waiting for its submitter-assigned start time to be reached.
     #      X  Subjob has completed execution or has been deleted.
 
-    PBSSTAT_TO_TOSLURM = defaultdict(QueueJob.S_UNKNOWN, [
+    PBSSTAT_TO_TOSLURM = defaultdict(lambda x: QueueJob.S_UNKNOWN, [
         ("E", QueueJob.S_FAILED),
         ("F", QueueJob.S_COMPLETED),
         ("Q", QueueJob.S_PENDING),
