@@ -157,7 +157,8 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     for i in range(n):
         for j in range(n):
             for k in range(n):
-                if i == j and site_species[j] != site_species[k] and site_species[i] != site_species[k]: 
+                if i == j and site_species[j] != site_species[k] and \
+                                site_species[i] != site_species[k]:
                     dC[i,j,k] = 1
         for j in range(n):
             for k in range(n):
@@ -454,6 +455,9 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
 
     for i in range(n):      
         site_specie = els[i]
+        specie_ind = site_mu_map[i]
+        indices = specie_site_index_map[specie_ind]
+        specie_ind_del = indices[1]-indices[0]
         for j in range(m):          # Antisite plot dat
             sub_specie = specie_order[j]
             if sub_specie == site_specie:
@@ -751,7 +755,8 @@ def solute_site_preference_finder(
     for i in range(n):
         for j in range(n):
             for k in range(n):
-                if i == j:# and site_species[j] != site_species[k]:
+                if i == j and site_species[j] != site_species[k] and \
+                        site_species[i] != site_species:
                     dC[i,j,k] = 1
         for j in range(n+1):
             for k in range(n):
@@ -760,7 +765,25 @@ def solute_site_preference_finder(
                         dC[i,j,k] = -1
     for k in range(n):
         dC[n,n,k] = 1
+    for k in range(n):
+        for j in range(n):
+            if i != j:
+                if site_species[i] == site_species[k]:
+                    dC[i,j,k] = 0
 
+    for ind_map in specie_site_index_map:
+        if ind_map[1]-ind_map[0] > 1:
+            for index1 in range(ind_map[0]+1,ind_map[1]):
+                for index2 in range(ind_map[0]):
+                    for i in range(n):
+                        print (i, index1, index2)
+                        dC[i,index1,index2] = 0
+                for index2 in range(ind_map[1],n):
+                    for i in range(n):
+                        print (i, index1, index2)
+                        dC[i,index1,index2] = 0
+
+    print ('dC', dC)
     # dE matrix: Flip energies (or raw defect energies)
     els = [vac_def['site_specie'] for vac_def in vac_defs]
     dE = []
@@ -951,7 +974,7 @@ def solute_site_preference_finder(
         #print (mu)
         #print (mu_vals)
 
-        x = nsolve(vector_func,mu,mu_vals,modules="numpy")
+        x = nsolve(vector_func,mu,mu_vals,module="numpy")
         #x = nsolve(vector_func,mu,mu_vals)
         #except:
         #    del result[y]
@@ -966,7 +989,7 @@ def solute_site_preference_finder(
 
     #print ('result', result.keys())
     # Compute the concentrations for all the compositions
-    for key in result:
+    for key in sorted(result.keys()):
         mu_val = result[key]
         total_c_val = [total_c[i].subs(dict(zip(mu,mu_val))) \
                 for i in range(len(total_c))]
