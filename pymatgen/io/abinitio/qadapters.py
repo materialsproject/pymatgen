@@ -646,6 +646,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
         if mem_mb > self.hw.mem_per_node:
+            print(mem_mb, self.hw.mem_per_node)
             raise self.Error("mem_mb >= self.hw.mem_per_node")
 
         if not self.max_mem_per_proc >= mem_mb >= self.min_mem_per_proc:
