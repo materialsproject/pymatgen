@@ -150,6 +150,7 @@ class VaspInterface(AbstractCodeInterface):
             kpoints = os.path.join(data_dir, 'IBZKPT')
             if os.path.isfile(run):
                 try:
+                    print(run)
                     data = Vasprun(run, ionic_step_skip=1)
                     parameters = data.__getattribute__('incar').as_dict
                     bandstructure = data.get_band_structure(kpoints)
