@@ -957,7 +957,6 @@ class Outcar(PMGSONable):
         self.is_stopped = False
 
         # data from end of OUTCAR
-        read_charge_mag = False
         charge = []
         mag = []
         header = []
@@ -974,29 +973,7 @@ class Outcar(PMGSONable):
         for line in reverse_readfile(self.filename):
             clean = line.strip()
             all_lines.append(clean)
-            if clean.startswith("tot ") and not (charge and mag):
-                read_charge_mag = True
-                data = []
-            elif read_charge_mag:
-                if clean.startswith("# of ion"):
-                    header = re.split("\s{2,}", line.strip())
-                    header.pop(0)
-                elif clean == "total charge":
-                    data.reverse()
-                    charge = [dict(zip(header, v)) for v in data]
-                    read_charge_mag = False
-                elif clean == "magnetization (x)":
-                    data.reverse()
-                    mag = [dict(zip(header, v)) for v in data]
-                    read_charge_mag = False
-                else:
-                    m = re.match("\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
-                    if m:
-                        toks = [float(i) for i in re.findall("[\d\.\-]+",
-                                                             clean)]
-                        toks.pop(0)
-                        data.append(toks)
-            elif clean.find("soft stop encountered!  aborting job") != -1:
+            if clean.find("soft stop encountered!  aborting job") != -1:
                 self.is_stopped = True
                 #print(clean, cores)
             else:
@@ -1022,6 +999,37 @@ class Outcar(PMGSONable):
             if all([nelect, total_mag is not None, efermi is not None,
                     run_stats]):
                 break
+
+        # For single atom systems, VASP doesn't print a total line, so
+        # reverse parsing is very difficult
+        read_charge = False
+        read_mag = False
+        all_lines.reverse()
+        for clean in all_lines:
+            if read_charge or read_mag:
+                if clean.startswith("# of ion"):
+                    header = re.split("\s{2,}", clean.strip())
+                    header.pop(0)
+                else:
+                    m = re.match("\s*(\d+)\s+(([\d\.\-]+)\s+)+", clean)
+                    if m:
+                        toks = [float(i) for i in re.findall("[\d\.\-]+", clean)]
+                        toks.pop(0)
+                        if read_charge:
+                            charge.append(dict(zip(header, toks)))
+                        else:
+                            mag.append(dict(zip(header, toks)))
+                    elif clean.startswith('tot'):
+                        read_charge = False
+                        read_mag = False
+            if clean == "total charge":
+                charge = []
+                read_charge = True
+                read_mag = False
+            elif clean == "magnetization (x)":
+                mag = []
+                read_mag = True
+                read_charge = False
 
         # data from beginning of OUTCAR
         run_stats['cores'] = 0
