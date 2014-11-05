@@ -664,7 +664,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             #@property
             #def mem_per_node
             #    return self.mpi_per_node * mem_per_proc
-            #def set_groups(self, groups)
+            #def set_nodes(self, nodes):
 
         hw = self.hw
 
@@ -682,11 +682,15 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         num_nodes, rest_cores = hw.divmod_node(mpi_procs, omp_threads)
 
         if num_nodes == 0:
+            # One one is enough
             return Distrib(num_nodes=1, mpi_per_node=mpi_procs, exact=True)
 
         mpi_per_node = mpi_procs // num_nodes
         if mpi_per_node * mem_per_proc <= hw.mem_per_node and rest_cores == 0:
+            # Commensurate with nodes.
             return Distrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, exact=True)
+
+        #if mode == "block", "cyclic"
 
         # Try first to pack MPI processors in a node as much as possible
         mpi_per_node = int(hw.mem_per_node / mem_per_proc)
@@ -978,23 +982,23 @@ class SlurmAdapter(QueueAdapter):
 """
 
     def set_qname(self, qname):
-        super(self.__class__, self).set_qname(qname)
+        super(SlurmAdapter, self).set_qname(qname)
         self.qparams["partition"] = qname
 
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
-        super(self.__class__, self).set_mpi_procs(mpi_procs)
+        super(SlurmAdapter, self).set_mpi_procs(mpi_procs)
         self.qparams["ntasks"] = mpi_procs
 
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
-        super(self.__class__, self).set_mem_per_proc(mem_mb)
+        super(SlurmAdapter, self).set_mem_per_proc(mem_mb)
         self.qparams["mem_per_cpu"] = int(mem_mb)
         # Remove mem if it's defined.
         self.qparams.pop("mem", None)
 
     def set_timelimit(self, timelimit):
-        super(self.__class__, self).set_timelimit(timelimit)
+        super(SlurmAdapter, self).set_timelimit(timelimit)
         self.qparams["time"] = time2slurm(timelimit)
 
     def cancel(self, job_id):
@@ -1121,16 +1125,16 @@ class PbsProAdapter(QueueAdapter):
 """
 
     def set_qname(self, qname):
-        super(self.__class__, self).set_qname(qname)
+        super(ProProAdapter, self).set_qname(qname)
         self.qparams["queue"] = qname
 
     def set_timelimit(self, timelimit):
-        super(self.__class__, self).set_timelimit(timelimit)
+        super(ProProAdapter, self).set_timelimit(timelimit)
         self.qparams["walltime"] = time2pbspro(timelimit)
 
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
-        super(self.__class__, self).set_mem_per_proc(mem_mb)
+        super(ProProAdapter, self).set_mem_per_proc(mem_mb)
         #self.qparams["pvmem"] = int(mem_mb)
         #self.qparams["vmem"] = int(mem_mb)
 
@@ -1358,12 +1362,12 @@ class SGEAdapter(QueueAdapter):
 """
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
-        super(self.__class__, self).set_mpi_procs(mpi_procs)
+        super(SGEAdapter, self).set_mpi_procs(mpi_procs)
         self.qparams["ncpus"] = mpi_procs
 
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
-        super(self.__class__, self).set_mem_per_proc(mem_mb)
+        super(SGEAdapter, self).set_mem_per_proc(mem_mb)
         # TODO
         #raise NotImplementedError("")
         #self.qparams["mem_per_cpu"] = mem_mb
@@ -1469,15 +1473,15 @@ class MOABAdapter(QueueAdapter):
 """
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
-        super(self.__class__, self).set_mpi_procs(mpi_procs)
+        super(MOABAdapter, self).set_mpi_procs(mpi_procs)
         self.qparams["procs"] = mpi_procs
 
     def set_timelimit(self, timelimit):
-        super(self.__class__, self).set_timelimit(timelimit)
+        super(MOABAdapter, self).set_timelimit(timelimit)
         self.qparams["walltime"] = time2pbspro(timelimit)
 
     def set_mem_per_proc(self, mem_mb):
-        super(self.__class__, self).set_mem_per_proc(mem_mb)
+        super(MOABAdapter, self).set_mem_per_proc(mem_mb)
         #TODO
         #raise NotImplementedError("set_mem_per_cpu")
 
@@ -1577,9 +1581,36 @@ class QScriptTemplate(string.Template):
 
 
 class JobStatus(int):
-    """This object is an integer representing the status of the `QueueJob`."""
-    #Output can be RUNNING, RESIZING, SUSPENDED, COMPLETED, CANCELLED, FAILED, TIMEOUT, PREEMPTED or NODE_FAIL. 
+    """
+    This object is an integer representing the status of the `QueueJob`.
+
+    Slurm API, see `man squeue`.
+
+    JOB STATE CODES
+       Jobs typically pass through several states in the course of their execution.  The typical  states  are
+       PENDING, RUNNING, SUSPENDED, COMPLETING, and COMPLETED.  An explanation of each state follows.
+
+    BF  BOOT_FAIL       Job  terminated  due  to launch failure, typically due to a hardware failure (e.g.
+                        unable to boot the node or block and the job can not be requeued).
+    CA  CANCELLED       Job was explicitly cancelled by the user or system administrator.
+                        The job may or may not have been initiated.
+    CD  COMPLETED       Job has terminated all processes on all nodes.
+    CF  CONFIGURING     Job has been allocated resources, but are waiting for them to become ready for use (e.g. booting).
+    CG  COMPLETING      Job is in the process of completing. Some processes on some  nodes may still be active.
+    F   FAILED          Job terminated with non-zero exit code or other failure condition.
+    NF  NODE_FAIL       Job terminated due to failure of one or more allocated nodes.
+    PD  PENDING         Job is awaiting resource allocation.
+    PR  PREEMPTED       Job terminated due to preemption.
+    R   RUNNING         Job currently has an allocation.
+    S   SUSPENDED       Job has an allocation, but execution has been suspended.
+    TO  TIMEOUT         Job terminated upon reaching its time limit.
+    SE SPECIAL_EXIT     The job was requeued in a special state. This state can be set by users, typically
+                        in EpilogSlurmctld, if the job has terminated with a particular exit value.
+    """
+
     _STATUS_TABLE = OrderedDict([
+        (-1, "UNKNONW"),
+        (0, "PENDING"),
         (1, "RUNNING"),
         (2, "RESIZING"),
         (3, "SUSPENDED"),
@@ -1602,14 +1633,18 @@ class JobStatus(int):
     def from_string(cls, s):
         """Return a `Status` instance from its string representation."""
         for num, text in cls._STATUS_TABLE.items():
-            if text == s:
-                return cls(num)
+            if text == s: return cls(num)
         else:
-            raise ValueError("Wrong string %s" % s)
+            #raise ValueError("Wrong string %s" % s)
+            logger.warning("Got unknown status: %s" % s)
+            return cls.from_string("UNKNOWN")
 
 
 class QueueJob(object):
 
+    # Used to handle other resource managers.
+    S_UNKNOWN   = JobStatus.from_string("UNKNOWN")
+    # Slurm status
     S_RUNNING   = JobStatus.from_string("RUNNING")
     S_RESIZING  = JobStatus.from_string("RESIZING")
     S_SUSPENDED = JobStatus.from_string("SUSPENDED")
@@ -1620,9 +1655,9 @@ class QueueJob(object):
     S_PREEMPTED = JobStatus.from_string("PREEMPTED")
     S_NODEFAIL  = JobStatus.from_string("NODEFAIL")
 
-    def __init__(self, queue_id, qname=None):
-        self.qid = int(queue_id)
-        self.qname = qname
+    def __init__(self, queue_id, qname=None, qout_path=None, qerr_path):
+        self.qid, self.qname = int(queue_id), qname
+        self.qout_path, self.qerr_path = qout_path, qerr_path
 
         # Initialize properties.
         self.status = None
@@ -1649,12 +1684,70 @@ class QueueJob(object):
     def has_node_failures(self):
         return self.status == self.S_NODE_FAIL
 
-    def set_status_exitcode_signal(self, status, exitcode, signal)
-        self.status = status
-        self.exitcode = exitcode
-        self.signal = signale
+    @property
+    def unknown_status(self):
+        return self.status == self.S_UNKNOWN
 
-    def get_start_time(self):
+    def set_status_exitcode_signal(self, status, exitcode, signal):
+        self.status, self.exitcode, self.signal = status, exitcode, signal
+
+    def likely_code_error(self):
+        """
+        See http://man7.org/linux/man-pages/man7/signal.7.html
+
+        SIGHUP        1       Term    Hangup detected on controlling terminal or death of controlling process
+        SIGINT        2       Term    Interrupt from keyboard
+        SIGQUIT       3       Core    Quit from keyboard
+        SIGILL        4       Core    Illegal Instruction
+        SIGABRT       6       Core    Abort signal from abort(3)
+        SIGFPE        8       Core    Floating point exception
+        SIGKILL       9       Term    Kill signal
+        SIGSEGV      11       Core    Invalid memory reference
+        SIGPIPE      13       Term    Broken pipe: write to pipe with no readers
+        SIGALRM      14       Term    Timer signal from alarm(2)
+        SIGTERM      15       Term    Termination signal
+        SIGUSR1   30,10,16    Term    User-defined signal 1
+        SIGUSR2   31,12,17    Term    User-defined signal 2
+        SIGCHLD   20,17,18    Ign     Child stopped or terminated
+        SIGCONT   19,18,25    Cont    Continue if stopped
+        SIGSTOP   17,19,23    Stop    Stop process
+        SIGTSTP   18,20,24    Stop    Stop typed at terminal
+        SIGTTIN   21,21,26    Stop    Terminal input for background process
+        SIGTTOU   22,22,27    Stop    Terminal output for background process
+
+        The signals SIGKILL and SIGSTOP cannot be caught, blocked, or ignored.
+
+        Next the signals not in the POSIX.1-1990 standard but described in
+        SUSv2 and POSIX.1-2001.
+
+        Signal       Value     Action   Comment
+        ────────────────────────────────────────────────────────────────────
+        SIGBUS      10,7,10     Core    Bus error (bad memory access)
+        SIGPOLL                 Term    Pollable event (Sys V).
+                                        Synonym for SIGIO
+        SIGPROF     27,27,29    Term    Profiling timer expired
+        SIGSYS      12,31,12    Core    Bad argument to routine (SVr4)
+        SIGTRAP        5        Core    Trace/breakpoint trap
+        SIGURG      16,23,21    Ign     Urgent condition on socket (4.2BSD)
+        SIGVTALRM   26,26,28    Term    Virtual alarm clock (4.2BSD)
+        SIGXCPU     24,24,30    Core    CPU time limit exceeded (4.2BSD)
+        SIGXFSZ     25,25,31    Core    File size limit exceeded (4.2BSD)
+        """
+        for sig_name in ("SIGFPE",):
+            if self.received_signal(sig_name): return sig_name
+        return False
+
+    def received_signal(self, sig_name):
+        if self.signal is None: return False
+        # Get the numeric value from signal and compare it with self.signal
+        import signal
+        try:
+            return self.signal == getattr(signal, sig_name) 
+        except AttributeError:
+            # invalid sig_name or sig_name not available on this OS.
+            return False
+
+    def estimated_start_time(self):
         """
         Return date with estimated start time. None if it cannot be detected
         """
@@ -1669,7 +1762,7 @@ class QueueJob(object):
 
 class SlurmJob(QueueJob):
 
-    def get_start_time(self):
+    def estimated_start_time(self):
         #squeue  --start -j  116791
         #  JOBID PARTITION     NAME     USER  ST           START_TIME  NODES NODELIST(REASON)
         # 116791      defq gs6q2wop cyildiri  PD  2014-11-04T09:27:15     16 (QOSResourceLimit)
@@ -1688,14 +1781,11 @@ class SlurmJob(QueueJob):
                 return datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S")
         return None
 
-    # For more info
-    #login1$ scontrol show job 1676354
-
     def get_info(self):
         # See https://computing.llnl.gov/linux/slurm/sacct.html
         #If SLURM job ids are reset, some job numbers will        
-	#probably appear more than once refering to different jobs.
-	#Without this option only the most recent jobs will be displayed.          
+	    #probably appear more than once refering to different jobs.
+	    #Without this option only the most recent jobs will be displayed.          
 
         #state Displays the job status, or state.
         #Output can be RUNNING, RESIZING, SUSPENDED, COMPLETED, CANCELLED, FAILED, TIMEOUT, 
@@ -1708,6 +1798,9 @@ class SlurmJob(QueueJob):
         #112367|0:0|RUNNING
         #scontrol show job 800197 --oneliner
 
+        # For more info
+        #login1$ scontrol show job 1676354
+
         #cmd = "sacct --job %i --format=jobid,exitcode,state --allocations --parsable2" % self.qid
         cmd = "scontrol show job %i --oneliner" % self.qid
         #print("cmd", cmd)
@@ -1715,8 +1808,8 @@ class SlurmJob(QueueJob):
         process.wait()
 
         if process.returncode != 0:
-          #print(process.stderr.readlines())
-          return None
+            #print(process.stderr.readlines())
+            return None
         line = process.stdout.read()
         #print("line", line)
 
@@ -1741,8 +1834,7 @@ class SlurmJob(QueueJob):
         i = status.find("+")
         if i != -1: status = status[:i]
 
-        #self.exitcode, self.signal, self.status = exitcode, signal, JobStatus.from_string(status)
-        self.set_status_exitcode_signal(exitcode, JobStatus.from_string(status), signal)
+        self.set_status_exitcode_signal(JobStatus.from_string(status), exitcode, signal)
         return AttrDict(exitcode=exitcode, signal=signal, status=status)
 
     def get_stats(self):
@@ -1758,22 +1850,48 @@ class SlurmJob(QueueJob):
 
 
 class PbsProJob(QueueJob):
+    """
+    """
+    # Mapping PrbPro --> Slurm. From `man qstat`
+    #
+    # S  The job’s state:
+    #      B  Array job has at least one subjob running.
+    #      E  Job is exiting after having run.
+    #      F  Job is finished.
+    #      H  Job is held.
+    #      M  Job was moved to another server.
+    #      Q  Job is queued.
+    #      R  Job is running.
+    #      S  Job is suspended.
+    #      T  Job is being moved to new location.
+    #      U  Cycle-harvesting job is suspended due to keyboard activity.
+    #      W  Job is waiting for its submitter-assigned start time to be reached.
+    #      X  Subjob has completed execution or has been deleted.
+
+    PBSSTAT_TO_TOSLURM = defaultdict(QueueJob.S_UNKNOWN, [
+        ("E", QueueJob.S_FAILED),
+        ("F", QueueJob.S_COMPLETED),
+        ("Q", QueueJob.S_PENDING),
+        ("R", QueueJob.S_RUNNING),
+        ("S", QueueJob.S_SUSPENDED),
+    ])
 
     def get_info(self):
-        cmd = "qstat " % self.qid
-        process = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+        #$> qstat 5666289
+        #frontal1:
+        #                                                            Req'd  Req'd   Elap
+        #Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time  S Time
+        #--------------- -------- -------- ---------- ------ --- --- ------ ----- - -----
+        #5666289.frontal friebel  main_ivy MorfeoTChk  57546   1   4    --  08:00 R 00:17
+
+        process = Popen("qstat " % self.qid, shell=True, stdout=PIPE, stderr=PIPE)
 
         if process.returncode != 0:
           #print(process.stderr.readlines())
           return None
 
-        # TOO Put example
-        lines = process.stdout.readlines()
-        out = lines[-1]
-        status = out.split()[9]
+        out = process.stdout.readlines()[-1]
+        status = self.PBSSTAT_TO_SLURM_STATUS[out.split()[9]]
 
-        # Mapping PrbPro --> Slurm
-        status = pbs2slurm[status]
-        self.set_status_exitcode_signal(None, status, None)
-        #self.exitcode, self.signal, self.status = exitcode, signal, status
-        #return AttrDict(exitcode=exitcode, signal=signal, status=status)
+        # Exit code and signal are not available.
+        self.set_status_exitcode_signal(status, None, None)

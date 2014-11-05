@@ -254,7 +254,7 @@ class AbinitTaskResults(NodeResults):
 
 
 
-def sparse_hystogram(items, key=None, num=None, step=None):
+def sparse_histogram(items, key=None, num=None, step=None):
     if num is None and step is None:
         raise ValueError("Either num or step must be specified")
     import numpy as np
@@ -269,14 +269,14 @@ def sparse_hystogram(items, key=None, num=None, step=None):
 
     from abipy.tools.numtools import find_le
 
-    hyst = defaultdict(list)
+    hist = defaultdict(list)
     for item, value in zip(items, values):
         # Find rightmost value less than or equal to x.
         # hence each bin contains all items whose value is >=
         pos = find_le(mesh, value)
-        hyst[mesh[pos]].append(item)
+        hist[mesh[pos]].append(item)
 
-    new = OrderedDict([(pos, hyst[pos]) for pos in sorted(hyst.keys())])
+    new = OrderedDict([(pos, hist[pos]) for pos in sorted(hist.keys())])
     new.start, new.stop, new.num = start, stop, num
     return new
 
@@ -284,15 +284,15 @@ def sparse_hystogram(items, key=None, num=None, step=None):
 
 import unittest
 
-class SparseHystogramTest(unittest.TestCase):
+class SparseHistogramTest(unittest.TestCase):
     def test_sparse(self):
         from collections import OrderedDict
         items = [1, 2, 2.9, 4]
-        hyst = sparse_hystogram(items, step=1)
-        assert hyst == OrderedDict([(1.0, [1]), (2.0, [2, 2.9]), (3.0, [4])])
+        hist = sparse_histogram(items, step=1)
+        assert hist == OrderedDict([(1.0, [1]), (2.0, [2, 2.9]), (3.0, [4])])
 
-        hyst = sparse_hystogram([iv for iv in enumerate(items)], key=lambda t: t[1], step=1)
-        assert hyst == OrderedDict([(1.0, [(0, 1)]), (2.0, [(1, 2), (2, 2.9)]), (3.0, [(3, 4)])])
+        hist = sparse_histogram([iv for iv in enumerate(items)], key=lambda t: t[1], step=1)
+        assert hist == OrderedDict([(1.0, [(0, 1)]), (2.0, [(1, 2), (2, 2.9)]), (3.0, [(3, 4)])])
 
 
 class ParalConf(AttrDict):
@@ -487,6 +487,9 @@ class ParalHints(collections.Iterable):
         # Avoid sorting if mem_per_cpu is not available.
         if any(c.mem_per_proc > 0.0 for c in self):
             self._confs.sort(key=lambda c: c.mem_per_proc, reverse=reverse)
+
+    #def hist_efficiency(self):
+    #    return sparse_histogram(self._confs, key=lambda c: c.efficiency, step=0.1)
 
     def select_optimal_conf(self, policy):
         """
@@ -837,9 +840,6 @@ class TaskManager(object):
             username: (str) the username of the jobs to count (default is to autodetect)
         """
         return self.qadapter.get_njobs_in_queue(username=username)
-
-    #def get_job_info(self, job_id):
-    #    return self.qadapater.get_job_info(job_id)
 
     def cancel(self, job_id):
         """Cancel the job. Returns exit status."""

@@ -1061,7 +1061,7 @@ class OneShotPhononWorkflow(Workflow):
         return [phonon(qpt=qpt, freqs=freqs_meV) for qpt, freqs_meV in zip(qpts, EnergyArray(phfreqs, "Ha").to("meV") )]
 
     def get_results(self, **kwargs):
-        results = super(self.__class__, self).get_results()
+        results = super(OneShotPhononWorkflow, self).get_results()
         phonons = self.read_phonons()
         print(phonons)
         results.update(phonons=phonons)
