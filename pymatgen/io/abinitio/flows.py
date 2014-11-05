@@ -1321,11 +1321,12 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, ana_input=None):
     # Register the first workflow (GS calculation)
     scf_task = flow.register_task(scf_input, task_class=ScfTask)
 
-    #qpoints = [pi['qpt'] for pi in ph_inputs]
+    #qpoints = [pi.list_variable['qpt'][0] for pi in ph_inputs]
 
+    qpoints = []
     for pi in ph_inputs:
-        print(pi.list_variable('qpt'))
-
+        print(pi.list_variable('qpt')[0])
+        qpoints.append(pi.list_variable('qpt')[0])
     print(qpoints)
 
     nscf_input = copy.deepcopy(scf_input)
