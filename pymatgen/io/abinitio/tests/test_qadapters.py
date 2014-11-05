@@ -59,6 +59,7 @@ hardware:
         """
         unit tests for Qadapter subclasses. A more complete coverage would require integration testing.
         """
+        self.maxDiff = None
         aequal, atrue, afalse = self.assertEqual, self.assertTrue, self.assertFalse
         sub_classes = QueueAdapter.__subclasses__()
 
@@ -109,6 +110,11 @@ hardware:
                 new_script = new_qad.get_script_str("job.sh", "/launch/dir", "executable", "qout_path", "qerr_path", 
                                                     stdin="STDIN", stdout="STDOUT", stderr="STDERR")
                 aequal(new_script, script)
+
+            with self.assertRaises(qad.Error): qad.set_mpi_procs(25)
+            with self.assertRaises(qad.Error): qad.set_mpi_procs(100)
+            with self.assertRaises(qad.Error): qad.set_omp_threads(10)
+            with self.assertRaises(qad.Error): qad.set_mem_per_proc(9 * giga)
 
             # Test can_run and distribute
             # The hardware has num_nodes=3, sockets_per_node=2, cores_per_socket=4, mem_per_node="8 Gb"

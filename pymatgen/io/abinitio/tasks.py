@@ -728,13 +728,15 @@ class TaskManager(object):
         if policy is None:
             my_kwargs["policy"] = TaskPolicy(autoparal=0) 
 
-        for d in self._kwargs["qadapters"]:
-            d = copy.deepcopy(d)
-            d["qtype"] = "shell"
+        for d in my_kwargs["qadapters"]:
+            print("before", d["queue"]["qtype"])
+            d["queue"]["qtype"] = "shell"
+            d["limits"]["min_cores"] = mpi_procs
+            d["limits"]["max_cores"] = mpi_procs
+
+        print(my_kwargs)
 
         new = self.__class__(**my_kwargs)
-        #new.min_cores = 1
-        #new.max_cores = mpi_procs
         new.set_mpi_procs(mpi_procs)
 
         return new
