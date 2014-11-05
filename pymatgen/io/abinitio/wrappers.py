@@ -46,8 +46,7 @@ class ExecWrapper(object):
         self.verbose = int(verbose)
 
         if self.executable is None:
-            msg = "Cannot find executable %s is PATH\n Use export PATH=/dir_with_exec:$PATH" % executable
-            raise self.Error(msg)
+            raise self.Error("Cannot find %s in $PATH\n Use export PATH=/dir_with_exec:$PATH" % executable)
 
         assert os.path.basename(self.executable) == self.name
 
@@ -73,10 +72,10 @@ class ExecWrapper(object):
 
         # Try to execute binary without and with mpirun.
         try:
+            self._execute(cwd=cwd, with_mpirun=True)
+        except self.Error:
             self._execute(cwd=cwd, with_mpirun=False)
 
-        except self.Error:
-            self._execute(cwd=cwd, with_mpirun=True)
 
     def _execute(self, cwd=None, with_mpirun=False):
         """
@@ -274,8 +273,7 @@ class Mrgddb(ExecWrapper):
                     out.write(line)
             return out_ddb
 
-        self.stdin_fname, self.stdout_fname, self.stderr_fname = (
-            "mrgddb.stdin", "mrgddb.stdout", "mrgddb.stderr")
+        self.stdin_fname, self.stdout_fname, self.stderr_fname = "mrgddb.stdin", "mrgddb.stdout", "mrgddb.stderr"
 
         if cwd is not None:
             self.stdin_fname, self.stdout_fname, self.stderr_fname = \

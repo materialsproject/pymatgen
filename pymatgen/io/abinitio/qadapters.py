@@ -133,6 +133,9 @@ def timelimit_parser(s):
     except ValueError:
         return parse_slurm_timestr(s)
 
+def str2mb(s):
+    return float(Memory.from_fring(s).to("Mb"))
+
 
 class MpiRunner(object):
     """
@@ -461,8 +464,8 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         self.set_timelimit(timelimit_parser(d.pop("timelimit")))
         self.min_cores = int(d.pop("min_cores"))
         self.max_cores = int(d.pop("max_cores"))
-        self.min_mem_per_proc = d.pop("min_mem_per_proc", 0)
-        self.max_mem_per_proc = d.pop("max_mem_per_proc", self.hw.mem_per_node)
+        self.min_mem_per_proc = str2mb(d.pop("min_mem_per_proc", "0")).to("Mb")
+        self.max_mem_per_proc = str2mb(d.pop("max_mem_per_proc", str(self.hw.mem_per_node)))
         self.allocate_nodes = bool(d.pop("allocate_nodes", False))
         self.condition = Condition(d.pop("condition", {}))
 
@@ -1568,13 +1571,13 @@ $${qverbatim}
             process = Popen(cmd, stdout=PIPE, stderr=PIPE)
             # write the err output to file, a error parser may read it and a fixer may know what to do ...
 
+            process.wait()
+
             with open(submit_err_file, mode='w') as f:
                 f.write('msub submit process stderr:')
                 f.write(str(process.stderr.read()))
                 f.write('qparams:')
                 f.write(str(self.qparams))
-
-            process.wait()
 
             # grab the returncode. MOAB returns 0 if the job was successful
             if process.returncode == 0:
