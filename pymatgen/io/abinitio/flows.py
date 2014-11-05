@@ -1296,7 +1296,7 @@ def g0w0_flow(workdir, manager, scf_input, nscf_input, scr_input, sigma_inputs):
     return flow.allocate()
 
 
-def phonon_flow(workdir, manager, scf_input, ph_inputs, ana_input=None):
+def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, ana_input=None):
     """
     Build an `AbinitFlow` for phonon calculations.
 
@@ -1321,11 +1321,9 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, ana_input=None):
     # Register the first workflow (GS calculation)
     scf_task = flow.register_task(scf_input, task_class=ScfTask)
 
-    #qpoints = [pi.list_variable['qpt'][0] for pi in ph_inputs]
-
-    nscf_input = copy.deepcopy(scf_input)
-
-    nscf_input.set_variables({'iscf': -3})
+    if with_nscf:
+        nscf_input = copy.deepcopy(scf_input)
+        nscf_input.set_variable('iscf', -3)
 
     # Build a temporary workflow with a shell manager just to run
     # ABINIT to get the list of irreducible pertubations for this q-point.
@@ -1362,9 +1360,10 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, ana_input=None):
         # One workflow per q-point, each workflow computes all 
         # the irreducible perturbations for a singe q-point.
 
-        nscf_input.set_variable({'nqpt': 1, 'qpt': irred_perts[0]['qpt']})
-
-        nscf_task = flow.register_task(nscf_input, deps={scf_task: "DEN"}, task_class=NscfTask)
+        if with_nscf:
+            nscf_input.set_variable('nqpt', 1)
+            nscf_input.set_variable('qpt', irred_perts[0]['qpt'])
+            nscf_task = flow.register_task(nscf_input, deps={scf_task: "DEN"}, task_class=NscfTask)
 
         work_qpt = PhononWorkflow()
 
@@ -1390,7 +1389,10 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, ana_input=None):
                 rfatpol=rfatpol,
             )
 
-            work_qpt.register(new_input, deps={nscf_task: "WFQ", scf_task: "WFK"}, task_class=PhononTask)
+            if with_nscf:
+                work_qpt.register(new_input, deps={nscf_task: "WFQ", scf_task: "WFK"}, task_class=PhononTask)
+            else:
+                work_qpt.register(new_input, deps={scf_task: "WFK"}, task_class=PhononTask)
 
         flow.register_work(work_qpt)
 
