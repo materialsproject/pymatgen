@@ -307,18 +307,37 @@ class _ExcludeNodesFile(object):
 _EXCL_NODES_FILE = _ExcludeNodesFile()
 
 
+def all_subclasses(cls):
+    """
+    Given a class, this recursive function returns a list with 
+    all subclasses, subclasses of subclasses, and so on.
+    """
+    subclasses = cls.__subclasses__() 
+    return subclasses + [g for s in subclasses for g in all_subclasses(s)]
+
+
 def make_qadapter(**kwargs):
     """
     Return the concrete `Adapter` class from a string.
+    Note that one can register a customized version with:
+
+    .. example:
+
+        from qadapters import SlurmAdapter 
+
+        class MyAdapter(SlurmAdapter):
+            QTYPE = "myslurm"
+            # Add your customized code here
+
+        # Register your class.
+        SlurmAdapter.register(MyAdapter)
+
+        make_qadapter(qtype="myslurm", **kwargs)
     """
+    # Get all known subclasses of QueueAdapter.
+    d = {c.QTYPE: c for c in all_subclasses(QueueAdapter)}
     qtype = kwargs["queue"].pop("qtype")
-    return {"shell": ShellAdapter,
-            "slurm": SlurmAdapter,
-            "pbspro": PbsProAdapter,
-            "torque": TorqueAdapter,
-            "sge": SGEAdapter,
-            "moab": MOABAdapter,
-            }[qtype.lower()](**kwargs)
+    return d[qtype](**kwargs)
 
 
 class QueueAdapterError(Exception):

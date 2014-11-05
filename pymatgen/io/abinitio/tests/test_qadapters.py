@@ -9,7 +9,7 @@ from monty.collections import AttrDict
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio.tasks import ParalConf
 from pymatgen.io.abinitio.qadapters import *
-from pymatgen.io.abinitio.qadapters import QueueAdapter
+from pymatgen.io.abinitio.qadapters import QueueAdapter, SlurmAdapter
 
 
 class ParseTimestr(PymatgenTest):
@@ -134,6 +134,17 @@ hardware:
             # not commensurate with node
             #d = qad.distribute(mpi_procs=9, omp_threads=1, mem_per_proc=giga)
             #assert d.num_nodes == 3 and d.mpi_per_node == 3 and not d.exact
+
+        # Test if one can register a customized class.
+        class MyAdapter(SlurmAdapter):
+            QTYPE = "myslurm"
+
+        SlurmAdapter.register(MyAdapter)
+        assert issubclass(MyAdapter, QueueAdapter)
+
+        self.QDICT["queue"]["qtype"] = "myslurm"
+        qad = make_qadapter(**self.QDICT)
+        assert isinstance(qad, MyAdapter)
 
 
 class ShellAdapterTest(PymatgenTest):
