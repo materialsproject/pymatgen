@@ -56,8 +56,8 @@ hardware:
 
     parser.add_argument('-p', '--mpi-procs', default=1, type=int, help='Number of MPI processes')
     parser.add_argument('-o', '--omp-threads', default=1, type=int, help='Number of OpenMP threads')
-    parser.add_argument('-m', '--mem_per_proc', type=lambda s: Memory.from_string(s).to("Mb"), default="1Mb", 
-                        help='Memory per processor in Mb')
+    parser.add_argument('-m', '--mem_per_proc', type=lambda s: float(Memory.from_string(s).to("Mb")), 
+                        default="1Mb", help='Memory per processor in Mb')
 
     opts = parser.parse_args()
     print(opts.mem_per_proc)
@@ -67,9 +67,17 @@ hardware:
     qad.set_omp_threads(opts.omp_threads)
     qad.set_mem_per_proc(opts.mem_per_proc)
 
-    script = qad.get_script_str("job_name", "launch_dir", "executable", "qout_path", "qerr_path",
+    script = qad.get_script_str("job_name", "launch_dir", "hostname", "qout_path", "qerr_path",
                                 stdin=None, stdout=None, stderr=None)
+
     print(script)
+    # Write the script.
+    #import tempfile
+    #_, script_file = tempfile.mkstemp(text=True)
+    #with open(script_file, "w") as fh: 
+    #    fh.write(script)
+    #process, queue_id = qad.submit_to_queue(script_file)
+
 
 if __name__ == "__main__":
     #show_job()

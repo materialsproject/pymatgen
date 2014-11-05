@@ -347,6 +347,7 @@ def make_qadapter(**kwargs):
 class QueueAdapterError(Exception):
     """Error class for exceptions raise by QueueAdapter."""
 
+
 class QueueAdapterDistribError(Exception):
     """Raised by distribute."""
 
@@ -403,7 +404,9 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                 True if we must allocate entire nodes"
             condition:
                 Condition object (dictionary)
+        # TODO
             max_num_attempts:
+            task_classes
         """
         # Make defensive copies so that we can change the values at runtime.
         kwargs = copy.deepcopy(kwargs)
@@ -717,10 +720,11 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         # Try to use all then cores in the node.
         num_nodes, rest_cores = hw.divmod_node(mpi_procs, omp_threads)
 
-        if num_nodes == 0:
-            # One one is enough
+        if num_nodes == 0 and mpi_procs * mem_per_proc <= hw.mem_per_node:
+            # One node is enough
             return Distrib(num_nodes=1, mpi_per_node=mpi_procs, exact=True)
 
+        if num_nodes == 0: num_nodes = 2
         mpi_per_node = mpi_procs // num_nodes
         if mpi_per_node * mem_per_proc <= hw.mem_per_node and rest_cores == 0:
             # Commensurate with nodes.
@@ -998,6 +1002,7 @@ class SlurmAdapter(QueueAdapter):
 #SBATCH --partition=$${partition}
 #SBATCH --job-name=$${job_name}
 #SBATCH --nodes=$${nodes}
+#SBATCH --total_tasks=$${total_tasks}
 #SBATCH --ntasks=$${ntasks}
 #SBATCH --ntasks-per-node=$${ntasks_per_node}
 #SBATCH --cpus-per-task=$${cpus_per_task}
@@ -1046,6 +1051,7 @@ class SlurmAdapter(QueueAdapter):
         #return {}
         dist = self.distribute(self.mpi_procs, self.omp_threads, self.mem_per_proc)
         print(dist)
+
         if dist.exact:
             # Can optimize parameters
             self.qparams["nodes"] = dist.num_nodes
