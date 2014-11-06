@@ -1353,8 +1353,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
 
         # Parse the file to get the perturbations.
         irred_perts = yaml_read_irred_perts(fake_task.log_file.path)
-        print(irred_perts)
-        print(irred_perts[0]['qpt'])
+        logger.info(irred_perts)
 
         w.rmtree()
 
@@ -1377,7 +1376,6 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
             work_qpt.register(ddk_input, deps=deps, task_class=DdkTask)
 
         for irred_pert in irred_perts:
-            print(irred_pert)
             new_input = ph_input.deepcopy()
 
             #rfatpol   1 1   # Only the first atom is displaced
