@@ -15,6 +15,7 @@ from six.moves import map
 from atomicfile import AtomicFile
 from pprint import pprint
 from prettytable import PrettyTable
+from monty.itertools import iterator_from_slice
 from monty.io import FileLock
 from monty.termcolor import stream_has_colours, cprint, colored, cprint_map
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
@@ -592,20 +593,32 @@ class AbinitFlow(Node):
                         logger.debug(info_msg)
                         return task.set_status(task.S_ERROR, info_msg)
 
-    def show_status(self, stream=sys.stdout, verbose=0):
+    def show_status(self, **kwargs):
         """
         Report the status of the workflows and the status 
         of the different tasks on the specified stream.
 
-        if not verbose, no full entry for works that are completed is printed.
+        Args:
+            stream:
+                File-like object, Default: sys.stdout
+            work_slice:
+                Slice object used to select the workflows to show. Default None i.e. all works are displayed.
         """
+        stream = kwargs.pop("stream", sys.stdout)
+        work_slice = kwargs.pop("work_slice", tuple())
+        if work_slice: work_slice = list(iterator_from_slice(work_slice))
+        if work_slice == [-1]: work_slice = [len(self)-1]
+        #print("work_slice in show_status", work_slice)
+
         has_colours = stream_has_colours(stream)
         red = "red" if has_colours else None
 
         for i, work in enumerate(self):
+            if work_slice and i not in work_slice: continue
+
             print("", file=stream)
             cprint_map("Work #%d: %s, Finalized=%s\n" % (i, work, work.finalized), cmap={"True": "green"}, file=stream)
-            if verbose == 0 and work.finalized: continue
+            #if verbose == 0 and work.finalized: continue
 
             table = PrettyTable(["Task", "Status", "Queue-id", "MPI|OMP|Mem/proc", "Err|Warn|Comm", "Class", "Restart", "Etime"])
 
@@ -620,7 +633,7 @@ class AbinitFlow(Node):
                 if report is not None: 
                     events = "|".join(map(str, [report.num_errors, report.num_warnings, report.num_comments]))
 
-                para_info = "|".join(map(str, (task.mpi_procs, task.omp_threads, task.mem_per_proc.to("Gb"))))
+                para_info = "|".join(map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
                 task_info = list(map(str, [task.__class__.__name__, task.num_restarts, task.run_etime()]))
                 qinfo = "None"
                 if task.queue_id is not None:
