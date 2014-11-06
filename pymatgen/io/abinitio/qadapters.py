@@ -134,7 +134,10 @@ def timelimit_parser(s):
         return parse_slurm_timestr(s)
 
 def str2mb(s):
-    return float(Memory.from_fring(s).to("Mb"))
+    if is_string(s):
+        return float(Memory.from_string(s).to("Mb"))
+    else:
+        return float(s)
 
 
 class MpiRunner(object):
@@ -464,8 +467,8 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         self.set_timelimit(timelimit_parser(d.pop("timelimit")))
         self.min_cores = int(d.pop("min_cores"))
         self.max_cores = int(d.pop("max_cores"))
-        self.min_mem_per_proc = str2mb(d.pop("min_mem_per_proc", "0")).to("Mb")
-        self.max_mem_per_proc = str2mb(d.pop("max_mem_per_proc", str(self.hw.mem_per_node)))
+        self.min_mem_per_proc = str2mb(d.pop("min_mem_per_proc", 0))
+        self.max_mem_per_proc = str2mb(d.pop("max_mem_per_proc", self.hw.mem_per_node))
         self.allocate_nodes = bool(d.pop("allocate_nodes", False))
         self.condition = Condition(d.pop("condition", {}))
 
@@ -508,8 +511,6 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         self._qparams = copy.deepcopy(qparams) if qparams is not None else {}
 
         self.set_qname(d.pop("qname"))
-        self.qverbatim = str(d.pop("qverbatim", ""))
-
         if d:
             raise ValueError("Found unknown keyword(s) in queue section:\n %s" % d.keys())
 
@@ -651,6 +652,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
         if mem_mb > self.hw.mem_per_node:
+            print(mem_mb, self.hw.mem_per_node)
             raise self.Error("mem_mb >= self.hw.mem_per_node")
 
         if not self.max_mem_per_proc >= mem_mb >= self.min_mem_per_proc:
@@ -797,10 +799,6 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         for line in unclean_template.split('\n'):
             if '$$' not in line:
                 clean_template.append(line)
-
-        # Add verbatim lines
-        if self.qverbatim:
-            clean_template.append("#qverbatim\n" + self.qverbatim)
 
         return '\n'.join(clean_template)
 
@@ -976,6 +974,7 @@ class ShellAdapter(QueueAdapter):
 
     QTEMPLATE = """\
 #!/bin/bash
+$${qverbatim}
 """
 
     def cancel(self, job_id):
@@ -1025,6 +1024,7 @@ class SlurmAdapter(QueueAdapter):
 #SBATCH --licenses=$${licenses}
 #SBATCH --output=$${_qout_path}
 #SBATCH --error=$${_qerr_path}
+$${qverbatim}
 """
 
     def set_qname(self, qname):
@@ -1190,6 +1190,7 @@ class PbsProAdapter(QueueAdapter):
 ####PBS -V
 #PBS -o $${_qout_path}
 #PBS -e $${_qerr_path}
+$${qverbatim}
 """
 
     def set_qname(self, qname):
@@ -1389,6 +1390,7 @@ class TorqueAdapter(PbsProAdapter):
 #PBS -V
 #PBS -o $${_qout_path}
 #PBS -e $${_qerr_path}
+$${qverbatim}
 """
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
@@ -1427,6 +1429,7 @@ class SGEAdapter(QueueAdapter):
 #$ -e $${_qerr_path}
 #$ -o $${_qout_path}
 #$ -S /bin/bash
+$${qverbatim}
 """
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
@@ -1538,6 +1541,7 @@ class MOABAdapter(QueueAdapter):
 
 #MSUB -o $${_qout_path}
 #MSUB -e $${_qerr_path}
+$${qverbatim}
 """
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
