@@ -112,7 +112,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     T = Integer(T)
 
     c0 = np.diag(multiplicity)
-    print ('c0',c0)
+    #print ('c0',c0)
     mu = [Symbol('mu'+i.__str__()) for i in range(m)]
 
     # Generate maps for hashing
@@ -183,15 +183,15 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             for index1 in range(ind_map[0]+1,ind_map[1]):
                 for index2 in range(ind_map[0]):
                     for i in range(n):
-                        print (i, index1, index2)
+                        #print (i, index1, index2)
                         dC[i,index1,index2] = 0
                 for index2 in range(ind_map[1],n):
                     for i in range(n):
-                        print (i, index1, index2)
+                        #print (i, index1, index2)
                         dC[i,index1,index2] = 0
 
 
-    print ('dC', dC)
+    #print ('dC', dC)
     # dE matrix: Flip energies (or raw defect energies)
     els = [vac_def['site_specie'] for vac_def in vac_defs]
     dE = []
@@ -218,7 +218,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
                             break
     dE = np.array(dE)
     #np.where(dE is None, dE, 0)
-    print ('dE', dE)
+    #print ('dE', dE)
 
     # Initialization for concentrations
     # c(i,p) == presence of ith type atom on pth type site
@@ -238,9 +238,9 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
                 if flip not in site_flip_contribs:
                     site_flip_contribs.append(flip)
                     c[i,p] += flip
-                else:
-                    print (i, epi, p)
-                    print ('flip already present in site_flips')
+                #else:
+                    #print (i, epi, p)
+                    #print ('flip already present in site_flips')
 
     #print ('c', c)
     total_c = []
@@ -403,10 +403,17 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         res1.append(float(total_c_val[0]/sum(total_c_val)))
         new_mu_dict[res1[0]] = mu_val
         sum_c0 = sum([c0[i,i] for i in range(n)])
+        #print res1[0]
         for i in range(n):
             for j in range(n):
                 if i == j:              # Vacancy
-                    res1.append(float((c0[i,i]-sum(c_val[:,i]))/c0[i,i]))
+                    #print (i,  c_val[:,i])
+                    # Consider numerical accuracy
+                    #res1.append(float((c0[i,i]-sum(c_val[:,i]))/c0[i,i]))
+                    #print ((mu_val[site_mu_map[i]]-dE[i,i])/(k_B*T))
+                    vac_conc = float(exp(-(mu_val[site_mu_map[i]]+dE[i,i])/(k_B*T)))
+                    #print vac_conc
+                    res1.append(vac_conc)
                 else:                   # Antisite
                     res1.append(float(c_val[i,j]/c0[j,j]))
         res.append(res1)
@@ -1005,7 +1012,9 @@ def solute_site_preference_finder(
         for i in range(n+1):
             for j in range(n):
                 if i == j:              # Vacancy
-                    res1.append(float((c0[i,i]-sum(c_val[:,i]))/c0[i,i]))
+                    #res1.append(float((c0[i,i]-sum(c_val[:,i]))/c0[i,i]))
+                    vac_conc = float(exp(-(mu_val[site_mu_map[i]]+dE[i,i])/(k_B*T)))
+                    res1.append(vac_conc)
                 else:                   # Antisite
                     res1.append(float(c_val[i,j]/c0[j,j]))
         res.append(res1)
