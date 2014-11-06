@@ -99,7 +99,7 @@ class ExecWrapper(object):
                 self.stdout_data = out.read()
                 self.stderr_data = err.read()
 
-            if self.verbose:
+            if self.verbose > 3:
                 print("*** stdout: ***\n", self.stdout_data)
                 print("*** stderr  ***\n", self.stderr_data)
 
