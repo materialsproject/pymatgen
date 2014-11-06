@@ -121,8 +121,9 @@ class DosPlotter(object):
         import prettyplotlib as ppl
         from prettyplotlib import brewer2mpl
         from pymatgen.util.plotting_utils import get_publication_quality_plot
-        colors = brewer2mpl.get_map('Set1', 'qualitative',
-                                    len(self._doses)).mpl_colors
+        ncolors = max(3, len(self._doses))
+        ncolors = min(9, ncolors)
+        colors = brewer2mpl.get_map('Set1', 'qualitative', ncolors).mpl_colors
 
         y = None
         alldensities = []
@@ -167,16 +168,16 @@ class DosPlotter(object):
                     y.extend(densities)
             allpts.extend(list(zip(x, y)))
             if self.stack:
-                plt.fill(x, y, color=colors[i],
+                plt.fill(x, y, color=colors[i % ncolors],
                          label=str(key))
             else:
-                ppl.plot(x, y, color=colors[i],
+                ppl.plot(x, y, color=colors[i % ncolors],
                          label=str(key),linewidth=3)
             if not self.zero_at_efermi:
                 ylim = plt.ylim()
                 ppl.plot([self._doses[key]['efermi'],
                           self._doses[key]['efermi']], ylim,
-                          colors[i] + '--', linewidth=2)
+                          colors[i % ncolors] + '--', linewidth=2)
 
         if xlim:
             plt.xlim(xlim)
