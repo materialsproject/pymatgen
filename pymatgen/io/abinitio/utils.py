@@ -361,7 +361,7 @@ class FilepathFixer(object):
 
             if newpath is not None:
                 print ext, path, fixed_exts
-                assert ext not in fixed_exts
+                #assert ext not in fixed_exts
                 fixed_exts.append(ext)
                 old2new[path] = newpath
 
