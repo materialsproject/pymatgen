@@ -134,7 +134,10 @@ def timelimit_parser(s):
         return parse_slurm_timestr(s)
 
 def str2mb(s):
-    return float(Memory.from_fring(s).to("Mb"))
+    if is_string(s):
+        return float(Memory.from_string(s).to("Mb"))
+    else:
+        return float(s)
 
 
 class MpiRunner(object):
@@ -464,8 +467,8 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         self.set_timelimit(timelimit_parser(d.pop("timelimit")))
         self.min_cores = int(d.pop("min_cores"))
         self.max_cores = int(d.pop("max_cores"))
-        self.min_mem_per_proc = str2mb(d.pop("min_mem_per_proc", "0")).to("Mb")
-        self.max_mem_per_proc = str2mb(d.pop("max_mem_per_proc", str(self.hw.mem_per_node)))
+        self.min_mem_per_proc = str2mb(d.pop("min_mem_per_proc", 0))
+        self.max_mem_per_proc = str2mb(d.pop("max_mem_per_proc", self.hw.mem_per_node))
         self.allocate_nodes = bool(d.pop("allocate_nodes", False))
         self.condition = Condition(d.pop("condition", {}))
 
