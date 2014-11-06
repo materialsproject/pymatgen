@@ -225,6 +225,7 @@ class Directory(object):
 _EXT2VARS = {
     "DEN": {"irdden": 1},
     "WFK": {"irdwfk": 1},
+    "WFQ": {"irdwfq": 1},
     "SCR": {"irdscr": 1},
     "QPS": {"irdqps": 1},
     "1WF": {"ird1wf": 1},
