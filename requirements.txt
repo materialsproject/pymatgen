@@ -7,3 +7,4 @@ pyhull==1.5.3
 pyyaml==3.11
 six==1.7.3
 prettytable==0.7.2
+scipy==0.14.0

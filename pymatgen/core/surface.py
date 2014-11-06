@@ -21,11 +21,8 @@ import itertools
 import logging
 
 import numpy as np
-try:
-    from scipy.spatial.distance import squareform
-    from scipy.cluster.hierarchy import linkage, fcluster
-except ImportError:
-    pass
+from scipy.spatial.distance import squareform
+from scipy.cluster.hierarchy import linkage, fcluster
 
 from monty.fractions import lcm
 
