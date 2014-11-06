@@ -1365,7 +1365,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
         work_qpt = PhononWorkflow()
 
         if with_nscf:
-            nscf_input.set_variables(shiftk=irred_perts[0]['qpt'])
+            nscf_input.set_variables(qpt=irred_perts[0]['qpt'], nqpt=1)
             nscf_task = work_qpt.register(nscf_input, deps={scf_task: "DEN"}, task_class=NscfTask)
             deps = {nscf_task: "WFQ", scf_task: "WFK"}
         else:
