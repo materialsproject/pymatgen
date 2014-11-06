@@ -23,6 +23,7 @@ from monty.string import is_string, list_strings
 from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property, return_none_if_raise
+from pymatgen.core.units import Time, Memory
 from pymatgen.util.string_utils import WildCard
 from pymatgen.util.num_utils import maxloc
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump, pmg_serialize
@@ -267,7 +268,7 @@ def sparse_histogram(items, key=None, num=None, step=None):
         if num == 0: num = 1
     mesh = np.linspace(start, stop, num, endpoint=False)
 
-    from abipy.tools.numtools import find_le
+    from monty.bisect import find_le
 
     hist = defaultdict(list)
     for item, value in zip(items, values):
@@ -729,7 +730,7 @@ class TaskManager(object):
             my_kwargs["policy"] = TaskPolicy(autoparal=0) 
 
         for d in my_kwargs["qadapters"]:
-            print("before", d["queue"]["qtype"])
+            #print("before", d["queue"]["qtype"])
             d["queue"]["qtype"] = "shell"
             d["limits"]["min_cores"] = mpi_procs
             d["limits"]["max_cores"] = mpi_procs
@@ -802,6 +803,11 @@ class TaskManager(object):
     def mpi_procs(self):
         """Number of MPI processes."""
         return self.qadapter.mpi_procs
+
+    @property
+    def mem_per_proc(self):
+        """Memory per MPI process."""
+        return self.qadapter.mem_per_proc
 
     @property
     def omp_threads(self):
@@ -1948,6 +1954,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def omp_threads(self):
         """Number of CPUs used for OpenMP."""
         return self.manager.omp_threads
+
+    @property
+    def mem_per_proc(self):
+        """Memory per MPI process."""
+        return Memory(self.manager.mem_per_proc, "Mb")
 
     @property
     def status(self):
