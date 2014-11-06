@@ -773,7 +773,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         d.update(self.optimize_params())
         # clean null values
         subs_dict = {k: v for k, v in d.items() if v is not None}
-        print("subs_dict:", subs_dict)
+        #print("subs_dict:", subs_dict)
         return subs_dict
 
     def _make_qheader(self, job_name, qout_path, qerr_path):
