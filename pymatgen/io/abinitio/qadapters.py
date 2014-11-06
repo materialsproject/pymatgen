@@ -133,7 +133,8 @@ def timelimit_parser(s):
     except ValueError:
         return parse_slurm_timestr(s)
 
-def str2mb(s):
+
+def any2mb(s):
     if is_string(s):
         return float(Memory.from_string(s).to("Mb"))
     else:
@@ -467,8 +468,10 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         self.set_timelimit(timelimit_parser(d.pop("timelimit")))
         self.min_cores = int(d.pop("min_cores"))
         self.max_cores = int(d.pop("max_cores"))
-        self.min_mem_per_proc = str2mb(d.pop("min_mem_per_proc", 0))
-        self.max_mem_per_proc = str2mb(d.pop("max_mem_per_proc", self.hw.mem_per_node))
+        self.min_mem_per_proc = any2mb(d.pop("min_mem_per_proc", 0))
+        # FIXME: Neeed because autoparal 1 with paral_kgb 1 is not able to estimate memory 
+        self.min_mem_per_proc = any2mb(d.pop("min_mem_per_proc", self.hw.mem_per_core))
+        self.max_mem_per_proc = any2mb(d.pop("max_mem_per_proc", self.hw.mem_per_node))
         self.allocate_nodes = bool(d.pop("allocate_nodes", False))
         self.condition = Condition(d.pop("condition", {}))
 
@@ -1053,7 +1056,7 @@ $${qverbatim}
     def optimize_params(self):
         #return {}
         dist = self.distribute(self.mpi_procs, self.omp_threads, self.mem_per_proc)
-        print(dist)
+        #print(dist)
 
         if dist.exact:
             # Can optimize parameters
@@ -1186,8 +1189,6 @@ class PbsProAdapter(QueueAdapter):
 #PBS -W group_list=$${group_list}
 #PBS -M $${mail_user}
 #PBS -m $${mail_type}
-# Submission environment
-####PBS -V
 #PBS -o $${_qout_path}
 #PBS -e $${_qerr_path}
 $${qverbatim}
@@ -1550,7 +1551,7 @@ $${qverbatim}
 
     def set_timelimit(self, timelimit):
         super(MOABAdapter, self).set_timelimit(timelimit)
-        self.qparams["walltime"] = time2pbspro(timelimit)
+        self.qparams["walltime"] = time2slurm(timelimit)
 
     def set_mem_per_proc(self, mem_mb):
         super(MOABAdapter, self).set_mem_per_proc(mem_mb)
@@ -1733,9 +1734,7 @@ class QueueJob(object):
         self.qout_path, self.qerr_path = qout_path, qerr_path
 
         # Initialize properties.
-        self.status = None
-        self.exitcode = None
-        self.signal = None
+        self.status, self.exitcode, self.signal = None, None, None
 
     @property
     def is_completed(self):
@@ -1821,9 +1820,7 @@ class QueueJob(object):
             return False
 
     def estimated_start_time(self):
-        """
-        Return date with estimated start time. None if it cannot be detected
-        """
+        """Return date with estimated start time. None if it cannot be detected"""
         return None
 
     def get_info(self):

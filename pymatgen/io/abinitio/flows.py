@@ -16,7 +16,7 @@ from atomicfile import AtomicFile
 from pprint import pprint
 from prettytable import PrettyTable
 from monty.io import FileLock
-from monty.termcolor import cprint, colored, stream_has_colours
+from monty.termcolor import stream_has_colours, cprint, colored, cprint_map
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
 from .tasks import Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager
 from .utils import Directory, Editor
@@ -604,10 +604,10 @@ class AbinitFlow(Node):
 
         for i, work in enumerate(self):
             print("", file=stream)
-            print("Work #%d: %s, Finalized=%s\n" % (i, work, work.finalized), file=stream)
+            cprint_map("Work #%d: %s, Finalized=%s\n" % (i, work, work.finalized), cmap={"True": "green"}, file=stream)
             if verbose == 0 and work.finalized: continue
 
-            table = PrettyTable(["Task", "Status", "Queue-id", "MPI|OMP", "Err|Warn|Comm", "Class", "Restart", "Etime"])
+            table = PrettyTable(["Task", "Status", "Queue-id", "MPI|OMP|Mem/proc", "Err|Warn|Comm", "Class", "Restart", "Etime"])
 
             tot_num_errors = 0
             for task in work:
@@ -620,7 +620,7 @@ class AbinitFlow(Node):
                 if report is not None: 
                     events = "|".join(map(str, [report.num_errors, report.num_warnings, report.num_comments]))
 
-                para_info = "|".join(map(str, (task.mpi_procs, task.omp_threads)))
+                para_info = "|".join(map(str, (task.mpi_procs, task.omp_threads, task.mem_per_proc.to("Gb"))))
                 task_info = list(map(str, [task.__class__.__name__, task.num_restarts, task.run_etime()]))
                 qinfo = "None"
                 if task.queue_id is not None:
@@ -1372,7 +1372,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
 
         # Parse the file to get the perturbations.
         irred_perts = yaml_read_irred_perts(fake_task.log_file.path)
-        print(irred_perts)
+        #print(irred_perts)
 
         w.rmtree()
 
@@ -1382,7 +1382,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
         work_qpt = PhononWorkflow()
 
         for irred_pert in irred_perts:
-            print(irred_pert)
+            #print(irred_pert)
             new_input = ph_input.deepcopy()
 
             #rfatpol   1 1   # Only the first atom is displaced

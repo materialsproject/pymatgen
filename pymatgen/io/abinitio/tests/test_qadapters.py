@@ -333,8 +333,6 @@ hardware:
 #PBS -l select=1:ncpus=3:vmem=3072mb:mpiprocs=3
 #PBS -l walltime=0:0:10
 #PBS -W group_list=naps
-# Submission environment
-####PBS -V
 #PBS -o qout_path
 #PBS -e qerr_path
 cd /launch_dir
