@@ -136,9 +136,9 @@ def timelimit_parser(s):
 
 def any2mb(s):
     if is_string(s):
-        return float(Memory.from_string(s).to("Mb"))
+        return int(Memory.from_string(s).to("Mb"))
     else:
-        return float(s)
+        return int(s)
 
 
 class MpiRunner(object):
