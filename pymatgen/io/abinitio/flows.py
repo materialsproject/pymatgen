@@ -1353,6 +1353,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
         # Parse the file to get the perturbations.
         irred_perts = yaml_read_irred_perts(fake_task.log_file.path)
         print(irred_perts)
+        print(irred_perts[0]['qpt'])
 
         w.rmtree()
 
