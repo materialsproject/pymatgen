@@ -1043,7 +1043,7 @@ class PhononWorkflow(Workflow):
         ddb_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in self]))
 
         logger.debug("will call mrgddb to merge %s:\n" % str(ddb_files))
-        assert len(ddb_files) == len(self)
+        # assert len(ddb_files) == len(self)
 
         #if len(ddb_files) == 1:
         # Avoid the merge. Just move the DDB file to the outdir of the workflow
