@@ -2915,6 +2915,14 @@ class RelaxTask(AbinitTask):
         return results.add_gridfs_files(GSR=gsr.filepath)
 
 
+class DdeTask(AbinitTask):
+    """Task for DDE calculations."""
+
+    def get_results(self, **kwargs):
+        results = super(DdeTask, self).get_results(**kwargs)
+        return results.add_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
+
+
 class DdkTask(AbinitTask):
     """Task for DDK calculations."""
 
