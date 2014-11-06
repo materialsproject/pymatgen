@@ -1370,7 +1370,9 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
         else:
             deps = {scf_task: "WFK"}
 
-        if with_ddk:
+        print(irred_perts[0]['qpt'])
+        if with_ddk and irred_perts[0]['qpt'] == [0, 0, 0]:
+            print('add ddk')
             ddk_input = ph_input.deepcopy()
             ddk_input.set_variables(qpt=irred_perts[0]['qpt'], rfddk=1)
             work_qpt.register(ddk_input, deps=deps, task_class=DdkTask)
