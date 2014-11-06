@@ -20,7 +20,7 @@ from prettytable import PrettyTable
 from monty.io import FileLock
 from monty.termcolor import cprint, colored, stream_has_colours
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
-from .tasks import Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager, NscfTask
+from .tasks import Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager, NscfTask, DdkTask
 #from .tasks imort AnaddbTask, QpMergeTask
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
@@ -1296,7 +1296,7 @@ def g0w0_flow(workdir, manager, scf_input, nscf_input, scr_input, sigma_inputs):
     return flow.allocate()
 
 
-def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, ana_input=None):
+def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_ddk=True, ana_input=None):
     """
     Build an `AbinitFlow` for phonon calculations.
 
@@ -1360,12 +1360,19 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, ana_inp
         # One workflow per q-point, each workflow computes all 
         # the irreducible perturbations for a singe q-point.
 
-        if with_nscf:
-            nscf_input.set_variable('nqpt', 1)
-            nscf_input.set_variable('qpt', irred_perts[0]['qpt'])
-            nscf_task = flow.register_task(nscf_input, deps={scf_task: "DEN"}, task_class=NscfTask)
-
         work_qpt = PhononWorkflow()
+
+        if with_nscf:
+            nscf_input.set_variables(nqpt=1, qpt=irred_perts[0]['qpt'])
+            nscf_task = work_qpt.register(nscf_input, deps={scf_task: "DEN"}, task_class=NscfTask)
+            deps = {nscf_task: "WFQ", scf_task: "WFK"}
+        else:
+            deps = {scf_task: "WFK"}
+
+        if with_ddk:
+            ddk_input = ph_input.deepcopy()
+            ddk_input.set_variables(qpt=irred_perts[0]['qpt'],)
+            work_qpt.register(ddk_input, deps=deps, task_class=DdkTask)
 
         for irred_pert in irred_perts:
             print(irred_pert)
@@ -1389,10 +1396,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, ana_inp
                 rfatpol=rfatpol,
             )
 
-            if with_nscf:
-                work_qpt.register(new_input, deps={nscf_task: "WFQ", scf_task: "WFK"}, task_class=PhononTask)
-            else:
-                work_qpt.register(new_input, deps={scf_task: "WFK"}, task_class=PhononTask)
+            work_qpt.register(new_input, deps=deps, task_class=PhononTask)
 
         flow.register_work(work_qpt)
 
