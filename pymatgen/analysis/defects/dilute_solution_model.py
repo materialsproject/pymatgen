@@ -403,10 +403,17 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         res1.append(float(total_c_val[0]/sum(total_c_val)))
         new_mu_dict[res1[0]] = mu_val
         sum_c0 = sum([c0[i,i] for i in range(n)])
+        print res1[0]
         for i in range(n):
             for j in range(n):
                 if i == j:              # Vacancy
-                    res1.append(float((c0[i,i]-sum(c_val[:,i]))/c0[i,i]))
+                    #print (i,  c_val[:,i])
+                    # Consider numerical accuracy
+                    #res1.append(float((c0[i,i]-sum(c_val[:,i]))/c0[i,i]))
+                    #print ((mu_val[site_mu_map[i]]-dE[i,i])/(k_B*T))
+                    vac_conc = float(exp(-(mu_val[site_mu_map[i]]+dE[i,i])/(k_B*T)))
+                    print vac_conc
+                    res1.append(vac_conc)
                 else:                   # Antisite
                     res1.append(float(c_val[i,j]/c0[j,j]))
         res.append(res1)
@@ -1005,7 +1012,9 @@ def solute_site_preference_finder(
         for i in range(n+1):
             for j in range(n):
                 if i == j:              # Vacancy
-                    res1.append(float((c0[i,i]-sum(c_val[:,i]))/c0[i,i]))
+                    #res1.append(float((c0[i,i]-sum(c_val[:,i]))/c0[i,i]))
+                    vac_conc = float(exp(-(mu_val[site_mu_map[i]]+dE[i,i])/(k_B*T)))
+                    res1.append(vac_conc)
                 else:                   # Antisite
                     res1.append(float(c_val[i,j]/c0[j,j]))
         res.append(res1)
