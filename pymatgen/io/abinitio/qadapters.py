@@ -1164,6 +1164,7 @@ class PbsProAdapter(AbstractQueueAdapter):
             raise self.Error("Running qsub caused an error...\n%s" % str(exc))
 
     def get_njobs_in_queue(self, username=None):
+        return None
         # Initialize username
         if username is None:
             username = getpass.getuser()
