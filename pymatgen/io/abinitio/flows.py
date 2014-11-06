@@ -1386,7 +1386,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
             dde_input.remove_variables(['rfphon'])
             for idir in [[1, 0, 0], [0, 1, 0], [0, 0, 1]]:
                 dde_input_idir = dde_input.deepcopy()
-                dde_input_idir.set_variables(rfdir=idir)
+                dde_input_idir.set_variables(rfdir=idir, rfelfd=1)
                 work_qpt.register(dde_input_idir, deps=deps, task_class=DdkTask)
 
         for irred_pert in irred_perts:
