@@ -1327,7 +1327,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
         work_ddk = PhononWorkflow()
         ddk_input = ph_inputs[0].deepcopy()
         ddk_input.set_variables(qpt=[0, 0, 0], rfddk=1)
-        ddk = work_ddk.register(ddk_input, deps={scf_task, 'FWK'}, task_class=DdkTask)
+        ddk = work_ddk.register(ddk_input, deps={scf_task: 'FWK'}, task_class=DdkTask)
 
     # Build a temporary workflow with a shell manager just to run
     # ABINIT to get the list of irreducible pertubations for this q-point.
