@@ -30,7 +30,6 @@ from math import cos
 from math import sin
 
 import numpy as np
-import scipy.cluster as spcluster
 
 from six.moves import filter, map, zip
 
@@ -1207,6 +1206,7 @@ def cluster_sites(mol, tol):
     # Cluster works for dim > 2 data. We just add a dummy 0 for second
     # coordinate.
     dists = [[np.linalg.norm(site.coords), 0] for site in mol]
+    import scipy.cluster as spcluster
     f = spcluster.hierarchy.fclusterdata(dists, tol, criterion='distance')
     clustered_dists = defaultdict(list)
     for i, site in enumerate(mol):
