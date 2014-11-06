@@ -471,6 +471,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         #self.min_mem_per_proc = any2mb(d.pop("min_mem_per_proc", 0))
         # FIXME: Neeed because autoparal 1 with paral_kgb 1 is not able to estimate memory 
         self.min_mem_per_proc = any2mb(d.pop("min_mem_per_proc", self.hw.mem_per_core))
+	#print(self.min_mem_per_proc)
         self.max_mem_per_proc = any2mb(d.pop("max_mem_per_proc", self.hw.mem_per_node))
         self.allocate_nodes = bool(d.pop("allocate_nodes", False))
         self.condition = Condition(d.pop("condition", {}))
