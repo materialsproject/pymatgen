@@ -1323,7 +1323,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
 
     if with_nscf:
         nscf_input = copy.deepcopy(scf_input)
-        nscf_input.set_variable('iscf', -3)
+        nscf_input.set_variables(iscf=-3)
 
     # Build a temporary workflow with a shell manager just to run
     # ABINIT to get the list of irreducible pertubations for this q-point.
