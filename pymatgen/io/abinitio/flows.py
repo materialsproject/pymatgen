@@ -22,7 +22,7 @@ from monty.io import FileLock
 from monty.termcolor import cprint, colored, stream_has_colours
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
 from .tasks import Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager, NscfTask, DdkTask
-#from .tasks imort AnaddbTask, QpMergeTask
+from .tasks import AnaddbTask, DdeTask
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
 from .workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow, QptdmWorkflow
@@ -1322,6 +1322,13 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
     # Register the first workflow (GS calculation)
     scf_task = flow.register_task(scf_input, task_class=ScfTask)
 
+    if with_ddk:
+        logger.info('add ddk')
+        work_ddk = PhononWorkflow()
+        ddk_input = ph_inputs[0].deepcopy()
+        ddk_input.set_variables(qpt=[0, 0, 0], rfddk=1)
+        ddk = work_ddk.register(ddk_input, deps={scf_task, 'FWK'}, task_class=DdkTask)
+
     # Build a temporary workflow with a shell manager just to run
     # ABINIT to get the list of irreducible pertubations for this q-point.
     shell_manager = manager.to_shell_manager(mpi_procs=1)
@@ -1372,11 +1379,15 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
             deps = {scf_task: "WFK"}
 
         logger.info(irred_perts[0]['qpt'])
-        if with_ddk and irred_perts[0]['qpt'][0] == 0 and irred_perts[0]['qpt'][1] == 0 and irred_perts[0]['qpt'][2] == 0:
-            logger.info('add ddk')
-            ddk_input = ph_input.deepcopy()
-            ddk_input.set_variables(qpt=irred_perts[0]['qpt'], rfddk=1)
-            work_qpt.register(ddk_input, deps=deps, task_class=DdkTask)
+        if irred_perts[0]['qpt'][0] == 0 and irred_perts[0]['qpt'][1] == 0 and irred_perts[0]['qpt'][2] == 0:
+            logger.info('add dde')
+            dde_input = ph_input.deepcopy()
+            dde_input.set_variables(qpt=irred_perts[0]['qpt'])
+            dde_input.remove_variables(['rfphon'])
+            for idir in [[1, 0, 0], [0, 1, 0], [0, 0, 1]]:
+                dde_input_idir = dde_input.deepcopy()
+                dde_input_idir.ser_variables(idir=idir)
+                work_qpt.register(dde_input_idir, deps=deps, task_class=DdkTask)
 
         for irred_pert in irred_perts:
             new_input = ph_input.deepcopy()
