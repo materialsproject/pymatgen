@@ -1321,10 +1321,6 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
     # Register the first workflow (GS calculation)
     scf_task = flow.register_task(scf_input, task_class=ScfTask)
 
-    if with_nscf:
-        nscf_input = copy.deepcopy(scf_input)
-        nscf_input.set_variables(kptopt=3, iscf=-3)
-
     # Build a temporary workflow with a shell manager just to run
     # ABINIT to get the list of irreducible pertubations for this q-point.
     shell_manager = manager.to_shell_manager(mpi_procs=1)
@@ -1333,6 +1329,11 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
         ph_inputs = [ph_inputs]
 
     for i, ph_input in enumerate(ph_inputs):
+
+        if with_nscf:
+            nscf_input = copy.deepcopy(scf_input)
+            nscf_input.set_variables(kptopt=3, iscf=-3)
+
         fake_input = ph_input.deepcopy()
 
         # Run abinit on the front-end to get the list of irreducible pertubations.
