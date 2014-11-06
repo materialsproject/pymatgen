@@ -465,6 +465,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         specie_ind = site_mu_map[i]
         indices = specie_site_index_map[specie_ind]
         specie_ind_del = indices[1]-indices[0]
+        cur_ind = i - indices[0] + 1
         for j in range(m):          # Antisite plot dat
             sub_specie = specie_order[j]
             if sub_specie == site_specie:
