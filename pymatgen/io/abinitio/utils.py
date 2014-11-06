@@ -360,6 +360,7 @@ class FilepathFixer(object):
             newpath, ext = self._fix_path(path)
 
             if newpath is not None:
+                print ext, fixed_exts
                 assert ext not in fixed_exts
                 fixed_exts.append(ext)
                 old2new[path] = newpath
