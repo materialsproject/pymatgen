@@ -24,8 +24,6 @@ from pymatgen.core.structure import Structure
 from pymatgen.util.coord_utils import get_linear_interpolated_value
 from pymatgen.serializers.json_coders import PMGSONable
 
-import scipy
-
 
 class Dos(PMGSONable):
     """
