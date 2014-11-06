@@ -3,6 +3,7 @@
 from __future__ import unicode_literals, division
 
 import os
+import six
 import collections
 import shutil
 import operator
@@ -583,9 +584,14 @@ class Editor(object):
     @staticmethod
     def user_wants_to_exit():
         """Show an interactive prompt asking if exit is wanted."""
-        try:
-            answer = raw_input("Do you want to continue [Y/n]")
+        # Fix python 2.x.
+        if six.PY2:
+            my_input = raw_input
+        else:
+            my_input = input
 
+        try:
+            answer = my_input("Do you want to continue [Y/n]")
         except EOFError:
             return True
 

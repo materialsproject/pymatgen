@@ -761,9 +761,10 @@ class AbinitFlow(Node):
             editor:
                 Select the editor. None to use the default editor ($EDITOR shell env var)
         """
-        #TODO: Add support for wti
         if wti is not None:
-            raise NotImplementedError("wti option is not available!")
+            #TODO: Add support for other formats
+            assert isinstance(wti, (tuple, list))
+            #raise NotImplementedError("wti option is not available!")
 
         def get_files(task, wi, ti):
             """Helper function used to select the files of a task."""
@@ -789,7 +790,12 @@ class AbinitFlow(Node):
 
         # Build list of files to analyze.
         files = []
+
         for (task, wi, ti) in self.iflat_tasks_wti(status=status, op=op):
+            print("wti", wti)
+            if wti is not None and list(wti) != [wi, ti]:
+                continue
+
             lst = get_files(task, wi, ti)
             if lst:
                 files.extend(lst)

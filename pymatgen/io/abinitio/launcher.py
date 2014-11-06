@@ -566,7 +566,11 @@ class PyFlowScheduler(object):
             self.send_email(msg="Error while trying to run the flow for the first time!\n %s" % self.exceptions)
             return False
 
-        self.sched.start()
+        try:
+            self.sched.start()
+        except KeyboardInterrupt:
+            self.shutdown(err_msg="KeyboardInterrupt from user")
+
         return True
 
     def _runem_all(self):
