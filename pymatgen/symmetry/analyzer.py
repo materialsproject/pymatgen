@@ -30,10 +30,7 @@ from math import cos
 from math import sin
 
 import numpy as np
-try:
-    import scipy.cluster as spcluster
-except ImportError:
-    spcluster = None
+import scipy.cluster as spcluster
 
 from six.moves import filter, map, zip
 
@@ -44,8 +41,6 @@ from pymatgen.core.structure import PeriodicSite
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord_utils import find_in_coord_list
 
-
-from monty.dev import requires
 
 try:
     import pymatgen._spglib as spg
@@ -830,8 +825,6 @@ class PointGroupAnalyzer(object):
     """
     inversion_op = SymmOp.inversion()
 
-    @requires(spcluster is not None, "Cannot import scipy. PointGroupAnalyzer "
-                                     "requires scipy.cluster")
     def __init__(self, mol, tolerance=0.3, eigen_tolerance=0.01,
                  matrix_tol=0.1):
         """
@@ -1198,8 +1191,6 @@ class PointGroupAnalyzer(object):
         return True
 
 
-@requires(spcluster is not None, "Cannot import scipy. cluster_sites require "
-                                 "scipy.cluster.")
 def cluster_sites(mol, tol):
     """
     Cluster sites based on distance and species type.

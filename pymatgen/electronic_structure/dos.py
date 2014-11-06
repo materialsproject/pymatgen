@@ -23,12 +23,8 @@ from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord_utils import get_linear_interpolated_value
 from pymatgen.serializers.json_coders import PMGSONable
-from monty.dev import requires
 
-try:
-    import scipy
-except ImportError:
-    scipy = None
+import scipy
 
 
 class Dos(PMGSONable):
@@ -82,8 +78,6 @@ class Dos(PMGSONable):
             result = self.densities[spin]
         return result
 
-    @requires(scipy is not None, "get_smeared_densities requires scipy to be "
-                                 "installed.")
     def get_smeared_densities(self, sigma):
         """
         Returns the Dict representation of the densities, {Spin: densities},
