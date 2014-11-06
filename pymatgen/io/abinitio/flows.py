@@ -12,6 +12,7 @@ import warnings
 import shutil
 import pickle
 import copy
+import numpy as np
 
 from six.moves import map 
 from atomicfile import AtomicFile
@@ -1371,7 +1372,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
             deps = {scf_task: "WFK"}
 
         print(irred_perts[0]['qpt'])
-        if with_ddk and irred_perts[0]['qpt'] == [0, 0, 0]:
+        if with_ddk and irred_perts[0]['qpt'] == np.array([0, 0, 0]):
             print('add ddk')
             ddk_input = ph_input.deepcopy()
             ddk_input.set_variables(qpt=irred_perts[0]['qpt'], rfddk=1)
