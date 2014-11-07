@@ -935,7 +935,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                              (self.__class__.__name__, script_file, process.args) + 
                              "The error response reads:\n %s" % err)
 
-        return queue_id, process
+        return QueueJob(queue_id), process
 
     @abc.abstractmethod
     def _submit_to_queue(self, script_file):
@@ -1656,6 +1656,13 @@ class QueueJob(object):
         # Initialize properties.
         self.status, self.exitcode, self.signal = None, None, None
 
+    #def __str__(self):
+
+    def __bool__(self):
+        return self.qid is not None
+
+    __nonzero__ = __bool__
+
     @property
     def is_completed(self):
         return self.status == self.S_COMPLETED
@@ -1743,10 +1750,13 @@ class QueueJob(object):
         """Return date with estimated start time. None if it cannot be detected"""
         return None
 
-    def get_info(self):
+    def get_info(self, **kwargs):
         return None
 
-    def get_nodes(self):
+    def get_nodes(self, **kwargs):
+        return None
+
+    def get_stats(self, **kwargs):
         return None
 
 
@@ -1772,7 +1782,7 @@ class SlurmJob(QueueJob):
                 return datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S")
         return None
 
-    def get_info(self):
+    def get_info(self, **kwargs):
         # See https://computing.llnl.gov/linux/slurm/sacct.html
         #If SLURM job ids are reset, some job numbers will        
 	    #probably appear more than once refering to different jobs.
@@ -1827,7 +1837,7 @@ class SlurmJob(QueueJob):
         self.set_status_exitcode_signal(JobStatus.from_string(status), exitcode, signal)
         return AttrDict(exitcode=exitcode, signal=signal, status=status)
 
-    def get_stats(self):
+    def get_stats(self, **kwargs):
         cmd = "sacct --long --job %s --parsable2" % self.qid
         process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
         process.wait()
@@ -1883,7 +1893,7 @@ class PbsProJob(QueueJob):
         # TODO One should convert to datetime
         return sdata
 
-    def get_info(self):
+    def get_info(self, **kwargs):
         #$> qstat 5666289
         #frontal1:
         #                                                            Req'd  Req'd   Elap
