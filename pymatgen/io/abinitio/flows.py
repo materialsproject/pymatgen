@@ -874,7 +874,7 @@ class AbinitFlow(Node):
         task = work.register(input, deps=deps, task_class=task_class)
         self.register_work(work)
 
-        return task
+        return work
 
     def register_work(self, work, deps=None, manager=None, workdir=None):
         """
