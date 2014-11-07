@@ -757,7 +757,7 @@ class TaskManager(object):
         Return False if no qadapter could be found.
         """
         scores = [q.get_score(pconf) for q in self._qads]
-        print("scores", scores)
+        #print("scores", scores)
         if all(sc < 0 for sc in scores): return False
         self._qid = maxloc(scores)
 
@@ -834,6 +834,10 @@ class TaskManager(object):
         """Set the value of autoparal."""
         assert value in [0, 1]
         self.policy.autoparal = value
+
+    def change_min_max_cores(self, min_cores, max_cores):
+        for qad in self.qads:
+            qad.min_cores, qad.max_cores = min_cores, max_cores
 
     def set_max_ncpus(self, value):
         """Set the value of max_ncpus."""
