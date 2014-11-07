@@ -1418,7 +1418,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
             )
 
             if with_ddk:
-                new_input.set_variables(rfefld=3)
+                new_input.set_variables(rfelfd=3)
 
             work_qpt.register(new_input, deps=deps, task_class=PhononTask)
 
