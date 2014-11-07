@@ -112,6 +112,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     T = Integer(T)
 
     c0 = np.diag(multiplicity)
+    #print ('c0',c0)
     mu = [Symbol('mu'+i.__str__()) for i in range(m)]
 
     # Generate maps for hashing
@@ -156,14 +157,41 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     for i in range(n):
         for j in range(n):
             for k in range(n):
-                if i == j:# and site_species[j] != site_species[k]:
+                if i == j and site_species[j] != site_species[k] and \
+                                site_species[i] != site_species[k]:
                     dC[i,j,k] = 1
         for j in range(n):
             for k in range(n):
                 if i == k:
                     #if j == k or site_species[j] != site_species[k]:
                         dC[i,j,k] = -1
+    for k in range(n):
+        for j in range(n):
+            for i in range(n):
+                if i != j:
+                    if site_species[j] == site_species[k]:
+                        dC[i,j,k] = 0
+        #for j in range(n):
+        #    if k != j:
+        #        for i in range(n):
+        #            if i == j:
+        #                if abs(i-j) <= 1 and abs(j-k) <= 1 and abs(i-k) <= 1:
+        #                    dC[i,j,k] = 0
 
+    for ind_map in specie_site_index_map:
+        if ind_map[1]-ind_map[0] > 1:
+            for index1 in range(ind_map[0]+1,ind_map[1]):
+                for index2 in range(ind_map[0]):
+                    for i in range(n):
+                        #print (i, index1, index2)
+                        dC[i,index1,index2] = 0
+                for index2 in range(ind_map[1],n):
+                    for i in range(n):
+                        #print (i, index1, index2)
+                        dC[i,index1,index2] = 0
+
+
+    #print ('dC', dC)
     # dE matrix: Flip energies (or raw defect energies)
     els = [vac_def['site_specie'] for vac_def in vac_defs]
     dE = []
@@ -198,12 +226,23 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     for i in range(n):
         for p in range(n):
             c[i,p] = Integer(c0[i,p])
+            site_flip_contribs = []
             for epi in range(n):
-                sum_mu = sum([mu[site_mu_map[j]]*Integer(
-                        dC[j,epi,p]) for j in range(n)])
-                c[i,p] += Integer(multiplicity[p]*dC[i,epi,p]) * \
+                sum_mu = sum([mu[site_mu_map[j]]*Integer(dC[j,epi,p]) \
+                        for j in range(n)])
+                #print (i, epi, p, dC[i,epi, p], sum_mu)
+                #c[i,p] += Integer(multiplicity[p]*dC[i,epi,p]) * \
+                #        exp(-(dE[epi,p]-sum_mu)/(k_B*T))
+                flip = Integer(multiplicity[p]*dC[i,epi,p]) * \
                         exp(-(dE[epi,p]-sum_mu)/(k_B*T))
+                if flip not in site_flip_contribs:
+                    site_flip_contribs.append(flip)
+                    c[i,p] += flip
+                #else:
+                    #print (i, epi, p)
+                    #print ('flip already present in site_flips')
 
+    #print ('c', c)
     total_c = []
     for ind in specie_site_index_map:
         total_c.append(sum([sum(c[i,:]) for i in range(*ind)]))
@@ -328,7 +367,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     hi = specie_site_index_map[0][1]
     comp1_min = int(sum(multiplicity[li:hi])/sum(multiplicity)*100)-1
     comp1_max = int(sum(multiplicity[li:hi])/sum(multiplicity)*100)+1
-    delta = float(comp1_max-comp1_min)/40.0
+    delta = float(comp1_max-comp1_min)/120.0
     yvals = []
     for comp1 in np.arange(comp1_min,comp1_max+delta,delta):
         comp2 = 100-comp1
@@ -364,10 +403,17 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         res1.append(float(total_c_val[0]/sum(total_c_val)))
         new_mu_dict[res1[0]] = mu_val
         sum_c0 = sum([c0[i,i] for i in range(n)])
+        #print res1[0]
         for i in range(n):
             for j in range(n):
                 if i == j:              # Vacancy
-                    res1.append(float((c0[i,i]-sum(c_val[:,i]))/c0[i,i]))
+                    #print (i,  c_val[:,i])
+                    # Consider numerical accuracy
+                    #res1.append(float((c0[i,i]-sum(c_val[:,i]))/c0[i,i]))
+                    #print ((mu_val[site_mu_map[i]]-dE[i,i])/(k_B*T))
+                    vac_conc = float(exp(-(mu_val[site_mu_map[i]]+dE[i,i])/(k_B*T)))
+                    #print vac_conc
+                    res1.append(vac_conc)
                 else:                   # Antisite
                     res1.append(float(c_val[i,j]/c0[j,j]))
         res.append(res1)
@@ -403,10 +449,10 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         indices = specie_site_index_map[specie_ind]
         specie_ind_del = indices[1]-indices[0]
         cur_ind = i - indices[0] + 1
-        if 'V' not in els:
-            vac_string = "$V_{"
-        else:
-            vac_string = "$Vac_{"
+        #if 'V' not in els:
+        #    vac_string = "$V_{"
+        #else:
+        vac_string = "$Vac_{"
         if not specie_ind_del-1:
             label = vac_string+specie+'}$'
         else:
@@ -416,6 +462,10 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
 
     for i in range(n):      
         site_specie = els[i]
+        specie_ind = site_mu_map[i]
+        indices = specie_site_index_map[specie_ind]
+        specie_ind_del = indices[1]-indices[0]
+        cur_ind = i - indices[0] + 1
         for j in range(m):          # Antisite plot dat
             sub_specie = specie_order[j]
             if sub_specie == site_specie:
@@ -459,10 +509,11 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         indices = specie_site_index_map[specie_ind]
         specie_ind_del = indices[1]-indices[0]
         cur_ind = i - indices[0] + 1
+        vac_string = "$Vac_{"
         if not specie_ind_del-1:
-            label = '$V_{'+site_specie+'}$'
+            label = vac_string+site_specie+'}$'
         else:
-            label = '$V_{'+site_specie+'_'+str(cur_ind)+'}$'
+            label = vac_string+site_specie+'_'+str(cur_ind)+'}$'
         y_data.append({'data':data,'name':label})
         i += 1
 
@@ -712,7 +763,8 @@ def solute_site_preference_finder(
     for i in range(n):
         for j in range(n):
             for k in range(n):
-                if i == j:# and site_species[j] != site_species[k]:
+                if i == j and site_species[j] != site_species[k] and \
+                        site_species[i] != site_species:
                     dC[i,j,k] = 1
         for j in range(n+1):
             for k in range(n):
@@ -721,7 +773,25 @@ def solute_site_preference_finder(
                         dC[i,j,k] = -1
     for k in range(n):
         dC[n,n,k] = 1
+    for k in range(n):
+        for j in range(n):
+            if i != j:
+                if site_species[i] == site_species[k]:
+                    dC[i,j,k] = 0
 
+    for ind_map in specie_site_index_map:
+        if ind_map[1]-ind_map[0] > 1:
+            for index1 in range(ind_map[0]+1,ind_map[1]):
+                for index2 in range(ind_map[0]):
+                    for i in range(n):
+                        print (i, index1, index2)
+                        dC[i,index1,index2] = 0
+                for index2 in range(ind_map[1],n):
+                    for i in range(n):
+                        print (i, index1, index2)
+                        dC[i,index1,index2] = 0
+
+    print ('dC', dC)
     # dE matrix: Flip energies (or raw defect energies)
     els = [vac_def['site_specie'] for vac_def in vac_defs]
     dE = []
@@ -912,7 +982,7 @@ def solute_site_preference_finder(
         #print (mu)
         #print (mu_vals)
 
-        x = nsolve(vector_func,mu,mu_vals,modules="numpy")
+        x = nsolve(vector_func,mu,mu_vals,module="numpy")
         #x = nsolve(vector_func,mu,mu_vals)
         #except:
         #    del result[y]
@@ -927,7 +997,7 @@ def solute_site_preference_finder(
 
     #print ('result', result.keys())
     # Compute the concentrations for all the compositions
-    for key in result:
+    for key in sorted(result.keys()):
         mu_val = result[key]
         total_c_val = [total_c[i].subs(dict(zip(mu,mu_val))) \
                 for i in range(len(total_c))]
@@ -943,7 +1013,9 @@ def solute_site_preference_finder(
         for i in range(n+1):
             for j in range(n):
                 if i == j:              # Vacancy
-                    res1.append(float((c0[i,i]-sum(c_val[:,i]))/c0[i,i]))
+                    #res1.append(float((c0[i,i]-sum(c_val[:,i]))/c0[i,i]))
+                    vac_conc = float(exp(-(mu_val[site_mu_map[i]]+dE[i,i])/(k_B*T)))
+                    res1.append(vac_conc)
                 else:                   # Antisite
                     res1.append(float(c_val[i,j]/c0[j,j]))
         res.append(res1)
@@ -975,7 +1047,7 @@ def solute_site_preference_finder(
     #    print dat
     plot_data['x'] = [dat[0][0] for dat in res1]         # x-axis data
     # Element whose composition is varied. For x-label
-    plot_data['x_label'] = els[0]+ " mole fraction"
+    plot_data['x_label'] = els[0]+ "_mole_fraction"
     plot_data['y_label'] = "Fraction of {} at {} sites".format(
         solute_specie,els[0])
 

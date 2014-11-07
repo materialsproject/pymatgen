@@ -27,10 +27,7 @@ from pymatgen.io.cifio import CifParser
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.structure import Molecule
 
-try:
-    import scipy
-except ImportError:
-    scipy = None
+import scipy
 
 test_dir_mol = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                             'test_files', "molecules")
@@ -354,7 +351,6 @@ PF6 = Molecule(["P", "F", "F", "F", "F", "F", "F"],
                 [1, 0, 0], [-1, 0, 0]])
 
 
-@unittest.skipIf(scipy is None, "Scipy not present.")
 class PointGroupAnalyzerTest(PymatgenTest):
 
     def test_spherical(self):
@@ -428,7 +424,6 @@ class PointGroupAnalyzerTest(PymatgenTest):
         self.assertEqual(a.sch_symbol, "D5d")
 
 
-@unittest.skipIf(scipy is None, "Scipy not present.")
 class FuncTest(unittest.TestCase):
 
     def test_cluster_sites(self):

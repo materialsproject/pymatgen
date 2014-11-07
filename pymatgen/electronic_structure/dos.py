@@ -19,15 +19,10 @@ import numpy as np
 import six
 
 from pymatgen.electronic_structure.core import Spin, Orbital
+from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord_utils import get_linear_interpolated_value
 from pymatgen.serializers.json_coders import PMGSONable
-from monty.dev import requires
-
-try:
-    import scipy
-except ImportError:
-    scipy = None
 
 
 class Dos(PMGSONable):
@@ -81,8 +76,6 @@ class Dos(PMGSONable):
             result = self.densities[spin]
         return result
 
-    @requires(scipy is not None, "get_smeared_densities requires scipy to be "
-                                 "installed.")
     def get_smeared_densities(self, sigma):
         """
         Returns the Dict representation of the densities, {Spin: densities},
@@ -339,7 +332,7 @@ class CompleteDos(Dos):
                 spd_dos[orb_type] = add_densities(spd_dos[orb_type], pdos)
             else:
                 spd_dos[orb_type] = pdos
-        return {orb: Dos(self.efermi, self.energies, densities) 
+        return {orb: Dos(self.efermi, self.energies, densities)
                 for orb, densities in spd_dos.items()}
 
     def get_site_t2g_eg_resolved_dos(self, site):
@@ -415,7 +408,7 @@ class CompleteDos(Dos):
         Returns:
             dict of {Element: {"S": densities, "P": densities, "D": densities}}
         """
-
+        el = get_el_sp(el)
         el_dos = dict()
         for site, atom_dos in self.pdos.items():
             if site.specie == el:
