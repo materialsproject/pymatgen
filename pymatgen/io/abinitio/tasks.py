@@ -391,6 +391,9 @@ class ParalHintsParser(object):
         # Used to push error strings.
         self._errors = collections.deque(maxlen=100)
 
+    def add_error(self, errmsg):
+        self._errors.append(err_msg)
+
     def parse(self, filename):
         """
         Read the AutoParal section (YAML format) from filename.
@@ -405,7 +408,7 @@ class ParalHintsParser(object):
                 import traceback
                 sexc = traceback.format_exc()
                 err_msg = "Wrong YAML doc:\n%s\n\nException" % (doc.text, sexc)
-                self._errors.append(err_msg)
+                self.add_error(err_msg)
                 logger.critical(err_msg)
                 raise self.Error(err_msg)
 
@@ -489,12 +492,19 @@ class ParalHints(collections.Iterable):
         if any(c.mem_per_proc > 0.0 for c in self):
             self._confs.sort(key=lambda c: c.mem_per_proc, reverse=reverse)
 
-    #def filter(self, qadapter):
-    #    new_confs = [pconf for pconf in self if qadapter.can_run_pconf(pconf)
-    #    return self.__class__(info=self.info, confs=new_confs)
+    def filter(self, qadapter):
+        """Return a new list of configurations that can be executed on the `QueueAdapter` qadapter."""
+        new_confs = [pconf for pconf in self if qadapter.can_run_pconf(pconf)]
+        return self.__class__(info=self.info, confs=new_confs)
 
-    #def hist_efficiency(self):
-    #    return sparse_histogram(self._confs, key=lambda c: c.efficiency, step=0.1)
+    def hist_efficiency(self, step=0.1):
+        return sparse_histogram(self._confs, key=lambda c: c.efficiency, step=step)
+
+    def hist_speedup(self, step=1.0):
+        return sparse_histogram(self._confs, key=lambda c: c.speedup, step=step)
+
+    def hist_memory(self, step=102.4):
+        return sparse_histogram(self._confs, key=lambda c: c.speedup, step=step)
 
     def select_optimal_conf(self, policy):
         """
@@ -700,7 +710,7 @@ class TaskManager(object):
         self.policy = TaskPolicy.as_policy(kwargs.pop("policy", None))
 
         # Initialize database connector (if specified)
-        self.db_connector = DBConnector(config_dict=kwargs.pop("db_connector", None))
+        self.db_connector = DBConnector(**kwargs.pop("db_connector", {}))
 
         # Build list of QAdapters. Neglect entry if priority == 0
         qads = []

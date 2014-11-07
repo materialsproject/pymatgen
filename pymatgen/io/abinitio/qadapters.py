@@ -485,10 +485,8 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         self.set_timelimit(timelimit_parser(d.pop("timelimit")))
         self.min_cores = int(d.pop("min_cores"))
         self.max_cores = int(d.pop("max_cores"))
-        #self.min_mem_per_proc = any2mb(d.pop("min_mem_per_proc", 0))
         # FIXME: Neeed because autoparal 1 with paral_kgb 1 is not able to estimate memory 
         self.min_mem_per_proc = any2mb(d.pop("min_mem_per_proc", self.hw.mem_per_core))
-        #print(self.min_mem_per_proc)
         self.max_mem_per_proc = any2mb(d.pop("max_mem_per_proc", self.hw.mem_per_node))
         self.allocate_nodes = bool(d.pop("allocate_nodes", False))
         self.condition = Condition(d.pop("condition", {}))
@@ -606,6 +604,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         return "MPI: %d, OMP: %d" % (self.mpi_procs, self.omp_threads)
 
     def deepcopy(self):
+        """Deep copy of the object."""
         return copy.deepcopy(self)
 
     def record_attempt(self, queue_id): # retcode):
@@ -722,12 +721,10 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         if not self.max_cores >= pconf.num_cores >= self.min_cores: return False
         if not self.hw.can_use_omp_threads(self.omp_threads): return False
         if pconf.mem_per_proc > self.hw.mem_per_node: return False
-
-        try:
-            self.distribute(pconf.mpi_procs, pconf.omp_threads, pconf.mem_per_proc)
-        except self.DistribError:
-            return False
-
+        #try:
+        #    self.distribute(pconf.mpi_procs, pconf.omp_threads, pconf.mem_per_proc)
+        #except self.DistribError:
+        #    return False
         return self.condition(pconf)
 
     def distribute(self, mpi_procs, omp_threads, mem_per_proc):
@@ -964,8 +961,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         if username is None: username = getpass.getuser()
         njobs, process = self._get_njobs_in_queue(username=username)
 
-        if process and process.returncode != 0:
-            njobs = None
+        if process is not None and process.returncode != 0:
             # there's a problem talking to squeue server?
             err_msg = ('Error trying to get the number of jobs in the queue using squeue service' + 
                        'The error response reads:\n {}'.format(process.stderr.read()))
