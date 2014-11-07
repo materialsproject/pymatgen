@@ -245,6 +245,11 @@ class Vasprun(PMGSONable):
         The static part of the dielectric constant. Present when it's a DFPT run
         (LEPSILON=TRUE)
 
+    .. attribute:: epsilon_ionic
+
+        The ionic part of the static dielectric constant. Present when it's a DFPT run
+        (LEPSILON=TRUE) and IBRION=5, 6, 7 or 8
+
     .. attribute:: nionic_steps
 
         The total number of ionic steps. This number is always equal
@@ -376,6 +381,13 @@ class Vasprun(PMGSONable):
         Property only available for DFPT calculations.
         """
         return self.ionic_steps[-1].get("epsilon", [])
+
+    @property
+    def epsilon_ionic(self):
+        """
+        Property only available for DFPT calculations and when IBRION=5, 6, 7 or 8.
+        """
+        return self.ionic_steps[-1].get("epsilon_ion", [])
 
     @property
     def lattice(self):
@@ -769,6 +781,7 @@ class Vasprun(PMGSONable):
                 vout['projected_eigenvalues'] = peigen
 
         vout['epsilon_static'] = self.epsilon_static
+        vout['epsilon_ionic'] = self.epsilon_ionic
         d['output'] = vout
         return jsanitize(d, strict=True)
 
