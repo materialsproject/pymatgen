@@ -264,7 +264,6 @@ hardware:
 #SBATCH --partition=Oban
 #SBATCH --job-name=job_name
 #SBATCH --ntasks=4
-#SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=1024
 #SBATCH --time=0-0:10:0
 #SBATCH --account=user_account
