@@ -215,6 +215,21 @@ class Directory(object):
 
         return files[0]
 
+    def rename_abiext(self, inext, outext):
+        infile = self.has_abiext(inext)
+        if not infile:
+            return 1
+
+        for i in range(len(infile) - 1, -1, -1):
+            if infile[i] == '_':
+                break
+        else:
+            return 1
+
+        outfile = infile[:i] + '_' + outext
+        shutil.move(infile, outfile)
+        return 0
+
 # This dictionary maps ABINIT file extensions to the 
 # variables that must be used to read the file in input.
 #
