@@ -1,6 +1,6 @@
 # coding: utf-8
 """Tools and helper functions for abinit calculations"""
-from __future__ import unicode_literals, division
+from __future__ import unicode_literals, division, print_function
 
 import os
 import collections
@@ -376,7 +376,7 @@ class FilepathFixer(object):
             newpath, ext = self._fix_path(path)
 
             if newpath is not None:
-                print ext, path, fixed_exts
+                print(ext, path, fixed_exts)
                 if ext != '1WF':
                     assert ext not in fixed_exts
                 fixed_exts.append(ext)
