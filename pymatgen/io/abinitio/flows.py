@@ -1339,7 +1339,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
         logger.info('add ddk')
         ddk_input = ph_inputs[0].deepcopy()
         ddk_input.set_variables(qpt=[0, 0, 0], rfddk=1, rfelfd=2, rfdir=[1, 1, 1])
-        ddk_task = flow.register_task(ddk_input, deps={scf_task: ('FWK', '1FWK')}, task_class=DdkTask)
+        ddk_task = flow.register_task(ddk_input, deps={scf_task: ('WFK', '1WFK')}, task_class=DdkTask)
 
     if with_dde:
         logger.info('add dde')
@@ -1347,7 +1347,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
         dde_input.set_variables(qpt=[0, 0, 0], rfddk=1, rfelfd=2)
         dde_input_idir = dde_input.deepcopy()
         dde_input_idir.set_variables(rfdir=[1, 1, 1])
-        dde_task = flow.register_task(dde_input, deps={scf_task: ('FWK', '1FWK'), ddk_task: 'DDB'}, task_class=DdkTask)
+        dde_task = flow.register_task(dde_input, deps={scf_task: ('WFK', '1WFK'), ddk_task: 'DDB'}, task_class=DdeTask)
 
     if not isinstance(ph_inputs, (list, tuple)):
         ph_inputs = [ph_inputs]
