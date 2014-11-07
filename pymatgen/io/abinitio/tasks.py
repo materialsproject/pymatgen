@@ -893,15 +893,13 @@ class TaskManager(object):
             fh.write(script)
             return task.job_file.path
 
-    def launch(self, task, shell=False):
+    def launch(self, task):
         """
         Build the input files and submit the task via the `Qadapter` 
 
         Args:
             task:
                 `TaskObject`
-            shell:
-                if True, the job script is executed in a shell subprocess with mpi_procs=1
         
         Returns:
             Process object.
@@ -909,24 +907,12 @@ class TaskManager(object):
         # Build the task 
         task.build()
 
-        if shell:
-            old_mpi_procs = self.mpi_procs
-            self.set_mpi_procs(1)
-
         # Submit the task and save the queue id.
         task.set_status(task.S_SUB)
         script_file = self.write_jobfile(task)
-        if shell:
-            from subprocess import Popen, PIPE
-            process = Popen(("/bin/bash", script_file), stderr=PIPE)
-            queue_id = process.pid
-        else:
-            queue_id, process = self.qadapter.submit_to_queue(script_file)
 
-        task.set_qinfo(queue_id)
-
-        if shell:
-            self.set_mpi_procs(old_mpi_procs)
+        qjob, process = self.qadapter.submit_to_queue(script_file)
+        task.set_qjob(qjob)
 
         return process
 
@@ -1604,6 +1590,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # Count the number of restarts.
         self.num_restarts = 0
 
+        self._qjob = None
         self.queue_errors = []
         self.abi_errors = []
 
@@ -1929,29 +1916,21 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     @return_none_if_raise(AttributeError)
     def queue_id(self):
         """Queue identifier returned by the Queue manager. None if not set"""
-        return self._queue_id
-        #try:
-        #    return self._queue_id
-        #except AttributeError:
-        #    return None
+        return self.qjob.qid
 
     @property
     @return_none_if_raise(AttributeError)
     def qname(self):
         """Queue name identifier returned by the Queue manager. None if not set"""
-        return self._qname
-        #try:
-        #    return self._qname
-        #except AttributeError:
-        #    return None
+        return self.qjob.qname
 
-    def set_qinfo(self, queue_id):
+    @property
+    def qjob(self):
+        return self._qjob
+
+    def set_qjob(self, qjob):
         """Set info on queue after submission."""
-        self._queue_id = queue_id
-        if queue_id is not None:
-            self._qname = self.manager.qadapter.qname
-        else:
-            self._qname = None 
+        self._qjob = qjob
 
     @property
     def has_queue(self):
@@ -2683,7 +2662,7 @@ class AbinitTask(Task):
         # we don't want to make a request to the queue manager for this simple job!
 
         # Return code is always != 0 
-        process = self.manager.launch(self, shell=True)
+        process = self.manager.to_shell_manager(mpi_procs=1).launch(self)
         logger.info("fake run launched")
         self.history.pop()
         retcode = process.wait()  
