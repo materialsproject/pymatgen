@@ -194,13 +194,15 @@ class GetHighAccuracyVoronoiNodesTest(unittest.TestCase):
         assert len(self.rad_dict) == len(self.structure.composition)
 
     def test_get_voronoi_nodes(self):
-        vor_node_struct, vor_ec_struct, vor_fc_struct = \
+        #vor_node_struct, vor_ec_struct, vor_fc_struct = \
+        #    get_high_accuracy_voronoi_nodes(self.structure, self.rad_dict)
+        vor_node_struct = \
             get_high_accuracy_voronoi_nodes(self.structure, self.rad_dict)
         self.assertIsInstance(vor_node_struct, Structure)
-        self.assertIsInstance(vor_ec_struct, Structure)
-        self.assertIsInstance(vor_fc_struct, Structure)
+        #self.assertIsInstance(vor_ec_struct, Structure)
+        #self.assertIsInstance(vor_fc_struct, Structure)
         print(len(vor_node_struct.sites))
-        print(len(vor_fc_struct.sites))
+        #print(len(vor_fc_struct.sites))
 
 
 @unittest.skipIf(not zeo, "zeo not present.")

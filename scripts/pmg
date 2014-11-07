@@ -428,7 +428,7 @@ def main():
     parser_convert.add_argument("-o", "--output", dest="output_format",
                                 type=str, nargs=1,
                                 choices=["POSCAR", "CIF", "CSSR", "VASP",
-                                         "MITVASP"
+                                         "MITVASP",
                                          "smart"],
                                 default=["smart"],
                                 help="Output file format. By default, smart is"
