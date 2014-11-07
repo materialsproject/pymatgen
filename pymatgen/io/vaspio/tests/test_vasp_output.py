@@ -139,6 +139,14 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(entry.uncorrected_energy + entry.correction,
                                entry.energy)
 
+
+        filepath = os.path.join(test_dir, 'vasprun.xml.dfpt.ionic')
+        vasprun_dfpt_ionic = Vasprun(filepath)
+        self.assertAlmostEqual(vasprun_dfpt_ionic.epsilon_ionic[0][0], 515.73485838)
+        self.assertAlmostEqual(vasprun_dfpt_ionic.epsilon_ionic[0][1], -0.00263523)
+        self.assertAlmostEqual(vasprun_dfpt_ionic.epsilon_ionic[2][2], 19.02110169)
+
+
         filepath = os.path.join(test_dir, 'vasprun.xml.dfpt.unconverged')
         vasprun_dfpt_unconv = Vasprun(filepath)
         self.assertFalse(vasprun_dfpt_unconv.converged_electronic)
