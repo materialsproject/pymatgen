@@ -2929,14 +2929,13 @@ class DdkTask(AbinitTask):
 
     def _on_ok(self):
         super(DdkTask, self)._on_ok()
-        try:
-            shutil.move('out_1WF', 'out_DDK')
-        except:
-            pass
+
+        if self.outdir.rename_abiext('1WF', 'DDK') > 0:
+            raise RuntimeError
 
     def get_results(self, **kwargs):
         results = super(DdkTask, self).get_results(**kwargs)
-        return results.add_gridfs_file(DDB=(self.outdir.has_abiext("DDB"), "t"))
+        return results.add_gridfs_file(DDK=(self.outdir.has_abiext("DDK"), "t"))
 
 
 
