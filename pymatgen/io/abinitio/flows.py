@@ -1297,7 +1297,7 @@ def g0w0_flow(workdir, manager, scf_input, nscf_input, scr_input, sigma_inputs):
     return flow.allocate()
 
 
-def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_ddk=True, ana_input=None):
+def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_ddk=False, with_dde=False):
     """
     Build an `AbinitFlow` for phonon calculations.
 
@@ -1310,10 +1310,19 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
             Input for the GS SCF run.
         ph_inputs:
             List of Inputs for the phonon runs.
+        with_nscf:
+            add an nscf task in front of al phonon tasks to make sure the q point is covered
+        with_ddk:
+            add the ddk step
+        with_dde:
+            add the dde step it the dde is set ddk is switched on automatically
 
     Returns:
         `AbinitFlow`
     """
+    if with_dde:
+        with_ddk = True
+
     natom = len(scf_input.structure)
 
     # Create the container that will manage the different workflows.
@@ -1322,25 +1331,28 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
     # Register the first workflow (GS calculation)
     scf_task = flow.register_task(scf_input, task_class=ScfTask)
 
-    if with_ddk:
-        logger.info('add ddk')
-        work_ddk = PhononWorkflow()
-        ddk_input = ph_inputs[0].deepcopy()
-        ddk_input.set_variables(qpt=[0, 0, 0], rfddk=1)
-        ddk = work_ddk.register(ddk_input, deps={scf_task: 'FWK'}, task_class=DdkTask)
-
     # Build a temporary workflow with a shell manager just to run
     # ABINIT to get the list of irreducible pertubations for this q-point.
     shell_manager = manager.to_shell_manager(mpi_procs=1)
+
+    if with_ddk:
+        logger.info('add ddk')
+        ddk_input = ph_inputs[0].deepcopy()
+        ddk_input.set_variables(qpt=[0, 0, 0], rfddk=1, rfelf=3, rfdir=[1, 1, 1])
+        ddk_task = flow.register_task(ddk_input, deps={scf_task: ('FWK', '1FWK')}, task_class=DdkTask)
+
+    if with_dde:
+        logger.info('add dde')
+        dde_input = ph_inputs[0].deepcopy()
+        dde_input.set_variables(qpt=[0, 0, 0], rfddk=1, rfelf=2)
+        dde_input_idir = dde_input.deepcopy()
+        dde_input_idir.set_variables(rfdir=[1, 1, 1])
+        dde_task = flow.register_task(dde_input, deps={scf_task: ('FWK', '1FWK'), ddk_task: 'DDB'}, task_class=DdkTask)
 
     if not isinstance(ph_inputs, (list, tuple)):
         ph_inputs = [ph_inputs]
 
     for i, ph_input in enumerate(ph_inputs):
-
-        if with_nscf:
-            nscf_input = copy.deepcopy(scf_input)
-            nscf_input.set_variables(kptopt=3, iscf=-3)
 
         fake_input = ph_input.deepcopy()
 
@@ -1372,22 +1384,17 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
         work_qpt = PhononWorkflow()
 
         if with_nscf:
-            nscf_input.set_variables(qpt=irred_perts[0]['qpt'], nqpt=1)
+            nscf_input = copy.deepcopy(scf_input)
+            nscf_input.set_variables(kptopt=3, iscf=-3, qpt=irred_perts[0]['qpt'], nqpt=1)
             nscf_task = work_qpt.register(nscf_input, deps={scf_task: "DEN"}, task_class=NscfTask)
             deps = {nscf_task: "WFQ", scf_task: "WFK"}
         else:
             deps = {scf_task: "WFK"}
 
+        if with_ddk:
+            deps[ddk_task] = 'DDB'
+
         logger.info(irred_perts[0]['qpt'])
-        if irred_perts[0]['qpt'][0] == 0 and irred_perts[0]['qpt'][1] == 0 and irred_perts[0]['qpt'][2] == 0:
-            logger.info('add dde')
-            dde_input = ph_input.deepcopy()
-            dde_input.set_variables(qpt=irred_perts[0]['qpt'])
-            dde_input.remove_variables(['rfphon'])
-            for idir in [[1, 0, 0], [0, 1, 0], [0, 0, 1]]:
-                dde_input_idir = dde_input.deepcopy()
-                dde_input_idir.set_variables(rfdir=idir, rfelfd=1)
-                work_qpt.register(dde_input_idir, deps=deps, task_class=DdkTask)
 
         for irred_pert in irred_perts:
             new_input = ph_input.deepcopy()
