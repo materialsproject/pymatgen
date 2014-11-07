@@ -7,11 +7,6 @@ from __future__ import division, print_function, unicode_literals
 import collections
 import copy
 
-try:
-    from matgendb.dbconfig import DBConfig
-except ImportError:
-    pass
-
 
 def mongo_getattr(rec, key):
     """
@@ -80,39 +75,58 @@ def scan_nestdict(d, key):
 
 class DBConnector(object):
 
-    def __init__(self, config_dict=None):
+    #DEFAULTS = dict(
+    #    database="abinit",
+    #    collection=None,
+    #    port=None,
+    #    host=None,
+    #    user=None,
+    #    password=None,
+    #}
+
+    def __init__(self, **kwargs):
         """
         enabled: no
         database: abinit
         collection: test
-        #host: 0.0.0.0
-        #port: 8080
-        #user: gmatteo
-        #password: helloworld
+        host: 0.0.0.0
+        port: 8080
+        user: gmatteo
+        password: helloworld
         """
-        self.config = {}
-        # Don't initialize DBConfig if not dict or dict contains `enabled: no`
-        if config_dict and config_dict.pop("enabled", True):
-            self.config = DBConfig(config_dict=config_dict)
+        if not kwargs:
+            self.enabled = False
+            return
+
+        self.enabled = kwargs.pop("enabled", True)
+        self.dbname = kwargs.pop("database", "abinit")
+        self.collection = kwargs.pop("collection", "test")
+        self.host = kwargs.pop("host", None)
+        self.port = kwargs.pop("port", None)
+        self.user = kwargs.pop("user", None)
+        self.password = kwargs.pop("password", None)
+
+        if kwargs:
+            raise ValueError("Found invalid keywords in the database section:\n %s" % kwargs.keys())
 
     def __bool__(self):
-        return bool(self.config)
+        return self.enabled
 
     __nonzero__ = __bool__
 
     def __repr__(self):
         return "<%s object at %s>" % (self.__class__.__name__, id(self))
 
-    def __str__(self):
-        return str(self.config)
+    #def __str__(self):
+    #    return str(self.config)
 
     def deepcopy(self):
         return copy.deepcopy(self)
 
     def set_collection_name(self, value):
         """Set the name of the collection, return old value"""
-        old = self.config.collection
-        self.config.collection = str(value)
+        old = self.collection
+        self.collection = str(value)
         return old
 
     def get_collection(self, **kwargs):
@@ -122,20 +136,18 @@ class DBConnector(object):
         Returns MongoDb collection
         """
         from pymongo import MongoClient
-        config = self.config
 
-        # TODO
-        #if config.host or config.port:
-        #    client = MongoClient(host=config.host, port=config.port)
-        #else:
-        client = MongoClient()
-        db = client[config.dbname]
+        if self.host and self.port:
+            client = MongoClient(host=config.host, port=config.port)
+        else:
+            client = MongoClient()
+        db = client[self.dbname]
 
-        # Authenticate if username is specified.
-        #if config.user:
-        #    db.autenticate(config.user, password=config.password)
+        # Authenticate if needed
+        if self.user and self.password:
+            db.autenticate(self.user, password=self.password)
 
-        return db[config.collection]
+        return db[self.collection]
 
 
 if __name__ == "__main__":

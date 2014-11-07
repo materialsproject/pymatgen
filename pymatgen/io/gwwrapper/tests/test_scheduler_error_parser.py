@@ -8,6 +8,7 @@ __maintainer__ = "Michiel van Setten"
 __email__ = "mjvansetten@gmail.com"
 __date__ = "Mar 24, 2014"
 
+from pymatgen.util.testing import PymatgenTest
 
 
 class QueueErrorParseTest(PymatgenTest):
