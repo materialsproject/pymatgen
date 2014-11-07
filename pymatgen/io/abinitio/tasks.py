@@ -14,6 +14,7 @@ import copy
 import yaml
 import six
 
+
 from pprint import pprint
 from monty.termcolor import colored
 from six.moves import map, zip, StringIO
@@ -2926,9 +2927,17 @@ class DdeTask(AbinitTask):
 class DdkTask(AbinitTask):
     """Task for DDK calculations."""
 
+    def _on_ok(self):
+        super(DdkTask, self)._on_ok()
+        try:
+            shutil.move('out_1WF', 'out_DDK')
+        except:
+            pass
+
     def get_results(self, **kwargs):
         results = super(DdkTask, self).get_results(**kwargs)
         return results.add_gridfs_file(DDB=(self.outdir.has_abiext("DDB"), "t"))
+
 
 
 class PhononTask(AbinitTask):
