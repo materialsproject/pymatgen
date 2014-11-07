@@ -15,6 +15,7 @@ from __future__ import print_function, division, unicode_literals
 import os
 import abc
 import string
+import shlex
 import copy
 import getpass
 import six
@@ -27,7 +28,6 @@ from monty.string import is_string
 from monty.collections import AttrDict
 from monty.functools import lazy_property
 from monty.io import FileLock
-from monty.subprocess import Command
 from pymatgen.core.units import Time, Memory
 from .utils import Condition
 from .launcher import ScriptEditor
@@ -922,9 +922,23 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         if self.num_attempts == self.max_num_attempts:
             raise self.Error("num_attempts %s == max_num_attempts %s" % (self.num_attempts, self.max_num_attempts))
 
-        process, queue_id = self._submit_to_queue(script_file)
+        # Call the concrete implementation.
+        queue_id, process = self._submit_to_queue(script_file)
         self.record_attempt(queue_id)
-        return process, queue_id
+
+        if queue_id is None:
+            submit_err_file = script_file + ".err"
+            err = str(process.stderr.read())
+            # Dump the error and raise
+            with open(submit_err_file, mode='w') as f:
+                f.write("sbatch submit process stderr:\n" + err)
+                f.write("qparams:\n" + str(self.qparams))
+
+            raise self.Error("Error in job submission with %s. file %s and args %s\n" % 
+                             (self.__class__.__name__, script_file, process.args) + 
+                             "The error response reads:\n %s" % err)
+
+        return queue_id, process
 
     @abc.abstractmethod
     def _submit_to_queue(self, script_file):
@@ -936,10 +950,9 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             script_file: 
                 (str) name of the script file to use (String)
         Returns:
-            process, queue_id
+            queue_id, process
         """
 
-    @abc.abstractmethod
     def get_njobs_in_queue(self, username=None):
         """
         returns the number of jobs in the queue, probably using subprocess or shutil to
@@ -947,6 +960,24 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
         Args:
             username: (str) the username of the jobs to count (default is to autodetect)
+        """
+        if username is None: username = getpass.getuser()
+        njobs, process = self._get_njobs_in_queue(username=username)
+
+        if process and process.returncode != 0:
+            njobs = None
+            # there's a problem talking to squeue server?
+            err_msg = ('Error trying to get the number of jobs in the queue using squeue service' + 
+                       'The error response reads:\n {}'.format(process.stderr.read()))
+            logger.critical(err_msg)
+
+        logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
+        return njobs
+
+    @abc.abstractmethod
+    def _get_njobs_in_queue(self, username):
+        """
+        Concrete Subclasses must implement this method. Return (njobs, process)
         """
 
     # Methods to fix problems
@@ -1019,15 +1050,12 @@ $${qverbatim}
         return os.system("kill -9 %d" % job_id)
 
     def _submit_to_queue(self, script_file):
-        try:
-            # submit the job, return process and pid.
-            process = Popen(("/bin/bash", script_file), stderr=PIPE)
-            return process, process.pid
-        except Exception as exc:
-            raise self.Error(str(exc))
+        # submit the job, return process and pid.
+        process = Popen(("/bin/bash", script_file), stderr=PIPE)
+        return process.pid, process
 
-    def get_njobs_in_queue(self, username=None):
-        return None
+    def _get_njobs_in_queue(self, username):
+        return None, None
 
     def exclude_nodes(self, nodes):
         return False
@@ -1074,6 +1102,10 @@ $${qverbatim}
         super(SlurmAdapter, self).set_mpi_procs(mpi_procs)
         self.qparams["ntasks"] = mpi_procs
 
+    def set_omp_threads(self, omp_threads):
+        super(SlurmAdapter, self).set_omp_threads(omp_threads)
+        self.qparams["cpus_per_task"] = omp_threads
+
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
         super(SlurmAdapter, self).set_mem_per_proc(mem_mb)
@@ -1089,78 +1121,45 @@ $${qverbatim}
         return os.system("scancel %d" % job_id)
 
     def optimize_params(self):
-        #return {}
-        dist = self.distribute(self.mpi_procs, self.omp_threads, self.mem_per_proc)
-        #print(dist)
-
-        if False and dist.exact:
-            # Can optimize parameters
-            self.qparams["nodes"] = dist.num_nodes
-            self.qparams.pop("ntasks", None)
-            self.qparams["ntasks_per_node"] = dist.mpi_per_node
-            self.qparams["cpus_per_task"] = self.omp_threads
-            self.qparams["mem"] = dist.mpi_per_node * self.mem_per_proc
-            self.qparams.pop("mem_per_cpu", None)
-        else:
-            # Delegate to slurm.
-            self.qparams["ntasks"] = self.mpi_procs
-            self.qparams.pop("nodes", None)
-            self.qparams.pop("ntasks_per_node", None)
-            self.qparams["cpus_per_task"] = self.omp_threads
-            self.qparams["mem_per_cpu"] = self.mem_per_proc
-            self.qparams.pop("mem", None)
         return {}
+        #dist = self.distribute(self.mpi_procs, self.omp_threads, self.mem_per_proc)
+        ##print(dist)
 
-    def _submit_to_queue(self, script_file, submit_err_file="sbatch.err"):
-        submit_err_file = os.path.join(os.path.dirname(script_file), submit_err_file)
+        #if False and dist.exact:
+        #    # Can optimize parameters
+        #    self.qparams["nodes"] = dist.num_nodes
+        #    self.qparams.pop("ntasks", None)
+        #    self.qparams["ntasks_per_node"] = dist.mpi_per_node
+        #    self.qparams["cpus_per_task"] = self.omp_threads
+        #    self.qparams["mem"] = dist.mpi_per_node * self.mem_per_proc
+        #    self.qparams.pop("mem_per_cpu", None)
+        #else:
+        #    # Delegate to slurm.
+        #    self.qparams["ntasks"] = self.mpi_procs
+        #    self.qparams.pop("nodes", None)
+        #    self.qparams.pop("ntasks_per_node", None)
+        #    self.qparams["cpus_per_task"] = self.omp_threads
+        #    self.qparams["mem_per_cpu"] = self.mem_per_proc
+        #    self.qparams.pop("mem", None)
+        #return {}
 
-        # submit the job
-        try:
-            cmd = ['sbatch', script_file]
-            process = Popen(cmd, stdout=PIPE, stderr=PIPE)
-            # write the err output to file, a error parser may read it and a fixer may know what to do ...
-            process.wait()
+    def _submit_to_queue(self, script_file):
+        """Submit a job script to the queue."""
+        process = Popen(['sbatch', script_file], stdout=PIPE, stderr=PIPE)
+        process.wait()
 
-            # grab the returncode. SLURM returns 0 if the job was successful
-            if process.returncode == 0:
-                try:
-                    # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
-                    queue_id = int(process.stdout.read().split()[3])
-                    logger.info('Job submission was successful and queue_id is {}'.format(queue_id))
-                except:
-                    # probably error parsing job code
-                    queue_id = None
-                    logger.warning('Could not parse job id following slurm...')
-
-                finally:
-                    return process, queue_id
-
-            else:
-                with open(submit_err_file, mode='w') as f:
-                    f.write('sbatch submit process stderr:')
-                    f.write(str(process.stderr.read()))
-                    f.write('qparams:')
-                    f.write(str(self.qparams))
-
-                # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
-                err_msg = ("Error in job submission with SLURM file {f} and cmd {c}\n".format(f=script_file, c=cmd) + 
-                           "The error response reads:\n {c}".format(c=process.stderr.read()))
-                raise self.Error(err_msg)
-
-        except Exception as details:
-            msg = 'Error while submitting job:\n' + str(details)
-            logger.critical(msg)
-            with open(submit_err_file, mode='a') as f:
-                f.write(msg)
-
+        # grab the returncode. SLURM returns 0 if the job was successful
+        queue_id = None
+        if process.returncode == 0:
             try:
-                print('sometimes we land here, no idea what is happening ... Michiel')
-                print("details:\n", details, "cmd\n", cmd, "\nprocess.returcode:", process.returncode)
+                # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
+                queue_id = int(process.stdout.read().split()[3])
+                logger.info('Job submission was successful and queue_id is {}'.format(queue_id))
             except:
-                pass
+                # probably error parsing job code
+                logger.critical('Could not parse job id following slurm...')
 
-            # random error, e.g. no qsub on machine!
-            raise self.Error('Running sbatch caused an error...')
+        return queue_id, process
 
     def exclude_nodes(self, nodes):
         try:
@@ -1177,31 +1176,20 @@ $${qverbatim}
         except (KeyError, IndexError):
             return False
 
-    def get_njobs_in_queue(self, username=None):
-        if username is None:
-            username = getpass.getuser()
-
-        cmd = ['squeue', '-o "%u"', '-u', username]
-        process = Popen(cmd, shell=False, stdout=PIPE)
+    def _get_njobs_in_queue(self, username):
+        process = Popen(['squeue', '-o "%u"', '-u', username], stdout=PIPE, stderr=PIPE)
         process.wait()
 
-        # parse the result
+        njobs = None
         if process.returncode == 0:
+            # parse the result
             # lines should have this form
             # username
             # count lines that include the username in it
-
             outs = process.stdout.readlines()
             njobs = len([line.split() for line in outs if username in line])
-            logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
-            return njobs
 
-        # there's a problem talking to squeue server?
-        err_msg = ('Error trying to get the number of jobs in the queue using squeue service' + 
-                   'The error response reads:\n {}'.format(process.stderr.read()))
-        logger.critical(err_msg)
-
-        return None
+        return njobs, process
 
 
 class PbsProAdapter(QueueAdapter):
@@ -1339,64 +1327,36 @@ $${qverbatim}
 
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
-        # submit the job
-        try:
-            cmd = ['qsub', script_file]
-            process = Popen(cmd, stdout=PIPE, stderr=PIPE)
-            process.wait()
+        process = Popen(['qsub', script_file], stdout=PIPE, stderr=PIPE)
+        process.wait()
 
-            # grab the return code. PBS returns 0 if the job was successful
-            if process.returncode == 0:
-                try:
-                    # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
-                    queue_id = int(process.stdout.read().split('.')[0])
-                    logger.info('Job submission was successful and queue_id is {}'.format(queue_id))
+        # grab the return code. PBS returns 0 if the job was successful
+        queue_id = None
+        if process.returncode == 0:
+            try:
+                # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
+                queue_id = int(process.stdout.read().split('.')[0])
+            except:
+                # probably error parsing job code
+                logger.critical("Could not parse job id following qsub...")
 
-                except:
-                    # probably error parsing job code
-                    logger.warning("Could not parse job id following qsub...")
-                    queue_id = None
+        return queue_id, process 
 
-                finally:
-                    return process, queue_id
+    def _get_njobs_in_queue(self, username):
+        process = Popen(['qstat', '-a', '-u', username], stdout=PIPE, stderr=PIPE)
 
-            else:
-                # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
-                msg = ('Error in job submission with PBS file {f} and cmd {c}\n'.format(f=script_file, c=cmd) + 
-                       'The error response reads:\n {}'.format(process.stderr.read()))
-                raise self.Error(msg)
-
-        except Exception as exc:
-            # random error, e.g. no qsub on machine!
-            raise self.Error("Running qsub caused an error...\n%s" % str(exc))
-
-    def get_njobs_in_queue(self, username=None):
-        # Initialize username
-        if username is None:
-            username = getpass.getuser()
-
-        # run qstat
-        try:
-            qstat = Command(['qstat', '-a', '-u', username]).run(timeout=5)
-
+        njobs = None
+        if process.returncode == 0:
             # parse the result
-            if qstat.retcode == 0:
-                # lines should have this form
-                # '1339044.sdb          username  queuename    2012-02-29-16-43  20460   --   --    --  00:20 C 00:09'
-                # count lines that include the username in it
+            # lines should have this form
+            # '1339044.sdb          username  queuename    2012-02-29-16-43  20460   --   --    --  00:20 C 00:09'
+            # count lines that include the username in it
 
-                # TODO: only count running or queued jobs. or rather, *don't* count jobs that are 'C'.
-                outs = qstat.output.split('\n')
-                njobs = len([line.split() for line in outs if username in line])
-                logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
-                return njobs
-        except:
-            # there's a problem talking to qstat server?
-            print(qstat.output.split('\n'))
-            err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' +
-                       'The error response reads:\n {}'.format(qstat.error))
-            logger.critical(err_msg)
-            return None
+            # TODO: only count running or queued jobs. or rather, *don't* count jobs that are 'C'.
+            outs = process.stdoutput.split('\n')
+            njobs = len([line.split() for line in outs if username in line])
+
+        return njobs, process
 
     def exclude_nodes(self, nodes):
         logger.warning('exluding nodes, not implemented yet in pbs')
@@ -1488,64 +1448,37 @@ $${qverbatim}
 
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
-        # submit the job
-        try:
-            cmd = ['qsub', script_file]
-            process = Popen(cmd, stdout=PIPE, stderr=PIPE)
-            process.wait()
+        process = Popen(['qsub', script_file], stdout=PIPE, stderr=PIPE)
+        process.wait()
 
-            # grab the returncode. SGE returns 0 if the job was successful
-            if process.returncode == 0:
-                try:
-                    # output should of the form 
-                    # Your job 1659048 ("NAME_OF_JOB") has been submitted 
-                    queue_id = int(process.stdout.read().split(' ')[2])
-                    logger.info('Job submission was successful and queue_id is {}'.format(queue_id))
+        # grab the returncode. SGE returns 0 if the job was successful
+        queue_id = None
+        if process.returncode == 0:
+            try:
+                # output should of the form 
+                # Your job 1659048 ("NAME_OF_JOB") has been submitted 
+                queue_id = int(process.stdout.read().split(' ')[2])
+            except:
+                # probably error parsing job code
+                logger.critical("Could not parse job id following qsub...")
 
-                except:
-                    # probably error parsing job code
-                    logger.warning("Could not parse job id following qsub...")
-                    queue_id = None
+        return queue_id, process
 
-                finally:
-                    return process, queue_id
+    def _get_njobs_in_queue(self, username):
+        process = Popen(['qstat', '-u', username], stdout=PIPE, stderr=PIPE)
+        process.wait()
 
-            else:
-                # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
-                msg = ('Error in job submission with PBS file {f} and cmd {c}\n'.format(f=script_file, c=cmd) + 
-                       'The error response reads:\n {}'.format(process.stderr.read()))
-                raise self.Error(msg)
-
-        except:
-            # random error, e.g. no qsub on machine!
-            raise self.Error("Running qsub caused an error...")
-
-    def get_njobs_in_queue(self, username=None):
-        # Initialize username
-        if username is None:
-            username = getpass.getuser()
-
-        # run qstat
-        qstat = Command(['qstat', '-u', username]).run(timeout=5)
-
-        # parse the result
-        if qstat.retcode == 0:
+        njobs = None
+        if process.returncode == 0:
+            # parse the result
             # lines should contain username
             # count lines that include the username in it
 
             # TODO: only count running or queued jobs. or rather, *don't* count jobs that are 'C'.
-            outs = qstat.output.split('\n')
+            outs = process.stdout.readlines()
             njobs = len([line.split() for line in outs if username in line])
-            logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
 
-            return njobs
-
-        # there's a problem talking to qstat server?
-        err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' + 
-                   'The error response reads:\n {}'.format(qstat.error))
-        logger.critical(err_msg)
-
-        return None
+        return njobs, process
 
     def exclude_nodes(self, nodes):
         """Method to exclude nodes in the calculation"""
@@ -1603,69 +1536,30 @@ $${qverbatim}
     def cancel(self, job_id):
         return os.system("canceljob %d" % job_id)
 
-    def _submit_to_queue(self, script_file, submit_err_file="sbatch.err"):
+    def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
-        submit_err_file = os.path.join(os.path.dirname(script_file), submit_err_file)
-
-        # submit the job
-        try:
-            cmd = ['msub', script_file]
-            process = Popen(cmd, stdout=PIPE, stderr=PIPE)
-            # write the err output to file, a error parser may read it and a fixer may know what to do ...
-
-            process.wait()
-
-            with open(submit_err_file, mode='w') as f:
-                f.write('msub submit process stderr:')
-                f.write(str(process.stderr.read()))
-                f.write('qparams:')
-                f.write(str(self.qparams))
-
-            # grab the returncode. MOAB returns 0 if the job was successful
-            if process.returncode == 0:
-                try:
-                    # output should be the queue_id
-                    queue_id = int(process.stdout.read().split()[0])
-                    logger.info('Job submission was successful and queue_id is {}'.format(queue_id))
-                except:
-                    # probably error parsing job code
-                    queue_id = None
-                    logger.warning('Could not parse job id following msub...')
-
-                finally:
-                    return process, queue_id
-
-            else:
-                # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
-                err_msg = ("Error in job submission with MOAB file {f} and cmd {c}\n".format(f=script_file, c=cmd) + 
-                           "The error response reads:\n {c}".format(c=process.stderr.read()))
-                raise self.Error(err_msg)
-
-        except Exception as details:
-            msg = 'Error while submitting job:\n' + str(details)
-            logger.critical(msg)
-            with open(submit_err_file, mode='a') as f:
-                f.write(msg)
-
-            try:
-                print('sometimes we land here, no idea what is happening ... Michiel')
-                print("details:\n", details, "cmd\n", cmd, "\nprocess.returcode:", process.returncode)
-            except:
-                pass
-
-            # random error, e.g. no qsub on machine!
-            raise self.Error('Running msub caused an error...')
-
-    def get_njobs_in_queue(self, username=None):
-        if username is None:
-            username = getpass.getuser()
-
-        cmd = ['showq', '-s -u', username]
-        process = Popen(cmd, shell=False, stdout=PIPE)
+        process = Popen(['msub', script_file], stdout=PIPE, stderr=PIPE)
         process.wait()
 
-        # parse the result
+        queue_id = None
         if process.returncode == 0:
+            # grab the returncode. MOAB returns 0 if the job was successful
+            try:
+                # output should be the queue_id
+                queue_id = int(process.stdout.read().split()[0])
+            except:
+                # probably error parsing job code
+                logger.critical('Could not parse job id following msub...')
+
+        return queue_id, process
+
+    def _get_njobs_in_queue(self, username):
+        process = Popen(['showq', '-s -u', username], stdout=PIPE, stderr=PIPE)
+        process.wait()
+
+        njobs = None
+        if process.returncode == 0:
+            # parse the result
             # lines should have this form:
             ## 
             ## active jobs: N  eligible jobs: M  blocked jobs: P
@@ -1673,18 +1567,10 @@ $${qverbatim}
             ## Total job:  1
             ##
             # Split the output string and return the last element.
+            out = process.stdout.readlines()[-1]
+            njobs = int(out.split()[-1])
 
-            outs = process.stdout.readlines()
-            njobs = int(outs.split()[-1])
-            logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
-            return njobs
-
-        # there's a problem talking to squeue server?
-        err_msg = ('Error trying to get the number of jobs in the queue using showq service' + 
-                   'The error response reads:\n {}'.format(process.stderr.read()))
-        logger.critical(err_msg)
-
-        return None
+        return njobs, process
 
 
 class QScriptTemplate(string.Template):
@@ -1874,7 +1760,8 @@ class SlurmJob(QueueJob):
         #squeue  --start -j  116791
         #  JOBID PARTITION     NAME     USER  ST           START_TIME  NODES NODELIST(REASON)
         # 116791      defq gs6q2wop cyildiri  PD  2014-11-04T09:27:15     16 (QOSResourceLimit)
-        process = Popen(["squeue" "--start", "--job", str(self.qid)], shell=True, stdout=PIPE, stderr=PIPE)
+        cmd = ["squeue" "--start", "--job", str(self.qid)],
+        process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
         process.wait()
 
         if process.returncode != 0: return None
@@ -1911,8 +1798,7 @@ class SlurmJob(QueueJob):
 
         #cmd = "sacct --job %i --format=jobid,exitcode,state --allocations --parsable2" % self.qid
         cmd = "scontrol show job %i --oneliner" % self.qid
-        #print("cmd", cmd)
-        process = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+        process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
         process.wait()
 
         if process.returncode != 0:
@@ -1947,7 +1833,7 @@ class SlurmJob(QueueJob):
 
     def get_stats(self):
         cmd = "sacct --long --job %s --parsable2" % self.qid
-        process = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+        process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
         process.wait()
 
         lines = process.stdout.readlines()
@@ -1984,7 +1870,6 @@ class PbsProJob(QueueJob):
         ("S", QueueJob.S_SUSPENDED),
     ])
 
-
     def estimated_start_time(self):
         # qstat -T - Shows the estimated start time for all jobs in the queue. 
         #                                                                           Est
@@ -1992,7 +1877,7 @@ class PbsProJob(QueueJob):
         #Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time  S Time
         #--------------- -------- -------- ---------- ------ --- --- ------ ----- - -----
         #5669001.frontal username large    gs.Pt         --   96  96    --  03:00 Q    --
-        process = Popen(["qstat" "-T", str(self.qid)], shell=True, stdout=PIPE, stderr=PIPE)
+        process = Popen(["qstat" "-T", str(self.qid)], stdout=PIPE, stderr=PIPE)
         process.wait()
 
         if process.returncode != 0: return None
@@ -2009,8 +1894,8 @@ class PbsProJob(QueueJob):
         #Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time  S Time
         #--------------- -------- -------- ---------- ------ --- --- ------ ----- - -----
         #5666289.frontal username main_ivy MorfeoTChk  57546   1   4    --  08:00 R 00:17
-
-        process = Popen("qstat " % self.qid, shell=True, stdout=PIPE, stderr=PIPE)
+        cmd = "qstat %d" % self.qid
+        process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
 
         if process.returncode != 0:
           #print(process.stderr.readlines())

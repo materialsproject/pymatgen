@@ -489,6 +489,10 @@ class ParalHints(collections.Iterable):
         if any(c.mem_per_proc > 0.0 for c in self):
             self._confs.sort(key=lambda c: c.mem_per_proc, reverse=reverse)
 
+    #def filter(self, qadapter):
+    #    new_confs = [pconf for pconf in self if qadapter.can_run_pconf(pconf)
+    #    return self.__class__(info=self.info, confs=new_confs)
+
     #def hist_efficiency(self):
     #    return sparse_histogram(self._confs, key=lambda c: c.efficiency, step=0.1)
 
@@ -907,7 +911,7 @@ class TaskManager(object):
             process = Popen(("/bin/bash", script_file), stderr=PIPE)
             queue_id = process.pid
         else:
-            process, queue_id = self.qadapter.submit_to_queue(script_file)
+            queue_id, process = self.qadapter.submit_to_queue(script_file)
 
         task.set_qinfo(queue_id)
 
