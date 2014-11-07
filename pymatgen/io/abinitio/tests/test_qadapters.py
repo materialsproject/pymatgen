@@ -9,26 +9,26 @@ from monty.collections import AttrDict
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio.tasks import ParalConf
 from pymatgen.io.abinitio.qadapters import *
-from pymatgen.io.abinitio.qadapters import QueueAdapter, SlurmAdapter
+from pymatgen.io.abinitio.qadapters import QueueAdapter, SlurmAdapter, slurm_parse_timestr
 
 
 class ParseTimestr(PymatgenTest):
-    def test_parse_slurm_timestr(self):
+    def test_slurm_parse_timestr(self):
         days, hours, minutes, secs = 24*60*60, 60*60, 60, 1
         aequal = self.assertEqual
 
         # "days-hours",
-        aequal(parse_slurm_timestr("2-1"), 2*days + hours)
+        aequal(slurm_parse_timestr("2-1"), 2*days + hours)
         # "days-hours:minutes",                                        
-        aequal(parse_slurm_timestr("2-1:1"), 2*days + hours + minutes)
+        aequal(slurm_parse_timestr("2-1:1"), 2*days + hours + minutes)
         # "days-hours:minutes:seconds".                                
-        aequal(parse_slurm_timestr("3-4:2:20"), 3*days + 4*hours + 2*minutes + 20*secs)
+        aequal(slurm_parse_timestr("3-4:2:20"), 3*days + 4*hours + 2*minutes + 20*secs)
         # "minutes",
-        aequal(parse_slurm_timestr("10"), 10*minutes)
+        aequal(slurm_parse_timestr("10"), 10*minutes)
         # "minutes:seconds",
-        aequal(parse_slurm_timestr("3:20"), 3*minutes + 20*secs)
+        aequal(slurm_parse_timestr("3:20"), 3*minutes + 20*secs)
         # "hours:minutes:seconds",
-        aequal(parse_slurm_timestr("3:2:5"), 3*hours + 2*minutes + 5*secs)
+        aequal(slurm_parse_timestr("3:2:5"), 3*hours + 2*minutes + 5*secs)
 
 
 class QadapterTest(PymatgenTest):
@@ -53,12 +53,11 @@ hardware:
    num_nodes: 3
    sockets_per_node: 2
    cores_per_socket: 4
-   mem_per_node: 8 Gb""")
+   mem_per_node: 8 Gb
+""")
 
     def test_base(self):
-        """
-        unit tests for Qadapter subclasses. A more complete coverage would require integration testing.
-        """
+        """unit tests for Qadapter subclasses. A more complete coverage would require integration testing."""
         self.maxDiff = None
         aequal, atrue, afalse = self.assertEqual, self.assertTrue, self.assertFalse
         sub_classes = QueueAdapter.__subclasses__()
@@ -111,11 +110,6 @@ hardware:
                                                     stdin="STDIN", stdout="STDOUT", stderr="STDERR")
                 aequal(new_script, script)
 
-            with self.assertRaises(qad.Error): qad.set_mpi_procs(25)
-            with self.assertRaises(qad.Error): qad.set_mpi_procs(100)
-            with self.assertRaises(qad.Error): qad.set_omp_threads(10)
-            with self.assertRaises(qad.Error): qad.set_mem_per_proc(9 * giga)
-
             # Test can_run and distribute
             # The hardware has num_nodes=3, sockets_per_node=2, cores_per_socket=4, mem_per_node="8 Gb"
             afalse(qad.can_run_pconf(ParalConf(mpi_ncpus=hw.num_cores+1, omp_ncpus=1, mem_per_cpu=0.1)))
@@ -140,6 +134,19 @@ hardware:
             # not commensurate with node
             #d = qad.distribute(mpi_procs=9, omp_threads=1, mem_per_proc=giga)
             #assert d.num_nodes == 3 and d.mpi_per_node == 3 and not d.exact
+
+            with self.assertRaises(qad.Error): 
+                qad.set_mpi_procs(25)
+                qad.validate()
+            with self.assertRaises(qad.Error): 
+                qad.set_mpi_procs(100)
+                qad.validate()
+            with self.assertRaises(qad.Error): 
+                qad.set_omp_threads(10)
+                qad.validate()
+            with self.assertRaises(qad.Error): 
+                qad.set_mem_per_proc(9 * giga)
+                qad.validate()
 
         # Test if one can register a customized class.
         class MyAdapter(SlurmAdapter):
@@ -183,12 +190,8 @@ hardware:
         assert (qad.mpi_procs, qad.omp_threads) == (1, 1)
         assert qad.priority == 1 and qad.num_attempts == 0 and qad.last_attempt is None
 
-        #with self.assertRaises(qad.Error):
-        #    qad.set_mpi_procs(2)
         qad.set_omp_threads(1)
         assert qad.has_omp
-        #with self.assertRaises(qad.Error):
-        #    qad.set_omp_threads(2)
 
         s = qad.get_script_str("job_name", "/launch_dir", "executable", "qout_path", "qerr_path",
                                stdin="stdin", stdout="stdout", stderr="stderr")
@@ -222,9 +225,9 @@ limits:
 job:
   mpi_runner: mpirun
   # pre_run is a string in verbatim mode (note |)
-  pre_run: |
-      echo ${SLURM_NODELIST}
-      ulimit
+  setup:
+      - echo ${SLURM_JOB_NODELIST}
+      - ulimit -s unlimited
   modules:
       - intel/compilerpro/13.0.1.117
       - fftw3/intel/3.3
@@ -261,12 +264,17 @@ hardware:
 #SBATCH --partition=Oban
 #SBATCH --job-name=job_name
 #SBATCH --ntasks=4
+#SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=1024
 #SBATCH --time=0-0:10:0
 #SBATCH --account=user_account
 #SBATCH --mail-user=user@mail.com
 #SBATCH --output=qout_path
 #SBATCH --error=qerr_path
+# Setup section
+echo ${SLURM_JOB_NODELIST}
+ulimit -s unlimited
+
 # Load Modules
 module purge
 module load intel/compilerpro/13.0.1.117
@@ -276,11 +284,6 @@ module load fftw3/intel/3.3
 export PATH=/home/user/bin:$PATH
 
 cd /launch_dir
-# Commands before execution
-echo ${SLURM_NODELIST}
-ulimit
-
-
 mpirun -n 4 executable < stdin > stdout 2> stderr
 """)
         #assert 0

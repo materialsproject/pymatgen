@@ -17,7 +17,6 @@ import abc
 import string
 import copy
 import getpass
-import warnings
 import six
 import json
 
@@ -25,7 +24,7 @@ from collections import namedtuple, OrderedDict, defaultdict
 from subprocess import Popen, PIPE
 from atomicfile import AtomicFile
 from monty.string import is_string
-from monty.collections import AttrDict, MongoDict
+from monty.collections import AttrDict
 from monty.functools import lazy_property
 from monty.io import FileLock
 from monty.subprocess import Command
@@ -37,13 +36,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 __all__ = [
-    "parse_slurm_timestr",
     "MpiRunner",
     "make_qadapter",
 ]
 
 
-def parse_slurm_timestr(s):
+def slurm_parse_timestr(s):
     """
     A slurm time parser. Accepts a string in one the following forms:
 
@@ -131,10 +129,11 @@ def timelimit_parser(s):
     try:
         return Time(float(s), "s")
     except ValueError:
-        return parse_slurm_timestr(s)
+        return slurm_parse_timestr(s)
 
 
 def any2mb(s):
+    """Convet string or number to memory in megabytes."""
     if is_string(s):
         return int(Memory.from_string(s).to("Mb"))
     else:
@@ -177,6 +176,58 @@ class MpiRunner(object):
         return self.name is not None
 
 
+
+class OmpEnv(AttrDict):
+    """
+    Dictionary with the OpenMP environment variables
+    see https://computing.llnl.gov/tutorials/openMP/#EnvironmentVariables
+    """
+    _KEYS = [
+        "OMP_SCHEDULE",
+        "OMP_NUM_THREADS",
+        "OMP_DYNAMIC",
+        "OMP_PROC_BIND",
+        "OMP_NESTED",
+        "OMP_STACKSIZE",
+        "OMP_WAIT_POLICY",
+        "OMP_MAX_ACTIVE_LEVELS",
+        "OMP_THREAD_LIMIT",
+        "OMP_STACKSIZE",
+        "OMP_PROC_BIND",
+    ]
+
+    @classmethod
+    def as_ompenv(cls, obj):
+        """Convert an object into a OmpEnv"""
+        if isinstance(obj, cls): return obj
+        if obj is None: return cls()
+        return cls(**obj)
+
+    def __init__(self, *args, **kwargs):
+        """
+        Constructor method inherited from dictionary:
+
+        >>> assert OmpEnv(OMP_NUM_THREADS=1).OMP_NUM_THREADS == 1
+
+        To create an instance from an INI file, use:
+           OmpEnv.from_file(filename)
+        """
+        super(OmpEnv, self).__(*args, **kwargs)
+
+        err_msg = ""
+        for key, value in self.items():
+            self[key] = str(value)
+            if key not in self._KEYS:
+                err_msg += "unknown option %s\n" % key
+
+        if err_msg:
+            raise ValueError(err_msg)
+
+    def export_str(self):
+        """Return a string with the bash statements needed to setup the OMP env."""
+        return "\n".join("export %s=%s" % (k, v) for k, v in self.items())
+
+
 class QHardwareError(Exception):
     """Exceptions raised by QHardware."""
 
@@ -202,49 +253,21 @@ class QHardware(object):
           Each cpu core will be able to service a number of cpu threads, each having an independent instruction stream 
           but sharing the cores memory controller and other logical units.
     """
-    class Entry(object):
-        def __init__(self, type, default=None, mandatory=False, parser=None, help="No help available"):
-            self.type, self.default, self.parser, self.mandatory = type, default, parser, mandatory
-            if callable(default): self.default = default()
-
-        def eval(self, value):
-            if self.type is not object: value = self.type(value)
-            if self.parser is not None: value = self.parser(value)
-            return value
-                
-    ENTRIES = dict(
-        # mandatory
-        num_nodes=Entry(type=int, mandatory=True, help="Number of nodes"),
-        sockets_per_node=Entry(type=int, mandatory=True, help="Number of sockets per node"),
-        cores_per_socket=Entry(type=int, mandatory=True, help="Number of cores per node"),
-        mem_per_node=Entry(type=str, mandatory=True, help="Memory per node", parser=Memory.from_string),
-        #min_cores=Entry(type=int, mandatory=True, help="Minimum number of cores that can be used"),
-        #max_cores=Entry(type=int, mandatory=True, help="Maximum number of nodes that can be used"),
-        #timelimit=Entry(type=str, mandatory=True, help="Time limit", parser=timelimit_parser),
-        #priority=Entry(type=int, mandatory=True, help="Priority level, integer number > 0"),
-        # optional
-        #allocate_nodes=Entry(type=bool, default=False, help="True if we must allocate entire nodes"),
-        #condition=Entry(type=object, default=Condition, help="Condition object (dictionary)", parser=Condition),
-    )
-    del Entry
-
     def __init__(self, **kwargs):
         """The possible arguments are documented in Partition.ENTRIES."""
-        for key, entry in self.ENTRIES.items():
-            try:
-                value = entry.eval(kwargs.pop(key)) #; print(key, value)
-                setattr(self, key, value)
-            except KeyError:
-                if entry.mandatory: raise ValueError("key %s must be specified" % key)
-                setattr(self, key, entry.default)
-
-        if kwargs:
-            raise ValueError("Found invalid keywords in the partition section:\n %s" % str(list(kwargs.keys())))
+        self.num_nodes = int(kwargs.pop("num_nodes"))
+        self.sockets_per_node = int(kwargs.pop("sockets_per_node"))
+        self.cores_per_socket = int(kwargs.pop("cores_per_socket"))
 
         # Convert memory to megabytes.
-        self.mem_per_node = float(self.mem_per_node.to("Mb"))
-        if self.mem_per_node <= 0:
-            raise ValueError("mem_per_node %s <= 0" % self.mem_per_node)
+        m = str(kwargs.pop("mem_per_node"))
+        self.mem_per_node = int(Memory.from_string(m).to("Mb"))
+
+        if self.mem_per_node <= 0 or self.sockets_per_node <= 0 or self.cores_per_socket <= 0:
+            raise ValueError("invalid parameters: %s" % kwargs)
+
+        if kwargs:
+            raise ValueError("Found invalid keywords in the partition section:\n %s" % kwargs.keys())
 
     def __str__(self):
         """String representation."""
@@ -302,7 +325,7 @@ class _ExcludeNodesFile(object):
     def add_nodes(self, qname, nodes):
         nodes = (nodes,) if not isinstance(nodes, (tuple, list)) else nodes
         with FileLock(self.FILEPATH):
-            with AtomicFile(filepath, mode="w+") as fh:
+            with AtomicFile(self.FILEPATH, mode="w+") as fh:
                 d = json.load(fh)
                 if qname in d:
                     d["qname"].extend(nodes)
@@ -316,7 +339,7 @@ _EXCL_NODES_FILE = _ExcludeNodesFile()
 
 def all_subclasses(cls):
     """
-    Given a class, this recursive function returns a list with 
+    Given a class `cls`, this recursive function returns a list with
     all subclasses, subclasses of subclasses, and so on.
     """
     subclasses = cls.__subclasses__() 
@@ -374,8 +397,6 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     DistribError = QueueAdapterDistribError
 
     def __init__(self, **kwargs):
-                 #qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
-                 #pre_run=None, post_run=None, mpi_runner=None,):
         """
         Args:
             qname:
@@ -427,7 +448,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         if kwargs:
             raise ValueError("Found unknown keywords:\n%s" % kwargs.keys())
 
-        self.validate()
+        self.validate_qparams()
 
         # List of dictionaries with the parameters used to submit jobs
         # The launcher will use this information to increase the resources
@@ -438,9 +459,13 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         self.set_mem_per_proc(self.min_mem_per_proc)
 
         # Final consistency check.
-        self.validate()
+        self.validate_qparams()
 
-    def validate(self):
+    def validate_qparams(self):
+        """
+        Check if the keys specified by the user in qparams are supported.
+        Raise ValueError if errors.
+        """
         # No validation for ShellAdapter.
         if isinstance(self, ShellAdapter): return
 
@@ -452,17 +477,9 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                 err_msg += "Supported are: \n"
                 for param_sup in self.supported_qparams:
                     err_msg += "    %s \n" % param_sup
+
         if err_msg:
             raise ValueError(err_msg)
-
-        errors = []
-        app = errors.append
-        if self.priority <= 0: app("priority must be > 0")
-        if not (1 <= self.min_cores <= self.hw.num_cores >= self.max_cores):
-            app("1 <= min_cores <= hardware num_cores >= max_cores not satisfied")
-
-        if errors:
-            raise ValueError("\n".join(errors))
 
     def _parse_limits(self, d):
         self.set_timelimit(timelimit_parser(d.pop("timelimit")))
@@ -471,7 +488,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         #self.min_mem_per_proc = any2mb(d.pop("min_mem_per_proc", 0))
         # FIXME: Neeed because autoparal 1 with paral_kgb 1 is not able to estimate memory 
         self.min_mem_per_proc = any2mb(d.pop("min_mem_per_proc", self.hw.mem_per_core))
-	#print(self.min_mem_per_proc)
+        #print(self.min_mem_per_proc)
         self.max_mem_per_proc = any2mb(d.pop("max_mem_per_proc", self.hw.mem_per_node))
         self.allocate_nodes = bool(d.pop("allocate_nodes", False))
         self.condition = Condition(d.pop("condition", {}))
@@ -592,8 +609,9 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         return copy.deepcopy(self)
 
     def record_attempt(self, queue_id): # retcode):
-        self.attempts.append(AttrDict(queue_id=queue_id, mpi_procs=self.mpi_procs, omp_threads=self.omp_threads,
-                                      mem_per_proc=self.mem_per_proc, timelimit=self.timelimit)) # retcode=retcode)) 
+        self.attempts.append(
+            AttrDict(queue_id=queue_id, mpi_procs=self.mpi_procs, omp_threads=self.omp_threads,
+                     mem_per_proc=self.mem_per_proc, timelimit=self.timelimit))
         return len(self.attempts)
 
     def remove_attempt(self, index):
@@ -610,14 +628,34 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         else:
             return None
 
+    def validate(self):
+        """Validate the parameters of the run. Raises self.Error if invalid parameters."""
+        errors = []
+        app = errors.append
+
+        if not self.max_cores >= self.mpi_procs * self.omp_threads >= self.min_cores:
+            app("self.max_cores >= mpi_procs * omp_threads >= self.min_cores not satisfied")
+
+        if self.omp_threads > self.hw.cores_per_node:
+            app("omp_threads > hw.cores_per_node")
+
+        if self.mem_per_proc > self.hw.mem_per_node:
+            app("mem_mb >= self.hw.mem_per_node")
+
+        if not self.max_mem_per_proc >= self.mem_per_proc >= self.min_mem_per_proc:
+            app("self.max_mem_per_proc >= mem_mb >= self.min_mem_per_proc not satisfied")
+
+        if self.priority <= 0: 
+            app("priority must be > 0")
+
+        if not (1 <= self.min_cores <= self.hw.num_cores >= self.max_cores):
+            app("1 <= min_cores <= hardware num_cores >= max_cores not satisfied")
+
+        if errors:
+            raise self.Error(str(self) + "\n".join(errors))
+
     def set_omp_threads(self, omp_threads):
         """Set the number of OpenMP threads."""
-        if not self.max_cores >= self.mpi_procs * omp_threads >= self.min_cores:
-            print(self.max_cores, self.mpi_procs, omp_threads, self.min_cores)
-            raise self.Error("self.max_cores >= mpi_procs * omp_threads >= self.min_cores not satisfied")
-        if omp_threads > self.hw.cores_per_node:
-            raise self.Error("omp_threads > hw.cores_per_node")
-
         self.omp_env["OMP_NUM_THREADS"] = omp_threads
 
     @property
@@ -626,17 +664,16 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         return self._mpi_procs
 
     def set_mpi_procs(self, mpi_procs):
-        """Set the number of MPI processes."""
-        if not self.max_cores >= mpi_procs * self.omp_threads >= self.min_cores:
-            print(self.max_cores, mpi_procs, self.omp_threads, self.min_cores)
-            raise self.Error("self.max_cores >= mpi_procs * omp_threads >= self.min_cores not satisfied")
+        """Set the number of MPI processes to mpi_procs"""
         self._mpi_procs = mpi_procs
 
     @property
     def qname(self):
+        """The name of the queue."""
         return self._qname
 
     def set_qname(self, qname):
+        """Set the name of the queue."""
         self._qname = qname
 
     @property
@@ -655,13 +692,10 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                                                 
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
-        if mem_mb > self.hw.mem_per_node:
-            print(mem_mb, self.hw.mem_per_node)
-            raise self.Error("mem_mb >= self.hw.mem_per_node")
-
-        if not self.max_mem_per_proc >= mem_mb >= self.min_mem_per_proc:
-            print(self.max_mem_per_proc, mem_mb, self.min_mem_per_proc)
-            raise self.Error("self.max_mem_per_proc >= mem_mb >= self.min_mem_per_proc not satisfied")
+        # Hack needed because abinit is still not able to estimate memory.
+        if mem_mb <=0:
+            #mem_per_proc = hw.mem_per_core
+            mem_per_proc = self.min_mem_per_proc
 
         self._mem_per_proc = mem_mb
 
@@ -719,7 +753,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         # TODO: Add check on user-memory
         if mem_per_proc <= 0:
             logger.warning("mem_per_proc <= 0")
-            mem_per_proc =  hw.mem_per_core
+            mem_per_proc = hw.mem_per_core
 
         if mem_per_proc > hw.mem_per_node:
             raise self.DistribError(
@@ -886,7 +920,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
 
         if self.num_attempts == self.max_num_attempts:
-            raise self.Error("num_attempts %s == max_num_attempts" % (self.num_attempts, self.max_num_attempts))
+            raise self.Error("num_attempts %s == max_num_attempts %s" % (self.num_attempts, self.max_num_attempts))
 
         process, queue_id = self._submit_to_queue(script_file)
         self.record_attempt(queue_id)
@@ -937,7 +971,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         old_mem = self.mem_per_proc
         new_mem = old_mem + factor*base_increase
 
-        if new_mem < self.max_mem_per_node:
+        if new_mem < self.hw.mem_per_node:
             self.set_mem_per_proc(new_mem)
             return True
 
@@ -1059,7 +1093,7 @@ $${qverbatim}
         dist = self.distribute(self.mpi_procs, self.omp_threads, self.mem_per_proc)
         #print(dist)
 
-        if dist.exact:
+        if False and dist.exact:
             # Can optimize parameters
             self.qparams["nodes"] = dist.num_nodes
             self.qparams.pop("ntasks", None)
@@ -1168,6 +1202,7 @@ $${qverbatim}
         logger.critical(err_msg)
 
         return None
+
 
 class PbsProAdapter(QueueAdapter):
     QTYPE = "pbspro"
@@ -1394,6 +1429,7 @@ class TorqueAdapter(PbsProAdapter):
 #PBS -e $${_qerr_path}
 $${qverbatim}
 """
+
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
         QueueAdapter.set_mem_per_proc(self, mem_mb)
@@ -1545,6 +1581,7 @@ class MOABAdapter(QueueAdapter):
 #MSUB -e $${_qerr_path}
 $${qverbatim}
 """
+
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
         super(MOABAdapter, self).set_mpi_procs(mpi_procs)
@@ -1947,13 +1984,31 @@ class PbsProJob(QueueJob):
         ("S", QueueJob.S_SUSPENDED),
     ])
 
+
+    def estimated_start_time(self):
+        # qstat -T - Shows the estimated start time for all jobs in the queue. 
+        #                                                                           Est
+        #                                                            Req'd  Req'd   Start
+        #Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time  S Time
+        #--------------- -------- -------- ---------- ------ --- --- ------ ----- - -----
+        #5669001.frontal username large    gs.Pt         --   96  96    --  03:00 Q    --
+        process = Popen(["qstat" "-T", str(self.qid)], shell=True, stdout=PIPE, stderr=PIPE)
+        process.wait()
+
+        if process.returncode != 0: return None
+        line = process.stdout.readlines()[-1]
+        sdate = line.split()[-1]
+        if sdata in ("--", "?"): return None
+        # TODO One should convert to datetime
+        return sdata
+
     def get_info(self):
         #$> qstat 5666289
         #frontal1:
         #                                                            Req'd  Req'd   Elap
         #Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time  S Time
         #--------------- -------- -------- ---------- ------ --- --- ------ ----- - -----
-        #5666289.frontal friebel  main_ivy MorfeoTChk  57546   1   4    --  08:00 R 00:17
+        #5666289.frontal username main_ivy MorfeoTChk  57546   1   4    --  08:00 R 00:17
 
         process = Popen("qstat " % self.qid, shell=True, stdout=PIPE, stderr=PIPE)
 
