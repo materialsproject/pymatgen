@@ -218,13 +218,13 @@ class Directory(object):
     def rename_abiext(self, inext, outext):
         infile = self.has_abiext(inext)
         if not infile:
-            return 1
+            raise RuntimeError('no file with ' + inext + ' extension')
 
         for i in range(len(infile) - 1, -1, -1):
             if infile[i] == '_':
                 break
         else:
-            return 1
+            raise RuntimeError(inext + ' could not be detected in ' + infile)
 
         outfile = infile[:i] + '_' + outext
         shutil.move(infile, outfile)
