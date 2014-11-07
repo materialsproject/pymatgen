@@ -1344,7 +1344,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
     if with_dde:
         logger.info('add dde')
         dde_input = ph_inputs[0].deepcopy()
-        dde_input.set_variables(qpt=[0, 0, 0], rfddk=1, rfefld=2)
+        dde_input.set_variables(qpt=[0, 0, 0], rfddk=1, rfelfd=2)
         dde_input_idir = dde_input.deepcopy()
         dde_input_idir.set_variables(rfdir=[1, 1, 1])
         dde_task = flow.register_task(dde_input, deps={scf_task: ('FWK', '1FWK'), ddk_task: 'DDB'}, task_class=DdkTask)
