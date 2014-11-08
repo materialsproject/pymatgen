@@ -254,33 +254,34 @@ class AbinitTaskResults(NodeResults):
         return new
 
 
+class SparseHistogram(object):
 
-def sparse_histogram(items, key=None, num=None, step=None):
-    if num is None and step is None:
-        raise ValueError("Either num or step must be specified")
-    import numpy as np
-    from collections import defaultdict, OrderedDict
+    def __init__(self, items, key=None, num=None, step=None):
+        if num is None and step is None:
+            raise ValueError("Either num or step must be specified")
+        import numpy as np
+        from collections import defaultdict, OrderedDict
 
-    values = [key(item) for item in items] if key is not None else items
-    start, stop = min(values), max(values)
-    if num is None:
-        num = int((stop - start) / step)
-        if num == 0: num = 1
-    mesh = np.linspace(start, stop, num, endpoint=False)
+        values = [key(item) for item in items] if key is not None else items
+        start, stop = min(values), max(values)
+        if num is None:
+            num = int((stop - start) / step)
+            if num == 0: num = 1
+        mesh = np.linspace(start, stop, num, endpoint=False)
 
-    from monty.bisect import find_le
+        from monty.bisect import find_le
 
-    hist = defaultdict(list)
-    for item, value in zip(items, values):
-        # Find rightmost value less than or equal to x.
-        # hence each bin contains all items whose value is >=
-        pos = find_le(mesh, value)
-        hist[mesh[pos]].append(item)
+        hist = defaultdict(list)
+        for item, value in zip(items, values):
+            # Find rightmost value less than or equal to x.
+            # hence each bin contains all items whose value is >= value
+            pos = find_le(mesh, value)
+            hist[mesh[pos]].append(item)
 
-    new = OrderedDict([(pos, hist[pos]) for pos in sorted(hist.keys())])
-    new.start, new.stop, new.num = start, stop, num
-    return new
-
+        #new = OrderedDict([(pos, hist[pos]) for pos in sorted(hist.keys(), reverse=reverse)])
+        self.binvals = sorted(hist.keys())
+        self.values = [hist[pos] for pos in self.binvals]
+        self.start, self.stop, self.num = start, stop, num
 
 
 import unittest
@@ -289,11 +290,13 @@ class SparseHistogramTest(unittest.TestCase):
     def test_sparse(self):
         from collections import OrderedDict
         items = [1, 2, 2.9, 4]
-        hist = sparse_histogram(items, step=1)
-        assert hist == OrderedDict([(1.0, [1]), (2.0, [2, 2.9]), (3.0, [4])])
+        hist = SparseHistogram(items, step=1)
+        assert hist.binvals == [1.0, 2.0, 3.0] 
+        assert hist.values == [[1], [2, 2.9], [4]]
 
-        hist = sparse_histogram([iv for iv in enumerate(items)], key=lambda t: t[1], step=1)
-        assert hist == OrderedDict([(1.0, [(0, 1)]), (2.0, [(1, 2), (2, 2.9)]), (3.0, [(3, 4)])])
+        hist = SparseHistogram([iv for iv in enumerate(items)], key=lambda t: t[1], step=1)
+        assert hist.binvals == [1.0, 2.0, 3.0] 
+        assert hist.values == [[(0, 1)], [(1, 2), (2, 2.9)], [(3, 4)]]
 
 
 class ParalConf(AttrDict):
@@ -435,8 +438,28 @@ class ParalHints(collections.Iterable):
     def __str__(self):
         return "\n".join(str(conf) for conf in self)
 
+    @lazy_property
+    def max_cores(self):
+        """Maximum number of cores."""
+        return max(c.mpi_procs * c.omp_threads for c in self) 
+
+    @lazy_property
+    def max_mem_per_proc(self):
+        """Maximum memory per MPI process."""
+        return max(c.mem_per_proc for c in self) 
+
+    @lazy_property
+    def max_speedup(self):
+        """Maximum speedup."""
+        return max(c.speedup for c in self) 
+
+    @lazy_property
+    def max_efficiency(self):
+        """Maximum parallel efficiency."""
+        return max(c.efficiency for c in self) 
+
     @pmg_serialize
-    def as_dict(self):
+    def as_dict(self, **kwargs):
         return {"info": self.info, "confs": self._confs}
 
     @classmethod
@@ -497,24 +520,31 @@ class ParalHints(collections.Iterable):
         new_confs = [pconf for pconf in self if qadapter.can_run_pconf(pconf)]
         return self.__class__(info=self.info, confs=new_confs)
 
-    def hist_efficiency(self, step=0.1):
-        return sparse_histogram(self._confs, key=lambda c: c.efficiency, step=step)
-
-    def hist_speedup(self, step=1.0):
-        return sparse_histogram(self._confs, key=lambda c: c.speedup, step=step)
-
-    def hist_memory(self, step=102.4):
-        return sparse_histogram(self._confs, key=lambda c: c.speedup, step=step)
+    #def hist_efficiency(self, step=0.1):
+    #    return sparse_histogram(self._confs, key=lambda c: c.efficiency, step=step)
+    #def hist_speedup(self, step=1.0):
+    #    return sparse_histogram(self._confs, key=lambda c: c.speedup, step=step)
+    #def hist_memory(self, step=102.4):
+    #    return sparse_histogram(self._confs, key=lambda c: c.speedup, step=step)
 
     def select_optimal_conf(self, policy):
         """
         Find the optimal configuration according to the `TaskPolicy` policy.
         """
         # Make a copy since we are gonna change the object in place.
-        #hints = self.copy()
-
         hints = ParalHints(self.info, confs=[c for c in self if c.num_cores <= policy.max_ncpus])
-        #logger.info('hints: \n' + str(hints) + '\n')
+
+        if False:
+            # Mapping property --> options passed to sparse_histogram
+            opts = dict(speedup=dict(step=1.0),
+                        efficiency=dict(step=0.1), 
+                        memory=dict(memory=102.4))
+
+            confs = self._confs
+            for priority in ["speedup", "efficiency", "memory"]:
+                histogram = SparseHistogram(confs, key=lambda c: getattr(c, priority), **opts[priority])
+                pos = 0 if priority == "memory" else -1
+                confs = histogram.values[pos]
 
         # First select the configurations satisfying the condition specified by the user (if any)
         if policy.condition:
@@ -597,8 +627,6 @@ class TaskPolicy(object):
                 return cls(**obj) 
             else:
                 raise TypeError("Don't know how to convert type %s to %s" % (type(obj), cls))
-
-    #def __init__(self, autoparal=0, automemory=0, mode="default", max_ncpus=None, condition=None, vars_condition=None):
 
     def __init__(self, **kwargs):
         """
@@ -2509,9 +2537,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             self.strategy.add_extra_abivars(vars)
 
         # Automatic parallelization
-        if hasattr(self, "autoparal_fake_run"):
+        if hasattr(self, "autoparal_run"):
             try:
-                self.autoparal_fake_run()
+                self.autoparal_run()
             except:
                 # Log the exception and continue with the parameters specified by the user.
                 logger.critical("autoparal_fake_run raised:\n%s" % straceback())
@@ -2621,14 +2649,17 @@ class AbinitTask(Task):
         return "\n".join(lines)
 
     @property
-    def has_pconfs(self):
-        """True if the task has the list of autoparal configurations."""
+    def pconfs(self):
+        """List of autoparal configurations."""
         try:
-            return bool(self.pconfs)
+            return self._pconfs
         except AttributeError:
-            return False
+            return None
 
-    def autoparal_fake_run(self):
+    def set_pconfs(self, pconfs):
+        self._pconfs = pconfs
+
+    def autoparal_run(self):
         """
         Find an optimal set of parameters for the execution of the task 
         using the options specified in `TaskPolicy`.
@@ -2640,7 +2671,7 @@ class AbinitTask(Task):
            autoparal and optimal is the optimal configuration selected.
            Returns 0 if sucess
         """
-        logger.info("in autoparal_fake_run")
+        logger.info("in autoparal_run")
         policy = self.manager.policy
 
         if policy.autoparal == 0 or policy.max_ncpus in [None, 1]:
@@ -2686,7 +2717,7 @@ class AbinitTask(Task):
         ######################################################
         # Select the optimal configuration according to policy
         ######################################################
-        self._pconfs = pconfs
+        self.set_pconfs(pconfs)
         optconf = pconfs.select_optimal_conf(policy)
         #print("optimal autoparal conf:\n %s" % optconf)
 

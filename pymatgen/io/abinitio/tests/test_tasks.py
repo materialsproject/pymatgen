@@ -6,7 +6,7 @@ import os
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio.tasks import *
-from pymatgen.io.abinitio.tasks import TaskPolicy
+from pymatgen.io.abinitio.tasks import TaskPolicy, ParalHints
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 'test_files')
 
@@ -125,7 +125,13 @@ configurations:
 
         # Parse the file with the configurations.
         confs = ParalHintsParser().parse(tmpfile)
-        #print("all_confs:\n", confs)
+        print("all_confs:\n", confs)
+        aequal(confs.max_cores, 4)
+        aequal(confs.max_mem_per_proc, 15.77)
+        aequal(confs.max_speedup, 3.333333332)
+        aequal(confs.max_efficiency, 1.0)
+        # Test as_dict, from_dict
+        ParalHints.from_dict(confs.as_dict())
 
         # When autoparal is 1, max_ncpus must be specified
         with self.assertRaises(ValueError):
