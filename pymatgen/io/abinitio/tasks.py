@@ -3114,7 +3114,7 @@ class SigmaTask(AbinitTask):
         results = super(SigmaTask, self).get_results(**kwargs)
 
         # Open the SIGRES file and add its data to results.out
-        from abipy.electrons.gsr import GSR_File
+        #from abipy.electrons.gw import SIGRES_File
         #sigres = SIGRES_File(self.outdir.has_abiext("SIGRES"))
         #results["out"].update(sigres.as_dict())
         #return results.add_gridfs_files(SIGRES=sigres.filepath)
