@@ -283,6 +283,33 @@ class SparseHistogram(object):
         self.values = [hist[pos] for pos in self.binvals]
         self.start, self.stop, self.num = start, stop, num
 
+    def plot(self, **kwargs):
+        """
+        ==============  ==============================================================
+        kwargs          Meaning
+        ==============  ==============================================================
+        title           Title of the plot (Default: None).
+        show            True to show the figure (Default).
+        savefig         'abc.png' or 'abc.eps'* to save the figure to a file.
+        ==============  ==============================================================
+        """
+        title = kwargs.pop("title", None)
+        show = kwargs.pop("show", True)
+        savefig = kwargs.pop("savefig", None)
+
+        import matplotlib.pyplot as plt
+        fig = plt.figure()
+
+        ax = fig.add_subplot(1,1,1)
+
+        yy = [len(v) for v in self.values]
+        ax.plot(self.binvals, yy, **kwargs)
+
+        if show: plt.show()
+        if savefig is not None: fig.savefig(savefig)
+
+        return fig
+
 
 import unittest
 
@@ -293,6 +320,7 @@ class SparseHistogramTest(unittest.TestCase):
         hist = SparseHistogram(items, step=1)
         assert hist.binvals == [1.0, 2.0, 3.0] 
         assert hist.values == [[1], [2, 2.9], [4]]
+        #hist.plot()
 
         hist = SparseHistogram([iv for iv in enumerate(items)], key=lambda t: t[1], step=1)
         assert hist.binvals == [1.0, 2.0, 3.0] 
@@ -661,7 +689,7 @@ class TaskPolicy(object):
             raise ValueError("When autoparal is not zero, max_ncpus must be specified.")
 
         if kwargs:
-            raise ValueError("Found invalid keywords in policy section:\n %s" % str(list(kwargs.keys())))
+            raise ValueError("Found invalid keywords in policy section:\n %s" % str(kwargs.keys()))
 
     def __str__(self):
         lines = []
@@ -740,14 +768,18 @@ class TaskManager(object):
         # Initialize database connector (if specified)
         self.db_connector = DBConnector(**kwargs.pop("db_connector", {}))
 
-        # Build list of QAdapters. Neglect entry if priority == 0
+        # Build list of QAdapters. Neglect entry if priority == 0 or `enabled: no"
         qads = []
         for d in kwargs.pop("qadapters"):
+            if d.get("enabled", False): continue 
             qad = make_qadapter(**d)
             if qad.priority > 0:    
                 qads.append(qad)
             elif qad.priority < 0:    
                 raise ValueError("qadapter cannot have negative priority:\n %s" % qad)
+
+        if not qads:
+            raise ValueError("Received emtpy list of qadapters")
 
         # Order qdapters according to priority.
         qads = sorted(qads, key=lambda q: q.priority)
@@ -777,8 +809,7 @@ class TaskManager(object):
             d["limits"]["min_cores"] = mpi_procs
             d["limits"]["max_cores"] = mpi_procs
 
-        print(my_kwargs)
-
+        #print(my_kwargs)
         new = self.__class__(**my_kwargs)
         new.set_mpi_procs(mpi_procs)
 
@@ -818,7 +849,10 @@ class TaskManager(object):
         lines = []
         app = lines.append
         app("[Task policy]\n%s" % str(self.policy))
-        app("[Qadapter selected]\n%s" % str(self.qadapter))
+
+        for i, qad in enumerate(self.qads):
+            app("[Qadapter %d]\n%s" % (i, str(qad)))
+        app("Qadapter selected: %d" % self._qid)
 
         if self.has_db:
             app("[MongoDB database]:")
@@ -2799,8 +2833,31 @@ class AbinitTask(Task):
 #      We need this change for restarting structural relaxations so that we can read 
 #      the initial structure from file.
 
+class ProduceGsr(object):
+    """
+    Mixin class for AbinitTasks producing a GSR file.
+    Provice the method `read_gsr` that reads and return a GSR file.
+    """
+    def read_gsr(self):
+        """
+        Read the GSR file located in the in self.outdir. 
+        Returns GSR_File object, None if file could not be found or file is not readable.
+        """
+        gsr_path = self.outdir.has_abiext("GSR")
+        if not gsr_path:
+            logger.critical("%s didn't produce a GSR file in %d" % (self, self.outdir))
+            return None
 
-class ScfTask(AbinitTask):
+        # Open the GRS file and add its data to results.out
+        from abipy.electrons.gsr import GSR_File
+        try:
+            return GSR_File(gsr_path)
+        except Exception as exc:
+            logger.critical("Exception while reading GRS file at %s:\n%s" % (gsr_path, str(exc)))
+            return None
+
+
+class ScfTask(AbinitTask, ProduceGsr):
     """
     Self-consistent ground-state calculations.
     Provide support for in-place restart via (WFK|DEN) files
@@ -2844,15 +2901,14 @@ class ScfTask(AbinitTask):
         results = super(ScfTask, self).get_results(**kwargs)
 
         # Open the GRS file and add its data to results.out
-        from abipy.electrons.gsr import GSR_File
-        gsr = GSR_File(self.outdir.has_abiext("GSR"))
+        gsr = self.read_gsr()
         results["out"].update(gsr.as_dict())
 
         # Add files to GridFS
         return results.add_gridfs_files(GSR=gsr.filepath)
 
 
-class NscfTask(AbinitTask):
+class NscfTask(AbinitTask, ProduceGsr):
     """
     Non-Self-consistent GS calculation.
     Provide in-place restart via WFK files
@@ -2881,16 +2937,15 @@ class NscfTask(AbinitTask):
     def get_results(self, **kwargs):
         results = super(NscfTask, self).get_results(**kwargs)
 
-        # Open the GRS file and add its data to results.out
-        from abipy.electrons.gsr import GSR_File
-        gsr = GSR_File(self.outdir.has_abiext("GSR"))
+        # Read the GSR file.
+        gsr = self.read_gsr()
         results["out"].update(gsr.as_dict())
 
         # Add files to GridFS
         return results.add_gridfs_files(GSR=gsr.filepath)
 
 
-class RelaxTask(AbinitTask):
+class RelaxTask(AbinitTask, ProduceGsr):
     """
     Task for structural optimizations.
     """
@@ -2964,8 +3019,7 @@ class RelaxTask(AbinitTask):
         results = super(RelaxTask, self).get_results(**kwargs)
 
         # Open the GRS file and add its data to results.out
-        from abipy.electrons.gsr import GSR_File
-        gsr = GSR_File(self.outdir.has_abiext("GSR"))
+        gsr = self.read_gsr()
         results["out"].update(gsr.as_dict())
 
         # Add files to GridFS
