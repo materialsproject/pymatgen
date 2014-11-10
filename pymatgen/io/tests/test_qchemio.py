@@ -1829,6 +1829,34 @@ $end
         qcout = QcOutput(filename)
         self.assertEqual(qcout.data[0]["input"].ghost_atoms, [0])
 
+    def test_final_energy(self):
+        filename = os.path.join(test_dir, "thiophene_wfs_5_carboxyl.qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(qcout.final_energy, -20180.150206202714)
+
+    def test_final_structure(self):
+        filename = os.path.join(test_dir, "thiophene_wfs_5_carboxyl.qcout")
+        qcout = QcOutput(filename)
+        print unicode(qcout.final_structure)
+        self.maxDiff = None
+        ans = '''Molecule Summary (H4 C5 S1 O2)
+Reduced Formula: H4C5SO2
+Charge = -1, Spin Mult = 2
+Sites (12)
+1 C     0.194695    -0.158362    -0.001887
+2 C    -0.535373    -1.381241    -0.001073
+3 C    -1.927071    -1.199274    -0.000052
+4 C    -2.332651     0.131916     0.000329
+5 S    -0.942111     1.224916    -0.001267
+6 H    -0.038260    -2.345185    -0.001256
+7 H    -2.636299    -2.025939     0.000620
+8 H    -3.339756     0.529895     0.001288
+9 C     1.579982     0.071245    -0.002733
+10 O     2.196383     1.165675    -0.000178
+11 O     2.352341    -1.114671     0.001634
+12 H     3.261096    -0.769470     0.003158'''
+        self.assertEqual(unicode(qcout.final_structure), ans)
+
 
 if __name__ == "__main__":
     unittest.main()
