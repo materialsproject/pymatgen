@@ -1837,8 +1837,6 @@ $end
     def test_final_structure(self):
         filename = os.path.join(test_dir, "thiophene_wfs_5_carboxyl.qcout")
         qcout = QcOutput(filename)
-        print unicode(qcout.final_structure)
-        self.maxDiff = None
         ans = '''Molecule Summary (H4 C5 S1 O2)
 Reduced Formula: H4C5SO2
 Charge = -1, Spin Mult = 2
