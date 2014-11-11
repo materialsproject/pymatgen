@@ -1853,7 +1853,7 @@ Sites (12)
 10 O     2.196383     1.165675    -0.000178
 11 O     2.352341    -1.114671     0.001634
 12 H     3.261096    -0.769470     0.003158'''
-        self.assertEqual(unicode(qcout.final_structure), ans)
+        self.assertEqual(qcout.final_structure.__str__(), ans)
 
 
 if __name__ == "__main__":
