@@ -359,7 +359,9 @@ class FilepathFixer(object):
             newpath, ext = self._fix_path(path)
 
             if newpath is not None:
-                assert ext not in fixed_exts
+                if ext not in fixed_exts:
+                    if ext == "1WF": continue
+                    raise ValueError("Unknown extension %s" % ext)
                 fixed_exts.append(ext)
                 old2new[path] = newpath
 
