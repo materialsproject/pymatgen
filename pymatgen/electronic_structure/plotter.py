@@ -13,13 +13,12 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "May 1, 2012"
 
-
-from collections import OrderedDict
-
-import numpy as np
 import logging
 import math
 import itertools
+from collections import OrderedDict
+
+import numpy as np
 
 from monty.json import jsanitize
 from pymatgen.electronic_structure.core import Spin
@@ -405,7 +404,6 @@ class BSPlotter(object):
         plt = get_publication_quality_plot(12, 8)
         from matplotlib import rc
         import scipy.interpolate as scint
-
         rc('text', usetex=True)
 
         #main internal config options
