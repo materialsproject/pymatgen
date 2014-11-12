@@ -365,8 +365,8 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     # Compute ymax
     li = specie_site_index_map[0][0]
     hi = specie_site_index_map[0][1]
-    comp1_min = int(sum(multiplicity[li:hi])/sum(multiplicity)*100)-1
-    comp1_max = int(sum(multiplicity[li:hi])/sum(multiplicity)*100)+1
+    comp1_min = sum(multiplicity[li:hi])/sum(multiplicity)*100-1
+    comp1_max = sum(multiplicity[li:hi])/sum(multiplicity)*100+1
     delta = float(comp1_max-comp1_min)/120.0
     yvals = []
     for comp1 in np.arange(comp1_min,comp1_max+delta,delta):
@@ -465,6 +465,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         specie_ind = site_mu_map[i]
         indices = specie_site_index_map[specie_ind]
         specie_ind_del = indices[1]-indices[0]
+        cur_ind = i - indices[0] + 1
         for j in range(m):          # Antisite plot dat
             sub_specie = specie_order[j]
             if sub_specie == site_specie:
