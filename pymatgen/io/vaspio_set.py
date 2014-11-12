@@ -794,7 +794,8 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         """
         # Read input and output from previous run
         try:
-            vasp_run = Vasprun(os.path.join(previous_vasp_dir, "vasprun.xml"), parse_dos=False, parse_eigen=None)
+            vasp_run = Vasprun(os.path.join(previous_vasp_dir, "vasprun.xml"),
+                               parse_dos=False, parse_eigen=None)
             outcar = Outcar(os.path.join(previous_vasp_dir, "OUTCAR"))
             previous_incar = vasp_run.incar
             previous_kpoints = vasp_run.kpoints
