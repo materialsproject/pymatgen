@@ -32,7 +32,7 @@ class FuncTest(PymatgenTest):
         def f(x, y):
             data.append(y.group(1).strip())
         micro_pyawk(filename, [["POTCAR:(.*)", lambda x: x, f]])
-        print data
+        self.assertEqual(len(data), 6)
 
 if __name__ == "__main__":
     unittest.main()
