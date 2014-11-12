@@ -1220,6 +1220,14 @@ class QcOutput(object):
         # noinspection PyTypeChecker
         self.data = list(map(self._parse_job, chunks))
 
+    @property
+    def final_energy(self):
+        return self.data[-1]["energies"][-1][-1]
+
+    @property
+    def final_structure(self):
+        return self.data[-1]["molecules"][-1]
+
     @classmethod
     def _expected_successful_pattern(cls, qctask):
         text = ["Convergence criterion met"]
