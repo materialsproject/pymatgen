@@ -1868,8 +1868,7 @@ class IMolecule(SiteCollection, PMGSONable):
 
 class Structure(IStructure, collections.MutableSequence):
     """
-    Mutable version of structure. Much easier to use for editing,
-    but cannot be used as a key in a dict.
+    Mutable version of structure.
     """
     __hash__ = None
 

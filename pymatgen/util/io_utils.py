@@ -74,8 +74,7 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
 
     # Compile strings into regexs
     for entry in search:
-        if isinstance(entry[0], str):
-            entry[0] = re.compile(entry[0])
+        entry[0] = re.compile(entry[0])
 
     with open(filename) as f:
         for line in f:
