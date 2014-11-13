@@ -2993,7 +2993,8 @@ class PhononTask(AbinitTask):
     def make_links(self):
         super(PhononTask, self).make_links()
         # fix the problem that abinit uses hte 1WF extension for the DDK output file but reads it with the irdddk flag
-        self.indir.rename_abiext('DDK', '1WF')
+        if self.indir.has_abiext('DDK'):
+            self.indir.rename_abiext('DDK', '1WF')
 
 
 class SigmaTask(AbinitTask):
