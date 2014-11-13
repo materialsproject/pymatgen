@@ -492,7 +492,7 @@ class AbinitFlow(Node):
 
     def fix_abi_critical(self):
         """
-        Fixer for critical events originating form abinit
+        Fixer for critical events originating from abinit
         """
         for task in self.iflat_tasks(status=Task.S_ABICRITICAL):
             #todo
