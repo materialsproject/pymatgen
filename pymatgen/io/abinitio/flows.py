@@ -1396,9 +1396,6 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
         if with_ddk:
             deps[ddk_task] = 'DDK'
 
-        if with_dde:
-            deps[dde_task] = '1WF'
-
         logger.info(irred_perts[0]['qpt'])
 
         for irred_pert in irred_perts:
