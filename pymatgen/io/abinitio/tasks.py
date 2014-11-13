@@ -2990,6 +2990,11 @@ class PhononTask(AbinitTask):
         results = super(PhononTask, self).get_results(**kwargs)
         return results.add_gridfs_file(DDB=(self.outdir.has_abiext("DDB"), "t"))
 
+    def make_links(self):
+        super(PhononTask, self).make_links()
+        # fix the problem that abinit uses hte 1WF extension for the DDK output file but reads it with the irdddk flag
+        self.indir.rename_abiext('DDK', '1WF')
+
 
 class SigmaTask(AbinitTask):
     """
