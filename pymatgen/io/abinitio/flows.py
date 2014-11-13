@@ -1329,6 +1329,8 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
     flow = AbinitFlow(workdir, manager)
 
     # Register the first workflow (GS calculation)
+    # register_task creates a work for the task, registers it to the flow and returns the work
+    # the 0the element of the work is the task
     scf_task = flow.register_task(scf_input, task_class=ScfTask)[0]
 
     # Build a temporary workflow with a shell manager just to run
@@ -1347,7 +1349,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
         dde_input.set_variables(qpt=[0, 0, 0], rfddk=1, rfelfd=2)
         dde_input_idir = dde_input.deepcopy()
         dde_input_idir.set_variables(rfdir=[1, 1, 1])
-        dde_task = flow.register_task(dde_input, deps={scf_task: 'WFK', ddk_task: 'DDK'}, task_class=DdeTask)
+        dde_task = flow.register_task(dde_input, deps={scf_task: 'WFK', ddk_task: 'DDK'}, task_class=DdeTask)[0]
 
     if not isinstance(ph_inputs, (list, tuple)):
         ph_inputs = [ph_inputs]
