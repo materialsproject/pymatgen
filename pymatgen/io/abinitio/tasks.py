@@ -876,8 +876,8 @@ class TaskManager(object):
         return process
 
     def increase_resources(self):
-            # with GW calculations in mind with GW mem = 10, the response fuction is in memory and not distributed
-            # we need to increas memory if jobs fail ...
+            # with GW calculations in mind with GW mem = 10, the response function is in memory and not distributed
+            # we need to increase memory if jobs fail ...
         return self.qadapter.increase_mem()
 
 #        if self.policy.autoparal == 1:
