@@ -20,7 +20,7 @@ from pymatgen.core.units import ArrayWithUnit
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from pymatgen.util.string_utils import WildCard
 from . import wrappers
-from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, PhononTask, DdkTask, BseTask, RelaxTask)
+from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, PhononTask, DdkTask, BseTask, RelaxTask, DdeTask)
 from .strategies import HtcStrategy # ScfStrategy, RelaxStrategy
 from .utils import Directory
 from .netcdf import ETSF_Reader
@@ -504,8 +504,13 @@ class Workflow(BaseWorkflow):
         return self.register(*args, **kwargs)
 
     def register_ddk_task(self, *args, **kwargs):
-        """Register a nscf task."""
+        """Register a Ddk task."""
         kwargs["task_class"] = DdkTask
+        return self.register(*args, **kwargs)
+
+    def register_dde_task(self, *args, **kwargs):
+        """Register a Dde task."""
+        kwargs["task_class"] = DdeTask
         return self.register(*args, **kwargs)
 
     def register_bse_task(self, *args, **kwargs):

@@ -2938,7 +2938,6 @@ class DdkTask(AbinitTask):
         return results.add_gridfs_file(DDK=(self.outdir.has_abiext("DDK"), "t"))
 
 
-
 class PhononTask(AbinitTask):
     """
     DFPT calculations for a single atomic perturbation.
