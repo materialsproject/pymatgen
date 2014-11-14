@@ -853,6 +853,7 @@ class Vasprun(PMGSONable):
         try:
             s = self._parse_structure(elem.find("structure"))
         except AttributeError:  # not all calculations have a structure
+            s = None
             pass
         for va in elem.findall("varray"):
             print(va.attrib["name"])
