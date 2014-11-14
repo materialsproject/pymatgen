@@ -840,7 +840,7 @@ class Vasprun(PMGSONable):
             istep = {i.attrib["name"]: float(i.text)
                      for i in elem.find("energy").findall("i")}
         except AttributeError:  # not all calculations have an energy
-            istep = None
+            istep = {}
             pass
         esteps = []
         for scstep in elem.findall("scstep"):
