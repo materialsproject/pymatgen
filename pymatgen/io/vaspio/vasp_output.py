@@ -329,6 +329,7 @@ class Vasprun(PMGSONable):
         parsed_header = False
         for event, elem in iterparse(stream):
             tag = elem.tag
+            print(tag)
             if not parsed_header:
                 if tag == "generator":
                     self.generator = self._parse_params(elem)
