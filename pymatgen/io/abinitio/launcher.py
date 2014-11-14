@@ -509,7 +509,7 @@ class PyFlowScheduler(object):
         nqjobs = flow.get_njobs_in_queue()
         if nqjobs is None:
             nqjobs = 0
-            logger.warning('Cannot get njobs_inqueue')
+            if flow.manager.has_queue: logger.warning('Cannot get njobs_inqueue')
 
         if nqjobs >= self.max_njobs_inqueue:
             logger.info("Too many jobs in the queue, returning")
@@ -677,13 +677,20 @@ class PyFlowScheduler(object):
 
         finally:
             # Shutdown the scheduler thus allowing the process to exit.
-            print('this should be the shutdown of the scheduler')
+            logger.debug('this should be the shutdown of the scheduler')
+
+            lines = []
+            app = lines.append
+            app("Submitted on %s" % time.ctime(self.start_time))
+            app("Completed on %s" % time.asctime())
+            app("Elapsed time %s" % str(self.get_delta_etime()))
+            print("\n".join(lines))
 
             # Unschedule all the jobs before calling shutdown
-            self.sched.print_jobs()
+            #self.sched.print_jobs()
             for job in self.sched.get_jobs():
                 self.sched.unschedule_job(job)
-            self.sched.print_jobs()
+            #self.sched.print_jobs()
                 
             self.sched.shutdown()
             # Uncomment the line below if shutdown does not work!

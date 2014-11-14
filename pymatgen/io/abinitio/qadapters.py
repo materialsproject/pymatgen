@@ -1065,10 +1065,6 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         if not self.max_cores >= pconf.num_cores >= self.min_cores: return False
         if not self.hw.can_use_omp_threads(self.omp_threads): return False
         if pconf.mem_per_proc > self.hw.mem_per_node: return False
-        #try:
-        #    self.distribute(pconf.mpi_procs, pconf.omp_threads, pconf.mem_per_proc)
-        #except self.DistribError:
-        #    return False
         return self.condition(pconf)
 
     def distribute(self, mpi_procs, omp_threads, mem_per_proc):
@@ -1312,7 +1308,8 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                        'The error response reads:\n {}'.format(process.stderr.read()))
             logger.critical(err_msg)
 
-        logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
+        if not isinstance(self, ShellAdapter):
+            logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
         return njobs
 
     @abc.abstractmethod
@@ -1658,6 +1655,11 @@ $${qverbatim}
 
         else:
             raise RuntimeError("You should not be here")
+
+        if not self.has_omp:
+            chunks, ncpus, vmem, mpiprocs = self.mpi_procs, 1, self.mem_per_proc, 1
+        else:
+            chunks, ncpus, vmem, mpiprocs, omp_threads = self.mpi_procs, self.omp_threads, self.mem_per_proc, 1, self.omp_threads
 
         select_params = AttrDict(chunks=chunks, ncpus=ncpus, mpiprocs=mpiprocs, vmem=int(vmem), ompthreads=ompthreads)
 
