@@ -816,6 +816,11 @@ class TaskManager(object):
         return new
 
     @property
+    def has_queue(self):
+        """True if we are submitting jobs via a queue manager."""
+        return self.qadapter.QTYPE.lower() != "shell"
+
+    @property
     def qads(self):
         return self._qads
 
@@ -1522,6 +1527,25 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
         # Add the dependencies to the node.
         self._required_files.extend(files)
+
+    def set_user_info(self, *args, **kwargs):
+        """
+        Store additional info provided by the user in self.user_info
+
+        .. warning:
+
+            The objects stored in the dict must support pickle.
+        """
+        if not hasattr(self, "_user_info"): self._user_info = {}
+        self._user_info.update(*args, **kwargs)
+
+    @property
+    def user_info(self):
+        """Returns an `AttrDict` with the variables stored in self._user_info.""" 
+        try:
+            return AttrDict(**self._user_info)
+        except AttributeError:
+            return {}
 
     #@abc.abstractmethod
     #def set_status(self, status,  info_msg=None):
