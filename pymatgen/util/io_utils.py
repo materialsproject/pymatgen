@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 This module provides utility classes for io operations.
 """
 
-__author__ = "Shyue Ping Ong, Rickard Armiento, Anubhav Jain, G Matteo"
+__author__ = "Shyue Ping Ong, Rickard Armiento, Anubhav Jain, G Matteo, Ioannis Petousis"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -64,7 +64,7 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
     you interact with it in run() and test(). Hence, in many occasions it is
     thus clever to use results=self.
 
-    Author: Rickard Armiento
+    Author: Rickard Armiento, Ioannis Petousis
 
     Returns:
         results
@@ -74,14 +74,13 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
 
     # Compile strings into regexs
     for entry in search:
-        if isinstance(entry[0], str):
-            entry[0] = re.compile(entry[0])
+        entry[0] = re.compile(entry[0])
 
     with open(filename) as f:
         for line in f:
             for i in range(len(search)):
-                match = search[i][0].search(line)
-                if match and (search[i][1] is not None
+                match = re.search(search[i][0], line)
+                if match and (search[i][1] is None
                               or search[i][1](results, line)):
                     if debug is not None:
                         debug(results, match)

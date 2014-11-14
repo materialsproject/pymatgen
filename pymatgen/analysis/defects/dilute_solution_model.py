@@ -365,8 +365,8 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     # Compute ymax
     li = specie_site_index_map[0][0]
     hi = specie_site_index_map[0][1]
-    comp1_min = int(sum(multiplicity[li:hi])/sum(multiplicity)*100)-1
-    comp1_max = int(sum(multiplicity[li:hi])/sum(multiplicity)*100)+1
+    comp1_min = sum(multiplicity[li:hi])/sum(multiplicity)*100-1
+    comp1_max = sum(multiplicity[li:hi])/sum(multiplicity)*100+1
     delta = float(comp1_max-comp1_min)/120.0
     yvals = []
     for comp1 in np.arange(comp1_min,comp1_max+delta,delta):
