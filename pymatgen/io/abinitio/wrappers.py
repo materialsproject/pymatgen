@@ -255,7 +255,7 @@ class Mrgddb(ExecWrapper):
 
     Error = MrgddbError
 
-    def merge(self, ddb_files, out_ddb, description, cwd=None):
+    def qmerge(self, ddb_files, out_ddb, description, cwd=None):
         """Merge DDB file, return the absolute path of the new database."""
         # We work with absolute paths.
         ddb_files = [os.path.abspath(s) for s in list_strings(ddb_files)]
