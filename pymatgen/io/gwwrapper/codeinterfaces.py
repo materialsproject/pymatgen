@@ -153,7 +153,7 @@ class VaspInterface(AbstractCodeInterface):
             if os.path.isfile(run):
                 try:
                     logger.debug(run)
-                    data = Vasprun(run)
+                    data = Vasprun(run, ionic_step_skip=1)
                     parameters = data.__getattribute__('incar').as_dict
                     bandstructure = data.get_band_structure(kpoints)
                     results = {'ecuteps': parameters['ENCUTGW'],
