@@ -1147,8 +1147,6 @@ class G0W0WithQptdmFlow(AbinitFlow):
     Args:
         workdir:
             Working directory.
-        manager:
-            `TaskManager` object used to submit the jobs
         scf_input:
             Input for the GS SCF run.
         nscf_input:
@@ -1157,8 +1155,11 @@ class G0W0WithQptdmFlow(AbinitFlow):
             Input for the SCR run.
         sigma_inputs:
             Input(s) for the SIGMA run(s).
+        manager:
+            `TaskManager` object used to submit the jobs
+            Initialized from manager.yml if manager is None.
     """
-    def __init__(self, workdir, manager, scf_input, nscf_input, scr_input, sigma_inputs):
+    def __init__(self, workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=None):
         super(G0W0WithQptdmFlow, self).__init__(workdir, manager)
 
         # Register the first workflow (GS + NSCF calculation)
@@ -1287,21 +1288,22 @@ class FlowCallback(object):
 
 
 # Factory functions.
-def bandstructure_flow(workdir, manager, scf_input, nscf_input, dos_inputs=None):
+def bandstructure_flow(workdir, scf_input, nscf_input, dos_inputs=None, manager=None):
     """
     Build an `AbinitFlow` for band structure calculations.
 
     Args:
         workdir:
             Working directory.
-        manager:
-            `TaskManager` object used to submit the jobs
         scf_input:
             Input for the GS SCF run.
         nscf_input:
             Input for the NSCF run (band structure run).
         dos_inputs:
             Input(s) for the NSCF run (dos run).
+        manager:
+            `TaskManager` object used to submit the jobs
+            Initialized from manager.yml if manager is None.
 
     Returns:
         `AbinitFlow`
@@ -1312,15 +1314,13 @@ def bandstructure_flow(workdir, manager, scf_input, nscf_input, dos_inputs=None)
     return flow.allocate()
 
 
-def g0w0_flow(workdir, manager, scf_input, nscf_input, scr_input, sigma_inputs):
+def g0w0_flow(workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=None):
     """
     Build an `AbinitFlow` for one-shot $G_0W_0$ calculations.
 
     Args:
         workdir:
             Working directory.
-        manager:
-            `TaskManager` object used to submit the jobs
         scf_input:
             Input for the GS SCF run.
         nscf_input:
@@ -1329,29 +1329,33 @@ def g0w0_flow(workdir, manager, scf_input, nscf_input, scr_input, sigma_inputs):
             Input for the SCR run.
         sigma_inputs:
             List of inputs for the SIGMA run.
+        manager:
+            `TaskManager` object used to submit the jobs
+            Initialized from manager.yml if manager is None.
 
     Returns:
         `AbinitFlow`
     """
-    flow = AbinitFlow(workdir, manager)
+    flow = AbinitFlow(workdir=workdir, manager=manager)
     work = G0W0_Workflow(scf_input, nscf_input, scr_input, sigma_inputs)
     flow.register_work(work)
     return flow.allocate()
 
 
-def phonon_flow(workdir, manager, scf_input, ph_inputs):
+def phonon_flow(workdir, scf_input, ph_inputs, manager=None):
     """
     Build an `AbinitFlow` for phonon calculations.
 
     Args:
         workdir:
             Working directory.
-        manager:
-            `TaskManager` used to submit the jobs
         scf_input:
             Input for the GS SCF run.
         ph_inputs:
             List of Inputs for the phonon runs.
+        manager:
+            `TaskManager` used to submit the jobs.
+            Initialized from manager.yml if manager is None.
 
     Returns:
         `AbinitFlow`
