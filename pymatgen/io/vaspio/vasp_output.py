@@ -330,6 +330,7 @@ class Vasprun(PMGSONable):
         for event, elem in iterparse(stream):
             tag = elem.tag
             print(tag)
+            print(elem)
             if not parsed_header:
                 if tag == "generator":
                     self.generator = self._parse_params(elem)
@@ -848,7 +849,10 @@ class Vasprun(PMGSONable):
                 esteps.append(d)
             except AttributeError:  # not all calculations have an energy
                 pass
-        s = self._parse_structure(elem.find("structure"))
+        try:
+            s = self._parse_structure(elem.find("structure"))
+        except AttributeError:  # not all calculations have a structure
+            pass
         for va in elem.findall("varray"):
             istep[va.attrib["name"]] = _parse_varray(va)
         istep["electronic_steps"] = esteps
