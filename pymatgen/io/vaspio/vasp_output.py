@@ -854,6 +854,7 @@ class Vasprun(PMGSONable):
         except AttributeError:  # not all calculations have a structure
             pass
         for va in elem.findall("varray"):
+            print(va.attrib["name"])
             istep[va.attrib["name"]] = _parse_varray(va)
         istep["electronic_steps"] = esteps
         istep["structure"] = s
