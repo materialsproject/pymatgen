@@ -5,6 +5,7 @@ from __future__ import unicode_literals, division, print_function
 import os.path
 
 from monty.dev import requires
+from monty.functools import lazy_property
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.structure import Structure
 
@@ -245,20 +246,17 @@ class ETSF_Reader(NetcdfReader):
 
     We assume that the netcdf file contains at least the crystallographic section.
     """
-    @property
+    @lazy_property
     def chemical_symbols(self):
         """Chemical symbols char [number of atom species][symbol length]."""
-        if not hasattr(self, "_chemical_symbols"):
-            symbols = self.read_value("chemical_symbols")
-            self._chemical_symbols = []
-            for s in symbols:
-                self._chemical_symbols.append("".join(s))
-
-        return self._chemical_symbols
+        symbols = self.read_value("chemical_symbols")
+        symbols = [s.decode("ascii") for s in symbols]
+        chemical_symbols = [str("".join(s)) for s in symbols]
+        return chemical_symbols
 
     def typeidx_from_symbol(self, symbol):
         """Returns the type index from the chemical symbol. Note python convention."""
-        return self._chemical_symbols.index(symbol)
+        return self.chemical_symbols.index(symbol)
 
     def read_structure(self):
         """
