@@ -109,15 +109,19 @@ class PymatgenTest(unittest.TestCase):
             protocols = set([0, 1, 2] + [pickle.HIGHEST_PROTOCOL])
 
         # This list will contains the object deserialized with the different protocols.
-        objects_by_protocol = []
+        objects_by_protocol, errors = [], []
 
         for protocol in protocols:
             # Serialize and deserialize the object.
             mode = "wb"
             fd, tmpfile = tempfile.mkstemp(text="b" not in mode)
 
-            with open(tmpfile, mode) as fh:
-                pickle.dump(objects, fh, protocol=protocol)
+            try:
+                with open(tmpfile, mode) as fh:
+                    pickle.dump(objects, fh, protocol=protocol)
+            except Exception as exc:
+                errors.append("pickle.dump with protocol %s raised:\n%s" % (protocol, str(exc)))
+                continue
 
             with open(tmpfile, "rb") as fh:
                 new_objects = pickle.load(fh)
@@ -129,6 +133,9 @@ class PymatgenTest(unittest.TestCase):
 
             # Save the deserialized objects and test for equality.
             objects_by_protocol.append(new_objects)
+
+        if errors:
+            raise ValueError("\n".join(errors))
 
         # Return nested list so that client code can perform additional tests.
         if got_single_object:
