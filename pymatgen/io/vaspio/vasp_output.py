@@ -1184,16 +1184,16 @@ class Outcar(PMGSONable):
             def dielectric_section_start(results, match):
                 results.dielectric_index = -1
 
-            search.append(["MACROSCOPIC STATIC DIELECTRIC TENSOR", None,
+            search.append(["MACROSCOPIC STATIC DIELECTRIC TENSOR \(", None,
                            dielectric_section_start])
-
+        
             def dielectric_section_start2(results, match):
                 results.dielectric_index = 0
 
             search.append(["-------------------------------------",
-                           lambda results,
-                           line: results.dielectric_index == -1,
-                           dielectric_section_start2])
+                        lambda results,
+                        line: results.dielectric_index == -1,
+                        dielectric_section_start2])
 
             def dielectric_data(results, match):
                 results.dielectric_tensor[results.dielectric_index, :] = \
@@ -1204,14 +1204,14 @@ class Outcar(PMGSONable):
                            lambda results,
                            line: results.dielectric_index >= 0,
                            dielectric_data])
-
+         
             def dielectric_section_stop(results, match):
                 results.dielectric_index = None
 
             search.append(["-------------------------------------",
                            lambda results, line: results.dielectric_index >= 1,
                            dielectric_section_stop])
-
+            
             self.dielectric_index = None
             self.dielectric_tensor = np.zeros((3, 3))
 
@@ -1219,9 +1219,9 @@ class Outcar(PMGSONable):
                 results.piezo_index = 0
 
             search.append(["PIEZOELECTRIC TENSOR  for field in x, y, z        "
-                           "\(e  Angst\)",
+                           "\(C/m\^2\)",
                            None, piezo_section_start])
-
+            
             def piezo_data(results, match):
                 results.piezo_tensor[results.piezo_index, :] = \
                     np.array([float(match.group(i)) for i in range(1, 7)])
@@ -1232,7 +1232,7 @@ class Outcar(PMGSONable):
                            " +([-0-9.Ee+]+)*$",
                            lambda results, line: results.piezo_index >= 0,
                            piezo_data])
-
+            
             def piezo_section_stop(results, match):
                 results.piezo_index = None
 
@@ -1242,7 +1242,7 @@ class Outcar(PMGSONable):
 
             self.piezo_index = None
             self.piezo_tensor = np.zeros((3, 6))
-
+           
             def born_section_start(results, match):
                 results.born_ion = -1
 
@@ -1278,8 +1278,87 @@ class Outcar(PMGSONable):
 
             micro_pyawk(self.filename, search, self)
 
+            self.dielectric_tensor = self.dielectric_tensor.tolist()
+            self.piezo_tensor = self.piezo_tensor.tolist()
+
         except:
             raise Exception("LEPSILON OUTCAR could not be parsed.")
+
+
+    def read_lepsilon_ionic(self):
+        # variables to be filled
+        try:
+            search = []
+
+            def dielectric_section_start(results, match):
+                results.dielectric_ionic_index = -1
+
+            search.append(["MACROSCOPIC STATIC DIELECTRIC TENSOR IONIC", None,
+                           dielectric_section_start])
+        
+            def dielectric_section_start2(results, match):
+                results.dielectric_ionic_index = 0
+
+            search.append(["-------------------------------------",
+                        lambda results,
+                        line: results.dielectric_ionic_index == -1,
+                        dielectric_section_start2])
+
+            def dielectric_data(results, match):
+                results.dielectric_ionic_tensor[results.dielectric_ionic_index, :] = \
+                    np.array([float(match.group(i)) for i in range(1, 4)])
+                results.dielectric_ionic_index += 1
+
+            search.append(["^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$",
+                           lambda results,
+                           line: results.dielectric_ionic_index >= 0,
+                           dielectric_data])
+         
+            def dielectric_section_stop(results, match):
+                results.dielectric_ionic_index = None
+
+            search.append(["-------------------------------------",
+                           lambda results, line: results.dielectric_ionic_index >= 1,
+                           dielectric_section_stop])
+            
+            self.dielectric_ionic_index = None
+            self.dielectric_ionic_tensor = np.zeros((3, 3))
+
+            def piezo_section_start(results, match):
+                results.piezo_ionic_index = 0
+
+            search.append(["PIEZOELECTRIC TENSOR IONIC CONTR  for field in x, y, z        ",
+                           None, piezo_section_start])
+            
+            def piezo_data(results, match):
+                results.piezo_ionic_tensor[results.piezo_ionic_index, :] = \
+                    np.array([float(match.group(i)) for i in range(1, 7)])
+                results.piezo_ionic_index += 1
+
+            search.append(["^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
+                           " +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
+                           " +([-0-9.Ee+]+)*$",
+                           lambda results, line: results.piezo_ionic_index >= 0,
+                           piezo_data])
+            
+            def piezo_section_stop(results, match):
+                results.piezo_ionic_index = None
+
+            search.append(["-------------------------------------",
+                           lambda results, line: results.piezo_ionic_index >= 1,
+                           piezo_section_stop])
+
+            self.piezo_ionic_index = None
+            self.piezo_ionic_tensor = np.zeros((3, 6))
+
+            micro_pyawk(self.filename, search, self)
+
+            self.dielectric_ionic_tensor = self.dielectric_ionic_tensor.tolist()
+            self.piezo_ionic_tensor = self.piezo_ionic_tensor.tolist()
+
+        except:
+            raise Exception("ionic part of LEPSILON OUTCAR could not be parsed.")
+
 
     def read_lcalcpol(self):
         # variables to be filled
