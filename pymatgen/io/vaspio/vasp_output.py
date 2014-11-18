@@ -8,7 +8,7 @@ Classes for reading/manipulating/writing VASP ouput files.
 
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
-    "Vincent L Chevrier"
+    "Vincent L Chevrier, Ioannis Petousis"
 __credits__ = "Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.2"
