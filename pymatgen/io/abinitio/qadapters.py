@@ -1201,7 +1201,7 @@ class PbsProAdapter(AbstractQueueAdapter):
         return False
 
     def increase_mem(self, factor=1):
-        base_increase = 2000
+        base_increase = 2001
         new_mem = self.qparams["pvmem"] + factor*base_increase
         if new_mem < self.LIMITS['mem']:
             self.set_mem_per_cpu(new_mem)
