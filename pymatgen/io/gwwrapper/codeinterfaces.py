@@ -155,7 +155,7 @@ class VaspInterface(AbstractCodeInterface):
                     logger.debug(run)
                     print(run)
                     data = Vasprun(run, ionic_step_skip=1)
-                    parameters = data.__getattribute__('incar').as_dict
+                    parameters = data.incar.as_dict()
                     bandstructure = data.get_band_structure(kpoints)
                     results = {'ecuteps': parameters['ENCUTGW'],
                                'nbands': parameters['NBANDS'],
