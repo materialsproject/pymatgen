@@ -519,7 +519,7 @@ class AbinitFlow(Node):
             if not task.queue_errors:
                 # queue error but no errors detected, try to solve by increasing resources
                 # if resources are at maximum the tast is definitively turned to errored
-                if self.manager.increase_resources():  # acts either on the policy or on the qadapter
+                if task.manager.increase_resources():  # acts either on the policy or on the qadapter
                     task.reset_from_scratch()
                     return True
                 else:
