@@ -165,7 +165,7 @@ class AbstractAbinitioSpec(MSONable):
                 name = Structure.from_dict(c['icsd_data']['structure']).composition.reduced_formula, c['icsd_id'],\
                     c['MP_id']
                 print(name)
-                Structure.from_dict(c['icsd_data']['structure']).to(fmt='cif',filename=name)
+                #Structure.from_dict(c['icsd_data']['structure']).to(fmt='cif',filename=name)
                 items_list.append({'name': 'mp-' + c['MP_id'], 'icsd': c['icsd_id'], 'mp': c['MP_id']})
         else:
             items_list = [line.strip() for line in open(self.data['source'])]
