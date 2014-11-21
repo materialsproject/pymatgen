@@ -17,7 +17,7 @@ __date__ = "Sep 23, 2011"
 import re
 import numpy
 import six
-
+from monty.io import zopen
 
 def clean_lines(string_list, remove_empty_lines=True):
     """
@@ -76,7 +76,7 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
     for entry in search:
         entry[0] = re.compile(entry[0])
 
-    with open(filename) as f:
+    with zopen(filename) as f:
         for line in f:
             for i in range(len(search)):
                 match = re.search(search[i][0], line)
