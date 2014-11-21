@@ -2862,22 +2862,22 @@ class ProduceGsr(object):
     Mixin class for AbinitTasks producing a GSR file.
     Provice the method `read_gsr` that reads and return a GSR file.
     """
-    def read_gsr(self):
+    def open_gsr(self):
         """
-        Read the GSR file located in the in self.outdir. 
+        Open the GSR file located in the in self.outdir. 
         Returns GSR_File object, None if file could not be found or file is not readable.
         """
         gsr_path = self.outdir.has_abiext("GSR")
         if not gsr_path:
-            logger.critical("%s didn't produce a GSR file in %d" % (self, self.outdir))
+            logger.critical("%s didn't produce a GSR file in %s" % (self, self.outdir))
             return None
 
-        # Open the GRS file and add its data to results.out
+        # Open the GSR file and add its data to results.out
         from abipy.electrons.gsr import GSR_File
         try:
             return GSR_File(gsr_path)
         except Exception as exc:
-            logger.critical("Exception while reading GRS file at %s:\n%s" % (gsr_path, str(exc)))
+            logger.critical("Exception while reading GSR file at %s:\n%s" % (gsr_path, str(exc)))
             return None
 
 
@@ -2924,7 +2924,7 @@ class ScfTask(AbinitTask, ProduceGsr):
     def get_results(self, **kwargs):
         results = super(ScfTask, self).get_results(**kwargs)
 
-        # Open the GRS file and add its data to results.out
+        # Open the GSR file and add its data to results.out
         gsr = self.read_gsr()
         results["out"].update(gsr.as_dict())
 
@@ -3042,7 +3042,7 @@ class RelaxTask(AbinitTask, ProduceGsr):
     def get_results(self, **kwargs):
         results = super(RelaxTask, self).get_results(**kwargs)
 
-        # Open the GRS file and add its data to results.out
+        # Open the GSR file and add its data to results.out
         gsr = self.read_gsr()
         results["out"].update(gsr.as_dict())
 
@@ -3134,12 +3134,31 @@ class SigmaTask(AbinitTask):
         # Now we can resubmit the job.
         return self._restart()
 
+    def open_sigres(self):
+        """
+        Open the SIGRES file located in the in self.outdir. 
+        Returns SIGRES_File object, None if file could not be found or file is not readable.
+        """
+
+        sigres_path = self.outdir.has_abiext("SIGRES")
+
+        if not sigres_path:
+            logger.critical("%s didn't produce a SIGRES file in %s" % (self, self.outdir))
+            return None
+
+        # Open the GSR file and add its data to results.out
+        from abipy.electrons.gw import SIGRES_File
+        try:
+            return SIGRES_File(sigres_path)
+        except Exception as exc:
+            logger.critical("Exception while reading SIGRES file at %s:\n%s" % (sigres_path, str(exc)))
+            return None
+
     def get_results(self, **kwargs):
         results = super(SigmaTask, self).get_results(**kwargs)
 
         # Open the SIGRES file and add its data to results.out
-        #from abipy.electrons.gw import SIGRES_File
-        #sigres = SIGRES_File(self.outdir.has_abiext("SIGRES"))
+        #sigres = self.open_sigres()
         #results["out"].update(sigres.as_dict())
         #return results.add_gridfs_files(SIGRES=sigres.filepath)
         return results
@@ -3227,6 +3246,24 @@ class BseTask(AbinitTask):
     #    haydock_cycle = abiinspect.HaydockIterations.from_file(self.output_file.path)
     #    if haydock_cycle is not None:
     #        return haydock_cycle.plot(**kwargs)
+
+    def open_mdf(self):
+        """
+        Open the MSF file located in the in self.outdir. 
+        Returns MSF_File object, None if file could not be found or file is not readable.
+        """
+        mdf_path = self.outdir.has_abiext("MDF")
+        if not mdf_path:
+            logger.critical("%s didn't produce a MDF file in %s" % (self, self.outdir))
+            return None
+
+        # Open the DFF file and add its data to results.out
+        from abipy.electrons.bse import MDF_File
+        try:
+            return MDF_File(mdf_path)
+        except Exception as exc:
+            logger.critical("Exception while reading MDF file at %s:\n%s" % (mdf_path, str(exc)))
+            return None
 
     def get_results(self, **kwargs):
         results = super(BseTask, self).get_results(**kwargs)
