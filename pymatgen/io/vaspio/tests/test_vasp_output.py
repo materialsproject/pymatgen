@@ -244,6 +244,28 @@ class OutcarTest(unittest.TestCase):
         outcar = Outcar(filepath)
         self.assertTrue(outcar.is_stopped)
 
+        for f in ['OUTCAR.lepsilon', 'OUTCAR.lepsilon.gz']:
+            filepath = os.path.join(test_dir, f)
+            outcar = Outcar(filepath)
+
+            outcar.read_lepsilon()
+            outcar.read_lepsilon_ionic()
+
+            self.assertAlmostEqual(outcar.dielectric_tensor[0][0], 3.716432)
+            self.assertAlmostEqual(outcar.dielectric_tensor[0][1], -0.20464)
+            self.assertAlmostEqual(outcar.dielectric_tensor[1][2], -0.20464)
+            self.assertAlmostEqual(outcar.dielectric_ionic_tensor[0][0], 0.001419)
+            self.assertAlmostEqual(outcar.dielectric_ionic_tensor[0][2], 0.001419)
+            self.assertAlmostEqual(outcar.dielectric_ionic_tensor[2][2], 0.001419)
+            self.assertAlmostEqual(outcar.piezo_tensor[0][0], 0.52799)
+            self.assertAlmostEqual(outcar.piezo_tensor[1][3], 0.35998)
+            self.assertAlmostEqual(outcar.piezo_tensor[2][5], 0.35997)
+            self.assertAlmostEqual(outcar.piezo_ionic_tensor[0][0], 0.05868)
+            self.assertAlmostEqual(outcar.piezo_ionic_tensor[1][3], 0.06241)
+            self.assertAlmostEqual(outcar.piezo_ionic_tensor[2][5], 0.06242)
+            self.assertAlmostEqual(outcar.born[0][1][2], -0.385)
+            self.assertAlmostEqual(outcar.born[1][2][0], 0.36465)
+
     def test_core_state_eigen(self):
         filepath = os.path.join(test_dir, "OUTCAR.CL")
         cl = Outcar(filepath).read_core_state_eigen()
