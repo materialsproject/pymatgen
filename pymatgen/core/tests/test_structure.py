@@ -204,6 +204,33 @@ class IStructureTest(PymatgenTest):
         struct2 = IStructure(self.struct.lattice, ["Si", "Fe"], coords2)
         self.assertRaises(ValueError, struct.interpolate, struct2)
 
+        # Test autosort feature.
+        s1 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3),
+                                       ["Fe"], [[0, 0, 0]])
+        s1.pop(0)
+        s2 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3),
+                                       ["Fe"], [[0, 0, 0]])
+        s2.pop(2)
+        random.shuffle(s2)
+
+        for s in s1.interpolate(s2, autosort_tol=0.5):
+            self.assertArrayAlmostEqual(s1[0].frac_coords, s[0].frac_coords)
+            self.assertArrayAlmostEqual(s1[2].frac_coords, s[2].frac_coords)
+
+        # Make sure autosort has no effect on simpler interpolations,
+        # and with shuffled sites.
+        s1 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3),
+                                       ["Fe"], [[0, 0, 0]])
+        s2 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3),
+                                       ["Fe"], [[0, 0, 0]])
+        s2[0] = "Fe", [0.01, 0.01, 0.01]
+        random.shuffle(s2)
+
+        for s in s1.interpolate(s2, autosort_tol=0.5):
+            self.assertArrayAlmostEqual(s1[1].frac_coords, s[1].frac_coords)
+            self.assertArrayAlmostEqual(s1[2].frac_coords, s[2].frac_coords)
+            self.assertArrayAlmostEqual(s1[3].frac_coords, s[3].frac_coords)
+
     def test_interpolate_lattice(self):
         coords = list()
         coords.append([0, 0, 0])
@@ -426,6 +453,13 @@ class StructureTest(PymatgenTest):
         self.assertEqual(s[0].charge, 4.1)
         self.assertEqual(s[0].magmom, 3)
 
+    def test_propertied_structure(self):
+        #Make sure that site properties are set to None for missing values.
+        s = self.structure
+        s.add_site_property("charge", [4.1, -5])
+        s.append("Li", [0.3, 0.3 ,0.3])
+        self.assertEqual(len(s.site_properties["charge"]), 3)
+
     def test_perturb(self):
         d = 0.1
         pre_perturbation_sites = self.structure.sites[:]
@@ -608,6 +642,16 @@ class StructureTest(PymatgenTest):
         self.assertRaises(ValueError, Structure.from_spacegroup,
                           "Pm-3m", Lattice.tetragonal(1, 3), ["Cs", "Cl"],
                           [[0, 0, 0], [0.5, 0.5, 0.5]])
+
+    def test_merge_sites(self):
+        species = [{'Ag': 0.5}, {'Cl': 0.35}, {'Ag': 0.5}, {'F': 0.25}]
+        coords = [[0, 0, 0], [0.5, 0.5, 0.5], [0, 0, 0], [0.5, 0.5, 1.501]]
+        s = Structure(Lattice.cubic(1), species, coords)
+        s.merge_sites()
+        self.assertEqual(s[0].specie.symbol, 'Ag')
+        self.assertEqual(s[1].species_and_occu,
+                         Composition({'Cl': 0.35, 'F': 0.25}))
+        self.assertArrayAlmostEqual(s[1].frac_coords, [.5, .5, .5005])
 
 
 class IMoleculeTest(PymatgenTest):

@@ -27,11 +27,8 @@ from .netcdf import structure_from_etsf_file
 
 def contract(s):
     """
-    >>> contract("1 1 1 2 2 3")
-     3*1 2*2 1*3
-
-    >>> contract("1 1 3 2 3")
-     2*1 1*3 1*2 1*3
+    >>> assert contract("1 1 1 2 2 3") == "3*1 2*2 1*3"
+    >>> assert contract("1 1 3 2 3") == "2*1 1*3 1*2 1*3"
     """
     if not s: return s
 
@@ -344,8 +341,6 @@ def asabistructure(obj):
                 structure = structure_from_etsf_file(obj)
             else:
                 structure = Structure.from_file(obj)
-                #from pymatgen.io.smartio import read_structure
-                #structure = read_structure(obj)
 
             # Promote
             return AbiStructure(structure)
@@ -1354,7 +1349,6 @@ class ExcHamiltonian(AbivarAble):
 
     def to_abivars(self):
         """Returns a dictionary with the abinit variables."""
-
         abivars = dict(
             bs_calctype=1,
             bs_loband=self.bs_loband,

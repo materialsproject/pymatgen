@@ -359,6 +359,18 @@ class LatticeTestCase(PymatgenTest):
         self.assertAlmostEqual(dist, 2)
         self.assertArrayAlmostEqual(image, [0, 0, -1])
 
+    def test_get_all_distance_and_image(self):
+        r = self.cubic.get_all_distance_and_image([0, 0, 0.1],
+                                                  [0, 0., 0.9])
+        self.assertEqual(len(r), 8)
+        dist, image = min(r, key=lambda x: x[0])
+        self.assertAlmostEqual(dist, 2)
+        self.assertArrayAlmostEqual(image, [0, 0, -1])
+        dist, image = max(r, key=lambda x: x[0])
+        self.assertAlmostEqual(dist, 16.24807680927192)
+        self.assertArrayAlmostEqual(image, [1, 1, 0])
+
+
 if __name__ == '__main__':
     import unittest
     unittest.main()

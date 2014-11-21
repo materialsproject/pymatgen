@@ -59,8 +59,8 @@ def select_pseudos(pseudos, structure, ret_table=True):
 
 
 def order_pseudos(pseudos, structure):
-    logger.info('calling order pseudos')
-    return select_pseudos(pseudos, structure, ret_table=False)
+    #logger.info('calling order pseudos')
+    return select_pseudos(pseudos, structure) #, ret_table=False)
 
 
 def num_valence_electrons(pseudos, structure):

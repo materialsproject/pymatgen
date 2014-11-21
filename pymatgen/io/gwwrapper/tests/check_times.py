@@ -62,21 +62,21 @@ if __name__ == '__main__':
     mk_folders = timeit.timeit("test_make_folders()", setup="from __main__ import test_make_folders", number=n)
     cd_folders = timeit.timeit("test_cd()", setup="from __main__ import test_cd", number=n)
 
-    print 'made and removed 100 folders in', mk_folders, 's'
-    print 'made, moved to, returned and removed 100 folders in', cd_folders, 's'
+    print('made and removed 100 folders in', mk_folders, 's')
+    print('made, moved to, returned and removed 100 folders in', cd_folders, 's')
 
     for my_m in [50000, 100000, 200000]:
         test_write(my_m)
         size = os.path.getsize('test')
-        print 'file size', size
+        print('file size', size)
 
         setup = "from __main__ import test_write\nmy_m =" + str(my_m)
 
         write = timeit.timeit("test_write(my_m)", setup=setup, number=n)
         read = timeit.timeit("test_read()", setup="from __main__ import test_read", number=n*200)
 
-        print n, 'times written in ', write, 's, ', size * n / write / 1000000, 'MB/s'
-        print n*200, 'times read in  ', read, 's, ', size * 200 * n / read / 1000000, 'MB/s'
+        print(n, 'times written in ', write, 's, ', size * n / write / 1000000, 'MB/s')
+        print(n*200, 'times read in  ', read, 's, ', size * 200 * n / read / 1000000, 'MB/s')
 
 #        assert write < 10 * n / 100 * my_m / 100000
 #        assert read < 10 * n / 100 * my_m / 100000

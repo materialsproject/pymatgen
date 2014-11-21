@@ -130,7 +130,7 @@ def print_gnuplot_header(filename, title='', mode='convplot', filetype='jpeg'):
     if mode == 'convplot':
         f = open(filename, mode='a')
         if filetype is None:
-            f.write('pause -1')
+            f.write('pause -1\n')
         else:
             f.write('set terminal '+filetype+'\n')
         f.write('set title "'+title+'"\n')

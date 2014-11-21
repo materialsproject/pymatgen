@@ -119,8 +119,9 @@ class SymmOp(PMGSONable):
         Returns:
             Numpy array of coordinates after operation
         """
-        affine_points = np.concatenate([points, np.ones([len(points), 1])], axis=-1)
-        return np.inner(affine_points, self.affine_matrix)[:, :-1]
+        points = np.array(points)
+        affine_points = np.concatenate([points, np.ones(points.shape[:-1] + (1,))], axis=-1)
+        return np.inner(affine_points, self.affine_matrix)[..., :-1]
 
     def apply_rotation_only(self, vector):
         """
