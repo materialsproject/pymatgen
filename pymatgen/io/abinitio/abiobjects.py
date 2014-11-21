@@ -360,7 +360,7 @@ class AbiStructure(Structure, AbivarAble):
         new.__class__ = cls
         return new
 
-    def __init__(self, structure):
+    def e___init__(self, structure):
         pass
 
     @classmethod
