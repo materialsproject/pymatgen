@@ -9,6 +9,7 @@ import abc
 import collections
 import numpy as np
 import six
+import copy
 
 from six.moves import filter
 from prettytable import PrettyTable
@@ -26,6 +27,7 @@ from .utils import Directory
 from .netcdf import ETSF_Reader
 from .abitimer import AbinitTimerParser
 from .abiinspect import yaml_read_kpoints
+
 
 try:
     from pydispatch import dispatcher
@@ -849,11 +851,11 @@ class G0W0_Workflow(Workflow):
         self.sigma_tasks = []
         for sigma_input in sigma_inputs:
             if spread_scr:
-                scr_input.screening.ecuteps = sigma_input.sigma.ecuteps
+                scr_input.screening.ecuteps = copy.copy(sigma_input.sigma.ecuteps)
                 print('\n  ---- \n')
                 print(scr_input.screening.ecuteps, sigma_input.sigma.ecuteps)
-                scr_input.screening.nband = sigma_input.sigma.nband
-                scr_input.electrons.nband = sigma_input.sigma.nband
+                scr_input.screening.nband = copy.copy(sigma_input.sigma.nband)
+                scr_input.electrons.nband = copy.copy(sigma_input.sigma.nband)
                 print(scr_input.electrons.nband, sigma_input.sigma.nband)
                 print(scr_input.make_input())
                 scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
