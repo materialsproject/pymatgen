@@ -73,7 +73,7 @@ class NetcdfReader(object):
         try:
             self.rootgrp = netCDF4.Dataset(self.path, mode="r")
         except Exception as exc:
-            raise self.Error("%s: %s" % (self.path, str(exc)))
+            raise self.Error("In file %s: %s" % (self.path, str(exc)))
 
         self.ngroups = len(list(self.walk_tree()))
 
@@ -148,10 +148,7 @@ class NetcdfReader(object):
         Returns:
             numpy array if varname represents an array, scalar otherwise.
         """
-        try:
-            var = self.read_variable(varname, path=path)
-        except:
-            raise
+        var = self.read_variable(varname, path=path)
 
         if cmode is None:
             # scalar or array
@@ -184,7 +181,7 @@ class NetcdfReader(object):
                 return [group.dimensions[dname] for dname in dimnames]
 
         except KeyError:
-            raise self.Error("dimnames %s, kwargs %s" % (dimnames, kwargs))
+            raise self.Error("In file %s:\ndimnames %s, kwargs %s" % (self.path, dimnames, kwargs))
 
     def _read_variables(self, *varnames, **kwargs):
         path = kwargs.get("path", "/")
@@ -196,7 +193,7 @@ class NetcdfReader(object):
                 return [group.variables[vname] for vname in varnames]
 
         except KeyError:
-            raise self.Error("varnames %s, kwargs %s" % (varnames, kwargs))
+            raise self.Error("In file %s:\nvarnames %s, kwargs %s" % (self.path, varnames, kwargs))
 
     def read_values_with_map(self, names, map_names=None, path="/"):
         """
@@ -267,7 +264,7 @@ class ETSF_Reader(NetcdfReader):
                 Optional dictionary with site properties.
         """
         if self.ngroups != 1:
-            raise NotImplementedError("ngroups != 1")
+            raise NotImplementedError("In file %s: ngroups != 1" % self.path)
 
         return structure_from_etsf_file(self)
 
