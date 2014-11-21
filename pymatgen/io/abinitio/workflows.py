@@ -849,8 +849,8 @@ class G0W0_Workflow(Workflow):
         self.sigma_tasks = []
         for sigma_input in sigma_inputs:
             if spread_scr:
-                scr_input['ecuteps'] = sigma_input['ecuteps']
-                scr_input['scr_nband'] = sigma_input['sigma_nband']
+                scr_input.screening.ecuteps = sigma_input.sigma.ecuteps
+                scr_input.electrons.nband = sigma_input.sigma.nband
                 scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
 
             task = self.register(sigma_input, deps={nscf_task: "WFK", scr_task: "SCR"})
