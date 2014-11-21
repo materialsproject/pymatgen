@@ -11,14 +11,16 @@ import numpy as np
 import six
 
 from six.moves import filter
+from prettytable import PrettyTable
 from monty.collections import AttrDict
 from monty.itertools import chunks
 from monty.pprint import pprint_table
-from pymatgen.core.units import ArrayWithUnit
+from monty.functools import lazy_property
+from pymatgen.core.units import EnergyArray
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from pymatgen.util.string_utils import WildCard
 from . import wrappers
-from .tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, DdkTask, BseTask, RelaxTask)
+from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, PhononTask, DdkTask, BseTask, RelaxTask)
 from .strategies import HtcStrategy # ScfStrategy, RelaxStrategy
 from .utils import Directory
 from .netcdf import ETSF_Reader
@@ -38,6 +40,7 @@ __copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 
+
 __all__ = [
     "Workflow",
     "BandStructureWorkflow",
@@ -50,66 +53,24 @@ __all__ = [
 ]
 
 
-class WorkflowResults(dict, PMGSONable):
-    """
-    Dictionary used to store some of the results produce by a workflow.
-    """
-    _MANDATORY_KEYS = [
-        "task_results",
-    ]
-
-    _EXC_KEY = "_exceptions"
-
-    def __init__(self, *args, **kwargs):
-        super(WorkflowResults, self).__init__(*args, **kwargs)
-
-        if self._EXC_KEY not in self:
-            self[self._EXC_KEY] = []
-
-    @property
-    def exceptions(self):
-        """List of registered exceptions."""
-        return self[self._EXC_KEY]
-
-    def push_exceptions(self, *exceptions):
-        """Save a list of exceptions."""
-        for exc in exceptions:
-            newstr = str(exc)
-            if newstr not in self.exceptions:
-                self[self._EXC_KEY] += [newstr]
-
-    def assert_valid(self):
-        """
-        Returns empty string if results seem valid.
-
-        The try assert except trick allows one to get a string with info on the exception.
-        We use the += operator so that sub-classes can add their own message.
-        """
-        # Validate tasks.
-        for tres in self["task_results"]:
-            self[self._EXC_KEY] += tres.assert_valid()
-
-        return self[self._EXC_KEY]
-
-    def json_dump(self, filepath):
-        json_pretty_dump(self, filepath)
-
-    def as_dict(self):
-        return self.to_dict
-
-    @property
-    def to_dict(self):
-        """Convert object to dictionary."""
-        d = {k: v for k,v in self.items()}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+class WorkResults(NodeResults):
+    JSON_SCHEMA = NodeResults.JSON_SCHEMA.copy() 
 
     @classmethod
-    def from_dict(cls, d):
-        """Build the object from a dictionary."""
-        mydict = {k: v for k, v in d.items() if k not in ["@module", "@class"]}
-        return cls(mydict)
+    def from_node(cls, work):
+        """Initialize an instance from a WorkFlow instance."""
+        new = super(WorkResults, cls).from_node(work)
+
+        #new.update(
+        #    #input=work.strategy
+        #)
+
+        # Will put all files found in outdir in GridFs 
+        # Warning: assuming binary files.
+        d = {os.path.basename(f): f for f in work.outdir.list_filepaths()}
+        new.add_gridfs_files(**d)
+
+        return new
 
 
 class WorkflowError(Exception):
@@ -119,7 +80,7 @@ class WorkflowError(Exception):
 class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
     Error = WorkflowError
 
-    Results = WorkflowResults
+    Results = WorkResults
 
     # interface modeled after subprocess.Popen
     @abc.abstractproperty
@@ -153,7 +114,7 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
 
     def show_intrawork_deps(self):
         """Show the dependencies within the `Workflow`."""
-        table = [["Task #"] + [str(i) for i in range(len(self))]]
+        table = PrettyTable(["Task #"] + [str(i) for i in range(len(self))])
 
         for ii, task1 in enumerate(self):
             line = (1 + len(self)) * [""]
@@ -161,10 +122,9 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
             for jj, task2 in enumerate(self):
                 if task1.depends_on(task2):
                     line[jj+1] = "^"
+            table.add_row(line)
 
-            table.append(line)
-
-        pprint_table(table)
+        print(table)
 
     @property
     def returncodes(self):
@@ -176,30 +136,30 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
         return [task.returncode for task in self]
 
     @property
-    def ncpus_reserved(self):
+    def ncores_reserved(self):
         """
-        Returns the number of CPUs reserved in this moment.
-        A CPUS is reserved if it's still not running but 
+        Returns the number of cores reserved in this moment.
+        A core is reserved if it's still not running but 
         we have submitted the task to the queue manager.
         """
-        return sum(task.tot_ncpus for task in self if task.status == task.S_SUB)
+        return sum(task.tot_cores for task in self if task.status == task.S_SUB)
 
     @property
-    def ncpus_allocated(self):
+    def ncores_allocated(self):
         """
         Returns the number of CPUs allocated in this moment.
-        A CPU is allocated if it's running a task or if we have
+        A core is allocated if it's running a task or if we have
         submitted a task to the queue manager but the job is still pending.
         """
-        return sum(task.tot_ncpus for task in self if task.status in [task.S_SUB, task.S_RUN])
+        return sum(task.tot_cores for task in self if task.status in [task.S_SUB, task.S_RUN])
 
     @property
-    def ncpus_inuse(self):
+    def ncores_inuse(self):
         """
-        Returns the number of CPUs used in this moment.
-        A CPU is used if there's a job that is running on it.
+        Returns the number of cores used in this moment.
+        A core is used if there's a job that is running on it.
         """
-        return sum(task.tot_ncpus for task in self if task.status == task.S_RUN)
+        return sum(task.tot_cores for task in self if task.status == task.S_RUN)
 
     def fetch_task_to_run(self):
         """
@@ -298,13 +258,13 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
         """
         return dict(returncode=0, message="Calling on_all_ok of the base class!")
 
-    def get_results(self):
+    def get_results(self, **kwargs):
         """
         Method called once the calculations are completed.
-
         The base version returns a dictionary task_name: TaskResults for each task in self.
         """
-        return WorkflowResults(task_results={task.name: task.results for task in self})
+        results = self.Results.from_node(self)
+        return results
 
 
 class Workflow(BaseWorkflow):
@@ -349,6 +309,14 @@ class Workflow(BaseWorkflow):
         else: 
             if self._flow != flow:
                 raise ValueError("self._flow != flow")
+
+    @lazy_property
+    def pos(self):
+        """The position of self in the Flow"""
+        for i, work in enumerate(self.flow):
+            if self == work: 
+                return i
+        raise ValueError("Cannot find the position of %s in flow %s" % (self, self.flow))
 
     def set_workdir(self, workdir, chroot=False):
         """Set the working directory. Cannot be set more than once unless chroot is True"""
@@ -446,12 +414,8 @@ class Workflow(BaseWorkflow):
 
             if not hasattr(task, "manager"):
                 # Set the manager
-                if manager is not None:
-                    # Use the one provided in input.
-                    task.set_manager(manager)
-                else:
-                    # Use the one of the workflow.
-                    task.set_manager(self.manager)
+                # Use the one provided in input else the one of the workflow.
+                task.set_manager(manager) if manager is not None else task.set_manager(self.manager)
 
             task_workdir = os.path.join(self.workdir, "t" + str(i))
 
@@ -532,6 +496,11 @@ class Workflow(BaseWorkflow):
     def register_relax_task(self, *args, **kwargs):
         """Register a task for structural optimization."""
         kwargs["task_class"] = RelaxTask
+        return self.register(*args, **kwargs)
+
+    def register_phonon_task(self, *args, **kwargs):
+        """Register a phonon task."""
+        kwargs["task_class"] = PhononTask
         return self.register(*args, **kwargs)
 
     def register_ddk_task(self, *args, **kwargs):
@@ -672,8 +641,8 @@ class Workflow(BaseWorkflow):
         """
         for task in self:
             task.start()
-
-        if wait: 
+    
+        if wait:
             for task in self: task.wait()
 
     def start(self, *args, **kwargs):
@@ -713,7 +682,7 @@ class Workflow(BaseWorkflow):
                 
             etotals.append(etot)
 
-        return ArrayWithUnit(etotals, "Ha").to(unit)
+        return EnergyArray(etotals, "Ha").to(unit)
 
     def parse_timers(self):
         """
@@ -722,7 +691,7 @@ class Workflow(BaseWorkflow):
         Returns:
             `AbinitTimerParser` object
         """
-        filenames = filter(os.path.exists, [task.output_file.path for task in self])
+        filenames = list(filter(os.path.exists, [task.output_file.path for task in self]))
                                                                            
         parser = AbinitTimerParser()
         parser.parse(filenames)
@@ -955,7 +924,7 @@ class QptdmWorkflow(Workflow):
 
         # Build a temporary workflow in the tmpdir that will use a shell manager
         # to run ABINIT in order to get the list of q-points for the screening.
-        shell_manager = self.manager.to_shell_manager(mpi_ncpus=1)
+        shell_manager = self.manager.to_shell_manager(mpi_procs=1)
 
         w = Workflow(workdir=self.tmpdir.path_join("_qptdm_run"), manager=shell_manager)
 
@@ -993,7 +962,7 @@ class QptdmWorkflow(Workflow):
         the final SCR file in the outdir of the `Workflow`.
         If remove_scrfiles is True, the partial SCR files are removed after the merge.
         """
-        scr_files = filter(None, [task.outdir.has_abiext("SCR") for task in self])
+        scr_files = list(filter(None, [task.outdir.has_abiext("SCR") for task in self]))
 
         logger.debug("will call mrgscr to merge %s:\n" % str(scr_files))
         assert len(scr_files) == len(self)
@@ -1019,7 +988,92 @@ class QptdmWorkflow(Workflow):
         the final SCR file in the outdir of the `Workflow`.
         """
         final_scr = self.merge_scrfiles()
-        return WorkflowResults(returncode=0, message="mrgscr done", final_scr=final_scr)
+        return self.Results(node=self,returncode=0, message="mrgscr done", final_scr=final_scr)
+
+
+def build_oneshot_phononwork(scf_input, ph_inputs, workdir=None, manager=None, work_class=None):
+    """
+    Returns a workflow for the computation of phonon frequencies
+    ph_inputs is a list of input for Phonon calculation in which all the independent perturbations 
+    are explicitly computed i.e. 
+
+        * rfdir 1 1 1
+        * rfatpol 1 natom
+
+    .. warning:
+        This workflow is mainly used for simple calculations, e.g. converge studies.
+        Use ``PhononWorkflow`` for better efficiency.
+    """
+    work_class = OneShotPhononWorkflow if work_class is None else work_class
+    work = work_class(workdir=workdir, manager=manager)
+    scf_task = work.register_scf_task(scf_input)
+
+    ph_inputs = [ph_inputs] if not isinstance(ph_inputs, (list, tuple)) else ph_inputs
+    for phinp in ph_inputs:
+        # cannot use PhononTaks here because the Task is not able to deal with multiple phonon calculations
+        #ph_task = work.register_phonon_task(phinp, deps={scf_task: "WFK"})
+        ph_task = work.register(phinp, deps={scf_task: "WFK"})
+
+    return work
+
+
+class OneShotPhononWorkflow(Workflow):
+    """
+    Simple and very inefficient workflow for the computation of the phonon frequencies
+    It consists of a GS task and a DFPT calculations for all the independent perturbations.
+    The main advantage is that one has direct access to the phonon frequencies that
+    can be computed at the end of the second task without having to call anaddb.
+
+    Use ``build_oneshot_phononwork`` to construct this workflow from the input files.
+    """
+    def read_phonons(self):
+        """Read phonon frequencies from the output file."""
+        # 
+        #   Phonon wavevector (reduced coordinates) :  0.00000  0.00000  0.00000
+        #  Phonon energies in Hartree :
+        #    1.089934E-04  4.990512E-04  1.239177E-03  1.572715E-03  1.576801E-03
+        #    1.579326E-03
+        #  Phonon frequencies in cm-1    :
+        # -  2.392128E+01  1.095291E+02  2.719679E+02  3.451711E+02  3.460677E+02
+        # -  3.466221E+02
+        BEGIN = "  Phonon wavevector (reduced coordinates) :"
+        END = " Phonon frequencies in cm-1    :"
+
+        ph_tasks, qpts, phfreqs = self[1:], [], []
+        for task in ph_tasks:
+
+            with open(task.output_file.path, "r") as fh:
+                qpt, inside = None, 0 
+                for line in fh:
+                    if line.startswith(BEGIN):
+                        qpts.append([float(s) for s in line[len(BEGIN):].split()])
+                        inside, omegas = 1, []
+                    elif line.startswith(END):
+                        break
+                    elif inside:
+                        inside += 1
+                        if inside > 2:
+                            omegas.extend((float(s) for s in line.split()))
+                else:
+                    raise ValueError("Cannot find %s in file %s" % (END, task.output_file.path))
+                phfreqs.append(omegas)
+
+        # Use namedtuple to store q-point and frequencies in meV
+        phonon = collections.namedtuple("phonon", "qpt freqs")
+        return [phonon(qpt=qpt, freqs=freqs_meV) for qpt, freqs_meV in zip(qpts, EnergyArray(phfreqs, "Ha").to("meV") )]
+
+    def get_results(self, **kwargs):
+        results = super(self.__class__, self).get_results()
+        phonons = self.read_phonons()
+        print(phonons)
+        results.update(phonons=phonons)
+
+        return results
+
+    #def on_all_ok(self):
+    #    """
+    #    """
+    #    return self.get_results()
 
 
 class PhononWorkflow(Workflow):
@@ -1034,8 +1088,11 @@ class PhononWorkflow(Workflow):
         This method is called when all the q-points have been computed.
         It runs `mrgddb` in sequential on the local machine to produce
         the final DDB file in the outdir of the `Workflow`.
+
+        Returns:
+            path to the output DDB file
         """
-        ddb_files = filter(None, [task.outdir.has_abiext("DDB") for task in self])
+        ddb_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in self]))
 
         logger.debug("will call mrgddb to merge %s:\n" % str(ddb_files))
         assert len(ddb_files) == len(self)
@@ -1051,6 +1108,7 @@ class PhononWorkflow(Workflow):
         mrgddb = wrappers.Mrgddb(verbose=1)
         mrgddb.set_mpi_runner("mpirun")
         mrgddb.merge(ddb_files, out_ddb=out_ddb, description=desc, cwd=self.outdir.path)
+        return out_ddb
 
     def on_all_ok(self):
         """
@@ -1059,57 +1117,10 @@ class PhononWorkflow(Workflow):
         the final DDB file in the outdir of the `Workflow`.
         """
         # Merge DDB files.
-        self.merge_ddb_files()
+        out_ddb = self.merge_ddb_files()
 
-        return WorkflowResults(returncode=0, message="DDB merge done")
+        results = self.Results(node=self,returncode=0, message="DDB merge done")
+        results.add_gridfs_files(DDB=(out_ddb, "t"))
 
+        return results
 
-class WorkflowResults(dict, PMGSONable):
-    """
-    Dictionary used to store some of the results produce by a Task object
-    """
-    _MANDATORY_KEYS = [
-        "task_results",
-    ]
-
-    _EXC_KEY = "_exceptions"
-
-    def __init__(self, *args, **kwargs):
-        super(WorkflowResults, self).__init__(*args, **kwargs)
-
-        if self._EXC_KEY not in self:
-            self[self._EXC_KEY] = []
-
-    @property
-    def exceptions(self):
-        return self[self._EXC_KEY]
-
-    def push_exceptions(self, *exceptions):
-        for exc in exceptions:
-            newstr = str(exc)
-            if newstr not in self.exceptions:
-                self[self._EXC_KEY] += [newstr]
-
-    def assert_valid(self):
-        """
-        Returns empty string if results seem valid.
-
-        The try assert except trick allows one to get a string with info on the exception.
-        We use the += operator so that sub-classes can add their own message.
-        """
-        # Validate tasks.
-        for tres in self.task_results:
-            self[self._EXC_KEY] += tres.assert_valid()
-
-        return self[self._EXC_KEY]
-
-    def as_dict(self):
-        d = {k: v for k,v in self.items()}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
-
-    @classmethod
-    def from_dict(cls, d):
-        mydict = {k: v for k, v in d.items() if k not in ["@module", "@class"]}
-        return cls(mydict)

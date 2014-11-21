@@ -169,10 +169,13 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
         Returns the site properties as a dict of sequences. E.g.,
         {"magmom": (5,-5), "charge": (-4,4)}.
         """
-        props = collections.defaultdict(list)
+        props = {}
+        prop_keys = set()
         for site in self:
-            for k, v in site.properties.items():
-                props[k].append(v)
+            prop_keys.update(site.properties.keys())
+
+        for k in prop_keys:
+            props[k] = [site.properties.get(k, None) for site in self]
         return props
 
     def __contains__(self, site):
@@ -382,7 +385,10 @@ class IStructure(SiteCollection, PMGSONable):
         for i in range(len(species)):
             prop = None
             if site_properties:
-                prop = {k: v[i] for k, v in site_properties.items()}
+
+                prop = {k: v[i]
+                        for k, v in site_properties.items()}
+
             sites.append(
                 PeriodicSite(species[i], coords[i], self._lattice,
                              to_unit_cell,
@@ -510,7 +516,6 @@ class IStructure(SiteCollection, PMGSONable):
 
         return cls(latt, all_sp, all_coords,
                    site_properties=all_site_properties)
-
 
     @property
     def distance_matrix(self):
@@ -834,7 +839,7 @@ class IStructure(SiteCollection, PMGSONable):
             return self.__class__.from_sites(new_sites)
 
     def interpolate(self, end_structure, nimages=10,
-                    interpolate_lattices=False, pbc=True):
+                    interpolate_lattices=False, pbc=True, autosort_tol=0):
         """
         Interpolate between this structure and end_structure. Useful for
         construction of NEB inputs.
@@ -848,6 +853,11 @@ class IStructure(SiteCollection, PMGSONable):
                 so orientation may be affected.
             pbc (bool): Whether to use periodic boundary conditions to find
                 the shortest path between endpoints.
+            auto_sort_tol (float): A distance tolerance in angstrom in
+                which to automatically sort end_structure to match to the
+                closest points in this particular structure. This is usually
+                what you want in a NEB calculation. 0 implies no sorting.
+                Otherwise, a 0.5 value usually works pretty well.
 
         Returns:
             List of interpolated structures. The starting and ending
@@ -869,7 +879,7 @@ class IStructure(SiteCollection, PMGSONable):
             raise ValueError("Structures with different lattices!")
 
         #Check that both structures have the same species
-        for i in range(0, len(self)):
+        for i in range(len(self)):
             if self[i].species_and_occu != end_structure[i].species_and_occu:
                 raise ValueError("Different species!\nStructure 1:\n" +
                                  str(self) + "\nStructure 2\n" +
@@ -877,6 +887,40 @@ class IStructure(SiteCollection, PMGSONable):
 
         start_coords = np.array(self.frac_coords)
         end_coords = np.array(end_structure.frac_coords)
+
+        if autosort_tol:
+            dist_matrix = self.lattice.get_all_distances(start_coords, end_coords)
+            site_mappings = collections.defaultdict(list)
+            unmapped_start_ind = []
+            for i, row in enumerate(dist_matrix):
+                ind = np.where(row < autosort_tol)[0]
+                if len(ind) == 1:
+                    site_mappings[i].append(ind[0])
+                else:
+                    unmapped_start_ind.append(i)
+
+            if len(unmapped_start_ind) > 1:
+                raise ValueError("Unable to reliably match structures "
+                                 "with auto_sort_tol = %f. unmapped indices "
+                                 "= %s" % (autosort_tol, unmapped_start_ind))
+
+            sorted_end_coords = np.zeros_like(end_coords)
+            matched = []
+            for i, j in site_mappings.items():
+                if len(j) > 1:
+                    raise ValueError("Unable to reliably match structures "
+                                     "with auto_sort_tol = %f. More than one "
+                                     "site match!" % autosort_tol)
+                sorted_end_coords[i] = end_coords[j[0]]
+                matched.append(j[0])
+
+            if len(unmapped_start_ind) == 1:
+                i = unmapped_start_ind[0]
+                j = list(set(range(len(start_coords))).difference(matched))[0]
+                sorted_end_coords[i] = end_coords[j]
+
+            end_coords = sorted_end_coords
+
         vec = end_coords - start_coords
         if pbc:
             vec -= np.round(vec)
@@ -1038,7 +1082,7 @@ class IStructure(SiteCollection, PMGSONable):
                                   coords_are_cartesian=True)
                     return s.get_primitive_structure(tolerance).get_reduced_structure()
 
-        return self.copy()
+        return Structure.from_sites(self)
 
     def __repr__(self):
         outs = ["Structure Summary", repr(self.lattice)]
@@ -1824,8 +1868,7 @@ class IMolecule(SiteCollection, PMGSONable):
 
 class Structure(IStructure, collections.MutableSequence):
     """
-    Mutable version of structure. Much easier to use for editing,
-    but cannot be used as a key in a dict.
+    Mutable version of structure.
     """
     __hash__ = None
 
@@ -2300,6 +2343,22 @@ class Structure(IStructure, collections.MutableSequence):
             volume (float): New volume of the unit cell in A^3.
         """
         self.modify_lattice(self._lattice.scale(volume))
+
+    def merge_sites(self, tol=0.01):
+        """
+        Merges sites (adding occupancies) within tol of each other
+        """
+        d = self.distance_matrix
+        d[np.triu_indices(len(d))] = np.inf
+        for inds in np.sort(np.argwhere(d < tol), axis=0)[::-1]:
+            i, j = inds
+            # j < i always, and largest i first, so any previously deleted
+            # site is after i and j (so indices are still correct)
+            sp = self[i].species_and_occu + self[j].species_and_occu
+            d = self[i].frac_coords - self[j].frac_coords
+            fc = self[j].frac_coords + (d - np.round(d)) / 2
+            self.replace(j, sp, fc)
+            del self[i]
 
 
 class Molecule(IMolecule, collections.MutableSequence):

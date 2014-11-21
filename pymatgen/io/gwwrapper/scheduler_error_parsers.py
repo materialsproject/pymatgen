@@ -381,7 +381,7 @@ class PBSErrorParser(AbstractErrorParser):
         }
 
 
-ALL_PARSERS = {'slurm': SlurmErrorParser, 'pbs': PBSErrorParser}
+ALL_PARSERS = {'slurm': SlurmErrorParser, 'pbs': PBSErrorParser, 'torque': PBSErrorParser}
 
 
 def get_parser(scheduler, err_file, out_file=None, run_err_file=None, batch_err_file=None):

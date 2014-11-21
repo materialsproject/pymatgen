@@ -13,11 +13,13 @@ import shutil
 import pickle
 
 from six.moves import map 
+from atomicfile import AtomicFile
+from pprint import pprint
+from prettytable import PrettyTable
 from monty.io import FileLock
-from monty.pprint import pprint_table
-
+from monty.termcolor import cprint, colored, stream_has_colours
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
-from .tasks import Dependency, Status, Node, Task, ScfTask, PhononTask, TaskManager
+from .tasks import Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
 from .workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow, QptdmWorkflow
@@ -45,6 +47,33 @@ __all__ = [
 ]
 
 
+class FlowResults(NodeResults):
+
+    JSON_SCHEMA = NodeResults.JSON_SCHEMA.copy() 
+    #JSON_SCHEMA["properties"] = {
+    #    "queries": {"type": "string", "required": True},
+    #}
+
+    @classmethod
+    def from_node(cls, flow):
+        """Initialize an instance from a WorkFlow instance."""
+        new = super(FlowResults, cls).from_node(flow)
+
+        #new.update(
+        #    #input=flow.strategy
+        #)
+
+        # Will put all files found in outdir in GridFs 
+        d = {os.path.basename(f): f for f in flow.outdir.list_filepaths()}
+
+        # Add the pickle file.
+        pickle_path = os.path.join(flow.workdir, flow.PICKLE_FNAME)
+        d["pickle"] = pickle_path if flow.pickle_protocol != 0 else (pickle_path, "t")
+        new.add_gridfs_files(**d)
+
+        return new
+
+
 class AbinitFlow(Node):
     """
     This object is a container of workflows. Its main task is managing the 
@@ -60,8 +89,9 @@ class AbinitFlow(Node):
             Protocol for Pickle database (default: -1 i.e. latest protocol)
     """
     VERSION = "0.1"
-
     PICKLE_FNAME = "__AbinitFlow__.pickle"
+
+    Results = FlowResults
 
     def __init__(self, workdir, manager=None, pickle_protocol=-1):
         """
@@ -82,8 +112,7 @@ class AbinitFlow(Node):
 
         self.creation_date = time.asctime()
 
-        if manager is None: 
-            manager = TaskManager.from_user_config()
+        if manager is None: manager = TaskManager.from_user_config()
         self.manager = manager.deepcopy()
 
         # List of workflows.
@@ -95,6 +124,9 @@ class AbinitFlow(Node):
         self._callbacks = []
 
         self.pickle_protocol = int(pickle_protocol)
+
+        # ID used to access mongodb
+        self._mongo_id = None
 
         # TODO
         # Signal slots: a dictionary with the list 
@@ -178,8 +210,6 @@ class AbinitFlow(Node):
 
         with FileLock(filepath):
             with open(filepath, "rb") as fh:
-                #flow = pickle.load(fh)
-                #flow = PmgUnpickler(fh).load()
                 flow = pmg_pickle_load(fh)
 
         # Check if versions match.
@@ -204,6 +234,31 @@ class AbinitFlow(Node):
 
     def __getitem__(self, slice):
         return self.works[slice]
+
+    @property
+    def mongo_id(self):
+        return self._mongo_id
+
+    @mongo_id.setter
+    def mongo_id(self, value):
+        if self.mongo_id is not None:
+            raise RuntimeError("Cannot change mongo_id %s" % self.mongo_id)
+        self._mongo_id = value
+
+    def validate_json_schema(self):
+        """Validate the JSON schema. Return list of errors."""
+        errors = []
+
+        for work in self:
+            for task in work:
+                if not task.get_results().validate_json_schema(): 
+                    errors.append(task)
+            if not work.get_results().validate_json_schema(): 
+                errors.append(work)
+        if not self.get_results().validate_json_schema(): 
+            errors.append(self)
+
+        return errors
 
     @property
     def works(self):
@@ -258,30 +313,30 @@ class AbinitFlow(Node):
         return counter
 
     @property
-    def ncpus_reserved(self):
+    def ncores_reserved(self):
         """
-        Returns the number of CPUs reserved in this moment.
-        A CPU is reserved if the task is not running but
+        Returns the number of cores reserved in this moment.
+        A core is reserved if the task is not running but
         we have submitted the task to the queue manager.
         """
-        return sum(work.ncpus_reserved for work in self)
+        return sum(work.ncores_reserved for work in self)
 
     @property
-    def ncpus_allocated(self):
+    def ncores_allocated(self):
         """
-        Returns the number of CPUs allocated in this moment.
-        A CPU is allocated if it's running a task or if we have
+        Returns the number of cores allocated in this moment.
+        A core is allocated if it's running a task or if we have
         submitted a task to the queue manager but the job is still pending.
         """
-        return sum(work.ncpus_allocated for work in self)
+        return sum(work.ncores_allocated for work in self)
 
     @property
-    def ncpus_inuse(self):
+    def ncores_inuse(self):
         """
-        Returns the number of CPUs used in this moment.
-        A CPU is used if there's a job that is running on it.
+        Returns the number of cores used in this moment.
+        A core is used if there's a job that is running on it.
         """
-        return sum(work.ncpus_inuse for work in self)
+        return sum(work.ncores_inuse for work in self)
 
     @property
     def has_chrooted(self):
@@ -421,6 +476,13 @@ class AbinitFlow(Node):
         for work in self:
             work.check_status()
 
+    #def set_status(self, status):
+
+    @property
+    def status(self):
+        """The status of the flow i.e. the minimum of the status of its tasks and its works"""
+        return min(work.get_all_status(only_min=True) for work in self)
+
     def fix_critical(self):
         self.fix_queue_critical()
         self.fix_abi_critical()
@@ -520,6 +582,9 @@ class AbinitFlow(Node):
 
         if not verbose, no full entry for works that are completed is printed.
         """
+        has_colours = stream_has_colours(stream)
+        red = "red" if has_colours else None
+
         for i, work in enumerate(self):
             print(80*"=", file=stream)
             print("Workflow #%d: %s, Finalized=%s\n" % (i, work, work.finalized), file=stream)
@@ -527,11 +592,11 @@ class AbinitFlow(Node):
             if verbose == 0 and work.finalized:
                 continue
 
-            table = [["Task", "Status", "Queue-id", 
-                      "Errors", "Warnings", "Comments", 
-                      "MPI", "OMP", 
-                      "Restarts", "Task-Class", "Run-Etime"]]
+            table =PrettyTable([
+                "Task", "Status", "Queue-id", "Errors", "Warnings", "Comments", 
+                "MPI", "OMP", "Restarts", "Task-Class", "Run-Etime"])
 
+            tot_num_errors = 0
             for task in work:
                 task_name = os.path.basename(task.name)
 
@@ -543,17 +608,97 @@ class AbinitFlow(Node):
                     events = map(str, [report.num_errors, report.num_warnings, report.num_comments])
                 events = list(events)
 
-                cpu_info = list(map(str, [task.mpi_ncpus, task.omp_ncpus]))
+                cpu_info = list(map(str, [task.mpi_procs, task.omp_threads]))
                 task_info = list(map(str, [task.num_restarts, task.__class__.__name__, task.run_etime()]))
 
-                table.append(
-                    [task_name, str(task.status), str(task.queue_id)] + 
-                    events + 
-                    cpu_info + 
-                    task_info
-                )
+                if task.status.is_critical:
+                    tot_num_errors += 1
+                    task_name = colored(task_name, red)
 
-            pprint_table(table, out=stream)
+                if has_colours:
+                    table.add_row([task_name, task.status.colored, str(task.queue_id)] +  events + cpu_info + task_info)
+                else:
+                    table.add_row([task_name, str(task.status), str(task.queue_id)] +  events + cpu_info + task_info)
+
+            # Print table and write colorized line with the total number of errors.
+            print(table, file=stream)
+            if tot_num_errors:
+                cprint("Total number of errors: %d" % tot_num_errors, red, file=stream)
+
+    def get_results(self, **kwargs):
+        results = self.Results.from_node(self)
+        results.update(self.get_dict_for_mongodb_queries())
+        return results
+
+    def get_dict_for_mongodb_queries(self):
+        """
+        This function returns a dictionary with the attributes that will be 
+        put in the mongodb document to facilitate the query. 
+        Subclasses may want to replace or extend the default behaviour.
+        """
+        d = {}
+        return d
+        # TODO
+        all_structures = [task.strategy.structure for task in self.iflat_tasks()]
+        all_pseudos = [task.strategy.pseudos for task in self.iflat_tasks()]
+
+    def look_before_you_leap(self):
+        """
+        This method should be called before running the calculation to make
+        sure that the most important requirements are satisfied.
+        """
+        errors = []
+        if self.has_db:
+            try:
+                self.manager.db_connector.get_collection()
+            except Exception as exc:
+                errors.append("""
+                    ERROR while trying to connect to the MongoDB database:
+                        Exception:
+                            %s
+                        Connector:
+                            %s
+                    """ % (exc, self.manager.db_connector))
+
+        return "\n".join(errors)
+
+    @property
+    def has_db(self):
+        """True if flow uses MongoDB to store the results."""
+        return self.manager.has_db
+
+    def db_insert(self):
+        """
+        Insert results in the mongdob database.
+        """
+        assert self.has_db
+        # Connect to MongoDb and get the collection.
+        coll = self.manager.db_connector.get_collection()
+        print("Mongodb collection %s with count %d", coll, coll.count())
+
+        start = time.time()
+
+        for work in self:
+            for task in work:
+                results = task.get_results()
+                pprint(results)
+                results.update_collection(coll)
+            results = work.get_results()
+            pprint(results)
+            results.update_collection(coll)
+
+        msg = "MongoDb update done in %s [s]" % time.time() - start
+        print(msg)
+
+        results = self.get_results()
+        pprint(results)
+        results.update_collection(coll)
+
+        # Update the pickle file to save the mongo ids.
+        self.pickle_dump()
+
+        for d in coll.find():
+            pprint(d)
 
     def open_files(self, what="o", wti=None, status=None, op="==", editor=None):
         """
@@ -648,6 +793,16 @@ class AbinitFlow(Node):
 
         return num_cancelled
 
+    def get_njobs_in_queue(self, username=None):
+        """
+        returns the number of jobs in the queue,
+        returns None when the number of jobs cannot be determined.
+
+        Args:
+            username: (str) the username of the jobs to count (default is to autodetect)
+        """
+        return self.manager.qadapter.get_njobs_in_queue(username=username)
+
     def rmtree(self, ignore_errors=False, onerror=None):
         """Remove workdir (same API as shutil.rmtree)."""
         shutil.rmtree(self.workdir, ignore_errors=ignore_errors, onerror=onerror)
@@ -685,33 +840,12 @@ class AbinitFlow(Node):
         protocol = self.pickle_protocol
         filepath = os.path.join(self.workdir, self.PICKLE_FNAME)
 
+        # Atomic transaction with FileLock.
         with FileLock(filepath):
-            with open(filepath, mode="w" if protocol == 0 else "wb") as fh:
-                #pickle.dump(self, fh, protocol=protocol)
-                #PmgPickler(fh, protocol=protocol).dump(self)
+            #with open(filepath, mode="wb") as fh:
+            with AtomicFile(filepath, mode="wb") as fh:
                 pmg_pickle_dump(self, fh, protocol=protocol)
 
-        # Atomic transaction.
-        #filepath_new = filepath + ".new"
-        #filepath_save = filepath + ".save"
-        #shutil.copyfile(filepath, filepath_save)
-
-        #try:
-        #    with open(filepath_new, mode="w" if protocol == 0 else "wb") as fh:
-        #        pickle.dump(self, fh, protocol=protocol)
-
-        #    os.rename(filepath_new, filepath)
-        #except IOError:
-        #    os.rename(filepath_save, filepath)
-        #finally:
-        #    try
-        #        os.remove(filepath_save)
-        #    except:
-        #        pass
-        #    try
-        #        os.remove(filepath_new)
-        #    except:
-        #        pass
         return 0
 
     def register_task(self, input, deps=None, manager=None, task_class=None):
@@ -826,12 +960,12 @@ class AbinitFlow(Node):
         the `TaskManager` to the different tasks in the Flow.
         """
         for work in self:
+            # Each workflow has a reference to its flow.
             work.allocate(manager=self.manager)
             work.set_flow(self)
-
-        # Each task has a reference to the flow.
-        for task in self.iflat_tasks():
-            task.set_flow(self)
+            # Each task has a reference to its workflow.
+            for task in work:
+                task.set_work(work)
 
         self.check_dependencies()
 
@@ -859,7 +993,7 @@ class AbinitFlow(Node):
                 continue 
 
             # Execute the callback and disable it
-            print("about to execute callback %s" % cbk)
+            logger.info("about to execute callback %s" % str(cbk))
             cbk()
             cbk.disable()
 
@@ -882,7 +1016,7 @@ class AbinitFlow(Node):
         # Observe the nodes that must reach S_OK in order to call the callbacks.
         for cbk in self._callbacks:
             for dep in cbk.deps:
-                print("connecting %s \nwith sender %s, signal %s" % (str(cbk), dep.node, dep.node.S_OK))
+                logger.info("connecting %s \nwith sender %s, signal %s" % (str(cbk), dep.node, dep.node.S_OK))
                 dispatcher.connect(self.on_dep_ok, signal=dep.node.S_OK, sender=dep.node, weak=False)
 
         # Associate to each signal the callback _on_signal
@@ -914,6 +1048,8 @@ class AbinitFlow(Node):
         for rec in dispatcher.liveReceivers(dispatcher.getReceivers(sender, signal)):
             print("receiver -->", rec)
         print("*** end live receivers ***")
+
+    #def get_results(self, **kwargs)
 
     def rapidfire(self, check_status=False, **kwargs):
         """
@@ -1185,7 +1321,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
 
     # Build a temporary workflow with a shell manager just to run 
     # ABINIT to get the list of irreducible pertubations for this q-point.
-    shell_manager = manager.to_shell_manager(mpi_ncpus=1)
+    shell_manager = manager.to_shell_manager(mpi_procs=1)
 
     if not isinstance(ph_inputs, (list, tuple)):
         ph_inputs = [ph_inputs]

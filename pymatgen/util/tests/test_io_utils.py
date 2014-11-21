@@ -16,12 +16,9 @@ __date__ = "Nov 14, 2012"
 
 import unittest
 import os
-import json
-
-import six
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.util.io_utils import clean_json
+from pymatgen.util.io_utils import micro_pyawk
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -29,21 +26,15 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 
 class FuncTest(PymatgenTest):
 
-    def test_clean_json(self):
-        #clean_json should have no effect on None types.
-        d = {"hello": 1, "world": None}
-        clean = clean_json(d)
-        self.assertIsNone(clean["world"])
-        self.assertEqual(json.loads(json.dumps(d)), json.loads(json.dumps(
-            clean)))
+    def test_micro_pyawk(self):
+        filename = os.path.join(test_dir, "OUTCAR")
+        data = []
+        def f(x, y):
+            data.append(y.group(1).strip())
 
-        d = {"hello": self.get_structure("Si")}
-        self.assertRaises(TypeError, json.dumps, d)
-        clean = clean_json(d)
-        self.assertIsInstance(clean["hello"], six.string_types)
-        clean_strict = clean_json(d, strict=True)
-        self.assertIsInstance(clean_strict["hello"], dict)
-
+        f2 = lambda x, y: y
+        micro_pyawk(filename, [["POTCAR:(.*)", f2, f]])
+        self.assertEqual(len(data), 6)
 
 if __name__ == "__main__":
     unittest.main()

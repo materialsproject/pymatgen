@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 This module provides utility classes for io operations.
 """
 
-__author__ = "Shyue Ping Ong, Rickard Armiento, Anubhav Jain, G Matteo"
+__author__ = "Shyue Ping Ong, Rickard Armiento, Anubhav Jain, G Matteo, Ioannis Petousis"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -16,11 +16,8 @@ __date__ = "Sep 23, 2011"
 
 import re
 import numpy
-import os
-import time
-import errno
 import six
-
+from monty.io import zopen
 
 def clean_lines(string_list, remove_empty_lines=True):
     """
@@ -67,7 +64,7 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
     you interact with it in run() and test(). Hence, in many occasions it is
     thus clever to use results=self.
 
-    Author: Rickard Armiento
+    Author: Rickard Armiento, Ioannis Petousis
 
     Returns:
         results
@@ -77,14 +74,13 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
 
     # Compile strings into regexs
     for entry in search:
-        if isinstance(entry[0], str):
-            entry[0] = re.compile(entry[0])
+        entry[0] = re.compile(entry[0])
 
-    with open(filename) as f:
+    with zopen(filename) as f:
         for line in f:
             for i in range(len(search)):
-                match = search[i][0].search(line)
-                if match and (search[i][1] is not None
+                match = re.search(search[i][0], line)
+                if match and (search[i][1] is None
                               or search[i][1](results, line)):
                     if debug is not None:
                         debug(results, match)
@@ -93,41 +89,3 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
                         postdebug(results, match)
 
     return results
-
-
-def clean_json(input_json, strict=False):
-    """
-    This method cleans an input json-like dict object, either a list or a dict,
-    nested or otherwise, by converting all non-string dictionary keys (such as
-    int and float) to strings.
-
-    Args:
-        input_dict: input dictionary.
-        strict: This parameters sets the behavior when clean_json encounters an
-            object it does not understand. If strict is True, clean_json will
-            try to get the as_dict() attribute of the object. If no such
-            attribute is found, an attribute error will be thrown. If strict is
-            False, clean_json will simply call str(object) to convert the
-            object to a string representation.
-
-    Returns:
-        Sanitized dict that can be json serialized.
-    """
-    if isinstance(input_json, (list, numpy.ndarray, tuple)):
-        return [clean_json(i, strict=strict) for i in input_json]
-    elif isinstance(input_json, dict):
-        return {str(k): clean_json(v, strict=strict)
-                for k, v in input_json.items()}
-    elif isinstance(input_json, (int, float)):
-        return input_json
-    elif input_json is None:
-        return None
-    else:
-        if not strict:
-            return str(input_json)
-        else:
-            if isinstance(input_json, six.string_types):
-                return str(input_json)
-            else:
-                return clean_json(input_json.as_dict(), strict=strict)
-
