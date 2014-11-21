@@ -853,7 +853,7 @@ class G0W0_Workflow(Workflow):
                 print('\n  ---- \n')
                 print(scr_input.screening.ecuteps, sigma_input.sigma.ecuteps)
                 scr_input.screening.nband = sigma_input.sigma.nband
-                scr_input.electrons.nband = = sigma_input.sigma.nband
+                scr_input.electrons.nband = sigma_input.sigma.nband
                 print(scr_input.electrons.nband, sigma_input.sigma.nband)
                 print(scr_input.make_input())
                 scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
