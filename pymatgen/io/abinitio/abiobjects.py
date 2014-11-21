@@ -355,7 +355,7 @@ class AbiStructure(Structure, AbivarAble):
     def asabistructure(obj):
         return asabistructure(obj)
 
-    def __new__(cls, structure):
+    def e__new__(cls, structure):
         new = structure
         new.__class__ = cls
         return new
