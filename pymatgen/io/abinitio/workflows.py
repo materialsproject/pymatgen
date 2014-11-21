@@ -804,7 +804,7 @@ class G0W0_Workflow(Workflow):
     Workflow for G0W0 calculations.
     """
     def __init__(self, scf_input, nscf_input, scr_input, sigma_inputs,
-                 workdir=None, manager=None):
+                 workdir=None, manager=None, spread_scr=False):
         """
         Args:
             scf_input:
@@ -819,6 +819,9 @@ class G0W0_Workflow(Workflow):
                 Working directory of the calculation.
             manager:
                 `TaskManager` object.
+            spread_scr:
+                attach a screening task to every sigma task
+                if false only one screening task with the max ecuteps and nbands for all sigma tasks
         """
         super(G0W0_Workflow, self).__init__(workdir=workdir, manager=manager)
 
@@ -834,7 +837,10 @@ class G0W0_Workflow(Workflow):
         self.nscf_task = nscf_task = self.register(nscf_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
 
         # Register the SCREENING run.
-        self.scr_task = scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
+        if not spread_scr:
+            self.scr_task = scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
+        else:
+            self.scr_tasks = []
 
         # Register the SIGMA runs.
         if not isinstance(sigma_inputs, (list, tuple)): 
@@ -842,6 +848,11 @@ class G0W0_Workflow(Workflow):
 
         self.sigma_tasks = []
         for sigma_input in sigma_inputs:
+            if spread_scr:
+                scr_input['ecuteps'] = sigma_input['ecuteps']
+                scr_input['scr_nband'] = sigma_input['sigma_nband']
+                scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
+
             task = self.register(sigma_input, deps={nscf_task: "WFK", scr_task: "SCR"})
             self.sigma_tasks.append(task)
 
