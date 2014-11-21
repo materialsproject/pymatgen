@@ -221,8 +221,10 @@ class SingleAbinitGWWorkFlow():
         # this could also be pulled into the constructor of Abistructure
         #abi_structure = self.structure.get_sorted_structure()
         from abipy import abilab
+        item = copy.copy(self.structure.item)
         self.structure.__class__ = abilab.Structure
         self.structure = self.structure.get_sorted_structure()
+        self.structure.item = item
         manager = TaskManager.from_user_config()
         # Initialize the flow.
         flow = AbinitFlow(self.work_dir, manager, pickle_protocol=0)
