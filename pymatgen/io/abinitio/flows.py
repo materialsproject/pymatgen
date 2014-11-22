@@ -595,8 +595,7 @@ class AbinitFlow(Node):
 
     def show_status(self, **kwargs):
         """
-        Report the status of the workflows and the status 
-        of the different tasks on the specified stream.
+        Report the status of the workflows and the status  of the different tasks on the specified stream.
 
         Args:
             stream:
@@ -1011,9 +1010,18 @@ class AbinitFlow(Node):
 
         return self
 
-    def show_dependencies(self):
-        for work in self:
-            work.show_intrawork_deps()
+    def show_dependencies(self, stream=sys.stdout):
+        """Writes to the given stream the ASCII representation of the dependency tree."""
+        #for work in self: work.show_intrawork_deps()
+        def child_iter(node):
+            return [d.node for d in node.deps]
+
+        def text_str(node):
+            return colored(str(node), color=node.status.color_opts["color"])
+
+        from asciitree import draw_tree
+        for task in self.iflat_tasks():
+            print(draw_tree(task, child_iter, text_str), file=stream)
 
     def on_dep_ok(self, signal, sender):
         # TODO

@@ -6,7 +6,6 @@ from __future__ import division, unicode_literals
 This module provides classes for analyzing phase diagrams.
 """
 
-from six.moves import filter
 from six.moves import zip
 
 __author__ = "Shyue Ping Ong"
@@ -288,7 +287,8 @@ class PDAnalyzer(object):
                                   'reaction': rxn, 'entries': decomp_entries})
         return evolution
 
-    def get_chempot_range_map(self, elements, referenced=True):
+    def get_chempot_range_map(self, elements, referenced=True, joggle=True,
+                              force_use_pyhull=False):
         """
         Returns a chemical potential range map for each stable entry.
 
@@ -297,8 +297,12 @@ class PDAnalyzer(object):
                 variables. E.g., if you want to show the stability ranges
                 of all Li-Co-O phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
-            referenced: if True, gives the results with a reference being the
-            energy of the elemental phase. If False, gives absolute values.
+            referenced: If True, gives the results with a reference being the
+                energy of the elemental phase. If False, gives absolute values.
+            joggle (boolean): Whether to joggle the input to avoid precision
+                errors.
+            force_use_pyhull (boolean): Whether the pyhull algorithm is always
+                used, even when scipy is present.
 
         Returns:
             Returns a dict of the form {entry: [simplices]}. The list of
@@ -317,9 +321,10 @@ class PDAnalyzer(object):
             el_energies = {el: pd.el_refs[el].energy_per_atom
                            for el in elements}
         chempot_ranges = collections.defaultdict(list)
-        vertices = [[i for i in range(len(self._pd.elements))]]
+        vertices = [list(range(len(self._pd.elements)))]
         if len(all_chempots) > len(self._pd.elements):
-            vertices = get_facets(all_chempots, True)
+            vertices = get_facets(all_chempots, joggle=joggle,
+                                  force_use_pyhull=force_use_pyhull)
         for ufacet in vertices:
             for combi in itertools.combinations(ufacet, 2):
                 data1 = facets[combi[0]]
