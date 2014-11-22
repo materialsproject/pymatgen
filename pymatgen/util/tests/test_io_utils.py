@@ -31,7 +31,9 @@ class FuncTest(PymatgenTest):
         data = []
         def f(x, y):
             data.append(y.group(1).strip())
-        micro_pyawk(filename, [["POTCAR:(.*)", lambda x: x, f]])
+
+        f2 = lambda x, y: y
+        micro_pyawk(filename, [["POTCAR:(.*)", f2, f]])
         self.assertEqual(len(data), 6)
 
 if __name__ == "__main__":

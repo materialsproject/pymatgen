@@ -85,7 +85,8 @@ class Composition(collections.Mapping, collections.Hashable, PMGSONable):
     """
     special_formulas = {"LiO": "Li2O2", "NaO": "Na2O2", "KO": "K2O2",
                         "HO": "H2O2", "CsO": "Cs2O2", "RbO": "Rb2O2",
-                        "O": "O2",  "N": "N2", "Cl": "Cl2", "H": "H2"}
+                        "O": "O2",  "N": "N2", "F": "F2", "Cl": "Cl2",
+                        "H": "H2"}
 
     def __init__(self, *args, **kwargs): #allow_negative=False
         """
