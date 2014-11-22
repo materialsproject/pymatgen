@@ -93,6 +93,42 @@ class AbinitFlow(Node):
 
     Results = FlowResults
 
+    @classmethod
+    def from_inputs(cls, workdir, inputs, manager=None, pickle_protocol=-1, task_class=ScfTask, work_class=Workflow):
+        """
+        Construct a simple flow from a list of inputs. The flow contains a single Workflow with 
+        tasks whose class is given by task_class.
+
+        .. warning::
+            Don't use this interface if you have a dependencies among the tasks
+
+        Args:
+            workdir:
+                String specifying the directory where the workflows will be produced.
+            inputs:
+                List of inputs.
+            manager:
+                `TaskManager` object responsible for the submission of the jobs.
+                If manager is None, the object is initialized from the yaml file
+                located either in the working directory or in the user configuration dir.
+            pickle_procol:
+                Pickle protocol version used for saving the status of the object.
+                -1 denotes the latest version supported by the python interpreter.
+            task_class:
+                The class of the AbinitTask
+            work_class:
+                The class of the AbinitWorkflow
+        """
+        if not isinstance(inputs, (list, tuple)): inputs = [inputs]
+
+        flow = cls(workdir, manager=manager, pickle_protocol=pickle_protocol)
+        work = work_class()
+        for inp in inputs:
+            work.register(inp, task_class=task_class)
+        flow.register_work(work)
+
+        return flow.allocate()
+
     def __init__(self, workdir, manager=None, pickle_protocol=-1):
         """
         Args:
