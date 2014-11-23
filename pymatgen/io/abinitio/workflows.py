@@ -112,19 +112,17 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
         """
         return [task.communicate(input) for task in self]
 
-    def show_intrawork_deps(self):
-        """Show the dependencies within the `Workflow`."""
-        table = PrettyTable(["Task #"] + [str(i) for i in range(len(self))])
-
-        for ii, task1 in enumerate(self):
-            line = (1 + len(self)) * [""]
-            line[0] = str(ii)
-            for jj, task2 in enumerate(self):
-                if task1.depends_on(task2):
-                    line[jj+1] = "^"
-            table.add_row(line)
-
-        print(table)
+    #def show_intrawork_deps(self, stream=sys.stdout):
+    #    """Show the dependencies within the `Workflow`."""
+    #    table = PrettyTable(["Task #"] + [str(i) for i in range(len(self))])
+    #    for ii, task1 in enumerate(self):
+    #        line = (1 + len(self)) * [""]
+    #        line[0] = str(ii)
+    #        for jj, task2 in enumerate(self):
+    #            if task1.depends_on(task2):
+    #                line[jj+1] = "^"
+    #        table.add_row(line)
+    #    print(table, file=stream)
 
     @property
     def returncodes(self):
