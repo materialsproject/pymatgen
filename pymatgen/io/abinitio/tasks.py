@@ -1144,9 +1144,13 @@ class Status(int):
         return str(self) in ("AbiCritical", "QueueCritical", "Uncoverged", "Error") 
 
     @property
+    def color_opts(self):
+        return self._STATUS2COLOR_OPTS[self]
+
+    @property
     def colored(self):
         """Return colorized text used to print the status if the stream supports it."""
-        return colored(str(self), **self._STATUS2COLOR_OPTS[self]) 
+        return colored(str(self), **self.color_opts) 
 
 
 class Node(six.with_metaclass(abc.ABCMeta, object)):
