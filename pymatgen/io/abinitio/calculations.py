@@ -203,7 +203,7 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
 
 def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, accuracy="normal", spin_mode="polarized",
                   smearing="fermi_dirac:0.1 eV", response_models=["godby"], charge=0.0, scf_algorithm=None, inclvkb=2,
-                  scr_nband=None, sigma_nband=None, gw_qprange=1, workdir=None, manager=None, gamma=True, nksmall=20
+                  scr_nband=None, sigma_nband=None, gw_qprange=1, workdir=None, manager=None, gamma=True, nksmall=20,
                   **extra_abivars):
     """
     Returns a Work object that performs G0W0 calculations for the given the material.
