@@ -223,7 +223,7 @@ class SingleAbinitGWWorkFlow():
         from abipy import abilab
         item = copy.copy(self.structure.item)
         self.structure.__class__ = abilab.Structure
-        self.structure = self.structure.get_sorted_structure()
+        self.structure = self.structure.get_sorted_structure_z()
         self.structure.item = item
         abi_structure = self.structure
         manager = TaskManager.from_user_config()
