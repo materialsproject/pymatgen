@@ -252,6 +252,7 @@ class SingleAbinitGWWorkFlow():
         nb = self.get_bands(self.structure)
         nscf_nband = [10 * nb]
 
+        nksmall = None
         ecuteps = [8]
         ecutsigx = 44
 
@@ -331,6 +332,8 @@ class SingleAbinitGWWorkFlow():
                                 response_models.append(value)
             elif self.all_converged:
                 print('| setting up for testing the converged values at the high kp grid ')
+                # add a bandstructure and dos calculation
+                nksmall = 30
                 # in this case a convergence study has already been performed.
                 # The resulting parameters are passed as option
                 ecuteps = [self.option['ecuteps'], self.option['ecuteps'] + self.convs['ecuteps']['test_range'][1] -
@@ -350,8 +353,7 @@ class SingleAbinitGWWorkFlow():
 
         work = g0w0_extended(abi_structure, self.pseudo_table, scf_kppa, nscf_nband, ecuteps, ecutsigx,
                              accuracy="normal", spin_mode="unpolarized", smearing=None, response_models=response_models,
-                             charge=0.0, sigma_nband=None, scr_nband=None, gamma=gamma,
-                             **extra_abivars)
+                             charge=0.0, sigma_nband=None, scr_nband=None, gamma=gamma, nksmall=nksmall, **extra_abivars)
 
         flow.register_work(work, workdir=workdir)
         return flow.allocate()
