@@ -22,7 +22,7 @@ from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from pymatgen.util.string_utils import WildCard
 from . import wrappers
 from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, PhononTask, DdkTask, BseTask, RelaxTask, DdeTask)
-from .strategies import HtcStrategy # ScfStrategy, RelaxStrategy
+from .strategies import HtcStrategy, NscfStrategy #, RelaxStrategy
 from .utils import Directory
 from .netcdf import ETSF_Reader
 from .abitimer import AbinitTimerParser
@@ -806,7 +806,7 @@ class G0W0_Workflow(Workflow):
     Workflow for G0W0 calculations.
     """
     def __init__(self, scf_input, nscf_input, scr_input, sigma_inputs,
-                 workdir=None, manager=None, spread_scr=False):
+                 workdir=None, manager=None, spread_scr=False, nksmall=None):
         """
         Args:
             scf_input:
@@ -824,6 +824,8 @@ class G0W0_Workflow(Workflow):
             spread_scr:
                 attach a screening task to every sigma task
                 if false only one screening task with the max ecuteps and nbands for all sigma tasks
+            nksmall:
+                if not none add a dos and bands calculation to the workflow
         """
         super(G0W0_Workflow, self).__init__(workdir=workdir, manager=manager)
 
@@ -843,6 +845,17 @@ class G0W0_Workflow(Workflow):
             self.scr_task = scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
         else:
             self.scr_tasks = []
+
+        if nksmall:
+            from abiobjects import KSampling
+            bands_input = NscfStrategy(scf_strategy=scf_input,
+                                       ksampling=KSampling.path_from_structure(ndivsm=nksmall, structure=scf_input.structure),
+                                       nscf_nband=scf_input.electrons.nband*2)
+            self.bands_task = self.register_nscf_task(bands_input, deps={self.scf_task: "DEN"})
+            dos_input = NscfStrategy(scf_strategy=scf_input,
+                                     ksampling=KSampling.automatic_density(kppa=nksmall**3, structure=scf_input.structure),
+                                     nscf_nband=scf_input.electrons.nband*2)
+            self.dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
 
         # Register the SIGMA runs.
         if not isinstance(sigma_inputs, (list, tuple)): 
