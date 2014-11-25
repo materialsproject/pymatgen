@@ -850,8 +850,7 @@ class G0W0_Workflow(Workflow):
             # if nksmall add bandstructure and dos calculations as well
             from abiobjects import KSampling
             scf_in = scf_input[-1] if isinstance(scf_input, (list, tuple)) else scf_input
-            print(scf_in.__class__)
-            print(scf_in.electrons)
+            logger.info('added band structure calculation')
             bands_input = NscfStrategy(scf_strategy=scf_in,
                                        ksampling=KSampling.path_from_structure(ndivsm=nksmall, structure=scf_in.structure),
                                        nscf_nband=scf_in.electrons.nband*2,

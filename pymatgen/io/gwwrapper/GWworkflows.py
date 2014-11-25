@@ -356,6 +356,7 @@ class SingleAbinitGWWorkFlow():
                              charge=0.0, sigma_nband=None, scr_nband=None, gamma=gamma, nksmall=nksmall, **extra_abivars)
 
         flow.register_work(work, workdir=workdir)
+        flow.show_dependencies()
         return flow.allocate()
 
     def create_job_file(self, serial=True):
