@@ -292,7 +292,7 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
     if len(scf_strategy) == 0:
         scf_strategy.append(ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy, spin_mode=spin_mode,
                                         smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars))
-        scf_strategy.nband = scf_nband
+        scf_strategy[-1].nband = scf_nband
 
     nscf_strategy = NscfStrategy(scf_strategy[-1], nscf_ksampling, max(nscf_nband), **extra_abivars)
 
