@@ -847,17 +847,20 @@ class G0W0_Workflow(Workflow):
             self.scr_tasks = []
 
         if nksmall:
+            # if nksmall add bandstructure and dos calculations as well
             from abiobjects import KSampling
             scf_in = scf_input[-1] if isinstance(scf_input, (list, tuple)) else scf_input
             print(scf_in.__class__)
             print(scf_in.electrons)
             bands_input = NscfStrategy(scf_strategy=scf_in,
                                        ksampling=KSampling.path_from_structure(ndivsm=nksmall, structure=scf_in.structure),
-                                       nscf_nband=scf_in.electrons.nband*2)
+                                       nscf_nband=scf_in.electrons.nband*2,
+                                       ecut=scf_in.ecut)
             self.bands_task = self.register_nscf_task(bands_input, deps={self.scf_task: "DEN"})
             dos_input = NscfStrategy(scf_strategy=scf_in,
                                      ksampling=KSampling.automatic_density(kppa=nksmall**3, structure=scf_in.structure),
-                                     nscf_nband=scf_in.electrons.nband*2)
+                                     nscf_nband=scf_in.electrons.nband*2,
+                                     ecut=scf_in.ecut)
             self.dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
 
         # Register the SIGMA runs.
