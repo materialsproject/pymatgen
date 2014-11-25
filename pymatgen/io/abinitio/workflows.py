@@ -848,13 +848,14 @@ class G0W0_Workflow(Workflow):
 
         if nksmall:
             from abiobjects import KSampling
-            bands_input = NscfStrategy(scf_strategy=scf_input,
-                                       ksampling=KSampling.path_from_structure(ndivsm=nksmall, structure=scf_input.structure),
-                                       nscf_nband=scf_input.electrons.nband*2)
+            scf_in = scf_input[-1] if isinstance(scf_input, (list, tuple)) else scf_input
+            bands_input = NscfStrategy(scf_strategy=scf_in,
+                                       ksampling=KSampling.path_from_structure(ndivsm=nksmall, structure=scf_in.structure),
+                                       nscf_nband=scf_in.electrons.nband*2)
             self.bands_task = self.register_nscf_task(bands_input, deps={self.scf_task: "DEN"})
-            dos_input = NscfStrategy(scf_strategy=scf_input,
-                                     ksampling=KSampling.automatic_density(kppa=nksmall**3, structure=scf_input.structure),
-                                     nscf_nband=scf_input.electrons.nband*2)
+            dos_input = NscfStrategy(scf_strategy=scf_in,
+                                     ksampling=KSampling.automatic_density(kppa=nksmall**3, structure=scf_in.structure),
+                                     nscf_nband=scf_in.electrons.nband*2)
             self.dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
 
         # Register the SIGMA runs.
