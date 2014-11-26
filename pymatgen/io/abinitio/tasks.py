@@ -1759,6 +1759,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 return (self.work.pos, i)
         raise ValueError("Cannot find the position of %s in flow %s" % (self, self.flow))
 
+    @property
+    def pos_str(self):
+        """String representation of self.pos"""
+        return "w" + str(self.pos[0]) + "_t" + str(self.pos[1])
+
     def make_input(self):
         """Construct and write the input file of the calculation."""
         return self.strategy.make_input()
@@ -1834,9 +1839,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         return s
 
     def cancel(self):
-        """
-        Cancel the job. Returns 1 if job was cancelled.
-        """
+        """Cancel the job. Returns 1 if job was cancelled."""
         if self.queue_id is None: return 0 
         if self.status >= self.S_DONE: return 0 
 
@@ -3113,6 +3116,10 @@ class PhononTask(AbinitTask):
         return results.add_gridfs_file(DDB=(self.outdir.has_abiext("DDB"), "t"))
 
 
+class ScrTask(AbinitTask):
+    """Tasks for SCREENING calculations """
+
+
 class SigmaTask(AbinitTask):
     """
     Tasks for SIGMA calculations employing the self-consistent G approximation 
@@ -3143,7 +3150,6 @@ class SigmaTask(AbinitTask):
         Open the SIGRES file located in the in self.outdir. 
         Returns SIGRES_File object, None if file could not be found or file is not readable.
         """
-
         sigres_path = self.outdir.has_abiext("SIGRES")
 
         if not sigres_path:

@@ -6,6 +6,7 @@ import collections
 import numpy as np
 import pymatgen.core.units as units
 
+from monty.functools import return_none_if_raise
 from pymatgen.core.units import FloatWithUnit
 
 import logging
@@ -313,6 +314,12 @@ class EOS_Fit(object):
     @property
     def b0_GPa(self):
         return FloatWithUnit(self.b0, "eV ang^-3").to("GPa")
+
+    @property
+    @return_none_if_raise(AttributeError)
+    def results(self):
+        """Dictionary with the results. None if results are not available"""
+        return dict(v0=self.v0, e0=self.e0, b0=self.b0, b1=self.b1)
 
     def plot(self, ax=None, **kwargs):
         """
