@@ -20,7 +20,8 @@ from pymatgen.core.units import EnergyArray
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from pymatgen.util.string_utils import WildCard
 from . import wrappers
-from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, PhononTask, DdkTask, BseTask, RelaxTask)
+from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, PhononTask, DdkTask, 
+    BseTask, RelaxTask, ScrTask, SigmaTask)
 from .strategies import HtcStrategy # ScfStrategy, RelaxStrategy
 from .utils import Directory
 from .netcdf import ETSF_Reader
@@ -314,6 +315,11 @@ class Workflow(BaseWorkflow):
                 return i
         raise ValueError("Cannot find the position of %s in flow %s" % (self, self.flow))
 
+    @property
+    def pos_str(self):
+        """String representation of self.pos"""
+        return "w" + str(self.pos) 
+
     def set_workdir(self, workdir, chroot=False):
         """Set the working directory. Cannot be set more than once unless chroot is True"""
         if not chroot and hasattr(self, "workdir") and self.workdir != workdir:
@@ -502,6 +508,16 @@ class Workflow(BaseWorkflow):
     def register_ddk_task(self, *args, **kwargs):
         """Register a nscf task."""
         kwargs["task_class"] = DdkTask
+        return self.register(*args, **kwargs)
+
+    def register_scr_task(self, *args, **kwargs):
+        """Register a nscf task."""
+        kwargs["task_class"] = ScrTask
+        return self.register(*args, **kwargs)
+
+    def register_sigma_task(self, *args, **kwargs):
+        """Register a nscf task."""
+        kwargs["task_class"] = SigmaTask
         return self.register(*args, **kwargs)
 
     def register_bse_task(self, *args, **kwargs):
@@ -714,10 +730,10 @@ class BandStructureWorkflow(Workflow):
         super(BandStructureWorkflow, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
-        self.scf_task = self.register(scf_input, task_class=ScfTask)
+        self.scf_task = self.register_scf_task(scf_input)
 
         # Register the NSCF run and its dependency.
-        self.nscf_task = self.register(nscf_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
+        self.nscf_task = self.register_nscf_task(nscf_input, deps={self.scf_task: "DEN"})
 
         # Add DOS computation(s) if requested.
         if dos_inputs is not None:
@@ -725,7 +741,7 @@ class BandStructureWorkflow(Workflow):
                 dos_inputs = [dos_inputs]
 
             for dos_input in dos_inputs:
-                self.register(dos_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
+                self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
 
 
 class RelaxWorkflow(Workflow):
@@ -749,11 +765,11 @@ class RelaxWorkflow(Workflow):
         """
         super(RelaxWorkflow, self).__init__(workdir=workdir, manager=manager)
 
-        self.ion_task = self.register(ion_input, task_class=RelaxTask)
+        self.ion_task = self.register_relax_task(ion_input)
 
         # Use WFK for the time being since I don't know why Abinit produces all these _TIM?_DEN files.
-        #self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "DEN"}, task_class=RelaxTask)
-        self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "WFK"}, task_class=RelaxTask)
+        #self.ioncell_task = self.register_relax_task(ioncell_input, deps={self.ion_task: "DEN"})
+        self.ioncell_task = self.register_relax_task(ioncell_input, deps={self.ion_task: "WFK"})
 
         # Lock ioncell_task as ion_task should communicate to ioncell_task that 
         # the calculation is OK and pass the final structure.
@@ -811,15 +827,15 @@ class G0W0_Workflow(Workflow):
         # register all scf_inputs but link the nscf only the last scf in the list
         if isinstance(scf_input, (list, tuple)):
             for single_scf_input in scf_input:
-                self.scf_task = self.register(single_scf_input, task_class=ScfTask)
+                self.scf_task = self.register_scf_task(single_scf_input)
         else:
-            self.scf_task = self.register(scf_input, task_class=ScfTask)
+            self.scf_task = self.register_scf_task(scf_input)
 
         # Construct the input for the NSCF run.
-        self.nscf_task = nscf_task = self.register(nscf_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
+        self.nscf_task = nscf_task = self.register_nscf_task(nscf_input, deps={self.scf_task: "DEN"})
 
         # Register the SCREENING run.
-        self.scr_task = scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
+        self.scr_task = scr_task = self.register_scr_task(scr_input, deps={nscf_task: "WFK"})
 
         # Register the SIGMA runs.
         if not isinstance(sigma_inputs, (list, tuple)): 
@@ -827,7 +843,7 @@ class G0W0_Workflow(Workflow):
 
         self.sigma_tasks = []
         for sigma_input in sigma_inputs:
-            task = self.register(sigma_input, deps={nscf_task: "WFK", scr_task: "SCR"})
+            task = self.register_sigma_task(sigma_input, deps={nscf_task: "WFK", scr_task: "SCR"})
             self.sigma_tasks.append(task)
 
 
@@ -860,7 +876,7 @@ class SigmaConvWorkflow(Workflow):
             sigma_inputs = [sigma_inputs]
 
         for sigma_input in sigma_inputs:
-            self.register(sigma_input, deps={wfk_node: "WFK", scr_node: "SCR"})
+            self.register_sigma_task(sigma_input, deps={wfk_node: "WFK", scr_node: "SCR"})
 
 
 class BSEMDF_Workflow(Workflow):
@@ -886,17 +902,17 @@ class BSEMDF_Workflow(Workflow):
         super(BSEMDF_Workflow, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
-        self.scf_task = self.register(scf_input, task_class=ScfTask)
+        self.scf_task = self.register_scf_task(scf_input)
 
         # Construct the input for the NSCF run.
-        self.nscf_task = self.register(nscf_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
+        self.nscf_task = self.register_nscf_task(nscf_input, deps={self.scf_task: "DEN"})
 
         # Construct the input(s) for the BSE run.
         if not isinstance(bse_inputs, (list, tuple)):
             bse_inputs = [bse_inputs]
 
         for bse_input in bse_inputs:
-            self.register(bse_input, deps={self.nscf_task: "WFK"}, task_class=BseTask)
+            self.register_bse_task(bse_input, deps={self.nscf_task: "WFK"})
 
 
 class QptdmWorkflow(Workflow):
@@ -946,8 +962,7 @@ class QptdmWorkflow(Workflow):
         for qpoint in qpoints:
             qptdm_input = scr_input.deepcopy()
             qptdm_input.set_variables(nqptdm=1, qptdm=qpoint)
-
-            self.register(qptdm_input, manager=self.manager)
+            self.register_scr_task(qptdm_input, manager=self.manager)
 
         self.allocate()
 
@@ -1118,5 +1133,12 @@ class PhononWorkflow(Workflow):
         results = self.Results(node=self,returncode=0, message="DDB merge done")
         results.add_gridfs_files(DDB=(out_ddb, "t"))
 
-        return results
+        # TODO
+        # Call anaddb to compute the phonon frequencies for this q-point and
+        # store the results in the outdir of the work.
 
+        #atask = AnaddbTask(anaddb_input, ddb_node,
+        #         gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None)
+        #atask.start()
+
+        return results

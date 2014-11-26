@@ -1163,8 +1163,10 @@ class AbinitFlow(Node):
             if filepath in kwargs we init the scheduler from file.
             else pass **kwargs to PyFlowScheduler.__init__
         """
-        from .launcher import PyFlowScheduler
+        # Build dirs and files (if not yet done)
+        self.build()
 
+        from .launcher import PyFlowScheduler
         if not kwargs:
             # User config if kwargs is empty
             sched = PyFlowScheduler.from_user_config()
@@ -1410,7 +1412,7 @@ def phonon_flow(workdir, scf_input, ph_inputs, manager=None):
     flow = AbinitFlow(workdir=workdir, manager=manager)
 
     # Register the first workflow (GS calculation)
-    scf_task = flow.register_task(scf_input, task_class=ScfTask)
+    scf_task = flow.register_scf_task(scf_input, task_class=ScfTask)
 
     # Build a temporary workflow with a shell manager just to run 
     # ABINIT to get the list of irreducible pertubations for this q-point.
