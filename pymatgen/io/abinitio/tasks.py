@@ -1127,11 +1127,11 @@ class Dependency(object):
         """
         Args:
             node:
-                The task or the worfklow associated to the dependency.
+                The task or the worfklow associated to the dependency or string with a filepath.
             exts:
                 Extensions of the output files that are needed for running the other tasks.
         """
-        self._node = node
+        self._node = Node.as_node(node)
 
         if exts and is_string(exts):
             exts = exts.split()

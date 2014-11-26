@@ -486,7 +486,7 @@ class PyFlowScheduler(object):
         try:
             self.sched.start()
         except KeyboardInterrupt:
-            self.shutdown(err_msg="KeyboardInterrupt from user")
+            self.shutdown(msg="KeyboardInterrupt from user")
 
         return True
 
