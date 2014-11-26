@@ -1331,7 +1331,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         Method to exclude nodes in the calculation
         """
 
-    def more_mem_per_proc(self, factor):
+    def more_mem_per_proc(self, factor=1):
         """
         Method to increase the amount of memory asked for, by factor.
         Return True if success.
@@ -1347,7 +1347,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         logger.warning('could not increase mem_per_proc further')
         return False
 
-    def more_mpi_procs(self, factor):
+    def more_mpi_procs(self, factor=1):
         """
         Method to increase the number of MPI procs. Return True if success.
         """

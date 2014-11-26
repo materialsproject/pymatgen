@@ -4,10 +4,14 @@ from __future__ import unicode_literals, division, print_function
 
 import os.path
 
-from monty.dev import requires
+from monty.dev import requires, deprecated
+from monty.collections import AttrDict
 from monty.functools import lazy_property
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.structure import Structure
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 __author__ = "Matteo Giantomassi"
@@ -91,10 +95,13 @@ class NetcdfReader(object):
         """
         Activated at the end of the with statement. It automatically closes the file.
         """
-        self.rootgrp.close()
+        self.close()
 
     def close(self):
-        self.rootgrp.close()
+        try:
+            self.rootgrp.close()
+        except Exception as exc:
+            logger.warning("Exception %s while trying to close %s" % (exc, self.path))
 
     #@staticmethod
     #def pathjoin(*args):
@@ -195,6 +202,11 @@ class NetcdfReader(object):
         except KeyError:
             raise self.Error("In file %s:\nvarnames %s, kwargs %s" % (self.path, varnames, kwargs))
 
+    def read_keys(self, keys, path="/"):
+        d, missing = self.read_values_with_map(names=keys, path=path)
+        return d
+
+    @deprecated(message="Use read_keys")
     def read_values_with_map(self, names, map_names=None, path="/"):
         """
         Read (dimensions, variables) with a mapping.
@@ -214,7 +226,7 @@ class NetcdfReader(object):
         if map_names is None:
             map_names = {}
 
-        od, missing = {}, []
+        od, missing = AttrDict(), []
         for k in names:
             try:
                 key = map_names[k]

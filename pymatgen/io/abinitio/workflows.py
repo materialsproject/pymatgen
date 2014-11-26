@@ -523,6 +523,7 @@ class Workflow(BaseWorkflow):
     def register_bse_task(self, *args, **kwargs):
         """Register a nscf task."""
         kwargs["task_class"] = BseTask
+        return self.register(*args, **kwargs)
 
     def path_in_workdir(self, filename):
         """Create the absolute path of filename in the working directory."""
@@ -736,13 +737,14 @@ class BandStructureWorkflow(Workflow):
         self.nscf_task = self.register_nscf_task(nscf_input, deps={self.scf_task: "DEN"})
 
         # Add DOS computation(s) if requested.
+        self.dos_tasks = []
         if dos_inputs is not None:
             if not isinstance(dos_inputs, (list, tuple)):
                 dos_inputs = [dos_inputs]
 
             for dos_input in dos_inputs:
-                self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
-
+                dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
+                self.dos_tasks.appens(dos_task)
 
 class RelaxWorkflow(Workflow):
     """

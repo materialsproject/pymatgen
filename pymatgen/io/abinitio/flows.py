@@ -1357,6 +1357,10 @@ def bandstructure_flow(workdir, scf_input, nscf_input, dos_inputs=None, manager=
     flow = AbinitFlow(workdir, manager)
     work = BandStructureWorkflow(scf_input, nscf_input, dos_inputs=dos_inputs)
     flow.register_work(work)
+
+    # Handy aliases
+    flow.scf_task, flow.nscf_task, flow.dos_tasks = work.scf_task, work.nscf_task, work.dos_tasks
+
     return flow.allocate()
 
 
