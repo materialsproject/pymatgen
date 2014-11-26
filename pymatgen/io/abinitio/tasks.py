@@ -3262,7 +3262,7 @@ class BseTask(AbinitTask):
         Open the MSF file located in the in self.outdir. 
         Returns MSF_File object, None if file could not be found or file is not readable.
         """
-        mdf_path = self.outdir.has_abiext("MDF")
+        mdf_path = self.outdir.has_abiext("MDF.nc")
         if not mdf_path:
             logger.critical("%s didn't produce a MDF file in %s" % (self, self.outdir))
             return None
