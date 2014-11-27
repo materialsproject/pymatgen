@@ -773,8 +773,9 @@ class AbinitFlow(Node):
     def tasks_from_nids(self, nids):
         """
         Return the list of tasks associated to the given list of node identifiers (nids).
-        If one of the nids is invalid (e.g the node id is not found) the corresponding
-        entry is the output list is set to None.
+
+        .. note::
+            Invalid ids are ignored
         """
         if not isinstance(nids, collections.Iterable): nids = [nids]
 
@@ -784,21 +785,12 @@ class AbinitFlow(Node):
                 if task.node_id == nid:
                     tasks.append(task)
                     break
-            else:
-                tasks.append(None)
 
         return tasks
 
     def wti_from_nids(self, nids):
         """Return the list of (w, t) indices from the list of node identifier nids."""
-        wti = []
-        for task in self.tasks_from_nids(nids):
-            if task is not None:
-                wti.append(task.pos)
-            else:
-                wti.append(None)
-
-        return wti
+        return [task.pos for task in self.tasks_from_nids(nids)]
 
     def open_files(self, what="o", wti=None, status=None, op="==", editor=None):
         """
