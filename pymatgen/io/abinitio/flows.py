@@ -772,7 +772,7 @@ class AbinitFlow(Node):
 
     def tasks_from_nids(self, nids):
         """
-        Return the list of tasks associated to the given of node identifiers (nids).
+        Return the list of tasks associated to the given list of node identifiers (nids).
         If one of the nids is invalid (e.g the node id is not found) the corresponding
         entry is the output list is set to None.
         """
@@ -790,7 +790,7 @@ class AbinitFlow(Node):
         return tasks
 
     def wti_from_nids(self, nids):
-        """Return the list of (w, t) index from the nids."""
+        """Return the list of (w, t) indices from the list of node identifier nids."""
         wti = []
         for task in self.tasks_from_nids(nids):
             if task is not None:

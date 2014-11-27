@@ -2927,6 +2927,7 @@ class ScfTask(AbinitTask, ProduceGsr):
         """
         scf_cycle = abiinspect.GroundStateScfCycle.from_file(self.output_file.path)
         if scf_cycle is not None:
+            if "title" not in kwargs: kwargs["title"] = str(self)
             return scf_cycle.plot(**kwargs)
 
     def get_results(self, **kwargs):
@@ -3045,6 +3046,7 @@ class RelaxTask(AbinitTask, ProduceGsr):
         """
         relaxation = abiinspect.Relaxation.from_file(self.output_file.path)
         if relaxation is not None:
+            if "title" not in kwargs: kwargs["title"] = str(self)
             return relaxation.plot(**kwargs)
 
     def get_results(self, **kwargs):
@@ -3110,6 +3112,7 @@ class PhononTask(AbinitTask):
         """
         scf_cycle = abiinspect.PhononScfCycle.from_file(self.output_file.path)
         if scf_cycle is not None:
+            if "title" not in kwargs: kwargs["title"] = str(self)
             return scf_cycle.plot(**kwargs)
 
     def get_results(self, **kwargs):
@@ -3250,12 +3253,12 @@ class BseTask(AbinitTask):
     #def inspect(self, **kwargs):
     #    """
     #    Plot the Haydock iterations with matplotlib.
-
     #    Returns
     #        `matplotlib` figure, None if some error occurred.
     #    """
     #    haydock_cycle = abiinspect.HaydockIterations.from_file(self.output_file.path)
     #    if haydock_cycle is not None:
+    #        if "title" not in kwargs: kwargs["title"] = str(self)
     #        return haydock_cycle.plot(**kwargs)
 
     def open_mdf(self):
