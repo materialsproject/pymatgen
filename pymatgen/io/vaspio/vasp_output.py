@@ -329,8 +329,6 @@ class Vasprun(PMGSONable):
         parsed_header = False
         for event, elem in iterparse(stream):
             tag = elem.tag
-            print(tag)
-            print(elem)
             if not parsed_header:
                 if tag == "generator":
                     self.generator = self._parse_params(elem)
@@ -356,7 +354,6 @@ class Vasprun(PMGSONable):
                     self.efermi = self.tdos.efermi
                     self.dos_has_errors = False
                 except Exception as ex:
-                    print(ex)
                     self.dos_has_errors = True
             elif parse_eigen and tag == "eigenvalues":
                 self.eigenvalues = self._parse_eigen(elem)
@@ -856,7 +853,6 @@ class Vasprun(PMGSONable):
             s = None
             pass
         for va in elem.findall("varray"):
-            print(va.attrib["name"])
             istep[va.attrib["name"]] = _parse_varray(va)
         istep["electronic_steps"] = esteps
         istep["structure"] = s
@@ -1012,7 +1008,6 @@ class Outcar(PMGSONable):
                         data.append(toks)
             elif clean.find("soft stop encountered!  aborting job") != -1:
                 self.is_stopped = True
-                #print(clean, cores)
             else:
                 if time_patt.search(line):
                     tok = line.strip().split(":")
