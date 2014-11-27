@@ -146,6 +146,12 @@ class AbinitFlowTest(FlowUnitTest):
         aequal(flow.num_tasks, 4)
         aequal(flow.ncores_inuse, 0)
 
+        # nids interface
+        aequal([task0_w0], flow.tasks_from_nids(task0_w0.node_id))
+        aequal([(0, 0)], flow.wti_from_nids(task0_w0.node_id))
+        aequal([task0_w2], flow.tasks_from_nids([task0_w2.node_id]))
+        aequal([(2, 0)], flow.wti_from_nids([task0_w2.node_id]))
+
         # Check for deadlocks
         flow.check_dependencies()
 

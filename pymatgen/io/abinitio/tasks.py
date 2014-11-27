@@ -1825,6 +1825,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             The clock starts when self.status becomes S_RUN.
             thus run_etime does not correspond to the effective wall-time.
         """
+        # FIXME: This does not work as expected!
         s = "None"
         if self.start_datetime is not None:
             stop = self.stop_datetime
