@@ -146,7 +146,10 @@ class AbinitFlowTest(FlowUnitTest):
         aequal(flow.num_tasks, 4)
         aequal(flow.ncores_inuse, 0)
 
-        # nids interface
+        # API for iterations
+        aequal(len(list(flow.iflat_tasks(status="Initialized"))), sum(len(work) for work in flow))
+        aequal(list(flow.iflat_tasks(nids=task0_w0.node_id)), [task0_w0])
+
         aequal([task0_w0], flow.tasks_from_nids(task0_w0.node_id))
         aequal([(0, 0)], flow.wti_from_nids(task0_w0.node_id))
         aequal([task0_w2], flow.tasks_from_nids([task0_w2.node_id]))

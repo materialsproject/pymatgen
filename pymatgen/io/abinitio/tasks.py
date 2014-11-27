@@ -2000,7 +2000,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.qout_file.remove()
 
         self.set_status(self.S_INIT, info_msg="Reset on %s" % time.asctime())
-        self.set_qinfo(None)
+        self.set_qjob(None)
 
         # TODO send a signal to the flow 
         #self.workflow.check_status()
