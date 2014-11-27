@@ -417,7 +417,7 @@ class AbinitFlow(Node):
         # Sort keys according to their status.
         return collections.OrderedDict([(k, d[k]) for k in sorted(list(d.keys()))])
 
-    def iflat_tasks_wti(self, status=None, op="=="):
+    def iflat_tasks_wti(self, status=None, op="==", nids=None):
         """
         Generator to iterate over all the tasks of the `Flow`.
         Yields
@@ -428,10 +428,11 @@ class AbinitFlow(Node):
         the condition (task.status op status) are selected
         status can be either one of the flags defined in the `Task` class 
         (e.g Task.S_OK) or a string e.g "S_OK" 
+        nids is an optional list of node identifiers used to filter the tasks.
         """
-        return self._iflat_tasks_wti(status=status, op=op, with_wti=True)
+        return self._iflat_tasks_wti(status=status, op=op, nids=nids, with_wti=True)
 
-    def iflat_tasks(self, status=None, op="=="):
+    def iflat_tasks(self, status=None, op="==", nids=None):
         """
         Generator to iterate over all the tasks of the `Flow`.
 
@@ -439,20 +440,29 @@ class AbinitFlow(Node):
         the condition (task.status op status) are selected
         status can be either one of the flags defined in the `Task` class 
         (e.g Task.S_OK) or a string e.g "S_OK" 
+        nids is an optional list of node identifiers used to filter the tasks.
         """
-        return self._iflat_tasks_wti(status=status, op=op, with_wti=False)
+        return self._iflat_tasks_wti(status=status, op=op, nids=nids, with_wti=False)
 
-    def _iflat_tasks_wti(self, status=None, op="==", with_wti=True):
+    def _iflat_tasks_wti(self, status=None, op="==", nids=None, with_wti=True):
         """
         Generators that produces a flat sequence of task.
         if status is not None, only the tasks with the specified status are selected.
+        nids is an optional list of node identifiers used to filter the tasks.
 
         Returns:
             (task, work_index, task_index) if with_wti is True else task
         """
+        if nids is not None: 
+            if not isinstance(nids, collections.Iterable):
+                nids = set([nids]) 
+            else:
+                nids = set(nids)
+
         if status is None:
             for wi, work in enumerate(self):
                 for ti, task in enumerate(work):
+                    if nids and task.node_id not in nids: continue
                     if with_wti:
                         yield task, wi, ti
                     else:
@@ -472,9 +482,11 @@ class AbinitFlow(Node):
 
             # Accept Task.S_FLAG or string.
             status = Status.as_status(status)
+            #print(status)
 
             for wi, work in enumerate(self):
                 for ti, task in enumerate(work):
+                    if nids and task.node_id not in nids: continue
                     if op(task.status, status):
                         if with_wti:
                             yield task, wi, ti
@@ -508,7 +520,7 @@ class AbinitFlow(Node):
 
         deadlocked = []
         err_tasks = self.errored_tasks
-        if err_task:
+        if err_tasks:
             for task in self.all_tasks:
                 if any(task.depends_on(err_task) for err_task in err_tasks):
                     deadlocked.append(task)
@@ -640,17 +652,18 @@ class AbinitFlow(Node):
                 Slice object used to select the workflows to show. Default None i.e. all works are displayed.
         """
         stream = kwargs.pop("stream", sys.stdout)
-        work_slice = kwargs.pop("work_slice", tuple())
-        if work_slice: work_slice = list(iterator_from_slice(work_slice))
-        if work_slice == [-1]: work_slice = [len(self)-1]
-        #print("work_slice in show_status", work_slice)
+        nids = kwargs.pop("nids", None)
+
+        if nids is not None: 
+            if not isinstance(nids, collections.Iterable):
+                nids = set([nids]) 
+            else:
+                nids = set(nids)
 
         has_colours = stream_has_colours(stream)
         red = "red" if has_colours else None
 
         for i, work in enumerate(self):
-            if work_slice and i not in work_slice: continue
-
             print("", file=stream)
             cprint_map("Work #%d: %s, Finalized=%s\n" % (i, work, work.finalized), cmap={"True": "green"}, file=stream)
             #if verbose == 0 and work.finalized: continue
@@ -659,6 +672,7 @@ class AbinitFlow(Node):
 
             tot_num_errors = 0
             for task in work:
+                if nids and task.node_id not in nids: continue
                 task_name = os.path.basename(task.name)
 
                 # Parse the events in the main output.
@@ -792,7 +806,7 @@ class AbinitFlow(Node):
         """Return the list of (w, t) indices from the list of node identifier nids."""
         return [task.pos for task in self.tasks_from_nids(nids)]
 
-    def open_files(self, what="o", wti=None, status=None, op="==", editor=None):
+    def open_files(self, what="o", status=None, op="==", nids=None, editor=None):
         """
         Open the files of the flow inside an editor (command line interface).
 
@@ -807,23 +821,17 @@ class AbinitFlow(Node):
                     l ==> log_file,
                     e ==> stderr_file,
                     q ==> qerr_file,
-            wti:
-                tuple with the (work, task_index) to select
-                or string in the form w_start:w_stop,task_start:task_stop
             status:
                 if not None, only the tasks with this status are select
             op:
                 status operator. Requires status. A task is selected 
                 if task.status op status evaluates to true.
+            nids:
+                optional list of node identifiers used to filter the tasks.
             editor:
                 Select the editor. None to use the default editor ($EDITOR shell env var)
         """
-        if wti is not None:
-            #TODO: Add support for other formats
-            assert isinstance(wti, (tuple, list))
-            #raise NotImplementedError("wti option is not available!")
-
-        def get_files(task, wi, ti):
+        def get_files(task):
             """Helper function used to select the files of a task."""
             choices = {
                 "i": task.input_file,
@@ -847,22 +855,18 @@ class AbinitFlow(Node):
 
         # Build list of files to analyze.
         files = []
-
-        for (task, wi, ti) in self.iflat_tasks_wti(status=status, op=op):
-            print("wti", wti)
-            if wti is not None and list(wti) != [wi, ti]:
-                continue
-
-            lst = get_files(task, wi, ti)
+        for task in self.iflat_tasks(status=status, op=op, nids=nids):
+            lst = get_files(task)
             if lst:
                 files.extend(lst)
 
         #logger.info("Will edit %d files: %s" % (len(files), str(files)))
         return Editor(editor=editor).edit_files(files)
 
-    def cancel(self):
+    def cancel(self, nids=None):
         """
         Cancel all the tasks that are in the queue.
+        nids is an optional list of node identifiers used to filter the tasks.
 
         Returns:
             Number of jobs cancelled, negative value if error
@@ -886,7 +890,7 @@ class AbinitFlow(Node):
                 pass
 
         num_cancelled = 0
-        for task in self.iflat_tasks():
+        for task in self.iflat_tasks(nids=nids):
             num_cancelled += task.cancel()
 
         return num_cancelled
