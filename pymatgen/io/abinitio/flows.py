@@ -655,7 +655,7 @@ class AbinitFlow(Node):
             cprint_map("Work #%d: %s, Finalized=%s\n" % (i, work, work.finalized), cmap={"True": "green"}, file=stream)
             #if verbose == 0 and work.finalized: continue
 
-            table = PrettyTable(["Task", "Status", "Queue-id", "MPI|OMP|Mem/proc", "Err|Warn|Comm", "Class", "Restart", "Etime"])
+            table = PrettyTable(["Task", "Status", "Queue", "MPI|OMP|Mem/proc", "Err|Warn|Comm", "Class", "Restart", "Node_ID"])
 
             tot_num_errors = 0
             for task in work:
@@ -669,7 +669,7 @@ class AbinitFlow(Node):
                     events = "|".join(map(str, [report.num_errors, report.num_warnings, report.num_comments]))
 
                 para_info = "|".join(map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
-                task_info = list(map(str, [task.__class__.__name__, task.num_restarts, task.run_etime()]))
+                task_info = list(map(str, [task.__class__.__name__, task.num_restarts, task.node_id]))
                 qinfo = "None"
                 if task.queue_id is not None:
                     qinfo = str(task.queue_id) + "@" + str(task.qname)
@@ -769,6 +769,36 @@ class AbinitFlow(Node):
 
         for d in coll.find():
             pprint(d)
+
+    def tasks_from_nids(self, nids):
+        """
+        Return the list of tasks associated to the given of node identifiers (nids).
+        If one of the nids is invalid (e.g the node id is not found) the corresponding
+        entry is the output list is set to None.
+        """
+        if not isinstance(nids, collections.Iterable): nids = [nids]
+
+        tasks = []
+        for nid in nids:
+            for task in self.iflat_tasks():
+                if task.node_id == nid:
+                    tasks.append(task)
+                    break
+            else:
+                tasks.append(None)
+
+        return tasks
+
+    def wti_from_nids(self, nids):
+        """Return the list of (w, t) index from the nids."""
+        wti = []
+        for task in self.tasks_from_nids(nids):
+            if task is not None:
+                wti.append(task.pos)
+            else:
+                wti.append(None)
+
+        return wti
 
     def open_files(self, what="o", wti=None, status=None, op="==", editor=None):
         """
