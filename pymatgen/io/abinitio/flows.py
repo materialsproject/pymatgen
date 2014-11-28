@@ -1,6 +1,21 @@
 # coding: utf-8
 """
 Abinit Flows
+Flows consist for works, works consist of tasks.
+Flows are the final objects that can be dumped directly to a pickle file on disk of any other database.
+Flows are executed using abirun (abipy).
+
+Important 'external' methods for constructing flows:
+ register_work:
+    register (add) a work to the flow
+ resister_task:
+    actually register a work that contains only this task returns the work
+ allocate:
+    propagate the workdir and manager of the flow to all the registered tasks
+ build:
+
+ build_and_pickle_dump:
+
 """
 from __future__ import unicode_literals, division, print_function
 
@@ -867,7 +882,7 @@ class AbinitFlow(Node):
                 Task subclass to instantiate. Default: `AbinitTask` 
 
         Returns:   
-            The generated `Task`.
+            The generated work for the task, work[0] is the actual task.
         """
         work = Work(manager=manager)
         task = work.register(input, deps=deps, task_class=task_class)
