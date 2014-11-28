@@ -578,7 +578,7 @@ class Flow(Node):
                         logger.debug(info_msg)
                         return task.set_status(task.S_ERROR, info_msg)
 
-    def show_status(self, stream=sys.stdout, verbose=0):
+    def show_status(self, stream=sys.stdout, verbose=1):
         """
         Report the status of the works and the status  of the different tasks on the specified stream.
 
@@ -591,8 +591,8 @@ class Flow(Node):
             print(80*"=", file=stream)
             print("Work #%d: %s, Finalized=%s\n" % (i, work, work.finalized), file=stream)
 
-            if verbose == 0 and work.finalized:
-                continue
+            #if work.finalized and not verbose:
+            #    continue
 
             table =PrettyTable([
                 "Task", "Status", "Queue-id", "Errors", "Warnings", "Comments", 
