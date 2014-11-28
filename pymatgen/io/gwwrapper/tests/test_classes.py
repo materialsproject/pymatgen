@@ -81,6 +81,7 @@ class GWVaspInputSetTests(PymatgenTest):
 
     @unittest.skipIf(POTCAR_DIR is None, "POTCAR dir is None")
     def test_GWDFTDiagVaspInputSet(self):
+        self.maxDiff = None
         inpset = GWDFTDiagVaspInputSet(structure=self.structure, spec=self.spec)
         self.assertIsInstance(inpset, GWDFTDiagVaspInputSet)
         self.assertEqual(inpset.convs,
@@ -89,7 +90,7 @@ class GWVaspInputSetTests(PymatgenTest):
                                                  u'ISMEAR': -5, u'ISPIN': 1, u'LOPTICS': u'TRUE', u'LORBIT': 11,
                                                  u'LREAL': u'AUTO', u'LWAVE': True, u'MAGMOM': {u'Co': 5, u'Cr': 5,
                                                  u'Fe': 5, u'Mn': 5, u'Mn3+': 4, u'Mn4+': 3, u'Mo': 5, u'Ni': 5,
-                                                 u'V': 5, u'W': 5}, u'NBANDS': 221, u'NELM': 1, u'NPAR': 13,
+                                                 u'V': 5, u'W': 5}, u'NBANDS': 240, u'NELM': 1, u'NPAR': 40,
                                                  u'PREC': u'Medium', u'SIGMA': 0.01})
 
     @unittest.skipIf(POTCAR_DIR is None, "POTCAR dir is None")

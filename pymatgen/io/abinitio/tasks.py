@@ -1,7 +1,5 @@
 # coding: utf-8
-"""
-Classes defining Abinit calculations and workflows
-"""
+"""Classes defining Abinit calculations."""
 from __future__ import division, print_function, unicode_literals
 
 import os
@@ -13,6 +11,7 @@ import abc
 import copy
 import yaml
 import six
+
 
 from pprint import pprint
 from atomicfile import AtomicFile
@@ -992,6 +991,7 @@ class TaskManager(object):
         # the response fuction is in memory and not distributed
         # we need to increas memory if jobs fail ...
         return self.qadapter.more_mem_per_proc()
+        #return self.qadapter.increase_mem()
 
 
 # The code below initializes a counter from a file when the module is imported 
@@ -1015,11 +1015,11 @@ except IOError:
 
 def get_newnode_id():
     """
-    Returns a new node identifier used both for `Task` and `Workflow` objects.
+    Returns a new node identifier used both for `Task` and `Work` objects.
 
     .. warnings:
         The id is unique inside the same python process so be careful when 
-        Workflows and Task are constructed at run-time or when threads are used.
+        Works and Tasks are constructed at run-time or when threads are used.
     """
     global _COUNTER
     _COUNTER += 1
@@ -1062,7 +1062,7 @@ class FakeProcess(object):
 class Product(object):
     """
     A product represents an output file produced by ABINIT instance.
-    This file is needed to start another `Task` or another `Workflow`.
+    This file is needed to start another `Task` or another `Work`.
     """
     def __init__(self, ext, path):
         """
@@ -1112,7 +1112,7 @@ class Dependency(object):
     This object describes the dependencies among the nodes of a calculation.
 
     A `Dependency` consists of a `Node` that produces a list of products (files) 
-    that are used by the other nodes (`Task` or `Workflow`) to start the calculation.
+    that are used by the other nodes (`Task` or `Work`) to start the calculation.
     One usually creates the object by calling work.register 
 
     Example:
@@ -1199,9 +1199,9 @@ class Status(int):
     _STATUS_INFO = [
         #(value, name, color, on_color, attrs)
         (1,  "Initialized",   None     , None, None),         # Node has been initialized
-        (2,  "Locked",        None     , None, None),         # Task is locked an must be explicitly unlocked by an external subject (Workflow).
+        (2,  "Locked",        None     , None, None),         # Task is locked an must be explicitly unlocked by an external subject (Work).
         (3,  "Ready",         None     , None, None),         # Node is ready i.e. all the depencies of the node have status S_OK
-        (4,  "Submitted",     "blue"   , None, None),         # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
+        (4,  "Submitted",     "blue"   , None, None),         # Node has been submitted (The `Task` is running or we have started to finalize the Work)
         (5,  "Running",       "magenta", None, None),         # Node is running.
         (6,  "Done",          None     , None, None),         # Node done, This does not imply that results are ok or that the calculation completed successfully
         (7,  "AbiCritical",   "red"    , None, None),         # Node raised an Error by ABINIT.
@@ -1381,7 +1381,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
     @property
     def finalized(self):
-        """True if the `Workflow` has been finalized."""
+        """True if the `Work` has been finalized."""
         return self._finalized
 
     @finalized.setter
@@ -1406,19 +1406,19 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
     @property
     def is_work(self):
-        """True if this node is a Workflow"""
-        from .workflows import Workflow
-        return isinstance(self, Workflow)
+        """True if this node is a Work"""
+        from .works import Work
+        return isinstance(self, Work)
 
     @property
     def is_flow(self):
         """True if this node is a Flow"""
-        from .flows import AbinitFlow
-        return isinstance(self, AbinitFlow)
+        from .flows import Flow
+        return isinstance(self, Flow)
 
     @property
     def has_subnodes(self):
-        """True if self contains sub-nodes e.g. `Workflow` object."""
+        """True if self contains sub-nodes e.g. `Work` object."""
         return isinstance(self, collections.Iterable)
 
     @property
@@ -1735,11 +1735,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
     @property
     def work(self):
-        """The WorkFlow containing this `Task`."""
+        """The Work containing this `Task`."""
         return self._work
 
     def set_work(self, work):
-        """Set the WorkFlow associated to this `Task`."""
+        """Set the Work associated to this `Task`."""
         if not hasattr(self, "_work"):
             self._work = work
         else: 
@@ -2003,7 +2003,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.set_qjob(None)
 
         # TODO send a signal to the flow 
-        #self.workflow.check_status()
+        #self.work.check_status()
         return 0
 
     @property
@@ -2833,6 +2833,7 @@ class AbinitTask(Task):
         """
         # remove all 'error', else the job will be seen as crashed in the next check status
         # even if the job did not run
+        print('reset_from_scatch', self)
         self.output_file.remove()
         self.log_file.remove()
         self.stderr_file.remove()
@@ -2872,8 +2873,8 @@ class ProduceGsr(object):
     """
     def open_gsr(self):
         """
-        Open the GSR file located in the in self.outdir. 
-        Returns GSR_File object, None if file could not be found or file is not readable.
+        Open the Gsrfile located in the in self.outdir. 
+        Returns GsrFile object, None if file could not be found or file is not readable.
         """
         gsr_path = self.outdir.has_abiext("GSR")
         if not gsr_path:
@@ -2881,9 +2882,9 @@ class ProduceGsr(object):
             return None
 
         # Open the GSR file and add its data to results.out
-        from abipy.electrons.gsr import GSR_File
+        from abipy.electrons.gsr import GsrFile
         try:
-            return GSR_File(gsr_path)
+            return GsrFile(gsr_path)
         except Exception as exc:
             logger.critical("Exception while reading GSR file at %s:\n%s" % (gsr_path, str(exc)))
             return None
@@ -3060,12 +3061,26 @@ class RelaxTask(AbinitTask, ProduceGsr):
         return results.add_gridfs_files(GSR=gsr.filepath)
 
 
+class DdeTask(AbinitTask):
+    """Task for DDE calculations."""
+
+    def get_results(self, **kwargs):
+        results = super(DdeTask, self).get_results(**kwargs)
+        return results.add_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
+
+
 class DdkTask(AbinitTask):
     """Task for DDK calculations."""
 
+    def _on_ok(self):
+        super(DdkTask, self)._on_ok()
+
+        if self.outdir.rename_abiext('1WF', 'DDK') > 0:
+            raise RuntimeError
+
     def get_results(self, **kwargs):
         results = super(DdkTask, self).get_results(**kwargs)
-        return results.add_gridfs_file(DDB=(self.outdir.has_abiext("DDB"), "t"))
+        return results.add_gridfs_file(DDK=(self.outdir.has_abiext("DDK"), "t"))
 
 
 class PhononTask(AbinitTask):
@@ -3119,6 +3134,12 @@ class PhononTask(AbinitTask):
         results = super(PhononTask, self).get_results(**kwargs)
         return results.add_gridfs_file(DDB=(self.outdir.has_abiext("DDB"), "t"))
 
+    def make_links(self):
+        super(PhononTask, self).make_links()
+        # fix the problem that abinit uses hte 1WF extension for the DDK output file but reads it with the irdddk flag
+        if self.indir.has_abiext('DDK'):
+            self.indir.rename_abiext('DDK', '1WF')
+
 
 class ScrTask(AbinitTask):
     """Tasks for SCREENING calculations """
@@ -3152,7 +3173,7 @@ class SigmaTask(AbinitTask):
     def open_sigres(self):
         """
         Open the SIGRES file located in the in self.outdir. 
-        Returns SIGRES_File object, None if file could not be found or file is not readable.
+        Returns SigresFile object, None if file could not be found or file is not readable.
         """
         sigres_path = self.outdir.has_abiext("SIGRES")
 
@@ -3161,9 +3182,9 @@ class SigmaTask(AbinitTask):
             return None
 
         # Open the GSR file and add its data to results.out
-        from abipy.electrons.gw import SIGRES_File
+        from abipy.electrons.gw import SigresFile
         try:
-            return SIGRES_File(sigres_path)
+            return SigresFile(sigres_path)
         except Exception as exc:
             logger.critical("Exception while reading SIGRES file at %s:\n%s" % (sigres_path, str(exc)))
             return None
@@ -3272,9 +3293,9 @@ class BseTask(AbinitTask):
             return None
 
         # Open the DFF file and add its data to results.out
-        from abipy.electrons.bse import MDF_File
+        from abipy.electrons.bse import MdfFile
         try:
-            return MDF_File(mdf_path)
+            return MdfFile(mdf_path)
         except Exception as exc:
             logger.critical("Exception while reading MDF file at %s:\n%s" % (mdf_path, str(exc)))
             return None
@@ -3282,7 +3303,7 @@ class BseTask(AbinitTask):
     def get_results(self, **kwargs):
         results = super(BseTask, self).get_results(**kwargs)
 
-        #mdf = MDF_File(self.outdir.has_abiext("MDF"))
+        #mdf = MdfFile(self.outdir.has_abiext("MDF"))
         #results["out"].update(mdf.as_dict())
         #    out=mdf.as_dict(),
         #    epsilon_infinity
@@ -3403,13 +3424,13 @@ class AnaddbTask(Task):
             anaddb_input:
                 string with the anaddb variables.
             ddb_node:
-                The node that will produce the DDB file. Accept `Task`, `Workflow` or filepath.
+                The node that will produce the DDB file. Accept `Task`, `Work` or filepath.
             gkk_node:
-                The node that will produce the GKK file (optional). Accept `Task`, `Workflow` or filepath.
+                The node that will produce the GKK file (optional). Accept `Task`, `Work` or filepath.
             md_node:
-                The node that will produce the MD file (optional). Accept `Task`, `Workflow` or filepath.
+                The node that will produce the MD file (optional). Accept `Task`, `Work` or filepath.
             gkk_node:
-                The node that will produce the GKK file (optional). Accept `Task`, `Workflow` or filepath.
+                The node that will produce the GKK file (optional). Accept `Task`, `Work` or filepath.
             workdir:
                 Path to the working directory (optional).
             manager:

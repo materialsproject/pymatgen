@@ -600,7 +600,7 @@ class SelfEnergyStrategy(HtcStrategy):
         return inpw.get_string()
 
 
-class MDFBSE_Strategy(HtcStrategy):
+class MdfBse_Strategy(HtcStrategy):
     """
     Strategy for Bethe-Salpeter calculation based on the
     model dielectric function and the scissors operator
@@ -617,7 +617,7 @@ class MDFBSE_Strategy(HtcStrategy):
             extra_abivars:
                 Extra ABINIT variables added directly to the input file.
         """
-        super(MDFBSE_Strategy, self).__init__()
+        super(MdfBse_Strategy, self).__init__()
 
         self.pseudos = scf_strategy.pseudos
 

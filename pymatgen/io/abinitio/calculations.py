@@ -1,12 +1,12 @@
 # coding: utf-8
 """
-Factory functions producing ABINIT workflows. Entry points for client code (high-level interface)
+Factory functions producing ABINIT Works. Entry points for client code (high-level interface)
 """
 from __future__ import unicode_literals, division, print_function
-
+import os
 from .abiobjects import KSampling, Screening, SelfEnergy, ExcHamiltonian, HilbertTransform
-from .strategies import ScfStrategy, NscfStrategy, ScreeningStrategy, SelfEnergyStrategy, MDFBSE_Strategy
-from .workflows import BandStructureWorkflow, G0W0_Workflow, BSEMDF_Workflow
+from .strategies import ScfStrategy, NscfStrategy, ScreeningStrategy, SelfEnergyStrategy, MdfBse_Strategy
+from .works import BandStructureWork, G0W0Work, BseMdfWork
 
 
 __author__ = "Matteo Giantomassi"
@@ -16,12 +16,12 @@ __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 
 
-def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
-                  ndivsm, accuracy="normal", spin_mode="polarized",
-                  smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None,
-                  dos_kppa=None, workdir=None, manager=None, **extra_abivars):
+def bandstructure_work(structure, pseudos, scf_kppa, nscf_nband,
+                       ndivsm, accuracy="normal", spin_mode="polarized",
+                       smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None,
+                       dos_kppa=None, workdir=None, manager=None, **extra_abivars):
     """
-    Returns a Workflow for bandstructure calculations.
+    Returns a Work for bandstructure calculations.
 
     Args:
         structure:
@@ -76,11 +76,11 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
 
         dos_strategy = NscfStrategy(scf_strategy, dos_ksampling, nscf_nband, nscf_solver=None, **extra_abivars)
 
-    return BandStructureWorkflow(scf_strategy, nscf_strategy, dos_inputs=dos_strategy, 
-                                 workdir=workdir, manager=manager)
+    return BandStructureWork(scf_strategy, nscf_strategy, dos_inputs=dos_strategy, 
+                             workdir=workdir, manager=manager)
 
 
-#def relaxation(workdir, manager, structure, pseudos, scf_kppa,
+#def relaxation_work(workdir, manager, structure, pseudos, scf_kppa,
 #               accuracy="normal", spin_mode="polarized",
 #               smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, **extra_abivars):
 #    """
@@ -119,10 +119,10 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
 #    #return Relaxation(relax_strategy, workdir=workdir, manager=manager)
 
 
-def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx,
-                      accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
-                      ppmodel="godby", charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None,
-                      sigma_nband=None, gw_qprange=1, workdir=None, manager=None, **extra_abivars):
+def g0w0_with_ppmodel_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx,
+                           accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
+                           ppmodel="godby", charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None,
+                           sigma_nband=None, gw_qprange=1, workdir=None, manager=None, **extra_abivars):
     """
     Returns a Work object that performs G0W0 calculations for the given the material.
 
@@ -197,14 +197,13 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
     sigma_strategy = SelfEnergyStrategy(scf_strategy, nscf_strategy, scr_strategy, self_energy,
                                         **extra_abivars)
 
-    return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, 
-                         workdir=workdir, manager=manager)
+    return G0W0Work(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager)
 
 
-def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, accuracy="normal", spin_mode="polarized",
-                  smearing="fermi_dirac:0.1 eV", response_models=["godby"], charge=0.0, scf_algorithm=None, inclvkb=2,
-                  scr_nband=None, sigma_nband=None, gw_qprange=1, workdir=None, manager=None, gamma=True,
-                  **extra_abivars):
+def g0w0_extended_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, accuracy="normal", spin_mode="polarized",
+                       smearing="fermi_dirac:0.1 eV", response_models=["godby"], charge=0.0, inclvkb=2,
+                       scr_nband=None, sigma_nband=None, workdir=None, manager=None, gamma=True, nksmall=20,
+                       **extra_abivars):
     """
     Returns a Work object that performs G0W0 calculations for the given the material.
 
@@ -245,6 +244,8 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
             `TaskManager` instance.
         extra_abivars
             Dictionary with extra variables passed to ABINIT.
+        nksamll:
+            if not None, a dft bandstucture calculation will be added after after the sc run
     """
     # TODO: Cannot use istwfk != 1.
 
@@ -270,7 +271,8 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
 
     scf_strategy = []
     to_add = {}
-
+    scf_nband = min(nscf_nband)
+    #print(scf_nband)
     extra_abivars.update(to_add)
 
     for k in extra_abivars.keys():
@@ -281,12 +283,17 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
             for value in values:
                 extra_abivars[var] = value
                 extra_abivars['pawecutdg'] = extra_abivars['ecut']*2
-                scf_strategy.append(ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy, spin_mode=spin_mode,
-                                                smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars))
+                scf_strategy.append(ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy,
+                                                spin_mode=spin_mode, smearing=smearing, charge=charge,
+                                                scf_algorithm=None, **extra_abivars))
+
+    #temporary for testing a new approach ...
+    spread_scr = False if os.path.isfile('no_spread_scr') else True
 
     if len(scf_strategy) == 0:
         scf_strategy.append(ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy, spin_mode=spin_mode,
                                         smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars))
+    scf_strategy[-1].electrons.nband = scf_nband
 
     nscf_strategy = NscfStrategy(scf_strategy[-1], nscf_ksampling, max(nscf_nband), **extra_abivars)
 
@@ -310,19 +317,24 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
                 scr_nband = nscf_nband_v
                 sigma_nband = nscf_nband_v
                 if response_model == 'cd':
-                    screening = Screening(ecuteps_v, scr_nband, w_type="RPA", sc_mode="one_shot", hilbert=hilbert, ecutwfn=None, inclvkb=inclvkb)
+                    screening = Screening(ecuteps_v, scr_nband, w_type="RPA", sc_mode="one_shot", hilbert=hilbert,
+                                          ecutwfn=None, inclvkb=inclvkb)
                     self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening, hilbert=hilbert)
                 else:
                     ppmodel = response_model
-                    screening = Screening(ecuteps_v, scr_nband, w_type="RPA", sc_mode="one_shot", ecutwfn=None, inclvkb=inclvkb)
-                    self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening, ppmodel=ppmodel, gw_qprange=1)
+                    screening = Screening(ecuteps_v, scr_nband, w_type="RPA", sc_mode="one_shot", ecutwfn=None,
+                                          inclvkb=inclvkb)
+                    self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening, ppmodel=ppmodel,
+                                             gw_qprange=1)
                 scr_strategy = ScreeningStrategy(scf_strategy[-1], nscf_strategy, screening, **extra_abivars)
-                sigma_strategy.append(SelfEnergyStrategy(scf_strategy[-1], nscf_strategy, scr_strategy, self_energy, **extra_abivars))
+                sigma_strategy.append(SelfEnergyStrategy(scf_strategy[-1], nscf_strategy, scr_strategy, self_energy,
+                                                         **extra_abivars))
 
-    return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager)
+    return G0W0Work(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager,
+                    spread_scr=spread_scr, nksmall=nksmall)
 
 
-#def g0w0_with_cd(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, hilbert,
+#def g0w0_with_cd_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, hilbert,
 #                 accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
 #                 charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None, 
 #                 sigma_nband=None, workdir=None, manager=None, **extra_abivars):
@@ -398,17 +410,17 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
 #    sigma_strategy = SelfEnergyStrategy(scf_strategy, nscf_strategy, scr_strategy, self_energy,
 #                                        **extra_abivars)
 #
-#    return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, 
-#                         workdir=workdir, manager=manager)
+#    return G0W0Work(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, 
+#                    workdir=workdir, manager=manager)
 
 
-def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shiftk, 
-                 ecuteps, bs_loband, bs_nband, soenergy, mdf_epsinf, 
-                 exc_type="TDA", bs_algo="haydock", accuracy="normal", spin_mode="polarized", 
-                 smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, workdir=None, manager=None, 
-                 **extra_abivars):
+def bse_with_mdf_work(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shiftk, 
+                      ecuteps, bs_loband, bs_nband, soenergy, mdf_epsinf, 
+                      exc_type="TDA", bs_algo="haydock", accuracy="normal", spin_mode="polarized", 
+                      smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, workdir=None, manager=None, 
+                      **extra_abivars):
     """
-    Returns a `Workflow` object that performs a GS + NSCF + Bethe-Salpeter calculation.
+    Returns a `Work` object that performs a GS + NSCF + Bethe-Salpeter calculation.
     The self-energy corrections are approximated with the scissors operator. The screening
     in modeled by the model dielectric function.
 
@@ -479,6 +491,6 @@ def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shif
                              spin_mode=spin_mode, mdf_epsinf=mdf_epsinf, exc_type=exc_type, algo=bs_algo,
                              bs_freq_mesh=None, with_lf=True, zcut=None)
 
-    bse_strategy = MDFBSE_Strategy(scf_strategy, nscf_strategy, exc_ham, **extra_abivars)
+    bse_strategy = MdfBse_Strategy(scf_strategy, nscf_strategy, exc_ham, **extra_abivars)
 
-    return BSEMDF_Workflow(scf_strategy, nscf_strategy, bse_strategy, workdir=workdir, manager=manager)
+    return BseMdfWork(scf_strategy, nscf_strategy, bse_strategy, workdir=workdir, manager=manager)

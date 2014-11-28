@@ -23,6 +23,7 @@ import shutil
 import six
 import os.path
 import collections
+import logging
 
 from abc import abstractproperty, abstractmethod, ABCMeta
 from pymatgen.io.abinitio.netcdf import NetcdfReader
@@ -30,12 +31,14 @@ from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.gwwrapper.helpers import is_converged, read_grid_from_file, s_name, expand, store_conv_results
 from pymatgen.io.gwwrapper.GWvaspinputsets import SingleVaspGWWork
-from pymatgen.io.gwwrapper.GWworkflows import VaspGWFWWorkFlow
-from pymatgen.io.gwwrapper.GWworkflows import SingleAbinitGWWorkFlow
+from pymatgen.io.gwwrapper.GWworks import VaspGWFWWorkFlow
+from pymatgen.io.gwwrapper.GWworks import SingleAbinitGWWork
 from pymatgen.io.gwwrapper.GWvaspinputsets import GWscDFTPrepVaspInputSet, GWDFTDiagVaspInputSet, \
     GWG0W0VaspInputSet
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+logger = logging.getLogger(__name__)
 
 
 @six.add_metaclass(ABCMeta)
@@ -150,13 +153,16 @@ class VaspInterface(AbstractCodeInterface):
             kpoints = os.path.join(data_dir, 'IBZKPT')
             if os.path.isfile(run):
                 try:
+                    logger.debug(run)
+                    print(run)
                     data = Vasprun(run, ionic_step_skip=1)
-                    parameters = data.__getattribute__('incar').to_dict
+                    parameters = data.incar.as_dict()
                     bandstructure = data.get_band_structure(kpoints)
                     results = {'ecuteps': parameters['ENCUTGW'],
                                'nbands': parameters['NBANDS'],
                                'nomega': parameters['NOMEGA'],
                                'gwgap': bandstructure.get_band_gap()['energy']}
+                    print(results)
                 except (IOError, OSError, IndexError, KeyError):
                     pass
         return results
@@ -373,7 +379,8 @@ class AbinitInterface(AbstractCodeInterface):
                 results = {'ecut': Ha_to_eV * ecut,
                            'min': data.read_value('Eigenvalues')[0][0][0]*Ha_to_eV,
                            'max': data.read_value('Eigenvalues')[0][0][-1]*Ha_to_eV,
-                           'full_width': (data.read_value('Eigenvalues')[0][0][-1] - data.read_value('Eigenvalues')[0][0][0])*Ha_to_eV}
+                           'full_width': (data.read_value('Eigenvalues')[0][0][-1] -
+                                          data.read_value('Eigenvalues')[0][0][0])*Ha_to_eV}
                 data.close()
             return results
 
@@ -398,7 +405,7 @@ class AbinitInterface(AbstractCodeInterface):
         else:
             option = None
         print(option)
-        work_flow = SingleAbinitGWWorkFlow(structure, spec_data, option)
+        work_flow = SingleAbinitGWWork(structure, spec_data, option)
         flow = work_flow.create()
         if flow is not None:
             flow.build_and_pickle_dump()
@@ -410,10 +417,10 @@ class AbinitInterface(AbstractCodeInterface):
         w = 'w' + str(read_grid_from_file(name+".full_res")['grid'])
         try:
             shutil.copyfile(os.path.join(name+".conv", w, "t6", "outdata", "out_SIGRES.nc"),
-                        os.path.join(folder, "out_SIGRES.nc"))
-        except:  # compatibility issue
+                            os.path.join(folder, "out_SIGRES.nc"))
+        except (OSError, IOError):  # compatibility issue
             shutil.copyfile(os.path.join(name+".conv", "work_0", "task_6", "outdata", "out_SIGRES.nc"),
-                        os.path.join(folder, "out_SIGRES.nc"))
+                            os.path.join(folder, "out_SIGRES.nc"))
 
 
 class NewCodeInterface(AbstractCodeInterface):
@@ -436,7 +443,6 @@ class NewCodeInterface(AbstractCodeInterface):
 
     def read_convergence_data(self, data_dir):
         results = {}  # adapt to read the output of NEW_CODE
-        raise NotImplementedError
         return results
 
     def read_ps_dir(self):
@@ -449,7 +455,7 @@ class NewCodeInterface(AbstractCodeInterface):
         return warning, errors
         """
         errors = []
-        warnings = []
+        # warnings = []
         errors.extend(self.test_methods(data))
 
     def excecute_flow(self, structure, spec_data):
@@ -463,7 +469,6 @@ class NewCodeInterface(AbstractCodeInterface):
         folder = name + '.res'
         store_conv_results(name, folder)
         # copy the final file containing the qp to folder
-
 
 
 CODE_CLASSES = {'VASP': VaspInterface,
