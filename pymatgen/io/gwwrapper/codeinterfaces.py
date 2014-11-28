@@ -31,8 +31,8 @@ from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.gwwrapper.helpers import is_converged, read_grid_from_file, s_name, expand, store_conv_results
 from pymatgen.io.gwwrapper.GWvaspinputsets import SingleVaspGWWork
-from pymatgen.io.gwwrapper.GWworkflows import VaspGWFWWorkFlow
-from pymatgen.io.gwwrapper.GWworkflows import SingleAbinitGWWorkFlow
+from pymatgen.io.gwwrapper.GWworks import VaspGWFWWorkFlow
+from pymatgen.io.gwwrapper.GWworks import SingleAbinitGWWork
 from pymatgen.io.gwwrapper.GWvaspinputsets import GWscDFTPrepVaspInputSet, GWDFTDiagVaspInputSet, \
     GWG0W0VaspInputSet
 
@@ -403,7 +403,7 @@ class AbinitInterface(AbstractCodeInterface):
         else:
             option = None
         print(option)
-        work_flow = SingleAbinitGWWorkFlow(structure, spec_data, option)
+        work_flow = SingleAbinitGWWork(structure, spec_data, option)
         flow = work_flow.create()
         if flow is not None:
             flow.build_and_pickle_dump()

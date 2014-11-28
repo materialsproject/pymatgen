@@ -12,22 +12,18 @@ import six
 import copy
 
 from six.moves import filter
-from prettytable import PrettyTable
 from monty.collections import AttrDict
 from monty.itertools import chunks
-from monty.pprint import pprint_table
 from monty.functools import lazy_property
 from pymatgen.core.units import EnergyArray
-from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from pymatgen.util.string_utils import WildCard
 from . import wrappers
 from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, PhononTask, DdkTask, BseTask, RelaxTask, DdeTask)
-from .strategies import HtcStrategy, NscfStrategy #, RelaxStrategy
+from .strategies import HtcStrategy, NscfStrategy
 from .utils import Directory
 from .netcdf import ETSF_Reader
 from .abitimer import AbinitTimerParser
 from .abiinspect import yaml_read_kpoints
-
 
 try:
     from pydispatch import dispatcher
@@ -1035,7 +1031,6 @@ def build_oneshot_phononwork(scf_input, ph_inputs, workdir=None, manager=None, w
     work_class = OneShotPhononWork if work_class is None else work_class
     work = work_class(workdir=workdir, manager=manager)
     scf_task = work.register_scf_task(scf_input)
-
     ph_inputs = [ph_inputs] if not isinstance(ph_inputs, (list, tuple)) else ph_inputs
     for phinp in ph_inputs:
         # cannot use PhononTaks here because the Task is not able to deal with multiple phonon calculations
