@@ -25,7 +25,7 @@ from .tasks import Dependency, Status, Node, NodeResults, Task, ScfTask, PhononT
 from .tasks import AnaddbTask, DdeTask
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
-from .workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow, QptdmWorkflow
+from .workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0Work, QptdmWorkflow
 
 try:
     from pydispatch import dispatcher
@@ -580,8 +580,7 @@ class AbinitFlow(Node):
 
     def show_status(self, stream=sys.stdout, verbose=0):
         """
-        Report the status of the workflows and the status 
-        of the different tasks on the specified stream.
+        Report the status of the workflows and the status  of the different tasks on the specified stream.
 
         if not verbose, no full entry for works that are completed is printed.
         """
@@ -974,9 +973,18 @@ class AbinitFlow(Node):
 
         return self
 
-    def show_dependencies(self):
-        for work in self:
-            work.show_intrawork_deps()
+    def show_dependencies(self, stream=sys.stdout):
+        """Writes to the given stream the ASCII representation of the dependency tree."""
+        #for work in self: work.show_intrawork_deps()
+        def child_iter(node):
+            return [d.node for d in node.deps]
+
+        def text_str(node):
+            return colored(str(node), color=node.status.color_opts["color"])
+
+        from monty.pprint import draw_tree
+        for task in self.iflat_tasks():
+            print(draw_tree(task, child_iter, text_str), file=stream)
 
     def on_dep_ok(self, signal, sender):
         # TODO
@@ -1292,7 +1300,7 @@ def g0w0_flow(workdir, manager, scf_input, nscf_input, scr_input, sigma_inputs):
         `AbinitFlow`
     """
     flow = AbinitFlow(workdir, manager)
-    work = G0W0_Workflow(scf_input, nscf_input, scr_input, sigma_inputs)
+    work = G0W0Work(scf_input, nscf_input, scr_input, sigma_inputs)
     flow.register_work(work)
     return flow.allocate()
 

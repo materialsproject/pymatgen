@@ -21,19 +21,16 @@ import json
 from io import open
 
 from pymatgen.electronic_structure.dos import CompleteDos
-from pymatgen.electronic_structure.plotter import DosPlotter, BSPlotter, _qvertex_target
+from pymatgen.electronic_structure.plotter import DosPlotter, BSPlotter, \
+    _qvertex_target
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
-try:
-    import scipy
-except ImportError:
-    scipy = None
+import scipy
 
 
-@unittest.skipIf(scipy is None, "scipy not present.")
 class DosPlotterTest(unittest.TestCase):
 
     def setUp(self):
@@ -72,16 +69,20 @@ class BSPlotterTest(unittest.TestCase):
                          "wrong number of distances in the first branch")
         self.assertEqual(len(self.plotter.bs_plot_data()['distances']), 10,
                          "wrong number of branches")
-        self.assertEqual(sum([len(e) for e in self.plotter.bs_plot_data()['distances']]), 160,
-                         "wrong number of distances")
+        self.assertEqual(
+            sum([len(e) for e in self.plotter.bs_plot_data()['distances']]),
+            160, "wrong number of distances")
         self.assertEqual(self.plotter.bs_plot_data()['ticks']['label'][5], "K",
                          "wrong tick label")
         self.assertEqual(len(self.plotter.bs_plot_data()['ticks']['label']),
                          19, "wrong number of tick labels")
 
     def test_qvertex_target(self):
-        results = _qvertex_target([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 1.0, 0.0], [0.0, 1.0, 0.0],
-                        [0.0, 0.0, 1.0], [1.0, 0.0, 1.0], [1.0, 1.0, 1.0], [0.0, 1.0, 1.0], [0.5, 0.5, 0.5]], 8)
+        results = _qvertex_target([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0],
+                                   [1.0, 1.0, 0.0], [0.0, 1.0, 0.0],
+                                   [0.0, 0.0, 1.0], [1.0, 0.0, 1.0],
+                                   [1.0, 1.0, 1.0], [0.0, 1.0, 1.0],
+                                   [0.5, 0.5, 0.5]], 8)
         self.assertEqual(len(results), 6)
         self.assertEqual(results[3][1], 0.5)
 

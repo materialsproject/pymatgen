@@ -316,6 +316,14 @@ class CompositionTest(unittest.TestCase):
         self.assertEqual(c1.element_composition, Composition())
         self.assertEqual(c1.average_electroneg, 1.31)
 
+    def test_special_formulas(self):
+        special_formulas = {"LiO": "Li2O2", "NaO": "Na2O2", "KO": "K2O2",
+                            "HO": "H2O2", "CsO": "Cs2O2", "RbO": "Rb2O2",
+                            "O": "O2",  "N": "N2", "F": "F2", "Cl": "Cl2",
+                            "H": "H2"}
+        for k, v in special_formulas.items():
+            self.assertEqual(Composition(k).reduced_formula, v)
+
 
 class ChemicalPotentialTest(unittest.TestCase):
 

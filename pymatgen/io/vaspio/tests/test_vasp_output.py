@@ -139,6 +139,14 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(entry.uncorrected_energy + entry.correction,
                                entry.energy)
 
+
+        filepath = os.path.join(test_dir, 'vasprun.xml.dfpt.ionic')
+        vasprun_dfpt_ionic = Vasprun(filepath)
+        self.assertAlmostEqual(vasprun_dfpt_ionic.epsilon_ionic[0][0], 515.73485838)
+        self.assertAlmostEqual(vasprun_dfpt_ionic.epsilon_ionic[0][1], -0.00263523)
+        self.assertAlmostEqual(vasprun_dfpt_ionic.epsilon_ionic[2][2], 19.02110169)
+
+
         filepath = os.path.join(test_dir, 'vasprun.xml.dfpt.unconverged')
         vasprun_dfpt_unconv = Vasprun(filepath)
         self.assertFalse(vasprun_dfpt_unconv.converged_electronic)
@@ -236,10 +244,55 @@ class OutcarTest(unittest.TestCase):
         outcar = Outcar(filepath)
         self.assertTrue(outcar.is_stopped)
 
+        for f in ['OUTCAR.lepsilon', 'OUTCAR.lepsilon.gz']:
+            filepath = os.path.join(test_dir, f)
+            outcar = Outcar(filepath)
+
+            outcar.read_lepsilon()
+            outcar.read_lepsilon_ionic()
+
+            self.assertAlmostEqual(outcar.dielectric_tensor[0][0], 3.716432)
+            self.assertAlmostEqual(outcar.dielectric_tensor[0][1], -0.20464)
+            self.assertAlmostEqual(outcar.dielectric_tensor[1][2], -0.20464)
+            self.assertAlmostEqual(outcar.dielectric_ionic_tensor[0][0], 0.001419)
+            self.assertAlmostEqual(outcar.dielectric_ionic_tensor[0][2], 0.001419)
+            self.assertAlmostEqual(outcar.dielectric_ionic_tensor[2][2], 0.001419)
+            self.assertAlmostEqual(outcar.piezo_tensor[0][0], 0.52799)
+            self.assertAlmostEqual(outcar.piezo_tensor[1][3], 0.35998)
+            self.assertAlmostEqual(outcar.piezo_tensor[2][5], 0.35997)
+            self.assertAlmostEqual(outcar.piezo_ionic_tensor[0][0], 0.05868)
+            self.assertAlmostEqual(outcar.piezo_ionic_tensor[1][3], 0.06241)
+            self.assertAlmostEqual(outcar.piezo_ionic_tensor[2][5], 0.06242)
+            self.assertAlmostEqual(outcar.born[0][1][2], -0.385)
+            self.assertAlmostEqual(outcar.born[1][2][0], 0.36465)
+
     def test_core_state_eigen(self):
         filepath = os.path.join(test_dir, "OUTCAR.CL")
         cl = Outcar(filepath).read_core_state_eigen()
         self.assertAlmostEqual(cl[6]["2s"][-1], -174.4779)
+
+    def test_single_atom(self):
+        filepath = os.path.join(test_dir, "OUTCAR.Al")
+        outcar = Outcar(filepath)
+        expected_mag = ({u'p': 0.0, u's': 0.0, u'd': 0.0, u'tot': 0.0},)
+        expected_chg = ({u'p': 0.343, u's': 0.425, u'd': 0.0, u'tot': 0.768},)
+
+        self.assertAlmostEqual(outcar.magnetization, expected_mag)
+        self.assertAlmostEqual(outcar.charge, expected_chg)
+        self.assertFalse(outcar.is_stopped)
+        self.assertEqual(outcar.run_stats, {'System time (sec)': 0.592,
+                                            'Total CPU time used (sec)': 50.194,
+                                            'Elapsed time (sec)': 52.337,
+                                            'Maximum memory used (kb)': 62900.0,
+                                            'Average memory used (kb)': 0.0,
+                                            'User time (sec)': 49.602,
+                                            'cores': '32'})
+        self.assertAlmostEqual(outcar.efermi, 8.0942)
+        self.assertAlmostEqual(outcar.nelect, 3)
+        self.assertAlmostEqual(outcar.total_mag, 8.2e-06)
+
+        self.assertIsNotNone(outcar.as_dict())
+
 
 class OszicarTest(unittest.TestCase):
 
