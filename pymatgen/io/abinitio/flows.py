@@ -11,6 +11,8 @@ import collections
 import warnings
 import shutil
 import pickle
+import copy
+import numpy as np
 
 from six.moves import map 
 from atomicfile import AtomicFile
@@ -19,7 +21,8 @@ from prettytable import PrettyTable
 from monty.io import FileLock
 from monty.termcolor import cprint, colored, stream_has_colours
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
-from .tasks import Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager
+from .tasks import Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager, NscfTask, DdkTask
+from .tasks import AnaddbTask, DdeTask
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
 from .workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow, QptdmWorkflow
@@ -489,7 +492,7 @@ class AbinitFlow(Node):
 
     def fix_abi_critical(self):
         """
-        Fixer for critical events originating form abinit
+        Fixer for critical events originating from abinit
         """
         for task in self.iflat_tasks(status=Task.S_ABICRITICAL):
             #todo
@@ -516,7 +519,7 @@ class AbinitFlow(Node):
             if not task.queue_errors:
                 # queue error but no errors detected, try to solve by increasing resources
                 # if resources are at maximum the tast is definitively turned to errored
-                if self.manager.increase_resources():  # acts either on the policy or on the qadapter
+                if task.manager.increase_resources():  # acts either on the policy or on the qadapter
                     task.reset_from_scratch()
                     return True
                 else:
@@ -870,7 +873,7 @@ class AbinitFlow(Node):
         task = work.register(input, deps=deps, task_class=task_class)
         self.register_work(work)
 
-        return task
+        return work
 
     def register_work(self, work, deps=None, manager=None, workdir=None):
         """
@@ -1302,7 +1305,7 @@ def g0w0_flow(workdir, manager, scf_input, nscf_input, scr_input, sigma_inputs):
     return flow.allocate()
 
 
-def phonon_flow(workdir, manager, scf_input, ph_inputs):
+def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_ddk=False, with_dde=False):
     """
     Build an `AbinitFlow` for phonon calculations.
 
@@ -1315,26 +1318,52 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
             Input for the GS SCF run.
         ph_inputs:
             List of Inputs for the phonon runs.
+        with_nscf:
+            add an nscf task in front of al phonon tasks to make sure the q point is covered
+        with_ddk:
+            add the ddk step
+        with_dde:
+            add the dde step it the dde is set ddk is switched on automatically
 
     Returns:
         `AbinitFlow`
     """
+    if with_dde:
+        with_ddk = True
+
     natom = len(scf_input.structure)
 
     # Create the container that will manage the different workflows.
     flow = AbinitFlow(workdir, manager)
 
     # Register the first workflow (GS calculation)
-    scf_task = flow.register_task(scf_input, task_class=ScfTask)
+    # register_task creates a work for the task, registers it to the flow and returns the work
+    # the 0the element of the work is the task
+    scf_task = flow.register_task(scf_input, task_class=ScfTask)[0]
 
-    # Build a temporary workflow with a shell manager just to run 
+    # Build a temporary workflow with a shell manager just to run
     # ABINIT to get the list of irreducible pertubations for this q-point.
     shell_manager = manager.to_shell_manager(mpi_procs=1)
+
+    if with_ddk:
+        logger.info('add ddk')
+        ddk_input = ph_inputs[0].deepcopy()
+        ddk_input.set_variables(qpt=[0, 0, 0], rfddk=1, rfelfd=2, rfdir=[1, 1, 1])
+        ddk_task = flow.register_task(ddk_input, deps={scf_task: 'WFK'}, task_class=DdkTask)[0]
+
+    if with_dde:
+        logger.info('add dde')
+        dde_input = ph_inputs[0].deepcopy()
+        dde_input.set_variables(qpt=[0, 0, 0], rfddk=1, rfelfd=2)
+        dde_input_idir = dde_input.deepcopy()
+        dde_input_idir.set_variables(rfdir=[1, 1, 1])
+        dde_task = flow.register_task(dde_input, deps={scf_task: 'WFK', ddk_task: 'DDK'}, task_class=DdeTask)[0]
 
     if not isinstance(ph_inputs, (list, tuple)):
         ph_inputs = [ph_inputs]
 
     for i, ph_input in enumerate(ph_inputs):
+
         fake_input = ph_input.deepcopy()
 
         # Run abinit on the front-end to get the list of irreducible pertubations.
@@ -1354,17 +1383,30 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
 
         # Parse the file to get the perturbations.
         irred_perts = yaml_read_irred_perts(fake_task.log_file.path)
-        print(irred_perts)
+        logger.info(irred_perts)
 
         w.rmtree()
 
         # Now we can build the final list of workflows:
         # One workflow per q-point, each workflow computes all 
         # the irreducible perturbations for a singe q-point.
+
         work_qpt = PhononWorkflow()
 
+        if with_nscf:
+            nscf_input = copy.deepcopy(scf_input)
+            nscf_input.set_variables(kptopt=3, iscf=-3, qpt=irred_perts[0]['qpt'], nqpt=1)
+            nscf_task = work_qpt.register_nscf_task(nscf_input, deps={scf_task: "DEN"})
+            deps = {nscf_task: "WFQ", scf_task: "WFK"}
+        else:
+            deps = {scf_task: "WFK"}
+
+        if with_ddk:
+            deps[ddk_task] = 'DDK'
+
+        logger.info(irred_perts[0]['qpt'])
+
         for irred_pert in irred_perts:
-            print(irred_pert)
             new_input = ph_input.deepcopy()
 
             #rfatpol   1 1   # Only the first atom is displaced
@@ -1385,8 +1427,16 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
                 rfatpol=rfatpol,
             )
 
-            work_qpt.register(new_input, deps={scf_task: "WFK"}, task_class=PhononTask)
+            if with_ddk:
+                new_input.set_variables(rfelfd=3)
+
+            work_qpt.register(new_input, deps=deps, task_class=PhononTask)
 
         flow.register_work(work_qpt)
+
+        #if ana_input is not None:
+        #    merge_input = {}
+        #    qp_merge_task = flow.register_task(merge_input, deps={work_qpt: "DDB"}, task_class=QpMergeTask)
+        #    flow.register_task(ana_input, deps={qp_merge_task: "DDB"}, task_class=AnaddbTask)
                                             
     return flow.allocate()

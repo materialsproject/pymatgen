@@ -1164,6 +1164,7 @@ class PbsProAdapter(AbstractQueueAdapter):
             raise self.Error("Running qsub caused an error...\n%s" % str(exc))
 
     def get_njobs_in_queue(self, username=None):
+        return None
         # Initialize username
         if username is None:
             username = getpass.getuser()
@@ -1200,13 +1201,15 @@ class PbsProAdapter(AbstractQueueAdapter):
         return False
 
     def increase_mem(self, factor=1):
-        base_increase = 2000
+        base_increase = 2001
         new_mem = self.qparams["pvmem"] + factor*base_increase
         if new_mem < self.LIMITS['mem']:
             self.set_mem_per_cpu(new_mem)
+            print('set mem to ', new_mem)
             return True
         else:
             logger.warning('could not increase mem further')
+            print('new_mem reached max ', new_mem)
             return False
 
     def increase_time(self, factor=1.5):

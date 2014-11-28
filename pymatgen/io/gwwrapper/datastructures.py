@@ -152,7 +152,7 @@ class AbstractAbinitioSpec(MSONable):
 
         if self.data['source'] == 'mp-vasp':
             items_list = mp_list_vasp
-        elif self.data['source'] == 'poscar':
+        elif self.data['source'] in ['poscar', 'cif']:
             files = os.listdir('.')
             items_list = files
         elif self.data['source'] == 'mar_exp':
@@ -162,8 +162,10 @@ class AbstractAbinitioSpec(MSONable):
             pwd = os.environ['MAR_PAS']
             local_db_gaps.authenticate("setten", pwd)
             for c in local_db_gaps.exp.find():
-                print(Structure.from_dict(c['icsd_data']['structure']).composition.reduced_formula, c['icsd_id'],\
-                    c['MP_id'])
+                name = Structure.from_dict(c['icsd_data']['structure']).composition.reduced_formula, c['icsd_id'],\
+                    c['MP_id']
+                print(name)
+                #Structure.from_dict(c['icsd_data']['structure']).to(fmt='cif',filename=name)
                 items_list.append({'name': 'mp-' + c['MP_id'], 'icsd': c['icsd_id'], 'mp': c['MP_id']})
         else:
             items_list = [line.strip() for line in open(self.data['source'])]
@@ -176,6 +178,7 @@ class AbstractAbinitioSpec(MSONable):
                 exp = local_db_gaps.exp.find({'MP_id': item['mp']})[0]
                 structure = Structure.from_dict(exp['icsd_data']['structure'])
                 structure = refine_structure(structure)
+                structure.to(fmt='cif', filename=item['name'])
                 try:
                     kpts = local_db_gaps.GGA_BS.find({'transformations.history.0.id': item['icsd']})[0]['calculations']\
                     [-1]['band_structure']['kpoints']
@@ -409,7 +412,7 @@ class GWSpecs(AbstractAbinitioSpec):
                     if len(data.data) == 0:
                         print('| parm_scr type calculation but no data found.')
                         break
-                    if len(data.data) < 24:
+                    if len(data.data) < 9:  # todo this should be calculated
                         print('| parm_scr type calculation but no complete data found,' \
                               ' check is all calculations are done.')
                         break
@@ -847,7 +850,7 @@ class GWConvergenceData():
                        str(self.conv_res['values']['nbands']), ' ', str(self.conv_res['values']['ecuteps']), ' ',
                        str(self.conv_res['values']['gap']), ' "', "' w p\n")
         else:
-            string2 = "%s%s%s" % ("splot '", self.name, ".data' u 1:2:3 w pm3d\n")
+            string2 = "%s%s%s" % ("splot '", self.name, ".data' u 1:2:3 w pm3d\npause -1\n")
         with open(filename, mode='a') as f:
             f.write(string1)
             f.write(string2)
