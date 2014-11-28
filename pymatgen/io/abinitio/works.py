@@ -21,7 +21,8 @@ from monty.functools import lazy_property
 from pymatgen.core.units import EnergyArray
 from pymatgen.util.string_utils import WildCard
 from . import wrappers
-from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, PhononTask, DdkTask, BseTask, RelaxTask, DdeTask)
+from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, PhononTask, DdkTask, 
+                    BseTask, RelaxTask, DdeTask, ScrTask, SigmaTask)
 from .strategies import HtcStrategy, NscfStrategy
 from .utils import Directory
 from .netcdf import ETSF_Reader
@@ -732,7 +733,7 @@ class BandStructureWork(Work):
 
             for dos_input in dos_inputs:
                 dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
-                self.dos_tasks.appens(dos_task)
+                self.dos_tasks.append(dos_task)
 
 class RelaxWork(Work):
     """
