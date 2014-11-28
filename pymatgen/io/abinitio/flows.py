@@ -25,7 +25,7 @@ from .tasks import Dependency, Status, Node, NodeResults, Task, ScfTask, PhononT
 from .tasks import AnaddbTask, DdeTask
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
-from .workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow, QptdmWorkflow
+from .works import Work, BandStructureWork, PhononWork, G0W0Work, QptdmWork
 
 try:
     from pydispatch import dispatcher
@@ -59,7 +59,7 @@ class FlowResults(NodeResults):
 
     @classmethod
     def from_node(cls, flow):
-        """Initialize an instance from a WorkFlow instance."""
+        """Initialize an instance from a Work instance."""
         new = super(FlowResults, cls).from_node(flow)
 
         #new.update(
@@ -79,8 +79,8 @@ class FlowResults(NodeResults):
 
 class AbinitFlow(Node):
     """
-    This object is a container of workflows. Its main task is managing the 
-    possible inter-depedencies among the workflows and the creation of
+    This object is a container of work. Its main task is managing the 
+    possible inter-depedencies among the work and the creation of
     dynamic worfflows that are generates by callbacks registered by the user.
 
     .. attributes:
@@ -100,7 +100,7 @@ class AbinitFlow(Node):
         """
         Args:
             workdir:
-                String specifying the directory where the workflows will be produced.
+                String specifying the directory where the works will be produced.
             manager:
                 `TaskManager` object responsible for the submission of the jobs.
                 If manager is None, the object is initialized from the yaml file
@@ -118,7 +118,7 @@ class AbinitFlow(Node):
         if manager is None: manager = TaskManager.from_user_config()
         self.manager = manager.deepcopy()
 
-        # List of workflows.
+        # List of works.
         self._works = []
 
         self._waited = 0
@@ -265,12 +265,12 @@ class AbinitFlow(Node):
 
     @property
     def works(self):
-        """List of `Workflow` objects contained in self.."""
+        """List of `Work` objects contained in self.."""
         return self._works
 
     @property
     def all_ok(self):
-        """True if all the tasks in workflows have reached S_OK."""
+        """True if all the tasks in works have reached S_OK."""
         return all(work.all_ok for work in self)
 
     @property
@@ -308,7 +308,7 @@ class AbinitFlow(Node):
         Returns a `Counter` object that counts the number of tasks with 
         given status (use the string representation of the status as key).
         """
-        # Count the number of tasks with given status in each workflow.
+        # Count the number of tasks with given status in each work.
         counter = self[0].status_counter
         for work in self[1:]:
             counter += work.status_counter
@@ -475,7 +475,7 @@ class AbinitFlow(Node):
     #    return deadlocked
 
     def check_status(self):
-        """Check the status of the workflows in self."""
+        """Check the status of the works in self."""
         for work in self:
             work.check_status()
 
@@ -580,7 +580,7 @@ class AbinitFlow(Node):
 
     def show_status(self, stream=sys.stdout, verbose=0):
         """
-        Report the status of the workflows and the status  of the different tasks on the specified stream.
+        Report the status of the works and the status  of the different tasks on the specified stream.
 
         if not verbose, no full entry for works that are completed is printed.
         """
@@ -589,7 +589,7 @@ class AbinitFlow(Node):
 
         for i, work in enumerate(self):
             print(80*"=", file=stream)
-            print("Workflow #%d: %s, Finalized=%s\n" % (i, work, work.finalized), file=stream)
+            print("Work #%d: %s, Finalized=%s\n" % (i, work, work.finalized), file=stream)
 
             if verbose == 0 and work.finalized:
                 continue
@@ -852,7 +852,7 @@ class AbinitFlow(Node):
 
     def register_task(self, input, deps=None, manager=None, task_class=None):
         """
-        Utility function that generates a `Workflow` made of a single task
+        Utility function that generates a `Work` made of a single task
 
         Args:
             input:
@@ -862,14 +862,14 @@ class AbinitFlow(Node):
                 An empy list of deps implies that this node has no dependencies.
             manager:
                 The `TaskManager` responsible for the submission of the task. 
-                If manager is None, we use the `TaskManager` specified during the creation of the workflow.
+                If manager is None, we use the `TaskManager` specified during the creation of the work.
             task_class:
                 Task subclass to instantiate. Default: `AbinitTask` 
 
         Returns:   
             The generated `Task`.
         """
-        work = Workflow(manager=manager)
+        work = Work(manager=manager)
         task = work.register(input, deps=deps, task_class=task_class)
         self.register_work(work)
 
@@ -877,25 +877,25 @@ class AbinitFlow(Node):
 
     def register_work(self, work, deps=None, manager=None, workdir=None):
         """
-        Register a new `Workflow` and add it to the internal list, 
+        Register a new `Work` and add it to the internal list, 
         taking into account possible dependencies.
 
         Args:
             work:
-                `Workflow` object.
+                `Work` object.
             deps:
                 List of `Dependency` objects specifying the dependency of this node.
                 An empy list of deps implies that this node has no dependencies.
             manager:
                 The `TaskManager` responsible for the submission of the task. 
-                If manager is None, we use the `TaskManager` specified during the creation of the workflow.
+                If manager is None, we use the `TaskManager` specified during the creation of the work.
             workdir:
-                The name of the directory used for the `Workflow`.
+                The name of the directory used for the `Work`.
 
         Returns:   
-            The registered `Workflow`.
+            The registered `Work`.
         """
-        # Directory of the workflow.
+        # Directory of the work.
         if workdir is None:
             work_workdir = os.path.join(self.workdir, "w" + str(len(self)))
         else:
@@ -916,7 +916,7 @@ class AbinitFlow(Node):
 
     def register_work_from_cbk(self, cbk_name, cbk_data, deps, work_class, manager=None):
         """
-        Registers a callback function that will generate the Tasks of the `Workflow`.
+        Registers a callback function that will generate the Tasks of the `Work`.
 
         Args:
             cbk_name:
@@ -924,21 +924,21 @@ class AbinitFlow(Node):
             cbk_data
                 Additional data passed to the callback function.
             deps:
-                List of `Dependency` objects specifying the dependency of the workflow.
+                List of `Dependency` objects specifying the dependency of the work.
             work_class:
-                `Workflow` class to instantiate.
+                `Work` class to instantiate.
             manager:
                 The `TaskManager` responsible for the submission of the task. 
                 If manager is None, we use the `TaskManager` specified during the creation of the `Flow`.
                                                                                                             
         Returns:   
-            The `Workflow` that will be finalized by the callback.
+            The `Work` that will be finalized by the callback.
         """
-        # TODO: pass a workflow factory instead of a class
-        # Directory of the workflow.
+        # TODO: pass a Work factory instead of a class
+        # Directory of the Work.
         work_workdir = os.path.join(self.workdir, "w" + str(len(self)))
 
-        # Create an empty workflow and register the callback
+        # Create an empty work and register the callback
         work = work_class(workdir=work_workdir, manager=manager)
         
         self._works.append(work)
@@ -950,7 +950,7 @@ class AbinitFlow(Node):
         work.add_deps(deps)
 
         # Wrap the callable in a Callback object and save 
-        # useful info such as the index of the workflow and the callback data.
+        # useful info such as the index of the work and the callback data.
         cbk = FlowCallback(cbk_name, self, deps=deps, cbk_data=cbk_data)
         self._callbacks.append(cbk)
                                                                                                             
@@ -962,10 +962,10 @@ class AbinitFlow(Node):
         the `TaskManager` to the different tasks in the Flow.
         """
         for work in self:
-            # Each workflow has a reference to its flow.
+            # Each work has a reference to its flow.
             work.allocate(manager=self.manager)
             work.set_flow(self)
-            # Each task has a reference to its workflow.
+            # Each task has a reference to its work.
             for task in work:
                 task.set_work(work)
 
@@ -989,7 +989,7 @@ class AbinitFlow(Node):
     def on_dep_ok(self, signal, sender):
         # TODO
         # Replace this callback with dynamic dispatch
-        # on_all_S_OK for workflow
+        # on_all_S_OK for work
         # on_S_OK for task
         logger.info("on_dep_ok with sender %s, signal %s" % (str(sender), signal))
 
@@ -1016,11 +1016,11 @@ class AbinitFlow(Node):
 
     def connect_signals(self):
         """
-        Connect the signals within the workflow.
+        Connect the signals within the work.
         self is responsible for catching the important signals raised from 
         its task and raise new signals when some particular condition occurs.
         """
-        # Connect the signals inside each Workflow.
+        # Connect the signals inside each Work.
         for work in self:
             work.connect_signals()
 
@@ -1035,7 +1035,7 @@ class AbinitFlow(Node):
         # Each node will set its attribute _done_signal to True to tell
         # the flow that this callback should be disabled.
 
-        # Register the callbacks for the Workflows.
+        # Register the callbacks for the Work.
         #for work in self:
         #    slot = self._sig_slots[work]
         #    for signal in S_ALL:
@@ -1127,19 +1127,19 @@ class G0W0WithQptdmFlow(AbinitFlow):
     def __init__(self, workdir, manager, scf_input, nscf_input, scr_input, sigma_inputs):
         super(G0W0WithQptdmFlow, self).__init__(workdir, manager)
 
-        # Register the first workflow (GS + NSCF calculation)
-        bands_work = self.register_work(BandStructureWorkflow(scf_input, nscf_input))
+        # Register the first work (GS + NSCF calculation)
+        bands_work = self.register_work(BandStructureWork(scf_input, nscf_input))
 
-        # Register the callback that will be executed the workflow for the SCR with qptdm.
+        # Register the callback that will be executed the work for the SCR with qptdm.
         scr_work = self.register_work_from_cbk(cbk_name="cbk_qptdm_workflow", cbk_data={"input": scr_input},
-                                               deps={bands_work.nscf_task: "WFK"}, work_class=QptdmWorkflow)
+                                               deps={bands_work.nscf_task: "WFK"}, work_class=QptdmWork)
 
-        # The last workflow contains a list of SIGMA tasks
-        # that will use the data produced in the previous two workflows.
+        # The last work contains a list of SIGMA tasks
+        # that will use the data produced in the previous two works.
         if not isinstance(sigma_inputs, (list, tuple)):
             sigma_inputs = [sigma_inputs]
 
-        sigma_work = Workflow()
+        sigma_work = Work()
         for sigma_input in sigma_inputs:
             sigma_work.register(sigma_input, deps={bands_work.nscf_task: "WFK", scr_work: "SCR"})
         self.register_work(sigma_work)
@@ -1151,11 +1151,11 @@ class G0W0WithQptdmFlow(AbinitFlow):
         This callback is executed by the flow when bands_work.nscf_task reaches S_OK.
 
         It computes the list of q-points for the W(q,G,G'), creates nqpt tasks
-        in the second workflow (QptdmWorkflow), and connect the signals.
+        in the second work (QptdmWork), and connect the signals.
         """
         scr_input = cbk.data["input"]
         # Use the WFK file produced by the second
-        # Task in the first Workflow (NSCF step).
+        # Task in the first Work (NSCF step).
         nscf_task = self[0][1]
         wfk_file = nscf_task.outdir.has_abiext("WFK")
 
@@ -1273,7 +1273,7 @@ def bandstructure_flow(workdir, manager, scf_input, nscf_input, dos_inputs=None)
         `AbinitFlow`
     """
     flow = AbinitFlow(workdir, manager)
-    work = BandStructureWorkflow(scf_input, nscf_input, dos_inputs=dos_inputs)
+    work = BandStructureWork(scf_input, nscf_input, dos_inputs=dos_inputs)
     flow.register_work(work)
     return flow.allocate()
 
@@ -1300,7 +1300,7 @@ def g0w0_flow(workdir, manager, scf_input, nscf_input, scr_input, sigma_inputs):
         `AbinitFlow`
     """
     flow = AbinitFlow(workdir, manager)
-    work = G0W0_Workflow(scf_input, nscf_input, scr_input, sigma_inputs)
+    work = G0W0Work(scf_input, nscf_input, scr_input, sigma_inputs)
     flow.register_work(work)
     return flow.allocate()
 
@@ -1333,15 +1333,15 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
 
     natom = len(scf_input.structure)
 
-    # Create the container that will manage the different workflows.
+    # Create the container that will manage the different work.
     flow = AbinitFlow(workdir, manager)
 
-    # Register the first workflow (GS calculation)
+    # Register the first work (GS calculation)
     # register_task creates a work for the task, registers it to the flow and returns the work
     # the 0the element of the work is the task
     scf_task = flow.register_task(scf_input, task_class=ScfTask)[0]
 
-    # Build a temporary workflow with a shell manager just to run
+    # Build a temporary work with a shell manager just to run
     # ABINIT to get the list of irreducible pertubations for this q-point.
     shell_manager = manager.to_shell_manager(mpi_procs=1)
 
@@ -1368,7 +1368,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
 
         # Run abinit on the front-end to get the list of irreducible pertubations.
         tmp_dir = os.path.join(workdir, "__ph_run" + str(i) + "__")
-        w = PhononWorkflow(workdir=tmp_dir, manager=shell_manager)
+        w = PhononWork(workdir=tmp_dir, manager=shell_manager)
         fake_task = w.register(fake_input)
 
         # Use the magic value paral_rf = -1 to get the list of irreducible perturbations for this q-point.
@@ -1387,11 +1387,11 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
 
         w.rmtree()
 
-        # Now we can build the final list of workflows:
-        # One workflow per q-point, each workflow computes all 
+        # Now we can build the final list of works:
+        # One work per q-point, each work computes all 
         # the irreducible perturbations for a singe q-point.
 
-        work_qpt = PhononWorkflow()
+        work_qpt = PhononWork()
 
         if with_nscf:
             nscf_input = copy.deepcopy(scf_input)

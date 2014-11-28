@@ -1309,7 +1309,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     @property
     def is_work(self):
         """True if this node is a Work"""
-        from .workflows import Work
+        from .works import Work
         return isinstance(self, Work)
 
     @property
