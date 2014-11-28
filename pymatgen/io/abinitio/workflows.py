@@ -44,15 +44,14 @@ __maintainer__ = "Matteo Giantomassi"
 
 
 __all__ = [
-    "Workflow",
     "Work",
-    "BandStructureWorkflow",
-    "RelaxWorkflow",
-    "G0W0_Workflow",
-    "QptdmWorkflow",
-    "SigmaConvWorkflow",
-    "BSEMDF_Workflow",
-    "PhononWorkflow",
+    "BandStructureWork",
+    "RelaxWork",
+    "G0W0Work",
+    "QptdmWork",
+    "SigmaConvWork",
+    "BseMdfWork",
+    "PhononWork",
 ]
 
 
@@ -253,7 +252,7 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
         return results
 
 
-class Workflow(BaseWork):
+class Work(BaseWork):
     """
     A Work is a list of (possibly connected) tasks.
     """
@@ -265,7 +264,7 @@ class Workflow(BaseWork):
             manager:
                 `TaskManager` object.
         """
-        super(Workflow, self).__init__()
+        super(Work, self).__init__()
 
         self._tasks = []
 
@@ -500,6 +499,7 @@ class Workflow(BaseWork):
     def register_bse_task(self, *args, **kwargs):
         """Register a nscf task."""
         kwargs["task_class"] = BseTask
+        return self.register(*args, **kwargs)
 
     def register_ph_task(self, *args, **kwargs):
         """Register a nscf task."""
@@ -694,11 +694,7 @@ class Workflow(BaseWork):
         return parser
 
 
-# Alias (Workflow will replaced by Work)
-Work = Workflow
-
-
-class BandStructureWorkflow(Work):
+class BandStructureWork(Work):
     """Work for band structure calculations."""
     def __init__(self, scf_input, nscf_input, dos_inputs=None, workdir=None, manager=None):
         """
@@ -714,7 +710,7 @@ class BandStructureWorkflow(Work):
             manager:
                 `TaskManager` object.
         """
-        super(BandStructureWorkflow, self).__init__(workdir=workdir, manager=manager)
+        super(BandStructureWork, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
         self.scf_task = self.register(scf_input, task_class=ScfTask)
@@ -731,7 +727,7 @@ class BandStructureWorkflow(Work):
                 self.register(dos_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
 
 
-class RelaxWorkflow(Work):
+class RelaxWork(Work):
     """
     Work for structural relaxations. The first task relaxes the atomic position
     while keeping the unit cell parameters fixed. The second task uses the final 
@@ -750,7 +746,7 @@ class RelaxWorkflow(Work):
             manager:
                 `TaskManager` object.
         """
-        super(RelaxWorkflow, self).__init__(workdir=workdir, manager=manager)
+        super(RelaxWork, self).__init__(workdir=workdir, manager=manager)
 
         self.ion_task = self.register(ion_input, task_class=RelaxTask)
 
@@ -784,10 +780,10 @@ class RelaxWorkflow(Work):
             # Unlock ioncell_task so that we can submit it.
             self.ioncell_task.set_status(self.S_READY)
 
-        return super(RelaxWorkflow, self).on_ok(sender)
+        return super(RelaxWork, self).on_ok(sender)
 
 
-class G0W0_Workflow(Work):
+class G0W0Work(Work):
     """
     Work for G0W0 calculations.
     """
@@ -811,9 +807,9 @@ class G0W0_Workflow(Work):
                 attach a screening task to every sigma task
                 if false only one screening task with the max ecuteps and nbands for all sigma tasks
             nksmall:
-                if not none add a dos and bands calculation to the workflow
+                if not none add a dos and bands calculation to the Work
         """
-        super(G0W0_Workflow, self).__init__(workdir=workdir, manager=manager)
+        super(G0W0Work, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
         # register all scf_inputs but link the nscf only the last scf in the list
@@ -867,7 +863,7 @@ class G0W0_Workflow(Work):
             self.sigma_tasks.append(task)
 
 
-class SigmaConvWorkflow(Workflow):
+class SigmaConvWork(Work):
     """
     Work for self-energy convergence studies.
     """
@@ -889,7 +885,7 @@ class SigmaConvWorkflow(Workflow):
         wfk_node = Node.as_node(wfk_node)
         scr_node = Node.as_node(scr_node)
 
-        super(SigmaConvWorkflow, self).__init__(workdir=workdir, manager=manager)
+        super(SigmaConvWork, self).__init__(workdir=workdir, manager=manager)
 
         # Register the SIGMA runs.
         if not isinstance(sigma_inputs, (list, tuple)): 
@@ -899,7 +895,7 @@ class SigmaConvWorkflow(Workflow):
             self.register(sigma_input, deps={wfk_node: "WFK", scr_node: "SCR"})
 
 
-class BSEMDF_Workflow(Work):
+class BseMdfWork(Work):
     """
     Work for simple BSE calculations in which the self-energy corrections
     are approximated by the scissors operator and the screening in modeled
@@ -919,7 +915,7 @@ class BSEMDF_Workflow(Work):
             manager:
                 `TaskManager`.
         """
-        super(BSEMDF_Workflow, self).__init__(workdir=workdir, manager=manager)
+        super(BseMdfWork, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
         self.scf_task = self.register(scf_input, task_class=ScfTask)
@@ -935,7 +931,7 @@ class BSEMDF_Workflow(Work):
             self.register(bse_input, deps={self.nscf_task: "WFK"}, task_class=BseTask)
 
 
-class QptdmWorkflow(Work):
+class QptdmWork(Work):
     """
     This work parallelizes the calculation of the q-points of the screening.
     It also provides the callback `on_all_ok` that calls mrgscr to merge
@@ -1036,7 +1032,7 @@ def build_oneshot_phononwork(scf_input, ph_inputs, workdir=None, manager=None, w
         This work is mainly used for simple calculations, e.g. converge studies.
         Use ``PhononWork`` for better efficiency.
     """
-    work_class = OneShotPhononWorkflow if work_class is None else work_class
+    work_class = OneShotPhononWork if work_class is None else work_class
     work = work_class(workdir=workdir, manager=manager)
     scf_task = work.register_scf_task(scf_input)
 
@@ -1049,7 +1045,7 @@ def build_oneshot_phononwork(scf_input, ph_inputs, workdir=None, manager=None, w
     return work
 
 
-class OneShotPhononWorkflow(Work):
+class OneShotPhononWork(Work):
     """
     Simple and very inefficient work for the computation of the phonon frequencies
     It consists of a GS task and a DFPT calculations for all the independent perturbations.
@@ -1108,7 +1104,7 @@ class OneShotPhononWorkflow(Work):
     #    return self.get_results()
 
 
-class PhononWorkflow(Work):
+class PhononWork(Work):
     """
     This work usually consists of nirred Phonon tasks where nirred is 
     the number of irreducible perturbations for a given q-point.
