@@ -1072,7 +1072,7 @@ class AbinitFlow(Node):
         def text_str(node):
             return colored(str(node), color=node.status.color_opts["color"])
 
-        from asciitree import draw_tree
+        from monty.pprint import draw_tree
         for task in self.iflat_tasks():
             print(draw_tree(task, child_iter, text_str), file=stream)
 
