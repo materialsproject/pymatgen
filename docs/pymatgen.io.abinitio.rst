@@ -130,10 +130,10 @@ pymatgen.io.abinitio.utils module
     :undoc-members:
     :show-inheritance:
 
-pymatgen.io.abinitio.workflows module
--------------------------------------
+pymatgen.io.abinitio.works module
+---------------------------------
 
-.. automodule:: pymatgen.io.abinitio.workflows
+.. automodule:: pymatgen.io.abinitio.works
     :members:
     :undoc-members:
     :show-inheritance:

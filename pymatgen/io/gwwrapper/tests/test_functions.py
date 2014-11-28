@@ -8,7 +8,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.matproj.rest import MPRester, MPRestError
 from pymatgen.io.gwwrapper.datastructures import GWSpecs, GWConvergenceData, get_spec
 from pymatgen.io.gwwrapper.codeinterfaces import AbinitInterface, NewCodeInterface, VaspInterface, get_code_interface
-from pymatgen.io.gwwrapper.GWworkflows import GWG0W0VaspInputSet, SingleAbinitGWWorkFlow
+from pymatgen.io.gwwrapper.GWworks import GWG0W0VaspInputSet, SingleAbinitGWWork
 from pymatgen.io.gwwrapper.helpers import refine_structure, clean, load_ps, read_extra_abivars, read_grid_from_file
 from pymatgen.io.gwwrapper.helpers import expand
 from pymatgen.io.gwwrapper.codeinterfaces import get_all_ecuteps, get_all_nbands, CODE_CLASSES

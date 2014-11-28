@@ -97,15 +97,17 @@ db_connector:
         shutil.rmtree(self.workdir)
 
 
-class AbinitFlowTest(FlowUnitTest):
+class FlowTest(FlowUnitTest):
 
     def test_base(self):
-        """Testing AbinitFlow..."""
+        """Testing Flow..."""
         aequal, atrue, afalse = self.assertEqual, self.assertTrue, self.assertFalse
-        flow = AbinitFlow(workdir=self.workdir, manager=self.manager)
+        flow = Flow(workdir=self.workdir, manager=self.manager)
 
-        # Build a workflow with a task
-        task0_w0 = flow.register_task(self.fake_input)
+        # Build a work with a task
+        work = flow.register_task(self.fake_input)
+        assert work.is_work
+        task0_w0 = work[0]
         atrue(task0_w0.is_task)
         afalse(task0_w0.has_subnodes)
         print(task0_w0.status.colored)
@@ -114,7 +116,7 @@ class AbinitFlowTest(FlowUnitTest):
         atrue(flow.has_db) 
 
         # Build a workflow containing two tasks depending on task0_w0
-        work = Workflow()
+        work = Work()
         atrue(work.is_work)
         atrue(work.has_subnodes)
         work.register(self.fake_input)
@@ -126,8 +128,8 @@ class AbinitFlowTest(FlowUnitTest):
         atrue(flow.has_subnodes)
         aequal(len(flow), 2)
 
-        # Add another workflow without dependencies.
-        task0_w2 = flow.register_task(self.fake_input)
+        # Add another work without dependencies.
+        task0_w2 = flow.register_task(self.fake_input)[0]
         atrue(len(flow) == 3)
         afalse(flow.is_work)
 
@@ -162,7 +164,9 @@ class AbinitFlowTest(FlowUnitTest):
         flow.build_and_pickle_dump()
 
         # Find the pickle file in workdir and recreate the flow.
-        same_flow = AbinitFlow.pickle_load(self.workdir)
+        same_flow = Flow.pickle_load(self.workdir)
+
+        same_flow = Flow.pickle_load(self.workdir)
         aequal(same_flow, flow)
 
         # Test show_status

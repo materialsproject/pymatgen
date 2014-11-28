@@ -1,5 +1,8 @@
 # coding: utf-8
-"""Abinit Workflows"""
+"""
+Works for Abinit:
+I'll work on this tonight...
+"""
 from __future__ import unicode_literals, division, print_function
 
 import os
@@ -9,20 +12,17 @@ import abc
 import collections
 import numpy as np
 import six
+import copy
 
 from six.moves import filter
-from prettytable import PrettyTable
 from monty.collections import AttrDict
 from monty.itertools import chunks
-from monty.pprint import pprint_table
 from monty.functools import lazy_property
 from pymatgen.core.units import EnergyArray
-from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from pymatgen.util.string_utils import WildCard
 from . import wrappers
-from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, PhononTask, DdkTask, 
-    BseTask, RelaxTask, ScrTask, SigmaTask)
-from .strategies import HtcStrategy # ScfStrategy, RelaxStrategy
+from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, PhononTask, DdkTask, BseTask, RelaxTask, DdeTask)
+from .strategies import HtcStrategy, NscfStrategy
 from .utils import Directory
 from .netcdf import ETSF_Reader
 from .abitimer import AbinitTimerParser
@@ -43,14 +43,14 @@ __maintainer__ = "Matteo Giantomassi"
 
 
 __all__ = [
-    "Workflow",
-    "BandStructureWorkflow",
-    "RelaxWorkflow",
-    "G0W0_Workflow",
-    "QptdmWorkflow",
-    "SigmaConvWorkflow",
-    "BSEMDF_Workflow",
-    "PhononWorkflow",
+    "Work",
+    "BandStructureWork",
+    "RelaxWork",
+    "G0W0Work",
+    "QptdmWork",
+    "SigmaConvWork",
+    "BseMdfWork",
+    "PhononWork",
 ]
 
 
@@ -59,7 +59,7 @@ class WorkResults(NodeResults):
 
     @classmethod
     def from_node(cls, work):
-        """Initialize an instance from a WorkFlow instance."""
+        """Initialize an instance from a Work instance."""
         new = super(WorkResults, cls).from_node(work)
 
         #new.update(
@@ -74,12 +74,12 @@ class WorkResults(NodeResults):
         return new
 
 
-class WorkflowError(Exception):
-    """Base class for the exceptions raised by Workflow objects."""
+class WorkError(Exception):
+    """Base class for the exceptions raised by Work objects."""
 
 
-class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
-    Error = WorkflowError
+class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
+    Error = WorkError
 
     Results = WorkResults
 
@@ -112,18 +112,6 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
         communicate() returns a list of tuples (stdoutdata, stderrdata).
         """
         return [task.communicate(input) for task in self]
-
-    #def show_intrawork_deps(self, stream=sys.stdout):
-    #    """Show the dependencies within the `Workflow`."""
-    #    table = PrettyTable(["Task #"] + [str(i) for i in range(len(self))])
-    #    for ii, task1 in enumerate(self):
-    #        line = (1 + len(self)) * [""]
-    #        line[0] = str(ii)
-    #        for jj, task2 in enumerate(self):
-    #            if task1.depends_on(task2):
-    #                line[jj+1] = "^"
-    #        table.add_row(line)
-    #    print(table, file=stream)
 
     @property
     def returncodes(self):
@@ -187,7 +175,6 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
         Returns a list with all the tasks that can be submitted.
         Empty list if not task has been found.
         """
-        #if all(task.is_completed for task in self) return []
         return [task for task in self if task.can_run]
 
     @abc.abstractmethod
@@ -199,7 +186,7 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
 
     def connect_signals(self):
         """
-        Connect the signals within the workflow.
+        Connect the signals within the work.
         self is responsible for catching the important signals raised from 
         its task and raise new signals when some particular condition occurs.
         """
@@ -219,20 +206,20 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
 
         if self.all_ok: 
             if self.finalized:
-                return AttrDict(returncode=0, message="Workflow has been already finalized")
+                return AttrDict(returncode=0, message="Work has been already finalized")
 
             else:
-                # Set finalized here, because on_all_ok might change it (e.g. Relax + EOS in a single workflow)
-                self.finalized = True
+                # Set finalized here, because on_all_ok might change it (e.g. Relax + EOS in a single work)
+                self._finalized = True
                 try:
                     results = AttrDict(**self.on_all_ok())
                 except:
                     self.finalized = False
                     raise
 
-                # Signal to possible observers that the `Workflow` reached S_OK
-                logger.info("Workflow %s is finalized and broadcasts signal S_OK" % str(self))
-                logger.info("Workflow %s status = %s" % (str(self), self.status))
+                # Signal to possible observers that the `Work` reached S_OK
+                logger.info("Work %s is finalized and broadcasts signal S_OK" % str(self))
+                logger.info("Work %s status = %s" % (str(self), self.status))
 
                 if self._finalized:
                     dispatcher.send(signal=self.S_OK, sender=self)
@@ -243,7 +230,7 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
 
     def on_all_ok(self):
         """
-        This method is called once the `workflow` is completed i.e. when all the tasks 
+        This method is called once the `work` is completed i.e. when all the tasks 
         have reached status S_OK. Subclasses should provide their own implementation
 
         Returns:
@@ -264,12 +251,10 @@ class BaseWorkflow(six.with_metaclass(abc.ABCMeta, Node)):
         return results
 
 
-class Workflow(BaseWorkflow):
+class Work(BaseWork):
     """
-    A Workflow is a list of (possibly connected) tasks.
+    A Work is a list of (possibly connected) tasks.
     """
-    Error = WorkflowError
-
     def __init__(self, workdir=None, manager=None):
         """
         Args:
@@ -278,7 +263,7 @@ class Workflow(BaseWorkflow):
             manager:
                 `TaskManager` object.
         """
-        super(Workflow, self).__init__()
+        super(Work, self).__init__()
 
         self._tasks = []
 
@@ -296,11 +281,11 @@ class Workflow(BaseWorkflow):
 
     @property
     def flow(self):
-        """The flow containing this `Workflow`."""
+        """The flow containing this `Work`."""
         return self._flow
 
     def set_flow(self, flow):
-        """Set the flow associated to this `Workflow`."""
+        """Set the flow associated to this `Work`."""
         if not hasattr(self, "_flow"):
             self._flow = flow
         else: 
@@ -328,8 +313,8 @@ class Workflow(BaseWorkflow):
         self.workdir = os.path.abspath(workdir)
                                                                        
         # Directories with (input|output|temporary) data.
-        # The workflow will use these directories to connect 
-        # itself to other workflows and/or to produce new data 
+        # The work will use these directories to connect 
+        # itself to other works and/or to produce new data 
         # that will be used by its children.
         self.indir = Directory(os.path.join(self.workdir, "indata"))
         self.outdir = Directory(os.path.join(self.workdir, "outdata"))
@@ -376,7 +361,7 @@ class Workflow(BaseWorkflow):
 
     @property
     def all_done(self):
-        """True if all the `Task` in the `Workflow` are done."""
+        """True if all the `Task` in the `Work` are done."""
         return all(task.status >= task.S_DONE for task in self)
 
     @property
@@ -405,7 +390,7 @@ class Workflow(BaseWorkflow):
     def allocate(self, manager=None):
         """
         This function is called once we have completed the initialization 
-        of the `Workflow`. It sets the manager of each task (if not already done)
+        of the `Work`. It sets the manager of each task (if not already done)
         and defines the working directories of the tasks.
 
         Args:
@@ -416,7 +401,7 @@ class Workflow(BaseWorkflow):
 
             if not hasattr(task, "manager"):
                 # Set the manager
-                # Use the one provided in input else the one of the workflow.
+                # Use the one provided in input else the one of the work.
                 task.set_manager(manager) if manager is not None else task.set_manager(self.manager)
 
             task_workdir = os.path.join(self.workdir, "t" + str(i))
@@ -441,11 +426,11 @@ class Workflow(BaseWorkflow):
             required_files:
                 List of strings with the path of the files used by the task.
                 Note that the files must exist when the task is registered.
-                Use the standard approach based on Workflows, Tasks and deps 
+                Use the standard approach based on Works, Tasks and deps 
                 if the files will be produced in the future.
             manager:
                 The `TaskManager` responsible for the submission of the task. If manager is None, we use 
-                the `TaskManager` specified during the creation of the `Workflow`.
+                the `TaskManager` specified during the creation of the `Work`.
             task_class:
                 Task subclass to instantiate. Default: `AbinitTask` 
 
@@ -506,7 +491,7 @@ class Workflow(BaseWorkflow):
         return self.register(*args, **kwargs)
 
     def register_ddk_task(self, *args, **kwargs):
-        """Register a nscf task."""
+        """Register a Ddk task."""
         kwargs["task_class"] = DdkTask
         return self.register(*args, **kwargs)
 
@@ -518,6 +503,11 @@ class Workflow(BaseWorkflow):
     def register_sigma_task(self, *args, **kwargs):
         """Register a nscf task."""
         kwargs["task_class"] = SigmaTask
+        return self.register(*args, **kwargs)
+
+    def register_dde_task(self, *args, **kwargs):
+        """Register a Dde task."""
+        kwargs["task_class"] = DdeTask
         return self.register(*args, **kwargs)
 
     def register_bse_task(self, *args, **kwargs):
@@ -537,7 +527,7 @@ class Workflow(BaseWorkflow):
 
     def build(self, *args, **kwargs):
         """Creates the top level directory."""
-        # Create the directories of the workflow.
+        # Create the directories of the work.
         self.indir.makedirs()
         self.outdir.makedirs()
         self.tmpdir.makedirs()
@@ -546,13 +536,13 @@ class Workflow(BaseWorkflow):
         for task in self:
             task.build(*args, **kwargs)
 
-        # Connect signals within the workflow.
+        # Connect signals within the work.
         self.connect_signals()
 
     @property
     def status(self):
         """
-        Returns the status of the workflow i.e. the minimum of the status of the tasks.
+        Returns the status of the work i.e. the minimum of the status of the tasks.
         """
         return self.get_all_status(only_min=True)
 
@@ -567,7 +557,7 @@ class Workflow(BaseWorkflow):
                 If True, the minimum of the status is returned.
         """
         if len(self) == 0:
-            # The workflow will be created in the future.
+            # The work will be created in the future.
             if only_min:
                 return self.S_INIT
             else:
@@ -589,9 +579,6 @@ class Workflow(BaseWorkflow):
 
         # Take into account possible dependencies. Use a list instead of generators 
         for task in self:
-            # changed <= to <
-            # todo should this not be < ? a task that is already submitted should not be put to ready
-            # it does no harm because of the lock file but logically it seems wrong also gives the wrong infromation
             if task.status < task.S_SUB and all([status == task.S_OK for status in task.deps_status]):
                 task.set_status(task.S_READY)
 
@@ -653,6 +640,7 @@ class Workflow(BaseWorkflow):
         TODO: change name.
         """
         for task in self:
+            print(task)
             task.start()
     
         if wait:
@@ -712,8 +700,8 @@ class Workflow(BaseWorkflow):
         return parser
 
 
-class BandStructureWorkflow(Workflow):
-    """Workflow for band structure calculations."""
+class BandStructureWork(Work):
+    """Work for band structure calculations."""
     def __init__(self, scf_input, nscf_input, dos_inputs=None, workdir=None, manager=None):
         """
         Args:
@@ -728,7 +716,7 @@ class BandStructureWorkflow(Workflow):
             manager:
                 `TaskManager` object.
         """
-        super(BandStructureWorkflow, self).__init__(workdir=workdir, manager=manager)
+        super(BandStructureWork, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
         self.scf_task = self.register_scf_task(scf_input)
@@ -746,9 +734,9 @@ class BandStructureWorkflow(Workflow):
                 dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
                 self.dos_tasks.appens(dos_task)
 
-class RelaxWorkflow(Workflow):
+class RelaxWork(Work):
     """
-    Workflow for structural relaxations. The first task relaxes the atomic position
+    Work for structural relaxations. The first task relaxes the atomic position
     while keeping the unit cell parameters fixed. The second task uses the final 
     structure to perform a structural relaxation in which both the atomic positions
     and the lattice parameters are optimized.
@@ -765,7 +753,7 @@ class RelaxWorkflow(Workflow):
             manager:
                 `TaskManager` object.
         """
-        super(RelaxWorkflow, self).__init__(workdir=workdir, manager=manager)
+        super(RelaxWork, self).__init__(workdir=workdir, manager=manager)
 
         self.ion_task = self.register_relax_task(ion_input)
 
@@ -799,15 +787,15 @@ class RelaxWorkflow(Workflow):
             # Unlock ioncell_task so that we can submit it.
             self.ioncell_task.set_status(self.S_READY)
 
-        return super(RelaxWorkflow, self).on_ok(sender)
+        return super(RelaxWork, self).on_ok(sender)
 
 
-class G0W0_Workflow(Workflow):
+class G0W0Work(Work):
     """
-    Workflow for G0W0 calculations.
+    Work for G0W0 calculations.
     """
     def __init__(self, scf_input, nscf_input, scr_input, sigma_inputs,
-                 workdir=None, manager=None):
+                 workdir=None, manager=None, spread_scr=False, nksmall=None):
         """
         Args:
             scf_input:
@@ -822,8 +810,13 @@ class G0W0_Workflow(Workflow):
                 Working directory of the calculation.
             manager:
                 `TaskManager` object.
+            spread_scr:
+                attach a screening task to every sigma task
+                if false only one screening task with the max ecuteps and nbands for all sigma tasks
+            nksmall:
+                if not none add a dos and bands calculation to the Work
         """
-        super(G0W0_Workflow, self).__init__(workdir=workdir, manager=manager)
+        super(G0W0Work, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
         # register all scf_inputs but link the nscf only the last scf in the list
@@ -837,7 +830,28 @@ class G0W0_Workflow(Workflow):
         self.nscf_task = nscf_task = self.register_nscf_task(nscf_input, deps={self.scf_task: "DEN"})
 
         # Register the SCREENING run.
-        self.scr_task = scr_task = self.register_scr_task(scr_input, deps={nscf_task: "WFK"})
+        if not spread_scr:
+            self.scr_task = scr_task = self.register_scr_task(scr_input, deps={nscf_task: "WFK"})
+        else:
+            self.scr_tasks = []
+
+        if nksmall:
+            # if nksmall add bandstructure and dos calculations as well
+            from abiobjects import KSampling
+            scf_in = scf_input[-1] if isinstance(scf_input, (list, tuple)) else scf_input
+            logger.info('added band structure calculation')
+            bands_input = NscfStrategy(scf_strategy=scf_in,
+                                       ksampling=KSampling.path_from_structure(ndivsm=nksmall,
+                                                                               structure=scf_in.structure),
+                                       nscf_nband=scf_in.electrons.nband*2,
+                                       ecut=scf_in.ecut)
+            self.bands_task = self.register_nscf_task(bands_input, deps={self.scf_task: "DEN"})
+            dos_input = NscfStrategy(scf_strategy=scf_in,
+                                     ksampling=KSampling.automatic_density(kppa=nksmall**3, structure=scf_in.structure,
+                                                                           shifts=(0.0, 0.0, 0.0)),
+                                     nscf_nband=scf_in.electrons.nband*2,
+                                     ecut=scf_in.ecut)
+            self.dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
 
         # Register the SIGMA runs.
         if not isinstance(sigma_inputs, (list, tuple)): 
@@ -845,13 +859,20 @@ class G0W0_Workflow(Workflow):
 
         self.sigma_tasks = []
         for sigma_input in sigma_inputs:
+            if spread_scr:
+                new_scr_input = copy.deepcopy(scr_input)
+                new_scr_input.screening.ecuteps = sigma_input.sigma.ecuteps
+                new_scr_input.screening.nband = sigma_input.sigma.nband
+                new_scr_input.electrons.nband = sigma_input.sigma.nband
+                scr_task = self.register_scr_task(new_scr_input, deps={nscf_task: "WFK"})
+
             task = self.register_sigma_task(sigma_input, deps={nscf_task: "WFK", scr_task: "SCR"})
             self.sigma_tasks.append(task)
 
 
-class SigmaConvWorkflow(Workflow):
+class SigmaConvWork(Work):
     """
-    Workflow for self-energy convergence studies.
+    Work for self-energy convergence studies.
     """
     def __init__(self, wfk_node, scr_node, sigma_inputs, workdir=None, manager=None):
         """
@@ -871,7 +892,7 @@ class SigmaConvWorkflow(Workflow):
         wfk_node = Node.as_node(wfk_node)
         scr_node = Node.as_node(scr_node)
 
-        super(SigmaConvWorkflow, self).__init__(workdir=workdir, manager=manager)
+        super(SigmaConvWork, self).__init__(workdir=workdir, manager=manager)
 
         # Register the SIGMA runs.
         if not isinstance(sigma_inputs, (list, tuple)): 
@@ -881,9 +902,9 @@ class SigmaConvWorkflow(Workflow):
             self.register_sigma_task(sigma_input, deps={wfk_node: "WFK", scr_node: "SCR"})
 
 
-class BSEMDF_Workflow(Workflow):
+class BseMdfWork(Work):
     """
-    Workflow for simple BSE calculations in which the self-energy corrections
+    Work for simple BSE calculations in which the self-energy corrections
     are approximated by the scissors operator and the screening in modeled
     with the model dielectric function.
     """
@@ -901,7 +922,7 @@ class BSEMDF_Workflow(Workflow):
             manager:
                 `TaskManager`.
         """
-        super(BSEMDF_Workflow, self).__init__(workdir=workdir, manager=manager)
+        super(BseMdfWork, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
         self.scf_task = self.register_scf_task(scf_input)
@@ -917,9 +938,9 @@ class BSEMDF_Workflow(Workflow):
             self.register_bse_task(bse_input, deps={self.nscf_task: "WFK"})
 
 
-class QptdmWorkflow(Workflow):
+class QptdmWork(Work):
     """
-    This workflow parallelizes the calculation of the q-points of the screening.
+    This work parallelizes the calculation of the q-points of the screening.
     It also provides the callback `on_all_ok` that calls mrgscr to merge
     all the partial screening files produced.
     """
@@ -936,11 +957,11 @@ class QptdmWorkflow(Workflow):
         assert len(self) == 0
         wfk_file = self.wfk_file = os.path.abspath(wfk_file)
 
-        # Build a temporary workflow in the tmpdir that will use a shell manager
+        # Build a temporary work in the tmpdir that will use a shell manager
         # to run ABINIT in order to get the list of q-points for the screening.
         shell_manager = self.manager.to_shell_manager(mpi_procs=1)
 
-        w = Workflow(workdir=self.tmpdir.path_join("_qptdm_run"), manager=shell_manager)
+        w = Work(workdir=self.tmpdir.path_join("_qptdm_run"), manager=shell_manager)
 
         fake_input = scr_input.deepcopy()
         fake_task = w.register(fake_input)
@@ -972,7 +993,7 @@ class QptdmWorkflow(Workflow):
         """
         This method is called when all the q-points have been computed.
         It runs `mrgscr` in sequential on the local machine to produce
-        the final SCR file in the outdir of the `Workflow`.
+        the final SCR file in the outdir of the `Work`.
         If remove_scrfiles is True, the partial SCR files are removed after the merge.
         """
         scr_files = list(filter(None, [task.outdir.has_abiext("SCR") for task in self]))
@@ -998,15 +1019,15 @@ class QptdmWorkflow(Workflow):
         """
         This method is called when all the q-points have been computed.
         It runs `mrgscr` in sequential on the local machine to produce
-        the final SCR file in the outdir of the `Workflow`.
+        the final SCR file in the outdir of the `Work`.
         """
         final_scr = self.merge_scrfiles()
-        return self.Results(node=self,returncode=0, message="mrgscr done", final_scr=final_scr)
+        return self.Results(node=self, returncode=0, message="mrgscr done", final_scr=final_scr)
 
 
 def build_oneshot_phononwork(scf_input, ph_inputs, workdir=None, manager=None, work_class=None):
     """
-    Returns a workflow for the computation of phonon frequencies
+    Returns a work for the computation of phonon frequencies
     ph_inputs is a list of input for Phonon calculation in which all the independent perturbations 
     are explicitly computed i.e. 
 
@@ -1014,30 +1035,29 @@ def build_oneshot_phononwork(scf_input, ph_inputs, workdir=None, manager=None, w
         * rfatpol 1 natom
 
     .. warning:
-        This workflow is mainly used for simple calculations, e.g. converge studies.
-        Use ``PhononWorkflow`` for better efficiency.
+        This work is mainly used for simple calculations, e.g. converge studies.
+        Use ``PhononWork`` for better efficiency.
     """
-    work_class = OneShotPhononWorkflow if work_class is None else work_class
+    work_class = OneShotPhononWork if work_class is None else work_class
     work = work_class(workdir=workdir, manager=manager)
     scf_task = work.register_scf_task(scf_input)
-
     ph_inputs = [ph_inputs] if not isinstance(ph_inputs, (list, tuple)) else ph_inputs
+
+    # cannot use PhononTaks here because the Task is not able to deal with multiple phonon calculations
     for phinp in ph_inputs:
-        # cannot use PhononTaks here because the Task is not able to deal with multiple phonon calculations
-        #ph_task = work.register_phonon_task(phinp, deps={scf_task: "WFK"})
         ph_task = work.register(phinp, deps={scf_task: "WFK"})
 
     return work
 
 
-class OneShotPhononWorkflow(Workflow):
+class OneShotPhononWork(Work):
     """
-    Simple and very inefficient workflow for the computation of the phonon frequencies
+    Simple and very inefficient work for the computation of the phonon frequencies
     It consists of a GS task and a DFPT calculations for all the independent perturbations.
     The main advantage is that one has direct access to the phonon frequencies that
     can be computed at the end of the second task without having to call anaddb.
 
-    Use ``build_oneshot_phononwork`` to construct this workflow from the input files.
+    Use ``build_oneshot_phononwork`` to construct this work from the input files.
     """
     def read_phonons(self):
         """Read phonon frequencies from the output file."""
@@ -1089,9 +1109,9 @@ class OneShotPhononWorkflow(Workflow):
     #    return self.get_results()
 
 
-class PhononWorkflow(Workflow):
+class PhononWork(Work):
     """
-    This workflow usually consists of nirred Phonon tasks where nirred is 
+    This work usually consists of nirred Phonon tasks where nirred is 
     the number of irreducible perturbations for a given q-point.
     It provides the callback method (on_all_ok) that calls mrgddb to merge 
     the partial DDB files and mrgggkk to merge the GKK files.
@@ -1100,7 +1120,7 @@ class PhononWorkflow(Workflow):
         """
         This method is called when all the q-points have been computed.
         It runs `mrgddb` in sequential on the local machine to produce
-        the final DDB file in the outdir of the `Workflow`.
+        the final DDB file in the outdir of the `Work`.
 
         Returns:
             path to the output DDB file
@@ -1108,12 +1128,12 @@ class PhononWorkflow(Workflow):
         ddb_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in self]))
 
         logger.debug("will call mrgddb to merge %s:\n" % str(ddb_files))
-        assert len(ddb_files) == len(self)
+        # assert len(ddb_files) == len(self)
 
         #if len(ddb_files) == 1:
-        # Avoid the merge. Just move the DDB file to the outdir of the workflow
+        # Avoid the merge. Just move the DDB file to the outdir of the work
 
-        # Final DDB file will be produced in the outdir of the workflow.
+        # Final DDB file will be produced in the outdir of the work.
         out_ddb = self.outdir.path_in("out_DDB")
         desc = "DDB file merged by %s on %s" % (self.__class__.__name__, time.asctime())
 
@@ -1127,12 +1147,12 @@ class PhononWorkflow(Workflow):
         """
         This method is called when all the q-points have been computed.
         Ir runs `mrgddb` in sequential on the local machine to produce
-        the final DDB file in the outdir of the `Workflow`.
+        the final DDB file in the outdir of the `Work`.
         """
         # Merge DDB files.
         out_ddb = self.merge_ddb_files()
 
-        results = self.Results(node=self,returncode=0, message="DDB merge done")
+        results = self.Results(node=self, returncode=0, message="DDB merge done")
         results.add_gridfs_files(DDB=(out_ddb, "t"))
 
         # TODO
