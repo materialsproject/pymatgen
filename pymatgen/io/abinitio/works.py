@@ -976,11 +976,12 @@ class QptdmWork(Work):
         fake_task.start_and_wait()
 
         # Parse the section with the q-points
-        try:
-            qpoints = yaml_read_kpoints(fake_task.log_file.path, doc_tag="!Qptdms")
-            #print(qpoints)
-        finally:
-            w.rmtree()
+        qpoints = yaml_read_kpoints(fake_task.log_file.path, doc_tag="!Qptdms")
+        #print(qpoints)
+        #import json
+        #with open(fake_task.outdir.path_in("qpoints.json"), "w") as f:
+        #    json.dump(list(qpoints, f))
+        w.rmtree()
 
         # Now we can register the task for the different q-points
         for qpoint in qpoints:
