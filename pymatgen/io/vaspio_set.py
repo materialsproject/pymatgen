@@ -800,8 +800,8 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             previous_incar = vasp_run.incar
             previous_kpoints = vasp_run.kpoints
         except:
-            traceback.format_exc()
-            raise RuntimeError("Can't get valid results from previous run")
+            traceback.print_exc()
+            raise RuntimeError("Can't get valid results from previous run. prev dir: {}".format(previous_vasp_dir))
 
         mpsvip = MPStaticVaspInputSet(kpoints_density=kpoints_density,
                                       sym_prec=sym_prec)
@@ -1173,8 +1173,8 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             outcar = Outcar(os.path.join(previous_vasp_dir, "OUTCAR"))
             previous_incar = vasp_run.incar
         except:
-            traceback.format_exc()
-            raise RuntimeError("Can't get valid results from previous run")
+            traceback.print_exc()
+            raise RuntimeError("Can't get valid results from previous run. prev dir: {}".format(previous_vasp_dir))
 
         #Get a Magmom-decorated structure
         structure = MPNonSCFVaspInputSet.get_structure(vasp_run, outcar,
@@ -1190,7 +1190,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                 shutil.copyfile(os.path.join(previous_vasp_dir, "CHGCAR"),
                                 os.path.join(output_dir, "CHGCAR"))
             except Exception as e:
-                traceback.format_exc()
+                traceback.print_exc()
                 raise RuntimeError("Can't copy CHGCAR from SC run" + '\n'
                                    + str(e))
 
@@ -1287,8 +1287,8 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
             outcar = Outcar(os.path.join(previous_vasp_dir, "OUTCAR"))
             previous_incar = vasp_run.incar
         except:
-            traceback.format_exc()
-            raise RuntimeError("Can't get valid results from previous run")
+            traceback.print_exc()
+            raise RuntimeError("Can't get valid results from previous run. prev dir: {}".format(previous_vasp_dir))
 
         #Get a Magmom-decorated structure
         structure = MPNonSCFVaspInputSet.get_structure(vasp_run, outcar,
@@ -1305,7 +1305,7 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
                 shutil.copyfile(os.path.join(previous_vasp_dir, "CHGCAR"),
                                 os.path.join(output_dir, "CHGCAR"))
             except Exception as e:
-                traceback.format_exc()
+                traceback.print_exc()
                 raise RuntimeError("Can't copy CHGCAR from SC run" + '\n'
                                    + str(e))
 

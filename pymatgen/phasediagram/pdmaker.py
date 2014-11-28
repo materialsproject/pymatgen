@@ -447,8 +447,23 @@ class PhaseDiagramError(Exception):
     pass
 
 
-def get_facets(qhull_data, joggle=False):
-    if HULL_METHOD == "scipy":
+def get_facets(qhull_data, joggle=False, force_use_pyhull=False):
+    """
+    Get the simplex facets for the Convex hull.
+
+    Args:
+        qhull_data (np.ndarray): The data from which to construct the convex
+            hull as a Nxd array (N being number of data points and d being the
+            dimension)
+        joggle (boolean): Whether to joggle the input to avoid precision
+            errors.
+        force_use_pyhull (boolean): Whether the pyhull algorithm is always
+            used, even when scipy is present.
+
+    Returns:
+        List of simplices of the Convex Hull.
+    """
+    if HULL_METHOD == "scipy" and (not force_use_pyhull):
         if joggle:
             return ConvexHull(qhull_data, qhull_options="QJ i").simplices
         else:

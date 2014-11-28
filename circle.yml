@@ -16,11 +16,12 @@ dependencies:
     - pip install -q numpy
     - pip install -r requirements.txt
     - pip install -r requirements-optional.txt
+    - sudo apt-get install python-openbabel
     - cd monty && git checkout master && git pull && python setup.py install
     - python setup.py develop
 test:
   override:
-    - nosetests:
+    - nosetests -v:
         timeout: 720
     # Some rudimentary command line tests for pmg
     - pmg convert test_files/Li2O.cif POSCAR.pmg

@@ -4,8 +4,8 @@ from __future__ import unicode_literals, division, print_function
 
 """
 Classes for writing GW Input and analyzing GW data. The underlying classes can handle the use of VASP and ABINIT via the
-code interfaces provided in codeinterfaces.
-Reads the POSCAR_name in the the current folder and outputs GW input to subfolders name or lists of structures
+code interfaces provided in code-interfaces.
+Reads the POSCAR_name in the the current folder and outputs GW input to sub-folders name or lists of structures
 test 3
 """
 
@@ -23,7 +23,6 @@ import ast
 import pymatgen as pmg
 import copy
 import six
-import numpy as np
 
 try:
     import pymongo
@@ -413,7 +412,7 @@ class GWSpecs(AbstractAbinitioSpec):
                         print('| parm_scr type calculation but no data found.')
                         break
                     if len(data.data) < 9:  # todo this should be calculated
-                        print('| parm_scr type calculation but no complete data found,' \
+                        print('| parm_scr type calculation but no complete data found,'
                               ' check is all calculations are done.')
                         break
 
@@ -422,8 +421,7 @@ class GWSpecs(AbstractAbinitioSpec):
                         #print data.conv_res
                     else:
                         print('| parm_scr type calculation, no converged scf values found')
-                        data.full_res.update({'remark': 'No converged SCf parameter found. '
-                                                                             'Solution not implemented.'})
+                        data.full_res.update({'remark': 'No converged SCf parameter found. Solution not implemented.'})
                         data.print_full_res()
                         data.conv_res['values'].update({'ecut': 40*eV_to_Ha})
                         data.conv_res['control'].update({'ecut': True})
@@ -431,7 +429,7 @@ class GWSpecs(AbstractAbinitioSpec):
                     # if converged ok, if not increase the grid parameter of the next set of calculations
                     extrapolated = data.find_conv_pars(self['tol'])
                     if data.conv_res['control']['nbands']:
-                        print('| parm_scr type calculation, converged values found, extrapolated value: %s' %\
+                        print('| parm_scr type calculation, converged values found, extrapolated value: %s' %
                               extrapolated[4])
                     else:
                         print('| parm_scr type calculation, no converged values found, increasing grid')
@@ -459,7 +457,7 @@ class GWSpecs(AbstractAbinitioSpec):
                             print(item)
                         done = True
                     if data.test_full_kp_results(tol_rel=1, tol_abs=0.0015):
-                        print('| Full type calculation and the full results agree with the parm_scr.' \
+                        print('| Full type calculation and the full results agree with the parm_scr.'
                               ' All_done for this compound.')
                         data.full_res.update({'all_done': True})
                         data.print_full_res()
@@ -468,7 +466,7 @@ class GWSpecs(AbstractAbinitioSpec):
                         self.code_interface.store_results(name=s_name(structure))
                     else:
                         print('| Full type calculation but the full results do not agree with the parm_scr.')
-                        print('|   Increase the tol to find beter converged parameters and test the full grid again.')
+                        print('|   Increase the tol to find better converged parameters and test the full grid again.')
                         print('|   TODO')
                         # read the system specific tol for System.conv_res
                         # if it's not there create it from the global tol
