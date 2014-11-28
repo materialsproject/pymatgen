@@ -500,11 +500,6 @@ class Work(BaseWork):
         kwargs["task_class"] = BseTask
         return self.register(*args, **kwargs)
 
-    def register_ph_task(self, *args, **kwargs):
-        """Register a nscf task."""
-        kwargs["task_class"] = PhononTask
-        return self.register(*args, **kwargs)
-
     def path_in_workdir(self, filename):
         """Create the absolute path of filename in the working directory."""
         return os.path.join(self.workdir, filename)
@@ -1032,6 +1027,8 @@ def build_oneshot_phononwork(scf_input, ph_inputs, workdir=None, manager=None, w
     work = work_class(workdir=workdir, manager=manager)
     scf_task = work.register_scf_task(scf_input)
     ph_inputs = [ph_inputs] if not isinstance(ph_inputs, (list, tuple)) else ph_inputs
+
+    # cannot use PhononTaks here because the Task is not able to deal with multiple phonon calculations
     for phinp in ph_inputs:
         ph_task = work.register(phinp, deps={scf_task: "WFK"})
 

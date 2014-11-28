@@ -5,7 +5,7 @@ Factory functions producing ABINIT Works. Entry points for client code (high-lev
 from __future__ import unicode_literals, division, print_function
 import os
 from .abiobjects import KSampling, Screening, SelfEnergy, ExcHamiltonian, HilbertTransform
-from .strategies import ScfStrategy, NscfStrategy, ScreeningStrategy, SelfEnergyStrategy, MDFBSE_Strategy
+from .strategies import ScfStrategy, NscfStrategy, ScreeningStrategy, SelfEnergyStrategy, MdfBse_Strategy
 from .works import BandStructureWork, G0W0Work, BseMdfWork
 
 
@@ -16,10 +16,10 @@ __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 
 
-def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
-                  ndivsm, accuracy="normal", spin_mode="polarized",
-                  smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None,
-                  dos_kppa=None, workdir=None, manager=None, **extra_abivars):
+def bandstructure_work(structure, pseudos, scf_kppa, nscf_nband,
+                       ndivsm, accuracy="normal", spin_mode="polarized",
+                       smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None,
+                       dos_kppa=None, workdir=None, manager=None, **extra_abivars):
     """
     Returns a Work for bandstructure calculations.
 
@@ -80,7 +80,7 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
                              workdir=workdir, manager=manager)
 
 
-#def relaxation(workdir, manager, structure, pseudos, scf_kppa,
+#def relaxation_work(workdir, manager, structure, pseudos, scf_kppa,
 #               accuracy="normal", spin_mode="polarized",
 #               smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, **extra_abivars):
 #    """
@@ -119,10 +119,10 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
 #    #return Relaxation(relax_strategy, workdir=workdir, manager=manager)
 
 
-def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx,
-                      accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
-                      ppmodel="godby", charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None,
-                      sigma_nband=None, gw_qprange=1, workdir=None, manager=None, **extra_abivars):
+def g0w0_with_ppmodel_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx,
+                           accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
+                           ppmodel="godby", charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None,
+                           sigma_nband=None, gw_qprange=1, workdir=None, manager=None, **extra_abivars):
     """
     Returns a Work object that performs G0W0 calculations for the given the material.
 
@@ -200,10 +200,10 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
     return G0W0Work(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager)
 
 
-def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, accuracy="normal", spin_mode="polarized",
-                  smearing="fermi_dirac:0.1 eV", response_models=["godby"], charge=0.0, inclvkb=2,
-                  scr_nband=None, sigma_nband=None, workdir=None, manager=None, gamma=True, nksmall=20,
-                  **extra_abivars):
+def g0w0_extended_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, accuracy="normal", spin_mode="polarized",
+                       smearing="fermi_dirac:0.1 eV", response_models=["godby"], charge=0.0, inclvkb=2,
+                       scr_nband=None, sigma_nband=None, workdir=None, manager=None, gamma=True, nksmall=20,
+                       **extra_abivars):
     """
     Returns a Work object that performs G0W0 calculations for the given the material.
 
@@ -334,7 +334,7 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
                     spread_scr=spread_scr, nksmall=nksmall)
 
 
-#def g0w0_with_cd(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, hilbert,
+#def g0w0_with_cd_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, hilbert,
 #                 accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
 #                 charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None, 
 #                 sigma_nband=None, workdir=None, manager=None, **extra_abivars):
@@ -414,11 +414,11 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
 #                    workdir=workdir, manager=manager)
 
 
-def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shiftk, 
-                 ecuteps, bs_loband, bs_nband, soenergy, mdf_epsinf, 
-                 exc_type="TDA", bs_algo="haydock", accuracy="normal", spin_mode="polarized", 
-                 smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, workdir=None, manager=None, 
-                 **extra_abivars):
+def bse_with_mdf_work(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shiftk, 
+                      ecuteps, bs_loband, bs_nband, soenergy, mdf_epsinf, 
+                      exc_type="TDA", bs_algo="haydock", accuracy="normal", spin_mode="polarized", 
+                      smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, workdir=None, manager=None, 
+                      **extra_abivars):
     """
     Returns a `Work` object that performs a GS + NSCF + Bethe-Salpeter calculation.
     The self-energy corrections are approximated with the scissors operator. The screening
@@ -491,6 +491,6 @@ def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shif
                              spin_mode=spin_mode, mdf_epsinf=mdf_epsinf, exc_type=exc_type, algo=bs_algo,
                              bs_freq_mesh=None, with_lf=True, zcut=None)
 
-    bse_strategy = MDFBSE_Strategy(scf_strategy, nscf_strategy, exc_ham, **extra_abivars)
+    bse_strategy = MdfBse_Strategy(scf_strategy, nscf_strategy, exc_ham, **extra_abivars)
 
     return BseMdfWork(scf_strategy, nscf_strategy, bse_strategy, workdir=workdir, manager=manager)

@@ -813,18 +813,16 @@ class RelaxationMethod(AbivarAble):
     @classmethod
     def atoms_only(cls, atoms_constraints=None):
         if atoms_constraints is None:
-            new = cls(ionmov=cls.IONMOV_DEFAULT, optcell=0)
+            return cls(ionmov=cls.IONMOV_DEFAULT, optcell=0)
         else:
-            new = cls(ionmov=cls.IONMOV_DEFAULT, optcell=0, atoms_constraints=atoms_constraints)
-        return new
+            return cls(ionmov=cls.IONMOV_DEFAULT, optcell=0, atoms_constraints=atoms_constraints)
 
     @classmethod
     def atoms_and_cell(cls, atoms_constraints=None):
         if atoms_constraints is None:
-            new = cls(ionmov=cls.IONMOV_DEFAULT, optcell=cls.OPTCELL_DEFAULT)
+            return cls(ionmov=cls.IONMOV_DEFAULT, optcell=cls.OPTCELL_DEFAULT)
         else:
-            new = cls(ionmov=cls.IOMOV_DEFAULT, optcell=cls.OPTCELL_DEFAULT, atoms_constraints=atoms_constraints)
-        return new
+            return cls(ionmov=cls.IOMOV_DEFAULT, optcell=cls.OPTCELL_DEFAULT, atoms_constraints=atoms_constraints)
 
     @property
     def move_atoms(self):
