@@ -1,6 +1,8 @@
 # coding: utf-8
 """
-Factory functions producing ABINIT Works. Entry points for client code (high-level interface)
+Factory functions producing ABINIT Works.
+Works are packed together in a flow. A flow can be ran using abirun (abipy)
+Entry points for client code (high-level interface)
 """
 from __future__ import unicode_literals, division, print_function
 import os
