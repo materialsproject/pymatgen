@@ -6,13 +6,11 @@ import os
 import collections
 import shutil
 import operator
-
+import logging
 from six.moves import filter
 from monty.string import list_strings
-from monty.dev import deprecated
 from pymatgen.util.string_utils import WildCard
 
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -379,8 +377,11 @@ class FilepathFixer(object):
                 #    if ext == "1WF": continue
                 #    raise ValueError("Unknown extension %s" % ext)
                 #print(ext, path, fixed_exts)
-                if ext != '1WF':
-                    assert ext not in fixed_exts
+                #if ext != '1WF':
+                #    assert ext not in fixed_exts
+                if ext not in fixed_exts:
+                    if ext == "1WF": continue
+                    raise ValueError("Unknown extension %s" % ext)
                 fixed_exts.append(ext)
                 old2new[path] = newpath
 

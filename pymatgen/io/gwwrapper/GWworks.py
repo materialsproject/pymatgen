@@ -35,7 +35,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 logger = logging.getLogger(__name__)
 
 
-class GWWorkflow(object):
+class GWWork(object):
     """
     UNDER CONSTRUCTION
     Base class for GW workflows. the code specific implementations should extend this one.
@@ -69,7 +69,7 @@ class GWWorkflow(object):
 
 class VaspGWFWWorkFlow():
     """
-    Object containing a VASP GW workflow for a single structure
+    Object containing a VASP FireWorks GW workflow for a single structure
     """
 
     def __init__(self):
@@ -135,7 +135,7 @@ class VaspGWFWWorkFlow():
         lp.add_wf(self.wf)
 
 
-class SingleAbinitGWWorkFlow():
+class SingleAbinitGWWork():
     """
     GW workflow for Abinit
     """
@@ -299,7 +299,7 @@ class SingleAbinitGWWorkFlow():
             if (self.spec['test'] or self.spec['converge']) and not self.all_converged:
                 if self.spec['test']:
                     print('| setting test calculation')
-                    tests = SingleAbinitGWWorkFlow(self.structure, self.spec).tests
+                    tests = SingleAbinitGWWork(self.structure, self.spec).tests
                     response_models = []
                 else:
                     if grid == 0:
