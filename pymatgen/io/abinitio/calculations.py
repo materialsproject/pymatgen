@@ -1,6 +1,6 @@
 # coding: utf-8
 """
-Factory functions producing ABINIT flows. Entry points for client code (high-level interface)
+Factory functions producing ABINIT Works. Entry points for client code (high-level interface)
 """
 from __future__ import unicode_literals, division, print_function
 import os
@@ -201,8 +201,8 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
 
 
 def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, accuracy="normal", spin_mode="polarized",
-                  smearing="fermi_dirac:0.1 eV", response_models=["godby"], charge=0.0, scf_algorithm=None, inclvkb=2,
-                  scr_nband=None, sigma_nband=None, gw_qprange=1, workdir=None, manager=None, gamma=True, nksmall=20,
+                  smearing="fermi_dirac:0.1 eV", response_models=["godby"], charge=0.0, inclvkb=2,
+                  scr_nband=None, sigma_nband=None, workdir=None, manager=None, gamma=True, nksmall=20,
                   **extra_abivars):
     """
     Returns a Work object that performs G0W0 calculations for the given the material.
@@ -283,8 +283,9 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
             for value in values:
                 extra_abivars[var] = value
                 extra_abivars['pawecutdg'] = extra_abivars['ecut']*2
-                scf_strategy.append(ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy, spin_mode=spin_mode,
-                                                smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars))
+                scf_strategy.append(ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy,
+                                                spin_mode=spin_mode, smearing=smearing, charge=charge,
+                                                scf_algorithm=None, **extra_abivars))
 
     #temporary for testing a new approach ...
     spread_scr = False if os.path.isfile('no_spread_scr') else True
@@ -330,7 +331,7 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
                                                          **extra_abivars))
 
     return G0W0Work(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager,
-                     spread_scr=spread_scr, nksmall=nksmall)
+                    spread_scr=spread_scr, nksmall=nksmall)
 
 
 #def g0w0_with_cd(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, hilbert,
