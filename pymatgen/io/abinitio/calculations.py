@@ -6,7 +6,7 @@ from __future__ import unicode_literals, division, print_function
 import os
 from .abiobjects import KSampling, Screening, SelfEnergy, ExcHamiltonian, HilbertTransform
 from .strategies import ScfStrategy, NscfStrategy, ScreeningStrategy, SelfEnergyStrategy, MDFBSE_Strategy
-from .workflows import BandStructureWorkflow, G0W0_Workflow, BSEMDF_Workflow
+from .works import BandStructureWork, G0W0Work, BseMdfWork
 
 
 __author__ = "Matteo Giantomassi"
@@ -76,8 +76,8 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
 
         dos_strategy = NscfStrategy(scf_strategy, dos_ksampling, nscf_nband, nscf_solver=None, **extra_abivars)
 
-    return BandStructureWorkflow(scf_strategy, nscf_strategy, dos_inputs=dos_strategy, 
-                                 workdir=workdir, manager=manager)
+    return BandStructureWork(scf_strategy, nscf_strategy, dos_inputs=dos_strategy, 
+                             workdir=workdir, manager=manager)
 
 
 #def relaxation(workdir, manager, structure, pseudos, scf_kppa,
@@ -197,8 +197,8 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
     sigma_strategy = SelfEnergyStrategy(scf_strategy, nscf_strategy, scr_strategy, self_energy,
                                         **extra_abivars)
 
-    return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, 
-                         workdir=workdir, manager=manager)
+    return G0W0Work(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, 
+                    workdir=workdir, manager=manager)
 
 
 def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, accuracy="normal", spin_mode="polarized",
@@ -326,8 +326,8 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
                 scr_strategy = ScreeningStrategy(scf_strategy[-1], nscf_strategy, screening, **extra_abivars)
                 sigma_strategy.append(SelfEnergyStrategy(scf_strategy[-1], nscf_strategy, scr_strategy, self_energy, **extra_abivars))
 
-    return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager,
-                         spread_scr=spread_scr, nksmall=nksmall)
+    return G0W0Work(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager,
+                    spread_scr=spread_scr, nksmall=nksmall)
 
 
 #def g0w0_with_cd(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, hilbert,
@@ -406,8 +406,8 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
 #    sigma_strategy = SelfEnergyStrategy(scf_strategy, nscf_strategy, scr_strategy, self_energy,
 #                                        **extra_abivars)
 #
-#    return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, 
-#                         workdir=workdir, manager=manager)
+#    return G0W0Work(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, 
+#                    workdir=workdir, manager=manager)
 
 
 def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shiftk, 
@@ -489,4 +489,4 @@ def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shif
 
     bse_strategy = MDFBSE_Strategy(scf_strategy, nscf_strategy, exc_ham, **extra_abivars)
 
-    return BSEMDF_Workflow(scf_strategy, nscf_strategy, bse_strategy, workdir=workdir, manager=manager)
+    return BseMdfWork(scf_strategy, nscf_strategy, bse_strategy, workdir=workdir, manager=manager)
