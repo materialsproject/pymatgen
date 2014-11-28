@@ -273,7 +273,7 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
     scf_strategy = []
     to_add = {}
     scf_nband = min(nscf_nband)
-    print(scf_nband)
+    #print(scf_nband)
     extra_abivars.update(to_add)
 
     for k in extra_abivars.keys():

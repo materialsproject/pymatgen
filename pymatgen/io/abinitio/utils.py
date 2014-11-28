@@ -349,7 +349,6 @@ class FilepathFixer(object):
         if ncext is None: ncext = ""
         return root + "1DEN" + ncext
 
-
     def _fix_path(self, path):
         for ext, regex in self.regs.items():
             head, tail = os.path.split(path)
