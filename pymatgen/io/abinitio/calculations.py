@@ -1,6 +1,6 @@
 # coding: utf-8
 """
-Factory functions producing ABINIT flows. Entry points for client code (high-level interface)
+Factory functions producing ABINIT Works. Entry points for client code (high-level interface)
 """
 from __future__ import unicode_literals, division, print_function
 import os
@@ -201,7 +201,7 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
 
 
 def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, accuracy="normal", spin_mode="polarized",
-                  smearing="fermi_dirac:0.1 eV", response_models=["godby"], charge=0.0, scf_algorithm=None, inclvkb=2,
+                  smearing="fermi_dirac:0.1 eV", response_models=["godby"], charge=0.0, inclvkb=2,
                   scr_nband=None, sigma_nband=None, workdir=None, manager=None, gamma=True, nksmall=20,
                   **extra_abivars):
     """

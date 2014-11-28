@@ -1,5 +1,8 @@
 # coding: utf-8
-"""Abinit Works"""
+"""
+Works for Abinit:
+I'll work on this tonight...
+"""
 from __future__ import unicode_literals, division, print_function
 
 import os
