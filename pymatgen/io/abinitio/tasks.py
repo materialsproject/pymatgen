@@ -14,6 +14,7 @@ import copy
 import yaml
 import six
 
+
 from pprint import pprint
 from monty.termcolor import colored
 from six.moves import map, zip, StringIO
@@ -875,8 +876,8 @@ class TaskManager(object):
         return process
 
     def increase_resources(self):
-            # with GW calculations in mind with GW mem = 10, the response fuction is in memory and not distributed
-            # we need to increas memory if jobs fail ...
+            # with GW calculations in mind with GW mem = 10, the response function is in memory and not distributed
+            # we need to increase memory if jobs fail ...
         return self.qadapter.increase_mem()
 
 #        if self.policy.autoparal == 1:
@@ -2692,6 +2693,7 @@ class AbinitTask(Task):
         """
         # remove all 'error', else the job will be seen as crashed in the next check status
         # even if the job did not run
+        print('reset_from_scatch', self)
         self.output_file.remove()
         self.log_file.remove()
         self.stderr_file.remove()
@@ -2919,12 +2921,26 @@ class RelaxTask(AbinitTask):
         return results.add_gridfs_files(GSR=gsr.filepath)
 
 
+class DdeTask(AbinitTask):
+    """Task for DDE calculations."""
+
+    def get_results(self, **kwargs):
+        results = super(DdeTask, self).get_results(**kwargs)
+        return results.add_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
+
+
 class DdkTask(AbinitTask):
     """Task for DDK calculations."""
 
+    def _on_ok(self):
+        super(DdkTask, self)._on_ok()
+
+        if self.outdir.rename_abiext('1WF', 'DDK') > 0:
+            raise RuntimeError
+
     def get_results(self, **kwargs):
         results = super(DdkTask, self).get_results(**kwargs)
-        return results.add_gridfs_file(DDB=(self.outdir.has_abiext("DDB"), "t"))
+        return results.add_gridfs_file(DDK=(self.outdir.has_abiext("DDK"), "t"))
 
 
 class PhononTask(AbinitTask):
@@ -2978,6 +2994,12 @@ class PhononTask(AbinitTask):
     def get_results(self, **kwargs):
         results = super(PhononTask, self).get_results(**kwargs)
         return results.add_gridfs_file(DDB=(self.outdir.has_abiext("DDB"), "t"))
+
+    def make_links(self):
+        super(PhononTask, self).make_links()
+        # fix the problem that abinit uses hte 1WF extension for the DDK output file but reads it with the irdddk flag
+        if self.indir.has_abiext('DDK'):
+            self.indir.rename_abiext('DDK', '1WF')
 
 
 class SigmaTask(AbinitTask):

@@ -9,19 +9,17 @@ import abc
 import collections
 import numpy as np
 import six
+import copy
 
 from six.moves import filter
-from prettytable import PrettyTable
 from monty.collections import AttrDict
 from monty.itertools import chunks
-from monty.pprint import pprint_table
 from monty.functools import lazy_property
 from pymatgen.core.units import EnergyArray
-from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump
 from pymatgen.util.string_utils import WildCard
 from . import wrappers
-from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, PhononTask, DdkTask, BseTask, RelaxTask)
-from .strategies import HtcStrategy # ScfStrategy, RelaxStrategy
+from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, PhononTask, DdkTask, BseTask, RelaxTask, DdeTask)
+from .strategies import HtcStrategy, NscfStrategy
 from .utils import Directory
 from .netcdf import ETSF_Reader
 from .abitimer import AbinitTimerParser
@@ -45,7 +43,7 @@ __all__ = [
     "Workflow",
     "BandStructureWorkflow",
     "RelaxWorkflow",
-    "G0W0_Workflow",
+    "G0W0Work",
     "QptdmWorkflow",
     "SigmaConvWorkflow",
     "BSEMDF_Workflow",
@@ -502,13 +500,24 @@ class Workflow(BaseWorkflow):
         return self.register(*args, **kwargs)
 
     def register_ddk_task(self, *args, **kwargs):
-        """Register a nscf task."""
+        """Register a Ddk task."""
         kwargs["task_class"] = DdkTask
+        return self.register(*args, **kwargs)
+
+    def register_dde_task(self, *args, **kwargs):
+        """Register a Dde task."""
+        kwargs["task_class"] = DdeTask
         return self.register(*args, **kwargs)
 
     def register_bse_task(self, *args, **kwargs):
         """Register a nscf task."""
         kwargs["task_class"] = BseTask
+        return self.register(*args, **kwargs)
+
+    def register_ph_task(self, *args, **kwargs):
+        """Register a nscf task."""
+        kwargs["task_class"] = PhononTask
+        return self.register(*kwargs, **kwargs)
 
     def path_in_workdir(self, filename):
         """Create the absolute path of filename in the working directory."""
@@ -638,6 +647,7 @@ class Workflow(BaseWorkflow):
         TODO: change name.
         """
         for task in self:
+            print(task)
             task.start()
     
         if wait:
@@ -786,12 +796,12 @@ class RelaxWorkflow(Workflow):
         return super(RelaxWorkflow, self).on_ok(sender)
 
 
-class G0W0_Workflow(Workflow):
+class G0W0Work(Workflow):
     """
     Workflow for G0W0 calculations.
     """
     def __init__(self, scf_input, nscf_input, scr_input, sigma_inputs,
-                 workdir=None, manager=None):
+                 workdir=None, manager=None, spread_scr=False, nksmall=None):
         """
         Args:
             scf_input:
@@ -806,8 +816,13 @@ class G0W0_Workflow(Workflow):
                 Working directory of the calculation.
             manager:
                 `TaskManager` object.
+            spread_scr:
+                attach a screening task to every sigma task
+                if false only one screening task with the max ecuteps and nbands for all sigma tasks
+            nksmall:
+                if not none add a dos and bands calculation to the workflow
         """
-        super(G0W0_Workflow, self).__init__(workdir=workdir, manager=manager)
+        super(G0W0Work, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
         # register all scf_inputs but link the nscf only the last scf in the list
@@ -821,7 +836,28 @@ class G0W0_Workflow(Workflow):
         self.nscf_task = nscf_task = self.register(nscf_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
 
         # Register the SCREENING run.
-        self.scr_task = scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
+        if not spread_scr:
+            self.scr_task = scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
+        else:
+            self.scr_tasks = []
+
+        if nksmall:
+            # if nksmall add bandstructure and dos calculations as well
+            from abiobjects import KSampling
+            scf_in = scf_input[-1] if isinstance(scf_input, (list, tuple)) else scf_input
+            logger.info('added band structure calculation')
+            bands_input = NscfStrategy(scf_strategy=scf_in,
+                                       ksampling=KSampling.path_from_structure(ndivsm=nksmall,
+                                                                               structure=scf_in.structure),
+                                       nscf_nband=scf_in.electrons.nband*2,
+                                       ecut=scf_in.ecut)
+            self.bands_task = self.register_nscf_task(bands_input, deps={self.scf_task: "DEN"})
+            dos_input = NscfStrategy(scf_strategy=scf_in,
+                                     ksampling=KSampling.automatic_density(kppa=nksmall**3, structure=scf_in.structure,
+                                                                           shifts=(0.0, 0.0, 0.0)),
+                                     nscf_nband=scf_in.electrons.nband*2,
+                                     ecut=scf_in.ecut)
+            self.dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
 
         # Register the SIGMA runs.
         if not isinstance(sigma_inputs, (list, tuple)): 
@@ -829,6 +865,13 @@ class G0W0_Workflow(Workflow):
 
         self.sigma_tasks = []
         for sigma_input in sigma_inputs:
+            if spread_scr:
+                new_scr_input = copy.deepcopy(scr_input)
+                new_scr_input.screening.ecuteps = sigma_input.sigma.ecuteps
+                new_scr_input.screening.nband = sigma_input.sigma.nband
+                new_scr_input.electrons.nband = sigma_input.sigma.nband
+                scr_task = self.register(new_scr_input, deps={nscf_task: "WFK"})
+
             task = self.register(sigma_input, deps={nscf_task: "WFK", scr_task: "SCR"})
             self.sigma_tasks.append(task)
 
@@ -986,7 +1029,7 @@ class QptdmWorkflow(Workflow):
         the final SCR file in the outdir of the `Workflow`.
         """
         final_scr = self.merge_scrfiles()
-        return self.Results(node=self,returncode=0, message="mrgscr done", final_scr=final_scr)
+        return self.Results(node=self, returncode=0, message="mrgscr done", final_scr=final_scr)
 
 
 def build_oneshot_phononwork(scf_input, ph_inputs, workdir=None, manager=None, work_class=None):
@@ -1005,7 +1048,6 @@ def build_oneshot_phononwork(scf_input, ph_inputs, workdir=None, manager=None, w
     work_class = OneShotPhononWorkflow if work_class is None else work_class
     work = work_class(workdir=workdir, manager=manager)
     scf_task = work.register_scf_task(scf_input)
-
     ph_inputs = [ph_inputs] if not isinstance(ph_inputs, (list, tuple)) else ph_inputs
     for phinp in ph_inputs:
         # cannot use PhononTaks here because the Task is not able to deal with multiple phonon calculations
@@ -1093,7 +1135,7 @@ class PhononWorkflow(Workflow):
         ddb_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in self]))
 
         logger.debug("will call mrgddb to merge %s:\n" % str(ddb_files))
-        assert len(ddb_files) == len(self)
+        # assert len(ddb_files) == len(self)
 
         #if len(ddb_files) == 1:
         # Avoid the merge. Just move the DDB file to the outdir of the workflow
@@ -1117,7 +1159,7 @@ class PhononWorkflow(Workflow):
         # Merge DDB files.
         out_ddb = self.merge_ddb_files()
 
-        results = self.Results(node=self,returncode=0, message="DDB merge done")
+        results = self.Results(node=self, returncode=0, message="DDB merge done")
         results.add_gridfs_files(DDB=(out_ddb, "t"))
 
         return results
