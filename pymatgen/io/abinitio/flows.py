@@ -42,7 +42,7 @@ __maintainer__ = "Matteo Giantomassi"
 
 
 __all__ = [
-    "AbinitFlow",
+    "Flow",
     "G0W0WithQptdmFlow",
     "bandstructure_flow",
     "g0w0_flow",
@@ -77,7 +77,7 @@ class FlowResults(NodeResults):
         return new
 
 
-class AbinitFlow(Node):
+class Flow(Node):
     """
     This object is a container of work. Its main task is managing the 
     possible inter-depedencies among the work and the creation of
@@ -109,7 +109,7 @@ class AbinitFlow(Node):
                 Pickle protocol version used for saving the status of the object.
                 -1 denotes the latest version supported by the python interpreter.
         """
-        super(AbinitFlow, self).__init__()
+        super(Flow, self).__init__()
 
         self.set_workdir(workdir)
 
@@ -958,7 +958,7 @@ class AbinitFlow(Node):
 
     def allocate(self):
         """
-        Allocate the `AbinitFlow` i.e. assign the `workdir` and (optionally) 
+        Allocate the `Flow` i.e. assign the `workdir` and (optionally) 
         the `TaskManager` to the different tasks in the Flow.
         """
         for work in self:
@@ -1031,7 +1031,7 @@ class AbinitFlow(Node):
                 dispatcher.connect(self.on_dep_ok, signal=dep.node.S_OK, sender=dep.node, weak=False)
 
         # Associate to each signal the callback _on_signal
-        # (bound method of the node that will be called by `AbinitFlow`
+        # (bound method of the node that will be called by `Flow`
         # Each node will set its attribute _done_signal to True to tell
         # the flow that this callback should be disabled.
 
@@ -1103,9 +1103,9 @@ class AbinitFlow(Node):
         return sched
 
 
-class G0W0WithQptdmFlow(AbinitFlow):
+class G0W0WithQptdmFlow(Flow):
     """
-    Build an `AbinitFlow` for one-shot G0W0 calculations.
+    Build a `Flow` for one-shot G0W0 calculations.
     The computation of the q-points for the screening is parallelized with qptdm
     i.e. we run independent calculation for each q-point and then we merge
     the final results.
@@ -1253,9 +1253,9 @@ class FlowCallback(object):
 
 
 # Factory functions.
-def bandstructure_flow(workdir, manager, scf_input, nscf_input, dos_inputs=None):
+def bandstructure_flow(workdir, manager, scf_input, nscf_input, dos_inputs=None, flow_class=Flow):
     """
-    Build an `AbinitFlow` for band structure calculations.
+    Build a `Flow` for band structure calculations.
 
     Args:
         workdir:
@@ -1268,19 +1268,21 @@ def bandstructure_flow(workdir, manager, scf_input, nscf_input, dos_inputs=None)
             Input for the NSCF run (band structure run).
         dos_inputs:
             Input(s) for the NSCF run (dos run).
+        flow_class:
+            Flow class 
 
     Returns:
-        `AbinitFlow`
+        `Flow`
     """
-    flow = AbinitFlow(workdir, manager)
+    flow = flow_class(workdir, manager)
     work = BandStructureWork(scf_input, nscf_input, dos_inputs=dos_inputs)
     flow.register_work(work)
     return flow.allocate()
 
 
-def g0w0_flow(workdir, manager, scf_input, nscf_input, scr_input, sigma_inputs):
+def g0w0_flow(workdir, manager, scf_input, nscf_input, scr_input, sigma_inputs, flow_class=Flow):
     """
-    Build an `AbinitFlow` for one-shot $G_0W_0$ calculations.
+    Build an `Flow` for one-shot $G_0W_0$ calculations.
 
     Args:
         workdir:
@@ -1295,19 +1297,21 @@ def g0w0_flow(workdir, manager, scf_input, nscf_input, scr_input, sigma_inputs):
             Input for the SCR run.
         sigma_inputs:
             List of inputs for the SIGMA run.
+        flow_class:
+            Flow class 
 
     Returns:
-        `AbinitFlow`
+        `Flow`
     """
-    flow = AbinitFlow(workdir, manager)
+    flow = flow_class(workdir, manager)
     work = G0W0Work(scf_input, nscf_input, scr_input, sigma_inputs)
     flow.register_work(work)
     return flow.allocate()
 
 
-def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_ddk=False, with_dde=False):
+def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_ddk=False, with_dde=False, flow_class=Flow):
     """
-    Build an `AbinitFlow` for phonon calculations.
+    Build an `Flow` for phonon calculations.
 
     Args:
         workdir:
@@ -1324,9 +1328,11 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
             add the ddk step
         with_dde:
             add the dde step it the dde is set ddk is switched on automatically
+        flow_class:
+            Flow class 
 
     Returns:
-        `AbinitFlow`
+        `Flow`
     """
     if with_dde:
         with_ddk = True
@@ -1334,7 +1340,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
     natom = len(scf_input.structure)
 
     # Create the container that will manage the different work.
-    flow = AbinitFlow(workdir, manager)
+    flow = flow_class(workdir, manager)
 
     # Register the first work (GS calculation)
     # register_task creates a work for the task, registers it to the flow and returns the work
