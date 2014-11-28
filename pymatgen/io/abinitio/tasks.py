@@ -1,7 +1,5 @@
 # coding: utf-8
-"""
-Classes defining Abinit calculations and workflows
-"""
+"""Classes defining Abinit calculations."""
 from __future__ import division, print_function, unicode_literals
 
 import os
@@ -204,7 +202,7 @@ class NodeResults(dict, PMGSONable):
         key = node.name
         if node.is_task:
             key = "w" + str(node.pos[0]) + "_t" + str(node.pos[1])
-        elif node.is_workflow:
+        elif node.is_work:
             key = "w" + str(node.pos)
 
         db = collection.database
@@ -914,11 +912,11 @@ except IOError:
 
 def get_newnode_id():
     """
-    Returns a new node identifier used both for `Task` and `Workflow` objects.
+    Returns a new node identifier used both for `Task` and `Work` objects.
 
     .. warnings:
         The id is unique inside the same python process so be careful when 
-        Workflows and Task are constructed at run-time or when threads are used.
+        Works and Tasks are constructed at run-time or when threads are used.
     """
     global _COUNTER
     _COUNTER += 1
@@ -961,7 +959,7 @@ class FakeProcess(object):
 class Product(object):
     """
     A product represents an output file produced by ABINIT instance.
-    This file is needed to start another `Task` or another `Workflow`.
+    This file is needed to start another `Task` or another `Work`.
     """
     def __init__(self, ext, path):
         """
@@ -1011,7 +1009,7 @@ class Dependency(object):
     This object describes the dependencies among the nodes of a calculation.
 
     A `Dependency` consists of a `Node` that produces a list of products (files) 
-    that are used by the other nodes (`Task` or `Workflow`) to start the calculation.
+    that are used by the other nodes (`Task` or `Work`) to start the calculation.
     One usually creates the object by calling work.register 
 
     Example:
@@ -1098,9 +1096,9 @@ class Status(int):
     _STATUS_INFO = [
         #(value, name, color, on_color, attrs)
         (1,  "Initialized",   None     , None, None),         # Node has been initialized
-        (2,  "Locked",        None     , None, None),         # Task is locked an must be explicitly unlocked by an external subject (Workflow).
+        (2,  "Locked",        None     , None, None),         # Task is locked an must be explicitly unlocked by an external subject (Work).
         (3,  "Ready",         None     , None, None),         # Node is ready i.e. all the depencies of the node have status S_OK
-        (4,  "Submitted",     "blue"   , None, None),         # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
+        (4,  "Submitted",     "blue"   , None, None),         # Node has been submitted (The `Task` is running or we have started to finalize the Work)
         (5,  "Running",       "magenta", None, None),         # Node is running.
         (6,  "Done",          None     , None, None),         # Node done, This does not imply that results are ok or that the calculation completed successfully
         (7,  "AbiCritical",   "red"    , None, None),         # Node raised an Error by ABINIT.
@@ -1284,7 +1282,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
     @property
     def finalized(self):
-        """True if the `Workflow` has been finalized."""
+        """True if the `Work` has been finalized."""
         return self._finalized
 
     @finalized.setter
@@ -1308,10 +1306,10 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         return isinstance(self, Task)
 
     @property
-    def is_workflow(self):
-        """True if this node is a Workflow"""
-        from .workflows import Workflow
-        return isinstance(self, Workflow)
+    def is_work(self):
+        """True if this node is a Work"""
+        from .workflows import Work
+        return isinstance(self, Work)
 
     @property
     def is_flow(self):
@@ -1321,7 +1319,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
     @property
     def has_subnodes(self):
-        """True if self contains sub-nodes e.g. `Workflow` object."""
+        """True if self contains sub-nodes e.g. `Work` object."""
         return isinstance(self, collections.Iterable)
 
     @property
@@ -1608,11 +1606,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
     @property
     def work(self):
-        """The WorkFlow containing this `Task`."""
+        """The Work containing this `Task`."""
         return self._work
 
     def set_work(self, work):
-        """Set the WorkFlow associated to this `Task`."""
+        """Set the Work associated to this `Task`."""
         if not hasattr(self, "_work"):
             self._work = work
         else: 
@@ -1873,7 +1871,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.qout_file.remove()
 
         # TODO send a signal to the flow 
-        #self.workflow.check_status()
+        #self.work.check_status()
         return 0
 
     @property
@@ -3214,13 +3212,13 @@ class AnaddbTask(Task):
             anaddb_input:
                 string with the anaddb variables.
             ddb_node:
-                The node that will produce the DDB file. Accept `Task`, `Workflow` or filepath.
+                The node that will produce the DDB file. Accept `Task`, `Work` or filepath.
             gkk_node:
-                The node that will produce the GKK file (optional). Accept `Task`, `Workflow` or filepath.
+                The node that will produce the GKK file (optional). Accept `Task`, `Work` or filepath.
             md_node:
-                The node that will produce the MD file (optional). Accept `Task`, `Workflow` or filepath.
+                The node that will produce the MD file (optional). Accept `Task`, `Work` or filepath.
             gkk_node:
-                The node that will produce the GKK file (optional). Accept `Task`, `Workflow` or filepath.
+                The node that will produce the GKK file (optional). Accept `Task`, `Work` or filepath.
             workdir:
                 Path to the working directory (optional).
             manager:

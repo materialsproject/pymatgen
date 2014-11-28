@@ -1,6 +1,6 @@
 # coding: utf-8
 """
-Factory functions producing ABINIT workflows. Entry points for client code (high-level interface)
+Factory functions producing ABINIT flows. Entry points for client code (high-level interface)
 """
 from __future__ import unicode_literals, division, print_function
 
@@ -21,7 +21,7 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
                   smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None,
                   dos_kppa=None, workdir=None, manager=None, **extra_abivars):
     """
-    Returns a Workflow for bandstructure calculations.
+    Returns a Work for bandstructure calculations.
 
     Args:
         structure:
@@ -408,7 +408,7 @@ def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shif
                  smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, workdir=None, manager=None, 
                  **extra_abivars):
     """
-    Returns a `Workflow` object that performs a GS + NSCF + Bethe-Salpeter calculation.
+    Returns a `Work` object that performs a GS + NSCF + Bethe-Salpeter calculation.
     The self-energy corrections are approximated with the scissors operator. The screening
     in modeled by the model dielectric function.
 
