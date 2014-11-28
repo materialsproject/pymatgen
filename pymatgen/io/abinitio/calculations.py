@@ -3,7 +3,7 @@
 Factory functions producing ABINIT flows. Entry points for client code (high-level interface)
 """
 from __future__ import unicode_literals, division, print_function
-
+import os
 from .abiobjects import KSampling, Screening, SelfEnergy, ExcHamiltonian, HilbertTransform
 from .strategies import ScfStrategy, NscfStrategy, ScreeningStrategy, SelfEnergyStrategy, MDFBSE_Strategy
 from .workflows import BandStructureWorkflow, G0W0_Workflow, BSEMDF_Workflow
@@ -203,7 +203,7 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
 
 def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, accuracy="normal", spin_mode="polarized",
                   smearing="fermi_dirac:0.1 eV", response_models=["godby"], charge=0.0, scf_algorithm=None, inclvkb=2,
-                  scr_nband=None, sigma_nband=None, gw_qprange=1, workdir=None, manager=None, gamma=True,
+                  scr_nband=None, sigma_nband=None, gw_qprange=1, workdir=None, manager=None, gamma=True, nksmall=20,
                   **extra_abivars):
     """
     Returns a Work object that performs G0W0 calculations for the given the material.
@@ -245,6 +245,8 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
             `TaskManager` instance.
         extra_abivars
             Dictionary with extra variables passed to ABINIT.
+        nksamll:
+            if not None, a dft bandstucture calculation will be added after after the sc run
     """
     # TODO: Cannot use istwfk != 1.
 
@@ -270,7 +272,8 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
 
     scf_strategy = []
     to_add = {}
-
+    scf_nband = min(nscf_nband)
+    print(scf_nband)
     extra_abivars.update(to_add)
 
     for k in extra_abivars.keys():
@@ -284,9 +287,13 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
                 scf_strategy.append(ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy, spin_mode=spin_mode,
                                                 smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars))
 
+    #temporary for testing a new approach ...
+    spread_scr = False if os.path.isfile('no_spread_scr') else True
+
     if len(scf_strategy) == 0:
         scf_strategy.append(ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy, spin_mode=spin_mode,
                                         smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars))
+    scf_strategy[-1].electrons.nband = scf_nband
 
     nscf_strategy = NscfStrategy(scf_strategy[-1], nscf_ksampling, max(nscf_nband), **extra_abivars)
 
@@ -319,7 +326,8 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
                 scr_strategy = ScreeningStrategy(scf_strategy[-1], nscf_strategy, screening, **extra_abivars)
                 sigma_strategy.append(SelfEnergyStrategy(scf_strategy[-1], nscf_strategy, scr_strategy, self_energy, **extra_abivars))
 
-    return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager)
+    return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager,
+                         spread_scr=spread_scr, nksmall=nksmall)
 
 
 #def g0w0_with_cd(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, hilbert,

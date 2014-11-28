@@ -359,7 +359,6 @@ class Vasprun(PMGSONable):
                     self.efermi = self.tdos.efermi
                     self.dos_has_errors = False
                 except Exception as ex:
-                    print(ex)
                     self.dos_has_errors = True
             elif parse_eigen and tag == "eigenvalues":
                 self.eigenvalues = self._parse_eigen(elem)
@@ -847,14 +846,25 @@ class Vasprun(PMGSONable):
         return Structure(latt, self.atomic_symbols, pos)
 
     def _parse_calculation(self, elem):
-        istep = {i.attrib["name"]: float(i.text)
-                 for i in elem.find("energy").findall("i")}
+        try:
+            istep = {i.attrib["name"]: float(i.text)
+                     for i in elem.find("energy").findall("i")}
+        except AttributeError:  # not all calculations have an energy
+            istep = {}
+            pass
         esteps = []
         for scstep in elem.findall("scstep"):
-            d = {i.attrib["name"]: _vasprun_float(i.text)
-                 for i in scstep.find("energy").findall("i")}
-            esteps.append(d)
-        s = self._parse_structure(elem.find("structure"))
+            try:
+                d = {i.attrib["name"]: _vasprun_float(i.text)
+                     for i in scstep.find("energy").findall("i")}
+                esteps.append(d)
+            except AttributeError:  # not all calculations have an energy
+                pass
+        try:
+            s = self._parse_structure(elem.find("structure"))
+        except AttributeError:  # not all calculations have a structure
+            s = None
+            pass
         for va in elem.findall("varray"):
             istep[va.attrib["name"]] = _parse_varray(va)
         istep["electronic_steps"] = esteps
@@ -988,7 +998,6 @@ class Outcar(PMGSONable):
             all_lines.append(clean)
             if clean.find("soft stop encountered!  aborting job") != -1:
                 self.is_stopped = True
-                #print(clean, cores)
             else:
                 if time_patt.search(line):
                     tok = line.strip().split(":")
