@@ -500,7 +500,7 @@ class Work(BaseWork):
     def register_ph_task(self, *args, **kwargs):
         """Register a nscf task."""
         kwargs["task_class"] = PhononTask
-        return self.register(*kwargs, **kwargs)
+        return self.register(*args, **kwargs)
 
     def path_in_workdir(self, filename):
         """Create the absolute path of filename in the working directory."""
@@ -566,9 +566,6 @@ class Work(BaseWork):
 
         # Take into account possible dependencies. Use a list instead of generators 
         for task in self:
-            # changed <= to <
-            # todo should this not be < ? a task that is already submitted should not be put to ready
-            # it does no harm because of the lock file but logically it seems wrong also gives the wrong infromation
             if task.status < task.S_SUB and all([status == task.S_OK for status in task.deps_status]):
                 task.set_status(task.S_READY)
 
@@ -1033,8 +1030,6 @@ def build_oneshot_phononwork(scf_input, ph_inputs, workdir=None, manager=None, w
     scf_task = work.register_scf_task(scf_input)
     ph_inputs = [ph_inputs] if not isinstance(ph_inputs, (list, tuple)) else ph_inputs
     for phinp in ph_inputs:
-        # cannot use PhononTaks here because the Task is not able to deal with multiple phonon calculations
-        #ph_task = work.register_phonon_task(phinp, deps={scf_task: "WFK"})
         ph_task = work.register(phinp, deps={scf_task: "WFK"})
 
     return work
