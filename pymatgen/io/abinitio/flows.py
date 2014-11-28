@@ -15,6 +15,7 @@ from six.moves import map
 from atomicfile import AtomicFile
 from pprint import pprint
 from prettytable import PrettyTable
+from monty.collections import as as_set
 from monty.itertools import iterator_from_slice
 from monty.io import FileLock
 from monty.termcolor import stream_has_colours, cprint, colored, cprint_map
@@ -453,11 +454,7 @@ class AbinitFlow(Node):
         Returns:
             (task, work_index, task_index) if with_wti is True else task
         """
-        if nids is not None: 
-            if not isinstance(nids, collections.Iterable):
-                nids = set([nids]) 
-            else:
-                nids = set(nids)
+        nids = as_set(nids)
 
         if status is None:
             for wi, work in enumerate(self):
@@ -652,13 +649,7 @@ class AbinitFlow(Node):
                 Slice object used to select the workflows to show. Default None i.e. all works are displayed.
         """
         stream = kwargs.pop("stream", sys.stdout)
-        nids = kwargs.pop("nids", None)
-
-        if nids is not None: 
-            if not isinstance(nids, collections.Iterable):
-                nids = set([nids]) 
-            else:
-                nids = set(nids)
+        nids = as_set(kwargs.pop("nids", None))
 
         has_colours = stream_has_colours(stream)
         red = "red" if has_colours else None
@@ -803,7 +794,7 @@ class AbinitFlow(Node):
         return tasks
 
     def wti_from_nids(self, nids):
-        """Return the list of (w, t) indices from the list of node identifier nids."""
+        """Return the list of (w, t) indices from the list of node identifiers nids."""
         return [task.pos for task in self.tasks_from_nids(nids)]
 
     def open_files(self, what="o", status=None, op="==", nids=None, editor=None):
