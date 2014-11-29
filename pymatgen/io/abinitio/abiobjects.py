@@ -22,7 +22,7 @@ from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.core.structure import Structure, Molecule
 
-from .netcdf import structure_from_etsf_file
+from .netcdf import structure_from_ncdata
 
 
 def contract(s):
@@ -325,14 +325,8 @@ def asabistructure(obj):
     if is_string(obj):
         # Handle file paths.
         if os.path.isfile(obj):
-
-            if obj.endswith(".nc"):
-                structure = structure_from_etsf_file(obj)
-            else:
-                structure = Structure.from_file(obj)
-
-            # Promote
-            return AbiStructure(structure)
+            # Read and Promote
+            return AbiStructure(Structure.from_file(obj))
 
     raise ValueError("Don't know how to convert object %s to an AbiStructure structure" % str(obj))
 
