@@ -59,7 +59,7 @@ class WorkResults(NodeResults):
 
     @classmethod
     def from_node(cls, work):
-        """Initialize an instance from a Work instance."""
+        """Initialize an instance from a :class:`Work` instance."""
         new = super(WorkResults, cls).from_node(work)
 
         #new.update(
@@ -86,12 +86,11 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
     # interface modeled after subprocess.Popen
     @abc.abstractproperty
     def processes(self):
-        """Return a list of objects that support the subprocess.Popen protocol."""
+        """Return a list of objects that support the `subprocess.Popen` protocol."""
 
     def poll(self):
         """
-        Check if all child processes have terminated. Set and return
-        returncode attribute.
+        Check if all child processes have terminated. Set and return returncode attribute.
         """
         return [task.poll() for task in self]
 
@@ -199,8 +198,8 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
 
     def on_ok(self, sender):
         """
-        This callback is called when one task reaches status S_OK.
-        It executes on_all_ok when all task in self have reached S_OK.
+        This callback is called when one task reaches status `S_OK`.
+        It executes on_all_ok when all task in self have reached `S_OK`.
         """
         logger.debug("in on_ok with sender %s" % sender)
 
@@ -230,7 +229,7 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
 
     def on_all_ok(self):
         """
-        This method is called once the `work` is completed i.e. when all the tasks 
+        This method is called once the `Work` is completed i.e. when all the tasks
         have reached status S_OK. Subclasses should provide their own implementation
 
         Returns:
@@ -258,10 +257,8 @@ class Work(BaseWork):
     def __init__(self, workdir=None, manager=None):
         """
         Args:
-            workdir:
-                Path to the working directory.
-            manager:
-                `TaskManager` object.
+            workdir: Path to the working directory.
+            manager: :class:`TaskManager` object.
         """
         super(Work, self).__init__()
 
@@ -274,18 +271,18 @@ class Work(BaseWork):
             self.set_manager(manager)
 
     def set_manager(self, manager):
-        """Set the `TaskManager` to use to launch the Task."""
+        """Set the :class:`TaskManager` to use to launch the :class:`Task`."""
         self.manager = manager.deepcopy()
         for task in self:
             task.set_manager(manager)
 
     @property
     def flow(self):
-        """The flow containing this `Work`."""
+        """The flow containing this :class:`Work`."""
         return self._flow
 
     def set_flow(self, flow):
-        """Set the flow associated to this `Work`."""
+        """Set the flow associated to this :class:`Work`."""
         if not hasattr(self, "_flow"):
             self._flow = flow
         else: 
@@ -294,7 +291,7 @@ class Work(BaseWork):
 
     @lazy_property
     def pos(self):
-        """The position of self in the Flow"""
+        """The position of self in the :class:`Flow`"""
         for i, work in enumerate(self.flow):
             if self == work: 
                 return i
@@ -385,12 +382,11 @@ class Work(BaseWork):
     def allocate(self, manager=None):
         """
         This function is called once we have completed the initialization 
-        of the `Work`. It sets the manager of each task (if not already done)
+        of the :class:`Work`. It sets the manager of each task (if not already done)
         and defines the working directories of the tasks.
 
         Args:
-            manager:
-                `TaskManager` object or None
+            manager: :class:`TaskManager` object or None
         """
         for i, task in enumerate(self):
 
@@ -412,25 +408,21 @@ class Work(BaseWork):
         Registers a new `Task` and add it to the internal list, taking into account possible dependencies.
 
         Args:
-            obj:
-                `Strategy` object or `AbinitInput` instance.
-                if Strategy object, we create a new `AbinitTask` from the input strategy and add it to the list.
-            deps:
-                Dictionary specifying the dependency of this node.
-                None means that this obj has no dependency.
-            required_files:
-                List of strings with the path of the files used by the task.
+            obj: :class:`Strategy` object or :class:`AbinitInput` instance.
+                 if Strategy object, we create a new `AbinitTask` from the input strategy and add it to the list.
+            deps: Dictionary specifying the dependency of this node.
+                  None means that this obj has no dependency.
+            required_files: List of strings with the path of the files used by the task.
                 Note that the files must exist when the task is registered.
                 Use the standard approach based on Works, Tasks and deps 
                 if the files will be produced in the future.
             manager:
-                The `TaskManager` responsible for the submission of the task. If manager is None, we use 
-                the `TaskManager` specified during the creation of the `Work`.
-            task_class:
-                Task subclass to instantiate. Default: `AbinitTask` 
+                The :class:`TaskManager` responsible for the submission of the task. If manager is None, we use
+                the `TaskManager` specified during the creation of the :class:`Work`.
+            task_class: Task subclass to instantiate. Default: :class:`AbinitTask`
 
         Returns:   
-            `Task` object
+            :class:`Task` object
         """
         task_workdir = None
         if hasattr(self, "workdir"):
@@ -538,8 +530,7 @@ class Work(BaseWork):
         Returns a list with the status of the tasks in self.
 
         Args:
-            only_min:
-                If True, the minimum of the status is returned.
+            only_min: If True, the minimum of the status is returned.
         """
         if len(self) == 0:
             # The work will be created in the future.
@@ -572,8 +563,7 @@ class Work(BaseWork):
         Remove all files and directories in the working directory
 
         Args:
-            exclude_wildcard:
-                Optional string with regular expressions separated by `|`.
+            exclude_wildcard: Optional string with regular expressions separated by `|`.
                 Files matching one of the regular expressions will be preserved.
                 example: exclude_wildard="*.nc|*.txt" preserves all the files
                 whose extension is in ["nc", "txt"].
@@ -675,7 +665,7 @@ class Work(BaseWork):
         Parse the TIMER section reported in the ABINIT output files.
 
         Returns:
-            `AbinitTimerParser` object
+            :class:`AbinitTimerParser` object
         """
         filenames = list(filter(os.path.exists, [task.output_file.path for task in self]))
                                                                            
@@ -690,16 +680,11 @@ class BandStructureWork(Work):
     def __init__(self, scf_input, nscf_input, dos_inputs=None, workdir=None, manager=None):
         """
         Args:
-            scf_input:
-                Input for the SCF run or `SCFStrategy` object.
-            nscf_input:
-                Input for the NSCF run or `NSCFStrategy` object defining the band structure calculation.
-            dos_inputs:
-                Input(s) for the DOS. DOS is computed only if dos_inputs is not None.
-            workdir:
-                Working directory.
-            manager:
-                `TaskManager` object.
+            scf_input: Input for the SCF run or :class:`SCFStrategy` object.
+            nscf_input: Input for the NSCF run or :class:`NSCFStrategy` object defining the band structure calculation.
+            dos_inputs: Input(s) for the DOS. DOS is computed only if dos_inputs is not None.
+            workdir: Working directory.
+            manager: :class:`TaskManager` object.
         """
         super(BandStructureWork, self).__init__(workdir=workdir, manager=manager)
 
@@ -728,14 +713,10 @@ class RelaxWork(Work):
     def __init__(self, ion_input, ioncell_input, workdir=None, manager=None):
         """
         Args:
-            ion_input:
-                Input for the relaxation of the ions (cell is fixed)
-            ioncell_input:
-                Input for the relaxation of the ions and the unit cell.
-            workdir:
-                Working directory.
-            manager:
-                `TaskManager` object.
+            ion_input: Input for the relaxation of the ions (cell is fixed)
+            ioncell_input: Input for the relaxation of the ions and the unit cell.
+            workdir: Working directory.
+            manager: :class:`TaskManager` object.
         """
         super(RelaxWork, self).__init__(workdir=workdir, manager=manager)
 
@@ -782,23 +763,15 @@ class G0W0Work(Work):
                  workdir=None, manager=None, spread_scr=False, nksmall=None):
         """
         Args:
-            scf_input:
-                Input for the SCF run or `SCFStrategy` object.
-            nscf_input:
-                Input for the NSCF run or `NSCFStrategy` object.
-            scr_input:
-                Input for the screening run or `ScrStrategy` object 
-            sigma_inputs:
-                List of Strategies for the self-energy run.
-            workdir:
-                Working directory of the calculation.
-            manager:
-                `TaskManager` object.
-            spread_scr:
-                attach a screening task to every sigma task
+            scf_input: Input for the SCF run or :class:`SCFStrategy` object.
+            nscf_input: Input for the NSCF run or :class:`NSCFStrategy` object.
+            scr_input: Input for the screening run or :class:`ScrStrategy` object
+            sigma_inputs: List of Strategies for the self-energy run.
+            workdir: Working directory of the calculation.
+            manager: :class:`TaskManager` object.
+            spread_scr: Attach a screening task to every sigma task
                 if false only one screening task with the max ecuteps and nbands for all sigma tasks
-            nksmall:
-                if not none add a dos and bands calculation to the Work
+            nksmall: if not none add a dos and bands calculation to the Work
         """
         super(G0W0Work, self).__init__(workdir=workdir, manager=manager)
 
@@ -861,16 +834,11 @@ class SigmaConvWork(Work):
     def __init__(self, wfk_node, scr_node, sigma_inputs, workdir=None, manager=None):
         """
         Args:
-            wfk_node:
-                The node who has produced the WFK file or filepath pointing to the WFK file.
-            scr_node:
-                The node who has produced the SCR file or filepath pointing to the SCR file.
-            sigma_inputs:
-                List of Strategies for the self-energy run.
-            workdir:
-                Working directory of the calculation.
-            manager:
-                `TaskManager` object.
+            wfk_node: The node who has produced the WFK file or filepath pointing to the WFK file.
+            scr_node: The node who has produced the SCR file or filepath pointing to the SCR file.
+            sigma_inputs: List of Strategies for the self-energy run.
+            workdir: Working directory of the calculation.
+            manager: :class:`TaskManager` object.
         """
         # Cast to node instances.
         wfk_node = Node.as_node(wfk_node)
@@ -895,16 +863,11 @@ class BseMdfWork(Work):
     def __init__(self, scf_input, nscf_input, bse_inputs, workdir=None, manager=None):
         """
         Args:
-            scf_input:
-                Input for the SCF run or `ScfStrategy` object.
-            nscf_input:
-                Input for the NSCF run or `NscfStrategy` object.
-            bse_inputs:
-                List of Inputs for the BSE run or `BSEStrategy` object.
-            workdir:
-                Working directory of the calculation.
-            manager:
-                `TaskManager`.
+            scf_input: Input for the SCF run or :class:`ScfStrategy` object.
+            nscf_input: Input for the NSCF run or :class:`NscfStrategy` object.
+            bse_inputs: List of Inputs for the BSE run or :class:`BSEStrategy` object.
+            workdir: Working directory of the calculation.
+            manager: :class:`TaskManager`.
         """
         super(BseMdfWork, self).__init__(workdir=workdir, manager=manager)
 
@@ -933,10 +896,8 @@ class QptdmWork(Work):
         Create the SCR tasks and register them in self.
 
         Args:
-            wfk_file:
-                Path to the ABINIT WFK file to use for the computation of the screening.
-            scr_input:
-                Input for the screening calculation.
+            wfk_file: Path to the ABINIT WFK file to use for the computation of the screening.
+            scr_input: Input for the screening calculation.
         """
         assert len(self) == 0
         wfk_file = self.wfk_file = os.path.abspath(wfk_file)
@@ -1020,9 +981,9 @@ def build_oneshot_phononwork(scf_input, ph_inputs, workdir=None, manager=None, w
         * rfdir 1 1 1
         * rfatpol 1 natom
 
-    .. warning:
+    .. warning::
         This work is mainly used for simple calculations, e.g. converge studies.
-        Use ``PhononWork`` for better efficiency.
+        Use :class:`PhononWork` for better efficiency.
     """
     work_class = OneShotPhononWork if work_class is None else work_class
     work = work_class(workdir=workdir, manager=manager)
