@@ -27,7 +27,7 @@ __all__ = [
     "as_etsfreader",
     "NetcdfReader",
     "ETSF_Reader",
-    "structure_from_etsf_file",
+    "structure_from_ncdata",
 ]
 
 try:
@@ -84,7 +84,7 @@ class NetcdfReader(object):
         #self.path2group = collections.OrderedDict()
         #for children in self.walk_tree():
         #   for child in children:
-        #       #print child.group,  child.path
+        #       #print(child.group,  child.path)
         #       self.path2group[child.path] = child.group
 
     def __enter__(self):
@@ -260,29 +260,22 @@ class ETSF_Reader(NetcdfReader):
         return self.chemical_symbols.index(symbol)
 
     def read_structure(self):
-        """
-        Returns the crystalline structure.
-
-        Args:
-            site_properties:
-                Optional dictionary with site properties.
-        """
+        """Returns the crystalline structure."""
         if self.ngroups != 1:
             raise NotImplementedError("In file %s: ngroups != 1" % self.path)
 
-        return structure_from_etsf_file(self)
+        return structure_from_ncdata(self)
 
 
-def structure_from_etsf_file(ncdata, site_properties=None):
+def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     """
     Reads and returns a pymatgen structure from a NetCDF file
     containing crystallographic data in the ETSF-IO format.
 
     Args:
-        ncdata:
-            filename or NetcdfReader instance.
-        site_properties:
-            Dictionary with site properties.
+        ncdata: filename or NetcdfReader instance.
+        site_properties: Dictionary with site properties.
+        cls: The Structure class to instanciate.
     """
     ncdata, closeit = as_ncreader(ncdata)
 
@@ -308,7 +301,7 @@ def structure_from_etsf_file(ncdata, site_properties=None):
         for prop in site_properties:
             d[property] = ncdata.read_value(prop)
 
-    structure = Structure(lattice, species, red_coords, site_properties=d)
+    structure = cls(lattice, species, red_coords, site_properties=d)
 
     # Quick and dirty hack.
     # I need an abipy structure since I need to_abivars and other methods.
