@@ -92,10 +92,8 @@ class NetcdfReader(object):
         return self
 
     def __exit__(self, type, value, traceback):
-        """
-        Activated at the end of the with statement. It automatically closes the file.
-        """
-        self.close()
+        """Activated at the end of the with statement. It automatically closes the file."""
+        self.rootgrp.close()
 
     def close(self):
         try:
@@ -144,12 +142,9 @@ class NetcdfReader(object):
         Returns the values of variable with name varname in the group specified by path.
 
         Args:
-            varname:
-                Name of the variable
-            path:
-                path to the group.
-            cmode:
-                if cmode=="c", a complex ndarrays is constructed and returned
+            varname: Name of the variable
+            path: path to the group.
+            cmode: if cmode=="c", a complex ndarrays is constructed and returned
                 (netcdf does not provide native support from complex datatype).
 
         Returns:
@@ -173,9 +168,7 @@ class NetcdfReader(object):
                 raise ValueError("Wrong value for cmode %s" % cmode)
 
     def read_variable(self, varname, path="/"):
-        """
-        Returns the variable with name varname in the group specified by path.
-        """
+        """Returns the variable with name varname in the group specified by path."""
         return self._read_variables(varname, path=path)[0]
 
     def _read_dimensions(self, *dimnames, **kwargs):
@@ -250,8 +243,7 @@ class NetcdfReader(object):
 
 class ETSF_Reader(NetcdfReader):
     """
-    This object reads data from a file written according to the
-    ETSF-IO specifications.
+    This object reads data from a file written according to the ETSF-IO specifications.
 
     We assume that the netcdf file contains at least the crystallographic section.
     """
