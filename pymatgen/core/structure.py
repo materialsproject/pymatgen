@@ -1661,7 +1661,7 @@ class IMolecule(SiteCollection, PMGSONable):
         return [(site, dist) for (site, dist) in outer if dist > inner]
 
     def get_boxed_structure(self, a, b, c, images=(1, 1, 1),
-                            random_rotation=False, min_dist=1):
+                            random_rotation=False, min_dist=1, cls=Structure):
         """
         Creates a Structure from a Molecule by putting the Molecule in the
         center of a orthorhombic box. Useful for creating Structure for
@@ -1681,6 +1681,7 @@ class IMolecule(SiteCollection, PMGSONable):
                 each other. This is only used if random_rotation is True.
                 The randomized rotations are searched such that no two atoms
                 are less than min_dist from each other.
+            cls: The Structure class to instanciate
 
         Returns:
             Structure containing molecule in a box.
@@ -1720,9 +1721,9 @@ class IMolecule(SiteCollection, PMGSONable):
             coords.extend(new_coords)
         sprops = {k: v * nimages for k, v in self.site_properties.items()}
 
-        return Structure(lattice, self.species * nimages, coords,
-                         coords_are_cartesian=True,
-                         site_properties=sprops).get_sorted_structure()
+        return cls(lattice, self.species * nimages, coords,
+                   coords_are_cartesian=True,
+                   site_properties=sprops).get_sorted_structure()
 
     def get_centered_molecule(self):
         """
