@@ -85,11 +85,8 @@ class Flow(Node):
 
     .. attributes:
 
-        creation_date:
-            String with the creation_date
-
-        pickle_protocol: 
-            Protocol for Pickle database (default: -1 i.e. latest protocol)
+        creation_date: String with the creation_date
+        pickle_protocol: Protocol for Pickle database (default: -1 i.e. latest protocol)
     """
     VERSION = "0.1"
     PICKLE_FNAME = "__AbinitFlow__.pickle"
@@ -99,15 +96,12 @@ class Flow(Node):
     def __init__(self, workdir, manager=None, pickle_protocol=-1):
         """
         Args:
-            workdir:
-                String specifying the directory where the works will be produced.
-            manager:
-                `TaskManager` object responsible for the submission of the jobs.
-                If manager is None, the object is initialized from the yaml file
-                located either in the working directory or in the user configuration dir.
-            pickle_procol:
-                Pickle protocol version used for saving the status of the object.
-                -1 denotes the latest version supported by the python interpreter.
+            workdir: String specifying the directory where the works will be produced.
+            manager: :class:`TaskManager` object responsible for the submission of the jobs.
+                     If manager is None, the object is initialized from the yaml file
+                     located either in the working directory or in the user configuration dir.
+            pickle_procol: Pickle protocol version used for saving the status of the object.
+                          -1 denotes the latest version supported by the python interpreter.
         """
         super(Flow, self).__init__()
 
@@ -186,13 +180,11 @@ class Flow(Node):
         Loads the object from a pickle file and performs initial setup.
 
         Args:
-            filepath:
-                Filename or directory name. It filepath is a directory, we 
+            filepath: Filename or directory name. It filepath is a directory, we
                 scan the directory tree starting from filepath and we 
                 read the first pickle database. Raise RuntimeError if multiple
                 databases are found.
-            disable_signals:
-                If True, the nodes of the flow are not connected by signals.
+            disable_signals: If True, the nodes of the flow are not connected by signals.
                 This option is usually used when we want to read a flow 
                 in read-only mode and we want to avoid any possible side effect.
         """
@@ -265,12 +257,12 @@ class Flow(Node):
 
     @property
     def works(self):
-        """List of `Work` objects contained in self.."""
+        """List of :class:`Work` objects contained in self.."""
         return self._works
 
     @property
     def all_ok(self):
-        """True if all the tasks in works have reached S_OK."""
+        """True if all the tasks in works have reached `S_OK`."""
         return all(work.all_ok for work in self)
 
     @property
@@ -356,11 +348,11 @@ class Flow(Node):
 
     def chroot(self, new_workdir):
         """
-        Change the workir of the `Flow`. Mainly used for
+        Change the workir of the :class:`Flow`. Mainly used for
         allowing the user to open the GUI on the local host
         and access the flow from remote via sshfs.
 
-        .. note:
+        .. note::
             Calling this method will make the flow go in read-only mode.
         """
         self._chrooted_from = self.workdir
@@ -387,24 +379,24 @@ class Flow(Node):
     def iflat_tasks_wti(self, status=None, op="=="):
         """
         Generator to iterate over all the tasks of the `Flow`.
-        Yields
+        Yields:
 
             (task, work_index, task_index)
 
         If status is not None, only the tasks whose status satisfies
         the condition (task.status op status) are selected
-        status can be either one of the flags defined in the `Task` class 
+        status can be either one of the flags defined in the :class:`Task` class
         (e.g Task.S_OK) or a string e.g "S_OK" 
         """
         return self._iflat_tasks_wti(status=status, op=op, with_wti=True)
 
     def iflat_tasks(self, status=None, op="=="):
         """
-        Generator to iterate over all the tasks of the `Flow`.
+        Generator to iterate over all the tasks of the :class:`Flow`.
 
         If status is not None, only the tasks whose status satisfies
         the condition (task.status op status) are selected
-        status can be either one of the flags defined in the `Task` class 
+        status can be either one of the flags defined in the :class:`Task` class
         (e.g Task.S_OK) or a string e.g "S_OK" 
         """
         return self._iflat_tasks_wti(status=status, op=op, with_wti=False)
@@ -483,7 +475,7 @@ class Flow(Node):
 
     @property
     def status(self):
-        """The status of the flow i.e. the minimum of the status of its tasks and its works"""
+        """The status of the Flow i.e. the minimum of the status of its tasks and its works"""
         return min(work.get_all_status(only_min=True) for work in self)
 
     def fix_critical(self):
@@ -666,12 +658,12 @@ class Flow(Node):
 
     @property
     def has_db(self):
-        """True if flow uses MongoDB to store the results."""
+        """True if flow uses `MongoDB` to store the results."""
         return self.manager.has_db
 
     def db_insert(self):
         """
-        Insert results in the mongdob database.
+        Insert results in the `MongDB` database.
         """
         assert self.has_db
         # Connect to MongoDb and get the collection.
@@ -707,9 +699,8 @@ class Flow(Node):
         Open the files of the flow inside an editor (command line interface).
 
         Args:
-            what:
-                string with the list of characters selecting the file type
-                Possible choices:
+            what: string with the list of characters selecting the file type
+                  Possible choices:
                     i ==> input_file,
                     o ==> output_file,
                     f ==> files_file,
@@ -717,16 +708,12 @@ class Flow(Node):
                     l ==> log_file,
                     e ==> stderr_file,
                     q ==> qerr_file,
-            wti:
-                tuple with the (work, task_index) to select
-                or string in the form w_start:w_stop,task_start:task_stop
-            status:
-                if not None, only the tasks with this status are select
-            op:
-                status operator. Requires status. A task is selected 
+            wti: tuple with the (work, task_index) to select
+                 or string in the form w_start:w_stop,task_start:task_stop
+            status: if not None, only the tasks with this status are select
+            op: status operator. Requires status. A task is selected
                 if task.status op status evaluates to true.
-            editor:
-                Select the editor. None to use the default editor ($EDITOR shell env var)
+            editor: Select the editor. None to use the default editor ($EDITOR shell env var)
         """
         #TODO: Add support for wti
         if wti is not None:
@@ -797,8 +784,7 @@ class Flow(Node):
 
     def get_njobs_in_queue(self, username=None):
         """
-        returns the number of jobs in the queue,
-        returns None when the number of jobs cannot be determined.
+        returns the number of jobs in the queue, None when the number of jobs cannot be determined.
 
         Args:
             username: (str) the username of the jobs to count (default is to autodetect)
@@ -821,9 +807,7 @@ class Flow(Node):
     def build_and_pickle_dump(self):
         """
         Build dirs and file of the `Flow` and save the object in pickle format.
-
-        Returns:
-            0 if success
+        Returns 0 if success
         """
         self.build()
         return self.pickle_dump()
@@ -831,9 +815,7 @@ class Flow(Node):
     def pickle_dump(self):
         """
         Save the status of the object in pickle format.
-
-        Returns:
-            0 if success
+        Returns 0 if success
         """
         if self.has_chrooted:
             warnings.warn("Cannot pickle_dump since we have chrooted from %s" % self.has_chrooted)
@@ -855,16 +837,12 @@ class Flow(Node):
         Utility function that generates a `Work` made of a single task
 
         Args:
-            input:
-                Abinit Input file or `Strategy` object of `Task` object.
-            deps:
-                List of `Dependency` objects specifying the dependency of this node.
-                An empy list of deps implies that this node has no dependencies.
-            manager:
-                The `TaskManager` responsible for the submission of the task. 
-                If manager is None, we use the `TaskManager` specified during the creation of the work.
-            task_class:
-                Task subclass to instantiate. Default: `AbinitTask` 
+            input: :class:`AbinitInput` or :class:`Strategy` object.
+            deps: List of :class:`Dependency` objects specifying the dependency of this node.
+                  An empy list of deps implies that this node has no dependencies.
+            manager: The :class:`TaskManager` responsible for the submission of the task.
+                     If manager is None, we use the :class:`TaskManager` specified during the creation of the work.
+            task_class: Task subclass to instantiate. Default: :class:`AbinitTask`
 
         Returns:   
             The generated `Task`.
@@ -877,23 +855,18 @@ class Flow(Node):
 
     def register_work(self, work, deps=None, manager=None, workdir=None):
         """
-        Register a new `Work` and add it to the internal list, 
-        taking into account possible dependencies.
+        Register a new :class:`Work` and add it to the internal list, taking into account possible dependencies.
 
         Args:
-            work:
-                `Work` object.
-            deps:
-                List of `Dependency` objects specifying the dependency of this node.
-                An empy list of deps implies that this node has no dependencies.
-            manager:
-                The `TaskManager` responsible for the submission of the task. 
-                If manager is None, we use the `TaskManager` specified during the creation of the work.
-            workdir:
-                The name of the directory used for the `Work`.
+            work: :class:`Work` object.
+            deps: List of :class:`Dependency` objects specifying the dependency of this node.
+                  An empy list of deps implies that this node has no dependencies.
+            manager: The :class:`TaskManager` responsible for the submission of the task.
+                     If manager is None, we use the `TaskManager` specified during the creation of the work.
+            workdir: The name of the directory used for the :class:`Work`.
 
         Returns:   
-            The registered `Work`.
+            The registered :class:`Work`.
         """
         # Directory of the work.
         if workdir is None:
@@ -916,23 +889,18 @@ class Flow(Node):
 
     def register_work_from_cbk(self, cbk_name, cbk_data, deps, work_class, manager=None):
         """
-        Registers a callback function that will generate the Tasks of the `Work`.
+        Registers a callback function that will generate the Task of the `Work`.
 
         Args:
-            cbk_name:
-                Name of the callback function (must be a bound method of self)
-            cbk_data
-                Additional data passed to the callback function.
-            deps:
-                List of `Dependency` objects specifying the dependency of the work.
-            work_class:
-                `Work` class to instantiate.
-            manager:
-                The `TaskManager` responsible for the submission of the task. 
-                If manager is None, we use the `TaskManager` specified during the creation of the `Flow`.
+            cbk_name: Name of the callback function (must be a bound method of self)
+            cbk_data: Additional data passed to the callback function.
+            deps: List of :class:`Dependency` objects specifying the dependency of the work.
+            work_class: :class:`Work` class to instantiate.
+            manager: The :class:`TaskManager` responsible for the submission of the task.
+                    If manager is None, we use the `TaskManager` specified during the creation of the :class:`Flow`.
                                                                                                             
         Returns:   
-            The `Work` that will be finalized by the callback.
+            The :class:`Work` that will be finalized by the callback.
         """
         # TODO: pass a Work factory instead of a class
         # Directory of the Work.
@@ -959,7 +927,7 @@ class Flow(Node):
     def allocate(self):
         """
         Allocate the `Flow` i.e. assign the `workdir` and (optionally) 
-        the `TaskManager` to the different tasks in the Flow.
+        the :class:`TaskManager` to the different tasks in the Flow.
         """
         for work in self:
             # Each work has a reference to its flow.
@@ -1064,9 +1032,8 @@ class Flow(Node):
 
     def rapidfire(self, check_status=False, **kwargs):
         """
-        Use PyLauncher to submits tasks in rapidfire mode.
+        Use :class:`PyLauncher` to submits tasks in rapidfire mode.
         kwargs contains the options passed to the launcher.
-
         Return the number of tasks submitted.
         """
         from .launcher import PyLauncher
@@ -1083,7 +1050,7 @@ class Flow(Node):
         kwargs:
             if empty we use the user configuration file.
             if filepath in kwargs we init the scheduler from file.
-            else pass **kwargs to PyFlowScheduler.__init__
+            else pass **kwargs to :class:`PyFlowScheduler` __init__ method.
         """
         from .launcher import PyFlowScheduler
 
@@ -1104,27 +1071,22 @@ class Flow(Node):
 
 
 class G0W0WithQptdmFlow(Flow):
-    """
-    Build a `Flow` for one-shot G0W0 calculations.
-    The computation of the q-points for the screening is parallelized with qptdm
-    i.e. we run independent calculation for each q-point and then we merge
-    the final results.
 
-    Args:
-        workdir:
-            Working directory.
-        manager:
-            `TaskManager` object used to submit the jobs
-        scf_input:
-            Input for the GS SCF run.
-        nscf_input:
-            Input for the NSCF run (band structure run).
-        scr_input:
-            Input for the SCR run.
-        sigma_inputs:
-            Input(s) for the SIGMA run(s).
-    """
     def __init__(self, workdir, manager, scf_input, nscf_input, scr_input, sigma_inputs):
+        """
+        Build a `Flow` for one-shot G0W0 calculations.
+        The computation of the q-points for the screening is parallelized with qptdm
+        i.e. we run independent calculation for each q-point and then we merge
+        the final results.
+
+        Args:
+            workdir: Working directory.
+            manager: :class:`TaskManager` object used to submit the jobs
+            scf_input: Input for the GS SCF run.
+            nscf_input: Input for the NSCF run (band structure run).
+            scr_input: Input for the SCR run.
+            sigma_inputs: Input(s) for the SIGMA run(s).
+        """
         super(G0W0WithQptdmFlow, self).__init__(workdir, manager)
 
         # Register the first work (GS + NSCF calculation)
@@ -1178,7 +1140,8 @@ class FlowCallback(object):
     This object implements the callbacks executeed by the flow when
     particular conditions are fulfilled. See on_dep_ok method of Flow.
 
-    .. note:
+    .. note::
+
         I decided to implement callbacks via this object instead of a standard
         approach based on bound methods because:
 
@@ -1192,20 +1155,16 @@ class FlowCallback(object):
     def __init__(self, func_name, flow, deps, cbk_data):
         """
         Args:
-            func_name:
-                String with the name of the callback to execute.
-                func_name must be a bound method of flow with signature:
+            func_name: String with the name of the callback to execute.
+                       func_name must be a bound method of flow with signature:
 
-                    func_name(self, cbk)
+                            func_name(self, cbk)
 
-                where self is the Flow instance and cbk is the callback
-            flow:
-                Reference to the `Flow`
-            deps:
-                List of dependencies associated to the callback
-                The callback is executed when all dependencies reach S_OK.
-            cbk_data:
-                Dictionary with additional data that will be passed to the callback via self.
+                       where self is the Flow instance and cbk is the callback
+            flow: Reference to the :class:`Flow`
+            deps: List of dependencies associated to the callback
+                  The callback is executed when all dependencies reach S_OK.
+            cbk_data: Dictionary with additional data that will be passed to the callback via self.
         """
         self.func_name = func_name
         self.flow = flow
@@ -1255,24 +1214,18 @@ class FlowCallback(object):
 # Factory functions.
 def bandstructure_flow(workdir, manager, scf_input, nscf_input, dos_inputs=None, flow_class=Flow):
     """
-    Build a `Flow` for band structure calculations.
+    Build a :class:`Flow` for band structure calculations.
 
     Args:
-        workdir:
-            Working directory.
-        manager:
-            `TaskManager` object used to submit the jobs
-        scf_input:
-            Input for the GS SCF run.
-        nscf_input:
-            Input for the NSCF run (band structure run).
-        dos_inputs:
-            Input(s) for the NSCF run (dos run).
-        flow_class:
-            Flow class 
+        workdir: Working directory.
+        manager: :class:`TaskManager` object used to submit the jobs
+        scf_input: Input for the GS SCF run.
+        nscf_input: Input for the NSCF run (band structure run).
+        dos_inputs: Input(s) for the NSCF run (dos run).
+        flow_class: Flow class
 
     Returns:
-        `Flow`
+        :class:`Flow` object
     """
     flow = flow_class(workdir, manager)
     work = BandStructureWork(scf_input, nscf_input, dos_inputs=dos_inputs)
@@ -1282,26 +1235,19 @@ def bandstructure_flow(workdir, manager, scf_input, nscf_input, dos_inputs=None,
 
 def g0w0_flow(workdir, manager, scf_input, nscf_input, scr_input, sigma_inputs, flow_class=Flow):
     """
-    Build an `Flow` for one-shot $G_0W_0$ calculations.
+    Build an :class:`Flow` for one-shot $G_0W_0$ calculations.
 
     Args:
-        workdir:
-            Working directory.
-        manager:
-            `TaskManager` object used to submit the jobs
-        scf_input:
-            Input for the GS SCF run.
-        nscf_input:
-            Input for the NSCF run (band structure run).
-        scr_input:
-            Input for the SCR run.
-        sigma_inputs:
-            List of inputs for the SIGMA run.
-        flow_class:
-            Flow class 
+        workdir: Working directory.
+        manager: :class:`TaskManager` object used to submit the jobs.
+        scf_input: Input for the GS SCF run.
+        nscf_input: Input for the NSCF run (band structure run).
+        scr_input: Input for the SCR run.
+        sigma_inputs: List of inputs for the SIGMA run.
+        flow_class: Flow class
 
     Returns:
-        `Flow`
+        :class:`Flow` object
     """
     flow = flow_class(workdir, manager)
     work = G0W0Work(scf_input, nscf_input, scr_input, sigma_inputs)
@@ -1314,25 +1260,17 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs, with_nscf=False, with_dd
     Build an `Flow` for phonon calculations.
 
     Args:
-        workdir:
-            Working directory.
-        manager:
-            `TaskManager` used to submit the jobs
-        scf_input:
-            Input for the GS SCF run.
-        ph_inputs:
-            List of Inputs for the phonon runs.
-        with_nscf:
-            add an nscf task in front of al phonon tasks to make sure the q point is covered
-        with_ddk:
-            add the ddk step
-        with_dde:
-            add the dde step it the dde is set ddk is switched on automatically
-        flow_class:
-            Flow class 
+        workdir: Working directory.
+        manager: :class:`TaskManager` used to submit the jobs
+        scf_input: Input for the GS SCF run.
+        ph_inputs: List of Inputs for the phonon runs.
+        with_nscf: add an nscf task in front of al phonon tasks to make sure the q point is covered
+        with_ddk: add the ddk step
+        with_dde: add the dde step it the dde is set ddk is switched on automatically
+        flow_class: Flow class
 
     Returns:
-        `Flow`
+        :class:`Flow` object
     """
     if with_dde:
         with_ddk = True
