@@ -22,8 +22,8 @@ import os
 import os.path
 import copy
 from pymatgen.io.abinitio.abiobjects import asabistructure
-from pymatgen.io.abinitio.calculations import g0w0_extended
-from pymatgen.io.abinitio.flows import AbinitFlow
+from pymatgen.io.abinitio.calculations import g0w0_extended_work
+from pymatgen.io.abinitio.flows import Flow
 from pymatgen.io.abinitio.tasks import TaskManager
 from pymatgen.io.abinitio.pseudos import PseudoTable
 from pymatgen.io.gwwrapper.GWtasks import *
@@ -228,8 +228,8 @@ class SingleAbinitGWWork():
         abi_structure = self.structure
         manager = TaskManager.from_user_config()
         # Initialize the flow.
-        flow = AbinitFlow(self.work_dir, manager, pickle_protocol=0)
-        # flow = AbinitFlow(self.work_dir, manager)
+        flow = Flow(self.work_dir, manager, pickle_protocol=0)
+        # flow = Flow(self.work_dir, manager)
 
         # kpoint grid defined over density 40 > ~ 3 3 3
         if self.spec['converge'] and not self.all_converged:
