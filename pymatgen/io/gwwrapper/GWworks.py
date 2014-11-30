@@ -21,9 +21,9 @@ __date__ = "May 2014"
 import os
 import os.path
 import copy
-from pymatgen.io.abinitio.abiobjects import asabistructure
-from pymatgen.io.abinitio.calculations import g0w0_extended
-from pymatgen.io.abinitio.flows import AbinitFlow
+#from pymatgen.io.abinitio.abiobjects import asabistructure
+from pymatgen.io.abinitio.calculations import g0w0_extended_work
+from pymatgen.io.abinitio.flows import Flow
 from pymatgen.io.abinitio.tasks import TaskManager
 from pymatgen.io.abinitio.pseudos import PseudoTable
 from pymatgen.io.gwwrapper.GWtasks import *
@@ -35,7 +35,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 logger = logging.getLogger(__name__)
 
 
-class GWWorkflow(object):
+class GWWork(object):
     """
     UNDER CONSTRUCTION
     Base class for GW workflows. the code specific implementations should extend this one.
@@ -69,7 +69,7 @@ class GWWorkflow(object):
 
 class VaspGWFWWorkFlow():
     """
-    Object containing a VASP GW workflow for a single structure
+    Object containing a VASP FireWorks GW workflow for a single structure
     """
 
     def __init__(self):
@@ -135,7 +135,7 @@ class VaspGWFWWorkFlow():
         lp.add_wf(self.wf)
 
 
-class SingleAbinitGWWorkFlow():
+class SingleAbinitGWWork():
     """
     GW workflow for Abinit
     """
@@ -145,14 +145,15 @@ class SingleAbinitGWWorkFlow():
              'response_model': {'test_range': RESPONSE_MODELS, 'method': 'direct', 'control': 'gap', 'level': 'screening'}}
     # scf level test are run independently, the last value will be used in the nscf and sigma tests
     #'test': {'test_range': (1, 2, 3), 'method': 'direct', 'control': "e_ks_max", 'level': "scf"},
-    CONVS = {'ecut': {'test_range': (28, 32, 36, 40, 44), 'method': 'direct', 'control': "e_ks_max", 'level': "scf"},
+    CONVS = {'ecut': {'test_range': (52, 48, 44), 'method': 'direct', 'control': "e_ks_max", 'level': "scf"},
              'ecuteps': {'test_range': (4, 8, 12, 16, 20), 'method': 'direct', 'control': "gap", 'level': "sigma"},
-             'nscf_nbands': {'test_range': (5, 10, 20, 30, 40), 'method': 'set_bands', 'control': "gap", 'level': "nscf"}}
+             'nscf_nbands': {'test_range': (5, 10, 20, 30), 'method': 'set_bands', 'control': "gap", 'level': "nscf"}}
 
     def __init__(self, structure, spec, option=None):
         self.structure = structure
         self.spec = spec
         self.option = option
+        self.bands_fac = 1
         self.tests = self.__class__.get_defaults_tests()
         self.convs = self.__class__.get_defaults_convs()
         self.response_models = self.__class__.get_response_models()
@@ -218,11 +219,17 @@ class SingleAbinitGWWorkFlow():
         manager = 'slurm' if 'ceci' in self.spec['mode'] else 'shell'
         # an AbiStructure object has an overwritten version of get_sorted_structure that sorts according to Z
         # this could also be pulled into the constructor of Abistructure
-        abi_structure = asabistructure(self.structure).get_sorted_structure()
+        #abi_structure = self.structure.get_sorted_structure()
+        from abipy import abilab
+        item = copy.copy(self.structure.item)
+        self.structure.__class__ = abilab.Structure
+        self.structure = self.structure.get_sorted_structure_z()
+        self.structure.item = item
+        abi_structure = self.structure
         manager = TaskManager.from_user_config()
         # Initialize the flow.
-        flow = AbinitFlow(self.work_dir, manager, pickle_protocol=0)
-        # flow = AbinitFlow(self.work_dir, manager)
+        flow = Flow(self.work_dir, manager, pickle_protocol=0)
+        # flow = Flow(self.work_dir, manager)
 
         # kpoint grid defined over density 40 > ~ 3 3 3
         if self.spec['converge'] and not self.all_converged:
@@ -245,6 +252,7 @@ class SingleAbinitGWWorkFlow():
         nb = self.get_bands(self.structure)
         nscf_nband = [10 * nb]
 
+        nksmall = None
         ecuteps = [8]
         ecutsigx = 44
 
@@ -262,6 +270,8 @@ class SingleAbinitGWWorkFlow():
 
         # read user defined extra abivars from file  'extra_abivars' should be dictionary
         extra_abivars.update(read_extra_abivars())
+        #self.bands_fac = 0.5 if 'gwcomp' in extra_abivars.keys() else 1
+        #self.convs['nscf_nbands']['test_range'] = tuple([self.bands_fac*x for x in self.convs['nscf_nbands']['test_range']])
 
         response_models = ['godby']
         if 'ppmodel' in extra_abivars.keys():
@@ -289,15 +299,17 @@ class SingleAbinitGWWorkFlow():
             if (self.spec['test'] or self.spec['converge']) and not self.all_converged:
                 if self.spec['test']:
                     print('| setting test calculation')
-                    tests = SingleAbinitGWWorkFlow(self.structure, self.spec).tests
+                    tests = SingleAbinitGWWork(self.structure, self.spec).tests
                     response_models = []
                 else:
                     if grid == 0:
                         print('| setting convergence calculations for grid 0')
-                        tests = SingleAbinitGWWorkFlow(self.structure, self.spec).convs
+                        #tests = SingleAbinitGWWorkFlow(self.structure, self.spec).convs
+                        tests = self.convs
                     else:
                         print('| extending grid')
-                        tests = expand(SingleAbinitGWWorkFlow(self.structure, self.spec).convs, grid)
+                        #tests = expand(SingleAbinitGWWorkFlow(self.structure, self.spec).convs, grid)
+                        tests = expand(self.convs, grid)
                 ecuteps = []
                 nscf_nband = []
                 for test in tests:
@@ -320,6 +332,8 @@ class SingleAbinitGWWorkFlow():
                                 response_models.append(value)
             elif self.all_converged:
                 print('| setting up for testing the converged values at the high kp grid ')
+                # add a bandstructure and dos calculation
+                nksmall = 30
                 # in this case a convergence study has already been performed.
                 # The resulting parameters are passed as option
                 ecuteps = [self.option['ecuteps'], self.option['ecuteps'] + self.convs['ecuteps']['test_range'][1] -
@@ -339,10 +353,10 @@ class SingleAbinitGWWorkFlow():
 
         work = g0w0_extended(abi_structure, self.pseudo_table, scf_kppa, nscf_nband, ecuteps, ecutsigx,
                              accuracy="normal", spin_mode="unpolarized", smearing=None, response_models=response_models,
-                             charge=0.0, sigma_nband=None, scr_nband=None, gamma=gamma,
-                             **extra_abivars)
+                             charge=0.0, sigma_nband=None, scr_nband=None, gamma=gamma, nksmall=nksmall, **extra_abivars)
 
         flow.register_work(work, workdir=workdir)
+
         return flow.allocate()
 
     def create_job_file(self, serial=True):
