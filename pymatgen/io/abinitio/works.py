@@ -924,11 +924,8 @@ class QptdmWork(Work):
         from pymatgen.io.abinitio.netcdf import NetcdfReader
         with NetcdfReader(fake_task.outdir.has_abiext("qpts.nc")) as reader:
             qpoints = reader.read_value("qibz")
-        #print(qpoints)
-        #import json
-        #with open(fake_task.outdir.path_in("qpoints.json"), "w") as f:
-        #    json.dump(list(qpoints, f))
-        w.rmtree()
+        #print("qpoints)
+        #w.rmtree()
 
         # Now we can register the task for the different q-points
         for qpoint in qpoints:
