@@ -920,7 +920,10 @@ class QptdmWork(Work):
         fake_task.start_and_wait()
 
         # Parse the section with the q-points
-        qpoints = yaml_read_kpoints(fake_task.log_file.path, doc_tag="!Qptdms")
+        #qpoints = yaml_read_kpoints(fake_task.log_file.path, doc_tag="!Qptdms")
+        from pymatgen.io.abinitio.netcdf import NetcdfReader
+        with NetcdfReader(fake_task.outdir.has_abiext("qpts.nc")) as reader:
+            qpoints = reader.read_value("qibz")
         #print(qpoints)
         #import json
         #with open(fake_task.outdir.path_in("qpoints.json"), "w") as f:
