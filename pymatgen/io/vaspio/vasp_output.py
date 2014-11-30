@@ -1212,28 +1212,30 @@ class Outcar(PMGSONable):
             def dielectric_section_start2(results, match):
                 results.dielectric_index = 0
 
-            search.append(["-------------------------------------",
-                        lambda results,
-                        line: results.dielectric_index == -1,
-                        dielectric_section_start2])
+            search.append(
+                ["-------------------------------------",
+                lambda results, line: results.dielectric_index == -1,
+                dielectric_section_start2])
 
             def dielectric_data(results, match):
                 results.dielectric_tensor[results.dielectric_index, :] = \
                     np.array([float(match.group(i)) for i in range(1, 4)])
                 results.dielectric_index += 1
 
-            search.append(["^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$",
-                           lambda results,
-                           line: results.dielectric_index >= 0,
-                           dielectric_data])
+            search.append(
+                ["^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$",
+                lambda results, line: results.dielectric_index >= 0
+                                      if results.dielectric_index is not None
+                                      else None,
+                dielectric_data])
          
             def dielectric_section_stop(results, match):
                 results.dielectric_index = None
 
             search.append(
                 ["-------------------------------------",
-                lambda results, line: results.dielectric_index >= 1 if
-                                      results.dielectric_index is not None
+                lambda results, line: results.dielectric_index >= 1
+                                      if results.dielectric_index is not None
                                       else None,
                 dielectric_section_stop])
             
