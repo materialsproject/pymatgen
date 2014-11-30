@@ -1230,9 +1230,12 @@ class Outcar(PMGSONable):
             def dielectric_section_stop(results, match):
                 results.dielectric_index = None
 
-            search.append(["-------------------------------------",
-                           lambda results, line: results.dielectric_index >= 1,
-                           dielectric_section_stop])
+            search.append(
+                ["-------------------------------------",
+                lambda results, line: results.dielectric_index >= 1 if
+                                      results.dielectric_index is not None
+                                      else None,
+                dielectric_section_stop])
             
             self.dielectric_index = None
             self.dielectric_tensor = np.zeros((3, 3))
