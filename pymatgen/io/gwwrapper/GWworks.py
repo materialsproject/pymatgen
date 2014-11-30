@@ -21,7 +21,7 @@ __date__ = "May 2014"
 import os
 import os.path
 import copy
-from pymatgen.io.abinitio.abiobjects import asabistructure
+#from pymatgen.io.abinitio.abiobjects import asabistructure
 from pymatgen.io.abinitio.calculations import g0w0_extended_work
 from pymatgen.io.abinitio.flows import Flow
 from pymatgen.io.abinitio.tasks import TaskManager

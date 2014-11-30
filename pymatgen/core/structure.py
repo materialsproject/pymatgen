@@ -1280,6 +1280,11 @@ class IStructure(SiteCollection, PMGSONable):
         Returns:
             Structure.
         """
+        if filename.endswith(".nc"):
+            # Read Structure from a netcdf file.
+            from pymatgen.io.abinitio.netcdf import structure_from_ncdata
+            return structure_from_ncdata(filename, cls=cls)
+
         from pymatgen.io.vaspio import Vasprun, Chgcar
         from monty.io import zopen
         fname = os.path.basename(filename)
@@ -1843,11 +1848,6 @@ class IMolecule(SiteCollection, PMGSONable):
         Returns:
             Molecule
         """
-        if filename.endswith(".nc"):
-            # Read Structure from a netcdf file.
-            from pymatgen.io.abinitio.netcdf import structure_from_ncdata
-            return structure_from_ncdata(filename, cls=cls)
-
         from pymatgen.io.gaussianio import GaussianOutput
         with zopen(filename) as f:
             contents = f.read()
