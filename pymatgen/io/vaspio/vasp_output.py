@@ -1261,9 +1261,12 @@ class Outcar(PMGSONable):
             def piezo_section_stop(results, match):
                 results.piezo_index = None
 
-            search.append(["-------------------------------------",
-                           lambda results, line: results.piezo_index >= 1,
-                           piezo_section_stop])
+            search.append(
+                ["-------------------------------------",
+                lambda results, line: results.piezo_index >= 1
+                                      if results.piezo_index is not None
+                                      else None,
+                piezo_section_stop])
 
             self.piezo_index = None
             self.piezo_tensor = np.zeros((3, 6))
@@ -1286,17 +1289,22 @@ class Outcar(PMGSONable):
                 results.born[results.born_ion][int(match.group(1)) - 1, :] = \
                     np.array([float(match.group(i)) for i in range(2, 5)])
 
-            search.append(["^ *([1-3]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) "
-                           "+([-0-9.Ee+]+)$",
-                           lambda results, line: results.born_ion >= 0,
-                           born_data])
+            search.append(
+                ["^ *([1-3]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+)$",
+                lambda results, line: results.born_ion >= 0
+                                      if results.born_ion is not None
+                                      else results.born_ion,
+                born_data])
 
             def born_section_stop(results, match):
                 results.born_index = None
 
-            search.append(["-------------------------------------",
-                           lambda results, line: results.born_ion >= 1,
-                           born_section_stop])
+            search.append(
+                ["-------------------------------------",
+                lambda results, line: results.born_ion >= 1
+                                      if results.born_ion is not None
+                                      else results.born_ion,
+                born_section_stop])
 
             self.born_ion = None
             self.born = {}
