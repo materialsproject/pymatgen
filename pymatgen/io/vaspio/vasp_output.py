@@ -1254,11 +1254,14 @@ class Outcar(PMGSONable):
                     np.array([float(match.group(i)) for i in range(1, 7)])
                 results.piezo_index += 1
 
-            search.append(["^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
-                           " +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
-                           " +([-0-9.Ee+]+)*$",
-                           lambda results, line: results.piezo_index >= 0,
-                           piezo_data])
+            search.append(
+                ["^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
+                 " +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
+                 " +([-0-9.Ee+]+)*$",
+                 lambda results, line: results.piezo_index >= 0
+                                       if results.piezo_index is not None
+                                       else None,
+                 piezo_data])
             
             def piezo_section_stop(results, match):
                 results.piezo_index = None
