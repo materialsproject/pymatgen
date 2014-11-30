@@ -1,18 +1,16 @@
 # coding: utf-8
 """Tools and helper functions for abinit calculations"""
-from __future__ import unicode_literals, division
+from __future__ import unicode_literals, division, print_function
 
 import os
 import collections
 import shutil
 import operator
-
+import logging
 from six.moves import filter
 from monty.string import list_strings
-from monty.dev import deprecated
 from pymatgen.util.string_utils import WildCard
 
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -215,6 +213,21 @@ class Directory(object):
 
         return files[0]
 
+    def rename_abiext(self, inext, outext):
+        infile = self.has_abiext(inext)
+        if not infile:
+            raise RuntimeError('no file with ' + inext + ' extension')
+
+        for i in range(len(infile) - 1, -1, -1):
+            if infile[i] == '_':
+                break
+        else:
+            raise RuntimeError(inext + ' could not be detected in ' + infile)
+
+        outfile = infile[:i] + '_' + outext
+        shutil.move(infile, outfile)
+        return 0
+
 # This dictionary maps ABINIT file extensions to the 
 # variables that must be used to read the file in input.
 #
@@ -225,6 +238,7 @@ class Directory(object):
 _EXT2VARS = {
     "DEN": {"irdden": 1},
     "WFK": {"irdwfk": 1},
+    "WFQ": {"irdwfq": 1},
     "SCR": {"irdscr": 1},
     "QPS": {"irdqps": 1},
     "1WF": {"ird1wf": 1},
@@ -359,6 +373,12 @@ class FilepathFixer(object):
             newpath, ext = self._fix_path(path)
 
             if newpath is not None:
+                #if ext not in fixed_exts:
+                #    if ext == "1WF": continue
+                #    raise ValueError("Unknown extension %s" % ext)
+                #print(ext, path, fixed_exts)
+                #if ext != '1WF':
+                #    assert ext not in fixed_exts
                 if ext not in fixed_exts:
                     if ext == "1WF": continue
                     raise ValueError("Unknown extension %s" % ext)

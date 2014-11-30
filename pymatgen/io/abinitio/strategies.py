@@ -69,15 +69,12 @@ def num_valence_electrons(pseudos, structure):
     a list of pseudopotentials and the crystalline structure.
 
     Args:
-        pseudos:
-            List of strings, list of of pseudos or `PseudoTable` instance.
-        structure:
-            Pymatgen structure.
+        pseudos: List of strings, list of of pseudos or `PseudoTable` instance.
+        structure: Pymatgen structure.
 
     Raises:
         ValueError if cannot find a pseudo in the input pseudos or if the
-        input list contains more than one pseudo for the chemical symbols
-        appearing in structure.
+        input list contains more than one pseudo for the chemical symbols appearing in structure.
     """
     table = PseudoTable.as_table(pseudos)
 
@@ -102,8 +99,7 @@ class AbstractStrategy(six.with_metaclass(abc.ABCMeta, object)):
 
     Attributes:
 
-        pseudos:
-            List of pseudopotentials.
+        pseudos: List of pseudopotentials.
     """
 
     #@abc.abstractproperty
@@ -178,8 +174,8 @@ class StrategyWithInput(object):
 class HtcStrategy(AbstractStrategy):
     """
     Attributes:
-        accuracy:
-            Accuracy of the calculation used to define basic parameters of the run.
+
+        accuracy: Accuracy of the calculation used to define basic parameters of the run.
             such as tolerances, basis set truncation ...
     """
     __metaclass__ = abc.ABCMeta
@@ -330,26 +326,16 @@ class ScfStrategy(HtcStrategy):
                  smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, use_symmetries=True, **extra_abivars):
         """
         Args:
-            structure:
-                pymatgen structure
-            pseudos:
-                List of pseudopotentials.
-            ksampling:
-                Ksampling object defining the sampling of the BZ.
-            accuracy:
-                Accuracy of the calculation.
-            spin_mode:
-                Spin polarization mode.
-            smearing:
-                string or Smearing instance.
-            charge:
-                Total charge of the system. Default is 0.
-            scf_algorithm:
-                ElectronsAlgorithm instance.
-            use_symmetries:
-                False if point group symmetries should not be used.
-            extra_abivars:
-                Extra variables that will be directly added to the input file.
+            structure: pymatgen structure
+            pseudos: List of pseudopotentials.
+            ksampling: :class:`Ksampling` object defining the sampling of the BZ.
+            accuracy: Accuracy of the calculation.
+            spin_mode: Spin polarization mode.
+            smearing: string or :class:`Smearing` instance.
+            charge: Total charge of the system. Default is 0.
+            scf_algorithm: :class:`ElectronsAlgorithm` instance.
+            use_symmetries: False if point group symmetries should not be used.
+            extra_abivars: Extra variables that will be directly added to the input file.
         """
         super(ScfStrategy, self).__init__()
 
@@ -387,16 +373,11 @@ class NscfStrategy(HtcStrategy):
     def __init__(self, scf_strategy, ksampling, nscf_nband, nscf_algorithm=None, **extra_abivars):
         """
         Args:
-            scf_strategy:
-                ScfStrategy used for the GS run.
-            ksampling:
-                Ksampling object defining the sampling of the BZ.
-            nscf_nband:
-                Number of bands to compute.
-            nscf_algorithm
-                ElectronsAlgorithm instance.
-            extra_abivars:
-                Extra ABINIT variables that will be directly added to the input file
+            scf_strategy: :class:`ScfStrategy` used for the GS run.
+            ksampling: :class:`Ksampling` object defining the sampling of the BZ.
+            nscf_nband: Number of bands to compute.
+            nscf_algorithm :class:`ElectronsAlgorithm` instance.
+            extra_abivars: Extra ABINIT variables that will be directly added to the input file
         """
         super(NscfStrategy, self).__init__()
 
@@ -443,26 +424,16 @@ class RelaxStrategy(ScfStrategy):
                  smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, **extra_abivars):
         """
         Args:
-            structure:
-                pymatgen structure
-            pseudos:
-                List of pseudopotentials.
-            ksampling:
-                `Ksampling` object defining the sampling of the BZ.
-            relax_algo:
-                Object defining the algorithm for the structural relaxation.
-            accuracy:
-                Accuracy of the calculation.
-            spin_mode:
-                Flag defining the spin polarization. Defaults to "polarized"
-            smearing:
-                String or `Smearing` instance.
-            charge:
-                Total charge of the system. Default is 0.
-            scf_algorithm:
-                `ElectronsAlgorithm` instance.
-            extra_abivars:
-                Extra ABINIT variables that will be directly added to the input file
+            structure: pymatgen structure
+            pseudos: List of pseudopotentials.
+            ksampling: :class:`Ksampling` object defining the sampling of the BZ.
+            relax_algo: Object defining the algorithm for the structural relaxation.
+            accuracy: Accuracy of the calculation.
+            spin_mode: Flag defining the spin polarization. Defaults to "polarized"
+            smearing: String or :class:`Smearing` instance.
+            charge: Total charge of the system. Default is 0.
+            scf_algorithm: :class:`ElectronsAlgorithm` instance.
+            extra_abivars: Extra ABINIT variables that will be directly added to the input file
         """
         super(RelaxStrategy, self).__init__(
             structure, pseudos, ksampling,
@@ -491,14 +462,10 @@ class ScreeningStrategy(HtcStrategy):
     def __init__(self, scf_strategy, nscf_strategy, screening, **extra_abivars):
         """
         Args:
-            scf_strategy:
-                Strategy used for the ground-state calculation
-            nscf_strategy:
-                Strategy used for the non-self consistent calculation
-            screening:
-                Screening instance
-            extra_abivars:
-                Extra ABINIT variables added directly to the input file
+            scf_strategy: :class:`ScfStrategy` used for the ground-state calculation
+            nscf_strategy: :class:`NscStrategy` used for the non-self consistent calculation
+            screening: :class:`Screening` instance
+            extra_abivars: Extra ABINIT variables added directly to the input file
         """
         super(ScreeningStrategy, self).__init__()
 
@@ -547,16 +514,11 @@ class SelfEnergyStrategy(HtcStrategy):
     def __init__(self, scf_strategy, nscf_strategy, scr_strategy, sigma, **extra_abivars):
         """
         Args:
-            scf_strategy:
-                Strategy used for the ground-state calculation
-            nscf_strategy:
-                Strategy used for the non-self consistent calculation
-            scr_strategy:
-                Strategy used for the screening calculation
-            sigma:
-                SelfEnergy instance.
-            extra_abivars:
-                Extra ABINIT variables added directly to the input file
+            scf_strategy: :class:`ScfStrategy` used for the ground-state calculation
+            nscf_strategy: :class:`NscfStrategy` used for the non-self consistent calculation
+            scr_strategy: :class:`ScrStrategy` used for the screening calculation
+            sigma: :class:`SelfEnergy` instance.
+            extra_abivars: Extra ABINIT variables added directly to the input file
         """
         # TODO Add consistency check between SCR and SIGMA strategies
         super(SelfEnergyStrategy, self).__init__()
@@ -600,7 +562,7 @@ class SelfEnergyStrategy(HtcStrategy):
         return inpw.get_string()
 
 
-class MDFBSE_Strategy(HtcStrategy):
+class MdfBse_Strategy(HtcStrategy):
     """
     Strategy for Bethe-Salpeter calculation based on the
     model dielectric function and the scissors operator
@@ -608,16 +570,12 @@ class MDFBSE_Strategy(HtcStrategy):
     def __init__(self, scf_strategy, nscf_strategy, exc_ham, **extra_abivars):
         """
         Args:
-            scf_strategy:
-                Strategy used for the ground-state calculation.
-            nscf_strategy:
-                Strategy used for the non-self consistent calculation.
-            exc_ham:
-                `ExcitonicHamiltonian` instance.
-            extra_abivars:
-                Extra ABINIT variables added directly to the input file.
+            scf_strategy: :class:`Strategy` used for the ground-state calculation.
+            nscf_strategy: :class:`NscStrategy` used for the non-self consistent calculation.
+            exc_ham: :class:`ExcitonicHamiltonian` instance.
+            extra_abivars: Extra ABINIT variables added directly to the input file.
         """
-        super(MDFBSE_Strategy, self).__init__()
+        super(MdfBse_Strategy, self).__init__()
 
         self.pseudos = scf_strategy.pseudos
 
@@ -660,8 +618,7 @@ class MDFBSE_Strategy(HtcStrategy):
 class InputWriter(object):
     """
     This object receives a list of `AbivarAble` objects, an optional
-    dictionary with extra ABINIT variables and produces a (nicely formatted?)
-    string with the input file.
+    dictionary with extra ABINIT variables and produces a (nicely formatted?) string with the input file.
     """
     MAX_SLEN = 100
 
@@ -780,8 +737,7 @@ class InputWriter(object):
         method is different from the __str__ method is to provide options for pretty printing.
 
         Args:
-            pretty:
-                Set to True for pretty aligned output.
+            pretty: Set to True for pretty aligned output.
         """
         lines = []
         app = lines.append

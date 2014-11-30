@@ -28,7 +28,7 @@ def _magic_parser(stream, magic):
         dict where the key are the name of columns and
         the values are list of numbers. Note if no section was found.
 
-    .. warning:
+    .. warning::
 
         The parser is very fragile and should be replaced by YAML.
     """
@@ -144,7 +144,7 @@ class ScfCycle(collections.Mapping):
         Read the first occurrence of ScfCycle from stream.
 
         Returns:
-            None if no ScfCycle entry is found.
+            None if no `ScfCycle` entry is found.
         """
         fields = _magic_parser(stream, magic=cls.MAGIC)
 
@@ -243,7 +243,7 @@ class Relaxation(collections.Iterable):
     """
     A list of `GroundStateScfCycle` objects.
 
-    .. note:
+    .. note::
 
         Forces, stresses  and crystal structures are missing.
         Solving this problem would require the standardization
@@ -366,7 +366,7 @@ class Relaxation(collections.Iterable):
 
 
 class YamlTokenizerError(Exception):
-    """Exceptions raised by `YamlTokenizer."""
+    """Exceptions raised by `YamlTokenizer`."""
 
 
 class YamlTokenizer(collections.Iterator):
@@ -424,7 +424,7 @@ class YamlTokenizer(collections.Iterator):
         """
         Returns the first YAML document in stream.
 
-        .. warning:
+        .. warning::
 
             Assume that the YAML document are closed explicitely with the sentinel '...'
         """
@@ -466,7 +466,7 @@ class YamlTokenizer(collections.Iterator):
         Returns a list with all the YAML docs found in stream.
         Seek the stream before returning.
 
-        .. warning:
+        .. warning::
 
             Assume that all the YAML docs (with the exception of the last one)
             are closed explicitely with the sentinel '...'
@@ -539,12 +539,9 @@ class YamlDoc(object):
     def __init__(self, text, lineno, tag=None):
         """
         Args:
-            text:
-                String with the YAML document.
-            lineno:
-                The line number where the document is located.
-            tag:
-                The YAML tag associate to the document.
+            text: String with the YAML document.
+            lineno: The line number where the document is located.
+            tag: The YAML tag associate to the document.
         """
         # Sanitize strings: use "ignore" to skip invalid characters in .encode/.decode like
         if isinstance(text, bytes):
@@ -576,6 +573,6 @@ class YamlDoc(object):
         (we used the tag just to locate the document).
         """
         if self.tag is not None:
-           return self.text.replace(self.tag, "")
+            return self.text.replace(self.tag, "")
         else:
-           return self.text
+            return self.text

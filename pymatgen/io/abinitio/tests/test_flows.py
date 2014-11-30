@@ -58,11 +58,11 @@ class FlowUnitTest(PymatgenTest):
         shutil.rmtree(self.workdir)
 
 
-class AbinitFlowTest(FlowUnitTest):
+class FlowTest(FlowUnitTest):
 
     def test_base(self):
-        """Testing AbinitFlow..."""
-        flow = AbinitFlow(workdir=self.workdir, manager=self.manager)
+        """Testing flow..."""
+        flow = Flow(workdir=self.workdir, manager=self.manager)
 
         # Build a workflow with a task
         task0_w0 = flow.register_task(self.fake_input)
@@ -70,7 +70,7 @@ class AbinitFlowTest(FlowUnitTest):
         self.assertEqual(flow.num_tasks, 1)
 
         # Build a workflow containing two tasks depending on task0_w0
-        work = Workflow()
+        work = Work()
         work.register(self.fake_input)
         work.register(self.fake_input)
         self.assertTrue(len(work) == 2)
@@ -79,7 +79,7 @@ class AbinitFlowTest(FlowUnitTest):
         self.assertTrue(len(flow) == 2)
 
 
-        # Add another workflow without dependencies.
+        # Add another work without dependencies.
         task0_w2 = flow.register_task(self.fake_input)
         self.assertTrue(len(flow) == 3)
 
@@ -106,7 +106,7 @@ class AbinitFlowTest(FlowUnitTest):
         flow.build_and_pickle_dump()
 
         # Find the pickle file in workdir and recreate the flow.
-        same_flow = AbinitFlow.pickle_load(self.workdir)
+        same_flow = Flow.pickle_load(self.workdir)
 
         self.assertEqual(same_flow, flow)
 

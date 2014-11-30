@@ -16,7 +16,7 @@ def ref_file(filename):
     return os.path.join(_test_dir, filename)
 
 
-#class WorkflowTestCase(PymatgenTest):
+#class WorkTestCase(PymatgenTest):
 #
 #    def test_pseudoconvergence(self):
 #        workdir = mkdtemp(prefix="test_pseudoconvergence")
