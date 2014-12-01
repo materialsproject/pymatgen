@@ -386,7 +386,10 @@ class JobStatus(int):
 
 
 class QueueJob(object):
-
+    """
+    This object provides methods to contact the resource manager to get info on the status
+    of the job and useful statistics. This is an abstract class.
+    """
     # Used to handle other resource managers.
     S_UNKNOWN   = JobStatus.from_string("UNKNOWN")
     # Slurm status
@@ -513,6 +516,7 @@ class QueueJob(object):
 
 
 class SlurmJob(QueueJob):
+    """Handler for Slurm jobs."""
 
     def estimated_start_time(self):
         #squeue  --start -j  116791
@@ -603,8 +607,7 @@ class SlurmJob(QueueJob):
 
 
 class PbsProJob(QueueJob):
-    """
-    """
+    """Handler for PbsPro Jobs"""
     # Mapping PrbPro --> Slurm. From `man qstat`
     #
     # S  The job’s state:
@@ -621,7 +624,7 @@ class PbsProJob(QueueJob):
     #      W  Job is waiting for its submitter-assigned start time to be reached.
     #      X  Subjob has completed execution or has been deleted.
 
-    PBSSTAT_TO_TOSLURM = defaultdict(lambda x: QueueJob.S_UNKNOWN, [
+    PBSSTAT_TO_SLURM = defaultdict(lambda x: QueueJob.S_UNKNOWN, [
         ("E", QueueJob.S_FAILED),
         ("F", QueueJob.S_COMPLETED),
         ("Q", QueueJob.S_PENDING),
@@ -657,8 +660,8 @@ class PbsProJob(QueueJob):
         process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
 
         if process.returncode != 0:
-          #print(process.stderr.readlines())
-          return None
+            #print(process.stderr.readlines())
+            return None
 
         out = process.stdout.readlines()[-1]
         status = self.PBSSTAT_TO_SLURM[out.split()[9]]
@@ -710,10 +713,6 @@ class QueueAdapterError(Exception):
     """Error class for exceptions raise by QueueAdapter."""
 
 
-class QueueAdapterDistribError(Exception):
-    """Raised by distribute."""
-
-
 class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     """
     The `QueueAdapter` is responsible for all interactions with a specific queue management system.
@@ -723,7 +722,6 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     A user should extend this class with implementations that work on specific queue systems.
     """
     Error = QueueAdapterError
-    DistribError = QueueAdapterDistribError
 
     Job = QueueJob
 
@@ -742,16 +740,17 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             max_num_attempts: Default to 2
             qverbatim:
             min_cores, max_cores: Minimum and maximum number of cores that can be used
-            min_mem_per_proc
-            max_mem_per_proc
+            min_mem_per_proc=Minimun memory per process in megabytes.
+            max_mem_per_proc=Maximum memory per process in megabytes.
             timelimit: Time limit in seconds
             priority: Priority level, integer number > 0
             allocate_nodes: True if we must allocate entire nodes"
             condition: Condition object (dictionary)
-        # TODO
-            max_num_attempts:
-            task_classes
         """
+        # TODO
+        #max_num_attempts:
+        #task_classes
+
         # Make defensive copies so that we can change the values at runtime.
         kwargs = copy.deepcopy(kwargs)
         self.priority = int(kwargs.pop("priority"))
@@ -1011,8 +1010,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         """Set the memory per process in Megabytes"""
         # Hack needed because abinit is still not able to estimate memory.
         if mem_mb <= 0:
-            #mem_per_proc = hw.mem_per_core
-            mem_per_proc = self.min_mem_per_proc
+            mem_mb = self.min_mem_per_proc
 
         self._mem_per_proc = mem_mb
 
@@ -1034,7 +1032,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         """
 
     def can_run_pconf(self, pconf):
-        """True if the qadapter in principle is able to run the ``ParalConf`` pconf"""
+        """True if the qadapter in principle is able to run the :class:`ParalConf` pconf"""
         if not self.max_cores >= pconf.num_cores >= self.min_cores: return False
         if not self.hw.can_use_omp_threads(self.omp_threads): return False
         if pconf.mem_per_proc > self.hw.mem_per_node: return False
@@ -1066,7 +1064,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             mem_per_proc = hw.mem_per_core
 
         if mem_per_proc > hw.mem_per_node:
-            raise self.DistribError(
+            raise self.Error(
                 "mem_per_proc > mem_per_node.\n Cannot distribute mpi_procs %d, omp_threads %d, mem_per_proc %s" %
                              (mpi_procs, omp_threads, mem_per_proc))
 
@@ -1102,7 +1100,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
                 if (mpi_procs * omp_threads) % mpi_per_node == 0 and mpi_per_node * mem_per_proc <= hw.mem_per_node:
                     return Distrib(num_nodes=num_nodes, mpi_per_node=mpi_per_node, exact=False)
         else:
-            raise self.DistribError("Cannot distribute mpi_procs %d, omp_threads %d, mem_per_proc %s" %
+            raise self.Error("Cannot distribute mpi_procs %d, omp_threads %d, mem_per_proc %s" %
                             (mpi_procs, omp_threads, mem_per_proc))
 
     def optimize_params(self):
@@ -1272,12 +1270,13 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
         if process is not None and process.returncode != 0:
             # there's a problem talking to squeue server?
-            err_msg = ('Error trying to get the number of jobs in the queue using squeue service' + 
+            err_msg = ('Error trying to get the number of jobs in the queue' +
                        'The error response reads:\n {}'.format(process.stderr.read()))
             logger.critical(err_msg)
 
         if not isinstance(self, ShellAdapter):
             logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
+
         return njobs
 
     @abc.abstractmethod
@@ -1495,8 +1494,7 @@ $${qverbatim}
 
         njobs = None
         if process.returncode == 0:
-            # parse the result
-            # lines should have this form
+            # parse the result. lines should have this form:
             # username
             # count lines that include the username in it
             outs = process.stdout.readlines()
@@ -1564,6 +1562,7 @@ $${qverbatim}
         hw, mem_per_proc = self.hw, int(self.mem_per_proc)
         #dist = self.distribute(self.mpi_procs, self.omp_threads, mem_per_proc)
 
+        """
         if self.pure_mpi:
             num_nodes, rest_cores = hw.divmod_node(self.mpi_procs, self.omp_threads)
 
@@ -1629,6 +1628,7 @@ $${qverbatim}
 
         else:
             raise RuntimeError("You should not be here")
+        """
 
         if not self.has_omp:
             chunks, ncpus, vmem, mpiprocs = self.mpi_procs, 1, self.mem_per_proc, 1
@@ -1665,6 +1665,7 @@ $${qverbatim}
 
     def _get_njobs_in_queue(self, username):
         process = Popen(['qstat', '-a', '-u', username], stdout=PIPE, stderr=PIPE)
+        process.wait()
 
         njobs = None
         if process.returncode == 0:
@@ -1674,7 +1675,7 @@ $${qverbatim}
             # count lines that include the username in it
 
             # TODO: only count running or queued jobs. or rather, *don't* count jobs that are 'C'.
-            outs = process.stdoutput.split('\n')
+            outs = process.stdout.read().split('\n')
             njobs = len([line.split() for line in outs if username in line])
 
         return njobs, process

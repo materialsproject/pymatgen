@@ -27,40 +27,6 @@ __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 
 
-#def select_pseudos(pseudos, structure, ret_table=True):
-#    """
-#    Given a list of pseudos and a pymatgen structure, extract the pseudopotentials
-#    for the calculation (useful when we receive an entire periodic table).
-#    If ret_table is True, the function will return a PseudoTable instead of
-#    a list of `Pseudo` objects
-#
-#    Raises:
-#        ValueError if no pseudo is found or multiple occurrences are found.
-#    """
-#    table = PseudoTable.as_table(pseudos)
-#
-#    pseudos = []
-#    for symbol in structure.types_of_specie:
-#        # Get the list of pseudopotentials in table from atom symbol.
-#        pseudos_for_type = table.pseudos_with_symbol(symbol)
-#
-#        if not pseudos_for_type:
-#            raise ValueError("Cannot find pseudo for symbol %s" % symbol)
-#
-#        if len(pseudos_for_type) > 1:
-#            raise ValueError("Find multiple pseudos for symbol %s" % symbol)
-#
-#        pseudos.append(pseudos_for_type[0])
-#
-#    if ret_table:
-#        return PseudoTable(pseudos)
-#    else:
-#        return pseudos
-
-
-#def order_pseudos(pseudos, structure):
-#    return select_pseudos(pseudos, structure) #, ret_table=False)
-
 
 def num_valence_electrons(pseudos, structure):
     """
@@ -463,8 +429,7 @@ class RelaxStrategy(ScfStrategy):
         input_str = super(RelaxStrategy, self).make_input()
 
         # Add the variables for the structural relaxation.
-        input = InputWriter(self.relax_algo)
-        input_str += input.get_string()
+        input_str += InputWriter(self.relax_algo).get_string()
 
         return input_str
 
@@ -521,8 +486,8 @@ class ScreeningStrategy(HtcStrategy):
         extra.update(self.tolerance)
         extra.update(self.extra_abivars)
 
-        inpw = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.screening, **extra)
-        return inpw.get_string()
+        return InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.screening,
+                           **extra).get_string()
 
 
 class SelfEnergyStrategy(HtcStrategy):
@@ -578,8 +543,8 @@ class SelfEnergyStrategy(HtcStrategy):
         extra.update(self.tolerance)
         extra.update(self.extra_abivars)
 
-        inpw = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.sigma, **extra)
-        return inpw.get_string()
+        return InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.sigma,
+                           **extra).get_string()
 
 
 class MdfBse_Strategy(HtcStrategy):
@@ -635,8 +600,8 @@ class MdfBse_Strategy(HtcStrategy):
         #extra.update(self.tolerance)
         extra.update(self.extra_abivars)
 
-        inpw = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.exc_ham, **extra)
-        return inpw.get_string()
+        return InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.exc_ham,
+                           **extra).get_string()
 
 
 class InputWriter(object):
