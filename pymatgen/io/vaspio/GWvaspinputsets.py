@@ -22,7 +22,7 @@ import stat
 
 from pymatgen.io.vaspio.vasp_input import Kpoints, Potcar
 from pymatgen.io.vaspio_set import DictVaspInputSet
-from pymatgen.io.gwwrapper.helpers import s_name
+from pymatgen.io.abinitio.helpers import s_name
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
