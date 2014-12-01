@@ -524,7 +524,9 @@ class PyFlowScheduler(object):
 
         # move here from withing rapid fire ...
         # fix only prepares for restarting, and sets to ready
-        flow.fix_critical()
+        # Temporarily disable by MG because I don't know if fix_critical works after the
+        # introduction of the new qadapters
+        #flow.fix_critical()
 
         # update database
         flow.pickle_dump()

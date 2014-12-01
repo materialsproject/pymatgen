@@ -76,7 +76,7 @@ hardware:
             # Test the programmatic interface used to change job parameters.
             aequal(qad.num_attempts, 0)
             afalse(qad.has_omp)
-            atrue(qad.has_mpirun)
+            atrue(qad.has_mpi)
             qad.set_mpi_procs(2)
             aequal(qad.mpi_procs, 2)
             atrue(qad.pure_mpi)
