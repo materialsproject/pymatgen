@@ -74,17 +74,17 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
 
     # Compile strings into regexs
     for entry in search:
-        entry[0] = re.compile(entry[0])
+        entry[0] = re.compile(u"{}".format(entry[0]))
 
     with zopen(filename) as f:
         for line in f:
-            for i in range(len(search)):
-                match = re.search(search[i][0], u"{}".format(line))
-                if match and (search[i][1] is None
-                              or search[i][1](results, line)):
+            for entry in search:
+                match = re.search(entry[0], u"{}".format(line))
+                if match and (entry[1] is None
+                              or entry[1](results, line)):
                     if debug is not None:
                         debug(results, match)
-                    search[i][2](results, match)
+                    entry[2](results, match)
                     if postdebug is not None:
                         postdebug(results, match)
 
