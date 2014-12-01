@@ -31,9 +31,8 @@ from six.moves import map
 from atomicfile import AtomicFile
 from prettytable import PrettyTable
 from monty.collections import as_set
-from monty.itertools import iterator_from_slice
 from monty.io import FileLock
-from monty.termcolor import cprint, colored, stream_has_colours
+from monty.pprint import draw_tree
 from monty.termcolor import stream_has_colours, cprint, colored, cprint_map
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
 from .tasks import (Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager, NscfTask, DdkTask,
@@ -1049,14 +1048,12 @@ class Flow(Node):
 
     def show_dependencies(self, stream=sys.stdout):
         """Writes to the given stream the ASCII representation of the dependency tree."""
-        #for work in self: work.show_intrawork_deps()
         def child_iter(node):
             return [d.node for d in node.deps]
 
         def text_str(node):
             return colored(str(node), color=node.status.color_opts["color"])
 
-        from monty.pprint import draw_tree
         for task in self.iflat_tasks():
             print(draw_tree(task, child_iter, text_str), file=stream)
 

@@ -1,7 +1,6 @@
 # coding: utf-8
 """
 Works for Abinit:
-I'll work on this tonight...
 """
 from __future__ import unicode_literals, division, print_function
 
@@ -27,7 +26,6 @@ from .strategies import HtcStrategy, NscfStrategy
 from .utils import Directory
 from .netcdf import ETSF_Reader
 from .abitimer import AbinitTimerParser
-from .abiinspect import yaml_read_kpoints
 
 try:
     from pydispatch import dispatcher
@@ -720,6 +718,7 @@ class BandStructureWork(Work):
                 dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
                 self.dos_tasks.append(dos_task)
 
+
 class RelaxWork(Work):
     """
     Work for structural relaxations. The first task relaxes the atomic position
@@ -937,7 +936,6 @@ class QptdmWork(Work):
         fake_task.start_and_wait()
 
         # Parse the section with the q-points
-        #qpoints = yaml_read_kpoints(fake_task.log_file.path, doc_tag="!Qptdms")
         from pymatgen.io.abinitio.netcdf import NetcdfReader
         with NetcdfReader(fake_task.outdir.has_abiext("qptdms.nc")) as reader:
             qpoints = reader.read_value("reduced_coordinates_of_kpoints")
@@ -1059,9 +1057,9 @@ class OneShotPhononWork(Work):
         return [phonon(qpt=qpt, freqs=freqs_meV) for qpt, freqs_meV in zip(qpts, EnergyArray(phfreqs, "Ha").to("meV") )]
 
     def get_results(self, **kwargs):
-        results = super(OneShotPhononWorkflow, self).get_results()
+        results = super(OneShotPhononWork, self).get_results()
         phonons = self.read_phonons()
-        print(phonons)
+        #print(phonons)
         results.update(phonons=phonons)
 
         return results

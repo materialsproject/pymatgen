@@ -195,50 +195,24 @@ class NetcdfReader(object):
         except KeyError:
             raise self.Error("In file %s:\nvarnames %s, kwargs %s" % (self.path, varnames, kwargs))
 
-    def read_keys(self, keys, path="/"):
-        d, missing = self.read_values_with_map(names=keys, path=path)
-        return d
-
-    @deprecated(message="Use read_keys")
-    def read_values_with_map(self, names, map_names=None, path="/"):
+    def read_keys(self, keys, dict_cls=AttrDict, path="/"):
         """
-        Read (dimensions, variables) with a mapping.
-
-        Args:
-            names:
-                list of netCDF keywords to read.
-            map_names:
-                dictionary used to map names to the netCDF keywords used to access data on file.
-            path:
-                Used to access groups.
-
-        returns: od, missing
-            od is the dictionary. Values are stored in d[name] for name in names.
-            missing is a list of 2-d tuple with the keywords that are not found.
+        Read a list of variables/dimensions from file. If a key is not present the corresponding
+        entry in the output dictionary is set to None.
         """
-        if map_names is None:
-            map_names = {}
-
-        od, missing = AttrDict(), []
-        for k in names:
-            try:
-                key = map_names[k]
-            except KeyError:
-                # Read k.
-                key = k
-
+        od = dict_cls()
+        for k in keys:
             try:
                 # Try to read a variable.
-                od[k] = self.read_value(key, path=path)
+                od[k] = self.read_value(k, path=path)
             except self.Error:
                 try:
                     # Try to read a dimension.
-                    od[k] = self.read_dimvalue(key, path=path)
+                    od[k] = self.read_dimvalue(k, path=path)
                 except self.Error:
-                    # key is missing!
-                    missing.append((k, key))
+                    od[k] = None
 
-        return od, missing
+        return od
 
 
 class ETSF_Reader(NetcdfReader):
