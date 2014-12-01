@@ -223,7 +223,7 @@ class NodeResults(dict, PMGSONable):
         #collection.update({'_id':mongo_id}, {"$set": doc}, upsert=False)
 
 
-class AbinitTaskResults(NodeResults):
+class TaskResults(NodeResults):
 
     JSON_SCHEMA = NodeResults.JSON_SCHEMA.copy() 
     JSON_SCHEMA["properties"] = {
@@ -233,7 +233,7 @@ class AbinitTaskResults(NodeResults):
     @classmethod
     def from_node(cls, task):
         """Initialize an instance from an AbinitTask instance."""
-        new = super(AbinitTaskResults, cls).from_node(task)
+        new = super(TaskResults, cls).from_node(task)
 
         new.update(
             executable=task.executable,
@@ -656,22 +656,16 @@ class TaskPolicy(object):
     def __init__(self, **kwargs):
         """
         Args:
-            autoparal: 
-                Value of ABINIT autoparal input variable. 0 to disable the autoparal feature (default)
-            automemory:
-                int defining the memory policy (default 0)
+            autoparal: Value of ABINIT autoparal input variable. 0 to disable the autoparal feature (default)
+            automemory: int defining the memory policy (default 0)
                 If > 0 the memory requirements will be computed at run-time from the autoparal section
                 produced by ABINIT. In this case, the job script will report the autoparal memory
                 instead of the one specified by the user.
-            mode:
-                Select the algorith to select the optimal configuration for the parallel execution.
+            mode: Select the algorith to select the optimal configuration for the parallel execution.
                 Possible values: ["default", "aggressive", "conservative"]
-            max_ncpus:
-                Maximal number of cores that can be used (must be specified if autoparal > 0).
-            condition:
-                condition used to filter the autoparal configuration (Mongodb-like syntax)
-            vars_condition:
-                condition used to filter the list of Abinit variables suggested by autoparal (Mongodb-like syntax)
+            max_ncpus: Maximal number of cores that can be used (must be specified if autoparal > 0).
+            condition: condition used to filter the autoparal configuration (Mongodb-like syntax)
+            vars_condition: condition used to filter the list of Abinit variables suggested by autoparal (Mongodb-like syntax)
         """
         self.autoparal = kwargs.pop("autoparal", 0)
         self.automemory = kwargs.pop("automemory", 0)
@@ -1496,40 +1490,6 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
         return "\n".join(lines)
 
-    @property
-    def required_files(self):
-        """
-        List of `Product` objects with info on the files needed by the `Node`.
-        """
-        return self._required_files
-
-    def add_required_files(self, files):
-        """
-        Add a list of paths to the list of files required by the `Node`.
-        Note that the files must exist when the task is registered.
-
-        Args:
-            files:
-                string or list of strings with the path of the files
-        Raises:
-            ValueError if at least one file does not exist.
-        """
-        # We want a list of absolute paths.
-        files = map(os.path.abspath, list_strings(files))
-
-        # Files must exist.
-        if any(not os.path.exists(f) for f in files):
-            err_msg = ("Cannot define a dependency on a file that does not exist!\n" + 
-                       "The following files do not exist:\n" +
-                       "\n".join(["\t" + f for f in files if not os.path.exists(f)]))
-            raise ValueError(err_msg)
-
-        # Convert to list of products.
-        files = [Product.from_file(path) for path in files]
-
-        # Add the dependencies to the node.
-        self._required_files.extend(files)
-
     def set_user_info(self, *args, **kwargs):
         """
         Store additional info provided by the user in self.user_info
@@ -1635,20 +1595,14 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     prefix = Prefix(pj("indata", "in"), pj("outdata", "out"), pj("tmpdata", "tmp"))
     del Prefix, pj
 
-    def __init__(self, strategy, workdir=None, manager=None, deps=None, required_files=None):
+    def __init__(self, strategy, workdir=None, manager=None, deps=None):
         """
         Args:
-            strategy: 
-                Input file or `Strategy` instance defining the calculation.
-            workdir:
-                Path to the working directory.
-            manager:
-                `TaskManager` object.
-            deps:
-                Dictionary specifying the dependency of this node.
-                None means that this obj has no dependency.
-            required_files:
-                List of strings with the path of the files used by the task.
+            strategy: Input file or :class:`Strategy` instance defining the calculation.
+            workdir: Path to the working directory.
+            manager: :class:`TaskManager` object.
+            deps: Dictionary specifying the dependency of this node.
+                  None means that this obj has no dependency.
         """
         # Init the node
         super(Task, self).__init__()
@@ -1668,9 +1622,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         if deps:
             deps = [Dependency(node, exts) for (node, exts) in deps.items()]
             self.add_deps(deps)
-
-        if required_files:
-            self.add_required_files(required_files)
 
         # Use to compute the wall-time
         self.start_datetime, self.stop_datetime = None, None
@@ -2390,19 +2341,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                     if os.path.realpath(dest) != path:
                         raise self.Error("dest %s does not point to path %s" % (dest, path))
 
-        for f in self.required_files:
-            path, dest = f.filepath, self.ipath_from_ext(f.ext)
-      
-            # Link path to dest if dest link does not exist.
-            # else check that it points to the expected file.
-            logger.debug("Linking path %s --> %s" % (path, dest))
-                                                                                         
-            if not os.path.exists(dest):
-                os.symlink(path, dest)
-            else:
-                if os.path.realpath(dest) != path:
-                    raise self.Error("dest %s does not point to path %s" % (dest, path))
-
     @abc.abstractmethod
     def setup(self):
         """Public method called before submitting the task."""
@@ -2532,11 +2470,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         Remove all files and directories in the working directory
 
         Args:
-            exclude_wildcard:
-                Optional string with regular expressions separated by |.
+            exclude_wildcard: Optional string with regular expressions separated by |.
                 Files matching one of the regular expressions will be preserved.
-                example: exclude_wildcard="*.nc|*.txt" preserves all the files
-                whose extension is in ["nc", "txt"].
+                example: exclude_wildcard="*.nc|*.txt" preserves all the files whose extension is in ["nc", "txt"].
         """
         if not exclude_wildcard:
             shutil.rmtree(self.workdir)
@@ -2593,13 +2529,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             logger.debug("Adding connecting vars %s " % cvars)
             self.strategy.add_extra_abivars(cvars)
 
-        # Add the variables needed to read the required files
-        #for f in self.required_files:
-        #    #raise NotImplementedError("")
-        #    cvars = irdvars_for_ext("DEN")
-        #    logger.debug("Adding connecting vars %s " % cvars)
-        #    self.strategy.add_extra_abivars(cvars)
-
         # Automatic parallelization
         if hasattr(self, "autoparal_run"):
             try:
@@ -2630,7 +2559,7 @@ class AbinitTask(Task):
     """
     Base class defining an ABINIT calculation
     """
-    Results = AbinitTaskResults
+    Results = TaskResults
 
     @classmethod
     def from_input(cls, abinit_input, workdir=None, manager=None):
@@ -2768,7 +2697,7 @@ class AbinitTask(Task):
         process = self.manager.to_shell_manager(mpi_procs=1).launch(self)
         logger.info("fake run launched")
         self.history.pop()
-        retcode = process.wait()  
+        retcode = process.wait()
 
         # Remove the variables added for the automatic parallelization
         self.strategy.remove_extra_abivars(autoparal_vars.keys())
@@ -3070,7 +2999,8 @@ class RelaxTask(AbinitTask, ProduceGsr):
         from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
         Prefer WFK over other files since we can reuse the wavefunctions.
 
-        .. note:
+        .. note::
+
             The problem in the present approach is that some parameters in the input
             are computed from the initial structure and may not be consisten with
             the modification of the structure done during the structure relaxation.
@@ -3255,9 +3185,9 @@ class SigmaTask(AbinitTask):
         results = super(SigmaTask, self).get_results(**kwargs)
 
         # Open the SIGRES file and add its data to results.out
-        #with self.open_sigres() as sigres:
-        #    results["out"].update(sigres.as_dict())
-        #    results.add_gridfs_files(SIGRES=sigres.filepath)
+        with self.open_sigres() as sigres:
+            #results["out"].update(sigres.as_dict())
+            results.add_gridfs_files(SIGRES=sigres.filepath)
 
         return results
 
@@ -3366,11 +3296,11 @@ class BseTask(AbinitTask):
     def get_results(self, **kwargs):
         results = super(BseTask, self).get_results(**kwargs)
 
-        #with self.open_mdf() as mdf:
-        #    results["out"].update(mdf.as_dict())
-        #    #epsilon_infinity
-        #    #optical_gap
-        #    results.add_gridfs_files(MDF=mdf.filepath)
+        with self.open_mdf() as mdf:
+            #results["out"].update(mdf.as_dict())
+            #epsilon_infinity
+            #optical_gap
+            results.add_gridfs_files(MDF=mdf.filepath)
 
         return results
 
