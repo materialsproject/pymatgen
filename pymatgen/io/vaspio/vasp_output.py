@@ -247,7 +247,7 @@ class Vasprun(PMGSONable):
 
     .. attribute:: epsilon_static_wolfe
 
-        The static part of the dielectric constant without any local field effects. 
+        The static part of the dielectric constant without any local field effects.
         Present when it's a DFPT run (LEPSILON=TRUE)
 
     .. attribute:: epsilon_ionic
@@ -1208,35 +1208,37 @@ class Outcar(PMGSONable):
 
             search.append(["MACROSCOPIC STATIC DIELECTRIC TENSOR \(", None,
                            dielectric_section_start])
-        
+
             def dielectric_section_start2(results, match):
                 results.dielectric_index = 0
 
-            search.append(["-------------------------------------",
-                        lambda results,
-                        line: results.dielectric_index == -1,
-                        dielectric_section_start2])
+            search.append(
+                ["-------------------------------------",
+                lambda results, line: results.dielectric_index == -1,
+                dielectric_section_start2])
 
             def dielectric_data(results, match):
                 results.dielectric_tensor[results.dielectric_index, :] = \
                     np.array([float(match.group(i)) for i in range(1, 4)])
                 results.dielectric_index += 1
 
-            search.append(["^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$",
-                           lambda results,
-                           line: results.dielectric_index >= 0,
-                           dielectric_data])
-         
+            search.append(
+                ["^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$",
+                lambda results, line: results.dielectric_index >= 0
+                                      if results.dielectric_index is not None
+                                      else None,
+                dielectric_data])
+
             def dielectric_section_stop(results, match):
                 results.dielectric_index = None
 
             search.append(
                 ["-------------------------------------",
-                lambda results, line: results.dielectric_index >= 1 if
-                                      results.dielectric_index is not None
+                lambda results, line: results.dielectric_index >= 1
+                                      if results.dielectric_index is not None
                                       else None,
                 dielectric_section_stop])
-            
+
             self.dielectric_index = None
             self.dielectric_tensor = np.zeros((3, 3))
 
@@ -1246,28 +1248,34 @@ class Outcar(PMGSONable):
             search.append(["PIEZOELECTRIC TENSOR  for field in x, y, z        "
                            "\(C/m\^2\)",
                            None, piezo_section_start])
-            
+
             def piezo_data(results, match):
                 results.piezo_tensor[results.piezo_index, :] = \
                     np.array([float(match.group(i)) for i in range(1, 7)])
                 results.piezo_index += 1
 
-            search.append(["^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
-                           " +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
-                           " +([-0-9.Ee+]+)*$",
-                           lambda results, line: results.piezo_index >= 0,
-                           piezo_data])
-            
+            search.append(
+                ["^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
+                 " +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
+                 " +([-0-9.Ee+]+)*$",
+                 lambda results, line: results.piezo_index >= 0
+                                       if results.piezo_index is not None
+                                       else None,
+                 piezo_data])
+
             def piezo_section_stop(results, match):
                 results.piezo_index = None
 
-            search.append(["-------------------------------------",
-                           lambda results, line: results.piezo_index >= 1,
-                           piezo_section_stop])
+            search.append(
+                ["-------------------------------------",
+                lambda results, line: results.piezo_index >= 1
+                                      if results.piezo_index is not None
+                                      else None,
+                piezo_section_stop])
 
             self.piezo_index = None
             self.piezo_tensor = np.zeros((3, 6))
-           
+
             def born_section_start(results, match):
                 results.born_ion = -1
 
@@ -1286,17 +1294,22 @@ class Outcar(PMGSONable):
                 results.born[results.born_ion][int(match.group(1)) - 1, :] = \
                     np.array([float(match.group(i)) for i in range(2, 5)])
 
-            search.append(["^ *([1-3]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) "
-                           "+([-0-9.Ee+]+)$",
-                           lambda results, line: results.born_ion >= 0,
-                           born_data])
+            search.append(
+                ["^ *([1-3]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+)$",
+                lambda results, line: results.born_ion >= 0
+                                      if results.born_ion is not None
+                                      else results.born_ion,
+                born_data])
 
             def born_section_stop(results, match):
                 results.born_index = None
 
-            search.append(["-------------------------------------",
-                           lambda results, line: results.born_ion >= 1,
-                           born_section_stop])
+            search.append(
+                ["-------------------------------------",
+                lambda results, line: results.born_ion >= 1
+                                      if results.born_ion is not None
+                                      else results.born_ion,
+                born_section_stop])
 
             self.born_ion = None
             self.born = {}
@@ -1320,32 +1333,39 @@ class Outcar(PMGSONable):
 
             search.append(["MACROSCOPIC STATIC DIELECTRIC TENSOR IONIC", None,
                            dielectric_section_start])
-        
+
             def dielectric_section_start2(results, match):
                 results.dielectric_ionic_index = 0
 
-            search.append(["-------------------------------------",
-                        lambda results,
-                        line: results.dielectric_ionic_index == -1,
-                        dielectric_section_start2])
+            search.append(
+                ["-------------------------------------",
+                lambda results, line: results.dielectric_ionic_index == -1
+                                      if results.dielectric_ionic_index is not None
+                                      else results.dielectric_ionic_index,
+                dielectric_section_start2])
 
             def dielectric_data(results, match):
                 results.dielectric_ionic_tensor[results.dielectric_ionic_index, :] = \
                     np.array([float(match.group(i)) for i in range(1, 4)])
                 results.dielectric_ionic_index += 1
 
-            search.append(["^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$",
-                           lambda results,
-                           line: results.dielectric_ionic_index >= 0,
-                           dielectric_data])
-         
+            search.append(
+                ["^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$",
+                lambda results, line: results.dielectric_ionic_index >= 0
+                                      if results.dielectric_ionic_index is not None
+                                      else results.dielectric_ionic_index,
+                dielectric_data])
+
             def dielectric_section_stop(results, match):
                 results.dielectric_ionic_index = None
 
-            search.append(["-------------------------------------",
-                           lambda results, line: results.dielectric_ionic_index >= 1,
-                           dielectric_section_stop])
-            
+            search.append(
+                ["-------------------------------------",
+                lambda results, line: results.dielectric_ionic_index >= 1
+                                      if results.dielectric_ionic_index is not None
+                                      else results.dielectric_ionic_index,
+                dielectric_section_stop])
+
             self.dielectric_ionic_index = None
             self.dielectric_ionic_tensor = np.zeros((3, 3))
 
@@ -1354,24 +1374,30 @@ class Outcar(PMGSONable):
 
             search.append(["PIEZOELECTRIC TENSOR IONIC CONTR  for field in x, y, z        ",
                            None, piezo_section_start])
-            
+
             def piezo_data(results, match):
                 results.piezo_ionic_tensor[results.piezo_ionic_index, :] = \
                     np.array([float(match.group(i)) for i in range(1, 7)])
                 results.piezo_ionic_index += 1
 
-            search.append(["^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
-                           " +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
-                           " +([-0-9.Ee+]+)*$",
-                           lambda results, line: results.piezo_ionic_index >= 0,
-                           piezo_data])
-            
+            search.append(
+                ["^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
+                 " +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
+                 " +([-0-9.Ee+]+)*$",
+                 lambda results, line: results.piezo_ionic_index >= 0
+                                       if results.piezo_ionic_index is not None
+                                       else results.piezo_ionic_index,
+                 piezo_data])
+
             def piezo_section_stop(results, match):
                 results.piezo_ionic_index = None
 
-            search.append(["-------------------------------------",
-                           lambda results, line: results.piezo_ionic_index >= 1,
-                           piezo_section_stop])
+            search.append(
+                ["-------------------------------------",
+                 lambda results, line: results.piezo_ionic_index >= 1
+                                       if results.piezo_ionic_index is not None
+                                       else results.piezo_ionic_index,
+                 piezo_section_stop])
 
             self.piezo_ionic_index = None
             self.piezo_ionic_tensor = np.zeros((3, 6))
