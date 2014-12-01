@@ -27,6 +27,7 @@ from atomicfile import AtomicFile
 from monty.string import is_string
 from monty.collections import AttrDict
 from monty.functools import lazy_property
+from monty.dev import deprecated
 from monty.io import FileLock
 from pymatgen.core.units import Time, Memory
 from .utils import Condition
@@ -134,7 +135,7 @@ def timelimit_parser(s):
 
 
 def any2mb(s):
-    """Convet string or number to memory in megabytes."""
+    """Convert string or number to memory in megabytes."""
     if is_string(s):
         return int(Memory.from_string(s).to("Mb"))
     else:
@@ -228,15 +229,7 @@ class OmpEnv(AttrDict):
         return "\n".join("export %s=%s" % (k, v) for k, v in self.items())
 
 
-class QHardwareError(Exception):
-    """Exceptions raised by QHardware."""
-
-
-class DistribError(QHardwareError):
-    """Exception raised by distribute."""
-
-
-class QHardware(object):
+class Hardware(object):
     """
     This object collects information on the hardware available in a given queue.
 
@@ -383,7 +376,7 @@ class JobStatus(int):
 
     @classmethod
     def from_string(cls, s):
-        """Return a `Status` instance from its string representation."""
+        """Return a :class`JobStatus` instance from its string representation."""
         for num, text in cls._STATUS_TABLE.items():
             if text == s: return cls(num)
         else:
@@ -525,7 +518,7 @@ class SlurmJob(QueueJob):
         #squeue  --start -j  116791
         #  JOBID PARTITION     NAME     USER  ST           START_TIME  NODES NODELIST(REASON)
         # 116791      defq gs6q2wop cyildiri  PD  2014-11-04T09:27:15     16 (QOSResourceLimit)
-        cmd = "squeue" "--start", "--job %d"  % self.qid
+        cmd = "squeue" "--start", "--job %d" % self.qid
         process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
         process.wait()
 
@@ -576,10 +569,10 @@ class SlurmJob(QueueJob):
         tokens = line.split()
         info = AttrDict()
         for line in tokens:
-          #print(line)
-          k, v = line.split("=")
-          info[k] = v
-        #print(info)
+            #print(line)
+            k, v = line.split("=")
+            info[k] = v
+            #print(info)
 
         qid = int(info.JobId)
         assert qid == self.qid
@@ -649,9 +642,9 @@ class PbsProJob(QueueJob):
         if process.returncode != 0: return None
         line = process.stdout.readlines()[-1]
         sdate = line.split()[-1]
-        if sdata in ("--", "?"): return None
+        if sdate in ("--", "?"): return None
         # TODO One should convert to datetime
-        return sdata
+        return sdate
 
     def get_info(self, **kwargs):
         #$> qstat 5666289
@@ -668,7 +661,7 @@ class PbsProJob(QueueJob):
           return None
 
         out = process.stdout.readlines()[-1]
-        status = self.PBSSTAT_TO_SLURM_STATUS[out.split()[9]]
+        status = self.PBSSTAT_TO_SLURM[out.split()[9]]
 
         # Exit code and signal are not available.
         self.set_status_exitcode_signal(status, None, None)
@@ -763,7 +756,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         kwargs = copy.deepcopy(kwargs)
         self.priority = int(kwargs.pop("priority"))
 
-        self.hw = QHardware(**kwargs.pop("hardware"))
+        self.hw = Hardware(**kwargs.pop("hardware"))
         self._parse_queue(kwargs.pop("queue"))
         self._parse_limits(kwargs.pop("limits"))
         self._parse_job(kwargs.pop("job"))
@@ -885,7 +878,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         return self.has_mpirun
     
     @property
-    #@deprecated(has_mpi)
+    @deprecated(message="use has_mpi")
     def has_mpirun(self):
         """True if we are using a mpirunner"""
         return bool(self.mpi_runner)
@@ -1017,7 +1010,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in Megabytes"""
         # Hack needed because abinit is still not able to estimate memory.
-        if mem_mb <=0:
+        if mem_mb <= 0:
             #mem_per_proc = hw.mem_per_core
             mem_per_proc = self.min_mem_per_proc
 

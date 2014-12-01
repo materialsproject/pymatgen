@@ -2589,16 +2589,16 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         # Add the variables needed to connect the node.
         for d in self.deps:
-            vars = d.connecting_vars()
-            logger.debug("Adding connecting vars %s " % vars)
-            self.strategy.add_extra_abivars(vars)
+            cvars = d.connecting_vars()
+            logger.debug("Adding connecting vars %s " % cvars)
+            self.strategy.add_extra_abivars(cvars)
 
         # Add the variables needed to read the required files
-        for f in self.required_files:
-            #raise NotImplementedError("")
-            vars = irdvars_for_ext("DEN")
-            logger.debug("Adding connecting vars %s " % vars)
-            self.strategy.add_extra_abivars(vars)
+        #for f in self.required_files:
+        #    #raise NotImplementedError("")
+        #    cvars = irdvars_for_ext("DEN")
+        #    logger.debug("Adding connecting vars %s " % cvars)
+        #    self.strategy.add_extra_abivars(cvars)
 
         # Automatic parallelization
         if hasattr(self, "autoparal_run"):
@@ -2619,8 +2619,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         Helper method to start the task and wait for completetion.
 
-        Mainly used when we are submitting the task via the shell
-        without passing through a queue manager.
+        Mainly used when we are submitting the task via the shell without passing through a queue manager.
         """
         self.start(*args, **kwargs)
         retcode = self.wait()
@@ -2723,12 +2722,12 @@ class AbinitTask(Task):
     def autoparal_run(self):
         """
         Find an optimal set of parameters for the execution of the task 
-        using the options specified in `TaskPolicy`.
+        using the options specified in :class:`TaskPolicy`.
         This method can change the ABINIT input variables and/or the 
-        parameters passed to the `TaskManager` e.g. the number of CPUs for MPI and OpenMp.
+        parameters passed to the :class`TaskManager` e.g. the number of CPUs for MPI and OpenMp.
 
         Set:
-           self.pconfs where pconfs is a `ParalHints` object with the configuration reported by 
+           self.pconfs where pconfs is a :class:`ParalHints` object with the configuration reported by
            autoparal and optimal is the optimal configuration selected.
            Returns 0 if sucess
         """
@@ -3121,11 +3120,11 @@ class DdkTask(AbinitTask):
 
     def _on_ok(self):
         super(DdkTask, self)._on_ok()
-
         # Copy instead of removing, otherwise optic tests fail
         # Fixing this proble requires a rationalization of file extensions.
-        if self.outdir.rename_abiext('1WF', 'DDK') > 0:
+        #if self.outdir.rename_abiext('1WF', 'DDK') > 0:
         #if self.outdir.copy_abiext('1WF', 'DDK') > 0:
+        if self.outdir.symlink_abiext('1WF', 'DDK') > 0:
             raise RuntimeError
 
     def get_results(self, **kwargs):
@@ -3187,8 +3186,8 @@ class PhononTask(AbinitTask):
     def make_links(self):
         super(PhononTask, self).make_links()
         # fix the problem that abinit uses hte 1WF extension for the DDK output file but reads it with the irdddk flag
-        if self.indir.has_abiext('DDK'):
-            self.indir.rename_abiext('DDK', '1WF')
+        #if self.indir.has_abiext('DDK'):
+        #    self.indir.rename_abiext('DDK', '1WF')
 
 
 class ScrTask(AbinitTask):
@@ -3385,7 +3384,9 @@ class OpticTask(Task):
         assert len(ddk_nodes) == 3
         #print(self.nscf_node, self.ddk_nodes)
 
+        # Use DDK extension instead of 1WF
         deps = {n: "1WF" for n in self.ddk_nodes}
+        #deps = {n: "DDK" for n in self.ddk_nodes}
         deps.update({self.nscf_node: "WFK"})
 
         strategy = OpticInput(optic_input)
