@@ -922,8 +922,8 @@ class QptdmWork(Work):
         # Parse the section with the q-points
         #qpoints = yaml_read_kpoints(fake_task.log_file.path, doc_tag="!Qptdms")
         from pymatgen.io.abinitio.netcdf import NetcdfReader
-        with NetcdfReader(fake_task.outdir.has_abiext("qpts.nc")) as reader:
-            qpoints = reader.read_value("qibz")
+        with NetcdfReader(fake_task.outdir.has_abiext("qptdms.nc")) as reader:
+            qpoints = reader.read_value("reduced_coordinates_of_kpoints")
         #print("qpoints)
         #w.rmtree()
 

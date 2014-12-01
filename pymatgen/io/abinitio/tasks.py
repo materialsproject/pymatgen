@@ -2693,7 +2693,7 @@ class AbinitTask(Task):
         if ngkpt is not None: ibz_vars["ngkpt"] = ngkpt
         if shiftk is not None:
             import numpy as np
-            shiftk =  np.resphape(shiftk, (-1,3))
+            shiftk = np.resphape(shiftk, (-1,3))
             ibz_vars["shiftk"] = shiftk
             ibz_vars["nshiftk"] = len(shiftk)
 
@@ -2713,9 +2713,9 @@ class AbinitTask(Task):
         # Read the list of k-points from the netcdf file
         ################################################
         from pymatgen.io.abinitio import NetcdfReader
-        with NetcdfReader(self.outdir.path_in("ibz.nc")) as r:
-            kpoints = r.read_value("kpoints")
-            weights = r.read_value("weights")
+        with NetcdfReader(self.outdir.path_in("kpts.nc")) as r:
+            kpoints = r.read_value("reduced_coordinates_of_kpoints")
+            weights = r.read_value("kpoint_weights")
 
         self.set_status(self.S_INIT)
 

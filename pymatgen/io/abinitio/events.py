@@ -109,8 +109,7 @@ class AbinitEvent(yaml.YAMLObject):
             if isinstance(self, cls):
                 return cls
 
-        err_msg = "Cannot determine the base class of %s" % self.__class__.__name__
-        raise ValueError(err_msg)
+        raise ValueError("Cannot determine the base class of %s" % self.__class__.__name__)
 
     def action(self):
         """
@@ -303,7 +302,7 @@ class EventReport(collections.Iterable):
 
 
 class EventsParserError(Exception):
-    """Base class for the exceptions raised by EventsParser."""
+    """Base class for the exceptions raised by :class:`EventsParser`."""
 
 
 class EventsParser(object):
@@ -366,6 +365,6 @@ class EventsParser(object):
     def report_exception(self, filename, exc):
         """
         This method is used when self.parser raises an Exception so that
-        we can report a customized `EventReport` object with info the exception.
+        we can report a customized :class:`EventReport` object with info the exception.
         """
-        return EventReport(filename, events=[Error(str(exc))])
+        return EventReport(filename, events=[AbinitError(str(exc))])
