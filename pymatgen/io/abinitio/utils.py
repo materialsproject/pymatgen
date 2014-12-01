@@ -7,11 +7,13 @@ import six
 import collections
 import shutil
 import operator
-import logging
+
+from fnmatch import fnmatch
 from six.moves import filter
 from monty.string import list_strings
 from pymatgen.util.string_utils import WildCard
 
+import logging
 logger = logging.getLogger(__name__)
 
 
@@ -85,7 +87,7 @@ class File(object):
         """Write a list of strings to file."""
         self.make_dir()
         with open(self.path, "w") as f:
-            return f.writelines()
+            return f.writelines(lines)
 
     def make_dir(self):
         """Make the directory where the file is located."""
@@ -169,16 +171,13 @@ class Directory(object):
         Return the list of absolute filepaths in the directory.
 
         Args:
-            wildcard:
-                String of tokens separated by "|".
-                Each token represents a pattern.
+            wildcard: String of tokens separated by "|". Each token represents a pattern.
                 If wildcard is not None, we return only those files that
                 match the given shell pattern (uses fnmatch).
-
                 Example:
                   wildcard="*.nc|*.pdf" selects only those files that end with .nc or .pdf
         """
-        # Selecte the files in the directory.
+        # Select the files in the directory.
         fnames = [f for f in os.listdir(self.path)]
         filepaths = filter(os.path.isfile, [os.path.join(self.path, f) for f in fnames])
 
@@ -196,13 +195,17 @@ class Directory(object):
         in the directory. Returns empty string is file is not present.
 
         Raises:
-            ValueError if multiple files with the given ext are found.
+            `ValueError` if multiple files with the given ext are found.
             This implies that this method is not compatible with multiple datasets.
         """
         files = []
         for f in self.list_filepaths():
             if f.endswith(ext) or f.endswith(ext + ".nc"):
                 files.append(f)
+
+        # This should fix the problem with the 1WF files in which the file extension convention is broken
+        if not files:
+            files = [f for f in self.list_filepaths() if fnmatch(f, "*%s*" % ext)]
 
         if not files:
             return ""
@@ -214,11 +217,27 @@ class Directory(object):
 
         return files[0]
 
+    def symlink_abiext(self, inext, outext):
+        """Create a simbolic link"""
+        infile = self.has_abiext(inext)
+        if not infile:
+            raise RuntimeError('no file with extension %s in %s' % (inext, self))
+
+        for i in range(len(infile) - 1, -1, -1):
+            if infile[i] == '_':
+                break
+        else:
+            raise RuntimeError('Extension %s could not be detected in file %s' % (inext, infile))
+
+        outfile = infile[:i] + '_' + outext
+        os.symlink(infile, outfile)
+        return 0
+
     def rename_abiext(self, inext, outext):
         """Rename the Abinit file with extension inext with the new extension outext"""
         infile = self.has_abiext(inext)
         if not infile:
-            raise RuntimeError('no file with extension %s' % inext)
+            raise RuntimeError('no file with extension %s in %s' % (inext, self))
 
         for i in range(len(infile) - 1, -1, -1):
             if infile[i] == '_':
@@ -234,7 +253,7 @@ class Directory(object):
         """Copy the Abinit file with extension inext to a new file withw extension outext"""
         infile = self.has_abiext(inext)
         if not infile:
-            raise RuntimeError('no file with extension %s' % inext)
+            raise RuntimeError('no file with extension %s in %s' % (inext, self))
 
         for i in range(len(infile) - 1, -1, -1):
             if infile[i] == '_':
@@ -383,8 +402,7 @@ class FilepathFixer(object):
         Fix the filenames in the iterable paths
 
         Returns:
-            old2new:
-                Mapping old_path --> new_path
+            old2new: Mapping old_path --> new_path
         """
         old2new, fixed_exts = {}, []
 
