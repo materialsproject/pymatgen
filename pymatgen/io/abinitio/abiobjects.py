@@ -901,7 +901,7 @@ class Screening(AbivarAble):
     #def gwcalctyp(self):
     #    "Return the value of the gwcalctyp input variable"
     #    dig0 = str(self._SIGMA_TYPES[self.type])
-    #    dig1 = str(self._SC_MODES[self.sc_mode])
+    #    dig1 = str(self._SC_MODES[self.sc_mode]
     #    return dig1.strip() + dig0.strip()
 
     def to_abivars(self):
@@ -1090,7 +1090,7 @@ class ExcHamiltonian(AbivarAble):
 
         # We want an array bs_loband(nsppol).
         try:
-            bs_loband = np.reshape(bs_loband, (spin_mode.nsppol))
+            bs_loband = np.reshape(bs_loband, spin_mode.nsppol)
         except ValueError:
             bs_loband = np.array(spin_mode.nsppol * [int(bs_loband)])
 
@@ -1114,8 +1114,8 @@ class ExcHamiltonian(AbivarAble):
 
         # Extra options.
         self.kwargs = kwargs
-        if "chksymbreak" not in self.kwargs:
-            self.kwargs["chksymbreak"] = 0
+        #if "chksymbreak" not in self.kwargs:
+        #    self.kwargs["chksymbreak"] = 0
 
     @property
     def inclvkb(self):
@@ -1142,7 +1142,7 @@ class ExcHamiltonian(AbivarAble):
         abivars = dict(
             bs_calctype=1,
             bs_loband=self.bs_loband,
-            nband=self.nband,
+            #nband=self.nband,
             soenergy=self.soenergy,
             ecuteps=self.ecuteps,
             #bs_algorithm = self._ALGO2VAR[self.algo],
