@@ -614,10 +614,10 @@ class PyFlowScheduler(object):
                 self.flow.num_errored_tasks, self.MAX_NUM_ABIERRS)
             err_msg += boxed(msg)
 
-        #deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
-        #if not runnables and not running and deadlocked:
-        #    msg = "No runnable job with deadlocked tasks:\n %s\nWill shutdown the scheduler and exit" % str(deadlocked)
-        #    err_msg += boxed(msg)
+        deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
+        if not runnables and not running and deadlocked:
+            msg = "No runnable job with deadlocked tasks:\n %s\nWill shutdown the scheduler and exit" % str(deadlocked)
+            err_msg += boxed(msg)
 
         if err_msg:
             # Something wrong. Quit
