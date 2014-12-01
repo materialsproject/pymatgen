@@ -1,7 +1,6 @@
 # coding: utf-8
 """Classes defining Abinit calculations."""
 from __future__ import division, print_function, unicode_literals
-
 import os
 import time
 import datetime
@@ -9,18 +8,18 @@ import shutil
 import collections
 import abc
 import copy
+from pprint import pprint
+
 import yaml
 import six
-
-
-from pprint import pprint
 from monty.termcolor import colored
-from six.moves import map, zip, StringIO
 from monty.serialization import loadfn
 from monty.string import is_string, list_strings
 from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property
+
+from six.moves import map, zip, StringIO
 from pymatgen.util.string_utils import WildCard
 from pymatgen.util.num_utils import maxloc
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump, pmg_serialize
@@ -28,7 +27,7 @@ from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extension
 from .netcdf import ETSF_Reader
 from .strategies import StrategyWithInput, OpticInput
 from . import abiinspect
-from . import events 
+from . import events
 
 
 try:
@@ -2122,7 +2121,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         # 7) Analyze the files of the resource manager and abinit and execution err (mvs)
         if self.qerr_file.exists:
-            from pymatgen.io.gwwrapper.scheduler_error_parsers import get_parser
+            from pymatgen.io.abinitio.scheduler_error_parsers import get_parser
             scheduler_parser = get_parser(self.manager.qadapter.QTYPE, err_file=self.qerr_file.path,
                                           out_file=self.qout_file.path, run_err_file=self.stderr_file.path)
             scheduler_parser.parse()
