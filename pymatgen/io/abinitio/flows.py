@@ -855,7 +855,6 @@ class Flow(Node):
             if lst:
                 files.extend(lst)
 
-        #logger.info("Will edit %d files: %s" % (len(files), str(files)))
         return Editor(editor=editor).edit_files(files)
 
     def cancel(self, nids=None):
@@ -952,7 +951,7 @@ class Flow(Node):
             task_class: Task subclass to instantiate. Default: :class:`AbinitTask`
 
         Returns:   
-            The generated work for the task, work[0] is the actual task.
+            The generated :class:`Work` for the task, work[0] is the actual task.
         """
         work = Work(manager=manager)
         task = work.register(input, deps=deps, task_class=task_class)
@@ -1332,7 +1331,6 @@ def bandstructure_flow(workdir, scf_input, nscf_input, dos_inputs=None, manager=
 
     Args:
         workdir: Working directory.
-
         scf_input: Input for the GS SCF run.
         nscf_input: Input for the NSCF run (band structure run).
         dos_inputs: Input(s) for the NSCF run (dos run).
@@ -1497,7 +1495,7 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
             if with_ddk:
                 new_input.set_variables(rfelfd=3)
 
-            work_qpt.register(new_input, deps=deps, task_class=PhononTask)
+            work_qpt.register_phonon_task(new_input, deps=deps)
 
         flow.register_work(work_qpt)
 

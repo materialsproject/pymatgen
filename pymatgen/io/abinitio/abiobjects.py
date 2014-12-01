@@ -876,8 +876,8 @@ class Screening(AbivarAble):
             raise ValueError("Self-consistecy mode %s is not supported" % sc_mode)
 
         self.ecuteps = ecuteps
-        self.nband   = nband
-        self.w_type  = w_type
+        self.nband = nband
+        self.w_type = w_type
         self.sc_mode = sc_mode
 
         self.ecutwfn = ecutwfn
@@ -889,9 +889,9 @@ class Screening(AbivarAble):
 
         # Default values
         # TODO Change abinit defaults
-        self.gwpara = 2
-        self.awtr   = 1
-        self.symchi = 1
+        self.gwpara=2
+        self.awtr  =1
+        self.symchi=1
 
     @property
     def use_hilbert(self):
@@ -905,7 +905,7 @@ class Screening(AbivarAble):
     #    return dig1.strip() + dig0.strip()
 
     def to_abivars(self):
-        "Returns a dictionary with the abinit variables"
+        """Returns a dictionary with the abinit variables"""
         abivars = {
             "ecuteps"   : self.ecuteps,
             "ecutwfn"   : self.ecutwfn,

@@ -215,19 +215,37 @@ class Directory(object):
         return files[0]
 
     def rename_abiext(self, inext, outext):
+        """Rename the Abinit file with extension inext with the new extension outext"""
         infile = self.has_abiext(inext)
         if not infile:
-            raise RuntimeError('no file with ' + inext + ' extension')
+            raise RuntimeError('no file with extension %s' % inext)
 
         for i in range(len(infile) - 1, -1, -1):
             if infile[i] == '_':
                 break
         else:
-            raise RuntimeError(inext + ' could not be detected in ' + infile)
+            raise RuntimeError('Extension %s could not be detected in file %s' % (inext, infile))
 
         outfile = infile[:i] + '_' + outext
         shutil.move(infile, outfile)
         return 0
+
+    def copy_abiext(self, inext, outext):
+        """Copy the Abinit file with extension inext to a new file withw extension outext"""
+        infile = self.has_abiext(inext)
+        if not infile:
+            raise RuntimeError('no file with extension %s' % inext)
+
+        for i in range(len(infile) - 1, -1, -1):
+            if infile[i] == '_':
+                break
+        else:
+            raise RuntimeError('Extension %s could not be detected in file %s' % (inext, infile))
+
+        outfile = infile[:i] + '_' + outext
+        shutil.copy(infile, outfile)
+        return 0
+
 
 # This dictionary maps ABINIT file extensions to the 
 # variables that must be used to read the file in input.

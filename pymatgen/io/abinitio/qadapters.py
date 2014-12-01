@@ -54,8 +54,9 @@ def slurm_parse_timestr(s):
 
     Returns:
         Time in seconds.
+
     Raises:
-        ValueError if string is not valid.
+        `ValueError` if string is not valid.
     """
     days, hours, minutes, seconds = 0, 0, 0, 0
     if '-' in s:
@@ -237,9 +238,7 @@ class DistribError(QHardwareError):
 
 class QHardware(object):
     """
-    This object collects information on a partition (a la slurm)
-    Partitions can be thought of as a set of resources and parameters around their use.
-    A partition has a ``QueueAdapter``.
+    This object collects information on the hardware available in a given queue.
 
     Basic definition::
 
@@ -253,7 +252,6 @@ class QHardware(object):
           but sharing the cores memory controller and other logical units.
     """
     def __init__(self, **kwargs):
-        """The possible arguments are documented in Partition.ENTRIES."""
         self.num_nodes = int(kwargs.pop("num_nodes"))
         self.sockets_per_node = int(kwargs.pop("sockets_per_node"))
         self.cores_per_socket = int(kwargs.pop("cores_per_socket"))
@@ -278,7 +276,7 @@ class QHardware(object):
 
     @property
     def num_cores(self):
-        """Total number of cores available in the partition."""
+        """Total number of cores available"""
         return self.cores_per_socket * self.sockets_per_node * self.num_nodes
 
     @property
@@ -296,9 +294,7 @@ class QHardware(object):
         return self.cores_per_node >= omp_threads
 
     def divmod_node(self, mpi_procs, omp_threads):
-        """
-        Use divmod to compute (num_nodes, rest_cores)
-        """
+        """Use divmod to compute (num_nodes, rest_cores)"""
         return divmod(mpi_procs * omp_threads, self.cores_per_node)
 
 
@@ -338,7 +334,7 @@ _EXCL_NODES_FILE = _ExcludeNodesFile()
 
 class JobStatus(int):
     """
-    This object is an integer representing the status of the `QueueJob`.
+    This object is an integer representing the status of a :class:`QueueJob`.
 
     Slurm API, see `man squeue`.
 
@@ -396,7 +392,6 @@ class JobStatus(int):
             return cls.from_string("UNKNOWN")
 
 
-
 class QueueJob(object):
 
     # Used to handle other resource managers.
@@ -445,7 +440,7 @@ class QueueJob(object):
 
     @property
     def has_node_failures(self):
-        return self.status == self.S_NODE_FAIL
+        return self.status == self.S_NODEFAIL
 
     @property
     def unknown_status(self):
@@ -549,9 +544,9 @@ class SlurmJob(QueueJob):
 
     def get_info(self, **kwargs):
         # See https://computing.llnl.gov/linux/slurm/sacct.html
-        #If SLURM job ids are reset, some job numbers will        
-	    #probably appear more than once refering to different jobs.
-	    #Without this option only the most recent jobs will be displayed.          
+        #If SLURM job ids are reset, some job numbers will
+        #probably appear more than once refering to different jobs.
+        #Without this option only the most recent jobs will be displayed.
 
         #state Displays the job status, or state.
         #Output can be RUNNING, RESIZING, SUSPENDED, COMPLETED, CANCELLED, FAILED, TIMEOUT, 
@@ -690,7 +685,7 @@ def all_subclasses(cls):
 
 def make_qadapter(**kwargs):
     """
-    Return the concrete `Adapter` class from a string.
+    Return the concrete :class:`QueueAdapter` class from a string.
     Note that one can register a customized version with:
 
     .. example:
@@ -706,13 +701,15 @@ def make_qadapter(**kwargs):
 
         make_qadapter(qtype="myslurm", **kwargs)
 
-    .. warning:
+    .. warning::
+
         MyAdapter should be pickleable, hence one should declare it 
         at the module level so that pickle can import it at run-time.
     """
     # Get all known subclasses of QueueAdapter.
     d = {c.QTYPE: c for c in all_subclasses(QueueAdapter)}
     qtype = kwargs["queue"].pop("qtype")
+
     return d[qtype](**kwargs)
 
 
@@ -726,14 +723,11 @@ class QueueAdapterDistribError(Exception):
 
 class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     """
-    The QueueAdapter is responsible for all interactions with a specific
-    queue management system. This includes handling all details of queue
-    script format as well as queue submission and management.
+    The `QueueAdapter` is responsible for all interactions with a specific queue management system.
+    This includes handling all details of queue script format as well as queue submission and management.
 
-    This is the Abstract base class defining the methods that 
-    must be implemented by the concrete classes.
-    A user should extend this class with implementations that work on
-    specific queue systems.
+    This is the Abstract base class defining the methods that  must be implemented by the concrete classes.
+    A user should extend this class with implementations that work on specific queue systems.
     """
     Error = QueueAdapterError
     DistribError = QueueAdapterDistribError
@@ -743,39 +737,24 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     def __init__(self, **kwargs):
         """
         Args:
-            qname:
-                Name of the queue.
-            qparams:
-                Dictionary with the paramenters used in the template.
-            setup:
-                String or list of commands to execute during the initial setup.
-            modules:
-                String or list of modules to load before running the application.
-            shell_env:
-                Dictionary with the environment variables to export
-                before running the application.
-            omp_env:
-                Dictionary with the OpenMP variables.
-            pre_run:
-                String or list of commands to execute before launching the calculation.
-            post_run:
-                String or list of commands to execute once the calculation is completed.
-            mpi_runner:
-                Path to the MPI runner or `MpiRunner` instance. None if not used
-            max_num_attempts:
-                Default to 2
-            qverbatim
-            min_cores, max_cores:
-                Minimum and maximum number of cores that can be used
+            qname: Name of the queue.
+            qparams: Dictionary with the paramenters used in the template.
+            setup: String or list of commands to execute during the initial setup.
+            modules: String or list of modules to load before running the application.
+            shell_env: Dictionary with the environment variables to export before running the application.
+            omp_env: Dictionary with the OpenMP variables.
+            pre_run: String or list of commands to execute before launching the calculation.
+            post_run: String or list of commands to execute once the calculation is completed.
+            mpi_runner: Path to the MPI runner or :class:`MpiRunner` instance. None if not used
+            max_num_attempts: Default to 2
+            qverbatim:
+            min_cores, max_cores: Minimum and maximum number of cores that can be used
             min_mem_per_proc
             max_mem_per_proc
-            timelimit
-                Time limit in seconds
-            priority=Priority level, integer number > 0
-            allocate_nodes:
-                True if we must allocate entire nodes"
-            condition:
-                Condition object (dictionary)
+            timelimit: Time limit in seconds
+            priority: Priority level, integer number > 0
+            allocate_nodes: True if we must allocate entire nodes"
+            condition: Condition object (dictionary)
         # TODO
             max_num_attempts:
             task_classes
@@ -808,7 +787,9 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     def validate_qparams(self):
         """
         Check if the keys specified by the user in qparams are supported.
-        Raise ValueError if errors.
+
+        Raise:
+            `ValueError` if errors.
         """
         # No validation for ShellAdapter.
         if isinstance(self, ShellAdapter): return
@@ -1053,8 +1034,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         Cancel the job. 
 
         Args:
-            job_id:
-                (in) Job identifier.
+            job_id: Job identifier.
 
         Returns:
             Exit status.
@@ -1184,16 +1164,11 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         Uses the template_file along with internal parameters to create the script.
 
         Args:
-            job_name:
-                Name of the job.
-            launch_dir: 
-                (str) The directory the job will be launched in.
-            executable:
-                String with the name of the executable to be executed.
-            qout_path
-                Path of the Queue manager output file.
-            qerr_path:
-                Path of the Queue manager error file.
+            job_name: Name of the job.
+            launch_dir: (str) The directory the job will be launched in.
+            executable: String with the name of the executable to be executed.
+            qout_path Path of the Queue manager output file.
+            qerr_path: Path of the Queue manager error file.
         """
         # PbsPro does not accept job_names longer than 15 chars.
         if len(job_name) > 14 and isinstance(self, PbsProAdapter):
@@ -1251,7 +1226,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         Public API: wraps the concrete implementation _submit_to_queue
 
         Raises:
-            QueueAdapterError if we have already tried to submit the job max_num_attempts
+            `QueueAdapterError` if we have already tried to submit the job max_num_attempts
         """
         if not os.path.exists(script_file):
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
@@ -1285,8 +1260,8 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         This method must be provided by the concrete classes and will be called by submit_to_queue
 
         Args:
-            script_file: 
-                (str) name of the script file to use (String)
+            script_file:  (str) name of the script file to use (String)
+
         Returns:
             queue_id, process
         """
@@ -1334,7 +1309,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     def more_mem_per_proc(self, factor=1):
         """
         Method to increase the amount of memory asked for, by factor.
-        Return True if success.
+        Return: True if success.
         """
         base_increase = 2000
         old_mem = self.mem_per_proc
@@ -1349,7 +1324,8 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
     def more_mpi_procs(self, factor=1):
         """
-        Method to increase the number of MPI procs. Return True if success.
+        Method to increase the number of MPI procs.
+        Return: True if success.
         """
         base_increase = 12
         new_cpus = self.mpi_procs + factor * base_increase
@@ -1363,9 +1339,11 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
     def get_score(self, pconf):
         """
-        Receives a ``ParalConf`` object, pconf, and returns a number that will be used
+        Receives a :class:`ParalConf` object, pconf, and returns a number that will be used
         to select the partion on the cluster on which the task will be submitted.
-        Returns -inf if paral_conf cannot be executed on this partition.
+
+        Returns:
+            -inf if paral_conf cannot be executed on this partition.
         """
         minf = float("-inf")
         if not self.can_run_pconf(pconf): return minf
@@ -1377,6 +1355,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
 
 class ShellAdapter(QueueAdapter):
+    """Simple Adapter used to submit runs through the shell."""
     QTYPE = "shell"
 
     QTEMPLATE = """\
@@ -1400,6 +1379,7 @@ $${qverbatim}
 
 
 class SlurmAdapter(QueueAdapter):
+    """Adapter for SLURM."""
     QTYPE = "slurm"
 
     Job = SlurmJob
@@ -1533,6 +1513,7 @@ $${qverbatim}
 
 
 class PbsProAdapter(QueueAdapter):
+    """Adapter for PbsPro"""
     QTYPE = "pbspro"
 
 #PBS -l select=$${select}:ncpus=$${ncpus}:vmem=$${vmem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
@@ -1712,7 +1693,6 @@ $${qverbatim}
 
 class TorqueAdapter(PbsProAdapter):
     """Adapter for Torque."""
-
     QTYPE = "torque"
 
     QTEMPLATE = """\
@@ -1756,9 +1736,7 @@ $${qverbatim}
 
 
 class SGEAdapter(QueueAdapter):
-    """
-    Adapter for Sun Grid Engine (SGE) task submission software.
-    """
+    """Adapter for Sun Grid Engine (SGE) task submission software."""
     QTYPE = "sge"
 
     QTEMPLATE = """\
@@ -1776,6 +1754,7 @@ class SGEAdapter(QueueAdapter):
 #$ -S /bin/bash
 $${qverbatim}
 """
+
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
         super(SGEAdapter, self).set_mpi_procs(mpi_procs)
@@ -1834,7 +1813,7 @@ $${qverbatim}
 
 
 class MOABAdapter(QueueAdapter):
-    """https://computing.llnl.gov/tutorials/moab/"""
+    """Adapter for MOAB. See https://computing.llnl.gov/tutorials/moab/"""
     QTYPE = "moab"
 
     QTEMPLATE = """\
