@@ -2913,7 +2913,7 @@ class AbinitTask(Task):
 class ProduceGsr(object):
     """
     Mixin class for AbinitTasks producing a GSR file.
-    Provice the method `read_gsr` that reads and return a GSR file.
+    Provice the method `open_gsr` that reads and return a GSR file.
     """
     def open_gsr(self):
         """
@@ -2979,11 +2979,12 @@ class ScfTask(AbinitTask, ProduceGsr):
         results = super(ScfTask, self).get_results(**kwargs)
 
         # Open the GSR file and add its data to results.out
-        gsr = self.read_gsr()
-        results["out"].update(gsr.as_dict())
+        with self.open_gsr() as gsr:
+            results["out"].update(gsr.as_dict())
+            # Add files to GridFS
+            results.add_gridfs_files(GSR=gsr.filepath)
 
-        # Add files to GridFS
-        return results.add_gridfs_files(GSR=gsr.filepath)
+        return results
 
 
 class NscfTask(AbinitTask, ProduceGsr):
@@ -3016,11 +3017,12 @@ class NscfTask(AbinitTask, ProduceGsr):
         results = super(NscfTask, self).get_results(**kwargs)
 
         # Read the GSR file.
-        gsr = self.read_gsr()
-        results["out"].update(gsr.as_dict())
+        with  self.open_gsr() as gsr:
+            results["out"].update(gsr.as_dict())
+            # Add files to GridFS
+            results.add_gridfs_files(GSR=gsr.filepath)
 
-        # Add files to GridFS
-        return results.add_gridfs_files(GSR=gsr.filepath)
+        return results
 
 
 class RelaxTask(AbinitTask, ProduceGsr):
@@ -3098,11 +3100,12 @@ class RelaxTask(AbinitTask, ProduceGsr):
         results = super(RelaxTask, self).get_results(**kwargs)
 
         # Open the GSR file and add its data to results.out
-        gsr = self.read_gsr()
-        results["out"].update(gsr.as_dict())
+        with self.open_gsr() as gsr:
+            results["out"].update(gsr.as_dict())
+            # Add files to GridFS
+            results.add_gridfs_files(GSR=gsr.filepath)
 
-        # Add files to GridFS
-        return results.add_gridfs_files(GSR=gsr.filepath)
+        return results
 
 
 class DdeTask(AbinitTask):
@@ -3119,7 +3122,10 @@ class DdkTask(AbinitTask):
     def _on_ok(self):
         super(DdkTask, self)._on_ok()
 
+        # Copy instead of removing, otherwise optic tests fail
+        # Fixing this proble requires a rationalization of file extensions.
         if self.outdir.rename_abiext('1WF', 'DDK') > 0:
+        #if self.outdir.copy_abiext('1WF', 'DDK') > 0:
             raise RuntimeError
 
     def get_results(self, **kwargs):
@@ -3237,9 +3243,10 @@ class SigmaTask(AbinitTask):
         results = super(SigmaTask, self).get_results(**kwargs)
 
         # Open the SIGRES file and add its data to results.out
-        #sigres = self.open_sigres()
-        #results["out"].update(sigres.as_dict())
-        #return results.add_gridfs_files(SIGRES=sigres.filepath)
+        #with self.open_sigres() as sigres:
+        #    results["out"].update(sigres.as_dict())
+        #    results.add_gridfs_files(SIGRES=sigres.filepath)
+
         return results
 
 
@@ -3347,13 +3354,12 @@ class BseTask(AbinitTask):
     def get_results(self, **kwargs):
         results = super(BseTask, self).get_results(**kwargs)
 
-        #mdf = MdfFile(self.outdir.has_abiext("MDF"))
-        #results["out"].update(mdf.as_dict())
-        #    out=mdf.as_dict(),
-        #    epsilon_infinity
-        #    optical_gap
-        #)
-        #return results.add_gridfs_files(MDF=mdf.filepath)
+        #with self.open_mdf() as mdf:
+        #    results["out"].update(mdf.as_dict())
+        #    #epsilon_infinity
+        #    #optical_gap
+        #    results.add_gridfs_files(MDF=mdf.filepath)
+
         return results
 
 
@@ -3367,16 +3373,11 @@ class OpticTask(Task):
         Create an instance of `OpticTask` from an string containing the input.
     
         Args:
-            optic_input:
-                string with the optic variables (filepaths will be added at run time).
-            nscf_node:
-                The NSCF task that will produce thw WFK file or string with the path of the WFK file.
-            ddk_nodes:
-                List of `DdkTask` nodes that will produce the DDK files or list of DDF paths.
-            workdir:
-                Path to the working directory.
-            manager:
-                `TaskManager` object.
+            optic_input: string with the optic variables (filepaths will be added at run time).
+            nscf_node: The NSCF task that will produce thw WFK file or string with the path of the WFK file.
+            ddk_nodes: List of :class:`DdkTask` nodes that will produce the DDK files or list of DDF paths.
+            workdir: Path to the working directory.
+            manager: :class:`TaskManager` object.
         """
         # Convert paths to FileNodes
         self.nscf_node = Node.as_node(nscf_node)
@@ -3386,7 +3387,6 @@ class OpticTask(Task):
 
         deps = {n: "1WF" for n in self.ddk_nodes}
         deps.update({self.nscf_node: "WFK"})
-        #print("deps", deps)
 
         strategy = OpticInput(optic_input)
         super(OpticTask, self).__init__(strategy=strategy, workdir=workdir, manager=manager, deps=deps)
@@ -3465,20 +3465,13 @@ class AnaddbTask(Task):
         Create an instance of `AnaddbTask` from an string containing the input.
 
         Args:
-            anaddb_input:
-                string with the anaddb variables.
-            ddb_node:
-                The node that will produce the DDB file. Accept `Task`, `Work` or filepath.
-            gkk_node:
-                The node that will produce the GKK file (optional). Accept `Task`, `Work` or filepath.
-            md_node:
-                The node that will produce the MD file (optional). Accept `Task`, `Work` or filepath.
-            gkk_node:
-                The node that will produce the GKK file (optional). Accept `Task`, `Work` or filepath.
-            workdir:
-                Path to the working directory (optional).
-            manager:
-                `TaskManager` object (optional).
+            anaddb_input: string with the anaddb variables.
+            ddb_node: The node that will produce the DDB file. Accept :class:`Task`, :class:`Work` or filepath.
+            gkk_node: The node that will produce the GKK file (optional). Accept :class:`Task`, :class:`Work` or filepath.
+            md_node: The node that will produce the MD file (optional). Accept `Task`, `Work` or filepath.
+            gkk_node: The node that will produce the GKK file (optional). Accept `Task`, `Work` or filepath.
+            workdir: Path to the working directory (optional).
+            manager: :class:`TaskManager` object (optional).
         """
         # Keep a reference to the nodes.
         self.ddb_node = Node.as_node(ddb_node)
@@ -3501,7 +3494,7 @@ class AnaddbTask(Task):
 
     @property
     def executable(self):
-        """Path to the executable required for running the `AnaddbTask`."""
+        """Path to the executable required for running the :class:`AnaddbTask`."""
         try:
             return self._executable
         except AttributeError:
