@@ -301,124 +301,6 @@ class Electrons(AbivarAble):
         return abivars
 
 
-#def asabistructure(obj):
-#    """
-#    Convert obj into an :class:`AbiStructure` object. Accepts:
-#
-#        - AbiStructure instance
-#        - Subinstances of pymatgen.
-#        - File paths
-#    """
-#    if isinstance(obj, AbiStructure):
-#        return obj
-#
-#    if isinstance(obj, Structure):
-#        # Promote
-#        return AbiStructure(obj)
-#
-#    if is_string(obj):
-#        # Handle file paths.
-#        if os.path.isfile(obj):
-#            # Read and Promote
-#            return AbiStructure(Structure.from_file(obj))
-#
-#    raise ValueError("Don't know how to convert object %s to an AbiStructure structure" % str(obj))
-
-
-#class AbiStructure(Structure, AbivarAble):
-#    """Patches the pymatgen structure adding the method to_abivars."""
-#
-#    @staticmethod
-#    def asabistructure(obj):
-#        return asabistructure(obj)
-#
-#    def __new__(cls, structure):
-#        new = structure
-#        new.__class__ = cls
-#        return new
-#
-#    def __init__(self, structure):
-#        pass
-#
-#    @classmethod
-#    def boxed_molecule(cls, pseudos, cart_coords, acell=3*(10,)):
-#        """
-#        Creates a molecule in a periodic box of lengths acell [Bohr]
-#
-#        Args:
-#            pseudos: List of pseudopotentials
-#            cart_coords: Cartesian coordinates
-#            acell: Lengths of the box in *Bohr*
-#        """
-#        cart_coords = np.atleast_2d(cart_coords)
-#
-#        molecule = Molecule([p.symbol for p in pseudos], cart_coords)
-#
-#        l = ArrayWithUnit(acell, "bohr").to("ang")
-#
-#        structure = molecule.get_boxed_structure(l[0], l[1], l[2])
-#
-#        return cls(structure)
-#
-#    @classmethod
-#    def boxed_atom(cls, pseudo, cart_coords=3*(0,), acell=3*(10,)):
-#        """
-#        Creates an atom in a periodic box of lengths acell [Bohr]
-#
-#        Args:
-#            pseudo: Pseudopotential object.
-#            cart_coords: Cartesian coordinates
-#            acell: Lengths of the box in *Bohr*
-#        """
-#        return cls.boxed_molecule([pseudo], cart_coords, acell=acell)
-#
-#    #def get_sorted_structure(self):
-#    #    """
-#    #    orders the structure according to increasing Z of the elements
-#    #    """
-#    #    sites = sorted(self.sites, key=lambda site: site.specie.Z)
-#    #    structure = Structure.from_sites(sites)
-#    #    return AbiStructure(structure)
-#
-#    def to_abivars(self):
-#        """Returns a dictionary with the abinit variables."""
-#        types_of_specie = self.types_of_specie
-#        natom = self.num_sites
-#
-#        znucl_type = [specie.number for specie in types_of_specie]
-#
-#        znucl_atoms = self.atomic_numbers
-#
-#        typat = np.zeros(natom, np.int)
-#        for (atm_idx, site) in enumerate(self):
-#            typat[atm_idx] = types_of_specie.index(site.specie) + 1
-#
-#        rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
-#        xred = np.reshape([site.frac_coords for site in self], (-1,3))
-#
-#        # Set small values to zero. This usually happens when the CIF file
-#        # does not give structure parameters with enough digits.
-#        #rprim = np.where(np.abs(rprim) > 1e-8, rprim, 0.0)
-#        #xred = np.where(np.abs(xred) > 1e-8, xred, 0.0)
-#
-#        d = dict(
-#            natom=natom,
-#            ntypat=len(types_of_specie),
-#            typat=typat,
-#            xred=xred,
-#            znucl=znucl_type)
-#
-#        d.update(dict(
-#            acell=3 * [1.0],
-#            rprim=rprim))
-#
-#        #d.update(dict(
-#        #    acell=3 * [1.0],
-#        #    angdeg))
-#
-#        return d
-
-
 class KSampling(AbivarAble):
     """
     Input variables defining the K-point sampling.
@@ -582,7 +464,7 @@ class KSampling(AbivarAble):
         Convenient static constructor for an automatic Monkhorst-Pack mesh.
 
         Args:
-            structure: paymatgen structure object.
+            structure: pymatgen structure object.
             ngkpt: Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
             use_symmetries: Use spatial symmetries to reduce the number of k-points.
             use_time_reversal: Use time-reversal symmetry to reduce the number of k-points.

@@ -2820,6 +2820,55 @@ class AbinitTask(Task):
 
         return 0
 
+    def get_ibz(self, ngkpt=None, shiftk=None):
+        """
+        Returns:
+        """
+        logger.info("in get_ibz")
+
+        #########################################
+        # Run ABINIT in sequential to get the IBZ
+        #########################################
+
+        # Set the variables for automatic parallelization
+        ibz_vars = dict(prtkpt=-2)
+        if ngkpt is not None: ibz_vars["ngkpt"] = ngkpt
+        if shiftk is not None:
+            import numpy as np
+            shiftk = np.resphape(shiftk, (-1,3))
+            ibz_vars["shiftk"] = shiftk
+            ibz_vars["nshiftk"] = len(shiftk)
+
+        self.strategy.add_extra_abivars(ibz_vars)
+        # Build a simple manager to run the job in a shell subprocess
+        # we don't want to make a request to the queue manager for this simple job!
+        seq_manager = self.manager.to_shell_manager(mpi_procs=1)
+
+        # Return code is always != 0
+        process = seq_manager.launch(self)
+        retcode = process.wait()
+
+        # Remove the variables added for the automatic parallelization
+        self.strategy.remove_extra_abivars(ibz_vars.keys())
+
+        ################################################
+        # Read the list of k-points from the netcdf file
+        ################################################
+        from pymatgen.io.abinitio import NetcdfReader
+        with NetcdfReader(self.outdir.path_in("kpts.nc")) as r:
+            kpoints = r.read_value("reduced_coordinates_of_kpoints")
+            weights = r.read_value("kpoint_weights")
+
+        self.set_status(self.S_INIT)
+
+        # Remove the output file since Abinit likes to create new files
+        # with extension .outA, .outB if the file already exists.
+        os.remove(self.output_file.path)
+        os.remove(self.log_file.path)
+        os.remove(self.stderr_file.path)
+
+        return kpoints, weights
+
     def restart(self):
         """
         general restart used when scheduler problems have been taken care of

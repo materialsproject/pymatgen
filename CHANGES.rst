@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v3.0.8
+------
+* Massive update to abinitio (Matteo).
+* Improvements to OUTCAR parsing (Ioannis Petousis).
+
 v3.0.7
 ------
 * Powerful Slab generation algorithms (beta!).
