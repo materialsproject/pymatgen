@@ -2703,7 +2703,19 @@ class AbinitTask(Task):
 
         # Paths to the pseudopotential files.
         # Note that here the pseudos **must** be sorted according to znucl.
-        for pseudo in self.pseudos:
+        # Here we reorder the pseudos if the order is wrong.
+        ord_pseudos = []
+        znucl = self.strategy.structure.to_abivars()["znucl"]
+
+        for z in znucl:
+            for p in self.pseudos:
+                if p.Z == z:
+                    ord_pseudos.append(p)
+                    break
+            else:
+                raise ValueError("Cannot find pseudo with znucl %s in pseudos:\n%s" % (z, self.pseudos))
+
+        for pseudo in ord_pseudos:
             app(pseudo.path)
 
         return "\n".join(lines)
@@ -2921,7 +2933,8 @@ class ProduceGsr(object):
         """
         gsr_path = self.outdir.has_abiext("GSR")
         if not gsr_path:
-            logger.critical("%s didn't produce a GSR file in %s" % (self, self.outdir))
+            if self.status == self.S_OK:
+                logger.critical("%s reached S_OK but didn't produce a GSR file in %s" % (self, self.outdir))
             return None
 
         # Open the GSR file and add its data to results.out

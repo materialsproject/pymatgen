@@ -1213,7 +1213,7 @@ class G0W0WithQptdmFlow(Flow):
 
         sigma_work = Work()
         for sigma_input in sigma_inputs:
-            sigma_work.register(sigma_input, deps={bands_work.nscf_task: "WFK", scr_work: "SCR"})
+            sigma_work.register_sigma_task(sigma_input, deps={bands_work.nscf_task: "WFK", scr_work: "SCR"})
         self.register_work(sigma_work)
 
         self.allocate()
