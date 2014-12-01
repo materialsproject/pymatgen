@@ -1269,12 +1269,13 @@ class IStructure(SiteCollection, PMGSONable):
         Reads a structure from a file. For example, anything ending in
         a "cif" is assumed to be a Crystallographic Information Format file.
         Supported formats include CIF, POSCAR/CONTCAR, CHGCAR, LOCPOT,
-        vasprun.xml, CSSR and pymatgen's JSON serialized structures.
+        vasprun.xml, CSSR, Netcdf and pymatgen's JSON serialized structures.
 
         Args:
             filename (str): The filename to read from.
-            primitive (bool): Whether to convert to a primitive cell for cifs.
-                Defaults to False.
+            primitive (bool): Whether to convert to a primitive cell
+                Only available for cifs, POSCAR, CSSR, JSON, YAML
+                Defaults to True.
             sort (bool): Whether to sort sites. Default to False.
 
         Returns:
@@ -1283,7 +1284,10 @@ class IStructure(SiteCollection, PMGSONable):
         if filename.endswith(".nc"):
             # Read Structure from a netcdf file.
             from pymatgen.io.abinitio.netcdf import structure_from_ncdata
-            return structure_from_ncdata(filename, cls=cls)
+            s = structure_from_ncdata(filename, cls=cls)
+            if sort:
+                s = s.get_sorted_structure()
+            return s
 
         from pymatgen.io.vaspio import Vasprun, Chgcar
         from monty.io import zopen

@@ -149,7 +149,8 @@ class AbstractStrategy(six.with_metaclass(abc.ABCMeta, object)):
 
 class StrategyWithInput(object):
     # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
-    def __init__(self, abinit_input):
+    def __init__(self, abinit_input, deepcopy=True):
+        if deepcopy: abinit_input = copy.deepcopy(abinit_input)
         self.abinit_input = abinit_input
 
     @property
