@@ -79,7 +79,7 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
     with zopen(filename) as f:
         for line in f:
             for i in range(len(search)):
-                match = re.search(search[i][0], line)
+                match = re.search(search[i][0], u"{}".format(line))
                 if match and (search[i][1] is None
                               or search[i][1](results, line)):
                     if debug is not None:
