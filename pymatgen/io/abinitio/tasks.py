@@ -2496,15 +2496,12 @@ class AbinitTask(Task):
         Create an instance of `AbinitTask` from an ABINIT input.
     
         Args:
-            abinit_input:
-                `AbinitInput` object.
-            workdir:
-                Path to the working directory.
-            manager:
-                `TaskManager` object.
+            abinit_input: `AbinitInput` object.
+            workdir: Path to the working directory.
+            manager: :class:`TaskManager` object.
         """
         # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
-        strategy = StrategyWithInput(abinit_input)
+        strategy = StrategyWithInput(abinit_input, deepcopy=True)
 
         return cls(strategy, workdir=workdir, manager=manager)
 
