@@ -1,28 +1,41 @@
 # coding: utf-8
 """
 Abinit Flows
+Flows consist for works, works consist of tasks.
+Flows are the final objects that can be dumped directly to a pickle file on disk of any other database.
+Flows are executed using abirun (abipy).
+
+Important 'external' methods for constructing flows:
+ register_work:
+    register (add) a work to the flow
+ resister_task:
+    actually register a work that contains only this task returns the work
+ allocate:
+    propagate the workdir and manager of the flow to all the registered tasks
+ build:
+
+ build_and_pickle_dump:
+
 """
 from __future__ import unicode_literals, division, print_function
-
 import os
 import sys
 import time
 import collections
 import warnings
 import shutil
-import pickle
 import copy
-import numpy as np
-
-from six.moves import map 
-from atomicfile import AtomicFile
 from pprint import pprint
+
+from atomicfile import AtomicFile
 from prettytable import PrettyTable
 from monty.io import FileLock
 from monty.termcolor import cprint, colored, stream_has_colours
-from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
-from .tasks import Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager, NscfTask, DdkTask
-from .tasks import AnaddbTask, DdeTask
+
+from six.moves import map
+from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump
+from .tasks import Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager, DdkTask
+from .tasks import DdeTask
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
 from .works import Work, BandStructureWork, PhononWork, G0W0Work, QptdmWork
@@ -503,7 +516,7 @@ class Flow(Node):
         General strategy, first try to increase resources in order to fix the problem,
         if this is not possible, call a task specific method to attempt to decrease the demands.
         """
-        from pymatgen.io.gwwrapper.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
+        from pymatgen.io.abinitio.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
 
         for task in self.iflat_tasks(status=Task.S_QUEUECRITICAL):
             logger.info("Will try to fix task %s" % str(task))
@@ -845,7 +858,7 @@ class Flow(Node):
             task_class: Task subclass to instantiate. Default: :class:`AbinitTask`
 
         Returns:   
-            The generated `Task`.
+            The generated work for the task, work[0] is the actual task.
         """
         work = Work(manager=manager)
         task = work.register(input, deps=deps, task_class=task_class)
