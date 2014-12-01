@@ -17,12 +17,12 @@ from pymatgen.io.abinitio.tasks import TaskManager
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",'test_files')
 
-from pymatgen.io.abinitio.flows import AbinitFlow
+from pymatgen.io.abinitio.flows import Flow
 
 
 class GWSpecTest(PymatgenTest):
     def test_fixes(self):
-        flow = AbinitFlow(workdir=test_dir, manager=TaskManager.from_file(os.path.join(test_dir, "taskmanager.yml")))
+        flow = Flow(workdir=test_dir, manager=TaskManager.from_file(os.path.join(test_dir, "taskmanager.yml")))
         inp = {}
         flow.register_task(input=inp)
         flow.allocate()

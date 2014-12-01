@@ -22,7 +22,7 @@ __all__ = [
     "as_etsfreader",
     "NetcdfReader",
     "ETSF_Reader",
-    "structure_from_etsf_file",
+    "structure_from_ncdata",
 ]
 
 try:
@@ -79,7 +79,7 @@ class NetcdfReader(object):
         #self.path2group = collections.OrderedDict()
         #for children in self.walk_tree():
         #   for child in children:
-        #       #print child.group,  child.path
+        #       #print(child.group,  child.path)
         #       self.path2group[child.path] = child.group
 
     def __enter__(self):
@@ -87,9 +87,7 @@ class NetcdfReader(object):
         return self
 
     def __exit__(self, type, value, traceback):
-        """
-        Activated at the end of the with statement. It automatically closes the file.
-        """
+        """Activated at the end of the with statement. It automatically closes the file."""
         self.rootgrp.close()
 
     def close(self):
@@ -136,12 +134,9 @@ class NetcdfReader(object):
         Returns the values of variable with name varname in the group specified by path.
 
         Args:
-            varname:
-                Name of the variable
-            path:
-                path to the group.
-            cmode:
-                if cmode=="c", a complex ndarrays is constructed and returned
+            varname: Name of the variable
+            path: path to the group.
+            cmode: if cmode=="c", a complex ndarrays is constructed and returned
                 (netcdf does not provide native support from complex datatype).
 
         Returns:
@@ -168,9 +163,7 @@ class NetcdfReader(object):
                 raise ValueError("Wrong value for cmode %s" % cmode)
 
     def read_variable(self, varname, path="/"):
-        """
-        Returns the variable with name varname in the group specified by path.
-        """
+        """Returns the variable with name varname in the group specified by path."""
         return self._read_variables(varname, path=path)[0]
 
     def _read_dimensions(self, *dimnames, **kwargs):
@@ -240,8 +233,7 @@ class NetcdfReader(object):
 
 class ETSF_Reader(NetcdfReader):
     """
-    This object reads data from a file written according to the
-    ETSF-IO specifications.
+    This object reads data from a file written according to the ETSF-IO specifications.
 
     We assume that the netcdf file contains at least the crystallographic section.
     """
@@ -261,29 +253,22 @@ class ETSF_Reader(NetcdfReader):
         return self._chemical_symbols.index(symbol)
 
     def read_structure(self):
-        """
-        Returns the crystalline structure.
-
-        Args:
-            site_properties:
-                Optional dictionary with site properties.
-        """
+        """Returns the crystalline structure."""
         if self.ngroups != 1:
             raise NotImplementedError("ngroups != 1")
 
-        return structure_from_etsf_file(self)
+        return structure_from_ncdata(self)
 
 
-def structure_from_etsf_file(ncdata, site_properties=None):
+def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     """
     Reads and returns a pymatgen structure from a NetCDF file
     containing crystallographic data in the ETSF-IO format.
 
     Args:
-        ncdata:
-            filename or NetcdfReader instance.
-        site_properties:
-            Dictionary with site properties.
+        ncdata: filename or NetcdfReader instance.
+        site_properties: Dictionary with site properties.
+        cls: The Structure class to instanciate.
     """
     ncdata, closeit = as_ncreader(ncdata)
 
@@ -309,7 +294,7 @@ def structure_from_etsf_file(ncdata, site_properties=None):
         for prop in site_properties:
             d[property] = ncdata.read_value(prop)
 
-    structure = Structure(lattice, species, red_coords, site_properties=d)
+    structure = cls(lattice, species, red_coords, site_properties=d)
 
     # Quick and dirty hack.
     # I need an abipy structure since I need to_abivars and other methods.

@@ -371,7 +371,7 @@ class ParalHintsParser(object):
             except:
                 import traceback
                 sexc = traceback.format_exc()
-                err_msg = "Wrong YAML doc:\n%s\n\nException" % (doc.text, sexc)
+                err_msg = "Wrong YAML doc:\n%s\n\nException:\n%s" % (doc.text, sexc)
                 self._errors.append(err_msg)
                 logger.critical(err_msg)
                 raise self.Error(err_msg)
