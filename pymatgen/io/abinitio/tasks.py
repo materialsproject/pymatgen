@@ -1,7 +1,6 @@
 # coding: utf-8
 """Classes defining Abinit calculations."""
 from __future__ import division, print_function, unicode_literals
-
 import os
 import time
 import datetime
@@ -11,7 +10,6 @@ import abc
 import copy
 import yaml
 import six
-
 
 from pprint import pprint
 from atomicfile import AtomicFile
@@ -32,7 +30,7 @@ from .strategies import StrategyWithInput, OpticInput
 from .qadapters import make_qadapter
 from .db import DBConnector
 from . import abiinspect
-from . import events 
+from . import events
 
 try:
     from pydispatch import dispatcher
@@ -2266,7 +2264,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         # 7) Analyze the files of the resource manager and abinit and execution err (mvs)
         if self.qerr_file.exists:
-            from pymatgen.io.gwwrapper.scheduler_error_parsers import get_parser
+            from pymatgen.io.abinitio.scheduler_error_parsers import get_parser
             scheduler_parser = get_parser(self.manager.qadapter.QTYPE, err_file=self.qerr_file.path,
                                           out_file=self.qout_file.path, run_err_file=self.stderr_file.path)
             scheduler_parser.parse()
@@ -2641,15 +2639,12 @@ class AbinitTask(Task):
         Create an instance of `AbinitTask` from an ABINIT input.
     
         Args:
-            abinit_input:
-                `AbinitInput` object.
-            workdir:
-                Path to the working directory.
-            manager:
-                `TaskManager` object.
+            abinit_input: `AbinitInput` object.
+            workdir: Path to the working directory.
+            manager: :class:`TaskManager` object.
         """
         # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
-        strategy = StrategyWithInput(abinit_input)
+        strategy = StrategyWithInput(abinit_input, deepcopy=True)
 
         return cls(strategy, workdir=workdir, manager=manager)
 
