@@ -27,10 +27,10 @@ pymatgen.io.gwwrapper.GWvaspinputsets module
     :undoc-members:
     :show-inheritance:
 
-pymatgen.io.gwwrapper.GWworkflows module
-----------------------------------------
+pymatgen.io.gwwrapper.GWworks module
+------------------------------------
 
-.. automodule:: pymatgen.io.gwwrapper.GWworkflows
+.. automodule:: pymatgen.io.gwwrapper.GWworks
     :members:
     :undoc-members:
     :show-inheritance:
