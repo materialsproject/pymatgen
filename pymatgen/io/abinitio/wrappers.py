@@ -33,10 +33,8 @@ class ExecWrapper(object):
     def __init__(self, executable=None, verbose=0):
         """
         Args:
-            executable:
-                path to the executable.
-            verbose:
-                Verbosity level.
+            executable: path to the executable.
+            verbose: Verbosity level.
         """
         if executable is None:
             executable = self.name
@@ -76,7 +74,6 @@ class ExecWrapper(object):
         except self.Error:
             self._execute(cwd=cwd, with_mpirun=False)
 
-
     def _execute(self, cwd=None, with_mpirun=False):
         """
         Execute the executable in a subprocess.
@@ -107,7 +104,7 @@ class ExecWrapper(object):
 
 
 class MrgscrError(Exception):
-    """Error class for Mrgscr"""
+    """Error class raised by `Mrgscr`"""
 
 
 class Mrgscr(ExecWrapper):
@@ -175,18 +172,12 @@ class Mrggkk(ExecWrapper):
         Merge GGK files, return the absolute path of the new database.
 
         Args:
-            gswfk_file:
-                Ground-state WFK filename
-            dfpt_files:
-                List of 1WFK files to merge.
-            gkk_files:
-                List of GKK files to merge.
-            out_gkk:
-                Name of the output GKK file
-            binascii:
-                Integer flat. 0 --> binary output, 1 --> ascii formatted output
-            cwd:
-                Directory where the subprocess will be executed.
+            gswfk_file: Ground-state WFK filename
+            dfpt_files: List of 1WFK files to merge.
+            gkk_files: List of GKK files to merge.
+            out_gkk: Name of the output GKK file
+            binascii: Integer flat. 0 --> binary output, 1 --> ascii formatted output
+            cwd: Directory where the subprocess will be executed.
         """
         raise NotImplementedError("This method should be tested")
 

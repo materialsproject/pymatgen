@@ -37,9 +37,7 @@ def straceback():
 
 
 class ScriptEditor(object):
-    """
-    Simple editor that simplifies the writing of shell scripts
-    """
+    """Simple editor that simplifies the writing of shell scripts"""
     _shell = '/bin/bash'
 
     def __init__(self):
@@ -208,9 +206,7 @@ class PyLauncherError(Exception):
 
 
 class PyLauncher(object):
-    """
-    This object handle the submission of the tasks contained in a `AbinitFlow`
-    """
+    """This object handle the submission of the tasks contained in a :class:`Flow`"""
     Error = PyLauncherError
 
     def __init__(self, flow, **kwargs):
@@ -218,8 +214,7 @@ class PyLauncher(object):
         Initialize the object
 
         Args:
-            flow:
-                `AbinitFlow` object
+            flow: :class:`Flow` object
             kwargs:
                 max_njobs_inqueue:
                     The launcher will stop submitting jobs when the
@@ -230,7 +225,7 @@ class PyLauncher(object):
 
     def single_shot(self):
         """
-        Run the first `Task` than is ready for execution.
+        Run the first :class:`Task` than is ready for execution.
 
         Returns:
             Number of jobs launched.
@@ -267,12 +262,9 @@ class PyLauncher(object):
         Keeps submitting `Tasks` until we are out of jobs or no job is ready to run.
 
         Args:
-            max_nlaunch:
-                Maximum number of launches. default: no limit.
-            max_loops:
-                Maximum number of loops
-            sleep_time:
-                secs to sleep between rapidfire loop iterations
+            max_nlaunch: Maximum number of launches. default: no limit.
+            max_loops: Maximum number of loops
+            sleep_time: seconds to sleep between rapidfire loop iterations
 
         Returns:
             The number of tasks launched.
@@ -353,7 +345,7 @@ class PyFlowSchedulerError(Exception):
 
 class PyFlowScheduler(object):
     """
-    This object schedules the submission of the tasks in an `AbinitFlow`.
+    This object schedules the submission of the tasks in an :class:`Flow`.
     There are two types of errors that might occur during the execution of the jobs:
 
         #. Python exceptions
@@ -386,25 +378,16 @@ class PyFlowScheduler(object):
     def __init__(self, **kwargs):
         """
         Args:
-            weeks:
-                number of weeks to wait
-            days:
-                number of days to wait
-            hours:
-                number of hours to wait
-            minutes:
-                number of minutes to wait
-            seconds:
-                number of seconds to wait
-            verbose:
-                (int) verbosity level
-            max_njobs_inque:
-                Limit on the number of jobs that can be present in the queue
-            use_dynamic_manager:
-                True if the task manager must be re-initialized from 
+            weeks: number of weeks to wait
+            days: number of days to wait
+            hours: number of hours to wait
+            minutes: number of minutes to wait
+            seconds: number of seconds to wait
+            verbose: (int) verbosity level
+            max_njobs_inque: Limit on the number of jobs that can be present in the queue
+            use_dynamic_manager: True if the :class:`TaskManager` must be re-initialized from
                 file before launching the jobs. Default: False
-            max_nlaunch:
-                Maximum number of tasks launched by radpifire (default -1 i.e. no limit)
+            max_nlaunch: Maximum number of tasks launched by radpifire (default -1 i.e. no limit)
         """
         # Options passed to the scheduler.
         self.sched_options = AttrDict(
@@ -467,9 +450,8 @@ class PyFlowScheduler(object):
     @classmethod
     def from_user_config(cls):
         """
-        Initialize the `PyFlowScheduler` from the YAML file 'scheduler.yml'.
-        Search first in the working directory and then in the configuration
-        directory of abipy.
+        Initialize the :class:`PyFlowScheduler` from the YAML file 'scheduler.yml'.
+        Search first in the working directory and then in the configuration directory of abipy.
 
         Raises:
             RuntimeError if file is not found.
@@ -520,7 +502,7 @@ class PyFlowScheduler(object):
 
     @property
     def flow(self):
-        """`AbinitFlow`."""
+        """`Flow`."""
         return self._flow
 
     @property
@@ -533,7 +515,7 @@ class PyFlowScheduler(object):
         return timedelta(seconds=(time.time() - self.start_time))
 
     def add_flow(self, flow):
-        """Add an `AbinitFlow` flow to the scheduler."""
+        """Add an :class:`Flow` flow to the scheduler."""
         if hasattr(self, "_flow"):
             raise self.Error("Only one flow can be added to the scheduler.")
 
@@ -635,7 +617,7 @@ class PyFlowScheduler(object):
         # todo donot fire here but prepare for fireing in rapidfire
         for task in self.flow.unconverged_tasks:
             try:
-                logger.info("AbinitFlow will try restart task %s" % task)
+                logger.info("Flow will try restart task %s" % task)
                 fired = task.restart()
                 if fired: 
                     self.nlaunch += 1
@@ -765,9 +747,7 @@ class PyFlowScheduler(object):
         return len(self.exceptions)
 
     def cleanup(self):
-        """
-        Cleanup routine: remove the pid file and save the pickle database
-        """
+        """Cleanup routine: remove the pid file and save the pickle database"""
         try:
             os.remove(self.pid_file)
         except OSError:
@@ -864,18 +844,14 @@ def sendmail(subject, text, mailto, sender=None):
     Sends an e-mail with unix sendmail.
 
     Args:
-        subject:
-            String with the subject of the mail.
-        text:
-            String with the body of the mail.
-        mailto:
-            String or list of string with the recipients.
-        sender:
-            string with the sender address.
+        subject: String with the subject of the mail.
+        text: String with the body of the mail.
+        mailto: String or list of string with the recipients.
+        sender: string with the sender address.
             If sender is None, username@hostname is used.
 
     Returns:
-        exit status
+        Exit status
     """
     def user_at_host():
         from socket import gethostname
