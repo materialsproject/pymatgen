@@ -165,12 +165,15 @@ if "-f" in sys.argv:
     print
 
     fortran_command = None
-    if subprocess.call(["ifort", "--version"]) == 0:
-        print("Found ifort")
-        fortran_command = "ifort"
-    elif subprocess.call(["gfortran", "--version"]) == 0:
-        print("Found gfortran")
-        fortran_command = "gfortran"
+    try:
+        if subprocess.call(["ifort", "--version"]) == 0:
+            print("Found ifort")
+            fortran_command = "ifort"
+        elif subprocess.call(["gfortran", "--version"]) == 0:
+            print("Found gfortran")
+            fortran_command = "gfortran"
+    except:
+        fortran_command = None
 
     if fortran_command is not None:
         print("Building enumlib")
