@@ -130,7 +130,7 @@ try:
     print("Detected numpy version {}".format(numpy.__version__))
 except ImportError:
     print("numpy.distutils.misc_util cannot be imported. Installing...")
-    subprocess.call(["pip", "install", "-q", "numpy>=1.6.0"])
+    subprocess.call(["pip", "install", "-q", "numpy>=1.8.0"])
     from numpy.distutils.misc_util import get_numpy_include_dirs
 
 for pk in ["pyhull>=1.3.6", "pyyaml", "PyCifRW>=3.3", "requests>=1.0",
