@@ -466,7 +466,7 @@ class ParalHints(collections.Iterable):
     @lazy_property
     def max_cores(self):
         """Maximum number of cores."""
-        return max(c.mpi_procs * c.omp_threads for c in self) 
+        return max(c.mpi_procs * c.omp_threads for c in self)
 
     @lazy_property
     def max_mem_per_proc(self):
@@ -669,7 +669,7 @@ class TaskPolicy(object):
         """
         self.autoparal = kwargs.pop("autoparal", 0)
         self.automemory = kwargs.pop("automemory", 0)
-        self.mode = kwargs.pop("mode", "default") 
+        self.mode = kwargs.pop("mode", "default")
         self.max_ncpus = kwargs.pop("max_ncpus", None)
         condition = kwargs.pop("condition", None)
         self.condition = Condition(condition) if condition is not None else condition
@@ -711,7 +711,7 @@ class TaskManager(object):
     def from_user_config(cls):
         """
         Initialize the `TaskManager` from the YAML file 'taskmanager.yaml'.
-        Search first in the working directory and then in the configuration directory of abipy.
+        Search first in the working directory and then in the abipy configuration directory.
 
         Raises:
             RuntimeError if file is not found.
@@ -746,10 +746,10 @@ class TaskManager(object):
 
     def __init__(self, **kwargs):
         """
-        Arggs:
-            policy=None
-            qadapters
-            db_connector=None
+        Args:
+            policy:None
+            qadapters:List of qadapters in YAML format
+            db_connector:Dictionary with data used to connect to the database (optional)
         """
         # Keep a copy of kwargs
         self._kwargs = copy.deepcopy(kwargs)
@@ -783,16 +783,14 @@ class TaskManager(object):
         if kwargs:
             raise ValueError("Found invalid keywords in the taskmanager file:\n %s" % str(list(kwargs.keys())))
 
-    def to_shell_manager(self, mpi_procs=1, policy=None):
+    def to_shell_manager(self, mpi_procs=1):
         """
-        Returns a new `TaskManager` with the same parameters as self but replace the `QueueAdapter` 
-        with a `ShellAdapter` with mpi_procs so that we can submit the job without passing through the queue.
-        Replace self.policy with a `TaskPolicy` with autoparal==0.
+        Returns a new `TaskManager` with the same parameters as self but replace the :class:`QueueAdapter`
+        with a :class:`ShellAdapter` with mpi_procs so that we can submit the job without passing through the queue.
         """
         my_kwargs = copy.deepcopy(self._kwargs)
 
-        if policy is None:
-            my_kwargs["policy"] = TaskPolicy(autoparal=0) 
+        my_kwargs["policy"] = TaskPolicy(autoparal=0)
 
         for d in my_kwargs["qadapters"]:
             #print("before", d["queue"]["qtype"])
@@ -813,6 +811,7 @@ class TaskManager(object):
 
     @property
     def qads(self):
+        """List of :class:`QueueAdapter` objects."""
         return self._qads
 
     @property
@@ -835,8 +834,8 @@ class TaskManager(object):
         if self.has_omp: self.set_omp_threads(pconf.omp_threads)
                                                                       
         # Change the memory per node if automemory evaluates to True.
-        if self.policy.automemory and pconf.mem_per_proc:
-            self.set_mem_per_proc(pconf.mem_per_proc)
+        #if self.policy.automemory and pconf.mem_per_proc:
+        self.set_mem_per_proc(pconf.mem_per_proc)
 
         return True
 
@@ -844,7 +843,7 @@ class TaskManager(object):
         """String representation."""
         lines = []
         app = lines.append
-        app("[Task policy]\n%s" % str(self.policy))
+        #app("[Task policy]\n%s" % str(self.policy))
 
         for i, qad in enumerate(self.qads):
             app("[Qadapter %d]\n%s" % (i, str(qad)))
@@ -902,22 +901,13 @@ class TaskManager(object):
         """Set the memory (in Megabytes) per CPU."""
         self.qadapter.set_mem_per_proc(mem_mb)
 
-    def set_autoparal(self, value):
-        """Set the value of autoparal."""
-        assert value in [0, 1]
-        self.policy.autoparal = value
-
-    def change_min_max_cores(self, min_cores, max_cores):
-        for qad in self.qads:
-            qad.min_cores, qad.max_cores = min_cores, max_cores
-
-    def set_max_ncpus(self, value):
-        """Set the value of max_ncpus."""
-        self.policy.max_ncpus = value
-
     #@property
-    #def max_ncpus(self):
-    #    return max(q.partition.max_cores for q in self.qads)
+    #def max_cores(self):
+    #    """
+    #    Maximum number of cores that can be used.
+    #    This value is mainly used in the autoparal part to get the list of possible configurations.
+    #    """
+    #    return max(q.max_cores for q in self.qads)
 
     def get_njobs_in_queue(self, username=None):
         """
@@ -983,7 +973,6 @@ class TaskManager(object):
         # the response fuction is in memory and not distributed
         # we need to increas memory if jobs fail ...
         return self.qadapter.more_mem_per_proc()
-        #return self.qadapter.increase_mem()
 
 
 # The code below initializes a counter from a file when the module is imported 
@@ -2562,17 +2551,17 @@ class AbinitTask(Task):
     Results = TaskResults
 
     @classmethod
-    def from_input(cls, abinit_input, workdir=None, manager=None):
+    def from_input(cls, ainput, workdir=None, manager=None):
         """
         Create an instance of `AbinitTask` from an ABINIT input.
     
         Args:
-            abinit_input: `AbinitInput` object.
+            ainput: `AbinitInput` object.
             workdir: Path to the working directory.
             manager: :class:`TaskManager` object.
         """
         # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
-        strategy = StrategyWithInput(abinit_input, deepcopy=True)
+        strategy = StrategyWithInput(ainput, deepcopy=True)
 
         return cls(strategy, workdir=workdir, manager=manager)
 
@@ -2658,19 +2647,19 @@ class AbinitTask(Task):
             return None
 
     def set_pconfs(self, pconfs):
+        """Set the list of autoparal configurations."""
         self._pconfs = pconfs
 
     def autoparal_run(self):
         """
         Find an optimal set of parameters for the execution of the task 
-        using the options specified in :class:`TaskPolicy`.
-        This method can change the ABINIT input variables and/or the 
-        parameters passed to the :class`TaskManager` e.g. the number of CPUs for MPI and OpenMp.
+        This method can change the ABINIT input variables and/or the
+        submission parameters e.g. the number of CPUs for MPI and OpenMp.
 
         Set:
            self.pconfs where pconfs is a :class:`ParalHints` object with the configuration reported by
            autoparal and optimal is the optimal configuration selected.
-           Returns 0 if sucess
+           Returns 0 if success
         """
         logger.info("in autoparal_run")
         policy = self.manager.policy
@@ -2857,8 +2846,8 @@ class ProduceGsr(object):
     """
     def open_gsr(self):
         """
-        Open the Gsrfile located in the in self.outdir. 
-        Returns GsrFile object, None if file could not be found or file is not readable.
+        Open the GSR file located in the in self.outdir.
+        Returns :class:`GsrFile` object, None if file could not be found or file is not readable.
         """
         gsr_path = self.outdir.has_abiext("GSR")
         if not gsr_path:
@@ -2984,12 +2973,11 @@ class RelaxTask(AbinitTask, ProduceGsr):
 
     def read_final_structure(self):
         """Read the final structure from the GSR file."""
-        gsr_file = self.outdir.has_abiext("GSR")
-        if not gsr_file:
-            raise self.RestartError("Cannot find the GSR file with the final structure to restart from.")
-
-        with ETSF_Reader(gsr_file) as r:
-            return r.read_structure()
+        try:
+            with self.open_gsr() as gsr:
+                return gsr.structure
+        except AttributeError:
+            raise RuntimeError("Cannot find the GSR file with the final structure to restart from.")
 
     def restart(self):
         """
@@ -3135,6 +3123,8 @@ class PhononTask(AbinitTask):
 
 class ScrTask(AbinitTask):
     """Tasks for SCREENING calculations """
+    #def inspect(self, **kwargs):
+    #    """Plot graph showing the number of q-points computed and the wall-time used"""
 
 
 class SigmaTask(AbinitTask):
@@ -3161,6 +3151,9 @@ class SigmaTask(AbinitTask):
 
         # Now we can resubmit the job.
         return self._restart()
+
+    #def inspect(self, **kwargs):
+    #    """Plot graph showing the number of k-points computed and the wall-time used"""
 
     def open_sigres(self):
         """
@@ -3196,15 +3189,10 @@ class BseTask(AbinitTask):
     """
     Task for Bethe-Salpeter calculations.
 
-    .. note:
+    .. note::
 
-        The BSE codes provides both iterative and direct schemes
-        for the computation of the dielectric function. 
-        The direct diagonalization cannot be restarted whereas 
-        Haydock and CG support restarting.
-
-        Bethe-Salpeter calculations with Haydock iterative scheme.
-        Provide in-place restart via (BSR|BSC) files
+        The BSE codes provides both iterative and direct schemes for the computation of the dielectric function.
+        The direct diagonalization cannot be restarted whereas Haydock and CG support restarting.
     """
     CRITICAL_EVENTS = [
         events.HaydockConvergenceWarning,
@@ -3277,8 +3265,8 @@ class BseTask(AbinitTask):
 
     def open_mdf(self):
         """
-        Open the MSF file located in the in self.outdir. 
-        Returns MSF_File object, None if file could not be found or file is not readable.
+        Open the MDF file located in the in self.outdir.
+        Returns `MdfFile` object, None if file could not be found or file is not readable.
         """
         mdf_path = self.outdir.has_abiext("MDF.nc")
         if not mdf_path:
@@ -3298,8 +3286,7 @@ class BseTask(AbinitTask):
 
         with self.open_mdf() as mdf:
             #results["out"].update(mdf.as_dict())
-            #epsilon_infinity
-            #optical_gap
+            #epsilon_infinity optical_gap
             results.add_gridfs_files(MDF=mdf.filepath)
 
         return results
@@ -3335,14 +3322,15 @@ class OpticTask(Task):
         strategy = OpticInput(optic_input)
         super(OpticTask, self).__init__(strategy=strategy, workdir=workdir, manager=manager, deps=deps)
 
-    def set_workdir(self, workdir):
-        super(OpticTask, self).set_workdir(workdir)
+    def set_workdir(self, workdir, chroot=False):
+        """Set the working directory of the task."""
+        super(OpticTask, self).set_workdir(workdir, chroot=chroot)
         # Small hack: the log file of optics is actually the main output file. 
         self.output_file = self.log_file
 
     @property
     def executable(self):
-        """Path to the executable required for running the `OpticTask`."""
+        """Path to the executable required for running the :class:`OpticTask`."""
         try:
             return self._executable
         except AttributeError:

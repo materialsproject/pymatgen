@@ -66,7 +66,7 @@ __all__ = [
 
 class FlowResults(NodeResults):
 
-    JSON_SCHEMA = NodeResults.JSON_SCHEMA.copy() 
+    JSON_SCHEMA = NodeResults.JSON_SCHEMA.copy()
     #JSON_SCHEMA["properties"] = {
     #    "queries": {"type": "string", "required": True},
     #}
@@ -80,7 +80,7 @@ class FlowResults(NodeResults):
         #    #input=flow.strategy
         #)
 
-        # Will put all files found in outdir in GridFs 
+        # Will put all files found in outdir in GridFs
         d = {os.path.basename(f): f for f in flow.outdir.list_filepaths()}
 
         # Add the pickle file.
@@ -93,7 +93,7 @@ class FlowResults(NodeResults):
 
 class Flow(Node):
     """
-    This object is a container of work. Its main task is managing the 
+    This object is a container of work. Its main task is managing the
     possible inter-depedencies among the work and the creation of
     dynamic worfflows that are generates by callbacks registered by the user.
 
@@ -110,7 +110,7 @@ class Flow(Node):
     @classmethod
     def from_inputs(cls, workdir, inputs, manager=None, pickle_protocol=-1, task_class=ScfTask, work_class=Work):
         """
-        Construct a simple flow from a list of inputs. The flow contains a single Work with 
+        Construct a simple flow from a list of inputs. The flow contains a single Work with
         tasks whose class is given by task_class.
 
         .. warning::
@@ -176,7 +176,7 @@ class Flow(Node):
         self._mongo_id = None
 
         # TODO
-        # Signal slots: a dictionary with the list 
+        # Signal slots: a dictionary with the list
         # of callbacks indexed by node_id and SIGNAL_TYPE.
         # When the node changes its status, it broadcast a signal.
         # The flow is listening to all the nodes of the calculation
@@ -197,8 +197,8 @@ class Flow(Node):
 
     def as_dict(self, **kwargs):
         """
-        JSON serialization, note that we only need to save 
-        a string with the working directory since the object will be 
+        JSON serialization, note that we only need to save
+        a string with the working directory since the object will be
         reconstructed from the pickle file located in workdir
         """
         return {"workdir": self.workdir}
@@ -231,11 +231,11 @@ class Flow(Node):
 
         Args:
             filepath: Filename or directory name. It filepath is a directory, we
-                scan the directory tree starting from filepath and we 
+                scan the directory tree starting from filepath and we
                 read the first pickle database. Raise RuntimeError if multiple
                 databases are found.
             disable_signals: If True, the nodes of the flow are not connected by signals.
-                This option is usually used when we want to read a flow 
+                This option is usually used when we want to read a flow
                 in read-only mode and we want to avoid any possible side effect.
         """
         if os.path.isdir(filepath):
@@ -296,11 +296,11 @@ class Flow(Node):
 
         for work in self:
             for task in work:
-                if not task.get_results().validate_json_schema(): 
+                if not task.get_results().validate_json_schema():
                     errors.append(task)
-            if not work.get_results().validate_json_schema(): 
+            if not work.get_results().validate_json_schema():
                 errors.append(work)
-        if not self.get_results().validate_json_schema(): 
+        if not self.get_results().validate_json_schema():
             errors.append(self)
 
         return errors
@@ -347,7 +347,7 @@ class Flow(Node):
     @property
     def status_counter(self):
         """
-        Returns a `Counter` object that counts the number of tasks with 
+        Returns a `Counter` object that counts the number of tasks with
         given status (use the string representation of the status as key).
         """
         # Count the number of tasks with given status in each work.
@@ -386,7 +386,7 @@ class Flow(Node):
     @property
     def has_chrooted(self):
         """
-        Returns a string that evaluates to True if we have changed 
+        Returns a string that evaluates to True if we have changed
         the workdir for visualization purposes e.g. we are using sshfs.
         to mount the remote directory where the `Flow` is located.
         The string gives the previous workdir of the flow.
@@ -414,7 +414,7 @@ class Flow(Node):
 
     def groupby_status(self):
         """
-        Returns a ordered dictionary mapping the task status to 
+        Returns a ordered dictionary mapping the task status to
         the list of named tuples (task, work_index, task_index).
         """
         Entry = collections.namedtuple("Entry", "task wi ti")
@@ -436,7 +436,7 @@ class Flow(Node):
         If status is not None, only the tasks whose status satisfies
         the condition (task.status op status) are selected
         status can be either one of the flags defined in the :class:`Task` class
-        (e.g Task.S_OK) or a string e.g "S_OK" 
+        (e.g Task.S_OK) or a string e.g "S_OK"
         nids is an optional list of node identifiers used to filter the tasks.
         """
         return self._iflat_tasks_wti(status=status, op=op, nids=nids, with_wti=True)
@@ -448,7 +448,7 @@ class Flow(Node):
         If status is not None, only the tasks whose status satisfies
         the condition (task.status op status) are selected
         status can be either one of the flags defined in the :class:`Task` class
-        (e.g Task.S_OK) or a string e.g "S_OK" 
+        (e.g Task.S_OK) or a string e.g "S_OK"
         nids is an optional list of node identifiers used to filter the tasks.
         """
         return self._iflat_tasks_wti(status=status, op=op, nids=nids, with_wti=False)
@@ -514,7 +514,7 @@ class Flow(Node):
 
     def deadlocked_runnables_running(self):
         """
-        This function detects deadlocks 
+        This function detects deadlocks
         return deadlocks, runnables, running
         """
         runnables = []
@@ -534,11 +534,11 @@ class Flow(Node):
 
     def check_status(self, **kwargs):
         """
-        Check the status of the works in self. 
+        Check the status of the works in self.
         Args:
             show:
                 True to show the status of the flow.
-            kwargs: 
+            kwargs:
                 kwyword arguments passed to show_status
         """
         for work in self:
@@ -678,7 +678,7 @@ class Flow(Node):
                 report = task.get_event_report()
 
                 events = "|".join(3*["NA"])
-                if report is not None: 
+                if report is not None:
                     events = "|".join(map(str, [report.num_errors, report.num_warnings, report.num_comments]))
 
                 para_info = "|".join(map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
@@ -709,8 +709,8 @@ class Flow(Node):
 
     def get_dict_for_mongodb_queries(self):
         """
-        This function returns a dictionary with the attributes that will be 
-        put in the mongodb document to facilitate the query. 
+        This function returns a dictionary with the attributes that will be
+        put in the mongodb document to facilitate the query.
         Subclasses may want to replace or extend the default behaviour.
         """
         d = {}
@@ -820,7 +820,7 @@ class Flow(Node):
                     e ==> stderr_file,
                     q ==> qerr_file,
             status: if not None, only the tasks with this status are select
-            op: status operator. Requires status. A task is selected 
+            op: status operator. Requires status. A task is selected
                 if task.status op status evaluates to true.
             nids: optional list of node identifiers used to filter the tasks.
             editor: Select the editor. None to use the default editor ($EDITOR shell env var)
@@ -874,7 +874,7 @@ class Flow(Node):
         if os.path.exists(pid_file):
             with open(pid_file, "r") as fh:
                 pid = int(fh.readline())
-                
+
             retcode = os.system("kill -9 %d" % pid)
             logger.info("Sent SIGKILL to the scheduler, retcode = %s" % retcode)
             try:
@@ -949,7 +949,7 @@ class Flow(Node):
                      If manager is None, we use the :class:`TaskManager` specified during the creation of the work.
             task_class: Task subclass to instantiate. Default: :class:`AbinitTask`
 
-        Returns:   
+        Returns:
             The generated :class:`Work` for the task, work[0] is the actual task.
         """
         work = Work(manager=manager)
@@ -970,7 +970,7 @@ class Flow(Node):
                      If manager is None, we use the `TaskManager` specified during the creation of the work.
             workdir: The name of the directory used for the :class:`Work`.
 
-        Returns:   
+        Returns:
             The registered :class:`Work`.
         """
         # Directory of the work.
@@ -1003,8 +1003,8 @@ class Flow(Node):
             work_class: :class:`Work` class to instantiate.
             manager: The :class:`TaskManager` responsible for the submission of the task.
                     If manager is None, we use the `TaskManager` specified during the creation of the :class:`Flow`.
-                                                                                                            
-        Returns:   
+
+        Returns:
             The :class:`Work` that will be finalized by the callback.
         """
         # TODO: pass a Work factory instead of a class
@@ -1013,25 +1013,25 @@ class Flow(Node):
 
         # Create an empty work and register the callback
         work = work_class(workdir=work_workdir, manager=manager)
-        
+
         self._works.append(work)
-                                                                                                            
+
         deps = [Dependency(node, exts) for node, exts in deps.items()]
         if not deps:
             raise ValueError("A callback must have deps!")
 
         work.add_deps(deps)
 
-        # Wrap the callable in a Callback object and save 
+        # Wrap the callable in a Callback object and save
         # useful info such as the index of the work and the callback data.
         cbk = FlowCallback(cbk_name, self, deps=deps, cbk_data=cbk_data)
         self._callbacks.append(cbk)
-                                                                                                            
+
         return work
 
     def allocate(self):
         """
-        Allocate the `Flow` i.e. assign the `workdir` and (optionally) 
+        Allocate the `Flow` i.e. assign the `workdir` and (optionally)
         the :class:`TaskManager` to the different tasks in the Flow.
         """
         for work in self:
@@ -1071,7 +1071,7 @@ class Flow(Node):
 
             if not cbk.can_execute():
                 logger.info("Cannot execute %s" % cbk)
-                continue 
+                continue
 
             # Execute the callback and disable it
             logger.info("about to execute callback %s" % str(cbk))
@@ -1096,7 +1096,7 @@ class Flow(Node):
     def connect_signals(self):
         """
         Connect the signals within the work.
-        self is responsible for catching the important signals raised from 
+        self is responsible for catching the important signals raised from
         its task and raise new signals when some particular condition occurs.
         """
         # Connect the signals inside each Work.
@@ -1185,8 +1185,7 @@ class G0W0WithQptdmFlow(Flow):
         """
         Build a `Flow` for one-shot G0W0 calculations.
         The computation of the q-points for the screening is parallelized with qptdm
-        i.e. we run independent calculation for each q-point and then we merge
-        the final results.
+        i.e. we run independent calculation for each q-point and then we merge the final results.
 
         Args:
             workdir: Working directory.
@@ -1248,7 +1247,7 @@ class FlowCallbackError(Exception):
 class FlowCallback(object):
     """
     This object implements the callbacks executeed by the flow when
-    particular conditions are fulfilled. See on_dep_ok method of Flow.
+    particular conditions are fulfilled. See on_dep_ok method of :class:`Flow`.
 
     .. note::
 
@@ -1315,7 +1314,7 @@ class FlowCallback(object):
     def handle_sender(self, sender):
         """
         True if the callback is associated to the sender
-        i.e. if the node who sent the signal appears in the 
+        i.e. if the node who sent the signal appears in the
         dependencies of the callback.
         """
         return sender in [d.node for d in self.deps]
@@ -1373,7 +1372,7 @@ def g0w0_flow(workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=N
 
 def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, with_dde=False, manager=None, flow_class=Flow):
     """
-    Build an `Flow` for phonon calculations.
+    Build an :class:`Flow` for phonon calculations.
 
     Args:
         workdir: Working directory.
@@ -1433,12 +1432,12 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
         fake_task = w.register(fake_input)
 
         # Use the magic value paral_rf = -1 to get the list of irreducible perturbations for this q-point.
-        vars = dict(paral_rf=-1,
+        abivars = dict(paral_rf=-1,
                     rfatpol=[1, natom],  # Set of atoms to displace.
                     rfdir=[1, 1, 1],     # Along this set of reduced coordinate axis.
                     )
 
-        fake_task.strategy.add_extra_abivars(vars)
+        fake_task.strategy.add_extra_abivars(abivars)
         w.allocate()
         w.start(wait=True)
 
