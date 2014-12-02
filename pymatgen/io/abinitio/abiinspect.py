@@ -241,7 +241,7 @@ class PhononScfCycle(ScfCycle):
 
 class Relaxation(collections.Iterable):
     """
-    A list of `GroundStateScfCycle` objects.
+    A list of :class:`GroundStateScfCycle` objects.
 
     .. note::
 
@@ -293,8 +293,7 @@ class Relaxation(collections.Iterable):
     @property
     def history(self):
         """
-        Dictionary of lists with the evolution of the data
-        as function of the relaxation step.
+        Dictionary of lists with the evolution of the data as function of the relaxation step.
         """
         try:
             return self._history
@@ -345,10 +344,7 @@ class Relaxation(collections.Iterable):
         if (num_plots % ncols) != 0:
             ax_list[-1].axis('off')
 
-        if title:
-            fig.suptitle(title)
-
-        for ((key, values), ax) in zip(history.items(), ax_list):
+        for (key, values), ax in zip(history.items(), ax_list):
             ax.grid(True)
             ax.set_xlabel('Relaxation Step')
             ax.set_xticks(relax_step, minor=False)
@@ -356,13 +352,55 @@ class Relaxation(collections.Iterable):
 
             ax.plot(relax_step, values, "-o", lw=2.0)
 
-        if show:
-            plt.show()
-
-        if savefig is not None:
-            fig.savefig(savefig)
+        if title: fig.suptitle(title)
+        if savefig is not None: fig.savefig(savefig)
+        if show: plt.show()
 
         return fig
+
+# TODO
+#class HaydockIterations(collections.Iterable):
+#    """This object collects info on the different steps of the Haydock technique used in the Bethe-Salpeter code"""
+#    @classmethod
+#    def from_file(cls, filepath):
+#        """Initialize the object from file."""
+#        with open(filepath, "r") as stream:
+#            return cls.from_stream(stream)
+#
+#    @classmethod
+#    def from_stream(cls, stream):
+#        """Extract data from stream. Returns None if some error occurred."""
+#        cycles = []
+#        while True:
+#            scf_cycle = GroundStateScfCycle.from_stream(stream)
+#            if scf_cycle is None: break
+#            cycles.append(scf_cycle)
+#
+#        return cls(cycles) if cycles else None
+#
+#    #def __init__(self):
+#
+#    def plot(self, **kwargs):
+#        """
+#        Uses matplotlib to plot the evolution of the structural relaxation.
+#        ==============  ==============================================================
+#        kwargs          Meaning
+#        ==============  ==============================================================
+#        title           Title of the plot (Default: None).
+#        how            True to show the figure (Default).
+#        savefig         'abc.png' or 'abc.eps'* to save the figure to a file.
+#        ==============  ==============================================================
+#        Returns:
+#            `matplotlib` figure
+#        """
+#        import matplotlib.pyplot as plt
+#        title = kwargs.pop("title", None)
+#        show = kwargs.pop("show", True)
+#        savefig = kwargs.pop("savefig", None)
+#        if title: fig.suptitle(title)
+#        if savefig is not None: fig.savefig(savefig)
+#        if show: plt.show()
+#        return fig
 
 
 class YamlTokenizerError(Exception):

@@ -127,7 +127,7 @@ hardware:
             assert d.num_nodes == 2 and d.mpi_per_node == 4 and not d.exact
 
             # mem_per_proc > mem_per_node!
-            with self.assertRaises(qad.DistribError):
+            with self.assertRaises(qad.Error):
                 d = qad.distribute(mpi_procs=9, omp_threads=1, mem_per_proc=10 * giga)
 
             # TODO

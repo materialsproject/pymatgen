@@ -1145,14 +1145,15 @@ class ExcHamiltonian(AbivarAble):
             #nband=self.nband,
             soenergy=self.soenergy,
             ecuteps=self.ecuteps,
-            #bs_algorithm = self._ALGO2VAR[self.algo],
+            bs_algorithm = self._ALGO2VAR[self.algo],
             bs_coulomb_term=21,
             mdf_epsinf=self.mdf_epsinf,
             bs_exchange_term=1 if self.with_lf else 0,
             inclvkb=self.inclvkb,
             zcut=self.zcut,
             bs_freq_mesh=self.bs_freq_mesh,
-            )
+            bs_coupling=self._EXC_TYPES[self.exc_type],
+        )
 
         if self.use_haydock:
             # FIXME

@@ -615,6 +615,9 @@ class PyFlowScheduler(object):
             err_msg += boxed(msg)
 
         deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
+        #print("deadlocked", deadlocked)
+        #print("runnables", runnables)
+        #print("running", running)
         if not runnables and not running and deadlocked:
             msg = "No runnable job with deadlocked tasks:\n %s\nWill shutdown the scheduler and exit" % str(deadlocked)
             err_msg += boxed(msg)

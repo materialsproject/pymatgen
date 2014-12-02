@@ -24,12 +24,17 @@ __all__ = [
     "Mrgscr",
     "Mrggkk",
     "Mrgddb",
-    "Anaddb",
 ]
+
+
+class ExecError(Exception):
+    """Error class raised by :class`ExecWrapper`"""
 
 
 class ExecWrapper(object):
     """This class runs an executable in a subprocess."""
+    Error = ExecError
+
     def __init__(self, executable=None, verbose=0):
         """
         Args:
@@ -67,7 +72,6 @@ class ExecWrapper(object):
         return self._name
 
     def execute(self, cwd=None):
-
         # Try to execute binary without and with mpirun.
         try:
             self._execute(cwd=cwd, with_mpirun=True)
@@ -103,19 +107,12 @@ class ExecWrapper(object):
             raise self.Error("%s returned %s\n cmd_str: %s" % (self, self.returncode, self.cmd_str))
 
 
-class MrgscrError(Exception):
-    """Error class raised by `Mrgscr`"""
-
-
 class Mrgscr(ExecWrapper):
     _name = "mrgscr"
-
-    Error = MrgscrError
 
     def merge_qpoints(self, files_to_merge, out_prefix, cwd=None):
         """
         Execute mrgscr in a subprocess to merge files_to_merge. Produce new file with prefix out_prefix
-
         If cwd is not None, the child's current directory will be changed to cwd before it is executed.
         """
         # We work with absolute paths.
@@ -152,20 +149,11 @@ class Mrgscr(ExecWrapper):
         with open(self.stdin_fname, "w") as fh:
             fh.writelines(self.stdin_data)
 
-        try:
-            self.execute(cwd=cwd)
-        except self.Error:
-            raise
-
-
-class MrggkkError(Exception):
-    """Error class for Mrggkk."""
+        self.execute(cwd=cwd)
 
 
 class Mrggkk(ExecWrapper):
     _name = "mrggkk"
-
-    Error = MrggkkError
 
     def merge(self, gswfk_file, dfpt_files, gkk_files, out_gkk, binascii=0, cwd=None):
         """
@@ -192,11 +180,8 @@ class Mrggkk(ExecWrapper):
             print("Will merge %d 1WF files, %d GKK file in output %s" %
                   (len(dfpt_nfiles), len_gkk_files, out_gkk))
 
-            for (i, f) in enumerate(dfpt_files):
-                print(" [%d] 1WF %s" % (i, f))
-
-            for (i, f) in enumerate(gkk_files):
-                print(" [%d] GKK %s" % (i, f))
+            for i, f in enumerate(dfpt_files): print(" [%d] 1WF %s" % (i, f))
+            for i, f in enumerate(gkk_files): print(" [%d] GKK %s" % (i, f))
 
         self.stdin_fname, self.stdout_fname, self.stderr_fname = (
             "mrggkk.stdin", "mrggkk.stdout", "mrggkk.stderr")
@@ -228,22 +213,13 @@ class Mrggkk(ExecWrapper):
         with open(self.stdin_fname, "w") as fh:
             fh.writelines(self.stdin_data)
 
-        try:
-            self.execute(cwd=cwd)
-        except self.Error:
-            raise
+        self.execute(cwd=cwd)
 
         return out_gkk
 
 
-class MrgddbError(Exception):
-    """Error class for Mrgddb."""
-
-
 class Mrgddb(ExecWrapper):
     _name = "mrgddb"
-
-    Error = MrgddbError
 
     def merge(self, ddb_files, out_ddb, description, cwd=None):
         """Merge DDB file, return the absolute path of the new database."""
@@ -254,7 +230,7 @@ class Mrgddb(ExecWrapper):
 
         if self.verbose:
             print("Will merge %d files into output DDB %s" % (len(ddb_files), out_ddb))
-            for (i, f) in enumerate(ddb_files):
+            for i, f in enumerate(ddb_files):
                 print(" [%d] %s" % (i, f))
 
         # Handle the case of a single file since mrgddb uses 1 to denote GS files!
@@ -285,9 +261,6 @@ class Mrgddb(ExecWrapper):
         with open(self.stdin_fname, "w") as fh:
             fh.writelines(self.stdin_data)
 
-        try:
-            self.execute(cwd=cwd)
-        except self.Error:
-            raise
+        self.execute(cwd=cwd)
 
         return out_ddb

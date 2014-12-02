@@ -213,7 +213,7 @@ class OmpEnv(AttrDict):
         To create an instance from an INI file, use:
            OmpEnv.from_file(filename)
         """
-        super(OmpEnv, self).__(*args, **kwargs)
+        super(OmpEnv, self).__init__(*args, **kwargs)
 
         err_msg = ""
         for key, value in self.items():
@@ -235,12 +235,12 @@ class Hardware(object):
 
     Basic definition::
 
-        * A node refers to the physical box, i.e. cpu sockets with north/south switches connecting memory systems 
+        - A node refers to the physical box, i.e. cpu sockets with north/south switches connecting memory systems
           and extension cards, e.g. disks, nics, and accelerators
 
-        * A cpu socket is the connector to these systems and the cpu cores
+        - A cpu socket is the connector to these systems and the cpu cores
 
-        * A cpu core is an independent computing with its own computing pipeline, logical units, and memory controller. 
+        = A cpu core is an independent computing with its own computing pipeline, logical units, and memory controller.
           Each cpu core will be able to service a number of cpu threads, each having an independent instruction stream 
           but sharing the cores memory controller and other logical units.
     """
@@ -718,8 +718,8 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     The `QueueAdapter` is responsible for all interactions with a specific queue management system.
     This includes handling all details of queue script format as well as queue submission and management.
 
-    This is the Abstract base class defining the methods that  must be implemented by the concrete classes.
-    A user should extend this class with implementations that work on specific queue systems.
+    This is the **abstract** base class defining the methods that  must be implemented by the concrete classes.
+    Concrete classes should extend this class with implementations that work on specific queue systems.
     """
     Error = QueueAdapterError
 
@@ -746,6 +746,15 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             priority: Priority level, integer number > 0
             allocate_nodes: True if we must allocate entire nodes"
             condition: Condition object (dictionary)
+
+        .. note::
+            priority is a non-negative integer used to order the qadapters. The :class:`TaskManager` will
+                try to run jobs on the qadapter with highest priority if possible
+            hardware is a dictionary with information on the hardware available on this particular queue.
+            queue is a dictionary with the name of the queue and optional values that are used to build/customize
+                the header of the submission script.
+            limits is a dictionary with the constraints that must be fulfilled in order to run on this queu
+            job is a dictionary with options that are used to prepare the enviroment before submitting the job
         """
         # TODO
         #max_num_attempts:
@@ -800,7 +809,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
     def _parse_limits(self, d):
         self.set_timelimit(timelimit_parser(d.pop("timelimit")))
-        self.min_cores = int(d.pop("min_cores"))
+        self.min_cores = int(d.pop("min_cores", 1))
         self.max_cores = int(d.pop("max_cores"))
         # FIXME: Neeed because autoparal 1 with paral_kgb 1 is not able to estimate memory 
         self.min_mem_per_proc = any2mb(d.pop("min_mem_per_proc", self.hw.mem_per_core))
@@ -861,6 +870,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
     @property
     def qparams(self):
+        """Dictionary with the parameters used to construct the header."""
         return self._qparams
 
     @lazy_property
@@ -874,13 +884,14 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
     @property
     def has_mpi(self):
-        return self.has_mpirun
-    
-    @property
-    @deprecated(message="use has_mpi")
-    def has_mpirun(self):
-        """True if we are using a mpirunner"""
+        """True if we are using MPI"""
         return bool(self.mpi_runner)
+
+    #@property
+    #@deprecated(message="use has_mpi")
+    #def has_mpirun(self):
+    #    """True if we are using a mpirunner"""
+    #    return bool(self.mpi_runner)
 
     @property
     def has_omp(self):
@@ -925,20 +936,24 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         return copy.deepcopy(self)
 
     def record_attempt(self, queue_id): # retcode):
+        """Save submission"""
         self.attempts.append(
             AttrDict(queue_id=queue_id, mpi_procs=self.mpi_procs, omp_threads=self.omp_threads,
                      mem_per_proc=self.mem_per_proc, timelimit=self.timelimit))
         return len(self.attempts)
 
     def remove_attempt(self, index):
+        """Remove attempt with the given index."""
         self.attempts.pop(index)
 
     @property
     def num_attempts(self):
+        """Number of submission tried so far."""
         return len(self.attempts)
 
     @property
     def last_attempt(self):
+        """Return the last attempt."""
         if len(self.attempts) > 0:
             return self.attempts[-1]
         else:
@@ -1003,11 +1018,11 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
     @property
     def mem_per_proc(self):
-        """The memory per process in Megabytes."""
+        """The memory per process in megabytes."""
         return self._mem_per_proc
                                                 
     def set_mem_per_proc(self, mem_mb):
-        """Set the memory per process in Megabytes"""
+        """Set the memory per process in megabytes"""
         # Hack needed because abinit is still not able to estimate memory.
         if mem_mb <= 0:
             mem_mb = self.min_mem_per_proc
@@ -1016,7 +1031,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
     @property
     def total_mem(self):
-        """Total memory required by the job in Megabytes."""
+        """Total memory required by the job in megabytes."""
         return Memory(self.mem_per_proc * self.mpi_procs, "Mb")
 
     @abc.abstractmethod
@@ -1419,7 +1434,7 @@ $${qverbatim}
         self.qparams["cpus_per_task"] = omp_threads
 
     def set_mem_per_proc(self, mem_mb):
-        """Set the memory per process in Megabytes"""
+        """Set the memory per process in megabytes"""
         super(SlurmAdapter, self).set_mem_per_proc(mem_mb)
         self.qparams["mem_per_cpu"] = int(mem_mb)
         # Remove mem if it's defined.
@@ -1541,7 +1556,7 @@ $${qverbatim}
         self.qparams["walltime"] = time2pbspro(timelimit)
 
     def set_mem_per_proc(self, mem_mb):
-        """Set the memory per process in Megabytes"""
+        """Set the memory per process in megabytes"""
         super(PbsProAdapter, self).set_mem_per_proc(mem_mb)
         #self.qparams["pvmem"] = int(mem_mb)
         #self.qparams["vmem"] = int(mem_mb)
@@ -1632,16 +1647,13 @@ $${qverbatim}
 
         if not self.has_omp:
             chunks, ncpus, vmem, mpiprocs = self.mpi_procs, 1, self.mem_per_proc, 1
-        else:
-            chunks, ncpus, vmem, mpiprocs, omp_threads = self.mpi_procs, self.omp_threads, self.mem_per_proc, 1, self.omp_threads
-
-        select_params = AttrDict(chunks=chunks, ncpus=ncpus, mpiprocs=mpiprocs, vmem=int(vmem), ompthreads=ompthreads)
-
-        if not self.has_omp:
+            select_params = AttrDict(chunks=chunks, ncpus=ncpus, mpiprocs=mpiprocs, vmem=int(vmem))
             s = "{chunks}:ncpus={ncpus}:vmem={vmem}mb:mpiprocs={mpiprocs}".format(**select_params)
         else:
+            chunks, ncpus, vmem, mpiprocs, ompthreads = self.mpi_procs, self.omp_threads, self.mem_per_proc, 1, self.omp_threads
+            select_params = AttrDict(chunks=chunks, ncpus=ncpus, mpiprocs=mpiprocs, vmem=int(vmem), ompthreads=ompthreads)
             s = "{chunks}:ncpus={ncpus}:vmem={vmem}mb:mpiprocs={mpiprocs}:ompthreads={ompthreads}".format(**select_params)
-                                                                                                            
+
         if ret_dict:
             return s, select_params
         return s
@@ -1712,7 +1724,7 @@ $${qverbatim}
 """
 
     def set_mem_per_proc(self, mem_mb):
-        """Set the memory per process in Megabytes"""
+        """Set the memory per process in megabytes"""
         QueueAdapter.set_mem_per_proc(self, mem_mb)
         self.qparams["pmem"] = mem_mb
         self.qparams["mem"] = mem_mb
@@ -1755,7 +1767,7 @@ $${qverbatim}
         self.qparams["ncpus"] = mpi_procs
 
     def set_mem_per_proc(self, mem_mb):
-        """Set the memory per process in Megabytes"""
+        """Set the memory per process in megabytes"""
         super(SGEAdapter, self).set_mem_per_proc(mem_mb)
         # TODO
         #raise NotImplementedError("")
