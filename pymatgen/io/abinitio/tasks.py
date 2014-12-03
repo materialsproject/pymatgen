@@ -2148,7 +2148,13 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         # 3) Start to check if the output file has been created.
         if self.output_file.exists:
-            report = self.get_event_report()
+            try:
+                report = self.get_event_report()
+            except Exception as exc:
+                info_msg = "%s exception while parsing event_report:\n%s" % (self, exc)
+                logger.critical(info_msg)
+                return self.set_status(self.S_ABICRITICAL, info_msg=info_msg)
+
             if report.run_completed:
                 # Check if the calculation converged.
                 not_ok = self.not_converged()
