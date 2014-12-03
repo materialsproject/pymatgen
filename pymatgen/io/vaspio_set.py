@@ -347,9 +347,9 @@ class DictVaspInputSet(AbstractVaspInputSet):
 
         # If grid_density is in the kpoints_settings use Kpoints.automatic_density
         if self.kpoints_settings.get('grid_density'):
-            return Kpoints.automatic_density(structure,
-                                             self.kpoints_settings['grid_density'],
-                                             self.force_gamma)
+            return Kpoints.automatic_density(
+                structure, int(self.kpoints_settings['grid_density']),
+                self.force_gamma)
 
         # If length is in the kpoints_settings use Kpoints.automatic
         elif self.kpoints_settings.get('length'):
@@ -357,9 +357,10 @@ class DictVaspInputSet(AbstractVaspInputSet):
 
         # Raise error. Unsure of which kpoint generation to use
         else:
-            raise ValueError("Invalid KPoint Generation algo : Supported Keys are "
-                             "grid_density: for Kpoints.automatic_density generation "
-                             "and length  : for Kpoints.automatic generation")
+            raise ValueError(
+                "Invalid KPoint Generation algo : Supported Keys are "
+                "grid_density: for Kpoints.automatic_density generation "
+                "and length  : for Kpoints.automatic generation")
 
     def __str__(self):
         return self.name
