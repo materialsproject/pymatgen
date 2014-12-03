@@ -1436,10 +1436,11 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
         fake_task = w.register(fake_input)
 
         # Use the magic value paral_rf = -1 to get the list of irreducible perturbations for this q-point.
-        abivars = dict(paral_rf=-1,
-                    rfatpol=[1, natom],  # Set of atoms to displace.
-                    rfdir=[1, 1, 1],     # Along this set of reduced coordinate axis.
-                    )
+        abivars = dict(
+            paral_rf=-1,
+            rfatpol=[1, natom],  # Set of atoms to displace.
+            rfdir=[1, 1, 1],     # Along this set of reduced coordinate axis.
+            )
 
         fake_task.strategy.add_extra_abivars(abivars)
         w.allocate()
