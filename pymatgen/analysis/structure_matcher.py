@@ -606,11 +606,11 @@ class StructureMatcher(PMGSONable):
         if len(struct1) * ratio >= len(struct2):
             return self._strict_match(struct1, struct2, fu,
                                       s1_supercell=s1_supercell,
-                                      break_on_match=False, use_rms=True)
+                                      break_on_match=break_on_match, use_rms=use_rms)
         else:
             return self._strict_match(struct2, struct1, fu,
                                       s1_supercell=(not s1_supercell),
-                                      break_on_match=False, use_rms=True)
+                                      break_on_match=break_on_match, use_rms=use_rms)
 
     def _strict_match(self, struct1, struct2, fu, s1_supercell=True, use_rms=False,
                break_on_match=False):
