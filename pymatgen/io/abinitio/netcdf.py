@@ -233,12 +233,12 @@ class ETSF_Reader(NetcdfReader):
         """Returns the type index from the chemical symbol. Note python convention."""
         return self.chemical_symbols.index(symbol)
 
-    def read_structure(self):
+    def read_structure(self, cls=Structure):
         """Returns the crystalline structure."""
         if self.ngroups != 1:
             raise NotImplementedError("In file %s: ngroups != 1" % self.path)
 
-        return structure_from_ncdata(self)
+        return structure_from_ncdata(self, cls=cls)
 
 
 def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):

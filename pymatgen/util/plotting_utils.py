@@ -58,3 +58,33 @@ def get_publication_quality_plot(width=8, height=None, plt=None):
     axes.set_ylabel(axes.get_ylabel(), size=labelsize)
 
     return plt
+
+
+def add_fig_kwargs(func):
+    """
+    Decorator that adds keyword arguments for functions producing matplotlib figures.
+    See doc string below for the list of supported options.
+    """ 
+    from functools import wraps
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        title = kwargs.pop("title", None)
+        show = kwargs.pop("show", True)
+        savefig = kwargs.pop("savefig", None)
+        import matplotlib.pyplot as plt
+        fig = func(*args, **kwargs)
+        if title is not None: fig.suptitle(title)
+        if savefig: fig.savefig(savefig)
+        if show: plt.show()
+        return fig
+    wrapper.__doc__ +=  "\n" + """\
+    keyword arguments controlling the display of the figure:
+
+    ================  ====================================================
+    kwargs            Meaning
+    ================  ====================================================
+    title             Title of the plot (Default: None).
+    show              True to show the figure (Default True).
+    savefig           'abc.png' or 'abc.eps' to save the figure to a file.
+    ================  ===================================================="""
+    return wrapper

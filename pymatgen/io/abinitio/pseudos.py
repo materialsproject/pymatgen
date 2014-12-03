@@ -1525,7 +1525,7 @@ class PseudoTable(collections.Sequence):
     @classmethod
     def as_table(cls, items):
         """
-        Return an instance of `PseudoTable` from the iterable items.
+        Return an instance of :class:`PseudoTable` from the iterable items.
         """ 
         if isinstance(items, cls): return items
         return cls(items)
@@ -1636,10 +1636,23 @@ class PseudoTable(collections.Sequence):
             if not self[z]: return False
         return True
 
+    def pseudo_with_symbol(self, symbol):
+        """
+        Return the pseudo with the given chemical symbol.
+
+        Raises:
+            ValueError if symbol is not found or multiple occurences are present.
+        """
+        pseudos = self.pseudos_with_symbol(symbol)
+        if not pseudos or len(pseudos) > 1:
+            raise ValueError("Found %d occurrences of symbol %s" % (len(pseudos), symbol))
+
+        return pseudos[0]
+
     def pseudos_with_symbol(self, symbol):
         """
         Return the list of pseudopotentials in the table the with given symbol.
-        Return an empty list if no pseudo is avaiable
+        Return an empty list if no pseudo is found
         """
         try:
             return getattr(self, str(symbol))
@@ -1647,7 +1660,7 @@ class PseudoTable(collections.Sequence):
             return []
 
     def pseudo_from_name(self, name):
-        """Return the pseudo in the table with the given name"""
+        """Return the pseudo in the table with the given name, None if not found"""
         for pseudo in self:
             if pseudo.name == name:
                 return pseudo
@@ -1728,8 +1741,7 @@ class PseudoTable(collections.Sequence):
             attrs.append((i, a))
 
         # Sort attrs, and build new table with sorted pseudos.
-        attrs = sorted(attrs, key=lambda t: t[1], reverse=reverse)
-        return PseudoTable([self[a[0]] for a in attrs])
+        return PseudoTable([self[a[0]] for a in sorted(attrs, key=lambda t: t[1], reverse=reverse)])
 
     def select(self, condition):
         """
@@ -1737,7 +1749,7 @@ class PseudoTable(collections.Sequence):
 
         Args:
             condition:
-                Function that accepts a `Pseudo` object and returns True or False.
+                Function that accepts a :class:`Pseudo` object and returns True or False.
         """
         return PseudoTable([p for p in self if condition(p)])
 
