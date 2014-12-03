@@ -327,7 +327,11 @@ class Flow(Node):
     @property
     def errored_tasks(self):
         """List of errored tasks."""
-        return list(self.iflat_tasks(status=self.S_ERROR))
+        errtasks = []
+        for status in [Task.S_ERROR, Task.S_QCRITICAL, Task.S_ABICRITICAL]:
+            errtasks.extend(list(self.iflat_tasks(status=status)))
+
+        return set(errtasks)
 
     @property
     def num_errored_tasks(self):
@@ -523,8 +527,8 @@ class Flow(Node):
 
         running = list(self.iflat_tasks(status=Task.S_RUN))
 
-        deadlocked = []
         err_tasks = self.errored_tasks
+        deadlocked = []
         if err_tasks:
             for task in self.all_tasks:
                 if any(task.depends_on(err_task) for err_task in err_tasks):

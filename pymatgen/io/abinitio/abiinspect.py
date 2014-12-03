@@ -468,8 +468,9 @@ class YamlTokenizer(collections.Iterator):
         """
         in_doc, lines, doc_tag = None, [], None
 
-        for line in self.stream:
+        for i, line in enumerate(self.stream):
             self.linepos += 1
+            #print(i, line)
 
             if line.startswith("---"):
                 # Include only lines in the form:
