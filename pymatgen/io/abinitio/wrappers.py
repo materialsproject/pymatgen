@@ -176,10 +176,10 @@ class Mrggkk(ExecWrapper):
         dfpt_files = [os.path.abspath(s) for s in list_strings(dfpt_files)]
         gkk_files = [os.path.abspath(s) for s in list_strings(gkk_files)]
 
-        if self.verbose:
-            print("Will merge %d 1WF files, %d GKK file in output %s" %
-                  (len(dfpt_nfiles), len_gkk_files, out_gkk))
+        print("Will merge %d 1WF files, %d GKK file in output %s" %
+              (len(dfpt_nfiles), len_gkk_files, out_gkk))
 
+        if self.verbose:
             for i, f in enumerate(dfpt_files): print(" [%d] 1WF %s" % (i, f))
             for i, f in enumerate(gkk_files): print(" [%d] GKK %s" % (i, f))
 
@@ -228,8 +228,8 @@ class Mrgddb(ExecWrapper):
 
         out_ddb = out_ddb if cwd is None else os.path.join(os.path.abspath(cwd), out_ddb)
 
+        print("Will merge %d files into output DDB %s" % (len(ddb_files), out_ddb))
         if self.verbose:
-            print("Will merge %d files into output DDB %s" % (len(ddb_files), out_ddb))
             for i, f in enumerate(ddb_files):
                 print(" [%d] %s" % (i, f))
 

@@ -50,7 +50,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_angle, all_distances, \
     lattice_points_in_supercell, in_coord_list_pbc
 from monty.design_patterns import singleton
-from pymatgen.core.units import Mass, Length
+from pymatgen.core.units import Mass, Length, ArrayWithUnit
 from pymatgen.symmetry.groups import SpaceGroup
 from monty.io import zopen
 
@@ -516,6 +516,44 @@ class IStructure(SiteCollection, PMGSONable):
 
         return cls(latt, all_sp, all_coords,
                    site_properties=all_site_properties)
+
+    @classmethod
+    def from_abivars(cls, *args, **kwargs):
+        """Build a :class:`Structure` object from a dictionary with ABINIT variables."""
+        kwargs.update(dict(*args))
+        d = kwargs
+
+        lattice = Lattice.from_abivars(d)
+        coords, coords_are_cartesian = d.get("xred", None), False
+
+        if coords is None:
+            coords = d.get("xcart", None)
+            if coords is not None:
+                coords = ArrayWithUnit(coords, "bohr").to("ang")
+            else:
+                coords = d.get("xangst", None)
+            coords_are_cartesian = True
+        
+        if coords is None:
+            raise ValueError("Cannot extract atomic coordinates from dict %s" % str(d))
+
+        coords = np.reshape(coords, (-1,3))
+
+        znucl_type, typat = d["znucl"], d["typat"]
+
+        if not isinstance(znucl_type, collections.Iterable):
+            znucl_type = [znucl_type]
+
+        if not isinstance(typat, collections.Iterable):
+            typat = [typat]
+
+        assert len(typat) == len(coords)
+
+        # Note Fortan --> C indexing 
+        species = [znucl_type[typ-1] for typ in typat]
+
+        return cls(lattice, species, coords, validate_proximity=False,
+                   to_unit_cell=False, coords_are_cartesian=coords_are_cartesian)
 
     @property
     def distance_matrix(self):
@@ -1140,6 +1178,55 @@ class IStructure(SiteCollection, PMGSONable):
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
         return cls.from_sites(sites)
+
+    def to_abivars(self, **kwargs):
+        """Returns a dictionary with the ABINIT variables."""
+        types_of_specie = self.types_of_specie
+        natom = self.num_sites
+
+        znucl_type = [specie.number for specie in types_of_specie]
+
+        znucl_atoms = self.atomic_numbers
+
+        typat = np.zeros(natom, np.int)
+        for (atm_idx, site) in enumerate(self):
+            typat[atm_idx] = types_of_specie.index(site.specie) + 1
+
+        rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
+        xred = np.reshape([site.frac_coords for site in self], (-1,3))
+
+        # Set small values to zero. This usually happens when the CIF file
+        # does not give structure parameters with enough digits.
+        #rprim = np.where(np.abs(rprim) > 1e-8, rprim, 0.0)
+        #xred = np.where(np.abs(xred) > 1e-8, xred, 0.0)
+
+        # Info on atoms.
+        d = dict(
+            natom=natom,
+            ntypat=len(types_of_specie),
+            typat=typat,
+            znucl=znucl_type,
+            xred=xred,
+        )
+
+        # Add info on the lattice.
+        # Should we use (rprim, acell) or (angdeg, acell) to specify the lattice?
+        geomode = kwargs.pop("geomode", "rprim")
+        #latt_dict = self.lattice.to_abivars(geomode=geomode)
+
+        if geomode == "rprim":
+            d.update(dict(
+                acell=3 * [1.0],
+                rprim=rprim))
+
+        elif geomode == "angdeg":
+            d.update(dict(
+                acell=3 * [1.0],
+                angdeg=angdeg))
+        else:
+            raise ValueError("Wrong value for geomode: %s" % geomode)
+
+        return d
 
     def dot(self, coords_a, coords_b, space="r", frac_coords=False):
         """

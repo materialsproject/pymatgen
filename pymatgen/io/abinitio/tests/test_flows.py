@@ -13,6 +13,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.abinitio import *
 from pymatgen.io.abinitio.flows import *
 from pymatgen.io.abinitio.tasks import *
+from pymatgen.io.abinitio.pseudos import Pseudo
 
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 'test_files')
 
@@ -25,7 +26,7 @@ class FakeAbinitInput(object):
     """Emulate an Abinit input."""
     @lazy_property
     def pseudos(self):
-        return ref_file("14si.pspnc")
+        return [Pseudo.as_pseudo(ref_file("14si.pspnc"))]
 
     @lazy_property
     def structure(self):

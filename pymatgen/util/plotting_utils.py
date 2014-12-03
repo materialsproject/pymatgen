@@ -62,7 +62,7 @@ def get_publication_quality_plot(width=8, height=None, plt=None):
 
 def add_fig_kwargs(func):
     """
-    Decorator that adds keyword arguments for functions producing matplotlib figures.
+    Decorator that adds keyword arguments for functions returning matplotlib figure.
     See doc string below for the list of supported options.
     """ 
     from functools import wraps
@@ -77,7 +77,7 @@ def add_fig_kwargs(func):
         if savefig: fig.savefig(savefig)
         if show: plt.show()
         return fig
-    wrapper.__doc__ +=  "\n" + """\
+    wrapper.__doc__ += "\n" + """\
     keyword arguments controlling the display of the figure:
 
     ================  ====================================================
