@@ -27,7 +27,6 @@ from atomicfile import AtomicFile
 from monty.string import is_string
 from monty.collections import AttrDict
 from monty.functools import lazy_property
-from monty.dev import deprecated
 from monty.io import FileLock
 from pymatgen.core.units import Time, Memory
 from .utils import Condition
@@ -725,11 +724,48 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
     Job = QueueJob
 
+    @classmethod
+    def autodoc(cls):
+        return """
+# dictionary with infor on the hardware available on this particular queue.
+hardware:  
+    num_nodes:        # Number of nodes available on this queue. Mandatory
+    sockets_per_node: # Self-explanatory. Mandatory.
+    cores_per_socket: # Self-explanatory. Mandatory.
+
+# dictionary with the options used to prepare the enviroment before submitting the job
+job:
+    setup:       # List of commands (str) executed before running (default empty)
+    omp_env:     # Dictionary with OpenMP env variables (default empty i.e. no OpenMP)
+    modules:     # List of modules to be imported (default empty)
+    shell_env:   # Dictionary with shell env variables.
+    mpi_runner:  # MPI runner i.e. mpirun, mpiexec, Default is None i.e. no mpirunner
+    pre_run:     # List of commands executed before the run (default: empty)
+    post_run:    # List of commands executed after the run (default: empty)
+
+# dictionary with the name of the queue and optional parameters 
+# used to build/customize the header of the submission script.
+queue:
+    qname:   # Name of the queue (mandatory)
+    qparams: # Dictionary with values used to generate the header of the job script
+             # See pymatgen.io.abinitio.qadapters.py for the list of supported values.
+
+# dictionary with the constraints that must be fulfilled in order to run on this queue.
+limits:
+    min_cores:         # Minimum number of cores (default 1)
+    max_cores:         # Maximum number of cores (mandatory)
+    min_mer_per_proc:  # Minimum memory per MPI process in megabytes, units can be specified e.g. 1.4 Gb
+                       # (default hardware.mem_per_core)
+    max_mer_per_proc:  # Maximum memory per MPI process in megabytes, units can be specified e.g. `1.4Gb`
+                       # (default hardware.mem_per_node)
+    condition:         # MongoDB-like condition (default empty, i.e. not used)
+"""
+
     def __init__(self, **kwargs):
         """
         Args:
             qname: Name of the queue.
-            qparams: Dictionary with the paramenters used in the template.
+            qparams: Dictionary with the parameters used in the template.
             setup: String or list of commands to execute during the initial setup.
             modules: String or list of modules to load before running the application.
             shell_env: Dictionary with the environment variables to export before running the application.
@@ -748,13 +784,9 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
             condition: Condition object (dictionary)
 
         .. note::
+
             priority is a non-negative integer used to order the qadapters. The :class:`TaskManager` will
                 try to run jobs on the qadapter with highest priority if possible
-            hardware is a dictionary with information on the hardware available on this particular queue.
-            queue is a dictionary with the name of the queue and optional values that are used to build/customize
-                the header of the submission script.
-            limits is a dictionary with the constraints that must be fulfilled in order to run on this queu
-            job is a dictionary with options that are used to prepare the enviroment before submitting the job
         """
         # TODO
         #max_num_attempts:
@@ -814,7 +846,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
         # FIXME: Neeed because autoparal 1 with paral_kgb 1 is not able to estimate memory 
         self.min_mem_per_proc = any2mb(d.pop("min_mem_per_proc", self.hw.mem_per_core))
         self.max_mem_per_proc = any2mb(d.pop("max_mem_per_proc", self.hw.mem_per_node))
-        self.allocate_nodes = bool(d.pop("allocate_nodes", False))
+        #self.allocate_nodes = bool(d.pop("allocate_nodes", False))
         self.condition = Condition(d.pop("condition", {}))
 
         if d:

@@ -20,14 +20,13 @@ from monty.string import is_string, list_strings
 from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property, return_none_if_raise
-from pymatgen.core.units import Time, Memory
+from pymatgen.core.units import  Memory #Time,
 from pymatgen.util.string_utils import WildCard
 from pymatgen.util.num_utils import maxloc
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump, pmg_serialize
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
-from .netcdf import ETSF_Reader
 from .strategies import StrategyWithInput, OpticInput
-from .qadapters import make_qadapter
+from .qadapters import make_qadapter, QueueAdapter
 from .db import DBConnector
 from . import abiinspect
 from . import events
@@ -420,7 +419,7 @@ class ParalHintsParser(object):
         self._errors = collections.deque(maxlen=100)
 
     def add_error(self, errmsg):
-        self._errors.append(err_msg)
+        self._errors.append(errmsg)
 
     def parse(self, filename):
         """
@@ -552,12 +551,12 @@ class ParalHints(collections.Iterable):
     #def hist_memory(self, step=102.4):
     #    return sparse_histogram(self._confs, key=lambda c: c.speedup, step=step)
 
-    def select_optimal_conf(self, policy):
+    def select_optimal_conf(self, policy, max_ncpus):
         """
-        Find the optimal configuration according to the `TaskPolicy` policy.
+        Find the optimal configuration according to the :class:`TaskPolicy` policy.
         """
         # Make a copy since we are gonna change the object in place.
-        hints = ParalHints(self.info, confs=[c for c in self if c.num_cores <= policy.max_ncpus])
+        hints = ParalHints(self.info, confs=[c for c in self if c.num_cores <= max_ncpus])
 
         if False:
             # Mapping property --> options passed to sparse_histogram
@@ -627,7 +626,7 @@ class ParalHints(collections.Iterable):
 
 class TaskPolicy(object):
     """
-    This object stores the parameters used by the `TaskManager` to 
+    This object stores the parameters used by the :class:`TaskManager` to 
     create the submission script and/or to modify the ABINIT variables 
     governing the parallel execution. A `TaskPolicy` object contains 
     a set of variables that specify the launcher, as well as the options
@@ -657,27 +656,22 @@ class TaskPolicy(object):
         """
         Args:
             autoparal: Value of ABINIT autoparal input variable. 0 to disable the autoparal feature (default)
-            automemory: int defining the memory policy (default 0)
-                If > 0 the memory requirements will be computed at run-time from the autoparal section
-                produced by ABINIT. In this case, the job script will report the autoparal memory
-                instead of the one specified by the user.
             mode: Select the algorith to select the optimal configuration for the parallel execution.
                 Possible values: ["default", "aggressive", "conservative"]
-            max_ncpus: Maximal number of cores that can be used (must be specified if autoparal > 0).
             condition: condition used to filter the autoparal configuration (Mongodb-like syntax)
             vars_condition: condition used to filter the list of Abinit variables suggested by autoparal (Mongodb-like syntax)
         """
-        self.autoparal = kwargs.pop("autoparal", 0)
-        self.automemory = kwargs.pop("automemory", 0)
-        self.mode = kwargs.pop("mode", "default")
-        self.max_ncpus = kwargs.pop("max_ncpus", None)
+        self.autoparal = kwargs.pop("autoparal", 1)
+        #self.autoparal = kwargs.pop("autoparal", 0)
+        #self.mode = kwargs.pop("mode", "default")
+        #self.max_ncpus = kwargs.pop("max_ncpus", None)
         condition = kwargs.pop("condition", None)
         self.condition = Condition(condition) if condition is not None else condition
         vars_condition = kwargs.pop("vars_condition", None)
         self.vars_condition = Condition(vars_condition) if vars_condition is not None else vars_condition
 
-        if self.autoparal and self.max_ncpus is None:
-            raise ValueError("When autoparal is not zero, max_ncpus must be specified.")
+        #if self.autoparal and self.max_ncpus is None:
+        #    raise ValueError("When autoparal is not zero, max_ncpus must be specified.")
 
         if kwargs:
             raise ValueError("Found invalid keywords in policy section:\n %s" % str(kwargs.keys()))
@@ -696,21 +690,45 @@ class TaskManager(object):
     """
     A `TaskManager` is responsible for the generation of the job script and the submission 
     of the task, as well as for the specification of the parameters passed to the resource manager
-    (e.g. Slurm, PBS ...) and/or the run-time specification of the ABINIT variables governing the 
-    parallel execution. A `TaskManager` delegates the generation of the submission
-    script and the submission of the task to the `QueueAdapter`. 
-    A `TaskManager` has a `TaskPolicy` that governs the specification of the parameters for the parallel executions.
+    (e.g. Slurm, PBS ...) and/or the run-time specification of the ABINIT variables governing the parallel execution. 
+    A `TaskManager` delegates the generation of the submission script and the submission of the task to the :class:`QueueAdapter`. 
+    A `TaskManager` has a :class:`TaskPolicy` that governs the specification of the parameters for the parallel executions.
     Ideally, the TaskManager should be the **main entry point** used by the task to deal with job submission/optimization
     """
-    YAML_FILE = "taskmanager.yml"
+    YAML_FILE = "manager.yml"
     USER_CONFIG_DIR = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
 
     ENTRIES = {"policy", "qadapters", "db_connector"}
 
     @classmethod
+    def autodoc(cls):
+        from .db import DBConnector
+        s = """
+# TaskManager configuration file (YAML Format)
+# Main options:
+
+policy: 
+
+qadapters:  
+    # List of qadapters objects (mandatory)
+    -  # qadapter_1
+    -  # qadapter_2
+
+db_connector: # Connection to MongoDB database (optional)
+
+##########################################
+# Individual entries are documented below:
+##########################################
+
+"""
+        s += "qadapter: " + QueueAdapter.autodoc() + "\n"
+        s += "db_connector: " + DBConnector.autodoc()
+        return s
+
+    @classmethod
     def from_user_config(cls):
         """
-        Initialize the `TaskManager` from the YAML file 'taskmanager.yaml'.
+        Initialize the :class:`TaskManager` from the YAML file 'taskmanager.yaml'.
         Search first in the working directory and then in the abipy configuration directory.
 
         Raises:
@@ -771,6 +789,8 @@ class TaskManager(object):
 
         if not qads:
             raise ValueError("Received emtpy list of qadapters")
+        if len(qads) != 1:
+            raise NotImplementedError("For the time being multiple qadapters are not supported! Please use one adapter")
 
         # Order qdapters according to priority.
         qads = sorted(qads, key=lambda q: q.priority)
@@ -833,8 +853,6 @@ class TaskManager(object):
         self.set_mpi_procs(pconf.mpi_procs)
         if self.has_omp: self.set_omp_threads(pconf.omp_threads)
                                                                       
-        # Change the memory per node if automemory evaluates to True.
-        #if self.policy.automemory and pconf.mem_per_proc:
         self.set_mem_per_proc(pconf.mem_per_proc)
 
         return True
@@ -901,13 +919,13 @@ class TaskManager(object):
         """Set the memory (in Megabytes) per CPU."""
         self.qadapter.set_mem_per_proc(mem_mb)
 
-    #@property
-    #def max_cores(self):
-    #    """
-    #    Maximum number of cores that can be used.
-    #    This value is mainly used in the autoparal part to get the list of possible configurations.
-    #    """
-    #    return max(q.max_cores for q in self.qads)
+    @property
+    def max_cores(self):
+        """
+        Maximum number of cores that can be used.
+        This value is mainly used in the autoparal part to get the list of possible configurations.
+        """
+        return max(q.max_cores for q in self.qads)
 
     def get_njobs_in_queue(self, username=None):
         """
@@ -1048,10 +1066,8 @@ class Product(object):
     def __init__(self, ext, path):
         """
         Args:
-            ext:
-                ABINIT file extension
-            path:
-                (asbolute) filepath
+            ext: ABINIT file extension
+            path: (asbolute) filepath
         """
         if ext not in abi_extensions():
             raise ValueError("Extension %s has not been registered in the internal database" % str(ext))
@@ -1061,7 +1077,7 @@ class Product(object):
 
     @classmethod
     def from_file(cls, filepath):
-        """Build a `Product` instance from a filepath."""
+        """Build a :class:`Product` instance from a filepath."""
         # Find the abinit extension.
         for i in range(len(filepath)):
             if filepath[i:] in abi_extensions():
@@ -1107,10 +1123,8 @@ class Dependency(object):
     def __init__(self, node, exts=None):
         """
         Args:
-            node:
-                The task or the worfklow associated to the dependency or string with a filepath.
-            exts:
-                Extensions of the output files that are needed for running the other tasks.
+            node: The task or the worfklow associated to the dependency or string with a filepath.
+            exts: Extensions of the output files that are needed for running the other tasks.
         """
         self._node = Node.as_node(node)
 
@@ -1170,8 +1184,10 @@ class Dependency(object):
 
         return filepaths, exts
 
+
 def _2attrs(item):
         return item if item is None or isinstance(list, tuple) else (item,)
+
 
 class Status(int):
     """This object is an integer representing the status of the `Node`."""
@@ -1323,7 +1339,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
         Return:
             obj if obj is a Node instance,
-            cast obj to `FileNode` instance of obj is a string.
+            cast obj to :class:`FileNode` instance of obj is a string.
             None if obj is None
         """
         if isinstance(obj, cls):
@@ -1415,9 +1431,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         Add a list of dependencies to the `Node`.
 
         Args:
-            deps:
-                List of `Dependency` objects specifying the 
-                dependencies of the node.
+            deps: List of :class:`Dependency` objects specifying the dependencies of the node.
         """
         # We want a list
         if not isinstance(deps, (list, tuple)):
@@ -1439,9 +1453,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         Remove a list of dependencies from the `Node`.
 
         Args:
-            deps:
-                List of `Dependency` objects specifying the 
-                dependencies of the node.
+            deps: List of :class:`Dependency` objects specifying the  dependencies of the node.
         """
         if not isinstance(deps, (list, tuple)):
             deps = [deps]
@@ -1469,7 +1481,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         return other in [d.node for d in self.deps]
 
     def str_deps(self):
-        """Return the string representation of the dependecies of the node."""
+        """Return the string representation of the dependencies of the node."""
         lines = []
         app = lines.append
 
@@ -1483,7 +1495,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         """
         Store additional info provided by the user in self.user_info
 
-        .. warning:
+        .. warning::
 
             The objects stored in the dict must support pickle.
         """
@@ -1492,7 +1504,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
     @property
     def user_info(self):
-        """Returns an `AttrDict` with the variables stored in self._user_info.""" 
+        """Returns an :class:`AttrDict` with the variables stored in self._user_info."""
         try:
             return AttrDict(**self._user_info)
         except AttributeError:
@@ -1523,7 +1535,7 @@ class FileNode(Node):
     """
     A Node that consists of an already existing file.
 
-    Mainly used to connect Tasks to external files produced in previous runs
+    Mainly used to connect `Tasks` to external files produced in previous runs
     """
     def __init__(self, filename):
         super(FileNode, self).__init__()
@@ -1686,12 +1698,12 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
     @property
     def flow(self):
-        """The Flow containing this `Task`."""
+        """The :class:`Flow` containing this `Task`."""
         return self.work.flow
 
     @lazy_property
     def pos(self):
-        """The position of the task in the Flow"""
+        """The position of the task in the :class:`Flow`"""
         for i, task in enumerate(self.work):
             if self == task: 
                 return (self.work.pos, i)
@@ -1759,7 +1771,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         String with the wall-time
 
-        ...note:
+        ...note::
+
             The clock starts when self.status becomes S_RUN.
             thus run_etime does not correspond to the effective wall-time.
         """
@@ -1999,10 +2012,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         Set and return the status of the task.
 
         Args:
-            status:
-                Status object or string representation of the status
-            info_msg:
-                string with human-readable message used in the case of errors (optional)
+            status: Status object or string representation of the status
+            info_msg: string with human-readable message used in the case of errors (optional)
         """
         status = Status.as_status(status)
 
@@ -2058,8 +2069,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         1) see it the job is blocked
         2) see if an error occured at submitting the job the job was submitted, TODO these problems can be solved
         3) see if there is output
-            4) see if abinit reports problems
-            5) see if both err files exist and are empty
+        4) see if abinit reports problems
+        5) see if both err files exist and are empty
         6) no output and no err files, the job must still be running
         7) try to find out what caused the problems
         8) there is a problem but we did not figure out what ...
@@ -2355,12 +2366,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         Analyzes the main output file for possible Errors or Warnings.
 
         Args:
-            source:
-                "output" for the main output file.
-                "log" for the log file.
+            source: "output" for the main output file,"log" for the log file.
 
         Returns:
-            `EventReport` instance or None if the main output file does not exist.
+            :class:`EventReport` instance or None if the main output file does not exist.
         """
         ofile = {
             "output": self.output_file,
@@ -2381,7 +2390,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
     def get_results(self, **kwargs):
         """
-        Returns `NodeResults` instance.
+        Returns :class:`NodeResults` instance.
         Subclasses should extend this method (if needed) by adding 
         specialized code that performs some kind of post-processing.
         """
@@ -2444,7 +2453,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
     def build(self, *args, **kwargs):
         """
-        Creates the working directory and the input files of the `Task`.
+        Creates the working directory and the input files of the :class:`Task`.
         It does not overwrite files if they already exist.
         """
         # Create dirs for input, output and tmp data.
@@ -2670,7 +2679,7 @@ class AbinitTask(Task):
         logger.info("in autoparal_run")
         policy = self.manager.policy
 
-        if policy.autoparal == 0 or policy.max_ncpus in [None, 1]:
+        if policy.autoparal == 0: # or policy.max_ncpus in [None, 1]:
             logger.info("Nothing to do in autoparal, returning (None, None)")
             return 1
 
@@ -2682,7 +2691,8 @@ class AbinitTask(Task):
         ############################################################################
 
         # Set the variables for automatic parallelization
-        autoparal_vars = dict(autoparal=policy.autoparal, max_ncpus=policy.max_ncpus)
+        max_ncpus = self.manager.max_cores
+        autoparal_vars = dict(autoparal=policy.autoparal, max_ncpus=max_ncpus)
         self.strategy.add_extra_abivars(autoparal_vars)
 
         # Run the job in a shell subprocess with mpi_procs = 1
@@ -2714,7 +2724,7 @@ class AbinitTask(Task):
         # Select the optimal configuration according to policy
         ######################################################
         self.set_pconfs(pconfs)
-        optconf = pconfs.select_optimal_conf(policy)
+        optconf = pconfs.select_optimal_conf(policy, max_ncpus)
         #print("optimal autoparal conf:\n %s" % optconf)
 
         # Select the partition on which we'll be running and set MPI/OMP cores.
@@ -3108,7 +3118,7 @@ class PhononTask(AbinitTask):
         """
         Plot the Phonon SCF cycle results with matplotlib.
 
-        Returns
+        Returns:
             `matplotlib` figure, None if some error occurred.
         """
         scf_cycle = abiinspect.PhononScfCycle.from_file(self.output_file.path)

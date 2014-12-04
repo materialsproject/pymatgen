@@ -65,11 +65,16 @@ def add_fig_kwargs(func):
     from functools import wraps
     @wraps(func)
     def wrapper(*args, **kwargs):
+        # pop the kwds used by the decorator.
         title = kwargs.pop("title", None)
         show = kwargs.pop("show", True)
         savefig = kwargs.pop("savefig", None)
+
+        # Call func
         import matplotlib.pyplot as plt
         fig = func(*args, **kwargs)
+
+        # Operate on matplotlib figure.
         if title is not None: fig.suptitle(title)
         if savefig: fig.savefig(savefig)
         if show: plt.show()
