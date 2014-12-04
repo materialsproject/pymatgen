@@ -43,8 +43,8 @@ def mongo_getattr(rec, key):
 
 def scan_nestdict(d, key):
     """
-    Scan a nested dict d, and return the first value associated
-    to the given key. Returns None if key is not found.
+    Scan a nested dict d, and return the first value associated to the given key.
+    Returns None if key is not found.
 
     >>> d = {0: 1, 1: {"hello": {"world": {None: [1,2,3]}}}, "foo": [{"bar": 1}, {"color": "red"}]}
     >>> assert scan_nestdict(d, 1) == {"hello": {"world": {None: [1,2,3]}}}
@@ -84,16 +84,19 @@ class DBConnector(object):
     #    password=None,
     #}
 
+    @classmethod
+    def autodoc(cls):
+        return """
+     enabled:     # yes or no (default yes)
+     database:    # Name of the mongodb database (default abinit)
+     collection:  # Name of the collection (default test)
+     host:        # host address e.g. 0.0.0.0 (default None)
+     port:        # port e.g. 8080 (default None)
+     user:        # user name (default None)
+     password:    # password for authentication (default None)
+     """
+
     def __init__(self, **kwargs):
-        """
-        enabled: no
-        database: abinit
-        collection: test
-        host: 0.0.0.0
-        port: 8080
-        user: gmatteo
-        password: helloworld
-        """
         if not kwargs:
             self.enabled = False
             return
