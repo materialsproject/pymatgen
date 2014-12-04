@@ -22,12 +22,9 @@ def get_publication_quality_plot(width=8, height=None, plt=None):
     Provides a publication quality plot, with nice defaults for font sizes etc.
 
     Args:
-        width:
-            Width of plot in inches. Defaults to 8in.
-        height.
-            Height of plot in inches. Defaults to width * golden ratio.
-        plt:
-            If plt is supplied, changes will be made to an existing plot.
+        width: Width of plot in inches. Defaults to 8in.
+        height. Height of plot in inches. Defaults to width * golden ratio.
+        plt: If plt is supplied, changes will be made to an existing plot.
             Otherwise, a new plot will be created.
 
     Returns:

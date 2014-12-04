@@ -615,7 +615,7 @@ class PyFlowScheduler(object):
             err_msg += boxed(msg)
 
         deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
-        print("\ndeadlocked:\n", deadlocked, "\nrunnables:\n", runnables, "\nrunning\n", running)
+        #print("\ndeadlocked:\n", deadlocked, "\nrunnables:\n", runnables, "\nrunning\n", running)
         if deadlocked and not runnables and not running:
             msg = "No runnable job with deadlocked tasks:\n %s\nWill shutdown the scheduler and exit" % str(deadlocked)
             err_msg += boxed(msg)
@@ -639,7 +639,7 @@ class PyFlowScheduler(object):
     def shutdown(self, msg):
         """Shutdown the scheduler."""
         try:
-            #print("Shutdown message:\n%s" % msg)
+
             self.cleanup()
 
             self.history.append("Completed on %s" % time.asctime())
@@ -659,16 +659,21 @@ class PyFlowScheduler(object):
                     fh.writelines(self.exceptions)
                     fh.write("Shutdown message:\n%s" % msg)
 
-        finally:
-            # Shutdown the scheduler thus allowing the process to exit.
-            logger.debug('this should be the shutdown of the scheduler')
-
             lines = []
             app = lines.append
             app("Submitted on %s" % time.ctime(self.start_time))
             app("Completed on %s" % time.asctime())
             app("Elapsed time %s" % str(self.get_delta_etime()))
+            if self.flow.all_ok:
+                app("Flow completed succesfully")
+            else:
+                app("Flow did not comlete succesfully")
+                app("Shutdown message:\n%s" % msg)
             print("\n".join(lines))
+
+        finally:
+            # Shutdown the scheduler thus allowing the process to exit.
+            logger.debug('this should be the shutdown of the scheduler')
 
             # Unschedule all the jobs before calling shutdown
             #self.sched.print_jobs()

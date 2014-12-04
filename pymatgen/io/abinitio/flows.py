@@ -1,21 +1,8 @@
 # coding: utf-8
 """
-Abinit Flows
-Flows consist for works, works consist of tasks.
-Flows are the final objects that can be dumped directly to a pickle file on disk of any other database.
+A Flow is a container for Works, and works consist of tasks.
+Flows are the final objects that can be dumped directly to a pickle file on disk
 Flows are executed using abirun (abipy).
-
-Important 'external' methods for constructing flows:
- register_work:
-    register (add) a work to the flow
- resister_task:
-    actually register a work that contains only this task returns the work
- allocate:
-    propagate the workdir and manager of the flow to all the registered tasks
- build:
-
- build_and_pickle_dump:
-
 """
 from __future__ import unicode_literals, division, print_function
 import os
@@ -97,10 +84,20 @@ class Flow(Node):
     possible inter-depedencies among the work and the creation of
     dynamic worfflows that are generates by callbacks registered by the user.
 
-    .. attributes:
+    .. attributes::
 
         creation_date: String with the creation_date
         pickle_protocol: Protocol for Pickle database (default: -1 i.e. latest protocol)
+
+    Important methods for constructing flows:
+
+    .. methods::
+
+        register_work: register (add) a work to the flow
+        resister_task: register a work that contains only this task returns the work
+        allocate: propagate the workdir and manager of the flow to all the registered tasks
+        build:
+        build_and_pickle_dump:
     """
     VERSION = "0.1"
     PICKLE_FNAME = "__AbinitFlow__.pickle"
