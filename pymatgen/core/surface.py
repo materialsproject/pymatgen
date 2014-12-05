@@ -176,6 +176,7 @@ class Slab(Structure):
                 slabs with larger surface areas.
         """
         dip_per_unit_area = self.dipole / self.surface_area
+        print np.linalg.norm(dip_per_unit_area)
         return np.linalg.norm(dip_per_unit_area) > tol_dipole_per_unit_area
 
     @property

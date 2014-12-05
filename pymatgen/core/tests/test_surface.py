@@ -91,7 +91,7 @@ class SlabTest(PymatgenTest):
         slab = SlabGenerator(cscl, [1, 0, 0], 5, 5,
                              lll_reduce=False, center_slab=False).get_slab()
         self.assertArrayAlmostEqual(slab.dipole, [-4.209, 0, 0])
-        self.assertTrue(self.zno55.is_polar())
+        self.assertTrue(slab.is_polar())
 
 
 class SlabGeneratorTest(PymatgenTest):
