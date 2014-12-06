@@ -961,8 +961,9 @@ class IStructure(SiteCollection, PMGSONable):
         grouped_sites = [list(a[1]) for a in itertools.groupby(sites, key=k)]
         grouped_fcoords = [np.array([s.frac_coords for s in g]) for g in grouped_sites]
 
-        # min_vecs are approximate periodicities of the cell. The exact periodicities from
-        # the supercell matrices are checked against these first
+        # min_vecs are approximate periodicities of the cell. The exact
+        # periodicities from the supercell matrices are checked against these
+        # first
         min_fcoords = min(grouped_fcoords, key=lambda x: len(x))
         min_vecs = min_fcoords - min_fcoords[0]
 
@@ -980,11 +981,12 @@ class IStructure(SiteCollection, PMGSONable):
             np.abs(d, d)
             return fc1[np.any(np.all(d < tol, axis=-1), axis=-1)]
 
-        # here we reduce the number of min_vecs by enforcing that every vector in min_vecs
-        # approximately maps each site onto a similar site.
-        # The subsequent processing is O(fu^3 * min_vecs) = O(n^4) if we do no reduction.
-        # This reduction is O(n^3) so usually is an improvement. Using double the tolerance
-        # because both vectors are approximate
+        # here we reduce the number of min_vecs by enforcing that every
+        # vector in min_vecs approximately maps each site onto a similar site.
+        # The subsequent processing is O(fu^3 * min_vecs) = O(n^4) if we do
+        # no reduction.
+        # This reduction is O(n^3) so usually is an improvement. Using double
+        # the tolerance because both vectors are approximate
         for g in sorted(grouped_fcoords, key=lambda x: len(x)):
             for f in g:
                 min_vecs = pbc_coord_intersection(min_vecs, g - f, super_ftol_2)
@@ -993,10 +995,10 @@ class IStructure(SiteCollection, PMGSONable):
             """
             Returns all possible distinct supercell matrices given a
             number of formula units in the supercell. Batches the matrices
-            by the values in the diagonal (for less numpy overhead). Computational
-            complexity is O(n^3), and difficult to improve. Might be able to do something
-            smart with checking combinations of a and b first, though unlikely to reduce
-            to O(n^2).
+            by the values in the diagonal (for less numpy overhead).
+            Computational complexity is O(n^3), and difficult to improve.
+            Might be able to do something smart with checking combinations of a
+            and b first, though unlikely to reduce to O(n^2).
             """
             def factors(n):
                 for i in range(1, n+1):
@@ -1009,10 +1011,10 @@ class IStructure(SiteCollection, PMGSONable):
                 for a in factors(det):
                     for e in factors(det // a):
                         g = det // a // e
-                        yield det, np.array([[[a, b, c], [0, e, f], [0, 0, g]]
-                                             for b, c, f in itertools.product(range(a),
-                                                                              range(a),
-                                                                              range(e))])
+                        yield det, np.array(
+                            [[[a, b, c], [0, e, f], [0, 0, g]]
+                            for b, c, f in itertools.product(range(a), range(a),
+                                                             range(e))])
 
         # we cant let sites match to their neighbors in the supercell
         grouped_non_nbrs = []
@@ -1021,7 +1023,8 @@ class IStructure(SiteCollection, PMGSONable):
             fdist -= np.round(fdist)
             np.abs(fdist, fdist)
             non_nbrs = np.any(fdist > 2 * super_ftol[None, None, :], axis=-1)
-            np.fill_diagonal(non_nbrs, True) # since we want sites to match to themselves
+            # since we want sites to match to themselves
+            np.fill_diagonal(non_nbrs, True)
             grouped_non_nbrs.append(non_nbrs)
 
         num_fu = six.moves.reduce(gcd, map(len, grouped_sites))
@@ -1043,8 +1046,9 @@ class IStructure(SiteCollection, PMGSONable):
                 valid = True
                 new_coords = []
                 new_sp = []
-                for gsites, gfcoords, non_nbrs in zip(grouped_sites, grouped_fcoords,
-                                                           grouped_non_nbrs):
+                for gsites, gfcoords, non_nbrs in zip(grouped_sites,
+                                                      grouped_fcoords,
+                                                      grouped_non_nbrs):
                     all_frac = np.dot(gfcoords, m)
 
                     # calculate grouping of equivalent sites, represented by
@@ -1080,7 +1084,8 @@ class IStructure(SiteCollection, PMGSONable):
                     new_l = Lattice(np.dot(inv_m, self.lattice.matrix))
                     s = Structure(new_l, new_sp, new_coords,
                                   coords_are_cartesian=True)
-                    return s.get_primitive_structure(tolerance).get_reduced_structure()
+                    return s.get_primitive_structure(tolerance)\
+                        .get_reduced_structure()
 
         return Structure.from_sites(self)
 
