@@ -71,6 +71,8 @@ INCAR:
   LWAVE: false
   MAGMOM:
     Co: 5
+    Co3+: 0.6
+    Co4+: 1
     Cr: 5
     Fe: 5
     Mn: 5
