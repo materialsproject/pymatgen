@@ -16,7 +16,8 @@ import numpy as np
 from monty.string import list_strings, is_string
 from monty.itertools import iterator_from_slice
 from monty.io import FileLock
-from monty.collections import AttrDict, Namespace 
+from monty.collections import AttrDict, Namespace
+from pymatgen.util.plotting_utils import add_fig_kwargs
 from pymatgen.core.periodic_table import PeriodicTable #, Element
 
 
@@ -1316,25 +1317,14 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
             return self._projector_functions
 
+    @add_fig_kwargs
     def plot_densities(self, **kwargs):
         """
         Plot the PAW densities.
 
-        ================  ==============================================================
-        kwargs            Meaning
-        ================  ==============================================================
-        title             Title of the plot (Default: "Densities").
-        show              True to show the figure (Default).
-        savefig           'abc.png' or 'abc.eps' to save the figure to a file.
-        ================  ==============================================================
-
         Returns:
             `matplotlib` figure
         """
-        title = kwargs.pop("title", "Densities")
-        show = kwargs.pop("show", True)
-        savefig = kwargs.pop("savefig", None)
-
         import matplotlib.pyplot as plt
 
         fig = plt.figure()
@@ -1351,36 +1341,16 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
         plt.legend(loc="best")
 
-        if title is not None:
-            fig.suptitle(title)
-
-        if show:
-            plt.show()
-
-        if savefig:
-            fig.savefig(savefig)
-
         return fig
 
+    @add_fig_kwargs
     def plot_waves(self, **kwargs):
         """
         Plot the AE and the pseudo partial waves.
 
-        ================  ==============================================================
-        kwargs            Meaning
-        ================  ==============================================================
-        title             Title of the plot (Default: "Partial Waves").
-        show              True to show the figure (Default).
-        savefig           'abc.png' or 'abc.eps' to save the figure to a file.
-        ================  ==============================================================
-
         Returns:
             `matplotlib` figure
         """
-        title = kwargs.pop("title", "Partial Waves")
-        show = kwargs.pop("show", True)
-        savefig = kwargs.pop("savefig", None)
-
         import matplotlib.pyplot as plt
 
         fig = plt.figure()
@@ -1401,35 +1371,17 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
         plt.legend(loc="best")
 
-        if title is not None:
-            fig.suptitle(title)
-
-        if show:
-            plt.show()
-
-        if savefig:
-            fig.savefig(savefig)
-
         return fig
 
+    @add_fig_kwargs
     def plot_projectors(self, **kwargs):
         """
         Plot the PAW projectors.
-
-        ================  ==============================================================
-        kwargs            Meaning
-        ================  ==============================================================
-        title             Title of the plot (Default: "Projectors").
-        show              True to show the figure (Default).
-        savefig           'abc.png' or 'abc.eps' to save the figure to a file.
-        ================  ==============================================================
 
         Returns:
             `matplotlib` figure
         """
         title = kwargs.pop("title", "Projectors")
-        show = kwargs.pop("show", True)
-        savefig = kwargs.pop("savefig", None)
 
         import matplotlib.pyplot as plt
 
@@ -1448,17 +1400,11 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
         plt.legend(loc="best")
 
-        if title is not None:
-            fig.suptitle(title)
-
-        if show:
-            plt.show()
-
-        if savefig:
-            fig.savefig(savefig)
+        if title is not None: fig.suptitle(title)
 
         return fig
 
+    #@add_fig_kwargs
     #def plot_potentials(self, **kwargs):
     #    """
     #        ================  ==============================================================
@@ -1533,8 +1479,7 @@ class PseudoTable(collections.Sequence):
     def __init__(self, pseudos):
         """
         Args:
-            pseudos:
-                List of pseudopotentials or filepaths
+            pseudos: List of pseudopotentials or filepaths
         """
         # Store pseudos in a default dictionary with z as key.
         # Note that we can have more than one pseudo for given z.
@@ -1565,8 +1510,7 @@ class PseudoTable(collections.Sequence):
 
     def __getitem__(self, Z):
         """
-        Retrieve pseudos for the atomic number z.
-        Accepts both int and slice objects.
+        Retrieve pseudos for the atomic number z. Accepts both int and slice objects.
         """
         if isinstance(Z, slice):
             assert Z.stop is not None
