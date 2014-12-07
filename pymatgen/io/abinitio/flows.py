@@ -23,7 +23,7 @@ from monty.pprint import draw_tree
 from monty.termcolor import stream_has_colours, cprint, colored, cprint_map
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
 from .tasks import (Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager, NscfTask, DdkTask,
-                    AnaddbTask, DdeTask)
+                    AnaddbTask, DdeTask, TaskManager)
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
 from .works import Work, BandStructureWork, PhononWork, G0W0Work, QptdmWork
@@ -1395,6 +1395,7 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
     natom = len(scf_input.structure)
 
     # Create the container that will manage the different works.
+    if manager is None: manager = TaskManager.from_user_config()
     flow = flow_class(workdir, manager=manager)
 
     # Register the first work (GS calculation)

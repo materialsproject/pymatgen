@@ -79,6 +79,7 @@ def add_fig_kwargs(func):
         if savefig: fig.savefig(savefig)
         if show: plt.show()
         return fig
+
     wrapper.__doc__ += "\n" + """\
     keyword arguments controlling the display of the figure:
 

@@ -552,6 +552,10 @@ class IStructure(SiteCollection, PMGSONable):
         # Note Fortan --> C indexing 
         species = [znucl_type[typ-1] for typ in typat]
 
+        #print(lattice)
+        #print(species)
+        #print(coords)
+
         return cls(lattice, species, coords, validate_proximity=False,
                    to_unit_cell=False, coords_are_cartesian=coords_are_cartesian)
 
