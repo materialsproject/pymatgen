@@ -279,20 +279,12 @@ class SparseHistogram(object):
         self.values = [hist[pos] for pos in self.binvals]
         self.start, self.stop, self.num = start, stop, num
 
+    from pymatgen.util.plotting_utils import add_fig_kwargs
+    @add_fig_kwargs
     def plot(self, **kwargs):
         """
-        ==============  ==============================================================
-        kwargs          Meaning
-        ==============  ==============================================================
-        title           Title of the plot (Default: None).
-        show            True to show the figure (Default).
-        savefig         'abc.png' or 'abc.eps'* to save the figure to a file.
-        ==============  ==============================================================
+        Plot the histogram with matplotlib, returns `matplotlib figure
         """
-        title = kwargs.pop("title", None)
-        show = kwargs.pop("show", True)
-        savefig = kwargs.pop("savefig", None)
-
         import matplotlib.pyplot as plt
         fig = plt.figure()
 
@@ -300,18 +292,12 @@ class SparseHistogram(object):
 
         yy = [len(v) for v in self.values]
         ax.plot(self.binvals, yy, **kwargs)
-
-        if show: plt.show()
-        if savefig is not None: fig.savefig(savefig)
-
         return fig
 
 
 import unittest
-
 class SparseHistogramTest(unittest.TestCase):
     def test_sparse(self):
-        from collections import OrderedDict
         items = [1, 2, 2.9, 4]
         hist = SparseHistogram(items, step=1)
         assert hist.binvals == [1.0, 2.0, 3.0] 
@@ -423,7 +409,7 @@ class ParalHintsParser(object):
 
     def parse(self, filename):
         """
-        Read the AutoParal section (YAML format) from filename.
+        Read the `AutoParal` section (YAML format) from filename.
         Assumes the file contains only one section.
         """
         with abiinspect.YamlTokenizer(filename) as r:
@@ -499,10 +485,9 @@ class ParalHints(collections.Iterable):
         Remove all the configurations that do not satisfy the given condition.
 
             Args:
-                `Condition` object with operators expressed with a Mongodb-like syntax
-            key:
-                Selects the sub-dictionary on which condition is applied, e.g. key="vars"
-                if we have to filter the configurations depending on the values in vars
+                condition: `Condition` object with operators expressed with a Mongodb-like syntax
+                key: Selects the sub-dictionary on which condition is applied, e.g. key="vars"
+                    if we have to filter the configurations depending on the values in vars
         """
         new_confs = []
 
@@ -635,7 +620,7 @@ class TaskPolicy(object):
     @classmethod
     def as_policy(cls, obj):
         """
-        Converts an object obj into a TaskPolicy. Accepts:
+        Converts an object obj into a `:class:`TaskPolicy. Accepts:
 
             * None
             * TaskPolicy
@@ -2381,7 +2366,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         parser = events.EventsParser()
         try:
             return parser.parse(ofile.path)
-
         except parser.Error as exc:
             # Return a report with an error entry with info on the exception.
             logger.critical("%s: Exception while parsing ABINIT events:\n %s" % (ofile, str(exc)))
@@ -2503,13 +2487,19 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def setup(self):
         """Base class does not provide any hook."""
 
-    def start(self):
+    def start(self, **kwargs):
         """
         Starts the calculation by performing the following steps:
 
             - build dirs and files
             - call the _setup method
             - execute the job file by executing/submitting the job script.
+
+        ==============  ==============================================================
+        kwargs          Meaning
+        ==============  ==============================================================
+        autoparal       if False, the autoparal step is skipped (default True)
+        ==============  ==============================================================
 
         Returns:
             1 if task was started, 0 otherwise.
@@ -2534,7 +2524,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             self.strategy.add_extra_abivars(cvars)
 
         # Automatic parallelization
-        if hasattr(self, "autoparal_run"):
+        if kwargs.pop("autoparal", True) and hasattr(self, "autoparal_run"):
             try:
                 self.autoparal_run()
             except:
@@ -3407,10 +3397,15 @@ class OpticTask(Task):
 
 class AnaddbTask(Task):
     """Task for Anaddb runs (post-processing of DFPT calculations)."""
+    #@classmethod
+    #def diago_oneqpoint(cls):
+    #    new = cls(anaddb_input, ddb_node, ddk_node=None, workdir=None, manager=None)
+    #    return new
+
     def __init__(self, anaddb_input, ddb_node,
                  gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None):
         """
-        Create an instance of `AnaddbTask` from an string containing the input.
+        Create an instance of :class:`AnaddbTask` from an string containing the input.
 
         Args:
             anaddb_input: string with the anaddb variables.
@@ -3506,6 +3501,16 @@ class AnaddbTask(Task):
         Anaddb allows the user to specify the paths of the input file.
         hence we don't need to create symbolic links.
         """
+
+    def open_phbst(self):
+        """Open PHBST file produced by Anaddb and returns :class:`PhbstFile` object."""
+        from abipy.dfpt.phbands import PhbstFile
+        return PhbstFile(os.path.join(self.workdir, "run.abo_PHBST.nc"))
+
+    def open_phdos(self):
+        """Open PHDOS file produced by Anaddb and returns :class:`PhdosFile` object."""
+        from abipy.dfpt.phbands import PhdosFile
+        return PhdosFile(os.path.join(self.workdir, "run.abo_PHDOS.nc"))
 
     def get_results(self, **kwargs):
         results = super(AnaddbTask, self).get_results(**kwargs)

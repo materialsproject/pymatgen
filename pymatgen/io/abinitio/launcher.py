@@ -257,9 +257,9 @@ class PyFlowScheduler(object):
 
         #. The number of Abinit Errors (i.e. the number of tasks whose status is S_ERROR) is > MAX_NUM_ERRORS
 
-        #. The number of jobs launched becomes greater than (SAFETY_RATIO * total_number_of_tasks).
+        #. The number of jobs launched becomes greater than (`safety_ratio` * total_number_of_tasks).
 
-        #. The scheduler will send an email to the user (specified by mailto) every REMINDME_S seconds.
+        #. The scheduler will send an email to the user (specified by `mailto`) every `remindme_s` seconds.
            If the mail cannot be sent, it will shutdown automatically.
            This check prevents the scheduler from being trapped in an infinite loop.
     """
@@ -281,7 +281,7 @@ class PyFlowScheduler(object):
             max_njobs_inque: Limit on the number of jobs that can be present in the queue
             use_dynamic_manager: True if the :class:`TaskManager` must be re-initialized from
                 file before launching the jobs. Default: False
-            max_nlaunch: Maximum number of tasks launched by radpifire (default -1 i.e. no limit)
+            max_nlaunches: Maximum number of tasks launched by radpifire (default -1 i.e. no limit)
         """
         # Options passed to the scheduler.
         self.sched_options = AttrDict(
@@ -301,12 +301,12 @@ class PyFlowScheduler(object):
         self.use_dynamic_manager = kwargs.pop("use_dynamic_manager", False)
         self.max_njobs_inqueue = kwargs.pop("max_njobs_inqueue", 200)
 
-        self.REMINDME_S = float(kwargs.pop("REMINDME_S", 4 * 24 * 3600))
-        self.MAX_NUM_PYEXCS = int(kwargs.pop("MAX_NUM_PYEXCS", 0))
-        self.MAX_NUM_ABIERRS = int(kwargs.pop("MAX_NUM_ABIERRS", 0))
-        self.SAFETY_RATIO = int(kwargs.pop("SAFETY_RATIO", 5))
-        #self.MAX_ETIME_S = kwargs.pop("MAX_ETIME_S", )
-        self.max_nlaunch = kwargs.pop("max_nlaunch", -1)
+        self.remindme_s = float(kwargs.pop("remindme_s", 4 * 24 * 3600))
+        self.max_num_pyexcs = int(kwargs.pop("max_num_pyexcs", 0))
+        self.max_num_abierrs = int(kwargs.pop("max_num_abierrs", 0))
+        self.safety_ratio = int(kwargs.pop("safety_ratio", 5))
+        #self.max_etime_s = kwargs.pop("max_etime_s", )
+        self.max_nlaunches = kwargs.pop("max_nlaunches", -1)
         self.debug = kwargs.pop("debug", 0)
 
         if kwargs:
@@ -323,7 +323,7 @@ class PyFlowScheduler(object):
         self.num_reminders = 1
 
         # Used to keep track of the exceptions raised while the scheduler is running
-        self.exceptions = collections.deque(maxlen=self.MAX_NUM_PYEXCS + 10)
+        self.exceptions = collections.deque(maxlen=self.max_num_pyexcs + 10)
 
         # Used to push additional info during the execution.
         self.history = collections.deque(maxlen=100)
@@ -497,10 +497,10 @@ class PyFlowScheduler(object):
             logger.info("Too many jobs in the queue, returning")
             return
 
-        if self.max_nlaunch == -1:
+        if self.max_nlaunches == -1:
             max_nlaunch = self.max_njobs_inqueue - nqjobs
         else:
-            max_nlaunch = min(self.max_njobs_inqueue - nqjobs, self.max_nlaunch)
+            max_nlaunch = min(self.max_njobs_inqueue - nqjobs, self.max_nlaunches)
 
         # check status and print it.
         flow.check_status(show=False)
@@ -579,7 +579,7 @@ class PyFlowScheduler(object):
         # Shall we send a reminder to the user?
         delta_etime = self.get_delta_etime()
 
-        if delta_etime.total_seconds() > self.num_reminders * self.REMINDME_S:
+        if delta_etime.total_seconds() > self.num_reminders * self.remindme_s:
             self.num_reminders += 1
             msg = ("Just to remind you that the scheduler with pid %s, flow %s\n has been running for %s " %
                   (self.pid, self.flow, delta_etime))
@@ -591,27 +591,27 @@ class PyFlowScheduler(object):
                         " but send_email returned %d. Aborting now" % retcode)
                 err_msg += msg
 
-        #if delta_etime.total_seconds() > self.MAX_ETIME_S:
-        #    err_msg += "\nExceeded MAX_ETIME_S %s. Will shutdown the scheduler and exit" % self.MAX_ETIME_S
+        #if delta_etime.total_seconds() > self.max_etime_s:
+        #    err_msg += "\nExceeded max_etime_s %s. Will shutdown the scheduler and exit" % self.max_etime_s
 
         # Too many exceptions. Shutdown the scheduler.
-        if self.num_excs > self.MAX_NUM_PYEXCS:
+        if self.num_excs > self.max_num_pyexcs:
             msg = "Number of exceptions %s > %s. Will shutdown the scheduler and exit" % (
-                self.num_excs, self.MAX_NUM_PYEXCS)
+                self.num_excs, self.max_num_pyexcs)
             err_msg += boxed(msg)
 
         # Paranoid check: disable the scheduler if we have submitted
         # too many jobs (it might be due to some bug or other external reasons 
         # such as race conditions between difference callbacks!)
-        if self.nlaunch > self.SAFETY_RATIO * self.flow.num_tasks:
+        if self.nlaunch > self.safety_ratio * self.flow.num_tasks:
             msg = "Too many jobs launched %d. Total number of tasks = %s, Will shutdown the scheduler and exit" % (
                 self.nlaunch, self.flow.num_tasks)
             err_msg += boxed(msg)
 
         # Count the number of tasks with status == S_ERROR.
-        if self.flow.num_errored_tasks > self.MAX_NUM_ABIERRS:
+        if self.flow.num_errored_tasks > self.max_num_abierrs:
             msg = "Number of tasks with ERROR status %s > %s. Will shutdown the scheduler and exit" % (
-                self.flow.num_errored_tasks, self.MAX_NUM_ABIERRS)
+                self.flow.num_errored_tasks, self.max_num_abierrs)
             err_msg += boxed(msg)
 
         deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
@@ -667,7 +667,7 @@ class PyFlowScheduler(object):
             if self.flow.all_ok:
                 app("Flow completed succesfully")
             else:
-                app("Flow did not comlete succesfully")
+                app("Flow did not comlete successfully")
                 app("Shutdown message:\n%s" % msg)
             print("\n".join(lines))
 

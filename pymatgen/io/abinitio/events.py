@@ -323,7 +323,8 @@ class EventsParser(object):
         report = EventReport(filename)
 
         # TODO Use CamelCase for the Fortran messages.
-        w = WildCard("*Error|*Warning|*Comment|*ERROR|*WARNING|*COMMENT")
+        # Bug is still an error of class SoftwareError
+        w = WildCard("*Error|*Warning|*Comment|*Bug|*ERROR|*WARNING|*COMMENT|*BUG")
 
         with YamlTokenizer(filename) as tokens:
 
