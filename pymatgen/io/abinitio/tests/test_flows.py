@@ -44,7 +44,6 @@ class FlowUnitTest(PymatgenTest):
     MANAGER = """\
 policy:
     autoparal: 1
-    max_ncpus: 2
 qadapters:
     - priority: 1
       queue:

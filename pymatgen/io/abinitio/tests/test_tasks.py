@@ -13,9 +13,8 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 'test
 
 class TaskManagerTest(PymatgenTest):
     MANAGER = """\
-policy:
-    autoparal: 1
-    max_ncpus: 2
+#policy:
+#    autoparal: 1
 qadapters:
     - priority: 1
       queue:
@@ -134,9 +133,9 @@ configurations:
         ParalHints.from_dict(confs.as_dict())
 
         # When autoparal is 1, max_ncpus must be specified
-        with self.assertRaises(ValueError):
-            policy = TaskPolicy(autoparal=1)
-            optimal = confs.select_optimal_conf(self, policy)
+        #with self.assertRaises(ValueError):
+        #    policy = TaskPolicy(autoparal=1)
+        #    optimal = confs.select_optimal_conf(policy, max_ncpus)
 
         # Optimize speedup with ncpus <= max_ncpus
         policy = TaskPolicy(autoparal=1, max_ncpus=3)
