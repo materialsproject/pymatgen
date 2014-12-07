@@ -12,6 +12,7 @@ import six
 
 from six.moves import cStringIO, map, zip
 from prettytable import PrettyTable
+from pymatgen.util.plotting_utils import add_fig_kwargs
 
 
 def straceback():
@@ -154,26 +155,12 @@ class ScfCycle(collections.Mapping):
         else:
             return None
 
+    @add_fig_kwargs
     def plot(self, **kwargs):
         """
-        Uses matplotlib to plot the evolution of the SCF cycle.
-
-        ==============  ==============================================================
-        kwargs          Meaning
-        ==============  ==============================================================
-        title           Title of the plot (Default: None).
-        show            True to show the figure (Default).
-        savefig         'abc.png' or 'abc.eps'* to save the figure to a file.
-        ==============  ==============================================================
-
-        Returns:
-            `matplotlib` figure
+        Uses matplotlib to plot the evolution of the SCF cycle. Return `matplotlib` figure
         """
         import matplotlib.pyplot as plt
-
-        title = kwargs.pop("title", None)
-        show = kwargs.pop("show", True)
-        savefig = kwargs.pop("savefig", None)
 
         # Build grid of plots.
         num_plots, ncols, nrows = len(self), 1, 1
@@ -183,9 +170,6 @@ class ScfCycle(collections.Mapping):
 
         fig, ax_list = plt.subplots(nrows=nrows, ncols=ncols, sharex=True, squeeze=False)
         ax_list = ax_list.ravel()
-
-        if title:
-            fig.suptitle(title)
 
         iter_num = np.array(list(range(self.num_iterations)))
 
@@ -207,12 +191,6 @@ class ScfCycle(collections.Mapping):
         if (num_plots % ncols) != 0:
             ax_list[-1].plot(xx, yy, lw=0.0)
             ax_list[-1].axis('off')
-
-        if show:
-            plt.show()
-
-        if savefig is not None:
-            fig.savefig(savefig)
 
         return fig
 
@@ -306,26 +284,15 @@ class Relaxation(collections.Iterable):
 
             return self._history
 
+    @add_fig_kwargs
     def plot(self, **kwargs):
         """
         Uses matplotlib to plot the evolution of the structural relaxation.
-
-        ==============  ==============================================================
-        kwargs          Meaning
-        ==============  ==============================================================
-        title           Title of the plot (Default: None).
-        show            True to show the figure (Default).
-        savefig         'abc.png' or 'abc.eps'* to save the figure to a file.
-        ==============  ==============================================================
 
         Returns:
             `matplotlib` figure
         """
         import matplotlib.pyplot as plt
-
-        title = kwargs.pop("title", None)
-        show = kwargs.pop("show", True)
-        savefig = kwargs.pop("savefig", None)
 
         history = self.history
         #print(history)
@@ -351,10 +318,6 @@ class Relaxation(collections.Iterable):
             ax.set_ylabel(key)
 
             ax.plot(relax_step, values, "-o", lw=2.0)
-
-        if title: fig.suptitle(title)
-        if savefig is not None: fig.savefig(savefig)
-        if show: plt.show()
 
         return fig
 
@@ -404,7 +367,7 @@ class Relaxation(collections.Iterable):
 
 
 class YamlTokenizerError(Exception):
-    """Exceptions raised by `YamlTokenizer`."""
+    """Exceptions raised by :class:`YamlTokenizer`."""
 
 
 class YamlTokenizer(collections.Iterator):
@@ -516,8 +479,7 @@ class YamlTokenizer(collections.Iterator):
 
     def next_doc_with_tag(self, doc_tag):
         """
-        Returns the next document with the specified tag.
-        Empty string is no doc is found.
+        Returns the next document with the specified tag. Empty string is no doc is found.
         """
         while True:
             try:
