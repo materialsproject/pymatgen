@@ -650,10 +650,8 @@ class TaskPolicy(object):
         #self.autoparal = kwargs.pop("autoparal", 0)
         #self.mode = kwargs.pop("mode", "default")
         #self.max_ncpus = kwargs.pop("max_ncpus", None)
-        condition = kwargs.pop("condition", None)
-        self.condition = Condition(condition) if condition is not None else condition
-        vars_condition = kwargs.pop("vars_condition", None)
-        self.vars_condition = Condition(vars_condition) if vars_condition is not None else vars_condition
+        self.condition = Condition(kwargs.pop("condition", {}))
+        self.vars_condition = Condition(kwargs.pop("vars_condition", {}))
 
         #if self.autoparal and self.max_ncpus is None:
         #    raise ValueError("When autoparal is not zero, max_ncpus must be specified.")
