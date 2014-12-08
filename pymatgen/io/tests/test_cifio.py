@@ -10,7 +10,7 @@ import numpy as np
 
 from pymatgen.io.cifio import CifParser, CifWriter, CifBlock
 from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen import Element, Specie, Lattice, Structure
+from pymatgen import Element, Specie, Lattice, Structure, Composition
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -451,6 +451,11 @@ loop_
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 
+    def test_primes(self):
+        parser = CifParser(os.path.join(test_dir, 'C26H16BeN2O2S2.cif'))
+        for s in parser.get_structures(False):
+            print s
+            self.assertEqual(s.composition, 8 * Composition('C26H16BeN2O2S2'))
 
 if __name__ == '__main__':
     unittest.main()
