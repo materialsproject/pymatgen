@@ -142,8 +142,11 @@ class CifBlock(object):
         ml = []
         #this regex splits on spaces, except when in quotes.
         #it also ignores single quotes when surrounded by non-whitespace
-        #since they are sometimes used in author names
-        p = re.compile(r'''([^'"\s]+)|'((?:\S'\S|[^'])*)'|"([^"]*)"''')
+        #since they are sometimes used in author names.
+        #also ignores quotes that aren't immediately preceded by whitespace
+        #because of the non-greedy OR these get eaten by the ([^'"\s][\S]*)
+        #this is needed because sometimes ' appear as primes
+        p = re.compile(r'''([^'"\s][\S]*)|'((?:\S'\S|[^'])*)'|"([^"]*)"''')
         for l in string.splitlines():
             if multiline:
                 if l.startswith(";"):
