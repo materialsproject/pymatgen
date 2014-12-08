@@ -126,7 +126,7 @@ class CifBlock(object):
     @classmethod
     def _process_string(cls, string):
         #remove comments
-        string = re.sub("#.*", "", string)
+        string = re.sub("(\s|^)#.*$", "", string, flags=re.MULTILINE)
         #remove empty lines
         string = re.sub("^\s*\n", "", string, flags=re.MULTILINE)
         #remove whitespaces at beginning of lines
