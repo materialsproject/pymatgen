@@ -317,10 +317,17 @@ class CifParser(object):
         except (ValueError, KeyError):
             oxi_states = None
 
-
         coord_to_species = OrderedDict()
         for i in range(len(data["_atom_site_label"])):
             symbol = parse_symbol(data["_atom_site_label"][i])
+
+            # make sure symbol was properly parsed from _atom_site_label
+            # otherwise get it from _atom_site_type_symbol
+            try:
+                Element(symbol)
+            except KeyError:
+                symbol = parse_symbol(data["_atom_site_type_symbol"][i])
+
             if oxi_states is not None:
                 # sometimes the site doesn't have the type_symbol.
                 # we then hope the type_symbol can be parsed from the label
