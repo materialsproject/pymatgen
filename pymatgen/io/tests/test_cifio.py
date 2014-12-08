@@ -213,7 +213,9 @@ loop_
   _atom_site_B_iso_or_equiv
   _atom_site_occupancy
     Fe  Fe1  1  0.218728  0.750000  0.474867  0  .  1
-    Fe  Fe2  1  0.281272  0.250000  0.974867  0  .  1
+    Fe  JJ2  1  0.281272  0.250000  0.974867  0  .  1
+    # there's a typo here, parser should read the symbol from the
+    # _atom_site_type_symbol
     Fe  Fe3  1  0.718728  0.750000  0.025133  0  .  1
     Fe  Fe4  1  0.781272  0.250000  0.525133  0  .  1
     P  P5  1  0.094613  0.250000  0.418243  0  .  1
@@ -458,7 +460,7 @@ loop_
 
     def test_missing_atom_site_type_with_oxistates(self):
         parser = CifParser(os.path.join(test_dir, 'P24Ru4H252C296S24N16.cif'))
-        c = Composition({'S0+': 24,'Ru0+': 4, 'H0+': 252, 'C0+': 296,
+        c = Composition({'S0+': 24, 'Ru0+': 4, 'H0+': 252, 'C0+': 296,
                          'N0+': 16, 'P0+': 24})
         for s in parser.get_structures(False):
             self.assertEqual(s.composition, c)
