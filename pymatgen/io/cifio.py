@@ -322,7 +322,13 @@ class CifParser(object):
         for i in range(len(data["_atom_site_label"])):
             symbol = parse_symbol(data["_atom_site_label"][i])
             if oxi_states is not None:
-                el = Specie(symbol, oxi_states[data["_atom_site_type_symbol"][i]])
+                # sometimes the site doesn't have the type_symbol.
+                # we then hope the type_symbol can be parsed from the label
+                if "_atom_site_type_symbol" in data.data.keys():
+                    k = data["_atom_site_type_symbol"][i]
+                else:
+                    k = symbol
+                el = Specie(symbol, oxi_states[k])
             else:
                 el = Element(symbol)
             x = str2float(data["_atom_site_fract_x"][i])
