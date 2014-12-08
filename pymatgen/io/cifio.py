@@ -303,9 +303,10 @@ class CifParser(object):
         self.symmetry_operations = [SymmOp.from_xyz_string(s) for s in sympos]
 
         def parse_symbol(sym):
-            m = re.search("([A-Z][a-z]*)", sym)
+            # capitalization conventions are not strictly followed, eg Cu will be CU
+            m = re.search("([A-Za-z]*)", sym)
             if m:
-                return m.group(1)
+                return m.group(1)[:2].capitalize()
             return ""
 
         try:
@@ -316,13 +317,12 @@ class CifParser(object):
         except (ValueError, KeyError):
             oxi_states = None
 
-        coord_to_species = OrderedDict()
 
-        for i in range(len(data["_atom_site_type_symbol"])):
-            symbol = parse_symbol(data["_atom_site_type_symbol"][i])
+        coord_to_species = OrderedDict()
+        for i in range(len(data["_atom_site_label"])):
+            symbol = parse_symbol(data["_atom_site_label"][i])
             if oxi_states is not None:
-                el = Specie(symbol,
-                            oxi_states[data["_atom_site_type_symbol"][i]])
+                el = Specie(symbol, oxi_states[data["_atom_site_type_symbol"][i]])
             else:
                 el = Element(symbol)
             x = str2float(data["_atom_site_fract_x"][i])
