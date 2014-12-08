@@ -456,5 +456,6 @@ loop_
         for s in parser.get_structures(False):
             self.assertEqual(s.composition, 8 * Composition('C26H16BeN2O2S2'))
 
+
 if __name__ == '__main__':
     unittest.main()
