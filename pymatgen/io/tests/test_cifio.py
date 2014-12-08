@@ -454,7 +454,6 @@ loop_
     def test_primes(self):
         parser = CifParser(os.path.join(test_dir, 'C26H16BeN2O2S2.cif'))
         for s in parser.get_structures(False):
-            print s
             self.assertEqual(s.composition, 8 * Composition('C26H16BeN2O2S2'))
 
 if __name__ == '__main__':
