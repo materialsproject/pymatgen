@@ -114,7 +114,8 @@ class CifBlock(object):
         if len(v) > self.maxlen:
             return ';\n' + textwrap.fill(v, self.maxlen) + '\n;'
         #add quotes if necessary
-        if " " in v and not (v[0] == "'" and v[-1] == "'") \
+        if (" " in v or v[0] == "_") \
+                and not (v[0] == "'" and v[-1] == "'") \
                 and not (v[0] == '"' and v[-1] == '"'):
             if "'" in v:
                 q = '"'
@@ -162,43 +163,45 @@ class CifBlock(object):
                 ml.append(l[1:].strip())
             else:
                 for s in p.findall(l):
-                    q.append(''.join(s))
+                    q.append(s)  # s is tuple. location of the data in the tuple
+                                 # depends on whether it was quoted in the input
         return q
 
     @classmethod
     def from_string(cls, string):
         q = cls._process_string(string)
-        header = q.popleft()[5:]
+        header = q.popleft()[0][5:]
         data = OrderedDict()
         loops = []
         while q:
             s = q.popleft()
-            if s == "_eof":
+            # cif keys aren't in quotes, so show up in s[0]
+            if s[0] == "_eof":
                 break
-            if s.startswith("_"):
-                data[s] = q.popleft()
-            elif s.startswith("loop_"):
+            if s[0].startswith("_"):
+                data[s[0]] = "".join(q.popleft())
+            elif s[0].startswith("loop_"):
                 columns = []
                 items = []
                 while q:
                     s = q[0]
-                    if s.startswith("loop_") or not s.startswith("_"):
+                    if s[0].startswith("loop_") or not s[0].startswith("_"):
                         break
-                    columns.append(q.popleft())
+                    columns.append("".join(q.popleft()))
                     data[columns[-1]] = []
                 while q:
                     s = q[0]
-                    if s.startswith("loop_") or s.startswith("_"):
+                    if s[0].startswith("loop_") or s[0].startswith("_"):
                         break
-                    items.append(q.popleft())
+                    items.append("".join(q.popleft()))
                 n = len(items) // len(columns)
                 assert len(items) % n == 0
                 loops.append(columns)
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
-            elif s.strip() != "":
+            elif "".join(s).strip() != "":
                 warnings.warn("Possible error in cif format"
-                              " error at {}".format(s.strip()))
+                              " error at {}".format("".join(s).strip()))
         return cls(data, loops, header)
 
 
