@@ -779,7 +779,7 @@ class MPRester(object):
                 if m:
                     return [s.strip() for s in m.group(1).split(",")]
                 else:
-                    return [Element(sym).symbol]
+                    return [Element(sym).symbol if sym else sym]
 
         def parse_tok(t):
             if re.match("\w+-\d+", t):
@@ -850,3 +850,4 @@ class MPDecoder(MontyDecoder):
             return {self.process_decoded(k): self.process_decoded(v)
                     for k, v in d.items()}
         return MontyDecoder.process_decoded(self, d)
+
