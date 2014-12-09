@@ -48,7 +48,7 @@ from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_angle, all_distances, \
-    lattice_points_in_supercell, in_coord_list_pbc
+    lattice_points_in_supercell
 from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length
 from pymatgen.symmetry.groups import SpaceGroup
@@ -191,7 +191,7 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
         return len(self.sites)
 
     def __hash__(self):
-        #for now, just use the composition hash code.
+        # for now, just use the composition hash code.
         return self.composition.__hash__()
 
     @property
@@ -984,8 +984,8 @@ class IStructure(SiteCollection, PMGSONable):
 
         # here we reduce the number of min_vecs by enforcing that every
         # vector in min_vecs approximately maps each site onto a similar site.
-        # The subsequent processing is O(fu^3 * min_vecs) = O(n^4) if we do
-        # no reduction.
+        # The subsequent processing is O(fu^3 * min_vecs) = O(n^4) if we do no
+        # reduction.
         # This reduction is O(n^3) so usually is an improvement. Using double
         # the tolerance because both vectors are approximate
         for g in sorted(grouped_fcoords, key=lambda x: len(x)):
@@ -1085,8 +1085,9 @@ class IStructure(SiteCollection, PMGSONable):
                     new_l = Lattice(np.dot(inv_m, self.lattice.matrix))
                     s = Structure(new_l, new_sp, new_coords,
                                   coords_are_cartesian=True)
-                    return s.get_primitive_structure(tolerance)\
-                        .get_reduced_structure()
+
+                    return s.get_primitive_structure(
+                        tolerance).get_reduced_structure()
 
         return Structure.from_sites(self)
 
