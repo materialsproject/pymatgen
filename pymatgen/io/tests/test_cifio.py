@@ -130,8 +130,31 @@ _thing   '_annoying_data'"""
         cb = CifBlock.from_string(cif_str)
         self.assertEqual(cb["_symmetry_space_group_name_H-M"], "P -3 m 1")
         self.assertEqual(cb["_thing"], "_annoying_data")
-        self.assertEqual(str(cb), cif_str.replace('"', "'") )
+        self.assertEqual(str(cb), cif_str.replace('"', "'"))
 
+    def test_double_quoted_data(self):
+        cif_str = """data_test
+_thing   ' '_annoying_data''
+_other   " "_more_annoying_data""
+_more   ' "even more" ' """
+        cb = CifBlock.from_string(cif_str)
+        self.assertEqual(cb["_thing"], " '_annoying_data'")
+        self.assertEqual(cb["_other"], ' "_more_annoying_data"')
+        self.assertEqual(cb["_more"], ' "even more" ')
+
+    def test_nested_fake_multiline_quotes(self):
+        cif_str = """data_test
+_thing
+;
+long quotes
+ ;
+ still in the quote
+ ;
+actually going to end now
+;"""
+        cb = CifBlock.from_string(cif_str)
+        self.assertEqual(cb["_thing"], " long quotes  ;  still in the quote"
+                                       "  ; actually going to end now")
 
     def test_long_loop(self):
         data = {'_stuff1': ['A' * 30] * 2,
@@ -467,6 +490,7 @@ loop_
                          'N0+': 16, 'P0+': 24})
         for s in parser.get_structures(False):
             self.assertEqual(s.composition, c)
+
 
 if __name__ == '__main__':
     unittest.main()
