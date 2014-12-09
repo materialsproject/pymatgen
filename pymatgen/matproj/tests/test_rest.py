@@ -222,7 +222,7 @@ class MPResterTest(unittest.TestCase):
 
         chemsys = MPRester.parse_criteria("{Fe,Mn}-O")["chemsys"]["$in"]
         self.assertEqual(len(chemsys), 2)
-        comps = MPRester.parse_criteria("{Fe,Mn, Co}O")["pretty_formula"]["$in"]
+        comps = MPRester.parse_criteria("{Fe,Mn,Co}O")["pretty_formula"]["$in"]
         self.assertEqual(len(comps), 3)
 
         #Let's test some invalid symbols
