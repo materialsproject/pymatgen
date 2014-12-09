@@ -779,7 +779,7 @@ class MPRester(object):
                 if m:
                     return [s.strip() for s in m.group(1).split(",")]
                 else:
-                    return [sym.strip()]
+                    return [Element(sym).symbol]
 
         def parse_tok(t):
             if re.match("\w+-\d+", t):
@@ -795,7 +795,6 @@ class MPRester(object):
                 all_formulas = set()
                 parts = re.split(r"(\*|\{.*\})", t)
                 parts = [parse_sym(s) for s in parts]
-                print parts
                 for f in itertools.product(*parts):
                     if len(set(f)) == len(f):
                         c = Composition("".join(f))
