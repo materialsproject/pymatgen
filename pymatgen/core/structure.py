@@ -1024,7 +1024,8 @@ class IStructure(SiteCollection, PMGSONable):
             fdist -= np.round(fdist)
             np.abs(fdist, fdist)
             non_nbrs = np.any(fdist > 2 * super_ftol[None, None, :], axis=-1)
-            np.fill_diagonal(non_nbrs, True) # since we want sites to match to themselves
+            # since we want sites to match to themselves
+            np.fill_diagonal(non_nbrs, True)
             grouped_non_nbrs.append(non_nbrs)
 
         num_fu = six.moves.reduce(gcd, map(len, grouped_sites))
@@ -1084,6 +1085,7 @@ class IStructure(SiteCollection, PMGSONable):
                     new_l = Lattice(np.dot(inv_m, self.lattice.matrix))
                     s = Structure(new_l, new_sp, new_coords,
                                   coords_are_cartesian=True)
+
                     return s.get_primitive_structure(
                         tolerance).get_reduced_structure()
 
