@@ -779,7 +779,7 @@ class MPRester(object):
                 if m:
                     return [s.strip() for s in m.group(1).split(",")]
                 else:
-                    return [Element(sym).symbol if sym else sym]
+                    return [sym]
 
         def parse_tok(t):
             if re.match("\w+-\d+", t):
@@ -789,7 +789,9 @@ class MPRester(object):
                 chemsyss = []
                 for cs in itertools.product(*elements):
                     if len(set(cs)) == len(cs):
-                        chemsyss.append("-".join(sorted(set(cs))))
+                        # Check for valid symbols
+                        cs = [Element(s).symbol for s in cs]
+                        chemsyss.append("-".join(sorted(cs)))
                 return {"chemsys": {"$in": chemsyss}}
             else:
                 all_formulas = set()
