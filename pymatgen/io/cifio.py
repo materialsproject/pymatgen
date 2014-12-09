@@ -550,4 +550,8 @@ def str2float(text):
     """
     Remove uncertainty brackets from strings and return the float.
     """
-    return float(re.sub("\(.+\)", "", text))
+    try:
+        return float(re.sub("\(.+\)", "", text))
+    except TypeError:
+        if isinstance(text, list) and len(text) == 1:
+            return float(re.sub("\(.+\)", "", text[0]))
