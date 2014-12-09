@@ -959,7 +959,8 @@ class IStructure(SiteCollection, PMGSONable):
         k = lambda s: s.species_string
         sites = sorted(self._sites, key=k)
         grouped_sites = [list(a[1]) for a in itertools.groupby(sites, key=k)]
-        grouped_fcoords = [np.array([s.frac_coords for s in g]) for g in grouped_sites]
+        grouped_fcoords = [np.array([s.frac_coords for s in g])
+                           for g in grouped_sites]
 
         # min_vecs are approximate periodicities of the cell. The exact
         # periodicities from the supercell matrices are checked against these
