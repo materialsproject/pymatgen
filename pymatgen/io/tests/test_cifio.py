@@ -10,7 +10,7 @@ import numpy as np
 
 from pymatgen.io.cifio import CifParser, CifWriter, CifBlock
 from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen import Element, Specie, Lattice, Structure
+from pymatgen import Element, Specie, Lattice, Structure, Composition
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -123,10 +123,13 @@ loop_
             self.assertEqual(l1.strip(), l2.strip())
             self.assertEqual(l2.strip(), l3.strip())
 
-    def test_double_quotes(self):
-        cif_str = 'data_test\n_symmetry_space_group_name_H-M   "P -3 m 1"'
+    def test_double_quotes_and_underscore_data(self):
+        cif_str = """data_test
+_symmetry_space_group_name_H-M   "P -3 m 1"
+_thing   '_annoying_data'"""
         cb = CifBlock.from_string(cif_str)
         self.assertEqual(cb["_symmetry_space_group_name_H-M"], "P -3 m 1")
+        self.assertEqual(cb["_thing"], "_annoying_data")
         self.assertEqual(str(cb), cif_str.replace('"', "'") )
 
 
@@ -213,7 +216,9 @@ loop_
   _atom_site_B_iso_or_equiv
   _atom_site_occupancy
     Fe  Fe1  1  0.218728  0.750000  0.474867  0  .  1
-    Fe  Fe2  1  0.281272  0.250000  0.974867  0  .  1
+    Fe  JJ2  1  0.281272  0.250000  0.974867  0  .  1
+    # there's a typo here, parser should read the symbol from the
+    # _atom_site_type_symbol
     Fe  Fe3  1  0.718728  0.750000  0.025133  0  .  1
     Fe  Fe4  1  0.781272  0.250000  0.525133  0  .  1
     P  P5  1  0.094613  0.250000  0.418243  0  .  1
@@ -451,6 +456,17 @@ loop_
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 
+    def test_primes(self):
+        parser = CifParser(os.path.join(test_dir, 'C26H16BeN2O2S2.cif'))
+        for s in parser.get_structures(False):
+            self.assertEqual(s.composition, 8 * Composition('C26H16BeN2O2S2'))
+
+    def test_missing_atom_site_type_with_oxistates(self):
+        parser = CifParser(os.path.join(test_dir, 'P24Ru4H252C296S24N16.cif'))
+        c = Composition({'S0+': 24, 'Ru0+': 4, 'H0+': 252, 'C0+': 296,
+                         'N0+': 16, 'P0+': 24})
+        for s in parser.get_structures(False):
+            self.assertEqual(s.composition, c)
 
 if __name__ == '__main__':
     unittest.main()
