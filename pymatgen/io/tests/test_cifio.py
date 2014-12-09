@@ -123,10 +123,13 @@ loop_
             self.assertEqual(l1.strip(), l2.strip())
             self.assertEqual(l2.strip(), l3.strip())
 
-    def test_double_quotes(self):
-        cif_str = 'data_test\n_symmetry_space_group_name_H-M   "P -3 m 1"'
+    def test_double_quotes_and_underscore_data(self):
+        cif_str = """data_test
+_symmetry_space_group_name_H-M   "P -3 m 1"
+_thing   '_annoying_data'"""
         cb = CifBlock.from_string(cif_str)
         self.assertEqual(cb["_symmetry_space_group_name_H-M"], "P -3 m 1")
+        self.assertEqual(cb["_thing"], "_annoying_data")
         self.assertEqual(str(cb), cif_str.replace('"', "'") )
 
 
