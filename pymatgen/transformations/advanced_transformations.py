@@ -330,11 +330,10 @@ class EnumerateStructureTransformation(AbstractTransformation):
             finder = SpacegroupAnalyzer(structure, self.symm_prec)
             structure = finder.get_refined_structure()
 
-        contains_oxidation_state = False
-        for sp in structure.composition.elements:
-            if hasattr(sp, "oxi_state") and sp.oxi_state != 0:
-                contains_oxidation_state = True
-                break
+        contains_oxidation_state = all(
+            [hasattr(sp, "oxi_state") and sp.oxi_state != 0 for sp in
+             structure.composition.elements]
+        )
 
         adaptor = EnumlibAdaptor(
             structure, min_cell_size=self.min_cell_size,
