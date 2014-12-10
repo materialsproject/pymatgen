@@ -2868,6 +2868,31 @@ class ProduceGsr(object):
             return None
 
 
+class ProduceDdb(object):
+    """
+    Mixin class for AbinitTasks producing a DDB file.
+    Provice the method `open_ddb` that reads and return a Ddb file.
+    """
+    def open_ddb(self):
+        """
+        Open the DDB file located in the in self.outdir.
+        Returns :class:`DdbFile` object, None if file could not be found or file is not readable.
+        """
+        ddb_path = self.outdir.has_abiext("DDB")
+        if not ddb_path:
+            if self.status == self.S_OK:
+                logger.critical("%s reached S_OK but didn't produce a DDB file in %s" % (self, self.outdir))
+            return None
+
+        # Open the GSR file and add its data to results.out
+        from abipy.dfpt.ddb import DdbFile
+        try:
+            return DdbFile(ddb_path)
+        except Exception as exc:
+            logger.critical("Exception while reading DDB file at %s:\n%s" % (ddb_path, str(exc)))
+            return None
+
+
 class ScfTask(AbinitTask, ProduceGsr):
     """
     Self-consistent ground-state calculations.
@@ -3042,7 +3067,7 @@ class RelaxTask(AbinitTask, ProduceGsr):
         return results
 
 
-class DdeTask(AbinitTask):
+class DdeTask(AbinitTask, ProduceDdb):
     """Task for DDE calculations."""
 
     def get_results(self, **kwargs):
@@ -3050,7 +3075,7 @@ class DdeTask(AbinitTask):
         return results.add_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
 
 
-class DdkTask(AbinitTask):
+class DdkTask(AbinitTask, ProduceDdb):
     """Task for DDK calculations."""
 
     def _on_ok(self):
@@ -3067,7 +3092,7 @@ class DdkTask(AbinitTask):
         return results.add_gridfs_file(DDK=(self.outdir.has_abiext("DDK"), "t"))
 
 
-class PhononTask(AbinitTask):
+class PhononTask(AbinitTask, ProduceDdb):
     """
     DFPT calculations for a single atomic perturbation.
     Provide support for in-place restart via (1WF|1DEN) files
@@ -3395,10 +3420,6 @@ class OpticTask(Task):
 
 class AnaddbTask(Task):
     """Task for Anaddb runs (post-processing of DFPT calculations)."""
-    #@classmethod
-    #def diago_oneqpoint(cls):
-    #    new = cls(anaddb_input, ddb_node, ddk_node=None, workdir=None, manager=None)
-    #    return new
 
     def __init__(self, anaddb_input, ddb_node,
                  gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None):
@@ -3502,13 +3523,33 @@ class AnaddbTask(Task):
 
     def open_phbst(self):
         """Open PHBST file produced by Anaddb and returns :class:`PhbstFile` object."""
-        from abipy.dfpt.phbands import PhbstFile
-        return PhbstFile(os.path.join(self.workdir, "run.abo_PHBST.nc"))
+        from abipy.dfpt.phonons import PhbstFile
+        phbst_path = os.path.join(self.workdir, "run.abo_PHBST.nc")
+        if not phbst_path:
+            if self.status == self.S_OK:
+                logger.critical("%s reached S_OK but didn't produce a PHBST file in %s" % (self, self.outdir))
+            return None
+
+        try:
+            return PhbstFile(phbst_path)
+        except Exception as exc:
+            logger.critical("Exception while reading GSR file at %s:\n%s" % (phbst_path, str(exc)))
+            return None
 
     def open_phdos(self):
         """Open PHDOS file produced by Anaddb and returns :class:`PhdosFile` object."""
-        from abipy.dfpt.phbands import PhdosFile
-        return PhdosFile(os.path.join(self.workdir, "run.abo_PHDOS.nc"))
+        from abipy.dfpt.phonons import PhdosFile
+        phdos_path = os.path.join(self.workdir, "run.abo_PHDOS.nc")
+        if not phdos_path:
+            if self.status == self.S_OK:
+                logger.critical("%s reached S_OK but didn't produce a PHBST file in %s" % (self, self.outdir))
+            return None
+
+        try:
+            return PhdosFile(phdos_path)
+        except Exception as exc:
+            logger.critical("Exception while reading GSR file at %s:\n%s" % (phdos_path, str(exc)))
+            return None
 
     def get_results(self, **kwargs):
         results = super(AnaddbTask, self).get_results(**kwargs)
