@@ -132,11 +132,6 @@ configurations:
         # Test as_dict, from_dict
         ParalHints.from_dict(confs.as_dict())
 
-        # When autoparal is 1, max_ncpus must be specified
-        #with self.assertRaises(ValueError):
-        #    policy = TaskPolicy(autoparal=1)
-        #    optimal = confs.select_optimal_conf(policy, max_ncpus)
-
         # Optimize speedup with ncpus <= max_ncpus
         policy = TaskPolicy(autoparal=1, max_ncpus=3)
         optimal = confs.select_optimal_conf(policy)

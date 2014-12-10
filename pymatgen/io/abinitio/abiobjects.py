@@ -1071,7 +1071,8 @@ class ExcHamiltonian(AbivarAble):
                  exc_type="TDA", algo="haydock", with_lf=True, bs_freq_mesh=None, zcut=None, **kwargs):
         """
         Args:
-            bs_loband: Lowest band index used in the e-h  basis set. Can be scalar or array of shape (nsppol,)
+            bs_loband: Lowest band index (Fortran convention) used in the e-h  basis set. 
+                Can be scalar or array of shape (nsppol,). Must be >= 1 and <= nband 
             nband: Max band index used in the e-h  basis set.
             soenergy: Scissors energy in Hartree.
             coulomb_mode: Treatment of the Coulomb term.
@@ -1115,6 +1116,12 @@ class ExcHamiltonian(AbivarAble):
         self.kwargs = kwargs
         #if "chksymbreak" not in self.kwargs:
         #    self.kwargs["chksymbreak"] = 0
+
+        # Consistency check
+        if any(bs_loband < 0): 
+            raise ValueError("bs_loband <= 0 while it is %s" % bs_loband)
+        if any(bs_loband >= nband): 
+            raise ValueError("bs_loband (%s) >= nband (%s)" % (bs_loband, nband))
 
     @property
     def inclvkb(self):

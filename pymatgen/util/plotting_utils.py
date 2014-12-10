@@ -80,7 +80,8 @@ def add_fig_kwargs(func):
         if show: plt.show()
         return fig
 
-    wrapper.__doc__ += "\n" + """\
+
+    s = "\n" + """\
     keyword arguments controlling the display of the figure:
 
     ================  ====================================================
@@ -90,4 +91,12 @@ def add_fig_kwargs(func):
     show              True to show the figure (Default True).
     savefig           'abc.png' or 'abc.eps' to save the figure to a file.
     ================  ===================================================="""
+
+    if wrapper.__doc__ is not None:
+        # Add s at the end of the docstring.
+        wrapper.__doc__ += "\n" + s
+    else:
+        # Use s
+        wrapper.__doc__ = s
+
     return wrapper
