@@ -410,19 +410,18 @@ class SymmOp(PMGSONable):
         trans = np.zeros(3)
         toks = xyz_string.strip().split(",")
         for i, tok in enumerate(toks):
+
             # build the rotation matrix
-            for m in re.finditer("([\+\-]?)\s*(\d*)\s*([x-z]+)", tok):
-                factor = -1 if m.group(1) == "-" else 1
-                if m.group(2):
-                    factor *= float(m.group(2))
-                j = ord(m.group(3)) - 120
+            for m in re.findall("([\+,\-]?)\s*([\d]*)\s*[/]?\s*([\d]*)\s*([x-z])", tok):
+                factor = -1 if m[0] == "-" else 1
+                if m[1] != "":
+                    factor *= float(m[1]) / float(m[2]) if m[2] else float(m[1])
+                j = ord(m[3]) - 120
                 rot_matrix[i, j] = factor
             # build the translation vector
-            for m in re.finditer("([\+\-])\s*(\d+)\s*/*\s*(\d*)\s*$", tok):
-                factor = -1 if m.group(1) == "-" else 1
-                num = float(m.group(2))
-                if m.group(3) != "":
-                    num /= float(m.group(3))
+            for m in re.findall("([\+,\-]?)\s*([\d]+)\s*[/]?\s*([\d]*)\s*(?!\s*[x-z])", tok):
+                factor = -1 if m[0] == "-" else 1
+                num = float(m[1]) / float(m[2]) if m[2] != "" else float(m[1])
                 trans[i] = num * factor
         return SymmOp.from_rotation_and_translation(rot_matrix, trans)
 
