@@ -99,6 +99,13 @@ class SymmOpTestCase(PymatgenTest):
         op3 = SymmOp.from_xyz_string('3x - 2y - z+1 /2 , -x+12/ 13, z+1/2')
         self.assertEqual(op2, op3)
 
+        #Ensure strings can be read in any order
+        op4 = SymmOp.from_xyz_string('+1 /2 + 3x - 2y - z , 12/ 13-x, z+1/2')
+        op5 = SymmOp.from_xyz_string('+1 /2 + 3x - 2y - z , 12/ 13-x, +1/2+z')
+        self.assertEqual(op4, op3)
+        self.assertEqual(op4, op5)
+        self.assertEqual(op3, op5)
+
         self.assertRaises(ValueError, self.op.as_xyz_string)
 
 
