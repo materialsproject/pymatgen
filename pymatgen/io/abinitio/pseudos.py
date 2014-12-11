@@ -1701,3 +1701,38 @@ class PseudoTable(collections.Sequence):
         """Select pseudos containing the DOJO_REPORT section."""
         return self.select(condition=lambda p: p.has_dojo_report)
 
+
+    def get_dojo_dataframe(self, **kwargs):
+        accuracies = ["low", "normal", "high"]
+        keys = ["dfact_meV", "v0", "b0_GPa", "b1", "ecut"]
+        columns = ["symbol"] + [acc + "_" + k for k in keys for acc in accuracies]
+
+        rows, names, errors = [], [], []
+        for p in self:
+            report = p.read_dojo_report()
+            df_entry = report.get("deltafactor", None)
+            if df_entry is None:
+                errors.append((p.name, "no deltafactor"))
+                continue
+
+            try:
+                d = {"symbol": p.symbol}
+                for acc in accuracies:
+                    d[acc + "_ecut"] = report["hints"][acc]["ecut"]
+
+                for acc in accuracies:
+                    for k in keys:
+                        if k == "ecut": continue
+                        d[acc + "_" + k] = float(df_entry[acc][k])
+                #print(d)
+                names.append(p.name)
+                rows.append(d)
+
+            except Exception as exc:
+                #raise
+                print(p.name, "exc", str(exc))
+                errors.append((p.name, str(exc)))
+
+        #print(rows)
+        import pandas as pd
+        return pd.DataFrame(rows, index=names, columns=columns), errors
