@@ -31,3 +31,4 @@ Materials Analysis
 ------------------
 
 * `Calculating XRD patterns <_static/Calculating%20XRD%20patterns.html>`_
+* `Ordering disorderd structures <_static/Ordering%20Disordered%20Structures.html>`_
