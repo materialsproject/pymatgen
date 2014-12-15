@@ -71,6 +71,9 @@ class PDAnalyzer(object):
         Get any facet that a composition falls into. Cached so successive
         calls at same composition are fast.
         """
+        if set(comp.elements).difference(self._pd.elements):
+            raise ValueError('{} has elements not in the phase diagram {}'
+                             ''.format(comp, self._pd.elements))
         c = [comp.get_atomic_fraction(e) for e in self._pd.elements[1:]]
         for f, s in zip(self._pd.facets, self._pd.simplices):
             if s.in_simplex(c, PDAnalyzer.numerical_tol / 10):
@@ -95,6 +98,20 @@ class PDAnalyzer(object):
         return {self._pd.qhull_entries[f]: amt[0]
                 for f, amt in zip(facet, decomp_amts)
                 if abs(amt[0]) > PDAnalyzer.numerical_tol}
+
+    def get_hull_energy(self, comp):
+        """
+        Args:
+            comp (Composition): Input composition
+
+        Returns:
+            Energy of lowest energy equilibrium at desired composition. Not
+            normalized by atoms, i.e. E(Li4O2) = 2 * E(Li2O)
+        """
+        e = 0
+        for k, v in self.get_decomposition(comp).items():
+            e += k.energy_per_atom * v
+        return e * comp.num_atoms
 
     def get_decomp_and_e_above_hull(self, entry, allow_negative=False):
         """
@@ -183,13 +200,6 @@ class PDAnalyzer(object):
         return dict(zip(self._pd.elements, chempots))
 
     def get_composition_chempots(self, comp):
-        # Check that the composition is in the PD (it's often easy to use
-        # invalid ones in grand potential phase diagrams)
-        for el in comp.elements:
-            if el not in self._pd.elements and \
-                    comp[el] > Composition.amount_tolerance:
-                raise ValueError('Composition includes element {} which is '
-                                 'not in the PhaseDiagram'.format(el))
         facet = self._get_facet(comp)
         return self.get_facet_chempots(facet)
 
