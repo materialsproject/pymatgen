@@ -830,7 +830,7 @@ class Vasprun(PMGSONable):
         if elem.find("generation"):
             e = elem.find("generation")
         k = Kpoints("Kpoints from vasprun.xml")
-        k.style = e.attrib["param"] if "params" in e.attrib else "Reciprocal"
+        k.style = e.attrib["param"] if "param" in e.attrib else "Reciprocal"
         for v in e.findall("v"):
             name = v.attrib.get("name")
             toks = v.text.split()
