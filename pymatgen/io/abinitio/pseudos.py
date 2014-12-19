@@ -1703,9 +1703,19 @@ class PseudoTable(collections.Sequence):
 
 
     def get_dojo_dataframe(self, **kwargs):
+        """
+        Buid a pandas :class:`DataFrame` with the most important parameters extracted from the 
+        `DOJO_REPORT` section of each pseudo in the table.
+
+        Returns:
+            frame, errors
+
+            where frame is the pandas :class:`DataFrame` and errors is a list of errors
+            encountered while trying to read the `DOJO_REPORT` from the pseudopotential file.
+        """
         accuracies = ["low", "normal", "high"]
         keys = ["dfact_meV", "v0", "b0_GPa", "b1", "ecut"]
-        columns = ["symbol"] + [acc + "_" + k for k in keys for acc in accuracies]
+        columns = ["symbol", "Z"] + [acc + "_" + k for k in keys for acc in accuracies]
 
         rows, names, errors = [], [], []
         for p in self:
@@ -1716,7 +1726,7 @@ class PseudoTable(collections.Sequence):
                 continue
 
             try:
-                d = {"symbol": p.symbol}
+                d = {"symbol": p.symbol, "Z": p.Z}
                 for acc in accuracies:
                     d[acc + "_ecut"] = report["hints"][acc]["ecut"]
 
@@ -1729,8 +1739,7 @@ class PseudoTable(collections.Sequence):
                 rows.append(d)
 
             except Exception as exc:
-                #raise
-                print(p.name, "exc", str(exc))
+                #print(p.name, "exc", str(exc))
                 errors.append((p.name, str(exc)))
 
         #print(rows)
