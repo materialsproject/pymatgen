@@ -648,6 +648,23 @@ class StructureMatcherTest(PymatgenTest):
                      Element('O'): Element('O'),})
         self.assertEqual(len(sm.get_all_anonymous_mappings(s1, s2)), 2)
 
+    def test_rms_vs_minimax(self):
+        # This tests that structures with adjusted RMS less than stol, but minimax
+        # greater than stol are treated properly
+        sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5, primitive_cell=False)
+        l = Lattice.orthorhombic(1, 2, 12)
+
+        sp = ["Si", "Si", "Al"]
+        s1 = Structure(l, sp, [[0.5, 0, 0], [0, 0, 0], [0, 0, 0.5]])
+        s2 = Structure(l, sp, [[0.5, 0, 0], [0, 0, 0], [0, 0, 0.6]])
+
+        self.assertArrayAlmostEqual(sm.get_rms_dist(s1, s2),
+                                    (0.32 ** 0.5 / 2, 0.4))
+
+        self.assertEqual(sm.fit(s1, s2), False)
+        self.assertEqual(sm.fit_anonymous(s1, s2), False)
+        self.assertEqual(sm.get_mapping(s1, s2), None)
+
 
 if __name__ == '__main__':
     unittest.main()
