@@ -754,9 +754,9 @@ queue:
 limits:
     min_cores:         # Minimum number of cores (default 1)
     max_cores:         # Maximum number of cores (mandatory)
-    min_mer_per_proc:  # Minimum memory per MPI process in megabytes, units can be specified e.g. 1.4 Gb
+    min_mem_per_proc:  # Minimum memory per MPI process in megabytes, units can be specified e.g. 1.4 Gb
                        # (default hardware.mem_per_core)
-    max_mer_per_proc:  # Maximum memory per MPI process in megabytes, units can be specified e.g. `1.4Gb`
+    max_mem_per_proc:  # Maximum memory per MPI process in megabytes, units can be specified e.g. `1.4Gb`
                        # (default hardware.mem_per_node)
     condition:         # MongoDB-like condition (default empty, i.e. not used)
 """
