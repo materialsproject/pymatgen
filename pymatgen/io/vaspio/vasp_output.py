@@ -358,6 +358,8 @@ class Vasprun(PMGSONable):
             if tag == "calculation":
                 parsed_header = True
                 ionic_steps.append(self._parse_calculation(elem))
+            if tag == "dielectricfunction":
+                self.dielectric = self._parse_diel(elem)
             elif parse_dos and tag == "dos":
                 try:
                     self.tdos, self.idos, self.pdos = self._parse_dos(elem)
@@ -857,6 +859,11 @@ class Vasprun(PMGSONable):
         latt = _parse_varray(elem.find("crystal").find("varray"))
         pos = _parse_varray(elem.find("varray"))
         return Structure(latt, self.atomic_symbols, pos)
+
+    def _parse_diel(self, elem):
+        imag = [[float(l) for l in r.text.split()] for r in elem.find("imag").find("array").find("set").findall("r")]
+        real = [[float(l) for l in r.text.split()] for r in elem.find("real").find("array").find("set").findall("r")]
+        return [e[0] for e in imag], [e[1:] for e in real], [e[1:] for e in imag]
 
     def _parse_calculation(self, elem):
         try:
