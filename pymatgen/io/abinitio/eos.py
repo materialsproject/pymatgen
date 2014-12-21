@@ -353,7 +353,8 @@ class EOS_Fit(object):
         lines, legends = [], []
 
         # Plot input data.
-        line, = ax.plot(self.volumes, self.energies, "ro")
+        style = kwargs.pop("style", "ro")
+        line, = ax.plot(self.volumes, self.energies, style)
         lines.append(line)
         legends.append("Input Data")
 
