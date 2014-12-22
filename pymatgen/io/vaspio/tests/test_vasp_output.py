@@ -164,6 +164,17 @@ class VasprunTest(unittest.TestCase):
         self.assertIsNotNone(vasprun_no_pdos.complete_dos)
         self.assertFalse(vasprun_no_pdos.dos_has_errors)
 
+        vasprun_diel = Vasprun(os.path.join(test_dir, "vasprun.xml.dielectric"))
+        self.assertAlmostEqual(0.4294,vasprun_diel.dielectric[0][10])
+        self.assertAlmostEqual(19.941,vasprun_diel.dielectric[1][51][0])
+        self.assertAlmostEqual(19.941,vasprun_diel.dielectric[1][51][1])
+        self.assertAlmostEqual(19.941,vasprun_diel.dielectric[1][51][2])
+        self.assertAlmostEqual(0.0,vasprun_diel.dielectric[1][51][3])
+        self.assertAlmostEqual(34.186,vasprun_diel.dielectric[2][85][0])
+        self.assertAlmostEqual(34.186,vasprun_diel.dielectric[2][85][1])
+        self.assertAlmostEqual(34.186,vasprun_diel.dielectric[2][85][2])
+        self.assertAlmostEqual(0.0,vasprun_diel.dielectric[2][85][3])
+
     def test_as_dict(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath)
