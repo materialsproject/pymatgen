@@ -11,6 +11,7 @@ import abc
 import collections
 import json
 import six
+import pprint
 import numpy as np
 
 from monty.string import list_strings, is_string
@@ -263,9 +264,10 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
         if report is None:
             report = self.dojo_report
 
+        report["symbol"] = self.symbol
+
         # Create JSON string from report.
         jstring = json.dumps(report, indent=4, sort_keys=True) + "\n"
-        #jstring = json.dumps(report, sort_keys=True) + "\n"
 
         # Read lines from file and insert jstring between the tags.
         with open(self.path, "r") as fh:
@@ -1756,7 +1758,7 @@ class DojoReport(dict):
         "gbrv_bcc",
         "gbrv_fcc",
     )
-
+    # TODO Add: Symbol
 
     @classmethod
     def from_file(cls, filepath):
@@ -1774,6 +1776,11 @@ class DojoReport(dict):
 
     #def __init__(self, *args, **kwargs): 
     #    """Helper function to read the DOJO_REPORT from file."""
+
+    def __str__(self):
+        stream = six.moves.StringIO()
+        pprint.pprint(self, stream=None, indent=2, width=80)
+        return stream.getvalue()
 
     def has_exceptions(self):
         problems = {}
@@ -1799,7 +1806,7 @@ class DojoReport(dict):
         """List of strings with the trials present in the report."""
         return [k for k in self.keys() if k != "hints"]
 
-    def has_trial(self, dojo_trial, accuracy):
+    def has_trial(self, dojo_trial, accuracy=None):
         """
         True if the dojo_report contains an entry for the given dojo_trial with the specified accuracy.
         If accuracy is None, we test if all accuracies are present
@@ -1811,7 +1818,7 @@ class DojoReport(dict):
         else:
             return all(acc in self[dojo_trial] for acc in self.ALL_ACCURACIES)
 
-    def to_table(self, **kwargs):
+    def get_dataframe(self, **kwargs):
         """
         ===========  ===============  ===============   ===============
         Trial             low              normal            high 
@@ -1827,8 +1834,7 @@ class DojoReport(dict):
         else:
             l = list(self.ALL_ACCURACIES)
 
-        table = [["Trial"] + l]
-        #row = ["%s (%s)" % (accuracy, ecut)]
+        rows = [["Trial"] + l]
 
         for trial in self.ALL_TRIALS:
             row = [trial]
@@ -1837,19 +1843,19 @@ class DojoReport(dict):
                     row.append("N/A")
                 else:
                     d = self[trial][accuracy]
-                    #print(d.keys())
-                    #s = "%s (%s %%)" % (value, rel_err)
                     value = d[self._TRIALS2KEY[trial]]
                     s = "%.1f" % value
                     row.append(s)
 
-            table.append(row)
+            rows.append(row)
 
-        return table
+        #import pandas as pd
+        #return pd.DataFrame(rows, index=names, columns=columns)
+        return rows
 
     def print_table(self, stream=sys.stdout):
         from monty.pprint import pprint_table
-        pprint_table(self.to_table(), out=stream)
+        pprint_table(self.get_dataframe(), out=stream)
 
     @add_fig_kwargs
     def plot_etotal_vs_ecut(self, **kwargs):
@@ -1906,7 +1912,7 @@ class DojoReport(dict):
     @add_fig_kwargs
     def plot_deltafactor_eos(self, **kwargs):
         """
-        Uses Matplotlib to plot the EOS computed with the deltafactor setup
+        Uses Matplotlib to plot the EOS computed with the deltafactor setup.
 
         Returns:
             `matplotlib` figure.
@@ -1921,15 +1927,52 @@ class DojoReport(dict):
             d = self[trial][accuracy]
             num_sites, volumes, etotals = d["num_sites"], np.array(d["volumes"]), np.array(d["etotals"])
 
-            style = dict(
-                low="bo",
-                normal="go",
-                high="ro",
+            color = dict(
+                low="r",
+                normal="g",
+                high="b",
             )[accuracy]
 
             # Use same fit as the one employed for the deltafactor.
             eos_fit = EOS.DeltaFactor().fit(volumes/num_sites, etotals/num_sites)
-            eos_fit.plot(ax=ax, style=style, show=False)
+            eos_fit.plot(ax=ax, color=color, text=False, show=False)
+
+        return fig
+
+    @add_fig_kwargs
+    def plot_deltafactor_convergence(self, code="WIEN2k", **kwargs):
+        """
+        Uses Matplotlib to plot the convergence of the deltafactor parameters wrt ecut.
+
+        Returns:
+            `matplotlib` figure.
+        """
+        # get reference entry
+        from pseudo_dojo.refdata.deltafactor import df_database
+        ref = df_database().get_entry(symbol=self.symbol, code=code)
+
+        import matplotlib.pyplot as plt
+        fig, ax_list = plt.subplots(nrows=4, ncols=1, sharex=True, squeeze=False)
+        ax_list = ax_list.ravel()
+
+        ecuts = [float(self["hints"][acc]["ecut"]) for acc in self.ALL_ACCURACIES]
+        d = self["deltafactor"]
+        keys = ["dfact_meV", "v0", "b0_GPa", "b1"]
+
+        for i, (ax, key) in enumerate(zip(ax_list, keys)):
+            values = np.array([float(d[acc][key]) for acc in self.ALL_ACCURACIES])
+
+            ax.grid(True)
+            ax.set_ylabel(key)
+            try:
+                refval = getattr(ref, key)
+            except AttributeError:
+                refval = 0.0
+
+            # Plot difference pseudo - ref.
+            ax.plot(ecuts, values - refval, "bo-")
+            ax.hlines(y=0.0, xmin=min(ecuts), xmax=max(ecuts), color="red")
+            if i == len(keys) - 1: ax.set_xlabel("Ecut [Ha]")
 
         return fig
 
