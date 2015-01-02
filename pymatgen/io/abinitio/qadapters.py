@@ -1284,8 +1284,13 @@ limits:
                 f.write("sbatch submit process stderr:\n" + err)
                 f.write("qparams:\n" + str(self.qparams))
 
+            try:
+                args = process.args
+            except AttributeError:
+                args = ["Unknown",]
+
             raise self.Error("Error in job submission with %s. file %s and args %s\n" % 
-                             (self.__class__.__name__, script_file, process.args) + 
+                             (self.__class__.__name__, script_file, args) + 
                              "The error response reads:\n %s" % err)
 
         # Here we create a concrete instance of QueueJob

@@ -667,7 +667,7 @@ class PyFlowScheduler(object):
             if self.flow.all_ok:
                 app("Flow completed succesfully")
             else:
-                app("Flow did not comlete successfully")
+                app("Flow didn't complete successfully")
                 app("Shutdown message:\n%s" % msg)
             print("\n".join(lines))
 
