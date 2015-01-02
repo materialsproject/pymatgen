@@ -70,7 +70,7 @@ def build_enum(fortran_command="gfortran"):
 
 
 def build_bader(fortran_command="gfortran"):
-    bader_url = "http://theory.cm.utexas.edu/bader/download/bader.tar.gz"
+    bader_url = "http://theory.cm.utexas.edu/henkelman/code/bader/download/bader.tar.gz"
     currdir = os.getcwd()
     state = True
     try:
