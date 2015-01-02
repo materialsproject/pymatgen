@@ -1420,7 +1420,12 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
         Args:
             deps: List of :class:`Dependency` objects specifying the dependencies of the node.
+                  or dictionary mapping nodes to file extensions e.g. {task: "DEN"}
         """
+        if isinstance(deps, collections.Mapping):
+            # Convert dictionary into list of dependencies.
+            deps = [Dependency(node, exts) for node, exts in deps.items()]
+
         # We want a list
         if not isinstance(deps, (list, tuple)):
             deps = [deps]
