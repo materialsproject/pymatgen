@@ -732,8 +732,13 @@ db_connector: # Connection to MongoDB database (optional)
     @classmethod
     def from_file(cls, filename):
         """Read the configuration parameters from the Yaml file filename."""
-        with open(filename, "r") as fh:
-            return cls.from_dict(yaml.load(fh))
+        try:
+            with open(filename, "r") as fh:
+                return cls.from_dict(yaml.load(fh))
+        except Exception as exc:
+            print("Error while reading TaskManager parameters from file %s\n" % filename)
+            raise 
+            #raise RuntimeError(msg + str(exc))
 
     @classmethod
     def from_string(cls, s):
