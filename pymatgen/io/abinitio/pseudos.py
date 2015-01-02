@@ -1680,7 +1680,11 @@ class PseudoTable(collections.Sequence):
             attrs.append((i, a))
 
         # Sort attrs, and build new table with sorted pseudos.
-        return PseudoTable([self[a[0]] for a in sorted(attrs, key=lambda t: t[1], reverse=reverse)])
+        return self.__class__([self[a[0]] for a in sorted(attrs, key=lambda t: t[1], reverse=reverse)])
+
+    def sort_by_z(self):
+        """Return a new :class:`PseudoTable` with pseudos sorted by Z"""
+        return self.__class__(sorted(self, key=lambda p: p.Z))
 
     def select(self, condition):
         """
@@ -1695,7 +1699,6 @@ class PseudoTable(collections.Sequence):
     def with_dojo_report(self):
         """Select pseudos containing the DOJO_REPORT section."""
         return self.select(condition=lambda p: p.has_dojo_report)
-
 
     def get_dojo_dataframe(self, **kwargs):
         """
