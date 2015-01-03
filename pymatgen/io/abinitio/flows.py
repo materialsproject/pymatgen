@@ -511,7 +511,7 @@ class Flow(Node):
         if deadlocks:
             lines = ["Detect wrong list of dependecies that will lead to a deadlock:"]
             lines.extend(["%s <--> %s" % nodes for nodes in deadlocks])
-            raise self.Error("\n".join(lines))
+            raise RuntimeError("\n".join(lines))
 
     def deadlocked_runnables_running(self):
         """
