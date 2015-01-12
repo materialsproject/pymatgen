@@ -14,10 +14,12 @@ import six
 import pprint
 import numpy as np
 
+from collections import OrderedDict
 from monty.string import list_strings, is_string
 from monty.itertools import iterator_from_slice
 from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
+from monty.functools import lazy_property
 from pymatgen.util.plotting_utils import add_fig_kwargs
 from pymatgen.core.periodic_table import PeriodicTable
 from .eos import EOS
@@ -103,6 +105,10 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
         """
         return obj if isinstance(obj, cls) else cls.from_file(obj)
 
+    #@classmethod
+    #def from_dict(cls, d):
+    #    return cls
+
     @staticmethod
     def from_file(filename):
         """
@@ -110,6 +116,14 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
         Note: the parser knows the concrete class that should be instanciated
         """
         return PseudoParser().parse(filename)
+
+    #def __eq__(self, other):
+    #    if not isinstance(other, Pseudo): return False
+    #    return (self.__class__ == other.__class__ and 
+    #            self.text == other.text)
+
+    #def __ne__(self, other):
+    #    return not self.__eq__(other)
 
     def __repr__(self):
         return "<%s at %s, name = %s>" % (self.__class__.__name__, id(self), self.basename)
@@ -129,9 +143,12 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
             app("  radius for non-linear core correction: %s" % self.nlcc_radius)
         app("")
 
-        hint_normal = self.hint_for_accuracy()
-        if hint_normal is not None:
-            app("  hint for normal accuracy: %s" % str(hint_normal))
+        if self.has_hints:
+            hint_normal = self.hint_for_accuracy()
+            if hint_normal is not None:
+                app("  hint for normal accuracy: %s" % str(hint_normal))
+        else:
+                app("  hints on cutoff-energy are not available")
 
         return "\n".join(lines)
 
@@ -148,12 +165,6 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
         """File basename."""
         return os.path.basename(self.filepath)
 
-    # Deprecated
-    #@property
-    #def name(self):
-    #    """File basename."""
-    #    return os.path.basename(self.filepath)
-
     @abc.abstractproperty
     def Z(self):
         """The atomic number of the atom."""
@@ -169,7 +180,6 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
     @property
     def element(self):
         """Pymatgen :class:`Element`."""
-        #return Element.from_Z(self.Z)
         try:
             return _PTABLE[self.Z]
         except (KeyError, IndexError):
@@ -232,6 +242,9 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
             Z_val=self.Z_val,
             l_max=self.l_max,
             #nlcc_radius=self.nlcc_radius,
+            #md5=self.md5,
+            #xc_type=
+            #pp_type=
         )
 
     @property
@@ -300,12 +313,10 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
             except ValueError:
                 start = -1
 
-            if start == -1:
-                return
+            if start == -1: return
 
             stop = lines.index("</DOJO_REPORT>\n")
-            if stop == -1:
-                return
+            if stop == -1: return
 
             del lines[start+1:stop]
 
@@ -334,6 +345,18 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
             if self.hint_for_accuracy(acc) is None:
                 return False
         return True
+
+    #@lazy_property
+    #def md5(self):
+    #    """Md5 hash value."""
+    #    with open(self.path, "r") as fh:
+    #        lines = fh.readlines()
+    #        start = lines.index("<DOJO_REPORT>\n")
+    #        stop = lines.index("</DOJO_REPORT>\n")
+    #        text = "".join(lines[:start])
+    #    
+    #        import hashlib
+    #        return hashlib.md5(text)
 
 
 class NcPseudo(six.with_metaclass(abc.ABCMeta, object)):
@@ -745,7 +768,7 @@ class NcAbinitHeader(AbinitHeader):
         # Parse the section with the projectors.
         #0   4.085   6.246    0   2.8786493        l,e99.0,e99.9,nproj,rcpsp
         #.00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
-        projectors = collections.OrderedDict()
+        projectors = OrderedDict()
         for idx in range(2*(lmax+1)):
             line = lines[idx]
             if idx % 2 == 0: proj_info = [line,]
@@ -913,7 +936,7 @@ class PseudoParser(object):
     ppdesc = collections.namedtuple("ppdesc", "pspcod name psp_type format")
 
     # TODO Recheck
-    _PSPCODES = collections.OrderedDict( {
+    _PSPCODES = OrderedDict( {
         1: ppdesc(1, "TM",  "NC", None),
         2: ppdesc(2, "GTH",  "NC", None),
         3: ppdesc(3, "HGH", "NC", None),
@@ -1433,14 +1456,9 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
     #    plt.legend(loc="best")
 
-    #    if title is not None:
-    #        fig.suptitle(title)
-
-    #    if show:
-    #        plt.show()
-
-    #    if savefig:
-    #        fig.savefig(savefig)
+    #    if title is not None: fig.suptitle(title)
+    #    if show: plt.show()
+    #    if savefig: fig.savefig(savefig)
 
     #    return fig
 
@@ -1712,37 +1730,59 @@ class PseudoTable(collections.Sequence):
             encountered while trying to read the `DOJO_REPORT` from the pseudopotential file.
         """
         accuracies = ["low", "normal", "high"]
-        keys = ["dfact_meV", "v0", "b0_GPa", "b1", "ecut"]
-        columns = ["symbol", "Z"] + [acc + "_" + k for k in keys for acc in accuracies]
+        df_keys = ["dfact_meV", "v0", "b0_GPa", "b1", "ecut"] #+ ["dfactprime_meV"]
+        gbrv_keys = ["a0_rel_err"]
+        #columns = ["symbol", "Z"] + [acc + "_" + k for k in df_keys for acc in accuracies]
+
+        #trial2keys = {
+        #    "deltafactor": ["dfact_meV", "v0", "b0_GPa", "b1", "ecut"] #+ ["dfactprime_meV"]
+        #    "gbrv_bcc": "a0_rel_err",
+        #    "gbrv_fcc": "a0_rel_err",
+        #}
 
         rows, names, errors = [], [], []
+
         for p in self:
             report = p.dojo_report
+            d = {"symbol": p.symbol, "Z": p.Z}
             df_entry = report.get("deltafactor", None)
-            if df_entry is None:
-                errors.append((p.basename, "no deltafactor"))
-                continue
-
+            gbrv_bcc = report.get("gbrv_bcc", None)
+            gbrv_fcc = report.get("gbrv_fcc", None)
             try:
-                d = {"symbol": p.symbol, "Z": p.Z}
                 for acc in accuracies:
                     d[acc + "_ecut"] = report["hints"][acc]["ecut"]
 
                 for acc in accuracies:
-                    for k in keys:
+                    # Get deltafactor results
+                    for k in df_keys:
                         if k == "ecut": continue
-                        d[acc + "_" + k] = float(df_entry[acc][k])
+                        if df_entry is not None:
+                            d[acc + "_" + k] = float(df_entry[acc][k])
+                        else:
+                            d[acc + "_" + k] = None
+
+                    # Get GBRV results
+                    for k in gbrv_keys:
+                        if gbrv_bcc is not None:
+                            d[acc + "_bcc_" + k] = float(gbrv_bcc[acc][k])
+                        else:
+                            d[acc + "_bcc_" + k] = None
+                        if gbrv_fcc is not None:
+                            d[acc + "_fcc_" + k] = float(gbrv_fcc[acc][k])
+                        else:
+                            d[acc + "_fcc_" + k] = None
+
                 #print(d)
                 names.append(p.basename)
                 rows.append(d)
 
             except Exception as exc:
-                #print(p.basename, "exc", str(exc))
+                print(p.basename, "exc", str(exc))
                 errors.append((p.basename, str(exc)))
 
         #print(rows)
         import pandas as pd
-        return pd.DataFrame(rows, index=names, columns=columns), errors
+        return pd.DataFrame(rows, index=names), errors
 
 
 class DojoReport(dict):
@@ -1750,11 +1790,11 @@ class DojoReport(dict):
 
     _TRIALS2KEY = {
         "deltafactor": "dfact_meV",
-        "gbrv_bcc": "a0",
-        "gbrv_fcc": "a0",
+        "gbrv_bcc": "a0_rel_err",
+        "gbrv_fcc": "a0_rel_err",
     }
 
-    ALL_ACCURACIES = ["low", "normal", "high"]
+    ALL_ACCURACIES = ("low", "normal", "high")
 
     ALL_TRIALS = (
         "deltafactor",
@@ -1777,27 +1817,40 @@ class DojoReport(dict):
             d = json.loads("".join(lines[start+1:stop]))
             return cls(**d)
 
-    #def __init__(self, *args, **kwargs): 
-    #    """Helper function to read the DOJO_REPORT from file."""
+    def __init__(self, *args, **kwargs): 
+        super(DojoReport, self).__init__(*args, **kwargs)
+
+        for trial in self.ALL_TRIALS:
+            # Convert ecut to float and build an OrderedDict (results are indexed by ecut in ascending order)
+            try:
+                d = self[trial]
+            except KeyError:
+                continue
+            ecuts_keys = sorted([(float(k), k) for k in d], key=lambda t:t[0])
+            ord = OrderedDict([(t[0], d[t[1]]) for t in ecuts_keys])
+            self[trial] = ord
 
     def __str__(self):
         stream = six.moves.StringIO()
-        pprint.pprint(self, stream=None, indent=2, width=80)
+        pprint.pprint(self, stream=stream, indent=2, width=80)
         return stream.getvalue()
 
     def has_exceptions(self):
         problems = {}
-
         for trial in self.ALL_TRIALS:
             for accuracy in self.ALL_ACCURACIES:
                 excs = self[trial][accuracy].get("_exceptions", None)
                 if excs is not None:
-                    if trial not in problems:
-                        problems[trial] = {}
+                    if trial not in problems: problems[trial] = {}
 
                     problems[trial][accuracy] = excs
 
         return problems
+
+    #@property
+    #def symbol(self)
+    #    """Chemical symbol."""
+    #    return self["symbol"]
 
     @property
     def has_hints(self):
@@ -1811,15 +1864,9 @@ class DojoReport(dict):
 
     def has_trial(self, dojo_trial, accuracy=None):
         """
-        True if the dojo_report contains an entry for the given dojo_trial with the specified accuracy.
-        If accuracy is None, we test if all accuracies are present
+        True if the dojo_report contains an entry for the given dojo_trial
         """
-        if dojo_trial not in self: return False
-
-        if accuracy is not None:
-            return accuracy in self[dojo_trial]
-        else:
-            return all(acc in self[dojo_trial] for acc in self.ALL_ACCURACIES)
+        return dojo_trial in self
 
     def get_dataframe(self, **kwargs):
         """
@@ -1847,7 +1894,7 @@ class DojoReport(dict):
                 else:
                     d = self[trial][accuracy]
                     value = d[self._TRIALS2KEY[trial]]
-                    s = "%.1f" % value
+                    s = "%.4f" % value
                     row.append(s)
 
             rows.append(row)
@@ -1863,59 +1910,59 @@ class DojoReport(dict):
     @add_fig_kwargs
     def plot_etotal_vs_ecut(self, **kwargs):
         """
-        Uses Matplotlib to plot the energy curve as function of the energy cutoff ecut
+        plot the convergence of the total energy as function of the energy cutoff ecut
 
         Returns:
             `matplotlib` figure.
         """
-        d = self["hints"]
-        ecuts, etotals, aug_ratios = np.array(d["ecuts"]), np.array(d["etotals"]), d["aug_ratio"]
+        # Extract the total energy of the AE relaxed structure (4).
+        d = OrderedDict([(ecut, data["etotals"][4]) for ecut, data in self["deltafactor"].items()])
+
+        # Ecut mesh in Ha
+        ecuts = np.array(d.keys())
+        ecut_min, ecut_max = min(ecuts), max(ecuts)
+
+        # Energies per atom in meV and difference wrt 'converged' value
+        num_sites = [v["num_sites"] for v in self["deltafactor"].values()][0]
+        etotals_mev = np.array([d[e] for e in ecuts]) * 1000  / num_sites
+        ediffs = etotals_mev - etotals_mev[-1]
 
         import matplotlib.pyplot as plt
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
 
-        npts = len(ecuts)
-
-        if len(aug_ratios) != 1 and len(aug_ratios) != len(etotals):
-            raise ValueError("The number of sublists in etotal must equal the number of aug_ratios")
-
-        if len(aug_ratios) == 1: etotals = [etotals,]
+        ax.yaxis.set_view_interval(-5, 5)
 
         lines, legends = [], []
+        line, = ax.plot(ecuts[:-1], ediffs[:-1], "-->", linewidth=3.0, markersize=10)
+        lines.append(line)
+        #legends.append("aug_ratio = %s" % aratio)
+        #ax.legend(lines, legends, loc='best', shadow=True)
 
-        #emax = -np.inf
-        for aratio, etot in zip(aug_ratios, etotals):
-            emev = np.array(etot) * Ha_to_eV * 1000
-            emev_inf = npts * [emev[-1]]
-            yy = emev - emev_inf
-            #print("emax", emax)
-            #print("yy", yy)
-            #emax = np.max(emax, np.max(yy))
+        high_hint = self["ppgen_hints"]["high"]["ecut"]
+        #ax.vlines(high_hint, min(ediffs), max(ediffs))
+        ax.vlines(high_hint, 0.5, 1.5)
+        #ax.scatter([high_hint], [1.0], s=20) #, c='b', marker='o', cmap=None, norm=None)
+        #ax.arrow(high_hint, 1, 0, 0.2, head_width=0.05, head_length=0.1, fc='k', ec='k',head_starts_at_zero=False)
 
-            line, = ax.plot(ecuts, yy, "-->", linewidth=3.0, markersize=10)
-
-            lines.append(line)
-            legends.append("aug_ratio = %s" % aratio)
-
-        ax.legend(lines, legends, 'upper right', shadow=True)
+        ax.hlines(5, ecut_min, ecut_max, label="5.0")
+        ax.hlines(1, ecut_min, ecut_max, label="1.0")
+        ax.hlines(0.5, ecut_min, ecut_max, label="0.2")
 
         # Set xticks and labels.
         ax.grid(True)
-        ax.set_title("$\Delta$ Etotal Vs Ecut")
+        #ax.set_title("$\Delta$ Etotal vs Ecut")
         ax.set_xlabel("Ecut [Ha]")
-        ax.set_ylabel("$\Delta$ Etotal [meV]")
         ax.set_xticks(ecuts)
-
-        #ax.yaxis.set_view_interval(-10, emax + 0.01 * abs(emax))
-        ax.yaxis.set_view_interval(-10, 20)
+        ax.set_ylabel("$\Delta$ Etotal/natom [meV]")
+        ax.set_yscale("log")
 
         return fig
 
     @add_fig_kwargs
     def plot_deltafactor_eos(self, **kwargs):
         """
-        Uses Matplotlib to plot the EOS computed with the deltafactor setup.
+        plot the EOS computed with the deltafactor setup.
 
         Returns:
             `matplotlib` figure.
@@ -1925,27 +1972,21 @@ class DojoReport(dict):
         ax = fig.add_subplot(1,1,1)
 
         trial = "deltafactor"
-        for accuracy in self.ALL_ACCURACIES:
-            if not self.has_trial(trial, accuracy): continue
-            d = self[trial][accuracy]
+        ecuts = self[trial].keys()
+        for ecut in ecuts:
+            d = self[trial][ecut]
             num_sites, volumes, etotals = d["num_sites"], np.array(d["volumes"]), np.array(d["etotals"])
-
-            color = dict(
-                low="r",
-                normal="g",
-                high="b",
-            )[accuracy]
 
             # Use same fit as the one employed for the deltafactor.
             eos_fit = EOS.DeltaFactor().fit(volumes/num_sites, etotals/num_sites)
-            eos_fit.plot(ax=ax, color=color, text=False, show=False)
+            eos_fit.plot(ax=ax, text=False, show=False) #, color=dict(low="r", normal="g", high="b")[accuracy], 
 
         return fig
 
     @add_fig_kwargs
     def plot_deltafactor_convergence(self, code="WIEN2k", **kwargs):
         """
-        Uses Matplotlib to plot the convergence of the deltafactor parameters wrt ecut.
+        plot the convergence of the deltafactor parameters wrt ecut.
 
         Returns:
             `matplotlib` figure.
@@ -1954,27 +1995,27 @@ class DojoReport(dict):
         from pseudo_dojo.refdata.deltafactor import df_database
         ref = df_database().get_entry(symbol=self.symbol, code=code)
 
+        d = self["deltafactor"]
+        ecuts = d.keys()
+        keys = ["dfact_meV", "dfactprime_meV", "v0", "b0_GPa", "b1"]
+
         import matplotlib.pyplot as plt
-        fig, ax_list = plt.subplots(nrows=4, ncols=1, sharex=True, squeeze=False)
+        fig, ax_list = plt.subplots(nrows=len(keys), ncols=1, sharex=True, squeeze=False)
         ax_list = ax_list.ravel()
 
-        ecuts = [float(self["hints"][acc]["ecut"]) for acc in self.ALL_ACCURACIES]
-        d = self["deltafactor"]
-        keys = ["dfact_meV", "v0", "b0_GPa", "b1"]
-
         for i, (ax, key) in enumerate(zip(ax_list, keys)):
-            values = np.array([float(d[acc][key]) for acc in self.ALL_ACCURACIES])
+            values = np.array([float(d[ecut][key]) for ecut in ecuts])
 
             ax.grid(True)
-            ax.set_ylabel(key)
-            try:
-                refval = getattr(ref, key)
-            except AttributeError:
-                refval = 0.0
+            ax.set_ylabel("$\Delta$" + key)
+            #try:
+            refval = getattr(ref, key)
+            #except AttributeError:
+            #    refval = 0.0
 
             # Plot difference pseudo - ref.
             ax.plot(ecuts, values - refval, "bo-")
-            ax.hlines(y=0.0, xmin=min(ecuts), xmax=max(ecuts), color="red")
+            #ax.hlines(y=0.0, xmin=min(ecuts), xmax=max(ecuts), color="red")
             if i == len(keys) - 1: ax.set_xlabel("Ecut [Ha]")
 
         return fig
@@ -1992,13 +2033,53 @@ class DojoReport(dict):
         ax = fig.add_subplot(1,1,1)
 
         trial = "gbrv_" + struct_type
-        for accuracy in self.ALL_ACCURACIES:
-            if not self.has_trial(trial, accuracy): continue
-            d = self[trial][accuracy]
-            #num_sites, volumes, etotals = d["num_sites"], np.array(d["volumes"]), np.array(d["etotals"])
+        ecuts = self[trial].keys()
+
+        for ecut in ecuts:
+            d = self[trial][ecut]
             volumes, etotals = np.array(d["volumes"]), np.array(d["etotals"])
 
             eos_fit = EOS.Quadratic().fit(volumes, etotals)
-            eos_fit.plot(ax=ax, show=False) 
+            eos_fit.plot(ax=ax, text=False, show=False) # color=dict(low="r", normal="g", high="b")[accuracy],
+
+        return fig
+
+    @add_fig_kwargs
+    def plot_gbrv_convergence(self, **kwargs):
+        """
+        Uses Matplotlib to plot the convergence of the GBRV parameters wrt ecut.
+
+        Returns:
+            `matplotlib` figure.
+        """
+        # get reference entry
+        #from pseudo_dojo.refdata.gbrv import gbrv_database
+        #db = gbrv_database()
+        #ref = dbgbrv.get_entry(symbol=self.symbol, "fcc")
+        #if fcc_ref is None
+        #if bcc_ref is None
+
+        import matplotlib.pyplot as plt
+        stypes = ("fcc", "bcc")
+        fig, ax_list = plt.subplots(nrows=len(stypes), ncols=1, sharex=True, squeeze=False)
+        ax_list = ax_list.ravel()
+
+        for i, (ax, stype) in enumerate(zip(ax_list, stypes)):
+            trial = "gbrv_" + stype
+            d = self[trial]
+            ecuts = d.keys()
+            values = np.array([float(d[ecut]["a0_rel_err"]) for ecut in ecuts])
+
+            ax.grid(True)
+            ax.set_ylabel("$\Delta$" + trial + "a0_rel_err")
+            #try:
+            #    refval = getattr(ref, key)
+            #except AttributeError:
+            #    refval = 0.0
+
+            # Plot difference pseudo - ref.
+            ax.plot(ecuts, values, "bo-")
+            #ax.hlines(y=0.0, xmin=min(ecuts), xmax=max(ecuts), color="red")
+            if i == len(ax_list) - 1: ax.set_xlabel("Ecut [Ha]")
 
         return fig

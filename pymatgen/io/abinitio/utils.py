@@ -162,6 +162,17 @@ class Directory(object):
         """Recursively delete the directory tree"""
         shutil.rmtree(self.path, ignore_errors=True)
 
+    def clean(self, wildcard=None):
+        """
+        Remove the files in the directory. 
+        Unlike rmtree, this function preserves the directory path.
+        """
+        for path in self.list_filepaths(wildcard=wildcard):
+            try:
+                os.remove(path)
+            except:
+                pass
+
     def path_in(self, file_basename):
         """Return the absolute path of filename in the directory."""
         return os.path.join(self.path, file_basename)
@@ -172,8 +183,7 @@ class Directory(object):
 
         Args:
             wildcard: String of tokens separated by "|". Each token represents a pattern.
-                If wildcard is not None, we return only those files that
-                match the given shell pattern (uses fnmatch).
+                If wildcard is not None, we return only those files that match the given shell pattern (uses fnmatch).
                 Example:
                   wildcard="*.nc|*.pdf" selects only those files that end with .nc or .pdf
         """

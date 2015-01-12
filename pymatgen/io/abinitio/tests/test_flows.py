@@ -139,7 +139,11 @@ class FlowTest(FlowUnitTest):
         # Check dependecies.
         atrue(flow[1].depends_on(task0_w0))
         atrue(flow[1][0].depends_on(task0_w0))
+        atrue(flow[1][0] in task0_w0.get_children())
+        atrue(task0_w0 in flow[1][0].get_parents())
         afalse(flow[2][0].depends_on(task0_w0))
+        afalse(flow[2][0] in task0_w0.get_children())
+        afalse(task0_w0 in flow[2][0].get_parents())
         aequal(flow[1].pos, 1)
         aequal(flow[1][0].pos, (1, 0))
         aequal(flow[2][0].pos, (2, 0))
