@@ -1125,10 +1125,10 @@ class Dependency(object):
         return hash(self._node)
 
     def __repr__(self):
-        return "Node %s will produce: %s " % (repr(self.node), repr(self.exts))
+        return "node %s will produce: %s " % (repr(self.node), repr(self.exts))
 
     def __str__(self):
-        return "Node %s will produce: %s " % (str(self.node), str(self.exts))
+        return "node %s will produce: %s " % (str(self.node), str(self.exts))
 
     @property
     def info(self):
@@ -1136,12 +1136,12 @@ class Dependency(object):
 
     @property
     def node(self):
-        """The node associated to the dependency."""
+        """The :class:`Node` associated to the dependency."""
         return self._node
 
     @property
     def status(self):
-        """The status of the dependency, i.e. the status of the node."""
+        """The status of the dependency, i.e. the status of the :class:`Node`."""
         return self.node.status
 
     @lazy_property
@@ -1157,7 +1157,7 @@ class Dependency(object):
     def connecting_vars(self):
         """
         Returns a dictionary with the variables that must be added to the 
-        input file in order to connect this `Node` to its dependencies.
+        input file in order to connect this :class:`Node` to its dependencies.
         """
         vars = {}
         for prod in self.products:
@@ -1291,8 +1291,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         self._status = self.S_INIT
 
     def __eq__(self, other):
-        if not isinstance(other, Node):
-            return False
+        if not isinstance(other, Node): return False
 
         #return self.node_id == other.node_id and 
         return (self.__class__ == other.__class__ and 
@@ -1473,6 +1472,24 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         """True if this node depends on the other node."""
         return other in [d.node for d in self.deps]
 
+    def get_parents(self):
+        """Return the list of nodes in the :class:`Flow` required by this :class:`Node`"""
+        parents = []
+        for work in self.flow:
+            if self.depends_on(work): parents.append(work)
+            for task in work:
+                if self.depends_on(task): parents.append(task)
+        return parents
+
+    def get_children(self):
+        """Return the list of nodes in the :class:`Flow` that depends on this :class:`Node`"""
+        children = []
+        for work in self.flow:
+            if work.depends_on(self): children.append(work)
+            for task in work:
+                if task.depends_on(self): children.append(task)
+        return children
+
     def str_deps(self):
         """Return the string representation of the dependencies of the node."""
         lines = []
@@ -1509,10 +1526,8 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     #    Set and return the status of the None
     #                                                                                     
     #    Args:
-    #        status:
-    #            Status object or string representation of the status
-    #        info_msg:
-    #            string with human-readable message used in the case of errors (optional)
+    #        status: Status object or string representation of the status
+    #        info_msg: string with human-readable message used in the case of errors (optional)
     #    """
 
     @abc.abstractproperty
@@ -2492,6 +2507,26 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                     filepath = os.path.join(dirpath, fname)
                     os.remove(filepath)
 
+    def clean_outfiles(self):
+        # Remove all files in tmpdir.
+        self.tmpdir.clean()
+
+        # Remove files in outdir that are not needed by other nodes
+        # Find the file extensions that should be preserved
+        exts_toclean = ("WFK", "SUS", "SCR")
+
+        keep_exts = set()
+        for node in self.get_children():
+            if node.status != self.S_OK:
+                i = [d.node for d in node.deps].index(self)
+                keep_exts.update(deps[i].exts)
+        print("keep_exts: ", keep_exts)
+        #self.outdir.remove_abiexts()
+
+        # Remove files in the outdir of the other tasks if the dependency has been fulfilled.
+        #for node in self.get_parents():
+        #   for child in node.get_children():
+
     def setup(self):
         """Base class does not provide any hook."""
 
@@ -2506,7 +2541,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         ==============  ==============================================================
         kwargs          Meaning
         ==============  ==============================================================
-        autoparal       if False, the autoparal step is skipped (default True)
+        autoparal       False to skip the autoparal step (default True)
         ==============  ==============================================================
 
         Returns:
