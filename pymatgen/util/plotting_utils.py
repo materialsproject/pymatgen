@@ -22,12 +22,9 @@ def get_publication_quality_plot(width=8, height=None, plt=None):
     Provides a publication quality plot, with nice defaults for font sizes etc.
 
     Args:
-        width:
-            Width of plot in inches. Defaults to 8in.
-        height.
-            Height of plot in inches. Defaults to width * golden ratio.
-        plt:
-            If plt is supplied, changes will be made to an existing plot.
+        width: Width of plot in inches. Defaults to 8in.
+        height. Height of plot in inches. Defaults to width * golden ratio.
+        plt: If plt is supplied, changes will be made to an existing plot.
             Otherwise, a new plot will be created.
 
     Returns:
@@ -58,3 +55,48 @@ def get_publication_quality_plot(width=8, height=None, plt=None):
     axes.set_ylabel(axes.get_ylabel(), size=labelsize)
 
     return plt
+
+
+def add_fig_kwargs(func):
+    """
+    Decorator that adds keyword arguments for functions returning matplotlib figure.
+    See doc string below for the list of supported options.
+    """ 
+    from functools import wraps
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        # pop the kwds used by the decorator.
+        title = kwargs.pop("title", None)
+        show = kwargs.pop("show", True)
+        savefig = kwargs.pop("savefig", None)
+
+        # Call func
+        import matplotlib.pyplot as plt
+        fig = func(*args, **kwargs)
+
+        # Operate on matplotlib figure.
+        if title is not None: fig.suptitle(title)
+        if savefig: fig.savefig(savefig)
+        if show: plt.show()
+        return fig
+
+
+    s = "\n" + """\
+    keyword arguments controlling the display of the figure:
+
+    ================  ====================================================
+    kwargs            Meaning
+    ================  ====================================================
+    title             Title of the plot (Default: None).
+    show              True to show the figure (Default True).
+    savefig           'abc.png' or 'abc.eps' to save the figure to a file.
+    ================  ===================================================="""
+
+    if wrapper.__doc__ is not None:
+        # Add s at the end of the docstring.
+        wrapper.__doc__ += "\n" + s
+    else:
+        # Use s
+        wrapper.__doc__ = s
+
+    return wrapper

@@ -1,28 +1,32 @@
 # coding: utf-8
 """
-Abinit Flows
+A Flow is a container for Works, and works consist of tasks.
+Flows are the final objects that can be dumped directly to a pickle file on disk
+Flows are executed using abirun (abipy).
 """
 from __future__ import unicode_literals, division, print_function
-
 import os
 import sys
 import time
 import collections
 import warnings
 import shutil
-import pickle
+import copy
 
-from six.moves import map 
-from atomicfile import AtomicFile
 from pprint import pprint
+from six.moves import map
+from atomicfile import AtomicFile
 from prettytable import PrettyTable
+from monty.collections import as_set
 from monty.io import FileLock
-from monty.termcolor import cprint, colored, stream_has_colours
+from monty.pprint import draw_tree
+from monty.termcolor import stream_has_colours, cprint, colored, cprint_map
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
-from .tasks import Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager
+from .tasks import (Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager, NscfTask, DdkTask,
+                    AnaddbTask, DdeTask, TaskManager)
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
-from .workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow, QptdmWorkflow
+from .works import Work, BandStructureWork, PhononWork, G0W0Work, QptdmWork
 
 try:
     from pydispatch import dispatcher
@@ -39,7 +43,7 @@ __maintainer__ = "Matteo Giantomassi"
 
 
 __all__ = [
-    "AbinitFlow",
+    "Flow",
     "G0W0WithQptdmFlow",
     "bandstructure_flow",
     "g0w0_flow",
@@ -49,21 +53,21 @@ __all__ = [
 
 class FlowResults(NodeResults):
 
-    JSON_SCHEMA = NodeResults.JSON_SCHEMA.copy() 
+    JSON_SCHEMA = NodeResults.JSON_SCHEMA.copy()
     #JSON_SCHEMA["properties"] = {
     #    "queries": {"type": "string", "required": True},
     #}
 
     @classmethod
     def from_node(cls, flow):
-        """Initialize an instance from a WorkFlow instance."""
+        """Initialize an instance from a Work instance."""
         new = super(FlowResults, cls).from_node(flow)
 
         #new.update(
         #    #input=flow.strategy
         #)
 
-        # Will put all files found in outdir in GridFs 
+        # Will put all files found in outdir in GridFs
         d = {os.path.basename(f): f for f in flow.outdir.list_filepaths()}
 
         # Add the pickle file.
@@ -74,30 +78,46 @@ class FlowResults(NodeResults):
         return new
 
 
-class AbinitFlow(Node):
+class Flow(Node):
     """
-    This object is a container of workflows. Its main task is managing the 
-    possible inter-depedencies among the workflows and the creation of
+    This object is a container of work. Its main task is managing the
+    possible inter-depedencies among the work and the creation of
     dynamic worfflows that are generates by callbacks registered by the user.
 
-    .. attributes:
+    .. attributes::
 
-        creation_date:
-            String with the creation_date
+        creation_date: String with the creation_date
+        pickle_protocol: Protocol for Pickle database (default: -1 i.e. latest protocol)
 
-        pickle_protocol: 
-            Protocol for Pickle database (default: -1 i.e. latest protocol)
+    Important methods for constructing flows:
+
+    .. methods::
+
+        register_work: register (add) a work to the flow
+        resister_task: register a work that contains only this task returns the work
+        allocate: propagate the workdir and manager of the flow to all the registered tasks
+        build:
+        build_and_pickle_dump:
     """
     VERSION = "0.1"
     PICKLE_FNAME = "__AbinitFlow__.pickle"
 
     Results = FlowResults
 
-    def __init__(self, workdir, manager=None, pickle_protocol=-1):
+    @classmethod
+    def from_inputs(cls, workdir, inputs, manager=None, pickle_protocol=-1, task_class=ScfTask, work_class=Work):
         """
+        Construct a simple flow from a list of inputs. The flow contains a single Work with
+        tasks whose class is given by task_class.
+
+        .. warning::
+            Don't use this interface if you have a dependencies among the tasks
+
         Args:
             workdir:
-                String specifying the directory where the workflows will be produced.
+                String specifying the directory where the works will be produced.
+            inputs:
+                List of inputs.
             manager:
                 `TaskManager` object responsible for the submission of the jobs.
                 If manager is None, the object is initialized from the yaml file
@@ -105,8 +125,32 @@ class AbinitFlow(Node):
             pickle_procol:
                 Pickle protocol version used for saving the status of the object.
                 -1 denotes the latest version supported by the python interpreter.
+            task_class:
+                The class of the AbinitTask
+            work_class:
+                The class of the Work.
         """
-        super(AbinitFlow, self).__init__()
+        if not isinstance(inputs, (list, tuple)): inputs = [inputs]
+
+        flow = cls(workdir, manager=manager, pickle_protocol=pickle_protocol)
+        work = work_class()
+        for inp in inputs:
+            work.register(inp, task_class=task_class)
+        flow.register_work(work)
+
+        return flow.allocate()
+
+    def __init__(self, workdir, manager=None, pickle_protocol=-1):
+        """
+        Args:
+            workdir: String specifying the directory where the works will be produced.
+            manager: :class:`TaskManager` object responsible for the submission of the jobs.
+                     If manager is None, the object is initialized from the yaml file
+                     located either in the working directory or in the user configuration dir.
+            pickle_procol: Pickle protocol version used for saving the status of the object.
+                          -1 denotes the latest version supported by the python interpreter.
+        """
+        super(Flow, self).__init__()
 
         self.set_workdir(workdir)
 
@@ -115,7 +159,7 @@ class AbinitFlow(Node):
         if manager is None: manager = TaskManager.from_user_config()
         self.manager = manager.deepcopy()
 
-        # List of workflows.
+        # List of works.
         self._works = []
 
         self._waited = 0
@@ -129,7 +173,7 @@ class AbinitFlow(Node):
         self._mongo_id = None
 
         # TODO
-        # Signal slots: a dictionary with the list 
+        # Signal slots: a dictionary with the list
         # of callbacks indexed by node_id and SIGNAL_TYPE.
         # When the node changes its status, it broadcast a signal.
         # The flow is listening to all the nodes of the calculation
@@ -150,8 +194,8 @@ class AbinitFlow(Node):
 
     def as_dict(self, **kwargs):
         """
-        JSON serialization, note that we only need to save 
-        a string with the working directory since the object will be 
+        JSON serialization, note that we only need to save
+        a string with the working directory since the object will be
         reconstructed from the pickle file located in workdir
         """
         return {"workdir": self.workdir}
@@ -183,14 +227,12 @@ class AbinitFlow(Node):
         Loads the object from a pickle file and performs initial setup.
 
         Args:
-            filepath:
-                Filename or directory name. It filepath is a directory, we 
-                scan the directory tree starting from filepath and we 
+            filepath: Filename or directory name. It filepath is a directory, we
+                scan the directory tree starting from filepath and we
                 read the first pickle database. Raise RuntimeError if multiple
                 databases are found.
-            disable_signals:
-                If True, the nodes of the flow are not connected by signals.
-                This option is usually used when we want to read a flow 
+            disable_signals: If True, the nodes of the flow are not connected by signals.
+                This option is usually used when we want to read a flow
                 in read-only mode and we want to avoid any possible side effect.
         """
         if os.path.isdir(filepath):
@@ -251,23 +293,23 @@ class AbinitFlow(Node):
 
         for work in self:
             for task in work:
-                if not task.get_results().validate_json_schema(): 
+                if not task.get_results().validate_json_schema():
                     errors.append(task)
-            if not work.get_results().validate_json_schema(): 
+            if not work.get_results().validate_json_schema():
                 errors.append(work)
-        if not self.get_results().validate_json_schema(): 
+        if not self.get_results().validate_json_schema():
             errors.append(self)
 
         return errors
 
     @property
     def works(self):
-        """List of `Workflow` objects contained in self.."""
+        """List of :class:`Work` objects contained in self.."""
         return self._works
 
     @property
     def all_ok(self):
-        """True if all the tasks in workflows have reached S_OK."""
+        """True if all the tasks in works have reached `S_OK`."""
         return all(work.all_ok for work in self)
 
     @property
@@ -282,7 +324,11 @@ class AbinitFlow(Node):
     @property
     def errored_tasks(self):
         """List of errored tasks."""
-        return list(self.iflat_tasks(status=self.S_ERROR))
+        errtasks = []
+        for status in [Task.S_ERROR, Task.S_QCRITICAL, Task.S_ABICRITICAL]:
+            errtasks.extend(list(self.iflat_tasks(status=status)))
+
+        return set(errtasks)
 
     @property
     def num_errored_tasks(self):
@@ -302,10 +348,10 @@ class AbinitFlow(Node):
     @property
     def status_counter(self):
         """
-        Returns a `Counter` object that counts the number of tasks with 
+        Returns a `Counter` object that counts the number of tasks with
         given status (use the string representation of the status as key).
         """
-        # Count the number of tasks with given status in each workflow.
+        # Count the number of tasks with given status in each work.
         counter = self[0].status_counter
         for work in self[1:]:
             counter += work.status_counter
@@ -341,7 +387,7 @@ class AbinitFlow(Node):
     @property
     def has_chrooted(self):
         """
-        Returns a string that evaluates to True if we have changed 
+        Returns a string that evaluates to True if we have changed
         the workdir for visualization purposes e.g. we are using sshfs.
         to mount the remote directory where the `Flow` is located.
         The string gives the previous workdir of the flow.
@@ -353,11 +399,11 @@ class AbinitFlow(Node):
 
     def chroot(self, new_workdir):
         """
-        Change the workir of the `Flow`. Mainly used for
+        Change the workir of the :class:`Flow`. Mainly used for
         allowing the user to open the GUI on the local host
         and access the flow from remote via sshfs.
 
-        .. note:
+        .. note::
             Calling this method will make the flow go in read-only mode.
         """
         self._chrooted_from = self.workdir
@@ -369,7 +415,7 @@ class AbinitFlow(Node):
 
     def groupby_status(self):
         """
-        Returns a ordered dictionary mapping the task status to 
+        Returns a ordered dictionary mapping the task status to
         the list of named tuples (task, work_index, task_index).
         """
         Entry = collections.namedtuple("Entry", "task wi ti")
@@ -381,42 +427,48 @@ class AbinitFlow(Node):
         # Sort keys according to their status.
         return collections.OrderedDict([(k, d[k]) for k in sorted(list(d.keys()))])
 
-    def iflat_tasks_wti(self, status=None, op="=="):
+    def iflat_tasks_wti(self, status=None, op="==", nids=None):
         """
         Generator to iterate over all the tasks of the `Flow`.
-        Yields
+        Yields:
 
             (task, work_index, task_index)
 
         If status is not None, only the tasks whose status satisfies
         the condition (task.status op status) are selected
-        status can be either one of the flags defined in the `Task` class 
-        (e.g Task.S_OK) or a string e.g "S_OK" 
+        status can be either one of the flags defined in the :class:`Task` class
+        (e.g Task.S_OK) or a string e.g "S_OK"
+        nids is an optional list of node identifiers used to filter the tasks.
         """
-        return self._iflat_tasks_wti(status=status, op=op, with_wti=True)
+        return self._iflat_tasks_wti(status=status, op=op, nids=nids, with_wti=True)
 
-    def iflat_tasks(self, status=None, op="=="):
+    def iflat_tasks(self, status=None, op="==", nids=None):
         """
-        Generator to iterate over all the tasks of the `Flow`.
+        Generator to iterate over all the tasks of the :class:`Flow`.
 
         If status is not None, only the tasks whose status satisfies
         the condition (task.status op status) are selected
-        status can be either one of the flags defined in the `Task` class 
-        (e.g Task.S_OK) or a string e.g "S_OK" 
+        status can be either one of the flags defined in the :class:`Task` class
+        (e.g Task.S_OK) or a string e.g "S_OK"
+        nids is an optional list of node identifiers used to filter the tasks.
         """
-        return self._iflat_tasks_wti(status=status, op=op, with_wti=False)
+        return self._iflat_tasks_wti(status=status, op=op, nids=nids, with_wti=False)
 
-    def _iflat_tasks_wti(self, status=None, op="==", with_wti=True):
+    def _iflat_tasks_wti(self, status=None, op="==", nids=None, with_wti=True):
         """
         Generators that produces a flat sequence of task.
         if status is not None, only the tasks with the specified status are selected.
+        nids is an optional list of node identifiers used to filter the tasks.
 
         Returns:
             (task, work_index, task_index) if with_wti is True else task
         """
+        nids = as_set(nids)
+
         if status is None:
             for wi, work in enumerate(self):
                 for ti, task in enumerate(work):
+                    if nids and task.node_id not in nids: continue
                     if with_wti:
                         yield task, wi, ti
                     else:
@@ -436,9 +488,11 @@ class AbinitFlow(Node):
 
             # Accept Task.S_FLAG or string.
             status = Status.as_status(status)
+            #print(status)
 
             for wi, work in enumerate(self):
                 for ti, task in enumerate(work):
+                    if nids and task.node_id not in nids: continue
                     if op(task.status, status):
                         if with_wti:
                             yield task, wi, ti
@@ -457,30 +511,48 @@ class AbinitFlow(Node):
         if deadlocks:
             lines = ["Detect wrong list of dependecies that will lead to a deadlock:"]
             lines.extend(["%s <--> %s" % nodes for nodes in deadlocks])
-            raise ValueError("\n".join(lines))
+            raise RuntimeError("\n".join(lines))
 
-    #def detect_deadlock(self):
-    #    eu_tasks = list(self.errored_tasks) + list(self.unconverged_tasks)
-    #     if not eu_tasks:
-    #        return []
+    def deadlocked_runnables_running(self):
+        """
+        This function detects deadlocks
+        return deadlocks, runnables, running
+        """
+        runnables = []
+        for work in self:
+            runnables.extend(work.fetch_alltasks_to_run())
 
-    #    deadlocked = []
-    #    for task in self.all_tasks:
-    #        if any(task.depends_on(eu_task) for eu_task in eu_tasks):
-    #            deadlocked.append(task)
+        running = list(self.iflat_tasks(status=Task.S_RUN))
 
-    #    return deadlocked
+        err_tasks = self.errored_tasks
+        deadlocked = []
+        if err_tasks:
+            for task in self.all_tasks:
+                if any(task.depends_on(err_task) for err_task in err_tasks):
+                    deadlocked.append(task)
 
-    def check_status(self):
-        """Check the status of the workflows in self."""
+        return deadlocked, runnables, running
+
+    def check_status(self, **kwargs):
+        """
+        Check the status of the works in self.
+        Args:
+            show:
+                True to show the status of the flow.
+            kwargs:
+                kwyword arguments passed to show_status
+        """
         for work in self:
             work.check_status()
+
+        if kwargs.pop("show", False):
+            flow.show_status(**kwargs)
 
     #def set_status(self, status):
 
     @property
     def status(self):
-        """The status of the flow i.e. the minimum of the status of its tasks and its works"""
+        """The status of the Flow i.e. the minimum of the status of its tasks and its works"""
         return min(work.get_all_status(only_min=True) for work in self)
 
     def fix_critical(self):
@@ -489,13 +561,13 @@ class AbinitFlow(Node):
 
     def fix_abi_critical(self):
         """
-        Fixer for critical events originating form abinit
+        Fixer for critical events originating from abinit
         """
         for task in self.iflat_tasks(status=Task.S_ABICRITICAL):
             #todo
             if task.fix_abicritical():
                 task.reset_from_scratch()
-                # task.set_status(Task.S_READY)
+                #task.set_status(Task.S_READY)
             else:
                 info_msg = 'We encountered an abi critial envent that could not be fixed'
                 logger.warning(info_msg)
@@ -508,15 +580,15 @@ class AbinitFlow(Node):
         General strategy, first try to increase resources in order to fix the problem,
         if this is not possible, call a task specific method to attempt to decrease the demands.
         """
-        from pymatgen.io.gwwrapper.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
+        from pymatgen.io.abinitio.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
 
-        for task in self.iflat_tasks(status=Task.S_QUEUECRITICAL):
+        for task in self.iflat_tasks(status=Task.S_QCRITICAL):
             logger.info("Will try to fix task %s" % str(task))
 
             if not task.queue_errors:
                 # queue error but no errors detected, try to solve by increasing resources
                 # if resources are at maximum the tast is definitively turned to errored
-                if self.manager.increase_resources():  # acts either on the policy or on the qadapter
+                if task.manager.increase_resources():  # acts either on the policy or on the qadapter
                     task.reset_from_scratch()
                     return True
                 else:
@@ -575,55 +647,61 @@ class AbinitFlow(Node):
                         logger.debug(info_msg)
                         return task.set_status(task.S_ERROR, info_msg)
 
-    def show_status(self, stream=sys.stdout, verbose=0):
+    def show_status(self, **kwargs):
         """
-        Report the status of the workflows and the status 
-        of the different tasks on the specified stream.
+        Report the status of the works and the status  of the different tasks on the specified stream.
 
-        if not verbose, no full entry for works that are completed is printed.
+        Args:
+            stream:
+                File-like object, Default: sys.stdout
+            work_slice:
+                Slice object used to select the works to show. Default None i.e. all works are displayed.
         """
+        stream = kwargs.pop("stream", sys.stdout)
+        nids = as_set(kwargs.pop("nids", None))
+
         has_colours = stream_has_colours(stream)
         red = "red" if has_colours else None
 
         for i, work in enumerate(self):
-            print(80*"=", file=stream)
-            print("Workflow #%d: %s, Finalized=%s\n" % (i, work, work.finalized), file=stream)
+            print("", file=stream)
+            cprint_map("Work #%d: %s, Finalized=%s\n" % (i, work, work.finalized), cmap={"True": "green"}, file=stream)
+            #if verbose == 0 and work.finalized: continue
 
-            if verbose == 0 and work.finalized:
-                continue
-
-            table =PrettyTable([
-                "Task", "Status", "Queue-id", "Errors", "Warnings", "Comments", 
-                "MPI", "OMP", "Restarts", "Task-Class", "Run-Etime"])
+            table = PrettyTable(["Task", "Status", "Queue", "MPI|OMP|Mem/proc", "Err|Warn|Comm", "Class", "Restart", "Node_ID"])
 
             tot_num_errors = 0
             for task in work:
+                if nids and task.node_id not in nids: continue
                 task_name = os.path.basename(task.name)
 
                 # Parse the events in the main output.
                 report = task.get_event_report()
 
-                events = map(str, 3*["N/A"])
-                if report is not None: 
-                    events = map(str, [report.num_errors, report.num_warnings, report.num_comments])
-                events = list(events)
+                events = "|".join(3*["NA"])
+                if report is not None:
+                    events = "|".join(map(str, [report.num_errors, report.num_warnings, report.num_comments]))
 
-                cpu_info = list(map(str, [task.mpi_procs, task.omp_threads]))
-                task_info = list(map(str, [task.num_restarts, task.__class__.__name__, task.run_etime()]))
+                para_info = "|".join(map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
+                task_info = list(map(str, [task.__class__.__name__, task.num_restarts, task.node_id]))
+                qinfo = "None"
+                if task.queue_id is not None:
+                    qinfo = str(task.queue_id) + "@" + str(task.qname)
 
                 if task.status.is_critical:
                     tot_num_errors += 1
                     task_name = colored(task_name, red)
 
                 if has_colours:
-                    table.add_row([task_name, task.status.colored, str(task.queue_id)] +  events + cpu_info + task_info)
+                    table.add_row([task_name, task.status.colored, qinfo, para_info, events] + task_info)
                 else:
-                    table.add_row([task_name, str(task.status), str(task.queue_id)] +  events + cpu_info + task_info)
+                    table.add_row([task_name, str(task.status), qinfo, events, para_info] + task_info)
 
             # Print table and write colorized line with the total number of errors.
             print(table, file=stream)
             if tot_num_errors:
                 cprint("Total number of errors: %d" % tot_num_errors, red, file=stream)
+            print("", file=stream)
 
     def get_results(self, **kwargs):
         results = self.Results.from_node(self)
@@ -632,8 +710,8 @@ class AbinitFlow(Node):
 
     def get_dict_for_mongodb_queries(self):
         """
-        This function returns a dictionary with the attributes that will be 
-        put in the mongodb document to facilitate the query. 
+        This function returns a dictionary with the attributes that will be
+        put in the mongodb document to facilitate the query.
         Subclasses may want to replace or extend the default behaviour.
         """
         d = {}
@@ -646,8 +724,17 @@ class AbinitFlow(Node):
         """
         This method should be called before running the calculation to make
         sure that the most important requirements are satisfied.
+
+        Return:
+            List of strings with inconsistencies/errors.
         """
         errors = []
+
+        try:
+            self.check_dependencies()
+        except self.Error as exc:
+            errors.append(str(exc))
+
         if self.has_db:
             try:
                 self.manager.db_connector.get_collection()
@@ -664,12 +751,12 @@ class AbinitFlow(Node):
 
     @property
     def has_db(self):
-        """True if flow uses MongoDB to store the results."""
+        """True if flow uses `MongoDB` to store the results."""
         return self.manager.has_db
 
     def db_insert(self):
         """
-        Insert results in the mongdob database.
+        Insert results in the `MongDB` database.
         """
         assert self.has_db
         # Connect to MongoDb and get the collection.
@@ -677,7 +764,6 @@ class AbinitFlow(Node):
         print("Mongodb collection %s with count %d", coll, coll.count())
 
         start = time.time()
-
         for work in self:
             for task in work:
                 results = task.get_results()
@@ -686,9 +772,7 @@ class AbinitFlow(Node):
             results = work.get_results()
             pprint(results)
             results.update_collection(coll)
-
-        msg = "MongoDb update done in %s [s]" % time.time() - start
-        print(msg)
+        print("MongoDb update done in %s [s]" % time.time() - start)
 
         results = self.get_results()
         pprint(results)
@@ -700,14 +784,35 @@ class AbinitFlow(Node):
         for d in coll.find():
             pprint(d)
 
-    def open_files(self, what="o", wti=None, status=None, op="==", editor=None):
+    def tasks_from_nids(self, nids):
+        """
+        Return the list of tasks associated to the given list of node identifiers (nids).
+
+        .. note::
+            Invalid ids are ignored
+        """
+        if not isinstance(nids, collections.Iterable): nids = [nids]
+
+        tasks = []
+        for nid in nids:
+            for task in self.iflat_tasks():
+                if task.node_id == nid:
+                    tasks.append(task)
+                    break
+
+        return tasks
+
+    def wti_from_nids(self, nids):
+        """Return the list of (w, t) indices from the list of node identifiers nids."""
+        return [task.pos for task in self.tasks_from_nids(nids)]
+
+    def open_files(self, what="o", status=None, op="==", nids=None, editor=None):
         """
         Open the files of the flow inside an editor (command line interface).
 
         Args:
-            what:
-                string with the list of characters selecting the file type
-                Possible choices:
+            what: string with the list of characters selecting the file type
+                  Possible choices:
                     i ==> input_file,
                     o ==> output_file,
                     f ==> files_file,
@@ -715,22 +820,13 @@ class AbinitFlow(Node):
                     l ==> log_file,
                     e ==> stderr_file,
                     q ==> qerr_file,
-            wti:
-                tuple with the (work, task_index) to select
-                or string in the form w_start:w_stop,task_start:task_stop
-            status:
-                if not None, only the tasks with this status are select
-            op:
-                status operator. Requires status. A task is selected 
+            status: if not None, only the tasks with this status are select
+            op: status operator. Requires status. A task is selected
                 if task.status op status evaluates to true.
-            editor:
-                Select the editor. None to use the default editor ($EDITOR shell env var)
+            nids: optional list of node identifiers used to filter the tasks.
+            editor: Select the editor. None to use the default editor ($EDITOR shell env var)
         """
-        #TODO: Add support for wti
-        if wti is not None:
-            raise NotImplementedError("wti option is not available!")
-
-        def get_files(task, wi, ti):
+        def get_files(task):
             """Helper function used to select the files of a task."""
             choices = {
                 "i": task.input_file,
@@ -754,17 +850,17 @@ class AbinitFlow(Node):
 
         # Build list of files to analyze.
         files = []
-        for (task, wi, ti) in self.iflat_tasks_wti(status=status, op=op):
-            lst = get_files(task, wi, ti)
+        for task in self.iflat_tasks(status=status, op=op, nids=nids):
+            lst = get_files(task)
             if lst:
                 files.extend(lst)
 
-        #logger.info("Will edit %d files: %s" % (len(files), str(files)))
         return Editor(editor=editor).edit_files(files)
 
-    def cancel(self):
+    def cancel(self, nids=None):
         """
         Cancel all the tasks that are in the queue.
+        nids is an optional list of node identifiers used to filter the tasks.
 
         Returns:
             Number of jobs cancelled, negative value if error
@@ -779,7 +875,7 @@ class AbinitFlow(Node):
         if os.path.exists(pid_file):
             with open(pid_file, "r") as fh:
                 pid = int(fh.readline())
-                
+
             retcode = os.system("kill -9 %d" % pid)
             logger.info("Sent SIGKILL to the scheduler, retcode = %s" % retcode)
             try:
@@ -788,15 +884,14 @@ class AbinitFlow(Node):
                 pass
 
         num_cancelled = 0
-        for task in self.iflat_tasks():
+        for task in self.iflat_tasks(nids=nids):
             num_cancelled += task.cancel()
 
         return num_cancelled
 
     def get_njobs_in_queue(self, username=None):
         """
-        returns the number of jobs in the queue,
-        returns None when the number of jobs cannot be determined.
+        returns the number of jobs in the queue, None when the number of jobs cannot be determined.
 
         Args:
             username: (str) the username of the jobs to count (default is to autodetect)
@@ -819,9 +914,7 @@ class AbinitFlow(Node):
     def build_and_pickle_dump(self):
         """
         Build dirs and file of the `Flow` and save the object in pickle format.
-
-        Returns:
-            0 if success
+        Returns 0 if success
         """
         self.build()
         return self.pickle_dump()
@@ -829,9 +922,7 @@ class AbinitFlow(Node):
     def pickle_dump(self):
         """
         Save the status of the object in pickle format.
-
-        Returns:
-            0 if success
+        Returns 0 if success
         """
         if self.has_chrooted:
             warnings.warn("Cannot pickle_dump since we have chrooted from %s" % self.has_chrooted)
@@ -842,7 +933,6 @@ class AbinitFlow(Node):
 
         # Atomic transaction with FileLock.
         with FileLock(filepath):
-            #with open(filepath, mode="wb") as fh:
             with AtomicFile(filepath, mode="wb") as fh:
                 pmg_pickle_dump(self, fh, protocol=protocol)
 
@@ -850,50 +940,41 @@ class AbinitFlow(Node):
 
     def register_task(self, input, deps=None, manager=None, task_class=None):
         """
-        Utility function that generates a `Workflow` made of a single task
+        Utility function that generates a `Work` made of a single task
 
         Args:
-            input:
-                Abinit Input file or `Strategy` object of `Task` object.
-            deps:
-                List of `Dependency` objects specifying the dependency of this node.
-                An empy list of deps implies that this node has no dependencies.
-            manager:
-                The `TaskManager` responsible for the submission of the task. 
-                If manager is None, we use the `TaskManager` specified during the creation of the workflow.
-            task_class:
-                Task subclass to instantiate. Default: `AbinitTask` 
+            input: :class:`AbinitInput` or :class:`Strategy` object.
+            deps: List of :class:`Dependency` objects specifying the dependency of this node.
+                  An empy list of deps implies that this node has no dependencies.
+            manager: The :class:`TaskManager` responsible for the submission of the task.
+                     If manager is None, we use the :class:`TaskManager` specified during the creation of the work.
+            task_class: Task subclass to instantiate. Default: :class:`AbinitTask`
 
-        Returns:   
-            The generated `Task`.
+        Returns:
+            The generated :class:`Work` for the task, work[0] is the actual task.
         """
-        work = Workflow(manager=manager)
+        work = Work(manager=manager)
         task = work.register(input, deps=deps, task_class=task_class)
         self.register_work(work)
 
-        return task
+        return work
 
     def register_work(self, work, deps=None, manager=None, workdir=None):
         """
-        Register a new `Workflow` and add it to the internal list, 
-        taking into account possible dependencies.
+        Register a new :class:`Work` and add it to the internal list, taking into account possible dependencies.
 
         Args:
-            work:
-                `Workflow` object.
-            deps:
-                List of `Dependency` objects specifying the dependency of this node.
-                An empy list of deps implies that this node has no dependencies.
-            manager:
-                The `TaskManager` responsible for the submission of the task. 
-                If manager is None, we use the `TaskManager` specified during the creation of the workflow.
-            workdir:
-                The name of the directory used for the `Workflow`.
+            work: :class:`Work` object.
+            deps: List of :class:`Dependency` objects specifying the dependency of this node.
+                  An empy list of deps implies that this node has no dependencies.
+            manager: The :class:`TaskManager` responsible for the submission of the task.
+                     If manager is None, we use the `TaskManager` specified during the creation of the work.
+            workdir: The name of the directory used for the :class:`Work`.
 
-        Returns:   
-            The registered `Workflow`.
+        Returns:
+            The registered :class:`Work`.
         """
-        # Directory of the workflow.
+        # Directory of the work.
         if workdir is None:
             work_workdir = os.path.join(self.workdir, "w" + str(len(self)))
         else:
@@ -914,56 +995,51 @@ class AbinitFlow(Node):
 
     def register_work_from_cbk(self, cbk_name, cbk_data, deps, work_class, manager=None):
         """
-        Registers a callback function that will generate the Tasks of the `Workflow`.
+        Registers a callback function that will generate the Task of the `Work`.
 
         Args:
-            cbk_name:
-                Name of the callback function (must be a bound method of self)
-            cbk_data
-                Additional data passed to the callback function.
-            deps:
-                List of `Dependency` objects specifying the dependency of the workflow.
-            work_class:
-                `Workflow` class to instantiate.
-            manager:
-                The `TaskManager` responsible for the submission of the task. 
-                If manager is None, we use the `TaskManager` specified during the creation of the `Flow`.
-                                                                                                            
-        Returns:   
-            The `Workflow` that will be finalized by the callback.
+            cbk_name: Name of the callback function (must be a bound method of self)
+            cbk_data: Additional data passed to the callback function.
+            deps: List of :class:`Dependency` objects specifying the dependency of the work.
+            work_class: :class:`Work` class to instantiate.
+            manager: The :class:`TaskManager` responsible for the submission of the task.
+                    If manager is None, we use the `TaskManager` specified during the creation of the :class:`Flow`.
+
+        Returns:
+            The :class:`Work` that will be finalized by the callback.
         """
-        # TODO: pass a workflow factory instead of a class
-        # Directory of the workflow.
+        # TODO: pass a Work factory instead of a class
+        # Directory of the Work.
         work_workdir = os.path.join(self.workdir, "w" + str(len(self)))
 
-        # Create an empty workflow and register the callback
+        # Create an empty work and register the callback
         work = work_class(workdir=work_workdir, manager=manager)
-        
+
         self._works.append(work)
-                                                                                                            
+
         deps = [Dependency(node, exts) for node, exts in deps.items()]
         if not deps:
             raise ValueError("A callback must have deps!")
 
         work.add_deps(deps)
 
-        # Wrap the callable in a Callback object and save 
-        # useful info such as the index of the workflow and the callback data.
+        # Wrap the callable in a Callback object and save
+        # useful info such as the index of the work and the callback data.
         cbk = FlowCallback(cbk_name, self, deps=deps, cbk_data=cbk_data)
         self._callbacks.append(cbk)
-                                                                                                            
+
         return work
 
     def allocate(self):
         """
-        Allocate the `AbinitFlow` i.e. assign the `workdir` and (optionally) 
-        the `TaskManager` to the different tasks in the Flow.
+        Allocate the `Flow` i.e. assign the `workdir` and (optionally)
+        the :class:`TaskManager` to the different tasks in the Flow.
         """
         for work in self:
-            # Each workflow has a reference to its flow.
+            # Each work has a reference to its flow.
             work.allocate(manager=self.manager)
             work.set_flow(self)
-            # Each task has a reference to its workflow.
+            # Each task has a reference to its work.
             for task in work:
                 task.set_work(work)
 
@@ -971,26 +1047,32 @@ class AbinitFlow(Node):
 
         return self
 
-    def show_dependencies(self):
-        for work in self:
-            work.show_intrawork_deps()
+    def show_dependencies(self, stream=sys.stdout):
+        """Writes to the given stream the ASCII representation of the dependency tree."""
+        def child_iter(node):
+            return [d.node for d in node.deps]
+
+        def text_str(node):
+            return colored(str(node), color=node.status.color_opts["color"])
+
+        for task in self.iflat_tasks():
+            print(draw_tree(task, child_iter, text_str), file=stream)
 
     def on_dep_ok(self, signal, sender):
         # TODO
         # Replace this callback with dynamic dispatch
-        # on_all_S_OK for workflow
+        # on_all_S_OK for work
         # on_S_OK for task
         logger.info("on_dep_ok with sender %s, signal %s" % (str(sender), signal))
 
         for i, cbk in enumerate(self._callbacks):
-
             if not cbk.handle_sender(sender):
                 logger.info("%s does not handle sender %s" % (cbk, sender))
                 continue
 
             if not cbk.can_execute():
                 logger.info("Cannot execute %s" % cbk)
-                continue 
+                continue
 
             # Execute the callback and disable it
             logger.info("about to execute callback %s" % str(cbk))
@@ -1000,16 +1082,30 @@ class AbinitFlow(Node):
             # Update the database.
             self.pickle_dump()
 
-    #def finalize(self):
-    #    """This method is called when the flow is completed."""
+    def finalize(self):
+        """This method is called when the flow is completed."""
+        if self.finalized: return 1
+        self.finalized = False
+        if self.flow.has_db:
+            try:
+                self.flow.db_insert()
+                self.finalized = True
+            except Exception:
+                 logger.critical("MongoDb insertion failed.")
+                 return 2
+
+    #def set_cleanup_policy(self, exts=None):
+    #    for work in self:
+    #        for task in work: 
+    #            task.set_cleanup_policy(exts=exts)
 
     def connect_signals(self):
         """
-        Connect the signals within the workflow.
-        self is responsible for catching the important signals raised from 
+        Connect the signals within the work.
+        self is responsible for catching the important signals raised from
         its task and raise new signals when some particular condition occurs.
         """
-        # Connect the signals inside each Workflow.
+        # Connect the signals inside each Work.
         for work in self:
             work.connect_signals()
 
@@ -1020,11 +1116,11 @@ class AbinitFlow(Node):
                 dispatcher.connect(self.on_dep_ok, signal=dep.node.S_OK, sender=dep.node, weak=False)
 
         # Associate to each signal the callback _on_signal
-        # (bound method of the node that will be called by `AbinitFlow`
+        # (bound method of the node that will be called by `Flow`
         # Each node will set its attribute _done_signal to True to tell
         # the flow that this callback should be disabled.
 
-        # Register the callbacks for the Workflows.
+        # Register the callbacks for the Work.
         #for work in self:
         #    slot = self._sig_slots[work]
         #    for signal in S_ALL:
@@ -1053,16 +1149,12 @@ class AbinitFlow(Node):
 
     def rapidfire(self, check_status=False, **kwargs):
         """
-        Use PyLauncher to submits tasks in rapidfire mode.
+        Use :class:`PyLauncher` to submits tasks in rapidfire mode.
         kwargs contains the options passed to the launcher.
-
         Return the number of tasks submitted.
         """
+        if check_status: self.check_status()
         from .launcher import PyLauncher
-
-        if check_status:
-            self.check_status()
-
         return PyLauncher(self, **kwargs).rapidfire()
 
     def make_scheduler(self, **kwargs):
@@ -1072,10 +1164,12 @@ class AbinitFlow(Node):
         kwargs:
             if empty we use the user configuration file.
             if filepath in kwargs we init the scheduler from file.
-            else pass **kwargs to PyFlowScheduler.__init__
+            else pass **kwargs to :class:`PyFlowScheduler` __init__ method.
         """
-        from .launcher import PyFlowScheduler
+        # Build dirs and files (if not yet done)
+        self.build()
 
+        from .launcher import PyFlowScheduler
         if not kwargs:
             # User config if kwargs is empty
             sched = PyFlowScheduler.from_user_config()
@@ -1092,45 +1186,39 @@ class AbinitFlow(Node):
         return sched
 
 
-class G0W0WithQptdmFlow(AbinitFlow):
-    """
-    Build an `AbinitFlow` for one-shot G0W0 calculations.
-    The computation of the q-points for the screening is parallelized with qptdm
-    i.e. we run independent calculation for each q-point and then we merge
-    the final results.
+class G0W0WithQptdmFlow(Flow):
+    def __init__(self, workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=None):
+        """
+        Build a `Flow` for one-shot G0W0 calculations.
+        The computation of the q-points for the screening is parallelized with qptdm
+        i.e. we run independent calculation for each q-point and then we merge the final results.
 
-    Args:
-        workdir:
-            Working directory.
-        manager:
-            `TaskManager` object used to submit the jobs
-        scf_input:
-            Input for the GS SCF run.
-        nscf_input:
-            Input for the NSCF run (band structure run).
-        scr_input:
-            Input for the SCR run.
-        sigma_inputs:
-            Input(s) for the SIGMA run(s).
-    """
-    def __init__(self, workdir, manager, scf_input, nscf_input, scr_input, sigma_inputs):
+        Args:
+            workdir: Working directory.
+            scf_input: Input for the GS SCF run.
+            nscf_input: Input for the NSCF run (band structure run).
+            scr_input: Input for the SCR run.
+            sigma_inputs: Input(s) for the SIGMA run(s).
+            manager: :class:`TaskManager` object used to submit the jobs
+                     Initialized from manager.yml if manager is None.
+        """
         super(G0W0WithQptdmFlow, self).__init__(workdir, manager)
 
-        # Register the first workflow (GS + NSCF calculation)
-        bands_work = self.register_work(BandStructureWorkflow(scf_input, nscf_input))
+        # Register the first work (GS + NSCF calculation)
+        bands_work = self.register_work(BandStructureWork(scf_input, nscf_input))
 
-        # Register the callback that will be executed the workflow for the SCR with qptdm.
+        # Register the callback that will be executed the work for the SCR with qptdm.
         scr_work = self.register_work_from_cbk(cbk_name="cbk_qptdm_workflow", cbk_data={"input": scr_input},
-                                               deps={bands_work.nscf_task: "WFK"}, work_class=QptdmWorkflow)
+                                               deps={bands_work.nscf_task: "WFK"}, work_class=QptdmWork)
 
-        # The last workflow contains a list of SIGMA tasks
-        # that will use the data produced in the previous two workflows.
+        # The last work contains a list of SIGMA tasks
+        # that will use the data produced in the previous two works.
         if not isinstance(sigma_inputs, (list, tuple)):
             sigma_inputs = [sigma_inputs]
 
-        sigma_work = Workflow()
+        sigma_work = Work()
         for sigma_input in sigma_inputs:
-            sigma_work.register(sigma_input, deps={bands_work.nscf_task: "WFK", scr_work: "SCR"})
+            sigma_work.register_sigma_task(sigma_input, deps={bands_work.nscf_task: "WFK", scr_work: "SCR"})
         self.register_work(sigma_work)
 
         self.allocate()
@@ -1140,11 +1228,11 @@ class G0W0WithQptdmFlow(AbinitFlow):
         This callback is executed by the flow when bands_work.nscf_task reaches S_OK.
 
         It computes the list of q-points for the W(q,G,G'), creates nqpt tasks
-        in the second workflow (QptdmWorkflow), and connect the signals.
+        in the second work (QptdmWork), and connect the signals.
         """
         scr_input = cbk.data["input"]
         # Use the WFK file produced by the second
-        # Task in the first Workflow (NSCF step).
+        # Task in the first Work (NSCF step).
         nscf_task = self[0][1]
         wfk_file = nscf_task.outdir.has_abiext("WFK")
 
@@ -1165,9 +1253,10 @@ class FlowCallbackError(Exception):
 class FlowCallback(object):
     """
     This object implements the callbacks executeed by the flow when
-    particular conditions are fulfilled. See on_dep_ok method of Flow.
+    particular conditions are fulfilled. See on_dep_ok method of :class:`Flow`.
 
-    .. note:
+    .. note::
+
         I decided to implement callbacks via this object instead of a standard
         approach based on bound methods because:
 
@@ -1181,20 +1270,16 @@ class FlowCallback(object):
     def __init__(self, func_name, flow, deps, cbk_data):
         """
         Args:
-            func_name:
-                String with the name of the callback to execute.
-                func_name must be a bound method of flow with signature:
+            func_name: String with the name of the callback to execute.
+                       func_name must be a bound method of flow with signature:
 
-                    func_name(self, cbk)
+                            func_name(self, cbk)
 
-                where self is the Flow instance and cbk is the callback
-            flow:
-                Reference to the `Flow`
-            deps:
-                List of dependencies associated to the callback
-                The callback is executed when all dependencies reach S_OK.
-            cbk_data:
-                Dictionary with additional data that will be passed to the callback via self.
+                       where self is the Flow instance and cbk is the callback
+            flow: Reference to the :class:`Flow`
+            deps: List of dependencies associated to the callback
+                  The callback is executed when all dependencies reach S_OK.
+            cbk_data: Dictionary with additional data that will be passed to the callback via self.
         """
         self.func_name = func_name
         self.flow = flow
@@ -1235,128 +1320,162 @@ class FlowCallback(object):
     def handle_sender(self, sender):
         """
         True if the callback is associated to the sender
-        i.e. if the node who sent the signal appears in the 
+        i.e. if the node who sent the signal appears in the
         dependencies of the callback.
         """
         return sender in [d.node for d in self.deps]
 
 
 # Factory functions.
-def bandstructure_flow(workdir, manager, scf_input, nscf_input, dos_inputs=None):
+def bandstructure_flow(workdir, scf_input, nscf_input, dos_inputs=None, manager=None, flow_class=Flow):
     """
-    Build an `AbinitFlow` for band structure calculations.
+    Build a :class:`Flow` for band structure calculations.
 
     Args:
-        workdir:
-            Working directory.
-        manager:
-            `TaskManager` object used to submit the jobs
-        scf_input:
-            Input for the GS SCF run.
-        nscf_input:
-            Input for the NSCF run (band structure run).
-        dos_inputs:
-            Input(s) for the NSCF run (dos run).
+        workdir: Working directory.
+        scf_input: Input for the GS SCF run.
+        nscf_input: Input for the NSCF run (band structure run).
+        dos_inputs: Input(s) for the NSCF run (dos run).
+        manager: :class:`TaskManager` object used to submit the jobs
+                 Initialized from manager.yml if manager is None.
+        flow_class: Flow class
 
     Returns:
-        `AbinitFlow`
+        :class:`Flow` object
     """
-    flow = AbinitFlow(workdir, manager)
-    work = BandStructureWorkflow(scf_input, nscf_input, dos_inputs=dos_inputs)
+    flow = flow_class(workdir, manager)
+    work = BandStructureWork(scf_input, nscf_input, dos_inputs=dos_inputs)
+    flow.register_work(work)
+
+    # Handy aliases
+    flow.scf_task, flow.nscf_task, flow.dos_tasks = work.scf_task, work.nscf_task, work.dos_tasks
+
+    return flow.allocate()
+
+
+def g0w0_flow(workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=None, flow_class=Flow):
+    """
+    Build an :class:`Flow` for one-shot $G_0W_0$ calculations.
+
+    Args:
+        workdir: Working directory.
+        scf_input: Input for the GS SCF run.
+        nscf_input: Input for the NSCF run (band structure run).
+        scr_input: Input for the SCR run.
+        sigma_inputs: List of inputs for the SIGMA run.
+        flow_class: Flow class
+        manager: :class:`TaskManager` object used to submit the jobs.
+                 Initialized from manager.yml if manager is None.
+
+    Returns:
+        :class:`Flow` object
+    """
+    flow = flow_class(workdir, manager=manager)
+    work = G0W0Work(scf_input, nscf_input, scr_input, sigma_inputs)
     flow.register_work(work)
     return flow.allocate()
 
 
-def g0w0_flow(workdir, manager, scf_input, nscf_input, scr_input, sigma_inputs):
+def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, with_dde=False, manager=None, flow_class=Flow):
     """
-    Build an `AbinitFlow` for one-shot $G_0W_0$ calculations.
+    Build an :class:`Flow` for phonon calculations.
 
     Args:
-        workdir:
-            Working directory.
-        manager:
-            `TaskManager` object used to submit the jobs
-        scf_input:
-            Input for the GS SCF run.
-        nscf_input:
-            Input for the NSCF run (band structure run).
-        scr_input:
-            Input for the SCR run.
-        sigma_inputs:
-            List of inputs for the SIGMA run.
+        workdir: Working directory.
+        scf_input: Input for the GS SCF run.
+        ph_inputs: List of Inputs for the phonon runs.
+        with_nscf: add an nscf task in front of al phonon tasks to make sure the q point is covered
+        with_ddk: add the ddk step
+        with_dde: add the dde step it the dde is set ddk is switched on automatically
+        manager: :class:`TaskManager` used to submit the jobs
+                 Initialized from manager.yml if manager is None.
+        flow_class: Flow class
 
     Returns:
-        `AbinitFlow`
+        :class:`Flow` object
     """
-    flow = AbinitFlow(workdir, manager)
-    work = G0W0_Workflow(scf_input, nscf_input, scr_input, sigma_inputs)
-    flow.register_work(work)
-    return flow.allocate()
+    if with_dde:
+        with_ddk = True
 
-
-def phonon_flow(workdir, manager, scf_input, ph_inputs):
-    """
-    Build an `AbinitFlow` for phonon calculations.
-
-    Args:
-        workdir:
-            Working directory.
-        manager:
-            `TaskManager` used to submit the jobs
-        scf_input:
-            Input for the GS SCF run.
-        ph_inputs:
-            List of Inputs for the phonon runs.
-
-    Returns:
-        `AbinitFlow`
-    """
     natom = len(scf_input.structure)
 
-    # Create the container that will manage the different workflows.
-    flow = AbinitFlow(workdir, manager)
+    # Create the container that will manage the different works.
+    if manager is None: manager = TaskManager.from_user_config()
+    flow = flow_class(workdir, manager=manager)
 
-    # Register the first workflow (GS calculation)
-    scf_task = flow.register_task(scf_input, task_class=ScfTask)
+    # Register the first work (GS calculation)
+    # register_task creates a work for the task, registers it to the flow and returns the work
+    # the 0the element of the work is the task
+    scf_task = flow.register_task(scf_input, task_class=ScfTask)[0]
 
-    # Build a temporary workflow with a shell manager just to run 
+    # Build a temporary work with a shell manager just to run
     # ABINIT to get the list of irreducible pertubations for this q-point.
     shell_manager = manager.to_shell_manager(mpi_procs=1)
+
+    if with_ddk:
+        logger.info('add ddk')
+        ddk_input = ph_inputs[0].deepcopy()
+        ddk_input.set_variables(qpt=[0, 0, 0], rfddk=1, rfelfd=2, rfdir=[1, 1, 1])
+        ddk_task = flow.register_task(ddk_input, deps={scf_task: 'WFK'}, task_class=DdkTask)[0]
+
+    if with_dde:
+        logger.info('add dde')
+        dde_input = ph_inputs[0].deepcopy()
+        dde_input.set_variables(qpt=[0, 0, 0], rfddk=1, rfelfd=2)
+        dde_input_idir = dde_input.deepcopy()
+        dde_input_idir.set_variables(rfdir=[1, 1, 1])
+        dde_task = flow.register_task(dde_input, deps={scf_task: 'WFK', ddk_task: 'DDK'}, task_class=DdeTask)[0]
 
     if not isinstance(ph_inputs, (list, tuple)):
         ph_inputs = [ph_inputs]
 
     for i, ph_input in enumerate(ph_inputs):
+
         fake_input = ph_input.deepcopy()
 
         # Run abinit on the front-end to get the list of irreducible pertubations.
         tmp_dir = os.path.join(workdir, "__ph_run" + str(i) + "__")
-        w = PhononWorkflow(workdir=tmp_dir, manager=shell_manager)
+        w = PhononWork(workdir=tmp_dir, manager=shell_manager)
         fake_task = w.register(fake_input)
 
         # Use the magic value paral_rf = -1 to get the list of irreducible perturbations for this q-point.
-        vars = dict(paral_rf=-1,
-                    rfatpol=[1, natom],  # Set of atoms to displace.
-                    rfdir=[1, 1, 1],     # Along this set of reduced coordinate axis.
-                    )
+        abivars = dict(
+            paral_rf=-1,
+            rfatpol=[1, natom],  # Set of atoms to displace.
+            rfdir=[1, 1, 1],     # Along this set of reduced coordinate axis.
+            )
 
-        fake_task.strategy.add_extra_abivars(vars)
+        fake_task.strategy.add_extra_abivars(abivars)
         w.allocate()
         w.start(wait=True)
 
         # Parse the file to get the perturbations.
         irred_perts = yaml_read_irred_perts(fake_task.log_file.path)
-        print(irred_perts)
+        logger.info(irred_perts)
 
         w.rmtree()
 
-        # Now we can build the final list of workflows:
-        # One workflow per q-point, each workflow computes all 
+        # Now we can build the final list of works:
+        # One work per q-point, each work computes all 
         # the irreducible perturbations for a singe q-point.
-        work_qpt = PhononWorkflow()
+
+        work_qpt = PhononWork()
+
+        if with_nscf:
+            nscf_input = copy.deepcopy(scf_input)
+            nscf_input.set_variables(kptopt=3, iscf=-3, qpt=irred_perts[0]['qpt'], nqpt=1)
+            nscf_task = work_qpt.register_nscf_task(nscf_input, deps={scf_task: "DEN"})
+            deps = {nscf_task: "WFQ", scf_task: "WFK"}
+        else:
+            deps = {scf_task: "WFK"}
+
+        if with_ddk:
+            deps[ddk_task] = 'DDK'
+
+        logger.info(irred_perts[0]['qpt'])
 
         for irred_pert in irred_perts:
-            print(irred_pert)
+            #print(irred_pert)
             new_input = ph_input.deepcopy()
 
             #rfatpol   1 1   # Only the first atom is displaced
@@ -1377,8 +1496,16 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
                 rfatpol=rfatpol,
             )
 
-            work_qpt.register(new_input, deps={scf_task: "WFK"}, task_class=PhononTask)
+            if with_ddk:
+                new_input.set_variables(rfelfd=3)
+
+            work_qpt.register_phonon_task(new_input, deps=deps)
 
         flow.register_work(work_qpt)
+
+        #if ana_input is not None:
+        #    merge_input = {}
+        #    qp_merge_task = flow.register_task(merge_input, deps={work_qpt: "DDB"}, task_class=QpMergeTask)
+        #    flow.register_task(ana_input, deps={qp_merge_task: "DDB"}, task_class=AnaddbTask)
                                             
     return flow.allocate()

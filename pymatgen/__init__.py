@@ -5,10 +5,12 @@ __author__ = ", ".join(["Shyue Ping Ong", "Anubhav Jain", "Geoffroy Hautier",
                         "Sai Jayaraman", "Michael Kocher", "Dan Gunter",
                         "Shreyas Cholia", "Vincent L Chevrier",
                         "Rickard Armiento"])
-__date__ = "Oct 29 2014"
-__version__ = "3.0.7"
+__date__ = "Dec 12 2014"
+__version__ = "3.0.9"
 
-#Useful aliases for commonly used objects and modules.
+
+# Useful aliases for commonly used objects and modules.
+# Allows from pymatgen import X for quick usage.
 
 from .core import *
 from .serializers.json_coders import pmg_dump, pmg_load

@@ -48,9 +48,9 @@ from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_angle, all_distances, \
-    lattice_points_in_supercell, in_coord_list_pbc
+    lattice_points_in_supercell
 from monty.design_patterns import singleton
-from pymatgen.core.units import Mass, Length
+from pymatgen.core.units import Mass, Length, ArrayWithUnit
 from pymatgen.symmetry.groups import SpaceGroup
 from monty.io import zopen
 
@@ -191,7 +191,7 @@ class SiteCollection(six.with_metaclass(ABCMeta, collections.Sequence)):
         return len(self.sites)
 
     def __hash__(self):
-        #for now, just use the composition hash code.
+        # for now, just use the composition hash code.
         return self.composition.__hash__()
 
     @property
@@ -516,6 +516,48 @@ class IStructure(SiteCollection, PMGSONable):
 
         return cls(latt, all_sp, all_coords,
                    site_properties=all_site_properties)
+
+    @classmethod
+    def from_abivars(cls, *args, **kwargs):
+        """Build a :class:`Structure` object from a dictionary with ABINIT variables."""
+        kwargs.update(dict(*args))
+        d = kwargs
+
+        lattice = Lattice.from_abivars(d)
+        coords, coords_are_cartesian = d.get("xred", None), False
+
+        if coords is None:
+            coords = d.get("xcart", None)
+            if coords is not None:
+                coords = ArrayWithUnit(coords, "bohr").to("ang")
+            else:
+                coords = d.get("xangst", None)
+            coords_are_cartesian = True
+        
+        if coords is None:
+            raise ValueError("Cannot extract atomic coordinates from dict %s" % str(d))
+
+        coords = np.reshape(coords, (-1,3))
+
+        znucl_type, typat = d["znucl"], d["typat"]
+
+        if not isinstance(znucl_type, collections.Iterable):
+            znucl_type = [znucl_type]
+
+        if not isinstance(typat, collections.Iterable):
+            typat = [typat]
+
+        assert len(typat) == len(coords)
+
+        # Note Fortan --> C indexing 
+        species = [znucl_type[typ-1] for typ in typat]
+
+        #print(lattice)
+        #print(species)
+        #print(coords)
+
+        return cls(lattice, species, coords, validate_proximity=False,
+                   to_unit_cell=False, coords_are_cartesian=coords_are_cartesian)
 
     @property
     def distance_matrix(self):
@@ -959,10 +1001,12 @@ class IStructure(SiteCollection, PMGSONable):
         k = lambda s: s.species_string
         sites = sorted(self._sites, key=k)
         grouped_sites = [list(a[1]) for a in itertools.groupby(sites, key=k)]
-        grouped_fcoords = [np.array([s.frac_coords for s in g]) for g in grouped_sites]
+        grouped_fcoords = [np.array([s.frac_coords for s in g])
+                           for g in grouped_sites]
 
-        # min_vecs are approximate periodicities of the cell. The exact periodicities from
-        # the supercell matrices are checked against these first
+        # min_vecs are approximate periodicities of the cell. The exact
+        # periodicities from the supercell matrices are checked against these
+        # first
         min_fcoords = min(grouped_fcoords, key=lambda x: len(x))
         min_vecs = min_fcoords - min_fcoords[0]
 
@@ -980,11 +1024,12 @@ class IStructure(SiteCollection, PMGSONable):
             np.abs(d, d)
             return fc1[np.any(np.all(d < tol, axis=-1), axis=-1)]
 
-        # here we reduce the number of min_vecs by enforcing that every vector in min_vecs
-        # approximately maps each site onto a similar site.
-        # The subsequent processing is O(fu^3 * min_vecs) = O(n^4) if we do no reduction.
-        # This reduction is O(n^3) so usually is an improvement. Using double the tolerance
-        # because both vectors are approximate
+        # here we reduce the number of min_vecs by enforcing that every
+        # vector in min_vecs approximately maps each site onto a similar site.
+        # The subsequent processing is O(fu^3 * min_vecs) = O(n^4) if we do no
+        # reduction.
+        # This reduction is O(n^3) so usually is an improvement. Using double
+        # the tolerance because both vectors are approximate
         for g in sorted(grouped_fcoords, key=lambda x: len(x)):
             for f in g:
                 min_vecs = pbc_coord_intersection(min_vecs, g - f, super_ftol_2)
@@ -993,10 +1038,10 @@ class IStructure(SiteCollection, PMGSONable):
             """
             Returns all possible distinct supercell matrices given a
             number of formula units in the supercell. Batches the matrices
-            by the values in the diagonal (for less numpy overhead). Computational
-            complexity is O(n^3), and difficult to improve. Might be able to do something
-            smart with checking combinations of a and b first, though unlikely to reduce
-            to O(n^2).
+            by the values in the diagonal (for less numpy overhead).
+            Computational complexity is O(n^3), and difficult to improve.
+            Might be able to do something smart with checking combinations of a
+            and b first, though unlikely to reduce to O(n^2).
             """
             def factors(n):
                 for i in range(1, n+1):
@@ -1009,10 +1054,10 @@ class IStructure(SiteCollection, PMGSONable):
                 for a in factors(det):
                     for e in factors(det // a):
                         g = det // a // e
-                        yield det, np.array([[[a, b, c], [0, e, f], [0, 0, g]]
-                                             for b, c, f in itertools.product(range(a),
-                                                                              range(a),
-                                                                              range(e))])
+                        yield det, np.array(
+                            [[[a, b, c], [0, e, f], [0, 0, g]]
+                            for b, c, f in itertools.product(range(a), range(a),
+                                                             range(e))])
 
         # we cant let sites match to their neighbors in the supercell
         grouped_non_nbrs = []
@@ -1021,7 +1066,8 @@ class IStructure(SiteCollection, PMGSONable):
             fdist -= np.round(fdist)
             np.abs(fdist, fdist)
             non_nbrs = np.any(fdist > 2 * super_ftol[None, None, :], axis=-1)
-            np.fill_diagonal(non_nbrs, True) # since we want sites to match to themselves
+            # since we want sites to match to themselves
+            np.fill_diagonal(non_nbrs, True)
             grouped_non_nbrs.append(non_nbrs)
 
         num_fu = six.moves.reduce(gcd, map(len, grouped_sites))
@@ -1043,8 +1089,9 @@ class IStructure(SiteCollection, PMGSONable):
                 valid = True
                 new_coords = []
                 new_sp = []
-                for gsites, gfcoords, non_nbrs in zip(grouped_sites, grouped_fcoords,
-                                                           grouped_non_nbrs):
+                for gsites, gfcoords, non_nbrs in zip(grouped_sites,
+                                                      grouped_fcoords,
+                                                      grouped_non_nbrs):
                     all_frac = np.dot(gfcoords, m)
 
                     # calculate grouping of equivalent sites, represented by
@@ -1080,7 +1127,9 @@ class IStructure(SiteCollection, PMGSONable):
                     new_l = Lattice(np.dot(inv_m, self.lattice.matrix))
                     s = Structure(new_l, new_sp, new_coords,
                                   coords_are_cartesian=True)
-                    return s.get_primitive_structure(tolerance).get_reduced_structure()
+
+                    return s.get_primitive_structure(
+                        tolerance).get_reduced_structure()
 
         return Structure.from_sites(self)
 
@@ -1140,6 +1189,55 @@ class IStructure(SiteCollection, PMGSONable):
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
         return cls.from_sites(sites)
+
+    def to_abivars(self, **kwargs):
+        """Returns a dictionary with the ABINIT variables."""
+        types_of_specie = self.types_of_specie
+        natom = self.num_sites
+
+        znucl_type = [specie.number for specie in types_of_specie]
+
+        znucl_atoms = self.atomic_numbers
+
+        typat = np.zeros(natom, np.int)
+        for (atm_idx, site) in enumerate(self):
+            typat[atm_idx] = types_of_specie.index(site.specie) + 1
+
+        rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
+        xred = np.reshape([site.frac_coords for site in self], (-1,3))
+
+        # Set small values to zero. This usually happens when the CIF file
+        # does not give structure parameters with enough digits.
+        #rprim = np.where(np.abs(rprim) > 1e-8, rprim, 0.0)
+        #xred = np.where(np.abs(xred) > 1e-8, xred, 0.0)
+
+        # Info on atoms.
+        d = dict(
+            natom=natom,
+            ntypat=len(types_of_specie),
+            typat=typat,
+            znucl=znucl_type,
+            xred=xred,
+        )
+
+        # Add info on the lattice.
+        # Should we use (rprim, acell) or (angdeg, acell) to specify the lattice?
+        geomode = kwargs.pop("geomode", "rprim")
+        #latt_dict = self.lattice.to_abivars(geomode=geomode)
+
+        if geomode == "rprim":
+            d.update(dict(
+                acell=3 * [1.0],
+                rprim=rprim))
+
+        elif geomode == "angdeg":
+            d.update(dict(
+                acell=3 * [1.0],
+                angdeg=angdeg))
+        else:
+            raise ValueError("Wrong value for geomode: %s" % geomode)
+
+        return d
 
     def dot(self, coords_a, coords_b, space="r", frac_coords=False):
         """
@@ -1269,46 +1367,57 @@ class IStructure(SiteCollection, PMGSONable):
         Reads a structure from a file. For example, anything ending in
         a "cif" is assumed to be a Crystallographic Information Format file.
         Supported formats include CIF, POSCAR/CONTCAR, CHGCAR, LOCPOT,
-        vasprun.xml, CSSR and pymatgen's JSON serialized structures.
+        vasprun.xml, CSSR, Netcdf and pymatgen's JSON serialized structures.
 
         Args:
             filename (str): The filename to read from.
-            primitive (bool): Whether to convert to a primitive cell for cifs.
-                Defaults to False.
+            primitive (bool): Whether to convert to a primitive cell
+                Only available for cifs, POSCAR, CSSR, JSON, YAML
+                Defaults to True.
             sort (bool): Whether to sort sites. Default to False.
 
         Returns:
             Structure.
         """
+        if filename.endswith(".nc"):
+            # Read Structure from a netcdf file.
+            from pymatgen.io.abinitio.netcdf import structure_from_ncdata
+            s = structure_from_ncdata(filename, cls=cls)
+            if sort:
+                s = s.get_sorted_structure()
+            return s
+
         from pymatgen.io.vaspio import Vasprun, Chgcar
         from monty.io import zopen
         fname = os.path.basename(filename)
         with zopen(filename) as f:
             contents = f.read()
         if fnmatch(fname.lower(), "*.cif*"):
-            return Structure.from_str(contents, fmt="cif",
-                                      primitive=primitive, sort=sort)
+            return cls.from_str(contents, fmt="cif",
+                                primitive=primitive, sort=sort)
         elif fnmatch(fname, "POSCAR*") or fnmatch(fname, "CONTCAR*"):
-            return Structure.from_str(contents, fmt="poscar",
-                                      primitive=primitive, sort=sort)
+            return cls.from_str(contents, fmt="poscar",
+                                primitive=primitive, sort=sort)
 
         elif fnmatch(fname, "CHGCAR*") or fnmatch(fname, "LOCPOT*"):
             s = Chgcar.from_file(filename).structure
         elif fnmatch(fname, "vasprun*.xml*"):
             s = Vasprun(filename).final_structure
         elif fnmatch(fname.lower(), "*.cssr*"):
-            return Structure.from_str(contents, fmt="cssr",
-                                      primitive=primitive, sort=sort)
+            return cls.from_str(contents, fmt="cssr",
+                                primitive=primitive, sort=sort)
         elif fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
-            return Structure.from_str(contents, fmt="json",
-                                      primitive=primitive, sort=sort)
+            return cls.from_str(contents, fmt="json",
+                                primitive=primitive, sort=sort)
         elif fnmatch(fname, "*.yaml*"):
-            return Structure.from_str(contents, fmt="yaml",
-                                      primitive=primitive, sort=sort)
+            return cls.from_str(contents, fmt="yaml",
+                                primitive=primitive, sort=sort)
         else:
             raise ValueError("Unrecognized file extension!")
         if sort:
             s = s.get_sorted_structure()
+
+        s.__class__ = cls
         return s
 
 
@@ -1659,7 +1768,7 @@ class IMolecule(SiteCollection, PMGSONable):
         return [(site, dist) for (site, dist) in outer if dist > inner]
 
     def get_boxed_structure(self, a, b, c, images=(1, 1, 1),
-                            random_rotation=False, min_dist=1):
+                            random_rotation=False, min_dist=1, cls=None):
         """
         Creates a Structure from a Molecule by putting the Molecule in the
         center of a orthorhombic box. Useful for creating Structure for
@@ -1679,6 +1788,7 @@ class IMolecule(SiteCollection, PMGSONable):
                 each other. This is only used if random_rotation is True.
                 The randomized rotations are searched such that no two atoms
                 are less than min_dist from each other.
+            cls: The Structure class to instantiate (defaults to pymatgen structure)
 
         Returns:
             Structure containing molecule in a box.
@@ -1718,9 +1828,10 @@ class IMolecule(SiteCollection, PMGSONable):
             coords.extend(new_coords)
         sprops = {k: v * nimages for k, v in self.site_properties.items()}
 
-        return Structure(lattice, self.species * nimages, coords,
-                         coords_are_cartesian=True,
-                         site_properties=sprops).get_sorted_structure()
+        if cls is None: cls = Structure
+        return cls(lattice, self.species * nimages, coords,
+                   coords_are_cartesian=True,
+                   site_properties=sprops).get_sorted_structure()
 
     def get_centered_molecule(self):
         """
@@ -1844,24 +1955,26 @@ class IMolecule(SiteCollection, PMGSONable):
             contents = f.read()
         fname = filename.lower()
         if fnmatch(fname, "*.xyz*"):
-            return Molecule.from_str(contents, fmt="xyz")
+            return cls.from_str(contents, fmt="xyz")
         elif any([fnmatch(fname.lower(), "*.{}*".format(r))
                   for r in ["gjf", "g03", "g09", "com", "inp"]]):
-            return Molecule.from_str(contents, fmt="g09")
+            return cls.from_str(contents, fmt="g09")
         elif any([fnmatch(fname.lower(), "*.{}*".format(r))
                   for r in ["out", "lis", "log"]]):
             return GaussianOutput(filename).final_structure
         elif fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
-            return Molecule.from_str(contents, fmt="json")
+            return cls.from_str(contents, fmt="json")
         elif fnmatch(fname, "*.yaml*"):
-            return Molecule.from_str(contents, fmt="yaml")
+            return cls.from_str(contents, fmt="yaml")
         else:
             from pymatgen.io.babelio import BabelMolAdaptor
             m = re.search("\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
                           filename.lower())
             if m:
-                return BabelMolAdaptor.from_file(filename,
-                                                 m.group(1)).pymatgen_mol
+                new = BabelMolAdaptor.from_file(filename,
+                                                m.group(1)).pymatgen_mol
+                new.__class__ = cls
+                return new
 
         raise ValueError("Unrecognized file extension!")
 

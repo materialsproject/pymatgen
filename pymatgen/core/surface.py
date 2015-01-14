@@ -146,6 +146,39 @@ class Slab(Structure):
                     self.scale_factor, site_properties=s.site_properties)
 
     @property
+    def dipole(self):
+        """
+        Calculates the dipole of the Slab in the direction of the surface
+        normal. Note that the Slab must be oxidation state-decorated for this
+        to work properly. Otherwise, the Slab will always have a dipole of 0.
+        """
+        dipole = np.zeros(3)
+        mid_pt = np.sum(self.cart_coords, axis=0) / len(self)
+        normal = self.normal
+        for site in self:
+            charge = sum([getattr(sp, "oxi_state", 0) * amt
+                          for sp, amt in site.species_and_occu.items()])
+            dipole += charge * np.dot(site.coords - mid_pt, normal) * normal
+        return dipole
+
+    def is_polar(self, tol_dipole_per_unit_area=1e-3):
+        """
+        Checks whether the surface is polar by computing the dipole per unit
+        area. Note that the Slab must be oxidation state-decorated for this
+        to work properly. Otherwise, the Slab will always be non-polar.
+
+        Args:
+            tol_dipole_per_unit_area (float): A tolerance. If the dipole
+                magnitude per unit area is less than this value, the Slab is
+                considered non-polar. Defaults to 1e-3, which is usually
+                pretty good. Normalized dipole per unit area is used as it is
+                more reliable than using the total, which tends to be larger for
+                slabs with larger surface areas.
+        """
+        dip_per_unit_area = self.dipole / self.surface_area
+        return np.linalg.norm(dip_per_unit_area) > tol_dipole_per_unit_area
+
+    @property
     def normal(self):
         """
         Calculates the surface normal vector of the slab

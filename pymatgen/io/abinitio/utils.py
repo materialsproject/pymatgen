@@ -1,15 +1,16 @@
 # coding: utf-8
 """Tools and helper functions for abinit calculations"""
-from __future__ import unicode_literals, division
+from __future__ import unicode_literals, division, print_function
 
 import os
+import six
 import collections
 import shutil
 import operator
 
+from fnmatch import fnmatch
 from six.moves import filter
 from monty.string import list_strings
-from monty.dev import deprecated
 from pymatgen.util.string_utils import WildCard
 
 import logging
@@ -86,7 +87,7 @@ class File(object):
         """Write a list of strings to file."""
         self.make_dir()
         with open(self.path, "w") as f:
-            return f.writelines()
+            return f.writelines(lines)
 
     def make_dir(self):
         """Make the directory where the file is located."""
@@ -161,6 +162,17 @@ class Directory(object):
         """Recursively delete the directory tree"""
         shutil.rmtree(self.path, ignore_errors=True)
 
+    def clean(self, wildcard=None):
+        """
+        Remove the files in the directory. 
+        Unlike rmtree, this function preserves the directory path.
+        """
+        for path in self.list_filepaths(wildcard=wildcard):
+            try:
+                os.remove(path)
+            except:
+                pass
+
     def path_in(self, file_basename):
         """Return the absolute path of filename in the directory."""
         return os.path.join(self.path, file_basename)
@@ -170,16 +182,12 @@ class Directory(object):
         Return the list of absolute filepaths in the directory.
 
         Args:
-            wildcard:
-                String of tokens separated by "|".
-                Each token represents a pattern.
-                If wildcard is not None, we return only those files that
-                match the given shell pattern (uses fnmatch).
-
+            wildcard: String of tokens separated by "|". Each token represents a pattern.
+                If wildcard is not None, we return only those files that match the given shell pattern (uses fnmatch).
                 Example:
                   wildcard="*.nc|*.pdf" selects only those files that end with .nc or .pdf
         """
-        # Selecte the files in the directory.
+        # Select the files in the directory.
         fnames = [f for f in os.listdir(self.path)]
         filepaths = filter(os.path.isfile, [os.path.join(self.path, f) for f in fnames])
 
@@ -197,13 +205,17 @@ class Directory(object):
         in the directory. Returns empty string is file is not present.
 
         Raises:
-            ValueError if multiple files with the given ext are found.
+            `ValueError` if multiple files with the given ext are found.
             This implies that this method is not compatible with multiple datasets.
         """
         files = []
         for f in self.list_filepaths():
             if f.endswith(ext) or f.endswith(ext + ".nc"):
                 files.append(f)
+
+        # This should fix the problem with the 1WF files in which the file extension convention is broken
+        if not files:
+            files = [f for f in self.list_filepaths() if fnmatch(f, "*%s*" % ext)]
 
         if not files:
             return ""
@@ -215,6 +227,55 @@ class Directory(object):
 
         return files[0]
 
+    def symlink_abiext(self, inext, outext):
+        """Create a simbolic link"""
+        infile = self.has_abiext(inext)
+        if not infile:
+            raise RuntimeError('no file with extension %s in %s' % (inext, self))
+
+        for i in range(len(infile) - 1, -1, -1):
+            if infile[i] == '_':
+                break
+        else:
+            raise RuntimeError('Extension %s could not be detected in file %s' % (inext, infile))
+
+        outfile = infile[:i] + '_' + outext
+        os.symlink(infile, outfile)
+        return 0
+
+    def rename_abiext(self, inext, outext):
+        """Rename the Abinit file with extension inext with the new extension outext"""
+        infile = self.has_abiext(inext)
+        if not infile:
+            raise RuntimeError('no file with extension %s in %s' % (inext, self))
+
+        for i in range(len(infile) - 1, -1, -1):
+            if infile[i] == '_':
+                break
+        else:
+            raise RuntimeError('Extension %s could not be detected in file %s' % (inext, infile))
+
+        outfile = infile[:i] + '_' + outext
+        shutil.move(infile, outfile)
+        return 0
+
+    def copy_abiext(self, inext, outext):
+        """Copy the Abinit file with extension inext to a new file withw extension outext"""
+        infile = self.has_abiext(inext)
+        if not infile:
+            raise RuntimeError('no file with extension %s in %s' % (inext, self))
+
+        for i in range(len(infile) - 1, -1, -1):
+            if infile[i] == '_':
+                break
+        else:
+            raise RuntimeError('Extension %s could not be detected in file %s' % (inext, infile))
+
+        outfile = infile[:i] + '_' + outext
+        shutil.copy(infile, outfile)
+        return 0
+
+
 # This dictionary maps ABINIT file extensions to the 
 # variables that must be used to read the file in input.
 #
@@ -225,6 +286,7 @@ class Directory(object):
 _EXT2VARS = {
     "DEN": {"irdden": 1},
     "WFK": {"irdwfk": 1},
+    "WFQ": {"irdwfq": 1},
     "SCR": {"irdscr": 1},
     "QPS": {"irdqps": 1},
     "1WF": {"ird1wf": 1},
@@ -350,8 +412,7 @@ class FilepathFixer(object):
         Fix the filenames in the iterable paths
 
         Returns:
-            old2new:
-                Mapping old_path --> new_path
+            old2new: Mapping old_path --> new_path
         """
         old2new, fixed_exts = {}, []
 
@@ -359,6 +420,12 @@ class FilepathFixer(object):
             newpath, ext = self._fix_path(path)
 
             if newpath is not None:
+                #if ext not in fixed_exts:
+                #    if ext == "1WF": continue
+                #    raise ValueError("Unknown extension %s" % ext)
+                #print(ext, path, fixed_exts)
+                #if ext != '1WF':
+                #    assert ext not in fixed_exts
                 if ext not in fixed_exts:
                     if ext == "1WF": continue
                     raise ValueError("Unknown extension %s" % ext)
@@ -533,8 +600,8 @@ class Condition(object):
     db.inventory.find( { qty: { $gt: 20 } } )
     db.inventory.find({ $and: [ { price: 1.99 }, { qty: { $lt: 20 } }, { sale: true } ] } )
     """
-    def __init__(self, cmap):
-        self.cmap = cmap
+    def __init__(self, cmap=None):
+        self.cmap = {} if cmap is None else cmap
 
     def __str__(self):
         return str(self.cmap)
@@ -583,9 +650,14 @@ class Editor(object):
     @staticmethod
     def user_wants_to_exit():
         """Show an interactive prompt asking if exit is wanted."""
-        try:
-            answer = raw_input("Do you want to continue [Y/n]")
+        # Fix python 2.x.
+        if six.PY2:
+            my_input = raw_input
+        else:
+            my_input = input
 
+        try:
+            answer = my_input("Do you want to continue [Y/n]")
         except EOFError:
             return True
 

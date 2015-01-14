@@ -91,32 +91,6 @@ class ElectronsTest(PymatgenTest):
         self.serialize_with_pickle(default_electrons, test_eq=False)
 
 
-class AbiStructureTest(PymatgenTest):
-
-    def setUp(self):
-        self.cif_paths = cif_paths()
-
-    def test_asabistructure(self):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            for cif_path in self.cif_paths:
-                print("about to init abistructure from %s " % cif_path)
-                st = asabistructure(cif_path)
-                self.assertTrue(st is asabistructure(st))
-                self.assertTrue(isinstance(st, Structure))
-    
-                # TODO
-                if not st.is_ordered:
-                    print("Unordered structures are not supported")
-                    continue
-    
-                print(st.to_abivars())
-
-        # Test pickle
-        # FIXME: protocol 2 does not work due to __new__
-        self.serialize_with_pickle(st, protocols=[0, 1], test_eq=True)
-
-
 #class KSamplingTest(PymatgenTest):
 
 
