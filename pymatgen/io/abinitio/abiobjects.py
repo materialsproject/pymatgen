@@ -1,12 +1,10 @@
 # coding: utf-8
 """
-Low-level objects providing an abstraction for the objects involved in the
-calculation.
+Low-level objects providing an abstraction for the objects involved in the calculation.
 """
 from __future__ import unicode_literals, division, print_function
 
 import collections
-import os
 import abc
 import six
 import numpy as np
@@ -14,15 +12,10 @@ import pymatgen.core.units as units
 
 from pprint import pformat
 from monty.design_patterns import singleton
-from monty.string import is_string
 from monty.collections import AttrDict
 from pymatgen.core.design_patterns import Enum
-from pymatgen.core.units import ArrayWithUnit
 from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.core.structure import Structure, Molecule
-
-from .netcdf import structure_from_etsf_file
 
 
 def contract(s):
@@ -48,21 +41,17 @@ def contract(s):
 
 class AbivarAble(six.with_metaclass(abc.ABCMeta, object)):
     """
-    An AbivarAble object provides a method to_abivars that returns a dictionary
-    with the abinit variables.
+    An `AbivarAble` object provides a method `to_abivars`
+    that returns a dictionary with the abinit variables.
     """
 
     @abc.abstractmethod
     def to_abivars(self):
-        """
-        Returns a dictionary with the abinit variables.
-        """
+        """Returns a dictionary with the abinit variables."""
 
     #@abc.abstractmethod
     #def from_abivars(cls, vars):
-    #    """
-    #    Build the object from a dictionary with Abinit variables.
-    #    """
+    #    """Build the object from a dictionary with Abinit variables."""
 
     def __str__(self):
         return pformat(self.to_abivars(), indent=1, width=80, depth=None)
@@ -81,9 +70,7 @@ class MandatoryVariable(object):
 
 @singleton
 class DefaultVariable(object):
-    """
-    Singleton used to tag variables that will have the default value
-    """
+    """Singleton used to tag variables that will have the default value"""
 
 MANDATORY = MandatoryVariable()
 DEFAULT = DefaultVariable()
@@ -103,7 +90,7 @@ class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
     """
     @classmethod
     def as_spinmode(cls, obj):
-        """Converts obj into a SpinMode instance"""
+        """Converts obj into a `SpinMode` instance"""
         if isinstance(obj, cls):
             return obj
         else:
@@ -133,7 +120,7 @@ _mode2spinvars = {
 class Smearing(AbivarAble, PMGSONable):
     """
     Variables defining the smearing technique. The preferred way to instanciate
-    a Smearing object is via the class method Smearing.as_smearing(string)
+    a `Smearing` object is via the class method Smearing.as_smearing(string)
     """
     #: Mapping string_mode --> occopt
     _mode2occopt = {
@@ -170,7 +157,7 @@ class Smearing(AbivarAble, PMGSONable):
     @classmethod
     def as_smearing(cls, obj):
         """
-        Constructs an instance of Smearing from obj. Accepts obj in the form:
+        Constructs an instance of `Smearing` from obj. Accepts obj in the form:
 
             * Smearing instance
             * "name:tsmear"  e.g. "gaussian:0.004"  (Hartree units)
@@ -248,20 +235,15 @@ class ElectronsAlgorithm(dict, AbivarAble):
 
 
 class Electrons(AbivarAble):
-    """
-    The electronic degrees of freedom
-    """
+    """The electronic degrees of freedom"""
     def __init__(self, spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
                  algorithm=None, nband=None, fband=None, charge=0.0, comment=None):  # occupancies=None,
         """
         Constructor for Electrons object.
 
         Args:
-            comment:
-                String comment for Electrons
-
-            charge: float
-                    Total charge of the system. Default is 0.
+            comment: String comment for Electrons
+            charge: Total charge of the system. Default is 0.
         """
         super(Electrons, self).__init__()
 
@@ -318,136 +300,6 @@ class Electrons(AbivarAble):
         return abivars
 
 
-def asabistructure(obj):
-    """
-    Convert obj into an AbiStructure object. Accepts:
-
-        - AbiStructure instance
-        - Subinstances of pymatgen.
-        - File paths
-    """
-    if isinstance(obj, AbiStructure):
-        return obj
-
-    if isinstance(obj, Structure):
-        # Promote
-        return AbiStructure(obj)
-
-    if is_string(obj):
-        # Handle file paths.
-        if os.path.isfile(obj):
-
-            if obj.endswith(".nc"):
-                structure = structure_from_etsf_file(obj)
-            else:
-                structure = Structure.from_file(obj)
-
-            # Promote
-            return AbiStructure(structure)
-
-    raise ValueError("Don't know how to convert object %s to an AbiStructure structure" % str(obj))
-
-
-class AbiStructure(Structure, AbivarAble):
-    """Patches the pymatgen structure adding the method to_abivars."""
-
-    @staticmethod
-    def asabistructure(obj):
-        return asabistructure(obj)
-
-    def __new__(cls, structure):
-        new = structure
-        new.__class__ = cls
-        return new
-
-    def __init__(self, structure):
-        pass
-
-    @classmethod
-    def boxed_molecule(cls, pseudos, cart_coords, acell=3*(10,)):
-        """
-        Creates a molecule in a periodic box of lengths acell [Bohr]
-
-        Args:
-            pseudos:
-                List of pseudopotentials
-            cart_coords:
-                Cartesian coordinates
-            acell:
-                Lengths of the box in *Bohr*
-        """
-        cart_coords = np.atleast_2d(cart_coords)
-
-        molecule = Molecule([p.symbol for p in pseudos], cart_coords)
-
-        l = ArrayWithUnit(acell, "bohr").to("ang")
-
-        structure = molecule.get_boxed_structure(l[0], l[1], l[2])
-
-        return cls(structure)
-
-    @classmethod
-    def boxed_atom(cls, pseudo, cart_coords=3*(0,), acell=3*(10,)):
-        """
-        Creates an atom in a periodic box of lengths acell [Bohr]
-
-        Args:
-            pseudo:
-                Pseudopotential object.
-            cart_coords:
-                Cartesian coordinates
-            acell:
-                Lengths of the box in *Bohr*
-        """
-        return cls.boxed_molecule([pseudo], cart_coords, acell=acell)
-
-    def get_sorted_structure(self):
-        """
-        orders the structure according to increasing Z of the elements
-        """
-        sites = sorted(self.sites, key=lambda site: site.specie.Z)
-        structure = Structure.from_sites(sites)
-        return AbiStructure(structure)
-
-    def to_abivars(self):
-        "Returns a dictionary with the abinit variables."
-        types_of_specie = self.types_of_specie
-        natom = self.num_sites
-
-        znucl_type = [specie.number for specie in types_of_specie]
-
-        znucl_atoms = self.atomic_numbers
-
-        typat = np.zeros(natom, np.int)
-        for (atm_idx, site) in enumerate(self):
-            typat[atm_idx] = types_of_specie.index(site.specie) + 1
-
-        rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
-        xred = np.reshape([site.frac_coords for site in self], (-1,3))
-
-        # Set small values to zero. This usually happens when the CIF file
-        # does not give structure parameters with enough digits.
-        #rprim = np.where(np.abs(rprim) > 1e-8, rprim, 0.0)
-        #xred = np.where(np.abs(xred) > 1e-8, xred, 0.0)
-
-        d = dict(
-            natom=natom,
-            ntypat=len(types_of_specie),
-            typat=typat,
-            xred=xred,
-            znucl=znucl_type)
-
-        d.update(dict(
-            acell=3 * [1.0],
-            rprim=rprim))
-
-        #d.update(dict(
-        #    acell=3 * [1.0],
-        #    angdeg))
-
-        return d
-
-
 class KSampling(AbivarAble):
     """
     Input variables defining the K-point sampling.
@@ -474,35 +326,24 @@ class KSampling(AbivarAble):
         and it is recommended that you use those.
 
         Args:
-            mode:
-                Mode for generating k-poits. Use one of the KSampling.modes
-                enum types.
-            num_kpts:
-                Number of kpoints if mode is "automatic"
-                Number of division for the sampling of the smallest segment if
-                mode is "path".
+            mode: Mode for generating k-poits. Use one of the KSampling.modes enum types.
+            num_kpts: Number of kpoints if mode is "automatic"
+                Number of division for the sampling of the smallest segment if mode is "path".
                 Not used for the other modes
-            kpts:
-                Number of divisions. Even when only a single specification is
-                required, e.g. in the automatic scheme, the kpts should still
-                be specified as a 2D array. e.g., [[20]] or [[2,2,2]].
-            kpt_shifts:
-                Shifts for Kpoints.
-            use_symmetries:
-                False if spatial symmetries should not be used to reduced the
-                number of independent k-points.
-            use_time_reversal:
-                False if time-reversal symmetry should not be used to reduced
-                the number of independent k-points.
-            kpts_weights:
-                Optional weights for kpoints. For explicit kpoints.
-            chksymbreak:
-                Abinit input variable: check whether the BZ sampling preserves
-                the symmetry of the crystal.
-            comment:
-                String comment for Kpoints
+            kpts: Number of divisions. Even when only a single specification is
+                  required, e.g. in the automatic scheme, the kpts should still
+                  be specified as a 2D array. e.g., [[20]] or [[2,2,2]].
+            kpt_shifts: Shifts for Kpoints.
+            use_symmetries: False if spatial symmetries should not be used
+                to reduce the number of independent k-points.
+            use_time_reversal: False if time-reversal symmetry should not be used
+                to reduce the number of independent k-points.
+            kpts_weights: Optional weights for kpoints. For explicit kpoints.
+            chksymbreak: Abinit input variable: check whether the BZ sampling preserves the symmetry of the crystal.
+            comment: String comment for Kpoints
 
-        The default behavior of the constructor is monkhorst.
+        .. note::
+            The default behavior of the constructor is monkhorst.
         """
         if mode not in KSampling.modes:
             raise ValueError("Unknown kpoint mode %s" % mode)
@@ -582,15 +423,14 @@ class KSampling(AbivarAble):
         Convenient static constructor for an automatic Gamma centered Kpoint grid.
 
         Args:
-            kpts:
-                Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
-            use_symmetries:
-                False if spatial symmetries should not be used to reduced the number of independent k-points.
-            use_time_reversal:
-                False if time-reversal symmetry should not be used to reduced the number of independent k-points.
+            kpts: Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
+            use_symmetries: False if spatial symmetries should not be used
+                to reduce the number of independent k-points.
+            use_time_reversal: False if time-reversal symmetry should not be used
+                to reduce the number of independent k-points.
 
         Returns:
-            `KSampling` object.
+            :class:`KSampling` object.
         """
         return cls(kpts=[kpts], kpt_shifts=(0.0, 0.0, 0.0),
                    use_symmetries=use_symmetries, use_time_reversal=use_time_reversal,
@@ -603,17 +443,13 @@ class KSampling(AbivarAble):
         Convenient static constructor for a Monkhorst-Pack mesh.
 
         Args:
-            ngkpt:
-                Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
-            shiftk:
-                Shift to be applied to the kpoints. 
-            use_symmetries:
-                Use spatial symmetries to reduce the number of k-points.
-            use_time_reversal:
-                Use time-reversal symmetry to reduce the number of k-points.
+            ngkpt: Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
+            shiftk: Shift to be applied to the kpoints.
+            use_symmetries: Use spatial symmetries to reduce the number of k-points.
+            use_time_reversal: Use time-reversal symmetry to reduce the number of k-points.
 
         Returns:
-            `KSampling` object.
+            :class:`KSampling` object.
         """
         return cls(
             kpts=[ngkpt], kpt_shifts=shiftk,
@@ -627,17 +463,13 @@ class KSampling(AbivarAble):
         Convenient static constructor for an automatic Monkhorst-Pack mesh.
 
         Args:
-            structure:
-                paymatgen structure object.
-            ngkpt:
-                Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
-            use_symmetries:
-                Use spatial symmetries to reduce the number of k-points.
-            use_time_reversal:
-                Use time-reversal symmetry to reduce the number of k-points.
+            structure: pymatgen structure object.
+            ngkpt: Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
+            use_symmetries: Use spatial symmetries to reduce the number of k-points.
+            use_time_reversal: Use time-reversal symmetry to reduce the number of k-points.
 
         Returns:
-            KSampling object
+            :class:`KSampling` object.
         """
         sg = SpacegroupAnalyzer(structure)
         #sg.get_crystal_system()
@@ -661,17 +493,13 @@ class KSampling(AbivarAble):
         Static constructor for path in k-space.
 
         Args:
-            structure:
-                pymatgen structure.
-            kpath_bounds:
-                List with the reduced coordinates of the k-points defining the path.
-            ndivsm:
-                Number of division for the smallest segment.
-            comment:
-                Comment string.
+            structure: pymatgen structure.
+            kpath_bounds: List with the reduced coordinates of the k-points defining the path.
+            ndivsm: Number of division for the smallest segment.
+            comment: Comment string.
 
         Returns:
-            KSampling object
+            :class:`KSampling` object.
         """
         if kpath_bounds is None:
             # Compute the boundaries from the input structure.
@@ -714,10 +542,8 @@ class KSampling(AbivarAble):
             reciprocal lattice vector proportional to its length.
 
         Args:
-            structure:
-                Input structure
-            kppa:
-                Grid density
+            structure: Input structure
+            kppa: Grid density
         """
         lattice = structure.lattice
         lengths = lattice.abc
@@ -813,18 +639,16 @@ class RelaxationMethod(AbivarAble):
     @classmethod
     def atoms_only(cls, atoms_constraints=None):
         if atoms_constraints is None:
-            new = cls(ionmov=cls.IONMOV_DEFAULT, optcell=0)
+            return cls(ionmov=cls.IONMOV_DEFAULT, optcell=0)
         else:
-            new = cls(ionmov=cls.IONMOV_DEFAULT, optcell=0, atoms_constraints=atoms_constraints)
-        return new
+            return cls(ionmov=cls.IONMOV_DEFAULT, optcell=0, atoms_constraints=atoms_constraints)
 
     @classmethod
     def atoms_and_cell(cls, atoms_constraints=None):
         if atoms_constraints is None:
-            new = cls(ionmov=cls.IONMOV_DEFAULT, optcell=cls.OPTCELL_DEFAULT)
+            return cls(ionmov=cls.IONMOV_DEFAULT, optcell=cls.OPTCELL_DEFAULT)
         else:
-            new = cls(ionmov=cls.IOMOV_DEFAULT, optcell=cls.OPTCELL_DEFAULT, atoms_constraints=atoms_constraints)
-        return new
+            return cls(ionmov=cls.IOMOV_DEFAULT, optcell=cls.OPTCELL_DEFAULT, atoms_constraints=atoms_constraints)
 
     @property
     def move_atoms(self):
@@ -871,8 +695,7 @@ class RelaxationMethod(AbivarAble):
 class PPModel(AbivarAble, PMGSONable):
     """
     Parameters defining the plasmon-pole technique.
-    The common way to instanciate a PPModel object is via the class method
-    PPModel.as_ppmodel(string)
+    The common way to instanciate a PPModel object is via the class method PPModel.as_ppmodel(string)
     """
     _mode2ppmodel = {
         "noppmodel": 0,
@@ -969,20 +792,13 @@ class HilbertTransform(AbivarAble):
     def __init__(self, nomegasf, domegasf=None, spmeth=1, nfreqre=None, freqremax=None, nfreqim=None, freqremin=None):
         """
         Args:
-            nomegasf:
-                Number of points for sampling the spectral function along the real axis.
-            domegasf:
-                Step in Ha for the linear mesh used for the spectral function.
-            spmeth:
-                Algorith for the representation of the delta function.
-            nfreqre:
-                Number of points along the real axis (linear mesh).
-            freqremax:
-                Maximum frequency for W along the real axis (in hartree).
-            nfreqim:
-                Number of point along the imaginary axis (Gauss-Legendre mesh).
-            freqremin:
-                Minimum frequency for W along the real axis (in hartree).
+            nomegasf: Number of points for sampling the spectral function along the real axis.
+            domegasf: Step in Ha for the linear mesh used for the spectral function.
+            spmeth: Algorith for the representation of the delta function.
+            nfreqre: Number of points along the real axis (linear mesh).
+            freqremax: Maximum frequency for W along the real axis (in hartree).
+            nfreqim: Number of point along the imaginary axis (Gauss-Legendre mesh).
+            freqremin: Minimum frequency for W along the real axis (in hartree).
         """
         # Spectral function
         self.nomegasf = nomegasf
@@ -1044,20 +860,13 @@ class Screening(AbivarAble):
                  hilbert=None, ecutwfn=None, inclvkb=2):
         """
         Args:
-            ecuteps:
-                Cutoff energy for the screening (Ha units).
-            nband
-                Number of bands for the Green's function
-            w_type:
-                Screening type
-            sc_mode:
-                Self-consistency mode.
-            hilbert:
-                Instance of `HilbertTransform` defining the paramentes for the Hilber transform method.
-            ecutwfn:
-                Cutoff energy for the wavefunctions (Default: ecutwfn == ecut).
-            inclvkb=2
-                Option for the treatment of the dipole matrix elements (NC pseudos).
+            ecuteps: Cutoff energy for the screening (Ha units).
+            nband Number of bands for the Green's function
+            w_type: Screening type
+            sc_mode: Self-consistency mode.
+            hilbert: Instance of :class:`HilbertTransform` defining the parameters for the Hilber transform method.
+            ecutwfn: Cutoff energy for the wavefunctions (Default: ecutwfn == ecut).
+            inclvkb: Option for the treatment of the dipole matrix elements (NC pseudos).
         """
         if w_type not in self._WTYPES:
             raise ValueError("W_TYPE: %s is not supported" % w_type)
@@ -1066,8 +875,8 @@ class Screening(AbivarAble):
             raise ValueError("Self-consistecy mode %s is not supported" % sc_mode)
 
         self.ecuteps = ecuteps
-        self.nband   = nband
-        self.w_type  = w_type
+        self.nband = nband
+        self.w_type = w_type
         self.sc_mode = sc_mode
 
         self.ecutwfn = ecutwfn
@@ -1079,9 +888,9 @@ class Screening(AbivarAble):
 
         # Default values
         # TODO Change abinit defaults
-        self.gwpara = 2
-        self.awtr   = 1
-        self.symchi = 1
+        self.gwpara=2
+        self.awtr  =1
+        self.symchi=1
 
     @property
     def use_hilbert(self):
@@ -1091,11 +900,11 @@ class Screening(AbivarAble):
     #def gwcalctyp(self):
     #    "Return the value of the gwcalctyp input variable"
     #    dig0 = str(self._SIGMA_TYPES[self.type])
-    #    dig1 = str(self._SC_MODES[self.sc_mode])
+    #    dig1 = str(self._SC_MODES[self.sc_mode]
     #    return dig1.strip() + dig0.strip()
 
     def to_abivars(self):
-        "Returns a dictionary with the abinit variables"
+        """Returns a dictionary with the abinit variables"""
         abivars = {
             "ecuteps"   : self.ecuteps,
             "ecutwfn"   : self.ecutwfn,
@@ -1116,8 +925,7 @@ class Screening(AbivarAble):
 
 class SelfEnergy(AbivarAble):
     """
-    This object defines the parameters used for the
-    computation of the self-energy.
+    This object defines the parameters used for the computation of the self-energy.
     """
     _SIGMA_TYPES = {
         "gw"          : 0,
@@ -1138,26 +946,17 @@ class SelfEnergy(AbivarAble):
                  gw_qprange=1, ppmodel=None, ecuteps=None, ecutwfn=None, gwpara=2):
         """
         Args:
-            se_type:
-                Type of self-energy (str)
-            sc_mode:
-                Self-consistency mode.
-            nband
-                Number of bands for the Green's function
-            ecutsigx:
-                Cutoff energy for the exchange part of the self-energy (Ha units).
-            screening:
-                `Screening` instance.
-            gw_qprange:
-                Option for the automatic selection of k-points and bands for GW corrections.
+            se_type: Type of self-energy (str)
+            sc_mode: Self-consistency mode.
+            nband: Number of bands for the Green's function
+            ecutsigx: Cutoff energy for the exchange part of the self-energy (Ha units).
+            screening: :class:`Screening` instance.
+            gw_qprange: Option for the automatic selection of k-points and bands for GW corrections.
                 See Abinit docs for more detail. The default value makes the code computie the
                 QP energies for all the point in the IBZ and one band above and one band below the Fermi level.
-            ppmodel:
-                `PPModel` instance with the parameters used for the plasmon-pole technique.
-            ecuteps:
-                Cutoff energy for the screening (Ha units).
-            ecutwfn:
-                Cutoff energy for the wavefunctions (Default: ecutwfn == ecut).
+            ppmodel: :class:`PPModel` instance with the parameters used for the plasmon-pole technique.
+            ecuteps: Cutoff energy for the screening (Ha units).
+            ecutwfn: Cutoff energy for the wavefunctions (Default: ecutwfn == ecut).
         """
         if se_type not in self._SIGMA_TYPES:
             raise ValueError("SIGMA_TYPE: %s is not supported" % se_type)
@@ -1269,30 +1068,21 @@ class ExcHamiltonian(AbivarAble):
         ]
 
     def __init__(self, bs_loband, nband, soenergy, coulomb_mode, ecuteps, spin_mode="polarized", mdf_epsinf=None,
-                exc_type="TDA", algo="haydock", with_lf=True, bs_freq_mesh=None, zcut=None, **kwargs):
+                 exc_type="TDA", algo="haydock", with_lf=True, bs_freq_mesh=None, zcut=None, **kwargs):
         """
         Args:
-            bs_loband:
-                Lowest band index used in the e-h  basis set. Can be scalar or array of shape (nsppol,)
-            nband:
-                Max band index used in the e-h  basis set.
-            soenergy:
-                Scissors energy in Hartree.
-            coulomb_mode:
-                Treatment of the Coulomb term.
-            ecuteps:
-                Cutoff energy for W in Hartree.
-            mdf_epsinf:
-                Macroscopic dielectric function :math:`\epsilon_\inf` used in
+            bs_loband: Lowest band index (Fortran convention) used in the e-h  basis set. 
+                Can be scalar or array of shape (nsppol,). Must be >= 1 and <= nband 
+            nband: Max band index used in the e-h  basis set.
+            soenergy: Scissors energy in Hartree.
+            coulomb_mode: Treatment of the Coulomb term.
+            ecuteps: Cutoff energy for W in Hartree.
+            mdf_epsinf: Macroscopic dielectric function :math:`\epsilon_\inf` used in
                 the model dielectric function.
-            exc_type:
-                Approximation used for the BSE Hamiltonian
-            with_lf:
-                True if local field effects are included <==> exchange term is included
-            bs_freq_mesh:
-                Frequency mesh for the macroscopic dielectric function (start, stop, step) in Ha.
-            zcut:
-                Broadening parameter in Ha.
+            exc_type: Approximation used for the BSE Hamiltonian
+            with_lf: True if local field effects are included <==> exchange term is included
+            bs_freq_mesh: Frequency mesh for the macroscopic dielectric function (start, stop, step) in Ha.
+            zcut: Broadening parameter in Ha.
             **kwargs:
                 Extra keywords
         """
@@ -1300,7 +1090,7 @@ class ExcHamiltonian(AbivarAble):
 
         # We want an array bs_loband(nsppol).
         try:
-            bs_loband = np.reshape(bs_loband, (spin_mode.nsppol))
+            bs_loband = np.reshape(bs_loband, spin_mode.nsppol)
         except ValueError:
             bs_loband = np.array(spin_mode.nsppol * [int(bs_loband)])
 
@@ -1324,8 +1114,14 @@ class ExcHamiltonian(AbivarAble):
 
         # Extra options.
         self.kwargs = kwargs
-        if "chksymbreak" not in self.kwargs:
-            self.kwargs["chksymbreak"] = 0
+        #if "chksymbreak" not in self.kwargs:
+        #    self.kwargs["chksymbreak"] = 0
+
+        # Consistency check
+        if any(bs_loband < 0): 
+            raise ValueError("bs_loband <= 0 while it is %s" % bs_loband)
+        if any(bs_loband >= nband): 
+            raise ValueError("bs_loband (%s) >= nband (%s)" % (bs_loband, nband))
 
     @property
     def inclvkb(self):
@@ -1352,17 +1148,18 @@ class ExcHamiltonian(AbivarAble):
         abivars = dict(
             bs_calctype=1,
             bs_loband=self.bs_loband,
-            nband=self.nband,
+            #nband=self.nband,
             soenergy=self.soenergy,
             ecuteps=self.ecuteps,
-            #bs_algorithm = self._ALGO2VAR[self.algo],
+            bs_algorithm = self._ALGO2VAR[self.algo],
             bs_coulomb_term=21,
             mdf_epsinf=self.mdf_epsinf,
             bs_exchange_term=1 if self.with_lf else 0,
             inclvkb=self.inclvkb,
             zcut=self.zcut,
             bs_freq_mesh=self.bs_freq_mesh,
-            )
+            bs_coupling=self._EXC_TYPES[self.exc_type],
+        )
 
         if self.use_haydock:
             # FIXME

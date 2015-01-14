@@ -114,7 +114,8 @@ class CifBlock(object):
         if len(v) > self.maxlen:
             return ';\n' + textwrap.fill(v, self.maxlen) + '\n;'
         #add quotes if necessary
-        if " " in v and not (v[0] == "'" and v[-1] == "'") \
+        if (" " in v or v[0] == "_") \
+                and not (v[0] == "'" and v[-1] == "'") \
                 and not (v[0] == '"' and v[-1] == '"'):
             if "'" in v:
                 q = '"'
@@ -126,11 +127,9 @@ class CifBlock(object):
     @classmethod
     def _process_string(cls, string):
         #remove comments
-        string = re.sub("#.*", "", string)
+        string = re.sub("(\s|^)#.*$", "", string, flags=re.MULTILINE)
         #remove empty lines
         string = re.sub("^\s*\n", "", string, flags=re.MULTILINE)
-        #remove whitespaces at beginning of lines
-        string = re.sub("^\s*", "", string, flags=re.MULTILINE)
         #remove non_ascii
         string = remove_non_ascii(string)
         
@@ -140,10 +139,11 @@ class CifBlock(object):
         q = deque()
         multiline = False
         ml = []
-        #this regex splits on spaces, except when in quotes.
-        #it also ignores single quotes when surrounded by non-whitespace
-        #since they are sometimes used in author names
-        p = re.compile(r'''([^'"\s]+)|'((?:\S'\S|[^'])*)'|"([^"]*)"''')
+        # this regex splits on spaces, except when in quotes.
+        # starting quotes must not be preceded by non-whitespace
+        # (these get eaten by the first expression)
+        # ending quotes must not be followed by non-whitespace
+        p = re.compile(r'''([^'"\s][\S]*)|'(.*?)'(?!\S)|"(.*?)"(?!\S)''')
         for l in string.splitlines():
             if multiline:
                 if l.startswith(";"):
@@ -159,43 +159,45 @@ class CifBlock(object):
                 ml.append(l[1:].strip())
             else:
                 for s in p.findall(l):
-                    q.append(''.join(s))
+                    q.append(s)  # s is tuple. location of the data in the tuple
+                                 # depends on whether it was quoted in the input
         return q
 
     @classmethod
     def from_string(cls, string):
         q = cls._process_string(string)
-        header = q.popleft()[5:]
+        header = q.popleft()[0][5:]
         data = OrderedDict()
         loops = []
         while q:
             s = q.popleft()
-            if s == "_eof":
+            # cif keys aren't in quotes, so show up in s[0]
+            if s[0] == "_eof":
                 break
-            if s.startswith("_"):
-                data[s] = q.popleft()
-            elif s.startswith("loop_"):
+            if s[0].startswith("_"):
+                data[s[0]] = "".join(q.popleft())
+            elif s[0].startswith("loop_"):
                 columns = []
                 items = []
                 while q:
                     s = q[0]
-                    if s.startswith("loop_") or not s.startswith("_"):
+                    if s[0].startswith("loop_") or not s[0].startswith("_"):
                         break
-                    columns.append(q.popleft())
+                    columns.append("".join(q.popleft()))
                     data[columns[-1]] = []
                 while q:
                     s = q[0]
-                    if s.startswith("loop_") or s.startswith("_"):
+                    if s[0].startswith("loop_") or s[0].startswith("_"):
                         break
-                    items.append(q.popleft())
+                    items.append("".join(q.popleft()))
                 n = len(items) // len(columns)
                 assert len(items) % n == 0
                 loops.append(columns)
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
-            elif s.strip() != "":
+            elif "".join(s).strip() != "":
                 warnings.warn("Possible error in cif format"
-                              " error at {}".format(s.strip()))
+                              " error at {}".format("".join(s).strip()))
         return cls(data, loops, header)
 
 
@@ -300,9 +302,10 @@ class CifParser(object):
         self.symmetry_operations = [SymmOp.from_xyz_string(s) for s in sympos]
 
         def parse_symbol(sym):
-            m = re.search("([A-Z][a-z]*)", sym)
+            # capitalization conventions are not strictly followed, eg Cu will be CU
+            m = re.search("([A-Za-z]*)", sym)
             if m:
-                return m.group(1)
+                return m.group(1)[:2].capitalize()
             return ""
 
         try:
@@ -314,12 +317,24 @@ class CifParser(object):
             oxi_states = None
 
         coord_to_species = OrderedDict()
+        for i in range(len(data["_atom_site_label"])):
+            symbol = parse_symbol(data["_atom_site_label"][i])
 
-        for i in range(len(data["_atom_site_type_symbol"])):
-            symbol = parse_symbol(data["_atom_site_type_symbol"][i])
+            # make sure symbol was properly parsed from _atom_site_label
+            # otherwise get it from _atom_site_type_symbol
+            try:
+                Element(symbol)
+            except KeyError:
+                symbol = parse_symbol(data["_atom_site_type_symbol"][i])
+
             if oxi_states is not None:
-                el = Specie(symbol,
-                            oxi_states[data["_atom_site_type_symbol"][i]])
+                # sometimes the site doesn't have the type_symbol.
+                # we then hope the type_symbol can be parsed from the label
+                if "_atom_site_type_symbol" in data.data.keys():
+                    k = data["_atom_site_type_symbol"][i]
+                else:
+                    k = symbol
+                el = Specie(symbol, oxi_states[k])
             else:
                 el = Element(symbol)
             x = str2float(data["_atom_site_fract_x"][i])
@@ -535,4 +550,8 @@ def str2float(text):
     """
     Remove uncertainty brackets from strings and return the float.
     """
-    return float(re.sub("\(.+\)", "", text))
+    try:
+        return float(re.sub("\(.+\)", "", text))
+    except TypeError:
+        if isinstance(text, list) and len(text) == 1:
+            return float(re.sub("\(.+\)", "", text[0]))

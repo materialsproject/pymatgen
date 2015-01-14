@@ -28,6 +28,7 @@ from pyhull.voronoi import VoronoiTess
 
 from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.util.num_utils import abs_cap
+from pymatgen.core.units import ArrayWithUnit
 
 
 class Lattice(PMGSONable):
@@ -69,6 +70,48 @@ class Lattice(PMGSONable):
         # The inverse matrix is lazily generated for efficiency.
         self._inv_matrix = None
         self._metric_tensor = None
+
+    @classmethod
+    def from_abivars(cls, *args, **kwargs):
+        """
+        Returns a new instance from a dictionary with the variables 
+        used in ABINIT to define the unit cell.
+        """
+        kwargs.update(dict(*args))
+        d = kwargs
+        rprim = d.get("rprim", None)
+        angdeg = d.get("angdeg", None)
+        acell = d["acell"]
+
+        # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
+        if rprim is not None:
+            assert angdeg is None
+            rprim = np.reshape(rprim, (3,3))
+            rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
+            return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
+
+        elif angdeg is not None:
+            # angdeg(0) is the angle between the 2nd and 3rd vectors,
+            # angdeg(1) is the angle between the 1st and 3rd vectors,
+            # angdeg(2) is the angle between the 1st and 2nd vectors,
+            raise NotImplementedError("angdeg convention should be tested")
+            angles = angdeg
+            angles[1] = -angles[1]
+            l = ArrayWithUnit(acell, "bohr").to("ang")
+            return cls.from_lengths_and_angles(l, angdeg)
+
+        else:
+            raise ValueError("Don't know how to construct a Lattice from dict: %s" % str(d))
+
+    #def to_abivars(self, **kwargs):
+    #    # Should we use (rprim, acell) or (angdeg, acell) to specify the lattice?
+    #    geomode = kwargs.pop("geomode", "rprim")
+    #    if geomode == "rprim":
+    #        return dict(acell=3 * [1.0], rprim=rprim))
+    #    elif geomode == "angdeg":
+    #        return dict(acell=3 * [1.0], angdeg=angdeg))
+    #    else:
+    #        raise ValueError("Wrong value for geomode: %s" % geomode)
 
     def copy(self):
         """Deep copy of self."""

@@ -71,12 +71,9 @@ class AbinitEvent(yaml.YAMLObject):
         Basic constructor for `AbinitEvent`. 
 
         Args:
-            message:
-                String with human-readable message providing info on the event.
-            src_file:
-                String with the name of the Fortran file where the event is raised.
-            src_line
-                Integer giving the line number in src_file.
+            message: String with human-readable message providing info on the event.
+            src_file: String with the name of the Fortran file where the event is raised.
+            src_line Integer giving the line number in src_file.
         """
         self.message = message
         self._src_file = src_file
@@ -112,8 +109,7 @@ class AbinitEvent(yaml.YAMLObject):
             if isinstance(self, cls):
                 return cls
 
-        err_msg = "Cannot determine the base class of %s" % self.__class__.__name__
-        raise ValueError(err_msg)
+        raise ValueError("Cannot determine the base class of %s" % self.__class__.__name__)
 
     def action(self):
         """
@@ -205,10 +201,8 @@ class EventReport(collections.Iterable):
     def __init__(self, filename, events=None):
         """
         Args:
-            filename:
-                Name of the file
-            events:
-                List of Event objects
+            filename: Name of the file
+            events: List of Event objects
         """
         self.filename = os.path.abspath(filename)
         self._events = []
@@ -249,10 +243,7 @@ class EventReport(collections.Iterable):
 
     @property
     def run_completed(self):
-        """
-        Returns True if the calculation terminated.
-        """
-
+        """True if the calculation terminated."""
         try:
             return self._run_completed
         except AttributeError:
@@ -298,8 +289,7 @@ class EventReport(collections.Iterable):
         Return the list of events that inherits from class base_class
 
         Args:
-            only_critical:
-                if True, only critical events are returned.
+            only_critical: if True, only critical events are returned.
         """
         return self._events_by_baseclass[base_class][:]
 
@@ -312,7 +302,7 @@ class EventReport(collections.Iterable):
 
 
 class EventsParserError(Exception):
-    """Base class for the exceptions raised by EventsParser."""
+    """Base class for the exceptions raised by :class:`EventsParser`."""
 
 
 class EventsParser(object):
@@ -326,15 +316,15 @@ class EventsParser(object):
 
     def parse(self, filename):
         """
-        This is the new parser, it will be used when we implement
-        the new format in abinit.
+        Parse the given file. Return :class:`EventReport`.
         """
         run_completed = False
         filename = os.path.abspath(filename)
         report = EventReport(filename)
 
         # TODO Use CamelCase for the Fortran messages.
-        w = WildCard("*Error|*Warning|*Comment|*ERROR|*WARNING|*COMMENT")
+        # Bug is still an error of class SoftwareError
+        w = WildCard("*Error|*Warning|*Comment|*Bug|*ERROR|*WARNING|*COMMENT|*BUG")
 
         with YamlTokenizer(filename) as tokens:
 
@@ -376,6 +366,6 @@ class EventsParser(object):
     def report_exception(self, filename, exc):
         """
         This method is used when self.parser raises an Exception so that
-        we can report a customized `EventReport` object with info the exception.
+        we can report a customized :class:`EventReport` object with info the exception.
         """
-        return EventReport(filename, events=[Error(str(exc))])
+        return EventReport(filename, events=[AbinitError(str(exc))])

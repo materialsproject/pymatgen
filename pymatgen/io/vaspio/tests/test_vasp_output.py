@@ -132,6 +132,9 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][0], 3.26105533)
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][1], -0.00459066)
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[2][2], 3.24330517)
+        self.assertAlmostEqual(vasprun_dfpt.epsilon_static_wolfe[0][0], 3.33402531)
+        self.assertAlmostEqual(vasprun_dfpt.epsilon_static_wolfe[0][1], -0.00559998)
+        self.assertAlmostEqual(vasprun_dfpt.epsilon_static_wolfe[2][2], 3.31237357)
         self.assertTrue(vasprun_dfpt.converged)
 
         entry = vasprun_dfpt.get_computed_entry()
@@ -160,6 +163,17 @@ class VasprunTest(unittest.TestCase):
         vasprun_no_pdos = Vasprun(os.path.join(test_dir, "Li_no_projected.xml"))
         self.assertIsNotNone(vasprun_no_pdos.complete_dos)
         self.assertFalse(vasprun_no_pdos.dos_has_errors)
+
+        vasprun_diel = Vasprun(os.path.join(test_dir, "vasprun.xml.dielectric"))
+        self.assertAlmostEqual(0.4294,vasprun_diel.dielectric[0][10])
+        self.assertAlmostEqual(19.941,vasprun_diel.dielectric[1][51][0])
+        self.assertAlmostEqual(19.941,vasprun_diel.dielectric[1][51][1])
+        self.assertAlmostEqual(19.941,vasprun_diel.dielectric[1][51][2])
+        self.assertAlmostEqual(0.0,vasprun_diel.dielectric[1][51][3])
+        self.assertAlmostEqual(34.186,vasprun_diel.dielectric[2][85][0])
+        self.assertAlmostEqual(34.186,vasprun_diel.dielectric[2][85][1])
+        self.assertAlmostEqual(34.186,vasprun_diel.dielectric[2][85][2])
+        self.assertAlmostEqual(0.0,vasprun_diel.dielectric[2][85][3])
 
     def test_as_dict(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
