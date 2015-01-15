@@ -11,7 +11,8 @@ import yaml
 import six
 
 from six.moves import cStringIO, map, zip
-from monty.pprint import pprint_table
+from prettytable import PrettyTable
+from pymatgen.util.plotting_utils import add_fig_kwargs
 
 
 def straceback():
@@ -28,7 +29,7 @@ def _magic_parser(stream, magic):
         dict where the key are the name of columns and
         the values are list of numbers. Note if no section was found.
 
-    .. warning:
+    .. warning::
 
         The parser is very fragile and should be replaced by YAML.
     """
@@ -116,13 +117,13 @@ class ScfCycle(collections.Mapping):
 
     def __str__(self):
         """String representation."""
-        table = [list(self.fields.keys())]
+        table = PrettyTable([list(self.fields.keys())])
         for it in range(self.num_iterations):
             row = list(map(str, (self[k][it] for k in self.keys())))
-            table.append(row)
+            table.add_row(row)
 
         stream = cStringIO()
-        pprint_table(table, out=stream)
+        print(table, out=stream)
         stream.seek(0)
 
         return "".join(stream)
@@ -144,7 +145,7 @@ class ScfCycle(collections.Mapping):
         Read the first occurrence of ScfCycle from stream.
 
         Returns:
-            None if no ScfCycle entry is found.
+            None if no `ScfCycle` entry is found.
         """
         fields = _magic_parser(stream, magic=cls.MAGIC)
 
@@ -154,26 +155,12 @@ class ScfCycle(collections.Mapping):
         else:
             return None
 
+    @add_fig_kwargs
     def plot(self, **kwargs):
         """
-        Uses matplotlib to plot the evolution of the SCF cycle.
-
-        ==============  ==============================================================
-        kwargs          Meaning
-        ==============  ==============================================================
-        title           Title of the plot (Default: None).
-        show            True to show the figure (Default).
-        savefig         'abc.png' or 'abc.eps'* to save the figure to a file.
-        ==============  ==============================================================
-
-        Returns:
-            `matplotlib` figure
+        Uses matplotlib to plot the evolution of the SCF cycle. Return `matplotlib` figure
         """
         import matplotlib.pyplot as plt
-
-        title = kwargs.pop("title", None)
-        show = kwargs.pop("show", True)
-        savefig = kwargs.pop("savefig", None)
 
         # Build grid of plots.
         num_plots, ncols, nrows = len(self), 1, 1
@@ -183,9 +170,6 @@ class ScfCycle(collections.Mapping):
 
         fig, ax_list = plt.subplots(nrows=nrows, ncols=ncols, sharex=True, squeeze=False)
         ax_list = ax_list.ravel()
-
-        if title:
-            fig.suptitle(title)
 
         iter_num = np.array(list(range(self.num_iterations)))
 
@@ -207,12 +191,6 @@ class ScfCycle(collections.Mapping):
         if (num_plots % ncols) != 0:
             ax_list[-1].plot(xx, yy, lw=0.0)
             ax_list[-1].axis('off')
-
-        if show:
-            plt.show()
-
-        if savefig is not None:
-            fig.savefig(savefig)
 
         return fig
 
@@ -241,9 +219,9 @@ class PhononScfCycle(ScfCycle):
 
 class Relaxation(collections.Iterable):
     """
-    A list of `GroundStateScfCycle` objects.
+    A list of :class:`GroundStateScfCycle` objects.
 
-    .. note:
+    .. note::
 
         Forces, stresses  and crystal structures are missing.
         Solving this problem would require the standardization
@@ -293,8 +271,7 @@ class Relaxation(collections.Iterable):
     @property
     def history(self):
         """
-        Dictionary of lists with the evolution of the data
-        as function of the relaxation step.
+        Dictionary of lists with the evolution of the data as function of the relaxation step.
         """
         try:
             return self._history
@@ -307,26 +284,15 @@ class Relaxation(collections.Iterable):
 
             return self._history
 
+    @add_fig_kwargs
     def plot(self, **kwargs):
         """
         Uses matplotlib to plot the evolution of the structural relaxation.
-
-        ==============  ==============================================================
-        kwargs          Meaning
-        ==============  ==============================================================
-        title           Title of the plot (Default: None).
-        show            True to show the figure (Default).
-        savefig         'abc.png' or 'abc.eps'* to save the figure to a file.
-        ==============  ==============================================================
 
         Returns:
             `matplotlib` figure
         """
         import matplotlib.pyplot as plt
-
-        title = kwargs.pop("title", None)
-        show = kwargs.pop("show", True)
-        savefig = kwargs.pop("savefig", None)
 
         history = self.history
         #print(history)
@@ -345,10 +311,7 @@ class Relaxation(collections.Iterable):
         if (num_plots % ncols) != 0:
             ax_list[-1].axis('off')
 
-        if title:
-            fig.suptitle(title)
-
-        for ((key, values), ax) in zip(history.items(), ax_list):
+        for (key, values), ax in zip(history.items(), ax_list):
             ax.grid(True)
             ax.set_xlabel('Relaxation Step')
             ax.set_xticks(relax_step, minor=False)
@@ -356,17 +319,55 @@ class Relaxation(collections.Iterable):
 
             ax.plot(relax_step, values, "-o", lw=2.0)
 
-        if show:
-            plt.show()
-
-        if savefig is not None:
-            fig.savefig(savefig)
-
         return fig
+
+# TODO
+#class HaydockIterations(collections.Iterable):
+#    """This object collects info on the different steps of the Haydock technique used in the Bethe-Salpeter code"""
+#    @classmethod
+#    def from_file(cls, filepath):
+#        """Initialize the object from file."""
+#        with open(filepath, "r") as stream:
+#            return cls.from_stream(stream)
+#
+#    @classmethod
+#    def from_stream(cls, stream):
+#        """Extract data from stream. Returns None if some error occurred."""
+#        cycles = []
+#        while True:
+#            scf_cycle = GroundStateScfCycle.from_stream(stream)
+#            if scf_cycle is None: break
+#            cycles.append(scf_cycle)
+#
+#        return cls(cycles) if cycles else None
+#
+#    #def __init__(self):
+#
+#    def plot(self, **kwargs):
+#        """
+#        Uses matplotlib to plot the evolution of the structural relaxation.
+#        ==============  ==============================================================
+#        kwargs          Meaning
+#        ==============  ==============================================================
+#        title           Title of the plot (Default: None).
+#        how            True to show the figure (Default).
+#        savefig         'abc.png' or 'abc.eps'* to save the figure to a file.
+#        ==============  ==============================================================
+#        Returns:
+#            `matplotlib` figure
+#        """
+#        import matplotlib.pyplot as plt
+#        title = kwargs.pop("title", None)
+#        show = kwargs.pop("show", True)
+#        savefig = kwargs.pop("savefig", None)
+#        if title: fig.suptitle(title)
+#        if savefig is not None: fig.savefig(savefig)
+#        if show: plt.show()
+#        return fig
 
 
 class YamlTokenizerError(Exception):
-    """Exceptions raised by `YamlTokenizer."""
+    """Exceptions raised by :class:`YamlTokenizer`."""
 
 
 class YamlTokenizer(collections.Iterator):
@@ -424,14 +425,15 @@ class YamlTokenizer(collections.Iterator):
         """
         Returns the first YAML document in stream.
 
-        .. warning:
+        .. warning::
 
             Assume that the YAML document are closed explicitely with the sentinel '...'
         """
         in_doc, lines, doc_tag = None, [], None
 
-        for line in self.stream:
+        for i, line in enumerate(self.stream):
             self.linepos += 1
+            #print(i, line)
 
             if line.startswith("---"):
                 # Include only lines in the form:
@@ -466,7 +468,7 @@ class YamlTokenizer(collections.Iterator):
         Returns a list with all the YAML docs found in stream.
         Seek the stream before returning.
 
-        .. warning:
+        .. warning::
 
             Assume that all the YAML docs (with the exception of the last one)
             are closed explicitely with the sentinel '...'
@@ -477,8 +479,7 @@ class YamlTokenizer(collections.Iterator):
 
     def next_doc_with_tag(self, doc_tag):
         """
-        Returns the next document with the specified tag.
-        Empty string is no doc is found.
+        Returns the next document with the specified tag. Empty string is no doc is found.
         """
         while True:
             try:
@@ -539,12 +540,9 @@ class YamlDoc(object):
     def __init__(self, text, lineno, tag=None):
         """
         Args:
-            text:
-                String with the YAML document.
-            lineno:
-                The line number where the document is located.
-            tag:
-                The YAML tag associate to the document.
+            text: String with the YAML document.
+            lineno: The line number where the document is located.
+            tag: The YAML tag associate to the document.
         """
         # Sanitize strings: use "ignore" to skip invalid characters in .encode/.decode like
         if isinstance(text, bytes):
@@ -576,6 +574,6 @@ class YamlDoc(object):
         (we used the tag just to locate the document).
         """
         if self.tag is not None:
-           return self.text.replace(self.tag, "")
+            return self.text.replace(self.tag, "")
         else:
-           return self.text
+            return self.text

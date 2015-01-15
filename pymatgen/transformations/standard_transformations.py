@@ -593,7 +593,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             for k, v in total_occupancy.items():
                 if k == initial_sp:
                     continue
-                m = [k.oxi_state / initial_sp.oxi_state, v, list(g), k]
+                m = [k.oxi_state / initial_sp.oxi_state if initial_sp.oxi_state
+                     else 0, v, list(g), k]
                 m_list.append(m)
             #determine the number of empty sites
             empty = len(g) - sum(total_occupancy.values())
@@ -744,3 +745,4 @@ class PerturbStructureTransformation(AbstractTransformation):
                 "init_args": {"amplitude": self._amp},
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
+

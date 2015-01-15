@@ -30,6 +30,8 @@ class SymmOpTestCase(PymatgenTest):
         point = np.array([1, 2, 3])
         newcoords = self.op.operate_multi([point, point])
         self.assertArrayAlmostEqual(newcoords, [[-0.1339746, 2.23205081, 4.]]*2, 2)
+        newcoords = self.op.operate_multi([[point, point]]*2)
+        self.assertArrayAlmostEqual(newcoords, [[[-0.1339746, 2.23205081, 4.]]*2]*2, 2)
 
     def test_inverse(self):
         point = np.random.rand(3)
@@ -96,6 +98,13 @@ class SymmOpTestCase(PymatgenTest):
 
         op3 = SymmOp.from_xyz_string('3x - 2y - z+1 /2 , -x+12/ 13, z+1/2')
         self.assertEqual(op2, op3)
+
+        #Ensure strings can be read in any order
+        op4 = SymmOp.from_xyz_string('1 /2 + 3X - 2y - z , 12/ 13-x, z+1/2')
+        op5 = SymmOp.from_xyz_string('+1 /2 + 3x - 2y - z , 12/ 13-x, +1/2+z')
+        self.assertEqual(op4, op3)
+        self.assertEqual(op4, op5)
+        self.assertEqual(op3, op5)
 
         self.assertRaises(ValueError, self.op.as_xyz_string)
 

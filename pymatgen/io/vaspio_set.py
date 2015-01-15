@@ -11,8 +11,6 @@ without further user intervention. This ensures comparability across
 runs.
 """
 
-import six
-
 __author__ = "Shyue Ping Ong, Wei Chen, Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
@@ -28,6 +26,7 @@ import traceback
 import shutil
 from functools import partial
 
+import six
 import numpy as np
 
 from monty.serialization import loadfn
@@ -348,9 +347,9 @@ class DictVaspInputSet(AbstractVaspInputSet):
 
         # If grid_density is in the kpoints_settings use Kpoints.automatic_density
         if self.kpoints_settings.get('grid_density'):
-            return Kpoints.automatic_density(structure,
-                                             self.kpoints_settings['grid_density'],
-                                             self.force_gamma)
+            return Kpoints.automatic_density(
+                structure, int(self.kpoints_settings['grid_density']),
+                self.force_gamma)
 
         # If length is in the kpoints_settings use Kpoints.automatic
         elif self.kpoints_settings.get('length'):
@@ -358,9 +357,10 @@ class DictVaspInputSet(AbstractVaspInputSet):
 
         # Raise error. Unsure of which kpoint generation to use
         else:
-            raise ValueError("Invalid KPoint Generation algo : Supported Keys are "
-                             "grid_density: for Kpoints.automatic_density generation "
-                             "and length  : for Kpoints.automatic generation")
+            raise ValueError(
+                "Invalid KPoint Generation algo : Supported Keys are "
+                "grid_density: for Kpoints.automatic_density generation "
+                "and length  : for Kpoints.automatic generation")
 
     def __str__(self):
         return self.name
@@ -801,8 +801,8 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             previous_incar = vasp_run.incar
             previous_kpoints = vasp_run.kpoints
         except:
-            traceback.format_exc()
-            raise RuntimeError("Can't get valid results from previous run")
+            traceback.print_exc()
+            raise RuntimeError("Can't get valid results from previous run. prev dir: {}".format(previous_vasp_dir))
 
         mpsvip = MPStaticVaspInputSet(kpoints_density=kpoints_density,
                                       sym_prec=sym_prec)
@@ -1015,6 +1015,9 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         kpoints_density (int): kpoints density for the reciprocal cell
             of structure. Might need to increase the default value when
             calculating metallic materials.
+        kpoints_line_density (int): kpoints density to use in line-mode.
+            Might need to increase the default value when calculating
+            metallic materials.
         sort_structure (bool): Whether to sort structure. Defaults to
             False.
         sym_prec (float): Tolerance for symmetry finding
@@ -1022,9 +1025,10 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
 
     def __init__(self, user_incar_settings, mode="Line",
                  constrain_total_magmom=False, sort_structure=False,
-                 kpoints_density=1000, sym_prec=0.1):
+                 kpoints_density=1000, sym_prec=0.1, kpoints_line_density=20):
         self.mode = mode
         self.sym_prec = sym_prec
+        self.kpoints_line_density = kpoints_line_density
         if mode not in ["Line", "Uniform"]:
             raise ValueError("Supported modes for NonSCF runs are 'Line' and "
                              "'Uniform'!")
@@ -1058,7 +1062,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         """
         if self.mode == "Line":
             kpath = HighSymmKpath(structure)
-            cart_k_points, k_points_labels = kpath.get_kpoints()
+            cart_k_points, k_points_labels = kpath.get_kpoints(line_density=self.kpoints_line_density)
             frac_k_points = [kpath._prim_rec.get_fractional_coords(k)
                              for k in cart_k_points]
             return Kpoints(comment="Non SCF run along symmetry lines",
@@ -1133,7 +1137,8 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
     @staticmethod
     def from_previous_vasp_run(previous_vasp_dir, output_dir='.',
                                mode="Uniform", user_incar_settings=None,
-                               copy_chgcar=True, make_dir_if_not_present=True):
+                               copy_chgcar=True, make_dir_if_not_present=True,
+                               kpoints_density=1000, kpoints_line_density=20):
         """
         Generate a set of Vasp input files for NonSCF calculations from a
         directory of previous static Vasp run.
@@ -1154,6 +1159,12 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             make_dir_if_not_present (bool): Set to True if you want the
                 directory (and the whole path) to be created if it is not
                 present.
+            kpoints_density (int): kpoints density for the reciprocal cell
+                of structure. Might need to increase the default value when
+                calculating metallic materials.
+            kpoints_line_density (int): kpoints density to use in line-mode.
+                Might need to increase the default value when calculating
+                metallic materials.
         """
         user_incar_settings = user_incar_settings or {}
 
@@ -1163,22 +1174,24 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             outcar = Outcar(os.path.join(previous_vasp_dir, "OUTCAR"))
             previous_incar = vasp_run.incar
         except:
-            traceback.format_exc()
-            raise RuntimeError("Can't get valid results from previous run")
+            traceback.print_exc()
+            raise RuntimeError("Can't get valid results from previous run. prev dir: {}".format(previous_vasp_dir))
 
         #Get a Magmom-decorated structure
         structure = MPNonSCFVaspInputSet.get_structure(vasp_run, outcar,
                                                        initial_structure=True)
         nscf_incar_settings = MPNonSCFVaspInputSet.get_incar_settings(vasp_run,
                                                                       outcar)
-        mpnscfvip = MPNonSCFVaspInputSet(nscf_incar_settings, mode)
+        mpnscfvip = MPNonSCFVaspInputSet(nscf_incar_settings, mode,
+                                         kpoints_density=kpoints_density,
+                                         kpoints_line_density=kpoints_line_density)
         mpnscfvip.write_input(structure, output_dir, make_dir_if_not_present)
         if copy_chgcar:
             try:
                 shutil.copyfile(os.path.join(previous_vasp_dir, "CHGCAR"),
                                 os.path.join(output_dir, "CHGCAR"))
             except Exception as e:
-                traceback.format_exc()
+                traceback.print_exc()
                 raise RuntimeError("Can't copy CHGCAR from SC run" + '\n'
                                    + str(e))
 
@@ -1275,8 +1288,8 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
             outcar = Outcar(os.path.join(previous_vasp_dir, "OUTCAR"))
             previous_incar = vasp_run.incar
         except:
-            traceback.format_exc()
-            raise RuntimeError("Can't get valid results from previous run")
+            traceback.print_exc()
+            raise RuntimeError("Can't get valid results from previous run. prev dir: {}".format(previous_vasp_dir))
 
         #Get a Magmom-decorated structure
         structure = MPNonSCFVaspInputSet.get_structure(vasp_run, outcar,
@@ -1293,7 +1306,7 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
                 shutil.copyfile(os.path.join(previous_vasp_dir, "CHGCAR"),
                                 os.path.join(output_dir, "CHGCAR"))
             except Exception as e:
-                traceback.format_exc()
+                traceback.print_exc()
                 raise RuntimeError("Can't copy CHGCAR from SC run" + '\n'
                                    + str(e))
 

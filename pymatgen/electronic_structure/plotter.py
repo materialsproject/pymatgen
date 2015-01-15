@@ -6,8 +6,6 @@ from __future__ import division, unicode_literals, print_function
 This module implements plotter for DOS and band structure.
 """
 
-from six.moves import zip
-
 __author__ = "Shyue Ping Ong, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
@@ -15,17 +13,17 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "May 1, 2012"
 
-
-from collections import OrderedDict
-
-import numpy as np
 import logging
 import math
 import itertools
+from collections import OrderedDict
 
+import numpy as np
+
+from monty.json import jsanitize
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
-from pymatgen.util.io_utils import clean_json
+
 
 logger = logging.getLogger('BSPlotter')
 
@@ -108,7 +106,7 @@ class DosPlotter(object):
             Dict of dos data. Generally of the form, {label: {'energies':..,
             'densities': {'up':...}, 'efermi':efermi}}
         """
-        return clean_json(self._doses)
+        return jsanitize(self._doses)
 
     def get_plot(self, xlim=None, ylim=None):
         """
@@ -119,13 +117,18 @@ class DosPlotter(object):
                 determination.
             ylim: Specifies the y-axis limits.
         """
+        import prettyplotlib as ppl
+        from prettyplotlib import brewer2mpl
         from pymatgen.util.plotting_utils import get_publication_quality_plot
-        plt = get_publication_quality_plot(12, 8)
-        color_order = ['r', 'b', 'g', 'c', 'm', 'k']
+        ncolors = max(3, len(self._doses))
+        ncolors = min(9, ncolors)
+        colors = brewer2mpl.get_map('Set1', 'qualitative', ncolors).mpl_colors
 
         y = None
         alldensities = []
         allenergies = []
+        plt = get_publication_quality_plot(12, 8)
+
         # Note that this complicated processing of energies is to allow for
         # stacked plots in matplotlib.
         for key, dos in self._doses.items():
@@ -162,21 +165,19 @@ class DosPlotter(object):
                         densities.reverse()
                     x.extend(energies)
                     y.extend(densities)
-            allpts.extend(zip(x, y))
+            allpts.extend(list(zip(x, y)))
             if self.stack:
-                plt.fill(x, y, color=color_order[i % len(color_order)],
+                plt.fill(x, y, color=colors[i % ncolors],
                          label=str(key))
             else:
-                plt.plot(x, y, color=color_order[i % len(color_order)],
+                ppl.plot(x, y, color=colors[i % ncolors],
                          label=str(key),linewidth=3)
             if not self.zero_at_efermi:
                 ylim = plt.ylim()
-                plt.plot([self._doses[key]['efermi'],
+                ppl.plot([self._doses[key]['efermi'],
                           self._doses[key]['efermi']], ylim,
-                         color_order[i % 4] + '--', linewidth=2)
+                          colors[i % ncolors] + '--', linewidth=2)
 
-        plt.xlabel('Energies (eV)')
-        plt.ylabel('Density of states')
         if xlim:
             plt.xlim(xlim)
         if ylim:
@@ -190,6 +191,9 @@ class DosPlotter(object):
         if self.zero_at_efermi:
             ylim = plt.ylim()
             plt.plot([0, 0], ylim, 'k--', linewidth=2)
+
+        plt.xlabel('Energies (eV)')
+        plt.ylabel('Density of states')
 
         plt.legend()
         leg = plt.gca().get_legend()
@@ -251,7 +255,7 @@ class BSPlotter(object):
         #Sanitize only plot the uniq values
         uniq_d = []
         uniq_l = []
-        temp_ticks = zip(ticks['distance'], ticks['label'])
+        temp_ticks = list(zip(ticks['distance'], ticks['label']))
         for i in range(len(temp_ticks)):
             if i == 0:
                 uniq_d.append(temp_ticks[i][0])
@@ -268,7 +272,7 @@ class BSPlotter(object):
                     uniq_d.append(temp_ticks[i][0])
                     uniq_l.append(temp_ticks[i][1])
 
-        logger.debug("Unique labels are {i}".format(i=zip(uniq_d, uniq_l)))
+        logger.debug("Unique labels are %s" % list(zip(uniq_d, uniq_l)))
         plt.gca().set_xticks(uniq_d)
         plt.gca().set_xticklabels(uniq_l)
 
@@ -400,7 +404,6 @@ class BSPlotter(object):
         plt = get_publication_quality_plot(12, 8)
         from matplotlib import rc
         import scipy.interpolate as scint
-
         rc('text', usetex=True)
 
         #main internal config options

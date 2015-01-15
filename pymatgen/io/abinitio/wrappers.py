@@ -24,19 +24,22 @@ __all__ = [
     "Mrgscr",
     "Mrggkk",
     "Mrgddb",
-    "Anaddb",
 ]
+
+
+class ExecError(Exception):
+    """Error class raised by :class`ExecWrapper`"""
 
 
 class ExecWrapper(object):
     """This class runs an executable in a subprocess."""
+    Error = ExecError
+
     def __init__(self, executable=None, verbose=0):
         """
         Args:
-            executable:
-                path to the executable.
-            verbose:
-                Verbosity level.
+            executable: path to the executable.
+            verbose: Verbosity level.
         """
         if executable is None:
             executable = self.name
@@ -46,8 +49,7 @@ class ExecWrapper(object):
         self.verbose = int(verbose)
 
         if self.executable is None:
-            msg = "Cannot find executable %s is PATH\n Use export PATH=/dir_with_exec:$PATH" % executable
-            raise self.Error(msg)
+            raise self.Error("Cannot find %s in $PATH\n Use export PATH=/dir_with_exec:$PATH" % executable)
 
         assert os.path.basename(self.executable) == self.name
 
@@ -70,13 +72,11 @@ class ExecWrapper(object):
         return self._name
 
     def execute(self, cwd=None):
-
         # Try to execute binary without and with mpirun.
         try:
-            self._execute(cwd=cwd, with_mpirun=False)
-
-        except self.Error:
             self._execute(cwd=cwd, with_mpirun=True)
+        except self.Error:
+            self._execute(cwd=cwd, with_mpirun=False)
 
     def _execute(self, cwd=None, with_mpirun=False):
         """
@@ -100,26 +100,19 @@ class ExecWrapper(object):
                 self.stdout_data = out.read()
                 self.stderr_data = err.read()
 
-            if self.verbose:
+            if self.verbose > 3:
                 print("*** stdout: ***\n", self.stdout_data)
                 print("*** stderr  ***\n", self.stderr_data)
 
             raise self.Error("%s returned %s\n cmd_str: %s" % (self, self.returncode, self.cmd_str))
 
 
-class MrgscrError(Exception):
-    """Error class for Mrgscr"""
-
-
 class Mrgscr(ExecWrapper):
     _name = "mrgscr"
-
-    Error = MrgscrError
 
     def merge_qpoints(self, files_to_merge, out_prefix, cwd=None):
         """
         Execute mrgscr in a subprocess to merge files_to_merge. Produce new file with prefix out_prefix
-
         If cwd is not None, the child's current directory will be changed to cwd before it is executed.
         """
         # We work with absolute paths.
@@ -156,38 +149,23 @@ class Mrgscr(ExecWrapper):
         with open(self.stdin_fname, "w") as fh:
             fh.writelines(self.stdin_data)
 
-        try:
-            self.execute(cwd=cwd)
-        except self.Error:
-            raise
-
-
-class MrggkkError(Exception):
-    """Error class for Mrggkk."""
+        self.execute(cwd=cwd)
 
 
 class Mrggkk(ExecWrapper):
     _name = "mrggkk"
-
-    Error = MrggkkError
 
     def merge(self, gswfk_file, dfpt_files, gkk_files, out_gkk, binascii=0, cwd=None):
         """
         Merge GGK files, return the absolute path of the new database.
 
         Args:
-            gswfk_file:
-                Ground-state WFK filename
-            dfpt_files:
-                List of 1WFK files to merge.
-            gkk_files:
-                List of GKK files to merge.
-            out_gkk:
-                Name of the output GKK file
-            binascii:
-                Integer flat. 0 --> binary output, 1 --> ascii formatted output
-            cwd:
-                Directory where the subprocess will be executed.
+            gswfk_file: Ground-state WFK filename
+            dfpt_files: List of 1WFK files to merge.
+            gkk_files: List of GKK files to merge.
+            out_gkk: Name of the output GKK file
+            binascii: Integer flat. 0 --> binary output, 1 --> ascii formatted output
+            cwd: Directory where the subprocess will be executed.
         """
         raise NotImplementedError("This method should be tested")
 
@@ -198,15 +176,12 @@ class Mrggkk(ExecWrapper):
         dfpt_files = [os.path.abspath(s) for s in list_strings(dfpt_files)]
         gkk_files = [os.path.abspath(s) for s in list_strings(gkk_files)]
 
+        print("Will merge %d 1WF files, %d GKK file in output %s" %
+              (len(dfpt_nfiles), len_gkk_files, out_gkk))
+
         if self.verbose:
-            print("Will merge %d 1WF files, %d GKK file in output %s" %
-                  (len(dfpt_nfiles), len_gkk_files, out_gkk))
-
-            for (i, f) in enumerate(dfpt_files):
-                print(" [%d] 1WF %s" % (i, f))
-
-            for (i, f) in enumerate(gkk_files):
-                print(" [%d] GKK %s" % (i, f))
+            for i, f in enumerate(dfpt_files): print(" [%d] 1WF %s" % (i, f))
+            for i, f in enumerate(gkk_files): print(" [%d] GKK %s" % (i, f))
 
         self.stdin_fname, self.stdout_fname, self.stderr_fname = (
             "mrggkk.stdin", "mrggkk.stdout", "mrggkk.stderr")
@@ -238,22 +213,13 @@ class Mrggkk(ExecWrapper):
         with open(self.stdin_fname, "w") as fh:
             fh.writelines(self.stdin_data)
 
-        try:
-            self.execute(cwd=cwd)
-        except self.Error:
-            raise
+        self.execute(cwd=cwd)
 
         return out_gkk
 
 
-class MrgddbError(Exception):
-    """Error class for Mrgddb."""
-
-
 class Mrgddb(ExecWrapper):
     _name = "mrgddb"
-
-    Error = MrgddbError
 
     def merge(self, ddb_files, out_ddb, description, cwd=None):
         """Merge DDB file, return the absolute path of the new database."""
@@ -262,9 +228,9 @@ class Mrgddb(ExecWrapper):
 
         out_ddb = out_ddb if cwd is None else os.path.join(os.path.abspath(cwd), out_ddb)
 
+        print("Will merge %d files into output DDB %s" % (len(ddb_files), out_ddb))
         if self.verbose:
-            print("Will merge %d files into output DDB %s" % (len(ddb_files), out_ddb))
-            for (i, f) in enumerate(ddb_files):
+            for i, f in enumerate(ddb_files):
                 print(" [%d] %s" % (i, f))
 
         # Handle the case of a single file since mrgddb uses 1 to denote GS files!
@@ -274,8 +240,7 @@ class Mrgddb(ExecWrapper):
                     out.write(line)
             return out_ddb
 
-        self.stdin_fname, self.stdout_fname, self.stderr_fname = (
-            "mrgddb.stdin", "mrgddb.stdout", "mrgddb.stderr")
+        self.stdin_fname, self.stdout_fname, self.stderr_fname = "mrgddb.stdin", "mrgddb.stdout", "mrgddb.stderr"
 
         if cwd is not None:
             self.stdin_fname, self.stdout_fname, self.stderr_fname = \
@@ -296,9 +261,6 @@ class Mrgddb(ExecWrapper):
         with open(self.stdin_fname, "w") as fh:
             fh.writelines(self.stdin_data)
 
-        try:
-            self.execute(cwd=cwd)
-        except self.Error:
-            raise
+        self.execute(cwd=cwd)
 
         return out_ddb

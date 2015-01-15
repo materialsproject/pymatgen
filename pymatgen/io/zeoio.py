@@ -31,7 +31,8 @@ try:
     from zeo.netstorage import AtomNetwork, VoronoiNetwork
     from zeo.area_volume import volume, surface_area
     from zeo.cluster import get_nearest_largest_diameter_highaccuracy_vornode,\
-            generate_simplified_highaccuracy_voronoi_network
+            generate_simplified_highaccuracy_voronoi_network, \
+            prune_voronoi_network_close_node
     zeo_found = True
 except ImportError:
     zeo_found = False
@@ -330,10 +331,11 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
 
         atmnet = AtomNetwork.read_from_CSSR(
                 zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
-        vornet, vor_edge_centers, vor_face_centers = \
-                atmnet.perform_voronoi_decomposition()
+        #vornet, vor_edge_centers, vor_face_centers = \
+        #        atmnet.perform_voronoi_decomposition()
         red_ha_vornet = \
-                generate_simplified_highaccuracy_voronoi_network(atmnet)
+                prune_voronoi_network_close_node(atmnet)
+                #generate_simplified_highaccuracy_voronoi_network(atmnet)
                 #get_nearest_largest_diameter_highaccuracy_vornode(atmnet)
         red_ha_vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
         voro_out_filename = name + '_voro.xyz'
@@ -352,27 +354,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         lattice, species, coords, coords_are_cartesian=True,
         to_unit_cell=True, site_properties={"voronoi_radius": prop})
 
-
-    #PMG-Zeo c<->a transformation for voronoi face centers
-    rot_edge_centers = [(center[1],center[2],center[0]) for center in
-                        vor_edge_centers]
-    species = ["X"] * len(rot_edge_centers)
-    # Voronoi radius not evaluated for fc. Fix in future versions
-    prop = [0.0] * len(rot_edge_centers)
-    vor_edgecenter_struct = Structure(
-        lattice, species, rot_edge_centers, coords_are_cartesian=True,
-        to_unit_cell=True, site_properties={"voronoi_radius": prop})
-
-    rot_face_centers = [(center[1],center[2],center[0]) for center in
-                        vor_face_centers]
-    species = ["X"] * len(rot_face_centers)
-    # Voronoi radius not evaluated for fc. Fix in future versions
-    prop = [0.0] * len(rot_face_centers)
-    vor_facecenter_struct = Structure(
-        lattice, species, rot_face_centers, coords_are_cartesian=True,
-        to_unit_cell=True, site_properties={"voronoi_radius": prop})
-
-    return vor_node_struct, vor_edgecenter_struct, vor_facecenter_struct
+    return vor_node_struct
 
 # Deprecated. Not needed anymore
 def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.3,

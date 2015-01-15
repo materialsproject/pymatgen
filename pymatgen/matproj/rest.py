@@ -771,34 +771,39 @@ class MPRester(object):
         """
         toks = criteria_string.split()
 
+        def parse_sym(sym):
+            if sym == "*":
+                return ALL_ELEMENT_SYMBOLS
+            else:
+                m = re.match("\{(.*)\}", sym)
+                if m:
+                    return [s.strip() for s in m.group(1).split(",")]
+                else:
+                    return [sym]
+
         def parse_tok(t):
             if re.match("\w+-\d+", t):
                 return {"task_id": t}
             elif "-" in t:
-                elements = t.split("-")
-                elements = [[Element(el).symbol] if el != "*" else
-                            ALL_ELEMENT_SYMBOLS for el in elements]
+                elements = [parse_sym(sym) for sym in t.split("-")]
                 chemsyss = []
                 for cs in itertools.product(*elements):
                     if len(set(cs)) == len(cs):
-                        chemsyss.append("-".join(sorted(set(cs))))
+                        # Check for valid symbols
+                        cs = [Element(s).symbol for s in cs]
+                        chemsyss.append("-".join(sorted(cs)))
                 return {"chemsys": {"$in": chemsyss}}
             else:
                 all_formulas = set()
-                syms = re.findall("[A-Z][a-z]*", t)
-                to_permute = ALL_ELEMENT_SYMBOLS.difference(syms)
-                parts = t.split("*")
-                for syms in itertools.permutations(to_permute,
-                                                   len(parts) - 1):
-                    f = []
-                    for p in zip(parts, syms):
-                        f.extend(p)
-                    f.append(parts[-1])
-                    c = Composition("".join(f))
-                    #Check for valid Elements in keys.
-                    for e in c.keys():
-                        Element(e.symbol)
-                    all_formulas.add(c.reduced_formula)
+                parts = re.split(r"(\*|\{.*\})", t)
+                parts = [parse_sym(s) for s in parts]
+                for f in itertools.product(*parts):
+                    if len(set(f)) == len(f):
+                        c = Composition("".join(f))
+                        #Check for valid Elements in keys.
+                        for e in c.keys():
+                            Element(e.symbol)
+                        all_formulas.add(c.reduced_formula)
                 return {"pretty_formula": {"$in": list(all_formulas)}}
 
         if len(toks) == 1:
@@ -847,3 +852,4 @@ class MPDecoder(MontyDecoder):
             return {self.process_decoded(k): self.process_decoded(v)
                     for k, v in d.items()}
         return MontyDecoder.process_decoded(self, d)
+
