@@ -28,6 +28,7 @@ from pyhull.voronoi import VoronoiTess
 
 from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.util.num_utils import abs_cap
+from pymatgen.core.units import ArrayWithUnit
 
 
 class Lattice(PMGSONable):
@@ -69,6 +70,48 @@ class Lattice(PMGSONable):
         # The inverse matrix is lazily generated for efficiency.
         self._inv_matrix = None
         self._metric_tensor = None
+
+    @classmethod
+    def from_abivars(cls, *args, **kwargs):
+        """
+        Returns a new instance from a dictionary with the variables 
+        used in ABINIT to define the unit cell.
+        """
+        kwargs.update(dict(*args))
+        d = kwargs
+        rprim = d.get("rprim", None)
+        angdeg = d.get("angdeg", None)
+        acell = d["acell"]
+
+        # Call pymatgen constructors (note that pymatgen uses Angstrom instead of Bohr).
+        if rprim is not None:
+            assert angdeg is None
+            rprim = np.reshape(rprim, (3,3))
+            rprimd = [float(acell[i]) * rprim[i] for i in range(3)]
+            return cls(ArrayWithUnit(rprimd, "bohr").to("ang"))
+
+        elif angdeg is not None:
+            # angdeg(0) is the angle between the 2nd and 3rd vectors,
+            # angdeg(1) is the angle between the 1st and 3rd vectors,
+            # angdeg(2) is the angle between the 1st and 2nd vectors,
+            raise NotImplementedError("angdeg convention should be tested")
+            angles = angdeg
+            angles[1] = -angles[1]
+            l = ArrayWithUnit(acell, "bohr").to("ang")
+            return cls.from_lengths_and_angles(l, angdeg)
+
+        else:
+            raise ValueError("Don't know how to construct a Lattice from dict: %s" % str(d))
+
+    #def to_abivars(self, **kwargs):
+    #    # Should we use (rprim, acell) or (angdeg, acell) to specify the lattice?
+    #    geomode = kwargs.pop("geomode", "rprim")
+    #    if geomode == "rprim":
+    #        return dict(acell=3 * [1.0], rprim=rprim))
+    #    elif geomode == "angdeg":
+    #        return dict(acell=3 * [1.0], angdeg=angdeg))
+    #    else:
+    #        raise ValueError("Wrong value for geomode: %s" % geomode)
 
     def copy(self):
         """Deep copy of self."""
@@ -455,9 +498,12 @@ class Lattice(PMGSONable):
 
         gammas = get_angles(c_cand[0], c_cand[1], lengths[0], lengths[1])
         for i, j in np.argwhere(np.abs(gammas - gamma) < atol):
-            alphas = get_angles(c_cand[1][j], c_cand[2], lengths[1][j], lengths[2])[0]
-            betas = get_angles(c_cand[0][i], c_cand[2], lengths[0][i], lengths[2])[0]
-            inds = np.logical_and(np.abs(alphas - alpha) < atol, np.abs(betas - beta) < atol)
+            alphas = get_angles(c_cand[1][j], c_cand[2], lengths[1][j],
+                                lengths[2])[0]
+            betas = get_angles(c_cand[0][i], c_cand[2], lengths[0][i],
+                               lengths[2])[0]
+            inds = np.logical_and(np.abs(alphas - alpha) < atol,
+                                  np.abs(betas - beta) < atol)
 
             for c, f in zip(c_cand[2][inds], f_cand[2][inds]):
                 aligned_m = np.array([c_cand[0][i], c_cand[1][j], c])
@@ -804,7 +850,8 @@ class Lattice(PMGSONable):
     def get_points_in_sphere(self, frac_points, center, r):
         """
         Find all points within a sphere from the point taking into account
-        periodic boundary conditions. This includes sites in other periodic images.
+        periodic boundary conditions. This includes sites in other periodic
+        images.
 
         Algorithm:
 
@@ -928,6 +975,40 @@ class Lattice(PMGSONable):
                 and abs(lengths[right_angles[0]] -
                         lengths[right_angles[1]]) < hex_length_tol)
 
+    def get_all_distance_and_image(self, frac_coords1, frac_coords2):
+        """
+        Gets distance between two frac_coords and nearest periodic images.
+
+        Args:
+            fcoords1 (3x1 array): Reference fcoords to get distance from.
+            fcoords2 (3x1 array): fcoords to get distance from.
+
+        Returns:
+            [(distance, jimage)] List of distance and periodic lattice
+            translations of the other site for which the distance applies.
+            This means that the distance between frac_coords1 and (jimage +
+            frac_coords2) is equal to distance.
+        """
+        #The following code is heavily vectorized to maximize speed.
+        #Get the image adjustment necessary to bring coords to unit_cell.
+        adj1 = np.floor(frac_coords1)
+        adj2 = np.floor(frac_coords2)
+        #Shift coords to unitcell
+        coord1 = frac_coords1 - adj1
+        coord2 = frac_coords2 - adj2
+        # Generate set of images required for testing.
+        # This is a cheat to create an 8x3 array of all length 3
+        # combinations of 0,1
+        test_set = np.unpackbits(np.array([5, 57, 119],
+                                          dtype=np.uint8)).reshape(8, 3)
+        images = np.copysign(test_set, coord1 - coord2)
+        # Create tiled cartesian coords for computing distances.
+        vec = np.tile(coord2 - coord1, (8, 1)) + images
+        vec = self.get_cartesian_coords(vec)
+        # Compute distances manually.
+        dist = np.sqrt(np.sum(vec ** 2, 1)).tolist()
+        return list(zip(dist, adj1 - adj2 + images))
+
     def get_distance_and_image(self, frac_coords1, frac_coords2, jimage=None):
         """
         Gets distance between two frac_coords assuming periodic boundary
@@ -953,29 +1034,8 @@ class Lattice(PMGSONable):
             equal to distance.
         """
         if jimage is None:
-            #The following code is heavily vectorized to maximize speed.
-            #Get the image adjustment necessary to bring coords to unit_cell.
-            adj1 = np.floor(frac_coords1)
-            adj2 = np.floor(frac_coords2)
-            #Shift coords to unitcell
-            coord1 = frac_coords1 - adj1
-            coord2 = frac_coords2 - adj2
-            # Generate set of images required for testing.
-            # This is a cheat to create an 8x3 array of all length 3
-            # combinations of 0,1
-            test_set = np.unpackbits(np.array([5, 57, 119],
-                                              dtype=np.uint8)).reshape(8, 3)
-            images = np.copysign(test_set, coord1 - coord2)
-            # Create tiled cartesian coords for computing distances.
-            vec = np.tile(coord2 - coord1, (8, 1)) + images
-            vec = self.get_cartesian_coords(vec)
-            # Compute distances manually.
-            dist = np.sqrt(np.sum(vec ** 2, 1)).tolist()
-            # Return the minimum distance and the adjusted image corresponding
-            # to the min distance.
-            mindist = min(dist)
-            ind = dist.index(mindist)
-            return mindist, adj1 - adj2 + images[ind]
+            r = self.get_all_distance_and_image(frac_coords1, frac_coords2)
+            return min(r, key=lambda x: x[0])
 
         mapped_vec = self.get_cartesian_coords(jimage + frac_coords2
                                                - frac_coords1)

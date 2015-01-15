@@ -273,15 +273,28 @@ class EnumerateStructureTransformation(AbstractTransformation):
             If you are already starting from an experimental cif, refinment
             should have already been done and it is not necessary. Defaults
             to False.
+        enum_precision_parameter (float): Finite precision parameter for
+            enumlib. Default of 0.001 is usually ok, but you might need to
+            tweak it for certain cells.
+        check_ordered_symmetry (bool): Whether to check the symmetry of
+            the ordered sites. If the symmetry of the ordered sites is
+            lower, the lowest symmetry ordered sites is included in the
+            enumeration. This is important if the ordered sites break
+            symmetry in a way that is important getting possible
+            structures. But sometimes including ordered sites
+            slows down enumeration to the point that it cannot be
+            completed. Switch to False in those cases. Defaults to True.
     """
 
     def __init__(self, min_cell_size=1, max_cell_size=1, symm_prec=0.1,
-                 refine_structure=False):
-
+                 refine_structure=False, enum_precision_parameter=0.001,
+                 check_ordered_symmetry=True):
         self.symm_prec = symm_prec
         self.min_cell_size = min_cell_size
         self.max_cell_size = max_cell_size
         self.refine_structure = refine_structure
+        self.enum_precision_parameter = enum_precision_parameter
+        self.check_ordered_symmetry = check_ordered_symmetry
 
     def apply_transformation(self, structure, return_ranked_list=False):
         """
@@ -317,16 +330,17 @@ class EnumerateStructureTransformation(AbstractTransformation):
             finder = SpacegroupAnalyzer(structure, self.symm_prec)
             structure = finder.get_refined_structure()
 
-        contains_oxidation_state = False
-        for sp in structure.composition.elements:
-            if hasattr(sp, "oxi_state") and sp.oxi_state != 0:
-                contains_oxidation_state = True
-                break
+        contains_oxidation_state = all(
+            [hasattr(sp, "oxi_state") and sp.oxi_state != 0 for sp in
+             structure.composition.elements]
+        )
 
-        adaptor = EnumlibAdaptor(structure, min_cell_size=self.min_cell_size,
-                                 max_cell_size=self.max_cell_size,
-                                 symm_prec=self.symm_prec,
-                                 refine_structure=False)
+        adaptor = EnumlibAdaptor(
+            structure, min_cell_size=self.min_cell_size,
+            max_cell_size=self.max_cell_size,
+            symm_prec=self.symm_prec, refine_structure=False,
+            enum_precision_parameter=self.enum_precision_parameter,
+            check_ordered_symmetry=self.check_ordered_symmetry)
         adaptor.run()
         structures = adaptor.structures
         original_latt = structure.lattice
@@ -379,10 +393,13 @@ class EnumerateStructureTransformation(AbstractTransformation):
 
     def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"symm_prec": self.symm_prec,
-                              "min_cell_size": self.min_cell_size,
-                              "max_cell_size": self.max_cell_size,
-                              "refine_structure": self.refine_structure},
+                "init_args": {
+                    "symm_prec": self.symm_prec,
+                    "min_cell_size": self.min_cell_size,
+                    "max_cell_size": self.max_cell_size,
+                    "refine_structure": self.refine_structure,
+                    "enum_precision_parameter": self.enum_precision_parameter,
+                    "check_ordered_symmetry": self.check_ordered_symmetry},
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 

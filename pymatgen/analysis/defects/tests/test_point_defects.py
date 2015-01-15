@@ -391,6 +391,9 @@ class InterstitialHighAccuracyTest(unittest.TestCase):
             self.assertTrue(rad, float)
 
 
+"""
+Some of the tests are nearly useless. Better tests are needed
+"""
 @unittest.skipIf(not (gulp_present and zeo), "gulp or zeo not present.")
 class InterstitialAnalyzerTest(unittest.TestCase):
     def setUp(self):
@@ -412,7 +415,7 @@ class InterstitialAnalyzerTest(unittest.TestCase):
             ife = self.mgo_ia.get_energy(i, True)
             site_coords = self.mgo_inter.get_defectsite(i).coords
             site_radius = self.mgo_inter.get_radius(i)
-            print(i, site_coords, site_radius, ife)
+            #print(i, site_coords, site_radius, ife)
             self.assertIsInstance(ife, float)
 
     def test_get_norelaxedenergy(self):
@@ -426,23 +429,23 @@ class InterstitialAnalyzerTest(unittest.TestCase):
     def test_get_percentage_volume_change(self):
         for i in range(self.mgo_inter.defectsite_count()):
             del_vol = self.mgo_ia.get_percentage_volume_change(i)
-            print(i, del_vol)
+            #print(i, del_vol)
 
     def test_get_percentage_lattice_parameter_change(self):
         for i in range(self.mgo_inter.defectsite_count()):
             del_lat = self.mgo_ia.get_percentage_lattice_parameter_change(i)
-            print(i, del_lat)
+            #print(i, del_lat)
 
     def test_get_percentage_bond_distance_change(self):
         for i in range(self.mgo_inter.defectsite_count()):
             del_bd = self.mgo_ia.get_percentage_bond_distance_change(i)
-            print(i, del_bd)
+            #print(i, del_bd)
 
     def test_relaxed_structure_match(self):
         for i in range(self.mgo_inter.defectsite_count()):
             for j in range(self.mgo_inter.defectsite_count()):
                 match = self.mgo_ia.relaxed_structure_match(i, j)
-                print(i, j, match)
+                #print(i, j, match)
                 if i == j:
                     self.assertTrue(match)
 

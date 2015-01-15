@@ -1,8 +1,10 @@
 Change log
 ==========
 
-v3.0.6
+v3.0.9
 ------
-* Cost analysis module (Anubhav Jain)
-* More Py3k fixes.
-* Extensive abinitio updates (Matteo).
+* Major bug fixes for CIF parsing (Will Richards).
+* Support for {Li,Na} syntax in parse_criteria for MPRester.
+* Additional example notebook for ordering and enumeration. 
+* More robust checking for oxidation states in EnumerateStructureTRansformation.
+* Improvements to Slab polarity checking.

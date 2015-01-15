@@ -10,17 +10,19 @@ import os
 import abc
 import collections
 import json
-import warnings
 import six
+import pprint
 import numpy as np
 
+from collections import OrderedDict
 from monty.string import list_strings, is_string
 from monty.itertools import iterator_from_slice
 from monty.io import FileLock
-# TODO: Use Namespace (requires new monty release)
-from monty.collections import AttrDict, Namespace #NotOverwritableDict
-#Namespace = NotOverwritableDict
-from pymatgen.core.periodic_table import PeriodicTable #, Element
+from monty.collections import AttrDict, Namespace
+from monty.functools import lazy_property
+from pymatgen.util.plotting_utils import add_fig_kwargs
+from pymatgen.core.periodic_table import PeriodicTable
+from .eos import EOS
 
 
 __all__ = [
@@ -36,6 +38,7 @@ __maintainer__ = "Matteo Giantomassi"
 _PTABLE = PeriodicTable()
 
 # Tools and helper functions.
+
 
 def straceback():
     """Returns a string with the traceback."""
@@ -86,20 +89,6 @@ def str2l(s):
     return _str2l[s]
 
 
-def read_dojo_report(filename):
-    """Helper function to read the DOJO_REPORT from file."""
-    with open(filename, "r") as fh:
-        lines = fh.readlines()
-        try:
-            start = lines.index("<DOJO_REPORT>\n")
-        except ValueError:
-            return {}
-
-        stop = lines.index("</DOJO_REPORT>\n")
-        d = json.loads("".join(lines[start+1:stop]))
-        return d
-
-
 class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract base class defining the methods that must be 
@@ -114,27 +103,36 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
             * Pseudo object.
             * string defining a valid path.
         """
-        if isinstance(obj, cls):
-            return obj
-        else:
-            return cls.from_file(obj)
+        return obj if isinstance(obj, cls) else cls.from_file(obj)
+
+    #@classmethod
+    #def from_dict(cls, d):
+    #    return cls
 
     @staticmethod
     def from_file(filename):
         """
-        Return a pseudopotential object from filename.
+        Return a Pseudo object from filename.
         Note: the parser knows the concrete class that should be instanciated
         """
         return PseudoParser().parse(filename)
 
+    #def __eq__(self, other):
+    #    if not isinstance(other, Pseudo): return False
+    #    return (self.__class__ == other.__class__ and 
+    #            self.text == other.text)
+
+    #def __ne__(self, other):
+    #    return not self.__eq__(other)
+
     def __repr__(self):
-        return "<%s at %s, name = %s>" % (self.__class__.__name__, id(self), self.name)
+        return "<%s at %s, name = %s>" % (self.__class__.__name__, id(self), self.basename)
 
     def __str__(self):
         """String representation."""
         lines = []
         app = lines.append
-        app("<%s: %s>" % (self.__class__.__name__, self.name))
+        app("<%s: %s>" % (self.__class__.__name__, self.basename))
         app("  summary: " + self.summary.strip())
         app("  number of valence electrons: %s" % self.Z_val)
         #FIXME: rewrite the treatment of xc, use XML specs as starting point
@@ -145,9 +143,12 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
             app("  radius for non-linear core correction: %s" % self.nlcc_radius)
         app("")
 
-        hint_normal = self.hint_for_accuracy()
-        if hint_normal is not None:
-            app("  hint for normal accuracy: %s" % str(hint_normal))
+        if self.has_hints:
+            hint_normal = self.hint_for_accuracy()
+            if hint_normal is not None:
+                app("  hint for normal accuracy: %s" % str(hint_normal))
+        else:
+                app("  hints on cutoff-energy are not available")
 
         return "\n".join(lines)
 
@@ -160,7 +161,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
         return os.path.abspath(self.path)
 
     @property
-    def name(self):
+    def basename(self):
         """File basename."""
         return os.path.basename(self.filepath)
 
@@ -178,8 +179,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
 
     @property
     def element(self):
-        """Pymatgen `Element`."""
-        #return Element.from_Z(self.Z)
+        """Pymatgen :class:`Element`."""
         try:
             return _PTABLE[self.Z]
         except (KeyError, IndexError):
@@ -233,15 +233,29 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
     #def generation_mode
     #    """scalar scalar-relativistic, relativistic."""
 
+    def as_dict(self, **kwargs):
+        return dict(
+            basename=self.basename,
+            type=self.type,
+            symbol=self.symbol,
+            Z=self.Z,
+            Z_val=self.Z_val,
+            l_max=self.l_max,
+            #nlcc_radius=self.nlcc_radius,
+            #md5=self.md5,
+            #xc_type=
+            #pp_type=
+        )
+
     @property
     def has_dojo_report(self):
-        """True if self contains the DOJO_REPORT section."""
+        """True if self contains the `DOJO_REPORT` section."""
         return bool(self.dojo_report)
 
     def delta_factor(self, accuracy="normal"):
         """
         Returns the deltafactor [meV/natom] computed with the given accuracy.
-        None if self does not have info on the deltafactor.
+        None if the `Pseudo` does not have info on the deltafactor.
         """
         if not self.has_dojo_report:
             return None
@@ -252,20 +266,21 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
 
     def read_dojo_report(self):
         """
-        Read the DOJO_REPORT section and set dojo_report attribute. 
+        Read the `DOJO_REPORT` section and set dojo_report attribute.
         returns {} if section is not present.
         """ 
-        self.dojo_report = read_dojo_report(self.path)
+        self.dojo_report = DojoReport.from_file(self.path)
         return self.dojo_report
 
     def write_dojo_report(self, report=None):
-        """Write a new DOJO_REPORT section to the pseudopotential file."""
+        """Write a new `DOJO_REPORT` section to the pseudopotential file."""
         if report is None:
             report = self.dojo_report
 
+        report["symbol"] = self.symbol
+
         # Create JSON string from report.
         jstring = json.dumps(report, indent=4, sort_keys=True) + "\n"
-        #jstring = json.dumps(report, sort_keys=True) + "\n"
 
         # Read lines from file and insert jstring between the tags.
         with open(self.path, "r") as fh:
@@ -289,7 +304,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
                 fh.writelines(lines)
 
     def remove_dojo_report(self):
-        """Remove the DOJO_REPORT section from the pseudopotential file."""
+        """Remove the `DOJO_REPORT` section from the pseudopotential file."""
         # Read lines from file and insert jstring between the tags.
         with open(self.path, "r") as fh:
             lines = fh.readlines()
@@ -298,12 +313,10 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
             except ValueError:
                 start = -1
 
-            if start == -1:
-                return
+            if start == -1: return
 
             stop = lines.index("</DOJO_REPORT>\n")
-            if stop == -1:
-                return
+            if stop == -1: return
 
             del lines[start+1:stop]
 
@@ -332,6 +345,18 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
             if self.hint_for_accuracy(acc) is None:
                 return False
         return True
+
+    #@lazy_property
+    #def md5(self):
+    #    """Md5 hash value."""
+    #    with open(self.path, "r") as fh:
+    #        lines = fh.readlines()
+    #        start = lines.index("<DOJO_REPORT>\n")
+    #        stop = lines.index("</DOJO_REPORT>\n")
+    #        text = "".join(lines[:start])
+    #    
+    #        import hashlib
+    #        return hashlib.md5(text)
 
 
 class NcPseudo(six.with_metaclass(abc.ABCMeta, object)):
@@ -397,10 +422,8 @@ class AbinitPseudo(Pseudo):
     def __init__(self, path, header):
         """
         Args:
-            path:
-                Filename.
-            header:
-                `AbinitHeader` instance.
+            path: Filename.
+            header: :class:`AbinitHeader` instance.
         """
         self.path = path
         self._summary = header.summary
@@ -441,9 +464,7 @@ class AbinitPseudo(Pseudo):
 
 
 class NcAbinitPseudo(NcPseudo, AbinitPseudo):
-    """
-    Norm-conserving pseudopotential in the Abinit format.
-    """
+    """Norm-conserving pseudopotential in the Abinit format."""
     @property
     def summary(self):
         return self._summary.strip()
@@ -538,7 +559,6 @@ def _dict_from_lines(lines, key_nums, sep=None):
 
         if len(values) != len(keys):
             msg = "line: %s\n len(keys) != len(value)\nkeys: %s\n values:  %s" % (line, keys, values)
-            #warnings.warn(msg)
             raise ValueError(msg)
 
         kwargs.update(zip(keys, values))
@@ -576,9 +596,7 @@ def _int_from_str(string):
 
 
 class NcAbinitHeader(AbinitHeader):
-    """
-    The abinit header found in the NC pseudopotential files.
-    """
+    """The abinit header found in the NC pseudopotential files."""
     _attr_desc = collections.namedtuple("att", "default astype")
 
     _VARS = {
@@ -649,7 +667,7 @@ class NcAbinitHeader(AbinitHeader):
 
         summary = lines[0]
 
-        header["dojo_report"] = read_dojo_report(filename)
+        header["dojo_report"] = DojoReport.from_file(filename)
 
         return NcAbinitHeader(summary, **header)
 
@@ -665,7 +683,27 @@ class NcAbinitHeader(AbinitHeader):
         header = _dict_from_lines(lines[:3], [0, 3, 6])
         summary = lines[0]
 
-        header["dojo_report"] = read_dojo_report(filename)
+        header["dojo_report"] = DojoReport.from_file(filename)
+
+        return NcAbinitHeader(summary, **header)
+
+    @staticmethod
+    def gth_header(filename, ppdesc):
+        """Parse the GTH abinit header."""
+        # Example:
+        #Goedecker-Teter-Hutter  Wed May  8 14:27:44 EDT 1996
+        #1   1   960508                     zatom,zion,pspdat
+        #2   1   0    0    2001    0.       pspcod,pspxc,lmax,lloc,mmax,r2well
+        #0.2000000 -4.0663326  0.6778322 0 0     rloc, c1, c2, c3, c4
+        #0 0 0                              rs, h1s, h2s
+        #0 0                                rp, h1p
+        #  1.36 .2   0.6                    rcutoff, rloc
+        lines = _read_nlines(filename, -1)
+
+        header = _dict_from_lines(lines[:3], [0, 3, 6])
+        summary = lines[0]
+
+        header["dojo_report"] = DojoReport.from_file(filename)
 
         return NcAbinitHeader(summary, **header)
 
@@ -690,7 +728,7 @@ class NcAbinitHeader(AbinitHeader):
         header.update({'pspdat': header['pspd']})
         header.pop('pspd')
 
-        header["dojo_report"] = read_dojo_report(filename)
+        header["dojo_report"] = DojoReport.from_file(filename)
 
         return NcAbinitHeader(summary, **header)
 
@@ -730,7 +768,7 @@ class NcAbinitHeader(AbinitHeader):
         # Parse the section with the projectors.
         #0   4.085   6.246    0   2.8786493        l,e99.0,e99.9,nproj,rcpsp
         #.00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
-        projectors = collections.OrderedDict()
+        projectors = OrderedDict()
         for idx in range(2*(lmax+1)):
             line = lines[idx]
             if idx % 2 == 0: proj_info = [line,]
@@ -745,15 +783,13 @@ class NcAbinitHeader(AbinitHeader):
 
         header = _dict_from_lines(header, [0,3,6,3])
 
-        header["dojo_report"] = read_dojo_report(filename)
+        header["dojo_report"] = DojoReport.from_file(filename)
 
         return NcAbinitHeader(summary, **header)
 
 
 class PawAbinitHeader(AbinitHeader):
-    """
-    The abinit header found in the PAW pseudopotential files.
-    """
+    """The abinit header found in the PAW pseudopotential files."""
     _attr_desc = collections.namedtuple("att", "default astype")
 
     _VARS = {
@@ -875,7 +911,7 @@ class PawAbinitHeader(AbinitHeader):
         #print lines[1]
         header.update(_dict_from_lines(lines[1], [2], sep=":"))
 
-        report = read_dojo_report(filename)
+        report = DojoReport.from_file(filename)
         if report:
             header["dojo_report"] = report
 
@@ -900,15 +936,16 @@ class PseudoParser(object):
     ppdesc = collections.namedtuple("ppdesc", "pspcod name psp_type format")
 
     # TODO Recheck
-    _PSPCODES = collections.OrderedDict( {
-        1 : ppdesc(1, "TM",  "NC", None),
-        3 : ppdesc(3, "HGH", "NC", None),
-        #4 : ppdesc(4, "NC",     , None),
-        #5 : ppdesc(5, "NC",     , None),
-        6 : ppdesc(6, "FHI", "NC", None),
-        7 : ppdesc(6, "PAW_abinit_text", "PAW", None),
-        8 : ppdesc(8, "ONCVPSP", "NC", None),
-       10 : ppdesc(10, "HGHK", "NC", None),
+    _PSPCODES = OrderedDict( {
+        1: ppdesc(1, "TM",  "NC", None),
+        2: ppdesc(2, "GTH",  "NC", None),
+        3: ppdesc(3, "HGH", "NC", None),
+        #4: ppdesc(4, "NC",     , None),
+        #5: ppdesc(5, "NC",     , None),
+        6: ppdesc(6, "FHI", "NC", None),
+        7: ppdesc(6, "PAW_abinit_text", "PAW", None),
+        8: ppdesc(8, "ONCVPSP", "NC", None),
+       10: ppdesc(10, "HGHK", "NC", None),
     })
     del ppdesc
     # renumber functionals from oncvpsp todo confrim that 3 is 2
@@ -929,14 +966,11 @@ class PseudoParser(object):
         Analyze the files contained in directory dirname.
 
         Args:
-            dirname:
-                directory path
-            exclude_exts:
-                list of file extensions that should be skipped.
-            exclude_fnames:
-                list of file names that should be skipped.
+            dirname: directory path
+            exclude_exts: list of file extensions that should be skipped.
+            exclude_fnames: list of file names that should be skipped.
 
-        returns: 
+        Returns:
             List of pseudopotential objects.
         """
         for (i, ext) in enumerate(exclude_exts):
@@ -1042,6 +1076,7 @@ class PseudoParser(object):
 
         parsers = {
             "FHI"            : NcAbinitHeader.fhi_header,
+            "GTH"            : NcAbinitHeader.gth_header,
             "TM"             : NcAbinitHeader.tm_header,
             "HGH"            : NcAbinitHeader.hgh_header,
             "HGHK"           : NcAbinitHeader.hgh_header,
@@ -1300,25 +1335,14 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
             return self._projector_functions
 
+    @add_fig_kwargs
     def plot_densities(self, **kwargs):
         """
         Plot the PAW densities.
 
-        ================  ==============================================================
-        kwargs            Meaning
-        ================  ==============================================================
-        title             Title of the plot (Default: "Densities").
-        show              True to show the figure (Default).
-        savefig           'abc.png' or 'abc.eps' to save the figure to a file.
-        ================  ==============================================================
-
         Returns:
             `matplotlib` figure
         """
-        title = kwargs.pop("title", "Densities")
-        show = kwargs.pop("show", True)
-        savefig = kwargs.pop("savefig", None)
-
         import matplotlib.pyplot as plt
 
         fig = plt.figure()
@@ -1335,36 +1359,16 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
         plt.legend(loc="best")
 
-        if title is not None:
-            fig.suptitle(title)
-
-        if show:
-            plt.show()
-
-        if savefig:
-            fig.savefig(savefig)
-
         return fig
 
+    @add_fig_kwargs
     def plot_waves(self, **kwargs):
         """
         Plot the AE and the pseudo partial waves.
 
-        ================  ==============================================================
-        kwargs            Meaning
-        ================  ==============================================================
-        title             Title of the plot (Default: "Partial Waves").
-        show              True to show the figure (Default).
-        savefig           'abc.png' or 'abc.eps' to save the figure to a file.
-        ================  ==============================================================
-
         Returns:
             `matplotlib` figure
         """
-        title = kwargs.pop("title", "Partial Waves")
-        show = kwargs.pop("show", True)
-        savefig = kwargs.pop("savefig", None)
-
         import matplotlib.pyplot as plt
 
         fig = plt.figure()
@@ -1385,35 +1389,17 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
         plt.legend(loc="best")
 
-        if title is not None:
-            fig.suptitle(title)
-
-        if show:
-            plt.show()
-
-        if savefig:
-            fig.savefig(savefig)
-
         return fig
 
+    @add_fig_kwargs
     def plot_projectors(self, **kwargs):
         """
         Plot the PAW projectors.
-
-        ================  ==============================================================
-        kwargs            Meaning
-        ================  ==============================================================
-        title             Title of the plot (Default: "Projectors").
-        show              True to show the figure (Default).
-        savefig           'abc.png' or 'abc.eps' to save the figure to a file.
-        ================  ==============================================================
 
         Returns:
             `matplotlib` figure
         """
         title = kwargs.pop("title", "Projectors")
-        show = kwargs.pop("show", True)
-        savefig = kwargs.pop("savefig", None)
 
         import matplotlib.pyplot as plt
 
@@ -1432,17 +1418,11 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
         plt.legend(loc="best")
 
-        if title is not None:
-            fig.suptitle(title)
-
-        if show:
-            plt.show()
-
-        if savefig:
-            fig.savefig(savefig)
+        if title is not None: fig.suptitle(title)
 
         return fig
 
+    #@add_fig_kwargs
     #def plot_potentials(self, **kwargs):
     #    """
     #        ================  ==============================================================
@@ -1476,14 +1456,9 @@ class PawXmlSetup(Pseudo, PawPseudo):
 
     #    plt.legend(loc="best")
 
-    #    if title is not None:
-    #        fig.suptitle(title)
-
-    #    if show:
-    #        plt.show()
-
-    #    if savefig:
-    #        fig.savefig(savefig)
+    #    if title is not None: fig.suptitle(title)
+    #    if show: plt.show()
+    #    if savefig: fig.savefig(savefig)
 
     #    return fig
 
@@ -1509,7 +1484,7 @@ class PseudoTable(collections.Sequence):
     @classmethod
     def as_table(cls, items):
         """
-        Return an instance of `PseudoTable` from the iterable items.
+        Return an instance of :class:`PseudoTable` from the iterable items.
         """ 
         if isinstance(items, cls): return items
         return cls(items)
@@ -1517,8 +1492,7 @@ class PseudoTable(collections.Sequence):
     def __init__(self, pseudos):
         """
         Args:
-            pseudos:
-                List of pseudopotentials or filepaths
+            pseudos: List of pseudopotentials or filepaths
         """
         # Store pseudos in a default dictionary with z as key.
         # Note that we can have more than one pseudo for given z.
@@ -1549,8 +1523,7 @@ class PseudoTable(collections.Sequence):
 
     def __getitem__(self, Z):
         """
-        Retrieve pseudos for the atomic number z.
-        Accepts both int and slice objects.
+        Retrieve pseudos for the atomic number z. Accepts both int and slice objects.
         """
         if isinstance(Z, slice):
             assert Z.stop is not None
@@ -1600,6 +1573,17 @@ class PseudoTable(collections.Sequence):
         zlist.sort()
         return zlist
 
+    def as_dict(self, **kwargs):
+        d = {}
+        for p in self:
+            k, count = p.name, 1
+            # Handle multiple-pseudos with the same name!
+            while k not in d:
+                k += k + "#" + str(count)
+                count += 1
+            d.update({k, p.as_dict()})
+        return d
+
     def is_complete(self, zmax=118):
         """
         True if table is complete i.e. all elements with Z < zmax
@@ -1609,22 +1593,35 @@ class PseudoTable(collections.Sequence):
             if not self[z]: return False
         return True
 
+    def pseudo_with_symbol(self, symbol):
+        """
+        Return the pseudo with the given chemical symbol.
+
+        Raises:
+            ValueError if symbol is not found or multiple occurences are present.
+        """
+        pseudos = self.pseudos_with_symbol(symbol)
+        if not pseudos or len(pseudos) > 1:
+            raise ValueError("Found %d occurrences of symbol %s" % (len(pseudos), symbol))
+
+        return pseudos[0]
+
     def pseudos_with_symbol(self, symbol):
         """
         Return the list of pseudopotentials in the table the with given symbol.
-        Return an empty list if no pseudo is avaiable
+        Return an empty list if no pseudo is found
         """
         try:
             return getattr(self, str(symbol))
         except AttributeError:
             return []
 
-    def pseudo_from_name(self, name):
-        """Return the pseudo in the table with the given name"""
-        for pseudo in self:
-            if pseudo.name == name:
-                return pseudo
-        return None
+    #def pseudo_from_name(self, name):
+    #    """Return the pseudo in the table with the given name, None if not found"""
+    #    for pseudo in self:
+    #        if pseudo.name == name:
+    #            return pseudo
+    #    return None
 
     def list_properties(self, *props, **kw):
         """
@@ -1701,8 +1698,11 @@ class PseudoTable(collections.Sequence):
             attrs.append((i, a))
 
         # Sort attrs, and build new table with sorted pseudos.
-        attrs = sorted(attrs, key=lambda t:t[1], reverse=reverse)
-        return PseudoTable([self[a[0]] for a in attrs])
+        return self.__class__([self[a[0]] for a in sorted(attrs, key=lambda t: t[1], reverse=reverse)])
+
+    def sort_by_z(self):
+        """Return a new :class:`PseudoTable` with pseudos sorted by Z"""
+        return self.__class__(sorted(self, key=lambda p: p.Z))
 
     def select(self, condition):
         """
@@ -1710,7 +1710,7 @@ class PseudoTable(collections.Sequence):
 
         Args:
             condition:
-                Function that accepts a `Pseudo` object and returns True or False.
+                Function that accepts a :class:`Pseudo` object and returns True or False.
         """
         return PseudoTable([p for p in self if condition(p)])
 
@@ -1718,3 +1718,368 @@ class PseudoTable(collections.Sequence):
         """Select pseudos containing the DOJO_REPORT section."""
         return self.select(condition=lambda p: p.has_dojo_report)
 
+    def get_dojo_dataframe(self, **kwargs):
+        """
+        Buid a pandas :class:`DataFrame` with the most important parameters extracted from the 
+        `DOJO_REPORT` section of each pseudo in the table.
+
+        Returns:
+            frame, errors
+
+            where frame is the pandas :class:`DataFrame` and errors is a list of errors
+            encountered while trying to read the `DOJO_REPORT` from the pseudopotential file.
+        """
+        accuracies = ["low", "normal", "high"]
+        df_keys = ["dfact_meV", "v0", "b0_GPa", "b1", "ecut"] #+ ["dfactprime_meV"]
+        gbrv_keys = ["a0_rel_err"]
+        #columns = ["symbol", "Z"] + [acc + "_" + k for k in df_keys for acc in accuracies]
+
+        #trial2keys = {
+        #    "deltafactor": ["dfact_meV", "v0", "b0_GPa", "b1", "ecut"] #+ ["dfactprime_meV"]
+        #    "gbrv_bcc": "a0_rel_err",
+        #    "gbrv_fcc": "a0_rel_err",
+        #}
+
+        rows, names, errors = [], [], []
+
+        for p in self:
+            report = p.dojo_report
+            d = {"symbol": p.symbol, "Z": p.Z}
+            df_entry = report.get("deltafactor", None)
+            gbrv_bcc = report.get("gbrv_bcc", None)
+            gbrv_fcc = report.get("gbrv_fcc", None)
+            try:
+                for acc in accuracies:
+                    d[acc + "_ecut"] = report["hints"][acc]["ecut"]
+
+                for acc in accuracies:
+                    # Get deltafactor results
+                    for k in df_keys:
+                        if k == "ecut": continue
+                        if df_entry is not None:
+                            d[acc + "_" + k] = float(df_entry[acc][k])
+                        else:
+                            d[acc + "_" + k] = None
+
+                    # Get GBRV results
+                    for k in gbrv_keys:
+                        if gbrv_bcc is not None:
+                            d[acc + "_bcc_" + k] = float(gbrv_bcc[acc][k])
+                        else:
+                            d[acc + "_bcc_" + k] = None
+                        if gbrv_fcc is not None:
+                            d[acc + "_fcc_" + k] = float(gbrv_fcc[acc][k])
+                        else:
+                            d[acc + "_fcc_" + k] = None
+
+                #print(d)
+                names.append(p.basename)
+                rows.append(d)
+
+            except Exception as exc:
+                print(p.basename, "exc", str(exc))
+                errors.append((p.basename, str(exc)))
+
+        #print(rows)
+        import pandas as pd
+        return pd.DataFrame(rows, index=names), errors
+
+
+class DojoReport(dict):
+    """Dict-like object with the dojo report."""
+
+    _TRIALS2KEY = {
+        "deltafactor": "dfact_meV",
+        "gbrv_bcc": "a0_rel_err",
+        "gbrv_fcc": "a0_rel_err",
+    }
+
+    ALL_ACCURACIES = ("low", "normal", "high")
+
+    ALL_TRIALS = (
+        "deltafactor",
+        "gbrv_bcc",
+        "gbrv_fcc",
+    )
+    # TODO Add: Symbol
+
+    @classmethod
+    def from_file(cls, filepath):
+        """Read the DojoReport from file."""
+        with open(filepath, "r") as fh:
+            lines = fh.readlines()
+            try:
+                start = lines.index("<DOJO_REPORT>\n")
+            except ValueError:
+                return {}
+
+            stop = lines.index("</DOJO_REPORT>\n")
+            d = json.loads("".join(lines[start+1:stop]))
+            return cls(**d)
+
+    def __init__(self, *args, **kwargs): 
+        super(DojoReport, self).__init__(*args, **kwargs)
+
+        for trial in self.ALL_TRIALS:
+            # Convert ecut to float and build an OrderedDict (results are indexed by ecut in ascending order)
+            try:
+                d = self[trial]
+            except KeyError:
+                continue
+            ecuts_keys = sorted([(float(k), k) for k in d], key=lambda t:t[0])
+            ord = OrderedDict([(t[0], d[t[1]]) for t in ecuts_keys])
+            self[trial] = ord
+
+    def __str__(self):
+        stream = six.moves.StringIO()
+        pprint.pprint(self, stream=stream, indent=2, width=80)
+        return stream.getvalue()
+
+    def has_exceptions(self):
+        problems = {}
+        for trial in self.ALL_TRIALS:
+            for accuracy in self.ALL_ACCURACIES:
+                excs = self[trial][accuracy].get("_exceptions", None)
+                if excs is not None:
+                    if trial not in problems: problems[trial] = {}
+
+                    problems[trial][accuracy] = excs
+
+        return problems
+
+    #@property
+    #def symbol(self)
+    #    """Chemical symbol."""
+    #    return self["symbol"]
+
+    @property
+    def has_hints(self):
+        """True if hints are present."""
+        return "hints" in self
+
+    @property
+    def trials(self):
+        """List of strings with the trials present in the report."""
+        return [k for k in self.keys() if k != "hints"]
+
+    def has_trial(self, dojo_trial, accuracy=None):
+        """
+        True if the dojo_report contains an entry for the given dojo_trial
+        """
+        return dojo_trial in self
+
+    def get_dataframe(self, **kwargs):
+        """
+        ===========  ===============  ===============   ===============
+        Trial             low              normal            high 
+        ===========  ===============  ===============   ===============
+        deltafactor  value (rel_err)  value (rel_err)   value (rel_err)
+        gbrv_fcc     ...              ...               ...
+        ===========  ===============  ===============   ===============
+        """
+        # Build the header
+        if kwargs.pop("with_hints", True):
+            ecut_acc = {acc: self["hints"][acc]["ecut"] for acc in self.ALL_ACCURACIES}
+            l = ["%s (%s Ha)" % (acc, ecut_acc[acc]) for acc in self.ALL_ACCURACIES]
+        else:
+            l = list(self.ALL_ACCURACIES)
+
+        rows = [["Trial"] + l]
+
+        for trial in self.ALL_TRIALS:
+            row = [trial]
+            for accuracy in self.ALL_ACCURACIES:
+                if not self.has_trial(trial, accuracy): 
+                    row.append("N/A")
+                else:
+                    d = self[trial][accuracy]
+                    value = d[self._TRIALS2KEY[trial]]
+                    s = "%.4f" % value
+                    row.append(s)
+
+            rows.append(row)
+
+        #import pandas as pd
+        #return pd.DataFrame(rows, index=names, columns=columns)
+        return rows
+
+    def print_table(self, stream=sys.stdout):
+        from monty.pprint import pprint_table
+        pprint_table(self.get_dataframe(), out=stream)
+
+    @add_fig_kwargs
+    def plot_etotal_vs_ecut(self, **kwargs):
+        """
+        plot the convergence of the total energy as function of the energy cutoff ecut
+
+        Returns:
+            `matplotlib` figure.
+        """
+        # Extract the total energy of the AE relaxed structure (4).
+        d = OrderedDict([(ecut, data["etotals"][4]) for ecut, data in self["deltafactor"].items()])
+
+        # Ecut mesh in Ha
+        ecuts = np.array(d.keys())
+        ecut_min, ecut_max = min(ecuts), max(ecuts)
+
+        # Energies per atom in meV and difference wrt 'converged' value
+        num_sites = [v["num_sites"] for v in self["deltafactor"].values()][0]
+        etotals_mev = np.array([d[e] for e in ecuts]) * 1000  / num_sites
+        ediffs = etotals_mev - etotals_mev[-1]
+
+        import matplotlib.pyplot as plt
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+
+        ax.yaxis.set_view_interval(-5, 5)
+
+        lines, legends = [], []
+        line, = ax.plot(ecuts[:-1], ediffs[:-1], "-->", linewidth=3.0, markersize=10)
+        lines.append(line)
+        #legends.append("aug_ratio = %s" % aratio)
+        #ax.legend(lines, legends, loc='best', shadow=True)
+
+        high_hint = self["ppgen_hints"]["high"]["ecut"]
+        #ax.vlines(high_hint, min(ediffs), max(ediffs))
+        ax.vlines(high_hint, 0.5, 1.5)
+        #ax.scatter([high_hint], [1.0], s=20) #, c='b', marker='o', cmap=None, norm=None)
+        #ax.arrow(high_hint, 1, 0, 0.2, head_width=0.05, head_length=0.1, fc='k', ec='k',head_starts_at_zero=False)
+
+        ax.hlines(5, ecut_min, ecut_max, label="5.0")
+        ax.hlines(1, ecut_min, ecut_max, label="1.0")
+        ax.hlines(0.5, ecut_min, ecut_max, label="0.2")
+
+        # Set xticks and labels.
+        ax.grid(True)
+        #ax.set_title("$\Delta$ Etotal vs Ecut")
+        ax.set_xlabel("Ecut [Ha]")
+        ax.set_xticks(ecuts)
+        ax.set_ylabel("$\Delta$ Etotal/natom [meV]")
+        ax.set_yscale("log")
+
+        return fig
+
+    @add_fig_kwargs
+    def plot_deltafactor_eos(self, **kwargs):
+        """
+        plot the EOS computed with the deltafactor setup.
+
+        Returns:
+            `matplotlib` figure.
+        """
+        import matplotlib.pyplot as plt
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+
+        trial = "deltafactor"
+        ecuts = self[trial].keys()
+        for ecut in ecuts:
+            d = self[trial][ecut]
+            num_sites, volumes, etotals = d["num_sites"], np.array(d["volumes"]), np.array(d["etotals"])
+
+            # Use same fit as the one employed for the deltafactor.
+            eos_fit = EOS.DeltaFactor().fit(volumes/num_sites, etotals/num_sites)
+            eos_fit.plot(ax=ax, text=False, show=False) #, color=dict(low="r", normal="g", high="b")[accuracy], 
+
+        return fig
+
+    @add_fig_kwargs
+    def plot_deltafactor_convergence(self, code="WIEN2k", **kwargs):
+        """
+        plot the convergence of the deltafactor parameters wrt ecut.
+
+        Returns:
+            `matplotlib` figure.
+        """
+        # get reference entry
+        from pseudo_dojo.refdata.deltafactor import df_database
+        ref = df_database().get_entry(symbol=self.symbol, code=code)
+
+        d = self["deltafactor"]
+        ecuts = d.keys()
+        keys = ["dfact_meV", "dfactprime_meV", "v0", "b0_GPa", "b1"]
+
+        import matplotlib.pyplot as plt
+        fig, ax_list = plt.subplots(nrows=len(keys), ncols=1, sharex=True, squeeze=False)
+        ax_list = ax_list.ravel()
+
+        for i, (ax, key) in enumerate(zip(ax_list, keys)):
+            values = np.array([float(d[ecut][key]) for ecut in ecuts])
+
+            ax.grid(True)
+            ax.set_ylabel("$\Delta$" + key)
+            #try:
+            refval = getattr(ref, key)
+            #except AttributeError:
+            #    refval = 0.0
+
+            # Plot difference pseudo - ref.
+            ax.plot(ecuts, values - refval, "bo-")
+            #ax.hlines(y=0.0, xmin=min(ecuts), xmax=max(ecuts), color="red")
+            if i == len(keys) - 1: ax.set_xlabel("Ecut [Ha]")
+
+        return fig
+
+    @add_fig_kwargs
+    def plot_gbrv_eos(self, struct_type, **kwargs):
+        """
+        Uses Matplotlib to plot the EOS computed with the GBRV setup
+
+        Returns:
+            `matplotlib` figure.
+        """
+        import matplotlib.pyplot as plt
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+
+        trial = "gbrv_" + struct_type
+        ecuts = self[trial].keys()
+
+        for ecut in ecuts:
+            d = self[trial][ecut]
+            volumes, etotals = np.array(d["volumes"]), np.array(d["etotals"])
+
+            eos_fit = EOS.Quadratic().fit(volumes, etotals)
+            eos_fit.plot(ax=ax, text=False, show=False) # color=dict(low="r", normal="g", high="b")[accuracy],
+
+        return fig
+
+    @add_fig_kwargs
+    def plot_gbrv_convergence(self, **kwargs):
+        """
+        Uses Matplotlib to plot the convergence of the GBRV parameters wrt ecut.
+
+        Returns:
+            `matplotlib` figure.
+        """
+        # get reference entry
+        #from pseudo_dojo.refdata.gbrv import gbrv_database
+        #db = gbrv_database()
+        #ref = dbgbrv.get_entry(symbol=self.symbol, "fcc")
+        #if fcc_ref is None
+        #if bcc_ref is None
+
+        import matplotlib.pyplot as plt
+        stypes = ("fcc", "bcc")
+        fig, ax_list = plt.subplots(nrows=len(stypes), ncols=1, sharex=True, squeeze=False)
+        ax_list = ax_list.ravel()
+
+        for i, (ax, stype) in enumerate(zip(ax_list, stypes)):
+            trial = "gbrv_" + stype
+            d = self[trial]
+            ecuts = d.keys()
+            values = np.array([float(d[ecut]["a0_rel_err"]) for ecut in ecuts])
+
+            ax.grid(True)
+            ax.set_ylabel("$\Delta$" + trial + "a0_rel_err")
+            #try:
+            #    refval = getattr(ref, key)
+            #except AttributeError:
+            #    refval = 0.0
+
+            # Plot difference pseudo - ref.
+            ax.plot(ecuts, values, "bo-")
+            #ax.hlines(y=0.0, xmin=min(ecuts), xmax=max(ecuts), color="red")
+            if i == len(ax_list) - 1: ax.set_xlabel("Ecut [Ha]")
+
+        return fig

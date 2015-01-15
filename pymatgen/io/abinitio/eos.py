@@ -4,9 +4,11 @@ from __future__ import unicode_literals, division, print_function
 
 import collections
 import numpy as np
-
-from pymatgen.core.units import FloatWithUnit
 import pymatgen.core.units as units
+
+from monty.functools import return_none_if_raise
+from pymatgen.core.units import FloatWithUnit
+from pymatgen.util.plotting_utils import add_fig_kwargs
 
 import logging
 logger = logging.getLogger(__file__)
@@ -314,20 +316,31 @@ class EOS_Fit(object):
     def b0_GPa(self):
         return FloatWithUnit(self.b0, "eV ang^-3").to("GPa")
 
+    @property
+    @return_none_if_raise(AttributeError)
+    def results(self):
+        """Dictionary with the results. None if results are not available"""
+        return dict(v0=self.v0, e0=self.e0, b0=self.b0, b1=self.b1)
+
+    @add_fig_kwargs
     def plot(self, ax=None, **kwargs):
         """
         Uses Matplotlib to plot the energy curve.
 
         Args:
-            ax:
-                Axis object. If ax is None, a new figure is produced.
-            show:
-                True to show the figure
-            savefig:
-                'abc.png' or 'abc.eps' to save the figure to a file.
+            ax: Axis object. If ax is None, a new figure is produced.
 
         Returns:
             Matplotlib figure.
+
+
+        ================  ==============================================================
+        kwargs            Meaning
+        ================  ==============================================================
+        style             
+        color
+        text
+        ================  ==============================================================
         """
         import matplotlib.pyplot as plt
 
@@ -346,7 +359,8 @@ class EOS_Fit(object):
         lines, legends = [], []
 
         # Plot input data.
-        line, = ax.plot(self.volumes, self.energies, "ro")
+        color = kwargs.pop("color", "r")
+        line, = ax.plot(self.volumes, self.energies, color + "o")
         lines.append(line)
         legends.append("Input Data")
 
@@ -355,31 +369,26 @@ class EOS_Fit(object):
 
         if self.eos_name == "deltafactor":
             xx = vfit**(-2./3.)
-            line, = ax.plot(vfit, np.polyval(self.eos_params, xx), "b-")
+            line, = ax.plot(vfit, np.polyval(self.eos_params, xx), color + "-")
         else:
-            line, = ax.plot(vfit, self.func(vfit, *self.eos_params), "b-")
+            line, = ax.plot(vfit, self.func(vfit, *self.eos_params), color + "-")
 
         lines.append(line)
-        legends.append(self.name + ' fit')
+        legend = kwargs.pop("legend", self.name + ' fit')
+        legends.append(legend)
 
         # Set xticks and labels.
         ax.grid(True)
         ax.set_xlabel("Volume $\AA^3$")
         ax.set_ylabel("Energy (eV)")
-        ax.legend(lines, legends, 'upper right', shadow=True)
+        ax.legend(lines, legends, loc='best', shadow=True)
 
         # Add text with fit parameters.
-        text = []; app = text.append
-        app("Min Volume = %1.2f $\AA^3$" % self.v0)
-        app("Bulk modulus = %1.2f eV/$\AA^3$ = %1.2f GPa" % (self.b0, self.b0_GPa))
-        app("B1 = %1.2f" % self.b1)
-        fig.text(0.4, 0.5, "\n".join(text), transform=ax.transAxes)
-
-        if kwargs.pop("show", True):
-            plt.show()
-
-        savefig = kwargs.pop("savefig", None)
-        if savefig is not None:
-            fig.savefig(savefig)
+        if kwargs.pop("text", True):
+            text = []; app = text.append
+            app("Min Volume = %1.2f $\AA^3$" % self.v0)
+            app("Bulk modulus = %1.2f eV/$\AA^3$ = %1.2f GPa" % (self.b0, self.b0_GPa))
+            app("B1 = %1.2f" % self.b1)
+            fig.text(0.4, 0.5, "\n".join(text), transform=ax.transAxes)
 
         return fig

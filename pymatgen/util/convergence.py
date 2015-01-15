@@ -403,14 +403,14 @@ def print_plot_line(function, popt, xs, ys, name, tol=0.05, extra=''):
         print(function, ' no plot ')
 
     with open('plot-fits', mode='a') as f:
-        f.write('pause -1 \n')
         f.write('set title "' + name + ' - ' + extra + '"\n')
         f.write("set output '" + name + '-' + idp + ".gif'" + '\n')
         f.write("set yrange [" + str(popt[0] - 5 * tol) + ':' + str(popt[0] + 5 * tol)+']\n')
         f.write(line + '\n')
+        f.write('pause -1 \n')
 
 
-def test_conv(xs, ys, name, tol=0.0001, extra='', verbose=False, mode='extra'):
+def determine_convergence(xs, ys, name, tol=0.0001, extra='', verbose=False, mode='extra', plots=True):
     """
     test it and at which x_value dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists.
     """
@@ -434,16 +434,17 @@ def test_conv(xs, ys, name, tol=0.0001, extra='', verbose=False, mode='extra'):
                 if func[1] > abs(tol):
                     print('warning function ', func[0], ' as the best fit but not a good fit: ', func[1])
                 # todo print this to file via a method in helper, as dict
-                with open(name+'.fitdat', mode='a') as f:
-                    f.write('{')
-                    f.write('"popt": ' + str(popt) + ', ')
-                    f.write('"pcov": ' + str(pcov) + ', ')
-                    f.write('"data": [')
-                    for n in range(0, len(ys), 1):
-                        f.write('[' + str(xs[n]) + ' ' + str(ys[n]) + ']')
-                    f.write(']}\n')
+                if plots:
+                    with open(name+'.fitdat', mode='a') as f:
+                        f.write('{')
+                        f.write('"popt": ' + str(popt) + ', ')
+                        f.write('"pcov": ' + str(pcov) + ', ')
+                        f.write('"data": [')
+                        for n in range(0, len(ys), 1):
+                            f.write('[' + str(xs[n]) + ' ' + str(ys[n]) + ']')
+                        f.write(']}\n')
 
-                print_plot_line(func[0], popt, xs, ys, name, tol=tol, extra=extra)
+                    print_plot_line(func[0], popt, xs, ys, name, tol=tol, extra=extra)
 
         except ImportError:
             popt, pcov = None, None
