@@ -289,19 +289,24 @@ class MPRester(object):
         data = self.get_data(material_id, prop=prop)
         return data[0][prop]
 
-    def get_entry_by_material_id(self, material_id):
+    def get_entry_by_material_id(self, material_id, compatible=True):
         """
         Get a ComputedEntry corresponding to a material_id.
 
         Args:
             material_id (str): Materials Project material_id (a string,
                 e.g., mp-1234).
+            compatible (bool): Whether to process the entry using Materials
+                Project compatibility. Defaults to True.
 
         Returns:
             ComputedEntry object.
         """
         data = self.get_data(material_id, prop="entry")
-        return data[0]["entry"]
+        e = data[0]["entry"]
+        if compatible:
+            e = MaterialsProjectCompatibility().process_entry(e)
+        return e
 
     def get_dos_by_material_id(self, material_id):
         """
