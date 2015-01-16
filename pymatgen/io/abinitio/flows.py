@@ -222,7 +222,7 @@ class Flow(Node):
         self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
 
     @classmethod
-    def pickle_load(cls, filepath, disable_signals=False):
+    def pickle_load(cls, filepath, disable_signals=False, remove_lock=False):
         """
         Loads the object from a pickle file and performs initial setup.
 
@@ -234,6 +234,8 @@ class Flow(Node):
             disable_signals: If True, the nodes of the flow are not connected by signals.
                 This option is usually used when we want to read a flow
                 in read-only mode and we want to avoid any possible side effect.
+            remove_lock:
+                True to remove the file lock if any (use it carefully).
         """
         if os.path.isdir(filepath):
             # Walk through each directory inside path and find the pickle database.
@@ -249,6 +251,12 @@ class Flow(Node):
             else:
                 err_msg = "Cannot find %s inside directory %s" % (cls.PICKLE_FNAME, filepath)
                 raise ValueError(err_msg)
+
+        if remove_lock and os.path.exists(filepath + ".lock"):
+            try: 
+                os.remove(filepath + ".lock")
+            except:
+                pass
 
         with FileLock(filepath):
             with open(filepath, "rb") as fh:
@@ -654,11 +662,14 @@ class Flow(Node):
         Args:
             stream:
                 File-like object, Default: sys.stdout
-            work_slice:
-                Slice object used to select the works to show. Default None i.e. all works are displayed.
+            nids: 
+                List of node identifiers. By defaults all nodes are shown
+            verbose:
+                Verbosity level (default 0). > 0 if to show only the works that are not finalized.
         """
         stream = kwargs.pop("stream", sys.stdout)
         nids = as_set(kwargs.pop("nids", None))
+        verbose = kwargs.pop("verbose", 0)
 
         has_colours = stream_has_colours(stream)
         red = "red" if has_colours else None
@@ -666,7 +677,7 @@ class Flow(Node):
         for i, work in enumerate(self):
             print("", file=stream)
             cprint_map("Work #%d: %s, Finalized=%s\n" % (i, work, work.finalized), cmap={"True": "green"}, file=stream)
-            #if verbose == 0 and work.finalized: continue
+            if verbose == 0 and work.finalized: continue
 
             table = PrettyTable(["Task", "Status", "Queue", "MPI|OMP|Mem/proc", "Err|Warn|Comm", "Class", "Restart", "Node_ID"])
 
@@ -702,6 +713,28 @@ class Flow(Node):
             if tot_num_errors:
                 cprint("Total number of errors: %d" % tot_num_errors, red, file=stream)
             print("", file=stream)
+
+    def show_inputs(self, nids=None, stream=sys.stdout):
+        """
+        Print the input of the tasks to the given stream.
+
+        Args:
+            stream:
+                File-like object, Default: sys.stdout
+            nids: 
+                List of node identifiers. By defaults all nodes are shown
+        """
+        if nids is not None and not isinstance(nids, collections.Iterable): 
+            nids = [nids]
+
+        lines = []
+        for work in self:
+            for task in work:
+                if nids is not None and task.node_id not in nids: continue
+                s = task.make_input(with_header=True)
+                lines.append(2*"\n" + 80 * "=" + "\n" + s + 2*"\n")
+
+        stream.writelines(lines)
 
     def get_results(self, **kwargs):
         results = self.Results.from_node(self)

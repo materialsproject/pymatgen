@@ -1722,9 +1722,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """String representation of self.pos"""
         return "w" + str(self.pos[0]) + "_t" + str(self.pos[1])
 
-    def make_input(self):
-        """Construct and write the input file of the calculation."""
-        return self.strategy.make_input()
+    def make_input(self, with_header=False):
+        """Construct the input file of the calculation."""
+        s = self.strategy.make_input()
+        if with_header: s = str(self) + "\n" + s
+        return s
 
     def ipath_from_ext(self, ext):
         """
