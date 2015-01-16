@@ -24,6 +24,9 @@ from pymatgen.util.plotting_utils import add_fig_kwargs
 from pymatgen.core.periodic_table import PeriodicTable
 from .eos import EOS
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 __all__ = [
     "Pseudo",
@@ -1730,59 +1733,51 @@ class PseudoTable(collections.Sequence):
             encountered while trying to read the `DOJO_REPORT` from the pseudopotential file.
         """
         accuracies = ["low", "normal", "high"]
-        df_keys = ["dfact_meV", "v0", "b0_GPa", "b1", "ecut"] #+ ["dfactprime_meV"]
-        gbrv_keys = ["a0_rel_err"]
-        #columns = ["symbol", "Z"] + [acc + "_" + k for k in df_keys for acc in accuracies]
 
-        #trial2keys = {
-        #    "deltafactor": ["dfact_meV", "v0", "b0_GPa", "b1", "ecut"] #+ ["dfactprime_meV"]
-        #    "gbrv_bcc": "a0_rel_err",
-        #    "gbrv_fcc": "a0_rel_err",
-        #}
+        trial2keys = {
+            "deltafactor": ["dfact_meV", "dfactprime_meV"] + ["v0", "b0_GPa", "b1"], 
+            "gbrv_bcc": ["a0_rel_err"],
+            "gbrv_fcc": ["a0_rel_err"],
+        }
 
         rows, names, errors = [], [], []
 
         for p in self:
             report = p.dojo_report
             d = {"symbol": p.symbol, "Z": p.Z}
-            df_entry = report.get("deltafactor", None)
-            gbrv_bcc = report.get("gbrv_bcc", None)
-            gbrv_fcc = report.get("gbrv_fcc", None)
+            names.append(p.basename)
+
+            # FIXME
+            ecut_acc = dict(
+                low=report.ecuts[0],
+                normal=report.ecuts[4],
+                high=report.ecuts[-1],
+            )
+
+            for acc in accuracies:
+                d[acc + "_ecut"] = ecut_acc[acc]
+
             try:
-                for acc in accuracies:
-                    d[acc + "_ecut"] = report["hints"][acc]["ecut"]
+                for trial, keys in trial2keys.items():
+                    data = report.get(trial, None)
+                    if data is None: continue
+                    for acc in accuracies:
+                        ecut = ecut_acc[acc]
+                        d.update({acc + "_" + k: float(data[ecut][k]) for k in keys}) 
 
-                for acc in accuracies:
-                    # Get deltafactor results
-                    for k in df_keys:
-                        if k == "ecut": continue
-                        if df_entry is not None:
-                            d[acc + "_" + k] = float(df_entry[acc][k])
-                        else:
-                            d[acc + "_" + k] = None
-
-                    # Get GBRV results
-                    for k in gbrv_keys:
-                        if gbrv_bcc is not None:
-                            d[acc + "_bcc_" + k] = float(gbrv_bcc[acc][k])
-                        else:
-                            d[acc + "_bcc_" + k] = None
-                        if gbrv_fcc is not None:
-                            d[acc + "_fcc_" + k] = float(gbrv_fcc[acc][k])
-                        else:
-                            d[acc + "_fcc_" + k] = None
-
-                #print(d)
-                names.append(p.basename)
                 rows.append(d)
+                #print(d)
 
             except Exception as exc:
-                print(p.basename, "exc", str(exc))
+                logger.warning(p.basename, "exc", str(exc))
                 errors.append((p.basename, str(exc)))
 
         #print(rows)
         import pandas as pd
-        return pd.DataFrame(rows, index=names), errors
+        class DojoDataFrame(pd.DataFrame):
+            pass
+
+        return DojoDataFrame(rows, index=names), errors
 
 
 class DojoReport(dict):
@@ -1817,6 +1812,16 @@ class DojoReport(dict):
             d = json.loads("".join(lines[start+1:stop]))
             return cls(**d)
 
+    @classmethod
+    def from_hints(cls, ppgen_ecut, symbol):
+        """Initialize the DojoReport from an initial value of ecut in Hartree."""
+        dense_right = np.arange(ppgen_ecut, ppgen_ecut + 6*2, step=2)
+        dense_left = np.arange(max(ppgen_ecut-6, 2), ppgen_ecut, step=2)
+        coarse_high = np.arange(ppgen_ecut + 15, ppgen_ecut + 35, step=5)
+
+        ecut_list = list(dense_left) + list(dense_right) + list(coarse_high)
+        return cls(ecut_list=ecut_list, symbol=symbol) #, **{k: {}: for k in self.ALL_TRIALS})
+
     def __init__(self, *args, **kwargs): 
         super(DojoReport, self).__init__(*args, **kwargs)
 
@@ -1847,10 +1852,10 @@ class DojoReport(dict):
 
         return problems
 
-    #@property
-    #def symbol(self)
-    #    """Chemical symbol."""
-    #    return self["symbol"]
+    @property
+    def symbol(self):
+        """Chemical symbol."""
+        return self["symbol"]
 
     @property
     def has_hints(self):
@@ -1862,55 +1867,92 @@ class DojoReport(dict):
         """List of strings with the trials present in the report."""
         return [k for k in self.keys() if k != "hints"]
 
-    def has_trial(self, dojo_trial, accuracy=None):
+    def has_trial(self, dojo_trial, ecut=None):
         """
-        True if the dojo_report contains an entry for the given dojo_trial
+        True if the dojo_report contains dojo_trial with the given ecut.
+        If ecut is not, we test if dojo_trial is present.
         """
-        return dojo_trial in self
-
-    def get_dataframe(self, **kwargs):
-        """
-        ===========  ===============  ===============   ===============
-        Trial             low              normal            high 
-        ===========  ===============  ===============   ===============
-        deltafactor  value (rel_err)  value (rel_err)   value (rel_err)
-        gbrv_fcc     ...              ...               ...
-        ===========  ===============  ===============   ===============
-        """
-        # Build the header
-        if kwargs.pop("with_hints", True):
-            ecut_acc = {acc: self["hints"][acc]["ecut"] for acc in self.ALL_ACCURACIES}
-            l = ["%s (%s Ha)" % (acc, ecut_acc[acc]) for acc in self.ALL_ACCURACIES]
+        if ecut is None:
+            return dojo_trial in self
         else:
-            l = list(self.ALL_ACCURACIES)
+            try:
+                self[dojo_trial][ecut]
+                return True
+            except KeyError:
+                return False
 
-        rows = [["Trial"] + l]
+    @lazy_property
+    def ecuts(self):
+        return np.array(self["ecuts"])
 
+    #def missing_ecuts(self, trial):
+    #    computed_ecuts = self[trial].keys()
+    #    return [e for e in self.ecuts if e not in computed_ecuts]
+
+    def validate(self):
+        """
+        Validate the DojoReport. Test if each trial contains an ecut entry. 
+        Return a dictionary trial: [missing_ecut]
+        """
+        d = {}
         for trial in self.ALL_TRIALS:
-            row = [trial]
-            for accuracy in self.ALL_ACCURACIES:
-                if not self.has_trial(trial, accuracy): 
-                    row.append("N/A")
-                else:
-                    d = self[trial][accuracy]
-                    value = d[self._TRIALS2KEY[trial]]
-                    s = "%.4f" % value
-                    row.append(s)
+            data = self.get(trial, None)
+            if data is None:
+                d[trial] = self.ecuts
+            else:
+                computed_ecuts = self[trial].keys()
+                for e in self.ecuts:
+                    if e not in computed_ecuts:
+                        if trial not in d: d[trial] = []
+                        d[trial].append(e)
+        return d
 
-            rows.append(row)
+    #def get_dataframe(self, **kwargs):
+    #    """
+    #    ===========  ===============  ===============   ===============
+    #    Trial             low              normal            high 
+    #    ===========  ===============  ===============   ===============
+    #    deltafactor  value (rel_err)  value (rel_err)   value (rel_err)
+    #    gbrv_fcc     ...              ...               ...
+    #    ===========  ===============  ===============   ===============
+    #    """
+    #    # Build the header
+    #    if kwargs.pop("with_hints", True):
+    #        ecut_acc = {acc: self["hints"][acc]["ecut"] for acc in self.ALL_ACCURACIES}
+    #        l = ["%s (%s Ha)" % (acc, ecut_acc[acc]) for acc in self.ALL_ACCURACIES]
+    #    else:
+    #        l = list(self.ALL_ACCURACIES)
 
-        #import pandas as pd
-        #return pd.DataFrame(rows, index=names, columns=columns)
-        return rows
+    #    rows = [["Trial"] + l]
+
+    #    for trial in self.ALL_TRIALS:
+    #        row = [trial]
+    #        for accuracy in self.ALL_ACCURACIES:
+    #            if not self.has_trial(trial, accuracy): 
+    #                row.append("N/A")
+    #            else:
+    #                d = self[trial][accuracy]
+    #                value = d[self._TRIALS2KEY[trial]]
+    #                s = "%.4f" % value
+    #                row.append(s)
+
+    #        rows.append(row)
+
+    #    #import pandas as pd
+    #    #return pd.DataFrame(rows, index=names, columns=columns)
+    #    return rows
 
     def print_table(self, stream=sys.stdout):
         from monty.pprint import pprint_table
         pprint_table(self.get_dataframe(), out=stream)
 
     @add_fig_kwargs
-    def plot_etotal_vs_ecut(self, **kwargs):
+    def plot_etotal_vs_ecut(self, ax=None, **kwargs):
         """
         plot the convergence of the total energy as function of the energy cutoff ecut
+
+        Args:
+            ax: matplotlib Axes, if ax is None a new figure is created.
 
         Returns:
             `matplotlib` figure.
@@ -1928,8 +1970,11 @@ class DojoReport(dict):
         ediffs = etotals_mev - etotals_mev[-1]
 
         import matplotlib.pyplot as plt
-        fig = plt.figure()
-        ax = fig.add_subplot(1,1,1)
+        if ax is None:
+            fig = plt.figure()
+            ax = fig.add_subplot(1,1,1)
+        else:
+            fig = plt.gcf()
 
         ax.yaxis.set_view_interval(-5, 5)
 
@@ -1937,7 +1982,10 @@ class DojoReport(dict):
         line, = ax.plot(ecuts[:-1], ediffs[:-1], "-->", linewidth=3.0, markersize=10)
         lines.append(line)
         #legends.append("aug_ratio = %s" % aratio)
-        #ax.legend(lines, legends, loc='best', shadow=True)
+
+        label = kwargs.pop("label", None)
+        if label is not None:
+            ax.legend(lines, [label], loc='best', shadow=True)
 
         high_hint = self["ppgen_hints"]["high"]["ecut"]
         #ax.vlines(high_hint, min(ediffs), max(ediffs))
@@ -1955,7 +2003,9 @@ class DojoReport(dict):
         ax.set_xlabel("Ecut [Ha]")
         ax.set_xticks(ecuts)
         ax.set_ylabel("$\Delta$ Etotal/natom [meV]")
-        ax.set_yscale("log")
+        # Use logscale if possible.
+        if all(ediffs[:-1] > 0):
+            ax.set_yscale("log")
 
         return fig
 
@@ -1984,9 +2034,13 @@ class DojoReport(dict):
         return fig
 
     @add_fig_kwargs
-    def plot_deltafactor_convergence(self, code="WIEN2k", **kwargs):
+    def plot_deltafactor_convergence(self, code="WIEN2k", ax_list=None, **kwargs):
         """
         plot the convergence of the deltafactor parameters wrt ecut.
+
+        Args:
+            code: Reference code
+            ax_list: List of matplotlib Axes, if ax_list is None a new figure is created
 
         Returns:
             `matplotlib` figure.
@@ -2000,8 +2054,12 @@ class DojoReport(dict):
         keys = ["dfact_meV", "dfactprime_meV", "v0", "b0_GPa", "b1"]
 
         import matplotlib.pyplot as plt
-        fig, ax_list = plt.subplots(nrows=len(keys), ncols=1, sharex=True, squeeze=False)
-        ax_list = ax_list.ravel()
+        if ax_list is None:
+            fig, ax_list = plt.subplots(nrows=len(keys), ncols=1, sharex=True, squeeze=False)
+            ax_list = ax_list.ravel()
+        else:
+            if len(keys) != len(ax_list): raise ValueError("len(keys)=%s != len(ax_list)=%s" %  (len(keys), len(ax_list)))
+            fig = plt.gcf()
 
         for i, (ax, key) in enumerate(zip(ax_list, keys)):
             values = np.array([float(d[ecut][key]) for ecut in ecuts])
@@ -2045,9 +2103,12 @@ class DojoReport(dict):
         return fig
 
     @add_fig_kwargs
-    def plot_gbrv_convergence(self, **kwargs):
+    def plot_gbrv_convergence(self, ax_list=None, **kwargs):
         """
         Uses Matplotlib to plot the convergence of the GBRV parameters wrt ecut.
+
+        Args:
+            ax_list: List of matplotlib Axes, if ax_list is None a new figure is created
 
         Returns:
             `matplotlib` figure.
@@ -2061,8 +2122,12 @@ class DojoReport(dict):
 
         import matplotlib.pyplot as plt
         stypes = ("fcc", "bcc")
-        fig, ax_list = plt.subplots(nrows=len(stypes), ncols=1, sharex=True, squeeze=False)
-        ax_list = ax_list.ravel()
+        if ax_list is None:
+            fig, ax_list = plt.subplots(nrows=len(stypes), ncols=1, sharex=True, squeeze=False)
+            ax_list = ax_list.ravel()
+        else:
+            if len(stypes) != len(ax_list): raise ValueError("len(stypes)=%s != len(ax_list)=%s" %  (len(stypes), len(ax_list)))
+            fig = plt.gcf()
 
         for i, (ax, stype) in enumerate(zip(ax_list, stypes)):
             trial = "gbrv_" + stype
