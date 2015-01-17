@@ -162,16 +162,16 @@ class Directory(object):
         """Recursively delete the directory tree"""
         shutil.rmtree(self.path, ignore_errors=True)
 
-    def clean(self, wildcard=None):
-        """
-        Remove the files in the directory. 
-        Unlike rmtree, this function preserves the directory path.
-        """
-        for path in self.list_filepaths(wildcard=wildcard):
-            try:
-                os.remove(path)
-            except:
-                pass
+    #def clean(self, wildcard=None):
+    #    """
+    #    Remove the files in the directory. 
+    #    Unlike rmtree, this function preserves the directory path.
+    #    """
+    #    for path in self.list_filepaths(wildcard=wildcard):
+    #        try:
+    #            os.remove(path)
+    #        except:
+    #            pass
 
     def path_in(self, file_basename):
         """Return the absolute path of filename in the directory."""
@@ -275,9 +275,20 @@ class Directory(object):
         shutil.copy(infile, outfile)
         return 0
 
+    #def remove_abiexts(self, with_exts=None, except_exts=None):
+    #    """
+    #    Remove the files with the given extension.
+    #    """
+    #    if with_exts is not None and except_exts is not None:
+    #        raise ValueError("with_exts and except_exts are mutually exclusive")
+    #
+    #    if with_exts is not None:
+    #        assert except_exts is None
+    #    else:
+    #        assert with_exts is None
 
-# This dictionary maps ABINIT file extensions to the 
-# variables that must be used to read the file in input.
+
+# This dictionary maps ABINIT file extensions to the variables that must be used to read the file in input.
 #
 # TODO: It would be nice to pass absolute paths to abinit with getden_path
 # so that I can avoid creating symbolic links before running but

@@ -1128,9 +1128,8 @@ class Flow(Node):
                  return 2
 
     #def set_cleanup_policy(self, exts=None):
-    #    for work in self:
-    #        for task in work: 
-    #            task.set_cleanup_policy(exts=exts)
+    #    for taks in self.iflat_tasks()
+    #       task.set_cleanup_policy(exts=exts)
 
     def connect_signals(self):
         """

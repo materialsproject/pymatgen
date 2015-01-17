@@ -10,6 +10,7 @@ import abc
 import copy
 import yaml
 import six
+import numpy as np
 
 from pprint import pprint
 from atomicfile import AtomicFile
@@ -255,7 +256,7 @@ class SparseHistogram(object):
     def __init__(self, items, key=None, num=None, step=None):
         if num is None and step is None:
             raise ValueError("Either num or step must be specified")
-        import numpy as np
+
         from collections import defaultdict, OrderedDict
 
         values = [key(item) for item in items] if key is not None else items
@@ -2509,25 +2510,29 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                     filepath = os.path.join(dirpath, fname)
                     os.remove(filepath)
 
-    def clean_outfiles(self):
+    def clean_output_files(self):
         # Remove all files in tmpdir.
         self.tmpdir.clean()
 
         # Remove files in outdir that are not needed by other nodes
-        # Find the file extensions that should be preserved
         exts_toclean = ("WFK", "SUS", "SCR")
 
-        keep_exts = set()
+        # Find the file extensions that should be preserved
+        except_exts = set()
         for node in self.get_children():
             if node.status != self.S_OK:
                 i = [d.node for d in node.deps].index(self)
-                keep_exts.update(deps[i].exts)
-        print("keep_exts: ", keep_exts)
-        #self.outdir.remove_abiexts()
+                except_exts.update(deps[i].exts)
+        print("except_exts: ", except_exts)
+        #self.outdir.remove_abiexts(except_exts=except_exts)
 
-        # Remove files in the outdir of the other tasks if the dependency has been fulfilled.
-        #for node in self.get_parents():
-        #   for child in node.get_children():
+        # Remove the files in the outdir of the other tasks if the dependency has been fulfilled.
+        for node in self.get_parents():
+            except_exts = set()
+            for child in node.get_children():
+                except_exts.update([dep.exts for dep in child.deps])
+            print("except_exts: ", except_exts)
+            #node.outdir.remove_abiexts(except_exts=except_exts)
 
     def setup(self):
         """Base class does not provide any hook."""
@@ -2809,7 +2814,6 @@ class AbinitTask(Task):
         ibz_vars = dict(prtkpt=-2)
         if ngkpt is not None: ibz_vars["ngkpt"] = ngkpt
         if shiftk is not None:
-            import numpy as np
             shiftk = np.resphape(shiftk, (-1,3))
             ibz_vars["shiftk"] = shiftk
             ibz_vars["nshiftk"] = len(shiftk)
@@ -2892,8 +2896,8 @@ class AbinitTask(Task):
 
 class ProduceGsr(object):
     """
-    Mixin class for AbinitTasks producing a GSR file.
-    Provice the method `open_gsr` that reads and return a GSR file.
+    Mixin class for an :class:`AbinitTask` producing a GSR file.
+    Provide the method `open_gsr` that reads and return a GSR file.
     """
     def open_gsr(self):
         """
@@ -2917,8 +2921,8 @@ class ProduceGsr(object):
 
 class ProduceDdb(object):
     """
-    Mixin class for AbinitTasks producing a DDB file.
-    Provice the method `open_ddb` that reads and return a Ddb file.
+    Mixin class for :an class:`AbinitTask` producing a DDB file.
+    Provicd the method `open_ddb` that reads and return a Ddb file.
     """
     def open_ddb(self):
         """
@@ -3035,7 +3039,7 @@ class RelaxTask(AbinitTask, ProduceGsr):
     """
     Task for structural optimizations.
     """
-    # What about a possible ScfConvergenceWarning?
+    # TODO possible ScfConvergenceWarning?
     CRITICAL_EVENTS = [
         events.RelaxConvergenceWarning,
     ]
