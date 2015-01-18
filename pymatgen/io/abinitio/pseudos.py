@@ -1743,6 +1743,7 @@ class PseudoTable(collections.Sequence):
         rows, names, errors = [], [], []
 
         for p in self:
+            print(p.basename)
             report = p.dojo_report
             d = {"symbol": p.symbol, "Z": p.Z}
             names.append(p.basename)
