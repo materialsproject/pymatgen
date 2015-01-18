@@ -782,8 +782,8 @@ db_connector: # Connection to MongoDB database (optional)
 
         if not qads:
             raise ValueError("Received emtpy list of qadapters")
-        if len(qads) != 1:
-            raise NotImplementedError("For the time being multiple qadapters are not supported! Please use one adapter")
+        #if len(qads) != 1:
+        #    raise NotImplementedError("For the time being multiple qadapters are not supported! Please use one adapter")
 
         # Order qdapters according to priority.
         qads = sorted(qads, key=lambda q: q.priority)
@@ -831,7 +831,14 @@ db_connector: # Connection to MongoDB database (optional)
         """The qadapter used to submit jobs."""
         return self._qads[self._qid]
 
-    def select_qadapter(self, pconf):
+    def select_qadapter(self, pconfs):
+        for i, c in enumerate(pconfs):
+            if self._select_qadapter(c):
+                return pconfs[i]
+        else:
+            raise RuntimeError("Cannot find qadapter for this run!")
+
+    def _select_qadapter(self, pconf):
         """
         Select the qadatper to submit a run with the parallel configuration pconf
         Return False if no qadapter could be found.
@@ -1514,7 +1521,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         self._cleanup_exts = set(exts)
 
     @property
-    def cleanup_exts(self)
+    def cleanup_exts(self):
         """Set of file extensions to remove."""
         try:
             return self._cleanup_exts
@@ -2535,41 +2542,51 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         Args:
             follow_parents: If true, the output files of the parents nodes will be removed if possible.
+            
+        Return:
+            list with the absolute paths of the files that have been removed.
         """
+        paths = []
         if self.status != self.S_OK:
             logger.warning("Calling task.clean_output_files on a task whose status != S_OK")
 
         # Remove all files in tmpdir.
         self.tmpdir.clean()
 
-        # Find the file extensions that should be preserved
-        # since they are needed by other nodes
+        # Find the file extensions that should be preserved since these files are still 
+        # needed by the children who haven't reached S_OK
         except_exts = set()
-        for node in self.get_children():
-            if node.status != self.S_OK:
-                i = [d.node for d in node.deps].index(self)
-                except_exts.update(deps[i].exts)
+        for child in self.get_children():
+            if child.status == self.S_OK: continue
+            # Find the position of self in child.deps and add the extensions.
+            i = [dep.node for dep in child.deps].index(self) 
+            except_exts.update(child.deps[i].exts)
 
-        # Remove files in the outdir of the task. 
+        # Remove the files in the outdir of the task but keep except_exts. 
         exts = self.cleanup_exts.difference(except_exts)
-        print("Will remove extensions: ", exts))
-        count = self.outdir.remove_exts(exts)
+        #print("Will remove its extensions: ", exts)
+        paths += self.outdir.remove_exts(exts)
+        if not follow_parents: return paths
 
-        if not follow_parents:
-            return count
+        # Remove the files in the outdir of my parents if all the possible dependencies have been fulfilled.
+        for parent in self.get_parents():
 
-        # Remove the files in the outdir of the other tasks if the dependency has been fulfilled.
-        for node in self.get_parents():
-            except_exts = set()
-            for child in node.get_children():
-                if child.status != child.S_OK: continue
-                for dep in child.deps:
-                    except_exts.update(dep.exts)
+            # Here we build a dictionary file extension --> list of child nodes requiring this file from parent
+            # e.g {"WFK": [node1, node2]}
+            ext2nodes = collections.defaultdict(list)
+            for child in parent.get_children():
+                if child.status == child.S_OK: continue
+                i = [d.node for d in child.deps].index(parent)
+                for ext in child.deps[i].exts:
+                    ext2nodes[ext].append(child)
+        
+            except_exts = [k for k, lst in ext2nodes.items() if lst]
             exts = self.cleanup_exts.difference(except_exts)
-            print("Will remove extensions: %s from parent node %s" % (exts, node))
-            count += node.outdir.remove_exts(exts)
+            #print("%s removes extensions %s from parent node %s" % (self, exts, parent))
+            paths += parent.outdir.remove_exts(exts)
 
-        return count
+        #print("%s:\n Files removed: %s" % (self, paths))
+        return paths
 
     def setup(self):
         """Base class does not provide any hook."""
@@ -2774,7 +2791,6 @@ class AbinitTask(Task):
 
         # Run the job in a shell subprocess with mpi_procs = 1
         # we don't want to make a request to the queue manager for this simple job!
-
         # Return code is always != 0 
         process = self.manager.to_shell_manager(mpi_procs=1).launch(self)
         logger.info("fake run launched")
@@ -2790,8 +2806,7 @@ class AbinitTask(Task):
         parser = ParalHintsParser()
         try:
             pconfs = parser.parse(self.output_file.path)
-            logger.info('speedup hints: \n' + str(pconfs) + '\n')
-            # print("pconfs", pconfs)
+            #logger.info('speedup hints: \n' + str(pconfs) + '\n')
         except parser.Error:
             logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
             return 2
@@ -2805,12 +2820,13 @@ class AbinitTask(Task):
 
         # Select the partition on which we'll be running and set MPI/OMP cores.
         optconfs = [optconf]
-        for i, c in enumerate(optconfs):
-            if self.manager.select_qadapter(c):
-                optconf = optconfs[i]
-                break
-        else:
-            raise RuntimeError("Cannot find qadapter for this run!")
+        optconf = self.manager.select_qadapter(optconfs)
+        #for i, c in enumerate(optconfs):
+        #    if self.manager.select_qadapter(c):
+        #        optconf = optconfs[i]
+        #        break
+        #else:
+        #    raise RuntimeError("Cannot find qadapter for this run!")
 
         ####################################################
         # Change the input file and/or the submission script

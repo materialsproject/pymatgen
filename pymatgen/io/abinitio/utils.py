@@ -275,18 +275,20 @@ class Directory(object):
     def remove_exts(self, exts):
         """
         Remove the files with the given extensions. Unlike rmtree, this function preserves the directory path.
-        Return the number of files that have been removed.
+        Return list with the absolute paths of the files that have been removed.
         """
-        count = 0
-        for ext in exts:
+        paths = []
+
+        for ext in list_strings(exts):
             path = self.has_abiext(ext)
             if not path: continue
             try:
                 os.remove(path)
-                count += 1
+                paths.append(path)
             except:
-                pass
-        return count
+                logger.warning("Exception while trying to remove file %s" % path)
+
+        return paths
         
 
 # This dictionary maps ABINIT file extensions to the variables that must be used to read the file in input.

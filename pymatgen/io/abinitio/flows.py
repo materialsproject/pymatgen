@@ -1136,9 +1136,12 @@ class Flow(Node):
         #    for task in self.iflat_tasks():
         #        task.clean_output_files()
 
-    #def set_cleanup_exts(self, exts="default"):
-    #    for taks in self.iflat_tasks()
-    #       task.set_cleanup_exts(exts)
+    def set_cleanup_exts(self, exts=None):
+        for work in self:
+            # TODO
+            #work.set_cleanup_exts(exts)
+            for task in work:
+                task.set_cleanup_exts(exts)
 
     def connect_signals(self):
         """
@@ -1281,6 +1284,7 @@ class G0W0WithQptdmFlow(Flow):
         work.set_manager(self.manager)
         work.create_tasks(wfk_file, scr_input)
         work.add_deps(cbk.deps)
+
         work.connect_signals()
         work.build()
 
