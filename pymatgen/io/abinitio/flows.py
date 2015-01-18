@@ -714,6 +714,9 @@ class Flow(Node):
                 cprint("Total number of errors: %d" % tot_num_errors, red, file=stream)
             print("", file=stream)
 
+        if self.all_ok:
+            print("all_ok reached", file=stream)
+
     def show_inputs(self, nids=None, stream=sys.stdout):
         """
         Print the input of the tasks to the given stream.
@@ -1119,6 +1122,7 @@ class Flow(Node):
         """This method is called when the flow is completed."""
         if self.finalized: return 1
         self.finalized = False
+
         if self.flow.has_db:
             try:
                 self.flow.db_insert()
@@ -1127,9 +1131,14 @@ class Flow(Node):
                  logger.critical("MongoDb insertion failed.")
                  return 2
 
-    #def set_cleanup_policy(self, exts=None):
+        # Cleanup output files.
+        #if self.cleanup_level == "flow":
+        #    for task in self.iflat_tasks():
+        #        task.clean_output_files()
+
+    #def set_cleanup_exts(self, exts="default"):
     #    for taks in self.iflat_tasks()
-    #       task.set_cleanup_policy(exts=exts)
+    #       task.set_cleanup_exts(exts)
 
     def connect_signals(self):
         """

@@ -530,12 +530,17 @@ class ParalHints(collections.Iterable):
         new_confs = [pconf for pconf in self if qadapter.can_run_pconf(pconf)]
         return self.__class__(info=self.info, confs=new_confs)
 
-    #def hist_efficiency(self, step=0.1):
-    #    return sparse_histogram(self._confs, key=lambda c: c.efficiency, step=step)
-    #def hist_speedup(self, step=1.0):
-    #    return sparse_histogram(self._confs, key=lambda c: c.speedup, step=step)
-    #def hist_memory(self, step=102.4):
-    #    return sparse_histogram(self._confs, key=lambda c: c.speedup, step=step)
+    def histogram_efficiency(self, step=0.1):
+        """Returns a :class:`SparseHistogram` with configuration grouped by parallel efficiency."""
+        return SparseHistogram(self._confs, key=lambda c: c.efficiency, step=step)
+
+    def histogram_speedup(self, step=1.0):
+        """Returns a :class:`SparseHistogram` with configuration grouped by parallel speedup."""
+        return SparseHistogram(self._confs, key=lambda c: c.speedup, step=step)
+
+    #def histogram_memory(self, step=1024):
+    #    """Returns a :class:`SparseHistogram` with configuration grouped by memory."""
+    #    return SparseHistogram(self._confs, key=lambda c: c.speedup, step=step)
 
     def select_optimal_conf(self, policy, max_ncpus):
         """
@@ -589,7 +594,6 @@ class ParalHints(collections.Iterable):
         logger.info('speedup hints: \n' + str(hints) + '\n')
 
         #hints.sort_by_efficiency()
-
         #logger.info('efficiency hints: \n' + str(hints) + '\n')
 
         # Find the optimal configuration according to policy.mode.
@@ -798,7 +802,6 @@ db_connector: # Connection to MongoDB database (optional)
         with a :class:`ShellAdapter` with mpi_procs so that we can submit the job without passing through the queue.
         """
         my_kwargs = copy.deepcopy(self._kwargs)
-
         my_kwargs["policy"] = TaskPolicy(autoparal=0)
 
         for d in my_kwargs["qadapters"]:
@@ -833,7 +836,7 @@ db_connector: # Connection to MongoDB database (optional)
         Select the qadatper to submit a run with the parallel configuration pconf
         Return False if no qadapter could be found.
         """
-        scores = [q.get_score(pconf) for q in self._qads]
+        scores = [q.get_score(pconf) for q in self.qads]
         #print("scores", scores)
         if all(sc < 0 for sc in scores): return False
         self._qid = maxloc(scores)
@@ -843,7 +846,6 @@ db_connector: # Connection to MongoDB database (optional)
         if self.has_omp: self.set_omp_threads(pconf.omp_threads)
                                                                       
         self.set_mem_per_proc(pconf.mem_per_proc)
-
         return True
 
     def __str__(self):
@@ -1288,7 +1290,6 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
         # Set to true if the node has been finalized.
         self._finalized = False
-
         self._status = self.S_INIT
 
     def __eq__(self, other):
@@ -1443,7 +1444,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
     def remove_deps(self, deps):
         """
-        Remove a list of dependencies from the `Node`.
+        Remove a list of dependencies from the :class:`Node`.
 
         Args:
             deps: List of :class:`Dependency` objects specifying the  dependencies of the node.
@@ -1502,6 +1503,24 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
         return "\n".join(lines)
 
+    def set_cleanup_exts(self, exts=None):
+        """
+        Set the list of file extensions that should be removed when the task reaches S_OK.
+
+            Args:
+                exts: List of file extensions, if exts is None a default list is provided.
+        """
+        if exts is None: exts = ["WFK", "SUS", "SCR"]
+        self._cleanup_exts = set(exts)
+
+    @property
+    def cleanup_exts(self)
+        """Set of file extensions to remove."""
+        try:
+            return self._cleanup_exts
+        except AttributeError:
+            return set()
+
     def set_user_info(self, *args, **kwargs):
         """
         Store additional info provided by the user in self.user_info
@@ -1522,7 +1541,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
             return {}
 
     #@abc.abstractmethod
-    #def set_status(self, status,  info_msg=None):
+    #def set_status(self, status, info_msg=None):
     #    """
     #    Set and return the status of the None
     #                                                                                     
@@ -2058,13 +2077,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             self._on_done()
                                                                                 
         if status == self.S_OK:
-            #if status == self.S_UNCONVERGED:
-            #    logger.debug("Task %s broadcasts signal S_UNCONVERGED" % self)
-            #    dispatcher.send(signal=self.S_UNCONVERGED, sender=self)
-
             # Finalize the task.
             if not self.finalized:
                 self._on_ok()
+                # here we remove the output files of the task and of its parents.
+                if self.cleanup_exts: self.clean_output_files()
                                                                                 
             logger.debug("Task %s broadcasts signal S_OK" % self)
             dispatcher.send(signal=self.S_OK, sender=self)
@@ -2510,29 +2527,49 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                     filepath = os.path.join(dirpath, fname)
                     os.remove(filepath)
 
-    def clean_output_files(self):
+    def clean_output_files(self, follow_parents=True):
+        """
+        This method is called when the task reaches S_OK. It removes all the output files 
+        produced by the task that are not needed by its children as well as the output files
+        produced by its parents if no other node needs them.
+
+        Args:
+            follow_parents: If true, the output files of the parents nodes will be removed if possible.
+        """
+        if self.status != self.S_OK:
+            logger.warning("Calling task.clean_output_files on a task whose status != S_OK")
+
         # Remove all files in tmpdir.
         self.tmpdir.clean()
 
-        # Remove files in outdir that are not needed by other nodes
-        exts_toclean = ("WFK", "SUS", "SCR")
-
         # Find the file extensions that should be preserved
+        # since they are needed by other nodes
         except_exts = set()
         for node in self.get_children():
             if node.status != self.S_OK:
                 i = [d.node for d in node.deps].index(self)
                 except_exts.update(deps[i].exts)
-        print("except_exts: ", except_exts)
-        #self.outdir.remove_abiexts(except_exts=except_exts)
+
+        # Remove files in the outdir of the task. 
+        exts = self.cleanup_exts.difference(except_exts)
+        print("Will remove extensions: ", exts))
+        count = self.outdir.remove_exts(exts)
+
+        if not follow_parents:
+            return count
 
         # Remove the files in the outdir of the other tasks if the dependency has been fulfilled.
         for node in self.get_parents():
             except_exts = set()
             for child in node.get_children():
-                except_exts.update([dep.exts for dep in child.deps])
-            print("except_exts: ", except_exts)
-            #node.outdir.remove_abiexts(except_exts=except_exts)
+                if child.status != child.S_OK: continue
+                for dep in child.deps:
+                    except_exts.update(dep.exts)
+            exts = self.cleanup_exts.difference(except_exts)
+            print("Will remove extensions: %s from parent node %s" % (exts, node))
+            count += node.outdir.remove_exts(exts)
+
+        return count
 
     def setup(self):
         """Base class does not provide any hook."""
@@ -2753,7 +2790,6 @@ class AbinitTask(Task):
         parser = ParalHintsParser()
         try:
             pconfs = parser.parse(self.output_file.path)
-            #self.all_autoparal_confs = pconfs
             logger.info('speedup hints: \n' + str(pconfs) + '\n')
             # print("pconfs", pconfs)
         except parser.Error:

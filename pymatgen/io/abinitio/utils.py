@@ -162,16 +162,13 @@ class Directory(object):
         """Recursively delete the directory tree"""
         shutil.rmtree(self.path, ignore_errors=True)
 
-    #def clean(self, wildcard=None):
-    #    """
-    #    Remove the files in the directory. 
-    #    Unlike rmtree, this function preserves the directory path.
-    #    """
-    #    for path in self.list_filepaths(wildcard=wildcard):
-    #        try:
-    #            os.remove(path)
-    #        except:
-    #            pass
+    def clean(self):
+        """Remove all files in the directory tree while preserving the directory"""
+        for path in self.list_filepaths():
+            try:
+                os.remove(path)
+            except:
+                pass
 
     def path_in(self, file_basename):
         """Return the absolute path of filename in the directory."""
@@ -275,18 +272,22 @@ class Directory(object):
         shutil.copy(infile, outfile)
         return 0
 
-    #def remove_abiexts(self, with_exts=None, except_exts=None):
-    #    """
-    #    Remove the files with the given extension.
-    #    """
-    #    if with_exts is not None and except_exts is not None:
-    #        raise ValueError("with_exts and except_exts are mutually exclusive")
-    #
-    #    if with_exts is not None:
-    #        assert except_exts is None
-    #    else:
-    #        assert with_exts is None
-
+    def remove_exts(self, exts):
+        """
+        Remove the files with the given extensions. Unlike rmtree, this function preserves the directory path.
+        Return the number of files that have been removed.
+        """
+        count = 0
+        for ext in exts:
+            path = self.has_abiext(ext)
+            if not path: continue
+            try:
+                os.remove(path)
+                count += 1
+            except:
+                pass
+        return count
+        
 
 # This dictionary maps ABINIT file extensions to the variables that must be used to read the file in input.
 #
