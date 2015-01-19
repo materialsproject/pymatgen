@@ -964,11 +964,10 @@ db_connector: # Connection to MongoDB database (optional)
 
     def launch(self, task):
         """
-        Build the input files and submit the task via the `Qadapter` 
+        Build the input files and submit the task via the :class:`Qadapter` 
 
         Args:
-            task:
-                `TaskObject`
+            task: :class:`TaskObject`
         
         Returns:
             Process object.
@@ -1429,7 +1428,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
     def add_deps(self, deps):
         """
-        Add a list of dependencies to the `Node`.
+        Add a list of dependencies to the :class:`Node`.
 
         Args:
             deps: List of :class:`Dependency` objects specifying the dependencies of the node.
@@ -1889,11 +1888,12 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             logger.debug("will rename old %s to new %s" % (old, new))
             os.rename(old, new)
 
-    def _restart(self, no_submit=False):
+    def _restart(self, submit=True):
         """
         Called by restart once we have finished preparing the task for restarting.
 
-        Return True if task has been restarted
+        Return: 
+            True if task has been restarted
         """
         self.set_status(self.S_READY, info_msg="Restarted on %s" % time.asctime())
 
@@ -1901,7 +1901,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.num_restarts += 1
         self.history.append("Restarted on %s, num_restarts %d" % (time.asctime(), self.num_restarts))
 
-        if not no_submit:
+        if submit:
             # Remove the lock file
             self.start_lockfile.remove()
             # Relaunch the task.
@@ -2130,42 +2130,41 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             info_msg = "return code %s" % self.returncode
             return self.set_status(self.S_QCRITICAL, info_msg=info_msg)           
 
-#        err_msg = None
-#=======
-#            if not self.stderr_file.exists and not self.qerr_file.exists:
-#                # The job is still in the queue.
-#                return self.status
-#
-#            else:
-#                # Analyze the standard error of the executable:
-#                if self.stderr_file.exists:
-#                    err_msg = self.stderr_file.read()
-#                    if err_msg:
-#                        logger.critical("%s: executable stderr:\n %s" % (self, err_msg))
-#                        return self.set_status(self.S_ERROR, info_msg=err_msg)
-#
-#                # Analyze the error file of the resource manager.
-#                if self.qerr_file.exists:
-#                    err_msg = self.qerr_file.read()
-#                    if err_msg:
-#                        logger.critical("%s: queue stderr:\n %s" % (self, err_msg))
-#                        return self.set_status(self.S_ERROR, info_msg=err_msg)
-#
-#                return self.status
-#
-#        # Check if the run completed successfully.
-#        report = self.get_event_report()
-#
-#        if report.run_completed:
-#            # Check if the calculation converged.
-#            not_ok = self.not_converged()
+        #        err_msg = None
+        #            if not self.stderr_file.exists and not self.qerr_file.exists:
+        #                # The job is still in the queue.
+        #                return self.status
+        #
+        #            else:
+        #                # Analyze the standard error of the executable:
+        #                if self.stderr_file.exists:
+        #                    err_msg = self.stderr_file.read()
+        #                    if err_msg:
+        #                        logger.critical("%s: executable stderr:\n %s" % (self, err_msg))
+        #                        return self.set_status(self.S_ERROR, info_msg=err_msg)
+        #
+        #                # Analyze the error file of the resource manager.
+        #                if self.qerr_file.exists:
+        #                    err_msg = self.qerr_file.read()
+        #                    if err_msg:
+        #                        logger.critical("%s: queue stderr:\n %s" % (self, err_msg))
+        #                        return self.set_status(self.S_ERROR, info_msg=err_msg)
+        #
+        #                return self.status
+        #
+        #        # Check if the run completed successfully.
+        #        report = self.get_event_report()
+        #
+        #        if report.run_completed:
+        #            # Check if the calculation converged.
+        #            not_ok = self.not_converged()
 
-#            if not_ok:
-#                return self.set_status(self.S_UNCONVERGED)
-#            else:
-#                return self.set_status(self.S_OK)
+        #            if not_ok:
+        #                return self.set_status(self.S_UNCONVERGED)
+        #            else:
+        #                return self.set_status(self.S_OK)
 
-#       # This is the delicate part since we have to discern among different possibilities:
+        # This is the delicate part since we have to discern among different possibilities:
         #
         # 1) Calculation stopped due to an Abinit Error or Bug.
         #
@@ -2182,12 +2181,12 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # Point 2) and 3) are the most complicated since there's no standard!
 
         # 1) Search for possible errors or bugs in the ABINIT **output** file.
-#        if report.errors or report.bugs:
-#            logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
-#            return self.set_status(self.S_ERROR, info_msg=str(report.errors) + str(report.bugs))
+        #if report.errors or report.bugs:
+        #   logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
+        #   return self.set_status(self.S_ERROR, info_msg=str(report.errors) + str(report.bugs))
 
         # 2) Analyze the stderr file for Fortran runtime errors.
-#       >>>>>>> pymatgen-matteo/master
+        #>>>>>>> pymatgen-matteo/master
 
         err_msg = None
         if self.stderr_file.exists:
@@ -2239,15 +2238,15 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 if self.qerr_file.exists and not err_msg:
                     # there is output and no errors
                     # Check if the run completed successfully.
-#                    if report.run_completed:
-#                        # Check if the calculation converged.
-#                        not_ok = self.not_converged()
-#                        if not_ok:
-#                            return self.set_status(self.S_UNCONVERGED)
-#                            # The job finished but did not converge
-#                        else:
-#                            return self.set_status(self.S_OK)
-#                            # The job finished properly
+                    #if report.run_completed:
+                    #    # Check if the calculation converged.
+                    #    not_ok = self.not_converged()
+                    #    if not_ok:
+                    #        return self.set_status(self.S_UNCONVERGED)
+                    #        # The job finished but did not converge
+                    #    else:
+                    #        return self.set_status(self.S_OK)
+                    #        # The job finished properly
 
                     return self.set_status(self.S_RUN)
                     # The job still seems to be running
@@ -2920,7 +2919,7 @@ class AbinitTask(Task):
         self.stderr_file.remove()
         self.start_lockfile.remove()
 
-        return self._restart(no_submit=True)
+        return self._restart(submit=False)
 
     def fix_abicritical(self):
         """
