@@ -1381,17 +1381,6 @@ limits:
         logger.warning('more_mpi_procs reached the limit')
         return False
 
-    def get_score(self, pconf):
-        """
-        Receives a :class:`ParalConf` object, pconf, and returns a number that will be used
-        to select the partion on the cluster on which the task will be submitted.
-
-        Returns:
-            -inf if paral_conf cannot be executed on this partition.
-        """
-        minf = float("-inf")
-        if not self.can_run_pconf(pconf): return minf
-        return self.priority
 
 ####################
 # Concrete classes #
