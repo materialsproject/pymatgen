@@ -17,6 +17,23 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def as_bool(s):
+    """
+    Convert a string into a boolean.
+
+    >>> assert as_bool(True) is True and as_bool("Yes") is True and as_bool("false") is False
+    """
+    if s in (False, True): return s
+    # Assume string
+    s = s.lower()
+    if s in ("yes", "true"): 
+        return True
+    elif s in ("no", "false"): 
+        return False
+    else:
+        raise ValueError("Don't know how to convert type %s: %s into a boolean" % (type(s), s))
+
+
 class File(object):
     """
     Very simple class used to store file basenames, absolute paths and directory names.

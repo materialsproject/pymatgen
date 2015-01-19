@@ -560,7 +560,7 @@ class Flow(Node):
 
     @property
     def status(self):
-        """The status of the Flow i.e. the minimum of the status of its tasks and its works"""
+        """The status of the :class:`Flow` i.e. the minimum of the status of its tasks and its works"""
         return min(work.get_all_status(only_min=True) for work in self)
 
     def fix_critical(self):
@@ -575,9 +575,9 @@ class Flow(Node):
             #todo
             if task.fix_abicritical():
                 task.reset_from_scratch()
-                #task.set_status(Task.S_READY)
+                #task.set_status(task.S_READY)
             else:
-                info_msg = 'We encountered an abi critial envent that could not be fixed'
+                info_msg = 'We encountered an abi critial event that could not be fixed'
                 logger.warning(info_msg)
                 task.set_status(status=task.S_ERROR)
 
