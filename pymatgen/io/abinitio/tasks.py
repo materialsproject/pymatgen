@@ -626,20 +626,24 @@ class TaskPolicy(object):
         """
         Args:
             autoparal: Value of ABINIT autoparal input variable. 0 to disable the autoparal feature (default)
-            mode: Select the algorith to select the optimal configuration for the parallel execution.
-                Possible values: ["default", "aggressive", "conservative"]
             condition: condition used to filter the autoparal configuration (Mongodb-like syntax)
             vars_condition: condition used to filter the list of Abinit variables suggested by autoparal (Mongodb-like syntax)
+            precedence:
+            autoparal_priorities:
         """
         self.autoparal = kwargs.pop("autoparal", 1)
         self.condition = Condition(kwargs.pop("condition", {}))
         self.vars_condition = Condition(kwargs.pop("vars_condition", {}))
-        self.search_mode = kwargs.pop("search_mode", "qadapter_first")
+        self.precedence = kwargs.pop("precedence", "autoparal_conf")
         #self.autoparal_priorities = kwargs.pop("autoparal_priorities", ["speedup", "efficiecy", "memory"]
         self.autoparal_priorities = kwargs.pop("autoparal_priorities", ["speedup"])
 
         if kwargs:
             raise ValueError("Found invalid keywords in policy section:\n %s" % str(kwargs.keys()))
+
+        # Consistency check.
+        if self.precedence not in ("qadapter", "autoparal_conf"):
+            raise ValueError("Wrong value for policy.precedence, should be qadapter or autoparal_conf")
 
     def __str__(self):
         lines = []
@@ -823,7 +827,7 @@ db_connector: # Connection to MongoDB database (optional)
         policy, max_ncpus = self.policy, self.max_cores
         pconfs = pconfs.get_ordered_with_policy(policy, max_ncpus)
 
-        if policy.search_mode == "qadapter_first":
+        if policy.precedence == "qadapter":
             # Try to run on the qadapter with the highest priority.
             for qadpos, qad in enumerate(self.qads):
                 for pconf in pconfs:
@@ -831,7 +835,7 @@ db_connector: # Connection to MongoDB database (optional)
                         self._use_qadpos_pconf(qadpos, pconf)
                         return pconf
 
-        elif policy.search_mode == "parallelconf_first":
+        elif policy.precedence == "autoparal_conf":
             # Try to run on the first pconf irrespectively of the priority of the qadapter.
             for pconf in pconfs:
                 for qadpos, qad in enumerate(self.qads):
@@ -840,7 +844,7 @@ db_connector: # Connection to MongoDB database (optional)
                         return pconf
 
         else:
-            raise ValueError("Wrong value of policy.search_mode = %s" % policy.search_mode)
+            raise ValueError("Wrong value of policy.precedence = %s" % policy.precedence)
 
         # No qadapter could be found
         raise RuntimeError("Cannot find qadapter for this run!")

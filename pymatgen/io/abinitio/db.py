@@ -7,6 +7,8 @@ from __future__ import division, print_function, unicode_literals
 import collections
 import copy
 
+from .utils import as_bool
+
 
 def mongo_getattr(rec, key):
     """
@@ -101,7 +103,7 @@ class DBConnector(object):
             self.enabled = False
             return
 
-        self.enabled = kwargs.pop("enabled", True)
+        self.enabled = as_bool(kwargs.pop("enabled", True))
         self.dbname = kwargs.pop("database", "abinit")
         self.collection = kwargs.pop("collection", "test")
         self.host = kwargs.pop("host", None)
