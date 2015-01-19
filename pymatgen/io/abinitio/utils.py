@@ -614,6 +614,14 @@ class Condition(object):
     db.inventory.find( { qty: { $gt: 20 } } )
     db.inventory.find({ $and: [ { price: 1.99 }, { qty: { $lt: 20 } }, { sale: true } ] } )
     """
+    @classmethod
+    def as_condition(cls, obj):
+        """Convert obj into :class:`Condition`"""
+        if isinstance(obj, cls):
+            return obj
+        else:
+            return cls(cmap=obj)
+
     def __init__(self, cmap=None):
         self.cmap = {} if cmap is None else cmap
 

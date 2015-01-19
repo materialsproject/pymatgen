@@ -1131,14 +1131,9 @@ class Flow(Node):
                  logger.critical("MongoDb insertion failed.")
                  return 2
 
-        # Cleanup output files.
-        #if self.cleanup_level == "flow":
-        #    for task in self.iflat_tasks():
-        #        task.clean_output_files()
-
     def set_cleanup_exts(self, exts=None):
         for work in self:
-            # TODO
+            # TODO Add support for Works
             #work.set_cleanup_exts(exts)
             for task in work:
                 task.set_cleanup_exts(exts)
