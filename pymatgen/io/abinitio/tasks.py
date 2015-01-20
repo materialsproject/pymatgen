@@ -125,7 +125,7 @@ class NodeResults(dict, PMGSONable):
         """List with the absolute paths of the files to be put in GridFs."""
         return self["files"]
 
-    def add_gridfs_files(self, **kwargs):
+    def register_gridfs_files(self, **kwargs):
         """
         This function registers the files that will be saved in GridFS.
         kwargs is a dictionary mapping the key associated to the file (usually the extension)
@@ -134,7 +134,7 @@ class NodeResults(dict, PMGSONable):
 
         Example::
 
-            add_gridfs(GSR="path/to/GSR.nc", text_file=("/path/to/txt_file", "t"))
+            results.register_gridfs(GSR="path/to/GSR.nc", text_file=("/path/to/txt_file", "t"))
 
         The GSR file is a binary file, whereas text_file is a text file.
         """
@@ -243,7 +243,7 @@ class TaskResults(NodeResults):
             #input=task.strategy
         )
 
-        new.add_gridfs_files(
+        new.register_gridfs_files(
             run_abi=(task.input_file.path, "t"),
             run_abo=(task.output_file.path, "t"),
         )
@@ -1188,7 +1188,7 @@ class Dependency(object):
 
 
 def _2attrs(item):
-        return item if item is None or isinstance(list, tuple) else (item,)
+    return item if item is None or isinstance(list, tuple) else (item,)
 
 
 class Status(int):
@@ -1605,7 +1605,7 @@ class FileNode(Node):
 
     def get_results(self, **kwargs):
         results = super(FileNode, self).get_results(**kwargs)
-        #results.add_gridfs_files(self.filepath=self.filepath)
+        #results.register_gridfs_files(self.filepath=self.filepath)
         return results
 
 
@@ -2119,7 +2119,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         # 1) A locked task can only be unlocked by calling set_status explicitly.
         # an errored task, should not end up here but just to be sure
-        black_list = [self.S_LOCKED, self.S_ERROR]
+        black_list = (self.S_LOCKED, self.S_ERROR)
         if self.status in black_list:
             return
 
@@ -3044,7 +3044,7 @@ class ScfTask(AbinitTask, ProduceGsr):
         with self.open_gsr() as gsr:
             results["out"].update(gsr.as_dict())
             # Add files to GridFS
-            results.add_gridfs_files(GSR=gsr.filepath)
+            results.register_gridfs_files(GSR=gsr.filepath)
 
         return results
 
@@ -3082,7 +3082,7 @@ class NscfTask(AbinitTask, ProduceGsr):
         with  self.open_gsr() as gsr:
             results["out"].update(gsr.as_dict())
             # Add files to GridFS
-            results.add_gridfs_files(GSR=gsr.filepath)
+            results.register_gridfs_files(GSR=gsr.filepath)
 
         return results
 
@@ -3165,7 +3165,7 @@ class RelaxTask(AbinitTask, ProduceGsr):
         with self.open_gsr() as gsr:
             results["out"].update(gsr.as_dict())
             # Add files to GridFS
-            results.add_gridfs_files(GSR=gsr.filepath)
+            results.register_gridfs_files(GSR=gsr.filepath)
 
         return results
 
@@ -3175,7 +3175,7 @@ class DdeTask(AbinitTask, ProduceDdb):
 
     def get_results(self, **kwargs):
         results = super(DdeTask, self).get_results(**kwargs)
-        return results.add_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
+        return results.register_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
 
 
 class DdkTask(AbinitTask, ProduceDdb):
@@ -3192,7 +3192,7 @@ class DdkTask(AbinitTask, ProduceDdb):
 
     def get_results(self, **kwargs):
         results = super(DdkTask, self).get_results(**kwargs)
-        return results.add_gridfs_file(DDK=(self.outdir.has_abiext("DDK"), "t"))
+        return results.register_gridfs_file(DDK=(self.outdir.has_abiext("DDK"), "t"))
 
 
 class PhononTask(AbinitTask, ProduceDdb):
@@ -3244,7 +3244,7 @@ class PhononTask(AbinitTask, ProduceDdb):
 
     def get_results(self, **kwargs):
         results = super(PhononTask, self).get_results(**kwargs)
-        return results.add_gridfs_file(DDB=(self.outdir.has_abiext("DDB"), "t"))
+        return results.register_gridfs_file(DDB=(self.outdir.has_abiext("DDB"), "t"))
 
     def make_links(self):
         super(PhononTask, self).make_links()
@@ -3312,7 +3312,7 @@ class SigmaTask(AbinitTask):
         # Open the SIGRES file and add its data to results.out
         with self.open_sigres() as sigres:
             #results["out"].update(sigres.as_dict())
-            results.add_gridfs_files(SIGRES=sigres.filepath)
+            results.register_gridfs_files(SIGRES=sigres.filepath)
 
         return results
 
@@ -3419,7 +3419,7 @@ class BseTask(AbinitTask):
         with self.open_mdf() as mdf:
             #results["out"].update(mdf.as_dict())
             #epsilon_infinity optical_gap
-            results.add_gridfs_files(MDF=mdf.filepath)
+            results.register_gridfs_files(MDF=mdf.filepath)
 
         return results
 
@@ -3431,7 +3431,7 @@ class OpticTask(Task):
     """
     def __init__(self, optic_input, nscf_node, ddk_nodes, workdir=None, manager=None):
         """
-        Create an instance of `OpticTask` from an string containing the input.
+        Create an instance of :class:`OpticTask` from an string containing the input.
     
         Args:
             optic_input: string with the optic variables (filepaths will be added at run time).

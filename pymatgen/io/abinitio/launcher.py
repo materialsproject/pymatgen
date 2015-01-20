@@ -37,6 +37,22 @@ def straceback():
     return traceback.format_exc()
 
 
+def ask_yesno(prompt, default=True):
+    import six
+    # Fix python 2.x.
+    if six.PY2:
+        my_input = raw_input
+    else:
+        my_input = input
+
+    try:
+        answer = my_input(prompt)
+    except EOFError:
+        return default
+
+    return answer.lower().strip() in ["n", "no"]
+
+
 class ScriptEditor(object):
     """Simple editor that simplifies the writing of shell scripts"""
     _shell = '/bin/bash'
@@ -469,10 +485,14 @@ class PyFlowScheduler(object):
 
         try:
             self.sched.start()
+            return True
+
         except KeyboardInterrupt:
             self.shutdown(msg="KeyboardInterrupt from user")
-
-        return True
+            if ask_yesno("Do you want to cancel all the jobs in the queue? [Y/n]"): 
+                self.flow.cancel()
+            self.flow.pickle_dump()
+            return False
 
     def _runem_all(self):
         """
