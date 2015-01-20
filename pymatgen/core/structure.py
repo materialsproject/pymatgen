@@ -926,7 +926,7 @@ class IStructure(SiteCollection, PMGSONable):
             vec -= np.round(vec)
         sp = self.species_and_occu
         structs = []
-        for x in range(nimages+1):
+        for x in range(nimages + 1):
             if interpolate_lattices:
                 l_a = lstart + x / nimages * lvec
                 l = Lattice.from_lengths_and_angles(*l_a)
