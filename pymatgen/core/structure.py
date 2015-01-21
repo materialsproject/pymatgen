@@ -1208,8 +1208,8 @@ class IStructure(SiteCollection, PMGSONable):
 
         # Set small values to zero. This usually happens when the CIF file
         # does not give structure parameters with enough digits.
-        #rprim = np.where(np.abs(rprim) > 1e-8, rprim, 0.0)
-        #xred = np.where(np.abs(xred) > 1e-8, xred, 0.0)
+        rprim = np.where(np.abs(rprim) > 1e-8, rprim, 0.0)
+        xred = np.where(np.abs(xred) > 1e-8, xred, 0.0)
 
         # Info on atoms.
         d = dict(
