@@ -42,6 +42,8 @@ import numpy as np
 from monty.fractions import lcm
 from monty.fractions import fractions
 
+from six.moves import reduce
+
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
