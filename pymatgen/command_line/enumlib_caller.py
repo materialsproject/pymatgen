@@ -39,6 +39,8 @@ import itertools
 import logging
 
 import numpy as np
+from monty.fractions import lcm
+from monty.fractions import fractions
 
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.core.sites import PeriodicSite
@@ -257,7 +259,14 @@ class EnumlibAdaptor(object):
         output.append("partial")
 
         ndisordered = sum([len(s) for s in disordered_sites])
-        base = ndisordered #10 ** int(math.ceil(math.log10(ndisordered)))
+
+        base = int(ndisordered*reduce(lcm,
+                                      [f.limit_denominator(
+                                          ndisordered *
+                                          self.max_cell_size).denominator
+                                       for f in map(fractions.Fraction,
+                                                    index_amounts)]))
+        #base = ndisordered #10 ** int(math.ceil(math.log10(ndisordered)))
         #To get a reasonable number of structures, we fix concentrations to the
         #range expected in the original structure.
         total_amounts = sum(index_amounts)
