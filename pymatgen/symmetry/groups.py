@@ -224,7 +224,7 @@ class SpaceGroup(object):
         orbit = []
         for o in self.symmetry_ops:
             pp = o.operate(p)
-            pp = np.mod(pp, 1)
+            pp = np.mod(np.round(pp, decimals=10), 1)
             if not in_array_list(orbit, pp, tol=tol):
                 orbit.append(pp)
         return orbit
