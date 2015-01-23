@@ -395,13 +395,13 @@ class PotcarSingleTest(unittest.TestCase):
             self.assertIsNotNone(getattr(self.psingle, k))
 
     def test_found_unknown_key(self):
-        self.assertRaises(KeyError, self.psingle.proc_val, 'BAD_KEY', 'BAD_VALUE')
+        self.assertRaises(KeyError, PotcarSingle.parse_functions.get('BAD_KEY'), "BAD_VALUE")
 
     def test_bad_value(self):
-        self.assertRaises(ValueError, self.psingle.proc_val, 'ENMAX', 'ThisShouldBeAFloat')
+        self.assertRaises(ValueError, PotcarSingle.parse_functions['ENMAX'], "ThisShouldBeAFloat")
 
     def test_hash(self):
-        self.assertEqual(hash(self.psingle), 7054299479703042396)
+        self.assertEqual(self.psingle.get_potcar_hash(), "7a6eb9064639318a7378b56412abb2da")
 
     def test_from_functional_and_symbols(self):
         if "VASP_PSP_DIR" not in os.environ:
