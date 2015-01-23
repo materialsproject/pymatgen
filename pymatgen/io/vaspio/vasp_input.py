@@ -1190,6 +1190,26 @@ def get_potcar_dir():
         return os.environ["VASP_PSP_DIR"]
     return None
 
+def parse_string(s):
+    return s.strip()
+
+def parse_bool(s):
+    m = re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", s)
+    if m:
+        if m.group(1) == "T" or m.group(1) == "t":
+            return True
+        else:
+            return False
+    raise ValueError(s + " should be a boolean type!")
+
+def parse_float(s):
+    return float(re.search(r"^-?\d*\.?\d*[e|E]?-?\d*", s).group(0))
+
+def parse_int(s):
+    return int(re.match(r"^-?[0-9]+", s).group(0))
+
+def parse_list(s):
+    return map(float, re.split("\s+", s.strip()))
 
 @cached_class
 class PotcarSingle(object):
@@ -1215,59 +1235,78 @@ class PotcarSingle(object):
     functional_dir = {"PBE": "POT_GGA_PAW_PBE", "LDA": "POT_LDA_PAW",
                       "PW91": "POT_GGA_PAW_PW91", "LDA_US": "POT_LDA_US"}
 
+    parse_functions = {"LULTRA": parse_bool,
+                       "LCOR": parse_bool,
+                       "LPAW": parse_bool,
+                       "EATOM": parse_float,
+                       "RPACOR": parse_float,
+                       "POMASS": parse_float,
+                       "ZVAL": parse_float,
+                       "RCORE": parse_float,
+                       "RWIGS": parse_float,
+                       "ENMAX": parse_float,
+                       "ENMIN": parse_float,
+                       "EAUG": parse_float,
+                       "DEXC": parse_float,
+                       "RMAX": parse_float,
+                       "RAUG": parse_float,
+                       "RDEP": parse_float,
+                       "RDEPT": parse_float,
+                       "QCUT": parse_float,
+                       "QGAM": parse_float,
+                       "RCLOC": parse_float,
+                       "IUNSCR": parse_int,
+                       "ICORE": parse_int,
+                       "NDATA": parse_int,
+                       "VRHFIN": parse_string,
+                       "LEXCH": parse_string,
+                       "TITEL": parse_string,
+                       "STEP": parse_list,
+                       "RRKJ": parse_list}
+
     def __init__(self, data):
         self.data = data  # raw POTCAR as a string
 
         search_lines = re.search(r"(?s)(parameters from PSCTR are:"
                                  r".*?END of PSCTR-controll parameters)",
                                  data).group(1)
-        params = {}
 
-        for key, val in re.findall(";*\s*(.+?)\s*=\s*([^;\n]+)\s*",
+        self.keywords = {}
+        for key, val in re.findall("(\S+)\s*=\s*(.*?)(?=;|$)",
                                    search_lines, flags=re.MULTILINE):
-            val = self.proc_val(key, val)
-            params[key] = val
+            self.keywords[key] = self.parse_functions[key](val)
 
-        self.keywords = dict(params)
 
         PSCTR = OrderedDict()
         Orbital = namedtuple('Orbital', ['n', 'l', 'j', 'E', 'occ'])
         Description = namedtuple('OrbitalDescription', ['l', 'E',
                                                         'Type', "Rcut"])
-        array_search = re.compile(r"\-?([0-9\.]+)\s*")
+        array_search = re.compile(r"(-*[0-9\.]+)")
         orbitals = []
         descriptions = []
-
         atomic_configuration = re.search(r"Atomic configuration\s*\n?"
                                                 r"(.*?)Description",
                                                 search_lines)
         if atomic_configuration:
-            for i, line in enumerate(atomic_configuration.group(1).splitlines()):
-                if i == 0:
-                    num_entries = re.search(r"([0-9]+)", line).group(1)
-                    try:
-                        num_entries = int(num_entries)
-                    except ValueError:
-                        raise ValueError
-                    PSCTR['nentries'] = num_entries
-
-                elif i > 1:
-                    orbit = array_search.findall(line)
-
-                    if orbit:
-                        orbitals.append(Orbital(int(orbit[0]),
-                                                int(orbit[1]),
-                                                float(orbit[2]),
-                                                float(orbit[3]),
-                                                float(orbit[4])))
+            lines = atomic_configuration.group(1).splitlines()
+            num_entries = re.search(r"([0-9]+)", lines[0]).group(1)
+            num_entries = int(num_entries)
+            PSCTR['nentries'] = num_entries
+            for line in lines[1:]:
+                orbit = array_search.findall(line)
+                if orbit:
+                    orbitals.append(Orbital(int(orbit[0]),
+                                            int(orbit[1]),
+                                            float(orbit[2]),
+                                            float(orbit[3]),
+                                            float(orbit[4])))
             PSCTR['orbitals'] = tuple(orbitals)
 
-        descritption_string = re.search(r"(?s)Description\s*\n"
-                                        r"(.*?)Error from kinetic"
-                                        r" energy argument \(eV\)",
-                                                    search_lines)
-
-        for line in descritption_string.group(1).splitlines():
+        description_string = re.search(r"(?s)Description\s*\n"
+                                       r"(.*?)Error from kinetic"
+                                       r" energy argument \(eV\)",
+                                       search_lines)
+        for line in description_string.group(1).splitlines():
             description = array_search.findall(line)
             if description:
                 descriptions.append(Description(int(description[0]),
@@ -1285,12 +1324,13 @@ class PotcarSingle(object):
         RRKJ_array = []
         for line in RRKJ_kinetic_energy_string.group(1).splitlines():
             if "=" not in line:
-                RRKJ_array += self.proc_val("RRKJ", line.strip('\n'))
+                RRKJ_array += parse_list(line.strip('\n'))
         if RRKJ_array:
             PSCTR['RRKJ'] = tuple(RRKJ_array)
 
-        PSCTR.update(params)
-        self.PSCTR = OrderedDict(sorted(PSCTR.items(), key=lambda x:x[0]))
+        PSCTR.update(self.keywords)
+        self.PSCTR = OrderedDict(sorted(PSCTR.items(), key=lambda x: x[0]))
+        self.get_potcar_hash()
 
     def __str__(self):
         return self.data + "\n"
@@ -1347,58 +1387,17 @@ class PotcarSingle(object):
     def nelectrons(self):
         return self.zval
 
+    def get_potcar_hash(self):
+        s = ""
+        for k, v in self.PSCTR.items():
+            s += k
+            if isinstance(v, list):
+                for x in v:
+                    pass
+            print k, v
+
     def __hash__(self):
-
         return hash(str(self.PSCTR.items()))
-
-    @staticmethod
-    def proc_val(key, val):
-        """
-        Static helper method to convert POTCAR parameters to proper types, e.g.,
-        integers, floats, bool, etc.
-
-        Args:
-            key: POTCAR parameter key
-            val: Actual value of POTCAR parameter.
-        """
-        bool_keys = ("LULTRA", "LCOR", "LPAW")
-        float_keys = ("EATOM", "RPACOR", "POMASS", "ZVAL", "RCORE", "RWIGS",
-                      "ENMAX", "ENMIN", "EAUG", "DEXC", "RMAX", "RAUG", "RDEP",
-                      "RDEPT", "QCUT", "QGAM", "RCLOC")
-        int_keys = ("IUNSCR", "ICORE", "NDATA")
-        string_keys = ("VRHFIN", "LEXCH", "TITEL")
-        list_keys = ("STEP", "RRKJ")
-
-        try:
-
-            if key in string_keys:
-                return val.strip(" ")
-
-            elif key in bool_keys:
-                m = re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", val)
-                if m:
-                    if m.group(1) == "T" or m.group(1) == "t":
-                        return True
-                    else:
-                        return False
-                raise ValueError(key + " should be a boolean type!")
-
-            elif key in float_keys:
-                return float(re.search(r"^-?\d*\.?\d*[e|E]?-?\d*", val).group(0))
-
-            elif key in int_keys:
-                return int(re.match(r"^-?[0-9]+", val).group(0))
-
-            elif key in list_keys:
-                return map(float, re.sub(r"\s\s+", " ", val).strip(" ").split(" "))
-
-            else:
-                #Not in standard keys. Raise error
-                raise ValueError('Key {} with value {} is not'
-                         ' currently in lists of known keys, exiting'.format(key.strip(), val.strip))
-
-        except:
-            raise ValueError('Key {} with value {} is not parseable '.format(key.strip(), val.strip))
 
     def __getattr__(self, a):
         """
@@ -1603,3 +1602,4 @@ class VaspInput(dict, PMGSONable):
                 sub_d["optional_files"][fname] = \
                     ftype.from_file(os.path.join(input_dir, fname))
         return VaspInput(**sub_d)
+

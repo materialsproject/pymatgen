@@ -395,7 +395,7 @@ class PotcarSingleTest(unittest.TestCase):
             self.assertIsNotNone(getattr(self.psingle, k))
 
     def test_found_unknown_key(self):
-        self.assertRaises(ValueError, self.psingle.proc_val, 'BAD_KEY', 'BAD_VALUE')
+        self.assertRaises(KeyError, self.psingle.proc_val, 'BAD_KEY', 'BAD_VALUE')
 
     def test_bad_value(self):
         self.assertRaises(ValueError, self.psingle.proc_val, 'ENMAX', 'ThisShouldBeAFloat')
