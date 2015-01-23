@@ -9,7 +9,7 @@ files.
 
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
-    "Vincent L Chevrier"
+    "Vincent L Chevrier, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -26,6 +26,7 @@ import logging
 import six
 import numpy as np
 from numpy.linalg import det
+from collections import OrderedDict, namedtuple
 
 from monty.io import zopen
 from monty.os.path import zpath
@@ -588,14 +589,14 @@ class Incar(dict, PMGSONable):
             key: INCAR parameter key
             val: Actual value of INCAR parameter.
         """
-        list_keys = ("LDAUU", "LDAUL", "LDAUJ", "LDAUTYPE", "MAGMOM")
+        list_keys = ("LDAUU", "LDAUL", "LDAUJ", "MAGMOM")
         bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE",
                      "LHFCALC", "ADDGRID")
         float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN",
-                      "POTIM")
+                      "POTIM", "EDIFFG")
         int_keys = ("NSW", "NBANDS", "NELMIN", "ISIF", "IBRION", "ISPIN",
                     "ICHARG", "NELM", "ISMEAR", "NPAR", "LDAUPRINT", "LMAXMIX",
-                    "ENCUT", "NSIM", "NKRED", "NUPDOWN", "ISPIND")
+                    "ENCUT", "NSIM", "NKRED", "NUPDOWN", "ISPIND", "LDAUTYPE")
 
         def smart_int_or_float(numstr):
             if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
@@ -605,18 +606,18 @@ class Incar(dict, PMGSONable):
         try:
             if key in list_keys:
                 output = []
-                toks = val.split()
+                toks = re.findall(r"(-?\d+\.?\d*)\*?(-?\d+\.?\d*)?", val)
 
                 for tok in toks:
-                    m = re.match("(\d+)\*([\d\.\-\+]+)", tok)
-                    if m:
-                        output.extend([smart_int_or_float(m.group(2))]
-                                      * int(m.group(1)))
+                    if tok[1]:
+
+                        output.extend([smart_int_or_float(tok[1])]
+                                      * int(tok[0]))
                     else:
-                        output.append(smart_int_or_float(tok))
+                        output.append(smart_int_or_float(tok[0]))
                 return output
             if key in bool_keys:
-                m = re.search("^\W+([TtFf])", val)
+                m = re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", val)
                 if m:
                     if m.group(1) == "T" or m.group(1) == "t":
                         return True
@@ -625,10 +626,10 @@ class Incar(dict, PMGSONable):
                 raise ValueError(key + " should be a boolean type!")
 
             if key in float_keys:
-                return float(val)
+                return float(re.search(r"^-?[0]?\.?\d*[e|E]?-?\d*", val).group(0))
 
             if key in int_keys:
-                return int(val)
+                return int(re.match(r"^-?[0-9]+", val).group(0))
 
         except ValueError:
             pass
@@ -651,8 +652,13 @@ class Incar(dict, PMGSONable):
 
         if "false" in val.lower():
             return False
-
-        return val.capitalize()
+        try:
+            if key not in ("TITEL", "SYSTEM"):
+                return re.search(r"^-?[0-9]+", val.capitalize()).group(0)
+            else:
+                return val.capitalize()
+        except:
+            return val.capitalize()
 
     def diff(self, other):
         """
@@ -1211,13 +1217,80 @@ class PotcarSingle(object):
 
     def __init__(self, data):
         self.data = data  # raw POTCAR as a string
-        # AJ (5/18/2012) - only search on relevant portion of POTCAR, should
-        # fail gracefully if string not found
-        #search_string = self.data[0:self.data.find("END of PSCTR-controll
-        # parameters")]
-        keypairs = re.compile(r";*\s*(.+?)\s*=\s*([^;\n]+)\s*",
-                              re.M).findall(self.data)
-        self.keywords = dict(keypairs)
+
+        search_lines = re.search(r"(?s)(parameters from PSCTR are:"
+                                 r".*?END of PSCTR-controll parameters)",
+                                 data).group(1)
+        params = {}
+
+        for key, val in re.findall(";*\s*(.+?)\s*=\s*([^;\n]+)\s*",
+                                   search_lines, flags=re.MULTILINE):
+            val = self.proc_val(key, val)
+            params[key] = val
+
+        self.keywords = dict(params)
+
+        PSCTR = OrderedDict()
+        Orbital = namedtuple('Orbital', ['n', 'l', 'j', 'E', 'occ'])
+        Description = namedtuple('OrbitalDescription', ['l', 'E',
+                                                        'Type', "Rcut"])
+        array_search = re.compile(r"\-?([0-9\.]+)\s*")
+        orbitals = []
+        descriptions = []
+
+        atomic_configuration = re.search(r"Atomic configuration\s*\n?"
+                                                r"(.*?)Description",
+                                                search_lines)
+        if atomic_configuration:
+            for i, line in enumerate(atomic_configuration.group(1).splitlines()):
+                if i == 0:
+                    num_entries = re.search(r"([0-9]+)", line).group(1)
+                    try:
+                        num_entries = int(num_entries)
+                    except ValueError:
+                        raise ValueError
+                    PSCTR['nentries'] = num_entries
+
+                elif i > 1:
+                    orbit = array_search.findall(line)
+
+                    if orbit:
+                        orbitals.append(Orbital(int(orbit[0]),
+                                                int(orbit[1]),
+                                                float(orbit[2]),
+                                                float(orbit[3]),
+                                                float(orbit[4])))
+            PSCTR['orbitals'] = tuple(orbitals)
+
+        descritption_string = re.search(r"(?s)Description\s*\n"
+                                        r"(.*?)Error from kinetic"
+                                        r" energy argument \(eV\)",
+                                                    search_lines)
+
+        for line in descritption_string.group(1).splitlines():
+            description = array_search.findall(line)
+            if description:
+                descriptions.append(Description(int(description[0]),
+                                                float(description[1]),
+                                                int(description[2]),
+                                                float(description[3])))
+        if descriptions:
+            PSCTR['descriptions'] = tuple(descriptions)
+
+        RRKJ_kinetic_energy_string = re.search(r"(?s)Error from kinetic "
+                                               r"energy argument \(eV\)\s*\n"
+                                               r"(.*?)END of PSCTR-controll"
+                                               r" parameters",
+                                               search_lines)
+        RRKJ_array = []
+        for line in RRKJ_kinetic_energy_string.group(1).splitlines():
+            if "=" not in line:
+                RRKJ_array += self.proc_val("RRKJ", line.strip('\n'))
+        if RRKJ_array:
+            PSCTR['RRKJ'] = tuple(RRKJ_array)
+
+        PSCTR.update(params)
+        self.PSCTR = OrderedDict(sorted(PSCTR.items(), key=lambda x:x[0]))
 
     def __str__(self):
         return self.data + "\n"
@@ -1274,6 +1347,59 @@ class PotcarSingle(object):
     def nelectrons(self):
         return self.zval
 
+    def __hash__(self):
+
+        return hash(str(self.PSCTR.items()))
+
+    @staticmethod
+    def proc_val(key, val):
+        """
+        Static helper method to convert POTCAR parameters to proper types, e.g.,
+        integers, floats, bool, etc.
+
+        Args:
+            key: POTCAR parameter key
+            val: Actual value of POTCAR parameter.
+        """
+        bool_keys = ("LULTRA", "LCOR", "LPAW")
+        float_keys = ("EATOM", "RPACOR", "POMASS", "ZVAL", "RCORE", "RWIGS",
+                      "ENMAX", "ENMIN", "EAUG", "DEXC", "RMAX", "RAUG", "RDEP",
+                      "RDEPT", "QCUT", "QGAM", "RCLOC")
+        int_keys = ("IUNSCR", "ICORE", "NDATA")
+        string_keys = ("VRHFIN", "LEXCH", "TITEL")
+        list_keys = ("STEP", "RRKJ")
+
+        try:
+
+            if key in string_keys:
+                return val.strip(" ")
+
+            elif key in bool_keys:
+                m = re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", val)
+                if m:
+                    if m.group(1) == "T" or m.group(1) == "t":
+                        return True
+                    else:
+                        return False
+                raise ValueError(key + " should be a boolean type!")
+
+            elif key in float_keys:
+                return float(re.search(r"^-?\d*\.?\d*[e|E]?-?\d*", val).group(0))
+
+            elif key in int_keys:
+                return int(re.match(r"^-?[0-9]+", val).group(0))
+
+            elif key in list_keys:
+                return map(float, re.sub(r"\s\s+", " ", val).strip(" ").split(" "))
+
+            else:
+                #Not in standard keys. Raise error
+                raise ValueError('Key {} with value {} is not'
+                         ' currently in lists of known keys, exiting'.format(key.strip(), val.strip))
+
+        except:
+            raise ValueError('Key {} with value {} is not parseable '.format(key.strip(), val.strip))
+
     def __getattr__(self, a):
         """
         Delegates attributes to keywords. For example, you can use
@@ -1282,14 +1408,11 @@ class PotcarSingle(object):
         For float type properties, they are converted to the correct float. By
         default, all energies in eV and all length scales are in Angstroms.
         """
-        floatkeywords = ["DEXC", "RPACOR", "ENMAX", "QCUT", "EAUG", "RMAX",
-                         "ZVAL", "EATOM", "NDATA", "QGAM", "ENMIN", "RCLOC",
-                         "RCORE", "RDEP", "RAUG", "POMASS", "RWIGS"]
-        a_caps = a.upper()
-        if a_caps in self.keywords:
-            return self.keywords[a_caps] if a_caps not in floatkeywords \
-                else float(self.keywords[a_caps].split()[0])
-        raise AttributeError(a)
+
+        try:
+            return self.keywords[a.upper()]
+        except:
+            raise AttributeError(a)
 
 
 class Potcar(list, PMGSONable):
