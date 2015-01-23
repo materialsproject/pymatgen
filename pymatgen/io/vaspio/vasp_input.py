@@ -27,6 +27,7 @@ import six
 import numpy as np
 from numpy.linalg import det
 from collections import OrderedDict, namedtuple
+from hashlib import md5
 
 from monty.io import zopen
 from monty.os.path import zpath
@@ -1264,6 +1265,10 @@ class PotcarSingle(object):
                        "STEP": parse_list,
                        "RRKJ": parse_list}
 
+    Orbital = namedtuple('Orbital', ['n', 'l', 'j', 'E', 'occ'])
+    Description = namedtuple('OrbitalDescription', ['l', 'E',
+                                                    'Type', "Rcut"])
+
     def __init__(self, data):
         self.data = data  # raw POTCAR as a string
 
@@ -1278,9 +1283,7 @@ class PotcarSingle(object):
 
 
         PSCTR = OrderedDict()
-        Orbital = namedtuple('Orbital', ['n', 'l', 'j', 'E', 'occ'])
-        Description = namedtuple('OrbitalDescription', ['l', 'E',
-                                                        'Type', "Rcut"])
+
         array_search = re.compile(r"(-*[0-9\.]+)")
         orbitals = []
         descriptions = []
@@ -1295,12 +1298,12 @@ class PotcarSingle(object):
             for line in lines[1:]:
                 orbit = array_search.findall(line)
                 if orbit:
-                    orbitals.append(Orbital(int(orbit[0]),
+                    orbitals.append(self.Orbital(int(orbit[0]),
                                             int(orbit[1]),
                                             float(orbit[2]),
                                             float(orbit[3]),
                                             float(orbit[4])))
-            PSCTR['orbitals'] = tuple(orbitals)
+            PSCTR['Orbitals'] = tuple(orbitals)
 
         description_string = re.search(r"(?s)Description\s*\n"
                                        r"(.*?)Error from kinetic"
@@ -1309,12 +1312,12 @@ class PotcarSingle(object):
         for line in description_string.group(1).splitlines():
             description = array_search.findall(line)
             if description:
-                descriptions.append(Description(int(description[0]),
+                descriptions.append(self.Description(int(description[0]),
                                                 float(description[1]),
                                                 int(description[2]),
                                                 float(description[3])))
         if descriptions:
-            PSCTR['descriptions'] = tuple(descriptions)
+            PSCTR['OrbitalDescriptions'] = tuple(descriptions)
 
         RRKJ_kinetic_energy_string = re.search(r"(?s)Error from kinetic "
                                                r"energy argument \(eV\)\s*\n"
@@ -1388,16 +1391,31 @@ class PotcarSingle(object):
         return self.zval
 
     def get_potcar_hash(self):
-        s = ""
+        hash_str = ""
         for k, v in self.PSCTR.items():
-            s += k
-            if isinstance(v, list):
-                for x in v:
-                    pass
-            print k, v
+            hash_str += k
 
-    def __hash__(self):
-        return hash(str(self.PSCTR.items()))
+            if isinstance(v, int):
+                hash_str += "{}".format(v)
+            elif isinstance(v, float):
+                hash_str += "{:.3f}".format(v)
+            elif isinstance(v, str):
+                hash_str += v.replace(" ", "")
+            elif isinstance(v, bool):
+                hash_str += "{}".format(bool)
+            elif isinstance(v, tuple):
+                for item in v:
+                    if isinstance(item, float):
+                        hash_str += "{:.3f}".format(item)
+                    elif isinstance(item, (self.Orbital, self.Description)):
+                        for i_k, i_v in item._asdict().items():
+                            hash_str += "{}".format(i_k)
+                            if isinstance(i_v, int):
+                                hash_str += "{}".format(i_v)
+                            else:
+                                hash_str += "{:.3f}".format(i_v)
+
+        return md5(hash_str.lower()).hexdigest()
 
     def __getattr__(self, a):
         """
