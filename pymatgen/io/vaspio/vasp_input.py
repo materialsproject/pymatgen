@@ -1408,12 +1408,11 @@ class PotcarSingle(object):
                     if isinstance(item, float):
                         hash_str += "{:.3f}".format(item)
                     elif isinstance(item, (self.Orbital, self.Description)):
-                        for i_k, i_v in item._asdict().items():
-                            hash_str += "{}".format(i_k)
-                            if isinstance(i_v, int):
-                                hash_str += "{}".format(i_v)
+                        for item_v in item:
+                            if isinstance(item_v, int):
+                                hash_str += "{}".format(item_v)
                             else:
-                                hash_str += "{:.3f}".format(i_v)
+                                hash_str += "{:.3f}".format(item_v)
 
         return md5(hash_str.lower()).hexdigest()
 
