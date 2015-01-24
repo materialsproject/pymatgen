@@ -401,7 +401,7 @@ class PotcarSingleTest(unittest.TestCase):
         self.assertRaises(ValueError, PotcarSingle.parse_functions['ENMAX'], "ThisShouldBeAFloat")
 
     def test_hash(self):
-        self.assertEqual(self.psingle.get_potcar_hash(), "9762b66cba7025d5dde0bce7becc04b0")
+        self.assertEqual(self.psingle.get_potcar_hash(), "b73c3d9de30107a22566f601535e609c")
 
     def test_from_functional_and_symbols(self):
         if "VASP_PSP_DIR" not in os.environ:
