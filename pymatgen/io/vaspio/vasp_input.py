@@ -1191,8 +1191,10 @@ def get_potcar_dir():
         return os.environ["VASP_PSP_DIR"]
     return None
 
+
 def parse_string(s):
-    return s.strip()
+    return "{}".format(s.strip())
+
 
 def parse_bool(s):
     m = re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", s)
@@ -1203,16 +1205,18 @@ def parse_bool(s):
             return False
     raise ValueError(s + " should be a boolean type!")
 
+
 def parse_float(s):
     return float(re.search(r"^-?\d*\.?\d*[e|E]?-?\d*", s).group(0))
+
 
 def parse_int(s):
     return int(re.match(r"^-?[0-9]+", s).group(0))
 
+
 def parse_list(s):
     return map(float, re.split("\s+", s.strip()))
 
-@cached_class
 class PotcarSingle(object):
     """
     Object for a **single** POTCAR. The builder assumes the complete string is
@@ -1277,7 +1281,7 @@ class PotcarSingle(object):
                                  data).group(1)
 
         self.keywords = {}
-        for key, val in re.findall("(\S+)\s*=\s*(.*?)(?=;|$)",
+        for key, val in re.findall(r"(\S+)\s*=\s*(.*?)(?=;|$)",
                                    search_lines, flags=re.MULTILINE):
             self.keywords[key] = self.parse_functions[key](val)
 
@@ -1333,7 +1337,7 @@ class PotcarSingle(object):
 
         PSCTR.update(self.keywords)
         self.PSCTR = OrderedDict(sorted(PSCTR.items(), key=lambda x: x[0]))
-        self.get_potcar_hash()
+        self.hash = self.get_potcar_hash()
 
     def __str__(self):
         return self.data + "\n"
@@ -1393,14 +1397,14 @@ class PotcarSingle(object):
     def get_potcar_hash(self):
         hash_str = ""
         for k, v in self.PSCTR.items():
-            hash_str += k
+            hash_str += "{}".format(k)
 
             if isinstance(v, int):
                 hash_str += "{}".format(v)
             elif isinstance(v, float):
                 hash_str += "{:.3f}".format(v)
             elif isinstance(v, str):
-                hash_str += v.replace(" ", "")
+                hash_str += "{}".format(v.replace(" ", ""))
             elif isinstance(v, bool):
                 hash_str += "{}".format(bool)
             elif isinstance(v, tuple):
@@ -1413,7 +1417,7 @@ class PotcarSingle(object):
                                 hash_str += "{}".format(item_v)
                             else:
                                 hash_str += "{:.3f}".format(item_v)
-
+        self.hash_str = hash_str
         return md5(hash_str.lower()).hexdigest()
 
     def __getattr__(self, a):
