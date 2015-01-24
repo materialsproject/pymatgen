@@ -79,6 +79,20 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         syms = MPVaspInputSet(sort_structure=False).get_potcar_symbols(struct)
         self.assertEqual(syms, ['P', 'Fe_pv', 'O'])
 
+    def test_false_potcar_hash(self):
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.5, 0.75])
+        coords.append([0.75, 0.25, 0.75])
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
+        struct = Structure(lattice, ["P", "Fe", "O"], coords)
+
+        self.mitparamset.potcar_settings['Fe']['symbol'] = 'Fe_pv'
+        self.assertRaises(ValueError, self.mitparamset.get_potcar, struct, check_hash=True)
+        self.mitparamset.potcar_settings['Fe']['symbol'] = 'Fe'
+
     def test_lda_potcar(self):
         coords = list()
         coords.append([0, 0, 0])
