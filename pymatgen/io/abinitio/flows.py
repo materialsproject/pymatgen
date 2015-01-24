@@ -855,7 +855,7 @@ class Flow(Node):
                     j ==> job_file,
                     l ==> log_file,
                     e ==> stderr_file,
-                    q ==> qerr_file,
+                    q ==> qout_file,
             status: if not None, only the tasks with this status are select
             op: status operator. Requires status. A task is selected
                 if task.status op status evaluates to true.
@@ -871,8 +871,8 @@ class Flow(Node):
                 "j": task.job_file,
                 "l": task.log_file,
                 "e": task.stderr_file,
-                "q": task.qerr_file,
-                #"q": task.qout_file,
+                "q": task.qout_file,
+                #"q": task.qerr_file,
             }
 
             selected = []

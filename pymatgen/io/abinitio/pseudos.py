@@ -1743,8 +1743,11 @@ class PseudoTable(collections.Sequence):
         rows, names, errors = [], [], []
 
         for p in self:
-            print(p.basename)
             report = p.dojo_report
+            if "version" not in report:
+                print("ignoring old report in ", p.basename)
+                continue
+
             d = {"symbol": p.symbol, "Z": p.Z}
             names.append(p.basename)
 
@@ -1764,21 +1767,105 @@ class PseudoTable(collections.Sequence):
                     if data is None: continue
                     for acc in accuracies:
                         ecut = ecut_acc[acc]
-                        d.update({acc + "_" + k: float(data[ecut][k]) for k in keys}) 
-
-                rows.append(d)
-                #print(d)
+                        if trial.startswith("gbrv"):
+                            d.update({acc + "_" + trial + "_" + k: float(data[ecut][k]) for k in keys}) 
+                        else:
+                            d.update({acc + "_" + k: float(data[ecut][k]) for k in keys}) 
 
             except Exception as exc:
-                logger.warning(p.basename, "exc", str(exc))
+                logger.critical("%s raised %s" % (p.basename, exc))
                 errors.append((p.basename, str(exc)))
 
-        #print(rows)
-        import pandas as pd
-        class DojoDataFrame(pd.DataFrame):
-            pass
+            #print(d)
+            rows.append(d)
 
+        # Build sub-class of pandas.DataFrame
         return DojoDataFrame(rows, index=names), errors
+
+
+import pandas as pd
+#from tabulate import tabulate
+
+class DojoDataFrame(pd.DataFrame):
+    ALL_ACCURACIES = ("low", "normal", "high")
+
+    ALL_TRIALS = (
+        #"ecut",
+        "deltafactor",
+        "gbrv_bcc",
+        "gbrv_fcc",
+    )
+
+    _TRIALS2KEY = {
+        #"ecut": "ecut",
+        "deltafactor": "dfact_meV",
+        "gbrv_bcc": "a0_rel_err",
+        "gbrv_fcc": "a0_rel_err",
+    }
+
+    def tabulate(self, trials="all"):
+        pass
+
+    def select_rows(self, rows):
+        if not isinstance(rows, (list, tuple)): rows = [rows]
+        
+        data = []
+        for index, entry in self.iterrows():
+            element = _PTABLE[entry.Z]
+            if element.row in rows:
+                data.append(entry)
+
+        return self.__class__(data=data)
+
+    def get_family(self, family):
+        data = []
+        for index, entry in self.iterrows():
+            element = _PTABLE[entry.Z]
+            # e.g element.is_alkaline
+            if getattr(element, "is_" + family):
+                data.append(entry)
+        return self.__class__(data=data)
+
+    @add_fig_kwargs
+    def show_hist(self, what="dfact_meV", bins=400, **kwargs):
+        import matplotlib.pyplot as plt
+        fig, ax_list = plt.subplots(nrows=len(self.ALL_ACCURACIES), ncols=1, sharex=True, sharey=False, squeeze=True)
+
+        for acc, ax in zip(self.ALL_ACCURACIES, ax_list):
+            col = acc + "_" + what
+            #self[col].hist(ax=ax, bins=bins, label=col)
+            self[col].plot(ax=ax, kind="bar", label=col)
+
+        return fig
+
+    @add_fig_kwargs
+    def show_trials(self, trials="all", accuracy="normal", **kwargs):
+        import matplotlib.pyplot as plt
+        trials = self.ALL_TRIALS if trials == "all" else list_strings(trials)
+        fig, ax_list = plt.subplots(nrows=len(trials), ncols=1, sharex=True, sharey=False, squeeze=True)
+                                                                                                                      
+        for trial, ax in zip(trials, ax_list):
+            what = self._TRIALS2KEY[trial]
+            col = accuracy + "_" + what
+            self[col].plot(ax=ax, kind="bar", label=col)
+                                                                                                                      
+        return fig
+
+    def sns_plot(self):
+        import seaborn as sns
+        import matplotlib.pyplot as plt
+        #self.plot(x="symbol", y="high_dfact_meV", use_index=True)
+        #data = calc_rerrors(data)
+        g = sns.PairGrid(self, x_vars="Z", y_vars=[
+            "low_ecut",
+            "low_dfact_meV",
+            #"high_dfact_meV", 
+            #"low_v0_rerr", "low_b0_GPa_rerr", "low_b1_rerr",
+            ]
+        ) #, hue="smoker")
+        g.map(plt.scatter)
+        g.add_legend()
+        plt.show()
 
 
 class DojoReport(dict):
