@@ -1217,6 +1217,7 @@ def parse_int(s):
 def parse_list(s):
     return map(float, re.split("\s+", s.strip()))
 
+
 class PotcarSingle(object):
     """
     Object for a **single** POTCAR. The builder assumes the complete string is
@@ -1509,6 +1510,13 @@ class Potcar(list, PMGSONable):
         Get the atomic symbols of all the atoms in the POTCAR file.
         """
         return [p.symbol for p in self]
+
+    @property
+    def data(self):
+        """
+        Get the atomic symbols and hash of all the atoms in the POTCAR file.
+        """
+        return [{"symbol": p.symbol, "hash": p.get_potcar_hash()} for p in self]
 
     def set_symbols(self, symbols, functional=DEFAULT_FUNCTIONAL,
                     sym_potcar_map=None):
