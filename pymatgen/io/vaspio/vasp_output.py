@@ -45,7 +45,7 @@ from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.electronic_structure.bandstructure import BandStructure, \
     BandStructureSymmLine, get_reconstructed_band_structure
 from pymatgen.core.lattice import Lattice
-from pymatgen.io.vaspio.vasp_input import Incar, Kpoints, Poscar
+from pymatgen.io.vaspio.vasp_input import Incar, Kpoints, Poscar, Potcar
 from pymatgen.entries.computed_entries import \
     ComputedEntry, ComputedStructureEntry
 from pymatgen.serializers.json_coders import PMGSONable
@@ -182,6 +182,11 @@ class Vasprun(PMGSONable):
             eigenvalues. Defaults to False. Set to True to obtain projected
             eigenvalues. **Note that this can take an extreme amount of time
             and memory.** So use this wisely.
+        parse_potcar_file (str): Whether to parse the potcar file to read the
+            potcar hashes for the potcar_data attribute. Defaults to None,
+            where no hashes will be determined and the potcar_data dictionaries
+            will read {"symbol": ElSymbol, "hash": None}. If a path string is
+            provided looks for potcar file at the path specfied.
 
     **Vasp results**
 
@@ -301,7 +306,8 @@ class Vasprun(PMGSONable):
 
     def __init__(self, filename, ionic_step_skip=None,
                  ionic_step_offset=0, parse_dos=True,
-                 parse_eigen=True, parse_projected_eigen=False):
+                 parse_eigen=True, parse_projected_eigen=False,
+                 parse_potcar_file=None):
         self.filename = filename
         self.ionic_step_skip = ionic_step_skip
         self.ionic_step_offset = ionic_step_offset
@@ -331,6 +337,9 @@ class Vasprun(PMGSONable):
                             parse_projected_eigen=parse_projected_eigen)
                 self.nionic_steps = len(self.ionic_steps)
 
+            if parse_potcar_file:
+                self.update_potcar_data(parse_potcar_file)
+
     def _parse(self, stream, parse_dos, parse_eigen, parse_projected_eigen):
         self.efermi = None
         self.eigenvalues = None
@@ -355,6 +364,9 @@ class Vasprun(PMGSONable):
                 elif tag == "atominfo":
                     self.atomic_symbols, self.potcar_symbols = \
                         self._parse_atominfo(elem)
+                    self.potcar_data = [{"symbol": p,
+                                         "hash": None} for
+                                        p in self.potcar_symbols]
             if tag == "calculation":
                 parsed_header = True
                 ionic_steps.append(self._parse_calculation(elem))
@@ -531,8 +543,8 @@ class Vasprun(PMGSONable):
         Returns:
             ComputedStructureEntry/ComputedEntry
         """
-        param_names = {"is_hubbard", "hubbards", "potcar_symbols",
-                       "run_type"}
+        param_names = {"is_hubbard", "hubbards",
+                       "potcar_data", "run_type"}
         if parameters:
             param_names.update(parameters)
         params = {p: getattr(self, p) for p in param_names}
@@ -709,6 +721,24 @@ class Vasprun(PMGSONable):
                     cbm_kpoint = k[0]
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
+    def update_potcar_data(self, path):
+        if not all(item["hash"] is None for item in self.potcar_data):
+            warnings.warn("Warning: Potcar hashes have already"
+                          " been set for this object")
+        try:
+            p = Potcar.from_file(path)
+        except:
+            raise ValueError("No POTCAR file found at {}".format(path))
+
+        self.potcar_data = [{"symbol": sym, "hash": ps.get_potcar_hash()}
+                            for sym in self.potcar_symbols for ps in p if
+                            ps.symbol == sym.split()[1]]
+        if len(self.potcar_data) != len(self.potcar_symbols):
+            raise ValueError("Potcar symbols in supplied POTCAR "
+                             "file at {} differ from those found in "
+                             "the provided vasprun.xml".format(path))
+        return 0
+
     def as_dict(self):
         """
         Json-serializable dict representation.
@@ -747,7 +777,8 @@ class Vasprun(PMGSONable):
                         "weight": self.actual_kpoints_weights[i]}
                        for i in range(len(self.actual_kpoints))]
         vin["kpoints"]["actual_points"] = actual_kpts
-        vin["potcar"] = [s.split(" ")[1] for s in self.potcar_symbols]
+        vin["potcar_symbols"] = [s.split(" ")[1] for s in self.potcar_symbols]
+        vin["potcar_data"] = self.potcar_data
         vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]
         vin["parameters"] = {k: v for k, v in self.parameters.items()}
         vin["lattice_rec"] = self.lattice_rec.as_dict()
