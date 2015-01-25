@@ -138,7 +138,7 @@ class VasprunTest(unittest.TestCase):
         self.assertTrue(vasprun_dfpt.converged)
 
         entry = vasprun_dfpt.get_computed_entry()
-        entry = MaterialsProjectCompatibility().process_entry(entry)
+        entry = MaterialsProjectCompatibility(check_potcar_hash=False).process_entry(entry)
         self.assertAlmostEqual(entry.uncorrected_energy + entry.correction,
                                entry.energy)
 
@@ -213,6 +213,48 @@ class VasprunTest(unittest.TestCase):
             self.assertEqual(len(w), 3)
         estep = vasprun.ionic_steps[0]['electronic_steps'][29]
         self.assertTrue(np.isnan(estep['e_wo_entrp']))
+
+    def test_update_potcar(self):
+        filepath = os.path.join(test_dir, 'vasprun.xml')
+        potcar_path = os.path.join(test_dir, 'POTCAR.LiFePO4.gz')
+        potcar_path2 = os.path.join(test_dir, 'POTCAR2.LiFePO4.gz')
+        vasprun = Vasprun(filepath)
+        self.assertEqual(vasprun.potcar_data, [{"symbol": "PAW_PBE Li 17Jan2003", "hash": None},
+                                               {"symbol": "PAW_PBE Fe 06Sep2000", "hash": None},
+                                               {"symbol": "PAW_PBE Fe 06Sep2000", "hash": None},
+                                               {"symbol": "PAW_PBE P 17Jan2003", "hash": None},
+                                               {"symbol": "PAW_PBE O 08Apr2002", "hash": None}])
+
+        vasprun.update_potcar_data(potcar_path)
+
+        self.assertEqual(vasprun.potcar_data, [{"symbol": "PAW_PBE Li 17Jan2003",
+                                                "hash": "9658a0ffb28da97ee7b36709966a0d1c"},
+                                               {"symbol": "PAW_PBE Fe 06Sep2000",
+                                                "hash": "e0051a21ce51eb34a52e9153c17aa32d"},
+                                               {"symbol": "PAW_PBE Fe 06Sep2000",
+                                                "hash": "e0051a21ce51eb34a52e9153c17aa32d"},
+                                               {"symbol": "PAW_PBE P 17Jan2003",
+                                                "hash": "95fbb6408e51dff3516bcdfa913c1ae1"},
+                                               {"symbol": "PAW_PBE O 08Apr2002",
+                                                "hash": "7af704ddff29da5354831c4609f1cbc5"}])
+
+        vasprun2 = Vasprun(filepath)
+        self.assertRaises(ValueError, vasprun2.update_potcar_data, potcar_path2)
+        vasprun = Vasprun(filepath, parse_potcar_file=potcar_path)
+
+
+        self.assertEqual(vasprun.potcar_data, [{"symbol": "PAW_PBE Li 17Jan2003",
+                                                "hash": "9658a0ffb28da97ee7b36709966a0d1c"},
+                                               {"symbol": "PAW_PBE Fe 06Sep2000",
+                                                "hash": "e0051a21ce51eb34a52e9153c17aa32d"},
+                                               {"symbol": "PAW_PBE Fe 06Sep2000",
+                                                "hash": "e0051a21ce51eb34a52e9153c17aa32d"},
+                                               {"symbol": "PAW_PBE P 17Jan2003",
+                                                "hash": "95fbb6408e51dff3516bcdfa913c1ae1"},
+                                               {"symbol": "PAW_PBE O 08Apr2002",
+                                                "hash": "7af704ddff29da5354831c4609f1cbc5"}])
+
+        self.assertRaises(ValueError, Vasprun, filepath, parse_potcar_file=potcar_path2)
 
 
 class OutcarTest(unittest.TestCase):
