@@ -8,7 +8,7 @@ Classes for reading/manipulating/writing VASP ouput files.
 
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
-    "Vincent L Chevrier, Ioannis Petousis"
+    "Vincent L Chevrier, Ioannis Petousis, Stephen Dacek"
 __credits__ = "Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.2"
@@ -183,8 +183,8 @@ class Vasprun(PMGSONable):
             eigenvalues. **Note that this can take an extreme amount of time
             and memory.** So use this wisely.
         parse_potcar_file (str): Whether to parse the potcar file to read the
-            potcar hashes for the potcar_data attribute. Defaults to None,
-            where no hashes will be determined and the potcar_data dictionaries
+            potcar hashes for the potcar_spec attribute. Defaults to None,
+            where no hashes will be determined and the potcar_spec dictionaries
             will read {"symbol": ElSymbol, "hash": None}. If a path string is
             provided looks for potcar file at the path specfied.
 
@@ -338,7 +338,7 @@ class Vasprun(PMGSONable):
                 self.nionic_steps = len(self.ionic_steps)
 
             if parse_potcar_file:
-                self.update_potcar_data(parse_potcar_file)
+                self.update_potcar_spec(parse_potcar_file)
 
     def _parse(self, stream, parse_dos, parse_eigen, parse_projected_eigen):
         self.efermi = None
@@ -364,7 +364,7 @@ class Vasprun(PMGSONable):
                 elif tag == "atominfo":
                     self.atomic_symbols, self.potcar_symbols = \
                         self._parse_atominfo(elem)
-                    self.potcar_data = [{"symbol": p,
+                    self.potcar_spec = [{"symbol": p,
                                          "hash": None} for
                                         p in self.potcar_symbols]
             if tag == "calculation":
@@ -543,8 +543,8 @@ class Vasprun(PMGSONable):
         Returns:
             ComputedStructureEntry/ComputedEntry
         """
-        param_names = {"is_hubbard", "hubbards",
-                       "potcar_data", "run_type"}
+        param_names = {"is_hubbard", "hubbards", "potcar_symbols",
+                       "potcar_spec", "run_type"}
         if parameters:
             param_names.update(parameters)
         params = {p: getattr(self, p) for p in param_names}
@@ -721,8 +721,8 @@ class Vasprun(PMGSONable):
                     cbm_kpoint = k[0]
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
-    def update_potcar_data(self, path):
-        if not all(item["hash"] is None for item in self.potcar_data):
+    def update_potcar_spec(self, path):
+        if not all(item["hash"] is None for item in self.potcar_spec):
             warnings.warn("Warning: Potcar hashes have already"
                           " been set for this object")
         try:
@@ -730,10 +730,10 @@ class Vasprun(PMGSONable):
         except:
             raise ValueError("No POTCAR file found at {}".format(path))
 
-        self.potcar_data = [{"symbol": sym, "hash": ps.get_potcar_hash()}
+        self.potcar_spec = [{"symbol": sym, "hash": ps.get_potcar_hash()}
                             for sym in self.potcar_symbols for ps in p if
                             ps.symbol == sym.split()[1]]
-        if len(self.potcar_data) != len(self.potcar_symbols):
+        if len(self.potcar_spec) != len(self.potcar_symbols):
             raise ValueError("Potcar symbols in supplied POTCAR "
                              "file at {} differ from those found in "
                              "the provided vasprun.xml".format(path))
@@ -778,7 +778,7 @@ class Vasprun(PMGSONable):
                        for i in range(len(self.actual_kpoints))]
         vin["kpoints"]["actual_points"] = actual_kpts
         vin["potcar_symbols"] = [s.split(" ")[1] for s in self.potcar_symbols]
-        vin["potcar_data"] = self.potcar_data
+        vin["potcar_spec"] = self.potcar_spec
         vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]
         vin["parameters"] = {k: v for k, v in self.parameters.items()}
         vin["lattice_rec"] = self.lattice_rec.as_dict()
