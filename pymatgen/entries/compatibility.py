@@ -10,7 +10,7 @@ functionals.
 import six
 from six.moves import filter, map
 
-__author__ = "Shyue Ping Ong, Anubhav Jain, Sai Jayaraman"
+__author__ = "Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -121,22 +121,19 @@ class PotcarCorrection(Correction):
         self.check_hash = check_hash
 
     def get_correction(self, entry):
-        try:
-            if self.check_hash and "potcar_data" in entry.parameters:
+        if self.check_hash:
+            if "potcar_data" in entry.parameters:
                 psp_settings = set([d["hash"]
                                     for d in entry.parameters["potcar_data"]])
-            elif "potcar_data" in entry.parameters:
+            else:
+                raise ValueError('Cannot check hash without potcar_data field')
+        else:
+            if "potcar_data" in entry.parameters:
                 psp_settings = set([d["symbol"].split()[1]
                                     for d in entry.parameters["potcar_data"]])
             else:
-                if self.check_hash:
-                    raise ValueError('Cannot check hash without potcar_data field')
                 psp_settings = set([sym.split()[1]
                                     for sym in entry.parameters["potcar_symbols"]])
-        except KeyError:
-            raise ValueError(
-                "PotcarCorrection can only be checked for entries with a "
-                "\"potcar_data\" key in entry.parameters")
 
         if {self.valid_potcars[str(el)] for el in
                 entry.composition.elements} != psp_settings:
