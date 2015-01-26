@@ -1500,7 +1500,7 @@ class Potcar(list, PMGSONable):
         return [p.symbol for p in self]
 
     @property
-    def data(self):
+    def spec(self):
         """
         Get the atomic symbols and hash of all the atoms in the POTCAR file.
         """
