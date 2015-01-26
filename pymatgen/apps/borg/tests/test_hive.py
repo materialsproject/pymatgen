@@ -38,7 +38,7 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
 
     def test_assimilate(self):
         entry = self.drone.assimilate(self.test_dir)
-        for p in ["hubbards", "is_hubbard", "potcar_data", "run_type"]:
+        for p in ["hubbards", "is_hubbard", "potcar_spec", "run_type"]:
             self.assertIn(p, entry.parameters)
         self.assertAlmostEqual(entry.data["efermi"], 1.8301027)
         self.assertEqual(entry.composition.reduced_formula, "LiFe4(PO4)4")
