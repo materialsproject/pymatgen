@@ -1205,6 +1205,7 @@ def parse_list(s):
     return map(float, re.split("\s+", s.strip()))
 
 
+@cached_class
 class PotcarSingle(object):
     """
     Object for a **single** POTCAR. The builder assumes the complete string is
