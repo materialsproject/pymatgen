@@ -182,11 +182,12 @@ class Vasprun(PMGSONable):
             eigenvalues. Defaults to False. Set to True to obtain projected
             eigenvalues. **Note that this can take an extreme amount of time
             and memory.** So use this wisely.
-        parse_potcar_file (str): Whether to parse the potcar file to read the
-            potcar hashes for the potcar_spec attribute. Defaults to None,
+        parse_potcar_file (bool/str): Whether to parse the potcar file to read the
+            potcar hashes for the potcar_spec attribute. Defaults to True,
             where no hashes will be determined and the potcar_spec dictionaries
-            will read {"symbol": ElSymbol, "hash": None}. If a path string is
-            provided looks for potcar file at the path specfied.
+            will read {"symbol": ElSymbol, "hash": None}. By Default, looks in
+            the same directory as the vasprun.xml, with same extensions as
+             Vasprun.xml. If a string is provided, looks at that filepath
 
     **Vasp results**
 
@@ -307,7 +308,7 @@ class Vasprun(PMGSONable):
     def __init__(self, filename, ionic_step_skip=None,
                  ionic_step_offset=0, parse_dos=True,
                  parse_eigen=True, parse_projected_eigen=False,
-                 parse_potcar_file=None):
+                 parse_potcar_file=True):
         self.filename = filename
         self.ionic_step_skip = ionic_step_skip
         self.ionic_step_offset = ionic_step_offset
@@ -725,19 +726,51 @@ class Vasprun(PMGSONable):
         if not all(item["hash"] is None for item in self.potcar_spec):
             warnings.warn("Warning: Potcar hashes have already"
                           " been set for this object")
-        try:
-            p = Potcar.from_file(path)
-        except:
-            raise ValueError("No POTCAR file found at {}".format(path))
+        potcar_file = ""
+        p_dir = ""
 
-        self.potcar_spec = [{"symbol": sym, "hash": ps.get_potcar_hash()}
-                            for sym in self.potcar_symbols for ps in p if
-                            ps.symbol == sym.split()[1]]
-        if len(self.potcar_spec) != len(self.potcar_symbols):
-            raise ValueError("Potcar symbols in supplied POTCAR "
-                             "file at {} differ from those found in "
-                             "the provided vasprun.xml".format(path))
-        return 0
+        if isinstance(path, basestring) and os.path.exists(path):
+            if "POTCAR" in path:
+                potcar_file = os.path.abspath(path)
+            else:
+                p_dir = os.path.abspath(path)
+        elif isinstance(path, bool) and path:
+            p_dir, v_file = os.path.split(os.path.abspath(self.filename))
+        else:
+            raise ValueError("Potcar path variable is an acceptable type."
+                             "Currently accepted are str and bool")
+
+        if potcar_file != "":
+            p = Potcar.from_file(potcar_file)
+            self.potcar_spec = [{"symbol": sym, "hash": ps.get_potcar_hash()}
+                                    for sym in self.potcar_symbols for ps in p if
+                                    ps.symbol == sym.split()[1]]
+
+            if {d['symbol'] for d in self.potcar_spec} != \
+                    {sym for sym in self.potcar_symbols}:
+
+                raise ValueError("Potcar symbols in supplied POTCAR "
+                                 "file at {} differ from those found in "
+                                 "the provided vasprun.xml".format(p_dir))
+            return 0
+
+        else:
+            for file_name in os.listdir(p_dir):
+                if 'POTCAR' in file_name:
+                    potential_potcar = Potcar.from_file(os.path.join(
+                                                        p_dir, file_name))
+
+                    if {d.TITEL for d in potential_potcar} == \
+                            {sym for sym in self.potcar_symbols}:
+                        #found a match, set POTCAR SPEC
+                        self.potcar_spec = [{"symbol": sym,
+                                             "hash": ps.get_potcar_hash()}
+                                            for sym in self.potcar_symbols
+                                            for ps in potential_potcar if
+                                            ps.symbol == sym.split()[1]]
+
+        warnings.warn("No POTCAR file with match TITEL fields"
+                      " was found at {}".format(p_dir))
 
     def as_dict(self):
         """
