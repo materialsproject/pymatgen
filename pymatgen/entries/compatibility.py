@@ -117,10 +117,12 @@ class PotcarCorrection(Correction):
         else:
             self.valid_potcars = {k: d["symbol"] for k, d in
                                   input_set.potcar_settings.items()}
+
         self.input_set = input_set
         self.check_hash = check_hash
 
     def get_correction(self, entry):
+
         if self.check_hash:
             if "potcar_spec" in entry.parameters:
                 psp_settings = set([d["hash"]
