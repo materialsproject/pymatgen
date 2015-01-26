@@ -269,6 +269,16 @@ class VasprunTest(unittest.TestCase):
                                                {"symbol": "PAW_PBE O 08Apr2002",
                                                 "hash": "7af704ddff29da5354831c4609f1cbc5"}])
 
+    def test_potcar_not_found(self):
+        filepath = os.path.join(test_dir, 'vasprun.xml')
+        #Ensure no potcar is found and nothing is updated
+        vasprun = Vasprun(filepath, parse_potcar_file='.')
+        self.assertEqual(vasprun.potcar_spec, [{"symbol": "PAW_PBE Li 17Jan2003", "hash": None},
+                                               {"symbol": "PAW_PBE Fe 06Sep2000", "hash": None},
+                                               {"symbol": "PAW_PBE Fe 06Sep2000", "hash": None},
+                                               {"symbol": "PAW_PBE P 17Jan2003", "hash": None},
+                                               {"symbol": "PAW_PBE O 08Apr2002", "hash": None}])
+
 
 class OutcarTest(unittest.TestCase):
 
