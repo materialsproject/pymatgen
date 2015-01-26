@@ -52,8 +52,8 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                                         {'symbol': 'PAW_PBE O 08Apr2002',
                                          'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
 
-        self.compat = MaterialsProjectCompatibility()
-        self.ggacompat = MaterialsProjectCompatibility("GGA")
+        self.compat = MaterialsProjectCompatibility(check_potcar_hash=True)
+        self.ggacompat = MaterialsProjectCompatibility("GGA", check_potcar_hash=True)
 
     def test_process_entry(self):
         #Correct parameters
@@ -170,8 +170,8 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                                -1)
 
     def test_get_corrections_dict(self):
-        compat = MaterialsProjectCompatibility()
-        ggacompat = MaterialsProjectCompatibility("GGA")
+        compat = MaterialsProjectCompatibility(check_potcar_hash=True)
+        ggacompat = MaterialsProjectCompatibility("GGA", check_potcar_hash=True)
 
         #Correct parameters
         entry = ComputedEntry(
@@ -224,8 +224,8 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
 class MITCompatibilityTest(unittest.TestCase):
 
     def setUp(self):
-        self.compat = MITCompatibility()
-        self.ggacompat = MITCompatibility("GGA")
+        self.compat = MITCompatibility(check_potcar_hash=True)
+        self.ggacompat = MITCompatibility("GGA", check_potcar_hash=True)
         self.entry_O = ComputedEntry(
             'Fe2O3', -1, 0.0,
             parameters={'is_hubbard': True,
@@ -370,16 +370,29 @@ class MITCompatibilityTest(unittest.TestCase):
                                         {'symbol': 'PAW_PBE O 08Apr2002',
                                          'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
 
-        compat = MITCompatibility(check_potcar_hash=False)
-        self.assertEqual(len(compat.process_entries([entry, entry2])), 2)
         compat = MITCompatibility()
-        self.assertEqual(len(compat.process_entries([entry, entry2])), 1)
+        self.assertEqual(len(compat.process_entries([entry, entry2])), 2)
+        self.assertEqual(len(self.compat.process_entries([entry, entry2])), 1)
+
+    def test_revert_to_symbols(self):
+        #Test that you can revert to potcar_symbols if potcar_data is not present
+        compat = MITCompatibility()
+        entry = ComputedEntry(
+            'Fe2O3', -1, 0.0,
+            parameters={'is_hubbard': True,
+                        'hubbards': {'Fe': 4.0, 'O': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_symbols': ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
+
+        self.assertIsNotNone(compat.process_entry(entry))
+        #raise if check_potcar_hash is set
+        self.assertRaises(ValueError, self.compat.process_entry, entry)
 
 
 class OxideTypeCorrectionTest(unittest.TestCase):
 
     def setUp(self):
-        self.compat = MITCompatibility()
+        self.compat = MITCompatibility(check_potcar_hash=True)
 
     def test_no_struct_compat(self):
         lio2_entry_nostruct = ComputedEntry(Composition("Li2O4"), -3,
@@ -598,8 +611,8 @@ class AqueousCorrectionTest(unittest.TestCase):
 class TestMITAqueousCompatibility(unittest.TestCase):
 
     def setUp(self):
-        self.compat = MITCompatibility()
-        self.aqcompat = MITAqueousCompatibility()
+        self.compat = MITCompatibility(check_potcar_hash=True)
+        self.aqcompat = MITAqueousCompatibility(check_potcar_hash=True)
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, os.path.pardir, "MITCompatibility.yaml")
         self.aqcorr =  AqueousCorrection(fp)
