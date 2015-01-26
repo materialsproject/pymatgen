@@ -110,7 +110,7 @@ class PotcarCorrection(Correction):
         CombatibilityError if wrong potcar symbols
     """
 
-    def __init__(self, input_set, check_hash=True):
+    def __init__(self, input_set, check_hash=False):
         if check_hash:
             self.valid_potcars = {k: d["hash"] for k, d in
                                   input_set.potcar_settings.items()}
@@ -122,12 +122,17 @@ class PotcarCorrection(Correction):
 
     def get_correction(self, entry):
         try:
-            if self.check_hash:
+            if self.check_hash and "potcar_data" in entry.parameters:
                 psp_settings = set([d["hash"]
                                     for d in entry.parameters["potcar_data"]])
-            else:
+            elif "potcar_data" in entry.parameters:
                 psp_settings = set([d["symbol"].split()[1]
                                     for d in entry.parameters["potcar_data"]])
+            else:
+                if self.check_hash:
+                    raise ValueError('Cannot check hash without potcar_data field')
+                psp_settings = set([sym.split()[1]
+                                    for sym in entry.parameters["potcar_symbols"]])
         except KeyError:
             raise ValueError(
                 "PotcarCorrection can only be checked for entries with a "
@@ -471,7 +476,7 @@ class MaterialsProjectCompatibility(Compatibility):
     """
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
-                 check_potcar_hash=True):
+                 check_potcar_hash=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MPCompatibility.yaml")
         i_s = MPVaspInputSet()
@@ -503,7 +508,7 @@ class MITCompatibility(Compatibility):
     """
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
-                check_potcar_hash=True):
+                check_potcar_hash=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MITCompatibility.yaml")
         i_s = MITVaspInputSet()
@@ -535,7 +540,7 @@ class MITAqueousCompatibility(Compatibility):
     """
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
-                check_potcar_hash=True):
+                check_potcar_hash=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MITCompatibility.yaml")
         i_s = MITVaspInputSet()
@@ -568,7 +573,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
     """
 
     def __init__(self, compat_type="Advanced", correct_peroxide=True,
-                check_potcar_hash=True):
+                check_potcar_hash=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MPCompatibility.yaml")
         i_s = MPVaspInputSet()
