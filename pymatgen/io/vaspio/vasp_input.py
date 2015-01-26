@@ -886,7 +886,7 @@ class Kpoints(PMGSONable):
     @staticmethod
     def automatic_gamma_density(structure, kppa):
         """
-        Returns an automatic Kpoint object based on a struc:ture and a kpoint
+        Returns an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes always. For GW.
 
         Algorithm:
@@ -909,19 +909,6 @@ class Kpoints(PMGSONable):
 
         #ensure that numDiv[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
-
-        angles = latt.angles
-        hex_angle_tol = 5  # in degrees
-        hex_length_tol = 0.01  # in angstroms
-        right_angles = [i for i in xrange(3)
-                        if abs(angles[i] - 90) < hex_angle_tol]
-        hex_angles = [i for i in xrange(3)
-                      if abs(angles[i] - 60) < hex_angle_tol or
-                      abs(angles[i] - 120) < hex_angle_tol]
-
-        is_hexagonal = (len(right_angles) == 2 and len(hex_angles) == 1
-                        and abs(lengths[right_angles[0]] -
-                                lengths[right_angles[1]]) < hex_length_tol)
 
         # VASP documentation recommends to use even grids for n <= 8 and odd
         # grids for n > 8.
