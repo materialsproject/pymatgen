@@ -7,7 +7,7 @@ Created on Jul 16, 2012
 """
 
 
-__author__ = "Shyue Ping Ong"
+__author__ = "Shyue Ping Ong, Stephen Dacek"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -219,15 +219,15 @@ class VasprunTest(unittest.TestCase):
         potcar_path = os.path.join(test_dir, 'POTCAR.LiFePO4.gz')
         potcar_path2 = os.path.join(test_dir, 'POTCAR2.LiFePO4.gz')
         vasprun = Vasprun(filepath)
-        self.assertEqual(vasprun.potcar_data, [{"symbol": "PAW_PBE Li 17Jan2003", "hash": None},
+        self.assertEqual(vasprun.potcar_spec, [{"symbol": "PAW_PBE Li 17Jan2003", "hash": None},
                                                {"symbol": "PAW_PBE Fe 06Sep2000", "hash": None},
                                                {"symbol": "PAW_PBE Fe 06Sep2000", "hash": None},
                                                {"symbol": "PAW_PBE P 17Jan2003", "hash": None},
                                                {"symbol": "PAW_PBE O 08Apr2002", "hash": None}])
 
-        vasprun.update_potcar_data(potcar_path)
+        vasprun.update_potcar_spec(potcar_path)
 
-        self.assertEqual(vasprun.potcar_data, [{"symbol": "PAW_PBE Li 17Jan2003",
+        self.assertEqual(vasprun.potcar_spec, [{"symbol": "PAW_PBE Li 17Jan2003",
                                                 "hash": "9658a0ffb28da97ee7b36709966a0d1c"},
                                                {"symbol": "PAW_PBE Fe 06Sep2000",
                                                 "hash": "e0051a21ce51eb34a52e9153c17aa32d"},
@@ -239,11 +239,11 @@ class VasprunTest(unittest.TestCase):
                                                 "hash": "7af704ddff29da5354831c4609f1cbc5"}])
 
         vasprun2 = Vasprun(filepath)
-        self.assertRaises(ValueError, vasprun2.update_potcar_data, potcar_path2)
+        self.assertRaises(ValueError, vasprun2.update_potcar_spec, potcar_path2)
         vasprun = Vasprun(filepath, parse_potcar_file=potcar_path)
 
 
-        self.assertEqual(vasprun.potcar_data, [{"symbol": "PAW_PBE Li 17Jan2003",
+        self.assertEqual(vasprun.potcar_spec, [{"symbol": "PAW_PBE Li 17Jan2003",
                                                 "hash": "9658a0ffb28da97ee7b36709966a0d1c"},
                                                {"symbol": "PAW_PBE Fe 06Sep2000",
                                                 "hash": "e0051a21ce51eb34a52e9153c17aa32d"},
