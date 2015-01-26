@@ -122,15 +122,15 @@ class PotcarCorrection(Correction):
 
     def get_correction(self, entry):
         if self.check_hash:
-            if "potcar_data" in entry.parameters:
+            if "potcar_spec" in entry.parameters:
                 psp_settings = set([d["hash"]
-                                    for d in entry.parameters["potcar_data"]])
+                                    for d in entry.parameters["potcar_spec"]])
             else:
-                raise ValueError('Cannot check hash without potcar_data field')
+                raise ValueError('Cannot check hash without potcar_spec field')
         else:
-            if "potcar_data" in entry.parameters:
+            if "potcar_spec" in entry.parameters:
                 psp_settings = set([d["symbol"].split()[1]
-                                    for d in entry.parameters["potcar_data"]])
+                                    for d in entry.parameters["potcar_spec"]])
             else:
                 psp_settings = set([sym.split()[1]
                                     for sym in entry.parameters["potcar_symbols"]])
