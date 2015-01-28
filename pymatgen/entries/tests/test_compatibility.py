@@ -52,8 +52,8 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                                         {'symbol': 'PAW_PBE O 08Apr2002',
                                          'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
 
-        self.compat = MaterialsProjectCompatibility(check_potcar_hash=True)
-        self.ggacompat = MaterialsProjectCompatibility("GGA", check_potcar_hash=True)
+        self.compat = MaterialsProjectCompatibility(check_potcar_hash=False)
+        self.ggacompat = MaterialsProjectCompatibility("GGA", check_potcar_hash=False)
 
     def test_process_entry(self):
         #Correct parameters
@@ -170,8 +170,8 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                                -1)
 
     def test_get_corrections_dict(self):
-        compat = MaterialsProjectCompatibility(check_potcar_hash=True)
-        ggacompat = MaterialsProjectCompatibility("GGA", check_potcar_hash=True)
+        compat = MaterialsProjectCompatibility(check_potcar_hash=False)
+        ggacompat = MaterialsProjectCompatibility("GGA", check_potcar_hash=False)
 
         #Correct parameters
         entry = ComputedEntry(
@@ -197,28 +197,6 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                                                self.entry2,
                                                self.entry3])
         self.assertEqual(len(entries), 2)
-
-    def test_wrong_hash(self):
-        #Correct parameters
-        entry = ComputedEntry(
-            'Fe2O3', -1, 0.0,
-            parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'O': 0},
-                        'run_type': 'GGA+U',
-                        'potcar_spec': [{'symbol':'PAW_PBE Fe_pv 06Sep2000',
-                                            'hash': '994537de5c4122b7f1b77fb604476db4'},
-                                           {'symbol': 'PAW_PBE O 08Apr2002',
-                                            'hash': "7af704ddff29da5354831c4609f1cbc5"}]})
-        self.assertEqual(self.compat.process_entry(entry), entry)
-        #Wrong Hash for O
-        entry = ComputedEntry(
-            'Fe2O3', -1, 0.0,
-            parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'O': 0},
-                        'run_type': 'GGA+U',
-                        'potcar_spec': [{'symbol':'PAW_PBE Fe_pv 06Sep2000',
-                                            'hash': '994537de5c4122b7f1b77fb604476db4'},
-                                           {'symbol': 'PAW_PBE O 08Apr2002',
-                                            'hash': "WRONGHASH"}]})
-        self.assertIsNone(self.compat.process_entry(entry))
 
 
 class MITCompatibilityTest(unittest.TestCase):
