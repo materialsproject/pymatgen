@@ -1826,8 +1826,8 @@ class DojoDataFrame(pd.DataFrame):
     for v in ACC2PLTOPTS.values():
         v.update(linewidth=2, linestyle='dashed', marker='o', markersize=8)
 
-    def tabulate(self, trials="all"):
-        pass
+    #def tabulate(self, trials="all"):
+    #    pass
 
     def select_rows(self, rows):
         if not isinstance(rows, (list, tuple)): rows = [rows]
@@ -2110,7 +2110,7 @@ class DojoReport(dict):
         pprint_table(self.get_dataframe(), out=stream)
 
     @add_fig_kwargs
-    def plot_etotal_vs_ecut(self, ax=None, **kwargs):
+    def plot_etotal_vs_ecut(self, ax=None, inv_ecut=False, **kwargs):
         """
         plot the convergence of the total energy as function of the energy cutoff ecut
 
@@ -2142,7 +2142,11 @@ class DojoReport(dict):
         ax.yaxis.set_view_interval(-5, 5)
 
         lines, legends = [], []
-        line, = ax.plot(ecuts[:-1], ediffs[:-1], "-->", linewidth=3.0, markersize=10)
+
+        inv_ecut = True
+        xs = 1/ecuts[:-1] if inv_ecut else ecuts[:-1]
+
+        line, = ax.plot(xs, ediffs[:-1], "-->", linewidth=3.0, markersize=10)
         lines.append(line)
         #legends.append("aug_ratio = %s" % aratio)
 
@@ -2152,23 +2156,23 @@ class DojoReport(dict):
 
         high_hint = self["ppgen_hints"]["high"]["ecut"]
         #ax.vlines(high_hint, min(ediffs), max(ediffs))
-        ax.vlines(high_hint, 0.5, 1.5)
+        #ax.vlines(high_hint, 0.5, 1.5)
         #ax.scatter([high_hint], [1.0], s=20) #, c='b', marker='o', cmap=None, norm=None)
         #ax.arrow(high_hint, 1, 0, 0.2, head_width=0.05, head_length=0.1, fc='k', ec='k',head_starts_at_zero=False)
 
-        ax.hlines(5, ecut_min, ecut_max, label="5.0")
-        ax.hlines(1, ecut_min, ecut_max, label="1.0")
-        ax.hlines(0.5, ecut_min, ecut_max, label="0.2")
+        #ax.hlines(5, ecut_min, ecut_max, label="5.0")
+        #ax.hlines(1, ecut_min, ecut_max, label="1.0")
+        #ax.hlines(0.5, ecut_min, ecut_max, label="0.2")
 
         # Set xticks and labels.
         ax.grid(True)
         #ax.set_title("$\Delta$ Etotal vs Ecut")
         ax.set_xlabel("Ecut [Ha]")
-        ax.set_xticks(ecuts)
+        ax.set_xticks(xs)
         ax.set_ylabel("$\Delta$ Etotal/natom [meV]")
+
         # Use logscale if possible.
-        if all(ediffs[:-1] > 0):
-            ax.set_yscale("log")
+        #if all(ediffs[:-1] > 0): ax.set_yscale("log")
 
         return fig
 
