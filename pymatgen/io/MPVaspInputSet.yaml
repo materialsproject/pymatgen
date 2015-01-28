@@ -89,270 +89,92 @@ INCAR:
 KPOINTS:
   grid_density: 1000
 POTCAR:
-  Ac:
-    symbol: Ac
-    hash: ab896d3414b6f2b5fc646de8d1175b3b
-  Ag:
-    symbol: Ag
-    hash: 4b91cc11ecf7bb18841c45a144a79c41
-  Al:
-    symbol: Al
-    hash: 805c888bbd2793e462311f6a20d873d9
-  Ar:
-    symbol: Ar
-    hash: ed180b378a39ae600a758db378f79613
-  As:
-    symbol: As
-    hash: f2975f7ebc8e17cf183cb5d96dbce04f
-  Au:
-    symbol: Au
-    hash: 625e379bf420815fc0b5030bae2d3020
-  B:
-    symbol: B
-    hash: 6f82f6d8181ceafd86150d4afd2ee217
-  Ba:
-    symbol: Ba_sv
-    hash: 485991a44f9abb117d91950eeb2b4429
-  Be:
-    symbol: Be_sv
-    hash: ac307261a9f03cb6e35f1f3591f62deb
-  Bi:
-    symbol: Bi
-    hash: 1d5d4955bcd53ef836826e489bcfb2a1
-  Br:
-    symbol: Br
-    hash: aebb1e2d99deabf67629df71ec68faa6
-  C:
-    symbol: C
-    hash: 928197bd7fda1dfdfd78d4314756d4b6
-  Ca:
-    symbol: Ca_sv
-    hash: 2694a19250c6f83212d034611c80a7b7
-  Cd:
-    symbol: Cd
-    hash: cb3728b036fb539fcd1cfdad415bc6e3
-  Ce:
-    symbol: Ce
-    hash: e6c517a6b47b29367ad6badbf7658a84
-  Cl:
-    symbol: Cl
-    hash: 2dddc321bf178f08cc5b55de17690c2c
-  Co:
-    symbol: Co
-    hash: 6c5a5928146198687f93ee8e6c657f91
-  Cr:
-    symbol: Cr_pv
-    hash: 8e003f9d9897ce35aaabf7621987841a
-  Cs:
-    symbol: Cs_sv
-    hash: 10cc54209c698d83d9cda3d842ba670e
-  Cu:
-    symbol: Cu_pv
-    hash: 495af451182cd9ee2cddc86bfae18236
-  Dy:
-    symbol: Dy_3
-    hash: 563b1a3db877e2e9a0942b7baf6912fc
-  Er:
-    symbol: Er_3
-    hash: 216f11f6ffc94d9cbc7e10e843c18243
-  Eu:
-    symbol: Eu
-    hash: a6a9205b00bcc39bb7e05b46a0a322a8
-  F:
-    symbol: F
-    hash: 9b0fd56137ce81cfee1eb63a8901c66c
-  Fe:
-    symbol: Fe_pv
-    hash: 994537de5c4122b7f1b77fb604476db4
-  Ga:
-    symbol: Ga_d
-    hash: 967318c66ba3d23d31d0f36e2afbcf99
-  Gd:
-    symbol: Gd
-    hash: 9a655d3ad37e09e18c1cf735bf50d02f
-  Ge:
-    symbol: Ge_d
-    hash: 3bd676702581142e1026c9d2c4acdb3b
-  H:
-    symbol: H
-    hash: 57732e53d8a424e5b3721d0277f14ef0
-  He:
-    symbol: He
-    hash: d92babd515400b87c53ae10f1207baf0
-  Hf:
-    symbol: Hf_pv
-    hash: 9b6f478b01da6d01d4d2eb79b4708a00
-  Hg:
-    symbol: Hg
-    hash: 90cd2c22dd044c7e7dee6044de7924d2
-  Ho:
-    symbol: Ho_3
-    hash: 648bac4b40cd03310be89a286ab11723
-  I:
-    symbol: I
-    hash: 8d84981af6268445e6061ee5e4c8f1ff
-  In:
-    symbol: In_d
-    hash: 9ff72665f365a9c7af9353baa5e69123
-  Ir:
-    symbol: Ir
-    hash: 77f35e340570c6c64d58057c657e0f00
-  K:
-    symbol: K_sv
-    hash: 3aa49a52448d031d7e3ceff922fd2bb5
-  Kr:
-    symbol: Kr
-    hash: 13cd29c85b23be584b39e5584863f68a
-  La:
-    symbol: La
-    hash: 54ddd96957998f722631b9b9b619208e
-  Li:
-    symbol: Li_sv
-    hash: 157d908bfd2d45b99ff2877a5f52b5c1
-  Lu:
-    symbol: Lu_3
-    hash: fc611a12817d148e39ec66cf09d0011c
-  Mg:
-    symbol: Mg_pv
-    hash: ac3a5ad048d8f395bae1430cb51c0d5d
-  Mn:
-    symbol: Mn_pv
-    hash: b73c3d9de30107a22566f601535e609c
-  Mo:
-    symbol: Mo_pv
-    hash: 845c10332730e4479f1d8c900a62a451
-  N:
-    symbol: N
-    hash: accf6eec0aac6dcb2f3909b240164405
-  Na:
-    symbol: Na_pv
-    hash: 2b0f0af024570dbd2a3d7c84d12d91b3
-  Nb:
-    symbol: Nb_pv
-    hash: 3613f771112af96e69530838d9f871b9
-  Nd:
-    symbol: Nd_3
-    hash: b0da5879f60238516fd2e4e45f3b079a
-  Ne:
-    symbol: Ne
-    hash: 05028bf086ff942787f587f652c0f915
-  Ni:
-    symbol: Ni_pv
-    hash: cfbc04e00f1b82bec401e5cd3fbf7b34
-  Np:
-    symbol: Np
-    hash: 901c7eea516a40ab1f0022e5fe611b96
-  O:
-    symbol: O
-    hash: 7af704ddff29da5354831c4609f1cbc5
-  Os:
-    symbol: Os_pv
-    hash: 79ed00688c8aabe9053d96d0375926ef
-  P:
-    symbol: P
-    hash: 95fbb6408e51dff3516bcdfa913c1ae1
-  Pa:
-    symbol: Pa
-    hash: 14ce3992d69e85ff1245589ea515099a
-  Pb:
-    symbol: Pb_d
-    hash: 88ab0fd2bc9f47c12c7d2fae6661f03a
-  Pd:
-    symbol: Pd
-    hash: 531184ffdf879b6fb03f4c66349dab57
-  Pm:
-    symbol: Pm_3
-    hash: 98cd6c2c801581d9d2353e0f3cceb275
-  Pr:
-    symbol: Pr_3
-    hash: b7ff526e2e1c6865a34f59392fc79ba6
-  Pt:
-    symbol: Pt
-    hash: 5eedb457fb34ed5f7e4d177354c24146
-  Pu:
-    symbol: Pu
-    hash: 714a9d23aaf7c419dacdb09e058cb154
-  Rb:
-    symbol: Rb_sv
-    hash: 6b9710011d2a774581312774973f8878
-  Re:
-    symbol: Re_pv
-    hash: b9e3abd6a85e1bb12f5a5f72b04bfb5b
-  Rh:
-    symbol: Rh_pv
-    hash: c8900ccf0b55a51d494e71acc9b3beda
-  Ru:
-    symbol: Ru_pv
-    hash: e0670836c05839313f290caf804a9930
-  S:
-    symbol: S
-    hash: f7f8e4a74a6cbb8d63e41f4373b54df2
-  Sb:
-    symbol: Sb
-    hash: f3d4b0bf2cf25789b65750316564c229
-  Sc:
-    symbol: Sc_sv
-    hash: 07569d3abd3dac9ccc783e96c59774d7
-  Se:
-    symbol: Se
-    hash: b3107ca39cd95c072974ad9512643155
-  Si:
-    symbol: Si
-    hash: 7d68bdc19d5bb101b242afb70632e21d
-  Sm:
-    symbol: Sm_3
-    hash: 139141abf169ea82407c054137099715
-  Sn:
-    symbol: Sn_d
-    hash: 4ca5a5ded798f481fd917ee78d2b8b69
-  Sr:
-    symbol: Sr_sv
-    hash: 7c3df2de5e7e505501f5eed8965f8e35
-  Ta:
-    symbol: Ta_pv
-    hash: 440ab45df891e702be4a627e180edbc4
-  Tb:
-    symbol: Tb_3
-    hash: b43a90ba0a6903a64a940551d418ecf1
-  Tc:
-    symbol: Tc_pv
-    hash: f95594bbad3020ecc6840896bc4f9f09
-  Te:
-    symbol: Te
-    hash: 4baab09b5cb1853c18e1dd247cca2750
-  Th:
-    symbol: Th
-    hash: b47ab9512a0d504560743df6959711b5
-  Ti:
-    symbol: Ti_pv
-    hash: 525a8e31b31e715f5ae7dae40ba82e87
-  Tl:
-    symbol: Tl_d
-    hash: c197edde7743b4710c1977ac518a7280
-  Tm:
-    symbol: Tm_3
-    hash: b5915dce17e99bda785786dcaaba88fa
-  U:
-    symbol: U
-    hash: 5f65b444317154eb1642485eeae1c4f5
-  V:
-    symbol: V_pv
-    hash: 6af2fbd956cacbdc11b148602a19ff74
-  W:
-    symbol: W_pv
-    hash: a4f7269d3b3d0921b03cd854efdd5230
-  Xe:
-    symbol: Xe
-    hash: 840909bdaaef33813792f2ef369228f0
-  Y:
-    symbol: Y_sv
-    hash: 3db912f9d14a5213ad779ea6dedf5057
-  Yb:
-    symbol: Yb_2
-    hash: 3f0573d8c83a0ed6a592fcd875979bf8
-  Zn:
-    symbol: Zn
-    hash: b4d5e9d4062aae56d394731e18f44c4c
-  Zr:
-    symbol: Zr_sv
-    hash: dbcbfc05a49cee3e89e743e74999d0d5
+  Ac: Ac
+  Ag: Ag
+  Al: Al
+  Ar: Ar
+  As: As
+  Au: Au
+  B: B
+  Ba: Ba_sv
+  Be: Be_sv
+  Bi: Bi
+  Br: Br
+  C: C
+  Ca: Ca_sv
+  Cd: Cd
+  Ce: Ce
+  Cl: Cl
+  Co: Co
+  Cr: Cr_pv
+  Cs: Cs_sv
+  Cu: Cu_pv
+  Dy: Dy_3
+  Er: Er_3
+  Eu: Eu
+  F: F
+  Fe: Fe_pv
+  Ga: Ga_d
+  Gd: Gd
+  Ge: Ge_d
+  H: H
+  He: He
+  Hf: Hf_pv
+  Hg: Hg
+  Ho: Ho_3
+  I: I
+  In: In_d
+  Ir: Ir
+  K: K_sv
+  Kr: Kr
+  La: La
+  Li: Li_sv
+  Lu: Lu_3
+  Mg: Mg_pv
+  Mn: Mn_pv
+  Mo: Mo_pv
+  N: N
+  Na: Na_pv
+  Nb: Nb_pv
+  Nd: Nd_3
+  Ne: Ne
+  Ni: Ni_pv
+  Np: Np
+  O: O
+  Os: Os_pv
+  P: P
+  Pa: Pa
+  Pb: Pb_d
+  Pd: Pd
+  Pm: Pm_3
+  Pr: Pr_3
+  Pt: Pt
+  Pu: Pu
+  Rb: Rb_sv
+  Re: Re_pv
+  Rh: Rh_pv
+  Ru: Ru_pv
+  S: S
+  Sb: Sb
+  Sc: Sc_sv
+  Se: Se
+  Si: Si
+  Sm: Sm_3
+  Sn: Sn_d
+  Sr: Sr_sv
+  Ta: Ta_pv
+  Tb: Tb_3
+  Tc: Tc_pv
+  Te: Te
+  Th: Th
+  Ti: Ti_pv
+  Tl: Tl_d
+  Tm: Tm_3
+  U: U
+  V: V_pv
+  W: W_pv
+  Xe: Xe
+  Y: Y_sv
+  Yb: Yb_2
+  Zn: Zn
+  Zr: Zr_sv
