@@ -21,7 +21,7 @@ from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property
 from pymatgen.util.plotting_utils import add_fig_kwargs
-from pymatgen.core.periodic_table import PeriodicTable
+from pymatgen.core.periodic_table import PeriodicTable, Element
 from .eos import EOS
 
 import logging
@@ -1673,7 +1673,6 @@ class PseudoTable(collections.Sequence):
     #def print_table(self, stream=sys.stdout, filter_function=None):
     #    """
     #    A pretty ASCII printer for the periodic table, based on some filter_function.
-
     #    Args:
     #        filter_function:
     #            A filtering function that take a Pseudo as input and returns a boolean.
@@ -1715,7 +1714,7 @@ class PseudoTable(collections.Sequence):
             condition:
                 Function that accepts a :class:`Pseudo` object and returns True or False.
         """
-        return PseudoTable([p for p in self if condition(p)])
+        return self.__class__([p for p in self if condition(p)])
 
     def with_dojo_report(self):
         """Select pseudos containing the DOJO_REPORT section."""
@@ -1782,6 +1781,14 @@ class PseudoTable(collections.Sequence):
         # Build sub-class of pandas.DataFrame
         return DojoDataFrame(rows, index=names), errors
 
+    def select_rows(self, rows):
+        if not isinstance(rows, (list, tuple)): rows = [rows]
+        return self.__class__([p for p in self if p.element.row in rows])
+
+    def select_family(self, family):
+        # e.g element.is_alkaline
+        return self.__class__([p for p in self if getattr(p.element, "is_" + family)])
+
 
 import pandas as pd
 #from tabulate import tabulate
@@ -1790,18 +1797,34 @@ class DojoDataFrame(pd.DataFrame):
     ALL_ACCURACIES = ("low", "normal", "high")
 
     ALL_TRIALS = (
-        #"ecut",
+        "ecut",
         "deltafactor",
         "gbrv_bcc",
         "gbrv_fcc",
     )
 
     _TRIALS2KEY = {
-        #"ecut": "ecut",
+        "ecut": "ecut",
         "deltafactor": "dfact_meV",
-        "gbrv_bcc": "a0_rel_err",
-        "gbrv_fcc": "a0_rel_err",
+        "gbrv_bcc": "gbrv_bcc_a0_rel_err",
+        "gbrv_fcc": "gbrv_fcc_a0_rel_err",
     }
+
+    _TRIALS2YLABEL = {
+        "ecut": "Ecut [Ha]",
+        "deltafactor": "$\Delta {factor}$ [meV]",
+        "gbrv_bcc": "$\Delta a_0$ (%)",
+        "gbrv_fcc": "$\Delta a_0$ (%)",
+    }
+
+    ACC2PLTOPTS = dict(
+        low=dict(color="red"),
+        normal=dict(color="blue"),
+        high=dict(color="green"),
+    )
+
+    for v in ACC2PLTOPTS.values():
+        v.update(linewidth=2, linestyle='dashed', marker='o', markersize=8)
 
     def tabulate(self, trials="all"):
         pass
@@ -1817,7 +1840,7 @@ class DojoDataFrame(pd.DataFrame):
 
         return self.__class__(data=data)
 
-    def get_family(self, family):
+    def select_family(self, family):
         data = []
         for index, entry in self.iterrows():
             element = _PTABLE[entry.Z]
@@ -1827,28 +1850,66 @@ class DojoDataFrame(pd.DataFrame):
         return self.__class__(data=data)
 
     @add_fig_kwargs
-    def show_hist(self, what="dfact_meV", bins=400, **kwargs):
+    def plot_hist(self, what="dfact_meV", bins=400, **kwargs):
         import matplotlib.pyplot as plt
         fig, ax_list = plt.subplots(nrows=len(self.ALL_ACCURACIES), ncols=1, sharex=True, sharey=False, squeeze=True)
 
         for acc, ax in zip(self.ALL_ACCURACIES, ax_list):
             col = acc + "_" + what
+            #print(col)
             #self[col].hist(ax=ax, bins=bins, label=col)
             self[col].plot(ax=ax, kind="bar", label=col)
 
         return fig
 
     @add_fig_kwargs
-    def show_trials(self, trials="all", accuracy="normal", **kwargs):
+    def plot_trials(self, trials="all", accuracies="all", **kwargs):
         import matplotlib.pyplot as plt
         trials = self.ALL_TRIALS if trials == "all" else list_strings(trials)
+        accuracies = self.ALL_ACCURACIES if accuracies == "all" else list_strings(accuracies)
         fig, ax_list = plt.subplots(nrows=len(trials), ncols=1, sharex=True, sharey=False, squeeze=True)
                                                                                                                       
-        for trial, ax in zip(trials, ax_list):
+        # See also http://matplotlib.org/examples/pylab_examples/barchart_demo.html
+        for i, (trial, ax) in enumerate(zip(trials, ax_list)):
             what = self._TRIALS2KEY[trial]
-            col = accuracy + "_" + what
-            self[col].plot(ax=ax, kind="bar", label=col)
-                                                                                                                      
+            ax.set_ylabel(self._TRIALS2YLABEL[trial])
+            minval, maxval = np.inf, -np.inf
+            for acc in accuracies:
+                col = acc + "_" + what
+                legend = i == 0 
+                data = self[col]
+                minval, maxval = min(minval, data.min()), max(maxval, data.max())
+                data.plot(ax=ax, legend=legend, use_index=True, label=acc, **self.ACC2PLTOPTS[acc])
+                #data.plot(ax=ax, kind="bar") 
+
+                if i == 0:
+                    ax.legend(loc='best', shadow=True, frameon=True) #fancybox=True)
+
+            ax.set_xticks(range(len(data.index)))
+            ax.set_xticklabels(data.index)
+            #ax.set_xticklabels([root for root, ext in map(os.path.splitext, data.index)])
+
+            # Set ylimits
+            #stepsize = None
+            #if "gbrv" in trial: 
+            #    ax.hlines(0.0, 0, len(data.index))
+            #    #start, end = -0.6, +0.6
+            #    start, end = max(-0.6, minval), min(+0.6, maxval)
+            #    if end - start < 0.05: end = start + 0.1
+            #    ax.set_ylim(start, end)
+            #    ax.yaxis.set_ticks(np.arange(start, end, 0.05))
+            #if trial == "deltafactor":
+            #    #start, end = 0.0, 15
+            #    start, end  = 0.0, min(15, maxval)
+            #    ax.set_ylim(start, end)
+            #    ax.yaxis.set_ticks(np.arange(start, end, 0.1))
+
+            #if stepsize is not None:
+            #    start, end = ax.get_ylim()
+            #    ax.yaxis.set_ticks(np.arange(start, end, stepsize))
+
+            plt.setp(ax.xaxis.get_majorticklabels(), rotation=25)
+
         return fig
 
     def sns_plot(self):
@@ -1973,6 +2034,11 @@ class DojoReport(dict):
     def ecuts(self):
         return np.array(self["ecuts"])
 
+
+    @property
+    def element(self):
+        return Element(self.symbol)
+
     #def missing_ecuts(self, trial):
     #    computed_ecuts = self[trial].keys()
     #    return [e for e in self.ecuts if e not in computed_ecuts]
@@ -1984,8 +2050,13 @@ class DojoReport(dict):
         """
         d = {}
         for trial in self.ALL_TRIALS:
+
             data = self.get(trial, None)
             if data is None:
+                # Gbrv results do not contain noble gases so ignore the error
+                if "gbrv" in trial and self.element.is_noble_gas: 
+                    assert data is None
+                    continue
                 d[trial] = self.ecuts
             else:
                 computed_ecuts = self[trial].keys()
@@ -1993,6 +2064,10 @@ class DojoReport(dict):
                     if e not in computed_ecuts:
                         if trial not in d: d[trial] = []
                         d[trial].append(e)
+
+        if not d:
+            assert len(computed_ecuts) == len(self.ecuts)
+
         return d
 
     #def get_dataframe(self, **kwargs):
