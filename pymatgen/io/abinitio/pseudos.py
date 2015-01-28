@@ -2144,9 +2144,10 @@ class DojoReport(dict):
         lines, legends = [], []
 
         inv_ecut = True
-        xs = 1/ecuts[:-1] if inv_ecut else ecuts[:-1]
+        xs = 1/ecuts if inv_ecut else ecuts[:-1]
+        ys = etotals_mev if inv_ecut else ediffs[:-1]
 
-        line, = ax.plot(xs, ediffs[:-1], "-->", linewidth=3.0, markersize=10)
+        line, = ax.plot(xs, ys, "-->", linewidth=3.0, markersize=10)
         lines.append(line)
         #legends.append("aug_ratio = %s" % aratio)
 
