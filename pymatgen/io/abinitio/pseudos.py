@@ -2171,6 +2171,7 @@ class DojoReport(dict):
         ax.set_xlabel("Ecut [Ha]")
         ax.set_xticks(xs)
         ax.set_ylabel("$\Delta$ Etotal/natom [meV]")
+        ax.set_xlim(0, max(xs))
 
         # Use logscale if possible.
         #if all(ediffs[:-1] > 0): ax.set_yscale("log")
