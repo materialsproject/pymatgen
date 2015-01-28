@@ -1202,7 +1202,7 @@ def parse_int(s):
 
 
 def parse_list(s):
-    return map(float, re.split("\s+", s.strip()))
+    return map(float, [y for y in re.split("\s+", s.strip()) if not y.isalpha()])
 
 
 @cached_class
@@ -1228,6 +1228,13 @@ class PotcarSingle(object):
     """
     functional_dir = {"PBE": "POT_GGA_PAW_PBE", "LDA": "POT_LDA_PAW",
                       "PW91": "POT_GGA_PAW_PW91", "LDA_US": "POT_LDA_US"}
+
+    functional_tags = {"pe": {"name": "pbe", "class": "gga"},
+                       "91": {"name": "pw91", "class": "gga"},
+                       "rp": {"name": "revpbe", "class": "gga"},
+                       "am": {"name": "am05", "class": "gga"},
+                       "ps": {"name": "pbesol", "class": "gga"},
+                       "ca": {"name": "ceperly-alder", "class": "lda"}}
 
     parse_functions = {"LULTRA": parse_bool,
                        "LCOR": parse_bool,
@@ -1256,11 +1263,12 @@ class PotcarSingle(object):
                        "LEXCH": parse_string,
                        "TITEL": parse_string,
                        "STEP": parse_list,
-                       "RRKJ": parse_list}
+                       "RRKJ": parse_list,
+                       "GGA": parse_list}
 
     Orbital = namedtuple('Orbital', ['n', 'l', 'j', 'E', 'occ'])
     Description = namedtuple('OrbitalDescription', ['l', 'E',
-                                                    'Type', "Rcut"])
+                                                    'Type', "Rcut", "T2", "Rcut2"])
 
     def __init__(self, data):
         self.data = data  # raw POTCAR as a string
@@ -1308,7 +1316,9 @@ class PotcarSingle(object):
                 descriptions.append(self.Description(int(description[0]),
                                                 float(description[1]),
                                                 int(description[2]),
-                                                float(description[3])))
+                                                float(description[3]),
+                                                float(description[4]) if len(description) > 4 else None,
+                                                float(description[5]) if len(description) > 4  else None))
         if descriptions:
             PSCTR['OrbitalDescriptions'] = tuple(descriptions)
 
@@ -1383,6 +1393,18 @@ class PotcarSingle(object):
     def nelectrons(self):
         return self.zval
 
+    @property
+    def potential_type(self):
+        return "us" if self.lultra else "paw"
+
+    @property
+    def functional(self):
+        return self.functional_tags.get(self.LEXCH.lower(), {}).get('name')
+
+    @property
+    def functional_class(self):
+        return self.functional_tags.get(self.LEXCH.lower(), {}).get('class')
+
     def get_potcar_hash(self):
         hash_str = ""
         for k, v in self.PSCTR.items():
@@ -1402,10 +1424,13 @@ class PotcarSingle(object):
                         hash_str += "{:.3f}".format(item)
                     elif isinstance(item, (self.Orbital, self.Description)):
                         for item_v in item:
-                            if isinstance(item_v, int):
+                            if isinstance(item_v, (int, str)):
                                 hash_str += "{}".format(item_v)
-                            else:
+                            elif isinstance(item_v, float):
                                 hash_str += "{:.3f}".format(item_v)
+                            else:
+                                hash_str += "{}".format(item_v) if item_v else ""
+
         self.hash_str = hash_str
         return md5(hash_str.lower()).hexdigest()
 
