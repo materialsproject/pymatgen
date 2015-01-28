@@ -111,12 +111,21 @@ class PotcarCorrection(Correction):
     """
 
     def __init__(self, input_set, check_hash=False):
-        if check_hash:
-            self.valid_potcars = {k: d["hash"] for k, d in
-                                  input_set.potcar_settings.items()}
+
+        if isinstance(input_set.potcar_settings.values()[-1], dict):
+            if check_hash:
+                self.valid_potcars = {k: d["hash"] for k, d in
+                                      input_set.potcar_settings.items()}
+            else:
+                self.valid_potcars = {k: d["symbol"] for k, d in
+                                      input_set.potcar_settings.items()}
         else:
-            self.valid_potcars = {k: d["symbol"] for k, d in
-                                  input_set.potcar_settings.items()}
+            if check_hash:
+                raise ValueError('Cannot check hashes of potcars,'
+                                 ' hashes are not set')
+            else:
+                self.valid_potcars = {k: d for k, d in
+                                      input_set.potcar_settings.items()}
 
         self.input_set = input_set
         self.check_hash = check_hash
