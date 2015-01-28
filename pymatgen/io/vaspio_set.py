@@ -347,9 +347,16 @@ class DictVaspInputSet(AbstractVaspInputSet):
         p = self.get_poscar(structure)
         elements = p.site_symbols
         potcar_symbols = []
-        for el in elements:
-            potcar_symbols.append(self.potcar_settings[el]['symbol']
-                                  if el in self.potcar_settings else el)
+
+        if isinstance(self.potcar_settings[elements[-1]], dict):
+            for el in elements:
+                potcar_symbols.append(self.potcar_settings[el]['symbol']
+                                      if el in self.potcar_settings else el)
+        else:
+            for el in elements:
+                potcar_symbols.append(self.potcar_settings[el]
+                                      if el in self.potcar_settings else el)
+
         return potcar_symbols
 
     def get_kpoints(self, structure):
