@@ -1405,7 +1405,7 @@ class PotcarSingle(object):
         elif self.lpaw:
             return "paw"
         else:
-            return "nc "
+            return "nc"
 
     @property
     def functional(self):
