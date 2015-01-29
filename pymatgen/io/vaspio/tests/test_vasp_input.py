@@ -412,6 +412,22 @@ class PotcarSingleTest(unittest.TestCase):
         p = PotcarSingle.from_symbol_and_functional("Li_sv", "PBE")
         self.assertEqual(p.enmax, 271.649)
 
+    def test_functional_types(self):
+        self.assertEqual(self.psingle.functional, 'pbe')
+
+        self.assertEqual(self.psingle.functional_class, 'gga')
+
+        self.assertEqual(self.psingle.potential_type, 'paw')
+
+        psingle = PotcarSingle.from_file(os.path.join(test_dir, "POT_LDA_PAW",
+                                "POTCAR.Fe.gz"))
+
+        self.assertEqual(psingle.functional, 'perdew-zunger81')
+
+        self.assertEqual(psingle.functional_class, 'lda')
+
+        self.assertEqual(psingle.potential_type, 'paw')
+
 
 class PotcarTest(unittest.TestCase):
 
