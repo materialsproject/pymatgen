@@ -7,9 +7,8 @@ Classes for reading/manipulating/writing VASP input files. All major VASP input
 files.
 """
 
-
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
-    "Vincent L Chevrier, Stephen Dacek"
+             "Vincent L Chevrier, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -232,7 +231,7 @@ class Poscar(PMGSONable):
                 chunks[0] = "\n" + chunks[0]
         except IndexError:
             raise ValueError("Empty POSCAR")
-        #Parse positions
+            #Parse positions
         lines = tuple(clean_lines(chunks[0].split("\n"), False))
         comment = lines[0]
         scale = float(lines[1])
@@ -302,7 +301,7 @@ class Poscar(PMGSONable):
                     atomic_symbols.extend([sym] * natoms[i])
                 warnings.warn("Elements in POSCAR cannot be determined. "
                               "Defaulting to false names {}."
-                              .format(" ".join(atomic_symbols)))
+                    .format(" ".join(atomic_symbols)))
 
         # read the atomic coordinates
         coords = []
@@ -604,6 +603,7 @@ class Incar(dict, PMGSONable):
                 return float(numstr)
             else:
                 return int(numstr)
+
         try:
             if key in list_keys:
                 output = []
@@ -879,7 +879,7 @@ class Kpoints(PMGSONable):
             style = Kpoints.supported_modes.Monkhorst
 
         comment = "pymatgen generated KPOINTS with grid density = " + \
-            "{} / atom".format(kppa)
+                  "{} / atom".format(kppa)
         num_kpts = 0
         return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
 
@@ -917,7 +917,7 @@ class Kpoints(PMGSONable):
         style = Kpoints.supported_modes.Gamma
 
         comment = "pymatgen generated KPOINTS with grid density = " + \
-            "{} / atom".format(kppa)
+                  "{} / atom".format(kppa)
         num_kpts = 0
         return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
 
@@ -942,6 +942,7 @@ class Kpoints(PMGSONable):
         kppa = int(round(kppvol * vol * structure.num_sites))
         return Kpoints.automatic_density(structure, kppa, force_gamma=force_gamma)
 
+    @staticmethod
     def automatic_linemode(divisions, ibz):
         """
         Convenient static constructor for a KPOINTS in mode line_mode.
@@ -1122,8 +1123,7 @@ class Kpoints(PMGSONable):
                 else:
                     lines[-1] += " %i" % (self.kpts_weights[i])
 
-
-        #Print tetrahedorn parameters if the number of tetrahedrons > 0
+        #Print tetrahedron parameters if the number of tetrahedrons > 0
         if style not in "lagm" and self.tet_number > 0:
             lines.append("Tetrahedron")
             lines.append("%d %f" % (self.tet_number, self.tet_weight))
@@ -1145,8 +1145,8 @@ class Kpoints(PMGSONable):
              "kpts_weights": self.kpts_weights, "coord_type": self.coord_type,
              "labels": self.labels, "tet_number": self.tet_number,
              "tet_weight": self.tet_weight,
-             "tet_connections": self.tet_connections
-        }
+             "tet_connections": self.tet_connections}
+
         optional_paras = ["genvec1", "genvec2", "genvec3", "shift"]
         for para in optional_paras:
             if para in self.__dict__:
@@ -1169,8 +1169,7 @@ class Kpoints(PMGSONable):
                    coord_type=d.get("coord_type"),
                    labels=d.get("labels"), tet_number=d.get("tet_number", 0),
                    tet_weight=d.get("tet_weight", 0),
-                   tet_connections=d.get("tet_connections")
-        )
+                   tet_connections=d.get("tet_connections"))
 
 
 def get_potcar_dir():
@@ -1229,17 +1228,17 @@ class PotcarSingle(object):
     functional_dir = {"PBE": "POT_GGA_PAW_PBE", "LDA": "POT_LDA_PAW",
                       "PW91": "POT_GGA_PAW_PW91", "LDA_US": "POT_LDA_US"}
 
-    functional_tags = {"pe": {"name": "pbe", "class": "gga"},
-                       "91": {"name": "pw91", "class": "gga"},
-                       "rp": {"name": "revpbe", "class": "gga"},
-                       "am": {"name": "am05", "class": "gga"},
-                       "ps": {"name": "pbesol", "class": "gga"},
-                       "pw": {"name": "pw86", "class": "gga"},
-                       "lm": {"name": "langreth-mehl-hu", "class": "gga"},
-                       "pb": {"name": "perdew-becke", "class": "gga"},
-                       "ca": {"name": "perdew-zunger81", "class": "lda"},
-                       "hl": {"name": "hedin-lundquist", "class": "lda"},
-                       "wi": {"name": "wigner interpoloation", "class": "lda"}}
+    functional_tags = {"pe": {"name": "PBE", "class": "GGA"},
+                       "91": {"name": "PW91", "class": "GGA"},
+                       "rp": {"name": "revPBE", "class": "GGA"},
+                       "am": {"name": "AM05", "class": "GGA"},
+                       "ps": {"name": "PBEsol", "class": "GGA"},
+                       "pw": {"name": "PW86", "class": "GGA"},
+                       "lm": {"name": "Langreth-Mehl-Hu", "class": "GGA"},
+                       "pb": {"name": "Perdew-Becke", "class": "GGA"},
+                       "ca": {"name": "Perdew-Zunger81", "class": "LDA"},
+                       "hl": {"name": "Hedin-Lundquist", "class": "LDA"},
+                       "wi": {"name": "Wigner Interpoloation", "class": "LDA"}}
 
     parse_functions = {"LULTRA": parse_bool,
                        "LCOR": parse_bool,
@@ -1287,15 +1286,13 @@ class PotcarSingle(object):
                                    search_lines, flags=re.MULTILINE):
             self.keywords[key] = self.parse_functions[key](val)
 
-
         PSCTR = OrderedDict()
 
         array_search = re.compile(r"(-*[0-9\.]+)")
         orbitals = []
         descriptions = []
         atomic_configuration = re.search(r"Atomic configuration\s*\n?"
-                                                r"(.*?)Description",
-                                                search_lines)
+                                         r"(.*?)Description", search_lines)
         if atomic_configuration:
             lines = atomic_configuration.group(1).splitlines()
             num_entries = re.search(r"([0-9]+)", lines[0]).group(1)
@@ -1305,10 +1302,10 @@ class PotcarSingle(object):
                 orbit = array_search.findall(line)
                 if orbit:
                     orbitals.append(self.Orbital(int(orbit[0]),
-                                            int(orbit[1]),
-                                            float(orbit[2]),
-                                            float(orbit[3]),
-                                            float(orbit[4])))
+                                                 int(orbit[1]),
+                                                 float(orbit[2]),
+                                                 float(orbit[3]),
+                                                 float(orbit[4])))
             PSCTR['Orbitals'] = tuple(orbitals)
 
         description_string = re.search(r"(?s)Description\s*\n"
@@ -1319,11 +1316,15 @@ class PotcarSingle(object):
             description = array_search.findall(line)
             if description:
                 descriptions.append(self.Description(int(description[0]),
-                                                float(description[1]),
-                                                int(description[2]),
-                                                float(description[3]),
-                                                int(description[4]) if len(description) > 4 else None,
-                                                float(description[5]) if len(description) > 4  else None))
+                                                     float(description[1]),
+                                                     int(description[2]),
+                                                     float(description[3]),
+                                                     int(description[4]) if
+                                                     len(description) > 4
+                                                     else None,
+                                                     float(description[5]) if
+                                                     len(description) > 4
+                                                     else None))
         if descriptions:
             PSCTR['OrbitalDescriptions'] = tuple(descriptions)
 
@@ -1401,11 +1402,11 @@ class PotcarSingle(object):
     @property
     def potential_type(self):
         if self.lultra:
-            return "us"
+            return "US"
         elif self.lpaw:
-            return "paw"
+            return "PAW"
         else:
-            return "nc"
+            return "NC"
 
     @property
     def functional(self):
@@ -1501,17 +1502,11 @@ class Potcar(list, PMGSONable):
         for p in potcar_strings:
             single = PotcarSingle(p)
             potcar.append(single)
-            functionals.append(single.lexch)
+            functionals.append(single.functional)
         if len(set(functionals)) != 1:
             raise ValueError("File contains incompatible functionals!")
         else:
-            if functionals[0] == "PE":
-                functional = "PBE"
-            elif functionals[0] == "91":
-                functional = "PW91"
-            else:
-                functional = "LDA"
-            potcar.functional = functional
+            potcar.functional = functionals[0]
         return potcar
 
     def __str__(self):
@@ -1654,4 +1649,3 @@ class VaspInput(dict, PMGSONable):
                 sub_d["optional_files"][fname] = \
                     ftype.from_file(os.path.join(input_dir, fname))
         return VaspInput(**sub_d)
-
