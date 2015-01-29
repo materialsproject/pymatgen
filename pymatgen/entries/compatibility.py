@@ -133,18 +133,22 @@ class PotcarCorrection(Correction):
     def get_correction(self, entry):
 
         if self.check_hash:
-            if "potcar_spec" in entry.parameters:
-                psp_settings = set([d["hash"]
-                                    for d in entry.parameters["potcar_spec"]])
+            if entry.parameters.get("potcar_spec"):
+                psp_settings = set([d.get("hash")
+                                    for d in entry.parameters[
+                                    "potcar_spec"] if d])
             else:
-                raise ValueError('Cannot check hash without potcar_spec field')
+                raise ValueError('Cannot check hash '
+                                 'without potcar_spec field')
         else:
-            if "potcar_spec" in entry.parameters:
-                psp_settings = set([d["symbol"].split()[1]
-                                    for d in entry.parameters["potcar_spec"]])
+            if entry.parameters.get("potcar_spec"):
+                psp_settings = set([d.get("symbol").split()[1]
+                                    for d in entry.parameters[
+                                    "potcar_spec"] if d])
             else:
                 psp_settings = set([sym.split()[1]
-                                    for sym in entry.parameters["potcar_symbols"]])
+                                    for sym in entry.parameters[
+                                    "potcar_symbols"] if sym])
 
         if {self.valid_potcars[str(el)] for el in
                 entry.composition.elements} != psp_settings:
@@ -185,7 +189,7 @@ class GasCorrection(Correction):
         #Check for oxide, peroxide, superoxide, and ozonide corrections.
         if self.correct_peroxide:
             if len(comp) >= 2 and Element("O") in comp:
-                if "oxide_type" in entry.data:
+                if entry.data.get("oxide_type"):
                     if entry.data["oxide_type"] in self.oxide_correction:
                         ox_corr = self.oxide_correction[
                             entry.data["oxide_type"]]
