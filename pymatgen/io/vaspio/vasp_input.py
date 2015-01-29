@@ -1234,7 +1234,12 @@ class PotcarSingle(object):
                        "rp": {"name": "revpbe", "class": "gga"},
                        "am": {"name": "am05", "class": "gga"},
                        "ps": {"name": "pbesol", "class": "gga"},
-                       "ca": {"name": "ceperly-alder", "class": "lda"}}
+                       "pw": {"name": "pw86", "class": "gga"},
+                       "lm": {"name": "langreth-mehl-hu", "class": "gga"},
+                       "pb": {"name": "perdew-becke", "class": "gga"},
+                       "ca": {"name": "perdew-zunger81", "class": "lda"},
+                       "hl": {"name": "hedin-lundquist", "class": "lda"},
+                       "wi": {"name": "wigner interpoloation", "class": "lda"}}
 
     parse_functions = {"LULTRA": parse_bool,
                        "LCOR": parse_bool,
@@ -1268,7 +1273,7 @@ class PotcarSingle(object):
 
     Orbital = namedtuple('Orbital', ['n', 'l', 'j', 'E', 'occ'])
     Description = namedtuple('OrbitalDescription', ['l', 'E',
-                                                    'Type', "Rcut", "T2", "Rcut2"])
+                                                    'Type', "Rcut", "Type2", "Rcut2"])
 
     def __init__(self, data):
         self.data = data  # raw POTCAR as a string
@@ -1317,7 +1322,7 @@ class PotcarSingle(object):
                                                 float(description[1]),
                                                 int(description[2]),
                                                 float(description[3]),
-                                                float(description[4]) if len(description) > 4 else None,
+                                                int(description[4]) if len(description) > 4 else None,
                                                 float(description[5]) if len(description) > 4  else None))
         if descriptions:
             PSCTR['OrbitalDescriptions'] = tuple(descriptions)
@@ -1395,7 +1400,12 @@ class PotcarSingle(object):
 
     @property
     def potential_type(self):
-        return "us" if self.lultra else "paw"
+        if self.lultra:
+            return "us"
+        elif self.lpaw:
+            return "paw"
+        else:
+            return "nc "
 
     @property
     def functional(self):
