@@ -142,7 +142,7 @@ class PotcarCorrection(Correction):
                                  'without potcar_spec field')
         else:
             if entry.parameters.get("potcar_spec"):
-                psp_settings = set([d.get("symbol").split()[1]
+                psp_settings = set([d.get("titel").split()[1]
                                     for d in entry.parameters[
                                     "potcar_spec"] if d])
             else:
