@@ -365,7 +365,7 @@ class Vasprun(PMGSONable):
                 elif tag == "atominfo":
                     self.atomic_symbols, self.potcar_symbols = \
                         self._parse_atominfo(elem)
-                    self.potcar_spec = [{"symbol": p,
+                    self.potcar_spec = [{"titel": p,
                                          "hash": None} for
                                         p in self.potcar_symbols]
             if tag == "calculation":
@@ -745,7 +745,7 @@ class Vasprun(PMGSONable):
             potcar = None
 
         if potcar:
-            self.potcar_spec = [{"symbol": sym, "hash": ps.get_potcar_hash()}
+            self.potcar_spec = [{"titel": sym, "hash": ps.get_potcar_hash()}
                                 for sym in self.potcar_symbols
                                 for ps in potcar if
                                 ps.symbol == sym.split()[1]]
