@@ -366,7 +366,6 @@ class MITCompatibilityTest(unittest.TestCase):
         #raise if check_potcar_hash is set
         self.assertRaises(ValueError, self.compat.process_entry, entry)
 
-
     def test_potcar_doenst_match_structure(self):
 
         compat = MITCompatibility()
@@ -377,6 +376,18 @@ class MITCompatibilityTest(unittest.TestCase):
                         'run_type': 'GGA+U',
                         'potcar_symbols': ['PAW_PBE Fe_pv 06Sep2000',
                                            'PAW_PBE O 08Apr2002']})
+
+        self.assertIsNone(compat.process_entry(entry))
+
+    def test_potcar_spec_is_none(self):
+
+        compat = MITCompatibility(check_potcar_hash=True)
+        entry = ComputedEntry(
+            'Li2O3', -1, 0.0,
+            parameters={'is_hubbard': True,
+                        'hubbards': {'Fe': 4.0, 'O': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_spec': [None, None]})
 
         self.assertIsNone(compat.process_entry(entry))
 
