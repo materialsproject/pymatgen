@@ -968,7 +968,7 @@ class IStructure(SiteCollection, PMGSONable):
             vec -= np.round(vec)
         sp = self.species_and_occu
         structs = []
-        for x in range(nimages+1):
+        for x in range(nimages + 1):
             if interpolate_lattices:
                 l_a = lstart + x / nimages * lvec
                 l = Lattice.from_lengths_and_angles(*l_a)
@@ -2459,19 +2459,30 @@ class Structure(IStructure, collections.MutableSequence):
 
     def merge_sites(self, tol=0.01):
         """
-        Merges sites (adding occupancies) within tol of each other
+        Merges sites (adding occupancies) within tol of each other.
+        Removes site properties
         """
+        from scipy.spatial.distance import squareform
+        from scipy.cluster.hierarchy import fcluster, linkage
+
         d = self.distance_matrix
-        d[np.triu_indices(len(d))] = np.inf
-        for inds in np.sort(np.argwhere(d < tol), axis=0)[::-1]:
-            i, j = inds
-            # j < i always, and largest i first, so any previously deleted
-            # site is after i and j (so indices are still correct)
-            sp = self[i].species_and_occu + self[j].species_and_occu
-            d = self[i].frac_coords - self[j].frac_coords
-            fc = self[j].frac_coords + (d - np.round(d)) / 2
-            self.replace(j, sp, fc)
-            del self[i]
+        np.fill_diagonal(d, 0)
+        clusters = fcluster(linkage(squareform((d + d.T) / 2)),
+                            tol, 'distance')
+
+        sites = []
+        for c in np.unique(clusters):
+            inds = np.argwhere(clusters == c)
+            species = Composition()
+            coords = self[inds[0]].frac_coords
+            n = len(inds)
+            for i in inds:
+                species += self[i].species_and_occu
+                offset = self[i].frac_coords - coords
+                coords += (offset - np.round(offset)) / n
+            sites.append(PeriodicSite(species, coords, self.lattice))
+
+        self._sites = sites
 
 
 class Molecule(IMolecule, collections.MutableSequence):
