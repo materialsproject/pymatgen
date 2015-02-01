@@ -20,7 +20,7 @@ from monty.itertools import iterator_from_slice
 from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property
-from pymatgen.util.plotting_utils import add_fig_kwargs
+from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
 from pymatgen.core.periodic_table import PeriodicTable, Element
 from .eos import EOS
 
@@ -123,6 +123,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
     #def __eq__(self, other):
     #    if not isinstance(other, Pseudo): return False
     #    return (self.__class__ == other.__class__ and 
+    #    return (self.md5 == other.md5 and 
     #            self.text == other.text)
 
     #def __ne__(self, other):
@@ -211,6 +212,30 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
         """True if PAW pseudopotential."""
         return isinstance(self, PawPseudo)
 
+    #@lazy_property
+    #def md5(self):
+    #    import md5
+    #    m = md5.new()
+    #    with open(self.filepath, "r") as fh:
+    #        # Warning: line-based parser
+    #        for line in fh:
+    #            if line.startswith("<DOJO_REPORT>"): break
+    #            m.update(line)
+
+    #    return m.digest()
+
+    #@lazy_property
+    #def md5(self):
+    #    """Md5 hash value."""
+    #    with open(self.path, "r") as fh:
+    #        lines = fh.readlines()
+    #        start = lines.index("<DOJO_REPORT>\n")
+    #        stop = lines.index("</DOJO_REPORT>\n")
+    #        text = "".join(lines[:start])
+    #    
+    #        import hashlib
+    #        return hashlib.md5(text)
+
     #@abc.abstractproperty
     #def xc_type(self):
     #    """XC family e.g LDA, GGA, MGGA."""
@@ -244,8 +269,8 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
             Z=self.Z,
             Z_val=self.Z_val,
             l_max=self.l_max,
+            md5=self.md5,
             #nlcc_radius=self.nlcc_radius,
-            #md5=self.md5,
             #xc_type=
             #pp_type=
         )
@@ -295,7 +320,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
 
             if start == -1:
                 # DOJO_REPORT was not present.
-                lines += ["\n", "<DOJO_REPORT>\n", jstring , "</DOJO_REPORT>\n",]
+                lines += ["<DOJO_REPORT>\n", jstring , "</DOJO_REPORT>\n",]
             else:
                 stop = lines.index("</DOJO_REPORT>\n")
                 lines.insert(stop, jstring)
@@ -348,18 +373,6 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
             if self.hint_for_accuracy(acc) is None:
                 return False
         return True
-
-    #@lazy_property
-    #def md5(self):
-    #    """Md5 hash value."""
-    #    with open(self.path, "r") as fh:
-    #        lines = fh.readlines()
-    #        start = lines.index("<DOJO_REPORT>\n")
-    #        stop = lines.index("</DOJO_REPORT>\n")
-    #        text = "".join(lines[:start])
-    #    
-    #        import hashlib
-    #        return hashlib.md5(text)
 
 
 class NcPseudo(six.with_metaclass(abc.ABCMeta, object)):
@@ -923,7 +936,7 @@ class PawAbinitHeader(AbinitHeader):
 
 
 class PseudoParserError(Exception):
-    """Base Error class for the exceptions raised by `PseudoParser`"""
+    """Base Error class for the exceptions raised by :class:`PseudoParser`"""
 
 
 class PseudoParser(object):
@@ -931,6 +944,7 @@ class PseudoParser(object):
     Responsible for parsing pseudopotential files and returning pseudopotential objects.
 
     Usage::
+
         pseudo = PseudoParser().parse("filename")
     """
     Error = PseudoParserError
@@ -1339,18 +1353,18 @@ class PawXmlSetup(Pseudo, PawPseudo):
             return self._projector_functions
 
     @add_fig_kwargs
-    def plot_densities(self, **kwargs):
+    def plot_densities(self, ax=None, **kwargs):
         """
         Plot the PAW densities.
+
+        Args:
+            ax: matplotlib :class:`Axes` or None if a new figure should be created.
 
         Returns:
             `matplotlib` figure
         """
-        import matplotlib.pyplot as plt
+        ax, fig, plt = get_ax_fig_plt(ax)
 
-        fig = plt.figure()
-
-        ax = fig.add_subplot(1,1,1)
         ax.grid(True)
         ax.set_xlabel('r [Bohr]')
         #ax.set_ylabel('density')
@@ -1365,18 +1379,18 @@ class PawXmlSetup(Pseudo, PawPseudo):
         return fig
 
     @add_fig_kwargs
-    def plot_waves(self, **kwargs):
+    def plot_waves(self, ax=None, **kwargs):
         """
         Plot the AE and the pseudo partial waves.
+
+        Args:
+            ax: matplotlib :class:`Axes` or None if a new figure should be created.
 
         Returns:
             `matplotlib` figure
         """
-        import matplotlib.pyplot as plt
+        ax, fig, plt = get_ax_fig_plt(ax)
 
-        fig = plt.figure()
-
-        ax = fig.add_subplot(1,1,1)
         ax.grid(True)
         ax.set_xlabel("r [Bohr]")
         ax.set_ylabel("$r\phi,\\, r\\tilde\phi\, [Bohr]^{-\\frac{1}{2}}$")
@@ -1395,20 +1409,18 @@ class PawXmlSetup(Pseudo, PawPseudo):
         return fig
 
     @add_fig_kwargs
-    def plot_projectors(self, **kwargs):
+    def plot_projectors(self, ax=None, **kwargs):
         """
         Plot the PAW projectors.
+
+        Args:
+            ax: matplotlib :class:`Axes` or None if a new figure should be created.
 
         Returns:
             `matplotlib` figure
         """
+        ax, fig, plt = get_ax_fig_plt(ax)
         title = kwargs.pop("title", "Projectors")
-
-        import matplotlib.pyplot as plt
-
-        fig = plt.figure()
-
-        ax = fig.add_subplot(1,1,1)
         ax.grid(True)
         ax.set_xlabel('r [Bohr]')
         ax.set_ylabel("$r\\tilde p\, [Bohr]^{-\\frac{1}{2}}$")
@@ -1420,8 +1432,6 @@ class PawXmlSetup(Pseudo, PawPseudo):
             ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, label="TPROJ: " + state)
 
         plt.legend(loc="best")
-
-        if title is not None: fig.suptitle(title)
 
         return fig
 
@@ -1462,7 +1472,6 @@ class PawXmlSetup(Pseudo, PawPseudo):
     #    if title is not None: fig.suptitle(title)
     #    if show: plt.show()
     #    if savefig: fig.savefig(savefig)
-
     #    return fig
 
 
@@ -1533,9 +1542,9 @@ class PseudoTable(collections.Sequence):
             pseudos = []
             for znum in iterator_from_slice(Z):
                 pseudos.extend(self._pseudos_with_z[znum])
-            return pseudos
+            return self.__class__(pseudos)
         else:
-            return self._pseudos_with_z[Z]
+            return self.__class__(self._pseudos_with_z[Z])
 
     def __len__(self):
         return len(list(self.__iter__()))
@@ -1572,9 +1581,7 @@ class PseudoTable(collections.Sequence):
     @property
     def zlist(self):
         """Ordered list with the atomic numbers available in the table."""
-        zlist = list(self._pseudos_with_z.keys())
-        zlist.sort()
-        return zlist
+        return sorted(list(self._pseudos_with_z.keys()))
 
     def as_dict(self, **kwargs):
         d = {}
@@ -1615,60 +1622,53 @@ class PseudoTable(collections.Sequence):
         Return an empty list if no pseudo is found
         """
         try:
-            return getattr(self, str(symbol))
+            return self.__class__(getattr(self, str(symbol)))
         except AttributeError:
             return []
 
-    #def pseudo_from_name(self, name):
-    #    """Return the pseudo in the table with the given name, None if not found"""
+    #def list_properties(self, *props, **kw):
+    #    """
+    #    Print a list of elements with the given set of properties.
+
+    #    Args:
+    #        *prop1*, *prop2*, ... : string
+    #            Name of the properties to print
+    #        *format*: string
+    #            Template for displaying the element properties, with one
+    #            % for each property.
+
+    #    For example, print a table of mass and density.
+
+    #    from periodictable import elements
+    #    elements.list_properties('symbol','mass','density', format="%-2s: %6.2f u %5.2f g/cm^3")
+    #    H :   1.01 u   0.07 g/cm^3
+    #    He:   4.00 u   0.12 g/cm^3
+    #    Li:   6.94 u   0.53 g/cm^3
+    #    ...
+    #    Bk: 247.00 u  14.00 g/cm^3
+    #    """
+    #    format = kw.pop('format', None)
+    #    assert len(kw) == 0
+
     #    for pseudo in self:
-    #        if pseudo.name == name:
-    #            return pseudo
-    #    return None
+    #        try:
+    #            values = tuple(getattr(pseudo, p) for p in props)
+    #        except AttributeError:
+    #            # Skip elements which don't define all the attributes
+    #            continue
 
-    def list_properties(self, *props, **kw):
-        """
-        Print a list of elements with the given set of properties.
+    #        # Skip elements with a value of None
+    #        if any(v is None for v in values):
+    #            continue
 
-        Args:
-            *prop1*, *prop2*, ... : string
-                Name of the properties to print
-            *format*: string
-                Template for displaying the element properties, with one
-                % for each property.
-
-        For example, print a table of mass and density.
-
-        from periodictable import elements
-        elements.list_properties('symbol','mass','density', format="%-2s: %6.2f u %5.2f g/cm^3")
-        H :   1.01 u   0.07 g/cm^3
-        He:   4.00 u   0.12 g/cm^3
-        Li:   6.94 u   0.53 g/cm^3
-        ...
-        Bk: 247.00 u  14.00 g/cm^3
-        """
-        format = kw.pop('format', None)
-        assert len(kw) == 0
-
-        for pseudo in self:
-            try:
-                values = tuple(getattr(pseudo, p) for p in props)
-            except AttributeError:
-                # Skip elements which don't define all the attributes
-                continue
-
-            # Skip elements with a value of None
-            if any(v is None for v in values):
-                continue
-
-            if format is None:
-                print(" ".join(str(p) for p in values))
-            else:
-                try:
-                    print(format % values)
-                except:
-                    print("format",format,"args",values)
-                    raise
+    #        if format is None:
+    #            print(" ".join(str(p) for p in values))
+    #        else:
+    #            try:
+    #                print(format % values)
+    #            except:
+    #                print("format",format,"args",values)
+    #                raise
 
     #def print_table(self, stream=sys.stdout, filter_function=None):
     #    """
@@ -1690,7 +1690,12 @@ class PseudoTable(collections.Sequence):
     #        print(" ".join(rowstr))
 
     def sorted(self, attrname, reverse=False):
-        """Sort the table according to the value of attribute attrname."""
+        """
+        Sort the table according to the value of attribute attrname.
+
+        Return:
+            New class:`PseudoTable` object
+        """
         attrs = []
         for i, pseudo in self:
             try:
@@ -1709,6 +1714,7 @@ class PseudoTable(collections.Sequence):
     def select(self, condition):
         """
         Select only those pseudopotentials for which condition is True.
+        Return new class:`PseudoTable` object.
 
         Args:
             condition:
@@ -1717,7 +1723,7 @@ class PseudoTable(collections.Sequence):
         return self.__class__([p for p in self if condition(p)])
 
     def with_dojo_report(self):
-        """Select pseudos containing the DOJO_REPORT section."""
+        """Select pseudos containing the DOJO_REPORT section. Return new class:`PseudoTable` object."""
         return self.select(condition=lambda p: p.has_dojo_report)
 
     def get_dojo_dataframe(self, **kwargs):
@@ -1743,9 +1749,10 @@ class PseudoTable(collections.Sequence):
 
         for p in self:
             report = p.dojo_report
-            if "version" not in report:
-                print("ignoring old report in ", p.basename)
-                continue
+            assert "version"  in report
+            #if "version" not in report:
+            #    print("ignoring old report in ", p.basename)
+            #    continue
 
             d = {"symbol": p.symbol, "Z": p.Z}
             names.append(p.basename)
@@ -1782,6 +1789,10 @@ class PseudoTable(collections.Sequence):
         return DojoDataFrame(rows, index=names), errors
 
     def select_rows(self, rows):
+        """
+        Return new class:`PseudoTable` object with pseudos in the given rows of the periodic table.
+        rows can be either a int or a list of integers.
+        """
         if not isinstance(rows, (list, tuple)): rows = [rows]
         return self.__class__([p for p in self if p.element.row in rows])
 
@@ -1789,9 +1800,37 @@ class PseudoTable(collections.Sequence):
         # e.g element.is_alkaline
         return self.__class__([p for p in self if getattr(p.element, "is_" + family)])
 
+    def dojo_compare(self, what="all"):
+        """Compare ecut convergence and Deltafactor, GBRV results"""
+        import matplotlib.pyplot as plt
+        if all(p.dojo_report.has_trial("deltafactor") for p in self) and \
+               any(k in what for k in ("all", "df")):
+
+            fig, ax_list = plt.subplots(nrows=len(self), ncols=1, sharex=True, squeeze=True)
+            for ax, pseudo in zip(ax_list, self):
+                pseudo.dojo_report.plot_etotal_vs_ecut(ax=ax, show=False, label=pseudo.basename)
+            plt.show()
+
+            fig, ax_grid = plt.subplots(nrows=5, ncols=len(self), sharex=True, sharey="row", squeeze=False)
+            for ax_list, pseudo in zip(ax_grid.T, self):
+                pseudo.dojo_report.plot_deltafactor_convergence(ax_list=ax_list, show=False)
+
+            fig.suptitle(" vs ".join(p.basename for p in self))
+            plt.show()
+
+        # Compare GBRV results
+        if all(p.dojo_report.has_trial("gbrv_bcc") for p in self) and \
+           any(k in what for k in ("all", "gbrv")):
+
+            fig, ax_grid = plt.subplots(nrows=2, ncols=len(self), sharex=True, sharey="row", squeeze=False)
+            for ax_list, pseudo in zip(ax_grid.T, self):
+                pseudo.dojo_report.plot_gbrv_convergence(ax_list=ax_list, show=False)
+
+            fig.suptitle(" vs ".join(p.basename for p in self))
+            plt.show()
+
 
 import pandas as pd
-#from tabulate import tabulate
 
 class DojoDataFrame(pd.DataFrame):
     ALL_ACCURACIES = ("low", "normal", "high")
@@ -1826,8 +1865,32 @@ class DojoDataFrame(pd.DataFrame):
     for v in ACC2PLTOPTS.values():
         v.update(linewidth=2, linestyle='dashed', marker='o', markersize=8)
 
-    #def tabulate(self, trials="all"):
-    #    pass
+    def tabulate(self, columns=None, stream=sys.stdout):
+        from tabulate import tabulate
+        if columns is None:
+            accuracies = self.ALL_ACCURACIES
+            columns = [acc + "_dfact_meV" for acc in accuracies] 
+            columns += [acc + "_ecut" for acc in accuracies] 
+            columns += [acc + "_gbrv_fcc_a0_rel_err" for acc in accuracies] 
+            columns += [acc + "_gbrv_bcc_a0_rel_err" for acc in accuracies] 
+
+        #return self[columns].to_html()
+        tablefmt = "grid"
+        floatfmt=".2f"
+        stream.write(tabulate(self[columns], headers="keys", tablefmt=tablefmt, floatfmt=floatfmt))
+
+    def get_accuracy(self, accuracy):
+        columns = [c for c in self if c.startswith(accuracy)]
+        return self.__class__(data=self[columns])
+
+    def get_trials(self, accuracies="all"):
+        accuracies = self.ALL_ACCURACIES if accuracies == "all" else list_strings(accuracies)
+
+        columns = [acc + "_dfact_meV" for acc in accuracies] 
+        columns += [acc + "_ecut" for acc in accuracies] 
+        columns += [acc + "_gbrv_fcc_a0_rel_err" for acc in accuracies] 
+        columns += [acc + "_gbrv_bcc_a0_rel_err" for acc in accuracies] 
+        return self.__class__(data=self[columns])
 
     def select_rows(self, rows):
         if not isinstance(rows, (list, tuple)): rows = [rows]
@@ -1945,7 +2008,8 @@ class DojoReport(dict):
         "gbrv_bcc",
         "gbrv_fcc",
     )
-    # TODO Add: Symbol
+
+    ATOLS = (0.2, 0.1, 0.01)
 
     @classmethod
     def from_file(cls, filepath):
@@ -2007,9 +2071,21 @@ class DojoReport(dict):
         return self["symbol"]
 
     @property
+    def element(self):
+        return Element(self.symbol)
+
+    @property
     def has_hints(self):
         """True if hints are present."""
         return "hints" in self
+
+    @lazy_property
+    def ecuts(self):
+        return np.array(self["ecuts"])
+
+    #@property
+    #def is_validated(self)
+    #    return bool(self.get("validated", False))
 
     @property
     def trials(self):
@@ -2030,22 +2106,21 @@ class DojoReport(dict):
             except KeyError:
                 return False
 
-    @lazy_property
-    def ecuts(self):
-        return np.array(self["ecuts"])
-
-
-    @property
-    def element(self):
-        return Element(self.symbol)
-
     #def missing_ecuts(self, trial):
     #    computed_ecuts = self[trial].keys()
     #    return [e for e in self.ecuts if e not in computed_ecuts]
 
-    def validate(self):
+    #def add_ecuts(self, ecuts):
+        # Be careful with the format here! it should be %.1f
+        #new_ecuts = np.array(new_ecuts.split(","))
+
+    #def validate(self, hints):
+    #    Add md5 hash value
+    #    self["validated"] = True
+
+    def check(self):
         """
-        Validate the DojoReport. Test if each trial contains an ecut entry. 
+        check the DojoReport. Test if each trial contains an ecut entry. 
         Return a dictionary trial: [missing_ecut]
         """
         d = {}
@@ -2098,9 +2173,7 @@ class DojoReport(dict):
     #                value = d[self._TRIALS2KEY[trial]]
     #                s = "%.4f" % value
     #                row.append(s)
-
     #        rows.append(row)
-
     #    #import pandas as pd
     #    #return pd.DataFrame(rows, index=names, columns=columns)
     #    return rows
@@ -2125,35 +2198,26 @@ class DojoReport(dict):
 
         # Ecut mesh in Ha
         ecuts = np.array(d.keys())
-        ecut_min, ecut_max = min(ecuts), max(ecuts)
+        ecut_min, ecut_max = np.min(ecuts), np.max(ecuts)
 
         # Energies per atom in meV and difference wrt 'converged' value
         num_sites = [v["num_sites"] for v in self["deltafactor"].values()][0]
         etotals_mev = np.array([d[e] for e in ecuts]) * 1000  / num_sites
         ediffs = etotals_mev - etotals_mev[-1]
 
-        import matplotlib.pyplot as plt
-        if ax is None:
-            fig = plt.figure()
-            ax = fig.add_subplot(1,1,1)
-        else:
-            fig = plt.gcf()
-
-        ax.yaxis.set_view_interval(-5, 5)
+        ax, fig, plt = get_ax_fig_plt(ax)
+        #ax.yaxis.set_view_interval(-5, 5)
 
         lines, legends = [], []
 
-        inv_ecut = True
-        xs = 1/ecuts if inv_ecut else ecuts[:-1]
-        ys = etotals_mev if inv_ecut else ediffs[:-1]
+        xs = 1/ecuts if inv_ecut else ecuts
+        ys = etotals_mev if inv_ecut else ediffs
 
-        line, = ax.plot(xs, ys, "-->", linewidth=3.0, markersize=10)
+        line, = ax.plot(xs, ys, "-->", color="blue", linewidth=3.0, markersize=15)
         lines.append(line)
-        #legends.append("aug_ratio = %s" % aratio)
 
         label = kwargs.pop("label", None)
-        if label is not None:
-            ax.legend(lines, [label], loc='best', shadow=True)
+        if label is not None: ax.legend(lines, [label], loc='best', shadow=True)
 
         high_hint = self["ppgen_hints"]["high"]["ecut"]
         #ax.vlines(high_hint, min(ediffs), max(ediffs))
@@ -2167,43 +2231,73 @@ class DojoReport(dict):
 
         # Set xticks and labels.
         ax.grid(True)
-        #ax.set_title("$\Delta$ Etotal vs Ecut")
         ax.set_xlabel("Ecut [Ha]")
         ax.set_xticks(xs)
-        ax.set_ylabel("$\Delta$ Etotal/natom [meV]")
-        ax.set_xlim(0, max(xs))
+        ax.set_ylabel("Delta Etotal/natom [meV]")
+        #ax.set_xlim(0, max(xs))
 
         # Use logscale if possible.
-        #if all(ediffs[:-1] > 0): ax.set_yscale("log")
+        if all(ediffs[:-1] > 0): 
+            ax.set_yscale("log")
+            ax.set_xlim(xs[0]-1, xs[-2]+1)
 
         return fig
 
     @add_fig_kwargs
-    def plot_deltafactor_eos(self, **kwargs):
+    def plot_deltafactor_eos(self, ax=None, **kwargs):
         """
         plot the EOS computed with the deltafactor setup.
+
+        Args:
+            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            cmap: Color map. default
 
         Returns:
             `matplotlib` figure.
         """
-        import matplotlib.pyplot as plt
-        fig = plt.figure()
-        ax = fig.add_subplot(1,1,1)
+        ax, fig, plt = get_ax_fig_plt(ax)
 
         trial = "deltafactor"
         ecuts = self[trial].keys()
-        for ecut in ecuts:
+        num_ecuts = len(ecuts)
+
+        cmap = kwargs.pop("cmap", None)
+        if cmap is None: cmap = plt.get_cmap("jet")
+
+        for i, ecut in enumerate(ecuts):
             d = self[trial][ecut]
             num_sites, volumes, etotals = d["num_sites"], np.array(d["volumes"]), np.array(d["etotals"])
 
             # Use same fit as the one employed for the deltafactor.
             eos_fit = EOS.DeltaFactor().fit(volumes/num_sites, etotals/num_sites)
-            eos_fit.plot(ax=ax, text=False, show=False) #, color=dict(low="r", normal="g", high="b")[accuracy], 
+
+            label = "ecut %.1f" % ecut if i % 2 == 0 else ""
+            label = "ecut %.1f" % ecut 
+            eos_fit.plot(ax=ax, text=False, label=label, color=cmap(i/num_ecuts, alpha=1), show=False)
 
         return fig
 
+    def get_ecut_dfactprime(self):
+        data = self["deltafactor"]
+        ecuts, values= data.keys(), []
+        values = np.array([data[e]["dfactprime_meV"] for e in ecuts])
+        return np.array(ecuts), values
+
+    def compute_hints(self):
+        ecuts, dfacts = self.get_ecut_dfactprime()
+        abs_diffs = np.abs((dfacts - dfacts[-1]))
+        #print(list(zip(ecuts, dfacts)))
+        #print(abs_diffs)
+
+        hints = 3 * [None]
+        for ecut, adiff in zip(ecuts, abs_diffs):
+            for i in range(3):
+                if adiff <= self.ATOLS[i] and hints[i] is None:
+                    hints[i] = ecut
+        return hints
+
     @add_fig_kwargs
-    def plot_deltafactor_convergence(self, code="WIEN2k", ax_list=None, **kwargs):
+    def plot_deltafactor_convergence(self, code="WIEN2k", what=None, ax_list=None, **kwargs):
         """
         plot the convergence of the deltafactor parameters wrt ecut.
 
@@ -2214,13 +2308,25 @@ class DojoReport(dict):
         Returns:
             `matplotlib` figure.
         """
+        all = ["dfact_meV", "dfactprime_meV", "v0", "b0_GPa", "b1"]
+        if what is None:
+            keys = all
+        else:
+            what = list_strings(what)
+            if what[0].startswith("-"):
+                # Exclude keys
+                #print([type(w) for w in what])
+                what = [w[1:] for w in what]
+                keys = [k for k in all if k not in what]
+            else:
+                keys = what
+            
         # get reference entry
         from pseudo_dojo.refdata.deltafactor import df_database
-        ref = df_database().get_entry(symbol=self.symbol, code=code)
+        reference = df_database().get_entry(symbol=self.symbol, code=code)
 
         d = self["deltafactor"]
         ecuts = d.keys()
-        keys = ["dfact_meV", "dfactprime_meV", "v0", "b0_GPa", "b1"]
 
         import matplotlib.pyplot as plt
         if ax_list is None:
@@ -2232,42 +2338,58 @@ class DojoReport(dict):
 
         for i, (ax, key) in enumerate(zip(ax_list, keys)):
             values = np.array([float(d[ecut][key]) for ecut in ecuts])
-
-            ax.grid(True)
-            ax.set_ylabel("$\Delta$" + key)
             #try:
-            refval = getattr(ref, key)
+            refval = getattr(reference, key)
             #except AttributeError:
             #    refval = 0.0
 
             # Plot difference pseudo - ref.
             ax.plot(ecuts, values - refval, "bo-")
-            #ax.hlines(y=0.0, xmin=min(ecuts), xmax=max(ecuts), color="red")
+
+            ax.grid(True)
+            ax.set_ylabel("$\Delta$" + key)
             if i == len(keys) - 1: ax.set_xlabel("Ecut [Ha]")
+
+            if key == "dfactprime_meV":
+                # Add horizontal lines (used to find hints for ecut).
+                last = values[-1]
+                xmin, xmax = min(ecuts), max(ecuts)
+                for pad, color in zip(self.ATOLS, ("green", "red", "violet")):
+                    ax.hlines(y=last + pad, xmin=xmin, xmax=xmax, colors=color, linewidth=1, linestyles='dotted')
+                    ax.hlines(y=last - pad, xmin=xmin, xmax=xmax, colors=color, linewidth=1, linestyles='dotted')
 
         return fig
 
     @add_fig_kwargs
-    def plot_gbrv_eos(self, struct_type, **kwargs):
+    def plot_gbrv_eos(self, struct_type, ax=None, **kwargs):
         """
         Uses Matplotlib to plot the EOS computed with the GBRV setup
 
+        Args:
+            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+
         Returns:
-            `matplotlib` figure.
+            `matplotlib` figure or None if the GBRV test is not present
         """
-        import matplotlib.pyplot as plt
-        fig = plt.figure()
-        ax = fig.add_subplot(1,1,1)
+        ax, fig, plt = get_ax_fig_plt(ax)
 
         trial = "gbrv_" + struct_type
+        # Handle missing entries: noble gases, Hg ...
+        if trial not in self: return None
         ecuts = self[trial].keys()
+        num_ecuts = len(ecuts)
 
-        for ecut in ecuts:
+        cmap = kwargs.pop("cmap", None)
+        if cmap is None: cmap = plt.get_cmap("jet")
+
+        for i, ecut in enumerate(ecuts):
             d = self[trial][ecut]
             volumes, etotals = np.array(d["volumes"]), np.array(d["etotals"])
 
             eos_fit = EOS.Quadratic().fit(volumes, etotals)
-            eos_fit.plot(ax=ax, text=False, show=False) # color=dict(low="r", normal="g", high="b")[accuracy],
+            label = "ecut %.1f" % ecut if i % 2 == 0 else ""
+            label = "ecut %.1f" % ecut 
+            eos_fit.plot(ax=ax, text=False, label=label, color=cmap(i/num_ecuts, alpha=1), show=False)
 
         return fig
 
@@ -2282,13 +2404,6 @@ class DojoReport(dict):
         Returns:
             `matplotlib` figure.
         """
-        # get reference entry
-        #from pseudo_dojo.refdata.gbrv import gbrv_database
-        #db = gbrv_database()
-        #ref = dbgbrv.get_entry(symbol=self.symbol, "fcc")
-        #if fcc_ref is None
-        #if bcc_ref is None
-
         import matplotlib.pyplot as plt
         stypes = ("fcc", "bcc")
         if ax_list is None:
@@ -2306,10 +2421,6 @@ class DojoReport(dict):
 
             ax.grid(True)
             ax.set_ylabel("$\Delta$" + trial + "a0_rel_err")
-            #try:
-            #    refval = getattr(ref, key)
-            #except AttributeError:
-            #    refval = 0.0
 
             # Plot difference pseudo - ref.
             ax.plot(ecuts, values, "bo-")
