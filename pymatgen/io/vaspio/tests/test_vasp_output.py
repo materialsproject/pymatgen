@@ -179,6 +179,13 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(34.186,vasprun_diel.dielectric[2][85][2])
         self.assertAlmostEqual(0.0,vasprun_diel.dielectric[2][85][3])
 
+    def test_Xe(self):
+        vr = Vasprun(os.path.join(test_dir, 'vasprun.xml.xe'))
+        self.assertEquals(vr.atomic_symbols, ['Xe'])
+
+    def test_invalid_element(self):
+        self.assertRaises(KeyError, Vasprun, os.path.join(test_dir, 'vasprun.xml.wrong_sp'))
+
     def test_as_dict(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath,
