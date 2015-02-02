@@ -778,7 +778,7 @@ class Vasprun(PMGSONable):
                 raise VaspParserError("Length of U value parameters and atomic"
                                       " symbols are mismatched.")
 
-        unique_symbols = sorted(list(set(symbols)))
+        unique_symbols = sorted(list(set(self.atomic_symbols)))
         d["elements"] = unique_symbols
         d["nelements"] = len(unique_symbols)
 
