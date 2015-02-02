@@ -1272,10 +1272,14 @@ class PotcarSingle(object):
 
     Orbital = namedtuple('Orbital', ['n', 'l', 'j', 'E', 'occ'])
     Description = namedtuple('OrbitalDescription', ['l', 'E',
-                                                    'Type', "Rcut", "Type2", "Rcut2"])
+                                                    'Type', "Rcut",
+                                                    "Type2", "Rcut2"])
 
     def __init__(self, data):
         self.data = data  # raw POTCAR as a string
+
+        #Vasp parses header in vasprun.xml and this differs from the titel
+        self.header = data.split("\n")[0].strip()
 
         search_lines = re.search(r"(?s)(parameters from PSCTR are:"
                                  r".*?END of PSCTR-controll parameters)",
