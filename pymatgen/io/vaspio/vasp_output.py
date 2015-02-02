@@ -870,13 +870,14 @@ class Vasprun(PMGSONable):
                 potcar_symbols = [rc.findall("c")[4].text.strip()
                                   for rc in a.find("set")]
 
-        # Vasp parse Xe as X in atominfo
+        # ensure atomic symbols are valid elements
         def parse_atomic_symbol(symbol):
             try:
                 return str(Element(symbol))
+            # vasprun.xml uses X instead of Xe for xenon
             except KeyError as e:
-                if e.message == "X":
-                    return str(Element("Xe"))
+                if symbol == "X":
+                    return "Xe"
                 raise e
 
         elem.clear()
