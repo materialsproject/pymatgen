@@ -17,6 +17,23 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def as_bool(s):
+    """
+    Convert a string into a boolean.
+
+    >>> assert as_bool(True) is True and as_bool("Yes") is True and as_bool("false") is False
+    """
+    if s in (False, True): return s
+    # Assume string
+    s = s.lower()
+    if s in ("yes", "true"): 
+        return True
+    elif s in ("no", "false"): 
+        return False
+    else:
+        raise ValueError("Don't know how to convert type %s: %s into a boolean" % (type(s), s))
+
+
 class File(object):
     """
     Very simple class used to store file basenames, absolute paths and directory names.
@@ -162,12 +179,9 @@ class Directory(object):
         """Recursively delete the directory tree"""
         shutil.rmtree(self.path, ignore_errors=True)
 
-    def clean(self, wildcard=None):
-        """
-        Remove the files in the directory. 
-        Unlike rmtree, this function preserves the directory path.
-        """
-        for path in self.list_filepaths(wildcard=wildcard):
+    def clean(self):
+        """Remove all files in the directory tree while preserving the directory"""
+        for path in self.list_filepaths():
             try:
                 os.remove(path)
             except:
@@ -275,9 +289,26 @@ class Directory(object):
         shutil.copy(infile, outfile)
         return 0
 
+    def remove_exts(self, exts):
+        """
+        Remove the files with the given extensions. Unlike rmtree, this function preserves the directory path.
+        Return list with the absolute paths of the files that have been removed.
+        """
+        paths = []
 
-# This dictionary maps ABINIT file extensions to the 
-# variables that must be used to read the file in input.
+        for ext in list_strings(exts):
+            path = self.has_abiext(ext)
+            if not path: continue
+            try:
+                os.remove(path)
+                paths.append(path)
+            except:
+                logger.warning("Exception while trying to remove file %s" % path)
+
+        return paths
+        
+
+# This dictionary maps ABINIT file extensions to the variables that must be used to read the file in input.
 #
 # TODO: It would be nice to pass absolute paths to abinit with getden_path
 # so that I can avoid creating symbolic links before running but
@@ -600,6 +631,14 @@ class Condition(object):
     db.inventory.find( { qty: { $gt: 20 } } )
     db.inventory.find({ $and: [ { price: 1.99 }, { qty: { $lt: 20 } }, { sale: true } ] } )
     """
+    @classmethod
+    def as_condition(cls, obj):
+        """Convert obj into :class:`Condition`"""
+        if isinstance(obj, cls):
+            return obj
+        else:
+            return cls(cmap=obj)
+
     def __init__(self, cmap=None):
         self.cmap = {} if cmap is None else cmap
 

@@ -13,6 +13,7 @@ from monty.io import get_open_fds
 from monty.string import boxed, is_string
 from monty.os.path import which
 from monty.collections import AttrDict
+from .utils import as_bool
 
 try:
     import apscheduler
@@ -34,6 +35,22 @@ def straceback():
     """Returns a string with the traceback."""
     import traceback
     return traceback.format_exc()
+
+
+def ask_yesno(prompt, default=True):
+    import six
+    # Fix python 2.x.
+    if six.PY2:
+        my_input = raw_input
+    else:
+        my_input = input
+
+    try:
+        answer = my_input(prompt)
+    except EOFError:
+        return default
+
+    return answer.lower().strip() in ["n", "no"]
 
 
 class ScriptEditor(object):
@@ -300,6 +317,7 @@ class PyFlowScheduler(object):
         self.verbose = int(kwargs.pop("verbose", 0))
         self.use_dynamic_manager = kwargs.pop("use_dynamic_manager", False)
         self.max_njobs_inqueue = kwargs.pop("max_njobs_inqueue", 200)
+        self.contact_resource_manager = as_bool(kwargs.pop("contact_resource_manager", False))
 
         self.remindme_s = float(kwargs.pop("remindme_s", 4 * 24 * 3600))
         self.max_num_pyexcs = int(kwargs.pop("max_num_pyexcs", 0))
@@ -467,10 +485,14 @@ class PyFlowScheduler(object):
 
         try:
             self.sched.start()
+            return True
+
         except KeyboardInterrupt:
             self.shutdown(msg="KeyboardInterrupt from user")
-
-        return True
+            if ask_yesno("Do you want to cancel all the jobs in the queue? [Y/n]"): 
+                self.flow.cancel()
+            self.flow.pickle_dump()
+            return False
 
     def _runem_all(self):
         """
@@ -488,14 +510,17 @@ class PyFlowScheduler(object):
             for work in flow:
                 work.set_manager(new_manager)
 
-        nqjobs = flow.get_njobs_in_queue()
-        if nqjobs is None:
-            nqjobs = 0
-            if flow.manager.has_queue: logger.warning('Cannot get njobs_inqueue')
+        nqjobs = 0
+        if self.contact_resource_manager:
+            # This call is expensive and therefore it's optional
+            nqjobs = flow.get_njobs_in_queue()
+            if nqjobs is None:
+                nqjobs = 0
+                if flow.manager.has_queue: logger.warning('Cannot get njobs_inqueue')
 
-        if nqjobs >= self.max_njobs_inqueue:
-            logger.info("Too many jobs in the queue, returning")
-            return
+            if nqjobs >= self.max_njobs_inqueue:
+                logger.info("Too many jobs in the queue, returning")
+                return
 
         if self.max_nlaunches == -1:
             max_nlaunch = self.max_njobs_inqueue - nqjobs
