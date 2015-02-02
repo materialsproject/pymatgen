@@ -222,7 +222,7 @@ class Flow(Node):
         self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
 
     @classmethod
-    def pickle_load(cls, filepath, disable_signals=False):
+    def pickle_load(cls, filepath, disable_signals=False, remove_lock=False):
         """
         Loads the object from a pickle file and performs initial setup.
 
@@ -234,6 +234,8 @@ class Flow(Node):
             disable_signals: If True, the nodes of the flow are not connected by signals.
                 This option is usually used when we want to read a flow
                 in read-only mode and we want to avoid any possible side effect.
+            remove_lock:
+                True to remove the file lock if any (use it carefully).
         """
         if os.path.isdir(filepath):
             # Walk through each directory inside path and find the pickle database.
@@ -249,6 +251,12 @@ class Flow(Node):
             else:
                 err_msg = "Cannot find %s inside directory %s" % (cls.PICKLE_FNAME, filepath)
                 raise ValueError(err_msg)
+
+        if remove_lock and os.path.exists(filepath + ".lock"):
+            try: 
+                os.remove(filepath + ".lock")
+            except:
+                pass
 
         with FileLock(filepath):
             with open(filepath, "rb") as fh:
@@ -552,7 +560,7 @@ class Flow(Node):
 
     @property
     def status(self):
-        """The status of the Flow i.e. the minimum of the status of its tasks and its works"""
+        """The status of the :class:`Flow` i.e. the minimum of the status of its tasks and its works"""
         return min(work.get_all_status(only_min=True) for work in self)
 
     def fix_critical(self):
@@ -567,9 +575,9 @@ class Flow(Node):
             #todo
             if task.fix_abicritical():
                 task.reset_from_scratch()
-                #task.set_status(Task.S_READY)
+                #task.set_status(task.S_READY)
             else:
-                info_msg = 'We encountered an abi critial envent that could not be fixed'
+                info_msg = 'We encountered an abi critial event that could not be fixed'
                 logger.warning(info_msg)
                 task.set_status(status=task.S_ERROR)
 
@@ -654,11 +662,14 @@ class Flow(Node):
         Args:
             stream:
                 File-like object, Default: sys.stdout
-            work_slice:
-                Slice object used to select the works to show. Default None i.e. all works are displayed.
+            nids: 
+                List of node identifiers. By defaults all nodes are shown
+            verbose:
+                Verbosity level (default 0). > 0 if to show only the works that are not finalized.
         """
         stream = kwargs.pop("stream", sys.stdout)
         nids = as_set(kwargs.pop("nids", None))
+        verbose = kwargs.pop("verbose", 0)
 
         has_colours = stream_has_colours(stream)
         red = "red" if has_colours else None
@@ -666,7 +677,7 @@ class Flow(Node):
         for i, work in enumerate(self):
             print("", file=stream)
             cprint_map("Work #%d: %s, Finalized=%s\n" % (i, work, work.finalized), cmap={"True": "green"}, file=stream)
-            #if verbose == 0 and work.finalized: continue
+            if verbose == 0 and work.finalized: continue
 
             table = PrettyTable(["Task", "Status", "Queue", "MPI|OMP|Mem/proc", "Err|Warn|Comm", "Class", "Restart", "Node_ID"])
 
@@ -702,6 +713,31 @@ class Flow(Node):
             if tot_num_errors:
                 cprint("Total number of errors: %d" % tot_num_errors, red, file=stream)
             print("", file=stream)
+
+        if self.all_ok:
+            print("all_ok reached", file=stream)
+
+    def show_inputs(self, nids=None, stream=sys.stdout):
+        """
+        Print the input of the tasks to the given stream.
+
+        Args:
+            stream:
+                File-like object, Default: sys.stdout
+            nids: 
+                List of node identifiers. By defaults all nodes are shown
+        """
+        if nids is not None and not isinstance(nids, collections.Iterable): 
+            nids = [nids]
+
+        lines = []
+        for work in self:
+            for task in work:
+                if nids is not None and task.node_id not in nids: continue
+                s = task.make_input(with_header=True)
+                lines.append(2*"\n" + 80 * "=" + "\n" + s + 2*"\n")
+
+        stream.writelines(lines)
 
     def get_results(self, **kwargs):
         results = self.Results.from_node(self)
@@ -819,7 +855,7 @@ class Flow(Node):
                     j ==> job_file,
                     l ==> log_file,
                     e ==> stderr_file,
-                    q ==> qerr_file,
+                    q ==> qout_file,
             status: if not None, only the tasks with this status are select
             op: status operator. Requires status. A task is selected
                 if task.status op status evaluates to true.
@@ -835,8 +871,8 @@ class Flow(Node):
                 "j": task.job_file,
                 "l": task.log_file,
                 "e": task.stderr_file,
-                "q": task.qerr_file,
-                #"q": task.qout_file,
+                "q": task.qout_file,
+                #"q": task.qerr_file,
             }
 
             selected = []
@@ -1086,6 +1122,7 @@ class Flow(Node):
         """This method is called when the flow is completed."""
         if self.finalized: return 1
         self.finalized = False
+
         if self.flow.has_db:
             try:
                 self.flow.db_insert()
@@ -1094,10 +1131,12 @@ class Flow(Node):
                  logger.critical("MongoDb insertion failed.")
                  return 2
 
-    #def set_cleanup_policy(self, exts=None):
-    #    for work in self:
-    #        for task in work: 
-    #            task.set_cleanup_policy(exts=exts)
+    def set_cleanup_exts(self, exts=None):
+        for work in self:
+            # TODO Add support for Works
+            #work.set_cleanup_exts(exts)
+            for task in work:
+                task.set_cleanup_exts(exts)
 
     def connect_signals(self):
         """
@@ -1240,6 +1279,7 @@ class G0W0WithQptdmFlow(Flow):
         work.set_manager(self.manager)
         work.create_tasks(wfk_file, scr_input)
         work.add_deps(cbk.deps)
+
         work.connect_signals()
         work.build()
 

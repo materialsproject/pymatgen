@@ -131,11 +131,11 @@ class StrategyWithInput(object):
 
     def add_extra_abivars(self, abivars):
         """Add variables (dict) to extra_abivars."""
-        self.abinit_input.set_variables(**abivars)
+        self.abinit_input.set_vars(**abivars)
 
     def remove_extra_abivars(self, keys):
         """Remove variables from extra_abivars."""
-        self.abinit_input.remove_variables(keys)
+        self.abinit_input.remove_vars(keys)
 
     def make_input(self):
         return str(self.abinit_input)
