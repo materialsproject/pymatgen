@@ -40,6 +40,7 @@ from pymatgen.util.io_utils import clean_lines, micro_pyawk
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import unitized
 from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.electronic_structure.bandstructure import BandStructure, \
@@ -727,7 +728,8 @@ class Vasprun(PMGSONable):
             for fn in os.listdir(os.path.abspath(p)):
                 if 'POTCAR' in fn:
                     pc = Potcar.from_file(os.path.join(p, fn))
-                    if {d.TITEL for d in pc} == {sym for sym in self.potcar_symbols}:
+                    if {d.header for d in pc} == \
+                            {sym for sym in self.potcar_symbols}:
                         return pc
             warnings.warn("No POTCAR file with matching TITEL fields"
                           " was found in {}".format(os.path.abspath(p)))
@@ -735,7 +737,8 @@ class Vasprun(PMGSONable):
         if isinstance(path, basestring):
             if "POTCAR" in path:
                 potcar = Potcar.from_file(path)
-                if {d.TITEL for d in potcar} != {sym for sym in self.potcar_symbols}:
+                if {d.TITEL for d in potcar} != \
+                        {sym for sym in self.potcar_symbols}:
                     raise ValueError("Potcar TITELs do not match Vasprun")
             else:
                 potcar = get_potcar_in_path(path)
@@ -866,8 +869,19 @@ class Vasprun(PMGSONable):
             elif a.attrib["name"] == "atomtypes":
                 potcar_symbols = [rc.findall("c")[4].text.strip()
                                   for rc in a.find("set")]
+
+        # Vasp parse Xe as X in atominfo
+        def parse_atomic_symbol(symbol):
+            try:
+                return str(Element(symbol))
+            except KeyError as e:
+                if e.message == "X":
+                    return str(Element("Xe"))
+                raise e
+
         elem.clear()
-        return atomic_symbols, potcar_symbols
+        return [parse_atomic_symbol(sym) for
+                sym in atomic_symbols], potcar_symbols
 
     def _parse_kpoints(self, elem):
         e = elem
