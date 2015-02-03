@@ -23,6 +23,7 @@ from monty.functools import lazy_property
 from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
 from pymatgen.core.periodic_table import PeriodicTable, Element
 from .eos import EOS
+from monty.json import MontyDecoder
 
 import logging
 logger = logging.getLogger(__name__)
@@ -262,7 +263,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
     #    """scalar scalar-relativistic, relativistic."""
 
     def as_dict(self, **kwargs):
-        return dict(
+        d = dict(
             basename=self.basename,
             type=self.type,
             symbol=self.symbol,
@@ -273,7 +274,16 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
             #nlcc_radius=self.nlcc_radius,
             #xc_type=
             #pp_type=
+            filepath=self.filepath
         )
+        d['@module'] = self.__class__.__module__
+        d['@class'] = self.__class__.__name__
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls.from_file(d['filepath'])
+
 
     @property
     def has_dojo_report(self):
@@ -1586,13 +1596,23 @@ class PseudoTable(collections.Sequence):
     def as_dict(self, **kwargs):
         d = {}
         for p in self:
-            k, count = p.name, 1
+            k, count = p.basename, 1
             # Handle multiple-pseudos with the same name!
-            while k not in d:
-                k += k + "#" + str(count)
+            while k in d:
+                k += k.split("#")[0] + "#" + str(count)
                 count += 1
-            d.update({k, p.as_dict()})
+            d.update({k: p.as_dict()})
+        d['@module'] = self.__class__.__module__
+        d['@class'] = self.__class__.__name__
         return d
+
+    @classmethod
+    def from_dict(cls, d):
+        pseudos = []
+        dec = MontyDecoder()
+        for k, v in d.items():
+            pseudos.extend(dec.process_decoded(v))
+        return cls(pseudos)
 
     def is_complete(self, zmax=118):
         """
