@@ -134,7 +134,8 @@ class AbstractVaspInputSet(six.with_metaclass(abc.ABCMeta, PMGSONable)):
             d['POTCAR.spec'] = "\n".join(self.get_potcar_symbols(structure))
         return d
 
-    def write_input(self, structure, output_dir, make_dir_if_not_present=True):
+    def write_input(self, structure, output_dir,
+                    make_dir_if_not_present=True, include_cif=False):
         """
         Writes a set of VASP input to a directory.
 
@@ -145,11 +146,17 @@ class AbstractVaspInputSet(six.with_metaclass(abc.ABCMeta, PMGSONable)):
             make_dir_if_not_present (bool): Set to True if you want the
                 directory (and the whole path) to be created if it is not
                 present.
+            include_cif (bool): Whether to write a CIF file in the output
+                directory for easier opening by VESTA.
         """
         if make_dir_if_not_present and not os.path.exists(output_dir):
             os.makedirs(output_dir)
         for k, v in self.get_all_vasp_input(structure).items():
             v.write_file(os.path.join(output_dir, k))
+            if k == "POSCAR" and include_cif:
+                v.structure.to(
+                    filename=os.path.join(output_dir,
+                                          "%s.cif" % v.structure.formula))
 
 
 class DictVaspInputSet(AbstractVaspInputSet):
@@ -1391,9 +1398,6 @@ def batch_write_vasp_input(structures, vasp_input_set, output_dir,
         if sanitize:
             s = s.copy(sanitize=True)
         vasp_input_set.write_input(
-            s, dirname, make_dir_if_not_present=make_dir_if_not_present
+            s, dirname, make_dir_if_not_present=make_dir_if_not_present,
+            include_cif=include_cif
         )
-        if include_cif:
-            writer = CifWriter(s)
-            writer.write_file(os.path.join(
-                dirname, "{}_{}.cif".format(formula, i)))
