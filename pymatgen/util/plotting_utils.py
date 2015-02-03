@@ -57,6 +57,51 @@ def get_publication_quality_plot(width=8, height=None, plt=None):
     return plt
 
 
+def get_ax_fig_plt(ax):
+    """
+    Helper function used in plot functions supporting an optional Axes argument. 
+    If ax is None, we build the `matplotlib` figure and create the Axes else
+    we return the current active figure.
+
+    Returns:
+        ax: :class:`Axes` object
+        figure: matplotlib figure
+        plt: matplotlib pyplot module.
+    """
+    import matplotlib.pyplot as plt
+    if ax is None:
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+    else:
+        fig = plt.gcf()
+
+    return ax, fig, plt
+
+
+#def get_axlist_fig_plt(ax_list, nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True, subplot_kw=None, gridspec_kw=None, **fig_kw):
+#    """
+#    Helper function used in plot functions supporting an optional Axes argument. 
+#    If ax is None, we build the `matplotlib` figure and create the Axes else
+#    we return the current active figure.
+#
+#    Returns:
+#        ax: :class:`Axes` object
+#        figure: matplotlib figure
+#        plt: matplotlib pyplot module.
+#    """
+#    import matplotlib.pyplot as plt
+#
+#    if ax_list is None:
+#        #fig, ax_list = plt.subplots(nrows=len(keys), ncols=1, sharex=True, squeeze=False)
+#        fig, ax_list = plt.subplots(nrows=nrows, ncols=ncols, sharex=sharex, sharey=sharey, squeeze=squeeze, 
+#                                    subplot_kw=subplot_kw, gridspec_kw=gridspec_kw, **fig_kw)
+#    else:
+#        fig = plt.gcf()
+#        #ax_list = ax_list.ravel()
+#
+#    return ax_list, fig, plt
+
+
 def add_fig_kwargs(func):
     """
     Decorator that adds keyword arguments for functions returning matplotlib figure.

@@ -250,6 +250,18 @@ class MITCompatibilityTest(unittest.TestCase):
         entry = compat.process_entry(entry)
         self.assertAlmostEqual(entry.energy, -1)
 
+    def test_potcar_doenst_match_structure(self):
+
+        compat = MITCompatibility()
+        entry = ComputedEntry(
+            'Li2O3', -1, 0.0,
+            parameters={'is_hubbard': True,
+                        'hubbards': {'Fe': 4.0, 'O': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_symbols': ['PAW_PBE Fe_pv 06Sep2000',
+                                           'PAW_PBE O 08Apr2002']})
+
+        self.assertIsNone(compat.process_entry(entry))
 
 class OxideTypeCorrectionTest(unittest.TestCase):
 
@@ -263,7 +275,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                           'hubbards': None,
                                           'run_type': 'GGA',
                                           'potcar_symbols':
-        ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
+        ['PAW_PBE Li 06Sep2000', 'PAW_PBE O 08Apr2002']})
         lio2_entry_corrected = self.compat.process_entry(lio2_entry_nostruct)
         self.assertAlmostEqual(lio2_entry_corrected.energy, -3 - 0.13893*4, 4)
 
@@ -287,7 +299,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                           'hubbards': None,
                                           'run_type': 'GGA',
                                           'potcar_symbols':
-        ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
+        ['PAW_PBE Li 06Sep2000', 'PAW_PBE O 08Apr2002']})
         lio2_entry_corrected = self.compat.process_entry(lio2_entry)
         self.assertAlmostEqual(lio2_entry_corrected.energy, -3 -0.13893*4, 4)
 
@@ -310,7 +322,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                           'hubbards': None,
                                           'run_type': 'GGA',
                                           'potcar_symbols':
-        ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
+        ['PAW_PBE Li 06Sep2000', 'PAW_PBE O 08Apr2002']})
         li2o2_entry_corrected = self.compat.process_entry(li2o2_entry)
         self.assertAlmostEqual(li2o2_entry_corrected.energy, -3 - 0.44317 * 4, 4)
 
@@ -330,7 +342,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                           'hubbards': None,
                                           'run_type': 'GGA',
                                           'potcar_symbols':
-        ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
+        ['PAW_PBE Li 06Sep2000', 'PAW_PBE O 08Apr2002']})
         lio3_entry_corrected = self.compat.process_entry(lio3_entry)
         self.assertAlmostEqual(lio3_entry_corrected.energy, -3.0)
 
@@ -349,7 +361,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                           'hubbards': None,
                                           'run_type': 'GGA',
                                           'potcar_symbols':
-        ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
+        ['PAW_PBE Li 06Sep2000', 'PAW_PBE O 08Apr2002']})
         li2o_entry_corrected = self.compat.process_entry(li2o_entry)
         self.assertAlmostEqual(li2o_entry_corrected.energy, -3.0 -0.66975, 4)
 
@@ -374,7 +386,7 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
                                           'hubbards': None,
                                           'run_type': 'GGA',
                                           'potcar_symbols':
-        ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
+        ['PAW_PBE Li 06Sep2000', 'PAW_PBE O 08Apr2002']})
         li2o_entry_corrected = self.compat.process_entry(li2o_entry)
         self.assertAlmostEqual(li2o_entry_corrected.energy, -3.0 -0.66975, 4)
 
@@ -397,7 +409,7 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
                                           'hubbards': None,
                                           'run_type': 'GGA',
                                           'potcar_symbols':
-        ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
+        ['PAW_PBE Li 06Sep2000', 'PAW_PBE O 08Apr2002']})
         li2o2_entry_corrected = self.compat.process_entry(li2o2_entry)
         self.assertRaises(AssertionError, self.assertAlmostEqual,
                            *(li2o2_entry_corrected.energy, -3 - 0.44317 * 4, 4))
@@ -419,7 +431,7 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
                                           'hubbards': None,
                                           'run_type': 'GGA',
                                           'potcar_symbols':
-        ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
+        ['PAW_PBE Li 06Sep2000', 'PAW_PBE O 08Apr2002']})
         lio3_entry_corrected = self.compat.process_entry(lio3_entry)
         self.assertAlmostEqual(lio3_entry_corrected.energy, -3.0 - 3 * 0.66975)
 
@@ -482,13 +494,34 @@ class TestMITAqueousCompatibility(unittest.TestCase):
                                           'hubbards': None,
                                           'run_type': 'GGA',
                                           'potcar_symbols':
-        ['PAW_PBE Fe 17Jan2003', 'PAW_PBE O 08Apr2002', 'PAW_PBE H 15Jun2001']})
+        ['PAW_PBE Li 17Jan2003', 'PAW_PBE O 08Apr2002', 'PAW_PBE H 15Jun2001']})
         lioh_entry_compat = self.compat.process_entry(lioh_entry)
         lioh_entry_compat_aqcorr = self.aqcorr.correct_entry(lioh_entry_compat)
         lioh_entry_aqcompat = self.aqcompat.process_entry(lioh_entry)
         self.assertAlmostEqual(lioh_entry_compat_aqcorr.energy, lioh_entry_aqcompat.energy, 4)
 
+    def test_potcar_doenst_match_structure(self):
+        el_li = Element("Li")
+        el_o = Element("O")
+        el_h = Element("H")
+        latt = Lattice.from_parameters(3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000)
+        elts = [el_h, el_h, el_li, el_li, el_o, el_o]
+        coords = [[0.000000, 0.500000, 0.413969],
+                  [0.500000, 0.000000, 0.586031],
+                  [0.000000, 0.000000, 0.000000],
+                  [0.500000, 0.500000, 0.000000],
+                  [0.000000, 0.500000, 0.192672],
+                  [0.500000, 0.000000, 0.807328]]
+        struct = Structure(latt, elts, coords)
 
+        lioh_entry = ComputedStructureEntry(struct, -3,
+                                            parameters={'is_hubbard': False,
+                                          'hubbards': None,
+                                          'run_type': 'GGA',
+                                          'potcar_symbols':
+        ['PAW_PBE Fe 17Jan2003', 'PAW_PBE O 08Apr2002', 'PAW_PBE H 15Jun2001']})
+
+        self.assertIsNone(self.compat.process_entry(lioh_entry))
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

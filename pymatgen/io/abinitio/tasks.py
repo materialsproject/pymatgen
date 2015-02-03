@@ -10,6 +10,7 @@ import abc
 import copy
 import yaml
 import six
+import numpy as np
 
 from pprint import pprint
 from atomicfile import AtomicFile
@@ -124,7 +125,7 @@ class NodeResults(dict, PMGSONable):
         """List with the absolute paths of the files to be put in GridFs."""
         return self["files"]
 
-    def add_gridfs_files(self, **kwargs):
+    def register_gridfs_files(self, **kwargs):
         """
         This function registers the files that will be saved in GridFS.
         kwargs is a dictionary mapping the key associated to the file (usually the extension)
@@ -133,7 +134,7 @@ class NodeResults(dict, PMGSONable):
 
         Example::
 
-            add_gridfs(GSR="path/to/GSR.nc", text_file=("/path/to/txt_file", "t"))
+            results.register_gridfs(GSR="path/to/GSR.nc", text_file=("/path/to/txt_file", "t"))
 
         The GSR file is a binary file, whereas text_file is a text file.
         """
@@ -242,7 +243,7 @@ class TaskResults(NodeResults):
             #input=task.strategy
         )
 
-        new.add_gridfs_files(
+        new.register_gridfs_files(
             run_abi=(task.input_file.path, "t"),
             run_abo=(task.output_file.path, "t"),
         )
@@ -255,7 +256,7 @@ class SparseHistogram(object):
     def __init__(self, items, key=None, num=None, step=None):
         if num is None and step is None:
             raise ValueError("Either num or step must be specified")
-        import numpy as np
+
         from collections import defaultdict, OrderedDict
 
         values = [key(item) for item in items] if key is not None else items
@@ -281,17 +282,20 @@ class SparseHistogram(object):
 
     from pymatgen.util.plotting_utils import add_fig_kwargs
     @add_fig_kwargs
-    def plot(self, **kwargs):
+    def plot(self, ax=None, **kwargs):
         """
         Plot the histogram with matplotlib, returns `matplotlib figure
         """
         import matplotlib.pyplot as plt
-        fig = plt.figure()
-
-        ax = fig.add_subplot(1,1,1)
+        if ax is None:
+            fig = plt.figure()
+            ax = fig.add_subplot(1,1,1)
+        else:
+            fig = plt.gcf()
 
         yy = [len(v) for v in self.values]
         ax.plot(self.binvals, yy, **kwargs)
+
         return fig
 
 
@@ -485,10 +489,11 @@ class ParalHints(collections.Iterable):
         Remove all the configurations that do not satisfy the given condition.
 
             Args:
-                condition: `Condition` object with operators expressed with a Mongodb-like syntax
+                condition: dict or :class:`Condition` object with operators expressed with a Mongodb-like syntax
                 key: Selects the sub-dictionary on which condition is applied, e.g. key="vars"
                     if we have to filter the configurations depending on the values in vars
         """
+        condition = Condition.as_condition(condition)
         new_confs = []
 
         for conf in self:
@@ -496,117 +501,97 @@ class ParalHints(collections.Iterable):
             obj = conf if key is None else AttrDict(conf[key])
             add_it = condition(obj=obj)
             #if key is "vars": print("conf", conf, "added:", add_it)
-            if add_it:
-                new_confs.append(conf)
+            if add_it: new_confs.append(conf)
 
         self._confs = new_confs
 
-    def sort_by_efficiency(self, reverse=False):
-        """
-        Sort the configurations in place so that conf with lowest efficieny 
-        appears in the first positions.
-        """
+    def sort_by_efficiency(self, reverse=True):
+        """Sort the configurations in place. items with highest efficiency come first"""
         self._confs.sort(key=lambda c: c.efficiency, reverse=reverse)
 
-    def sort_by_speedup(self, reverse=False):
-        """
-        Sort the configurations in place so that conf with lowest speedup 
-        appears in the first positions.
-        """
+    def sort_by_speedup(self, reverse=True):
+        """Sort the configurations in place. items with highest speedup come first"""
         self._confs.sort(key=lambda c: c.speedup, reverse=reverse)
 
     def sort_by_mem_per_proc(self, reverse=False):
-        """
-        Sort the configurations in place so that conf with lowest memory per core
-        appears in the first positions.
-        """
+        """Sort the configurations in place. items with lowest memory per proc come first."""
         # Avoid sorting if mem_per_cpu is not available.
         if any(c.mem_per_proc > 0.0 for c in self):
             self._confs.sort(key=lambda c: c.mem_per_proc, reverse=reverse)
 
-    def filter(self, qadapter):
-        """Return a new list of configurations that can be executed on the `QueueAdapter` qadapter."""
-        new_confs = [pconf for pconf in self if qadapter.can_run_pconf(pconf)]
-        return self.__class__(info=self.info, confs=new_confs)
+    def multidimensional_optimization(self, priorities=("speedup", "efficiency")):
+        # Mapping property --> options passed to sparse_histogram
+        opts = dict(speedup=dict(step=1.0), efficiency=dict(step=0.1), mem_per_proc=dict(memory=1024))
+        #opts = dict(zip(priorities, bin_widths))
+                                                                                                   
+        opt_confs = self._confs
+        for priority in priorities:
+            histogram = SparseHistogram(opt_confs, key=lambda c: getattr(c, priority), **opts[priority])
+            pos = 0 if priority == "mem_per_proc" else -1
+            opt_confs = histogram.values[pos]
 
-    #def hist_efficiency(self, step=0.1):
-    #    return sparse_histogram(self._confs, key=lambda c: c.efficiency, step=step)
-    #def hist_speedup(self, step=1.0):
-    #    return sparse_histogram(self._confs, key=lambda c: c.speedup, step=step)
-    #def hist_memory(self, step=102.4):
-    #    return sparse_histogram(self._confs, key=lambda c: c.speedup, step=step)
+        #histogram.plot(show=True, savefig="hello.pdf")
+        return self.__class__(info=self.info, confs=opt_confs)
 
-    def select_optimal_conf(self, policy, max_ncpus):
+    #def histogram_efficiency(self, step=0.1):
+    #    """Returns a :class:`SparseHistogram` with configuration grouped by parallel efficiency."""
+    #    return SparseHistogram(self._confs, key=lambda c: c.efficiency, step=step)
+
+    #def histogram_speedup(self, step=1.0):
+    #    """Returns a :class:`SparseHistogram` with configuration grouped by parallel speedup."""
+    #    return SparseHistogram(self._confs, key=lambda c: c.speedup, step=step)
+
+    #def histogram_memory(self, step=1024):
+    #    """Returns a :class:`SparseHistogram` with configuration grouped by memory."""
+    #    return SparseHistogram(self._confs, key=lambda c: c.speedup, step=step)
+
+    #def filter(self, qadapter):
+    #    """Return a new list of configurations that can be executed on the `QueueAdapter` qadapter."""
+    #    new_confs = [pconf for pconf in self if qadapter.can_run_pconf(pconf)]
+    #    return self.__class__(info=self.info, confs=new_confs)
+
+    def get_ordered_with_policy(self, policy, max_ncpus):
         """
-        Find the optimal configuration according to the :class:`TaskPolicy` policy.
+        Sort and return a new list of configurations ordered according to the :class:`TaskPolicy` policy.
         """
-        # Make a copy since we are gonna change the object in place.
-        hints = ParalHints(self.info, confs=[c for c in self if c.num_cores <= max_ncpus])
-
-        if False:
-            # Mapping property --> options passed to sparse_histogram
-            opts = dict(speedup=dict(step=1.0),
-                        efficiency=dict(step=0.1), 
-                        memory=dict(memory=102.4))
-
-            confs = self._confs
-            for priority in ["speedup", "efficiency", "memory"]:
-                histogram = SparseHistogram(confs, key=lambda c: getattr(c, priority), **opts[priority])
-                pos = 0 if priority == "memory" else -1
-                confs = histogram.values[pos]
+        # Build new list since we are gonna change the object in place.
+        hints = self.__class__(self.info, confs=[c for c in self if c.num_cores <= max_ncpus])
 
         # First select the configurations satisfying the condition specified by the user (if any)
+        bkp_hints = hints.copy()
         if policy.condition:
-            #logger.info("condition %s" % str(policy.condition))
+            logger.info("Applying condition %s" % str(policy.condition))
             hints.select_with_condition(policy.condition)
-            #logger.info("after condition %s" % str(hints))
 
-            # If no configuration fullfills the requirements, 
-            # we return the one with the highest speedup.
+            # Undo change if no configuration fullfills the requirements.
             if not hints:
-                logger.warning("empty list of configurations after policy.condition")
-                hints = self.copy()
-                hints.sort_by_speedup()
-                return hints[-1].copy()
+                hints = bkp_hints
+                logger.warning("Empty list of configurations after policy.condition")
 
         # Now filter the configurations depending on the values in vars
+        bkp_hints = hints.copy()
         if policy.vars_condition:
-            logger.info("vars_condition %s" % str(policy.vars_condition))
+            logger.info("Applying vars_condition %s" % str(policy.vars_condition))
             hints.select_with_condition(policy.vars_condition, key="vars")
-            logger.info("After vars_condition %s" % str(hints))
 
-            # If no configuration fullfills the requirements,
-            # we return the one with the highest speedup.
+            # Undo change if no configuration fullfills the requirements.
             if not hints:
-                logger.warning("empty list of configurations after policy.vars_condition")
-                hints = self.copy()
-                hints.sort_by_speedup()
-                return hints[-1].copy()
+                hints = bkp_hints
+                logger.warning("Empty list of configurations after policy.vars_condition")
 
-        hints.sort_by_speedup()
+        if len(policy.autoparal_priorities) == 1:
+            # Example: hints.sort_by_speedup()
+            getattr(hints, "sort_by_" + policy.autoparal_priorities[0])()
+        else:
+            hints = hints.multidimensional_optimization(priorities=policy.autoparal_priorities)
+            if len(hints) == 0: raise ValueError("len(hints) == 0")
 
-        logger.info('speedup hints: \n' + str(hints) + '\n')
+        #TODO: make sure that num_cores == 1 is never selected when we have more than one configuration
+        #if len(hints) > 1:
+        #    hints.select_with_condition(dict(num_cores={"$eq": 1)))
 
-        #hints.sort_by_efficiency()
-
-        #logger.info('efficiency hints: \n' + str(hints) + '\n')
-
-        # Find the optimal configuration according to policy.mode.
-        #if policy.mode in ["default", "aggressive"]:
-        #    hints.sort_by_spedup()
-        #elif policy.mode == "conservative":
-        #    hints.sort_by_efficiency()
-        #    # Remove num_cores == 1
-        #    hints.pop(num_cores==1)
-        #else:
-        #    raise ValueError("Wrong value for policy.mode: %s" % str(policy.mode))
-        #if not hints:
-
-        # Return a copy of the configuration.
-        optimal = hints[-1].copy()
-        logger.info("Will relaunch the job with optimized parameters:\n %s" % optimal)
-
-        return optimal
+        # Return final (orderded ) list of configurations (best first).
+        return hints
 
 
 class TaskPolicy(object):
@@ -641,23 +626,24 @@ class TaskPolicy(object):
         """
         Args:
             autoparal: Value of ABINIT autoparal input variable. 0 to disable the autoparal feature (default)
-            mode: Select the algorith to select the optimal configuration for the parallel execution.
-                Possible values: ["default", "aggressive", "conservative"]
             condition: condition used to filter the autoparal configuration (Mongodb-like syntax)
             vars_condition: condition used to filter the list of Abinit variables suggested by autoparal (Mongodb-like syntax)
+            precedence:
+            autoparal_priorities:
         """
         self.autoparal = kwargs.pop("autoparal", 1)
-        #self.autoparal = kwargs.pop("autoparal", 0)
-        #self.mode = kwargs.pop("mode", "default")
-        #self.max_ncpus = kwargs.pop("max_ncpus", None)
         self.condition = Condition(kwargs.pop("condition", {}))
         self.vars_condition = Condition(kwargs.pop("vars_condition", {}))
-
-        #if self.autoparal and self.max_ncpus is None:
-        #    raise ValueError("When autoparal is not zero, max_ncpus must be specified.")
+        self.precedence = kwargs.pop("precedence", "autoparal_conf")
+        #self.autoparal_priorities = kwargs.pop("autoparal_priorities", ["speedup", "efficiecy", "memory"]
+        self.autoparal_priorities = kwargs.pop("autoparal_priorities", ["speedup"])
 
         if kwargs:
             raise ValueError("Found invalid keywords in policy section:\n %s" % str(kwargs.keys()))
+
+        # Consistency check.
+        if self.precedence not in ("qadapter", "autoparal_conf"):
+            raise ValueError("Wrong value for policy.precedence, should be qadapter or autoparal_conf")
 
     def __str__(self):
         lines = []
@@ -777,8 +763,8 @@ db_connector: # Connection to MongoDB database (optional)
 
         if not qads:
             raise ValueError("Received emtpy list of qadapters")
-        if len(qads) != 1:
-            raise NotImplementedError("For the time being multiple qadapters are not supported! Please use one adapter")
+        #if len(qads) != 1:
+        #    raise NotImplementedError("For the time being multiple qadapters are not supported! Please use one adapter")
 
         # Order qdapters according to priority.
         qads = sorted(qads, key=lambda q: q.priority)
@@ -786,7 +772,7 @@ db_connector: # Connection to MongoDB database (optional)
         if len(priorities) != len(set(priorities)):
             raise ValueError("Two or more qadapters have same priority. This is not allowed. Check taskmanager.yml")
 
-        self._qads, self._qid = qads, 0
+        self._qads, self._qadpos = tuple(qads), 0
 
         if kwargs:
             raise ValueError("Found invalid keywords in the taskmanager file:\n %s" % str(list(kwargs.keys())))
@@ -797,7 +783,6 @@ db_connector: # Connection to MongoDB database (optional)
         with a :class:`ShellAdapter` with mpi_procs so that we can submit the job without passing through the queue.
         """
         my_kwargs = copy.deepcopy(self._kwargs)
-
         my_kwargs["policy"] = TaskPolicy(autoparal=0)
 
         for d in my_kwargs["qadapters"]:
@@ -819,31 +804,61 @@ db_connector: # Connection to MongoDB database (optional)
 
     @property
     def qads(self):
-        """List of :class:`QueueAdapter` objects."""
+        """List of :class:`QueueAdapter` objects sorted according to priorities (highest comes first)"""
         return self._qads
 
     @property
     def qadapter(self):
         """The qadapter used to submit jobs."""
-        return self._qads[self._qid]
+        return self._qads[self._qadpos]
 
-    def select_qadapter(self, pconf):
+    def select_qadapter(self, pconfs):
         """
-        Select the qadatper to submit a run with the parallel configuration pconf
-        Return False if no qadapter could be found.
+        Given a list of parallel configurations, pconfs, this method select an `optimal` configuration
+        according to some criterion as well as the :class:`QueueAdapter` to use.
+
+        Args:
+            pconfs: :class:`ParalHints` object with the list of parallel configurations
+
+        Returns:
+            :class:`ParallelConf` object with the `optimal` configuration.
         """
-        scores = [q.get_score(pconf) for q in self._qads]
-        #print("scores", scores)
-        if all(sc < 0 for sc in scores): return False
-        self._qid = maxloc(scores)
+        # Order the list of configurations according to policy.
+        policy, max_ncpus = self.policy, self.max_cores
+        pconfs = pconfs.get_ordered_with_policy(policy, max_ncpus)
+
+        if policy.precedence == "qadapter":
+            # Try to run on the qadapter with the highest priority.
+            for qadpos, qad in enumerate(self.qads):
+                for pconf in pconfs:
+                    if qad.can_run_pconf(pconf):
+                        self._use_qadpos_pconf(qadpos, pconf)
+                        return pconf
+
+        elif policy.precedence == "autoparal_conf":
+            # Try to run on the first pconf irrespectively of the priority of the qadapter.
+            for pconf in pconfs:
+                for qadpos, qad in enumerate(self.qads):
+                   if qad.can_run_pconf(pconf):
+                        self._use_qadpos_pconf(qadpos, pconf)
+                        return pconf
+
+        else:
+            raise ValueError("Wrong value of policy.precedence = %s" % policy.precedence)
+
+        # No qadapter could be found
+        raise RuntimeError("Cannot find qadapter for this run!")
+
+    def _use_qadpos_pconf(self, qadpos, pconf):
+        """This function is called when we have accepted the :class:`ParalConf` pconf""" 
+        self._qadpos = qadpos 
 
         # Change the number of MPI/OMP cores.
         self.set_mpi_procs(pconf.mpi_procs)
         if self.has_omp: self.set_omp_threads(pconf.omp_threads)
                                                                       
+        # Set memory per proc.
         self.set_mem_per_proc(pconf.mem_per_proc)
-
-        return True
 
     def __str__(self):
         """String representation."""
@@ -853,7 +868,7 @@ db_connector: # Connection to MongoDB database (optional)
 
         for i, qad in enumerate(self.qads):
             app("[Qadapter %d]\n%s" % (i, str(qad)))
-        app("Qadapter selected: %d" % self._qid)
+        app("Qadapter selected: %d" % self._qadpos)
 
         if self.has_db:
             app("[MongoDB database]:")
@@ -949,11 +964,10 @@ db_connector: # Connection to MongoDB database (optional)
 
     def launch(self, task):
         """
-        Build the input files and submit the task via the `Qadapter` 
+        Build the input files and submit the task via the :class:`Qadapter` 
 
         Args:
-            task:
-                `TaskObject`
+            task: :class:`TaskObject`
         
         Returns:
             Process object.
@@ -1174,7 +1188,7 @@ class Dependency(object):
 
 
 def _2attrs(item):
-        return item if item is None or isinstance(list, tuple) else (item,)
+    return item if item is None or isinstance(list, tuple) else (item,)
 
 
 class Status(int):
@@ -1287,7 +1301,6 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
         # Set to true if the node has been finalized.
         self._finalized = False
-
         self._status = self.S_INIT
 
     def __eq__(self, other):
@@ -1415,7 +1428,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
     def add_deps(self, deps):
         """
-        Add a list of dependencies to the `Node`.
+        Add a list of dependencies to the :class:`Node`.
 
         Args:
             deps: List of :class:`Dependency` objects specifying the dependencies of the node.
@@ -1442,7 +1455,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
     def remove_deps(self, deps):
         """
-        Remove a list of dependencies from the `Node`.
+        Remove a list of dependencies from the :class:`Node`.
 
         Args:
             deps: List of :class:`Dependency` objects specifying the  dependencies of the node.
@@ -1501,6 +1514,24 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
         return "\n".join(lines)
 
+    def set_cleanup_exts(self, exts=None):
+        """
+        Set the list of file extensions that should be removed when the task reaches S_OK.
+
+            Args:
+                exts: List of file extensions, if exts is None a default list is provided.
+        """
+        if exts is None: exts = ["WFK", "SUS", "SCR"]
+        self._cleanup_exts = set(exts)
+
+    @property
+    def cleanup_exts(self):
+        """Set of file extensions to remove."""
+        try:
+            return self._cleanup_exts
+        except AttributeError:
+            return set()
+
     def set_user_info(self, *args, **kwargs):
         """
         Store additional info provided by the user in self.user_info
@@ -1521,7 +1552,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
             return {}
 
     #@abc.abstractmethod
-    #def set_status(self, status,  info_msg=None):
+    #def set_status(self, status, info_msg=None):
     #    """
     #    Set and return the status of the None
     #                                                                                     
@@ -1574,7 +1605,7 @@ class FileNode(Node):
 
     def get_results(self, **kwargs):
         results = super(FileNode, self).get_results(**kwargs)
-        #results.add_gridfs_files(self.filepath=self.filepath)
+        #results.register_gridfs_files(self.filepath=self.filepath)
         return results
 
 
@@ -1689,7 +1720,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         #        keep.append(i)
         #if keep:
         #    self._qads = [self._qads[i] for i in keep]
-        #    self._qid = 0
+        #    self._qadpos = 0
 
     @property
     def work(self):
@@ -1722,9 +1753,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """String representation of self.pos"""
         return "w" + str(self.pos[0]) + "_t" + str(self.pos[1])
 
-    def make_input(self):
-        """Construct and write the input file of the calculation."""
-        return self.strategy.make_input()
+    def make_input(self, with_header=False):
+        """Construct the input file of the calculation."""
+        s = self.strategy.make_input()
+        if with_header: s = str(self) + "\n" + s
+        return s
 
     def ipath_from_ext(self, ext):
         """
@@ -1855,11 +1888,12 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             logger.debug("will rename old %s to new %s" % (old, new))
             os.rename(old, new)
 
-    def _restart(self, no_submit=False):
+    def _restart(self, submit=True):
         """
         Called by restart once we have finished preparing the task for restarting.
 
-        Return True if task has been restarted
+        Return: 
+            True if task has been restarted
         """
         self.set_status(self.S_READY, info_msg="Restarted on %s" % time.asctime())
 
@@ -1867,7 +1901,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.num_restarts += 1
         self.history.append("Restarted on %s, num_restarts %d" % (time.asctime(), self.num_restarts))
 
-        if not no_submit:
+        if submit:
             # Remove the lock file
             self.start_lockfile.remove()
             # Relaunch the task.
@@ -2055,13 +2089,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             self._on_done()
                                                                                 
         if status == self.S_OK:
-            #if status == self.S_UNCONVERGED:
-            #    logger.debug("Task %s broadcasts signal S_UNCONVERGED" % self)
-            #    dispatcher.send(signal=self.S_UNCONVERGED, sender=self)
-
             # Finalize the task.
             if not self.finalized:
                 self._on_ok()
+                # here we remove the output files of the task and of its parents.
+                if self.cleanup_exts: self.clean_output_files()
                                                                                 
             logger.debug("Task %s broadcasts signal S_OK" % self)
             dispatcher.send(signal=self.S_OK, sender=self)
@@ -2087,7 +2119,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         # 1) A locked task can only be unlocked by calling set_status explicitly.
         # an errored task, should not end up here but just to be sure
-        black_list = [self.S_LOCKED, self.S_ERROR]
+        black_list = (self.S_LOCKED, self.S_ERROR)
         if self.status in black_list:
             return
 
@@ -2098,42 +2130,41 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             info_msg = "return code %s" % self.returncode
             return self.set_status(self.S_QCRITICAL, info_msg=info_msg)           
 
-#        err_msg = None
-#=======
-#            if not self.stderr_file.exists and not self.qerr_file.exists:
-#                # The job is still in the queue.
-#                return self.status
-#
-#            else:
-#                # Analyze the standard error of the executable:
-#                if self.stderr_file.exists:
-#                    err_msg = self.stderr_file.read()
-#                    if err_msg:
-#                        logger.critical("%s: executable stderr:\n %s" % (self, err_msg))
-#                        return self.set_status(self.S_ERROR, info_msg=err_msg)
-#
-#                # Analyze the error file of the resource manager.
-#                if self.qerr_file.exists:
-#                    err_msg = self.qerr_file.read()
-#                    if err_msg:
-#                        logger.critical("%s: queue stderr:\n %s" % (self, err_msg))
-#                        return self.set_status(self.S_ERROR, info_msg=err_msg)
-#
-#                return self.status
-#
-#        # Check if the run completed successfully.
-#        report = self.get_event_report()
-#
-#        if report.run_completed:
-#            # Check if the calculation converged.
-#            not_ok = self.not_converged()
+        #        err_msg = None
+        #            if not self.stderr_file.exists and not self.qerr_file.exists:
+        #                # The job is still in the queue.
+        #                return self.status
+        #
+        #            else:
+        #                # Analyze the standard error of the executable:
+        #                if self.stderr_file.exists:
+        #                    err_msg = self.stderr_file.read()
+        #                    if err_msg:
+        #                        logger.critical("%s: executable stderr:\n %s" % (self, err_msg))
+        #                        return self.set_status(self.S_ERROR, info_msg=err_msg)
+        #
+        #                # Analyze the error file of the resource manager.
+        #                if self.qerr_file.exists:
+        #                    err_msg = self.qerr_file.read()
+        #                    if err_msg:
+        #                        logger.critical("%s: queue stderr:\n %s" % (self, err_msg))
+        #                        return self.set_status(self.S_ERROR, info_msg=err_msg)
+        #
+        #                return self.status
+        #
+        #        # Check if the run completed successfully.
+        #        report = self.get_event_report()
+        #
+        #        if report.run_completed:
+        #            # Check if the calculation converged.
+        #            not_ok = self.not_converged()
 
-#            if not_ok:
-#                return self.set_status(self.S_UNCONVERGED)
-#            else:
-#                return self.set_status(self.S_OK)
+        #            if not_ok:
+        #                return self.set_status(self.S_UNCONVERGED)
+        #            else:
+        #                return self.set_status(self.S_OK)
 
-#       # This is the delicate part since we have to discern among different possibilities:
+        # This is the delicate part since we have to discern among different possibilities:
         #
         # 1) Calculation stopped due to an Abinit Error or Bug.
         #
@@ -2150,12 +2181,12 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # Point 2) and 3) are the most complicated since there's no standard!
 
         # 1) Search for possible errors or bugs in the ABINIT **output** file.
-#        if report.errors or report.bugs:
-#            logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
-#            return self.set_status(self.S_ERROR, info_msg=str(report.errors) + str(report.bugs))
+        #if report.errors or report.bugs:
+        #   logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
+        #   return self.set_status(self.S_ERROR, info_msg=str(report.errors) + str(report.bugs))
 
         # 2) Analyze the stderr file for Fortran runtime errors.
-#       >>>>>>> pymatgen-matteo/master
+        #>>>>>>> pymatgen-matteo/master
 
         err_msg = None
         if self.stderr_file.exists:
@@ -2207,15 +2238,15 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 if self.qerr_file.exists and not err_msg:
                     # there is output and no errors
                     # Check if the run completed successfully.
-#                    if report.run_completed:
-#                        # Check if the calculation converged.
-#                        not_ok = self.not_converged()
-#                        if not_ok:
-#                            return self.set_status(self.S_UNCONVERGED)
-#                            # The job finished but did not converge
-#                        else:
-#                            return self.set_status(self.S_OK)
-#                            # The job finished properly
+                    #if report.run_completed:
+                    #    # Check if the calculation converged.
+                    #    not_ok = self.not_converged()
+                    #    if not_ok:
+                    #        return self.set_status(self.S_UNCONVERGED)
+                    #        # The job finished but did not converge
+                    #    else:
+                    #        return self.set_status(self.S_OK)
+                    #        # The job finished properly
 
                     return self.set_status(self.S_RUN)
                     # The job still seems to be running
@@ -2507,25 +2538,60 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                     filepath = os.path.join(dirpath, fname)
                     os.remove(filepath)
 
-    def clean_outfiles(self):
+    def clean_output_files(self, follow_parents=True):
+        """
+        This method is called when the task reaches S_OK. It removes all the output files 
+        produced by the task that are not needed by its children as well as the output files
+        produced by its parents if no other node needs them.
+
+        Args:
+            follow_parents: If true, the output files of the parents nodes will be removed if possible.
+            
+        Return:
+            list with the absolute paths of the files that have been removed.
+        """
+        paths = []
+        if self.status != self.S_OK:
+            logger.warning("Calling task.clean_output_files on a task whose status != S_OK")
+
         # Remove all files in tmpdir.
         self.tmpdir.clean()
 
-        # Remove files in outdir that are not needed by other nodes
-        # Find the file extensions that should be preserved
-        exts_toclean = ("WFK", "SUS", "SCR")
+        # Find the file extensions that should be preserved since these files are still 
+        # needed by the children who haven't reached S_OK
+        except_exts = set()
+        for child in self.get_children():
+            if child.status == self.S_OK: continue
+            # Find the position of self in child.deps and add the extensions.
+            i = [dep.node for dep in child.deps].index(self) 
+            except_exts.update(child.deps[i].exts)
 
-        keep_exts = set()
-        for node in self.get_children():
-            if node.status != self.S_OK:
-                i = [d.node for d in node.deps].index(self)
-                keep_exts.update(deps[i].exts)
-        print("keep_exts: ", keep_exts)
-        #self.outdir.remove_abiexts()
+        # Remove the files in the outdir of the task but keep except_exts. 
+        exts = self.cleanup_exts.difference(except_exts)
+        #print("Will remove its extensions: ", exts)
+        paths += self.outdir.remove_exts(exts)
+        if not follow_parents: return paths
 
-        # Remove files in the outdir of the other tasks if the dependency has been fulfilled.
-        #for node in self.get_parents():
-        #   for child in node.get_children():
+        # Remove the files in the outdir of my parents if all the possible dependencies have been fulfilled.
+        for parent in self.get_parents():
+
+            # Here we build a dictionary file extension --> list of child nodes requiring this file from parent
+            # e.g {"WFK": [node1, node2]}
+            ext2nodes = collections.defaultdict(list)
+            for child in parent.get_children():
+                if child.status == child.S_OK: continue
+                i = [d.node for d in child.deps].index(parent)
+                for ext in child.deps[i].exts:
+                    ext2nodes[ext].append(child)
+        
+            # Remove extension only if no node depends on it!
+            except_exts = [k for k, lst in ext2nodes.items() if lst]
+            exts = self.cleanup_exts.difference(except_exts)
+            #print("%s removes extensions %s from parent node %s" % (self, exts, parent))
+            paths += parent.outdir.remove_exts(exts)
+
+        #print("%s:\n Files removed: %s" % (self, paths))
+        return paths
 
     def setup(self):
         """Base class does not provide any hook."""
@@ -2571,7 +2637,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             try:
                 self.autoparal_run()
             except:
-                # Log the exception and continue with the parameters specified by the user.
                 logger.critical("autoparal_fake_run raised:\n%s" % straceback())
                 self.set_status(self.S_ABICRITICAL)
                 return 0
@@ -2686,6 +2751,10 @@ class AbinitTask(Task):
 
         return "\n".join(lines)
 
+    def set_pconfs(self, pconfs):
+        """Set the list of autoparal configurations."""
+        self._pconfs = pconfs
+
     @property
     def pconfs(self):
         """List of autoparal configurations."""
@@ -2693,10 +2762,6 @@ class AbinitTask(Task):
             return self._pconfs
         except AttributeError:
             return None
-
-    def set_pconfs(self, pconfs):
-        """Set the list of autoparal configurations."""
-        self._pconfs = pconfs
 
     def autoparal_run(self):
         """
@@ -2724,13 +2789,13 @@ class AbinitTask(Task):
         ############################################################################
 
         # Set the variables for automatic parallelization
+        # Will get all the possible configurations up to max_ncpus
         max_ncpus = self.manager.max_cores
         autoparal_vars = dict(autoparal=policy.autoparal, max_ncpus=max_ncpus)
         self.strategy.add_extra_abivars(autoparal_vars)
 
         # Run the job in a shell subprocess with mpi_procs = 1
         # we don't want to make a request to the queue manager for this simple job!
-
         # Return code is always != 0 
         process = self.manager.to_shell_manager(mpi_procs=1).launch(self)
         logger.info("fake run launched")
@@ -2746,9 +2811,6 @@ class AbinitTask(Task):
         parser = ParalHintsParser()
         try:
             pconfs = parser.parse(self.output_file.path)
-            #self.all_autoparal_confs = pconfs
-            logger.info('speedup hints: \n' + str(pconfs) + '\n')
-            # print("pconfs", pconfs)
         except parser.Error:
             logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
             return 2
@@ -2756,18 +2818,7 @@ class AbinitTask(Task):
         ######################################################
         # Select the optimal configuration according to policy
         ######################################################
-        self.set_pconfs(pconfs)
-        optconf = pconfs.select_optimal_conf(policy, max_ncpus)
-        #print("optimal autoparal conf:\n %s" % optconf)
-
-        # Select the partition on which we'll be running and set MPI/OMP cores.
-        optconfs = [optconf]
-        for i, c in enumerate(optconfs):
-            if self.manager.select_qadapter(c):
-                optconf = optconfs[i]
-                break
-        else:
-            raise RuntimeError("Cannot find qadapter for this run!")
+        optconf = self.find_optconf(pconfs)
 
         ####################################################
         # Change the input file and/or the submission script
@@ -2793,6 +2844,14 @@ class AbinitTask(Task):
 
         return 0
 
+    def find_optconf(self, pconfs):
+        # Save pconfs for future reference.
+        self.set_pconfs(pconfs)
+                                                                                
+        # Select the partition on which we'll be running and set MPI/OMP cores.
+        optconf = self.manager.select_qadapter(pconfs)
+        return optconf
+
     def get_ibz(self, ngkpt=None, shiftk=None):
         """
         Returns:
@@ -2807,7 +2866,6 @@ class AbinitTask(Task):
         ibz_vars = dict(prtkpt=-2)
         if ngkpt is not None: ibz_vars["ngkpt"] = ngkpt
         if shiftk is not None:
-            import numpy as np
             shiftk = np.resphape(shiftk, (-1,3))
             ibz_vars["shiftk"] = shiftk
             ibz_vars["nshiftk"] = len(shiftk)
@@ -2861,7 +2919,7 @@ class AbinitTask(Task):
         self.stderr_file.remove()
         self.start_lockfile.remove()
 
-        return self._restart(no_submit=True)
+        return self._restart(submit=False)
 
     def fix_abicritical(self):
         """
@@ -2890,8 +2948,8 @@ class AbinitTask(Task):
 
 class ProduceGsr(object):
     """
-    Mixin class for AbinitTasks producing a GSR file.
-    Provice the method `open_gsr` that reads and return a GSR file.
+    Mixin class for an :class:`AbinitTask` producing a GSR file.
+    Provide the method `open_gsr` that reads and return a GSR file.
     """
     def open_gsr(self):
         """
@@ -2915,8 +2973,8 @@ class ProduceGsr(object):
 
 class ProduceDdb(object):
     """
-    Mixin class for AbinitTasks producing a DDB file.
-    Provice the method `open_ddb` that reads and return a Ddb file.
+    Mixin class for :an class:`AbinitTask` producing a DDB file.
+    Provicd the method `open_ddb` that reads and return a Ddb file.
     """
     def open_ddb(self):
         """
@@ -2986,7 +3044,7 @@ class ScfTask(AbinitTask, ProduceGsr):
         with self.open_gsr() as gsr:
             results["out"].update(gsr.as_dict())
             # Add files to GridFS
-            results.add_gridfs_files(GSR=gsr.filepath)
+            results.register_gridfs_files(GSR=gsr.filepath)
 
         return results
 
@@ -3024,7 +3082,7 @@ class NscfTask(AbinitTask, ProduceGsr):
         with  self.open_gsr() as gsr:
             results["out"].update(gsr.as_dict())
             # Add files to GridFS
-            results.add_gridfs_files(GSR=gsr.filepath)
+            results.register_gridfs_files(GSR=gsr.filepath)
 
         return results
 
@@ -3033,7 +3091,7 @@ class RelaxTask(AbinitTask, ProduceGsr):
     """
     Task for structural optimizations.
     """
-    # What about a possible ScfConvergenceWarning?
+    # TODO possible ScfConvergenceWarning?
     CRITICAL_EVENTS = [
         events.RelaxConvergenceWarning,
     ]
@@ -3107,7 +3165,7 @@ class RelaxTask(AbinitTask, ProduceGsr):
         with self.open_gsr() as gsr:
             results["out"].update(gsr.as_dict())
             # Add files to GridFS
-            results.add_gridfs_files(GSR=gsr.filepath)
+            results.register_gridfs_files(GSR=gsr.filepath)
 
         return results
 
@@ -3117,7 +3175,7 @@ class DdeTask(AbinitTask, ProduceDdb):
 
     def get_results(self, **kwargs):
         results = super(DdeTask, self).get_results(**kwargs)
-        return results.add_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
+        return results.register_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
 
 
 class DdkTask(AbinitTask, ProduceDdb):
@@ -3134,7 +3192,7 @@ class DdkTask(AbinitTask, ProduceDdb):
 
     def get_results(self, **kwargs):
         results = super(DdkTask, self).get_results(**kwargs)
-        return results.add_gridfs_file(DDK=(self.outdir.has_abiext("DDK"), "t"))
+        return results.register_gridfs_file(DDK=(self.outdir.has_abiext("DDK"), "t"))
 
 
 class PhononTask(AbinitTask, ProduceDdb):
@@ -3186,7 +3244,7 @@ class PhononTask(AbinitTask, ProduceDdb):
 
     def get_results(self, **kwargs):
         results = super(PhononTask, self).get_results(**kwargs)
-        return results.add_gridfs_file(DDB=(self.outdir.has_abiext("DDB"), "t"))
+        return results.register_gridfs_file(DDB=(self.outdir.has_abiext("DDB"), "t"))
 
     def make_links(self):
         super(PhononTask, self).make_links()
@@ -3254,7 +3312,7 @@ class SigmaTask(AbinitTask):
         # Open the SIGRES file and add its data to results.out
         with self.open_sigres() as sigres:
             #results["out"].update(sigres.as_dict())
-            results.add_gridfs_files(SIGRES=sigres.filepath)
+            results.register_gridfs_files(SIGRES=sigres.filepath)
 
         return results
 
@@ -3361,7 +3419,7 @@ class BseTask(AbinitTask):
         with self.open_mdf() as mdf:
             #results["out"].update(mdf.as_dict())
             #epsilon_infinity optical_gap
-            results.add_gridfs_files(MDF=mdf.filepath)
+            results.register_gridfs_files(MDF=mdf.filepath)
 
         return results
 
@@ -3373,7 +3431,7 @@ class OpticTask(Task):
     """
     def __init__(self, optic_input, nscf_node, ddk_nodes, workdir=None, manager=None):
         """
-        Create an instance of `OpticTask` from an string containing the input.
+        Create an instance of :class:`OpticTask` from an string containing the input.
     
         Args:
             optic_input: string with the optic variables (filepaths will be added at run time).
