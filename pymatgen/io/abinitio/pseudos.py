@@ -1512,7 +1512,7 @@ class PseudoTable(collections.Sequence):
         if not isinstance(pseudos, collections.Iterable):
             pseudos = [pseudos]
 
-        if is_string(pseudos[0]):
+        if len(pseudos) and is_string(pseudos[0]):
             pseudos = list_strings(pseudos)
 
         self._pseudos_with_z = collections.defaultdict(list)
@@ -1596,35 +1596,50 @@ class PseudoTable(collections.Sequence):
 
     def is_complete(self, zmax=118):
         """
-        True if table is complete i.e. all elements with Z < zmax
-        have at least on pseudopotential
+        True if table is complete i.e. all elements with Z < zmax have at least on pseudopotential
         """
         for z in range(1, zmax):
             if not self[z]: return False
         return True
 
-    def pseudo_with_symbol(self, symbol):
-        """
-        Return the pseudo with the given chemical symbol.
+    #def pseudo_with_symbol(self, symbol):
+    #    """
+    #    Return the pseudo with the given chemical symbol.
 
-        Raises:
-            ValueError if symbol is not found or multiple occurences are present.
-        """
-        pseudos = self.pseudos_with_symbol(symbol)
-        if not pseudos or len(pseudos) > 1:
-            raise ValueError("Found %d occurrences of symbol %s" % (len(pseudos), symbol))
+    #    Raises:
+    #        ValueError if symbol is not found or multiple occurences are present.
+    #    """
+    #    pseudos = self.pseudos_with_symbol(symbol)
+    #    if not pseudos or len(pseudos) > 1:
+    #        raise ValueError("Found %d occurrences of symbol %s" % (len(pseudos), symbol))
 
-        return pseudos[0]
+    #    return pseudos[0]
 
-    def pseudos_with_symbol(self, symbol):
+    def select_symbols(self, symbols):
         """
-        Return the list of pseudopotentials in the table the with given symbol.
-        Return an empty list if no pseudo is found
+        Return a :class:`PseudoTable` with the pseudopotentials with the given list of chemical symbols.
+        Prepend the symbol string with "-", to exclude pseudos.
         """
-        try:
-            return self.__class__(getattr(self, str(symbol)))
-        except AttributeError:
-            return []
+        symbols = list_strings(symbols)
+        exclude = symbols[0].startswith("-")
+
+        if exclude: 
+            if not all(s.startswith("-") for s in symbols):
+                raise ValueError("When excluding symbols, all strings must start with `-`")
+            symbols = [s[1:] for s in symbols]
+            #print(symbols)
+
+        symbols = set(symbols)
+        pseudos = []
+        for p in self:
+            if exclude:
+                if p.symbol in symbols: continue
+            else:
+                if p.symbol not in symbols: continue
+
+            pseudos.append(p)
+    
+        return self.__class__(pseudos)
 
     #def list_properties(self, *props, **kw):
     #    """
@@ -1779,7 +1794,7 @@ class PseudoTable(collections.Sequence):
                             d.update({acc + "_" + k: float(data[ecut][k]) for k in keys}) 
 
             except Exception as exc:
-                logger.critical("%s raised %s" % (p.basename, exc))
+                logger.warning("%s raised %s" % (p.basename, exc))
                 errors.append((p.basename, str(exc)))
 
             #print(d)
@@ -1800,37 +1815,58 @@ class PseudoTable(collections.Sequence):
         # e.g element.is_alkaline
         return self.__class__([p for p in self if getattr(p.element, "is_" + family)])
 
-    def dojo_compare(self, what="all"):
+    def dojo_compare(self, what="all", **kwargs):
         """Compare ecut convergence and Deltafactor, GBRV results"""
         import matplotlib.pyplot as plt
-        if all(p.dojo_report.has_trial("deltafactor") for p in self) and \
-               any(k in what for k in ("all", "df")):
+        show = kwargs.pop("show", True)
+        what = list_strings(what)
+        figs = []
 
-            fig, ax_list = plt.subplots(nrows=len(self), ncols=1, sharex=True, squeeze=True)
+        if all(p.dojo_report.has_trial("deltafactor") for p in self) and \
+               any(k in what for k in ("all", "ecut")):
+
+            fig_etotal, ax_list = plt.subplots(nrows=len(self), ncols=1, sharex=True, squeeze=True)
+            #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(self), ncols=1, sharex=True, squeeze=True)
+            figs.append(fig_etotal)
+
             for ax, pseudo in zip(ax_list, self):
                 pseudo.dojo_report.plot_etotal_vs_ecut(ax=ax, show=False, label=pseudo.basename)
-            plt.show()
+            if show: plt.show()
 
-            fig, ax_grid = plt.subplots(nrows=5, ncols=len(self), sharex=True, sharey="row", squeeze=False)
+        if all(p.dojo_report.has_trial("deltafactor") for p in self) and \
+               any(k in what for k in ("all", "df", "deltafactor")):
+
+            fig_deltafactor, ax_grid = plt.subplots(nrows=5, ncols=len(self), sharex=True, sharey="row", squeeze=False)
+            #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=5, ncols=len(self), sharex=True, sharey="row", squeeze=False))
+            figs.append(fig_deltafactor)
+
             for ax_list, pseudo in zip(ax_grid.T, self):
                 pseudo.dojo_report.plot_deltafactor_convergence(ax_list=ax_list, show=False)
 
-            fig.suptitle(" vs ".join(p.basename for p in self))
-            plt.show()
+            fig_deltafactor.suptitle(" vs ".join(p.basename for p in self))
+            if show: plt.show()
 
         # Compare GBRV results
         if all(p.dojo_report.has_trial("gbrv_bcc") for p in self) and \
            any(k in what for k in ("all", "gbrv")):
 
-            fig, ax_grid = plt.subplots(nrows=2, ncols=len(self), sharex=True, sharey="row", squeeze=False)
+            fig_gbrv, ax_grid = plt.subplots(nrows=2, ncols=len(self), sharex=True, sharey="row", squeeze=False)
+            figs.append(fig_gbrv)
+            #ax_list, fig, plt = get_axarray_fig_plt(ax_list, ncols=len(self), sharex=True, sharey="row", squeeze=False))
+
             for ax_list, pseudo in zip(ax_grid.T, self):
                 pseudo.dojo_report.plot_gbrv_convergence(ax_list=ax_list, show=False)
 
-            fig.suptitle(" vs ".join(p.basename for p in self))
-            plt.show()
+            fig_gbrv.suptitle(" vs ".join(p.basename for p in self))
+            if show: plt.show()
 
+        return figs
 
-import pandas as pd
+# Hack
+try:
+    import pandas as pd
+except ImportError:
+    pd.DataFrame = object
 
 class DojoDataFrame(pd.DataFrame):
     ALL_ACCURACIES = ("low", "normal", "high")
@@ -1851,9 +1887,9 @@ class DojoDataFrame(pd.DataFrame):
 
     _TRIALS2YLABEL = {
         "ecut": "Ecut [Ha]",
-        "deltafactor": "$\Delta {factor}$ [meV]",
-        "gbrv_bcc": "$\Delta a_0$ (%)",
-        "gbrv_fcc": "$\Delta a_0$ (%)",
+        "deltafactor": "$\Delta$-factor [meV]",
+        "gbrv_bcc": "BCC $\Delta a_0$ (%)",
+        "gbrv_fcc": "FCC $\Delta a_0$ (%)",
     }
 
     ACC2PLTOPTS = dict(
@@ -1916,6 +1952,7 @@ class DojoDataFrame(pd.DataFrame):
     def plot_hist(self, what="dfact_meV", bins=400, **kwargs):
         import matplotlib.pyplot as plt
         fig, ax_list = plt.subplots(nrows=len(self.ALL_ACCURACIES), ncols=1, sharex=True, sharey=False, squeeze=True)
+        #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(self.ALL_ACCURACIES), ncols=1, sharex=True, sharey=False, squeeze=True)
 
         for acc, ax in zip(self.ALL_ACCURACIES, ax_list):
             col = acc + "_" + what
@@ -1930,7 +1967,9 @@ class DojoDataFrame(pd.DataFrame):
         import matplotlib.pyplot as plt
         trials = self.ALL_TRIALS if trials == "all" else list_strings(trials)
         accuracies = self.ALL_ACCURACIES if accuracies == "all" else list_strings(accuracies)
+
         fig, ax_list = plt.subplots(nrows=len(trials), ncols=1, sharex=True, sharey=False, squeeze=True)
+        #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(trials), ncols=1, sharex=True, sharey=False, squeeze=True)
                                                                                                                       
         # See also http://matplotlib.org/examples/pylab_examples/barchart_demo.html
         for i, (trial, ax) in enumerate(zip(trials, ax_list)):
@@ -1961,11 +2000,12 @@ class DojoDataFrame(pd.DataFrame):
             #    if end - start < 0.05: end = start + 0.1
             #    ax.set_ylim(start, end)
             #    ax.yaxis.set_ticks(np.arange(start, end, 0.05))
-            #if trial == "deltafactor":
-            #    #start, end = 0.0, 15
-            #    start, end  = 0.0, min(15, maxval)
-            #    ax.set_ylim(start, end)
-            #    ax.yaxis.set_ticks(np.arange(start, end, 0.1))
+
+            if trial == "deltafactor":
+                #start, end = 0.0, 15
+                start, end  = 0.0, min(15, maxval)
+                ax.set_ylim(start, end)
+                #ax.yaxis.set_ticks(np.arange(start, end, 0.1))
 
             #if stepsize is not None:
             #    start, end = ax.get_ylim()
@@ -2250,7 +2290,12 @@ class DojoReport(dict):
 
         Args:
             ax: matplotlib :class:`Axes` or None if a new figure should be created.
-            cmap: Color map. default
+            
+        ================  ==============================================================
+        kwargs            Meaning
+        ================  ==============================================================
+        cmap              Color map. default `jet`
+        ================  ==============================================================
 
         Returns:
             `matplotlib` figure.
@@ -2333,8 +2378,12 @@ class DojoReport(dict):
             fig, ax_list = plt.subplots(nrows=len(keys), ncols=1, sharex=True, squeeze=False)
             ax_list = ax_list.ravel()
         else:
-            if len(keys) != len(ax_list): raise ValueError("len(keys)=%s != len(ax_list)=%s" %  (len(keys), len(ax_list)))
             fig = plt.gcf()
+
+        #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(keys), ncols=1, sharex=True, squeeze=False)
+
+        if len(keys) != len(ax_list): 
+            raise ValueError("len(keys)=%s != len(ax_list)=%s" %  (len(keys), len(ax_list)))
 
         for i, (ax, key) in enumerate(zip(ax_list, keys)):
             values = np.array([float(d[ecut][key]) for ecut in ecuts])
@@ -2367,6 +2416,12 @@ class DojoReport(dict):
 
         Args:
             ax: matplotlib :class:`Axes` or None if a new figure should be created.
+
+        ================  ==============================================================
+        kwargs            Meaning
+        ================  ==============================================================
+        cmap              Color map. default `jet`
+        ================  ==============================================================
 
         Returns:
             `matplotlib` figure or None if the GBRV test is not present
@@ -2401,6 +2456,11 @@ class DojoReport(dict):
         Args:
             ax_list: List of matplotlib Axes, if ax_list is None a new figure is created
 
+        ================  ==============================================================
+        kwargs            Meaning
+        ================  ==============================================================
+        ================  ==============================================================
+
         Returns:
             `matplotlib` figure.
         """
@@ -2410,8 +2470,12 @@ class DojoReport(dict):
             fig, ax_list = plt.subplots(nrows=len(stypes), ncols=1, sharex=True, squeeze=False)
             ax_list = ax_list.ravel()
         else:
-            if len(stypes) != len(ax_list): raise ValueError("len(stypes)=%s != len(ax_list)=%s" %  (len(stypes), len(ax_list)))
             fig = plt.gcf()
+
+        #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(stypes), ncols=1, sharex=True, squeeze=False)
+
+        if len(stypes) != len(ax_list): 
+                raise ValueError("len(stypes)=%s != len(ax_list)=%s" %  (len(stypes), len(ax_list)))
 
         for i, (ax, stype) in enumerate(zip(ax_list, stypes)):
             trial = "gbrv_" + stype
