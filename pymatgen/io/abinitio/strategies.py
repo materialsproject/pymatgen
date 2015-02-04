@@ -358,12 +358,15 @@ class ScfStrategy(HtcStrategy):
     def structure(self, structure):
         self._structure = structure
 
-    def make_input(self):
+    def _define_extra_params(self):
         extra = dict(optdriver=self.optdriver, ecut=self.ecut, pawecutdg=self.pawecutdg)
         extra.update(self.tolerance)
         extra.update({"nsym": 1 if not self.use_symmetries else None})
-
         extra.update(self.extra_abivars)
+        return extra
+
+    def make_input(self):
+        extra = self._define_extra_params()
 
         inpw = InputWriter(self.structure, self.electrons, self.ksampling, **extra)
         return inpw.get_string()
@@ -512,13 +515,11 @@ class RelaxStrategy(ScfStrategy):
         return "relax"
 
     def make_input(self):
-        # Input for the GS run
-        input_str = super(RelaxStrategy, self).make_input()
+        # extra for the GS run
+        extra = self._define_extra_params()
 
-        # Add the variables for the structural relaxation.
-        input_str += InputWriter(self.relax_algo).get_string()
-
-        return input_str
+        inpw = InputWriter(self.structure, self.electrons, self.ksampling, self.relax_algo, **extra)
+        return inpw.get_string()
 
     def as_dict(self):
         d = super(RelaxStrategy, self).as_dict()
@@ -846,6 +847,7 @@ class InputWriter(object):
             app(["#", "%s" % obj.__class__.__name__])
             app([80*"#", ""])
             for (k, v) in obj.to_abivars().items():
+                v = self.extra_abivars.pop(k, v)
                 app(self._format_kv(k, v))
 
         # Extra variables.

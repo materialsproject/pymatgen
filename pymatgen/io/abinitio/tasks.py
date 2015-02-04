@@ -1597,7 +1597,7 @@ class FileNode(Node):
         return [Product.from_file(self.filepath)]
 
     def opath_from_ext(self, ext):
-            return self.filepath
+        return self.filepath
 
     @property
     def status(self):
