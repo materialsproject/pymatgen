@@ -16,6 +16,7 @@ from monty.collections import AttrDict
 from pymatgen.core.design_patterns import Enum
 from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from monty.json import MontyEncoder, MontyDecoder
 
 
 def contract(s):
@@ -106,6 +107,17 @@ class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
             "nspinor": self.nspinor,
             "nspden": self.nspden,
         }
+
+    def as_dict(self):
+        d = self._asdict()
+        d['@module'] = self.__class__.__module__
+        d['@class'] = self.__class__.__name__
+        #TODO check if dict(d) is needed in FW
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(**d)
 
 # An handy Multiton
 _mode2spinvars = {
@@ -353,6 +365,14 @@ class KSampling(AbivarAble):
         self.mode = mode
         self.comment = comment
 
+        self.num_kpts = num_kpts
+        self.kpts = kpts
+        self.kpt_shifts = kpt_shifts
+        self.kpts_weights = kpts_weights
+        self.use_symmetries = use_symmetries
+        self.use_time_reversal = use_time_reversal
+        self.chksymbreak = chksymbreak
+
         abivars = {}
 
         if mode in ("monkhorst",):
@@ -586,6 +606,22 @@ class KSampling(AbivarAble):
     def to_abivars(self):
         return self.abivars
 
+    def as_dict(self):
+        enc = MontyEncoder()
+        return {'mode': self.mode, 'comment': self.comment, 'num_kpts': self.num_kpts,
+                'kpts': enc.default(np.array(self.kpts)), 'kpt_shifts': self.kpt_shifts,
+                'kpts_weights': self.kpts_weights, 'use_symmetries': self.use_symmetries,
+                'use_time_reversal': self.use_time_reversal, 'chksymbreak': self.chksymbreak,
+                '@module': self.__class__.__module__, '@class': self.__class__.__name__}
+
+    @classmethod
+    def from_dict(cls, d):
+        d.pop('@module', None)
+        d.pop('@class', None)
+        dec = MontyDecoder()
+        d['kpts'] = dec.process_decoded(d['kpts'])
+        return cls(**d)
+
 
 class Constraints(AbivarAble):
     """This object defines the constraints for structural relaxation"""
@@ -690,6 +726,19 @@ class RelaxationMethod(AbivarAble):
             })
 
         return out_vars
+
+    def as_dict(self):
+        d = dict(self._default_vars)
+        d['@module'] = self.__class__.__module__
+        d['@class'] = self.__class__.__name__
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        d.pop('@module', None)
+        d.pop('@class', None)
+
+        return cls(**d)
 
 
 class PPModel(AbivarAble, PMGSONable):

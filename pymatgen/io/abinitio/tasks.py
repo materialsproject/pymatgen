@@ -31,6 +31,8 @@ from .qadapters import make_qadapter, QueueAdapter
 from .db import DBConnector
 from . import abiinspect
 from . import events
+import inspect
+from monty.json import MontyDecoder
 
 try:
     from pydispatch import dispatcher
@@ -734,7 +736,10 @@ db_connector: # Connection to MongoDB database (optional)
     @classmethod
     def from_dict(cls, d):
         """Create an instance from a dictionary."""
-        return cls(**{k: v for k, v in d.items() if k in cls.ENTRIES}) 
+        return cls(**{k: v for k, v in d.items() if k in cls.ENTRIES})
+
+    def as_dict(self):
+        return self._kwargs
 
     def __init__(self, **kwargs):
         """
@@ -1572,15 +1577,13 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
 class FileNode(Node):
     """
-    A Node that consists of an already existing file.
+    A Node that consists of a file. May be not yet existing
 
     Mainly used to connect `Tasks` to external files produced in previous runs
     """
     def __init__(self, filename):
         super(FileNode, self).__init__()
         self.filepath = os.path.abspath(filename)
-        if not os.path.exists(self.filepath):
-            raise ValueError("File %s must exists" % self.filepath)
 
         # Directories with input|output|temporary data.
         self.workdir = os.path.dirname(self.filepath)
@@ -2229,7 +2232,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                         logger.debug(str(bug))
                 # Abinit reports problems
                 logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
-                info_msg = str(report.errors) + str(report.bugs)
+                info_msg = "["+", ".join(map(str, report.errors))+"]" + "["+", ".join(map(str, report.bugs))+"]"
                 return self.set_status(self.S_ABICRITICAL, info_msg=info_msg)
                 # The job is unfixable due to ABINIT errors
 
@@ -2655,6 +2658,24 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.start(*args, **kwargs)
         retcode = self.wait()
         return retcode
+
+    def as_dict(self):
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__}
+        d['strategy'] = self.strategy.as_dict()
+        d['workdir'] = getattr(self, 'workdir', None)
+        if hasattr(self, 'manager'):
+            d['manager'] = self.manager.as_dict()
+        else:
+            d['manager'] = None
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        dec = MontyDecoder()
+        strategy = dec.process_decoded(d['strategy'])
+        manager = TaskManager.from_dict(d['manager'])
+        return cls(strategy=strategy, workdir=d['workdir'], manager=manager)
 
 
 class AbinitTask(Task):
