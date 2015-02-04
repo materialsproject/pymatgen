@@ -12,9 +12,10 @@ import numpy as np
 
 from six.moves import map, zip
 from monty.string import is_string
+from monty.json import MontyEncoder, MontyDecoder
 from pymatgen.util.string_utils import str_aligned, str_delimited
 from .abiobjects import Electrons
-from .pseudos import PseudoTable
+from .pseudos import PseudoTable, Pseudo
 
 import logging
 logger = logging.getLogger(__name__)
@@ -129,6 +130,10 @@ class StrategyWithInput(object):
     def structure(self):
         return self.abinit_input.structure
 
+    @structure.setter
+    def structure(self, structure):
+        self.abinit_input.set_structure(structure)
+
     def add_extra_abivars(self, abivars):
         """Add variables (dict) to extra_abivars."""
         self.abinit_input.set_vars(**abivars)
@@ -139,6 +144,26 @@ class StrategyWithInput(object):
 
     def make_input(self):
         return str(self.abinit_input)
+
+    def deepcopy(self):
+        """Deep copy of self."""
+        return copy.deepcopy(self)
+
+    def as_dict(self):
+        d = {'abinit_input': self.abinit_input.as_dict()}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        abinit_input = d['abinit_input']
+        modname = abinit_input["@module"]
+        classname = abinit_input["@class"]
+        mod = __import__(modname, globals(), locals(), [classname], 0)
+        cls_ = getattr(mod, classname)
+        strategy = cls(cls_.from_dict(abinit_input))
+        return strategy
 
 
 class HtcStrategy(AbstractStrategy):
@@ -329,15 +354,55 @@ class ScfStrategy(HtcStrategy):
     def structure(self):
         return self._structure
 
-    def make_input(self):
+    @structure.setter
+    def structure(self, structure):
+        self._structure = structure
+
+    def _define_extra_params(self):
         extra = dict(optdriver=self.optdriver, ecut=self.ecut, pawecutdg=self.pawecutdg)
         extra.update(self.tolerance)
         extra.update({"nsym": 1 if not self.use_symmetries else None})
-
         extra.update(self.extra_abivars)
+        return extra
+
+    def make_input(self):
+        extra = self._define_extra_params()
 
         inpw = InputWriter(self.structure, self.electrons, self.ksampling, **extra)
         return inpw.get_string()
+
+    def as_dict(self):
+        d = {}
+        d['structure'] = self.structure.as_dict()
+        d['pseudos'] = [p.as_dict() for p in self.pseudos]
+        d['ksampling'] = self.ksampling.as_dict()
+        d['accuracy'] = self.accuracy
+        d['spin_mode'] = self.electrons.spin_mode.as_dict()
+        d['smearing'] = self.electrons.smearing.as_dict()
+        d['charge'] = self.electrons.charge
+        d['scf_algorithm'] = self.electrons.algorithm
+        d['use_symmetries'] = self.use_symmetries
+        d['extra_abivars'] = self.extra_abivars
+        d['@module'] = self.__class__.__module__
+        d['@class'] = self.__class__.__name__
+
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        dec = MontyDecoder()
+        structure = dec.process_decoded(d["structure"])
+        # pseudos = [Pseudo.from_file(p['path']) for p in d['pseudos']]
+        # pseudos = [Pseudo.from_dict(p) for p in d['pseudos']]
+        pseudos = dec.process_decoded(d['pseudos'])
+        ksampling = dec.process_decoded(d["ksampling"])
+        spin_mode = dec.process_decoded(d["spin_mode"])
+        smearing = dec.process_decoded(d["smearing"])
+
+        return cls(structure=structure, pseudos=pseudos, ksampling=ksampling, accuracy=d['accuracy'],
+                   spin_mode=spin_mode, smearing=smearing, charge=d['charge'],
+                   scf_algorithm=d['scf_algorithm'], use_symmetries=d['use_symmetries'],
+                   **d['extra_abivars'])
 
 
 class NscfStrategy(HtcStrategy):
@@ -383,6 +448,10 @@ class NscfStrategy(HtcStrategy):
     def structure(self):
         return self.scf_strategy.structure
 
+    @structure.setter
+    def structure(self, structure):
+        self.scf_strategy.structure = structure
+
     def make_input(self):
         # Initialize the system section from structure.
         scf_strategy = self.scf_strategy
@@ -393,6 +462,27 @@ class NscfStrategy(HtcStrategy):
 
         inp = InputWriter(scf_strategy.structure, self.electrons, self.ksampling, **extra)
         return inp.get_string()
+
+    def as_dict(self):
+        d = {}
+        d['scf_strategy'] = self.scf_strategy.as_dict()
+        d['ksampling'] = self.ksampling.as_dict()
+        d['nscf_nband'] = self.nscf_nband
+        d['nscf_algorithm'] = self.electrons.algorithm
+        d['extra_abivars'] = self.extra_abivars
+        d['@module'] = self.__class__.__module__
+        d['@class'] = self.__class__.__name__
+
+    @classmethod
+    def from_dict(cls, d):
+        dec = MontyDecoder()
+        scf_strategy = dec.process_decoded(d["scf_strategy"])
+        ksampling = dec.process_decoded(d["ksampling"])
+        nscf_nband = dec.process_decoded(d["nscf_nband"])
+        nscf_algorithm = dec.process_decoded(d["nscf_algorithm"])
+
+        return cls(scf_strategy=scf_strategy, ksampling=ksampling,
+                   nscf_nband=nscf_nband, nscf_algorithm=nscf_algorithm, **d['extra_abivars'])
 
 
 class RelaxStrategy(ScfStrategy):
@@ -425,13 +515,33 @@ class RelaxStrategy(ScfStrategy):
         return "relax"
 
     def make_input(self):
-        # Input for the GS run
-        input_str = super(RelaxStrategy, self).make_input()
+        # extra for the GS run
+        extra = self._define_extra_params()
 
-        # Add the variables for the structural relaxation.
-        input_str += InputWriter(self.relax_algo).get_string()
+        inpw = InputWriter(self.structure, self.electrons, self.ksampling, self.relax_algo, **extra)
+        return inpw.get_string()
 
-        return input_str
+    def as_dict(self):
+        d = super(RelaxStrategy, self).as_dict()
+        d['relax_algo'] = self.relax_algo
+        d['@module'] = self.__class__.__module__
+        d['@class'] = self.__class__.__name__
+
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        dec = MontyDecoder()
+        structure = dec.process_decoded(d["structure"])
+        pseudos = [Pseudo.from_file(p['filepath']) for p in d['pseudos']]
+        ksampling = dec.process_decoded(d["ksampling"])
+        spin_mode = dec.process_decoded(d["spin_mode"])
+        smearing = dec.process_decoded(d["smearing"])
+
+        return cls(structure=structure, pseudos=pseudos, ksampling=ksampling, accuracy=d['accuracy'],
+                   spin_mode=spin_mode, smearing=smearing, charge=d['charge'],
+                   scf_algorithm=d['scf_algorithm'], use_symmetries=d['use_symmetries'],
+                   relax_algo=d['relax_algo'], **d['extra_abivars'])
 
 
 class ScreeningStrategy(HtcStrategy):
@@ -614,7 +724,6 @@ class InputWriter(object):
     def __init__(self, *args, **kwargs):
         self.abiobj_dict = collections.OrderedDict()
         self.extra_abivars = collections.OrderedDict()
-
         for arg in args:
             if hasattr(arg, "to_abivars"):
                 self.add_abiobj(arg)
@@ -738,6 +847,7 @@ class InputWriter(object):
             app(["#", "%s" % obj.__class__.__name__])
             app([80*"#", ""])
             for (k, v) in obj.to_abivars().items():
+                v = self.extra_abivars.pop(k, v)
                 app(self._format_kv(k, v))
 
         # Extra variables.
