@@ -840,6 +840,12 @@ class InputWriter(object):
         lines = []
         app = lines.append
 
+        # extra_abivars can contain variables that are already defined 
+        # in the object. In this case, the value in extra_abivars is used
+        # TODO: Should find a more elegant way to avoid collission between objects
+        # and extra_abivars
+        extra_abivars = self.extra_abivars.copy()
+
         # Write the Abinit objects first.
         for obj in self.abiobjects:
             #print(obj)
@@ -847,7 +853,7 @@ class InputWriter(object):
             app(["#", "%s" % obj.__class__.__name__])
             app([80*"#", ""])
             for (k, v) in obj.to_abivars().items():
-                v = self.extra_abivars.pop(k, v)
+                v = extra_abivars.pop(k, v)
                 app(self._format_kv(k, v))
 
         # Extra variables.
@@ -855,7 +861,7 @@ class InputWriter(object):
             app([80*"#", ""])
             app(["#", "Extra_Abivars"])
             app([80*"#", ""])
-            for (k, v) in self.extra_abivars.items():
+            for (k, v) in extra_abivars.items():
                 app(self._format_kv(k, v))
 
         #lines = self._cut_lines(lines)

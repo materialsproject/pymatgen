@@ -270,7 +270,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
             Z=self.Z,
             Z_val=self.Z_val,
             l_max=self.l_max,
-            md5=self.md5,
+            #md5=self.md5,
             #nlcc_radius=self.nlcc_radius,
             #xc_type=
             #pp_type=
@@ -1622,18 +1622,18 @@ class PseudoTable(collections.Sequence):
             if not self[z]: return False
         return True
 
-    #def pseudo_with_symbol(self, symbol):
-    #    """
-    #    Return the pseudo with the given chemical symbol.
+    def pseudo_with_symbol(self, symbol):
+        """
+        Return the pseudo with the given chemical symbol.
 
-    #    Raises:
-    #        ValueError if symbol is not found or multiple occurences are present.
-    #    """
-    #    pseudos = self.pseudos_with_symbol(symbol)
-    #    if not pseudos or len(pseudos) > 1:
-    #        raise ValueError("Found %d occurrences of symbol %s" % (len(pseudos), symbol))
+        Raises:
+            ValueError if symbol is not found or multiple occurences are present.
+        """
+        pseudos = self.pseudos_with_symbol(symbol)
+        if not pseudos or len(pseudos) > 1:
+            raise ValueError("Found %d occurrences of symbol %s" % (len(pseudos), symbol))
 
-    #    return pseudos[0]
+        return pseudos[0]
 
     def select_symbols(self, symbols):
         """
