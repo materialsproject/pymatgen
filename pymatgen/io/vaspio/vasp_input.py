@@ -312,7 +312,9 @@ class Poscar(PMGSONable):
                 selective_dynamics.append([tok.upper()[0] == "T"
                                            for tok in toks[3:6]])
 
-        struct = Structure(lattice, atomic_symbols, coords, False, False, cart)
+        struct = Structure(lattice, atomic_symbols, coords,
+                           to_unit_cell=False, validate_proximity=False,
+                           coords_are_cartesian=cart)
 
         #parse velocities if any
         velocities = []
