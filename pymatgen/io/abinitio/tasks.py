@@ -29,12 +29,7 @@ from .netcdf import ETSF_Reader
 from .strategies import StrategyWithInput, OpticInput
 from . import abiinspect
 from . import events 
-
-
-try:
-    from pydispatch import dispatcher
-except ImportError:
-    pass
+from pydispatch import dispatcher
 
 
 __author__ = "Matteo Giantomassi"

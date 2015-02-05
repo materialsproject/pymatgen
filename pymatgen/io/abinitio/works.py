@@ -27,11 +27,7 @@ from .utils import Directory
 from .netcdf import ETSF_Reader
 from .abitimer import AbinitTimerParser
 from .abiinspect import yaml_read_kpoints
-
-try:
-    from pydispatch import dispatcher
-except ImportError:
-    pass
+from pydispatch import dispatcher
 
 import logging
 logger = logging.getLogger(__name__)
