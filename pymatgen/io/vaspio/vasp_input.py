@@ -307,7 +307,8 @@ class Poscar(PMGSONable):
         selective_dynamics = list() if sdynamics else None
         for i in range(nsites):
             toks = lines[ipos + 1 + i].split()
-            coords.append([float(j) for j in toks[:3]])
+            crd_scale = scale if cart else 1
+            coords.append([float(j) * crd_scale for j in toks[:3]])
             if sdynamics:
                 selective_dynamics.append([tok.upper()[0] == "T"
                                            for tok in toks[3:6]])
