@@ -10,17 +10,20 @@ import abc
 import copy
 import yaml
 import six
+#import inspect
 import numpy as np
 
 from pprint import pprint
 from atomicfile import AtomicFile
 from six.moves import map, zip, StringIO
+from pydispatch import dispatcher
 from monty.termcolor import colored
 from monty.serialization import loadfn
 from monty.string import is_string, list_strings
 from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property, return_none_if_raise
+from monty.json import MontyDecoder
 from pymatgen.core.units import  Memory #Time,
 from pymatgen.util.string_utils import WildCard
 from pymatgen.util.num_utils import maxloc
@@ -31,11 +34,6 @@ from .qadapters import make_qadapter, QueueAdapter
 from .db import DBConnector
 from . import abiinspect
 from . import events
-
-try:
-    from pydispatch import dispatcher
-except ImportError:
-    pass
 
 
 __author__ = "Matteo Giantomassi"
@@ -734,7 +732,10 @@ db_connector: # Connection to MongoDB database (optional)
     @classmethod
     def from_dict(cls, d):
         """Create an instance from a dictionary."""
-        return cls(**{k: v for k, v in d.items() if k in cls.ENTRIES}) 
+        return cls(**{k: v for k, v in d.items() if k in cls.ENTRIES})
+
+    def as_dict(self):
+        return self._kwargs
 
     def __init__(self, **kwargs):
         """
@@ -1572,15 +1573,13 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
 class FileNode(Node):
     """
-    A Node that consists of an already existing file.
+    A Node that consists of a file. May be not yet existing
 
     Mainly used to connect `Tasks` to external files produced in previous runs
     """
     def __init__(self, filename):
         super(FileNode, self).__init__()
         self.filepath = os.path.abspath(filename)
-        if not os.path.exists(self.filepath):
-            raise ValueError("File %s must exists" % self.filepath)
 
         # Directories with input|output|temporary data.
         self.workdir = os.path.dirname(self.filepath)
@@ -1752,6 +1751,13 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def pos_str(self):
         """String representation of self.pos"""
         return "w" + str(self.pos[0]) + "_t" + str(self.pos[1])
+
+    def get_inpvar(self, varname):
+        """Return the value of the ABINIT variable varname, None if not present.""" 
+        if hasattr(self.strategy, "abinit_input"):
+            return self.strategy.abinit_input[0].get(varname)
+        else:
+            raise NotImplementedError("get_var for HTC interface!")
 
     def make_input(self, with_header=False):
         """Construct the input file of the calculation."""
@@ -2229,7 +2235,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                         logger.debug(str(bug))
                 # Abinit reports problems
                 logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
-                info_msg = str(report.errors) + str(report.bugs)
+                info_msg = "["+", ".join(map(str, report.errors))+"]" + "["+", ".join(map(str, report.bugs))+"]"
                 return self.set_status(self.S_ABICRITICAL, info_msg=info_msg)
                 # The job is unfixable due to ABINIT errors
 
@@ -2655,6 +2661,24 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.start(*args, **kwargs)
         retcode = self.wait()
         return retcode
+
+    def as_dict(self):
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__}
+        d['strategy'] = self.strategy.as_dict()
+        d['workdir'] = getattr(self, 'workdir', None)
+        if hasattr(self, 'manager'):
+            d['manager'] = self.manager.as_dict()
+        else:
+            d['manager'] = None
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        dec = MontyDecoder()
+        strategy = dec.process_decoded(d['strategy'])
+        manager = TaskManager.from_dict(d['manager'])
+        return cls(strategy=strategy, workdir=d['workdir'], manager=manager)
 
 
 class AbinitTask(Task):

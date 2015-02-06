@@ -78,28 +78,31 @@ def get_ax_fig_plt(ax):
     return ax, fig, plt
 
 
-#def get_axlist_fig_plt(ax_list, nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True, subplot_kw=None, gridspec_kw=None, **fig_kw):
-#    """
-#    Helper function used in plot functions supporting an optional Axes argument. 
-#    If ax is None, we build the `matplotlib` figure and create the Axes else
-#    we return the current active figure.
-#
-#    Returns:
-#        ax: :class:`Axes` object
-#        figure: matplotlib figure
-#        plt: matplotlib pyplot module.
-#    """
-#    import matplotlib.pyplot as plt
-#
-#    if ax_list is None:
-#        #fig, ax_list = plt.subplots(nrows=len(keys), ncols=1, sharex=True, squeeze=False)
-#        fig, ax_list = plt.subplots(nrows=nrows, ncols=ncols, sharex=sharex, sharey=sharey, squeeze=squeeze, 
-#                                    subplot_kw=subplot_kw, gridspec_kw=gridspec_kw, **fig_kw)
-#    else:
-#        fig = plt.gcf()
-#        #ax_list = ax_list.ravel()
-#
-#    return ax_list, fig, plt
+def get_axarray_fig_plt(ax_array, nrows=1, ncols=1, sharex=False, sharey=False, 
+                        squeeze=True, subplot_kw=None, gridspec_kw=None, **fig_kw):
+    """
+    Helper function used in plot functions that accept an optional array of Axes as argument. 
+    If ax_array is None, we build the `matplotlib` figure and create the array of Axes by calling plt.subplots 
+    else we return the current active figure.
+
+    Returns:
+        ax: Array of :class:`Axes` objects
+        figure: matplotlib figure
+        plt: matplotlib pyplot module.
+    """
+    import matplotlib.pyplot as plt
+
+    if ax_array is None:
+        fig, ax_array = plt.subplots(nrows=nrows, ncols=ncols, sharex=sharex, sharey=sharey, squeeze=squeeze, 
+                                     subplot_kw=subplot_kw, gridspec_kw=gridspec_kw, **fig_kw)
+    else:
+        fig = plt.gcf()
+        if squeeze: 
+            ax_array = np.array(ax_array).ravel()
+            if len(ax_array) == 1:
+                ax_array = ax_array[1]
+
+    return ax_array, fig, plt
 
 
 def add_fig_kwargs(func):
