@@ -10,17 +10,20 @@ import abc
 import copy
 import yaml
 import six
+#import inspect
 import numpy as np
 
 from pprint import pprint
 from atomicfile import AtomicFile
 from six.moves import map, zip, StringIO
+from pydispatch import dispatcher
 from monty.termcolor import colored
 from monty.serialization import loadfn
 from monty.string import is_string, list_strings
 from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property, return_none_if_raise
+from monty.json import MontyDecoder
 from pymatgen.core.units import  Memory #Time,
 from pymatgen.util.string_utils import WildCard
 from pymatgen.util.num_utils import maxloc
@@ -31,13 +34,6 @@ from .qadapters import make_qadapter, QueueAdapter
 from .db import DBConnector
 from . import abiinspect
 from . import events
-import inspect
-from monty.json import MontyDecoder
-
-try:
-    from pydispatch import dispatcher
-except ImportError:
-    pass
 
 
 __author__ = "Matteo Giantomassi"
