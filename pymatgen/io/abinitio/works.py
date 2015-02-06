@@ -17,6 +17,7 @@ from six.moves import filter
 from monty.collections import AttrDict
 from monty.itertools import chunks
 from monty.functools import lazy_property
+from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
 from pymatgen.util.string_utils import WildCard
 from . import wrappers
@@ -26,11 +27,6 @@ from .strategies import HtcStrategy, NscfStrategy
 from .utils import Directory
 from .netcdf import ETSF_Reader
 from .abitimer import AbinitTimerParser
-
-try:
-    from pydispatch import dispatcher
-except ImportError:
-    pass
 
 import logging
 logger = logging.getLogger(__name__)
