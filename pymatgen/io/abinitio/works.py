@@ -718,6 +718,58 @@ class BandStructureWork(Work):
                 dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
                 self.dos_tasks.append(dos_task)
 
+    def plot_edoses(self, dos_pos=None, method="gaussian", step=0.01, width=0.1, **kwargs):
+        """
+        Plot the band structure and the DOS.
+
+        Args:
+            dos_pos: Index of the task from which the DOS should be obtained. 
+                     None is all DOSes should be displayed. Accepts integer or list of integers.
+            method: String defining the method for the computation of the DOS.
+            step: Energy step (eV) of the linear mesh.
+            width: Standard deviation (eV) of the gaussian.
+            kwargs: Keyword arguments passed to `plot` method to customize the plot.
+
+        Returns:
+            `matplotlib` figure.
+        """
+        if dos_pos is not None and not isistance(dos_pos, (list, tuple)): dos_pos = [dos_pos]
+
+        from abipy.electrons.ebands import ElectronDosPlotter
+        plotter = ElectronDosPlotter()
+        for i, task in enumerate(self.dos_tasks):
+            if dos_pos is not None and i not in dos_pos: continue
+            with task.open_gsr() as gsr:
+                edos = gsr.ebands.get_edos(method=method, step=step, width=width)
+                ngkpt = task.get_inpvar("ngkpt")
+                plotter.add_edos("ngkpt %s" % str(ngkpt), edos)
+
+        return plotter.plot(**kwargs)
+
+    def plot_ebands_with_edos(self, dos_pos=0, method="gaussian", step=0.01, width=0.1, **kwargs):
+        """
+        Plot the band structure and the DOS.
+
+        Args:
+            dos_pos: Index of the task from which the DOS should be obtained (note: 0 refers to the first DOS task).
+            method: String defining the method for the computation of the DOS.
+            step: Energy step (eV) of the linear mesh.
+            width: Standard deviation (eV) of the gaussian.
+            kwargs: Keyword arguments passed to `plot_with_edos` method to customize the plot.
+
+        Returns:
+            `matplotlib` figure.
+        """
+        with self.nscf_task.open_gsr() as gsr: 
+            gs_ebands = gsr.ebands
+
+        with self.dos_tasks[dos_pos].open_gsr() as gsr: 
+            dos_ebands = gsr.ebands
+
+        edos = dos_ebands.get_edos(method=method, step=step, width=width)
+        return gs_ebands.plot_with_edos(edos, **kwargs)
+
+
 
 class RelaxWork(Work):
     """

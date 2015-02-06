@@ -1756,6 +1756,13 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """String representation of self.pos"""
         return "w" + str(self.pos[0]) + "_t" + str(self.pos[1])
 
+    def get_inpvar(self, varname):
+        """Return the value of the ABINIT variable varname, None if not present.""" 
+        if hasattr(self.strategy, "abinit_input"):
+            return self.strategy.abinit_input[0].get(varname)
+        else:
+            raise NotImplementedError("get_var for HTC interface!")
+
     def make_input(self, with_header=False):
         """Construct the input file of the calculation."""
         s = self.strategy.make_input()
