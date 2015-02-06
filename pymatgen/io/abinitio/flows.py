@@ -27,13 +27,9 @@ from .tasks import (Dependency, Status, Node, NodeResults, Task, ScfTask, Phonon
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
 from .works import Work, BandStructureWork, PhononWork, G0W0Work, QptdmWork
-
-try:
-    from pydispatch import dispatcher
-except ImportError:
-    pass
-
+from pydispatch import dispatcher
 import logging
+
 logger = logging.getLogger(__name__)
 
 __author__ = "Matteo Giantomassi"

@@ -71,7 +71,6 @@ direct
             warnings.simplefilter("ignore")
             poscar = Poscar.from_string(poscar_string)
         self.assertEqual(poscar.structure.composition, Composition("HHe"))
-
         #Vasp 4 tyle file with default names, i.e. no element symbol found.
         poscar_string = """Test3
 1.0
@@ -107,6 +106,23 @@ direct
         self.assertEqual(poscar2.comment, "Test3")
         self.assertTrue(all(poscar2.selective_dynamics[0]))
         self.assertFalse(all(poscar2.selective_dynamics[1]))
+
+    def test_cart_scale(self):
+        poscar_string = """Test1
+1.1
+3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+Si F
+1 1
+cart
+0.000000   0.00000000   0.00000000
+3.840198   1.50000000   2.35163175
+"""
+        p = Poscar.from_string(poscar_string)
+        site = p.structure[1]
+        self.assertArrayAlmostEqual(site.coords,
+                                    np.array([3.840198, 1.5, 2.35163175]) * 1.1)
 
     def test_str(self):
         si = 14

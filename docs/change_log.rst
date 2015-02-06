@@ -1,6 +1,13 @@
 Change log
 ==========
 
+v3.0.10
+------
+
+* Fix cartesian coord parsing in Poscar class.
+* Vasprun now works with non-GGA PBE runs
+* Misc bug fixes
+
 v3.0.9
 ------
 * Major bug fixes for CIF parsing (Will Richards).

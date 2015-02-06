@@ -91,7 +91,7 @@ class PseudoTestCase(PymatgenTest):
         self.assertFalse(not table.is_complete)
         assert len(table) == 3
         assert len(table[14]) == 3
-        assert len(table.pseudos_with_symbol("Si")) == 3
+        assert len(table.select_symbols("Si")) == 3
         assert table.zlist == [14]
 
         # Test pickle

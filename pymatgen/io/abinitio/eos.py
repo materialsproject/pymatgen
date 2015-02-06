@@ -328,11 +328,7 @@ class EOS_Fit(object):
         Uses Matplotlib to plot the energy curve.
 
         Args:
-            ax: Axis object. If ax is None, a new figure is produced.
-
-        Returns:
-            Matplotlib figure.
-
+            ax: :class:`Axes` object. If ax is None, a new figure is produced.
 
         ================  ==============================================================
         kwargs            Meaning
@@ -340,8 +336,11 @@ class EOS_Fit(object):
         style             
         color
         text
-        legend
+        label
         ================  ==============================================================
+
+        Returns:
+            Matplotlib figure.
         """
         ax, fig, plt = get_ax_fig_plt(ax)
 
