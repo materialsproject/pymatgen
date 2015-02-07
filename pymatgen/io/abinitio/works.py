@@ -921,7 +921,7 @@ class SigmaConvWork(Work):
 class BseMdfWork(Work):
     """
     Work for simple BSE calculations in which the self-energy corrections
-    are approximated by the scissors operator and the screening in modeled
+    are approximated by the scissors operator and the screening is modeled
     with the model dielectric function.
     """
     def __init__(self, scf_input, nscf_input, bse_inputs, workdir=None, manager=None):

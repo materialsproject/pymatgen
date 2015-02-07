@@ -119,13 +119,15 @@ def add_fig_kwargs(func):
         savefig = kwargs.pop("savefig", None)
 
         # Call func
-        import matplotlib.pyplot as plt
         fig = func(*args, **kwargs)
 
         # Operate on matplotlib figure.
         if title is not None: fig.suptitle(title)
         if savefig: fig.savefig(savefig)
-        if show: plt.show()
+        if show: 
+            import matplotlib.pyplot as plt
+            plt.show()
+
         return fig
 
 
