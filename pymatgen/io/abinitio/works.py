@@ -714,6 +714,39 @@ class BandStructureWork(Work):
                 dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
                 self.dos_tasks.append(dos_task)
 
+    def plot_ebands(self, **kwargs):
+        """
+        Plot the band structure. kwargs are passed to the plot method of :class:`ElectronBands`.
+
+        Returns:
+            `matplotlib` figure
+        """
+        with self.nscf_task.open_gsr() as gsr: 
+            return gsr.ebands.plot(**kwargs)
+
+    def plot_ebands_with_edos(self, dos_pos=0, method="gaussian", step=0.01, width=0.1, **kwargs):
+        """
+        Plot the band structure and the DOS.
+
+        Args:
+            dos_pos: Index of the task from which the DOS should be obtained (note: 0 refers to the first DOS task).
+            method: String defining the method for the computation of the DOS.
+            step: Energy step (eV) of the linear mesh.
+            width: Standard deviation (eV) of the gaussian.
+            kwargs: Keyword arguments passed to `plot_with_edos` method to customize the plot.
+
+        Returns:
+            `matplotlib` figure.
+        """
+        with self.nscf_task.open_gsr() as gsr: 
+            gs_ebands = gsr.ebands
+
+        with self.dos_tasks[dos_pos].open_gsr() as gsr: 
+            dos_ebands = gsr.ebands
+
+        edos = dos_ebands.get_edos(method=method, step=step, width=width)
+        return gs_ebands.plot_with_edos(edos, **kwargs)
+
     def plot_edoses(self, dos_pos=None, method="gaussian", step=0.01, width=0.1, **kwargs):
         """
         Plot the band structure and the DOS.
@@ -742,28 +775,6 @@ class BandStructureWork(Work):
 
         return plotter.plot(**kwargs)
 
-    def plot_ebands_with_edos(self, dos_pos=0, method="gaussian", step=0.01, width=0.1, **kwargs):
-        """
-        Plot the band structure and the DOS.
-
-        Args:
-            dos_pos: Index of the task from which the DOS should be obtained (note: 0 refers to the first DOS task).
-            method: String defining the method for the computation of the DOS.
-            step: Energy step (eV) of the linear mesh.
-            width: Standard deviation (eV) of the gaussian.
-            kwargs: Keyword arguments passed to `plot_with_edos` method to customize the plot.
-
-        Returns:
-            `matplotlib` figure.
-        """
-        with self.nscf_task.open_gsr() as gsr: 
-            gs_ebands = gsr.ebands
-
-        with self.dos_tasks[dos_pos].open_gsr() as gsr: 
-            dos_ebands = gsr.ebands
-
-        edos = dos_ebands.get_edos(method=method, step=step, width=width)
-        return gs_ebands.plot_with_edos(edos, **kwargs)
 
 
 
@@ -841,6 +852,7 @@ class G0W0Work(Work):
 
         # Register the GS-SCF run.
         # register all scf_inputs but link the nscf only the last scf in the list
+        #MG: FIXME Why this?
         if isinstance(scf_input, (list, tuple)):
             for single_scf_input in scf_input:
                 self.scf_task = self.register_scf_task(single_scf_input)
@@ -862,16 +874,16 @@ class G0W0Work(Work):
             scf_in = scf_input[-1] if isinstance(scf_input, (list, tuple)) else scf_input
             logger.info('added band structure calculation')
             bands_input = NscfStrategy(scf_strategy=scf_in,
-                                       ksampling=KSampling.path_from_structure(ndivsm=nksmall,
-                                                                               structure=scf_in.structure),
-                                       nscf_nband=scf_in.electrons.nband*2,
-                                       ecut=scf_in.ecut)
+                                       ksampling=KSampling.path_from_structure(ndivsm=nksmall, structure=scf_in.structure),
+                                       nscf_nband=scf_in.electrons.nband*2, ecut=scf_in.ecut)
+
             self.bands_task = self.register_nscf_task(bands_input, deps={self.scf_task: "DEN"})
+
             dos_input = NscfStrategy(scf_strategy=scf_in,
                                      ksampling=KSampling.automatic_density(kppa=nksmall**3, structure=scf_in.structure,
                                                                            shifts=(0.0, 0.0, 0.0)),
-                                     nscf_nband=scf_in.electrons.nband*2,
-                                     ecut=scf_in.ecut)
+                                     nscf_nband=scf_in.electrons.nband*2, ecut=scf_in.ecut)
+
             self.dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
 
         # Register the SIGMA runs.
@@ -905,8 +917,7 @@ class SigmaConvWork(Work):
             manager: :class:`TaskManager` object.
         """
         # Cast to node instances.
-        wfk_node = Node.as_node(wfk_node)
-        scr_node = Node.as_node(scr_node)
+        wfk_node, scr_node = Node.as_node(wfk_node), Node.as_node(scr_node)
 
         super(SigmaConvWork, self).__init__(workdir=workdir, manager=manager)
 

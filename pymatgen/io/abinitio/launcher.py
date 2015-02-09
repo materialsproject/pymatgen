@@ -690,7 +690,7 @@ class PyFlowScheduler(object):
             app("Completed on %s" % time.asctime())
             app("Elapsed time %s" % str(self.get_delta_etime()))
             if self.flow.all_ok:
-                app("Flow completed succesfully")
+                app("Flow completed successfully")
             else:
                 app("Flow didn't complete successfully")
                 app("Shutdown message:\n%s" % msg)

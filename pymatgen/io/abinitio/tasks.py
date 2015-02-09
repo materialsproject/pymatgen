@@ -1759,6 +1759,14 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         else:
             raise NotImplementedError("get_var for HTC interface!")
 
+    @property
+    def input_structure(self):
+        """Input structure of the task."""
+        if hasattr(self.strategy, "abinit_input"):
+            return self.strategy.abinit_input[0].structure
+        else:
+            return self.strategy.structure
+
     def make_input(self, with_header=False):
         """Construct the input file of the calculation."""
         s = self.strategy.make_input()
@@ -2110,18 +2118,16 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         This function checks the status of the task by inspecting the output and the
         error files produced by the application and by the queue manager.
-
-        The process
-        1) see it the job is blocked
-        2) see if an error occured at submitting the job the job was submitted, TODO these problems can be solved
-        3) see if there is output
-        4) see if abinit reports problems
-        5) see if both err files exist and are empty
-        6) no output and no err files, the job must still be running
-        7) try to find out what caused the problems
-        8) there is a problem but we did not figure out what ...
-        9) the only way of landing here is if there is a output file but no err files...
         """
+        # 1) see it the job is blocked
+        # 2) see if an error occured at submitting the job the job was submitted, TODO these problems can be solved
+        # 3) see if there is output
+        # 4) see if abinit reports problems
+        # 5) see if both err files exist and are empty
+        # 6) no output and no err files, the job must still be running
+        # 7) try to find out what caused the problems
+        # 8) there is a problem but we did not figure out what ...
+        # 9) the only way of landing here is if there is a output file but no err files...
 
         # 1) A locked task can only be unlocked by calling set_status explicitly.
         # an errored task, should not end up here but just to be sure
@@ -2136,73 +2142,17 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             info_msg = "return code %s" % self.returncode
             return self.set_status(self.S_QCRITICAL, info_msg=info_msg)           
 
-        #        err_msg = None
-        #            if not self.stderr_file.exists and not self.qerr_file.exists:
-        #                # The job is still in the queue.
-        #                return self.status
-        #
-        #            else:
-        #                # Analyze the standard error of the executable:
-        #                if self.stderr_file.exists:
-        #                    err_msg = self.stderr_file.read()
-        #                    if err_msg:
-        #                        logger.critical("%s: executable stderr:\n %s" % (self, err_msg))
-        #                        return self.set_status(self.S_ERROR, info_msg=err_msg)
-        #
-        #                # Analyze the error file of the resource manager.
-        #                if self.qerr_file.exists:
-        #                    err_msg = self.qerr_file.read()
-        #                    if err_msg:
-        #                        logger.critical("%s: queue stderr:\n %s" % (self, err_msg))
-        #                        return self.set_status(self.S_ERROR, info_msg=err_msg)
-        #
-        #                return self.status
-        #
-        #        # Check if the run completed successfully.
-        #        report = self.get_event_report()
-        #
-        #        if report.run_completed:
-        #            # Check if the calculation converged.
-        #            not_ok = self.not_converged()
-
-        #            if not_ok:
-        #                return self.set_status(self.S_UNCONVERGED)
-        #            else:
-        #                return self.set_status(self.S_OK)
-
-        # This is the delicate part since we have to discern among different possibilities:
-        #
-        # 1) Calculation stopped due to an Abinit Error or Bug.
-        #
-        # 2) Segmentation fault that (by definition) was not handled by ABINIT.
-        #    In this case we check if the ABINIT standard error is not empty.
-        #    hoping that nobody has written to stderr (e.g. libraries in debug mode)
-        #
-        # 3) Problem with the resource manager and/or the OS (walltime error, resource error, phase of the moon ...)
-        #    In this case we check if the error file of the queue manager is not empty.
-        #    Also in this case we *assume* that there's something wrong if the stderr of the queue manager is not empty
-        # 
-        # 4) Calculation is still running!
-        #
-        # Point 2) and 3) are the most complicated since there's no standard!
-
-        # 1) Search for possible errors or bugs in the ABINIT **output** file.
-        #if report.errors or report.bugs:
-        #   logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
-        #   return self.set_status(self.S_ERROR, info_msg=str(report.errors) + str(report.bugs))
-
-        # 2) Analyze the stderr file for Fortran runtime errors.
-        #>>>>>>> pymatgen-matteo/master
-
+        # Analyze the stderr file for Fortran runtime errors.
         err_msg = None
         if self.stderr_file.exists:
             err_msg = self.stderr_file.read()
 
+        # Analyze the stderr file of the resource manager runtime errors.
         err_info = None
         if self.qerr_file.exists:
             err_info = self.qerr_file.read()
 
-        # 3) Start to check if the output file has been created.
+        # Start to check ABINIT status if the output file has been created.
         if self.output_file.exists:
             try:
                 report = self.get_event_report()
@@ -2219,8 +2169,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 else:
                     return self.set_status(self.S_OK)
 
-            # 4)
+            # Calculation still running or errors?
             if report.errors or report.bugs:
+                # Abinit reported problems
                 if report.errors:
                     logger.debug('"Found errors in report')
                     for error in report.errors:
@@ -2233,11 +2184,12 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                     logger.debug('Found bugs in report:')
                     for bug in report.bugs:
                         logger.debug(str(bug))
-                # Abinit reports problems
+
+                # The job is unfixable due to ABINIT errors
                 logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
                 info_msg = "["+", ".join(map(str, report.errors))+"]" + "["+", ".join(map(str, report.bugs))+"]"
                 return self.set_status(self.S_ABICRITICAL, info_msg=info_msg)
-                # The job is unfixable due to ABINIT errors
+
 
             # 5)
             if self.stderr_file.exists and not err_info:
@@ -2260,9 +2212,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # 6)
         if not self.output_file.exists:
             logger.debug("output_file does not exists")
-            if not self.stderr_file.exists and not self.qerr_file.exists:     # No output at all
+            if not self.stderr_file.exists and not self.qerr_file.exists:     
+                # No output at allThe job is still in the queue.
                 return self.status
-                # The job is still in the queue.
+                
 
         # 7) Analyze the files of the resource manager and abinit and execution err (mvs)
         if self.qerr_file.exists:
@@ -2878,7 +2831,13 @@ class AbinitTask(Task):
 
     def get_ibz(self, ngkpt=None, shiftk=None):
         """
+        This function calls ABINIT to compute the list of k-points in the IBZ.
+        By default, we use the value of ngkpt and shiftk in the strategy but it's also
+        possible to change temporary these values.
+
         Returns:
+            kpoints: numpy array with the reduced coordinates of the k-points in the IBZ.
+            weights: numpy array with the weights normalized to one.
         """
         logger.info("in get_ibz")
 
@@ -2998,7 +2957,7 @@ class ProduceGsr(object):
 class ProduceDdb(object):
     """
     Mixin class for :an class:`AbinitTask` producing a DDB file.
-    Provicd the method `open_ddb` that reads and return a Ddb file.
+    Provide the method `open_ddb` that reads and return a Ddb file.
     """
     def open_ddb(self):
         """
@@ -3285,8 +3244,7 @@ class ScrTask(AbinitTask):
 
 class SigmaTask(AbinitTask):
     """
-    Tasks for SIGMA calculations employing the self-consistent G approximation 
-    Provide support for in-place restart via QPS files
+    Tasks for SIGMA calculations. Provides support for in-place restart via QPS files
     """
     CRITICAL_EVENTS = [
         events.QPSConvergenceWarning,
@@ -3329,6 +3287,20 @@ class SigmaTask(AbinitTask):
         except Exception as exc:
             logger.critical("Exception while reading SIGRES file at %s:\n%s" % (sigres_path, str(exc)))
             return None
+
+    def get_scissors_builder(self):
+        """
+        Returns an instance of :class:`ScissorsBuilder` from the SIGRES file.
+
+        Raise:
+            RuntimeError if SIGRES file is not found
+        """
+        from abipy.electrons.scissors import ScissorsBuilder
+        sigres_path = self.outdir.has_abiext("SIGRES")
+        if sigres_path:
+            return ScissorsBuilder.from_file(sigres_path)
+        else:
+            raise RuntimeError("Cannot find SIGRES file!")
 
     def get_results(self, **kwargs):
         results = super(SigmaTask, self).get_results(**kwargs)
@@ -3411,6 +3383,7 @@ class BseTask(AbinitTask):
     #def inspect(self, **kwargs):
     #    """
     #    Plot the Haydock iterations with matplotlib.
+    #
     #    Returns
     #        `matplotlib` figure, None if some error occurred.
     #    """
@@ -3501,7 +3474,7 @@ class OpticTask(Task):
         #optic.in     ! Name of input file
         #optic.out    ! Unused
         #optic        ! Root name for all files that will be produced
-        app(self.input_file.path)                 # Path to the input file
+        app(self.input_file.path)                           # Path to the input file
         app(os.path.join(self.workdir, "unused"))           # Path to the output file
         app(os.path.join(self.workdir, self.prefix.odata))  # Prefix for output data
 
