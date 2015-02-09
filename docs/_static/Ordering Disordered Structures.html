@@ -3,7 +3,7 @@
 <head>
 
 <meta charset="utf-8" />
-<title>Molecule</title>
+<title>Ordering Disordered Structures</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -1681,44 +1681,23 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h2>
+<h1 id="introduction">Introduction</h1>
+<p>This notebook demonstrates how to carry out an ordering of a disordered structure using pymatgen.</p>
 </div>
 </div>
 </div>
-
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>This notebook demonstrates pymatgen&#39;s functionality in terms of creating and editing molecules, as well as its integration with OpenBabel. For the latter, please note that you will need to have openbabel with python bindings installed. Please refer to pymatgen&#39;s documentation for installation details.</p>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Molecules">Molecules<a class="anchor-link" href="#Molecules">&#182;</a></h2>
-</div>
-</div>
-</div>
-
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class="highlight"><pre><span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Molecule</span>
-<span class="c"># Create a methane molecule.</span>
-<span class="n">coords</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.000000</span><span class="p">,</span> <span class="mf">0.000000</span><span class="p">,</span> <span class="mf">0.000000</span><span class="p">],</span>
-          <span class="p">[</span><span class="mf">0.000000</span><span class="p">,</span> <span class="mf">0.000000</span><span class="p">,</span> <span class="mf">1.089000</span><span class="p">],</span>
-          <span class="p">[</span><span class="mf">1.026719</span><span class="p">,</span> <span class="mf">0.000000</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.363000</span><span class="p">],</span>
-          <span class="p">[</span><span class="o">-</span><span class="mf">0.513360</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.889165</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.363000</span><span class="p">],</span>
-          <span class="p">[</span><span class="o">-</span><span class="mf">0.513360</span><span class="p">,</span> <span class="mf">0.889165</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.363000</span><span class="p">]]</span>
-<span class="n">mol</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">([</span><span class="s">&quot;C&quot;</span><span class="p">,</span> <span class="s">&quot;H&quot;</span><span class="p">,</span> <span class="s">&quot;H&quot;</span><span class="p">,</span> <span class="s">&quot;H&quot;</span><span class="p">,</span> <span class="s">&quot;H&quot;</span><span class="p">],</span> <span class="n">coords</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+<div class="highlight"><pre><span class="c"># Let us start by creating a disordered CuAu fcc structure.</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Lattice</span>
+
+<span class="n">specie</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;Cu0+&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s">&quot;Au0+&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">}</span>
+<span class="n">cuau</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_spacegroup</span><span class="p">(</span><span class="s">&quot;Fm-3m&quot;</span><span class="p">,</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mf">3.677</span><span class="p">),</span> <span class="p">[</span><span class="n">specie</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+<span class="k">print</span> <span class="n">cuau</span>
 </pre></div>
 
 </div>
@@ -1732,15 +1711,15 @@ div#notebook {
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>
-Molecule Summary (H4 C1)
-Reduced Formula: H4C
-Charge = 0, Spin Mult = 1
-Sites (5)
-1 C     0.000000     0.000000     0.000000
-2 H     0.000000     0.000000     1.089000
-3 H     1.026719     0.000000    -0.363000
-4 H    -0.513360    -0.889165    -0.363000
-5 H    -0.513360     0.889165    -0.363000
+Structure Summary (Cu2 Au2)
+Reduced Formula: CuAu
+abc   :   3.677000   3.677000   3.677000
+angles:  90.000000  90.000000  90.000000
+Sites (4)
+1 Cu0+:0.500, Au0+:0.500     0.000000     0.000000     0.000000
+2 Cu0+:0.500, Au0+:0.500     0.000000     0.500000     0.500000
+3 Cu0+:0.500, Au0+:0.500     0.500000     0.000000     0.500000
+4 Cu0+:0.500, Au0+:0.500     0.500000     0.500000     0.000000
 
 </pre>
 </div>
@@ -1749,15 +1728,40 @@ Sites (5)
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Note that each site is now 50% occupied by Cu and Au. Because the ordering algorithms uses an Ewald summation to rank the structures, you need to explicitly specify the oxidation state for each species, even if it is 0. Let us now perform ordering of these sites using two methods.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="method-1-using-the-orderdisorderedstructuretransformation">Method 1 - Using the OrderDisorderedStructureTransformation</h2>
+<p>The first method is to use the OrderDisorderedStructureTransformation.</p>
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class="highlight"><pre><span class="c"># A Molecule is simply a list of Sites.</span>
-<span class="k">print</span><span class="p">(</span><span class="n">mol</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-<span class="k">print</span><span class="p">(</span><span class="n">mol</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">pymatgen.transformations.standard_transformations</span> <span class="kn">import</span> <span class="n">OrderDisorderedStructureTransformation</span>
+
+<span class="n">trans</span> <span class="o">=</span> <span class="n">OrderDisorderedStructureTransformation</span><span class="p">()</span>
+
+<span class="n">ss</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">cuau</span><span class="p">,</span> <span class="n">return_ranked_list</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">))</span>
+
+<span class="k">print</span> <span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 
 </div>
@@ -1771,8 +1775,19 @@ Sites (5)
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>
-[0.0, 0.0, 0.0] C
-[0.0, 0.0, 1.089] H
+6
+{u&apos;energy&apos;: 0.0, u&apos;energy_above_minimum&apos;: 0.0, u&apos;structure&apos;: Structure Summary
+Lattice
+    abc : 3.677 3.677 3.677
+ angles : 90.0 90.0 90.0
+ volume : 49.714249733000003
+      A : 3.677 0.0 0.0
+      B : 0.0 3.677 0.0
+      C : 0.0 0.0 3.677
+PeriodicSite: Cu0+ (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
+PeriodicSite: Cu0+ (0.0000, 1.8385, 1.8385) [0.0000, 0.5000, 0.5000]
+PeriodicSite: Au0+ (1.8385, 0.0000, 1.8385) [0.5000, 0.0000, 0.5000]
+PeriodicSite: Au0+ (1.8385, 1.8385, 0.0000) [0.5000, 0.5000, 0.0000]}
 
 </pre>
 </div>
@@ -1781,15 +1796,27 @@ Sites (5)
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Note that the OrderDisorderedTransformation (with a sufficiently large return_ranked_list parameter) returns all orderings, including duplicates without accounting for symmetry. A computed ewald energy is returned together with each structure. To eliminate duplicates, the best way is to use StructureMatcher&#39;s group_structures method, as demonstrated below.</p>
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class="highlight"><pre><span class="c"># Break a Molecule into two by breaking a bond.</span>
-<span class="k">for</span> <span class="n">frag</span> <span class="ow">in</span> <span class="n">mol</span><span class="o">.</span><span class="n">break_bond</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">frag</span><span class="p">)</span>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">StructureMatcher</span>
+
+<span class="n">matcher</span> <span class="o">=</span> <span class="n">StructureMatcher</span><span class="p">()</span>
+<span class="n">groups</span> <span class="o">=</span> <span class="n">matcher</span><span class="o">.</span><span class="n">group_structures</span><span class="p">([</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;structure&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">ss</span><span class="p">])</span>
+<span class="k">print</span> <span class="nb">len</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
+<span class="k">print</span> <span class="n">groups</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 
 </div>
@@ -1803,19 +1830,16 @@ Sites (5)
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>
-Molecule Summary (H3 C1)
-Reduced Formula: H3C
-Charge = 0, Spin Mult = 2
+1
+Structure Summary (Cu2 Au2)
+Reduced Formula: CuAu
+abc   :   3.677000   3.677000   3.677000
+angles:  90.000000  90.000000  90.000000
 Sites (4)
-1 C     0.000000     0.000000     0.000000
-2 H     1.026719     0.000000    -0.363000
-3 H    -0.513360    -0.889165    -0.363000
-4 H    -0.513360     0.889165    -0.363000
-Molecule Summary (H1)
-Reduced Formula: H2
-Charge = 0, Spin Mult = 2
-Sites (1)
-1 H     0.000000     0.000000     1.089000
+1 Cu0+     0.000000     0.000000     0.000000
+2 Cu0+     0.000000     0.500000     0.500000
+3 Au0+     0.500000     0.000000     0.500000
+4 Au0+     0.500000     0.500000     0.000000
 
 </pre>
 </div>
@@ -1824,33 +1848,31 @@ Sites (1)
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="method-2-using-the-enumeratestructuretransformation">Method 2 - Using the EnumerateStructureTransformation</h2>
+<p>If you have enumlib installed, you can use the EnumerateStructureTransformation. This automatically takes care of symmetrically equivalent orderings and can enumerate supercells, but is much more prone to parameter sensitivity and cannot handle very large structures. The example below shows an enumerate of CuAu up to cell sizes of 4.</p>
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class="highlight"><pre><span class="c"># Getting neighbors that are within 3 angstroms from C atom.</span>
-<span class="k">print</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">mol</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">3</span><span class="p">))</span>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">pymatgen.transformations.advanced_transformations</span> <span class="kn">import</span> <span class="n">EnumerateStructureTransformation</span>
+<span class="n">specie</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;Cu&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s">&quot;Au&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">}</span>
+<span class="n">cuau</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_spacegroup</span><span class="p">(</span><span class="s">&quot;Fm-3m&quot;</span><span class="p">,</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mf">3.677</span><span class="p">),</span> <span class="p">[</span><span class="n">specie</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+
+<span class="n">trans</span> <span class="o">=</span> <span class="n">EnumerateStructureTransformation</span><span class="p">(</span><span class="n">max_cell_size</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ss</span> <span class="o">=</span> <span class="n">trans</span><span class="o">.</span><span class="n">apply_transformation</span><span class="p">(</span><span class="n">cuau</span><span class="p">,</span> <span class="n">return_ranked_list</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area"><div class="prompt"></div>
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>
-[(Site: H (0.0000, 0.0000, 1.0890), 1.089), (Site: H (1.0267, 0.0000, -0.3630), 1.0889999563640946), (Site: H (-0.5134, -0.8892, -0.3630), 1.0890004071739368), (Site: H (-0.5134, 0.8892, -0.3630), 1.0890004071739368)]
-
-</pre>
-</div>
-</div>
-
 </div>
 </div>
 
@@ -1860,8 +1882,8 @@ Sites (1)
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class="highlight"><pre><span class="c">#Detecting bonds</span>
-<span class="k">print</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">get_covalent_bonds</span><span class="p">())</span>
+<div class="highlight"><pre><span class="k">print</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&quot;cell sizes are </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;structure&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">ss</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -1875,295 +1897,8 @@ Sites (1)
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>
-[Covalent bond between [0.0, 0.0, 0.0] C and [0.0, 0.0, 1.089] H, Covalent bond between [0.0, 0.0, 0.0] C and [1.026719, 0.0, -0.363] H, Covalent bond between [0.0, 0.0, 0.0] C and [-0.51336, -0.889165, -0.363] H, Covalent bond between [0.0, 0.0, 0.0] C and [-0.51336, 0.889165, -0.363] H]
-
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class="highlight"><pre><span class="c"># If you need to run the molecule in a box with a periodic boundary condition</span>
-<span class="c"># code, you can generate the boxed structure as follows (in a 10Ax10Ax10A box)</span>
-<span class="n">structure</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">get_boxed_structure</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area"><div class="prompt"></div>
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>
-Structure Summary (H4 C1)
-Reduced Formula: H4C
-abc   :  10.000000  10.000000  10.000000
-angles:  90.000000  90.000000  90.000000
-Sites (5)
-1 H     0.500000     0.500000     0.608900
-2 H     0.602672     0.500000     0.463700
-3 H     0.448664     0.411083     0.463700
-4 H     0.448664     0.588917     0.463700
-5 C     0.500000     0.500000     0.500000
-
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class="highlight"><pre><span class="c"># Writing to XYZ files (easy to open with many molecule file viewers)</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.xyzio</span> <span class="kn">import</span> <span class="n">XYZ</span>
-<span class="n">xyz</span> <span class="o">=</span> <span class="n">XYZ</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
-<span class="n">xyz</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s">&quot;methane.xyz&quot;</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Openbabel-interface">Openbabel interface<a class="anchor-link" href="#Openbabel-interface">&#182;</a></h2>
-</div>
-</div>
-</div>
-
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>This section demonstrates pymatgen&#39;s integration with openbabel.</p>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class="highlight"><pre><span class="kn">from</span> <span class="nn">pymatgen.io.babelio</span> <span class="kn">import</span> <span class="n">BabelMolAdaptor</span>
-<span class="kn">import</span> <span class="nn">pybel</span> <span class="kn">as</span> <span class="nn">pb</span>
-<span class="n">a</span> <span class="o">=</span> <span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
-<span class="c"># Create a pybel.Molecule, which simplifies a lot of access</span>
-<span class="n">pm</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">Molecule</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">openbabel_mol</span><span class="p">)</span>
-<span class="c"># Print canonical SMILES representation (unique and comparable).</span>
-<span class="k">print</span><span class="p">(</span><span class="s">&quot;Canonical SMILES = {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;can&quot;</span><span class="p">)))</span>
-<span class="c"># Print Inchi representation</span>
-<span class="k">print</span><span class="p">(</span><span class="s">&quot;Inchi= {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;inchi&quot;</span><span class="p">)))</span>
-<span class="c"># pb.outformats provides a listing of available formats. </span>
-<span class="c"># Let&#39;s do a write to the commonly used PDB file.</span>
-<span class="n">pm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;pdb&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s">&quot;methane.pdb&quot;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area"><div class="prompt"></div>
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>
-Canonical SMILES = C	
-
-Inchi= InChI=1S/CH4/h1H4
-
-
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class="highlight"><pre><span class="c"># Generating ethylene carbonate (SMILES obtained from Wikipedia)</span>
-<span class="c"># And displaying the svg.</span>
-<span class="n">ec</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">readstring</span><span class="p">(</span><span class="s">&quot;smi&quot;</span><span class="p">,</span> <span class="s">&quot;C1COC(=O)O1&quot;</span><span class="p">)</span>
-<span class="n">ec</span><span class="o">.</span><span class="n">make3D</span><span class="p">()</span>
-<span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="kn">import</span> <span class="n">SVG</span><span class="p">,</span> <span class="n">display_svg</span>
-<span class="n">svg</span> <span class="o">=</span> <span class="n">SVG</span><span class="p">(</span><span class="n">ec</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;svg&quot;</span><span class="p">))</span>
-<span class="n">display_svg</span><span class="p">(</span><span class="n">svg</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area"><div class="prompt"></div>
-
-<div class="output_svg output_subarea ">
-<svg height="200px" id="topsvg" version="1.1" viewBox="0 0 100 100" width="200px" x="0" xmlns="http://www.w3.org/2000/svg" xmlns:cml="http://www.xml-cml.org/schema" xmlns:xlink="http://www.w3.org/1999/xlink" y="0">
-<title>OBDepict</title>
-<rect fill="white" height="100" width="100" x="0" y="0"/>
-<text fill="black" font-family="sans-serif" font-size="6" text-anchor="middle" x="50" y="98"/>
-<g transform="translate(0,0)">
-<svg font-family="sans-serif" height="100" stroke="rgb(0,0,0)" stroke-linecap="round" stroke-width="2" viewBox="0 0 221.89 187.549" width="100" x="0" y="0">
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="79.0" x2="53.3" y1="120.7" y2="129.0"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="77.1" x2="51.4" y1="115.0" y2="123.3"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="130.4" x2="155.1" y1="79.8" y2="68.8"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="130.4" x2="133.2" y1="79.8" y2="52.9"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="142.8" x2="160.8" y1="117.8" y2="137.9"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="142.8" x2="169.2" y1="117.8" y2="112.2"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="130.4" x2="142.8" y1="79.8" y2="117.8"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="142.8" x2="120.9" y1="117.8" y2="133.7"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="99.9" x2="78.0" y1="133.7" y2="117.8"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="78.0" x2="86.4" y1="117.8" y2="92.1"/>
-<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="103.4" x2="130.4" y1="79.8" y2="79.8"/>
-<text fill="rgb(255,12,12)" font-size="16" stroke="rgb(255,12,12)" stroke-width="1" x="104.402940" y="149.334547">O</text>
-<text fill="rgb(255,12,12)" font-size="16" stroke="rgb(255,12,12)" stroke-width="1" x="34.000000" y="138.183816">O</text>
-<text fill="rgb(255,12,12)" font-size="16" stroke="rgb(255,12,12)" stroke-width="1" x="84.402940" y="87.780876">O</text>
-<text fill="rgb(191,191,191)" font-size="16" stroke="rgb(191,191,191)" stroke-width="1" x="160.944759" y="71.511410">H</text>
-<text fill="rgb(191,191,191)" font-size="16" stroke="rgb(191,191,191)" stroke-width="1" x="128.584079" y="48.000000">H</text>
-<text fill="rgb(191,191,191)" font-size="16" stroke="rgb(191,191,191)" stroke-width="1" x="163.528844" y="155.548929">H</text>
-<text fill="rgb(191,191,191)" font-size="16" stroke="rgb(191,191,191)" stroke-width="1" x="175.889524" y="117.506669">H</text>
-</svg>
-</g>
-</svg>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Input/Output">Input/Output<a class="anchor-link" href="#Input/Output">&#182;</a></h2>
-</div>
-</div>
-</div>
-
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Pymatgen has built-in support for the XYZ and Gaussian, NWchem file formats. It also has support for most other file formats if you have openbabel with Python bindings installed.</p>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class="highlight"><pre><span class="k">print</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s">&quot;xyz&quot;</span><span class="p">))</span>
-<span class="k">print</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s">&quot;g09&quot;</span><span class="p">))</span>
-<span class="k">print</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s">&quot;pdb&quot;</span><span class="p">))</span> <span class="c">#Needs Openbabel.</span>
-
-<span class="n">mol</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s">&quot;methane.xyz&quot;</span><span class="p">)</span>
-<span class="n">mol</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s">&quot;methane.pdb&quot;</span><span class="p">)</span> <span class="c">#Needs Openbabel.</span>
-
-<span class="k">print</span><span class="p">(</span><span class="n">Molecule</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s">&quot;methane.pdb&quot;</span><span class="p">))</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area"><div class="prompt"></div>
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>
-5
-H4 C1
-C 0.000000 0.000000 0.000000
-H 0.000000 0.000000 1.089000
-H 1.026719 0.000000 -0.363000
-H -0.513360 -0.889165 -0.363000
-H -0.513360 0.889165 -0.363000
-#P HF/6-31G(d)  Test
-
-H4 C1
-
-0 1
-C
-H 1 B1
-H 1 B2 2 A2
-H 1 B3 2 A3 3 D3
-H 1 B4 2 A4 4 D4
-
-B1=1.089000
-B2=1.089000
-A2=109.471221
-B3=1.089000
-A3=109.471213
-D3=120.000017
-B4=1.089000
-A4=109.471213
-D4=119.999966
-
-
-
-COMPND    UNNAMED
-AUTHOR    GENERATED BY OPEN BABEL 2.3.2
-HETATM    1  C   LIG     1       0.000   0.000   0.000  1.00  0.00           C  
-HETATM    2  H   LIG     1       0.000   0.000   1.089  1.00  0.00           H  
-HETATM    3  H   LIG     1       1.027   0.000  -0.363  1.00  0.00           H  
-HETATM    4  H   LIG     1      -0.513  -0.889  -0.363  1.00  0.00           H  
-HETATM    5  H   LIG     1      -0.513   0.889  -0.363  1.00  0.00           H  
-CONECT    1    3    4    5    2                                       
-CONECT    1                                                           
-CONECT    2    1                                                      
-CONECT    3    1                                                      
-CONECT    4    1                                                      
-CONECT    5    1                                                      
-MASTER        0    0    0    0    0    0    0    0    5    0    5    0
-END
-
-Molecule Summary (H4 C1)
-Reduced Formula: H4C
-Charge = 0, Spin Mult = 1
-Sites (5)
-1 C     0.000000     0.000000     0.000000
-2 H     0.000000     0.000000     1.089000
-3 H     1.027000     0.000000    -0.363000
-4 H    -0.513000    -0.889000    -0.363000
-5 H    -0.513000     0.889000    -0.363000
+94
+cell sizes are [4, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
 
 </pre>
 </div>
@@ -2178,160 +1913,20 @@ Sites (5)
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>For more fine-grained control over output, you can use the underlying IO classes Gaussian and Nwchem, two commonly used computational chemistry programs.</p>
+<p>Note that structures with cell sizes ranging from 1-3x the unit cell size is generated.</p>
 </div>
 </div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class="highlight"><pre><span class="kn">from</span> <span class="nn">pymatgen.io.gaussianio</span> <span class="kn">import</span> <span class="n">GaussianInput</span>
-<span class="n">gau</span> <span class="o">=</span> <span class="n">GaussianInput</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">spin_multiplicity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s">&quot;methane&quot;</span><span class="p">,</span> 
-                    <span class="n">functional</span><span class="o">=</span><span class="s">&quot;B3LYP&quot;</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="s">&quot;6-31G(d)&quot;</span><span class="p">,</span> 
-                    <span class="n">route_parameters</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;Opt&#39;</span><span class="p">:</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;SCF&quot;</span><span class="p">:</span> <span class="s">&quot;Tight&quot;</span><span class="p">},</span>
-                    <span class="n">link0_parameters</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;%mem&quot;</span><span class="p">:</span> <span class="s">&quot;1000MW&quot;</span><span class="p">})</span>
-<span class="k">print</span><span class="p">(</span><span class="n">gau</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area"><div class="prompt"></div>
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>
-%mem=1000MW
-#P B3LYP/6-31G(d) Opt SCF=Tight Test
-
-methane
-
-0 1
-C
-H 1 B1
-H 1 B2 2 A2
-H 1 B3 2 A3 3 D3
-H 1 B4 2 A4 4 D4
-
-B1=1.089000
-B2=1.089000
-A2=109.471221
-B3=1.089000
-A3=109.471213
-D3=120.000017
-B4=1.089000
-A4=109.471213
-D4=119.999966
-
-
-
-
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class="highlight"><pre><span class="c"># A standard relaxation + SCF energy nwchem calculation input file for methane.</span>
-<span class="kn">from</span> <span class="nn">pymatgen.io.nwchemio</span> <span class="kn">import</span> <span class="n">NwTask</span><span class="p">,</span> <span class="n">NwInput</span>
-<span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">NwTask</span><span class="o">.</span><span class="n">dft_task</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s">&quot;optimize&quot;</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="s">&quot;b3lyp&quot;</span><span class="p">,</span>
-                    <span class="n">basis_set</span><span class="o">=</span><span class="s">&quot;6-31G&quot;</span><span class="p">),</span>
-    <span class="n">NwTask</span><span class="o">.</span><span class="n">dft_task</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s">&quot;freq&quot;</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="s">&quot;b3lyp&quot;</span><span class="p">,</span>
-                    <span class="n">basis_set</span><span class="o">=</span><span class="s">&quot;6-31G&quot;</span><span class="p">),</span>
-    <span class="n">NwTask</span><span class="o">.</span><span class="n">dft_task</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s">&quot;energy&quot;</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="s">&quot;b3lyp&quot;</span><span class="p">,</span>
-                    <span class="n">basis_set</span><span class="o">=</span><span class="s">&quot;6-311G&quot;</span><span class="p">),</span>
-<span class="p">]</span>
-<span class="n">nwi</span> <span class="o">=</span> <span class="n">NwInput</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">geometry_options</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;units&quot;</span><span class="p">,</span> <span class="s">&quot;angstroms&quot;</span><span class="p">])</span>
-<span class="k">print</span><span class="p">(</span><span class="n">nwi</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area"><div class="prompt"></div>
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>
-geometry units angstroms
- C 0.0 0.0 0.0
- H 0.0 0.0 1.089
- H 1.026719 0.0 -0.363
- H -0.51336 -0.889165 -0.363
- H -0.51336 0.889165 -0.363
-end
-
-title &quot;H4C1 dft optimize&quot;
-charge 0
-basis
- C library &quot;6-31G&quot;
- H library &quot;6-31G&quot;
-end
-dft
- mult 1
- xc b3lyp
-end
-task dft optimize
-
-title &quot;H4C1 dft freq&quot;
-charge 0
-basis
- C library &quot;6-31G&quot;
- H library &quot;6-31G&quot;
-end
-dft
- mult 1
- xc b3lyp
-end
-task dft freq
-
-title &quot;H4C1 dft energy&quot;
-charge 0
-basis
- C library &quot;6-311G&quot;
- H library &quot;6-311G&quot;
-end
-dft
- mult 1
- xc b3lyp
-end
-task dft energy
-
-
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="This-concludes-the-demo-on-pymatgen's-basic-capabilities-for-molecules.">This concludes the demo on pymatgen's basic capabilities for molecules.<a class="anchor-link" href="#This-concludes-the-demo-on-pymatgen's-basic-capabilities-for-molecules.">&#182;</a></h2>
+<h2 id="conclusion">Conclusion</h2>
+<p>This notebook illustrates two basic ordering/enumeration approaches. In general, OrderDisorderedTransformation works better for large cells and is useful if you need just any quick plausible ordering. EnumerateStructureTransformation is more rigorous, but is prone to sensitivity errors and may require fiddling with various parameters.</p>
 </div>
 </div>
 </div>
-
     </div>
   </div>
 </body>

@@ -1,8 +1,8 @@
 Change log
 ==========
 
-v3.0.7
-------
-* Powerful Slab generation algorithms (beta!).
-* Improvements to DiffusionAnalyzer with constant smoothing option.
-* Significantly improve look of DOS plots using prettyplotlib.
+v3.0.10
+-------
+* Fix cartesian coord parsing in Poscar class.
+* Vasprun now works with non-GGA PBE runs
+* Misc bug fixes

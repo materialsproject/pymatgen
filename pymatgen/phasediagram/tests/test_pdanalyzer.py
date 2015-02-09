@@ -93,6 +93,13 @@ class PDAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(results[Element("Fe")][0], -6.5961470999999996)
         self.assertAlmostEqual(results[Element("Li")][0], -3.6250022625000007)
 
+    def test_get_hull_energy(self):
+        for entry in self.pd.stable_entries:
+            h_e = self.analyzer.get_hull_energy(entry.composition)
+            self.assertAlmostEqual(h_e, entry.energy)
+            n_h_e = self.analyzer.get_hull_energy(entry.composition.fractional_composition)
+            self.assertAlmostEqual(n_h_e, entry.energy_per_atom)
+
     def test_1d_pd(self):
         entry = PDEntry('H', 0)
         pd = PhaseDiagram([entry])
