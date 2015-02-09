@@ -20,6 +20,7 @@ from monty.itertools import iterator_from_slice
 from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property
+from monty.os.path import find_exts
 from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
 from pymatgen.core.periodic_table import PeriodicTable, Element
 from .eos import EOS
@@ -1510,6 +1511,28 @@ class PseudoTable(collections.Sequence):
         """ 
         if isinstance(items, cls): return items
         return cls(items)
+
+    def from_dir(cls, top, exts=None, exclude_dirs="_*"):
+        """
+        Find all pseudos in the directory tree starting from top.
+
+        Args:
+            top: Top of the directory tree
+            exts: List of files extensions.
+            exclude_dirs: Wildcard used to exclude directories.
+        
+        return: :class:`PseudoTable` sorted by atomic number Z.
+        """
+        if exts is None: exts=("psp8",)
+
+        pseudos = []
+        for p in find_exts(top, exts, exclude_dirs=exclude_dirs):
+            try:
+                pseudos.append(Pseudo.from_file(p))
+            except Exception as exc:
+                logger.critical("Error in %s:\n%s" % (p, exc))
+
+        return cls(pseudos).sort_by_z()
 
     def __init__(self, pseudos):
         """
