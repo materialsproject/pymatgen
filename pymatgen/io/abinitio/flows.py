@@ -677,7 +677,7 @@ class Flow(Node):
             cprint_map("Work #%d: %s, Finalized=%s\n" % (i, work, work.finalized), cmap={"True": "green"}, file=stream)
             if verbose == 0 and work.finalized: continue
 
-            table = PrettyTable(["Task", "Status", "Queue", "MPI|OMP|Mem/proc", "Err|Warn|Comm", "Class", "Restart", "Node_ID"])
+            table = PrettyTable(["Task", "Status", "Queue", "MPI|OMP|Memproc[Gb]", "Err|Warn|Comm", "Class", "Restart", "Node_ID"])
 
             tot_num_errors = 0
             for task in work:
@@ -733,6 +733,13 @@ class Flow(Node):
             for task in work:
                 if nids is not None and task.node_id not in nids: continue
                 s = task.make_input(with_header=True)
+
+                # Add info on dependencies.
+                if task.deps:
+                    s += "\n\nDependencies:\n" + "\n".join(str(dep) for dep in task.deps)
+                else:
+                    s += "\n\nDependencies: None"
+
                 lines.append(2*"\n" + 80 * "=" + "\n" + s + 2*"\n")
 
         stream.writelines(lines)

@@ -115,6 +115,9 @@ class FlowTest(FlowUnitTest):
         aequal(flow.num_tasks, 1)
         atrue(flow.has_db) 
 
+        #print(task0_w0.input_structure)
+        print(task0_w0.make_input)
+
         # Build a workflow containing two tasks depending on task0_w0
         work = Work()
         atrue(work.is_work)
