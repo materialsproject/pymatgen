@@ -26,6 +26,8 @@ from pymatgen.io.abinitio.helpers import s_name
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+GWVaspInputSet = os.path.join(MODULE_DIR, "..", "GWVaspInputSet.json")
+
 """
 MPGWVaspInputSet.joson contains the standards for GW calculations. This set contains all
 parameters for the first sc dft calculation. The modifications for the subsequent
@@ -47,7 +49,7 @@ class GWscDFTPrepVaspInputSet(DictVaspInputSet):
         """
         Supports the same kwargs as :class:`JSONVaspInputSet`.
         """
-        with open(os.path.join(MODULE_DIR, "GWVaspInputSet.json")) as f:
+        with open(GWVaspInputSet) as f:
             DictVaspInputSet.__init__(
                 self, "MP Static Self consistent run for GW", json.load(f), **kwargs)
         self.structure = structure
@@ -166,7 +168,7 @@ class GWDFTDiagVaspInputSet(GWscDFTPrepVaspInputSet):
         """
         Supports the same kwargs as :class:`JSONVaspInputSet`.
         """
-        with open(os.path.join(MODULE_DIR, "GWVaspInputSet.json")) as f:
+        with open(GWVaspInputSet) as f:
             DictVaspInputSet.__init__(
                 self, "MP Static exact diagonalization", json.load(f), **kwargs)
         self.structure = structure
@@ -211,7 +213,7 @@ class GWG0W0VaspInputSet(GWDFTDiagVaspInputSet):
         """
         Supports the same kwargs as :class:`JSONVaspInputSet`.
         """
-        with open(os.path.join(MODULE_DIR, "GWVaspInputSet.json")) as f:
+        with open(GWVaspInputSet) as f:
             DictVaspInputSet.__init__(
                 self, "MP Static G0W0", json.load(f), **kwargs)
         self.structure = structure

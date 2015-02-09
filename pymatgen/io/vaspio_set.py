@@ -134,7 +134,8 @@ class AbstractVaspInputSet(six.with_metaclass(abc.ABCMeta, PMGSONable)):
             d['POTCAR.spec'] = "\n".join(self.get_potcar_symbols(structure))
         return d
 
-    def write_input(self, structure, output_dir, make_dir_if_not_present=True):
+    def write_input(self, structure, output_dir,
+                    make_dir_if_not_present=True, include_cif=False):
         """
         Writes a set of VASP input to a directory.
 
@@ -145,11 +146,17 @@ class AbstractVaspInputSet(six.with_metaclass(abc.ABCMeta, PMGSONable)):
             make_dir_if_not_present (bool): Set to True if you want the
                 directory (and the whole path) to be created if it is not
                 present.
+            include_cif (bool): Whether to write a CIF file in the output
+                directory for easier opening by VESTA.
         """
         if make_dir_if_not_present and not os.path.exists(output_dir):
             os.makedirs(output_dir)
         for k, v in self.get_all_vasp_input(structure).items():
             v.write_file(os.path.join(output_dir, k))
+            if k == "POSCAR" and include_cif:
+                v.structure.to(
+                    filename=os.path.join(output_dir,
+                                          "%s.cif" % v.structure.formula))
 
 
 class DictVaspInputSet(AbstractVaspInputSet):
@@ -347,9 +354,9 @@ class DictVaspInputSet(AbstractVaspInputSet):
 
         # If grid_density is in the kpoints_settings use Kpoints.automatic_density
         if self.kpoints_settings.get('grid_density'):
-            return Kpoints.automatic_density(structure,
-                                             self.kpoints_settings['grid_density'],
-                                             self.force_gamma)
+            return Kpoints.automatic_density(
+                structure, int(self.kpoints_settings['grid_density']),
+                self.force_gamma)
 
         # If length is in the kpoints_settings use Kpoints.automatic
         elif self.kpoints_settings.get('length'):
@@ -357,9 +364,10 @@ class DictVaspInputSet(AbstractVaspInputSet):
 
         # Raise error. Unsure of which kpoint generation to use
         else:
-            raise ValueError("Invalid KPoint Generation algo : Supported Keys are "
-                             "grid_density: for Kpoints.automatic_density generation "
-                             "and length  : for Kpoints.automatic generation")
+            raise ValueError(
+                "Invalid KPoint Generation algo : Supported Keys are "
+                "grid_density: for Kpoints.automatic_density generation "
+                "and length  : for Kpoints.automatic generation")
 
     def __str__(self):
         return self.name
@@ -1390,9 +1398,6 @@ def batch_write_vasp_input(structures, vasp_input_set, output_dir,
         if sanitize:
             s = s.copy(sanitize=True)
         vasp_input_set.write_input(
-            s, dirname, make_dir_if_not_present=make_dir_if_not_present
+            s, dirname, make_dir_if_not_present=make_dir_if_not_present,
+            include_cif=include_cif
         )
-        if include_cif:
-            writer = CifWriter(s)
-            writer.write_file(os.path.join(
-                dirname, "{}_{}.cif".format(formula, i)))

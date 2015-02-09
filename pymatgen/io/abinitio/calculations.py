@@ -21,7 +21,7 @@ __email__ = "gmatteo at gmail.com"
 def bandstructure_work(structure, pseudos, scf_kppa, nscf_nband,
                        ndivsm, accuracy="normal", spin_mode="polarized",
                        smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None,
-                       dos_kppa=None, workdir=None, manager=None, **extra_abivars):
+                       dos_kppa=None, workdir=None, manager=None, work_class=None, **extra_abivars):
     """
     Returns a :class:`Work` for bandstructure calculations.
 
@@ -63,8 +63,9 @@ def bandstructure_work(structure, pseudos, scf_kppa, nscf_nband,
 
         dos_strategy = NscfStrategy(scf_strategy, dos_ksampling, nscf_nband, nscf_solver=None, **extra_abivars)
 
-    return BandStructureWork(scf_strategy, nscf_strategy, dos_inputs=dos_strategy, 
-                             workdir=workdir, manager=manager)
+    if work_class is None: work_class = BandStructureWork
+    return work_class(scf_strategy, nscf_strategy, dos_inputs=dos_strategy, 
+                      workdir=workdir, manager=manager)
 
 
 #def relaxation_work(workdir, manager, structure, pseudos, scf_kppa,
@@ -109,7 +110,7 @@ def bandstructure_work(structure, pseudos, scf_kppa, nscf_nband,
 def g0w0_with_ppmodel_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx,
                            accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
                            ppmodel="godby", charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None,
-                           sigma_nband=None, gw_qprange=1, workdir=None, manager=None, **extra_abivars):
+                           sigma_nband=None, gw_qprange=1, workdir=None, manager=None, work_class=None, **extra_abivars):
     """
     Returns a :class:`Work` object that performs G0W0 calculations for the given the material.
 
@@ -165,13 +166,14 @@ def g0w0_with_ppmodel_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ec
     sigma_strategy = SelfEnergyStrategy(scf_strategy, nscf_strategy, scr_strategy, self_energy,
                                         **extra_abivars)
 
-    return G0W0Work(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager)
+    if work_class is None: work_class = G0W0Work
+    return work_class(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager)
 
 
 def g0w0_extended_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, scf_nband, accuracy="normal",
                        spin_mode="polarized", smearing="fermi_dirac:0.1 eV", response_models=["godby"], charge=0.0,
                        inclvkb=2, scr_nband=None, sigma_nband=None, workdir=None, manager=None, gamma=True, nksmall=20,
-                       **extra_abivars):
+                       work_class=None, **extra_abivars):
     """
     Returns a :class:`Work` object that performs G0W0 calculations for the given the material.
 
@@ -279,8 +281,10 @@ def g0w0_extended_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsi
                 sigma_strategy.append(SelfEnergyStrategy(scf_strategy[-1], nscf_strategy, scr_strategy, self_energy,
                                                          **extra_abivars))
 
-    return G0W0Work(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager,
-                    spread_scr=spread_scr, nksmall=nksmall)
+    if work_class is None: work_class = G0W0Work
+
+    return work_class(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager,
+                      spread_scr=spread_scr, nksmall=nksmall)
 
 
 #def g0w0_with_cd_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, hilbert,
@@ -367,7 +371,7 @@ def bse_with_mdf_work(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf
                       ecuteps, bs_loband, bs_nband, soenergy, mdf_epsinf, 
                       exc_type="TDA", bs_algo="haydock", accuracy="normal", spin_mode="polarized", 
                       smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, workdir=None, manager=None, 
-                      **extra_abivars):
+                      work_class=None, **extra_abivars):
     """
     Returns a :class:`Work` object that performs a GS + NSCF + Bethe-Salpeter calculation.
     The self-energy corrections are approximated with the scissors operator.
@@ -421,4 +425,5 @@ def bse_with_mdf_work(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf
 
     bse_strategy = MdfBse_Strategy(scf_strategy, nscf_strategy, exc_ham, **extra_abivars)
 
-    return BseMdfWork(scf_strategy, nscf_strategy, bse_strategy, workdir=workdir, manager=manager)
+    if work_class is None: work_class = BseMdfWork
+    return work_class(scf_strategy, nscf_strategy, bse_strategy, workdir=workdir, manager=manager)

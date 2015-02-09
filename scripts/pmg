@@ -227,6 +227,9 @@ def convert_fmt(args):
         elif iformat == "CIF":
             r = CifParser(filename)
             structure = r.get_structures()[0]
+        elif iformat == "CONVENTIONAL_CIF":
+            r = CifParser(filename)
+            structure = r.get_structures(primitive=False)[0]
         elif iformat == "CSSR":
             structure = Cssr.from_file(filename).structure
 
@@ -408,25 +411,28 @@ def main():
                                 help="Radius of integration.")
     parser_plotchg.set_defaults(func=plot_chgint)
 
-    parser_convert = subparsers.add_parser("convert",
-                                           help="File format conversion tools."
-                                           )
+    parser_convert = subparsers.add_parser(
+        "convert", help="File format conversion tools.")
     parser_convert.add_argument("input_filename", metavar="input_filename",
                                 type=str, nargs=1, help="Input filename.")
     parser_convert.add_argument("output_filename", metavar="output_filename",
                                 type=str, nargs=1,
                                 help="Output filename (for POSCAR/CIF/CSSR "
                                 "output) / dirname (VASP output)")
-    parser_convert.add_argument("-i", "--input", dest="input_format", type=str,
+    parser_convert.add_argument("-i", "--input", dest="input_format",
+                                type=str.upper,
                                 nargs=1,
-                                choices=["POSCAR", "CIF", "CSSR", "smart"],
+                                choices=["POSCAR", "CIF", "CSSR", "smart",
+                                         "CONVENTIONAL_CIF"],
                                 default=["smart"],
                                 help="Input file format. By default, smart is "
                                 "selected, which guesses the format from the "
                                 "filename. Other formats can be enforced as "
-                                "needed.")
+                                "needed. If CONVENTIONAL_CIF is chosen instead "
+                                "of CIF, no primitive cell reduction is done.")
+
     parser_convert.add_argument("-o", "--output", dest="output_format",
-                                type=str, nargs=1,
+                                type=str.upper, nargs=1,
                                 choices=["POSCAR", "CIF", "CSSR", "VASP",
                                          "MITVASP",
                                          "smart"],
