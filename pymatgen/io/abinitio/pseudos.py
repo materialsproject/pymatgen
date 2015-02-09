@@ -1629,16 +1629,20 @@ class PseudoTable(collections.Sequence):
         Raises:
             ValueError if symbol is not found or multiple occurences are present.
         """
-        pseudos = self.pseudos_with_symbol(symbol)
+        pseudos = self.select_symbols(symbol, ret_list=True)
         if not pseudos or len(pseudos) > 1:
             raise ValueError("Found %d occurrences of symbol %s" % (len(pseudos), symbol))
 
         return pseudos[0]
 
-    def select_symbols(self, symbols):
+    def select_symbols(self, symbols, ret_list=False):
         """
         Return a :class:`PseudoTable` with the pseudopotentials with the given list of chemical symbols.
-        Prepend the symbol string with "-", to exclude pseudos.
+
+        Args:
+            symbols: str or list of symbols
+                Prepend the symbol string with "-", to exclude pseudos.
+            ret_list: if True a list of pseudos is returned instead of a :class:`PseudoTable`
         """
         symbols = list_strings(symbols)
         exclude = symbols[0].startswith("-")
@@ -1659,7 +1663,10 @@ class PseudoTable(collections.Sequence):
 
             pseudos.append(p)
     
-        return self.__class__(pseudos)
+        if ret_table:
+            return self.__class__(pseudos)
+        else:
+            return pseudos
 
     #def list_properties(self, *props, **kw):
     #    """
