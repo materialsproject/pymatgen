@@ -1686,10 +1686,11 @@ class PseudoTable(collections.Sequence):
 
             pseudos.append(p)
     
-        if ret_table:
-            return self.__class__(pseudos)
-        else:
+        if ret_list:
             return pseudos
+        else:
+            return self.__class__(pseudos)
+
 
     #def list_properties(self, *props, **kw):
     #    """
