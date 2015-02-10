@@ -10,7 +10,6 @@ import abc
 import copy
 import yaml
 import six
-#import inspect
 import numpy as np
 
 from pprint import pprint
@@ -2934,12 +2933,23 @@ class ProduceGsr(object):
     Mixin class for an :class:`AbinitTask` producing a GSR file.
     Provide the method `open_gsr` that reads and return a GSR file.
     """
+    @property
+    def gsr_path(self):
+        """Absolute path of the GSR file. Empty string if file is not present."""
+        # Lazy propety to avoid multiple calls to has_abiext.
+        try:
+            return self._gsr_path 
+        except AttributeError:
+            path = self.outdir.has_abiext("GSR")
+            if path: self._gsr_path = path
+            return path
+
     def open_gsr(self):
         """
         Open the GSR file located in the in self.outdir.
         Returns :class:`GsrFile` object, None if file could not be found or file is not readable.
         """
-        gsr_path = self.outdir.has_abiext("GSR")
+        gsr_path = self.gsr_path
         if not gsr_path:
             if self.status == self.S_OK:
                 logger.critical("%s reached S_OK but didn't produce a GSR file in %s" % (self, self.outdir))
@@ -2959,12 +2969,23 @@ class ProduceDdb(object):
     Mixin class for :an class:`AbinitTask` producing a DDB file.
     Provide the method `open_ddb` that reads and return a Ddb file.
     """
+    @property
+    def ddb_path(self):
+        """Absolute path of the DDB file. Empty string if file is not present."""
+        # Lazy propety to avoid multiple calls to has_abiext.
+        try:
+            return self._ddb_path 
+        except AttributeError:
+            path = self.outdir.has_abiext("DDB")
+            if path: self._ddb_path = path
+            return path
+
     def open_ddb(self):
         """
         Open the DDB file located in the in self.outdir.
         Returns :class:`DdbFile` object, None if file could not be found or file is not readable.
         """
-        ddb_path = self.outdir.has_abiext("DDB")
+        ddb_path = self.ddb_path
         if not ddb_path:
             if self.status == self.S_OK:
                 logger.critical("%s reached S_OK but didn't produce a DDB file in %s" % (self, self.outdir))
@@ -3268,13 +3289,24 @@ class SigmaTask(AbinitTask):
 
     #def inspect(self, **kwargs):
     #    """Plot graph showing the number of k-points computed and the wall-time used"""
+    @sigre
+    @property
+    def sigres_path(self):
+        """Absolute path of the SIGRES file. Empty string if file is not present."""
+        # Lazy propety to avoid multiple calls to has_abiext.
+        try:
+            return self._sigres_path 
+        except AttributeError:
+            path = self.outdir.has_abiext("SIGRES")
+            if path: self._sigres_path = path
+            return path
 
     def open_sigres(self):
         """
         Open the SIGRES file located in the in self.outdir. 
         Returns SigresFile object, None if file could not be found or file is not readable.
         """
-        sigres_path = self.outdir.has_abiext("SIGRES")
+        sigres_path = self.sigres_path
 
         if not sigres_path:
             logger.critical("%s didn't produce a SIGRES file in %s" % (self, self.outdir))
@@ -3296,9 +3328,8 @@ class SigmaTask(AbinitTask):
             RuntimeError if SIGRES file is not found
         """
         from abipy.electrons.scissors import ScissorsBuilder
-        sigres_path = self.outdir.has_abiext("SIGRES")
-        if sigres_path:
-            return ScissorsBuilder.from_file(sigres_path)
+        if self.sigres_path:
+            return ScissorsBuilder.from_file(self.sigres_path)
         else:
             raise RuntimeError("Cannot find SIGRES file!")
 
@@ -3392,12 +3423,23 @@ class BseTask(AbinitTask):
     #        if "title" not in kwargs: kwargs["title"] = str(self)
     #        return haydock_cycle.plot(**kwargs)
 
+    @property
+    def mdf_path(self):
+        """Absolute path of the GSR file. Empty string if file is not present."""
+        # Lazy propety to avoid multiple calls to has_abiext.
+        try:
+            return self._mdf_path 
+        except AttributeError:
+            path = self.outdir.has_abiext("MDF.nc")
+            if path: self._mdf_path = path
+            return path
+
     def open_mdf(self):
         """
         Open the MDF file located in the in self.outdir.
         Returns `MdfFile` object, None if file could not be found or file is not readable.
         """
-        mdf_path = self.outdir.has_abiext("MDF.nc")
+        mdf_path = self.mdf_path
         if not mdf_path:
             logger.critical("%s didn't produce a MDF file in %s" % (self, self.outdir))
             return None
