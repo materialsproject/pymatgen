@@ -2936,7 +2936,7 @@ class ProduceGsr(object):
     @property
     def gsr_path(self):
         """Absolute path of the GSR file. Empty string if file is not present."""
-        # Lazy propety to avoid multiple calls to has_abiext.
+        # Lazy property to avoid multiple calls to has_abiext.
         try:
             return self._gsr_path 
         except AttributeError:
@@ -2972,7 +2972,7 @@ class ProduceDdb(object):
     @property
     def ddb_path(self):
         """Absolute path of the DDB file. Empty string if file is not present."""
-        # Lazy propety to avoid multiple calls to has_abiext.
+        # Lazy property to avoid multiple calls to has_abiext.
         try:
             return self._ddb_path 
         except AttributeError:
@@ -3289,11 +3289,11 @@ class SigmaTask(AbinitTask):
 
     #def inspect(self, **kwargs):
     #    """Plot graph showing the number of k-points computed and the wall-time used"""
-    @sigre
+
     @property
     def sigres_path(self):
         """Absolute path of the SIGRES file. Empty string if file is not present."""
-        # Lazy propety to avoid multiple calls to has_abiext.
+        # Lazy property to avoid multiple calls to has_abiext.
         try:
             return self._sigres_path 
         except AttributeError:
@@ -3425,8 +3425,8 @@ class BseTask(AbinitTask):
 
     @property
     def mdf_path(self):
-        """Absolute path of the GSR file. Empty string if file is not present."""
-        # Lazy propety to avoid multiple calls to has_abiext.
+        """Absolute path of the MDF file. Empty string if file is not present."""
+        # Lazy property to avoid multiple calls to has_abiext.
         try:
             return self._mdf_path 
         except AttributeError:
