@@ -77,7 +77,7 @@ MANDATORY = MandatoryVariable()
 DEFAULT = DefaultVariable()
 
 
-class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"), AbivarAble):
+class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"), AbivarAble, PMGSONable):
     """
     Different configurations of the electron density as implemented in abinit:
     One can use as_spinmode to construct the object via SpinMode.as_spinmode
@@ -112,11 +112,13 @@ class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
         d = self._asdict()
         d['@module'] = self.__class__.__module__
         d['@class'] = self.__class__.__name__
-        #TODO check if dict(d) is needed in FW
         return d
 
     @classmethod
     def from_dict(cls, d):
+        d = d.copy()
+        d.pop('@module', None)
+        d.pop('@class', None)
         return cls(**d)
 
 # An handy Multiton
@@ -312,7 +314,7 @@ class Electrons(AbivarAble):
         return abivars
 
 
-class KSampling(AbivarAble):
+class KSampling(AbivarAble, PMGSONable):
     """
     Input variables defining the K-point sampling.
     """
@@ -616,6 +618,7 @@ class KSampling(AbivarAble):
 
     @classmethod
     def from_dict(cls, d):
+        d = d.copy()
         d.pop('@module', None)
         d.pop('@class', None)
         dec = MontyDecoder()
@@ -629,7 +632,7 @@ class Constraints(AbivarAble):
         raise NotImplementedError("")
 
 
-class RelaxationMethod(AbivarAble):
+class RelaxationMethod(AbivarAble, PMGSONable):
     """
     This object stores the variables for the (constrained) structural optimization
     ionmov and optcell specify the type of relaxation.
@@ -735,6 +738,7 @@ class RelaxationMethod(AbivarAble):
 
     @classmethod
     def from_dict(cls, d):
+        d = d.copy()
         d.pop('@module', None)
         d.pop('@class', None)
 
