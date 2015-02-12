@@ -336,8 +336,8 @@ class ScfStrategy(HtcStrategy):
 
         self.set_accuracy(accuracy)
         self._structure = structure
-        if not isinstance(pseudos, collections.Iterable): pseudos = [pseudos]
-        self.pseudos = pseudos
+        if not isinstance(pseudos, PseudoTable): pseudos = PseudoTable(pseudos)
+        self.pseudos = pseudos.pseudos_with_symbols(list(structure.composition.get_el_amt_dict().keys()))
         self.ksampling = ksampling
         self.use_symmetries = use_symmetries
 
@@ -392,8 +392,6 @@ class ScfStrategy(HtcStrategy):
     def from_dict(cls, d):
         dec = MontyDecoder()
         structure = dec.process_decoded(d["structure"])
-        # pseudos = [Pseudo.from_file(p['path']) for p in d['pseudos']]
-        # pseudos = [Pseudo.from_dict(p) for p in d['pseudos']]
         pseudos = dec.process_decoded(d['pseudos'])
         ksampling = dec.process_decoded(d["ksampling"])
         spin_mode = dec.process_decoded(d["spin_mode"])
