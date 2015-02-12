@@ -1658,6 +1658,24 @@ class PseudoTable(collections.Sequence):
 
         return pseudos[0]
 
+    def pseudos_with_symbols(self, symbols):
+        """
+        Return the pseudos with the given chemical symbols.
+
+        Raises:
+            ValueError if one of the symbols is not found or multiple occurences are present.
+        """
+        pseudos = self.select_symbols(symbols)
+        found_symbols = [p.symbol for p in pseudos]
+        duplicated_elements = [s for s, o in collections.Counter(found_symbols).items() if o > 1]
+        if duplicated_elements:
+            raise ValueError("Found multiple occurrences of symbol(s) %s" % ', '.join(duplicated_elements))
+        missing_symbols = [s for s in symbols if s not in found_symbols]
+        if missing_symbols:
+            raise ValueError("Missing data for symbol(s) %s" % ', '.join(missing_symbols))
+        return pseudos
+
+
     def select_symbols(self, symbols, ret_list=False):
         """
         Return a :class:`PseudoTable` with the pseudopotentials with the given list of chemical symbols.
@@ -1912,6 +1930,25 @@ class PseudoTable(collections.Sequence):
             if show: plt.show()
 
         return figs
+
+    @classmethod
+    def from_directory(cls, path):
+        pseudos = []
+        for f in [os.path.join(path, fn) for fn in os.listdir(path)]:
+            if os.path.isfile(f):
+                try:
+                    p = Pseudo.from_file(f)
+                    if p:
+                        pseudos.append(p)
+                    else:
+                        logger.info('Skipping file %s' % f)
+                except:
+                    logger.info('Skipping file %s' % f)
+        if not pseudos:
+            logger.warning('No pseudopotentials parsed from folder %s' % path)
+            return None
+        logger.info('Creating PseudoTable with %i pseudopotentials' % len(pseudos))
+        return cls(pseudos)
 
 # Hack
 try:
