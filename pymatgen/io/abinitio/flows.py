@@ -123,9 +123,9 @@ class Flow(Node):
                 Pickle protocol version used for saving the status of the object.
                 -1 denotes the latest version supported by the python interpreter.
             task_class:
-                The class of the AbinitTask
+                The class of the `Task`.
             work_class:
-                The class of the Work.
+                The class of the `Work`.
         """
         if not isinstance(inputs, (list, tuple)): inputs = [inputs]
 
@@ -568,13 +568,13 @@ class Flow(Node):
         """
         Fixer for critical events originating from abinit
         """
-        for task in self.iflat_tasks(status=Task.S_ABICRITICAL):
+        for task in self.iflat_tasks(status=self.S_ABICRITICAL):
             #todo
             if task.fix_abicritical():
                 task.reset_from_scratch()
                 #task.set_status(task.S_READY)
             else:
-                info_msg = 'We encountered an abi critial event that could not be fixed'
+                info_msg = 'We encountered an abicritial event that could not be fixed'
                 logger.warning(info_msg)
                 task.set_status(status=task.S_ERROR)
 
@@ -587,12 +587,12 @@ class Flow(Node):
         """
         from pymatgen.io.abinitio.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
 
-        for task in self.iflat_tasks(status=Task.S_QCRITICAL):
+        for task in self.iflat_tasks(status=self.S_QCRITICAL):
             logger.info("Will try to fix task %s" % str(task))
 
             if not task.queue_errors:
                 # queue error but no errors detected, try to solve by increasing resources
-                # if resources are at maximum the tast is definitively turned to errored
+                # if resources are at maximum the task is definitively turned to errored
                 if task.manager.increase_resources():  # acts either on the policy or on the qadapter
                     task.reset_from_scratch()
                     return True
@@ -743,6 +743,60 @@ class Flow(Node):
                 lines.append(2*"\n" + 80 * "=" + "\n" + s + 2*"\n")
 
         stream.writelines(lines)
+
+    def select_tasks(self, nids=None, wslice=None):
+        """
+        Return a list with a subset of tasks.
+
+        Args:
+            nids: List of node identifiers.
+            wslice: Slice object used to select works.
+
+        .. note:
+            nids and wslice are mutually exclusive.
+            If no argument is provided, the full list of tasks is returned.
+        """
+        if nids is not None:
+            assert wslice is None
+            tasks = self.tasks_from_nids(nids)
+
+        elif wslice is not None:
+            tasks = []
+            for work in self[wslice]:
+                tasks.extend([t for t in work])
+        else:
+            # All tasks selected if no option is provided.
+            tasks = list(self.iflat_tasks())
+
+        return tasks
+
+    def inspect(self, nids=None, wslice=None, **kwargs):
+        """
+        Inspect the tasks (SCF iterations, Structural relaxation ...) and 
+        produces matplotlib plots.
+
+        Args:
+            nids: List of node identifiers.
+            wslice: Slice object used to select works.
+            kwargs: keyword arguments passed to `task.inspect` method.
+
+        .. note::
+            nids and wslice ae mutually exclusive. 
+            iIf nids and wslice are both None, all tasks in self are inspected.
+
+        Returns: 
+            list of `matplotlib figures.
+        """
+        tasks = self.select_tasks(nids=nids, wslice=wslice)
+
+        figs = []
+        for task in tasks:
+            if hasattr(task, "inspect"):
+                figs.append(task.inspect(**kwargs))
+            else:
+                cprint("Task %s does not provide an inspect method" % task, color="blue")
+
+        return figs
 
     def get_results(self, **kwargs):
         results = self.Results.from_node(self)
@@ -949,7 +1003,6 @@ class Flow(Node):
 
         return stream.writelines(lines)
 
-
     def cancel(self, nids=None):
         """
         Cancel all the tasks that are in the queue.
@@ -994,6 +1047,11 @@ class Flow(Node):
     def rmtree(self, ignore_errors=False, onerror=None):
         """Remove workdir (same API as shutil.rmtree)."""
         shutil.rmtree(self.workdir, ignore_errors=ignore_errors, onerror=onerror)
+
+    def rm_and_build(self):
+        """Remove the workdir and rebuild the flow."""
+        self.rmtree()
+        self.build()
 
     def build(self, *args, **kwargs):
         """Make directories and files of the `Flow`."""
@@ -1088,7 +1146,7 @@ class Flow(Node):
 
     def register_work_from_cbk(self, cbk_name, cbk_data, deps, work_class, manager=None):
         """
-        Registers a callback function that will generate the Task of the `Work`.
+        Registers a callback function that will generate the :class:`Task` of the :class:`Work`.
 
         Args:
             cbk_name: Name of the callback function (must be a bound method of self)
@@ -1255,7 +1313,7 @@ class Flow(Node):
 
     def make_scheduler(self, **kwargs):
         """
-        Build a return a scheduler to run the flow.
+        Build a return a :class:`PyFlowScheduler` to run the flow.
 
         kwargs:
             if empty we use the user configuration file.
@@ -1287,7 +1345,7 @@ class G0W0WithQptdmFlow(Flow):
         """
         Build a `Flow` for one-shot G0W0 calculations.
         The computation of the q-points for the screening is parallelized with qptdm
-        i.e. we run independent calculation for each q-point and then we merge the final results.
+        i.e. we run independent calculations for each q-point and then we merge the final results.
 
         Args:
             workdir: Working directory.
@@ -1349,7 +1407,7 @@ class FlowCallbackError(Exception):
 
 class FlowCallback(object):
     """
-    This object implements the callbacks executeed by the flow when
+    This object implements the callbacks executed by the :class:`flow` when
     particular conditions are fulfilled. See on_dep_ok method of :class:`Flow`.
 
     .. note::
@@ -1391,8 +1449,7 @@ class FlowCallback(object):
         """Execute the callback."""
         if self.can_execute():
             # Get the bound method of the flow from func_name.
-            # We use this trick because pickle (format <=3)
-            # does not support bound methods.
+            # We use this trick because pickle (format <=3) does not support bound methods.
             try:
                 func = getattr(self.flow, self.func_name)
             except AttributeError as exc:
@@ -1435,12 +1492,12 @@ def bandstructure_flow(workdir, scf_input, nscf_input, dos_inputs=None, manager=
         dos_inputs: Input(s) for the NSCF run (dos run).
         manager: :class:`TaskManager` object used to submit the jobs
                  Initialized from manager.yml if manager is None.
-        flow_class: Flow class
+        flow_class: Flow subclass
 
     Returns:
         :class:`Flow` object
     """
-    flow = flow_class(workdir, manager)
+    flow = flow_class(workdir, manager=manager)
     work = BandStructureWork(scf_input, nscf_input, dos_inputs=dos_inputs)
     flow.register_work(work)
 
@@ -1497,7 +1554,6 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
     natom = len(scf_input.structure)
 
     # Create the container that will manage the different works.
-    if manager is None: manager = TaskManager.from_user_config()
     flow = flow_class(workdir, manager=manager)
 
     # Register the first work (GS calculation)

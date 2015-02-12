@@ -12,6 +12,8 @@ allows one to get a list of parallel configuration and their expected efficiency
 """
 from __future__ import print_function, division, unicode_literals
 
+
+import sys
 import os
 import abc
 import string
@@ -239,7 +241,7 @@ class Hardware(object):
 
         - A cpu socket is the connector to these systems and the cpu cores
 
-        = A cpu core is an independent computing with its own computing pipeline, logical units, and memory controller.
+        - A cpu core is an independent computing with its own computing pipeline, logical units, and memory controller.
           Each cpu core will be able to service a number of cpu threads, each having an independent instruction stream 
           but sharing the cores memory controller and other logical units.
     """
@@ -678,12 +680,25 @@ def all_subclasses(cls):
     return subclasses + [g for s in subclasses for g in all_subclasses(s)]
 
 
+def show_qparams(qtype, stream=sys.stdout):
+    """Print to the given stream the template of the :class:`QueueAdapter` of type `qtype`."""
+    for cls in all_subclasses(QueueAdapter):
+        if cls.QTYPE == qtype: return stream.write(cls.QTEMPLATE)
+
+    raise ValueError("Cannot find class associated to qtype %s" % qtype)
+
+
+def all_qtypes():
+    """List of qtype supported."""
+    return [cls.QTYPE for cls in all_subclasses(QueueAdapter)]
+
+
 def make_qadapter(**kwargs):
     """
     Return the concrete :class:`QueueAdapter` class from a string.
     Note that one can register a customized version with:
 
-    .. example:
+    .. example::
 
         from qadapters import SlurmAdapter 
 
@@ -717,7 +732,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     The `QueueAdapter` is responsible for all interactions with a specific queue management system.
     This includes handling all details of queue script format as well as queue submission and management.
 
-    This is the **abstract** base class defining the methods that  must be implemented by the concrete classes.
+    This is the **abstract** base class defining the methods that must be implemented by the concrete classes.
     Concrete classes should extend this class with implementations that work on specific queue systems.
     """
     Error = QueueAdapterError
@@ -727,7 +742,7 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     @classmethod
     def autodoc(cls):
         return """
-# dictionary with infor on the hardware available on this particular queue.
+# dictionary with info on the hardware available on this particular queue.
 hardware:  
     num_nodes:        # Number of nodes available on this queue. Mandatory
     sockets_per_node: # Self-explanatory. Mandatory.
@@ -754,9 +769,9 @@ queue:
 limits:
     min_cores:         # Minimum number of cores (default 1)
     max_cores:         # Maximum number of cores (mandatory)
-    min_mem_per_proc:  # Minimum memory per MPI process in megabytes, units can be specified e.g. 1.4 Gb
+    min_mem_per_proc:  # Minimum memory per MPI process in Mb, units can be specified e.g. 1.4 Gb
                        # (default hardware.mem_per_core)
-    max_mem_per_proc:  # Maximum memory per MPI process in megabytes, units can be specified e.g. `1.4Gb`
+    max_mem_per_proc:  # Maximum memory per MPI process in Mb, units can be specified e.g. `1.4Gb`
                        # (default hardware.mem_per_node)
     condition:         # MongoDB-like condition (default empty, i.e. not used)
 """
@@ -786,7 +801,7 @@ limits:
         .. note::
 
             priority is a non-negative integer used to order the qadapters. The :class:`TaskManager` will
-                try to run jobs on the qadapter with highest priority if possible
+                try to run jobs on the qadapter with the highest priority if possible
         """
         # TODO
         #max_num_attempts:

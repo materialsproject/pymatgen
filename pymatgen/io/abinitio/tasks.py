@@ -1306,9 +1306,9 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     def __eq__(self, other):
         if not isinstance(other, Node): return False
 
-        #return self.node_id == other.node_id and 
-        return (self.__class__ == other.__class__ and 
-                self.workdir == other.workdir)
+        return self.node_id == other.node_id
+        #return (self.__class__ == other.__class__ and 
+        #        self.workdir == other.workdir)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -1318,20 +1318,13 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
     def __repr__(self):
         try:
-            return "<%s, node_id %s, workdir=%s>" % (
+            return "<%s, node_id=%s, workdir=%s>" % (
                 self.__class__.__name__, self.node_id, os.path.relpath(self.workdir))
 
         except AttributeError:
             # this usually happens when workdir has not been initialized
-            return "<%s, node_id %s, workdir=None>" % (self.__class__.__name__, self.node_id)
+            return "<%s, node_id=%s, workdir=None>" % (self.__class__.__name__, self.node_id)
                                                                                             
-    def __str__(self):
-        try:
-            return "<%s, workdir=%s>" % (self.__class__.__name__, os.path.relpath(self.workdir))
-        except AttributeError:
-            # this usually happens when workdir has not been initialized
-            return "<%s, workdir=None>" % self.__class__.__name__
-
     @classmethod
     def as_node(cls, obj):
         """
@@ -1378,7 +1371,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
     @property
     def finalized(self):
-        """True if the `Work` has been finalized."""
+        """True if the `Node` has been finalized."""
         return self._finalized
 
     @finalized.setter
@@ -2312,7 +2305,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         Create symbolic links to the output files produced by the other tasks.
 
-        ..warning:
+        .. warning::
             
             This method should be called only when the calculation is READY because
             it uses a heuristic approach to find the file to link.

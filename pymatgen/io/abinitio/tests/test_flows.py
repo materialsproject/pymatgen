@@ -118,6 +118,9 @@ class FlowTest(FlowUnitTest):
         #print(task0_w0.input_structure)
         print(task0_w0.make_input)
 
+        assert flow.select_tasks(nids=task0_w0.node_id)[0] == task0_w0
+        assert flow.select_tasks(wslice=slice(0,1,1)) == [task0_w0]
+
         # Build a workflow containing two tasks depending on task0_w0
         work = Work()
         atrue(work.is_work)
