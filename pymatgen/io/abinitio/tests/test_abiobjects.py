@@ -43,6 +43,10 @@ class SpinModeTest(PymatgenTest):
         # Test pickle
         self.serialize_with_pickle(polarized)
 
+        # Test dict methods
+        self.assertPMGSONable(polarized)
+        self.assertPMGSONable(unpolarized)
+
 
 class SmearingTest(PymatgenTest):
     def test_base(self):
@@ -65,6 +69,9 @@ class SmearingTest(PymatgenTest):
 
         # Test pickle
         self.serialize_with_pickle(fd1ev)
+
+        # Test dict methods
+        self.assertPMGSONable(fd1ev)
 
 
 class ElectronsAlgorithmTest(PymatgenTest):
@@ -91,10 +98,29 @@ class ElectronsTest(PymatgenTest):
         self.serialize_with_pickle(default_electrons, test_eq=False)
 
 
-#class KSamplingTest(PymatgenTest):
+class KSamplingTest(PymatgenTest):
 
+    def test_base(self):
+        monkhorst = KSampling.monkhorst((3, 3, 3), (0.5, 0.5, 0.5), 0, False, False)
+        gamma_centered = KSampling.gamma_centered((3, 3, 3), False, False)
 
-#class RelaxationTest(PymatgenTest):
+        monkhorst.to_abivars()
+
+        # Test dict methods
+        self.assertPMGSONable(monkhorst)
+        self.assertPMGSONable(gamma_centered)
+
+class RelaxationTest(PymatgenTest):
+
+    def test_base(self):
+        atoms_and_cell = RelaxationMethod.atoms_and_cell()
+        atoms_only = RelaxationMethod.atoms_only()
+
+        atoms_and_cell.to_abivars()
+
+        # Test dict methods
+        self.assertPMGSONable(atoms_and_cell)
+        self.assertPMGSONable(atoms_only)
 
 
 class PPModelTest(PymatgenTest):
@@ -118,6 +144,9 @@ class PPModelTest(PymatgenTest):
 
         # Test pickle
         self.serialize_with_pickle(godby)
+
+        # Test dict methods
+        self.assertPMGSONable(godby)
 
 
 if __name__ == '__main__':
