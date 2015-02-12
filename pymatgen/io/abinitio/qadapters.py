@@ -1804,9 +1804,10 @@ class SGEAdapter(QueueAdapter):
 #$ -l h_vmem=$${mem_per_slot} # request a per slot memory limit of size bytes. 
 #$ -cwd
 #$ -j no
-#$ -m n
 #$ -M $${mail_user}
+#$ -m $${mail_type}
 #$ -S /bin/bash
+# Submission environment
 #$ -cwd                       # Change to current working directory
 #$ -V                         # Export environment variables into script
 #$ -e $${_qerr_path}
