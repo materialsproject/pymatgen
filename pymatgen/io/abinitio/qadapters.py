@@ -1783,38 +1783,57 @@ $${qverbatim}
 
 
 class SGEAdapter(QueueAdapter):
-    """Adapter for Sun Grid Engine (SGE) task submission software."""
+    """
+    Adapter for Sun Grid Engine (SGE) task submission software.
+
+    See also:
+
+        * https://www.wiki.ed.ac.uk/display/EaStCHEMresearchwiki/How+to+write+a+SGE+job+submission+script
+        * http://www.uibk.ac.at/zid/systeme/hpc-systeme/common/tutorials/sge-howto.html
+    """
     QTYPE = "sge"
 
     QTEMPLATE = """\
 #!/bin/bash
 
-#$ -A $${account}
+#$ -account_name $${account_name}
 #$ -N $${job_name}
-#$ -l h rt=$${walltime}
-#$ -pe $${queue} $${ncpus}
+#$ -q $${queue_name}
+#$ -pe $${parallel_environment} $${ncpus}
+#$ -l h_rt=$${walltime}
+#$ -l h_vmem=$${mem_per_slot} # request a per slot memory limit of size bytes. 
 #$ -cwd
-#$ -j y
+#$ -j no
 #$ -m n
+#$ -M $${mail_user}
+#$ -S /bin/bash
+#$ -cwd                       # Change to current working directory
+#$ -V                         # Export environment variables into script
 #$ -e $${_qerr_path}
 #$ -o $${_qout_path}
-#$ -S /bin/bash
 $${qverbatim}
 """
+    def set_qname(self, qname):
+        super(SGEAdapter, self).set_qname(qname)
+        self.qparams["queue_name"] = qname
 
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
         super(SGEAdapter, self).set_mpi_procs(mpi_procs)
         self.qparams["ncpus"] = mpi_procs
 
+    #def set_omp_threads(self, omp_threads):
+    #    super(SGEAdapter, self).set_omp_threads(omp_threads)
+
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
         super(SGEAdapter, self).set_mem_per_proc(mem_mb)
-        # TODO
-        #raise NotImplementedError("")
-        #self.qparams["mem_per_cpu"] = mem_mb
-        ## Remove mem if it's defined.
-        #self.qparams.pop("mem", None)
+        self.qparams["mem_per_slot"] = mem_mb * 1024**2
+
+    def set_timelimit(self, timelimit):
+        super(SGEAdapter, self).set_timelimit(timelimit)
+        # Same convention as pbspro e.g. [hours:minutes:]seconds
+        self.qparams["walltime"] = time2pbspro(timelimit)
 
     def cancel(self, job_id):
         return os.system("qdel %d" % job_id)
@@ -1837,6 +1856,11 @@ $${qverbatim}
 
         return queue_id, process
 
+    def exclude_nodes(self, nodes):
+        """Method to exclude nodes in the calculation"""
+        logger.warning('exluding nodes, not implemented yet in SGE')
+        return False
+
     def _get_njobs_in_queue(self, username):
         process = Popen(['qstat', '-u', username], stdout=PIPE, stderr=PIPE)
         process.wait()
@@ -1852,11 +1876,6 @@ $${qverbatim}
             njobs = len([line.split() for line in outs if username in line])
 
         return njobs, process
-
-    def exclude_nodes(self, nodes):
-        """Method to exclude nodes in the calculation"""
-        logger.warning('exluding nodes, not implemented yet in SGE')
-        return False
 
 
 class MOABAdapter(QueueAdapter):
