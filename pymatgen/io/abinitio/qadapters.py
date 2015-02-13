@@ -670,6 +670,9 @@ class PbsProJob(QueueJob):
         # Exit code and signal are not available.
         self.set_status_exitcode_signal(status, None, None)
 
+class SgeJob(QueueJob):
+	pass
+
 
 def all_subclasses(cls):
     """
@@ -1787,6 +1790,8 @@ class SGEAdapter(QueueAdapter):
     """
     QTYPE = "sge"
 
+    Job = SgeJob
+
     QTEMPLATE = """\
 #!/bin/bash
 
@@ -1795,15 +1800,15 @@ class SGEAdapter(QueueAdapter):
 #$ -q $${queue_name}
 #$ -pe $${parallel_environment} $${ncpus}
 #$ -l h_rt=$${walltime}
-#$ -l h_vmem=$${mem_per_slot} # request a per slot memory limit of size bytes. 
-#$ -cwd
-#$ -j no
+###$ -l h_vmem=$${mem_per_slot} # request a per slot memory limit of size bytes. 
+####$ -l vmem=$${mem_per_slot} # request a per slot memory limit of size bytes. 
+###$ -j no
 #$ -M $${mail_user}
 #$ -m $${mail_type}
-#$ -S /bin/bash
 # Submission environment
-#$ -cwd                       # Change to current working directory
-#$ -V                         # Export environment variables into script
+##$ -S /bin/bash
+###$ -cwd                       # Change to current working directory
+###$ -V                         # Export environment variables into script
 #$ -e $${_qerr_path}
 #$ -o $${_qout_path}
 $${qverbatim}
