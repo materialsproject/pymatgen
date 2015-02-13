@@ -336,8 +336,9 @@ class ScfStrategy(HtcStrategy):
 
         self.set_accuracy(accuracy)
         self._structure = structure
-        self.pseudos = PseudoTable.as_table(pseudos).pseudos_with_symbols(
-            list(structure.composition.get_el_amt_dict().keys()), ret_list=True)
+
+        table = PseudoTable.as_table(pseudos)
+        self.pseudos = table.pseudos_with_symbols(list(structure.composition.get_el_amt_dict().keys()))
 
         self.ksampling = ksampling
         self.use_symmetries = use_symmetries
