@@ -46,6 +46,9 @@ sub_spgrp = partial(re.sub, r"[\s_]", "")
 space_groups = {sub_spgrp(k): k for k in
                 SYMM_DATA['space_group_encoding'].keys()}
 
+space_groups.update({sub_spgrp(k): k for k in
+                SYMM_DATA['space_group_encoding'].keys()})
+
 
 class CifBlock(object):
     
@@ -292,8 +295,8 @@ class CifParser(object):
                     coords.append(coord)
         return coords
 
-    def get_lattice(self, data, length_strings={"a", "b", "c"},
-                    angle_strings={"alpha", "beta", "gamma"}, lattice_type=None):
+    def get_lattice(self, data, length_strings=("a", "b", "c"),
+                    angle_strings=("alpha", "beta", "gamma"), lattice_type=None):
         """
         Generate the lattice from the provided lattice parameters. In
         the absence of all six lattice parameters, the crystal system
@@ -319,14 +322,15 @@ class CifParser(object):
                     lattice_type = data.data.get(lattice_lable).lower()
                     try:
 
-                        required_args = set(getargspec(getattr(Lattice,
+                        required_args = getargspec(getattr(Lattice,
                                                                lattice_type)
-                                                        ).args)
-                        return self.get_lattice(data,
-                                                sorted(length_strings
-                                                       & required_args),
-                                                sorted(angle_strings
-                                                       & required_args),
+                                                        ).args
+
+                        lengths = (l for l in length_strings if l in
+                                                        required_args)
+                        angles = (a for a in angle_strings if a in
+                                                        required_args)
+                        return self.get_lattice(data, lengths, angles,
                                                 lattice_type=lattice_type)
                     except AttributeError as exc:
                         warnings.warn(exc)
