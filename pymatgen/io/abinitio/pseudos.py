@@ -21,6 +21,7 @@ from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property
 from monty.os.path import find_exts
+from monty.dev import deprecated
 from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
 from pymatgen.core.periodic_table import PeriodicTable, Element
 from .eos import EOS
@@ -1512,25 +1513,45 @@ class PseudoTable(collections.Sequence):
         if isinstance(items, cls): return items
         return cls(items)
 
+    @classmethod
     def from_dir(cls, top, exts=None, exclude_dirs="_*"):
         """
         Find all pseudos in the directory tree starting from top.
 
         Args:
             top: Top of the directory tree
-            exts: List of files extensions.
+            exts: List of files extensions. if exts == "all_files"
+                    we try to open all files in top
             exclude_dirs: Wildcard used to exclude directories.
         
         return: :class:`PseudoTable` sorted by atomic number Z.
         """
-        if exts is None: exts=("psp8",)
-
         pseudos = []
-        for p in find_exts(top, exts, exclude_dirs=exclude_dirs):
-            try:
-                pseudos.append(Pseudo.from_file(p))
-            except Exception as exc:
-                logger.critical("Error in %s:\n%s" % (p, exc))
+
+        if exts == "all_files":
+            for f in [os.path.join(path, fn) for fn in os.listdir(top)]:
+                if os.path.isfile(f):
+                    try:
+                        p = Pseudo.from_file(f)
+                        if p:
+                            pseudos.append(p)
+                        else:
+                            logger.info('Skipping file %s' % f)
+                    except:
+                        logger.info('Skipping file %s' % f)
+            if not pseudos:
+                logger.warning('No pseudopotentials parsed from folder %s' % top)
+                return None
+            logger.info('Creating PseudoTable with %i pseudopotentials' % len(pseudos))
+
+        else:
+            if exts is None: exts=("psp8",)
+
+            for p in find_exts(top, exts, exclude_dirs=exclude_dirs):
+                try:
+                    pseudos.append(Pseudo.from_file(p))
+                except Exception as exc:
+                    logger.critical("Error in %s:\n%s" % (p, exc))
 
         return cls(pseudos).sort_by_z()
 
@@ -1665,7 +1686,7 @@ class PseudoTable(collections.Sequence):
         Raises:
             ValueError if one of the symbols is not found or multiple occurences are present.
         """
-        pseudos = self.select_symbols(symbols)
+        pseudos = self.select_symbols(symbols, ret_list=True)
         found_symbols = [p.symbol for p in pseudos]
         duplicated_elements = [s for s, o in collections.Counter(found_symbols).items() if o > 1]
         if duplicated_elements:
@@ -1932,6 +1953,7 @@ class PseudoTable(collections.Sequence):
         return figs
 
     @classmethod
+    @deprecated(replacement=from_dir)
     def from_directory(cls, path):
         pseudos = []
         for f in [os.path.join(path, fn) for fn in os.listdir(path)]:
