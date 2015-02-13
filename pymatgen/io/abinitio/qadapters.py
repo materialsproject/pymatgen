@@ -689,7 +689,7 @@ def show_qparams(qtype, stream=sys.stdout):
 
 
 def all_qtypes():
-    """List of qtype supported."""
+    """List of all qtypes supported."""
     return [cls.QTYPE for cls in all_subclasses(QueueAdapter)]
 
 
@@ -745,8 +745,8 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 # dictionary with info on the hardware available on this particular queue.
 hardware:  
     num_nodes:        # Number of nodes available on this queue. Mandatory
-    sockets_per_node: # Self-explanatory. Mandatory.
-    cores_per_socket: # Self-explanatory. Mandatory.
+    sockets_per_node: # Mandatory.
+    cores_per_socket: # Mandatory.
 
 # dictionary with the options used to prepare the enviroment before submitting the job
 job:
@@ -933,12 +933,6 @@ limits:
     def has_mpi(self):
         """True if we are using MPI"""
         return bool(self.mpi_runner)
-
-    #@property
-    #@deprecated(message="use has_mpi")
-    #def has_mpirun(self):
-    #    """True if we are using a mpirunner"""
-    #    return bool(self.mpi_runner)
 
     @property
     def has_omp(self):
