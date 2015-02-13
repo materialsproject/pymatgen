@@ -223,7 +223,7 @@ class Poscar(PMGSONable):
         Returns:
             Poscar object.
         """
-        #"^\s*$" doesn't match lines with no whitespace
+        # "^\s*$" doesn't match lines with no whitespace
         chunks = re.split("\n\s*\n", data.rstrip(), flags=re.MULTILINE)
         try:
             if chunks[0] == "":
@@ -285,16 +285,16 @@ class Poscar(PMGSONable):
         if not vasp5_symbols:
             ind = 3 if not sdynamics else 6
             try:
-                #check if names are appended at the end of the coordinates.
+                # Check if names are appended at the end of the coordinates.
                 atomic_symbols = [l.split()[ind]
                                   for l in lines[ipos + 1:ipos + 1 + nsites]]
-                #Ensure symbols are valid elements
+                # Ensure symbols are valid elements
                 if not all([Element.is_valid_symbol(sym)
                             for sym in atomic_symbols]):
                     raise ValueError("Non-valid symbols detected.")
                 vasp5_symbols = True
             except (ValueError, IndexError):
-                #Defaulting to false names.
+                # Defaulting to false names.
                 atomic_symbols = []
                 for i in range(len(natoms)):
                     sym = Element.from_Z(i + 1).symbol
@@ -308,14 +308,17 @@ class Poscar(PMGSONable):
         selective_dynamics = list() if sdynamics else None
         for i in range(nsites):
             toks = lines[ipos + 1 + i].split()
-            coords.append([float(j) for j in toks[:3]])
+            crd_scale = scale if cart else 1
+            coords.append([float(j) * crd_scale for j in toks[:3]])
             if sdynamics:
                 selective_dynamics.append([tok.upper()[0] == "T"
                                            for tok in toks[3:6]])
 
-        struct = Structure(lattice, atomic_symbols, coords, False, False, cart)
+        struct = Structure(lattice, atomic_symbols, coords,
+                           to_unit_cell=False, validate_proximity=False,
+                           coords_are_cartesian=cart)
 
-        #parse velocities if any
+        # Parse velocities if any
         velocities = []
         if len(chunks) > 1:
             for line in chunks[1].strip().split("\n"):
