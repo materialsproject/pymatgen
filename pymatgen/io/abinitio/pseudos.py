@@ -117,7 +117,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
     @staticmethod
     def from_file(filename):
         """
-        Return a Pseudo object from filename.
+        Return a :class:`Pseudo` object from filename.
         Note: the parser knows the concrete class that should be instanciated
         """
         return PseudoParser().parse(filename)

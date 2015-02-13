@@ -632,8 +632,8 @@ class TaskPolicy(object):
         self.condition = Condition(kwargs.pop("condition", {}))
         self.vars_condition = Condition(kwargs.pop("vars_condition", {}))
         self.precedence = kwargs.pop("precedence", "autoparal_conf")
-        #self.autoparal_priorities = kwargs.pop("autoparal_priorities", ["speedup", "efficiecy", "memory"]
         self.autoparal_priorities = kwargs.pop("autoparal_priorities", ["speedup"])
+        #self.autoparal_priorities = kwargs.pop("autoparal_priorities", ["speedup", "efficiecy", "memory"]
 
         if kwargs:
             raise ValueError("Found invalid keywords in policy section:\n %s" % str(kwargs.keys()))
@@ -646,8 +646,7 @@ class TaskPolicy(object):
         lines = []
         app = lines.append
         for k, v in self.__dict__.items():
-            if k.startswith("_"):
-                continue
+            if k.startswith("_"): continue
             app("%s: %s" % (k, v))
         return "\n".join(lines)
 
@@ -671,16 +670,23 @@ class TaskManager(object):
         from .db import DBConnector
         s = """
 # TaskManager configuration file (YAML Format)
-# Main options:
 
 policy: 
+    autoparal: 0 to disable the autoparal feature (default 1 i.e. autoparal is on)
+    condition: condition used to filter the autoparal configurations (Mongodb-like syntax). 
+               Default: empty 
+    vars_condition: condition used to filter the list of ABINIT variables reported autoparal (
+                    Mongodb-like syntax). Default: empty
+    precedence:
+    autoparal_priorities:
 
 qadapters:  
     # List of qadapters objects (mandatory)
     -  # qadapter_1
     -  # qadapter_2
 
-db_connector: # Connection to MongoDB database (optional)
+db_connector: 
+    # Connection to MongoDB database (optional)
 
 ##########################################
 # Individual entries are documented below:

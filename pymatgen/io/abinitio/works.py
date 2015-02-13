@@ -64,7 +64,7 @@ class WorkResults(NodeResults):
         # Will put all files found in outdir in GridFs 
         # Warning: assuming binary files.
         d = {os.path.basename(f): f for f in work.outdir.list_filepaths()}
-        new.add_gridfs_files(**d)
+        new.register_gridfs_files(**d)
 
         return new
 
@@ -1174,7 +1174,7 @@ class PhononWork(Work):
         out_ddb = self.merge_ddb_files()
 
         results = self.Results(node=self, returncode=0, message="DDB merge done")
-        results.add_gridfs_files(DDB=(out_ddb, "t"))
+        results.register_gridfs_files(DDB=(out_ddb, "t"))
 
         # TODO
         # Call anaddb to compute the phonon frequencies for this q-point and
