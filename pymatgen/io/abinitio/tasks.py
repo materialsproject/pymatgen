@@ -2914,19 +2914,115 @@ class AbinitTask(Task):
     def fix_abicritical(self):
         """
         method to fix crashes/error caused by abinit
+
         currently:
             try to rerun with more resources, last resort if all else fails
         ideas:
             upon repetative no converging iscf > 2 / 12
+
+        Returns:
+            1 if task has been fixed else 0.
         """
         # the crude, no idea what to do but this may work, solution.
+        # MG: FIXME this should not be done here!
         if self.manager.increase_resources():
             self.reset_from_scratch()
-            return True
+            return 1
         else:
-            self.set_status(self.S_ERROR, info_msg='could not increase resources any further')
-            return False
+            info_msg = 'We encountered an AbiCritical event that could not be fixed'
+            logger.warning(info_msg)
+            self.set_status(status=self.S_ERROR, info_msg=info_msg)
+            return 0
 
+    def fix_queue_critical(self):
+        """
+        This function tries to fix critical events originating from the queue submission system.
+
+        General strategy, first try to increase resources in order to fix the problem,
+        if this is not possible, call a task specific method to attempt to decrease the demands.
+
+        Returns:
+            1 if task has been fixed else 0.
+        """
+        from pymatgen.io.abinitio.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
+        if not self.queue_errors:
+            # queue error but no errors detected, try to solve by increasing resources
+            # if resources are at maximum the task is definitively turned to errored
+            if self.manager.increase_resources():  # acts either on the policy or on the qadapter
+                self.reset_from_scratch()
+                return 1 
+            else:
+                self.set_status(self.S_ERROR, info_msg='unknown queue error, could not increase resources any further')
+
+        else:
+            for error in self.queue_errors:
+                logger.info('fixing : %s' % str(error))
+
+                if isinstance(error, NodeFailureError):
+                    # if the problematic node is know exclude it
+                    if error.nodes is not None:
+                        self.manager.qadapter.exclude_nodes(error.nodes)
+                        self.reset_from_scratch()
+                        self.set_status(self.S_READY, info_msg='increased resources')
+                        return 1
+                    else:
+                        self.set_status(self.S_ERROR, info_msg='Node error but no node identified.')
+
+                elif isinstance(error, MemoryCancelError):
+                    # ask the qadapter to provide more resources, i.e. more cpu's so more total memory
+                    if self.manager.increase_resources():
+                        self.reset_from_scratch()
+                        self.set_status(self.S_READY, info_msg='increased mem')
+                        return 1
+
+                    # if the max is reached, try to increase the memory per cpu:
+                    elif self.manager.qadapter.increase_mem():
+                        self.reset_from_scratch()
+                        self.set_status(self.S_READY, info_msg='increased mem')
+                        return 1
+
+                    # if this failed ask the self to provide a method to reduce the memory demand
+                    elif self.reduce_memory_demand():
+                        self.reset_from_scratch()
+                        self.set_status(self.S_READY, info_msg='decreased mem demand')
+                        return 1
+
+                    else:
+                        info_msg = 'Memory error detected but the memory could not be increased neigther could the ' \
+                                   'memory demand be decreased. Unrecoverable error.'
+                        return self.set_status(self.S_ERROR, info_msg)
+
+                elif isinstance(error, TimeCancelError):
+                    # ask the qadapter to provide more memory
+                    if self.manager.qadapter.increase_time():
+                        self.reset_from_scratch()
+                        self.set_status(self.S_READY, info_msg='increased wall time')
+                        return 1
+
+                    # if this fails ask the qadapter to increase the number of cpus
+                    elif self.manager.increase_resources():
+                        self.reset_from_scratch()
+                        self.set_status(self.S_READY, info_msg='increased number of cpus')
+                        return 1
+
+                    # if this failed ask the task to provide a method to speed up the task
+                    # MG TODO: Remove this
+                    elif self.speed_up():
+                        self.reset_from_scratch()
+                        self.set_status(self.S_READY, info_msg='task speedup')
+                        return 1
+
+                    else:
+                        info_msg = 'Time cancel error detected but the time could not be increased neigther could ' \
+                                   'the time demand be decreased by speedup of increasing the number of cpus. ' \
+                                   'Unrecoverable error.'
+                        self.set_status(self.S_ERROR, info_msg)
+                else:
+                    info_msg = 'No solution provided for error %s. Unrecoverable error.' % error.name
+                    logger.debug(info_msg)
+                    self.set_status(self.S_ERROR, info_msg)
+
+        return 0
 
 # TODO
 # Enable restarting capabilites:
