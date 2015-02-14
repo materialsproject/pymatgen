@@ -724,7 +724,6 @@ db_connector:
         except Exception as exc:
             print("Error while reading TaskManager parameters from file %s\n" % filename)
             raise 
-            #raise RuntimeError(msg + str(exc))
 
     @classmethod
     def from_string(cls, s):
@@ -989,7 +988,7 @@ db_connector:
             return process
         except self.qadapter.MaxNumLaunchesError:
             # TODO: Here we should try to switch to another qadapter
-            # 1) Find a new parallel configuration
+            # 1) Find a new parallel configuration in those stores in task.pconfs
             # 2) Change the input file.
             # 3) Regenerate the submission script
             # 4) Relaunch
@@ -1050,7 +1049,7 @@ atexit.register(save_lastnode_id)
 
 class FakeProcess(object):
     """
-    This object is attached to a Task instance if the task has not been submitted
+    This object is attached to a :class:`Task` instance if the task has not been submitted
     This trick allows us to simulate a process that is still running so that 
     we can safely poll task.process.
     """
@@ -1316,10 +1315,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
     def __eq__(self, other):
         if not isinstance(other, Node): return False
-
         return self.node_id == other.node_id
-        #return (self.__class__ == other.__class__ and 
-        #        self.workdir == other.workdir)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -1466,7 +1462,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         """
         if not isinstance(deps, (list, tuple)):
             deps = [deps]
-                                                                                      
+
         assert all(isinstance(d, Dependency) for d in deps)
 
         self._deps = [d for d in self._deps if d not in deps]
@@ -1578,7 +1574,7 @@ class FileNode(Node):
     """
     A Node that consists of a file. May be not yet existing
 
-    Mainly used to connect `Tasks` to external files produced in previous runs
+    Mainly used to connect :class:`Task` objects to external files produced in previous runs.
     """
     def __init__(self, filename):
         super(FileNode, self).__init__()
@@ -1711,7 +1707,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.qout_file = File(os.path.join(self.workdir, "queue.qout"))
 
     def set_manager(self, manager):
-        """Set the `TaskManager` to use to launch the Task."""
+        """Set the :class:`TaskManager` to use to launch the Task."""
         self.manager = manager.deepcopy()
 
         # TODO
@@ -1726,11 +1722,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
     @property
     def work(self):
-        """The Work containing this `Task`."""
+        """The :class:`Work` containing this `Task`."""
         return self._work
 
     def set_work(self, work):
-        """Set the Work associated to this `Task`."""
+        """Set the :class:`Work` associated to this `Task`."""
         if not hasattr(self, "_work"):
             self._work = work
         else: 

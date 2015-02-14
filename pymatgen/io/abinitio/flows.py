@@ -558,33 +558,38 @@ class Flow(Node):
         """The status of the :class:`Flow` i.e. the minimum of the status of its tasks and its works"""
         return min(work.get_all_status(only_min=True) for work in self)
 
-    def fix_critical(self):
-        self.fix_queue_critical()
-        self.fix_abi_critical()
 
     def fix_abi_critical(self):
         """
-        Fixer for critical events originating from abinit
+        This function tries to fix critical events originating from ABINIT.
+        Returns the number of tasks that have been fixed.
         """
+        count = 0
         for task in self.iflat_tasks(status=self.S_ABICRITICAL):
             #todo
             if task.fix_abicritical():
                 task.reset_from_scratch()
                 #task.set_status(task.S_READY)
+                count += 1
             else:
-                info_msg = 'We encountered an abicritial event that could not be fixed'
+                info_msg = 'We encountered an AbiCritcal event that could not be fixed'
                 logger.warning(info_msg)
-                task.set_status(status=task.S_ERROR)
+                task.set_status(status=task.S_ERROR, info_msg=info_msg)
+
+        return count
 
     def fix_queue_critical(self):
         """
-        Fixer for errors originating from the scheduler.
+        This function tries to fix critical events originating from the queue submission system.
 
         General strategy, first try to increase resources in order to fix the problem,
         if this is not possible, call a task specific method to attempt to decrease the demands.
+
+        Returns the number of tasks that have been fixed.
         """
         from pymatgen.io.abinitio.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
 
+        count = 0
         for task in self.iflat_tasks(status=self.S_QCRITICAL):
             logger.info("Will try to fix task %s" % str(task))
 
@@ -593,62 +598,79 @@ class Flow(Node):
                 # if resources are at maximum the task is definitively turned to errored
                 if task.manager.increase_resources():  # acts either on the policy or on the qadapter
                     task.reset_from_scratch()
-                    return True
+                    count += 1
                 else:
-                    info_msg = 'unknown queue error, could not increase resources any further'
-                    task.set_status(task.S_ERROR, info_msg)
-                    return False
+                    task.set_status(task.S_ERROR, info_msg='unknown queue error, could not increase resources any further')
+
             else:
                 for error in task.queue_errors:
                     logger.info('fixing : %s' % str(error))
+
                     if isinstance(error, NodeFailureError):
                         # if the problematic node is know exclude it
                         if error.nodes is not None:
                             task.manager.qadapter.exclude_nodes(error.nodes)
                             task.reset_from_scratch()
-                            return task.set_status(task.S_READY, info_msg='increased resources')
+                            task.set_status(task.S_READY, info_msg='increased resources')
+                            count += 1
                         else:
-                            info_msg = 'Node error detected but no was node identified. Unrecoverable error.'
-                            return task.set_status(task.S_ERROR, info_msg)
+                            task.set_status(task.S_ERROR, info_msg='Node error but no node identified.')
+
                     elif isinstance(error, MemoryCancelError):
                         # ask the qadapter to provide more resources, i.e. more cpu's so more total memory
                         if task.manager.increase_resources():
                             task.reset_from_scratch()
-                            return task.set_status(task.S_READY, info_msg='increased mem')
+                            task.set_status(task.S_READY, info_msg='increased mem')
+                            count += 1
+
                         # if the max is reached, try to increase the memory per cpu:
                         elif task.manager.qadapter.increase_mem():
                             task.reset_from_scratch()
-                            return task.set_status(task.S_READY, info_msg='increased mem')
+                            task.set_status(task.S_READY, info_msg='increased mem')
+                            count += 1
+
                         # if this failed ask the task to provide a method to reduce the memory demand
                         elif task.reduce_memory_demand():
                             task.reset_from_scratch()
-                            return task.set_status(task.S_READY, info_msg='decreased mem demand')
+                            task.set_status(task.S_READY, info_msg='decreased mem demand')
+                            count += 1
+
                         else:
                             info_msg = 'Memory error detected but the memory could not be increased neigther could the ' \
                                        'memory demand be decreased. Unrecoverable error.'
                             return task.set_status(task.S_ERROR, info_msg)
+
                     elif isinstance(error, TimeCancelError):
                         # ask the qadapter to provide more memory
                         if task.manager.qadapter.increase_time():
                             task.reset_from_scratch()
-                            return task.set_status(task.S_READY, info_msg='increased wall time')
+                            task.set_status(task.S_READY, info_msg='increased wall time')
+                            count += 1
+
                         # if this fails ask the qadapter to increase the number of cpus
                         elif task.manager.increase_resources():
                             task.reset_from_scratch()
-                            return task.set_status(task.S_READY, info_msg='increased number of cpus')
+                            task.set_status(task.S_READY, info_msg='increased number of cpus')
+                            count +=1
+
                         # if this failed ask the task to provide a method to speed up the task
+                        # MG TODO: Remove this
                         elif task.speed_up():
                             task.reset_from_scratch()
-                            return task.set_status(task.S_READY, info_msg='task speedup')
+                            task.set_status(task.S_READY, info_msg='task speedup')
+                            count += 1
+
                         else:
                             info_msg = 'Time cancel error detected but the time could not be increased neigther could ' \
                                        'the time demand be decreased by speedup of increasing the number of cpus. ' \
                                        'Unrecoverable error.'
-                            return task.set_status(task.S_ERROR, info_msg)
+                            task.set_status(task.S_ERROR, info_msg)
                     else:
                         info_msg = 'No solution provided for error %s. Unrecoverable error.' % error.name
                         logger.debug(info_msg)
                         return task.set_status(task.S_ERROR, info_msg)
+
+        return count
 
     def show_status(self, **kwargs):
         """
@@ -657,10 +679,16 @@ class Flow(Node):
         Args:
             stream: File-like object, Default: sys.stdout
             nids:  List of node identifiers. By defaults all nodes are shown
+            wslice: Slice object used to select works.
             verbose: Verbosity level (default 0). > 0 if to show only the works that are not finalized.
         """
         stream = kwargs.pop("stream", sys.stdout)
         nids = as_set(kwargs.pop("nids", None))
+        wslice = kwargs.pop("wslice", None)
+        wlist = None
+        if wslice is not None:
+            # Convert range to list of work indices.
+            wlist = list(range(wslice.start, wslice.step, wslice.stop))
         verbose = kwargs.pop("verbose", 0)
 
         #colours = stream_has_colours(stream)
@@ -671,6 +699,7 @@ class Flow(Node):
             print("", file=stream)
             cprint_map("Work #%d: %s, Finalized=%s\n" % (i, work, work.finalized), cmap={"True": "green"}, file=stream)
             if verbose == 0 and work.finalized: continue
+            if wlist is not None and i in wlist: continue
 
             table = PrettyTable(["Task", "Status", "Queue", "MPI|Omp|Memproc[Gb]", 
                                  "Err|Warn|Comm", "Class", "Restart|Launches", "Node_ID"])
