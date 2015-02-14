@@ -277,18 +277,13 @@ class SparseHistogram(object):
         self.values = [hist[pos] for pos in self.binvals]
         self.start, self.stop, self.num = start, stop, num
 
-    from pymatgen.util.plotting_utils import add_fig_kwargs
+    from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
     @add_fig_kwargs
     def plot(self, ax=None, **kwargs):
         """
         Plot the histogram with matplotlib, returns `matplotlib figure
         """
-        import matplotlib.pyplot as plt
-        if ax is None:
-            fig = plt.figure()
-            ax = fig.add_subplot(1,1,1)
-        else:
-            fig = plt.gcf()
+        ax, fig, plt = get_ax_fig_plt(ax)
 
         yy = [len(v) for v in self.values]
         ax.plot(self.binvals, yy, **kwargs)
@@ -619,14 +614,21 @@ class TaskPolicy(object):
             else:
                 raise TypeError("Don't know how to convert type %s to %s" % (type(obj), cls))
 
+    @classmethod
+    def autodoc(cls):
+        return """
+    autoparal: 0 to disable the autoparal feature (default 1 i.e. autoparal is on)
+    condition: condition used to filter the autoparal configurations (Mongodb-like syntax). 
+               Default: empty 
+    vars_condition: condition used to filter the list of ABINIT variables reported autoparal 
+                    (Mongodb-like syntax). Default: empty
+    precedence:
+    autoparal_priorities:
+"""
+
     def __init__(self, **kwargs):
         """
-        Args:
-            autoparal: Value of ABINIT autoparal input variable. 0 to disable the autoparal feature (default)
-            condition: condition used to filter the autoparal configuration (Mongodb-like syntax)
-            vars_condition: condition used to filter the list of Abinit variables suggested by autoparal (Mongodb-like syntax)
-            precedence:
-            autoparal_priorities:
+        See autodoc
         """
         self.autoparal = kwargs.pop("autoparal", 1)
         self.condition = Condition(kwargs.pop("condition", {}))
@@ -672,13 +674,7 @@ class TaskManager(object):
 # TaskManager configuration file (YAML Format)
 
 policy: 
-    autoparal: 0 to disable the autoparal feature (default 1 i.e. autoparal is on)
-    condition: condition used to filter the autoparal configurations (Mongodb-like syntax). 
-               Default: empty 
-    vars_condition: condition used to filter the list of ABINIT variables reported autoparal (
-                    Mongodb-like syntax). Default: empty
-    precedence:
-    autoparal_priorities:
+    # Dictionary with options used to control the execution of the tasks.
 
 qadapters:  
     # List of qadapters objects (mandatory)
@@ -693,6 +689,7 @@ db_connector:
 ##########################################
 
 """
+        s += "policy: " + TaskPolicy.autodoc() + "\n"
         s += "qadapter: " + QueueAdapter.autodoc() + "\n"
         s += "db_connector: " + DBConnector.autodoc()
         return s
