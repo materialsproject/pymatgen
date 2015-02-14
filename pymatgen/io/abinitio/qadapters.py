@@ -671,7 +671,7 @@ class PbsProJob(QueueJob):
         self.set_status_exitcode_signal(status, None, None)
 
 class SgeJob(QueueJob):
-	pass
+    """Not supported"""
 
 
 def all_subclasses(cls):
@@ -727,7 +727,10 @@ def make_qadapter(**kwargs):
 
 
 class QueueAdapterError(Exception):
-    """Error class for exceptions raise by QueueAdapter."""
+    """Base Error class for exceptions raise by QueueAdapter."""
+
+class MaxNumLaunchesError(QueueAdapterError):
+    """Raised by `submit_to_queue` if we try to submit more than `max_num_launches` times."""
 
 
 class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
@@ -739,6 +742,8 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     Concrete classes should extend this class with implementations that work on specific queue systems.
     """
     Error = QueueAdapterError
+
+    MaxNumLaunchesError = MaxNumLaunchesError
 
     Job = QueueJob
 
@@ -791,7 +796,7 @@ limits:
             pre_run: String or list of commands to execute before launching the calculation.
             post_run: String or list of commands to execute once the calculation is completed.
             mpi_runner: Path to the MPI runner or :class:`MpiRunner` instance. None if not used
-            max_num_attempts: Default to 10
+            max_num_launches: Maximum number of submissions that can be done. Defaults to 5
             qverbatim:
             min_cores, max_cores: Minimum and maximum number of cores that can be used
             min_mem_per_proc=Minimun memory per process in megabytes.
@@ -807,7 +812,6 @@ limits:
                 try to run jobs on the qadapter with the highest priority if possible
         """
         # TODO
-        #max_num_attempts:
         #task_classes
 
         # Make defensive copies so that we can change the values at runtime.
@@ -826,7 +830,7 @@ limits:
 
         # List of dictionaries with the parameters used to submit jobs
         # The launcher will use this information to increase the resources
-        self.attempts, self.max_num_attempts = [], kwargs.pop("max_num_attempts", 10)
+        self.launches, self.max_num_launches = [], kwargs.pop("max_num_launches", 5)
 
         # Initialize some values from the info reported in the partition.
         self.set_mpi_procs(self.min_cores)
@@ -979,27 +983,27 @@ limits:
         """Deep copy of the object."""
         return copy.deepcopy(self)
 
-    def record_attempt(self, queue_id): # retcode):
+    def record_launch(self, queue_id): # retcode):
         """Save submission"""
-        self.attempts.append(
+        self.launches.append(
             AttrDict(queue_id=queue_id, mpi_procs=self.mpi_procs, omp_threads=self.omp_threads,
                      mem_per_proc=self.mem_per_proc, timelimit=self.timelimit))
-        return len(self.attempts)
+        return len(self.launches)
 
-    def remove_attempt(self, index):
-        """Remove attempt with the given index."""
-        self.attempts.pop(index)
-
-    @property
-    def num_attempts(self):
-        """Number of submission tried so far."""
-        return len(self.attempts)
+    def remove_launch(self, index):
+        """Remove launch with the given index."""
+        self.launches.pop(index)
 
     @property
-    def last_attempt(self):
-        """Return the last attempt."""
-        if len(self.attempts) > 0:
-            return self.attempts[-1]
+    def num_launches(self):
+        """Number of submission tried with this adapter so far."""
+        return len(self.launches)
+
+    @property
+    def last_launch(self):
+        """Return the last launch."""
+        if len(self.launches) > 0:
+            return self.launches[-1]
         else:
             return None
 
@@ -1276,17 +1280,18 @@ limits:
         Public API: wraps the concrete implementation _submit_to_queue
 
         Raises:
-            `QueueAdapterError` if we have already tried to submit the job max_num_attempts
+            `self.MaxNumLaunchesError` if we have already tried to submit the job max_num_launches
+            `self.Error` if generic error
         """
         if not os.path.exists(script_file):
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
 
-        if self.num_attempts == self.max_num_attempts:
-            raise self.Error("num_attempts %s == max_num_attempts %s" % (self.num_attempts, self.max_num_attempts))
+        if self.num_launches == self.max_num_launches:
+            raise self.MaxNumLaunchesError("num_launches %s == max_num_launches %s" % (self.num_launches, self.max_num_launches))
 
         # Call the concrete implementation.
         queue_id, process = self._submit_to_queue(script_file)
-        self.record_attempt(queue_id)
+        self.record_launch(queue_id)
 
         if queue_id is None:
             submit_err_file = script_file + ".err"
@@ -1800,8 +1805,9 @@ class SGEAdapter(QueueAdapter):
 #$ -q $${queue_name}
 #$ -pe $${parallel_environment} $${ncpus}
 #$ -l h_rt=$${walltime}
-###$ -l h_vmem=$${mem_per_slot} # request a per slot memory limit of size bytes. 
-####$ -l vmem=$${mem_per_slot} # request a per slot memory limit of size bytes. 
+# request a per slot memory limit of size bytes. 
+##$ -l h_vmem=$${mem_per_slot}  
+##$ -l mf=$${mem_per_slot}  
 ###$ -j no
 #$ -M $${mail_user}
 #$ -m $${mail_type}
@@ -1822,13 +1828,14 @@ $${qverbatim}
         super(SGEAdapter, self).set_mpi_procs(mpi_procs)
         self.qparams["ncpus"] = mpi_procs
 
-    #def set_omp_threads(self, omp_threads):
-    #    super(SGEAdapter, self).set_omp_threads(omp_threads)
+    def set_omp_threads(self, omp_threads):
+        super(SGEAdapter, self).set_omp_threads(omp_threads)
+        logger.warning("Cannot use omp_threads with SGE")
 
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
         super(SGEAdapter, self).set_mem_per_proc(mem_mb)
-        self.qparams["mem_per_slot"] = mem_mb * 1024**2
+        self.qparams["mem_per_slot"] = str(int(mem_mb)) + "M"
 
     def set_timelimit(self, timelimit):
         super(SGEAdapter, self).set_timelimit(timelimit)

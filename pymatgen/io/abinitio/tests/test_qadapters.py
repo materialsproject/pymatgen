@@ -74,7 +74,7 @@ hardware:
             giga = 1024
 
             # Test the programmatic interface used to change job parameters.
-            aequal(qad.num_attempts, 0)
+            aequal(qad.num_launches, 0)
             afalse(qad.has_omp)
             atrue(qad.has_mpi)
             qad.set_mpi_procs(2)
@@ -188,7 +188,7 @@ hardware:
 
         assert qad.QTYPE == "shell" and qad.has_mpi and not qad.has_omp
         assert (qad.mpi_procs, qad.omp_threads) == (1, 1)
-        assert qad.priority == 1 and qad.num_attempts == 0 and qad.last_attempt is None
+        assert qad.priority == 1 and qad.num_launches == 0 and qad.last_launch is None
 
         qad.set_omp_threads(1)
         assert qad.has_omp
@@ -251,7 +251,7 @@ hardware:
         assert qad.QTYPE == "slurm" 
         assert qad.has_mpi and not qad.has_omp
         assert (qad.mpi_procs, qad.omp_threads) == (3, 1)
-        assert qad.priority == 5 and qad.num_attempts == 0 and qad.last_attempt is None
+        assert qad.priority == 5 and qad.num_launches == 0 and qad.last_launch is None
 
         qad.set_mpi_procs(4)
 
@@ -321,7 +321,7 @@ hardware:
 
         assert qad.QTYPE == "pbspro" and qad.has_mpi and not qad.has_omp
         assert (qad.mpi_procs, qad.omp_threads) == (3, 1)
-        assert qad.priority == 1 and qad.num_attempts == 0 and qad.last_attempt is None
+        assert qad.priority == 1 and qad.num_launches == 0 and qad.last_launch is None
 
         #qad.set_mpi_procs(4)
         s = qad.get_script_str("job_name", "/launch_dir", "executable", "qout_path", "qerr_path",
