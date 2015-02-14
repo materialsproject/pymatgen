@@ -981,14 +981,22 @@ db_connector:
         # Build the task 
         task.build()
 
-        # Submit the task and save the queue id.
-        task.set_status(task.S_SUB)
+        # Write the submission script
         script_file = self.write_jobfile(task)
+        task.set_status(task.S_SUB)
 
-        qjob, process = self.qadapter.submit_to_queue(script_file)
-        task.set_qjob(qjob)
-
-        return process
+        # Submit the task and save the queue id.
+        try:
+            qjob, process = self.qadapter.submit_to_queue(script_file)
+            task.set_qjob(qjob)
+            return process
+        except self.qadapter.MaxNumLaunchesError:
+            # TODO: Here we should try to switch to another qadapter
+            # 1) Find a new parallel configuration
+            # 2) Change the input file.
+            # 3) Regenerate the submission script
+            # 4) Relaunch
+            raise
 
     def get_collection(self, **kwargs):
         """Return the MongoDB collection used to store the results."""
@@ -1749,6 +1757,14 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def pos_str(self):
         """String representation of self.pos"""
         return "w" + str(self.pos[0]) + "_t" + str(self.pos[1])
+
+    @property
+    def num_launches(self):
+        """
+        Number of launches performed. This number includes both possible ABINIT restarts
+        as well as possible launches done due to errors encountered with the resource manager
+        or the hardware/software."""
+        return sum(q.num_launches for q in self.manager.qads)
 
     def get_inpvar(self, varname):
         """Return the value of the ABINIT variable varname, None if not present.""" 
@@ -3035,10 +3051,16 @@ class ScfTask(AbinitTask, ProduceGsr):
         Returns
             `matplotlib` figure, None if some error occurred.
         """
-        scf_cycle = abiinspect.GroundStateScfCycle.from_file(self.output_file.path)
+        try:
+            scf_cycle = abiinspect.GroundStateScfCycle.from_file(self.output_file.path)
+        except IOError:
+            return None
+
         if scf_cycle is not None:
             if "title" not in kwargs: kwargs["title"] = str(self)
             return scf_cycle.plot(**kwargs)
+
+        return None
 
     def get_results(self, **kwargs):
         results = super(ScfTask, self).get_results(**kwargs)

@@ -542,10 +542,8 @@ class Flow(Node):
         """
         Check the status of the works in self.
         Args:
-            show:
-                True to show the status of the flow.
-            kwargs:
-                kwyword arguments passed to show_status
+            show: True to show the status of the flow.
+            kwargs: kwyword arguments passed to show_status
         """
         for work in self:
             work.check_status()
@@ -657,12 +655,9 @@ class Flow(Node):
         Report the status of the works and the status  of the different tasks on the specified stream.
 
         Args:
-            stream:
-                File-like object, Default: sys.stdout
-            nids: 
-                List of node identifiers. By defaults all nodes are shown
-            verbose:
-                Verbosity level (default 0). > 0 if to show only the works that are not finalized.
+            stream: File-like object, Default: sys.stdout
+            nids:  List of node identifiers. By defaults all nodes are shown
+            verbose: Verbosity level (default 0). > 0 if to show only the works that are not finalized.
         """
         stream = kwargs.pop("stream", sys.stdout)
         nids = as_set(kwargs.pop("nids", None))
@@ -677,7 +672,8 @@ class Flow(Node):
             cprint_map("Work #%d: %s, Finalized=%s\n" % (i, work, work.finalized), cmap={"True": "green"}, file=stream)
             if verbose == 0 and work.finalized: continue
 
-            table = PrettyTable(["Task", "Status", "Queue", "MPI|OMP|Memproc[Gb]", "Err|Warn|Comm", "Class", "Restart", "Node_ID"])
+            table = PrettyTable(["Task", "Status", "Queue", "MPI|Omp|Memproc[Gb]", 
+                                 "Err|Warn|Comm", "Class", "Restart|Launches", "Node_ID"])
 
             tot_num_errors = 0
             for task in work:
@@ -692,7 +688,7 @@ class Flow(Node):
                     events = "|".join(map(str, [report.num_errors, report.num_warnings, report.num_comments]))
 
                 para_info = "|".join(map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
-                task_info = list(map(str, [task.__class__.__name__, task.num_restarts, task.node_id]))
+                task_info = list(map(str, [task.__class__.__name__, (task.num_restarts, task.num_launches), task.node_id]))
                 qinfo = "None"
                 if task.queue_id is not None:
                     qinfo = str(task.queue_id) + "@" + str(task.qname)
@@ -715,7 +711,7 @@ class Flow(Node):
         if self.all_ok:
             print("all_ok reached", file=stream)
 
-    def show_inputs(self, nids=None, stream=sys.stdout):
+    def show_inputs(self, nids=None, wslice=None, stream=sys.stdout):
         """
         Print the input of the tasks to the given stream.
 
@@ -724,23 +720,19 @@ class Flow(Node):
                 File-like object, Default: sys.stdout
             nids: 
                 List of node identifiers. By defaults all nodes are shown
+            wslice: Slice object used to select works.
         """
-        if nids is not None and not isinstance(nids, collections.Iterable): 
-            nids = [nids]
-
         lines = []
-        for work in self:
-            for task in work:
-                if nids is not None and task.node_id not in nids: continue
-                s = task.make_input(with_header=True)
+        for task in self.select_tasks(nids=nids, wslice=wslice):
+            s = task.make_input(with_header=True)
 
-                # Add info on dependencies.
-                if task.deps:
-                    s += "\n\nDependencies:\n" + "\n".join(str(dep) for dep in task.deps)
-                else:
-                    s += "\n\nDependencies: None"
+            # Add info on dependencies.
+            if task.deps:
+                s += "\n\nDependencies:\n" + "\n".join(str(dep) for dep in task.deps)
+            else:
+                s += "\n\nDependencies: None"
 
-                lines.append(2*"\n" + 80 * "=" + "\n" + s + 2*"\n")
+            lines.append(2*"\n" + 80 * "=" + "\n" + s + 2*"\n")
 
         stream.writelines(lines)
 
@@ -787,12 +779,14 @@ class Flow(Node):
         Returns: 
             list of `matplotlib figures.
         """
-        tasks = self.select_tasks(nids=nids, wslice=wslice)
-
         figs = []
-        for task in tasks:
+        for task in self.select_tasks(nids=nids, wslice=wslice):
             if hasattr(task, "inspect"):
-                figs.append(task.inspect(**kwargs))
+                fig = task.inspect(**kwargs)
+                if fig is None: 
+                    cprint("Cannot inspect Task %s" % task, color="blue")
+                else:
+                    figs.append(fig)
             else:
                 cprint("Task %s does not provide an inspect method" % task, color="blue")
 
