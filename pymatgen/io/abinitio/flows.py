@@ -744,7 +744,8 @@ class Flow(Node):
             nids: List of node identifiers.
             wslice: Slice object used to select works.
 
-        .. note:
+        .. note::
+
             nids and wslice are mutually exclusive.
             If no argument is provided, the full list of tasks is returned.
         """
@@ -773,6 +774,7 @@ class Flow(Node):
             kwargs: keyword arguments passed to `task.inspect` method.
 
         .. note::
+
             nids and wslice ae mutually exclusive. 
             iIf nids and wslice are both None, all tasks in self are inspected.
 
@@ -878,6 +880,7 @@ class Flow(Node):
         Return the list of tasks associated to the given list of node identifiers (nids).
 
         .. note::
+
             Invalid ids are ignored
         """
         if not isinstance(nids, collections.Iterable): nids = [nids]

@@ -1004,7 +1004,7 @@ class QptdmWork(Work):
         # Now we can register the task for the different q-points
         for qpoint in qpoints:
             qptdm_input = scr_input.deepcopy()
-            qptdm_input.set_variables(nqptdm=1, qptdm=qpoint)
+            qptdm_input.set_vars(nqptdm=1, qptdm=qpoint)
             new_task = self.register_scr_task(qptdm_input, manager=self.manager)
             #new_task.set_cleanup_exts()
 
