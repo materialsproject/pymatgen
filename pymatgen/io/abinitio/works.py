@@ -776,8 +776,6 @@ class BandStructureWork(Work):
         return plotter.plot(**kwargs)
 
 
-
-
 class RelaxWork(Work):
     """
     Work for structural relaxations. The first task relaxes the atomic position
@@ -822,6 +820,7 @@ class RelaxWork(Work):
 
             # Transfer it to the ioncell task (we do it only once).
             self.ioncell_task.change_structure(ion_structure)
+            self.ioncell_task.build()
             self.transfer_done = True
 
             # Unlock ioncell_task so that we can submit it.

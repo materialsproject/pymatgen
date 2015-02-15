@@ -1265,7 +1265,6 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     implemented by the nodes of the calculation.
 
     Nodes are hashable and can be tested for equality
-    (hash uses the node identifier, whereas eq uses workdir).
     """
     Results = NodeResults
 
@@ -1821,7 +1820,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def can_run(self):
         """The task can run if its status is < S_SUB and all the other dependencies (if any) are done!"""
         all_ok = all([stat == self.S_OK for stat in self.deps_status])
-        #print("can_run: all_ok ==  ",all_ok)
         return self.status < self.S_SUB and all_ok
 
     def not_converged(self):
@@ -3059,12 +3057,47 @@ class ProduceGsr(object):
                 logger.critical("%s reached S_OK but didn't produce a GSR file in %s" % (self, self.outdir))
             return None
 
-        # Open the GSR file and add its data to results.out
+        # Open the GSR file.
         from abipy.electrons.gsr import GsrFile
         try:
             return GsrFile(gsr_path)
         except Exception as exc:
             logger.critical("Exception while reading GSR file at %s:\n%s" % (gsr_path, str(exc)))
+            return None
+
+
+class ProduceHist(object):
+    """
+    Mixin class for an :class:`AbinitTask` producing a HIST file.
+    Provide the method `open_hist` that reads and return a HIST file.
+    """
+    @property
+    def hist_path(self):
+        """Absolute path of the HIST file. Empty string if file is not present."""
+        # Lazy property to avoid multiple calls to has_abiext.
+        try:
+            return self._hist_path 
+        except AttributeError:
+            path = self.outdir.has_abiext("HIST")
+            if path: self._hist_path = path
+            return path
+
+    def open_hist(self):
+        """
+        Open the HIST file located in the in self.outdir.
+        Returns :class:`HistFile` object, None if file could not be found or file is not readable.
+        """
+        if not self.hist_path:
+            if self.status == self.S_OK:
+                logger.critical("%s reached S_OK but didn't produce a HIST file in %s" % (self, self.outdir))
+            return None
+
+        # Open the HIST file
+        from abipy.dynamics.hist import HistFile
+        try:
+            return HistFile(self.hist_path)
+        except Exception as exc:
+            logger.critical("Exception while reading HIST file at %s:\n%s" % (self.hist_path, str(exc)))
             return None
 
 
@@ -3095,7 +3128,7 @@ class ProduceDdb(object):
                 logger.critical("%s reached S_OK but didn't produce a DDB file in %s" % (self, self.outdir))
             return None
 
-        # Open the GSR file and add its data to results.out
+        # Open the GSR file.
         from abipy.dfpt.ddb import DdbFile
         try:
             return DdbFile(ddb_path)
@@ -3201,7 +3234,7 @@ class NscfTask(AbinitTask, ProduceGsr):
         return results
 
 
-class RelaxTask(AbinitTask, ProduceGsr):
+class RelaxTask(AbinitTask, ProduceGsr, ProduceHist):
     """
     Task for structural optimizations.
     """
@@ -3265,8 +3298,9 @@ class RelaxTask(AbinitTask, ProduceGsr):
         Plot the evolution of the structural relaxation with matplotlib.
 
         Returns
-            `matplotlib` figure, None is some error occurred. 
+            `matplotlib` figure, None if some error occurred. 
         """
+        # TODO: Replace output file with HIST file.
         relaxation = abiinspect.Relaxation.from_file(self.output_file.path)
         if relaxation is not None:
             if "title" not in kwargs: kwargs["title"] = str(self)
