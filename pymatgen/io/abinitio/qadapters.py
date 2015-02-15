@@ -12,7 +12,6 @@ allows one to get a list of parallel configuration and their expected efficiency
 """
 from __future__ import print_function, division, unicode_literals
 
-
 import sys
 import os
 import abc
@@ -234,7 +233,7 @@ class Hardware(object):
     """
     This object collects information on the hardware available in a given queue.
 
-    Basic definition::
+    Basic definitions:
 
         - A node refers to the physical box, i.e. cpu sockets with north/south switches connecting memory systems
           and extension cards, e.g. disks, nics, and accelerators
@@ -1370,7 +1369,7 @@ limits:
     def more_mem_per_proc(self, factor=1):
         """
         Method to increase the amount of memory asked for, by factor.
-        Return: True if success.
+        Return: new memory if success, 0 if memory cannot be increased.
         """
         base_increase = 2000
         old_mem = self.mem_per_proc
@@ -1378,25 +1377,25 @@ limits:
 
         if new_mem < self.hw.mem_per_node:
             self.set_mem_per_proc(new_mem)
-            return True
+            return new_mem
 
         logger.warning('could not increase mem_per_proc further')
-        return False
+        return 0
 
     def more_mpi_procs(self, factor=1):
         """
         Method to increase the number of MPI procs.
-        Return: True if success.
+        Return: new number of processors if success, 0 if processors cannot be increased.
         """
         base_increase = 12
         new_cpus = self.mpi_procs + factor * base_increase
 
         if new_cpus * self.omp_threads < self.max_cores:
             self.set_mpi_procs(new_cpus)
-            return True
+            return new_cpus
 
         logger.warning('more_mpi_procs reached the limit')
-        return False
+        return 0
 
 
 ####################
