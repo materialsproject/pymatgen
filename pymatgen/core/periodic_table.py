@@ -1184,12 +1184,17 @@ def get_el_sp(obj):
     if isinstance(obj, (Element, Specie, DummySpecie)):
         return obj
 
-    obj = str(obj)
+    def is_integer(s):
+        try:
+            c = float(s)
+            return int(c) == c
+        except (ValueError, TypeError):
+            return False
 
-    try:
-        z = int(obj)
-        return Element.from_Z(z)
-    except ValueError:
+    if is_integer(obj):
+        return Element.from_Z(int(float(obj)))
+    else:
+        obj = str(obj)
         try:
             return Specie.from_string(obj)
         except (ValueError, KeyError):
@@ -1199,5 +1204,5 @@ def get_el_sp(obj):
                 try:
                     return DummySpecie.from_string(obj)
                 except:
-                    raise ValueError("Can't parse Element or String from %s."
-                                     % obj)
+                    raise ValueError("Can't parse Element or String from type %s: %s."
+                                     % (type(obj), obj))

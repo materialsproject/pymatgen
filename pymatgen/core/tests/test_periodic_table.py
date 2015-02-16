@@ -298,6 +298,7 @@ class FuncTest(unittest.TestCase):
     def test_get_el_sp(self):
         self.assertEqual(get_el_sp("Fe2+"), Specie("Fe", 2))
         self.assertEqual(get_el_sp("3"), Element("Li"))
+        self.assertEqual(get_el_sp("3.0"), Element("Li"))
         self.assertEqual(get_el_sp("U"), Element("U"))
         self.assertEqual(get_el_sp("X2+"), DummySpecie("X", 2))
         self.assertEqual(get_el_sp("Mn3+"), Specie("Mn", 3))
