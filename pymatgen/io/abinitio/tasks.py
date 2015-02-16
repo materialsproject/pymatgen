@@ -3297,14 +3297,31 @@ class RelaxTask(AbinitTask, ProduceGsr, ProduceHist):
         """
         Plot the evolution of the structural relaxation with matplotlib.
 
+        Args:
+            what: Either "hist" or "scf". The first option (default) extracts data
+                from the HIST file and plot the evolution of the structural 
+                paramenters, forces, pressures and energies.
+                The second option, extract data from the main output file and
+                plot the evolution of the SCF cycles (etotal, residuals, etc).
+
         Returns
             `matplotlib` figure, None if some error occurred. 
         """
-        # TODO: Replace output file with HIST file.
-        relaxation = abiinspect.Relaxation.from_file(self.output_file.path)
-        if relaxation is not None:
+        what = kwargs.pop("what", "hist")
+
+        if what == "hist":
+            # Read the hist file to get access to the structure.
+            with self.open_hist() as hist:
+                return hist.plot() if hist else None
+
+        elif what == "scf":
+            # Get info on the different SCF cycles 
+            relaxation = abiinspect.Relaxation.from_file(self.output_file.path)
             if "title" not in kwargs: kwargs["title"] = str(self)
-            return relaxation.plot(**kwargs)
+            return relaxation.plot(**kwargs) if relaxation is not None else None
+
+        else:
+            raise ValueError("Wrong value for what %s" % what)
 
     def get_results(self, **kwargs):
         results = super(RelaxTask, self).get_results(**kwargs)
