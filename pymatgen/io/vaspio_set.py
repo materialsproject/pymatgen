@@ -31,7 +31,6 @@ import numpy as np
 
 from monty.serialization import loadfn
 
-from pymatgen.io.cifio import CifWriter
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vaspio.vasp_output import Vasprun, Outcar
 from pymatgen.serializers.json_coders import PMGSONable
@@ -210,7 +209,6 @@ class DictVaspInputSet(AbstractVaspInputSet):
         reduce_structure (None/str): Before generating the input files,
             generate the reduced structure. Default (None), does not
             alter the structure. Valid values: None, "niggli", "LLL"
-
     """
 
     def __init__(self, name, config_dict, hubbard_off=False,
