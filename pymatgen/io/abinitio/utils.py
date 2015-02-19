@@ -119,6 +119,10 @@ class File(object):
         except:
             pass
 
+    def get_stat(self):
+        """Results from os.stat"""
+        return os.stat(self.path)
+
 
 class Directory(object):
     """

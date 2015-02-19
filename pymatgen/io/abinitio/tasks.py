@@ -29,7 +29,7 @@ from pymatgen.util.num_utils import maxloc
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump, pmg_serialize
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition, SparseHistogram
 from .strategies import StrategyWithInput, OpticInput
-from .qadapters import make_qadapter, QueueAdapter
+from .qadapters import make_qadapter, QueueAdapter, slurm_parse_timestr
 from .db import DBConnector
 from . import abiinspect
 from . import events
@@ -565,6 +565,9 @@ class TaskPolicy(object):
                Default: empty 
     vars_condition: condition used to filter the list of ABINIT variables reported autoparal 
                     (Mongodb-like syntax). Default: empty
+    frozen_timeout: A job is considered to be frozen and its status is set to Error if no change to 
+                    the output file has been done for frozen_timeout seconds. Accepts int with seconds or 
+                    string in slurm form i.e. days-hours:minutes:seconds. Default: 1 hour.
     precedence:
     autoparal_priorities:
 """
@@ -579,6 +582,7 @@ class TaskPolicy(object):
         self.precedence = kwargs.pop("precedence", "autoparal_conf")
         self.autoparal_priorities = kwargs.pop("autoparal_priorities", ["speedup"])
         #self.autoparal_priorities = kwargs.pop("autoparal_priorities", ["speedup", "efficiecy", "memory"]
+        self.frozen_timeout = slurm_parse_timestr(kwargs.pop("frozen_timeout", "0-1"))
 
         if kwargs:
             raise ValueError("Found invalid keywords in policy section:\n %s" % str(kwargs.keys()))
@@ -2187,6 +2191,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # but we should actually never land here, or we have delays in the file system ....
         # print('the job still seems to be running maybe it is hanging without producing output... ')
 
+        # Check time of last modification.
+        if (time.time() - self.output_file.get_stat().st_mtime > self.frozen_timeout):
+            info_msg = "Task seems to be frozen, last modif more than %s [s] ago" % self.timeout)
+            return self.set_status(self.S_ERROR, info_msg)
+
         return self.set_status(self.S_RUN)
 
     def reduce_memory_demand(self):
@@ -2845,11 +2854,6 @@ class AbinitTask(Task):
         """
         method to fix crashes/error caused by abinit
 
-        currently:
-            try to rerun with more resources, last resort if all else fails
-        ideas:
-            upon repetative no converging iscf > 2 / 12
-
         Returns:
             1 if task has been fixed else 0.
         """
@@ -2858,18 +2862,19 @@ class AbinitTask(Task):
         for event in report:
             try:
                 d = event.correct(self)
-                if d is not None:  count += 1
+                if d is not None: count += 1
 
             except Exception as exc:
                 logger.critical(str(exc))
 
         if count:
             self.reset_from_scratch()
-        else:
-            info_msg = 'We encountered AbiCritical events that could not be fixed'
-            logger.warning(info_msg)
-            self.set_status(status=self.S_ERROR, info_msg=info_msg)
-            return 0
+            return 1
+
+        info_msg = 'We encountered AbiCritical events that could not be fixed'
+        logger.warning(info_msg)
+        self.set_status(status=self.S_ERROR, info_msg=info_msg)
+        return 0
 
     def fix_queue_critical(self):
         """
