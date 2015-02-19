@@ -2193,7 +2193,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         # Check time of last modification.
         if (time.time() - self.output_file.get_stat().st_mtime > self.frozen_timeout):
-            info_msg = "Task seems to be frozen, last modif more than %s [s] ago" % self.timeout)
+            info_msg = "Task seems to be frozen, last modif more than %s [s] ago" % self.timeout
             return self.set_status(self.S_ERROR, info_msg)
 
         return self.set_status(self.S_RUN)
@@ -2303,8 +2303,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.make_links()
         self.setup()
 
-    # TODO: For the time being, we inspect the log file,
-    # We will start to use the output file when the migration to YAML is completed
     def get_event_report(self, source="log"):
         """
         Analyzes the main output file for possible Errors or Warnings.
@@ -2315,6 +2313,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         Returns:
             :class:`EventReport` instance or None if the main output file does not exist.
         """
+        # TODO: For the time being, we inspect the log file,
+        # We will start to use the output file when the migration to YAML is completed
         ofile = {
             "output": self.output_file,
             "log": self.log_file}[source]
@@ -2322,9 +2322,20 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         if not ofile.exists:
             return None
 
+        # Don't parse source file if we already have its report and the source didn't change.
+        if not hasattr(self, "_prev_reports"): self._prev_reports = {}
+
+        old_report = self._prev_reports.get(source, None)
+        if old_report is not None and old_report.stat.st_mtime == ofile.get_stat().st_mtime:
+            #print("Returning old_report")
+            return old_report
+
         parser = events.EventsParser()
         try:
-            return parser.parse(ofile.path)
+            report = parser.parse(ofile.path)
+            self._prev_reports[source] = report
+            return report
+
         except parser.Error as exc:
             # Return a report with an error entry with info on the exception.
             logger.critical("%s: Exception while parsing ABINIT events:\n %s" % (ofile, str(exc)))

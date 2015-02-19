@@ -12,7 +12,7 @@ import yaml
 from monty.fnmatch import WildCard
 from pymatgen.serializers.json_coders import PMGSONable, pmg_serialize
 from .abiinspect import YamlTokenizer
-from .netcdf 
+
 
 __all__ = [
     "EventsParser",
@@ -25,7 +25,7 @@ def straceback():
     return traceback.format_exc()
 
 
-class AbinitEvent(yaml.YAMLObject, PMGSONable):
+class AbinitEvent(yaml.YAMLObject): #, PMGSONable):
     """
     Example (YAML syntax)::
 
@@ -128,7 +128,7 @@ class AbinitEvent(yaml.YAMLObject, PMGSONable):
         task.corrections.append(dict(
             event=self.as_dict(), 
             action=str(action),
-        )
+        ))
 
     def correct(self, task):
         """
@@ -239,15 +239,24 @@ _BASE_CLASSES = [
 
 
 class EventReport(collections.Iterable):
-    """Iterable storing the events raised by an ABINIT calculation."""
+    """
+    Iterable storing the events raised by an ABINIT calculation.
 
+    Attributes::
+
+        stat: information about a file as returned by os.stat
+    """
     def __init__(self, filename, events=None):
         """
+        List of ABINIT events.
+
         Args:
             filename: Name of the file
             events: List of Event objects
         """
         self.filename = os.path.abspath(filename)
+        self.stat = os.stat(self.filename)
+
         self._events = []
         self._events_by_baseclass = collections.defaultdict(list)
 
@@ -370,7 +379,6 @@ class EventsParser(object):
         w = WildCard("*Error|*Warning|*Comment|*Bug|*ERROR|*WARNING|*COMMENT|*BUG")
 
         with YamlTokenizer(filename) as tokens:
-
             for doc in tokens:
                 #print(80*"*")
                 #print("doc.tag", doc.tag)
