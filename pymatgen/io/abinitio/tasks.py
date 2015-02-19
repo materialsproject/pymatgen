@@ -2833,7 +2833,7 @@ class AbinitTask(Task):
         """
         # remove all 'error', else the job will be seen as crashed in the next check status
         # even if the job did not run
-        print('reset_from_scatch', self)
+        # print('reset_from_scatch', self)
         self.output_file.remove()
         self.log_file.remove()
         self.stderr_file.remove()
@@ -2855,10 +2855,13 @@ class AbinitTask(Task):
         """
         count = 0
         report = self.get_event_report()
-        for events in report:
-            d = events.correct(self)
-            if d is not None: 
-                count += 1
+        for event in report:
+            try:
+                d = event.correct(self)
+                if d is not None:  count += 1
+
+            except Exception as exc:
+                logger.critical(str(exc))
 
         if count:
             self.reset_from_scratch()
