@@ -2143,19 +2143,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             if self.stderr_file.exists and not err_info:
                 if self.qerr_file.exists and not err_msg:
                     # there is output and no errors
-                    # Check if the run completed successfully.
-                    #if report.run_completed:
-                    #    # Check if the calculation converged.
-                    #    not_ok = self.not_converged()
-                    #    if not_ok:
-                    #        return self.set_status(self.S_UNCONVERGED)
-                    #        # The job finished but did not converge
-                    #    else:
-                    #        return self.set_status(self.S_OK)
-                    #        # The job finished properly
-
-                    return self.set_status(self.S_RUN)
                     # The job still seems to be running
+                    return self.set_status(self.S_RUN)
 
         # 6)
         if not self.output_file.exists:
@@ -2864,13 +2853,17 @@ class AbinitTask(Task):
         Returns:
             1 if task has been fixed else 0.
         """
-        # the crude, no idea what to do but this may work, solution.
-        # MG: FIXME this should not be done here!
-        if self.manager.increase_resources():
+        count = 0
+        report = self.get_event_report()
+        for events in report:
+            d = events.correct(self)
+            if d is not None: 
+                count += 1
+
+        if count:
             self.reset_from_scratch()
-            return 1
         else:
-            info_msg = 'We encountered an AbiCritical event that could not be fixed'
+            info_msg = 'We encountered AbiCritical events that could not be fixed'
             logger.warning(info_msg)
             self.set_status(status=self.S_ERROR, info_msg=info_msg)
             return 0

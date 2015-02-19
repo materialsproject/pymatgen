@@ -669,7 +669,6 @@ class PyFlowScheduler(object):
     def shutdown(self, msg):
         """Shutdown the scheduler."""
         try:
-
             self.cleanup()
 
             self.history.append("Completed on %s" % time.asctime())

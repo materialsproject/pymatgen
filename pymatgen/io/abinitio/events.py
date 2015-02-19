@@ -111,14 +111,20 @@ class AbinitEvent(yaml.YAMLObject):
 
         raise ValueError("Cannot determine the base class of %s" % self.__class__.__name__)
 
-    def action(self):
+    def correct(self, task):
         """
-        Returns a dictionary whose values that can be used to decide
-        which actions should be performed e.g the SCF data at the last
-        iteration can be used to decide whether the calculations should
-        be restarted or not.
+        This method is called at the end of a :class:`Task` when an error is detected.
+        It should perform any corrective measures relating to the detected error.
+        The idea is similar to the one used in custodian but the handler receives 
+        a :class:`Task` object so that we have access to its methods.
+
+        Returns:
+        (dict) JSON serializable dict that describes the errors and actions taken. E.g.
+        {"errors": list_of_errors, "actions": list_of_actions_taken}.
+        If this is an unfixable error, actions should be set to None.
         """
-        return {}
+        fixed = True
+        return {} if fixed else None
 
 
 class AbinitComment(AbinitEvent):
