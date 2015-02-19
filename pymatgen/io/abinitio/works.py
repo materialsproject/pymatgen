@@ -17,9 +17,9 @@ from six.moves import filter
 from monty.collections import AttrDict
 from monty.itertools import chunks
 from monty.functools import lazy_property
+from monty.fnmatch import WildCard
 from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
-from pymatgen.util.string_utils import WildCard
 from . import wrappers
 from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, PhononTask, DdkTask, 
                     BseTask, RelaxTask, DdeTask, ScrTask, SigmaTask)

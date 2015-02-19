@@ -1972,7 +1972,6 @@ class PseudoTable(collections.Sequence):
         logger.info('Creating PseudoTable with %i pseudopotentials' % len(pseudos))
         return cls(pseudos)
 
-# Hack
 try:
     import pandas as pd
 except ImportError:
@@ -2125,21 +2124,21 @@ class DojoDataFrame(pd.DataFrame):
 
         return fig
 
-    def sns_plot(self):
-        import seaborn as sns
-        import matplotlib.pyplot as plt
-        #self.plot(x="symbol", y="high_dfact_meV", use_index=True)
-        #data = calc_rerrors(data)
-        g = sns.PairGrid(self, x_vars="Z", y_vars=[
-            "low_ecut",
-            "low_dfact_meV",
-            #"high_dfact_meV", 
-            #"low_v0_rerr", "low_b0_GPa_rerr", "low_b1_rerr",
-            ]
-        ) #, hue="smoker")
-        g.map(plt.scatter)
-        g.add_legend()
-        plt.show()
+    #def sns_plot(self):
+    #    import seaborn as sns
+    #    import matplotlib.pyplot as plt
+    #    #self.plot(x="symbol", y="high_dfact_meV", use_index=True)
+    #    #data = calc_rerrors(data)
+    #    g = sns.PairGrid(self, x_vars="Z", y_vars=[
+    #        "low_ecut",
+    #        "low_dfact_meV",
+    #        #"high_dfact_meV", 
+    #        #"low_v0_rerr", "low_b0_GPa_rerr", "low_b1_rerr",
+    #        ]
+    #    ) #, hue="smoker")
+    #    g.map(plt.scatter)
+    #    g.add_legend()
+    #    plt.show()
 
 
 class DojoReport(dict):
