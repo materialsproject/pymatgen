@@ -9,7 +9,7 @@ import os.path
 import collections
 import yaml
 
-from pymatgen.util.string_utils import WildCard
+from monty.fnmatch import WildCard
 from .abiinspect import YamlTokenizer
 
 __all__ = [

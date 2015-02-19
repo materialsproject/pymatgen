@@ -23,11 +23,11 @@ from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property, return_none_if_raise
 from monty.json import MontyDecoder
+from monty.fnmatch import WildCard
 from pymatgen.core.units import  Memory #Time,
-from pymatgen.util.string_utils import WildCard
 from pymatgen.util.num_utils import maxloc
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump, pmg_serialize
-from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
+from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition, SparseHistogram
 from .strategies import StrategyWithInput, OpticInput
 from .qadapters import make_qadapter, QueueAdapter
 from .db import DBConnector
@@ -246,63 +246,6 @@ class TaskResults(NodeResults):
         )
 
         return new
-
-
-class SparseHistogram(object):
-
-    def __init__(self, items, key=None, num=None, step=None):
-        if num is None and step is None:
-            raise ValueError("Either num or step must be specified")
-
-        from collections import defaultdict, OrderedDict
-
-        values = [key(item) for item in items] if key is not None else items
-        start, stop = min(values), max(values)
-        if num is None:
-            num = int((stop - start) / step)
-            if num == 0: num = 1
-        mesh = np.linspace(start, stop, num, endpoint=False)
-
-        from monty.bisect import find_le
-
-        hist = defaultdict(list)
-        for item, value in zip(items, values):
-            # Find rightmost value less than or equal to x.
-            # hence each bin contains all items whose value is >= value
-            pos = find_le(mesh, value)
-            hist[mesh[pos]].append(item)
-
-        #new = OrderedDict([(pos, hist[pos]) for pos in sorted(hist.keys(), reverse=reverse)])
-        self.binvals = sorted(hist.keys())
-        self.values = [hist[pos] for pos in self.binvals]
-        self.start, self.stop, self.num = start, stop, num
-
-    from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
-    @add_fig_kwargs
-    def plot(self, ax=None, **kwargs):
-        """
-        Plot the histogram with matplotlib, returns `matplotlib figure
-        """
-        ax, fig, plt = get_ax_fig_plt(ax)
-
-        yy = [len(v) for v in self.values]
-        ax.plot(self.binvals, yy, **kwargs)
-
-        return fig
-
-
-import unittest
-class SparseHistogramTest(unittest.TestCase):
-    def test_sparse(self):
-        items = [1, 2, 2.9, 4]
-        hist = SparseHistogram(items, step=1)
-        assert hist.binvals == [1.0, 2.0, 3.0] 
-        assert hist.values == [[1], [2, 2.9], [4]]
-        #hist.plot()
-
-        hist = SparseHistogram([iv for iv in enumerate(items)], key=lambda t: t[1], step=1)
-        assert hist.binvals == [1.0, 2.0, 3.0] 
-        assert hist.values == [[(0, 1)], [(1, 2), (2, 2.9)], [(3, 4)]]
 
 
 class ParalConf(AttrDict):
