@@ -1973,11 +1973,11 @@ class PseudoTable(collections.Sequence):
         return cls(pseudos)
 
 try:
-    import pandas as pd
+    from pandas import DataFrame
 except ImportError:
-    pd.DataFrame = object
+    DataFrame = object
 
-class DojoDataFrame(pd.DataFrame):
+class DojoDataFrame(DataFrame):
     ALL_ACCURACIES = ("low", "normal", "high")
 
     ALL_TRIALS = (
