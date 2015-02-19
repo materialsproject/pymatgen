@@ -10,7 +10,9 @@ import collections
 import yaml
 
 from monty.fnmatch import WildCard
+from pymatgen.serializers.json_coders import PMGSONable, pmg_serialize
 from .abiinspect import YamlTokenizer
+from .netcdf 
 
 __all__ = [
     "EventsParser",
@@ -23,7 +25,7 @@ def straceback():
     return traceback.format_exc()
 
 
-class AbinitEvent(yaml.YAMLObject):
+class AbinitEvent(yaml.YAMLObject, PMGSONable):
     """
     Example (YAML syntax)::
 
@@ -68,7 +70,7 @@ class AbinitEvent(yaml.YAMLObject):
     """
     def __init__(self, message, src_file, src_line):
         """
-        Basic constructor for `AbinitEvent`. 
+        Basic constructor for :class:`AbinitEvent`.
 
         Args:
             message: String with human-readable message providing info on the event.
@@ -78,6 +80,17 @@ class AbinitEvent(yaml.YAMLObject):
         self.message = message
         self._src_file = src_file
         self._src_line = src_line
+
+    @pmg_serialize
+    def as_dict(self):
+        return dict(message=self.message, src_file=self.src_file, src_line=self.src_line)
+
+    @classmethod
+    def from_dict(cls, d):
+        d = d.copy()
+        d.pop('@module', None)
+        d.pop('@class', None)
+        return cls(**d)
 
     def __str__(self):
         header = "%s at %s:%s" % (self.name, self.src_file, self.src_line)
@@ -111,9 +124,15 @@ class AbinitEvent(yaml.YAMLObject):
 
         raise ValueError("Cannot determine the base class of %s" % self.__class__.__name__)
 
+    def add_to_record(self, task, action):
+        task.corrections.append(dict(
+            event=self.as_dict(), 
+            action=str(action),
+        )
+
     def correct(self, task):
         """
-        This method is called at the end of a :class:`Task` when an error is detected.
+        This method is called when an error is detected in a :class:`Task` 
         It should perform any corrective measures relating to the detected error.
         The idea is similar to the one used in custodian but the handler receives 
         a :class:`Task` object so that we have access to its methods.
@@ -160,6 +179,7 @@ class AbinitYamlWarning(AbinitWarning):
     Raised if the YAML parser cannot parse the document and the doc tas is a Warning.
     """
 
+# Warnings that trigger restart.
 
 class ScfConvergenceWarning(AbinitWarning):
     """Warning raised when the GS SCF cycle did not converge."""
@@ -190,6 +210,23 @@ class QPSConvergenceWarning(AbinitWarning):
 class HaydockConvergenceWarning(AbinitWarning):
     """Warning raised when the Haydock method (BSE) did not converge."""
     yaml_tag = '!HaydockConvergenceWarning'
+
+
+# Error classes providing a correct method.
+
+class DilatmxError(AbinitError):
+    yaml_tag = '!DilatmxError'
+
+    def correct(self, task):
+        # Read the last structure printed by ABINIT.
+        filepath = task.outdir.has_abiext("DILATMX_STRUCT.nc")
+        last_structure = Structure.from_file(filepath)
+
+        task.change_structure(last_structure)
+        task.set_vars(dilatmx=1.05)
+
+        #{"errors": list_of_errors, "actions": list_of_actions_taken}
+        #self.add_to_record{task, "Restarting Task from DILATMX_STRUCT.nc")
 
 
 # Register the concrete base classes.
