@@ -10,6 +10,8 @@ import collections
 import yaml
 
 from monty.fnmatch import WildCard
+from monty.termcolor import colored
+from pymatgen.core import Structure
 from pymatgen.serializers.json_coders import PMGSONable, pmg_serialize
 from .abiinspect import YamlTokenizer
 
@@ -98,6 +100,7 @@ class AbinitEvent(yaml.YAMLObject): #, PMGSONable):
 
     @property
     def src_file(self):
+        """String with the name of the Fortran file where the event is raised."""
         try:
             return self._src_file
         except AttributeError:
@@ -105,6 +108,7 @@ class AbinitEvent(yaml.YAMLObject): #, PMGSONable):
 
     @property
     def src_line(self):
+        """Integer giving the line number in src_file."""
         try:
             return self._src_line
         except AttributeError:
@@ -124,10 +128,17 @@ class AbinitEvent(yaml.YAMLObject): #, PMGSONable):
 
         raise ValueError("Cannot determine the base class of %s" % self.__class__.__name__)
 
-    def add_to_record(self, task, action):
-        task.corrections.append(dict(
+    def log_correction(self, task, message):
+        """
+        This method should be called once we have fixed the problem associated to this event.
+        It adds a new entry in the correction history of the task.
+
+        Args:
+            message (str): Human-readable string with info on the action perfomed to solve the problem.
+        """
+        task._corrections.append(dict(
             event=self.as_dict(), 
-            action=str(action),
+            message=message,
         ))
 
     def correct(self, task):
@@ -142,8 +153,7 @@ class AbinitEvent(yaml.YAMLObject): #, PMGSONable):
         {"errors": list_of_errors, "actions": list_of_actions_taken}.
         If this is an unfixable error, actions should be set to None.
         """
-        fixed = True
-        return {} if fixed else None
+        return 0
 
 
 class AbinitComment(AbinitEvent):
@@ -218,15 +228,20 @@ class DilatmxError(AbinitError):
     yaml_tag = '!DilatmxError'
 
     def correct(self, task):
-        # Read the last structure printed by ABINIT.
+        #Idea: decrease dilatxm and restart from the last structure.
+        #We would like to end up with a structures optimized with dilatmx 1.01
+        #that will be used for phonon calculations.
+
+        # Read the last structure dumped by ABINIT before aborting.
+        print("in dilatmx")
         filepath = task.outdir.has_abiext("DILATMX_STRUCT.nc")
         last_structure = Structure.from_file(filepath)
 
-        task.change_structure(last_structure)
-        task.set_vars(dilatmx=1.05)
-
-        #{"errors": list_of_errors, "actions": list_of_actions_taken}
-        #self.add_to_record{task, "Restarting Task from DILATMX_STRUCT.nc")
+        task._change_structure(last_structure)
+        #changes = task._modify_vars(dilatmx=1.05)
+        #self.log_correction{task, "Restarting Task from DILATMX_STRUCT.nc")
+        #raise NotImplementedError("")
+        return 1
 
 
 # Register the concrete base classes.
@@ -274,13 +289,12 @@ class EventReport(collections.Iterable):
         lines = []
         app = lines.append
 
-        app("Event Report for file: %s" % self.filename)
+        app("Events for: %s" % self.filename)
         for i, event in enumerate(self):
-            app("%d) %s" % (i+1, str(event)))
+            app("[%d] %s" % (i+1, str(event)))
 
-        app("num_errors: %s, num_warnings: %s, num_comments: %s" % (
-            self.num_errors, self.num_warnings, self.num_comments))
-        app("run_completed: %s" % self.run_completed)
+        app("num_errors: %s, num_warnings: %s, num_comments: %s, completed: %s" % (
+            self.num_errors, self.num_warnings, self.num_comments, self.run_completed))
 
         return "\n".join(lines)
 
@@ -346,11 +360,10 @@ class EventReport(collections.Iterable):
         return self._events_by_baseclass[base_class][:]
 
     def filter_types(self, event_types):
-        evts = []
-        for event in self:
-            if type(event) in event_types:
-                evts.append(event)
-        return evts
+        events = []
+        for ev in self:
+            if type(ev) in event_types: events.append(ev)
+        return self.__class__(filename=self.filename, events=events)
 
 
 class EventsParserError(Exception):

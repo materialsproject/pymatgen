@@ -549,14 +549,14 @@ class PyFlowScheduler(object):
 
         # move here from withing rapid fire ...
         # fix only prepares for restarting, and sets to ready
+        nfixed = flow.fix_abi_critical()
+        if nfixed: print("Fixed %d AbiCritical errors" % nfixed)
+
         # Temporarily disable by MG because I don't know if fix_critical works after the
         # introduction of the new qadapters
         if False:
             nfixed = flow.fix_queue_critical()
             if nfixed: print("Fixed %d QueueCritical errors" % nfixed)
-
-            nfixed = flow.fix_abi_critical()
-            if nfixed: print("Fixed %d AbiCritical errors" % nfixed)
 
         # update database
         flow.pickle_dump()

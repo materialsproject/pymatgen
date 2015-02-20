@@ -566,7 +566,7 @@ class Flow(Node):
         """
         count = 0
         for task in self.iflat_tasks(status=self.S_ABICRITICAL):
-            count += self.fix_abicritical()
+            count += task.fix_abi_critical()
 
         return count
 

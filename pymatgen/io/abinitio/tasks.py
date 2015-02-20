@@ -1255,6 +1255,9 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         # Used to push additional info during the execution. 
         self.history = collections.deque(maxlen=100)
 
+        # Actions performed to fix abicritical events.
+        self._corrections = collections.deque(maxlen=100)
+
         # Set to true if the node has been finalized.
         self._finalized = False
         self._status = self.S_INIT
@@ -1336,6 +1339,16 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     def str_history(self):
         """String representation of history."""
         return "\n".join(self.history)
+
+
+    @property
+    def corrections(self):
+        """
+        List of dictionaries with infornation on the actions performed to solve `AbiCritical` Events.
+        Each dictionary contains the `AbinitEvent` who triggered the correction and 
+        a human-readable message with the description of the operation performed.
+        """
+        return self._corrections
 
     @property
     def is_file(self):
@@ -1713,10 +1726,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             raise NotImplementedError("get_var for HTC interface!")
 
     @property
-    def input_structure(self):
-        """Input structure of the task."""
+    def initial_structure(self):
+        """Initial structure of the task."""
         if hasattr(self.strategy, "abinit_input"):
-            return self.strategy.abinit_input[0].structure
+            return self.strategy.abinit_input.structure
+            #return self.strategy.abinit_input[0].structure
         else:
             return self.strategy.structure
 
@@ -2192,8 +2206,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # print('the job still seems to be running maybe it is hanging without producing output... ')
 
         # Check time of last modification.
-        if (time.time() - self.output_file.get_stat().st_mtime > self.frozen_timeout):
-            info_msg = "Task seems to be frozen, last modif more than %s [s] ago" % self.timeout
+        if (time.time() - self.output_file.get_stat().st_mtime > self.manager.policy.frozen_timeout):
+            info_msg = "Task seems to be frozen, last modif more than %s [s] ago" % self.manager.policy.frozen_timeout
             return self.set_status(self.S_ERROR, info_msg)
 
         return self.set_status(self.S_RUN)
@@ -2323,17 +2337,16 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             return None
 
         # Don't parse source file if we already have its report and the source didn't change.
-        if not hasattr(self, "_prev_reports"): self._prev_reports = {}
-
-        old_report = self._prev_reports.get(source, None)
-        if old_report is not None and old_report.stat.st_mtime == ofile.get_stat().st_mtime:
-            #print("Returning old_report")
-            return old_report
+        #if not hasattr(self, "_prev_reports"): self._prev_reports = {}
+        #old_report = self._prev_reports.get(source, None)
+        #if False and old_report is not None and old_report.stat.st_mtime == ofile.get_stat().st_mtime:
+        #    print("Returning old_report")
+        #    return old_report
 
         parser = events.EventsParser()
         try:
             report = parser.parse(ofile.path)
-            self._prev_reports[source] = report
+            #self._prev_reports[source] = report
             return report
 
         except parser.Error as exc:
@@ -2420,7 +2433,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             self.files_file.write(self.filesfile_string)
 
         self.input_file.write(self.make_input())
-
         self.manager.write_jobfile(self)
 
     def rmtree(self, exclude_wildcard=""):
@@ -2861,7 +2873,7 @@ class AbinitTask(Task):
 
         return self._restart(submit=False)
 
-    def fix_abicritical(self):
+    def fix_abi_critical(self):
         """
         method to fix crashes/error caused by abinit
 
@@ -2883,7 +2895,7 @@ class AbinitTask(Task):
             return 1
 
         info_msg = 'We encountered AbiCritical events that could not be fixed'
-        logger.warning(info_msg)
+        logger.critical(info_msg)
         self.set_status(status=self.S_ERROR, info_msg=info_msg)
         return 0
 
@@ -3198,12 +3210,19 @@ class RelaxTask(AbinitTask, ProduceGsr, ProduceHist):
         events.RelaxConvergenceWarning,
     ]
 
-    def change_structure(self, structure):
+    def _change_structure(self, structure):
         """Change the input structure."""
-        print("changing structure")
-        print("old:\n" + str(self.strategy.abinit_input.structure) + "\n")
-        print("new:\n" + str(structure) + "\n")
+        #print("changing structure")
+        #print("old:\n" + str(self.strategy.abinit_input.structure) + "\n")
+        #print("new:\n" + str(structure) + "\n")
+
+        #print("**old input**")
+        #print(self.make_input())
         self.strategy.abinit_input.set_structure(structure)
+        #print(self.initial_structure)
+        #print("**new input**")
+        #print(self.make_input())
+        #self.build()
 
     def read_final_structure(self):
         """Read the final structure from the GSR file."""
@@ -3236,14 +3255,14 @@ class RelaxTask(AbinitTask, ProduceGsr, ProduceHist):
         else:
             raise self.RestartError("Cannot find the WFK|DEN file to restart from.")
 
+        # Add the appropriate variable for restarting.
+        self.strategy.add_extra_abivars(irdvars)
+
         # Read the relaxed structure from the GSR file.
         structure = self.read_final_structure()
                                                            
         # Change the structure.
-        self.change_structure(structure)
-
-        # Add the appropriate variable for restarting.
-        self.strategy.add_extra_abivars(irdvars)
+        self._change_structure(structure)
 
         # Now we can resubmit the job.
         return self._restart()
@@ -3255,7 +3274,7 @@ class RelaxTask(AbinitTask, ProduceGsr, ProduceHist):
         Args:
             what: Either "hist" or "scf". The first option (default) extracts data
                 from the HIST file and plot the evolution of the structural 
-                paramenters, forces, pressures and energies.
+                parameters, forces, pressures and energies.
                 The second option, extract data from the main output file and
                 plot the evolution of the SCF cycles (etotal, residuals, etc).
 
