@@ -2107,7 +2107,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # an errored task, should not end up here but just to be sure
         black_list = (self.S_LOCKED, self.S_ERROR)
         if self.status in black_list:
-            return
+            return self.status
 
         # 2) Check the returncode of the process (the process of submitting the job) first.
         # this point type of problem should also be handled by the scheduler error parser
@@ -2147,7 +2147,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             if report.errors or report.bugs:
                 # Abinit reported problems
                 if report.errors:
-                    logger.debug('"Found errors in report')
+                    logger.debug('Found errors in report')
                     for error in report.errors:
                         logger.debug(str(error))
                         try:
@@ -2179,12 +2179,16 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 # No output at allThe job is still in the queue.
                 return self.status
                 
-
         # 7) Analyze the files of the resource manager and abinit and execution err (mvs)
-        if self.qerr_file.exists:
+        if err_info:
             from pymatgen.io.abinitio.scheduler_error_parsers import get_parser
             scheduler_parser = get_parser(self.manager.qadapter.QTYPE, err_file=self.qerr_file.path,
                                           out_file=self.qout_file.path, run_err_file=self.stderr_file.path)
+
+            if scheduler_parser is None:
+                return self.set_status(self.S_QCRITICAL, 
+                                      info_msg="Cannot find scheduler_parser for qtype %s" % self.manager.qadapter.QTYPE)
+                
             scheduler_parser.parse()
 
             if scheduler_parser.errors:
@@ -2214,7 +2218,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # print('the job still seems to be running maybe it is hanging without producing output... ')
 
         # Check time of last modification.
-        if (time.time() - self.output_file.get_stat().st_mtime > self.manager.policy.frozen_timeout):
+        if self.output_file.exists and \
+           (time.time() - self.output_file.get_stat().st_mtime > self.manager.policy.frozen_timeout):
             info_msg = "Task seems to be frozen, last modif more than %s [s] ago" % self.manager.policy.frozen_timeout
             return self.set_status(self.S_ERROR, info_msg)
 
