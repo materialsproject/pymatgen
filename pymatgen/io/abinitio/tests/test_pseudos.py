@@ -21,7 +21,7 @@ def ref_file(filename):
 
 
 def ref_files(*filenames):
-    return map(ref_file, filenames)
+    return list(map(ref_file, filenames))
 
 
 class PseudoTestCase(PymatgenTest):
