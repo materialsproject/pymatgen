@@ -7,11 +7,12 @@ import six
 import collections
 import shutil
 import operator
+import numpy as np
 
 from fnmatch import fnmatch
 from six.moves import filter
 from monty.string import list_strings
-from pymatgen.util.string_utils import WildCard
+from monty.fnmatch import WildCard
 
 import logging
 logger = logging.getLogger(__name__)
@@ -117,6 +118,10 @@ class File(object):
             os.remove(self.path)
         except:
             pass
+
+    def get_stat(self):
+        """Results from os.stat"""
+        return os.stat(self.path)
 
 
 class Directory(object):
@@ -701,3 +706,46 @@ class Editor(object):
             return True
 
         return answer.lower().strip() in ["n", "no"]
+
+
+class SparseHistogram(object):
+
+    def __init__(self, items, key=None, num=None, step=None):
+        if num is None and step is None:
+            raise ValueError("Either num or step must be specified")
+
+        from collections import defaultdict, OrderedDict
+
+        values = [key(item) for item in items] if key is not None else items
+        start, stop = min(values), max(values)
+        if num is None:
+            num = int((stop - start) / step)
+            if num == 0: num = 1
+        mesh = np.linspace(start, stop, num, endpoint=False)
+
+        from monty.bisect import find_le
+
+        hist = defaultdict(list)
+        for item, value in zip(items, values):
+            # Find rightmost value less than or equal to x.
+            # hence each bin contains all items whose value is >= value
+            pos = find_le(mesh, value)
+            hist[mesh[pos]].append(item)
+
+        #new = OrderedDict([(pos, hist[pos]) for pos in sorted(hist.keys(), reverse=reverse)])
+        self.binvals = sorted(hist.keys())
+        self.values = [hist[pos] for pos in self.binvals]
+        self.start, self.stop, self.num = start, stop, num
+
+    from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
+    @add_fig_kwargs
+    def plot(self, ax=None, **kwargs):
+        """
+        Plot the histogram with matplotlib, returns `matplotlib figure
+        """
+        ax, fig, plt = get_ax_fig_plt(ax)
+
+        yy = [len(v) for v in self.values]
+        ax.plot(self.binvals, yy, **kwargs)
+
+        return fig

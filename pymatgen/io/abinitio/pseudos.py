@@ -24,6 +24,7 @@ from monty.os.path import find_exts
 from monty.dev import deprecated
 from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
 from pymatgen.core.periodic_table import PeriodicTable, Element
+from pymatgen.serializers.json_coders import PMGSONable, pmg_serialize
 from .eos import EOS
 from monty.json import MontyDecoder
 
@@ -95,7 +96,7 @@ def str2l(s):
     return _str2l[s]
 
 
-class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
+class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
     """
     Abstract base class defining the methods that must be 
     implemented by the concrete pseudopotential classes.
@@ -110,10 +111,6 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
             * string defining a valid path.
         """
         return obj if isinstance(obj, cls) else cls.from_file(obj)
-
-    #@classmethod
-    #def from_dict(cls, d):
-    #    return cls
 
     @staticmethod
     def from_file(filename):
@@ -264,8 +261,9 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
     #def generation_mode
     #    """scalar scalar-relativistic, relativistic."""
 
+    @pmg_serialize
     def as_dict(self, **kwargs):
-        d = dict(
+        return dict(
             basename=self.basename,
             type=self.type,
             symbol=self.symbol,
@@ -278,14 +276,10 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
             #pp_type=
             filepath=self.filepath
         )
-        d['@module'] = self.__class__.__module__
-        d['@class'] = self.__class__.__name__
-        return d
 
     @classmethod
     def from_dict(cls, d):
         return cls.from_file(d['filepath'])
-
 
     @property
     def has_dojo_report(self):
@@ -1416,8 +1410,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         for state, rfunc in self.ae_partial_waves.items():
             ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, lw=2, label="AE-WAVE: " + state)
 
-        plt.legend(loc="best")
-
+        ax.legend(loc="best")
         return fig
 
     @add_fig_kwargs
@@ -1443,7 +1436,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         for state, rfunc in self.projector_functions.items():
             ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, label="TPROJ: " + state)
 
-        plt.legend(loc="best")
+        ax.legend(loc="best")
 
         return fig
 
@@ -1487,7 +1480,8 @@ class PawXmlSetup(Pseudo, PawPseudo):
     #    return fig
 
 
-class PseudoTable(collections.Sequence):
+#class PseudoTable(collections.Sequence):
+class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONable, object)):
     """
     Define the pseudopotentials from the element table.
     Individidual elements are accessed by name, symbol or atomic number.
@@ -1554,6 +1548,16 @@ class PseudoTable(collections.Sequence):
                     logger.critical("Error in %s:\n%s" % (p, exc))
 
         return cls(pseudos).sort_by_z()
+
+    #@pmg_serialize
+    #def as_dict(self, **kwargs):
+    #    return {pseudo.as_dict() for pseudo in self}
+
+    #@classmethod
+    #def from_dict(cls, d):
+    #    pseudos = [p.from_dict(d) for k, p in cls.as_dict().items() if not k.startswith("@")]
+    #    print(pseudos)
+    #    #return cls(pseudos)
 
     def __init__(self, pseudos):
         """
@@ -1696,7 +1700,6 @@ class PseudoTable(collections.Sequence):
             raise ValueError("Missing data for symbol(s) %s" % ', '.join(missing_symbols))
         return pseudos
 
-
     def select_symbols(self, symbols, ret_list=False):
         """
         Return a :class:`PseudoTable` with the pseudopotentials with the given list of chemical symbols.
@@ -1729,6 +1732,20 @@ class PseudoTable(collections.Sequence):
             return pseudos
         else:
             return self.__class__(pseudos)
+
+    def get_pseudos_for_structure(self, structure):
+        """
+        Return the list of :class:`Pseudo` objects to be used for this :class:`Structure`.
+
+        Args:
+            structure: pymatgen :class:`Structure`.
+
+        Raises:
+            `ValueError` if one of the chemical symbols is not found or 
+            multiple occurences are present in the table.
+        """
+        symbols = structure.symbol_set
+        return self.pseudos_with_symbols(symbols)
 
 
     #def list_properties(self, *props, **kw):
@@ -1972,13 +1989,12 @@ class PseudoTable(collections.Sequence):
         logger.info('Creating PseudoTable with %i pseudopotentials' % len(pseudos))
         return cls(pseudos)
 
-# Hack
 try:
-    import pandas as pd
+    from pandas import DataFrame
 except ImportError:
-    pd.DataFrame = object
+    DataFrame = object
 
-class DojoDataFrame(pd.DataFrame):
+class DojoDataFrame(DataFrame):
     ALL_ACCURACIES = ("low", "normal", "high")
 
     ALL_TRIALS = (
@@ -2125,21 +2141,21 @@ class DojoDataFrame(pd.DataFrame):
 
         return fig
 
-    def sns_plot(self):
-        import seaborn as sns
-        import matplotlib.pyplot as plt
-        #self.plot(x="symbol", y="high_dfact_meV", use_index=True)
-        #data = calc_rerrors(data)
-        g = sns.PairGrid(self, x_vars="Z", y_vars=[
-            "low_ecut",
-            "low_dfact_meV",
-            #"high_dfact_meV", 
-            #"low_v0_rerr", "low_b0_GPa_rerr", "low_b1_rerr",
-            ]
-        ) #, hue="smoker")
-        g.map(plt.scatter)
-        g.add_legend()
-        plt.show()
+    #def sns_plot(self):
+    #    import seaborn as sns
+    #    import matplotlib.pyplot as plt
+    #    #self.plot(x="symbol", y="high_dfact_meV", use_index=True)
+    #    #data = calc_rerrors(data)
+    #    g = sns.PairGrid(self, x_vars="Z", y_vars=[
+    #        "low_ecut",
+    #        "low_dfact_meV",
+    #        #"high_dfact_meV", 
+    #        #"low_v0_rerr", "low_b0_GPa_rerr", "low_b1_rerr",
+    #        ]
+    #    ) #, hue="smoker")
+    #    g.map(plt.scatter)
+    #    g.add_legend()
+    #    plt.show()
 
 
 class DojoReport(dict):

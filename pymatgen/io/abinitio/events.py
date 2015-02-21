@@ -9,8 +9,12 @@ import os.path
 import collections
 import yaml
 
-from pymatgen.util.string_utils import WildCard
+from monty.fnmatch import WildCard
+from monty.termcolor import colored
+from pymatgen.core import Structure
+from pymatgen.serializers.json_coders import PMGSONable, pmg_serialize
 from .abiinspect import YamlTokenizer
+
 
 __all__ = [
     "EventsParser",
@@ -23,7 +27,7 @@ def straceback():
     return traceback.format_exc()
 
 
-class AbinitEvent(yaml.YAMLObject):
+class AbinitEvent(yaml.YAMLObject): #, PMGSONable):
     """
     Example (YAML syntax)::
 
@@ -68,7 +72,7 @@ class AbinitEvent(yaml.YAMLObject):
     """
     def __init__(self, message, src_file, src_line):
         """
-        Basic constructor for `AbinitEvent`. 
+        Basic constructor for :class:`AbinitEvent`.
 
         Args:
             message: String with human-readable message providing info on the event.
@@ -79,12 +83,24 @@ class AbinitEvent(yaml.YAMLObject):
         self._src_file = src_file
         self._src_line = src_line
 
+    @pmg_serialize
+    def as_dict(self):
+        return dict(message=self.message, src_file=self.src_file, src_line=self.src_line)
+
+    @classmethod
+    def from_dict(cls, d):
+        d = d.copy()
+        d.pop('@module', None)
+        d.pop('@class', None)
+        return cls(**d)
+
     def __str__(self):
         header = "%s at %s:%s" % (self.name, self.src_file, self.src_line)
         return "\n".join((header, self.message))
 
     @property
     def src_file(self):
+        """String with the name of the Fortran file where the event is raised."""
         try:
             return self._src_file
         except AttributeError:
@@ -92,6 +108,7 @@ class AbinitEvent(yaml.YAMLObject):
 
     @property
     def src_line(self):
+        """Integer giving the line number in src_file."""
         try:
             return self._src_line
         except AttributeError:
@@ -111,14 +128,32 @@ class AbinitEvent(yaml.YAMLObject):
 
         raise ValueError("Cannot determine the base class of %s" % self.__class__.__name__)
 
-    def action(self):
+    def log_correction(self, task, message):
         """
-        Returns a dictionary whose values that can be used to decide
-        which actions should be performed e.g the SCF data at the last
-        iteration can be used to decide whether the calculations should
-        be restarted or not.
+        This method should be called once we have fixed the problem associated to this event.
+        It adds a new entry in the correction history of the task.
+
+        Args:
+            message (str): Human-readable string with info on the action perfomed to solve the problem.
         """
-        return {}
+        task._corrections.append(dict(
+            event=self.as_dict(), 
+            message=message,
+        ))
+
+    def correct(self, task):
+        """
+        This method is called when an error is detected in a :class:`Task` 
+        It should perform any corrective measures relating to the detected error.
+        The idea is similar to the one used in custodian but the handler receives 
+        a :class:`Task` object so that we have access to its methods.
+
+        Returns:
+        (dict) JSON serializable dict that describes the errors and actions taken. E.g.
+        {"errors": list_of_errors, "actions": list_of_actions_taken}.
+        If this is an unfixable error, actions should be set to None.
+        """
+        return 0
 
 
 class AbinitComment(AbinitEvent):
@@ -154,6 +189,7 @@ class AbinitYamlWarning(AbinitWarning):
     Raised if the YAML parser cannot parse the document and the doc tas is a Warning.
     """
 
+# Warnings that trigger restart.
 
 class ScfConvergenceWarning(AbinitWarning):
     """Warning raised when the GS SCF cycle did not converge."""
@@ -186,6 +222,28 @@ class HaydockConvergenceWarning(AbinitWarning):
     yaml_tag = '!HaydockConvergenceWarning'
 
 
+# Error classes providing a correct method.
+
+class DilatmxError(AbinitError):
+    yaml_tag = '!DilatmxError'
+
+    def correct(self, task):
+        #Idea: decrease dilatxm and restart from the last structure.
+        #We would like to end up with a structures optimized with dilatmx 1.01
+        #that will be used for phonon calculations.
+
+        # Read the last structure dumped by ABINIT before aborting.
+        print("in dilatmx")
+        filepath = task.outdir.has_abiext("DILATMX_STRUCT.nc")
+        last_structure = Structure.from_file(filepath)
+
+        task._change_structure(last_structure)
+        #changes = task._modify_vars(dilatmx=1.05)
+        #self.log_correction{task, "Restarting Task from DILATMX_STRUCT.nc")
+        #raise NotImplementedError("")
+        return 1
+
+
 # Register the concrete base classes.
 _BASE_CLASSES = [
     AbinitComment,
@@ -196,15 +254,24 @@ _BASE_CLASSES = [
 
 
 class EventReport(collections.Iterable):
-    """Iterable storing the events raised by an ABINIT calculation."""
+    """
+    Iterable storing the events raised by an ABINIT calculation.
 
+    Attributes::
+
+        stat: information about a file as returned by os.stat
+    """
     def __init__(self, filename, events=None):
         """
+        List of ABINIT events.
+
         Args:
             filename: Name of the file
             events: List of Event objects
         """
         self.filename = os.path.abspath(filename)
+        self.stat = os.stat(self.filename)
+
         self._events = []
         self._events_by_baseclass = collections.defaultdict(list)
 
@@ -222,13 +289,12 @@ class EventReport(collections.Iterable):
         lines = []
         app = lines.append
 
-        app("Event Report for file: %s" % self.filename)
+        app("Events for: %s" % self.filename)
         for i, event in enumerate(self):
-            app("%d) %s" % (i+1, str(event)))
+            app("[%d] %s" % (i+1, str(event)))
 
-        app("num_errors: %s, num_warnings: %s, num_comments: %s" % (
-            self.num_errors, self.num_warnings, self.num_comments))
-        app("run_completed: %s" % self.run_completed)
+        app("num_errors: %s, num_warnings: %s, num_comments: %s, completed: %s" % (
+            self.num_errors, self.num_warnings, self.num_comments, self.run_completed))
 
         return "\n".join(lines)
 
@@ -294,11 +360,10 @@ class EventReport(collections.Iterable):
         return self._events_by_baseclass[base_class][:]
 
     def filter_types(self, event_types):
-        evts = []
-        for event in self:
-            if type(event) in event_types:
-                evts.append(event)
-        return evts
+        events = []
+        for ev in self:
+            if type(ev) in event_types: events.append(ev)
+        return self.__class__(filename=self.filename, events=events)
 
 
 class EventsParserError(Exception):
@@ -327,7 +392,6 @@ class EventsParser(object):
         w = WildCard("*Error|*Warning|*Comment|*Bug|*ERROR|*WARNING|*COMMENT|*BUG")
 
         with YamlTokenizer(filename) as tokens:
-
             for doc in tokens:
                 #print(80*"*")
                 #print("doc.tag", doc.tag)

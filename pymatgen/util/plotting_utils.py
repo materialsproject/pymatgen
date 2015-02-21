@@ -118,6 +118,7 @@ def add_fig_kwargs(func):
         size_kwargs = kwargs.pop("size_kwargs", None)
         show = kwargs.pop("show", True)
         savefig = kwargs.pop("savefig", None)
+        tight_layout = kwargs.pop("tight_layout", False)
 
         # Call func
         fig = func(*args, **kwargs)
@@ -133,6 +134,8 @@ def add_fig_kwargs(func):
             import matplotlib.pyplot as plt
             plt.show()
 
+        if tight_layout: fig.tight_layout()
+
         return fig
 
 
@@ -147,6 +150,7 @@ def add_fig_kwargs(func):
     savefig           'abc.png' or 'abc.eps' to save the figure to a file.
     size_kwargs       Dictionary with options passed to fig.set_size_inches
                       example: size_kwargs=dict(w=3, h=4) 
+    tight_layout      True if to call fig.tight_layout (default: False)
     ================  ===================================================="""
 
     if wrapper.__doc__ is not None:
