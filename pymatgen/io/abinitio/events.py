@@ -20,6 +20,11 @@ __all__ = [
     "EventsParser",
 ]
 
+def indent(lines, amount, ch=' '):
+    """indent the lines in a string by padding each one with proper number of pad characters"""
+    padding = amount * ch
+    return padding + ('\n'+padding).join(lines.split('\n'))
+
 
 def straceback():
     """Returns a string with the traceback."""
@@ -70,6 +75,8 @@ class AbinitEvent(yaml.YAMLObject): #, PMGSONable):
           the class attribute yaml_tag so that yaml.load will know how to 
           build the instance.
     """
+    #color = None
+
     def __init__(self, message, src_file, src_line):
         """
         Basic constructor for :class:`AbinitEvent`.
@@ -94,9 +101,12 @@ class AbinitEvent(yaml.YAMLObject): #, PMGSONable):
         d.pop('@class', None)
         return cls(**d)
 
+    @property
+    def header(self):
+        return "%s at %s:%s" % (self.name, self.src_file, self.src_line)
+
     def __str__(self):
-        header = "%s at %s:%s" % (self.name, self.src_file, self.src_line)
-        return "\n".join((header, self.message))
+        return "\n".join((self.header, self.message))
 
     @property
     def src_file(self):
@@ -159,11 +169,13 @@ class AbinitEvent(yaml.YAMLObject): #, PMGSONable):
 class AbinitComment(AbinitEvent):
     """Base class for Comment events"""
     yaml_tag = '!COMMENT'
+    color = "blue"
 
 
 class AbinitError(AbinitEvent):
     """Base class for Error events"""
     yaml_tag = '!ERROR'
+    color = "red"
 
 
 class AbinitYamlError(AbinitError):
@@ -173,6 +185,7 @@ class AbinitYamlError(AbinitError):
 class AbinitBug(AbinitEvent):
     """Base class for Bug events"""
     yaml_tag = '!BUG'
+    color = "red"
 
 
 class AbinitWarning(AbinitEvent):
@@ -182,42 +195,47 @@ class AbinitWarning(AbinitEvent):
     raised by the code and the possible actions that can be performed.
     """
     yaml_tag = '!WARNING'
+    color = None
 
 
-class AbinitYamlWarning(AbinitWarning):
+class AbinitCriticalWarning(AbinitWarning):
+    color = "red"
+
+
+class AbinitYamlWarning(AbinitCriticalWarning):
     """
     Raised if the YAML parser cannot parse the document and the doc tas is a Warning.
     """
 
 # Warnings that trigger restart.
 
-class ScfConvergenceWarning(AbinitWarning):
+class ScfConvergenceWarning(AbinitCriticalWarning):
     """Warning raised when the GS SCF cycle did not converge."""
     yaml_tag = '!ScfConvergenceWarning'
 
 
-class NscfConvergenceWarning(AbinitWarning):
+class NscfConvergenceWarning(AbinitCriticalWarning):
     """Warning raised when the GS NSCF cycle did not converge."""
     yaml_tag = '!NscfConvergenceWarning'
 
 
-class RelaxConvergenceWarning(AbinitWarning):
+class RelaxConvergenceWarning(AbinitCriticalWarning):
     """Warning raised when the structural relaxation did not converge."""
     yaml_tag = '!RelaxConvergenceWarning'
 
 
 # TODO: for the time being we don't discern between GS and PhononCalculations.
-#class PhononConvergenceWarning(AbinitWarning):
+#class PhononConvergenceWarning(AbinitCriticalWarning):
 #    """Warning raised when the phonon calculation did not converge."""
 #    yaml_tag = u'!PhononConvergenceWarning'
 
 
-class QPSConvergenceWarning(AbinitWarning):
+class QPSConvergenceWarning(AbinitCriticalWarning):
     """Warning raised when the QPS iteration (GW) did not converge."""
     yaml_tag = '!QPSConvergenceWarning'
 
 
-class HaydockConvergenceWarning(AbinitWarning):
+class HaydockConvergenceWarning(AbinitCriticalWarning):
     """Warning raised when the Haydock method (BSE) did not converge."""
     yaml_tag = '!HaydockConvergenceWarning'
 
@@ -239,8 +257,7 @@ class DilatmxError(AbinitError):
 
         task._change_structure(last_structure)
         #changes = task._modify_vars(dilatmx=1.05)
-        #self.log_correction{task, "Restarting Task from DILATMX_STRUCT.nc")
-        #raise NotImplementedError("")
+        task.history.append("Take last structure from DILATMX_STRUCT.nc, will try to restart")
         return 1
 
 
@@ -286,12 +303,19 @@ class EventReport(collections.Iterable):
         return self._events.__iter__()
 
     def __str__(self):
+        #has_colours = stream_has_colours(stream)
+        has_colours = True
+
         lines = []
         app = lines.append
 
         app("Events for: %s" % self.filename)
         for i, event in enumerate(self):
-            app("[%d] %s" % (i+1, str(event)))
+            if has_colours:
+                app("[%d] %s" % (i+1, colored(event.header, color=event.color)))
+                app(indent(event.message, 4))
+            else:
+                app("[%d] %s" % (i+1, str(event)))
 
         app("num_errors: %s, num_warnings: %s, num_comments: %s, completed: %s" % (
             self.num_errors, self.num_warnings, self.num_comments, self.run_completed))

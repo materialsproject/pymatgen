@@ -111,21 +111,15 @@ class Flow(Node):
             Don't use this interface if you have a dependencies among the tasks
 
         Args:
-            workdir:
-                String specifying the directory where the works will be produced.
-            inputs:
-                List of inputs.
-            manager:
-                `TaskManager` object responsible for the submission of the jobs.
+            workdir: String specifying the directory where the works will be produced.
+            inputs: List of inputs.
+            manager: :class:`TaskManager` object responsible for the submission of the jobs.
                 If manager is None, the object is initialized from the yaml file
                 located either in the working directory or in the user configuration dir.
-            pickle_procol:
-                Pickle protocol version used for saving the status of the object.
+            pickle_procol: Pickle protocol version used for saving the status of the object.
                 -1 denotes the latest version supported by the python interpreter.
-            task_class:
-                The class of the `Task`.
-            work_class:
-                The class of the `Work`.
+            task_class: The class of the :class:`Task`.
+            work_class: The class of the :class:`Work`.
         """
         if not isinstance(inputs, (list, tuple)): inputs = [inputs]
 
@@ -181,13 +175,6 @@ class Flow(Node):
 
         #for task in self.iflat_tasks():
         #    slots[task] = {s: [] for s in work.S_ALL}
-
-    # This is needed for fireworks although Node.__str__ and __repr__ are much more readable.
-    #def __repr__(self):
-    #    return self.workdir
-
-    #def __str__(self):
-    #    return repr(self)
 
     def as_dict(self, **kwargs):
         """
@@ -602,9 +589,9 @@ class Flow(Node):
             wlist = list(range(wslice.start, wslice.step, wslice.stop))
         verbose = kwargs.pop("verbose", 0)
 
-        #colours = stream_has_colours(stream)
-        colours = True
-        red = "red" if colours else None
+        #has_colours = stream_has_colours(stream)
+        has_colours = True
+        red = "red" if has_colours else None
 
         for i, work in enumerate(self):
             print("", file=stream)
@@ -637,7 +624,7 @@ class Flow(Node):
                     tot_num_errors += 1
                     task_name = colored(task_name, red)
 
-                if colours:
+                if has_colours:
                     table.add_row([task_name, task.status.colored, qinfo, para_info, events] + task_info)
                 else:
                     table.add_row([task_name, str(task.status), qinfo, events, para_info] + task_info)
