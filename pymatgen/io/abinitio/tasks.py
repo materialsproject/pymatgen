@@ -2179,12 +2179,16 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 # No output at allThe job is still in the queue.
                 return self.status
                 
-
         # 7) Analyze the files of the resource manager and abinit and execution err (mvs)
-        if self.qerr_file.exists:
+        if err_info:
             from pymatgen.io.abinitio.scheduler_error_parsers import get_parser
             scheduler_parser = get_parser(self.manager.qadapter.QTYPE, err_file=self.qerr_file.path,
                                           out_file=self.qout_file.path, run_err_file=self.stderr_file.path)
+
+            if scheduler_parser is None:
+                return self.set_status(self.S_QCRITICAL, 
+                                      info_msg="Cannot find scheduler_parser for qtype %s" % self.manager.qadapter.QTYPE)
+                
             scheduler_parser.parse()
 
             if scheduler_parser.errors:
