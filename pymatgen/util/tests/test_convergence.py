@@ -2,10 +2,9 @@ from __future__ import division, print_function, unicode_literals
 
 __author__ = 'setten'
 
-import os
 import numpy
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.gwwrapper.convergence import determine_convergence
+from pymatgen.util.convergence import determine_convergence
 
 
 class ConvergenceTest(PymatgenTest):

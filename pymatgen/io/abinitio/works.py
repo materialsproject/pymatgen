@@ -1,7 +1,6 @@
 # coding: utf-8
 """
 Works for Abinit:
-I'll work on this tonight...
 """
 from __future__ import unicode_literals, division, print_function
 
@@ -18,16 +17,16 @@ from six.moves import filter
 from monty.collections import AttrDict
 from monty.itertools import chunks
 from monty.functools import lazy_property
+from monty.fnmatch import WildCard
+from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
-from pymatgen.util.string_utils import WildCard
 from . import wrappers
-from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, PhononTask, DdkTask, BseTask, RelaxTask, DdeTask)
+from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, PhononTask, DdkTask, 
+                    BseTask, RelaxTask, DdeTask, ScrTask, SigmaTask)
 from .strategies import HtcStrategy, NscfStrategy
 from .utils import Directory
 from .netcdf import ETSF_Reader
 from .abitimer import AbinitTimerParser
-from .abiinspect import yaml_read_kpoints
-from pydispatch import dispatcher
 
 import logging
 logger = logging.getLogger(__name__)
@@ -65,7 +64,7 @@ class WorkResults(NodeResults):
         # Will put all files found in outdir in GridFs 
         # Warning: assuming binary files.
         d = {os.path.basename(f): f for f in work.outdir.list_filepaths()}
-        new.add_gridfs_files(**d)
+        new.register_gridfs_files(**d)
 
         return new
 
@@ -209,7 +208,7 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
                 try:
                     results = AttrDict(**self.on_all_ok())
                 except:
-                    self._finalized = False
+                    self.finalized = False
                     raise
 
                 # Signal to possible observers that the `Work` reached S_OK
@@ -292,6 +291,11 @@ class Work(BaseWork):
             if self == work: 
                 return i
         raise ValueError("Cannot find the position of %s in flow %s" % (self, self.flow))
+
+    @property
+    def pos_str(self):
+        """String representation of self.pos"""
+        return "w" + str(self.pos) 
 
     def set_workdir(self, workdir, chroot=False):
         """Set the working directory. Cannot be set more than once unless chroot is True"""
@@ -476,6 +480,16 @@ class Work(BaseWork):
     def register_ddk_task(self, *args, **kwargs):
         """Register a Ddk task."""
         kwargs["task_class"] = DdkTask
+        return self.register(*args, **kwargs)
+
+    def register_scr_task(self, *args, **kwargs):
+        """Register a nscf task."""
+        kwargs["task_class"] = ScrTask
+        return self.register(*args, **kwargs)
+
+    def register_sigma_task(self, *args, **kwargs):
+        """Register a nscf task."""
+        kwargs["task_class"] = SigmaTask
         return self.register(*args, **kwargs)
 
     def register_dde_task(self, *args, **kwargs):
@@ -685,18 +699,81 @@ class BandStructureWork(Work):
         super(BandStructureWork, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
-        self.scf_task = self.register(scf_input, task_class=ScfTask)
+        self.scf_task = self.register_scf_task(scf_input)
 
         # Register the NSCF run and its dependency.
-        self.nscf_task = self.register(nscf_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
+        self.nscf_task = self.register_nscf_task(nscf_input, deps={self.scf_task: "DEN"})
 
         # Add DOS computation(s) if requested.
+        self.dos_tasks = []
         if dos_inputs is not None:
             if not isinstance(dos_inputs, (list, tuple)):
                 dos_inputs = [dos_inputs]
 
             for dos_input in dos_inputs:
-                self.register(dos_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
+                dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
+                self.dos_tasks.append(dos_task)
+
+    def plot_ebands(self, **kwargs):
+        """
+        Plot the band structure. kwargs are passed to the plot method of :class:`ElectronBands`.
+
+        Returns:
+            `matplotlib` figure
+        """
+        with self.nscf_task.open_gsr() as gsr: 
+            return gsr.ebands.plot(**kwargs)
+
+    def plot_ebands_with_edos(self, dos_pos=0, method="gaussian", step=0.01, width=0.1, **kwargs):
+        """
+        Plot the band structure and the DOS.
+
+        Args:
+            dos_pos: Index of the task from which the DOS should be obtained (note: 0 refers to the first DOS task).
+            method: String defining the method for the computation of the DOS.
+            step: Energy step (eV) of the linear mesh.
+            width: Standard deviation (eV) of the gaussian.
+            kwargs: Keyword arguments passed to `plot_with_edos` method to customize the plot.
+
+        Returns:
+            `matplotlib` figure.
+        """
+        with self.nscf_task.open_gsr() as gsr: 
+            gs_ebands = gsr.ebands
+
+        with self.dos_tasks[dos_pos].open_gsr() as gsr: 
+            dos_ebands = gsr.ebands
+
+        edos = dos_ebands.get_edos(method=method, step=step, width=width)
+        return gs_ebands.plot_with_edos(edos, **kwargs)
+
+    def plot_edoses(self, dos_pos=None, method="gaussian", step=0.01, width=0.1, **kwargs):
+        """
+        Plot the band structure and the DOS.
+
+        Args:
+            dos_pos: Index of the task from which the DOS should be obtained. 
+                     None is all DOSes should be displayed. Accepts integer or list of integers.
+            method: String defining the method for the computation of the DOS.
+            step: Energy step (eV) of the linear mesh.
+            width: Standard deviation (eV) of the gaussian.
+            kwargs: Keyword arguments passed to `plot` method to customize the plot.
+
+        Returns:
+            `matplotlib` figure.
+        """
+        if dos_pos is not None and not isistance(dos_pos, (list, tuple)): dos_pos = [dos_pos]
+
+        from abipy.electrons.ebands import ElectronDosPlotter
+        plotter = ElectronDosPlotter()
+        for i, task in enumerate(self.dos_tasks):
+            if dos_pos is not None and i not in dos_pos: continue
+            with task.open_gsr() as gsr:
+                edos = gsr.ebands.get_edos(method=method, step=step, width=width)
+                ngkpt = task.get_inpvar("ngkpt")
+                plotter.add_edos("ngkpt %s" % str(ngkpt), edos)
+
+        return plotter.plot(**kwargs)
 
 
 class RelaxWork(Work):
@@ -716,16 +793,26 @@ class RelaxWork(Work):
         """
         super(RelaxWork, self).__init__(workdir=workdir, manager=manager)
 
-        self.ion_task = self.register(ion_input, task_class=RelaxTask)
+        self.ion_task = self.register_relax_task(ion_input)
 
-        # Use WFK for the time being since I don't know why Abinit produces all these _TIM?_DEN files.
-        #self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "DEN"}, task_class=RelaxTask)
-        self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "WFK"}, task_class=RelaxTask)
+        # Note:
+        #   1) It would be nice to restart from the WFK file but ABINIT crashes due to the
+        #      different unit cell parameters.
+        #
+        #   2) Restarting form DEN is not trivial because Abinit produces all these _TIM?_DEN files.
+        #      and the syntax used to specify deps is not powerful enough
+        #   
+        #   For the time being, we don't use any output from ion_tasl except for the 
+        #   the final structure that in transferred in on_ok.
+        deps = {self.ion_task: "DEN"}
+        deps = {self.ion_task: "WFK"}
+        deps = None
+
+        self.ioncell_task = self.register_relax_task(ioncell_input, deps=deps)
 
         # Lock ioncell_task as ion_task should communicate to ioncell_task that 
         # the calculation is OK and pass the final structure.
         self.ioncell_task.set_status(self.S_LOCKED)
-
         self.transfer_done = False
 
     def on_ok(self, sender):
@@ -739,10 +826,10 @@ class RelaxWork(Work):
         if sender == self.ion_task and not self.transfer_done:
             # Get the relaxed structure from ion_task
             ion_structure = self.ion_task.read_final_structure()
-            print("Got relaxed ion_structure", ion_structure)
+            #print("Got relaxed ion_structure", ion_structure)
 
             # Transfer it to the ioncell task (we do it only once).
-            self.ioncell_task.change_structure(ion_structure)
+            self.ioncell_task._change_structure(ion_structure)
             self.transfer_done = True
 
             # Unlock ioncell_task so that we can submit it.
@@ -773,18 +860,19 @@ class G0W0Work(Work):
 
         # Register the GS-SCF run.
         # register all scf_inputs but link the nscf only the last scf in the list
+        #MG: FIXME Why this?
         if isinstance(scf_input, (list, tuple)):
             for single_scf_input in scf_input:
-                self.scf_task = self.register(single_scf_input, task_class=ScfTask)
+                self.scf_task = self.register_scf_task(single_scf_input)
         else:
-            self.scf_task = self.register(scf_input, task_class=ScfTask)
+            self.scf_task = self.register_scf_task(scf_input)
 
         # Construct the input for the NSCF run.
-        self.nscf_task = nscf_task = self.register(nscf_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
+        self.nscf_task = nscf_task = self.register_nscf_task(nscf_input, deps={self.scf_task: "DEN"})
 
         # Register the SCREENING run.
         if not spread_scr:
-            self.scr_task = scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
+            self.scr_task = scr_task = self.register_scr_task(scr_input, deps={nscf_task: "WFK"})
         else:
             self.scr_tasks = []
 
@@ -794,16 +882,16 @@ class G0W0Work(Work):
             scf_in = scf_input[-1] if isinstance(scf_input, (list, tuple)) else scf_input
             logger.info('added band structure calculation')
             bands_input = NscfStrategy(scf_strategy=scf_in,
-                                       ksampling=KSampling.path_from_structure(ndivsm=nksmall,
-                                                                               structure=scf_in.structure),
-                                       nscf_nband=scf_in.electrons.nband*2,
-                                       ecut=scf_in.ecut)
+                                       ksampling=KSampling.path_from_structure(ndivsm=nksmall, structure=scf_in.structure),
+                                       nscf_nband=scf_in.electrons.nband*2, ecut=scf_in.ecut)
+
             self.bands_task = self.register_nscf_task(bands_input, deps={self.scf_task: "DEN"})
+
             dos_input = NscfStrategy(scf_strategy=scf_in,
                                      ksampling=KSampling.automatic_density(kppa=nksmall**3, structure=scf_in.structure,
                                                                            shifts=(0.0, 0.0, 0.0)),
-                                     nscf_nband=scf_in.electrons.nband*2,
-                                     ecut=scf_in.ecut)
+                                     nscf_nband=scf_in.electrons.nband*2, ecut=scf_in.ecut)
+
             self.dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
 
         # Register the SIGMA runs.
@@ -817,9 +905,9 @@ class G0W0Work(Work):
                 new_scr_input.screening.ecuteps = sigma_input.sigma.ecuteps
                 new_scr_input.screening.nband = sigma_input.sigma.nband
                 new_scr_input.electrons.nband = sigma_input.sigma.nband
-                scr_task = self.register(new_scr_input, deps={nscf_task: "WFK"})
+                scr_task = self.register_scr_task(new_scr_input, deps={nscf_task: "WFK"})
 
-            task = self.register(sigma_input, deps={nscf_task: "WFK", scr_task: "SCR"})
+            task = self.register_sigma_task(sigma_input, deps={nscf_task: "WFK", scr_task: "SCR"})
             self.sigma_tasks.append(task)
 
 
@@ -837,8 +925,7 @@ class SigmaConvWork(Work):
             manager: :class:`TaskManager` object.
         """
         # Cast to node instances.
-        wfk_node = Node.as_node(wfk_node)
-        scr_node = Node.as_node(scr_node)
+        wfk_node, scr_node = Node.as_node(wfk_node), Node.as_node(scr_node)
 
         super(SigmaConvWork, self).__init__(workdir=workdir, manager=manager)
 
@@ -847,13 +934,13 @@ class SigmaConvWork(Work):
             sigma_inputs = [sigma_inputs]
 
         for sigma_input in sigma_inputs:
-            self.register(sigma_input, deps={wfk_node: "WFK", scr_node: "SCR"})
+            self.register_sigma_task(sigma_input, deps={wfk_node: "WFK", scr_node: "SCR"})
 
 
 class BseMdfWork(Work):
     """
     Work for simple BSE calculations in which the self-energy corrections
-    are approximated by the scissors operator and the screening in modeled
+    are approximated by the scissors operator and the screening is modeled
     with the model dielectric function.
     """
     def __init__(self, scf_input, nscf_input, bse_inputs, workdir=None, manager=None):
@@ -868,17 +955,17 @@ class BseMdfWork(Work):
         super(BseMdfWork, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
-        self.scf_task = self.register(scf_input, task_class=ScfTask)
+        self.scf_task = self.register_scf_task(scf_input)
 
         # Construct the input for the NSCF run.
-        self.nscf_task = self.register(nscf_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
+        self.nscf_task = self.register_nscf_task(nscf_input, deps={self.scf_task: "DEN"})
 
         # Construct the input(s) for the BSE run.
         if not isinstance(bse_inputs, (list, tuple)):
             bse_inputs = [bse_inputs]
 
         for bse_input in bse_inputs:
-            self.register(bse_input, deps={self.nscf_task: "WFK"}, task_class=BseTask)
+            self.register_bse_task(bse_input, deps={self.nscf_task: "WFK"})
 
 
 class QptdmWork(Work):
@@ -916,19 +1003,18 @@ class QptdmWork(Work):
         fake_task.start_and_wait()
 
         # Parse the section with the q-points
-        #qpoints = yaml_read_kpoints(fake_task.log_file.path, doc_tag="!Qptdms")
         from pymatgen.io.abinitio.netcdf import NetcdfReader
-        with NetcdfReader(fake_task.outdir.has_abiext("qpts.nc")) as reader:
-            qpoints = reader.read_value("qibz")
+        with NetcdfReader(fake_task.outdir.has_abiext("qptdms.nc")) as reader:
+            qpoints = reader.read_value("reduced_coordinates_of_kpoints")
         #print("qpoints)
         #w.rmtree()
 
         # Now we can register the task for the different q-points
         for qpoint in qpoints:
             qptdm_input = scr_input.deepcopy()
-            qptdm_input.set_variables(nqptdm=1, qptdm=qpoint)
-
-            self.register(qptdm_input, manager=self.manager)
+            qptdm_input.set_vars(nqptdm=1, qptdm=qpoint)
+            new_task = self.register_scr_task(qptdm_input, manager=self.manager)
+            #new_task.set_cleanup_exts()
 
         self.allocate()
 
@@ -1039,9 +1125,9 @@ class OneShotPhononWork(Work):
         return [phonon(qpt=qpt, freqs=freqs_meV) for qpt, freqs_meV in zip(qpts, EnergyArray(phfreqs, "Ha").to("meV") )]
 
     def get_results(self, **kwargs):
-        results = super(self.__class__, self).get_results()
+        results = super(OneShotPhononWork, self).get_results()
         phonons = self.read_phonons()
-        print(phonons)
+        #print(phonons)
         results.update(phonons=phonons)
 
         return results
@@ -1096,6 +1182,14 @@ class PhononWork(Work):
         out_ddb = self.merge_ddb_files()
 
         results = self.Results(node=self, returncode=0, message="DDB merge done")
-        results.add_gridfs_files(DDB=(out_ddb, "t"))
+        results.register_gridfs_files(DDB=(out_ddb, "t"))
+
+        # TODO
+        # Call anaddb to compute the phonon frequencies for this q-point and
+        # store the results in the outdir of the work.
+
+        #atask = AnaddbTask(anaddb_input, ddb_node,
+        #         gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None)
+        #atask.start()
 
         return results
