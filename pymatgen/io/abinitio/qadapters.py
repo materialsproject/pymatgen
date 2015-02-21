@@ -795,7 +795,7 @@ limits:
             pre_run: String or list of commands to execute before launching the calculation.
             post_run: String or list of commands to execute once the calculation is completed.
             mpi_runner: Path to the MPI runner or :class:`MpiRunner` instance. None if not used
-            max_num_launches: Maximum number of submissions that can be done. Defaults to 5
+            max_num_launches: Maximum number of submissions that can be done. Defaults to 10
             qverbatim:
             min_cores, max_cores: Minimum and maximum number of cores that can be used
             min_mem_per_proc=Minimun memory per process in megabytes.
@@ -829,7 +829,7 @@ limits:
 
         # List of dictionaries with the parameters used to submit jobs
         # The launcher will use this information to increase the resources
-        self.launches, self.max_num_launches = [], kwargs.pop("max_num_launches", 5)
+        self.launches, self.max_num_launches = [], kwargs.pop("max_num_launches", 10)
 
         # Initialize some values from the info reported in the partition.
         self.set_mpi_procs(self.min_cores)

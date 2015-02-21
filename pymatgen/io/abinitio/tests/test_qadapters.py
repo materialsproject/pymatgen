@@ -332,7 +332,7 @@ hardware:
 
 #PBS -q fat
 #PBS -N job_name
-#PBS -l select=1:ncpus=3:vmem=3072mb:mpiprocs=3
+#PBS -l select=3:ncpus=1:vmem=1024mb:mpiprocs=1
 #PBS -l walltime=0:0:10
 #PBS -W group_list=naps
 #PBS -o qout_path
@@ -348,19 +348,19 @@ mpirun -n 3 executable < stdin > stdout 2> stderr
         s, params = qad.get_select(ret_dict=True)
         # IN_CORE PURE MPI: MPI: 4, OMP: 1
         aequal(params, 
-          {'ompthreads': 1, 'ncpus': 4, 'chunks': 1, 'mpiprocs': 4, "vmem": mem*4})
+          {'ncpus': 1, 'chunks': 4, 'mpiprocs': 1, "vmem": mem})
 
         qad.set_omp_threads(2)
         s, params = qad.get_select(ret_dict=True)
         # HYBRID MPI-OPENMP run, perfectly divisible among nodes:  MPI: 4, OMP: 2
         aequal(params, 
-            {'vmem': mem*4, 'ncpus': 8, 'chunks': 1, 'ompthreads': 2, 'mpiprocs': 4})
+            {'vmem': mem, 'ncpus': 2, 'chunks': 4, 'ompthreads': 2, 'mpiprocs': 1})
 
         qad.set_mpi_procs(12)
         s, params = qad.get_select(ret_dict=True)
         # HYBRID MPI-OPENMP run, perfectly divisible among nodes:  MPI: 12, OMP: 2
         aequal(params, 
-            {'vmem': mem*4, 'ncpus': 8, 'chunks': 3, 'ompthreads': 2, 'mpiprocs': 4})
+            {'vmem': mem, 'ncpus': 2, 'chunks': 12, 'ompthreads': 2, 'mpiprocs': 1})
 
         qad.set_omp_threads(5)
         qad.set_mpi_procs(3)

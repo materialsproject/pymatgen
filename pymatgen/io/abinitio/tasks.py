@@ -23,13 +23,13 @@ from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property, return_none_if_raise
 from monty.json import MontyDecoder
+from monty.fnmatch import WildCard
 from pymatgen.core.units import  Memory #Time,
-from pymatgen.util.string_utils import WildCard
 from pymatgen.util.num_utils import maxloc
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump, pmg_serialize
-from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
+from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition, SparseHistogram
 from .strategies import StrategyWithInput, OpticInput
-from .qadapters import make_qadapter, QueueAdapter
+from .qadapters import make_qadapter, QueueAdapter, slurm_parse_timestr
 from .db import DBConnector
 from . import abiinspect
 from . import events
@@ -246,63 +246,6 @@ class TaskResults(NodeResults):
         )
 
         return new
-
-
-class SparseHistogram(object):
-
-    def __init__(self, items, key=None, num=None, step=None):
-        if num is None and step is None:
-            raise ValueError("Either num or step must be specified")
-
-        from collections import defaultdict, OrderedDict
-
-        values = [key(item) for item in items] if key is not None else items
-        start, stop = min(values), max(values)
-        if num is None:
-            num = int((stop - start) / step)
-            if num == 0: num = 1
-        mesh = np.linspace(start, stop, num, endpoint=False)
-
-        from monty.bisect import find_le
-
-        hist = defaultdict(list)
-        for item, value in zip(items, values):
-            # Find rightmost value less than or equal to x.
-            # hence each bin contains all items whose value is >= value
-            pos = find_le(mesh, value)
-            hist[mesh[pos]].append(item)
-
-        #new = OrderedDict([(pos, hist[pos]) for pos in sorted(hist.keys(), reverse=reverse)])
-        self.binvals = sorted(hist.keys())
-        self.values = [hist[pos] for pos in self.binvals]
-        self.start, self.stop, self.num = start, stop, num
-
-    from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
-    @add_fig_kwargs
-    def plot(self, ax=None, **kwargs):
-        """
-        Plot the histogram with matplotlib, returns `matplotlib figure
-        """
-        ax, fig, plt = get_ax_fig_plt(ax)
-
-        yy = [len(v) for v in self.values]
-        ax.plot(self.binvals, yy, **kwargs)
-
-        return fig
-
-
-import unittest
-class SparseHistogramTest(unittest.TestCase):
-    def test_sparse(self):
-        items = [1, 2, 2.9, 4]
-        hist = SparseHistogram(items, step=1)
-        assert hist.binvals == [1.0, 2.0, 3.0] 
-        assert hist.values == [[1], [2, 2.9], [4]]
-        #hist.plot()
-
-        hist = SparseHistogram([iv for iv in enumerate(items)], key=lambda t: t[1], step=1)
-        assert hist.binvals == [1.0, 2.0, 3.0] 
-        assert hist.values == [[(0, 1)], [(1, 2), (2, 2.9)], [(3, 4)]]
 
 
 class ParalConf(AttrDict):
@@ -622,6 +565,9 @@ class TaskPolicy(object):
                Default: empty 
     vars_condition: condition used to filter the list of ABINIT variables reported autoparal 
                     (Mongodb-like syntax). Default: empty
+    frozen_timeout: A job is considered to be frozen and its status is set to Error if no change to 
+                    the output file has been done for frozen_timeout seconds. Accepts int with seconds or 
+                    string in slurm form i.e. days-hours:minutes:seconds. Default: 1 hour.
     precedence:
     autoparal_priorities:
 """
@@ -636,6 +582,7 @@ class TaskPolicy(object):
         self.precedence = kwargs.pop("precedence", "autoparal_conf")
         self.autoparal_priorities = kwargs.pop("autoparal_priorities", ["speedup"])
         #self.autoparal_priorities = kwargs.pop("autoparal_priorities", ["speedup", "efficiecy", "memory"]
+        self.frozen_timeout = slurm_parse_timestr(kwargs.pop("frozen_timeout", "0-1"))
 
         if kwargs:
             raise ValueError("Found invalid keywords in policy section:\n %s" % str(kwargs.keys()))
@@ -1308,6 +1255,9 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         # Used to push additional info during the execution. 
         self.history = collections.deque(maxlen=100)
 
+        # Actions performed to fix abicritical events.
+        self._corrections = collections.deque(maxlen=100)
+
         # Set to true if the node has been finalized.
         self._finalized = False
         self._status = self.S_INIT
@@ -1389,6 +1339,16 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     def str_history(self):
         """String representation of history."""
         return "\n".join(self.history)
+
+
+    @property
+    def corrections(self):
+        """
+        List of dictionaries with infornation on the actions performed to solve `AbiCritical` Events.
+        Each dictionary contains the `AbinitEvent` who triggered the correction and 
+        a human-readable message with the description of the operation performed.
+        """
+        return self._corrections
 
     @property
     def is_file(self):
@@ -1766,10 +1726,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             raise NotImplementedError("get_var for HTC interface!")
 
     @property
-    def input_structure(self):
-        """Input structure of the task."""
+    def initial_structure(self):
+        """Initial structure of the task."""
         if hasattr(self.strategy, "abinit_input"):
-            return self.strategy.abinit_input[0].structure
+            return self.strategy.abinit_input.structure
+            #return self.strategy.abinit_input[0].structure
         else:
             return self.strategy.structure
 
@@ -2200,19 +2161,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             if self.stderr_file.exists and not err_info:
                 if self.qerr_file.exists and not err_msg:
                     # there is output and no errors
-                    # Check if the run completed successfully.
-                    #if report.run_completed:
-                    #    # Check if the calculation converged.
-                    #    not_ok = self.not_converged()
-                    #    if not_ok:
-                    #        return self.set_status(self.S_UNCONVERGED)
-                    #        # The job finished but did not converge
-                    #    else:
-                    #        return self.set_status(self.S_OK)
-                    #        # The job finished properly
-
-                    return self.set_status(self.S_RUN)
                     # The job still seems to be running
+                    return self.set_status(self.S_RUN)
 
         # 6)
         if not self.output_file.exists:
@@ -2254,6 +2204,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # 9) if we still haven't returned there is no indication of any error and the job can only still be running
         # but we should actually never land here, or we have delays in the file system ....
         # print('the job still seems to be running maybe it is hanging without producing output... ')
+
+        # Check time of last modification.
+        if (time.time() - self.output_file.get_stat().st_mtime > self.manager.policy.frozen_timeout):
+            info_msg = "Task seems to be frozen, last modif more than %s [s] ago" % self.manager.policy.frozen_timeout
+            return self.set_status(self.S_ERROR, info_msg)
 
         return self.set_status(self.S_RUN)
 
@@ -2362,8 +2317,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.make_links()
         self.setup()
 
-    # TODO: For the time being, we inspect the log file,
-    # We will start to use the output file when the migration to YAML is completed
     def get_event_report(self, source="log"):
         """
         Analyzes the main output file for possible Errors or Warnings.
@@ -2374,6 +2327,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         Returns:
             :class:`EventReport` instance or None if the main output file does not exist.
         """
+        # TODO: For the time being, we inspect the log file,
+        # We will start to use the output file when the migration to YAML is completed
         ofile = {
             "output": self.output_file,
             "log": self.log_file}[source]
@@ -2381,9 +2336,19 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         if not ofile.exists:
             return None
 
+        # Don't parse source file if we already have its report and the source didn't change.
+        #if not hasattr(self, "_prev_reports"): self._prev_reports = {}
+        #old_report = self._prev_reports.get(source, None)
+        #if False and old_report is not None and old_report.stat.st_mtime == ofile.get_stat().st_mtime:
+        #    print("Returning old_report")
+        #    return old_report
+
         parser = events.EventsParser()
         try:
-            return parser.parse(ofile.path)
+            report = parser.parse(ofile.path)
+            #self._prev_reports[source] = report
+            return report
+
         except parser.Error as exc:
             # Return a report with an error entry with info on the exception.
             logger.critical("%s: Exception while parsing ABINIT events:\n %s" % (ofile, str(exc)))
@@ -2468,7 +2433,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             self.files_file.write(self.filesfile_string)
 
         self.input_file.write(self.make_input())
-
         self.manager.write_jobfile(self)
 
     def rmtree(self, exclude_wildcard=""):
@@ -2901,7 +2865,7 @@ class AbinitTask(Task):
         """
         # remove all 'error', else the job will be seen as crashed in the next check status
         # even if the job did not run
-        print('reset_from_scatch', self)
+        # print('reset_from_scatch', self)
         self.output_file.remove()
         self.log_file.remove()
         self.stderr_file.remove()
@@ -2909,28 +2873,31 @@ class AbinitTask(Task):
 
         return self._restart(submit=False)
 
-    def fix_abicritical(self):
+    def fix_abi_critical(self):
         """
         method to fix crashes/error caused by abinit
-
-        currently:
-            try to rerun with more resources, last resort if all else fails
-        ideas:
-            upon repetative no converging iscf > 2 / 12
 
         Returns:
             1 if task has been fixed else 0.
         """
-        # the crude, no idea what to do but this may work, solution.
-        # MG: FIXME this should not be done here!
-        if self.manager.increase_resources():
+        count = 0
+        report = self.get_event_report()
+        for event in report:
+            try:
+                d = event.correct(self)
+                if d is not None: count += 1
+
+            except Exception as exc:
+                logger.critical(str(exc))
+
+        if count:
             self.reset_from_scratch()
             return 1
-        else:
-            info_msg = 'We encountered an AbiCritical event that could not be fixed'
-            logger.warning(info_msg)
-            self.set_status(status=self.S_ERROR, info_msg=info_msg)
-            return 0
+
+        info_msg = 'We encountered AbiCritical events that could not be fixed'
+        logger.critical(info_msg)
+        self.set_status(status=self.S_ERROR, info_msg=info_msg)
+        return 0
 
     def fix_queue_critical(self):
         """
@@ -3243,12 +3210,19 @@ class RelaxTask(AbinitTask, ProduceGsr, ProduceHist):
         events.RelaxConvergenceWarning,
     ]
 
-    def change_structure(self, structure):
+    def _change_structure(self, structure):
         """Change the input structure."""
-        print("changing structure")
-        print("old:\n" + str(self.strategy.abinit_input.structure) + "\n")
-        print("new:\n" + str(structure) + "\n")
+        #print("changing structure")
+        #print("old:\n" + str(self.strategy.abinit_input.structure) + "\n")
+        #print("new:\n" + str(structure) + "\n")
+
+        #print("**old input**")
+        #print(self.make_input())
         self.strategy.abinit_input.set_structure(structure)
+        #print(self.initial_structure)
+        #print("**new input**")
+        #print(self.make_input())
+        #self.build()
 
     def read_final_structure(self):
         """Read the final structure from the GSR file."""
@@ -3281,14 +3255,14 @@ class RelaxTask(AbinitTask, ProduceGsr, ProduceHist):
         else:
             raise self.RestartError("Cannot find the WFK|DEN file to restart from.")
 
+        # Add the appropriate variable for restarting.
+        self.strategy.add_extra_abivars(irdvars)
+
         # Read the relaxed structure from the GSR file.
         structure = self.read_final_structure()
                                                            
         # Change the structure.
-        self.change_structure(structure)
-
-        # Add the appropriate variable for restarting.
-        self.strategy.add_extra_abivars(irdvars)
+        self._change_structure(structure)
 
         # Now we can resubmit the job.
         return self._restart()
@@ -3300,7 +3274,7 @@ class RelaxTask(AbinitTask, ProduceGsr, ProduceHist):
         Args:
             what: Either "hist" or "scf". The first option (default) extracts data
                 from the HIST file and plot the evolution of the structural 
-                paramenters, forces, pressures and energies.
+                parameters, forces, pressures and energies.
                 The second option, extract data from the main output file and
                 plot the evolution of the SCF cycles (etotal, residuals, etc).
 

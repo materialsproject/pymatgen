@@ -17,9 +17,9 @@ from six.moves import filter
 from monty.collections import AttrDict
 from monty.itertools import chunks
 from monty.functools import lazy_property
+from monty.fnmatch import WildCard
 from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
-from pymatgen.util.string_utils import WildCard
 from . import wrappers
 from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, PhononTask, DdkTask, 
                     BseTask, RelaxTask, DdeTask, ScrTask, SigmaTask)
@@ -795,14 +795,24 @@ class RelaxWork(Work):
 
         self.ion_task = self.register_relax_task(ion_input)
 
-        # Use WFK for the time being since I don't know why Abinit produces all these _TIM?_DEN files.
-        #self.ioncell_task = self.register_relax_task(ioncell_input, deps={self.ion_task: "DEN"})
-        self.ioncell_task = self.register_relax_task(ioncell_input, deps={self.ion_task: "WFK"})
+        # Note:
+        #   1) It would be nice to restart from the WFK file but ABINIT crashes due to the
+        #      different unit cell parameters.
+        #
+        #   2) Restarting form DEN is not trivial because Abinit produces all these _TIM?_DEN files.
+        #      and the syntax used to specify deps is not powerful enough
+        #   
+        #   For the time being, we don't use any output from ion_tasl except for the 
+        #   the final structure that in transferred in on_ok.
+        deps = {self.ion_task: "DEN"}
+        deps = {self.ion_task: "WFK"}
+        deps = None
+
+        self.ioncell_task = self.register_relax_task(ioncell_input, deps=deps)
 
         # Lock ioncell_task as ion_task should communicate to ioncell_task that 
         # the calculation is OK and pass the final structure.
         self.ioncell_task.set_status(self.S_LOCKED)
-
         self.transfer_done = False
 
     def on_ok(self, sender):
@@ -816,11 +826,10 @@ class RelaxWork(Work):
         if sender == self.ion_task and not self.transfer_done:
             # Get the relaxed structure from ion_task
             ion_structure = self.ion_task.read_final_structure()
-            print("Got relaxed ion_structure", ion_structure)
+            #print("Got relaxed ion_structure", ion_structure)
 
             # Transfer it to the ioncell task (we do it only once).
-            self.ioncell_task.change_structure(ion_structure)
-            self.ioncell_task.build()
+            self.ioncell_task._change_structure(ion_structure)
             self.transfer_done = True
 
             # Unlock ioncell_task so that we can submit it.
