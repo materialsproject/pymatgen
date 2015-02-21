@@ -2107,7 +2107,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # an errored task, should not end up here but just to be sure
         black_list = (self.S_LOCKED, self.S_ERROR)
         if self.status in black_list:
-            return
+            return self.status
 
         # 2) Check the returncode of the process (the process of submitting the job) first.
         # this point type of problem should also be handled by the scheduler error parser
@@ -2147,7 +2147,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             if report.errors or report.bugs:
                 # Abinit reported problems
                 if report.errors:
-                    logger.debug('"Found errors in report')
+                    logger.debug('Found errors in report')
                     for error in report.errors:
                         logger.debug(str(error))
                         try:
@@ -2218,7 +2218,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # print('the job still seems to be running maybe it is hanging without producing output... ')
 
         # Check time of last modification.
-        if (time.time() - self.output_file.get_stat().st_mtime > self.manager.policy.frozen_timeout):
+        if self.output_file.exists and \
+           (time.time() - self.output_file.get_stat().st_mtime > self.manager.policy.frozen_timeout):
             info_msg = "Task seems to be frozen, last modif more than %s [s] ago" % self.manager.policy.frozen_timeout
             return self.set_status(self.S_ERROR, info_msg)
 
