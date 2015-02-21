@@ -116,10 +116,10 @@ class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
 
     @classmethod
     def from_dict(cls, d):
-        d = d.copy()
-        d.pop('@module', None)
-        d.pop('@class', None)
-        return cls(**d)
+        #d = d.copy()
+        #d.pop('@module', None)
+        #d.pop('@class', None)
+        return cls(**{k:d[k] for k in d if k in cls._fields})
 
 # An handy Multiton
 _mode2spinvars = {
