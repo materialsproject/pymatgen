@@ -66,6 +66,7 @@ INCAR:
       Ni: 6.2
       V: 3.25
       W: 6.2
+  LDAUPRINT: true
   LORBIT: 11
   LREAL: AUTO
   LWAVE: false
