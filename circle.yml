@@ -34,7 +34,7 @@ deployment:
       - git config --global user.name "Py3k merger"
       - git config --global user.email ongsp@ucsd.edu
       - git config --global push.default matching
-      - git checkout stable_py3
-      - git pull
-      - git merge master -m "Automatic Py3k merge for testing"
-      - git push origin stable_py3
+      #- git checkout stable_py3
+      #- git pull
+      #- git merge master -m "Automatic Py3k merge for testing"
+      #- git push origin stable_py3
