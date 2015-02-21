@@ -181,7 +181,7 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
     def connect_signals(self):
         """
         Connect the signals within the work.
-        self is responsible for catching the important signals raised from 
+        The :class:`Work` is responsible for catching the important signals raised from 
         its task and raise new signals when some particular condition occurs.
         """
         for task in self:
@@ -353,7 +353,7 @@ class Work(BaseWork):
 
     @property
     def all_done(self):
-        """True if all the `Task` in the `Work` are done."""
+        """True if all the :class:`Task` objects in the :class:`Work` are done."""
         return all(task.status >= task.S_DONE for task in self)
 
     @property
@@ -405,7 +405,7 @@ class Work(BaseWork):
 
     def register(self, obj, deps=None, required_files=None, manager=None, task_class=None):
         """
-        Registers a new `Task` and add it to the internal list, taking into account possible dependencies.
+        Registers a new :class:`Task` and add it to the internal list, taking into account possible dependencies.
 
         Args:
             obj: :class:`Strategy` object or :class:`AbinitInput` instance.
@@ -478,17 +478,17 @@ class Work(BaseWork):
         return self.register(*args, **kwargs)
 
     def register_ddk_task(self, *args, **kwargs):
-        """Register a Ddk task."""
+        """Register a ddk task."""
         kwargs["task_class"] = DdkTask
         return self.register(*args, **kwargs)
 
     def register_scr_task(self, *args, **kwargs):
-        """Register a nscf task."""
+        """Register a screening task."""
         kwargs["task_class"] = ScrTask
         return self.register(*args, **kwargs)
 
     def register_sigma_task(self, *args, **kwargs):
-        """Register a nscf task."""
+        """Register a sigma task."""
         kwargs["task_class"] = SigmaTask
         return self.register(*args, **kwargs)
 
@@ -800,10 +800,10 @@ class RelaxWork(Work):
         #      different unit cell parameters.
         #
         #   2) Restarting form DEN is not trivial because Abinit produces all these _TIM?_DEN files.
-        #      and the syntax used to specify deps is not powerful enough
+        #      and the syntax used to specify dependencies is not powerful enough.
         #   
-        #   For the time being, we don't use any output from ion_tasl except for the 
-        #   the final structure that in transferred in on_ok.
+        # For the time being, we don't use any output from ion_tasl except for the 
+        # the final structure that will be transferred in on_ok.
         deps = {self.ion_task: "DEN"}
         deps = {self.ion_task: "WFK"}
         deps = None
@@ -826,7 +826,6 @@ class RelaxWork(Work):
         if sender == self.ion_task and not self.transfer_done:
             # Get the relaxed structure from ion_task
             ion_structure = self.ion_task.read_final_structure()
-            #print("Got relaxed ion_structure", ion_structure)
 
             # Transfer it to the ioncell task (we do it only once).
             self.ioncell_task._change_structure(ion_structure)
@@ -1127,15 +1126,10 @@ class OneShotPhononWork(Work):
     def get_results(self, **kwargs):
         results = super(OneShotPhononWork, self).get_results()
         phonons = self.read_phonons()
-        #print(phonons)
         results.update(phonons=phonons)
 
         return results
 
-    #def on_all_ok(self):
-    #    """
-    #    """
-    #    return self.get_results()
 
 
 class PhononWork(Work):
