@@ -16,10 +16,13 @@ import numpy.testing.utils as nptu
 from six.moves import zip
 from io import open
 import os
+import json
 
 from monty.json import MontyDecoder
 from monty.serialization import loadfn
 
+
+from pymatgen.serializers.json_coders import PMGSONable
 
 class PymatgenTest(unittest.TestCase):
     """
@@ -77,7 +80,6 @@ class PymatgenTest(unittest.TestCase):
         return nptu.assert_equal(actual, desired, err_msg=err_msg,
                                  verbose=verbose)
 
-
     def serialize_with_pickle(self, objects, protocols=None, test_eq=True):
         """
         Test whether the object(s) can be serialized and deserialized with pickle.
@@ -86,17 +88,15 @@ class PymatgenTest(unittest.TestCase):
         the two objects with the __eq__ operator if test_eq == True.
 
         Args:
-            objects:
-                Object or list of objects.
-            protocols:
-                List of pickle protocols to test.
+            objects: Object or list of objects.
+            protocols: List of pickle protocols to test. If protocols is None, HIGHEST_PROTOCOL is tested.
 
         Returns:
             Nested list with the objects deserialized with the specified protocols.
         """
         # Use the python version so that we get the traceback in case of errors
         import pickle as pickle
-        #import cPickle as pickle
+        from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump
 
         # Build a list even when we receive a single object.
         got_single_object = False
@@ -104,23 +104,33 @@ class PymatgenTest(unittest.TestCase):
             got_single_object = True
             objects = [objects]
 
-        # By default, all pickle protocols are tested.
         if protocols is None:
-            protocols = set([0, 1, 2] + [pickle.HIGHEST_PROTOCOL])
+            #protocols = set([0, 1, 2] + [pickle.HIGHEST_PROTOCOL])
+            protocols = [pickle.HIGHEST_PROTOCOL]
 
         # This list will contains the object deserialized with the different protocols.
-        objects_by_protocol = []
+        objects_by_protocol, errors = [], []
 
         for protocol in protocols:
             # Serialize and deserialize the object.
             mode = "wb"
             fd, tmpfile = tempfile.mkstemp(text="b" not in mode)
 
-            with open(tmpfile, mode) as fh:
-                pickle.dump(objects, fh, protocol=protocol)
+            try:
+                with open(tmpfile, mode) as fh:
+                    #pickle.dump(objects, fh, protocol=protocol)
+                    pmg_pickle_dump(objects, fh, protocol=protocol)
+            except Exception as exc:
+                errors.append("pickle.dump with protocol %s raised:\n%s" % (protocol, str(exc)))
+                continue
 
-            with open(tmpfile, "rb") as fh:
-                new_objects = pickle.load(fh)
+            try:
+                with open(tmpfile, "rb") as fh:
+                    #new_objects = pickle.load(fh)
+                    new_objects = pmg_pickle_load(fh)
+            except Exception as exc:
+                errors.append("pickle.load with protocol %s raised:\n%s" % (protocol, str(exc)))
+                continue
 
             # Test for equality
             if test_eq:
@@ -129,6 +139,9 @@ class PymatgenTest(unittest.TestCase):
 
             # Save the deserialized objects and test for equality.
             objects_by_protocol.append(new_objects)
+
+        if errors:
+            raise ValueError("\n".join(errors))
 
         # Return nested list so that client code can perform additional tests.
         if got_single_object:
@@ -147,3 +160,10 @@ class PymatgenTest(unittest.TestCase):
 
         return tmpfile
 
+    def assertPMGSONable(self, obj):
+        """
+        Tests if obj is PMGSONable and tries to verify whether the contract is fullfilled.
+        """
+        self.assertIsInstance(obj, PMGSONable)
+        self.assertDictEqual(obj.as_dict(), obj.__class__.from_dict(obj.as_dict()).as_dict())
+        json.loads(obj.to_json(), cls=MontyDecoder)

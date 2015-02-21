@@ -10,7 +10,7 @@ import os.path
 import collections
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.abinitio import *
+from pymatgen.io.abinitio.pseudos import *
 
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
@@ -48,7 +48,6 @@ class PseudoTestCase(PymatgenTest):
 
     def test_nc_pseudos(self):
         """Test norm-conserving pseudopotentials"""
-
         for (symbol, pseudos) in self.nc_pseudos.items():
             for pseudo in pseudos:
                 print(repr(pseudo))
@@ -60,6 +59,8 @@ class PseudoTestCase(PymatgenTest):
                 self.assertEqual(pseudo.Z_val, 4)
                 self.assertGreaterEqual(pseudo.nlcc_radius, 0.0)
                 print(pseudo.as_dict())
+
+                self.assertPMGSONable(pseudo)
 
                 # Test pickle
                 self.serialize_with_pickle(pseudo, test_eq=False)
@@ -91,7 +92,7 @@ class PseudoTestCase(PymatgenTest):
         self.assertFalse(not table.is_complete)
         assert len(table) == 3
         assert len(table[14]) == 3
-        assert len(table.pseudos_with_symbol("Si")) == 3
+        assert len(table.select_symbols("Si")) == 3
         assert table.zlist == [14]
 
         # Test pickle
@@ -144,6 +145,33 @@ class PseudoTestCase(PymatgenTest):
         self.assert_equal(ger.l_max, 2)
         self.assert_equal(ger.l_local, 4)
         self.assert_equal(ger.rcore, None)
+
+
+
+class PseudoTableTest(PymatgenTest):
+
+    def test_methods(self):
+        """Test PseudoTable methods"""
+        table = PseudoTable(ref_files("14si.pspnc",  "14si.4.hgh", "14-Si.LDA.fhi"))
+        print(table)
+        assert len(table) == 3
+        for pseudo in table:
+            assert pseudo.isnc
+        assert table.allnc and not table.allpaw
+        assert table.zlist == [14]
+
+        # Data persistence
+        self.serialize_with_pickle(table, test_eq=False)
+
+        #d = table.as_dict()
+        #PseudoTable.from_dict(d)
+        #self.assertPMGSONable(table)
+
+        selected = table.select_symbols("Si")
+        assert len(selected) == len(table) and selected.__class__ is table.__class__
+
+        with self.assertRaises(ValueError):
+            table.pseudos_with_symbols("Si")
 
 
 if __name__ == "__main__":
