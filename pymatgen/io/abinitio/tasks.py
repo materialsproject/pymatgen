@@ -1206,6 +1206,15 @@ class Status(int):
         return colored(str(self), **self.color_opts) 
 
 
+class NodeHistory(collections.deque):
+    """Logger-like object"""
+    def __str__(self):
+        return "\n".join(self)
+
+    def append(self, msg):
+        super(NodeHistory, self).append("[%s]: %s" % (time.asctime(), msg))
+
+
 class Node(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract base class defining the interface that must be 
@@ -1253,7 +1262,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         self._required_files = []
 
         # Used to push additional info during the execution. 
-        self.history = collections.deque(maxlen=100)
+        self.history = NodeHistory(maxlen=100)
 
         # Actions performed to fix abicritical events.
         self._corrections = collections.deque(maxlen=100)
@@ -1320,7 +1329,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     def node_id(self):
         """Node identifier."""
         return self._node_id
-                                                         
+
     def set_node_id(self, node_id):
         """Set the node identifier. Use it carefully!"""
         self._node_id = node_id
@@ -1333,13 +1342,12 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     @finalized.setter
     def finalized(self, boolean):
         self._finalized = boolean
-        self.history.append("Finalized on %s" % time.asctime())
+        self.history.append("Finalized")
 
-    @property
-    def str_history(self):
-        """String representation of history."""
-        return "\n".join(self.history)
-
+    #@property
+    #def str_history(self):
+    #    """String representation of history."""
+    #    return "\n".join(self.history)
 
     @property
     def corrections(self):
@@ -1879,15 +1887,14 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         # Increase the counter.
         self.num_restarts += 1
-        self.history.append("Restarted on %s, num_restarts %d" % (time.asctime(), self.num_restarts))
+        self.history.append("Restarted with num_restarts %d" % self.num_restarts)
 
         if submit:
             # Remove the lock file
             self.start_lockfile.remove()
             # Relaunch the task.
             fired = self.start()
-            if not fired:
-                self.history.append("[%s], restart failed" % time.asctime())
+            if not fired: self.history.append("restart failed")
         else:
             fired = False
 
@@ -2054,13 +2061,14 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         if changed:
             if status == self.S_SUB: 
                 self._submission_time = time.time()
-                self.history.append("Submitted on %s" % time.asctime())
+                self.history.append("Submitted with: MPI=%s, Omp=%s, Memproc=%.1f [Gb]" % (
+                    self.mpi_procs, self.omp_threads, self.mem_per_proc.to("Gb")))
 
             if status == self.S_OK:
-                self.history.append("Completed on %s" % time.asctime())
+                self.history.append("Completed")
 
             if status == self.S_ABICRITICAL:
-                self.history.append("Error info:\n %s" % str(info_msg))
+                self.history.append("Set status to S_ABI_CRITICAL.\nError:\n%s" % str(info_msg))
 
         if status == self.S_DONE:
             self.stop_datetime = datetime.datetime.now()
@@ -2099,7 +2107,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # an errored task, should not end up here but just to be sure
         black_list = (self.S_LOCKED, self.S_ERROR)
         if self.status in black_list:
-            return
+            return self.status
 
         # 2) Check the returncode of the process (the process of submitting the job) first.
         # this point type of problem should also be handled by the scheduler error parser
@@ -2139,7 +2147,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             if report.errors or report.bugs:
                 # Abinit reported problems
                 if report.errors:
-                    logger.debug('"Found errors in report')
+                    logger.debug('Found errors in report')
                     for error in report.errors:
                         logger.debug(str(error))
                         try:
@@ -2171,12 +2179,16 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 # No output at allThe job is still in the queue.
                 return self.status
                 
-
         # 7) Analyze the files of the resource manager and abinit and execution err (mvs)
-        if self.qerr_file.exists:
+        if err_info:
             from pymatgen.io.abinitio.scheduler_error_parsers import get_parser
             scheduler_parser = get_parser(self.manager.qadapter.QTYPE, err_file=self.qerr_file.path,
                                           out_file=self.qout_file.path, run_err_file=self.stderr_file.path)
+
+            if scheduler_parser is None:
+                return self.set_status(self.S_QCRITICAL, 
+                                      info_msg="Cannot find scheduler_parser for qtype %s" % self.manager.qadapter.QTYPE)
+                
             scheduler_parser.parse()
 
             if scheduler_parser.errors:
@@ -2206,7 +2218,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # print('the job still seems to be running maybe it is hanging without producing output... ')
 
         # Check time of last modification.
-        if (time.time() - self.output_file.get_stat().st_mtime > self.manager.policy.frozen_timeout):
+        if self.output_file.exists and \
+           (time.time() - self.output_file.get_stat().st_mtime > self.manager.policy.frozen_timeout):
             info_msg = "Task seems to be frozen, last modif more than %s [s] ago" % self.manager.policy.frozen_timeout
             return self.set_status(self.S_ERROR, info_msg)
 

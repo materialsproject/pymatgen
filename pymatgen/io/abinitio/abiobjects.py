@@ -14,7 +14,7 @@ from pprint import pformat
 from monty.design_patterns import singleton
 from monty.collections import AttrDict
 from pymatgen.core.design_patterns import Enum
-from pymatgen.serializers.json_coders import PMGSONable
+from pymatgen.serializers.json_coders import PMGSONable, pmg_serialize
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from monty.json import MontyEncoder, MontyDecoder
 
@@ -108,18 +108,14 @@ class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
             "nspden": self.nspden,
         }
 
+    @pmg_serialize
     def as_dict(self):
-        d = self._asdict()
-        d['@module'] = self.__class__.__module__
-        d['@class'] = self.__class__.__name__
-        return d
+        return {k: getattr(self, k) for k in self._fields}
 
     @classmethod
     def from_dict(cls, d):
-        d = d.copy()
-        d.pop('@module', None)
-        d.pop('@class', None)
-        return cls(**d)
+        return cls(**{k: d[k] for k in d if k in cls._fields})
+
 
 # An handy Multiton
 _mode2spinvars = {

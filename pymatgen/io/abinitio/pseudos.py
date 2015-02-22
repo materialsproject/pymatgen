@@ -1480,7 +1480,6 @@ class PawXmlSetup(Pseudo, PawPseudo):
     #    return fig
 
 
-#class PseudoTable(collections.Sequence):
 class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONable, object)):
     """
     Define the pseudopotentials from the element table.
