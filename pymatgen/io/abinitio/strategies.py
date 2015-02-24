@@ -379,10 +379,8 @@ class ScfStrategy(HtcStrategy):
         d['pseudos'] = [p.as_dict() for p in self.pseudos]
         d['ksampling'] = self.ksampling.as_dict()
         d['accuracy'] = self.accuracy
-        d['spin_mode'] = self.electrons.spin_mode.as_dict()
-        d['smearing'] = self.electrons.smearing.as_dict()
+        d['electrons'] = self.electrons.as_dict()
         d['charge'] = self.electrons.charge
-        d['scf_algorithm'] = self.electrons.algorithm
         d['use_symmetries'] = self.use_symmetries
         d['extra_abivars'] = self.extra_abivars
         d['@module'] = self.__class__.__module__
@@ -396,12 +394,11 @@ class ScfStrategy(HtcStrategy):
         structure = dec.process_decoded(d["structure"])
         pseudos = dec.process_decoded(d['pseudos'])
         ksampling = dec.process_decoded(d["ksampling"])
-        spin_mode = dec.process_decoded(d["spin_mode"])
-        smearing = dec.process_decoded(d["smearing"])
+        electrons = dec.process_decoded(d["electrons"])
 
         return cls(structure=structure, pseudos=pseudos, ksampling=ksampling, accuracy=d['accuracy'],
-                   spin_mode=spin_mode, smearing=smearing, charge=d['charge'],
-                   scf_algorithm=d['scf_algorithm'], use_symmetries=d['use_symmetries'],
+                   spin_mode=electrons.spin_mode, smearing=electrons.smearing, charge=d['charge'],
+                   scf_algorithm=electrons.algorithm, use_symmetries=d['use_symmetries'],
                    **d['extra_abivars'])
 
 
@@ -484,7 +481,6 @@ class NscfStrategy(HtcStrategy):
         return cls(scf_strategy=scf_strategy, ksampling=ksampling,
                    nscf_nband=nscf_nband, nscf_algorithm=nscf_algorithm, **d['extra_abivars'])
 
-
 class RelaxStrategy(ScfStrategy):
     """Extends ScfStrategy by adding an algorithm for the structural relaxation."""
 
@@ -523,7 +519,7 @@ class RelaxStrategy(ScfStrategy):
 
     def as_dict(self):
         d = super(RelaxStrategy, self).as_dict()
-        d['relax_algo'] = self.relax_algo
+        d['relax_algo'] = self.relax_algo.as_dict()
         d['@module'] = self.__class__.__module__
         d['@class'] = self.__class__.__name__
 
@@ -535,13 +531,13 @@ class RelaxStrategy(ScfStrategy):
         structure = dec.process_decoded(d["structure"])
         pseudos = [Pseudo.from_file(p['filepath']) for p in d['pseudos']]
         ksampling = dec.process_decoded(d["ksampling"])
-        spin_mode = dec.process_decoded(d["spin_mode"])
-        smearing = dec.process_decoded(d["smearing"])
+        electrons = dec.process_decoded(d["electrons"])
+        relax_algo = dec.process_decoded(d["relax_algo"])
 
         return cls(structure=structure, pseudos=pseudos, ksampling=ksampling, accuracy=d['accuracy'],
-                   spin_mode=spin_mode, smearing=smearing, charge=d['charge'],
-                   scf_algorithm=d['scf_algorithm'], use_symmetries=d['use_symmetries'],
-                   relax_algo=d['relax_algo'], **d['extra_abivars'])
+                   spin_mode=electrons.spin_mode, smearing=electrons.smearing, charge=d['charge'],
+                   scf_algorithm=electrons.algorithm, use_symmetries=d['use_symmetries'],
+                   relax_algo=relax_algo, **d['extra_abivars'])
 
 
 class ScreeningStrategy(HtcStrategy):
