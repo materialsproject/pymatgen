@@ -1,3 +1,0 @@
-[submodule "monty"]
-	path = monty
-	url = git@github.com:materialsvirtuallab/monty.git
