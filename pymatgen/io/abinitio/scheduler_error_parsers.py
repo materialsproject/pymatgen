@@ -392,9 +392,12 @@ def get_parser(scheduler, err_file, out_file=None, run_err_file=None, batch_err_
     out_file        stdout of the scheduler
     run_err_file    stderr of the application
     batch_err_file  stderr of the submission
+
+    Returns:
+        None if scheduler is not supported.
     """
     cls = ALL_PARSERS.get(scheduler)
-    return cls(err_file, out_file, run_err_file, batch_err_file)
+    return cls if cls is None else cls(err_file, out_file, run_err_file, batch_err_file)
 
 
 if __name__ == "__main__":
