@@ -126,7 +126,7 @@ class SlabGeneratorTest(PymatgenTest):
             while miller == (0, 0, 0):
                 miller = (random.randint(0, 6), random.randint(0, 6),
                           random.randint(0, 6))
-            gen = SlabGenerator(s, miller, 10, 10)
+            gen = SlabGenerator(s, miller, 10, 10, primitive=False)
             a, b, c = gen.oriented_unit_cell.lattice.matrix
             self.assertAlmostEqual(np.dot(a, gen._normal), 0)
             self.assertAlmostEqual(np.dot(b, gen._normal), 0)
@@ -245,6 +245,9 @@ class FuncTest(PymatgenTest):
         # in the (001) oriented unit cell
         slabs3 = generate_all_slabs(self.LiCoO2, 1, 10, 10,
                                     bonds={("Co", "O"): 3})
+        for i, s in enumerate(slabs3):
+            s.oriented_unit_cell.to(filename="LCOslab%s.cif" % (str(
+                s.miller_index)))
         self.assertEqual(len(slabs3), 1)
         mill = (0, 0, 1)
         for s in slabs3:

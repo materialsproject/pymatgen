@@ -21,6 +21,7 @@ import itertools
 import logging
 
 import numpy as np
+from numpy.linalg import norm
 from scipy.spatial.distance import squareform
 from scipy.cluster.hierarchy import linkage, fcluster
 
@@ -32,9 +33,9 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite
 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.coord_utils import in_coord_list
+from pymatgen.util.coord_utils import in_coord_list, find_in_coord_list_pbc, \
+    in_coord_list_pbc
 from pymatgen.analysis.structure_matcher import StructureMatcher
-
 
 logger = logging.getLogger(__name__)
 
@@ -384,6 +385,9 @@ class SlabGenerator(object):
 
         self.oriented_unit_cell = Structure.from_sites(single,
                                                        to_unit_cell=True)
+        self.oriented_unit_cell.to(filename="LCO_111_before.cif")
+        if primitive:
+            self.oriented_unit_cell = _get_constrained_prim(single)
         self.parent = initial_structure
         self.lll_reduce = lll_reduce
         self.center_slab = center_slab
@@ -679,3 +683,87 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
             all_slabs.extend(slabs)
 
     return all_slabs
+
+
+def _is_valid_vec(structure, vec, atol):
+    mapping = []
+    lattice = structure.lattice
+    fcoords = structure.frac_coords
+    for i, s in enumerate(structure):
+        f = lattice.get_fractional_coords(s.coords + vec)
+        indices = find_in_coord_list_pbc(fcoords, f, atol=atol)
+        if len(indices) != 1 or structure[indices[0]].species_and_occu != s.species_and_occu:
+            return False
+        else:
+            mapping.append(indices[0])
+
+    return len(mapping) == len(set(mapping))
+
+
+def _get_constrained_prim(structure, atol=1e-2):
+    sorted_structure = structure.get_sorted_structure()
+
+    sorted_structure = Structure.from_sites(sorted_structure, to_unit_cell=True)
+    groups = [
+        list(g) for k, g in itertools.groupby(
+            sorted_structure, key=lambda site: site.species_and_occu)]
+    min_sites = min(groups, key=lambda g: len(g))
+    vol = structure.lattice.volume
+    a, b, c = structure.lattice.matrix
+    for s1, s2 in itertools.combinations(min_sites, 2):
+        vec = s1.coords - s2.coords
+        print s1.frac_coords
+        print s2.frac_coords
+        print vec
+        if _is_valid_vec(structure, vec, atol):
+            d = abs(np.linalg.det([a, b, vec]))
+
+            if d < atol: #In a-b plane
+                a_norm = norm(np.cross(vec, a)) / norm(vec) / norm(a)
+                b_norm = norm(np.cross(vec, b)) / norm(vec) / norm(b)
+
+                if a_norm < b_norm:
+                    new_lattice = Lattice([vec, b, c])
+                else:
+                    new_lattice = Lattice([a, vec, c])
+            else:
+                new_lattice = Lattice([a, b, vec])
+            print new_lattice.lengths_and_angles
+            print structure.lattice.lengths_and_angles
+            if new_lattice.volume < 0.1 * vol:
+                continue
+            print "here"
+            sp = []
+            fcoords = []
+            for site in structure:
+                f = new_lattice.get_fractional_coords(site.coords)
+                if not in_coord_list_pbc(fcoords, f, atol):
+                    sp.append(site.species_and_occu)
+                    fcoords.append(f)
+            prim = Structure(new_lattice, sp, fcoords, to_unit_cell=True)
+            return _get_constrained_prim(prim)
+    return structure
+
+
+if __name__ == "__main__":
+    from pymatgen.util.testing import PymatgenTest
+
+    import os
+    cwd = os.path.abspath(os.path.dirname(__file__))
+    path = os.path.join(cwd, "..", "..", "test_files", "surface_tests",
+                    "icsd_LiCoO2.cif")
+    s = Structure.from_file(path, primitive=False)
+    print s
+    gen = SlabGenerator(s, miller_index=(1, 1, 1), min_slab_size=4,
+                        min_vacuum_size=4)
+    gen.oriented_unit_cell.to(filename="LCO111.cif")
+    #print s
+    #print _get_constrained_prim(s)
+    # s = Structure.from_file("../../test_files/LiFePO4").get_structure("LiFePO4")
+    # self.tei = Structure.from_file(get_path("icsd_TeI.cif"),
+    #                                primitive=False)
+    # self.LiCoO2 = Structure.from_file(get_path("icsd_LiCoO2.cif"),
+    #                                   primitive=False)
+    #
+    # self.p1 = Structure(Lattice.from_parameters(3, 4, 5, 31, 43, 50),
+    #                     ["H", "He"], [[0, 0, 0], [0.1, 0.2, 0.3]])
