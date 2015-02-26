@@ -1214,6 +1214,14 @@ class NodeHistory(collections.deque):
     def append(self, msg):
         super(NodeHistory, self).append("[%s]: %s" % (time.asctime(), msg))
 
+    #def info(self, msg, *args, **kwargs):
+    #    """Log 'msg % args' with the integer severity 'level' on the root logger."""
+
+    #def _log(self, msg, *args, **kwargs):
+    #    """Log 'msg % args' with the integer severity 'level' on the root logger."""
+
+    #def log_correction(self, msg, *args, **kwargs):
+
 
 class Node(six.with_metaclass(abc.ABCMeta, object)):
     """
@@ -1357,6 +1365,10 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         a human-readable message with the description of the operation performed.
         """
         return self._corrections
+
+    @property
+    def num_corrections(self):
+        return len(self.corrections)
 
     @property
     def is_file(self):
@@ -1729,7 +1741,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def get_inpvar(self, varname):
         """Return the value of the ABINIT variable varname, None if not present.""" 
         if hasattr(self.strategy, "abinit_input"):
-            return self.strategy.abinit_input[0].get(varname)
+            return self.strategy.abinit_input[0][varname]
         else:
             raise NotImplementedError("get_var for HTC interface!")
 
@@ -3237,7 +3249,7 @@ class RelaxTask(AbinitTask, ProduceGsr, ProduceHist):
         #print(self.make_input())
         #self.build()
 
-    def read_final_structure(self):
+    def get_final_structure(self):
         """Read the final structure from the GSR file."""
         try:
             with self.open_gsr() as gsr:
@@ -3272,7 +3284,7 @@ class RelaxTask(AbinitTask, ProduceGsr, ProduceHist):
         self.strategy.add_extra_abivars(irdvars)
 
         # Read the relaxed structure from the GSR file.
-        structure = self.read_final_structure()
+        structure = self.get_final_structure()
                                                            
         # Change the structure.
         self._change_structure(structure)
