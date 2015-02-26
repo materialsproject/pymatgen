@@ -82,7 +82,6 @@ pymatgen.io.abinitio.helpers module
     :undoc-members:
     :show-inheritance:
 
-
 pymatgen.io.abinitio.launcher module
 ------------------------------------
 
@@ -124,7 +123,7 @@ pymatgen.io.abinitio.scheduler_error_handlers module
     :show-inheritance:
 
 pymatgen.io.abinitio.scheduler_error_parsers module
-----------------------------------------------------
+---------------------------------------------------
 
 .. automodule:: pymatgen.io.abinitio.scheduler_error_parsers
     :members:
