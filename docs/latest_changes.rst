@@ -1,8 +1,7 @@
 Change log
 ==========
 
-v3.0.10
+v3.0.11
 -------
-* Fix cartesian coord parsing in Poscar class.
-* Vasprun now works with non-GGA PBE runs
-* Misc bug fixes
+* Lots of abinitio improvements (Matteo).
+* Added mp_decode option to MPRester.query to allow option to not decode into pymatgen objects.
