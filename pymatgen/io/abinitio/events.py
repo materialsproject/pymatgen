@@ -138,7 +138,7 @@ class AbinitEvent(yaml.YAMLObject): #, PMGSONable):
 
         raise ValueError("Cannot determine the base class of %s" % self.__class__.__name__)
 
-    def log_correction(self, task, message):
+    def log_correction(self, task, msg):
         """
         This method should be called once we have fixed the problem associated to this event.
         It adds a new entry in the correction history of the task.
@@ -148,7 +148,7 @@ class AbinitEvent(yaml.YAMLObject): #, PMGSONable):
         """
         task._corrections.append(dict(
             event=self.as_dict(), 
-            message=message,
+            msg=msg,
         ))
 
     def correct(self, task):
@@ -257,7 +257,8 @@ class DilatmxError(AbinitError):
 
         task._change_structure(last_structure)
         #changes = task._modify_vars(dilatmx=1.05)
-        task.history.append("Take last structure from DILATMX_STRUCT.nc, will try to restart")
+        msg = "Take last structure from DILATMX_STRUCT.nc, will try to restart with dilatmx %s" % task.get_inpvar("dilatmx")
+        task.history.append(msg)
         return 1
 
 
