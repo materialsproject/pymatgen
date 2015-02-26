@@ -825,7 +825,7 @@ class RelaxWork(Work):
 
         if sender == self.ion_task and not self.transfer_done:
             # Get the relaxed structure from ion_task
-            ion_structure = self.ion_task.read_final_structure()
+            ion_structure = self.ion_task.get_final_structure()
 
             # Transfer it to the ioncell task (we do it only once).
             self.ioncell_task._change_structure(ion_structure)
