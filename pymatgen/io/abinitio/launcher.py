@@ -706,8 +706,9 @@ class PyFlowScheduler(object):
 
             # Unschedule all the jobs before calling shutdown
             #self.sched.print_jobs()
-            for job in self.sched.get_jobs():
-                self.sched.unschedule_job(job)
+            if not has_sched_v3:
+                for job in self.sched.get_jobs():
+                    self.sched.unschedule_job(job)
             #self.sched.print_jobs()
                 
             self.sched.shutdown()
