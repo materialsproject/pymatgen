@@ -949,8 +949,10 @@ class Kpoints(PMGSONable):
         """
         vol = structure.lattice.reciprocal_lattice.volume
         kppa = int(round(kppvol * vol * structure.num_sites))
-        return Kpoints.automatic_density(structure, kppa, force_gamma=force_gamma)
+        return Kpoints.automatic_density(structure, kppa,
+                                         force_gamma=force_gamma)
 
+    @staticmethod
     def automatic_linemode(divisions, ibz):
         """
         Convenient static constructor for a KPOINTS in mode line_mode.
