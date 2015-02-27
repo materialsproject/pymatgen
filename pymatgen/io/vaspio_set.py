@@ -31,7 +31,6 @@ import numpy as np
 
 from monty.serialization import loadfn
 
-from pymatgen.io.cifio import CifWriter
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vaspio.vasp_output import Vasprun, Outcar
 from pymatgen.serializers.json_coders import PMGSONable
@@ -210,7 +209,6 @@ class DictVaspInputSet(AbstractVaspInputSet):
         reduce_structure (None/str): Before generating the input files,
             generate the reduced structure. Default (None), does not
             alter the structure. Valid values: None, "niggli", "LLL"
-
     """
 
     def __init__(self, name, config_dict, hubbard_off=False,
@@ -518,7 +516,15 @@ class MITNEBVaspInputSet(DictVaspInputSet):
             structures.append(s)
         return structures
 
-    def write_input(self, structures, output_dir, make_dir_if_not_present=True,
+    def write_input(self, structure, output_dir,
+                    make_dir_if_not_present=True, include_cif=False):
+        """
+        The default write_input is for writing initial structures / end point
+        relaxations. This ensures that
+        """
+
+    def write_input(self, structures, output_dir,
+                    make_dir_if_not_present=True,
                     write_cif=False):
         """
         NEB inputs has a special directory structure where inputs are in 00,
