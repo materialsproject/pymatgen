@@ -699,16 +699,16 @@ class IMoleculeTest(PymatgenTest):
         self.assertEqual(self.mol.formula, "H4 C1")
 
     def test_repr_str(self):
-        ans = """Molecule Summary (H4 C1)
+        ans = """Full Formula (H4 C1)
 Reduced Formula: H4C
 Charge = 0, Spin Mult = 1
 Sites (5)
-1 C     0.000000     0.000000     0.000000
-2 H     0.000000     0.000000     1.089000
-3 H     1.026719     0.000000    -0.363000
-4 H    -0.513360    -0.889165    -0.363000
-5 H    -0.513360     0.889165    -0.363000"""
-        self.assertEqual(str(self.mol), ans)
+0 C     0.000000     0.000000     0.000000
+1 H     0.000000     0.000000     1.089000
+2 H     1.026719     0.000000    -0.363000
+3 H    -0.513360    -0.889165    -0.363000
+4 H    -0.513360     0.889165    -0.363000"""
+        self.assertEqual(self.mol.__str__(), ans)
         ans = """Molecule Summary
 Site: C (0.0000, 0.0000, 0.0000)
 Site: H (0.0000, 0.0000, 1.0890)
