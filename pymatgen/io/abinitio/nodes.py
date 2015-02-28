@@ -940,12 +940,13 @@ _COUNTER_FILE = os.path.join(os.path.join(os.getenv("HOME"), ".abinit", "abipy")
 def init_counter():
     global _COUNTER
 
+    # Make dir and file if not present.
     if not os.path.exists(os.path.dirname(_COUNTER_FILE)):
         os.makedirs(os.path.dirname(_COUNTER_FILE))
 
     if not os.path.exists(_COUNTER_FILE):
         with open(_COUNTER_FILE, "wt") as fh:
-            fh.write("%d\n" % _COUNTER)
+            fh.write("%d\n" % -1)
 
     if _COUNTER is None:
         with open(_COUNTER_FILE, "r") as fh:
