@@ -1138,7 +1138,7 @@ class IStructure(SiteCollection, PMGSONable):
         return "\n".join(outs)
 
     def __str__(self):
-        outs = ["Structure Summary ({s})".format(s=self.composition.formula),
+        outs = ["Full Formula ({s})".format(s=self.composition.formula),
                 "Reduced Formula: {}"
                 .format(self.composition.reduced_formula)]
         to_s = lambda x: "%0.6f" % x
@@ -1148,7 +1148,7 @@ class IStructure(SiteCollection, PMGSONable):
                                            for i in self.lattice.angles]))
         outs.append("Sites ({i})".format(i=len(self)))
         for i, site in enumerate(self):
-            outs.append(" ".join([str(i + 1), site.species_string,
+            outs.append(" ".join([str(i), site.species_string,
                                   " ".join([to_s(j).rjust(12)
                                             for j in site.frac_coords])]))
         return "\n".join(outs)
@@ -1641,14 +1641,14 @@ class IMolecule(SiteCollection, PMGSONable):
         return "\n".join(outs)
 
     def __str__(self):
-        outs = ["Molecule Summary ({s})".format(s=self.composition.formula),
+        outs = ["Formula ({s})".format(s=self.composition.formula),
                 "Reduced Formula: " + self.composition.reduced_formula,
                 "Charge = {}, Spin Mult = {}".format(
                     self._charge, self._spin_multiplicity)]
         to_s = lambda x: "%0.6f" % x
         outs.append("Sites ({i})".format(i=len(self)))
         for i, site in enumerate(self):
-            outs.append(" ".join([str(i + 1), site.species_string,
+            outs.append(" ".join([str(i), site.species_string,
                                   " ".join([to_s(j).rjust(12) for j in
                                             site.coords])]))
         return "\n".join(outs)
