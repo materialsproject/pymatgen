@@ -1479,7 +1479,7 @@ $end
         for k, ref in ans_thermo_corr.items():
             self.assertAlmostEqual(qcout.data[1]['corrections'][k], ref)
         self.assertEqual(len(qcout.data[1]['molecules']), 1)
-        ans_mol1 = '''Molecule Summary (Cd1 Br2)
+        ans_mol1 = '''Full Formula (Cd1 Br2)
 Reduced Formula: CdBr2
 Charge = 0, Spin Mult = 1
 Sites (3)
@@ -1837,7 +1837,7 @@ $end
     def test_final_structure(self):
         filename = os.path.join(test_dir, "thiophene_wfs_5_carboxyl.qcout")
         qcout = QcOutput(filename)
-        ans = '''Molecule Summary (H4 C5 S1 O2)
+        ans = '''Full Formula (H4 C5 S1 O2)
 Reduced Formula: H4C5SO2
 Charge = -1, Spin Mult = 2
 Sites (12)

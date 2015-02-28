@@ -1641,7 +1641,7 @@ class IMolecule(SiteCollection, PMGSONable):
         return "\n".join(outs)
 
     def __str__(self):
-        outs = ["Formula ({s})".format(s=self.composition.formula),
+        outs = ["Full Formula ({s})".format(s=self.composition.formula),
                 "Reduced Formula: " + self.composition.reduced_formula,
                 "Charge = {}, Spin Mult = {}".format(
                     self._charge, self._spin_multiplicity)]
