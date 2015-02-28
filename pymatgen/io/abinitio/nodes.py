@@ -1,5 +1,7 @@
 # coding: utf-8
-"""Classes defining Abinit calculations."""
+"""
+This module defines the Node class that is inherited by Task, Work and Flow objects.
+"""
 from __future__ import division, print_function, unicode_literals
 
 import sys
@@ -934,7 +936,7 @@ class NodeHistory(collections.deque):
 # without relying on the application making an explicit call into this module at termination.
 
 _COUNTER = None
-_COUNTER_FILE = os.path.join(os.path.join(os.getenv("HOME"), ".abinit", "abipy"), "nodecounter")
+_COUNTER_FILE = os.path.join(os.getenv("HOME"), ".abinit", "abipy", "nodecounter")
 
 
 def init_counter():

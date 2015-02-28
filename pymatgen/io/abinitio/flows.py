@@ -5,6 +5,7 @@ Flows are the final objects that can be dumped directly to a pickle file on disk
 Flows are executed using abirun (abipy).
 """
 from __future__ import unicode_literals, division, print_function
+
 import os
 import sys
 import time
@@ -18,10 +19,12 @@ from six.moves import map
 from atomicfile import AtomicFile
 from prettytable import PrettyTable
 from monty.collections import as_set
+from monty.string import list_strings
 from monty.io import FileLock
 from monty.pprint import draw_tree
 from monty.termcolor import stream_has_colours, cprint, colored, cprint_map
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
+from pymatgen.core.units import Time, Memory
 from .nodes import Status, Node, NodeResults, Dependency
 from .tasks import (Task, ScfTask, PhononTask, TaskManager, NscfTask, DdkTask,
                     AnaddbTask, DdeTask, TaskManager)
@@ -1263,6 +1266,80 @@ class Flow(Node):
 
         sched.add_flow(self)
         return sched
+
+    def make_tarfile(self, name=None, max_filesize=None, exclude_exts=None, exclude_dirs=None, verbose=0):
+        """
+        Create a tarball file.
+
+        Args:
+            name:
+            max_filesize (int or string with unit): a file is included in the tar file if its size <= max_filesize
+                Can be specified in bytes e.g. `max_files=1024` or with a string with unit e.g. `max_filesize="10 Mb"`.
+            exclude_exts: List of file extensions to exclude from the tar file.
+            exclude_dirs: List of directory basenames to exclude.
+            verbose (int): Verbosity level.
+            kwargs: keyword arguments passed to the :class:`TarFile` constructor.
+
+        Returns:
+            :class:`TarFile` object.
+        """
+        def any2bytes(s):
+            """Convert string or number to memory in bytes."""
+            if is_string(s):
+                return int(Memory.from_string(s).to("b"))
+            else:
+                return int(s)
+
+        if max_filesize is not None:
+            max_filesize = any2bytes(max_filesize) 
+
+        if exclude_exts:
+            # Add/remove ".nc" so that we can simply pass "GSR" instead of "GSR.nc"
+            # Moreover this trick allows one to treat WFK.nc and WFK file on the same footing.
+            exts = []
+            for e in list_strings(exclude_exts):
+                exts.append(e)
+                if e.endswith(".nc"):
+                    exts.append(e.replace(".nc", ""))
+                else:
+                    exts.append(e + ".nc")
+            exts = set(exts)
+
+        def filter(tarinfo):
+            """
+            Function that takes a TarInfo object argument and returns the changed TarInfo object. 
+            If it instead returns None the TarInfo object will be excluded from the archive. 
+            """
+            # Skip links.
+            if tarinfo.issym() or tarinfo.islnk():
+                if verbose: print("Excluding link: %s" % tarinfo.name)
+                return None
+
+            # Check size in bytes
+            if max_filesize is not None and tarinfo.size > max_filesize:
+                if verbose: print("Excluding %s due to max_filesize" % tarinfo.name)
+                return None
+
+            # Filter filenames.
+            if exclude_exts:
+                root, ext = os.path.splitext(tarinfo.name)
+                if ext in exclude_exts: 
+                    if verbose: print("Excluding %s due to extension" % tarinfo.name)
+                    return None
+
+            if exclude_dirs and any(dir_name in exclude_dirs for dir_name in tarinfo.name.split(os.path.sep)):
+                if verbose: print("Excluding %s due to exclude_dirs" % tarinfo.name)
+                return None
+
+            return tarinfo
+
+
+        from tarfile import TarFile
+        name = os.path.basename(self.workdir) + ".tar.gz" if name is None else name
+        tar = TarFile(name=name, mode='w', **kwargs) 
+
+        tar.add(os.path.basename(self.workdir), arcname=None, recursive=True, exclude=None, filter=filter)
+        return tar
 
 
 class G0W0WithQptdmFlow(Flow):
