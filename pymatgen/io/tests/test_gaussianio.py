@@ -98,16 +98,16 @@ EPS=12
             self.assertIsNotNone(gau.molecule)
             if i == 0:
                 mol = gau.molecule
-        ans = """Molecule Summary (H4 O2)
+        ans = """Full Formula (H4 O2)
 Reduced Formula: H2O
 Charge = 0, Spin Mult = 1
 Sites (6)
-1 O     0.000000     0.000000     0.000000
-2 O     0.000000     0.000000     2.912902
-3 H     0.892596     0.000000    -0.373266
-4 H     0.143970     0.000219     0.964351
-5 H    -0.582554     0.765401     3.042783
-6 H    -0.580711    -0.766761     3.043012"""
+0 O     0.000000     0.000000     0.000000
+1 O     0.000000     0.000000     2.912902
+2 H     0.892596     0.000000    -0.373266
+3 H     0.143970     0.000219     0.964351
+4 H    -0.582554     0.765401     3.042783
+5 H    -0.580711    -0.766761     3.043012"""
         self.assertEqual(str(mol), ans)
 
     def test_from_string(self):
