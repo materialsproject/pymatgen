@@ -1,6 +1,8 @@
 # coding: utf-8
 """Classes defining Abinit calculations."""
 from __future__ import division, print_function, unicode_literals
+
+import sys
 import os
 import time
 import datetime
@@ -956,11 +958,15 @@ db_connector:
 # and save the counter's updated value automatically when the program terminates 
 # without relying on the application making an explicit call into this module at termination.
 conf_dir = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
+_COUNTER_FILE = os.path.join(conf_dir, "nodecounter")
 
 if not os.path.exists(conf_dir):
     os.makedirs(conf_dir)
+    # Change owner (root --> user) to avoid problems if we used sudo to install.
+    #uid, gid = os.uid(), os.gid())
+    #os.chown(conf_dir, os.uid(), os.gid())
+    #os.chown()
 
-_COUNTER_FILE = os.path.join(conf_dir, "nodecounter")
 del conf_dir
 
 try:
@@ -975,7 +981,8 @@ def get_newnode_id():
     """
     Returns a new node identifier used both for `Task` and `Work` objects.
 
-    .. warnings:
+    .. warning:
+
         The id is unique inside the same python process so be careful when 
         Works and Tasks are constructed at run-time or when threads are used.
     """
@@ -1206,21 +1213,195 @@ class Status(int):
         return colored(str(self), **self.color_opts) 
 
 
+class HistoryRecord(object):
+    """
+    A `HistoryRecord` instance represents an entry in the :class:`NodeHistory`.
+
+    `HistoryRecord` instances are created every time something is logged. They
+    contain all the information pertinent to the event being logged. The
+    main information passed in is in msg and args, which are combined
+    using str(msg) % args to create the message field of the record. The
+    record also includes information such as when the record was created,
+    the source line where the logging call was made, and any exception
+    information to be logged.
+
+    .. attributes:
+
+        %(levelno)s         Numeric logging level for the message (DEBUG, INFO,
+                            WARNING, ERROR, CRITICAL)
+        %(levelname)s       Text logging level for the message ("DEBUG", "INFO",
+                            "WARNING", "ERROR", "CRITICAL")
+        %(pathname)s        Full pathname of the source file where the logging
+                            call was issued (if available)
+        %(filename)s        Filename portion of pathname
+        %(module)s          Module (name portion of filename)
+        %(lineno)d          Source line number where the logging call was issued
+                            (if available)
+        %(func_name)s       Function name
+        %(created)f         Time when the HistoryRecord was created (time.time()
+                            return value)
+        %(asctime)s         Textual time when the HistoryRecord was created
+        %(msecs)d           Millisecond portion of the creation time
+        %(relativeCreated)d Time in milliseconds when the HistoryRecord was created,
+                            relative to the time the logging module was loaded
+                            (typically at application startup time)
+        %(thread)d          Thread ID (if available)
+        %(threadName)s      Thread name (if available)
+        %(process)d         Process ID (if available)
+        %(message)s         The result of record.getMessage(), computed just as
+                            the record is emitted
+    """
+    def __init__(self, level, pathname, lineno, msg, args, exc_info, func=None):
+        """
+        Initialize a logging record with interesting information.
+        """
+        #
+        # The following statement allows passing of a dictionary as a sole
+        # argument, so that you can do something like
+        #  logging.debug("a %(a)d b %(b)s", {'a':1, 'b':2})
+        # Suggested by Stefan Behnel.
+        # Note that without the test for args[0], we get a problem because
+        # during formatting, we test to see if the arg is present using
+        # 'if self.args:'. If the event being logged is e.g. 'Value is %d'
+        # and if the passed arg fails 'if self.args:' then no formatting
+        # is done. For example, logger.warn('Value is %d', 0) would log
+        # 'Value is %d' instead of 'Value is 0'.
+        # For the use case of passing a dictionary, this should not be a problem.
+        if args and len(args) == 1 and isinstance(args[0], dict) and args[0]:
+            args = args[0]
+        self.args = args
+        self.levelno = level
+        self.pathname = pathname
+        self.msg = msg
+
+        self.levelname = "FOOBAR" #getLevelName(level)
+
+        try:
+            self.filename = os.path.basename(pathname)
+            self.module = os.path.splitext(self.filename)[0]
+        except (TypeError, ValueError, AttributeError):
+            self.filename = pathname
+            self.module = "Unknown module"
+
+        self.exc_info = exc_info
+        self.exc_text = None      # used to cache the traceback text
+        self.lineno = lineno
+        self.func_name = func
+        self.created =  time.time()
+        self.asctime = time.asctime()
+
+    def __repr__(self):
+        return '<%s, %s, %s, %s,\n"%s">' % (self.__class__.__name__, self.levelno, self.pathname, self.lineno, self.msg)
+
+    def __str__(self):
+        return self.get_message(metadata=False)
+
+    def get_message(self, metadata=False):
+        """
+        Return the message after merging any user-supplied arguments with the message.
+        The name of the  function, and of the module are added if metadata.
+        """
+        msg = self.msg if is_string(self.msg) else str(self.msg)
+        if self.args: msg = msg % self.args
+        s = "[" + self.asctime + "] " + msg
+
+        # Add metadata
+        if metadata:
+            s += "\nCalled in function %s in %s:%s" % (self.func_name, self.pathname, self.lineno)
+
+        return s 
+
+
 class NodeHistory(collections.deque):
     """Logger-like object"""
+
     def __str__(self):
-        return "\n".join(self)
+        return self.to_string()
 
-    def append(self, msg):
-        super(NodeHistory, self).append("[%s]: %s" % (time.asctime(), msg))
+    def to_string(self, metadata=False):
+        return "\n".join(rec.get_message(metadata=metadata) for rec in self)
 
-    #def info(self, msg, *args, **kwargs):
-    #    """Log 'msg % args' with the integer severity 'level' on the root logger."""
+    def info(self, msg, *args, **kwargs):
+        """Log 'msg % args' with the integer severity 'level' on the root logger."""
+        self._log("INFO", msg, args, kwargs)
 
-    #def _log(self, msg, *args, **kwargs):
-    #    """Log 'msg % args' with the integer severity 'level' on the root logger."""
+    def warning(self, msg, *args, **kwargs):
+        """Log 'msg % args' with the integer severity 'level' on the root logger."""
+        self._log("WARNING", msg, args, kwargs)
 
-    #def log_correction(self, msg, *args, **kwargs):
+    def critical(self, msg, *args, **kwargs):
+        """Log 'msg % args' with the integer severity 'level' on the root logger."""
+        self._log("CRITICAL", msg, args, kwargs)
+
+    def correction(self, msg, *args, **kwargs):
+        """Log 'msg % args' with the integer severity 'level' on the root logger."""
+        self._log("CORRECTION", msg, args, kwargs)
+
+    def find_caller(self):
+        """
+        find the stack frame of the caller so that we can note the source
+        file name, line number and function name.
+        """
+        # next bit filched from 1.5.2's inspect.py
+        def currentframe():
+            """Return the frame object for the caller's stack frame."""
+            try:
+                raise Exception
+            except:
+                return sys.exc_info()[2].tb_frame.f_back
+
+        if hasattr(sys, '_getframe'): currentframe = lambda: sys._getframe(3)
+        # done filching
+
+        # _srcfile is used when walking the stack to check when we've got the first caller stack frame.
+        if hasattr(sys, 'frozen'): #support for py2exe
+            _srcfile = "logging%s__init__%s" % (os.sep, __file__[-4:])
+        elif __file__[-4:].lower() in ['.pyc', '.pyo']:
+            _srcfile = __file__[:-4] + '.py'
+        else:
+            _srcfile = __file__
+
+        _srcfile = os.path.normcase(_srcfile)
+
+        f = currentframe()
+        # On some versions of IronPython, currentframe() returns None if
+        # IronPython isn't run with -X:Frames.
+        if f is not None:
+            f = f.f_back
+        rv = "(unknown file)", 0, "(unknown function)"
+
+        while hasattr(f, "f_code"):
+            co = f.f_code
+            filename = os.path.normcase(co.co_filename)
+            if filename == _srcfile:
+                f = f.f_back
+                continue
+            rv = (co.co_filename, f.f_lineno, co.co_name)
+            break
+
+        return rv
+
+    def _log(self, level, msg, args, exc_info=None, extra=None):
+        """Low-level logging routine which creates a HistoryRecord"""
+        #if _srcfile:
+        if True:
+            # IronPython doesn't track Python frames, so findCaller raises an
+            # exception on some versions of IronPython. We trap it here so that
+            # IronPython can use logging.
+            try:
+                fn, lno, func = self.find_caller()
+            except ValueError:
+                fn, lno, func = "(unknown file)", 0, "(unknown function)"
+        else:
+            fn, lno, func = "(unknown file)", 0, "(unknown function)"
+
+        if exc_info and not isinstance(exc_info, tuple):
+            exc_info = sys.exc_info()
+
+        self.append(HistoryRecord(level, fn, lno, msg, args, exc_info, func=func))
+
+    #@property
+    #def corrections(self):
 
 
 class Node(six.with_metaclass(abc.ABCMeta, object)):
@@ -1350,11 +1531,10 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     @finalized.setter
     def finalized(self, boolean):
         self._finalized = boolean
-        self.history.append("Finalized")
+        self.history.info("Finalized")
 
-    #@property
-    #def str_history(self):
-    #    """String representation of history."""
+    #def show_history(self, stream=sys.stdout):
+    #    """Print the `History` to the given stream."""
     #    return "\n".join(self.history)
 
     @property
@@ -1400,8 +1580,8 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     @property
     def deps(self):
         """
-        List of `Dependency` objects defining the dependencies 
-        of this `Node`. Empty list if this `Node` does not have dependencies.
+        List of :class:`Dependency` objects defining the dependencies 
+        of this `Node`. Empty list if this :class:`Node` does not have dependencies.
         """
         return self._deps
 
@@ -1663,7 +1843,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def set_workdir(self, workdir, chroot=False):
         """Set the working directory. Cannot be set more than once unless chroot is True"""
         if not chroot and hasattr(self, "workdir") and self.workdir != workdir:
-                raise ValueError("self.workdir != workdir: %s, %s" % (self.workdir,  workdir))
+            raise ValueError("self.workdir != workdir: %s, %s" % (self.workdir,  workdir))
 
         self.workdir = os.path.abspath(workdir)
 
@@ -1899,14 +2079,14 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         # Increase the counter.
         self.num_restarts += 1
-        self.history.append("Restarted with num_restarts %d" % self.num_restarts)
+        self.history.info("Restarted with num_restarts %d" % self.num_restarts)
 
         if submit:
             # Remove the lock file
             self.start_lockfile.remove()
             # Relaunch the task.
             fired = self.start()
-            if not fired: self.history.append("restart failed")
+            if not fired: self.history.warning("Restart failed")
         else:
             fired = False
 
@@ -2073,14 +2253,14 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         if changed:
             if status == self.S_SUB: 
                 self._submission_time = time.time()
-                self.history.append("Submitted with: MPI=%s, Omp=%s, Memproc=%.1f [Gb]" % (
+                self.history.info("Submitted with: MPI=%s, Omp=%s, Memproc=%.1f [Gb]" % (
                     self.mpi_procs, self.omp_threads, self.mem_per_proc.to("Gb")))
 
             if status == self.S_OK:
-                self.history.append("Completed")
+                self.history.info("Completed")
 
             if status == self.S_ABICRITICAL:
-                self.history.append("Set status to S_ABI_CRITICAL.\nError:\n%s" % str(info_msg))
+                self.history.info("Set status to S_ABI_CRITICAL.\nError:\n%s" % str(info_msg))
 
         if status == self.S_DONE:
             self.stop_datetime = datetime.datetime.now()
@@ -2172,10 +2352,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                         logger.debug(str(bug))
 
                 # The job is unfixable due to ABINIT errors
-                logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
+                logger.debug("%s: Found Errors or Bugs in ABINIT main output!" % self)
                 info_msg = "["+", ".join(map(str, report.errors))+"]" + "["+", ".join(map(str, report.bugs))+"]"
                 return self.set_status(self.S_ABICRITICAL, info_msg=info_msg)
-
 
             # 5)
             if self.stderr_file.exists and not err_info:
@@ -2232,7 +2411,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # Check time of last modification.
         if self.output_file.exists and \
            (time.time() - self.output_file.get_stat().st_mtime > self.manager.policy.frozen_timeout):
-            info_msg = "Task seems to be frozen, last modif more than %s [s] ago" % self.manager.policy.frozen_timeout
+            info_msg = "Task seems to be frozen, last change more than %s [s] ago" % self.manager.policy.frozen_timeout
             return self.set_status(self.S_ERROR, info_msg)
 
         return self.set_status(self.S_RUN)
