@@ -22,7 +22,8 @@ from monty.io import FileLock
 from monty.pprint import draw_tree
 from monty.termcolor import stream_has_colours, cprint, colored, cprint_map
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
-from .tasks import (Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager, NscfTask, DdkTask,
+from .nodes import Status, Node, NodeResults, Dependency
+from .tasks import (Task, ScfTask, PhononTask, TaskManager, NscfTask, DdkTask,
                     AnaddbTask, DdeTask, TaskManager)
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
