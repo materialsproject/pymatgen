@@ -98,6 +98,14 @@ pymatgen.io.abinitio.netcdf module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.io.abinitio.nodes module
+---------------------------------
+
+.. automodule:: pymatgen.io.abinitio.nodes
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.io.abinitio.pseudos module
 -----------------------------------
 
