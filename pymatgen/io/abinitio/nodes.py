@@ -223,14 +223,13 @@ class Product(object):
 
 
 class GridFsFile(AttrDict):
+    """Information on a file that will stored in the MongoDb gridfs collection."""
     def __init__(self, path, fs_id=None, mode="b"):
         super(GridFsFile, self).__init__(path=path, fs_id=fs_id, mode=mode)
 
 
 class NodeResults(dict, PMGSONable):
-    """
-    Dictionary used to store the most important results produced by a Node.
-    """
+    """Dictionary used to store the most important results produced by a :class:`Node`."""
     JSON_SCHEMA = {
         "type": "object",
         "properties": {
@@ -506,10 +505,6 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         self._finalized = boolean
         self.history.info("Finalized")
 
-    #def show_history(self, stream=sys.stdout):
-    #    """Print the `History` to the given stream."""
-    #    return "\n".join(self.history)
-
     @property
     def corrections(self):
         """
@@ -744,39 +739,51 @@ class HistoryRecord(object):
     """
     A `HistoryRecord` instance represents an entry in the :class:`NodeHistory`.
 
-    `HistoryRecord` instances are created every time something is logged. They
-    contain all the information pertinent to the event being logged. The
-    main information passed in is in msg and args, which are combined
-    using str(msg) % args to create the message field of the record. The
-    record also includes information such as when the record was created,
-    the source line where the logging call was made, and any exception
-    information to be logged.
+    `HistoryRecord` instances are created every time something is logged. 
+    They contain all the information pertinent to the event being logged. 
+    The main information passed in is in msg and args, which are combined
+    using str(msg) % args to create the message field of the record. 
+    The record also includes information such as when the record was created,
+    the source line where the logging call was made
 
-    .. attributes:
+    .. attribute:: levelno      
+    
+        Numeric logging level for the message (DEBUG, INFO, WARNING, ERROR, CRITICAL)
 
-        %(levelno)s         Numeric logging level for the message (DEBUG, INFO,
-                            WARNING, ERROR, CRITICAL)
-        %(levelname)s       Text logging level for the message ("DEBUG", "INFO",
-                            "WARNING", "ERROR", "CRITICAL")
-        %(pathname)s        Full pathname of the source file where the logging
-                            call was issued (if available)
-        %(filename)s        Filename portion of pathname
-        %(module)s          Module (name portion of filename)
-        %(lineno)d          Source line number where the logging call was issued
-                            (if available)
-        %(func_name)s       Function name
-        %(created)f         Time when the HistoryRecord was created (time.time()
-                            return value)
-        %(asctime)s         Textual time when the HistoryRecord was created
-        %(msecs)d           Millisecond portion of the creation time
-        %(relativeCreated)d Time in milliseconds when the HistoryRecord was created,
-                            relative to the time the logging module was loaded
-                            (typically at application startup time)
-        %(thread)d          Thread ID (if available)
-        %(threadName)s      Thread name (if available)
-        %(process)d         Process ID (if available)
-        %(message)s         The result of record.getMessage(), computed just as
-                            the record is emitted
+    .. attribute:: levelname       
+
+        Text logging level for the message ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
+
+    .. attribute:: pathname      
+
+        Full pathname of the source file where the logging call was issued (if available)
+
+    .. attribute:: filename 
+
+        Filename portion of pathname
+
+    .. attribute:: module
+
+        Module (name portion of filename)
+
+    .. attribute:: lineno 
+
+        Source line number where the logging call was issued (if available)
+
+    .. attribute:: func_name
+
+        Function name
+
+    .. attribute:: created
+
+        Time when the HistoryRecord was created (time.time() return value)
+
+    .. attribute:: asctime 
+
+        Textual time when the HistoryRecord was created
+
+    .. attribute:: message 
+        The result of record.getMessage(), computed just as the record is emitted
     """
     def __init__(self, level, pathname, lineno, msg, args, exc_info, func=None):
         """

@@ -22,9 +22,9 @@ __all__ = [
 ]
 
 def indent(lines, amount, ch=' '):
-    """indent the lines in a string by padding each one with proper number of pad characters"""
+    """Indent the lines in a string by padding each one with proper number of pad characters"""
     padding = amount * ch
-    return padding + ('\n'+padding).join(lines.split('\n'))
+    return padding + ('\n' + padding).join(lines.split('\n'))
 
 
 def straceback():
@@ -439,8 +439,8 @@ class EventsParser(object):
         w = WildCard("*Error|*Warning|*Comment|*Bug|*ERROR|*WARNING|*COMMENT|*BUG")
 
         with YamlTokenizer(filename) as tokens:
-            for doc in tokens:
 
+            for doc in tokens:
                 if w.match(doc.tag):
                     #print("got doc.tag", doc.tag,"--")
                     try:

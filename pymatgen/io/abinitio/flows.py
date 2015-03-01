@@ -598,9 +598,11 @@ class Flow(Node):
 
         for i, work in enumerate(self):
             print("", file=stream)
-            cprint_map("Work #%d: %s, Finalized=%s\n" % (i, work, work.finalized), cmap={"True": "green"}, file=stream)
-            if verbose == 0 and work.finalized: continue
+            cprint_map("Work #%d: %s, Finalized=%s" % (i, work, work.finalized), cmap={"True": "green"}, file=stream)
             if wlist is not None and i in wlist: continue
+            if verbose == 0 and work.finalized: 
+                print("  Finalized works are not shown. Use verbose > 0 to force output.", file=stream)
+                continue
 
             table = PrettyTable(["Task", "Status", "Queue", "MPI|Omp|Mem[Gb]", 
                                  "Err|Warn|Comm", "Class", "Rest|Sub", "Time", "Node_ID"])
