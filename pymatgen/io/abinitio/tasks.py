@@ -1203,7 +1203,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         # Increase the counter.
         self.num_restarts += 1
-        self.history.info("Restarted with num_restarts %d" % self.num_restarts)
+        self.history.info("Restarted, num_restarts %d" % self.num_restarts)
 
         if submit:
             # Remove the lock file
@@ -1377,14 +1377,14 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         if changed:
             if status == self.S_SUB: 
                 self.datetimes.submission = datetime.datetime.now()
-                self.history.info("Submitted on %s with: MPI=%s, Omp=%s, Memproc=%.1f [Gb]" % (
-                    self.datetimes.submission, self.mpi_procs, self.omp_threads, self.mem_per_proc.to("Gb")))
+                self.history.info("Submitted with MPI=%s, Omp=%s, Memproc=%.1f [Gb]" % (
+                    self.mpi_procs, self.omp_threads, self.mem_per_proc.to("Gb")))
 
             if status == self.S_OK:
-                self.history.info("Completed")
+                self.history.info("Task Completed")
 
             if status == self.S_ABICRITICAL:
-                self.history.info("Set status to S_ABI_CRITICAL.\nError:\n%s" % str(info_msg))
+                self.history.info("Status set to S_ABI_CRITICAL due to: %s" % str(info_msg))
 
         if status == self.S_DONE:
             # Execute the callback
@@ -1427,8 +1427,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # this point type of problem should also be handled by the scheduler error parser
         if self.returncode != 0:
             # The job was not submitted properly
-            info_msg = "return code %s" % self.returncode
-            return self.set_status(self.S_QCRITICAL, info_msg=info_msg)           
+            return self.set_status(self.S_QCRITICAL, info_msg="return code %s" % self.returncode)
 
         # Analyze the stderr file for Fortran runtime errors.
         err_msg = None
@@ -1479,7 +1478,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
                 # The job is unfixable due to ABINIT errors
                 logger.debug("%s: Found Errors or Bugs in ABINIT main output!" % self)
-                info_msg = "["+", ".join(map(str, report.errors))+"]" + "["+", ".join(map(str, report.bugs))+"]"
+                info_msg = "\n".join(map(repr, report.errors + report.bugs))
                 return self.set_status(self.S_ABICRITICAL, info_msg=info_msg)
 
             # 5)
@@ -1621,9 +1620,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                     if os.path.exists(path): dest += "-etsf.nc"
 
                 if not os.path.exists(path):
-                    err_msg = "%s: %s is needed by this task but it does not exist" % (self, path)
-                    logger.critical(err_msg)
-                    raise self.Error(err_msg)
+                    raise self.Error("%s: %s is needed by this task but it does not exist" % (self, path))
 
                 # Link path to dest if dest link does not exist.
                 # else check that it points to the expected file.

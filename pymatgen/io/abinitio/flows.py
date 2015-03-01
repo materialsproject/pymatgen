@@ -610,7 +610,7 @@ class Flow(Node):
                 if nids and task.node_id not in nids: continue
                 task_name = os.path.basename(task.name)
 
-                # FIXME: This shouls not be done here.
+                # FIXME: This should not be done here.
                 # get_event_report should be called only in check_status
                 # Parse the events in the main output.
                 report = task.get_event_report()
