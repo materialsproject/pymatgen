@@ -6,6 +6,7 @@ provides a parser to extract these events form the main output file and the log 
 from __future__ import unicode_literals, division, print_function
 
 import os.path
+import datetime
 import collections
 import yaml
 
@@ -287,6 +288,7 @@ class EventReport(collections.Iterable):
         """
         self.filename = os.path.abspath(filename)
         self.stat = os.stat(self.filename)
+        self.start_datetime, self.end_datetime = None, None
 
         self._events = []
         self._events_by_baseclass = collections.defaultdict(list)
@@ -316,7 +318,7 @@ class EventReport(collections.Iterable):
             else:
                 app("[%d] %s" % (i+1, str(event)))
 
-        app("num_errors: %s, num_warnings: %s, num_comments: %s, completed: %s" % (
+        app("num_errors: %s, num_warnings: %s, num_comments: %s, completed: %s\n" % (
             self.num_errors, self.num_warnings, self.num_comments, self.run_completed))
 
         return "\n".join(lines)
@@ -326,9 +328,28 @@ class EventReport(collections.Iterable):
         self._events.append(event)
         self._events_by_baseclass[event.baseclass].append(event)
 
-    def set_run_completed(self, bool_value):
+    def set_run_completed(self, boolean, start_datetime, end_datetime):
         """Set the value of _run_completed."""
-        self._run_completed = bool_value
+        self._run_completed = boolean
+
+        if (start_datetime, end_datetime) != (None, None):
+            # start_datetime: Sat Feb 28 23:54:27 2015
+            # end_datetime: Sat Feb 28 23:54:30 2015
+            try:
+                fmt = "%a %b %d %H:%M:%S %Y"
+                self.start_datetime = datetime.datetime.strptime(start_datetime, fmt) 
+                self.end_datetime = datetime.datetime.strptime(end_datetime, fmt) 
+            except Exception as exc:
+                # Maybe LOCALE != en_US
+                logger.warning(str(exc))
+
+    @property
+    def run_etime(self):
+        """Wall-time of the run as `timedelta` object."""
+        if self.start_datetime is None or self.end_datetime is None:
+            return None
+
+        return self.end_datetime - self.start_dateime
 
     @property
     def run_completed(self):
@@ -406,7 +427,7 @@ class EventsParser(object):
         """
         Parse the given file. Return :class:`EventReport`.
         """
-        run_completed = False
+        run_completed, start_datetime, end_datetime = False, None, None
         filename = os.path.abspath(filename)
         report = EventReport(filename)
 
@@ -416,10 +437,7 @@ class EventsParser(object):
 
         with YamlTokenizer(filename) as tokens:
             for doc in tokens:
-                #print(80*"*")
-                #print("doc.tag", doc.tag)
-                #print("doc", doc)
-                #print(80*"*")
+
                 if w.match(doc.tag):
                     #print("got doc.tag", doc.tag,"--")
                     try:
@@ -445,9 +463,10 @@ class EventsParser(object):
                 # Check whether the calculation completed.
                 if doc.tag == "!FinalSummary":
                     run_completed = True
+                    d = doc.as_dict()
+                    start_datetime, end_datetime = d["start_datetime"], d["end_datetime"]
 
-        report.set_run_completed(run_completed)
-
+        report.set_run_completed(run_completed, start_datetime, end_datetime)
         return report
 
     def report_exception(self, filename, exc):

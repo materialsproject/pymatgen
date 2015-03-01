@@ -816,12 +816,91 @@ class FakeProcess(object):
     def returncode(self):
         return None
 
+
+class MyTimedelta(datetime.timedelta):
+    """A customized version of timedelta whose __str__ method doesn't print microseconds."""
+    def __new__(cls, days, seconds, microseconds):
+        return datetime.timedelta.__new__(cls, days, seconds, microseconds)
+
+    def __str__(self):
+        """Remove microseconds from timedelta default __str__"""
+        s = super(MyTimedelta, self).__str__()
+        microsec = s.find(".")
+        if microsec != -1: s = s[:microsec]
+        return s
+
+    @classmethod
+    def as_timedelta(cls, delta):
+        """Convert delta into a MyTimedelta object."""
+        # Cannot monkey patch the __class__ and must pass through __new__ as the object is immutable.
+        if isinstance(delta, cls): return delta
+        return cls(delta.days, delta.seconds, delta.microseconds) 
+
+
+class TaskDateTimes(object):
+    """
+    Small object containing useful :class:`datetime.datatime` objects associated to important events.
+
+    .. attributes:
+
+        init: initialization datetime
+        submission: submission datetime
+        start: Begin of execution.
+        end: End of execution.
+    """
+    def __init__(self):
+        self.init = datetime.datetime.now()
+        self.submission, self.start, self.end = None, None, None
+
+    def __str__(self):
+        lines = []
+        app = lines.append
+
+        app("Initialization done on: %s" % self.init)
+        if self.submission is not None: app("Submitted on: %s" % self.submission)
+        if self.start is not None: app("Started on: %s" % self.start)
+        if self.end is not None: app("Completed on: %s" % self.end)
+
+        return "\n".join(lines)
+
+    def get_runtime(self):
+        """:class:`timedelta` with the run-time, None if the Task is not running"""
+        if self.start is None: return None
+
+        if self.end is None:
+            delta = datetime.datetime.now() - self.start
+        else:
+            delta = self.end - self.start
+
+        return MyTimedelta.as_timedelta(delta)
+
+    def get_time_inqueue(self):
+        """
+        :class:`timedelta` with the time spent in the Queue, None if the Task is not running
+
+        .. note:
+            
+            This value is always greater than the real value computed by the resource manager 
+            as we start to count only when check_status sets the `Task` status to S_RUN.
+        """
+        if self.submission is None: return None
+        
+        if self.start is None: 
+            delta = datetime.datetime.now() - self.submission
+        else:
+            delta = self.start - self.submission
+            # This happens when we read the exact start datetime from the ABINIT log file.
+            if delta.total_seconds() < 0: delta = datetime.timedelta(seconds=0)
+
+        return MyTimedelta.as_timedelta(delta)
+
+
 class TaskError(Exception):
-    """Base Exception for `Task` methods"""
+    """Base Exception for :class:`Task` methods"""
         
 
 class TaskRestartError(TaskError):
-    """Exception raised while trying to restart the `Task`."""
+    """Exception raised while trying to restart the :class:`Task`."""
 
 
 class Task(six.with_metaclass(abc.ABCMeta, Node)):
@@ -830,7 +909,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     Error = TaskError
     RestartError = TaskRestartError
 
-    # List of `AbinitEvent` subclasses that are tested in the not_converged method. 
+    # List of `AbinitEvent` subclasses that are tested in the check_status method. 
     # Subclasses should provide their own list if they need to check the converge status.
     CRITICAL_EVENTS = [
     ]
@@ -849,7 +928,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             workdir: Path to the working directory.
             manager: :class:`TaskManager` object.
             deps: Dictionary specifying the dependency of this node.
-                  None means that this obj has no dependency.
+                  None means that this Task has no dependency.
         """
         # Init the node
         super(Task, self).__init__()
@@ -870,8 +949,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             deps = [Dependency(node, exts) for (node, exts) in deps.items()]
             self.add_deps(deps)
 
-        # Use to compute the wall-time
-        self.start_datetime, self.stop_datetime = None, None
+        # Date-time associated to submission, start and end.
+        self.datetimes = TaskDateTimes()
 
         # Count the number of restarts.
         self.num_restarts = 0
@@ -1033,33 +1112,28 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         all_ok = all([stat == self.S_OK for stat in self.deps_status])
         return self.status < self.S_SUB and all_ok
 
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        report = self.get_event_report()
-        return report.filter_types(self.CRITICAL_EVENTS)
+    #def run_etime(self):
+    #    """
+    #    String with the wall-time
 
-    def run_etime(self):
-        """
-        String with the wall-time
+    #    ...note::
 
-        ...note::
+    #        The clock starts when self.status becomes S_RUN.
+    #        thus run_etime does not correspond to the effective wall-time.
+    #    """
+    #    # FIXME: This does not work as expected!
+    #    s = "None"
+    #    if self.datetimes.start is not None:
+    #        end = self.end_datetime
+    #        if end is None:
+    #            end = datetime.datetime.now()
 
-            The clock starts when self.status becomes S_RUN.
-            thus run_etime does not correspond to the effective wall-time.
-        """
-        # FIXME: This does not work as expected!
-        s = "None"
-        if self.start_datetime is not None:
-            stop = self.stop_datetime
-            if stop is None:
-                stop = datetime.datetime.now()
+    #        # Compute time-delta, convert to string and remove microseconds (in any)
+    #        s = str(end - self.datetimes.start)
+    #        microsec = s.find(".")
+    #        if microsec != -1: s = s[:microsec]
 
-            # Compute time-delta, convert to string and remove microseconds (in any)
-            s = str(stop - self.start_datetime)
-            microsec = s.find(".")
-            if microsec != -1: s = s[:microsec]
-
-        return s
+    #    return s
 
     def cancel(self):
         """Cancel the job. Returns 1 if job was cancelled."""
@@ -1077,12 +1151,12 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.fix_ofiles()
 
     def _on_ok(self):
-        # Read timing data.
-        #self.read_timing()
         # Fix output file names.
         self.fix_ofiles()
+
         # Get results
         results = self.on_ok()
+
         # Set internal flag.
         self._finalized = True
 
@@ -1295,16 +1369,16 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self._status = status
 
         if status == self.S_RUN:
-            # Set start_datetime when the task enters S_RUN
-            if self.start_datetime is None:
-                self.start_datetime = datetime.datetime.now()
+            # Set datetimes.start when the task enters S_RUN
+            if self.datetimes.start is None:
+                self.datetimes.start = datetime.datetime.now()
 
         # Add new entry to history only if the status has changed.
         if changed:
             if status == self.S_SUB: 
-                self._submission_time = time.time()
-                self.history.info("Submitted with: MPI=%s, Omp=%s, Memproc=%.1f [Gb]" % (
-                    self.mpi_procs, self.omp_threads, self.mem_per_proc.to("Gb")))
+                self.datetimes.submission = datetime.datetime.now()
+                self.history.info("Submitted on %s with: MPI=%s, Omp=%s, Memproc=%.1f [Gb]" % (
+                    self.datetimes.submission, self.mpi_procs, self.omp_threads, self.mem_per_proc.to("Gb")))
 
             if status == self.S_OK:
                 self.history.info("Completed")
@@ -1313,8 +1387,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 self.history.info("Set status to S_ABI_CRITICAL.\nError:\n%s" % str(info_msg))
 
         if status == self.S_DONE:
-            self.stop_datetime = datetime.datetime.now()
-
             # Execute the callback
             self._on_done()
                                                                                 
@@ -1354,7 +1426,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # 2) Check the returncode of the process (the process of submitting the job) first.
         # this point type of problem should also be handled by the scheduler error parser
         if self.returncode != 0:
-            # The job was not submitter properly
+            # The job was not submitted properly
             info_msg = "return code %s" % self.returncode
             return self.set_status(self.S_QCRITICAL, info_msg=info_msg)           
 
@@ -1378,8 +1450,12 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 return self.set_status(self.S_ABICRITICAL, info_msg=info_msg)
 
             if report.run_completed:
+                # Here we  set the correct timing data reported by Abinit
+                self.datetimes.start = report.start_datetime
+                self.datetimes.end = report.end_datetime
+
                 # Check if the calculation converged.
-                not_ok = self.not_converged()
+                not_ok = report.filter_types(self.CRITICAL_EVENTS)
                 if not_ok:
                     return self.set_status(self.S_UNCONVERGED)
                 else:

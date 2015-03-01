@@ -736,7 +736,7 @@ class FileNode(Node):
 
     def get_results(self, **kwargs):
         results = super(FileNode, self).get_results(**kwargs)
-        #results.register_gridfs_files(self.filepath=self.filepath)
+        #results.register_gridfs_files(filepath=self.filepath)
         return results
 
 
@@ -814,7 +814,7 @@ class HistoryRecord(object):
         self.exc_text = None      # used to cache the traceback text
         self.lineno = lineno
         self.func_name = func
-        self.created =  time.time()
+        self.created = time.time()
         self.asctime = time.asctime()
 
     def __repr__(self):
@@ -823,20 +823,25 @@ class HistoryRecord(object):
     def __str__(self):
         return self.get_message(metadata=False)
 
-    def get_message(self, metadata=False):
+    def get_message(self,  metadata=False, asctime=True):
         """
         Return the message after merging any user-supplied arguments with the message.
-        The name of the  function, and of the module are added if metadata.
+
+        Args:
+            metadata: True if function and module name should be added.
+            asctime: True if time string should be added.
         """
         msg = self.msg if is_string(self.msg) else str(self.msg)
         if self.args: msg = msg % self.args
-        s = "[" + self.asctime + "] " + msg
+
+        if asctime:
+            msg = "[" + self.asctime + "] " + msg
 
         # Add metadata
         if metadata:
-            s += "\nCalled in function %s in %s:%s" % (self.func_name, self.pathname, self.lineno)
+            msg += "\nCalled in function %s in %s:%s" % (self.func_name, self.pathname, self.lineno)
 
-        return s 
+        return msg
 
 
 class NodeHistory(collections.deque):
@@ -846,28 +851,33 @@ class NodeHistory(collections.deque):
         return self.to_string()
 
     def to_string(self, metadata=False):
+        """Returns  a string with the history. Set metadata to True to have info on function and module."""
         return "\n".join(rec.get_message(metadata=metadata) for rec in self)
 
     def info(self, msg, *args, **kwargs):
-        """Log 'msg % args' with the integer severity 'level' on the root logger."""
+        """Log 'msg % args' with the info severity level"""
         self._log("INFO", msg, args, kwargs)
 
     def warning(self, msg, *args, **kwargs):
-        """Log 'msg % args' with the integer severity 'level' on the root logger."""
+        """Log 'msg % args' with the warning severity level"""
         self._log("WARNING", msg, args, kwargs)
 
     def critical(self, msg, *args, **kwargs):
-        """Log 'msg % args' with the integer severity 'level' on the root logger."""
+        """Log 'msg % args' with the critical severity level"""
         self._log("CRITICAL", msg, args, kwargs)
 
     def correction(self, msg, *args, **kwargs):
-        """Log 'msg % args' with the integer severity 'level' on the root logger."""
+        """Log 'msg % args' with the correction severity level"""
         self._log("CORRECTION", msg, args, kwargs)
 
     def find_caller(self):
         """
         find the stack frame of the caller so that we can note the source
         file name, line number and function name.
+
+        See also: 
+
+            http://farmdev.com/src/secrets/framehack/
         """
         # next bit filched from 1.5.2's inspect.py
         def currentframe():
@@ -877,6 +887,8 @@ class NodeHistory(collections.deque):
             except:
                 return sys.exc_info()[2].tb_frame.f_back
 
+        # CPython implementation detail: This function should be used for internal and specialized purposes only. 
+        # It is not guaranteed to exist in all implementations of Python.
         if hasattr(sys, '_getframe'): currentframe = lambda: sys._getframe(3)
         # done filching
 
@@ -909,7 +921,7 @@ class NodeHistory(collections.deque):
         return rv
 
     def _log(self, level, msg, args, exc_info=None, extra=None):
-        """Low-level logging routine which creates a HistoryRecord"""
+        """Low-level logging routine which creates a :class:`HistoryRecord`."""
         #if _srcfile:
         if True:
             # IronPython doesn't track Python frames, so findCaller raises an
@@ -957,7 +969,7 @@ def init_counter():
 
 def get_newnode_id():
     """
-    Returns a new node identifier used both for `Task` and `Work` objects.
+    Returns a new node identifier used for :class:`Task`, :class:`Work` and :class:`Flow` objects.
 
     .. warning:
 
