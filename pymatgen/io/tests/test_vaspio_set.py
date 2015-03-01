@@ -282,6 +282,13 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.assertAlmostEqual(kpoints.kpts[-1][1], 0.5)
         self.assertAlmostEqual(kpoints.kpts[-1][2], 0.0)
 
+    def test_get_all_vasp_input(self):
+        d = self.mitparamset.get_all_vasp_input(self.struct)
+        self.assertEqual(d["INCAR"]["ISMEAR"], -5)
+        self.struct.make_supercell(4)
+        d = self.mitparamset.get_all_vasp_input(self.struct)
+        self.assertEqual(d["INCAR"]["ISMEAR"], 0)
+
     def test_to_from_dict(self):
         self.mitparamset = MITVaspInputSet()
         self.mithseparamset = MITHSEVaspInputSet()
