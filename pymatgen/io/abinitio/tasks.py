@@ -2521,7 +2521,7 @@ class NscfTask(AbinitTask, ProduceGsr):
         results = super(NscfTask, self).get_results(**kwargs)
 
         # Read the GSR file.
-        with  self.open_gsr() as gsr:
+        with self.open_gsr() as gsr:
             results["out"].update(gsr.as_dict())
             # Add files to GridFS
             results.register_gridfs_files(GSR=gsr.filepath)
@@ -2614,7 +2614,7 @@ class RelaxTask(AbinitTask, ProduceGsr, ProduceHist):
         if what == "hist":
             # Read the hist file to get access to the structure.
             with self.open_hist() as hist:
-                return hist.plot() if hist else None
+                return hist.plot(**kwargs) if hist else None
 
         elif what == "scf":
             # Get info on the different SCF cycles 
@@ -2711,7 +2711,7 @@ class PhononTask(AbinitTask, ProduceDdb):
 
     def get_results(self, **kwargs):
         results = super(PhononTask, self).get_results(**kwargs)
-        return results.register_gridfs_file(DDB=(self.outdir.has_abiext("DDB"), "t"))
+        return results.register_gridfs_files(DDB=(self.outdir.has_abiext("DDB"), "t"))
 
     def make_links(self):
         super(PhononTask, self).make_links()
