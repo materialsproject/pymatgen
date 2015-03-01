@@ -118,6 +118,15 @@ class FlowTest(FlowUnitTest):
         #print(task0_w0.input_structure)
         print(task0_w0.make_input)
 
+        # Task history
+        assert len(task0_w0.history) == 0
+        task0_w0.history.info("Hello %s", "world")
+        assert len(task0_w0.history) == 1
+        print(task0_w0.history)
+        record = task0_w0.history.pop() 
+        print(record, repr(record))
+        assert record.get_message(asctime=False) == "Hello world"
+        assert len(task0_w0.history) == 0
         assert flow.select_tasks(nids=task0_w0.node_id)[0] == task0_w0
         assert flow.select_tasks(wslice=slice(0,1,1)) == [task0_w0]
 

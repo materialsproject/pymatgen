@@ -484,7 +484,6 @@ class Flow(Node):
 
             # Accept Task.S_FLAG or string.
             status = Status.as_status(status)
-            #print(status)
 
             for wi, work in enumerate(self):
                 for ti, task in enumerate(work):
@@ -603,23 +602,36 @@ class Flow(Node):
             if verbose == 0 and work.finalized: continue
             if wlist is not None and i in wlist: continue
 
-            table = PrettyTable(["Task", "Status", "Queue", "MPI|Omp|Memproc[Gb]", 
-                                 "Err|Warn|Comm", "Class", "Restart|Launches", "Node_ID"])
+            table = PrettyTable(["Task", "Status", "Queue", "MPI|Omp|Mem[Gb]", 
+                                 "Err|Warn|Comm", "Class", "Rest|Sub", "Time", "Node_ID"])
 
             tot_num_errors = 0
             for task in work:
                 if nids and task.node_id not in nids: continue
                 task_name = os.path.basename(task.name)
 
+                # FIXME: This shouls not be done here.
+                # get_event_report should be called only in check_status
                 # Parse the events in the main output.
                 report = task.get_event_report()
+                
+                # Get time info (run-time or time in queue or None)
+                stime = None
+                timedelta = task.datetimes.get_runtime()
+                if timedelta is not None:
+                    stime = str(timedelta) + "R"
+                else:
+                    timedelta = task.datetimes.get_time_inqueue()
+                    if timedelta is not None:
+                        stime = str(timedelta) + "Q"
 
                 events = "|".join(3*["NA"])
                 if report is not None:
                     events = "|".join(map(str, [report.num_errors, report.num_warnings, report.num_comments]))
 
                 para_info = "|".join(map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
-                task_info = list(map(str, [task.__class__.__name__, (task.num_restarts, task.num_launches), task.node_id]))
+                task_info = list(map(str, [task.__class__.__name__, (task.num_restarts, task.num_launches), stime, task.node_id]))
+
                 qinfo = "None"
                 if task.queue_id is not None:
                     qinfo = str(task.queue_id) + "@" + str(task.qname)
@@ -1267,16 +1279,17 @@ class Flow(Node):
         sched.add_flow(self)
         return sched
 
-    def make_tarfile(self, name=None, max_filesize=None, exclude_exts=None, exclude_dirs=None, verbose=0):
+    def make_tarfile(self, name=None, max_filesize=None, exclude_exts=None, exclude_dirs=None, verbose=0, **kwargs):
         """
         Create a tarball file.
 
         Args:
-            name:
+            name: Name of the tarball file. Set to `flow.workdir + "tar.gz"` if name is None.
             max_filesize (int or string with unit): a file is included in the tar file if its size <= max_filesize
-                Can be specified in bytes e.g. `max_files=1024` or with a string with unit e.g. `max_filesize="10 Mb"`.
-            exclude_exts: List of file extensions to exclude from the tar file.
-            exclude_dirs: List of directory basenames to exclude.
+                Can be specified in bytes e.g. `max_files=1024` or with a string with unit e.g. `max_filesize="1 Mb"`.
+                No check is done if max_filesize is None.
+            exclude_exts: List of file extensions to be excluded from the tar file.
+            exclude_dirs: List of directory basenames to be excluded.
             verbose (int): Verbosity level.
             kwargs: keyword arguments passed to the :class:`TarFile` constructor.
 
@@ -1303,7 +1316,7 @@ class Flow(Node):
                     exts.append(e.replace(".nc", ""))
                 else:
                     exts.append(e + ".nc")
-            exts = set(exts)
+            exclude_exts = exts
 
         def filter(tarinfo):
             """
@@ -1321,12 +1334,11 @@ class Flow(Node):
                 return None
 
             # Filter filenames.
-            if exclude_exts:
-                root, ext = os.path.splitext(tarinfo.name)
-                if ext in exclude_exts: 
-                    if verbose: print("Excluding %s due to extension" % tarinfo.name)
-                    return None
+            if exclude_exts and any(tarinfo.name.endswith(ext) for ext in exclude_exts):
+                if verbose: print("Excluding %s due to extension" % tarinfo.name)
+                return None
 
+            # Exlude directories (use dir basenames).
             if exclude_dirs and any(dir_name in exclude_dirs for dir_name in tarinfo.name.split(os.path.sep)):
                 if verbose: print("Excluding %s due to exclude_dirs" % tarinfo.name)
                 return None
@@ -1464,7 +1476,7 @@ class FlowCallback(object):
 
     def can_execute(self):
         """True if we can execute the callback."""
-        return not self._disabled and [dep.status == dep.node.S_OK for dep in self.deps]
+        return not self._disabled and all(dep.status == dep.node.S_OK for dep in self.deps)
 
     def disable(self):
         """
