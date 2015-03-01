@@ -103,6 +103,9 @@ class AbinitEvent(yaml.YAMLObject):
     def header(self):
         return "%s at %s:%s" % (self.name, self.src_file, self.src_line)
 
+    def __repr__(self):
+        return self.header
+
     def __str__(self):
         return "\n".join((self.header, self.message))
 
