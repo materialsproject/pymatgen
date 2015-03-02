@@ -448,7 +448,7 @@ class Vasprun(PMGSONable):
         Final energy from the vasp run.
         """
         try:
-            return self.ionic_steps[-1]["electronic_steps"][-1]["e_wo_entrp"]
+            return self.ionic_steps[-1]["electronic_steps"][-1]["e_0_energy"]
         except (IndexError, KeyError):
             # not all calculations have a total energy, i.e. GW
             return np.inf
@@ -2082,7 +2082,7 @@ class Oszicar(object):
         """
         Final energy from run.
         """
-        return self.ionic_steps[-1]["F"]
+        return self.ionic_steps[-1]["E0"]
 
     def as_dict(self):
         return {"electronic_steps": self.electronic_steps,
