@@ -373,12 +373,12 @@ class Flow(Node):
         return sum(work.ncores_allocated for work in self)
 
     @property
-    def ncores_inuse(self):
+    def ncores_used(self):
         """
         Returns the number of cores used in this moment.
         A core is used if there's a job that is running on it.
         """
-        return sum(work.ncores_inuse for work in self)
+        return sum(work.ncores_used for work in self)
 
     @property
     def has_chrooted(self):

@@ -317,6 +317,7 @@ class PyFlowScheduler(object):
         self.verbose = int(kwargs.pop("verbose", 0))
         self.use_dynamic_manager = kwargs.pop("use_dynamic_manager", False)
         self.max_njobs_inqueue = kwargs.pop("max_njobs_inqueue", 200)
+        self.max_ncores_used = kwargs.pop("max_ncores_used", None)
         self.contact_resource_manager = as_bool(kwargs.pop("contact_resource_manager", False))
 
         self.remindme_s = float(kwargs.pop("remindme_s", 4 * 24 * 3600))
@@ -331,6 +332,7 @@ class PyFlowScheduler(object):
             raise self.Error("Unknown arguments %s" % kwargs)
 
         if has_sched_v3:
+            logger.warning("Using scheduler v>=3.0.0")
             from apscheduler.schedulers.blocking import BlockingScheduler
             self.sched = BlockingScheduler()
         else:
@@ -398,7 +400,6 @@ class PyFlowScheduler(object):
         """The pid of the process associated to the scheduler."""
         try:
             return self._pid
-
         except AttributeError:
             self._pid = os.getpid()
             return self._pid
@@ -527,8 +528,17 @@ class PyFlowScheduler(object):
         else:
             max_nlaunch = min(self.max_njobs_inqueue - nqjobs, self.max_nlaunches)
 
-        # check status and print it.
+        # check status.
         flow.check_status(show=False)
+
+        # This check is not perfect, we should make a list of tasks to sumbit
+        # and select only the subset so that we don't exceeed mac_ncores_used 
+        # Many sections of this code should be rewritten.
+        #if self.max_ncores_used is not None and flow.ncores_used > self.max_ncores_used:
+        if self.max_ncores_used is not None and flow.ncores_allocated > self.max_ncores_used:
+            print("Cannot exceed max_ncores_used %s" % self.max_ncores_used)
+            logger.info("Cannot exceed max_ncores_used %s" % self.max_ncores_used)
+            return
 
         # fix problems
         # Try to restart the unconverged tasks
@@ -598,7 +608,7 @@ class PyFlowScheduler(object):
         # Mission accomplished. Shutdown the scheduler.
         all_ok = self.flow.all_ok
         if all_ok:
-            self.shutdown(msg="All tasks have reached S_OK. Will shutdown the scheduler and exit")
+            return self.shutdown(msg="All tasks have reached S_OK. Will shutdown the scheduler and exit")
 
         # Handle failures.
         err_msg = ""
@@ -669,8 +679,8 @@ class PyFlowScheduler(object):
         """Cleanup routine: remove the pid file and save the pickle database"""
         try:
             os.remove(self.pid_file)
-        except OSError:
-            logger.critical("Could not remove pid_file")
+        except OSError as exc:
+            logger.critical("Could not remove pid_file: %s", exc)
 
         # Save the final status of the flow.
         self.flow.pickle_dump()

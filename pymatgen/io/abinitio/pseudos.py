@@ -130,7 +130,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
     #    return not self.__eq__(other)
 
     def __repr__(self):
-        return "<%s at %s, name = %s>" % (self.__class__.__name__, id(self), self.basename)
+        return "<%s at %s>" % (self.__class__.__name__, self.filepath)
 
     def __str__(self):
         """String representation."""
