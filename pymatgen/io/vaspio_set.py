@@ -31,7 +31,6 @@ import numpy as np
 
 from monty.serialization import loadfn
 
-from pymatgen.io.cifio import CifWriter
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vaspio.vasp_output import Vasprun, Outcar
 from pymatgen.serializers.json_coders import PMGSONable
@@ -125,16 +124,23 @@ class AbstractVaspInputSet(six.with_metaclass(abc.ABCMeta, PMGSONable)):
         Returns:
             dict of {filename: file_as_string}, e.g., {'INCAR':'EDIFF=1e-4...'}
         """
-        d = {'INCAR': self.get_incar(structure),
-             'KPOINTS': self.get_kpoints(structure),
+        kpoints = self.get_kpoints(structure)
+        incar = self.get_incar(structure)
+        if np.product(kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
+            incar["ISMEAR"] = 0
+
+        d = {'INCAR': incar,
+             'KPOINTS': kpoints,
              'POSCAR': self.get_poscar(structure)}
+
         if generate_potcar:
             d['POTCAR'] = self.get_potcar(structure)
         else:
             d['POTCAR.spec'] = "\n".join(self.get_potcar_symbols(structure))
         return d
 
-    def write_input(self, structure, output_dir, make_dir_if_not_present=True):
+    def write_input(self, structure, output_dir,
+                    make_dir_if_not_present=True, include_cif=False):
         """
         Writes a set of VASP input to a directory.
 
@@ -145,11 +151,17 @@ class AbstractVaspInputSet(six.with_metaclass(abc.ABCMeta, PMGSONable)):
             make_dir_if_not_present (bool): Set to True if you want the
                 directory (and the whole path) to be created if it is not
                 present.
+            include_cif (bool): Whether to write a CIF file in the output
+                directory for easier opening by VESTA.
         """
         if make_dir_if_not_present and not os.path.exists(output_dir):
             os.makedirs(output_dir)
         for k, v in self.get_all_vasp_input(structure).items():
             v.write_file(os.path.join(output_dir, k))
+            if k == "POSCAR" and include_cif:
+                v.structure.to(
+                    filename=os.path.join(output_dir,
+                                          "%s.cif" % v.structure.formula))
 
 
 class DictVaspInputSet(AbstractVaspInputSet):
@@ -203,7 +215,6 @@ class DictVaspInputSet(AbstractVaspInputSet):
         reduce_structure (None/str): Before generating the input files,
             generate the reduced structure. Default (None), does not
             alter the structure. Valid values: None, "niggli", "LLL"
-
     """
 
     def __init__(self, name, config_dict, hubbard_off=False,
@@ -347,9 +358,9 @@ class DictVaspInputSet(AbstractVaspInputSet):
 
         # If grid_density is in the kpoints_settings use Kpoints.automatic_density
         if self.kpoints_settings.get('grid_density'):
-            return Kpoints.automatic_density(structure,
-                                             self.kpoints_settings['grid_density'],
-                                             self.force_gamma)
+            return Kpoints.automatic_density(
+                structure, int(self.kpoints_settings['grid_density']),
+                self.force_gamma)
 
         # If length is in the kpoints_settings use Kpoints.automatic
         elif self.kpoints_settings.get('length'):
@@ -357,9 +368,10 @@ class DictVaspInputSet(AbstractVaspInputSet):
 
         # Raise error. Unsure of which kpoint generation to use
         else:
-            raise ValueError("Invalid KPoint Generation algo : Supported Keys are "
-                             "grid_density: for Kpoints.automatic_density generation "
-                             "and length  : for Kpoints.automatic generation")
+            raise ValueError(
+                "Invalid KPoint Generation algo : Supported Keys are "
+                "grid_density: for Kpoints.automatic_density generation "
+                "and length  : for Kpoints.automatic generation")
 
     def __str__(self):
         return self.name
@@ -489,7 +501,15 @@ class MITNEBVaspInputSet(DictVaspInputSet):
             structures.append(s)
         return structures
 
-    def write_input(self, structures, output_dir, make_dir_if_not_present=True,
+    def write_input(self, structure, output_dir,
+                    make_dir_if_not_present=True, include_cif=False):
+        """
+        The default write_input is for writing initial structures / end point
+        relaxations. This ensures that
+        """
+
+    def write_input(self, structures, output_dir,
+                    make_dir_if_not_present=True,
                     write_cif=False):
         """
         NEB inputs has a special directory structure where inputs are in 00,
@@ -800,8 +820,8 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             previous_incar = vasp_run.incar
             previous_kpoints = vasp_run.kpoints
         except:
-            traceback.format_exc()
-            raise RuntimeError("Can't get valid results from previous run")
+            traceback.print_exc()
+            raise RuntimeError("Can't get valid results from previous run. prev dir: {}".format(previous_vasp_dir))
 
         mpsvip = MPStaticVaspInputSet(kpoints_density=kpoints_density,
                                       sym_prec=sym_prec)
@@ -1061,7 +1081,8 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         """
         if self.mode == "Line":
             kpath = HighSymmKpath(structure)
-            cart_k_points, k_points_labels = kpath.get_kpoints(line_density=self.kpoints_line_density)
+            cart_k_points, k_points_labels = kpath.get_kpoints(
+                line_density=self.kpoints_line_density)
             frac_k_points = [kpath._prim_rec.get_fractional_coords(k)
                              for k in cart_k_points]
             return Kpoints(comment="Non SCF run along symmetry lines",
@@ -1173,8 +1194,8 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             outcar = Outcar(os.path.join(previous_vasp_dir, "OUTCAR"))
             previous_incar = vasp_run.incar
         except:
-            traceback.format_exc()
-            raise RuntimeError("Can't get valid results from previous run")
+            traceback.print_exc()
+            raise RuntimeError("Can't get valid results from previous run. prev dir: {}".format(previous_vasp_dir))
 
         #Get a Magmom-decorated structure
         structure = MPNonSCFVaspInputSet.get_structure(vasp_run, outcar,
@@ -1190,7 +1211,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                 shutil.copyfile(os.path.join(previous_vasp_dir, "CHGCAR"),
                                 os.path.join(output_dir, "CHGCAR"))
             except Exception as e:
-                traceback.format_exc()
+                traceback.print_exc()
                 raise RuntimeError("Can't copy CHGCAR from SC run" + '\n'
                                    + str(e))
 
@@ -1287,8 +1308,8 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
             outcar = Outcar(os.path.join(previous_vasp_dir, "OUTCAR"))
             previous_incar = vasp_run.incar
         except:
-            traceback.format_exc()
-            raise RuntimeError("Can't get valid results from previous run")
+            traceback.print_exc()
+            raise RuntimeError("Can't get valid results from previous run. prev dir: {}".format(previous_vasp_dir))
 
         #Get a Magmom-decorated structure
         structure = MPNonSCFVaspInputSet.get_structure(vasp_run, outcar,
@@ -1305,7 +1326,7 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
                 shutil.copyfile(os.path.join(previous_vasp_dir, "CHGCAR"),
                                 os.path.join(output_dir, "CHGCAR"))
             except Exception as e:
-                traceback.format_exc()
+                traceback.print_exc()
                 raise RuntimeError("Can't copy CHGCAR from SC run" + '\n'
                                    + str(e))
 
@@ -1390,9 +1411,6 @@ def batch_write_vasp_input(structures, vasp_input_set, output_dir,
         if sanitize:
             s = s.copy(sanitize=True)
         vasp_input_set.write_input(
-            s, dirname, make_dir_if_not_present=make_dir_if_not_present
+            s, dirname, make_dir_if_not_present=make_dir_if_not_present,
+            include_cif=include_cif
         )
-        if include_cif:
-            writer = CifWriter(s)
-            writer.write_file(os.path.join(
-                dirname, "{}_{}.cif".format(formula, i)))

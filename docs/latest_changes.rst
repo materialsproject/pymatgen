@@ -1,8 +1,7 @@
 Change log
 ==========
 
-v3.0.7
-------
-* Powerful Slab generation algorithms (beta!).
-* Improvements to DiffusionAnalyzer with constant smoothing option.
-* Significantly improve look of DOS plots using prettyplotlib.
+v3.0.11
+-------
+* Lots of abinitio improvements (Matteo).
+* Added mp_decode option to MPRester.query to allow option to not decode into pymatgen objects.

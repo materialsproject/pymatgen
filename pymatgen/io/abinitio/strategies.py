@@ -12,9 +12,10 @@ import numpy as np
 
 from six.moves import map, zip
 from monty.string import is_string
+from monty.json import MontyEncoder, MontyDecoder
 from pymatgen.util.string_utils import str_aligned, str_delimited
 from .abiobjects import Electrons
-from .pseudos import PseudoTable
+from .pseudos import PseudoTable, Pseudo
 
 import logging
 logger = logging.getLogger(__name__)
@@ -27,41 +28,6 @@ __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 
 
-def select_pseudos(pseudos, structure, ret_table=True):
-    """
-    Given a list of pseudos and a pymatgen structure, extract the pseudopotentials
-    for the calculation (useful when we receive an entire periodic table).
-    If ret_table is True, the function will return a PseudoTable instead of
-    a list of `Pseudo` objects
-
-    Raises:
-        ValueError if no pseudo is found or multiple occurrences are found.
-    """
-    table = PseudoTable.as_table(pseudos)
-
-    pseudos = []
-    for symbol in structure.types_of_specie:
-        # Get the list of pseudopotentials in table from atom symbol.
-        pseudos_for_type = table.pseudos_with_symbol(symbol)
-
-        if not pseudos_for_type:
-            raise ValueError("Cannot find pseudo for symbol %s" % symbol)
-
-        if len(pseudos_for_type) > 1:
-            raise ValueError("Find multiple pseudos for symbol %s" % symbol)
-
-        pseudos.append(pseudos_for_type[0])
-
-    if ret_table:
-        return PseudoTable(pseudos)
-    else:
-        return pseudos
-
-
-def order_pseudos(pseudos, structure):
-    #logger.info('calling order pseudos')
-    return select_pseudos(pseudos, structure) #, ret_table=False)
-
 
 def num_valence_electrons(pseudos, structure):
     """
@@ -69,15 +35,12 @@ def num_valence_electrons(pseudos, structure):
     a list of pseudopotentials and the crystalline structure.
 
     Args:
-        pseudos:
-            List of strings, list of of pseudos or `PseudoTable` instance.
-        structure:
-            Pymatgen structure.
+        pseudos: List of strings, list of of pseudos or `PseudoTable` instance.
+        structure: Pymatgen structure.
 
     Raises:
         ValueError if cannot find a pseudo in the input pseudos or if the
-        input list contains more than one pseudo for the chemical symbols
-        appearing in structure.
+        input list contains more than one pseudo for the chemical symbols appearing in structure.
     """
     table = PseudoTable.as_table(pseudos)
 
@@ -102,8 +65,7 @@ class AbstractStrategy(six.with_metaclass(abc.ABCMeta, object)):
 
     Attributes:
 
-        pseudos:
-            List of pseudopotentials.
+        pseudos: List of pseudopotentials.
     """
 
     #@abc.abstractproperty
@@ -112,19 +74,20 @@ class AbstractStrategy(six.with_metaclass(abc.ABCMeta, object)):
     @property
     def isnc(self):
         """True if norm-conserving calculation."""
-        return self.pseudos.allnc
+        return all(p.isnc for p in self.pseudos)
 
     @property
     def ispaw(self):
         """True if PAW calculation."""
-        return self.pseudos.allpaw
+        return all(p.ispaw for p in self.pseudos)
 
     def num_valence_electrons(self):
         """Number of valence electrons computed from the pseudos and the structure."""
         return num_valence_electrons(self.pseudos, self.structure)
 
-    #@abc.abstractproperty
-    #def structure(self):
+    @abc.abstractproperty
+    def structure(self):
+        """Structure object"""
 
     #def set_structure(self, structure):
     #    self.structure = structure
@@ -153,33 +116,61 @@ class AbstractStrategy(six.with_metaclass(abc.ABCMeta, object)):
 
 class StrategyWithInput(object):
     # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
-    def __init__(self, abinit_input):
+    def __init__(self, abinit_input, deepcopy=True):
+        if deepcopy: abinit_input = copy.deepcopy(abinit_input)
         self.abinit_input = abinit_input
 
     @property
     def pseudos(self):
         # FIXME: pseudos must be order but I need to define an ABC for the Strategies and Inputs.
         # Order pseudos
-        pseudos = self.abinit_input.pseudos
-        return order_pseudos(pseudos, self.abinit_input.structure)
+        return self.abinit_input.pseudos
+
+    @property
+    def structure(self):
+        return self.abinit_input.structure
+
+    @structure.setter
+    def structure(self, structure):
+        self.abinit_input.set_structure(structure)
 
     def add_extra_abivars(self, abivars):
         """Add variables (dict) to extra_abivars."""
-        self.abinit_input.set_variables(**abivars)
+        self.abinit_input.set_vars(**abivars)
 
     def remove_extra_abivars(self, keys):
         """Remove variables from extra_abivars."""
-        self.abinit_input.remove_variables(keys)
+        self.abinit_input.remove_vars(keys)
 
     def make_input(self):
         return str(self.abinit_input)
+
+    def deepcopy(self):
+        """Deep copy of self."""
+        return copy.deepcopy(self)
+
+    def as_dict(self):
+        d = {'abinit_input': self.abinit_input.as_dict()}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        abinit_input = d['abinit_input']
+        modname = abinit_input["@module"]
+        classname = abinit_input["@class"]
+        mod = __import__(modname, globals(), locals(), [classname], 0)
+        cls_ = getattr(mod, classname)
+        strategy = cls(cls_.from_dict(abinit_input))
+        return strategy
 
 
 class HtcStrategy(AbstractStrategy):
     """
     Attributes:
-        accuracy:
-            Accuracy of the calculation used to define basic parameters of the run.
+
+        accuracy: Accuracy of the calculation used to define basic parameters of the run.
             such as tolerances, basis set truncation ...
     """
     __metaclass__ = abc.ABCMeta
@@ -330,37 +321,29 @@ class ScfStrategy(HtcStrategy):
                  smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, use_symmetries=True, **extra_abivars):
         """
         Args:
-            structure:
-                pymatgen structure
-            pseudos:
-                List of pseudopotentials.
-            ksampling:
-                Ksampling object defining the sampling of the BZ.
-            accuracy:
-                Accuracy of the calculation.
-            spin_mode:
-                Spin polarization mode.
-            smearing:
-                string or Smearing instance.
-            charge:
-                Total charge of the system. Default is 0.
-            scf_algorithm:
-                ElectronsAlgorithm instance.
-            use_symmetries:
-                False if point group symmetries should not be used.
-            extra_abivars:
-                Extra variables that will be directly added to the input file.
+            structure: pymatgen structure
+            pseudos: List of pseudopotentials.
+            ksampling: :class:`Ksampling` object defining the sampling of the BZ.
+            accuracy: Accuracy of the calculation.
+            spin_mode: Spin polarization mode.
+            smearing: string or :class:`Smearing` instance.
+            charge: Total charge of the system. Default is 0.
+            scf_algorithm: :class:`ElectronsAlgorithm` instance.
+            use_symmetries: False if point group symmetries should not be used.
+            extra_abivars: Extra variables that will be directly added to the input file.
         """
         super(ScfStrategy, self).__init__()
 
         self.set_accuracy(accuracy)
-        self.structure = structure
-        self.pseudos = select_pseudos(pseudos, structure)
+        self._structure = structure
+
+        table = PseudoTable.as_table(pseudos)
+        self.pseudos = table.pseudos_with_symbols(list(structure.composition.get_el_amt_dict().keys()))
+
         self.ksampling = ksampling
         self.use_symmetries = use_symmetries
 
-        self.electrons = Electrons(spin_mode=spin_mode,
-                                   smearing=smearing, algorithm=scf_algorithm,
+        self.electrons = Electrons(spin_mode=spin_mode, smearing=smearing, algorithm=scf_algorithm,
                                    nband=None, fband=None, charge=charge)
 
         self.extra_abivars = extra_abivars
@@ -369,15 +352,57 @@ class ScfStrategy(HtcStrategy):
     def runlevel(self):
         return "scf"
 
-    def make_input(self):
+    @property
+    def structure(self):
+        return self._structure
+
+    @structure.setter
+    def structure(self, structure):
+        self._structure = structure
+
+    def _define_extra_params(self):
         extra = dict(optdriver=self.optdriver, ecut=self.ecut, pawecutdg=self.pawecutdg)
         extra.update(self.tolerance)
         extra.update({"nsym": 1 if not self.use_symmetries else None})
-
         extra.update(self.extra_abivars)
+        return extra
+
+    def make_input(self):
+        extra = self._define_extra_params()
 
         inpw = InputWriter(self.structure, self.electrons, self.ksampling, **extra)
         return inpw.get_string()
+
+    def as_dict(self):
+        d = {}
+        d['structure'] = self.structure.as_dict()
+        d['pseudos'] = [p.as_dict() for p in self.pseudos]
+        d['ksampling'] = self.ksampling.as_dict()
+        d['accuracy'] = self.accuracy
+        d['spin_mode'] = self.electrons.spin_mode.as_dict()
+        d['smearing'] = self.electrons.smearing.as_dict()
+        d['charge'] = self.electrons.charge
+        d['scf_algorithm'] = self.electrons.algorithm
+        d['use_symmetries'] = self.use_symmetries
+        d['extra_abivars'] = self.extra_abivars
+        d['@module'] = self.__class__.__module__
+        d['@class'] = self.__class__.__name__
+
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        dec = MontyDecoder()
+        structure = dec.process_decoded(d["structure"])
+        pseudos = dec.process_decoded(d['pseudos'])
+        ksampling = dec.process_decoded(d["ksampling"])
+        spin_mode = dec.process_decoded(d["spin_mode"])
+        smearing = dec.process_decoded(d["smearing"])
+
+        return cls(structure=structure, pseudos=pseudos, ksampling=ksampling, accuracy=d['accuracy'],
+                   spin_mode=spin_mode, smearing=smearing, charge=d['charge'],
+                   scf_algorithm=d['scf_algorithm'], use_symmetries=d['use_symmetries'],
+                   **d['extra_abivars'])
 
 
 class NscfStrategy(HtcStrategy):
@@ -387,16 +412,11 @@ class NscfStrategy(HtcStrategy):
     def __init__(self, scf_strategy, ksampling, nscf_nband, nscf_algorithm=None, **extra_abivars):
         """
         Args:
-            scf_strategy:
-                ScfStrategy used for the GS run.
-            ksampling:
-                Ksampling object defining the sampling of the BZ.
-            nscf_nband:
-                Number of bands to compute.
-            nscf_algorithm
-                ElectronsAlgorithm instance.
-            extra_abivars:
-                Extra ABINIT variables that will be directly added to the input file
+            scf_strategy: :class:`ScfStrategy` used for the GS run.
+            ksampling: :class:`Ksampling` object defining the sampling of the BZ.
+            nscf_nband: Number of bands to compute.
+            nscf_algorithm :class:`ElectronsAlgorithm` instance.
+            extra_abivars: Extra ABINIT variables that will be directly added to the input file
         """
         super(NscfStrategy, self).__init__()
 
@@ -424,6 +444,14 @@ class NscfStrategy(HtcStrategy):
     def runlevel(self):
         return "nscf"
 
+    @property
+    def structure(self):
+        return self.scf_strategy.structure
+
+    @structure.setter
+    def structure(self, structure):
+        self.scf_strategy.structure = structure
+
     def make_input(self):
         # Initialize the system section from structure.
         scf_strategy = self.scf_strategy
@@ -435,6 +463,27 @@ class NscfStrategy(HtcStrategy):
         inp = InputWriter(scf_strategy.structure, self.electrons, self.ksampling, **extra)
         return inp.get_string()
 
+    def as_dict(self):
+        d = {}
+        d['scf_strategy'] = self.scf_strategy.as_dict()
+        d['ksampling'] = self.ksampling.as_dict()
+        d['nscf_nband'] = self.nscf_nband
+        d['nscf_algorithm'] = self.electrons.algorithm
+        d['extra_abivars'] = self.extra_abivars
+        d['@module'] = self.__class__.__module__
+        d['@class'] = self.__class__.__name__
+
+    @classmethod
+    def from_dict(cls, d):
+        dec = MontyDecoder()
+        scf_strategy = dec.process_decoded(d["scf_strategy"])
+        ksampling = dec.process_decoded(d["ksampling"])
+        nscf_nband = dec.process_decoded(d["nscf_nband"])
+        nscf_algorithm = dec.process_decoded(d["nscf_algorithm"])
+
+        return cls(scf_strategy=scf_strategy, ksampling=ksampling,
+                   nscf_nband=nscf_nband, nscf_algorithm=nscf_algorithm, **d['extra_abivars'])
+
 
 class RelaxStrategy(ScfStrategy):
     """Extends ScfStrategy by adding an algorithm for the structural relaxation."""
@@ -443,26 +492,16 @@ class RelaxStrategy(ScfStrategy):
                  smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, **extra_abivars):
         """
         Args:
-            structure:
-                pymatgen structure
-            pseudos:
-                List of pseudopotentials.
-            ksampling:
-                `Ksampling` object defining the sampling of the BZ.
-            relax_algo:
-                Object defining the algorithm for the structural relaxation.
-            accuracy:
-                Accuracy of the calculation.
-            spin_mode:
-                Flag defining the spin polarization. Defaults to "polarized"
-            smearing:
-                String or `Smearing` instance.
-            charge:
-                Total charge of the system. Default is 0.
-            scf_algorithm:
-                `ElectronsAlgorithm` instance.
-            extra_abivars:
-                Extra ABINIT variables that will be directly added to the input file
+            structure: pymatgen structure
+            pseudos: List of pseudopotentials.
+            ksampling: :class:`Ksampling` object defining the sampling of the BZ.
+            relax_algo: Object defining the algorithm for the structural relaxation.
+            accuracy: Accuracy of the calculation.
+            spin_mode: Flag defining the spin polarization. Defaults to "polarized"
+            smearing: String or :class:`Smearing` instance.
+            charge: Total charge of the system. Default is 0.
+            scf_algorithm: :class:`ElectronsAlgorithm` instance.
+            extra_abivars: Extra ABINIT variables that will be directly added to the input file
         """
         super(RelaxStrategy, self).__init__(
             structure, pseudos, ksampling,
@@ -476,14 +515,33 @@ class RelaxStrategy(ScfStrategy):
         return "relax"
 
     def make_input(self):
-        # Input for the GS run
-        input_str = super(RelaxStrategy, self).make_input()
+        # extra for the GS run
+        extra = self._define_extra_params()
 
-        # Add the variables for the structural relaxation.
-        input = InputWriter(self.relax_algo)
-        input_str += input.get_string()
+        inpw = InputWriter(self.structure, self.electrons, self.ksampling, self.relax_algo, **extra)
+        return inpw.get_string()
 
-        return input_str
+    def as_dict(self):
+        d = super(RelaxStrategy, self).as_dict()
+        d['relax_algo'] = self.relax_algo
+        d['@module'] = self.__class__.__module__
+        d['@class'] = self.__class__.__name__
+
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        dec = MontyDecoder()
+        structure = dec.process_decoded(d["structure"])
+        pseudos = [Pseudo.from_file(p['filepath']) for p in d['pseudos']]
+        ksampling = dec.process_decoded(d["ksampling"])
+        spin_mode = dec.process_decoded(d["spin_mode"])
+        smearing = dec.process_decoded(d["smearing"])
+
+        return cls(structure=structure, pseudos=pseudos, ksampling=ksampling, accuracy=d['accuracy'],
+                   spin_mode=spin_mode, smearing=smearing, charge=d['charge'],
+                   scf_algorithm=d['scf_algorithm'], use_symmetries=d['use_symmetries'],
+                   relax_algo=d['relax_algo'], **d['extra_abivars'])
 
 
 class ScreeningStrategy(HtcStrategy):
@@ -491,14 +549,10 @@ class ScreeningStrategy(HtcStrategy):
     def __init__(self, scf_strategy, nscf_strategy, screening, **extra_abivars):
         """
         Args:
-            scf_strategy:
-                Strategy used for the ground-state calculation
-            nscf_strategy:
-                Strategy used for the non-self consistent calculation
-            screening:
-                Screening instance
-            extra_abivars:
-                Extra ABINIT variables added directly to the input file
+            scf_strategy: :class:`ScfStrategy` used for the ground-state calculation
+            nscf_strategy: :class:`NscStrategy` used for the non-self consistent calculation
+            screening: :class:`Screening` instance
+            extra_abivars: Extra ABINIT variables added directly to the input file
         """
         super(ScreeningStrategy, self).__init__()
 
@@ -532,14 +586,18 @@ class ScreeningStrategy(HtcStrategy):
     def runlevel(self):
         return "screening"
 
+    @property
+    def structure(self):
+        return self.scf_strategy.structure
+
     def make_input(self):
         # FIXME
         extra = dict(optdriver=self.optdriver, ecut=self.ecut, ecutwfn=self.ecut, pawecutdg=self.pawecutdg)
         extra.update(self.tolerance)
         extra.update(self.extra_abivars)
 
-        inpw = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.screening, **extra)
-        return inpw.get_string()
+        return InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.screening,
+                           **extra).get_string()
 
 
 class SelfEnergyStrategy(HtcStrategy):
@@ -547,16 +605,11 @@ class SelfEnergyStrategy(HtcStrategy):
     def __init__(self, scf_strategy, nscf_strategy, scr_strategy, sigma, **extra_abivars):
         """
         Args:
-            scf_strategy:
-                Strategy used for the ground-state calculation
-            nscf_strategy:
-                Strategy used for the non-self consistent calculation
-            scr_strategy:
-                Strategy used for the screening calculation
-            sigma:
-                SelfEnergy instance.
-            extra_abivars:
-                Extra ABINIT variables added directly to the input file
+            scf_strategy: :class:`ScfStrategy` used for the ground-state calculation
+            nscf_strategy: :class:`NscfStrategy` used for the non-self consistent calculation
+            scr_strategy: :class:`ScrStrategy` used for the screening calculation
+            sigma: :class:`SelfEnergy` instance.
+            extra_abivars: Extra ABINIT variables added directly to the input file
         """
         # TODO Add consistency check between SCR and SIGMA strategies
         super(SelfEnergyStrategy, self).__init__()
@@ -590,17 +643,21 @@ class SelfEnergyStrategy(HtcStrategy):
     def runlevel(self):
         return "sigma"
 
+    @property
+    def structure(self):
+        return self.scf_strategy.structure
+
     def make_input(self):
         # FIXME
         extra = dict(optdriver=self.optdriver, ecut=self.ecut, ecutwfn=self.ecut, pawecutdg=self.pawecutdg)
         extra.update(self.tolerance)
         extra.update(self.extra_abivars)
 
-        inpw = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.sigma, **extra)
-        return inpw.get_string()
+        return InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.sigma,
+                           **extra).get_string()
 
 
-class MDFBSE_Strategy(HtcStrategy):
+class MdfBse_Strategy(HtcStrategy):
     """
     Strategy for Bethe-Salpeter calculation based on the
     model dielectric function and the scissors operator
@@ -608,16 +665,12 @@ class MDFBSE_Strategy(HtcStrategy):
     def __init__(self, scf_strategy, nscf_strategy, exc_ham, **extra_abivars):
         """
         Args:
-            scf_strategy:
-                Strategy used for the ground-state calculation.
-            nscf_strategy:
-                Strategy used for the non-self consistent calculation.
-            exc_ham:
-                `ExcitonicHamiltonian` instance.
-            extra_abivars:
-                Extra ABINIT variables added directly to the input file.
+            scf_strategy: :class:`Strategy` used for the ground-state calculation.
+            nscf_strategy: :class:`NscStrategy` used for the non-self consistent calculation.
+            exc_ham: :class:`ExcitonicHamiltonian` instance.
+            extra_abivars: Extra ABINIT variables added directly to the input file.
         """
-        super(MDFBSE_Strategy, self).__init__()
+        super(MdfBse_Strategy, self).__init__()
 
         self.pseudos = scf_strategy.pseudos
 
@@ -647,28 +700,30 @@ class MDFBSE_Strategy(HtcStrategy):
     def runlevel(self):
         return "bse"
 
+    @property
+    def structure(self):
+        return self.scf_strategy.structure
+
     def make_input(self):
         # FIXME
         extra = dict(optdriver=self.optdriver, ecut=self.ecut, pawecutdg=self.pawecutdg, ecutwfn=self.ecut)
         #extra.update(self.tolerance)
         extra.update(self.extra_abivars)
 
-        inpw = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.exc_ham, **extra)
-        return inpw.get_string()
+        return InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.exc_ham,
+                           **extra).get_string()
 
 
 class InputWriter(object):
     """
     This object receives a list of `AbivarAble` objects, an optional
-    dictionary with extra ABINIT variables and produces a (nicely formatted?)
-    string with the input file.
+    dictionary with extra ABINIT variables and produces a (nicely formatted?) string with the input file.
     """
     MAX_SLEN = 100
 
     def __init__(self, *args, **kwargs):
         self.abiobj_dict = collections.OrderedDict()
         self.extra_abivars = collections.OrderedDict()
-
         for arg in args:
             if hasattr(arg, "to_abivars"):
                 self.add_abiobj(arg)
@@ -780,11 +835,16 @@ class InputWriter(object):
         method is different from the __str__ method is to provide options for pretty printing.
 
         Args:
-            pretty:
-                Set to True for pretty aligned output.
+            pretty: Set to True for pretty aligned output.
         """
         lines = []
         app = lines.append
+
+        # extra_abivars can contain variables that are already defined 
+        # in the object. In this case, the value in extra_abivars is used
+        # TODO: Should find a more elegant way to avoid collission between objects
+        # and extra_abivars
+        extra_abivars = self.extra_abivars.copy()
 
         # Write the Abinit objects first.
         for obj in self.abiobjects:
@@ -793,6 +853,7 @@ class InputWriter(object):
             app(["#", "%s" % obj.__class__.__name__])
             app([80*"#", ""])
             for (k, v) in obj.to_abivars().items():
+                v = extra_abivars.pop(k, v)
                 app(self._format_kv(k, v))
 
         # Extra variables.
@@ -800,7 +861,7 @@ class InputWriter(object):
             app([80*"#", ""])
             app(["#", "Extra_Abivars"])
             app([80*"#", ""])
-            for (k, v) in self.extra_abivars.items():
+            for (k, v) in extra_abivars.items():
                 app(self._format_kv(k, v))
 
         #lines = self._cut_lines(lines)

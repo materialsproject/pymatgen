@@ -15,13 +15,12 @@ __date__ = "May 2014"
 
 import time
 import os
-import subprocess
 import ast
 import copy
 import math
 import shutil
 import numpy as np
-from pymatgen.core.units import Ha_to_eV, eV_to_Ha
+from pymatgen.core.units import eV_to_Ha
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.standard_transformations import OxidationStateRemovalTransformation, \
     PrimitiveCellTransformation, SupercellTransformation
@@ -32,11 +31,6 @@ def now():
     helper to return a time string
     """
     return time.strftime("%H:%M:%S %d/%m/%Y")
-
-
-def load_ps():
-    if os.path.isfile('set-ps'):
-        subprocess.call('source set-ps', shell=True)
 
 
 def read_extra_abivars():
@@ -89,7 +83,7 @@ def clean(some_string, uppercase=False):
 
 
 def expand(tests, level):
-    from pymatgen.io.gwwrapper.codeinterfaces import get_all_ecuteps, get_all_nbands
+    from gw.codeinterfaces import get_all_ecuteps, get_all_nbands
     new_tests = copy.deepcopy(tests)
     for test in tests.keys():
         if test in get_all_ecuteps():
@@ -129,9 +123,7 @@ def print_gnuplot_header(filename, title='', mode='convplot', filetype='jpeg'):
     zl = 'set zlabel "gap (eV)"\n'
     if mode == 'convplot':
         f = open(filename, mode='a')
-        if filetype is None:
-            f.write('pause -1\n')
-        else:
+        if filetype is not None:
             f.write('set terminal '+filetype+'\n')
         f.write('set title "'+title+'"\n')
         f.write(xl)
