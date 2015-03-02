@@ -1,5 +1,5 @@
 # coding: utf-8
-"""This modul provides functions and classes related to Task objects."""
+"""This module provides functions and classes related to Task objects."""
 from __future__ import division, print_function, unicode_literals
 
 import os
@@ -1508,11 +1508,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             scheduler_parser.parse()
 
             if scheduler_parser.errors:
-                # the queue errors in the task
-                logger.debug('scheduler errors found:')
-                logger.debug(str(scheduler_parser.errors))
                 self.queue_errors = scheduler_parser.errors
-                return self.set_status(self.S_QCRITICAL)
+                # the queue errors in the task
+                info_msg = "scheduler errors found:\n%s" % str(scheduler_parser.errors)
+                logger.critical(info_msg)
+                return self.set_status(self.S_QCRITICAL, info_msg=info_msg)
                 # The job is killed or crashed and we know what happened
             else:
                 if len(err_info) > 0:
@@ -1892,8 +1892,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             try:
                 self.autoparal_run()
             except:
-                logger.critical("autoparal_fake_run raised:\n%s" % straceback())
-                self.set_status(self.S_ABICRITICAL)
+                info_msg = "autoparal_fake_run raised:\n%s" % straceback()
+                logger.critical(info_msg)
+                self.set_status(self.S_ABICRITICAL, info_msg=info_msg)
                 return 0
 
         # Start the calculation in a subprocess and return.
@@ -2900,7 +2901,7 @@ class BseTask(AbinitTask):
     def open_mdf(self):
         """
         Open the MDF file located in the in self.outdir.
-        Returns `MdfFile` object, None if file could not be found or file is not readable.
+        Returns :class:`MdfFile` object, None if file could not be found or file is not readable.
         """
         mdf_path = self.mdf_path
         if not mdf_path:

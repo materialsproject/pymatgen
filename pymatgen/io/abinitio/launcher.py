@@ -597,9 +597,6 @@ class PyFlowScheduler(object):
 
         # Mission accomplished. Shutdown the scheduler.
         all_ok = self.flow.all_ok
-        if self.verbose:
-            print("all_ok", all_ok)
-
         if all_ok:
             self.shutdown(msg="All tasks have reached S_OK. Will shutdown the scheduler and exit")
 
@@ -644,11 +641,23 @@ class PyFlowScheduler(object):
                 self.flow.num_errored_tasks, self.max_num_abierrs)
             err_msg += boxed(msg)
 
+        # Test on the presence of deadlocks.
         deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
-        #print("\ndeadlocked:\n", deadlocked, "\nrunnables:\n", runnables, "\nrunning\n", running)
-        if deadlocked and not runnables and not running:
-            msg = "No runnable job with deadlocked tasks:\n %s\nWill shutdown the scheduler and exit" % str(deadlocked)
-            err_msg += boxed(msg)
+        if deadlocked: 
+            # Check the flow agains to that status are updated. 
+            self.flow.check_status()
+
+            deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
+            print("deadlocked:\n", deadlocked, "\nrunnables:\n", runnables, "\nrunning\n", running)
+            if deadlocked and not runnables and not running:
+                err_msg += "No runnable job with deadlocked tasks:\n%s." % str(deadlocked)
+
+        if not runnables and not running:
+            # Check the flow agains to that status are updated. 
+            self.flow.check_status()
+            deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
+            if not runnables and not running:
+                err_msg += "No task is running and cannot find other tasks to sumbmit."
 
         if err_msg:
             # Something wrong. Quit
