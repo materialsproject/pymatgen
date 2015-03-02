@@ -5,6 +5,7 @@ Flows are the final objects that can be dumped directly to a pickle file on disk
 Flows are executed using abirun (abipy).
 """
 from __future__ import unicode_literals, division, print_function
+
 import os
 import sys
 import time
@@ -18,19 +19,22 @@ from six.moves import map
 from atomicfile import AtomicFile
 from prettytable import PrettyTable
 from monty.collections import as_set
+from monty.string import list_strings
 from monty.io import FileLock
 from monty.pprint import draw_tree
 from monty.termcolor import stream_has_colours, cprint, colored, cprint_map
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
-from .tasks import (Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager, NscfTask, DdkTask,
+from pymatgen.core.units import Time, Memory
+from .nodes import Status, Node, NodeResults, Dependency
+from .tasks import (Task, ScfTask, PhononTask, TaskManager, NscfTask, DdkTask,
                     AnaddbTask, DdeTask, TaskManager)
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
 from .works import Work, BandStructureWork, PhononWork, G0W0Work, QptdmWork
 from .events import EventsParser
 from pydispatch import dispatcher
-import logging
 
+import logging
 logger = logging.getLogger(__name__)
 
 __author__ = "Matteo Giantomassi"
@@ -304,9 +308,9 @@ class Flow(Node):
         """True if all the tasks in works have reached `S_OK`."""
         return all(work.all_ok for work in self)
 
-    @property
-    def all_tasks(self):
-        return self.iflat_tasks()
+    #@property
+    #def all_tasks(self):
+    #    return self.iflat_tasks()
 
     @property
     def num_tasks(self):
@@ -316,11 +320,11 @@ class Flow(Node):
     @property
     def errored_tasks(self):
         """List of errored tasks."""
-        errtasks = []
-        for status in [Task.S_ERROR, Task.S_QCRITICAL, Task.S_ABICRITICAL]:
-            errtasks.extend(list(self.iflat_tasks(status=status)))
+        etasks = []
+        for status in [self.S_ERROR, self.S_QCRITICAL, self.S_ABICRITICAL]:
+            etasks.extend(list(self.iflat_tasks(status=status)))
 
-        return set(errtasks)
+        return set(etasks)
 
     @property
     def num_errored_tasks(self):
@@ -480,7 +484,6 @@ class Flow(Node):
 
             # Accept Task.S_FLAG or string.
             status = Status.as_status(status)
-            #print(status)
 
             for wi, work in enumerate(self):
                 for ti, task in enumerate(work):
@@ -495,7 +498,7 @@ class Flow(Node):
         """Test the dependencies of the nodes for possible deadlocks."""
         deadlocks = []
 
-        for task in self.all_tasks:
+        for task in self.iflat_tasks():
             for dep in task.deps:
                 if dep.node.depends_on(task):
                     deadlocks.append((task, dep.node))
@@ -508,18 +511,20 @@ class Flow(Node):
     def deadlocked_runnables_running(self):
         """
         This function detects deadlocks
-        return deadlocks, runnables, running
+
+        Return:
+            deadlocks, runnables, running
         """
         runnables = []
         for work in self:
             runnables.extend(work.fetch_alltasks_to_run())
 
-        running = list(self.iflat_tasks(status=Task.S_RUN))
+        running = list(self.iflat_tasks(status=self.S_RUN))
 
         err_tasks = self.errored_tasks
         deadlocked = []
         if err_tasks:
-            for task in self.all_tasks:
+            for task in self.iflat_tasks():
                 if any(task.depends_on(err_task) for err_task in err_tasks):
                     deadlocked.append(task)
 
@@ -595,27 +600,42 @@ class Flow(Node):
 
         for i, work in enumerate(self):
             print("", file=stream)
-            cprint_map("Work #%d: %s, Finalized=%s\n" % (i, work, work.finalized), cmap={"True": "green"}, file=stream)
-            if verbose == 0 and work.finalized: continue
+            cprint_map("Work #%d: %s, Finalized=%s" % (i, work, work.finalized), cmap={"True": "green"}, file=stream)
             if wlist is not None and i in wlist: continue
+            if verbose == 0 and work.finalized: 
+                print("  Finalized works are not shown. Use verbose > 0 to force output.", file=stream)
+                continue
 
-            table = PrettyTable(["Task", "Status", "Queue", "MPI|Omp|Memproc[Gb]", 
-                                 "Err|Warn|Comm", "Class", "Restart|Launches", "Node_ID"])
+            table = PrettyTable(["Task", "Status", "Queue", "MPI|Omp|Mem[Gb]", 
+                                 "Err|Warn|Comm", "Class", "Rest|Sub", "Time", "Node_ID"])
 
             tot_num_errors = 0
             for task in work:
                 if nids and task.node_id not in nids: continue
                 task_name = os.path.basename(task.name)
 
+                # FIXME: This should not be done here.
+                # get_event_report should be called only in check_status
                 # Parse the events in the main output.
                 report = task.get_event_report()
+                
+                # Get time info (run-time or time in queue or None)
+                stime = None
+                timedelta = task.datetimes.get_runtime()
+                if timedelta is not None:
+                    stime = str(timedelta) + "R"
+                else:
+                    timedelta = task.datetimes.get_time_inqueue()
+                    if timedelta is not None:
+                        stime = str(timedelta) + "Q"
 
                 events = "|".join(3*["NA"])
                 if report is not None:
                     events = "|".join(map(str, [report.num_errors, report.num_warnings, report.num_comments]))
 
                 para_info = "|".join(map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
-                task_info = list(map(str, [task.__class__.__name__, (task.num_restarts, task.num_launches), task.node_id]))
+                task_info = list(map(str, [task.__class__.__name__, (task.num_restarts, task.num_launches), stime, task.node_id]))
+
                 qinfo = "None"
                 if task.queue_id is not None:
                     qinfo = str(task.queue_id) + "@" + str(task.qname)
@@ -702,11 +722,11 @@ class Flow(Node):
 
         .. note::
 
-            nids and wslice ae mutually exclusive. 
-            iIf nids and wslice are both None, all tasks in self are inspected.
+            nids and wslice are mutually exclusive. 
+            If nids and wslice are both None, all tasks in self are inspected.
 
         Returns: 
-            list of `matplotlib figures.
+            List of `matplotlib` figures.
         """
         figs = []
         for task in self.select_tasks(nids=nids, wslice=wslice):
@@ -947,7 +967,7 @@ class Flow(Node):
                 pid = int(fh.readline())
 
             retcode = os.system("kill -9 %d" % pid)
-            logger.info("Sent SIGKILL to the scheduler, retcode = %s" % retcode)
+            flow.history.info("Sent SIGKILL to the scheduler, retcode = %s" % retcode)
             try:
                 os.remove(pid_file)
             except IOError:
@@ -1263,6 +1283,80 @@ class Flow(Node):
         sched.add_flow(self)
         return sched
 
+    def make_tarfile(self, name=None, max_filesize=None, exclude_exts=None, exclude_dirs=None, verbose=0, **kwargs):
+        """
+        Create a tarball file.
+
+        Args:
+            name: Name of the tarball file. Set to `flow.workdir + "tar.gz"` if name is None.
+            max_filesize (int or string with unit): a file is included in the tar file if its size <= max_filesize
+                Can be specified in bytes e.g. `max_files=1024` or with a string with unit e.g. `max_filesize="1 Mb"`.
+                No check is done if max_filesize is None.
+            exclude_exts: List of file extensions to be excluded from the tar file.
+            exclude_dirs: List of directory basenames to be excluded.
+            verbose (int): Verbosity level.
+            kwargs: keyword arguments passed to the :class:`TarFile` constructor.
+
+        Returns:
+            :class:`TarFile` object.
+        """
+        def any2bytes(s):
+            """Convert string or number to memory in bytes."""
+            if is_string(s):
+                return int(Memory.from_string(s).to("b"))
+            else:
+                return int(s)
+
+        if max_filesize is not None:
+            max_filesize = any2bytes(max_filesize) 
+
+        if exclude_exts:
+            # Add/remove ".nc" so that we can simply pass "GSR" instead of "GSR.nc"
+            # Moreover this trick allows one to treat WFK.nc and WFK file on the same footing.
+            exts = []
+            for e in list_strings(exclude_exts):
+                exts.append(e)
+                if e.endswith(".nc"):
+                    exts.append(e.replace(".nc", ""))
+                else:
+                    exts.append(e + ".nc")
+            exclude_exts = exts
+
+        def filter(tarinfo):
+            """
+            Function that takes a TarInfo object argument and returns the changed TarInfo object. 
+            If it instead returns None the TarInfo object will be excluded from the archive. 
+            """
+            # Skip links.
+            if tarinfo.issym() or tarinfo.islnk():
+                if verbose: print("Excluding link: %s" % tarinfo.name)
+                return None
+
+            # Check size in bytes
+            if max_filesize is not None and tarinfo.size > max_filesize:
+                if verbose: print("Excluding %s due to max_filesize" % tarinfo.name)
+                return None
+
+            # Filter filenames.
+            if exclude_exts and any(tarinfo.name.endswith(ext) for ext in exclude_exts):
+                if verbose: print("Excluding %s due to extension" % tarinfo.name)
+                return None
+
+            # Exlude directories (use dir basenames).
+            if exclude_dirs and any(dir_name in exclude_dirs for dir_name in tarinfo.name.split(os.path.sep)):
+                if verbose: print("Excluding %s due to exclude_dirs" % tarinfo.name)
+                return None
+
+            return tarinfo
+
+
+        from tarfile import TarFile
+        name = os.path.basename(self.workdir) + ".tar.gz" if name is None else name
+        tar = TarFile(name=name, mode='w', **kwargs) 
+
+        tar.add(os.path.basename(self.workdir), arcname=None, recursive=True, exclude=None, filter=filter)
+        return tar
+
 
 class G0W0WithQptdmFlow(Flow):
     def __init__(self, workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=None):
@@ -1386,7 +1480,7 @@ class FlowCallback(object):
 
     def can_execute(self):
         """True if we can execute the callback."""
-        return not self._disabled and [dep.status == dep.node.S_OK for dep in self.deps]
+        return not self._disabled and all(dep.status == dep.node.S_OK for dep in self.deps)
 
     def disable(self):
         """

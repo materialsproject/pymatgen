@@ -949,43 +949,8 @@ class Kpoints(PMGSONable):
         """
         vol = structure.lattice.reciprocal_lattice.volume
         kppa = int(round(kppvol * vol * structure.num_sites))
-        return Kpoints.automatic_density(structure, kppa, force_gamma=force_gamma)
-
-    def automatic_linemode(divisions, ibz):
-        """
-        Convenient static constructor for a KPOINTS in mode line_mode.
-        gamma centered Monkhorst-Pack grids and the number of subdivisions
-        along each reciprocal lattice vector determined by the scheme in the
-        VASP manual.
-
-        Args:
-            divisions: Parameter determining the number of k-points along each
-                hight symetry lines.
-            ibz: HighSymmKpath object (pymatgen.symmetry.bandstructure)
-
-        Returns:
-            Kpoints object
-        """
-        kpoints = list()
-        labels = list()
-        for path in ibz.kpath["path"]:
-            kpoints.append(ibz.kpath["kpoints"][path[0]])
-            labels.append(path[0])
-            for i in range(1, len(path) - 1):
-                kpoints.append(ibz.kpath["kpoints"][path[i]])
-                labels.append(path[i])
-                kpoints.append(ibz.kpath["kpoints"][path[i]])
-                labels.append(path[i])
-
-            kpoints.append(ibz.kpath["kpoints"][path[-1]])
-            labels.append(path[-1])
-
-        return Kpoints("Line_mode KPOINTS file",
-                       style=Kpoints.supported_modes.Line_mode,
-                       coord_type="Reciprocal",
-                       kpts=kpoints,
-                       labels=labels,
-                       num_kpts=int(divisions))
+        return Kpoints.automatic_density(structure, kppa,
+                                         force_gamma=force_gamma)
 
     @staticmethod
     def from_file(filename):

@@ -6,6 +6,7 @@ provides a parser to extract these events form the main output file and the log 
 from __future__ import unicode_literals, division, print_function
 
 import os.path
+import datetime
 import collections
 import yaml
 
@@ -21,9 +22,9 @@ __all__ = [
 ]
 
 def indent(lines, amount, ch=' '):
-    """indent the lines in a string by padding each one with proper number of pad characters"""
+    """Indent the lines in a string by padding each one with proper number of pad characters"""
     padding = amount * ch
-    return padding + ('\n'+padding).join(lines.split('\n'))
+    return padding + ('\n' + padding).join(lines.split('\n'))
 
 
 def straceback():
@@ -32,7 +33,7 @@ def straceback():
     return traceback.format_exc()
 
 
-class AbinitEvent(yaml.YAMLObject): #, PMGSONable):
+class AbinitEvent(yaml.YAMLObject): 
     """
     Example (YAML syntax)::
 
@@ -96,14 +97,14 @@ class AbinitEvent(yaml.YAMLObject): #, PMGSONable):
 
     @classmethod
     def from_dict(cls, d):
-        d = d.copy()
-        d.pop('@module', None)
-        d.pop('@class', None)
-        return cls(**d)
+        return cls(**{k:v for k,v in d.items() if not k.startswith("@")})
 
     @property
     def header(self):
         return "%s at %s:%s" % (self.name, self.src_file, self.src_line)
+
+    def __repr__(self):
+        return self.header
 
     def __str__(self):
         return "\n".join((self.header, self.message))
@@ -130,7 +131,7 @@ class AbinitEvent(yaml.YAMLObject): #, PMGSONable):
         return self.__class__.__name__
 
     @property
-    def baseclass(self):
+    def baseclass(self): 
         """The baseclass of self."""
         for cls in _BASE_CLASSES:
             if isinstance(self, cls):
@@ -138,18 +139,18 @@ class AbinitEvent(yaml.YAMLObject): #, PMGSONable):
 
         raise ValueError("Cannot determine the base class of %s" % self.__class__.__name__)
 
-    def log_correction(self, task, msg):
-        """
-        This method should be called once we have fixed the problem associated to this event.
-        It adds a new entry in the correction history of the task.
+    #def log_correction(self, task, msg):
+    #    """
+    #    This method should be called once we have fixed the problem associated to this event.
+    #    It adds a new entry in the correction history of the task.
 
-        Args:
-            message (str): Human-readable string with info on the action perfomed to solve the problem.
-        """
-        task._corrections.append(dict(
-            event=self.as_dict(), 
-            msg=msg,
-        ))
+    #    Args:
+    #        message (str): Human-readable string with info on the action perfomed to solve the problem.
+    #    """
+    #    task._corrections.append(dict(
+    #        event=self.as_dict(), 
+    #        msg=msg,
+    #    ))
 
     def correct(self, task):
         """
@@ -257,8 +258,9 @@ class DilatmxError(AbinitError):
 
         task._change_structure(last_structure)
         #changes = task._modify_vars(dilatmx=1.05)
+
         msg = "Take last structure from DILATMX_STRUCT.nc, will try to restart with dilatmx %s" % task.get_inpvar("dilatmx")
-        task.history.append(msg)
+        task.history.correction(msg)
         return 1
 
 
@@ -289,6 +291,7 @@ class EventReport(collections.Iterable):
         """
         self.filename = os.path.abspath(filename)
         self.stat = os.stat(self.filename)
+        self.start_datetime, self.end_datetime = None, None
 
         self._events = []
         self._events_by_baseclass = collections.defaultdict(list)
@@ -318,7 +321,7 @@ class EventReport(collections.Iterable):
             else:
                 app("[%d] %s" % (i+1, str(event)))
 
-        app("num_errors: %s, num_warnings: %s, num_comments: %s, completed: %s" % (
+        app("num_errors: %s, num_warnings: %s, num_comments: %s, completed: %s\n" % (
             self.num_errors, self.num_warnings, self.num_comments, self.run_completed))
 
         return "\n".join(lines)
@@ -328,9 +331,28 @@ class EventReport(collections.Iterable):
         self._events.append(event)
         self._events_by_baseclass[event.baseclass].append(event)
 
-    def set_run_completed(self, bool_value):
+    def set_run_completed(self, boolean, start_datetime, end_datetime):
         """Set the value of _run_completed."""
-        self._run_completed = bool_value
+        self._run_completed = boolean
+
+        if (start_datetime, end_datetime) != (None, None):
+            # start_datetime: Sat Feb 28 23:54:27 2015
+            # end_datetime: Sat Feb 28 23:54:30 2015
+            try:
+                fmt = "%a %b %d %H:%M:%S %Y"
+                self.start_datetime = datetime.datetime.strptime(start_datetime, fmt) 
+                self.end_datetime = datetime.datetime.strptime(end_datetime, fmt) 
+            except Exception as exc:
+                # Maybe LOCALE != en_US
+                logger.warning(str(exc))
+
+    @property
+    def run_etime(self):
+        """Wall-time of the run as `timedelta` object."""
+        if self.start_datetime is None or self.end_datetime is None:
+            return None
+
+        return self.end_datetime - self.start_dateime
 
     @property
     def run_completed(self):
@@ -408,7 +430,7 @@ class EventsParser(object):
         """
         Parse the given file. Return :class:`EventReport`.
         """
-        run_completed = False
+        run_completed, start_datetime, end_datetime = False, None, None
         filename = os.path.abspath(filename)
         report = EventReport(filename)
 
@@ -417,11 +439,8 @@ class EventsParser(object):
         w = WildCard("*Error|*Warning|*Comment|*Bug|*ERROR|*WARNING|*COMMENT|*BUG")
 
         with YamlTokenizer(filename) as tokens:
+
             for doc in tokens:
-                #print(80*"*")
-                #print("doc.tag", doc.tag)
-                #print("doc", doc)
-                #print(80*"*")
                 if w.match(doc.tag):
                     #print("got doc.tag", doc.tag,"--")
                     try:
@@ -447,9 +466,10 @@ class EventsParser(object):
                 # Check whether the calculation completed.
                 if doc.tag == "!FinalSummary":
                     run_completed = True
+                    d = doc.as_dict()
+                    start_datetime, end_datetime = d["start_datetime"], d["end_datetime"]
 
-        report.set_run_completed(run_completed)
-
+        report.set_run_completed(run_completed, start_datetime, end_datetime)
         return report
 
     def report_exception(self, filename, exc):
