@@ -373,12 +373,12 @@ class Flow(Node):
         return sum(work.ncores_allocated for work in self)
 
     @property
-    def ncores_inuse(self):
+    def ncores_used(self):
         """
         Returns the number of cores used in this moment.
         A core is used if there's a job that is running on it.
         """
-        return sum(work.ncores_inuse for work in self)
+        return sum(work.ncores_used for work in self)
 
     @property
     def has_chrooted(self):
@@ -1349,12 +1349,15 @@ class Flow(Node):
 
             return tarinfo
 
+        back = os.getcwd()
+        os.chdir(os.path.join(self.workdir, ".."))
 
         from tarfile import TarFile
         name = os.path.basename(self.workdir) + ".tar.gz" if name is None else name
         tar = TarFile(name=name, mode='w', **kwargs) 
 
         tar.add(os.path.basename(self.workdir), arcname=None, recursive=True, exclude=None, filter=filter)
+        os.chdir(back)
         return tar
 
 
