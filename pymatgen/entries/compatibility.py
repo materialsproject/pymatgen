@@ -107,7 +107,7 @@ class PotcarCorrection(Correction):
         CombatibilityError if wrong potcar symbols
     """
     def __init__(self, input_set):
-        self.valid_potcars = set(input_set.potcar_settings.values())
+        self.valid_potcars = input_set.potcar_settings
         self.input_set = input_set
 
     def get_correction(self, entry):
@@ -119,7 +119,8 @@ class PotcarCorrection(Correction):
             raise ValueError(
                 "PotcarCorrection can only be checked for entries with a "
                 "\"potcar_symbols\" in entry.parameters")
-        if not self.valid_potcars.issuperset(psp_settings):
+        if {self.valid_potcars[str(el)] for el in
+                entry.composition.elements} != psp_settings:
             raise CompatibilityError('Incompatible potcar')
         return 0
 

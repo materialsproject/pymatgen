@@ -222,7 +222,7 @@ class Poscar(PMGSONable):
         Returns:
             Poscar object.
         """
-        #"^\s*$" doesn't match lines with no whitespace
+        # "^\s*$" doesn't match lines with no whitespace
         chunks = re.split("\n\s*\n", data.rstrip(), flags=re.MULTILINE)
         try:
             if chunks[0] == "":
@@ -284,16 +284,16 @@ class Poscar(PMGSONable):
         if not vasp5_symbols:
             ind = 3 if not sdynamics else 6
             try:
-                #check if names are appended at the end of the coordinates.
+                # Check if names are appended at the end of the coordinates.
                 atomic_symbols = [l.split()[ind]
                                   for l in lines[ipos + 1:ipos + 1 + nsites]]
-                #Ensure symbols are valid elements
+                # Ensure symbols are valid elements
                 if not all([Element.is_valid_symbol(sym)
                             for sym in atomic_symbols]):
                     raise ValueError("Non-valid symbols detected.")
                 vasp5_symbols = True
             except (ValueError, IndexError):
-                #Defaulting to false names.
+                # Defaulting to false names.
                 atomic_symbols = []
                 for i in range(len(natoms)):
                     sym = Element.from_Z(i + 1).symbol
@@ -307,14 +307,17 @@ class Poscar(PMGSONable):
         selective_dynamics = list() if sdynamics else None
         for i in range(nsites):
             toks = lines[ipos + 1 + i].split()
-            coords.append([float(j) for j in toks[:3]])
+            crd_scale = scale if cart else 1
+            coords.append([float(j) * crd_scale for j in toks[:3]])
             if sdynamics:
                 selective_dynamics.append([tok.upper()[0] == "T"
                                            for tok in toks[3:6]])
 
-        struct = Structure(lattice, atomic_symbols, coords, False, False, cart)
+        struct = Structure(lattice, atomic_symbols, coords,
+                           to_unit_cell=False, validate_proximity=False,
+                           coords_are_cartesian=cart)
 
-        #parse velocities if any
+        # Parse velocities if any
         velocities = []
         if len(chunks) > 1:
             for line in chunks[1].strip().split("\n"):
@@ -392,6 +395,9 @@ class Poscar(PMGSONable):
                 lines.append(" ".join([format_str.format(i) for i in v]))
 
         return "\n".join(lines) + "\n"
+
+    def __repr__(self):
+        return self.get_string()
 
     def __str__(self):
         """
@@ -848,14 +854,18 @@ class Kpoints(PMGSONable):
         Returns:
             Kpoints
         """
-
+        comment = "pymatgen generated KPOINTS with grid density = " + \
+            "{} / atom".format(kppa)
         latt = structure.lattice
         lengths = latt.abc
         ngrid = kppa / structure.num_sites
-
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
 
-        num_div = [int(np.ceil(mult / l)) for l in lengths]
+        num_div = [int(round(mult / l)) for l in lengths]
+        if all([k <= 1 for k in num_div]):
+            return Kpoints(comment, 0, Kpoints.supported_modes.Gamma,
+                           [[1, 1, 1]], [0, 0, 0])
+
         #ensure that numDiv[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
 
@@ -871,10 +881,7 @@ class Kpoints(PMGSONable):
         else:
             style = Kpoints.supported_modes.Monkhorst
 
-        comment = "pymatgen generated KPOINTS with grid density = " + \
-            "{} / atom".format(kppa)
-        num_kpts = 0
-        return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
+        return Kpoints(comment, 0, style, [num_div], [0, 0, 0])
 
     @staticmethod
     def automatic_gamma_density(structure, kppa):
@@ -946,43 +953,8 @@ class Kpoints(PMGSONable):
         """
         vol = structure.lattice.reciprocal_lattice.volume
         kppa = int(round(kppvol * vol * structure.num_sites))
-        return Kpoints.automatic_density(structure, kppa, force_gamma=force_gamma)
-
-    def automatic_linemode(divisions, ibz):
-        """
-        Convenient static constructor for a KPOINTS in mode line_mode.
-        gamma centered Monkhorst-Pack grids and the number of subdivisions
-        along each reciprocal lattice vector determined by the scheme in the
-        VASP manual.
-
-        Args:
-            divisions: Parameter determining the number of k-points along each
-                hight symetry lines.
-            ibz: HighSymmKpath object (pymatgen.symmetry.bandstructure)
-
-        Returns:
-            Kpoints object
-        """
-        kpoints = list()
-        labels = list()
-        for path in ibz.kpath["path"]:
-            kpoints.append(ibz.kpath["kpoints"][path[0]])
-            labels.append(path[0])
-            for i in range(1, len(path) - 1):
-                kpoints.append(ibz.kpath["kpoints"][path[i]])
-                labels.append(path[i])
-                kpoints.append(ibz.kpath["kpoints"][path[i]])
-                labels.append(path[i])
-
-            kpoints.append(ibz.kpath["kpoints"][path[-1]])
-            labels.append(path[-1])
-
-        return Kpoints("Line_mode KPOINTS file",
-                       style=Kpoints.supported_modes.Line_mode,
-                       coord_type="Reciprocal",
-                       kpts=kpoints,
-                       labels=labels,
-                       num_kpts=int(divisions))
+        return Kpoints.automatic_density(structure, kppa,
+                                         force_gamma=force_gamma)
 
     @staticmethod
     def from_file(filename):

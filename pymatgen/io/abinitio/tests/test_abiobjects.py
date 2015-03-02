@@ -43,6 +43,10 @@ class SpinModeTest(PymatgenTest):
         # Test pickle
         self.serialize_with_pickle(polarized)
 
+        # Test dict methods
+        self.assertPMGSONable(polarized)
+        self.assertPMGSONable(unpolarized)
+
 
 class SmearingTest(PymatgenTest):
     def test_base(self):
@@ -65,6 +69,9 @@ class SmearingTest(PymatgenTest):
 
         # Test pickle
         self.serialize_with_pickle(fd1ev)
+
+        # Test dict methods
+        self.assertPMGSONable(fd1ev)
 
 
 class ElectronsAlgorithmTest(PymatgenTest):
@@ -91,36 +98,29 @@ class ElectronsTest(PymatgenTest):
         self.serialize_with_pickle(default_electrons, test_eq=False)
 
 
-class AbiStructureTest(PymatgenTest):
+class KSamplingTest(PymatgenTest):
 
-    def setUp(self):
-        self.cif_paths = cif_paths()
+    def test_base(self):
+        monkhorst = KSampling.monkhorst((3, 3, 3), (0.5, 0.5, 0.5), 0, False, False)
+        gamma_centered = KSampling.gamma_centered((3, 3, 3), False, False)
 
-    def test_asabistructure(self):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            for cif_path in self.cif_paths:
-                print("about to init abistructure from %s " % cif_path)
-                st = asabistructure(cif_path)
-                self.assertTrue(st is asabistructure(st))
-                self.assertTrue(isinstance(st, Structure))
-    
-                # TODO
-                if not st.is_ordered:
-                    print("Unordered structures are not supported")
-                    continue
-    
-                print(st.to_abivars())
+        monkhorst.to_abivars()
 
-        # Test pickle
-        # FIXME: protocol 2 does not work due to __new__
-        self.serialize_with_pickle(st, protocols=[0, 1], test_eq=True)
+        # Test dict methods
+        self.assertPMGSONable(monkhorst)
+        self.assertPMGSONable(gamma_centered)
 
+class RelaxationTest(PymatgenTest):
 
-#class KSamplingTest(PymatgenTest):
+    def test_base(self):
+        atoms_and_cell = RelaxationMethod.atoms_and_cell()
+        atoms_only = RelaxationMethod.atoms_only()
 
+        atoms_and_cell.to_abivars()
 
-#class RelaxationTest(PymatgenTest):
+        # Test dict methods
+        self.assertPMGSONable(atoms_and_cell)
+        self.assertPMGSONable(atoms_only)
 
 
 class PPModelTest(PymatgenTest):
@@ -144,6 +144,9 @@ class PPModelTest(PymatgenTest):
 
         # Test pickle
         self.serialize_with_pickle(godby)
+
+        # Test dict methods
+        self.assertPMGSONable(godby)
 
 
 if __name__ == '__main__':

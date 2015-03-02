@@ -66,11 +66,14 @@ INCAR:
       Ni: 6.2
       V: 3.25
       W: 6.2
+  LDAUPRINT: 1 
   LORBIT: 11
   LREAL: AUTO
   LWAVE: false
   MAGMOM:
     Co: 5
+    Co3+: 0.6
+    Co4+: 1
     Cr: 5
     Fe: 5
     Mn: 5

@@ -246,11 +246,11 @@ class MITMPVaspInputSetTest(unittest.TestCase):
 
     def test_get_kpoints(self):
         kpoints = self.paramset.get_kpoints(self.struct)
-        self.assertEqual(kpoints.kpts, [[4, 4, 6]])
+        self.assertEqual(kpoints.kpts, [[2, 4, 6]])
         self.assertEqual(kpoints.style, 'Monkhorst')
 
         kpoints = self.mitparamset.get_kpoints(self.struct)
-        self.assertEqual(kpoints.kpts, [[4, 4, 6]])
+        self.assertEqual(kpoints.kpts, [[2, 4, 6]])
         self.assertEqual(kpoints.style, 'Monkhorst')
 
         kpoints = self.mpstaticparamset.get_kpoints(self.struct)
@@ -262,25 +262,32 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.assertEqual(kpoints.style, 'Reciprocal')
 
         kpoints = self.mpnscfparamsetu.get_kpoints(self.struct)
-        self.assertEqual(kpoints.num_kpts, 240)
+        self.assertEqual(kpoints.num_kpts, 168)
 
         kpoints = self.mpbshseparamsetl.get_kpoints(self.struct)
-        self.assertAlmostEqual(kpoints.num_kpts, 176)
-        self.assertAlmostEqual(kpoints.kpts[10][0], 0.25)
-        self.assertAlmostEqual(kpoints.kpts[10][1], 0.0)
+        self.assertAlmostEqual(kpoints.num_kpts, 164)
+        self.assertAlmostEqual(kpoints.kpts[10][0], 0.0)
+        self.assertAlmostEqual(kpoints.kpts[10][1], 0.5)
         self.assertAlmostEqual(kpoints.kpts[10][2], 0.16666667)
         self.assertAlmostEqual(kpoints.kpts[-1][0], 0.66006924)
         self.assertAlmostEqual(kpoints.kpts[-1][1], 0.51780182)
         self.assertAlmostEqual(kpoints.kpts[-1][2], 0.30173482)
 
         kpoints = self.mpbshseparamsetu.get_kpoints(self.struct)
-        self.assertAlmostEqual(kpoints.num_kpts, 37)
-        self.assertAlmostEqual(kpoints.kpts[10][0], 0.25)
-        self.assertAlmostEqual(kpoints.kpts[10][1], 0.0)
+        self.assertAlmostEqual(kpoints.num_kpts, 25)
+        self.assertAlmostEqual(kpoints.kpts[10][0], 0.0)
+        self.assertAlmostEqual(kpoints.kpts[10][1], 0.5)
         self.assertAlmostEqual(kpoints.kpts[10][2], 0.16666667)
         self.assertAlmostEqual(kpoints.kpts[-1][0], 0.5)
         self.assertAlmostEqual(kpoints.kpts[-1][1], 0.5)
         self.assertAlmostEqual(kpoints.kpts[-1][2], 0.0)
+
+    def test_get_all_vasp_input(self):
+        d = self.mitparamset.get_all_vasp_input(self.struct)
+        self.assertEqual(d["INCAR"]["ISMEAR"], -5)
+        self.struct.make_supercell(4)
+        d = self.mitparamset.get_all_vasp_input(self.struct)
+        self.assertEqual(d["INCAR"]["ISMEAR"], 0)
 
     def test_to_from_dict(self):
         self.mitparamset = MITVaspInputSet()
@@ -365,7 +372,7 @@ class MITNEBVaspInputSetTest(unittest.TestCase):
 
     def test_get_kpoints(self):
         kpoints = self.vis.get_kpoints(self.struct)
-        self.assertEqual(kpoints.kpts, [[4, 4, 6]])
+        self.assertEqual(kpoints.kpts, [[2, 4, 6]])
         self.assertEqual(kpoints.style, 'Monkhorst')
 
     def test_to_from_dict(self):

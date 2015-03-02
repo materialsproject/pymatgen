@@ -6,7 +6,6 @@ from __future__ import division, unicode_literals
 This module provides classes for analyzing phase diagrams.
 """
 
-from six.moves import filter
 from six.moves import zip
 
 __author__ = "Shyue Ping Ong"
@@ -72,6 +71,9 @@ class PDAnalyzer(object):
         Get any facet that a composition falls into. Cached so successive
         calls at same composition are fast.
         """
+        if set(comp.elements).difference(self._pd.elements):
+            raise ValueError('{} has elements not in the phase diagram {}'
+                             ''.format(comp, self._pd.elements))
         c = [comp.get_atomic_fraction(e) for e in self._pd.elements[1:]]
         for f, s in zip(self._pd.facets, self._pd.simplices):
             if s.in_simplex(c, PDAnalyzer.numerical_tol / 10):
@@ -96,6 +98,20 @@ class PDAnalyzer(object):
         return {self._pd.qhull_entries[f]: amt[0]
                 for f, amt in zip(facet, decomp_amts)
                 if abs(amt[0]) > PDAnalyzer.numerical_tol}
+
+    def get_hull_energy(self, comp):
+        """
+        Args:
+            comp (Composition): Input composition
+
+        Returns:
+            Energy of lowest energy equilibrium at desired composition. Not
+            normalized by atoms, i.e. E(Li4O2) = 2 * E(Li2O)
+        """
+        e = 0
+        for k, v in self.get_decomposition(comp).items():
+            e += k.energy_per_atom * v
+        return e * comp.num_atoms
 
     def get_decomp_and_e_above_hull(self, entry, allow_negative=False):
         """
@@ -184,13 +200,6 @@ class PDAnalyzer(object):
         return dict(zip(self._pd.elements, chempots))
 
     def get_composition_chempots(self, comp):
-        # Check that the composition is in the PD (it's often easy to use
-        # invalid ones in grand potential phase diagrams)
-        for el in comp.elements:
-            if el not in self._pd.elements and \
-                    comp[el] > Composition.amount_tolerance:
-                raise ValueError('Composition includes element {} which is '
-                                 'not in the PhaseDiagram'.format(el))
         facet = self._get_facet(comp)
         return self.get_facet_chempots(facet)
 
@@ -288,7 +297,8 @@ class PDAnalyzer(object):
                                   'reaction': rxn, 'entries': decomp_entries})
         return evolution
 
-    def get_chempot_range_map(self, elements, referenced=True):
+    def get_chempot_range_map(self, elements, referenced=True, joggle=True,
+                              force_use_pyhull=False):
         """
         Returns a chemical potential range map for each stable entry.
 
@@ -297,8 +307,12 @@ class PDAnalyzer(object):
                 variables. E.g., if you want to show the stability ranges
                 of all Li-Co-O phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
-            referenced: if True, gives the results with a reference being the
-            energy of the elemental phase. If False, gives absolute values.
+            referenced: If True, gives the results with a reference being the
+                energy of the elemental phase. If False, gives absolute values.
+            joggle (boolean): Whether to joggle the input to avoid precision
+                errors.
+            force_use_pyhull (boolean): Whether the pyhull algorithm is always
+                used, even when scipy is present.
 
         Returns:
             Returns a dict of the form {entry: [simplices]}. The list of
@@ -317,9 +331,10 @@ class PDAnalyzer(object):
             el_energies = {el: pd.el_refs[el].energy_per_atom
                            for el in elements}
         chempot_ranges = collections.defaultdict(list)
-        vertices = [[i for i in range(len(self._pd.elements))]]
+        vertices = [list(range(len(self._pd.elements)))]
         if len(all_chempots) > len(self._pd.elements):
-            vertices = get_facets(all_chempots, True)
+            vertices = get_facets(all_chempots, joggle=joggle,
+                                  force_use_pyhull=force_use_pyhull)
         for ufacet in vertices:
             for combi in itertools.combinations(ufacet, 2):
                 data1 = facets[combi[0]]

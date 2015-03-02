@@ -8,7 +8,7 @@ Classes for reading/manipulating/writing VASP ouput files.
 
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
-    "Vincent L Chevrier"
+    "Vincent L Chevrier, Ioannis Petousis"
 __credits__ = "Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.2"
@@ -245,6 +245,11 @@ class Vasprun(PMGSONable):
         The static part of the dielectric constant. Present when it's a DFPT run
         (LEPSILON=TRUE)
 
+    .. attribute:: epsilon_static_wolfe
+
+        The static part of the dielectric constant without any local field effects.
+        Present when it's a DFPT run (LEPSILON=TRUE)
+
     .. attribute:: epsilon_ionic
 
         The ionic part of the static dielectric constant. Present when it's a DFPT run
@@ -353,13 +358,14 @@ class Vasprun(PMGSONable):
             if tag == "calculation":
                 parsed_header = True
                 ionic_steps.append(self._parse_calculation(elem))
+            if tag == "dielectricfunction":
+                self.dielectric = self._parse_diel(elem)
             elif parse_dos and tag == "dos":
                 try:
                     self.tdos, self.idos, self.pdos = self._parse_dos(elem)
                     self.efermi = self.tdos.efermi
                     self.dos_has_errors = False
                 except Exception as ex:
-                    print(ex)
                     self.dos_has_errors = True
             elif parse_eigen and tag == "eigenvalues":
                 self.eigenvalues = self._parse_eigen(elem)
@@ -381,6 +387,13 @@ class Vasprun(PMGSONable):
         Property only available for DFPT calculations.
         """
         return self.ionic_steps[-1].get("epsilon", [])
+
+    @property
+    def epsilon_static_wolfe(self):
+        """
+        Property only available for DFPT calculations.
+        """
+        return self.ionic_steps[-1].get("epsilon_rpa", [])
 
     @property
     def epsilon_ionic(self):
@@ -721,7 +734,7 @@ class Vasprun(PMGSONable):
                 raise VaspParserError("Length of U value parameters and atomic"
                                       " symbols are mismatched.")
 
-        unique_symbols = sorted(list(set(symbols)))
+        unique_symbols = sorted(list(set(self.atomic_symbols)))
         d["elements"] = unique_symbols
         d["nelements"] = len(unique_symbols)
 
@@ -781,6 +794,7 @@ class Vasprun(PMGSONable):
                 vout['projected_eigenvalues'] = peigen
 
         vout['epsilon_static'] = self.epsilon_static
+        vout['epsilon_static_wolfe'] = self.epsilon_static_wolfe
         vout['epsilon_ionic'] = self.epsilon_ionic
         d['output'] = vout
         return jsanitize(d, strict=True)
@@ -818,7 +832,7 @@ class Vasprun(PMGSONable):
         if elem.find("generation"):
             e = elem.find("generation")
         k = Kpoints("Kpoints from vasprun.xml")
-        k.style = e.attrib["param"] if "params" in e.attrib else "Reciprocal"
+        k.style = e.attrib["param"] if "param" in e.attrib else "Reciprocal"
         for v in e.findall("v"):
             name = v.attrib.get("name")
             toks = v.text.split()
@@ -846,15 +860,31 @@ class Vasprun(PMGSONable):
         pos = _parse_varray(elem.find("varray"))
         return Structure(latt, self.atomic_symbols, pos)
 
+    def _parse_diel(self, elem):
+        imag = [[float(l) for l in r.text.split()] for r in elem.find("imag").find("array").find("set").findall("r")]
+        real = [[float(l) for l in r.text.split()] for r in elem.find("real").find("array").find("set").findall("r")]
+        return [e[0] for e in imag], [e[1:] for e in real], [e[1:] for e in imag]
+
     def _parse_calculation(self, elem):
-        istep = {i.attrib["name"]: float(i.text)
-                 for i in elem.find("energy").findall("i")}
+        try:
+            istep = {i.attrib["name"]: float(i.text)
+                     for i in elem.find("energy").findall("i")}
+        except AttributeError:  # not all calculations have an energy
+            istep = {}
+            pass
         esteps = []
         for scstep in elem.findall("scstep"):
-            d = {i.attrib["name"]: _vasprun_float(i.text)
-                 for i in scstep.find("energy").findall("i")}
-            esteps.append(d)
-        s = self._parse_structure(elem.find("structure"))
+            try:
+                d = {i.attrib["name"]: _vasprun_float(i.text)
+                     for i in scstep.find("energy").findall("i")}
+                esteps.append(d)
+            except AttributeError:  # not all calculations have an energy
+                pass
+        try:
+            s = self._parse_structure(elem.find("structure"))
+        except AttributeError:  # not all calculations have a structure
+            s = None
+            pass
         for va in elem.findall("varray"):
             istep[va.attrib["name"]] = _parse_varray(va)
         istep["electronic_steps"] = esteps
@@ -988,7 +1018,6 @@ class Outcar(PMGSONable):
             all_lines.append(clean)
             if clean.find("soft stop encountered!  aborting job") != -1:
                 self.is_stopped = True
-                #print(clean, cores)
             else:
                 if time_patt.search(line):
                     tok = line.strip().split(":")
@@ -1184,33 +1213,38 @@ class Outcar(PMGSONable):
             def dielectric_section_start(results, match):
                 results.dielectric_index = -1
 
-            search.append(["MACROSCOPIC STATIC DIELECTRIC TENSOR", None,
+            search.append(["MACROSCOPIC STATIC DIELECTRIC TENSOR \(", None,
                            dielectric_section_start])
 
             def dielectric_section_start2(results, match):
                 results.dielectric_index = 0
 
-            search.append(["-------------------------------------",
-                           lambda results,
-                           line: results.dielectric_index == -1,
-                           dielectric_section_start2])
+            search.append(
+                ["-------------------------------------",
+                lambda results, line: results.dielectric_index == -1,
+                dielectric_section_start2])
 
             def dielectric_data(results, match):
                 results.dielectric_tensor[results.dielectric_index, :] = \
                     np.array([float(match.group(i)) for i in range(1, 4)])
                 results.dielectric_index += 1
 
-            search.append(["^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$",
-                           lambda results,
-                           line: results.dielectric_index >= 0,
-                           dielectric_data])
+            search.append(
+                ["^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$",
+                lambda results, line: results.dielectric_index >= 0
+                                      if results.dielectric_index is not None
+                                      else None,
+                dielectric_data])
 
             def dielectric_section_stop(results, match):
                 results.dielectric_index = None
 
-            search.append(["-------------------------------------",
-                           lambda results, line: results.dielectric_index >= 1,
-                           dielectric_section_stop])
+            search.append(
+                ["-------------------------------------",
+                lambda results, line: results.dielectric_index >= 1
+                                      if results.dielectric_index is not None
+                                      else None,
+                dielectric_section_stop])
 
             self.dielectric_index = None
             self.dielectric_tensor = np.zeros((3, 3))
@@ -1219,7 +1253,7 @@ class Outcar(PMGSONable):
                 results.piezo_index = 0
 
             search.append(["PIEZOELECTRIC TENSOR  for field in x, y, z        "
-                           "\(e  Angst\)",
+                           "\(C/m\^2\)",
                            None, piezo_section_start])
 
             def piezo_data(results, match):
@@ -1227,18 +1261,24 @@ class Outcar(PMGSONable):
                     np.array([float(match.group(i)) for i in range(1, 7)])
                 results.piezo_index += 1
 
-            search.append(["^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
-                           " +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
-                           " +([-0-9.Ee+]+)*$",
-                           lambda results, line: results.piezo_index >= 0,
-                           piezo_data])
+            search.append(
+                ["^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
+                 " +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
+                 " +([-0-9.Ee+]+)*$",
+                 lambda results, line: results.piezo_index >= 0
+                                       if results.piezo_index is not None
+                                       else None,
+                 piezo_data])
 
             def piezo_section_stop(results, match):
                 results.piezo_index = None
 
-            search.append(["-------------------------------------",
-                           lambda results, line: results.piezo_index >= 1,
-                           piezo_section_stop])
+            search.append(
+                ["-------------------------------------",
+                lambda results, line: results.piezo_index >= 1
+                                      if results.piezo_index is not None
+                                      else None,
+                piezo_section_stop])
 
             self.piezo_index = None
             self.piezo_tensor = np.zeros((3, 6))
@@ -1261,25 +1301,122 @@ class Outcar(PMGSONable):
                 results.born[results.born_ion][int(match.group(1)) - 1, :] = \
                     np.array([float(match.group(i)) for i in range(2, 5)])
 
-            search.append(["^ *([1-3]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) "
-                           "+([-0-9.Ee+]+)$",
-                           lambda results, line: results.born_ion >= 0,
-                           born_data])
+            search.append(
+                ["^ *([1-3]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+)$",
+                lambda results, line: results.born_ion >= 0
+                                      if results.born_ion is not None
+                                      else results.born_ion,
+                born_data])
 
             def born_section_stop(results, match):
                 results.born_index = None
 
-            search.append(["-------------------------------------",
-                           lambda results, line: results.born_ion >= 1,
-                           born_section_stop])
+            search.append(
+                ["-------------------------------------",
+                lambda results, line: results.born_ion >= 1
+                                      if results.born_ion is not None
+                                      else results.born_ion,
+                born_section_stop])
 
             self.born_ion = None
             self.born = {}
 
             micro_pyawk(self.filename, search, self)
 
+            self.dielectric_tensor = self.dielectric_tensor.tolist()
+            self.piezo_tensor = self.piezo_tensor.tolist()
+
         except:
             raise Exception("LEPSILON OUTCAR could not be parsed.")
+
+
+    def read_lepsilon_ionic(self):
+        # variables to be filled
+        try:
+            search = []
+
+            def dielectric_section_start(results, match):
+                results.dielectric_ionic_index = -1
+
+            search.append(["MACROSCOPIC STATIC DIELECTRIC TENSOR IONIC", None,
+                           dielectric_section_start])
+
+            def dielectric_section_start2(results, match):
+                results.dielectric_ionic_index = 0
+
+            search.append(
+                ["-------------------------------------",
+                lambda results, line: results.dielectric_ionic_index == -1
+                                      if results.dielectric_ionic_index is not None
+                                      else results.dielectric_ionic_index,
+                dielectric_section_start2])
+
+            def dielectric_data(results, match):
+                results.dielectric_ionic_tensor[results.dielectric_ionic_index, :] = \
+                    np.array([float(match.group(i)) for i in range(1, 4)])
+                results.dielectric_ionic_index += 1
+
+            search.append(
+                ["^ *([-0-9.Ee+]+) +([-0-9.Ee+]+) +([-0-9.Ee+]+) *$",
+                lambda results, line: results.dielectric_ionic_index >= 0
+                                      if results.dielectric_ionic_index is not None
+                                      else results.dielectric_ionic_index,
+                dielectric_data])
+
+            def dielectric_section_stop(results, match):
+                results.dielectric_ionic_index = None
+
+            search.append(
+                ["-------------------------------------",
+                lambda results, line: results.dielectric_ionic_index >= 1
+                                      if results.dielectric_ionic_index is not None
+                                      else results.dielectric_ionic_index,
+                dielectric_section_stop])
+
+            self.dielectric_ionic_index = None
+            self.dielectric_ionic_tensor = np.zeros((3, 3))
+
+            def piezo_section_start(results, match):
+                results.piezo_ionic_index = 0
+
+            search.append(["PIEZOELECTRIC TENSOR IONIC CONTR  for field in x, y, z        ",
+                           None, piezo_section_start])
+
+            def piezo_data(results, match):
+                results.piezo_ionic_tensor[results.piezo_ionic_index, :] = \
+                    np.array([float(match.group(i)) for i in range(1, 7)])
+                results.piezo_ionic_index += 1
+
+            search.append(
+                ["^ *[xyz] +([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
+                 " +([-0-9.Ee+]+) *([-0-9.Ee+]+) +([-0-9.Ee+]+)" +
+                 " +([-0-9.Ee+]+)*$",
+                 lambda results, line: results.piezo_ionic_index >= 0
+                                       if results.piezo_ionic_index is not None
+                                       else results.piezo_ionic_index,
+                 piezo_data])
+
+            def piezo_section_stop(results, match):
+                results.piezo_ionic_index = None
+
+            search.append(
+                ["-------------------------------------",
+                 lambda results, line: results.piezo_ionic_index >= 1
+                                       if results.piezo_ionic_index is not None
+                                       else results.piezo_ionic_index,
+                 piezo_section_stop])
+
+            self.piezo_ionic_index = None
+            self.piezo_ionic_tensor = np.zeros((3, 6))
+
+            micro_pyawk(self.filename, search, self)
+
+            self.dielectric_ionic_tensor = self.dielectric_ionic_tensor.tolist()
+            self.piezo_ionic_tensor = self.piezo_ionic_tensor.tolist()
+
+        except:
+            raise Exception("ionic part of LEPSILON OUTCAR could not be parsed.")
+
 
     def read_lcalcpol(self):
         # variables to be filled

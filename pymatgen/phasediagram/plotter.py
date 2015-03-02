@@ -389,13 +389,15 @@ class PDPlotter(object):
                 [Element("Li"), Element("O")]
             referenced: if True, gives the results with a reference being the
                         energy of the elemental phase. If False, gives absolute values.
+
         Returns:
             A matplotlib plot object.
         """
 
         plt = get_publication_quality_plot(12, 8)
         analyzer = PDAnalyzer(self._pd)
-        chempot_ranges = analyzer.get_chempot_range_map(elements,referenced=referenced)
+        chempot_ranges = analyzer.get_chempot_range_map(
+            elements, referenced=referenced)
         missing_lines = {}
         excluded_region = []
         for entry, lines in chempot_ranges.items():
