@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from __future__ import unicode_literals
+import textwrap
 
 """
 This module implements input and output processing from QChem.
@@ -145,7 +146,7 @@ class QcTask(PMGSONable):
             self.mol.set_charge_and_spin(self.charge, self.spin_multiplicity)
         self.params = dict()
         if title is not None:
-            self.params["comment"] = title
+            self.params["comment"] = textwrap.fill(title.strip(), width=70)
         if "rem" not in self.params:
             self.params["rem"] = dict()
         self.params["rem"]["exchange"] = exchange.lower()
@@ -568,7 +569,7 @@ class QcTask(PMGSONable):
 
     def _format_comment(self):
         lines = [' ' + self.params["comment"].strip()]
-        return lines
+        return [textwrap.fill(lines[0], width=70)]
 
     def _format_molecule(self):
         lines = []
