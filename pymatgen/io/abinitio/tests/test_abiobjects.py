@@ -82,6 +82,9 @@ class ElectronsAlgorithmTest(PymatgenTest):
         # Test pickle
         self.serialize_with_pickle(algo)
 
+        # Test dict methods
+        self.assertPMGSONable(algo)
+
 
 class ElectronsTest(PymatgenTest):
     def test_base(self):
@@ -96,6 +99,12 @@ class ElectronsTest(PymatgenTest):
 
         # Test pickle
         self.serialize_with_pickle(default_electrons, test_eq=False)
+
+        custom_electrons = Electrons(spin_mode="unpolarized", smearing="marzari4:0.2 eV",
+                 algorithm=ElectronsAlgorithm(nstep=70), nband=10, charge=1.0, comment="Test comment")
+
+        # Test dict methods
+        self.assertPMGSONable(custom_electrons)
 
 
 class KSamplingTest(PymatgenTest):

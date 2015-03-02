@@ -9,6 +9,8 @@ import os.path
 import datetime
 import collections
 import yaml
+import six
+import abc
 
 from monty.fnmatch import WildCard
 from monty.termcolor import colored
@@ -479,3 +481,75 @@ class EventsParser(object):
         we can report a customized :class:`EventReport` object with info the exception.
         """
         return EventReport(filename, events=[AbinitError(str(exc))])
+
+
+class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
+    EVENT = AbinitEvent
+
+    FIXED = 1
+    NOT_FIXED = 0
+
+    @abc.abstractmethod
+    def handle(self, task, event):
+        """
+        Method to handle Abinit events
+        :param task: the task
+        :param event: the event
+        :return: 0 if no action has been applied, 1 if the problem has been fixed
+        """
+        pass
+
+
+class ErrorHandler(six.with_metaclass(abc.ABCMeta, EventHandler)):
+    EVENT = AbinitError
+
+
+class DilatmxErrorHandler(ErrorHandler):
+    EVENT = DilatmxError
+
+    def __init__(self, max_dilatmx=1.3):
+        self.max_dilatmx = max_dilatmx
+
+    def handle(self, task, event):
+        # Read the last structure dumped by ABINIT before aborting.
+        print("in dilatmx")
+        filepath = task.outdir.has_abiext("DILATMX_STRUCT.nc")
+        last_structure = Structure.from_file(filepath)
+
+        task._change_structure(last_structure)
+
+        #read the suggested dilatmx
+        new_dilatmx = 1.05
+        if new_dilatmx > self.max_dilatmx:
+            msg = "Suggested dilatmx ({}) exceeds maximux configured value ({}).".format(new_dilatmx, self.max_dilatmx)
+            return self.NOT_FIXED
+        task.strategy.abinit_input.set_vars(dilatmx=new_dilatmx)
+        msg = "Take last structure from DILATMX_STRUCT.nc, will try to restart with dilatmx %s" % task.get_inpvar("dilatmx")
+        task.history.append(msg)
+        return self.FIXED
+
+
+class DilatmxErrorHandlerTest(ErrorHandler):
+
+    def __init__(self, max_dilatmx=1.3):
+        self.max_dilatmx = max_dilatmx
+
+    def handle(self, task, event):
+        msg = event.message
+
+        # Check if the handler is suitable to deal with this error
+        if msg.find("You need at least dilatmx=") == -1:
+            return {"status": self.NOT_FIXED, "msg": "{} can not fix event: {}".format(self.__class__, event)}
+
+        #read the suggested dilatmx
+        try:
+            new_dilatmx = float(msg.split('dilatmx=')[1].split('\n')[0].strip())
+        except:
+            return {"status": self.NOT_FIXED, "msg": "Couldn't parse dilatmx."}
+        if new_dilatmx > self.max_dilatmx:
+            msg = "Suggested dilatmx ({}) exceeds maximux configured value ({}).".format(new_dilatmx, self.max_dilatmx)
+            return self.NOT_FIXED
+        task.strategy.abinit_input.set_vars(dilatmx=new_dilatmx)
+        msg = "Take last structure from DILATMX_STRUCT.nc, will try to restart with dilatmx %s" % task.get_inpvar("dilatmx")
+        task.history.append(msg)
+        return self.FIXED
