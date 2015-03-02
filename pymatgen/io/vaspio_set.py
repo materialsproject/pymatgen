@@ -124,9 +124,15 @@ class AbstractVaspInputSet(six.with_metaclass(abc.ABCMeta, PMGSONable)):
         Returns:
             dict of {filename: file_as_string}, e.g., {'INCAR':'EDIFF=1e-4...'}
         """
-        d = {'INCAR': self.get_incar(structure),
-             'KPOINTS': self.get_kpoints(structure),
+        kpoints = self.get_kpoints(structure)
+        incar = self.get_incar(structure)
+        if np.product(kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
+            incar["ISMEAR"] = 0
+
+        d = {'INCAR': incar,
+             'KPOINTS': kpoints,
              'POSCAR': self.get_poscar(structure)}
+
         if generate_potcar:
             d['POTCAR'] = self.get_potcar(structure)
         else:

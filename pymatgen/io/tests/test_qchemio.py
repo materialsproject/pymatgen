@@ -904,6 +904,100 @@ $end
         self.assertEqual(str(qctask), ans)
         self.elementary_io_verify(ans, qctask)
 
+    def test_wrap_comment(self):
+        ans = '''$comment
+ 5_2_2_methoxyethoxy_ethoxy_6_nitro_1_3_dihydro_2_1_3_benzothiadiazole
+singlet neutral B3lYP/6-31+G* geometry optimization
+$end
+
+
+$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ H           1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ Cl         -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+   jobtype = sp
+  exchange = b3lyp
+     basis = 6-31+g*
+$end
+
+'''
+        qctask = QcTask(mol, title="    5_2_2_methoxyethoxy_ethoxy_6_nitro_1_3_dihydro_2_1_3_benzothiadiazole singlet "
+                                   "neutral B3lYP/6-31+G* geometry optimization", exchange="B3LYP",
+                        jobtype="SP",
+                        basis_set="6-31+G*")
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
+        title = ''' MgBPh42 singlet neutral PBE-D3/6-31+G* geometry optimization
+<SCF Fix Strategy>{
+    "current_method_id": 1,
+    "methods": [
+        "increase_iter",
+        "diis_gdm",
+        "gwh",
+        "rca",
+        "gdm",
+        "core+gdm"
+    ]
+}</SCF Fix Strategy>'''
+        ans = '''$comment
+ MgBPh42 singlet neutral PBE-D3/6-31+G* geometry optimization
+<SCF Fix Strategy>{
+    "current_method_id": 1,
+    "methods": [
+        "increase_iter",
+        "diis_gdm",
+        "gwh",
+        "rca",
+        "gdm",
+        "core+gdm"
+    ]
+}</SCF Fix Strategy>
+$end
+
+
+$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ H           1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ Cl         -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+   jobtype = sp
+  exchange = b3lyp
+     basis = 6-31+g*
+$end
+
+'''
+        qctask = QcTask(mol, title=title, exchange="B3LYP", jobtype="SP", basis_set="6-31+G*")
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
+        title = " 5_2_2_methoxyethoxy_ethoxy_6_nitro_1_3_dihydro_2_1_3_benzothiadiazole singlet neutral " \
+                "B3lYP/6-31+G* geometry optimization" + \
+                '''<SCF Fix Strategy>{
+    "current_method_id": 1,
+    "methods": [
+        "increase_iter",
+        "diis_gdm",
+        "gwh",
+        "rca",
+        "gdm",
+        "core+gdm"
+    ]
+}</SCF Fix Strategy>'''
+        qctask = QcTask(mol, title=title, exchange="B3LYP", jobtype="SP", basis_set="6-31+G*")
+        self.elementary_io_verify(str(qctask), qctask)
+
     def test_use_pcm(self):
         ans = '''$comment
  Test Methane
