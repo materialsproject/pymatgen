@@ -1349,12 +1349,15 @@ class Flow(Node):
 
             return tarinfo
 
+        back = os.getcwd()
+        os.chdir(os.path.join(self.workdir, ".."))
 
         from tarfile import TarFile
         name = os.path.basename(self.workdir) + ".tar.gz" if name is None else name
         tar = TarFile(name=name, mode='w', **kwargs) 
 
         tar.add(os.path.basename(self.workdir), arcname=None, recursive=True, exclude=None, filter=filter)
+        os.chdir(back)
         return tar
 
 
