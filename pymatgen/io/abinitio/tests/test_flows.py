@@ -165,7 +165,7 @@ class FlowTest(FlowUnitTest):
 
         afalse(flow.all_ok)
         aequal(flow.num_tasks, 4)
-        aequal(flow.ncores_inuse, 0)
+        aequal(flow.ncores_used, 0)
 
         # API for iterations
         aequal(len(list(flow.iflat_tasks(status="Initialized"))), sum(len(work) for work in flow))
