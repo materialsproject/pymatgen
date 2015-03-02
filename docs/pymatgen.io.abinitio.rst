@@ -90,6 +90,14 @@ pymatgen.io.abinitio.launcher module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.io.abinitio.mocks module
+---------------------------------
+
+.. automodule:: pymatgen.io.abinitio.mocks
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.io.abinitio.netcdf module
 ----------------------------------
 

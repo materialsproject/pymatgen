@@ -33,8 +33,8 @@ from .abiinspect import yaml_read_irred_perts
 from .works import Work, BandStructureWork, PhononWork, G0W0Work, QptdmWork
 from .events import EventsParser
 from pydispatch import dispatcher
-import logging
 
+import logging
 logger = logging.getLogger(__name__)
 
 __author__ = "Matteo Giantomassi"
@@ -308,9 +308,9 @@ class Flow(Node):
         """True if all the tasks in works have reached `S_OK`."""
         return all(work.all_ok for work in self)
 
-    @property
-    def all_tasks(self):
-        return self.iflat_tasks()
+    #@property
+    #def all_tasks(self):
+    #    return self.iflat_tasks()
 
     @property
     def num_tasks(self):
@@ -320,11 +320,11 @@ class Flow(Node):
     @property
     def errored_tasks(self):
         """List of errored tasks."""
-        errtasks = []
-        for status in [Task.S_ERROR, Task.S_QCRITICAL, Task.S_ABICRITICAL]:
-            errtasks.extend(list(self.iflat_tasks(status=status)))
+        etasks = []
+        for status in [self.S_ERROR, self.S_QCRITICAL, self.S_ABICRITICAL]:
+            etasks.extend(list(self.iflat_tasks(status=status)))
 
-        return set(errtasks)
+        return set(etasks)
 
     @property
     def num_errored_tasks(self):
@@ -498,7 +498,7 @@ class Flow(Node):
         """Test the dependencies of the nodes for possible deadlocks."""
         deadlocks = []
 
-        for task in self.all_tasks:
+        for task in self.iflat_tasks():
             for dep in task.deps:
                 if dep.node.depends_on(task):
                     deadlocks.append((task, dep.node))
@@ -511,18 +511,20 @@ class Flow(Node):
     def deadlocked_runnables_running(self):
         """
         This function detects deadlocks
-        return deadlocks, runnables, running
+
+        Return:
+            deadlocks, runnables, running
         """
         runnables = []
         for work in self:
             runnables.extend(work.fetch_alltasks_to_run())
 
-        running = list(self.iflat_tasks(status=Task.S_RUN))
+        running = list(self.iflat_tasks(status=self.S_RUN))
 
         err_tasks = self.errored_tasks
         deadlocked = []
         if err_tasks:
-            for task in self.all_tasks:
+            for task in self.iflat_tasks():
                 if any(task.depends_on(err_task) for err_task in err_tasks):
                     deadlocked.append(task)
 
@@ -720,11 +722,11 @@ class Flow(Node):
 
         .. note::
 
-            nids and wslice ae mutually exclusive. 
-            iIf nids and wslice are both None, all tasks in self are inspected.
+            nids and wslice are mutually exclusive. 
+            If nids and wslice are both None, all tasks in self are inspected.
 
         Returns: 
-            list of `matplotlib figures.
+            List of `matplotlib` figures.
         """
         figs = []
         for task in self.select_tasks(nids=nids, wslice=wslice):
@@ -965,7 +967,7 @@ class Flow(Node):
                 pid = int(fh.readline())
 
             retcode = os.system("kill -9 %d" % pid)
-            logger.info("Sent SIGKILL to the scheduler, retcode = %s" % retcode)
+            flow.history.info("Sent SIGKILL to the scheduler, retcode = %s" % retcode)
             try:
                 os.remove(pid_file)
             except IOError:
