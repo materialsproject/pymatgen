@@ -914,6 +914,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     CRITICAL_EVENTS = [
     ]
 
+    # List of task specific default event handlers
+    # Subclasses should provide their own list
+    EVENT_HANDLERS = []
+
     # Prefixes for Abinit (input, output, temporary) files.
     Prefix = collections.namedtuple("Prefix", "idata odata tdata")
     pj = os.path.join
@@ -2210,13 +2214,14 @@ class AbinitTask(Task):
         """
         count = 0
         report = self.get_event_report()
-        for event in report:
-            try:
-                d = event.correct(self)
-                if d is not None: count += 1
-
-            except Exception as exc:
-                logger.critical(str(exc))
+        for event in report.errors:
+            for handler in self.EVENT_HANDLERS:
+                if handler.EVENT == event.__class__:
+                    try:
+                        d = handler.handle(self, event)
+                        if d: count += 1
+                    except Exception as exc:
+                        logger.critical(str(exc))
 
         if count:
             self.reset_from_scratch()
@@ -2538,6 +2543,8 @@ class RelaxTask(AbinitTask, ProduceGsr, ProduceHist):
     CRITICAL_EVENTS = [
         events.RelaxConvergenceWarning,
     ]
+
+    EVENT_HANDLERS = [events.DilatmxErrorHandler()]
 
     def _change_structure(self, structure):
         """Change the input structure."""
