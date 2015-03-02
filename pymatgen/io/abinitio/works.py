@@ -21,7 +21,8 @@ from monty.fnmatch import WildCard
 from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
 from . import wrappers
-from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, PhononTask, DdkTask, 
+from .nodes import Dependency, Node, NodeResults
+from .tasks import (Task, AbinitTask, ScfTask, NscfTask, PhononTask, DdkTask, 
                     BseTask, RelaxTask, DdeTask, ScrTask, SigmaTask)
 from .strategies import HtcStrategy, NscfStrategy
 from .utils import Directory
