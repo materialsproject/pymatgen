@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from __future__ import unicode_literals
+import textwrap
 
 """
 This module implements input and output processing from QChem.
@@ -145,7 +146,7 @@ class QcTask(PMGSONable):
             self.mol.set_charge_and_spin(self.charge, self.spin_multiplicity)
         self.params = dict()
         if title is not None:
-            self.params["comment"] = title
+            self.params["comment"] = self._wrap_comment(title)
         if "rem" not in self.params:
             self.params["rem"] = dict()
         self.params["rem"]["exchange"] = exchange.lower()
@@ -566,9 +567,26 @@ class QcTask(PMGSONable):
                 lines.append('\n')
         return '\n'.join(lines)
 
+    @classmethod
+    def _wrap_comment(cls, comment):
+        ml_section_start = comment.find('<')
+        if ml_section_start >= 0:
+            title_section = comment[0:ml_section_start]
+            ml_section = comment[ml_section_start:]
+        else:
+            title_section = comment
+            ml_section = ''
+        wrapped_title_lines = textwrap.wrap(title_section.strip(), width=70, initial_indent=' ')
+        wrapped_ml_lines = []
+        for l in ml_section.splitlines():
+            if len(l) > 70:
+                wrapped_ml_lines.extend(textwrap.wrap(l.strip(), width=70, initial_indent=' '))
+            else:
+                wrapped_ml_lines.append(l)
+        return '\n'.join(wrapped_title_lines + wrapped_ml_lines)
+
     def _format_comment(self):
-        lines = [' ' + self.params["comment"].strip()]
-        return lines
+        return self._wrap_comment(self.params["comment"]).splitlines()
 
     def _format_molecule(self):
         lines = []
