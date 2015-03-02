@@ -346,7 +346,13 @@ class KpointsTest(unittest.TestCase):
         kpoints = Kpoints.automatic_density(poscar.structure, 500, True)
         self.assertEqual(kpoints.style, "Gamma")
         kpoints = Kpoints.automatic_density_by_vol(poscar.structure, 1000)
-        self.assertEqual(kpoints.kpts, [[8, 11, 15]])
+        self.assertEqual(kpoints.kpts, [[6, 11, 13]])
+        self.assertEqual(kpoints.style, "Gamma")
+
+        s = poscar.structure
+        s.make_supercell(3)
+        kpoints = Kpoints.automatic_density(s, 500)
+        self.assertEqual(kpoints.kpts, [[1, 1, 1]])
         self.assertEqual(kpoints.style, "Gamma")
 
     def test_as_dict_from_dict(self):
