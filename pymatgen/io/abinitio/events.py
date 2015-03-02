@@ -139,18 +139,18 @@ class AbinitEvent(yaml.YAMLObject):
 
         raise ValueError("Cannot determine the base class of %s" % self.__class__.__name__)
 
-    #def log_correction(self, task, msg):
-    #    """
-    #    This method should be called once we have fixed the problem associated to this event.
-    #    It adds a new entry in the correction history of the task.
+    def log_correction(self, task, action):
+        """
+        This method should be called once we have fixed the problem associated to this event.
+        It adds a new entry in the correction history of the task.
 
-    #    Args:
-    #        message (str): Human-readable string with info on the action perfomed to solve the problem.
-    #    """
-    #    task._corrections.append(dict(
-    #        event=self.as_dict(), 
-    #        msg=msg,
-    #    ))
+        Args:
+            action (str): Human-readable string with info on the action perfomed to solve the problem.
+        """
+        task._corrections.append(dict(
+            event=self.as_dict(), 
+            action=action,
+        ))
 
     def correct(self, task):
         """
@@ -259,8 +259,9 @@ class DilatmxError(AbinitError):
         task._change_structure(last_structure)
         #changes = task._modify_vars(dilatmx=1.05)
 
-        msg = "Take last structure from DILATMX_STRUCT.nc, will try to restart with dilatmx %s" % task.get_inpvar("dilatmx")
-        task.history.correction(msg)
+        action = "Take last structure from DILATMX_STRUCT.nc, will restart with dilatmx: %s" % task.get_inpvar("dilatmx")
+        task.history.correction(action)
+        self.log_correction(task, action)
         return 1
 
 
@@ -313,7 +314,7 @@ class EventReport(collections.Iterable):
         lines = []
         app = lines.append
 
-        app("Events for: %s" % self.filename)
+        app("Events found in %s\n" % self.filename)
         for i, event in enumerate(self):
             if has_colours:
                 app("[%d] %s" % (i+1, colored(event.header, color=event.color)))
