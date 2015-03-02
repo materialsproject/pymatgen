@@ -124,7 +124,7 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
         A core is reserved if it's still not running but 
         we have submitted the task to the queue manager.
         """
-        return sum(task.tot_cores for task in self if task.status == task.S_SUB)
+        return sum(task.manager.num_cores for task in self if task.status == task.S_SUB)
 
     @property
     def ncores_allocated(self):
@@ -133,15 +133,15 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
         A core is allocated if it's running a task or if we have
         submitted a task to the queue manager but the job is still pending.
         """
-        return sum(task.tot_cores for task in self if task.status in [task.S_SUB, task.S_RUN])
+        return sum(task.manager.num_cores for task in self if task.status in [task.S_SUB, task.S_RUN])
 
     @property
-    def ncores_inuse(self):
+    def ncores_used(self):
         """
         Returns the number of cores used in this moment.
         A core is used if there's a job that is running on it.
         """
-        return sum(task.tot_cores for task in self if task.status == task.S_RUN)
+        return sum(task.manager.num_cores for task in self if task.status == task.S_RUN)
 
     def fetch_task_to_run(self):
         """
