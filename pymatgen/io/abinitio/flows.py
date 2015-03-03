@@ -273,6 +273,28 @@ class Flow(Node):
     def __getitem__(self, slice):
         return self.works[slice]
 
+    def set_pyfile(self, pyfile):
+        """
+        Set the path of the python script used to generate the flow.
+
+        .. Example:
+
+            flow.set_pyfile(__file__)
+        """
+        # TODO: Could use a frame hack to get the caller outside abinitio
+        # so that pyfile is automatically set when we __init__ it!
+        self._pyfile = os.path.abspath(pyfile)
+
+    @property
+    def pyfile(self):
+        """
+        Absolute path of the python script used to generate the flow. Set by `set_pyfile`
+        """
+        try: 
+            return self._pyfile
+        except AttributeError:
+            return None
+
     @property
     def mongo_id(self):
         return self._mongo_id
@@ -1283,6 +1305,11 @@ class Flow(Node):
         sched.add_flow(self)
         return sched
 
+    def make_light_tarfile(self, name=None):
+        """Lightweight tarball file. Mainly used for debugging. Return the name of the tarball file."""
+        name = os.path.basename(self.workdir) + "-light.tar.gz" if name is None else name
+        return self.make_tarfile(name=name, exclude_dirs=["outdata", "indata", "tmpdata"])
+
     def make_tarfile(self, name=None, max_filesize=None, exclude_exts=None, exclude_dirs=None, verbose=0, **kwargs):
         """
         Create a tarball file.
@@ -1298,7 +1325,7 @@ class Flow(Node):
             kwargs: keyword arguments passed to the :class:`TarFile` constructor.
 
         Returns:
-            :class:`TarFile` object.
+            The name of the tarfile.
         """
         def any2bytes(s):
             """Convert string or number to memory in bytes."""
@@ -1352,13 +1379,17 @@ class Flow(Node):
         back = os.getcwd()
         os.chdir(os.path.join(self.workdir, ".."))
 
-        from tarfile import TarFile
+        import tarfile
         name = os.path.basename(self.workdir) + ".tar.gz" if name is None else name
-        tar = TarFile(name=name, mode='w', **kwargs) 
+        with tarfile.open(name=name, mode='w:gz', **kwargs) as tar:
+            tar.add(os.path.basename(self.workdir), arcname=None, recursive=True, exclude=None, filter=filter)
 
-        tar.add(os.path.basename(self.workdir), arcname=None, recursive=True, exclude=None, filter=filter)
+            # Add the script used to generate the flow.
+            if self.pyfile is not None and os.path.exists(self.pyfile):
+                tar.add(self.pyfile)
+        
         os.chdir(back)
-        return tar
+        return name
 
 
 class G0W0WithQptdmFlow(Flow):
