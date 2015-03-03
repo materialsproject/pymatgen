@@ -2555,7 +2555,7 @@ class RelaxTask(AbinitTask, ProduceGsr, ProduceHist):
         abc_diff = np.array(new_structure.lattice.abc) - np.array(old_lattice.abc)
         angles_diff = np.array(new_structure.lattice.angles) - np.array(old_lattice.angles)
         cart_diff = new_structure.cart_coords - old_structure.cart_coords
-        displs = np.array([np.linalg.norm(np.dot(v, v)) for v in cart_diff])
+        displs = np.array([np.sqrt(np.dot(v, v)) for v in cart_diff])
 
         recs, tol_angle, tol_length = [], 10**-2, 10**-5
 
