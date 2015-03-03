@@ -763,6 +763,9 @@ db_connector:
         Returns:
             Process object.
         """
+        if task.status == task.S_LOCKED:
+            raise ValueError("You shall not try to submit a locked task!")
+
         # Build the task 
         task.build()
 
@@ -1114,30 +1117,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def can_run(self):
         """The task can run if its status is < S_SUB and all the other dependencies (if any) are done!"""
         all_ok = all([stat == self.S_OK for stat in self.deps_status])
-        return self.status < self.S_SUB and all_ok
-
-    #def run_etime(self):
-    #    """
-    #    String with the wall-time
-
-    #    ...note::
-
-    #        The clock starts when self.status becomes S_RUN.
-    #        thus run_etime does not correspond to the effective wall-time.
-    #    """
-    #    # FIXME: This does not work as expected!
-    #    s = "None"
-    #    if self.datetimes.start is not None:
-    #        end = self.end_datetime
-    #        if end is None:
-    #            end = datetime.datetime.now()
-
-    #        # Compute time-delta, convert to string and remove microseconds (in any)
-    #        s = str(end - self.datetimes.start)
-    #        microsec = s.find(".")
-    #        if microsec != -1: s = s[:microsec]
-
-    #    return s
+        return self.status < self.S_SUB and self.status != self.S_LOCKED and all_ok
 
     def cancel(self):
         """Cancel the job. Returns 1 if job was cancelled."""
@@ -1356,6 +1336,27 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """Gives the status of the task."""
         return self._status
 
+    def lock(self, source_node):
+        """
+        Lock the file, source is the :class:`Node` that is locking the file.
+        """
+        if self.status != self.S_INIT:
+            raise ValueError("Trying to lock a task with status %s" % self.status)
+
+        self._status = self.S_LOCKED
+        self.history.info("Locked by node %s", source_node)
+
+    def unlock(self, check_status=True):
+        """
+        Unlock the task, set its status to `S_READY` so that the scheduler can submit it.
+        Call task.check_status if check_status is True.
+        """
+        if self.status != self.S_LOCKED:
+            raise RuntimeError("Trying to unlock a task with status %s" % self.status)
+
+        self._status = self.S_READY
+        if check_status: self.check_status()
+
     def set_status(self, status, msg=None):
         """
         Set and return the status of the task.
@@ -1364,6 +1365,13 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             status: Status object or string representation of the status
             msg: string with human-readable message used in the case of errors (optional)
         """
+        # Locked files must be explicitly unlocked 
+        if self.status == self.S_LOCKED or status == self.S_LOCKED:
+            err_msg = (
+                 "Locked files must be explicitly unlocked before calling set_status but\n"
+                 "task.status = %s, input status = %s" % (self.status, status))
+            raise RuntimeError(err_msg)
+
         status = Status.as_status(status)
 
         changed = True
@@ -1424,8 +1432,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # 1) A locked task can only be unlocked by calling set_status explicitly.
         # an errored task, should not end up here but just to be sure
         black_list = (self.S_LOCKED, self.S_ERROR)
-        if self.status in black_list:
-            return self.status
+        if self.status in black_list: return self.status
 
         # 2) Check the returncode of the process (the process of submitting the job) first.
         # this point type of problem should also be handled by the scheduler error parser

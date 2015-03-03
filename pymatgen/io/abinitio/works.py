@@ -562,10 +562,12 @@ class Work(BaseWork):
         """Check the status of the tasks."""
         # Recompute the status of the tasks
         for task in self:
+            if task.status == task.S_LOCKED: continue
             task.check_status()
 
         # Take into account possible dependencies. Use a list instead of generators 
         for task in self:
+            if task.status == task.S_LOCKED: continue
             if task.status < task.S_SUB and all([status == task.S_OK for status in task.deps_status]):
                 task.set_status(task.S_READY)
 
@@ -813,7 +815,7 @@ class RelaxWork(Work):
 
         # Lock ioncell_task as ion_task should communicate to ioncell_task that 
         # the calculation is OK and pass the final structure.
-        self.ioncell_task.set_status(self.S_LOCKED)
+        self.ioncell_task.lock(source_node=self)
         self.transfer_done = False
 
     def on_ok(self, sender):
@@ -833,7 +835,8 @@ class RelaxWork(Work):
             self.transfer_done = True
 
             # Unlock ioncell_task so that we can submit it.
-            self.ioncell_task.set_status(self.S_READY)
+            self.ioncell_task.unlock()
+            self.ioncell_task.history.info("Unlocked by %s", self)
 
         return super(RelaxWork, self).on_ok(sender)
 
