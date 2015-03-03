@@ -525,7 +525,7 @@ class DilatmxErrorHandler(ErrorHandler):
             return self.NOT_FIXED
         task.strategy.abinit_input.set_vars(dilatmx=new_dilatmx)
         msg = "Take last structure from DILATMX_STRUCT.nc, will try to restart with dilatmx %s" % task.get_inpvar("dilatmx")
-        task.history.append(msg)
+        task.history.correction(msg)
         return self.FIXED
 
 

@@ -1203,7 +1203,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         Return: 
             True if task has been restarted
         """
-        self.set_status(self.S_READY, info_msg="Restarted on %s" % time.asctime())
+        self.set_status(self.S_READY, msg="Restarted on %s" % time.asctime())
 
         # Increase the counter.
         self.num_restarts += 1
@@ -1299,7 +1299,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.qerr_file.remove()
         self.qout_file.remove()
 
-        self.set_status(self.S_INIT, info_msg="Reset on %s" % time.asctime())
+        self.set_status(self.S_INIT, msg="Reset on %s" % time.asctime())
         self.set_qjob(None)
 
         # TODO send a signal to the flow 
@@ -1356,13 +1356,13 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """Gives the status of the task."""
         return self._status
 
-    def set_status(self, status, info_msg=None):
+    def set_status(self, status, msg=None):
         """
         Set and return the status of the task.
 
         Args:
             status: Status object or string representation of the status
-            info_msg: string with human-readable message used in the case of errors (optional)
+            msg: string with human-readable message used in the case of errors (optional)
         """
         status = Status.as_status(status)
 
@@ -1388,7 +1388,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 self.history.info("Task Completed")
 
             if status == self.S_ABICRITICAL:
-                self.history.info("Status set to S_ABI_CRITICAL due to: %s" % str(info_msg))
+                self.history.info("Status set to S_ABI_CRITICAL due to: %s", msg)
 
         if status == self.S_DONE:
             # Execute the callback
@@ -1431,7 +1431,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # this point type of problem should also be handled by the scheduler error parser
         if self.returncode != 0:
             # The job was not submitted properly
-            return self.set_status(self.S_QCRITICAL, info_msg="return code %s" % self.returncode)
+            return self.set_status(self.S_QCRITICAL, msg="return code %s" % self.returncode)
 
         # Analyze the stderr file for Fortran runtime errors.
         err_msg = None
@@ -1448,9 +1448,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             try:
                 report = self.get_event_report()
             except Exception as exc:
-                info_msg = "%s exception while parsing event_report:\n%s" % (self, exc)
-                logger.critical(info_msg)
-                return self.set_status(self.S_ABICRITICAL, info_msg=info_msg)
+                msg = "%s exception while parsing event_report:\n%s" % (self, exc)
+                logger.critical(msg)
+                return self.set_status(self.S_ABICRITICAL, msg=msg)
 
             if report.run_completed:
                 # Here we  set the correct timing data reported by Abinit
@@ -1482,8 +1482,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
                 # The job is unfixable due to ABINIT errors
                 logger.debug("%s: Found Errors or Bugs in ABINIT main output!" % self)
-                info_msg = "\n".join(map(repr, report.errors + report.bugs))
-                return self.set_status(self.S_ABICRITICAL, info_msg=info_msg)
+                msg = "\n".join(map(repr, report.errors + report.bugs))
+                return self.set_status(self.S_ABICRITICAL, msg=msg)
 
             # 5)
             if self.stderr_file.exists and not err_info:
@@ -1507,21 +1507,21 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
             if scheduler_parser is None:
                 return self.set_status(self.S_QCRITICAL, 
-                                       info_msg="Cannot find scheduler_parser for qtype %s" % self.manager.qadapter.QTYPE)
+                                       msg="Cannot find scheduler_parser for qtype %s" % self.manager.qadapter.QTYPE)
                 
             scheduler_parser.parse()
 
             if scheduler_parser.errors:
                 self.queue_errors = scheduler_parser.errors
                 # the queue errors in the task
-                info_msg = "scheduler errors found:\n%s" % str(scheduler_parser.errors)
-                logger.critical(info_msg)
-                return self.set_status(self.S_QCRITICAL, info_msg=info_msg)
+                msg = "scheduler errors found:\n%s" % str(scheduler_parser.errors)
+                logger.critical(msg)
+                return self.set_status(self.S_QCRITICAL, msg=msg)
                 # The job is killed or crashed and we know what happened
             else:
                 if len(err_info) > 0:
                     logger.debug('found unknown queue error: %s' % str(err_info))
-                    return self.set_status(self.S_QCRITICAL, info_msg=err_info)
+                    return self.set_status(self.S_QCRITICAL, msg=err_info)
                     # The job is killed or crashed but we don't know what happened
                     # it is set to QCritical, we will attempt to fix it by running on more resources
 
@@ -1529,7 +1529,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # but if the files are not empty we do have a problem but no way of solving it:
         if err_msg is not None and len(err_msg) > 0:
             logger.debug('found error message:\n %s' % str(err_msg))
-            return self.set_status(self.S_QCRITICAL, info_msg=err_info)
+            return self.set_status(self.S_QCRITICAL, msg=err_info)
             # The job is killed or crashed but we don't know what happend
             # it is set to QCritical, we will attempt to fix it by running on more resources
 
@@ -1540,8 +1540,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # Check time of last modification.
         if self.output_file.exists and \
            (time.time() - self.output_file.get_stat().st_mtime > self.manager.policy.frozen_timeout):
-            info_msg = "Task seems to be frozen, last change more than %s [s] ago" % self.manager.policy.frozen_timeout
-            return self.set_status(self.S_ERROR, info_msg)
+            msg = "Task seems to be frozen, last change more than %s [s] ago" % self.manager.policy.frozen_timeout
+            return self.set_status(self.S_ERROR, msg)
 
         return self.set_status(self.S_RUN)
 
@@ -1683,7 +1683,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         except parser.Error as exc:
             # Return a report with an error entry with info on the exception.
             logger.critical("%s: Exception while parsing ABINIT events:\n %s" % (ofile, str(exc)))
-            self.set_status(self.S_ABICRITICAL, info_msg=str(exc))
+            self.set_status(self.S_ABICRITICAL, msg=str(exc))
             return parser.report_exception(ofile.path, exc)
 
     def get_results(self, **kwargs):
@@ -1896,9 +1896,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             try:
                 self.autoparal_run()
             except:
-                info_msg = "autoparal_fake_run raised:\n%s" % straceback()
-                logger.critical(info_msg)
-                self.set_status(self.S_ABICRITICAL, info_msg=info_msg)
+                msg = "autoparal_fake_run raised:\n%s" % straceback()
+                logger.critical(msg)
+                self.set_status(self.S_ABICRITICAL, msg=msg)
                 return 0
 
         # Start the calculation in a subprocess and return.
@@ -2227,9 +2227,9 @@ class AbinitTask(Task):
             self.reset_from_scratch()
             return 1
 
-        info_msg = 'We encountered AbiCritical events that could not be fixed'
-        logger.critical(info_msg)
-        self.set_status(status=self.S_ERROR, info_msg=info_msg)
+        msg = 'We encountered AbiCritical events that could not be fixed'
+        logger.critical(msg)
+        self.set_status(status=self.S_ERROR, msg=msg)
         return 0
 
     def fix_queue_critical(self):
@@ -2243,6 +2243,7 @@ class AbinitTask(Task):
             1 if task has been fixed else 0.
         """
         from pymatgen.io.abinitio.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
+
         if not self.queue_errors:
             # queue error but no errors detected, try to solve by increasing resources
             # if resources are at maximum the task is definitively turned to errored
@@ -2250,75 +2251,75 @@ class AbinitTask(Task):
                 self.reset_from_scratch()
                 return 1 
             else:
-                self.set_status(self.S_ERROR, info_msg='unknown queue error, could not increase resources any further')
+                self.set_status(self.S_ERROR, msg='unknown queue error, could not increase resources any further')
 
         else:
             for error in self.queue_errors:
-                logger.info('fixing : %s' % str(error))
+                logger.info('fixing: %s' % str(error))
 
                 if isinstance(error, NodeFailureError):
-                    # if the problematic node is know exclude it
+                    # if the problematic node is known, exclude it
                     if error.nodes is not None:
                         self.manager.qadapter.exclude_nodes(error.nodes)
                         self.reset_from_scratch()
-                        self.set_status(self.S_READY, info_msg='increased resources')
+                        self.set_status(self.S_READY, msg='increased resources')
                         return 1
                     else:
-                        self.set_status(self.S_ERROR, info_msg='Node error but no node identified.')
+                        self.set_status(self.S_ERROR, msg='Node error but no node identified.')
 
                 elif isinstance(error, MemoryCancelError):
                     # ask the qadapter to provide more resources, i.e. more cpu's so more total memory
                     if self.manager.increase_resources():
                         self.reset_from_scratch()
-                        self.set_status(self.S_READY, info_msg='increased mem')
+                        self.set_status(self.S_READY, msg='increased mem')
                         return 1
 
                     # if the max is reached, try to increase the memory per cpu:
                     elif self.manager.qadapter.increase_mem():
                         self.reset_from_scratch()
-                        self.set_status(self.S_READY, info_msg='increased mem')
+                        self.set_status(self.S_READY, msg='increased mem')
                         return 1
 
-                    # if this failed ask the self to provide a method to reduce the memory demand
+                    # if this failed ask the task to provide a method to reduce the memory demand
                     elif self.reduce_memory_demand():
                         self.reset_from_scratch()
-                        self.set_status(self.S_READY, info_msg='decreased mem demand')
+                        self.set_status(self.S_READY, msg='decreased mem demand')
                         return 1
 
                     else:
-                        info_msg = 'Memory error detected but the memory could not be increased neigther could the ' \
-                                   'memory demand be decreased. Unrecoverable error.'
-                        return self.set_status(self.S_ERROR, info_msg)
+                        msg = ('Memory error detected but the memory could not be increased neigther could the\n'
+                              'memory demand be decreased. Unrecoverable error.')
+                        return self.set_status(self.S_ERROR, msg)
 
                 elif isinstance(error, TimeCancelError):
                     # ask the qadapter to provide more memory
                     if self.manager.qadapter.increase_time():
                         self.reset_from_scratch()
-                        self.set_status(self.S_READY, info_msg='increased wall time')
+                        self.set_status(self.S_READY, msg='increased wall time')
                         return 1
 
                     # if this fails ask the qadapter to increase the number of cpus
                     elif self.manager.increase_resources():
                         self.reset_from_scratch()
-                        self.set_status(self.S_READY, info_msg='increased number of cpus')
+                        self.set_status(self.S_READY, msg='increased number of cpus')
                         return 1
 
                     # if this failed ask the task to provide a method to speed up the task
                     # MG TODO: Remove this
                     elif self.speed_up():
                         self.reset_from_scratch()
-                        self.set_status(self.S_READY, info_msg='task speedup')
+                        self.set_status(self.S_READY, msg='task speedup')
                         return 1
 
                     else:
-                        info_msg = 'Time cancel error detected but the time could not be increased neigther could ' \
-                                   'the time demand be decreased by speedup of increasing the number of cpus. ' \
-                                   'Unrecoverable error.'
-                        self.set_status(self.S_ERROR, info_msg)
+                        msg = ('Time cancel error detected but the time could not be increased neither could\n'
+                               'the time demand be decreased by speedup of increasing the number of cpus.\n'
+                               'Unrecoverable error.')
+                        self.set_status(self.S_ERROR, msg)
                 else:
-                    info_msg = 'No solution provided for error %s. Unrecoverable error.' % error.name
-                    logger.debug(info_msg)
-                    self.set_status(self.S_ERROR, info_msg)
+                    msg = 'No solution provided for error %s. Unrecoverable error.' % error.name
+                    logger.debug(msg)
+                    self.set_status(self.S_ERROR, msg)
 
         return 0
 
@@ -2611,7 +2612,7 @@ class RelaxTask(AbinitTask, ProduceGsr, ProduceHist):
             what: Either "hist" or "scf". The first option (default) extracts data
                 from the HIST file and plot the evolution of the structural 
                 parameters, forces, pressures and energies.
-                The second option, extract data from the main output file and
+                The second option, extracts data from the main output file and
                 plot the evolution of the SCF cycles (etotal, residuals, etc).
 
         Returns
