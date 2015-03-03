@@ -512,6 +512,8 @@ class DilatmxErrorHandler(ErrorHandler):
         task.strategy.abinit_input.set_vars(dilatmx=new_dilatmx)
         msg = "Take last structure from DILATMX_STRUCT.nc, will try to restart with dilatmx %s" % task.get_inpvar("dilatmx")
         task.log_correction(event, msg)
+        # Note that we change the structure but we don't try restart from the previous WFK|DEN file
+        # because Abinit called mpi_abort and therefore no final WFK|DEN file has been produced.
 
         return self.FIXED
 

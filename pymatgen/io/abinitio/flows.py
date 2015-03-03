@@ -647,7 +647,7 @@ class Flow(Node):
                 continue
 
             table = PrettyTable(["Task", "Status", "Queue", "MPI|Omp|Mem[Gb]", 
-                                 "Err|Warn|Comm", "Class", "Rest|Sub", "Time", "Node_ID"])
+                                 "Err|Warn|Com", "Class", "Rest|Sub|Corr", "Time", "Node_ID"])
 
             tot_num_errors = 0
             for task in work:
@@ -674,7 +674,8 @@ class Flow(Node):
                     events = "|".join(map(str, [report.num_errors, report.num_warnings, report.num_comments]))
 
                 para_info = "|".join(map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
-                task_info = list(map(str, [task.__class__.__name__, (task.num_restarts, task.num_launches), stime, task.node_id]))
+                task_info = list(map(str, [task.__class__.__name__, 
+                                 (task.num_restarts, task.num_launches, task.num_corrections), stime, task.node_id]))
 
                 qinfo = "None"
                 if task.queue_id is not None:

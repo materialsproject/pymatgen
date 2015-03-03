@@ -2471,6 +2471,7 @@ class ScfTask(AbinitTask, ProduceGsr):
         self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
+        self.history.info("Will restart from %s", restart_file)
         return self._restart()
 
     def inspect(self, **kwargs):
@@ -2527,6 +2528,7 @@ class NscfTask(AbinitTask, ProduceGsr):
         self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
+        self.history.info("Will restart from %s", restart_file)
         return self._restart()
 
     def get_results(self, **kwargs):
@@ -2613,7 +2615,7 @@ class RelaxTask(AbinitTask, ProduceGsr, ProduceHist):
             ofile = self.outdir.has_abiext(ext)
             if ofile:
                 irdvars = irdvars_for_ext(ext)
-                infile = self.out_to_in(ofile)
+                restart_file = self.out_to_in(ofile)
                 break
         else:
             raise self.RestartError("Cannot find the WFK|DEN file to restart from.")
@@ -2628,6 +2630,7 @@ class RelaxTask(AbinitTask, ProduceGsr, ProduceHist):
         self._change_structure(structure)
 
         # Now we can resubmit the job.
+        self.history.info("Will restart from %s", restart_file)
         return self._restart()
 
     def inspect(self, **kwargs):
@@ -2730,6 +2733,7 @@ class PhononTask(AbinitTask, ProduceDdb):
         self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
+        self.history.info("Will restart from %s", restart_file)
         return self._restart()
 
     def inspect(self, **kwargs):
@@ -2783,6 +2787,7 @@ class SigmaTask(AbinitTask):
         self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
+        self.history.info("Will restart from %s", restart_file)
         return self._restart()
 
     #def inspect(self, **kwargs):
@@ -2907,6 +2912,7 @@ class BseTask(AbinitTask):
         self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
+        #self.history.info("Will restart from %s", restart_file)
         return self._restart()
 
     #def inspect(self, **kwargs):
