@@ -141,19 +141,6 @@ class AbinitEvent(yaml.YAMLObject):
 
         raise ValueError("Cannot determine the base class of %s" % self.__class__.__name__)
 
-    def log_correction(self, task, action):
-        """
-        This method should be called once we have fixed the problem associated to this event.
-        It adds a new entry in the correction history of the task.
-
-        Args:
-            action (str): Human-readable string with info on the action perfomed to solve the problem.
-        """
-        task._corrections.append(dict(
-            event=self.as_dict(), 
-            action=action,
-        ))
-
     def correct(self, task):
         """
         This method is called when an error is detected in a :class:`Task` 
@@ -262,8 +249,7 @@ class DilatmxError(AbinitError):
         #changes = task._modify_vars(dilatmx=1.05)
 
         action = "Take last structure from DILATMX_STRUCT.nc, will restart with dilatmx: %s" % task.get_inpvar("dilatmx")
-        task.history.correction(action)
-        self.log_correction(task, action)
+        task.log_correction(self, action)
         return 1
 
 
@@ -525,7 +511,8 @@ class DilatmxErrorHandler(ErrorHandler):
             return self.NOT_FIXED
         task.strategy.abinit_input.set_vars(dilatmx=new_dilatmx)
         msg = "Take last structure from DILATMX_STRUCT.nc, will try to restart with dilatmx %s" % task.get_inpvar("dilatmx")
-        task.history.correction(msg)
+        task.log_correction(event, msg)
+
         return self.FIXED
 
 
@@ -551,5 +538,6 @@ class DilatmxErrorHandlerTest(ErrorHandler):
             return self.NOT_FIXED
         task.strategy.abinit_input.set_vars(dilatmx=new_dilatmx)
         msg = "Take last structure from DILATMX_STRUCT.nc, will try to restart with dilatmx %s" % task.get_inpvar("dilatmx")
-        task.history.append(msg)
+        task.log_correction(event, msg)
+
         return self.FIXED

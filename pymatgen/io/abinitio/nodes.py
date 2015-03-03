@@ -518,6 +518,23 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     def num_corrections(self):
         return len(self.corrections)
 
+    def log_correction(self, event, action):
+        """
+        This method should be called once we have fixed the problem associated to this event.
+        It adds a new entry in the correction history of the node.
+
+        Args:
+            event: `AbinitEvent` that triggered the correction.
+            action (str): Human-readable string with info on the action perfomed to solve the problem.
+        """
+        action = str(action)
+        self.history.info(action)
+
+        self._corrections.append(dict(
+            event=event.as_dict(), 
+            action=action,
+        ))
+
     @property
     def is_file(self):
         """True if this node is a file"""
@@ -873,10 +890,6 @@ class NodeHistory(collections.deque):
         """Log 'msg % args' with the critical severity level"""
         self._log("CRITICAL", msg, args, kwargs)
 
-    def correction(self, msg, *args, **kwargs):
-        """Log 'msg % args' with the correction severity level"""
-        self._log("CORRECTION", msg, args, kwargs)
-
     def find_caller(self):
         """
         find the stack frame of the caller so that we can note the source
@@ -945,9 +958,6 @@ class NodeHistory(collections.deque):
             exc_info = sys.exc_info()
 
         self.append(HistoryRecord(level, fn, lno, msg, args, exc_info, func=func))
-
-    #@property
-    #def corrections(self):
 
 
 # The code below initializes a counter from a file when the module is imported 
