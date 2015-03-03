@@ -2197,7 +2197,6 @@ class AbinitTask(Task):
         """
         # remove all 'error', else the job will be seen as crashed in the next check status
         # even if the job did not run
-        # print('reset_from_scatch', self)
         self.output_file.remove()
         self.log_file.remove()
         self.stderr_file.remove()
@@ -2318,7 +2317,6 @@ class AbinitTask(Task):
                         self.set_status(self.S_ERROR, msg)
                 else:
                     msg = 'No solution provided for error %s. Unrecoverable error.' % error.name
-                    logger.debug(msg)
                     self.set_status(self.S_ERROR, msg)
 
         return 0
@@ -2547,19 +2545,40 @@ class RelaxTask(AbinitTask, ProduceGsr, ProduceHist):
 
     EVENT_HANDLERS = [events.DilatmxErrorHandler()]
 
-    def _change_structure(self, structure):
+    def _change_structure(self, new_structure):
         """Change the input structure."""
-        #print("changing structure")
-        #print("old:\n" + str(self.strategy.abinit_input.structure) + "\n")
-        #print("new:\n" + str(structure) + "\n")
+        # Compare new and old structure for logging purpose.
+        # TODO: Write method of structure to compare self and other and return a dictionary
+        old_structure = self.strategy.abinit_input.structure
+        old_lattice = old_structure.lattice 
 
-        #print("**old input**")
-        #print(self.make_input())
-        self.strategy.abinit_input.set_structure(structure)
-        #print(self.initial_structure)
-        #print("**new input**")
-        #print(self.make_input())
-        #self.build()
+        abc_diff = np.array(new_structure.lattice.abc) - np.array(old_lattice.abc)
+        angles_diff = np.array(new_structure.lattice.angles) - np.array(old_lattice.angles)
+        cart_diff = new_structure.cart_coords - old_structure.cart_coords
+        displs = np.array([np.linalg.norm(np.dot(v, v)) for v in cart_diff])
+
+        recs, tol_angle, tol_length = [], 10**-2, 10**-5
+
+        if np.any(np.abs(angles_diff) > tol_angle): 
+            recs.append("new_agles - old_angles = %s" % angles_diff)
+
+        if np.any(np.abs(abc_diff) > tol_length): 
+            recs.append("new_abc - old_abc = %s" % abc_diff)
+
+        if np.any(np.abs(displs) > tol_length):
+            min_pos, max_pos = displs.argmin(), displs.argmax()
+            recs.append("Mean displ: %.2E, Max_displ: %.2E (site %d), min_displ: %.2E (site %d)" % 
+                (displs.mean(), displs[max_pos], max_pos, displs[min_pos], min_pos))
+
+        self.history.info("Changing structure (only significant diffs are shown):")
+        if not recs:
+            self.history.info("Input and output structure seems to be equal within the given tolerances")
+        else:
+            for rec in recs:
+                self.history.info(rec)
+
+        self.strategy.abinit_input.set_structure(new_structure)
+        #assert self.strategy.abinit_input.structure == new_structure
 
     def get_final_structure(self):
         """Read the final structure from the GSR file."""
@@ -2615,7 +2634,7 @@ class RelaxTask(AbinitTask, ProduceGsr, ProduceHist):
                 The second option, extracts data from the main output file and
                 plot the evolution of the SCF cycles (etotal, residuals, etc).
 
-        Returns
+        Returns:
             `matplotlib` figure, None if some error occurred. 
         """
         what = kwargs.pop("what", "hist")
