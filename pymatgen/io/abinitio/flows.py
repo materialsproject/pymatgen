@@ -52,6 +52,22 @@ __all__ = [
 ]
 
 
+def find_top_pyfile():
+    """
+    This function inspects the Cpython frame to find the path of the script.
+    """
+    import os
+    from inspect import currentframe, getframeinfo
+    frame = currentframe()
+    while True:
+        if frame.f_back is None:
+            finfo = getframeinfo(frame)
+            #print(getframeinfo(frame))
+            return os.path.abspath(finfo.filename)
+                                                                             
+        frame = frame.f_back
+
+
 class FlowResults(NodeResults):
 
     JSON_SCHEMA = NodeResults.JSON_SCHEMA.copy()
@@ -166,6 +182,12 @@ class Flow(Node):
 
         # ID used to access mongodb
         self._mongo_id = None
+
+        # Save the location of the script used to generate the flow.
+        # This trick won't work if we are running with nosetests, py.test etc
+        pyfile = find_top_pyfile()
+        if "python" in pyfile or "ipython" in pyfile: pyfile = "<" + pyfile + ">"
+        self.set_pyfile(pyfile)
 
         # TODO
         # Signal slots: a dictionary with the list
@@ -329,10 +351,6 @@ class Flow(Node):
     def all_ok(self):
         """True if all the tasks in works have reached `S_OK`."""
         return all(work.all_ok for work in self)
-
-    #@property
-    #def all_tasks(self):
-    #    return self.iflat_tasks()
 
     @property
     def num_tasks(self):
@@ -1315,7 +1333,7 @@ class Flow(Node):
         Create a tarball file.
 
         Args:
-            name: Name of the tarball file. Set to `flow.workdir + "tar.gz"` if name is None.
+            name: Name of the tarball file. Set to os.path.basename(`flow.workdir`) + "tar.gz"` if name is None.
             max_filesize (int or string with unit): a file is included in the tar file if its size <= max_filesize
                 Can be specified in bytes e.g. `max_files=1024` or with a string with unit e.g. `max_filesize="1 Mb"`.
                 No check is done if max_filesize is None.
@@ -1561,7 +1579,7 @@ def bandstructure_flow(workdir, scf_input, nscf_input, dos_inputs=None, manager=
 
 def g0w0_flow(workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=None, flow_class=Flow):
     """
-    Build an :class:`Flow` for one-shot $G_0W_0$ calculations.
+    Build a :class:`Flow` for one-shot $G_0W_0$ calculations.
 
     Args:
         workdir: Working directory.
@@ -1584,7 +1602,7 @@ def g0w0_flow(workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=N
 
 def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, with_dde=False, manager=None, flow_class=Flow):
     """
-    Build an :class:`Flow` for phonon calculations.
+    Build a :class:`Flow` for phonon calculations.
 
     Args:
         workdir: Working directory.

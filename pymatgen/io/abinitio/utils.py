@@ -136,7 +136,7 @@ class Directory(object):
         return "<%s at %s, %s>" % (self.__class__.__name__, id(self), self.path)
 
     def __str__(self):
-        return "<%s, %s>" % (self.__class__.__name__, self.path)
+        return self.path
 
     def __eq__(self, other):
         return False if other is None else self.path == other.path

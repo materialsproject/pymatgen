@@ -115,10 +115,6 @@ class FlowTest(FlowUnitTest):
         aequal(flow.num_tasks, 1)
         atrue(flow.has_db) 
 
-        assert flow.pyfile is None
-        flow.set_pyfile(__file__)
-        assert flow.pyfile is not None
-
         #print(task0_w0.input_structure)
         print(task0_w0.make_input)
 
