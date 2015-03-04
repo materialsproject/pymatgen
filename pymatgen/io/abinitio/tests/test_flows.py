@@ -109,7 +109,6 @@ class FlowTest(FlowUnitTest):
         assert work.is_work
         task0_w0 = work[0]
         atrue(task0_w0.is_task)
-        afalse(task0_w0.has_subnodes)
         print(task0_w0.status.colored)
         atrue(len(flow) == 1) 
         aequal(flow.num_tasks, 1)
@@ -133,14 +132,12 @@ class FlowTest(FlowUnitTest):
         # Build a workflow containing two tasks depending on task0_w0
         work = Work()
         atrue(work.is_work)
-        atrue(work.has_subnodes)
         work.register(self.fake_input)
         work.register(self.fake_input)
         aequal(len(work), 2)
 
         flow.register_work(work, deps={task0_w0: "WFK"})
         atrue(flow.is_flow)
-        atrue(flow.has_subnodes)
         aequal(len(flow), 2)
 
         # Add another work without dependencies.

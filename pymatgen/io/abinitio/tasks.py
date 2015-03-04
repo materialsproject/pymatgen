@@ -27,7 +27,7 @@ from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extension
 from .strategies import StrategyWithInput, OpticInput
 from .qadapters import make_qadapter, QueueAdapter, slurm_parse_timestr
 from .db import DBConnector
-from .nodes import Status, Node, NodeResults, Dependency
+from .nodes import Status, Node, NodeResults
 from . import abiinspect
 from . import events
 
@@ -953,7 +953,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         # Handle possible dependencies.
         if deps:
-            deps = [Dependency(node, exts) for (node, exts) in deps.items()]
             self.add_deps(deps)
 
         # Date-time associated to submission, start and end.

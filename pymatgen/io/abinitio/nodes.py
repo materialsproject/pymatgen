@@ -559,11 +559,6 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         return isinstance(self, Flow)
 
     @property
-    def has_subnodes(self):
-        """True if self contains sub-nodes e.g. `Work` object."""
-        return isinstance(self, collections.Iterable)
-
-    @property
     def deps(self):
         """
         List of :class:`Dependency` objects defining the dependencies 
@@ -592,9 +587,8 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         # Add the dependencies to the node
         self._deps.extend(deps)
 
-        if self.has_subnodes:
-            # This means that the node contains sub-nodes 
-            # that should inherit the same dependency.
+        if self.is_work:
+            # The task in the work should inherit the same dependency.
             for task in self:
                 task.add_deps(deps)
 
@@ -612,9 +606,8 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
         self._deps = [d for d in self._deps if d not in deps]
                                                                                       
-        if self.has_subnodes:
-            # This means that the node consists of sub-nodes 
-            # that should remove the same list of dependencies.
+        if self.is_work:
+            # remove the same list of dependencies from the task in the work
             for task in self:
                 task.remove_deps(deps)                                                                                                                                        
 
@@ -677,27 +670,8 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         except AttributeError:
             return set()
 
-    def set_user_info(self, *args, **kwargs):
-        """
-        Store additional info provided by the user in self.user_info
-
-        .. warning::
-
-            The objects stored in the dict must support pickle.
-        """
-        if not hasattr(self, "_user_info"): self._user_info = {}
-        self._user_info.update(*args, **kwargs)
-
-    @property
-    def user_info(self):
-        """Returns an :class:`AttrDict` with the variables stored in self._user_info."""
-        try:
-            return AttrDict(**self._user_info)
-        except AttributeError:
-            return {}
-
     #@abc.abstractmethod
-    #def set_status(self, status, info_msg=None):
+    #def set_status(self, status, msg=None):
     #    """
     #    Set and return the status of the None
     #                                                                                     
