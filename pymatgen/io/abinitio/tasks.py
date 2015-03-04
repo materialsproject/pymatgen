@@ -1056,9 +1056,18 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def get_inpvar(self, varname):
         """Return the value of the ABINIT variable varname, None if not present.""" 
         if hasattr(self.strategy, "abinit_input"):
-            return self.strategy.abinit_input[0][varname]
+            try:
+                return self.strategy.abinit_input[0][varname]
+            except KeyError:
+                return None
         else:
             raise NotImplementedError("get_var for HTC interface!")
+
+    def _set_inpvar(self, varname, value):
+        """Set the value of the ABINIT variable varname. Return old value."""
+        old_value = self.get_inpvar(varname)
+        self.strategy.abinit_input[0][varname] = value
+        return old_value
 
     @property
     def initial_structure(self):
@@ -1897,15 +1906,33 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             logger.debug("Adding connecting vars %s " % cvars)
             self.strategy.add_extra_abivars(cvars)
 
+            d.apply_getters(self)
+
         # Automatic parallelization
         if kwargs.pop("autoparal", True) and hasattr(self, "autoparal_run"):
             try:
                 self.autoparal_run()
             except:
+                # Sometimes autparal_run fails because Abinit aborts
+                # at the level of the parser e.g. cannot find the spacegroup
+                # due to some numerical noise in the structure.
+                # In this case we call fix_abi_critical and then we try to run autoparal again.
                 msg = "autoparal_fake_run raised:\n%s" % straceback()
                 logger.critical(msg)
-                self.set_status(self.S_ABICRITICAL, msg=msg)
-                return 0
+
+                fixed = self.fix_abi_critical()
+                if not fixed:
+                    self.set_status(self.S_ABICRITICAL, msg="fix_abi_critical could not solve the problem")
+                    return 0
+
+                try:
+                    self.autoparal_run()
+                except:
+                    msg = "tried autoparal again but got:\n%s" % straceback()
+                    logger.critical(msg)
+
+                    self.set_status(self.S_ABICRITICAL, msg=msg)
+                    return 0
 
         # Start the calculation in a subprocess and return.
         self._process = self.manager.launch(self)
@@ -2217,14 +2244,24 @@ class AbinitTask(Task):
         Returns:
             1 if task has been fixed else 0.
         """
-        count = 0
+        count, done = 0, len(self.EVENT_HANDLERS) * [0]
+
         report = self.get_event_report()
-        for event in report.errors:
-            for handler in self.EVENT_HANDLERS:
-                if handler.EVENT == event.__class__:
+
+        # Note we have loop over all possible events (slow, I know)
+        # because we can have handlers for Error, Bug or Warning 
+        # (ideally only for CriticalWarnings but this is not done yet) 
+        for event in report:
+            for i, handler in enumerate(self.EVENT_HANDLERS):
+
+                if handler.can_handle(event) and not done[i]:
+                    logger.debug("handler", handler, "will try to fix", event)
                     try:
                         d = handler.handle(self, event)
-                        if d: count += 1
+                        if d: 
+                            done[i] += 1
+                            count += 1
+
                     except Exception as exc:
                         logger.critical(str(exc))
 
@@ -2551,7 +2588,7 @@ class RelaxTask(AbinitTask, ProduceGsr, ProduceHist):
         events.RelaxConvergenceWarning,
     ]
 
-    EVENT_HANDLERS = [events.DilatmxErrorHandler()]
+    EVENT_HANDLERS = [events.DilatmxErrorHandler(), events.TolSymErrorHandler()]
 
     def _change_structure(self, new_structure):
         """Change the input structure."""
