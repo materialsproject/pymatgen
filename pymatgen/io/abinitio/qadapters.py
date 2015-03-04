@@ -28,6 +28,7 @@ from atomicfile import AtomicFile
 from monty.string import is_string
 from monty.collections import AttrDict
 from monty.functools import lazy_property
+from monty.inspect import all_subclasses
 from monty.io import FileLock
 from pymatgen.core.units import Time, Memory
 from .utils import Condition
@@ -671,15 +672,6 @@ class PbsProJob(QueueJob):
 
 class SgeJob(QueueJob):
     """Not supported"""
-
-
-def all_subclasses(cls):
-    """
-    Given a class `cls`, this recursive function returns a list with
-    all subclasses, subclasses of subclasses, and so on.
-    """
-    subclasses = cls.__subclasses__() 
-    return subclasses + [g for s in subclasses for g in all_subclasses(s)]
 
 
 def show_qparams(qtype, stream=sys.stdout):

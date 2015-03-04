@@ -122,7 +122,12 @@ class Dependency(object):
         if exts and is_string(exts):
             exts = exts.split()
 
-        self.exts = exts or []
+        # Extract extensions.
+        self.exts = [e for e in exts if not e.startswith("@")]
+
+        # Save getters
+        self.getters = [e for e in exts if e.startswith("@")]
+        #if self.getters: print(self.getters)
 
     def __hash__(self):
         return hash(self._node)
@@ -156,6 +161,16 @@ class Dependency(object):
             _products.append(prod)
 
         return _products
+
+    def apply_getters(self, task):
+        if not self.getters: return
+
+        for getter in self.getters:
+            if getter == "@structure":
+                new_structure = self.node.get_final_structure()
+                task._change_structure(new_structure)
+            else:
+                raise ValueError("Wrong getter %s" % getter)
 
     def connecting_vars(self):
         """

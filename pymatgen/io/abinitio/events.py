@@ -5,6 +5,7 @@ provides a parser to extract these events form the main output file and the log 
 """
 from __future__ import unicode_literals, division, print_function
 
+import sys
 import os.path
 import datetime
 import collections
@@ -12,8 +13,10 @@ import yaml
 import six
 import abc
 
+from monty.string import indent, list_strings
 from monty.fnmatch import WildCard
 from monty.termcolor import colored
+from monty.inspect import all_subclasses
 from pymatgen.core import Structure
 from pymatgen.serializers.json_coders import PMGSONable, pmg_serialize
 from .abiinspect import YamlTokenizer
@@ -22,11 +25,6 @@ from .abiinspect import YamlTokenizer
 __all__ = [
     "EventsParser",
 ]
-
-def indent(lines, amount, ch=' '):
-    """Indent the lines in a string by padding each one with proper number of pad characters"""
-    padding = amount * ch
-    return padding + ('\n' + padding).join(lines.split('\n'))
 
 
 def straceback():
@@ -78,7 +76,7 @@ class AbinitEvent(yaml.YAMLObject):
           the class attribute yaml_tag so that yaml.load will know how to 
           build the instance.
     """
-    #color = None
+    color = None
 
     def __init__(self, message, src_file, src_line):
         """
@@ -169,7 +167,10 @@ class AbinitError(AbinitEvent):
 
 
 class AbinitYamlError(AbinitError):
-    """Raised if the YAML parser cannot parse the document and the doc tag is an Error."""
+    """
+    Raised if the YAML parser cannot parse the document and the doc tag is an Error.
+    It's an AbinitError because the msg produced by the code is not valid YAML!
+    """
 
 
 class AbinitBug(AbinitEvent):
@@ -231,27 +232,6 @@ class HaydockConvergenceWarning(AbinitCriticalWarning):
 
 
 # Error classes providing a correct method.
-
-class DilatmxError(AbinitError):
-    yaml_tag = '!DilatmxError'
-
-    def correct(self, task):
-        #Idea: decrease dilatxm and restart from the last structure.
-        #We would like to end up with a structures optimized with dilatmx 1.01
-        #that will be used for phonon calculations.
-
-        # Read the last structure dumped by ABINIT before aborting.
-        print("in dilatmx")
-        filepath = task.outdir.has_abiext("DILATMX_STRUCT.nc")
-        last_structure = Structure.from_file(filepath)
-
-        task._change_structure(last_structure)
-        #changes = task._modify_vars(dilatmx=1.05)
-
-        action = "Take last structure from DILATMX_STRUCT.nc, will restart with dilatmx: %s" % task.get_inpvar("dilatmx")
-        task.log_correction(self, action)
-        return 1
-
 
 # Register the concrete base classes.
 _BASE_CLASSES = [
@@ -389,11 +369,8 @@ class EventReport(collections.Iterable):
     def select(self, base_class):
         """
         Return the list of events that inherits from class base_class
-
-        Args:
-            only_critical: if True, only critical events are returned.
         """
-        return self._events_by_baseclass[base_class][:]
+        return self._events_by_baseclass[base_class]
 
     def filter_types(self, event_types):
         events = []
@@ -408,14 +385,11 @@ class EventsParserError(Exception):
 
 class EventsParser(object):
     """
-    Parses the output or the log file produced by abinit and extract the list of events.
+    Parses the output or the log file produced by ABINIT and extract the list of events.
     """
     Error = EventsParserError
 
-    # Internal flag used for debugging
-    DEBUG_LEVEL = 0
-
-    def parse(self, filename):
+    def parse(self, filename, verbose=0):
         """
         Parse the given file. Return :class:`EventReport`.
         """
@@ -440,7 +414,7 @@ class EventsParser(object):
                         message += doc.text
 
                         # This call is very expensive when we have many exceptions due to malformatted YAML docs.
-                        if self.DEBUG_LEVEL:
+                        if verbose:
                             message += "Traceback:\n %s" % straceback()
 
                         if "error" in doc.tag.lower():
@@ -470,28 +444,147 @@ class EventsParser(object):
 
 
 class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
+    """
+    Abstract base class defining the interface for an EventHandler.
+    Note that the __init__ should always provide default values for 
+    its arguments so that we can easily instantiate the handlers.
+    by calling get_event_handlers with:
+
+        handlers = [cls() for cls in get_event_handlers()]
+
+    The defaul values should be chosen so to cover the most typical cases.
+
+    Each EventHandler should define the class attribute `can_change_physics`
+    that is set to true if the handler changes `important` parameters of the 
+    run that are tightly connected to the physics of the system.
+
+    For example, an `EventHandler` that changes the value of `dilatmx` and 
+    prepare the restart is not changing the physics. Similarly a handler
+    that changes the mixing algorithm. On the contrary, a handler that
+    changes the value of the smearing is modifying an important physical 
+    parameter and the user should be made aware of this so that 
+    there's an explicit agreement between the user and the code.
+
+    The default handlers are those that do not change the physics,  
+    other handler can be installed by the user when costructing with the flow 
+    using the API:
+
+        TODO
+    """
+
     EVENT = AbinitEvent
+    """AbinitEvent associated to this handler."""
+
+    #can_change_physics
 
     FIXED = 1
     NOT_FIXED = 0
 
+    @classmethod
+    def cls2str(cls):
+        lines = []
+        app = lines.append
+
+        event = cls.EVENT
+        app("event name = %s" % event.yaml_tag)
+        app("event documentation: ")
+        lines.extend(event.__doc__.split("\n"))
+        app("handler documentation: ")
+        lines.extend(cls.__doc__.split("\n"))
+
+        return "\n".join(lines)
+
+    def can_handle(self, event):
+        """True if this handler is associated to the given :class:`AbinitEvent`"""
+        return self.EVENT == event.__class__
+
     @abc.abstractmethod
     def handle(self, task, event):
         """
-        Method to handle Abinit events
-        :param task: the task
-        :param event: the event
-        :return: 0 if no action has been applied, 1 if the problem has been fixed
+        Method to handle Abinit events.
+
+        Args:
+            task: :class:`Task` object 
+            event: :class:`AbinitEvent` found in the log file
+
+        Return:
+            0 if no action has been applied, 1 if the problem has been fixed
         """
-        pass
 
+#class WarningHandler(EventHandler):
+#    """Base class for handlers associated to ABINIT warnings."""
+#    EVENT = AbinitWarning
+#
+#class BugHandler(EventHandler):
+#    """Base class for handlers associated to ABINIT bugs."""
+#    EVENT = AbinitBug
 
-class ErrorHandler(six.with_metaclass(abc.ABCMeta, EventHandler)):
+class ErrorHandler(EventHandler):
+    """Base class for handlers associated to ABINIT errors."""
     EVENT = AbinitError
 
 
+# Public API
+def autodoc_event_handlers(stream=sys.stdout):
+    black_list = [ErrorHandler]
+
+    lines = []
+    for cls in all_subclasses(EventHandler):
+        if cls in black_list: continue
+        event = cls.EVENT
+        lines.extend(cls.cls2str().split("\n"))
+
+        # Here we enfore the abstract protocol of the class 
+        # The unit test will detect the problem.
+        if not hasattr(cls, "can_change_physics"):
+            raise RuntimeError("%s: can_change_physics must be defined" % cls)
+
+    stream.write("\n".join(lines) + "\n")
+
+
+def get_event_handlers(categories):
+    d = {}
+    for cls in all_subclasses(EventHandler):
+        d[cls.__name__] = cls
+    return d
+
+
+############################################
+########## Concrete classes ################
+############################################
+
+class DilatmxError(AbinitError):
+    """
+    This error is triggered 
+    """
+    yaml_tag = '!DilatmxError'
+
+    #def correct(self, task):
+    #    #Idea: decrease dilatxm and restart from the last structure.
+    #    #We would like to end up with a structures optimized with dilatmx 1.01
+    #    #that will be used for phonon calculations.
+    #    if not self.enabled:
+    #        task.log_correction(self, "Handler for %s has been disabled")
+    #        return 1 # what?
+
+    #    # Read the last structure dumped by ABINIT before aborting.
+    #    print("in dilatmx")
+    #    filepath = task.outdir.has_abiext("DILATMX_STRUCT.nc")
+    #    last_structure = Structure.from_file(filepath)
+
+    #    task._change_structure(last_structure)
+    #    #changes = task._modify_vars(dilatmx=1.05)
+
+    #    action = "Take last structure from DILATMX_STRUCT.nc, will restart with dilatmx: %s" % task.get_inpvar("dilatmx")
+    #    task.log_correction(self, action)
+    #    return 1
+
+
 class DilatmxErrorHandler(ErrorHandler):
+    """Foo"""
     EVENT = DilatmxError
+
+    can_change_physics = False
 
     def __init__(self, max_dilatmx=1.3):
         self.max_dilatmx = max_dilatmx
@@ -517,9 +610,8 @@ class DilatmxErrorHandler(ErrorHandler):
 
         return self.FIXED
 
-
+"""
 class DilatmxErrorHandlerTest(ErrorHandler):
-
     def __init__(self, max_dilatmx=1.3):
         self.max_dilatmx = max_dilatmx
 
@@ -543,3 +635,35 @@ class DilatmxErrorHandlerTest(ErrorHandler):
         task.log_correction(event, msg)
 
         return self.FIXED
+"""
+
+
+class TolSymError(AbinitError):
+    """
+    Class of errors raised by Abinit when it cannot detect the symmetries of the system.
+    The handler assumes the structure makes sense and the error is just due to numerical inaccuracies.
+    We increase the value of tolsym in the input file (default 1-8) so that Abinit can find the space group
+    and re-symmetrize the input structure.
+    """
+    yaml_tag = '!TolSymError'
+
+
+class TolSymErrorHandler(ErrorHandler):
+    """Bar"""
+    EVENT = TolSymError
+
+    can_change_physics = False
+
+    def handle(self, task, event):
+        old_tolsym = task.get_inpvar("tolsym")
+        if old_tolsym is None:
+            new_tolsym = 1e-6
+        else:
+            new_tolsym = old_tolsym * 10
+
+        task._set_inpvar("tolsym", new_tolsym)
+
+        # TODO: Add limit on the number of fixes one can do for the same error
+        # For example in this case, the scheduler will stop after 20 submissions
+        task.log_correction(event, "Increasing tolsym from %s to %s" % (old_tolsym, new_tolsym))
+        return 1
