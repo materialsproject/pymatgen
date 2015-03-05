@@ -13,7 +13,7 @@ import yaml
 import six
 import abc
 
-from monty.string import indent, list_strings
+from monty.string import indent, is_string, list_strings
 from monty.fnmatch import WildCard
 from monty.termcolor import colored
 from monty.inspect import all_subclasses
@@ -446,34 +446,40 @@ class EventsParser(object):
 class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract base class defining the interface for an EventHandler.
-    Note that the __init__ should always provide default values for 
-    its arguments so that we can easily instantiate the handlers.
-    by calling get_event_handlers with:
 
-        handlers = [cls() for cls in get_event_handlers()]
+    The__init__ should always provide default values for its arguments so that we can 
+    easily instantiate the handlers with:
+
+        handlers = [cls() for cls in get_event_handler_classes()]
 
     The defaul values should be chosen so to cover the most typical cases.
 
     Each EventHandler should define the class attribute `can_change_physics`
-    that is set to true if the handler changes `important` parameters of the 
+    that is true if the handler changes `important` parameters of the 
     run that are tightly connected to the physics of the system.
 
     For example, an `EventHandler` that changes the value of `dilatmx` and 
     prepare the restart is not changing the physics. Similarly a handler
     that changes the mixing algorithm. On the contrary, a handler that
     changes the value of the smearing is modifying an important physical 
-    parameter and the user should be made aware of this so that 
+    parameter, and the user should be made aware of this so that 
     there's an explicit agreement between the user and the code.
 
     The default handlers are those that do not change the physics,  
-    other handler can be installed by the user when costructing with the flow 
-    using the API:
+    other handlers can be installed by the user when constructing with the flow with
 
         TODO
+
+    .. warning::
+
+        The EventHandler should perform any action at the level of the input files 
+        needed to solve the problem and then prepare the task for a new submission
+        The handler should never try to resubmit the task. The submission must be 
+        delegated to the scheduler or Fireworks.
     """
 
-    EVENT = AbinitEvent
-    """AbinitEvent associated to this handler."""
+    event_class = AbinitEvent
+    """AbinitEvent subclass associated to this handler."""
 
     #can_change_physics
 
@@ -485,10 +491,10 @@ class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
         lines = []
         app = lines.append
 
-        event = cls.EVENT
-        app("event name = %s" % event.yaml_tag)
+        ecls = cls.event_class
+        app("event name = %s" % ecls.yaml_tag)
         app("event documentation: ")
-        lines.extend(event.__doc__.split("\n"))
+        lines.extend(ecls.__doc__.split("\n"))
         app("handler documentation: ")
         lines.extend(cls.__doc__.split("\n"))
 
@@ -496,7 +502,16 @@ class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
 
     def can_handle(self, event):
         """True if this handler is associated to the given :class:`AbinitEvent`"""
-        return self.EVENT == event.__class__
+        return self.event_class == event.__class__
+
+    # TODO: defined CorrectionRecord object and provide helper functions to build it
+
+    def count(self, task):
+        """
+        Return the number of times the event associated to this handler 
+        has been already fixed in the :class:`Task`.
+        """
+        return len([c for c in task.corrections if c["event"]["@class"] == self.event_class])
 
     @abc.abstractmethod
     def handle(self, task, event):
@@ -504,49 +519,67 @@ class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
         Method to handle Abinit events.
 
         Args:
-            task: :class:`Task` object 
-            event: :class:`AbinitEvent` found in the log file
+            task: :class:`Task` object.
+            event: :class:`AbinitEvent` found in the log file.
 
         Return:
-            0 if no action has been applied, 1 if the problem has been fixed
+            0 if no action has been applied, 1 if the problem has been fixed.
         """
 
 #class WarningHandler(EventHandler):
 #    """Base class for handlers associated to ABINIT warnings."""
-#    EVENT = AbinitWarning
+#    event_class = AbinitWarning
 #
 #class BugHandler(EventHandler):
 #    """Base class for handlers associated to ABINIT bugs."""
-#    EVENT = AbinitBug
+#    event_class = AbinitBug
+
 
 class ErrorHandler(EventHandler):
     """Base class for handlers associated to ABINIT errors."""
-    EVENT = AbinitError
+    event_class = AbinitError
 
+_ABC_EVHANDLER_CLASSES = set([ErrorHandler,])
 
 # Public API
 def autodoc_event_handlers(stream=sys.stdout):
-    black_list = [ErrorHandler]
-
+    """
+    Print to the given string, the documentation for the events 
+    and the associated handlers.
+    """
     lines = []
     for cls in all_subclasses(EventHandler):
-        if cls in black_list: continue
-        event = cls.EVENT
+        if cls in _ABC_EVHANDLER_CLASSES: continue
+        event_class = cls.event_class
         lines.extend(cls.cls2str().split("\n"))
 
-        # Here we enfore the abstract protocol of the class 
-        # The unit test will detect the problem.
+        # Here we enforce the abstract protocol of the class 
+        # The unit test in tests_events will detect the problem.
         if not hasattr(cls, "can_change_physics"):
             raise RuntimeError("%s: can_change_physics must be defined" % cls)
 
     stream.write("\n".join(lines) + "\n")
 
 
-def get_event_handlers(categories):
-    d = {}
-    for cls in all_subclasses(EventHandler):
-        d[cls.__name__] = cls
-    return d
+def get_event_handler_classes(categories=None):
+    """Return the list of handler classes."""
+    classes = [c for c in all_subclasses(EventHandler) if c not in _ABC_EVHANDLER_CLASSES]
+    return classes
+
+
+def as_event_class(obj):
+    """
+    Convert obj into a subclass of AbinitEvent. 
+    obj can be either a class or a string with the class name.
+    """
+    if is_string(obj):
+        for c in all_subclasses(AbinitEvent):
+            if c.__name__ == obj: return obj
+        raise ValueError("Cannot find event class associated to %s" % obj)
+    
+    # Assume class.
+    assert obj in all_subclasses(AbinitEvent)
+    return obj
 
 
 ############################################
@@ -555,7 +588,8 @@ def get_event_handlers(categories):
 
 class DilatmxError(AbinitError):
     """
-    This error is triggered 
+    This Error occurs in variable cell calculations when the increase in the 
+    unit cell volume is too large.
     """
     yaml_tag = '!DilatmxError'
 
@@ -581,8 +615,11 @@ class DilatmxError(AbinitError):
 
 
 class DilatmxErrorHandler(ErrorHandler):
-    """Foo"""
-    EVENT = DilatmxError
+    """
+    Handle DilatmxError. Abinit produces a netcdf file with the last structure before aborting
+    The handler changes the structure in the input with the last configuration and modify the value of dilatmx.
+    """
+    event_class = DilatmxError
 
     can_change_physics = False
 
@@ -591,7 +628,6 @@ class DilatmxErrorHandler(ErrorHandler):
 
     def handle(self, task, event):
         # Read the last structure dumped by ABINIT before aborting.
-        print("in dilatmx")
         filepath = task.outdir.has_abiext("DILATMX_STRUCT.nc")
         last_structure = Structure.from_file(filepath)
 
@@ -649,21 +685,25 @@ class TolSymError(AbinitError):
 
 
 class TolSymErrorHandler(ErrorHandler):
-    """Bar"""
-    EVENT = TolSymError
+    """
+    Increase the value of tolsym in the input file.
+    """
+    event_class = TolSymError
 
     can_change_physics = False
 
+    def __init__(self, max_nfixes=3):
+        self.max_nfixes = max_nfixes
+
     def handle(self, task, event):
-        old_tolsym = task.get_inpvar("tolsym")
-        if old_tolsym is None:
-            new_tolsym = 1e-6
-        else:
-            new_tolsym = old_tolsym * 10
-
-        task._set_inpvar("tolsym", new_tolsym)
-
         # TODO: Add limit on the number of fixes one can do for the same error
         # For example in this case, the scheduler will stop after 20 submissions
+        if self.count(task) > self.max_nfixes: 
+            return self.NOT_FIXED
+
+        old_tolsym = task.get_inpvar("tolsym")
+        new_tolsym = 1e-6 if old_tolsym is None else old_tolsym * 10
+        task._set_inpvar("tolsym", new_tolsym)
+
         task.log_correction(event, "Increasing tolsym from %s to %s" % (old_tolsym, new_tolsym))
-        return 1
+        return self.FIXED

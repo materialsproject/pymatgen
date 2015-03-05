@@ -163,6 +163,17 @@ class Dependency(object):
         return _products
 
     def apply_getters(self, task):
+        """
+        This function is called when we specify the task dependencies with the syntax:
+        
+            deps={node: "@property"}
+
+        In this case the task has to the get `property` from `node` before starting the calculation.
+
+        At present, the following properties are supported:
+
+            - @structure
+        """
         if not self.getters: return
 
         for getter in self.getters:
@@ -438,10 +449,10 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         self._required_files = []
 
         # Used to push additional info during the execution. 
-        self.history = NodeHistory(maxlen=100)
+        self.history = NodeHistory(maxlen=200)
 
         # Actions performed to fix abicritical events.
-        self._corrections = collections.deque(maxlen=100)
+        self._corrections = NodeCorrections()
 
         # Set to true if the node has been finalized.
         self._finalized = False
@@ -542,6 +553,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
             event: `AbinitEvent` that triggered the correction.
             action (str): Human-readable string with info on the action perfomed to solve the problem.
         """
+        # TODO: Create CorrectionObject
         action = str(action)
         self.history.info(action)
 
@@ -684,6 +696,66 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
             return self._cleanup_exts
         except AttributeError:
             return set()
+
+    @property
+    def event_handlers(self):
+        """
+        The list of handlers registered for this node.
+        If the node is not a `Flow` and does not have its own list of 
+        `handlers` the handlers registered at the level of the flow are returned.
+
+        This trick allows one to registered different handlers at the level of the Task
+        for testing purposes. By default, we have a common list of handlers for all the nodes in the flow.
+        This choice facilitates the automatic installation of the handlers when we use callbacks to generate 
+        new Works and Tasks!
+        """
+        if self.is_flow:
+            return self._event_handlers
+
+        try:
+            return self._event_handlers
+        except AttributeError:
+            return self.flow._event_handlers
+
+    def install_event_handlers(self, categories=None, handlers=None):
+        """
+        Install the `EventHandlers for this `Node`. If no argument is provided
+        the default list of handlers is installed.
+
+        Args:
+            categories: List of categories to install e.g. base + can_change_physics
+            handlers: explicit list of :class:`EventHandler` instances. 
+                      This is the most flexible way to install handlers.
+
+        .. note::
+            
+            categories and handlers are mutually exclusive.
+        """
+        if categories is not None and handlers is not None:
+            raise ValueError("categories and handlers are mutually exclusive!")
+
+        from .events import get_event_handler_classes
+        if categories:
+            raise NotImplementedError()
+            handlers = [cls() for cls in get_event_handler_classes(categories=categories)]
+        else:
+            handlers = handlers or [cls() for cls in get_event_handler_classes()]
+
+        self._event_handlers = handlers
+
+    def show_event_handlers(self, stream=sys.stdout, verbose=0):
+        """Print to `stream` the event handlers installed for this flow."""
+        lines = ["List of event handlers installed:"]
+        for handler in self.event_handlers:
+            if verbose: lines.extend(handler.__class__.cls2str().split("\n"))
+            lines.extend(str(handler).split("\n"))
+
+        stream.write("\n".join(lines))
+        stream.write("\n")
+
+   ##########################
+   ### Abstract protocol ####
+   ##########################
 
     #@abc.abstractmethod
     #def set_status(self, status, msg=None):
@@ -829,6 +901,9 @@ class HistoryRecord(object):
         self.func_name = func
         self.created = time.time()
         self.asctime = time.asctime()
+        # Remove milliseconds
+        i = self.asctime.find(".")
+        if i != -1: self.asctime = self.asctime[:i]
 
     def __repr__(self):
         return '<%s, %s, %s, %s,\n"%s">' % (self.__class__.__name__, self.levelno, self.pathname, self.lineno, self.msg)
@@ -847,12 +922,11 @@ class HistoryRecord(object):
         msg = self.msg if is_string(self.msg) else str(self.msg)
         if self.args: msg = msg % self.args
 
-        if asctime:
-            msg = "[" + self.asctime + "] " + msg
+        if asctime: msg = "[" + self.asctime + "] " + msg
 
         # Add metadata
         if metadata:
-            msg += "\nCalled in function %s in %s:%s" % (self.func_name, self.pathname, self.lineno)
+            msg += "\nCalled by %s at %s:%s\n" % (self.func_name, self.pathname, self.lineno)
 
         return msg
 
@@ -947,6 +1021,22 @@ class NodeHistory(collections.deque):
             exc_info = sys.exc_info()
 
         self.append(HistoryRecord(level, fn, lno, msg, args, exc_info, func=func))
+
+
+class NodeCorrections(list):
+    """Iterable storing the correctios performed by the :class:`EventHandler`"""
+    #TODO
+    # Correction should have a human-readable message 
+    # and a list of operatins in JSON format (Modder?) so that
+    # we can read them and re-apply the corrections to another task if needed.
+
+    #def count_event_class(self, event_class):
+    #    """
+    #    Return the number of times the event class has been already fixed.
+    #    """
+    #    #return len([c for c in self if c["event"]["@class"] == str(event_class)])
+
+    #def _find(self, event_class)
 
 
 # The code below initializes a counter from a file when the module is imported 
