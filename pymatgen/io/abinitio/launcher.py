@@ -768,6 +768,8 @@ class PyFlowScheduler(object):
             else:
                 app("Flow didn't complete successfully")
                 app("Shutdown message:\n%s" % msg)
+
+            print("")
             print("\n".join(lines))
 
             self._do_customer_service()

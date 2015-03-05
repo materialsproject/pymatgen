@@ -97,11 +97,11 @@ class AbinitEvent(yaml.YAMLObject):
 
     @classmethod
     def from_dict(cls, d):
-        return cls(**{k:v for k,v in d.items() if not k.startswith("@")})
+        return cls(**{k: v for k,v in d.items() if not k.startswith("@")})
 
     @property
     def header(self):
-        return "%s at %s:%s" % (self.name, self.src_file, self.src_line)
+        return "<%s at %s:%s>" % (self.name, self.src_file, self.src_line)
 
     def __repr__(self):
         return self.header
@@ -499,6 +499,9 @@ class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
         lines.extend(cls.__doc__.split("\n"))
 
         return "\n".join(lines)
+
+    def __str__(self):
+        return "<%s>" % self.__class__.__name__
 
     def can_handle(self, event):
         """True if this handler is associated to the given :class:`AbinitEvent`"""
