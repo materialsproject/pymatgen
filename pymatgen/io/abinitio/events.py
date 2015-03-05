@@ -541,6 +541,7 @@ class ErrorHandler(EventHandler):
 
 _ABC_EVHANDLER_CLASSES = set([ErrorHandler,])
 
+
 # Public API
 def autodoc_event_handlers(stream=sys.stdout):
     """
