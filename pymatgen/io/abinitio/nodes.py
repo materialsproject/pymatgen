@@ -956,6 +956,7 @@ class NodeHistory(collections.deque):
 
     def _log(self, level, msg, args, exc_info=None, extra=None):
         """Low-level logging routine which creates a :class:`HistoryRecord`."""
+        # FIXME: Rewrite this! It does not work if find_caller is not in the module.
         c = find_caller()
 
         if exc_info and not isinstance(exc_info, tuple):

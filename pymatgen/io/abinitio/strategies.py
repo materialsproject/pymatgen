@@ -13,6 +13,7 @@ import numpy as np
 from six.moves import map, zip
 from monty.string import is_string
 from monty.json import MontyEncoder, MontyDecoder
+from monty.dev import deprecated
 from pymatgen.util.string_utils import str_aligned, str_delimited
 from .abiobjects import Electrons
 from .pseudos import PseudoTable, Pseudo
@@ -107,7 +108,6 @@ class AbstractStrategy(six.with_metaclass(abc.ABCMeta, object)):
     def deepcopy(self):
         """Deep copy of self."""
         return copy.deepcopy(self)
-
 
     @abc.abstractmethod
     def make_input(self, *args, **kwargs):
@@ -367,6 +367,7 @@ class ScfStrategy(HtcStrategy):
         extra.update(self.extra_abivars)
         return extra
 
+    @deprecated(message="Strategy objects will be removed in pmg v3.1. Use AbiInput")
     def make_input(self):
         extra = self._define_extra_params()
 
@@ -449,6 +450,7 @@ class NscfStrategy(HtcStrategy):
     def structure(self, structure):
         self.scf_strategy.structure = structure
 
+    @deprecated(message="Strategy objects will be removed in pmg v3.1. Use AbiInput")
     def make_input(self):
         # Initialize the system section from structure.
         scf_strategy = self.scf_strategy
@@ -510,6 +512,7 @@ class RelaxStrategy(ScfStrategy):
     def runlevel(self):
         return "relax"
 
+    @deprecated(message="Strategy objects will be removed in pmg v3.1. Use AbiInput")
     def make_input(self):
         # extra for the GS run
         extra = self._define_extra_params()
@@ -586,6 +589,7 @@ class ScreeningStrategy(HtcStrategy):
     def structure(self):
         return self.scf_strategy.structure
 
+    @deprecated(message="Strategy objects will be removed in pmg v3.1. Use AbiInput")
     def make_input(self):
         # FIXME
         extra = dict(optdriver=self.optdriver, ecut=self.ecut, ecutwfn=self.ecut, pawecutdg=self.pawecutdg)
@@ -643,6 +647,7 @@ class SelfEnergyStrategy(HtcStrategy):
     def structure(self):
         return self.scf_strategy.structure
 
+    @deprecated(message="Strategy objects will be removed in pmg v3.1. Use AbiInput")
     def make_input(self):
         # FIXME
         extra = dict(optdriver=self.optdriver, ecut=self.ecut, ecutwfn=self.ecut, pawecutdg=self.pawecutdg)
@@ -700,6 +705,7 @@ class MdfBse_Strategy(HtcStrategy):
     def structure(self):
         return self.scf_strategy.structure
 
+    @deprecated(message="Strategy objects will be removed in pmg v3.1. Use AbiInput")
     def make_input(self):
         # FIXME
         extra = dict(optdriver=self.optdriver, ecut=self.ecut, pawecutdg=self.pawecutdg, ecutwfn=self.ecut)
