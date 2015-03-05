@@ -19,7 +19,6 @@ from monty.string import is_string
 from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property
-from monty.inspect import find_caller
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump, pmg_serialize
 from .utils import File, Directory, irdvars_for_ext, abi_extensions
 
@@ -956,8 +955,10 @@ class NodeHistory(collections.deque):
 
     def _log(self, level, msg, args, exc_info=None, extra=None):
         """Low-level logging routine which creates a :class:`HistoryRecord`."""
+        from monty.inspect import find_caller, caller_name
         # FIXME: Rewrite this! It does not work if find_caller is not in the module.
         c = find_caller()
+        print(caller_name(skip=3))
 
         if exc_info and not isinstance(exc_info, tuple):
             exc_info = sys.exc_info()
