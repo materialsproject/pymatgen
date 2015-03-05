@@ -919,7 +919,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
     # List of task specific default event handlers
     # Subclasses should provide their own list
-    EVENT_HANDLERS = []
+    #EVENT_HANDLERS = []
 
     # Prefixes for Abinit (input, output, temporary) files.
     Prefix = collections.namedtuple("Prefix", "idata odata tdata")
@@ -1906,17 +1906,19 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             logger.debug("Adding connecting vars %s " % cvars)
             self.strategy.add_extra_abivars(cvars)
 
+            # Get (python) data from other nodes
             d.apply_getters(self)
 
         # Automatic parallelization
         if kwargs.pop("autoparal", True) and hasattr(self, "autoparal_run"):
             try:
                 self.autoparal_run()
-            except:
+            except Exception as exc:
                 # Sometimes autparal_run fails because Abinit aborts
                 # at the level of the parser e.g. cannot find the spacegroup
                 # due to some numerical noise in the structure.
                 # In this case we call fix_abi_critical and then we try to run autoparal again.
+                self.history.critical("First call to autoparal failed with `%s`. Will try fix_abi_critical" % exc)
                 msg = "autoparal_fake_run raised:\n%s" % straceback()
                 logger.critical(msg)
 
@@ -1927,8 +1929,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
                 try:
                     self.autoparal_run()
-                except:
-                    msg = "tried autoparal again but got:\n%s" % straceback()
+                    self.history.info("Second call to autoparal succeeded!")
+
+                except Exception as exc:
+                    self.history.critical("Second call to autoparal failed with %s. Cannot recover!", exc)
+                    msg = "Tried autoparal again but got:\n%s" % straceback()
                     logger.critical(msg)
 
                     self.set_status(self.S_ABICRITICAL, msg=msg)
@@ -1936,7 +1941,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         # Start the calculation in a subprocess and return.
         self._process = self.manager.launch(self)
-
         return 1
 
     def start_and_wait(self, *args, **kwargs):
@@ -2244,18 +2248,22 @@ class AbinitTask(Task):
         Returns:
             1 if task has been fixed else 0.
         """
-        count, done = 0, len(self.EVENT_HANDLERS) * [0]
+        event_handlers = self.event_handlers
+        if not event_handlers:
+            self.set_status(status=self.S_ERROR, msg='Empty list of event handlers. Cannot fix abi_critical errors')
+            return 0
 
+        count, done = 0, len(event_handlers) * [0]
         report = self.get_event_report()
 
         # Note we have loop over all possible events (slow, I know)
         # because we can have handlers for Error, Bug or Warning 
         # (ideally only for CriticalWarnings but this is not done yet) 
         for event in report:
-            for i, handler in enumerate(self.EVENT_HANDLERS):
+            for i, handler in enumerate(self.event_handlers):
 
                 if handler.can_handle(event) and not done[i]:
-                    logger.debug("handler", handler, "will try to fix", event)
+                    print("handler", handler, "will try to fix", event)
                     try:
                         d = handler.handle(self, event)
                         if d: 
@@ -2588,7 +2596,7 @@ class RelaxTask(AbinitTask, ProduceGsr, ProduceHist):
         events.RelaxConvergenceWarning,
     ]
 
-    EVENT_HANDLERS = [events.DilatmxErrorHandler(), events.TolSymErrorHandler()]
+    #EVENT_HANDLERS = [events.DilatmxErrorHandler(), events.TolSymErrorHandler()]
 
     def _change_structure(self, new_structure):
         """Change the input structure."""

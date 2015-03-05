@@ -163,6 +163,18 @@ class Flow(Node):
         # List of callbacks that must be executed when the dependencies reach S_OK
         self._callbacks = []
 
+        # Install default list of handlers at the flow level.
+        # Users can override the default list by calling flow.install_event_handlers in the script.
+        # Example:
+        #
+        #    # flow level (common case)
+        #    flow.install_event_handlers(handlers=my_handlers)
+        #
+        #    # task level (advanced mode)
+        #    flow[0][0].install_event_handlers(handlers=my_handlers)
+        # 
+        self.install_event_handlers()
+
         self.pickle_protocol = int(pickle_protocol)
 
         # ID used to access mongodb
@@ -1270,46 +1282,6 @@ class Flow(Node):
         print("*** end live receivers ***")
 
     #def get_results(self, **kwargs)
-
-    def install_event_handlers(self, categories=None, handlers=None):
-        """
-        Install the `EventHandlers for this `Flow`. If no argument is provided
-        the default list of handlers is installed 
-
-        Args:
-
-            categories: List of categories to install e.g. base + can_change_physics
-            handlers: explicit list of :class:`EventHandler` instances. 
-                      This is the most flexible way to install handlers.
-
-        .. note:
-            
-            categories and handlers are mutually exclusive.
-        """
-        if categories is not None and handlers is not None:
-            raise ValueError("categories and handlers are mutually exclusive!")
-
-        # TODO:
-        # If we define the handlers at the level of the flow 
-        # I don't have to install the handlers when we use callbacks to generate new Works and task!
-        """
-        if categories:
-            handlers = events.get_handlers(categories)
-        else:
-            handlers = handlers or events.get_handlers()
-
-        for task in flow.iflat_tasks():
-            task.install_handlers(handlers)
-        """
-
-    def show_event_handlers(self, stream=sys.stdout, verbose=0):
-        print("hello")
-        lines = []
-        for handler in self.event_handlers:
-            if verbose: lines.extend(handler.__class__.cls2str().split("\n"))
-            lines.extend(str(handler).split("\n"))
-
-        stream.write("\n".join(lines))
 
     def rapidfire(self, check_status=False, **kwargs):
         """
