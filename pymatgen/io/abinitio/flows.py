@@ -694,7 +694,7 @@ class Flow(Node):
             print("", file=stream)
 
         if self.all_ok:
-            print("all_ok reached", file=stream)
+            print("\nall_ok reached\n", file=stream)
 
     def show_inputs(self, nids=None, wslice=None, stream=sys.stdout):
         """

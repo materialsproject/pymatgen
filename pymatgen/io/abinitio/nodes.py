@@ -956,23 +956,12 @@ class NodeHistory(collections.deque):
 
     def _log(self, level, msg, args, exc_info=None, extra=None):
         """Low-level logging routine which creates a :class:`HistoryRecord`."""
-        #if _srcfile:
-        if True:
-            # IronPython doesn't track Python frames, so findCaller raises an
-            # exception on some versions of IronPython. We trap it here so that
-            # IronPython can use logging.
-            try:
-                caller = find_caller()
-                fn, lno, func = caller
-            except ValueError:
-                fn, lno, func = "(unknown file)", 0, "(unknown function)"
-        else:
-            fn, lno, func = "(unknown file)", 0, "(unknown function)"
+        c = find_caller()
 
         if exc_info and not isinstance(exc_info, tuple):
             exc_info = sys.exc_info()
 
-        self.append(HistoryRecord(level, fn, lno, msg, args, exc_info, func=func))
+        self.append(HistoryRecord(level, c.filename, c.lineno, msg, args, exc_info, func=c.name))
 
 
 class NodeCorrections(list):
