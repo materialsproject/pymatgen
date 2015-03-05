@@ -170,10 +170,10 @@ def g0w0_with_ppmodel_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ec
     return work_class(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager)
 
 
-def g0w0_extended_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, accuracy="normal", spin_mode="polarized",
-                       smearing="fermi_dirac:0.1 eV", response_models=["godby"], charge=0.0, inclvkb=2,
-                       scr_nband=None, sigma_nband=None, workdir=None, manager=None, gamma=True, nksmall=20, work_class=None,
-                       **extra_abivars):
+def g0w0_extended_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, scf_nband, accuracy="normal",
+                       spin_mode="polarized", smearing="fermi_dirac:0.1 eV", response_models=["godby"], charge=0.0,
+                       inclvkb=2, scr_nband=None, sigma_nband=None, workdir=None, manager=None, gamma=True, nksmall=20,
+                       work_class=None, **extra_abivars):
     """
     Returns a :class:`Work` object that performs G0W0 calculations for the given the material.
 
@@ -222,7 +222,7 @@ def g0w0_extended_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsi
 
     scf_strategy = []
     to_add = {}
-    scf_nband = min(nscf_nband)
+    #scf_nband = min(nscf_nband)
     #print(scf_nband)
     extra_abivars.update(to_add)
 
@@ -282,6 +282,7 @@ def g0w0_extended_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsi
                                                          **extra_abivars))
 
     if work_class is None: work_class = G0W0Work
+
     return work_class(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager,
                       spread_scr=spread_scr, nksmall=nksmall)
 
