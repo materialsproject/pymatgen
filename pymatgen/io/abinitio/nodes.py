@@ -19,6 +19,7 @@ from monty.string import is_string
 from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property
+from monty.inspect import find_caller
 from pymatgen.serializers.json_coders import PMGSONable, json_pretty_dump, pmg_serialize
 from .utils import File, Directory, irdvars_for_ext, abi_extensions
 
@@ -953,56 +954,6 @@ class NodeHistory(collections.deque):
         """Log 'msg % args' with the critical severity level"""
         self._log("CRITICAL", msg, args, kwargs)
 
-    def find_caller(self):
-        """
-        find the stack frame of the caller so that we can note the source
-        file name, line number and function name.
-
-        See also: 
-
-            http://farmdev.com/src/secrets/framehack/
-        """
-        # next bit filched from 1.5.2's inspect.py
-        def currentframe():
-            """Return the frame object for the caller's stack frame."""
-            try:
-                raise Exception
-            except:
-                return sys.exc_info()[2].tb_frame.f_back
-
-        # CPython implementation detail: This function should be used for internal and specialized purposes only. 
-        # It is not guaranteed to exist in all implementations of Python.
-        if hasattr(sys, '_getframe'): currentframe = lambda: sys._getframe(3)
-        # done filching
-
-        # _srcfile is used when walking the stack to check when we've got the first caller stack frame.
-        if hasattr(sys, 'frozen'): #support for py2exe
-            _srcfile = "logging%s__init__%s" % (os.sep, __file__[-4:])
-        elif __file__[-4:].lower() in ['.pyc', '.pyo']:
-            _srcfile = __file__[:-4] + '.py'
-        else:
-            _srcfile = __file__
-
-        _srcfile = os.path.normcase(_srcfile)
-
-        f = currentframe()
-        # On some versions of IronPython, currentframe() returns None if
-        # IronPython isn't run with -X:Frames.
-        if f is not None:
-            f = f.f_back
-        rv = "(unknown file)", 0, "(unknown function)"
-
-        while hasattr(f, "f_code"):
-            co = f.f_code
-            filename = os.path.normcase(co.co_filename)
-            if filename == _srcfile:
-                f = f.f_back
-                continue
-            rv = (co.co_filename, f.f_lineno, co.co_name)
-            break
-
-        return rv
-
     def _log(self, level, msg, args, exc_info=None, extra=None):
         """Low-level logging routine which creates a :class:`HistoryRecord`."""
         #if _srcfile:
@@ -1011,7 +962,8 @@ class NodeHistory(collections.deque):
             # exception on some versions of IronPython. We trap it here so that
             # IronPython can use logging.
             try:
-                fn, lno, func = self.find_caller()
+                caller = find_caller()
+                fn, lno, func = caller
             except ValueError:
                 fn, lno, func = "(unknown file)", 0, "(unknown function)"
         else:
