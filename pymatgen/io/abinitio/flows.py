@@ -1028,6 +1028,7 @@ class Flow(Node):
 
     def rmtree(self, ignore_errors=False, onerror=None):
         """Remove workdir (same API as shutil.rmtree)."""
+        if not os.path.exists(self.workdir): return
         shutil.rmtree(self.workdir, ignore_errors=ignore_errors, onerror=onerror)
 
     def rm_and_build(self):

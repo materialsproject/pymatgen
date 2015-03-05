@@ -2263,7 +2263,7 @@ class AbinitTask(Task):
             for i, handler in enumerate(self.event_handlers):
 
                 if handler.can_handle(event) and not done[i]:
-                    print("handler", handler, "will try to fix", event)
+                    logger.info("handler", handler, "will try to fix", event)
                     try:
                         d = handler.handle(self, event)
                         if d: 
