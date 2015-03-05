@@ -396,6 +396,9 @@ class Poscar(PMGSONable):
 
         return "\n".join(lines) + "\n"
 
+    def __repr__(self):
+        return self.get_string()
+
     def __str__(self):
         """
         String representation of Poscar file.
@@ -851,14 +854,18 @@ class Kpoints(PMGSONable):
         Returns:
             Kpoints
         """
-
+        comment = "pymatgen generated KPOINTS with grid density = " + \
+            "{} / atom".format(kppa)
         latt = structure.lattice
         lengths = latt.abc
         ngrid = kppa / structure.num_sites
-
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
 
-        num_div = [int(np.ceil(mult / l)) for l in lengths]
+        num_div = [int(round(mult / l)) for l in lengths]
+        if all([k <= 1 for k in num_div]):
+            return Kpoints(comment, 0, Kpoints.supported_modes.Gamma,
+                           [[1, 1, 1]], [0, 0, 0])
+
         #ensure that numDiv[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
 
@@ -874,10 +881,7 @@ class Kpoints(PMGSONable):
         else:
             style = Kpoints.supported_modes.Monkhorst
 
-        comment = "pymatgen generated KPOINTS with grid density = " + \
-            "{} / atom".format(kppa)
-        num_kpts = 0
-        return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
+        return Kpoints(comment, 0, style, [num_div], [0, 0, 0])
 
     @staticmethod
     def automatic_gamma_density(structure, kppa):
@@ -949,43 +953,8 @@ class Kpoints(PMGSONable):
         """
         vol = structure.lattice.reciprocal_lattice.volume
         kppa = int(round(kppvol * vol * structure.num_sites))
-        return Kpoints.automatic_density(structure, kppa, force_gamma=force_gamma)
-
-    def automatic_linemode(divisions, ibz):
-        """
-        Convenient static constructor for a KPOINTS in mode line_mode.
-        gamma centered Monkhorst-Pack grids and the number of subdivisions
-        along each reciprocal lattice vector determined by the scheme in the
-        VASP manual.
-
-        Args:
-            divisions: Parameter determining the number of k-points along each
-                hight symetry lines.
-            ibz: HighSymmKpath object (pymatgen.symmetry.bandstructure)
-
-        Returns:
-            Kpoints object
-        """
-        kpoints = list()
-        labels = list()
-        for path in ibz.kpath["path"]:
-            kpoints.append(ibz.kpath["kpoints"][path[0]])
-            labels.append(path[0])
-            for i in range(1, len(path) - 1):
-                kpoints.append(ibz.kpath["kpoints"][path[i]])
-                labels.append(path[i])
-                kpoints.append(ibz.kpath["kpoints"][path[i]])
-                labels.append(path[i])
-
-            kpoints.append(ibz.kpath["kpoints"][path[-1]])
-            labels.append(path[-1])
-
-        return Kpoints("Line_mode KPOINTS file",
-                       style=Kpoints.supported_modes.Line_mode,
-                       coord_type="Reciprocal",
-                       kpts=kpoints,
-                       labels=labels,
-                       num_kpts=int(divisions))
+        return Kpoints.automatic_density(structure, kppa,
+                                         force_gamma=force_gamma)
 
     @staticmethod
     def from_file(filename):

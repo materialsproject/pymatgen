@@ -577,3 +577,7 @@ class YamlDoc(object):
             return self.text.replace(self.tag, "")
         else:
             return self.text
+
+    def as_dict(self):
+        """Use Yaml to parse the text (without the tag) and returns a dictionary."""
+        return yaml.load(self.text_notag)

@@ -17,11 +17,12 @@ from six.moves import filter
 from monty.collections import AttrDict
 from monty.itertools import chunks
 from monty.functools import lazy_property
+from monty.fnmatch import WildCard
 from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
-from pymatgen.util.string_utils import WildCard
 from . import wrappers
-from .tasks import (Task, AbinitTask, Dependency, Node, NodeResults, ScfTask, NscfTask, PhononTask, DdkTask, 
+from .nodes import Dependency, Node, NodeResults
+from .tasks import (Task, AbinitTask, ScfTask, NscfTask, PhononTask, DdkTask, 
                     BseTask, RelaxTask, DdeTask, ScrTask, SigmaTask)
 from .strategies import HtcStrategy, NscfStrategy
 from .utils import Directory
@@ -64,7 +65,7 @@ class WorkResults(NodeResults):
         # Will put all files found in outdir in GridFs 
         # Warning: assuming binary files.
         d = {os.path.basename(f): f for f in work.outdir.list_filepaths()}
-        new.add_gridfs_files(**d)
+        new.register_gridfs_files(**d)
 
         return new
 
@@ -123,7 +124,7 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
         A core is reserved if it's still not running but 
         we have submitted the task to the queue manager.
         """
-        return sum(task.tot_cores for task in self if task.status == task.S_SUB)
+        return sum(task.manager.num_cores for task in self if task.status == task.S_SUB)
 
     @property
     def ncores_allocated(self):
@@ -132,15 +133,15 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
         A core is allocated if it's running a task or if we have
         submitted a task to the queue manager but the job is still pending.
         """
-        return sum(task.tot_cores for task in self if task.status in [task.S_SUB, task.S_RUN])
+        return sum(task.manager.num_cores for task in self if task.status in [task.S_SUB, task.S_RUN])
 
     @property
-    def ncores_inuse(self):
+    def ncores_used(self):
         """
         Returns the number of cores used in this moment.
         A core is used if there's a job that is running on it.
         """
-        return sum(task.tot_cores for task in self if task.status == task.S_RUN)
+        return sum(task.manager.num_cores for task in self if task.status == task.S_RUN)
 
     def fetch_task_to_run(self):
         """
@@ -181,7 +182,7 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
     def connect_signals(self):
         """
         Connect the signals within the work.
-        self is responsible for catching the important signals raised from 
+        The :class:`Work` is responsible for catching the important signals raised from 
         its task and raise new signals when some particular condition occurs.
         """
         for task in self:
@@ -353,7 +354,7 @@ class Work(BaseWork):
 
     @property
     def all_done(self):
-        """True if all the `Task` in the `Work` are done."""
+        """True if all the :class:`Task` objects in the :class:`Work` are done."""
         return all(task.status >= task.S_DONE for task in self)
 
     @property
@@ -405,7 +406,7 @@ class Work(BaseWork):
 
     def register(self, obj, deps=None, required_files=None, manager=None, task_class=None):
         """
-        Registers a new `Task` and add it to the internal list, taking into account possible dependencies.
+        Registers a new :class:`Task` and add it to the internal list, taking into account possible dependencies.
 
         Args:
             obj: :class:`Strategy` object or :class:`AbinitInput` instance.
@@ -478,17 +479,17 @@ class Work(BaseWork):
         return self.register(*args, **kwargs)
 
     def register_ddk_task(self, *args, **kwargs):
-        """Register a Ddk task."""
+        """Register a ddk task."""
         kwargs["task_class"] = DdkTask
         return self.register(*args, **kwargs)
 
     def register_scr_task(self, *args, **kwargs):
-        """Register a nscf task."""
+        """Register a screening task."""
         kwargs["task_class"] = ScrTask
         return self.register(*args, **kwargs)
 
     def register_sigma_task(self, *args, **kwargs):
-        """Register a nscf task."""
+        """Register a sigma task."""
         kwargs["task_class"] = SigmaTask
         return self.register(*args, **kwargs)
 
@@ -561,10 +562,12 @@ class Work(BaseWork):
         """Check the status of the tasks."""
         # Recompute the status of the tasks
         for task in self:
+            if task.status == task.S_LOCKED: continue
             task.check_status()
 
         # Take into account possible dependencies. Use a list instead of generators 
         for task in self:
+            if task.status == task.S_LOCKED: continue
             if task.status < task.S_SUB and all([status == task.S_OK for status in task.deps_status]):
                 task.set_status(task.S_READY)
 
@@ -714,33 +717,15 @@ class BandStructureWork(Work):
                 dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
                 self.dos_tasks.append(dos_task)
 
-    def plot_edoses(self, dos_pos=None, method="gaussian", step=0.01, width=0.1, **kwargs):
+    def plot_ebands(self, **kwargs):
         """
-        Plot the band structure and the DOS.
-
-        Args:
-            dos_pos: Index of the task from which the DOS should be obtained. 
-                     None is all DOSes should be displayed. Accepts integer or list of integers.
-            method: String defining the method for the computation of the DOS.
-            step: Energy step (eV) of the linear mesh.
-            width: Standard deviation (eV) of the gaussian.
-            kwargs: Keyword arguments passed to `plot` method to customize the plot.
+        Plot the band structure. kwargs are passed to the plot method of :class:`ElectronBands`.
 
         Returns:
-            `matplotlib` figure.
+            `matplotlib` figure
         """
-        if dos_pos is not None and not isistance(dos_pos, (list, tuple)): dos_pos = [dos_pos]
-
-        from abipy.electrons.ebands import ElectronDosPlotter
-        plotter = ElectronDosPlotter()
-        for i, task in enumerate(self.dos_tasks):
-            if dos_pos is not None and i not in dos_pos: continue
-            with task.open_gsr() as gsr:
-                edos = gsr.ebands.get_edos(method=method, step=step, width=width)
-                ngkpt = task.get_inpvar("ngkpt")
-                plotter.add_edos("ngkpt %s" % str(ngkpt), edos)
-
-        return plotter.plot(**kwargs)
+        with self.nscf_task.open_gsr() as gsr: 
+            return gsr.ebands.plot(**kwargs)
 
     def plot_ebands_with_edos(self, dos_pos=0, method="gaussian", step=0.01, width=0.1, **kwargs):
         """
@@ -765,6 +750,33 @@ class BandStructureWork(Work):
         edos = dos_ebands.get_edos(method=method, step=step, width=width)
         return gs_ebands.plot_with_edos(edos, **kwargs)
 
+    def plot_edoses(self, dos_pos=None, method="gaussian", step=0.01, width=0.1, **kwargs):
+        """
+        Plot the band structure and the DOS.
+
+        Args:
+            dos_pos: Index of the task from which the DOS should be obtained. 
+                     None is all DOSes should be displayed. Accepts integer or list of integers.
+            method: String defining the method for the computation of the DOS.
+            step: Energy step (eV) of the linear mesh.
+            width: Standard deviation (eV) of the gaussian.
+            kwargs: Keyword arguments passed to `plot` method to customize the plot.
+
+        Returns:
+            `matplotlib` figure.
+        """
+        if dos_pos is not None and not isinstance(dos_pos, (list, tuple)): dos_pos = [dos_pos]
+
+        from abipy.electrons.ebands import ElectronDosPlotter
+        plotter = ElectronDosPlotter()
+        for i, task in enumerate(self.dos_tasks):
+            if dos_pos is not None and i not in dos_pos: continue
+            with task.open_gsr() as gsr:
+                edos = gsr.ebands.get_edos(method=method, step=step, width=width)
+                ngkpt = task.get_inpvar("ngkpt")
+                plotter.add_edos("ngkpt %s" % str(ngkpt), edos)
+
+        return plotter.plot(**kwargs)
 
 
 class RelaxWork(Work):
@@ -786,14 +798,24 @@ class RelaxWork(Work):
 
         self.ion_task = self.register_relax_task(ion_input)
 
-        # Use WFK for the time being since I don't know why Abinit produces all these _TIM?_DEN files.
-        #self.ioncell_task = self.register_relax_task(ioncell_input, deps={self.ion_task: "DEN"})
-        self.ioncell_task = self.register_relax_task(ioncell_input, deps={self.ion_task: "WFK"})
+        # Note:
+        #   1) It would be nice to restart from the WFK file but ABINIT crashes due to the
+        #      different unit cell parameters.
+        #
+        #   2) Restarting form DEN is not trivial because Abinit produces all these _TIM?_DEN files.
+        #      and the syntax used to specify dependencies is not powerful enough.
+        #   
+        # For the time being, we don't use any output from ion_tasl except for the 
+        # the final structure that will be transferred in on_ok.
+        deps = {self.ion_task: "DEN"}
+        deps = {self.ion_task: "WFK"}
+        deps = None
+
+        self.ioncell_task = self.register_relax_task(ioncell_input, deps=deps)
 
         # Lock ioncell_task as ion_task should communicate to ioncell_task that 
         # the calculation is OK and pass the final structure.
-        self.ioncell_task.set_status(self.S_LOCKED)
-
+        self.ioncell_task.lock(source_node=self)
         self.transfer_done = False
 
     def on_ok(self, sender):
@@ -806,15 +828,15 @@ class RelaxWork(Work):
 
         if sender == self.ion_task and not self.transfer_done:
             # Get the relaxed structure from ion_task
-            ion_structure = self.ion_task.read_final_structure()
-            print("Got relaxed ion_structure", ion_structure)
+            ion_structure = self.ion_task.get_final_structure()
 
             # Transfer it to the ioncell task (we do it only once).
-            self.ioncell_task.change_structure(ion_structure)
+            self.ioncell_task._change_structure(ion_structure)
             self.transfer_done = True
 
             # Unlock ioncell_task so that we can submit it.
-            self.ioncell_task.set_status(self.S_READY)
+            self.ioncell_task.unlock()
+            self.ioncell_task.history.info("Unlocked by %s", self)
 
         return super(RelaxWork, self).on_ok(sender)
 
@@ -841,6 +863,7 @@ class G0W0Work(Work):
 
         # Register the GS-SCF run.
         # register all scf_inputs but link the nscf only the last scf in the list
+        #MG: FIXME Why this?
         if isinstance(scf_input, (list, tuple)):
             for single_scf_input in scf_input:
                 self.scf_task = self.register_scf_task(single_scf_input)
@@ -862,18 +885,17 @@ class G0W0Work(Work):
             scf_in = scf_input[-1] if isinstance(scf_input, (list, tuple)) else scf_input
             logger.info('added band structure calculation')
             bands_input = NscfStrategy(scf_strategy=scf_in,
-                                       ksampling=KSampling.path_from_structure(ndivsm=nksmall,
-                                                                               structure=scf_in.structure),
-                                       nscf_nband=scf_in.electrons.nband*2,
-                                       ecut=scf_in.ecut)
+                                       ksampling=KSampling.path_from_structure(ndivsm=nksmall, structure=scf_in.structure),
+                                       nscf_nband=scf_in.electrons.nband*2, ecut=scf_in.ecut)
+
             self.bands_task = self.register_nscf_task(bands_input, deps={self.scf_task: "DEN"})
             # note we don not let abinit print the dos, since this is inconpatible with parakgb
             # the dos will be evaluated later using abipy
             dos_input = NscfStrategy(scf_strategy=scf_in,
                                      ksampling=KSampling.automatic_density(kppa=nksmall**3, structure=scf_in.structure,
                                                                            shifts=(0.0, 0.0, 0.0)),
-                                     nscf_nband=scf_in.electrons.nband*2,
-                                     ecut=scf_in.ecut)
+                                     nscf_nband=scf_in.electrons.nband*2, ecut=scf_in.ecut)
+
             self.dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
 
         # Register the SIGMA runs.
@@ -907,8 +929,7 @@ class SigmaConvWork(Work):
             manager: :class:`TaskManager` object.
         """
         # Cast to node instances.
-        wfk_node = Node.as_node(wfk_node)
-        scr_node = Node.as_node(scr_node)
+        wfk_node, scr_node = Node.as_node(wfk_node), Node.as_node(scr_node)
 
         super(SigmaConvWork, self).__init__(workdir=workdir, manager=manager)
 
@@ -995,7 +1016,7 @@ class QptdmWork(Work):
         # Now we can register the task for the different q-points
         for qpoint in qpoints:
             qptdm_input = scr_input.deepcopy()
-            qptdm_input.set_variables(nqptdm=1, qptdm=qpoint)
+            qptdm_input.set_vars(nqptdm=1, qptdm=qpoint)
             new_task = self.register_scr_task(qptdm_input, manager=self.manager)
             #new_task.set_cleanup_exts()
 
@@ -1110,15 +1131,10 @@ class OneShotPhononWork(Work):
     def get_results(self, **kwargs):
         results = super(OneShotPhononWork, self).get_results()
         phonons = self.read_phonons()
-        #print(phonons)
         results.update(phonons=phonons)
 
         return results
 
-    #def on_all_ok(self):
-    #    """
-    #    """
-    #    return self.get_results()
 
 
 class PhononWork(Work):
@@ -1165,7 +1181,7 @@ class PhononWork(Work):
         out_ddb = self.merge_ddb_files()
 
         results = self.Results(node=self, returncode=0, message="DDB merge done")
-        results.add_gridfs_files(DDB=(out_ddb, "t"))
+        results.register_gridfs_files(DDB=(out_ddb, "t"))
 
         # TODO
         # Call anaddb to compute the phonon frequencies for this q-point and
