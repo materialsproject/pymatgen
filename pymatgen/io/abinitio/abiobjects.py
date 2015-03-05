@@ -256,6 +256,7 @@ class ElectronsAlgorithm(dict, AbivarAble, PMGSONable):
         d.pop("@class", None)
         return cls(**d)
 
+
 class Electrons(AbivarAble, PMGSONable):
     """The electronic degrees of freedom"""
     def __init__(self, spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
@@ -331,7 +332,7 @@ class Electrons(AbivarAble, PMGSONable):
         if self.algorithm:
             abivars.update(self.algorithm)
 
-        abivars["#comment"] = self.comment
+        #abivars["#comment"] = self.comment
         return abivars
 
 
@@ -449,7 +450,7 @@ class KSampling(AbivarAble, PMGSONable):
             raise ValueError("Unknown mode %s" % mode)
 
         self.abivars = abivars
-        self.abivars["#comment"] = comment
+        #self.abivars["#comment"] = comment
 
     @property
     def is_homogeneous(self):
@@ -506,7 +507,7 @@ class KSampling(AbivarAble, PMGSONable):
         Convenient static constructor for an automatic Monkhorst-Pack mesh.
 
         Args:
-            structure: pymatgen structure object.
+            structure: :class:`Structure` object.
             ngkpt: Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
             use_symmetries: Use spatial symmetries to reduce the number of k-points.
             use_time_reversal: Use time-reversal symmetry to reduce the number of k-points.
@@ -536,7 +537,7 @@ class KSampling(AbivarAble, PMGSONable):
         Static constructor for path in k-space.
 
         Args:
-            structure: pymatgen structure.
+            structure: :class:`Structure` object.
             kpath_bounds: List with the reduced coordinates of the k-points defining the path.
             ndivsm: Number of division for the smallest segment.
             comment: Comment string.
@@ -566,7 +567,7 @@ class KSampling(AbivarAble, PMGSONable):
     @classmethod
     def path_from_structure(cls, ndivsm, structure):
         """See _path for the meaning of the variables"""
-        return cls._path(ndivsm,  structure=structure, comment="K-path generated automatically from pymatgen structure")
+        return cls._path(ndivsm,  structure=structure, comment="K-path generated automatically from structure")
 
     @classmethod
     def explicit_path(cls, ndivsm, kpath_bounds):
@@ -617,7 +618,7 @@ class KSampling(AbivarAble, PMGSONable):
         #    num_div = [i + i % 2 for i in num_div]
         #    style = Kpoints.modes.monkhorst
 
-        comment = "pymatgen generated KPOINTS with grid density = " + "{} / atom".format(kppa)
+        comment = "abinitio generated KPOINTS with grid density = " + "{} / atom".format(kppa)
 
         shifts = np.reshape(shifts, (-1, 3))
 
