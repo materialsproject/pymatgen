@@ -5,6 +5,7 @@ Flows are the final objects that can be dumped directly to a pickle file on disk
 Flows are executed using abirun (abipy).
 """
 from __future__ import unicode_literals, division, print_function
+
 import os
 import sys
 import time
@@ -18,19 +19,23 @@ from six.moves import map
 from atomicfile import AtomicFile
 from prettytable import PrettyTable
 from monty.collections import as_set
+from monty.string import list_strings
 from monty.io import FileLock
 from monty.pprint import draw_tree
 from monty.termcolor import stream_has_colours, cprint, colored, cprint_map
+from monty.inspect import find_top_pyfile
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
-from .tasks import (Dependency, Status, Node, NodeResults, Task, ScfTask, PhononTask, TaskManager, NscfTask, DdkTask,
+from pymatgen.core.units import Time, Memory
+from .nodes import Status, Node, NodeResults, Dependency
+from .tasks import (Task, ScfTask, PhononTask, TaskManager, NscfTask, DdkTask,
                     AnaddbTask, DdeTask, TaskManager)
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
 from .works import Work, BandStructureWork, PhononWork, G0W0Work, QptdmWork
 from .events import EventsParser
 from pydispatch import dispatcher
-import logging
 
+import logging
 logger = logging.getLogger(__name__)
 
 __author__ = "Matteo Giantomassi"
@@ -111,21 +116,15 @@ class Flow(Node):
             Don't use this interface if you have a dependencies among the tasks
 
         Args:
-            workdir:
-                String specifying the directory where the works will be produced.
-            inputs:
-                List of inputs.
-            manager:
-                `TaskManager` object responsible for the submission of the jobs.
+            workdir: String specifying the directory where the works will be produced.
+            inputs: List of inputs.
+            manager: :class:`TaskManager` object responsible for the submission of the jobs.
                 If manager is None, the object is initialized from the yaml file
                 located either in the working directory or in the user configuration dir.
-            pickle_procol:
-                Pickle protocol version used for saving the status of the object.
+            pickle_procol: Pickle protocol version used for saving the status of the object.
                 -1 denotes the latest version supported by the python interpreter.
-            task_class:
-                The class of the AbinitTask
-            work_class:
-                The class of the Work.
+            task_class: The class of the :class:`Task`.
+            work_class: The class of the :class:`Work`.
         """
         if not isinstance(inputs, (list, tuple)): inputs = [inputs]
 
@@ -169,6 +168,12 @@ class Flow(Node):
         # ID used to access mongodb
         self._mongo_id = None
 
+        # Save the location of the script used to generate the flow.
+        # This trick won't work if we are running with nosetests, py.test etc
+        pyfile = find_top_pyfile()
+        if "python" in pyfile or "ipython" in pyfile: pyfile = "<" + pyfile + ">"
+        self.set_pyfile(pyfile)
+
         # TODO
         # Signal slots: a dictionary with the list
         # of callbacks indexed by node_id and SIGNAL_TYPE.
@@ -181,13 +186,6 @@ class Flow(Node):
 
         #for task in self.iflat_tasks():
         #    slots[task] = {s: [] for s in work.S_ALL}
-
-    # This is needed for fireworks although Node.__str__ and __repr__ are much more readable.
-    #def __repr__(self):
-    #    return self.workdir
-
-    #def __str__(self):
-    #    return repr(self)
 
     def as_dict(self, **kwargs):
         """
@@ -282,6 +280,28 @@ class Flow(Node):
     def __getitem__(self, slice):
         return self.works[slice]
 
+    def set_pyfile(self, pyfile):
+        """
+        Set the path of the python script used to generate the flow.
+
+        .. Example:
+
+            flow.set_pyfile(__file__)
+        """
+        # TODO: Could use a frame hack to get the caller outside abinitio
+        # so that pyfile is automatically set when we __init__ it!
+        self._pyfile = os.path.abspath(pyfile)
+
+    @property
+    def pyfile(self):
+        """
+        Absolute path of the python script used to generate the flow. Set by `set_pyfile`
+        """
+        try: 
+            return self._pyfile
+        except AttributeError:
+            return None
+
     @property
     def mongo_id(self):
         return self._mongo_id
@@ -318,10 +338,6 @@ class Flow(Node):
         return all(work.all_ok for work in self)
 
     @property
-    def all_tasks(self):
-        return self.iflat_tasks()
-
-    @property
     def num_tasks(self):
         """Total number of tasks"""
         return len(list(self.iflat_tasks()))
@@ -329,11 +345,11 @@ class Flow(Node):
     @property
     def errored_tasks(self):
         """List of errored tasks."""
-        errtasks = []
-        for status in [Task.S_ERROR, Task.S_QCRITICAL, Task.S_ABICRITICAL]:
-            errtasks.extend(list(self.iflat_tasks(status=status)))
+        etasks = []
+        for status in [self.S_ERROR, self.S_QCRITICAL, self.S_ABICRITICAL]:
+            etasks.extend(list(self.iflat_tasks(status=status)))
 
-        return set(errtasks)
+        return set(etasks)
 
     @property
     def num_errored_tasks(self):
@@ -382,12 +398,12 @@ class Flow(Node):
         return sum(work.ncores_allocated for work in self)
 
     @property
-    def ncores_inuse(self):
+    def ncores_used(self):
         """
         Returns the number of cores used in this moment.
         A core is used if there's a job that is running on it.
         """
-        return sum(work.ncores_inuse for work in self)
+        return sum(work.ncores_used for work in self)
 
     @property
     def has_chrooted(self):
@@ -493,7 +509,6 @@ class Flow(Node):
 
             # Accept Task.S_FLAG or string.
             status = Status.as_status(status)
-            #print(status)
 
             for wi, work in enumerate(self):
                 for ti, task in enumerate(work):
@@ -508,7 +523,7 @@ class Flow(Node):
         """Test the dependencies of the nodes for possible deadlocks."""
         deadlocks = []
 
-        for task in self.all_tasks:
+        for task in self.iflat_tasks():
             for dep in task.deps:
                 if dep.node.depends_on(task):
                     deadlocks.append((task, dep.node))
@@ -521,18 +536,20 @@ class Flow(Node):
     def deadlocked_runnables_running(self):
         """
         This function detects deadlocks
-        return deadlocks, runnables, running
+
+        Return:
+            deadlocks, runnables, running
         """
         runnables = []
         for work in self:
             runnables.extend(work.fetch_alltasks_to_run())
 
-        running = list(self.iflat_tasks(status=Task.S_RUN))
+        running = list(self.iflat_tasks(status=self.S_RUN))
 
         err_tasks = self.errored_tasks
         deadlocked = []
         if err_tasks:
-            for task in self.all_tasks:
+            for task in self.iflat_tasks():
                 if any(task.depends_on(err_task) for err_task in err_tasks):
                     deadlocked.append(task)
 
@@ -541,11 +558,10 @@ class Flow(Node):
     def check_status(self, **kwargs):
         """
         Check the status of the works in self.
+
         Args:
-            show:
-                True to show the status of the flow.
-            kwargs:
-                kwyword arguments passed to show_status
+            show: True to show the status of the flow.
+            kwargs: keyword arguments passed to show_status
         """
         for work in self:
             work.check_status()
@@ -560,139 +576,92 @@ class Flow(Node):
         """The status of the :class:`Flow` i.e. the minimum of the status of its tasks and its works"""
         return min(work.get_all_status(only_min=True) for work in self)
 
-    def fix_critical(self):
-        self.fix_queue_critical()
-        self.fix_abi_critical()
-
     def fix_abi_critical(self):
         """
-        Fixer for critical events originating from abinit
+        This function tries to fix critical events originating from ABINIT.
+        Returns the number of tasks that have been fixed.
         """
-        for task in self.iflat_tasks(status=Task.S_ABICRITICAL):
-            #todo
-            if task.fix_abicritical():
-                task.reset_from_scratch()
-                #task.set_status(task.S_READY)
-            else:
-                info_msg = 'We encountered an abi critial event that could not be fixed'
-                logger.warning(info_msg)
-                task.set_status(status=task.S_ERROR)
+        count = 0
+        for task in self.iflat_tasks(status=self.S_ABICRITICAL):
+            count += task.fix_abi_critical()
+
+        return count
 
     def fix_queue_critical(self):
         """
-        Fixer for errors originating from the scheduler.
+        This function tries to fix critical events originating from the queue submission system.
 
-        General strategy, first try to increase resources in order to fix the problem,
-        if this is not possible, call a task specific method to attempt to decrease the demands.
+        Returns the number of tasks that have been fixed.
         """
-        from pymatgen.io.abinitio.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
-
-        for task in self.iflat_tasks(status=Task.S_QCRITICAL):
+        count = 0
+        for task in self.iflat_tasks(status=self.S_QCRITICAL):
             logger.info("Will try to fix task %s" % str(task))
+            count += task.fix_queue_critical()
 
-            if not task.queue_errors:
-                # queue error but no errors detected, try to solve by increasing resources
-                # if resources are at maximum the tast is definitively turned to errored
-                if task.manager.increase_resources():  # acts either on the policy or on the qadapter
-                    task.reset_from_scratch()
-                    return True
-                else:
-                    info_msg = 'unknown queue error, could not increase resources any further'
-                    task.set_status(task.S_ERROR, info_msg)
-                    return False
-            else:
-                for error in task.queue_errors:
-                    logger.info('fixing : %s' % str(error))
-                    if isinstance(error, NodeFailureError):
-                        # if the problematic node is know exclude it
-                        if error.nodes is not None:
-                            task.manager.qadapter.exclude_nodes(error.nodes)
-                            task.reset_from_scratch()
-                            return task.set_status(task.S_READY, info_msg='increased resources')
-                        else:
-                            info_msg = 'Node error detected but no was node identified. Unrecoverable error.'
-                            return task.set_status(task.S_ERROR, info_msg)
-                    elif isinstance(error, MemoryCancelError):
-                        # ask the qadapter to provide more resources, i.e. more cpu's so more total memory
-                        if task.manager.increase_resources():
-                            task.reset_from_scratch()
-                            return task.set_status(task.S_READY, info_msg='increased mem')
-                        # if the max is reached, try to increase the memory per cpu:
-                        elif task.manager.qadapter.increase_mem():
-                            task.reset_from_scratch()
-                            return task.set_status(task.S_READY, info_msg='increased mem')
-                        # if this failed ask the task to provide a method to reduce the memory demand
-                        elif task.reduce_memory_demand():
-                            task.reset_from_scratch()
-                            return task.set_status(task.S_READY, info_msg='decreased mem demand')
-                        else:
-                            info_msg = 'Memory error detected but the memory could not be increased neigther could the ' \
-                                       'memory demand be decreased. Unrecoverable error.'
-                            return task.set_status(task.S_ERROR, info_msg)
-                    elif isinstance(error, TimeCancelError):
-                        # ask the qadapter to provide more memory
-                        if task.manager.qadapter.increase_time():
-                            task.reset_from_scratch()
-                            return task.set_status(task.S_READY, info_msg='increased wall time')
-                        # if this fails ask the qadapter to increase the number of cpus
-                        elif task.manager.increase_resources():
-                            task.reset_from_scratch()
-                            return task.set_status(task.S_READY, info_msg='increased number of cpus')
-                        # if this failed ask the task to provide a method to speed up the task
-                        elif task.speed_up():
-                            task.reset_from_scratch()
-                            return task.set_status(task.S_READY, info_msg='task speedup')
-                        else:
-                            info_msg = 'Time cancel error detected but the time could not be increased neigther could ' \
-                                       'the time demand be decreased by speedup of increasing the number of cpus. ' \
-                                       'Unrecoverable error.'
-                            return task.set_status(task.S_ERROR, info_msg)
-                    else:
-                        info_msg = 'No solution provided for error %s. Unrecoverable error.' % error.name
-                        logger.debug(info_msg)
-                        return task.set_status(task.S_ERROR, info_msg)
+        return count
 
     def show_status(self, **kwargs):
         """
         Report the status of the works and the status  of the different tasks on the specified stream.
 
         Args:
-            stream:
-                File-like object, Default: sys.stdout
-            nids: 
-                List of node identifiers. By defaults all nodes are shown
-            verbose:
-                Verbosity level (default 0). > 0 if to show only the works that are not finalized.
+            stream: File-like object, Default: sys.stdout
+            nids:  List of node identifiers. By defaults all nodes are shown
+            wslice: Slice object used to select works.
+            verbose: Verbosity level (default 0). > 0 if to show only the works that are not finalized.
         """
         stream = kwargs.pop("stream", sys.stdout)
         nids = as_set(kwargs.pop("nids", None))
+        wslice = kwargs.pop("wslice", None)
+        wlist = None
+        if wslice is not None:
+            # Convert range to list of work indices.
+            wlist = list(range(wslice.start, wslice.step, wslice.stop))
         verbose = kwargs.pop("verbose", 0)
 
-        #colours = stream_has_colours(stream)
-        colours = True
-        red = "red" if colours else None
+        #has_colours = stream_has_colours(stream)
+        has_colours = True
+        red = "red" if has_colours else None
 
         for i, work in enumerate(self):
             print("", file=stream)
-            cprint_map("Work #%d: %s, Finalized=%s\n" % (i, work, work.finalized), cmap={"True": "green"}, file=stream)
-            if verbose == 0 and work.finalized: continue
+            cprint_map("Work #%d: %s, Finalized=%s" % (i, work, work.finalized), cmap={"True": "green"}, file=stream)
+            if wlist is not None and i in wlist: continue
+            if verbose == 0 and work.finalized: 
+                print("  Finalized works are not shown. Use verbose > 0 to force output.", file=stream)
+                continue
 
-            table = PrettyTable(["Task", "Status", "Queue", "MPI|OMP|Mem/proc", "Err|Warn|Comm", "Class", "Restart", "Node_ID"])
+            table = PrettyTable(["Task", "Status", "Queue", "MPI|Omp|Mem[Gb]", 
+                                 "Err|Warn|Com", "Class", "Rest|Sub|Corr", "Time", "Node_ID"])
 
             tot_num_errors = 0
             for task in work:
                 if nids and task.node_id not in nids: continue
                 task_name = os.path.basename(task.name)
 
+                # FIXME: This should not be done here.
+                # get_event_report should be called only in check_status
                 # Parse the events in the main output.
                 report = task.get_event_report()
+                
+                # Get time info (run-time or time in queue or None)
+                stime = None
+                timedelta = task.datetimes.get_runtime()
+                if timedelta is not None:
+                    stime = str(timedelta) + "R"
+                else:
+                    timedelta = task.datetimes.get_time_inqueue()
+                    if timedelta is not None:
+                        stime = str(timedelta) + "Q"
 
                 events = "|".join(3*["NA"])
                 if report is not None:
                     events = "|".join(map(str, [report.num_errors, report.num_warnings, report.num_comments]))
 
                 para_info = "|".join(map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
-                task_info = list(map(str, [task.__class__.__name__, task.num_restarts, task.node_id]))
+                task_info = list(map(str, [task.__class__.__name__, 
+                                 (task.num_restarts, task.num_launches, task.num_corrections), stime, task.node_id]))
+
                 qinfo = "None"
                 if task.queue_id is not None:
                     qinfo = str(task.queue_id) + "@" + str(task.qname)
@@ -701,7 +670,7 @@ class Flow(Node):
                     tot_num_errors += 1
                     task_name = colored(task_name, red)
 
-                if colours:
+                if has_colours:
                     table.add_row([task_name, task.status.colored, qinfo, para_info, events] + task_info)
                 else:
                     table.add_row([task_name, str(task.status), qinfo, events, para_info] + task_info)
@@ -715,7 +684,7 @@ class Flow(Node):
         if self.all_ok:
             print("all_ok reached", file=stream)
 
-    def show_inputs(self, nids=None, stream=sys.stdout):
+    def show_inputs(self, nids=None, wslice=None, stream=sys.stdout):
         """
         Print the input of the tasks to the given stream.
 
@@ -724,18 +693,79 @@ class Flow(Node):
                 File-like object, Default: sys.stdout
             nids: 
                 List of node identifiers. By defaults all nodes are shown
+            wslice: Slice object used to select works.
         """
-        if nids is not None and not isinstance(nids, collections.Iterable): 
-            nids = [nids]
-
         lines = []
-        for work in self:
-            for task in work:
-                if nids is not None and task.node_id not in nids: continue
-                s = task.make_input(with_header=True)
-                lines.append(2*"\n" + 80 * "=" + "\n" + s + 2*"\n")
+        for task in self.select_tasks(nids=nids, wslice=wslice):
+            s = task.make_input(with_header=True)
+
+            # Add info on dependencies.
+            if task.deps:
+                s += "\n\nDependencies:\n" + "\n".join(str(dep) for dep in task.deps)
+            else:
+                s += "\n\nDependencies: None"
+
+            lines.append(2*"\n" + 80 * "=" + "\n" + s + 2*"\n")
 
         stream.writelines(lines)
+
+    def select_tasks(self, nids=None, wslice=None):
+        """
+        Return a list with a subset of tasks.
+
+        Args:
+            nids: List of node identifiers.
+            wslice: Slice object used to select works.
+
+        .. note::
+
+            nids and wslice are mutually exclusive.
+            If no argument is provided, the full list of tasks is returned.
+        """
+        if nids is not None:
+            assert wslice is None
+            tasks = self.tasks_from_nids(nids)
+
+        elif wslice is not None:
+            tasks = []
+            for work in self[wslice]:
+                tasks.extend([t for t in work])
+        else:
+            # All tasks selected if no option is provided.
+            tasks = list(self.iflat_tasks())
+
+        return tasks
+
+    def inspect(self, nids=None, wslice=None, **kwargs):
+        """
+        Inspect the tasks (SCF iterations, Structural relaxation ...) and 
+        produces matplotlib plots.
+
+        Args:
+            nids: List of node identifiers.
+            wslice: Slice object used to select works.
+            kwargs: keyword arguments passed to `task.inspect` method.
+
+        .. note::
+
+            nids and wslice are mutually exclusive. 
+            If nids and wslice are both None, all tasks in self are inspected.
+
+        Returns: 
+            List of `matplotlib` figures.
+        """
+        figs = []
+        for task in self.select_tasks(nids=nids, wslice=wslice):
+            if hasattr(task, "inspect"):
+                fig = task.inspect(**kwargs)
+                if fig is None: 
+                    cprint("Cannot inspect Task %s" % task, color="blue")
+                else:
+                    figs.append(fig)
+            else:
+                cprint("Task %s does not provide an inspect method" % task, color="blue")
+
+        return figs
 
     def get_results(self, **kwargs):
         results = self.Results.from_node(self)
@@ -823,6 +853,7 @@ class Flow(Node):
         Return the list of tasks associated to the given list of node identifiers (nids).
 
         .. note::
+
             Invalid ids are ignored
         """
         if not isinstance(nids, collections.Iterable): nids = [nids]
@@ -942,7 +973,6 @@ class Flow(Node):
 
         return stream.writelines(lines)
 
-
     def cancel(self, nids=None):
         """
         Cancel all the tasks that are in the queue.
@@ -963,7 +993,7 @@ class Flow(Node):
                 pid = int(fh.readline())
 
             retcode = os.system("kill -9 %d" % pid)
-            logger.info("Sent SIGKILL to the scheduler, retcode = %s" % retcode)
+            flow.history.info("Sent SIGKILL to the scheduler, retcode = %s" % retcode)
             try:
                 os.remove(pid_file)
             except IOError:
@@ -987,6 +1017,11 @@ class Flow(Node):
     def rmtree(self, ignore_errors=False, onerror=None):
         """Remove workdir (same API as shutil.rmtree)."""
         shutil.rmtree(self.workdir, ignore_errors=ignore_errors, onerror=onerror)
+
+    def rm_and_build(self):
+        """Remove the workdir and rebuild the flow."""
+        self.rmtree()
+        self.build()
 
     def build(self, *args, **kwargs):
         """Make directories and files of the `Flow`."""
@@ -1081,7 +1116,7 @@ class Flow(Node):
 
     def register_work_from_cbk(self, cbk_name, cbk_data, deps, work_class, manager=None):
         """
-        Registers a callback function that will generate the Task of the `Work`.
+        Registers a callback function that will generate the :class:`Task` of the :class:`Work`.
 
         Args:
             cbk_name: Name of the callback function (must be a bound method of self)
@@ -1236,6 +1271,46 @@ class Flow(Node):
 
     #def get_results(self, **kwargs)
 
+    def install_event_handlers(self, categories=None, handlers=None):
+        """
+        Install the `EventHandlers for this `Flow`. If no argument is provided
+        the default list of handlers is installed 
+
+        Args:
+
+            categories: List of categories to install e.g. base + can_change_physics
+            handlers: explicit list of :class:`EventHandler` instances. 
+                      This is the most flexible way to install handlers.
+
+        .. note:
+            
+            categories and handlers are mutually exclusive.
+        """
+        if categories is not None and handlers is not None:
+            raise ValueError("categories and handlers are mutually exclusive!")
+
+        # TODO:
+        # If we define the handlers at the level of the flow 
+        # I don't have to install the handlers when we use callbacks to generate new Works and task!
+        """
+        if categories:
+            handlers = events.get_handlers(categories)
+        else:
+            handlers = handlers or events.get_handlers()
+
+        for task in flow.iflat_tasks():
+            task.install_handlers(handlers)
+        """
+
+    def show_event_handlers(self, stream=sys.stdout, verbose=0):
+        print("hello")
+        lines = []
+        for handler in self.event_handlers:
+            if verbose: lines.extend(handler.__class__.cls2str().split("\n"))
+            lines.extend(str(handler).split("\n"))
+
+        stream.write("\n".join(lines))
+
     def rapidfire(self, check_status=False, **kwargs):
         """
         Use :class:`PyLauncher` to submits tasks in rapidfire mode.
@@ -1248,7 +1323,7 @@ class Flow(Node):
 
     def make_scheduler(self, **kwargs):
         """
-        Build a return a scheduler to run the flow.
+        Build a return a :class:`PyFlowScheduler` to run the flow.
 
         kwargs:
             if empty we use the user configuration file.
@@ -1274,13 +1349,99 @@ class Flow(Node):
         sched.add_flow(self)
         return sched
 
+    def make_light_tarfile(self, name=None):
+        """Lightweight tarball file. Mainly used for debugging. Return the name of the tarball file."""
+        name = os.path.basename(self.workdir) + "-light.tar.gz" if name is None else name
+        return self.make_tarfile(name=name, exclude_dirs=["outdata", "indata", "tmpdata"])
+
+    def make_tarfile(self, name=None, max_filesize=None, exclude_exts=None, exclude_dirs=None, verbose=0, **kwargs):
+        """
+        Create a tarball file.
+
+        Args:
+            name: Name of the tarball file. Set to os.path.basename(`flow.workdir`) + "tar.gz"` if name is None.
+            max_filesize (int or string with unit): a file is included in the tar file if its size <= max_filesize
+                Can be specified in bytes e.g. `max_files=1024` or with a string with unit e.g. `max_filesize="1 Mb"`.
+                No check is done if max_filesize is None.
+            exclude_exts: List of file extensions to be excluded from the tar file.
+            exclude_dirs: List of directory basenames to be excluded.
+            verbose (int): Verbosity level.
+            kwargs: keyword arguments passed to the :class:`TarFile` constructor.
+
+        Returns:
+            The name of the tarfile.
+        """
+        def any2bytes(s):
+            """Convert string or number to memory in bytes."""
+            if is_string(s):
+                return int(Memory.from_string(s).to("b"))
+            else:
+                return int(s)
+
+        if max_filesize is not None:
+            max_filesize = any2bytes(max_filesize) 
+
+        if exclude_exts:
+            # Add/remove ".nc" so that we can simply pass "GSR" instead of "GSR.nc"
+            # Moreover this trick allows one to treat WFK.nc and WFK file on the same footing.
+            exts = []
+            for e in list_strings(exclude_exts):
+                exts.append(e)
+                if e.endswith(".nc"):
+                    exts.append(e.replace(".nc", ""))
+                else:
+                    exts.append(e + ".nc")
+            exclude_exts = exts
+
+        def filter(tarinfo):
+            """
+            Function that takes a TarInfo object argument and returns the changed TarInfo object. 
+            If it instead returns None the TarInfo object will be excluded from the archive. 
+            """
+            # Skip links.
+            if tarinfo.issym() or tarinfo.islnk():
+                if verbose: print("Excluding link: %s" % tarinfo.name)
+                return None
+
+            # Check size in bytes
+            if max_filesize is not None and tarinfo.size > max_filesize:
+                if verbose: print("Excluding %s due to max_filesize" % tarinfo.name)
+                return None
+
+            # Filter filenames.
+            if exclude_exts and any(tarinfo.name.endswith(ext) for ext in exclude_exts):
+                if verbose: print("Excluding %s due to extension" % tarinfo.name)
+                return None
+
+            # Exlude directories (use dir basenames).
+            if exclude_dirs and any(dir_name in exclude_dirs for dir_name in tarinfo.name.split(os.path.sep)):
+                if verbose: print("Excluding %s due to exclude_dirs" % tarinfo.name)
+                return None
+
+            return tarinfo
+
+        back = os.getcwd()
+        os.chdir(os.path.join(self.workdir, ".."))
+
+        import tarfile
+        name = os.path.basename(self.workdir) + ".tar.gz" if name is None else name
+        with tarfile.open(name=name, mode='w:gz', **kwargs) as tar:
+            tar.add(os.path.basename(self.workdir), arcname=None, recursive=True, exclude=None, filter=filter)
+
+            # Add the script used to generate the flow.
+            if self.pyfile is not None and os.path.exists(self.pyfile):
+                tar.add(self.pyfile)
+        
+        os.chdir(back)
+        return name
+
 
 class G0W0WithQptdmFlow(Flow):
     def __init__(self, workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=None):
         """
         Build a `Flow` for one-shot G0W0 calculations.
         The computation of the q-points for the screening is parallelized with qptdm
-        i.e. we run independent calculation for each q-point and then we merge the final results.
+        i.e. we run independent calculations for each q-point and then we merge the final results.
 
         Args:
             workdir: Working directory.
@@ -1342,7 +1503,7 @@ class FlowCallbackError(Exception):
 
 class FlowCallback(object):
     """
-    This object implements the callbacks executeed by the flow when
+    This object implements the callbacks executed by the :class:`flow` when
     particular conditions are fulfilled. See on_dep_ok method of :class:`Flow`.
 
     .. note::
@@ -1384,8 +1545,7 @@ class FlowCallback(object):
         """Execute the callback."""
         if self.can_execute():
             # Get the bound method of the flow from func_name.
-            # We use this trick because pickle (format <=3)
-            # does not support bound methods.
+            # We use this trick because pickle (format <=3) does not support bound methods.
             try:
                 func = getattr(self.flow, self.func_name)
             except AttributeError as exc:
@@ -1398,7 +1558,7 @@ class FlowCallback(object):
 
     def can_execute(self):
         """True if we can execute the callback."""
-        return not self._disabled and [dep.status == dep.node.S_OK for dep in self.deps]
+        return not self._disabled and all(dep.status == dep.node.S_OK for dep in self.deps)
 
     def disable(self):
         """
@@ -1428,12 +1588,12 @@ def bandstructure_flow(workdir, scf_input, nscf_input, dos_inputs=None, manager=
         dos_inputs: Input(s) for the NSCF run (dos run).
         manager: :class:`TaskManager` object used to submit the jobs
                  Initialized from manager.yml if manager is None.
-        flow_class: Flow class
+        flow_class: Flow subclass
 
     Returns:
         :class:`Flow` object
     """
-    flow = flow_class(workdir, manager)
+    flow = flow_class(workdir, manager=manager)
     work = BandStructureWork(scf_input, nscf_input, dos_inputs=dos_inputs)
     flow.register_work(work)
 
@@ -1445,7 +1605,7 @@ def bandstructure_flow(workdir, scf_input, nscf_input, dos_inputs=None, manager=
 
 def g0w0_flow(workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=None, flow_class=Flow):
     """
-    Build an :class:`Flow` for one-shot $G_0W_0$ calculations.
+    Build a :class:`Flow` for one-shot $G_0W_0$ calculations.
 
     Args:
         workdir: Working directory.
@@ -1468,7 +1628,7 @@ def g0w0_flow(workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=N
 
 def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, with_dde=False, manager=None, flow_class=Flow):
     """
-    Build an :class:`Flow` for phonon calculations.
+    Build a :class:`Flow` for phonon calculations.
 
     Args:
         workdir: Working directory.
@@ -1490,7 +1650,6 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
     natom = len(scf_input.structure)
 
     # Create the container that will manage the different works.
-    if manager is None: manager = TaskManager.from_user_config()
     flow = flow_class(workdir, manager=manager)
 
     # Register the first work (GS calculation)
@@ -1505,15 +1664,15 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
     if with_ddk:
         logger.info('add ddk')
         ddk_input = ph_inputs[0].deepcopy()
-        ddk_input.set_variables(qpt=[0, 0, 0], rfddk=1, rfelfd=2, rfdir=[1, 1, 1])
+        ddk_input.set_vars(qpt=[0, 0, 0], rfddk=1, rfelfd=2, rfdir=[1, 1, 1])
         ddk_task = flow.register_task(ddk_input, deps={scf_task: 'WFK'}, task_class=DdkTask)[0]
 
     if with_dde:
         logger.info('add dde')
         dde_input = ph_inputs[0].deepcopy()
-        dde_input.set_variables(qpt=[0, 0, 0], rfddk=1, rfelfd=2)
+        dde_input.set_vars(qpt=[0, 0, 0], rfddk=1, rfelfd=2)
         dde_input_idir = dde_input.deepcopy()
-        dde_input_idir.set_variables(rfdir=[1, 1, 1])
+        dde_input_idir.set_vars(rfdir=[1, 1, 1])
         dde_task = flow.register_task(dde_input, deps={scf_task: 'WFK', ddk_task: 'DDK'}, task_class=DdeTask)[0]
 
     if not isinstance(ph_inputs, (list, tuple)):
@@ -1553,7 +1712,7 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
 
         if with_nscf:
             nscf_input = copy.deepcopy(scf_input)
-            nscf_input.set_variables(kptopt=3, iscf=-3, qpt=irred_perts[0]['qpt'], nqpt=1)
+            nscf_input.set_vars(kptopt=3, iscf=-3, qpt=irred_perts[0]['qpt'], nqpt=1)
             nscf_task = work_qpt.register_nscf_task(nscf_input, deps={scf_task: "DEN"})
             deps = {nscf_task: "WFQ", scf_task: "WFK"}
         else:
@@ -1579,7 +1738,7 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
             rfdir[idir -1] = 1
             rfatpol = [ipert, ipert]
 
-            new_input.set_variables(
+            new_input.set_vars(
                 #rfpert=1,
                 qpt=qpt,
                 rfdir=rfdir,
@@ -1587,7 +1746,7 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
             )
 
             if with_ddk:
-                new_input.set_variables(rfelfd=3)
+                new_input.set_vars(rfelfd=3)
 
             work_qpt.register_phonon_task(new_input, deps=deps)
 

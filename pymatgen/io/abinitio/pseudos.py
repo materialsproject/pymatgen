@@ -20,8 +20,11 @@ from monty.itertools import iterator_from_slice
 from monty.io import FileLock
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property
+from monty.os.path import find_exts
+from monty.dev import deprecated
 from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
 from pymatgen.core.periodic_table import PeriodicTable, Element
+from pymatgen.serializers.json_coders import PMGSONable, pmg_serialize
 from .eos import EOS
 from monty.json import MontyDecoder
 
@@ -93,7 +96,7 @@ def str2l(s):
     return _str2l[s]
 
 
-class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
+class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
     """
     Abstract base class defining the methods that must be 
     implemented by the concrete pseudopotential classes.
@@ -109,14 +112,10 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
         """
         return obj if isinstance(obj, cls) else cls.from_file(obj)
 
-    #@classmethod
-    #def from_dict(cls, d):
-    #    return cls
-
     @staticmethod
     def from_file(filename):
         """
-        Return a Pseudo object from filename.
+        Return a :class:`Pseudo` object from filename.
         Note: the parser knows the concrete class that should be instanciated
         """
         return PseudoParser().parse(filename)
@@ -131,7 +130,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
     #    return not self.__eq__(other)
 
     def __repr__(self):
-        return "<%s at %s, name = %s>" % (self.__class__.__name__, id(self), self.basename)
+        return "<%s at %s>" % (self.__class__.__name__, self.filepath)
 
     def __str__(self):
         """String representation."""
@@ -262,8 +261,9 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
     #def generation_mode
     #    """scalar scalar-relativistic, relativistic."""
 
+    @pmg_serialize
     def as_dict(self, **kwargs):
-        d = dict(
+        return dict(
             basename=self.basename,
             type=self.type,
             symbol=self.symbol,
@@ -276,14 +276,10 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
             #pp_type=
             filepath=self.filepath
         )
-        d['@module'] = self.__class__.__module__
-        d['@class'] = self.__class__.__name__
-        return d
 
     @classmethod
     def from_dict(cls, d):
         return cls.from_file(d['filepath'])
-
 
     @property
     def has_dojo_report(self):
@@ -1414,8 +1410,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         for state, rfunc in self.ae_partial_waves.items():
             ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, lw=2, label="AE-WAVE: " + state)
 
-        plt.legend(loc="best")
-
+        ax.legend(loc="best")
         return fig
 
     @add_fig_kwargs
@@ -1441,7 +1436,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         for state, rfunc in self.projector_functions.items():
             ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, label="TPROJ: " + state)
 
-        plt.legend(loc="best")
+        ax.legend(loc="best")
 
         return fig
 
@@ -1485,7 +1480,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     #    return fig
 
 
-class PseudoTable(collections.Sequence):
+class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONable, object)):
     """
     Define the pseudopotentials from the element table.
     Individidual elements are accessed by name, symbol or atomic number.
@@ -1510,6 +1505,58 @@ class PseudoTable(collections.Sequence):
         """ 
         if isinstance(items, cls): return items
         return cls(items)
+
+    @classmethod
+    def from_dir(cls, top, exts=None, exclude_dirs="_*"):
+        """
+        Find all pseudos in the directory tree starting from top.
+
+        Args:
+            top: Top of the directory tree
+            exts: List of files extensions. if exts == "all_files"
+                    we try to open all files in top
+            exclude_dirs: Wildcard used to exclude directories.
+        
+        return: :class:`PseudoTable` sorted by atomic number Z.
+        """
+        pseudos = []
+
+        if exts == "all_files":
+            for f in [os.path.join(path, fn) for fn in os.listdir(top)]:
+                if os.path.isfile(f):
+                    try:
+                        p = Pseudo.from_file(f)
+                        if p:
+                            pseudos.append(p)
+                        else:
+                            logger.info('Skipping file %s' % f)
+                    except:
+                        logger.info('Skipping file %s' % f)
+            if not pseudos:
+                logger.warning('No pseudopotentials parsed from folder %s' % top)
+                return None
+            logger.info('Creating PseudoTable with %i pseudopotentials' % len(pseudos))
+
+        else:
+            if exts is None: exts=("psp8",)
+
+            for p in find_exts(top, exts, exclude_dirs=exclude_dirs):
+                try:
+                    pseudos.append(Pseudo.from_file(p))
+                except Exception as exc:
+                    logger.critical("Error in %s:\n%s" % (p, exc))
+
+        return cls(pseudos).sort_by_z()
+
+    #@pmg_serialize
+    #def as_dict(self, **kwargs):
+    #    return {pseudo.as_dict() for pseudo in self}
+
+    #@classmethod
+    #def from_dict(cls, d):
+    #    pseudos = [p.from_dict(d) for k, p in cls.as_dict().items() if not k.startswith("@")]
+    #    print(pseudos)
+    #    #return cls(pseudos)
 
     def __init__(self, pseudos):
         """
@@ -1629,16 +1676,37 @@ class PseudoTable(collections.Sequence):
         Raises:
             ValueError if symbol is not found or multiple occurences are present.
         """
-        pseudos = self.pseudos_with_symbol(symbol)
+        pseudos = self.select_symbols(symbol, ret_list=True)
         if not pseudos or len(pseudos) > 1:
             raise ValueError("Found %d occurrences of symbol %s" % (len(pseudos), symbol))
 
         return pseudos[0]
 
-    def select_symbols(self, symbols):
+    def pseudos_with_symbols(self, symbols):
+        """
+        Return the pseudos with the given chemical symbols.
+
+        Raises:
+            ValueError if one of the symbols is not found or multiple occurences are present.
+        """
+        pseudos = self.select_symbols(symbols, ret_list=True)
+        found_symbols = [p.symbol for p in pseudos]
+        duplicated_elements = [s for s, o in collections.Counter(found_symbols).items() if o > 1]
+        if duplicated_elements:
+            raise ValueError("Found multiple occurrences of symbol(s) %s" % ', '.join(duplicated_elements))
+        missing_symbols = [s for s in symbols if s not in found_symbols]
+        if missing_symbols:
+            raise ValueError("Missing data for symbol(s) %s" % ', '.join(missing_symbols))
+        return pseudos
+
+    def select_symbols(self, symbols, ret_list=False):
         """
         Return a :class:`PseudoTable` with the pseudopotentials with the given list of chemical symbols.
-        Prepend the symbol string with "-", to exclude pseudos.
+
+        Args:
+            symbols: str or list of symbols
+                Prepend the symbol string with "-", to exclude pseudos.
+            ret_list: if True a list of pseudos is returned instead of a :class:`PseudoTable`
         """
         symbols = list_strings(symbols)
         exclude = symbols[0].startswith("-")
@@ -1659,7 +1727,25 @@ class PseudoTable(collections.Sequence):
 
             pseudos.append(p)
     
-        return self.__class__(pseudos)
+        if ret_list:
+            return pseudos
+        else:
+            return self.__class__(pseudos)
+
+    def get_pseudos_for_structure(self, structure):
+        """
+        Return the list of :class:`Pseudo` objects to be used for this :class:`Structure`.
+
+        Args:
+            structure: pymatgen :class:`Structure`.
+
+        Raises:
+            `ValueError` if one of the chemical symbols is not found or 
+            multiple occurences are present in the table.
+        """
+        symbols = structure.symbol_set
+        return self.pseudos_with_symbols(symbols)
+
 
     #def list_properties(self, *props, **kw):
     #    """
@@ -1882,13 +1968,32 @@ class PseudoTable(collections.Sequence):
 
         return figs
 
-# Hack
-try:
-    import pandas as pd
-except ImportError:
-    pd.DataFrame = object
+    @classmethod
+    @deprecated(replacement=from_dir)
+    def from_directory(cls, path):
+        pseudos = []
+        for f in [os.path.join(path, fn) for fn in os.listdir(path)]:
+            if os.path.isfile(f):
+                try:
+                    p = Pseudo.from_file(f)
+                    if p:
+                        pseudos.append(p)
+                    else:
+                        logger.info('Skipping file %s' % f)
+                except:
+                    logger.info('Skipping file %s' % f)
+        if not pseudos:
+            logger.warning('No pseudopotentials parsed from folder %s' % path)
+            return None
+        logger.info('Creating PseudoTable with %i pseudopotentials' % len(pseudos))
+        return cls(pseudos)
 
-class DojoDataFrame(pd.DataFrame):
+try:
+    from pandas import DataFrame
+except ImportError:
+    DataFrame = object
+
+class DojoDataFrame(DataFrame):
     ALL_ACCURACIES = ("low", "normal", "high")
 
     ALL_TRIALS = (
@@ -2035,21 +2140,21 @@ class DojoDataFrame(pd.DataFrame):
 
         return fig
 
-    def sns_plot(self):
-        import seaborn as sns
-        import matplotlib.pyplot as plt
-        #self.plot(x="symbol", y="high_dfact_meV", use_index=True)
-        #data = calc_rerrors(data)
-        g = sns.PairGrid(self, x_vars="Z", y_vars=[
-            "low_ecut",
-            "low_dfact_meV",
-            #"high_dfact_meV", 
-            #"low_v0_rerr", "low_b0_GPa_rerr", "low_b1_rerr",
-            ]
-        ) #, hue="smoker")
-        g.map(plt.scatter)
-        g.add_legend()
-        plt.show()
+    #def sns_plot(self):
+    #    import seaborn as sns
+    #    import matplotlib.pyplot as plt
+    #    #self.plot(x="symbol", y="high_dfact_meV", use_index=True)
+    #    #data = calc_rerrors(data)
+    #    g = sns.PairGrid(self, x_vars="Z", y_vars=[
+    #        "low_ecut",
+    #        "low_dfact_meV",
+    #        #"high_dfact_meV", 
+    #        #"low_v0_rerr", "low_b0_GPa_rerr", "low_b1_rerr",
+    #        ]
+    #    ) #, hue="smoker")
+    #    g.map(plt.scatter)
+    #    g.add_legend()
+    #    plt.show()
 
 
 class DojoReport(dict):

@@ -12,6 +12,7 @@ allows one to get a list of parallel configuration and their expected efficiency
 """
 from __future__ import print_function, division, unicode_literals
 
+import sys
 import os
 import abc
 import string
@@ -27,6 +28,7 @@ from atomicfile import AtomicFile
 from monty.string import is_string
 from monty.collections import AttrDict
 from monty.functools import lazy_property
+from monty.inspect import all_subclasses
 from monty.io import FileLock
 from pymatgen.core.units import Time, Memory
 from .utils import Condition
@@ -232,14 +234,14 @@ class Hardware(object):
     """
     This object collects information on the hardware available in a given queue.
 
-    Basic definition::
+    Basic definitions:
 
         - A node refers to the physical box, i.e. cpu sockets with north/south switches connecting memory systems
           and extension cards, e.g. disks, nics, and accelerators
 
         - A cpu socket is the connector to these systems and the cpu cores
 
-        = A cpu core is an independent computing with its own computing pipeline, logical units, and memory controller.
+        - A cpu core is an independent computing with its own computing pipeline, logical units, and memory controller.
           Each cpu core will be able to service a number of cpu threads, each having an independent instruction stream 
           but sharing the cores memory controller and other logical units.
     """
@@ -668,14 +670,21 @@ class PbsProJob(QueueJob):
         # Exit code and signal are not available.
         self.set_status_exitcode_signal(status, None, None)
 
+class SgeJob(QueueJob):
+    """Not supported"""
 
-def all_subclasses(cls):
-    """
-    Given a class `cls`, this recursive function returns a list with
-    all subclasses, subclasses of subclasses, and so on.
-    """
-    subclasses = cls.__subclasses__() 
-    return subclasses + [g for s in subclasses for g in all_subclasses(s)]
+
+def show_qparams(qtype, stream=sys.stdout):
+    """Print to the given stream the template of the :class:`QueueAdapter` of type `qtype`."""
+    for cls in all_subclasses(QueueAdapter):
+        if cls.QTYPE == qtype: return stream.write(cls.QTEMPLATE)
+
+    raise ValueError("Cannot find class associated to qtype %s" % qtype)
+
+
+def all_qtypes():
+    """List of all qtypes supported."""
+    return [cls.QTYPE for cls in all_subclasses(QueueAdapter)]
 
 
 def make_qadapter(**kwargs):
@@ -683,7 +692,7 @@ def make_qadapter(**kwargs):
     Return the concrete :class:`QueueAdapter` class from a string.
     Note that one can register a customized version with:
 
-    .. example:
+    .. example::
 
         from qadapters import SlurmAdapter 
 
@@ -709,7 +718,10 @@ def make_qadapter(**kwargs):
 
 
 class QueueAdapterError(Exception):
-    """Error class for exceptions raise by QueueAdapter."""
+    """Base Error class for exceptions raise by QueueAdapter."""
+
+class MaxNumLaunchesError(QueueAdapterError):
+    """Raised by `submit_to_queue` if we try to submit more than `max_num_launches` times."""
 
 
 class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
@@ -717,21 +729,23 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
     The `QueueAdapter` is responsible for all interactions with a specific queue management system.
     This includes handling all details of queue script format as well as queue submission and management.
 
-    This is the **abstract** base class defining the methods that  must be implemented by the concrete classes.
+    This is the **abstract** base class defining the methods that must be implemented by the concrete classes.
     Concrete classes should extend this class with implementations that work on specific queue systems.
     """
     Error = QueueAdapterError
+
+    MaxNumLaunchesError = MaxNumLaunchesError
 
     Job = QueueJob
 
     @classmethod
     def autodoc(cls):
         return """
-# dictionary with infor on the hardware available on this particular queue.
+# dictionary with info on the hardware available on this particular queue.
 hardware:  
     num_nodes:        # Number of nodes available on this queue. Mandatory
-    sockets_per_node: # Self-explanatory. Mandatory.
-    cores_per_socket: # Self-explanatory. Mandatory.
+    sockets_per_node: # Mandatory.
+    cores_per_socket: # Mandatory.
 
 # dictionary with the options used to prepare the enviroment before submitting the job
 job:
@@ -754,9 +768,9 @@ queue:
 limits:
     min_cores:         # Minimum number of cores (default 1)
     max_cores:         # Maximum number of cores (mandatory)
-    min_mem_per_proc:  # Minimum memory per MPI process in megabytes, units can be specified e.g. 1.4 Gb
+    min_mem_per_proc:  # Minimum memory per MPI process in Mb, units can be specified e.g. 1.4 Gb
                        # (default hardware.mem_per_core)
-    max_mem_per_proc:  # Maximum memory per MPI process in megabytes, units can be specified e.g. `1.4Gb`
+    max_mem_per_proc:  # Maximum memory per MPI process in Mb, units can be specified e.g. `1.4Gb`
                        # (default hardware.mem_per_node)
     condition:         # MongoDB-like condition (default empty, i.e. not used)
 """
@@ -773,7 +787,7 @@ limits:
             pre_run: String or list of commands to execute before launching the calculation.
             post_run: String or list of commands to execute once the calculation is completed.
             mpi_runner: Path to the MPI runner or :class:`MpiRunner` instance. None if not used
-            max_num_attempts: Default to 10
+            max_num_launches: Maximum number of submissions that can be done. Defaults to 10
             qverbatim:
             min_cores, max_cores: Minimum and maximum number of cores that can be used
             min_mem_per_proc=Minimun memory per process in megabytes.
@@ -786,10 +800,9 @@ limits:
         .. note::
 
             priority is a non-negative integer used to order the qadapters. The :class:`TaskManager` will
-                try to run jobs on the qadapter with highest priority if possible
+                try to run jobs on the qadapter with the highest priority if possible
         """
         # TODO
-        #max_num_attempts:
         #task_classes
 
         # Make defensive copies so that we can change the values at runtime.
@@ -808,7 +821,7 @@ limits:
 
         # List of dictionaries with the parameters used to submit jobs
         # The launcher will use this information to increase the resources
-        self.attempts, self.max_num_attempts = [], kwargs.pop("max_num_attempts", 10)
+        self.launches, self.max_num_launches = [], kwargs.pop("max_num_launches", 10)
 
         # Initialize some values from the info reported in the partition.
         self.set_mpi_procs(self.min_cores)
@@ -919,12 +932,6 @@ limits:
         """True if we are using MPI"""
         return bool(self.mpi_runner)
 
-    #@property
-    #@deprecated(message="use has_mpi")
-    #def has_mpirun(self):
-    #    """True if we are using a mpirunner"""
-    #    return bool(self.mpi_runner)
-
     @property
     def has_omp(self):
         """True if we are using OpenMP threads"""
@@ -967,27 +974,27 @@ limits:
         """Deep copy of the object."""
         return copy.deepcopy(self)
 
-    def record_attempt(self, queue_id): # retcode):
+    def record_launch(self, queue_id): # retcode):
         """Save submission"""
-        self.attempts.append(
+        self.launches.append(
             AttrDict(queue_id=queue_id, mpi_procs=self.mpi_procs, omp_threads=self.omp_threads,
                      mem_per_proc=self.mem_per_proc, timelimit=self.timelimit))
-        return len(self.attempts)
+        return len(self.launches)
 
-    def remove_attempt(self, index):
-        """Remove attempt with the given index."""
-        self.attempts.pop(index)
-
-    @property
-    def num_attempts(self):
-        """Number of submission tried so far."""
-        return len(self.attempts)
+    def remove_launch(self, index):
+        """Remove launch with the given index."""
+        self.launches.pop(index)
 
     @property
-    def last_attempt(self):
-        """Return the last attempt."""
-        if len(self.attempts) > 0:
-            return self.attempts[-1]
+    def num_launches(self):
+        """Number of submission tried with this adapter so far."""
+        return len(self.launches)
+
+    @property
+    def last_launch(self):
+        """Return the last launch."""
+        if len(self.launches) > 0:
+            return self.launches[-1]
         else:
             return None
 
@@ -1264,17 +1271,18 @@ limits:
         Public API: wraps the concrete implementation _submit_to_queue
 
         Raises:
-            `QueueAdapterError` if we have already tried to submit the job max_num_attempts
+            `self.MaxNumLaunchesError` if we have already tried to submit the job max_num_launches
+            `self.Error` if generic error
         """
         if not os.path.exists(script_file):
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
 
-        if self.num_attempts == self.max_num_attempts:
-            raise self.Error("num_attempts %s == max_num_attempts %s" % (self.num_attempts, self.max_num_attempts))
+        if self.num_launches == self.max_num_launches:
+            raise self.MaxNumLaunchesError("num_launches %s == max_num_launches %s" % (self.num_launches, self.max_num_launches))
 
         # Call the concrete implementation.
         queue_id, process = self._submit_to_queue(script_file)
-        self.record_attempt(queue_id)
+        self.record_launch(queue_id)
 
         if queue_id is None:
             submit_err_file = script_file + ".err"
@@ -1353,7 +1361,7 @@ limits:
     def more_mem_per_proc(self, factor=1):
         """
         Method to increase the amount of memory asked for, by factor.
-        Return: True if success.
+        Return: new memory if success, 0 if memory cannot be increased.
         """
         base_increase = 2000
         old_mem = self.mem_per_proc
@@ -1361,25 +1369,25 @@ limits:
 
         if new_mem < self.hw.mem_per_node:
             self.set_mem_per_proc(new_mem)
-            return True
+            return new_mem
 
         logger.warning('could not increase mem_per_proc further')
-        return False
+        return 0
 
     def more_mpi_procs(self, factor=1):
         """
         Method to increase the number of MPI procs.
-        Return: True if success.
+        Return: new number of processors if success, 0 if processors cannot be increased.
         """
         base_increase = 12
         new_cpus = self.mpi_procs + factor * base_increase
 
         if new_cpus * self.omp_threads < self.max_cores:
             self.set_mpi_procs(new_cpus)
-            return True
+            return new_cpus
 
         logger.warning('more_mpi_procs reached the limit')
-        return False
+        return 0
 
 
 ####################
@@ -1768,38 +1776,62 @@ $${qverbatim}
 
 
 class SGEAdapter(QueueAdapter):
-    """Adapter for Sun Grid Engine (SGE) task submission software."""
+    """
+    Adapter for Sun Grid Engine (SGE) task submission software.
+
+    See also:
+
+        * https://www.wiki.ed.ac.uk/display/EaStCHEMresearchwiki/How+to+write+a+SGE+job+submission+script
+        * http://www.uibk.ac.at/zid/systeme/hpc-systeme/common/tutorials/sge-howto.html
+    """
     QTYPE = "sge"
+
+    Job = SgeJob
 
     QTEMPLATE = """\
 #!/bin/bash
 
-#$ -A $${account}
+#$ -account_name $${account_name}
 #$ -N $${job_name}
-#$ -l h rt=$${walltime}
-#$ -pe $${queue} $${ncpus}
-#$ -cwd
-#$ -j y
-#$ -m n
+#$ -q $${queue_name}
+#$ -pe $${parallel_environment} $${ncpus}
+#$ -l h_rt=$${walltime}
+# request a per slot memory limit of size bytes. 
+##$ -l h_vmem=$${mem_per_slot}  
+##$ -l mf=$${mem_per_slot}  
+###$ -j no
+#$ -M $${mail_user}
+#$ -m $${mail_type}
+# Submission environment
+##$ -S /bin/bash
+###$ -cwd                       # Change to current working directory
+###$ -V                         # Export environment variables into script
 #$ -e $${_qerr_path}
 #$ -o $${_qout_path}
-#$ -S /bin/bash
 $${qverbatim}
 """
+    def set_qname(self, qname):
+        super(SGEAdapter, self).set_qname(qname)
+        self.qparams["queue_name"] = qname
 
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
         super(SGEAdapter, self).set_mpi_procs(mpi_procs)
         self.qparams["ncpus"] = mpi_procs
 
+    def set_omp_threads(self, omp_threads):
+        super(SGEAdapter, self).set_omp_threads(omp_threads)
+        logger.warning("Cannot use omp_threads with SGE")
+
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
         super(SGEAdapter, self).set_mem_per_proc(mem_mb)
-        # TODO
-        #raise NotImplementedError("")
-        #self.qparams["mem_per_cpu"] = mem_mb
-        ## Remove mem if it's defined.
-        #self.qparams.pop("mem", None)
+        self.qparams["mem_per_slot"] = str(int(mem_mb)) + "M"
+
+    def set_timelimit(self, timelimit):
+        super(SGEAdapter, self).set_timelimit(timelimit)
+        # Same convention as pbspro e.g. [hours:minutes:]seconds
+        self.qparams["walltime"] = time2pbspro(timelimit)
 
     def cancel(self, job_id):
         return os.system("qdel %d" % job_id)
@@ -1822,6 +1854,11 @@ $${qverbatim}
 
         return queue_id, process
 
+    def exclude_nodes(self, nodes):
+        """Method to exclude nodes in the calculation"""
+        logger.warning('exluding nodes, not implemented yet in SGE')
+        return False
+
     def _get_njobs_in_queue(self, username):
         process = Popen(['qstat', '-u', username], stdout=PIPE, stderr=PIPE)
         process.wait()
@@ -1837,11 +1874,6 @@ $${qverbatim}
             njobs = len([line.split() for line in outs if username in line])
 
         return njobs, process
-
-    def exclude_nodes(self, nodes):
-        """Method to exclude nodes in the calculation"""
-        logger.warning('exluding nodes, not implemented yet in SGE')
-        return False
 
 
 class MOABAdapter(QueueAdapter):

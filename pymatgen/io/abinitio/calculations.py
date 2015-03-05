@@ -195,7 +195,7 @@ def g0w0_extended_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsi
         sigma_nband: Number of bands used to compute the self-energy (default is nscf_nband)
         workdir: Working directory.
         manager: :class:`TaskManager` instance.
-        nksamll: if not None, a DFT bandstucture calculation will be added after after the sc run
+        nksamll: if not None, a DFT bandstucture calculation will be added after the sc run
         extra_abivars: Dictionary with extra variables passed to ABINIT.
     """
     # TODO: Cannot use istwfk != 1.

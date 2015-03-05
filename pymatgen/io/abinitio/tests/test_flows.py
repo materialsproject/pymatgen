@@ -109,23 +109,35 @@ class FlowTest(FlowUnitTest):
         assert work.is_work
         task0_w0 = work[0]
         atrue(task0_w0.is_task)
-        afalse(task0_w0.has_subnodes)
         print(task0_w0.status.colored)
         atrue(len(flow) == 1) 
         aequal(flow.num_tasks, 1)
         atrue(flow.has_db) 
 
+        #print(task0_w0.input_structure)
+        print(task0_w0.make_input)
+
+        # Task history
+        assert len(task0_w0.history) == 0
+        task0_w0.history.info("Hello %s", "world")
+        assert len(task0_w0.history) == 1
+        print(task0_w0.history)
+        record = task0_w0.history.pop() 
+        print(record, repr(record))
+        assert record.get_message(asctime=False) == "Hello world"
+        assert len(task0_w0.history) == 0
+        assert flow.select_tasks(nids=task0_w0.node_id)[0] == task0_w0
+        assert flow.select_tasks(wslice=slice(0,1,1)) == [task0_w0]
+
         # Build a workflow containing two tasks depending on task0_w0
         work = Work()
         atrue(work.is_work)
-        atrue(work.has_subnodes)
         work.register(self.fake_input)
         work.register(self.fake_input)
         aequal(len(work), 2)
 
         flow.register_work(work, deps={task0_w0: "WFK"})
         atrue(flow.is_flow)
-        atrue(flow.has_subnodes)
         aequal(len(flow), 2)
 
         # Add another work without dependencies.
@@ -150,7 +162,7 @@ class FlowTest(FlowUnitTest):
 
         afalse(flow.all_ok)
         aequal(flow.num_tasks, 4)
-        aequal(flow.ncores_inuse, 0)
+        aequal(flow.ncores_used, 0)
 
         # API for iterations
         aequal(len(list(flow.iflat_tasks(status="Initialized"))), sum(len(work) for work in flow))

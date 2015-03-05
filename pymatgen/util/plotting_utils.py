@@ -115,18 +115,26 @@ def add_fig_kwargs(func):
     def wrapper(*args, **kwargs):
         # pop the kwds used by the decorator.
         title = kwargs.pop("title", None)
+        size_kwargs = kwargs.pop("size_kwargs", None)
         show = kwargs.pop("show", True)
         savefig = kwargs.pop("savefig", None)
+        tight_layout = kwargs.pop("tight_layout", False)
 
         # Call func
         fig = func(*args, **kwargs)
 
         # Operate on matplotlib figure.
         if title is not None: fig.suptitle(title)
+
+        if size_kwargs is not None:
+            fig.set_size_inches(size_kwargs.pop("w"), size_kwargs.pop("h"), **size_kwargs)
+
         if savefig: fig.savefig(savefig)
         if show: 
             import matplotlib.pyplot as plt
             plt.show()
+
+        if tight_layout: fig.tight_layout()
 
         return fig
 
@@ -140,6 +148,9 @@ def add_fig_kwargs(func):
     title             Title of the plot (Default: None).
     show              True to show the figure (Default True).
     savefig           'abc.png' or 'abc.eps' to save the figure to a file.
+    size_kwargs       Dictionary with options passed to fig.set_size_inches
+                      example: size_kwargs=dict(w=3, h=4) 
+    tight_layout      True if to call fig.tight_layout (default: False)
     ================  ===================================================="""
 
     if wrapper.__doc__ is not None:
