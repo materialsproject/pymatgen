@@ -765,7 +765,7 @@ class BandStructureWork(Work):
         Returns:
             `matplotlib` figure.
         """
-        if dos_pos is not None and not isistance(dos_pos, (list, tuple)): dos_pos = [dos_pos]
+        if dos_pos is not None and not isinstance(dos_pos, (list, tuple)): dos_pos = [dos_pos]
 
         from abipy.electrons.ebands import ElectronDosPlotter
         plotter = ElectronDosPlotter()
@@ -889,7 +889,8 @@ class G0W0Work(Work):
                                        nscf_nband=scf_in.electrons.nband*2, ecut=scf_in.ecut)
 
             self.bands_task = self.register_nscf_task(bands_input, deps={self.scf_task: "DEN"})
-
+            # note we don not let abinit print the dos, since this is inconpatible with parakgb
+            # the dos will be evaluated later using abipy
             dos_input = NscfStrategy(scf_strategy=scf_in,
                                      ksampling=KSampling.automatic_density(kppa=nksmall**3, structure=scf_in.structure,
                                                                            shifts=(0.0, 0.0, 0.0)),
