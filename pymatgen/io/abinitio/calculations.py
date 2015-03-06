@@ -70,45 +70,6 @@ def bandstructure_work(structure, pseudos, scf_kppa, nscf_nband,
                       workdir=workdir, manager=manager)
 
 
-#def relaxation_work(workdir, manager, structure, pseudos, scf_kppa,
-#               accuracy="normal", spin_mode="polarized",
-#               smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, **extra_abivars):
-#    """
-#    Returns a Work object that performs structural relaxations.
-#
-#    Args:
-#        workdir:
-#            Working directory.
-#        manager:
-#            `TaskManager` object.
-#        structure:
-#            Pymatgen structure.
-#        pseudos:
-#            List of `Pseudo` objects.
-#        scf_kppa:
-#            Defines the sampling used for the SCF run.
-#        accuracy:
-#            Accuracy of the calculation.
-#        spin_mode:
-#            Spin polarization.
-#        smearing:
-#            Smearing technique.
-#        charge:
-#            Electronic charge added to the unit cell.
-#        scf_algorithm:
-#            Algorithm used for solving the SCF cycle.
-#    """
-#    # SCF calculation.
-#    scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
-#    relax_algo = 
-#
-#    relax_strategy = RelaxStrategy(structure, pseudos, scf_ksampling, relax_algo, 
-#                                   accuracy=accuracy, spin_mode=spin_mode, smearing=smearing, 
-#                                   charge=charge, scf_algorithm=scf_algorithm)
-#
-#    #return Relaxation(relax_strategy, workdir=workdir, manager=manager)
-
-
 def g0w0_with_ppmodel_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx,
                            accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
                            ppmodel="godby", charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None,
@@ -287,86 +248,6 @@ def g0w0_extended_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsi
 
     return work_class(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager,
                       spread_scr=spread_scr, nksmall=nksmall)
-
-
-#def g0w0_with_cd_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, hilbert,
-#                 accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
-#                 charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None, 
-#                 sigma_nband=None, workdir=None, manager=None, **extra_abivars):
-#    """
-#    Returns a Work object that performs G0W0 calculations for the given the material.
-#
-#    Args:
-#        structure:
-#            Pymatgen structure.
-#        pseudos:
-#            List of `Pseudo` objects.
-#        scf_kppa:
-#            Defines the sampling used for the SCF run.
-#        nscf_nband:
-#            Number of bands included in the NSCF run.
-#        ecuteps:
-#            Cutoff energy [Ha] for the screening matrix.
-#        ecutsigx:
-#            Cutoff energy [Ha] for the exchange part of the self-energy.
-#        hilbert:
-#            `HilbertTransform` object with the parameters defining the frequency mesh 
-#            used for the spectral function and the frequency mesh used for the polarizability
-#        accuracy:
-#            Accuracy of the calculation.
-#        spin_mode:
-#            Spin polarization.
-#        smearing:
-#            Smearing technique.
-#        charge:
-#            Electronic charge added to the unit cell.
-#        scf_algorithm:
-#            Algorithm used for solving of the SCF cycle.
-#        inclvkb:
-#            Treatment of the dipole matrix elements (see abinit variable).
-#        scr_nband:
-#            Number of bands used to compute the screening (default is nscf_nband)
-#        sigma_nband:
-#            Number of bands used to compute the self-energy (default is nscf_nband)
-#        workdir:
-#            Working directory.
-#        manager:
-#            `TaskManager` instance.
-#        extra_abivars
-#            Dictionary with extra variables passed to ABINIT.
-#    """
-#    # TODO: Cannot use istwfk != 1.
-#    if "istwfk" not in extra_abivars:
-#        extra_abivars["istwfk"] = "*1"
-#
-#    scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
-#
-#    scf_strategy = ScfStrategy(structure, pseudos, scf_ksampling,
-#                               accuracy=accuracy, spin_mode=spin_mode,
-#                               smearing=smearing, charge=charge,
-#                               scf_algorithm=None, **extra_abivars)
-#
-#    nscf_ksampling = KSampling.automatic_density(structure, 1, chksymbreak=0)
-#
-#    nscf_strategy = NscfStrategy(scf_strategy, nscf_ksampling, nscf_nband, **extra_abivars)
-#
-#    if scr_nband is None: scr_nband = nscf_nband
-#    if sigma_nband is None: sigma_nband = nscf_nband
-#
-#    screening = Screening(ecuteps, scr_nband, w_type="RPA", sc_mode="one_shot",
-#                          hilbert=hilbert, ecutwfn=None, inclvkb=inclvkb)
-#
-#    self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening,
-#                             hilbert=hilbert)
-#
-#    scr_strategy = ScreeningStrategy(scf_strategy, nscf_strategy, screening, 
-#                                     **extra_abivars)
-#
-#    sigma_strategy = SelfEnergyStrategy(scf_strategy, nscf_strategy, scr_strategy, self_energy,
-#                                        **extra_abivars)
-#
-#    return G0W0Work(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, 
-#                    workdir=workdir, manager=manager)
 
 
 def bse_with_mdf_work(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shiftk, 
