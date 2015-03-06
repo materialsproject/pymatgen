@@ -68,7 +68,7 @@ class WorkResults(NodeResults):
         # Will put all files found in outdir in GridFs 
         # Warning: assuming binary files.
         d = {os.path.basename(f): f for f in work.outdir.list_filepaths()}
-        new.add_gridfs_files(**d)
+        new.register_gridfs_files(**d)
 
         return new
 
