@@ -939,7 +939,7 @@ class BatchLauncher(object):
         # Extract the qadapater to be used for the batch script.
         self.qadapter = qad = manager.qads[0]
         qad.set_mpi_procs(1)
-        qad.set_timelimit(60)
+        qad.set_timelimit(1200)
 
         # Initialize list of flows.
         if flows is None: flows = []

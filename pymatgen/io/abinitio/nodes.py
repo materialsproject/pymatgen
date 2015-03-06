@@ -506,7 +506,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         try:
             return self._name
         except AttributeError:
-            return os.path.relpath(self.workdir)
+            return os.path.basename(self.workdir)
 
     def set_name(self, name):
         """Set the name of the Node."""
