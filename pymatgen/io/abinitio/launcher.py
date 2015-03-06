@@ -542,7 +542,8 @@ class PyFlowScheduler(object):
         except KeyboardInterrupt:
             self.shutdown(msg="KeyboardInterrupt from user")
             if ask_yesno("Do you want to cancel all the jobs in the queue? [Y/n]"): 
-                self.flow.cancel()
+                print("Number of jobs cancelled %s", self.flow.cancel())
+
             self.flow.pickle_dump()
             return False
 
@@ -702,7 +703,9 @@ class PyFlowScheduler(object):
                 self.flow.num_errored_tasks, self.max_num_abierrs)
             err_msg += boxed(msg)
 
+        # TODO: This is not correct because I should also check tasks that are submitted
         # Test on the presence of deadlocks.
+        """
         deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
         if deadlocked: 
             # Check the flow agains to that status are updated. 
@@ -719,6 +722,7 @@ class PyFlowScheduler(object):
             deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
             if not runnables and not running:
                 err_msg += "No task is running and cannot find other tasks to sumbmit."
+        """
 
         if err_msg:
             # Something wrong. Quit
