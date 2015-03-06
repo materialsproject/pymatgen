@@ -471,7 +471,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     def __repr__(self):
         try:
             return "<%s, node_id=%s, workdir=%s>" % (
-                self.__class__.__name__, self.node_id, os.path.relpath(self.workdir))
+                self.__class__.__name__, self.node_id, self.workdir)
 
         except AttributeError:
             # this usually happens when workdir has not been initialized
