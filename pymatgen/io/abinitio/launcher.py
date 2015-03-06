@@ -846,7 +846,11 @@ def sendmail(subject, text, mailto, sender=None):
         return os.getlogin() + "@" + gethostname()
 
     # Body of the message.
-    sender = user_at_host() if sender is None else sender
+    try:
+        sender = user_at_host() if sender is None else sender
+    except OSError:
+        sender = 'abipyscheduler@youknowwhere'
+
     if is_string(mailto): mailto = [mailto]
 
     from email.mime.text import MIMEText
