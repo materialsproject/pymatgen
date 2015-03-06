@@ -769,6 +769,7 @@ db_connector:
         # Write the script.
         with open(task.job_file.path, "w") as fh:
             fh.write(script)
+            os.chmod(0o740)
             return task.job_file.path
 
     def launch(self, task):
@@ -1910,7 +1911,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             raise self.Error("Task status: %s" % str(self.status))
 
         if self.start_lockfile.exists:
-            logger.warning("Found lock file: %s" % self.start_lockfile.relpath)
+            logger.warning("Found lock file: %s" % self.start_lockfile.path)
             return 0
 
         self.start_lockfile.write("Started on %s" % time.asctime())
