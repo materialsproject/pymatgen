@@ -47,10 +47,9 @@ def ask_yesno(prompt, default=True):
 
     try:
         answer = my_input(prompt)
+        return answer.lower().strip() in ["y", "yes"]
     except EOFError:
         return default
-
-    return answer.lower().strip() in ["n", "no"]
 
 
 class ScriptEditor(object):
@@ -1006,5 +1005,3 @@ class BatchLauncher(object):
         )
 
         return script
-        
-        
