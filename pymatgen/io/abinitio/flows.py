@@ -19,7 +19,7 @@ from six.moves import map
 from atomicfile import AtomicFile
 from prettytable import PrettyTable
 from monty.collections import as_set
-from monty.string import list_strings
+from monty.string import list_strings, is_string
 from monty.io import FileLock
 from monty.pprint import draw_tree
 from monty.termcolor import stream_has_colours, cprint, colored, cprint_map
@@ -135,6 +135,17 @@ class Flow(Node):
         flow.register_work(work)
 
         return flow.allocate()
+
+    @classmethod
+    def as_flow(cls, obj):
+        """Convert obj into a Flow. Accepts filepath, dict Flow object."""
+        if isinstance(obj, cls): return obj
+        if is_string(obj):
+            return cls.pickle_load(obj)
+        elif isinstance(obj, collections.Mapping):
+            return cls.from_dict(obj)
+        else:
+            raise TypeError("Don't know how to convert type %s into a Flow" % type(obj))
 
     def __init__(self, workdir, manager=None, pickle_protocol=-1):
         """
@@ -1599,7 +1610,8 @@ def g0w0_flow(workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=N
     return flow.allocate()
 
 
-def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, with_dde=False, manager=None, flow_class=Flow):
+def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, with_dde=False, 
+                manager=None, flow_class=Flow):
     """
     Build a :class:`Flow` for phonon calculations.
 
