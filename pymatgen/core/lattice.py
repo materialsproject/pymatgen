@@ -899,7 +899,8 @@ class Lattice(PMGSONable):
         images = arange[:, None, None] + brange[None, :, None] +\
             crange[None, None, :]
 
-        shifted_coords = fcoords[:, None, None, None, :] + images[None, :, :, :, :]
+        shifted_coords = fcoords[:, None, None, None, :] + \
+            images[None, :, :, :, :]
         coords = self.get_cartesian_coords(shifted_coords)
         dists = np.sqrt(np.sum((coords - pts[:, None, None, None, :]) ** 2,
                                axis=4))

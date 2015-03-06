@@ -385,7 +385,6 @@ class IStructure(SiteCollection, PMGSONable):
         for i in range(len(species)):
             prop = None
             if site_properties:
-
                 prop = {k: v[i]
                         for k, v in site_properties.items()}
 
@@ -552,9 +551,8 @@ class IStructure(SiteCollection, PMGSONable):
         # Note Fortan --> C indexing 
         species = [znucl_type[typ-1] for typ in typat]
 
-        #print(lattice)
+        #print(lattice, species, coords)
         #print(species)
-        #print(coords)
 
         return cls(lattice, species, coords, validate_proximity=False,
                    to_unit_cell=False, coords_are_cartesian=coords_are_cartesian)
@@ -968,7 +966,7 @@ class IStructure(SiteCollection, PMGSONable):
             vec -= np.round(vec)
         sp = self.species_and_occu
         structs = []
-        for x in range(nimages+1):
+        for x in range(nimages + 1):
             if interpolate_lattices:
                 l_a = lstart + x / nimages * lvec
                 l = Lattice.from_lengths_and_angles(*l_a)
@@ -1140,7 +1138,7 @@ class IStructure(SiteCollection, PMGSONable):
         return "\n".join(outs)
 
     def __str__(self):
-        outs = ["Structure Summary ({s})".format(s=self.composition.formula),
+        outs = ["Full Formula ({s})".format(s=self.composition.formula),
                 "Reduced Formula: {}"
                 .format(self.composition.reduced_formula)]
         to_s = lambda x: "%0.6f" % x
@@ -1150,7 +1148,7 @@ class IStructure(SiteCollection, PMGSONable):
                                            for i in self.lattice.angles]))
         outs.append("Sites ({i})".format(i=len(self)))
         for i, site in enumerate(self):
-            outs.append(" ".join([str(i + 1), site.species_string,
+            outs.append(" ".join([str(i), site.species_string,
                                   " ".join([to_s(j).rjust(12)
                                             for j in site.frac_coords])]))
         return "\n".join(outs)
@@ -1643,14 +1641,14 @@ class IMolecule(SiteCollection, PMGSONable):
         return "\n".join(outs)
 
     def __str__(self):
-        outs = ["Molecule Summary ({s})".format(s=self.composition.formula),
+        outs = ["Full Formula ({s})".format(s=self.composition.formula),
                 "Reduced Formula: " + self.composition.reduced_formula,
                 "Charge = {}, Spin Mult = {}".format(
                     self._charge, self._spin_multiplicity)]
         to_s = lambda x: "%0.6f" % x
         outs.append("Sites ({i})".format(i=len(self)))
         for i, site in enumerate(self):
-            outs.append(" ".join([str(i + 1), site.species_string,
+            outs.append(" ".join([str(i), site.species_string,
                                   " ".join([to_s(j).rjust(12) for j in
                                             site.coords])]))
         return "\n".join(outs)
@@ -2459,19 +2457,30 @@ class Structure(IStructure, collections.MutableSequence):
 
     def merge_sites(self, tol=0.01):
         """
-        Merges sites (adding occupancies) within tol of each other
+        Merges sites (adding occupancies) within tol of each other.
+        Removes site properties
         """
+        from scipy.spatial.distance import squareform
+        from scipy.cluster.hierarchy import fcluster, linkage
+
         d = self.distance_matrix
-        d[np.triu_indices(len(d))] = np.inf
-        for inds in np.sort(np.argwhere(d < tol), axis=0)[::-1]:
-            i, j = inds
-            # j < i always, and largest i first, so any previously deleted
-            # site is after i and j (so indices are still correct)
-            sp = self[i].species_and_occu + self[j].species_and_occu
-            d = self[i].frac_coords - self[j].frac_coords
-            fc = self[j].frac_coords + (d - np.round(d)) / 2
-            self.replace(j, sp, fc)
-            del self[i]
+        np.fill_diagonal(d, 0)
+        clusters = fcluster(linkage(squareform((d + d.T) / 2)),
+                            tol, 'distance')
+
+        sites = []
+        for c in np.unique(clusters):
+            inds = np.argwhere(clusters == c)
+            species = Composition()
+            coords = self[inds[0]].frac_coords
+            n = len(inds)
+            for i in inds:
+                species += self[i].species_and_occu
+                offset = self[i].frac_coords - coords
+                coords += (offset - np.round(offset)) / n
+            sites.append(PeriodicSite(species, coords, self.lattice))
+
+        self._sites = sites
 
 
 class Molecule(IMolecule, collections.MutableSequence):

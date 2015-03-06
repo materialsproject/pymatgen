@@ -80,7 +80,7 @@ class MPRester(object):
                             "e_above_hull", "hubbards", "is_compatible",
                             "spacegroup", "task_ids", "band_gap", "density",
                             "icsd_id", "icsd_ids", "cif", "total_magnetization",
-                            "material_id", "oxide_type")
+                            "material_id", "oxide_type", "tags")
 
     supported_task_properties = ("energy", "energy_per_atom", "volume",
                                  "formation_energy_per_atom", "nsites",
@@ -112,7 +112,8 @@ class MPRester(object):
         """
         self.session.close()
 
-    def _make_request(self, sub_url, payload=None, method="GET"):
+    def _make_request(self, sub_url, payload=None, method="GET",
+                      mp_decode=True):
         response = None
         url = self.preamble + sub_url
         try:
@@ -121,9 +122,12 @@ class MPRester(object):
             else:
                 response = self.session.get(url, params=payload)
             if response.status_code in [200, 400]:
-                try:
-                    data = json.loads(response.text, cls=MPDecoder)
-                except:
+                if mp_decode:
+                    try:
+                        data = json.loads(response.text, cls=MPDecoder)
+                    except:
+                        data = json.loads(response.text)
+                else:
                     data = json.loads(response.text)
                 if data["valid_response"]:
                     if data.get("warning"):
@@ -289,19 +293,24 @@ class MPRester(object):
         data = self.get_data(material_id, prop=prop)
         return data[0][prop]
 
-    def get_entry_by_material_id(self, material_id):
+    def get_entry_by_material_id(self, material_id, compatible=True):
         """
         Get a ComputedEntry corresponding to a material_id.
 
         Args:
             material_id (str): Materials Project material_id (a string,
                 e.g., mp-1234).
+            compatible (bool): Whether to process the entry using Materials
+                Project compatibility. Defaults to True.
 
         Returns:
             ComputedEntry object.
         """
         data = self.get_data(material_id, prop="entry")
-        return data[0]["entry"]
+        e = data[0]["entry"]
+        if compatible:
+            e = MaterialsProjectCompatibility().process_entry(e)
+        return e
 
     def get_dos_by_material_id(self, material_id):
         """
@@ -428,7 +437,7 @@ class MPRester(object):
         except Exception as ex:
             raise MPRestError(str(ex))
 
-    def query(self, criteria, properties):
+    def query(self, criteria, properties, mp_decode=True):
         """
         Performs an advanced query, which is a Mongo-like syntax for directly
         querying the Materials Project database via the query rest interface.
@@ -469,6 +478,9 @@ class MPRester(object):
             properties (list): Properties to request for as a list. For
                 example, ["formula", "formation_energy_per_atom"] returns
                 the formula and formation energy per atom.
+            mp_decode (bool): Whether to do a decoding to a Pymatgen object
+                where possible. In some cases, it might be useful to just get
+                the raw python dict, i.e., set to False.
 
         Returns:
             List of results. E.g.,
@@ -481,7 +493,8 @@ class MPRester(object):
             criteria = MPRester.parse_criteria(criteria)
         payload = {"criteria": json.dumps(criteria),
                    "properties": json.dumps(properties)}
-        return self._make_request("/query", payload=payload, method="POST")
+        return self._make_request("/query", payload=payload, method="POST",
+                                  mp_decode=mp_decode)
 
     def submit_structures(self, structures, authors, projects=None,
                           references='', remarks=None, data=None,

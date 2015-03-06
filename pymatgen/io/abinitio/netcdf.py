@@ -60,6 +60,10 @@ class NetcdfReaderError(Exception):
     """Base error class for NetcdfReader"""
 
 
+class NO_DEFAULT(object):
+    """Signal that read_value should raise an Error"""
+
+
 class NetcdfReader(object):
     """
     Wraps and extends netCDF4.Dataset. Read only mode. Supports with statements.
@@ -137,7 +141,7 @@ class NetcdfReader(object):
             group = self.path2group[path]
             return group.variables.keys()
 
-    def read_value(self, varname, path="/", cmode=None):
+    def read_value(self, varname, path="/", cmode=None, default=NO_DEFAULT):
         """
         Returns the values of variable with name varname in the group specified by path.
 
@@ -146,11 +150,16 @@ class NetcdfReader(object):
             path: path to the group.
             cmode: if cmode=="c", a complex ndarrays is constructed and returned
                 (netcdf does not provide native support from complex datatype).
+            default: read_value returns default if varname is not present.
 
         Returns:
             numpy array if varname represents an array, scalar otherwise.
         """
-        var = self.read_variable(varname, path=path)
+        try:
+            var = self.read_variable(varname, path=path)
+        except self.Error:
+            if default is NO_DEFAULT: raise
+            return default
 
         if cmode is None:
             # scalar or array

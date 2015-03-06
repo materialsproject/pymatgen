@@ -1,10 +1,7 @@
 Change log
 ==========
 
-v3.0.9
-------
-* Major bug fixes for CIF parsing (Will Richards).
-* Support for {Li,Na} syntax in parse_criteria for MPRester.
-* Additional example notebook for ordering and enumeration. 
-* More robust checking for oxidation states in EnumerateStructureTRansformation.
-* Improvements to Slab polarity checking.
+v3.0.11
+-------
+* Lots of abinitio improvements (Matteo).
+* Added mp_decode option to MPRester.query to allow option to not decode into pymatgen objects.

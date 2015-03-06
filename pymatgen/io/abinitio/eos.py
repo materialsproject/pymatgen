@@ -8,7 +8,7 @@ import pymatgen.core.units as units
 
 from monty.functools import return_none_if_raise
 from pymatgen.core.units import FloatWithUnit
-from pymatgen.util.plotting_utils import add_fig_kwargs
+from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
 
 import logging
 logger = logging.getLogger(__file__)
@@ -328,11 +328,7 @@ class EOS_Fit(object):
         Uses Matplotlib to plot the energy curve.
 
         Args:
-            ax: Axis object. If ax is None, a new figure is produced.
-
-        Returns:
-            Matplotlib figure.
-
+            ax: :class:`Axes` object. If ax is None, a new figure is produced.
 
         ================  ==============================================================
         kwargs            Meaning
@@ -340,9 +336,13 @@ class EOS_Fit(object):
         style             
         color
         text
+        label
         ================  ==============================================================
+
+        Returns:
+            Matplotlib figure.
         """
-        import matplotlib.pyplot as plt
+        ax, fig, plt = get_ax_fig_plt(ax)
 
         vmin, vmax = self.volumes.min(), self.volumes.max()
         emin, emax = self.energies.min(), self.energies.max()
@@ -350,38 +350,29 @@ class EOS_Fit(object):
         vmin, vmax = (vmin - 0.01 * abs(vmin), vmax + 0.01 * abs(vmax))
         emin, emax = (emin - 0.01 * abs(emin), emax + 0.01 * abs(emax))
 
-        if ax is None:
-            fig = plt.figure()
-            ax = fig.add_subplot(1,1,1)
-        else:
-            fig = plt.gcf()
-
-        lines, legends = [], []
+        color = kwargs.pop("color", "r")
+        label = kwargs.pop("label", None)
 
         # Plot input data.
-        color = kwargs.pop("color", "r")
-        line, = ax.plot(self.volumes, self.energies, color + "o")
-        lines.append(line)
-        legends.append("Input Data")
+        ax.plot(self.volumes, self.energies, linestyle="None", marker="o", color=color) #, label="Input Data")
 
         # Plot EOS.
         vfit = np.linspace(vmin, vmax, 100)
+        if label is None:
+            label = self.name + ' fit'
 
         if self.eos_name == "deltafactor":
             xx = vfit**(-2./3.)
-            line, = ax.plot(vfit, np.polyval(self.eos_params, xx), color + "-")
+            ax.plot(vfit, np.polyval(self.eos_params, xx), linestyle="dashed", color=color, label=label)
         else:
-            line, = ax.plot(vfit, self.func(vfit, *self.eos_params), color + "-")
-
-        lines.append(line)
-        legend = kwargs.pop("legend", self.name + ' fit')
-        legends.append(legend)
+            ax.plot(vfit, self.func(vfit, *self.eos_params), linestyle="dashed", color=color, label=label)
 
         # Set xticks and labels.
         ax.grid(True)
         ax.set_xlabel("Volume $\AA^3$")
         ax.set_ylabel("Energy (eV)")
-        ax.legend(lines, legends, loc='best', shadow=True)
+
+        ax.legend(loc="best", shadow=True)
 
         # Add text with fit parameters.
         if kwargs.pop("text", True):
