@@ -1333,6 +1333,12 @@ class Flow(Node):
         sched.add_flow(self)
         return sched
 
+    def batch(self):
+        from .launcher import BatchLauncher
+        workdir = os.path.join(self.workdir, "batch")
+        launcher = BatchLauncher(workdir=workdir, flows=self)
+        return launcher.submit()
+
     def make_light_tarfile(self, name=None):
         """Lightweight tarball file. Mainly used for debugging. Return the name of the tarball file."""
         name = os.path.basename(self.workdir) + "-light.tar.gz" if name is None else name
