@@ -176,7 +176,8 @@ class DosPlotter(object):
                 ylim = plt.ylim()
                 ppl.plot([self._doses[key]['efermi'],
                           self._doses[key]['efermi']], ylim,
-                          colors[i % ncolors] + '--', linewidth=2)
+                          color=colors[i % ncolors],
+                          linestyle='--', linewidth=2)
 
         if xlim:
             plt.xlim(xlim)

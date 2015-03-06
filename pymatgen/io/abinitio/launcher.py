@@ -13,7 +13,7 @@ from monty.io import get_open_fds
 from monty.string import boxed, is_string
 from monty.os.path import which
 from monty.collections import AttrDict
-from .utils import as_bool
+from .utils import as_bool, File, Directory
 
 try:
     import apscheduler
@@ -317,6 +317,7 @@ class PyFlowScheduler(object):
         self.verbose = int(kwargs.pop("verbose", 0))
         self.use_dynamic_manager = kwargs.pop("use_dynamic_manager", False)
         self.max_njobs_inqueue = kwargs.pop("max_njobs_inqueue", 200)
+        self.max_ncores_used = kwargs.pop("max_ncores_used", None)
         self.contact_resource_manager = as_bool(kwargs.pop("contact_resource_manager", False))
 
         self.remindme_s = float(kwargs.pop("remindme_s", 4 * 24 * 3600))
@@ -327,10 +328,16 @@ class PyFlowScheduler(object):
         self.max_nlaunches = kwargs.pop("max_nlaunches", -1)
         self.debug = kwargs.pop("debug", 0)
 
+        self.customer_service_dir = kwargs.pop("customer_service_dir", None)
+        if self.customer_service_dir is not None:
+            self.customer_service_dir = Directory(self.customer_service_dir)
+            self._validate_customer_service()
+
         if kwargs:
             raise self.Error("Unknown arguments %s" % kwargs)
 
         if has_sched_v3:
+            logger.warning("Using scheduler v>=3.0.0")
             from apscheduler.schedulers.blocking import BlockingScheduler
             self.sched = BlockingScheduler()
         else:
@@ -366,7 +373,7 @@ class PyFlowScheduler(object):
         Search first in the working directory and then in the configuration directory of abipy.
 
         Raises:
-            RuntimeError if file is not found.
+            `RuntimeError` if file is not found.
         """
         # Try in the current directory.
         path = os.path.join(os.getcwd(), cls.YAML_FILE)
@@ -398,7 +405,6 @@ class PyFlowScheduler(object):
         """The pid of the process associated to the scheduler."""
         try:
             return self._pid
-
         except AttributeError:
             self._pid = os.getpid()
             return self._pid
@@ -456,6 +462,52 @@ class PyFlowScheduler(object):
 
         self._pid_file = pid_file
         self._flow = flow
+
+    def _validate_customer_service(self):
+        """
+        Validate input parameters if customer service is on then
+        create directory for tarball files with correct premissions for user and group.
+        """
+        direc = self.customer_service_dir
+        if not direc.exists:
+            mode = 0o750
+            print("Creating customer_service_dir %s with mode %s" % (direc, mode))
+            direc.makedirs()
+            os.chmod(direc.path, mode)
+
+        if self.mailto is None:
+            raise RuntimeError("customer_service_dir requires mailto option in scheduler.yml")
+
+    def _do_customer_service(self):
+        """
+        This method is called before the shutdown of the scheduler.
+        If customer_service is on and the flow didn't completed successfully,
+        a lightweight tarball file with inputs and the most important output files 
+        is created in customer_servide_dir.
+        """
+        if self.customer_service_dir is None: return
+        doit = self.exceptions or not self.flow.all_ok
+        doit = True
+        if not doit: return
+        
+        prefix = os.path.basename(self.flow.workdir) + "_"
+
+        import tempfile, datetime
+        suffix = str(datetime.datetime.now()).replace(" ", "-") 
+        # Remove milliseconds
+        i = suffix.index(".")
+        if i != -1: suffix = suffix[:i]
+        suffix += ".tar.gz"
+
+        #back = os.getcwd()
+        #os.chdir(self.customer_service_dir.path)
+
+        _, tmpname = tempfile.mkstemp(suffix="_" + suffix, prefix=prefix,
+                                      dir=self.customer_service_dir.path, text=False)
+
+        print("Dear customer,\n We are about to generate a tarball in\n  %s" % tmpname)
+        self.flow.make_light_tarfile(name=tmpname)
+        #os.chdir(back)
 
     def start(self):
         """
@@ -527,8 +579,17 @@ class PyFlowScheduler(object):
         else:
             max_nlaunch = min(self.max_njobs_inqueue - nqjobs, self.max_nlaunches)
 
-        # check status and print it.
+        # check status.
         flow.check_status(show=False)
+
+        # This check is not perfect, we should make a list of tasks to sumbit
+        # and select only the subset so that we don't exceeed mac_ncores_used 
+        # Many sections of this code should be rewritten.
+        #if self.max_ncores_used is not None and flow.ncores_used > self.max_ncores_used:
+        if self.max_ncores_used is not None and flow.ncores_allocated > self.max_ncores_used:
+            print("Cannot exceed max_ncores_used %s" % self.max_ncores_used)
+            logger.info("Cannot exceed max_ncores_used %s" % self.max_ncores_used)
+            return
 
         # fix problems
         # Try to restart the unconverged tasks
@@ -549,9 +610,14 @@ class PyFlowScheduler(object):
 
         # move here from withing rapid fire ...
         # fix only prepares for restarting, and sets to ready
+        nfixed = flow.fix_abi_critical()
+        if nfixed: print("Fixed %d AbiCritical errors" % nfixed)
+
         # Temporarily disable by MG because I don't know if fix_critical works after the
         # introduction of the new qadapters
-        #flow.fix_critical()
+        if False:
+            nfixed = flow.fix_queue_critical()
+            if nfixed: print("Fixed %d QueueCritical errors" % nfixed)
 
         # update database
         flow.pickle_dump()
@@ -592,11 +658,8 @@ class PyFlowScheduler(object):
 
         # Mission accomplished. Shutdown the scheduler.
         all_ok = self.flow.all_ok
-        if self.verbose:
-            print("all_ok", all_ok)
-
         if all_ok:
-            self.shutdown(msg="All tasks have reached S_OK. Will shutdown the scheduler and exit")
+            return self.shutdown(msg="All tasks have reached S_OK. Will shutdown the scheduler and exit")
 
         # Handle failures.
         err_msg = ""
@@ -639,11 +702,23 @@ class PyFlowScheduler(object):
                 self.flow.num_errored_tasks, self.max_num_abierrs)
             err_msg += boxed(msg)
 
+        # Test on the presence of deadlocks.
         deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
-        #print("\ndeadlocked:\n", deadlocked, "\nrunnables:\n", runnables, "\nrunning\n", running)
-        if deadlocked and not runnables and not running:
-            msg = "No runnable job with deadlocked tasks:\n %s\nWill shutdown the scheduler and exit" % str(deadlocked)
-            err_msg += boxed(msg)
+        if deadlocked: 
+            # Check the flow agains to that status are updated. 
+            self.flow.check_status()
+
+            deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
+            print("deadlocked:\n", deadlocked, "\nrunnables:\n", runnables, "\nrunning\n", running)
+            if deadlocked and not runnables and not running:
+                err_msg += "No runnable job with deadlocked tasks:\n%s." % str(deadlocked)
+
+        if not runnables and not running:
+            # Check the flow agains to that status are updated. 
+            self.flow.check_status()
+            deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
+            if not runnables and not running:
+                err_msg += "No task is running and cannot find other tasks to sumbmit."
 
         if err_msg:
             # Something wrong. Quit
@@ -655,8 +730,8 @@ class PyFlowScheduler(object):
         """Cleanup routine: remove the pid file and save the pickle database"""
         try:
             os.remove(self.pid_file)
-        except OSError:
-            logger.critical("Could not remove pid_file")
+        except OSError as exc:
+            logger.critical("Could not remove pid_file: %s", exc)
 
         # Save the final status of the flow.
         self.flow.pickle_dump()
@@ -664,7 +739,6 @@ class PyFlowScheduler(object):
     def shutdown(self, msg):
         """Shutdown the scheduler."""
         try:
-
             self.cleanup()
 
             self.history.append("Completed on %s" % time.asctime())
@@ -690,11 +764,15 @@ class PyFlowScheduler(object):
             app("Completed on %s" % time.asctime())
             app("Elapsed time %s" % str(self.get_delta_etime()))
             if self.flow.all_ok:
-                app("Flow completed succesfully")
+                app("Flow completed successfully")
             else:
                 app("Flow didn't complete successfully")
                 app("Shutdown message:\n%s" % msg)
+
+            print("")
             print("\n".join(lines))
+
+            self._do_customer_service()
 
         finally:
             # Shutdown the scheduler thus allowing the process to exit.
@@ -702,8 +780,9 @@ class PyFlowScheduler(object):
 
             # Unschedule all the jobs before calling shutdown
             #self.sched.print_jobs()
-            for job in self.sched.get_jobs():
-                self.sched.unschedule_job(job)
+            if not has_sched_v3:
+                for job in self.sched.get_jobs():
+                    self.sched.unschedule_job(job)
             #self.sched.print_jobs()
                 
             self.sched.shutdown()
@@ -792,6 +871,136 @@ def sendmail(subject, text, mailto, sender=None):
     outdata, errdata = p.communicate(msg)
     return len(errdata)
 
-#def test_sendmail():
-#    retcode = sendmail("sendmail_test", text="hello\nworld", mailto="nobody@nowhere.com")
-#    print("Retcode", retcode)
+
+def __test_sendmail():
+    retcode = sendmail("sendmail_test", text="hello\nworld", mailto="nobody@nowhere.com")
+    print("Retcode", retcode)
+    assert retcode == 0
+
+
+class BatchLauncher(object):
+
+    PICKLE_FNAME = "__BatchLauncher__.pickle"
+
+    #@classmethod
+    #def from_directory(cls, top):
+
+    @classmethod
+    def pickle_load(self, filepath):
+        """
+        Loads the object from a pickle file and performs initial setup.
+
+        Args:
+            filepath: Filename or directory name. It filepath is a directory, we
+                scan the directory tree starting from filepath and we
+                read the first pickle database. Raise RuntimeError if multiple
+                databases are found.
+        """
+        with open(filepath, "rb") as fh:
+            new = pickle.load(fh)
+        return new
+
+    def pickle_dump(self):
+        """
+        Save the status of the object in pickle format.
+        """
+        import pickle
+        with open(os.path.join(self.workdir, self.PICKLE_FNAME), mode="wb") as fh:
+            pickle.dump(self, fh)
+
+    def __init__(self, workdir, flows=None, manager=None):
+        """
+        Args:
+            workdir: Working directory
+            manager: :class:`TaskManager` object responsible for the submission of the jobs.
+                     If manager is None, the object is initialized from the yaml file
+                     located either in the working directory or in the user configuration dir.
+            flows:  List of `Flow` objects.
+        """
+        self.workdir = os.path.abspath(workdir)
+
+        if not os.path.exists(self.workdir):
+            os.makedirs(self.workdir)
+        else:
+            pass
+            #raise RuntimeError("Directory %s already esists. Use BatchLauncher.pickle_load()" % self.workdir)
+
+        self.name = os.path.basename(self.workdir)
+        self.qerr_file = File(os.path.join(self.workdir, "queue.qerr"))
+        self.qout_file = File(os.path.join(self.workdir, "queue.qout"))
+
+        from .tasks import TaskManager
+        manager = TaskManager.from_user_config() if manager is None else \
+                  TaskManager.as_manager(manager)
+
+        # Extract the qadapater to be used for the batch script.
+        self.qadapter = qad = manager.qads[0]
+        qad.set_mpi_procs(1)
+        qad.set_timelimit(60)
+
+        # Initialize list of flows.
+        if flows is None: flows = []
+        if not isinstance(flows, (list, tuple)): flows = [flows]
+        self.flows = flows
+
+    def __str__(self):
+        lines = []
+        lines.extend(str(self.qadapter).splitlines())
+        for i, flow in enumerate(self.flows):
+            lines.append("Flow %d] " %i + str(flow))
+        return "\n".join(lines)
+
+    def add_flow(self, flow):
+        """Add a flow. Accept filepath or :class:`Flow` object."""
+        from .flows import Flow
+        flow = Flow.as_flow(flow)
+        # Check if we are already using a scheduler to run this flow
+        #raise RuntimeError()
+        self.flows.append(flow)
+
+    def submit(self):
+        if not self.flows:
+            raise RuntimeError("Cannot submit an empty list of flows!")
+
+        if hasattr(self, "qjob"):
+            msg = "Got qjob %s" % self.qjob
+            raise RuntimeError(msg)
+
+        script = self._get_job_script_str()
+        print(script)
+
+        # Write the script.
+        script_file = os.path.join(self.workdir, "run.sh")
+        with open(script_file, "wt") as fh:
+            fh.write(script)
+
+        # Submit the task and save the queue id.
+        self.qjob, process = self.qadapter.submit_to_queue(script_file)
+
+        self.pickle_dump()
+        #process.wait()
+        #return process.returncode
+
+    def _get_job_script_str(self):
+        """Write the submission script. return the path of the script"""
+        executable = []
+        app = executable.append
+
+        # Build list of abirun commands and save the name of the log files.
+        self.sched_logs = []
+        for i, flow in enumerate(self.flows):
+            logfile = "log_flow%d" % i
+            app("abirun.py %s scheduler > %s" % (flow.workdir, logfile))
+            self.sched_logs.append(logfile)
+
+        script = self.qadapter.get_script_str(
+            job_name=self.name, 
+            launch_dir=self.workdir,
+            executable=executable,
+            qout_path=self.qout_file.path,
+            qerr_path=self.qerr_file.path,
+        )
+
+        return script
+        
+        
