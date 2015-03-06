@@ -520,6 +520,24 @@ db_connector:
         return cls.from_dict(yaml.load(s))
 
     @classmethod
+    def as_manager(cls, obj):
+        """
+        Convert obj into TaskManager instance. Accepts string, filepath, dictionary, TaskManager object.
+        """
+        if isinstance(obj, cls): return obj
+
+        if is_string(obj):
+            if os.path.exists(obj):
+                return cls.from_file(obj)
+            else:
+                return cls.from_string(obj)
+
+        elif isinstance(obj, collections.Mapping):
+            return cls.from_dict(obj)
+        else:
+            raise TypeError("Don't know how to convert type %s to TaskManager" % type(obj))
+
+    @classmethod
     def from_dict(cls, d):
         """Create an instance from a dictionary."""
         return cls(**{k: v for k, v in d.items() if k in cls.ENTRIES})

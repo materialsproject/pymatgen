@@ -29,7 +29,6 @@ __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 
 
-
 def num_valence_electrons(pseudos, structure):
     """
     Compute the number of valence electrons from

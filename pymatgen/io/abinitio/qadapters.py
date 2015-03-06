@@ -1211,7 +1211,7 @@ limits:
         Args:
             job_name: Name of the job.
             launch_dir: (str) The directory the job will be launched in.
-            executable: String with the name of the executable to be executed.
+            executable: String with the name of the executable to be executed or list of commands
             qout_path Path of the Queue manager output file.
             qerr_path: Path of the Queue manager error file.
         """
@@ -1255,9 +1255,13 @@ limits:
             se.add_emptyline()
 
         # Construct the string to run the executable with MPI and mpi_procs.
-        line = self.mpi_runner.string_to_run(executable, self.mpi_procs, 
-                                             stdin=stdin, stdout=stdout, stderr=stderr)
-        se.add_line(line)
+        if is_string(executable):
+            line = self.mpi_runner.string_to_run(executable, self.mpi_procs, 
+                                                 stdin=stdin, stdout=stdout, stderr=stderr)
+            se.add_line(line)
+        else:
+            assert isinstance(executable, (list, tuple))
+            se.add_lines(executable)
 
         if self.post_run:
             se.add_emptyline()

@@ -13,7 +13,7 @@ from monty.io import get_open_fds
 from monty.string import boxed, is_string
 from monty.os.path import which
 from monty.collections import AttrDict
-from .utils import as_bool, Directory
+from .utils import as_bool, File, Directory
 
 try:
     import apscheduler
@@ -871,6 +871,136 @@ def sendmail(subject, text, mailto, sender=None):
     outdata, errdata = p.communicate(msg)
     return len(errdata)
 
-#def test_sendmail():
-#    retcode = sendmail("sendmail_test", text="hello\nworld", mailto="nobody@nowhere.com")
-#    print("Retcode", retcode)
+
+def __test_sendmail():
+    retcode = sendmail("sendmail_test", text="hello\nworld", mailto="nobody@nowhere.com")
+    print("Retcode", retcode)
+    assert retcode == 0
+
+
+class BatchLauncher(object):
+
+    PICKLE_FNAME = "__BatchLauncher__.pickle"
+
+    #@classmethod
+    #def from_directory(cls, top):
+
+    @classmethod
+    def pickle_load(self, filepath):
+        """
+        Loads the object from a pickle file and performs initial setup.
+
+        Args:
+            filepath: Filename or directory name. It filepath is a directory, we
+                scan the directory tree starting from filepath and we
+                read the first pickle database. Raise RuntimeError if multiple
+                databases are found.
+        """
+        with open(filepath, "rb") as fh:
+            new = pickle.load(fh)
+        return new
+
+    def pickle_dump(self):
+        """
+        Save the status of the object in pickle format.
+        """
+        import pickle
+        with open(os.path.join(self.workdir, self.PICKLE_FNAME), mode="wb") as fh:
+            pickle.dump(self, fh)
+
+    def __init__(self, workdir, flows=None, manager=None):
+        """
+        Args:
+            workdir: Working directory
+            manager: :class:`TaskManager` object responsible for the submission of the jobs.
+                     If manager is None, the object is initialized from the yaml file
+                     located either in the working directory or in the user configuration dir.
+            flows:  List of `Flow` objects.
+        """
+        self.workdir = os.path.abspath(workdir)
+
+        if not os.path.exists(self.workdir):
+            os.makedirs(self.workdir)
+        else:
+            pass
+            #raise RuntimeError("Directory %s already esists. Use BatchLauncher.pickle_load()" % self.workdir)
+
+        self.name = os.path.basename(self.workdir)
+        self.qerr_file = File(os.path.join(self.workdir, "queue.qerr"))
+        self.qout_file = File(os.path.join(self.workdir, "queue.qout"))
+
+        from .tasks import TaskManager
+        manager = TaskManager.from_user_config() if manager is None else \
+                  TaskManager.as_manager(manager)
+
+        # Extract the qadapater to be used for the batch script.
+        self.qadapter = qad = manager.qads[0]
+        qad.set_mpi_procs(1)
+        qad.set_timelimit(60)
+
+        # Initialize list of flows.
+        if flows is None: flows = []
+        if not isinstance(flows, (list, tuple)): flows = [flows]
+        self.flows = flows
+
+    def __str__(self):
+        lines = []
+        lines.extend(str(self.qadapter).splitlines())
+        for i, flow in enumerate(self.flows):
+            lines.append("Flow %d] " %i + str(flow))
+        return "\n".join(lines)
+
+    def add_flow(self, flow):
+        """Add a flow. Accept filepath or :class:`Flow` object."""
+        from .flows import Flow
+        flow = Flow.as_flow(flow)
+        # Check if we are already using a scheduler to run this flow
+        #raise RuntimeError()
+        self.flows.append(flow)
+
+    def submit(self):
+        if not self.flows:
+            raise RuntimeError("Cannot submit an empty list of flows!")
+
+        if hasattr(self, "qjob"):
+            msg = "Got qjob %s" % self.qjob
+            raise RuntimeError(msg)
+
+        script = self._get_job_script_str()
+        print(script)
+
+        # Write the script.
+        script_file = os.path.join(self.workdir, "run.sh")
+        with open(script_file, "wt") as fh:
+            fh.write(script)
+
+        # Submit the task and save the queue id.
+        self.qjob, process = self.qadapter.submit_to_queue(script_file)
+
+        self.pickle_dump()
+        #process.wait()
+        #return process.returncode
+
+    def _get_job_script_str(self):
+        """Write the submission script. return the path of the script"""
+        executable = []
+        app = executable.append
+
+        # Build list of abirun commands and save the name of the log files.
+        self.sched_logs = []
+        for i, flow in enumerate(self.flows):
+            logfile = "log_flow%d" % i
+            app("abirun.py %s scheduler > %s" % (flow.workdir, logfile))
+            self.sched_logs.append(logfile)
+
+        script = self.qadapter.get_script_str(
+            job_name=self.name, 
+            launch_dir=self.workdir,
+            executable=executable,
+            qout_path=self.qout_file.path,
+            qerr_path=self.qerr_file.path,
+        )
+
+        return script
+        
+        
