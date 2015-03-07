@@ -712,6 +712,9 @@ def make_qadapter(**kwargs):
     """
     # Get all known subclasses of QueueAdapter.
     d = {c.QTYPE: c for c in all_subclasses(QueueAdapter)}
+
+    # Preventive copy before pop
+    kwargs = copy.deepcopy(kwargs)
     qtype = kwargs["queue"].pop("qtype")
 
     return d[qtype](**kwargs)
