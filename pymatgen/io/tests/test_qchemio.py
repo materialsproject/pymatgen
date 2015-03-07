@@ -1788,6 +1788,14 @@ $end
         self.assertAlmostEqual(qcout.data[0]['scf_iteration_energies'][-1][-1][0],
                                -1944.945908459, 5)
 
+    def test_crazy_scf_values(self):
+        filename = os.path.join(test_dir, "crazy_scf_values.qcout")
+        qcout = QcOutput(filename)
+        ans = [(-28556254.06737586, 6.49e-06),
+               (-28556254.067382727, 9.45e-06),
+               (-28556254.067382865, 6.14e-06)]
+        self.assertEqual(qcout.data[0]["scf_iteration_energies"][-1][-3:], ans)
+
     def test_crowd_gradient_number(self):
         filename = os.path.join(test_dir, "crowd_gradient_number.qcout")
         qcout = QcOutput(filename)
