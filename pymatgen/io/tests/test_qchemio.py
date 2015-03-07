@@ -1308,6 +1308,14 @@ class TestQcOutput(TestCase):
                 self.assertAlmostEqual(ref_energies[molname][method],
                                        parsed_energies[molname][method])
 
+    def test_unable_to_determine_lambda_in_geom_opt(self):
+        filename = os.path.join(test_dir, "unable_to_determine_lambda_in_geom_opt.qcout")
+        qcout = QcOutput(filename)
+        self.assertTrue(qcout.data[0]['has_error'])
+        self.assertEqual(qcout.data[0]['errors'],
+                         ['Lamda Determination Failed',
+                          'Geometry optimization failed'])
+
     def test_geom_opt(self):
         filename = os.path.join(test_dir, "thiophene_wfs_5_carboxyl.qcout")
         qcout = QcOutput(filename)
