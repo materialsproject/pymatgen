@@ -104,6 +104,10 @@ class Flow(Node):
     PICKLE_FNAME = "__AbinitFlow__.pickle"
 
     Results = FlowResults
+    # TODO
+    # add flow.set_observer_mode()
+    # to disable signals, pickle dump and possible callbacks
+    # (we should enter this mode when we are observing a flow that is being executed by a sheduler.
 
     @classmethod
     def from_inputs(cls, workdir, inputs, manager=None, pickle_protocol=-1, task_class=ScfTask, work_class=Work):
@@ -1344,9 +1348,12 @@ class Flow(Node):
     def batch(self, **kwargs):
         """Run the flow in batch mode, return exit status of the job script."""
         from .launcher import BatchLauncher
-        workdir = os.path.join(self.workdir, "batch")
-        launcher = BatchLauncher(workdir=workdir, flows=self)
-        return launcher.submit()
+        # Create a batch dir from the flow.workdir.
+        prev_dir = os.path.join(*self.workdir.split(os.path.sep)[:-1])
+        prev_dir = os.path.join(os.path.sep, prev_dir)
+        workdir = os.path.join(prev_dir, os.path.basename(self.workdir) + "_batch")
+        #print(workdir)
+        return BatchLauncher(workdir=workdir, flows=self).submit()
 
     def make_light_tarfile(self, name=None):
         """Lightweight tarball file. Mainly used for debugging. Return the name of the tarball file."""

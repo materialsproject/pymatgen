@@ -454,7 +454,7 @@ class TaskManager(object):
     YAML_FILE = "manager.yml"
     USER_CONFIG_DIR = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
 
-    ENTRIES = {"policy", "qadapters", "db_connector"}
+    ENTRIES = {"policy", "qadapters", "db_connector", "batch_adapter"}
 
     @classmethod
     def autodoc(cls):
@@ -472,6 +472,9 @@ qadapters:
 
 db_connector: 
     # Connection to MongoDB database (optional)
+
+batch_adapter: 
+    # Adapter used to submit flows with batch script. (optional)
 
 ##########################################
 # Individual entries are documented below:
@@ -584,6 +587,12 @@ db_connector:
             raise ValueError("Two or more qadapters have same priority. This is not allowed. Check taskmanager.yml")
 
         self._qads, self._qadpos = tuple(qads), 0
+
+        # Initialize the qadapter for batch script submission.
+        d = kwargs.pop("batch_adapter", None)
+        self.batch_adapter = None
+        if d: self.batch_adapter = make_qadapter(**d)
+        #print("batch_adapter", self.batch_adapter)
 
         if kwargs:
             raise ValueError("Found invalid keywords in the taskmanager file:\n %s" % str(list(kwargs.keys())))
