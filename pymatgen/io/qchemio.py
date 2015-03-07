@@ -1311,7 +1311,9 @@ class QcOutput(object):
             (re.compile("Unable to allocate requested memory in mega_alloc"),
                 "Insufficient static memory"),
             (re.compile("Application \d+ exit signals: Killed"),
-                "Killed")
+                "Killed"),
+            (re.compile("UNABLE TO DETERMINE Lamda IN FormD"),
+                "Lamda Determination Failed")
         )
 
         energies = []
