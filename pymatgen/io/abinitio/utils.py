@@ -68,7 +68,11 @@ class File(object):
     @property
     def relpath(self):
         """Relative path."""
-        return os.path.relpath(self.path)
+        try:
+            return os.path.relpath(self.path)
+        except OSError:
+            # current working directory may not be defined!
+            return self.path
 
     @property
     def dirname(self):

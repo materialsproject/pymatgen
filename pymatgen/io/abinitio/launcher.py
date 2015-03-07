@@ -894,16 +894,20 @@ class BatchLauncher(object):
         """
         # Walk through each directory inside path and find the pickle database.
         from .flows import Flow
-        flows = []
+        pickle_paths = []
         for dirpath, dirnames, filenames in os.walk(top):
             fnames = [f for f in filenames if f == Flow.PICKLE_FNAME]
-            paths = [os.path.join(dirpath, f) for f in fnames]
-            fws = list(map(Flow.pickle_load, paths))
+            #fws = list(map(Flow.pickle_load, paths))
             # Here I should test whether the flow can be added.
-            flows.extend(fws)
+            pickle_paths.extend([os.path.join(dirpath, f) for f in fnames])
 
         workdir = os.path.join(top, "batch")
-        return cls(workdir, name=name, flows=flows, manager=manager)
+        new = cls(workdir, name=name, manager=manager)
+
+        for path in pickle_paths:
+            new.add_flow(path)
+
+        return new
 
     @classmethod
     def pickle_load(cls, filepath):
@@ -938,11 +942,10 @@ class BatchLauncher(object):
         # new.flows is a list of strings with the workdir of the flows.
         # Here we read the Flow from the pickle file so that we have
         # and up-to-date version and we set the flow in visitor_mode
-        # 
-        for flow in new.flows: print("flow", flow)
         from .flows import Flow
-        new.flows = list(map(Flow.pickle_load, new.flows))
-        #for flow in self.flows: flow.set_visitor_mode()
+        flow_workdirs, new.flows = new.flows, []
+        for flow in map(Flow.pickle_load, flow_workdirs):
+            new.add_flow(flow)
 
         return new
 
@@ -1020,7 +1023,10 @@ class BatchLauncher(object):
         return self.to_string()
 
     def add_flow(self, flow):
-        """Add a flow. Accept filepath or :class:`Flow` object."""
+        """
+        Add a flow. Accept filepath or :class:`Flow` object.
+        Return 1 if flow was added else 0.
+        """
         from .flows import Flow
         flow = Flow.as_flow(flow)
 
@@ -1035,7 +1041,14 @@ class BatchLauncher(object):
             raise RuntimeError(msg)
 
         #flow.set_visitor_mode()
+        flow.check_status(show=True)
+
+        if flow.all_ok:
+            print("flow.all_ok: Ignoring %s" % flow)
+            return 0
+
         self.flows.append(flow)
+        return 1
 
     def submit(self, verbose=0):
         """
@@ -1048,7 +1061,8 @@ class BatchLauncher(object):
             Return code of the job script submission.
         """
         if not self.flows:
-            raise RuntimeError("Cannot submit an empty list of flows!")
+            print("Cannot submit an empty list of flows!")
+            return 0
 
         if hasattr(self, "qjob"):
             msg = "Got qjob %s" % self.qjob

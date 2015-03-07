@@ -471,7 +471,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     def __repr__(self):
         try:
             return "<%s, node_id=%s, workdir=%s>" % (
-                self.__class__.__name__, self.node_id, self.workdir)
+                self.__class__.__name__, self.node_id, self.relworkdir)
 
         except AttributeError:
             # this usually happens when workdir has not been initialized
@@ -507,6 +507,15 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
             return self._name
         except AttributeError:
             return os.path.basename(self.workdir)
+
+    @property
+    def relworkdir(self):
+        """Return a relative version of the workdir"""
+        try:
+            return os.path.relpath(self.workdir)
+        except OSError:
+            # current working directory may not be defined!
+            return self.workdir
 
     def set_name(self, name):
         """Set the name of the Node."""
