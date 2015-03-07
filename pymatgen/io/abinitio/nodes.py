@@ -958,7 +958,7 @@ class NodeHistory(collections.deque):
         from monty.inspect import find_caller, caller_name
         # FIXME: Rewrite this! It does not work if find_caller is not in the module.
         c = find_caller()
-        print(caller_name(skip=3))
+        #print(caller_name(skip=3))
 
         if exc_info and not isinstance(exc_info, tuple):
             exc_info = sys.exc_info()

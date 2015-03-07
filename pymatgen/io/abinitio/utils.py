@@ -85,6 +85,10 @@ class File(object):
         """True if self is a NetCDF file"""
         return self.basename.endswith(".nc")
 
+    def chmod(self, mode):
+        """Change the access permissions of a file."""
+        os.chmod(self.path, mode)
+
     def read(self):
         """Read data from file."""
         with open(self.path, "r") as f:
