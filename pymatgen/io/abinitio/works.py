@@ -21,7 +21,7 @@ from monty.fnmatch import WildCard
 from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
 from . import wrappers
-from .nodes import Dependency, Node, NodeResults
+from .nodes import Dependency, Node, NodeResults #, check_spectator
 from .tasks import (Task, AbinitTask, ScfTask, NscfTask, PhononTask, DdkTask, 
                     BseTask, RelaxTask, DdeTask, ScrTask, SigmaTask)
 from .strategies import HtcStrategy, NscfStrategy
@@ -213,8 +213,8 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
                     raise
 
                 # Signal to possible observers that the `Work` reached S_OK
-                logger.info("Work %s is finalized and broadcasts signal S_OK" % str(self))
-                logger.info("Work %s status = %s" % (str(self), self.status))
+                self.history.info("Work %s is finalized and broadcasts signal S_OK" % str(self))
+                #logger.info("Work %s status = %s" % (str(self), self.status))
 
                 if self._finalized:
                     dispatcher.send(signal=self.S_OK, sender=self)
