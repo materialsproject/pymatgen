@@ -27,7 +27,7 @@ from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extension
 from .strategies import StrategyWithInput, OpticInput
 from .qadapters import make_qadapter, QueueAdapter, slurm_parse_timestr
 from .db import DBConnector
-from .nodes import Status, Node, NodeResults
+from .nodes import Status, Node, NodeResults #, check_spectator
 from . import abiinspect
 from . import events
 
@@ -1179,8 +1179,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # Get results
         results = self.on_ok()
 
-        # Set internal flag.
-        self._finalized = True
+        self.finalized = True
 
         return results
 

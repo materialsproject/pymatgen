@@ -439,6 +439,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     ]
 
     def __init__(self):
+        self._in_spectator_mode = False
         # Node identifier.
         self._node_id = get_newnode_id()
 
@@ -476,7 +477,12 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         except AttributeError:
             # this usually happens when workdir has not been initialized
             return "<%s, node_id=%s, workdir=None>" % (self.__class__.__name__, self.node_id)
-                                                                                            
+
+    #def __setattr__(self, name, value):
+    #    if self.in_spectator_mode:
+    #        raise RuntimeError("You should not call __setattr__ in spectator_mode")
+    #    return super(Node, self).__setattr__(name,value)
+
     @classmethod
     def as_node(cls, obj):
         """
@@ -538,7 +544,16 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     @finalized.setter
     def finalized(self, boolean):
         self._finalized = boolean
-        self.history.info("Finalized")
+        self.history.info("status set to finalized")
+
+    @property
+    def in_spectator_mode(self):
+        self._in_spectator_mode
+
+    @in_spectator_mode.setter
+    def in_spectator_mode(self, mode):
+        self._in_spectator_mode = bool(mode)
+        self.history.info("in_spectator_mode set to %s" % mode)
 
     @property
     def corrections(self):
@@ -989,6 +1004,22 @@ class NodeCorrections(list):
     #    #return len([c for c in self if c["event"]["@class"] == str(event_class)])
 
     #def _find(self, event_class)
+
+
+def check_spectator(node_method):
+    """
+    Decorator for :class:`Node` methods 
+    """ 
+    from functools import wraps
+    @wraps(node_method)
+    def wrapper(*args, **kwargs):
+        node = args[0]
+        if node.in_spectator_mode:
+            raise RuntimeError("You should not call this method in spectator_mode")
+
+        return node_method(*args, **kwargs)
+
+    return wrapper
 
 
 # The code below initializes a counter from a file when the module is imported 

@@ -988,6 +988,7 @@ class BatchLauncher(object):
         self.name = os.path.basename(self.workdir) if name is None else name
         self.qerr_file = File(os.path.join(self.workdir, "queue.qerr"))
         self.qout_file = File(os.path.join(self.workdir, "queue.qout"))
+        self.log_file = File(os.path.join(self.workdir, "run.log"))
 
         from .tasks import TaskManager
         manager = TaskManager.as_manager(manager)
@@ -1040,7 +1041,7 @@ class BatchLauncher(object):
                    "Make sure no scheduler is running and then remove the pid file.")
             raise RuntimeError(msg)
 
-        #flow.set_visitor_mode()
+        flow.set_spectator_mode()
         flow.check_status(show=True)
 
         if flow.all_ok:
@@ -1050,7 +1051,7 @@ class BatchLauncher(object):
         self.flows.append(flow)
         return 1
 
-    def submit(self, verbose=0):
+    def submit(self, **kwargs):
         """
         Submit a job script that will run the schedulers with abirun.py
 
@@ -1060,9 +1061,12 @@ class BatchLauncher(object):
         Returns:
             Return code of the job script submission.
         """
+        verbose = kwargs.pop("verbose", 0)
+        dry_run = kwargs.pop("dry_run", 0)
+
         if not self.flows:
             print("Cannot submit an empty list of flows!")
-            return 0
+            return 1
 
         if hasattr(self, "qjob"):
             msg = "Got qjob %s" % self.qjob
@@ -1080,6 +1084,13 @@ class BatchLauncher(object):
             os.chmod(script_file, 0o740)
 
         # Submit the task and save the queue id.
+        if dry_run: return -1
+
+        print("Will submit %s flows in batch script" % len(self.flows))
+
+        for flow in self.flows:
+            flow.build_and_pickle_dump()
+
         self.qjob, process = self.qadapter.submit_to_queue(script_file)
         self.pickle_dump()
         process.wait()
@@ -1088,16 +1099,32 @@ class BatchLauncher(object):
 
     def _get_job_script_str(self):
         """Write the submission script. return the path of the script"""
-        executable = []
+        executable = [
+            'export LOG=%s' % self.log_file.path,
+            'date1=$(date +"%s")',
+            'echo Running abirun.py in batch mode > %{LOG}',
+        ]
         app = executable.append
 
         # Build list of abirun commands and save the name of the log files.
-        self.sched_logs = []
+        self.sched_logs, num_flows = [], len(self.flows)
         for i, flow in enumerate(self.flows):
-            logfile = os.path.join(self.workdir, "log_flow_" + os.path.basename(flow.workdir))
+            logfile = os.path.join(self.workdir, "log_" + os.path.basename(flow.workdir))
+
+            # TODO: The script should print info to batch.out
+            app("echo Starting flow %d/%d on: `date` >> ${LOG}" % (i+1, num_flows))
             app("\nabirun.py %s scheduler > %s" % (flow.workdir, logfile))
+            app("echo Returning from abirun on `date` with retcode $? >> ${LOG}")
+
             assert logfile not in self.sched_logs
             self.sched_logs.append(logfile)
+
+        # Compute elapsed time.
+        executable.extend([
+            'date2=$(date +"%s")',
+            'diff=$(($date2-$date1))',
+            'echo $(($diff / 60)) minutes and $(($diff % 60)) seconds elapsed. >> ${LOG}'
+        ])
 
         script = self.qadapter.get_script_str(
             job_name=self.name, 
