@@ -523,8 +523,10 @@ db_connector:
     def as_manager(cls, obj):
         """
         Convert obj into TaskManager instance. Accepts string, filepath, dictionary, TaskManager object.
+        If obj is None, the manager is initialized from the user config file.
         """
         if isinstance(obj, cls): return obj
+        if obj is None: return cls.from_user_config()
 
         if is_string(obj):
             if os.path.exists(obj):
@@ -769,7 +771,7 @@ db_connector:
         # Write the script.
         with open(task.job_file.path, "w") as fh:
             fh.write(script)
-            os.chmod(0o740)
+            task.job_file.chmod(0o740)
             return task.job_file.path
 
     def launch(self, task):

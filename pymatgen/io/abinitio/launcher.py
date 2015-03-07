@@ -435,9 +435,7 @@ class PyFlowScheduler(object):
         if hasattr(self, "_flow"):
             raise self.Error("Only one flow can be added to the scheduler.")
 
-        pid_file = os.path.join(flow.workdir, "_PyFlowScheduler.pid")
-
-        if os.path.isfile(pid_file):
+        if os.path.isfile(flow.pid_file):
             flow.show_status()
 
             raise self.Error("""\
@@ -454,12 +452,12 @@ class PyFlowScheduler(object):
                 To solve case 2:
                    Remove the pid_file and restart the scheduler.
 
-                Exiting""" % pid_file)
+                Exiting""" % flow.pid_file)
 
-        with open(pid_file, "w") as fh:
+        with open(flow.pid_file, "w") as fh:
             fh.write(str(self.pid))
 
-        self._pid_file = pid_file
+        self._pid_file = flow.pid_file
         self._flow = flow
 
     def _validate_customer_service(self):
@@ -716,7 +714,7 @@ class PyFlowScheduler(object):
                 err_msg += "No runnable job with deadlocked tasks:\n%s." % str(deadlocked)
 
         if not runnables and not running:
-            # Check the flow agains to that status are updated. 
+            # Check the flow again to that status are updated. 
             self.flow.check_status()
             deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
             if not runnables and not running:
@@ -885,8 +883,21 @@ class BatchLauncher(object):
 
     PICKLE_FNAME = "__BatchLauncher__.pickle"
 
-    #@classmethod
-    #def from_directory(cls, top):
+    @classmethod
+    def from_dir(cls, top, max_depth=2):
+        """
+        Find all flows located withing the directory `top` and build the `BatchLauncher`.
+
+        Args:
+            max_depth: Search in directory only if it is N or fewer levels below top
+        """
+        # Walk through each directory inside path and find the pickle database.
+        from .flows import Flow
+        for dirpath, dirnames, filenames in os.walk(top):
+            fnames = [f for f in filenames if f == Flow.PICKLE_FNAME]
+
+        #new = cls(workdir, name=None, flows=None, manager=None, timelimit=1200)
+        #return new
 
     @classmethod
     def pickle_load(self, filepath):
@@ -911,10 +922,11 @@ class BatchLauncher(object):
         with open(os.path.join(self.workdir, self.PICKLE_FNAME), mode="wb") as fh:
             pickle.dump(self, fh)
 
-    def __init__(self, workdir, flows=None, manager=None):
+    def __init__(self, workdir, name=None, flows=None, manager=None):
         """
         Args:
             workdir: Working directory
+            name: Name assigned to the `BatchLauncher`.
             manager: :class:`TaskManager` object responsible for the submission of the jobs.
                      If manager is None, the object is initialized from the yaml file
                      located either in the working directory or in the user configuration dir.
@@ -925,21 +937,20 @@ class BatchLauncher(object):
         if not os.path.exists(self.workdir):
             os.makedirs(self.workdir)
         else:
-            pass
             #raise RuntimeError("Directory %s already esists. Use BatchLauncher.pickle_load()" % self.workdir)
+            pass
 
-        self.name = os.path.basename(self.workdir)
+        self.name = os.path.basename(self.workdir) if name is None else name
         self.qerr_file = File(os.path.join(self.workdir, "queue.qerr"))
         self.qout_file = File(os.path.join(self.workdir, "queue.qout"))
 
         from .tasks import TaskManager
-        manager = TaskManager.from_user_config() if manager is None else \
-                  TaskManager.as_manager(manager)
+        manager = TaskManager.as_manager(manager)
 
         # Extract the qadapater to be used for the batch script.
         self.qadapter = qad = manager.qads[0]
         qad.set_mpi_procs(1)
-        qad.set_timelimit(1200)
+        qad.set_timelimit(36000)
 
         # Initialize list of flows.
         if flows is None: flows = []
@@ -949,19 +960,30 @@ class BatchLauncher(object):
     def __str__(self):
         lines = []
         lines.extend(str(self.qadapter).splitlines())
+
         for i, flow in enumerate(self.flows):
-            lines.append("Flow %d] " %i + str(flow))
+            lines.append("Flow [%d] " % i + str(flow))
+
         return "\n".join(lines)
 
     def add_flow(self, flow):
         """Add a flow. Accept filepath or :class:`Flow` object."""
         from .flows import Flow
         flow = Flow.as_flow(flow)
+
+        if flow in self.flows:
+            raise ValueError("Cannot add same flow twice!")
+
         # Check if we are already using a scheduler to run this flow
-        #raise RuntimeError()
+        if os.path.exists(flow.pid_file):
+            msg = ("Pid file %s already exists.\n" % flow.pid_file +
+                   "Either the flow is already in execution or the scheduler didn't exit in a clean way.\n" +
+                   "Make sure no scheduler is running and then remove the pid file")
+            raise RuntimeError(flow.pid_file)
+
         self.flows.append(flow)
 
-    def submit(self):
+    def submit(self, verbose=0):
         if not self.flows:
             raise RuntimeError("Cannot submit an empty list of flows!")
 
@@ -970,19 +992,22 @@ class BatchLauncher(object):
             raise RuntimeError(msg)
 
         script = self._get_job_script_str()
-        print(script)
+        if verbose:
+            print("*** submission script ***")
+            print(script)
 
         # Write the script.
         script_file = os.path.join(self.workdir, "run.sh")
         with open(script_file, "wt") as fh:
             fh.write(script)
+            os.chmod(script_file, 0o740)
 
         # Submit the task and save the queue id.
         self.qjob, process = self.qadapter.submit_to_queue(script_file)
-
-        self.pickle_dump()
         #process.wait()
-        #return process.returncode
+        self.pickle_dump()
+
+        return process.returncode
 
     def _get_job_script_str(self):
         """Write the submission script. return the path of the script"""
@@ -992,8 +1017,9 @@ class BatchLauncher(object):
         # Build list of abirun commands and save the name of the log files.
         self.sched_logs = []
         for i, flow in enumerate(self.flows):
-            logfile = "log_flow%d" % i
+            logfile = "log_flow_" + os.path.basename(flow.workdir)
             app("abirun.py %s scheduler > %s" % (flow.workdir, logfile))
+            assert logfile not in self.sched_logs
             self.sched_logs.append(logfile)
 
         script = self.qadapter.get_script_str(

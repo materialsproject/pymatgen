@@ -73,8 +73,7 @@ class FlowResults(NodeResults):
         d = {os.path.basename(f): f for f in flow.outdir.list_filepaths()}
 
         # Add the pickle file.
-        pickle_path = os.path.join(flow.workdir, flow.PICKLE_FNAME)
-        d["pickle"] = pickle_path if flow.pickle_protocol != 0 else (pickle_path, "t")
+        d["pickle"] = flow.pickle_file if flow.pickle_protocol != 0 else (flow.pickle_file, "t")
         new.add_gridfs_files(**d)
 
         return new
@@ -324,6 +323,16 @@ class Flow(Node):
             return self._pyfile
         except AttributeError:
             return None
+
+    @property
+    def pid_file(self):
+        """The path of the pid file created by PyFlowScheduler."""
+        return os.path.join(self.workdir, "_PyFlowScheduler.pid")
+
+    @property
+    def pickle_file(self):
+        """The path of the pickle file."""
+        return os.path.join(self.workdir, self.PICKLE_FNAME)
 
     @property
     def mongo_id(self):
@@ -1074,11 +1083,10 @@ class Flow(Node):
             return -1
 
         protocol = self.pickle_protocol
-        filepath = os.path.join(self.workdir, self.PICKLE_FNAME)
 
         # Atomic transaction with FileLock.
-        with FileLock(filepath):
-            with AtomicFile(filepath, mode="wb") as fh:
+        with FileLock(self.pickle_file):
+            with AtomicFile(self.pickle_file, mode="wb") as fh:
                 pmg_pickle_dump(self, fh, protocol=protocol)
 
         return 0
@@ -1333,7 +1341,8 @@ class Flow(Node):
         sched.add_flow(self)
         return sched
 
-    def batch(self):
+    def batch(self, **kwargs):
+        """Run the flow in batch mode, return exit status of the job script."""
         from .launcher import BatchLauncher
         workdir = os.path.join(self.workdir, "batch")
         launcher = BatchLauncher(workdir=workdir, flows=self)
