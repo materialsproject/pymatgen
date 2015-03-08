@@ -632,6 +632,22 @@ class Flow(Node):
 
         return count
 
+    def show_summary(self, **kwargs):
+        """
+        Print a short summary with the status of the flow and a counter task_status --> number_of_tasks
+
+        Args:
+            stream: File-like object, Default: sys.stdout
+        """
+        stream = kwargs.pop("stream", sys.stdout)
+
+        lines = ["%s, num_tasks=%s, all_ok=%s" % (str(self), self.num_tasks, self.all_ok)]
+        for k, v in self.status_counter.items():
+            lines.append("    %s: %s" % (k, v))
+        lines.append("")
+
+        stream.write("\n".join(lines))
+
     def show_status(self, **kwargs):
         """
         Report the status of the works and the status  of the different tasks on the specified stream.
@@ -1253,6 +1269,9 @@ class Flow(Node):
                  return 2
 
     def set_cleanup_exts(self, exts=None):
+        # TODO: Rewrite this part.
+        # Introduce a GarbageCollector object that is installed  at the level of the flow.
+        # with a policy. The gc is called when the node reached S_OK.
         for work in self:
             # TODO Add support for Works
             #work.set_cleanup_exts(exts)
