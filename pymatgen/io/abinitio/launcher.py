@@ -1013,6 +1013,7 @@ class BatchLauncher(object):
         self.qerr_file = File(os.path.join(self.workdir, "queue.qerr"))
         self.qout_file = File(os.path.join(self.workdir, "queue.qout"))
         self.log_file = File(os.path.join(self.workdir, "run.log"))
+        self.batch_pidfile = File(os.path.join(self.workdir, "batch.pid"))
 
         from .tasks import TaskManager
         manager = TaskManager.as_manager(manager)
@@ -1107,7 +1108,30 @@ class BatchLauncher(object):
             return 0
 
         if hasattr(self, "qjob"):
-            msg = "Got qjob %s" % self.qjob
+            # This usually happens when we have loaded the object from pickle
+            # and we have already submitted to batch script to the queue.
+            # At this point we need to understand if the previous batch job
+            # is still running before trying to submit it again. There are three cases:
+            # 
+            # 1) The batch script has completed withing timelimit and therefore
+            #    the pid_file has been removed by the script. In this case, we
+            #    should not try to submit it again.
+
+            # 2) The batch script has been killed due to timelimit (other reasons are possible
+            #    but we neglect them). In this case the pid_file exists but there's no job with
+            #    this pid runnig and we can resubmit it again.
+
+            # 3) The batch script is still running.
+            msg = "Find qjob %s" % self.qjob
+            print(msg)
+
+            if not self.batch_pid_file.exists:
+                print("It seems that the batch script reached the end. Wont' try to submit it again")
+                return 0
+
+            msg = ("Here I have to understand if qjob is in the queue."
+                   " but I need an abstract API that can retrieve info from the queue id")
+            #if self.qjob.is_running()
             raise RuntimeError(msg)
 
         script = self._get_job_script_str()
@@ -1134,6 +1158,11 @@ class BatchLauncher(object):
             flow.build_and_pickle_dump()
 
         self.qjob, process = self.qadapter.submit_to_queue(script_file)
+
+        # Save the queue id in the pid file
+        # The file will be removed by the job script if execution is completed.
+        self.batch_pidfile.write(str(self.qjob.qid))
+
         self.pickle_dump()
         process.wait()
 
@@ -1151,6 +1180,7 @@ class BatchLauncher(object):
             'export _LOG=%s' % self.log_file.path,
             'date1=$(date +"%s")',
             'echo Running abirun.py in batch mode > ${_LOG}',
+            " ",
         ]
         app = executable.append
 
@@ -1160,7 +1190,6 @@ class BatchLauncher(object):
 
             logfile = os.path.join(self.workdir, "log_" + os.path.basename(flow.workdir))
 
-            # TODO: The script should print info to batch.out
             app("echo Starting flow %d/%d on: `date` >> ${LOG}" % (i+1, num_flows))
             app("\nabirun.py %s scheduler > %s" % (flow.workdir, logfile))
             app("echo Returning from abirun on `date` with retcode $? >> ${_LOG}")
@@ -1168,8 +1197,13 @@ class BatchLauncher(object):
             assert logfile not in self.sched_logs
             self.sched_logs.append(logfile)
 
-        # Compute elapsed time.
+        # Remove the batch pid_file and compute elapsed time.
         executable.extend([
+            " ",
+            "# Remove batch pid file",
+            'rm %s' % self.batch_pidfile.path,
+            " ",
+            "# Compute elapsed time",
             'date2=$(date +"%s")',
             'diff=$(($date2-$date1))',
             'echo $(($diff / 60)) minutes and $(($diff % 60)) seconds elapsed. >> ${_LOG}'
@@ -1188,8 +1222,7 @@ class BatchLauncher(object):
         Show a summary with the status of the flows.
         """
         for flow in self.flows:
-            print("flow ", flow)
-            print("flow.all_ok ", flow.all_ok)
+            flow.show_summary()
 
     def show_status(self, **kwargs):
         """
@@ -1199,8 +1232,5 @@ class BatchLauncher(object):
             stream: File-like object, Default: sys.stdout
             verbose: Verbosity level (default 0). > 0 if to show only the works that are not finalized.
         """
-        #stream = kwargs.pop("stream", sys.stdout)
-        #verbose = kwargs.pop("verbose", 0)
-
         for flow in self.flows:
             flow.show_status(**kwargs)
