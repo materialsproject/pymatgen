@@ -25,7 +25,8 @@ from pymatgen.core.units import Memory
 from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition, SparseHistogram
 from .strategies import StrategyWithInput, OpticInput
-from .qadapters import make_qadapter, QueueAdapter, slurm_parse_timestr
+from .qadapters import make_qadapter, QueueAdapter 
+from . import qutils as qu
 from .db import DBConnector
 from .nodes import Status, Node, NodeResults #, check_spectator
 from . import abiinspect
@@ -424,7 +425,7 @@ class TaskPolicy(object):
         self.precedence = kwargs.pop("precedence", "autoparal_conf")
         self.autoparal_priorities = kwargs.pop("autoparal_priorities", ["speedup"])
         #self.autoparal_priorities = kwargs.pop("autoparal_priorities", ["speedup", "efficiecy", "memory"]
-        self.frozen_timeout = slurm_parse_timestr(kwargs.pop("frozen_timeout", "0-1"))
+        self.frozen_timeout = qu.slurm_parse_timestr(kwargs.pop("frozen_timeout", "0-1"))
 
         if kwargs:
             raise ValueError("Found invalid keywords in policy section:\n %s" % str(kwargs.keys()))

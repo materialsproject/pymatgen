@@ -15,6 +15,7 @@ from monty.string import boxed, is_string
 from monty.os.path import which
 from monty.collections import AttrDict
 from .utils import as_bool, File, Directory
+from . import qutils as qu
 
 try:
     import apscheduler
@@ -885,23 +886,36 @@ class BatchLauncher(object):
     PICKLE_FNAME = "__BatchLauncher__.pickle"
 
     @classmethod
-    def from_dir(cls, top, name=None, manager=None, max_depth=2):
+    def from_dir(cls, top, workdir=None, name=None, manager=None, max_depth=2):
         """
         Find all flows located withing the directory `top` and build the `BatchLauncher`.
 
         Args:
+            top: Top level directory.
+            workdir: Batch workdir.
+            name
+            manager
             max_depth: Search in directory only if it is N or fewer levels below top
         """
-        # Walk through each directory inside path and find the pickle database.
         from .flows import Flow
-        pickle_paths = []
-        for dirpath, dirnames, filenames in os.walk(top):
-            fnames = [f for f in filenames if f == Flow.PICKLE_FNAME]
-            #fws = list(map(Flow.pickle_load, paths))
-            # Here I should test whether the flow can be added.
-            pickle_paths.extend([os.path.join(dirpath, f) for f in fnames])
+        def find_pickles(dirtop):
+            # Walk through each directory inside path and find the pickle database.
+            paths = []
+            for dirpath, dirnames, filenames in os.walk(dirtop):
+                fnames = [f for f in filenames if f == Flow.PICKLE_FNAME]
+                paths.extend([os.path.join(dirpath, f) for f in fnames])
+            return paths
 
-        workdir = os.path.join(top, "batch")
+        if is_string(top):
+            pickle_paths = find_pickles(top)
+        else:
+            # List of directories.
+            pickle_paths = []
+            for p in top:
+                pickle_paths.extend(find_pickles(p))
+
+        #workdir = os.path.join(top, "batch") if workdir is None else workdir
+        workdir = "batch" if workdir is None else workdir
         new = cls(workdir, name=name, manager=manager)
 
         for path in pickle_paths:
@@ -975,15 +989,15 @@ class BatchLauncher(object):
                      If manager is None, the object is initialized from the yaml file
                      located either in the working directory or in the user configuration dir.
             timelimit: Time limit (int with seconds or string with Slurm syntax). 
-                If timeline is None, the default value specified in the `batch_adapter` is taken.
+                If timelimit is None, the default value specified in the `batch_adapter` is taken.
         """
         self.workdir = os.path.abspath(workdir)
 
         if not os.path.exists(self.workdir):
             os.makedirs(self.workdir)
         else:
-            #raise RuntimeError("Directory %s already esists. Use BatchLauncher.pickle_load()" % self.workdir)
-            pass
+            raise RuntimeError("Directory %s already exists. Use BatchLauncher.pickle_load()" % self.workdir)
+            #pass
 
         self.name = os.path.basename(self.workdir) if name is None else name
         self.qerr_file = File(os.path.join(self.workdir, "queue.qerr"))
@@ -1002,14 +1016,24 @@ class BatchLauncher(object):
         # Set mpi_procs to 1 just to be on the safe side 
         # Then allow the user to change the timelimit via __init__
         qad.set_mpi_procs(1)
-        if timelimit is not None: qad.set_timelimit(timelimit)
-        # FIXME: Remove me!
-        qad.set_timelimit(36000)
+        if timelimit is not None: 
+            self.set_timelimit(timelimit)
+            # FIXME: Remove me!
+            self.set_timelimit(36000)
 
         # Initialize list of flows.
         if flows is None: flows = []
         if not isinstance(flows, (list, tuple)): flows = [flows]
         self.flows = flows
+
+    def set_timelimit(self, timelimit):
+        """
+        Set the timelimit of the batch launcher.
+
+        Args:
+            timelimit: Time limit (int with seconds or string with Slurm syntax). 
+        """
+        self.qad.set_timelimit(qu.timelimit_parser(timelimit))
 
     def to_string(self, **kwargs):
         lines = []
@@ -1100,9 +1124,9 @@ class BatchLauncher(object):
     def _get_job_script_str(self):
         """Write the submission script. return the path of the script"""
         executable = [
-            'export LOG=%s' % self.log_file.path,
+            'export _LOG=%s' % self.log_file.path,
             'date1=$(date +"%s")',
-            'echo Running abirun.py in batch mode > %{LOG}',
+            'echo Running abirun.py in batch mode > ${_LOG}',
         ]
         app = executable.append
 
@@ -1114,7 +1138,7 @@ class BatchLauncher(object):
             # TODO: The script should print info to batch.out
             app("echo Starting flow %d/%d on: `date` >> ${LOG}" % (i+1, num_flows))
             app("\nabirun.py %s scheduler > %s" % (flow.workdir, logfile))
-            app("echo Returning from abirun on `date` with retcode $? >> ${LOG}")
+            app("echo Returning from abirun on `date` with retcode $? >> ${_LOG}")
 
             assert logfile not in self.sched_logs
             self.sched_logs.append(logfile)
@@ -1123,10 +1147,10 @@ class BatchLauncher(object):
         executable.extend([
             'date2=$(date +"%s")',
             'diff=$(($date2-$date1))',
-            'echo $(($diff / 60)) minutes and $(($diff % 60)) seconds elapsed. >> ${LOG}'
+            'echo $(($diff / 60)) minutes and $(($diff % 60)) seconds elapsed. >> ${_LOG}'
         ])
 
-        script = self.qadapter.get_script_str(
+        return self.qadapter.get_script_str(
             job_name=self.name, 
             launch_dir=self.workdir,
             executable=executable,
@@ -1134,23 +1158,21 @@ class BatchLauncher(object):
             qerr_path=self.qerr_file.path,
         )
 
-        return script
-
     def show_summary(self, **kwargs):
         for flow in self.flows:
             print("flow ", flow)
             print("flow.all_ok ", flow.all_ok)
 
-    #def show_status(self, **kwargs):
-    #    """
-    #    Report the status of the works and the status  of the different tasks on the specified stream.
+    def show_status(self, **kwargs):
+        """
+        Report the status of the flows.
 
-    #    Args:
-    #        stream: File-like object, Default: sys.stdout
-    #        verbose: Verbosity level (default 0). > 0 if to show only the works that are not finalized.
-    #    """
-    #    #stream = kwargs.pop("stream", sys.stdout)
-    #    #verbose = kwargs.pop("verbose", 0)
+        Args:
+            stream: File-like object, Default: sys.stdout
+            verbose: Verbosity level (default 0). > 0 if to show only the works that are not finalized.
+        """
+        #stream = kwargs.pop("stream", sys.stdout)
+        #verbose = kwargs.pop("verbose", 0)
 
-    #    for flow in self.flows:
-    #        flow.show_status(**kwargs)
+        for flow in self.flows:
+            flow.show_status(**kwargs)

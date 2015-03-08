@@ -130,6 +130,14 @@ pymatgen.io.abinitio.qadapters module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.io.abinitio.qutils module
+----------------------------------
+
+.. automodule:: pymatgen.io.abinitio.qutils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.io.abinitio.scheduler_error_handlers module
 ----------------------------------------------------
 
