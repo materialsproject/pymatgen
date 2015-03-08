@@ -139,7 +139,7 @@ class MoleculeStructureComparator(PMGSONable):
                       (1 + (self.priority_cap
                             if p in self.priority_bonds
                             else self.bond_length_cap)) *
-                      (0.1 if (self.ignore_halogen_self_bond and
+                      (0.1 if (self.ignore_halogen_self_bond and p not in self.priority_bonds and
                                mol.sites[p[0]].specie.symbol in self.halogen_list and
                                mol.sites[p[1]].specie.symbol in self.halogen_list)
                        else 1.0)
