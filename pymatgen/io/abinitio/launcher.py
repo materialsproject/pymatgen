@@ -4,12 +4,12 @@ from __future__ import unicode_literals, division, print_function
 
 import os
 import time
-import collections
 import yaml
 import pickle
 
-from six.moves import cStringIO
+from collections import namedtuple, deque
 from datetime import timedelta
+from six.moves import cStringIO
 from monty.io import get_open_fds, FileLock
 from monty.string import boxed, is_string
 from monty.os.path import which
@@ -349,10 +349,10 @@ class PyFlowScheduler(object):
         self.num_reminders = 1
 
         # Used to keep track of the exceptions raised while the scheduler is running
-        self.exceptions = collections.deque(maxlen=self.max_num_pyexcs + 10)
+        self.exceptions = deque(maxlen=self.max_num_pyexcs + 10)
 
         # Used to push additional info during the execution.
-        self.history = collections.deque(maxlen=100)
+        self.history = deque(maxlen=100)
 
     @classmethod
     def from_file(cls, filepath):
@@ -882,7 +882,15 @@ def __test_sendmail():
 
 
 class BatchLauncher(object):
+    """
+    This object automates the execution of multiple flow. It generates a job script
+    that uses abirun.py to run each flow stored in self with a scheduler.
+    The execution of the flows is done in sequential but each scheduler will start
+    to submit the tasks of the flow in autparal mode.
 
+    The `BatchLauncher` is pickleable, hence one can reload it, check if all flows are completed
+    and rerun only those that are not completed due to the timelimit. 
+    """
     PICKLE_FNAME = "__BatchLauncher__.pickle"
 
     @classmethod
@@ -891,10 +899,12 @@ class BatchLauncher(object):
         Find all flows located withing the directory `top` and build the `BatchLauncher`.
 
         Args:
-            top: Top level directory.
+            top: Top level directory or list of directories.
             workdir: Batch workdir.
-            name
-            manager
+            name:
+            manager: :class:`TaskManager` object. If None, the manager is read from `manager.yml`
+                In this case the YAML file must provide the entry `batch_manager` that defined
+                the queue adapter used to submit the batch script.
             max_depth: Search in directory only if it is N or fewer levels below top
         """
         from .flows import Flow
@@ -926,7 +936,7 @@ class BatchLauncher(object):
     @classmethod
     def pickle_load(cls, filepath):
         """
-        Loads the object from a pickle file and performs initial setup.
+        Loads the object from a pickle file.
 
         Args:
             filepath: Filename or directory name. It filepath is a directory, we
@@ -949,11 +959,10 @@ class BatchLauncher(object):
                 err_msg = "Cannot find %s inside directory %s" % (cls.PICKLE_FNAME, filepath)
                 raise ValueError(err_msg)
 
-
         with open(filepath, "rb") as fh:
             new = pickle.load(fh)
 
-        # new.flows is a list of strings with the workdir of the flows.
+        # new.flows is a list of strings with the workdir of the flows (see __getstate__).
         # Here we read the Flow from the pickle file so that we have
         # and up-to-date version and we set the flow in visitor_mode
         from .flows import Flow
@@ -988,7 +997,8 @@ class BatchLauncher(object):
             manager: :class:`TaskManager` object responsible for the submission of the jobs.
                      If manager is None, the object is initialized from the yaml file
                      located either in the working directory or in the user configuration dir.
-            timelimit: Time limit (int with seconds or string with Slurm syntax). 
+            timelimit: Time limit (int with seconds or string with time given with 
+                the slurm convention: "days-hours:minutes:seconds".
                 If timelimit is None, the default value specified in the `batch_adapter` is taken.
         """
         self.workdir = os.path.abspath(workdir)
@@ -1031,7 +1041,8 @@ class BatchLauncher(object):
         Set the timelimit of the batch launcher.
 
         Args:
-            timelimit: Time limit (int with seconds or string with Slurm syntax). 
+            timelimit: Time limit (int with seconds or string with time given
+                with the slurm convention: "days-hours:minutes:seconds".
         """
         self.qad.set_timelimit(qu.timelimit_parser(timelimit))
 
@@ -1066,13 +1077,15 @@ class BatchLauncher(object):
             raise RuntimeError(msg)
 
         flow.set_spectator_mode()
-        flow.check_status(show=True)
+        flow.check_status(show=False)
 
-        if flow.all_ok:
-            print("flow.all_ok: Ignoring %s" % flow)
-            return 0
+        #if flow.all_ok:
+        #    print("flow.all_ok: Ignoring %s" % flow)
+        #    return 0
 
         self.flows.append(flow)
+        #print("Flow %s added to the BatchLauncher" % flow)
+
         return 1
 
     def submit(self, **kwargs):
@@ -1081,16 +1094,17 @@ class BatchLauncher(object):
 
         Args:
             verbose: Verbosity level
+            dry_run: Don't submit the script if dry_run. Default: False
 
         Returns:
             Return code of the job script submission.
         """
         verbose = kwargs.pop("verbose", 0)
-        dry_run = kwargs.pop("dry_run", 0)
+        dry_run = kwargs.pop("dry_run", False)
 
         if not self.flows:
             print("Cannot submit an empty list of flows!")
-            return 1
+            return 0
 
         if hasattr(self, "qjob"):
             msg = "Got qjob %s" % self.qjob
@@ -1100,6 +1114,10 @@ class BatchLauncher(object):
         if verbose:
             print("*** submission script ***")
             print(script)
+
+        if not script:
+            print("All flows have reached all_ok! Batch script won't be submitted")
+            return 0
 
         # Write the script.
         script_file = os.path.join(self.workdir, "run.sh")
@@ -1121,8 +1139,14 @@ class BatchLauncher(object):
 
         return process.returncode
 
+        #batch_job = namedtuple("BatchJob", "retcode, qjob, num_flows_inbatch")
+
     def _get_job_script_str(self):
         """Write the submission script. return the path of the script"""
+        flows_torun = [f for f in self.flows if not f.all_ok]
+        if not flows_torun:
+            return ""
+
         executable = [
             'export _LOG=%s' % self.log_file.path,
             'date1=$(date +"%s")',
@@ -1131,8 +1155,9 @@ class BatchLauncher(object):
         app = executable.append
 
         # Build list of abirun commands and save the name of the log files.
-        self.sched_logs, num_flows = [], len(self.flows)
-        for i, flow in enumerate(self.flows):
+        self.sched_logs, num_flows = [], len(flows_torun)
+        for i, flow in enumerate(flows_torun):
+
             logfile = os.path.join(self.workdir, "log_" + os.path.basename(flow.workdir))
 
             # TODO: The script should print info to batch.out
@@ -1159,6 +1184,9 @@ class BatchLauncher(object):
         )
 
     def show_summary(self, **kwargs):
+        """
+        Show a summary with the status of the flows.
+        """
         for flow in self.flows:
             print("flow ", flow)
             print("flow.all_ok ", flow.all_ok)
