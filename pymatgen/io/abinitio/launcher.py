@@ -7,13 +7,13 @@ import time
 import yaml
 import pickle
 
-from collections import namedtuple, deque
+from collections import namedtuple, deque, namedtuple
 from datetime import timedelta
 from six.moves import cStringIO
 from monty.io import get_open_fds, FileLock
 from monty.string import boxed, is_string
 from monty.os.path import which
-from monty.collections import AttrDict
+from monty.collections import AttrDict, dict2namedtuple
 from .utils import as_bool, File, Directory
 from . import qutils as qu
 
@@ -1010,6 +1010,7 @@ class BatchLauncher(object):
             #pass
 
         self.name = os.path.basename(self.workdir) if name is None else name
+        self.script_file = File(os.path.join(self.workdir, "run.sh"))
         self.qerr_file = File(os.path.join(self.workdir, "queue.qerr"))
         self.qout_file = File(os.path.join(self.workdir, "queue.qout"))
         self.log_file = File(os.path.join(self.workdir, "run.log"))
@@ -1098,10 +1099,14 @@ class BatchLauncher(object):
             dry_run: Don't submit the script if dry_run. Default: False
 
         Returns:
+            namedtuple with attributes:
+                retcode: Return code as returned by the submission script.
+                qjob: :class:`QueueJob` object.
+                num_flows_inbatch: Number of flows executed by the batch script
+                
             Return code of the job script submission.
         """
-        verbose = kwargs.pop("verbose", 0)
-        dry_run = kwargs.pop("dry_run", False)
+        verbose, dry_run = kwargs.pop("verbose", 0), kwargs.pop("dry_run", False)
 
         if not self.flows:
             print("Cannot submit an empty list of flows!")
@@ -1122,8 +1127,7 @@ class BatchLauncher(object):
             #    this pid runnig and we can resubmit it again.
 
             # 3) The batch script is still running.
-            msg = "Find qjob %s" % self.qjob
-            print(msg)
+            print("BatchLauncher has qjob %s" % self.qjob)
 
             if not self.batch_pid_file.exists:
                 print("It seems that the batch script reached the end. Wont' try to submit it again")
@@ -1131,23 +1135,27 @@ class BatchLauncher(object):
 
             msg = ("Here I have to understand if qjob is in the queue."
                    " but I need an abstract API that can retrieve info from the queue id")
-            #if self.qjob.is_running()
             raise RuntimeError(msg)
 
-        script = self._get_job_script_str()
+            # TODO: Temptative API
+            if self.qjob.in_status("Running|Queued"):
+                print("Job is still running. Cannot submit")
+            else:
+                del self.qjob
+
+        script, num_flows_inbatch = self._get_script_nflows()
+
+        if num_flows_inbatch == 0:
+            print("All flows have reached all_ok! Batch script won't be submitted")
+            return 0
+
         if verbose:
             print("*** submission script ***")
             print(script)
 
-        if not script:
-            print("All flows have reached all_ok! Batch script won't be submitted")
-            return 0
-
         # Write the script.
-        script_file = os.path.join(self.workdir, "run.sh")
-        with open(script_file, "wt") as fh:
-            fh.write(script)
-            os.chmod(script_file, 0o740)
+        self.script_file.write(script)
+        self.script_file.chmod(0o740)
 
         # Submit the task and save the queue id.
         if dry_run: return -1
@@ -1157,7 +1165,7 @@ class BatchLauncher(object):
         for flow in self.flows:
             flow.build_and_pickle_dump()
 
-        self.qjob, process = self.qadapter.submit_to_queue(script_file)
+        self.qjob, process = self.qadapter.submit_to_queue(self.script_file.path)
 
         # Save the queue id in the pid file
         # The file will be removed by the job script if execution is completed.
@@ -1166,15 +1174,19 @@ class BatchLauncher(object):
         self.pickle_dump()
         process.wait()
 
-        return process.returncode
+        return dict2namedtuple(
+            retcode=process.returncode, 
+            qjob=self.qjob,
+            num_flows_inbatch=num_flows_inbatch
+        )
 
-        #batch_job = namedtuple("BatchJob", "retcode, qjob, num_flows_inbatch")
-
-    def _get_job_script_str(self):
-        """Write the submission script. return the path of the script"""
+    def _get_script_nflows(self):
+        """
+        Write the submission script. Return (script, num_flows_in_batch)
+        """
         flows_torun = [f for f in self.flows if not f.all_ok]
         if not flows_torun:
-            return ""
+            return "", 0
 
         executable = [
             'export _LOG=%s' % self.log_file.path,
@@ -1215,7 +1227,7 @@ class BatchLauncher(object):
             executable=executable,
             qout_path=self.qout_file.path,
             qerr_path=self.qerr_file.path,
-        )
+        ), num_flows
 
     def show_summary(self, **kwargs):
         """
@@ -1230,7 +1242,7 @@ class BatchLauncher(object):
 
         Args:
             stream: File-like object, Default: sys.stdout
-            verbose: Verbosity level (default 0). > 0 if to show only the works that are not finalized.
+            verbose: Verbosity level (default 0). > 0 to show only the works that are not finalized.
         """
         for flow in self.flows:
             flow.show_status(**kwargs)

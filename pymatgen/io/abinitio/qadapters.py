@@ -1303,6 +1303,8 @@ class TorqueAdapter(PbsProAdapter):
     """Adapter for Torque."""
     QTYPE = "torque"
 
+    Job = qjobs.TorqueJob
+
     QTEMPLATE = """\
 #!/bin/bash
 
@@ -1447,6 +1449,8 @@ $${qverbatim}
 class MOABAdapter(QueueAdapter):
     """Adapter for MOAB. See https://computing.llnl.gov/tutorials/moab/"""
     QTYPE = "moab"
+
+    Job = qjobs.MoabJob
 
     QTEMPLATE = """\
 #!/bin/bash
