@@ -13,6 +13,7 @@ import shlex
 from collections import OrderedDict, defaultdict
 from subprocess import Popen, PIPE
 from monty.collections import AttrDict
+from monty.inspect import all_subclasses
 
 import logging
 logger = logging.getLogger(__name__)
@@ -69,7 +70,7 @@ class JobStatus(int):
 
     @classmethod
     def from_string(cls, s):
-        """Return a :class`JobStatus` instance from its string representation."""
+        """Return a :class:`JobStatus` instance from its string representation."""
         for num, text in cls._STATUS_TABLE.items():
             if text == s: return cls(num)
         else:
@@ -83,6 +84,8 @@ class QueueJob(object):
     This object provides methods to contact the resource manager to get info on the status
     of the job and useful statistics. This is an abstract class.
     """
+    QTYPE = None
+
     # Used to handle other resource managers.
     S_UNKNOWN   = JobStatus.from_string("UNKNOWN")
     # Slurm status
@@ -96,6 +99,22 @@ class QueueJob(object):
     S_TIMEOUT   = JobStatus.from_string("TIMEOUT")
     S_PREEMPTED = JobStatus.from_string("PREEMPTED")
     S_NODEFAIL  = JobStatus.from_string("NODEFAIL")
+
+    @staticmethod
+    def from_qtype_and_id(qtype, queue_id):
+        """
+        Return a new istance of the appropriate subclass.
+
+        Args:
+            qtype: String specifying the type of Resource manager.
+            queue_id: Job identifier.
+        """
+        for cls in all_subclasses(QueueJob):
+            if cls.QTYPE == qtype: break
+        else:
+            raise ValueError("Cannot find QueueJob subclass registered for qtype %s" % qtype)
+
+        return cls(queue_id, qname="Unknown", qout_path=None, qerr_path=None)
 
     def __init__(self, queue_id, qname, qout_path=None, qerr_path=None):
         self.qid, self.qname = queue_id, qname
@@ -212,6 +231,7 @@ class QueueJob(object):
 
 class SlurmJob(QueueJob):
     """Handler for Slurm jobs."""
+    QTYPE = "slurm"
 
     def estimated_start_time(self):
         #squeue  --start -j  116791
@@ -307,6 +327,7 @@ class PbsProJob(QueueJob):
 
     See also https://github.com/plediii/pbs_util for a similar project.
     """
+    QTYPE = "pbspro"
     # Mapping PrbPro --> Slurm. From `man qstat`
     #
     # S  The job’s state:
@@ -369,5 +390,20 @@ class PbsProJob(QueueJob):
         self.set_status_exitcode_signal(status, None, None)
 
 
+#################################
+# Unsupported resource managers #
+#################################
+
+class TorqueJob(QueueJob):
+    """Not supported"""
+    QTYPE = "torque"
+
+
 class SgeJob(QueueJob):
     """Not supported"""
+    QTYPE = "sge"
+
+
+class MoabJob(QueueJob):
+    """Not supported"""
+    QTYPE = "moab"

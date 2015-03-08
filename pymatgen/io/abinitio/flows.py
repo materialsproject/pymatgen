@@ -656,7 +656,7 @@ class Flow(Node):
             stream: File-like object, Default: sys.stdout
             nids:  List of node identifiers. By defaults all nodes are shown
             wslice: Slice object used to select works.
-            verbose: Verbosity level (default 0). > 0 if to show only the works that are not finalized.
+            verbose: Verbosity level (default 0). > 0 to show only the works that are not finalized.
         """
         stream = kwargs.pop("stream", sys.stdout)
         nids = as_set(kwargs.pop("nids", None))
