@@ -1308,6 +1308,14 @@ class TestQcOutput(TestCase):
                 self.assertAlmostEqual(ref_energies[molname][method],
                                        parsed_energies[molname][method])
 
+    def test_unable_to_determine_lambda_in_geom_opt(self):
+        filename = os.path.join(test_dir, "unable_to_determine_lambda_in_geom_opt.qcout")
+        qcout = QcOutput(filename)
+        self.assertTrue(qcout.data[0]['has_error'])
+        self.assertEqual(qcout.data[0]['errors'],
+                         ['Lamda Determination Failed',
+                          'Geometry optimization failed'])
+
     def test_geom_opt(self):
         filename = os.path.join(test_dir, "thiophene_wfs_5_carboxyl.qcout")
         qcout = QcOutput(filename)
@@ -1787,6 +1795,14 @@ $end
         self.assertEqual(len(qcout.data[0]['scf_iteration_energies'][-1]), 192)
         self.assertAlmostEqual(qcout.data[0]['scf_iteration_energies'][-1][-1][0],
                                -1944.945908459, 5)
+
+    def test_crazy_scf_values(self):
+        filename = os.path.join(test_dir, "crazy_scf_values.qcout")
+        qcout = QcOutput(filename)
+        ans = [(-28556254.06737586, 6.49e-06),
+               (-28556254.067382727, 9.45e-06),
+               (-28556254.067382865, 6.14e-06)]
+        self.assertEqual(qcout.data[0]["scf_iteration_energies"][-1][-3:], ans)
 
     def test_crowd_gradient_number(self):
         filename = os.path.join(test_dir, "crowd_gradient_number.qcout")

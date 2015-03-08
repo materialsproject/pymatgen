@@ -1277,7 +1277,7 @@ class QcOutput(object):
                                      "and\s+(?P<beta>\d+)\s+beta electrons")
         total_charge_pattern = re.compile("Sum of atomic charges ="
                                           "\s+(?P<charge>\-?\d+\.\d+)")
-        scf_iter_pattern = re.compile("\d+\s+(?P<energy>\-\d+\.\d+)\s+"
+        scf_iter_pattern = re.compile("\d+\s*(?P<energy>\-\d+\.\d+)\s+"
                                       "(?P<diis_error>\d+\.\d+E[-+]\d+)")
         zpe_pattern = re.compile("Zero point vibrational energy:"
                                  "\s+(?P<zpe>\d+\.\d+)\s+kcal/mol")
@@ -1311,7 +1311,9 @@ class QcOutput(object):
             (re.compile("Unable to allocate requested memory in mega_alloc"),
                 "Insufficient static memory"),
             (re.compile("Application \d+ exit signals: Killed"),
-                "Killed")
+                "Killed"),
+            (re.compile("UNABLE TO DETERMINE Lamda IN FormD"),
+                "Lamda Determination Failed")
         )
 
         energies = []
