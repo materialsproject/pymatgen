@@ -22,7 +22,6 @@ import getpass
 import six
 import json
 from . import qutils as qu
-from . import qjobs
 
 from collections import namedtuple
 from subprocess import Popen, PIPE
@@ -35,6 +34,7 @@ from monty.io import FileLock
 from pymatgen.core.units import Memory
 from .utils import Condition
 from .launcher import ScriptEditor
+from .qjobs import QueueJob
 
 import logging
 logger = logging.getLogger(__name__)
@@ -295,12 +295,16 @@ class QueueAdapter(six.with_metaclass(abc.ABCMeta, object)):
 
     This is the **abstract** base class defining the methods that must be implemented by the concrete classes.
     Concrete classes should extend this class with implementations that work on specific queue systems.
+
+    .. note::
+    
+        A `QueueAdapter` has a handler (:class:`QueueJob`) defined in qjobs.py that allows one
+        to contact the resource manager to get info about the status of the job.
+        Each concrete implementation of `QueueAdapter` should have a corresponding `QueueJob`.
     """
     Error = QueueAdapterError
 
     MaxNumLaunchesError = MaxNumLaunchesError
-
-    Job = qjobs.QueueJob
 
     @classmethod
     def autodoc(cls):
@@ -870,7 +874,7 @@ limits:
                              "The error response reads:\n %s" % err)
 
         # Here we create a concrete instance of QueueJob
-        return self.Job(queue_id, self.qname), process
+        return QueueJob.from_qtype_and_id(self.QTYPE, queue_id, self.qname), process
 
     @abc.abstractmethod
     def _submit_to_queue(self, script_file):
@@ -991,8 +995,6 @@ class SlurmAdapter(QueueAdapter):
     """Adapter for SLURM."""
     QTYPE = "slurm"
 
-    Job = qjobs.SlurmJob
-
     QTEMPLATE = """\
 #!/bin/bash
 
@@ -1075,14 +1077,14 @@ $${qverbatim}
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
         process = Popen(['sbatch', script_file], stdout=PIPE, stderr=PIPE)
-        process.wait()
+        out, err = process.communicate()
 
         # grab the returncode. SLURM returns 0 if the job was successful
         queue_id = None
         if process.returncode == 0:
             try:
                 # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
-                queue_id = int(process.stdout.read().split()[3])
+                queue_id = int(out.split()[3])
                 logger.info('Job submission was successful and queue_id is {}'.format(queue_id))
             except:
                 # probably error parsing job code
@@ -1107,14 +1109,14 @@ $${qverbatim}
 
     def _get_njobs_in_queue(self, username):
         process = Popen(['squeue', '-o "%u"', '-u', username], stdout=PIPE, stderr=PIPE)
-        process.wait()
+        out, err = process.communicate()
 
         njobs = None
         if process.returncode == 0:
             # parse the result. lines should have this form:
             # username
             # count lines that include the username in it
-            outs = process.stdout.readlines()
+            outs = out.splitlines()
             njobs = len([line.split() for line in outs if username in line])
 
         return njobs, process
@@ -1128,8 +1130,6 @@ class PbsProAdapter(QueueAdapter):
 #PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
 ####PBS -l select=$${select}:ncpus=$${ncpus}:vmem=$${vmem}mb:mpiprocs=$${mpiprocs}:ompthreads=$${ompthreads}
 ####PBS -l pvmem=$${pvmem}mb
-
-    Job = qjobs.PbsProJob
 
     QTEMPLATE = """\
 #!/bin/bash
@@ -1178,7 +1178,6 @@ $${qverbatim}
         """
         hw, mem_per_proc = self.hw, int(self.mem_per_proc)
         #dist = self.distribute(self.mpi_procs, self.omp_threads, mem_per_proc)
-
         """
         if self.pure_mpi:
             num_nodes, rest_cores = hw.divmod_node(self.mpi_procs, self.omp_threads)
@@ -1246,7 +1245,6 @@ $${qverbatim}
         else:
             raise RuntimeError("You should not be here")
         """
-
         if not self.has_omp:
             chunks, ncpus, vmem, mpiprocs = self.mpi_procs, 1, self.mem_per_proc, 1
             select_params = AttrDict(chunks=chunks, ncpus=ncpus, mpiprocs=mpiprocs, vmem=int(vmem))
@@ -1263,14 +1261,14 @@ $${qverbatim}
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
         process = Popen(['qsub', script_file], stdout=PIPE, stderr=PIPE)
-        process.wait()
+        out, err = process.communicate()
 
         # grab the return code. PBS returns 0 if the job was successful
         queue_id = None
         if process.returncode == 0:
             try:
                 # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
-                queue_id = int(process.stdout.read().split('.')[0])
+                queue_id = int(out.split('.')[0])
             except:
                 # probably error parsing job code
                 logger.critical("Could not parse job id following qsub...")
@@ -1279,7 +1277,7 @@ $${qverbatim}
 
     def _get_njobs_in_queue(self, username):
         process = Popen(['qstat', '-a', '-u', username], stdout=PIPE, stderr=PIPE)
-        process.wait()
+        out, err = process.communicate()
 
         njobs = None
         if process.returncode == 0:
@@ -1289,7 +1287,7 @@ $${qverbatim}
             # count lines that include the username in it
 
             # TODO: only count running or queued jobs. or rather, *don't* count jobs that are 'C'.
-            outs = process.stdout.read().split('\n')
+            outs = out.split('\n')
             njobs = len([line.split() for line in outs if username in line])
 
         return njobs, process
@@ -1302,8 +1300,6 @@ $${qverbatim}
 class TorqueAdapter(PbsProAdapter):
     """Adapter for Torque."""
     QTYPE = "torque"
-
-    Job = qjobs.TorqueJob
 
     QTEMPLATE = """\
 #!/bin/bash
@@ -1356,8 +1352,6 @@ class SGEAdapter(QueueAdapter):
     """
     QTYPE = "sge"
 
-    Job = qjobs.SgeJob
-
     QTEMPLATE = """\
 #!/bin/bash
 
@@ -1409,7 +1403,7 @@ $${qverbatim}
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
         process = Popen(['qsub', script_file], stdout=PIPE, stderr=PIPE)
-        process.wait()
+        out, err = process.communicate()
 
         # grab the returncode. SGE returns 0 if the job was successful
         queue_id = None
@@ -1417,7 +1411,7 @@ $${qverbatim}
             try:
                 # output should of the form 
                 # Your job 1659048 ("NAME_OF_JOB") has been submitted 
-                queue_id = int(process.stdout.read().split(' ')[2])
+                queue_id = int(out.split(' ')[2])
             except:
                 # probably error parsing job code
                 logger.critical("Could not parse job id following qsub...")
@@ -1431,7 +1425,7 @@ $${qverbatim}
 
     def _get_njobs_in_queue(self, username):
         process = Popen(['qstat', '-u', username], stdout=PIPE, stderr=PIPE)
-        process.wait()
+        out, err = process.communicate()
 
         njobs = None
         if process.returncode == 0:
@@ -1440,7 +1434,7 @@ $${qverbatim}
             # count lines that include the username in it
 
             # TODO: only count running or queued jobs. or rather, *don't* count jobs that are 'C'.
-            outs = process.stdout.readlines()
+            outs = out.splitlines()
             njobs = len([line.split() for line in outs if username in line])
 
         return njobs, process
@@ -1449,8 +1443,6 @@ $${qverbatim}
 class MOABAdapter(QueueAdapter):
     """Adapter for MOAB. See https://computing.llnl.gov/tutorials/moab/"""
     QTYPE = "moab"
-
-    Job = qjobs.MoabJob
 
     QTEMPLATE = """\
 #!/bin/bash
@@ -1501,14 +1493,14 @@ $${qverbatim}
     def _submit_to_queue(self, script_file):
         """Submit a job script to the queue."""
         process = Popen(['msub', script_file], stdout=PIPE, stderr=PIPE)
-        process.wait()
+        out, err = process.communicate()
 
         queue_id = None
         if process.returncode == 0:
             # grab the returncode. MOAB returns 0 if the job was successful
             try:
                 # output should be the queue_id
-                queue_id = int(process.stdout.read().split()[0])
+                queue_id = int(out.split()[0])
             except:
                 # probably error parsing job code
                 logger.critical('Could not parse job id following msub...')
@@ -1517,7 +1509,7 @@ $${qverbatim}
 
     def _get_njobs_in_queue(self, username):
         process = Popen(['showq', '-s -u', username], stdout=PIPE, stderr=PIPE)
-        process.wait()
+        out, err = process.communicate()
 
         njobs = None
         if process.returncode == 0:
@@ -1529,7 +1521,7 @@ $${qverbatim}
             ## Total job:  1
             ##
             # Split the output string and return the last element.
-            out = process.stdout.readlines()[-1]
+            out = out.splitlines()[-1]
             njobs = int(out.split()[-1])
 
         return njobs, process

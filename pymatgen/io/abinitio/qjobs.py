@@ -101,24 +101,30 @@ class QueueJob(object):
     S_NODEFAIL  = JobStatus.from_string("NODEFAIL")
 
     @staticmethod
-    def from_qtype_and_id(qtype, queue_id):
+    def from_qtype_and_id(qtype, queue_id, qname=None):
         """
         Return a new istance of the appropriate subclass.
 
         Args:
-            qtype: String specifying the type of Resource manager.
+            qtype: String specifying the Resource manager type.
             queue_id: Job identifier.
+            qname: Name of the queue (optional).
         """
         for cls in all_subclasses(QueueJob):
             if cls.QTYPE == qtype: break
         else:
-            raise ValueError("Cannot find QueueJob subclass registered for qtype %s" % qtype)
+            logger.critical("Cannot find QueueJob subclass registered for qtype %s" % qtype)
+            cls = QueueJob
 
-        return cls(queue_id, qname="Unknown", qout_path=None, qerr_path=None)
+        return cls(queue_id, qname=qname)
 
-    def __init__(self, queue_id, qname, qout_path=None, qerr_path=None):
+    def __init__(self, queue_id, qname="UnknownQueue"):
+        """
+        Args:
+            queue_id: Job identifier.
+            qname: Name of the queue (optional).
+        """
         self.qid, self.qname = queue_id, qname
-        self.qout_path, self.qerr_path = qout_path, qerr_path
 
         # Initialize properties.
         self.status, self.exitcode, self.signal = None, None, None
@@ -229,6 +235,11 @@ class QueueJob(object):
         return None
 
 
+class ShellJob(QueueJob):
+    """Handler for Shell jobs."""
+    QTYPE = "shell"
+
+
 class SlurmJob(QueueJob):
     """Handler for Slurm jobs."""
     QTYPE = "slurm"
@@ -239,10 +250,13 @@ class SlurmJob(QueueJob):
         # 116791      defq gs6q2wop username  PD  2014-11-04T09:27:15     16 (QOSResourceLimit)
         cmd = "squeue" "--start", "--job %d" % self.qid
         process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
-        process.wait()
+        out, err = process.communicate()
 
-        if process.returncode != 0: return None
-        lines = process.stdout.readlines()
+        if process.returncode != 0: 
+            logger.critical(err)
+            return None
+
+        lines = out.splitlines()
         if len(lines) <= 2: return None
 
         from datetime import datetime
@@ -252,6 +266,7 @@ class SlurmJob(QueueJob):
                 date_string = tokens[5]
                 if date_string == "N/A": return None
                 return datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S")
+
         return None
 
     def get_info(self, **kwargs):
@@ -277,15 +292,13 @@ class SlurmJob(QueueJob):
         #cmd = "sacct --job %i --format=jobid,exitcode,state --allocations --parsable2" % self.qid
         cmd = "scontrol show job %i --oneliner" % self.qid
         process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
-        process.wait()
+        out, err = process.communicate()
 
         if process.returncode != 0:
-            #print(process.stderr.readlines())
+            logger.critical(err)
             return None
-        line = process.stdout.read()
-        #print("line", line)
 
-        tokens = line.split()
+        tokens = out.splitlines()
         info = AttrDict()
         for line in tokens:
             #print(line)
@@ -312,9 +325,13 @@ class SlurmJob(QueueJob):
     def get_stats(self, **kwargs):
         cmd = "sacct --long --job %s --parsable2" % self.qid
         process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
-        process.wait()
+        out, err = process.communicate()
 
-        lines = process.stdout.readlines()
+        if process.returncode != 0: 
+            logger.critical(err)
+            return {}
+
+        lines = out.splitlines()
         keys = lines[0].strip().split("|")
         values = lines[1].strip().split("|")
         #print("lines0", lines[0])
@@ -323,7 +340,7 @@ class SlurmJob(QueueJob):
 
 class PbsProJob(QueueJob):
     """
-    Handler for PbsPro Jobs
+    Handler for PbsPro Jobs.
 
     See also https://github.com/plediii/pbs_util for a similar project.
     """
@@ -394,6 +411,7 @@ class PbsProJob(QueueJob):
             if process.returncode != 0:
                 logger.critical(err)
                 return None
+
         # Here I don't know what's happeing but I get an output that differs from the one obtained in the terminal.
         # Job id            Name             User              Time Use S Queue
         # ----------------  ---------------- ----------------  -------- - -----
