@@ -236,7 +236,7 @@ class SlurmJob(QueueJob):
     def estimated_start_time(self):
         #squeue  --start -j  116791
         #  JOBID PARTITION     NAME     USER  ST           START_TIME  NODES NODELIST(REASON)
-        # 116791      defq gs6q2wop cyildiri  PD  2014-11-04T09:27:15     16 (QOSResourceLimit)
+        # 116791      defq gs6q2wop username  PD  2014-11-04T09:27:15     16 (QOSResourceLimit)
         cmd = "squeue" "--start", "--job %d" % self.qid
         process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
         process.wait()
@@ -359,11 +359,15 @@ class PbsProJob(QueueJob):
         #Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time  S Time
         #--------------- -------- -------- ---------- ------ --- --- ------ ----- - -----
         #5669001.frontal username large    gs.Pt         --   96  96    --  03:00 Q    --
-        process = Popen(["qstat" "-T", str(self.qid)], stdout=PIPE, stderr=PIPE)
-        process.wait()
+        cmd = "qstat %s -T" % self.qid
+        process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
+        out, err = process.communicate()
 
-        if process.returncode != 0: return None
-        line = process.stdout.readlines()[-1]
+        if process.returncode != 0: 
+            logger.critical(err)
+            return None
+
+        line = out.splitlines()[-1]
         sdate = line.split()[-1]
         if sdate in ("--", "?"): return None
         # TODO One should convert to datetime
@@ -376,17 +380,33 @@ class PbsProJob(QueueJob):
         #Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time  S Time
         #--------------- -------- -------- ---------- ------ --- --- ------ ----- - -----
         #5666289.frontal username main_ivy MorfeoTChk  57546   1   4    --  08:00 R 00:17
+
         cmd = "qstat %d" % self.qid
         process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
+        out, err = process.communicate()
 
         if process.returncode != 0:
-            #print(process.stderr.readlines())
-            return None
+            # qstat: 5904257.frontal1 Job has finished, use -x or -H to obtain historical job information\n
+            cmd = "qstat %d -x" % self.qid
+            process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE)
+            out, err = process.communicate()
 
-        out = process.stdout.readlines()[-1]
-        status = self.PBSSTAT_TO_SLURM[out.split()[9]]
+            if process.returncode != 0:
+                logger.critical(err)
+                return None
+        # Here I don't know what's happeing but I get an output that differs from the one obtained in the terminal.
+        # Job id            Name             User              Time Use S Queue
+        # ----------------  ---------------- ----------------  -------- - -----
+        # 5905011.frontal1  t0               gmatteo           01:37:08 F main_wes  
+        #print(out)
+
+        line = out.splitlines()[-1]
+        #print(line.split())
+        status = self.PBSSTAT_TO_SLURM[line.split()[4]]
 
         # Exit code and signal are not available.
+        # Once could use tracejob....
+        # See also http://docs.adaptivecomputing.com/torque/3-0-5/a.gprologueepilogue.php
         self.set_status_exitcode_signal(status, None, None)
 
 
