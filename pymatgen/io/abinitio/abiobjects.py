@@ -181,12 +181,12 @@ class Smearing(AbivarAble, PMGSONable):
             return obj
 
         # obj is a string
-        obj, tsmear = obj.split(":")
-        obj.strip()
-
         if obj == "nosmearing":
             return cls.nosmearing()
         else:
+            obj, tsmear = obj.split(":")
+            obj.strip()
+
             occopt = cls._mode2occopt[obj]
             try:
                 tsmear = float(tsmear)
@@ -205,20 +205,18 @@ class Smearing(AbivarAble, PMGSONable):
 
     @staticmethod
     def nosmearing():
-        return Smearing(1, None)
+        return Smearing(1, 0.0)
 
     def to_abivars(self):
         if self.mode == "nosmearing":
-            return {}
+            return {"occopt": 1, "tsmear": 0.0}
         else:
-            return {"occopt": self.occopt,
-                    "tsmear": self.tsmear,}
+            return {"occopt": self.occopt, "tsmear": self.tsmear,}
 
+    @pmg_serialize
     def as_dict(self):
         """json friendly dict representation of Smearing"""
-        return {"occopt": self.occopt, "tsmear": self.tsmear,
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
+        return {"occopt": self.occopt, "tsmear": self.tsmear}
 
     @staticmethod
     def from_dict(d):
@@ -243,11 +241,9 @@ class ElectronsAlgorithm(dict, AbivarAble, PMGSONable):
     def to_abivars(self):
         return self.copy()
 
+    @pmg_serialize
     def as_dict(self):
-        d = self.copy()
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return self.copy()
 
     @classmethod
     def from_dict(cls, d):
