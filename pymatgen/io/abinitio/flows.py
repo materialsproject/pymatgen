@@ -1220,6 +1220,44 @@ class Flow(Node):
 
         return self
 
+    # TODO
+    #def optimize_io(self):
+    #    """
+    #    This function should be called when the entire `Flow` has been built. 
+    #    It tries to reduced the pressure on the hard disk by disabling the output of
+    #    those files that are not needed by other nodes.
+
+    #    Returns:
+    #        List of changes performed.
+    #    """
+    #    for task in self.iflat_tasks():
+    #        children = task.get_children()
+    #        if not children:
+    #            # Change the input so that output files are produced only if the 
+    #            # calculation is not converged.
+    #            task.input.set_vars(ptrwf=-1, prt1wf=-1, prtden=-1)
+    #        else:
+    #            must_produce_abiexts = []
+    #            for child in children:
+    #                # Get the list of dependencies. Find that task 
+    #                deps = child.deps
+    #                must_produce_abiexts.append()
+    #            must_produce_abiexts = set(must_produce_abiexts)
+    #            # Disable the output 
+    #            for ext, prtvar in abinit_vars:
+    #                if ext not in must_produce_abiexts:
+    #                    task.input.set_vars(prtvar=-1)
+
+    #def new_from_input_decorators(self, new_workdir, decorators)
+    #    """
+    #    Return a new :class:`Flow` in which all the Abinit inputs have been
+    #    decorated by decorators.
+    #    """
+    #    # The trick part here is how to assign a new id to the new nodes while maintaing the
+    #    # correct dependencies! The safest approach would be to pass through __init__
+    #    # instead of using copy.deepcopy()
+    #    return flow
+
     def show_dependencies(self, stream=sys.stdout):
         """Writes to the given stream the ASCII representation of the dependency tree."""
         def child_iter(node):
