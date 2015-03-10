@@ -963,6 +963,8 @@ class Screening(AbivarAble):
         self.awtr  =1
         self.symchi=1
 
+        self.optdriver = 3
+
     @property
     def use_hilbert(self):
         return hasattr(self, "hilbert")
@@ -985,6 +987,7 @@ class Screening(AbivarAble):
             "symchi"    : self.symchi,
             #"gwcalctyp": self.gwcalctyp,
             #"fftgw"    : self.fftgw,
+            "optdriver" : self.optdriver,
         }
 
         # Variables for the Hilber transform.
@@ -1049,6 +1052,7 @@ class SelfEnergy(AbivarAble):
 
         self.ecuteps = ecuteps if ecuteps is not None else screening.ecuteps
         self.ecutwfn = ecutwfn
+        self.optdriver = 4
 
         #band_mode in ["gap", "full"]
 
@@ -1098,7 +1102,8 @@ class SelfEnergy(AbivarAble):
             ecutsigx=self.ecutsigx,
             symsigma=self.symsigma,
             gw_qprange=self.gw_qprange,
-            gwpara=self.gwpara
+            gwpara=self.gwpara,
+            optdriver=self.optdriver,
             #"ecutwfn"  : self.ecutwfn,
             #"kptgw"    : self.kptgw,
             #"nkptgw"   : self.nkptgw,
@@ -1182,6 +1187,7 @@ class ExcHamiltonian(AbivarAble):
         # if bs_freq_mesh is not given, abinit will select its own mesh.
         self.bs_freq_mesh = np.array(bs_freq_mesh) if bs_freq_mesh is not None else bs_freq_mesh
         self.zcut = zcut
+        self.optdriver = 99
 
         # Extra options.
         self.kwargs = kwargs
@@ -1230,6 +1236,7 @@ class ExcHamiltonian(AbivarAble):
             zcut=self.zcut,
             bs_freq_mesh=self.bs_freq_mesh,
             bs_coupling=self._EXC_TYPES[self.exc_type],
+            optdriver=self.optdriver,
         )
 
         if self.use_haydock:
