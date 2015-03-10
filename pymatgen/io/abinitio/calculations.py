@@ -246,7 +246,8 @@ def g0w0_extended_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsi
                                         smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars))
     scf_strategy[-1].electrons.nband = scf_nband
 
-    nscf_strategy = NscfStrategy(scf_strategy[-1], nscf_ksampling, max(nscf_nband), **extra_abivars)
+    nscf_strategy = NscfStrategy(scf_strategy[-1], nscf_ksampling, int(max(nscf_nband)*1.1)+1,
+                                 nbdbuf=int(0.1*nscf_nband), nstep=200, **extra_abivars)
 
     if scr_nband is None:
         scr_nband = nscf_nband
