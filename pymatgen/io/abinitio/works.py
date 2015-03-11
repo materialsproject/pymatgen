@@ -879,9 +879,14 @@ class G0W0Work(Work):
         else:
             self.scr_tasks = []
 
+        nogw = False
+
         if nksmall:
             # if nksmall add bandstructure and dos calculations as well
             from abiobjects import KSampling
+            if nksmall < 0:
+                nksmall = -nksmall
+                nogw = True
             scf_in = scf_input[-1] if isinstance(scf_input, (list, tuple)) else scf_input
             logger.info('added band structure calculation')
             bands_input = NscfStrategy(scf_strategy=scf_in,
@@ -899,20 +904,21 @@ class G0W0Work(Work):
             self.dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
 
         # Register the SIGMA runs.
-        if not isinstance(sigma_inputs, (list, tuple)): 
-            sigma_inputs = [sigma_inputs]
+        if not nogw:
+            if not isinstance(sigma_inputs, (list, tuple)):
+                sigma_inputs = [sigma_inputs]
 
-        self.sigma_tasks = []
-        for sigma_input in sigma_inputs:
-            if spread_scr:
-                new_scr_input = copy.deepcopy(scr_input)
-                new_scr_input.screening.ecuteps = sigma_input.sigma.ecuteps
-                new_scr_input.screening.nband = sigma_input.sigma.nband
-                new_scr_input.electrons.nband = sigma_input.sigma.nband
-                scr_task = self.register_scr_task(new_scr_input, deps={nscf_task: "WFK"})
+            self.sigma_tasks = []
+            for sigma_input in sigma_inputs:
+                if spread_scr:
+                    new_scr_input = copy.deepcopy(scr_input)
+                    new_scr_input.screening.ecuteps = sigma_input.sigma.ecuteps
+                    new_scr_input.screening.nband = sigma_input.sigma.nband
+                    new_scr_input.electrons.nband = sigma_input.sigma.nband
+                    scr_task = self.register_scr_task(new_scr_input, deps={nscf_task: "WFK"})
 
-            task = self.register_sigma_task(sigma_input, deps={nscf_task: "WFK", scr_task: "SCR"})
-            self.sigma_tasks.append(task)
+                task = self.register_sigma_task(sigma_input, deps={nscf_task: "WFK", scr_task: "SCR"})
+                self.sigma_tasks.append(task)
 
 
 class SigmaConvWork(Work):
