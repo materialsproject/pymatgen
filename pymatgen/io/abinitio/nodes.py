@@ -702,24 +702,12 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
         return "\n".join(lines)
 
-    #def set_gc(self, gc):
-    #    """
-    #    Set the list of file extensions that should be removed when the task reaches S_OK.
-
-    #    Args:
-    #        exts: List of file extensions, if exts is None a default list is provided.
-    #    """
-    #    self.gc = gc
-    #    if exts is None: exts = ["WFK", "SUS", "SCR"]
-    #    self._cleanup_exts = set(exts)
-
-    #@property
-    #def cleanup_exts(self):
-    #    """Set of file extensions to remove."""
-    #    try:
-    #        return self._cleanup_exts
-    #    except AttributeError:
-    #        return set()
+    def set_gc(self, gc):
+        """
+        Set the garbage collector.
+        """
+        assert isinstance(gc, GarbageCollector)
+        self._gc = gc
 
     @property
     def gc(self):
