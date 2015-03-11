@@ -345,7 +345,7 @@ limits:
                        # possible values are ["nodes", "force_nodes", "shared"]
                        # "nodes" means that we should try to allocate entire nodes if possible.
                        # This is a soft limit, in the sense that the qadapter may use a configuration
-                       # that do not fulfill this requirement, use `force_nodes` to enfore that.
+                       # that does not fulfill this requirement, use `force_nodes` to enfore that.
                        # `shared` mode does not enforce any constraint (default).
 """
 
