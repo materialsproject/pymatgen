@@ -1018,7 +1018,7 @@ class QptdmWork(Work):
             qptdm_input = scr_input.deepcopy()
             qptdm_input.set_vars(nqptdm=1, qptdm=qpoint)
             new_task = self.register_scr_task(qptdm_input, manager=self.manager)
-            #new_task.set_cleanup_exts()
+            #new_task.set_garbage_collector()
 
         self.allocate()
 

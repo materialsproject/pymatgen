@@ -119,8 +119,7 @@ class Dependency(object):
         """
         self._node = Node.as_node(node)
 
-        if exts and is_string(exts):
-            exts = exts.split()
+        if exts and is_string(exts): exts = exts.split()
 
         # Extract extensions.
         self.exts = [e for e in exts if not e.startswith("@")]
@@ -703,24 +702,36 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
         return "\n".join(lines)
 
-    def set_cleanup_exts(self, exts=None):
-        """
-        Set the list of file extensions that should be removed when the task reaches S_OK.
+    #def set_gc(self, gc):
+    #    """
+    #    Set the list of file extensions that should be removed when the task reaches S_OK.
 
-            Args:
-                exts: List of file extensions, if exts is None a default list is provided.
-        """
-        if exts is None: exts = ["WFK", "SUS", "SCR"]
-        self._cleanup_exts = set(exts)
+    #    Args:
+    #        exts: List of file extensions, if exts is None a default list is provided.
+    #    """
+    #    self.gc = gc
+    #    if exts is None: exts = ["WFK", "SUS", "SCR"]
+    #    self._cleanup_exts = set(exts)
+
+    #@property
+    #def cleanup_exts(self):
+    #    """Set of file extensions to remove."""
+    #    try:
+    #        return self._cleanup_exts
+    #    except AttributeError:
+    #        return set()
 
     @property
-    def cleanup_exts(self):
-        """Set of file extensions to remove."""
+    def gc(self):
+        """
+        Garbage collector. None if garbage collection is deactivated.
+        Use flow.set_garbage_collector to initialize the object.
+        """
         try:
-            return self._cleanup_exts
+            return self._gc
         except AttributeError:
-            return set()
-
+            return None
+    
     @property
     def event_handlers(self):
         """
@@ -1004,6 +1015,12 @@ class NodeCorrections(list):
     #    #return len([c for c in self if c["event"]["@class"] == str(event_class)])
 
     #def _find(self, event_class)
+
+
+class GarbageCollector(object):
+    """This object stores information on the """
+    def __init__(self, exts, policy):
+        self.exts, self.policy = set(exts), policy
 
 
 def check_spectator(node_method):

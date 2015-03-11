@@ -1444,8 +1444,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             # Finalize the task.
             if not self.finalized:
                 self._on_ok()
+
                 # here we remove the output files of the task and of its parents.
-                if self.cleanup_exts: self.clean_output_files()
+                if self.gc is not None and self.gc.policy == "task":
+                    self.clean_output_files()
                                                                                 
             logger.debug("Task %s broadcasts signal S_OK" % self)
             dispatcher.send(signal=self.S_OK, sender=self)
@@ -1871,7 +1873,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             except_exts.update(child.deps[i].exts)
 
         # Remove the files in the outdir of the task but keep except_exts. 
-        exts = self.cleanup_exts.difference(except_exts)
+        exts = self.gc.exts.difference(except_exts)
         #print("Will remove its extensions: ", exts)
         paths += self.outdir.remove_exts(exts)
         if not follow_parents: return paths
@@ -1890,11 +1892,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         
             # Remove extension only if no node depends on it!
             except_exts = [k for k, lst in ext2nodes.items() if lst]
-            exts = self.cleanup_exts.difference(except_exts)
+            exts = self.gc.exts.difference(except_exts)
             #print("%s removes extensions %s from parent node %s" % (self, exts, parent))
             paths += parent.outdir.remove_exts(exts)
 
-        #print("%s:\n Files removed: %s" % (self, paths))
+        self.history.info("Removed files: %s" % paths)
         return paths
 
     def setup(self):
@@ -2259,15 +2261,33 @@ class AbinitTask(Task):
 
     def reset_from_scratch(self):
         """
-        restart from scratch, reuse of output
-        this is to be used if a job is restarted with more resources after a crash
+        restart from scratch, this is to be used if a job is restarted with more resources after a crash
         """
-        # remove all 'error', else the job will be seen as crashed in the next check status
-        # even if the job did not run
-        self.output_file.remove()
-        self.log_file.remove()
-        self.stderr_file.remove()
+        # Move output files produced in workdir to _reset otherwise check_status continues
+        # to see the task as crashed even if the job did not run
+
+        # Create reset directory if not already done.
+        reset_dir = os.path.join(self.workdir, "_reset")
+        reset_file = os.path.join(reset_dir, "_counter")
+        if not os.path.exists(reset_dir):
+            os.mkdir(reset_dir)
+            num_reset = 1
+        else:
+            with open(reset_file, "rt") as fh: 
+                num_reset = 1 + int(fh.read())
+
         self.start_lockfile.remove()
+
+        # Move files to reset and append digit with reset index.
+        def move_file(f):
+            f.move(os.path.join(reset_dir, f.basename + "_" + str(num_reset)))
+
+        move_file(self.output_file)
+        move_file(self.log_file)
+        move_file(self.stderr_file)
+
+        with open(reset_file, "wt") as fh: 
+            fh.write(str(num_reset))
 
         return self._restart(submit=False)
 

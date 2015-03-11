@@ -27,7 +27,7 @@ from monty.termcolor import stream_has_colours, cprint, colored, cprint_map
 from monty.inspect import find_top_pyfile
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
 from pymatgen.core.units import Time, Memory
-from .nodes import Status, Node, NodeResults, Dependency #, check_spectator
+from .nodes import Status, Node, NodeResults, Dependency, GarbageCollector #, check_spectator
 from .tasks import (Task, ScfTask, PhononTask, TaskManager, NscfTask, DdkTask,
                     AnaddbTask, DdeTask, TaskManager)
 from .utils import Directory, Editor
@@ -1220,33 +1220,42 @@ class Flow(Node):
 
         return self
 
-    # TODO
-    #def optimize_io(self):
-    #    """
-    #    This function should be called when the entire `Flow` has been built. 
-    #    It tries to reduced the pressure on the hard disk by disabling the output of
-    #    those files that are not needed by other nodes.
+    def reduce_io(self):
+        """
+        This function should be called when the entire `Flow` has been built. 
+        It tries to reduce the pressure on the hard disk by disabling the output of
+        those files that are not needed by other nodes.
+        """
+        # TODO
+        raise NotImplementedError("To be tested")
 
-    #    Returns:
-    #        List of changes performed.
-    #    """
-    #    for task in self.iflat_tasks():
-    #        children = task.get_children()
-    #        if not children:
-    #            # Change the input so that output files are produced only if the 
-    #            # calculation is not converged.
-    #            task.input.set_vars(ptrwf=-1, prt1wf=-1, prtden=-1)
-    #        else:
-    #            must_produce_abiexts = []
-    #            for child in children:
-    #                # Get the list of dependencies. Find that task 
-    #                deps = child.deps
-    #                must_produce_abiexts.append()
-    #            must_produce_abiexts = set(must_produce_abiexts)
-    #            # Disable the output 
-    #            for ext, prtvar in abinit_vars:
-    #                if ext not in must_produce_abiexts:
-    #                    task.input.set_vars(prtvar=-1)
+        for task in self.iflat_tasks():
+            children = task.get_children()
+            if not children:
+                # Change the input so that output files are produced only if the 
+                # calculation is not converged.
+                print("Will disable IO for task %s:" % task)
+                #task.input.set_vars(ptrwf=-1, prt1wf=-1, prtden=-1)
+            else:
+                must_produce_abiexts = []
+                for child in children:
+                    # Get the list of dependencies. Find that task 
+                    for d in child.deps:
+                        must_produce_abiexts.extend(d.exts)
+
+                must_produce_abiexts = set(must_produce_abiexts)
+                print("must_produce_abiexts", must_produce_abiexts)
+
+                # Variables support smart-io in ABINIT
+                smart_prtvars = {
+                    "prtwf": "WFK",
+                }
+
+                # Set the variable to -1 to disable the output 
+                for varname, abiext in smart_prtvars.items():
+                    if abiext not in must_produce_abiexts:
+                        print("%s: setting %s to -1" % (self, varname))
+                        task.input.set_vars(varname=-1)
 
     #def new_from_input_decorators(self, new_workdir, decorators)
     #    """
@@ -1306,15 +1315,19 @@ class Flow(Node):
                  logger.critical("MongoDb insertion failed.")
                  return 2
 
-    def set_cleanup_exts(self, exts=None):
+    def set_garbage_collector(self, exts=None, policy="task"):
         # TODO: Rewrite this part.
         # Introduce a GarbageCollector object that is installed  at the level of the flow.
         # with a policy. The gc is called when the node reached S_OK.
+        if exts is None: exts = ["WFK", "SUS", "SCR"]
+
+        gc = GarbageCollector(exts=set(exts), policy=policy)
+
+        self._gc = gc
         for work in self:
-            # TODO Add support for Works
-            #work.set_cleanup_exts(exts)
+            #work._gc = gc # TODO Add support for Works and flow policy
             for task in work:
-                task.set_cleanup_exts(exts)
+                task._gc = gc
 
     def connect_signals(self):
         """
@@ -1527,7 +1540,7 @@ class Flow(Node):
 class G0W0WithQptdmFlow(Flow):
     def __init__(self, workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=None):
         """
-        Build a `Flow` for one-shot G0W0 calculations.
+        Build a :class:`Flow` for one-shot G0W0 calculations.
         The computation of the q-points for the screening is parallelized with qptdm
         i.e. we run independent calculations for each q-point and then we merge the final results.
 

@@ -127,6 +127,13 @@ class File(object):
         except:
             pass
 
+    def move(self, dst):
+        """
+        Recursively move a file or directory to another location. This is
+        similar to the Unix "mv" command.
+        """
+        shutil.move(self.path, dst)
+
     def get_stat(self):
         """Results from os.stat"""
         return os.stat(self.path)
