@@ -19,7 +19,7 @@ from six.moves import map
 from atomicfile import AtomicFile
 from prettytable import PrettyTable
 from pydispatch import dispatcher
-from monty.collections import as_set
+from monty.collections import as_set, dict2namedtuple
 from monty.string import list_strings, is_string
 from monty.io import FileLock
 from monty.pprint import draw_tree
@@ -113,7 +113,8 @@ class Flow(Node):
         tasks whose class is given by task_class.
 
         .. warning::
-            Don't use this interface if you have a dependencies among the tasks
+
+            Don't use this interface if you have dependencies among the tasks.
 
         Args:
             workdir: String specifying the directory where the works will be produced.
@@ -138,7 +139,7 @@ class Flow(Node):
 
     @classmethod
     def as_flow(cls, obj):
-        """Convert obj into a Flow. Accepts filepath, dict Flow object."""
+        """Convert obj into a Flow. Accepts filepath, dict, or Flow object."""
         if isinstance(obj, cls): return obj
         if is_string(obj):
             return cls.pickle_load(obj)
@@ -565,19 +566,23 @@ class Flow(Node):
             lines.extend(["%s <--> %s" % nodes for nodes in deadlocks])
             raise RuntimeError("\n".join(lines))
 
-    def deadlocked_runnables_running(self):
+    def find_deadlocks(self):
         """
         This function detects deadlocks
 
         Return:
-            deadlocks, runnables, running
+            named tuple with the tasks grouped in: deadlocks, runnables, running
         """
+        # Find jobs that can be submitted and and the jobs that are already in the queue.
         runnables = []
         for work in self:
             runnables.extend(work.fetch_alltasks_to_run())
+        runnables.extend(list(self.iflat_tasks(status=self.S_SUB)))
 
+        # Running jobs.
         running = list(self.iflat_tasks(status=self.S_RUN))
 
+        # Find deadlocks.
         err_tasks = self.errored_tasks
         deadlocked = []
         if err_tasks:
@@ -585,7 +590,7 @@ class Flow(Node):
                 if any(task.depends_on(err_task) for err_task in err_tasks):
                     deadlocked.append(task)
 
-        return deadlocked, runnables, running
+        return dict2namedtuple(deadlocked=deadlocked, runnables=runnables, running=running)
 
     def check_status(self, **kwargs):
         """

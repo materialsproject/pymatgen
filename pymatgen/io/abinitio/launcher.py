@@ -593,7 +593,7 @@ class PyFlowScheduler(object):
 
         # fix problems
         # Try to restart the unconverged tasks
-        # todo donot fire here but prepare for fireing in rapidfire
+        # TODO: do not fire here but prepare for fireing in rapidfire
         for task in self.flow.unconverged_tasks:
             try:
                 logger.info("Flow will try restart task %s" % task)
@@ -702,26 +702,25 @@ class PyFlowScheduler(object):
                 self.flow.num_errored_tasks, self.max_num_abierrs)
             err_msg += boxed(msg)
 
-        # TODO: This is not correct because I should also check tasks that are submitted
         # Test on the presence of deadlocks.
-        """
-        deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
-        if deadlocked: 
+        #"""
+        g = self.flow.find_deadlocks()
+        if g.deadlocked: 
             # Check the flow agains to that status are updated. 
             self.flow.check_status()
 
-            deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
-            print("deadlocked:\n", deadlocked, "\nrunnables:\n", runnables, "\nrunning\n", running)
-            if deadlocked and not runnables and not running:
-                err_msg += "No runnable job with deadlocked tasks:\n%s." % str(deadlocked)
+            g = self.flow.find_deadlocks()
+            print("deadlocked:\n", g.deadlocked, "\nrunnables:\n", g.runnables, "\nrunning\n", g.running)
+            if g.deadlocked and not g.runnables and not g.running:
+                err_msg += "No runnable job with deadlocked tasks:\n%s." % str(g.deadlocked)
 
-        if not runnables and not running:
+        if not g.runnables and not g.running:
             # Check the flow again to that status are updated. 
             self.flow.check_status()
-            deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
-            if not runnables and not running:
+            g = self.flow.find_deadlocks()
+            if not g.runnables and not g.running:
                 err_msg += "No task is running and cannot find other tasks to sumbmit."
-        """
+        #"""
 
         if err_msg:
             # Something wrong. Quit
