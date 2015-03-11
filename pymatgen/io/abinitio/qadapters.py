@@ -341,6 +341,12 @@ limits:
     max_mem_per_proc:  # Maximum memory per MPI process in Mb, units can be specified e.g. `1.4Gb`
                        # (default hardware.mem_per_node)
     condition:         # MongoDB-like condition (default empty, i.e. not used)
+    allocation:        # String defining the policy used to select the optimal number of CPUs.
+                       # possible values are ["nodes", "force_nodes", "shared"]
+                       # "nodes" means that we should try to allocate entire nodes if possible.
+                       # This is a soft limit, in the sense that the qadapter may use a configuration
+                       # that do not fulfill this requirement, use `force_nodes` to enfore that.
+                       # `shared` mode does not enforce any constraint (default).
 """
 
     def __init__(self, **kwargs):
@@ -429,6 +435,9 @@ limits:
         self.max_mem_per_proc = qu.any2mb(d.pop("max_mem_per_proc", self.hw.mem_per_node))
         #self.allocate_nodes = bool(d.pop("allocate_nodes", False))
         self.condition = Condition(d.pop("condition", {}))
+        self.allocation = d.pop("allocation", "shared")
+        if self.allocation not in ("nodes", "force_nodes", "shared"):
+            raise ValueError("Wrong value for `allocation` option")
 
         if d:
             raise ValueError("Found unknown keyword(s) in limits section:\n %s" % d.keys())
@@ -658,6 +667,9 @@ limits:
         if not self.max_cores >= pconf.num_cores >= self.min_cores: return False
         if not self.hw.can_use_omp_threads(self.omp_threads): return False
         if pconf.mem_per_proc > self.hw.mem_per_node: return False
+        if self.allocation == "force_nodes" and pconf.num_cores % self.hw.cores_per_node != 0:
+            return False
+
         return self.condition(pconf)
 
     def distribute(self, mpi_procs, omp_threads, mem_per_proc):
