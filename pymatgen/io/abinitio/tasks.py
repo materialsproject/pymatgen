@@ -650,20 +650,31 @@ batch_adapter:
         pconfs = pconfs.get_ordered_with_policy(policy, max_ncpus)
 
         if policy.precedence == "qadapter":
+
             # Try to run on the qadapter with the highest priority.
             for qadpos, qad in enumerate(self.qads):
-                for pconf in pconfs:
-                    if qad.can_run_pconf(pconf):
-                        self._use_qadpos_pconf(qadpos, pconf)
-                        return pconf
+                possible_pconfs = [pc for pc in pconfs if qad.can_run_pconf(pc)] 
+
+                if qad.allocation == "nodes":
+                    # Select the configuration divisible by nodes if possible.
+                    for pconf in possible_pconfs:
+                        if pconf.num_cores % qad.hw.cores_per_node == 0:
+                            return self._use_qadpos_pconf(qadpos, pconf)
+                
+                # Here we select the first one.
+                if possible_confs:
+                    return self._use_qadpos_pconf(qadpos, possible_confs[0])
 
         elif policy.precedence == "autoparal_conf":
             # Try to run on the first pconf irrespectively of the priority of the qadapter.
             for pconf in pconfs:
                 for qadpos, qad in enumerate(self.qads):
+
+                    if qad.allocation == "nodes" and not pconf.num_cores % qad.hw.cores_per_node == 0:
+                        continue # Ignore it. not very clean
+
                     if qad.can_run_pconf(pconf):
-                        self._use_qadpos_pconf(qadpos, pconf)
-                        return pconf
+                        return self._use_qadpos_pconf(qadpos, pconf)
 
         else:
             raise ValueError("Wrong value of policy.precedence = %s" % policy.precedence)
@@ -672,7 +683,10 @@ batch_adapter:
         raise RuntimeError("Cannot find qadapter for this run!")
 
     def _use_qadpos_pconf(self, qadpos, pconf):
-        """This function is called when we have accepted the :class:`ParalConf` pconf""" 
+        """
+        This function is called when we have accepted the :class:`ParalConf` pconf.
+        Returns pconf
+        """
         self._qadpos = qadpos 
 
         # Change the number of MPI/OMP cores.
@@ -681,6 +695,7 @@ batch_adapter:
                                                                       
         # Set memory per proc.
         self.set_mem_per_proc(pconf.mem_per_proc)
+        return pconf
 
     def __str__(self):
         """String representation."""
