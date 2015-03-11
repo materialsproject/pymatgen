@@ -1220,22 +1220,23 @@ class Flow(Node):
 
         return self
 
-    def reduce_io(self):
+    def use_smartio(self):
         """
         This function should be called when the entire `Flow` has been built. 
-        It tries to reduce the pressure on the hard disk by disabling the output of
-        those files that are not needed by other nodes.
+        It tries to reduce the pressure on the hard disk by using Abinit smart-io 
+        capabilities for those files that are not needed by other nodes.
+        Smart-io means that big files (e.g. WFK) are written only if the calculation
+        is unconverged so that we can restart from it. No output is produced if 
+        convergence is achieved. 
         """
-        # TODO
-        raise NotImplementedError("To be tested")
-
         for task in self.iflat_tasks():
             children = task.get_children()
             if not children:
                 # Change the input so that output files are produced only if the 
                 # calculation is not converged.
-                print("Will disable IO for task %s:" % task)
-                #task.input.set_vars(ptrwf=-1, prt1wf=-1, prtden=-1)
+                #print("Will disable IO for task %s:" % task)
+                # TODO: prtwf = -1 for DFPT
+                task._set_inpvars(prtwf=-1, prtden=0) # prt1wf=-1, 
             else:
                 must_produce_abiexts = []
                 for child in children:
@@ -1244,9 +1245,9 @@ class Flow(Node):
                         must_produce_abiexts.extend(d.exts)
 
                 must_produce_abiexts = set(must_produce_abiexts)
-                print("must_produce_abiexts", must_produce_abiexts)
+                #print("must_produce_abiexts", must_produce_abiexts)
 
-                # Variables support smart-io in ABINIT
+                # Variables supporting smart-io.
                 smart_prtvars = {
                     "prtwf": "WFK",
                 }
@@ -1255,7 +1256,7 @@ class Flow(Node):
                 for varname, abiext in smart_prtvars.items():
                     if abiext not in must_produce_abiexts:
                         print("%s: setting %s to -1" % (self, varname))
-                        task.input.set_vars(varname=-1)
+                        task._set_inpvars({varname: -1})
 
     #def new_from_input_decorators(self, new_workdir, decorators)
     #    """
@@ -1307,7 +1308,8 @@ class Flow(Node):
         if self.finalized: return 1
         self.finalized = False
 
-        if self.flow.has_db:
+        if self.has_db:
+            self.history.info("Saving results in database.")
             try:
                 self.flow.db_insert()
                 self.finalized = True
@@ -1315,19 +1317,36 @@ class Flow(Node):
                  logger.critical("MongoDb insertion failed.")
                  return 2
 
+        # Here we remove the big output files if we have the garbage collector 
+        # and the policy is set to "flow."
+        if self.gc is not None and self.gc.policy == "flow":
+            self.history.info("gc.policy set to flow. Will clean task output files.")
+            for task in self.iflat_tasks():
+                task.clean_output_files()
+
     def set_garbage_collector(self, exts=None, policy="task"):
-        # TODO: Rewrite this part.
-        # Introduce a GarbageCollector object that is installed  at the level of the flow.
-        # with a policy. The gc is called when the node reached S_OK.
-        if exts is None: exts = ["WFK", "SUS", "SCR"]
+        """
+        Enable the garbage collector that will remove the big output files that are not needed.
+
+        Args:
+            exts: string or list with the Abinit file extensions to be removed. A default is
+                provided if exts is None
+            policy: Either `flow` or `task`. If policy is set to 'task', we remove the output
+                files as soon as the task reaches S_OK. If 'flow', the files are removed 
+                only when the flow is finalized. This option should be used when we are dealing
+                with a dynamic flow with callbacks generating other tasks since a :class:`Task`
+                might not be aware of its children when it reached S_OK.
+        """
+        assert policy in ("task", "flow")
+        exts = list_string(exts) if exts is not None else ("WFK", "SUS", "SCR")
 
         gc = GarbageCollector(exts=set(exts), policy=policy)
 
-        self._gc = gc
+        self.set_gc(gc)
         for work in self:
-            #work._gc = gc # TODO Add support for Works and flow policy
+            #work.set_gc(gc) # TODO Add support for Works and flow policy
             for task in work:
-                task._gc = gc
+                task.set_gc(gc)
 
     def connect_signals(self):
         """
@@ -1591,6 +1610,13 @@ class G0W0WithQptdmFlow(Flow):
         work.set_manager(self.manager)
         work.create_tasks(wfk_file, scr_input)
         work.add_deps(cbk.deps)
+
+        work.set_flow(self)
+        # Each task has a reference to its work.
+        for task in work:
+            task.set_work(work)
+            # Add the garbage collector.
+            if self.gc is not None: task.set_gc(self.gc)
 
         work.connect_signals()
         work.build()

@@ -21,6 +21,7 @@ from monty.collections import AttrDict
 from monty.functools import lazy_property, return_none_if_raise
 from monty.json import MontyDecoder
 from monty.fnmatch import WildCard
+from monty.dev import deprecated
 from pymatgen.core.units import Memory
 from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition, SparseHistogram
@@ -1084,6 +1085,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         or the hardware/software."""
         return sum(q.num_launches for q in self.manager.qads)
 
+    @property
+    def input(self):
+        return self.strategy.abinit_input
+
     def get_inpvar(self, varname):
         """Return the value of the ABINIT variable varname, None if not present.""" 
         if hasattr(self.strategy, "abinit_input"):
@@ -1094,11 +1099,24 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         else:
             raise NotImplementedError("get_var for HTC interface!")
 
+    @deprecated(message="Use task._set_inpvars")
     def _set_inpvar(self, varname, value):
         """Set the value of the ABINIT variable varname. Return old value."""
         old_value = self.get_inpvar(varname)
         self.strategy.abinit_input[0][varname] = value
         return old_value
+
+    def _set_inpvars(self, *args, **kwargs):
+        """
+        Set the values of the ABINIT variables in the input file. Return dict with old values.
+        """
+        kwargs.update(dict(*args))
+        old_values = {vname: self.input[0].get(vname) for vname in kwargs}
+        self.input.set_vars(**kwargs)
+        self.history.info("Setting input variables: %s" % str(kwargs))
+        self.history.info("Old values: %s" % str(old_values))
+
+        return old_values
 
     @property
     def initial_structure(self):
@@ -2265,7 +2283,6 @@ class AbinitTask(Task):
         """
         # Move output files produced in workdir to _reset otherwise check_status continues
         # to see the task as crashed even if the job did not run
-
         # Create reset directory if not already done.
         reset_dir = os.path.join(self.workdir, "_reset")
         reset_file = os.path.join(reset_dir, "_counter")
@@ -2275,8 +2292,6 @@ class AbinitTask(Task):
         else:
             with open(reset_file, "rt") as fh: 
                 num_reset = 1 + int(fh.read())
-
-        self.start_lockfile.remove()
 
         # Move files to reset and append digit with reset index.
         def move_file(f):
@@ -2288,6 +2303,13 @@ class AbinitTask(Task):
 
         with open(reset_file, "wt") as fh: 
             fh.write(str(num_reset))
+
+        self.start_lockfile.remove()
+
+        #self.output_file.remove()
+        #self.log_file.remove()
+        #self.stderr_file.remove()
+        #self.start_lockfile.remove()
 
         return self._restart(submit=False)
 
