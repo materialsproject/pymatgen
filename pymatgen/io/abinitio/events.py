@@ -78,19 +78,19 @@ class AbinitEvent(yaml.YAMLObject):
     """
     color = None
 
-    #def __init__(self, src_file, src_line, message):
-    #    """
-    #    Basic constructor for :class:`AbinitEvent`.
+    def __init__(self, src_file, src_line, message):
+        """
+        Basic constructor for :class:`AbinitEvent`.
 
-    #    Args:
-    #        message: String with human-readable message providing info on the event.
-    #        src_file: String with the name of the Fortran file where the event is raised.
-    #        src_line Integer giving the line number in src_file.
-    #    """
-    #    self.message = message
-    #    #self._src_file = src_file
-    #    #self._src_line = src_line
-    #    #print("src_file", src_file, "src_line", src_line)
+        Args:
+            message: String with human-readable message providing info on the event.
+            src_file: String with the name of the Fortran file where the event is raised.
+            src_line Integer giving the line number in src_file.
+        """
+        self.message = message
+        self._src_file = src_file
+        self._src_line = src_line
+        #print("src_file", src_file, "src_line", src_line)
 
     @pmg_serialize
     def as_dict(self):
@@ -110,21 +110,21 @@ class AbinitEvent(yaml.YAMLObject):
     def __str__(self):
         return "\n".join((self.header, self.message))
 
-    #@property
-    #def src_file(self):
-    #    """String with the name of the Fortran file where the event is raised."""
-    #    try:
-    #        return self._src_file
-    #    except AttributeError:
-    #        return "Unknown"
+    @property
+    def src_file(self):
+        """String with the name of the Fortran file where the event is raised."""
+        try:
+            return self._src_file
+        except AttributeError:
+            return "Unknown"
 
-    #@property
-    #def src_line(self):
-    #    """Integer giving the line number in src_file."""
-    #    try:
-    #        return self._src_line
-    #    except AttributeError:
-    #        return "Unknown"
+    @property
+    def src_line(self):
+        """Integer giving the line number in src_file."""
+        try:
+            return self._src_line
+        except AttributeError:
+            return "Unknown"
 
     @property
     def name(self):
