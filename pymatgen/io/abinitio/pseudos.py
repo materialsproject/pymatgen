@@ -1522,7 +1522,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
         pseudos = []
 
         if exts == "all_files":
-            for f in [os.path.join(path, fn) for fn in os.listdir(top)]:
+            for f in [os.path.join(top, fn) for fn in os.listdir(top)]:
                 if os.path.isfile(f):
                     try:
                         p = Pseudo.from_file(f)
