@@ -12,6 +12,7 @@ import collections
 import yaml
 import six
 import abc
+import logging
 
 from monty.string import indent, is_string, list_strings
 from monty.fnmatch import WildCard
@@ -21,10 +22,12 @@ from pymatgen.core import Structure
 from pymatgen.serializers.json_coders import PMGSONable, pmg_serialize
 from .abiinspect import YamlTokenizer
 
+logger = logging.getLogger(__name__)
 
 __all__ = [
     "EventsParser",
 ]
+
 
 
 def straceback():
@@ -541,6 +544,7 @@ class ErrorHandler(EventHandler):
 
 _ABC_EVHANDLER_CLASSES = set([ErrorHandler,])
 
+
 # Public API
 def autodoc_event_handlers(stream=sys.stdout):
     """
@@ -645,6 +649,7 @@ class DilatmxErrorHandler(ErrorHandler):
         # because Abinit called mpi_abort and therefore no final WFK|DEN file has been produced.
 
         return self.FIXED
+
 
 """
 class DilatmxErrorHandlerTest(ErrorHandler):
