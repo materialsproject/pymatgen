@@ -29,7 +29,6 @@ __all__ = [
 ]
 
 
-
 def straceback():
     """Returns a string with the traceback."""
     import traceback
