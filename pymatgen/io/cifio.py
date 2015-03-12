@@ -431,7 +431,11 @@ class CifWriter:
         comp = struct.composition
         no_oxi_comp = comp.element_composition
         spacegroup = ("P 1", 1)
-        if find_spacegroup:
+        if symprec is not None:
+            sf = SpacegroupAnalyzer(struct, symprec)
+            spacegroup = (sf.get_spacegroup_symbol(),
+                          sf.get_spacegroup_number())
+        elif find_spacegroup:
             sf = SpacegroupAnalyzer(struct, 0.001)
             spacegroup = (sf.get_spacegroup_symbol(),
                           sf.get_spacegroup_number())
