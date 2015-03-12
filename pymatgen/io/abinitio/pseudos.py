@@ -749,8 +749,11 @@ class NcAbinitHeader(AbinitHeader):
 
         header.update({'pspdat': header['pspd']})
         header.pop('pspd')
-
-        header["dojo_report"] = DojoReport.from_file(filename)
+        try:
+            header["dojo_report"] = DojoReport.from_file(filename)
+        except DojoReport.Error:
+            logger.warning('failed to read the dojo report for %s' % filename)
+            header["dojo_report"] = None
 
         return NcAbinitHeader(summary, **header)
 
@@ -2157,6 +2160,12 @@ class DojoDataFrame(DataFrame):
     #    plt.show()
 
 
+class DojoReportError(Exception):
+    """
+    exception to be raised in case of a error reading the dojo report
+    """
+
+
 class DojoReport(dict):
     """Dict-like object with the dojo report."""
 
@@ -2175,6 +2184,7 @@ class DojoReport(dict):
     )
 
     ATOLS = (0.2, 0.1, 0.01)
+    Error = DojoReportError
 
     @classmethod
     def from_file(cls, filepath):
@@ -2203,15 +2213,18 @@ class DojoReport(dict):
     def __init__(self, *args, **kwargs): 
         super(DojoReport, self).__init__(*args, **kwargs)
 
-        for trial in self.ALL_TRIALS:
-            # Convert ecut to float and build an OrderedDict (results are indexed by ecut in ascending order)
-            try:
-                d = self[trial]
-            except KeyError:
-                continue
-            ecuts_keys = sorted([(float(k), k) for k in d], key=lambda t:t[0])
-            ord = OrderedDict([(t[0], d[t[1]]) for t in ecuts_keys])
-            self[trial] = ord
+        try:
+            for trial in self.ALL_TRIALS:
+                # Convert ecut to float and build an OrderedDict (results are indexed by ecut in ascending order)
+                try:
+                    d = self[trial]
+                except KeyError:
+                    continue
+                ecuts_keys = sorted([(float(k), k) for k in d], key=lambda t:t[0])
+                ord = OrderedDict([(t[0], d[t[1]]) for t in ecuts_keys])
+                self[trial] = ord
+        except ValueError:
+            raise self.Error('error in reading the dojo report')
 
     def __str__(self):
         stream = six.moves.StringIO()
