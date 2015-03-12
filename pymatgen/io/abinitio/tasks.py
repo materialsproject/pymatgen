@@ -781,8 +781,10 @@ batch_adapter:
         """Cancel the job. Returns exit status."""
         return self.qadapter.cancel(job_id)
 
-    def write_jobfile(self, task):
-        """Write the submission script. return the path of the script"""
+    def write_jobfile(self, task, **kwargs):
+        """
+        Write the submission script. return the path of the script
+        """
         script = self.qadapter.get_script_str(
             job_name=task.name, 
             launch_dir=task.workdir,
@@ -792,6 +794,7 @@ batch_adapter:
             stdin=task.files_file.path, 
             stdout=task.log_file.path,
             stderr=task.stderr_file.path,
+            exec_args=kwargs.pop("exec_args", None)
         )
 
         # Write the script.
@@ -800,7 +803,7 @@ batch_adapter:
             task.job_file.chmod(0o740)
             return task.job_file.path
 
-    def launch(self, task):
+    def launch(self, task, **kwargs):
         """
         Build the input files and submit the task via the :class:`Qadapter` 
 
@@ -817,7 +820,7 @@ batch_adapter:
         task.build()
 
         # Write the submission script
-        script_file = self.write_jobfile(task)
+        script_file = self.write_jobfile(task, **kwargs)
         task.set_status(task.S_SUB)
 
         # Submit the task and save the queue id.
@@ -825,6 +828,7 @@ batch_adapter:
             qjob, process = self.qadapter.submit_to_queue(script_file)
             task.set_qjob(qjob)
             return process
+
         except self.qadapter.MaxNumLaunchesError:
             # TODO: Here we should try to switch to another qadapter
             # 1) Find a new parallel configuration in those stores in task.pconfs
@@ -1947,6 +1951,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         kwargs          Meaning
         ==============  ==============================================================
         autoparal       False to skip the autoparal step (default True)
+        exec_args       List of arguments passed to executable.
         ==============  ==============================================================
 
         Returns:
@@ -2005,7 +2010,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                     return 0
 
         # Start the calculation in a subprocess and return.
-        self._process = self.manager.launch(self)
+        self._process = self.manager.launch(self, **kwargs)
         return 1
 
     def start_and_wait(self, *args, **kwargs):
@@ -2057,6 +2062,20 @@ class AbinitTask(Task):
         strategy = StrategyWithInput(ainput, deepcopy=True)
 
         return cls(strategy, workdir=workdir, manager=manager)
+
+    @classmethod
+    def temp_shell_task(cls, inp, workdir=None, manager=None):
+        """
+        Build a Task with a temporary workdir. The task is executed via the shell with 1 MPI proc.
+        Mainly used for invoking Abinit to get important parameters needed to prepare the real task.
+        """
+        # Build a simple manager to run the job in a shell subprocess
+        import tempfile
+        workdir = tempfile.mkdtemp() if workdir is None else workdir  
+        if manager is None: manager = TaskManager.from_user_config()
+
+        # Construct the task and run it
+        return cls.from_input(inp, workdir=workdir, manager=manager.to_shell_manager(mpi_procs=1))
 
     def setup(self):
         """

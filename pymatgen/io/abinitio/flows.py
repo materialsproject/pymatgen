@@ -1462,9 +1462,15 @@ class Flow(Node):
         sched.add_flow(self)
         return sched
 
-    def batch(self, **kwargs):
+    def batch(self, timelimit):
         """
         Run the flow in batch mode, return exit status of the job script.
+        Requires a manager.yml file and a batch_adapter adapter.
+
+        Args:
+            timelimit: Time limit (int with seconds or string with time given with the slurm convention: 
+            "days-hours:minutes:seconds"). If timelimit is None, the default value specified in the 
+            `batch_adapter` entry of `manager.yml` is used.
         """
         from .launcher import BatchLauncher
         # Create a batch dir from the flow.workdir.

@@ -26,7 +26,7 @@ from . import qutils as qu
 from collections import namedtuple
 from subprocess import Popen, PIPE
 from atomicfile import AtomicFile
-from monty.string import is_string
+from monty.string import is_string, list_strings
 from monty.collections import AttrDict
 from monty.functools import lazy_property
 from monty.inspect import all_subclasses
@@ -62,10 +62,13 @@ class MpiRunner(object):
         self.type = None
         self.options = options
 
-    def string_to_run(self, executable, mpi_procs, stdin=None, stdout=None, stderr=None):
+    def string_to_run(self, executable, mpi_procs, stdin=None, stdout=None, stderr=None, exec_args=None):
         stdin = "< " + stdin if stdin is not None else ""
         stdout = "> " + stdout if stdout is not None else ""
         stderr = "2> " + stderr if stderr is not None else ""
+
+        if exec_args is not None:
+            executable = executable + " " + " ".join(list_strings(exec_args))
 
         if self.has_mpirun:
             if self.type is None:
@@ -783,7 +786,7 @@ limits:
         return '\n'.join(clean_template)
 
     def get_script_str(self, job_name, launch_dir, executable, qout_path, qerr_path,
-                       stdin=None, stdout=None, stderr=None):
+                       stdin=None, stdout=None, stderr=None, exec_args=None):
         """
         Returns a (multi-line) String representing the queue script, e.g. PBS script.
         Uses the template_file along with internal parameters to create the script.
@@ -794,6 +797,7 @@ limits:
             executable: String with the name of the executable to be executed or list of commands
             qout_path Path of the Queue manager output file.
             qerr_path: Path of the Queue manager error file.
+            exec_args: List of arguments passed to executable (used only if executable is a string, default: empty)
         """
         # PbsPro does not accept job_names longer than 15 chars.
         if len(job_name) > 14 and isinstance(self, PbsProAdapter):
@@ -837,7 +841,7 @@ limits:
         # Construct the string to run the executable with MPI and mpi_procs.
         if is_string(executable):
             line = self.mpi_runner.string_to_run(executable, self.mpi_procs, 
-                                                 stdin=stdin, stdout=stdout, stderr=stderr)
+                                                 stdin=stdin, stdout=stdout, stderr=stderr, exec_args=exec_args)
             se.add_line(line)
         else:
             assert isinstance(executable, (list, tuple))
