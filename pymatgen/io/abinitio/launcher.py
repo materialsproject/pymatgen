@@ -1011,7 +1011,6 @@ class BatchLauncher(object):
             os.makedirs(self.workdir)
         else:
             raise RuntimeError("Directory %s already exists. Use BatchLauncher.pickle_load()" % self.workdir)
-            #pass
 
         self.name = os.path.basename(self.workdir) if name is None else name
         self.script_file = File(os.path.join(self.workdir, "run.sh"))
@@ -1066,8 +1065,7 @@ class BatchLauncher(object):
 
     def add_flow(self, flow):
         """
-        Add a flow. Accept filepath or :class:`Flow` object.
-        Return 1 if flow was added else 0.
+        Add a flow. Accept filepath or :class:`Flow` object. Return 1 if flow was added else 0.
         """
         from .flows import Flow
         flow = Flow.as_flow(flow)
@@ -1096,7 +1094,7 @@ class BatchLauncher(object):
 
     def submit(self, **kwargs):
         """
-        Submit a job script that will run the schedulers with abirun.py
+        Submit a job script that will run the schedulers with `abirun.py`.
 
         Args:
             verbose: Verbosity level
@@ -1178,11 +1176,8 @@ class BatchLauncher(object):
         self.pickle_dump()
         process.wait()
 
-        return dict2namedtuple(
-            retcode=process.returncode, 
-            qjob=self.qjob,
-            num_flows_inbatch=num_flows_inbatch
-        )
+        return dict2namedtuple(retcode=process.returncode, qjob=self.qjob,
+                               num_flows_inbatch=num_flows_inbatch)
 
     def _get_script_nflows(self):
         """
