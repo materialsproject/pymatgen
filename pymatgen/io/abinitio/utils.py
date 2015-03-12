@@ -322,7 +322,7 @@ class Directory(object):
             try:
                 os.remove(path)
                 paths.append(path)
-            except:
+            except IOError:
                 logger.warning("Exception while trying to remove file %s" % path)
 
         return paths

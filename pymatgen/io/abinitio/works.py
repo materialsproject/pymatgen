@@ -628,7 +628,7 @@ class Work(BaseWork):
         TODO: change name.
         """
         for task in self:
-            print(task)
+            #print(task)
             task.start()
     
         if wait:
@@ -1040,10 +1040,8 @@ class QptdmWork(Work):
         logger.debug("will call mrgscr to merge %s:\n" % str(scr_files))
         assert len(scr_files) == len(self)
 
-        # TODO: Propapagate the manager to the wrappers
-        mrgscr = wrappers.Mrgscr(verbose=1)
-        mrgscr.set_mpi_runner("mpirun")
-        final_scr = mrgscr.merge_qpoints(scr_files, out_prefix="out", cwd=self.outdir.path)
+        mrgscr = wrappers.Mrgscr(manager=self[0].manager, verbose=1)
+        final_scr = mrgscr.merge_qpoints(self.outdir.path, scr_files, out_prefix="out")
 
         if remove_scrfiles:
             for scr_file in scr_files:
@@ -1171,10 +1169,9 @@ class PhononWork(Work):
         out_ddb = self.outdir.path_in("out_DDB")
         desc = "DDB file merged by %s on %s" % (self.__class__.__name__, time.asctime())
 
-        # TODO: propagate the taskmanager
-        mrgddb = wrappers.Mrgddb(verbose=1)
-        mrgddb.set_mpi_runner("mpirun")
-        mrgddb.merge(ddb_files, out_ddb=out_ddb, description=desc, cwd=self.outdir.path)
+        mrgddb = wrappers.Mrgddb(manager=self[0].manager, verbose=1)
+        mrgddb.merge(self.outdir.path, ddb_files, out_ddb=out_ddb, description=desc)
+
         return out_ddb
 
     def on_all_ok(self):
