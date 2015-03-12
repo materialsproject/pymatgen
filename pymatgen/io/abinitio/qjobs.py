@@ -138,6 +138,10 @@ class QueueJob(object):
 
     __nonzero__ = __bool__
 
+    
+    #In many cases, we only need to know if job is terminated or not
+    #def is_terminated()
+
     @property
     def is_completed(self):
         return self.status == self.S_COMPLETED
@@ -386,7 +390,9 @@ class PbsProJob(QueueJob):
 
         line = out.splitlines()[-1]
         sdate = line.split()[-1]
-        if sdate in ("--", "?"): return None
+        if sdate in ("--", "?"): 
+            return None
+
         # TODO One should convert to datetime
         return sdate
 
@@ -409,6 +415,7 @@ class PbsProJob(QueueJob):
             out, err = process.communicate()
 
             if process.returncode != 0:
+                logger.critical(out)
                 logger.critical(err)
                 return None
 
