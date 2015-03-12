@@ -1,5 +1,4 @@
 # coding: utf-8
-
 from __future__ import unicode_literals, division, print_function
 
 import os
@@ -61,9 +60,12 @@ class SmearingTest(PymatgenTest):
         self.assertTrue(same_fd == fd1ev)
 
         nosmear = Smearing.nosmearing()
+        assert nosmear == Smearing.as_smearing("nosmearing")
 
         self.assertFalse(nosmear)
         self.assertTrue(nosmear != fd1ev)
+        self.assertPMGSONable(nosmear)
+
         new_fd1ev = Smearing.from_dict(fd1ev.as_dict())
         self.assertTrue(new_fd1ev == fd1ev)
 

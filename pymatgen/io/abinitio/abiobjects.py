@@ -181,12 +181,12 @@ class Smearing(AbivarAble, PMGSONable):
             return obj
 
         # obj is a string
-        obj, tsmear = obj.split(":")
-        obj.strip()
-
         if obj == "nosmearing":
             return cls.nosmearing()
         else:
+            obj, tsmear = obj.split(":")
+            obj.strip()
+
             occopt = cls._mode2occopt[obj]
             try:
                 tsmear = float(tsmear)
@@ -205,20 +205,18 @@ class Smearing(AbivarAble, PMGSONable):
 
     @staticmethod
     def nosmearing():
-        return Smearing(1, None)
+        return Smearing(1, 0.0)
 
     def to_abivars(self):
         if self.mode == "nosmearing":
-            return {}
+            return {"occopt": 1, "tsmear": 0.0}
         else:
-            return {"occopt": self.occopt,
-                    "tsmear": self.tsmear,}
+            return {"occopt": self.occopt, "tsmear": self.tsmear,}
 
+    @pmg_serialize
     def as_dict(self):
         """json friendly dict representation of Smearing"""
-        return {"occopt": self.occopt, "tsmear": self.tsmear,
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
+        return {"occopt": self.occopt, "tsmear": self.tsmear}
 
     @staticmethod
     def from_dict(d):
@@ -243,11 +241,9 @@ class ElectronsAlgorithm(dict, AbivarAble, PMGSONable):
     def to_abivars(self):
         return self.copy()
 
+    @pmg_serialize
     def as_dict(self):
-        d = self.copy()
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return self.copy()
 
     @classmethod
     def from_dict(cls, d):
@@ -967,6 +963,8 @@ class Screening(AbivarAble):
         self.awtr  =1
         self.symchi=1
 
+        self.optdriver = 3
+
     @property
     def use_hilbert(self):
         return hasattr(self, "hilbert")
@@ -989,6 +987,7 @@ class Screening(AbivarAble):
             "symchi"    : self.symchi,
             #"gwcalctyp": self.gwcalctyp,
             #"fftgw"    : self.fftgw,
+            "optdriver" : self.optdriver,
         }
 
         # Variables for the Hilber transform.
@@ -1053,6 +1052,7 @@ class SelfEnergy(AbivarAble):
 
         self.ecuteps = ecuteps if ecuteps is not None else screening.ecuteps
         self.ecutwfn = ecutwfn
+        self.optdriver = 4
 
         #band_mode in ["gap", "full"]
 
@@ -1102,7 +1102,8 @@ class SelfEnergy(AbivarAble):
             ecutsigx=self.ecutsigx,
             symsigma=self.symsigma,
             gw_qprange=self.gw_qprange,
-            gwpara=self.gwpara
+            gwpara=self.gwpara,
+            optdriver=self.optdriver,
             #"ecutwfn"  : self.ecutwfn,
             #"kptgw"    : self.kptgw,
             #"nkptgw"   : self.nkptgw,
@@ -1186,6 +1187,7 @@ class ExcHamiltonian(AbivarAble):
         # if bs_freq_mesh is not given, abinit will select its own mesh.
         self.bs_freq_mesh = np.array(bs_freq_mesh) if bs_freq_mesh is not None else bs_freq_mesh
         self.zcut = zcut
+        self.optdriver = 99
 
         # Extra options.
         self.kwargs = kwargs
@@ -1234,6 +1236,7 @@ class ExcHamiltonian(AbivarAble):
             zcut=self.zcut,
             bs_freq_mesh=self.bs_freq_mesh,
             bs_coupling=self._EXC_TYPES[self.exc_type],
+            optdriver=self.optdriver,
         )
 
         if self.use_haydock:

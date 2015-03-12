@@ -12,6 +12,7 @@ import collections
 import yaml
 import six
 import abc
+import logging
 
 from monty.string import indent, is_string, list_strings
 from monty.fnmatch import WildCard
@@ -21,6 +22,7 @@ from pymatgen.core import Structure
 from pymatgen.serializers.json_coders import PMGSONable, pmg_serialize
 from .abiinspect import YamlTokenizer
 
+logger = logging.getLogger(__name__)
 
 __all__ = [
     "EventsParser",
@@ -78,7 +80,7 @@ class AbinitEvent(yaml.YAMLObject):
     """
     color = None
 
-    def __init__(self, message, src_file, src_line):
+    def __init__(self, src_file, src_line, message):
         """
         Basic constructor for :class:`AbinitEvent`.
 
@@ -90,6 +92,7 @@ class AbinitEvent(yaml.YAMLObject):
         self.message = message
         self._src_file = src_file
         self._src_line = src_line
+        #print("src_file", src_file, "src_line", src_line)
 
     @pmg_serialize
     def as_dict(self):
@@ -402,13 +405,15 @@ class EventsParser(object):
         w = WildCard("*Error|*Warning|*Comment|*Bug|*ERROR|*WARNING|*COMMENT|*BUG")
 
         with YamlTokenizer(filename) as tokens:
-
             for doc in tokens:
                 if w.match(doc.tag):
                     #print("got doc.tag", doc.tag,"--")
                     try:
+                        #print(doc.text)
                         event = yaml.load(doc.text)
+                        #print(event.yaml_tag, type(event))
                     except:
+                        #raise 
                         # Wrong YAML doc. Check tha doc tag and instantiate the proper event.
                         message = "Malformatted YAML document at line: %d\n" % doc.lineno
                         message += doc.text
@@ -649,6 +654,7 @@ class DilatmxErrorHandler(ErrorHandler):
         # because Abinit called mpi_abort and therefore no final WFK|DEN file has been produced.
 
         return self.FIXED
+
 
 """
 class DilatmxErrorHandlerTest(ErrorHandler):

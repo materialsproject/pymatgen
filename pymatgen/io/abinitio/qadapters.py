@@ -26,7 +26,7 @@ from . import qutils as qu
 from collections import namedtuple
 from subprocess import Popen, PIPE
 from atomicfile import AtomicFile
-from monty.string import is_string
+from monty.string import is_string, list_strings
 from monty.collections import AttrDict
 from monty.functools import lazy_property
 from monty.inspect import all_subclasses
@@ -62,10 +62,13 @@ class MpiRunner(object):
         self.type = None
         self.options = options
 
-    def string_to_run(self, executable, mpi_procs, stdin=None, stdout=None, stderr=None):
+    def string_to_run(self, executable, mpi_procs, stdin=None, stdout=None, stderr=None, exec_args=None):
         stdin = "< " + stdin if stdin is not None else ""
         stdout = "> " + stdout if stdout is not None else ""
         stderr = "2> " + stderr if stderr is not None else ""
+
+        if exec_args is not None:
+            executable = executable + " " + " ".join(list_strings(exec_args))
 
         if self.has_mpirun:
             if self.type is None:
@@ -341,6 +344,12 @@ limits:
     max_mem_per_proc:  # Maximum memory per MPI process in Mb, units can be specified e.g. `1.4Gb`
                        # (default hardware.mem_per_node)
     condition:         # MongoDB-like condition (default empty, i.e. not used)
+    allocation:        # String defining the policy used to select the optimal number of CPUs.
+                       # possible values are ["nodes", "force_nodes", "shared"]
+                       # "nodes" means that we should try to allocate entire nodes if possible.
+                       # This is a soft limit, in the sense that the qadapter may use a configuration
+                       # that does not fulfill this requirement, use `force_nodes` to enfore that.
+                       # `shared` mode does not enforce any constraint (default).
 """
 
     def __init__(self, **kwargs):
@@ -429,6 +438,9 @@ limits:
         self.max_mem_per_proc = qu.any2mb(d.pop("max_mem_per_proc", self.hw.mem_per_node))
         #self.allocate_nodes = bool(d.pop("allocate_nodes", False))
         self.condition = Condition(d.pop("condition", {}))
+        self.allocation = d.pop("allocation", "shared")
+        if self.allocation not in ("nodes", "force_nodes", "shared"):
+            raise ValueError("Wrong value for `allocation` option")
 
         if d:
             raise ValueError("Found unknown keyword(s) in limits section:\n %s" % d.keys())
@@ -658,6 +670,9 @@ limits:
         if not self.max_cores >= pconf.num_cores >= self.min_cores: return False
         if not self.hw.can_use_omp_threads(self.omp_threads): return False
         if pconf.mem_per_proc > self.hw.mem_per_node: return False
+        if self.allocation == "force_nodes" and pconf.num_cores % self.hw.cores_per_node != 0:
+            return False
+
         return self.condition(pconf)
 
     def distribute(self, mpi_procs, omp_threads, mem_per_proc):
@@ -771,7 +786,7 @@ limits:
         return '\n'.join(clean_template)
 
     def get_script_str(self, job_name, launch_dir, executable, qout_path, qerr_path,
-                       stdin=None, stdout=None, stderr=None):
+                       stdin=None, stdout=None, stderr=None, exec_args=None):
         """
         Returns a (multi-line) String representing the queue script, e.g. PBS script.
         Uses the template_file along with internal parameters to create the script.
@@ -782,6 +797,7 @@ limits:
             executable: String with the name of the executable to be executed or list of commands
             qout_path Path of the Queue manager output file.
             qerr_path: Path of the Queue manager error file.
+            exec_args: List of arguments passed to executable (used only if executable is a string, default: empty)
         """
         # PbsPro does not accept job_names longer than 15 chars.
         if len(job_name) > 14 and isinstance(self, PbsProAdapter):
@@ -825,7 +841,7 @@ limits:
         # Construct the string to run the executable with MPI and mpi_procs.
         if is_string(executable):
             line = self.mpi_runner.string_to_run(executable, self.mpi_procs, 
-                                                 stdin=stdin, stdout=stdout, stderr=stderr)
+                                                 stdin=stdin, stdout=stdout, stderr=stderr, exec_args=exec_args)
             se.add_line(line)
         else:
             assert isinstance(executable, (list, tuple))
