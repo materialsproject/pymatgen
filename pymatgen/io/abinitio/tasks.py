@@ -21,6 +21,7 @@ from monty.collections import AttrDict
 from monty.functools import lazy_property, return_none_if_raise
 from monty.json import MontyDecoder
 from monty.fnmatch import WildCard
+from monty.dev import deprecated
 from pymatgen.core.units import Memory
 from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition, SparseHistogram
@@ -649,20 +650,31 @@ batch_adapter:
         pconfs = pconfs.get_ordered_with_policy(policy, max_ncpus)
 
         if policy.precedence == "qadapter":
+
             # Try to run on the qadapter with the highest priority.
             for qadpos, qad in enumerate(self.qads):
-                for pconf in pconfs:
-                    if qad.can_run_pconf(pconf):
-                        self._use_qadpos_pconf(qadpos, pconf)
-                        return pconf
+                possible_pconfs = [pc for pc in pconfs if qad.can_run_pconf(pc)] 
+
+                if qad.allocation == "nodes":
+                    # Select the configuration divisible by nodes if possible.
+                    for pconf in possible_pconfs:
+                        if pconf.num_cores % qad.hw.cores_per_node == 0:
+                            return self._use_qadpos_pconf(qadpos, pconf)
+                
+                # Here we select the first one.
+                if possible_confs:
+                    return self._use_qadpos_pconf(qadpos, possible_confs[0])
 
         elif policy.precedence == "autoparal_conf":
             # Try to run on the first pconf irrespectively of the priority of the qadapter.
             for pconf in pconfs:
                 for qadpos, qad in enumerate(self.qads):
+
+                    if qad.allocation == "nodes" and not pconf.num_cores % qad.hw.cores_per_node == 0:
+                        continue # Ignore it. not very clean
+
                     if qad.can_run_pconf(pconf):
-                        self._use_qadpos_pconf(qadpos, pconf)
-                        return pconf
+                        return self._use_qadpos_pconf(qadpos, pconf)
 
         else:
             raise ValueError("Wrong value of policy.precedence = %s" % policy.precedence)
@@ -671,7 +683,10 @@ batch_adapter:
         raise RuntimeError("Cannot find qadapter for this run!")
 
     def _use_qadpos_pconf(self, qadpos, pconf):
-        """This function is called when we have accepted the :class:`ParalConf` pconf""" 
+        """
+        This function is called when we have accepted the :class:`ParalConf` pconf.
+        Returns pconf
+        """
         self._qadpos = qadpos 
 
         # Change the number of MPI/OMP cores.
@@ -680,6 +695,7 @@ batch_adapter:
                                                                       
         # Set memory per proc.
         self.set_mem_per_proc(pconf.mem_per_proc)
+        return pconf
 
     def __str__(self):
         """String representation."""
@@ -765,8 +781,10 @@ batch_adapter:
         """Cancel the job. Returns exit status."""
         return self.qadapter.cancel(job_id)
 
-    def write_jobfile(self, task):
-        """Write the submission script. return the path of the script"""
+    def write_jobfile(self, task, **kwargs):
+        """
+        Write the submission script. return the path of the script
+        """
         script = self.qadapter.get_script_str(
             job_name=task.name, 
             launch_dir=task.workdir,
@@ -776,6 +794,7 @@ batch_adapter:
             stdin=task.files_file.path, 
             stdout=task.log_file.path,
             stderr=task.stderr_file.path,
+            exec_args=kwargs.pop("exec_args", None)
         )
 
         # Write the script.
@@ -784,7 +803,7 @@ batch_adapter:
             task.job_file.chmod(0o740)
             return task.job_file.path
 
-    def launch(self, task):
+    def launch(self, task, **kwargs):
         """
         Build the input files and submit the task via the :class:`Qadapter` 
 
@@ -801,7 +820,7 @@ batch_adapter:
         task.build()
 
         # Write the submission script
-        script_file = self.write_jobfile(task)
+        script_file = self.write_jobfile(task, **kwargs)
         task.set_status(task.S_SUB)
 
         # Submit the task and save the queue id.
@@ -809,6 +828,7 @@ batch_adapter:
             qjob, process = self.qadapter.submit_to_queue(script_file)
             task.set_qjob(qjob)
             return process
+
         except self.qadapter.MaxNumLaunchesError:
             # TODO: Here we should try to switch to another qadapter
             # 1) Find a new parallel configuration in those stores in task.pconfs
@@ -1084,6 +1104,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         or the hardware/software."""
         return sum(q.num_launches for q in self.manager.qads)
 
+    @property
+    def input(self):
+        return self.strategy.abinit_input
+
     def get_inpvar(self, varname):
         """Return the value of the ABINIT variable varname, None if not present.""" 
         if hasattr(self.strategy, "abinit_input"):
@@ -1094,11 +1118,24 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         else:
             raise NotImplementedError("get_var for HTC interface!")
 
+    @deprecated(message="Use task._set_inpvars")
     def _set_inpvar(self, varname, value):
         """Set the value of the ABINIT variable varname. Return old value."""
         old_value = self.get_inpvar(varname)
         self.strategy.abinit_input[0][varname] = value
         return old_value
+
+    def _set_inpvars(self, *args, **kwargs):
+        """
+        Set the values of the ABINIT variables in the input file. Return dict with old values.
+        """
+        kwargs.update(dict(*args))
+        old_values = {vname: self.input[0].get(vname) for vname in kwargs}
+        self.input.set_vars(**kwargs)
+        self.history.info("Setting input variables: %s" % str(kwargs))
+        self.history.info("Old values: %s" % str(old_values))
+
+        return old_values
 
     @property
     def initial_structure(self):
@@ -1444,8 +1481,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             # Finalize the task.
             if not self.finalized:
                 self._on_ok()
+
                 # here we remove the output files of the task and of its parents.
-                if self.cleanup_exts: self.clean_output_files()
+                if self.gc is not None and self.gc.policy == "task":
+                    self.clean_output_files()
                                                                                 
             logger.debug("Task %s broadcasts signal S_OK" % self)
             dispatcher.send(signal=self.S_OK, sender=self)
@@ -1871,7 +1910,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             except_exts.update(child.deps[i].exts)
 
         # Remove the files in the outdir of the task but keep except_exts. 
-        exts = self.cleanup_exts.difference(except_exts)
+        exts = self.gc.exts.difference(except_exts)
         #print("Will remove its extensions: ", exts)
         paths += self.outdir.remove_exts(exts)
         if not follow_parents: return paths
@@ -1890,11 +1929,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         
             # Remove extension only if no node depends on it!
             except_exts = [k for k, lst in ext2nodes.items() if lst]
-            exts = self.cleanup_exts.difference(except_exts)
+            exts = self.gc.exts.difference(except_exts)
             #print("%s removes extensions %s from parent node %s" % (self, exts, parent))
             paths += parent.outdir.remove_exts(exts)
 
-        #print("%s:\n Files removed: %s" % (self, paths))
+        self.history.info("Removed files: %s" % paths)
         return paths
 
     def setup(self):
@@ -1912,6 +1951,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         kwargs          Meaning
         ==============  ==============================================================
         autoparal       False to skip the autoparal step (default True)
+        exec_args       List of arguments passed to executable.
         ==============  ==============================================================
 
         Returns:
@@ -1970,7 +2010,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                     return 0
 
         # Start the calculation in a subprocess and return.
-        self._process = self.manager.launch(self)
+        self._process = self.manager.launch(self, **kwargs)
         return 1
 
     def start_and_wait(self, *args, **kwargs):
@@ -2022,6 +2062,20 @@ class AbinitTask(Task):
         strategy = StrategyWithInput(ainput, deepcopy=True)
 
         return cls(strategy, workdir=workdir, manager=manager)
+
+    @classmethod
+    def temp_shell_task(cls, inp, workdir=None, manager=None):
+        """
+        Build a Task with a temporary workdir. The task is executed via the shell with 1 MPI proc.
+        Mainly used for invoking Abinit to get important parameters needed to prepare the real task.
+        """
+        # Build a simple manager to run the job in a shell subprocess
+        import tempfile
+        workdir = tempfile.mkdtemp() if workdir is None else workdir  
+        if manager is None: manager = TaskManager.from_user_config()
+
+        # Construct the task and run it
+        return cls.from_input(inp, workdir=workdir, manager=manager.to_shell_manager(mpi_procs=1))
 
     def setup(self):
         """
@@ -2259,15 +2313,37 @@ class AbinitTask(Task):
 
     def reset_from_scratch(self):
         """
-        restart from scratch, reuse of output
-        this is to be used if a job is restarted with more resources after a crash
+        restart from scratch, this is to be used if a job is restarted with more resources after a crash
         """
-        # remove all 'error', else the job will be seen as crashed in the next check status
-        # even if the job did not run
-        self.output_file.remove()
-        self.log_file.remove()
-        self.stderr_file.remove()
+        # Move output files produced in workdir to _reset otherwise check_status continues
+        # to see the task as crashed even if the job did not run
+        # Create reset directory if not already done.
+        reset_dir = os.path.join(self.workdir, "_reset")
+        reset_file = os.path.join(reset_dir, "_counter")
+        if not os.path.exists(reset_dir):
+            os.mkdir(reset_dir)
+            num_reset = 1
+        else:
+            with open(reset_file, "rt") as fh: 
+                num_reset = 1 + int(fh.read())
+
+        # Move files to reset and append digit with reset index.
+        def move_file(f):
+            f.move(os.path.join(reset_dir, f.basename + "_" + str(num_reset)))
+
+        move_file(self.output_file)
+        move_file(self.log_file)
+        move_file(self.stderr_file)
+
+        with open(reset_file, "wt") as fh: 
+            fh.write(str(num_reset))
+
         self.start_lockfile.remove()
+
+        #self.output_file.remove()
+        #self.log_file.remove()
+        #self.stderr_file.remove()
+        #self.start_lockfile.remove()
 
         return self._restart(submit=False)
 

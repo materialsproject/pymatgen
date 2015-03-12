@@ -19,7 +19,7 @@ from six.moves import map
 from atomicfile import AtomicFile
 from prettytable import PrettyTable
 from pydispatch import dispatcher
-from monty.collections import as_set
+from monty.collections import as_set, dict2namedtuple
 from monty.string import list_strings, is_string
 from monty.io import FileLock
 from monty.pprint import draw_tree
@@ -27,7 +27,7 @@ from monty.termcolor import stream_has_colours, cprint, colored, cprint_map
 from monty.inspect import find_top_pyfile
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
 from pymatgen.core.units import Time, Memory
-from .nodes import Status, Node, NodeResults, Dependency #, check_spectator
+from .nodes import Status, Node, NodeResults, Dependency, GarbageCollector #, check_spectator
 from .tasks import (Task, ScfTask, PhononTask, TaskManager, NscfTask, DdkTask,
                     AnaddbTask, DdeTask, TaskManager)
 from .utils import Directory, Editor
@@ -113,7 +113,8 @@ class Flow(Node):
         tasks whose class is given by task_class.
 
         .. warning::
-            Don't use this interface if you have a dependencies among the tasks
+
+            Don't use this interface if you have dependencies among the tasks.
 
         Args:
             workdir: String specifying the directory where the works will be produced.
@@ -138,7 +139,7 @@ class Flow(Node):
 
     @classmethod
     def as_flow(cls, obj):
-        """Convert obj into a Flow. Accepts filepath, dict Flow object."""
+        """Convert obj into a Flow. Accepts filepath, dict, or Flow object."""
         if isinstance(obj, cls): return obj
         if is_string(obj):
             return cls.pickle_load(obj)
@@ -565,19 +566,23 @@ class Flow(Node):
             lines.extend(["%s <--> %s" % nodes for nodes in deadlocks])
             raise RuntimeError("\n".join(lines))
 
-    def deadlocked_runnables_running(self):
+    def find_deadlocks(self):
         """
         This function detects deadlocks
 
         Return:
-            deadlocks, runnables, running
+            named tuple with the tasks grouped in: deadlocks, runnables, running
         """
+        # Find jobs that can be submitted and and the jobs that are already in the queue.
         runnables = []
         for work in self:
             runnables.extend(work.fetch_alltasks_to_run())
+        runnables.extend(list(self.iflat_tasks(status=self.S_SUB)))
 
+        # Running jobs.
         running = list(self.iflat_tasks(status=self.S_RUN))
 
+        # Find deadlocks.
         err_tasks = self.errored_tasks
         deadlocked = []
         if err_tasks:
@@ -585,7 +590,7 @@ class Flow(Node):
                 if any(task.depends_on(err_task) for err_task in err_tasks):
                     deadlocked.append(task)
 
-        return deadlocked, runnables, running
+        return dict2namedtuple(deadlocked=deadlocked, runnables=runnables, running=running)
 
     def check_status(self, **kwargs):
         """
@@ -1220,6 +1225,54 @@ class Flow(Node):
 
         return self
 
+    def use_smartio(self):
+        """
+        This function should be called when the entire `Flow` has been built. 
+        It tries to reduce the pressure on the hard disk by using Abinit smart-io 
+        capabilities for those files that are not needed by other nodes.
+        Smart-io means that big files (e.g. WFK) are written only if the calculation
+        is unconverged so that we can restart from it. No output is produced if 
+        convergence is achieved. 
+        """
+        for task in self.iflat_tasks():
+            children = task.get_children()
+            if not children:
+                # Change the input so that output files are produced only if the 
+                # calculation is not converged.
+                #print("Will disable IO for task %s:" % task)
+                # TODO: prtwf = -1 for DFPT
+                task._set_inpvars(prtwf=-1, prtden=0) # prt1wf=-1, 
+            else:
+                must_produce_abiexts = []
+                for child in children:
+                    # Get the list of dependencies. Find that task 
+                    for d in child.deps:
+                        must_produce_abiexts.extend(d.exts)
+
+                must_produce_abiexts = set(must_produce_abiexts)
+                #print("must_produce_abiexts", must_produce_abiexts)
+
+                # Variables supporting smart-io.
+                smart_prtvars = {
+                    "prtwf": "WFK",
+                }
+
+                # Set the variable to -1 to disable the output 
+                for varname, abiext in smart_prtvars.items():
+                    if abiext not in must_produce_abiexts:
+                        print("%s: setting %s to -1" % (self, varname))
+                        task._set_inpvars({varname: -1})
+
+    #def new_from_input_decorators(self, new_workdir, decorators)
+    #    """
+    #    Return a new :class:`Flow` in which all the Abinit inputs have been
+    #    decorated by decorators.
+    #    """
+    #    # The trick part here is how to assign a new id to the new nodes while maintaing the
+    #    # correct dependencies! The safest approach would be to pass through __init__
+    #    # instead of using copy.deepcopy()
+    #    return flow
+
     def show_dependencies(self, stream=sys.stdout):
         """Writes to the given stream the ASCII representation of the dependency tree."""
         def child_iter(node):
@@ -1260,7 +1313,8 @@ class Flow(Node):
         if self.finalized: return 1
         self.finalized = False
 
-        if self.flow.has_db:
+        if self.has_db:
+            self.history.info("Saving results in database.")
             try:
                 self.flow.db_insert()
                 self.finalized = True
@@ -1268,15 +1322,36 @@ class Flow(Node):
                  logger.critical("MongoDb insertion failed.")
                  return 2
 
-    def set_cleanup_exts(self, exts=None):
-        # TODO: Rewrite this part.
-        # Introduce a GarbageCollector object that is installed  at the level of the flow.
-        # with a policy. The gc is called when the node reached S_OK.
+        # Here we remove the big output files if we have the garbage collector 
+        # and the policy is set to "flow."
+        if self.gc is not None and self.gc.policy == "flow":
+            self.history.info("gc.policy set to flow. Will clean task output files.")
+            for task in self.iflat_tasks():
+                task.clean_output_files()
+
+    def set_garbage_collector(self, exts=None, policy="task"):
+        """
+        Enable the garbage collector that will remove the big output files that are not needed.
+
+        Args:
+            exts: string or list with the Abinit file extensions to be removed. A default is
+                provided if exts is None
+            policy: Either `flow` or `task`. If policy is set to 'task', we remove the output
+                files as soon as the task reaches S_OK. If 'flow', the files are removed 
+                only when the flow is finalized. This option should be used when we are dealing
+                with a dynamic flow with callbacks generating other tasks since a :class:`Task`
+                might not be aware of its children when it reached S_OK.
+        """
+        assert policy in ("task", "flow")
+        exts = list_string(exts) if exts is not None else ("WFK", "SUS", "SCR")
+
+        gc = GarbageCollector(exts=set(exts), policy=policy)
+
+        self.set_gc(gc)
         for work in self:
-            # TODO Add support for Works
-            #work.set_cleanup_exts(exts)
+            #work.set_gc(gc) # TODO Add support for Works and flow policy
             for task in work:
-                task.set_cleanup_exts(exts)
+                task.set_gc(gc)
 
     def connect_signals(self):
         """
@@ -1387,9 +1462,15 @@ class Flow(Node):
         sched.add_flow(self)
         return sched
 
-    def batch(self, **kwargs):
+    def batch(self, timelimit):
         """
         Run the flow in batch mode, return exit status of the job script.
+        Requires a manager.yml file and a batch_adapter adapter.
+
+        Args:
+            timelimit: Time limit (int with seconds or string with time given with the slurm convention: 
+            "days-hours:minutes:seconds"). If timelimit is None, the default value specified in the 
+            `batch_adapter` entry of `manager.yml` is used.
         """
         from .launcher import BatchLauncher
         # Create a batch dir from the flow.workdir.
@@ -1489,7 +1570,7 @@ class Flow(Node):
 class G0W0WithQptdmFlow(Flow):
     def __init__(self, workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=None):
         """
-        Build a `Flow` for one-shot G0W0 calculations.
+        Build a :class:`Flow` for one-shot G0W0 calculations.
         The computation of the q-points for the screening is parallelized with qptdm
         i.e. we run independent calculations for each q-point and then we merge the final results.
 
@@ -1540,6 +1621,13 @@ class G0W0WithQptdmFlow(Flow):
         work.set_manager(self.manager)
         work.create_tasks(wfk_file, scr_input)
         work.add_deps(cbk.deps)
+
+        work.set_flow(self)
+        # Each task has a reference to its work.
+        for task in work:
+            task.set_work(work)
+            # Add the garbage collector.
+            if self.gc is not None: task.set_gc(self.gc)
 
         work.connect_signals()
         work.build()

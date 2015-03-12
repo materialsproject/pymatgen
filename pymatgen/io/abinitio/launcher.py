@@ -593,7 +593,7 @@ class PyFlowScheduler(object):
 
         # fix problems
         # Try to restart the unconverged tasks
-        # todo donot fire here but prepare for fireing in rapidfire
+        # TODO: do not fire here but prepare for fireing in rapidfire
         for task in self.flow.unconverged_tasks:
             try:
                 logger.info("Flow will try restart task %s" % task)
@@ -702,26 +702,25 @@ class PyFlowScheduler(object):
                 self.flow.num_errored_tasks, self.max_num_abierrs)
             err_msg += boxed(msg)
 
-        # TODO: This is not correct because I should also check tasks that are submitted
         # Test on the presence of deadlocks.
-        """
-        deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
-        if deadlocked: 
+        #"""
+        g = self.flow.find_deadlocks()
+        if g.deadlocked: 
             # Check the flow agains to that status are updated. 
             self.flow.check_status()
 
-            deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
-            print("deadlocked:\n", deadlocked, "\nrunnables:\n", runnables, "\nrunning\n", running)
-            if deadlocked and not runnables and not running:
-                err_msg += "No runnable job with deadlocked tasks:\n%s." % str(deadlocked)
+            g = self.flow.find_deadlocks()
+            print("deadlocked:\n", g.deadlocked, "\nrunnables:\n", g.runnables, "\nrunning\n", g.running)
+            if g.deadlocked and not g.runnables and not g.running:
+                err_msg += "No runnable job with deadlocked tasks:\n%s." % str(g.deadlocked)
 
-        if not runnables and not running:
+        if not g.runnables and not g.running:
             # Check the flow again to that status are updated. 
             self.flow.check_status()
-            deadlocked, runnables, running = self.flow.deadlocked_runnables_running()
-            if not runnables and not running:
+            g = self.flow.find_deadlocks()
+            if not g.runnables and not g.running:
                 err_msg += "No task is running and cannot find other tasks to sumbmit."
-        """
+        #"""
 
         if err_msg:
             # Something wrong. Quit
@@ -776,6 +775,7 @@ class PyFlowScheduler(object):
             print("\n".join(lines))
 
             self._do_customer_service()
+            #self.flow.finalize()
 
         finally:
             # Shutdown the scheduler thus allowing the process to exit.
@@ -851,7 +851,11 @@ def sendmail(subject, text, mailto, sender=None):
         return os.getlogin() + "@" + gethostname()
 
     # Body of the message.
-    sender = user_at_host() if sender is None else sender
+    try:
+        sender = user_at_host() if sender is None else sender
+    except OSError:
+        sender = 'abipyscheduler@youknowwhere'
+
     if is_string(mailto): mailto = [mailto]
 
     from email.mime.text import MIMEText
@@ -1007,7 +1011,6 @@ class BatchLauncher(object):
             os.makedirs(self.workdir)
         else:
             raise RuntimeError("Directory %s already exists. Use BatchLauncher.pickle_load()" % self.workdir)
-            #pass
 
         self.name = os.path.basename(self.workdir) if name is None else name
         self.script_file = File(os.path.join(self.workdir, "run.sh"))
@@ -1062,8 +1065,7 @@ class BatchLauncher(object):
 
     def add_flow(self, flow):
         """
-        Add a flow. Accept filepath or :class:`Flow` object.
-        Return 1 if flow was added else 0.
+        Add a flow. Accept filepath or :class:`Flow` object. Return 1 if flow was added else 0.
         """
         from .flows import Flow
         flow = Flow.as_flow(flow)
@@ -1092,7 +1094,7 @@ class BatchLauncher(object):
 
     def submit(self, **kwargs):
         """
-        Submit a job script that will run the schedulers with abirun.py
+        Submit a job script that will run the schedulers with `abirun.py`.
 
         Args:
             verbose: Verbosity level
@@ -1174,11 +1176,8 @@ class BatchLauncher(object):
         self.pickle_dump()
         process.wait()
 
-        return dict2namedtuple(
-            retcode=process.returncode, 
-            qjob=self.qjob,
-            num_flows_inbatch=num_flows_inbatch
-        )
+        return dict2namedtuple(retcode=process.returncode, qjob=self.qjob,
+                               num_flows_inbatch=num_flows_inbatch)
 
     def _get_script_nflows(self):
         """
