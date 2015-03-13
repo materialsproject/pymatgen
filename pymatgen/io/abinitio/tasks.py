@@ -2371,7 +2371,7 @@ class AbinitTask(Task):
                 if handler.can_handle(event) and not done[i]:
                     logger.info("handler", handler, "will try to fix", event)
                     try:
-                        d = handler.handle(self, event)
+                        d = handler.handle_task_event(self, event)
                         if d: 
                             done[i] += 1
                             count += 1
@@ -2383,9 +2383,7 @@ class AbinitTask(Task):
             self.reset_from_scratch()
             return 1
 
-        msg = 'We encountered AbiCritical events that could not be fixed'
-        logger.critical(msg)
-        self.set_status(status=self.S_ERROR, msg=msg)
+        self.set_status(status=self.S_ERROR, msg='We encountered AbiCritical events that could not be fixed')
         return 0
 
     def fix_queue_critical(self):
