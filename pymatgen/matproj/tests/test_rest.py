@@ -97,6 +97,13 @@ class MPResterTest(unittest.TestCase):
         self.assertEqual(self.rester.get_materials_id_from_task_id(
             "mp-540081"), "mp-19017")
 
+    def test_get_materials_id_references(self):
+        # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_get_materials_id_references
+        # TODO use self.rester when in prod
+        m = MPRester(os.environ.get('MAPI_KEY_DEV'), endpoint="http://www.materialsproject.org:8080/rest")
+        data = m.get_materials_id_references('mp-123')
+        self.assertTrue(len(data) > 1000)
+
     def test_get_entries_in_chemsys(self):
         syms = ["Li", "Fe", "O"]
         all_entries = self.rester.get_entries_in_chemsys(syms, False)
