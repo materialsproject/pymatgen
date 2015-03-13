@@ -157,6 +157,18 @@ class MPRester(object):
         """
         return self._make_request("/materials/mid_from_tid/%s" % task_id)
 
+    def get_materials_id_references(self, material_id):
+        """
+        Returns all references for a materials id.
+
+        Args:
+            material_id (str): A material id.
+
+        Returns:
+            BibTeX (str)
+        """
+        return self._make_request("/materials/%s/refs" % material_id)
+
     def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
         """
         Flexible method to get any data using the Materials Project REST
