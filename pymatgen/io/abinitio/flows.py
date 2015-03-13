@@ -152,6 +152,8 @@ class Flow(Node):
         """
         Args:
             workdir: String specifying the directory where the works will be produced.
+                     if workdir is None, the initialization of the working directory 
+                     is performed by flow.allocate(workdir).
             manager: :class:`TaskManager` object responsible for the submission of the jobs.
                      If manager is None, the object is initialized from the yaml file
                      located either in the working directory or in the user configuration dir.
@@ -160,7 +162,8 @@ class Flow(Node):
         """
         super(Flow, self).__init__()
 
-        self.set_workdir(workdir)
+        if workdir is not None:
+            self.set_workdir(workdir)
 
         self.creation_date = time.asctime()
 
@@ -1082,6 +1085,9 @@ class Flow(Node):
 
     def build(self, *args, **kwargs):
         """Make directories and files of the `Flow`."""
+        # Allocate here if not done yet!
+        if not self.allocated: self.allocate()
+
         self.indir.makedirs()
         self.outdir.makedirs()
         self.tmpdir.makedirs()
@@ -1155,13 +1161,15 @@ class Flow(Node):
         Returns:
             The registered :class:`Work`.
         """
-        # Directory of the work.
-        if workdir is None:
-            work_workdir = os.path.join(self.workdir, "w" + str(len(self)))
-        else:
-            work_workdir = os.path.join(self.workdir, os.path.basename(workdir))
+        if getattr(self, "workdir", None) is not None:
+            # The flow has a directory, build the named of the directory of the work.
+            work_workdir = None
+            if workdir is None:
+                work_workdir = os.path.join(self.workdir, "w" + str(len(self)))
+            else:
+                work_workdir = os.path.join(self.workdir, os.path.basename(workdir))
 
-        work.set_workdir(work_workdir)
+            work.set_workdir(work_workdir)
 
         if manager is not None:
             work.set_manager(manager)
@@ -1211,11 +1219,32 @@ class Flow(Node):
 
         return work
 
-    def allocate(self):
+    @property
+    def allocated(self):
+        """Numer of allocations. Set by `allocate`."""
+        try:
+            return self._allocated
+        except AttributeError:
+            return 0
+
+    def allocate(self, workdir=None):
         """
         Allocate the `Flow` i.e. assign the `workdir` and (optionally)
         the :class:`TaskManager` to the different tasks in the Flow.
+
+        Args:
+            workdir: Working directory of the flow. Must be specified here
+                if we haven't initialized the workdir in the __init__.
         """
+        if workdir is not None:
+            # We set the workdir of the flow here
+            self.set_workdir(workdir)
+            for i, work in enumerate(self):
+                work.set_workdir(os.path.join(self.workdir, "w" + str(i)))
+
+        if not hasattr(self, "workdir"):
+            raise RuntimeError("You must call flow.allocate(workdir) if the workdir is not passed to __init__")
+
         for work in self:
             # Each work has a reference to its flow.
             work.allocate(manager=self.manager)
@@ -1225,6 +1254,9 @@ class Flow(Node):
                 task.set_work(work)
 
         self.check_dependencies()
+
+        if not hasattr(self, "_allocated"): self._allocated = 0
+        self._allocated += 1
 
         return self
 

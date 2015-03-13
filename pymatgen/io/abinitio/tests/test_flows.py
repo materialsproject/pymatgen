@@ -12,6 +12,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinitio import *
 from pymatgen.io.abinitio.flows import *
+from pymatgen.io.abinitio.works import *
 from pymatgen.io.abinitio.tasks import *
 from pymatgen.io.abinitio.pseudos import Pseudo
 
@@ -188,11 +189,33 @@ class FlowTest(FlowUnitTest):
         # Test show_status
         flow.show_status()
 
+    def test_workdir(self):
+        """Testing if one can use workdir=None in flow.__init__ and then flow.allocate(workdir)."""
+        flow = Flow(workdir=None, manager=self.manager)
+        flow.register_task(self.fake_input)
+        #flow.register_work(work)
+        work = Work()
+        work.register_scf_task(self.fake_input)
+        flow.register_work(work)
 
-#class BandStructureFlowTest(FlowUnitTest):
-#    def test_base(self):
-#        """Testing bandstructure flow..."""
-#        flow = bandstructure_flow(self.workdir, self.manager, self.fake_input, self.fake_input)
+        # If flow.workdir is None, we should used flow.allocate(workdir)
+        with self.assertRaises(RuntimeError):
+            flow.allocate()
+
+        tmpdir = tempfile.mkdtemp()
+        flow.allocate(workdir=tmpdir)
+
+        print(flow)
+        assert len(flow) == 2
+
+        flow.build()
+
+        for i, work in enumerate(flow):
+            assert work.workdir == os.path.join(tmpdir, "w%d" % i)
+            for t, task in enumerate(work):
+                assert task.workdir == os.path.join(work.workdir, "t%d" % t)
+
+        
 
 
 if __name__ == '__main__':
