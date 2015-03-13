@@ -1750,7 +1750,7 @@ class FlowCallback(object):
 
 
 # Factory functions.
-def bandstructure_flow(workdir, scf_input, nscf_input, dos_inputs=None, manager=None, flow_class=Flow):
+def bandstructure_flow(workdir, scf_input, nscf_input, dos_inputs=None, manager=None, flow_class=Flow, allocate=True):
     """
     Build a :class:`Flow` for band structure calculations.
 
@@ -1762,6 +1762,7 @@ def bandstructure_flow(workdir, scf_input, nscf_input, dos_inputs=None, manager=
         manager: :class:`TaskManager` object used to submit the jobs
                  Initialized from manager.yml if manager is None.
         flow_class: Flow subclass
+        allocate: True if the flow should be allocated before returning.
 
     Returns:
         :class:`Flow` object
@@ -1773,10 +1774,11 @@ def bandstructure_flow(workdir, scf_input, nscf_input, dos_inputs=None, manager=
     # Handy aliases
     flow.scf_task, flow.nscf_task, flow.dos_tasks = work.scf_task, work.nscf_task, work.dos_tasks
 
-    return flow.allocate()
+    if allocate: flow.allocate()
+    return flow
 
 
-def g0w0_flow(workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=None, flow_class=Flow):
+def g0w0_flow(workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=None, flow_class=Flow, allocate=True):
     """
     Build a :class:`Flow` for one-shot $G_0W_0$ calculations.
 
@@ -1789,6 +1791,7 @@ def g0w0_flow(workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=N
         flow_class: Flow class
         manager: :class:`TaskManager` object used to submit the jobs.
                  Initialized from manager.yml if manager is None.
+        allocate: True if the flow should be allocated before returning.
 
     Returns:
         :class:`Flow` object
@@ -1796,11 +1799,12 @@ def g0w0_flow(workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=N
     flow = flow_class(workdir, manager=manager)
     work = G0W0Work(scf_input, nscf_input, scr_input, sigma_inputs)
     flow.register_work(work)
-    return flow.allocate()
+    if allocate: flow.allocate()
+    return flow
 
 
 def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, with_dde=False, 
-                manager=None, flow_class=Flow):
+                manager=None, flow_class=Flow, allocate=True):
     """
     Build a :class:`Flow` for phonon calculations.
 
@@ -1930,5 +1934,6 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
         #    merge_input = {}
         #    qp_merge_task = flow.register_task(merge_input, deps={work_qpt: "DDB"}, task_class=QpMergeTask)
         #    flow.register_task(ana_input, deps={qp_merge_task: "DDB"}, task_class=AnaddbTask)
-                                            
-    return flow.allocate()
+
+    if allocate: flow.allocate()
+    return flow

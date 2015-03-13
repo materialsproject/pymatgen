@@ -46,7 +46,8 @@ class FlowUnitTest(PymatgenTest):
 policy:
     autoparal: 1
 qadapters:
-    - priority: 1
+    - &batch
+      priority: 1
       queue:
         qtype: slurm
         qname: Oban
@@ -79,6 +80,8 @@ db_connector:
     #port: 8080 
     #user: gmatteo
     #password: helloworld
+
+batch_adapter: *batch
 """
     def setUp(self):
         """Initialization phase."""
@@ -215,7 +218,52 @@ class FlowTest(FlowUnitTest):
             for t, task in enumerate(work):
                 assert task.workdir == os.path.join(work.workdir, "t%d" % t)
 
-        
+
+class TestBatchLauncher(FlowUnitTest):
+    def test_batchlauncher(self):
+        """Testing BatchLauncher methods."""
+        # Create the TaskManager.
+        manager = TaskManager.from_string(self.MANAGER)
+        print("batch_adapter", manager.batch_adapter)
+        assert manager.batch_adapter is not None
+
+        def build_flow_with_name(name):
+            """Build a flow with workdir None and the given name."""
+            flow = Flow(workdir=None, manager=self.manager)
+            flow.set_name(name)
+
+            flow.register_task(self.fake_input)
+            work = Work()
+            work.register_scf_task(self.fake_input)
+            flow.register_work(work)
+
+            return flow
+
+        from pymatgen.io.abinitio.launcher import BatchLauncher
+        tmpdir = tempfile.mkdtemp()
+        batch = BatchLauncher(workdir=tmpdir, manager=manager)
+        print(batch)
+
+        flow0 = build_flow_with_name("flow0")
+        flow1 = build_flow_with_name("flow1")
+        flow2_same_name = build_flow_with_name("flow1")
+
+        batch.add_flow(flow0)
+
+        # Cannot add the same flow twice.
+        with self.assertRaises(batch.Error):
+            batch.add_flow(flow0)
+
+        batch.add_flow(flow1)
+
+        # Cannot add two flows with the same name.
+        with self.assertRaises(batch.Error):
+            batch.add_flow(flow2_same_name)
+
+        batch.submit(dry_run=True)
+
+        for i, flow in enumerate([flow0, flow1]):
+            assert flow.workdir == os.path.join(batch.workdir, "flow%d" % i)
 
 
 if __name__ == '__main__':

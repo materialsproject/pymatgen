@@ -885,6 +885,10 @@ def __test_sendmail():
     assert retcode == 0
 
 
+class BatchLauncherError(Exception):
+    """Exceptions raised by :class:`BatchLauncher`."""
+
+
 class BatchLauncher(object):
     """
     This object automates the execution of multiple flow. It generates a job script
@@ -896,6 +900,8 @@ class BatchLauncher(object):
     and rerun only those that are not completed due to the timelimit. 
     """
     PICKLE_FNAME = "__BatchLauncher__.pickle"
+
+    Error = BatchLauncherError
 
     @classmethod
     def from_dir(cls, top, workdir=None, name=None, manager=None, max_depth=2):
@@ -1010,7 +1016,8 @@ class BatchLauncher(object):
         if not os.path.exists(self.workdir):
             os.makedirs(self.workdir)
         else:
-            raise RuntimeError("Directory %s already exists. Use BatchLauncher.pickle_load()" % self.workdir)
+            pass
+            #raise RuntimeError("Directory %s already exists. Use BatchLauncher.pickle_load()" % self.workdir)
 
         self.name = os.path.basename(self.workdir) if name is None else name
         self.script_file = File(os.path.join(self.workdir, "run.sh"))
@@ -1026,6 +1033,9 @@ class BatchLauncher(object):
         try:
             self.qadapter = qad = manager.batch_adapter
         except AttributeError:
+            raise RuntimeError("Your manager.yml file does not define an entry for the batch_adapter")
+
+        if qad is None:
             raise RuntimeError("Your manager.yml file does not define an entry for the batch_adapter")
            
         # Set mpi_procs to 1 just to be on the safe side 
@@ -1071,7 +1081,14 @@ class BatchLauncher(object):
         flow = Flow.as_flow(flow)
 
         if flow in self.flows:
-            raise ValueError("Cannot add same flow twice!")
+            raise self.Error("Cannot add same flow twice!")
+
+        if not flow.allocated:
+            # Set the workdir of the flow here. Create a dir in self.workdir with name flow.name
+            flow_workdir = os.path.join(self.workdir, os.path.basename(flow.name))
+            if flow_workdir in (flow.workdir for flow in self.flows):
+                raise self.Error("Two flows have the same name and hence the same workdir!")
+            flow.allocate(workdir=flow_workdir)
 
         # Check if we are already using a scheduler to run this flow
         if os.path.exists(flow.pid_file):
@@ -1164,6 +1181,7 @@ class BatchLauncher(object):
 
         print("Will submit %s flows in batch script" % len(self.flows))
 
+        # Builf the flow.
         for flow in self.flows:
             flow.build_and_pickle_dump()
 
