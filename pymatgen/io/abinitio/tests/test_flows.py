@@ -16,7 +16,8 @@ from pymatgen.io.abinitio.works import *
 from pymatgen.io.abinitio.tasks import *
 from pymatgen.io.abinitio.pseudos import Pseudo
 
-_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 'test_files')
+_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 
+                         'test_files', "abinitio")
 
 
 def ref_file(filename):

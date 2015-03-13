@@ -5,6 +5,14 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio import events
 
 
+#class EventsParserTest(PymatgenTest):
+#    report = EventsParser().parse(verbose=1)
+#
+#    print(report)
+#    assert report.run_completed
+#    assert report.num_errors, report.num_warnings, report.num_comments == (0, 0, 0)
+
+
 class EventHandlersTest(PymatgenTest):
     def test_events(self):
         # Autodoc

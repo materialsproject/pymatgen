@@ -13,7 +13,7 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio.pseudos import *
 
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files')
+                        'test_files', "abinitio")
 
 
 def ref_file(filename):

@@ -16,7 +16,6 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 def cif_paths():
     cifpaths = []
-    print(test_dir)
     for fname in os.listdir(test_dir):
         fname = os.path.join(test_dir, fname)
         if os.path.isfile(fname) and fname.endswith(".cif"):
