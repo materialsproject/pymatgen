@@ -953,6 +953,16 @@ class HistoryRecord(object):
 
         return msg
 
+    @pmg_serialize
+    def as_dict(self):
+        return {'level': self.levelno, 'pathname': self.pathname, 'lineno': self.lineno, 'msg': self.msg,
+                'args': self.args, 'exc_info': self.exc_info, 'func': self.func_name}
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(level=d['level'], pathname=d['pathname'], lineno=int(d['lineno']), msg=d['msg'], args=d['args'],
+                   exc_info=d['exc_info'], func=d['func'])
+
 
 class NodeHistory(collections.deque):
     """Logger-like object"""
