@@ -97,11 +97,12 @@ class AbinitEvent(yaml.YAMLObject):
 
     @pmg_serialize
     def as_dict(self):
-        return dict(message=self.message, src_file=self.src_file, src_line=self.src_line)
+        return dict(message=self.message, src_file=self.src_file, src_line=self.src_line, yaml_tag=self.yaml_tag)
 
     @classmethod
     def from_dict(cls, d):
-        return cls(**{k: v for k,v in d.items() if not k.startswith("@")})
+        cls = as_event_class(d.get("yaml_tag"))
+        return cls(**{k: v for k,v in d.items() if k != "yaml_tag" and not k.startswith("@")})
 
     @property
     def header(self):
@@ -246,7 +247,7 @@ _BASE_CLASSES = [
 ]
 
 
-class EventReport(collections.Iterable):
+class EventReport(collections.Iterable, PMGSONable):
     """
     Iterable storing the events raised by an ABINIT calculation.
 
@@ -384,18 +385,11 @@ class EventReport(collections.Iterable):
 
     @pmg_serialize
     def as_dict(self):
-        d = {}
-        if self.num_comments:
-            d['num_comments'] = self.num_comments
-            d['comments'] = [e.as_dict() for e in self.comments]
-        if self.num_warnings:
-            d['num_warnings'] = self.num_warnings
-            d['warnings'] = [e.as_dict() for e in self.warnings]
-        if self.num_errors:
-            d['num_errors'] = self.num_errors
-            d['errors'] = [e.as_dict() for e in self.errors]
+        return dict(filename=self.filename, events=[e.as_dict() for e in self._events])
 
-        return d
+    @classmethod
+    def from_dict(cls, d):
+        return cls(filename=d["filename"], events=[AbinitEvent.from_dict(e) for e in d["events"]])
 
 
 class EventsParserError(Exception):
@@ -552,6 +546,7 @@ class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
 
     @pmg_serialize
     def to_dict(self):
+        #@Guido this introspection is nice but it's not safe
         d = {}
         if hasattr(self, "__init__"):
             for c in inspect.getargspec(self.__init__).args:
@@ -611,11 +606,11 @@ def get_event_handler_classes(categories=None):
 def as_event_class(obj):
     """
     Convert obj into a subclass of AbinitEvent. 
-    obj can be either a class or a string with the class name.
+    obj can be either a class or a string with the class name or the YAML tag
     """
     if is_string(obj):
         for c in all_subclasses(AbinitEvent):
-            if c.__name__ == obj: return obj
+            if c.__name__ == obj or c.yaml_tag == obj: return c
         raise ValueError("Cannot find event class associated to %s" % obj)
     
     # Assume class.
