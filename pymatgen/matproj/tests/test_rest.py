@@ -99,8 +99,9 @@ class MPResterTest(unittest.TestCase):
 
     def test_get_materials_id_references(self):
         # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_get_materials_id_references
-        self.rester.preamble = "http://www.materialsproject.org:8080/rest" # TODO rm when in prod
-        data = self.rester.get_materials_id_references('mp-123')
+        # TODO use self.rester when in prod
+        m = MPRester(os.environ.get('MAPI_KEY_DEV'), endpoint="http://www.materialsproject.org:8080/rest")
+        data = m.get_materials_id_references('mp-123')
         self.assertTrue(len(data) > 1000)
 
     def test_get_entries_in_chemsys(self):
