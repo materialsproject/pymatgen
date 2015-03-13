@@ -220,6 +220,7 @@ class FlowTest(FlowUnitTest):
 
 
 class TestBatchLauncher(FlowUnitTest):
+
     def test_batchlauncher(self):
         """Testing BatchLauncher methods."""
         # Create the TaskManager.
@@ -264,6 +265,10 @@ class TestBatchLauncher(FlowUnitTest):
 
         for i, flow in enumerate([flow0, flow1]):
             assert flow.workdir == os.path.join(batch.workdir, "flow%d" % i)
+
+        batch.pickle_dump()
+        batch_from_pickle = BatchLauncher.pickle_load(batch.workdir)
+        assert all(f1 == f2 for f1, f2 in zip(batch.flows, batch_from_pickle.flows))
 
 
 if __name__ == '__main__':

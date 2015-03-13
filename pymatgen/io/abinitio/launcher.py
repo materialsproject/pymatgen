@@ -1176,15 +1176,14 @@ class BatchLauncher(object):
         self.script_file.write(script)
         self.script_file.chmod(0o740)
 
-        # Submit the task and save the queue id.
-        if dry_run: return -1
-
-        print("Will submit %s flows in batch script" % len(self.flows))
-
         # Builf the flow.
         for flow in self.flows:
             flow.build_and_pickle_dump()
 
+        # Submit the task and save the queue id.
+        if dry_run: return -1
+
+        print("Will submit %s flows in batch script" % len(self.flows))
         self.qjob, process = self.qadapter.submit_to_queue(self.script_file.path)
 
         # Save the queue id in the pid file
