@@ -1,16 +1,43 @@
 # coding: utf-8
 from __future__ import unicode_literals, division, print_function
 
+import os
+import datetime
+
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.abinitio import events
+from pymatgen.io.abinitio import events 
+
+_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                        'test_files', "abinitio")
+
+def ref_file(filename):
+    return os.path.join(_test_dir, filename)
 
 
-#class EventsParserTest(PymatgenTest):
-#    report = EventsParser().parse(verbose=1)
-#
-#    print(report)
-#    assert report.run_completed
-#    assert report.num_errors, report.num_warnings, report.num_comments == (0, 0, 0)
+def ref_files(*filenames):
+    return list(map(ref_file, filenames))
+
+
+class EventsParserTest(PymatgenTest):
+    def test_mgb2_outputs(self):
+        """Testing MgB2 output files."""
+        # Analyze scf log
+        parser = events.EventsParser()
+        report = parser.parse(ref_file("mgb2_scf.log"), verbose=1)
+
+        print(report)
+        assert (report.num_errors, report.num_warnings, report.num_comments) == (0, 0, 0)
+        assert report.run_completed
+        fmt = "%a %b %d %H:%M:%S %Y"
+        assert report.start_datetime ==  datetime.datetime.strptime("Fri Mar 13 20:08:51 2015", fmt)
+        assert report.end_datetime ==  datetime.datetime.strptime("Fri Mar 13 20:08:57 2015", fmt)
+
+        # Analyze nscf log
+        report = events.EventsParser().parse(ref_file("mgb2_nscf.log"), verbose=0)
+        assert (report.num_errors, report.num_warnings, report.num_comments) == (0, 2, 0)
+
+        for warning in report.warnings:
+            print(warning)
 
 
 class EventHandlersTest(PymatgenTest):

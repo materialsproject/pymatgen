@@ -97,6 +97,10 @@ class ScfCycle(collections.Mapping):
     """
     It essentially consists of a dictionary mapping string
     to list of floats containing the data at the different iterations.
+
+    .. attributes::
+
+        num_iterations: Number of iterations performed.
     """
     def __init__(self, fields):
         self.fields = fields
@@ -117,13 +121,13 @@ class ScfCycle(collections.Mapping):
 
     def __str__(self):
         """String representation."""
-        table = PrettyTable([list(self.fields.keys())])
+        table = PrettyTable(list(self.keys()))
         for it in range(self.num_iterations):
             row = list(map(str, (self[k][it] for k in self.keys())))
             table.add_row(row)
 
         stream = cStringIO()
-        print(table, out=stream)
+        print(table, file=stream)
         stream.seek(0)
 
         return "".join(stream)
