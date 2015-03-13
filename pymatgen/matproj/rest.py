@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from __future__ import division, unicode_literals
+from six import string_types
 
 """
 This module provides classes to interface with the Materials Project REST
@@ -249,7 +250,7 @@ class MPRester(object):
             MPRestError
         """
         try:
-            if isinstance(filename_or_structure, str):
+            if isinstance(filename_or_structure, string_types):
                 s = Structure.from_file(filename_or_structure)
             elif isinstance(filename_or_structure, Structure):
                 s = filename_or_structure
