@@ -68,7 +68,7 @@ class MPRester(object):
             variable. This makes easier for heavy users to simply add
             this environment variable to their setups and MPRester can
             then be called without any arguments.
-        host (str): Url of host to access the MaterialsProject REST interface.
+        endpoint (str): Url of endpoint to access the MaterialsProject REST interface.
             Defaults to the standard Materials Project REST address, but
             can be changed to other urls implementing a similar interface.
     """
@@ -91,12 +91,12 @@ class MPRester(object):
                                  "is_compatible", "spacegroup",
                                  "band_gap", "density", "icsd_id", "cif")
 
-    def __init__(self, api_key=None, host="www.materialsproject.org"):
+    def __init__(self, api_key=None, endpoint="https://www.materialsproject.org/rest/v2"):
         if api_key is not None:
             self.api_key = api_key
         else:
             self.api_key = os.environ.get("MAPI_KEY", "")
-        self.preamble = "https://{}/rest/v2".format(host)
+        self.preamble = endpoint
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
 
@@ -156,6 +156,18 @@ class MPRester(object):
             materials_id (str)
         """
         return self._make_request("/materials/mid_from_tid/%s" % task_id)
+
+    def get_materials_id_references(self, material_id):
+        """
+        Returns all references for a materials id.
+
+        Args:
+            material_id (str): A material id.
+
+        Returns:
+            BibTeX (str)
+        """
+        return self._make_request("/materials/%s/refs" % material_id)
 
     def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
         """
