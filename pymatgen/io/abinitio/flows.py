@@ -1462,7 +1462,7 @@ class Flow(Node):
         sched.add_flow(self)
         return sched
 
-    def batch(self, timelimit):
+    def batch(self, timelimit=None):
         """
         Run the flow in batch mode, return exit status of the job script.
         Requires a manager.yml file and a batch_adapter adapter.
@@ -1478,7 +1478,7 @@ class Flow(Node):
         prev_dir = os.path.join(os.path.sep, prev_dir)
         workdir = os.path.join(prev_dir, os.path.basename(self.workdir) + "_batch")
 
-        return BatchLauncher(workdir=workdir, flows=self).submit()
+        return BatchLauncher(workdir=workdir, flows=self).submit(timelimit=timelimit)
 
     def make_light_tarfile(self, name=None):
         """Lightweight tarball file. Mainly used for debugging. Return the name of the tarball file."""
