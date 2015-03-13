@@ -29,7 +29,7 @@ from .strategies import StrategyWithInput, OpticInput
 from .qadapters import make_qadapter, QueueAdapter 
 from . import qutils as qu
 from .db import DBConnector
-from .nodes import Status, Node, NodeResults #, check_spectator
+from .nodes import Status, Node, NodeResults, NodeCorrections #, check_spectator
 from . import abiinspect
 from . import events
 
@@ -2032,14 +2032,22 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             d['manager'] = self.manager.as_dict()
         else:
             d['manager'] = None
+        d['corrections'] = self.corrections
+        d['history'] = [hr.as_dict() for hr in self.history]
+        d['num_restarts'] = self.num_restarts
         return d
 
     @classmethod
     def from_dict(cls, d):
         dec = MontyDecoder()
         strategy = dec.process_decoded(d['strategy'])
-        manager = TaskManager.from_dict(d['manager'])
-        return cls(strategy=strategy, workdir=d['workdir'], manager=manager)
+        manager = TaskManager.from_dict(d['manager']) if d['manager'] else TaskManager.from_user_config()
+        corrections = NodeCorrections(dec.process_decoded(d['corrections']))
+        task = cls(strategy=strategy, workdir=d['workdir'], manager=manager)
+        task._corrections = corrections
+        task.history.extend(dec.process_decoded(d['history']))
+        task.num_restarts = d['num_restarts']
+        return task
 
 
 class AbinitTask(Task):
@@ -2839,6 +2847,11 @@ class RelaxTask(GsTask, ProduceHist):
             results.register_gridfs_files(GSR=gsr.filepath)
 
         return results
+
+    def reduce_dilatmx(self, target=1.01):
+        actual_dilatmx = self.get_inpvar('dilatmx', 1.)
+        new_dilatmx = actual_dilatmx - min((actual_dilatmx-target), actual_dilatmx*0.05)
+        self._set_inpvar('dilatmx', new_dilatmx)
 
 
 class DdeTask(AbinitTask, ProduceDdb):
