@@ -1108,11 +1108,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def input(self):
         return self.strategy.abinit_input
 
-    def get_inpvar(self, varname):
+    def get_inpvar(self, varname, default=None):
         """Return the value of the ABINIT variable varname, None if not present.""" 
         if hasattr(self.strategy, "abinit_input"):
             try:
-                return self.strategy.abinit_input[0][varname]
+                return self.strategy.abinit_input[0].get(varname, default)
             except KeyError:
                 return None
         else:
@@ -2162,6 +2162,12 @@ class AbinitTask(Task):
         except AttributeError:
             return None
 
+    def uses_paral_kgb(self, value=1):
+        """True if the task is a GS Task and uses paral_kgb with the given value."""
+        paral_kgb = self.get_inpvar("paral_kgb", 0)
+        # paral_kgb is used only in the GS part.
+        return paral_kgb == value and isinstance(self, GsTask)
+
     def autoparal_run(self):
         """
         Find an optimal set of parameters for the execution of the task 
@@ -2398,6 +2404,12 @@ class AbinitTask(Task):
         """
         from pymatgen.io.abinitio.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
 
+        # paral_kgb = 1 leads to nasty sigegv that are seen as Qcritical errors!
+        # Try to fallback to the conjugate gradient.
+        if self.uses_paral_kgb(1):
+            logger.critical("QCRITICAL with PARAL_KGB==1. Will try CG!")
+            self._inp_vars(paral_kgb=0)
+
         if not self.queue_errors:
             # queue error but no errors detected, try to solve by increasing resources
             # if resources are at maximum the task is definitively turned to errored
@@ -2592,7 +2604,13 @@ class ProduceDdb(object):
             return None
 
 
-class ScfTask(AbinitTask, ProduceGsr):
+class GsTask(AbinitTask, ProduceGsr):
+    """
+    Base class for ground-state tasks. A ground state task produce a GSR file
+    """
+
+
+class ScfTask(GsTask):
     """
     Self-consistent ground-state calculations.
     Provide support for in-place restart via (WFK|DEN) files
@@ -2652,7 +2670,7 @@ class ScfTask(AbinitTask, ProduceGsr):
         return results
 
 
-class NscfTask(AbinitTask, ProduceGsr):
+class NscfTask(GsTask):
     """
     Non-Self-consistent GS calculation.
     Provide in-place restart via WFK files
@@ -2691,7 +2709,7 @@ class NscfTask(AbinitTask, ProduceGsr):
         return results
 
 
-class RelaxTask(AbinitTask, ProduceGsr, ProduceHist):
+class RelaxTask(GsTask, ProduceHist):
     """
     Task for structural optimizations.
     """
