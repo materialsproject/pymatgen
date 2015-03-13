@@ -786,7 +786,7 @@ class RelaxWork(Work):
     structure to perform a structural relaxation in which both the atomic positions
     and the lattice parameters are optimized.
     """
-    def __init__(self, ion_input, ioncell_input, workdir=None, manager=None):
+    def __init__(self, ion_input, ioncell_input, workdir=None, manager=None, target_dilatmx=None):
         """
         Args:
             ion_input: Input for the relaxation of the ions (cell is fixed)
@@ -818,6 +818,8 @@ class RelaxWork(Work):
         self.ioncell_task.lock(source_node=self)
         self.transfer_done = False
 
+        self.target_dilatmx = target_dilatmx
+
     def on_ok(self, sender):
         """
         This callback is called when one task reaches status S_OK.
@@ -837,6 +839,13 @@ class RelaxWork(Work):
             # Unlock ioncell_task so that we can submit it.
             self.ioncell_task.unlock()
             self.ioncell_task.history.info("Unlocked by %s", self)
+        elif sender == self.ioncell_task and self.target_dilatmx:
+            actual_dilatmx = self.ioncell_task.get_inpvar('dilatmx', 1.)
+            if self.target_dilatmx < actual_dilatmx:
+                self.ioncell_task.reduce_dilatmx(target=self.target_dilatmx)
+                logger.info('Converging dilatmx. Value reduce from {} to {}.'
+                            .format(actual_dilatmx, self.ioncell_task.get_inpvar('dilatmx')))
+                self.ioncell_task.reset_from_scratch()
 
         return super(RelaxWork, self).on_ok(sender)
 

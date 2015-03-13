@@ -13,6 +13,7 @@ import yaml
 import six
 import abc
 import logging
+import inspect
 
 from monty.string import indent, is_string, list_strings
 from monty.fnmatch import WildCard
@@ -381,6 +382,21 @@ class EventReport(collections.Iterable):
             if type(ev) in event_types: events.append(ev)
         return self.__class__(filename=self.filename, events=events)
 
+    @pmg_serialize
+    def as_dict(self):
+        d = {}
+        if self.num_comments:
+            d['num_comments'] = self.num_comments
+            d['comments'] = [e.as_dict() for e in self.comments]
+        if self.num_warnings:
+            d['num_warnings'] = self.num_warnings
+            d['warnings'] = [e.as_dict() for e in self.warnings]
+        if self.num_errors:
+            d['num_errors'] = self.num_errors
+            d['errors'] = [e.as_dict() for e in self.errors]
+
+        return d
+
 
 class EventsParserError(Exception):
     """Base class for the exceptions raised by :class:`EventsParser`."""
@@ -533,6 +549,22 @@ class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
         Return:
             0 if no action has been applied, 1 if the problem has been fixed.
         """
+
+    @pmg_serialize
+    def to_dict(self):
+        d = {}
+        if hasattr(self, "__init__"):
+            for c in inspect.getargspec(self.__init__).args:
+                if c != "self":
+                    d[c] = self.__getattribute__(c)
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        kwargs = {k: v for k, v in d.items() if k in inspect.getargspec(cls.__init__).args}
+        return cls(**kwargs)
+
+
 
 #class WarningHandler(EventHandler):
 #    """Base class for handlers associated to ABINIT warnings."""
