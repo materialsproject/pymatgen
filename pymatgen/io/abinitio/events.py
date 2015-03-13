@@ -522,7 +522,7 @@ class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
         return len([c for c in task.corrections if c["event"]["@class"] == self.event_class])
 
     @abc.abstractmethod
-    def handle(self, task, event):
+    def handle_task_event(self, task, event):
         """
         Method to handle Abinit events.
 
@@ -635,7 +635,7 @@ class DilatmxErrorHandler(ErrorHandler):
     def __init__(self, max_dilatmx=1.3):
         self.max_dilatmx = max_dilatmx
 
-    def handle(self, task, event):
+    def handle_task_event(self, task, event):
         # Read the last structure dumped by ABINIT before aborting.
         filepath = task.outdir.has_abiext("DILATMX_STRUCT.nc")
         last_structure = Structure.from_file(filepath)
@@ -661,7 +661,7 @@ class DilatmxErrorHandlerTest(ErrorHandler):
     def __init__(self, max_dilatmx=1.3):
         self.max_dilatmx = max_dilatmx
 
-    def handle(self, task, event):
+    def handle_task_event(self, task, event):
         msg = event.message
 
         # Check if the handler is suitable to deal with this error
@@ -705,7 +705,7 @@ class TolSymErrorHandler(ErrorHandler):
     def __init__(self, max_nfixes=3):
         self.max_nfixes = max_nfixes
 
-    def handle(self, task, event):
+    def handle_task_event(self, task, event):
         # TODO: Add limit on the number of fixes one can do for the same error
         # For example in this case, the scheduler will stop after 20 submissions
         if self.count(task) > self.max_nfixes: 

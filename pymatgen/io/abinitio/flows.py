@@ -684,7 +684,7 @@ class Flow(Node):
                 print("  Finalized works are not shown. Use verbose > 0 to force output.", file=stream)
                 continue
 
-            table = PrettyTable(["Task", "Status", "Queue", "MPI|Omp|Mem[Gb]", 
+            table = PrettyTable(["Task", "Status", "Queue", "MPI|Omp|Gb", 
                                  "Err|Warn|Com", "Class", "Rest|Sub|Corr", "Time", "Node_ID"])
 
             tot_num_errors = 0
@@ -709,9 +709,12 @@ class Flow(Node):
 
                 events = "|".join(3*["NA"])
                 if report is not None:
-                    events = "|".join(map(str, [report.num_errors, report.num_warnings, report.num_comments]))
+                    #events = "%03.d"|".join(map(str, [report.num_errors, report.num_warnings, report.num_comments]))
+                    events = '{:>3}|{:>4}|{:>3}'.format(*map(str, (report.num_errors, report.num_warnings, report.num_comments)))
 
-                para_info = "|".join(map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
+                #para_info = "|".join(map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
+                para_info  = '{:>4}|{:>3}|{:>3}'.format(*map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
+
                 task_info = list(map(str, [task.__class__.__name__, 
                                  (task.num_restarts, task.num_launches, task.num_corrections), stime, task.node_id]))
 
