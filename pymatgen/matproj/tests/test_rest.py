@@ -26,6 +26,7 @@ from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.phasediagram.pdmaker import PhaseDiagram
 from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
+from pymatgen.io.cifio import CifParser
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -104,6 +105,17 @@ class MPResterTest(unittest.TestCase):
         m = MPRester(os.environ.get('MAPI_KEY_DEV'), endpoint="http://www.materialsproject.org:8080/rest")
         data = m.get_materials_id_references('mp-123')
         self.assertTrue(len(data) > 1000)
+
+    def test_find_structure(self):
+        # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_find_structure
+        # TODO use self.rester when in prod
+        m = MPRester(os.environ.get('MAPI_KEY_DEV'), endpoint="http://www.materialsproject.org:8080/rest")
+        ciffile = 'test_files/Fe3O4.cif'
+        data = m.find_structure(ciffile)
+        self.assertTrue(len(data) > 1)
+        s = CifParser(ciffile).get_structures()[0]
+        data = m.find_structure(s)
+        self.assertTrue(len(data) > 1)
 
     def test_get_entries_in_chemsys(self):
         syms = ["Li", "Fe", "O"]
