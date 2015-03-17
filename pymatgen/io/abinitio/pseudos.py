@@ -2630,3 +2630,41 @@ class DojoReport(dict):
             if i == len(ax_list) - 1: ax.set_xlabel("Ecut [Ha]")
 
         return fig
+
+    @add_fig_kwargs
+    def plot_phonon_convergence(self, code=None, ax_list=None, **kwargs):
+        """
+        plot the convergence of the phonon modes wrt ecut.
+
+        Args:
+            code: Reference code, not used
+            ax_list: List of matplotlib Axes, if ax_list is None a new figure is created
+
+        Returns:
+            `matplotlib` figure.
+        """
+
+        if code is not None:
+            from pseudo_dojo.refdata.phonon import ph_database
+            reference = ph_database().get_entry(symbol=self.symbol, code=code)
+
+        d = self["phonon"]
+        ecuts = d.keys()
+
+        import matplotlib.pyplot as plt
+        if ax_list is None:
+            fig, ax = plt.subplot()
+        else:
+            fig = plt.gcf()
+
+        #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(keys), ncols=1, sharex=True, squeeze=False)
+
+        for i, v in enumerate(d[ecuts[0]]):
+            values = np.array([float(d[ecut][i]) for ecut in ecuts])
+
+            ax.plot(ecuts, values, "mode " + str(i))
+            ax.grid(True)
+            ax.set_ylabel("Phonon modes")
+            ax.set_xlabel("Ecut [Ha]")
+
+        return fig
