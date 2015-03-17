@@ -47,6 +47,20 @@ class EventsParserTest(PymatgenTest):
             # Msonable is conflict with YAMLObject
             #self.assertPMGSONable(warning, check_inst=False)
 
+    def test_parse_bad_yaml_doc(self):
+        """Parsing Abinit log file with wrong YAML document."""
+        parser = events.EventsParser()
+        report = parser.parse(ref_file("badyaml.log"), verbose=1)
+        print(report)
+        assert not report.run_completed
+        assert (report.num_errors, report.num_warnings, report.num_comments) == (1, 1, 0)
+
+        # The event parser should have registered a AbinitYamlWarning and an AbinitYamlError
+        assert len(report.get_events_of_type(events.AbinitYamlWarning)) == 1
+        assert len(report.get_events_of_type(events.AbinitYamlError)) == 1
+
+        #assert 0
+
 
 class EventHandlersTest(PymatgenTest):
     def test_events(self):

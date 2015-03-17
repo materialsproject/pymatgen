@@ -383,6 +383,10 @@ class EventReport(collections.Iterable, PMGSONable):
             if type(ev) in event_types: events.append(ev)
         return self.__class__(filename=self.filename, events=events)
 
+    def get_events_of_type(self, event_class):
+        """Return a list of events of the given class."""
+        return [ev for ev in self if type(ev) == event_class]
+
     @pmg_serialize
     def as_dict(self):
         return dict(filename=self.filename, events=[e.as_dict() for e in self._events])

@@ -240,6 +240,9 @@ class Relaxation(collections.Iterable):
     def __len__(self):
         return self.cycles.__len__()
 
+    def __getitem__(self, slice):
+        return self.cycles[slice]
+
     def __str__(self):
         """String representation."""
         lines = []
@@ -324,6 +327,10 @@ class Relaxation(collections.Iterable):
             ax.plot(relax_step, values, "-o", lw=2.0)
 
         return fig
+
+
+# TODO
+#class DfptScfCycle(collections.Iterable):
 
 # TODO
 #class HaydockIterations(collections.Iterable):

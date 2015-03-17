@@ -1272,10 +1272,9 @@ class Flow(Node):
         for task in self.iflat_tasks():
             children = task.get_children()
             if not children:
-                # Change the input so that output files are produced only if the 
-                # calculation is not converged.
+                # Change the input so that output files are produced 
+                # only if the calculation is not converged.
                 #print("Will disable IO for task %s:" % task)
-                # TODO: prtwf = -1 for DFPT
                 task._set_inpvars(prtwf=-1, prtden=0) # prt1wf=-1, 
             else:
                 must_produce_abiexts = []
