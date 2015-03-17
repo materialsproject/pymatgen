@@ -2630,3 +2630,52 @@ class DojoReport(dict):
             if i == len(ax_list) - 1: ax.set_xlabel("Ecut [Ha]")
 
         return fig
+
+    @add_fig_kwargs
+    def plot_phonon_convergence(self, code=None, ax_list=None, **kwargs):
+        """
+        plot the convergence of the phonon modes wrt ecut.
+
+        Args:
+            code: Reference code, not used
+            ax_list: List of matplotlib Axes, if ax_list is None a new figure is created
+
+        Returns:
+            `matplotlib` figure.
+        """
+
+        if code is not None:
+            from pseudo_dojo.refdata.phonon import ph_database
+            reference = ph_database().get_entry(symbol=self.symbol, code=code)
+
+        d = self["phonon"]
+        ecuts = d.keys()
+        print(ecuts)
+
+        l = [(ecut, float(ecut)) for ecut in ecuts]
+        s = sorted(l, key=lambda t: t[1])
+        max_ecut = s[-1][0]
+        s_ecuts = [ecut[0] for ecut in s]
+
+        import matplotlib.pyplot as plt
+        fig, ax = plt.subplots(nrows=2)
+
+        #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(keys), ncols=1, sharex=True, squeeze=False)
+
+        for i, v in enumerate(d[ecuts[0]]):
+            values1 = np.array([float(d[ecut][i]) for ecut in s_ecuts])
+
+            ax[0].plot(s_ecuts, values1, "o-")
+            ax[0].grid(True)
+            ax[0].set_ylabel("phonon modes [meV]")
+            ax[0].set_xlabel("Ecut [Ha]")
+
+            values2 = np.array([float(d[ecut][i]) - float(d[max_ecut][i]) for ecut in s_ecuts])
+
+            ax[1].plot(s_ecuts, values2, "o-")
+            ax[1].grid(True)
+            ax[1].set_ylabel("w - w(ecut_max)")
+            ax[1].set_xlabel("Ecut [Ha]")
+
+
+        return fig
