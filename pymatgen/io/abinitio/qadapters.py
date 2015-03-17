@@ -641,12 +641,12 @@ limits:
         return self._mem_per_proc
                                                 
     def set_mem_per_proc(self, mem_mb):
-        """Set the memory per process in megabytes"""
+        """
+        Set the memory per process in megabytes. If mem_mb <=0, min_mem_per_proc is used.
+        """
         # Hack needed because abinit is still not able to estimate memory.
-        if mem_mb <= 0:
-            mem_mb = self.min_mem_per_proc
-
-        self._mem_per_proc = mem_mb
+        if mem_mb <= 0: mem_mb = self.min_mem_per_proc
+        self._mem_per_proc = int(mem_mb)
 
     @property
     def total_mem(self):
@@ -1021,7 +1021,7 @@ class SlurmAdapter(QueueAdapter):
 #SBATCH --ntasks=$${ntasks}
 #SBATCH --ntasks-per-node=$${ntasks_per_node}
 #SBATCH --cpus-per-task=$${cpus_per_task}
-#SBATCH --mem=$${mem}
+#####SBATCH --mem=$${mem}
 #SBATCH --mem-per-cpu=$${mem_per_cpu}
 #SBATCH --hint=$${hint}
 #SBATCH --time=$${time}
@@ -1056,9 +1056,9 @@ $${qverbatim}
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
         super(SlurmAdapter, self).set_mem_per_proc(mem_mb)
-        self.qparams["mem_per_cpu"] = int(mem_mb)
+        self.qparams["mem_per_cpu"] = self.mem_per_proc
         # Remove mem if it's defined.
-        self.qparams.pop("mem", None)
+        #self.qparams.pop("mem", None)
 
     def set_timelimit(self, timelimit):
         super(SlurmAdapter, self).set_timelimit(timelimit)
@@ -1176,8 +1176,8 @@ $${qverbatim}
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
         super(PbsProAdapter, self).set_mem_per_proc(mem_mb)
-        #self.qparams["pvmem"] = int(mem_mb)
-        #self.qparams["vmem"] = int(mem_mb)
+        self.qparams["vmem"] = self.mem_per_proc
+        self.qparams["pvmem"] = self.mem_per_proc
 
     def cancel(self, job_id):
         return os.system("qdel %d" % job_id)
@@ -1342,8 +1342,8 @@ $${qverbatim}
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
         QueueAdapter.set_mem_per_proc(self, mem_mb)
-        self.qparams["pmem"] = mem_mb
-        self.qparams["mem"] = mem_mb
+        self.qparams["pmem"] = self.mem_per_proc
+        self.qparams["mem"] = self.mem_per_proc
 
     @property
     def mpi_procs(self):
@@ -1406,7 +1406,7 @@ $${qverbatim}
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
         super(SGEAdapter, self).set_mem_per_proc(mem_mb)
-        self.qparams["mem_per_slot"] = str(int(mem_mb)) + "M"
+        self.qparams["mem_per_slot"] = str(int(self.mem_per_proc)) + "M"
 
     def set_timelimit(self, timelimit):
         super(SGEAdapter, self).set_timelimit(timelimit)
