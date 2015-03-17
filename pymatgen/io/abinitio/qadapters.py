@@ -67,7 +67,7 @@ class MpiRunner(object):
         stdout = "> " + stdout if stdout is not None else ""
         stderr = "2> " + stderr if stderr is not None else ""
 
-        if exec_args is not None:
+        if exec_args:
             executable = executable + " " + " ".join(list_strings(exec_args))
 
         if self.has_mpirun:

@@ -23,7 +23,7 @@ from monty.json import MontyDecoder
 from monty.fnmatch import WildCard
 from monty.dev import deprecated
 from pymatgen.core.units import Memory
-from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize
+from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize, PMGSONable
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition, SparseHistogram
 from .strategies import StrategyWithInput, OpticInput
 from .qadapters import make_qadapter, QueueAdapter 
@@ -444,7 +444,7 @@ class TaskPolicy(object):
         return "\n".join(lines)
 
 
-class TaskManager(object):
+class TaskManager(PMGSONable):
     """
     A `TaskManager` is responsible for the generation of the job script and the submission 
     of the task, as well as for the specification of the parameters passed to the resource manager
@@ -549,6 +549,7 @@ batch_adapter:
         """Create an instance from a dictionary."""
         return cls(**{k: v for k, v in d.items() if k in cls.ENTRIES})
 
+    @pmg_serialize
     def as_dict(self):
         return self._kwargs
 
@@ -785,6 +786,8 @@ batch_adapter:
         """
         Write the submission script. return the path of the script
         """
+        exec_args=kwargs.pop("exec_args", None)
+
         script = self.qadapter.get_script_str(
             job_name=task.name, 
             launch_dir=task.workdir,
@@ -794,7 +797,7 @@ batch_adapter:
             stdin=task.files_file.path, 
             stdout=task.log_file.path,
             stderr=task.stderr_file.path,
-            exec_args=kwargs.pop("exec_args", None)
+            exec_args=exec_args,
         )
 
         # Write the script.
@@ -818,6 +821,13 @@ batch_adapter:
 
         # Build the task 
         task.build()
+
+        # TODO
+        # Pass information on the time limit to Abinit but only if ndtset == 1.
+        #if isinstance(self, AbinitTask) and task.input.ndtset == 1:
+        #    l = kwargs.get("exec_args", [])
+        #    l.update("--timelimit %s" % qu.time2slurm(self.qadapter.timelimit))
+        #    kwargs["exec_args"] = l
 
         # Write the submission script
         script_file = self.write_jobfile(task, **kwargs)
@@ -1055,16 +1065,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """Set the :class:`TaskManager` to use to launch the Task."""
         self.manager = manager.deepcopy()
 
-        # TODO
-        # Select adapters associated to the Task class
-        #keep = []
-        #for i, qad in enumerate(self.manager.qads):
-        #    if self.__class__.__name__ in qad.task_classes:
-        #        keep.append(i)
-        #if keep:
-        #    self._qads = [self._qads[i] for i in keep]
-        #    self._qadpos = 0
-
     @property
     def work(self):
         """The :class:`Work` containing this `Task`."""
@@ -1263,6 +1263,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # Increase the counter.
         self.num_restarts += 1
         self.history.info("Restarted, num_restarts %d" % self.num_restarts)
+
+        # Reset datetimes
+        self.datetimes = TaskDateTimes()
 
         if submit:
             # Remove the lock file
@@ -1626,6 +1629,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
            (time.time() - self.output_file.get_stat().st_mtime > self.manager.policy.frozen_timeout):
             msg = "Task seems to be frozen, last change more than %s [s] ago" % self.manager.policy.frozen_timeout
             return self.set_status(self.S_ERROR, msg)
+
+        # Handle weird case in which either run.abo, or run.log have not been produced
+        #if self.status not in (self.S_INIT, self.S_READY) and (not self.output.file.exists or not self.log_file.exits):
+        #    msg = "Task have been submitted but cannot find the log file or the output file"
+        #    return self.set_status(self.S_ERROR, msg)
 
         return self.set_status(self.S_RUN)
 
@@ -2354,6 +2362,9 @@ class AbinitTask(Task):
 
         self.start_lockfile.remove()
 
+        # Reset datetimes
+        self.datetimes = TaskDateTimes()
+
         #self.output_file.remove()
         #self.log_file.remove()
         #self.stderr_file.remove()
@@ -2796,6 +2807,9 @@ class RelaxTask(GsTask, ProduceHist):
 
         # Add the appropriate variable for restarting.
         self.strategy.add_extra_abivars(irdvars)
+
+        # Read the HIST file.
+        #self.strategy.add_extra_abivars({"restartxf": -1})
 
         # Read the relaxed structure from the GSR file.
         structure = self.get_final_structure()
