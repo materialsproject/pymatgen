@@ -80,6 +80,11 @@ class Status(int):
         else:
             raise ValueError("Wrong string %s" % s)
 
+    @classmethod
+    def all_status_strings(cls):
+        """List of strings with all possible values status."""
+        return [info[1] for info in cls._STATUS_INFO]
+
     @property
     def is_critical(self):
         """True if status is critical."""
@@ -93,6 +98,8 @@ class Status(int):
     def colored(self):
         """Return colorized text used to print the status if the stream supports it."""
         return colored(str(self), **self.color_opts) 
+
+
 
 
 class Dependency(object):
