@@ -2650,21 +2650,32 @@ class DojoReport(dict):
 
         d = self["phonon"]
         ecuts = d.keys()
+        print(ecuts)
+
+        l = [(ecut, float(ecut)) for ecut in ecuts]
+        s = sorted(l, key=lambda t: t[1])
+        max_ecut = s[-1][0]
+        s_ecuts = [ecut[0] for ecut in s]
 
         import matplotlib.pyplot as plt
-        if ax_list is None:
-            fig, ax = plt.subplot()
-        else:
-            fig = plt.gcf()
+        fig, ax = plt.subplots(nrows=2)
 
         #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(keys), ncols=1, sharex=True, squeeze=False)
 
         for i, v in enumerate(d[ecuts[0]]):
-            values = np.array([float(d[ecut][i]) for ecut in ecuts])
+            values1 = np.array([float(d[ecut][i]) for ecut in s_ecuts])
 
-            ax.plot(ecuts, values, "mode " + str(i))
-            ax.grid(True)
-            ax.set_ylabel("Phonon modes")
-            ax.set_xlabel("Ecut [Ha]")
+            ax[0].plot(s_ecuts, values1, "o-")
+            ax[0].grid(True)
+            ax[0].set_ylabel("phonon modes [meV]")
+            ax[0].set_xlabel("Ecut [Ha]")
+
+            values2 = np.array([float(d[ecut][i]) - float(d[max_ecut][i]) for ecut in s_ecuts])
+
+            ax[1].plot(s_ecuts, values2, "o-")
+            ax[1].grid(True)
+            ax[1].set_ylabel("w - w(ecut_max)")
+            ax[1].set_xlabel("Ecut [Ha]")
+
 
         return fig

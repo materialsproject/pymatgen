@@ -128,9 +128,9 @@ class PseudoTestCase(PymatgenTest):
                                                                                  
             self.assert_almost_equal(o.paw_radius, 1.4146523028)
 
-    def test_ncvpsp_pseudo(self):
+    def test_oncvpsp_pseudo(self):
         """
-        Test the NCVPSP Ge pseudo
+        Test the ONCVPSP Ge pseudo
         """
         ger = Pseudo.from_file(ref_file("ge.oncvpsp"))
         print(repr(ger))
@@ -145,6 +145,41 @@ class PseudoTestCase(PymatgenTest):
         self.assert_equal(ger.l_max, 2)
         self.assert_equal(ger.l_local, 4)
         self.assert_equal(ger.rcore, None)
+        self.assertFalse(ger.has_dojo_report)
+
+    def test_oncvpsp_dojo_report(self):
+        """
+        Test the dojo report
+        """
+        plot = True
+
+        try:
+            from matplotlib.figure import Figure as Fig
+        except ImportError:
+            Fig = None
+            plot = False
+
+        h_wdr = Pseudo.from_file(ref_file("H-wdr.oncvpsp"))
+
+        print(repr(h_wdr))
+        print(h_wdr.as_dict())
+
+        self.assertTrue(h_wdr.symbol == "H")
+        self.assertTrue(h_wdr.has_dojo_report)
+
+        report = h_wdr.read_dojo_report()
+        self.assert_equal(report.check(), {})
+
+        if plot:
+            self.assertIsInstance(report.plot_deltafactor_convergence(show=False), Fig)
+            self.assertIsInstance(report.plot_deltafactor_eos(show=False), Fig)
+            self.assertIsInstance(report.plot_etotal_vs_ecut(show=False), Fig)
+            self.assertIsInstance(report.plot_gbrv_convergence(show=False), Fig)
+            self.assertIsInstance(report.plot_gbrv_eos('bcc', show=False), Fig)
+            self.assertIsInstance(report.plot_gbrv_eos('fcc', show=False), Fig)
+            self.assertIsInstance(report.plot_phonon_convergence(show=False), Fig)
+
+       # self.assertFalse(report.has_exceptions())
 
 
 
