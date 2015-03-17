@@ -1145,9 +1145,7 @@ class OneShotPhononWork(Work):
         results = super(OneShotPhononWork, self).get_results()
         phonons = self.read_phonons()
         results.update(phonons=phonons)
-
         return results
-
 
 
 class PhononWork(Work):
