@@ -182,7 +182,6 @@ class PseudoTestCase(PymatgenTest):
        # self.assertFalse(report.has_exceptions())
 
 
-
 class PseudoTableTest(PymatgenTest):
 
     def test_methods(self):
