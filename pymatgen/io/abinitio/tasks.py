@@ -29,7 +29,7 @@ from .strategies import StrategyWithInput, OpticInput
 from .qadapters import make_qadapter, QueueAdapter 
 from . import qutils as qu
 from .db import DBConnector
-from .nodes import Status, Node, NodeResults, NodeCorrections #, check_spectator
+from .nodes import Status, Node, NodeError, NodeResults, NodeCorrections, check_spectator
 from . import abiinspect
 from . import events
 
@@ -959,7 +959,7 @@ class TaskDateTimes(object):
         return MyTimedelta.as_timedelta(delta)
 
 
-class TaskError(Exception):
+class TaskError(NodeError):
     """Base Exception for :class:`Task` methods"""
         
 
@@ -1036,6 +1036,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         return {k: v for k, v in self.__dict__.items() if k not in ["_process"]}
 
+    @check_spectator
     def set_workdir(self, workdir, chroot=False):
         """Set the working directory. Cannot be set more than once unless chroot is True"""
         if not chroot and hasattr(self, "workdir") and self.workdir != workdir:
@@ -1195,6 +1196,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         all_ok = all([stat == self.S_OK for stat in self.deps_status])
         return self.status < self.S_SUB and self.status != self.S_LOCKED and all_ok
 
+    @check_spectator
     def cancel(self):
         """Cancel the job. Returns 1 if job was cancelled."""
         if self.queue_id is None: return 0 
@@ -1235,6 +1237,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         return dict(returncode=0, message="Calling on_all_ok of the base class!")
 
+    @check_spectator
     def fix_ofiles(self):
         """
         This method is called when the task reaches S_OK.
@@ -1251,6 +1254,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             logger.debug("will rename old %s to new %s" % (old, new))
             os.rename(old, new)
 
+    @check_spectator
     def _restart(self, submit=True):
         """
         Called by restart once we have finished preparing the task for restarting.
@@ -1278,6 +1282,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         return fired
 
+    @check_spectator
     def restart(self):
         """
         Restart the calculation.  Subclasses should provide a concrete version that 
@@ -1435,6 +1440,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self._status = self.S_READY
         if check_status: self.check_status()
 
+    @check_spectator
     def set_status(self, status, msg=None):
         """
         Set and return the status of the task.
@@ -1841,6 +1847,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         os.rename(src, dest)
 
+    @check_spectator
     def build(self, *args, **kwargs):
         """
         Creates the working directory and the input files of the :class:`Task`.
@@ -1858,6 +1865,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.input_file.write(self.make_input())
         self.manager.write_jobfile(self)
 
+    @check_spectator
     def rmtree(self, exclude_wildcard=""):
         """
         Remove all files and directories in the working directory

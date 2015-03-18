@@ -21,7 +21,7 @@ from monty.fnmatch import WildCard
 from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
 from . import wrappers
-from .nodes import Dependency, Node, NodeResults #, check_spectator
+from .nodes import Dependency, Node, NodeError, NodeResults, check_spectator
 from .tasks import (Task, AbinitTask, ScfTask, NscfTask, PhononTask, DdkTask, 
                     BseTask, RelaxTask, DdeTask, ScrTask, SigmaTask)
 from .strategies import HtcStrategy, NscfStrategy
@@ -70,7 +70,7 @@ class WorkResults(NodeResults):
         return new
 
 
-class WorkError(Exception):
+class WorkError(NodeError):
     """Base class for the exceptions raised by Work objects."""
 
 
@@ -187,6 +187,16 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
         """
         for task in self:
             dispatcher.connect(self.on_ok, signal=task.S_OK, sender=task)
+
+    def disconnect_signals(self):
+        """
+        Disable the signals within the work. This function reverses the process of `connect_signals`
+        """
+        for task in self:
+            try:
+                dispatcher.disconnect(self.on_ok, signal=task.S_OK, sender=task)
+            except dispatcher.errors.DispatcherKeyError as exc:
+                logger.debug(str(exc))
 
     @property
     def all_ok(self):

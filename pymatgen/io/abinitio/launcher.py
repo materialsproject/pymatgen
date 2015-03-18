@@ -158,6 +158,8 @@ class PyLauncher(object):
         self.flow = flow
         self.max_njobs_inqueue = kwargs.get("max_njobs_inqueue", 200)
 
+        #self.flow.check_pid_file()
+
     def single_shot(self):
         """
         Run the first :class:`Task` than is ready for execution.
@@ -438,24 +440,7 @@ class PyFlowScheduler(object):
         if hasattr(self, "_flow"):
             raise self.Error("Only one flow can be added to the scheduler.")
 
-        if os.path.isfile(flow.pid_file):
-            flow.show_status()
-
-            raise self.Error("""\
-                pid_file %s already exists
-                There are two possibilities:
-
-                   1) There's an another instance of PyFlowScheduler running
-                   2) The previous scheduler didn't exit in a clean way
-
-                To solve case 1:
-                   Kill the previous scheduler (use 'kill pid' where pid is the number reported in the file)
-                   Then you can restart the new scheduler.
-
-                To solve case 2:
-                   Remove the pid_file and restart the scheduler.
-
-                Exiting""" % flow.pid_file)
+        flow.check_pid_file()
 
         with open(flow.pid_file, "w") as fh:
             fh.write(str(self.pid))
@@ -707,7 +692,7 @@ class PyFlowScheduler(object):
         #"""
         g = self.flow.find_deadlocks()
         if g.deadlocked: 
-            # Check the flow agains to that status are updated. 
+            # Check the flow again so that status are updated. 
             self.flow.check_status()
 
             g = self.flow.find_deadlocks()
@@ -1092,11 +1077,12 @@ class BatchLauncher(object):
             flow.allocate(workdir=flow_workdir)
 
         # Check if we are already using a scheduler to run this flow
-        if os.path.exists(flow.pid_file):
-            msg = ("Pid file %s already exists.\n" % flow.pid_file +
-                   "Either the flow is already in execution or the scheduler didn't exit in a clean way.\n" +
-                   "Make sure no scheduler is running and then remove the pid file.")
-            raise RuntimeError(msg)
+        flow.check_pid_file()
+        #if os.path.exists(flow.pid_file):
+        #    msg = ("Pid file %s already exists.\n" % flow.pid_file +
+        #           "Either the flow is already in execution or the scheduler didn't exit in a clean way.\n" +
+        #           "Make sure no scheduler is running and then remove the pid file.")
+        #    raise RuntimeError(msg)
 
         flow.set_spectator_mode()
         flow.check_status(show=False)

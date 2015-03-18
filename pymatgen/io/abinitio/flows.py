@@ -27,7 +27,7 @@ from monty.termcolor import stream_has_colours, cprint, colored, cprint_map
 from monty.inspect import find_top_pyfile
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
 from pymatgen.core.units import Time, Memory
-from .nodes import Status, Node, NodeResults, Dependency, GarbageCollector #, check_spectator
+from .nodes import Status, Node, NodeError, NodeResults, Dependency, GarbageCollector, check_spectator
 from .tasks import (Task, ScfTask, PhononTask, TaskManager, NscfTask, DdkTask,
                     AnaddbTask, DdeTask, TaskManager)
 from .utils import Directory, Editor
@@ -80,6 +80,10 @@ class FlowResults(NodeResults):
         return new
 
 
+class FlowError(NodeError):
+    """Base Exception for :class:`Node` methods"""
+
+
 class Flow(Node):
     """
     This object is a container of work. Its main task is managing the
@@ -103,6 +107,8 @@ class Flow(Node):
     """
     VERSION = "0.1"
     PICKLE_FNAME = "__AbinitFlow__.pickle"
+    
+    Error = FlowError
 
     Results = FlowResults
 
@@ -333,6 +339,32 @@ class Flow(Node):
         """The path of the pid file created by PyFlowScheduler."""
         return os.path.join(self.workdir, "_PyFlowScheduler.pid")
 
+    def check_pid_file(self):
+        """
+        This function checks if we are already running the :class:`Flow` with a :class:`PyFlowScheduler`.
+        Raises: Flow.Error if the pif file of the scheduler exists.
+        """
+        if not os.path.exists(self.pid_file): 
+            return 0
+
+        self.show_status()
+        raise self.Error("""\n\
+            pid_file
+            %s
+            already exists. There are two possibilities:
+
+               1) There's an another instance of PyFlowScheduler running
+               2) The previous scheduler didn't exit in a clean way
+
+            To solve case 1:
+               Kill the previous scheduler (use 'kill pid' where pid is the number reported in the file)
+               Then you can restart the new scheduler.
+
+            To solve case 2:
+               Remove the pid_file and restart the scheduler.
+
+            Exiting""" % self.pid_file)
+
     @property
     def pickle_file(self):
         """The path of the pickle file."""
@@ -405,7 +437,7 @@ class Flow(Node):
     @property
     def status_counter(self):
         """
-        Returns a `Counter` object that counts the number of tasks with
+        Returns a :class:`Counter` object that counts the number of tasks with
         given status (use the string representation of the status as key).
         """
         # Count the number of tasks with given status in each work.
@@ -1342,6 +1374,7 @@ class Flow(Node):
             # Update the database.
             self.pickle_dump()
 
+    @check_spectator
     def finalize(self):
         """This method is called when the flow is completed."""
         if self.finalized: return 1
@@ -1398,6 +1431,7 @@ class Flow(Node):
 
         # Observe the nodes that must reach S_OK in order to call the callbacks.
         for cbk in self._callbacks:
+            #cbk.enable()
             for dep in cbk.deps:
                 logger.info("connecting %s \nwith sender %s, signal %s" % (str(cbk), dep.node, dep.node.S_OK))
                 dispatcher.connect(self.on_dep_ok, signal=dep.node.S_OK, sender=dep.node, weak=False)
@@ -1421,8 +1455,17 @@ class Flow(Node):
         #            dispatcher.connect(self.on_dep_ok, signal=signal, sender=dep.node, weak=False)
 
         # Register the callbacks for the Tasks.
-
         #self.show_receivers()
+
+    def disconnect_signals(self):
+        """Disable the signals within the `Flow`."""
+        # Connect the signals inside each Work.
+        for work in self:
+            work.disconnect_signals()
+
+        # Observe the nodes that must reach S_OK in order to call the callbacks.
+        for cbk in self._callbacks:
+            cbk.disable()
 
     def show_receivers(self, sender=None, signal=None):
         sender = sender if sender is not None else dispatcher.Any
@@ -1443,20 +1486,22 @@ class Flow(Node):
         the flow is in spectator mode is not easy (e.g. flow.cancel will cancel the tasks submitted to the
         queue and the flow used by the scheduler won't see this change!
         """
+        # Set the flags of all the nodes in the flow.
         mode = bool(mode)
         for work in self:
+            work.in_spectator_mode = mode
             for task in work:
                 task.in_spectator_mode = mode
 
+        # connect/disconnect signals depending on mode.
         if not mode:
             self.connect_signals()
-
-        #if mode:
-        #    flow.disable_signals()
+        else:
+            self.disconnect_signals()
 
     #def get_results(self, **kwargs)
 
-    def rapidfire(self, check_status=False, **kwargs):
+    def rapidfire(self, check_status=True, **kwargs):
         """
         Use :class:`PyLauncher` to submits tasks in rapidfire mode.
         kwargs contains the options passed to the launcher.
@@ -1464,9 +1509,23 @@ class Flow(Node):
         Return: 
             number of tasks submitted.
         """
+        self.check_pid_file()
         if check_status: self.check_status()
         from .launcher import PyLauncher
         return PyLauncher(self, **kwargs).rapidfire()
+
+    def single_shot(self, check_status=True, **kwargs):
+        """
+        Use :class:`PyLauncher` to submits one task.
+        kwargs contains the options passed to the launcher.
+
+        Return: 
+            number of tasks submitted.
+        """
+        self.check_pid_file()
+        if check_status: self.check_status()
+        from .launcher import PyLauncher
+        return PyLauncher(self, **kwargs).single_shot()
 
     def make_scheduler(self, **kwargs):
         """
@@ -1734,10 +1793,15 @@ class FlowCallback(object):
 
     def disable(self):
         """
-        True if the callback has been disabled.
-        This usually happens when the callback has been executed.
+        True if the callback has been disabled. This usually happens when the callback has been executed.
         """
         self._disabled = True
+
+    def enable(self):
+        """
+        Enable the callback
+        """
+        self._disabled = False
 
     def handle_sender(self, sender):
         """
