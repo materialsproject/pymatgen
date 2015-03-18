@@ -328,6 +328,7 @@ class PyFlowScheduler(object):
         #self.max_etime_s = kwargs.pop("max_etime_s", )
         self.max_nlaunches = kwargs.pop("max_nlaunches", -1)
         self.debug = kwargs.pop("debug", 0)
+        self.enable_fix_qcritical = kwargs.pop("enable_fix_qcritical", False)
 
         self.customer_service_dir = kwargs.pop("customer_service_dir", None)
         if self.customer_service_dir is not None:
@@ -615,7 +616,7 @@ class PyFlowScheduler(object):
 
         # Temporarily disable by MG because I don't know if fix_critical works after the
         # introduction of the new qadapters
-        if False:
+        if self.enable_fix_qcritical:
             nfixed = flow.fix_queue_critical()
             if nfixed: print("Fixed %d QueueCritical errors" % nfixed)
 
