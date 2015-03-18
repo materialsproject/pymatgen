@@ -1550,7 +1550,7 @@ class Flow(Node):
                 assert not kwargs
                 sched = PyFlowScheduler.from_file(filepath)
             else:
-                sched = PyFlowScheduler.from_file(**kwargs)
+                sched = PyFlowScheduler(**kwargs)
 
         sched.add_flow(self)
         return sched

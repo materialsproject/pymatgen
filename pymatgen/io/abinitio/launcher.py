@@ -496,7 +496,7 @@ class PyFlowScheduler(object):
 
     def start(self):
         """
-        Starts the scheduler in a new thread. Returns True if success.
+        Starts the scheduler in a new thread. Returns 0 if success.
         In standalone mode, this method will block until there are no more scheduled jobs.
         """
         self.history.append("Started on %s" % time.asctime())
@@ -510,7 +510,7 @@ class PyFlowScheduler(object):
         errors = self.flow.look_before_you_leap()
         if errors:
             self.exceptions.append(errors)
-            return False
+            return 1
 
         # Try to run the job immediately. If something goes wrong return without initializing the scheduler.
         self._runem_all()
@@ -518,11 +518,11 @@ class PyFlowScheduler(object):
         if self.exceptions:
             self.cleanup()
             self.send_email(msg="Error while trying to run the flow for the first time!\n %s" % self.exceptions)
-            return False
+            return 1
 
         try:
             self.sched.start()
-            return True
+            return 0
 
         except KeyboardInterrupt:
             self.shutdown(msg="KeyboardInterrupt from user")
@@ -530,7 +530,7 @@ class PyFlowScheduler(object):
                 print("Number of jobs cancelled %s", self.flow.cancel())
 
             self.flow.pickle_dump()
-            return False
+            return -1
 
     def _runem_all(self):
         """
