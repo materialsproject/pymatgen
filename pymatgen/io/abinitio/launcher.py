@@ -7,10 +7,10 @@ import time
 import yaml
 import pickle
 
-from collections import namedtuple, deque, namedtuple
+from collections import deque
 from datetime import timedelta
 from six.moves import cStringIO
-from monty.io import get_open_fds, FileLock
+from monty.io import get_open_fds
 from monty.string import boxed, is_string
 from monty.os.path import which
 from monty.collections import AttrDict, dict2namedtuple
@@ -615,9 +615,9 @@ class PyFlowScheduler(object):
 
         # Temporarily disable by MG because I don't know if fix_critical works after the
         # introduction of the new qadapters
-        if False:
-            nfixed = flow.fix_queue_critical()
-            if nfixed: print("Fixed %d QueueCritical errors" % nfixed)
+        # reenabled by MsS disable things that do not work at low level
+        nfixed = flow.fix_queue_critical()
+        if nfixed: print("Fixed %d QueueCritical errors" % nfixed)
 
         # update database
         flow.pickle_dump()
