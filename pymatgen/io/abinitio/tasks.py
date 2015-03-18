@@ -24,9 +24,9 @@ from monty.fnmatch import WildCard
 from monty.dev import deprecated
 from pymatgen.core.units import Memory
 from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize, PMGSONable
-from .utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition, SparseHistogram
+from .utils import File, Directory, irdvars_for_ext, abi_splitext, FilepathFixer, Condition, SparseHistogram
 from .strategies import StrategyWithInput, OpticInput
-from .qadapters import make_qadapter, QueueAdapter 
+from .qadapters import make_qadapter, QueueAdapter
 from . import qutils as qu
 from .db import DBConnector
 from .nodes import Status, Node, NodeError, NodeResults, NodeCorrections, check_spectator
@@ -444,6 +444,18 @@ class TaskPolicy(object):
         return "\n".join(lines)
 
 
+class ManagerIncreaseError(Exception):
+    """
+    Exception raised by the manager if the increase request failed
+    """
+
+
+class FixQueueCriticalError(Exception):
+    """
+    error raised when an error could not be fixed at the task level
+    """
+
+
 class TaskManager(PMGSONable):
     """
     A `TaskManager` is responsible for the generation of the job script and the submission 
@@ -663,8 +675,8 @@ batch_adapter:
                             return self._use_qadpos_pconf(qadpos, pconf)
                 
                 # Here we select the first one.
-                if possible_confs:
-                    return self._use_qadpos_pconf(qadpos, possible_confs[0])
+                if possible_pconfs:
+                    return self._use_qadpos_pconf(qadpos, possible_pconfs[0])
 
         elif policy.precedence == "autoparal_conf":
             # Try to run on the first pconf irrespectively of the priority of the qadapter.
@@ -851,11 +863,29 @@ batch_adapter:
         """Return the MongoDB collection used to store the results."""
         return self.db_connector.get_collection(**kwargs)
 
-    def increase_resources(self):
-        # with GW calculations in mind with GW mem = 10, 
+    def increase_mem(self):
+        # OLD
+        # with GW calculations in mind with GW mem = 10,
         # the response fuction is in memory and not distributed
         # we need to increas memory if jobs fail ...
-        return self.qadapter.more_mem_per_proc()
+        # return self.qadapter.more_mem_per_proc()
+        raise ManagerIncreaseError
+
+    def increase_ncpu(self):
+        """
+        increase the number of cpus, first ask the current quadapter, if that one raises a QadapterIncreaseError
+        switch to the next qadapter. If all fail raise an ManagerIncreaseError
+        """
+        raise ManagerIncreaseError
+
+    def increase_resources(self):
+        raise ManagerIncreaseError
+
+    def exclude_nodes(self):
+        raise ManagerIncreaseError
+
+    def increase_time(self):
+        raise ManagerIncreaseError
 
 
 class FakeProcess(object):
@@ -1025,6 +1055,12 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self._qjob = None
         self.queue_errors = []
         self.abi_errors = []
+
+        # two flags that provide, dynamically, information on the scaling behavious of a task. If any process of fixing
+        # finds none scaling behaviour, they should be switched. If a task type is clearly not scaling they should be
+        # swiched.
+        self.mem_scales = True
+        self.load_scales = True
 
     def __getstate__(self):
         """
@@ -2066,6 +2102,12 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         return task
 
 
+class DecreaseDemandsError(Exception):
+    """
+    exception to be raised by a task if the request to decrease some demand, load or memory, could not be performed
+    """
+
+
 class AbinitTask(Task):
     """
     Base class defining an ABINIT calculation
@@ -2430,21 +2472,31 @@ class AbinitTask(Task):
             1 if task has been fixed else 0.
         """
         from pymatgen.io.abinitio.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
+        assert isinstance(self.manager, TaskManager)
 
-        # paral_kgb = 1 leads to nasty sigegv that are seen as Qcritical errors!
-        # Try to fallback to the conjugate gradient.
-        if self.uses_paral_kgb(1):
-            logger.critical("QCRITICAL with PARAL_KGB==1. Will try CG!")
-            self._inp_vars(paral_kgb=0)
+        self.manager
 
         if not self.queue_errors:
-            # queue error but no errors detected, try to solve by increasing resources
-            # if resources are at maximum the task is definitively turned to errored
-            if self.manager.increase_resources():  # acts either on the policy or on the qadapter
+            # paral_kgb = 1 leads to nasty sigegv that are seen as Qcritical errors!
+            # Try to fallback to the conjugate gradient.
+            if self.uses_paral_kgb(1):
+                logger.critical("QCRITICAL with PARAL_KGB==1. Will try CG!")
+                self._inp_vars(paral_kgb=0)
                 self.reset_from_scratch()
-                return 1 
+                return
+            # queue error but no errors detected, try to solve by increasing ncpus if the task scales
+            # if resources are at maximum the task is definitively turned to errored
+            elif self.mem_scales or self.load_scales:
+                try:
+                    self.manager.increase_resources()  # acts either on the policy or on the qadapter
+                    self.reset_from_scratch()
+                    return
+                except ManagerIncreaseError:
+                    self.set_status(self.S_ERROR, msg='unknown queue error, could not increase resources any further')
+                    raise FixQueueCriticalError
             else:
-                self.set_status(self.S_ERROR, msg='unknown queue error, could not increase resources any further')
+                self.set_status(self.S_ERROR, msg='unknown queue error, no options left')
+                raise FixQueueCriticalError
 
         else:
             for error in self.queue_errors:
@@ -2453,62 +2505,86 @@ class AbinitTask(Task):
                 if isinstance(error, NodeFailureError):
                     # if the problematic node is known, exclude it
                     if error.nodes is not None:
-                        self.manager.qadapter.exclude_nodes(error.nodes)
-                        self.reset_from_scratch()
-                        self.set_status(self.S_READY, msg='increased resources')
-                        return 1
+                        try:
+                            self.manager.exclude_nodes(error.nodes)
+                            self.reset_from_scratch()
+                            self.set_status(self.S_READY, msg='increased resources')
+                        except:
+                            raise FixQueueCriticalError
                     else:
                         self.set_status(self.S_ERROR, msg='Node error but no node identified.')
+                        raise FixQueueCriticalError
 
                 elif isinstance(error, MemoryCancelError):
-                    # ask the qadapter to provide more resources, i.e. more cpu's so more total memory
-                    if self.manager.increase_resources():
-                        self.reset_from_scratch()
-                        self.set_status(self.S_READY, msg='increased mem')
-                        return 1
+                    # ask the qadapter to provide more resources, i.e. more cpu's so more total memory if the code
+                    # scales this should fix the memeory problem
+                    # increase both max and min ncpu of the autoparalel and rerun autoparalel
+                    if self.mem_scales:
+                        try:
+                            self.manager.increase_ncpus()
+                            self.reset_from_scratch()
+                            self.set_status(self.S_READY, msg='increased ncps to solve memory problem')
+                            return
+                        except ManagerIncreaseError:
+                            logger.warning('increasing ncpus failed')
 
                     # if the max is reached, try to increase the memory per cpu:
-                    elif self.manager.qadapter.increase_mem():
+                    try:
+                        self.manager.increase_mem()
                         self.reset_from_scratch()
                         self.set_status(self.S_READY, msg='increased mem')
-                        return 1
+                        return
+                    except ManagerIncreaseError:
+                        logger.warning('increasing mem failed')
 
                     # if this failed ask the task to provide a method to reduce the memory demand
-                    elif self.reduce_memory_demand():
+                    try:
+                        self.reduce_memory_demand()
                         self.reset_from_scratch()
                         self.set_status(self.S_READY, msg='decreased mem demand')
-                        return 1
+                        return
+                    except DecreaseDemandsError:
+                        logger.warning('decreasing demands failed')
 
-                    else:
-                        msg = ('Memory error detected but the memory could not be increased neigther could the\n'
-                              'memory demand be decreased. Unrecoverable error.')
-                        return self.set_status(self.S_ERROR, msg)
+                    msg = ('Memory error detected but the memory could not be increased neigther could the\n'
+                           'memory demand be decreased. Unrecoverable error.')
+                    self.set_status(self.S_ERROR, msg)
+                    raise FixQueueCriticalError
 
                 elif isinstance(error, TimeCancelError):
-                    # ask the qadapter to provide more memory
-                    if self.manager.qadapter.increase_time():
+                    # ask the qadapter to provide more time
+                    try:
+                        self.manager.increase_time()
                         self.reset_from_scratch()
                         self.set_status(self.S_READY, msg='increased wall time')
-                        return 1
+                        return
+                    except ManagerIncreaseError:
+                        logger.warning('increasing the waltime failed')
 
                     # if this fails ask the qadapter to increase the number of cpus
-                    elif self.manager.increase_resources():
-                        self.reset_from_scratch()
-                        self.set_status(self.S_READY, msg='increased number of cpus')
-                        return 1
+                    if self.load_scales:
+                        try:
+                            self.manager.increase_ncpus()
+                            self.reset_from_scratch()
+                            self.set_status(self.S_READY, msg='increased number of cpus')
+                            return
+                        except ManagerIncreaseError:
+                            logger.warning('increase ncpus to speed up the calculation to stay in the walltime failed')
 
                     # if this failed ask the task to provide a method to speed up the task
-                    # MG TODO: Remove this
-                    elif self.speed_up():
+                    try:
+                        self.speed_up()
                         self.reset_from_scratch()
                         self.set_status(self.S_READY, msg='task speedup')
-                        return 1
+                        return
+                    except DecreaseDemandsError:
+                        logger.warning('decreasing demands failed')
 
-                    else:
-                        msg = ('Time cancel error detected but the time could not be increased neither could\n'
-                               'the time demand be decreased by speedup of increasing the number of cpus.\n'
-                               'Unrecoverable error.')
-                        self.set_status(self.S_ERROR, msg)
+                    msg = ('Time cancel error detected but the time could not be increased neither could\n'
+                           'the time demand be decreased by speedup of increasing the number of cpus.\n'
+                           'Unrecoverable error.')
+                    self.set_status(self.S_ERROR, msg)
+
                 else:
                     msg = 'No solution provided for error %s. Unrecoverable error.' % error.name
                     self.set_status(self.S_ERROR, msg)
@@ -2977,7 +3053,8 @@ class SigmaTask(AbinitTask):
     def restart(self):
         # G calculations can be restarted only if we have the QPS file 
         # from which we can read the results of the previous step.
-        restart_file = self.outdir.has_abiext("QPS")
+        ext = "QPS"
+        restart_file = self.outdir.has_abiext(ext)
         if not restart_file:
             raise self.RestartError("Cannot find the QPS file to restart from.")
 

@@ -23,17 +23,15 @@ from monty.collections import as_set, dict2namedtuple
 from monty.string import list_strings, is_string
 from monty.io import FileLock
 from monty.pprint import draw_tree
-from monty.termcolor import stream_has_colours, cprint, colored, cprint_map
+from monty.termcolor import cprint, colored, cprint_map
 from monty.inspect import find_top_pyfile
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
-from pymatgen.core.units import Time, Memory
+from pymatgen.core.units import Memory
 from .nodes import Status, Node, NodeError, NodeResults, Dependency, GarbageCollector, check_spectator
-from .tasks import (Task, ScfTask, PhononTask, TaskManager, NscfTask, DdkTask,
-                    AnaddbTask, DdeTask, TaskManager)
+from .tasks import ScfTask, DdkTask, DdeTask, TaskManager, FixQueueCriticalError
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
 from .works import Work, BandStructureWork, PhononWork, G0W0Work, QptdmWork
-from .events import EventsParser
 
 
 import logging
@@ -668,7 +666,11 @@ class Flow(Node):
         count = 0
         for task in self.iflat_tasks(status=self.S_QCRITICAL):
             logger.info("Will try to fix task %s" % str(task))
-            count += task.fix_queue_critical()
+            try:
+                task.fix_queue_critical()
+                count += 1
+            except FixQueueCriticalError:
+                logger.info("Not able to fix task %s" % str(task))
 
         return count
 
@@ -1035,7 +1037,7 @@ class Flow(Node):
             app("\n".join(str(e) for e in report.errors))
 
             app("*** BUGS ***")
-            app("\n".join(str(b) for e in report.bugs))
+            app("\n".join(str(b) for b in report.bugs))
 
             lines.append("=" * len(header) + 2*"\n")
 
@@ -1084,7 +1086,7 @@ class Flow(Node):
                 pid = int(fh.readline())
 
             retcode = os.system("kill -9 %d" % pid)
-            flow.history.info("Sent SIGKILL to the scheduler, retcode = %s" % retcode)
+            self.history.info("Sent SIGKILL to the scheduler, retcode = %s" % retcode)
             try:
                 os.remove(pid_file)
             except IOError:
@@ -1410,7 +1412,7 @@ class Flow(Node):
                 might not be aware of its children when it reached S_OK.
         """
         assert policy in ("task", "flow")
-        exts = list_string(exts) if exts is not None else ("WFK", "SUS", "SCR")
+        exts = list_strings(exts) if exts is not None else ("WFK", "SUS", "SCR")
 
         gc = GarbageCollector(exts=set(exts), policy=policy)
 
