@@ -910,7 +910,7 @@ class G0W0Work(Work):
             logger.info('added band structure calculation')
             bands_input = NscfStrategy(scf_strategy=scf_in,
                                        ksampling=KSampling.path_from_structure(ndivsm=nksmall, structure=scf_in.structure),
-                                       nscf_nband=scf_in.electrons.nband, ecut=scf_in.ecut)
+                                       nscf_nband=scf_in.electrons.nband, ecut=scf_in.ecut, chksymbreak=0)
 
             self.bands_task = self.register_nscf_task(bands_input, deps={self.scf_task: "DEN"})
             # note we don not let abinit print the dos, since this is inconpatible with parakgb
@@ -918,7 +918,7 @@ class G0W0Work(Work):
             dos_input = NscfStrategy(scf_strategy=scf_in,
                                      ksampling=KSampling.automatic_density(kppa=nksmall**3, structure=scf_in.structure,
                                                                            shifts=(0.0, 0.0, 0.0)),
-                                     nscf_nband=scf_in.electrons.nband, ecut=scf_in.ecut)
+                                     nscf_nband=scf_in.electrons.nband, ecut=scf_in.ecut, chksymbreak=0)
 
             self.dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
 
