@@ -28,7 +28,7 @@ from monty.inspect import find_top_pyfile
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
 from pymatgen.core.units import Memory
 from .nodes import Status, Node, NodeResults, Dependency, GarbageCollector #, check_spectator
-from .tasks import ScfTask, DdkTask, DdeTask, TaskManager
+from .tasks import ScfTask, DdkTask, DdeTask, TaskManager, FixQueueCriticalError
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
 from .works import Work, BandStructureWork, PhononWork, G0W0Work, QptdmWork
@@ -76,12 +76,6 @@ class FlowResults(NodeResults):
         new.add_gridfs_files(**d)
 
         return new
-
-
-class FixQueueCriticalError(Exception):
-    """
-    error raised when an error could not be fixed at the task level
-    """
 
 
 class Flow(Node):

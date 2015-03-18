@@ -27,7 +27,6 @@ from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize, PM
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, FilepathFixer, Condition, SparseHistogram
 from .strategies import StrategyWithInput, OpticInput
 from .qadapters import make_qadapter, QueueAdapter
-from .flows import FixQueueCriticalError
 from . import qutils as qu
 from .db import DBConnector
 from .nodes import Status, Node, NodeResults, NodeCorrections #, check_spectator
@@ -448,6 +447,12 @@ class TaskPolicy(object):
 class ManagerIncreaseError(Exception):
     """
     Exception raised by the manager if the increase request failed
+    """
+
+
+class FixQueueCriticalError(Exception):
+    """
+    error raised when an error could not be fixed at the task level
     """
 
 
