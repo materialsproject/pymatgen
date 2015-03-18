@@ -69,6 +69,7 @@ class Status(int):
     @classmethod
     def as_status(cls, obj):
         """Convert obj into Status."""
+        if obj is None: return None
         return obj if isinstance(obj, cls) else cls.from_string(obj)
 
     @classmethod
