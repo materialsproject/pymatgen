@@ -1176,8 +1176,8 @@ $${qverbatim}
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
         super(PbsProAdapter, self).set_mem_per_proc(mem_mb)
-        self.qparams["vmem"] = self.mem_per_proc
-        self.qparams["pvmem"] = self.mem_per_proc
+        #self.qparams["vmem"] = self.mem_per_proc
+        #self.qparams["pvmem"] = self.mem_per_proc
 
     def cancel(self, job_id):
         return os.system("qdel %d" % job_id)

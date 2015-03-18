@@ -409,6 +409,33 @@ class NodeResults(dict, PMGSONable):
         #collection.update({'_id':mongo_id}, {"$set": doc}, upsert=False)
 
 
+def check_spectator(node_method):
+    """
+    Decorator for :class:`Node` methods. Raise `SpectatorNodeError`.
+    """ 
+    from functools import wraps
+    @wraps(node_method)
+    def wrapper(*args, **kwargs):
+        node = args[0]
+        if node.in_spectator_mode:
+            raise node.SpectatorError("You should not call this method in spectator_mode")
+
+        return node_method(*args, **kwargs)
+
+    return wrapper
+
+
+class NodeError(Exception):
+    """Base Exception raised by :class:`Node` subclasses"""
+
+
+class SpectatorNodeError(NodeError):
+    """
+    Exception raised by :class:`Node` methods when the node is in spectator mode
+    and we are calling a method with side effects.
+    """
+
+
 class Node(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract base class defining the interface that must be 
@@ -417,6 +444,9 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     Nodes are hashable and can be tested for equality
     """
     Results = NodeResults
+
+    Error  = NodeError
+    SpectatorError = SpectatorNodeError
 
     # Possible status of the node.
     S_INIT = Status.from_string("Initialized")
@@ -539,6 +569,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         """Node identifier."""
         return self._node_id
 
+    @check_spectator
     def set_node_id(self, node_id):
         """Set the node identifier. Use it carefully!"""
         self._node_id = node_id
@@ -624,6 +655,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         """
         return self._deps
 
+    @check_spectator
     def add_deps(self, deps):
         """
         Add a list of dependencies to the :class:`Node`.
@@ -650,6 +682,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
             for task in self:
                 task.add_deps(deps)
 
+    @check_spectator
     def remove_deps(self, deps):
         """
         Remove a list of dependencies from the :class:`Node`.
@@ -748,6 +781,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         except AttributeError:
             return self.flow._event_handlers
 
+    @check_spectator
     def install_event_handlers(self, categories=None, handlers=None):
         """
         Install the `EventHandlers for this `Node`. If no argument is provided
@@ -1027,22 +1061,6 @@ class GarbageCollector(object):
     """This object stores information on the """
     def __init__(self, exts, policy):
         self.exts, self.policy = set(exts), policy
-
-
-def check_spectator(node_method):
-    """
-    Decorator for :class:`Node` methods 
-    """ 
-    from functools import wraps
-    @wraps(node_method)
-    def wrapper(*args, **kwargs):
-        node = args[0]
-        if node.in_spectator_mode:
-            raise RuntimeError("You should not call this method in spectator_mode")
-
-        return node_method(*args, **kwargs)
-
-    return wrapper
 
 
 # The code below initializes a counter from a file when the module is imported 
