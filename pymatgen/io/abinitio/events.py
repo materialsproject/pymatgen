@@ -744,7 +744,7 @@ class TolSymErrorHandler(ErrorHandler):
 
         old_tolsym = task.get_inpvar("tolsym")
         new_tolsym = 1e-6 if old_tolsym is None else old_tolsym * 10
-        task._set_inpvar("tolsym", new_tolsym)
+        task._set_inpvars(tolsym=new_tolsym)
 
         task.log_correction(event, "Increasing tolsym from %s to %s" % (old_tolsym, new_tolsym))
         return self.FIXED

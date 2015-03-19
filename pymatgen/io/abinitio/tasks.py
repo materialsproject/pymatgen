@@ -797,7 +797,7 @@ batch_adapter:
         """
         Write the submission script. return the path of the script
         """
-        exec_args=kwargs.pop("exec_args", None)
+        exec_args = kwargs.pop("exec_args", None)
 
         script = self.qadapter.get_script_str(
             job_name=task.name, 
@@ -828,7 +828,7 @@ batch_adapter:
             Process object.
         """
         if task.status == task.S_LOCKED:
-            raise ValueError("You shall not try to submit a locked task!")
+            raise ValueError("You shall not submit a locked task!")
 
         # Build the task 
         task.build()
@@ -1006,10 +1006,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     # Subclasses should provide their own list if they need to check the converge status.
     CRITICAL_EVENTS = [
     ]
-
-    # List of task specific default event handlers
-    # Subclasses should provide their own list
-    #EVENT_HANDLERS = []
 
     # Prefixes for Abinit (input, output, temporary) files.
     Prefix = collections.namedtuple("Prefix", "idata odata tdata")
@@ -2607,7 +2603,7 @@ class AbinitTask(Task):
 class ProduceGsr(object):
     """
     Mixin class for an :class:`AbinitTask` producing a GSR file.
-    Provide the method `open_gsr` that reads and return a GSR file.
+    Provide the method `open_gsr` that reads and returns a GSR file.
     """
     @property
     def gsr_path(self):
@@ -2825,8 +2821,6 @@ class RelaxTask(GsTask, ProduceHist):
         events.RelaxConvergenceWarning,
     ]
 
-    #EVENT_HANDLERS = [events.DilatmxErrorHandler(), events.TolSymErrorHandler()]
-
     def _change_structure(self, new_structure):
         """Change the input structure."""
         # Compare new and old structure for logging purpose.
@@ -2884,13 +2878,38 @@ class RelaxTask(GsTask, ProduceHist):
             are computed from the initial structure and may not be consisten with
             the modification of the structure done during the structure relaxation.
         """
-        for ext in ("WFK", "DEN"):
-            ofile = self.outdir.has_abiext(ext)
-            if ofile:
-                irdvars = irdvars_for_ext(ext)
+        # Tyr to restart from the WFK file if possible.
+        restart_file, ext = None, "WFK"
+
+        ofile = self.outdir.has_abiext(ext)
+        if ofile:
+            irdvars = irdvars_for_ext(ext)
+            restart_file = self.out_to_in(ofile)
+
+        if restart_file is None:
+            # Try to restart from DEN file.
+            # Note that ABINIT produces a lot of out_TIM1_DEN files for each step.
+            # Here we list all TIM*_DEN files and we select the last one.
+            den_files = self.outdir.list_filepaths(wildcard="*_DEN")
+            print("den_files", den_files)
+            if den_files:
+                stepfile_list = []
+                for f in den_files:
+                    step = os.path.basename(f).replace("_DEN", "").replace("out_TIM", "")
+                    stepfile_list.append((int(step), f))
+
+                # DSU sort.
+                last_denfile = sorted(stepfile_list, key=lambda t: t[0])[-1][1]
+                print("Will restart from %s" % last_denfile)
+
+                # Fix the name of the DEN file so that we can use out_to_in!
+                ofile = self.outdir.path_in("out_DEN")
+                os.rename(last_denfile, ofile)
+
                 restart_file = self.out_to_in(ofile)
-                break
-        else:
+                irdvars = irdvars_for_ext("DEN")
+
+        if restart_file is None:
             raise self.RestartError("Cannot find the WFK|DEN file to restart from.")
 
         # Add the appropriate variable for restarting.
@@ -3036,7 +3055,7 @@ class PhononTask(AbinitTask, ProduceDdb):
 
     def make_links(self):
         super(PhononTask, self).make_links()
-        # fix the problem that abinit uses hte 1WF extension for the DDK output file but reads it with the irdddk flag
+        # fix the problem that abinit uses the 1WF extension for the DDK output file but reads it with the irdddk flag
         #if self.indir.has_abiext('DDK'):
         #    self.indir.rename_abiext('DDK', '1WF')
 
@@ -3061,14 +3080,14 @@ class ManyBodyTask(AbinitTask):
         first_dig, second_dig = prev_gwmem // 10, prev_gwmem % 10
 
         if second_dig == 1:
-            self.set_inpvars(gwmem=10 * first_dig)
+            self._set_inpvars(gwmem=10 * first_dig)
             return True
 
         if first_dig == 1:
-            self.set_inpvars(gwmem=00)
+            self._set_inpvars(gwmem=00)
             return True
 
-        # gwmem 00 dooh!
+        # gwmem 00 d'oh!
         return False
 
 
