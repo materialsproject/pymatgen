@@ -632,32 +632,32 @@ class Work(BaseWork):
 
         shutil.move(self.workdir, dest)
 
-    #def submit_tasks(self, wait=False):
-    #    """
-    #    Submits the task in self and wait.
-    #    TODO: change name.
-    #    """
-    #    for task in self:
-    #        task.start()
-    #
-    #    if wait:
-    #        for task in self: task.wait()
+    def submit_tasks(self, wait=False):
+        """
+        Submits the task in self and wait.
+        TODO: change name.
+        """
+        for task in self:
+            task.start()
+    
+        if wait:
+            for task in self: task.wait()
 
-    #def start(self, *args, **kwargs):
-    #    """
-    #    Start the work. Calls build and _setup first, then submit the tasks.
-    #    Non-blocking call unless wait is set to True
-    #    """
-    #    wait = kwargs.pop("wait", False)
+    def start(self, *args, **kwargs):
+        """
+        Start the work. Calls build and _setup first, then submit the tasks.
+        Non-blocking call unless wait is set to True
+        """
+        wait = kwargs.pop("wait", False)
 
-    #    # Initial setup
-    #    self._setup(*args, **kwargs)
+        # Initial setup
+        self._setup(*args, **kwargs)
 
-    #    # Build dirs and files.
-    #    self.build(*args, **kwargs)
+        # Build dirs and files.
+        self.build(*args, **kwargs)
 
-    #    # Submit tasks (does not block)
-    #    self.submit_tasks(wait=wait)
+        # Submit tasks (does not block)
+        self.submit_tasks(wait=wait)
 
     def read_etotals(self, unit="Ha"):
         """
