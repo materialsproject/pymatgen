@@ -13,6 +13,7 @@ import six
 
 from pprint import pprint
 from atomicfile import AtomicFile
+from pydispatch import dispatcher
 from monty.termcolor import colored
 from monty.serialization import loadfn
 from monty.string import is_string
@@ -418,7 +419,7 @@ def check_spectator(node_method):
     def wrapper(*args, **kwargs):
         node = args[0]
         if node.in_spectator_mode:
-            raise node.SpectatorError("You should not call this method in spectator_mode")
+            raise node.SpectatorError("You should not call this method when the node in spectator_mode")
 
         return node_method(*args, **kwargs)
 
@@ -586,7 +587,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
     @property
     def in_spectator_mode(self):
-        self._in_spectator_mode
+        return self._in_spectator_mode
 
     @in_spectator_mode.setter
     def in_spectator_mode(self, mode):
@@ -759,6 +760,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         try:
             return self._gc
         except AttributeError:
+            #if not self.is_flow and self.flow.gc: return self.flow.gc
             return None
     
     @property
@@ -818,19 +820,26 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         stream.write("\n".join(lines))
         stream.write("\n")
 
+    def send_signal(self, signal):
+        """
+        Send signal from this node to all connected receivers unless the node is in spectator mode.
+         
+        signal -- (hashable) signal value, see `dispatcher` connect for details
+         
+        Return a list of tuple pairs [(receiver, response), ... ]
+        or None if the node is in spectator mode.
+         
+        if any receiver raises an error, the error propagates back
+        through send, terminating the dispatch loop, so it is quite
+        possible to not have all receivers called if a raises an error.
+        """
+        if self.in_spectator_mode: return None
+        logger.debug("Node %s broadcasts signal %s" % (self, signal))
+        dispatcher.send(signal=signal, sender=self)
+
    ##########################
    ### Abstract protocol ####
    ##########################
-
-    #@abc.abstractmethod
-    #def set_status(self, status, msg=None):
-    #    """
-    #    Set and return the status of the None
-    #                                                                                     
-    #    Args:
-    #        status: Status object or string representation of the status
-    #        info_msg: string with human-readable message used in the case of errors (optional)
-    #    """
 
     @abc.abstractproperty
     def status(self):

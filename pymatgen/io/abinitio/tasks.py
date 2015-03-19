@@ -15,7 +15,6 @@ import numpy as np
 
 from pprint import pprint
 from six.moves import map, zip, StringIO
-from pydispatch import dispatcher
 from monty.string import is_string, list_strings
 from monty.collections import AttrDict
 from monty.functools import lazy_property, return_none_if_raise
@@ -1245,9 +1244,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.reset()
         return 1
 
+    #@check_spectator 
     def _on_done(self):
         self.fix_ofiles()
 
+    #@check_spectator 
     def _on_ok(self):
         # Fix output file names.
         self.fix_ofiles()
@@ -1259,6 +1260,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         return results
 
+    #@check_spectator
     def on_ok(self):
         """
         This method is called once the `Task` has reached status S_OK. 
@@ -1287,7 +1289,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         old2new = FilepathFixer().fix_paths(filepaths)
 
         for old, new in old2new.items():
-            logger.debug("will rename old %s to new %s" % (old, new))
+            self.history.info("will rename old %s to new %s" % (old, new))
             os.rename(old, new)
 
     @check_spectator
@@ -1476,7 +1478,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self._status = self.S_READY
         if check_status: self.check_status()
 
-    @check_spectator
+    #@check_spectator
     def set_status(self, status, msg=None):
         """
         Set and return the status of the task.
@@ -1530,9 +1532,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 # here we remove the output files of the task and of its parents.
                 if self.gc is not None and self.gc.policy == "task":
                     self.clean_output_files()
-                                                                                
-            logger.debug("Task %s broadcasts signal S_OK" % self)
-            dispatcher.send(signal=self.S_OK, sender=self)
+           
+            self.send_signal(self.S_OK)
 
         return status
 
@@ -1681,7 +1682,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
     def reduce_memory_demand(self):
         """
-        Method that can be called by the flow to decrease the memory demand of a specific task.
+        Method that can be called by the scheduler to decrease the memory demand of a specific task.
         Returns True in case of success, False in case of Failure.
         Should be overwritten by specific tasks.
         """
@@ -1728,7 +1729,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         # Link path to dest if dest link does not exist.
         # else check that it points to the expected file.
-        logger.debug("Linking path %s --> %s" % (filepath, infile))
+        self.history.info("Linking path %s --> %s" % (filepath, infile))
 
         if not os.path.exists(infile):
             os.symlink(filepath, infile)
@@ -1798,8 +1799,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             "output": self.output_file,
             "log": self.log_file}[source]
 
-        if not ofile.exists:
-            return None
+        if not ofile.exists: return None
 
         # Don't parse source file if we already have its report and the source didn't change.
         #if not hasattr(self, "_prev_reports"): self._prev_reports = {}
@@ -1991,6 +1991,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def setup(self):
         """Base class does not provide any hook."""
 
+    @check_spectator
     def start(self, **kwargs):
         """
         Starts the calculation by performing the following steps:
@@ -2158,7 +2159,7 @@ class AbinitTask(Task):
             last = max(nums) if nums else 0
             new_path = self.output_file.path + "_" + str(last+1)
 
-            logger.info("Will rename %s to %s" % (self.output_file.path, new_path))
+            self.history.info("Will rename %s to %s" % (self.output_file.path, new_path))
             os.rename(self.output_file.path, new_path)
 
     @property
@@ -2245,7 +2246,6 @@ class AbinitTask(Task):
            autoparal and optimal is the optimal configuration selected.
            Returns 0 if success
         """
-        logger.info("in autoparal_run")
         policy = self.manager.policy
 
         if policy.autoparal == 0: # or policy.max_ncpus in [None, 1]:
@@ -2316,6 +2316,7 @@ class AbinitTask(Task):
         return 0
 
     def find_optconf(self, pconfs):
+        """Find the optimal Parallel configuration."""
         # Save pconfs for future reference.
         self.set_pconfs(pconfs)
                                                                                 
@@ -2383,6 +2384,7 @@ class AbinitTask(Task):
         """
         return self._restart()
 
+    @check_spectator
     def reset_from_scratch(self):
         """
         restart from scratch, this is to be used if a job is restarted with more resources after a crash
@@ -2422,6 +2424,7 @@ class AbinitTask(Task):
 
         return self._restart(submit=False)
 
+    @check_spectator
     def fix_abi_critical(self):
         """
         method to fix crashes/error caused by abinit
@@ -2461,6 +2464,7 @@ class AbinitTask(Task):
         self.set_status(status=self.S_ERROR, msg='We encountered AbiCritical events that could not be fixed')
         return 0
 
+    @check_spectator
     def fix_queue_critical(self):
         """
         This function tries to fix critical events originating from the queue submission system.
@@ -2481,7 +2485,7 @@ class AbinitTask(Task):
             # Try to fallback to the conjugate gradient.
             if self.uses_paral_kgb(1):
                 logger.critical("QCRITICAL with PARAL_KGB==1. Will try CG!")
-                self._inp_vars(paral_kgb=0)
+                self._set_inpvars(paral_kgb=0)
                 self.reset_from_scratch()
                 return
             # queue error but no errors detected, try to solve by increasing ncpus if the task scales
@@ -2963,6 +2967,7 @@ class DdeTask(AbinitTask, ProduceDdb):
 class DdkTask(AbinitTask, ProduceDdb):
     """Task for DDK calculations."""
 
+    #@check_spectator 
     def _on_ok(self):
         super(DdkTask, self)._on_ok()
         # Copy instead of removing, otherwise optic tests fail
@@ -3036,13 +3041,45 @@ class PhononTask(AbinitTask, ProduceDdb):
         #    self.indir.rename_abiext('DDK', '1WF')
 
 
-class ScrTask(AbinitTask):
+class ManyBodyTask(AbinitTask):
+    """
+    Base class for Many-body tasks (Screening, Sigma, Bethe-Salpeter)
+    Mainly used to implement methods that are common to MBPT calculations with Abinit.
+
+    .. warning::
+
+        This class should not be instantiated directly.
+    """
+    def reduce_memory_demand(self):
+        """
+        Method that can be called by the scheduler to decrease the memory demand of a specific task.
+        Returns True in case of success, False in case of Failure.
+        """
+        # The first digit governs the storage of W(q), the second digit the storage of u(r)
+        # Try to avoid the storage of u(r) first since reading W(q) from file will lead to a drammatic slowdown.
+        prev_gwmem = int(self.get_inpvar("gwmem", default=11))
+        first_dig, second_dig = prev_gwmem // 10, prev_gwmem % 10
+
+        if second_dig == 1:
+            self.set_inpvars(gwmem=10 * first_dig)
+            return True
+
+        if first_dig == 1:
+            self.set_inpvars(gwmem=00)
+            return True
+
+        # gwmem 00 dooh!
+        return False
+
+
+class ScrTask(ManyBodyTask):
     """Tasks for SCREENING calculations """
+
     #def inspect(self, **kwargs):
     #    """Plot graph showing the number of q-points computed and the wall-time used"""
 
 
-class SigmaTask(AbinitTask):
+class SigmaTask(ManyBodyTask):
     """
     Tasks for SIGMA calculations. Provides support for in-place restart via QPS files
     """
@@ -3125,7 +3162,7 @@ class SigmaTask(AbinitTask):
         return results
 
 
-class BseTask(AbinitTask):
+class BseTask(ManyBodyTask):
     """
     Task for Bethe-Salpeter calculations.
 

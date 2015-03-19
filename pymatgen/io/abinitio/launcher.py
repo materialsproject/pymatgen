@@ -439,7 +439,13 @@ class PyFlowScheduler(object):
         if hasattr(self, "_flow"):
             raise self.Error("Only one flow can be added to the scheduler.")
 
+        # Check if we are already using a scheduler to run this flow
         flow.check_pid_file()
+
+        flow.set_spectator_mode(False)
+                                                 
+        # Build dirs and files (if not yet done)
+        flow.build()
 
         with open(flow.pid_file, "w") as fh:
             fh.write(str(self.pid))
@@ -1077,13 +1083,8 @@ class BatchLauncher(object):
 
         # Check if we are already using a scheduler to run this flow
         flow.check_pid_file()
-        #if os.path.exists(flow.pid_file):
-        #    msg = ("Pid file %s already exists.\n" % flow.pid_file +
-        #           "Either the flow is already in execution or the scheduler didn't exit in a clean way.\n" +
-        #           "Make sure no scheduler is running and then remove the pid file.")
-        #    raise RuntimeError(msg)
 
-        flow.set_spectator_mode()
+        flow.set_spectator_mode(False)
         flow.check_status(show=False)
 
         #if flow.all_ok:
