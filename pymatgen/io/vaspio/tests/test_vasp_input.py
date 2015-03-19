@@ -380,30 +380,31 @@ class KpointsTest(unittest.TestCase):
 class PotcarSingleTest(unittest.TestCase):
 
     def setUp(self):
-        with zopen(os.path.join(test_dir, "POT_GGA_PAW_PBE",
-                                "POTCAR.Mn_pv.gz"), 'rb') as f:
-            self.psingle = PotcarSingle(f.read().decode(encoding="utf-8"))
+        #with zopen(os.path.join(test_dir, "POT_GGA_PAW_PBE",
+        #                        "POTCAR.Mn_pv.gz"), 'rb') as f:
+        self.psingle = PotcarSingle.from_file(os.path.join(test_dir, "POT_GGA_PAW_PBE",
+                                "POTCAR.Mn_pv.gz"))
 
     def test_keywords(self):
-        data = {'VRHFIN': 'Mn: 3p4s3d', 'LPAW': 'T    paw PP', 'DEXC': '-.003',
-                'STEP': '20.000   1.050',
-                'RPACOR': '2.080    partial core radius', 'LEXCH': 'PE',
-                'ENMAX': '269.865', 'QCUT': '-4.454',
+        data = {'VRHFIN': 'Mn: 3p4s3d', 'LPAW': True, 'DEXC': -.003,
+                'STEP': [20.000,   1.050],
+                'RPACOR': 2.080, 'LEXCH': 'PE',
+                'ENMAX': 269.865, 'QCUT': -4.454,
                 'TITEL': 'PAW_PBE Mn_pv 07Sep2000',
-                'LCOR': 'T    correct aug charges', 'EAUG': '569.085',
-                'RMAX': '2.807    core radius for proj-oper',
-                'ZVAL': '13.000    mass and valenz',
-                'EATOM': '2024.8347 eV,  148.8212 Ry', 'NDATA': '100',
-                'LULTRA': 'F    use ultrasoft PP ?',
-                'QGAM': '8.907    optimization parameters',
-                'ENMIN': '202.399 eV',
-                'RCLOC': '1.725    cutoff for local pot',
-                'RCORE': '2.300    outmost cutoff radius',
-                'RDEP': '2.338    radius for radial grids',
-                'IUNSCR': '1    unscreen: 0-lin 1-nonlin 2-no',
-                'RAUG': '1.300    factor for augmentation sphere',
-                'POMASS': '54.938',
-                'RWIGS': '1.323    wigner-seitz radius (au A)'}
+                'LCOR': True, 'EAUG': 569.085,
+                'RMAX': 2.807,
+                'ZVAL': 13.000,
+                'EATOM': 2024.8347, 'NDATA': 100,
+                'LULTRA': False,
+                'QGAM': 8.907,
+                'ENMIN': 202.399,
+                'RCLOC': 1.725,
+                'RCORE': 2.300,
+                'RDEP': 2.338,
+                'IUNSCR': 1,
+                'RAUG': 1.300,
+                'POMASS': 54.938,
+                'RWIGS': 1.323}
         self.assertEqual(self.psingle.keywords, data)
 
     def test_nelectrons(self):
@@ -415,6 +416,15 @@ class PotcarSingleTest(unittest.TestCase):
                   'RCORE', 'RDEP', 'RAUG', 'POMASS', 'RWIGS']:
             self.assertIsNotNone(getattr(self.psingle, k))
 
+    def test_found_unknown_key(self):
+        self.assertRaises(KeyError, PotcarSingle.parse_functions.get('BAD_KEY'), "BAD_VALUE")
+
+    def test_bad_value(self):
+        self.assertRaises(ValueError, PotcarSingle.parse_functions['ENMAX'], "ThisShouldBeAFloat")
+
+    def test_hash(self):
+        self.assertEqual(self.psingle.get_potcar_hash(), "b73c3d9de30107a22566f601535e609c")
+
     def test_from_functional_and_symbols(self):
         if "VASP_PSP_DIR" not in os.environ:
             test_potcar_dir = os.path.abspath(
@@ -423,6 +433,22 @@ class PotcarSingleTest(unittest.TestCase):
             os.environ["VASP_PSP_DIR"] = test_potcar_dir
         p = PotcarSingle.from_symbol_and_functional("Li_sv", "PBE")
         self.assertEqual(p.enmax, 271.649)
+
+    def test_functional_types(self):
+        self.assertEqual(self.psingle.functional, 'PBE')
+
+        self.assertEqual(self.psingle.functional_class, 'GGA')
+
+        self.assertEqual(self.psingle.potential_type, 'PAW')
+
+        psingle = PotcarSingle.from_file(os.path.join(test_dir, "POT_LDA_PAW",
+                                "POTCAR.Fe.gz"))
+
+        self.assertEqual(psingle.functional, 'Perdew-Zunger81')
+
+        self.assertEqual(psingle.functional_class, 'LDA')
+
+        self.assertEqual(psingle.potential_type, 'PAW')
 
 
 class PotcarTest(unittest.TestCase):
