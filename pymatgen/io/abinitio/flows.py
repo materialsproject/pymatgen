@@ -26,6 +26,7 @@ from monty.pprint import draw_tree
 from monty.termcolor import cprint, colored, cprint_map
 from monty.inspect import find_top_pyfile
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
+from pymatgen.serializers.json_coders import PMGSONable, pmg_serialize
 from pymatgen.core.units import Memory
 from .nodes import Status, Node, NodeError, NodeResults, Dependency, GarbageCollector, check_spectator
 from .tasks import ScfTask, DdkTask, DdeTask, TaskManager, FixQueueCriticalError
@@ -82,7 +83,7 @@ class FlowError(NodeError):
     """Base Exception for :class:`Node` methods"""
 
 
-class Flow(Node):
+class Flow(Node, PMGSONable):
     """
     This object is a container of work. Its main task is managing the
     possible inter-dependencies among the work and the creation of
@@ -218,6 +219,7 @@ class Flow(Node):
         #for task in self.iflat_tasks():
         #    slots[task] = {s: [] for s in work.S_ALL}
 
+    @pmg_serialize
     def as_dict(self, **kwargs):
         """
         JSON serialization, note that we only need to save
@@ -248,7 +250,7 @@ class Flow(Node):
         self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
 
     @classmethod
-    def pickle_load(cls, filepath, spectator_mode=False, remove_lock=False):
+    def pickle_load(cls, filepath, spectator_mode=True, remove_lock=False):
         """
         Loads the object from a pickle file and performs initial setup.
 
@@ -514,6 +516,13 @@ class Flow(Node):
         # Sort keys according to their status.
         return collections.OrderedDict([(k, d[k]) for k in sorted(list(d.keys()))])
 
+    def iflat_nodes(self):
+        """Generator to iterate over all the nodes (works and tasks) of the `Flow`."""
+        for work in self:
+            yield work
+            for task in work:
+                yield task
+
     def iflat_tasks_wti(self, status=None, op="==", nids=None):
         """
         Generator to iterate over all the tasks of the `Flow`.
@@ -638,8 +647,6 @@ class Flow(Node):
 
         if kwargs.pop("show", False):
             self.show_status(**kwargs)
-
-    #def set_status(self, status):
 
     @property
     def status(self):
@@ -1080,15 +1087,16 @@ class Flow(Node):
             return -1
 
         # If we are running with the scheduler, we must send a SIGKILL signal.
-        pid_file = os.path.join(self.workdir, "_PyFlowScheduler.pid")
-        if os.path.exists(pid_file):
-            with open(pid_file, "r") as fh:
+        if os.path.exists(self.pid_file):
+            print("Found scheduler attached to this flow. Will send SIGKILL to the scheduler before cancelling the tasks!")
+            
+            with open(self.pid_file, "r") as fh:
                 pid = int(fh.readline())
 
             retcode = os.system("kill -9 %d" % pid)
             self.history.info("Sent SIGKILL to the scheduler, retcode = %s" % retcode)
             try:
-                os.remove(pid_file)
+                os.remove(self.pid_file)
             except IOError:
                 pass
 
@@ -1137,6 +1145,7 @@ class Flow(Node):
         self.build()
         return self.pickle_dump()
 
+    @check_spectator
     def pickle_dump(self):
         """
         Save the status of the object in pickle format.
@@ -1146,9 +1155,9 @@ class Flow(Node):
             warnings.warn("Cannot pickle_dump since we have chrooted from %s" % self.has_chrooted)
             return -1
 
-        if self.in_spectator_mode:
-            warnings.warn("Cannot pickle_dump since flow is in_spectator_mode")
-            return -2
+        #if self.in_spectator_mode:
+        #    warnings.warn("Cannot pickle_dump since flow is in_spectator_mode")
+        #    return -2
 
         protocol = self.pickle_protocol
 
@@ -1308,7 +1317,7 @@ class Flow(Node):
             if not children:
                 # Change the input so that output files are produced 
                 # only if the calculation is not converged.
-                #print("Will disable IO for task %s:" % task)
+                logger.debug("Will disable IO for task %s:" % task)
                 task._set_inpvars(prtwf=-1, prtden=0) # prt1wf=-1, 
             else:
                 must_produce_abiexts = []
@@ -1461,11 +1470,11 @@ class Flow(Node):
 
     def disconnect_signals(self):
         """Disable the signals within the `Flow`."""
-        # Connect the signals inside each Work.
+        # Disconnect the signals inside each Work.
         for work in self:
             work.disconnect_signals()
 
-        # Observe the nodes that must reach S_OK in order to call the callbacks.
+        # Disable callbacks.
         for cbk in self._callbacks:
             cbk.disable()
 
@@ -1479,7 +1488,7 @@ class Flow(Node):
     
     def set_spectator_mode(self, mode=True):
         """
-        When the flow is in spectator_mode we have to disable signals, pickle dump and possible callbacks
+        When the flow is in spectator_mode, we have to disable signals, pickle dump and possible callbacks
         A spectator can still operate on the flow but the new status of the flow won't be saved in 
         the pickle file. Usually the flow is in spectator mode when we are already running it via
         the scheduler or other means and we should not interfere with its evolution.
@@ -1490,6 +1499,7 @@ class Flow(Node):
         """
         # Set the flags of all the nodes in the flow.
         mode = bool(mode)
+        self.in_spectator_mode = mode
         for work in self:
             work.in_spectator_mode = mode
             for task in work:
@@ -1538,9 +1548,6 @@ class Flow(Node):
                     if `filepath` in kwargs we init the scheduler from filepath.
                     else pass **kwargs to :class:`PyFlowScheduler` __init__ method.
         """
-        # Build dirs and files (if not yet done)
-        self.build()
-
         from .launcher import PyFlowScheduler
         if not kwargs:
             # User config if kwargs is empty
@@ -1678,7 +1685,7 @@ class G0W0WithQptdmFlow(Flow):
             manager: :class:`TaskManager` object used to submit the jobs
                      Initialized from manager.yml if manager is None.
         """
-        super(G0W0WithQptdmFlow, self).__init__(workdir, manager)
+        super(G0W0WithQptdmFlow, self).__init__(workdir, manager=manager)
 
         # Register the first work (GS + NSCF calculation)
         bands_work = self.register_work(BandStructureWork(scf_input, nscf_input))
@@ -1800,9 +1807,7 @@ class FlowCallback(object):
         self._disabled = True
 
     def enable(self):
-        """
-        Enable the callback
-        """
+        """Enable the callback"""
         self._disabled = False
 
     def handle_sender(self, sender):
@@ -2001,4 +2006,5 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
         #    flow.register_task(ana_input, deps={qp_merge_task: "DDB"}, task_class=AnaddbTask)
 
     if allocate: flow.allocate()
+
     return flow

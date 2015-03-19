@@ -202,6 +202,7 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
     def all_ok(self):
         return all(task.status == task.S_OK for task in self)
 
+    #@check_spectator
     def on_ok(self, sender):
         """
         This callback is called when one task reaches status `S_OK`.
@@ -227,12 +228,13 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
                 #logger.info("Work %s status = %s" % (str(self), self.status))
 
                 if self._finalized:
-                    dispatcher.send(signal=self.S_OK, sender=self)
+                    self.send_signal(self.S_OK)
 
                 return results
 
         return AttrDict(returncode=1, message="Not all tasks are OK!")
 
+    #@check_spectator
     def on_all_ok(self):
         """
         This method is called once the `Work` is completed i.e. when all the tasks
@@ -544,8 +546,6 @@ class Work(BaseWork):
         """
         return self.get_all_status(only_min=True)
 
-    #def set_status(self, status):
-
     def get_all_status(self, only_min=False):
         """
         Returns a list with the status of the tasks in self.
@@ -632,33 +632,32 @@ class Work(BaseWork):
 
         shutil.move(self.workdir, dest)
 
-    def submit_tasks(self, wait=False):
-        """
-        Submits the task in self and wait.
-        TODO: change name.
-        """
-        for task in self:
-            #print(task)
-            task.start()
-    
-        if wait:
-            for task in self: task.wait()
+    #def submit_tasks(self, wait=False):
+    #    """
+    #    Submits the task in self and wait.
+    #    TODO: change name.
+    #    """
+    #    for task in self:
+    #        task.start()
+    #
+    #    if wait:
+    #        for task in self: task.wait()
 
-    def start(self, *args, **kwargs):
-        """
-        Start the work. Calls build and _setup first, then submit the tasks.
-        Non-blocking call unless wait is set to True
-        """
-        wait = kwargs.pop("wait", False)
+    #def start(self, *args, **kwargs):
+    #    """
+    #    Start the work. Calls build and _setup first, then submit the tasks.
+    #    Non-blocking call unless wait is set to True
+    #    """
+    #    wait = kwargs.pop("wait", False)
 
-        # Initial setup
-        self._setup(*args, **kwargs)
+    #    # Initial setup
+    #    self._setup(*args, **kwargs)
 
-        # Build dirs and files.
-        self.build(*args, **kwargs)
+    #    # Build dirs and files.
+    #    self.build(*args, **kwargs)
 
-        # Submit tasks (does not block)
-        self.submit_tasks(wait=wait)
+    #    # Submit tasks (does not block)
+    #    self.submit_tasks(wait=wait)
 
     def read_etotals(self, unit="Ha"):
         """
@@ -830,6 +829,7 @@ class RelaxWork(Work):
 
         self.target_dilatmx = target_dilatmx
 
+    #@check_spectator
     def on_ok(self, sender):
         """
         This callback is called when one task reaches status S_OK.
@@ -849,6 +849,7 @@ class RelaxWork(Work):
             # Unlock ioncell_task so that we can submit it.
             self.ioncell_task.unlock()
             self.ioncell_task.history.info("Unlocked by %s", self)
+
         elif sender == self.ioncell_task and self.target_dilatmx:
             actual_dilatmx = self.ioncell_task.get_inpvar('dilatmx', 1.)
             if self.target_dilatmx < actual_dilatmx:
@@ -876,7 +877,7 @@ class G0W0Work(Work):
             manager: :class:`TaskManager` object.
             spread_scr: Attach a screening task to every sigma task
                 if false only one screening task with the max ecuteps and nbands for all sigma tasks
-            nksmall: if not none add a dos and bands calculation to the Work
+            nksmall: if not None add a dos and bands calculation to the Work
         """
         super(G0W0Work, self).__init__(workdir=workdir, manager=manager)
 
@@ -1043,7 +1044,9 @@ class QptdmWork(Work):
             qptdm_input = scr_input.deepcopy()
             qptdm_input.set_vars(nqptdm=1, qptdm=qpoint)
             new_task = self.register_scr_task(qptdm_input, manager=self.manager)
-            #new_task.set_garbage_collector()
+            # Add the garbage collector.
+            if self.flow.gc is not None: 
+                new_task.set_gc(self.flow.gc)
 
         self.allocate()
 
@@ -1071,6 +1074,7 @@ class QptdmWork(Work):
 
         return final_scr
 
+    #@check_spectator
     def on_all_ok(self):
         """
         This method is called when all the q-points have been computed.
@@ -1116,7 +1120,15 @@ class OneShotPhononWork(Work):
     Use ``build_oneshot_phononwork`` to construct this work from the input files.
     """
     def read_phonons(self):
-        """Read phonon frequencies from the output file."""
+        """
+        Read phonon frequencies from the output file.
+
+        Return:
+            List of namedtuples. Each `namedtuple` has the following attributes:
+                
+                - qpt: ndarray with the q-point in reduced coordinates.
+                - freqs: ndarray with 3 x Natom phonon frequencies in meV
+        """
         # 
         #   Phonon wavevector (reduced coordinates) :  0.00000  0.00000  0.00000
         #  Phonon energies in Hartree :
@@ -1131,6 +1143,7 @@ class OneShotPhononWork(Work):
         ph_tasks, qpts, phfreqs = self[1:], [], []
         for task in ph_tasks:
 
+            # Parse output file.
             with open(task.output_file.path, "r") as fh:
                 qpt, inside = None, 0 
                 for line in fh:
@@ -1191,6 +1204,7 @@ class PhononWork(Work):
 
         return out_ddb
 
+    #@check_spectator 
     def on_all_ok(self):
         """
         This method is called when all the q-points have been computed.

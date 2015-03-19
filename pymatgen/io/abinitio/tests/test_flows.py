@@ -186,12 +186,13 @@ class FlowTest(FlowUnitTest):
 
         # Find the pickle file in workdir and recreate the flow.
         same_flow = Flow.pickle_load(self.workdir)
-
-        same_flow = Flow.pickle_load(self.workdir)
         aequal(same_flow, flow)
+
+        self.assertPMGSONable(flow)
 
         # Test show_status
         flow.show_status()
+        flow.show_event_handlers()
 
     def test_workdir(self):
         """Testing if one can use workdir=None in flow.__init__ and then flow.allocate(workdir)."""
@@ -218,6 +219,57 @@ class FlowTest(FlowUnitTest):
             assert work.workdir == os.path.join(tmpdir, "w%d" % i)
             for t, task in enumerate(work):
                 assert task.workdir == os.path.join(work.workdir, "t%d" % t)
+
+
+class TestFlowInSpectatorMode(FlowUnitTest):
+
+    def test_spectator(self):
+        flow = Flow(workdir=self.workdir, manager=self.manager)
+
+        work0 = Work()
+        work0.register_scf_task(self.fake_input)
+        work0.register_scf_task(self.fake_input)
+
+        work1 = Work()
+        work1.register_scf_task(self.fake_input)
+
+        flow.register_work(work0)
+        flow.register_work(work1)
+
+        flow.disconnect_signals()
+        flow.disconnect_signals()
+
+        flow.connect_signals()
+        flow.connect_signals()
+
+        for mode in [False, True]:
+            flow.set_spectator_mode(mode=mode)
+            assert flow.in_spectator_mode == mode
+            for node in flow.iflat_nodes():
+                assert node.in_spectator_mode == mode
+
+        assert len(list(flow.iflat_nodes())) == 5
+
+        flow.set_spectator_mode(mode=False)
+        flow.build_and_pickle_dump()
+
+        # picke load always returns a flow in spectator mode.
+        flow = Flow.pickle_load(flow.workdir)
+        assert flow.in_spectator_mode
+
+        with self.assertRaises(flow.SpectatorError): flow.pickle_dump()
+        #with self.assertRaises(flow.SpectatorError): flow.make_scheduler().start()
+
+        work = flow[0]
+        assert work.send_signal(work.S_OK) is None
+        #with self.assertRaises(work.SpectatorError): work.on_ok()
+        #with self.assertRaises(work.SpectatorError): work.on_all_ok()
+
+        task = work[0]
+        assert task.send_signal(task.S_OK) is None
+        #with self.assertRaises(task.SpectatorError): task._on_done()
+        #with self.assertRaises(task.SpectatorError): task.on_ok()
+        #with self.assertRaises(task.SpectatorError): task._on_ok()
 
 
 class TestBatchLauncher(FlowUnitTest):
