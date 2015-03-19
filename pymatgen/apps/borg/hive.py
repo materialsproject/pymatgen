@@ -109,7 +109,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
 
     def __init__(self, inc_structure=False, parameters=None, data=None):
         self._inc_structure = inc_structure
-        self._parameters = {"is_hubbard", "hubbards", "potcar_symbols",
+        self._parameters = {"is_hubbard", "hubbards", "potcar_spec", "potcar_symbols",
                             "run_type"}
         if parameters:
             self._parameters.update(parameters)
@@ -198,7 +198,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
 
     def __init__(self, inc_structure=False):
         self._inc_structure = inc_structure
-        self._parameters = {"is_hubbard", "hubbards", "potcar_symbols",
+        self._parameters = {"is_hubbard", "hubbards", "potcar_spec",
                             "run_type"}
 
     def assimilate(self, path):
@@ -264,7 +264,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             param["history"] = _get_transformation_history(path)
 
             potcar = Potcar.from_file(files_to_parse["POTCAR"])
-            param["potcar_symbols"] = potcar.symbols
+            param["potcar_spec"] = potcar.data
             oszicar = Oszicar(files_to_parse["OSZICAR"])
             energy = oszicar.final_energy
             structure = contcar.structure
