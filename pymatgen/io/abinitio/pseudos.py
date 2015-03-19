@@ -2183,7 +2183,7 @@ class DojoReport(dict):
         "gbrv_fcc",
     )
 
-    ATOLS = (0.2, 0.1, 0.01)
+    ATOLS = (0.5, 0.1, 0.02)
     Error = DojoReportError
 
     @classmethod
@@ -2542,8 +2542,8 @@ class DojoReport(dict):
                 last = values[-1]
                 xmin, xmax = min(ecuts), max(ecuts)
                 for pad, color in zip(self.ATOLS, ("green", "red", "violet")):
-                    ax.hlines(y=last + pad, xmin=xmin, xmax=xmax, colors=color, linewidth=1, linestyles='dotted')
-                    ax.hlines(y=last - pad, xmin=xmin, xmax=xmax, colors=color, linewidth=1, linestyles='dotted')
+                    ax.hlines(y=last + pad, xmin=xmin, xmax=xmax, colors=color, linewidth=3, linestyles='dotted')
+                    ax.hlines(y=last - pad, xmin=xmin, xmax=xmax, colors=color, linewidth=3, linestyles='dotted')
 
         return fig
 
