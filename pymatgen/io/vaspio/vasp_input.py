@@ -1454,7 +1454,7 @@ class PotcarSingle(object):
                                 hash_str += "{}".format(item_v) if item_v else ""
 
         self.hash_str = hash_str
-        return md5(hash_str.lower()).hexdigest()
+        return md5(hash_str.lower().encode('utf-8')).hexdigest()
 
     def __getattr__(self, a):
         """
