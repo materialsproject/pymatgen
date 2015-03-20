@@ -74,6 +74,14 @@ pymatgen.io.abinitio.flows module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.io.abinitio.helpers module
+-----------------------------------
+
+.. automodule:: pymatgen.io.abinitio.helpers
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.io.abinitio.launcher module
 ------------------------------------
 
@@ -102,6 +110,22 @@ pymatgen.io.abinitio.qadapters module
 -------------------------------------
 
 .. automodule:: pymatgen.io.abinitio.qadapters
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.io.abinitio.scheduler_error_handlers module
+----------------------------------------------------
+
+.. automodule:: pymatgen.io.abinitio.scheduler_error_handlers
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.io.abinitio.scheduler_error_parsers module
+---------------------------------------------------
+
+.. automodule:: pymatgen.io.abinitio.scheduler_error_parsers
     :members:
     :undoc-members:
     :show-inheritance:

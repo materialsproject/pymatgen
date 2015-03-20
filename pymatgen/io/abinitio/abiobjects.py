@@ -12,11 +12,11 @@ import pymatgen.core.units as units
 
 from pprint import pformat
 from monty.design_patterns import singleton
-#from monty.string import is_string
 from monty.collections import AttrDict
 from pymatgen.core.design_patterns import Enum
-from pymatgen.serializers.json_coders import PMGSONable
+from pymatgen.serializers.json_coders import PMGSONable, pmg_serialize
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from monty.json import MontyEncoder, MontyDecoder
 
 
 def contract(s):
@@ -77,7 +77,7 @@ MANDATORY = MandatoryVariable()
 DEFAULT = DefaultVariable()
 
 
-class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"), AbivarAble):
+class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"), AbivarAble, PMGSONable):
     """
     Different configurations of the electron density as implemented in abinit:
     One can use as_spinmode to construct the object via SpinMode.as_spinmode
@@ -107,6 +107,15 @@ class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
             "nspinor": self.nspinor,
             "nspden": self.nspden,
         }
+
+    @pmg_serialize
+    def as_dict(self):
+        return {k: getattr(self, k) for k in self._fields}
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(**{k: d[k] for k in d if k in cls._fields})
+
 
 # An handy Multiton
 _mode2spinvars = {
@@ -301,125 +310,7 @@ class Electrons(AbivarAble):
         return abivars
 
 
-#def asabistructure(obj):
-#    """
-#    Convert obj into an :class:`AbiStructure` object. Accepts:
-#
-#        - AbiStructure instance
-#        - Subinstances of pymatgen.
-#        - File paths
-#    """
-#    if isinstance(obj, AbiStructure):
-#        return obj
-#
-#    if isinstance(obj, Structure):
-#        # Promote
-#        return AbiStructure(obj)
-#
-#    if is_string(obj):
-#        # Handle file paths.
-#        if os.path.isfile(obj):
-#            # Read and Promote
-#            return AbiStructure(Structure.from_file(obj))
-#
-#    raise ValueError("Don't know how to convert object %s to an AbiStructure structure" % str(obj))
-
-
-#class AbiStructure(Structure, AbivarAble):
-#    """Patches the pymatgen structure adding the method to_abivars."""
-#
-#    @staticmethod
-#    def asabistructure(obj):
-#        return asabistructure(obj)
-#
-#    def __new__(cls, structure):
-#        new = structure
-#        new.__class__ = cls
-#        return new
-#
-#    def __init__(self, structure):
-#        pass
-#
-#    @classmethod
-#    def boxed_molecule(cls, pseudos, cart_coords, acell=3*(10,)):
-#        """
-#        Creates a molecule in a periodic box of lengths acell [Bohr]
-#
-#        Args:
-#            pseudos: List of pseudopotentials
-#            cart_coords: Cartesian coordinates
-#            acell: Lengths of the box in *Bohr*
-#        """
-#        cart_coords = np.atleast_2d(cart_coords)
-#
-#        molecule = Molecule([p.symbol for p in pseudos], cart_coords)
-#
-#        l = ArrayWithUnit(acell, "bohr").to("ang")
-#
-#        structure = molecule.get_boxed_structure(l[0], l[1], l[2])
-#
-#        return cls(structure)
-#
-#    @classmethod
-#    def boxed_atom(cls, pseudo, cart_coords=3*(0,), acell=3*(10,)):
-#        """
-#        Creates an atom in a periodic box of lengths acell [Bohr]
-#
-#        Args:
-#            pseudo: Pseudopotential object.
-#            cart_coords: Cartesian coordinates
-#            acell: Lengths of the box in *Bohr*
-#        """
-#        return cls.boxed_molecule([pseudo], cart_coords, acell=acell)
-#
-#    #def get_sorted_structure(self):
-#    #    """
-#    #    orders the structure according to increasing Z of the elements
-#    #    """
-#    #    sites = sorted(self.sites, key=lambda site: site.specie.Z)
-#    #    structure = Structure.from_sites(sites)
-#    #    return AbiStructure(structure)
-#
-#    def to_abivars(self):
-#        """Returns a dictionary with the abinit variables."""
-#        types_of_specie = self.types_of_specie
-#        natom = self.num_sites
-#
-#        znucl_type = [specie.number for specie in types_of_specie]
-#
-#        znucl_atoms = self.atomic_numbers
-#
-#        typat = np.zeros(natom, np.int)
-#        for (atm_idx, site) in enumerate(self):
-#            typat[atm_idx] = types_of_specie.index(site.specie) + 1
-#
-#        rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
-#        xred = np.reshape([site.frac_coords for site in self], (-1,3))
-#
-#        # Set small values to zero. This usually happens when the CIF file
-#        # does not give structure parameters with enough digits.
-#        #rprim = np.where(np.abs(rprim) > 1e-8, rprim, 0.0)
-#        #xred = np.where(np.abs(xred) > 1e-8, xred, 0.0)
-#
-#        d = dict(
-#            natom=natom,
-#            ntypat=len(types_of_specie),
-#            typat=typat,
-#            xred=xred,
-#            znucl=znucl_type)
-#
-#        d.update(dict(
-#            acell=3 * [1.0],
-#            rprim=rprim))
-#
-#        #d.update(dict(
-#        #    acell=3 * [1.0],
-#        #    angdeg))
-#
-#        return d
-
-
-class KSampling(AbivarAble):
+class KSampling(AbivarAble, PMGSONable):
     """
     Input variables defining the K-point sampling.
     """
@@ -471,6 +362,14 @@ class KSampling(AbivarAble):
 
         self.mode = mode
         self.comment = comment
+
+        self.num_kpts = num_kpts
+        self.kpts = kpts
+        self.kpt_shifts = kpt_shifts
+        self.kpts_weights = kpts_weights
+        self.use_symmetries = use_symmetries
+        self.use_time_reversal = use_time_reversal
+        self.chksymbreak = chksymbreak
 
         abivars = {}
 
@@ -582,7 +481,7 @@ class KSampling(AbivarAble):
         Convenient static constructor for an automatic Monkhorst-Pack mesh.
 
         Args:
-            structure: paymatgen structure object.
+            structure: pymatgen structure object.
             ngkpt: Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
             use_symmetries: Use spatial symmetries to reduce the number of k-points.
             use_time_reversal: Use time-reversal symmetry to reduce the number of k-points.
@@ -705,6 +604,23 @@ class KSampling(AbivarAble):
     def to_abivars(self):
         return self.abivars
 
+    def as_dict(self):
+        enc = MontyEncoder()
+        return {'mode': self.mode, 'comment': self.comment, 'num_kpts': self.num_kpts,
+                'kpts': enc.default(np.array(self.kpts)), 'kpt_shifts': self.kpt_shifts,
+                'kpts_weights': self.kpts_weights, 'use_symmetries': self.use_symmetries,
+                'use_time_reversal': self.use_time_reversal, 'chksymbreak': self.chksymbreak,
+                '@module': self.__class__.__module__, '@class': self.__class__.__name__}
+
+    @classmethod
+    def from_dict(cls, d):
+        d = d.copy()
+        d.pop('@module', None)
+        d.pop('@class', None)
+        dec = MontyDecoder()
+        d['kpts'] = dec.process_decoded(d['kpts'])
+        return cls(**d)
+
 
 class Constraints(AbivarAble):
     """This object defines the constraints for structural relaxation"""
@@ -712,7 +628,7 @@ class Constraints(AbivarAble):
         raise NotImplementedError("")
 
 
-class RelaxationMethod(AbivarAble):
+class RelaxationMethod(AbivarAble, PMGSONable):
     """
     This object stores the variables for the (constrained) structural optimization
     ionmov and optcell specify the type of relaxation.
@@ -809,6 +725,20 @@ class RelaxationMethod(AbivarAble):
             })
 
         return out_vars
+
+    def as_dict(self):
+        d = dict(self._default_vars)
+        d['@module'] = self.__class__.__module__
+        d['@class'] = self.__class__.__name__
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        d = d.copy()
+        d.pop('@module', None)
+        d.pop('@class', None)
+
+        return cls(**d)
 
 
 class PPModel(AbivarAble, PMGSONable):
@@ -994,8 +924,8 @@ class Screening(AbivarAble):
             raise ValueError("Self-consistecy mode %s is not supported" % sc_mode)
 
         self.ecuteps = ecuteps
-        self.nband   = nband
-        self.w_type  = w_type
+        self.nband = nband
+        self.w_type = w_type
         self.sc_mode = sc_mode
 
         self.ecutwfn = ecutwfn
@@ -1007,9 +937,9 @@ class Screening(AbivarAble):
 
         # Default values
         # TODO Change abinit defaults
-        self.gwpara = 2
-        self.awtr   = 1
-        self.symchi = 1
+        self.gwpara=2
+        self.awtr  =1
+        self.symchi=1
 
     @property
     def use_hilbert(self):
@@ -1019,11 +949,11 @@ class Screening(AbivarAble):
     #def gwcalctyp(self):
     #    "Return the value of the gwcalctyp input variable"
     #    dig0 = str(self._SIGMA_TYPES[self.type])
-    #    dig1 = str(self._SC_MODES[self.sc_mode])
+    #    dig1 = str(self._SC_MODES[self.sc_mode]
     #    return dig1.strip() + dig0.strip()
 
     def to_abivars(self):
-        "Returns a dictionary with the abinit variables"
+        """Returns a dictionary with the abinit variables"""
         abivars = {
             "ecuteps"   : self.ecuteps,
             "ecutwfn"   : self.ecutwfn,
@@ -1190,7 +1120,8 @@ class ExcHamiltonian(AbivarAble):
                  exc_type="TDA", algo="haydock", with_lf=True, bs_freq_mesh=None, zcut=None, **kwargs):
         """
         Args:
-            bs_loband: Lowest band index used in the e-h  basis set. Can be scalar or array of shape (nsppol,)
+            bs_loband: Lowest band index (Fortran convention) used in the e-h  basis set. 
+                Can be scalar or array of shape (nsppol,). Must be >= 1 and <= nband 
             nband: Max band index used in the e-h  basis set.
             soenergy: Scissors energy in Hartree.
             coulomb_mode: Treatment of the Coulomb term.
@@ -1208,7 +1139,7 @@ class ExcHamiltonian(AbivarAble):
 
         # We want an array bs_loband(nsppol).
         try:
-            bs_loband = np.reshape(bs_loband, (spin_mode.nsppol))
+            bs_loband = np.reshape(bs_loband, spin_mode.nsppol)
         except ValueError:
             bs_loband = np.array(spin_mode.nsppol * [int(bs_loband)])
 
@@ -1232,8 +1163,14 @@ class ExcHamiltonian(AbivarAble):
 
         # Extra options.
         self.kwargs = kwargs
-        if "chksymbreak" not in self.kwargs:
-            self.kwargs["chksymbreak"] = 0
+        #if "chksymbreak" not in self.kwargs:
+        #    self.kwargs["chksymbreak"] = 0
+
+        # Consistency check
+        if any(bs_loband < 0): 
+            raise ValueError("bs_loband <= 0 while it is %s" % bs_loband)
+        if any(bs_loband >= nband): 
+            raise ValueError("bs_loband (%s) >= nband (%s)" % (bs_loband, nband))
 
     @property
     def inclvkb(self):
@@ -1260,17 +1197,18 @@ class ExcHamiltonian(AbivarAble):
         abivars = dict(
             bs_calctype=1,
             bs_loband=self.bs_loband,
-            nband=self.nband,
+            #nband=self.nband,
             soenergy=self.soenergy,
             ecuteps=self.ecuteps,
-            #bs_algorithm = self._ALGO2VAR[self.algo],
+            bs_algorithm = self._ALGO2VAR[self.algo],
             bs_coulomb_term=21,
             mdf_epsinf=self.mdf_epsinf,
             bs_exchange_term=1 if self.with_lf else 0,
             inclvkb=self.inclvkb,
             zcut=self.zcut,
             bs_freq_mesh=self.bs_freq_mesh,
-            )
+            bs_coupling=self._EXC_TYPES[self.exc_type],
+        )
 
         if self.use_haydock:
             # FIXME

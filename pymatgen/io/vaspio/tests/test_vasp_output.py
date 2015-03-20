@@ -7,7 +7,7 @@ Created on Jul 16, 2012
 """
 
 
-__author__ = "Shyue Ping Ong"
+__author__ = "Shyue Ping Ong, Stephen Dacek"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -33,7 +33,7 @@ class VasprunTest(unittest.TestCase):
 
     def test_properties(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
-        vasprun = Vasprun(filepath)
+        vasprun = Vasprun(filepath, parse_potcar_file=False)
 
         #test pdos parsing
         pdos0 = vasprun.complete_dos.pdos[vasprun.final_structure[0]]
@@ -42,7 +42,8 @@ class VasprunTest(unittest.TestCase):
         self.assertEqual(pdos0[Orbital.s][1].shape, (301, ))
 
         filepath2 = os.path.join(test_dir, 'lifepo4.xml')
-        vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True)
+        vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True,
+                               parse_potcar_file=False)
         totalscsteps = sum([len(i['electronic_steps'])
                             for i in vasprun.ionic_steps])
         self.assertEqual(29, len(vasprun.ionic_steps))
@@ -89,7 +90,7 @@ class VasprunTest(unittest.TestCase):
                 self.assertIsNotNone(orbitaldos, "Partial Dos cannot be read")
 
         #test skipping ionic steps.
-        vasprun_skip = Vasprun(filepath, 3)
+        vasprun_skip = Vasprun(filepath, 3, parse_potcar_file=False)
         self.assertEqual(vasprun_skip.nionic_steps, 29)
         self.assertEqual(len(vasprun_skip.ionic_steps),
                          int(vasprun.nionic_steps / 3) + 1)
@@ -105,7 +106,7 @@ class VasprunTest(unittest.TestCase):
                                   vasprun.final_energy)
 
         #Test with ionic_step_offset
-        vasprun_offset = Vasprun(filepath, 3, 6)
+        vasprun_offset = Vasprun(filepath, 3, 6, parse_potcar_file=False)
         self.assertEqual(len(vasprun_offset.ionic_steps),
                          int(len(vasprun.ionic_steps) / 3) - 1)
         self.assertEqual(vasprun_offset.structures[0],
@@ -122,13 +123,13 @@ class VasprunTest(unittest.TestCase):
         self.assertEqual(d["nelements"], 4)
 
         filepath = os.path.join(test_dir, 'vasprun.xml.unconverged')
-        vasprun_unconverged = Vasprun(filepath)
+        vasprun_unconverged = Vasprun(filepath, parse_potcar_file=False)
         self.assertTrue(vasprun_unconverged.converged_ionic)
         self.assertFalse(vasprun_unconverged.converged_electronic)
         self.assertFalse(vasprun_unconverged.converged)
 
         filepath = os.path.join(test_dir, 'vasprun.xml.dfpt')
-        vasprun_dfpt = Vasprun(filepath)
+        vasprun_dfpt = Vasprun(filepath, parse_potcar_file=False)
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][0], 3.26105533)
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][1], -0.00459066)
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[2][2], 3.24330517)
@@ -138,33 +139,36 @@ class VasprunTest(unittest.TestCase):
         self.assertTrue(vasprun_dfpt.converged)
 
         entry = vasprun_dfpt.get_computed_entry()
-        entry = MaterialsProjectCompatibility().process_entry(entry)
+        entry = MaterialsProjectCompatibility(check_potcar_hash=False).process_entry(entry)
         self.assertAlmostEqual(entry.uncorrected_energy + entry.correction,
                                entry.energy)
 
 
         filepath = os.path.join(test_dir, 'vasprun.xml.dfpt.ionic')
-        vasprun_dfpt_ionic = Vasprun(filepath)
+        vasprun_dfpt_ionic = Vasprun(filepath, parse_potcar_file=False)
         self.assertAlmostEqual(vasprun_dfpt_ionic.epsilon_ionic[0][0], 515.73485838)
         self.assertAlmostEqual(vasprun_dfpt_ionic.epsilon_ionic[0][1], -0.00263523)
         self.assertAlmostEqual(vasprun_dfpt_ionic.epsilon_ionic[2][2], 19.02110169)
 
 
         filepath = os.path.join(test_dir, 'vasprun.xml.dfpt.unconverged')
-        vasprun_dfpt_unconv = Vasprun(filepath)
+        vasprun_dfpt_unconv = Vasprun(filepath, parse_potcar_file=False)
         self.assertFalse(vasprun_dfpt_unconv.converged_electronic)
         self.assertTrue(vasprun_dfpt_unconv.converged_ionic)
         self.assertFalse(vasprun_dfpt_unconv.converged)
 
-        vasprun_uniform = Vasprun(os.path.join(test_dir, "vasprun.xml.uniform"))
+        vasprun_uniform = Vasprun(os.path.join(test_dir, "vasprun.xml.uniform"),
+                                  parse_potcar_file=False)
         self.assertEqual(vasprun_uniform.kpoints.style, "Reciprocal")
 
 
-        vasprun_no_pdos = Vasprun(os.path.join(test_dir, "Li_no_projected.xml"))
+        vasprun_no_pdos = Vasprun(os.path.join(test_dir, "Li_no_projected.xml"),
+                                  parse_potcar_file=False)
         self.assertIsNotNone(vasprun_no_pdos.complete_dos)
         self.assertFalse(vasprun_no_pdos.dos_has_errors)
 
-        vasprun_diel = Vasprun(os.path.join(test_dir, "vasprun.xml.dielectric"))
+        vasprun_diel = Vasprun(os.path.join(test_dir, "vasprun.xml.dielectric"),
+                               parse_potcar_file=False)
         self.assertAlmostEqual(0.4294,vasprun_diel.dielectric[0][10])
         self.assertAlmostEqual(19.941,vasprun_diel.dielectric[1][51][0])
         self.assertAlmostEqual(19.941,vasprun_diel.dielectric[1][51][1])
@@ -175,9 +179,17 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(34.186,vasprun_diel.dielectric[2][85][2])
         self.assertAlmostEqual(0.0,vasprun_diel.dielectric[2][85][3])
 
+    def test_Xe(self):
+        vr = Vasprun(os.path.join(test_dir, 'vasprun.xml.xe'), parse_potcar_file=False)
+        self.assertEquals(vr.atomic_symbols, ['Xe'])
+
+    def test_invalid_element(self):
+        self.assertRaises(KeyError, Vasprun, os.path.join(test_dir, 'vasprun.xml.wrong_sp'))
+
     def test_as_dict(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
-        vasprun = Vasprun(filepath)
+        vasprun = Vasprun(filepath,
+                          parse_potcar_file=False)
         #Test that as_dict() is json-serializable
         self.assertIsNotNone(json.dumps(vasprun.as_dict()))
         self.assertEqual(
@@ -186,7 +198,7 @@ class VasprunTest(unittest.TestCase):
 
     def test_get_band_structure(self):
         filepath = os.path.join(test_dir, 'vasprun_Si_bands.xml')
-        vasprun = Vasprun(filepath)
+        vasprun = Vasprun(filepath, parse_potcar_file=False)
         bs = vasprun.get_band_structure(kpoints_filename=
                                         os.path.join(test_dir,
                                                      'KPOINTS_Si_bands'))
@@ -213,6 +225,74 @@ class VasprunTest(unittest.TestCase):
             self.assertEqual(len(w), 3)
         estep = vasprun.ionic_steps[0]['electronic_steps'][29]
         self.assertTrue(np.isnan(estep['e_wo_entrp']))
+
+    def test_update_potcar(self):
+        filepath = os.path.join(test_dir, 'vasprun.xml')
+        potcar_path = os.path.join(test_dir, 'POTCAR.LiFePO4.gz')
+        potcar_path2 = os.path.join(test_dir, 'POTCAR2.LiFePO4.gz')
+        vasprun = Vasprun(filepath, parse_potcar_file=False)
+        self.assertEqual(vasprun.potcar_spec, [{"titel": "PAW_PBE Li 17Jan2003", "hash": None},
+                                               {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
+                                               {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
+                                               {"titel": "PAW_PBE P 17Jan2003", "hash": None},
+                                               {"titel": "PAW_PBE O 08Apr2002", "hash": None}])
+
+        vasprun.update_potcar_spec(potcar_path)
+        self.assertEqual(vasprun.potcar_spec, [{"titel": "PAW_PBE Li 17Jan2003",
+                                                "hash": "9658a0ffb28da97ee7b36709966a0d1c"},
+                                               {"titel": "PAW_PBE Fe 06Sep2000",
+                                                "hash": "e0051a21ce51eb34a52e9153c17aa32d"},
+                                               {"titel": "PAW_PBE Fe 06Sep2000",
+                                                "hash": "e0051a21ce51eb34a52e9153c17aa32d"},
+                                               {"titel": "PAW_PBE P 17Jan2003",
+                                                "hash": "95fbb6408e51dff3516bcdfa913c1ae1"},
+                                               {"titel": "PAW_PBE O 08Apr2002",
+                                                "hash": "7af704ddff29da5354831c4609f1cbc5"}])
+
+        vasprun2 = Vasprun(filepath, parse_potcar_file=False)
+        self.assertRaises(ValueError, vasprun2.update_potcar_spec, potcar_path2)
+        vasprun = Vasprun(filepath, parse_potcar_file=potcar_path)
+
+
+        self.assertEqual(vasprun.potcar_spec, [{"titel": "PAW_PBE Li 17Jan2003",
+                                                "hash": "9658a0ffb28da97ee7b36709966a0d1c"},
+                                               {"titel": "PAW_PBE Fe 06Sep2000",
+                                                "hash": "e0051a21ce51eb34a52e9153c17aa32d"},
+                                               {"titel": "PAW_PBE Fe 06Sep2000",
+                                                "hash": "e0051a21ce51eb34a52e9153c17aa32d"},
+                                               {"titel": "PAW_PBE P 17Jan2003",
+                                                "hash": "95fbb6408e51dff3516bcdfa913c1ae1"},
+                                               {"titel": "PAW_PBE O 08Apr2002",
+                                                "hash": "7af704ddff29da5354831c4609f1cbc5"}])
+
+        self.assertRaises(ValueError, Vasprun, filepath, parse_potcar_file=potcar_path2)
+
+    def test_search_for_potcar(self):
+        filepath = os.path.join(test_dir, 'vasprun.xml')
+        vasprun = Vasprun(filepath, parse_potcar_file=True)
+        self.assertEqual(vasprun.potcar_spec, [{"titel": "PAW_PBE Li 17Jan2003",
+                                                "hash": "9658a0ffb28da97ee7b36709966a0d1c"},
+                                               {"titel": "PAW_PBE Fe 06Sep2000",
+                                                "hash": "e0051a21ce51eb34a52e9153c17aa32d"},
+                                               {"titel": "PAW_PBE Fe 06Sep2000",
+                                                "hash": "e0051a21ce51eb34a52e9153c17aa32d"},
+                                               {"titel": "PAW_PBE P 17Jan2003",
+                                                "hash": "95fbb6408e51dff3516bcdfa913c1ae1"},
+                                               {"titel": "PAW_PBE O 08Apr2002",
+                                                "hash": "7af704ddff29da5354831c4609f1cbc5"}])
+
+    def test_potcar_not_found(self):
+        filepath = os.path.join(test_dir, 'vasprun.xml')
+        #Ensure no potcar is found and nothing is updated
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            vasprun = Vasprun(filepath, parse_potcar_file='.')
+            self.assertEqual(len(w), 1)
+        self.assertEqual(vasprun.potcar_spec, [{"titel": "PAW_PBE Li 17Jan2003", "hash": None},
+                                               {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
+                                               {"titel": "PAW_PBE Fe 06Sep2000", "hash": None},
+                                               {"titel": "PAW_PBE P 17Jan2003", "hash": None},
+                                               {"titel": "PAW_PBE O 08Apr2002", "hash": None}])
 
 
 class OutcarTest(unittest.TestCase):
