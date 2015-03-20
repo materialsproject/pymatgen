@@ -494,9 +494,9 @@ class CifParser(object):
         allspecies = []
         allcoords = []
         if coord_to_species.items():
-            for species, group in groupby(sorted(coord_to_species.items(),
-                                                 key=lambda x:x[1]),
-                                          key=lambda x:x[1]):
+            for species, group in groupby(
+                    sorted(list(coord_to_species.items()), key=lambda x: x[1]),
+                    key=lambda x: x[1]):
 
                 tmp_coords = [site[0] for site in group]
 
