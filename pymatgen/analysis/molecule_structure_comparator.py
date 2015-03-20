@@ -83,6 +83,7 @@ class MoleculeStructureComparator(PMGSONable):
 
     ionic_element_list = ['Na', 'Mg', 'Al', 'Sc', 'V', 'Cr', "Mn", 'Fe', 'Co', 'Ni',
                           'Cu', 'Zn', 'Ga', 'Rb', 'Sr']
+    halogen_list = ['F', 'Cl', 'Br', 'I']
 
     def __init__(self, bond_length_cap=0.3,
                  covalent_radius=CovalentRadius.radius,
@@ -94,6 +95,7 @@ class MoleculeStructureComparator(PMGSONable):
         self.priority_bonds = [tuple(sorted(b)) for b in priority_bonds]
         self.priority_cap = priority_cap
         self.ignore_ionic_bond = ignore_ionic_bond
+        self.ignore_halogen_self_bond = True
 
     def are_equal(self, mol1, mol2):
         """
@@ -136,8 +138,13 @@ class MoleculeStructureComparator(PMGSONable):
                        self.covalent_radius[mol.sites[p[1]].specie.symbol]) *
                       (1 + (self.priority_cap
                             if p in self.priority_bonds
-                            else self.bond_length_cap))
+                            else self.bond_length_cap)) *
+                      (0.1 if (self.ignore_halogen_self_bond and
+                               mol.sites[p[0]].specie.symbol in self.halogen_list and
+                               mol.sites[p[1]].specie.symbol in self.halogen_list)
+                       else 1.0)
                       for p in all_pairs]
+
         bonds = [bond
                  for bond, dist, cap in zip(all_pairs, pair_dists, max_length)
                  if dist <= cap]
