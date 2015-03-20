@@ -1519,7 +1519,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         if status == self.S_DONE:
             # Execute the callback
             self._on_done()
-                                                                                
+
         if status == self.S_OK:
             # Finalize the task.
             if not self.finalized:
@@ -2891,7 +2891,6 @@ class RelaxTask(GsTask, ProduceHist):
             # Note that ABINIT produces a lot of out_TIM1_DEN files for each step.
             # Here we list all TIM*_DEN files and we select the last one.
             den_files = self.outdir.list_filepaths(wildcard="*_DEN")
-            print("den_files", den_files)
             if den_files:
                 stepfile_list = []
                 for f in den_files:
@@ -2900,7 +2899,6 @@ class RelaxTask(GsTask, ProduceHist):
 
                 # DSU sort.
                 last_denfile = sorted(stepfile_list, key=lambda t: t[0])[-1][1]
-                print("Will restart from %s" % last_denfile)
 
                 # Fix the name of the DEN file so that we can use out_to_in!
                 ofile = self.outdir.path_in("out_DEN")
@@ -2910,22 +2908,20 @@ class RelaxTask(GsTask, ProduceHist):
                 irdvars = irdvars_for_ext("DEN")
 
         if restart_file is None:
-            raise self.RestartError("Cannot find the WFK|DEN file to restart from.")
+            #raise self.RestartError("Cannot find the WFK|DEN file to restart from.")
+            self.history.warning("Cannot find the WFK|DEN file to restart from.")
+        else:
+            # Add the appropriate variable for restarting.
+            self.strategy.add_extra_abivars(irdvars)
+            self.history.info("Will restart from %s", restart_file)
 
-        # Add the appropriate variable for restarting.
-        self.strategy.add_extra_abivars(irdvars)
-
-        # Read the HIST file.
+        # TODO Read the HIST file.
         #self.strategy.add_extra_abivars({"restartxf": -1})
 
-        # Read the relaxed structure from the GSR file.
-        structure = self.get_final_structure()
-                                                           
-        # Change the structure.
-        self._change_structure(structure)
+        # Read the relaxed structure from the GSR file and change the input.
+        self._change_structure(self.get_final_structure())
 
         # Now we can resubmit the job.
-        self.history.info("Will restart from %s", restart_file)
         return self._restart()
 
     def inspect(self, **kwargs):
@@ -2972,7 +2968,7 @@ class RelaxTask(GsTask, ProduceHist):
     def reduce_dilatmx(self, target=1.01):
         actual_dilatmx = self.get_inpvar('dilatmx', 1.)
         new_dilatmx = actual_dilatmx - min((actual_dilatmx-target), actual_dilatmx*0.05)
-        self._set_inpvar('dilatmx', new_dilatmx)
+        self._set_inpvars(dilatmx=new_dilatmx)
 
 
 class DdeTask(AbinitTask, ProduceDdb):
