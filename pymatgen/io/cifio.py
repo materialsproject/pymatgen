@@ -514,12 +514,12 @@ class CifParser(object):
 
         if allspecies and len(allspecies) == len(allcoords):
 
-            struct = Structure(lattice, allspecies, allcoords
-            ).get_sorted_structure()
+            struct = Structure(lattice, allspecies, allcoords)
+            struct = struct.get_sorted_structure()
 
             if primitive:
-                struct = struct.get_primitive_structure(
-                                    ).get_reduced_structure()
+                struct = struct.get_primitive_structure()
+                struct = struct.get_reduced_structure()
             return struct
 
     def get_structures(self, primitive=True):
