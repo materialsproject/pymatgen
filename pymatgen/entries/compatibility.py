@@ -112,7 +112,7 @@ class PotcarCorrection(Correction):
 
     def __init__(self, input_set, check_hash=False):
 
-        if isinstance(input_set.potcar_settings.values()[-1], dict):
+        if isinstance(list(input_set.potcar_settings.values())[-1], dict):
             if check_hash:
                 self.valid_potcars = {k: d["hash"] for k, d in
                                       input_set.potcar_settings.items()}
