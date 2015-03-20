@@ -163,6 +163,18 @@ def g0w0_extended_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsi
     """
     # TODO: Cannot use istwfk != 1.
 
+    # all these too many options are for development only the current idea for the final version is
+    #if gamma:
+    #    scf_ksampling = KSampling.automatic_density(structure=structure, kppa=10000, chksymbreak=0, shifts=(0, 0, 0))
+    #    nscf_ksampling = KSampling.gamma_centered(kpts=(2, 2, 2))
+    #    if scf_kppa <= 13:
+    #        nscf_ksampling = KSampling.gamma_centered(kpts=(scf_kppa, scf_kppa, scf_kppa))
+    #    else:
+    #        nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0, shifts=(0, 0, 0))
+    #else:
+    #    scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
+    #    nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
+
     if gamma:
         if scf_kppa == 1:
             scf_ksampling = KSampling.gamma_centered(kpts=(1, 1, 1))
@@ -170,13 +182,17 @@ def g0w0_extended_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsi
         elif scf_kppa == 2:
             scf_ksampling = KSampling.gamma_centered(kpts=(2, 2, 2))
             nscf_ksampling = KSampling.gamma_centered(kpts=(2, 2, 2))
-        elif scf_kppa <= 10:
+        elif scf_kppa < 0:
+            scf_ksampling = KSampling.gamma_centered(kpts=(-scf_kppa, -scf_kppa, -scf_kppa))
+            nscf_ksampling = KSampling.gamma_centered(kpts=(2, 2, 2))
+        elif scf_kppa <= 13:
             scf_ksampling = KSampling.gamma_centered(kpts=(scf_kppa, scf_kppa, scf_kppa))
             nscf_ksampling = KSampling.gamma_centered(kpts=(scf_kppa, scf_kppa, scf_kppa))
         else:
             scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0, shifts=(0, 0, 0))
             nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0, shifts=(0, 0, 0))
     else:
+        #this is the original behaviour before the devellopment of the gwwrapper
         scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
         nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
 
