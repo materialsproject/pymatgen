@@ -996,7 +996,12 @@ class HistoryRecord(object):
             asctime: True if time string should be added.
         """
         msg = self.msg if is_string(self.msg) else str(self.msg)
-        if self.args: msg = msg % self.args
+        if self.args: 
+            try:
+                msg = msg % self.args
+            except:
+                #print(self.args)
+                msg += str(self.args)
 
         if asctime: msg = "[" + self.asctime + "] " + msg
 
