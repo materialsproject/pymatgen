@@ -35,6 +35,7 @@ from pymatgen.util.coord_utils import in_coord_list_pbc
 from monty.string import remove_non_ascii
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.groups import SpaceGroup, SYMM_DATA
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -492,8 +493,12 @@ class CifParser(object):
                 else:
                     coord_to_species[coord][el] = occu
 
+
+        coord_to_species = {k: Composition(v)
+                            for k, v in coord_to_species.items()}
         allspecies = []
         allcoords = []
+
         if coord_to_species.items():
             for species, group in groupby(
                     sorted(list(coord_to_species.items()), key=lambda x: x[1]),
