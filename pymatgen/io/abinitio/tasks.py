@@ -1516,6 +1516,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             if status == self.S_ABICRITICAL:
                 self.history.info("Status set to S_ABI_CRITICAL due to: %s", msg)
 
+        #######################################################
+        # The section belows contains callbacks that should not
+        # be executed if we are in spectator_mode
+        #######################################################
         if status == self.S_DONE:
             # Execute the callback
             self._on_done()
@@ -2825,7 +2829,12 @@ class RelaxTask(GsTask, ProduceHist):
         """Change the input structure."""
         # Compare new and old structure for logging purpose.
         # TODO: Write method of structure to compare self and other and return a dictionary
-        old_structure = self.strategy.abinit_input.structure
+        try:
+            old_structure = self.strategy.abinit_input.structure
+        except AttributeError:
+            # FIXME: This is needed to support strategy object (TOBEREMOVED)
+            old_structure = self.strategy.structure
+
         old_lattice = old_structure.lattice 
 
         abc_diff = np.array(new_structure.lattice.abc) - np.array(old_lattice.abc)
@@ -3158,7 +3167,7 @@ class SigmaTask(ManyBodyTask):
         Returns an instance of :class:`ScissorsBuilder` from the SIGRES file.
 
         Raise:
-            RuntimeError if SIGRES file is not found
+            `RuntimeError` if SIGRES file is not found.
         """
         from abipy.electrons.scissors import ScissorsBuilder
         if self.sigres_path:
