@@ -26,7 +26,7 @@ from pymatgen.core.units import Memory
 from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize, PMGSONable
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, FilepathFixer, Condition, SparseHistogram
 from .strategies import StrategyWithInput, OpticInput
-from .qadapters import make_qadapter, QueueAdapter
+from .qadapters import make_qadapter, QueueAdapter, QueueAdapterError
 from . import qutils as qu
 from .db import DBConnector
 from .nodes import Status, Node, NodeResults, NodeCorrections #, check_spectator
@@ -871,7 +871,7 @@ batch_adapter:
         # return self.qadapter.more_mem_per_proc()
         try:
             self.qadapter.more_mem_per_proc()
-        except FixQueueCriticalError:
+        except QueueAdapterError:
             # here we should try to switch to an other qadapter
             raise ManagerIncreaseError
 
@@ -882,35 +882,35 @@ batch_adapter:
         """
         try:
             self.qadapter.more_mpi_procs
-        except FixQueueCriticalError:
+        except QueueAdapterError:
             # here we should try to switch to an other qadapter
-            raise ManagerIncreaseError
+            raise ManagerIncreaseError('manager failed to increase ncpu')
 
     def increase_resources(self):
         try:
             self.qadapter.more_mpi_procs
-        except FixQueueCriticalError:
+        except QueueAdapterError:
             pass
 
         try:
             self.qadapter.more_mem_per_proc()
-        except FixQueueCriticalError:
+        except QueueAdapterError:
             # here we should try to switch to an other qadapter
-            raise ManagerIncreaseError
+            raise ManagerIncreaseError('manager failed to increase resources')
 
     def exclude_nodes(self, nodes):
         try:
             self.qadapter.exclude_nodes(nodes=nodes)
-        except FixQueueCriticalError:
+        except QueueAdapterError:
             # here we should try to switch to an other qadapter
-            raise ManagerIncreaseError
+            raise ManagerIncreaseError('manager failed to exclude nodes')
 
     def increase_time(self):
         try:
             self.qadapter.more_time()
-        except FixQueueCriticalError:
+        except QueueAdapterError:
             # here we should try to switch to an other qadapter
-            raise ManagerIncreaseError
+            raise ManagerIncreaseError('manager failed to increase time')
 
 
 class FakeProcess(object):
