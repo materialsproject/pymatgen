@@ -42,8 +42,9 @@ class EventsParserTest(PymatgenTest):
         #print(d)
         #assert 0
 
-        for warning in report.warnings:
+        for i, warning in enumerate(report.warnings):
             print(warning)
+            assert warning == report[i]
             # Msonable is conflict with YAMLObject
             #self.assertPMGSONable(warning, check_inst=False)
 

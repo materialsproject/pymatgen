@@ -114,6 +114,13 @@ class AbinitEvent(yaml.YAMLObject):
     def __str__(self):
         return "\n".join((self.header, self.message))
 
+    def __eq__(self, other):
+        if other is None: return False
+        return self.message == other.message
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     @property
     def src_file(self):
         """String with the name of the Fortran file where the event is raised."""
@@ -279,6 +286,9 @@ class EventReport(collections.Iterable, PMGSONable):
 
     def __iter__(self):
         return self._events.__iter__()
+
+    def __getitem__(self, slice):
+        return self._events[slice]
 
     def __str__(self):
         #has_colours = stream_has_colours(stream)
