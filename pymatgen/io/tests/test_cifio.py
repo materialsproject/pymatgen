@@ -285,6 +285,10 @@ loop_
         self.assertEqual(parser.get_structures()[0].formula,
                          "Sr5.6 Y2.4 Co8 O21")
 
+        # Test with a decimal Xyz. This should parse as two atoms in
+        # conventional cell if it is correct, one if not.
+        parser = CifParser(os.path.join(test_dir, "Fe.cif"))
+        self.assertEqual(len(parser.get_structures(primitive=False)[0]), 2)
 
     def test_CifWriter(self):
         filepath = os.path.join(test_dir, 'POSCAR')
