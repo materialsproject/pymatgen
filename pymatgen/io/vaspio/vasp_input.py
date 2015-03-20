@@ -1208,7 +1208,8 @@ def parse_int(s):
 
 
 def parse_list(s):
-    return map(float, [y for y in re.split("\s+", s.strip()) if not y.isalpha()])
+    return list(map(float, [y for y in re.split("\s+", s.strip()) if not
+        y.isalpha()]))
 
 
 @cached_class
