@@ -1083,6 +1083,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.log_file = File(os.path.join(self.workdir, "run.log"))
         self.stderr_file = File(os.path.join(self.workdir, "run.err"))
         self.start_lockfile = File(os.path.join(self.workdir, "__startlock__"))
+        self.abort_file = File(os.path.join(self.workdir, "__ABI_ABORTFILE__"))
 
         # Directories with input|output|temporary data.
         self.indir = Directory(os.path.join(self.workdir, "indata"))
@@ -1483,6 +1484,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             status: Status object or string representation of the status
             msg: string with human-readable message used in the case of errors (optional)
         """
+        msg = "" if msg is None else msg
+
         # Locked files must be explicitly unlocked 
         if self.status == self.S_LOCKED or status == self.S_LOCKED:
             err_msg = (
@@ -1507,14 +1510,17 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         if changed:
             if status == self.S_SUB: 
                 self.datetimes.submission = datetime.datetime.now()
-                self.history.info("Submitted with MPI=%s, Omp=%s, Memproc=%.1f [Gb]" % (
-                    self.mpi_procs, self.omp_threads, self.mem_per_proc.to("Gb")))
+                self.history.info("Submitted with MPI=%s, Omp=%s, Memproc=%.1f [Gb] %s " % (
+                    self.mpi_procs, self.omp_threads, self.mem_per_proc.to("Gb"), msg))
 
-            if status == self.S_OK:
-                self.history.info("Task Completed")
+            elif status == self.S_OK:
+                self.history.info("Task completed ", msg)
 
-            if status == self.S_ABICRITICAL:
+            elif status == self.S_ABICRITICAL:
                 self.history.info("Status set to S_ABI_CRITICAL due to: %s", msg)
+
+            else:
+                self.history.info("Status changed to %s: %s", status, msg)
 
         #######################################################
         # The section belows contains callbacks that should not
@@ -1563,6 +1569,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             # The job was not submitted properly
             return self.set_status(self.S_QCRITICAL, msg="return code %s" % self.returncode)
 
+        # If we have an abort file produced by Abinit
+        if self.abort_file.exists:
+            return self.set_status(self.S_ABICRITICAL, msg="Found ABINIT abort file")
+
         # Analyze the stderr file for Fortran runtime errors.
         err_msg = None
         if self.stderr_file.exists:
@@ -1579,7 +1589,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 report = self.get_event_report()
             except Exception as exc:
                 msg = "%s exception while parsing event_report:\n%s" % (self, exc)
-                logger.critical(msg)
                 return self.set_status(self.S_ABICRITICAL, msg=msg)
 
             if report.run_completed:
@@ -1812,6 +1821,20 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         try:
             report = parser.parse(ofile.path)
             #self._prev_reports[source] = report
+
+            # Add events found in the ABI_ABORTFILE.
+            if self.abort_file.exists:
+                p = events.EventsParser()
+                abort_report = p.parse(self.abort_file.path)
+                #if abort_report:
+                if len(abort_report) != 1: 
+                    logger.critical("Found more than one event in ABI_ABORTFILE")
+
+                # Add it to the initial report only if it differs from the last one found in the main log file.
+                #print(abort_report)
+                abort_event = abort_report[-1]
+                if abort_event != report[-1]: report.append(abort_event)
+
             return report
 
         except parser.Error as exc:
@@ -2481,16 +2504,17 @@ class AbinitTask(Task):
         self.manager
 
         if not self.queue_errors:
+            # TODO
             # paral_kgb = 1 leads to nasty sigegv that are seen as Qcritical errors!
             # Try to fallback to the conjugate gradient.
-            if self.uses_paral_kgb(1):
-                logger.critical("QCRITICAL with PARAL_KGB==1. Will try CG!")
-                self._set_inpvars(paral_kgb=0)
-                self.reset_from_scratch()
-                return
+            #if self.uses_paral_kgb(1):
+            #    logger.critical("QCRITICAL with PARAL_KGB==1. Will try CG!")
+            #    self._set_inpvars(paral_kgb=0)
+            #    self.reset_from_scratch()
+            #    return
             # queue error but no errors detected, try to solve by increasing ncpus if the task scales
             # if resources are at maximum the task is definitively turned to errored
-            elif self.mem_scales or self.load_scales:
+            if self.mem_scales or self.load_scales:
                 try:
                     self.manager.increase_resources()  # acts either on the policy or on the qadapter
                     self.reset_from_scratch()
@@ -2861,8 +2885,12 @@ class RelaxTask(GsTask, ProduceHist):
         else:
             for rec in recs:
                 self.history.info(rec)
-
-        self.strategy.abinit_input.set_structure(new_structure)
+        try:
+            self.strategy.abinit_input.set_structure(new_structure)
+        except AttributeError:
+            # FIXME: This is needed to support strategy object (TOBEREMOVED)
+            self.strategy.structure = new_structure
+        
         #assert self.strategy.abinit_input.structure == new_structure
 
     def get_final_structure(self):
