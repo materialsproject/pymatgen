@@ -626,6 +626,9 @@ limits:
         """Set the name of the queue."""
         self._qname = qname
 
+    # todo this assumes only one wall time. i.e. the one in the mamanager file is the one always used
+    # we should use the standard walltime to start with but also allow to increase the walltime
+
     @property
     def timelimit(self):
         """Returns the walltime in seconds."""
@@ -942,9 +945,7 @@ limits:
 
     @abc.abstractmethod
     def exclude_nodes(self, nodes):
-        """
-        Method to exclude nodes in the calculation
-        """
+        """Method to exclude nodes in the calculation. Return True if nodes have been excluded"""
 
     def more_mem_per_proc(self, factor=1):
         """
@@ -959,8 +960,7 @@ limits:
             self.set_mem_per_proc(new_mem)
             return new_mem
 
-        logger.warning('could not increase mem_per_proc further')
-        return 0
+        raise self.Error('could not increase mem_per_proc further')
 
     def more_mpi_procs(self, factor=1):
         """
@@ -974,9 +974,13 @@ limits:
             self.set_mpi_procs(new_cpus)
             return new_cpus
 
-        logger.warning('more_mpi_procs reached the limit')
-        return 0
+        raise self.Error('more_mpi_procs reached the limit')
 
+    def more_time(self):
+        """
+        Method to increase the wall time
+        """
+        raise self.Error("increasing time in is not possible, it's maximal already")
 
 ####################
 # Concrete classes #
@@ -1121,7 +1125,7 @@ $${qverbatim}
             return True
 
         except (KeyError, IndexError):
-            return False
+            raise self.Error('qadapter failed to exclude nodes')
 
     def _get_njobs_in_queue(self, username):
         process = Popen(['squeue', '-o "%u"', '-u', username], stdout=PIPE, stderr=PIPE)
@@ -1309,7 +1313,7 @@ $${qverbatim}
         return njobs, process
 
     def exclude_nodes(self, nodes):
-        logger.warning('exluding nodes, not implemented yet in pbs')
+        """No meaning for Shell"""
         return False
 
 
@@ -1355,6 +1359,9 @@ $${qverbatim}
         QueueAdapter.set_mpi_procs(mpi_procs)
         self.qparams["nodes"] = 1
         self.qparams["ppn"] = mpi_procs
+
+    def exclude_nodes(self, nodes):
+        raise self.Error('qadapter failed to exclude nodes, not implemented yet in torque')
 
 
 class SGEAdapter(QueueAdapter):
@@ -1436,8 +1443,7 @@ $${qverbatim}
 
     def exclude_nodes(self, nodes):
         """Method to exclude nodes in the calculation"""
-        logger.warning('exluding nodes, not implemented yet in SGE')
-        return False
+        raise self.Error('qadapter failed to exclude nodes, not implemented yet in sge')
 
     def _get_njobs_in_queue(self, username):
         process = Popen(['qstat', '-u', username], stdout=PIPE, stderr=PIPE)
@@ -1500,8 +1506,7 @@ $${qverbatim}
         #raise NotImplementedError("set_mem_per_cpu")
 
     def exclude_nodes(self, nodes):
-        logger.warning('exluding nodes, not implemented yet in MOAB')
-        return False
+        raise self.Error('qadapter failed to exclude nodes, not implemented yet in moad')
 
     def cancel(self, job_id):
         return os.system("canceljob %d" % job_id)

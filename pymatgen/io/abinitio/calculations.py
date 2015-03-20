@@ -133,7 +133,7 @@ def g0w0_with_ppmodel_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ec
     return work_class(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager)
 
 
-def g0w0_extended_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, scf_nband, accuracy="normal",
+def g0w0_extended_work(structure, pseudos, kppa, nscf_nband, ecuteps, ecutsigx, scf_nband, accuracy="normal",
                        spin_mode="polarized", smearing="fermi_dirac:0.1 eV", response_models=["godby"], charge=0.0,
                        inclvkb=2, scr_nband=None, sigma_nband=None, workdir=None, manager=None, gamma=True, nksmall=20,
                        work_class=None, **extra_abivars):
@@ -163,22 +163,38 @@ def g0w0_extended_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsi
     """
     # TODO: Cannot use istwfk != 1.
 
+    # all these too many options are for development only the current idea for the final version is
+    #if gamma:
+    #    scf_ksampling = KSampling.automatic_density(structure=structure, kppa=10000, chksymbreak=0, shifts=(0, 0, 0))
+    #    nscf_ksampling = KSampling.gamma_centered(kpts=(2, 2, 2))
+    #    if kppa <= 13:
+    #        nscf_ksampling = KSampling.gamma_centered(kpts=(scf_kppa, scf_kppa, scf_kppa))
+    #    else:
+    #        nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0, shifts=(0, 0, 0))
+    #else:
+    #    scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
+    #    nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
+
     if gamma:
-        if scf_kppa == 1:
+        if kppa == 1:
             scf_ksampling = KSampling.gamma_centered(kpts=(1, 1, 1))
             nscf_ksampling = KSampling.gamma_centered(kpts=(1, 1, 1))
-        elif scf_kppa == 2:
+        elif kppa == 2:
             scf_ksampling = KSampling.gamma_centered(kpts=(2, 2, 2))
             nscf_ksampling = KSampling.gamma_centered(kpts=(2, 2, 2))
-        elif scf_kppa <= 10:
-            scf_ksampling = KSampling.gamma_centered(kpts=(scf_kppa, scf_kppa, scf_kppa))
-            nscf_ksampling = KSampling.gamma_centered(kpts=(scf_kppa, scf_kppa, scf_kppa))
+        elif kppa < 0:
+            scf_ksampling = KSampling.gamma_centered(kpts=(-kppa, -kppa, -kppa))
+            nscf_ksampling = KSampling.gamma_centered(kpts=(2, 2, 2))
+        elif kppa <= 13:
+            scf_ksampling = KSampling.gamma_centered(kpts=(kppa, kppa, kppa))
+            nscf_ksampling = KSampling.gamma_centered(kpts=(kppa, kppa, kppa))
         else:
-            scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0, shifts=(0, 0, 0))
-            nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0, shifts=(0, 0, 0))
+            scf_ksampling = KSampling.automatic_density(structure, kppa, chksymbreak=0, shifts=(0, 0, 0))
+            nscf_ksampling = KSampling.automatic_density(structure, kppa, chksymbreak=0, shifts=(0, 0, 0))
     else:
-        scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
-        nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
+        #this is the original behaviour before the devellopment of the gwwrapper
+        scf_ksampling = KSampling.automatic_density(structure, kppa, chksymbreak=0)
+        nscf_ksampling = KSampling.automatic_density(structure, kppa, chksymbreak=0)
 
     if "istwfk" not in extra_abivars:
         extra_abivars["istwfk"] = "*1"
