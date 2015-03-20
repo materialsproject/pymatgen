@@ -25,7 +25,7 @@ from pymatgen.core.units import Memory
 from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize, PMGSONable
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, FilepathFixer, Condition, SparseHistogram
 from .strategies import StrategyWithInput, OpticInput
-from .qadapters import make_qadapter, QueueAdapter
+from .qadapters import make_qadapter, QueueAdapter, QueueAdapterError
 from . import qutils as qu
 from .db import DBConnector
 from .nodes import Status, Node, NodeError, NodeResults, NodeCorrections, check_spectator
@@ -620,7 +620,6 @@ batch_adapter:
         my_kwargs["policy"] = TaskPolicy(autoparal=0)
 
         for d in my_kwargs["qadapters"]:
-            #print("before", d["queue"]["qtype"])
             d["queue"]["qtype"] = "shell"
             d["limits"]["min_cores"] = mpi_procs
             d["limits"]["max_cores"] = mpi_procs
@@ -868,23 +867,48 @@ batch_adapter:
         # the response fuction is in memory and not distributed
         # we need to increas memory if jobs fail ...
         # return self.qadapter.more_mem_per_proc()
-        raise ManagerIncreaseError
+        try:
+            self.qadapter.more_mem_per_proc()
+        except QueueAdapterError:
+            # here we should try to switch to an other qadapter
+            raise ManagerIncreaseError
 
     def increase_ncpu(self):
         """
         increase the number of cpus, first ask the current quadapter, if that one raises a QadapterIncreaseError
         switch to the next qadapter. If all fail raise an ManagerIncreaseError
         """
-        raise ManagerIncreaseError
+        try:
+            self.qadapter.more_mpi_procs
+        except QueueAdapterError:
+            # here we should try to switch to an other qadapter
+            raise ManagerIncreaseError('manager failed to increase ncpu')
 
     def increase_resources(self):
-        raise ManagerIncreaseError
+        try:
+            self.qadapter.more_mpi_procs
+        except QueueAdapterError:
+            pass
 
-    def exclude_nodes(self):
-        raise ManagerIncreaseError
+        try:
+            self.qadapter.more_mem_per_proc()
+        except QueueAdapterError:
+            # here we should try to switch to an other qadapter
+            raise ManagerIncreaseError('manager failed to increase resources')
+
+    def exclude_nodes(self, nodes):
+        try:
+            self.qadapter.exclude_nodes(nodes=nodes)
+        except QueueAdapterError:
+            # here we should try to switch to an other qadapter
+            raise ManagerIncreaseError('manager failed to exclude nodes')
 
     def increase_time(self):
-        raise ManagerIncreaseError
+        try:
+            self.qadapter.more_time()
+        except QueueAdapterError:
+            # here we should try to switch to an other qadapter
+            raise ManagerIncreaseError('manager failed to increase time')
 
 
 class FakeProcess(object):
@@ -1654,7 +1678,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 self.queue_errors = scheduler_parser.errors
                 # the queue errors in the task
                 msg = "scheduler errors found:\n%s" % str(scheduler_parser.errors)
-                logger.critical(msg)
+                self.history.critical(msg)
                 return self.set_status(self.S_QCRITICAL, msg=msg)
                 # The job is killed or crashed and we know what happened
             else:
@@ -1794,7 +1818,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
     def get_event_report(self, source="log"):
         """
-        Analyzes the main output file for possible Errors or Warnings.
+        Analyzes the main logfile of the calculation for possible Errors or Warnings.
+        If the ABINIT abort file is found, the error found in this file are added to
+        the output report.
 
         Args:
             source: "output" for the main output file,"log" for the log file.
@@ -1802,8 +1828,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         Returns:
             :class:`EventReport` instance or None if the main output file does not exist.
         """
-        # TODO: For the time being, we inspect the log file,
-        # We will start to use the output file when the migration to YAML is completed
+        # By default, we inspect the main log file.
         ofile = {
             "output": self.output_file,
             "log": self.log_file}[source]
@@ -1826,18 +1851,22 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             if self.abort_file.exists:
                 p = events.EventsParser()
                 abort_report = p.parse(self.abort_file.path)
-                #if abort_report:
                 if len(abort_report) != 1: 
                     logger.critical("Found more than one event in ABI_ABORTFILE")
 
-                # Add it to the initial report only if it differs from the last one found in the main log file.
+                # Add it to the initial report only if it differs 
+                # from the last one found in the main log file.
                 #print(abort_report)
-                abort_event = abort_report[-1]
-                if abort_event != report[-1]: report.append(abort_event)
+                last_abort_event = abort_report[-1]
+                if report and last_abort_event != report[-1]: 
+                    report.append(last_abort_event)
+                else:
+                    report.append(last_abort_event)
 
             return report
 
-        except parser.Error as exc:
+        #except parser.Error as exc:
+        except Exception as exc:
             # Return a report with an error entry with info on the exception.
             logger.critical("%s: Exception while parsing ABINIT events:\n %s" % (ofile, str(exc)))
             self.set_status(self.S_ABICRITICAL, msg=str(exc))
@@ -2536,7 +2565,7 @@ class AbinitTask(Task):
                         try:
                             self.manager.exclude_nodes(error.nodes)
                             self.reset_from_scratch()
-                            self.set_status(self.S_READY, msg='increased resources')
+                            self.set_status(self.S_READY, msg='excloding nodes')
                         except:
                             raise FixQueueCriticalError
                     else:
