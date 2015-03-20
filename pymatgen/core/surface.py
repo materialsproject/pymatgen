@@ -641,8 +641,7 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
 
 def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                        bonds=None, tol=0.1, max_broken_bonds=0,
-                       lll_reduce=False,
-                       center_slab=False, primitive=True):
+                       lll_reduce=False, center_slab=False, primitive=True):
     """
     A function that finds all different slabs up to a certain miller index.
     Slabs oriented under certain Miller indices that are equivalent to other
@@ -685,6 +684,26 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
     return all_slabs
 
 
+def _find_more_perpendicular(lattice, normal, max_size=1):
+    a, b, c = lattice.matrix
+    get_sin = lambda v: np.linalg.norm(np.cross(v, normal)) / np.linalg.norm(v)\
+                        / np.linalg.norm(normal)
+    current = get_sin(c)
+    print current
+    r = range(-15, 15)
+    for i, j, k in itertools.product(r, r, r):
+        if k != 0:
+            new_c = i * a + j + b + k * c
+            l = Lattice([a, b, new_c])
+            if l.volume - max_size * lattice.volume > 1e-5:
+                continue
+            if get_sin(new_c) < current:
+                v = l.volume / lattice.volume
+                max_size = int(round(max_size / v))
+                return _find_more_perpendicular(l, normal, max_size=max_size)
+    return Lattice([a, b, c])
+
+
 def _is_valid_vec(structure, vec, atol):
     mapping = []
     lattice = structure.lattice
@@ -708,6 +727,7 @@ def _get_constrained_prim(structure, atol=1e-2):
         list(g) for k, g in itertools.groupby(
             sorted_structure, key=lambda site: site.species_and_occu)]
     min_sites = min(groups, key=lambda g: len(g))
+    print min_sites
     vol = structure.lattice.volume
     a, b, c = structure.lattice.matrix
     for s1, s2 in itertools.combinations(min_sites, 2):
@@ -717,7 +737,7 @@ def _get_constrained_prim(structure, atol=1e-2):
         print vec
         if _is_valid_vec(structure, vec, atol):
             d = abs(np.linalg.det([a, b, vec]))
-
+            print d
             if d < atol: #In a-b plane
                 a_norm = norm(np.cross(vec, a)) / norm(vec) / norm(a)
                 b_norm = norm(np.cross(vec, b)) / norm(vec) / norm(b)
@@ -730,6 +750,7 @@ def _get_constrained_prim(structure, atol=1e-2):
                 new_lattice = Lattice([a, b, vec])
             print new_lattice.lengths_and_angles
             print structure.lattice.lengths_and_angles
+            print new_lattice.volume
             if new_lattice.volume < 0.1 * vol:
                 continue
             print "here"
@@ -752,11 +773,30 @@ if __name__ == "__main__":
     cwd = os.path.abspath(os.path.dirname(__file__))
     path = os.path.join(cwd, "..", "..", "test_files", "surface_tests",
                     "icsd_LiCoO2.cif")
+    #path = os.path.join(cwd, "..", "..", "test_files", "CONTCAR.Li2O")
     s = Structure.from_file(path, primitive=False)
-    print s
+    s = Structure.from_spacegroup("Im-3m", np.eye(3) * 3, ["Fe"], [[0, 0, 0]])
     gen = SlabGenerator(s, miller_index=(1, 1, 1), min_slab_size=4,
-                        min_vacuum_size=4)
-    gen.oriented_unit_cell.to(filename="LCO111.cif")
+                        min_vacuum_size=4, primitive=False)
+    o = gen.oriented_unit_cell
+    o.to(filename="initial.cif")
+    #o.make_supercell([1, 1, 1])
+    print o.lattice.lengths_and_angles
+    print o.lattice.volume
+    l = _find_more_perpendicular(o.lattice, gen._normal, max_size=20)
+    print l.lengths_and_angles
+    print l.volume
+    scale = np.dot(l.matrix, np.linalg.inv(o.lattice.matrix))
+    scale = np.round(scale).astype(int)
+    print scale
+    o.make_supercell(scale)
+
+    o.to(filename="New.cif")
+
+    #print o
+    #o2 = _get_constrained_prim(o)
+    #print o2
+    #gen.oriented_unit_cell.to(filename="LCO111.cif")
     #print s
     #print _get_constrained_prim(s)
     # s = Structure.from_file("../../test_files/LiFePO4").get_structure("LiFePO4")

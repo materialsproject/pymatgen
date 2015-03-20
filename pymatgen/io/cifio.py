@@ -38,9 +38,9 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 
 class CifBlock(object):
-    
+
     maxlen = 70  # not quite 80 so we can deal with semicolons and things
-    
+
     def __init__(self, data, loops, header):
         """
         Object for storing cif data. All data is stored in a single dictionary.
@@ -52,7 +52,7 @@ class CifBlock(object):
             data: dict or OrderedDict of data to go into the cif. Values should
                     be convertible to string, or lists of these if the key is
                     in a loop
-            loops: list of lists of keys, grouped by which loop they should 
+            loops: list of lists of keys, grouped by which loop they should
                     appear in
             header: name of the block (appears after the data_ on the first
                 line)
@@ -132,7 +132,7 @@ class CifBlock(object):
         string = re.sub("^\s*\n", "", string, flags=re.MULTILINE)
         #remove non_ascii
         string = remove_non_ascii(string)
-        
+
         #since line breaks in .cif files are mostly meaningless,
         #break up into a stream of tokens to parse, rejoining multiline
         #strings (between semicolons)
@@ -223,7 +223,7 @@ class CifFile(object):
     @classmethod
     def from_string(cls, string):
         d = OrderedDict()
-        for x in re.split("^data_", "x\n"+string, 
+        for x in re.split("^data_", "x\n"+string,
                           flags=re.MULTILINE | re.DOTALL)[1:]:
             c = CifBlock.from_string("data_"+x)
             d[c.header] = c
@@ -300,7 +300,7 @@ class CifParser(object):
                               "Defaulting to P1.")
                 sympos = ['x, y, z']
         self.symmetry_operations = [SymmOp.from_xyz_string(s) for s in sympos]
-
+        print self.symmetry_operations
         def parse_symbol(sym):
             # capitalization conventions are not strictly followed, eg Cu will be CU
             m = re.search("([A-Za-z]*)", sym)
@@ -419,12 +419,12 @@ class CifWriter:
         Args:
             struct (Structure): structure to write
             find_spacegroup (bool): whether to try to determine the spacegroup
-            symprec (float): If not none, finds the symmetry of the structure and
-                writes the cif with symmetry information. Passes symprec to the
-                SpacegroupAnalyzer
+            symprec (float): If not none, finds the symmetry of the structure
+                and writes the cif with symmetry information. Passes symprec
+                to the SpacegroupAnalyzer
         """
         format_str = "{:.8f}"
-        
+
         block = OrderedDict()
         loops = []
         latt = struct.lattice
@@ -473,7 +473,7 @@ class CifWriter:
                 (el.__str__(), float(el.oxi_state))
                 for el in sorted(comp.elements)])
         except AttributeError:
-            symbol_to_oxinum = OrderedDict([(el.symbol, 0) for el in 
+            symbol_to_oxinum = OrderedDict([(el.symbol, 0) for el in
                                             sorted(comp.elements)])
             contains_oxidation = False
         if contains_oxidation:
