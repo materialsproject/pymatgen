@@ -172,8 +172,9 @@ class CifBlock(object):
                 ml.append(l[1:].strip())
             else:
                 for s in p.findall(l):
-                    q.append(s)  # s is tuple. location of the data in the tuple
-                                 # depends on whether it was quoted in the input
+                    # s is tuple. location of the data in the tuple
+                    # depends on whether it was quoted in the input
+                    q.append(s)
         return q
 
     @classmethod
