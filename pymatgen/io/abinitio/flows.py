@@ -985,6 +985,7 @@ class Flow(Node, PMGSONable):
                     l ==> log_file,
                     e ==> stderr_file,
                     q ==> qout_file,
+                    all ==> all files.
             status: if not None, only the tasks with this status are select
             op: status operator. Requires status. A task is selected
                 if task.status op status evaluates to true.
@@ -993,15 +994,18 @@ class Flow(Node, PMGSONable):
         """
         def get_files(task):
             """Helper function used to select the files of a task."""
-            choices = {
-                "i": task.input_file,
-                "o": task.output_file,
-                "f": task.files_file,
-                "j": task.job_file,
-                "l": task.log_file,
-                "e": task.stderr_file,
-                "q": task.qout_file,
-            }
+            choices = collections.OrderedDict([
+                ("i", task.input_file),
+                ("o", task.output_file),
+                ("f", task.files_file),
+                ("j", task.job_file),
+                ("l", task.log_file),
+                ("e", task.stderr_file),
+                ("q", task.qout_file),
+            ])
+
+            if what == "all":
+                return [getattr(v, "path") for v in choices.values()]
 
             selected = []
             for c in what:
@@ -1500,10 +1504,8 @@ class Flow(Node, PMGSONable):
         # Set the flags of all the nodes in the flow.
         mode = bool(mode)
         self.in_spectator_mode = mode
-        for work in self:
-            work.in_spectator_mode = mode
-            for task in work:
-                task.in_spectator_mode = mode
+        for node in self.iflat_nodes():
+            node.in_spectator_mode = mode
 
         # connect/disconnect signals depending on mode.
         if not mode:
@@ -1522,6 +1524,7 @@ class Flow(Node, PMGSONable):
             number of tasks submitted.
         """
         self.check_pid_file()
+        self.set_spectator_mode(False)
         if check_status: self.check_status()
         from .launcher import PyLauncher
         return PyLauncher(self, **kwargs).rapidfire()
@@ -1535,6 +1538,7 @@ class Flow(Node, PMGSONable):
             number of tasks submitted.
         """
         self.check_pid_file()
+        self.set_spectator_mode(False)
         if check_status: self.check_status()
         from .launcher import PyLauncher
         return PyLauncher(self, **kwargs).single_shot()

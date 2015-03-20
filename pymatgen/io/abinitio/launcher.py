@@ -441,7 +441,6 @@ class PyFlowScheduler(object):
 
         # Check if we are already using a scheduler to run this flow
         flow.check_pid_file()
-
         flow.set_spectator_mode(False)
                                                  
         # Build dirs and files (if not yet done)
@@ -1083,8 +1082,8 @@ class BatchLauncher(object):
 
         # Check if we are already using a scheduler to run this flow
         flow.check_pid_file()
-
         flow.set_spectator_mode(False)
+
         flow.check_status(show=False)
 
         #if flow.all_ok:

@@ -204,8 +204,7 @@ class FlowTest(FlowUnitTest):
         flow.register_work(work)
 
         # If flow.workdir is None, we should used flow.allocate(workdir)
-        with self.assertRaises(RuntimeError):
-            flow.allocate()
+        with self.assertRaises(RuntimeError): flow.allocate()
 
         tmpdir = tempfile.mkdtemp()
         flow.allocate(workdir=tmpdir)
@@ -257,7 +256,7 @@ class TestFlowInSpectatorMode(FlowUnitTest):
         flow = Flow.pickle_load(flow.workdir)
         assert flow.in_spectator_mode
 
-        with self.assertRaises(flow.SpectatorError): flow.pickle_dump()
+        #with self.assertRaises(flow.SpectatorError): flow.pickle_dump()
         #with self.assertRaises(flow.SpectatorError): flow.make_scheduler().start()
 
         work = flow[0]
