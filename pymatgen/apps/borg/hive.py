@@ -162,8 +162,10 @@ class VaspToComputedEntryDrone(AbstractDrone):
         if "relax1" in subdirs and "relax2" in subdirs:
             return [parent]
         if (not parent.endswith("/relax1")) and \
-                (not parent.endswith("/relax2")) and \
-                len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0:
+           (not parent.endswith("/relax2")) and (
+               len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0 or
+               len(glob.glob(os.path.join(parent, "POSCAR*"))) > 0
+           ):
             return [parent]
         return []
 
@@ -206,6 +208,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         try:
             files_to_parse = {}
             if "relax1" in files and "relax2" in files:
+                print 'hello1'
                 for filename in ("INCAR", "POTCAR", "POSCAR"):
                     search_str = os.path.join(path, "relax1", filename + "*")
                     files_to_parse[filename] = glob.glob(search_str)[0]
@@ -213,15 +216,11 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                     search_str = os.path.join(path, "relax2", filename + "*")
                     files_to_parse[filename] = glob.glob(search_str)[-1]
             else:
-                files_to_parse["INCAR"] = glob.glob(os.path.join(path,
-                                                                 "INCAR*"))[0]
-                files_to_parse["POTCAR"] = glob.glob(
-                    os.path.join(path, "POTCAR*"))[-1]
-
-                for filename in ("CONTCAR", "OSZICAR", "POSCAR"):
+                for filename in ("INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR"):
                     files = glob.glob(os.path.join(path, filename + "*"))
-                    if len(files) == 1:
-                        files_to_parse[filename] = files[0]
+                    if len(files) < 1: continue
+                    if len(files) == 1 or filename == "INCAR" or filename == "POTCAR":
+                        files_to_parse[filename] = files[-1] if filename == "POTCAR" else files[0]
                     elif len(files) > 1:
                         """
                         This is a bit confusing, since there maybe be
@@ -247,29 +246,35 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                                 break
                             files_to_parse[filename] = fname
 
+            contcar, incar, potcar, oszicar = None, None, None, None
+            # POSCAR should always be available, see valid paths
             poscar = Poscar.from_file(files_to_parse["POSCAR"])
-            contcar = Poscar.from_file(files_to_parse["CONTCAR"])
+            if 'CONTCAR' in files_to_parse:
+                contcar = Poscar.from_file(files_to_parse["CONTCAR"])
+            if 'INCAR' in files_to_parse:
+                incar = Incar.from_file(files_to_parse["INCAR"])
+            if 'POTCAR' in files_to_parse:
+                potcar = Potcar.from_file(files_to_parse["POTCAR"])
+            if 'OSZICAR' in files_to_parse:
+                oszicar = Oszicar(files_to_parse["OSZICAR"])
 
             param = {}
-
-            incar = Incar.from_file(files_to_parse["INCAR"])
-            if "LDAUU" in incar:
-                param["hubbards"] = dict(zip(poscar.site_symbols,
-                                             incar["LDAUU"]))
-            else:
-                param["hubbards"] = {}
-            param["is_hubbard"] = (incar.get("LDAU", False) and
-                                   sum(param["hubbards"].values()) > 0)
-            param["run_type"] = "GGA+U" if param["is_hubbard"] else "GGA"
+            param["hubbards"] = dict(
+                zip(poscar.site_symbols, incar["LDAUU"])
+            ) if "LDAUU" in incar else {}
+            param["is_hubbard"] = (
+                incar.get("LDAU", False) and sum(param["hubbards"].values()) > 0
+            ) if incar is not None else False
+            param["run_type"] = None
+            if incar is not None:
+                param["run_type"] = "GGA+U" if param["is_hubbard"] else "GGA"
             param["history"] = _get_transformation_history(path)
-
-            potcar = Potcar.from_file(files_to_parse["POTCAR"])
-            param["potcar_spec"] = potcar.data
-            oszicar = Oszicar(files_to_parse["OSZICAR"])
-            energy = oszicar.final_energy
-            structure = contcar.structure
+            param["potcar_spec"] = potcar.data if potcar is not None else None
+            energy = oszicar.final_energy if oszicar is not None else -999.
+            # is using initial structure ok if contcar not available?
+            structure = contcar.structure if contcar is not None else poscar.structure
             initial_vol = poscar.structure.volume
-            final_vol = contcar.structure.volume
+            final_vol = contcar.structure.volume if contcar is not None else structure.volume
             delta_volume = (final_vol / initial_vol - 1)
             data = {"filename": path, "delta_volume": delta_volume}
             if self._inc_structure:
