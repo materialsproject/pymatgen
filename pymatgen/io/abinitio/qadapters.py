@@ -35,6 +35,7 @@ from pymatgen.core.units import Memory
 from .utils import Condition
 from .launcher import ScriptEditor
 from .qjobs import QueueJob
+from .tasks import FixQueueCriticalError
 
 import logging
 logger = logging.getLogger(__name__)
@@ -626,6 +627,9 @@ limits:
         """Set the name of the queue."""
         self._qname = qname
 
+    # todo this assumes only one wall time. i.e. the one in the mamanager file is the one always used
+    # we should use the standard walltime to start with but also allow to increase the walltime
+
     @property
     def timelimit(self):
         """Returns the walltime in seconds."""
@@ -960,7 +964,7 @@ limits:
             return new_mem
 
         logger.warning('could not increase mem_per_proc further')
-        return 0
+        raise FixQueueCriticalError
 
     def more_mpi_procs(self, factor=1):
         """
@@ -975,7 +979,15 @@ limits:
             return new_cpus
 
         logger.warning('more_mpi_procs reached the limit')
-        return 0
+        raise FixQueueCriticalError
+
+    def more_time(self):
+        """
+        Method to increase the wall time
+        """
+        raise FixQueueCriticalError
+
+
 
 
 ####################
@@ -1004,7 +1016,7 @@ $${qverbatim}
         return None, None
 
     def exclude_nodes(self, nodes):
-        return False
+        raise FixQueueCriticalError
 
 
 class SlurmAdapter(QueueAdapter):
@@ -1121,7 +1133,7 @@ $${qverbatim}
             return True
 
         except (KeyError, IndexError):
-            return False
+            raise FixQueueCriticalError
 
     def _get_njobs_in_queue(self, username):
         process = Popen(['squeue', '-o "%u"', '-u', username], stdout=PIPE, stderr=PIPE)
@@ -1310,7 +1322,7 @@ $${qverbatim}
 
     def exclude_nodes(self, nodes):
         logger.warning('exluding nodes, not implemented yet in pbs')
-        return False
+        raise FixQueueCriticalError
 
 
 class TorqueAdapter(PbsProAdapter):
@@ -1437,7 +1449,7 @@ $${qverbatim}
     def exclude_nodes(self, nodes):
         """Method to exclude nodes in the calculation"""
         logger.warning('exluding nodes, not implemented yet in SGE')
-        return False
+        raise FixQueueCriticalError
 
     def _get_njobs_in_queue(self, username):
         process = Popen(['qstat', '-u', username], stdout=PIPE, stderr=PIPE)
@@ -1501,7 +1513,7 @@ $${qverbatim}
 
     def exclude_nodes(self, nodes):
         logger.warning('exluding nodes, not implemented yet in MOAB')
-        return False
+        raise FixQueueCriticalError
 
     def cancel(self, job_id):
         return os.system("canceljob %d" % job_id)
