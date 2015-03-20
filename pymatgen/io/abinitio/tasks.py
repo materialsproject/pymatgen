@@ -16,7 +16,7 @@ import numpy as np
 from pprint import pprint
 from six.moves import map, zip, StringIO
 from monty.string import is_string, list_strings
-from monty.collections import AttrDict
+from monty.collections import AttrDict, dict2namedtuple
 from monty.functools import lazy_property, return_none_if_raise
 from monty.json import MontyDecoder
 from monty.fnmatch import WildCard
@@ -794,7 +794,15 @@ batch_adapter:
 
     def write_jobfile(self, task, **kwargs):
         """
-        Write the submission script. return the path of the script
+        Write the submission script. Return the path of the script
+
+        ================  ============================================
+        kwargs            Meaning
+        ================  ============================================
+        exec_args         List of arguments passed to task.executable.
+                          Default: None i.e. no arguments.
+
+        ================  ============================================
         """
         exec_args = kwargs.pop("exec_args", None)
 
@@ -851,7 +859,7 @@ batch_adapter:
 
         except self.qadapter.MaxNumLaunchesError:
             # TODO: Here we should try to switch to another qadapter
-            # 1) Find a new parallel configuration in those stores in task.pconfs
+            # 1) Find a new parallel configuration in those stored in task.pconfs
             # 2) Change the input file.
             # 3) Regenerate the submission script
             # 4) Relaunch
@@ -1028,8 +1036,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
     # List of `AbinitEvent` subclasses that are tested in the check_status method. 
     # Subclasses should provide their own list if they need to check the converge status.
-    CRITICAL_EVENTS = [
-    ]
+    CRITICAL_EVENTS = []
 
     # Prefixes for Abinit (input, output, temporary) files.
     Prefix = collections.namedtuple("Prefix", "idata odata tdata")
@@ -1424,8 +1431,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.set_status(self.S_INIT, msg="Reset on %s" % time.asctime())
         self.set_qjob(None)
 
-        # TODO send a signal to the flow 
-        #self.work.check_status()
         return 0
 
     @property
@@ -1479,9 +1484,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         return self._status
 
     def lock(self, source_node):
-        """
-        Lock the file, source is the :class:`Node` that is locking the file.
-        """
+        """Lock the task, source is the :class:`Node` that applies the lock."""
         if self.status != self.S_INIT:
             raise ValueError("Trying to lock a task with status %s" % self.status)
 
@@ -1538,7 +1541,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                     self.mpi_procs, self.omp_threads, self.mem_per_proc.to("Gb"), msg))
 
             elif status == self.S_OK:
-                self.history.info("Task completed ", msg)
+                self.history.info("Task completed %s", msg)
 
             elif status == self.S_ABICRITICAL:
                 self.history.info("Status set to S_ABI_CRITICAL due to: %s", msg)
@@ -1826,21 +1829,20 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             source: "output" for the main output file,"log" for the log file.
 
         Returns:
-            :class:`EventReport` instance or None if the main output file does not exist.
+            :class:`EventReport` instance or None if the source file file does not exist.
         """
         # By default, we inspect the main log file.
         ofile = {
             "output": self.output_file,
             "log": self.log_file}[source]
 
-        if not ofile.exists: return None
-
-        # Don't parse source file if we already have its report and the source didn't change.
-        #if not hasattr(self, "_prev_reports"): self._prev_reports = {}
-        #old_report = self._prev_reports.get(source, None)
-        #if False and old_report is not None and old_report.stat.st_mtime == ofile.get_stat().st_mtime:
-        #    print("Returning old_report")
-        #    return old_report
+        if not ofile.exists: 
+            if not self.abort_file.exists:
+                return None
+            else:
+                # ABINIT abort file without log!
+                abort_report = events.EventsParser().parse(self.abort_file.path)
+                return abort_report
 
         parser = events.EventsParser()
         try:
@@ -1849,14 +1851,14 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
             # Add events found in the ABI_ABORTFILE.
             if self.abort_file.exists:
-                p = events.EventsParser()
-                abort_report = p.parse(self.abort_file.path)
+                #print("Found abort file")
+                abort_report = events.EventsParser().parse(self.abort_file.path)
                 if len(abort_report) != 1: 
                     logger.critical("Found more than one event in ABI_ABORTFILE")
 
                 # Add it to the initial report only if it differs 
                 # from the last one found in the main log file.
-                #print(abort_report)
+                #print("abort_report\n", abort_report)
                 last_abort_event = abort_report[-1]
                 if report and last_abort_event != report[-1]: 
                     report.append(last_abort_event)
@@ -2052,6 +2054,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             - call the _setup method
             - execute the job file by executing/submitting the job script.
 
+        Main entry point for the `Launcher`.
+
         ==============  ==============================================================
         kwargs          Meaning
         ==============  ==============================================================
@@ -2067,7 +2071,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             raise self.Error("Task status: %s" % str(self.status))
 
         if self.start_lockfile.exists:
-            logger.warning("Found lock file: %s" % self.start_lockfile.path)
+            self.history.warning("Found lock file: %s" % self.start_lockfile.path)
             return 0
 
         self.start_lockfile.write("Started on %s" % time.asctime())
@@ -2383,11 +2387,10 @@ class AbinitTask(Task):
         possible to change temporary these values.
 
         Returns:
-            kpoints: numpy array with the reduced coordinates of the k-points in the IBZ.
-            weights: numpy array with the weights normalized to one.
+            `namedtuple` with attributes:
+                points: `ndarray` with points in the IBZ in reduced coordinates.
+                weights: `ndarray` with weights of the points.
         """
-        logger.info("in get_ibz")
-
         #########################################
         # Run ABINIT in sequential to get the IBZ
         #########################################
@@ -2416,7 +2419,7 @@ class AbinitTask(Task):
         # Read the list of k-points from the netcdf file
         ################################################
         from pymatgen.io.abinitio import NetcdfReader
-        with NetcdfReader(self.outdir.path_in("kpts.nc")) as r:
+        with NetcdfReader(os.path.join(self.workdir, "kpts.nc")) as r:
             kpoints = r.read_value("reduced_coordinates_of_kpoints")
             weights = r.read_value("kpoint_weights")
 
@@ -2428,7 +2431,7 @@ class AbinitTask(Task):
         os.remove(self.log_file.path)
         os.remove(self.stderr_file.path)
 
-        return kpoints, weights
+        return dict2namedtuple(points=kpoints, weights=weights)
 
     def restart(self):
         """
@@ -2785,10 +2788,9 @@ class ScfTask(GsTask):
         for ext in ("WFK", "DEN"):
             restart_file = self.outdir.has_abiext(ext)
             irdvars = irdvars_for_ext(ext)
-            if restart_file:
-                break
+            if restart_file: break
         else:
-            raise self.RestartError("Cannot find WFK or DEN file to restart from.")
+            raise self.RestartError("%s: Cannot find WFK or DEN file to restart from." % self)
 
         # Move out --> in.
         self.out_to_in(restart_file)
@@ -2832,8 +2834,7 @@ class ScfTask(GsTask):
 
 class NscfTask(GsTask):
     """
-    Non-Self-consistent GS calculation.
-    Provide in-place restart via WFK files
+    Non-Self-consistent GS calculation. Provide in-place restart via WFK files
     """
     CRITICAL_EVENTS = [
         events.NscfConvergenceWarning,
@@ -2844,7 +2845,7 @@ class NscfTask(GsTask):
         ext = "WFK"
         restart_file = self.outdir.has_abiext(ext)
         if not restart_file:
-            raise self.RestartError("Cannot find the WFK file to restart from.")
+            raise self.RestartError("%s: Cannot find the WFK file to restart from." % self)
 
         # Move out --> in.
         self.out_to_in(restart_file)
@@ -2974,7 +2975,7 @@ class RelaxTask(GsTask, ProduceHist):
                 irdvars = irdvars_for_ext("DEN")
 
         if restart_file is None:
-            #raise self.RestartError("Cannot find the WFK|DEN file to restart from.")
+            # Don't raise RestartError as we can still change the structure.
             self.history.warning("Cannot find the WFK|DEN file to restart from.")
         else:
             # Add the appropriate variable for restarting.
@@ -3063,14 +3064,24 @@ class DdkTask(AbinitTask, ProduceDdb):
         return results.register_gridfs_file(DDK=(self.outdir.has_abiext("DDK"), "t"))
 
 
-class PhononTask(AbinitTask, ProduceDdb):
+class DfptTask(AbinitTask, ProduceDdb):
+    """
+    Base class for DFPT tasks (Phonons, ...)
+    Mainly used to implement methods that are common to DFPT calculations with Abinit.
+
+    .. warning::
+
+        This class should not be instantiated directly.
+    """
+
+
+class PhononTask(DfptTask):
     """
     DFPT calculations for a single atomic perturbation.
     Provide support for in-place restart via (1WF|1DEN) files
     """
     # TODO: 
     # for the time being we don't discern between GS and PhononCalculations.
-    # Restarting Phonon calculation is more difficult due to the crazy rules employed in ABINIT 
     CRITICAL_EVENTS = [
         events.ScfConvergenceWarning,
     ]
@@ -3081,22 +3092,25 @@ class PhononTask(AbinitTask, ProduceDdb):
         from which we can read the first-order wavefunctions or the first order density.
         Prefer 1WF over 1DEN since we can reuse the wavefunctions.
         """
-        #self.fix_ofiles()
-        for ext in ("1WF", "1DEN"):
-            restart_file = self.outdir.has_abiext(ext)
-            irdvars = irdvars_for_ext(ext)
-            if restart_file:
-                break
+        # Abinit adds the idir-ipert index at the end of the file and this breaks the extension 
+        # e.g. out_1WF4, out_DEN4
+        # Fix the problem here! Highest priority to the 1WF file because restart is more accurate.
+        for ext in ("1WF", "DEN"):
+            ofiles = self.outdir.list_filepaths(wildcard="*_" + ext + "*")
+            if ofiles and len(ofiles) == 1: break
         else:
-            raise self.RestartError("Cannot find the 1WF|1DEN|file to restart from.")
+            # Raise because otherwise restart is equivalent to a run from scratch --> infinite loop!
+            raise self.RestartError("%s: Cannot find the 1WF|1DEN file to restart from." % self)
 
-        self.out_to_in(restart_file)
+        # Move file.
+        restart_file = self.out_to_in(ofiles[0])
+        self.history.info("Will restart from %s", restart_file)
 
         # Add the appropriate variable for restarting.
+        irdvars = irdvars_for_ext(ext) if ext == "1WF" else {"ird1den": 1}
         self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
-        self.history.info("Will restart from %s", restart_file)
         return self._restart()
 
     def inspect(self, **kwargs):
@@ -3174,7 +3188,7 @@ class SigmaTask(ManyBodyTask):
         ext = "QPS"
         restart_file = self.outdir.has_abiext(ext)
         if not restart_file:
-            raise self.RestartError("Cannot find the QPS file to restart from.")
+            raise self.RestartError("%s: Cannot find the QPS file to restart from." % self)
 
         self.out_to_in(restart_file)
 
@@ -3290,7 +3304,7 @@ class BseTask(ManyBodyTask):
                     count += 1
 
             if not count:
-                raise self.RestartError("Cannot find BSR|BSC files in %s" % self.indir)
+                raise self.RestartError("%s: Cannot find BSR|BSC files in %s" % (self, self.indir))
 
         # Rename HAYDR_SAVE files
         count = 0
@@ -3302,7 +3316,7 @@ class BseTask(ManyBodyTask):
                 self.out_to_in(ofile)
 
         if not count:
-            raise self.RestartError("Cannot find the HAYDR_SAVE file to restart from.")
+            raise self.RestartError("%s: Cannot find the HAYDR_SAVE file to restart from." % self)
 
         # Add the appropriate variable for restarting.
         self.strategy.add_extra_abivars(irdvars)
