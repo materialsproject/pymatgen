@@ -39,9 +39,15 @@ TITLE sites: 4
         comment = 'From cif file'
         header = str(FeffInputSet.get_header(x, structure, 'CoO19128.cif',
                                              comment))
-        self.maxDiff = 1000
-        self.assertEqual(FeffInputSetTest.header_string.splitlines(),
-                         header.splitlines())
+
+        ref = FeffInputSetTest.header_string.splitlines()
+        last4 = [" ".join(l.split()[2:]) for l in ref[-4:]]
+        for i, l in enumerate(header.splitlines()):
+            if i < 9:
+                self.assertEqual(l, ref[i])
+            else:
+                s = " ".join(l.split()[2:])
+                self.assertIn(s, last4)
 
     def test_getfefftags(self):
         tags = FeffInputSet.get_feff_tags(x, "XANES").as_dict()
