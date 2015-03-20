@@ -164,7 +164,9 @@ class VaspToComputedEntryDrone(AbstractDrone):
         if (not parent.endswith("/relax1")) and \
            (not parent.endswith("/relax2")) and (
                len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0 or
-               len(glob.glob(os.path.join(parent, "POSCAR*"))) > 0
+               len(glob.glob(os.path.join(parent, "POSCAR*"))) > 0 or (
+               len(glob.glob(os.path.join(parent, "POSCAR*"))) > 0 and
+               len(glob.glob(os.path.join(parent, "OSZICAR*"))) > 0)
            ):
             return [parent]
         return []
@@ -208,7 +210,6 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         try:
             files_to_parse = {}
             if "relax1" in files and "relax2" in files:
-                print 'hello1'
                 for filename in ("INCAR", "POTCAR", "POSCAR"):
                     search_str = os.path.join(path, "relax1", filename + "*")
                     files_to_parse[filename] = glob.glob(search_str)[0]
@@ -246,9 +247,9 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                                 break
                             files_to_parse[filename] = fname
 
-            contcar, incar, potcar, oszicar = None, None, None, None
-            # POSCAR should always be available, see valid paths
-            poscar = Poscar.from_file(files_to_parse["POSCAR"])
+            poscar, contcar, incar, potcar, oszicar = None, None, None, None, None
+            if 'POSCAR' in files_to_parse:
+                poscar = Poscar.from_file(files_to_parse["POSCAR"])
             if 'CONTCAR' in files_to_parse:
                 contcar = Poscar.from_file(files_to_parse["CONTCAR"])
             if 'INCAR' in files_to_parse:
@@ -258,10 +259,9 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             if 'OSZICAR' in files_to_parse:
                 oszicar = Oszicar(files_to_parse["OSZICAR"])
 
-            param = {}
-            param["hubbards"] = dict(
-                zip(poscar.site_symbols, incar["LDAUU"])
-            ) if "LDAUU" in incar else {}
+            param = {"hubbards":{}}
+            if (poscar is not None and incar is not None and "LDAUU" in incar):
+                param["hubbards"] = dict(zip(poscar.site_symbols, incar["LDAUU"]))
             param["is_hubbard"] = (
                 incar.get("LDAU", False) and sum(param["hubbards"].values()) > 0
             ) if incar is not None else False
@@ -270,20 +270,22 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                 param["run_type"] = "GGA+U" if param["is_hubbard"] else "GGA"
             param["history"] = _get_transformation_history(path)
             param["potcar_spec"] = potcar.data if potcar is not None else None
-            energy = oszicar.final_energy if oszicar is not None else -999.
-            # is using initial structure ok if contcar not available?
+            energy = oszicar.final_energy if oszicar is not None else 1e10
             structure = contcar.structure if contcar is not None else poscar.structure
-            initial_vol = poscar.structure.volume
-            final_vol = contcar.structure.volume if contcar is not None else structure.volume
-            delta_volume = (final_vol / initial_vol - 1)
+            initial_vol = poscar.structure.volume if poscar is not None else None
+            final_vol = contcar.structure.volume if contcar is not None else None
+            delta_volume = None
+            if initial_vol is not None and final_vol is not None:
+                delta_volume = (final_vol / initial_vol - 1)
             data = {"filename": path, "delta_volume": delta_volume}
             if self._inc_structure:
-                entry = ComputedStructureEntry(structure, energy,
-                                               parameters=param,
-                                               data=data)
+                entry = ComputedStructureEntry(
+                  structure, energy, parameters=param, data=data
+                )
             else:
-                entry = ComputedEntry(structure.composition, energy,
-                                      parameters=param, data=data)
+                entry = ComputedEntry(
+                  structure.composition, energy, parameters=param, data=data
+                )
             return entry
 
         except Exception as ex:
