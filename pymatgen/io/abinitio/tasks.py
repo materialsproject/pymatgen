@@ -869,23 +869,48 @@ batch_adapter:
         # the response fuction is in memory and not distributed
         # we need to increas memory if jobs fail ...
         # return self.qadapter.more_mem_per_proc()
-        raise ManagerIncreaseError
+        try:
+            self.qadapter.more_mem_per_proc()
+        except FixQueueCriticalError:
+            # here we should try to switch to an other qadapter
+            raise ManagerIncreaseError
 
     def increase_ncpu(self):
         """
         increase the number of cpus, first ask the current quadapter, if that one raises a QadapterIncreaseError
         switch to the next qadapter. If all fail raise an ManagerIncreaseError
         """
-        raise ManagerIncreaseError
+        try:
+            self.qadapter.more_mpi_procs
+        except FixQueueCriticalError:
+            # here we should try to switch to an other qadapter
+            raise ManagerIncreaseError
 
     def increase_resources(self):
-        raise ManagerIncreaseError
+        try:
+            self.qadapter.more_mpi_procs
+        except FixQueueCriticalError:
+            pass
 
-    def exclude_nodes(self):
-        raise ManagerIncreaseError
+        try:
+            self.qadapter.more_mem_per_proc()
+        except FixQueueCriticalError:
+            # here we should try to switch to an other qadapter
+            raise ManagerIncreaseError
+
+    def exclude_nodes(self, nodes):
+        try:
+            self.qadapter.exclude_nodes(nodes=nodes)
+        except FixQueueCriticalError:
+            # here we should try to switch to an other qadapter
+            raise ManagerIncreaseError
 
     def increase_time(self):
-        raise ManagerIncreaseError
+        try:
+            self.qadapter.more_time()
+        except FixQueueCriticalError:
+            # here we should try to switch to an other qadapter
+            raise ManagerIncreaseError
 
 
 class FakeProcess(object):
@@ -1638,7 +1663,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 self.queue_errors = scheduler_parser.errors
                 # the queue errors in the task
                 msg = "scheduler errors found:\n%s" % str(scheduler_parser.errors)
-                logger.critical(msg)
+                self.history.critical(msg)
                 return self.set_status(self.S_QCRITICAL, msg=msg)
                 # The job is killed or crashed and we know what happened
             else:
@@ -2471,14 +2496,14 @@ class AbinitTask(Task):
         if not self.queue_errors:
             # paral_kgb = 1 leads to nasty sigegv that are seen as Qcritical errors!
             # Try to fallback to the conjugate gradient.
-            if self.uses_paral_kgb(1):
-                logger.critical("QCRITICAL with PARAL_KGB==1. Will try CG!")
-                self._inp_vars(paral_kgb=0)
-                self.reset_from_scratch()
-                return
+            #if self.uses_paral_kgb(1):
+            #    logger.critical("QCRITICAL with PARAL_KGB==1. Will try CG!")
+            #    self._inp_vars(paral_kgb=0)
+            #    self.reset_from_scratch()
+            #    return
             # queue error but no errors detected, try to solve by increasing ncpus if the task scales
             # if resources are at maximum the task is definitively turned to errored
-            elif self.mem_scales or self.load_scales:
+            if self.mem_scales or self.load_scales:
                 try:
                     self.manager.increase_resources()  # acts either on the policy or on the qadapter
                     self.reset_from_scratch()
@@ -2500,7 +2525,7 @@ class AbinitTask(Task):
                         try:
                             self.manager.exclude_nodes(error.nodes)
                             self.reset_from_scratch()
-                            self.set_status(self.S_READY, msg='increased resources')
+                            self.set_status(self.S_READY, msg='excloding nodes')
                         except:
                             raise FixQueueCriticalError
                     else:
