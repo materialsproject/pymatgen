@@ -4,6 +4,7 @@ from __future__ import unicode_literals, division, print_function
 
 import os
 import six
+import re
 import collections
 import shutil
 import operator
@@ -11,6 +12,7 @@ import numpy as np
 
 from fnmatch import fnmatch
 from six.moves import filter
+from monty.collections import dict2namedtuple
 from monty.string import list_strings
 from monty.fnmatch import WildCard
 
@@ -256,7 +258,7 @@ class Directory(object):
 
         if len(files) > 1:
             # ABINIT users must learn that multiple datasets are bad!
-            err_msg = "Found multiple files with the same extensions\n Please avoid the use of mutiple datasets!"
+            err_msg = "Found multiple files with the same extensions:\n %s\nPlease avoid the use of mutiple datasets!" % files
             raise ValueError(err_msg)
 
         return files[0]
@@ -326,7 +328,33 @@ class Directory(object):
                 logger.warning("Exception while trying to remove file %s" % path)
 
         return paths
-        
+
+    def find_last_timden_file(self):
+        """
+        ABINIT produces lots of out_TIM1_DEN files for each step and we need to find the lat
+        one in order to prepare the restart or to connect other tasks to the structural relaxation.
+
+        This function finds all the TIM?_DEN files in self and return a namedtuple (path, step)
+        where `path` is the path of the last TIM?_DEN file and step is the iteration number.
+        Returns None if the directory does not contain TIM?_DEN files.
+        """
+        regex = re.compile("out_TIM(\d+)_DEN(.nc)?$")
+
+        timden_paths = [f for f in self.list_filepaths() if regex.match(os.path.basename(f))]
+        if not timden_paths: return None
+
+        # Build list of (step, path) tuples.
+        stepfile_list = []
+        for path in timden_paths:
+            name = os.path.basename(path)
+            match = regex.match(name)
+            step, ncext = match.groups()
+            stepfile_list.append((int(step), path))
+                                                                                        
+        # DSU sort.
+        last = sorted(stepfile_list, key=lambda t: t[0])[-1]
+        return dict2namedtuple(step=last[0], path=last[1])
+
 
 # This dictionary maps ABINIT file extensions to the variables that must be used to read the file in input.
 #

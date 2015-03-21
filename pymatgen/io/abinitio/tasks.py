@@ -800,12 +800,10 @@ batch_adapter:
         kwargs            Meaning
         ================  ============================================
         exec_args         List of arguments passed to task.executable.
-                          Default: None i.e. no arguments.
+                          Default: no arguments.
 
         ================  ============================================
         """
-        exec_args = kwargs.pop("exec_args", None)
-
         script = self.qadapter.get_script_str(
             job_name=task.name, 
             launch_dir=task.workdir,
@@ -815,7 +813,7 @@ batch_adapter:
             stdin=task.files_file.path, 
             stdout=task.log_file.path,
             stderr=task.stderr_file.path,
-            exec_args=exec_args,
+            exec_args=kwargs.pop("exec_args", []),
         )
 
         # Write the script.
@@ -840,12 +838,21 @@ batch_adapter:
         # Build the task 
         task.build()
 
-        # TODO
         # Pass information on the time limit to Abinit but only if ndtset == 1.
-        #if isinstance(self, AbinitTask) and task.input.ndtset == 1:
-        #    l = kwargs.get("exec_args", [])
-        #    l.update("--timelimit %s" % qu.time2slurm(self.qadapter.timelimit))
-        #    kwargs["exec_args"] = l
+        # TODO: Also in this case, strategies are not supported.
+        # Disable for the time being because it requires my version of Abinit
+        try:
+            ndtset = task.strategy.abinit_input.ndtset
+        except:
+            ndtset = None
+
+        if False and ndtset == 1 and isinstance(task, AbinitTask):
+            args = kwargs.get("exec_args", [])
+            if args is None: args = []
+            args = args[:]
+            args.append("--timelimit %s" % qu.time2slurm(self.qadapter.timelimit))
+            kwargs["exec_args"] = args
+            print("Will pass timelimit option to abinit %s:" % args)
 
         # Write the submission script
         script_file = self.write_jobfile(task, **kwargs)
@@ -1492,9 +1499,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self._status = self.S_LOCKED
         self.history.info("Locked by node %s", source_node)
 
-    def unlock(self, check_status=True):
+    def unlock(self, source_node, check_status=True):
         """
         Unlock the task, set its status to `S_READY` so that the scheduler can submit it.
+        source_node is the :class:`Node` that removed the lock
         Call task.check_status if check_status is True.
         """
         if self.status != self.S_LOCKED:
@@ -1502,6 +1510,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         self._status = self.S_READY
         if check_status: self.check_status()
+        self.history.info("Unlocked by %s", source_node)
 
     #@check_spectator
     def set_status(self, status, msg=None):
@@ -1548,7 +1557,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 self.history.info("Status set to S_ABI_CRITICAL due to: %s", msg)
 
             else:
-                self.history.info("Status changed to %s: %s", status, msg)
+                self.history.info("Status changed to %s. msg: %s", status, msg)
 
         #######################################################
         # The section belows contains callbacks that should not
@@ -1632,24 +1641,19 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                     return self.set_status(self.S_OK)
 
             # Calculation still running or errors?
-            if report.errors or report.bugs:
+            if report.errors:
                 # Abinit reported problems
-                if report.errors:
-                    logger.debug('Found errors in report')
-                    for error in report.errors:
-                        logger.debug(str(error))
-                        try:
-                            self.abi_errors.append(error)
-                        except AttributeError:
-                            self.abi_errors = [error]
-                if report.bugs:
-                    logger.debug('Found bugs in report:')
-                    for bug in report.bugs:
-                        logger.debug(str(bug))
+                logger.debug('Found errors in report')
+                for error in report.errors:
+                    logger.debug(str(error))
+                    try:
+                        self.abi_errors.append(error)
+                    except AttributeError:
+                        self.abi_errors = [error]
 
                 # The job is unfixable due to ABINIT errors
                 logger.debug("%s: Found Errors or Bugs in ABINIT main output!" % self)
-                msg = "\n".join(map(repr, report.errors + report.bugs))
+                msg = "\n".join(map(repr, report.errors))
                 return self.set_status(self.S_ABICRITICAL, msg=msg)
 
             # 5)
@@ -1805,7 +1809,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 if not os.path.exists(dest):
                     os.symlink(path, dest)
                 else:
-                    if os.path.realpath(dest) != path:
+                    # check links but only if we haven't performed the restart.
+                    # in this case, indeed we may have replaced the file pointer with the 
+                    # previous output file of the present task.
+                    if os.path.realpath(dest) != path and self.num_restarts == 0:
                         raise self.Error("dest %s does not point to path %s" % (dest, path))
 
     @abc.abstractmethod
@@ -1853,14 +1860,13 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
             # Add events found in the ABI_MPIABORTFILE.
             if self.mpiabort_file.exists:
-                #print("Found abort file")
+                logger.critical("Found ABI_MPIABORTFILE!!!!!")
                 abort_report = parser.parse(self.mpiabort_file.path)
                 if len(abort_report) != 1: 
                     logger.critical("Found more than one event in ABI_MPIABORTFILE")
 
                 # Add it to the initial report only if it differs 
                 # from the last one found in the main log file.
-                #print("abort_report\n", abort_report)
                 last_abort_event = abort_report[-1]
                 if report and last_abort_event != report[-1]: 
                     report.append(last_abort_event)
@@ -2209,16 +2215,24 @@ class AbinitTask(Task):
         Here we fix this issue by renaming run.abo to run.abo_[number] if the output file "run.abo" already
         exists. A few lines of code in python, a lot of problems if you try to implement this trick in Fortran90. 
         """
-        if self.output_file.exists:
-            # Find the index of the last file (if any) and push.
+        def rename_file(afile):
+            """Helper function to rename :class:`File` objects. Return string for logginf purpose."""
+            # Find the index of the last file (if any).
             # TODO: Maybe it's better to use run.abo --> run(1).abo
-            fnames = [f for f in os.listdir(self.workdir) if f.startswith(self.output_file.basename)]
+            fnames = [f for f in os.listdir(self.workdir) if f.startswith(afile.basename)]
             nums = [int(f) for f in [f.split("_")[-1] for f in fnames] if f.isdigit()]
             last = max(nums) if nums else 0
-            new_path = self.output_file.path + "_" + str(last+1)
+            new_path = afile.path + "_" + str(last+1)
+                                                                                                      
+            os.rename(afile.path, new_path)
+            return "Will rename %s to %s" % (afile.path, new_path)
 
-            self.history.info("Will rename %s to %s" % (self.output_file.path, new_path))
-            os.rename(self.output_file.path, new_path)
+        logs = []
+        if self.output_file.exists: logs.append(rename_file(self.output_file))
+        if self.log_file.exists: logs.append(rename_file(self.log_file))
+
+        if logs:
+            self.history.info("\n".join(logs))
 
     @property
     def executable(self):
@@ -2906,44 +2920,49 @@ class RelaxTask(GsTask, ProduceHist):
             are computed from the initial structure and may not be consisten with
             the modification of the structure done during the structure relaxation.
         """
-        # Tyr to restart from the WFK file if possible.
-        restart_file, ext = None, "WFK"
+        restart_file = None
 
-        ofile = self.outdir.has_abiext(ext)
-        if ofile:
-            irdvars = irdvars_for_ext(ext)
-            restart_file = self.out_to_in(ofile)
+        # Try to restart from the WFK file if possible.
+        # FIXME: This part has been disable because WFK=IO is a mess if paral_kgb == 1
+        # This is also the reason why I wrote my own MPI-IO code for the GW part!
+        wfk_file = self.outdir.has_abiext("WFK")
+        if False and wfk_file:
+            irdvars = irdvars_for_ext("WFK")
+            restart_file = self.out_to_in(wfk_file)
+
+        # Fallback to DEN file. Note that here we look for out_DEN instead of out_TIM?_DEN
+        # This happens when the previous run completed and task.on_done has been performed.
+        # ********************************************************************************
+        # Note that it's possible to have an undected error if we have multiple restarts
+        # and the last relax died badly. In this case indeed out_DEN is the file produced 
+        # by the last run that has executed on_done.
+        # ********************************************************************************
+        if restart_file is None:
+            out_den = self.outdir.path_in("out_DEN")
+            if os.path.exists(out_den):
+                irdvars = irdvars_for_ext("DEN")
+                restart_file = self.out_to_in(out_den)
 
         if restart_file is None:
-            # Try to restart from DEN file.
-            # Note that ABINIT produces a lot of out_TIM1_DEN files for each step.
-            # Here we list all TIM*_DEN files and we select the last one.
-            den_files = self.outdir.list_filepaths(wildcard="*_DEN")
-            if den_files:
-                stepfile_list = []
-                for f in den_files:
-                    step = os.path.basename(f).replace("_DEN", "").replace("out_TIM", "")
-                    stepfile_list.append((int(step), f))
-
-                # DSU sort.
-                last_denfile = sorted(stepfile_list, key=lambda t: t[0])[-1][1]
-
-                # Fix the name of the DEN file so that we can use out_to_in!
+            # Try to restart from the last TIM?_DEN file.
+            # This should happen if the previous run didn't complete in clean way.
+            # Find the last TIM?_DEN file.
+            last_timden = self.outdir.find_last_timden_file()
+            if last_timden is not None:
                 ofile = self.outdir.path_in("out_DEN")
-                os.rename(last_denfile, ofile)
-
+                os.rename(last_timden.path, ofile)
                 restart_file = self.out_to_in(ofile)
                 irdvars = irdvars_for_ext("DEN")
 
         if restart_file is None:
             # Don't raise RestartError as we can still change the structure.
-            self.history.warning("Cannot find the WFK|DEN file to restart from.")
+            self.history.warning("Cannot find the WFK|DEN|TIM?_DEN file to restart from.")
         else:
             # Add the appropriate variable for restarting.
             self.strategy.add_extra_abivars(irdvars)
             self.history.info("Will restart from %s", restart_file)
 
-        # TODO Read the HIST file.
+        # FIXME Here we should read the HIST file but restartxf if broken!
         #self.strategy.add_extra_abivars({"restartxf": -1})
 
         # Read the relaxed structure from the GSR file and change the input.
@@ -2997,6 +3016,27 @@ class RelaxTask(GsTask, ProduceHist):
         actual_dilatmx = self.get_inpvar('dilatmx', 1.)
         new_dilatmx = actual_dilatmx - min((actual_dilatmx-target), actual_dilatmx*0.05)
         self._set_inpvars(dilatmx=new_dilatmx)
+
+    def fix_ofiles(self):
+        """
+        Note that ABINIT produces lots of out_TIM1_DEN files for each step.
+        Here we list all TIM*_DEN files, we select the last one and we rename it in out_DEN
+
+        This change is needed so that we can specify dependencies with the syntax {node: "DEN"}
+        without having to know the number of iterations needed to converge the run in node!
+        """
+        super(RelaxTask, self).fix_ofiles()
+
+        # Find the last TIM?_DEN file.
+        last_timden = self.outdir.find_last_timden_file()
+        if last_timden is None:
+            logger.warning("Cannot find TIM?_DEN files")
+            return
+
+        # Rename last TIMDEN with out_DEN.
+        ofile = self.outdir.path_in("out_DEN")
+        self.history.info("Renaming last_denfile %s --> %s" % (last_timden.path, ofile))
+        os.rename(last_timden.path, ofile)
 
 
 class DfptTask(AbinitTask):

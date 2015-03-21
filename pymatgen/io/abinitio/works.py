@@ -811,14 +811,9 @@ class RelaxWork(Work):
         #   1) It would be nice to restart from the WFK file but ABINIT crashes due to the
         #      different unit cell parameters.
         #
-        #   2) Restarting form DEN is not trivial because Abinit produces all these _TIM?_DEN files.
-        #      and the syntax used to specify dependencies is not powerful enough.
-        #   
-        # For the time being, we don't use any output from ion_tasl except for the 
-        # the final structure that will be transferred in on_ok.
-        deps = {self.ion_task: "DEN"}
-        deps = {self.ion_task: "WFK"}
+        # deps = {self.ion_task: "WFK"} --> FIXME: Problem in rwwf
         deps = None
+        deps = {self.ion_task: "DEN"}
 
         self.ioncell_task = self.register_relax_task(ioncell_input, deps=deps)
 
@@ -847,8 +842,7 @@ class RelaxWork(Work):
             self.transfer_done = True
 
             # Unlock ioncell_task so that we can submit it.
-            self.ioncell_task.unlock()
-            self.ioncell_task.history.info("Unlocked by %s", self)
+            self.ioncell_task.unlock(source_node=self)
 
         elif sender == self.ioncell_task and self.target_dilatmx:
             actual_dilatmx = self.ioncell_task.get_inpvar('dilatmx', 1.)
@@ -859,6 +853,26 @@ class RelaxWork(Work):
                 self.ioncell_task.reset_from_scratch()
 
         return super(RelaxWork, self).on_ok(sender)
+
+    def plot_ion_relaxation(self, **kwargs):
+        """
+        Plot the history of the ion-cell relaxation. 
+        kwargs are passed to the plot method of :class:`HistFile`
+
+        Return `matplotlib` figure or None if hist file is not found.
+        """
+        with self.ion_task.open_hist() as hist:
+            return hist.plot(**kwargs) if hist else None
+
+    def plot_ioncell_relaxation(self, **kwargs):
+        """
+        Plot the history of the ion-cell relaxation.
+        kwargs are passed to the plot method of :class:`HistFile`
+
+        Return `matplotlib` figure or None if hist file is not found.
+        """
+        with self.ioncell_task.open_hist() as hist:
+            return hist.plot(**kwargs) if hist else None
 
 
 class G0W0Work(Work):
