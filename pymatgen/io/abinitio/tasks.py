@@ -1114,7 +1114,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.log_file = File(os.path.join(self.workdir, "run.log"))
         self.stderr_file = File(os.path.join(self.workdir, "run.err"))
         self.start_lockfile = File(os.path.join(self.workdir, "__startlock__"))
-        self.abort_file = File(os.path.join(self.workdir, "__ABI_ABORTFILE__"))
+        # This file is produce by Abinit if nprocs > 1 and MPI_ABORT.
+        self.mpiabort_file = File(os.path.join(self.workdir, "__ABI_MPIABORTFILE__"))
 
         # Directories with input|output|temporary data.
         self.indir = Directory(os.path.join(self.workdir, "indata"))
@@ -1597,7 +1598,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             return self.set_status(self.S_QCRITICAL, msg="return code %s" % self.returncode)
 
         # If we have an abort file produced by Abinit
-        if self.abort_file.exists:
+        if self.mpiabort_file.exists:
             return self.set_status(self.S_ABICRITICAL, msg="Found ABINIT abort file")
 
         # Analyze the stderr file for Fortran runtime errors.
@@ -1836,25 +1837,26 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             "output": self.output_file,
             "log": self.log_file}[source]
 
+        parser = events.EventsParser()
+
         if not ofile.exists: 
-            if not self.abort_file.exists:
+            if not self.mpiabort_file.exists:
                 return None
             else:
                 # ABINIT abort file without log!
-                abort_report = events.EventsParser().parse(self.abort_file.path)
+                abort_report = parser.parse(self.mpiabort_file.path)
                 return abort_report
 
-        parser = events.EventsParser()
         try:
             report = parser.parse(ofile.path)
             #self._prev_reports[source] = report
 
-            # Add events found in the ABI_ABORTFILE.
-            if self.abort_file.exists:
+            # Add events found in the ABI_MPIABORTFILE.
+            if self.mpiabort_file.exists:
                 #print("Found abort file")
-                abort_report = events.EventsParser().parse(self.abort_file.path)
+                abort_report = parser.parse(self.mpiabort_file.path)
                 if len(abort_report) != 1: 
-                    logger.critical("Found more than one event in ABI_ABORTFILE")
+                    logger.critical("Found more than one event in ABI_MPIABORTFILE")
 
                 # Add it to the initial report only if it differs 
                 # from the last one found in the main log file.
@@ -2325,7 +2327,6 @@ class AbinitTask(Task):
         # we don't want to make a request to the queue manager for this simple job!
         # Return code is always != 0 
         process = self.manager.to_shell_manager(mpi_procs=1).launch(self)
-        logger.info("fake run launched")
         self.history.pop()
         retcode = process.wait()
 
@@ -2659,43 +2660,6 @@ class AbinitTask(Task):
 #      We need this change for restarting structural relaxations so that we can read 
 #      the initial structure from file.
 
-
-class ProduceGsr(object):
-    """
-    Mixin class for an :class:`AbinitTask` producing a GSR file.
-    Provide the method `open_gsr` that reads and returns a GSR file.
-    """
-    @property
-    def gsr_path(self):
-        """Absolute path of the GSR file. Empty string if file is not present."""
-        # Lazy property to avoid multiple calls to has_abiext.
-        try:
-            return self._gsr_path 
-        except AttributeError:
-            path = self.outdir.has_abiext("GSR")
-            if path: self._gsr_path = path
-            return path
-
-    def open_gsr(self):
-        """
-        Open the GSR file located in the in self.outdir.
-        Returns :class:`GsrFile` object, None if file could not be found or file is not readable.
-        """
-        gsr_path = self.gsr_path
-        if not gsr_path:
-            if self.status == self.S_OK:
-                logger.critical("%s reached S_OK but didn't produce a GSR file in %s" % (self, self.outdir))
-            return None
-
-        # Open the GSR file.
-        from abipy.electrons.gsr import GsrFile
-        try:
-            return GsrFile(gsr_path)
-        except Exception as exc:
-            logger.critical("Exception while reading GSR file at %s:\n%s" % (gsr_path, str(exc)))
-            return None
-
-
 class ProduceHist(object):
     """
     Mixin class for an :class:`AbinitTask` producing a HIST file.
@@ -2731,46 +2695,43 @@ class ProduceHist(object):
             return None
 
 
-class ProduceDdb(object):
-    """
-    Mixin class for :an class:`AbinitTask` producing a DDB file.
-    Provide the method `open_ddb` that reads and return a Ddb file.
-    """
-    @property
-    def ddb_path(self):
-        """Absolute path of the DDB file. Empty string if file is not present."""
-        # Lazy property to avoid multiple calls to has_abiext.
-        try:
-            return self._ddb_path 
-        except AttributeError:
-            path = self.outdir.has_abiext("DDB")
-            if path: self._ddb_path = path
-            return path
-
-    def open_ddb(self):
-        """
-        Open the DDB file located in the in self.outdir.
-        Returns :class:`DdbFile` object, None if file could not be found or file is not readable.
-        """
-        ddb_path = self.ddb_path
-        if not ddb_path:
-            if self.status == self.S_OK:
-                logger.critical("%s reached S_OK but didn't produce a DDB file in %s" % (self, self.outdir))
-            return None
-
-        # Open the GSR file.
-        from abipy.dfpt.ddb import DdbFile
-        try:
-            return DdbFile(ddb_path)
-        except Exception as exc:
-            logger.critical("Exception while reading DDB file at %s:\n%s" % (ddb_path, str(exc)))
-            return None
-
-
-class GsTask(AbinitTask, ProduceGsr):
+class GsTask(AbinitTask):
     """
     Base class for ground-state tasks. A ground state task produce a GSR file
     """
+    """
+    Mixin class for an :class:`AbinitTask` producing a GSR file.
+    Provide the method `open_gsr` that reads and returns a GSR file.
+    """
+    @property
+    def gsr_path(self):
+        """Absolute path of the GSR file. Empty string if file is not present."""
+        # Lazy property to avoid multiple calls to has_abiext.
+        try:
+            return self._gsr_path 
+        except AttributeError:
+            path = self.outdir.has_abiext("GSR")
+            if path: self._gsr_path = path
+            return path
+
+    def open_gsr(self):
+        """
+        Open the GSR file located in the in self.outdir.
+        Returns :class:`GsrFile` object, None if file could not be found or file is not readable.
+        """
+        gsr_path = self.gsr_path
+        if not gsr_path:
+            if self.status == self.S_OK:
+                logger.critical("%s reached S_OK but didn't produce a GSR file in %s" % (self, self.outdir))
+            return None
+
+        # Open the GSR file.
+        from abipy.electrons.gsr import GsrFile
+        try:
+            return GsrFile(gsr_path)
+        except Exception as exc:
+            logger.critical("Exception while reading GSR file at %s:\n%s" % (gsr_path, str(exc)))
+            return None
 
 
 class ScfTask(GsTask):
@@ -3038,7 +2999,48 @@ class RelaxTask(GsTask, ProduceHist):
         self._set_inpvars(dilatmx=new_dilatmx)
 
 
-class DdeTask(AbinitTask, ProduceDdb):
+class DfptTask(AbinitTask):
+    """
+    Base class for DFPT tasks (Phonons, ...)
+    Mainly used to implement methods that are common to DFPT calculations with Abinit.
+    Provide the method `open_ddb` that reads and return a Ddb file.
+
+    .. warning::
+
+        This class should not be instantiated directly.
+    """
+    @property
+    def ddb_path(self):
+        """Absolute path of the DDB file. Empty string if file is not present."""
+        # Lazy property to avoid multiple calls to has_abiext.
+        try:
+            return self._ddb_path 
+        except AttributeError:
+            path = self.outdir.has_abiext("DDB")
+            if path: self._ddb_path = path
+            return path
+
+    def open_ddb(self):
+        """
+        Open the DDB file located in the in self.outdir.
+        Returns :class:`DdbFile` object, None if file could not be found or file is not readable.
+        """
+        ddb_path = self.ddb_path
+        if not ddb_path:
+            if self.status == self.S_OK:
+                logger.critical("%s reached S_OK but didn't produce a DDB file in %s" % (self, self.outdir))
+            return None
+
+        # Open the GSR file.
+        from abipy.dfpt.ddb import DdbFile
+        try:
+            return DdbFile(ddb_path)
+        except Exception as exc:
+            logger.critical("Exception while reading DDB file at %s:\n%s" % (ddb_path, str(exc)))
+            return None
+
+
+class DdeTask(DfptTask):
     """Task for DDE calculations."""
 
     def get_results(self, **kwargs):
@@ -3046,7 +3048,7 @@ class DdeTask(AbinitTask, ProduceDdb):
         return results.register_gridfs_file(DDB=(self.outdir.has_abiext("DDE"), "t"))
 
 
-class DdkTask(AbinitTask, ProduceDdb):
+class DdkTask(DfptTask):
     """Task for DDK calculations."""
 
     #@check_spectator 
@@ -3062,17 +3064,6 @@ class DdkTask(AbinitTask, ProduceDdb):
     def get_results(self, **kwargs):
         results = super(DdkTask, self).get_results(**kwargs)
         return results.register_gridfs_file(DDK=(self.outdir.has_abiext("DDK"), "t"))
-
-
-class DfptTask(AbinitTask, ProduceDdb):
-    """
-    Base class for DFPT tasks (Phonons, ...)
-    Mainly used to implement methods that are common to DFPT calculations with Abinit.
-
-    .. warning::
-
-        This class should not be instantiated directly.
-    """
 
 
 class PhononTask(DfptTask):
@@ -3529,7 +3520,6 @@ class AnaddbTask(Task):
         app(self.ddb_filepath)             # 3) Input derivative database e.g. t13.ddb.in
         app(self.md_filepath)              # 4) Output molecular dynamics e.g. t13.md
         app(self.gkk_filepath)             # 5) Input elphon matrix elements  (GKK file)
-        # FIXME check this one
         app(self.outdir.path_join("out"))  # 6) Base name for elphon output files e.g. t13
         app(self.ddk_filepath)             # 7) File containing ddk filenames for elphon/transport.
 
