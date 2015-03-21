@@ -35,6 +35,7 @@ from pymatgen.util.coord_utils import in_coord_list_pbc
 from monty.string import remove_non_ascii
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.groups import SpaceGroup, SYMM_DATA
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -172,8 +173,9 @@ class CifBlock(object):
                 ml.append(l[1:].strip())
             else:
                 for s in p.findall(l):
-                    q.append(s)  # s is tuple. location of the data in the tuple
-                                 # depends on whether it was quoted in the input
+                    # s is tuple. location of the data in the tuple
+                    # depends on whether it was quoted in the input
+                    q.append(s)
         return q
 
     @classmethod
@@ -491,12 +493,16 @@ class CifParser(object):
                 else:
                     coord_to_species[coord][el] = occu
 
+
+        coord_to_species = {k: Composition(v)
+                            for k, v in coord_to_species.items()}
         allspecies = []
         allcoords = []
+
         if coord_to_species.items():
-            for species, group in groupby(sorted(coord_to_species.items(),
-                                                 key=lambda x:x[1]),
-                                          key=lambda x:x[1]):
+            for species, group in groupby(
+                    sorted(list(coord_to_species.items()), key=lambda x: x[1]),
+                    key=lambda x: x[1]):
 
                 tmp_coords = [site[0] for site in group]
 
@@ -514,12 +520,12 @@ class CifParser(object):
 
         if allspecies and len(allspecies) == len(allcoords):
 
-            struct = Structure(lattice, allspecies, allcoords
-            ).get_sorted_structure()
+            struct = Structure(lattice, allspecies, allcoords)
+            struct = struct.get_sorted_structure()
 
             if primitive:
-                struct = struct.get_primitive_structure(
-                                    ).get_reduced_structure()
+                struct = struct.get_primitive_structure()
+                struct = struct.get_reduced_structure()
             return struct
 
     def get_structures(self, primitive=True):
