@@ -507,7 +507,7 @@ class Incar(dict, PMGSONable):
             if isinstance(val, six.string_types) else val)
 
     def as_dict(self):
-        d = {k: v for k, v in self.items()}
+        d = dict(self)
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         return d
