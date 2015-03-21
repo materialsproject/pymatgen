@@ -1672,6 +1672,15 @@ class Flow(Node, PMGSONable):
         os.chdir(back)
         return name
 
+    #def abirobot(self, ext, check_status=True, nids=None):
+    #    """
+    #    Builds and return the :class:`Robot` subclass from the file extension `ext`. 
+    #    `nids` is an optional list of node identifiers used to filter the tasks in the flow.
+    #    """
+    #    from abipy.abilab import abirobot
+    #    if check_status: self.check_status()
+    #    return abirobot(self, ext, nids=nids):
+
 
 class G0W0WithQptdmFlow(Flow):
     def __init__(self, workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=None):

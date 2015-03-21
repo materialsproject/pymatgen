@@ -421,7 +421,7 @@ def check_spectator(node_method):
         if node.in_spectator_mode:
             #raise node.SpectatorError("You should not call this method when the node in spectator_mode")
             import warnings
-            warnings.warn("You should not call %s when the node in spectator_mode" % node_method)
+            #warnings.warn("You should not call %s when the node in spectator_mode" % node_method)
 
         return node_method(*args, **kwargs)
 

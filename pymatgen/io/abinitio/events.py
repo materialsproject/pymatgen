@@ -353,13 +353,13 @@ class EventReport(collections.Iterable, PMGSONable):
 
     @property
     def errors(self):
-        """List of errors found."""
-        return self.select(AbinitError)
+        """List of errors + bugs found."""
+        return self.select(AbinitError) + self.select(AbinitBug)
 
-    @property
-    def bugs(self):
-        """List of bugs found."""
-        return self.select(AbinitBug)
+    #@property
+    #def bugs(self):
+    #    """List of bugs found."""
+    #    return self.select(AbinitBug)
 
     @property
     def warnings(self):
@@ -469,7 +469,9 @@ class EventsParser(object):
         This method is used when self.parser raises an Exception so that
         we can report a customized :class:`EventReport` object with info the exception.
         """
-        return EventReport(filename, events=[AbinitError(str(exc))])
+        # Build fake event.
+        event = AbinitError(src_file="Unknown", src_line=0, message=str(exc))
+        return EventReport(filename, events=[event])
 
 
 class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
