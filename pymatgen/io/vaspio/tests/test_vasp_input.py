@@ -491,6 +491,13 @@ class PotcarTest(unittest.TestCase):
         self.assertEqual(p.symbols, self.potcar.symbols)
         os.remove(tempfname)
 
+    def test_set_symbol(self):
+        self.assertEqual(self.potcar.symbols, ["Fe", "P", "O"])
+        self.assertEqual(self.potcar[0].nelectrons, 8)
+        self.potcar.symbols = ["Fe_pv", "O"]
+        self.assertEqual(self.potcar.symbols, ["Fe_pv", "O"])
+        self.assertEqual(self.potcar[0].nelectrons, 14)
+
 
 class VaspInputTest(unittest.TestCase):
 

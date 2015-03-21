@@ -1540,6 +1540,10 @@ class Potcar(list, PMGSONable):
         """
         return [p.symbol for p in self]
 
+    @symbols.setter
+    def symbols(self, symbols):
+        self.set_symbols(symbols, functional=self.functional)
+
     @property
     def spec(self):
         """
