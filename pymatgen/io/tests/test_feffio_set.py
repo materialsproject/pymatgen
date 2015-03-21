@@ -30,8 +30,8 @@ TITLE space group: (P6_3mc), space number:  (186)
 TITLE abc:  3.297078   3.297078   5.254213
 TITLE angles: 90.000000  90.000000 120.000000
 TITLE sites: 4
-* 1 Co     0.333334     0.666666     0.503676
-* 2 Co     0.666667     0.333333     0.003676
+* 1 Co     0.666667     0.333333     0.003676
+* 2 Co     0.333334     0.666666     0.503676
 * 3 O     0.333334     0.666666     0.121324
 * 4 O     0.666667     0.333333     0.621325"""
 
@@ -39,9 +39,15 @@ TITLE sites: 4
         comment = 'From cif file'
         header = str(FeffInputSet.get_header(x, structure, 'CoO19128.cif',
                                              comment))
-        self.maxDiff = 1000
-        self.assertEqual(FeffInputSetTest.header_string.splitlines(),
-                         header.splitlines())
+
+        ref = FeffInputSetTest.header_string.splitlines()
+        last4 = [" ".join(l.split()[2:]) for l in ref[-4:]]
+        for i, l in enumerate(header.splitlines()):
+            if i < 9:
+                self.assertEqual(l, ref[i])
+            else:
+                s = " ".join(l.split()[2:])
+                self.assertIn(s, last4)
 
     def test_getfefftags(self):
         tags = FeffInputSet.get_feff_tags(x, "XANES").as_dict()
