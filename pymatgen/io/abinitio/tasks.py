@@ -2923,7 +2923,7 @@ class RelaxTask(GsTask, ProduceHist):
         restart_file = None
 
         # Try to restart from the WFK file if possible.
-        # FIXME: This part has been disable because WFK=IO is a mess if paral_kgb == 1
+        # FIXME: This part has been disabled because WFK=IO is a mess if paral_kgb == 1
         # This is also the reason why I wrote my own MPI-IO code for the GW part!
         wfk_file = self.outdir.has_abiext("WFK")
         if False and wfk_file:

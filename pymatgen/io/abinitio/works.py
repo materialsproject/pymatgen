@@ -812,8 +812,8 @@ class RelaxWork(Work):
         #      different unit cell parameters.
         #
         # deps = {self.ion_task: "WFK"} --> FIXME: Problem in rwwf
-        deps = None
         deps = {self.ion_task: "DEN"}
+        deps = None
 
         self.ioncell_task = self.register_relax_task(ioncell_input, deps=deps)
 
