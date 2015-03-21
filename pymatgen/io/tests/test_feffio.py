@@ -58,7 +58,7 @@ TITLE sites: 4
         self.assertEqual(str(header), str(header2),
                          "Header failed to and from dict test")
 
-class  FeffAtomsTest(unittest.TestCase):
+class FeffAtomsTest(unittest.TestCase):
 
     def test_init(self):
         filepath = os.path.join(test_dir, 'ATOMS')
