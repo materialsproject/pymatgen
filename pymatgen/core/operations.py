@@ -409,8 +409,8 @@ class SymmOp(PMGSONable):
         rot_matrix = np.zeros((3, 3))
         trans = np.zeros(3)
         toks = xyz_string.strip().replace(" ", "").lower().split(",")
-        re_rot = re.compile("([+-]?)(\d*)/?(\d*)([x-z])")
-        re_trans = re.compile("([+-]?)(\d+)/?(\d*)(?![x-z])")
+        re_rot = re.compile("([+-]?)([\d\.]*)/?([\d\.]*)([x-z])")
+        re_trans = re.compile("([+-]?)([\d\.]+)/?([\d\.]*)(?![x-z])")
         for i, tok in enumerate(toks):
             # build the rotation matrix
             for m in re_rot.finditer(tok):
