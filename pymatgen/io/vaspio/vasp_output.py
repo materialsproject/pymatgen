@@ -2282,6 +2282,18 @@ class Dynmat(object):
                         self.data[atom][disp]['dynmat'] = []
                     self.data[atom][disp]['dynmat'].append(v)
 
+    def get_phonon_frequencies(self):
+        """calculate phonon frequencies"""
+        # TODO: the following is most likely not correct or suboptimal
+        # hence for demonstration purposes only
+        frequencies = []
+        for k,v0 in self.data.iteritems():
+            for v1 in v0.itervalues():
+                vec = map(abs, v1['dynmat'][k-1])
+                frequency = math.sqrt(sum(vec)) * 2.*math.pi*15.633302 # THz
+                frequencies.append(frequency)
+        return frequencies
+
     @property
     def nspecs(self):
         """returns the number of species"""
