@@ -11,6 +11,8 @@ import numpy as np
 from pymatgen.io.cifio import CifParser, CifWriter, CifBlock
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen import Element, Specie, Lattice, Structure, Composition
+from pymatgen.analysis.structure_matcher import StructureMatcher
+
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -395,6 +397,50 @@ loop_
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 
+        ans = """#generated using pymatgen
+data_LiFePO4
+_symmetry_space_group_name_H-M   Pcmn
+_cell_length_a   4.74480000
+_cell_length_b   6.06577000
+_cell_length_c   10.41037000
+_cell_angle_alpha   90.50179000
+_cell_angle_beta   90.00019000
+_cell_angle_gamma   90.00362000
+_symmetry_Int_Tables_number   62
+_chemical_formula_structural   LiFePO4
+_chemical_formula_sum   'Li4 Fe4 P4 O16'
+_cell_volume   299.607967711
+_cell_formula_units_Z   4
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, -z'
+  3  '-x+1/2, -y+1/2, z+1/2'
+  4  'x+1/2, y+1/2, -z+1/2'
+  5  'x+1/2, -y, -z+1/2'
+  6  '-x+1/2, y, z+1/2'
+  7  '-x, y+1/2, -z'
+  8  'x, -y+1/2, z'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Li  Li1  4  0.999990  0.500000  0.000010  1.0
+  Fe  Fe2  4  0.025080  0.746540  0.281160  1.0
+  P  P3  4  0.082070  0.248300  0.405560  1.0
+  O  O4  8  0.213450  0.044060  0.334190  1.0
+  O  O5  4  0.258510  0.750430  0.096220  1.0
+  O  O6  4  0.208450  0.251100  0.543160  1.0
+"""
+        s = Structure.from_file(os.path.join(test_dir, 'LiFePO4.cif'))
+        writer = CifWriter(s, find_spacegroup=True, symprec=0.1)
+        self.assertEqual(writer.__str__().strip(), ans.strip())
+
     def test_disordered(self):
         si = Element("Si")
         n = Element("N")
@@ -421,22 +467,22 @@ _chemical_formula_sum   'Si1.5 N0.5'
 _cell_volume   40.0447946443
 _cell_formula_units_Z   1
 loop_
-  _symmetry_equiv_pos_site_id
-  _symmetry_equiv_pos_as_xyz
-   1  'x, y, z'
+_symmetry_equiv_pos_site_id
+_symmetry_equiv_pos_as_xyz
+1  'x, y, z'
 loop_
-  _atom_site_type_symbol
-  _atom_site_label
-  _atom_site_symmetry_multiplicity
-  _atom_site_fract_x
-  _atom_site_fract_y
-  _atom_site_fract_z
-  _atom_site_occupancy
-  Si  Si1  1  0.000000  0.000000  0.000000  1
-  Si  Si2  1  0.750000  0.500000  0.750000  0.5
-  N  N3  1  0.750000  0.500000  0.750000  0.5
+_atom_site_type_symbol
+_atom_site_label
+_atom_site_symmetry_multiplicity
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+Si  Si1  1  0.000000  0.000000  0.000000  1
+Si  Si2  1  0.750000  0.500000  0.750000  0.5
+N  N3  1  0.750000  0.500000  0.750000  0.5
 
-"""
+    """
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 
@@ -598,7 +644,7 @@ loop_
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         s_ref = poscar.structure
-        from pymatgen.analysis.structure_matcher import StructureMatcher
+
         sm = StructureMatcher(stol=0.05, ltol=0.01, angle_tol=0.1)
         self.assertTrue(sm.fit(s_ref, s_test))
 
