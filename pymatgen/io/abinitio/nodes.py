@@ -102,8 +102,6 @@ class Status(int):
         return colored(str(self), **self.color_opts) 
 
 
-
-
 class Dependency(object):
     """
     This object describes the dependencies among the nodes of a calculation.

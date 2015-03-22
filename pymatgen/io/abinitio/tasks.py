@@ -3124,21 +3124,36 @@ class PhononTask(DfptTask):
         Prefer 1WF over 1DEN since we can reuse the wavefunctions.
         """
         # Abinit adds the idir-ipert index at the end of the file and this breaks the extension 
-        # e.g. out_1WF4, out_DEN4
-        # Fix the problem here! Highest priority to the 1WF file because restart is more accurate.
-        for ext in ("1WF", "DEN"):
-            ofiles = self.outdir.list_filepaths(wildcard="*_" + ext + "*")
-            if ofiles and len(ofiles) == 1: break
-        else:
+        # e.g. out_1WF4, out_DEN4. find_1wf_files and find_1den_files returns the list of files found
+        restart_file, irdvars = None, None
+
+        # Highest priority to the 1WF file because restart is more efficient.
+        wf_files = self.outdir.find_1wf_files()
+        if wf_files is not None:
+            restart_file = wf_files[0].path
+            irdvars = irdvars_for_ext("1WF")
+            if len(wf_files) != 1:
+                restart_file = None
+                logger.critical("Found more that one 1WF file. Restart is ambiguous!")
+
+        if restart_file is None:
+            den_files = self.outdir.find_1den_files()
+            if den_files is not None:
+                restart_file = den_files[0].path
+                irdvars = {"ird1den": 1}
+                if len(den_files) != 1:
+                    restart_file = None
+                    logger.critical("Found more that one 1DEN file. Restart is ambiguous!")
+
+        if restart_file is None:
             # Raise because otherwise restart is equivalent to a run from scratch --> infinite loop!
             raise self.RestartError("%s: Cannot find the 1WF|1DEN file to restart from." % self)
 
         # Move file.
-        restart_file = self.out_to_in(ofiles[0])
         self.history.info("Will restart from %s", restart_file)
+        restart_file = self.out_to_in(restart_file)
 
         # Add the appropriate variable for restarting.
-        irdvars = irdvars_for_ext(ext) if ext == "1WF" else {"ird1den": 1}
         self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.

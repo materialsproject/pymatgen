@@ -355,6 +355,50 @@ class Directory(object):
         last = sorted(stepfile_list, key=lambda t: t[0])[-1]
         return dict2namedtuple(step=last[0], path=last[1])
 
+    def find_1wf_files(self):
+        """
+        Abinit adds the idir-ipert index at the end of the 1WF file and this breaks the extension 
+        e.g. out_1WF4. This method scans the files in the directories and returns a list of namedtuple
+        Each named tuple gives the `path` of the 1FK file and the `pertcase` index.
+        """
+        regex = re.compile("out_1WF(\d+)(.nc)?$")
+
+        wf_paths = [f for f in self.list_filepaths() if regex.match(os.path.basename(f))]
+        if not wf_paths: return None
+
+        # Build list of (pertcase, path) tuples.
+        pertfile_list = []
+        for path in wf_paths:
+            name = os.path.basename(path)
+            match = regex.match(name)
+            pertcase, ncext = match.groups()
+            pertfile_list.append((int(pertcase), path))
+                                                                                        
+        # DSU sort.
+        pertfile_list = sorted(pertfile_list, key=lambda t: t[0])
+        return [dict2namedtuple(pertcase=item[0], path=item[1]) for item in pertfile_list]
+
+    def find_1den_files(self):
+        """
+        Abinit adds the idir-ipert index at the end of the 1DEN file and this breaks the extension 
+        e.g. out_DEN1. This method scans the files in the directories and returns a list of namedtuple
+        Each named tuple gives the `path` of the 1DEN file and the `pertcase` index.
+        """
+        regex = re.compile("out_DEN(\d+)(.nc)?$")
+        den_paths = [f for f in self.list_filepaths() if regex.match(os.path.basename(f))]
+        if not den_paths: return None
+
+        # Build list of (pertcase, path) tuples.
+        pertfile_list = []
+        for path in den_paths:
+            name = os.path.basename(path)
+            match = regex.match(name)
+            pertcase, ncext = match.groups()
+            pertfile_list.append((int(pertcase), path))
+                                                                                        
+        # DSU sort.
+        pertfile_list = sorted(pertfile_list, key=lambda t: t[0])
+        return [dict2namedtuple(pertcase=item[0], path=item[1]) for item in pertfile_list]
 
 # This dictionary maps ABINIT file extensions to the variables that must be used to read the file in input.
 #
