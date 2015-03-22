@@ -423,7 +423,7 @@ class PotcarSingleTest(unittest.TestCase):
         self.assertRaises(ValueError, PotcarSingle.parse_functions['ENMAX'], "ThisShouldBeAFloat")
 
     def test_hash(self):
-        self.assertEqual(self.psingle.get_potcar_hash(), "b73c3d9de30107a22566f601535e609c")
+        self.assertEqual(self.psingle.get_potcar_hash(), "fa52f891f234d49bb4cb5ea96aae8f98")
 
     def test_from_functional_and_symbols(self):
         if "VASP_PSP_DIR" not in os.environ:
@@ -490,6 +490,13 @@ class PotcarTest(unittest.TestCase):
         p = Potcar.from_file(tempfname)
         self.assertEqual(p.symbols, self.potcar.symbols)
         os.remove(tempfname)
+
+    def test_set_symbol(self):
+        self.assertEqual(self.potcar.symbols, ["Fe", "P", "O"])
+        self.assertEqual(self.potcar[0].nelectrons, 8)
+        self.potcar.symbols = ["Fe_pv", "O"]
+        self.assertEqual(self.potcar.symbols, ["Fe_pv", "O"])
+        self.assertEqual(self.potcar[0].nelectrons, 14)
 
 
 class VaspInputTest(unittest.TestCase):
