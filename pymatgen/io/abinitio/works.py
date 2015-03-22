@@ -1109,7 +1109,7 @@ def build_oneshot_phononwork(scf_input, ph_inputs, workdir=None, manager=None, w
         * rfatpol 1 natom
 
     .. warning::
-        This work is mainly used for simple calculations, e.g. converge studies.
+        This work is mainly used for simple calculations, e.g. convergence studies.
         Use :class:`PhononWork` for better efficiency.
     """
     work_class = OneShotPhononWork if work_class is None else work_class
@@ -1117,8 +1117,17 @@ def build_oneshot_phononwork(scf_input, ph_inputs, workdir=None, manager=None, w
     scf_task = work.register_scf_task(scf_input)
     ph_inputs = [ph_inputs] if not isinstance(ph_inputs, (list, tuple)) else ph_inputs
 
-    # cannot use PhononTaks here because the Task is not able to deal with multiple phonon calculations
     for phinp in ph_inputs:
+        # Check rfdir and rfatpol.
+        rfdir = np.array(phinp[0].get("rfdir", [0, 0, 0]))
+        if len(rfdir) != 3 or any(rfdir != (1, 1, 1)):
+            raise ValueError("Expecting rfdir == (1, 1, 1), got %s" % rfdir)
+
+        rfatpol = np.array(phinp[0].get("rfatpol", [1, 1]))
+        if len(rfatpol) != 2 or any(rfatpol != (1, len(phinp.structure))):
+            raise ValueError("Expecting rfatpol == (1, natom), got %s" % rfatpol)
+
+        # cannot use PhononTaks here because the Task is not able to deal with multiple phonon calculations
         ph_task = work.register(phinp, deps={scf_task: "WFK"})
 
     return work
@@ -1172,6 +1181,7 @@ class OneShotPhononWork(Work):
                             omegas.extend((float(s) for s in line.split()))
                 else:
                     raise ValueError("Cannot find %s in file %s" % (END, task.output_file.path))
+
                 phfreqs.append(omegas)
 
         # Use namedtuple to store q-point and frequencies in meV

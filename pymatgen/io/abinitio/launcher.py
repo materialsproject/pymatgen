@@ -635,8 +635,9 @@ class PyFlowScheduler(object):
             return self._callback()
         except:
             # All exceptions raised here will trigger the shutdown!
-            self.exceptions.append(straceback())
-            self.shutdown(msg="Exception raised in callback!")
+            s = straceback()
+            self.exceptions.append(s)
+            self.shutdown(msg="Exception raised in callback!\n" + s)
 
     def _callback(self):
         """The actual callback."""
