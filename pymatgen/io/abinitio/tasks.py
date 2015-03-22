@@ -2307,6 +2307,50 @@ class AbinitTask(Task):
         # paral_kgb is used only in the GS part.
         return paral_kgb == value and isinstance(self, GsTask)
 
+    def _change_structure(self, new_structure):
+        """Change the input structure."""
+        # Compare new and old structure for logging purpose.
+        # TODO: Write method of structure to compare self and other and return a dictionary
+        try:
+            old_structure = self.strategy.abinit_input.structure
+        except AttributeError:
+            # FIXME: This is needed to support strategy object (TOBEREMOVED)
+            old_structure = self.strategy.structure
+
+        old_lattice = old_structure.lattice 
+
+        abc_diff = np.array(new_structure.lattice.abc) - np.array(old_lattice.abc)
+        angles_diff = np.array(new_structure.lattice.angles) - np.array(old_lattice.angles)
+        cart_diff = new_structure.cart_coords - old_structure.cart_coords
+        displs = np.array([np.sqrt(np.dot(v, v)) for v in cart_diff])
+
+        recs, tol_angle, tol_length = [], 10**-2, 10**-5
+
+        if np.any(np.abs(angles_diff) > tol_angle): 
+            recs.append("new_agles - old_angles = %s" % angles_diff)
+
+        if np.any(np.abs(abc_diff) > tol_length): 
+            recs.append("new_abc - old_abc = %s" % abc_diff)
+
+        if np.any(np.abs(displs) > tol_length):
+            min_pos, max_pos = displs.argmin(), displs.argmax()
+            recs.append("Mean displ: %.2E, Max_displ: %.2E (site %d), min_displ: %.2E (site %d)" % 
+                (displs.mean(), displs[max_pos], max_pos, displs[min_pos], min_pos))
+
+        self.history.info("Changing structure (only significant diffs are shown):")
+        if not recs:
+            self.history.info("Input and output structure seems to be equal within the given tolerances")
+        else:
+            for rec in recs:
+                self.history.info(rec)
+        try:
+            self.strategy.abinit_input.set_structure(new_structure)
+        except AttributeError:
+            # FIXME: This is needed to support strategy object (TOBEREMOVED)
+            self.strategy.structure = new_structure
+        
+        #assert self.strategy.abinit_input.structure == new_structure
+
     def autoparal_run(self):
         """
         Find an optimal set of parameters for the execution of the task 
@@ -2447,6 +2491,44 @@ class AbinitTask(Task):
         os.remove(self.stderr_file.path)
 
         return dict2namedtuple(points=kpoints, weights=weights)
+
+    def select_files(self, what="o"):
+        """
+        Helper function used to select the files of a task.
+
+        Args:
+            what: string with the list of characters selecting the file type
+                  Possible choices:
+                    i ==> input_file,
+                    o ==> output_file,
+                    f ==> files_file,
+                    j ==> job_file,
+                    l ==> log_file,
+                    e ==> stderr_file,
+                    q ==> qout_file,
+                    all ==> all files.
+        """
+        choices = collections.OrderedDict([
+            ("i", self.input_file),
+            ("o", self.output_file),
+            ("f", self.files_file),
+            ("j", self.job_file),
+            ("l", self.log_file),
+            ("e", self.stderr_file),
+            ("q", self.qout_file),
+        ])
+
+        if what == "all":
+            return [getattr(v, "path") for v in choices.values()]
+
+        selected = []
+        for c in what:
+            try:
+                selected.append(getattr(choices[c], "path"))
+            except KeyError:
+                warnings.warn("Wrong keyword %s" % c)
+                                                             
+        return selected
 
     def restart(self):
         """
@@ -2853,50 +2935,6 @@ class RelaxTask(GsTask, ProduceHist):
     CRITICAL_EVENTS = [
         events.RelaxConvergenceWarning,
     ]
-
-    def _change_structure(self, new_structure):
-        """Change the input structure."""
-        # Compare new and old structure for logging purpose.
-        # TODO: Write method of structure to compare self and other and return a dictionary
-        try:
-            old_structure = self.strategy.abinit_input.structure
-        except AttributeError:
-            # FIXME: This is needed to support strategy object (TOBEREMOVED)
-            old_structure = self.strategy.structure
-
-        old_lattice = old_structure.lattice 
-
-        abc_diff = np.array(new_structure.lattice.abc) - np.array(old_lattice.abc)
-        angles_diff = np.array(new_structure.lattice.angles) - np.array(old_lattice.angles)
-        cart_diff = new_structure.cart_coords - old_structure.cart_coords
-        displs = np.array([np.sqrt(np.dot(v, v)) for v in cart_diff])
-
-        recs, tol_angle, tol_length = [], 10**-2, 10**-5
-
-        if np.any(np.abs(angles_diff) > tol_angle): 
-            recs.append("new_agles - old_angles = %s" % angles_diff)
-
-        if np.any(np.abs(abc_diff) > tol_length): 
-            recs.append("new_abc - old_abc = %s" % abc_diff)
-
-        if np.any(np.abs(displs) > tol_length):
-            min_pos, max_pos = displs.argmin(), displs.argmax()
-            recs.append("Mean displ: %.2E, Max_displ: %.2E (site %d), min_displ: %.2E (site %d)" % 
-                (displs.mean(), displs[max_pos], max_pos, displs[min_pos], min_pos))
-
-        self.history.info("Changing structure (only significant diffs are shown):")
-        if not recs:
-            self.history.info("Input and output structure seems to be equal within the given tolerances")
-        else:
-            for rec in recs:
-                self.history.info(rec)
-        try:
-            self.strategy.abinit_input.set_structure(new_structure)
-        except AttributeError:
-            # FIXME: This is needed to support strategy object (TOBEREMOVED)
-            self.strategy.structure = new_structure
-        
-        #assert self.strategy.abinit_input.structure == new_structure
 
     def get_final_structure(self):
         """Read the final structure from the GSR file."""

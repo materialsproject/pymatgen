@@ -1228,6 +1228,17 @@ class PhononWork(Work):
 
         return out_ddb
 
+    # TODO
+    #def compute_phonons(self)
+    #    """
+    #    Call anaddb to compute the phonon frequencies for this q-point and
+    #    store the results in the outdir of the work.
+    #    """
+    #    #atask = AnaddbTask(anaddb_input, ddb_node,
+    #    #         gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None)
+    #    #atask.start_and_wait()
+    #    return phonons
+
     #@check_spectator 
     def on_all_ok(self):
         """
@@ -1240,13 +1251,5 @@ class PhononWork(Work):
 
         results = self.Results(node=self, returncode=0, message="DDB merge done")
         results.register_gridfs_files(DDB=(out_ddb, "t"))
-
-        # TODO
-        # Call anaddb to compute the phonon frequencies for this q-point and
-        # store the results in the outdir of the work.
-
-        #atask = AnaddbTask(anaddb_input, ddb_node,
-        #         gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None)
-        #atask.start()
 
         return results
