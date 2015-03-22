@@ -184,6 +184,7 @@ class Dependency(object):
 
         for getter in self.getters:
             if getter == "@structure":
+                task.history.info("Getting structure from %s" % self.node)
                 new_structure = self.node.get_final_structure()
                 task._change_structure(new_structure)
             else:

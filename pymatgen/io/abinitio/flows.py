@@ -992,34 +992,10 @@ class Flow(Node, PMGSONable):
             nids: optional list of node identifiers used to filter the tasks.
             editor: Select the editor. None to use the default editor ($EDITOR shell env var)
         """
-        def get_files(task):
-            """Helper function used to select the files of a task."""
-            choices = collections.OrderedDict([
-                ("i", task.input_file),
-                ("o", task.output_file),
-                ("f", task.files_file),
-                ("j", task.job_file),
-                ("l", task.log_file),
-                ("e", task.stderr_file),
-                ("q", task.qout_file),
-            ])
-
-            if what == "all":
-                return [getattr(v, "path") for v in choices.values()]
-
-            selected = []
-            for c in what:
-                try:
-                    selected.append(getattr(choices[c], "path"))
-                except KeyError:
-                    warnings.warn("Wrong keyword %s" % c)
-
-            return selected
-
         # Build list of files to analyze.
         files = []
         for task in self.iflat_tasks(status=status, op=op, nids=nids):
-            lst = get_files(task)
+            lst = task.select_files(what)
             if lst:
                 files.extend(lst)
 
