@@ -239,31 +239,30 @@ class VasprunTest(unittest.TestCase):
 
         vasprun.update_potcar_spec(potcar_path)
         self.assertEqual(vasprun.potcar_spec, [{"titel": "PAW_PBE Li 17Jan2003",
-                                                "hash": "9658a0ffb28da97ee7b36709966a0d1c"},
+                                                "hash": "65e83282d1707ec078c1012afbd05be8"},
                                                {"titel": "PAW_PBE Fe 06Sep2000",
-                                                "hash": "e0051a21ce51eb34a52e9153c17aa32d"},
+                                                "hash": "9530da8244e4dac17580869b4adab115"},
                                                {"titel": "PAW_PBE Fe 06Sep2000",
-                                                "hash": "e0051a21ce51eb34a52e9153c17aa32d"},
+                                                "hash": "9530da8244e4dac17580869b4adab115"},
                                                {"titel": "PAW_PBE P 17Jan2003",
-                                                "hash": "95fbb6408e51dff3516bcdfa913c1ae1"},
+                                                "hash": "7dc3393307131ae67785a0cdacb61d5f"},
                                                {"titel": "PAW_PBE O 08Apr2002",
-                                                "hash": "7af704ddff29da5354831c4609f1cbc5"}])
+                                                "hash": "7a25bc5b9a5393f46600a4939d357982"}])
 
         vasprun2 = Vasprun(filepath, parse_potcar_file=False)
         self.assertRaises(ValueError, vasprun2.update_potcar_spec, potcar_path2)
         vasprun = Vasprun(filepath, parse_potcar_file=potcar_path)
 
-
         self.assertEqual(vasprun.potcar_spec, [{"titel": "PAW_PBE Li 17Jan2003",
-                                                "hash": "9658a0ffb28da97ee7b36709966a0d1c"},
+                                                "hash": "65e83282d1707ec078c1012afbd05be8"},
                                                {"titel": "PAW_PBE Fe 06Sep2000",
-                                                "hash": "e0051a21ce51eb34a52e9153c17aa32d"},
+                                                "hash": "9530da8244e4dac17580869b4adab115"},
                                                {"titel": "PAW_PBE Fe 06Sep2000",
-                                                "hash": "e0051a21ce51eb34a52e9153c17aa32d"},
+                                                "hash": "9530da8244e4dac17580869b4adab115"},
                                                {"titel": "PAW_PBE P 17Jan2003",
-                                                "hash": "95fbb6408e51dff3516bcdfa913c1ae1"},
+                                                "hash": "7dc3393307131ae67785a0cdacb61d5f"},
                                                {"titel": "PAW_PBE O 08Apr2002",
-                                                "hash": "7af704ddff29da5354831c4609f1cbc5"}])
+                                                "hash": "7a25bc5b9a5393f46600a4939d357982"}])
 
         self.assertRaises(ValueError, Vasprun, filepath, parse_potcar_file=potcar_path2)
 
@@ -271,15 +270,15 @@ class VasprunTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath, parse_potcar_file=True)
         self.assertEqual(vasprun.potcar_spec, [{"titel": "PAW_PBE Li 17Jan2003",
-                                                "hash": "9658a0ffb28da97ee7b36709966a0d1c"},
+                                                "hash": "65e83282d1707ec078c1012afbd05be8"},
                                                {"titel": "PAW_PBE Fe 06Sep2000",
-                                                "hash": "e0051a21ce51eb34a52e9153c17aa32d"},
+                                                "hash": "9530da8244e4dac17580869b4adab115"},
                                                {"titel": "PAW_PBE Fe 06Sep2000",
-                                                "hash": "e0051a21ce51eb34a52e9153c17aa32d"},
+                                                "hash": "9530da8244e4dac17580869b4adab115"},
                                                {"titel": "PAW_PBE P 17Jan2003",
-                                                "hash": "95fbb6408e51dff3516bcdfa913c1ae1"},
+                                                "hash": "7dc3393307131ae67785a0cdacb61d5f"},
                                                {"titel": "PAW_PBE O 08Apr2002",
-                                                "hash": "7af704ddff29da5354831c4609f1cbc5"}])
+                                                "hash": "7a25bc5b9a5393f46600a4939d357982"}])
 
     def test_potcar_not_found(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
