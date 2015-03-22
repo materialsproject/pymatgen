@@ -10,6 +10,8 @@ v3.0.12
 * Added mp_decode option to MPRester.query to allow option to not decode into
   pymatgen objects.
 * New POTCAR hash scheme to more robustly identify unique POTCARs.
+* Link to http://bit.ly/materialsapi for information on Materials API
+  document schema for use with MPRester.query method.
 
 v3.0.11
 -------

@@ -13,7 +13,6 @@ Materials Project, and obtain an API key by going to your dashboard at
 https://www.materialsproject.org/dashboard.
 """
 
-
 __author__ = "Shyue Ping Ong, Shreyas Cholia"
 __credits__ = "Anubhav Jain"
 __copyright__ = "Copyright 2012, The Materials Project"
