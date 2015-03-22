@@ -499,6 +499,12 @@ class MPRester(object):
         otherwise too cumbersome to perform using the standard convenience
         methods.
 
+        It is highly recommended that you consult the Materials API
+        documentation at http://bit.ly/materialsapi, which provides a
+        comprehensive explanation of the document schema used in the
+        Materials Project and how best to query for the relevant information
+        you need.
+
         Args:
             criteria (str/dict): Criteria of the query as a string or
                 mongo-style dict.
