@@ -21,7 +21,7 @@ import numpy as np
 import warnings
 
 from pymatgen.io.vaspio.vasp_output import Chgcar, Locpot, Oszicar, Outcar, \
-    Vasprun, Procar, Xdatcar
+    Vasprun, Procar, Xdatcar, Dynmat
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 
@@ -472,6 +472,26 @@ class XdatcarTest(unittest.TestCase):
         self.assertEqual(len(structures), 3)
         for s in structures:
             self.assertEqual(s.formula, "Li2 O1")
+
+class DynmatTest(unittest.TestCase):
+
+    def test_init(self):
+        # nosetests pymatgen/io/vaspio/tests/test_vasp_output.py:DynmatTest.test_init
+        filepath = os.path.join(test_dir, 'DYNMAT')
+        d = Dynmat(filepath)
+        self.assertEqual(d.nspecs, 2)
+        self.assertEqual(d.natoms, 6)
+        self.assertEqual(d.ndisps, 3)
+        self.assertTrue(np.allclose(d.masses, [63.546, 196.966]))
+        self.assertTrue(d.data.has_key(4))
+        self.assertTrue(d.data[4].has_key(2))
+        self.assertTrue(np.allclose(
+            d.data[4][2]['dispvec'], [0., 0.05, 0.]
+        ))
+        self.assertTrue(np.allclose(
+            d.data[4][2]['dynmat'][3], [0.055046, -0.298080, 0.]
+        ))
+        # TODO: test get_phonon_frequencies once cross-checked
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
