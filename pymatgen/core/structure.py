@@ -548,7 +548,7 @@ class IStructure(SiteCollection, PMGSONable):
 
         assert len(typat) == len(coords)
 
-        # Note Fortan --> C indexing
+        # Note Fortran --> C indexing
         species = [znucl_type[typ-1] for typ in typat]
 
         #print(lattice, species, coords)
