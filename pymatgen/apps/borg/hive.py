@@ -27,7 +27,7 @@ from six.moves import zip
 
 from monty.io import zopen
 from pymatgen.io.vaspio.vasp_input import Incar, Potcar, Poscar
-from pymatgen.io.vaspio.vasp_output import Vasprun, Oszicar
+from pymatgen.io.vaspio.vasp_output import Vasprun, Oszicar, Dynmat
 from pymatgen.io.gaussianio import GaussianOutput
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
@@ -217,10 +217,13 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                     search_str = os.path.join(path, "relax2", filename + "*")
                     files_to_parse[filename] = glob.glob(search_str)[-1]
             else:
-                for filename in ("INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR"):
+                for filename in (
+                    "INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR", "DYNMAT"
+                ):
                     files = glob.glob(os.path.join(path, filename + "*"))
                     if len(files) < 1: continue
-                    if len(files) == 1 or filename == "INCAR" or filename == "POTCAR":
+                    if len(files) == 1 or filename == "INCAR" or \
+                       filename == "POTCAR" or filename == "DYNMAT":
                         files_to_parse[filename] = files[-1] if filename == "POTCAR" else files[0]
                     elif len(files) > 1:
                         """
@@ -247,7 +250,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                                 break
                             files_to_parse[filename] = fname
 
-            poscar, contcar, incar, potcar, oszicar = None, None, None, None, None
+            poscar, contcar, incar, potcar, oszicar, dynmat = [None]*6
             if 'POSCAR' in files_to_parse:
                 poscar = Poscar.from_file(files_to_parse["POSCAR"])
             if 'CONTCAR' in files_to_parse:
@@ -258,6 +261,8 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                 potcar = Potcar.from_file(files_to_parse["POTCAR"])
             if 'OSZICAR' in files_to_parse:
                 oszicar = Oszicar(files_to_parse["OSZICAR"])
+            if 'DYNMAT' in files_to_parse:
+                dynmat = Dynmat(files_to_parse["DYNMAT"])
 
             param = {"hubbards":{}}
             if (poscar is not None and incar is not None and "LDAUU" in incar):
@@ -278,6 +283,8 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             if initial_vol is not None and final_vol is not None:
                 delta_volume = (final_vol / initial_vol - 1)
             data = {"filename": path, "delta_volume": delta_volume}
+            if dynmat is not None:
+                data['phonon_frequencies'] = dynmat.get_phonon_frequencies()
             if self._inc_structure:
                 entry = ComputedStructureEntry(
                   structure, energy, parameters=param, data=data
