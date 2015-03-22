@@ -567,20 +567,13 @@ class CifWriter(object):
     A wrapper around CifFile to write CIF files from pymatgen structures.
 
     Args:
-        struct (Structure): A pymatgen.core.structure.Structure object.
-        find_spacegroup (bool): Whether to find spacegroup.
-            If so, spacegroup information is written.
+        struct (Structure): structure to write
+        symprec (float): If not none, finds the symmetry of the structure
+            and writes the cif with symmetry information. Passes symprec
+            to the SpacegroupAnalyzer
     """
 
-    def __init__(self, struct, find_spacegroup=False, symprec=None):
-        """
-        Args:
-            struct (Structure): structure to write
-            find_spacegroup (bool): whether to try to determine the spacegroup
-            symprec (float): If not none, finds the symmetry of the structure and
-                writes the cif with symmetry information. Passes symprec to the
-                SpacegroupAnalyzer
-        """
+    def __init__(self, struct, symprec=None):
         format_str = "{:.8f}"
 
         block = OrderedDict()
@@ -591,10 +584,6 @@ class CifWriter(object):
         spacegroup = ("P 1", 1)
         if symprec is not None:
             sf = SpacegroupAnalyzer(struct, symprec)
-            spacegroup = (sf.get_spacegroup_symbol(),
-                          sf.get_spacegroup_number())
-        elif find_spacegroup:
-            sf = SpacegroupAnalyzer(struct, 0.001)
             spacegroup = (sf.get_spacegroup_symbol(),
                           sf.get_spacegroup_number())
         block["_symmetry_space_group_name_H-M"] = spacegroup[0]
