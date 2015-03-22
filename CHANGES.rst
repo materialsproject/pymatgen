@@ -1,7 +1,7 @@
 Change log
 ==========
 
-v3.0.12
+v3.0.13
 -------
 
 * Bug fix for parsing certain types of CIFs.
