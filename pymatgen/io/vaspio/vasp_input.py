@@ -1431,12 +1431,11 @@ class PotcarSingle(object):
         hash_str = ""
         for k, v in self.PSCTR.items():
             hash_str += "{}".format(k)
-
             if isinstance(v, int):
                 hash_str += "{}".format(v)
             elif isinstance(v, float):
                 hash_str += "{:.3f}".format(v)
-            elif isinstance(v, str):
+            elif isinstance(v, six.string_types):
                 hash_str += "{}".format(v.replace(" ", ""))
             elif isinstance(v, bool):
                 hash_str += "{}".format(bool)
