@@ -1292,12 +1292,15 @@ class Flow(Node, PMGSONable):
         is unconverged so that we can restart from it. No output is produced if 
         convergence is achieved. 
         """
+        if not self.allocated:
+            raise RuntimeError("You must call flow.allocate before invoking flow.use_smartio")
+
         for task in self.iflat_tasks():
             children = task.get_children()
             if not children:
                 # Change the input so that output files are produced 
                 # only if the calculation is not converged.
-                logger.debug("Will disable IO for task %s:" % task)
+                task.history.info("Will disable IO for task")
                 task._set_inpvars(prtwf=-1, prtden=0) # prt1wf=-1, 
             else:
                 must_produce_abiexts = []
@@ -1317,7 +1320,7 @@ class Flow(Node, PMGSONable):
                 # Set the variable to -1 to disable the output 
                 for varname, abiext in smart_prtvars.items():
                     if abiext not in must_produce_abiexts:
-                        print("%s: setting %s to -1" % (self, varname))
+                        print("%s: setting %s to -1" % (task, varname))
                         task._set_inpvars({varname: -1})
 
     #def new_from_input_decorators(self, new_workdir, decorators)
@@ -1948,6 +1951,7 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
         work_qpt = PhononWork()
 
         if with_nscf:
+            #MG: Warning this code assumens 0 is Gamma!
             nscf_input = copy.deepcopy(scf_input)
             nscf_input.set_vars(kptopt=3, iscf=-3, qpt=irred_perts[0]['qpt'], nqpt=1)
             nscf_task = work_qpt.register_nscf_task(nscf_input, deps={scf_task: "DEN"})
