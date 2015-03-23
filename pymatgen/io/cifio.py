@@ -37,7 +37,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
-from pymatgen.symmetry.groups import SpaceGroup, SYMM_DATA
+from pymatgen.symmetry.groups import SpaceGroup, SYMM_DATA, TRANSLATIONS
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 ptable = PeriodicTable()
@@ -52,9 +52,9 @@ space_groups.update({sub_spgrp(k): k for k in
 
 
 class CifBlock(object):
-    
+
     maxlen = 70  # not quite 80 so we can deal with semicolons and things
-    
+
     def __init__(self, data, loops, header):
         """
         Object for storing cif data. All data is stored in a single dictionary.
@@ -66,7 +66,7 @@ class CifBlock(object):
             data: dict or OrderedDict of data to go into the cif. Values should
                     be convertible to string, or lists of these if the key is
                     in a loop
-            loops: list of lists of keys, grouped by which loop they should 
+            loops: list of lists of keys, grouped by which loop they should
                     appear in
             header: name of the block (appears after the data_ on the first
                 line)
@@ -146,7 +146,7 @@ class CifBlock(object):
         string = re.sub("^\s*\n", "", string, flags=re.MULTILINE)
         #remove non_ascii
         string = remove_non_ascii(string)
-        
+
         #since line breaks in .cif files are mostly meaningless,
         #break up into a stream of tokens to parse, rejoining multiline
         #strings (between semicolons)
@@ -238,7 +238,7 @@ class CifFile(object):
     @classmethod
     def from_string(cls, string):
         d = OrderedDict()
-        for x in re.split("^data_", "x\n"+string, 
+        for x in re.split("^data_", "x\n"+string,
                           flags=re.MULTILINE | re.DOTALL)[1:]:
             c = CifBlock.from_string("data_"+x)
             d[c.header] = c
@@ -562,27 +562,20 @@ class CifParser(object):
         return d
 
 
-class CifWriter:
+class CifWriter(object):
     """
     A wrapper around CifFile to write CIF files from pymatgen structures.
 
     Args:
-        struct (Structure): A pymatgen.core.structure.Structure object.
-        find_spacegroup (bool): Whether to find spacegroup.
-            If so, spacegroup information is written.
+        struct (Structure): structure to write
+        symprec (float): If not none, finds the symmetry of the structure
+            and writes the cif with symmetry information. Passes symprec
+            to the SpacegroupAnalyzer
     """
 
-    def __init__(self, struct, find_spacegroup=False, symprec=None):
-        """
-        Args:
-            struct (Structure): structure to write
-            find_spacegroup (bool): whether to try to determine the spacegroup
-            symprec (float): If not none, finds the symmetry of the structure and
-                writes the cif with symmetry information. Passes symprec to the
-                SpacegroupAnalyzer
-        """
+    def __init__(self, struct, symprec=None):
         format_str = "{:.8f}"
-        
+
         block = OrderedDict()
         loops = []
         latt = struct.lattice
@@ -591,10 +584,6 @@ class CifWriter:
         spacegroup = ("P 1", 1)
         if symprec is not None:
             sf = SpacegroupAnalyzer(struct, symprec)
-            spacegroup = (sf.get_spacegroup_symbol(),
-                          sf.get_spacegroup_number())
-        elif find_spacegroup:
-            sf = SpacegroupAnalyzer(struct, 0.001)
             spacegroup = (sf.get_spacegroup_symbol(),
                           sf.get_spacegroup_number())
         block["_symmetry_space_group_name_H-M"] = spacegroup[0]
@@ -621,7 +610,24 @@ class CifWriter:
             block["_symmetry_equiv_pos_as_xyz"] = ["x, y, z"]
         else:
             sf = SpacegroupAnalyzer(struct, symprec)
-            ops = [op.as_xyz_string() for op in sf.get_symmetry_operations()]
+
+            def round_symm_trans(i):
+
+                for t in TRANSLATIONS.values():
+                    if abs(i - t) < symprec:
+                        return t
+                if abs(i % 1 - 1) < symprec:
+                    return 0
+                raise ValueError("Invalid translation!")
+
+            symmops = []
+            for op in sf.get_symmetry_operations():
+                v = op.translation_vector
+                v = [round_symm_trans(i) for i in v]
+                symmops.append(SymmOp.from_rotation_and_translation(
+                    op.rotation_matrix, v))
+
+            ops = [op.as_xyz_string() for op in symmops]
             block["_symmetry_equiv_pos_site_id"] = \
                 ["%d" % i for i in range(1, len(ops) + 1)]
             block["_symmetry_equiv_pos_as_xyz"] = ops
@@ -635,7 +641,7 @@ class CifWriter:
                 (el.__str__(), float(el.oxi_state))
                 for el in sorted(comp.elements)])
         except AttributeError:
-            symbol_to_oxinum = OrderedDict([(el.symbol, 0) for el in 
+            symbol_to_oxinum = OrderedDict([(el.symbol, 0) for el in
                                             sorted(comp.elements)])
             contains_oxidation = False
         if contains_oxidation:
