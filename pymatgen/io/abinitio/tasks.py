@@ -455,6 +455,10 @@ class FixQueueCriticalError(Exception):
     """
 
 
+# Global variable used to store the task manager returned by `from_user_config`.
+_USER_CONFIG_TASKMANAGER = None
+
+
 class TaskManager(PMGSONable):
     """
     A `TaskManager` is responsible for the generation of the job script and the submission 
@@ -508,17 +512,20 @@ batch_adapter:
         Raises:
             RuntimeError if file is not found.
         """
-        # Try in the current directory.
-        path = os.path.join(os.getcwd(), cls.YAML_FILE)
-        if os.path.exists(path):
-            return cls.from_file(path)
+        global _USER_CONFIG_TASKMANAGER
+        if _USER_CONFIG_TASKMANAGER is not None:
+            return _USER_CONFIG_TASKMANAGER
 
-        # Try in the configuration directory.
-        path = os.path.join(cls.USER_CONFIG_DIR, cls.YAML_FILE)
-        if os.path.exists(path):
-            return cls.from_file(path)
-    
-        raise RuntimeError("Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, path))
+        # Try in the current directory then in user configuration directory.
+        path = os.path.join(os.getcwd(), cls.YAML_FILE)
+        if not os.path.exists(path):
+            path = os.path.join(cls.USER_CONFIG_DIR, cls.YAML_FILE)
+
+        if not os.path.exists(path):
+            raise RuntimeError("Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, path))
+
+        _USER_CONFIG_TASKMANAGER = cls.from_file(path)
+        return _USER_CONFIG_TASKMANAGER 
 
     @classmethod
     def from_file(cls, filename):
@@ -847,6 +854,7 @@ batch_adapter:
             ndtset = None
 
         if False and ndtset == 1 and isinstance(task, AbinitTask):
+        #if ndtset == 1 and isinstance(task, AbinitTask):
             args = kwargs.get("exec_args", [])
             if args is None: args = []
             args = args[:]

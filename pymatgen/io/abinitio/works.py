@@ -26,7 +26,7 @@ from .tasks import (Task, AbinitTask, ScfTask, NscfTask, PhononTask, DdkTask,
                     BseTask, RelaxTask, DdeTask, ScrTask, SigmaTask)
 from .strategies import HtcStrategy, NscfStrategy
 from .utils import Directory
-from .netcdf import ETSF_Reader
+from .netcdf import ETSF_Reader, NetcdfReader
 from .abitimer import AbinitTimerParser
 
 import logging
@@ -809,10 +809,12 @@ class RelaxWork(Work):
 
         # Note:
         #   1) It would be nice to restart from the WFK file but ABINIT crashes due to the
-        #      different unit cell parameters.
-        #
-        # deps = {self.ion_task: "WFK"} --> FIXME: Problem in rwwf
-        deps = {self.ion_task: "DEN"}
+        #      different unit cell parameters if paral_kgb == 1
+        #paral_kgb = ion_input[0]["paral_kgb"]
+        #if paral_kgb == 1:
+
+        #deps = {self.ion_task: "WFK"}  # --> FIXME: Problem in rwwf
+        #deps = {self.ion_task: "DEN"}
         deps = None
 
         self.ioncell_task = self.register_relax_task(ioncell_input, deps=deps)
@@ -1047,7 +1049,6 @@ class QptdmWork(Work):
         fake_task.start_and_wait()
 
         # Parse the section with the q-points
-        from pymatgen.io.abinitio.netcdf import NetcdfReader
         with NetcdfReader(fake_task.outdir.has_abiext("qptdms.nc")) as reader:
             qpoints = reader.read_value("reduced_coordinates_of_kpoints")
         #print("qpoints)
