@@ -52,11 +52,9 @@ class SymmOp(PMGSONable):
         self.tol = tol
 
     @staticmethod
-    def from_rotation_and_translation(rotation_matrix=((1, 0, 0),
-                                                       (0, 1, 0),
-                                                       (0, 0, 1)),
-                                      translation_vec=(0, 0, 0),
-                                      tol=0.1):
+    def from_rotation_and_translation(
+            rotation_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)),
+            translation_vec=(0, 0, 0), tol=0.1):
         """
         Creates a symmetry operation from a rotation matrix and a translation
         vector.
