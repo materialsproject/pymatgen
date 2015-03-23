@@ -240,8 +240,8 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     used_dEs = []
     for p_r in range(n):
         for epi in range(n):
-            sum_mu = sum([mu[site_mu_map[j]]*Float(
-                    dC[j,epi,p_r]) for j in range(n)])
+            sum_mu = sum([mu[site_mu_map[j]]*dC[j,epi,p_r] \
+                    for j in range(n)])
             if p_r != epi and site_mu_map[p_r] == site_mu_map[epi]:
                 continue
             if dE[epi,p_r] not in used_dEs:
