@@ -227,8 +227,11 @@ class ParalHints(collections.Iterable):
     def __len__(self):
         return self._confs.__len__()
 
-    def __str__(self):
+    def __repr__(self):
         return "\n".join(str(conf) for conf in self)
+
+    def __str__(self):
+        return repr(self)
 
     @lazy_property
     def max_cores(self):
@@ -286,16 +289,19 @@ class ParalHints(collections.Iterable):
     def sort_by_efficiency(self, reverse=True):
         """Sort the configurations in place. items with highest efficiency come first"""
         self._confs.sort(key=lambda c: c.efficiency, reverse=reverse)
+        return self
 
     def sort_by_speedup(self, reverse=True):
         """Sort the configurations in place. items with highest speedup come first"""
         self._confs.sort(key=lambda c: c.speedup, reverse=reverse)
+        return self
 
     def sort_by_mem_per_proc(self, reverse=False):
         """Sort the configurations in place. items with lowest memory per proc come first."""
         # Avoid sorting if mem_per_cpu is not available.
         if any(c.mem_per_proc > 0.0 for c in self):
             self._confs.sort(key=lambda c: c.mem_per_proc, reverse=reverse)
+        return self
 
     def multidimensional_optimization(self, priorities=("speedup", "efficiency")):
         # Mapping property --> options passed to sparse_histogram
