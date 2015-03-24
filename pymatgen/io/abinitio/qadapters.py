@@ -52,6 +52,17 @@ __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 
 
+class SubmitResults(namedtuple("SubmitResult", "qid, out, err, process")):
+    """
+    named tuple createc by the concrete implementation of _submit_to_que to pass the results of the process of
+    submitting the jobfile to the que.
+    qid: queue id of the submission
+    out: stdout of the submission
+    err: stdrr of the submisison
+    process: process object of the submission
+    """
+
+
 class MpiRunner(object):
     """
     This object provides an abstraction for the mpirunner provided 
@@ -875,28 +886,17 @@ limits:
             raise self.MaxNumLaunchesError("num_launches %s == max_num_launches %s" % (self.num_launches, self.max_num_launches))
 
         # Call the concrete implementation.
-        queue_id, process = self._submit_to_queue(script_file)
-        self.record_launch(queue_id)
+        s = self._submit_to_queue(script_file)
+        self.record_launch(s.qid)
 
-        if queue_id is None:
-            submit_err_file = script_file + ".err"
-            err = str(process.stderr.read())
-            # Dump the error and raise
-            with open(submit_err_file, mode='w') as f:
-                f.write("sbatch submit process stderr:\n" + err)
-                f.write("qparams:\n" + str(self.qparams))
-
-            try:
-                args = process.args
-            except AttributeError:
-                args = ["Unknown",]
-
-            raise self.Error("Error in job submission with %s. file %s and args %s\n" % 
-                             (self.__class__.__name__, script_file, args) + 
-                             "The error response reads:\n %s" % err)
+        if s.qid is None:
+            raise self.Error("Error in job submission with %s. file %s \n" %
+                            (self.__class__.__name__, script_file) +
+                             "The error response reads:\n %s \n " % s.err +
+                             "The out response reads:\n %s \n" % s.out)
 
         # Here we create a concrete instance of QueueJob
-        return QueueJob.from_qtype_and_id(self.QTYPE, queue_id, self.qname), process
+        return QueueJob.from_qtype_and_id(self.QTYPE, s.qid, self.qname), s.process
 
     @abc.abstractmethod
     def _submit_to_queue(self, script_file):
@@ -1005,7 +1005,7 @@ $${qverbatim}
     def _submit_to_queue(self, script_file):
         # submit the job, return process and pid.
         process = Popen(("/bin/bash", script_file), stderr=PIPE)
-        return process.pid, process
+        return SubmitResults(qid=process.pid, out='no out in shell submission', err='no err in shell submission', process=process)
 
     def _get_njobs_in_queue(self, username):
         return None, None
@@ -1118,8 +1118,7 @@ $${qverbatim}
             except:
                 # probably error parsing job code
                 logger.critical('Could not parse job id following slurm...')
-
-        return queue_id, process
+        return SubmitResults(qid=queue_id, out=out, err=err, process=process)
 
     def exclude_nodes(self, nodes):
         try:
@@ -1301,8 +1300,7 @@ $${qverbatim}
             except:
                 # probably error parsing job code
                 logger.critical("Could not parse job id following qsub...")
-
-        return queue_id, process 
+        return SubmitResults(qid=queue_id, out=out, err=err, process=process)
 
     def _get_njobs_in_queue(self, username):
         process = Popen(['qstat', '-a', '-u', username], stdout=PIPE, stderr=PIPE)
@@ -1447,8 +1445,7 @@ $${qverbatim}
             except:
                 # probably error parsing job code
                 logger.critical("Could not parse job id following qsub...")
-
-        return queue_id, process
+        return SubmitResults(qid=queue_id, out=out, err=err, process=process)
 
     def exclude_nodes(self, nodes):
         """Method to exclude nodes in the calculation"""
@@ -1535,7 +1532,7 @@ $${qverbatim}
                 # probably error parsing job code
                 logger.critical('Could not parse job id following msub...')
 
-        return queue_id, process
+        return SubmitResults(qid=queue_id, out=out, err=err, process=process)
 
     def _get_njobs_in_queue(self, username):
         process = Popen(['showq', '-s -u', username], stdout=PIPE, stderr=PIPE)
