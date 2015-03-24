@@ -2114,6 +2114,14 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         if kwargs.pop("autoparal", True) and hasattr(self, "autoparal_run"):
             try:
                 self.autoparal_run()
+            except QueueAdapterError as exc:
+                # If autoparal cannot find a qadapter to run the calculation raises an Exception
+                self.history.critical(exc)
+                msg = "Error trying to find a running configuration:\n%s" % straceback()
+                logger.critical(msg)
+
+                self.set_status(self.S_QCRITICAL, msg=msg)
+                return 0
             except Exception as exc:
                 # Sometimes autparal_run fails because Abinit aborts
                 # at the level of the parser e.g. cannot find the spacegroup
@@ -2540,8 +2548,8 @@ class AbinitTask(Task):
             try:
                 selected.append(getattr(choices[c], "path"))
             except KeyError:
-                warnings.warn("Wrong keyword %s" % c)
-                                                             
+                logger.warning("Wrong keyword %s" % c)
+
         return selected
 
     def restart(self):
