@@ -215,15 +215,16 @@ def g0w0_extended_work(structure, pseudos, kppa, nscf_nband, ecuteps, ecutsigx, 
                 extra_abivars['pawecutdg'] = extra_abivars['ecut']*2
                 scf_strategy.append(ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy,
                                                 spin_mode=spin_mode, smearing=smearing, charge=charge,
-                                                scf_algorithm=None, **extra_abivars))
+                                                scf_algorithm=None, nband=scf_nband, **extra_abivars))
 
     #temporary for testing a new approach ...
     spread_scr = False if os.path.isfile('no_spread_scr') else True
 
     if len(scf_strategy) == 0:
         scf_strategy.append(ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy, spin_mode=spin_mode,
-                                        smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars))
-    scf_strategy[-1].electrons.nband = scf_nband
+                                        smearing=smearing, charge=charge, scf_algorithm=None, nband=scf_nband,
+                                        **extra_abivars))
+
 
     nscf_strategy = NscfStrategy(scf_strategy[-1], nscf_ksampling, int(max(nscf_nband)*1.1)+1,
                                  nbdbuf=int(0.1*nscf_nband), nstep=200, **extra_abivars)
