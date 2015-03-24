@@ -686,11 +686,11 @@ class DilatmxErrorHandler(ErrorHandler):
         task._change_structure(last_structure)
 
         #read the suggested dilatmx
-        new_dilatmx = 1.05
-        if new_dilatmx > self.max_dilatmx:
-            msg = "Suggested dilatmx ({}) exceeds maximux configured value ({}).".format(new_dilatmx, self.max_dilatmx)
-            return self.NOT_FIXED
-        task.strategy.abinit_input.set_vars(dilatmx=new_dilatmx)
+        # new_dilatmx = 1.05
+        # if new_dilatmx > self.max_dilatmx:
+        #     msg = "Suggested dilatmx ({}) exceeds maximux configured value ({}).".format(new_dilatmx, self.max_dilatmx)
+        #     return self.NOT_FIXED
+        # task.strategy.abinit_input.set_vars(dilatmx=new_dilatmx)
         msg = "Take last structure from DILATMX_STRUCT.nc, will try to restart with dilatmx %s" % task.get_inpvar("dilatmx")
         task.log_correction(event, msg)
         # Note that we change the structure but we don't try restart from the previous WFK|DEN file
