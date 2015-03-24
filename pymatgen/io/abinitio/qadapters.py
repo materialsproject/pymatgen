@@ -21,6 +21,7 @@ import copy
 import getpass
 import six
 import json
+import math
 from . import qutils as qu
 
 from collections import namedtuple
@@ -348,7 +349,9 @@ limits:
                        # possible values are ["nodes", "force_nodes", "shared"]
                        # "nodes" means that we should try to allocate entire nodes if possible.
                        # This is a soft limit, in the sense that the qadapter may use a configuration
-                       # that does not fulfill this requirement, use `force_nodes` to enfore that.
+                       # that does not fulfill this requirement. If failing, it will try to use the
+                       # smallest number of nodes compatible with the optimal configuration.
+                       # Use `force_nodes` to enfore entire nodes allocation.
                        # `shared` mode does not enforce any constraint (default).
 """
 
@@ -1072,7 +1075,13 @@ $${qverbatim}
         return os.system("scancel %d" % job_id)
 
     def optimize_params(self):
-        return {}
+        params = {}
+        if self.allocation == "nodes":
+            # run on the smallest number of nodes compatible with the configuration
+            params["nodes"] = max(int(math.ceil(self.mpi_procs / self.hw.cores_per_node)),
+                                  int(math.ceil(self.total_mem / self.hw.mem_per_node)))
+        return params
+
         #dist = self.distribute(self.mpi_procs, self.omp_threads, self.mem_per_proc)
         ##print(dist)
 
@@ -1329,7 +1338,7 @@ class TorqueAdapter(PbsProAdapter):
 #PBS -A $${account}
 #PBS -l pmem=$${pmem}mb
 ####PBS -l mppwidth=$${mppwidth}
-#PBS -l nodes=$${nodes}:ppn=$${ppn} 
+#PBS -l nodes=$${nodes}:ppn=$${ppn}
 #PBS -l walltime=$${walltime}
 #PBS -l model=$${model}
 #PBS -l place=$${place}
