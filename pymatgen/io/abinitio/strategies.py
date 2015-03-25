@@ -879,7 +879,7 @@ class OpticVar(collections.namedtuple("OpticVar", "name value help")):
         return (4*" ").join(sval, "!" + self.help)
 
 
-class OpticInput(object):
+class OpticInput(collections.MutableMapping):
     """
     abo_1WF7      ! Name of the first d/dk response wavefunction file, produced by abinit
     abo_1WF8      ! Name of the second d/dk response wavefunction file, produced by abinit
@@ -913,15 +913,15 @@ class OpticInput(object):
 
     _VARNAMES = [v.name for v in _VARIABLES]
 
-    def __init__(self, **kwargs):
-        # Default values
-        self.vars = collections.OrderedDict((v.name, v.value) for v in _VARIABLES)
+    #def __init__(self, **kwargs):
+    #    # Default values
+    #    self.vars = collections.OrderedDict((v.name, v.value) for v in _VARIABLES)
 
-        # Update the variables with the values passed by the user
-        for k, v in kwargs:
-            if k not in self.VARNAMES:
-                raise ValueError("varname %s not in %s" % (k, str(self.VARNAMES)))
-            self.vars[k] = v
+    #    # Update the variables with the values passed by the user
+    #    for k, v in kwargs:
+    #        if k not in self.VARNAMES:
+    #            raise ValueError("varname %s not in %s" % (k, str(self.VARNAMES)))
+    #        self.vars[k] = v
 
     def __init__(self, zcut, wstep, wmax, scissor, sing_tol, linear_components,
                  nonlinear_components=None, ddk_files=None, wfk=None):
@@ -950,6 +950,23 @@ class OpticInput(object):
     def __init__(self, string):
         self.string = string
 
+    # ABC protocol: __delitem__, __getitem__, __iter__, __len__, __setitem__
+    def __delitem__(self, key):
+        return self._vars.__delitem__(key)
+        
+    def __getitem__(self, key):
+        return self._vars.__getitem__(key)
+
+    def __iter__(self):
+        return self._vars.__iter__()
+
+    def __len__(self):
+        return len(self._vars)
+
+    def __setitem__(self, key, value):
+        #self._check_varname(key)
+        return self._vars.__setitem__(key, value)
+
     def __str__(self):
         return self.string
 
@@ -965,10 +982,3 @@ class OpticInput(object):
 
     def make_input(self):
         return str(self)
-
-    def add_extra_abivars(self, abivars):
-        """
-        Connection is explicit via the input file
-        since we can pass the paths of the output files
-        produced by the previous runs.
-        """
