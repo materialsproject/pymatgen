@@ -395,9 +395,11 @@ def vac_antisite_def_parse_energy(mpid, mapi_key=None):
         antisites.sort(key=lambda entry: entry['site_index'])
         energy_dict[unicode(mpid)] = {u"structure":structure,
                 'e0':e0,'vacancies':vacancies,'antisites':antisites}
-        return energy_dict
+        #return energy_dict
+        fl_nm = args.mpid+'_raw_defect_energy.json'
+        dumpfn(energy_dict, fl_nm, cls=MontyEncoder, indent=2)
 
-    return {} # Return Null dict due to failure
+    #return {} # Return Null dict due to failure
 
 
 def get_def_profile(mpid, T,  file):
@@ -520,10 +522,10 @@ def main():
 
     parser_vasp_out.set_defaults(func=vac_antisite_def_parse_energy)
 
-    energy_dict = vac_antisite_def_parse_energy(args.mpid, args.mapi_key)
-    if energy_dict:
-        fl_nm = args.mpid+'_raw_defect_energy.json'
-        dumpfn(energy_dict, fl_nm, cls=MontyEncoder, indent=2)
+    #energy_dict = vac_antisite_def_parse_energy(args.mpid, args.mapi_key)
+    #if energy_dict:
+    #    fl_nm = args.mpid+'_raw_defect_energy.json'
+    #    dumpfn(energy_dict, fl_nm, cls=MontyEncoder, indent=2)
 
 
     parser_sol_vasp_out = subparsers.add_parser("gen_sol_def_energy", 
