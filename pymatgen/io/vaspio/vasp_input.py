@@ -633,7 +633,7 @@ class Incar(dict, PMGSONable):
                 raise ValueError(key + " should be a boolean type!")
 
             if key in float_keys:
-                return float(re.search(r"^-?[0]?\.?\d*[e|E]?-?\d*", val).group(0))
+                return float(re.search(r"^-?[0]?\.?\d*\.?\d*[e|E]?-?\d*", val).group(0))
 
             if key in int_keys:
                 return int(re.match(r"^-?[0-9]+", val).group(0))
