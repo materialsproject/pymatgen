@@ -65,10 +65,6 @@ class FlowResults(NodeResults):
         """Initialize an instance from a Work instance."""
         new = super(FlowResults, cls).from_node(flow)
 
-        #new.update(
-        #    #input=flow.strategy
-        #)
-
         # Will put all files found in outdir in GridFs
         d = {os.path.basename(f): f for f in flow.outdir.list_filepaths()}
 
@@ -881,8 +877,8 @@ class Flow(Node, PMGSONable):
         d = {}
         return d
         # TODO
-        all_structures = [task.strategy.structure for task in self.iflat_tasks()]
-        all_pseudos = [task.strategy.pseudos for task in self.iflat_tasks()]
+        all_structures = [task.input.structure for task in self.iflat_tasks()]
+        all_pseudos = [task.input.pseudos for task in self.iflat_tasks()]
 
     def look_before_you_leap(self):
         """
@@ -1153,7 +1149,7 @@ class Flow(Node, PMGSONable):
         Utility function that generates a `Work` made of a single task
 
         Args:
-            input: :class:`AbinitInput` or :class:`Strategy` object.
+            input: :class:`AbinitInput`
             deps: List of :class:`Dependency` objects specifying the dependency of this node.
                   An empy list of deps implies that this node has no dependencies.
             manager: The :class:`TaskManager` responsible for the submission of the task.
@@ -1934,7 +1930,7 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
             rfdir=[1, 1, 1],     # Along this set of reduced coordinate axis.
             )
 
-        fake_task.strategy.add_extra_abivars(abivars)
+        fake_task._set_inpvars(abivars)
         w.allocate()
         w.start(wait=True)
 

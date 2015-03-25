@@ -58,10 +58,6 @@ class WorkResults(NodeResults):
         """Initialize an instance from a :class:`Work` instance."""
         new = super(WorkResults, cls).from_node(work)
 
-        #new.update(
-        #    #input=work.strategy
-        #)
-
         # Will put all files found in outdir in GridFs 
         # Warning: assuming binary files.
         d = {os.path.basename(f): f for f in work.outdir.list_filepaths()}
@@ -421,8 +417,7 @@ class Work(BaseWork):
         Registers a new :class:`Task` and add it to the internal list, taking into account possible dependencies.
 
         Args:
-            obj: :class:`Strategy` object or :class:`AbinitInput` instance.
-                 if Strategy object, we create a new `AbinitTask` from the input strategy and add it to the list.
+            obj: :class:`AbinitInput` instance.
             deps: Dictionary specifying the dependency of this node.
                   None means that this obj has no dependency.
             required_files: List of strings with the path of the files used by the task.
@@ -451,6 +446,7 @@ class Work(BaseWork):
 
             if isinstance(obj, HtcStrategy):
                 # Create the new task (note the factory so that we create subclasses easily).
+                raise NotImplementedError("HtcStrategy")
                 task = task_class(obj, task_workdir, manager)
 
             else:
@@ -699,11 +695,12 @@ class Work(BaseWork):
 
 class BandStructureWork(Work):
     """Work for band structure calculations."""
+
     def __init__(self, scf_input, nscf_input, dos_inputs=None, workdir=None, manager=None):
         """
         Args:
-            scf_input: Input for the SCF run or :class:`SCFStrategy` object.
-            nscf_input: Input for the NSCF run or :class:`NSCFStrategy` object defining the band structure calculation.
+            scf_input: Input for the SCF run 
+            nscf_input: Input for the NSCF run defining the band structure calculation.
             dos_inputs: Input(s) for the DOS. DOS is computed only if dos_inputs is not None.
             workdir: Working directory.
             manager: :class:`TaskManager` object.
@@ -885,9 +882,9 @@ class G0W0Work(Work):
                  workdir=None, manager=None, spread_scr=False, nksmall=None):
         """
         Args:
-            scf_input: Input for the SCF run or :class:`SCFStrategy` object.
-            nscf_input: Input for the NSCF run or :class:`NSCFStrategy` object.
-            scr_input: Input for the screening run or :class:`ScrStrategy` object
+            scf_input: Input for the SCF run
+            nscf_input: Input for the NSCF run
+            scr_input: Input for the screening run
             sigma_inputs: List of Strategies for the self-energy run.
             workdir: Working directory of the calculation.
             manager: :class:`TaskManager` object.
@@ -992,9 +989,9 @@ class BseMdfWork(Work):
     def __init__(self, scf_input, nscf_input, bse_inputs, workdir=None, manager=None):
         """
         Args:
-            scf_input: Input for the SCF run or :class:`ScfStrategy` object.
-            nscf_input: Input for the NSCF run or :class:`NscfStrategy` object.
-            bse_inputs: List of Inputs for the BSE run or :class:`BSEStrategy` object.
+            scf_input: Input for the SCF run.
+            nscf_input: Input for the NSCF run.
+            bse_inputs: List of Inputs for the BSE run.
             workdir: Working directory of the calculation.
             manager: :class:`TaskManager`.
         """
@@ -1045,7 +1042,7 @@ class QptdmWork(Work):
         # Create the symbolic link and add the magic value
         # nqpdm = -1 to the input to get the list of q-points.
         fake_task.inlink_file(wfk_file)
-        fake_task.strategy.add_extra_abivars({"nqptdm": -1})
+        fake_task._set_inpvars({"nqptdm": -1})
         fake_task.start_and_wait()
 
         # Parse the section with the q-points
@@ -1120,11 +1117,11 @@ def build_oneshot_phononwork(scf_input, ph_inputs, workdir=None, manager=None, w
 
     for phinp in ph_inputs:
         # Check rfdir and rfatpol.
-        rfdir = np.array(phinp[0].get("rfdir", [0, 0, 0]))
+        rfdir = np.array(phinp.get("rfdir", [0, 0, 0]))
         if len(rfdir) != 3 or any(rfdir != (1, 1, 1)):
             raise ValueError("Expecting rfdir == (1, 1, 1), got %s" % rfdir)
 
-        rfatpol = np.array(phinp[0].get("rfatpol", [1, 1]))
+        rfatpol = np.array(phinp.get("rfatpol", [1, 1]))
         if len(rfatpol) != 2 or any(rfatpol != (1, len(phinp.structure))):
             raise ValueError("Expecting rfatpol == (1, natom), got %s" % rfatpol)
 
