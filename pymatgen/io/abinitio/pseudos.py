@@ -120,14 +120,18 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
         """
         return PseudoParser().parse(filename)
 
-    #def __eq__(self, other):
-    #    if not isinstance(other, Pseudo): return False
-    #    return (self.__class__ == other.__class__ and 
-    #    return (self.md5 == other.md5 and 
-    #            self.text == other.text)
+    def __eq__(self, other):
+        if not isinstance(other, Pseudo): return False
+        # TODO
+        # For the time being we check the filepath
+        # A more robust algorithm would use md5
+        return self.filepath == other.filepath
+        #return (self.__class__ == other.__class__ and 
+        #return (self.md5 == other.md5 and 
+        #        self.text == other.text)
 
-    #def __ne__(self, other):
-    #    return not self.__eq__(other)
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __repr__(self):
         return "<%s at %s>" % (self.__class__.__name__, self.filepath)

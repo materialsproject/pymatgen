@@ -71,11 +71,15 @@ class PseudoTestCase(PymatgenTest):
         self.assertEqual(pseudo.l_max, 1)
         self.assertEqual(pseudo.l_local, 0)
 
+        assert self.Si_hgh == self.Si_hgh
+
         # TM pseudos
         pseudo = self.Si_pspnc
         self.assertTrue(pseudo.has_nlcc)
         self.assertEqual(pseudo.l_max, 2)
         self.assertEqual(pseudo.l_local, 2)
+
+        assert self.Si_hgh != self.Si_pspnc
 
         # FHI pseudos
         pseudo = self.Si_fhi
