@@ -384,7 +384,7 @@ class TaskPolicy(object):
     create the submission script and/or to modify the ABINIT variables 
     governing the parallel execution. A `TaskPolicy` object contains 
     a set of variables that specify the launcher, as well as the options
-    and the condition used to select the optimal configuration for the parallel run 
+    and the conditions used to select the optimal configuration for the parallel run 
     """
     @classmethod
     def as_policy(cls, obj):
@@ -431,6 +431,7 @@ class TaskPolicy(object):
         self.precedence = kwargs.pop("precedence", "autoparal_conf")
         self.autoparal_priorities = kwargs.pop("autoparal_priorities", ["speedup"])
         #self.autoparal_priorities = kwargs.pop("autoparal_priorities", ["speedup", "efficiecy", "memory"]
+        # TODO frozen_timeout could be computed as a fraction of the timelimit of the qadapter!
         self.frozen_timeout = qu.slurm_parse_timestr(kwargs.pop("frozen_timeout", "0-1"))
 
         if kwargs:
@@ -1078,9 +1079,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # Init the node
         super(Task, self).__init__()
 
-        # Save the strategy to use to generate the input file.
-        # FIXME
-        #self.strategy = strategy.deepcopy()
         self.strategy = strategy
                                                                
         if workdir is not None:
@@ -1334,7 +1332,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         is preserved e.g. out_1WF14 --> out_1WF
         """
         filepaths = self.outdir.list_filepaths()
-        logger.info("in fix_ofiles with filepaths %s" % filepaths) 
+        logger.info("in fix_ofiles with filepaths %s" % list(filepaths))
 
         old2new = FilepathFixer().fix_paths(filepaths)
 
@@ -2123,7 +2121,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 self.set_status(self.S_QCRITICAL, msg=msg)
                 return 0
             except Exception as exc:
-                # Sometimes autparal_run fails because Abinit aborts
+                # Sometimes autoparal_run fails because Abinit aborts
                 # at the level of the parser e.g. cannot find the spacegroup
                 # due to some numerical noise in the structure.
                 # In this case we call fix_abi_critical and then we try to run autoparal again.
@@ -2238,7 +2236,7 @@ class AbinitTask(Task):
         exists. A few lines of code in python, a lot of problems if you try to implement this trick in Fortran90. 
         """
         def rename_file(afile):
-            """Helper function to rename :class:`File` objects. Return string for logginf purpose."""
+            """Helper function to rename :class:`File` objects. Return string for logging purpose."""
             # Find the index of the last file (if any).
             # TODO: Maybe it's better to use run.abo --> run(1).abo
             fnames = [f for f in os.listdir(self.workdir) if f.startswith(afile.basename)]
@@ -2770,13 +2768,6 @@ class AbinitTask(Task):
 
         return 0
 
-# TODO
-# Enable restarting capabilites:
-# Before doing so I need:
-#   1) Preliminary standardization of the ABINT events and critical WARNINGS (YAML)
-#   2) Change the parser so that we can use strings in the input file.
-#      We need this change for restarting structural relaxations so that we can read 
-#      the initial structure from file.
 
 class ProduceHist(object):
     """
@@ -2816,9 +2807,6 @@ class ProduceHist(object):
 class GsTask(AbinitTask):
     """
     Base class for ground-state tasks. A ground state task produce a GSR file
-    """
-    """
-    Mixin class for an :class:`AbinitTask` producing a GSR file.
     Provide the method `open_gsr` that reads and returns a GSR file.
     """
     @property
@@ -3194,7 +3182,7 @@ class PhononTask(DfptTask):
             irdvars = irdvars_for_ext("1WF")
             if len(wf_files) != 1:
                 restart_file = None
-                logger.critical("Found more that one 1WF file. Restart is ambiguous!")
+                logger.critical("Found more than one 1WF file. Restart is ambiguous!")
 
         if restart_file is None:
             den_files = self.outdir.find_1den_files()
@@ -3203,7 +3191,7 @@ class PhononTask(DfptTask):
                 irdvars = {"ird1den": 1}
                 if len(den_files) != 1:
                     restart_file = None
-                    logger.critical("Found more that one 1DEN file. Restart is ambiguous!")
+                    logger.critical("Found more than one 1DEN file. Restart is ambiguous!")
 
         if restart_file is None:
             # Raise because otherwise restart is equivalent to a run from scratch --> infinite loop!
@@ -3262,11 +3250,11 @@ class ManyBodyTask(AbinitTask):
         first_dig, second_dig = prev_gwmem // 10, prev_gwmem % 10
 
         if second_dig == 1:
-            self._set_inpvars(gwmem=10 * first_dig)
+            self._set_inpvars(gwmem="%.2d" % (10 * first_dig))
             return True
 
         if first_dig == 1:
-            self._set_inpvars(gwmem=00)
+            self._set_inpvars(gwmem="%.2d" % 00)
             return True
 
         # gwmem 00 d'oh!
