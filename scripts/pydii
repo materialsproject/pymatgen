@@ -47,7 +47,11 @@ def get_sc_scale(inp_struct, final_site_no):
     return num_mult
 
 
-def vac_antisite_def_struct_gen(mpid, mapi_key, cellmax):
+def vac_antisite_def_struct_gen(args):
+    mpid = args.mpid
+    mapi_key = args.mapi_key
+    cellmax = args.cellmax
+
     if not mpid:
         print ("============\nERROR: Provide an mpid\n============")
         return
@@ -161,7 +165,12 @@ def vac_antisite_def_struct_gen(mpid, mapi_key, cellmax):
                 kpoints.write_file(os.path.join(fin_dir,'KPOINTS'))
 
 
-def substitute_def_struct_gen(mpid, solute, mapi_key, cellmax):
+def substitute_def_struct_gen(args):
+    mpid = args.mpid 
+    solute = args.solute 
+    mapi_key = args.mapi_key 
+    cellmax = args.cellmax 
+
     if not mpid:
         print ("============\nERROR: Provide an mpid\n============")
         return
@@ -247,7 +256,11 @@ def substitute_def_struct_gen(mpid, solute, mapi_key, cellmax):
             potcar.write_file(os.path.join(fin_dir,'POTCAR'))
 
 
-def solute_def_parse_energy(mpid, solute, mapi_key=None):
+def solute_def_parse_energy(args):
+    mpid = args.mpid 
+    solute = args.solute 
+    mapi_key = args.mapi_key 
+
     if not mpid:
         print ("============\nERROR: Provide an mpid\n============")
         return 
@@ -319,7 +332,10 @@ def solute_def_parse_energy(mpid, solute, mapi_key=None):
     return {} # Return Null dict due to failure
 
 
-def vac_antisite_def_parse_energy(mpid, mapi_key=None):
+def vac_antisite_def_parse_energy(args):
+    mpid = args.mpid
+    mapi_key = args.mapi_key 
+
     if not mpid:
         print ("============\nERROR: Provide an mpid\n============")
         return 
@@ -402,7 +418,10 @@ def vac_antisite_def_parse_energy(mpid, mapi_key=None):
     #return {} # Return Null dict due to failure
 
 
-def get_def_profile(mpid, T,  file):
+def get_def_profile(args):
+    mpid = args.mpid 
+    T = args.T
+    file = args.file 
 
     raw_energy_dict = loadfn(file,cls=MontyDecoder)
 
@@ -429,8 +448,14 @@ def get_def_profile(mpid, T,  file):
         raise
 
 
-def get_solute_def_profile(mpid, solute, solute_conc, T, def_file, sol_file, 
-        trial_chem_pot):
+def get_solute_def_profile(args):
+    mpid = args.mpid 
+    solute = args.solute 
+    solute_conc = args.solute_conc 
+    T = args.T 
+    def_file = args.def_file 
+    sol_file = args.sol_file 
+    trial_chem_pot = args.trial_chem_pot 
 
     raw_energy_dict = loadfn(def_file,cls=MontyDecoder)
     sol_raw_energy_dict = loadfn(sol_file,cls=MontyDecoder)
@@ -492,7 +517,7 @@ def main():
     parser_vasp_inp.add_argument("--mapi_key", default = None, 
             dest="mapi_key", help=MAPI_string)
     parser_vasp_inp.add_argument("--cellmax", type=int, default=128, 
-            dest="cell_max", help=cell_string)
+            dest="cellmax", help=cell_string)
 
     parser_vasp_inp.set_defaults(func=vac_antisite_def_struct_gen)
 
@@ -506,7 +531,7 @@ def main():
     parser_sol_vasp_inp.add_argument("--mapi_key", default = None, 
             dest="mapi_key", help=MAPI_string)
     parser_sol_vasp_inp.add_argument("--cellmax", type=int, default=128, 
-            dest="cell_max", help=cell_string)
+            dest="cellmax", help=cell_string)
 
     parser_sol_vasp_inp.set_defaults(func=substitute_def_struct_gen)
 
