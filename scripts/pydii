@@ -477,7 +477,7 @@ def main():
                 "For more info on Materials Project, please refer to " \
                 "www.materialsproject.org"
     MAPI_string = "Your Materials Project REST API key.\nFor more info, " \
-                  "please refer to www.materialsproject.org/opne")
+                  "please refer to www.materialsproject.org/opne"
     cell_string = "Maximum number of atoms in supercell.\n" \
                   "The default is 128.\n" \
                   "Keep in mind the number of atoms in the supercell " \
