@@ -545,8 +545,8 @@ class BandStructure(object):
         """
         Json-serializable dict representation of BandStructureSymmLine.
         """
-        d = {"module": self.__class__.__module__,
-             "class": self.__class__.__name__,
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
              "lattice_rec": self._lattice_rec.as_dict(), "efermi": self._efermi,
              "kpoints": []}
         #kpoints are not kpoint objects dicts but are frac coords (this makes
@@ -827,8 +827,8 @@ class BandStructureSymmLine(BandStructure, PMGSONable):
         Json-serializable dict representation of BandStructureSymmLine.
         """
 
-        d = {"module": self.__class__.__module__,
-             "class": self.__class__.__name__,
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__,
              "lattice_rec": self._lattice_rec.as_dict(), "efermi": self._efermi,
              "kpoints": []}
         #kpoints are not kpoint objects dicts but are frac coords (this makes
