@@ -44,6 +44,8 @@ def bandstructure_work(structure, pseudos, scf_kppa, nscf_nband,
         manager: :class:`TaskManager` instance.
         extra_abivars: Dictionary with extra variables passed to ABINIT.
     """
+    #multi = MultiDataset(structure, pseudos, ndtset=2 if dos_kppa is None else 2 + len(dos_kppa))
+
     # SCF calculation.
     scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
 
@@ -51,6 +53,11 @@ def bandstructure_work(structure, pseudos, scf_kppa, nscf_nband,
                                accuracy=accuracy, spin_mode=spin_mode,
                                smearing=smearing, charge=charge,
                                scf_algorithm=scf_algorithm, **extra_abivars)
+
+    #scf_electrons = Electrons(spin_mode=spin_mode, smearing=smearing, algorithm=scf_algorithm, 
+    #                          charge=charge, nband=scf_nband, fband=None)
+    #multi[0].set_vars(scf_ksampling.to_abivars())
+    #multi[0].set_vars(scf_electrons.to_abivars())
 
     # Band structure calculation.
     nscf_ksampling = KSampling.path_from_structure(ndivsm, structure)
@@ -62,12 +69,17 @@ def bandstructure_work(structure, pseudos, scf_kppa, nscf_nband,
     if dos_kppa is not None:
         dos_ksampling = KSampling.automatic_density(structure, dos_kppa, chksymbreak=0)
         #dos_ksampling = KSampling.monkhorst(dos_ngkpt, shiftk=dos_shiftk, chksymbreak=0)
-
         dos_strategy = NscfStrategy(scf_strategy, dos_ksampling, nscf_nband, nscf_solver=None, **extra_abivars)
+        #dos_electrons = aobj.Electrons(spin_mode=spin_mode, smearing=smearing, algorithm={"iscf": -2},
+        #                               charge=charge, nband=nscf_nband) 
+
+        #dt = 2 + i
+        #multi[dt].set_vars(dos_ksampling.to_abivars())
+        #multi[dt].set_vars(dos_electrons.to_abivars())
+        #multi[dt].set_vars(_stopping_criterion("nscf", accuracy))
 
     if work_class is None: work_class = BandStructureWork
-    return work_class(scf_strategy, nscf_strategy, dos_inputs=dos_strategy, 
-                      workdir=workdir, manager=manager)
+    return work_class(scf_strategy, nscf_strategy, dos_inputs=dos_strategy, workdir=workdir, manager=manager)
 
 
 def g0w0_with_ppmodel_work(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx,
