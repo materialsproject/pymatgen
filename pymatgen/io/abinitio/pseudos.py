@@ -2181,6 +2181,8 @@ class DojoReport(dict):
         "deltafactor",
         "gbrv_bcc",
         "gbrv_fcc",
+        "phonon",
+        "phonon_e"
     )
 
     ATOLS = (0.5, 0.1, 0.02)
@@ -2649,8 +2651,7 @@ class DojoReport(dict):
             reference = ph_database().get_entry(symbol=self.symbol, code=code)
 
         d = self["phonon"]
-        ecuts = d.keys()
-        print(ecuts)
+        ecuts = list(d.keys())
 
         l = [(ecut, float(ecut)) for ecut in ecuts]
         s = sorted(l, key=lambda t: t[1])
