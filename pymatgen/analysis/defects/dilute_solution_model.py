@@ -9,6 +9,7 @@ and defect energies using "Dilute Solution Model"
 Reference: Phys Rev B, 63, 094103, 2001,
 "Density of constitutional and thermal point defects in L12 Al3Sc",
 C. Woodward, M. Asta, G. Kresse and J. Hafner.
+Manual and citation for the code, DOI: 10.1016/j.cpc.2015.03.015
 """
 
 
