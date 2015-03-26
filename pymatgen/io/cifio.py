@@ -670,7 +670,7 @@ class CifWriter(object):
                     count += 1
         else:
             for group in sf.get_symmetrized_structure().equivalent_sites:
-                site = group[0]
+                site = sorted(group, key=lambda s: tuple(s.frac_coords))[0]
                 for sp, occu in site.species_and_occu.items():
                     atom_site_type_symbol.append(sp.__str__())
                     atom_site_symmetry_multiplicity.append("%d" % len(group))
