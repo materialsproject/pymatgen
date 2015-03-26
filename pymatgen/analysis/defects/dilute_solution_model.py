@@ -245,7 +245,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
                     for j in range(n)])
             if p_r != epi and site_mu_map[p_r] == site_mu_map[epi]:
                 continue
-            if  dE[epi,p_r] not in used_dEs:
+            if dE[epi,p_r] not in used_dEs:
                 omega2.append(k_B*T*multiplicity[p_r] * \
                               exp(-(dE[epi,p_r]-sum_mu)/(k_B*T)))
                 fm_en_eff.append(dE[epi,p_r]-sum_mu)
@@ -350,7 +350,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             i += 1
         return formation_energies
 
-    # If generate option is energy compute effective formation energies 
+    # If generate option is energy compute effective formation energies
     # at ideal stoichiometry and return the formation energies and chem pot.
     if generate == 'energy':
         if not trial_chem_pot:
@@ -366,10 +366,10 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         return formation_energies, mu_dict
 
     if not trial_chem_pot:
-        # Try computing mus by assuming one of the defects is dominant at 0.01 
+        # Try computing mus by assuming one of the defects is dominant at 0.01
         # concen.  First vacancy is tried and then antisite
 
-        # Generate trial mus assuming vacancy as dominant defect 
+        # Generate trial mus assuming vacancy as dominant defect
         #for specie-0 at lower yval
         li = specie_site_index_map[0][0]
         hi = specie_site_index_map[0][1]
@@ -382,7 +382,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
             mu_vals = [ln_def_conc*k_B*T -vac_flip_en]
             mu_vals.append((e0 - spec_mult[0]*mu_vals[0]) / spec_mult[1])
             comp_ratio = yvals[0]
-    
+
             # Test if the trial mus are good
             vector_func = [comp_ratio - c_ratio[0]]
             vector_func.append(omega)
@@ -393,7 +393,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
                 break
             except:     # Go for antisite as dominant defect
                 mu_gs = [Symbol('mu_gs'+j.__str__()) for j in range(m)]
-            
+
                 eqs = [mu_gs[0]-mu_gs[1] - (ln_def_conc*k_B*T-antisite_defs[i][
                     'energy'])]
                 eqs.append(spec_mult[0]*mu_gs[0] + spec_mult[1]*mu_gs[1] - e0)
@@ -410,12 +410,12 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
                     if mu_vals:
                         mu_vals = [float(mu_val) for mu_val in mu_vals]
                     break
-                except: # Go to the default option (search the space) 
+                except: # Go to the default option (search the space)
                     pass
         else:
             mu_vals = compute_mus_by_search()
 
-                
+
     else:
         try:
             mu_vals = [trial_chem_pot[element] for element in specie_order]
@@ -493,7 +493,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         result[y] = mu_vals
         x = None
 
-    # Alternate way of calculating trial mus for failed cases 
+    # Alternate way of calculating trial mus for failed cases
     # by taking average of trial mus at extremes.
     #for j in range(len(failed_y)):
     #    y = yvals[0]
@@ -558,13 +558,13 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         conc.append([])
         for j in range(n):
             conc[i].append([])
-    for i in range(n): 
+    for i in range(n):
         for j in range(n):
             y1 = [dat[0][i*n+j+1] for dat in res1]
             conc[i][j] = y1
 
     y_data = []
-    for i in range(n):      
+    for i in range(n):
         data = conc[i][i]
         specie = els[i]
         specie_ind = site_mu_map[i]
@@ -579,7 +579,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
         # Plot data and legend info
         y_data.append({'data':data,'name':label})
 
-    for i in range(n):      
+    for i in range(n):
         site_specie = els[i]
         specie_ind = site_mu_map[i]
         indices = specie_site_index_map[specie_ind]
@@ -595,7 +595,7 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
                 label = '$'+sub_specie+'_{'+site_specie+'_'+str(cur_ind)+'}$'
             inds = specie_site_index_map[j]
             # TODO: Investigate the value below
-            data = np.sum([conc[ind][i] for ind in range(*inds)],axis=0)    
+            data = np.sum([conc[ind][i] for ind in range(*inds)],axis=0)
             data = data.tolist()
             y_data.append({'data':data,'name':label})
 
@@ -712,7 +712,7 @@ def compute_defect_density(structure, e0, vac_defs, antisite_defs, T=800,
         T: Temperature in Kelvin
         trial_chem_pot (optional): Trial chemical potentials to speedup
             the plot generation. Format is {el1:mu1,...}
-        plot_style (string): Allowed options are 
+        plot_style (string): Allowed options are
             1) highcharts (default)
             2) gnuplot
 
@@ -980,7 +980,7 @@ def solute_site_preference_finder(
             sum_i = sum([c[i,j]*multiplicity[j] for j in range(n)])
             val += sum_i
         total_c.append(val)
-    
+
     c_ratio = [total_c[i]/sum(total_c) for i in range(m)]
 
     host_total_c = []
@@ -990,14 +990,14 @@ def solute_site_preference_finder(
             sum_i = sum([host_c[i,j]*multiplicity[j] for j in range(n)])
             val += sum_i
         host_total_c.append(val)
-    
+
     host_c_ratio = [host_total_c[i]/sum(host_total_c) for i in range(m-1)]
 
     # Expression for Omega, the Grand Potential
     omega1 = e0 - sum([mu[site_mu_map[i]]*sum(c0[i,:])*multiplicity[i] \
             for i in range(n)])
     omega = omega1
-            
+
     used_dEs = []
     for p_r in range(n):
         for epi in range(n):
@@ -1119,10 +1119,10 @@ def solute_site_preference_finder(
         return mu_vals
 
     if not trial_chem_pot:
-        # Try computing mus by assuming one of the defects is dominant at 0.01 
+        # Try computing mus by assuming one of the defects is dominant at 0.01
         # concen.  First vacancy is tried and then antisite
 
-        # Generate trial mus assuming vacancy as dominant defect 
+        # Generate trial mus assuming vacancy as dominant defect
         #for specie-0 at lower yval
         li = specie_site_index_map[0][0]
         hi = specie_site_index_map[0][1]
@@ -1135,7 +1135,7 @@ def solute_site_preference_finder(
             mu_vals = [ln_def_conc*k_B*T -vac_flip_en]
             mu_vals.append((e0 - spec_mult[0]*mu_vals[0]) / spec_mult[1])
             comp_ratio = comp1_min
-    
+
             # Test if the trial mus are good
             vector_func = [comp_ratio - host_c_ratio[0]]
             vector_func.append(omega1)
@@ -1147,7 +1147,7 @@ def solute_site_preference_finder(
                 break
             except:     # Go for antisite as dominant defect
                 mu_gs = [Symbol('mu_gs'+j.__str__()) for j in range(m-1)]
-            
+
                 eqs = [mu_gs[0]-mu_gs[1] - (ln_def_conc*k_B*T-antisite_defs[i][
                     'energy'])]
                 eqs.append(spec_mult[0]*mu_gs[0] + spec_mult[1]*mu_gs[1] - e0)
@@ -1164,11 +1164,11 @@ def solute_site_preference_finder(
                         host_mu_vals = [float(mu_val) for mu_val in host_mu_vals]
                     mu_vals = compute_solute_mu_by_lin_search(host_mu_vals)
                     break
-                except: # Go to the default option (search the space) 
+                except: # Go to the default option (search the space)
                     pass
         else:
             mu_vals = compute_mus()
-                
+
     else:
         try:
             mu_vals = [trial_chem_pot[element] for element in specie_order]
@@ -1264,7 +1264,7 @@ def solute_site_preference_finder(
 
     y_data = []
     # Vacancy
-    for i in range(n):      
+    for i in range(n):
         data = conc[i][i]
         specie = els[i]
         specie_ind = site_mu_map[i]
@@ -1280,13 +1280,13 @@ def solute_site_preference_finder(
         y_data.append({'data':data,'name':label})
 
     # Antisites and solute
-    for i in range(n):      
+    for i in range(n):
         site_specie = els[i]
         specie_ind = site_mu_map[i]
         indices = specie_site_index_map[specie_ind]
         specie_ind_del = indices[1]-indices[0]
         cur_ind = i - indices[0] + 1
-        for j in range(m):          
+        for j in range(m):
             sub_specie = specie_order[j]
             if sub_specie == site_specie:
                 continue
@@ -1296,7 +1296,7 @@ def solute_site_preference_finder(
                 label = '$'+sub_specie+'_{'+site_specie+'_'+str(cur_ind)+'}$'
             inds = specie_site_index_map[j]
             # TODO: Investigate the value below
-            data = np.sum([conc[ind][i] for ind in range(*inds)],axis=0)    
+            data = np.sum([conc[ind][i] for ind in range(*inds)],axis=0)
             data = data.tolist()
             y_data.append({'data':data,'name':label})
 
@@ -1307,7 +1307,7 @@ def solute_site_preference_finder(
 @requires(sympy_found,
           "solute_defect_density requires Sympy module. Please install it.")
 def solute_defect_density(structure, e0, vac_defs, antisite_defs, solute_defs,
-        solute_concen=0.01, T=800, trial_chem_pot = None, 
+        solute_concen=0.01, T=800, trial_chem_pot = None,
         plot_style="highchargs"):
     """
     Wrapper for the solute_site_preference_finder.
@@ -1336,7 +1336,7 @@ def solute_defect_density(structure, e0, vac_defs, antisite_defs, solute_defs,
         T: Temperature in Kelvin
         trial_chem_pot (optional): Trial chemical potentials to speedup
             the plot generation. Format is {el1:mu1,...}
-        plot_style (string): Allowed options are 
+        plot_style (string): Allowed options are
             1) highcharts (default)
             2) gnuplot
 
@@ -1349,7 +1349,7 @@ def solute_defect_density(structure, e0, vac_defs, antisite_defs, solute_defs,
         structure, e0, T, vac_defs, antisite_defs, solute_defs,
         solute_concen=solute_concen, trial_chem_pot=trial_chem_pot)
 
-    if plot_style == 'highcharts': 
+    if plot_style == 'highcharts':
         "Energy data is ignored in this mode"
         hgh_chrt_data = {}
         hgh_chrt_data['xAxis'] = def_conc_data['x_label']

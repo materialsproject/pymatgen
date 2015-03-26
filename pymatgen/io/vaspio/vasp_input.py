@@ -507,7 +507,7 @@ class Incar(dict, PMGSONable):
             if isinstance(val, six.string_types) else val)
 
     def as_dict(self):
-        d = {k: v for k, v in self.items()}
+        d = dict(self)
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         return d
@@ -633,7 +633,7 @@ class Incar(dict, PMGSONable):
                 raise ValueError(key + " should be a boolean type!")
 
             if key in float_keys:
-                return float(re.search(r"^-?[0]?\.?\d*[e|E]?-?\d*", val).group(0))
+                return float(re.search(r"^-?\d*\.?\d*[e|E]?-?\d*", val).group(0))
 
             if key in int_keys:
                 return int(re.match(r"^-?[0-9]+", val).group(0))
@@ -1208,7 +1208,7 @@ def parse_int(s):
 
 
 def parse_list(s):
-    return map(float, [y for y in re.split("\s+", s.strip()) if not y.isalpha()])
+    return [float(y) for y in re.split("\s+", s.strip()) if not y.isalpha()]
 
 
 @cached_class
@@ -1431,16 +1431,13 @@ class PotcarSingle(object):
         hash_str = ""
         for k, v in self.PSCTR.items():
             hash_str += "{}".format(k)
-
             if isinstance(v, int):
                 hash_str += "{}".format(v)
             elif isinstance(v, float):
                 hash_str += "{:.3f}".format(v)
-            elif isinstance(v, str):
-                hash_str += "{}".format(v.replace(" ", ""))
             elif isinstance(v, bool):
                 hash_str += "{}".format(bool)
-            elif isinstance(v, tuple):
+            elif isinstance(v, (tuple, list)):
                 for item in v:
                     if isinstance(item, float):
                         hash_str += "{:.3f}".format(item)
@@ -1452,9 +1449,11 @@ class PotcarSingle(object):
                                 hash_str += "{:.3f}".format(item_v)
                             else:
                                 hash_str += "{}".format(item_v) if item_v else ""
+            else:
+                hash_str += v.replace(" ", "")
 
         self.hash_str = hash_str
-        return md5(hash_str.lower()).hexdigest()
+        return md5(hash_str.lower().encode('utf-8')).hexdigest()
 
     def __getattr__(self, a):
         """
@@ -1539,6 +1538,10 @@ class Potcar(list, PMGSONable):
         Get the atomic symbols of all the atoms in the POTCAR file.
         """
         return [p.symbol for p in self]
+
+    @symbols.setter
+    def symbols(self, symbols):
+        self.set_symbols(symbols, functional=self.functional)
 
     @property
     def spec(self):
