@@ -3416,6 +3416,14 @@ class OpticTask(Task):
         # Small hack: the log file of optics is actually the main output file. 
         self.output_file = self.log_file
 
+    def _set_inpvars(self, *args, **kwargs):
+        """
+        Optic does not use `get` or `ird` variables hence we should never try 
+        to change the input when we connect this task
+        """
+        kwargs.update(dict(*args))
+        self.history.info("OpticTask intercepted _set_inpvars with args %s" % kwargs)
+
     @property
     def executable(self):
         """Path to the executable required for running the :class:`OpticTask`."""
