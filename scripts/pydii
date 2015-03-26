@@ -327,9 +327,8 @@ def solute_def_parse_energy(args):
             solute['energy'] = solute_flip_energy
         solutes.sort(key=lambda entry: entry['site_index'])
         energy_dict[mpid] = {'solutes':solutes}
-        return energy_dict
-
-    return {} # Return Null dict due to failure
+        fl_nm = mpid+'_solute-'+solute+'_raw_defect_energy.json'
+        dumpfn(energy_dict, fl_nm, indent=2, cls=MontyEncoder)
 
 
 def vac_antisite_def_parse_energy(args):
@@ -411,11 +410,9 @@ def vac_antisite_def_parse_energy(args):
         antisites.sort(key=lambda entry: entry['site_index'])
         energy_dict[unicode(mpid)] = {u"structure":structure,
                 'e0':e0,'vacancies':vacancies,'antisites':antisites}
-        #return energy_dict
+
         fl_nm = args.mpid+'_raw_defect_energy.json'
         dumpfn(energy_dict, fl_nm, cls=MontyEncoder, indent=2)
-
-    #return {} # Return Null dict due to failure
 
 
 def get_def_profile(args):
@@ -443,7 +440,18 @@ def get_def_profile(args):
     try:
         def_conc, def_en, mu = compute_defect_density(struct, e0, vacs, antisites, T,
                 plot_style='gnuplot')
-        return def_conc, def_en, mu
+        fl_nm = mpid+'_def_concentration.dat'
+        with open(fl_nm,'w') as fp:
+            for row in def_conc:
+                print >> fp, row
+        fl_nm = mpid+'_def_energy.dat'
+        with open(fl_nm,'w') as fp:
+            for row in def_en:
+                print >> fp, row
+        fl_nm = mpid+'_chem_pot.dat'
+        with open(fl_nm,'w') as fp:
+            for row in mu:
+                print >> fp, row
     except:
         raise
 
@@ -483,7 +491,10 @@ def get_solute_def_profile(args):
         def_conc = solute_defect_density(struct, e0, vacs, 
                 antisites, solutes, solute_concen=solute_conc, T=T, 
                 trial_chem_pot=trial_chem_pot, plot_style="gnuplot")
-        return  def_conc
+        fl_nm = args.mpid+'_solute-'+args.solute+'_def_concentration.dat'
+        with open(fl_nm,'w') as fp: 
+            for row in def_conc:
+                print >> fp, row 
     except:
         raise
 
@@ -518,7 +529,6 @@ def main():
             dest="mapi_key", help=MAPI_string)
     parser_vasp_inp.add_argument("--cellmax", type=int, default=128, 
             dest="cellmax", help=cell_string)
-
     parser_vasp_inp.set_defaults(func=vac_antisite_def_struct_gen)
 
 
@@ -532,7 +542,6 @@ def main():
             dest="mapi_key", help=MAPI_string)
     parser_sol_vasp_inp.add_argument("--cellmax", type=int, default=128, 
             dest="cellmax", help=cell_string)
-
     parser_sol_vasp_inp.set_defaults(func=substitute_def_struct_gen)
 
 
@@ -544,13 +553,7 @@ def main():
             help=MP_string)
     parser_vasp_out.add_argument("--mapi_key", default = None, dest="mapi_key",
             help=MAPI_string)
-
     parser_vasp_out.set_defaults(func=vac_antisite_def_parse_energy)
-
-    #energy_dict = vac_antisite_def_parse_energy(args.mpid, args.mapi_key)
-    #if energy_dict:
-    #    fl_nm = args.mpid+'_raw_defect_energy.json'
-    #    dumpfn(energy_dict, fl_nm, cls=MontyEncoder, indent=2)
 
 
     parser_sol_vasp_out = subparsers.add_parser("gen_sol_def_energy", 
@@ -563,7 +566,6 @@ def main():
             help="Solute Element")
     parser_sol_vasp_out.add_argument("--mapi_key", default = None, 
             dest="mapi_key", help=MAPI_string)
-
     parser_sol_vasp_out.set_defaults(func=solute_def_parse_energy)
 
 
