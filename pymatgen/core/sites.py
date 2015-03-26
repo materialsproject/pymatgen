@@ -224,12 +224,9 @@ class Site(collections.Mapping, collections.Hashable, PMGSONable):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted in LiFePO4.
         """
-
-        if self._species.average_electroneg < \
-                other._species.average_electroneg:
+        if self._species.average_electroneg < other._species.average_electroneg:
             return True
-        if self._species.average_electroneg > \
-                other._species.average_electroneg:
+        if self._species.average_electroneg > other._species.average_electroneg:
             return False
         if self.species_string < other.species_string:
             return True

@@ -13,7 +13,6 @@ Materials Project, and obtain an API key by going to your dashboard at
 https://www.materialsproject.org/dashboard.
 """
 
-
 __author__ = "Shyue Ping Ong, Shreyas Cholia"
 __credits__ = "Anubhav Jain"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -498,6 +497,12 @@ class MPRester(object):
         Query allows an advanced developer to perform queries which are
         otherwise too cumbersome to perform using the standard convenience
         methods.
+
+        It is highly recommended that you consult the Materials API
+        documentation at http://bit.ly/materialsapi, which provides a
+        comprehensive explanation of the document schema used in the
+        Materials Project and how best to query for the relevant information
+        you need.
 
         Args:
             criteria (str/dict): Criteria of the query as a string or

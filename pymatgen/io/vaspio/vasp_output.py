@@ -29,12 +29,12 @@ from collections import defaultdict
 from xml.etree.cElementTree import iterparse
 
 from six.moves import map, zip
+from six import string_types
 
 import numpy as np
 
 from monty.io import zopen, reverse_readfile
 from monty.json import jsanitize
-
 
 from pymatgen.util.io_utils import clean_lines, micro_pyawk
 from pymatgen.core.structure import Structure
@@ -734,7 +734,7 @@ class Vasprun(PMGSONable):
             warnings.warn("No POTCAR file with matching TITEL fields"
                           " was found in {}".format(os.path.abspath(p)))
 
-        if isinstance(path, basestring):
+        if isinstance(path, string_types):
             if "POTCAR" in path:
                 potcar = Potcar.from_file(path)
                 if {d.TITEL for d in potcar} != \

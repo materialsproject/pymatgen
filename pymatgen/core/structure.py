@@ -532,7 +532,7 @@ class IStructure(SiteCollection, PMGSONable):
             else:
                 coords = d.get("xangst", None)
             coords_are_cartesian = True
-        
+
         if coords is None:
             raise ValueError("Cannot extract atomic coordinates from dict %s" % str(d))
 
@@ -548,7 +548,7 @@ class IStructure(SiteCollection, PMGSONable):
 
         assert len(typat) == len(coords)
 
-        # Note Fortan --> C indexing 
+        # Note Fortan --> C indexing
         species = [znucl_type[typ-1] for typ in typat]
 
         #print(lattice, species, coords)
@@ -2481,6 +2481,8 @@ class Structure(IStructure, collections.MutableSequence):
             sites.append(PeriodicSite(species, coords, self.lattice))
 
         self._sites = sites
+
+
 
 
 class Molecule(IMolecule, collections.MutableSequence):
