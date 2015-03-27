@@ -19,7 +19,7 @@ __date__ = "3/27/15"
 import six
 
 
-class PWSCFInput(object):
+class PWInput(object):
     """
     Base input file class. Right now, only supports no symmetry and is
     very basic.
@@ -91,7 +91,7 @@ if __name__ == "__main__":
                [1.9200989668, 3.3257101909, 0.00],
                [0.00, -2.2171384943, 3.1355090603]]
     structure = Structure(lattice, ["Si", "Si"], coords)
-    pw = PWSCFInput(structure,
+    pw = PWInput(structure,
                     control={"calculation": "scf", "pseudo_dir": './'},
                     pseudo={"Si": "Si.pbe-n-kjpaw_psl.0.1.UPF"},
                     system={"ecutwfc": 50})
