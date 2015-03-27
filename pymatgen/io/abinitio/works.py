@@ -1211,7 +1211,7 @@ class PhononWork(Work):
         """
         ddb_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in self]))
 
-        logger.debug("will call mrgddb to merge %s:\n" % str(ddb_files))
+        self.history.info("Will call mrgddb to merge %s:\n" % str(ddb_files))
         # assert len(ddb_files) == len(self)
 
         #if len(ddb_files) == 1:
@@ -1221,7 +1221,7 @@ class PhononWork(Work):
         out_ddb = self.outdir.path_in("out_DDB")
         desc = "DDB file merged by %s on %s" % (self.__class__.__name__, time.asctime())
 
-        mrgddb = wrappers.Mrgddb(manager=self[0].manager, verbose=1)
+        mrgddb = wrappers.Mrgddb(manager=self[0].manager, verbose=0)
         mrgddb.merge(self.outdir.path, ddb_files, out_ddb=out_ddb, description=desc)
 
         return out_ddb
