@@ -28,6 +28,7 @@ from monty.inspect import find_top_pyfile
 from pymatgen.serializers.pickle_coders import pmg_pickle_load, pmg_pickle_dump 
 from pymatgen.serializers.json_coders import PMGSONable, pmg_serialize
 from pymatgen.core.units import Memory
+from . import wrappers
 from .nodes import Status, Node, NodeError, NodeResults, Dependency, GarbageCollector, check_spectator
 from .tasks import ScfTask, DdkTask, DdeTask, TaskManager, FixQueueCriticalError
 from .utils import Directory, Editor
@@ -51,6 +52,24 @@ __all__ = [
     "g0w0_flow",
     "phonon_flow",
 ]
+
+# TODO: Move to monty
+def operator_from_str(op):
+    """
+    Return the operator associate to the given string `op`.
+
+    raises:
+        KeyError if invalid string.
+    """
+    import operator
+    return {
+        "==": operator.eq,
+        "!=": operator.ne,
+        ">": operator.gt,
+        ">=": operator.ge,
+        "<": operator.lt,
+        "<=": operator.le,
+    }[op]
 
 
 class FlowResults(NodeResults):
@@ -512,12 +531,35 @@ class Flow(Node, PMGSONable):
         # Sort keys according to their status.
         return collections.OrderedDict([(k, d[k]) for k in sorted(list(d.keys()))])
 
-    def iflat_nodes(self):
-        """Generator to iterate over all the nodes (works and tasks) of the `Flow`."""
-        for work in self:
-            yield work
-            for task in work:
-                yield task
+    def iflat_nodes(self, status=None, op="==", nids=None):
+        """
+        Generators that produces a flat sequence of nodes.
+        if status is not None, only the tasks with the specified status are selected.
+        nids is an optional list of node identifiers used to filter the nodes.
+        """
+        nids = as_set(nids)
+
+        if status is None:
+            for work in self:
+                if nids and work.node_id not in nids: continue
+                yield work
+                for task in work:
+                    if nids and task.node_id not in nids: continue
+                    yield task
+        else:
+            # Get the operator from the string.
+            op = operator_from_str(op)
+
+            # Accept Task.S_FLAG or string.
+            status = Status.as_status(status)
+
+            for wi, work in enumerate(self):
+                if nids and work.node_id not in nids: continue
+                if op(work.status, status): yield work
+
+                for ti, task in enumerate(work):
+                    if nids and task.node_id not in nids: continue
+                    if op(task.status, status): yield task
 
     def iflat_tasks_wti(self, status=None, op="==", nids=None):
         """
@@ -568,15 +610,7 @@ class Flow(Node, PMGSONable):
 
         else:
             # Get the operator from the string.
-            import operator
-            op = {
-                "==": operator.eq,
-                "!=": operator.ne,
-                ">": operator.gt,
-                ">=": operator.ge,
-                "<": operator.lt,
-                "<=": operator.le,
-            }[op]
+            op = operator_from_str(op)
 
             # Accept Task.S_FLAG or string.
             status = Status.as_status(status)
@@ -1366,7 +1400,10 @@ class Flow(Node, PMGSONable):
 
     @check_spectator
     def finalize(self):
-        """This method is called when the flow is completed."""
+        """
+        This method is called when the flow is completed.
+        Return 0 if success
+        """
         if self.finalized: return 1
         self.finalized = False
 
@@ -1385,6 +1422,8 @@ class Flow(Node, PMGSONable):
             self.history.info("gc.policy set to flow. Will clean task output files.")
             for task in self.iflat_tasks():
                 task.clean_output_files()
+
+        return 0
 
     def set_garbage_collector(self, exts=None, policy="task"):
         """
@@ -1656,6 +1695,95 @@ class Flow(Node, PMGSONable):
     #    if check_status: self.check_status()
     #    return abirobot(self, ext, nids=nids):
 
+    def plot_networkx(self, mode="network", with_edge_labels=False,
+                      node_size="num_cores", node_label="name_class", layout_type="spring", 
+                     **kwargs):
+        """
+        Use networkx to draw the flow with the connections among the nodes and 
+        the status of the tasks.
+
+
+        .. warning::
+
+            Requires networkx package.
+        """
+        import networkx as nx
+
+        # Build the graph
+        g, edge_labels = nx.Graph(), {}
+        tasks = list(self.iflat_tasks())
+        for task in tasks:
+            g.add_node(task, name=task.name)
+            for child in task.get_children():
+                g.add_edge(task, child)
+                # TODO: Add getters! What about locked nodes!
+                i = [dep.node for dep in child.deps].index(task) 
+                edge_labels[(task, child)] = " ".join(child.deps[i].exts)
+
+        # Get positions for all nodes using layout_type.
+        # e.g. pos = nx.spring_layout(g)
+        pos = getattr(nx, layout_type + "_layout")(g)
+
+        # Select function used to compute the size of the node
+        make_node_size = dict(
+            num_cores=lambda task: 300 * task.manager.num_cores
+        )[node_size]
+
+        # Select function used to build the label
+        make_node_label = dict(
+            name_class=lambda task: task.pos_str + "\n" + task.__class__.__name__,
+        )[node_label]
+
+        labels = {task: make_node_label(task) for task in tasks}
+
+        import matplotlib.pyplot as plt
+
+        # Select plot type.
+        if mode == "network":
+            nx.draw_networkx(g, pos, labels=labels, node_color='#A0CBE2',  
+                             node_size=[make_node_size(task) for task in tasks],
+                             width=2, style="dotted", with_labels=True)
+
+            # Draw edge labels
+            if with_edge_labels:
+                nx.draw_networkx_edge_labels(g, pos, edge_labels=edge_labels) 
+
+        elif mode == "status":
+            # Group tasks by status.
+            for status in self.ALL_STATUS:
+                tasks = list(self.iflat_tasks(status=status))
+
+                # Draw nodes.
+                node_color = status.color_opts["color"]
+                if node_color is None: node_color = "black"
+                print("num nodes %s with node_color %s" % (len(tasks), node_color))
+
+                nx.draw_networkx_nodes(g, pos,
+                                       nodelist=tasks,
+                                       node_color=node_color,
+                                       node_size=[make_node_size(task) for task in tasks],
+                                       alpha=0.5,
+                                       #label=str(status),
+                                       )
+
+            # Draw edges.
+            nx.draw_networkx_edges(g, pos, width=2.0, alpha=0.5, arrows=True) # edge_color='r')
+
+            # Draw labels
+            nx.draw_networkx_labels(g, pos, labels, font_size=12)
+
+            # Draw edge labels
+            if with_edge_labels:
+                nx.draw_networkx_edge_labels(g, pos, edge_labels=edge_labels) 
+                #label_pos=0.5, font_size=10, font_color='k', font_family='sans-serif', font_weight='normal', 
+                # alpha=1.0, bbox=None, ax=None, rotate=True, **kwds)
+
+        else:
+            raise ValueError("Unknown value for mode: %s" % mode)
+
+        plt.axis('off')
+        plt.show()
+
 
 class G0W0WithQptdmFlow(Flow):
     def __init__(self, workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=None):
@@ -1861,10 +1989,33 @@ def g0w0_flow(workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=N
     return flow
 
 
+class PhononFlow(Flow):
+
+    def finalize(self):
+        """This method is called when the flow is completed."""
+        # Merge all the out_DDB files found in work.outdir.
+        ddb_files = list(filter(None, [work.outdir.has_abiext("DDB") for work in self]))
+
+        # Final DDB file will be produced in the outdir of the work.
+        out_ddb = self.outdir.path_in("out_DDB")                                                    
+        desc = "DDB file merged by %s on %s" % (self.__class__.__name__, time.asctime())
+
+        mrgddb = wrappers.Mrgddb(manager=self.manager, verbose=0)
+        mrgddb.merge(self.outdir.path, ddb_files, out_ddb=out_ddb, description=desc)
+
+        print("Final DDB file available at %s" % out_ddb)
+
+        # Call the method of the super class.
+        retcode = super(PhononFlow, self).finalize() 
+        print("retcode", retcode)
+        #if retcode != 0: return retcode
+        return retcode 
+
+
 def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, with_dde=False, 
-                manager=None, flow_class=Flow, allocate=True):
+                manager=None, flow_class=PhononFlow, allocate=True):
     """
-    Build a :class:`Flow` for phonon calculations.
+    Build a :class:`PhononFlow` for phonon calculations.
 
     Args:
         workdir: Working directory.
