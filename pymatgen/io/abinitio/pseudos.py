@@ -2185,7 +2185,7 @@ class DojoReport(dict):
         "phonon_e"
     )
 
-    ATOLS = (0.5, 0.1, 0.02)
+    ATOLS = (1.0, 0.2, 0.04)
     Error = DojoReportError
 
     @classmethod
