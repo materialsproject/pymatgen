@@ -35,6 +35,9 @@ class PWInput(object):
         sections["electrons"] = electrons or {}
         sections["ions"] = ions or {}
         sections["cell"] = cell or {}
+        for species in self.structure.composition.keys():
+            if species.symbol not in pseudo:
+                raise PWInputError("Missing %s in pseudo specification!")
         self.pseudo = pseudo
         self.sections = sections
         self.kpoints_mode = kpoints_mode
@@ -82,6 +85,10 @@ class PWInput(object):
             f.write(self.__str__())
 
 
+class PWInputError(BaseException):
+    pass
+
+
 if __name__ == "__main__":
     from pymatgen.core.structure import Structure
     coords = []
@@ -95,5 +102,4 @@ if __name__ == "__main__":
                     control={"calculation": "scf", "pseudo_dir": './'},
                     pseudo={"Si": "Si.pbe-n-kjpaw_psl.0.1.UPF"},
                     system={"ecutwfc": 50})
-    print pw
     pw.write_file("Si.pw.in")
