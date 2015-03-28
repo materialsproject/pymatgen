@@ -4,7 +4,7 @@ from __future__ import division, unicode_literals
 
 """
 A script with tools for computing point defect concentrations.
-Reference: PyDII
+Manual and citation for the script, DOI: 10.1016/j.cpc.2015.03.015
 """
 
 __author__ = "Bharat Medasani"
@@ -16,12 +16,8 @@ __date__ = "March 16, 2015"
 
 import argparse
 import os
-import re
-import logging
-import multiprocessing
-import sys
-import datetime
 import json
+import glob
 
 from monty.serialization import loadfn, dumpfn
 from monty.json import MontyEncoder, MontyDecoder
@@ -33,8 +29,7 @@ from pymatgen.io.vaspio import Vasprun
 from pymatgen.matproj.rest import MPRester
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.defects.dilute_solution_model import \
-            solute_site_preference_finder, compute_defect_density, \
-            solute_defect_density
+            compute_defect_density, solute_defect_density
 
 
 
