@@ -33,7 +33,7 @@ from .nodes import Status, Node, NodeError, NodeResults, Dependency, GarbageColl
 from .tasks import ScfTask, DdkTask, DdeTask, TaskManager, FixQueueCriticalError
 from .utils import Directory, Editor
 from .abiinspect import yaml_read_irred_perts
-from .works import Work, BandStructureWork, PhononWork, G0W0Work, QptdmWork
+from .works import NodeContainer, Work, BandStructureWork, PhononWork, G0W0Work, QptdmWork
 
 
 import logging
@@ -98,7 +98,7 @@ class FlowError(NodeError):
     """Base Exception for :class:`Node` methods"""
 
 
-class Flow(Node, PMGSONable):
+class Flow(Node, NodeContainer, PMGSONable):
     """
     This object is a container of work. Its main task is managing the
     possible inter-dependencies among the work and the creation of
@@ -1144,6 +1144,24 @@ class Flow(Node, PMGSONable):
         self.outdir.makedirs()
         self.tmpdir.makedirs()
 
+        # Check the nodeid file in workdir
+        nodeid_path = os.path.join(self.workdir, ".nodeid")
+
+        if os.path.exists(nodeid_path):
+            with open(nodeid_path, "rt") as fh:
+                node_id = int(fh.read())
+
+            if self.node_id != node_id:
+                msg = ("Found node_id %s in file %s\nwhile the node_id of the present flow is %d" 
+                       "This means that you are trying to build a new flow in a directory already\n"
+                       "used by another flow. Change the workdir of the new flow or remove the old directory!"
+                        % (node_id, nodeid_path, self.node_id))
+                raise RuntimeError(msg)
+
+        else:
+            with open(nodeid_path, "wt") as fh:
+                fh.write(str(self.node_id))
+
         for work in self:
             work.build(*args, **kwargs)
 
@@ -1702,7 +1720,6 @@ class Flow(Node, PMGSONable):
         Use networkx to draw the flow with the connections among the nodes and 
         the status of the tasks.
 
-
         .. warning::
 
             Requires networkx package.
@@ -1719,6 +1736,13 @@ class Flow(Node, PMGSONable):
                 # TODO: Add getters! What about locked nodes!
                 i = [dep.node for dep in child.deps].index(task) 
                 edge_labels[(task, child)] = " ".join(child.deps[i].exts)
+
+        # Convert to JSON
+        #from networkx.readwrite import json_graph
+        #data = json_graph.node_link_data(g)
+        #import json
+        #s = json.dumps(data)
+        #print(s)
 
         # Get positions for all nodes using layout_type.
         # e.g. pos = nx.spring_layout(g)
@@ -2046,7 +2070,7 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
 
     # Build a temporary work with a shell manager just to run
     # ABINIT to get the list of irreducible pertubations for this q-point.
-    shell_manager = manager.to_shell_manager(mpi_procs=1)
+    shell_manager = flow.manager.to_shell_manager(mpi_procs=1)
 
     if with_ddk:
         logger.info('add ddk')
@@ -2065,12 +2089,14 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
     if not isinstance(ph_inputs, (list, tuple)):
         ph_inputs = [ph_inputs]
 
-    for i, ph_input in enumerate(ph_inputs):
 
+    for i, ph_input in enumerate(ph_inputs):
         fake_input = ph_input.deepcopy()
 
         # Run abinit on the front-end to get the list of irreducible pertubations.
         tmp_dir = os.path.join(workdir, "__ph_run" + str(i) + "__")
+        #import tempfile
+        #tmp_dir = tempfile.mkdtemp() 
         w = PhononWork(workdir=tmp_dir, manager=shell_manager)
         fake_task = w.register(fake_input)
 
@@ -2079,14 +2105,19 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
             paral_rf=-1,
             rfatpol=[1, natom],  # Set of atoms to displace.
             rfdir=[1, 1, 1],     # Along this set of reduced coordinate axis.
-            )
+        )
 
         fake_task._set_inpvars(abivars)
         w.allocate()
         w.start(wait=True)
 
         # Parse the file to get the perturbations.
-        irred_perts = yaml_read_irred_perts(fake_task.log_file.path)
+        try:
+            irred_perts = yaml_read_irred_perts(fake_task.log_file.path)
+        except:
+            print("Error in %s" % fake_task.log_file.path)
+            raise
+
         logger.info(irred_perts)
 
         w.rmtree()
@@ -2098,7 +2129,7 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
         work_qpt = PhononWork()
 
         if with_nscf:
-            #MG: Warning this code assumens 0 is Gamma!
+            # MG: Warning this code assume 0 is Gamma!
             nscf_input = copy.deepcopy(scf_input)
             nscf_input.set_vars(kptopt=3, iscf=-3, qpt=irred_perts[0]['qpt'], nqpt=1)
             nscf_task = work_qpt.register_nscf_task(nscf_input, deps={scf_task: "DEN"})
@@ -2139,11 +2170,6 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
             work_qpt.register_phonon_task(new_input, deps=deps)
 
         flow.register_work(work_qpt)
-
-        #if ana_input is not None:
-        #    merge_input = {}
-        #    qp_merge_task = flow.register_task(merge_input, deps={work_qpt: "DDB"}, task_class=QpMergeTask)
-        #    flow.register_task(ana_input, deps={qp_merge_task: "DDB"}, task_class=AnaddbTask)
 
     if allocate: flow.allocate()
 
