@@ -3521,6 +3521,29 @@ class AnaddbTask(Task):
 
         super(AnaddbTask, self).__init__(input=anaddb_input, workdir=workdir, manager=manager, deps=deps)
 
+    @classmethod
+    def temp_shell_task(cls, inp, ddb_node,
+                        gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None):
+        """
+        Build a :class:`AnaddbTask` with a temporary workdir. The task is executed via 
+        the shell with 1 MPI proc. Mainly used for post-processing the DDB files.
+
+        Args:
+            anaddb_input: string with the anaddb variables.
+            ddb_node: The node that will produce the DDB file. Accept :class:`Task`, :class:`Work` or filepath.
+
+        See `AnaddbInit` for the meaning of the other arguments.
+        """
+        # Build a simple manager to run the job in a shell subprocess
+        import tempfile
+        workdir = tempfile.mkdtemp() if workdir is None else workdir  
+        if manager is None: manager = TaskManager.from_user_config()
+
+        # Construct the task and run it
+        return cls(inp, ddb_node, 
+                   gkk_node=gkk_node, md_node=md_node, ddk_node=ddk_node,
+                   workdir=workdir, manager=manager.to_shell_manager(mpi_procs=1))
+
     @property
     def executable(self):
         """Path to the executable required for running the :class:`AnaddbTask`."""

@@ -22,7 +22,7 @@ from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
 from . import wrappers
 from .nodes import Dependency, Node, NodeError, NodeResults, check_spectator
-from .tasks import (Task, AbinitTask, ScfTask, NscfTask, PhononTask, DdkTask, 
+from .tasks import (Task, AbinitTask, GsTask, ScfTask, NscfTask, PhononTask, DdkTask, 
                     BseTask, RelaxTask, DdeTask, ScrTask, SigmaTask)
 from .strategies import HtcStrategy, NscfStrategy
 from .utils import Directory
@@ -254,7 +254,69 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
         return results
 
 
-class Work(BaseWork):
+class NodeContainer(six.with_metaclass(abc.ABCMeta)):
+    """
+    Mixin classes for `Work` and `Flow` objects providing helperf functions
+    to register tasks in the container. The helperfunctios call the
+    `register` method of the container.
+    """
+    # TODO: Abstract protocol for containers
+
+    @abc.abstractmethod
+    def register_task(self, *args, **kwargs):
+        """
+        Register a task in the container.
+        """
+        # TODO: shall flow.register_task return a Task or a Work?
+
+    # Helper functions
+    def register_scf_task(self, *args, **kwargs):
+        """Register a Scf task."""
+        kwargs["task_class"] = ScfTask
+        return self.register_task(*args, **kwargs)
+                                                    
+    def register_nscf_task(self, *args, **kwargs):
+        """Register a nscf task."""
+        kwargs["task_class"] = NscfTask
+        return self.register_task(*args, **kwargs)
+                                                    
+    def register_relax_task(self, *args, **kwargs):
+        """Register a task for structural optimization."""
+        kwargs["task_class"] = RelaxTask
+        return self.register_task(*args, **kwargs)
+
+    def register_phonon_task(self, *args, **kwargs):
+        """Register a phonon task."""
+        kwargs["task_class"] = PhononTask
+        return self.register_task(*args, **kwargs)
+
+    def register_ddk_task(self, *args, **kwargs):
+        """Register a ddk task."""
+        kwargs["task_class"] = DdkTask
+        return self.register_task(*args, **kwargs)
+
+    def register_scr_task(self, *args, **kwargs):
+        """Register a screening task."""
+        kwargs["task_class"] = ScrTask
+        return self.register_task(*args, **kwargs)
+
+    def register_sigma_task(self, *args, **kwargs):
+        """Register a sigma task."""
+        kwargs["task_class"] = SigmaTask
+        return self.register_task(*args, **kwargs)
+
+    def register_dde_task(self, *args, **kwargs):
+        """Register a Dde task."""
+        kwargs["task_class"] = DdeTask
+        return self.register_task(*args, **kwargs)
+
+    def register_bse_task(self, *args, **kwargs):
+        """Register a nscf task."""
+        kwargs["task_class"] = BseTask
+        return self.register_task(*args, **kwargs)
+
+
+class Work(BaseWork, NodeContainer):
     """
     A Work is a list of (possibly connected) tasks.
     """
@@ -465,51 +527,8 @@ class Work(BaseWork):
 
         return task
 
-    # Helper functions
-    def register_scf_task(self, *args, **kwargs):
-        """Register a Scf task."""
-        kwargs["task_class"] = ScfTask
-        return self.register(*args, **kwargs)
-                                                    
-    def register_nscf_task(self, *args, **kwargs):
-        """Register a nscf task."""
-        kwargs["task_class"] = NscfTask
-        return self.register(*args, **kwargs)
-                                                    
-    def register_relax_task(self, *args, **kwargs):
-        """Register a task for structural optimization."""
-        kwargs["task_class"] = RelaxTask
-        return self.register(*args, **kwargs)
-
-    def register_phonon_task(self, *args, **kwargs):
-        """Register a phonon task."""
-        kwargs["task_class"] = PhononTask
-        return self.register(*args, **kwargs)
-
-    def register_ddk_task(self, *args, **kwargs):
-        """Register a ddk task."""
-        kwargs["task_class"] = DdkTask
-        return self.register(*args, **kwargs)
-
-    def register_scr_task(self, *args, **kwargs):
-        """Register a screening task."""
-        kwargs["task_class"] = ScrTask
-        return self.register(*args, **kwargs)
-
-    def register_sigma_task(self, *args, **kwargs):
-        """Register a sigma task."""
-        kwargs["task_class"] = SigmaTask
-        return self.register(*args, **kwargs)
-
-    def register_dde_task(self, *args, **kwargs):
-        """Register a Dde task."""
-        kwargs["task_class"] = DdeTask
-        return self.register(*args, **kwargs)
-
-    def register_bse_task(self, *args, **kwargs):
-        """Register a nscf task."""
-        kwargs["task_class"] = BseTask
-        return self.register(*args, **kwargs)
+    # Needed by NodeContainer
+    register_task = register
 
     def path_in_workdir(self, filename):
         """Create the absolute path of filename in the working directory."""
@@ -1200,6 +1219,22 @@ class PhononWork(Work):
     It provides the callback method (on_all_ok) that calls mrgddb to merge 
     the partial DDB files and mrgggkk to merge the GKK files.
     """
+    @classmethod
+    def from_gs_task(cls, gs_task, qpt):
+
+        if not isinstance(gs_task, GsTask):
+            raise TypeError("task %s does not inherit from GsTask" % gs_task)
+
+        new = cls() #workdir=workdir, manager=manager)
+
+        multi = gs_task.input.make_phinputs_qpoint(qpt) #, tolerance=tol)
+        #assert all(v.retcode == 0 for v in multiq.abivalidate())
+
+        for ph_inp in multi:
+            new.register_phonon_task(ph_inp, deps={gs_task: "WFK"})
+
+        return new
+
     def merge_ddb_files(self):
         """
         This method is called when all the q-points have been computed.
