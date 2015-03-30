@@ -322,7 +322,7 @@ def solute_def_parse_energy(args):
             solute['energy'] = solute_flip_energy
         solutes.sort(key=lambda entry: entry['site_index'])
         energy_dict[mpid] = {'solutes':solutes}
-        fl_nm = mpid+'_solute-'+solute+'_raw_defect_energy.json'
+        fl_nm = mpid+'_solute-'+args.solute+'_raw_defect_energy.json'
         dumpfn(energy_dict, fl_nm, indent=2, cls=MontyEncoder)
 
 
