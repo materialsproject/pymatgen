@@ -579,7 +579,7 @@ def main():
     parser_conc.add_argument("--file", default = None, dest="file",
             help = "The default file is 'mpid'+'_raw_defect_energy.json'.\n" \
                    "If the file is named differently supply it.")
-    parser_sol_vasp_out.set_defaults(func=get_def_profile)
+    parser_conc.set_defaults(func=get_def_profile)
 
 
     parser_sol_conc = subparsers.add_parser("gen_sol_site_pref", 
@@ -597,7 +597,7 @@ def main():
     parser_sol_conc.add_argument("--file", default = None, dest="file",
             help = "The default file is 'mpid'+'_raw_defect_energy.json'.\n" \
                    "If the file is named differently supply it.")
-    parser_sol_vasp_out.set_defaults(func=get_solute_def_profile)
+    parser_sol_conc.set_defaults(func=get_solute_def_profile)
 
 
     args = parser.parse_args()
