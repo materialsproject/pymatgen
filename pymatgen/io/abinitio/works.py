@@ -1219,6 +1219,7 @@ class OneShotPhononWork(Work):
 
 
 class MergeDdb(object):
+    """Mixin classes for Works that have to merge the DDB files produced by the tasks."""
 
     def merge_ddb_files(self):
         """
@@ -1311,7 +1312,7 @@ class BecWork(Work, MergeDdb):
 
         new = cls() #manager=scf_task.manager)
 
-        # GKK calculation
+        # DDK calculations
         multi_ddk = scf_task.input.make_ddk_inputs(tolerance=ddk_tolerance)
 
         ddk_tasks = []
@@ -1320,6 +1321,7 @@ class BecWork(Work, MergeDdb):
             ddk_tasks.append(ddk_task)
 
         # Build the list of inputs for electric field perturbation and phonons
+        # Each bec task is connected to all the previous DDK task and to the scf_task.
         bec_deps = {ddk_task: "DDK" for ddk_task in ddk_tasks}
         bec_deps.update({scf_task: "WFK"})
 
