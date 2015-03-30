@@ -16,12 +16,8 @@ __date__ = "March 16, 2015"
 
 import argparse
 import os
-import re
-import logging
-import multiprocessing
-import sys
-import datetime
 import json
+import glob
 
 from monty.serialization import loadfn, dumpfn
 from monty.json import MontyEncoder, MontyDecoder
