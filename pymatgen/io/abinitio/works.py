@@ -22,8 +22,8 @@ from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
 from . import wrappers
 from .nodes import Dependency, Node, NodeError, NodeResults, check_spectator
-from .tasks import (Task, AbinitTask, GsTask, ScfTask, NscfTask, PhononTask, DdkTask, 
-                    BseTask, RelaxTask, DdeTask, ScrTask, SigmaTask)
+from .tasks import (Task, AbinitTask, ScfTask, NscfTask, PhononTask, DdkTask, 
+                    BseTask, RelaxTask, DdeTask, BecTask, ScrTask, SigmaTask)
 from .strategies import HtcStrategy, NscfStrategy
 from .utils import Directory
 from .netcdf import ETSF_Reader, NetcdfReader
@@ -305,9 +305,15 @@ class NodeContainer(six.with_metaclass(abc.ABCMeta)):
         kwargs["task_class"] = SigmaTask
         return self.register_task(*args, **kwargs)
 
+    # TODO: Remove
     def register_dde_task(self, *args, **kwargs):
         """Register a Dde task."""
         kwargs["task_class"] = DdeTask
+        return self.register_task(*args, **kwargs)
+
+    def register_bec_task(self, *args, **kwargs):
+        """Register a BEC task."""
+        kwargs["task_class"] = BecTask
         return self.register_task(*args, **kwargs)
 
     def register_bse_task(self, *args, **kwargs):
@@ -1212,28 +1218,7 @@ class OneShotPhononWork(Work):
         return results
 
 
-class PhononWork(Work):
-    """
-    This work usually consists of nirred Phonon tasks where nirred is 
-    the number of irreducible perturbations for a given q-point.
-    It provides the callback method (on_all_ok) that calls mrgddb to merge 
-    the partial DDB files and mrgggkk to merge the GKK files.
-    """
-    @classmethod
-    def from_gs_task(cls, gs_task, qpt):
-
-        if not isinstance(gs_task, GsTask):
-            raise TypeError("task %s does not inherit from GsTask" % gs_task)
-
-        new = cls() #workdir=workdir, manager=manager)
-
-        multi = gs_task.input.make_phinputs_qpoint(qpt) #, tolerance=tol)
-        #assert all(v.retcode == 0 for v in multiq.abivalidate())
-
-        for ph_inp in multi:
-            new.register_phonon_task(ph_inp, deps={gs_task: "WFK"})
-
-        return new
+class MergeDdb(object):
 
     def merge_ddb_files(self):
         """
@@ -1261,6 +1246,28 @@ class PhononWork(Work):
 
         return out_ddb
 
+
+class PhononWork(Work, MergeDdb):
+    """
+    This work usually consists of nirred Phonon tasks where nirred is 
+    the number of irreducible perturbations for a given q-point.
+    It provides the callback method (on_all_ok) that calls mrgddb to merge the partial DDB files produced 
+    """
+    @classmethod
+    def from_scf_task(cls, scf_task, qpt, tolerance=None):
+
+        if not isinstance(scf_task, ScfTask):
+            raise TypeError("task %s does not inherit from ScfTask" % scf_task)
+
+        new = cls() #manager=scf_task.manager)
+
+        multi = scf_task.input.make_ph_inputs_qpoint(qpt, tolerance=tolerance)
+
+        for ph_inp in multi:
+            new.register_phonon_task(ph_inp, deps={scf_task: "WFK"})
+
+        return new
+
     # TODO
     #def compute_phonons(self)
     #    """
@@ -1276,6 +1283,55 @@ class PhononWork(Work):
     def on_all_ok(self):
         """
         This method is called when all the q-points have been computed.
+        Ir runs `mrgddb` in sequential on the local machine to produce
+        the final DDB file in the outdir of the `Work`.
+        """
+        # Merge DDB files.
+        out_ddb = self.merge_ddb_files()
+
+        results = self.Results(node=self, returncode=0, message="DDB merge done")
+        results.register_gridfs_files(DDB=(out_ddb, "t"))
+
+        return results
+
+
+class BecWork(Work, MergeDdb):
+    """
+    Work for the computation of the Born effective charges.
+
+    This work consists of DDK tasks and phonon + electric fiel perturbation
+    It provides the callback method (on_all_ok) that calls mrgddb to merge the partial DDB files produced 
+    """
+
+    @classmethod
+    def from_scf_task(cls, scf_task, ddk_tolerance=None):
+        """Build a BecWork from a ground-state task."""
+        if not isinstance(scf_task, ScfTask):
+            raise TypeError("task %s does not inherit from GsTask" % scf_task)
+
+        new = cls() #manager=scf_task.manager)
+
+        # GKK calculation
+        multi_ddk = scf_task.input.make_ddk_inputs(tolerance=ddk_tolerance)
+
+        ddk_tasks = []
+        for ddk_inp in multi_ddk:
+            ddk_task = new.register_ddk_task(ddk_inp, deps={scf_task: "WFK"})
+            ddk_tasks.append(ddk_task)
+
+        # Build the list of inputs for electric field perturbation and phonons
+        bec_deps = {ddk_task: "DDK" for ddk_task in ddk_tasks}
+        bec_deps.update({scf_task: "WFK"})
+
+        bec_inputs = scf_task.input.make_bec_inputs() #tolerance=efile
+        for bec_inp in bec_inputs:
+             new.register_bec_task(bec_inp, deps=bec_deps)
+
+        return new
+
+    def on_all_ok(self):
+        """
+        This method is called when all the task reach S_OK
         Ir runs `mrgddb` in sequential on the local machine to produce
         the final DDB file in the outdir of the `Work`.
         """
