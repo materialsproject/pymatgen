@@ -27,7 +27,7 @@ from .utils import File, Directory, irdvars_for_ext, abi_splitext, FilepathFixer
 from .qadapters import make_qadapter, QueueAdapter, QueueAdapterError
 from . import qutils as qu
 from .db import DBConnector
-from .nodes import Status, Node, NodeError, NodeResults, NodeCorrections, check_spectator
+from .nodes import Status, Node, NodeError, NodeResults, NodeCorrections, FileNode, check_spectator
 from . import abiinspect
 from . import events
 
@@ -3623,14 +3623,16 @@ class AnaddbTask(Task):
     @property
     def ddb_filepath(self):
         """Returns (at runtime) the absolute path of the input DDB file."""
+        # This is not very elegant! A possible approach could to be path self.ddb_node.outdir!
+        if isinstance(self.ddb_node, FileNode): return self.ddb_node.filepath
         path = self.ddb_node.outdir.has_abiext("DDB")
         return path if path else "DDB_FILE_DOES_NOT_EXIST"
 
     @property
     def md_filepath(self):
         """Returns (at runtime) the absolute path of the input MD file."""
-        if self.md_node is None:
-            return "MD_FILE_DOES_NOT_EXIST"
+        if self.md_node is None: return "MD_FILE_DOES_NOT_EXIST"
+        if isinstance(self.md_node, FileNode): return self.md_node.filepath
 
         path = self.md_node.outdir.has_abiext("MD")
         return path if path else "MD_FILE_DOES_NOT_EXIST"
@@ -3638,8 +3640,8 @@ class AnaddbTask(Task):
     @property
     def gkk_filepath(self):
         """Returns (at runtime) the absolute path of the input GKK file."""
-        if self.gkk_node is None:
-            return "GKK_FILE_DOES_NOT_EXIST"
+        if self.gkk_node is None: return "GKK_FILE_DOES_NOT_EXIST"
+        if isinstance(self.gkk_node, FileNode): return self.gkk_node.filepath
 
         path = self.gkk_node.outdir.has_abiext("GKK")
         return path if path else "GKK_FILE_DOES_NOT_EXIST"
@@ -3647,8 +3649,8 @@ class AnaddbTask(Task):
     @property
     def ddk_filepath(self):
         """Returns (at runtime) the absolute path of the input DKK file."""
-        if self.ddk_node is None:
-            return "DDK_FILE_DOES_NOT_EXIST"
+        if self.ddk_node is None: return "DDK_FILE_DOES_NOT_EXIST"
+        if isinstance(self.ddk_node, FileNode): return self.ddk_node.filepath
 
         path = self.ddk_node.outdir.has_abiext("DDK")
         return path if path else "DDK_FILE_DOES_NOT_EXIST"
