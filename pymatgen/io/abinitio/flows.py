@@ -707,7 +707,7 @@ class Flow(Node, NodeContainer, PMGSONable):
                 task.fix_queue_critical()
                 count += 1
             except FixQueueCriticalError:
-                logger.info("Not able to fix task %s" % str(task))
+                logger.info("Not able to fix task %s" % task)
 
         return count
 
@@ -2074,6 +2074,8 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
 
     if with_ddk:
         logger.info('add ddk')
+        # TODO
+        # MG Warning: be careful here because one should use tolde or tolwfr (tolvrs shall not be used!)
         ddk_input = ph_inputs[0].deepcopy()
         ddk_input.set_vars(qpt=[0, 0, 0], rfddk=1, rfelfd=2, rfdir=[1, 1, 1])
         ddk_task = flow.register_task(ddk_input, deps={scf_task: 'WFK'}, task_class=DdkTask)[0]
@@ -2088,7 +2090,6 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
 
     if not isinstance(ph_inputs, (list, tuple)):
         ph_inputs = [ph_inputs]
-
 
     for i, ph_input in enumerate(ph_inputs):
         fake_input = ph_input.deepcopy()

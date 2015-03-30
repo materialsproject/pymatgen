@@ -1137,8 +1137,16 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.qout_file = File(os.path.join(self.workdir, "queue.qout"))
 
     def set_manager(self, manager):
-        """Set the :class:`TaskManager` to use to launch the Task."""
+        """Set the :class:`TaskManager` used to launch the Task."""
         self.manager = manager.deepcopy()
+
+    #@property
+    #def manager(self):
+    #    """:class:`TaskManager` use to launch the Task. None if not set"""
+    #    try:
+    #        return self._manager
+    #    except AttributeError:
+    #        return None
 
     @property
     def work(self):
@@ -3038,6 +3046,7 @@ class DfptTask(AbinitTask):
             return None
 
 
+# TODO Remove
 class DdeTask(DfptTask):
     """Task for DDE calculations."""
 
@@ -3062,6 +3071,49 @@ class DdkTask(DfptTask):
     def get_results(self, **kwargs):
         results = super(DdkTask, self).get_results(**kwargs)
         return results.register_gridfs_file(DDK=(self.outdir.has_abiext("DDK"), "t"))
+
+
+class BecTask(DfptTask):
+    """
+    Task for the calculation of Born effective charges.
+
+    bec_deps = {ddk_task: "DDK" for ddk_task in ddk_tasks}
+    bec_deps.update({scf_task: "WFK"})
+    """
+
+    def make_links(self):
+        """Replace the default behaviour of make_links"""
+        print("In BEC make_links")
+
+        for dep in self.deps:
+            if dep.exts == ["DDK"]:
+                ddk_task = dep.node
+                out_ddk = ddk_task.outdir.has_abiext("DDK")
+                if not out_ddk:
+                    raise RuntimeError("%s didn't produce the DDK file" % ddk_task)
+
+                # Get (fortran) idir and costruct the name of the 1WF expected by Abinit
+                rfdir = list(ddk_task.input["rfdir"])
+                if rfdir.count(1) != 1:
+                    raise RuntimeError("Only one direction should be specifned in rfdir but rfdir = %s" % rfdir)
+
+                idir = rfdir.index(1) + 1
+                ddk_case = idir +  3 * len(ddk_task.input.structure)
+
+                infile = self.indir.path_in("in_1WF%d" % ddk_case)
+                os.symlink(out_ddk, infile)
+
+            elif dep.exts == ["WFK"]:
+                gs_task = dep.node
+                out_wfk = gs_task.outdir.has_abiext("WFK")
+                if not out_wfk:
+                    raise RuntimeError("%s didn't produce the WFK file" % gs_task)
+
+                os.symlink(out_wfk, self.indir.path_in("in_WFK"))
+
+            else:
+                raise ValueError("Don't know how to handle extension: %s" % dep.exts)
+
 
 
 class PhononTask(DfptTask):
