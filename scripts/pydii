@@ -411,9 +411,15 @@ def vac_antisite_def_parse_energy(args):
 
 
 def get_def_profile(args):
+    if not args.mpid and not args.file:
+        print ("------------\nERROR: mpid is not given.\n========")
+        return
     mpid = args.mpid 
     T = args.T
-    file = args.file 
+    if args.file:
+        file = args.file 
+    else:
+        file = mpid+'_raw_defect_energy.json'
 
     raw_energy_dict = loadfn(file,cls=MontyDecoder)
 
@@ -452,15 +458,21 @@ def get_def_profile(args):
 
 
 def get_solute_def_profile(args):
+    if not args.mpid:
+        print ('===========\nERROR: mpid is not given.\n===========')
+        return
+    if not args.solute:
+        print ('===========\nERROR: Solute atom is not given.\n===========')
+        return
+
     mpid = args.mpid 
     solute = args.solute 
     solute_conc = args.solute_conc 
     T = args.T 
-    def_file = args.def_file 
-    sol_file = args.sol_file 
-    trial_chem_pot = args.trial_chem_pot 
 
+    def_file = mpid + '_raw_defect_energy.json'
     raw_energy_dict = loadfn(def_file,cls=MontyDecoder)
+    sol_file = mpid+'_solute-'+solute+'_raw_defect_energy.json'
     sol_raw_energy_dict = loadfn(sol_file,cls=MontyDecoder)
 
     #try:
@@ -485,7 +497,7 @@ def get_solute_def_profile(args):
     try:
         def_conc = solute_defect_density(struct, e0, vacs, 
                 antisites, solutes, solute_concen=solute_conc, T=T, 
-                trial_chem_pot=trial_chem_pot, plot_style="gnuplot")
+                plot_style="gnuplot")
         fl_nm = args.mpid+'_solute-'+args.solute+'_def_concentration.dat'
         with open(fl_nm,'w') as fp: 
             for row in def_conc:
@@ -590,9 +602,6 @@ def main():
             help="Solute Concentration in %. Default is 1%")
     parser_sol_conc.add_argument('-T', "--temp", type=float, default=1000,
             dest="T", help="Temperature in Kelvin")
-    parser_sol_conc.add_argument("--file", default = None, dest="file",
-            help = "The default file is 'mpid'+'_raw_defect_energy.json'.\n" \
-                   "If the file is named differently supply it.")
     parser_sol_conc.set_defaults(func=get_solute_def_profile)
 
 
