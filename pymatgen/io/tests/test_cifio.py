@@ -11,6 +11,8 @@ import numpy as np
 from pymatgen.io.cifio import CifParser, CifWriter, CifBlock
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen import Element, Specie, Lattice, Structure, Composition
+from pymatgen.analysis.structure_matcher import StructureMatcher
+
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -285,71 +287,15 @@ loop_
         self.assertEqual(parser.get_structures()[0].formula,
                          "Sr5.6 Y2.4 Co8 O21")
 
+        # Test with a decimal Xyz. This should parse as two atoms in
+        # conventional cell if it is correct, one if not.
+        parser = CifParser(os.path.join(test_dir, "Fe.cif"))
+        self.assertEqual(len(parser.get_structures(primitive=False)[0]), 2)
 
     def test_CifWriter(self):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
-        writer = CifWriter(poscar.structure, find_spacegroup=True)
-        ans = """#generated using pymatgen
-data_FePO4
-_symmetry_space_group_name_H-M   Pnma
-_cell_length_a   10.41176687
-_cell_length_b   6.06717188
-_cell_length_c   4.75948954
-_cell_angle_alpha   90.00000000
-_cell_angle_beta   90.00000000
-_cell_angle_gamma   90.00000000
-_symmetry_Int_Tables_number   62
-_chemical_formula_structural   FePO4
-_chemical_formula_sum   'Fe4 P4 O16'
-_cell_volume   300.65685512
-_cell_formula_units_Z   4
-loop_
-  _symmetry_equiv_pos_site_id
-  _symmetry_equiv_pos_as_xyz
-   1  'x, y, z'
-loop_
-  _atom_site_type_symbol
-  _atom_site_label
-  _atom_site_symmetry_multiplicity
-  _atom_site_fract_x
-  _atom_site_fract_y
-  _atom_site_fract_z
-  _atom_site_occupancy
-  Fe  Fe1  1  0.218728  0.750000  0.474867  1
-  Fe  Fe2  1  0.281272  0.250000  0.974867  1
-  Fe  Fe3  1  0.718728  0.750000  0.025133  1
-  Fe  Fe4  1  0.781272  0.250000  0.525133  1
-  P  P5  1  0.094613  0.250000  0.418243  1
-  P  P6  1  0.405387  0.750000  0.918243  1
-  P  P7  1  0.594613  0.250000  0.081757  1
-  P  P8  1  0.905387  0.750000  0.581757  1
-  O  O9  1  0.043372  0.750000  0.707138  1
-  O  O10  1  0.096642  0.250000  0.741320  1
-  O  O11  1  0.165710  0.046072  0.285384  1
-  O  O12  1  0.165710  0.453928  0.285384  1
-  O  O13  1  0.334290  0.546072  0.785384  1
-  O  O14  1  0.334290  0.953928  0.785384  1
-  O  O15  1  0.403358  0.750000  0.241320  1
-  O  O16  1  0.456628  0.250000  0.207138  1
-  O  O17  1  0.543372  0.750000  0.792862  1
-  O  O18  1  0.596642  0.250000  0.758680  1
-  O  O19  1  0.665710  0.046072  0.214616  1
-  O  O20  1  0.665710  0.453928  0.214616  1
-  O  O21  1  0.834290  0.546072  0.714616  1
-  O  O22  1  0.834290  0.953928  0.714616  1
-  O  O23  1  0.903358  0.750000  0.258680  1
-  O  O24  1  0.956628  0.250000  0.292862  1
-
-"""
-        for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
-            self.assertEqual(l1.strip(), l2.strip())
-
-    def test_symmetrized(self):
-        filepath = os.path.join(test_dir, 'POSCAR')
-        poscar = Poscar.from_file(filepath)
-        writer = CifWriter(poscar.structure, find_spacegroup=True,
-                           symprec=0.1)
+        writer = CifWriter(poscar.structure, symprec=0.001)
         ans = """#generated using pymatgen
 data_FePO4
 _symmetry_space_group_name_H-M   Pnma
@@ -385,11 +331,102 @@ loop_
  _atom_site_occupancy
   Fe  Fe1  4  0.218728  0.750000  0.474867  1
   P  P2  4  0.094613  0.250000  0.418243  1
-  O  O3  4  0.043372  0.750000  0.707138  1
-  O  O4  4  0.096642  0.250000  0.741320  1
-  O  O5  8  0.165710  0.046072  0.285384  1"""
+  O  O3  8  0.165710  0.046072  0.285384  1
+  O  O4  4  0.043372  0.750000  0.707138  1
+  O  O5  4  0.096642  0.250000  0.741320  1
+
+"""
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
+
+    def test_symmetrized(self):
+        filepath = os.path.join(test_dir, 'POSCAR')
+        poscar = Poscar.from_file(filepath)
+        writer = CifWriter(poscar.structure, symprec=0.1)
+        ans = """#generated using pymatgen
+data_FePO4
+_symmetry_space_group_name_H-M   Pnma
+_cell_length_a   10.41176687
+_cell_length_b   6.06717188
+_cell_length_c   4.75948954
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   62
+_chemical_formula_structural   FePO4
+_chemical_formula_sum   'Fe4 P4 O16'
+_cell_volume   300.65685512
+_cell_formula_units_Z   4
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, -z'
+  3  '-x+1/2, -y, z+1/2'
+  4  'x+1/2, y, -z+1/2'
+  5  'x+1/2, -y+1/2, -z+1/2'
+  6  '-x+1/2, y+1/2, z+1/2'
+  7  '-x, y+1/2, -z'
+  8  'x, -y+1/2, z'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Fe  Fe1  4  0.218728  0.750000  0.474867  1
+  P  P2  4  0.094613  0.250000  0.418243  1
+  O  O3  8  0.165710  0.046072  0.285384  1
+  O  O4  4  0.043372  0.750000  0.707138  1
+  O  O5  4  0.096642  0.250000  0.741320  1"""
+        for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
+            self.assertEqual(l1.strip(), l2.strip())
+
+        ans = """#generated using pymatgen
+data_LiFePO4
+_symmetry_space_group_name_H-M   Pcmn
+_cell_length_a   4.74480000
+_cell_length_b   6.06577000
+_cell_length_c   10.41037000
+_cell_angle_alpha   90.50179000
+_cell_angle_beta   90.00019000
+_cell_angle_gamma   90.00362000
+_symmetry_Int_Tables_number   62
+_chemical_formula_structural   LiFePO4
+_chemical_formula_sum   'Li4 Fe4 P4 O16'
+_cell_volume   299.607967711
+_cell_formula_units_Z   4
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, -z'
+  3  '-x+1/2, -y+1/2, z+1/2'
+  4  'x+1/2, y+1/2, -z+1/2'
+  5  'x+1/2, -y, -z+1/2'
+  6  '-x+1/2, y, z+1/2'
+  7  '-x, y+1/2, -z'
+  8  'x, -y+1/2, z'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Li  Li1  4  0.000010  0.999990  0.999990  1.0
+  Fe  Fe2  4  0.025080  0.746540  0.281160  1.0
+  P  P3  4  0.082070  0.248300  0.405560  1.0
+  O  O4  8  0.213450  0.044060  0.334190  1.0
+  O  O5  4  0.208450  0.251100  0.543160  1.0
+  O  O6  4  0.241490  0.750460  0.596220  1.0
+"""
+        s = Structure.from_file(os.path.join(test_dir, 'LiFePO4.cif'))
+        writer = CifWriter(s, symprec=0.1)
+        self.assertEqual(writer.__str__().strip(), ans.strip())
 
     def test_disordered(self):
         si = Element("Si")
@@ -417,22 +454,22 @@ _chemical_formula_sum   'Si1.5 N0.5'
 _cell_volume   40.0447946443
 _cell_formula_units_Z   1
 loop_
-  _symmetry_equiv_pos_site_id
-  _symmetry_equiv_pos_as_xyz
-   1  'x, y, z'
+_symmetry_equiv_pos_site_id
+_symmetry_equiv_pos_as_xyz
+1  'x, y, z'
 loop_
-  _atom_site_type_symbol
-  _atom_site_label
-  _atom_site_symmetry_multiplicity
-  _atom_site_fract_x
-  _atom_site_fract_y
-  _atom_site_fract_z
-  _atom_site_occupancy
-  Si  Si1  1  0.000000  0.000000  0.000000  1
-  Si  Si2  1  0.750000  0.500000  0.750000  0.5
-  N  N3  1  0.750000  0.500000  0.750000  0.5
+_atom_site_type_symbol
+_atom_site_label
+_atom_site_symmetry_multiplicity
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+Si  Si1  1  0.000000  0.000000  0.000000  1
+Si  Si2  1  0.750000  0.500000  0.750000  0.5
+N  N3  1  0.750000  0.500000  0.750000  0.5
 
-"""
+    """
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 
@@ -501,6 +538,102 @@ loop_
         for s in parser.get_structures(False):
             self.assertEqual(s.composition, c)
 
+    def test_no_coords_or_species(self):
+        string=  """#generated using pymatgen
+data_Si1.5N1.5
+_symmetry_space_group_name_H-M   'P 1'
+_cell_length_a   3.84019793
+_cell_length_b   3.84019899
+_cell_length_c   3.84019793
+_cell_angle_alpha   119.99999086
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   60.00000914
+_symmetry_Int_Tables_number   1
+_chemical_formula_structural   Si1.5N1.5
+_chemical_formula_sum   'Si1.5 N1.5'
+_cell_volume   40.0447946443
+_cell_formula_units_Z   0
+loop_
+  _symmetry_equiv_pos_site_id
+  _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+loop_
+  _atom_type_symbol
+  _atom_type_oxidation_number
+   Si3+  3.0
+   Si4+  4.0
+   N3-  -3.0
+loop_
+  _atom_site_type_symbol
+  _atom_site_label
+  _atom_site_symmetry_multiplicity
+  _atom_site_fract_x
+  _atom_site_fract_y
+  _atom_site_fract_z
+  _atom_site_occupancy
+  ? ? ? ? ? ? ?
+"""
+        parser = CifParser.from_string(string)
+        self.assertEqual(len(parser.get_structures()), 0)
+
+    def test_get_lattice_from_lattice_type(self):
+        cif_structure = """#generated using pymatgen
+data_FePO4
+_symmetry_space_group_name_H-M   Pnma
+_cell_length_a   10.41176687
+_cell_length_b   6.06717188
+_cell_length_c   4.75948954
+_chemical_formula_structural   FePO4
+_chemical_formula_sum   'Fe4 P4 O16'
+_cell_volume   300.65685512
+_cell_formula_units_Z   4
+_symmetry_cell_setting Orthorhombic
+loop_
+  _symmetry_equiv_pos_site_id
+  _symmetry_equiv_pos_as_xyz
+   1  'x, y, z'
+loop_
+  _atom_site_type_symbol
+  _atom_site_label
+  _atom_site_symmetry_multiplicity
+  _atom_site_fract_x
+  _atom_site_fract_y
+  _atom_site_fract_z
+  _atom_site_occupancy
+  Fe  Fe1  1  0.218728  0.750000  0.474867  1
+  Fe  Fe2  1  0.281272  0.250000  0.974867  1
+  Fe  Fe3  1  0.718728  0.750000  0.025133  1
+  Fe  Fe4  1  0.781272  0.250000  0.525133  1
+  P  P5  1  0.094613  0.250000  0.418243  1
+  P  P6  1  0.405387  0.750000  0.918243  1
+  P  P7  1  0.594613  0.250000  0.081757  1
+  P  P8  1  0.905387  0.750000  0.581757  1
+  O  O9  1  0.043372  0.750000  0.707138  1
+  O  O10  1  0.096642  0.250000  0.741320  1
+  O  O11  1  0.165710  0.046072  0.285384  1
+  O  O12  1  0.165710  0.453928  0.285384  1
+  O  O13  1  0.334290  0.546072  0.785384  1
+  O  O14  1  0.334290  0.953928  0.785384  1
+  O  O15  1  0.403358  0.750000  0.241320  1
+  O  O16  1  0.456628  0.250000  0.207138  1
+  O  O17  1  0.543372  0.750000  0.792862  1
+  O  O18  1  0.596642  0.250000  0.758680  1
+  O  O19  1  0.665710  0.046072  0.214616  1
+  O  O20  1  0.665710  0.453928  0.214616  1
+  O  O21  1  0.834290  0.546072  0.714616  1
+  O  O22  1  0.834290  0.953928  0.714616  1
+  O  O23  1  0.903358  0.750000  0.258680  1
+  O  O24  1  0.956628  0.250000  0.292862  1
+
+"""
+        cp = CifParser.from_string(cif_structure)
+        s_test = cp.get_structures(False)[0]
+        filepath = os.path.join(test_dir, 'POSCAR')
+        poscar = Poscar.from_file(filepath)
+        s_ref = poscar.structure
+
+        sm = StructureMatcher(stol=0.05, ltol=0.01, angle_tol=0.1)
+        self.assertTrue(sm.fit(s_ref, s_test))
 
 if __name__ == '__main__':
     unittest.main()

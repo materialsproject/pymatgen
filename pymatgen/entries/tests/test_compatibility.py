@@ -7,7 +7,7 @@ Created on Mar 19, 2012
 """
 
 
-__author__ = "Shyue Ping Ong"
+__author__ = "Shyue Ping Ong, Stephen Dacek"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -31,128 +31,157 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
             'Fe2O3', -1, 0.0,
             parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'O': 0},
                         'run_type': 'GGA+U',
-                        'potcar_symbols': ['PAW_PBE Fe_pv 06Sep2000',
-                                           'PAW_PBE O 08Apr2002']})
+                        'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
+                                         'hash': '994537de5c4122b7f1b77fb604476db4'},
+                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
         self.entry2 = ComputedEntry(
             'Fe3O4', -2, 0.0,
             parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'O': 0},
                         'run_type': 'GGA+U',
-                        'potcar_symbols': ['PAW_PBE Fe_pv 06Sep2000',
-                                           'PAW_PBE O 08Apr2002']})
+                        'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
+                                         'hash': '994537de5c4122b7f1b77fb604476db4'},
+                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
         self.entry3 = ComputedEntry(
             'FeO', -2, 0.0,
             parameters={'is_hubbard': True, 'hubbards': {'Fe': 4.3, 'O': 0},
                         'run_type': 'GGA+U',
-                        'potcar_symbols': ['PAW_PBE Fe_pv 06Sep2000',
-                                           'PAW_PBE O 08Apr2002']})
-    def test_process_entry(self):
-        compat = MaterialsProjectCompatibility()
-        ggacompat = MaterialsProjectCompatibility("GGA")
+                        'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
+                                         'hash': '994537de5c4122b7f1b77fb604476db4'},
+                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
 
+        self.compat = MaterialsProjectCompatibility(check_potcar_hash=False)
+        self.ggacompat = MaterialsProjectCompatibility("GGA", check_potcar_hash=False)
+
+    def test_process_entry(self):
         #Correct parameters
-        self.assertIsNotNone(compat.process_entry(self.entry1))
-        self.assertIsNone(ggacompat.process_entry(self.entry1))
+        self.assertIsNotNone(self.compat.process_entry(self.entry1))
+        self.assertIsNone(self.ggacompat.process_entry(self.entry1))
 
         #Correct parameters
         entry = ComputedEntry(
             'Fe2O3', -1, 0.0,
             parameters={'is_hubbard': False, "hubbards": {}, 'run_type': 'GGA',
-                        'potcar_symbols': ['PAW_PBE Fe_pv 06Sep2000',
-                                           'PAW_PBE O 08Apr2002']})
-        self.assertIsNone(compat.process_entry(entry))
-        self.assertIsNotNone(ggacompat.process_entry(entry))
+                        'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
+                                         'hash': '994537de5c4122b7f1b77fb604476db4'},
+                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+        self.assertIsNone(self.compat.process_entry(entry))
+        self.assertIsNotNone(self.ggacompat.process_entry(entry))
 
         entry = ComputedEntry(
             'Fe2O3', -1, 0.0,
             parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'O': 0},
                         'run_type': 'GGA+U',
-                        'potcar_symbols': ['PAW_PBE Fe_pv 06Sep2000',
-                                           'PAW_PBE O 08Apr2002']})
-        self.assertIsNotNone(compat.process_entry(entry))
+                        'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
+                                         'hash': '994537de5c4122b7f1b77fb604476db4'},
+                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+        self.assertIsNotNone(self.compat.process_entry(entry))
 
-        #Check actual correction
-        self.assertAlmostEqual(compat.process_entry(entry).correction,
+    def test_correction_values(self):
+        #test_corrections
+        self.assertAlmostEqual(self.compat.process_entry(self.entry1).correction,
                                - 2.733 * 2 - 0.70229 * 3)
 
         entry = ComputedEntry(
             'FeF3', -2, 0.0,
             parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'F': 0},
                         'run_type': 'GGA+U',
-                        'potcar_symbols': ['PAW_PBE Fe_pv 06Sep2000',
-                                           'PAW_PBE F 08Apr2002']})
-        self.assertIsNotNone(compat.process_entry(entry))
+                        'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
+                                         'hash': '994537de5c4122b7f1b77fb604476db4'},
+                                        {'titel': 'PAW_PBE F 08Apr2002',
+                                         'hash': '9b0fd56137ce81cfee1eb63a8901c66c'}]})
+        self.assertIsNotNone(self.compat.process_entry(entry))
 
         #Check actual correction
-        self.assertAlmostEqual(compat.process_entry(entry).correction, -2.733)
+        self.assertAlmostEqual(self.compat.process_entry(entry).correction, -2.733)
 
+    def test_U_values(self):
         #Wrong U value
         entry = ComputedEntry(
             'Fe2O3', -1, 0.0,
             parameters={'is_hubbard': True,
                         'hubbards': {'Fe': 5.2, 'O': 0}, 'run_type': 'GGA+U',
-                        'potcar_symbols': ['PAW_PBE Fe_pv 06Sep2000',
-                                           'PAW_PBE O 08Apr2002']})
-        self.assertIsNone(compat.process_entry(entry))
+                        'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
+                                         'hash': '994537de5c4122b7f1b77fb604476db4'},
+                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+        self.assertIsNone(self.compat.process_entry(entry))
 
         #GGA run of U
         entry = ComputedEntry(
             'Fe2O3', -1, 0.0,
             parameters={'is_hubbard': False, 'hubbards': None,
                         'run_type': 'GGA',
-                        'potcar_symbols': ['PAW_PBE Fe_pv 06Sep2000',
-                                           'PAW_PBE O 08Apr2002']})
-        self.assertIsNone(compat.process_entry(entry))
+                        'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
+                                         'hash': '994537de5c4122b7f1b77fb604476db4'},
+                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+        self.assertIsNone(self.compat.process_entry(entry))
 
         #GGA+U run of non-U
         entry = ComputedEntry(
             'Al2O3', -1, 0.0,
             parameters={'is_hubbard': True, 'hubbards': {'Al': 5.3, 'O': 0},
                         'run_type': 'GGA+U',
-                        'potcar_symbols': ['PAW_PBE Al 06Sep2000',
-                                           'PAW_PBE O 08Apr2002']})
-        self.assertIsNone(compat.process_entry(entry))
+                        'potcar_spec': [{'titel': 'PAW_PBE Al 06Sep2000',
+                                         'hash': '805c888bbd2793e462311f6a20d873d9'},
+                                           {'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+        self.assertIsNone(self.compat.process_entry(entry))
 
         #Materials project should not have a U for sulfides
         entry = ComputedEntry(
             'FeS2', -2, 0.0,
             parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'S': 0},
                         'run_type': 'GGA+U',
-                        'potcar_symbols': ['PAW_PBE Fe_pv 06Sep2000',
-                                           'PAW_PBE S 08Apr2002']})
-        self.assertIsNone(compat.process_entry(entry))
+                        'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
+                                            'hash': '994537de5c4122b7f1b77fb604476db4'},
+                                           {"titel": 'PAW_PBE S 08Apr2002',
+                                            'hash': "f7f8e4a74a6cbb8d63e41f4373b54df2"}]})
+        self.assertIsNone(self.compat.process_entry(entry))
 
+    def test_wrong_psp(self):
         #Wrong psp
         entry = ComputedEntry(
             'Fe2O3', -1, 0.0,
             parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'O': 0},
                         'run_type': 'GGA+U',
-                        'potcar_symbols': ['PAW_PBE Fe 06Sep2000',
-                                           'PAW_PBE O 08Apr2002']})
-        self.assertIsNone(compat.process_entry(entry))
+                        'potcar_spec': [{'titel':'PAW_PBE Fe 06Sep2000',
+                                         'hash': 'e0051a21ce51eb34a52e9153c17aa32d'},
+                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+        self.assertIsNone(self.compat.process_entry(entry))
 
-        #Testing processing of elements.
+    def test_element_processing(self):
         entry = ComputedEntry(
             'O', -1, 0.0,
             parameters={'is_hubbard': False, 'hubbards': {},
-                        'potcar_symbols': ['PAW_PBE O 08Apr2002'],
+                        'potcar_spec': [{'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}],
                         'run_type': 'GGA'})
-        entry = compat.process_entry(entry)
+        entry = self.compat.process_entry(entry)
 #        self.assertEqual(entry.entry_id, -8)
         self.assertAlmostEqual(entry.energy, -1)
-        self.assertAlmostEqual(ggacompat.process_entry(entry).energy,
+        self.assertAlmostEqual(self.ggacompat.process_entry(entry).energy,
                                -1)
 
     def test_get_corrections_dict(self):
-        compat = MaterialsProjectCompatibility()
-        ggacompat = MaterialsProjectCompatibility("GGA")
+        compat = MaterialsProjectCompatibility(check_potcar_hash=False)
+        ggacompat = MaterialsProjectCompatibility("GGA", check_potcar_hash=False)
 
         #Correct parameters
         entry = ComputedEntry(
             'Fe2O3', -1, 0.0,
             parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'O': 0},
                         'run_type': 'GGA+U',
-                        'potcar_symbols': ['PAW_PBE Fe_pv 06Sep2000',
-                                           'PAW_PBE O 08Apr2002']})
+                        'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
+                                            'hash': '994537de5c4122b7f1b77fb604476db4'},
+                                           {'titel': 'PAW_PBE O 08Apr2002',
+                                            'hash': "7af704ddff29da5354831c4609f1cbc5"}]})
         c = compat.get_corrections_dict(entry)
 
         self.assertAlmostEqual(c["MP Gas Correction"], -2.10687)
@@ -164,62 +193,100 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         self.assertNotIn("MP Advanced Correction", c)
 
     def test_process_entries(self):
-        compat = MaterialsProjectCompatibility()
-        entries = compat.process_entries([self.entry1, self.entry2,
-                                          self.entry3])
+        entries = self.compat.process_entries([self.entry1,
+                                               self.entry2,
+                                               self.entry3])
         self.assertEqual(len(entries), 2)
 
 
 class MITCompatibilityTest(unittest.TestCase):
 
-    def test_process_entry(self):
-        compat = MITCompatibility()
-
-        #Correct parameters
-        entry = ComputedEntry(
+    def setUp(self):
+        self.compat = MITCompatibility(check_potcar_hash=True)
+        self.ggacompat = MITCompatibility("GGA", check_potcar_hash=True)
+        self.entry_O = ComputedEntry(
             'Fe2O3', -1, 0.0,
             parameters={'is_hubbard': True,
                         'hubbards': {'Fe': 4.0, 'O': 0},
                         'run_type': 'GGA+U',
-                        'potcar_symbols': ['PAW_PBE Fe 06Sep2000',
-                                           'PAW_PBE O 08Apr2002']})
-        self.assertIsNotNone(compat.process_entry(entry))
-        self.assertAlmostEqual(compat.process_entry(entry).correction,
-                               - 1.723 * 2 -0.66975*3)
+                        'potcar_spec': [{'titel':'PAW_PBE Fe 06Sep2000',
+                                         'hash': 'e0051a21ce51eb34a52e9153c17aa32d'},
+                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
 
-        entry = ComputedEntry(
+        self.entry_F = ComputedEntry(
             'FeF3', -2, 0.0,
             parameters={'is_hubbard': True,
                         'hubbards': {'Fe': 4.0, 'F': 0},
                         'run_type': 'GGA+U',
-                        'potcar_symbols': ['PAW_PBE Fe 06Sep2000',
-                                           'PAW_PBE F 08Apr2002']})
-        self.assertIsNotNone(compat.process_entry(entry))
-
-        #Check actual correction
-        self.assertAlmostEqual(compat.process_entry(entry).correction, -1.723)
-
-        #MIT should not have a U for sulfides
-        entry = ComputedEntry(
+                        'potcar_spec': [{'titel':'PAW_PBE Fe 06Sep2000',
+                                         'hash': 'e0051a21ce51eb34a52e9153c17aa32d'},
+                                        {'titel': 'PAW_PBE F 08Apr2002',
+                                         'hash': '9b0fd56137ce81cfee1eb63a8901c66c'}]})
+        self.entry_S = ComputedEntry(
             'FeS2', -2, 0.0,
             parameters={'is_hubbard': True,
                         'hubbards': {'Fe': 1.9, 'S': 0},
                         'run_type': 'GGA+U',
-                        'potcar_symbols': ['PAW_PBE Fe 06Sep2000',
-                                           'PAW_PBE S 08Apr2002']})
-        self.assertIsNotNone(compat.process_entry(entry))
+                        'potcar_spec': [{'titel':'PAW_PBE Fe 06Sep2000',
+                                            'hash': 'e0051a21ce51eb34a52e9153c17aa32d'},
+                                           {'titel': 'PAW_PBE S 08Apr2002',
+                                            'hash': 'f7f8e4a74a6cbb8d63e41f4373b54df2'}]})
 
-        self.assertAlmostEqual(compat.process_entry(entry).correction, -1.113)
+    def test_process_entry(self):
+        #Correct parameters
+        self.assertIsNotNone(self.compat.process_entry(self.entry_O))
+        self.assertIsNotNone(self.compat.process_entry(self.entry_F))
 
+    def test_correction_value(self):
+        #Check actual correction
+        self.assertAlmostEqual(self.compat.process_entry(self.entry_O).correction,
+                               - 1.723 * 2 -0.66975*3)
+        self.assertAlmostEqual(self.compat.process_entry(self.entry_F).correction, -1.723)
+        self.assertAlmostEqual(self.compat.process_entry(self.entry_S).correction, -1.113)
+
+    def test_U_value(self):
+        # MIT should have a U value for Fe containing sulfides
+        self.assertIsNotNone(self.compat.process_entry(self.entry_S))
+
+        # MIT should not have a U value for Ni containing sulfides
+        entry = ComputedEntry(
+            'NiS2', -2, 0.0,
+            parameters={'is_hubbard': True,
+                        'hubbards': {'Ni': 1.9, 'S': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_spec': [{'titel':'PAW_PBE Ni 06Sep2000',
+                                            'hash': '6aa314a5314ececec9e6f32bd9a47a67'},
+                                           {'titel': 'PAW_PBE S 08Apr2002',
+                                            'hash': 'f7f8e4a74a6cbb8d63e41f4373b54df2'}]})
+
+        self.assertIsNone(self.compat.process_entry(entry))
+
+        entry = ComputedEntry(
+            'NiS2', -2, 0.0,
+            parameters={'is_hubbard': True,
+                        'hubbards': None,
+                        'run_type': 'GGA',
+                        'potcar_spec': [{'titel':'PAW_PBE Ni 06Sep2000',
+                                            'hash': '6aa314a5314ececec9e6f32bd9a47a67'},
+                                           {'titel': 'PAW_PBE S 08Apr2002',
+                                            'hash': 'f7f8e4a74a6cbb8d63e41f4373b54df2'}]})
+
+        self.assertIsNotNone(self.ggacompat.process_entry(entry))
+
+    def test_wrong_U_value(self):
         #Wrong U value
         entry = ComputedEntry(
             'Fe2O3', -1, 0.0,
             parameters={'is_hubbard': True,
                         'hubbards': {'Fe': 5.2, 'O': 0},
                         'run_type': 'GGA+U',
-                        'potcar_symbols': ['PAW_PBE Fe 06Sep2000',
-                                           'PAW_PBE O 08Apr2002']})
-        self.assertIsNone(compat.process_entry(entry))
+                        'potcar_spec': [{'titel':'PAW_PBE Fe 06Sep2000',
+                                         'hash': 'e0051a21ce51eb34a52e9153c17aa32d'},
+                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+
+        self.assertIsNone(self.compat.process_entry(entry))
 
         #GGA run
         entry = ComputedEntry(
@@ -227,28 +294,77 @@ class MITCompatibilityTest(unittest.TestCase):
             parameters={'is_hubbard': False,
                         'hubbards': None,
                         'run_type': 'GGA',
-                        'potcar_symbols': ['PAW_PBE Fe 06Sep2000',
-                                           'PAW_PBE O 08Apr2002']})
-        self.assertIsNone(compat.process_entry(entry))
+                        'potcar_spec': [{'titel':'PAW_PBE Fe 06Sep2000',
+                                         'hash': 'e0051a21ce51eb34a52e9153c17aa32d'},
+                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+        self.assertIsNone(self.compat.process_entry(entry))
+        self.assertIsNotNone(self.ggacompat.process_entry(entry))
 
+    def test_wrong_psp(self):
         #Wrong psp
         entry = ComputedEntry(
             'Fe2O3', -1, 0.0,
             parameters={'is_hubbard': True,
                         'hubbards': {'Fe': 4.0, 'O': 0},
                         'run_type': 'GGA+U',
-                        'potcar_symbols': ['PAW_PBE Fe_pv 06Sep2000',
-                                           'PAW_PBE O 08Apr2002']})
-        self.assertIsNone(compat.process_entry(entry))
+                        'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
+                                         'hash': '994537de5c4122b7f1b77fb604476db4'},
+                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+        self.assertIsNone(self.compat.process_entry(entry))
 
+    def test_element_processing(self):
         #Testing processing of elements.
         entry = ComputedEntry(
             'O', -1, 0.0,
             parameters={'is_hubbard': False, 'hubbards': {},
-                        'potcar_symbols': ['PAW_PBE O 08Apr2002'],
+                        'potcar_spec': [{'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}],
                         'run_type': 'GGA'})
-        entry = compat.process_entry(entry)
+        entry = self.compat.process_entry(entry)
         self.assertAlmostEqual(entry.energy, -1)
+
+    def test_same_potcar_symbol(self):
+        # Same symbol different hash thus a different potcar
+        #Correct Hash Correct Symbol
+        entry = ComputedEntry(
+            'Fe2O3', -1, 0.0,
+            parameters={'is_hubbard': True,
+                        'hubbards': {'Fe': 4.0, 'O': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_spec': [{'titel':'PAW_PBE Fe 06Sep2000',
+                                         'hash': 'e0051a21ce51eb34a52e9153c17aa32d'},
+                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+        #Incorrect Hash Correct Symbol
+        entry2 = ComputedEntry(
+            'Fe2O3', -1, 0.0,
+            parameters={'is_hubbard': True,
+                        'hubbards': {'Fe': 4.0, 'O': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_spec': [{'titel':'PAW_PBE Fe 06Sep2000',
+                                         'hash': 'DifferentHash'},
+                                        {'titel': 'PAW_PBE O 08Apr2002',
+                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+
+        compat = MITCompatibility()
+        self.assertEqual(len(compat.process_entries([entry, entry2])), 2)
+        self.assertEqual(len(self.compat.process_entries([entry, entry2])), 1)
+
+    def test_revert_to_symbols(self):
+        #Test that you can revert to potcar_symbols if potcar_spec is not present
+        compat = MITCompatibility()
+        entry = ComputedEntry(
+            'Fe2O3', -1, 0.0,
+            parameters={'is_hubbard': True,
+                        'hubbards': {'Fe': 4.0, 'O': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_symbols': ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
+
+        self.assertIsNotNone(compat.process_entry(entry))
+        #raise if check_potcar_hash is set
+        self.assertRaises(ValueError, self.compat.process_entry, entry)
 
     def test_potcar_doenst_match_structure(self):
 
@@ -263,10 +379,23 @@ class MITCompatibilityTest(unittest.TestCase):
 
         self.assertIsNone(compat.process_entry(entry))
 
+    def test_potcar_spec_is_none(self):
+
+        compat = MITCompatibility(check_potcar_hash=True)
+        entry = ComputedEntry(
+            'Li2O3', -1, 0.0,
+            parameters={'is_hubbard': True,
+                        'hubbards': {'Fe': 4.0, 'O': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_spec': [None, None]})
+
+        self.assertIsNone(compat.process_entry(entry))
+
+
 class OxideTypeCorrectionTest(unittest.TestCase):
 
     def setUp(self):
-        self.compat = MITCompatibility()
+        self.compat = MITCompatibility(check_potcar_hash=True)
 
     def test_no_struct_compat(self):
         lio2_entry_nostruct = ComputedEntry(Composition("Li2O4"), -3,
@@ -274,8 +403,11 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                             parameters={'is_hubbard': False,
                                           'hubbards': None,
                                           'run_type': 'GGA',
-                                          'potcar_symbols':
-        ['PAW_PBE Li 06Sep2000', 'PAW_PBE O 08Apr2002']})
+                                          'potcar_spec': [{'titel':'PAW_PBE Li 17Jan2003',
+                                                           'hash': '9658a0ffb28da97ee7b36709966a0d1c'},
+                                                          {'titel': 'PAW_PBE O 08Apr2002',
+                                                           'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+
         lio2_entry_corrected = self.compat.process_entry(lio2_entry_nostruct)
         self.assertAlmostEqual(lio2_entry_corrected.energy, -3 - 0.13893*4, 4)
 
@@ -298,8 +430,11 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                             parameters={'is_hubbard': False,
                                           'hubbards': None,
                                           'run_type': 'GGA',
-                                          'potcar_symbols':
-        ['PAW_PBE Li 06Sep2000', 'PAW_PBE O 08Apr2002']})
+                                          'potcar_spec': [{'titel':'PAW_PBE Li 17Jan2003',
+                                                           'hash': '9658a0ffb28da97ee7b36709966a0d1c'},
+                                                          {'titel': 'PAW_PBE O 08Apr2002',
+                                                           'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+
         lio2_entry_corrected = self.compat.process_entry(lio2_entry)
         self.assertAlmostEqual(lio2_entry_corrected.energy, -3 -0.13893*4, 4)
 
@@ -321,8 +456,11 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                             parameters={'is_hubbard': False,
                                           'hubbards': None,
                                           'run_type': 'GGA',
-                                          'potcar_symbols':
-        ['PAW_PBE Li 06Sep2000', 'PAW_PBE O 08Apr2002']})
+                                          'potcar_spec': [{'titel':'PAW_PBE Li 17Jan2003',
+                                                           'hash': '9658a0ffb28da97ee7b36709966a0d1c'},
+                                                          {'titel': 'PAW_PBE O 08Apr2002',
+                                                           'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+
         li2o2_entry_corrected = self.compat.process_entry(li2o2_entry)
         self.assertAlmostEqual(li2o2_entry_corrected.energy, -3 - 0.44317 * 4, 4)
 
@@ -341,8 +479,11 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                             parameters={'is_hubbard': False,
                                           'hubbards': None,
                                           'run_type': 'GGA',
-                                          'potcar_symbols':
-        ['PAW_PBE Li 06Sep2000', 'PAW_PBE O 08Apr2002']})
+                                          'potcar_spec': [{'titel':'PAW_PBE Li 17Jan2003',
+                                                           'hash': '9658a0ffb28da97ee7b36709966a0d1c'},
+                                                          {'titel': 'PAW_PBE O 08Apr2002',
+                                                           'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+
         lio3_entry_corrected = self.compat.process_entry(lio3_entry)
         self.assertAlmostEqual(lio3_entry_corrected.energy, -3.0)
 
@@ -360,8 +501,11 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                             parameters={'is_hubbard': False,
                                           'hubbards': None,
                                           'run_type': 'GGA',
-                                          'potcar_symbols':
-        ['PAW_PBE Li 06Sep2000', 'PAW_PBE O 08Apr2002']})
+                                          'potcar_spec': [{'titel':'PAW_PBE Li 17Jan2003',
+                                                           'hash': '9658a0ffb28da97ee7b36709966a0d1c'},
+                                                          {'titel': 'PAW_PBE O 08Apr2002',
+                                                           'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+
         li2o_entry_corrected = self.compat.process_entry(li2o_entry)
         self.assertAlmostEqual(li2o_entry_corrected.energy, -3.0 -0.66975, 4)
 
@@ -385,8 +529,11 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
                                             parameters={'is_hubbard': False,
                                           'hubbards': None,
                                           'run_type': 'GGA',
-                                          'potcar_symbols':
-        ['PAW_PBE Li 06Sep2000', 'PAW_PBE O 08Apr2002']})
+                                          'potcar_spec': [{'titel':'PAW_PBE Li 17Jan2003',
+                                                           'hash': '9658a0ffb28da97ee7b36709966a0d1c'},
+                                                          {'titel': 'PAW_PBE O 08Apr2002',
+                                                           'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+
         li2o_entry_corrected = self.compat.process_entry(li2o_entry)
         self.assertAlmostEqual(li2o_entry_corrected.energy, -3.0 -0.66975, 4)
 
@@ -408,8 +555,11 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
                                             parameters={'is_hubbard': False,
                                           'hubbards': None,
                                           'run_type': 'GGA',
-                                          'potcar_symbols':
-        ['PAW_PBE Li 06Sep2000', 'PAW_PBE O 08Apr2002']})
+                                          'potcar_spec': [{'titel':'PAW_PBE Li 17Jan2003',
+                                                           'hash': '9658a0ffb28da97ee7b36709966a0d1c'},
+                                                          {'titel': 'PAW_PBE O 08Apr2002',
+                                                           'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+
         li2o2_entry_corrected = self.compat.process_entry(li2o2_entry)
         self.assertRaises(AssertionError, self.assertAlmostEqual,
                            *(li2o2_entry_corrected.energy, -3 - 0.44317 * 4, 4))
@@ -430,8 +580,11 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
                                             parameters={'is_hubbard': False,
                                           'hubbards': None,
                                           'run_type': 'GGA',
-                                          'potcar_symbols':
-        ['PAW_PBE Li 06Sep2000', 'PAW_PBE O 08Apr2002']})
+                                          'potcar_spec': [{'titel':'PAW_PBE Li 17Jan2003',
+                                                           'hash': '9658a0ffb28da97ee7b36709966a0d1c'},
+                                                          {'titel': 'PAW_PBE O 08Apr2002',
+                                                           'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+
         lio3_entry_corrected = self.compat.process_entry(lio3_entry)
         self.assertAlmostEqual(lio3_entry_corrected.energy, -3.0 - 3 * 0.66975)
 
@@ -469,8 +622,8 @@ class AqueousCorrectionTest(unittest.TestCase):
 class TestMITAqueousCompatibility(unittest.TestCase):
 
     def setUp(self):
-        self.compat = MITCompatibility()
-        self.aqcompat = MITAqueousCompatibility()
+        self.compat = MITCompatibility(check_potcar_hash=True)
+        self.aqcompat = MITAqueousCompatibility(check_potcar_hash=True)
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, os.path.pardir, "MITCompatibility.yaml")
         self.aqcorr =  AqueousCorrection(fp)
@@ -493,14 +646,19 @@ class TestMITAqueousCompatibility(unittest.TestCase):
                                             parameters={'is_hubbard': False,
                                           'hubbards': None,
                                           'run_type': 'GGA',
-                                          'potcar_symbols':
-        ['PAW_PBE Li 17Jan2003', 'PAW_PBE O 08Apr2002', 'PAW_PBE H 15Jun2001']})
+                                          'potcar_spec': [{'titel':'PAW_PBE Li 17Jan2003',
+                                                           'hash': '9658a0ffb28da97ee7b36709966a0d1c'},
+                                                          {'titel': 'PAW_PBE O 08Apr2002',
+                                                           'hash': '7af704ddff29da5354831c4609f1cbc5'},
+                                                          {"titel": 'PAW_PBE H 15Jun2001',
+                                                           'hash': "57732e53d8a424e5b3721d0277f14ef0"}]})
         lioh_entry_compat = self.compat.process_entry(lioh_entry)
         lioh_entry_compat_aqcorr = self.aqcorr.correct_entry(lioh_entry_compat)
         lioh_entry_aqcompat = self.aqcompat.process_entry(lioh_entry)
         self.assertAlmostEqual(lioh_entry_compat_aqcorr.energy, lioh_entry_aqcompat.energy, 4)
 
     def test_potcar_doenst_match_structure(self):
+        compat = MITCompatibility()
         el_li = Element("Li")
         el_o = Element("O")
         el_h = Element("H")
@@ -521,7 +679,7 @@ class TestMITAqueousCompatibility(unittest.TestCase):
                                           'potcar_symbols':
         ['PAW_PBE Fe 17Jan2003', 'PAW_PBE O 08Apr2002', 'PAW_PBE H 15Jun2001']})
 
-        self.assertIsNone(self.compat.process_entry(lioh_entry))
+        self.assertIsNone(compat.process_entry(lioh_entry))
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

@@ -52,11 +52,9 @@ class SymmOp(PMGSONable):
         self.tol = tol
 
     @staticmethod
-    def from_rotation_and_translation(rotation_matrix=((1, 0, 0),
-                                                       (0, 1, 0),
-                                                       (0, 0, 1)),
-                                      translation_vec=(0, 0, 0),
-                                      tol=0.1):
+    def from_rotation_and_translation(
+            rotation_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)),
+            translation_vec=(0, 0, 0), tol=0.1):
         """
         Creates a symmetry operation from a rotation matrix and a translation
         vector.
@@ -409,8 +407,8 @@ class SymmOp(PMGSONable):
         rot_matrix = np.zeros((3, 3))
         trans = np.zeros(3)
         toks = xyz_string.strip().replace(" ", "").lower().split(",")
-        re_rot = re.compile("([+-]?)(\d*)/?(\d*)([x-z])")
-        re_trans = re.compile("([+-]?)(\d+)/?(\d*)(?![x-z])")
+        re_rot = re.compile("([+-]?)([\d\.]*)/?([\d\.]*)([x-z])")
+        re_trans = re.compile("([+-]?)([\d\.]+)/?([\d\.]*)(?![x-z])")
         for i, tok in enumerate(toks):
             # build the rotation matrix
             for m in re_rot.finditer(tok):
