@@ -8,7 +8,7 @@ Classes for reading/manipulating/writing VASP ouput files.
 
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
-    "Vincent L Chevrier, Ioannis Petousis"
+    "Vincent L Chevrier, Ioannis Petousis, Stephen Dacek"
 __credits__ = "Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.2"
@@ -29,23 +29,24 @@ from collections import defaultdict
 from xml.etree.cElementTree import iterparse
 
 from six.moves import map, zip
+from six import string_types
 
 import numpy as np
 
 from monty.io import zopen, reverse_readfile
 from monty.json import jsanitize
 
-
 from pymatgen.util.io_utils import clean_lines, micro_pyawk
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import unitized
 from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.electronic_structure.bandstructure import BandStructure, \
     BandStructureSymmLine, get_reconstructed_band_structure
 from pymatgen.core.lattice import Lattice
-from pymatgen.io.vaspio.vasp_input import Incar, Kpoints, Poscar
+from pymatgen.io.vaspio.vasp_input import Incar, Kpoints, Poscar, Potcar
 from pymatgen.entries.computed_entries import \
     ComputedEntry, ComputedStructureEntry
 from pymatgen.serializers.json_coders import PMGSONable
@@ -182,6 +183,12 @@ class Vasprun(PMGSONable):
             eigenvalues. Defaults to False. Set to True to obtain projected
             eigenvalues. **Note that this can take an extreme amount of time
             and memory.** So use this wisely.
+        parse_potcar_file (bool/str): Whether to parse the potcar file to read the
+            potcar hashes for the potcar_spec attribute. Defaults to True,
+            where no hashes will be determined and the potcar_spec dictionaries
+            will read {"symbol": ElSymbol, "hash": None}. By Default, looks in
+            the same directory as the vasprun.xml, with same extensions as
+             Vasprun.xml. If a string is provided, looks at that filepath
 
     **Vasp results**
 
@@ -301,7 +308,8 @@ class Vasprun(PMGSONable):
 
     def __init__(self, filename, ionic_step_skip=None,
                  ionic_step_offset=0, parse_dos=True,
-                 parse_eigen=True, parse_projected_eigen=False):
+                 parse_eigen=True, parse_projected_eigen=False,
+                 parse_potcar_file=True):
         self.filename = filename
         self.ionic_step_skip = ionic_step_skip
         self.ionic_step_offset = ionic_step_offset
@@ -331,6 +339,9 @@ class Vasprun(PMGSONable):
                             parse_projected_eigen=parse_projected_eigen)
                 self.nionic_steps = len(self.ionic_steps)
 
+            if parse_potcar_file:
+                self.update_potcar_spec(parse_potcar_file)
+
     def _parse(self, stream, parse_dos, parse_eigen, parse_projected_eigen):
         self.efermi = None
         self.eigenvalues = None
@@ -355,6 +366,9 @@ class Vasprun(PMGSONable):
                 elif tag == "atominfo":
                     self.atomic_symbols, self.potcar_symbols = \
                         self._parse_atominfo(elem)
+                    self.potcar_spec = [{"titel": p,
+                                         "hash": None} for
+                                        p in self.potcar_symbols]
             if tag == "calculation":
                 parsed_header = True
                 ionic_steps.append(self._parse_calculation(elem))
@@ -532,7 +546,7 @@ class Vasprun(PMGSONable):
             ComputedStructureEntry/ComputedEntry
         """
         param_names = {"is_hubbard", "hubbards", "potcar_symbols",
-                       "run_type"}
+                       "potcar_spec", "run_type"}
         if parameters:
             param_names.update(parameters)
         params = {p: getattr(self, p) for p in param_names}
@@ -709,6 +723,36 @@ class Vasprun(PMGSONable):
                     cbm_kpoint = k[0]
         return max(cbm - vbm, 0), cbm, vbm, vbm_kpoint == cbm_kpoint
 
+    def update_potcar_spec(self, path):
+        def get_potcar_in_path(p):
+            for fn in os.listdir(os.path.abspath(p)):
+                if 'POTCAR' in fn:
+                    pc = Potcar.from_file(os.path.join(p, fn))
+                    if {d.header for d in pc} == \
+                            {sym for sym in self.potcar_symbols}:
+                        return pc
+            warnings.warn("No POTCAR file with matching TITEL fields"
+                          " was found in {}".format(os.path.abspath(p)))
+
+        if isinstance(path, string_types):
+            if "POTCAR" in path:
+                potcar = Potcar.from_file(path)
+                if {d.TITEL for d in potcar} != \
+                        {sym for sym in self.potcar_symbols}:
+                    raise ValueError("Potcar TITELs do not match Vasprun")
+            else:
+                potcar = get_potcar_in_path(path)
+        elif isinstance(path, bool) and path:
+            potcar = get_potcar_in_path(os.path.split(self.filename)[0])
+        else:
+            potcar = None
+
+        if potcar:
+            self.potcar_spec = [{"titel": sym, "hash": ps.get_potcar_hash()}
+                                for sym in self.potcar_symbols
+                                for ps in potcar if
+                                ps.symbol == sym.split()[1]]
+
     def as_dict(self):
         """
         Json-serializable dict representation.
@@ -748,6 +792,7 @@ class Vasprun(PMGSONable):
                        for i in range(len(self.actual_kpoints))]
         vin["kpoints"]["actual_points"] = actual_kpts
         vin["potcar"] = [s.split(" ")[1] for s in self.potcar_symbols]
+        vin["potcar_spec"] = self.potcar_spec
         vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]
         vin["parameters"] = {k: v for k, v in self.parameters.items()}
         vin["lattice_rec"] = self.lattice_rec.as_dict()
@@ -824,8 +869,20 @@ class Vasprun(PMGSONable):
             elif a.attrib["name"] == "atomtypes":
                 potcar_symbols = [rc.findall("c")[4].text.strip()
                                   for rc in a.find("set")]
+
+        # ensure atomic symbols are valid elements
+        def parse_atomic_symbol(symbol):
+            try:
+                return str(Element(symbol))
+            # vasprun.xml uses X instead of Xe for xenon
+            except KeyError as e:
+                if symbol == "X":
+                    return "Xe"
+                raise e
+
         elem.clear()
-        return atomic_symbols, potcar_symbols
+        return [parse_atomic_symbol(sym) for
+                sym in atomic_symbols], potcar_symbols
 
     def _parse_kpoints(self, elem):
         e = elem

@@ -26,21 +26,35 @@ import six
 from six.moves import zip, cStringIO
 
 import numpy as np
-
-from pymatgen.core.periodic_table import Element, Specie
+from functools import partial
+from inspect import getargspec
+from itertools import groupby
+from pymatgen.core.periodic_table import Element, Specie, get_el_sp, PeriodicTable
 from monty.io import zopen
 from pymatgen.util.coord_utils import in_coord_list_pbc
 from monty.string import remove_non_ascii
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
+from pymatgen.symmetry.groups import SpaceGroup, SYMM_DATA, TRANSLATIONS
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+ptable = PeriodicTable()
+
+sub_spgrp = partial(re.sub, r"[\s_]", "")
+
+space_groups = {sub_spgrp(k): k for k in
+                SYMM_DATA['space_group_encoding'].keys()}
+
+space_groups.update({sub_spgrp(k): k for k in
+                SYMM_DATA['space_group_encoding'].keys()})
 
 
 class CifBlock(object):
-    
+
     maxlen = 70  # not quite 80 so we can deal with semicolons and things
-    
+
     def __init__(self, data, loops, header):
         """
         Object for storing cif data. All data is stored in a single dictionary.
@@ -52,7 +66,7 @@ class CifBlock(object):
             data: dict or OrderedDict of data to go into the cif. Values should
                     be convertible to string, or lists of these if the key is
                     in a loop
-            loops: list of lists of keys, grouped by which loop they should 
+            loops: list of lists of keys, grouped by which loop they should
                     appear in
             header: name of the block (appears after the data_ on the first
                 line)
@@ -132,7 +146,7 @@ class CifBlock(object):
         string = re.sub("^\s*\n", "", string, flags=re.MULTILINE)
         #remove non_ascii
         string = remove_non_ascii(string)
-        
+
         #since line breaks in .cif files are mostly meaningless,
         #break up into a stream of tokens to parse, rejoining multiline
         #strings (between semicolons)
@@ -159,8 +173,9 @@ class CifBlock(object):
                 ml.append(l[1:].strip())
             else:
                 for s in p.findall(l):
-                    q.append(s)  # s is tuple. location of the data in the tuple
-                                 # depends on whether it was quoted in the input
+                    # s is tuple. location of the data in the tuple
+                    # depends on whether it was quoted in the input
+                    q.append(s)
         return q
 
     @classmethod
@@ -223,7 +238,7 @@ class CifFile(object):
     @classmethod
     def from_string(cls, string):
         d = OrderedDict()
-        for x in re.split("^data_", "x\n"+string, 
+        for x in re.split("^data_", "x\n"+string,
                           flags=re.MULTILINE | re.DOTALL)[1:]:
             c = CifBlock.from_string("data_"+x)
             d[c.header] = c
@@ -269,74 +284,201 @@ class CifParser(object):
         stream = cStringIO(cif_string)
         return CifParser(stream, occupancy_tolerance)
 
-    def _unique_coords(self, coord_in):
+    def _unique_coords(self, coords_in):
         """
         Generate unique coordinates using coord and symmetry positions.
         """
         coords = []
-        for op in self.symmetry_operations:
-            coord = op.operate(coord_in)
-            coord = np.array([i - math.floor(i) for i in coord])
-            if not in_coord_list_pbc(coords, coord, atol=1e-3):
-                coords.append(coord)
+        for tmp_coord in coords_in:
+            for op in self.symmetry_operations:
+                coord = op.operate(tmp_coord)
+                coord = np.array([i - math.floor(i) for i in coord])
+                if not in_coord_list_pbc(coords, coord, atol=1e-3):
+                    coords.append(coord)
         return coords
 
-    def _get_structure(self, data, primitive):
+    def get_lattice(self, data, length_strings=("a", "b", "c"),
+                    angle_strings=("alpha", "beta", "gamma"), lattice_type=None):
         """
-        Generate structure from part of the cif.
+        Generate the lattice from the provided lattice parameters. In
+        the absence of all six lattice parameters, the crystal system
+        and necessary parameters are parsed
         """
-        lengths = [str2float(data["_cell_length_" + i])
-                   for i in ["a", "b", "c"]]
-        angles = [str2float(data["_cell_angle_" + i])
-                  for i in ["alpha", "beta", "gamma"]]
-        lattice = Lattice.from_lengths_and_angles(lengths, angles)
         try:
-            sympos = data["_symmetry_equiv_pos_as_xyz"]
+
+            lengths = [str2float(data["_cell_length_" + i])
+                           for i in length_strings]
+            angles = [str2float(data["_cell_angle_" + i])
+                           for i in angle_strings]
+            if not lattice_type:
+                return Lattice.from_lengths_and_angles(lengths, angles)
+
+            else:
+                return getattr(Lattice, lattice_type)(*(lengths+angles))
+
         except KeyError:
-            try:
-                sympos = data["_symmetry_equiv_pos_as_xyz_"]
-            except KeyError:
-                warnings.warn("No _symmetry_equiv_pos_as_xyz type key found. "
-                              "Defaulting to P1.")
-                sympos = ['x, y, z']
-        self.symmetry_operations = [SymmOp.from_xyz_string(s) for s in sympos]
+            #Missing Key search for cell setting
+            for lattice_lable in ["_symmetry_cell_setting",
+                                  "_space_group_crystal_system"]:
+                if data.data.get(lattice_lable):
+                    lattice_type = data.data.get(lattice_lable).lower()
+                    try:
 
-        def parse_symbol(sym):
-            # capitalization conventions are not strictly followed, eg Cu will be CU
-            m = re.search("([A-Za-z]*)", sym)
-            if m:
-                return m.group(1)[:2].capitalize()
-            return ""
+                        required_args = getargspec(getattr(Lattice,
+                                                               lattice_type)
+                                                        ).args
 
+                        lengths = (l for l in length_strings if l in
+                                                        required_args)
+                        angles = (a for a in angle_strings if a in
+                                                        required_args)
+                        return self.get_lattice(data, lengths, angles,
+                                                lattice_type=lattice_type)
+                    except AttributeError as exc:
+                        warnings.warn(exc)
+
+                else:
+                    return None
+
+    def get_symops(self, data):
+        """
+        In order to generate symmetry equivalent positions, the symmetry
+        operations are parsed. If the symops are not present, the space
+        group symbol is parsed, and symops are generated.
+        """
+        symops = []
+        for symmetry_label in ["_symmetry_equiv_pos_as_xyz",
+                               "_symmetry_equiv_pos_as_xyz_",
+                               "_space_group_symop_operation_xyz",
+                               "_space_group_symop_operation_xyz_"]:
+            if data.data.get(symmetry_label):
+                try:
+                    symops = [SymmOp.from_xyz_string(s)
+                              for s in data.data.get(symmetry_label)]
+                    break
+                except ValueError:
+                    continue
+        if not symops:
+            # Try to parse symbol
+            for symmetry_label in ["_symmetry_space_group_name_H-M",
+                                   "_symmetry_space_group_name_H_M",
+                                   "_symmetry_space_group_name_H-M_",
+                                   "_symmetry_space_group_name_H_M_",
+                                   "_space_group_name_Hall",
+                                   "_space_group_name_Hall_",
+                                   "_space_group_name_H-M_alt",
+                                   "_space_group_name_H-M_alt_",
+                                   "_symmetry_space_group_name_hall",
+                                   "_symmetry_space_group_name_hall_",
+                                   "_symmetry_space_group_name_h-m",
+                                   "_symmetry_space_group_name_h-m_"]:
+
+                if data.data.get(symmetry_label):
+                    try:
+                        spg = space_groups.get(sub_spgrp(
+                                        data.data.get(symmetry_label)))
+                        if spg:
+                            symops = SpaceGroup(spg).symmetry_ops
+                            break
+                    except ValueError:
+                        continue
+        if not symops:
+            # Try to parse International number
+            for symmetry_label in ["_space_group_IT_number",
+                                   "_space_group_IT_number_",
+                                   "_symmetry_Int_Tables_number",
+                                   "_symmetry_Int_Tables_number_"]:
+                if data.data.get(symmetry_label):
+                    try:
+                        symops = SpaceGroup.from_int_number(str2float(
+                            data.data.get(symmetry_label))).symmetry_ops
+                        break
+                    except ValueError:
+                        continue
+
+        if not symops:
+            warnings.warn("No _symmetry_equiv_pos_as_xyz type key found. "
+                          "Defaulting to P1.")
+            symops = [SymmOp.from_xyz_string(s) for s in ['x', 'y', 'z']]
+
+        return symops
+
+    def parse_oxi_states(self, data):
+        """
+        Parse oxidation states from data dictionary
+        """
         try:
-            oxi_states = {
-                data["_atom_type_symbol"][i]:
+            oxi_states = { data["_atom_type_symbol"][i]:
                 str2float(data["_atom_type_oxidation_number"][i])
                 for i in range(len(data["_atom_type_symbol"]))}
+            #attempt to strip oxidation state from _atom_type_symbol
+            # in case the label does not contain an oxidation state
+            for i, symbol in enumerate(data["_atom_type_symbol"]):
+                oxi_states[re.sub(r"\d?[\+,\-]?$", "", symbol)] = \
+                    str2float(data["_atom_type_oxidation_number"][i])
+
         except (ValueError, KeyError):
             oxi_states = None
 
+        return oxi_states
+
+    def _get_structure(self, data, primitive, substitution_dictionary=None):
+        """
+        Generate structure from part of the cif.
+        """
+        # Symbols often representing
+        #common representations for elements/water in cif files
+        special_symbols = {"D":"D", "Hw":"H", "Ow":"O", "Wat":"O", "wat": "O"}
+        elements = map(str, ptable.all_elements)
+
+        lattice = self.get_lattice(data)
+        self.symmetry_operations = self.get_symops(data)
+        oxi_states = self.parse_oxi_states(data)
+
         coord_to_species = OrderedDict()
+
+        def parse_symbol(sym):
+
+            if substitution_dictionary:
+                return substitution_dictionary.get(sym)
+            else:
+                m = re.findall(r"w?[A-Z][a-z]*", sym)
+                if m and m != "?":
+                    return m[0]
+                return ""
+
         for i in range(len(data["_atom_site_label"])):
             symbol = parse_symbol(data["_atom_site_label"][i])
 
+            if symbol:
+                if symbol not in elements and symbol not in special_symbols:
+                    symbol = symbol[:2]
+            else:
+                continue
             # make sure symbol was properly parsed from _atom_site_label
             # otherwise get it from _atom_site_type_symbol
             try:
-                Element(symbol)
+                if symbol in special_symbols:
+                    get_el_sp(special_symbols.get(symbol))
+                else:
+                    Element(symbol)
             except KeyError:
-                symbol = parse_symbol(data["_atom_site_type_symbol"][i])
-
-            if oxi_states is not None:
                 # sometimes the site doesn't have the type_symbol.
                 # we then hope the type_symbol can be parsed from the label
                 if "_atom_site_type_symbol" in data.data.keys():
-                    k = data["_atom_site_type_symbol"][i]
+                    symbol = data["_atom_site_type_symbol"][i]
+
+            if oxi_states is not None:
+                if symbol in special_symbols:
+                    el = get_el_sp(special_symbols.get(symbol) +
+                                   str(oxi_states[symbol]))
                 else:
-                    k = symbol
-                el = Specie(symbol, oxi_states[k])
+                    el = Specie(symbol, oxi_states.get(symbol, 0))
             else:
-                el = Element(symbol)
+
+                el = get_el_sp(special_symbols.get(symbol) if \
+                            symbol in special_symbols else symbol)
+
             x = str2float(data["_atom_site_fract_x"][i])
             y = str2float(data["_atom_site_fract_y"][i])
             z = str2float(data["_atom_site_fract_z"][i])
@@ -351,25 +493,40 @@ class CifParser(object):
                 else:
                     coord_to_species[coord][el] = occu
 
+
+        coord_to_species = {k: Composition(v)
+                            for k, v in coord_to_species.items()}
         allspecies = []
         allcoords = []
 
-        for coord, species in coord_to_species.items():
-            coords = self._unique_coords(coord)
-            allcoords.extend(coords)
-            allspecies.extend(len(coords) * [species])
+        if coord_to_species.items():
+            for species, group in groupby(
+                    sorted(list(coord_to_species.items()), key=lambda x: x[1]),
+                    key=lambda x: x[1]):
 
-        #rescale occupancies if necessary
-        for species in allspecies:
-            totaloccu = sum(species.values())
-            if 1 < totaloccu <= self._occupancy_tolerance:
-                for key, value in six.iteritems(species):
-                    species[key] = value / totaloccu
+                tmp_coords = [site[0] for site in group]
 
-        struct = Structure(lattice, allspecies, allcoords)
-        if primitive:
-            struct = struct.get_primitive_structure().get_reduced_structure()
-        return struct.get_sorted_structure()
+                coords = self._unique_coords(tmp_coords)
+
+                allcoords.extend(coords)
+                allspecies.extend(len(coords) * [species])
+
+            #rescale occupancies if necessary
+            for species in allspecies:
+                totaloccu = sum(species.values())
+                if 1 < totaloccu <= self._occupancy_tolerance:
+                    for key, value in six.iteritems(species):
+                        species[key] = value / totaloccu
+
+        if allspecies and len(allspecies) == len(allcoords):
+
+            struct = Structure(lattice, allspecies, allcoords)
+            struct = struct.get_sorted_structure()
+
+            if primitive:
+                struct = struct.get_primitive_structure()
+                struct = struct.get_reduced_structure()
+            return struct
 
     def get_structures(self, primitive=True):
         """
@@ -386,13 +543,14 @@ class CifParser(object):
         structures = []
         for d in self._cif.data.values():
             try:
-                structures.append(self._get_structure(d, primitive))
-            except KeyError as exc:
+                s = self._get_structure(d, primitive)
+                if s:
+                    structures.append(s)
+            except (KeyError, ValueError) as exc:
                 # Warn the user (Errors should never pass silently)
                 # A user reported a problem with cif files produced by Avogadro
                 # in which the atomic coordinates are in Cartesian coords.
                 warnings.warn(str(exc))
-
         return structures
 
     def as_dict(self):
@@ -404,35 +562,28 @@ class CifParser(object):
         return d
 
 
-class CifWriter:
+class CifWriter(object):
     """
     A wrapper around CifFile to write CIF files from pymatgen structures.
 
     Args:
-        struct (Structure): A pymatgen.core.structure.Structure object.
-        find_spacegroup (bool): Whether to find spacegroup.
-            If so, spacegroup information is written.
+        struct (Structure): structure to write
+        symprec (float): If not none, finds the symmetry of the structure
+            and writes the cif with symmetry information. Passes symprec
+            to the SpacegroupAnalyzer
     """
 
-    def __init__(self, struct, find_spacegroup=False, symprec=None):
-        """
-        Args:
-            struct (Structure): structure to write
-            find_spacegroup (bool): whether to try to determine the spacegroup
-            symprec (float): If not none, finds the symmetry of the structure and
-                writes the cif with symmetry information. Passes symprec to the
-                SpacegroupAnalyzer
-        """
+    def __init__(self, struct, symprec=None):
         format_str = "{:.8f}"
-        
+
         block = OrderedDict()
         loops = []
         latt = struct.lattice
         comp = struct.composition
         no_oxi_comp = comp.element_composition
         spacegroup = ("P 1", 1)
-        if find_spacegroup:
-            sf = SpacegroupAnalyzer(struct, 0.001)
+        if symprec is not None:
+            sf = SpacegroupAnalyzer(struct, symprec)
             spacegroup = (sf.get_spacegroup_symbol(),
                           sf.get_spacegroup_number())
         block["_symmetry_space_group_name_H-M"] = spacegroup[0]
@@ -459,7 +610,24 @@ class CifWriter:
             block["_symmetry_equiv_pos_as_xyz"] = ["x, y, z"]
         else:
             sf = SpacegroupAnalyzer(struct, symprec)
-            ops = [op.as_xyz_string() for op in sf.get_symmetry_operations()]
+
+            def round_symm_trans(i):
+
+                for t in TRANSLATIONS.values():
+                    if abs(i - t) < symprec:
+                        return t
+                if abs(i % 1 - 1) < symprec:
+                    return 0
+                raise ValueError("Invalid translation!")
+
+            symmops = []
+            for op in sf.get_symmetry_operations():
+                v = op.translation_vector
+                v = [round_symm_trans(i) for i in v]
+                symmops.append(SymmOp.from_rotation_and_translation(
+                    op.rotation_matrix, v))
+
+            ops = [op.as_xyz_string() for op in symmops]
             block["_symmetry_equiv_pos_site_id"] = \
                 ["%d" % i for i in range(1, len(ops) + 1)]
             block["_symmetry_equiv_pos_as_xyz"] = ops
@@ -473,7 +641,7 @@ class CifWriter:
                 (el.__str__(), float(el.oxi_state))
                 for el in sorted(comp.elements)])
         except AttributeError:
-            symbol_to_oxinum = OrderedDict([(el.symbol, 0) for el in 
+            symbol_to_oxinum = OrderedDict([(el.symbol, 0) for el in
                                             sorted(comp.elements)])
             contains_oxidation = False
         if contains_oxidation:
@@ -501,11 +669,20 @@ class CifWriter:
                     atom_site_occupancy.append(occu.__str__())
                     count += 1
         else:
-            for group in sf.get_symmetrized_structure().equivalent_sites:
-                site = group[0]
+            # The following just presents a deterministic ordering.
+            unique_sites = [
+                (sorted(sites, key=lambda s: tuple([abs(x) for x in
+                                                   s.frac_coords]))[0],
+                 len(sites))
+                for sites in sf.get_symmetrized_structure().equivalent_sites
+            ]
+            for site, mult in sorted(
+                    unique_sites,
+                    key=lambda t: (t[0].species_and_occu.average_electroneg,
+                                   -t[1], t[0].a, t[0].b, t[0].c)):
                 for sp, occu in site.species_and_occu.items():
                     atom_site_type_symbol.append(sp.__str__())
-                    atom_site_symmetry_multiplicity.append("%d" % len(group))
+                    atom_site_symmetry_multiplicity.append("%d" % mult)
                     atom_site_fract_x.append("{0:f}".format(site.a))
                     atom_site_fract_y.append("{0:f}".format(site.b))
                     atom_site_fract_z.append("{0:f}".format(site.c))

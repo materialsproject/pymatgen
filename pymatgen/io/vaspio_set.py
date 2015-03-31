@@ -309,16 +309,30 @@ class DictVaspInputSet(AbstractVaspInputSet):
             structure = structure.get_sorted_structure()
         return Poscar(structure)
 
-    def get_potcar(self, structure):
+    def get_potcar(self, structure, check_hash=False):
         if self.reduce_structure:
             structure = structure.get_reduced_structure(self.reduce_structure)
         if self.sort_structure:
             structure = structure.get_sorted_structure()
         if self.potcar_functional:
-            return Potcar(self.get_potcar_symbols(structure),
+            p = Potcar(self.get_potcar_symbols(structure),
                           functional=self.potcar_functional)
         else:
-            return Potcar(self.get_potcar_symbols(structure))
+            p = Potcar(self.get_potcar_symbols(structure))
+
+        if check_hash:
+            hash_check = [ps.hash == self.potcar_settings[ps.element][
+                                                        'hash'] for ps in p]
+            if all(hash_check):
+                return p
+            else:
+                wrong_hashes = [p.symbols[i] for i, tf in enumerate(
+                                                    hash_check) if not tf]
+                raise ValueError("Potcars {} have different hashes "
+                                 "than those specified in the config "
+                                 "dictionary".format(wrong_hashes))
+        else:
+            return p
 
     def get_nelect(self, structure):
         """
@@ -337,9 +351,16 @@ class DictVaspInputSet(AbstractVaspInputSet):
         p = self.get_poscar(structure)
         elements = p.site_symbols
         potcar_symbols = []
-        for el in elements:
-            potcar_symbols.append(self.potcar_settings[el]
-                                  if el in self.potcar_settings else el)
+
+        if isinstance(self.potcar_settings[elements[-1]], dict):
+            for el in elements:
+                potcar_symbols.append(self.potcar_settings[el]['symbol']
+                                      if el in self.potcar_settings else el)
+        else:
+            for el in elements:
+                potcar_symbols.append(self.potcar_settings[el]
+                                      if el in self.potcar_settings else el)
+
         return potcar_symbols
 
     def get_kpoints(self, structure):
