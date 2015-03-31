@@ -121,7 +121,7 @@ class MoleculeStructureComparator(PMGSONable):
                                   list(itertools.chain(*[list(itertools.combinations(p, 2))
                                                          for p in all_13_bond_atoms]))])
         bonds_13 = all_2_and_13_bonds - set([tuple(b) for b in priority_bonds])
-        return tuple(bonds_13)
+        return tuple(sorted(bonds_13))
 
     def _get_bonds(self, mol):
         """

@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 import os
 from unittest import TestCase
+import unittest
 from pymatgen.analysis.molecule_structure_comparator import \
     MoleculeStructureComparator
 from pymatgen.core.structure import Molecule
@@ -92,6 +93,9 @@ class TestMoleculeStructureComparator(TestCase):
     def test_get_13_bonds(self):
         priority_bonds = [[0, 1], [0, 2], [1, 3], [1, 4], [1, 7], [2, 5], [2, 6], [2, 8], [4, 6], [4, 10], [6, 9]]
         bonds_13 = MoleculeStructureComparator.get_13_bonds(priority_bonds)
-        ans = ((1, 2), (4, 7), (4, 9), (6, 8), (2, 9), (5, 6), (6, 10), (0, 5), (0, 7), (0, 6), (1, 6), (0, 4),
-               (1, 10), (3, 7), (0, 3), (0, 8), (3, 4), (2, 4), (5, 8))
-        self.assertEqual(bonds_13, ans)
+        ans = ((0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8), (1, 2), (1, 6), (1, 10), (2, 4), (2, 9), (3, 4),
+               (3, 7), (4, 7), (4, 9), (5, 6), (5, 8), (6, 8), (6, 10))
+        self.assertEqual(bonds_13, tuple(ans))
+
+if __name__ == '__main__':
+    unittest.main()
