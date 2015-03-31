@@ -31,7 +31,7 @@ from pymatgen.core.units import Memory
 from . import wrappers
 from .nodes import Status, Node, NodeError, NodeResults, Dependency, GarbageCollector, check_spectator
 from .tasks import ScfTask, DdkTask, DdeTask, TaskManager, FixQueueCriticalError
-from .utils import Directory, Editor
+from .utils import File, Directory, Editor
 from .abiinspect import yaml_read_irred_perts
 from .works import NodeContainer, Work, BandStructureWork, PhononWork, G0W0Work, QptdmWork
 
@@ -540,6 +540,9 @@ class Flow(Node, NodeContainer, PMGSONable):
         nids = as_set(nids)
 
         if status is None:
+            if not (nids and self.node_id not in nids): 
+                yield self
+
             for work in self:
                 if nids and work.node_id not in nids: continue
                 yield work
@@ -552,6 +555,9 @@ class Flow(Node, NodeContainer, PMGSONable):
 
             # Accept Task.S_FLAG or string.
             status = Status.as_status(status)
+
+            if not (nids and self.node_id not in nids): 
+                if op(self.status, status): yield self
 
             for wi, work in enumerate(self):
                 if nids and work.node_id not in nids: continue
@@ -838,6 +844,28 @@ class Flow(Node, NodeContainer, PMGSONable):
             lines.append(2*"\n" + 80 * "=" + "\n" + s + 2*"\n")
 
         stream.writelines(lines)
+    
+    def listext(self, ext, stream=sys.stdout):
+        """
+        Print to the given stream a table with the list of the output files with the given ext 
+        produced by the flow.
+        """
+        nodes_files = []
+        for node in self.iflat_nodes():
+            filepath = node.outdir.has_abiext(ext)
+            if filepath:
+                nodes_files.append((node, File(filepath)))
+
+        if nodes_files:
+            print("Found %s files with extension %s produced by the flow" % (len(nodes_files), ext), file=stream)
+
+            table = PrettyTable(["File", "Size [Mb]", "Node_ID", "Node Class"])
+            for node, f in nodes_files:
+                table.add_row([f.relpath, "%.2f" % (f.get_stat().st_size / 1024**2), node.node_id, node.__class__.__name__])
+            print(table, file=stream)
+
+        else:
+            print("No output file with extension %s has been produced by the flow" % ext, file=stream)
 
     def select_tasks(self, nids=None, wslice=None):
         """
