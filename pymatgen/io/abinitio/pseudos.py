@@ -618,7 +618,12 @@ def _int_from_str(string):
     if float_num == int_num:
         return int_num
     else:
-        raise TypeError("Cannot convert string %s to int" % string)
+        # Needed to handle pseudos with fractional charge
+        from warning import warn
+        int_num = np.rint(float_num)
+        warn("Converting float %s to int %s" % (float_num, int_num))
+        return int_num
+        #raise TypeError("Cannot convert string %s to int" % string)
 
 
 class NcAbinitHeader(AbinitHeader):
