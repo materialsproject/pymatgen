@@ -7,6 +7,7 @@ from unittest import TestCase
 from pymatgen.analysis.molecule_structure_comparator import \
     MoleculeStructureComparator
 from pymatgen.core.structure import Molecule
+from pymatgen.io.qchemio import QcOutput
 
 __author__ = 'xiaohuiqu'
 
@@ -78,3 +79,19 @@ class TestMoleculeStructureComparator(TestCase):
         d1 = msc2.as_dict()
         d2 = MoleculeStructureComparator.from_dict(d1).as_dict()
         self.assertEqual(d1, d2)
+
+    def test_structural_change_in_geom_opt(self):
+        qcout_path = os.path.join(test_dir, "mol_1_3_bond.qcout")
+        qcout = QcOutput(qcout_path)
+        mol1 = qcout.data[0]["molecules"][0]
+        mol2 = qcout.data[0]["molecules"][-1]
+        priority_bonds = [[0, 1], [0, 2], [1, 3], [1, 4], [1, 7], [2, 5], [2, 6], [2, 8], [4, 6], [4, 10], [6, 9]]
+        msc = MoleculeStructureComparator(priority_bonds=priority_bonds)
+        self.assertTrue(msc.are_equal(mol1, mol2))
+
+    def test_get_13_bonds(self):
+        priority_bonds = [[0, 1], [0, 2], [1, 3], [1, 4], [1, 7], [2, 5], [2, 6], [2, 8], [4, 6], [4, 10], [6, 9]]
+        bonds_13 = MoleculeStructureComparator.get_13_bonds(priority_bonds)
+        ans = ((1, 2), (4, 7), (4, 9), (6, 8), (2, 9), (5, 6), (6, 10), (0, 5), (0, 7), (0, 6), (1, 6), (0, 4),
+               (1, 10), (3, 7), (0, 3), (0, 8), (3, 4), (2, 4), (5, 8))
+        self.assertEqual(bonds_13, ans)
