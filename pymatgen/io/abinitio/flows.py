@@ -847,8 +847,8 @@ class Flow(Node, NodeContainer, PMGSONable):
     
     def listext(self, ext, stream=sys.stdout):
         """
-        Print to the given stream a table with the list of the output files with the given ext 
-        produced by the flow.
+        Print to the given stream a table with the list of the output files 
+        with the given ext produced by the flow.
         """
         nodes_files = []
         for node in self.iflat_nodes():
@@ -1180,7 +1180,7 @@ class Flow(Node, NodeContainer, PMGSONable):
                 node_id = int(fh.read())
 
             if self.node_id != node_id:
-                msg = ("Found node_id %s in file %s\nwhile the node_id of the present flow is %d" 
+                msg = ("Found node_id %s in file %s\nwhile the node_id of the present flow is %d " 
                        "This means that you are trying to build a new flow in a directory already\n"
                        "used by another flow. Change the workdir of the new flow or remove the old directory!"
                         % (node_id, nodeid_path, self.node_id))
@@ -2042,6 +2042,24 @@ def g0w0_flow(workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=N
 
 
 class PhononFlow(Flow):
+
+    def open_final_ddb(self):
+        """
+        Open the DDB file located in the in self.outdir.
+        Returns :class:`DdbFile` object, None if file could not be found or file is not readable.
+        """
+        ddb_path = self.outdir.has_abiext("DDB")
+        if not ddb_path:
+            if self.status == self.S_OK:
+                logger.critical("%s reached S_OK but didn't produce a GSR file in %s" % (self, self.outdir))
+            return None
+
+        from abipy.dfpt.ddb import DdbFile
+        try:
+            return DdbFile(ddb_path)
+        except Exception as exc:
+            logger.critical("Exception while reading DDB file at %s:\n%s" % (ddb_path, str(exc)))
+            return None
 
     def finalize(self):
         """This method is called when the flow is completed."""

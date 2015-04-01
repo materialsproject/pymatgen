@@ -1256,7 +1256,15 @@ class PhononWork(Work, MergeDdb):
     """
     @classmethod
     def from_scf_task(cls, scf_task, qpt, tolerance=None):
+        """
+        Construct a `PhononWork` from a :class:`ScfTask` object.
+        The input file for phonons is automatically generated from the input of the ScfTask.
+        Each phonon task depends on the WFK file produced by scf_task.
 
+        Args:
+            scf_task: ScfTask object. 
+            qpt: q-point for phonons in reduced coordinates.
+        """
         if not isinstance(scf_task, ScfTask):
             raise TypeError("task %s does not inherit from ScfTask" % scf_task)
 
