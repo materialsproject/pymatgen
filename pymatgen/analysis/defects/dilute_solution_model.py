@@ -9,6 +9,7 @@ and defect energies using "Dilute Solution Model"
 Reference: Phys Rev B, 63, 094103, 2001,
 "Density of constitutional and thermal point defects in L12 Al3Sc",
 C. Woodward, M. Asta, G. Kresse and J. Hafner.
+Manual and citation for the code, DOI: 10.1016/j.cpc.2015.03.015
 """
 
 
@@ -240,8 +241,8 @@ def dilute_solution_model(structure, e0, vac_defs, antisite_defs, T,
     used_dEs = []
     for p_r in range(n):
         for epi in range(n):
-            sum_mu = sum([mu[site_mu_map[j]]*Float(
-                    dC[j,epi,p_r]) for j in range(n)])
+            sum_mu = sum([mu[site_mu_map[j]]*dC[j,epi,p_r] \
+                    for j in range(n)])
             if p_r != epi and site_mu_map[p_r] == site_mu_map[epi]:
                 continue
             if dE[epi,p_r] not in used_dEs:
