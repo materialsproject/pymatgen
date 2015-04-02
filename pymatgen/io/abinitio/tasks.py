@@ -871,20 +871,22 @@ batch_adapter:
 
         # Write the submission script
         script_file = self.write_jobfile(task, **kwargs)
-        task.set_status(task.S_SUB)
 
         # Submit the task and save the queue id.
         try:
             qjob, process = self.qadapter.submit_to_queue(script_file)
+            task.set_status(task.S_SUB)
             task.set_qjob(qjob)
             return process
 
-        except self.qadapter.MaxNumLaunchesError:
+        except self.qadapter.MaxNumLaunchesError as exc:
             # TODO: Here we should try to switch to another qadapter
             # 1) Find a new parallel configuration in those stored in task.pconfs
             # 2) Change the input file.
             # 3) Regenerate the submission script
             # 4) Relaunch
+            msg = "max_num_launches reached: %s" % str(exc)
+            task.set_status(task.S_ERROR, msg=msg)
             raise
 
     def get_collection(self, **kwargs):
@@ -2575,7 +2577,11 @@ class AbinitTask(Task):
 
         # Move files to reset and append digit with reset index.
         def move_file(f):
-            f.move(os.path.join(reset_dir, f.basename + "_" + str(num_reset)))
+            try:
+                f.move(os.path.join(reset_dir, f.basename + "_" + str(num_reset)))
+            except IOError as exc:
+                logger.warning("Couldn't move file {}. exc: {}".format(f, str(exc)))
+
 
         move_file(self.output_file)
         move_file(self.log_file)
