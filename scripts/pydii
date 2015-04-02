@@ -467,7 +467,7 @@ def get_solute_def_profile(args):
 
     mpid = args.mpid 
     solute = args.solute 
-    solute_conc = args.solute_conc 
+    solute_conc = args.solute_conc/100.0
     T = args.T 
 
     def_file = mpid + '_raw_defect_energy.json'
@@ -481,6 +481,7 @@ def get_solute_def_profile(args):
     vacs = raw_energy_dict[mpid]['vacancies']
     antisites = raw_energy_dict[mpid]['antisites']
     solutes = sol_raw_energy_dict[mpid]['solutes']
+
     for vac_def in vacs:
         if not vac_def:
             print 'All vacancy defect energies not present'
@@ -600,7 +601,7 @@ def main():
     parser_sol_conc.add_argument("--sol_conc", type=float, default=1.0,
             dest="solute_conc", 
             help="Solute Concentration in %. Default is 1%")
-    parser_sol_conc.add_argument('-T', "--temp", type=float, default=1000,
+    parser_sol_conc.add_argument('-T', "--temp", type=float, default=1000.0,
             dest="T", help="Temperature in Kelvin")
     parser_sol_conc.set_defaults(func=get_solute_def_profile)
 
