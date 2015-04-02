@@ -669,11 +669,20 @@ class CifWriter(object):
                     atom_site_occupancy.append(occu.__str__())
                     count += 1
         else:
-            for group in sf.get_symmetrized_structure().equivalent_sites:
-                site = group[0]
+            # The following just presents a deterministic ordering.
+            unique_sites = [
+                (sorted(sites, key=lambda s: tuple([abs(x) for x in
+                                                   s.frac_coords]))[0],
+                 len(sites))
+                for sites in sf.get_symmetrized_structure().equivalent_sites
+            ]
+            for site, mult in sorted(
+                    unique_sites,
+                    key=lambda t: (t[0].species_and_occu.average_electroneg,
+                                   -t[1], t[0].a, t[0].b, t[0].c)):
                 for sp, occu in site.species_and_occu.items():
                     atom_site_type_symbol.append(sp.__str__())
-                    atom_site_symmetry_multiplicity.append("%d" % len(group))
+                    atom_site_symmetry_multiplicity.append("%d" % mult)
                     atom_site_fract_x.append("{0:f}".format(site.a))
                     atom_site_fract_y.append("{0:f}".format(site.b))
                     atom_site_fract_z.append("{0:f}".format(site.c))

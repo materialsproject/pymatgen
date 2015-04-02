@@ -4,7 +4,7 @@ from __future__ import division, unicode_literals
 
 """
 A script with tools for computing point defect concentrations.
-Reference: PyDII
+Manual and citation for the script, DOI: 10.1016/j.cpc.2015.03.015
 """
 
 __author__ = "Bharat Medasani"
@@ -16,12 +16,8 @@ __date__ = "March 16, 2015"
 
 import argparse
 import os
-import re
-import logging
-import multiprocessing
-import sys
-import datetime
 import json
+import glob
 
 from monty.serialization import loadfn, dumpfn
 from monty.json import MontyEncoder, MontyDecoder
@@ -33,8 +29,7 @@ from pymatgen.io.vaspio import Vasprun
 from pymatgen.matproj.rest import MPRester
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.defects.dilute_solution_model import \
-            solute_site_preference_finder, compute_defect_density, \
-            solute_defect_density
+            compute_defect_density, solute_defect_density
 
 
 
@@ -47,7 +42,11 @@ def get_sc_scale(inp_struct, final_site_no):
     return num_mult
 
 
-def vac_antisite_def_struct_gen(mpid, mapi_key, cellmax):
+def vac_antisite_def_struct_gen(args):
+    mpid = args.mpid
+    mapi_key = args.mapi_key
+    cellmax = args.cellmax
+
     if not mpid:
         print ("============\nERROR: Provide an mpid\n============")
         return
@@ -161,7 +160,12 @@ def vac_antisite_def_struct_gen(mpid, mapi_key, cellmax):
                 kpoints.write_file(os.path.join(fin_dir,'KPOINTS'))
 
 
-def substitute_def_struct_gen(mpid, solute, mapi_key, cellmax):
+def substitute_def_struct_gen(args):
+    mpid = args.mpid 
+    solute = args.solute 
+    mapi_key = args.mapi_key 
+    cellmax = args.cellmax 
+
     if not mpid:
         print ("============\nERROR: Provide an mpid\n============")
         return
@@ -247,7 +251,11 @@ def substitute_def_struct_gen(mpid, solute, mapi_key, cellmax):
             potcar.write_file(os.path.join(fin_dir,'POTCAR'))
 
 
-def solute_def_parse_energy(mpid, solute, mapi_key=None):
+def solute_def_parse_energy(args):
+    mpid = args.mpid 
+    solute = args.solute 
+    mapi_key = args.mapi_key 
+
     if not mpid:
         print ("============\nERROR: Provide an mpid\n============")
         return 
@@ -314,12 +322,14 @@ def solute_def_parse_energy(mpid, solute, mapi_key=None):
             solute['energy'] = solute_flip_energy
         solutes.sort(key=lambda entry: entry['site_index'])
         energy_dict[mpid] = {'solutes':solutes}
-        return energy_dict
+        fl_nm = mpid+'_solute-'+args.solute+'_raw_defect_energy.json'
+        dumpfn(energy_dict, fl_nm, indent=2, cls=MontyEncoder)
 
-    return {} # Return Null dict due to failure
 
+def vac_antisite_def_parse_energy(args):
+    mpid = args.mpid
+    mapi_key = args.mapi_key 
 
-def vac_antisite_def_parse_energy(mpid, mapi_key=None):
     if not mpid:
         print ("============\nERROR: Provide an mpid\n============")
         return 
@@ -395,12 +405,21 @@ def vac_antisite_def_parse_energy(mpid, mapi_key=None):
         antisites.sort(key=lambda entry: entry['site_index'])
         energy_dict[unicode(mpid)] = {u"structure":structure,
                 'e0':e0,'vacancies':vacancies,'antisites':antisites}
-        return energy_dict
 
-    return {} # Return Null dict due to failure
+        fl_nm = args.mpid+'_raw_defect_energy.json'
+        dumpfn(energy_dict, fl_nm, cls=MontyEncoder, indent=2)
 
 
-def get_def_profile(mpid, T,  file):
+def get_def_profile(args):
+    if not args.mpid and not args.file:
+        print ("------------\nERROR: mpid is not given.\n========")
+        return
+    mpid = args.mpid 
+    T = args.T
+    if args.file:
+        file = args.file 
+    else:
+        file = mpid+'_raw_defect_energy.json'
 
     raw_energy_dict = loadfn(file,cls=MontyDecoder)
 
@@ -422,15 +441,38 @@ def get_def_profile(mpid, T,  file):
     try:
         def_conc, def_en, mu = compute_defect_density(struct, e0, vacs, antisites, T,
                 plot_style='gnuplot')
-        return def_conc, def_en, mu
+        fl_nm = mpid+'_def_concentration.dat'
+        with open(fl_nm,'w') as fp:
+            for row in def_conc:
+                print >> fp, row
+        fl_nm = mpid+'_def_energy.dat'
+        with open(fl_nm,'w') as fp:
+            for row in def_en:
+                print >> fp, row
+        fl_nm = mpid+'_chem_pot.dat'
+        with open(fl_nm,'w') as fp:
+            for row in mu:
+                print >> fp, row
     except:
         raise
 
 
-def get_solute_def_profile(mpid, solute, solute_conc, T, def_file, sol_file, 
-        trial_chem_pot):
+def get_solute_def_profile(args):
+    if not args.mpid:
+        print ('===========\nERROR: mpid is not given.\n===========')
+        return
+    if not args.solute:
+        print ('===========\nERROR: Solute atom is not given.\n===========')
+        return
 
+    mpid = args.mpid 
+    solute = args.solute 
+    solute_conc = args.solute_conc 
+    T = args.T 
+
+    def_file = mpid + '_raw_defect_energy.json'
     raw_energy_dict = loadfn(def_file,cls=MontyDecoder)
+    sol_file = mpid+'_solute-'+solute+'_raw_defect_energy.json'
     sol_raw_energy_dict = loadfn(sol_file,cls=MontyDecoder)
 
     #try:
@@ -455,8 +497,11 @@ def get_solute_def_profile(mpid, solute, solute_conc, T, def_file, sol_file,
     try:
         def_conc = solute_defect_density(struct, e0, vacs, 
                 antisites, solutes, solute_concen=solute_conc, T=T, 
-                trial_chem_pot=trial_chem_pot, plot_style="gnuplot")
-        return  def_conc
+                plot_style="gnuplot")
+        fl_nm = args.mpid+'_solute-'+args.solute+'_def_concentration.dat'
+        with open(fl_nm,'w') as fp: 
+            for row in def_conc:
+                print >> fp, row 
     except:
         raise
 
@@ -477,7 +522,7 @@ def main():
                 "For more info on Materials Project, please refer to " \
                 "www.materialsproject.org"
     MAPI_string = "Your Materials Project REST API key.\nFor more info, " \
-                  "please refer to www.materialsproject.org/opne")
+                  "please refer to www.materialsproject.org/opne"
     cell_string = "Maximum number of atoms in supercell.\n" \
                   "The default is 128.\n" \
                   "Keep in mind the number of atoms in the supercell " \
@@ -490,8 +535,7 @@ def main():
     parser_vasp_inp.add_argument("--mapi_key", default = None, 
             dest="mapi_key", help=MAPI_string)
     parser_vasp_inp.add_argument("--cellmax", type=int, default=128, 
-            dest="cell_max", help=cell_string)
-
+            dest="cellmax", help=cell_string)
     parser_vasp_inp.set_defaults(func=vac_antisite_def_struct_gen)
 
 
@@ -504,8 +548,7 @@ def main():
     parser_sol_vasp_inp.add_argument("--mapi_key", default = None, 
             dest="mapi_key", help=MAPI_string)
     parser_sol_vasp_inp.add_argument("--cellmax", type=int, default=128, 
-            dest="cell_max", help=cell_string)
-
+            dest="cellmax", help=cell_string)
     parser_sol_vasp_inp.set_defaults(func=substitute_def_struct_gen)
 
 
@@ -517,13 +560,7 @@ def main():
             help=MP_string)
     parser_vasp_out.add_argument("--mapi_key", default = None, dest="mapi_key",
             help=MAPI_string)
-
     parser_vasp_out.set_defaults(func=vac_antisite_def_parse_energy)
-
-    energy_dict = vac_antisite_def_parse_energy(args.mpid, args.mapi_key)
-    if energy_dict:
-        fl_nm = args.mpid+'_raw_defect_energy.json'
-        dumpfn(energy_dict, fl_nm, cls=MontyEncoder, indent=2)
 
 
     parser_sol_vasp_out = subparsers.add_parser("gen_sol_def_energy", 
@@ -536,7 +573,6 @@ def main():
             help="Solute Element")
     parser_sol_vasp_out.add_argument("--mapi_key", default = None, 
             dest="mapi_key", help=MAPI_string)
-
     parser_sol_vasp_out.set_defaults(func=solute_def_parse_energy)
 
 
@@ -551,7 +587,7 @@ def main():
     parser_conc.add_argument("--file", default = None, dest="file",
             help = "The default file is 'mpid'+'_raw_defect_energy.json'.\n" \
                    "If the file is named differently supply it.")
-    parser_sol_vasp_out.set_defaults(func=get_def_profile)
+    parser_conc.set_defaults(func=get_def_profile)
 
 
     parser_sol_conc = subparsers.add_parser("gen_sol_site_pref", 
@@ -566,10 +602,7 @@ def main():
             help="Solute Concentration in %. Default is 1%")
     parser_sol_conc.add_argument('-T', "--temp", type=float, default=1000,
             dest="T", help="Temperature in Kelvin")
-    parser_sol_conc.add_argument("--file", default = None, dest="file",
-            help = "The default file is 'mpid'+'_raw_defect_energy.json'.\n" \
-                   "If the file is named differently supply it.")
-    parser_sol_vasp_out.set_defaults(func=get_solute_def_profile)
+    parser_sol_conc.set_defaults(func=get_solute_def_profile)
 
 
     args = parser.parse_args()

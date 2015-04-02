@@ -1313,7 +1313,9 @@ class QcOutput(object):
             (re.compile("Application \d+ exit signals: Killed"),
                 "Killed"),
             (re.compile("UNABLE TO DETERMINE Lamda IN FormD"),
-                "Lamda Determination Failed")
+                "Lamda Determination Failed"),
+            (re.compile("Job too small. Please specify .*CPSCF_NSEG"),
+                "Freq Job Too Small")
         )
 
         energies = []
