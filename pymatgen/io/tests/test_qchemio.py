@@ -1773,6 +1773,14 @@ $end
                           'Bad SCF convergence',
                           'Geometry optimization failed'])
 
+    def test_freq_seg_too_small(self):
+        filename = os.path.join(test_dir, "freq_seg_too_small.qcout")
+        qcout = QcOutput(filename)
+        self.assertTrue(qcout.data[0]['has_error'])
+        self.assertEqual(qcout.data[0]['errors'],
+                         ['Freq Job Too Small',
+                          'Exit Code 134'])
+
     def test_killed(self):
         filename = os.path.join(test_dir, "killed.qcout")
         qcout = QcOutput(filename)
