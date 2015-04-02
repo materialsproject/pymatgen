@@ -405,14 +405,14 @@ limits:
         self._parse_limits(kwargs.pop("limits"))
         self._parse_job(kwargs.pop("job"))
 
+        # List of dictionaries with the parameters used to submit jobs
+        # The launcher will use this information to increase the resources
+        self.launches, self.max_num_launches = [], kwargs.pop("max_num_launches", 10)
+
         if kwargs:
             raise ValueError("Found unknown keywords:\n%s" % kwargs.keys())
 
         self.validate_qparams()
-
-        # List of dictionaries with the parameters used to submit jobs
-        # The launcher will use this information to increase the resources
-        self.launches, self.max_num_launches = [], kwargs.pop("max_num_launches", 10)
 
         # Initialize some values from the info reported in the partition.
         self.set_mpi_procs(self.min_cores)
