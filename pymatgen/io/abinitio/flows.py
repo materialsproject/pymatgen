@@ -13,6 +13,7 @@ import collections
 import warnings
 import shutil
 import copy
+import numpy as np
 
 from pprint import pprint
 from six.moves import map
@@ -33,7 +34,7 @@ from .nodes import Status, Node, NodeError, NodeResults, Dependency, GarbageColl
 from .tasks import ScfTask, DdkTask, DdeTask, TaskManager, FixQueueCriticalError
 from .utils import File, Directory, Editor
 from .abiinspect import yaml_read_irred_perts
-from .works import NodeContainer, Work, BandStructureWork, PhononWork, G0W0Work, QptdmWork
+from .works import NodeContainer, Work, BandStructureWork, PhononWork, BecWork, G0W0Work, QptdmWork
 
 
 import logging
@@ -629,6 +630,20 @@ class Flow(Node, NodeContainer, PMGSONable):
                             yield task, wi, ti
                         else:
                             yield task
+
+    def show_inpvars(self, *varnames):
+        from abipy.htc.variable import InputVariable
+        lines = []
+        app = lines.append
+
+        task2vars = {}
+        for task in self.iflat_tasks():
+            app(str(task))
+            for name in varnames:
+                value = task.input.get(name)
+                app(str(InputVariable(name, value)))
+
+        return "\n".join(lines)
 
     def check_dependencies(self):
         """Test the dependencies of the nodes for possible deadlocks."""
@@ -2042,11 +2057,65 @@ def g0w0_flow(workdir, scf_input, nscf_input, scr_input, sigma_inputs, manager=N
 
 
 class PhononFlow(Flow):
+    """
+        1) One workflow for the GS run.
+
+        2) nqpt works for phonon calculations. Each work contains 
+           nirred tasks where nirred is the number of irreducible phonon perturbations
+           for that particular q-point.
+    """
+    @classmethod
+    def from_scf_input(cls, workdir, scf_input, ph_ngqpt, with_becs=True, manager=None, allocate=True):
+        """
+        Create a `PhononFlow` for phonon calculations from an Abinit ground-state input 
+
+        Args:
+            workdir: Working directory of the flow.
+            scf_input: :class:`AbinitInput` object with the parameters for the GS-SCF run.
+            ph_ngqpt: q-mesh for phonons. Must be a sub-mesh of the k-mesh used for 
+                electrons. e.g if ngkpt = (8, 8, 8). ph_ngqpt = (4, 4, 4) is a valid choice
+                whereas ph_ngqpt = (3, 3, 3) is not!
+            with_becs: True if Born effective charges are wanted.
+            manager: :class:`TaskManager` object.
+            allocate: True if the flow should be allocated before returning.
+
+        Return:
+            :class:`PhononFlow` object.
+        """
+        flow = cls(workdir, manager=manager)
+
+        # Register the SCF task
+        flow.register_scf_task(scf_input)
+        scf_task = flow[0][0]
+
+        # Make sure k-mesh and q-mesh are compatible.
+        scf_ngkpt, ph_ngqpt = np.array(scf_input["ngkpt"]), np.array(ph_ngqpt)
+
+        if any(scf_ngkpt % ph_ngqpt != 0):
+            raise ValueError("ph_ngqpt %s should be a sub-mesh of scf_ngkpt %s" % (ph_ngqpt, scf_ngkpt))
+
+        # Get the q-points in the IBZ from Abinit 
+        qpoints = scf_input.abiget_ibz(ngkpt=ph_ngqpt, shiftk=(0,0,0), kptopt=1).points
+
+        # Create a PhononWork for each q-point. Add DDK and E-field if q == Gamma and with_becs.
+        for qpt in qpoints:
+            if np.allclose(qpt, 0) and with_becs:
+                ph_work = BecWork.from_scf_task(scf_task)
+            else:
+                ph_work = PhononWork.from_scf_task(scf_task, qpt=qpt)
+
+            flow.register_work(ph_work)
+
+        if allocate: flow.allocate()
+
+        return flow
 
     def open_final_ddb(self):
         """
-        Open the DDB file located in the in self.outdir.
-        Returns :class:`DdbFile` object, None if file could not be found or file is not readable.
+        Open the DDB file located in the output directory of the flow.
+
+        Return: 
+            :class:`DdbFile` object, None if file could not be found or file is not readable.
         """
         ddb_path = self.outdir.has_abiext("DDB")
         if not ddb_path:
@@ -2220,4 +2289,38 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
 
     if allocate: flow.allocate()
 
+    return flow
+
+
+def phonon_conv_flow(workdir, scf_input, qpoints, params, manager=None, allocate=True):
+    """
+    Create a :class:`Flow` to perform convergence studies for phonon calculations.
+
+    Args:
+        workdir: Working directory of the flow.
+        scf_input: :class:`AbinitInput` object defining a GS-SCF calculation.
+        qpoints: List of list of lists with the reduced coordinates of the q-point(s).
+        params: 
+            To perform a converge study wrt ecut: params=["ecut", [2, 4, 6]]
+        manager: :class:`TaskManager` object responsible for the submission of the jobs.
+            If manager is None, the object is initialized from the yaml file
+            located either in the working directory or in the user configuration dir.
+        allocate: True if the flow should be allocated before returning.
+
+    Return:
+        :class:`Flow` object.
+    """
+    qpoints = np.reshape(qpoints, (-1, 3))
+
+    flow = Flow(workdir=workdir, manager=manager)
+
+    for qpt in qpoints:
+        for gs_inp in scf_input.product(*params):
+            # Register the SCF task
+            work = flow.register_scf_task(gs_inp)
+
+            # Add the PhononWork connected to this scf_task.
+            flow.register_work(PhononWork.from_scf_task(work[0], qpt=qpt))
+
+    if allocate: flow.allocate()
     return flow

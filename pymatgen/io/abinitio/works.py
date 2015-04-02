@@ -1311,7 +1311,6 @@ class BecWork(Work, MergeDdb):
     This work consists of DDK tasks and phonon + electric fiel perturbation
     It provides the callback method (on_all_ok) that calls mrgddb to merge the partial DDB files produced 
     """
-
     @classmethod
     def from_scf_task(cls, scf_task, ddk_tolerance=None):
         """Build a BecWork from a ground-state task."""
