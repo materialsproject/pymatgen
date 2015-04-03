@@ -296,6 +296,7 @@ class MPRester(object):
         """
         # TODO: This is a very hackish way of doing this. It should be fixed
         # on the REST end.
+
         if compatible_only:
             data = self.get_data(chemsys_formula_id, prop="entry")
             entries = [d["entry"] for d in data]

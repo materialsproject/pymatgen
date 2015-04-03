@@ -52,8 +52,8 @@ class PWInput(object):
             v1 = self.sections[k1]
             out.append("&%s" % k1.upper())
             sub = []
-            for k2, v2 in v1.items():
-                sub.append("  %s = %s" % (k2, to_str(v2)))
+            for k2 in sorted(v1.keys()):
+                sub.append("  %s = %s" % (k2, to_str(v1[k2])))
             if k1 == "system":
                 sub.append("  ibrav = 0")
                 sub.append("  nat = %d" % len(self.structure))
