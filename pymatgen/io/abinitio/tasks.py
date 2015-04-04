@@ -2767,6 +2767,8 @@ class ScfTask(GsTask):
         events.ScfConvergenceWarning,
     ]
 
+    color_rgb = np.array((255, 0, 0)) / 255
+
     def restart(self):
         """SCF calculations can be restarted if we have either the WFK file or the DEN file."""
         # Prefer WFK over DEN files since we can reuse the wavefunctions.
@@ -2825,6 +2827,8 @@ class NscfTask(GsTask):
         events.NscfConvergenceWarning,
     ]
 
+    color_rgb = np.array((255, 122, 122)) / 255
+
     def restart(self):
         """NSCF calculations can be restarted only if we have the WFK file."""
         ext = "WFK"
@@ -2863,6 +2867,8 @@ class RelaxTask(GsTask, ProduceHist):
     CRITICAL_EVENTS = [
         events.RelaxConvergenceWarning,
     ]
+
+    color_rgb = np.array((255, 61, 255)) / 255
 
     def get_final_structure(self):
         """Read the final structure from the GSR file."""
@@ -3058,6 +3064,8 @@ class DdeTask(DfptTask):
 class DdkTask(DfptTask):
     """Task for DDK calculations."""
 
+    color_rgb = np.array((61, 158, 255)) / 255
+
     #@check_spectator 
     def _on_ok(self):
         super(DdkTask, self)._on_ok()
@@ -3080,6 +3088,8 @@ class BecTask(DfptTask):
     bec_deps = {ddk_task: "DDK" for ddk_task in ddk_tasks}
     bec_deps.update({scf_task: "WFK"})
     """
+
+    color_rgb = np.array((122, 122, 255)) / 255
 
     def make_links(self):
         """Replace the default behaviour of make_links"""
@@ -3126,6 +3136,8 @@ class PhononTask(DfptTask):
     CRITICAL_EVENTS = [
         events.ScfConvergenceWarning,
     ]
+
+    color_rgb = np.array((0, 0, 255)) / 255
 
     def restart(self):
         """
@@ -3226,6 +3238,8 @@ class ManyBodyTask(AbinitTask):
 class ScrTask(ManyBodyTask):
     """Tasks for SCREENING calculations """
 
+    color_rgb = np.array((255, 128, 0)) / 255
+
     #def inspect(self, **kwargs):
     #    """Plot graph showing the number of q-points computed and the wall-time used"""
 
@@ -3237,6 +3251,8 @@ class SigmaTask(ManyBodyTask):
     CRITICAL_EVENTS = [
         events.QPSConvergenceWarning,
     ]
+
+    color_rgb = np.array((0, 255, 0)) / 255
 
     def restart(self):
         # G calculations can be restarted only if we have the QPS file 
@@ -3326,6 +3342,8 @@ class BseTask(ManyBodyTask):
         events.HaydockConvergenceWarning,
         #events.BseIterativeDiagoConvergenceWarning,
     ]
+
+    color_rgb = np.array((128, 0, 255)) / 255
 
     def restart(self):
         """
@@ -3438,6 +3456,8 @@ class OpticTask(Task):
     Task for the computation of optical spectra with optic i.e.
     RPA without local-field effects and velocity operator computed from DDK files.
     """
+    color_rgb = np.array((255, 204, 102)) / 255
+
     def __init__(self, optic_input, nscf_node, ddk_nodes, workdir=None, manager=None):
         """
         Create an instance of :class:`OpticTask` from an string containing the input.
@@ -3539,6 +3559,8 @@ class OpticTask(Task):
 
 class AnaddbTask(Task):
     """Task for Anaddb runs (post-processing of DFPT calculations)."""
+
+    color_rgb = np.array((204, 102, 255)) / 255
 
     def __init__(self, anaddb_input, ddb_node,
                  gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None):
