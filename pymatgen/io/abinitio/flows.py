@@ -20,6 +20,7 @@ from six.moves import map
 from atomicfile import AtomicFile
 from prettytable import PrettyTable
 from pydispatch import dispatcher
+from collections import OrderedDict
 from monty.collections import as_set, dict2namedtuple
 from monty.string import list_strings, is_string
 from monty.io import FileLock
@@ -530,7 +531,20 @@ class Flow(Node, NodeContainer, PMGSONable):
             d[task.status].append(Entry(task, wi, ti))
 
         # Sort keys according to their status.
-        return collections.OrderedDict([(k, d[k]) for k in sorted(list(d.keys()))])
+        return OrderedDict([(k, d[k]) for k in sorted(list(d.keys()))])
+
+    def groupby_task_class(self):
+        """
+        Returns a dictionary mapping the task class to the list of tasks in the flow
+        """
+        # Find all Task classes
+        class2tasks = OrderedDict()
+        for task in self.iflat_tasks():
+            cls = task.__class__
+            if cls not in class2tasks: class2tasks[cls] = []
+            class2tasks[cls].append(task)
+
+        return class2tasks
 
     def iflat_nodes(self, status=None, op="==", nids=None):
         """
@@ -731,6 +745,24 @@ class Flow(Node, NodeContainer, PMGSONable):
                 logger.info("Not able to fix task %s" % task)
 
         return count
+
+    def show_info(self, **kwargs):
+        """Print info on the flow i.e. total number of tasks, works, tasks grouped by class."""
+        stream = kwargs.pop("stream", sys.stdout)
+
+        lines = [str(self)]
+        app = lines.append
+
+        app("Number of works: %d, total number of tasks: %s" % (len(self), self.num_tasks) )
+        app("Number of tasks with a given class:")
+
+        # Build Table
+        table = PrettyTable(["Task Class", "Number"])
+        for cls, tasks in self.groupby_task_class().items():
+            table.add_row([cls.__name__, len(tasks)])
+        app(str(table))
+
+        stream.write("\n".join(lines))
 
     def show_summary(self, **kwargs):
         """
@@ -1195,9 +1227,9 @@ class Flow(Node, NodeContainer, PMGSONable):
                 node_id = int(fh.read())
 
             if self.node_id != node_id:
-                msg = ("Found node_id %s in file %s\nwhile the node_id of the present flow is %d " 
-                       "This means that you are trying to build a new flow in a directory already\n"
-                       "used by another flow. Change the workdir of the new flow or remove the old directory!"
+                msg = ("\nFound node_id %s in file:\n\n  %s\n\nwhile the node_id of the present flow is %d.\n" 
+                       "This means that you are trying to build a new flow in a directory already used by another flow.\n" 
+                       "Change the workdir of the new flow or remove the old directory!"
                         % (node_id, nodeid_path, self.node_id))
                 raise RuntimeError(msg)
 
@@ -1780,13 +1812,6 @@ class Flow(Node, NodeContainer, PMGSONable):
                 i = [dep.node for dep in child.deps].index(task) 
                 edge_labels[(task, child)] = " ".join(child.deps[i].exts)
 
-        # Convert to JSON
-        #from networkx.readwrite import json_graph
-        #data = json_graph.node_link_data(g)
-        #import json
-        #s = json.dumps(data)
-        #print(s)
-
         # Get positions for all nodes using layout_type.
         # e.g. pos = nx.spring_layout(g)
         pos = getattr(nx, layout_type + "_layout")(g)
@@ -1807,7 +1832,10 @@ class Flow(Node, NodeContainer, PMGSONable):
 
         # Select plot type.
         if mode == "network":
-            nx.draw_networkx(g, pos, labels=labels, node_color='#A0CBE2',  
+            nx.draw_networkx(g, pos, labels=labels, 
+                             node_color='#A0CBE2',  
+                             # FIXME: This does not work as expected. Likely bug in networkx!
+                             #node_color=[task.color_rgb for task in tasks],
                              node_size=[make_node_size(task) for task in tasks],
                              width=2, style="dotted", with_labels=True)
 
@@ -1820,10 +1848,10 @@ class Flow(Node, NodeContainer, PMGSONable):
             for status in self.ALL_STATUS:
                 tasks = list(self.iflat_tasks(status=status))
 
-                # Draw nodes.
+                # Draw nodes (color is given by status)
                 node_color = status.color_opts["color"]
                 if node_color is None: node_color = "black"
-                print("num nodes %s with node_color %s" % (len(tasks), node_color))
+                #print("num nodes %s with node_color %s" % (len(tasks), node_color))
 
                 nx.draw_networkx_nodes(g, pos,
                                        nodelist=tasks,

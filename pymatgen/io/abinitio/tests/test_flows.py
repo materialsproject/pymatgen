@@ -190,6 +190,9 @@ class FlowTest(FlowUnitTest):
 
         self.assertPMGSONable(flow)
 
+        flow.show_info()
+        flow.show_summary()
+
         # Test show_status
         flow.show_status()
         flow.show_event_handlers()
@@ -247,7 +250,7 @@ class TestFlowInSpectatorMode(FlowUnitTest):
             for node in flow.iflat_nodes():
                 assert node.in_spectator_mode == mode
 
-        assert len(list(flow.iflat_nodes())) == 5
+        assert len(list(flow.iflat_nodes())) == 1 + len(flow.works) + sum(len(work) for work in flow)
 
         flow.set_spectator_mode(mode=False)
         flow.build_and_pickle_dump()
