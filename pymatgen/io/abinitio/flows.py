@@ -2097,7 +2097,7 @@ class PhononFlow(Flow):
     @classmethod
     def from_scf_input(cls, workdir, scf_input, ph_ngqpt, with_becs=True, manager=None, allocate=True):
         """
-        Create a `PhononFlow` for phonon calculations from an Abinit ground-state input 
+        Create a `PhononFlow` for phonon calculations from an `AbinitInput` defining a ground-state run.
 
         Args:
             workdir: Working directory of the flow.
@@ -2106,7 +2106,7 @@ class PhononFlow(Flow):
                 electrons. e.g if ngkpt = (8, 8, 8). ph_ngqpt = (4, 4, 4) is a valid choice
                 whereas ph_ngqpt = (3, 3, 3) is not!
             with_becs: True if Born effective charges are wanted.
-            manager: :class:`TaskManager` object.
+            manager: :class:`TaskManager` object. Read from `manager.yml` if None.
             allocate: True if the flow should be allocated before returning.
 
         Return:

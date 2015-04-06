@@ -61,9 +61,9 @@ class ExecWrapper(object):
     def execute(self, workdir):
         # Try to execute binary without and with mpirun.
         try:
-            self._execute(workdir, with_mpirun=True)
+            return self._execute(workdir, with_mpirun=True)
         except self.Error:
-            self._execute(workdir, with_mpirun=False)
+            return self._execute(workdir, with_mpirun=False)
 
     def _execute(self, workdir, with_mpirun=False):
         """
@@ -96,6 +96,8 @@ class ExecWrapper(object):
         self.stdout_data, self.stderr_data = process.communicate()
         self.returncode = process.returncode
         #raise self.Error("%s returned %s\n cmd_str: %s" % (self, self.returncode, self.cmd_str))
+
+        return self.returncode
 
 
 class Mrgscr(ExecWrapper):
@@ -206,8 +208,8 @@ class Mrgddb(ExecWrapper):
         ddb_files = [os.path.abspath(s) for s in list_strings(ddb_files)]
         out_ddb = os.path.join(os.path.abspath(workdir), os.path.basename(out_ddb))
 
-        print("Will merge %d files into output DDB %s" % (len(ddb_files), out_ddb))
         if self.verbose:
+            print("Will merge %d files into output DDB %s" % (len(ddb_files), out_ddb))
             for i, f in enumerate(ddb_files):
                 print(" [%d] %s" % (i, f))
 
@@ -235,6 +237,13 @@ class Mrgddb(ExecWrapper):
         with open(self.stdin_fname, "w") as fh:
             fh.writelines(self.stdin_data)
 
-        self.execute(workdir)
+        retcode = self.execute(workdir)
+        if retcode == 0:
+            # Remove ddb files.
+            for f in ddb_files:
+                try:
+                    os.remove(f)
+                except IOError:
+                    pass
 
         return out_ddb
