@@ -1799,6 +1799,8 @@ class Flow(Node, NodeContainer, PMGSONable):
 
             Requires networkx package.
         """
+        if not self.allocated: self.allocate()
+
         import networkx as nx
 
         # Build the graph
