@@ -2528,7 +2528,11 @@ class AbinitTask(Task):
             return 0
 
         count, done = 0, len(event_handlers) * [0]
+
         report = self.get_event_report()
+        if report is None:
+            self.set_status(status=self.S_ERROR, msg='get_event_report returned None')
+            return 0
 
         # Note we have loop over all possible events (slow, I know)
         # because we can have handlers for Error, Bug or Warning 
