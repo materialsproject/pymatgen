@@ -233,10 +233,16 @@ class ETSF_Reader(NetcdfReader):
     @lazy_property
     def chemical_symbols(self):
         """Chemical symbols char [number of atom species][symbol length]."""
-        symbols = self.read_value("chemical_symbols")
-        symbols = [s.decode("ascii") for s in symbols]
-        chemical_symbols = [str("".join(s)) for s in symbols]
-        return chemical_symbols
+        charr = self.read_value("chemical_symbols")
+        symbols = []
+        for v in charr:
+            symbols.append("".join(c for c in v))
+
+        #symbols = ["".join(str(c)) for symb in symbols for c in symb]
+        #symbols = [s.decode("ascii") for s in symbols]
+        #chemical_symbols = [str("".join(s)) for s in symbols]
+        #print(symbols)
+        return symbols
 
     def typeidx_from_symbol(self, symbol):
         """Returns the type index from the chemical symbol. Note python convention."""

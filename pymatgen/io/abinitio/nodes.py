@@ -10,6 +10,7 @@ import time
 import collections
 import abc
 import six
+import numpy as np
 
 from pprint import pprint
 from atomicfile import AtomicFile
@@ -477,6 +478,9 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         S_OK,
     ]
 
+    # Color used to plot the network in networkx
+    color_rgb = (0, 0, 0)
+
     def __init__(self):
         self._in_spectator_mode = False
         # Node identifier.
@@ -857,6 +861,8 @@ class FileNode(Node):
 
     Mainly used to connect :class:`Task` objects to external files produced in previous runs.
     """
+    color_rgb = np.array((102, 51, 255)) / 255
+
     def __init__(self, filename):
         super(FileNode, self).__init__()
         self.filepath = os.path.abspath(filename)
