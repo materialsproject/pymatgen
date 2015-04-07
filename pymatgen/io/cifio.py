@@ -601,7 +601,7 @@ class CifWriter(object):
         reduced_comp = no_oxi_comp.reduced_composition
         el = no_oxi_comp.elements[0]
         amt = comp[el]
-        fu = int(amt / reduced_comp[Element(el.symbol)])
+        fu = int(amt / reduced_comp[el])
 
         block["_cell_formula_units_Z"] = str(fu)
 
