@@ -501,6 +501,10 @@ class NwOutput(object):
 
         coord_patt = re.compile("\d+\s+(\w+)\s+[\.\-\d]+\s+([\.\-\d]+)\s+"
                                 "([\.\-\d]+)\s+([\.\-\d]+)")
+
+        lat_vector_patt = re.compile("a[123]=<\s+([\.\-\d]+)\s+"
+                                     "([\.\-\d]+)\s+([\.\-\d]+)\s+>")
+
         corrections_patt = re.compile("([\w\-]+ correction to \w+)\s+="
                                       "\s+([\.\-\d]+)")
         preamble_patt = re.compile("(No. of atoms|No. of electrons"
@@ -519,6 +523,8 @@ class NwOutput(object):
         molecules = []
         species = []
         coords = []
+        lattice = []
+        lattices = []
         errors = []
         basis_set = {}
         bset_header = []
@@ -533,15 +539,26 @@ class NwOutput(object):
             if parse_geom:
                 if l.strip() == "Atomic Mass":
                     molecules.append(Molecule(species, coords))
+                    if lattice:
+                        lattices.append(lattice)
                     species = []
                     coords = []
+                    lattice = []
                     parse_geom = False
+                elif l.strip() == "Lattice Parameters":
+                    lattice = []
                 else:
                     m = coord_patt.search(l)
                     if m:
                         species.append(m.group(1).capitalize())
                         coords.append([float(m.group(2)), float(m.group(3)),
                                        float(m.group(4))])
+                    else:
+                        m = lat_vector_patt.search(l)
+                        if m:
+                            lattice.append([float(m.group(1)),
+                                            float(m.group(2)),
+                                            float(m.group(3))])
             if parse_freq:
                 if len(l.strip()) == 0:
                     if len(frequencies[-1][1]) == 0:
@@ -620,6 +637,7 @@ class NwOutput(object):
         data.update({"job_type": job_type, "energies": energies,
                      "corrections": corrections,
                      "molecules": molecules,
+                     "lattices": lattices,
                      "basis_set": basis_set,
                      "errors": errors,
                      "has_error": len(errors) > 0,
