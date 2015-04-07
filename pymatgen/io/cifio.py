@@ -598,12 +598,8 @@ class CifWriter(object):
         block["_chemical_formula_sum"] = no_oxi_comp.formula
         block["_cell_volume"] = latt.volume.__str__()
 
-        reduced_comp = no_oxi_comp.reduced_composition
-        el = no_oxi_comp.elements[0]
-        amt = comp[el]
-        fu = int(amt / reduced_comp[el])
-
-        block["_cell_formula_units_Z"] = str(fu)
+        reduced_comp, fu = no_oxi_comp.get_reduced_composition_and_factor()
+        block["_cell_formula_units_Z"] = str(int(fu))
 
         if symprec is None:
             block["_symmetry_equiv_pos_site_id"] = ["1"]
