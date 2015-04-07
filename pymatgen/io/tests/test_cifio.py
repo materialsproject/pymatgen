@@ -10,7 +10,7 @@ import numpy as np
 
 from pymatgen.io.cifio import CifParser, CifWriter, CifBlock
 from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen import Element, Specie, Lattice, Structure, Composition
+from pymatgen import Element, Specie, Lattice, Structure, Composition, DummySpecie
 from pymatgen.analysis.structure_matcher import StructureMatcher
 
 
@@ -476,18 +476,18 @@ N  N3  1  0.750000  0.500000  0.750000  0.5
     def test_specie_cifwriter(self):
         si4 = Specie("Si", 4)
         si3 = Specie("Si", 3)
-        n = Specie("N", -3)
+        n = DummySpecie("X", -3)
         coords = list()
-        coords.append(np.array([0, 0, 0]))
-        coords.append(np.array([0.75, 0.5, 0.75]))
         coords.append(np.array([0.5, 0.5, 0.5]))
+        coords.append(np.array([0.75, 0.5, 0.75]))
+        coords.append(np.array([0, 0, 0]))
         lattice = Lattice(np.array([[3.8401979337, 0.00, 0.00],
                                     [1.9200989668, 3.3257101909, 0.00],
                                     [0.00, -2.2171384943, 3.1355090603]]))
-        struct = Structure(lattice, [si4, {si3:0.5, n:0.5}, n], coords)
+        struct = Structure(lattice, [n, {si3:0.5, n:0.5}, si4], coords)
         writer = CifWriter(struct)
         ans = """#generated using pymatgen
-data_Si1.5N1.5
+data_X1.5Si1.5
 _symmetry_space_group_name_H-M   'P 1'
 _cell_length_a   3.84019793
 _cell_length_b   3.84019899
@@ -496,10 +496,10 @@ _cell_angle_alpha   119.99999086
 _cell_angle_beta   90.00000000
 _cell_angle_gamma   60.00000914
 _symmetry_Int_Tables_number   1
-_chemical_formula_structural   Si1.5N1.5
-_chemical_formula_sum   'Si1.5 N1.5'
+_chemical_formula_structural   X1.5Si1.5
+_chemical_formula_sum   'X1.5 Si1.5'
 _cell_volume   40.0447946443
-_cell_formula_units_Z   0
+_cell_formula_units_Z   1
 loop_
   _symmetry_equiv_pos_site_id
   _symmetry_equiv_pos_as_xyz
@@ -507,9 +507,9 @@ loop_
 loop_
   _atom_type_symbol
   _atom_type_oxidation_number
+   X3-  -3.0
    Si3+  3.0
    Si4+  4.0
-   N3-  -3.0
 loop_
   _atom_site_type_symbol
   _atom_site_label
@@ -518,10 +518,11 @@ loop_
   _atom_site_fract_y
   _atom_site_fract_z
   _atom_site_occupancy
-  Si4+  Si1  1  0.000000  0.000000  0.000000  1
-  Si3+  Si2  1  0.750000  0.500000  0.750000  0.5
-  N3-  N3  1  0.750000  0.500000  0.750000  0.5
-  N3-  N4  1  0.500000  0.500000  0.500000  1
+  X3-  X1  1  0.500000  0.500000  0.500000  1
+  X3-  X2  1  0.750000  0.500000  0.750000  0.5
+  Si3+  Si3  1  0.750000  0.500000  0.750000  0.5
+  Si4+  Si4  1  0.000000  0.000000  0.000000  1
+
 """
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
