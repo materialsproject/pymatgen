@@ -499,7 +499,7 @@ _symmetry_Int_Tables_number   1
 _chemical_formula_structural   X1.5Si1.5
 _chemical_formula_sum   'X1.5 Si1.5'
 _cell_volume   40.0447946443
-_cell_formula_units_Z   0
+_cell_formula_units_Z   1
 loop_
   _symmetry_equiv_pos_site_id
   _symmetry_equiv_pos_as_xyz
