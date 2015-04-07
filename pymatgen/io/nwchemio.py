@@ -22,7 +22,7 @@ from six.moves import zip
 
 from monty.io import zopen
 
-from pymatgen.core import Molecule
+from pymatgen.core import Molecule,Structure
 from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.core.units import Energy
 from pymatgen.core.units import FloatWithUnit
@@ -524,7 +524,6 @@ class NwOutput(object):
         species = []
         coords = []
         lattice = []
-        lattices = []
         errors = []
         basis_set = {}
         bset_header = []
@@ -538,27 +537,25 @@ class NwOutput(object):
                     errors.append(v)
             if parse_geom:
                 if l.strip() == "Atomic Mass":
-                    molecules.append(Molecule(species, coords))
                     if lattice:
-                        lattices.append(lattice)
+                        molecules.append(Structure(lattice, species, coords,
+                                                   coords_are_cartesian=True))
+                    else:
+                        molecules.append(Molecule(species, coords))
                     species = []
                     coords = []
                     lattice = []
                     parse_geom = False
-                elif l.strip() == "Lattice Parameters":
-                    lattice = []
                 else:
                     m = coord_patt.search(l)
                     if m:
                         species.append(m.group(1).capitalize())
                         coords.append([float(m.group(2)), float(m.group(3)),
                                        float(m.group(4))])
-                    else:
-                        m = lat_vector_patt.search(l)
-                        if m:
-                            lattice.append([float(m.group(1)),
-                                            float(m.group(2)),
-                                            float(m.group(3))])
+                    m = lat_vector_patt.search(l)
+                    if m:
+                        lattice.append([float(m.group(1)), float(m.group(2)),
+                                        float(m.group(3))])
             if parse_freq:
                 if len(l.strip()) == 0:
                     if len(frequencies[-1][1]) == 0:
@@ -637,7 +634,6 @@ class NwOutput(object):
         data.update({"job_type": job_type, "energies": energies,
                      "corrections": corrections,
                      "molecules": molecules,
-                     "lattices": lattices,
                      "basis_set": basis_set,
                      "errors": errors,
                      "has_error": len(errors) > 0,
