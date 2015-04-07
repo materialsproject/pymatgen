@@ -24,11 +24,10 @@ from monty.dev import deprecated
 from pymatgen.core.units import Memory
 from pymatgen.serializers.json_coders import json_pretty_dump, pmg_serialize, PMGSONable
 from .utils import File, Directory, irdvars_for_ext, abi_splitext, FilepathFixer, Condition, SparseHistogram
-from .strategies import StrategyWithInput, OpticInput
 from .qadapters import make_qadapter, QueueAdapter, QueueAdapterError
 from . import qutils as qu
 from .db import DBConnector
-from .nodes import Status, Node, NodeError, NodeResults, NodeCorrections, check_spectator
+from .nodes import Status, Node, NodeError, NodeResults, NodeCorrections, FileNode, check_spectator
 from . import abiinspect
 from . import events
 
@@ -79,8 +78,8 @@ class TaskResults(NodeResults):
             executable=task.executable,
             #executable_version:
             #task_events=
-            pseudos=task.strategy.pseudos.as_dict()
-            #input=task.strategy
+            pseudos=[p.as_dict() for p in task.input.pseudos],
+            #input=task.input
         )
 
         new.register_gridfs_files(
@@ -852,16 +851,8 @@ batch_adapter:
         # Build the task 
         task.build()
 
-        # Pass information on the time limit to Abinit but only if ndtset == 1.
-        # TODO: Also in this case, strategies are not supported.
-        # Disable for the time being because it requires my version of Abinit
-        try:
-            ndtset = task.strategy.abinit_input.ndtset
-        except:
-            ndtset = None
-
-        if False and ndtset == 1 and isinstance(task, AbinitTask):
-        #if ndtset == 1 and isinstance(task, AbinitTask):
+        # Pass information on the time limit to Abinit (we always assume ndtset == 1)
+        if False and isinstance(task, AbinitTask):
             args = kwargs.get("exec_args", [])
             if args is None: args = []
             args = args[:]
@@ -1069,10 +1060,10 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     prefix = Prefix(pj("indata", "in"), pj("outdata", "out"), pj("tmpdata", "tmp"))
     del Prefix, pj
 
-    def __init__(self, strategy, workdir=None, manager=None, deps=None):
+    def __init__(self, input, workdir=None, manager=None, deps=None):
         """
         Args:
-            strategy: Input file or :class:`Strategy` instance defining the calculation.
+            input: :class:`AbinitInput` object.
             workdir: Path to the working directory.
             manager: :class:`TaskManager` object.
             deps: Dictionary specifying the dependency of this node.
@@ -1081,8 +1072,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # Init the node
         super(Task, self).__init__()
 
-        self.strategy = strategy
-                                                               
+        self._input = input
+
         if workdir is not None:
             self.set_workdir(workdir)
                                                                
@@ -1148,8 +1139,16 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.qout_file = File(os.path.join(self.workdir, "queue.qout"))
 
     def set_manager(self, manager):
-        """Set the :class:`TaskManager` to use to launch the Task."""
+        """Set the :class:`TaskManager` used to launch the Task."""
         self.manager = manager.deepcopy()
+
+    #@property
+    #def manager(self):
+    #    """:class:`TaskManager` use to launch the Task. None if not set"""
+    #    try:
+    #        return self._manager
+    #    except AttributeError:
+    #        return None
 
     @property
     def work(self):
@@ -1192,31 +1191,19 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
     @property
     def input(self):
-        return self.strategy.abinit_input
+        """AbinitInput" object."""
+        return self._input
 
     def get_inpvar(self, varname, default=None):
         """Return the value of the ABINIT variable varname, None if not present.""" 
-        if hasattr(self.strategy, "abinit_input"):
-            try:
-                return self.strategy.abinit_input[0].get(varname, default)
-            except KeyError:
-                return None
-        else:
-            raise NotImplementedError("get_var for HTC interface!")
-
-    @deprecated(message="Use task._set_inpvars")
-    def _set_inpvar(self, varname, value):
-        """Set the value of the ABINIT variable varname. Return old value."""
-        old_value = self.get_inpvar(varname)
-        self.strategy.abinit_input[0][varname] = value
-        return old_value
+        return self.input.get(varname, default)
 
     def _set_inpvars(self, *args, **kwargs):
         """
         Set the values of the ABINIT variables in the input file. Return dict with old values.
         """
         kwargs.update(dict(*args))
-        old_values = {vname: self.input[0].get(vname) for vname in kwargs}
+        old_values = {vname: self.input.get(vname) for vname in kwargs}
         self.input.set_vars(**kwargs)
         self.history.info("Setting input variables: %s" % str(kwargs))
         self.history.info("Old values: %s" % str(old_values))
@@ -1226,15 +1213,11 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     @property
     def initial_structure(self):
         """Initial structure of the task."""
-        if hasattr(self.strategy, "abinit_input"):
-            return self.strategy.abinit_input.structure
-            #return self.strategy.abinit_input[0].structure
-        else:
-            return self.strategy.structure
+        return self.input.structure
 
     def make_input(self, with_header=False):
         """Construct the input file of the calculation."""
-        s = self.strategy.make_input()
+        s = str(self.input)
         if with_header: s = str(self) + "\n" + s
         return s
 
@@ -2105,7 +2088,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         for d in self.deps:
             cvars = d.connecting_vars()
             logger.debug("Adding connecting vars %s " % cvars)
-            self.strategy.add_extra_abivars(cvars)
+            self._set_inpvars(cvars)
 
             # Get (python) data from other nodes
             d.apply_getters(self)
@@ -2162,31 +2145,31 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         retcode = self.wait()
         return retcode
 
-    @pmg_serialize
-    def as_dict(self):
-        d = {}
-        d['strategy'] = self.strategy.as_dict()
-        d['workdir'] = getattr(self, 'workdir', None)
-        if hasattr(self, 'manager'):
-            d['manager'] = self.manager.as_dict()
-        else:
-            d['manager'] = None
-        d['corrections'] = self.corrections
-        d['history'] = [hr.as_dict() for hr in self.history]
-        d['num_restarts'] = self.num_restarts
-        return d
+    #@pmg_serialize
+    #def as_dict(self):
+    #    d = {}
+    #    d['strategy'] = self.strategy.as_dict()
+    #    d['workdir'] = getattr(self, 'workdir', None)
+    #    if hasattr(self, 'manager'):
+    #        d['manager'] = self.manager.as_dict()
+    #    else:
+    #        d['manager'] = None
+    #    d['corrections'] = self.corrections
+    #    d['history'] = [hr.as_dict() for hr in self.history]
+    #    d['num_restarts'] = self.num_restarts
+    #    return d
 
-    @classmethod
-    def from_dict(cls, d):
-        dec = MontyDecoder()
-        strategy = dec.process_decoded(d['strategy'])
-        manager = TaskManager.from_dict(d['manager']) if d['manager'] else TaskManager.from_user_config()
-        corrections = NodeCorrections(dec.process_decoded(d['corrections']))
-        task = cls(strategy=strategy, workdir=d['workdir'], manager=manager)
-        task._corrections = corrections
-        task.history.extend(dec.process_decoded(d['history']))
-        task.num_restarts = d['num_restarts']
-        return task
+    #@classmethod
+    #def from_dict(cls, d):
+    #    dec = MontyDecoder()
+    #    strategy = dec.process_decoded(d['strategy'])
+    #    manager = TaskManager.from_dict(d['manager']) if d['manager'] else TaskManager.from_user_config()
+    #    corrections = NodeCorrections(dec.process_decoded(d['corrections']))
+    #    task = cls(strategy=strategy, workdir=d['workdir'], manager=manager)
+    #    task._corrections = corrections
+    #    task.history.extend(dec.process_decoded(d['history']))
+    #    task.num_restarts = d['num_restarts']
+    #    return task
 
 
 class DecreaseDemandsError(Exception):
@@ -2202,7 +2185,7 @@ class AbinitTask(Task):
     Results = TaskResults
 
     @classmethod
-    def from_input(cls, ainput, workdir=None, manager=None):
+    def from_input(cls, input, workdir=None, manager=None):
         """
         Create an instance of `AbinitTask` from an ABINIT input.
     
@@ -2211,10 +2194,7 @@ class AbinitTask(Task):
             workdir: Path to the working directory.
             manager: :class:`TaskManager` object.
         """
-        # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
-        strategy = StrategyWithInput(ainput, deepcopy=True)
-
-        return cls(strategy, workdir=workdir, manager=manager)
+        return cls(input, workdir=workdir, manager=manager)
 
     @classmethod
     def temp_shell_task(cls, inp, workdir=None, manager=None):
@@ -2267,17 +2247,17 @@ class AbinitTask(Task):
     @property
     def pseudos(self):
         """List of pseudos used in the calculation."""
-        return self.strategy.pseudos
+        return self.input.pseudos
 
     @property
     def isnc(self):
         """True if norm-conserving calculation."""
-        return all(p.isnc for p in self.pseudos)
+        return self.input.isnc
 
     @property
     def ispaw(self):
         """True if PAW calculation"""
-        return all(p.ispaw for p in self.pseudos)
+        return self.input.ispaw
 
     @property
     def filesfile_string(self):
@@ -2296,7 +2276,7 @@ class AbinitTask(Task):
         # Note that here the pseudos **must** be sorted according to znucl.
         # Here we reorder the pseudos if the order is wrong.
         ord_pseudos = []
-        znucl = self.strategy.structure.to_abivars()["znucl"]
+        znucl = self.input.structure.to_abivars()["znucl"]
 
         for z in znucl:
             for p in self.pseudos:
@@ -2333,12 +2313,7 @@ class AbinitTask(Task):
         """Change the input structure."""
         # Compare new and old structure for logging purpose.
         # TODO: Write method of structure to compare self and other and return a dictionary
-        try:
-            old_structure = self.strategy.abinit_input.structure
-        except AttributeError:
-            # FIXME: This is needed to support strategy object (TOBEREMOVED)
-            old_structure = self.strategy.structure
-
+        old_structure = self.input.structure
         old_lattice = old_structure.lattice 
 
         abc_diff = np.array(new_structure.lattice.abc) - np.array(old_lattice.abc)
@@ -2365,13 +2340,9 @@ class AbinitTask(Task):
         else:
             for rec in recs:
                 self.history.info(rec)
-        try:
-            self.strategy.abinit_input.set_structure(new_structure)
-        except AttributeError:
-            # FIXME: This is needed to support strategy object (TOBEREMOVED)
-            self.strategy.structure = new_structure
-        
-        #assert self.strategy.abinit_input.structure == new_structure
+
+        self.input.set_structure(new_structure)
+        #assert self.input.structure == new_structure
 
     def autoparal_run(self):
         """
@@ -2401,7 +2372,7 @@ class AbinitTask(Task):
         # Will get all the possible configurations up to max_ncpus
         max_ncpus = self.manager.max_cores
         autoparal_vars = dict(autoparal=policy.autoparal, max_ncpus=max_ncpus)
-        self.strategy.add_extra_abivars(autoparal_vars)
+        self._set_inpvars(autoparal_vars)
 
         # Run the job in a shell subprocess with mpi_procs = 1
         # we don't want to make a request to the queue manager for this simple job!
@@ -2411,7 +2382,7 @@ class AbinitTask(Task):
         retcode = process.wait()
 
         # Remove the variables added for the automatic parallelization
-        self.strategy.remove_extra_abivars(autoparal_vars.keys())
+        self.input.remove_vars(autoparal_vars.keys())
 
         ##############################################################
         # Parse the autoparal configurations from the main output file
@@ -2431,7 +2402,7 @@ class AbinitTask(Task):
         ####################################################
         # Change the input file and/or the submission script
         ####################################################
-        self.strategy.add_extra_abivars(optconf.vars)
+        self._set_inpvars(optconf.vars)
 
         # Write autoparal configurations to JSON file.
         d = pconfs.as_dict()
@@ -2460,59 +2431,6 @@ class AbinitTask(Task):
         # Select the partition on which we'll be running and set MPI/OMP cores.
         optconf = self.manager.select_qadapter(pconfs)
         return optconf
-
-    def get_ibz(self, ngkpt=None, shiftk=None):
-        """
-        This function calls ABINIT to compute the list of k-points in the IBZ.
-        By default, we use the value of ngkpt and shiftk in the strategy but it's also
-        possible to change temporary these values.
-
-        Returns:
-            `namedtuple` with attributes:
-                points: `ndarray` with points in the IBZ in reduced coordinates.
-                weights: `ndarray` with weights of the points.
-        """
-        #########################################
-        # Run ABINIT in sequential to get the IBZ
-        #########################################
-
-        # Set the variables for automatic parallelization
-        ibz_vars = dict(prtkpt=-2)
-        if ngkpt is not None: ibz_vars["ngkpt"] = ngkpt
-        if shiftk is not None:
-            shiftk = np.resphape(shiftk, (-1,3))
-            ibz_vars["shiftk"] = shiftk
-            ibz_vars["nshiftk"] = len(shiftk)
-
-        self.strategy.add_extra_abivars(ibz_vars)
-        # Build a simple manager to run the job in a shell subprocess
-        # we don't want to make a request to the queue manager for this simple job!
-        seq_manager = self.manager.to_shell_manager(mpi_procs=1)
-
-        # Return code is always != 0
-        process = seq_manager.launch(self)
-        retcode = process.wait()
-
-        # Remove the variables added for the automatic parallelization
-        self.strategy.remove_extra_abivars(ibz_vars.keys())
-
-        ################################################
-        # Read the list of k-points from the netcdf file
-        ################################################
-        from pymatgen.io.abinitio import NetcdfReader
-        with NetcdfReader(os.path.join(self.workdir, "kpts.nc")) as r:
-            kpoints = r.read_value("reduced_coordinates_of_kpoints")
-            weights = r.read_value("kpoint_weights")
-
-        self.set_status(self.S_INIT)
-
-        # Remove the output file since Abinit likes to create new files
-        # with extension .outA, .outB if the file already exists.
-        os.remove(self.output_file.path)
-        os.remove(self.log_file.path)
-        os.remove(self.stderr_file.path)
-
-        return dict2namedtuple(points=kpoints, weights=weights)
 
     def select_files(self, what="o"):
         """
@@ -2616,7 +2534,11 @@ class AbinitTask(Task):
             return 0
 
         count, done = 0, len(event_handlers) * [0]
+
         report = self.get_event_report()
+        if report is None:
+            self.set_status(status=self.S_ERROR, msg='get_event_report returned None')
+            return 0
 
         # Note we have loop over all possible events (slow, I know)
         # because we can have handlers for Error, Bug or Warning 
@@ -2855,6 +2777,8 @@ class ScfTask(GsTask):
         events.ScfConvergenceWarning,
     ]
 
+    color_rgb = np.array((255, 0, 0)) / 255
+
     def restart(self):
         """SCF calculations can be restarted if we have either the WFK file or the DEN file."""
         # Prefer WFK over DEN files since we can reuse the wavefunctions.
@@ -2869,7 +2793,7 @@ class ScfTask(GsTask):
         self.out_to_in(restart_file)
 
         # Add the appropriate variable for restarting.
-        self.strategy.add_extra_abivars(irdvars)
+        self._set_inpvars(irdvars)
 
         # Now we can resubmit the job.
         self.history.info("Will restart from %s", restart_file)
@@ -2913,6 +2837,8 @@ class NscfTask(GsTask):
         events.NscfConvergenceWarning,
     ]
 
+    color_rgb = np.array((255, 122, 122)) / 255
+
     def restart(self):
         """NSCF calculations can be restarted only if we have the WFK file."""
         ext = "WFK"
@@ -2925,7 +2851,7 @@ class NscfTask(GsTask):
 
         # Add the appropriate variable for restarting.
         irdvars = irdvars_for_ext(ext)
-        self.strategy.add_extra_abivars(irdvars)
+        self._set_inpvars(irdvars)
 
         # Now we can resubmit the job.
         self.history.info("Will restart from %s", restart_file)
@@ -2951,6 +2877,8 @@ class RelaxTask(GsTask, ProduceHist):
     CRITICAL_EVENTS = [
         events.RelaxConvergenceWarning,
     ]
+
+    color_rgb = np.array((255, 61, 255)) / 255
 
     def get_final_structure(self):
         """Read the final structure from the GSR file."""
@@ -3013,11 +2941,11 @@ class RelaxTask(GsTask, ProduceHist):
             self.history.warning("Cannot find the WFK|DEN|TIM?_DEN file to restart from.")
         else:
             # Add the appropriate variable for restarting.
-            self.strategy.add_extra_abivars(irdvars)
+            self._set_inpvars(irdvars)
             self.history.info("Will restart from %s", restart_file)
 
         # FIXME Here we should read the HIST file but restartxf if broken!
-        #self.strategy.add_extra_abivars({"restartxf": -1})
+        #self._set_inpvars({"restartxf": -1})
 
         # Read the relaxed structure from the GSR file and change the input.
         self._change_structure(self.get_final_structure())
@@ -3134,6 +3062,7 @@ class DfptTask(AbinitTask):
             return None
 
 
+# TODO Remove
 class DdeTask(DfptTask):
     """Task for DDE calculations."""
 
@@ -3144,6 +3073,8 @@ class DdeTask(DfptTask):
 
 class DdkTask(DfptTask):
     """Task for DDK calculations."""
+
+    color_rgb = np.array((61, 158, 255)) / 255
 
     #@check_spectator 
     def _on_ok(self):
@@ -3160,6 +3091,51 @@ class DdkTask(DfptTask):
         return results.register_gridfs_file(DDK=(self.outdir.has_abiext("DDK"), "t"))
 
 
+class BecTask(DfptTask):
+    """
+    Task for the calculation of Born effective charges.
+
+    bec_deps = {ddk_task: "DDK" for ddk_task in ddk_tasks}
+    bec_deps.update({scf_task: "WFK"})
+    """
+
+    color_rgb = np.array((122, 122, 255)) / 255
+
+    def make_links(self):
+        """Replace the default behaviour of make_links"""
+        print("In BEC make_links")
+
+        for dep in self.deps:
+            if dep.exts == ["DDK"]:
+                ddk_task = dep.node
+                out_ddk = ddk_task.outdir.has_abiext("DDK")
+                if not out_ddk:
+                    raise RuntimeError("%s didn't produce the DDK file" % ddk_task)
+
+                # Get (fortran) idir and costruct the name of the 1WF expected by Abinit
+                rfdir = list(ddk_task.input["rfdir"])
+                if rfdir.count(1) != 1:
+                    raise RuntimeError("Only one direction should be specifned in rfdir but rfdir = %s" % rfdir)
+
+                idir = rfdir.index(1) + 1
+                ddk_case = idir +  3 * len(ddk_task.input.structure)
+
+                infile = self.indir.path_in("in_1WF%d" % ddk_case)
+                os.symlink(out_ddk, infile)
+
+            elif dep.exts == ["WFK"]:
+                gs_task = dep.node
+                out_wfk = gs_task.outdir.has_abiext("WFK")
+                if not out_wfk:
+                    raise RuntimeError("%s didn't produce the WFK file" % gs_task)
+
+                os.symlink(out_wfk, self.indir.path_in("in_WFK"))
+
+            else:
+                raise ValueError("Don't know how to handle extension: %s" % dep.exts)
+
+
+
 class PhononTask(DfptTask):
     """
     DFPT calculations for a single atomic perturbation.
@@ -3170,6 +3146,8 @@ class PhononTask(DfptTask):
     CRITICAL_EVENTS = [
         events.ScfConvergenceWarning,
     ]
+
+    color_rgb = np.array((0, 0, 255)) / 255
 
     def restart(self):
         """
@@ -3208,7 +3186,7 @@ class PhononTask(DfptTask):
         restart_file = self.out_to_in(restart_file)
 
         # Add the appropriate variable for restarting.
-        self.strategy.add_extra_abivars(irdvars)
+        self._set_inpvars(irdvars)
 
         # Now we can resubmit the job.
         return self._restart()
@@ -3270,6 +3248,8 @@ class ManyBodyTask(AbinitTask):
 class ScrTask(ManyBodyTask):
     """Tasks for SCREENING calculations """
 
+    color_rgb = np.array((255, 128, 0)) / 255
+
     #def inspect(self, **kwargs):
     #    """Plot graph showing the number of q-points computed and the wall-time used"""
 
@@ -3281,6 +3261,8 @@ class SigmaTask(ManyBodyTask):
     CRITICAL_EVENTS = [
         events.QPSConvergenceWarning,
     ]
+
+    color_rgb = np.array((0, 255, 0)) / 255
 
     def restart(self):
         # G calculations can be restarted only if we have the QPS file 
@@ -3294,7 +3276,7 @@ class SigmaTask(ManyBodyTask):
 
         # Add the appropriate variable for restarting.
         irdvars = irdvars_for_ext(ext)
-        self.strategy.add_extra_abivars(irdvars)
+        self._set_inpvars(irdvars)
 
         # Now we can resubmit the job.
         self.history.info("Will restart from %s", restart_file)
@@ -3371,6 +3353,8 @@ class BseTask(ManyBodyTask):
         #events.BseIterativeDiagoConvergenceWarning,
     ]
 
+    color_rgb = np.array((128, 0, 255)) / 255
+
     def restart(self):
         """
         BSE calculations with Haydock can be restarted only if we have the
@@ -3419,7 +3403,7 @@ class BseTask(ManyBodyTask):
             raise self.RestartError("%s: Cannot find the HAYDR_SAVE file to restart from." % self)
 
         # Add the appropriate variable for restarting.
-        self.strategy.add_extra_abivars(irdvars)
+        self._set_inpvars(irdvars)
 
         # Now we can resubmit the job.
         #self.history.info("Will restart from %s", restart_file)
@@ -3482,6 +3466,8 @@ class OpticTask(Task):
     Task for the computation of optical spectra with optic i.e.
     RPA without local-field effects and velocity operator computed from DDK files.
     """
+    color_rgb = np.array((255, 204, 102)) / 255
+
     def __init__(self, optic_input, nscf_node, ddk_nodes, workdir=None, manager=None):
         """
         Create an instance of :class:`OpticTask` from an string containing the input.
@@ -3504,14 +3490,21 @@ class OpticTask(Task):
         #deps = {n: "DDK" for n in self.ddk_nodes}
         deps.update({self.nscf_node: "WFK"})
 
-        strategy = OpticInput(optic_input)
-        super(OpticTask, self).__init__(strategy=strategy, workdir=workdir, manager=manager, deps=deps)
+        super(OpticTask, self).__init__(optic_input, workdir=workdir, manager=manager, deps=deps)
 
     def set_workdir(self, workdir, chroot=False):
         """Set the working directory of the task."""
         super(OpticTask, self).set_workdir(workdir, chroot=chroot)
         # Small hack: the log file of optics is actually the main output file. 
         self.output_file = self.log_file
+
+    def _set_inpvars(self, *args, **kwargs):
+        """
+        Optic does not use `get` or `ird` variables hence we should never try 
+        to change the input when we connect this task
+        """
+        kwargs.update(dict(*args))
+        self.history.info("OpticTask intercepted _set_inpvars with args %s" % kwargs)
 
     @property
     def executable(self):
@@ -3552,7 +3545,7 @@ class OpticTask(Task):
         files = "\n".join(self.ddk_filepaths + [self.wfk_filepath]) + "\n"
 
         # Get the input specified by the user
-        user_inp = self.strategy.make_input()
+        user_inp = str(self.input)
 
         # Join them.
         return files + user_inp
@@ -3576,6 +3569,8 @@ class OpticTask(Task):
 
 class AnaddbTask(Task):
     """Task for Anaddb runs (post-processing of DFPT calculations)."""
+
+    color_rgb = np.array((204, 102, 255)) / 255
 
     def __init__(self, anaddb_input, ddb_node,
                  gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None):
@@ -3608,7 +3603,30 @@ class AnaddbTask(Task):
         if self.ddk_node is not None:
             deps.update({self.ddk_node: "DDK"})
 
-        super(AnaddbTask, self).__init__(strategy=anaddb_input, workdir=workdir, manager=manager, deps=deps)
+        super(AnaddbTask, self).__init__(input=anaddb_input, workdir=workdir, manager=manager, deps=deps)
+
+    @classmethod
+    def temp_shell_task(cls, inp, ddb_node,
+                        gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None):
+        """
+        Build a :class:`AnaddbTask` with a temporary workdir. The task is executed via 
+        the shell with 1 MPI proc. Mainly used for post-processing the DDB files.
+
+        Args:
+            anaddb_input: string with the anaddb variables.
+            ddb_node: The node that will produce the DDB file. Accept :class:`Task`, :class:`Work` or filepath.
+
+        See `AnaddbInit` for the meaning of the other arguments.
+        """
+        # Build a simple manager to run the job in a shell subprocess
+        import tempfile
+        workdir = tempfile.mkdtemp() if workdir is None else workdir  
+        if manager is None: manager = TaskManager.from_user_config()
+
+        # Construct the task and run it
+        return cls(inp, ddb_node, 
+                   gkk_node=gkk_node, md_node=md_node, ddk_node=ddk_node,
+                   workdir=workdir, manager=manager.to_shell_manager(mpi_procs=1))
 
     @property
     def executable(self):
@@ -3637,14 +3655,16 @@ class AnaddbTask(Task):
     @property
     def ddb_filepath(self):
         """Returns (at runtime) the absolute path of the input DDB file."""
+        # This is not very elegant! A possible approach could to be path self.ddb_node.outdir!
+        if isinstance(self.ddb_node, FileNode): return self.ddb_node.filepath
         path = self.ddb_node.outdir.has_abiext("DDB")
         return path if path else "DDB_FILE_DOES_NOT_EXIST"
 
     @property
     def md_filepath(self):
         """Returns (at runtime) the absolute path of the input MD file."""
-        if self.md_node is None:
-            return "MD_FILE_DOES_NOT_EXIST"
+        if self.md_node is None: return "MD_FILE_DOES_NOT_EXIST"
+        if isinstance(self.md_node, FileNode): return self.md_node.filepath
 
         path = self.md_node.outdir.has_abiext("MD")
         return path if path else "MD_FILE_DOES_NOT_EXIST"
@@ -3652,8 +3672,8 @@ class AnaddbTask(Task):
     @property
     def gkk_filepath(self):
         """Returns (at runtime) the absolute path of the input GKK file."""
-        if self.gkk_node is None:
-            return "GKK_FILE_DOES_NOT_EXIST"
+        if self.gkk_node is None: return "GKK_FILE_DOES_NOT_EXIST"
+        if isinstance(self.gkk_node, FileNode): return self.gkk_node.filepath
 
         path = self.gkk_node.outdir.has_abiext("GKK")
         return path if path else "GKK_FILE_DOES_NOT_EXIST"
@@ -3661,8 +3681,8 @@ class AnaddbTask(Task):
     @property
     def ddk_filepath(self):
         """Returns (at runtime) the absolute path of the input DKK file."""
-        if self.ddk_node is None:
-            return "DDK_FILE_DOES_NOT_EXIST"
+        if self.ddk_node is None: return "DDK_FILE_DOES_NOT_EXIST"
+        if isinstance(self.ddk_node, FileNode): return self.ddk_node.filepath
 
         path = self.ddk_node.outdir.has_abiext("DDK")
         return path if path else "DDK_FILE_DOES_NOT_EXIST"
