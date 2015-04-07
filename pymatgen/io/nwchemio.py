@@ -521,6 +521,7 @@ class NwOutput(object):
         frequencies = None
         corrections = {}
         molecules = []
+        structures = []
         species = []
         coords = []
         lattice = []
@@ -538,8 +539,8 @@ class NwOutput(object):
             if parse_geom:
                 if l.strip() == "Atomic Mass":
                     if lattice:
-                        molecules.append(Structure(lattice, species, coords,
-                                                   coords_are_cartesian=True))
+                        structures.append(Structure(lattice, species, coords,
+                                                     coords_are_cartesian=True))
                     else:
                         molecules.append(Molecule(species, coords))
                     species = []
@@ -634,6 +635,7 @@ class NwOutput(object):
         data.update({"job_type": job_type, "energies": energies,
                      "corrections": corrections,
                      "molecules": molecules,
+                     "structures": structures,
                      "basis_set": basis_set,
                      "errors": errors,
                      "has_error": len(errors) > 0,
