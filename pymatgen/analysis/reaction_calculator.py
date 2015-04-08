@@ -273,7 +273,7 @@ class BalancedReaction(PMGSONable):
     @staticmethod
     def from_string(rxn_string):
         """
-        Generates a balanced reaction from a string. The reaciton must
+        Generates a balanced reaction from a string. The reaction must
         already be balanced.
 
         Args:
@@ -287,8 +287,9 @@ class BalancedReaction(PMGSONable):
 
         def get_comp_amt(comp_str):
             return {Composition(m.group(2)): float(m.group(1) or 1)
-                    for m in re.finditer("([\d\.]*)\s*([A-Z][\w\.]*)",
+                    for m in re.finditer(r"([\d\.]*)\s*([A-Z][\w\.\(\)]*)",
                                          comp_str)}
+
         return BalancedReaction(get_comp_amt(rct_str), get_comp_amt(prod_str))
 
 
