@@ -644,8 +644,10 @@ class StructureTest(PymatgenTest):
                           [[0, 0, 0], [0.5, 0.5, 0.5]])
 
     def test_merge_sites(self):
-        species = [{'Ag': 0.5}, {'Cl': 0.35}, {'Ag': 0.5}, {'F': 0.25}]
-        coords = [[0, 0, 0], [0.5, 0.5, 0.5], [0, 0, 0], [0.5, 0.5, 1.501]]
+        species = [{'Ag': 0.5}, {'Cl': 0.25}, {'Cl': 0.1},
+                   {'Ag': 0.5}, {'F': 0.15}, {'F': 0.1}]
+        coords = [[0, 0, 0], [0.5, 0.5, 0.5], [0.5, 0.5, 0.5],
+                  [0, 0, 0], [0.5, 0.5, 1.501], [0.5, 0.5, 1.501]]
         s = Structure(Lattice.cubic(1), species, coords)
         s.merge_sites()
         self.assertEqual(s[0].specie.symbol, 'Ag')
