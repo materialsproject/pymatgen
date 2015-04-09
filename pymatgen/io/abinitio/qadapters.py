@@ -494,7 +494,7 @@ limits:
         qparams = d.pop("qparams", None)
         self._qparams = copy.deepcopy(qparams) if qparams is not None else {}
 
-        self.set_qname(d.pop("qname"))
+        self.set_qname(d.pop("qname", ""))
         if d:
             raise ValueError("Found unknown keyword(s) in queue section:\n %s" % d.keys())
 
@@ -1049,7 +1049,8 @@ $${qverbatim}
 
     def set_qname(self, qname):
         super(SlurmAdapter, self).set_qname(qname)
-        self.qparams["partition"] = qname
+        if qname:
+            self.qparams["partition"] = qname
 
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
@@ -1179,7 +1180,8 @@ $${qverbatim}
 
     def set_qname(self, qname):
         super(PbsProAdapter, self).set_qname(qname)
-        self.qparams["queue"] = qname
+        if qname:
+            self.qparams["queue"] = qname
 
     def set_timelimit(self, timelimit):
         super(PbsProAdapter, self).set_timelimit(timelimit)
@@ -1406,7 +1408,8 @@ $${qverbatim}
 """
     def set_qname(self, qname):
         super(SGEAdapter, self).set_qname(qname)
-        self.qparams["queue_name"] = qname
+        if qname:
+            self.qparams["queue_name"] = qname
 
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
