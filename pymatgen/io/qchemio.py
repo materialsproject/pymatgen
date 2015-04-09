@@ -86,7 +86,7 @@ class QcTask(PMGSONable):
                               "nbo", "occupied", "swap_occupied_virtual", "opt",
                               "pcm", "pcm_solvent", "plots", "qm_atoms", "svp",
                               "svpirf", "van_der_waals", "xc_functional",
-                              "cdft", "efp_fragments", "efp_params"}
+                              "cdft", "efp_fragments", "efp_params", "alist"}
     alternative_keys = {"job_type": "jobtype",
                         "symmetry_ignore": "sym_ignore",
                         "scf_max_cycles": "max_scf_cycles"}
@@ -252,6 +252,18 @@ class QcTask(PMGSONable):
                 raise ValueError("Elements in molecule and mixed basis set don't match")
         else:
             raise Exception('Can\'t handle type "{}"'.format(type(basis_set)))
+
+    def set_partial_hessian_atoms(self, alist, phess=1):
+        for a in alist:
+            if not isinstance(a, int):
+                raise ValueError("the parament alist must a list of atom indices")
+        self.params["rem"]["n_sol"] = len(alist)
+        if phess == 1:
+            self.params["rem"]["phess"] = True
+        else:
+            self.params["rem"]["phess"] = phess
+        self.params["rem"]["jobtype"] = "freq"
+        self.params["alist"] = alist
 
     def set_basis2(self, basis2_basis_set):
         if isinstance(basis2_basis_set, six.string_types):
@@ -625,6 +637,9 @@ class QcTask(PMGSONable):
 
     def _format_comment(self):
         return self._wrap_comment(self.params["comment"]).splitlines()
+
+    def _format_alist(self):
+        return [str(x) for x in self.params["alist"]]
 
     def _format_molecule(self):
         lines = []
@@ -1187,6 +1202,13 @@ class QcTask(PMGSONable):
             element, ecp = ch[:2]
             d[element.strip().capitalize()] = ecp.strip().lower()
         return d
+
+    @classmethod
+    def _parse_alist(cls, contents):
+        atom_list = []
+        for line in contents:
+            atom_list.extend([int(x) for x in line.split()])
+        return atom_list
 
     @classmethod
     def _parse_pcm(cls, contents):
