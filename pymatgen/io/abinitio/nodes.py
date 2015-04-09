@@ -420,8 +420,8 @@ def check_spectator(node_method):
         node = args[0]
         if node.in_spectator_mode:
             #raise node.SpectatorError("You should not call this method when the node in spectator_mode")
-            import warnings
             #warnings.warn("You should not call %s when the node in spectator_mode" % node_method)
+            import warnings
 
         return node_method(*args, **kwargs)
 
@@ -1053,13 +1053,14 @@ class NodeHistory(collections.deque):
         """Low-level logging routine which creates a :class:`HistoryRecord`."""
         from monty.inspect import find_caller, caller_name
         # FIXME: Rewrite this! It does not work if find_caller is not in the module.
-        c = find_caller()
+        #c = find_caller()
         #print(caller_name(skip=3))
 
         if exc_info and not isinstance(exc_info, tuple):
             exc_info = sys.exc_info()
 
-        self.append(HistoryRecord(level, c.filename, c.lineno, msg, args, exc_info, func=c.name))
+        self.append(HistoryRecord(level, "unknown filename", 0, msg, args, exc_info, func="unknown func"))
+        #self.append(HistoryRecord(level, c.filename, c.lineno, msg, args, exc_info, func=c.name))
 
 
 class NodeCorrections(list):
