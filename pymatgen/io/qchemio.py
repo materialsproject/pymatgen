@@ -639,7 +639,7 @@ class QcTask(PMGSONable):
         return self._wrap_comment(self.params["comment"]).splitlines()
 
     def _format_alist(self):
-        return [str(x) for x in self.params["alist"]]
+        return [" {}".format(x) for x in self.params["alist"]]
 
     def _format_molecule(self):
         lines = []
