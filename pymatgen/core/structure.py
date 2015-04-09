@@ -2471,13 +2471,12 @@ class Structure(IStructure, collections.MutableSequence):
         sites = []
         for c in np.unique(clusters):
             inds = np.argwhere(clusters == c)
-            species = Composition()
+            species = self[inds[0]].species_and_occu
             coords = self[inds[0]].frac_coords
-            n = len(inds)
-            for i in inds:
+            for n, i in enumerate(inds[1:]):
                 species += self[i].species_and_occu
                 offset = self[i].frac_coords - coords
-                coords += (offset - np.round(offset)) / n
+                coords += (offset - np.round(offset)) / (n + 2)
             sites.append(PeriodicSite(species, coords, self.lattice))
 
         self._sites = sites

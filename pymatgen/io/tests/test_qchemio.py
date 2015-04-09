@@ -292,6 +292,96 @@ $end
         self.assertEqual(str(qctask), ans_mixed)
         self.elementary_io_verify(ans_mixed, qctask)
 
+    def test_basis2_mixed(self):
+        qcinp1 = QcInput.from_file(os.path.join(test_dir, "basis2_mixed.inp"))
+        ans = """$molecule
+ 0  1
+ C          -1.76827000        0.46495000        0.28695000
+ O           1.78497000       -0.42034000       -0.39845000
+ H          -0.77736000        0.78961000        0.66548000
+ H          -1.75896000        0.46604000       -0.82239000
+ H          -2.54983000        1.16313000        0.65101000
+ H          -1.98693000       -0.55892000        0.65381000
+ H           2.14698000       -0.07173000        0.45530000
+ H           1.25596000       -1.21510000       -0.13726000
+$end
+
+
+$rem
+   jobtype = sp
+  exchange = b3lyp
+     basis = mixed
+    basis2 = basis2_mixed
+  purecart = 1111
+$end
+
+
+$basis
+ C    1
+ 6-311+g(3df)
+ ****
+ O    2
+ aug-cc-pvtz
+ ****
+ H    3
+ 6-31g*
+ ****
+ H    4
+ 6-31g*
+ ****
+ H    5
+ 6-31g*
+ ****
+ H    6
+ 6-31g*
+ ****
+ H    7
+ cc-pvdz
+ ****
+ H    8
+ cc-pvdz
+ ****
+$end
+
+
+$basis2
+ C    1
+ sto-3g
+ ****
+ O    2
+ sto-3g
+ ****
+ H    3
+ sto-3g
+ ****
+ H    4
+ sto-3g
+ ****
+ H    5
+ sto-3g
+ ****
+ H    6
+ sto-3g
+ ****
+ H    7
+ sto-3g
+ ****
+ H    8
+ sto-3g
+ ****
+$end
+
+"""
+        self.assertEqual(str(qcinp1), ans)
+        self.elementary_io_verify(ans, qcinp1.jobs[0])
+        basis2 = qcinp1.jobs[0].params["basis2"]
+        qcinp2 = copy.deepcopy(qcinp1)
+        qcinp2.jobs[0].set_basis2("3-21g")
+        self.assertEqual(qcinp2.jobs[0].params["rem"]["basis2"], "3-21g")
+        self.assertFalse("basis2" in qcinp2.jobs[0].params)
+        qcinp2.jobs[0].set_basis2(basis2)
+        self.assertEqual(str(qcinp2), ans)
+
     def test_aux_basis_str(self):
         ans_gen = '''$comment
  Test Methane
