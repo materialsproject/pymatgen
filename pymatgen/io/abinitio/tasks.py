@@ -1110,7 +1110,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         return {k: v for k, v in self.__dict__.items() if k not in ["_process"]}
 
-    @check_spectator
+    #@check_spectator
     def set_workdir(self, workdir, chroot=False):
         """Set the working directory. Cannot be set more than once unless chroot is True"""
         if not chroot and hasattr(self, "workdir") and self.workdir != workdir:
@@ -1264,7 +1264,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         all_ok = all([stat == self.S_OK for stat in self.deps_status])
         return self.status < self.S_SUB and self.status != self.S_LOCKED and all_ok
 
-    @check_spectator
+    #@check_spectator
     def cancel(self):
         """Cancel the job. Returns 1 if job was cancelled."""
         if self.queue_id is None: return 0 
@@ -1308,7 +1308,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         return dict(returncode=0, message="Calling on_all_ok of the base class!")
 
-    @check_spectator
+    #@check_spectator
     def fix_ofiles(self):
         """
         This method is called when the task reaches S_OK.
@@ -1325,7 +1325,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             self.history.info("will rename old %s to new %s" % (old, new))
             os.rename(old, new)
 
-    @check_spectator
+    #@check_spectator
     def _restart(self, submit=True):
         """
         Called by restart once we have finished preparing the task for restarting.
@@ -1353,7 +1353,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         return fired
 
-    @check_spectator
+    #@check_spectator
     def restart(self):
         """
         Restart the calculation.  Subclasses should provide a concrete version that 
@@ -1942,7 +1942,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         os.rename(src, dest)
 
-    @check_spectator
+    #@check_spectator
     def build(self, *args, **kwargs):
         """
         Creates the working directory and the input files of the :class:`Task`.
@@ -1960,7 +1960,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.input_file.write(self.make_input())
         self.manager.write_jobfile(self)
 
-    @check_spectator
+    #@check_spectator
     def rmtree(self, exclude_wildcard=""):
         """
         Remove all files and directories in the working directory
@@ -2050,7 +2050,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def setup(self):
         """Base class does not provide any hook."""
 
-    @check_spectator
+    #@check_spectator
     def start(self, **kwargs):
         """
         Starts the calculation by performing the following steps:
@@ -2476,7 +2476,7 @@ class AbinitTask(Task):
         """
         return self._restart()
 
-    @check_spectator
+    #@check_spectator
     def reset_from_scratch(self):
         """
         restart from scratch, this is to be used if a job is restarted with more resources after a crash
@@ -2520,7 +2520,7 @@ class AbinitTask(Task):
 
         return self._restart(submit=False)
 
-    @check_spectator
+    #@check_spectator
     def fix_abi_critical(self):
         """
         method to fix crashes/error caused by abinit
@@ -2564,7 +2564,7 @@ class AbinitTask(Task):
         self.set_status(status=self.S_ERROR, msg='We encountered AbiCritical events that could not be fixed')
         return 0
 
-    @check_spectator
+    #@check_spectator
     def fix_queue_critical(self):
         """
         This function tries to fix critical events originating from the queue submission system.

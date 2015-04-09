@@ -718,6 +718,26 @@ class Flow(Node, NodeContainer, PMGSONable):
         """The status of the :class:`Flow` i.e. the minimum of the status of its tasks and its works"""
         return min(work.get_all_status(only_min=True) for work in self)
 
+    #def restart_unconverged_tasks(self, max_nlauch, excs):
+    #    nlaunch = 0
+    #    for task in self.unconverged_tasks:
+    #        try:
+    #            logger.info("Flow will try restart task %s" % task)
+    #            fired = task.restart()
+    #            if fired: 
+    #                nlaunch += 1
+    #                max_nlaunch -= 1
+
+    #                if max_nlaunch == 0:
+    #                    logger.info("Restart: too many jobs in the queue, returning")
+    #                    self.pickle_dump()
+    #                    return nlaunch, max_nlaunch
+
+    #        except task.RestartError:
+    #            excs.append(straceback())
+
+    #    return nlaunch, max_nlaunch
+
     def fix_abi_critical(self):
         """
         This function tries to fix critical events originating from ABINIT.
