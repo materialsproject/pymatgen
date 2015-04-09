@@ -269,6 +269,15 @@ class IStructureTest(PymatgenTest):
         s = IStructure(Lattice.cubic(4.09), ["Ag"] * 4, coords)
         self.assertEqual(len(s.get_primitive_structure()), 4)
 
+    def test_primitive_cell_site_merging(self):
+        l = Lattice.cubic(10)
+        coords = [[0, 0, 0], [0, 0, 0.5],
+                  [0, 0, 0.26], [0, 0, 0.74]]
+        sp = ['Ag', 'Ag', 'Be', 'Be']
+        s = Structure(l, sp, coords)
+        dm = s.get_primitive_structure().distance_matrix
+        self.assertArrayAlmostEqual(dm, [[0, 2.5], [2.5, 0]])
+
     def test_primitive_on_large_supercell(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]]
         fcc_ag = Structure(Lattice.cubic(4.09), ["Ag"] * 4, coords)
