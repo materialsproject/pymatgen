@@ -79,7 +79,7 @@ class QcTask(PMGSONable):
             The ghost atom will be represented in of the form of @element_symmbol
     """
 
-    optional_keywords_list = {"basis", "ecp", "empirical_dispersion",
+    optional_keywords_list = {"basis", "basis2", "ecp", "empirical_dispersion",
                               "external_charges", "force_field_params",
                               "intracule", "isotopes", "aux_basis",
                               "localized_diabatization", "multipole_field",
@@ -252,6 +252,44 @@ class QcTask(PMGSONable):
                 raise ValueError("Elements in molecule and mixed basis set don't match")
         else:
             raise Exception('Can\'t handle type "{}"'.format(type(basis_set)))
+
+    def set_basis2(self, basis2_basis_set):
+        if isinstance(basis2_basis_set, six.string_types):
+            self.params["rem"]["basis2"] = basis2_basis_set.lower()
+            if basis2_basis_set.lower() not in ["basis2_gen", "basis2_mixed"]:
+                self.params.pop("basis2", None)
+        elif isinstance(basis2_basis_set, dict):
+            self.params["rem"]["basis2"] = "basis2_gen"
+            bs = dict()
+            for element, basis in basis2_basis_set.items():
+                bs[element.strip().capitalize()] = basis.lower()
+            self.params["basis2"] = bs
+            if self.mol:
+                mol_elements = set([site.species_string for site
+                                    in self.mol.sites])
+                basis_elements = set(self.params["basis2"].keys())
+                if len(mol_elements - basis_elements) > 0:
+                    raise ValueError("The BASIS2 basis set for "
+                                     "elements " +
+                                     ", ".join(
+                                         list(mol_elements - basis_elements)) +
+                                     " is missing")
+                if len(basis_elements - mol_elements) > 0:
+                    raise ValueError("BASIS2 basis set error: the "
+                                     "molecule doesn't contain element " +
+                                     ", ".join(basis_elements - mol_elements))
+        elif isinstance(basis2_basis_set, list):
+            self.params["rem"]["basis2"] = "basis2_mixed"
+            bs = [(a[0].capitalize(), a[1].lower()) for a in basis2_basis_set]
+            self.params["basis2"] = bs
+            if len(self.mol) != len(basis2_basis_set):
+                raise ValueError("Must specific a BASIS2 basis set for every atom")
+            mol_elements = [site.species_string for site in self.mol.sites]
+            basis_elements = [a[0] for a in bs]
+            if mol_elements != basis_elements:
+                raise ValueError("Elements in molecule and mixed basis set don't match")
+        else:
+            raise Exception('Can\'t handle type "{}"'.format(type(basis2_basis_set)))
 
     def set_auxiliary_basis_set(self, aux_basis_set):
         if isinstance(aux_basis_set, six.string_types):
@@ -668,6 +706,21 @@ class QcTask(PMGSONable):
                 lines.append(" ****")
         return lines
 
+    def _format_basis2(self):
+        lines = []
+        if isinstance(self.params["basis2"], dict):
+            for element in sorted(self.params["basis2"].keys()):
+                basis = self.params["basis2"][element]
+                lines.append(" " + element)
+                lines.append(" " + basis)
+                lines.append(" ****")
+        else:
+            for i, (element, bs) in enumerate(self.params["basis2"]):
+                lines.append(" {element:2s} {number:3d}".format(element=element, number=i+1))
+                lines.append(" {}".format(bs))
+                lines.append(" ****")
+        return lines
+
     def _format_ecp(self):
         lines = []
         for element in sorted(self.params["ecp"].keys()):
@@ -1063,6 +1116,27 @@ class QcTask(PMGSONable):
 
     @classmethod
     def _parse_aux_basis(cls, contents):
+        if len(contents) % 3 != 0:
+            raise ValueError("Auxiliary basis set section format error")
+        chunks = zip(*[iter(contents)]*3)
+        t = contents[0].split()
+        if len(t) == 2 and int(t[1]) > 0:
+            bs = []
+            for i, ch in enumerate(chunks):
+                element, number = ch[0].split()
+                basis = ch[1]
+                if int(number) != i+1:
+                    raise ValueError("Atom order number doesn't match in $aux_basis section")
+                bs.append((element.strip().capitalize(), basis.strip().lower()))
+        else:
+            bs = dict()
+            for ch in chunks:
+                element, basis = ch[:2]
+                bs[element.strip().capitalize()] = basis.strip().lower()
+        return bs
+
+    @classmethod
+    def _parse_basis2(cls, contents):
         if len(contents) % 3 != 0:
             raise ValueError("Auxiliary basis set section format error")
         chunks = zip(*[iter(contents)]*3)
