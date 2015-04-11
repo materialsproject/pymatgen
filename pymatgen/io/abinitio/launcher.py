@@ -766,8 +766,10 @@ class PyFlowScheduler(object):
             print("\n".join(lines))
 
             self._do_customer_service()
-            print("Calling flow.finalize()")
-            self.flow.finalize()
+
+            if self.flow.all_ok:
+                print("Calling flow.finalize()")
+                self.flow.finalize()
 
         finally:
             # Shutdown the scheduler thus allowing the process to exit.

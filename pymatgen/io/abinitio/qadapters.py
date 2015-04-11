@@ -1358,14 +1358,14 @@ $${qverbatim}
         self.qparams["pmem"] = self.mem_per_proc
         self.qparams["mem"] = self.mem_per_proc
 
-    @property
-    def mpi_procs(self):
-        """Number of MPI processes."""
-        return self.qparams.get("nodes", 1)*self.qparams.get("ppn", 1)
+    #@property
+    #def mpi_procs(self):
+    #    """Number of MPI processes."""
+    #    return self.qparams.get("nodes", 1) * self.qparams.get("ppn", 1)
 
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
-        QueueAdapter.set_mpi_procs(mpi_procs)
+        QueueAdapter.set_mpi_procs(self, mpi_procs)
         self.qparams["nodes"] = 1
         self.qparams["ppn"] = mpi_procs
 
