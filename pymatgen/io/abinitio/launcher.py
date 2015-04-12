@@ -302,6 +302,7 @@ class PyFlowScheduler(object):
             use_dynamic_manager: True if the :class:`TaskManager` must be re-initialized from
                 file before launching the jobs. Default: False
             max_nlaunches: Maximum number of tasks launched by radpifire (default -1 i.e. no limit)
+            fix_qcritical: True if the launcher should try to fix QCritical Errors (default: True)
         """
         # Options passed to the scheduler.
         self.sched_options = AttrDict(
@@ -330,6 +331,7 @@ class PyFlowScheduler(object):
         #self.max_etime_s = kwargs.pop("max_etime_s", )
         self.max_nlaunches = kwargs.pop("max_nlaunches", -1)
         self.debug = kwargs.pop("debug", 0)
+        self.fix_qcritical =  kwargs.pop("fix_qcritical", True)
 
         self.customer_service_dir = kwargs.pop("customer_service_dir", None)
         if self.customer_service_dir is not None:
@@ -598,16 +600,13 @@ class PyFlowScheduler(object):
             except task.RestartError:
                 excs.append(straceback())
 
-        # move here from withing rapid fire ...
-        # fix only prepares for restarting, and sets to ready
-        nfixed = flow.fix_abi_critical()
-        if nfixed: print("Fixed %d AbiCritical errors" % nfixed)
-
         # Temporarily disable by MG because I don't know if fix_critical works after the
         # introduction of the new qadapters
         # reenabled by MsS disable things that do not work at low level
-        nfixed = flow.fix_queue_critical()
-        if nfixed: print("Fixed %d QueueCritical errors" % nfixed)
+        # fix only prepares for restarting, and sets to ready
+        if self.fix_qcritical:
+            nfixed = flow.fix_abi_critical()
+            if nfixed: print("Fixed %d AbiCritical errors" % nfixed)
 
         # update database
         flow.pickle_dump()
