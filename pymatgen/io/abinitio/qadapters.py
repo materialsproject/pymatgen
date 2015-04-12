@@ -436,7 +436,7 @@ limits:
         for param in self.qparams:
             if param not in self.supported_qparams:
                 err_msg += "Unsupported QUEUE parameter name %s\n" % param
-                err_msg += "Supported are: \n"
+                err_msg += "Supported parameters:\n"
                 for param_sup in self.supported_qparams:
                     err_msg += "    %s \n" % param_sup
 
@@ -1356,7 +1356,7 @@ $${qverbatim}
         """Set the memory per process in megabytes"""
         QueueAdapter.set_mem_per_proc(self, mem_mb)
         self.qparams["pmem"] = self.mem_per_proc
-        self.qparams["mem"] = self.mem_per_proc
+        #self.qparams["mem"] = self.mem_per_proc
 
     #@property
     #def mpi_procs(self):
