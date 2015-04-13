@@ -32,14 +32,22 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 class VasprunTest(unittest.TestCase):
 
     def test_properties(self):
+
+        filepath = os.path.join(test_dir, 'vasprun.xml.nonlm')
+        vasprun = Vasprun(filepath, parse_potcar_file=False)
+        orbs = list(vasprun.complete_dos.pdos[vasprun.final_structure[
+            0]].keys())
+        self.assertIn("S", orbs)
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath, parse_potcar_file=False)
 
         #test pdos parsing
+
         pdos0 = vasprun.complete_dos.pdos[vasprun.final_structure[0]]
         self.assertAlmostEqual(pdos0[Orbital.s][1][16], 0.0026)
         self.assertAlmostEqual(pdos0[Orbital.pz][-1][16], 0.0012)
         self.assertEqual(pdos0[Orbital.s][1].shape, (301, ))
+
 
         filepath2 = os.path.join(test_dir, 'lifepo4.xml')
         vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True,
@@ -494,5 +502,4 @@ class DynmatTest(unittest.TestCase):
         # TODO: test get_phonon_frequencies once cross-checked
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
