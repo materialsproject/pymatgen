@@ -125,7 +125,7 @@ class BorgQueen(object):
         """
         Load assimilated data from a file
         """
-        with zopen(filename, "r") as f:
+        with zopen(filename, "rt") as f:
             self._data = json.load(f, cls=MontyDecoder)
 
 
