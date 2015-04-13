@@ -533,7 +533,7 @@ class PyFlowScheduler(object):
         except KeyboardInterrupt:
             self.shutdown(msg="KeyboardInterrupt from user")
             if ask_yesno("Do you want to cancel all the jobs in the queue? [Y/n]"): 
-                print("Number of jobs cancelled %s", self.flow.cancel())
+                print("Number of jobs cancelled:", self.flow.cancel())
 
             self.flow.pickle_dump()
             return -1
