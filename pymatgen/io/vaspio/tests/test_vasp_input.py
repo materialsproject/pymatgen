@@ -560,6 +560,19 @@ class VaspInputTest(unittest.TestCase):
         comp = vinput["POSCAR"].structure.composition
         self.assertEqual(comp, Composition("Fe4P4O16"))
 
+    def test_write(self):
+        tmp_dir = "VaspInput.testing"
+        self.vinput.write_input(tmp_dir)
+
+        filepath = os.path.join(tmp_dir, "INCAR")
+        incar = Incar.from_file(filepath)
+        self.assertEqual(incar["NSW"], 99)
+
+        for name in ("INCAR", "POSCAR", "POTCAR", "KPOINTS"):
+            os.remove(os.path.join(tmp_dir, name))
+
+        os.rmdir(tmp_dir)
+
     def test_from_directory(self):
         vi = VaspInput.from_directory(test_dir,
                                       optional_files={"CONTCAR.Li2O": Poscar})
