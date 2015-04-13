@@ -582,6 +582,12 @@ class Flow(Node, NodeContainer, PMGSONable):
                     if nids and task.node_id not in nids: continue
                     if op(task.status, status): yield task
 
+    def node_from_nid(self, nid):
+        """Return the node in the `Flow` with the given `nid` identifier"""
+        for node in self.iflat_nodes():
+            if node.node_id == nid: return node
+        raise ValueError("Cannot find node with node id: %s" % nid)
+
     def iflat_tasks_wti(self, status=None, op="==", nids=None):
         """
         Generator to iterate over all the tasks of the `Flow`.
@@ -1199,7 +1205,7 @@ class Flow(Node, NodeContainer, PMGSONable):
                 pid = int(fh.readline())
 
             retcode = os.system("kill -9 %d" % pid)
-            self.history.info("Sent SIGKILL to the scheduler, retcode = %s" % retcode)
+            self.history.info("Sent SIGKILL to the scheduler, retcode: %s" % retcode)
             try:
                 os.remove(self.pid_file)
             except IOError:
