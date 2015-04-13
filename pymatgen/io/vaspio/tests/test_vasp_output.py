@@ -483,8 +483,8 @@ class DynmatTest(unittest.TestCase):
         self.assertEqual(d.natoms, 6)
         self.assertEqual(d.ndisps, 3)
         self.assertTrue(np.allclose(d.masses, [63.546, 196.966]))
-        self.assertTrue(d.data.has_key(4))
-        self.assertTrue(d.data[4].has_key(2))
+        self.assertTrue(4 in d.data)
+        self.assertTrue(2 in d.data[4])
         self.assertTrue(np.allclose(
             d.data[4][2]['dispvec'], [0., 0.05, 0.]
         ))
