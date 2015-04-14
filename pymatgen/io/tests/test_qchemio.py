@@ -292,6 +292,75 @@ $end
         self.assertEqual(str(qctask), ans_mixed)
         self.elementary_io_verify(ans_mixed, qctask)
 
+    def test_partial_hessian(self):
+        qcinp1 = QcInput.from_file(os.path.join(test_dir, "partial_hessian.qcinp"))
+        ans = """$molecule
+ 0  1
+ C          -1.76827000        0.46495000        0.28695000
+ O           1.78497000       -0.42034000       -0.39845000
+ H          -0.77736000        0.78961000        0.66548000
+ H          -1.75896000        0.46604000       -0.82239000
+ H          -2.54983000        1.16313000        0.65101000
+ H          -1.98693000       -0.55892000        0.65381000
+ H           2.14698000       -0.07173000        0.45530000
+ H           1.25596000       -1.21510000       -0.13726000
+$end
+
+
+$rem
+   jobtype = freq
+  exchange = b3lyp
+     basis = 6-31g*
+     n_sol = 3
+     phess = true
+$end
+
+
+$alist
+ 3
+ 7
+ 8
+$end
+
+"""
+        self.assertEqual(ans, str(qcinp1))
+        self.elementary_io_verify(ans, qcinp1.jobs[0])
+        qcinp1.jobs[0].params["rem"]["jobtype"] = "sp"
+        qcinp1.jobs[0].params["rem"]["phess"] = 3
+        qcinp1.jobs[0].set_partial_hessian_atoms([2, 3, 4, 5, 6])
+        ans = """$molecule
+ 0  1
+ C          -1.76827000        0.46495000        0.28695000
+ O           1.78497000       -0.42034000       -0.39845000
+ H          -0.77736000        0.78961000        0.66548000
+ H          -1.75896000        0.46604000       -0.82239000
+ H          -2.54983000        1.16313000        0.65101000
+ H          -1.98693000       -0.55892000        0.65381000
+ H           2.14698000       -0.07173000        0.45530000
+ H           1.25596000       -1.21510000       -0.13726000
+$end
+
+
+$rem
+   jobtype = freq
+  exchange = b3lyp
+     basis = 6-31g*
+     n_sol = 5
+     phess = True
+$end
+
+
+$alist
+ 2
+ 3
+ 4
+ 5
+ 6
+$end
+
+"""
+        self.assertEqual(ans, str(qcinp1))
+
     def test_basis2_mixed(self):
         qcinp1 = QcInput.from_file(os.path.join(test_dir, "basis2_mixed.inp"))
         ans = """$molecule
