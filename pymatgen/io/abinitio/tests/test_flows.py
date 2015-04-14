@@ -251,6 +251,7 @@ class TestFlowInSpectatorMode(FlowUnitTest):
                 assert node.in_spectator_mode == mode
 
         assert len(list(flow.iflat_nodes())) == 1 + len(flow.works) + sum(len(work) for work in flow)
+        assert flow.node_from_nid(flow.node_id) == flow
 
         flow.set_spectator_mode(mode=False)
         flow.build_and_pickle_dump()
