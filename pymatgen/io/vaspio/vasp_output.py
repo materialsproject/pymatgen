@@ -965,15 +965,23 @@ class Vasprun(PMGSONable):
         pdoss = []
         partial = elem.find("partial")
         if partial is not None:
+            orbs = [ss.text for ss in partial.find("array").findall("field")]
+            orbs.pop(0)
+            lm = any(["x" in s for s in orbs])
             for s in partial.find("array").find("set").findall("set"):
                 pdos = defaultdict(dict)
+
                 for ss in s.findall("set"):
                     spin = Spin.up if ss.attrib["comment"] == "spin 1" else \
                         Spin.down
                     data = np.array(_parse_varray(ss))
                     nrow, ncol = data.shape
                     for j in range(1, ncol):
-                        pdos[Orbital.from_vasp_index(j - 1)][spin] = data[:, j]
+                        if lm:
+                            orb = Orbital.from_vasp_index(j - 1)
+                        else:
+                            orb = orbs[j - 1].strip().upper()
+                        pdos[orb][spin] = data[:, j]
                 pdoss.append(pdos)
         elem.clear()
         return Dos(efermi, energies, tdensities), \

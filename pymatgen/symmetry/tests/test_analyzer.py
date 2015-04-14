@@ -383,6 +383,7 @@ class PointGroupAnalyzerTest(PymatgenTest):
                   [-0.513360, 0.889165, -0.363000]]
         mol = Molecule(["C", "H", "F", "Br", "Cl"], coords)
         a = PointGroupAnalyzer(mol)
+
         self.assertEqual(a.sch_symbol, "C1")
         self.assertEqual(len(a.get_pointgroup()), 1)
         coords = [[0.000000, 0.000000, 1.08],

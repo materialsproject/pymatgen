@@ -14,6 +14,8 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 20, 2012"
 
+import collections
+
 import numpy as np
 
 import six
@@ -370,7 +372,10 @@ class CompleteDos(Dos):
         spd_dos = {}
         for atom_dos in self.pdos.values():
             for orb, pdos in atom_dos.items():
-                orbital_type = orb.orbital_type
+                try:
+                    orbital_type = orb.orbital_type
+                except AttributeError:
+                    orbital_type = orb
                 if orbital_type not in spd_dos:
                     spd_dos[orbital_type] = pdos
                 else:
@@ -409,11 +414,14 @@ class CompleteDos(Dos):
             dict of {Element: {"S": densities, "P": densities, "D": densities}}
         """
         el = get_el_sp(el)
-        el_dos = dict()
+        el_dos = {}
         for site, atom_dos in self.pdos.items():
             if site.specie == el:
                 for orb, pdos in atom_dos.items():
-                    orbital_type = orb.orbital_type
+                    try:
+                        orbital_type = orb.orbital_type
+                    except AttributeError:
+                        orbital_type = orb
                     if orbital_type not in el_dos:
                         el_dos[orbital_type] = pdos
                     else:
