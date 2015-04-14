@@ -23,9 +23,30 @@ class PWInput(object):
     very basic.
     """
 
-    def __init__(self, structure, pseudo, control=None, system=None, electrons=None,
-                 ions=None, cell=None, kpoints_mode="automatic",
+    def __init__(self, structure, pseudo, control=None, system=None,
+                 electrons=None, ions=None, cell=None, kpoints_mode="automatic",
                  kpoints_grid=(1, 1, 1),kpoints_shift=(0, 0, 0)):
+        """
+        Initializes a PWSCF input file.
+
+        Args:
+            structure (Structure): Input structure
+            pseudo (dict): A dict of the pseudopotentials to use.
+            control (dict): Control parameters. Refer to official PWSCF doc
+                on supported parameters. Default to {"calculation": "scf"}
+            system (dict): System parameters. Refer to official PWSCF doc
+                on supported parameters. Default to None, which means {}.
+            electrons (dict): Electron parameters. Refer to official PWSCF doc
+                on supported parameters. Default to None, which means {}.
+            ions (dict): Ions parameters. Refer to official PWSCF doc
+                on supported parameters. Default to None, which means {}.
+            cell (dict): Cell parameters. Refer to official PWSCF doc
+                on supported parameters. Default to None, which means {}.
+            kpoints_mode (str): Kpoints generation mode. Default to automatic.
+            kpoints_grid (sequence): The kpoint grid. Default to (1, 1, 1).
+            kpoints_shift (sequence): The shift for the kpoints. Defaults to
+                (0, 0, 0).
+        """
         self.structure = structure
         sections = {}
         sections["control"] = control or {"calculation": "scf"}
@@ -52,8 +73,8 @@ class PWInput(object):
             v1 = self.sections[k1]
             out.append("&%s" % k1.upper())
             sub = []
-            for k2, v2 in v1.items():
-                sub.append("  %s = %s" % (k2, to_str(v2)))
+            for k2 in sorted(v1.keys()):
+                sub.append("  %s = %s" % (k2, to_str(v1[k2])))
             if k1 == "system":
                 sub.append("  ibrav = 0")
                 sub.append("  nat = %d" % len(self.structure))
@@ -79,6 +100,12 @@ class PWInput(object):
         return "\n".join(out)
 
     def write_file(self, filename):
+        """
+        Write the PWSCF input file.
+
+        Args:
+            filename (str): The string filename to output to.
+        """
         with open(filename, "w") as f:
             f.write(self.__str__())
 
