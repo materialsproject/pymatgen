@@ -1271,9 +1271,12 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         if self.status >= self.S_DONE: return 0 
 
         exit_status = self.manager.cancel(self.queue_id)
-        if exit_status != 0: return 0
+        if exit_status != 0: 
+            logger.warning("manager.cancel returned exit_status: %s" % exit_status)
+            return 0
 
         # Remove output files and reset the status.
+        self.history.info("Job %s cancelled by user" % self.queue_id)
         self.reset()
         return 1
 
@@ -2370,7 +2373,10 @@ class AbinitTask(Task):
 
         # Set the variables for automatic parallelization
         # Will get all the possible configurations up to max_ncpus
+        # Return immediately if max_ncpus == 1 
         max_ncpus = self.manager.max_cores
+        if max_ncpus == 1: return 0
+
         autoparal_vars = dict(autoparal=policy.autoparal, max_ncpus=max_ncpus)
         self._set_inpvars(autoparal_vars)
 
@@ -3103,7 +3109,7 @@ class BecTask(DfptTask):
 
     def make_links(self):
         """Replace the default behaviour of make_links"""
-        print("In BEC make_links")
+        #print("In BEC make_links")
 
         for dep in self.deps:
             if dep.exts == ["DDK"]:
