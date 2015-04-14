@@ -2373,7 +2373,7 @@ class AbinitTask(Task):
 
         # Set the variables for automatic parallelization
         # Will get all the possible configurations up to max_ncpus
-        # Return immediately if max_ncpuds == 1 
+        # Return immediately if max_ncpus == 1 
         max_ncpus = self.manager.max_cores
         if max_ncpus == 1: return 0
 
@@ -3109,7 +3109,7 @@ class BecTask(DfptTask):
 
     def make_links(self):
         """Replace the default behaviour of make_links"""
-        print("In BEC make_links")
+        #print("In BEC make_links")
 
         for dep in self.deps:
             if dep.exts == ["DDK"]:

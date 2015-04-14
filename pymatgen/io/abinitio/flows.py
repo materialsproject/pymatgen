@@ -1255,7 +1255,9 @@ class Flow(Node, NodeContainer, PMGSONable):
             if self.node_id != node_id:
                 msg = ("\nFound node_id %s in file:\n\n  %s\n\nwhile the node_id of the present flow is %d.\n" 
                        "This means that you are trying to build a new flow in a directory already used by another flow.\n" 
-                       "Change the workdir of the new flow or remove the old directory!"
+                       "Possible solutions:\n"
+                       "   1) Change the workdir of the new flow.\n" 
+                       "   2) remove the old directory either with `rm -rf` or by calling the method flow.rmtree()\n"
                         % (node_id, nodeid_path, self.node_id))
                 raise RuntimeError(msg)
 
