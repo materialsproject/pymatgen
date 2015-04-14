@@ -1074,6 +1074,22 @@ class DummySpecie(PMGSONable):
             return DummySpecie(sym, oxi, properties)
         raise ValueError("Invalid DummySpecies String")
 
+    @classmethod
+    def safe_from_composition(cls, comp, oxidation_state=0):
+        """
+        Returns a DummySpecie object that can be safely used
+        with (i.e. not present in) a given composition
+        """
+        # We don't want to add a DummySpecie with the same
+        # symbol as anything in the composition, even if the
+        # oxidation state is different
+        els = comp.element_composition.elements
+        for c in 'abcdfghijklmnopqrstuvwxyz':
+            if DummySpecie('X' + c) not in els:
+                return DummySpecie('X' + c, oxidation_state)
+        raise ValueError("All attempted DummySpecies already "
+                         "present in {}".format(comp))
+
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
