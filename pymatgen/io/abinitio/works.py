@@ -24,7 +24,7 @@ from . import wrappers
 from .nodes import Dependency, Node, NodeError, NodeResults, check_spectator
 from .tasks import (Task, AbinitTask, ScfTask, NscfTask, PhononTask, DdkTask, 
                     BseTask, RelaxTask, DdeTask, BecTask, ScrTask, SigmaTask)
-from .strategies import HtcStrategy, NscfStrategy
+from .strategies import HtcStrategy
 from .utils import Directory
 from .netcdf import ETSF_Reader, NetcdfReader
 from .abitimer import AbinitTimerParser
@@ -940,26 +940,27 @@ class G0W0Work(Work):
         nogw = False
 
         if nksmall:
+            raise NotImplementedError("with nksmall but strategies have been removed")
             # if nksmall add bandstructure and dos calculations as well
-            from abiobjects import KSampling
-            if nksmall < 0:
-                nksmall = -nksmall
-                nogw = True
-            scf_in = scf_input[-1] if isinstance(scf_input, (list, tuple)) else scf_input
-            logger.info('added band structure calculation')
-            bands_input = NscfStrategy(scf_strategy=scf_in,
-                                       ksampling=KSampling.path_from_structure(ndivsm=nksmall, structure=scf_in.structure),
-                                       nscf_nband=scf_in.electrons.nband, ecut=scf_in.ecut, chksymbreak=0)
+            #from abiobjects import KSampling
+            #if nksmall < 0:
+            #    nksmall = -nksmall
+            #    nogw = True
+            #scf_in = scf_input[-1] if isinstance(scf_input, (list, tuple)) else scf_input
+            #logger.info('added band structure calculation')
+            #bands_input = NscfStrategy(scf_strategy=scf_in,
+            #                           ksampling=KSampling.path_from_structure(ndivsm=nksmall, structure=scf_in.structure),
+            #                           nscf_nband=scf_in.electrons.nband, ecut=scf_in.ecut, chksymbreak=0)
 
-            self.bands_task = self.register_nscf_task(bands_input, deps={self.scf_task: "DEN"})
-            # note we don not let abinit print the dos, since this is inconpatible with parakgb
-            # the dos will be evaluated later using abipy
-            dos_input = NscfStrategy(scf_strategy=scf_in,
-                                     ksampling=KSampling.automatic_density(kppa=nksmall**3, structure=scf_in.structure,
-                                                                           shifts=(0.0, 0.0, 0.0)),
-                                     nscf_nband=scf_in.electrons.nband, ecut=scf_in.ecut, chksymbreak=0)
+            #self.bands_task = self.register_nscf_task(bands_input, deps={self.scf_task: "DEN"})
+            ## note we don not let abinit print the dos, since this is inconpatible with parakgb
+            ## the dos will be evaluated later using abipy
+            #dos_input = NscfStrategy(scf_strategy=scf_in,
+            #                         ksampling=KSampling.automatic_density(kppa=nksmall**3, structure=scf_in.structure,
+            #                                                               shifts=(0.0, 0.0, 0.0)),
+            #                         nscf_nband=scf_in.electrons.nband, ecut=scf_in.ecut, chksymbreak=0)
 
-            self.dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
+            #self.dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
 
         # Register the SIGMA runs.
         if not nogw:
