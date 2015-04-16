@@ -101,15 +101,15 @@ class MPResterTest(unittest.TestCase):
 
     def test_get_materials_id_references(self):
         # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_get_materials_id_references
-        # TODO use self.rester when in prod
-        m = MPRester(os.environ.get('MAPI_KEY_DEV'), endpoint="http://www.materialsproject.org:8080/rest")
+        # self.rester points to rest/v2 by default which doesn't have the refs endpoint
+        m = MPRester(endpoint="https://www.materialsproject.org/rest")
         data = m.get_materials_id_references('mp-123')
         self.assertTrue(len(data) > 1000)
 
     def test_find_structure(self):
         # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_find_structure
-        # TODO use self.rester when in prod
-        m = MPRester(os.environ.get('MAPI_KEY_DEV'), endpoint="http://www.materialsproject.org:8080/rest")
+        # self.rester points to rest/v2 by default which doesn't have the find_structure endpoint
+        m = MPRester(endpoint="https://www.materialsproject.org/rest")
         ciffile = 'test_files/Fe3O4.cif'
         data = m.find_structure(ciffile)
         self.assertTrue(len(data) > 1)

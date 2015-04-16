@@ -965,15 +965,23 @@ class Vasprun(PMGSONable):
         pdoss = []
         partial = elem.find("partial")
         if partial is not None:
+            orbs = [ss.text for ss in partial.find("array").findall("field")]
+            orbs.pop(0)
+            lm = any(["x" in s for s in orbs])
             for s in partial.find("array").find("set").findall("set"):
                 pdos = defaultdict(dict)
+
                 for ss in s.findall("set"):
                     spin = Spin.up if ss.attrib["comment"] == "spin 1" else \
                         Spin.down
                     data = np.array(_parse_varray(ss))
                     nrow, ncol = data.shape
                     for j in range(1, ncol):
-                        pdos[Orbital.from_vasp_index(j - 1)][spin] = data[:, j]
+                        if lm:
+                            orb = Orbital.from_vasp_index(j - 1)
+                        else:
+                            orb = orbs[j - 1].strip().upper()
+                        pdos[orb][spin] = data[:, j]
                 pdoss.append(pdos)
         elem.clear()
         return Dos(efermi, energies, tdensities), \
@@ -2246,6 +2254,73 @@ class Xdatcar(object):
                     coords_str.append(l)
         self.structures = structures
 
+class Dynmat(object):
+    """
+    Object for reading a DYNMAT file.
+
+    Args:
+        filename: Name of file containing DYNMAT.
+
+    .. attribute:: data
+
+        A nested dict containing the DYNMAT data of the form::
+        [atom <int>][disp <int>]['dispvec'] =
+            displacement vector (part of first line in dynmat block, e.g. "0.01 0 0")
+        [atom <int>][disp <int>]['dynmat'] =
+                <list> list of dynmat lines for this atom and this displacement
+
+    Authors: Patrick Huck
+    """
+    def __init__(self, filename):
+        with zopen(filename, "rt") as f:
+            lines = list(clean_lines(f.readlines()))
+            self._nspecs, self._natoms, self._ndisps = map(int, lines[0].split())
+            self._masses = map(float, lines[1].split())
+            self.data = defaultdict(dict)
+            atom, disp = None, None
+            for i,l in enumerate(lines[2:]):
+                v = list(map(float, l.split()))
+                if not i % (self._natoms+1):
+                    atom, disp = map(int, v[:2])
+                    if atom not in self.data: self.data[atom] = {}
+                    if disp not in self.data[atom]: self.data[atom][disp] = {}
+                    self.data[atom][disp]['dispvec'] = v[2:]
+                else:
+                    if 'dynmat' not in self.data[atom][disp]:
+                        self.data[atom][disp]['dynmat'] = []
+                    self.data[atom][disp]['dynmat'].append(v)
+
+    def get_phonon_frequencies(self):
+        """calculate phonon frequencies"""
+        # TODO: the following is most likely not correct or suboptimal
+        # hence for demonstration purposes only
+        frequencies = []
+        for k,v0 in self.data.iteritems():
+            for v1 in v0.itervalues():
+                vec = map(abs, v1['dynmat'][k-1])
+                frequency = math.sqrt(sum(vec)) * 2.*math.pi*15.633302 # THz
+                frequencies.append(frequency)
+        return frequencies
+
+    @property
+    def nspecs(self):
+        """returns the number of species"""
+        return self._nspecs
+
+    @property
+    def natoms(self):
+        """returns the number of atoms"""
+        return self._natoms
+
+    @property
+    def ndisps(self):
+        """returns the number of displacements"""
+        return self._ndisps
+
+    @property
+    def masses(self):
+        """returns the list of atomic masses"""
+        return list(self._masses)
 
 def get_adjusted_fermi_level(efermi, cbm, band_structure):
     """
