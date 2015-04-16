@@ -23,6 +23,7 @@ from pydispatch import dispatcher
 from collections import OrderedDict
 from monty.collections import as_set, dict2namedtuple
 from monty.string import list_strings, is_string
+from monty.operator import operator_from_str
 from monty.io import FileLock
 from monty.pprint import draw_tree
 from monty.termcolor import cprint, colored, cprint_map
@@ -54,24 +55,6 @@ __all__ = [
     "g0w0_flow",
     "phonon_flow",
 ]
-
-# TODO: Move to monty
-def operator_from_str(op):
-    """
-    Return the operator associate to the given string `op`.
-
-    raises:
-        KeyError if invalid string.
-    """
-    import operator
-    return {
-        "==": operator.eq,
-        "!=": operator.ne,
-        ">": operator.gt,
-        ">=": operator.ge,
-        "<": operator.lt,
-        "<=": operator.le,
-    }[op]
 
 
 class FlowResults(NodeResults):
