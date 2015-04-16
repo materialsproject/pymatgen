@@ -1035,6 +1035,21 @@ class BseMdfWork(Work):
         for bse_input in bse_inputs:
             self.register_bse_task(bse_input, deps={self.nscf_task: "WFK"})
 
+    def get_mdf_robot(self):
+        """Builds and returns a :class:`MdfRobot` for analyzing the results in the MDF files."""
+        from abilab.robots import MdfRobot
+        robot = MdfRobot()
+        for task in self[2:]:
+            mdf_path = task.outdir.has_abiext(robot.EXT)
+            if mdf_path:
+                robot.add_file(str(task), mdf_path)
+        return robot
+
+    #def plot_conv_mdf(self, **kwargs)
+    #    with self.get_mdf_robot() as robot:
+    #        robot.get_mdf_plooter()
+    #    plotter.plot(**kwargs)
+
 
 class QptdmWork(Work):
     """
