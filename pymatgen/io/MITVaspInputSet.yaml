@@ -105,7 +105,7 @@ INCAR:
     S:
       Fe: 1.9
       Mn: 2.5
-  LDAUPRINT: true
+  LDAUPRINT: 1
   LORBIT: '11'
   LREAL: AUTO
   LWAVE: false

@@ -1113,19 +1113,25 @@ class IStructure(SiteCollection, PMGSONable):
                     if not valid:
                         break
 
-                    #add the new sites
+                    #add the new sites, averaging positions
                     added = np.zeros(len(gsites))
-                    for i, s in enumerate(gsites):
+                    new_fcoords = all_frac % 1
+                    for i, group in enumerate(groups):
                         if not added[i]:
-                            added[groups[i]] = True
-                            new_sp.append(s.species_and_occu)
-                            new_coords.append(s.coords)
+                            added[group] = True
+                            inds = np.where(group)[0]
+                            coords = new_fcoords[inds[0]]
+                            for n, j in enumerate(inds[1:]):
+                                offset = new_fcoords[j] - coords
+                                coords += (offset - np.round(offset)) / (n + 2)
+                            new_sp.append(gsites[inds[0]].species_and_occu)
+                            new_coords.append(coords)
 
                 if valid:
                     inv_m = np.linalg.inv(m)
                     new_l = Lattice(np.dot(inv_m, self.lattice.matrix))
                     s = Structure(new_l, new_sp, new_coords,
-                                  coords_are_cartesian=True)
+                                  coords_are_cartesian=False)
 
                     return s.get_primitive_structure(
                         tolerance).get_reduced_structure()
@@ -2472,13 +2478,12 @@ class Structure(IStructure, collections.MutableSequence):
         sites = []
         for c in np.unique(clusters):
             inds = np.argwhere(clusters == c)
-            species = Composition()
+            species = self[inds[0]].species_and_occu
             coords = self[inds[0]].frac_coords
-            n = len(inds)
-            for i in inds:
+            for n, i in enumerate(inds[1:]):
                 species += self[i].species_and_occu
                 offset = self[i].frac_coords - coords
-                coords += (offset - np.round(offset)) / n
+                coords += (offset - np.round(offset)) / (n + 2)
             sites.append(PeriodicSite(species, coords, self.lattice))
 
         self._sites = sites
