@@ -24,7 +24,7 @@ from . import wrappers
 from .nodes import Dependency, Node, NodeError, NodeResults, check_spectator
 from .tasks import (Task, AbinitTask, ScfTask, NscfTask, PhononTask, DdkTask, 
                     BseTask, RelaxTask, DdeTask, BecTask, ScrTask, SigmaTask)
-from .strategies import HtcStrategy
+
 from .utils import Directory
 from .netcdf import ETSF_Reader, NetcdfReader
 from .abitimer import AbinitTimerParser
@@ -512,13 +512,14 @@ class Work(BaseWork, NodeContainer):
             if task_class is None:
                 task_class = AbinitTask
 
-            if isinstance(obj, HtcStrategy):
-                # Create the new task (note the factory so that we create subclasses easily).
-                raise NotImplementedError("HtcStrategy")
-                task = task_class(obj, task_workdir, manager)
-
-            else:
-                task = task_class.from_input(obj, task_workdir, manager)
+            #from .strategies import HtcStrategy
+            #if isinstance(obj, HtcStrategy):
+            #    # Create the new task (note the factory so that we create subclasses easily).
+            #    raise NotImplementedError("HtcStrategy")
+            #    task = task_class(obj, task_workdir, manager)
+            #
+            #else:
+            task = task_class.from_input(obj, task_workdir, manager)
 
         self._tasks.append(task)
 
