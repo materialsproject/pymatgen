@@ -1370,10 +1370,12 @@ class PotcarSingle(object):
     @staticmethod
     def from_symbol_and_functional(symbol, functional="PBE"):
         funcdir = PotcarSingle.functional_dir[functional]
-        paths_to_try = [os.path.join(get_potcar_dir(), funcdir,
-                                     "POTCAR.{}".format(symbol)),
-                        os.path.join(get_potcar_dir(), funcdir, symbol,
-                                     "POTCAR")]
+        d = get_potcar_dir()
+        if d is None:
+            raise ValueError("No POTCAR directory found. Please set "
+                             "the VASP_PSP_DIR environment variable")
+        paths_to_try = [os.path.join(d, funcdir, "POTCAR.{}".format(symbol)),
+                        os.path.join(d, funcdir, symbol, "POTCAR")]
         for p in paths_to_try:
             p = os.path.expanduser(p)
             p = zpath(p)
