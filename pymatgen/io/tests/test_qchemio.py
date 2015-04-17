@@ -1940,6 +1940,14 @@ $end
                          ['Freq Job Too Small',
                           'Exit Code 134'])
 
+    def test_not_enough_total_memory(self):
+        filename = os.path.join(test_dir, "not_enough_total_memory.qcout")
+        qcout = QcOutput(filename)
+        self.assertTrue(qcout.data[1]['has_error'])
+        self.assertEqual(qcout.data[1]["errors"],
+                         ['Not Enough Total Memory',
+                          'Exit Code 134'])
+
     def test_killed(self):
         filename = os.path.join(test_dir, "killed.qcout")
         qcout = QcOutput(filename)
