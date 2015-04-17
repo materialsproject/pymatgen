@@ -329,11 +329,11 @@ class CompleteDos(Dos):
         """
         spd_dos = dict()
         for orb, pdos in self.pdos[site].items():
-            orb_type = orb.orbital_type
-            if orb_type in spd_dos:
-                spd_dos[orb_type] = add_densities(spd_dos[orb_type], pdos)
+            orbital_type = _get_orb_type(orb)
+            if orbital_type in spd_dos:
+                spd_dos[orbital_type] = add_densities(spd_dos[orbital_type], pdos)
             else:
-                spd_dos[orb_type] = pdos
+                spd_dos[orbital_type] = pdos
         return {orb: Dos(self.efermi, self.energies, densities)
                 for orb, densities in spd_dos.items()}
 
@@ -372,10 +372,7 @@ class CompleteDos(Dos):
         spd_dos = {}
         for atom_dos in self.pdos.values():
             for orb, pdos in atom_dos.items():
-                try:
-                    orbital_type = orb.orbital_type
-                except AttributeError:
-                    orbital_type = orb
+                orbital_type = _get_orb_type(orb)
                 if orbital_type not in spd_dos:
                     spd_dos[orbital_type] = pdos
                 else:
@@ -418,10 +415,7 @@ class CompleteDos(Dos):
         for site, atom_dos in self.pdos.items():
             if site.specie == el:
                 for orb, pdos in atom_dos.items():
-                    try:
-                        orbital_type = orb.orbital_type
-                    except AttributeError:
-                        orbital_type = orb
+                    orbital_type = _get_orb_type(orb)
                     if orbital_type not in el_dos:
                         el_dos[orbital_type] = pdos
                     else:
@@ -491,3 +485,10 @@ def add_densities(density1, density2):
     """
     return {spin: np.array(density1[spin]) + np.array(density2[spin])
             for spin in density1.keys()}
+
+
+def _get_orb_type(orb):
+    try:
+        return orb.orbital_type
+    except AttributeError:
+        return orb
