@@ -447,6 +447,10 @@ class PotcarSingleTest(unittest.TestCase):
     def test_nelectrons(self):
         self.assertEqual(self.psingle.nelectrons, 13)
 
+    def test_electron_config(self):
+        config = self.psingle.electron_configuration
+        self.assertEqual(config[-1], (3, "p", 6))
+
     def test_attributes(self):
         for k in ['DEXC', 'RPACOR', 'ENMAX', 'QCUT', 'EAUG', 'RMAX',
                   'ZVAL', 'EATOM', 'NDATA', 'QGAM', 'ENMIN', 'RCLOC',
