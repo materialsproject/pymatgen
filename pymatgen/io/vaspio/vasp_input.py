@@ -1358,6 +1358,18 @@ class PotcarSingle(object):
     def __str__(self):
         return self.data + "\n"
 
+    @property
+    def electron_configuration(self):
+        el = Element.from_Z(self.atomic_no)
+        full_config = el.full_electronic_structure
+        nelect = self.nelectrons
+        config = []
+        while nelect > 0:
+            e = full_config.pop(-1)
+            config.append(e)
+            nelect -= e[-1]
+        return config
+
     def write_file(self, filename):
         with zopen(filename, "wt") as f:
             f.write(self.__str__())
