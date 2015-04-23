@@ -879,14 +879,7 @@ class G0W0Work(Work):
         else:
             self.scf_task = self.register_scf_task(scf_input)
 
-        # Construct the input for the NSCF run.
-        self.nscf_task = nscf_task = self.register_nscf_task(nscf_input, deps={self.scf_task: "DEN"})
 
-        # Register the SCREENING run.
-        if not spread_scr:
-            self.scr_task = scr_task = self.register_scr_task(scr_input, deps={nscf_task: "WFK"})
-        else:
-            self.scr_tasks = []
 
         nogw = False
 
@@ -900,8 +893,7 @@ class G0W0Work(Work):
             logger.info('added band structure calculation')
             bands_input = NscfStrategy(scf_strategy=scf_in,
                                        ksampling=KSampling.path_from_structure(ndivsm=nksmall, structure=scf_in.structure),
-                                       nscf_nband=scf_in.electrons.nband, ecut=scf_in.ecut, chksymbreak=0)
-
+                                       nscf_nband=scf_in.electrons.nband, ecut=scf_in.ecut, chksymbreak=0, tolwfr=1e-18)
             self.bands_task = self.register_nscf_task(bands_input, deps={self.scf_task: "DEN"})
             # note we don not let abinit print the dos, since this is inconpatible with parakgb
             # the dos will be evaluated later using abipy
@@ -914,6 +906,15 @@ class G0W0Work(Work):
 
         # Register the SIGMA runs.
         if not nogw:
+            # Construct the input for the NSCF run.
+            self.nscf_task = nscf_task = self.register_nscf_task(nscf_input, deps={self.scf_task: "DEN"})
+
+            # Register the SCREENING run.
+            if not spread_scr:
+                self.scr_task = scr_task = self.register_scr_task(scr_input, deps={nscf_task: "WFK"})
+            else:
+                self.scr_tasks = []
+
             if not isinstance(sigma_inputs, (list, tuple)):
                 sigma_inputs = [sigma_inputs]
 
