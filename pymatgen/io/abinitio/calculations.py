@@ -227,7 +227,7 @@ def g0w0_extended_work(structure, pseudos, kppa, nscf_nband, ecuteps, ecutsigx, 
 
 
     nscf_strategy = NscfStrategy(scf_strategy[-1], nscf_ksampling, int(max(nscf_nband)*1.1)+1,
-                                 nbdbuf=int(0.1*nscf_nband), nstep=200, **extra_abivars)
+                                 nbdbuf=int(0.1*max(nscf_nband)), nstep=200, **extra_abivars)
 
     if scr_nband is None:
         scr_nband = nscf_nband
