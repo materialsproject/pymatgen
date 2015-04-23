@@ -199,6 +199,14 @@ def pbc_diff(fcoords1, fcoords2):
     fdist = np.subtract(fcoords1, fcoords2)
     return fdist - np.round(fdist)
 
+#create images, 2d array of all length 3 combinations of [-1,0,1]
+r = np.arange(-1, 2)
+arange = r[:, None] * np.array([1, 0, 0])[None, :]
+brange = r[:, None] * np.array([0, 1, 0])[None, :]
+crange = r[:, None] * np.array([0, 0, 1])[None, :]
+images = arange[:, None, None] + brange[None, :, None] + \
+    crange[None, None, :]
+images = images.reshape((27, 3))
 
 def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
     """
@@ -222,15 +230,6 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
     #ensure that all points are in the unit cell
     fcoords1 = np.mod(fcoords1, 1)
     fcoords2 = np.mod(fcoords2, 1)
-
-    #create images, 2d array of all length 3 combinations of [-1,0,1]
-    r = np.arange(-1, 2)
-    arange = r[:, None] * np.array([1, 0, 0])[None, :]
-    brange = r[:, None] * np.array([0, 1, 0])[None, :]
-    crange = r[:, None] * np.array([0, 0, 1])[None, :]
-    images = arange[:, None, None] + brange[None, :, None] + \
-        crange[None, None, :]
-    images = images.reshape((27, 3))
 
     #create images of f2
     shifted_f2 = fcoords2[:, None, :] + images[None, :, :]
