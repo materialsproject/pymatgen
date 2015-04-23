@@ -1358,6 +1358,18 @@ class PotcarSingle(object):
     def __str__(self):
         return self.data + "\n"
 
+    @property
+    def electron_configuration(self):
+        el = Element.from_Z(self.atomic_no)
+        full_config = el.full_electronic_structure
+        nelect = self.nelectrons
+        config = []
+        while nelect > 0:
+            e = full_config.pop(-1)
+            config.append(e)
+            nelect -= e[-1]
+        return config
+
     def write_file(self, filename):
         with zopen(filename, "wt") as f:
             f.write(self.__str__())
@@ -1370,10 +1382,12 @@ class PotcarSingle(object):
     @staticmethod
     def from_symbol_and_functional(symbol, functional="PBE"):
         funcdir = PotcarSingle.functional_dir[functional]
-        paths_to_try = [os.path.join(get_potcar_dir(), funcdir,
-                                     "POTCAR.{}".format(symbol)),
-                        os.path.join(get_potcar_dir(), funcdir, symbol,
-                                     "POTCAR")]
+        d = get_potcar_dir()
+        if d is None:
+            raise ValueError("No POTCAR directory found. Please set "
+                             "the VASP_PSP_DIR environment variable")
+        paths_to_try = [os.path.join(d, funcdir, "POTCAR.{}".format(symbol)),
+                        os.path.join(d, funcdir, symbol, "POTCAR")]
         for p in paths_to_try:
             p = os.path.expanduser(p)
             p = zpath(p)

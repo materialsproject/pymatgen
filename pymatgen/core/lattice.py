@@ -422,7 +422,9 @@ class Lattice(PMGSONable):
         """
         if other is None:
             return False
-        return np.allclose(self.matrix, other.matrix)
+        # shortcut the np.allclose if the memory addresses are the same
+        # (very common in Structure.from_sites)
+        return self is other or np.allclose(self.matrix, other.matrix)
 
     def __ne__(self, other):
         return not self.__eq__(other)
