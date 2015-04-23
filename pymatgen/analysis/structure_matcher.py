@@ -497,10 +497,20 @@ class StructureMatcher(PMGSONable):
         mask, struct1 translation indices, struct2 translation index
         """
         mask = np.zeros((len(struct2), len(struct1), fu), dtype=np.bool)
-        for i, site2 in enumerate(struct2):
-            for j, site1 in enumerate(struct1):
-                mask[i, j, :] = not self._comparator.are_equal(
-                    site2.species_and_occu, site1.species_and_occu)
+
+        inner = []
+        for sp2, i in itertools.groupby(enumerate(struct2.species_and_occu),
+                                        key=lambda x: x[1]):
+            i = list(i)
+            inner.append((sp2, slice(i[0][0], i[-1][0]+1)))
+
+        for sp1, j in itertools.groupby(enumerate(struct1.species_and_occu),
+                                        key=lambda x: x[1]):
+            j = list(j)
+            j = slice(j[0][0], j[-1][0]+1)
+            for sp2, i in inner:
+                mask[i, j, :] = not self._comparator.are_equal(sp1, sp2)
+
         if s1_supercell:
             mask = mask.reshape((len(struct2), -1))
         else:
