@@ -876,8 +876,7 @@ batch_adapter:
             # 2) Change the input file.
             # 3) Regenerate the submission script
             # 4) Relaunch
-            msg = "max_num_launches reached: %s" % str(exc)
-            task.set_status(task.S_ERROR, msg=msg)
+            task.set_status(task.S_ERROR, msg="max_num_launches reached: %s" % str(exc))
             raise
 
     def get_collection(self, **kwargs):
@@ -888,7 +887,7 @@ batch_adapter:
         # OLD
         # with GW calculations in mind with GW mem = 10,
         # the response fuction is in memory and not distributed
-        # we need to increas memory if jobs fail ...
+        # we need to increase memory if jobs fail ...
         # return self.qadapter.more_mem_per_proc()
         try:
             self.qadapter.more_mem_per_proc()
@@ -2112,14 +2111,14 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 # Sometimes autoparal_run fails because Abinit aborts
                 # at the level of the parser e.g. cannot find the spacegroup
                 # due to some numerical noise in the structure.
-                # In this case we call fix_abi_critical and then we try to run autoparal again.
-                self.history.critical("First call to autoparal failed with `%s`. Will try fix_abi_critical" % exc)
+                # In this case we call fix_abicritical and then we try to run autoparal again.
+                self.history.critical("First call to autoparal failed with `%s`. Will try fix_abicritical" % exc)
                 msg = "autoparal_fake_run raised:\n%s" % straceback()
                 logger.critical(msg)
 
-                fixed = self.fix_abi_critical()
+                fixed = self.fix_abicritical()
                 if not fixed:
-                    self.set_status(self.S_ABICRITICAL, msg="fix_abi_critical could not solve the problem")
+                    self.set_status(self.S_ABICRITICAL, msg="fix_abicritical could not solve the problem")
                     return 0
 
                 try:
@@ -2148,31 +2147,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         retcode = self.wait()
         return retcode
 
-    #@pmg_serialize
-    #def as_dict(self):
-    #    d = {}
-    #    d['strategy'] = self.strategy.as_dict()
-    #    d['workdir'] = getattr(self, 'workdir', None)
-    #    if hasattr(self, 'manager'):
-    #        d['manager'] = self.manager.as_dict()
-    #    else:
-    #        d['manager'] = None
-    #    d['corrections'] = self.corrections
-    #    d['history'] = [hr.as_dict() for hr in self.history]
-    #    d['num_restarts'] = self.num_restarts
-    #    return d
-
-    #@classmethod
-    #def from_dict(cls, d):
-    #    dec = MontyDecoder()
-    #    strategy = dec.process_decoded(d['strategy'])
-    #    manager = TaskManager.from_dict(d['manager']) if d['manager'] else TaskManager.from_user_config()
-    #    corrections = NodeCorrections(dec.process_decoded(d['corrections']))
-    #    task = cls(strategy=strategy, workdir=d['workdir'], manager=manager)
-    #    task._corrections = corrections
-    #    task.history.extend(dec.process_decoded(d['history']))
-    #    task.num_restarts = d['num_restarts']
-    #    return task
 
 
 class DecreaseDemandsError(Exception):
@@ -2527,7 +2501,7 @@ class AbinitTask(Task):
         return self._restart(submit=False)
 
     #@check_spectator
-    def fix_abi_critical(self):
+    def fix_abicritical(self):
         """
         method to fix crashes/error caused by abinit
 

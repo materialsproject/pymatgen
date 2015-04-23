@@ -188,6 +188,10 @@ class FlowTest(FlowUnitTest):
         same_flow = Flow.pickle_load(self.workdir)
         aequal(same_flow, flow)
 
+        # to/from string
+        same_flow = Flow.pickle_loads(flow.pickle_dumps())
+        aequal(same_flow, flow)
+
         self.assertPMGSONable(flow)
 
         flow.show_info()

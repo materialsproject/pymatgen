@@ -911,7 +911,7 @@ class G0W0Work(Work):
             scf_input: Input for the SCF run
             nscf_input: Input for the NSCF run
             scr_input: Input for the screening run
-            sigma_inputs: List of Strategies for the self-energy run.
+            sigma_inputs: List of :class:AbinitInput`for the self-energy run.
             workdir: Working directory of the calculation.
             manager: :class:`TaskManager` object.
             spread_scr: Attach a screening task to every sigma task
@@ -990,7 +990,7 @@ class SigmaConvWork(Work):
         Args:
             wfk_node: The node who has produced the WFK file or filepath pointing to the WFK file.
             scr_node: The node who has produced the SCR file or filepath pointing to the SCR file.
-            sigma_inputs: List of Strategies for the self-energy run.
+            sigma_inputs: List of :class:`AbinitInput` for the self-energy runs.
             workdir: Working directory of the calculation.
             manager: :class:`TaskManager` object.
         """

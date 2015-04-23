@@ -150,10 +150,8 @@ class PyLauncher(object):
 
         Args:
             flow: :class:`Flow` object
-            kwargs:
-                max_njobs_inqueue:
-                    The launcher will stop submitting jobs when the
-                    number of jobs in the queue is >= Max number of jobs
+            max_njobs_inqueue: The launcher will stop submitting jobs when the
+                number of jobs in the queue is >= Max number of jobs
         """
         self.flow = flow
         self.max_njobs_inqueue = kwargs.get("max_njobs_inqueue", 200)
@@ -605,7 +603,7 @@ class PyFlowScheduler(object):
         # reenabled by MsS disable things that do not work at low level
         # fix only prepares for restarting, and sets to ready
         if self.fix_qcritical:
-            nfixed = flow.fix_abi_critical()
+            nfixed = flow.fix_abicritical()
             if nfixed: print("Fixed %d AbiCritical errors" % nfixed)
 
         # update database
