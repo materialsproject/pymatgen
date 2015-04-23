@@ -16,7 +16,7 @@ import copy
 import numpy as np
 
 from pprint import pprint
-from six.moves import map
+from six.moves import map, StringIO
 from atomicfile import AtomicFile
 from prettytable import PrettyTable
 from pydispatch import dispatcher
@@ -301,6 +301,15 @@ class Flow(Node, NodeContainer, PMGSONable):
         # Recompute the status of each task since tasks that
         # have been submitted previously might be completed.
         flow.check_status()
+        return flow
+
+    @classmethod
+    def pickle_loads(cls, s):
+        """Reconstruct the flow from a string.""" 
+        strio = StringIO()
+        strio.write(s)
+        strio.seek(0)
+        flow = pmg_pickle_load(strio)
         return flow
 
     def __len__(self):
@@ -727,14 +736,14 @@ class Flow(Node, NodeContainer, PMGSONable):
 
     #    return nlaunch, max_nlaunch
 
-    def fix_abi_critical(self):
+    def fix_abicritical(self):
         """
         This function tries to fix critical events originating from ABINIT.
         Returns the number of tasks that have been fixed.
         """
         count = 0
         for task in self.iflat_tasks(status=self.S_ABICRITICAL):
-            count += task.fix_abi_critical()
+            count += task.fix_abicritical()
 
         return count
 
@@ -1282,6 +1291,16 @@ class Flow(Node, NodeContainer, PMGSONable):
 
         return 0
 
+    def pickle_dumps(self, protocol=None):
+        """
+        Return a string with the pickle representation.
+        `protocol` selects the pickle protocol. self.pickle_protocol is 
+         used if `protocol` is None
+        """
+        strio = StringIO()
+        pmg_pickle_dump(self, strio, protocol=self.pickle_protocol if protocol is None else protocol)
+        return strio.getvalue()
+
     def register_task(self, input, deps=None, manager=None, task_class=None):
         """
         Utility function that generates a `Work` made of a single task
@@ -1797,7 +1816,7 @@ class Flow(Node, NodeContainer, PMGSONable):
     #    """
     #    from abipy.abilab import abirobot
     #    if check_status: self.check_status()
-    #    return abirobot(self, ext, nids=nids):
+    #    return abirobot(flow=self, ext=ext, nids=nids):
 
     def plot_networkx(self, mode="network", with_edge_labels=False,
                       node_size="num_cores", node_label="name_class", layout_type="spring", 
@@ -1846,9 +1865,9 @@ class Flow(Node, NodeContainer, PMGSONable):
         # Select plot type.
         if mode == "network":
             nx.draw_networkx(g, pos, labels=labels, 
-                             node_color='#A0CBE2',  
+                             #node_color='#A0CBE2',  
                              # FIXME: This does not work as expected. Likely bug in networkx!
-                             #node_color=[task.color_rgb for task in tasks],
+                             node_color=[task.color_rgb for task in tasks],
                              node_size=[make_node_size(task) for task in tasks],
                              width=2, style="dotted", with_labels=True)
 
@@ -2211,6 +2230,7 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
     Returns:
         :class:`Flow` object
     """
+    logger.critical("phonon_flow is deprecated and could give wrong results")
     if with_dde:
         with_ddk = True
 
