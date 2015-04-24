@@ -313,6 +313,11 @@ class IStructureTest(PymatgenTest):
 
     def test_get_all_neighbors_and_get_neighbors(self):
         s = self.struct
+        nn = s.get_neighbors_in_shell(s[0].frac_coords, 2, 4,
+                                       include_index=True)
+        self.assertEqual(len(nn), 47)
+        self.assertEqual(nn[0][-1], 0)
+
         r = random.uniform(3, 6)
         all_nn = s.get_all_neighbors(r, True)
         for i in range(len(s)):
@@ -327,6 +332,7 @@ class IStructureTest(PymatgenTest):
         s = Structure(Lattice.cubic(1), ['Li'], [[0,0,0]])
         s.make_supercell([2,2,2])
         self.assertEqual(sum(map(len, s.get_all_neighbors(3))), 976)
+
 
     def test_get_all_neighbors_outside_cell(self):
         s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
@@ -364,6 +370,7 @@ class IStructureTest(PymatgenTest):
         s = Structure.from_file("Si_testing.yaml")
         self.assertEqual(s, self.struct)
         os.remove("Si_testing.yaml")
+
 
 class StructureTest(PymatgenTest):
 
@@ -759,6 +766,8 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
     def test_get_neighbors_in_shell(self):
         nn = self.mol.get_neighbors_in_shell([0, 0, 0], 0, 1)
         self.assertEqual(len(nn), 1)
+        nn = self.mol.get_neighbors_in_shell([0, 0, 0], 1, 0.9)
+        self.assertEqual(len(nn), 4)
         nn = self.mol.get_neighbors_in_shell([0, 0, 0], 1, 0.9)
         self.assertEqual(len(nn), 4)
         nn = self.mol.get_neighbors_in_shell([0, 0, 0], 2, 0.1)

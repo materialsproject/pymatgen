@@ -779,7 +779,7 @@ class IStructure(SiteCollection, PMGSONable):
                     neighbors[i].append(item)
         return neighbors
 
-    def get_neighbors_in_shell(self, origin, r, dr):
+    def get_neighbors_in_shell(self, origin, r, dr, include_index=False):
         """
         Returns all sites in a shell centered on origin (coords) between radii
         r-dr and r+dr.
@@ -788,14 +788,21 @@ class IStructure(SiteCollection, PMGSONable):
             origin (3x1 array): Cartesian coordinates of center of sphere.
             r (float): Inner radius of shell.
             dr (float): Width of shell.
+            include_index (bool): Whether to include the non-supercell site
+                in the returned data
 
         Returns:
-            [(site, dist) ...] since most of the time, subsequent processing
-            requires the distance.
+            [(site, dist, index) ...] since most of the time, subsequent
+            processing
+            requires the distance. Index only supplied if include_index = True.
+            The index is the index of the site in the original (non-supercell)
+            structure. This is needed for ewaldmatrix by keeping track of which
+            sites contribute to the ewald sum.
         """
-        outer = self.get_sites_in_sphere(origin, r + dr)
+        outer = self.get_sites_in_sphere(origin, r + dr,
+                                         include_index=include_index)
         inner = r - dr
-        return [(site, dist) for (site, dist) in outer if dist > inner]
+        return [t for t in outer if t[1] > inner]
 
     def get_sorted_structure(self, key=None, reverse=False):
         """
