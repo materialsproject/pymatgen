@@ -138,8 +138,13 @@ class Composition(collections.Mapping, collections.Hashable, PMGSONable):
         return self._elmap.get(get_el_sp(el), 0)
 
     def __eq__(self, other):
-        for el in chain(self.elements, other.elements):
-            if abs(self[el] - other[el]) > Composition.amount_tolerance:
+        #  elements with amounts < Composition.amount_tolerance don't show up
+        #  in the elmap, so checking len enables us to only check one
+        #  compositions elements
+        if len(self) != len(other):
+            return False
+        for el, v in self._elmap.items():
+            if abs(v - other[el]) > Composition.amount_tolerance:
                 return False
         return True
 
