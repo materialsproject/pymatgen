@@ -20,6 +20,7 @@ __date__ = "Nov 27, 2011"
 import numpy as np
 
 from libc.stdlib cimport malloc, free
+from libc.math cimport round, abs
 cimport numpy as np
 cimport cython
 
@@ -32,6 +33,7 @@ images_t = arange[:, None, None] + brange[None, :, None] + \
     crange[None, None, :]
 images = images_t.reshape((27, 3))
 
+cdef np.float64_t[:, :] images_view = images
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -65,6 +67,7 @@ cdef void dot_2d_mod(np.float64_t[:, :] a, np.float64_t[:, :] b, np.float64_t* o
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
+@cython.initializedcheck(False)
 def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
     """
     Returns the shortest vectors between two lists of coordinates taking into
@@ -87,9 +90,9 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
 
     cdef np.ndarray[np.float64_t, ndim=2] lat = lattice._matrix
 
-    cdef int i, j, k, l, I, J, K = 27, L = 3
-    I = fcoords1.shape[0]
-    J = fcoords2.shape[0]
+    cdef int i, j, k, l, I, J, L = 3
+    I = len(fcoords1)
+    J = len(fcoords2)
 
     cdef np.float64_t * cart_f1 = <np.float64_t *> malloc(3 * I * sizeof(np.float64_t*))
     cdef np.float64_t * cart_f2 = <np.float64_t *> malloc(3 * J * sizeof(np.float64_t*))
@@ -97,7 +100,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
 
     dot_2d_mod(fcoords1, lat, cart_f1)
     dot_2d_mod(fcoords2, lat, cart_f2)
-    dot_2d(images, lat, cart_im)
+    dot_2d(images_view, lat, cart_im)
 
     output = np.empty((I, J, 3))
     cdef np.float64_t[:, :, :] vectors = output
@@ -106,7 +109,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
     for i in range(I):
         for j in range(J):
             best = 1e100
-            for k in range(K):
+            for k in range(27):
                 d = 0
                 for l in range(3):
                     d += (cart_f2[3 * j + l] + cart_im[3 * k + l] - cart_f1[3 * i + l]) ** 2
@@ -120,3 +123,49 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
     free(<void *>cart_im)
 
     return output
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.initializedcheck(False)
+def is_coord_subset_pbc(fcoords1, fcoords2, tol, mask):
+    """
+    Tests if all fractional coords in subset are contained in superset.
+    Allows specification of a mask determining pairs that are not
+    allowed to match to each other
+
+    Args:
+        subset, superset: List of fractional coords
+
+    Returns:
+        True if all of subset is in superset.
+    """
+
+    cdef np.float64_t[:, :] fc1 = fcoords1
+    cdef np.float64_t[:, :] fc2 = fcoords2
+    cdef np.float64_t[:] t = tol
+    cdef np.int_t[:, :] m = mask
+
+    cdef int i, j, k, I, J
+    cdef np.float64_t d
+    cdef bint ok
+
+    I = fc1.shape[0]
+    J = fc2.shape[0]
+
+    for i in range(I):
+        for j in range(J):
+            ok = True
+            if m[i, j]:
+                ok = False
+                continue
+            for k in range(3):
+                d = fc1[i, k] - fc2[j, k]
+                d = abs(d - round(d))
+                if d > t[k]:
+                    ok = False
+                    break
+            if ok:
+                break
+        if not ok:
+            break
+    return bool(ok)
