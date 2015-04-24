@@ -617,7 +617,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         It adds a new entry in the correction history of the node.
 
         Args:
-            event: `AbinitEvent` that triggered the correction.
+            event: :class:`AbinitEvent` that triggered the correction.
             action (str): Human-readable string with info on the action perfomed to solve the problem.
         """
         # TODO: Create CorrectionObject
@@ -1004,7 +1004,6 @@ class HistoryRecord(object):
             try:
                 msg = msg % self.args
             except:
-                #print(self.args)
                 msg += str(self.args)
 
         if asctime: msg = "[" + self.asctime + "] " + msg

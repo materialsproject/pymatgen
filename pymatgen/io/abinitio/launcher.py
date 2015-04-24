@@ -581,7 +581,6 @@ class PyFlowScheduler(object):
             logger.info("Cannot exceed max_ncores_used %s" % self.max_ncores_used)
             return
 
-        # fix problems
         # Try to restart the unconverged tasks
         # TODO: do not fire here but prepare for fireing in rapidfire
         for task in self.flow.unconverged_tasks:
@@ -595,6 +594,7 @@ class PyFlowScheduler(object):
                         logger.info("Restart: too many jobs in the queue, returning")
                         flow.pickle_dump()
                         return
+
             except task.RestartError:
                 excs.append(straceback())
 
@@ -603,8 +603,11 @@ class PyFlowScheduler(object):
         # reenabled by MsS disable things that do not work at low level
         # fix only prepares for restarting, and sets to ready
         if self.fix_qcritical:
-            nfixed = flow.fix_abicritical()
-            if nfixed: print("Fixed %d AbiCritical errors" % nfixed)
+            nfixed = flow.fix_queue_critical()
+            if nfixed: print("Fixed %d QCritical errors" % nfixed)
+
+        nfixed = flow.fix_abicritical()
+        if nfixed: print("Fixed %d AbiCritical errors" % nfixed)
 
         # update database
         flow.pickle_dump()

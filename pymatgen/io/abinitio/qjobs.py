@@ -397,6 +397,10 @@ class PbsProJob(QueueJob):
         return sdate
 
     def get_info(self, **kwargs):
+
+        # See also qstat -f 
+        #http://sc.tamu.edu/help/origins/batch.shtml#qstat
+
         #$> qstat 5666289
         #frontal1:
         #                                                            Req'd  Req'd   Elap
