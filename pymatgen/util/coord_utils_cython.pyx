@@ -10,11 +10,11 @@ numpy for performance.
 
 from six.moves import zip
 
-__author__ = "Shyue Ping Ong"
+__author__ = "Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyuep@gmail.com"
+__maintainer__ = "Will Richards"
+__email__ = "wmdrichards@gmail.com"
 __date__ = "Nov 27, 2011"
 
 import numpy as np
@@ -147,21 +147,19 @@ def is_coord_subset_pbc(fcoords1, fcoords2, tol, mask):
 
     cdef int i, j, k, I, J
     cdef np.float64_t d
-    cdef bint ok
+    cdef bint ok = False
 
     I = fc1.shape[0]
     J = fc2.shape[0]
 
     for i in range(I):
         for j in range(J):
-            ok = True
             if m[i, j]:
-                ok = False
                 continue
+            ok = True
             for k in range(3):
                 d = fc1[i, k] - fc2[j, k]
-                d = abs(d - round(d))
-                if d > t[k]:
+                if abs(d - round(d)) > t[k]:
                     ok = False
                     break
             if ok:

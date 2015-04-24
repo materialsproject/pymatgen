@@ -1514,7 +1514,7 @@ static PyObject *__pyx_builtin_TypeError;
 static PyObject *__pyx_builtin_id;
 static PyObject *__pyx_builtin_IndexError;
 static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vectors(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_lattice, PyObject *__pyx_v_fcoords1, PyObject *__pyx_v_fcoords2); /* proto */
-static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_2pbc_coord_subset(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_fcoords1, PyObject *__pyx_v_fcoords2, PyObject *__pyx_v_frac_tol, PyObject *__pyx_v_mask); /* proto */
+static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_2is_coord_subset_pbc(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_fcoords1, PyObject *__pyx_v_fcoords2, PyObject *__pyx_v_tol, PyObject *__pyx_v_mask); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __pyx_array_obj *__pyx_v_self, PyObject *__pyx_v_shape, Py_ssize_t __pyx_v_itemsize, PyObject *__pyx_v_format, PyObject *__pyx_v_mode, int __pyx_v_allocate_buffer); /* proto */
@@ -1573,6 +1573,7 @@ static char __pyx_k_l[] = "l";
 static char __pyx_k_m[] = "m";
 static char __pyx_k_q[] = "q";
 static char __pyx_k_r[] = "r";
+static char __pyx_k_t[] = "t";
 static char __pyx_k_Zd[] = "Zd";
 static char __pyx_k_Zf[] = "Zf";
 static char __pyx_k_Zg[] = "Zg";
@@ -1635,7 +1636,6 @@ static char __pyx_k_version[] = "__version__";
 static char __pyx_k_Ellipsis[] = "Ellipsis";
 static char __pyx_k_fcoords1[] = "fcoords1";
 static char __pyx_k_fcoords2[] = "fcoords2";
-static char __pyx_k_frac_tol[] = "frac_tol";
 static char __pyx_k_images_t[] = "images_t";
 static char __pyx_k_itemsize[] = "itemsize";
 static char __pyx_k_TypeError[] = "TypeError";
@@ -1649,16 +1649,16 @@ static char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
 static char __pyx_k_MemoryError[] = "MemoryError";
 static char __pyx_k_Nov_27_2011[] = "Nov 27, 2011";
 static char __pyx_k_RuntimeError[] = "RuntimeError";
+static char __pyx_k_Will_Richards[] = "Will Richards";
 static char __pyx_k_pyx_getbuffer[] = "__pyx_getbuffer";
-static char __pyx_k_Shyue_Ping_Ong[] = "Shyue Ping Ong";
 static char __pyx_k_allocate_buffer[] = "allocate_buffer";
 static char __pyx_k_dtype_is_object[] = "dtype_is_object";
-static char __pyx_k_pbc_coord_subset[] = "pbc_coord_subset";
-static char __pyx_k_shyuep_gmail_com[] = "shyuep@gmail.com";
 static char __pyx_k_strided_and_direct[] = "<strided and direct>";
+static char __pyx_k_is_coord_subset_pbc[] = "is_coord_subset_pbc";
 static char __pyx_k_pbc_shortest_vectors[] = "pbc_shortest_vectors";
 static char __pyx_k_strided_and_indirect[] = "<strided and indirect>";
 static char __pyx_k_contiguous_and_direct[] = "<contiguous and direct>";
+static char __pyx_k_wmdrichards_gmail_com[] = "wmdrichards@gmail.com";
 static char __pyx_k_MemoryView_of_r_object[] = "<MemoryView of %r object>";
 static char __pyx_k_MemoryView_of_r_at_0x_x[] = "<MemoryView of %r at 0x%x>";
 static char __pyx_k_contiguous_and_indirect[] = "<contiguous and indirect>";
@@ -1716,11 +1716,11 @@ static PyObject *__pyx_kp_s_Nov_27_2011;
 static PyObject *__pyx_n_b_O;
 static PyObject *__pyx_kp_s_Out_of_bounds_on_buffer_access_a;
 static PyObject *__pyx_n_s_RuntimeError;
-static PyObject *__pyx_kp_s_Shyue_Ping_Ong;
 static PyObject *__pyx_n_s_TypeError;
 static PyObject *__pyx_kp_s_Unable_to_convert_item_to_object;
 static PyObject *__pyx_kp_s_Users_wrichard_repos_pymatgen_p;
 static PyObject *__pyx_n_s_ValueError;
+static PyObject *__pyx_kp_s_Will_Richards;
 static PyObject *__pyx_n_s_allocate_buffer;
 static PyObject *__pyx_n_s_arange;
 static PyObject *__pyx_n_s_array;
@@ -1755,13 +1755,13 @@ static PyObject *__pyx_n_s_float64;
 static PyObject *__pyx_n_s_format;
 static PyObject *__pyx_n_s_fortran;
 static PyObject *__pyx_n_u_fortran;
-static PyObject *__pyx_n_s_frac_tol;
 static PyObject *__pyx_kp_s_got_differing_extents_in_dimensi;
 static PyObject *__pyx_n_s_i;
 static PyObject *__pyx_n_s_id;
 static PyObject *__pyx_n_s_images;
 static PyObject *__pyx_n_s_images_t;
 static PyObject *__pyx_n_s_import;
+static PyObject *__pyx_n_s_is_coord_subset_pbc;
 static PyObject *__pyx_n_s_itemsize;
 static PyObject *__pyx_kp_s_itemsize_0_for_cython_array;
 static PyObject *__pyx_n_s_j;
@@ -1787,7 +1787,6 @@ static PyObject *__pyx_n_s_obj;
 static PyObject *__pyx_n_s_ok;
 static PyObject *__pyx_n_s_output;
 static PyObject *__pyx_n_s_pack;
-static PyObject *__pyx_n_s_pbc_coord_subset;
 static PyObject *__pyx_n_s_pbc_shortest_vectors;
 static PyObject *__pyx_n_s_pymatgen_util_coord_utils_cython;
 static PyObject *__pyx_n_s_pyx_getbuffer;
@@ -1796,7 +1795,6 @@ static PyObject *__pyx_n_s_r;
 static PyObject *__pyx_n_s_range;
 static PyObject *__pyx_n_s_reshape;
 static PyObject *__pyx_n_s_shape;
-static PyObject *__pyx_kp_s_shyuep_gmail_com;
 static PyObject *__pyx_n_s_six_moves;
 static PyObject *__pyx_n_s_size;
 static PyObject *__pyx_n_s_start;
@@ -1806,6 +1804,7 @@ static PyObject *__pyx_kp_s_strided_and_direct;
 static PyObject *__pyx_kp_s_strided_and_direct_or_indirect;
 static PyObject *__pyx_kp_s_strided_and_indirect;
 static PyObject *__pyx_n_s_struct;
+static PyObject *__pyx_n_s_t;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_n_s_tol;
 static PyObject *__pyx_kp_s_unable_to_allocate_array_data;
@@ -1814,6 +1813,7 @@ static PyObject *__pyx_kp_u_unknown_dtype_code_in_numpy_pxd;
 static PyObject *__pyx_n_s_unpack;
 static PyObject *__pyx_n_s_vectors;
 static PyObject *__pyx_n_s_version;
+static PyObject *__pyx_kp_s_wmdrichards_gmail_com;
 static PyObject *__pyx_n_s_zip;
 static PyObject *__pyx_int_0;
 static PyObject *__pyx_int_1;
@@ -2657,27 +2657,28 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vect
 /* "pymatgen/util/coord_utils_cython.pyx":130
  * @cython.wraparound(False)
  * @cython.initializedcheck(False)
- * def pbc_coord_subset(fcoords1, fcoords2, frac_tol, mask):             # <<<<<<<<<<<<<<
- * 
- *     cdef np.float64_t[:, :] fc1 = fcoords1
+ * def is_coord_subset_pbc(fcoords1, fcoords2, tol, mask):             # <<<<<<<<<<<<<<
+ *     """
+ *     Tests if all fractional coords in subset are contained in superset.
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8pymatgen_4util_18coord_utils_cython_3pbc_coord_subset(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_8pymatgen_4util_18coord_utils_cython_3pbc_coord_subset = {"pbc_coord_subset", (PyCFunction)__pyx_pw_8pymatgen_4util_18coord_utils_cython_3pbc_coord_subset, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_8pymatgen_4util_18coord_utils_cython_3pbc_coord_subset(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_8pymatgen_4util_18coord_utils_cython_3is_coord_subset_pbc(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_8pymatgen_4util_18coord_utils_cython_2is_coord_subset_pbc[] = "\n    Tests if all fractional coords in subset are contained in superset.\n    Allows specification of a mask determining pairs that are not\n    allowed to match to each other\n\n    Args:\n        subset, superset: List of fractional coords\n\n    Returns:\n        True if all of subset is in superset.\n    ";
+static PyMethodDef __pyx_mdef_8pymatgen_4util_18coord_utils_cython_3is_coord_subset_pbc = {"is_coord_subset_pbc", (PyCFunction)__pyx_pw_8pymatgen_4util_18coord_utils_cython_3is_coord_subset_pbc, METH_VARARGS|METH_KEYWORDS, __pyx_doc_8pymatgen_4util_18coord_utils_cython_2is_coord_subset_pbc};
+static PyObject *__pyx_pw_8pymatgen_4util_18coord_utils_cython_3is_coord_subset_pbc(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_fcoords1 = 0;
   PyObject *__pyx_v_fcoords2 = 0;
-  PyObject *__pyx_v_frac_tol = 0;
+  PyObject *__pyx_v_tol = 0;
   PyObject *__pyx_v_mask = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("pbc_coord_subset (wrapper)", 0);
+  __Pyx_RefNannySetupContext("is_coord_subset_pbc (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_fcoords1,&__pyx_n_s_fcoords2,&__pyx_n_s_frac_tol,&__pyx_n_s_mask,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_fcoords1,&__pyx_n_s_fcoords2,&__pyx_n_s_tol,&__pyx_n_s_mask,0};
     PyObject* values[4] = {0,0,0,0};
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
@@ -2698,21 +2699,21 @@ static PyObject *__pyx_pw_8pymatgen_4util_18coord_utils_cython_3pbc_coord_subset
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_fcoords2)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("pbc_coord_subset", 1, 4, 4, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("is_coord_subset_pbc", 1, 4, 4, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case  2:
-        if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_frac_tol)) != 0)) kw_args--;
+        if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_tol)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("pbc_coord_subset", 1, 4, 4, 2); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("is_coord_subset_pbc", 1, 4, 4, 2); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case  3:
         if (likely((values[3] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_mask)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("pbc_coord_subset", 1, 4, 4, 3); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("is_coord_subset_pbc", 1, 4, 4, 3); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "pbc_coord_subset") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "is_coord_subset_pbc") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
       goto __pyx_L5_argtuple_error;
@@ -2724,28 +2725,28 @@ static PyObject *__pyx_pw_8pymatgen_4util_18coord_utils_cython_3pbc_coord_subset
     }
     __pyx_v_fcoords1 = values[0];
     __pyx_v_fcoords2 = values[1];
-    __pyx_v_frac_tol = values[2];
+    __pyx_v_tol = values[2];
     __pyx_v_mask = values[3];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("pbc_coord_subset", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("is_coord_subset_pbc", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
-  __Pyx_AddTraceback("pymatgen.util.coord_utils_cython.pbc_coord_subset", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("pymatgen.util.coord_utils_cython.is_coord_subset_pbc", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_8pymatgen_4util_18coord_utils_cython_2pbc_coord_subset(__pyx_self, __pyx_v_fcoords1, __pyx_v_fcoords2, __pyx_v_frac_tol, __pyx_v_mask);
+  __pyx_r = __pyx_pf_8pymatgen_4util_18coord_utils_cython_2is_coord_subset_pbc(__pyx_self, __pyx_v_fcoords1, __pyx_v_fcoords2, __pyx_v_tol, __pyx_v_mask);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_2pbc_coord_subset(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_fcoords1, PyObject *__pyx_v_fcoords2, PyObject *__pyx_v_frac_tol, PyObject *__pyx_v_mask) {
+static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_2is_coord_subset_pbc(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_fcoords1, PyObject *__pyx_v_fcoords2, PyObject *__pyx_v_tol, PyObject *__pyx_v_mask) {
   __Pyx_memviewslice __pyx_v_fc1 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_fc2 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_tol = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_t = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_m = { 0, 0, { 0 }, { 0 }, { 0 } };
   int __pyx_v_i;
   int __pyx_v_j;
@@ -2776,62 +2777,71 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_2pbc_coord_subset
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("pbc_coord_subset", 0);
+  __Pyx_RefNannySetupContext("is_coord_subset_pbc", 0);
 
-  /* "pymatgen/util/coord_utils_cython.pyx":132
- * def pbc_coord_subset(fcoords1, fcoords2, frac_tol, mask):
+  /* "pymatgen/util/coord_utils_cython.pyx":143
+ *     """
  * 
  *     cdef np.float64_t[:, :] fc1 = fcoords1             # <<<<<<<<<<<<<<
  *     cdef np.float64_t[:, :] fc2 = fcoords2
- *     cdef np.float64_t[:] tol = frac_tol
+ *     cdef np.float64_t[:] t = tol
  */
   __pyx_t_1 = __Pyx_PyObject_to_MemoryviewSlice_dsds_nn___pyx_t_5numpy_float64_t(__pyx_v_fcoords1);
-  if (unlikely(!__pyx_t_1.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 132; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__pyx_t_1.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 143; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_v_fc1 = __pyx_t_1;
   __pyx_t_1.memview = NULL;
   __pyx_t_1.data = NULL;
 
-  /* "pymatgen/util/coord_utils_cython.pyx":133
+  /* "pymatgen/util/coord_utils_cython.pyx":144
  * 
  *     cdef np.float64_t[:, :] fc1 = fcoords1
  *     cdef np.float64_t[:, :] fc2 = fcoords2             # <<<<<<<<<<<<<<
- *     cdef np.float64_t[:] tol = frac_tol
+ *     cdef np.float64_t[:] t = tol
  *     cdef np.int_t[:, :] m = mask
  */
   __pyx_t_1 = __Pyx_PyObject_to_MemoryviewSlice_dsds_nn___pyx_t_5numpy_float64_t(__pyx_v_fcoords2);
-  if (unlikely(!__pyx_t_1.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 133; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__pyx_t_1.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 144; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_v_fc2 = __pyx_t_1;
   __pyx_t_1.memview = NULL;
   __pyx_t_1.data = NULL;
 
-  /* "pymatgen/util/coord_utils_cython.pyx":134
+  /* "pymatgen/util/coord_utils_cython.pyx":145
  *     cdef np.float64_t[:, :] fc1 = fcoords1
  *     cdef np.float64_t[:, :] fc2 = fcoords2
- *     cdef np.float64_t[:] tol = frac_tol             # <<<<<<<<<<<<<<
+ *     cdef np.float64_t[:] t = tol             # <<<<<<<<<<<<<<
  *     cdef np.int_t[:, :] m = mask
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float64_t(__pyx_v_frac_tol);
-  if (unlikely(!__pyx_t_2.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 134; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_v_tol = __pyx_t_2;
+  __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float64_t(__pyx_v_tol);
+  if (unlikely(!__pyx_t_2.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 145; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_v_t = __pyx_t_2;
   __pyx_t_2.memview = NULL;
   __pyx_t_2.data = NULL;
 
-  /* "pymatgen/util/coord_utils_cython.pyx":135
+  /* "pymatgen/util/coord_utils_cython.pyx":146
  *     cdef np.float64_t[:, :] fc2 = fcoords2
- *     cdef np.float64_t[:] tol = frac_tol
+ *     cdef np.float64_t[:] t = tol
  *     cdef np.int_t[:, :] m = mask             # <<<<<<<<<<<<<<
  * 
  *     cdef int i, j, k, I, J
  */
   __pyx_t_3 = __Pyx_PyObject_to_MemoryviewSlice_dsds_nn___pyx_t_5numpy_int_t(__pyx_v_mask);
-  if (unlikely(!__pyx_t_3.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 135; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__pyx_t_3.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 146; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_v_m = __pyx_t_3;
   __pyx_t_3.memview = NULL;
   __pyx_t_3.data = NULL;
 
-  /* "pymatgen/util/coord_utils_cython.pyx":141
- *     cdef bint ok
+  /* "pymatgen/util/coord_utils_cython.pyx":150
+ *     cdef int i, j, k, I, J
+ *     cdef np.float64_t d
+ *     cdef bint ok = False             # <<<<<<<<<<<<<<
+ * 
+ *     I = fc1.shape[0]
+ */
+  __pyx_v_ok = 0;
+
+  /* "pymatgen/util/coord_utils_cython.pyx":152
+ *     cdef bint ok = False
  * 
  *     I = fc1.shape[0]             # <<<<<<<<<<<<<<
  *     J = fc2.shape[0]
@@ -2839,7 +2849,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_2pbc_coord_subset
  */
   __pyx_v_I = (__pyx_v_fc1.shape[0]);
 
-  /* "pymatgen/util/coord_utils_cython.pyx":142
+  /* "pymatgen/util/coord_utils_cython.pyx":153
  * 
  *     I = fc1.shape[0]
  *     J = fc2.shape[0]             # <<<<<<<<<<<<<<
@@ -2848,84 +2858,75 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_2pbc_coord_subset
  */
   __pyx_v_J = (__pyx_v_fc2.shape[0]);
 
-  /* "pymatgen/util/coord_utils_cython.pyx":144
+  /* "pymatgen/util/coord_utils_cython.pyx":155
  *     J = fc2.shape[0]
  * 
  *     for i in range(I):             # <<<<<<<<<<<<<<
  *         for j in range(J):
- *             ok = True
+ *             if m[i, j]:
  */
   __pyx_t_4 = __pyx_v_I;
   for (__pyx_t_5 = 0; __pyx_t_5 < __pyx_t_4; __pyx_t_5+=1) {
     __pyx_v_i = __pyx_t_5;
 
-    /* "pymatgen/util/coord_utils_cython.pyx":145
+    /* "pymatgen/util/coord_utils_cython.pyx":156
  * 
  *     for i in range(I):
  *         for j in range(J):             # <<<<<<<<<<<<<<
- *             ok = True
  *             if m[i, j]:
+ *                 continue
  */
     __pyx_t_6 = __pyx_v_J;
     for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
       __pyx_v_j = __pyx_t_7;
 
-      /* "pymatgen/util/coord_utils_cython.pyx":146
+      /* "pymatgen/util/coord_utils_cython.pyx":157
  *     for i in range(I):
  *         for j in range(J):
- *             ok = True             # <<<<<<<<<<<<<<
- *             if m[i, j]:
- *                 ok = False
- */
-      __pyx_v_ok = 1;
-
-      /* "pymatgen/util/coord_utils_cython.pyx":147
- *         for j in range(J):
- *             ok = True
  *             if m[i, j]:             # <<<<<<<<<<<<<<
- *                 ok = False
  *                 continue
+ *             ok = True
  */
       __pyx_t_8 = __pyx_v_i;
       __pyx_t_9 = __pyx_v_j;
       __pyx_t_10 = ((*((__pyx_t_5numpy_int_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_m.data + __pyx_t_8 * __pyx_v_m.strides[0]) ) + __pyx_t_9 * __pyx_v_m.strides[1]) ))) != 0);
       if (__pyx_t_10) {
 
-        /* "pymatgen/util/coord_utils_cython.pyx":148
- *             ok = True
+        /* "pymatgen/util/coord_utils_cython.pyx":158
+ *         for j in range(J):
  *             if m[i, j]:
- *                 ok = False             # <<<<<<<<<<<<<<
- *                 continue
- *             for k in range(3):
- */
-        __pyx_v_ok = 0;
-
-        /* "pymatgen/util/coord_utils_cython.pyx":149
- *             if m[i, j]:
- *                 ok = False
  *                 continue             # <<<<<<<<<<<<<<
+ *             ok = True
  *             for k in range(3):
- *                 d = fc1[i, k] - fc2[j, k]
  */
         goto __pyx_L5_continue;
       }
 
-      /* "pymatgen/util/coord_utils_cython.pyx":150
- *                 ok = False
+      /* "pymatgen/util/coord_utils_cython.pyx":159
+ *             if m[i, j]:
  *                 continue
+ *             ok = True             # <<<<<<<<<<<<<<
+ *             for k in range(3):
+ *                 d = fc1[i, k] - fc2[j, k]
+ */
+      __pyx_v_ok = 1;
+
+      /* "pymatgen/util/coord_utils_cython.pyx":160
+ *                 continue
+ *             ok = True
  *             for k in range(3):             # <<<<<<<<<<<<<<
  *                 d = fc1[i, k] - fc2[j, k]
- *                 d = abs(d - round(d))
+ *                 if abs(d - round(d)) > t[k]:
  */
       for (__pyx_t_11 = 0; __pyx_t_11 < 3; __pyx_t_11+=1) {
         __pyx_v_k = __pyx_t_11;
 
-        /* "pymatgen/util/coord_utils_cython.pyx":151
- *                 continue
+        /* "pymatgen/util/coord_utils_cython.pyx":161
+ *             ok = True
  *             for k in range(3):
  *                 d = fc1[i, k] - fc2[j, k]             # <<<<<<<<<<<<<<
- *                 d = abs(d - round(d))
- *                 if d > tol[k]:
+ *                 if abs(d - round(d)) > t[k]:
+ *                     ok = False
  */
         __pyx_t_12 = __pyx_v_i;
         __pyx_t_13 = __pyx_v_k;
@@ -2933,37 +2934,28 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_2pbc_coord_subset
         __pyx_t_15 = __pyx_v_k;
         __pyx_v_d = ((*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_fc1.data + __pyx_t_12 * __pyx_v_fc1.strides[0]) ) + __pyx_t_13 * __pyx_v_fc1.strides[1]) ))) - (*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_fc2.data + __pyx_t_14 * __pyx_v_fc2.strides[0]) ) + __pyx_t_15 * __pyx_v_fc2.strides[1]) ))));
 
-        /* "pymatgen/util/coord_utils_cython.pyx":152
+        /* "pymatgen/util/coord_utils_cython.pyx":162
  *             for k in range(3):
  *                 d = fc1[i, k] - fc2[j, k]
- *                 d = abs(d - round(d))             # <<<<<<<<<<<<<<
- *                 if d > tol[k]:
- *                     ok = False
- */
-        __pyx_v_d = fabs((__pyx_v_d - round(__pyx_v_d)));
-
-        /* "pymatgen/util/coord_utils_cython.pyx":153
- *                 d = fc1[i, k] - fc2[j, k]
- *                 d = abs(d - round(d))
- *                 if d > tol[k]:             # <<<<<<<<<<<<<<
+ *                 if abs(d - round(d)) > t[k]:             # <<<<<<<<<<<<<<
  *                     ok = False
  *                     break
  */
         __pyx_t_16 = __pyx_v_k;
-        __pyx_t_10 = ((__pyx_v_d > (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_tol.data + __pyx_t_16 * __pyx_v_tol.strides[0]) )))) != 0);
+        __pyx_t_10 = ((fabs((__pyx_v_d - round(__pyx_v_d))) > (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_t.data + __pyx_t_16 * __pyx_v_t.strides[0]) )))) != 0);
         if (__pyx_t_10) {
 
-          /* "pymatgen/util/coord_utils_cython.pyx":154
- *                 d = abs(d - round(d))
- *                 if d > tol[k]:
+          /* "pymatgen/util/coord_utils_cython.pyx":163
+ *                 d = fc1[i, k] - fc2[j, k]
+ *                 if abs(d - round(d)) > t[k]:
  *                     ok = False             # <<<<<<<<<<<<<<
  *                     break
  *             if ok:
  */
           __pyx_v_ok = 0;
 
-          /* "pymatgen/util/coord_utils_cython.pyx":155
- *                 if d > tol[k]:
+          /* "pymatgen/util/coord_utils_cython.pyx":164
+ *                 if abs(d - round(d)) > t[k]:
  *                     ok = False
  *                     break             # <<<<<<<<<<<<<<
  *             if ok:
@@ -2974,7 +2966,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_2pbc_coord_subset
       }
       __pyx_L9_break:;
 
-      /* "pymatgen/util/coord_utils_cython.pyx":156
+      /* "pymatgen/util/coord_utils_cython.pyx":165
  *                     ok = False
  *                     break
  *             if ok:             # <<<<<<<<<<<<<<
@@ -2984,7 +2976,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_2pbc_coord_subset
       __pyx_t_10 = (__pyx_v_ok != 0);
       if (__pyx_t_10) {
 
-        /* "pymatgen/util/coord_utils_cython.pyx":157
+        /* "pymatgen/util/coord_utils_cython.pyx":166
  *                     break
  *             if ok:
  *                 break             # <<<<<<<<<<<<<<
@@ -2997,7 +2989,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_2pbc_coord_subset
     }
     __pyx_L6_break:;
 
-    /* "pymatgen/util/coord_utils_cython.pyx":158
+    /* "pymatgen/util/coord_utils_cython.pyx":167
  *             if ok:
  *                 break
  *         if not ok:             # <<<<<<<<<<<<<<
@@ -3007,7 +2999,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_2pbc_coord_subset
     __pyx_t_10 = ((!(__pyx_v_ok != 0)) != 0);
     if (__pyx_t_10) {
 
-      /* "pymatgen/util/coord_utils_cython.pyx":159
+      /* "pymatgen/util/coord_utils_cython.pyx":168
  *                 break
  *         if not ok:
  *             break             # <<<<<<<<<<<<<<
@@ -3018,14 +3010,14 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_2pbc_coord_subset
   }
   __pyx_L4_break:;
 
-  /* "pymatgen/util/coord_utils_cython.pyx":160
+  /* "pymatgen/util/coord_utils_cython.pyx":169
  *         if not ok:
  *             break
  *     return bool(ok)             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_10 = __pyx_v_ok;
-  __pyx_t_17 = __Pyx_PyBool_FromLong((!(!__pyx_t_10))); if (unlikely(!__pyx_t_17)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 160; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_17 = __Pyx_PyBool_FromLong((!(!__pyx_t_10))); if (unlikely(!__pyx_t_17)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 169; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_17);
   __pyx_r = __pyx_t_17;
   __pyx_t_17 = 0;
@@ -3034,9 +3026,9 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_2pbc_coord_subset
   /* "pymatgen/util/coord_utils_cython.pyx":130
  * @cython.wraparound(False)
  * @cython.initializedcheck(False)
- * def pbc_coord_subset(fcoords1, fcoords2, frac_tol, mask):             # <<<<<<<<<<<<<<
- * 
- *     cdef np.float64_t[:, :] fc1 = fcoords1
+ * def is_coord_subset_pbc(fcoords1, fcoords2, tol, mask):             # <<<<<<<<<<<<<<
+ *     """
+ *     Tests if all fractional coords in subset are contained in superset.
  */
 
   /* function exit code */
@@ -3045,12 +3037,12 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_2pbc_coord_subset
   __PYX_XDEC_MEMVIEW(&__pyx_t_2, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_3, 1);
   __Pyx_XDECREF(__pyx_t_17);
-  __Pyx_AddTraceback("pymatgen.util.coord_utils_cython.pbc_coord_subset", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("pymatgen.util.coord_utils_cython.is_coord_subset_pbc", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_fc1, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_v_fc2, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_tol, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_t, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_v_m, 1);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -16392,11 +16384,11 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_b_O, __pyx_k_O, sizeof(__pyx_k_O), 0, 0, 0, 1},
   {&__pyx_kp_s_Out_of_bounds_on_buffer_access_a, __pyx_k_Out_of_bounds_on_buffer_access_a, sizeof(__pyx_k_Out_of_bounds_on_buffer_access_a), 0, 0, 1, 0},
   {&__pyx_n_s_RuntimeError, __pyx_k_RuntimeError, sizeof(__pyx_k_RuntimeError), 0, 0, 1, 1},
-  {&__pyx_kp_s_Shyue_Ping_Ong, __pyx_k_Shyue_Ping_Ong, sizeof(__pyx_k_Shyue_Ping_Ong), 0, 0, 1, 0},
   {&__pyx_n_s_TypeError, __pyx_k_TypeError, sizeof(__pyx_k_TypeError), 0, 0, 1, 1},
   {&__pyx_kp_s_Unable_to_convert_item_to_object, __pyx_k_Unable_to_convert_item_to_object, sizeof(__pyx_k_Unable_to_convert_item_to_object), 0, 0, 1, 0},
   {&__pyx_kp_s_Users_wrichard_repos_pymatgen_p, __pyx_k_Users_wrichard_repos_pymatgen_p, sizeof(__pyx_k_Users_wrichard_repos_pymatgen_p), 0, 0, 1, 0},
   {&__pyx_n_s_ValueError, __pyx_k_ValueError, sizeof(__pyx_k_ValueError), 0, 0, 1, 1},
+  {&__pyx_kp_s_Will_Richards, __pyx_k_Will_Richards, sizeof(__pyx_k_Will_Richards), 0, 0, 1, 0},
   {&__pyx_n_s_allocate_buffer, __pyx_k_allocate_buffer, sizeof(__pyx_k_allocate_buffer), 0, 0, 1, 1},
   {&__pyx_n_s_arange, __pyx_k_arange, sizeof(__pyx_k_arange), 0, 0, 1, 1},
   {&__pyx_n_s_array, __pyx_k_array, sizeof(__pyx_k_array), 0, 0, 1, 1},
@@ -16431,13 +16423,13 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_format, __pyx_k_format, sizeof(__pyx_k_format), 0, 0, 1, 1},
   {&__pyx_n_s_fortran, __pyx_k_fortran, sizeof(__pyx_k_fortran), 0, 0, 1, 1},
   {&__pyx_n_u_fortran, __pyx_k_fortran, sizeof(__pyx_k_fortran), 0, 1, 0, 1},
-  {&__pyx_n_s_frac_tol, __pyx_k_frac_tol, sizeof(__pyx_k_frac_tol), 0, 0, 1, 1},
   {&__pyx_kp_s_got_differing_extents_in_dimensi, __pyx_k_got_differing_extents_in_dimensi, sizeof(__pyx_k_got_differing_extents_in_dimensi), 0, 0, 1, 0},
   {&__pyx_n_s_i, __pyx_k_i, sizeof(__pyx_k_i), 0, 0, 1, 1},
   {&__pyx_n_s_id, __pyx_k_id, sizeof(__pyx_k_id), 0, 0, 1, 1},
   {&__pyx_n_s_images, __pyx_k_images, sizeof(__pyx_k_images), 0, 0, 1, 1},
   {&__pyx_n_s_images_t, __pyx_k_images_t, sizeof(__pyx_k_images_t), 0, 0, 1, 1},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
+  {&__pyx_n_s_is_coord_subset_pbc, __pyx_k_is_coord_subset_pbc, sizeof(__pyx_k_is_coord_subset_pbc), 0, 0, 1, 1},
   {&__pyx_n_s_itemsize, __pyx_k_itemsize, sizeof(__pyx_k_itemsize), 0, 0, 1, 1},
   {&__pyx_kp_s_itemsize_0_for_cython_array, __pyx_k_itemsize_0_for_cython_array, sizeof(__pyx_k_itemsize_0_for_cython_array), 0, 0, 1, 0},
   {&__pyx_n_s_j, __pyx_k_j, sizeof(__pyx_k_j), 0, 0, 1, 1},
@@ -16463,7 +16455,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_ok, __pyx_k_ok, sizeof(__pyx_k_ok), 0, 0, 1, 1},
   {&__pyx_n_s_output, __pyx_k_output, sizeof(__pyx_k_output), 0, 0, 1, 1},
   {&__pyx_n_s_pack, __pyx_k_pack, sizeof(__pyx_k_pack), 0, 0, 1, 1},
-  {&__pyx_n_s_pbc_coord_subset, __pyx_k_pbc_coord_subset, sizeof(__pyx_k_pbc_coord_subset), 0, 0, 1, 1},
   {&__pyx_n_s_pbc_shortest_vectors, __pyx_k_pbc_shortest_vectors, sizeof(__pyx_k_pbc_shortest_vectors), 0, 0, 1, 1},
   {&__pyx_n_s_pymatgen_util_coord_utils_cython, __pyx_k_pymatgen_util_coord_utils_cython, sizeof(__pyx_k_pymatgen_util_coord_utils_cython), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_getbuffer, __pyx_k_pyx_getbuffer, sizeof(__pyx_k_pyx_getbuffer), 0, 0, 1, 1},
@@ -16472,7 +16463,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_range, __pyx_k_range, sizeof(__pyx_k_range), 0, 0, 1, 1},
   {&__pyx_n_s_reshape, __pyx_k_reshape, sizeof(__pyx_k_reshape), 0, 0, 1, 1},
   {&__pyx_n_s_shape, __pyx_k_shape, sizeof(__pyx_k_shape), 0, 0, 1, 1},
-  {&__pyx_kp_s_shyuep_gmail_com, __pyx_k_shyuep_gmail_com, sizeof(__pyx_k_shyuep_gmail_com), 0, 0, 1, 0},
   {&__pyx_n_s_six_moves, __pyx_k_six_moves, sizeof(__pyx_k_six_moves), 0, 0, 1, 1},
   {&__pyx_n_s_size, __pyx_k_size, sizeof(__pyx_k_size), 0, 0, 1, 1},
   {&__pyx_n_s_start, __pyx_k_start, sizeof(__pyx_k_start), 0, 0, 1, 1},
@@ -16482,6 +16472,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_strided_and_direct_or_indirect, __pyx_k_strided_and_direct_or_indirect, sizeof(__pyx_k_strided_and_direct_or_indirect), 0, 0, 1, 0},
   {&__pyx_kp_s_strided_and_indirect, __pyx_k_strided_and_indirect, sizeof(__pyx_k_strided_and_indirect), 0, 0, 1, 0},
   {&__pyx_n_s_struct, __pyx_k_struct, sizeof(__pyx_k_struct), 0, 0, 1, 1},
+  {&__pyx_n_s_t, __pyx_k_t, sizeof(__pyx_k_t), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
   {&__pyx_n_s_tol, __pyx_k_tol, sizeof(__pyx_k_tol), 0, 0, 1, 1},
   {&__pyx_kp_s_unable_to_allocate_array_data, __pyx_k_unable_to_allocate_array_data, sizeof(__pyx_k_unable_to_allocate_array_data), 0, 0, 1, 0},
@@ -16490,6 +16481,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_unpack, __pyx_k_unpack, sizeof(__pyx_k_unpack), 0, 0, 1, 1},
   {&__pyx_n_s_vectors, __pyx_k_vectors, sizeof(__pyx_k_vectors), 0, 0, 1, 1},
   {&__pyx_n_s_version, __pyx_k_version, sizeof(__pyx_k_version), 0, 0, 1, 1},
+  {&__pyx_kp_s_wmdrichards_gmail_com, __pyx_k_wmdrichards_gmail_com, sizeof(__pyx_k_wmdrichards_gmail_com), 0, 0, 1, 0},
   {&__pyx_n_s_zip, __pyx_k_zip, sizeof(__pyx_k_zip), 0, 0, 1, 1},
   {0, 0, 0, 0, 0, 0, 0}
 };
@@ -16847,14 +16839,14 @@ static int __Pyx_InitCachedConstants(void) {
   /* "pymatgen/util/coord_utils_cython.pyx":130
  * @cython.wraparound(False)
  * @cython.initializedcheck(False)
- * def pbc_coord_subset(fcoords1, fcoords2, frac_tol, mask):             # <<<<<<<<<<<<<<
- * 
- *     cdef np.float64_t[:, :] fc1 = fcoords1
+ * def is_coord_subset_pbc(fcoords1, fcoords2, tol, mask):             # <<<<<<<<<<<<<<
+ *     """
+ *     Tests if all fractional coords in subset are contained in superset.
  */
-  __pyx_tuple__42 = PyTuple_Pack(15, __pyx_n_s_fcoords1, __pyx_n_s_fcoords2, __pyx_n_s_frac_tol, __pyx_n_s_mask, __pyx_n_s_fc1, __pyx_n_s_fc2, __pyx_n_s_tol, __pyx_n_s_m, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_k, __pyx_n_s_I, __pyx_n_s_J, __pyx_n_s_d, __pyx_n_s_ok); if (unlikely(!__pyx_tuple__42)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_tuple__42 = PyTuple_Pack(15, __pyx_n_s_fcoords1, __pyx_n_s_fcoords2, __pyx_n_s_tol, __pyx_n_s_mask, __pyx_n_s_fc1, __pyx_n_s_fc2, __pyx_n_s_t, __pyx_n_s_m, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_k, __pyx_n_s_I, __pyx_n_s_J, __pyx_n_s_d, __pyx_n_s_ok); if (unlikely(!__pyx_tuple__42)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__42);
   __Pyx_GIVEREF(__pyx_tuple__42);
-  __pyx_codeobj__43 = (PyObject*)__Pyx_PyCode_New(4, 0, 15, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__42, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_wrichard_repos_pymatgen_p, __pyx_n_s_pbc_coord_subset, 130, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__43)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_codeobj__43 = (PyObject*)__Pyx_PyCode_New(4, 0, 15, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__42, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_wrichard_repos_pymatgen_p, __pyx_n_s_is_coord_subset_pbc, 130, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__43)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
   /* "View.MemoryView":276
  *         return self.name
@@ -17070,7 +17062,7 @@ PyMODINIT_FUNC PyInit_coord_utils_cython(void)
  * 
  * from six.moves import zip             # <<<<<<<<<<<<<<
  * 
- * __author__ = "Shyue Ping Ong"
+ * __author__ = "Will Richards"
  */
   __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 11; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
@@ -17089,51 +17081,51 @@ PyMODINIT_FUNC PyInit_coord_utils_cython(void)
   /* "pymatgen/util/coord_utils_cython.pyx":13
  * from six.moves import zip
  * 
- * __author__ = "Shyue Ping Ong"             # <<<<<<<<<<<<<<
+ * __author__ = "Will Richards"             # <<<<<<<<<<<<<<
  * __copyright__ = "Copyright 2011, The Materials Project"
  * __version__ = "1.0"
  */
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_author, __pyx_kp_s_Shyue_Ping_Ong) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 13; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_author, __pyx_kp_s_Will_Richards) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 13; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
   /* "pymatgen/util/coord_utils_cython.pyx":14
  * 
- * __author__ = "Shyue Ping Ong"
+ * __author__ = "Will Richards"
  * __copyright__ = "Copyright 2011, The Materials Project"             # <<<<<<<<<<<<<<
  * __version__ = "1.0"
- * __maintainer__ = "Shyue Ping Ong"
+ * __maintainer__ = "Will Richards"
  */
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_copyright, __pyx_kp_s_Copyright_2011_The_Materials_Pro) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 14; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
   /* "pymatgen/util/coord_utils_cython.pyx":15
- * __author__ = "Shyue Ping Ong"
+ * __author__ = "Will Richards"
  * __copyright__ = "Copyright 2011, The Materials Project"
  * __version__ = "1.0"             # <<<<<<<<<<<<<<
- * __maintainer__ = "Shyue Ping Ong"
- * __email__ = "shyuep@gmail.com"
+ * __maintainer__ = "Will Richards"
+ * __email__ = "wmdrichards@gmail.com"
  */
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_version, __pyx_kp_s_1_0) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 15; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
   /* "pymatgen/util/coord_utils_cython.pyx":16
  * __copyright__ = "Copyright 2011, The Materials Project"
  * __version__ = "1.0"
- * __maintainer__ = "Shyue Ping Ong"             # <<<<<<<<<<<<<<
- * __email__ = "shyuep@gmail.com"
+ * __maintainer__ = "Will Richards"             # <<<<<<<<<<<<<<
+ * __email__ = "wmdrichards@gmail.com"
  * __date__ = "Nov 27, 2011"
  */
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_maintainer, __pyx_kp_s_Shyue_Ping_Ong) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 16; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_maintainer, __pyx_kp_s_Will_Richards) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 16; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
   /* "pymatgen/util/coord_utils_cython.pyx":17
  * __version__ = "1.0"
- * __maintainer__ = "Shyue Ping Ong"
- * __email__ = "shyuep@gmail.com"             # <<<<<<<<<<<<<<
+ * __maintainer__ = "Will Richards"
+ * __email__ = "wmdrichards@gmail.com"             # <<<<<<<<<<<<<<
  * __date__ = "Nov 27, 2011"
  * 
  */
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_email, __pyx_kp_s_shyuep_gmail_com) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_email, __pyx_kp_s_wmdrichards_gmail_com) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
   /* "pymatgen/util/coord_utils_cython.pyx":18
- * __maintainer__ = "Shyue Ping Ong"
- * __email__ = "shyuep@gmail.com"
+ * __maintainer__ = "Will Richards"
+ * __email__ = "wmdrichards@gmail.com"
  * __date__ = "Nov 27, 2011"             # <<<<<<<<<<<<<<
  * 
  * import numpy as np
@@ -17471,13 +17463,13 @@ PyMODINIT_FUNC PyInit_coord_utils_cython(void)
   /* "pymatgen/util/coord_utils_cython.pyx":130
  * @cython.wraparound(False)
  * @cython.initializedcheck(False)
- * def pbc_coord_subset(fcoords1, fcoords2, frac_tol, mask):             # <<<<<<<<<<<<<<
- * 
- *     cdef np.float64_t[:, :] fc1 = fcoords1
+ * def is_coord_subset_pbc(fcoords1, fcoords2, tol, mask):             # <<<<<<<<<<<<<<
+ *     """
+ *     Tests if all fractional coords in subset are contained in superset.
  */
-  __pyx_t_6 = PyCFunction_NewEx(&__pyx_mdef_8pymatgen_4util_18coord_utils_cython_3pbc_coord_subset, NULL, __pyx_n_s_pymatgen_util_coord_utils_cython); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_6 = PyCFunction_NewEx(&__pyx_mdef_8pymatgen_4util_18coord_utils_cython_3is_coord_subset_pbc, NULL, __pyx_n_s_pymatgen_util_coord_utils_cython); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_6);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_pbc_coord_subset, __pyx_t_6) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_is_coord_subset_pbc, __pyx_t_6) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 130; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
   /* "pymatgen/util/coord_utils_cython.pyx":1
