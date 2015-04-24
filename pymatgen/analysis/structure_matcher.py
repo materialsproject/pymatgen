@@ -450,7 +450,7 @@ class StructureMatcher(PMGSONable):
 
         return LinearAssignment(cost).min_cost < mask_val
 
-    def _cart_dists(self, s1, s2, avg_lattice, mask):
+    def _cart_dists(self, s1, s2, avg_lattice, mask, normalization):
         """
         Finds a matching in cartesian space. Finds an additional
         fractional translation vector to minimize RMS distance
@@ -461,6 +461,7 @@ class StructureMatcher(PMGSONable):
             avg_lattice: Lattice on which to calculate distances
             mask: numpy array of booleans. mask[i, j] = True indicates
                 that s2[i] cannot be matched to s1[j]
+            norm_length (float): inverse normalization length
 
         Returns:
             Distances from s2 to s1, normalized by (V/Natom) ^ 1/3
@@ -472,8 +473,7 @@ class StructureMatcher(PMGSONable):
         if mask.shape != (len(s2), len(s1)):
             raise ValueError("mask has incorrect shape")
 
-        norm_length = (avg_lattice.volume / len(s1)) ** (1 / 3)
-        mask_val = 1e10 * norm_length * self.stol
+        mask_val = 1e10 * self.stol / normalization
         #vectors are from s2 to s1
         vecs = pbc_shortest_vectors(avg_lattice, s2, s1)
         vecs[mask] = mask_val
@@ -485,7 +485,7 @@ class StructureMatcher(PMGSONable):
         f_translation = avg_lattice.get_fractional_coords(translation)
         new_d2 = np.sum((short_vecs - translation) ** 2, axis=-1)
 
-        return new_d2 ** 0.5 / norm_length, f_translation, s
+        return new_d2 ** 0.5 * normalization, f_translation, s
 
     def _get_mask(self, struct1, struct2, fu, s1_supercell):
         """
@@ -668,7 +668,8 @@ class StructureMatcher(PMGSONable):
                 t_s2fc = s2fc + t
                 if self._cmp_fstruct(s1fc, t_s2fc, frac_tol, mask):
                     dist, t_adj, mapping = self._cart_dists(s1fc, t_s2fc,
-                                                            avg_l, mask)
+                                                            avg_l, mask,
+                                                            normalization)
                     if use_rms:
                         val = np.linalg.norm(dist) / len(dist) ** 0.5
                     else:
