@@ -85,28 +85,31 @@ class StructureMatcherTest(PymatgenTest):
         mask3 = np.array([[False, False], [False, False]])
         mask4 = np.array([[False, True], [False, True]])
 
-        self.assertRaises(ValueError, sm._cart_dists, s2, s1, l, mask.T)
-        self.assertRaises(ValueError, sm._cart_dists, s1, s2, l, mask.T)
+        n1 = (len(s1) / l.volume) ** (1/3)
+        n2 = (len(s2) / l.volume) ** (1/3)
 
-        d, ft, s = sm._cart_dists(s1, s2, l, mask)
+        self.assertRaises(ValueError, sm._cart_dists, s2, s1, l, mask.T, n2)
+        self.assertRaises(ValueError, sm._cart_dists, s1, s2, l, mask.T, n1)
+
+        d, ft, s = sm._cart_dists(s1, s2, l, mask, n1)
         self.assertTrue(np.allclose(d, [0]))
         self.assertTrue(np.allclose(ft, [-0.01, -0.02, -0.03]))
         self.assertTrue(np.allclose(s, [1]))
 
         #check that masking best value works
-        d, ft, s = sm._cart_dists(s1, s2, l, mask2)
+        d, ft, s = sm._cart_dists(s1, s2, l, mask2, n1)
         self.assertTrue(np.allclose(d, [0]))
         self.assertTrue(np.allclose(ft, [0.02, 0.03, 0.04]))
         self.assertTrue(np.allclose(s, [0]))
 
         #check that averaging of translation is done properly
-        d, ft, s = sm._cart_dists(s1, s3, l, mask3)
+        d, ft, s = sm._cart_dists(s1, s3, l, mask3, n1)
         self.assertTrue(np.allclose(d, [0.08093341]*2))
         self.assertTrue(np.allclose(ft, [0.01, 0.025, 0.035]))
         self.assertTrue(np.allclose(s, [1, 0]))
 
         #check distances are large when mask allows no 'real' mapping
-        d, ft, s = sm._cart_dists(s1, s4, l, mask4)
+        d, ft, s = sm._cart_dists(s1, s4, l, mask4, n1)
         self.assertTrue(np.min(d) > 1e8)
         self.assertTrue(np.min(ft) > 1e8)
 
