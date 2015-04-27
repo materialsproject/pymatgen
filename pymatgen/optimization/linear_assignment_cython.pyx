@@ -48,7 +48,7 @@ class LinearAssignment(object):
         to column 0. Total cost would be c[0, 1] + c[1, 2] + c[2, 0]
     """
 
-    def __init__(self, costs, epsilon=1e-6):
+    def __init__(self, costs, epsilon=1e-8):
         self.orig_c = np.array(costs, dtype=np.float64)
         self.nx, self.ny = self.orig_c.shape
         self.n = self.ny
@@ -62,12 +62,7 @@ class LinearAssignment(object):
         if self.nx == self.ny:
             self.c = self.orig_c
         else:
-            # Can run into precision issues if np.max is used as the fill value (since a
-            # value of this size doesn't necessarily end up in the solution). A value
-            # at least as large as the maximin is, however, guaranteed to appear so it
-            # is a safer choice. The fill value is not zero to avoid choosing the extra
-            # rows in the initial column reduction step
-            self.c = np.full((self.n, self.n), np.max(np.min(self.orig_c, axis=1)))
+            self.c = np.zeros((self.n, self.n), dtype=np.float64)
             self.c[:self.nx] = self.orig_c
 
         #initialize solution vectors
@@ -92,6 +87,7 @@ class LinearAssignment(object):
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef void compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_t[:] y, np.float64_t eps):
+
     # augment
     cdef int i, j, k, i1, j1, f, f0, cnt, low, up, z, last, naug
     cdef int n = size
