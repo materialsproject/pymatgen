@@ -451,7 +451,8 @@ class Lattice(PMGSONable):
                 "gamma": float(self.gamma),
                 "volume": float(self.volume)}
 
-    def find_all_mappings(self, other_lattice, ltol=1e-5, atol=1):
+    def find_all_mappings(self, other_lattice, ltol=1e-5, atol=1,
+                          skip_rotation_matrix=False):
         """
         Finds all mappings between current lattice and another lattice.
 
@@ -460,6 +461,8 @@ class Lattice(PMGSONable):
                 this one.
             ltol (float): Tolerance for matching lengths. Defaults to 1e-5.
             atol (float): Tolerance for matching angles. Defaults to 1.
+            skip_rotation_matrix (bool): Whether to skip calculation of the
+                rotation matrix
 
         Yields:
             (aligned_lattice, rotation_matrix, scale_matrix) if a mapping is
@@ -512,7 +515,10 @@ class Lattice(PMGSONable):
                 if abs(np.linalg.det(scale_m)) < 1e-8:
                     continue
                 aligned_m = np.array((c_a[i], c_b[j], c_c[k]))
-                rotation_m = np.linalg.solve(aligned_m, other_lattice.matrix)
+                if skip_rotation_matrix:
+                    rotation_m = None
+                else:
+                    rotation_m = np.linalg.solve(aligned_m, other_lattice.matrix)
                 yield Lattice(aligned_m), rotation_m, scale_m
 
     def find_mapping(self, other_lattice, ltol=1e-5, atol=1):
