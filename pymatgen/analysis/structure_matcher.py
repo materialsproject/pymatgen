@@ -28,7 +28,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord_utils import pbc_shortest_vectors, \
-    lattice_points_in_supercell
+    lattice_points_in_supercell, is_coord_subset_pbc
 
 
 class AbstractComparator(six.with_metaclass(abc.ABCMeta, PMGSONable)):
@@ -382,7 +382,7 @@ class StructureMatcher(PMGSONable):
         """
         lattices = s.lattice.find_all_mappings(
             target_lattice, ltol=self.ltol, atol=self.angle_tol,
-            skip_rotation_matrix=False)
+            skip_rotation_matrix=True)
         for l, _, scale_m in lattices:
             if abs(abs(np.linalg.det(scale_m)) - supercell_size) < 0.5:
                 yield l, scale_m
@@ -435,21 +435,7 @@ class StructureMatcher(PMGSONable):
         if mask.shape != (len(s2), len(s1)):
             raise ValueError("mask has incorrect shape")
 
-        mask_val = 3 * len(s1)
-        #distance from subset to superset
-        dist = s1[None, :] - s2[:, None]
-        dist = abs(dist - np.round(dist))
-
-        dist[dist > frac_tol[None, None, :]] = mask_val
-        cost = np.sum(dist, axis=-1)
-        cost[mask] = mask_val
-
-        #maximin is a lower bound on linear assignment
-        #(and faster to compute)
-        if np.max(np.min(cost, axis=1)) >= mask_val:
-            return False
-
-        return LinearAssignment(cost).min_cost < mask_val
+        return is_coord_subset_pbc(s2, s1, frac_tol, mask)
 
     def _cart_dists(self, s1, s2, avg_lattice, mask, normalization):
         """

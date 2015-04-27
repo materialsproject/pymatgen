@@ -290,12 +290,16 @@ def in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8):
     return len(find_in_coord_list_pbc(fcoord_list, fcoord, atol=atol)) > 0
 
 
-def is_coord_subset_pbc(subset, superset, atol=1e-8):
+def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None):
     """
     Tests if all fractional coords in subset are contained in superset.
 
     Args:
         subset, superset: List of fractional coords
+        atol (float or size 3 array): Tolerance for matching
+        mask (boolean array): Mask of matches that are not allowed.
+            i.e. if mask[1,2] == True, then subset[1] cannot be matched
+            to superset[2]
 
     Returns:
         True if all of subset is in superset.
@@ -304,6 +308,8 @@ def is_coord_subset_pbc(subset, superset, atol=1e-8):
     c2 = np.array(superset)
     dist = c1[:, None, :] - c2[None, :, :]
     dist -= np.round(dist)
+    if mask is not None:
+        dist[np.array(mask)] = np.inf
     is_close = np.all(np.abs(dist) < atol, axis=-1)
     any_close = np.any(is_close, axis=-1)
     return np.all(any_close)

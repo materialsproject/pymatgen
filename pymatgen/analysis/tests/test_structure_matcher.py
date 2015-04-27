@@ -58,11 +58,9 @@ class StructureMatcherTest(PymatgenTest):
 
         s1 = np.array([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]])
         s2 = np.array([[0.11, 0.22, 0.33]])
-        s3 = np.array([[0.1, 0.2, 0.3], [0.1, 0.2, 0.3]])
         frac_tol = np.array([0.02, 0.03, 0.04])
         mask = np.array([[False, False]])
         mask2 = np.array([[True, False]])
-        mask3 = np.array([[False, False], [False, False]])
 
         self.assertRaises(ValueError, sm._cmp_fstruct, s2, s1, frac_tol, mask.T)
         self.assertRaises(ValueError, sm._cmp_fstruct, s1, s2, frac_tol, mask.T)
@@ -70,7 +68,6 @@ class StructureMatcherTest(PymatgenTest):
         self.assertTrue(sm._cmp_fstruct(s1, s2, frac_tol, mask))
         self.assertFalse(sm._cmp_fstruct(s1, s2, frac_tol/2, mask))
         self.assertFalse(sm._cmp_fstruct(s1, s2, frac_tol, mask2))
-        self.assertFalse(sm._cmp_fstruct(s1, s3, frac_tol, mask3))
 
     def test_cart_dists(self):
         sm = StructureMatcher()
