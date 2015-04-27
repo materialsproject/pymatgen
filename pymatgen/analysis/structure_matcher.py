@@ -381,7 +381,8 @@ class StructureMatcher(PMGSONable):
             s, target_s: Structure objects
         """
         lattices = s.lattice.find_all_mappings(
-            target_lattice, ltol = self.ltol, atol=self.angle_tol)
+            target_lattice, ltol=self.ltol, atol=self.angle_tol,
+            skip_rotation_matrix=False)
         for l, _, scale_m in lattices:
             if abs(abs(np.linalg.det(scale_m)) - supercell_size) < 0.5:
                 yield l, scale_m
