@@ -26,9 +26,9 @@ from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
-from pymatgen.optimization.linear_assignment import LinearAssignment
-from pymatgen.util.coord_utils import pbc_shortest_vectors, \
-    lattice_points_in_supercell, is_coord_subset_pbc
+from pymatgen.optimization.linear_assignment_cython import LinearAssignment
+from pymatgen.util.coord_utils_cython import pbc_shortest_vectors, is_coord_subset_pbc
+from pymatgen.util.coord_utils import lattice_points_in_supercell
 
 
 class AbstractComparator(six.with_metaclass(abc.ABCMeta, PMGSONable)):

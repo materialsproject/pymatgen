@@ -143,7 +143,7 @@ def is_coord_subset_pbc(fcoords1, fcoords2, tol, mask):
     cdef np.float64_t[:, :] fc1 = fcoords1
     cdef np.float64_t[:, :] fc2 = fcoords2
     cdef np.float64_t[:] t = tol
-    cdef np.int_t[:, :] m = mask
+    cdef np.int_t[:, :] m = np.array(mask, dtype=np.int)
 
     cdef int i, j, k, I, J
     cdef np.float64_t d
