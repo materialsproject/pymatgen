@@ -451,7 +451,8 @@ class Lattice(PMGSONable):
                 "gamma": float(self.gamma),
                 "volume": float(self.volume)}
 
-    def find_all_mappings(self, other_lattice, ltol=1e-5, atol=1):
+    def find_all_mappings(self, other_lattice, ltol=1e-5, atol=1,
+                          skip_rotation_matrix=False):
         """
         Finds all mappings between current lattice and another lattice.
 
@@ -460,6 +461,8 @@ class Lattice(PMGSONable):
                 this one.
             ltol (float): Tolerance for matching lengths. Defaults to 1e-5.
             atol (float): Tolerance for matching angles. Defaults to 1.
+            skip_rotation_matrix (bool): Whether to skip calculation of the
+                rotation matrix
 
         Yields:
             (aligned_lattice, rotation_matrix, scale_matrix) if a mapping is
@@ -486,33 +489,36 @@ class Lattice(PMGSONable):
         dist = np.array([p[1] for p in points])
         cart = self.get_cartesian_coords(frac)
 
+        # this can't be broadcast because they're different lengths
         inds = [np.abs(dist - l) / l <= ltol for l in lengths]
-        c_cand = [cart[i] for i in inds]
-        f_cand = [frac[i] for i in inds]
-        lengths = [np.sum(c ** 2, axis=-1) ** 0.5 for c in c_cand]
+        c_a, c_b, c_c = (cart[i] for i in inds)
+        f_a, f_b, f_c = (frac[i] for i in inds)
+        l_a, l_b, l_c = (np.sum(c ** 2, axis=-1) ** 0.5 for c in (c_a, c_b, c_c))
 
         def get_angles(v1, v2, l1, l2):
-            x = np.inner(np.atleast_2d(v1), v2) / np.atleast_1d(l1)[:, None] / l2
-            x[x>1] = 1
-            x[x<-1] = -1
+            x = np.inner(v1, v2) / l1[:, None] / l2
+            x[x > 1] = 1
+            x[x < -1] = -1
             angles = np.arccos(x) * 180. / pi
             return angles
 
-        gammas = get_angles(c_cand[0], c_cand[1], lengths[0], lengths[1])
-        for i, j in np.argwhere(np.abs(gammas - gamma) < atol):
-            alphas = get_angles(c_cand[1][j], c_cand[2], lengths[1][j],
-                                lengths[2])[0]
-            betas = get_angles(c_cand[0][i], c_cand[2], lengths[0][i],
-                               lengths[2])[0]
-            inds = np.logical_and(np.abs(alphas - alpha) < atol,
-                                  np.abs(betas - beta) < atol)
+        alphab = np.abs(get_angles(c_b, c_c, l_b, l_c) - alpha) < atol
+        betab = np.abs(get_angles(c_a, c_c, l_a, l_c) - beta) < atol
+        gammab = np.abs(get_angles(c_a, c_b, l_a, l_b) - gamma) < atol
 
-            for c, f in zip(c_cand[2][inds], f_cand[2][inds]):
-                aligned_m = np.array([c_cand[0][i], c_cand[1][j], c])
-                scale_m = np.array([f_cand[0][i], f_cand[1][j], f])
+        for i, all_j in enumerate(gammab):
+            inds = np.logical_and(all_j[:, None],
+                                  np.logical_and(alphab,
+                                                 betab[i][None, :]))
+            for j, k in np.argwhere(inds):
+                scale_m = np.array((f_a[i], f_b[j], f_c[k]))
                 if abs(np.linalg.det(scale_m)) < 1e-8:
                     continue
-                rotation_m = np.linalg.solve(aligned_m, other_lattice.matrix)
+                aligned_m = np.array((c_a[i], c_b[j], c_c[k]))
+                if skip_rotation_matrix:
+                    rotation_m = None
+                else:
+                    rotation_m = np.linalg.solve(aligned_m, other_lattice.matrix)
                 yield Lattice(aligned_m), rotation_m, scale_m
 
     def find_mapping(self, other_lattice, ltol=1e-5, atol=1):
