@@ -94,9 +94,9 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
     I = len(fcoords1)
     J = len(fcoords2)
 
-    cdef np.float64_t * cart_f1 = <np.float64_t *> malloc(3 * I * sizeof(np.float64_t*))
-    cdef np.float64_t * cart_f2 = <np.float64_t *> malloc(3 * J * sizeof(np.float64_t*))
-    cdef np.float64_t * cart_im = <np.float64_t *> malloc(81 * sizeof(np.float64_t*))
+    cdef np.float64_t * cart_f1 = <np.float64_t *> malloc(3 * I * sizeof(np.float64_t))
+    cdef np.float64_t * cart_f2 = <np.float64_t *> malloc(3 * J * sizeof(np.float64_t))
+    cdef np.float64_t * cart_im = <np.float64_t *> malloc(81 * sizeof(np.float64_t))
 
     dot_2d_mod(fcoords1, lat, cart_f1)
     dot_2d_mod(fcoords2, lat, cart_f2)
