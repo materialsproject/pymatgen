@@ -2320,7 +2320,7 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vect
  *     I = len(fcoords1)
  *     J = len(fcoords2)             # <<<<<<<<<<<<<<
  * 
- *     cdef np.float64_t * cart_f1 = <np.float64_t *> malloc(3 * I * sizeof(np.float64_t*))
+ *     cdef np.float64_t * cart_f1 = <np.float64_t *> malloc(3 * I * sizeof(np.float64_t))
  */
   __pyx_t_3 = PyObject_Length(__pyx_v_fcoords2); if (unlikely(__pyx_t_3 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 95; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_v_J = __pyx_t_3;
@@ -2328,32 +2328,32 @@ static PyObject *__pyx_pf_8pymatgen_4util_18coord_utils_cython_pbc_shortest_vect
   /* "pymatgen/util/coord_utils_cython.pyx":97
  *     J = len(fcoords2)
  * 
- *     cdef np.float64_t * cart_f1 = <np.float64_t *> malloc(3 * I * sizeof(np.float64_t*))             # <<<<<<<<<<<<<<
- *     cdef np.float64_t * cart_f2 = <np.float64_t *> malloc(3 * J * sizeof(np.float64_t*))
- *     cdef np.float64_t * cart_im = <np.float64_t *> malloc(81 * sizeof(np.float64_t*))
+ *     cdef np.float64_t * cart_f1 = <np.float64_t *> malloc(3 * I * sizeof(np.float64_t))             # <<<<<<<<<<<<<<
+ *     cdef np.float64_t * cart_f2 = <np.float64_t *> malloc(3 * J * sizeof(np.float64_t))
+ *     cdef np.float64_t * cart_im = <np.float64_t *> malloc(81 * sizeof(np.float64_t))
  */
-  __pyx_v_cart_f1 = ((__pyx_t_5numpy_float64_t *)malloc(((3 * __pyx_v_I) * (sizeof(__pyx_t_5numpy_float64_t *)))));
+  __pyx_v_cart_f1 = ((__pyx_t_5numpy_float64_t *)malloc(((3 * __pyx_v_I) * (sizeof(__pyx_t_5numpy_float64_t)))));
 
   /* "pymatgen/util/coord_utils_cython.pyx":98
  * 
- *     cdef np.float64_t * cart_f1 = <np.float64_t *> malloc(3 * I * sizeof(np.float64_t*))
- *     cdef np.float64_t * cart_f2 = <np.float64_t *> malloc(3 * J * sizeof(np.float64_t*))             # <<<<<<<<<<<<<<
- *     cdef np.float64_t * cart_im = <np.float64_t *> malloc(81 * sizeof(np.float64_t*))
+ *     cdef np.float64_t * cart_f1 = <np.float64_t *> malloc(3 * I * sizeof(np.float64_t))
+ *     cdef np.float64_t * cart_f2 = <np.float64_t *> malloc(3 * J * sizeof(np.float64_t))             # <<<<<<<<<<<<<<
+ *     cdef np.float64_t * cart_im = <np.float64_t *> malloc(81 * sizeof(np.float64_t))
  * 
  */
-  __pyx_v_cart_f2 = ((__pyx_t_5numpy_float64_t *)malloc(((3 * __pyx_v_J) * (sizeof(__pyx_t_5numpy_float64_t *)))));
+  __pyx_v_cart_f2 = ((__pyx_t_5numpy_float64_t *)malloc(((3 * __pyx_v_J) * (sizeof(__pyx_t_5numpy_float64_t)))));
 
   /* "pymatgen/util/coord_utils_cython.pyx":99
- *     cdef np.float64_t * cart_f1 = <np.float64_t *> malloc(3 * I * sizeof(np.float64_t*))
- *     cdef np.float64_t * cart_f2 = <np.float64_t *> malloc(3 * J * sizeof(np.float64_t*))
- *     cdef np.float64_t * cart_im = <np.float64_t *> malloc(81 * sizeof(np.float64_t*))             # <<<<<<<<<<<<<<
+ *     cdef np.float64_t * cart_f1 = <np.float64_t *> malloc(3 * I * sizeof(np.float64_t))
+ *     cdef np.float64_t * cart_f2 = <np.float64_t *> malloc(3 * J * sizeof(np.float64_t))
+ *     cdef np.float64_t * cart_im = <np.float64_t *> malloc(81 * sizeof(np.float64_t))             # <<<<<<<<<<<<<<
  * 
  *     dot_2d_mod(fcoords1, lat, cart_f1)
  */
-  __pyx_v_cart_im = ((__pyx_t_5numpy_float64_t *)malloc((81 * (sizeof(__pyx_t_5numpy_float64_t *)))));
+  __pyx_v_cart_im = ((__pyx_t_5numpy_float64_t *)malloc((81 * (sizeof(__pyx_t_5numpy_float64_t)))));
 
   /* "pymatgen/util/coord_utils_cython.pyx":101
- *     cdef np.float64_t * cart_im = <np.float64_t *> malloc(81 * sizeof(np.float64_t*))
+ *     cdef np.float64_t * cart_im = <np.float64_t *> malloc(81 * sizeof(np.float64_t))
  * 
  *     dot_2d_mod(fcoords1, lat, cart_f1)             # <<<<<<<<<<<<<<
  *     dot_2d_mod(fcoords2, lat, cart_f2)
