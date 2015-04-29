@@ -16,7 +16,7 @@ __date__ = "Jan 28, 2013"
 
 import numpy as np
 
-from libc.math cimport round, abs
+from libc.math cimport abs
 cimport numpy as np
 cimport cython
 
@@ -48,7 +48,7 @@ class LinearAssignment(object):
         to column 0. Total cost would be c[0, 1] + c[1, 2] + c[2, 0]
     """
 
-    def __init__(self, costs, epsilon=1e-8):
+    def __init__(self, costs, epsilon=1e-14):
         self.orig_c = np.array(costs, dtype=np.float64)
         self.nx, self.ny = self.orig_c.shape
         self.n = self.ny
@@ -91,6 +91,7 @@ cdef void compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_t[:] y, 
     # augment
     cdef int i, j, k, i1, j1, f, f0, cnt, low, up, z, last, naug
     cdef int n = size
+    cdef bint b
     cdef np.int_t[:] col = np.empty(n, dtype=np.int)
     cdef np.int_t[:] free = np.empty(n, dtype=np.int)
     cdef np.int_t[:] pred = np.empty(n, dtype=np.int)
@@ -107,7 +108,7 @@ cdef void compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_t[:] y, 
         h = c[0, j]
         i1 = 0
         for i in range(1, n):
-            if c[i, j] < h:
+            if c[i, j] + eps < h:
                 h = c[i, j]
                 i1 = i
         v[j] = h
@@ -115,8 +116,9 @@ cdef void compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_t[:] y, 
             x[i1] = j
             y[j] = i1
         else:
-            if x[i] > -1:
-                x[i] = -2 - x[i]
+            # in the paper its x[i], but likely a typo
+            if x[i1] > -1:
+                x[i1] = -2 - x[i1]
             y[j] = -1
 
     # reduction transfer
@@ -149,7 +151,7 @@ cdef void compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_t[:] y, 
             u2 = 1e20
             for j in range(1, n):
                 h = c[i, j] - v[j]
-                if h < u2:
+                if h + eps < u2:
                     if h >= u1:
                         u2 = h
                         j2 = j
@@ -185,6 +187,9 @@ cdef void compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_t[:] y, 
             d[j] = c[i1, j] - v[j]
             pred[j] = i1
         while True:
+            # the pascal code ends when a single augmentation is found
+            # really we need to get back to the for f in range(f0+1) loop
+            b = False
             if up == low:
                 last = low-1
                 m = d[col[up]]
@@ -192,13 +197,14 @@ cdef void compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_t[:] y, 
                 for k in range(up, n):
                     j = col[k]
                     h = d[j]
-                    if h <= m:
-                        if h < m:
+                    if h <= m + eps:
+                        if h + eps < m:
                             up = low
                             m = h
                         col[k] = col[up]
                         col[up] = j
                         up = up + 1
+
                 for z in range(low, up):
                     j = col[z]
                     if y[j] == -1:
@@ -213,8 +219,11 @@ cdef void compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_t[:] y, 
                             j = x[i]
                             x[i] = k
                             if i == i1:
-                                return
-                        return
+                                b = True
+                                break
+                        break
+            if b:
+                break
             j1 = col[low]
             low = low + 1
             i = y[j1]
@@ -222,7 +231,7 @@ cdef void compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_t[:] y, 
             for k in range(up, n):
                 j = col[k]
                 h = c[i, j] - v[j] - u1
-                if h < d[j]:
+                if h + eps < d[j]:
                     d[j] = h
                     pred[j] = i
                     if abs(h - m) < eps:
@@ -238,12 +247,12 @@ cdef void compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_t[:] y, 
                                 j = x[i]
                                 x[i] = k
                                 if i == i1:
-                                    return
-                            return
+                                    b = True
+                                    break
+                            break
                         else:
                             col[k] = col[up]
                             col[up] = j
                             up = up + 1
-
-
-
+            if b:
+                break
