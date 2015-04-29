@@ -69,24 +69,12 @@ class LinearAssignment(object):
         self._x = np.empty(self.n, dtype=np.int)
         self._y = np.empty(self.n, dtype=np.int)
 
-        compute(self.n, self.c, self._x, self._y, self.epsilon)
-
+        self.min_cost = compute(self.n, self.c, self._x, self._y, self.epsilon)
         self.solution = self._x[:self.nx]
-        self._min_cost = None
-
-    @property
-    def min_cost(self):
-        """
-        Returns the cost of the best assignment
-        """
-        if self._min_cost:
-            return self._min_cost
-        self._min_cost = np.sum(self.c[np.arange(self.nx), self.solution])
-        return self._min_cost
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef void compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_t[:] y, np.float64_t eps):
+cdef np.float64_t compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_t[:] y, np.float64_t eps):
 
     # augment
     cdef int i, j, k, i1, j1, f, f0, cnt, low, up, z, last, naug
@@ -97,7 +85,7 @@ cdef void compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_t[:] y, 
     cdef np.int_t[:] pred = np.empty(n, dtype=np.int)
     cdef np.float64_t[:] v = np.empty(n, dtype=np.float64)
     cdef np.float64_t[:] d = np.empty(n, dtype=np.float64)
-    cdef np.float64_t h, m, u1, u2
+    cdef np.float64_t h, m, u1, u2, cost
 
     for i in range(n):
         x[i] = -1
@@ -256,3 +244,7 @@ cdef void compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_t[:] y, 
                             up = up + 1
             if b:
                 break
+    cost = 0
+    for i in range(n):
+        cost += c[i, x[i]]
+    return cost
