@@ -389,6 +389,10 @@ class Flow(Node, NodeContainer, PMGSONable):
             raise RuntimeError("Cannot change mongo_id %s" % self.mongo_id)
         self._mongo_id = value
 
+    def mongo_upload(self, **kwargs):
+        from abiflows.core.scheduler import FlowUploader
+        FlowUploader().upload(self, **kwargs)
+
     def validate_json_schema(self):
         """Validate the JSON schema. Return list of errors."""
         errors = []
@@ -403,6 +407,22 @@ class Flow(Node, NodeContainer, PMGSONable):
             errors.append(self)
 
         return errors
+
+    def get_mongo_info(self):
+        """
+        Return a JSON dictionary with information on the flow.
+        Mainly used for constructing the info section in `FlowEntry`.
+        The default implementation is empty. Subclasses must implement it
+        """
+        return {}
+
+    def mongo_assimilate(self):
+        """
+        This function is called by client code when the flow is completed
+        Return a JSON dictionary with the most important results produced
+        by the flow. The default implementation is empty. Subclasses must implement it
+        """
+        return {}
 
     @property
     def works(self):

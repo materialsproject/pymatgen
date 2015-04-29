@@ -512,7 +512,7 @@ batch_adapter:
     @classmethod
     def from_user_config(cls):
         """
-        Initialize the :class:`TaskManager` from the YAML file 'taskmanager.yaml'.
+        Initialize the :class:`TaskManager` from the YAML file 'manager.yaml'.
         Search first in the working directory and then in the abipy configuration directory.
 
         Raises:
@@ -540,7 +540,7 @@ batch_adapter:
             with open(filename, "r") as fh:
                 return cls.from_dict(yaml.load(fh))
         except Exception as exc:
-            print("Error while reading TaskManager parameters from file %s\n" % filename)
+            print("Error while reading TaskManager parameters from %s\n" % filename)
             raise 
 
     @classmethod
