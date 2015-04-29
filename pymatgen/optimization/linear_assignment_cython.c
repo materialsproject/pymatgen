@@ -2447,6 +2447,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
   int __pyx_v_up;
   int __pyx_v_z;
   int __pyx_v_last;
+  int __pyx_v_nrr;
   int __pyx_v_n;
   int __pyx_v_b;
   __Pyx_memviewslice __pyx_v_col = { 0, 0, { 0 }, { 0 }, { 0 } };
@@ -2516,8 +2517,8 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
   int __pyx_t_52;
   int __pyx_t_53;
   int __pyx_t_54;
-  long __pyx_t_55;
-  int __pyx_t_56;
+  int __pyx_t_55;
+  long __pyx_t_56;
   int __pyx_t_57;
   int __pyx_t_58;
   int __pyx_t_59;
@@ -2525,8 +2526,8 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
   int __pyx_t_61;
   int __pyx_t_62;
   int __pyx_t_63;
-  __pyx_t_5numpy_int_t __pyx_t_64;
-  int __pyx_t_65;
+  int __pyx_t_64;
+  __pyx_t_5numpy_int_t __pyx_t_65;
   int __pyx_t_66;
   int __pyx_t_67;
   int __pyx_t_68;
@@ -2534,8 +2535,8 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
   int __pyx_t_70;
   int __pyx_t_71;
   int __pyx_t_72;
-  long __pyx_t_73;
-  int __pyx_t_74;
+  int __pyx_t_73;
+  long __pyx_t_74;
   int __pyx_t_75;
   int __pyx_t_76;
   int __pyx_t_77;
@@ -2568,7 +2569,8 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
   int __pyx_t_104;
   int __pyx_t_105;
   int __pyx_t_106;
-  __pyx_t_5numpy_int_t __pyx_t_107;
+  int __pyx_t_107;
+  __pyx_t_5numpy_int_t __pyx_t_108;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -2576,7 +2578,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
 
   /* "pymatgen/optimization/linear_assignment_cython.pyx":81
  *     # augment
- *     cdef int i, j, k, i1, j1, f, f0, cnt, low, up, z, last, naug
+ *     cdef int i, j, k, i1, j1, f, f0, cnt, low, up, z, last, nrr
  *     cdef int n = size             # <<<<<<<<<<<<<<
  *     cdef bint b
  *     cdef np.int_t[:] col = np.empty(n, dtype=np.int)
@@ -2840,7 +2842,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  *         h = c[0, j]
  *         i1 = 0             # <<<<<<<<<<<<<<
  *         for i in range(1, n):
- *             if c[i, j] + eps < h:
+ *             if c[i, j] < h:
  */
     __pyx_v_i1 = 0;
 
@@ -2848,7 +2850,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  *         h = c[0, j]
  *         i1 = 0
  *         for i in range(1, n):             # <<<<<<<<<<<<<<
- *             if c[i, j] + eps < h:
+ *             if c[i, j] < h:
  *                 h = c[i, j]
  */
     __pyx_t_12 = __pyx_v_n;
@@ -2858,18 +2860,18 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
       /* "pymatgen/optimization/linear_assignment_cython.pyx":99
  *         i1 = 0
  *         for i in range(1, n):
- *             if c[i, j] + eps < h:             # <<<<<<<<<<<<<<
+ *             if c[i, j] < h:             # <<<<<<<<<<<<<<
  *                 h = c[i, j]
  *                 i1 = i
  */
       __pyx_t_14 = __pyx_v_i;
       __pyx_t_15 = __pyx_v_j;
-      __pyx_t_16 = ((((*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_c.data + __pyx_t_14 * __pyx_v_c.strides[0]) ) + __pyx_t_15 * __pyx_v_c.strides[1]) ))) + __pyx_v_eps) < __pyx_v_h) != 0);
+      __pyx_t_16 = (((*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_c.data + __pyx_t_14 * __pyx_v_c.strides[0]) ) + __pyx_t_15 * __pyx_v_c.strides[1]) ))) < __pyx_v_h) != 0);
       if (__pyx_t_16) {
 
         /* "pymatgen/optimization/linear_assignment_cython.pyx":100
  *         for i in range(1, n):
- *             if c[i, j] + eps < h:
+ *             if c[i, j] < h:
  *                 h = c[i, j]             # <<<<<<<<<<<<<<
  *                 i1 = i
  *         v[j] = h
@@ -2879,7 +2881,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
         __pyx_v_h = (*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_c.data + __pyx_t_17 * __pyx_v_c.strides[0]) ) + __pyx_t_18 * __pyx_v_c.strides[1]) )));
 
         /* "pymatgen/optimization/linear_assignment_cython.pyx":101
- *             if c[i, j] + eps < h:
+ *             if c[i, j] < h:
  *                 h = c[i, j]
  *                 i1 = i             # <<<<<<<<<<<<<<
  *         v[j] = h
@@ -3160,7 +3162,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  *         k = 0
  *         f0 = f             # <<<<<<<<<<<<<<
  *         f = -1
- *         while k <= f0:
+ *         # this step isn't strictly necessary, and
  */
     __pyx_v_f0 = __pyx_v_f;
 
@@ -3168,25 +3170,43 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  *         k = 0
  *         f0 = f
  *         f = -1             # <<<<<<<<<<<<<<
- *         while k <= f0:
- *             i = free[k]
+ *         # this step isn't strictly necessary, and
+ *         # time is proportional to 1/eps in the worst case,
  */
     __pyx_v_f = -1;
 
-    /* "pymatgen/optimization/linear_assignment_cython.pyx":134
- *         f0 = f
- *         f = -1
+    /* "pymatgen/optimization/linear_assignment_cython.pyx":137
+ *         # time is proportional to 1/eps in the worst case,
+ *         # so break early by keeping track of nrr
+ *         nrr = 0             # <<<<<<<<<<<<<<
+ *         while k <= f0:
+ *             nrr += 1
+ */
+    __pyx_v_nrr = 0;
+
+    /* "pymatgen/optimization/linear_assignment_cython.pyx":138
+ *         # so break early by keeping track of nrr
+ *         nrr = 0
  *         while k <= f0:             # <<<<<<<<<<<<<<
+ *             nrr += 1
  *             i = free[k]
- *             k += 1
  */
     while (1) {
       __pyx_t_16 = ((__pyx_v_k <= __pyx_v_f0) != 0);
       if (!__pyx_t_16) break;
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":135
- *         f = -1
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":139
+ *         nrr = 0
  *         while k <= f0:
+ *             nrr += 1             # <<<<<<<<<<<<<<
+ *             i = free[k]
+ *             k += 1
+ */
+      __pyx_v_nrr = (__pyx_v_nrr + 1);
+
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":140
+ *         while k <= f0:
+ *             nrr += 1
  *             i = free[k]             # <<<<<<<<<<<<<<
  *             k += 1
  *             u1 = c[i, 0] - v[0]
@@ -3194,8 +3214,8 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
       __pyx_t_26 = __pyx_v_k;
       __pyx_v_i = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_free.data + __pyx_t_26 * __pyx_v_free.strides[0]) )));
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":136
- *         while k <= f0:
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":141
+ *             nrr += 1
  *             i = free[k]
  *             k += 1             # <<<<<<<<<<<<<<
  *             u1 = c[i, 0] - v[0]
@@ -3203,7 +3223,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
       __pyx_v_k = (__pyx_v_k + 1);
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":137
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":142
  *             i = free[k]
  *             k += 1
  *             u1 = c[i, 0] - v[0]             # <<<<<<<<<<<<<<
@@ -3215,7 +3235,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
       __pyx_t_43 = 0;
       __pyx_v_u1 = ((*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_c.data + __pyx_t_41 * __pyx_v_c.strides[0]) ) + __pyx_t_42 * __pyx_v_c.strides[1]) ))) - (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_v.data + __pyx_t_43 * __pyx_v_v.strides[0]) ))));
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":138
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":143
  *             k += 1
  *             u1 = c[i, 0] - v[0]
  *             j1 = 0             # <<<<<<<<<<<<<<
@@ -3224,7 +3244,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
       __pyx_v_j1 = 0;
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":139
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":144
  *             u1 = c[i, 0] - v[0]
  *             j1 = 0
  *             u2 = 1e20             # <<<<<<<<<<<<<<
@@ -3233,22 +3253,22 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
       __pyx_v_u2 = 1e20;
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":140
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":145
  *             j1 = 0
  *             u2 = 1e20
  *             for j in range(1, n):             # <<<<<<<<<<<<<<
  *                 h = c[i, j] - v[j]
- *                 if h + eps < u2:
+ *                 if h < u2:
  */
       __pyx_t_44 = __pyx_v_n;
       for (__pyx_t_45 = 1; __pyx_t_45 < __pyx_t_44; __pyx_t_45+=1) {
         __pyx_v_j = __pyx_t_45;
 
-        /* "pymatgen/optimization/linear_assignment_cython.pyx":141
+        /* "pymatgen/optimization/linear_assignment_cython.pyx":146
  *             u2 = 1e20
  *             for j in range(1, n):
  *                 h = c[i, j] - v[j]             # <<<<<<<<<<<<<<
- *                 if h + eps < u2:
+ *                 if h < u2:
  *                     if h >= u1:
  */
         __pyx_t_46 = __pyx_v_i;
@@ -3256,19 +3276,19 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
         __pyx_t_48 = __pyx_v_j;
         __pyx_v_h = ((*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_c.data + __pyx_t_46 * __pyx_v_c.strides[0]) ) + __pyx_t_47 * __pyx_v_c.strides[1]) ))) - (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_v.data + __pyx_t_48 * __pyx_v_v.strides[0]) ))));
 
-        /* "pymatgen/optimization/linear_assignment_cython.pyx":142
+        /* "pymatgen/optimization/linear_assignment_cython.pyx":147
  *             for j in range(1, n):
  *                 h = c[i, j] - v[j]
- *                 if h + eps < u2:             # <<<<<<<<<<<<<<
+ *                 if h < u2:             # <<<<<<<<<<<<<<
  *                     if h >= u1:
  *                         u2 = h
  */
-        __pyx_t_16 = (((__pyx_v_h + __pyx_v_eps) < __pyx_v_u2) != 0);
+        __pyx_t_16 = ((__pyx_v_h < __pyx_v_u2) != 0);
         if (__pyx_t_16) {
 
-          /* "pymatgen/optimization/linear_assignment_cython.pyx":143
+          /* "pymatgen/optimization/linear_assignment_cython.pyx":148
  *                 h = c[i, j] - v[j]
- *                 if h + eps < u2:
+ *                 if h < u2:
  *                     if h >= u1:             # <<<<<<<<<<<<<<
  *                         u2 = h
  *                         j2 = j
@@ -3276,8 +3296,8 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
           __pyx_t_16 = ((__pyx_v_h >= __pyx_v_u1) != 0);
           if (__pyx_t_16) {
 
-            /* "pymatgen/optimization/linear_assignment_cython.pyx":144
- *                 if h + eps < u2:
+            /* "pymatgen/optimization/linear_assignment_cython.pyx":149
+ *                 if h < u2:
  *                     if h >= u1:
  *                         u2 = h             # <<<<<<<<<<<<<<
  *                         j2 = j
@@ -3285,7 +3305,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
             __pyx_v_u2 = __pyx_v_h;
 
-            /* "pymatgen/optimization/linear_assignment_cython.pyx":145
+            /* "pymatgen/optimization/linear_assignment_cython.pyx":150
  *                     if h >= u1:
  *                         u2 = h
  *                         j2 = j             # <<<<<<<<<<<<<<
@@ -3297,7 +3317,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
           }
           /*else*/ {
 
-            /* "pymatgen/optimization/linear_assignment_cython.pyx":147
+            /* "pymatgen/optimization/linear_assignment_cython.pyx":152
  *                         j2 = j
  *                     else:
  *                         u2 = u1             # <<<<<<<<<<<<<<
@@ -3306,7 +3326,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
             __pyx_v_u2 = __pyx_v_u1;
 
-            /* "pymatgen/optimization/linear_assignment_cython.pyx":148
+            /* "pymatgen/optimization/linear_assignment_cython.pyx":153
  *                     else:
  *                         u2 = u1
  *                         u1 = h             # <<<<<<<<<<<<<<
@@ -3315,21 +3335,21 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
             __pyx_v_u1 = __pyx_v_h;
 
-            /* "pymatgen/optimization/linear_assignment_cython.pyx":149
+            /* "pymatgen/optimization/linear_assignment_cython.pyx":154
  *                         u2 = u1
  *                         u1 = h
  *                         j2 = j1             # <<<<<<<<<<<<<<
  *                         j1 = j
- *             #assert j2 != j1
+ *             i1 = y[j1]
  */
             __pyx_v_j2 = __pyx_v_j1;
 
-            /* "pymatgen/optimization/linear_assignment_cython.pyx":150
+            /* "pymatgen/optimization/linear_assignment_cython.pyx":155
  *                         u1 = h
  *                         j2 = j1
  *                         j1 = j             # <<<<<<<<<<<<<<
- *             #assert j2 != j1
  *             i1 = y[j1]
+ *             if u1 + eps < u2 and nrr < n * k:
  */
             __pyx_v_j1 = __pyx_v_j;
           }
@@ -3339,114 +3359,138 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
         __pyx_L25:;
       }
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":152
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":156
+ *                         j2 = j1
  *                         j1 = j
- *             #assert j2 != j1
  *             i1 = y[j1]             # <<<<<<<<<<<<<<
- *             if u1 + eps < u2:
+ *             if u1 + eps < u2 and nrr < n * k:
  *                 v[j1] = v[j1] - u2 + u1
  */
       __pyx_t_44 = __pyx_v_j1;
       __pyx_v_i1 = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_44 * __pyx_v_y.strides[0]) )));
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":153
- *             #assert j2 != j1
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":157
+ *                         j1 = j
  *             i1 = y[j1]
- *             if u1 + eps < u2:             # <<<<<<<<<<<<<<
+ *             if u1 + eps < u2 and nrr < n * k:             # <<<<<<<<<<<<<<
  *                 v[j1] = v[j1] - u2 + u1
- *             elif i1 > -1:
+ *             elif i1 > -1 and nrr < n * k:
  */
-      __pyx_t_16 = (((__pyx_v_u1 + __pyx_v_eps) < __pyx_v_u2) != 0);
+      __pyx_t_49 = (((__pyx_v_u1 + __pyx_v_eps) < __pyx_v_u2) != 0);
+      if (__pyx_t_49) {
+      } else {
+        __pyx_t_16 = __pyx_t_49;
+        goto __pyx_L28_bool_binop_done;
+      }
+      __pyx_t_49 = ((__pyx_v_nrr < (__pyx_v_n * __pyx_v_k)) != 0);
+      __pyx_t_16 = __pyx_t_49;
+      __pyx_L28_bool_binop_done:;
       if (__pyx_t_16) {
 
-        /* "pymatgen/optimization/linear_assignment_cython.pyx":154
+        /* "pymatgen/optimization/linear_assignment_cython.pyx":158
  *             i1 = y[j1]
- *             if u1 + eps < u2:
+ *             if u1 + eps < u2 and nrr < n * k:
  *                 v[j1] = v[j1] - u2 + u1             # <<<<<<<<<<<<<<
- *             elif i1 > -1:
+ *             elif i1 > -1 and nrr < n * k:
  *                 j1 = j2
  */
         __pyx_t_45 = __pyx_v_j1;
-        __pyx_t_49 = __pyx_v_j1;
-        *((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_v.data + __pyx_t_49 * __pyx_v_v.strides[0]) )) = (((*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_v.data + __pyx_t_45 * __pyx_v_v.strides[0]) ))) - __pyx_v_u2) + __pyx_v_u1);
+        __pyx_t_50 = __pyx_v_j1;
+        *((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_v.data + __pyx_t_50 * __pyx_v_v.strides[0]) )) = (((*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_v.data + __pyx_t_45 * __pyx_v_v.strides[0]) ))) - __pyx_v_u2) + __pyx_v_u1);
         goto __pyx_L27;
       }
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":155
- *             if u1 + eps < u2:
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":159
+ *             if u1 + eps < u2 and nrr < n * k:
  *                 v[j1] = v[j1] - u2 + u1
- *             elif i1 > -1:             # <<<<<<<<<<<<<<
+ *             elif i1 > -1 and nrr < n * k:             # <<<<<<<<<<<<<<
  *                 j1 = j2
  *                 i1 = y[j1]
  */
-      __pyx_t_16 = ((__pyx_v_i1 > -1) != 0);
+      __pyx_t_49 = ((__pyx_v_i1 > -1) != 0);
+      if (__pyx_t_49) {
+      } else {
+        __pyx_t_16 = __pyx_t_49;
+        goto __pyx_L30_bool_binop_done;
+      }
+      __pyx_t_49 = ((__pyx_v_nrr < (__pyx_v_n * __pyx_v_k)) != 0);
+      __pyx_t_16 = __pyx_t_49;
+      __pyx_L30_bool_binop_done:;
       if (__pyx_t_16) {
 
-        /* "pymatgen/optimization/linear_assignment_cython.pyx":156
+        /* "pymatgen/optimization/linear_assignment_cython.pyx":160
  *                 v[j1] = v[j1] - u2 + u1
- *             elif i1 > -1:
+ *             elif i1 > -1 and nrr < n * k:
  *                 j1 = j2             # <<<<<<<<<<<<<<
  *                 i1 = y[j1]
  *             if i1 > -1:
  */
         __pyx_v_j1 = __pyx_v_j2;
 
-        /* "pymatgen/optimization/linear_assignment_cython.pyx":157
- *             elif i1 > -1:
+        /* "pymatgen/optimization/linear_assignment_cython.pyx":161
+ *             elif i1 > -1 and nrr < n * k:
  *                 j1 = j2
  *                 i1 = y[j1]             # <<<<<<<<<<<<<<
  *             if i1 > -1:
- *                 if u1 + eps < u2:
+ *                 if u1 + eps < u2 and nrr < n * k:
  */
-        __pyx_t_50 = __pyx_v_j1;
-        __pyx_v_i1 = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_50 * __pyx_v_y.strides[0]) )));
+        __pyx_t_51 = __pyx_v_j1;
+        __pyx_v_i1 = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_51 * __pyx_v_y.strides[0]) )));
         goto __pyx_L27;
       }
       __pyx_L27:;
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":158
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":162
  *                 j1 = j2
  *                 i1 = y[j1]
  *             if i1 > -1:             # <<<<<<<<<<<<<<
- *                 if u1 + eps < u2:
+ *                 if u1 + eps < u2 and nrr < n * k:
  *                     k -= 1
  */
       __pyx_t_16 = ((__pyx_v_i1 > -1) != 0);
       if (__pyx_t_16) {
 
-        /* "pymatgen/optimization/linear_assignment_cython.pyx":159
+        /* "pymatgen/optimization/linear_assignment_cython.pyx":163
  *                 i1 = y[j1]
  *             if i1 > -1:
- *                 if u1 + eps < u2:             # <<<<<<<<<<<<<<
+ *                 if u1 + eps < u2 and nrr < n * k:             # <<<<<<<<<<<<<<
  *                     k -= 1
  *                     free[k] = i1
  */
-        __pyx_t_16 = (((__pyx_v_u1 + __pyx_v_eps) < __pyx_v_u2) != 0);
+        __pyx_t_49 = (((__pyx_v_u1 + __pyx_v_eps) < __pyx_v_u2) != 0);
+        if (__pyx_t_49) {
+        } else {
+          __pyx_t_16 = __pyx_t_49;
+          goto __pyx_L34_bool_binop_done;
+        }
+        __pyx_t_49 = ((__pyx_v_nrr < (__pyx_v_n * __pyx_v_k)) != 0);
+        __pyx_t_16 = __pyx_t_49;
+        __pyx_L34_bool_binop_done:;
         if (__pyx_t_16) {
 
-          /* "pymatgen/optimization/linear_assignment_cython.pyx":160
+          /* "pymatgen/optimization/linear_assignment_cython.pyx":164
  *             if i1 > -1:
- *                 if u1 + eps < u2:
+ *                 if u1 + eps < u2 and nrr < n * k:
  *                     k -= 1             # <<<<<<<<<<<<<<
  *                     free[k] = i1
  *                 else:
  */
           __pyx_v_k = (__pyx_v_k - 1);
 
-          /* "pymatgen/optimization/linear_assignment_cython.pyx":161
- *                 if u1 + eps < u2:
+          /* "pymatgen/optimization/linear_assignment_cython.pyx":165
+ *                 if u1 + eps < u2 and nrr < n * k:
  *                     k -= 1
  *                     free[k] = i1             # <<<<<<<<<<<<<<
  *                 else:
  *                     f += 1
  */
-          __pyx_t_51 = __pyx_v_k;
-          *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_free.data + __pyx_t_51 * __pyx_v_free.strides[0]) )) = __pyx_v_i1;
-          goto __pyx_L29;
+          __pyx_t_52 = __pyx_v_k;
+          *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_free.data + __pyx_t_52 * __pyx_v_free.strides[0]) )) = __pyx_v_i1;
+          goto __pyx_L33;
         }
         /*else*/ {
 
-          /* "pymatgen/optimization/linear_assignment_cython.pyx":163
+          /* "pymatgen/optimization/linear_assignment_cython.pyx":167
  *                     free[k] = i1
  *                 else:
  *                     f += 1             # <<<<<<<<<<<<<<
@@ -3455,44 +3499,44 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
           __pyx_v_f = (__pyx_v_f + 1);
 
-          /* "pymatgen/optimization/linear_assignment_cython.pyx":164
+          /* "pymatgen/optimization/linear_assignment_cython.pyx":168
  *                 else:
  *                     f += 1
  *                     free[f] = i1             # <<<<<<<<<<<<<<
  *             x[i] = j1
  *             y[j1] = i
  */
-          __pyx_t_52 = __pyx_v_f;
-          *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_free.data + __pyx_t_52 * __pyx_v_free.strides[0]) )) = __pyx_v_i1;
+          __pyx_t_53 = __pyx_v_f;
+          *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_free.data + __pyx_t_53 * __pyx_v_free.strides[0]) )) = __pyx_v_i1;
         }
-        __pyx_L29:;
-        goto __pyx_L28;
+        __pyx_L33:;
+        goto __pyx_L32;
       }
-      __pyx_L28:;
+      __pyx_L32:;
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":165
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":169
  *                     f += 1
  *                     free[f] = i1
  *             x[i] = j1             # <<<<<<<<<<<<<<
  *             y[j1] = i
  * 
  */
-      __pyx_t_53 = __pyx_v_i;
-      *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_53 * __pyx_v_x.strides[0]) )) = __pyx_v_j1;
+      __pyx_t_54 = __pyx_v_i;
+      *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_54 * __pyx_v_x.strides[0]) )) = __pyx_v_j1;
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":166
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":170
  *                     free[f] = i1
  *             x[i] = j1
  *             y[j1] = i             # <<<<<<<<<<<<<<
  * 
  *     # augmentation
  */
-      __pyx_t_54 = __pyx_v_j1;
-      *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_54 * __pyx_v_y.strides[0]) )) = __pyx_v_i;
+      __pyx_t_55 = __pyx_v_j1;
+      *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_55 * __pyx_v_y.strides[0]) )) = __pyx_v_i;
     }
   }
 
-  /* "pymatgen/optimization/linear_assignment_cython.pyx":169
+  /* "pymatgen/optimization/linear_assignment_cython.pyx":173
  * 
  *     # augmentation
  *     f0 = f             # <<<<<<<<<<<<<<
@@ -3501,28 +3545,28 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
   __pyx_v_f0 = __pyx_v_f;
 
-  /* "pymatgen/optimization/linear_assignment_cython.pyx":170
+  /* "pymatgen/optimization/linear_assignment_cython.pyx":174
  *     # augmentation
  *     f0 = f
  *     for f in range(f0 + 1):             # <<<<<<<<<<<<<<
  *         i1 = free[f]
  *         low = 0
  */
-  __pyx_t_55 = (__pyx_v_f0 + 1);
-  for (__pyx_t_25 = 0; __pyx_t_25 < __pyx_t_55; __pyx_t_25+=1) {
+  __pyx_t_56 = (__pyx_v_f0 + 1);
+  for (__pyx_t_25 = 0; __pyx_t_25 < __pyx_t_56; __pyx_t_25+=1) {
     __pyx_v_f = __pyx_t_25;
 
-    /* "pymatgen/optimization/linear_assignment_cython.pyx":171
+    /* "pymatgen/optimization/linear_assignment_cython.pyx":175
  *     f0 = f
  *     for f in range(f0 + 1):
  *         i1 = free[f]             # <<<<<<<<<<<<<<
  *         low = 0
  *         up = 0
  */
-    __pyx_t_56 = __pyx_v_f;
-    __pyx_v_i1 = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_free.data + __pyx_t_56 * __pyx_v_free.strides[0]) )));
+    __pyx_t_57 = __pyx_v_f;
+    __pyx_v_i1 = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_free.data + __pyx_t_57 * __pyx_v_free.strides[0]) )));
 
-    /* "pymatgen/optimization/linear_assignment_cython.pyx":172
+    /* "pymatgen/optimization/linear_assignment_cython.pyx":176
  *     for f in range(f0 + 1):
  *         i1 = free[f]
  *         low = 0             # <<<<<<<<<<<<<<
@@ -3531,7 +3575,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
     __pyx_v_low = 0;
 
-    /* "pymatgen/optimization/linear_assignment_cython.pyx":173
+    /* "pymatgen/optimization/linear_assignment_cython.pyx":177
  *         i1 = free[f]
  *         low = 0
  *         up = 0             # <<<<<<<<<<<<<<
@@ -3540,42 +3584,42 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
     __pyx_v_up = 0;
 
-    /* "pymatgen/optimization/linear_assignment_cython.pyx":174
+    /* "pymatgen/optimization/linear_assignment_cython.pyx":178
  *         low = 0
  *         up = 0
  *         for j in range(n):             # <<<<<<<<<<<<<<
  *             d[j] = c[i1, j] - v[j]
  *             pred[j] = i1
  */
-    __pyx_t_57 = __pyx_v_n;
-    for (__pyx_t_58 = 0; __pyx_t_58 < __pyx_t_57; __pyx_t_58+=1) {
-      __pyx_v_j = __pyx_t_58;
+    __pyx_t_58 = __pyx_v_n;
+    for (__pyx_t_59 = 0; __pyx_t_59 < __pyx_t_58; __pyx_t_59+=1) {
+      __pyx_v_j = __pyx_t_59;
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":175
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":179
  *         up = 0
  *         for j in range(n):
  *             d[j] = c[i1, j] - v[j]             # <<<<<<<<<<<<<<
  *             pred[j] = i1
  *         while True:
  */
-      __pyx_t_59 = __pyx_v_i1;
-      __pyx_t_60 = __pyx_v_j;
+      __pyx_t_60 = __pyx_v_i1;
       __pyx_t_61 = __pyx_v_j;
       __pyx_t_62 = __pyx_v_j;
-      *((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_d.data + __pyx_t_62 * __pyx_v_d.strides[0]) )) = ((*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_c.data + __pyx_t_59 * __pyx_v_c.strides[0]) ) + __pyx_t_60 * __pyx_v_c.strides[1]) ))) - (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_v.data + __pyx_t_61 * __pyx_v_v.strides[0]) ))));
+      __pyx_t_63 = __pyx_v_j;
+      *((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_d.data + __pyx_t_63 * __pyx_v_d.strides[0]) )) = ((*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_c.data + __pyx_t_60 * __pyx_v_c.strides[0]) ) + __pyx_t_61 * __pyx_v_c.strides[1]) ))) - (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_v.data + __pyx_t_62 * __pyx_v_v.strides[0]) ))));
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":176
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":180
  *         for j in range(n):
  *             d[j] = c[i1, j] - v[j]
  *             pred[j] = i1             # <<<<<<<<<<<<<<
  *         while True:
  *             # the pascal code ends when a single augmentation is found
  */
-      __pyx_t_63 = __pyx_v_j;
-      *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_pred.data + __pyx_t_63 * __pyx_v_pred.strides[0]) )) = __pyx_v_i1;
+      __pyx_t_64 = __pyx_v_j;
+      *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_pred.data + __pyx_t_64 * __pyx_v_pred.strides[0]) )) = __pyx_v_i1;
     }
 
-    /* "pymatgen/optimization/linear_assignment_cython.pyx":177
+    /* "pymatgen/optimization/linear_assignment_cython.pyx":181
  *             d[j] = c[i1, j] - v[j]
  *             pred[j] = i1
  *         while True:             # <<<<<<<<<<<<<<
@@ -3584,7 +3628,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
     while (1) {
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":180
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":184
  *             # the pascal code ends when a single augmentation is found
  *             # really we need to get back to the for f in range(f0+1) loop
  *             b = False             # <<<<<<<<<<<<<<
@@ -3593,7 +3637,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
       __pyx_v_b = 0;
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":181
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":185
  *             # really we need to get back to the for f in range(f0+1) loop
  *             b = False
  *             if up == low:             # <<<<<<<<<<<<<<
@@ -3603,7 +3647,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
       __pyx_t_16 = ((__pyx_v_up == __pyx_v_low) != 0);
       if (__pyx_t_16) {
 
-        /* "pymatgen/optimization/linear_assignment_cython.pyx":182
+        /* "pymatgen/optimization/linear_assignment_cython.pyx":186
  *             b = False
  *             if up == low:
  *                 last = low-1             # <<<<<<<<<<<<<<
@@ -3612,18 +3656,18 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
         __pyx_v_last = (__pyx_v_low - 1);
 
-        /* "pymatgen/optimization/linear_assignment_cython.pyx":183
+        /* "pymatgen/optimization/linear_assignment_cython.pyx":187
  *             if up == low:
  *                 last = low-1
  *                 m = d[col[up]]             # <<<<<<<<<<<<<<
  *                 up = up + 1
  *                 for k in range(up, n):
  */
-        __pyx_t_57 = __pyx_v_up;
-        __pyx_t_64 = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_57 * __pyx_v_col.strides[0]) )));
-        __pyx_v_m = (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_d.data + __pyx_t_64 * __pyx_v_d.strides[0]) )));
+        __pyx_t_58 = __pyx_v_up;
+        __pyx_t_65 = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_58 * __pyx_v_col.strides[0]) )));
+        __pyx_v_m = (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_d.data + __pyx_t_65 * __pyx_v_d.strides[0]) )));
 
-        /* "pymatgen/optimization/linear_assignment_cython.pyx":184
+        /* "pymatgen/optimization/linear_assignment_cython.pyx":188
  *                 last = low-1
  *                 m = d[col[up]]
  *                 up = up + 1             # <<<<<<<<<<<<<<
@@ -3632,38 +3676,38 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
         __pyx_v_up = (__pyx_v_up + 1);
 
-        /* "pymatgen/optimization/linear_assignment_cython.pyx":185
+        /* "pymatgen/optimization/linear_assignment_cython.pyx":189
  *                 m = d[col[up]]
  *                 up = up + 1
  *                 for k in range(up, n):             # <<<<<<<<<<<<<<
  *                     j = col[k]
  *                     h = d[j]
  */
-        __pyx_t_58 = __pyx_v_n;
-        for (__pyx_t_65 = __pyx_v_up; __pyx_t_65 < __pyx_t_58; __pyx_t_65+=1) {
-          __pyx_v_k = __pyx_t_65;
+        __pyx_t_59 = __pyx_v_n;
+        for (__pyx_t_66 = __pyx_v_up; __pyx_t_66 < __pyx_t_59; __pyx_t_66+=1) {
+          __pyx_v_k = __pyx_t_66;
 
-          /* "pymatgen/optimization/linear_assignment_cython.pyx":186
+          /* "pymatgen/optimization/linear_assignment_cython.pyx":190
  *                 up = up + 1
  *                 for k in range(up, n):
  *                     j = col[k]             # <<<<<<<<<<<<<<
  *                     h = d[j]
  *                     if h <= m + eps:
  */
-          __pyx_t_66 = __pyx_v_k;
-          __pyx_v_j = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_66 * __pyx_v_col.strides[0]) )));
+          __pyx_t_67 = __pyx_v_k;
+          __pyx_v_j = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_67 * __pyx_v_col.strides[0]) )));
 
-          /* "pymatgen/optimization/linear_assignment_cython.pyx":187
+          /* "pymatgen/optimization/linear_assignment_cython.pyx":191
  *                 for k in range(up, n):
  *                     j = col[k]
  *                     h = d[j]             # <<<<<<<<<<<<<<
  *                     if h <= m + eps:
  *                         if h + eps < m:
  */
-          __pyx_t_67 = __pyx_v_j;
-          __pyx_v_h = (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_d.data + __pyx_t_67 * __pyx_v_d.strides[0]) )));
+          __pyx_t_68 = __pyx_v_j;
+          __pyx_v_h = (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_d.data + __pyx_t_68 * __pyx_v_d.strides[0]) )));
 
-          /* "pymatgen/optimization/linear_assignment_cython.pyx":188
+          /* "pymatgen/optimization/linear_assignment_cython.pyx":192
  *                     j = col[k]
  *                     h = d[j]
  *                     if h <= m + eps:             # <<<<<<<<<<<<<<
@@ -3673,7 +3717,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
           __pyx_t_16 = ((__pyx_v_h <= (__pyx_v_m + __pyx_v_eps)) != 0);
           if (__pyx_t_16) {
 
-            /* "pymatgen/optimization/linear_assignment_cython.pyx":189
+            /* "pymatgen/optimization/linear_assignment_cython.pyx":193
  *                     h = d[j]
  *                     if h <= m + eps:
  *                         if h + eps < m:             # <<<<<<<<<<<<<<
@@ -3683,7 +3727,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
             __pyx_t_16 = (((__pyx_v_h + __pyx_v_eps) < __pyx_v_m) != 0);
             if (__pyx_t_16) {
 
-              /* "pymatgen/optimization/linear_assignment_cython.pyx":190
+              /* "pymatgen/optimization/linear_assignment_cython.pyx":194
  *                     if h <= m + eps:
  *                         if h + eps < m:
  *                             up = low             # <<<<<<<<<<<<<<
@@ -3692,7 +3736,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
               __pyx_v_up = __pyx_v_low;
 
-              /* "pymatgen/optimization/linear_assignment_cython.pyx":191
+              /* "pymatgen/optimization/linear_assignment_cython.pyx":195
  *                         if h + eps < m:
  *                             up = low
  *                             m = h             # <<<<<<<<<<<<<<
@@ -3700,32 +3744,32 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  *                         col[up] = j
  */
               __pyx_v_m = __pyx_v_h;
-              goto __pyx_L40;
+              goto __pyx_L46;
             }
-            __pyx_L40:;
+            __pyx_L46:;
 
-            /* "pymatgen/optimization/linear_assignment_cython.pyx":192
+            /* "pymatgen/optimization/linear_assignment_cython.pyx":196
  *                             up = low
  *                             m = h
  *                         col[k] = col[up]             # <<<<<<<<<<<<<<
  *                         col[up] = j
  *                         up = up + 1
  */
-            __pyx_t_68 = __pyx_v_up;
-            __pyx_t_69 = __pyx_v_k;
-            *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_69 * __pyx_v_col.strides[0]) )) = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_68 * __pyx_v_col.strides[0]) )));
+            __pyx_t_69 = __pyx_v_up;
+            __pyx_t_70 = __pyx_v_k;
+            *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_70 * __pyx_v_col.strides[0]) )) = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_69 * __pyx_v_col.strides[0]) )));
 
-            /* "pymatgen/optimization/linear_assignment_cython.pyx":193
+            /* "pymatgen/optimization/linear_assignment_cython.pyx":197
  *                             m = h
  *                         col[k] = col[up]
  *                         col[up] = j             # <<<<<<<<<<<<<<
  *                         up = up + 1
  * 
  */
-            __pyx_t_70 = __pyx_v_up;
-            *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_70 * __pyx_v_col.strides[0]) )) = __pyx_v_j;
+            __pyx_t_71 = __pyx_v_up;
+            *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_71 * __pyx_v_col.strides[0]) )) = __pyx_v_j;
 
-            /* "pymatgen/optimization/linear_assignment_cython.pyx":194
+            /* "pymatgen/optimization/linear_assignment_cython.pyx":198
  *                         col[k] = col[up]
  *                         col[up] = j
  *                         up = up + 1             # <<<<<<<<<<<<<<
@@ -3733,78 +3777,78 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  *                 for z in range(low, up):
  */
             __pyx_v_up = (__pyx_v_up + 1);
-            goto __pyx_L39;
+            goto __pyx_L45;
           }
-          __pyx_L39:;
+          __pyx_L45:;
         }
 
-        /* "pymatgen/optimization/linear_assignment_cython.pyx":196
+        /* "pymatgen/optimization/linear_assignment_cython.pyx":200
  *                         up = up + 1
  * 
  *                 for z in range(low, up):             # <<<<<<<<<<<<<<
  *                     j = col[z]
  *                     if y[j] == -1:
  */
-        __pyx_t_58 = __pyx_v_up;
-        for (__pyx_t_65 = __pyx_v_low; __pyx_t_65 < __pyx_t_58; __pyx_t_65+=1) {
-          __pyx_v_z = __pyx_t_65;
+        __pyx_t_59 = __pyx_v_up;
+        for (__pyx_t_66 = __pyx_v_low; __pyx_t_66 < __pyx_t_59; __pyx_t_66+=1) {
+          __pyx_v_z = __pyx_t_66;
 
-          /* "pymatgen/optimization/linear_assignment_cython.pyx":197
+          /* "pymatgen/optimization/linear_assignment_cython.pyx":201
  * 
  *                 for z in range(low, up):
  *                     j = col[z]             # <<<<<<<<<<<<<<
  *                     if y[j] == -1:
  *                         # augment
  */
-          __pyx_t_71 = __pyx_v_z;
-          __pyx_v_j = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_71 * __pyx_v_col.strides[0]) )));
+          __pyx_t_72 = __pyx_v_z;
+          __pyx_v_j = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_72 * __pyx_v_col.strides[0]) )));
 
-          /* "pymatgen/optimization/linear_assignment_cython.pyx":198
+          /* "pymatgen/optimization/linear_assignment_cython.pyx":202
  *                 for z in range(low, up):
  *                     j = col[z]
  *                     if y[j] == -1:             # <<<<<<<<<<<<<<
  *                         # augment
  *                         for k in range(last+1):
  */
-          __pyx_t_72 = __pyx_v_j;
-          __pyx_t_16 = (((*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_72 * __pyx_v_y.strides[0]) ))) == -1) != 0);
+          __pyx_t_73 = __pyx_v_j;
+          __pyx_t_16 = (((*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_73 * __pyx_v_y.strides[0]) ))) == -1) != 0);
           if (__pyx_t_16) {
 
-            /* "pymatgen/optimization/linear_assignment_cython.pyx":200
+            /* "pymatgen/optimization/linear_assignment_cython.pyx":204
  *                     if y[j] == -1:
  *                         # augment
  *                         for k in range(last+1):             # <<<<<<<<<<<<<<
  *                             j1 = col[k]
  *                             v[j1] = v[j1] + d[j1] - m
  */
-            __pyx_t_73 = (__pyx_v_last + 1);
-            for (__pyx_t_74 = 0; __pyx_t_74 < __pyx_t_73; __pyx_t_74+=1) {
-              __pyx_v_k = __pyx_t_74;
+            __pyx_t_74 = (__pyx_v_last + 1);
+            for (__pyx_t_75 = 0; __pyx_t_75 < __pyx_t_74; __pyx_t_75+=1) {
+              __pyx_v_k = __pyx_t_75;
 
-              /* "pymatgen/optimization/linear_assignment_cython.pyx":201
+              /* "pymatgen/optimization/linear_assignment_cython.pyx":205
  *                         # augment
  *                         for k in range(last+1):
  *                             j1 = col[k]             # <<<<<<<<<<<<<<
  *                             v[j1] = v[j1] + d[j1] - m
  *                         while True:
  */
-              __pyx_t_75 = __pyx_v_k;
-              __pyx_v_j1 = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_75 * __pyx_v_col.strides[0]) )));
+              __pyx_t_76 = __pyx_v_k;
+              __pyx_v_j1 = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_76 * __pyx_v_col.strides[0]) )));
 
-              /* "pymatgen/optimization/linear_assignment_cython.pyx":202
+              /* "pymatgen/optimization/linear_assignment_cython.pyx":206
  *                         for k in range(last+1):
  *                             j1 = col[k]
  *                             v[j1] = v[j1] + d[j1] - m             # <<<<<<<<<<<<<<
  *                         while True:
  *                             i = pred[j]
  */
-              __pyx_t_76 = __pyx_v_j1;
               __pyx_t_77 = __pyx_v_j1;
               __pyx_t_78 = __pyx_v_j1;
-              *((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_v.data + __pyx_t_78 * __pyx_v_v.strides[0]) )) = (((*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_v.data + __pyx_t_76 * __pyx_v_v.strides[0]) ))) + (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_d.data + __pyx_t_77 * __pyx_v_d.strides[0]) )))) - __pyx_v_m);
+              __pyx_t_79 = __pyx_v_j1;
+              *((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_v.data + __pyx_t_79 * __pyx_v_v.strides[0]) )) = (((*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_v.data + __pyx_t_77 * __pyx_v_v.strides[0]) ))) + (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_d.data + __pyx_t_78 * __pyx_v_d.strides[0]) )))) - __pyx_v_m);
             }
 
-            /* "pymatgen/optimization/linear_assignment_cython.pyx":203
+            /* "pymatgen/optimization/linear_assignment_cython.pyx":207
  *                             j1 = col[k]
  *                             v[j1] = v[j1] + d[j1] - m
  *                         while True:             # <<<<<<<<<<<<<<
@@ -3813,27 +3857,27 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
             while (1) {
 
-              /* "pymatgen/optimization/linear_assignment_cython.pyx":204
+              /* "pymatgen/optimization/linear_assignment_cython.pyx":208
  *                             v[j1] = v[j1] + d[j1] - m
  *                         while True:
  *                             i = pred[j]             # <<<<<<<<<<<<<<
  *                             y[j] = i
  *                             k = j
  */
-              __pyx_t_74 = __pyx_v_j;
-              __pyx_v_i = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_pred.data + __pyx_t_74 * __pyx_v_pred.strides[0]) )));
+              __pyx_t_75 = __pyx_v_j;
+              __pyx_v_i = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_pred.data + __pyx_t_75 * __pyx_v_pred.strides[0]) )));
 
-              /* "pymatgen/optimization/linear_assignment_cython.pyx":205
+              /* "pymatgen/optimization/linear_assignment_cython.pyx":209
  *                         while True:
  *                             i = pred[j]
  *                             y[j] = i             # <<<<<<<<<<<<<<
  *                             k = j
  *                             j = x[i]
  */
-              __pyx_t_79 = __pyx_v_j;
-              *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_79 * __pyx_v_y.strides[0]) )) = __pyx_v_i;
+              __pyx_t_80 = __pyx_v_j;
+              *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_80 * __pyx_v_y.strides[0]) )) = __pyx_v_i;
 
-              /* "pymatgen/optimization/linear_assignment_cython.pyx":206
+              /* "pymatgen/optimization/linear_assignment_cython.pyx":210
  *                             i = pred[j]
  *                             y[j] = i
  *                             k = j             # <<<<<<<<<<<<<<
@@ -3842,27 +3886,27 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
               __pyx_v_k = __pyx_v_j;
 
-              /* "pymatgen/optimization/linear_assignment_cython.pyx":207
+              /* "pymatgen/optimization/linear_assignment_cython.pyx":211
  *                             y[j] = i
  *                             k = j
  *                             j = x[i]             # <<<<<<<<<<<<<<
  *                             x[i] = k
  *                             if i == i1:
  */
-              __pyx_t_80 = __pyx_v_i;
-              __pyx_v_j = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_80 * __pyx_v_x.strides[0]) )));
+              __pyx_t_81 = __pyx_v_i;
+              __pyx_v_j = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_81 * __pyx_v_x.strides[0]) )));
 
-              /* "pymatgen/optimization/linear_assignment_cython.pyx":208
+              /* "pymatgen/optimization/linear_assignment_cython.pyx":212
  *                             k = j
  *                             j = x[i]
  *                             x[i] = k             # <<<<<<<<<<<<<<
  *                             if i == i1:
  *                                 b = True
  */
-              __pyx_t_81 = __pyx_v_i;
-              *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_81 * __pyx_v_x.strides[0]) )) = __pyx_v_k;
+              __pyx_t_82 = __pyx_v_i;
+              *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_82 * __pyx_v_x.strides[0]) )) = __pyx_v_k;
 
-              /* "pymatgen/optimization/linear_assignment_cython.pyx":209
+              /* "pymatgen/optimization/linear_assignment_cython.pyx":213
  *                             j = x[i]
  *                             x[i] = k
  *                             if i == i1:             # <<<<<<<<<<<<<<
@@ -3872,7 +3916,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
               __pyx_t_16 = ((__pyx_v_i == __pyx_v_i1) != 0);
               if (__pyx_t_16) {
 
-                /* "pymatgen/optimization/linear_assignment_cython.pyx":210
+                /* "pymatgen/optimization/linear_assignment_cython.pyx":214
  *                             x[i] = k
  *                             if i == i1:
  *                                 b = True             # <<<<<<<<<<<<<<
@@ -3881,34 +3925,34 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
                 __pyx_v_b = 1;
 
-                /* "pymatgen/optimization/linear_assignment_cython.pyx":211
+                /* "pymatgen/optimization/linear_assignment_cython.pyx":215
  *                             if i == i1:
  *                                 b = True
  *                                 break             # <<<<<<<<<<<<<<
  *                         break
  *             if b:
  */
-                goto __pyx_L47_break;
+                goto __pyx_L53_break;
               }
             }
-            __pyx_L47_break:;
+            __pyx_L53_break:;
 
-            /* "pymatgen/optimization/linear_assignment_cython.pyx":212
+            /* "pymatgen/optimization/linear_assignment_cython.pyx":216
  *                                 b = True
  *                                 break
  *                         break             # <<<<<<<<<<<<<<
  *             if b:
  *                 break
  */
-            goto __pyx_L42_break;
+            goto __pyx_L48_break;
           }
         }
-        __pyx_L42_break:;
-        goto __pyx_L36;
+        __pyx_L48_break:;
+        goto __pyx_L42;
       }
-      __pyx_L36:;
+      __pyx_L42:;
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":213
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":217
  *                                 break
  *                         break
  *             if b:             # <<<<<<<<<<<<<<
@@ -3918,27 +3962,27 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
       __pyx_t_16 = (__pyx_v_b != 0);
       if (__pyx_t_16) {
 
-        /* "pymatgen/optimization/linear_assignment_cython.pyx":214
+        /* "pymatgen/optimization/linear_assignment_cython.pyx":218
  *                         break
  *             if b:
  *                 break             # <<<<<<<<<<<<<<
  *             j1 = col[low]
  *             low = low + 1
  */
-        goto __pyx_L35_break;
+        goto __pyx_L41_break;
       }
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":215
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":219
  *             if b:
  *                 break
  *             j1 = col[low]             # <<<<<<<<<<<<<<
  *             low = low + 1
  *             i = y[j1]
  */
-      __pyx_t_58 = __pyx_v_low;
-      __pyx_v_j1 = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_58 * __pyx_v_col.strides[0]) )));
+      __pyx_t_59 = __pyx_v_low;
+      __pyx_v_j1 = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_59 * __pyx_v_col.strides[0]) )));
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":216
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":220
  *                 break
  *             j1 = col[low]
  *             low = low + 1             # <<<<<<<<<<<<<<
@@ -3947,93 +3991,93 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
       __pyx_v_low = (__pyx_v_low + 1);
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":217
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":221
  *             j1 = col[low]
  *             low = low + 1
  *             i = y[j1]             # <<<<<<<<<<<<<<
  *             u1 = c[i, j1] - v[j1] - m
  *             for k in range(up, n):
  */
-      __pyx_t_65 = __pyx_v_j1;
-      __pyx_v_i = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_65 * __pyx_v_y.strides[0]) )));
+      __pyx_t_66 = __pyx_v_j1;
+      __pyx_v_i = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_66 * __pyx_v_y.strides[0]) )));
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":218
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":222
  *             low = low + 1
  *             i = y[j1]
  *             u1 = c[i, j1] - v[j1] - m             # <<<<<<<<<<<<<<
  *             for k in range(up, n):
  *                 j = col[k]
  */
-      __pyx_t_82 = __pyx_v_i;
-      __pyx_t_83 = __pyx_v_j1;
+      __pyx_t_83 = __pyx_v_i;
       __pyx_t_84 = __pyx_v_j1;
-      __pyx_v_u1 = (((*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_c.data + __pyx_t_82 * __pyx_v_c.strides[0]) ) + __pyx_t_83 * __pyx_v_c.strides[1]) ))) - (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_v.data + __pyx_t_84 * __pyx_v_v.strides[0]) )))) - __pyx_v_m);
+      __pyx_t_85 = __pyx_v_j1;
+      __pyx_v_u1 = (((*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_c.data + __pyx_t_83 * __pyx_v_c.strides[0]) ) + __pyx_t_84 * __pyx_v_c.strides[1]) ))) - (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_v.data + __pyx_t_85 * __pyx_v_v.strides[0]) )))) - __pyx_v_m);
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":219
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":223
  *             i = y[j1]
  *             u1 = c[i, j1] - v[j1] - m
  *             for k in range(up, n):             # <<<<<<<<<<<<<<
  *                 j = col[k]
  *                 h = c[i, j] - v[j] - u1
  */
-      __pyx_t_85 = __pyx_v_n;
-      for (__pyx_t_86 = __pyx_v_up; __pyx_t_86 < __pyx_t_85; __pyx_t_86+=1) {
-        __pyx_v_k = __pyx_t_86;
+      __pyx_t_86 = __pyx_v_n;
+      for (__pyx_t_87 = __pyx_v_up; __pyx_t_87 < __pyx_t_86; __pyx_t_87+=1) {
+        __pyx_v_k = __pyx_t_87;
 
-        /* "pymatgen/optimization/linear_assignment_cython.pyx":220
+        /* "pymatgen/optimization/linear_assignment_cython.pyx":224
  *             u1 = c[i, j1] - v[j1] - m
  *             for k in range(up, n):
  *                 j = col[k]             # <<<<<<<<<<<<<<
  *                 h = c[i, j] - v[j] - u1
  *                 if h + eps < d[j]:
  */
-        __pyx_t_87 = __pyx_v_k;
-        __pyx_v_j = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_87 * __pyx_v_col.strides[0]) )));
+        __pyx_t_88 = __pyx_v_k;
+        __pyx_v_j = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_88 * __pyx_v_col.strides[0]) )));
 
-        /* "pymatgen/optimization/linear_assignment_cython.pyx":221
+        /* "pymatgen/optimization/linear_assignment_cython.pyx":225
  *             for k in range(up, n):
  *                 j = col[k]
  *                 h = c[i, j] - v[j] - u1             # <<<<<<<<<<<<<<
  *                 if h + eps < d[j]:
  *                     d[j] = h
  */
-        __pyx_t_88 = __pyx_v_i;
-        __pyx_t_89 = __pyx_v_j;
+        __pyx_t_89 = __pyx_v_i;
         __pyx_t_90 = __pyx_v_j;
-        __pyx_v_h = (((*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_c.data + __pyx_t_88 * __pyx_v_c.strides[0]) ) + __pyx_t_89 * __pyx_v_c.strides[1]) ))) - (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_v.data + __pyx_t_90 * __pyx_v_v.strides[0]) )))) - __pyx_v_u1);
+        __pyx_t_91 = __pyx_v_j;
+        __pyx_v_h = (((*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_c.data + __pyx_t_89 * __pyx_v_c.strides[0]) ) + __pyx_t_90 * __pyx_v_c.strides[1]) ))) - (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_v.data + __pyx_t_91 * __pyx_v_v.strides[0]) )))) - __pyx_v_u1);
 
-        /* "pymatgen/optimization/linear_assignment_cython.pyx":222
+        /* "pymatgen/optimization/linear_assignment_cython.pyx":226
  *                 j = col[k]
  *                 h = c[i, j] - v[j] - u1
  *                 if h + eps < d[j]:             # <<<<<<<<<<<<<<
  *                     d[j] = h
  *                     pred[j] = i
  */
-        __pyx_t_91 = __pyx_v_j;
-        __pyx_t_16 = (((__pyx_v_h + __pyx_v_eps) < (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_d.data + __pyx_t_91 * __pyx_v_d.strides[0]) )))) != 0);
+        __pyx_t_92 = __pyx_v_j;
+        __pyx_t_16 = (((__pyx_v_h + __pyx_v_eps) < (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_d.data + __pyx_t_92 * __pyx_v_d.strides[0]) )))) != 0);
         if (__pyx_t_16) {
 
-          /* "pymatgen/optimization/linear_assignment_cython.pyx":223
+          /* "pymatgen/optimization/linear_assignment_cython.pyx":227
  *                 h = c[i, j] - v[j] - u1
  *                 if h + eps < d[j]:
  *                     d[j] = h             # <<<<<<<<<<<<<<
  *                     pred[j] = i
  *                     if abs(h - m) < eps:
  */
-          __pyx_t_92 = __pyx_v_j;
-          *((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_d.data + __pyx_t_92 * __pyx_v_d.strides[0]) )) = __pyx_v_h;
+          __pyx_t_93 = __pyx_v_j;
+          *((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_d.data + __pyx_t_93 * __pyx_v_d.strides[0]) )) = __pyx_v_h;
 
-          /* "pymatgen/optimization/linear_assignment_cython.pyx":224
+          /* "pymatgen/optimization/linear_assignment_cython.pyx":228
  *                 if h + eps < d[j]:
  *                     d[j] = h
  *                     pred[j] = i             # <<<<<<<<<<<<<<
  *                     if abs(h - m) < eps:
  *                         if y[j] == -1:
  */
-          __pyx_t_93 = __pyx_v_j;
-          *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_pred.data + __pyx_t_93 * __pyx_v_pred.strides[0]) )) = __pyx_v_i;
+          __pyx_t_94 = __pyx_v_j;
+          *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_pred.data + __pyx_t_94 * __pyx_v_pred.strides[0]) )) = __pyx_v_i;
 
-          /* "pymatgen/optimization/linear_assignment_cython.pyx":225
+          /* "pymatgen/optimization/linear_assignment_cython.pyx":229
  *                     d[j] = h
  *                     pred[j] = i
  *                     if abs(h - m) < eps:             # <<<<<<<<<<<<<<
@@ -4043,52 +4087,52 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
           __pyx_t_16 = ((fabs((__pyx_v_h - __pyx_v_m)) < __pyx_v_eps) != 0);
           if (__pyx_t_16) {
 
-            /* "pymatgen/optimization/linear_assignment_cython.pyx":226
+            /* "pymatgen/optimization/linear_assignment_cython.pyx":230
  *                     pred[j] = i
  *                     if abs(h - m) < eps:
  *                         if y[j] == -1:             # <<<<<<<<<<<<<<
  *                             # augment
  *                             for k in range(last+1):
  */
-            __pyx_t_94 = __pyx_v_j;
-            __pyx_t_16 = (((*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_94 * __pyx_v_y.strides[0]) ))) == -1) != 0);
+            __pyx_t_95 = __pyx_v_j;
+            __pyx_t_16 = (((*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_95 * __pyx_v_y.strides[0]) ))) == -1) != 0);
             if (__pyx_t_16) {
 
-              /* "pymatgen/optimization/linear_assignment_cython.pyx":228
+              /* "pymatgen/optimization/linear_assignment_cython.pyx":232
  *                         if y[j] == -1:
  *                             # augment
  *                             for k in range(last+1):             # <<<<<<<<<<<<<<
  *                                 j1 = col[k]
  *                                 v[j1] = v[j1] + d[j1] - m
  */
-              __pyx_t_73 = (__pyx_v_last + 1);
-              for (__pyx_t_95 = 0; __pyx_t_95 < __pyx_t_73; __pyx_t_95+=1) {
-                __pyx_v_k = __pyx_t_95;
+              __pyx_t_74 = (__pyx_v_last + 1);
+              for (__pyx_t_96 = 0; __pyx_t_96 < __pyx_t_74; __pyx_t_96+=1) {
+                __pyx_v_k = __pyx_t_96;
 
-                /* "pymatgen/optimization/linear_assignment_cython.pyx":229
+                /* "pymatgen/optimization/linear_assignment_cython.pyx":233
  *                             # augment
  *                             for k in range(last+1):
  *                                 j1 = col[k]             # <<<<<<<<<<<<<<
  *                                 v[j1] = v[j1] + d[j1] - m
  *                             while True:
  */
-                __pyx_t_96 = __pyx_v_k;
-                __pyx_v_j1 = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_96 * __pyx_v_col.strides[0]) )));
+                __pyx_t_97 = __pyx_v_k;
+                __pyx_v_j1 = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_97 * __pyx_v_col.strides[0]) )));
 
-                /* "pymatgen/optimization/linear_assignment_cython.pyx":230
+                /* "pymatgen/optimization/linear_assignment_cython.pyx":234
  *                             for k in range(last+1):
  *                                 j1 = col[k]
  *                                 v[j1] = v[j1] + d[j1] - m             # <<<<<<<<<<<<<<
  *                             while True:
  *                                 i = pred[j]
  */
-                __pyx_t_97 = __pyx_v_j1;
                 __pyx_t_98 = __pyx_v_j1;
                 __pyx_t_99 = __pyx_v_j1;
-                *((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_v.data + __pyx_t_99 * __pyx_v_v.strides[0]) )) = (((*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_v.data + __pyx_t_97 * __pyx_v_v.strides[0]) ))) + (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_d.data + __pyx_t_98 * __pyx_v_d.strides[0]) )))) - __pyx_v_m);
+                __pyx_t_100 = __pyx_v_j1;
+                *((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_v.data + __pyx_t_100 * __pyx_v_v.strides[0]) )) = (((*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_v.data + __pyx_t_98 * __pyx_v_v.strides[0]) ))) + (*((__pyx_t_5numpy_float64_t *) ( /* dim=0 */ (__pyx_v_d.data + __pyx_t_99 * __pyx_v_d.strides[0]) )))) - __pyx_v_m);
               }
 
-              /* "pymatgen/optimization/linear_assignment_cython.pyx":231
+              /* "pymatgen/optimization/linear_assignment_cython.pyx":235
  *                                 j1 = col[k]
  *                                 v[j1] = v[j1] + d[j1] - m
  *                             while True:             # <<<<<<<<<<<<<<
@@ -4097,27 +4141,27 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
               while (1) {
 
-                /* "pymatgen/optimization/linear_assignment_cython.pyx":232
+                /* "pymatgen/optimization/linear_assignment_cython.pyx":236
  *                                 v[j1] = v[j1] + d[j1] - m
  *                             while True:
  *                                 i = pred[j]             # <<<<<<<<<<<<<<
  *                                 y[j] = i
  *                                 k = j
  */
-                __pyx_t_95 = __pyx_v_j;
-                __pyx_v_i = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_pred.data + __pyx_t_95 * __pyx_v_pred.strides[0]) )));
+                __pyx_t_96 = __pyx_v_j;
+                __pyx_v_i = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_pred.data + __pyx_t_96 * __pyx_v_pred.strides[0]) )));
 
-                /* "pymatgen/optimization/linear_assignment_cython.pyx":233
+                /* "pymatgen/optimization/linear_assignment_cython.pyx":237
  *                             while True:
  *                                 i = pred[j]
  *                                 y[j] = i             # <<<<<<<<<<<<<<
  *                                 k = j
  *                                 j = x[i]
  */
-                __pyx_t_100 = __pyx_v_j;
-                *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_100 * __pyx_v_y.strides[0]) )) = __pyx_v_i;
+                __pyx_t_101 = __pyx_v_j;
+                *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_y.data + __pyx_t_101 * __pyx_v_y.strides[0]) )) = __pyx_v_i;
 
-                /* "pymatgen/optimization/linear_assignment_cython.pyx":234
+                /* "pymatgen/optimization/linear_assignment_cython.pyx":238
  *                                 i = pred[j]
  *                                 y[j] = i
  *                                 k = j             # <<<<<<<<<<<<<<
@@ -4126,27 +4170,27 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
                 __pyx_v_k = __pyx_v_j;
 
-                /* "pymatgen/optimization/linear_assignment_cython.pyx":235
+                /* "pymatgen/optimization/linear_assignment_cython.pyx":239
  *                                 y[j] = i
  *                                 k = j
  *                                 j = x[i]             # <<<<<<<<<<<<<<
  *                                 x[i] = k
  *                                 if i == i1:
  */
-                __pyx_t_101 = __pyx_v_i;
-                __pyx_v_j = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_101 * __pyx_v_x.strides[0]) )));
+                __pyx_t_102 = __pyx_v_i;
+                __pyx_v_j = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_102 * __pyx_v_x.strides[0]) )));
 
-                /* "pymatgen/optimization/linear_assignment_cython.pyx":236
+                /* "pymatgen/optimization/linear_assignment_cython.pyx":240
  *                                 k = j
  *                                 j = x[i]
  *                                 x[i] = k             # <<<<<<<<<<<<<<
  *                                 if i == i1:
  *                                     b = True
  */
-                __pyx_t_102 = __pyx_v_i;
-                *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_102 * __pyx_v_x.strides[0]) )) = __pyx_v_k;
+                __pyx_t_103 = __pyx_v_i;
+                *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_103 * __pyx_v_x.strides[0]) )) = __pyx_v_k;
 
-                /* "pymatgen/optimization/linear_assignment_cython.pyx":237
+                /* "pymatgen/optimization/linear_assignment_cython.pyx":241
  *                                 j = x[i]
  *                                 x[i] = k
  *                                 if i == i1:             # <<<<<<<<<<<<<<
@@ -4156,7 +4200,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
                 __pyx_t_16 = ((__pyx_v_i == __pyx_v_i1) != 0);
                 if (__pyx_t_16) {
 
-                  /* "pymatgen/optimization/linear_assignment_cython.pyx":238
+                  /* "pymatgen/optimization/linear_assignment_cython.pyx":242
  *                                 x[i] = k
  *                                 if i == i1:
  *                                     b = True             # <<<<<<<<<<<<<<
@@ -4165,51 +4209,51 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
                   __pyx_v_b = 1;
 
-                  /* "pymatgen/optimization/linear_assignment_cython.pyx":239
+                  /* "pymatgen/optimization/linear_assignment_cython.pyx":243
  *                                 if i == i1:
  *                                     b = True
  *                                     break             # <<<<<<<<<<<<<<
  *                             break
  *                         else:
  */
-                  goto __pyx_L58_break;
+                  goto __pyx_L64_break;
                 }
               }
-              __pyx_L58_break:;
+              __pyx_L64_break:;
 
-              /* "pymatgen/optimization/linear_assignment_cython.pyx":240
+              /* "pymatgen/optimization/linear_assignment_cython.pyx":244
  *                                     b = True
  *                                     break
  *                             break             # <<<<<<<<<<<<<<
  *                         else:
  *                             col[k] = col[up]
  */
-              goto __pyx_L51_break;
+              goto __pyx_L57_break;
             }
             /*else*/ {
 
-              /* "pymatgen/optimization/linear_assignment_cython.pyx":242
+              /* "pymatgen/optimization/linear_assignment_cython.pyx":246
  *                             break
  *                         else:
  *                             col[k] = col[up]             # <<<<<<<<<<<<<<
  *                             col[up] = j
  *                             up = up + 1
  */
-              __pyx_t_103 = __pyx_v_up;
-              __pyx_t_104 = __pyx_v_k;
-              *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_104 * __pyx_v_col.strides[0]) )) = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_103 * __pyx_v_col.strides[0]) )));
+              __pyx_t_104 = __pyx_v_up;
+              __pyx_t_105 = __pyx_v_k;
+              *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_105 * __pyx_v_col.strides[0]) )) = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_104 * __pyx_v_col.strides[0]) )));
 
-              /* "pymatgen/optimization/linear_assignment_cython.pyx":243
+              /* "pymatgen/optimization/linear_assignment_cython.pyx":247
  *                         else:
  *                             col[k] = col[up]
  *                             col[up] = j             # <<<<<<<<<<<<<<
  *                             up = up + 1
  *             if b:
  */
-              __pyx_t_105 = __pyx_v_up;
-              *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_105 * __pyx_v_col.strides[0]) )) = __pyx_v_j;
+              __pyx_t_106 = __pyx_v_up;
+              *((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_col.data + __pyx_t_106 * __pyx_v_col.strides[0]) )) = __pyx_v_j;
 
-              /* "pymatgen/optimization/linear_assignment_cython.pyx":244
+              /* "pymatgen/optimization/linear_assignment_cython.pyx":248
  *                             col[k] = col[up]
  *                             col[up] = j
  *                             up = up + 1             # <<<<<<<<<<<<<<
@@ -4218,16 +4262,16 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
               __pyx_v_up = (__pyx_v_up + 1);
             }
-            goto __pyx_L53;
+            goto __pyx_L59;
           }
-          __pyx_L53:;
-          goto __pyx_L52;
+          __pyx_L59:;
+          goto __pyx_L58;
         }
-        __pyx_L52:;
+        __pyx_L58:;
       }
-      __pyx_L51_break:;
+      __pyx_L57_break:;
 
-      /* "pymatgen/optimization/linear_assignment_cython.pyx":245
+      /* "pymatgen/optimization/linear_assignment_cython.pyx":249
  *                             col[up] = j
  *                             up = up + 1
  *             if b:             # <<<<<<<<<<<<<<
@@ -4237,20 +4281,20 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
       __pyx_t_16 = (__pyx_v_b != 0);
       if (__pyx_t_16) {
 
-        /* "pymatgen/optimization/linear_assignment_cython.pyx":246
+        /* "pymatgen/optimization/linear_assignment_cython.pyx":250
  *                             up = up + 1
  *             if b:
  *                 break             # <<<<<<<<<<<<<<
  *     cost = 0
  *     for i in range(n):
  */
-        goto __pyx_L35_break;
+        goto __pyx_L41_break;
       }
     }
-    __pyx_L35_break:;
+    __pyx_L41_break:;
   }
 
-  /* "pymatgen/optimization/linear_assignment_cython.pyx":247
+  /* "pymatgen/optimization/linear_assignment_cython.pyx":251
  *             if b:
  *                 break
  *     cost = 0             # <<<<<<<<<<<<<<
@@ -4259,7 +4303,7 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  */
   __pyx_v_cost = 0.0;
 
-  /* "pymatgen/optimization/linear_assignment_cython.pyx":248
+  /* "pymatgen/optimization/linear_assignment_cython.pyx":252
  *                 break
  *     cost = 0
  *     for i in range(n):             # <<<<<<<<<<<<<<
@@ -4267,22 +4311,22 @@ static __pyx_t_5numpy_float64_t __pyx_f_8pymatgen_12optimization_24linear_assign
  *     return cost
  */
   __pyx_t_25 = __pyx_v_n;
-  for (__pyx_t_85 = 0; __pyx_t_85 < __pyx_t_25; __pyx_t_85+=1) {
-    __pyx_v_i = __pyx_t_85;
+  for (__pyx_t_86 = 0; __pyx_t_86 < __pyx_t_25; __pyx_t_86+=1) {
+    __pyx_v_i = __pyx_t_86;
 
-    /* "pymatgen/optimization/linear_assignment_cython.pyx":249
+    /* "pymatgen/optimization/linear_assignment_cython.pyx":253
  *     cost = 0
  *     for i in range(n):
  *         cost += c[i, x[i]]             # <<<<<<<<<<<<<<
  *     return cost
  */
-    __pyx_t_86 = __pyx_v_i;
-    __pyx_t_106 = __pyx_v_i;
-    __pyx_t_107 = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_86 * __pyx_v_x.strides[0]) )));
-    __pyx_v_cost = (__pyx_v_cost + (*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_c.data + __pyx_t_106 * __pyx_v_c.strides[0]) ) + __pyx_t_107 * __pyx_v_c.strides[1]) ))));
+    __pyx_t_87 = __pyx_v_i;
+    __pyx_t_107 = __pyx_v_i;
+    __pyx_t_108 = (*((__pyx_t_5numpy_int_t *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_87 * __pyx_v_x.strides[0]) )));
+    __pyx_v_cost = (__pyx_v_cost + (*((__pyx_t_5numpy_float64_t *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_c.data + __pyx_t_107 * __pyx_v_c.strides[0]) ) + __pyx_t_108 * __pyx_v_c.strides[1]) ))));
   }
 
-  /* "pymatgen/optimization/linear_assignment_cython.pyx":250
+  /* "pymatgen/optimization/linear_assignment_cython.pyx":254
  *     for i in range(n):
  *         cost += c[i, x[i]]
  *     return cost             # <<<<<<<<<<<<<<

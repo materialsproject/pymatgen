@@ -77,7 +77,7 @@ class LinearAssignment(object):
 cdef np.float64_t compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_t[:] y, np.float64_t eps):
 
     # augment
-    cdef int i, j, k, i1, j1, f, f0, cnt, low, up, z, last, naug
+    cdef int i, j, k, i1, j1, f, f0, cnt, low, up, z, last, nrr
     cdef int n = size
     cdef bint b
     cdef np.int_t[:] col = np.empty(n, dtype=np.int)
@@ -96,7 +96,7 @@ cdef np.float64_t compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_
         h = c[0, j]
         i1 = 0
         for i in range(1, n):
-            if c[i, j] + eps < h:
+            if c[i, j] < h:
                 h = c[i, j]
                 i1 = i
         v[j] = h
@@ -131,7 +131,12 @@ cdef np.float64_t compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_
         k = 0
         f0 = f
         f = -1
+        # this step isn't strictly necessary, and
+        # time is proportional to 1/eps in the worst case,
+        # so break early by keeping track of nrr
+        nrr = 0
         while k <= f0:
+            nrr += 1
             i = free[k]
             k += 1
             u1 = c[i, 0] - v[0]
@@ -139,7 +144,7 @@ cdef np.float64_t compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_
             u2 = 1e20
             for j in range(1, n):
                 h = c[i, j] - v[j]
-                if h + eps < u2:
+                if h < u2:
                     if h >= u1:
                         u2 = h
                         j2 = j
@@ -148,15 +153,14 @@ cdef np.float64_t compute(int size, np.float64_t[:, :] c, np.int_t[:] x, np.int_
                         u1 = h
                         j2 = j1
                         j1 = j
-            #assert j2 != j1
             i1 = y[j1]
-            if u1 + eps < u2:
+            if u1 + eps < u2 and nrr < n * k:
                 v[j1] = v[j1] - u2 + u1
-            elif i1 > -1:
+            elif i1 > -1 and nrr < n * k:
                 j1 = j2
                 i1 = y[j1]
             if i1 > -1:
-                if u1 + eps < u2:
+                if u1 + eps < u2 and nrr < n * k:
                     k -= 1
                     free[k] = i1
                 else:
