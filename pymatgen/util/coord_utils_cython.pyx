@@ -20,7 +20,7 @@ __date__ = "Nov 27, 2011"
 import numpy as np
 
 from libc.stdlib cimport malloc, free
-from libc.math cimport round, abs
+from libc.math cimport round, abs, sqrt, acos, M_PI
 cimport numpy as np
 cimport cython
 
@@ -167,3 +167,38 @@ def is_coord_subset_pbc(fcoords1, fcoords2, tol, mask):
         if not ok:
             break
     return bool(ok)
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.initializedcheck(False)
+@cython.cdivision(True)
+def lengths_and_angles(matrix):
+    angles = np.empty(3, dtype=np.float64)
+    lengths = np.empty(3, dtype=np.float64)
+
+    cdef np.float64_t[:] a = angles
+    cdef np.float64_t[:] l = lengths
+    cdef np.float64_t[:, :] m = matrix
+    cdef np.float64_t v
+
+    cdef int i, j, k, n
+
+    for i in range(3):
+        l[i] = 0
+        for j in range(3):
+            l[i] += m[i, j] ** 2
+        l[i] = sqrt(l[i])
+
+    for i in range(3):
+        j = (i + 1) % 3
+        k = (i + 2) % 3
+        v = 0
+        for n in range(3):
+            v += m[j, n] * m[k, n]
+        v /= l[j] * l[k]
+        a[i] = acos(max(min(v, 1), -1)) * 180 / M_PI
+
+    return lengths, angles
+
+
+
