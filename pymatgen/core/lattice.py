@@ -483,10 +483,9 @@ class Lattice(PMGSONable):
         (lengths, angles) = other_lattice.lengths_and_angles
         (alpha, beta, gamma) = angles
 
-        points = self.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
-                                           max(lengths) * (1 + ltol))
-        frac = np.array([p[0] for p in points])
-        dist = np.array([p[1] for p in points])
+        frac, dist, _ = self.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
+                                                  max(lengths) * (1 + ltol),
+                                                  zip_results=False)
         cart = self.get_cartesian_coords(frac)
 
         # this can't be broadcast because they're different lengths
@@ -855,7 +854,7 @@ class Lattice(PMGSONable):
         """
         return np.sqrt(self.dot(coords, coords, frac_coords=frac_coords))
 
-    def get_points_in_sphere(self, frac_points, center, r):
+    def get_points_in_sphere(self, frac_points, center, r, zip_results=True):
         """
         Find all points within a sphere from the point taking into account
         periodic boundary conditions. This includes sites in other periodic
@@ -877,10 +876,15 @@ class Lattice(PMGSONable):
             frac_points: All points in the lattice in fractional coordinates.
             center: Cartesian coordinates of center of sphere.
             r: radius of sphere.
+            zip_results (bool): Whether to zip the results together to group by
+                 point, or return the raw fcoord, dist, index arrays
 
         Returns:
-            [(fcoord, dist) ...] since most of the time, subsequent processing
-            requires the distance.
+            if zip_results:
+                [(fcoord, dist, index) ...] since most of the time, subsequent
+                processing requires the distance.
+            else:
+                fcoords, dists, inds
         """
         recp_len = np.array(self.reciprocal_lattice.abc)
         sr = r + 0.15
@@ -913,9 +917,12 @@ class Lattice(PMGSONable):
         dists = np.sqrt(np.sum((coords - pts[:, None, None, None, :]) ** 2,
                                axis=4))
         within_r = np.where(dists <= r)
-
-        return list(zip(shifted_coords[within_r], dists[within_r],
-                        indices[within_r[0]]))
+        if zip_results:
+            return list(zip(shifted_coords[within_r], dists[within_r],
+                            indices[within_r[0]]))
+        else:
+            return shifted_coords[within_r], dists[within_r], \
+                indices[within_r[0]]
 
     def get_all_distances(self, fcoords1, fcoords2):
         """
