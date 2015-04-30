@@ -68,7 +68,7 @@ cdef void dot_2d_mod(np.float64_t[:, :] a, np.float64_t[:, :] b, np.float64_t* o
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.initializedcheck(False)
-def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
+def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False):
     """
     Returns the shortest vectors between two lists of coordinates taking into
     account periodic boundary conditions and the lattice.
@@ -88,9 +88,10 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
     #ensure correct shape
     #fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
 
-    cdef np.ndarray[np.float64_t, ndim=2] lat = lattice._matrix
+    cdef np.float64_t[:, :] lat = lattice._matrix
 
     cdef int i, j, k, l, I, J, L = 3
+
     I = len(fcoords1)
     J = len(fcoords2)
 
@@ -98,31 +99,47 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
     cdef np.float64_t * cart_f2 = <np.float64_t *> malloc(3 * J * sizeof(np.float64_t))
     cdef np.float64_t * cart_im = <np.float64_t *> malloc(81 * sizeof(np.float64_t))
 
+    cdef bint has_mask = mask is not None
+    cdef np.int_t[:, :] m
+    if has_mask:
+        m = np.array(mask, dtype=np.int)
+
     dot_2d_mod(fcoords1, lat, cart_f1)
     dot_2d_mod(fcoords2, lat, cart_f2)
     dot_2d(images_view, lat, cart_im)
 
-    output = np.empty((I, J, 3))
-    cdef np.float64_t[:, :, :] vectors = output
+    vectors = np.empty((I, J, 3))
+    dists = np.empty((I, J))
+    cdef np.float64_t[:, :, :] vs = vectors
+    cdef np.float64_t[:, :] ds = dists
     cdef np.float64_t best, d
 
     for i in range(I):
         for j in range(J):
             best = 1e100
+            if has_mask and m[i, j]:
+                ds[i, j] = 1e20
+                for l in range(3):
+                    vs[i, j, l] = 1e20
+                continue
             for k in range(27):
                 d = 0
                 for l in range(3):
                     d += (cart_f2[3 * j + l] + cart_im[3 * k + l] - cart_f1[3 * i + l]) ** 2
                 if d < best:
                     best = d
+                    ds[i, j] = d
                     for l in range(3):
-                        vectors[i, j, l] = cart_f2[3 * j + l] + cart_im[3 * k + l] - cart_f1[3 * i + l]
+                        vs[i, j, l] = cart_f2[3 * j + l] + cart_im[3 * k + l] - cart_f1[3 * i + l]
 
     free(<void *>cart_f1)
     free(<void *>cart_f2)
     free(<void *>cart_im)
 
-    return output
+    if return_d2:
+        return vectors, dists
+    else:
+        return vectors
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
