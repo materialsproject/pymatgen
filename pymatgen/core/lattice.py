@@ -520,7 +520,8 @@ class Lattice(PMGSONable):
                     rotation_m = np.linalg.solve(aligned_m, other_lattice.matrix)
                 yield Lattice(aligned_m), rotation_m, scale_m
 
-    def find_mapping(self, other_lattice, ltol=1e-5, atol=1):
+    def find_mapping(self, other_lattice, ltol=1e-5, atol=1,
+                     skip_rotation_matrix=False):
         """
         Finds a mapping between current lattice and another lattice. There
         are an infinite number of choices of basis vectors for two entirely
@@ -549,7 +550,8 @@ class Lattice(PMGSONable):
 
             None is returned if no matches are found.
         """
-        for x in self.find_all_mappings(other_lattice, ltol, atol):
+        for x in self.find_all_mappings(other_lattice, ltol, atol,
+                                        skip_rotation_matrix=skip_rotation_matrix):
             return x
 
     def get_lll_reduced_lattice(self, delta=0.75):
@@ -741,7 +743,7 @@ class Lattice(PMGSONable):
 
         latt = Lattice.from_parameters(a, b, c, alpha, beta, gamma)
 
-        mapped = self.find_mapping(latt, e, e)
+        mapped = self.find_mapping(latt, e, skip_rotation_matrix=True)
         if mapped is not None:
             return mapped[0]
         raise ValueError("can't find niggli")
