@@ -31,7 +31,6 @@ import numpy as np
 
 from monty.serialization import loadfn
 
-from pymatgen.io.cifio import CifWriter
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vaspio.vasp_output import Vasprun, Outcar
 from pymatgen.serializers.json_coders import PMGSONable
@@ -125,9 +124,15 @@ class AbstractVaspInputSet(six.with_metaclass(abc.ABCMeta, PMGSONable)):
         Returns:
             dict of {filename: file_as_string}, e.g., {'INCAR':'EDIFF=1e-4...'}
         """
-        d = {'INCAR': self.get_incar(structure),
-             'KPOINTS': self.get_kpoints(structure),
+        kpoints = self.get_kpoints(structure)
+        incar = self.get_incar(structure)
+        if np.product(kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
+            incar["ISMEAR"] = 0
+
+        d = {'INCAR': incar,
+             'KPOINTS': kpoints,
              'POSCAR': self.get_poscar(structure)}
+
         if generate_potcar:
             d['POTCAR'] = self.get_potcar(structure)
         else:
@@ -210,7 +215,6 @@ class DictVaspInputSet(AbstractVaspInputSet):
         reduce_structure (None/str): Before generating the input files,
             generate the reduced structure. Default (None), does not
             alter the structure. Valid values: None, "niggli", "LLL"
-
     """
 
     def __init__(self, name, config_dict, hubbard_off=False,
@@ -305,16 +309,30 @@ class DictVaspInputSet(AbstractVaspInputSet):
             structure = structure.get_sorted_structure()
         return Poscar(structure)
 
-    def get_potcar(self, structure):
+    def get_potcar(self, structure, check_hash=False):
         if self.reduce_structure:
             structure = structure.get_reduced_structure(self.reduce_structure)
         if self.sort_structure:
             structure = structure.get_sorted_structure()
         if self.potcar_functional:
-            return Potcar(self.get_potcar_symbols(structure),
+            p = Potcar(self.get_potcar_symbols(structure),
                           functional=self.potcar_functional)
         else:
-            return Potcar(self.get_potcar_symbols(structure))
+            p = Potcar(self.get_potcar_symbols(structure))
+
+        if check_hash:
+            hash_check = [ps.hash == self.potcar_settings[ps.element][
+                                                        'hash'] for ps in p]
+            if all(hash_check):
+                return p
+            else:
+                wrong_hashes = [p.symbols[i] for i, tf in enumerate(
+                                                    hash_check) if not tf]
+                raise ValueError("Potcars {} have different hashes "
+                                 "than those specified in the config "
+                                 "dictionary".format(wrong_hashes))
+        else:
+            return p
 
     def get_nelect(self, structure):
         """
@@ -333,9 +351,16 @@ class DictVaspInputSet(AbstractVaspInputSet):
         p = self.get_poscar(structure)
         elements = p.site_symbols
         potcar_symbols = []
-        for el in elements:
-            potcar_symbols.append(self.potcar_settings[el]
-                                  if el in self.potcar_settings else el)
+
+        if isinstance(self.potcar_settings[elements[-1]], dict):
+            for el in elements:
+                potcar_symbols.append(self.potcar_settings[el]['symbol']
+                                      if el in self.potcar_settings else el)
+        else:
+            for el in elements:
+                potcar_symbols.append(self.potcar_settings[el]
+                                      if el in self.potcar_settings else el)
+
         return potcar_symbols
 
     def get_kpoints(self, structure):
@@ -497,7 +522,15 @@ class MITNEBVaspInputSet(DictVaspInputSet):
             structures.append(s)
         return structures
 
-    def write_input(self, structures, output_dir, make_dir_if_not_present=True,
+    def write_input(self, structure, output_dir,
+                    make_dir_if_not_present=True, include_cif=False):
+        """
+        The default write_input is for writing initial structures / end point
+        relaxations. This ensures that
+        """
+
+    def write_input(self, structures, output_dir,
+                    make_dir_if_not_present=True,
                     write_cif=False):
         """
         NEB inputs has a special directory structure where inputs are in 00,
@@ -1069,7 +1102,8 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         """
         if self.mode == "Line":
             kpath = HighSymmKpath(structure)
-            cart_k_points, k_points_labels = kpath.get_kpoints(line_density=self.kpoints_line_density)
+            cart_k_points, k_points_labels = kpath.get_kpoints(
+                line_density=self.kpoints_line_density)
             frac_k_points = [kpath._prim_rec.get_fractional_coords(k)
                              for k in cart_k_points]
             return Kpoints(comment="Non SCF run along symmetry lines",

@@ -292,6 +292,165 @@ $end
         self.assertEqual(str(qctask), ans_mixed)
         self.elementary_io_verify(ans_mixed, qctask)
 
+    def test_partial_hessian(self):
+        qcinp1 = QcInput.from_file(os.path.join(test_dir, "partial_hessian.qcinp"))
+        ans = """$molecule
+ 0  1
+ C          -1.76827000        0.46495000        0.28695000
+ O           1.78497000       -0.42034000       -0.39845000
+ H          -0.77736000        0.78961000        0.66548000
+ H          -1.75896000        0.46604000       -0.82239000
+ H          -2.54983000        1.16313000        0.65101000
+ H          -1.98693000       -0.55892000        0.65381000
+ H           2.14698000       -0.07173000        0.45530000
+ H           1.25596000       -1.21510000       -0.13726000
+$end
+
+
+$rem
+   jobtype = freq
+  exchange = b3lyp
+     basis = 6-31g*
+     n_sol = 3
+     phess = true
+$end
+
+
+$alist
+ 3
+ 7
+ 8
+$end
+
+"""
+        self.assertEqual(ans, str(qcinp1))
+        self.elementary_io_verify(ans, qcinp1.jobs[0])
+        qcinp1.jobs[0].params["rem"]["jobtype"] = "sp"
+        qcinp1.jobs[0].params["rem"]["phess"] = 3
+        qcinp1.jobs[0].set_partial_hessian_atoms([2, 3, 4, 5, 6])
+        ans = """$molecule
+ 0  1
+ C          -1.76827000        0.46495000        0.28695000
+ O           1.78497000       -0.42034000       -0.39845000
+ H          -0.77736000        0.78961000        0.66548000
+ H          -1.75896000        0.46604000       -0.82239000
+ H          -2.54983000        1.16313000        0.65101000
+ H          -1.98693000       -0.55892000        0.65381000
+ H           2.14698000       -0.07173000        0.45530000
+ H           1.25596000       -1.21510000       -0.13726000
+$end
+
+
+$rem
+   jobtype = freq
+  exchange = b3lyp
+     basis = 6-31g*
+     n_sol = 5
+     phess = True
+$end
+
+
+$alist
+ 2
+ 3
+ 4
+ 5
+ 6
+$end
+
+"""
+        self.assertEqual(ans, str(qcinp1))
+
+    def test_basis2_mixed(self):
+        qcinp1 = QcInput.from_file(os.path.join(test_dir, "basis2_mixed.inp"))
+        ans = """$molecule
+ 0  1
+ C          -1.76827000        0.46495000        0.28695000
+ O           1.78497000       -0.42034000       -0.39845000
+ H          -0.77736000        0.78961000        0.66548000
+ H          -1.75896000        0.46604000       -0.82239000
+ H          -2.54983000        1.16313000        0.65101000
+ H          -1.98693000       -0.55892000        0.65381000
+ H           2.14698000       -0.07173000        0.45530000
+ H           1.25596000       -1.21510000       -0.13726000
+$end
+
+
+$rem
+   jobtype = sp
+  exchange = b3lyp
+     basis = mixed
+    basis2 = basis2_mixed
+  purecart = 1111
+$end
+
+
+$basis
+ C    1
+ 6-311+g(3df)
+ ****
+ O    2
+ aug-cc-pvtz
+ ****
+ H    3
+ 6-31g*
+ ****
+ H    4
+ 6-31g*
+ ****
+ H    5
+ 6-31g*
+ ****
+ H    6
+ 6-31g*
+ ****
+ H    7
+ cc-pvdz
+ ****
+ H    8
+ cc-pvdz
+ ****
+$end
+
+
+$basis2
+ C    1
+ sto-3g
+ ****
+ O    2
+ sto-3g
+ ****
+ H    3
+ sto-3g
+ ****
+ H    4
+ sto-3g
+ ****
+ H    5
+ sto-3g
+ ****
+ H    6
+ sto-3g
+ ****
+ H    7
+ sto-3g
+ ****
+ H    8
+ sto-3g
+ ****
+$end
+
+"""
+        self.assertEqual(str(qcinp1), ans)
+        self.elementary_io_verify(ans, qcinp1.jobs[0])
+        basis2 = qcinp1.jobs[0].params["basis2"]
+        qcinp2 = copy.deepcopy(qcinp1)
+        qcinp2.jobs[0].set_basis2("3-21g")
+        self.assertEqual(qcinp2.jobs[0].params["rem"]["basis2"], "3-21g")
+        self.assertFalse("basis2" in qcinp2.jobs[0].params)
+        qcinp2.jobs[0].set_basis2(basis2)
+        self.assertEqual(str(qcinp2), ans)
+
     def test_aux_basis_str(self):
         ans_gen = '''$comment
  Test Methane
@@ -904,6 +1063,100 @@ $end
         self.assertEqual(str(qctask), ans)
         self.elementary_io_verify(ans, qctask)
 
+    def test_wrap_comment(self):
+        ans = '''$comment
+ 5_2_2_methoxyethoxy_ethoxy_6_nitro_1_3_dihydro_2_1_3_benzothiadiazole
+singlet neutral B3lYP/6-31+G* geometry optimization
+$end
+
+
+$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ H           1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ Cl         -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+   jobtype = sp
+  exchange = b3lyp
+     basis = 6-31+g*
+$end
+
+'''
+        qctask = QcTask(mol, title="    5_2_2_methoxyethoxy_ethoxy_6_nitro_1_3_dihydro_2_1_3_benzothiadiazole singlet "
+                                   "neutral B3lYP/6-31+G* geometry optimization", exchange="B3LYP",
+                        jobtype="SP",
+                        basis_set="6-31+G*")
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
+        title = ''' MgBPh42 singlet neutral PBE-D3/6-31+G* geometry optimization
+<SCF Fix Strategy>{
+    "current_method_id": 1,
+    "methods": [
+        "increase_iter",
+        "diis_gdm",
+        "gwh",
+        "rca",
+        "gdm",
+        "core+gdm"
+    ]
+}</SCF Fix Strategy>'''
+        ans = '''$comment
+ MgBPh42 singlet neutral PBE-D3/6-31+G* geometry optimization
+<SCF Fix Strategy>{
+    "current_method_id": 1,
+    "methods": [
+        "increase_iter",
+        "diis_gdm",
+        "gwh",
+        "rca",
+        "gdm",
+        "core+gdm"
+    ]
+}</SCF Fix Strategy>
+$end
+
+
+$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ H           1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ Cl         -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+   jobtype = sp
+  exchange = b3lyp
+     basis = 6-31+g*
+$end
+
+'''
+        qctask = QcTask(mol, title=title, exchange="B3LYP", jobtype="SP", basis_set="6-31+G*")
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
+        title = " 5_2_2_methoxyethoxy_ethoxy_6_nitro_1_3_dihydro_2_1_3_benzothiadiazole singlet neutral " \
+                "B3lYP/6-31+G* geometry optimization" + \
+                '''<SCF Fix Strategy>{
+    "current_method_id": 1,
+    "methods": [
+        "increase_iter",
+        "diis_gdm",
+        "gwh",
+        "rca",
+        "gdm",
+        "core+gdm"
+    ]
+}</SCF Fix Strategy>'''
+        qctask = QcTask(mol, title=title, exchange="B3LYP", jobtype="SP", basis_set="6-31+G*")
+        self.elementary_io_verify(str(qctask), qctask)
+
     def test_use_pcm(self):
         ans = '''$comment
  Test Methane
@@ -1214,6 +1467,14 @@ class TestQcOutput(TestCase):
                 self.assertAlmostEqual(ref_energies[molname][method],
                                        parsed_energies[molname][method])
 
+    def test_unable_to_determine_lambda_in_geom_opt(self):
+        filename = os.path.join(test_dir, "unable_to_determine_lambda_in_geom_opt.qcout")
+        qcout = QcOutput(filename)
+        self.assertTrue(qcout.data[0]['has_error'])
+        self.assertEqual(qcout.data[0]['errors'],
+                         ['Lamda Determination Failed',
+                          'Geometry optimization failed'])
+
     def test_geom_opt(self):
         filename = os.path.join(test_dir, "thiophene_wfs_5_carboxyl.qcout")
         qcout = QcOutput(filename)
@@ -1225,39 +1486,39 @@ class TestQcOutput(TestCase):
                         ('SCF', -20180.15020789526),
                         ('SCF', -20180.150206202714)]
         self.assertEqual(qcout.data[0]["energies"], ans_energies)
-        ans_mol1 = '''Molecule Summary (H4 C5 S1 O2)
+        ans_mol1 = '''Full Formula (H4 C5 S1 O2)
 Reduced Formula: H4C5SO2
 Charge = -1, Spin Mult = 2
 Sites (12)
-1 C     0.158839    -0.165379     0.000059
-2 C    -0.520531    -1.366720     0.000349
-3 C    -1.930811    -1.198460    -0.000041
-4 C    -2.297971     0.127429    -0.000691
-5 S    -0.938312     1.189630     0.000400
-6 H    -0.014720    -2.325340     0.000549
-7 H    -2.641720    -2.017721    -0.000161
-8 H    -3.301032     0.535659    -0.001261
-9 C     1.603079     0.076231    -0.000101
-10 O     2.131988     1.173581    -0.000330
-11 O     2.322109    -1.079218    -0.000021
-12 H     3.262059    -0.820188    -0.000171'''
-        ans_mol_last = '''Molecule Summary (H4 C5 S1 O2)
+0 C     0.158839    -0.165379     0.000059
+1 C    -0.520531    -1.366720     0.000349
+2 C    -1.930811    -1.198460    -0.000041
+3 C    -2.297971     0.127429    -0.000691
+4 S    -0.938312     1.189630     0.000400
+5 H    -0.014720    -2.325340     0.000549
+6 H    -2.641720    -2.017721    -0.000161
+7 H    -3.301032     0.535659    -0.001261
+8 C     1.603079     0.076231    -0.000101
+9 O     2.131988     1.173581    -0.000330
+10 O     2.322109    -1.079218    -0.000021
+11 H     3.262059    -0.820188    -0.000171'''
+        ans_mol_last = '''Full Formula (H4 C5 S1 O2)
 Reduced Formula: H4C5SO2
 Charge = -1, Spin Mult = 2
 Sites (12)
-1 C     0.194695    -0.158362    -0.001887
-2 C    -0.535373    -1.381241    -0.001073
-3 C    -1.927071    -1.199274    -0.000052
-4 C    -2.332651     0.131916     0.000329
-5 S    -0.942111     1.224916    -0.001267
-6 H    -0.038260    -2.345185    -0.001256
-7 H    -2.636299    -2.025939     0.000620
-8 H    -3.339756     0.529895     0.001288
-9 C     1.579982     0.071245    -0.002733
-10 O     2.196383     1.165675    -0.000178
-11 O     2.352341    -1.114671     0.001634
-12 H     3.261096    -0.769470     0.003158'''
-        self.assertEqual(str(qcout.data[0]["molecules"][0]), ans_mol1)
+0 C     0.194695    -0.158362    -0.001887
+1 C    -0.535373    -1.381241    -0.001073
+2 C    -1.927071    -1.199274    -0.000052
+3 C    -2.332651     0.131916     0.000329
+4 S    -0.942111     1.224916    -0.001267
+5 H    -0.038260    -2.345185    -0.001256
+6 H    -2.636299    -2.025939     0.000620
+7 H    -3.339756     0.529895     0.001288
+8 C     1.579982     0.071245    -0.002733
+9 O     2.196383     1.165675    -0.000178
+10 O     2.352341    -1.114671     0.001634
+11 H     3.261096    -0.769470     0.003158'''
+        self.assertEqual(qcout.data[0]["molecules"][0].__str__(), ans_mol1)
         self.assertEqual(str(qcout.data[0]["molecules"][-1]), ans_mol_last)
         self.assertFalse(qcout.data[0]["has_error"])
         ans_gradient = [{'max_gradient': 0.07996,
@@ -1479,13 +1740,13 @@ $end
         for k, ref in ans_thermo_corr.items():
             self.assertAlmostEqual(qcout.data[1]['corrections'][k], ref)
         self.assertEqual(len(qcout.data[1]['molecules']), 1)
-        ans_mol1 = '''Molecule Summary (Cd1 Br2)
+        ans_mol1 = '''Full Formula (Cd1 Br2)
 Reduced Formula: CdBr2
 Charge = 0, Spin Mult = 1
 Sites (3)
-1 Br     0.000000     0.000000    -2.453720
-2 Cd     0.000000     0.000000     0.000000
-3 Br     0.000000     0.000000     2.453720'''
+0 Br     0.000000     0.000000    -2.453720
+1 Cd     0.000000     0.000000     0.000000
+2 Br     0.000000     0.000000     2.453720'''
         self.assertEqual(str(qcout.data[1]['molecules'][0]), ans_mol1)
         self.assertFalse(qcout.data[1]['has_error'])
         self.assertEqual(qcout.data[1]['gradients'], [])
@@ -1671,6 +1932,22 @@ $end
                           'Bad SCF convergence',
                           'Geometry optimization failed'])
 
+    def test_freq_seg_too_small(self):
+        filename = os.path.join(test_dir, "freq_seg_too_small.qcout")
+        qcout = QcOutput(filename)
+        self.assertTrue(qcout.data[0]['has_error'])
+        self.assertEqual(qcout.data[0]['errors'],
+                         ['Freq Job Too Small',
+                          'Exit Code 134'])
+
+    def test_not_enough_total_memory(self):
+        filename = os.path.join(test_dir, "not_enough_total_memory.qcout")
+        qcout = QcOutput(filename)
+        self.assertTrue(qcout.data[1]['has_error'])
+        self.assertEqual(qcout.data[1]["errors"],
+                         ['Not Enough Total Memory',
+                          'Exit Code 134'])
+
     def test_killed(self):
         filename = os.path.join(test_dir, "killed.qcout")
         qcout = QcOutput(filename)
@@ -1693,6 +1970,14 @@ $end
         self.assertEqual(len(qcout.data[0]['scf_iteration_energies'][-1]), 192)
         self.assertAlmostEqual(qcout.data[0]['scf_iteration_energies'][-1][-1][0],
                                -1944.945908459, 5)
+
+    def test_crazy_scf_values(self):
+        filename = os.path.join(test_dir, "crazy_scf_values.qcout")
+        qcout = QcOutput(filename)
+        ans = [(-28556254.06737586, 6.49e-06),
+               (-28556254.067382727, 9.45e-06),
+               (-28556254.067382865, 6.14e-06)]
+        self.assertEqual(qcout.data[0]["scf_iteration_energies"][-1][-3:], ans)
 
     def test_crowd_gradient_number(self):
         filename = os.path.join(test_dir, "crowd_gradient_number.qcout")
@@ -1837,22 +2122,22 @@ $end
     def test_final_structure(self):
         filename = os.path.join(test_dir, "thiophene_wfs_5_carboxyl.qcout")
         qcout = QcOutput(filename)
-        ans = '''Molecule Summary (H4 C5 S1 O2)
+        ans = '''Full Formula (H4 C5 S1 O2)
 Reduced Formula: H4C5SO2
 Charge = -1, Spin Mult = 2
 Sites (12)
-1 C     0.194695    -0.158362    -0.001887
-2 C    -0.535373    -1.381241    -0.001073
-3 C    -1.927071    -1.199274    -0.000052
-4 C    -2.332651     0.131916     0.000329
-5 S    -0.942111     1.224916    -0.001267
-6 H    -0.038260    -2.345185    -0.001256
-7 H    -2.636299    -2.025939     0.000620
-8 H    -3.339756     0.529895     0.001288
-9 C     1.579982     0.071245    -0.002733
-10 O     2.196383     1.165675    -0.000178
-11 O     2.352341    -1.114671     0.001634
-12 H     3.261096    -0.769470     0.003158'''
+0 C     0.194695    -0.158362    -0.001887
+1 C    -0.535373    -1.381241    -0.001073
+2 C    -1.927071    -1.199274    -0.000052
+3 C    -2.332651     0.131916     0.000329
+4 S    -0.942111     1.224916    -0.001267
+5 H    -0.038260    -2.345185    -0.001256
+6 H    -2.636299    -2.025939     0.000620
+7 H    -3.339756     0.529895     0.001288
+8 C     1.579982     0.071245    -0.002733
+9 O     2.196383     1.165675    -0.000178
+10 O     2.352341    -1.114671     0.001634
+11 H     3.261096    -0.769470     0.003158'''
         self.assertEqual(qcout.final_structure.__str__(), ans)
 
 

@@ -4,12 +4,8 @@ machine:
   python:
     version: 2.7.8
   environment:
-      PATH: $PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit
-      GULP_LIB: /`pwd`/cmd_line/gulp/Libraries
-checkout:
-  post:
-    - git submodule sync
-    - git submodule update --init
+      PATH: $PATH:/home/ubuntu/pymatgen/cmd_line/enum/Linux_64bit:/home/ubuntu/pymatgen/cmd_line/bader/Linux_64bit:/home/ubuntu/pymatgen/cmd_line/gulp/Linux_64bit:/home/ubuntu/pymatgen/cmd_line/aconvasp/Linux_64bit
+      GULP_LIB: /home/ubuntu/pymatgen/cmd_line/gulp/Libraries
 dependencies:
   override:
     - easy_install -U setuptools
@@ -17,7 +13,6 @@ dependencies:
     - pip install -r requirements.txt
     - pip install -r requirements-optional.txt
     - sudo apt-get install python-openbabel
-    - cd monty && git checkout master && git pull && python setup.py install
     - python setup.py develop
 test:
   override:

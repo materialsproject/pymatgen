@@ -14,7 +14,7 @@ from pprint import pformat
 from monty.design_patterns import singleton
 from monty.collections import AttrDict
 from pymatgen.core.design_patterns import Enum
-from pymatgen.serializers.json_coders import PMGSONable
+from pymatgen.serializers.json_coders import PMGSONable, pmg_serialize
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from monty.json import MontyEncoder, MontyDecoder
 
@@ -77,7 +77,7 @@ MANDATORY = MandatoryVariable()
 DEFAULT = DefaultVariable()
 
 
-class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"), AbivarAble):
+class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"), AbivarAble, PMGSONable):
     """
     Different configurations of the electron density as implemented in abinit:
     One can use as_spinmode to construct the object via SpinMode.as_spinmode
@@ -108,16 +108,14 @@ class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
             "nspden": self.nspden,
         }
 
+    @pmg_serialize
     def as_dict(self):
-        d = self._asdict()
-        d['@module'] = self.__class__.__module__
-        d['@class'] = self.__class__.__name__
-        #TODO check if dict(d) is needed in FW
-        return d
+        return {k: getattr(self, k) for k in self._fields}
 
     @classmethod
     def from_dict(cls, d):
-        return cls(**d)
+        return cls(**{k: d[k] for k in d if k in cls._fields})
+
 
 # An handy Multiton
 _mode2spinvars = {
@@ -183,12 +181,12 @@ class Smearing(AbivarAble, PMGSONable):
             return obj
 
         # obj is a string
-        obj, tsmear = obj.split(":")
-        obj.strip()
-
         if obj == "nosmearing":
             return cls.nosmearing()
         else:
+            obj, tsmear = obj.split(":")
+            obj.strip()
+
             occopt = cls._mode2occopt[obj]
             try:
                 tsmear = float(tsmear)
@@ -207,27 +205,25 @@ class Smearing(AbivarAble, PMGSONable):
 
     @staticmethod
     def nosmearing():
-        return Smearing(1, None)
+        return Smearing(1, 0.0)
 
     def to_abivars(self):
         if self.mode == "nosmearing":
-            return {}
+            return {"occopt": 1, "tsmear": 0.0}
         else:
-            return {"occopt": self.occopt,
-                    "tsmear": self.tsmear,}
+            return {"occopt": self.occopt, "tsmear": self.tsmear,}
 
+    @pmg_serialize
     def as_dict(self):
         """json friendly dict representation of Smearing"""
-        return {"occopt": self.occopt, "tsmear": self.tsmear,
-                "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
+        return {"occopt": self.occopt, "tsmear": self.tsmear}
 
     @staticmethod
     def from_dict(d):
         return Smearing(d["occopt"], d["tsmear"])
 
 
-class ElectronsAlgorithm(dict, AbivarAble):
+class ElectronsAlgorithm(dict, AbivarAble, PMGSONable):
     """Variables controlling the SCF/NSCF algorithm."""
     # None indicates that we use abinit defaults.
     _DEFAULT = dict(
@@ -245,8 +241,19 @@ class ElectronsAlgorithm(dict, AbivarAble):
     def to_abivars(self):
         return self.copy()
 
+    @pmg_serialize
+    def as_dict(self):
+        return self.copy()
 
-class Electrons(AbivarAble):
+    @classmethod
+    def from_dict(cls, d):
+        d = d.copy()
+        d.pop("@module", None)
+        d.pop("@class", None)
+        return cls(**d)
+
+
+class Electrons(AbivarAble, PMGSONable):
     """The electronic degrees of freedom"""
     def __init__(self, spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
                  algorithm=None, nband=None, fband=None, charge=0.0, comment=None):  # occupancies=None,
@@ -280,18 +287,31 @@ class Electrons(AbivarAble):
     def nspden(self):
         return self.spin_mode.nspden
 
-    #@property
-    #def as_dict(self):
-    #    "json friendly dict representation"
-    #    d = {}
-    #    d["@module"] = self.__class__.__module__
-    #    d["@class"] = self.__class__.__name__
-    #    raise NotImplementedError("")
-    #    return d
+    def as_dict(self):
+        "json friendly dict representation"
+        d = {}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        d["spin_mode"] = self.spin_mode.as_dict()
+        d["smearing"] = self.smearing.as_dict()
+        d["algorithm"] = self.algorithm.as_dict() if self.algorithm else None
+        d["nband"] = self.nband
+        d["fband"] = self.fband
+        d["charge"] = self.charge
+        d["comment"] = self.comment
+        return d
 
-    #@staticmethod
-    #def from_dict(d):
-    #    raise NotImplementedError("")
+    @classmethod
+    def from_dict(cls, d):
+        d = d.copy()
+        d.pop("@module", None)
+        d.pop("@class", None)
+        dec = MontyDecoder()
+        d["spin_mode"] = dec.process_decoded(d["spin_mode"])
+        d["smearing"] = dec.process_decoded(d["smearing"])
+        d["algorithm"] = dec.process_decoded(d["algorithm"]) if d["algorithm"] else None
+        return cls(**d)
+
 
     def to_abivars(self):
         abivars = self.spin_mode.to_abivars()
@@ -308,11 +328,11 @@ class Electrons(AbivarAble):
         if self.algorithm:
             abivars.update(self.algorithm)
 
-        abivars["#comment"] = self.comment
+        #abivars["#comment"] = self.comment
         return abivars
 
 
-class KSampling(AbivarAble):
+class KSampling(AbivarAble, PMGSONable):
     """
     Input variables defining the K-point sampling.
     """
@@ -426,7 +446,7 @@ class KSampling(AbivarAble):
             raise ValueError("Unknown mode %s" % mode)
 
         self.abivars = abivars
-        self.abivars["#comment"] = comment
+        #self.abivars["#comment"] = comment
 
     @property
     def is_homogeneous(self):
@@ -483,7 +503,7 @@ class KSampling(AbivarAble):
         Convenient static constructor for an automatic Monkhorst-Pack mesh.
 
         Args:
-            structure: pymatgen structure object.
+            structure: :class:`Structure` object.
             ngkpt: Subdivisions N_1, N_2 and N_3 along reciprocal lattice vectors.
             use_symmetries: Use spatial symmetries to reduce the number of k-points.
             use_time_reversal: Use time-reversal symmetry to reduce the number of k-points.
@@ -513,7 +533,7 @@ class KSampling(AbivarAble):
         Static constructor for path in k-space.
 
         Args:
-            structure: pymatgen structure.
+            structure: :class:`Structure` object.
             kpath_bounds: List with the reduced coordinates of the k-points defining the path.
             ndivsm: Number of division for the smallest segment.
             comment: Comment string.
@@ -543,7 +563,7 @@ class KSampling(AbivarAble):
     @classmethod
     def path_from_structure(cls, ndivsm, structure):
         """See _path for the meaning of the variables"""
-        return cls._path(ndivsm,  structure=structure, comment="K-path generated automatically from pymatgen structure")
+        return cls._path(ndivsm,  structure=structure, comment="K-path generated automatically from structure")
 
     @classmethod
     def explicit_path(cls, ndivsm, kpath_bounds):
@@ -594,7 +614,7 @@ class KSampling(AbivarAble):
         #    num_div = [i + i % 2 for i in num_div]
         #    style = Kpoints.modes.monkhorst
 
-        comment = "pymatgen generated KPOINTS with grid density = " + "{} / atom".format(kppa)
+        comment = "abinitio generated KPOINTS with grid density = " + "{} / atom".format(kppa)
 
         shifts = np.reshape(shifts, (-1, 3))
 
@@ -616,6 +636,7 @@ class KSampling(AbivarAble):
 
     @classmethod
     def from_dict(cls, d):
+        d = d.copy()
         d.pop('@module', None)
         d.pop('@class', None)
         dec = MontyDecoder()
@@ -629,7 +650,7 @@ class Constraints(AbivarAble):
         raise NotImplementedError("")
 
 
-class RelaxationMethod(AbivarAble):
+class RelaxationMethod(AbivarAble, PMGSONable):
     """
     This object stores the variables for the (constrained) structural optimization
     ionmov and optcell specify the type of relaxation.
@@ -735,6 +756,7 @@ class RelaxationMethod(AbivarAble):
 
     @classmethod
     def from_dict(cls, d):
+        d = d.copy()
         d.pop('@module', None)
         d.pop('@class', None)
 
@@ -941,6 +963,8 @@ class Screening(AbivarAble):
         self.awtr  =1
         self.symchi=1
 
+        self.optdriver = 3
+
     @property
     def use_hilbert(self):
         return hasattr(self, "hilbert")
@@ -963,6 +987,7 @@ class Screening(AbivarAble):
             "symchi"    : self.symchi,
             #"gwcalctyp": self.gwcalctyp,
             #"fftgw"    : self.fftgw,
+            "optdriver" : self.optdriver,
         }
 
         # Variables for the Hilber transform.
@@ -1027,6 +1052,7 @@ class SelfEnergy(AbivarAble):
 
         self.ecuteps = ecuteps if ecuteps is not None else screening.ecuteps
         self.ecutwfn = ecutwfn
+        self.optdriver = 4
 
         #band_mode in ["gap", "full"]
 
@@ -1076,7 +1102,8 @@ class SelfEnergy(AbivarAble):
             ecutsigx=self.ecutsigx,
             symsigma=self.symsigma,
             gw_qprange=self.gw_qprange,
-            gwpara=self.gwpara
+            gwpara=self.gwpara,
+            optdriver=self.optdriver,
             #"ecutwfn"  : self.ecutwfn,
             #"kptgw"    : self.kptgw,
             #"nkptgw"   : self.nkptgw,
@@ -1160,6 +1187,7 @@ class ExcHamiltonian(AbivarAble):
         # if bs_freq_mesh is not given, abinit will select its own mesh.
         self.bs_freq_mesh = np.array(bs_freq_mesh) if bs_freq_mesh is not None else bs_freq_mesh
         self.zcut = zcut
+        self.optdriver = 99
 
         # Extra options.
         self.kwargs = kwargs
@@ -1208,6 +1236,7 @@ class ExcHamiltonian(AbivarAble):
             zcut=self.zcut,
             bs_freq_mesh=self.bs_freq_mesh,
             bs_coupling=self._EXC_TYPES[self.exc_type],
+            optdriver=self.optdriver,
         )
 
         if self.use_haydock:

@@ -1044,7 +1044,7 @@ class PointGroupAnalyzer(object):
 
         def not_on_axis(site):
             v = np.cross(site.coords, axis)
-            return np.linalg.norm(v) > 1e-3
+            return np.linalg.norm(v) > self.tol
 
         valid_sets = []
         origin_site, dist_el_sites = cluster_sites(self.centered_mol, self.tol)

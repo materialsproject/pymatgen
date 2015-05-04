@@ -15,8 +15,9 @@ try:
 except ImportError:
     netCDF4 = None
 
-_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files')
+
+_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 
+                         'test_files', "abinitio")
 
 def ref_file(filename):
     return os.path.join(_test_dir, filename)
@@ -80,6 +81,9 @@ class ETSF_Reader_TestCase(PymatgenTest):
 
             with self.assertRaises(data.Error):
                 data.read_dimvalue("foobar")
+
+            # Unless default is given
+            assert data.read_value("foobar", default=None) is None
 
             data.print_tree()
             for group in data.walk_tree():

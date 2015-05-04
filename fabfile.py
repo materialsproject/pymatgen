@@ -104,6 +104,8 @@ def release_github():
         contents = f.read()
     toks = re.split("\-+", contents)
     desc = toks[1].strip()
+    toks = desc.split("\n")
+    desc = "\n".join(toks[:-1]).strip()
     payload = {
         "tag_name": "v" + ver,
         "target_commitish": "master",
