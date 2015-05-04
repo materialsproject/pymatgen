@@ -532,7 +532,7 @@ class IStructure(SiteCollection, PMGSONable):
             else:
                 coords = d.get("xangst", None)
             coords_are_cartesian = True
-        
+
         if coords is None:
             raise ValueError("Cannot extract atomic coordinates from dict %s" % str(d))
 
@@ -548,12 +548,12 @@ class IStructure(SiteCollection, PMGSONable):
 
         assert len(typat) == len(coords)
 
-        # Note Fortan --> C indexing 
+        # Note Fortran --> C indexing
+        #znucl_type = np.rint(znucl_type)
         species = [znucl_type[typ-1] for typ in typat]
 
-        #print(lattice)
+        #print(lattice, species, coords)
         #print(species)
-        #print(coords)
 
         return cls(lattice, species, coords, validate_proximity=False,
                    to_unit_cell=False, coords_are_cartesian=coords_are_cartesian)
@@ -780,7 +780,7 @@ class IStructure(SiteCollection, PMGSONable):
                     neighbors[i].append(item)
         return neighbors
 
-    def get_neighbors_in_shell(self, origin, r, dr):
+    def get_neighbors_in_shell(self, origin, r, dr, include_index=False):
         """
         Returns all sites in a shell centered on origin (coords) between radii
         r-dr and r+dr.
@@ -789,14 +789,21 @@ class IStructure(SiteCollection, PMGSONable):
             origin (3x1 array): Cartesian coordinates of center of sphere.
             r (float): Inner radius of shell.
             dr (float): Width of shell.
+            include_index (bool): Whether to include the non-supercell site
+                in the returned data
 
         Returns:
-            [(site, dist) ...] since most of the time, subsequent processing
-            requires the distance.
+            [(site, dist, index) ...] since most of the time, subsequent
+            processing
+            requires the distance. Index only supplied if include_index = True.
+            The index is the index of the site in the original (non-supercell)
+            structure. This is needed for ewaldmatrix by keeping track of which
+            sites contribute to the ewald sum.
         """
-        outer = self.get_sites_in_sphere(origin, r + dr)
+        outer = self.get_sites_in_sphere(origin, r + dr,
+                                         include_index=include_index)
         inner = r - dr
-        return [(site, dist) for (site, dist) in outer if dist > inner]
+        return [t for t in outer if t[1] > inner]
 
     def get_sorted_structure(self, key=None, reverse=False):
         """
@@ -1113,19 +1120,25 @@ class IStructure(SiteCollection, PMGSONable):
                     if not valid:
                         break
 
-                    #add the new sites
+                    #add the new sites, averaging positions
                     added = np.zeros(len(gsites))
-                    for i, s in enumerate(gsites):
+                    new_fcoords = all_frac % 1
+                    for i, group in enumerate(groups):
                         if not added[i]:
-                            added[groups[i]] = True
-                            new_sp.append(s.species_and_occu)
-                            new_coords.append(s.coords)
+                            added[group] = True
+                            inds = np.where(group)[0]
+                            coords = new_fcoords[inds[0]]
+                            for n, j in enumerate(inds[1:]):
+                                offset = new_fcoords[j] - coords
+                                coords += (offset - np.round(offset)) / (n + 2)
+                            new_sp.append(gsites[inds[0]].species_and_occu)
+                            new_coords.append(coords)
 
                 if valid:
                     inv_m = np.linalg.inv(m)
                     new_l = Lattice(np.dot(inv_m, self.lattice.matrix))
                     s = Structure(new_l, new_sp, new_coords,
-                                  coords_are_cartesian=True)
+                                  coords_are_cartesian=False)
 
                     return s.get_primitive_structure(
                         tolerance).get_reduced_structure()
@@ -1139,7 +1152,7 @@ class IStructure(SiteCollection, PMGSONable):
         return "\n".join(outs)
 
     def __str__(self):
-        outs = ["Structure Summary ({s})".format(s=self.composition.formula),
+        outs = ["Full Formula ({s})".format(s=self.composition.formula),
                 "Reduced Formula: {}"
                 .format(self.composition.reduced_formula)]
         to_s = lambda x: "%0.6f" % x
@@ -1149,7 +1162,7 @@ class IStructure(SiteCollection, PMGSONable):
                                            for i in self.lattice.angles]))
         outs.append("Sites ({i})".format(i=len(self)))
         for i, site in enumerate(self):
-            outs.append(" ".join([str(i + 1), site.species_string,
+            outs.append(" ".join([str(i), site.species_string,
                                   " ".join([to_s(j).rjust(12)
                                             for j in site.frac_coords])]))
         return "\n".join(outs)
@@ -1642,14 +1655,14 @@ class IMolecule(SiteCollection, PMGSONable):
         return "\n".join(outs)
 
     def __str__(self):
-        outs = ["Molecule Summary ({s})".format(s=self.composition.formula),
+        outs = ["Full Formula ({s})".format(s=self.composition.formula),
                 "Reduced Formula: " + self.composition.reduced_formula,
                 "Charge = {}, Spin Mult = {}".format(
                     self._charge, self._spin_multiplicity)]
         to_s = lambda x: "%0.6f" % x
         outs.append("Sites ({i})".format(i=len(self)))
         for i, site in enumerate(self):
-            outs.append(" ".join([str(i + 1), site.species_string,
+            outs.append(" ".join([str(i), site.species_string,
                                   " ".join([to_s(j).rjust(12) for j in
                                             site.coords])]))
         return "\n".join(outs)
@@ -2472,16 +2485,17 @@ class Structure(IStructure, collections.MutableSequence):
         sites = []
         for c in np.unique(clusters):
             inds = np.argwhere(clusters == c)
-            species = Composition()
+            species = self[inds[0]].species_and_occu
             coords = self[inds[0]].frac_coords
-            n = len(inds)
-            for i in inds:
+            for n, i in enumerate(inds[1:]):
                 species += self[i].species_and_occu
                 offset = self[i].frac_coords - coords
-                coords += (offset - np.round(offset)) / n
+                coords += (offset - np.round(offset)) / (n + 2)
             sites.append(PeriodicSite(species, coords, self.lattice))
 
         self._sites = sites
+
+
 
 
 class Molecule(IMolecule, collections.MutableSequence):

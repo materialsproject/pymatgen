@@ -114,18 +114,23 @@ class Composition(collections.Mapping, collections.Hashable, PMGSONable):
                 ambiguity.
         """
         self.allow_negative = kwargs.pop('allow_negative', False)
-        if len(args) == 1 and isinstance(args[0], six.string_types):
+        # it's much faster to recognize a composition and use the elmap than
+        # to pass the composition to dict()
+        if len(args) == 1 and isinstance(args[0], Composition):
+            elmap = args[0]._elmap
+        elif len(args) == 1 and isinstance(args[0], six.string_types):
             elmap = self._parse_formula(args[0])
         else:
             elmap = dict(*args, **kwargs)
-        for k, v in list(elmap.items()):
+        self._elmap = {}
+        self._natoms = 0
+        for k, v in elmap.items():
             if v < -Composition.amount_tolerance and not self.allow_negative:
                 raise CompositionError("Amounts in Composition cannot be "
                                        "negative!")
-            elif abs(v) < Composition.amount_tolerance:
-                del elmap[k]
-        self._elmap = {get_el_sp(k): v for k, v in elmap.items()}
-        self._natoms = sum(map(abs, self._elmap.values()))
+            if abs(v) >= Composition.amount_tolerance:
+                self._elmap[get_el_sp(k)] = v
+                self._natoms += abs(v)
 
     def __getitem__(self, el):
         """
@@ -134,8 +139,13 @@ class Composition(collections.Mapping, collections.Hashable, PMGSONable):
         return self._elmap.get(get_el_sp(el), 0)
 
     def __eq__(self, other):
-        for el in chain(self.elements, other.elements):
-            if abs(self[el] - other[el]) > Composition.amount_tolerance:
+        #  elements with amounts < Composition.amount_tolerance don't show up
+        #  in the elmap, so checking len enables us to only check one
+        #  compositions elements
+        if len(self) != len(other):
+            return False
+        for el, v in self._elmap.items():
+            if abs(v - other[el]) > Composition.amount_tolerance:
                 return False
         return True
 

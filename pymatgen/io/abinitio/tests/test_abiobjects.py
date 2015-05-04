@@ -1,5 +1,4 @@
 # coding: utf-8
-
 from __future__ import unicode_literals, division, print_function
 
 import os
@@ -17,7 +16,6 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 def cif_paths():
     cifpaths = []
-    print(test_dir)
     for fname in os.listdir(test_dir):
         fname = os.path.join(test_dir, fname)
         if os.path.isfile(fname) and fname.endswith(".cif"):
@@ -43,6 +41,10 @@ class SpinModeTest(PymatgenTest):
         # Test pickle
         self.serialize_with_pickle(polarized)
 
+        # Test dict methods
+        self.assertPMGSONable(polarized)
+        self.assertPMGSONable(unpolarized)
+
 
 class SmearingTest(PymatgenTest):
     def test_base(self):
@@ -57,14 +59,20 @@ class SmearingTest(PymatgenTest):
         self.assertTrue(same_fd == fd1ev)
 
         nosmear = Smearing.nosmearing()
+        assert nosmear == Smearing.as_smearing("nosmearing")
 
         self.assertFalse(nosmear)
         self.assertTrue(nosmear != fd1ev)
+        self.assertPMGSONable(nosmear)
+
         new_fd1ev = Smearing.from_dict(fd1ev.as_dict())
         self.assertTrue(new_fd1ev == fd1ev)
 
         # Test pickle
         self.serialize_with_pickle(fd1ev)
+
+        # Test dict methods
+        self.assertPMGSONable(fd1ev)
 
 
 class ElectronsAlgorithmTest(PymatgenTest):
@@ -74,6 +82,9 @@ class ElectronsAlgorithmTest(PymatgenTest):
 
         # Test pickle
         self.serialize_with_pickle(algo)
+
+        # Test dict methods
+        self.assertPMGSONable(algo)
 
 
 class ElectronsTest(PymatgenTest):
@@ -90,11 +101,36 @@ class ElectronsTest(PymatgenTest):
         # Test pickle
         self.serialize_with_pickle(default_electrons, test_eq=False)
 
+        custom_electrons = Electrons(spin_mode="unpolarized", smearing="marzari4:0.2 eV",
+                 algorithm=ElectronsAlgorithm(nstep=70), nband=10, charge=1.0, comment="Test comment")
 
-#class KSamplingTest(PymatgenTest):
+        # Test dict methods
+        self.assertPMGSONable(custom_electrons)
 
 
-#class RelaxationTest(PymatgenTest):
+class KSamplingTest(PymatgenTest):
+
+    def test_base(self):
+        monkhorst = KSampling.monkhorst((3, 3, 3), (0.5, 0.5, 0.5), 0, False, False)
+        gamma_centered = KSampling.gamma_centered((3, 3, 3), False, False)
+
+        monkhorst.to_abivars()
+
+        # Test dict methods
+        self.assertPMGSONable(monkhorst)
+        self.assertPMGSONable(gamma_centered)
+
+class RelaxationTest(PymatgenTest):
+
+    def test_base(self):
+        atoms_and_cell = RelaxationMethod.atoms_and_cell()
+        atoms_only = RelaxationMethod.atoms_only()
+
+        atoms_and_cell.to_abivars()
+
+        # Test dict methods
+        self.assertPMGSONable(atoms_and_cell)
+        self.assertPMGSONable(atoms_only)
 
 
 class PPModelTest(PymatgenTest):
@@ -118,6 +154,9 @@ class PPModelTest(PymatgenTest):
 
         # Test pickle
         self.serialize_with_pickle(godby)
+
+        # Test dict methods
+        self.assertPMGSONable(godby)
 
 
 if __name__ == '__main__':
