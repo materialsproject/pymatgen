@@ -7,7 +7,6 @@ Subpackages
 .. toctree::
 
     pymatgen.io.abinitio
-    pymatgen.io.gwwrapper
     pymatgen.io.vaspio
 
 Submodules
@@ -73,6 +72,14 @@ pymatgen.io.nwchemio module
 ---------------------------
 
 .. automodule:: pymatgen.io.nwchemio
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.io.pwscfio module
+--------------------------
+
+.. automodule:: pymatgen.io.pwscfio
     :members:
     :undoc-members:
     :show-inheritance:

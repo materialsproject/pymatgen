@@ -190,6 +190,12 @@ class BalancedReactionTest(unittest.TestCase):
         self.assertEqual(rxn,
                          BalancedReaction.from_string("4 Li + O2 -> 2Li2O"))
 
+        rxn = BalancedReaction({Composition("Li(NiO2)3"): 1}, {Composition("O2"): 0.5,
+                               Composition("Li(NiO2)2"): 1, Composition("NiO"): 1})
+
+        self.assertEqual(rxn,
+                         BalancedReaction.from_string("1.000 Li(NiO2)3 -> 0.500 O2 + 1.000 Li(NiO2)2 + 1.000 NiO"))
+
     def test_remove_spectator_species(self):
         rxn = BalancedReaction({Composition("Li"): 4, Composition("O2"): 1, Composition('Na'): 1},
                                {Composition("Li2O"): 2, Composition('Na'): 1})
