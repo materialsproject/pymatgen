@@ -710,7 +710,7 @@ class PyFlowScheduler(object):
             self.flow.check_status()
             g = self.flow.find_deadlocks()
             if not g.runnables and not g.running:
-                err_msg += "No task is running and cannot find other tasks to sumbmit."
+                err_msg += "No task is running and cannot find other tasks to submit."
         #"""
 
         if err_msg:
