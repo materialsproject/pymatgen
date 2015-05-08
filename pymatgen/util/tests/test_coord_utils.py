@@ -134,9 +134,9 @@ class CoordUtilsTest(PymatgenTest):
             find_in_coord_list_pbc(coords, test_coord, atol=0.01)[0], 1)
 
     def test_is_coord_subset_pbc(self):
-        c1 = [0,0,0]
-        c2 = [0,1.2,-1]
-        c3 = [2.3,0,1]
+        c1 = [0, 0, 0]
+        c2 = [0, 1.2, -1]
+        c3 = [2.3, 0, 1]
         c4 = [1.3-9e-9, -1-9e-9, 1-9e-9]
         self.assertTrue(is_coord_subset_pbc([c1, c2, c3], [c1, c4, c2]))
         self.assertTrue(is_coord_subset_pbc([c1], [c2, c1]))
@@ -144,14 +144,29 @@ class CoordUtilsTest(PymatgenTest):
         self.assertFalse(is_coord_subset_pbc([c1, c2], [c2, c3]))
         self.assertFalse(is_coord_subset_pbc([c1, c2], [c2]))
 
+        # test tolerances
+        c5 = [0.1, 0.1, 0.2]
+        atol1 = [0.25, 0.15, 0.15]
+        atol2 = [0.15, 0.15, 0.25]
+        self.assertFalse(is_coord_subset_pbc([c1], [c5], atol1))
+        self.assertTrue(is_coord_subset_pbc([c1], [c5], atol2))
+
+        # test mask
+        mask1 = [[True]]
+        self.assertFalse(is_coord_subset_pbc([c1], [c5], atol2, mask1))
+        mask2 = [[True, False]]
+        self.assertTrue(is_coord_subset_pbc([c1], [c2, c1], mask=mask2))
+        self.assertFalse(is_coord_subset_pbc([c1], [c1, c2], mask=mask2))
+
+
     def test_lattice_points_in_supercell(self):
-        supercell = np.array([[1,3,5], [-3,2,3], [-5,3,1]])
+        supercell = np.array([[1, 3, 5], [-3, 2, 3], [-5, 3, 1]])
         points = lattice_points_in_supercell(supercell)
         self.assertAlmostEqual(len(points), abs(np.linalg.det(supercell)))
         self.assertGreaterEqual(np.min(points), -1e-10)
         self.assertLessEqual(np.max(points), 1-1e-10)
 
-        supercell = np.array([[-5, -5, -3],[0, -4, -2],[0, -5, -2]])
+        supercell = np.array([[-5, -5, -3], [0, -4, -2], [0, -5, -2]])
         points = lattice_points_in_supercell(supercell)
         self.assertAlmostEqual(len(points), abs(np.linalg.det(supercell)))
         self.assertGreaterEqual(np.min(points), -1e-10)

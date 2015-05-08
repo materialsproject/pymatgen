@@ -12,10 +12,12 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinitio import *
 from pymatgen.io.abinitio.flows import *
+from pymatgen.io.abinitio.works import *
 from pymatgen.io.abinitio.tasks import *
 from pymatgen.io.abinitio.pseudos import Pseudo
 
-_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 'test_files')
+_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 
+                         'test_files', "abinitio")
 
 
 def ref_file(filename):
@@ -45,7 +47,8 @@ class FlowUnitTest(PymatgenTest):
 policy:
     autoparal: 1
 qadapters:
-    - priority: 1
+    - &batch
+      priority: 1
       queue:
         qtype: slurm
         qname: Oban
@@ -78,6 +81,8 @@ db_connector:
     #port: 8080 
     #user: gmatteo
     #password: helloworld
+
+batch_adapter: *batch
 """
     def setUp(self):
         """Initialization phase."""
@@ -109,7 +114,6 @@ class FlowTest(FlowUnitTest):
         assert work.is_work
         task0_w0 = work[0]
         atrue(task0_w0.is_task)
-        afalse(task0_w0.has_subnodes)
         print(task0_w0.status.colored)
         atrue(len(flow) == 1) 
         aequal(flow.num_tasks, 1)
@@ -118,20 +122,27 @@ class FlowTest(FlowUnitTest):
         #print(task0_w0.input_structure)
         print(task0_w0.make_input)
 
+        # Task history
+        assert len(task0_w0.history) == 0
+        task0_w0.history.info("Hello %s", "world")
+        assert len(task0_w0.history) == 1
+        print(task0_w0.history)
+        record = task0_w0.history.pop() 
+        print(record, repr(record))
+        assert record.get_message(asctime=False) == "Hello world"
+        assert len(task0_w0.history) == 0
         assert flow.select_tasks(nids=task0_w0.node_id)[0] == task0_w0
         assert flow.select_tasks(wslice=slice(0,1,1)) == [task0_w0]
 
         # Build a workflow containing two tasks depending on task0_w0
         work = Work()
         atrue(work.is_work)
-        atrue(work.has_subnodes)
         work.register(self.fake_input)
         work.register(self.fake_input)
         aequal(len(work), 2)
 
         flow.register_work(work, deps={task0_w0: "WFK"})
         atrue(flow.is_flow)
-        atrue(flow.has_subnodes)
         aequal(len(flow), 2)
 
         # Add another work without dependencies.
@@ -156,7 +167,7 @@ class FlowTest(FlowUnitTest):
 
         afalse(flow.all_ok)
         aequal(flow.num_tasks, 4)
-        aequal(flow.ncores_inuse, 0)
+        aequal(flow.ncores_used, 0)
 
         # API for iterations
         aequal(len(list(flow.iflat_tasks(status="Initialized"))), sum(len(work) for work in flow))
@@ -175,18 +186,149 @@ class FlowTest(FlowUnitTest):
 
         # Find the pickle file in workdir and recreate the flow.
         same_flow = Flow.pickle_load(self.workdir)
-
-        same_flow = Flow.pickle_load(self.workdir)
         aequal(same_flow, flow)
+
+        # to/from string
+        same_flow = Flow.pickle_loads(flow.pickle_dumps())
+        aequal(same_flow, flow)
+
+        self.assertPMGSONable(flow)
+
+        flow.show_info()
+        flow.show_summary()
 
         # Test show_status
         flow.show_status()
+        flow.show_event_handlers()
+
+    def test_workdir(self):
+        """Testing if one can use workdir=None in flow.__init__ and then flow.allocate(workdir)."""
+        flow = Flow(workdir=None, manager=self.manager)
+        flow.register_task(self.fake_input)
+        #flow.register_work(work)
+        work = Work()
+        work.register_scf_task(self.fake_input)
+        flow.register_work(work)
+
+        # If flow.workdir is None, we should used flow.allocate(workdir)
+        with self.assertRaises(RuntimeError): flow.allocate()
+
+        tmpdir = tempfile.mkdtemp()
+        flow.allocate(workdir=tmpdir)
+
+        print(flow)
+        assert len(flow) == 2
+
+        flow.build()
+
+        for i, work in enumerate(flow):
+            assert work.workdir == os.path.join(tmpdir, "w%d" % i)
+            for t, task in enumerate(work):
+                assert task.workdir == os.path.join(work.workdir, "t%d" % t)
 
 
-#class BandStructureFlowTest(FlowUnitTest):
-#    def test_base(self):
-#        """Testing bandstructure flow..."""
-#        flow = bandstructure_flow(self.workdir, self.manager, self.fake_input, self.fake_input)
+class TestFlowInSpectatorMode(FlowUnitTest):
+
+    def test_spectator(self):
+        flow = Flow(workdir=self.workdir, manager=self.manager)
+
+        work0 = Work()
+        work0.register_scf_task(self.fake_input)
+        work0.register_scf_task(self.fake_input)
+
+        work1 = Work()
+        work1.register_scf_task(self.fake_input)
+
+        flow.register_work(work0)
+        flow.register_work(work1)
+
+        flow.disconnect_signals()
+        flow.disconnect_signals()
+
+        flow.connect_signals()
+        flow.connect_signals()
+
+        for mode in [False, True]:
+            flow.set_spectator_mode(mode=mode)
+            assert flow.in_spectator_mode == mode
+            for node in flow.iflat_nodes():
+                assert node.in_spectator_mode == mode
+
+        assert len(list(flow.iflat_nodes())) == 1 + len(flow.works) + sum(len(work) for work in flow)
+        assert flow.node_from_nid(flow.node_id) == flow
+
+        flow.set_spectator_mode(mode=False)
+        flow.build_and_pickle_dump()
+
+        # picke load always returns a flow in spectator mode.
+        flow = Flow.pickle_load(flow.workdir)
+        assert flow.in_spectator_mode
+
+        #with self.assertRaises(flow.SpectatorError): flow.pickle_dump()
+        #with self.assertRaises(flow.SpectatorError): flow.make_scheduler().start()
+
+        work = flow[0]
+        assert work.send_signal(work.S_OK) is None
+        #with self.assertRaises(work.SpectatorError): work.on_ok()
+        #with self.assertRaises(work.SpectatorError): work.on_all_ok()
+
+        task = work[0]
+        assert task.send_signal(task.S_OK) is None
+        #with self.assertRaises(task.SpectatorError): task._on_done()
+        #with self.assertRaises(task.SpectatorError): task.on_ok()
+        #with self.assertRaises(task.SpectatorError): task._on_ok()
+
+
+class TestBatchLauncher(FlowUnitTest):
+
+    def test_batchlauncher(self):
+        """Testing BatchLauncher methods."""
+        # Create the TaskManager.
+        manager = TaskManager.from_string(self.MANAGER)
+        print("batch_adapter", manager.batch_adapter)
+        assert manager.batch_adapter is not None
+
+        def build_flow_with_name(name):
+            """Build a flow with workdir None and the given name."""
+            flow = Flow(workdir=None, manager=self.manager)
+            flow.set_name(name)
+
+            flow.register_task(self.fake_input)
+            work = Work()
+            work.register_scf_task(self.fake_input)
+            flow.register_work(work)
+
+            return flow
+
+        from pymatgen.io.abinitio.launcher import BatchLauncher
+        tmpdir = tempfile.mkdtemp()
+        batch = BatchLauncher(workdir=tmpdir, manager=manager)
+        print(batch)
+
+        flow0 = build_flow_with_name("flow0")
+        flow1 = build_flow_with_name("flow1")
+        flow2_same_name = build_flow_with_name("flow1")
+
+        batch.add_flow(flow0)
+
+        # Cannot add the same flow twice.
+        with self.assertRaises(batch.Error):
+            batch.add_flow(flow0)
+
+        batch.add_flow(flow1)
+
+        # Cannot add two flows with the same name.
+        with self.assertRaises(batch.Error):
+            batch.add_flow(flow2_same_name)
+
+        batch.submit(dry_run=True)
+
+        for i, flow in enumerate([flow0, flow1]):
+            assert flow.workdir == os.path.join(batch.workdir, "flow%d" % i)
+
+        batch.pickle_dump()
+        batch_from_pickle = BatchLauncher.pickle_load(batch.workdir)
+        assert all(f1 == f2 for f1, f2 in zip(batch.flows, batch_from_pickle.flows))
 
 
 if __name__ == '__main__':

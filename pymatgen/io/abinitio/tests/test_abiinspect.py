@@ -1,5 +1,4 @@
 # coding: utf-8
-
 from __future__ import unicode_literals, division, print_function
 
 import os
@@ -8,7 +7,22 @@ import tempfile
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio.abiinspect import *
 
-#test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 'test_files')
+_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                        'test_files', "abinitio")
+
+try:
+    import matplotlib
+    have_matplotlib = True
+except ImportError:
+    have_matplotlib = False
+
+
+def ref_file(filename):
+    return os.path.join(_test_dir, filename)
+
+
+def ref_files(*filenames):
+    return list(map(ref_file, filenames))
 
 
 class YamlTokenizerTest(PymatgenTest):
@@ -87,6 +101,39 @@ attacks: [BITE, HURT]
                 monster = r.next_doc_with_tag("!Monster")
 
         os.remove(filename)
+
+
+class AbinitInpectTest(PymatgenTest):
+
+    def test_scfcycle(self):
+        """Testing ScfCycle."""
+        cycle = GroundStateScfCycle.from_file(ref_file("mgb2_scf.abo"))
+        print(cycle)
+
+        assert cycle.num_iterations == 6
+        last = cycle.last_iteration
+
+        assert last["Etot(hartree)"] == -7.1476241568657 and last["vres2"] == 3.879E-08
+        assert cycle["vres2"] == [1.769E+02, 7.920E-01, 1.570E-01, 4.259E-03, 4.150E-05, 3.879E-08]
+
+        if have_matplotlib:
+            cycle.plot(show=False)
+
+    def test_relaxation(self):
+        """Testing Relaxation object."""
+        relaxation = Relaxation.from_file(ref_file("sic_relax.abo"))
+        print(relaxation)
+        assert len(relaxation) == 4
+
+        assert relaxation[0]["Etot(hartree)"][-1] == -8.8077409200473 
+        assert relaxation[-1]["Etot(hartree)"][-1] == -8.8234906607147
+
+        for scf_step in relaxation:
+            print(scf_step.num_iterations)
+
+        if have_matplotlib:
+            relaxation.plot(show=False)
+
 
 if __name__ == '__main__':
     import unittest

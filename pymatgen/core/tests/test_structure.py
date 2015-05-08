@@ -269,6 +269,15 @@ class IStructureTest(PymatgenTest):
         s = IStructure(Lattice.cubic(4.09), ["Ag"] * 4, coords)
         self.assertEqual(len(s.get_primitive_structure()), 4)
 
+    def test_primitive_cell_site_merging(self):
+        l = Lattice.cubic(10)
+        coords = [[0, 0, 0], [0, 0, 0.5],
+                  [0, 0, 0.26], [0, 0, 0.74]]
+        sp = ['Ag', 'Ag', 'Be', 'Be']
+        s = Structure(l, sp, coords)
+        dm = s.get_primitive_structure().distance_matrix
+        self.assertArrayAlmostEqual(dm, [[0, 2.5], [2.5, 0]])
+
     def test_primitive_on_large_supercell(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]]
         fcc_ag = Structure(Lattice.cubic(4.09), ["Ag"] * 4, coords)
@@ -304,6 +313,11 @@ class IStructureTest(PymatgenTest):
 
     def test_get_all_neighbors_and_get_neighbors(self):
         s = self.struct
+        nn = s.get_neighbors_in_shell(s[0].frac_coords, 2, 4,
+                                       include_index=True)
+        self.assertEqual(len(nn), 47)
+        self.assertEqual(nn[0][-1], 0)
+
         r = random.uniform(3, 6)
         all_nn = s.get_all_neighbors(r, True)
         for i in range(len(s)):
@@ -318,6 +332,7 @@ class IStructureTest(PymatgenTest):
         s = Structure(Lattice.cubic(1), ['Li'], [[0,0,0]])
         s.make_supercell([2,2,2])
         self.assertEqual(sum(map(len, s.get_all_neighbors(3))), 976)
+
 
     def test_get_all_neighbors_outside_cell(self):
         s = Structure(Lattice.cubic(2), ['Li', 'Li', 'Li', 'Si'],
@@ -355,6 +370,7 @@ class IStructureTest(PymatgenTest):
         s = Structure.from_file("Si_testing.yaml")
         self.assertEqual(s, self.struct)
         os.remove("Si_testing.yaml")
+
 
 class StructureTest(PymatgenTest):
 
@@ -644,8 +660,10 @@ class StructureTest(PymatgenTest):
                           [[0, 0, 0], [0.5, 0.5, 0.5]])
 
     def test_merge_sites(self):
-        species = [{'Ag': 0.5}, {'Cl': 0.35}, {'Ag': 0.5}, {'F': 0.25}]
-        coords = [[0, 0, 0], [0.5, 0.5, 0.5], [0, 0, 0], [0.5, 0.5, 1.501]]
+        species = [{'Ag': 0.5}, {'Cl': 0.25}, {'Cl': 0.1},
+                   {'Ag': 0.5}, {'F': 0.15}, {'F': 0.1}]
+        coords = [[0, 0, 0], [0.5, 0.5, 0.5], [0.5, 0.5, 0.5],
+                  [0, 0, 0], [0.5, 0.5, 1.501], [0.5, 0.5, 1.501]]
         s = Structure(Lattice.cubic(1), species, coords)
         s.merge_sites()
         self.assertEqual(s[0].specie.symbol, 'Ag')
@@ -699,16 +717,16 @@ class IMoleculeTest(PymatgenTest):
         self.assertEqual(self.mol.formula, "H4 C1")
 
     def test_repr_str(self):
-        ans = """Molecule Summary (H4 C1)
+        ans = """Full Formula (H4 C1)
 Reduced Formula: H4C
 Charge = 0, Spin Mult = 1
 Sites (5)
-1 C     0.000000     0.000000     0.000000
-2 H     0.000000     0.000000     1.089000
-3 H     1.026719     0.000000    -0.363000
-4 H    -0.513360    -0.889165    -0.363000
-5 H    -0.513360     0.889165    -0.363000"""
-        self.assertEqual(str(self.mol), ans)
+0 C     0.000000     0.000000     0.000000
+1 H     0.000000     0.000000     1.089000
+2 H     1.026719     0.000000    -0.363000
+3 H    -0.513360    -0.889165    -0.363000
+4 H    -0.513360     0.889165    -0.363000"""
+        self.assertEqual(self.mol.__str__(), ans)
         ans = """Molecule Summary
 Site: C (0.0000, 0.0000, 0.0000)
 Site: H (0.0000, 0.0000, 1.0890)
@@ -748,6 +766,8 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
     def test_get_neighbors_in_shell(self):
         nn = self.mol.get_neighbors_in_shell([0, 0, 0], 0, 1)
         self.assertEqual(len(nn), 1)
+        nn = self.mol.get_neighbors_in_shell([0, 0, 0], 1, 0.9)
+        self.assertEqual(len(nn), 4)
         nn = self.mol.get_neighbors_in_shell([0, 0, 0], 1, 0.9)
         self.assertEqual(len(nn), 4)
         nn = self.mol.get_neighbors_in_shell([0, 0, 0], 2, 0.1)

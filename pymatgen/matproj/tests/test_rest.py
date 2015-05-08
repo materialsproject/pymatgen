@@ -26,6 +26,7 @@ from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.phasediagram.pdmaker import PhaseDiagram
 from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
+from pymatgen.io.cifio import CifParser
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -50,7 +51,8 @@ class MPResterTest(unittest.TestCase):
                          28, {k: v for k, v in {'P': 4, 'Fe': 4, 'O': 16, 'Li': 4}.items()},
                          "LiFePO4", True, ['Li', 'O', 'P', 'Fe'], 4, 0.0,
                          {k: v for k, v in {'Fe': 5.3, 'Li': 0.0, 'O': 0.0, 'P': 0.0}.items()}, True,
-                         ['mp-540081', 'mp-601412', 'mp-19017'],
+                         [u'mp-601412', u'mp-19017', u'mp-796535', u'mp-797820',
+                          u'mp-540081', u'mp-797269'],
                          3.4662026991351147,
                          [159107, 154117, 160776, 99860, 181272, 166815,
                           260571, 92198, 165000, 155580, 38209, 161479, 153699,
@@ -96,6 +98,24 @@ class MPResterTest(unittest.TestCase):
     def test_get_materials_id_from_task_id(self):
         self.assertEqual(self.rester.get_materials_id_from_task_id(
             "mp-540081"), "mp-19017")
+
+    def test_get_materials_id_references(self):
+        # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_get_materials_id_references
+        # self.rester points to rest/v2 by default which doesn't have the refs endpoint
+        m = MPRester(endpoint="https://www.materialsproject.org/rest")
+        data = m.get_materials_id_references('mp-123')
+        self.assertTrue(len(data) > 1000)
+
+    def test_find_structure(self):
+        # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_find_structure
+        # self.rester points to rest/v2 by default which doesn't have the find_structure endpoint
+        m = MPRester(endpoint="https://www.materialsproject.org/rest")
+        ciffile = 'test_files/Fe3O4.cif'
+        data = m.find_structure(ciffile)
+        self.assertTrue(len(data) > 1)
+        s = CifParser(ciffile).get_structures()[0]
+        data = m.find_structure(s)
+        self.assertTrue(len(data) > 1)
 
     def test_get_entries_in_chemsys(self):
         syms = ["Li", "Fe", "O"]

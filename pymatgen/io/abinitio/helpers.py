@@ -83,7 +83,7 @@ def clean(some_string, uppercase=False):
 
 
 def expand(tests, level):
-    from gw.codeinterfaces import get_all_ecuteps, get_all_nbands
+    from abipy.gw.codeinterfaces import get_all_ecuteps, get_all_nbands
     new_tests = copy.deepcopy(tests)
     for test in tests.keys():
         if test in get_all_ecuteps():

@@ -120,17 +120,21 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
         """
         return PseudoParser().parse(filename)
 
-    #def __eq__(self, other):
-    #    if not isinstance(other, Pseudo): return False
-    #    return (self.__class__ == other.__class__ and 
-    #    return (self.md5 == other.md5 and 
-    #            self.text == other.text)
+    def __eq__(self, other):
+        if not isinstance(other, Pseudo): return False
+        # TODO
+        # For the time being we check the filepath
+        # A more robust algorithm would use md5
+        return self.filepath == other.filepath
+        #return (self.__class__ == other.__class__ and 
+        #return (self.md5 == other.md5 and 
+        #        self.text == other.text)
 
-    #def __ne__(self, other):
-    #    return not self.__eq__(other)
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __repr__(self):
-        return "<%s at %s, name = %s>" % (self.__class__.__name__, id(self), self.basename)
+        return "<%s at %s>" % (self.__class__.__name__, self.filepath)
 
     def __str__(self):
         """String representation."""
@@ -300,7 +304,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
 
     def read_dojo_report(self):
         """
-        Read the `DOJO_REPORT` section and set dojo_report attribute.
+        Read the `DOJO_REPORT` section and set the `dojo_report` attribute.
         returns {} if section is not present.
         """ 
         self.dojo_report = DojoReport.from_file(self.path)
@@ -614,7 +618,12 @@ def _int_from_str(string):
     if float_num == int_num:
         return int_num
     else:
-        raise TypeError("Cannot convert string %s to int" % string)
+        # Needed to handle pseudos with fractional charge
+        from warnings import warn
+        int_num = np.rint(float_num)
+        warn("Converting float %s to int %s" % (float_num, int_num))
+        return int_num
+        #raise TypeError("Cannot convert string %s to int" % string)
 
 
 class NcAbinitHeader(AbinitHeader):
@@ -749,8 +758,11 @@ class NcAbinitHeader(AbinitHeader):
 
         header.update({'pspdat': header['pspd']})
         header.pop('pspd')
-
-        header["dojo_report"] = DojoReport.from_file(filename)
+        try:
+            header["dojo_report"] = DojoReport.from_file(filename)
+        except DojoReport.Error:
+            logger.warning('failed to read the dojo report for %s' % filename)
+            header["dojo_report"] = None
 
         return NcAbinitHeader(summary, **header)
 
@@ -1480,7 +1492,6 @@ class PawXmlSetup(Pseudo, PawPseudo):
     #    return fig
 
 
-#class PseudoTable(collections.Sequence):
 class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONable, object)):
     """
     Define the pseudopotentials from the element table.
@@ -1523,7 +1534,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
         pseudos = []
 
         if exts == "all_files":
-            for f in [os.path.join(path, fn) for fn in os.listdir(top)]:
+            for f in [os.path.join(top, fn) for fn in os.listdir(top)]:
                 if os.path.isfile(f):
                     try:
                         p = Pseudo.from_file(f)
@@ -2158,6 +2169,10 @@ class DojoDataFrame(DataFrame):
     #    plt.show()
 
 
+class DojoReportError(Exception):
+    """Exception raised by DoJoReport."""
+
+
 class DojoReport(dict):
     """Dict-like object with the dojo report."""
 
@@ -2169,13 +2184,17 @@ class DojoReport(dict):
 
     ALL_ACCURACIES = ("low", "normal", "high")
 
+    # List of dojo_trials
+    # Remember to update the list if you add a new test to the DOJO_REPORT
     ALL_TRIALS = (
         "deltafactor",
         "gbrv_bcc",
         "gbrv_fcc",
+        "phonon",
     )
 
-    ATOLS = (0.2, 0.1, 0.01)
+    ATOLS = (0.5, 0.1, 0.02)
+    Error = DojoReportError
 
     @classmethod
     def from_file(cls, filepath):
@@ -2204,32 +2223,24 @@ class DojoReport(dict):
     def __init__(self, *args, **kwargs): 
         super(DojoReport, self).__init__(*args, **kwargs)
 
-        for trial in self.ALL_TRIALS:
-            # Convert ecut to float and build an OrderedDict (results are indexed by ecut in ascending order)
-            try:
-                d = self[trial]
-            except KeyError:
-                continue
-            ecuts_keys = sorted([(float(k), k) for k in d], key=lambda t:t[0])
-            ord = OrderedDict([(t[0], d[t[1]]) for t in ecuts_keys])
-            self[trial] = ord
+        try:
+            for trial in self.ALL_TRIALS:
+                # Convert ecut to float and build an OrderedDict (results are indexed by ecut in ascending order)
+                try:
+                    d = self[trial]
+                except KeyError:
+                    continue
+                ecuts_keys = sorted([(float(k), k) for k in d], key=lambda t:t[0])
+                ord = OrderedDict([(t[0], d[t[1]]) for t in ecuts_keys])
+                self[trial] = ord
 
-    def __str__(self):
-        stream = six.moves.StringIO()
-        pprint.pprint(self, stream=stream, indent=2, width=80)
-        return stream.getvalue()
+        except ValueError:
+            raise self.Error('Error while initializing the dojo report')
 
-    def has_exceptions(self):
-        problems = {}
-        for trial in self.ALL_TRIALS:
-            for accuracy in self.ALL_ACCURACIES:
-                excs = self[trial][accuracy].get("_exceptions", None)
-                if excs is not None:
-                    if trial not in problems: problems[trial] = {}
-
-                    problems[trial][accuracy] = excs
-
-        return problems
+    #def __str__(self):
+    #    stream = six.moves.StringIO()
+    #    pprint.pprint(self, stream=stream, indent=2, width=80)
+    #    return stream.getvalue()
 
     @property
     def symbol(self):
@@ -2238,60 +2249,115 @@ class DojoReport(dict):
 
     @property
     def element(self):
+        """Element object."""
         return Element(self.symbol)
 
     @property
     def has_hints(self):
-        """True if hints are present."""
+        """True if hints on cutoff energy are present."""
         return "hints" in self
 
-    @lazy_property
+    @property
     def ecuts(self):
-        return np.array(self["ecuts"])
-
-    #@property
-    #def is_validated(self)
-    #    return bool(self.get("validated", False))
+        """Numpy array with the list of ecuts that should be present in the dojo_trial sub-dicts"""
+        return self["ecuts"]
 
     @property
     def trials(self):
-        """List of strings with the trials present in the report."""
-        return [k for k in self.keys() if k != "hints"]
+        """Set of strings with the trials present in the report."""
+        return set(self.keys()).intersection(self.ALL_TRIALS)
 
     def has_trial(self, dojo_trial, ecut=None):
         """
         True if the dojo_report contains dojo_trial with the given ecut.
         If ecut is not, we test if dojo_trial is present.
         """
+        if dojo_trial not in self.ALL_TRIALS:
+            raise self.Error("dojo_trial `%s` is not a registered DOJO TRIAL" % dojo_trial)
+
         if ecut is None:
             return dojo_trial in self
         else:
+            #key = self._ecut2key(ecut)
+            key = ecut
             try:
-                self[dojo_trial][ecut]
+                self[dojo_trial][key]
                 return True
             except KeyError:
                 return False
 
-    #def missing_ecuts(self, trial):
-    #    computed_ecuts = self[trial].keys()
-    #    return [e for e in self.ecuts if e not in computed_ecuts]
-
-    #def add_ecuts(self, ecuts):
+    def add_ecuts(self, new_ecuts):
+        """Add a list of new ecut values."""
         # Be careful with the format here! it should be %.1f
-        #new_ecuts = np.array(new_ecuts.split(","))
+        # Select the list of ecuts reported in the DOJO section.
+        prev_ecuts = self["ecuts"]
+
+        for i in range(len(prev_ecuts)-1):
+            if prev_ecuts[i] >= prev_ecuts[i+1]:
+                raise self.Error("Ecut list is not ordered:\n %s" % prev_ecuts)
+
+        from monty.bisect import find_le
+        for e in new_ecuts:
+            # Find rightmost value less than or equal to x.
+            if e < prev_ecuts[0]:
+                i = 0
+            elif e > prev_ecuts[-1]:
+                i = len(prev_ecuts)
+            else:
+                i = find_le(prev_ecuts, e)
+                assert prev_ecuts[i] != e
+                i += 1
+
+            prev_ecuts.insert(i, e)
 
     #def validate(self, hints):
     #    Add md5 hash value
     #    self["validated"] = True
 
-    def check(self):
+    @staticmethod
+    def _ecut2key(ecut):
+        """Convert ecut to a valid key. ecut can be either a string or a float."""
+        if is_string(ecut):
+            # Validate string
+            i = ecut.index(".")
+            if len(ecut[i+1:]) != 1:
+                raise ValueError("string %s must have one digit")
+            return ecut
+
+        else:
+            # Assume float
+            return "%.1f" % ecut
+
+    def add_entry(self, dojo_trial, ecut, d, overwrite=False):
         """
-        check the DojoReport. Test if each trial contains an ecut entry. 
-        Return a dictionary trial: [missing_ecut]
+        Add an entry computed with the given ecut to the sub-dictionary associated to dojo_trial.
+
+        Args:
+            dojo_trial:
+            ecut:
+            d:
+            overwrite:
+        """
+        if dojo_trial not in self.ALL_TRIALS:
+            raise ValueError("%s is not a registered trial")
+        section = self.get(dojo_trial, {})
+
+        key = self._ecut2key(ecut)
+        if key in section and not overwrite:
+            raise self.Error("Cannot overwrite key %s in dojo_trial %s" % (key, dojo_trial))
+
+        section[key] = d
+
+    def find_missing_entries(self):
+        """
+        check the DojoReport. 
+        This function tests if each trial contains an ecut entry. 
+        Return a dictionary {trial_name: [list_of_missing_ecuts]}
+        mapping the name of the Dojo trials to the list of ecut values that are missing 
         """
         d = {}
-        for trial in self.ALL_TRIALS:
 
+        for trial in self.ALL_TRIALS:
             data = self.get(trial, None)
             if data is None:
                 # Gbrv results do not contain noble gases so ignore the error
@@ -2299,6 +2365,7 @@ class DojoReport(dict):
                     assert data is None
                     continue
                 d[trial] = self.ecuts
+
             else:
                 computed_ecuts = self[trial].keys()
                 for e in self.ecuts:
@@ -2530,8 +2597,8 @@ class DojoReport(dict):
                 last = values[-1]
                 xmin, xmax = min(ecuts), max(ecuts)
                 for pad, color in zip(self.ATOLS, ("green", "red", "violet")):
-                    ax.hlines(y=last + pad, xmin=xmin, xmax=xmax, colors=color, linewidth=1, linestyles='dotted')
-                    ax.hlines(y=last - pad, xmin=xmin, xmax=xmax, colors=color, linewidth=1, linestyles='dotted')
+                    ax.hlines(y=last + pad, xmin=xmin, xmax=xmax, colors=color, linewidth=3, linestyles='dotted')
+                    ax.hlines(y=last - pad, xmin=xmin, xmax=xmax, colors=color, linewidth=3, linestyles='dotted')
 
         return fig
 
@@ -2601,7 +2668,7 @@ class DojoReport(dict):
         #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(stypes), ncols=1, sharex=True, squeeze=False)
 
         if len(stypes) != len(ax_list): 
-                raise ValueError("len(stypes)=%s != len(ax_list)=%s" %  (len(stypes), len(ax_list)))
+            raise ValueError("len(stypes)=%s != len(ax_list)=%s" %  (len(stypes), len(ax_list)))
 
         for i, (ax, stype) in enumerate(zip(ax_list, stypes)):
             trial = "gbrv_" + stype
@@ -2616,5 +2683,54 @@ class DojoReport(dict):
             ax.plot(ecuts, values, "bo-")
             #ax.hlines(y=0.0, xmin=min(ecuts), xmax=max(ecuts), color="red")
             if i == len(ax_list) - 1: ax.set_xlabel("Ecut [Ha]")
+
+        return fig
+
+    @add_fig_kwargs
+    def plot_phonon_convergence(self, code=None, ax_list=None, **kwargs):
+        """
+        plot the convergence of the phonon modes wrt ecut.
+
+        Args:
+            code: Reference code, not used
+            ax_list: List of matplotlib Axes, if ax_list is None a new figure is created
+
+        Returns:
+            `matplotlib` figure.
+        """
+
+        if code is not None:
+            from pseudo_dojo.refdata.phonon import ph_database
+            reference = ph_database().get_entry(symbol=self.symbol, code=code)
+
+        d = self["phonon"]
+        ecuts = list(d.keys())
+        print(ecuts)
+
+        l = [(ecut, float(ecut)) for ecut in ecuts]
+        s = sorted(l, key=lambda t: t[1])
+        max_ecut = s[-1][0]
+        s_ecuts = [ecut[0] for ecut in s]
+
+        import matplotlib.pyplot as plt
+        fig, ax = plt.subplots(nrows=2)
+
+        #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(keys), ncols=1, sharex=True, squeeze=False)
+
+        for i, v in enumerate(d[ecuts[0]]):
+            values1 = np.array([float(d[ecut][i]) for ecut in s_ecuts])
+
+            ax[0].plot(s_ecuts, values1, "o-")
+            ax[0].grid(True)
+            ax[0].set_ylabel("phonon modes [meV]")
+            ax[0].set_xlabel("Ecut [Ha]")
+
+            values2 = np.array([float(d[ecut][i]) - float(d[max_ecut][i]) for ecut in s_ecuts])
+
+            ax[1].plot(s_ecuts, values2, "o-")
+            ax[1].grid(True)
+            ax[1].set_ylabel("w - w(ecut_max)")
+            ax[1].set_xlabel("Ecut [Ha]")
+
 
         return fig

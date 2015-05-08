@@ -7,9 +7,8 @@ Classes for reading/manipulating/writing VASP input files. All major VASP input
 files.
 """
 
-
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
-    "Vincent L Chevrier"
+             "Vincent L Chevrier, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
@@ -26,6 +25,8 @@ import logging
 import six
 import numpy as np
 from numpy.linalg import det
+from collections import OrderedDict, namedtuple
+from hashlib import md5
 
 from monty.io import zopen
 from monty.os.path import zpath
@@ -230,7 +231,7 @@ class Poscar(PMGSONable):
                 chunks[0] = "\n" + chunks[0]
         except IndexError:
             raise ValueError("Empty POSCAR")
-        #Parse positions
+            #Parse positions
         lines = tuple(clean_lines(chunks[0].split("\n"), False))
         comment = lines[0]
         scale = float(lines[1])
@@ -300,7 +301,7 @@ class Poscar(PMGSONable):
                     atomic_symbols.extend([sym] * natoms[i])
                 warnings.warn("Elements in POSCAR cannot be determined. "
                               "Defaulting to false names {}."
-                              .format(" ".join(atomic_symbols)))
+                    .format(" ".join(atomic_symbols)))
 
         # read the atomic coordinates
         coords = []
@@ -395,6 +396,9 @@ class Poscar(PMGSONable):
                 lines.append(" ".join([format_str.format(i) for i in v]))
 
         return "\n".join(lines) + "\n"
+
+    def __repr__(self):
+        return self.get_string()
 
     def __str__(self):
         """
@@ -503,7 +507,7 @@ class Incar(dict, PMGSONable):
             if isinstance(val, six.string_types) else val)
 
     def as_dict(self):
-        d = {k: v for k, v in self.items()}
+        d = dict(self)
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         return d
@@ -591,35 +595,36 @@ class Incar(dict, PMGSONable):
             key: INCAR parameter key
             val: Actual value of INCAR parameter.
         """
-        list_keys = ("LDAUU", "LDAUL", "LDAUJ", "LDAUTYPE", "MAGMOM")
+        list_keys = ("LDAUU", "LDAUL", "LDAUJ", "MAGMOM")
         bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE",
                      "LHFCALC", "ADDGRID")
         float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN",
-                      "POTIM")
+                      "POTIM", "EDIFFG")
         int_keys = ("NSW", "NBANDS", "NELMIN", "ISIF", "IBRION", "ISPIN",
                     "ICHARG", "NELM", "ISMEAR", "NPAR", "LDAUPRINT", "LMAXMIX",
-                    "ENCUT", "NSIM", "NKRED", "NUPDOWN", "ISPIND")
+                    "ENCUT", "NSIM", "NKRED", "NUPDOWN", "ISPIND", "LDAUTYPE")
 
         def smart_int_or_float(numstr):
             if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
                 return float(numstr)
             else:
                 return int(numstr)
+
         try:
             if key in list_keys:
                 output = []
-                toks = val.split()
+                toks = re.findall(r"(-?\d+\.?\d*)\*?(-?\d+\.?\d*)?", val)
 
                 for tok in toks:
-                    m = re.match("(\d+)\*([\d\.\-\+]+)", tok)
-                    if m:
-                        output.extend([smart_int_or_float(m.group(2))]
-                                      * int(m.group(1)))
+                    if tok[1]:
+
+                        output.extend([smart_int_or_float(tok[1])]
+                                      * int(tok[0]))
                     else:
-                        output.append(smart_int_or_float(tok))
+                        output.append(smart_int_or_float(tok[0]))
                 return output
             if key in bool_keys:
-                m = re.search("^\W+([TtFf])", val)
+                m = re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", val)
                 if m:
                     if m.group(1) == "T" or m.group(1) == "t":
                         return True
@@ -628,10 +633,10 @@ class Incar(dict, PMGSONable):
                 raise ValueError(key + " should be a boolean type!")
 
             if key in float_keys:
-                return float(val)
+                return float(re.search(r"^-?\d*\.?\d*[e|E]?-?\d*", val).group(0))
 
             if key in int_keys:
-                return int(val)
+                return int(re.match(r"^-?[0-9]+", val).group(0))
 
         except ValueError:
             pass
@@ -654,8 +659,13 @@ class Incar(dict, PMGSONable):
 
         if "false" in val.lower():
             return False
-
-        return val.capitalize()
+        try:
+            if key not in ("TITEL", "SYSTEM"):
+                return re.search(r"^-?[0-9]+", val.capitalize()).group(0)
+            else:
+                return val.capitalize()
+        except:
+            return val.capitalize()
 
     def diff(self, other):
         """
@@ -851,14 +861,18 @@ class Kpoints(PMGSONable):
         Returns:
             Kpoints
         """
-
+        comment = "pymatgen generated KPOINTS with grid density = " + \
+            "{} / atom".format(kppa)
         latt = structure.lattice
         lengths = latt.abc
         ngrid = kppa / structure.num_sites
-
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
 
-        num_div = [int(np.ceil(mult / l)) for l in lengths]
+        num_div = [int(round(mult / l)) for l in lengths]
+        if all([k <= 1 for k in num_div]):
+            return Kpoints(comment, 0, Kpoints.supported_modes.Gamma,
+                           [[1, 1, 1]], [0, 0, 0])
+
         #ensure that numDiv[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
 
@@ -874,15 +888,12 @@ class Kpoints(PMGSONable):
         else:
             style = Kpoints.supported_modes.Monkhorst
 
-        comment = "pymatgen generated KPOINTS with grid density = " + \
-            "{} / atom".format(kppa)
-        num_kpts = 0
-        return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
+        return Kpoints(comment, 0, style, [num_div], [0, 0, 0])
 
     @staticmethod
     def automatic_gamma_density(structure, kppa):
         """
-        Returns an automatic Kpoint object based on a struc:ture and a kpoint
+        Returns an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes always. For GW.
 
         Algorithm:
@@ -906,19 +917,6 @@ class Kpoints(PMGSONable):
         #ensure that numDiv[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
 
-        angles = latt.angles
-        hex_angle_tol = 5  # in degrees
-        hex_length_tol = 0.01  # in angstroms
-        right_angles = [i for i in xrange(3)
-                        if abs(angles[i] - 90) < hex_angle_tol]
-        hex_angles = [i for i in xrange(3)
-                      if abs(angles[i] - 60) < hex_angle_tol or
-                      abs(angles[i] - 120) < hex_angle_tol]
-
-        is_hexagonal = (len(right_angles) == 2 and len(hex_angles) == 1
-                        and abs(lengths[right_angles[0]] -
-                                lengths[right_angles[1]]) < hex_length_tol)
-
         # VASP documentation recommends to use even grids for n <= 8 and odd
         # grids for n > 8.
         num_div = [i + i % 2 if i <= 8 else i - i % 2 + 1 for i in num_div]
@@ -926,7 +924,7 @@ class Kpoints(PMGSONable):
         style = Kpoints.supported_modes.Gamma
 
         comment = "pymatgen generated KPOINTS with grid density = " + \
-            "{} / atom".format(kppa)
+                  "{} / atom".format(kppa)
         num_kpts = 0
         return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
 
@@ -951,6 +949,7 @@ class Kpoints(PMGSONable):
         kppa = int(round(kppvol * vol * structure.num_sites))
         return Kpoints.automatic_density(structure, kppa, force_gamma=force_gamma)
 
+    @staticmethod
     def automatic_linemode(divisions, ibz):
         """
         Convenient static constructor for a KPOINTS in mode line_mode.
@@ -1131,8 +1130,7 @@ class Kpoints(PMGSONable):
                 else:
                     lines[-1] += " %i" % (self.kpts_weights[i])
 
-
-        #Print tetrahedorn parameters if the number of tetrahedrons > 0
+        #Print tetrahedron parameters if the number of tetrahedrons > 0
         if style not in "lagm" and self.tet_number > 0:
             lines.append("Tetrahedron")
             lines.append("%d %f" % (self.tet_number, self.tet_weight))
@@ -1154,8 +1152,8 @@ class Kpoints(PMGSONable):
              "kpts_weights": self.kpts_weights, "coord_type": self.coord_type,
              "labels": self.labels, "tet_number": self.tet_number,
              "tet_weight": self.tet_weight,
-             "tet_connections": self.tet_connections
-        }
+             "tet_connections": self.tet_connections}
+
         optional_paras = ["genvec1", "genvec2", "genvec3", "shift"]
         for para in optional_paras:
             if para in self.__dict__:
@@ -1178,14 +1176,39 @@ class Kpoints(PMGSONable):
                    coord_type=d.get("coord_type"),
                    labels=d.get("labels"), tet_number=d.get("tet_number", 0),
                    tet_weight=d.get("tet_weight", 0),
-                   tet_connections=d.get("tet_connections")
-        )
+                   tet_connections=d.get("tet_connections"))
 
 
 def get_potcar_dir():
     if "VASP_PSP_DIR" in os.environ:
         return os.environ["VASP_PSP_DIR"]
     return None
+
+
+def parse_string(s):
+    return "{}".format(s.strip())
+
+
+def parse_bool(s):
+    m = re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", s)
+    if m:
+        if m.group(1) == "T" or m.group(1) == "t":
+            return True
+        else:
+            return False
+    raise ValueError(s + " should be a boolean type!")
+
+
+def parse_float(s):
+    return float(re.search(r"^-?\d*\.?\d*[e|E]?-?\d*", s).group(0))
+
+
+def parse_int(s):
+    return int(re.match(r"^-?[0-9]+", s).group(0))
+
+
+def parse_list(s):
+    return [float(y) for y in re.split("\s+", s.strip()) if not y.isalpha()]
 
 
 @cached_class
@@ -1212,18 +1235,140 @@ class PotcarSingle(object):
     functional_dir = {"PBE": "POT_GGA_PAW_PBE", "LDA": "POT_LDA_PAW",
                       "PW91": "POT_GGA_PAW_PW91", "LDA_US": "POT_LDA_US"}
 
+    functional_tags = {"pe": {"name": "PBE", "class": "GGA"},
+                       "91": {"name": "PW91", "class": "GGA"},
+                       "rp": {"name": "revPBE", "class": "GGA"},
+                       "am": {"name": "AM05", "class": "GGA"},
+                       "ps": {"name": "PBEsol", "class": "GGA"},
+                       "pw": {"name": "PW86", "class": "GGA"},
+                       "lm": {"name": "Langreth-Mehl-Hu", "class": "GGA"},
+                       "pb": {"name": "Perdew-Becke", "class": "GGA"},
+                       "ca": {"name": "Perdew-Zunger81", "class": "LDA"},
+                       "hl": {"name": "Hedin-Lundquist", "class": "LDA"},
+                       "wi": {"name": "Wigner Interpoloation", "class": "LDA"}}
+
+    parse_functions = {"LULTRA": parse_bool,
+                       "LCOR": parse_bool,
+                       "LPAW": parse_bool,
+                       "EATOM": parse_float,
+                       "RPACOR": parse_float,
+                       "POMASS": parse_float,
+                       "ZVAL": parse_float,
+                       "RCORE": parse_float,
+                       "RWIGS": parse_float,
+                       "ENMAX": parse_float,
+                       "ENMIN": parse_float,
+                       "EAUG": parse_float,
+                       "DEXC": parse_float,
+                       "RMAX": parse_float,
+                       "RAUG": parse_float,
+                       "RDEP": parse_float,
+                       "RDEPT": parse_float,
+                       "QCUT": parse_float,
+                       "QGAM": parse_float,
+                       "RCLOC": parse_float,
+                       "IUNSCR": parse_int,
+                       "ICORE": parse_int,
+                       "NDATA": parse_int,
+                       "VRHFIN": parse_string,
+                       "LEXCH": parse_string,
+                       "TITEL": parse_string,
+                       "STEP": parse_list,
+                       "RRKJ": parse_list,
+                       "GGA": parse_list}
+
+    Orbital = namedtuple('Orbital', ['n', 'l', 'j', 'E', 'occ'])
+    Description = namedtuple('OrbitalDescription', ['l', 'E',
+                                                    'Type', "Rcut",
+                                                    "Type2", "Rcut2"])
+
     def __init__(self, data):
         self.data = data  # raw POTCAR as a string
-        # AJ (5/18/2012) - only search on relevant portion of POTCAR, should
-        # fail gracefully if string not found
-        #search_string = self.data[0:self.data.find("END of PSCTR-controll
-        # parameters")]
-        keypairs = re.compile(r";*\s*(.+?)\s*=\s*([^;\n]+)\s*",
-                              re.M).findall(self.data)
-        self.keywords = dict(keypairs)
+
+        #Vasp parses header in vasprun.xml and this differs from the titel
+        self.header = data.split("\n")[0].strip()
+
+        search_lines = re.search(r"(?s)(parameters from PSCTR are:"
+                                 r".*?END of PSCTR-controll parameters)",
+                                 data).group(1)
+
+        self.keywords = {}
+        for key, val in re.findall(r"(\S+)\s*=\s*(.*?)(?=;|$)",
+                                   search_lines, flags=re.MULTILINE):
+            self.keywords[key] = self.parse_functions[key](val)
+
+        PSCTR = OrderedDict()
+
+        array_search = re.compile(r"(-*[0-9\.]+)")
+        orbitals = []
+        descriptions = []
+        atomic_configuration = re.search(r"Atomic configuration\s*\n?"
+                                         r"(.*?)Description", search_lines)
+        if atomic_configuration:
+            lines = atomic_configuration.group(1).splitlines()
+            num_entries = re.search(r"([0-9]+)", lines[0]).group(1)
+            num_entries = int(num_entries)
+            PSCTR['nentries'] = num_entries
+            for line in lines[1:]:
+                orbit = array_search.findall(line)
+                if orbit:
+                    orbitals.append(self.Orbital(int(orbit[0]),
+                                                 int(orbit[1]),
+                                                 float(orbit[2]),
+                                                 float(orbit[3]),
+                                                 float(orbit[4])))
+            PSCTR['Orbitals'] = tuple(orbitals)
+
+        description_string = re.search(r"(?s)Description\s*\n"
+                                       r"(.*?)Error from kinetic"
+                                       r" energy argument \(eV\)",
+                                       search_lines)
+        for line in description_string.group(1).splitlines():
+            description = array_search.findall(line)
+            if description:
+                descriptions.append(self.Description(int(description[0]),
+                                                     float(description[1]),
+                                                     int(description[2]),
+                                                     float(description[3]),
+                                                     int(description[4]) if
+                                                     len(description) > 4
+                                                     else None,
+                                                     float(description[5]) if
+                                                     len(description) > 4
+                                                     else None))
+        if descriptions:
+            PSCTR['OrbitalDescriptions'] = tuple(descriptions)
+
+        RRKJ_kinetic_energy_string = re.search(r"(?s)Error from kinetic "
+                                               r"energy argument \(eV\)\s*\n"
+                                               r"(.*?)END of PSCTR-controll"
+                                               r" parameters",
+                                               search_lines)
+        RRKJ_array = []
+        for line in RRKJ_kinetic_energy_string.group(1).splitlines():
+            if "=" not in line:
+                RRKJ_array += parse_list(line.strip('\n'))
+        if RRKJ_array:
+            PSCTR['RRKJ'] = tuple(RRKJ_array)
+
+        PSCTR.update(self.keywords)
+        self.PSCTR = OrderedDict(sorted(PSCTR.items(), key=lambda x: x[0]))
+        self.hash = self.get_potcar_hash()
 
     def __str__(self):
         return self.data + "\n"
+
+    @property
+    def electron_configuration(self):
+        el = Element.from_Z(self.atomic_no)
+        full_config = el.full_electronic_structure
+        nelect = self.nelectrons
+        config = []
+        while nelect > 0:
+            e = full_config.pop(-1)
+            config.append(e)
+            nelect -= e[-1]
+        return config
 
     def write_file(self, filename):
         with zopen(filename, "wt") as f:
@@ -1237,10 +1382,12 @@ class PotcarSingle(object):
     @staticmethod
     def from_symbol_and_functional(symbol, functional="PBE"):
         funcdir = PotcarSingle.functional_dir[functional]
-        paths_to_try = [os.path.join(get_potcar_dir(), funcdir,
-                                     "POTCAR.{}".format(symbol)),
-                        os.path.join(get_potcar_dir(), funcdir, symbol,
-                                     "POTCAR")]
+        d = get_potcar_dir()
+        if d is None:
+            raise ValueError("No POTCAR directory found. Please set "
+                             "the VASP_PSP_DIR environment variable")
+        paths_to_try = [os.path.join(d, funcdir, "POTCAR.{}".format(symbol)),
+                        os.path.join(d, funcdir, symbol, "POTCAR")]
         for p in paths_to_try:
             p = os.path.expanduser(p)
             p = zpath(p)
@@ -1277,6 +1424,51 @@ class PotcarSingle(object):
     def nelectrons(self):
         return self.zval
 
+    @property
+    def potential_type(self):
+        if self.lultra:
+            return "US"
+        elif self.lpaw:
+            return "PAW"
+        else:
+            return "NC"
+
+    @property
+    def functional(self):
+        return self.functional_tags.get(self.LEXCH.lower(), {}).get('name')
+
+    @property
+    def functional_class(self):
+        return self.functional_tags.get(self.LEXCH.lower(), {}).get('class')
+
+    def get_potcar_hash(self):
+        hash_str = ""
+        for k, v in self.PSCTR.items():
+            hash_str += "{}".format(k)
+            if isinstance(v, int):
+                hash_str += "{}".format(v)
+            elif isinstance(v, float):
+                hash_str += "{:.3f}".format(v)
+            elif isinstance(v, bool):
+                hash_str += "{}".format(bool)
+            elif isinstance(v, (tuple, list)):
+                for item in v:
+                    if isinstance(item, float):
+                        hash_str += "{:.3f}".format(item)
+                    elif isinstance(item, (self.Orbital, self.Description)):
+                        for item_v in item:
+                            if isinstance(item_v, (int, str)):
+                                hash_str += "{}".format(item_v)
+                            elif isinstance(item_v, float):
+                                hash_str += "{:.3f}".format(item_v)
+                            else:
+                                hash_str += "{}".format(item_v) if item_v else ""
+            else:
+                hash_str += v.replace(" ", "")
+
+        self.hash_str = hash_str
+        return md5(hash_str.lower().encode('utf-8')).hexdigest()
+
     def __getattr__(self, a):
         """
         Delegates attributes to keywords. For example, you can use
@@ -1285,14 +1477,11 @@ class PotcarSingle(object):
         For float type properties, they are converted to the correct float. By
         default, all energies in eV and all length scales are in Angstroms.
         """
-        floatkeywords = ["DEXC", "RPACOR", "ENMAX", "QCUT", "EAUG", "RMAX",
-                         "ZVAL", "EATOM", "NDATA", "QGAM", "ENMIN", "RCLOC",
-                         "RCORE", "RDEP", "RAUG", "POMASS", "RWIGS"]
-        a_caps = a.upper()
-        if a_caps in self.keywords:
-            return self.keywords[a_caps] if a_caps not in floatkeywords \
-                else float(self.keywords[a_caps].split()[0])
-        raise AttributeError(a)
+
+        try:
+            return self.keywords[a.upper()]
+        except:
+            raise AttributeError(a)
 
 
 class Potcar(list, PMGSONable):
@@ -1337,17 +1526,11 @@ class Potcar(list, PMGSONable):
         for p in potcar_strings:
             single = PotcarSingle(p)
             potcar.append(single)
-            functionals.append(single.lexch)
+            functionals.append(single.functional)
         if len(set(functionals)) != 1:
             raise ValueError("File contains incompatible functionals!")
         else:
-            if functionals[0] == "PE":
-                functional = "PBE"
-            elif functionals[0] == "91":
-                functional = "PW91"
-            else:
-                functional = "LDA"
-            potcar.functional = functional
+            potcar.functional = functionals[0]
         return potcar
 
     def __str__(self):
@@ -1369,6 +1552,17 @@ class Potcar(list, PMGSONable):
         Get the atomic symbols of all the atoms in the POTCAR file.
         """
         return [p.symbol for p in self]
+
+    @symbols.setter
+    def symbols(self, symbols):
+        self.set_symbols(symbols, functional=self.functional)
+
+    @property
+    def spec(self):
+        """
+        Get the atomic symbols and hash of all the atoms in the POTCAR file.
+        """
+        return [{"symbol": p.symbol, "hash": p.get_potcar_hash()} for p in self]
 
     def set_symbols(self, symbols, functional=DEFAULT_FUNCTIONAL,
                     sym_potcar_map=None):
@@ -1457,7 +1651,7 @@ class VaspInput(dict, PMGSONable):
             os.makedirs(output_dir)
         for k, v in self.items():
             with zopen(os.path.join(output_dir, k), "wt") as f:
-                f.write(v)
+                f.write(v.__str__())
 
     @staticmethod
     def from_directory(input_dir, optional_files=None):
