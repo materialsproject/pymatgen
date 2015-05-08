@@ -77,8 +77,7 @@ class Composition(collections.Mapping, collections.Hashable, PMGSONable):
     1e-8 is fairly tight, but should cut out most floating point arithmetic
     errors.
     """
-    #amount_tolerance = 1e-8
-    amount_tolerance = 1e-6
+    amount_tolerance = 1e-8
 
     """
     Special formula handling for peroxides and certain elements. This is so
