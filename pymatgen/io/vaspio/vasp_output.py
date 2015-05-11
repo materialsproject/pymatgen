@@ -1147,14 +1147,18 @@ class Outcar(PMGSONable):
 
         # 6x6 tensor matrix for TOTAL ELASTIC MODULI
         tensor_matrix = []
-        for clean in all_lines:
-            if etensor_patt.search(clean):
-                tok = clean.strip().split()
-                tok.pop(0)
-                tok = [float(i) for i in tok]
-                tensor_matrix.append(tok)
-        total_elm = [tensor_matrix[i] for i in xrange(18, 24)]
-        total_tensor = np.asarray(total_elm).reshape(6, 6)
+        tag = "TOTAL ELASTIC MODULI (kBar)"
+        if tag in all_lines:
+            for clean in all_lines:
+                if etensor_patt.search(clean):
+                    tok = clean.strip().split()
+                    tok.pop(0)
+                    tok = [float(i) for i in tok]
+                    tensor_matrix.append(tok)
+            total_elm = [tensor_matrix[i] for i in xrange(18, 24)]
+            total_tensor = np.asarray(total_elm).reshape(6, 6)
+        else:
+            pass
 
         self.run_stats = run_stats
         self.magnetization = tuple(mag)
