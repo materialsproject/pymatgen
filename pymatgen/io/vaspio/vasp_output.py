@@ -1044,6 +1044,10 @@ class Outcar(PMGSONable):
         "Maximum memory used (kb)", "Average memory used (kb)",
         "User time (sec)".
 
+    .. attribute:: total_tensor
+
+        Total elastic moduli (Kbar) is given in a 6x6 array matrix.
+
     One can then call a specific reader depending on the type of run being
     performed. These are currently: read_igpar(), read_lepsilon() and
     read_lcalcpol(), read_core_state_eign().
@@ -1064,11 +1068,14 @@ class Outcar(PMGSONable):
         total_mag = None
         nelect = None
         efermi = None
+        total_tensor = None
 
         time_patt = re.compile("\((sec|kb)\)")
         efermi_patt = re.compile("E-fermi\s*:\s*(\S+)")
         nelect_patt = re.compile("number of electron\s+(\S+)\s+"
                                  "magnetization\s+(\S+)")
+        etensor_patt = re.compile("[X-Z][X-Z]+\s+-?\d+")
+
         all_lines = []
         for line in reverse_readfile(self.filename):
             clean = line.strip()
@@ -1138,12 +1145,24 @@ class Outcar(PMGSONable):
                     run_stats['cores'] = line.split()[2]
                     break
 
+        # 6x6 tensor matrix for TOTAL ELASTIC MODULI
+        tensor_matrix = []
+        for clean in all_lines:
+            if etensor_patt.search(clean):
+                tok = clean.strip().split()
+                tok.pop(0)
+                tok = [float(i) for i in tok]
+                tensor_matrix.append(tok)
+        total_elm = [tensor_matrix[i] for i in xrange(18, 24)]
+        total_tensor = np.asarray(total_elm).reshape(6, 6)
+
         self.run_stats = run_stats
         self.magnetization = tuple(mag)
         self.charge = tuple(charge)
         self.efermi = efermi
         self.nelect = nelect
         self.total_mag = total_mag
+        self.total_tensor = total_tensor
 
     def read_igpar(self):
         """
