@@ -16,6 +16,7 @@ __maintainer__ = "Bharat Medasani"
 __email__ = "bkmedasani@lbl.gov"
 __data__ = "Aug 2, 2013"
 
+import os
 import re
 
 from monty.io import zopen
@@ -355,6 +356,61 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         to_unit_cell=True, site_properties={"voronoi_radius": prop})
 
     return vor_node_struct
+
+@requires(zeo_found,
+            "get_voronoi_nodes requires Zeo++ cython extension to be "
+            "installed. Please contact developers of Zeo++ to obtain it.")
+def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
+    """
+    Analyze the void space in the input structure using voronoi decomposition
+    Calls Zeo++ for Voronoi decomposition.
+
+    Args:
+        structure: pymatgen.core.structure.Structure
+        rad_dict (optional): Dictionary of radii of elements in structure.
+            If not given, Zeo++ default values are used.
+            Note: Zeo++ uses atomic radii of elements.
+            For ionic structures, pass rad_dict with ionic radii
+        probe_rad (optional): Sampling probe radius in Angstroms. Default is
+            0.1 A
+
+    Returns:
+        voronoi nodes as pymatgen.core.structure.Strucutre within the
+        unit cell defined by the lattice of input structure
+        voronoi face centers as pymatgen.core.structure.Strucutre within the
+        unit cell defined by the lattice of input structure
+    """
+
+    with ScratchDir('.'):
+        name = "temp_zeo1"
+        zeo_inp_filename = name + ".cssr"
+        ZeoCssr(structure).write_file(zeo_inp_filename)
+        rad_file = None
+        rad_flag = False
+
+        if rad_dict:
+            rad_file = name + ".rad"
+            rad_flag = True
+            with open(rad_file, 'w+') as fp:
+                for el in rad_dict.keys():
+                    fp.write("{} {}\n".format(el, rad_dict[el].real))
+
+        atmnet = AtomNetwork.read_from_CSSR(
+                zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
+        out_file = "temp.res"
+        atmnet.calculate_free_sphere_parameters(out_file)
+        if os.path.isfile(out_file) and os.path.getsize(out_file) > 0:
+            with open(out_file) as fp:
+                output = fp.readline()
+        else:
+            output = "" 
+    fields =  [val.strip() for val in output.split()][1:4]
+    fields = [float(field) for field in fields]
+    free_sphere_params = {'inc_sph_max_dia':fields[0],
+                          'free_sph_max_dia':fields[1],
+                          'inc_sph_along_free_sph_path_max_dia':fields[2]}
+    return free_sphere_params
+
 
 # Deprecated. Not needed anymore
 def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.3,
