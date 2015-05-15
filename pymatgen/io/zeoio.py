@@ -405,10 +405,11 @@ def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
         else:
             output = "" 
     fields =  [val.strip() for val in output.split()][1:4]
-    fields = [float(field) for field in fields]
-    free_sphere_params = {'inc_sph_max_dia':fields[0],
-                          'free_sph_max_dia':fields[1],
-                          'inc_sph_along_free_sph_path_max_dia':fields[2]}
+    if len(fields) == 3:
+        fields = [float(field) for field in fields]
+        free_sphere_params = {'inc_sph_max_dia':fields[0],
+                              'free_sph_max_dia':fields[1],
+                              'inc_sph_along_free_sph_path_max_dia':fields[2]}
     return free_sphere_params
 
 
