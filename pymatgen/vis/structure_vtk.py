@@ -437,7 +437,7 @@ class StructureVis(object):
         actor.GetProperty().SetLineWidth(width)
         self.ren.AddActor(actor)
 
-    def add_polyhedron(self, neighbors, center, color, opacity=0.4,
+    def add_polyhedron(self, neighbors, center, color, opacity=1.0,
                        draw_edges=False, edges_color=[0.0, 0.0, 0.0],
                        edges_linewidth=2):
         """
