@@ -574,7 +574,20 @@ class Incar(dict, PMGSONable):
             Incar object
         """
         with zopen(filename, "rt") as f:
-            lines = list(clean_lines(f.readlines()))
+            return Incar.from_string(f.read())
+
+    @staticmethod
+    def from_string(string):
+        """
+        Reads an Incar object from a string.
+
+        Args:
+            string (str): Incar string
+
+        Returns:
+            Incar object
+        """
+        lines = list(clean_lines(string.splitlines()))
         params = {}
         for line in lines:
             m = re.match("(\w+)\s*=\s*(.*)", line)

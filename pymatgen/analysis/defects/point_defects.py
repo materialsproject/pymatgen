@@ -551,6 +551,7 @@ class Interstitial(Defect):
                  accuracy='Normal', symmetry_flag=True, oxi_state = False):
         """
         Given a structure, generate symmetrically distinct interstitial sites.
+        For a non-ionic structure, use oxi_state=True and give atomic radii.
 
         Args:
             structure: pymatgen.core.structure.Structure
