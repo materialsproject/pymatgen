@@ -389,7 +389,7 @@ class Flow(Node, NodeContainer, PMGSONable):
             raise RuntimeError("Cannot change mongo_id %s" % self.mongo_id)
         self._mongo_id = value
 
-    def mongo_upload(self, **kwargs):
+    def mongodb_upload(self, **kwargs):
         from abiflows.core.scheduler import FlowUploader
         FlowUploader().upload(self, **kwargs)
 
