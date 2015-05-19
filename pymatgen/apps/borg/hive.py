@@ -163,8 +163,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
             return [parent]
         if (not parent.endswith("/relax1")) and \
            (not parent.endswith("/relax2")) and (
-               len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0 or
-               len(glob.glob(os.path.join(parent, "POSCAR*"))) > 0 or (
+               len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0 or (
                len(glob.glob(os.path.join(parent, "POSCAR*"))) > 0 and
                len(glob.glob(os.path.join(parent, "OSZICAR*"))) > 0)
            ):
@@ -221,7 +220,8 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                     "INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR", "DYNMAT"
                 ):
                     files = glob.glob(os.path.join(path, filename + "*"))
-                    if len(files) < 1: continue
+                    if len(files) < 1:
+                        continue
                     if len(files) == 1 or filename == "INCAR" or \
                        filename == "POTCAR" or filename == "DYNMAT":
                         files_to_parse[filename] = files[-1] if filename == "POTCAR" else files[0]
@@ -274,7 +274,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             if incar is not None:
                 param["run_type"] = "GGA+U" if param["is_hubbard"] else "GGA"
             param["history"] = _get_transformation_history(path)
-            param["potcar_spec"] = potcar.data if potcar is not None else None
+            param["potcar_spec"] = potcar.spec if potcar is not None else None
             energy = oszicar.final_energy if oszicar is not None else 1e10
             structure = contcar.structure if contcar is not None else poscar.structure
             initial_vol = poscar.structure.volume if poscar is not None else None
