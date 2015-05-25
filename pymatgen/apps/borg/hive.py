@@ -109,8 +109,8 @@ class VaspToComputedEntryDrone(AbstractDrone):
 
     def __init__(self, inc_structure=False, parameters=None, data=None):
         self._inc_structure = inc_structure
-        self._parameters = {"is_hubbard", "hubbards", "potcar_spec", "potcar_symbols",
-                            "run_type"}
+        self._parameters = {"is_hubbard", "hubbards", "potcar_spec",
+                            "potcar_symbols", "run_type"}
         if parameters:
             self._parameters.update(parameters)
         self._data = data if data else []
@@ -163,8 +163,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
             return [parent]
         if (not parent.endswith("/relax1")) and \
            (not parent.endswith("/relax2")) and (
-               len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0 or
-               len(glob.glob(os.path.join(parent, "POSCAR*"))) > 0 or (
+               len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0 or (
                len(glob.glob(os.path.join(parent, "POSCAR*"))) > 0 and
                len(glob.glob(os.path.join(parent, "OSZICAR*"))) > 0)
            ):
@@ -221,10 +220,12 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                     "INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR", "DYNMAT"
                 ):
                     files = glob.glob(os.path.join(path, filename + "*"))
-                    if len(files) < 1: continue
+                    if len(files) < 1:
+                        continue
                     if len(files) == 1 or filename == "INCAR" or \
                        filename == "POTCAR" or filename == "DYNMAT":
-                        files_to_parse[filename] = files[-1] if filename == "POTCAR" else files[0]
+                        files_to_parse[filename] = files[-1]\
+                            if filename == "POTCAR" else files[0]
                     elif len(files) > 1:
                         """
                         This is a bit confusing, since there maybe be
@@ -265,8 +266,9 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                 dynmat = Dynmat(files_to_parse["DYNMAT"])
 
             param = {"hubbards":{}}
-            if (poscar is not None and incar is not None and "LDAUU" in incar):
-                param["hubbards"] = dict(zip(poscar.site_symbols, incar["LDAUU"]))
+            if poscar is not None and incar is not None and "LDAUU" in incar:
+                param["hubbards"] = dict(zip(poscar.site_symbols,
+                                             incar["LDAUU"]))
             param["is_hubbard"] = (
                 incar.get("LDAU", False) and sum(param["hubbards"].values()) > 0
             ) if incar is not None else False
@@ -274,11 +276,14 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             if incar is not None:
                 param["run_type"] = "GGA+U" if param["is_hubbard"] else "GGA"
             param["history"] = _get_transformation_history(path)
-            param["potcar_spec"] = potcar.data if potcar is not None else None
+            param["potcar_spec"] = potcar.spec if potcar is not None else None
             energy = oszicar.final_energy if oszicar is not None else 1e10
-            structure = contcar.structure if contcar is not None else poscar.structure
-            initial_vol = poscar.structure.volume if poscar is not None else None
-            final_vol = contcar.structure.volume if contcar is not None else None
+            structure = contcar.structure if contcar is not None\
+                else poscar.structure
+            initial_vol = poscar.structure.volume if poscar is not None else \
+                None
+            final_vol = contcar.structure.volume if contcar is not None else \
+                None
             delta_volume = None
             if initial_vol is not None and final_vol is not None:
                 delta_volume = (final_vol / initial_vol - 1)
@@ -287,7 +292,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                 data['phonon_frequencies'] = dynmat.get_phonon_frequencies()
             if self._inc_structure:
                 entry = ComputedStructureEntry(
-                  structure, energy, parameters=param, data=data
+                    structure, energy, parameters=param, data=data
                 )
             else:
                 entry = ComputedEntry(
