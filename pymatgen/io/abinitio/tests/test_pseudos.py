@@ -141,6 +141,7 @@ class PseudoTestCase(PymatgenTest):
         print(repr(ger))
         print(ger)
         print(ger.as_dict())
+        ger.as_tmpfile()
 
         self.assertTrue(ger.symbol == "Ge")
         self.assert_equal(ger.Z, 32.0)
