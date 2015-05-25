@@ -285,6 +285,15 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
     def from_dict(cls, d):
         return cls.from_file(d['filepath'])
 
+    def as_tmpfile(self):
+        """
+        Copy the pseudopotential to a temporary a file and returns a new pseudopotential object.
+        """
+        import tempfile, shutil
+        _, dst = tempfile.mkstemp(suffix=self.basename, text=True)
+        shutil.copy(self.path, dst)
+        return self.__class__.from_file(dst)
+
     @property
     def has_dojo_report(self):
         """True if self contains the `DOJO_REPORT` section."""
