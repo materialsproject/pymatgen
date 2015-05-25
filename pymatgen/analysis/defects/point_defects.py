@@ -575,17 +575,7 @@ class Interstitial(Defect):
                 sites.
         """
         if not oxi_state:
-            try:
-                bv = BVAnalyzer()
-                self._structure = bv.get_oxi_state_decorated_structure(
-                        structure)
-            except:
-                try:
-                    bv = BVAnalyzer(symm_tol=0.0)
-                    self._structure = bv.get_oxi_state_decorated_structure(
-                            structure)
-                except:
-                    raise
+            self._structure = ValenceIonicRadiusEvaluator(structure).structure
         else:
             self._structure = structure
 
