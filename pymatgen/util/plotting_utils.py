@@ -150,7 +150,7 @@ def add_fig_kwargs(func):
     savefig           'abc.png' or 'abc.eps' to save the figure to a file.
     size_kwargs       Dictionary with options passed to fig.set_size_inches
                       example: size_kwargs=dict(w=3, h=4) 
-    tight_layout      True if to call fig.tight_layout (default: False)
+    tight_layout      True to call fig.tight_layout (default: False)
     ================  ===================================================="""
 
     if wrapper.__doc__ is not None:

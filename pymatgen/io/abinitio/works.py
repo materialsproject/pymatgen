@@ -21,12 +21,12 @@ from monty.fnmatch import WildCard
 from pydispatch import dispatcher
 from pymatgen.core.units import EnergyArray
 from . import wrappers
-from .nodes import Dependency, Node, NodeResults #, check_spectator
+from .nodes import Dependency, Node, NodeError, NodeResults, check_spectator
 from .tasks import (Task, AbinitTask, ScfTask, NscfTask, PhononTask, DdkTask, 
-                    BseTask, RelaxTask, DdeTask, ScrTask, SigmaTask)
-from .strategies import HtcStrategy, NscfStrategy
+                    BseTask, RelaxTask, DdeTask, BecTask, ScrTask, SigmaTask)
+
 from .utils import Directory
-from .netcdf import ETSF_Reader
+from .netcdf import ETSF_Reader, NetcdfReader
 from .abitimer import AbinitTimerParser
 
 import logging
@@ -58,10 +58,6 @@ class WorkResults(NodeResults):
         """Initialize an instance from a :class:`Work` instance."""
         new = super(WorkResults, cls).from_node(work)
 
-        #new.update(
-        #    #input=work.strategy
-        #)
-
         # Will put all files found in outdir in GridFs 
         # Warning: assuming binary files.
         d = {os.path.basename(f): f for f in work.outdir.list_filepaths()}
@@ -70,7 +66,7 @@ class WorkResults(NodeResults):
         return new
 
 
-class WorkError(Exception):
+class WorkError(NodeError):
     """Base class for the exceptions raised by Work objects."""
 
 
@@ -188,10 +184,21 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
         for task in self:
             dispatcher.connect(self.on_ok, signal=task.S_OK, sender=task)
 
+    def disconnect_signals(self):
+        """
+        Disable the signals within the work. This function reverses the process of `connect_signals`
+        """
+        for task in self:
+            try:
+                dispatcher.disconnect(self.on_ok, signal=task.S_OK, sender=task)
+            except dispatcher.errors.DispatcherKeyError as exc:
+                logger.debug(str(exc))
+
     @property
     def all_ok(self):
         return all(task.status == task.S_OK for task in self)
 
+    #@check_spectator
     def on_ok(self, sender):
         """
         This callback is called when one task reaches status `S_OK`.
@@ -217,12 +224,13 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
                 #logger.info("Work %s status = %s" % (str(self), self.status))
 
                 if self._finalized:
-                    dispatcher.send(signal=self.S_OK, sender=self)
+                    self.send_signal(self.S_OK)
 
                 return results
 
         return AttrDict(returncode=1, message="Not all tasks are OK!")
 
+    #@check_spectator
     def on_all_ok(self):
         """
         This method is called once the `Work` is completed i.e. when all the tasks
@@ -246,7 +254,75 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
         return results
 
 
-class Work(BaseWork):
+class NodeContainer(six.with_metaclass(abc.ABCMeta)):
+    """
+    Mixin classes for `Work` and `Flow` objects providing helperf functions
+    to register tasks in the container. The helperfunctios call the
+    `register` method of the container.
+    """
+    # TODO: Abstract protocol for containers
+
+    @abc.abstractmethod
+    def register_task(self, *args, **kwargs):
+        """
+        Register a task in the container.
+        """
+        # TODO: shall flow.register_task return a Task or a Work?
+
+    # Helper functions
+    def register_scf_task(self, *args, **kwargs):
+        """Register a Scf task."""
+        kwargs["task_class"] = ScfTask
+        return self.register_task(*args, **kwargs)
+                                                    
+    def register_nscf_task(self, *args, **kwargs):
+        """Register a nscf task."""
+        kwargs["task_class"] = NscfTask
+        return self.register_task(*args, **kwargs)
+                                                    
+    def register_relax_task(self, *args, **kwargs):
+        """Register a task for structural optimization."""
+        kwargs["task_class"] = RelaxTask
+        return self.register_task(*args, **kwargs)
+
+    def register_phonon_task(self, *args, **kwargs):
+        """Register a phonon task."""
+        kwargs["task_class"] = PhononTask
+        return self.register_task(*args, **kwargs)
+
+    def register_ddk_task(self, *args, **kwargs):
+        """Register a ddk task."""
+        kwargs["task_class"] = DdkTask
+        return self.register_task(*args, **kwargs)
+
+    def register_scr_task(self, *args, **kwargs):
+        """Register a screening task."""
+        kwargs["task_class"] = ScrTask
+        return self.register_task(*args, **kwargs)
+
+    def register_sigma_task(self, *args, **kwargs):
+        """Register a sigma task."""
+        kwargs["task_class"] = SigmaTask
+        return self.register_task(*args, **kwargs)
+
+    # TODO: Remove
+    def register_dde_task(self, *args, **kwargs):
+        """Register a Dde task."""
+        kwargs["task_class"] = DdeTask
+        return self.register_task(*args, **kwargs)
+
+    def register_bec_task(self, *args, **kwargs):
+        """Register a BEC task."""
+        kwargs["task_class"] = BecTask
+        return self.register_task(*args, **kwargs)
+
+    def register_bse_task(self, *args, **kwargs):
+        """Register a nscf task."""
+        kwargs["task_class"] = BseTask
+        return self.register_task(*args, **kwargs)
+
+
+class Work(BaseWork, NodeContainer):
     """
     A Work is a list of (possibly connected) tasks.
     """
@@ -409,8 +485,7 @@ class Work(BaseWork):
         Registers a new :class:`Task` and add it to the internal list, taking into account possible dependencies.
 
         Args:
-            obj: :class:`Strategy` object or :class:`AbinitInput` instance.
-                 if Strategy object, we create a new `AbinitTask` from the input strategy and add it to the list.
+            obj: :class:`AbinitInput` instance.
             deps: Dictionary specifying the dependency of this node.
                   None means that this obj has no dependency.
             required_files: List of strings with the path of the files used by the task.
@@ -437,12 +512,14 @@ class Work(BaseWork):
             if task_class is None:
                 task_class = AbinitTask
 
-            if isinstance(obj, HtcStrategy):
-                # Create the new task (note the factory so that we create subclasses easily).
-                task = task_class(obj, task_workdir, manager)
-
-            else:
-                task = task_class.from_input(obj, task_workdir, manager)
+            #from .strategies import HtcStrategy
+            #if isinstance(obj, HtcStrategy):
+            #    # Create the new task (note the factory so that we create subclasses easily).
+            #    raise NotImplementedError("HtcStrategy")
+            #    task = task_class(obj, task_workdir, manager)
+            #
+            #else:
+            task = task_class.from_input(obj, task_workdir, manager)
 
         self._tasks.append(task)
 
@@ -457,51 +534,8 @@ class Work(BaseWork):
 
         return task
 
-    # Helper functions
-    def register_scf_task(self, *args, **kwargs):
-        """Register a Scf task."""
-        kwargs["task_class"] = ScfTask
-        return self.register(*args, **kwargs)
-                                                    
-    def register_nscf_task(self, *args, **kwargs):
-        """Register a nscf task."""
-        kwargs["task_class"] = NscfTask
-        return self.register(*args, **kwargs)
-                                                    
-    def register_relax_task(self, *args, **kwargs):
-        """Register a task for structural optimization."""
-        kwargs["task_class"] = RelaxTask
-        return self.register(*args, **kwargs)
-
-    def register_phonon_task(self, *args, **kwargs):
-        """Register a phonon task."""
-        kwargs["task_class"] = PhononTask
-        return self.register(*args, **kwargs)
-
-    def register_ddk_task(self, *args, **kwargs):
-        """Register a ddk task."""
-        kwargs["task_class"] = DdkTask
-        return self.register(*args, **kwargs)
-
-    def register_scr_task(self, *args, **kwargs):
-        """Register a screening task."""
-        kwargs["task_class"] = ScrTask
-        return self.register(*args, **kwargs)
-
-    def register_sigma_task(self, *args, **kwargs):
-        """Register a sigma task."""
-        kwargs["task_class"] = SigmaTask
-        return self.register(*args, **kwargs)
-
-    def register_dde_task(self, *args, **kwargs):
-        """Register a Dde task."""
-        kwargs["task_class"] = DdeTask
-        return self.register(*args, **kwargs)
-
-    def register_bse_task(self, *args, **kwargs):
-        """Register a nscf task."""
-        kwargs["task_class"] = BseTask
-        return self.register(*args, **kwargs)
+    # Needed by NodeContainer
+    register_task = register
 
     def path_in_workdir(self, filename):
         """Create the absolute path of filename in the working directory."""
@@ -533,8 +567,6 @@ class Work(BaseWork):
         Returns the status of the work i.e. the minimum of the status of the tasks.
         """
         return self.get_all_status(only_min=True)
-
-    #def set_status(self, status):
 
     def get_all_status(self, only_min=False):
         """
@@ -628,7 +660,6 @@ class Work(BaseWork):
         TODO: change name.
         """
         for task in self:
-            #print(task)
             task.start()
     
         if wait:
@@ -690,11 +721,12 @@ class Work(BaseWork):
 
 class BandStructureWork(Work):
     """Work for band structure calculations."""
+
     def __init__(self, scf_input, nscf_input, dos_inputs=None, workdir=None, manager=None):
         """
         Args:
-            scf_input: Input for the SCF run or :class:`SCFStrategy` object.
-            nscf_input: Input for the NSCF run or :class:`NSCFStrategy` object defining the band structure calculation.
+            scf_input: Input for the SCF run 
+            nscf_input: Input for the NSCF run defining the band structure calculation.
             dos_inputs: Input(s) for the DOS. DOS is computed only if dos_inputs is not None.
             workdir: Working directory.
             manager: :class:`TaskManager` object.
@@ -800,15 +832,12 @@ class RelaxWork(Work):
 
         # Note:
         #   1) It would be nice to restart from the WFK file but ABINIT crashes due to the
-        #      different unit cell parameters.
-        #
-        #   2) Restarting form DEN is not trivial because Abinit produces all these _TIM?_DEN files.
-        #      and the syntax used to specify dependencies is not powerful enough.
-        #   
-        # For the time being, we don't use any output from ion_tasl except for the 
-        # the final structure that will be transferred in on_ok.
-        deps = {self.ion_task: "DEN"}
-        deps = {self.ion_task: "WFK"}
+        #      different unit cell parameters if paral_kgb == 1
+        #paral_kgb = ion_input[0]["paral_kgb"]
+        #if paral_kgb == 1:
+
+        #deps = {self.ion_task: "WFK"}  # --> FIXME: Problem in rwwf
+        #deps = {self.ion_task: "DEN"}
         deps = None
 
         self.ioncell_task = self.register_relax_task(ioncell_input, deps=deps)
@@ -820,6 +849,7 @@ class RelaxWork(Work):
 
         self.target_dilatmx = target_dilatmx
 
+    #@check_spectator
     def on_ok(self, sender):
         """
         This callback is called when one task reaches status S_OK.
@@ -837,8 +867,8 @@ class RelaxWork(Work):
             self.transfer_done = True
 
             # Unlock ioncell_task so that we can submit it.
-            self.ioncell_task.unlock()
-            self.ioncell_task.history.info("Unlocked by %s", self)
+            self.ioncell_task.unlock(source_node=self)
+
         elif sender == self.ioncell_task and self.target_dilatmx:
             actual_dilatmx = self.ioncell_task.get_inpvar('dilatmx', 1.)
             if self.target_dilatmx < actual_dilatmx:
@@ -849,6 +879,26 @@ class RelaxWork(Work):
 
         return super(RelaxWork, self).on_ok(sender)
 
+    def plot_ion_relaxation(self, **kwargs):
+        """
+        Plot the history of the ion-cell relaxation. 
+        kwargs are passed to the plot method of :class:`HistFile`
+
+        Return `matplotlib` figure or None if hist file is not found.
+        """
+        with self.ion_task.open_hist() as hist:
+            return hist.plot(**kwargs) if hist else None
+
+    def plot_ioncell_relaxation(self, **kwargs):
+        """
+        Plot the history of the ion-cell relaxation.
+        kwargs are passed to the plot method of :class:`HistFile`
+
+        Return `matplotlib` figure or None if hist file is not found.
+        """
+        with self.ioncell_task.open_hist() as hist:
+            return hist.plot(**kwargs) if hist else None
+
 
 class G0W0Work(Work):
     """
@@ -858,15 +908,15 @@ class G0W0Work(Work):
                  workdir=None, manager=None, spread_scr=False, nksmall=None):
         """
         Args:
-            scf_input: Input for the SCF run or :class:`SCFStrategy` object.
-            nscf_input: Input for the NSCF run or :class:`NSCFStrategy` object.
-            scr_input: Input for the screening run or :class:`ScrStrategy` object
-            sigma_inputs: List of Strategies for the self-energy run.
+            scf_input: Input for the SCF run
+            nscf_input: Input for the NSCF run
+            scr_input: Input for the screening run
+            sigma_inputs: List of :class:AbinitInput`for the self-energy run.
             workdir: Working directory of the calculation.
             manager: :class:`TaskManager` object.
             spread_scr: Attach a screening task to every sigma task
                 if false only one screening task with the max ecuteps and nbands for all sigma tasks
-            nksmall: if not none add a dos and bands calculation to the Work
+            nksmall: if not None add a dos and bands calculation to the Work
         """
         super(G0W0Work, self).__init__(workdir=workdir, manager=manager)
 
@@ -884,7 +934,9 @@ class G0W0Work(Work):
         nogw = False
 
         if nksmall:
+            raise NotImplementedError("with nksmall but strategies have been removed")
             # if nksmall add bandstructure and dos calculations as well
+
             from abiobjects import KSampling
             if nksmall < 0:
                 nksmall = -nksmall
@@ -903,6 +955,26 @@ class G0W0Work(Work):
                                      nscf_nband=scf_in.electrons.nband, ecut=scf_in.ecut, chksymbreak=0)
 
             self.dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
+
+            #from abiobjects import KSampling
+            #if nksmall < 0:
+            #    nksmall = -nksmall
+            #    nogw = True
+            #scf_in = scf_input[-1] if isinstance(scf_input, (list, tuple)) else scf_input
+            #logger.info('added band structure calculation')
+            #bands_input = NscfStrategy(scf_strategy=scf_in,
+            #                           ksampling=KSampling.path_from_structure(ndivsm=nksmall, structure=scf_in.structure),
+            #                           nscf_nband=scf_in.electrons.nband, ecut=scf_in.ecut, chksymbreak=0)
+
+            #self.bands_task = self.register_nscf_task(bands_input, deps={self.scf_task: "DEN"})
+            ## note we don not let abinit print the dos, since this is inconpatible with parakgb
+            ## the dos will be evaluated later using abipy
+            #dos_input = NscfStrategy(scf_strategy=scf_in,
+            #                         ksampling=KSampling.automatic_density(kppa=nksmall**3, structure=scf_in.structure,
+            #                                                               shifts=(0.0, 0.0, 0.0)),
+            #                         nscf_nband=scf_in.electrons.nband, ecut=scf_in.ecut, chksymbreak=0)
+
+            #self.dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
 
         # Register the SIGMA runs.
         if not nogw:
@@ -940,7 +1012,7 @@ class SigmaConvWork(Work):
         Args:
             wfk_node: The node who has produced the WFK file or filepath pointing to the WFK file.
             scr_node: The node who has produced the SCR file or filepath pointing to the SCR file.
-            sigma_inputs: List of Strategies for the self-energy run.
+            sigma_inputs: List of :class:`AbinitInput` for the self-energy runs.
             workdir: Working directory of the calculation.
             manager: :class:`TaskManager` object.
         """
@@ -966,9 +1038,9 @@ class BseMdfWork(Work):
     def __init__(self, scf_input, nscf_input, bse_inputs, workdir=None, manager=None):
         """
         Args:
-            scf_input: Input for the SCF run or :class:`ScfStrategy` object.
-            nscf_input: Input for the NSCF run or :class:`NscfStrategy` object.
-            bse_inputs: List of Inputs for the BSE run or :class:`BSEStrategy` object.
+            scf_input: Input for the SCF run.
+            nscf_input: Input for the NSCF run.
+            bse_inputs: List of Inputs for the BSE run.
             workdir: Working directory of the calculation.
             manager: :class:`TaskManager`.
         """
@@ -986,6 +1058,21 @@ class BseMdfWork(Work):
 
         for bse_input in bse_inputs:
             self.register_bse_task(bse_input, deps={self.nscf_task: "WFK"})
+
+    def get_mdf_robot(self):
+        """Builds and returns a :class:`MdfRobot` for analyzing the results in the MDF files."""
+        from abilab.robots import MdfRobot
+        robot = MdfRobot()
+        for task in self[2:]:
+            mdf_path = task.outdir.has_abiext(robot.EXT)
+            if mdf_path:
+                robot.add_file(str(task), mdf_path)
+        return robot
+
+    #def plot_conv_mdf(self, **kwargs)
+    #    with self.get_mdf_robot() as robot:
+    #        robot.get_mdf_plooter()
+    #    plotter.plot(**kwargs)
 
 
 class QptdmWork(Work):
@@ -1019,11 +1106,10 @@ class QptdmWork(Work):
         # Create the symbolic link and add the magic value
         # nqpdm = -1 to the input to get the list of q-points.
         fake_task.inlink_file(wfk_file)
-        fake_task.strategy.add_extra_abivars({"nqptdm": -1})
+        fake_task._set_inpvars({"nqptdm": -1})
         fake_task.start_and_wait()
 
         # Parse the section with the q-points
-        from pymatgen.io.abinitio.netcdf import NetcdfReader
         with NetcdfReader(fake_task.outdir.has_abiext("qptdms.nc")) as reader:
             qpoints = reader.read_value("reduced_coordinates_of_kpoints")
         #print("qpoints)
@@ -1034,7 +1120,9 @@ class QptdmWork(Work):
             qptdm_input = scr_input.deepcopy()
             qptdm_input.set_vars(nqptdm=1, qptdm=qpoint)
             new_task = self.register_scr_task(qptdm_input, manager=self.manager)
-            #new_task.set_garbage_collector()
+            # Add the garbage collector.
+            if self.flow.gc is not None: 
+                new_task.set_gc(self.flow.gc)
 
         self.allocate()
 
@@ -1062,6 +1150,7 @@ class QptdmWork(Work):
 
         return final_scr
 
+    #@check_spectator
     def on_all_ok(self):
         """
         This method is called when all the q-points have been computed.
@@ -1082,7 +1171,7 @@ def build_oneshot_phononwork(scf_input, ph_inputs, workdir=None, manager=None, w
         * rfatpol 1 natom
 
     .. warning::
-        This work is mainly used for simple calculations, e.g. converge studies.
+        This work is mainly used for simple calculations, e.g. convergence studies.
         Use :class:`PhononWork` for better efficiency.
     """
     work_class = OneShotPhononWork if work_class is None else work_class
@@ -1090,8 +1179,17 @@ def build_oneshot_phononwork(scf_input, ph_inputs, workdir=None, manager=None, w
     scf_task = work.register_scf_task(scf_input)
     ph_inputs = [ph_inputs] if not isinstance(ph_inputs, (list, tuple)) else ph_inputs
 
-    # cannot use PhononTaks here because the Task is not able to deal with multiple phonon calculations
     for phinp in ph_inputs:
+        # Check rfdir and rfatpol.
+        rfdir = np.array(phinp.get("rfdir", [0, 0, 0]))
+        if len(rfdir) != 3 or any(rfdir != (1, 1, 1)):
+            raise ValueError("Expecting rfdir == (1, 1, 1), got %s" % rfdir)
+
+        rfatpol = np.array(phinp.get("rfatpol", [1, 1]))
+        if len(rfatpol) != 2 or any(rfatpol != (1, len(phinp.structure))):
+            raise ValueError("Expecting rfatpol == (1, natom), got %s" % rfatpol)
+
+        # cannot use PhononTaks here because the Task is not able to deal with multiple phonon calculations
         ph_task = work.register(phinp, deps={scf_task: "WFK"})
 
     return work
@@ -1107,7 +1205,15 @@ class OneShotPhononWork(Work):
     Use ``build_oneshot_phononwork`` to construct this work from the input files.
     """
     def read_phonons(self):
-        """Read phonon frequencies from the output file."""
+        """
+        Read phonon frequencies from the output file.
+
+        Return:
+            List of namedtuples. Each `namedtuple` has the following attributes:
+                
+                - qpt: ndarray with the q-point in reduced coordinates.
+                - freqs: ndarray with 3 x Natom phonon frequencies in meV
+        """
         # 
         #   Phonon wavevector (reduced coordinates) :  0.00000  0.00000  0.00000
         #  Phonon energies in Hartree :
@@ -1122,6 +1228,7 @@ class OneShotPhononWork(Work):
         ph_tasks, qpts, phfreqs = self[1:], [], []
         for task in ph_tasks:
 
+            # Parse output file.
             with open(task.output_file.path, "r") as fh:
                 qpt, inside = None, 0 
                 for line in fh:
@@ -1136,6 +1243,7 @@ class OneShotPhononWork(Work):
                             omegas.extend((float(s) for s in line.split()))
                 else:
                     raise ValueError("Cannot find %s in file %s" % (END, task.output_file.path))
+
                 phfreqs.append(omegas)
 
         # Use namedtuple to store q-point and frequencies in meV
@@ -1149,13 +1257,9 @@ class OneShotPhononWork(Work):
         return results
 
 
-class PhononWork(Work):
-    """
-    This work usually consists of nirred Phonon tasks where nirred is 
-    the number of irreducible perturbations for a given q-point.
-    It provides the callback method (on_all_ok) that calls mrgddb to merge 
-    the partial DDB files and mrgggkk to merge the GKK files.
-    """
+class MergeDdb(object):
+    """Mixin classes for Works that have to merge the DDB files produced by the tasks."""
+
     def merge_ddb_files(self):
         """
         This method is called when all the q-points have been computed.
@@ -1167,7 +1271,7 @@ class PhononWork(Work):
         """
         ddb_files = list(filter(None, [task.outdir.has_abiext("DDB") for task in self]))
 
-        logger.debug("will call mrgddb to merge %s:\n" % str(ddb_files))
+        self.history.info("Will call mrgddb to merge %s:\n" % str(ddb_files))
         # assert len(ddb_files) == len(self)
 
         #if len(ddb_files) == 1:
@@ -1177,11 +1281,53 @@ class PhononWork(Work):
         out_ddb = self.outdir.path_in("out_DDB")
         desc = "DDB file merged by %s on %s" % (self.__class__.__name__, time.asctime())
 
-        mrgddb = wrappers.Mrgddb(manager=self[0].manager, verbose=1)
+        mrgddb = wrappers.Mrgddb(manager=self[0].manager, verbose=0)
         mrgddb.merge(self.outdir.path, ddb_files, out_ddb=out_ddb, description=desc)
 
         return out_ddb
 
+
+class PhononWork(Work, MergeDdb):
+    """
+    This work usually consists of nirred Phonon tasks where nirred is 
+    the number of irreducible perturbations for a given q-point.
+    It provides the callback method (on_all_ok) that calls mrgddb to merge the partial DDB files produced 
+    """
+    @classmethod
+    def from_scf_task(cls, scf_task, qpt, tolerance=None):
+        """
+        Construct a `PhononWork` from a :class:`ScfTask` object.
+        The input file for phonons is automatically generated from the input of the ScfTask.
+        Each phonon task depends on the WFK file produced by scf_task.
+
+        Args:
+            scf_task: ScfTask object. 
+            qpt: q-point for phonons in reduced coordinates.
+        """
+        if not isinstance(scf_task, ScfTask):
+            raise TypeError("task %s does not inherit from ScfTask" % scf_task)
+
+        new = cls() #manager=scf_task.manager)
+
+        multi = scf_task.input.make_ph_inputs_qpoint(qpt, tolerance=tolerance)
+
+        for ph_inp in multi:
+            new.register_phonon_task(ph_inp, deps={scf_task: "WFK"})
+
+        return new
+
+    # TODO
+    #def compute_phonons(self)
+    #    """
+    #    Call anaddb to compute the phonon frequencies for this q-point and
+    #    store the results in the outdir of the work.
+    #    """
+    #    #atask = AnaddbTask(anaddb_input, ddb_node,
+    #    #         gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None)
+    #    #atask.start_and_wait()
+    #    return phonons
+
+    #@check_spectator 
     def on_all_ok(self):
         """
         This method is called when all the q-points have been computed.
@@ -1194,12 +1340,53 @@ class PhononWork(Work):
         results = self.Results(node=self, returncode=0, message="DDB merge done")
         results.register_gridfs_files(DDB=(out_ddb, "t"))
 
-        # TODO
-        # Call anaddb to compute the phonon frequencies for this q-point and
-        # store the results in the outdir of the work.
+        return results
 
-        #atask = AnaddbTask(anaddb_input, ddb_node,
-        #         gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None)
-        #atask.start()
+
+class BecWork(Work, MergeDdb):
+    """
+    Work for the computation of the Born effective charges.
+
+    This work consists of DDK tasks and phonon + electric fiel perturbation
+    It provides the callback method (on_all_ok) that calls mrgddb to merge the partial DDB files produced 
+    """
+    @classmethod
+    def from_scf_task(cls, scf_task, ddk_tolerance=None):
+        """Build a BecWork from a ground-state task."""
+        if not isinstance(scf_task, ScfTask):
+            raise TypeError("task %s does not inherit from GsTask" % scf_task)
+
+        new = cls() #manager=scf_task.manager)
+
+        # DDK calculations
+        multi_ddk = scf_task.input.make_ddk_inputs(tolerance=ddk_tolerance)
+
+        ddk_tasks = []
+        for ddk_inp in multi_ddk:
+            ddk_task = new.register_ddk_task(ddk_inp, deps={scf_task: "WFK"})
+            ddk_tasks.append(ddk_task)
+
+        # Build the list of inputs for electric field perturbation and phonons
+        # Each bec task is connected to all the previous DDK task and to the scf_task.
+        bec_deps = {ddk_task: "DDK" for ddk_task in ddk_tasks}
+        bec_deps.update({scf_task: "WFK"})
+
+        bec_inputs = scf_task.input.make_bec_inputs() #tolerance=efile
+        for bec_inp in bec_inputs:
+             new.register_bec_task(bec_inp, deps=bec_deps)
+
+        return new
+
+    def on_all_ok(self):
+        """
+        This method is called when all the task reach S_OK
+        Ir runs `mrgddb` in sequential on the local machine to produce
+        the final DDB file in the outdir of the `Work`.
+        """
+        # Merge DDB files.
+        out_ddb = self.merge_ddb_files()
+
+        results = self.Results(node=self, returncode=0, message="DDB merge done")
+        results.register_gridfs_files(DDB=(out_ddb, "t"))
 
         return results

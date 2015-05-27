@@ -21,6 +21,7 @@ import copy
 import getpass
 import six
 import json
+import math
 from . import qutils as qu
 
 from collections import namedtuple
@@ -35,7 +36,6 @@ from pymatgen.core.units import Memory
 from .utils import Condition
 from .launcher import ScriptEditor
 from .qjobs import QueueJob
-from .tasks import FixQueueCriticalError
 
 import logging
 logger = logging.getLogger(__name__)
@@ -360,7 +360,9 @@ limits:
                        # possible values are ["nodes", "force_nodes", "shared"]
                        # "nodes" means that we should try to allocate entire nodes if possible.
                        # This is a soft limit, in the sense that the qadapter may use a configuration
-                       # that does not fulfill this requirement, use `force_nodes` to enfore that.
+                       # that does not fulfill this requirement. If failing, it will try to use the
+                       # smallest number of nodes compatible with the optimal configuration.
+                       # Use `force_nodes` to enfore entire nodes allocation.
                        # `shared` mode does not enforce any constraint (default).
 """
 
@@ -403,14 +405,14 @@ limits:
         self._parse_limits(kwargs.pop("limits"))
         self._parse_job(kwargs.pop("job"))
 
+        # List of dictionaries with the parameters used to submit jobs
+        # The launcher will use this information to increase the resources
+        self.launches, self.max_num_launches = [], kwargs.pop("max_num_launches", 10)
+
         if kwargs:
             raise ValueError("Found unknown keywords:\n%s" % kwargs.keys())
 
         self.validate_qparams()
-
-        # List of dictionaries with the parameters used to submit jobs
-        # The launcher will use this information to increase the resources
-        self.launches, self.max_num_launches = [], kwargs.pop("max_num_launches", 10)
 
         # Initialize some values from the info reported in the partition.
         self.set_mpi_procs(self.min_cores)
@@ -434,7 +436,7 @@ limits:
         for param in self.qparams:
             if param not in self.supported_qparams:
                 err_msg += "Unsupported QUEUE parameter name %s\n" % param
-                err_msg += "Supported are: \n"
+                err_msg += "Supported parameters:\n"
                 for param_sup in self.supported_qparams:
                     err_msg += "    %s \n" % param_sup
 
@@ -492,7 +494,7 @@ limits:
         qparams = d.pop("qparams", None)
         self._qparams = copy.deepcopy(qparams) if qparams is not None else {}
 
-        self.set_qname(d.pop("qname"))
+        self.set_qname(d.pop("qname", ""))
         if d:
             raise ValueError("Found unknown keyword(s) in queue section:\n %s" % d.keys())
 
@@ -656,12 +658,12 @@ limits:
         return self._mem_per_proc
                                                 
     def set_mem_per_proc(self, mem_mb):
-        """Set the memory per process in megabytes"""
+        """
+        Set the memory per process in megabytes. If mem_mb <=0, min_mem_per_proc is used.
+        """
         # Hack needed because abinit is still not able to estimate memory.
-        if mem_mb <= 0:
-            mem_mb = self.min_mem_per_proc
-
-        self._mem_per_proc = mem_mb
+        if mem_mb <= 0: mem_mb = self.min_mem_per_proc
+        self._mem_per_proc = int(mem_mb)
 
     @property
     def total_mem(self):
@@ -946,9 +948,7 @@ limits:
 
     @abc.abstractmethod
     def exclude_nodes(self, nodes):
-        """
-        Method to exclude nodes in the calculation
-        """
+        """Method to exclude nodes in the calculation. Return True if nodes have been excluded"""
 
     def more_mem_per_proc(self, factor=1):
         """
@@ -1011,7 +1011,7 @@ $${qverbatim}
         return None, None
 
     def exclude_nodes(self, nodes):
-        raise FixQueueCriticalError
+        return False
 
 
 class SlurmAdapter(QueueAdapter):
@@ -1028,7 +1028,7 @@ class SlurmAdapter(QueueAdapter):
 #SBATCH --ntasks=$${ntasks}
 #SBATCH --ntasks-per-node=$${ntasks_per_node}
 #SBATCH --cpus-per-task=$${cpus_per_task}
-#SBATCH --mem=$${mem}
+#####SBATCH --mem=$${mem}
 #SBATCH --mem-per-cpu=$${mem_per_cpu}
 #SBATCH --hint=$${hint}
 #SBATCH --time=$${time}
@@ -1049,7 +1049,8 @@ $${qverbatim}
 
     def set_qname(self, qname):
         super(SlurmAdapter, self).set_qname(qname)
-        self.qparams["partition"] = qname
+        if qname:
+            self.qparams["partition"] = qname
 
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
@@ -1063,9 +1064,9 @@ $${qverbatim}
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
         super(SlurmAdapter, self).set_mem_per_proc(mem_mb)
-        self.qparams["mem_per_cpu"] = int(mem_mb)
+        self.qparams["mem_per_cpu"] = self.mem_per_proc
         # Remove mem if it's defined.
-        self.qparams.pop("mem", None)
+        #self.qparams.pop("mem", None)
 
     def set_timelimit(self, timelimit):
         super(SlurmAdapter, self).set_timelimit(timelimit)
@@ -1075,7 +1076,13 @@ $${qverbatim}
         return os.system("scancel %d" % job_id)
 
     def optimize_params(self):
-        return {}
+        params = {}
+        if self.allocation == "nodes":
+            # run on the smallest number of nodes compatible with the configuration
+            params["nodes"] = max(int(math.ceil(self.mpi_procs / self.hw.cores_per_node)),
+                                  int(math.ceil(self.total_mem / self.hw.mem_per_node)))
+        return params
+
         #dist = self.distribute(self.mpi_procs, self.omp_threads, self.mem_per_proc)
         ##print(dist)
 
@@ -1173,7 +1180,8 @@ $${qverbatim}
 
     def set_qname(self, qname):
         super(PbsProAdapter, self).set_qname(qname)
-        self.qparams["queue"] = qname
+        if qname:
+            self.qparams["queue"] = qname
 
     def set_timelimit(self, timelimit):
         super(PbsProAdapter, self).set_timelimit(timelimit)
@@ -1182,8 +1190,8 @@ $${qverbatim}
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
         super(PbsProAdapter, self).set_mem_per_proc(mem_mb)
-        #self.qparams["pvmem"] = int(mem_mb)
-        #self.qparams["vmem"] = int(mem_mb)
+        #self.qparams["vmem"] = self.mem_per_proc
+        #self.qparams["pvmem"] = self.mem_per_proc
 
     def cancel(self, job_id):
         return os.system("qdel %d" % job_id)
@@ -1314,7 +1322,8 @@ $${qverbatim}
         return njobs, process
 
     def exclude_nodes(self, nodes):
-        raise self.Error('qadapter failed to exclude nodes, not implemented yet in pbs')
+        """No meaning for Shell"""
+        return False
 
 
 class TorqueAdapter(PbsProAdapter):
@@ -1329,7 +1338,7 @@ class TorqueAdapter(PbsProAdapter):
 #PBS -A $${account}
 #PBS -l pmem=$${pmem}mb
 ####PBS -l mppwidth=$${mppwidth}
-#PBS -l nodes=$${nodes}:ppn=$${ppn} 
+#PBS -l nodes=$${nodes}:ppn=$${ppn}
 #PBS -l walltime=$${walltime}
 #PBS -l model=$${model}
 #PBS -l place=$${place}
@@ -1346,17 +1355,17 @@ $${qverbatim}
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
         QueueAdapter.set_mem_per_proc(self, mem_mb)
-        self.qparams["pmem"] = mem_mb
-        self.qparams["mem"] = mem_mb
+        self.qparams["pmem"] = self.mem_per_proc
+        #self.qparams["mem"] = self.mem_per_proc
 
-    @property
-    def mpi_procs(self):
-        """Number of MPI processes."""
-        return self.qparams.get("nodes", 1)*self.qparams.get("ppn", 1)
+    #@property
+    #def mpi_procs(self):
+    #    """Number of MPI processes."""
+    #    return self.qparams.get("nodes", 1) * self.qparams.get("ppn", 1)
 
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
-        QueueAdapter.set_mpi_procs(mpi_procs)
+        QueueAdapter.set_mpi_procs(self, mpi_procs)
         self.qparams["nodes"] = 1
         self.qparams["ppn"] = mpi_procs
 
@@ -1399,7 +1408,8 @@ $${qverbatim}
 """
     def set_qname(self, qname):
         super(SGEAdapter, self).set_qname(qname)
-        self.qparams["queue_name"] = qname
+        if qname:
+            self.qparams["queue_name"] = qname
 
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
@@ -1413,7 +1423,7 @@ $${qverbatim}
     def set_mem_per_proc(self, mem_mb):
         """Set the memory per process in megabytes"""
         super(SGEAdapter, self).set_mem_per_proc(mem_mb)
-        self.qparams["mem_per_slot"] = str(int(mem_mb)) + "M"
+        self.qparams["mem_per_slot"] = str(int(self.mem_per_proc)) + "M"
 
     def set_timelimit(self, timelimit):
         super(SGEAdapter, self).set_timelimit(timelimit)

@@ -507,6 +507,12 @@ def main():
     parser_diffraction.set_defaults(func=generate_diffraction_plot)
 
     args = parser.parse_args()
+
+    try:
+        a = getattr(args, "func")
+    except AttributeError:
+        parser.print_help()
+        sys.exit(0)
     args.func(args)
 
 

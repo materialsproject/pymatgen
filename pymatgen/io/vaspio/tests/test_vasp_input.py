@@ -247,8 +247,45 @@ class IncarTest(unittest.TestCase):
         incar1 = Incar.from_file(filepath1)
         filepath2 = os.path.join(test_dir, 'INCAR.2')
         incar2 = Incar.from_file(filepath2)
+        filepath3 = os.path.join(test_dir, 'INCAR.3')
+        incar3 = Incar.from_file(filepath2)
         self.assertEqual(
             incar1.diff(incar2),
+            {'Different': {
+                'NELM': {'INCAR1': None, 'INCAR2': 100},
+                'ISPIND': {'INCAR1': 2, 'INCAR2': None},
+                'LWAVE': {'INCAR1': True, 'INCAR2': False},
+                'LDAUPRINT': {'INCAR1': None, 'INCAR2': 1},
+                'MAGMOM': {'INCAR1': [6, -6, -6, 6, 0.6, 0.6, 0.6,
+                                      0.6, 0.6, 0.6, 0.6, 0.6,
+                                      0.6, 0.6, 0.6, 0.6, 0.6,
+                                      0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6],
+                           'INCAR2': None},
+                'NELMIN': {'INCAR1': None, 'INCAR2': 3},
+                'ENCUTFOCK': {'INCAR1': 0.0, 'INCAR2': None},
+                'HFSCREEN': {'INCAR1': 0.207, 'INCAR2': None},
+                'LSCALU': {'INCAR1': False, 'INCAR2': None},
+                'ENCUT': {'INCAR1': 500, 'INCAR2': None},
+                'NSIM': {'INCAR1': 1, 'INCAR2': None},
+                'ICHARG': {'INCAR1': None, 'INCAR2': 1},
+                'NSW': {'INCAR1': 99, 'INCAR2': 51},
+                'NKRED': {'INCAR1': 2, 'INCAR2': None},
+                'NUPDOWN': {'INCAR1': 0, 'INCAR2': None},
+                'LCHARG': {'INCAR1': True, 'INCAR2': None},
+                'LPLANE': {'INCAR1': True, 'INCAR2': None},
+                'ISMEAR': {'INCAR1': 0, 'INCAR2': -5},
+                'NPAR': {'INCAR1': 8, 'INCAR2': 1},
+                'SYSTEM': {'INCAR1': 'Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]',
+                           'INCAR2': 'Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] sg_name=[r-3m]'},
+                'ALGO': {'INCAR1': 'Damped', 'INCAR2': 'Fast'},
+                'LHFCALC': {'INCAR1': True, 'INCAR2': None},
+                'TIME': {'INCAR1': 0.4, 'INCAR2': None}},
+             'Same': {'IBRION': 2, 'PREC': 'Accurate', 'ISIF': 3, 'LMAXMIX': 4,
+                      'LREAL': 'Auto', 'ISPIN': 2, 'EDIFF': 0.0001,
+                      'LORBIT': 11, 'SIGMA': 0.05}})
+
+        self.assertEqual(
+            incar1.diff(incar3),
             {'Different': {
                 'NELM': {'INCAR1': None, 'INCAR2': 100},
                 'ISPIND': {'INCAR1': 2, 'INCAR2': None},
@@ -380,40 +417,54 @@ class KpointsTest(unittest.TestCase):
 class PotcarSingleTest(unittest.TestCase):
 
     def setUp(self):
-        with zopen(os.path.join(test_dir, "POT_GGA_PAW_PBE",
-                                "POTCAR.Mn_pv.gz"), 'rb') as f:
-            self.psingle = PotcarSingle(f.read().decode(encoding="utf-8"))
+        #with zopen(os.path.join(test_dir, "POT_GGA_PAW_PBE",
+        #                        "POTCAR.Mn_pv.gz"), 'rb') as f:
+        self.psingle = PotcarSingle.from_file(os.path.join(test_dir, "POT_GGA_PAW_PBE",
+                                "POTCAR.Mn_pv.gz"))
 
     def test_keywords(self):
-        data = {'VRHFIN': 'Mn: 3p4s3d', 'LPAW': 'T    paw PP', 'DEXC': '-.003',
-                'STEP': '20.000   1.050',
-                'RPACOR': '2.080    partial core radius', 'LEXCH': 'PE',
-                'ENMAX': '269.865', 'QCUT': '-4.454',
+        data = {'VRHFIN': 'Mn: 3p4s3d', 'LPAW': True, 'DEXC': -.003,
+                'STEP': [20.000,   1.050],
+                'RPACOR': 2.080, 'LEXCH': 'PE',
+                'ENMAX': 269.865, 'QCUT': -4.454,
                 'TITEL': 'PAW_PBE Mn_pv 07Sep2000',
-                'LCOR': 'T    correct aug charges', 'EAUG': '569.085',
-                'RMAX': '2.807    core radius for proj-oper',
-                'ZVAL': '13.000    mass and valenz',
-                'EATOM': '2024.8347 eV,  148.8212 Ry', 'NDATA': '100',
-                'LULTRA': 'F    use ultrasoft PP ?',
-                'QGAM': '8.907    optimization parameters',
-                'ENMIN': '202.399 eV',
-                'RCLOC': '1.725    cutoff for local pot',
-                'RCORE': '2.300    outmost cutoff radius',
-                'RDEP': '2.338    radius for radial grids',
-                'IUNSCR': '1    unscreen: 0-lin 1-nonlin 2-no',
-                'RAUG': '1.300    factor for augmentation sphere',
-                'POMASS': '54.938',
-                'RWIGS': '1.323    wigner-seitz radius (au A)'}
+                'LCOR': True, 'EAUG': 569.085,
+                'RMAX': 2.807,
+                'ZVAL': 13.000,
+                'EATOM': 2024.8347, 'NDATA': 100,
+                'LULTRA': False,
+                'QGAM': 8.907,
+                'ENMIN': 202.399,
+                'RCLOC': 1.725,
+                'RCORE': 2.300,
+                'RDEP': 2.338,
+                'IUNSCR': 1,
+                'RAUG': 1.300,
+                'POMASS': 54.938,
+                'RWIGS': 1.323}
         self.assertEqual(self.psingle.keywords, data)
 
     def test_nelectrons(self):
         self.assertEqual(self.psingle.nelectrons, 13)
+
+    def test_electron_config(self):
+        config = self.psingle.electron_configuration
+        self.assertEqual(config[-1], (3, "p", 6))
 
     def test_attributes(self):
         for k in ['DEXC', 'RPACOR', 'ENMAX', 'QCUT', 'EAUG', 'RMAX',
                   'ZVAL', 'EATOM', 'NDATA', 'QGAM', 'ENMIN', 'RCLOC',
                   'RCORE', 'RDEP', 'RAUG', 'POMASS', 'RWIGS']:
             self.assertIsNotNone(getattr(self.psingle, k))
+
+    def test_found_unknown_key(self):
+        self.assertRaises(KeyError, PotcarSingle.parse_functions.get('BAD_KEY'), "BAD_VALUE")
+
+    def test_bad_value(self):
+        self.assertRaises(ValueError, PotcarSingle.parse_functions['ENMAX'], "ThisShouldBeAFloat")
+
+    def test_hash(self):
+        self.assertEqual(self.psingle.get_potcar_hash(), "fa52f891f234d49bb4cb5ea96aae8f98")
 
     def test_from_functional_and_symbols(self):
         if "VASP_PSP_DIR" not in os.environ:
@@ -423,6 +474,22 @@ class PotcarSingleTest(unittest.TestCase):
             os.environ["VASP_PSP_DIR"] = test_potcar_dir
         p = PotcarSingle.from_symbol_and_functional("Li_sv", "PBE")
         self.assertEqual(p.enmax, 271.649)
+
+    def test_functional_types(self):
+        self.assertEqual(self.psingle.functional, 'PBE')
+
+        self.assertEqual(self.psingle.functional_class, 'GGA')
+
+        self.assertEqual(self.psingle.potential_type, 'PAW')
+
+        psingle = PotcarSingle.from_file(os.path.join(test_dir, "POT_LDA_PAW",
+                                "POTCAR.Fe.gz"))
+
+        self.assertEqual(psingle.functional, 'Perdew-Zunger81')
+
+        self.assertEqual(psingle.functional_class, 'LDA')
+
+        self.assertEqual(psingle.potential_type, 'PAW')
 
 
 class PotcarTest(unittest.TestCase):
@@ -465,6 +532,13 @@ class PotcarTest(unittest.TestCase):
         self.assertEqual(p.symbols, self.potcar.symbols)
         os.remove(tempfname)
 
+    def test_set_symbol(self):
+        self.assertEqual(self.potcar.symbols, ["Fe", "P", "O"])
+        self.assertEqual(self.potcar[0].nelectrons, 8)
+        self.potcar.symbols = ["Fe_pv", "O"]
+        self.assertEqual(self.potcar.symbols, ["Fe_pv", "O"])
+        self.assertEqual(self.potcar[0].nelectrons, 14)
+
 
 class VaspInputTest(unittest.TestCase):
 
@@ -489,6 +563,19 @@ class VaspInputTest(unittest.TestCase):
         vinput = VaspInput.from_dict(d)
         comp = vinput["POSCAR"].structure.composition
         self.assertEqual(comp, Composition("Fe4P4O16"))
+
+    def test_write(self):
+        tmp_dir = "VaspInput.testing"
+        self.vinput.write_input(tmp_dir)
+
+        filepath = os.path.join(tmp_dir, "INCAR")
+        incar = Incar.from_file(filepath)
+        self.assertEqual(incar["NSW"], 99)
+
+        for name in ("INCAR", "POSCAR", "POTCAR", "KPOINTS"):
+            os.remove(os.path.join(tmp_dir, name))
+
+        os.rmdir(tmp_dir)
 
     def test_from_directory(self):
         vi = VaspInput.from_directory(test_dir,

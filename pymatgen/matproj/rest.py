@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from __future__ import division, unicode_literals
+from six import string_types
 
 """
 This module provides classes to interface with the Materials Project REST
@@ -11,7 +12,6 @@ To make use of the Materials API, you need to be a registered user of the
 Materials Project, and obtain an API key by going to your dashboard at
 https://www.materialsproject.org/dashboard.
 """
-
 
 __author__ = "Shyue Ping Ong, Shreyas Cholia"
 __credits__ = "Anubhav Jain"
@@ -39,7 +39,7 @@ from pymatgen.io.vaspio_set import DictVaspInputSet
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.matproj.snl import StructureNL
-
+from pymatgen.core.structure import Structure
 
 class MPRester(object):
     """
@@ -235,6 +235,41 @@ class MPRester(object):
         data = self.get_data(chemsys_formula_id, prop=prop)
         return [d[prop] for d in data]
 
+    def find_structure(self, filename_or_structure):
+        """
+        Finds matching structures on the Materials Project site.
+
+        Args:
+            filename_or_structure: filename or Structure object
+
+        Returns:
+            A list of matching structures.
+
+        Raises:
+            MPRestError
+        """
+        try:
+            if isinstance(filename_or_structure, string_types):
+                s = Structure.from_file(filename_or_structure)
+            elif isinstance(filename_or_structure, Structure):
+                s = filename_or_structure
+            else:
+                raise MPRestError("Provide filename or Structure object.")
+            payload = {'structure': json.dumps(s.as_dict(), cls=MontyEncoder)}
+            response = self.session.post(
+                '{}/find_structure'.format(self.preamble), data=payload
+            )
+            if response.status_code in [200, 400]:
+                resp = json.loads(response.text, cls=MPDecoder)
+                if resp['valid_response']:
+                    return resp['response']
+                else:
+                    raise MPRestError(resp["error"])
+            raise MPRestError("REST error with status code {} and error {}"
+                              .format(response.status_code, response.text))
+        except Exception as ex:
+            raise MPRestError(str(ex))
+
     def get_entries(self, chemsys_formula_id, compatible_only=True,
                     inc_structure=None):
         """
@@ -261,6 +296,7 @@ class MPRester(object):
         """
         # TODO: This is a very hackish way of doing this. It should be fixed
         # on the REST end.
+
         if compatible_only:
             data = self.get_data(chemsys_formula_id, prop="entry")
             entries = [d["entry"] for d in data]
@@ -462,6 +498,12 @@ class MPRester(object):
         Query allows an advanced developer to perform queries which are
         otherwise too cumbersome to perform using the standard convenience
         methods.
+
+        It is highly recommended that you consult the Materials API
+        documentation at http://bit.ly/materialsapi, which provides a
+        comprehensive explanation of the document schema used in the
+        Materials Project and how best to query for the relevant information
+        you need.
 
         Args:
             criteria (str/dict): Criteria of the query as a string or

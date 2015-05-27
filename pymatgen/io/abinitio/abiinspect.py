@@ -12,6 +12,7 @@ import six
 
 from six.moves import cStringIO, map, zip
 from prettytable import PrettyTable
+from monty.collections import AttrDict
 from pymatgen.util.plotting_utils import add_fig_kwargs
 
 
@@ -534,7 +535,8 @@ def yaml_read_irred_perts(filename, doc_tag="!IrredPerts"):
         doc = r.next_doc_with_tag(doc_tag)
         d = yaml.load(doc.text_notag)
 
-        return d["irred_perts"]
+        return [AttrDict(**pert) for pert in d["irred_perts"]]
+        #return d["irred_perts"]
 
 
 class YamlDoc(object):
