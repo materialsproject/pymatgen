@@ -114,6 +114,13 @@ class AbinitEvent(yaml.YAMLObject):
     def __str__(self):
         return "\n".join((self.header, self.message))
 
+    def __eq__(self, other):
+        if other is None: return False
+        return self.message == other.message
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     @property
     def src_file(self):
         """String with the name of the Fortran file where the event is raised."""
@@ -280,6 +287,9 @@ class EventReport(collections.Iterable, PMGSONable):
     def __iter__(self):
         return self._events.__iter__()
 
+    def __getitem__(self, slice):
+        return self._events[slice]
+
     def __str__(self):
         #has_colours = stream_has_colours(stream)
         has_colours = True
@@ -343,13 +353,8 @@ class EventReport(collections.Iterable, PMGSONable):
 
     @property
     def errors(self):
-        """List of errors found."""
-        return self.select(AbinitError)
-
-    @property
-    def bugs(self):
-        """List of bugs found."""
-        return self.select(AbinitBug)
+        """List of errors + bugs found."""
+        return self.select(AbinitError) + self.select(AbinitBug)
 
     @property
     def warnings(self):
@@ -459,7 +464,9 @@ class EventsParser(object):
         This method is used when self.parser raises an Exception so that
         we can report a customized :class:`EventReport` object with info the exception.
         """
-        return EventReport(filename, events=[AbinitError(str(exc))])
+        # Build fake event.
+        event = AbinitError(src_file="Unknown", src_line=0, message=str(exc))
+        return EventReport(filename, events=[event])
 
 
 class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
@@ -674,11 +681,11 @@ class DilatmxErrorHandler(ErrorHandler):
         task._change_structure(last_structure)
 
         #read the suggested dilatmx
-        new_dilatmx = 1.05
-        if new_dilatmx > self.max_dilatmx:
-            msg = "Suggested dilatmx ({}) exceeds maximux configured value ({}).".format(new_dilatmx, self.max_dilatmx)
-            return self.NOT_FIXED
-        task.strategy.abinit_input.set_vars(dilatmx=new_dilatmx)
+        # new_dilatmx = 1.05
+        # if new_dilatmx > self.max_dilatmx:
+        #     msg = "Suggested dilatmx ({}) exceeds maximux configured value ({}).".format(new_dilatmx, self.max_dilatmx)
+        #     return self.NOT_FIXED
+        # task.strategy.abinit_input.set_vars(dilatmx=new_dilatmx)
         msg = "Take last structure from DILATMX_STRUCT.nc, will try to restart with dilatmx %s" % task.get_inpvar("dilatmx")
         task.log_correction(event, msg)
         # Note that we change the structure but we don't try restart from the previous WFK|DEN file
@@ -744,7 +751,7 @@ class TolSymErrorHandler(ErrorHandler):
 
         old_tolsym = task.get_inpvar("tolsym")
         new_tolsym = 1e-6 if old_tolsym is None else old_tolsym * 10
-        task._set_inpvar("tolsym", new_tolsym)
+        task._set_inpvars(tolsym=new_tolsym)
 
         task.log_correction(event, "Increasing tolsym from %s to %s" % (old_tolsym, new_tolsym))
         return self.FIXED

@@ -10,9 +10,11 @@ import time
 import collections
 import abc
 import six
+import numpy as np
 
 from pprint import pprint
 from atomicfile import AtomicFile
+from pydispatch import dispatcher
 from monty.termcolor import colored
 from monty.serialization import loadfn
 from monty.string import is_string
@@ -54,7 +56,6 @@ class Status(int):
         (9,  "Unconverged",   "red"    , "on_yellow", None),  # This usually means that an iterative algorithm didn't converge.
         (10, "Error",         "red"    , None, None),         # Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.
         (11, "Completed",     "green"  , None, None),         # Execution completed successfully.
-        #(11, "Completed",     "green"  , None, "underline"),   
     ]
     _STATUS2STR = collections.OrderedDict([(t[0], t[1]) for t in _STATUS_INFO])
     _STATUS2COLOR_OPTS = collections.OrderedDict([(t[0], {"color": t[2], "on_color": t[3], "attrs": _2attrs(t[4])}) for t in _STATUS_INFO])
@@ -69,6 +70,7 @@ class Status(int):
     @classmethod
     def as_status(cls, obj):
         """Convert obj into Status."""
+        if obj is None: return None
         return obj if isinstance(obj, cls) else cls.from_string(obj)
 
     @classmethod
@@ -79,6 +81,11 @@ class Status(int):
                 return cls(num)
         else:
             raise ValueError("Wrong string %s" % s)
+
+    @classmethod
+    def all_status_strings(cls):
+        """List of strings with all possible values status."""
+        return [info[1] for info in cls._STATUS_INFO]
 
     @property
     def is_critical(self):
@@ -177,6 +184,7 @@ class Dependency(object):
 
         for getter in self.getters:
             if getter == "@structure":
+                task.history.info("Getting structure from %s" % self.node)
                 new_structure = self.node.get_final_structure()
                 task._change_structure(new_structure)
             else:
@@ -401,6 +409,35 @@ class NodeResults(dict, PMGSONable):
         #collection.update({'_id':mongo_id}, {"$set": doc}, upsert=False)
 
 
+def check_spectator(node_method):
+    """
+    Decorator for :class:`Node` methods. Raise `SpectatorNodeError`.
+    """ 
+    from functools import wraps
+    @wraps(node_method)
+    def wrapper(*args, **kwargs):
+        node = args[0]
+        if node.in_spectator_mode:
+            #raise node.SpectatorError("You should not call this method when the node in spectator_mode")
+            #warnings.warn("You should not call %s when the node in spectator_mode" % node_method)
+            import warnings
+
+        return node_method(*args, **kwargs)
+
+    return wrapper
+
+
+class NodeError(Exception):
+    """Base Exception raised by :class:`Node` subclasses"""
+
+
+class SpectatorNodeError(NodeError):
+    """
+    Exception raised by :class:`Node` methods when the node is in spectator mode
+    and we are calling a method with side effects.
+    """
+
+
 class Node(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract base class defining the interface that must be 
@@ -409,6 +446,9 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     Nodes are hashable and can be tested for equality
     """
     Results = NodeResults
+
+    Error  = NodeError
+    SpectatorError = SpectatorNodeError
 
     # Possible status of the node.
     S_INIT = Status.from_string("Initialized")
@@ -436,6 +476,9 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         S_ERROR,
         S_OK,
     ]
+
+    # Color used to plot the network in networkx
+    color_rgb = (0, 0, 0)
 
     def __init__(self):
         self._in_spectator_mode = False
@@ -531,6 +574,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         """Node identifier."""
         return self._node_id
 
+    @check_spectator
     def set_node_id(self, node_id):
         """Set the node identifier. Use it carefully!"""
         self._node_id = node_id
@@ -547,7 +591,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
 
     @property
     def in_spectator_mode(self):
-        self._in_spectator_mode
+        return self._in_spectator_mode
 
     @in_spectator_mode.setter
     def in_spectator_mode(self, mode):
@@ -573,7 +617,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         It adds a new entry in the correction history of the node.
 
         Args:
-            event: `AbinitEvent` that triggered the correction.
+            event: :class:`AbinitEvent` that triggered the correction.
             action (str): Human-readable string with info on the action perfomed to solve the problem.
         """
         # TODO: Create CorrectionObject
@@ -616,6 +660,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         """
         return self._deps
 
+    @check_spectator
     def add_deps(self, deps):
         """
         Add a list of dependencies to the :class:`Node`.
@@ -642,6 +687,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
             for task in self:
                 task.add_deps(deps)
 
+    @check_spectator
     def remove_deps(self, deps):
         """
         Remove a list of dependencies from the :class:`Node`.
@@ -718,6 +764,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         try:
             return self._gc
         except AttributeError:
+            #if not self.is_flow and self.flow.gc: return self.flow.gc
             return None
     
     @property
@@ -740,6 +787,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         except AttributeError:
             return self.flow._event_handlers
 
+    @check_spectator
     def install_event_handlers(self, categories=None, handlers=None):
         """
         Install the `EventHandlers for this `Node`. If no argument is provided
@@ -776,19 +824,26 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         stream.write("\n".join(lines))
         stream.write("\n")
 
+    def send_signal(self, signal):
+        """
+        Send signal from this node to all connected receivers unless the node is in spectator mode.
+         
+        signal -- (hashable) signal value, see `dispatcher` connect for details
+         
+        Return a list of tuple pairs [(receiver, response), ... ]
+        or None if the node is in spectator mode.
+         
+        if any receiver raises an error, the error propagates back
+        through send, terminating the dispatch loop, so it is quite
+        possible to not have all receivers called if a raises an error.
+        """
+        if self.in_spectator_mode: return None
+        logger.debug("Node %s broadcasts signal %s" % (self, signal))
+        dispatcher.send(signal=signal, sender=self)
+
    ##########################
    ### Abstract protocol ####
    ##########################
-
-    #@abc.abstractmethod
-    #def set_status(self, status, msg=None):
-    #    """
-    #    Set and return the status of the None
-    #                                                                                     
-    #    Args:
-    #        status: Status object or string representation of the status
-    #        info_msg: string with human-readable message used in the case of errors (optional)
-    #    """
 
     @abc.abstractproperty
     def status(self):
@@ -805,6 +860,8 @@ class FileNode(Node):
 
     Mainly used to connect :class:`Task` objects to external files produced in previous runs.
     """
+    color_rgb = np.array((102, 51, 255)) / 255
+
     def __init__(self, filename):
         super(FileNode, self).__init__()
         self.filepath = os.path.abspath(filename)
@@ -943,7 +1000,11 @@ class HistoryRecord(object):
             asctime: True if time string should be added.
         """
         msg = self.msg if is_string(self.msg) else str(self.msg)
-        if self.args: msg = msg % self.args
+        if self.args: 
+            try:
+                msg = msg % self.args
+            except:
+                msg += str(self.args)
 
         if asctime: msg = "[" + self.asctime + "] " + msg
 
@@ -990,13 +1051,14 @@ class NodeHistory(collections.deque):
         """Low-level logging routine which creates a :class:`HistoryRecord`."""
         from monty.inspect import find_caller, caller_name
         # FIXME: Rewrite this! It does not work if find_caller is not in the module.
-        c = find_caller()
+        #c = find_caller()
         #print(caller_name(skip=3))
 
         if exc_info and not isinstance(exc_info, tuple):
             exc_info = sys.exc_info()
 
-        self.append(HistoryRecord(level, c.filename, c.lineno, msg, args, exc_info, func=c.name))
+        self.append(HistoryRecord(level, "unknown filename", 0, msg, args, exc_info, func="unknown func"))
+        #self.append(HistoryRecord(level, c.filename, c.lineno, msg, args, exc_info, func=c.name))
 
 
 class NodeCorrections(list):
@@ -1019,22 +1081,6 @@ class GarbageCollector(object):
     """This object stores information on the """
     def __init__(self, exts, policy):
         self.exts, self.policy = set(exts), policy
-
-
-def check_spectator(node_method):
-    """
-    Decorator for :class:`Node` methods 
-    """ 
-    from functools import wraps
-    @wraps(node_method)
-    def wrapper(*args, **kwargs):
-        node = args[0]
-        if node.in_spectator_mode:
-            raise RuntimeError("You should not call this method in spectator_mode")
-
-        return node_method(*args, **kwargs)
-
-    return wrapper
 
 
 # The code below initializes a counter from a file when the module is imported 

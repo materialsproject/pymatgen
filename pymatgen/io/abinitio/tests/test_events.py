@@ -19,6 +19,7 @@ def ref_files(*filenames):
 
 
 class EventsParserTest(PymatgenTest):
+
     def test_mgb2_outputs(self):
         """Testing MgB2 output files."""
         # Analyze scf log
@@ -42,10 +43,14 @@ class EventsParserTest(PymatgenTest):
         #print(d)
         #assert 0
 
-        for warning in report.warnings:
+        for i, warning in enumerate(report.warnings):
             print(warning)
+            assert warning == report[i]
             # Msonable is conflict with YAMLObject
             #self.assertPMGSONable(warning, check_inst=False)
+
+        report = parser.report_exception(ref_file("mgb2_scf.log"), "exception")
+        assert len(report.errors) == 1 
 
     def test_parse_bad_yaml_doc(self):
         """Parsing Abinit log file with wrong YAML document."""
