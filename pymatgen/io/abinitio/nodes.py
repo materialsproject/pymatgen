@@ -554,7 +554,10 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         try:
             return self._name
         except AttributeError:
-            return os.path.basename(self.workdir)
+            if self.is_task:
+                return self.pos_str
+            else:
+                return os.path.basename(self.workdir)
 
     @property
     def relworkdir(self):
