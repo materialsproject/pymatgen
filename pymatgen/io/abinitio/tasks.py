@@ -2714,8 +2714,8 @@ class ProduceHist(object):
 
 class GsTask(AbinitTask):
     """
-    Base class for ground-state tasks. A ground state task produce a GSR file
-    Provide the method `open_gsr` that reads and returns a GSR file.
+    Base class for ground-state tasks. A ground state task produces a GSR file
+    Provides the method `open_gsr` that reads and returns a GSR file.
     """
     @property
     def gsr_path(self):
