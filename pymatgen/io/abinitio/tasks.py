@@ -512,7 +512,7 @@ batch_adapter:
     @classmethod
     def from_user_config(cls):
         """
-        Initialize the :class:`TaskManager` from the YAML file 'taskmanager.yaml'.
+        Initialize the :class:`TaskManager` from the YAML file 'manager.yaml'.
         Search first in the working directory and then in the abipy configuration directory.
 
         Raises:
@@ -540,7 +540,7 @@ batch_adapter:
             with open(filename, "r") as fh:
                 return cls.from_dict(yaml.load(fh))
         except Exception as exc:
-            print("Error while reading TaskManager parameters from file %s\n" % filename)
+            print("Error while reading TaskManager parameters from %s\n" % filename)
             raise 
 
     @classmethod
@@ -876,8 +876,7 @@ batch_adapter:
             # 2) Change the input file.
             # 3) Regenerate the submission script
             # 4) Relaunch
-            msg = "max_num_launches reached: %s" % str(exc)
-            task.set_status(task.S_ERROR, msg=msg)
+            task.set_status(task.S_ERROR, msg="max_num_launches reached: %s" % str(exc))
             raise
 
     def get_collection(self, **kwargs):
@@ -888,7 +887,7 @@ batch_adapter:
         # OLD
         # with GW calculations in mind with GW mem = 10,
         # the response fuction is in memory and not distributed
-        # we need to increas memory if jobs fail ...
+        # we need to increase memory if jobs fail ...
         # return self.qadapter.more_mem_per_proc()
         try:
             self.qadapter.more_mem_per_proc()
@@ -1110,7 +1109,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         return {k: v for k, v in self.__dict__.items() if k not in ["_process"]}
 
-    @check_spectator
+    #@check_spectator
     def set_workdir(self, workdir, chroot=False):
         """Set the working directory. Cannot be set more than once unless chroot is True"""
         if not chroot and hasattr(self, "workdir") and self.workdir != workdir:
@@ -1264,16 +1263,19 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         all_ok = all([stat == self.S_OK for stat in self.deps_status])
         return self.status < self.S_SUB and self.status != self.S_LOCKED and all_ok
 
-    @check_spectator
+    #@check_spectator
     def cancel(self):
         """Cancel the job. Returns 1 if job was cancelled."""
         if self.queue_id is None: return 0 
         if self.status >= self.S_DONE: return 0 
 
         exit_status = self.manager.cancel(self.queue_id)
-        if exit_status != 0: return 0
+        if exit_status != 0: 
+            logger.warning("manager.cancel returned exit_status: %s" % exit_status)
+            return 0
 
         # Remove output files and reset the status.
+        self.history.info("Job %s cancelled by user" % self.queue_id)
         self.reset()
         return 1
 
@@ -1308,7 +1310,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         return dict(returncode=0, message="Calling on_all_ok of the base class!")
 
-    @check_spectator
+    #@check_spectator
     def fix_ofiles(self):
         """
         This method is called when the task reaches S_OK.
@@ -1325,7 +1327,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             self.history.info("will rename old %s to new %s" % (old, new))
             os.rename(old, new)
 
-    @check_spectator
+    #@check_spectator
     def _restart(self, submit=True):
         """
         Called by restart once we have finished preparing the task for restarting.
@@ -1353,7 +1355,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         return fired
 
-    @check_spectator
+    #@check_spectator
     def restart(self):
         """
         Restart the calculation.  Subclasses should provide a concrete version that 
@@ -1942,7 +1944,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         os.rename(src, dest)
 
-    @check_spectator
+    #@check_spectator
     def build(self, *args, **kwargs):
         """
         Creates the working directory and the input files of the :class:`Task`.
@@ -1960,7 +1962,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.input_file.write(self.make_input())
         self.manager.write_jobfile(self)
 
-    @check_spectator
+    #@check_spectator
     def rmtree(self, exclude_wildcard=""):
         """
         Remove all files and directories in the working directory
@@ -2050,7 +2052,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
     def setup(self):
         """Base class does not provide any hook."""
 
-    @check_spectator
+    #@check_spectator
     def start(self, **kwargs):
         """
         Starts the calculation by performing the following steps:
@@ -2109,14 +2111,14 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 # Sometimes autoparal_run fails because Abinit aborts
                 # at the level of the parser e.g. cannot find the spacegroup
                 # due to some numerical noise in the structure.
-                # In this case we call fix_abi_critical and then we try to run autoparal again.
-                self.history.critical("First call to autoparal failed with `%s`. Will try fix_abi_critical" % exc)
+                # In this case we call fix_abicritical and then we try to run autoparal again.
+                self.history.critical("First call to autoparal failed with `%s`. Will try fix_abicritical" % exc)
                 msg = "autoparal_fake_run raised:\n%s" % straceback()
                 logger.critical(msg)
 
-                fixed = self.fix_abi_critical()
+                fixed = self.fix_abicritical()
                 if not fixed:
-                    self.set_status(self.S_ABICRITICAL, msg="fix_abi_critical could not solve the problem")
+                    self.set_status(self.S_ABICRITICAL, msg="fix_abicritical could not solve the problem")
                     return 0
 
                 try:
@@ -2145,31 +2147,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         retcode = self.wait()
         return retcode
 
-    #@pmg_serialize
-    #def as_dict(self):
-    #    d = {}
-    #    d['strategy'] = self.strategy.as_dict()
-    #    d['workdir'] = getattr(self, 'workdir', None)
-    #    if hasattr(self, 'manager'):
-    #        d['manager'] = self.manager.as_dict()
-    #    else:
-    #        d['manager'] = None
-    #    d['corrections'] = self.corrections
-    #    d['history'] = [hr.as_dict() for hr in self.history]
-    #    d['num_restarts'] = self.num_restarts
-    #    return d
-
-    #@classmethod
-    #def from_dict(cls, d):
-    #    dec = MontyDecoder()
-    #    strategy = dec.process_decoded(d['strategy'])
-    #    manager = TaskManager.from_dict(d['manager']) if d['manager'] else TaskManager.from_user_config()
-    #    corrections = NodeCorrections(dec.process_decoded(d['corrections']))
-    #    task = cls(strategy=strategy, workdir=d['workdir'], manager=manager)
-    #    task._corrections = corrections
-    #    task.history.extend(dec.process_decoded(d['history']))
-    #    task.num_restarts = d['num_restarts']
-    #    return task
 
 
 class DecreaseDemandsError(Exception):
@@ -2370,7 +2347,10 @@ class AbinitTask(Task):
 
         # Set the variables for automatic parallelization
         # Will get all the possible configurations up to max_ncpus
+        # Return immediately if max_ncpus == 1 
         max_ncpus = self.manager.max_cores
+        if max_ncpus == 1: return 0
+
         autoparal_vars = dict(autoparal=policy.autoparal, max_ncpus=max_ncpus)
         self._set_inpvars(autoparal_vars)
 
@@ -2476,7 +2456,7 @@ class AbinitTask(Task):
         """
         return self._restart()
 
-    @check_spectator
+    #@check_spectator
     def reset_from_scratch(self):
         """
         restart from scratch, this is to be used if a job is restarted with more resources after a crash
@@ -2520,8 +2500,8 @@ class AbinitTask(Task):
 
         return self._restart(submit=False)
 
-    @check_spectator
-    def fix_abi_critical(self):
+    #@check_spectator
+    def fix_abicritical(self):
         """
         method to fix crashes/error caused by abinit
 
@@ -2547,7 +2527,7 @@ class AbinitTask(Task):
             for i, handler in enumerate(self.event_handlers):
 
                 if handler.can_handle(event) and not done[i]:
-                    logger.info("handler", handler, "will try to fix", event)
+                    logger.info("handler %s will try to fix event %s" % (handler, event))
                     try:
                         d = handler.handle_task_event(self, event)
                         if d: 
@@ -2564,7 +2544,7 @@ class AbinitTask(Task):
         self.set_status(status=self.S_ERROR, msg='We encountered AbiCritical events that could not be fixed')
         return 0
 
-    @check_spectator
+    #@check_spectator
     def fix_queue_critical(self):
         """
         This function tries to fix critical events originating from the queue submission system.
@@ -2734,8 +2714,8 @@ class ProduceHist(object):
 
 class GsTask(AbinitTask):
     """
-    Base class for ground-state tasks. A ground state task produce a GSR file
-    Provide the method `open_gsr` that reads and returns a GSR file.
+    Base class for ground-state tasks. A ground state task produces a GSR file
+    Provides the method `open_gsr` that reads and returns a GSR file.
     """
     @property
     def gsr_path(self):
@@ -3103,7 +3083,7 @@ class BecTask(DfptTask):
 
     def make_links(self):
         """Replace the default behaviour of make_links"""
-        print("In BEC make_links")
+        #print("In BEC make_links")
 
         for dep in self.deps:
             if dep.exts == ["DDK"]:

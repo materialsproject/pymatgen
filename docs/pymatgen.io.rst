@@ -76,6 +76,14 @@ pymatgen.io.nwchemio module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.io.pwscfio module
+--------------------------
+
+.. automodule:: pymatgen.io.pwscfio
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.io.qchemio module
 --------------------------
 

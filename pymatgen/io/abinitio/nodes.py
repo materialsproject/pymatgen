@@ -56,7 +56,6 @@ class Status(int):
         (9,  "Unconverged",   "red"    , "on_yellow", None),  # This usually means that an iterative algorithm didn't converge.
         (10, "Error",         "red"    , None, None),         # Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.
         (11, "Completed",     "green"  , None, None),         # Execution completed successfully.
-        #(11, "Completed",     "green"  , None, "underline"),   
     ]
     _STATUS2STR = collections.OrderedDict([(t[0], t[1]) for t in _STATUS_INFO])
     _STATUS2COLOR_OPTS = collections.OrderedDict([(t[0], {"color": t[2], "on_color": t[3], "attrs": _2attrs(t[4])}) for t in _STATUS_INFO])
@@ -420,8 +419,8 @@ def check_spectator(node_method):
         node = args[0]
         if node.in_spectator_mode:
             #raise node.SpectatorError("You should not call this method when the node in spectator_mode")
-            import warnings
             #warnings.warn("You should not call %s when the node in spectator_mode" % node_method)
+            import warnings
 
         return node_method(*args, **kwargs)
 
@@ -555,7 +554,10 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         try:
             return self._name
         except AttributeError:
-            return os.path.basename(self.workdir)
+            if self.is_task:
+                return self.pos_str
+            else:
+                return os.path.basename(self.workdir)
 
     @property
     def relworkdir(self):
@@ -618,7 +620,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         It adds a new entry in the correction history of the node.
 
         Args:
-            event: `AbinitEvent` that triggered the correction.
+            event: :class:`AbinitEvent` that triggered the correction.
             action (str): Human-readable string with info on the action perfomed to solve the problem.
         """
         # TODO: Create CorrectionObject
@@ -1005,7 +1007,6 @@ class HistoryRecord(object):
             try:
                 msg = msg % self.args
             except:
-                #print(self.args)
                 msg += str(self.args)
 
         if asctime: msg = "[" + self.asctime + "] " + msg
@@ -1053,13 +1054,14 @@ class NodeHistory(collections.deque):
         """Low-level logging routine which creates a :class:`HistoryRecord`."""
         from monty.inspect import find_caller, caller_name
         # FIXME: Rewrite this! It does not work if find_caller is not in the module.
-        c = find_caller()
+        #c = find_caller()
         #print(caller_name(skip=3))
 
         if exc_info and not isinstance(exc_info, tuple):
             exc_info = sys.exc_info()
 
-        self.append(HistoryRecord(level, c.filename, c.lineno, msg, args, exc_info, func=c.name))
+        self.append(HistoryRecord(level, "unknown filename", 0, msg, args, exc_info, func="unknown func"))
+        #self.append(HistoryRecord(level, c.filename, c.lineno, msg, args, exc_info, func=c.name))
 
 
 class NodeCorrections(list):

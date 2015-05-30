@@ -150,10 +150,8 @@ class PyLauncher(object):
 
         Args:
             flow: :class:`Flow` object
-            kwargs:
-                max_njobs_inqueue:
-                    The launcher will stop submitting jobs when the
-                    number of jobs in the queue is >= Max number of jobs
+            max_njobs_inqueue: The launcher will stop submitting jobs when the
+                number of jobs in the queue is >= Max number of jobs
         """
         self.flow = flow
         self.max_njobs_inqueue = kwargs.get("max_njobs_inqueue", 200)
@@ -302,6 +300,7 @@ class PyFlowScheduler(object):
             use_dynamic_manager: True if the :class:`TaskManager` must be re-initialized from
                 file before launching the jobs. Default: False
             max_nlaunches: Maximum number of tasks launched by radpifire (default -1 i.e. no limit)
+            fix_qcritical: True if the launcher should try to fix QCritical Errors (default: True)
         """
         # Options passed to the scheduler.
         self.sched_options = AttrDict(
@@ -330,6 +329,7 @@ class PyFlowScheduler(object):
         #self.max_etime_s = kwargs.pop("max_etime_s", )
         self.max_nlaunches = kwargs.pop("max_nlaunches", -1)
         self.debug = kwargs.pop("debug", 0)
+        self.fix_qcritical =  kwargs.pop("fix_qcritical", True)
 
         self.customer_service_dir = kwargs.pop("customer_service_dir", None)
         if self.customer_service_dir is not None:
@@ -531,7 +531,7 @@ class PyFlowScheduler(object):
         except KeyboardInterrupt:
             self.shutdown(msg="KeyboardInterrupt from user")
             if ask_yesno("Do you want to cancel all the jobs in the queue? [Y/n]"): 
-                print("Number of jobs cancelled %s", self.flow.cancel())
+                print("Number of jobs cancelled:", self.flow.cancel())
 
             self.flow.pickle_dump()
             return -1
@@ -581,7 +581,6 @@ class PyFlowScheduler(object):
             logger.info("Cannot exceed max_ncores_used %s" % self.max_ncores_used)
             return
 
-        # fix problems
         # Try to restart the unconverged tasks
         # TODO: do not fire here but prepare for fireing in rapidfire
         for task in self.flow.unconverged_tasks:
@@ -595,19 +594,20 @@ class PyFlowScheduler(object):
                         logger.info("Restart: too many jobs in the queue, returning")
                         flow.pickle_dump()
                         return
+
             except task.RestartError:
                 excs.append(straceback())
-
-        # move here from withing rapid fire ...
-        # fix only prepares for restarting, and sets to ready
-        nfixed = flow.fix_abi_critical()
-        if nfixed: print("Fixed %d AbiCritical errors" % nfixed)
 
         # Temporarily disable by MG because I don't know if fix_critical works after the
         # introduction of the new qadapters
         # reenabled by MsS disable things that do not work at low level
-        nfixed = flow.fix_queue_critical()
-        if nfixed: print("Fixed %d QueueCritical errors" % nfixed)
+        # fix only prepares for restarting, and sets to ready
+        if self.fix_qcritical:
+            nfixed = flow.fix_queue_critical()
+            if nfixed: print("Fixed %d QCritical errors" % nfixed)
+
+        nfixed = flow.fix_abicritical()
+        if nfixed: print("Fixed %d AbiCritical errors" % nfixed)
 
         # update database
         flow.pickle_dump()
@@ -710,7 +710,7 @@ class PyFlowScheduler(object):
             self.flow.check_status()
             g = self.flow.find_deadlocks()
             if not g.runnables and not g.running:
-                err_msg += "No task is running and cannot find other tasks to sumbmit."
+                err_msg += "No task is running and cannot find other tasks to submit."
         #"""
 
         if err_msg:
@@ -766,8 +766,10 @@ class PyFlowScheduler(object):
             print("\n".join(lines))
 
             self._do_customer_service()
-            print("Calling flow.finalize()")
-            self.flow.finalize()
+
+            if self.flow.all_ok:
+                print("Calling flow.finalize()")
+                self.flow.finalize()
 
         finally:
             # Shutdown the scheduler thus allowing the process to exit.
@@ -822,7 +824,6 @@ class PyFlowScheduler(object):
             tag = " [ALL OK]" if self.flow.all_ok else " [WARNING]"
 
         return sendmail(subject=self.flow.name + tag, text=strio.getvalue(), mailto=self.mailto)
-
 
 def sendmail(subject, text, mailto, sender=None):
     """

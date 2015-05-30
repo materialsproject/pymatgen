@@ -188,6 +188,10 @@ class FlowTest(FlowUnitTest):
         same_flow = Flow.pickle_load(self.workdir)
         aequal(same_flow, flow)
 
+        # to/from string
+        same_flow = Flow.pickle_loads(flow.pickle_dumps())
+        aequal(same_flow, flow)
+
         self.assertPMGSONable(flow)
 
         flow.show_info()
@@ -251,6 +255,7 @@ class TestFlowInSpectatorMode(FlowUnitTest):
                 assert node.in_spectator_mode == mode
 
         assert len(list(flow.iflat_nodes())) == 1 + len(flow.works) + sum(len(work) for work in flow)
+        assert flow.node_from_nid(flow.node_id) == flow
 
         flow.set_spectator_mode(mode=False)
         flow.build_and_pickle_dump()

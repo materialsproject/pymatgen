@@ -436,7 +436,7 @@ limits:
         for param in self.qparams:
             if param not in self.supported_qparams:
                 err_msg += "Unsupported QUEUE parameter name %s\n" % param
-                err_msg += "Supported are: \n"
+                err_msg += "Supported parameters:\n"
                 for param_sup in self.supported_qparams:
                     err_msg += "    %s \n" % param_sup
 
@@ -494,7 +494,7 @@ limits:
         qparams = d.pop("qparams", None)
         self._qparams = copy.deepcopy(qparams) if qparams is not None else {}
 
-        self.set_qname(d.pop("qname"))
+        self.set_qname(d.pop("qname", ""))
         if d:
             raise ValueError("Found unknown keyword(s) in queue section:\n %s" % d.keys())
 
@@ -1049,7 +1049,8 @@ $${qverbatim}
 
     def set_qname(self, qname):
         super(SlurmAdapter, self).set_qname(qname)
-        self.qparams["partition"] = qname
+        if qname:
+            self.qparams["partition"] = qname
 
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
@@ -1179,7 +1180,8 @@ $${qverbatim}
 
     def set_qname(self, qname):
         super(PbsProAdapter, self).set_qname(qname)
-        self.qparams["queue"] = qname
+        if qname:
+            self.qparams["queue"] = qname
 
     def set_timelimit(self, timelimit):
         super(PbsProAdapter, self).set_timelimit(timelimit)
@@ -1354,16 +1356,16 @@ $${qverbatim}
         """Set the memory per process in megabytes"""
         QueueAdapter.set_mem_per_proc(self, mem_mb)
         self.qparams["pmem"] = self.mem_per_proc
-        self.qparams["mem"] = self.mem_per_proc
+        #self.qparams["mem"] = self.mem_per_proc
 
-    @property
-    def mpi_procs(self):
-        """Number of MPI processes."""
-        return self.qparams.get("nodes", 1)*self.qparams.get("ppn", 1)
+    #@property
+    #def mpi_procs(self):
+    #    """Number of MPI processes."""
+    #    return self.qparams.get("nodes", 1) * self.qparams.get("ppn", 1)
 
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""
-        QueueAdapter.set_mpi_procs(mpi_procs)
+        QueueAdapter.set_mpi_procs(self, mpi_procs)
         self.qparams["nodes"] = 1
         self.qparams["ppn"] = mpi_procs
 
@@ -1406,7 +1408,8 @@ $${qverbatim}
 """
     def set_qname(self, qname):
         super(SGEAdapter, self).set_qname(qname)
-        self.qparams["queue_name"] = qname
+        if qname:
+            self.qparams["queue_name"] = qname
 
     def set_mpi_procs(self, mpi_procs):
         """Set the number of CPUs used for MPI."""

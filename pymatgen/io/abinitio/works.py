@@ -24,7 +24,7 @@ from . import wrappers
 from .nodes import Dependency, Node, NodeError, NodeResults, check_spectator
 from .tasks import (Task, AbinitTask, ScfTask, NscfTask, PhononTask, DdkTask, 
                     BseTask, RelaxTask, DdeTask, BecTask, ScrTask, SigmaTask)
-from .strategies import HtcStrategy, NscfStrategy
+
 from .utils import Directory
 from .netcdf import ETSF_Reader, NetcdfReader
 from .abitimer import AbinitTimerParser
@@ -512,13 +512,14 @@ class Work(BaseWork, NodeContainer):
             if task_class is None:
                 task_class = AbinitTask
 
-            if isinstance(obj, HtcStrategy):
-                # Create the new task (note the factory so that we create subclasses easily).
-                raise NotImplementedError("HtcStrategy")
-                task = task_class(obj, task_workdir, manager)
-
-            else:
-                task = task_class.from_input(obj, task_workdir, manager)
+            #from .strategies import HtcStrategy
+            #if isinstance(obj, HtcStrategy):
+            #    # Create the new task (note the factory so that we create subclasses easily).
+            #    raise NotImplementedError("HtcStrategy")
+            #    task = task_class(obj, task_workdir, manager)
+            #
+            #else:
+            task = task_class.from_input(obj, task_workdir, manager)
 
         self._tasks.append(task)
 
@@ -910,7 +911,7 @@ class G0W0Work(Work):
             scf_input: Input for the SCF run
             nscf_input: Input for the NSCF run
             scr_input: Input for the screening run
-            sigma_inputs: List of Strategies for the self-energy run.
+            sigma_inputs: List of :class:AbinitInput`for the self-energy run.
             workdir: Working directory of the calculation.
             manager: :class:`TaskManager` object.
             spread_scr: Attach a screening task to every sigma task
@@ -940,26 +941,27 @@ class G0W0Work(Work):
         nogw = False
 
         if nksmall:
+            raise NotImplementedError("with nksmall but strategies have been removed")
             # if nksmall add bandstructure and dos calculations as well
-            from abiobjects import KSampling
-            if nksmall < 0:
-                nksmall = -nksmall
-                nogw = True
-            scf_in = scf_input[-1] if isinstance(scf_input, (list, tuple)) else scf_input
-            logger.info('added band structure calculation')
-            bands_input = NscfStrategy(scf_strategy=scf_in,
-                                       ksampling=KSampling.path_from_structure(ndivsm=nksmall, structure=scf_in.structure),
-                                       nscf_nband=scf_in.electrons.nband, ecut=scf_in.ecut, chksymbreak=0)
+            #from abiobjects import KSampling
+            #if nksmall < 0:
+            #    nksmall = -nksmall
+            #    nogw = True
+            #scf_in = scf_input[-1] if isinstance(scf_input, (list, tuple)) else scf_input
+            #logger.info('added band structure calculation')
+            #bands_input = NscfStrategy(scf_strategy=scf_in,
+            #                           ksampling=KSampling.path_from_structure(ndivsm=nksmall, structure=scf_in.structure),
+            #                           nscf_nband=scf_in.electrons.nband, ecut=scf_in.ecut, chksymbreak=0)
 
-            self.bands_task = self.register_nscf_task(bands_input, deps={self.scf_task: "DEN"})
-            # note we don not let abinit print the dos, since this is inconpatible with parakgb
-            # the dos will be evaluated later using abipy
-            dos_input = NscfStrategy(scf_strategy=scf_in,
-                                     ksampling=KSampling.automatic_density(kppa=nksmall**3, structure=scf_in.structure,
-                                                                           shifts=(0.0, 0.0, 0.0)),
-                                     nscf_nband=scf_in.electrons.nband, ecut=scf_in.ecut, chksymbreak=0)
+            #self.bands_task = self.register_nscf_task(bands_input, deps={self.scf_task: "DEN"})
+            ## note we don not let abinit print the dos, since this is inconpatible with parakgb
+            ## the dos will be evaluated later using abipy
+            #dos_input = NscfStrategy(scf_strategy=scf_in,
+            #                         ksampling=KSampling.automatic_density(kppa=nksmall**3, structure=scf_in.structure,
+            #                                                               shifts=(0.0, 0.0, 0.0)),
+            #                         nscf_nband=scf_in.electrons.nband, ecut=scf_in.ecut, chksymbreak=0)
 
-            self.dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
+            #self.dos_task = self.register_nscf_task(dos_input, deps={self.scf_task: "DEN"})
 
         # Register the SIGMA runs.
         if not nogw:
@@ -988,7 +990,7 @@ class SigmaConvWork(Work):
         Args:
             wfk_node: The node who has produced the WFK file or filepath pointing to the WFK file.
             scr_node: The node who has produced the SCR file or filepath pointing to the SCR file.
-            sigma_inputs: List of Strategies for the self-energy run.
+            sigma_inputs: List of :class:`AbinitInput` for the self-energy runs.
             workdir: Working directory of the calculation.
             manager: :class:`TaskManager` object.
         """
@@ -1034,6 +1036,21 @@ class BseMdfWork(Work):
 
         for bse_input in bse_inputs:
             self.register_bse_task(bse_input, deps={self.nscf_task: "WFK"})
+
+    def get_mdf_robot(self):
+        """Builds and returns a :class:`MdfRobot` for analyzing the results in the MDF files."""
+        from abilab.robots import MdfRobot
+        robot = MdfRobot()
+        for task in self[2:]:
+            mdf_path = task.outdir.has_abiext(robot.EXT)
+            if mdf_path:
+                robot.add_file(str(task), mdf_path)
+        return robot
+
+    #def plot_conv_mdf(self, **kwargs)
+    #    with self.get_mdf_robot() as robot:
+    #        robot.get_mdf_plooter()
+    #    plotter.plot(**kwargs)
 
 
 class QptdmWork(Work):

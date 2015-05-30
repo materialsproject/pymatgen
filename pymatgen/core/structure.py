@@ -780,7 +780,7 @@ class IStructure(SiteCollection, PMGSONable):
                     neighbors[i].append(item)
         return neighbors
 
-    def get_neighbors_in_shell(self, origin, r, dr):
+    def get_neighbors_in_shell(self, origin, r, dr, include_index=False):
         """
         Returns all sites in a shell centered on origin (coords) between radii
         r-dr and r+dr.
@@ -789,14 +789,21 @@ class IStructure(SiteCollection, PMGSONable):
             origin (3x1 array): Cartesian coordinates of center of sphere.
             r (float): Inner radius of shell.
             dr (float): Width of shell.
+            include_index (bool): Whether to include the non-supercell site
+                in the returned data
 
         Returns:
-            [(site, dist) ...] since most of the time, subsequent processing
-            requires the distance.
+            [(site, dist, index) ...] since most of the time, subsequent
+            processing
+            requires the distance. Index only supplied if include_index = True.
+            The index is the index of the site in the original (non-supercell)
+            structure. This is needed for ewaldmatrix by keeping track of which
+            sites contribute to the ewald sum.
         """
-        outer = self.get_sites_in_sphere(origin, r + dr)
+        outer = self.get_sites_in_sphere(origin, r + dr,
+                                         include_index=include_index)
         inner = r - dr
-        return [(site, dist) for (site, dist) in outer if dist > inner]
+        return [t for t in outer if t[1] > inner]
 
     def get_sorted_structure(self, key=None, reverse=False):
         """
@@ -1113,19 +1120,25 @@ class IStructure(SiteCollection, PMGSONable):
                     if not valid:
                         break
 
-                    #add the new sites
+                    #add the new sites, averaging positions
                     added = np.zeros(len(gsites))
-                    for i, s in enumerate(gsites):
+                    new_fcoords = all_frac % 1
+                    for i, group in enumerate(groups):
                         if not added[i]:
-                            added[groups[i]] = True
-                            new_sp.append(s.species_and_occu)
-                            new_coords.append(s.coords)
+                            added[group] = True
+                            inds = np.where(group)[0]
+                            coords = new_fcoords[inds[0]]
+                            for n, j in enumerate(inds[1:]):
+                                offset = new_fcoords[j] - coords
+                                coords += (offset - np.round(offset)) / (n + 2)
+                            new_sp.append(gsites[inds[0]].species_and_occu)
+                            new_coords.append(coords)
 
                 if valid:
                     inv_m = np.linalg.inv(m)
                     new_l = Lattice(np.dot(inv_m, self.lattice.matrix))
                     s = Structure(new_l, new_sp, new_coords,
-                                  coords_are_cartesian=True)
+                                  coords_are_cartesian=False)
 
                     return s.get_primitive_structure(
                         tolerance).get_reduced_structure()
@@ -2472,13 +2485,12 @@ class Structure(IStructure, collections.MutableSequence):
         sites = []
         for c in np.unique(clusters):
             inds = np.argwhere(clusters == c)
-            species = Composition()
+            species = self[inds[0]].species_and_occu
             coords = self[inds[0]].frac_coords
-            n = len(inds)
-            for i in inds:
+            for n, i in enumerate(inds[1:]):
                 species += self[i].species_and_occu
                 offset = self[i].frac_coords - coords
-                coords += (offset - np.round(offset)) / n
+                coords += (offset - np.round(offset)) / (n + 2)
             sites.append(PeriodicSite(species, coords, self.lattice))
 
         self._sites = sites

@@ -21,7 +21,7 @@ import numpy as np
 import warnings
 
 from pymatgen.io.vaspio.vasp_output import Chgcar, Locpot, Oszicar, Outcar, \
-    Vasprun, Procar, Xdatcar
+    Vasprun, Procar, Xdatcar, Dynmat
 from pymatgen import Spin, Orbital, Lattice, Structure
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 
@@ -32,14 +32,22 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 class VasprunTest(unittest.TestCase):
 
     def test_properties(self):
+
+        filepath = os.path.join(test_dir, 'vasprun.xml.nonlm')
+        vasprun = Vasprun(filepath, parse_potcar_file=False)
+        orbs = list(vasprun.complete_dos.pdos[vasprun.final_structure[
+            0]].keys())
+        self.assertIn("S", orbs)
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath, parse_potcar_file=False)
 
         #test pdos parsing
+
         pdos0 = vasprun.complete_dos.pdos[vasprun.final_structure[0]]
         self.assertAlmostEqual(pdos0[Orbital.s][1][16], 0.0026)
         self.assertAlmostEqual(pdos0[Orbital.pz][-1][16], 0.0012)
         self.assertEqual(pdos0[Orbital.s][1].shape, (301, ))
+
 
         filepath2 = os.path.join(test_dir, 'lifepo4.xml')
         vasprun_ggau = Vasprun(filepath2, parse_projected_eigen=True,
@@ -473,6 +481,25 @@ class XdatcarTest(unittest.TestCase):
         for s in structures:
             self.assertEqual(s.formula, "Li2 O1")
 
+class DynmatTest(unittest.TestCase):
+
+    def test_init(self):
+        # nosetests pymatgen/io/vaspio/tests/test_vasp_output.py:DynmatTest.test_init
+        filepath = os.path.join(test_dir, 'DYNMAT')
+        d = Dynmat(filepath)
+        self.assertEqual(d.nspecs, 2)
+        self.assertEqual(d.natoms, 6)
+        self.assertEqual(d.ndisps, 3)
+        self.assertTrue(np.allclose(d.masses, [63.546, 196.966]))
+        self.assertTrue(4 in d.data)
+        self.assertTrue(2 in d.data[4])
+        self.assertTrue(np.allclose(
+            d.data[4][2]['dispvec'], [0., 0.05, 0.]
+        ))
+        self.assertTrue(np.allclose(
+            d.data[4][2]['dynmat'][3], [0.055046, -0.298080, 0.]
+        ))
+        # TODO: test get_phonon_frequencies once cross-checked
+
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
