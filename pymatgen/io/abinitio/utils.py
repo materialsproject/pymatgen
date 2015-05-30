@@ -109,7 +109,10 @@ class File(object):
         """Write string to file."""
         self.make_dir()
         with open(self.path, "w") as f:
-            return f.write(string)
+            if not string.endswith("\n"):
+                return f.write(string + "\n")
+            else:
+                return f.write(string)
 
     def writelines(self, lines):
         """Write a list of strings to file."""

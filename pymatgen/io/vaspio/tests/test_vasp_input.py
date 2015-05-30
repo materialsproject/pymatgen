@@ -447,6 +447,10 @@ class PotcarSingleTest(unittest.TestCase):
     def test_nelectrons(self):
         self.assertEqual(self.psingle.nelectrons, 13)
 
+    def test_electron_config(self):
+        config = self.psingle.electron_configuration
+        self.assertEqual(config[-1], (3, "p", 6))
+
     def test_attributes(self):
         for k in ['DEXC', 'RPACOR', 'ENMAX', 'QCUT', 'EAUG', 'RMAX',
                   'ZVAL', 'EATOM', 'NDATA', 'QGAM', 'ENMIN', 'RCLOC',
@@ -559,6 +563,19 @@ class VaspInputTest(unittest.TestCase):
         vinput = VaspInput.from_dict(d)
         comp = vinput["POSCAR"].structure.composition
         self.assertEqual(comp, Composition("Fe4P4O16"))
+
+    def test_write(self):
+        tmp_dir = "VaspInput.testing"
+        self.vinput.write_input(tmp_dir)
+
+        filepath = os.path.join(tmp_dir, "INCAR")
+        incar = Incar.from_file(filepath)
+        self.assertEqual(incar["NSW"], 99)
+
+        for name in ("INCAR", "POSCAR", "POTCAR", "KPOINTS"):
+            os.remove(os.path.join(tmp_dir, name))
+
+        os.rmdir(tmp_dir)
 
     def test_from_directory(self):
         vi = VaspInput.from_directory(test_dir,

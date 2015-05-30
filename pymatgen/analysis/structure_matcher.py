@@ -28,7 +28,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord_utils import pbc_shortest_vectors, \
-    lattice_points_in_supercell
+    lattice_points_in_supercell, is_coord_subset_pbc
 
 
 class AbstractComparator(six.with_metaclass(abc.ABCMeta, PMGSONable)):
@@ -381,7 +381,8 @@ class StructureMatcher(PMGSONable):
             s, target_s: Structure objects
         """
         lattices = s.lattice.find_all_mappings(
-            target_lattice, ltol = self.ltol, atol=self.angle_tol)
+            target_lattice, ltol=self.ltol, atol=self.angle_tol,
+            skip_rotation_matrix=True)
         for l, _, scale_m in lattices:
             if abs(abs(np.linalg.det(scale_m)) - supercell_size) < 0.5:
                 yield l, scale_m
@@ -434,23 +435,9 @@ class StructureMatcher(PMGSONable):
         if mask.shape != (len(s2), len(s1)):
             raise ValueError("mask has incorrect shape")
 
-        mask_val = 3 * len(s1)
-        #distance from subset to superset
-        dist = s1[None, :] - s2[:, None]
-        dist = abs(dist - np.round(dist))
+        return is_coord_subset_pbc(s2, s1, frac_tol, mask)
 
-        dist[dist > frac_tol[None, None, :]] = mask_val
-        cost = np.sum(dist, axis=-1)
-        cost[mask] = mask_val
-
-        #maximin is a lower bound on linear assignment
-        #(and faster to compute)
-        if np.max(np.min(cost, axis=1)) >= mask_val:
-            return False
-
-        return LinearAssignment(cost).min_cost < mask_val
-
-    def _cart_dists(self, s1, s2, avg_lattice, mask):
+    def _cart_dists(self, s1, s2, avg_lattice, mask, normalization):
         """
         Finds a matching in cartesian space. Finds an additional
         fractional translation vector to minimize RMS distance
@@ -461,6 +448,7 @@ class StructureMatcher(PMGSONable):
             avg_lattice: Lattice on which to calculate distances
             mask: numpy array of booleans. mask[i, j] = True indicates
                 that s2[i] cannot be matched to s1[j]
+            norm_length (float): inverse normalization length
 
         Returns:
             Distances from s2 to s1, normalized by (V/Natom) ^ 1/3
@@ -472,8 +460,7 @@ class StructureMatcher(PMGSONable):
         if mask.shape != (len(s2), len(s1)):
             raise ValueError("mask has incorrect shape")
 
-        norm_length = (avg_lattice.volume / len(s1)) ** (1 / 3)
-        mask_val = 1e10 * norm_length * self.stol
+        mask_val = 1e10 * self.stol / normalization
         #vectors are from s2 to s1
         vecs = pbc_shortest_vectors(avg_lattice, s2, s1)
         vecs[mask] = mask_val
@@ -485,7 +472,7 @@ class StructureMatcher(PMGSONable):
         f_translation = avg_lattice.get_fractional_coords(translation)
         new_d2 = np.sum((short_vecs - translation) ** 2, axis=-1)
 
-        return new_d2 ** 0.5 / norm_length, f_translation, s
+        return new_d2 ** 0.5 * normalization, f_translation, s
 
     def _get_mask(self, struct1, struct2, fu, s1_supercell):
         """
@@ -497,10 +484,20 @@ class StructureMatcher(PMGSONable):
         mask, struct1 translation indices, struct2 translation index
         """
         mask = np.zeros((len(struct2), len(struct1), fu), dtype=np.bool)
-        for i, site2 in enumerate(struct2):
-            for j, site1 in enumerate(struct1):
-                mask[i, j, :] = not self._comparator.are_equal(
-                    site2.species_and_occu, site1.species_and_occu)
+
+        inner = []
+        for sp2, i in itertools.groupby(enumerate(struct2.species_and_occu),
+                                        key=lambda x: x[1]):
+            i = list(i)
+            inner.append((sp2, slice(i[0][0], i[-1][0]+1)))
+
+        for sp1, j in itertools.groupby(enumerate(struct1.species_and_occu),
+                                        key=lambda x: x[1]):
+            j = list(j)
+            j = slice(j[0][0], j[-1][0]+1)
+            for sp2, i in inner:
+                mask[i, j, :] = not self._comparator.are_equal(sp1, sp2)
+
         if s1_supercell:
             mask = mask.reshape((len(struct2), -1))
         else:
@@ -658,7 +655,8 @@ class StructureMatcher(PMGSONable):
                 t_s2fc = s2fc + t
                 if self._cmp_fstruct(s1fc, t_s2fc, frac_tol, mask):
                     dist, t_adj, mapping = self._cart_dists(s1fc, t_s2fc,
-                                                            avg_l, mask)
+                                                            avg_l, mask,
+                                                            normalization)
                     if use_rms:
                         val = np.linalg.norm(dist) / len(dist) ** 0.5
                     else:

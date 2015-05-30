@@ -16,13 +16,14 @@ import copy
 import numpy as np
 
 from pprint import pprint
-from six.moves import map
+from six.moves import map, StringIO
 from atomicfile import AtomicFile
 from prettytable import PrettyTable
 from pydispatch import dispatcher
 from collections import OrderedDict
 from monty.collections import as_set, dict2namedtuple
 from monty.string import list_strings, is_string
+from monty.operator import operator_from_str
 from monty.io import FileLock
 from monty.pprint import draw_tree
 from monty.termcolor import cprint, colored, cprint_map
@@ -54,24 +55,6 @@ __all__ = [
     "g0w0_flow",
     "phonon_flow",
 ]
-
-# TODO: Move to monty
-def operator_from_str(op):
-    """
-    Return the operator associate to the given string `op`.
-
-    raises:
-        KeyError if invalid string.
-    """
-    import operator
-    return {
-        "==": operator.eq,
-        "!=": operator.ne,
-        ">": operator.gt,
-        ">=": operator.ge,
-        "<": operator.lt,
-        "<=": operator.le,
-    }[op]
 
 
 class FlowResults(NodeResults):
@@ -320,6 +303,15 @@ class Flow(Node, NodeContainer, PMGSONable):
         flow.check_status()
         return flow
 
+    @classmethod
+    def pickle_loads(cls, s):
+        """Reconstruct the flow from a string.""" 
+        strio = StringIO()
+        strio.write(s)
+        strio.seek(0)
+        flow = pmg_pickle_load(strio)
+        return flow
+
     def __len__(self):
         return len(self.works)
 
@@ -397,6 +389,10 @@ class Flow(Node, NodeContainer, PMGSONable):
             raise RuntimeError("Cannot change mongo_id %s" % self.mongo_id)
         self._mongo_id = value
 
+    def mongodb_upload(self, **kwargs):
+        from abiflows.core.scheduler import FlowUploader
+        FlowUploader().upload(self, **kwargs)
+
     def validate_json_schema(self):
         """Validate the JSON schema. Return list of errors."""
         errors = []
@@ -411,6 +407,22 @@ class Flow(Node, NodeContainer, PMGSONable):
             errors.append(self)
 
         return errors
+
+    def get_mongo_info(self):
+        """
+        Return a JSON dictionary with information on the flow.
+        Mainly used for constructing the info section in `FlowEntry`.
+        The default implementation is empty. Subclasses must implement it
+        """
+        return {}
+
+    def mongo_assimilate(self):
+        """
+        This function is called by client code when the flow is completed
+        Return a JSON dictionary with the most important results produced
+        by the flow. The default implementation is empty. Subclasses must implement it
+        """
+        return {}
 
     @property
     def works(self):
@@ -582,6 +594,12 @@ class Flow(Node, NodeContainer, PMGSONable):
                     if nids and task.node_id not in nids: continue
                     if op(task.status, status): yield task
 
+    def node_from_nid(self, nid):
+        """Return the node in the `Flow` with the given `nid` identifier"""
+        for node in self.iflat_nodes():
+            if node.node_id == nid: return node
+        raise ValueError("Cannot find node with node id: %s" % nid)
+
     def iflat_tasks_wti(self, status=None, op="==", nids=None):
         """
         Generator to iterate over all the tasks of the `Flow`.
@@ -659,6 +677,32 @@ class Flow(Node, NodeContainer, PMGSONable):
 
         return "\n".join(lines)
 
+    def abivalidate_inputs(self):
+        """
+        Run ABINIT in dry mode to validate all the inputs of the flow.
+
+        Return:
+            (isok, tuples)
+
+            isok is True if all inputs are ok.
+            tuples is List of `namedtuple` objects, one for each task in the flow.
+            Each namedtuple has the following attributes:
+
+                retcode: Return code. 0 if OK.
+                log_file:  log file of the Abinit run, use log_file.read() to access its content.
+                stderr_file: stderr file of the Abinit run. use stderr_file.read() to access its content.
+
+        Raises:
+            `RuntimeError` if executable is not in $PATH.
+        """
+        isok, tuples = True, []
+        for task in self.iflat_tasks():
+            t = task.input.abivalidate()
+            if t.retcode != 0: isok = False
+            tuples.append(t)
+
+        return isok, tuples
+
     def check_dependencies(self):
         """Test the dependencies of the nodes for possible deadlocks."""
         deadlocks = []
@@ -718,14 +762,34 @@ class Flow(Node, NodeContainer, PMGSONable):
         """The status of the :class:`Flow` i.e. the minimum of the status of its tasks and its works"""
         return min(work.get_all_status(only_min=True) for work in self)
 
-    def fix_abi_critical(self):
+    #def restart_unconverged_tasks(self, max_nlauch, excs):
+    #    nlaunch = 0
+    #    for task in self.unconverged_tasks:
+    #        try:
+    #            logger.info("Flow will try restart task %s" % task)
+    #            fired = task.restart()
+    #            if fired: 
+    #                nlaunch += 1
+    #                max_nlaunch -= 1
+
+    #                if max_nlaunch == 0:
+    #                    logger.info("Restart: too many jobs in the queue, returning")
+    #                    self.pickle_dump()
+    #                    return nlaunch, max_nlaunch
+
+    #        except task.RestartError:
+    #            excs.append(straceback())
+
+    #    return nlaunch, max_nlaunch
+
+    def fix_abicritical(self):
         """
         This function tries to fix critical events originating from ABINIT.
         Returns the number of tasks that have been fixed.
         """
         count = 0
         for task in self.iflat_tasks(status=self.S_ABICRITICAL):
-            count += task.fix_abi_critical()
+            count += task.fix_abicritical()
 
         return count
 
@@ -1179,7 +1243,7 @@ class Flow(Node, NodeContainer, PMGSONable):
                 pid = int(fh.readline())
 
             retcode = os.system("kill -9 %d" % pid)
-            self.history.info("Sent SIGKILL to the scheduler, retcode = %s" % retcode)
+            self.history.info("Sent SIGKILL to the scheduler, retcode: %s" % retcode)
             try:
                 os.remove(self.pid_file)
             except IOError:
@@ -1229,7 +1293,9 @@ class Flow(Node, NodeContainer, PMGSONable):
             if self.node_id != node_id:
                 msg = ("\nFound node_id %s in file:\n\n  %s\n\nwhile the node_id of the present flow is %d.\n" 
                        "This means that you are trying to build a new flow in a directory already used by another flow.\n" 
-                       "Change the workdir of the new flow or remove the old directory!"
+                       "Possible solutions:\n"
+                       "   1) Change the workdir of the new flow.\n" 
+                       "   2) remove the old directory either with `rm -rf` or by calling the method flow.rmtree()\n"
                         % (node_id, nodeid_path, self.node_id))
                 raise RuntimeError(msg)
 
@@ -1270,6 +1336,16 @@ class Flow(Node, NodeContainer, PMGSONable):
                 pmg_pickle_dump(self, fh, protocol=protocol)
 
         return 0
+
+    def pickle_dumps(self, protocol=None):
+        """
+        Return a string with the pickle representation.
+        `protocol` selects the pickle protocol. self.pickle_protocol is 
+         used if `protocol` is None
+        """
+        strio = StringIO()
+        pmg_pickle_dump(self, strio, protocol=self.pickle_protocol if protocol is None else protocol)
+        return strio.getvalue()
 
     def register_task(self, input, deps=None, manager=None, task_class=None):
         """
@@ -1786,7 +1862,7 @@ class Flow(Node, NodeContainer, PMGSONable):
     #    """
     #    from abipy.abilab import abirobot
     #    if check_status: self.check_status()
-    #    return abirobot(self, ext, nids=nids):
+    #    return abirobot(flow=self, ext=ext, nids=nids):
 
     def plot_networkx(self, mode="network", with_edge_labels=False,
                       node_size="num_cores", node_label="name_class", layout_type="spring", 
@@ -1835,9 +1911,9 @@ class Flow(Node, NodeContainer, PMGSONable):
         # Select plot type.
         if mode == "network":
             nx.draw_networkx(g, pos, labels=labels, 
-                             node_color='#A0CBE2',  
+                             #node_color='#A0CBE2',  
                              # FIXME: This does not work as expected. Likely bug in networkx!
-                             #node_color=[task.color_rgb for task in tasks],
+                             node_color=[task.color_rgb for task in tasks],
                              node_size=[make_node_size(task) for task in tasks],
                              width=2, style="dotted", with_labels=True)
 
@@ -2200,6 +2276,7 @@ def phonon_flow(workdir, scf_input, ph_inputs, with_nscf=False, with_ddk=False, 
     Returns:
         :class:`Flow` object
     """
+    logger.critical("phonon_flow is deprecated and could give wrong results")
     if with_dde:
         with_ddk = True
 

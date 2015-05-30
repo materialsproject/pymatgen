@@ -358,11 +358,6 @@ class EventReport(collections.Iterable, PMGSONable):
         """List of errors + bugs found."""
         return self.select(AbinitError) + self.select(AbinitBug)
 
-    #@property
-    #def bugs(self):
-    #    """List of bugs found."""
-    #    return self.select(AbinitBug)
-
     @property
     def warnings(self):
         """List of warnings found."""
