@@ -2497,7 +2497,7 @@ class AbinitTask(Task):
         def move_file(f):
             try:
                 f.move(os.path.join(reset_dir, f.basename + "_" + str(num_reset)))
-            except IOError as exc:
+            except OSError as exc:
                 logger.warning("Couldn't move file {}. exc: {}".format(f, str(exc)))
 
 
