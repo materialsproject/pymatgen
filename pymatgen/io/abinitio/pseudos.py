@@ -1664,7 +1664,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
     def as_dict(self, **kwargs):
         d = {}
         for p in self:
-            k, count = p.basename, 1
+            k, count = p.element, 1
             # Handle multiple-pseudos with the same name!
             while k in d:
                 k += k.split("#")[0] + "#" + str(count)
@@ -1679,7 +1679,8 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
         pseudos = []
         dec = MontyDecoder()
         for k, v in d.items():
-            pseudos.extend(dec.process_decoded(v))
+            if not k.startswith('@'):
+                pseudos.append(dec.process_decoded(v))
         return cls(pseudos)
 
     def is_complete(self, zmax=118):

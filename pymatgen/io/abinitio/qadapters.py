@@ -662,7 +662,7 @@ limits:
         Set the memory per process in megabytes. If mem_mb <=0, min_mem_per_proc is used.
         """
         # Hack needed because abinit is still not able to estimate memory.
-        if mem_mb <= 0: mem_mb = self.min_mem_per_proc
+        if mem_mb <= self.min_mem_per_proc: mem_mb = self.min_mem_per_proc
         self._mem_per_proc = int(mem_mb)
 
     @property
