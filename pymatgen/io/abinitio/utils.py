@@ -247,6 +247,9 @@ class Directory(object):
             `ValueError` if multiple files with the given ext are found.
             This implies that this method is not compatible with multiple datasets.
         """
+
+        ext = ext if ext.startswith('_') else '_'+ext
+
         files = []
         for f in self.list_filepaths():
             if f.endswith(ext) or f.endswith(ext + ".nc"):
