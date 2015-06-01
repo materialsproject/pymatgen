@@ -2185,7 +2185,9 @@ class AbinitTask(Task):
         if manager is None: manager = TaskManager.from_user_config()
 
         # Construct the task and run it
-        return cls.from_input(inp, workdir=workdir, manager=manager.to_shell_manager(mpi_procs=1))
+        task = cls.from_input(inp, workdir=workdir, manager=manager.to_shell_manager(mpi_procs=1))
+        task.set_name('temp_shell_task')
+        return task
 
     def setup(self):
         """
