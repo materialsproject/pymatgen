@@ -17,7 +17,8 @@ from pymatgen.core.periodic_table import Specie
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.io.cifio import CifParser
 from pymatgen.io.zeoio import ZeoCssr, ZeoVoronoiXYZ, get_voronoi_nodes, \
-    get_high_accuracy_voronoi_nodes, get_void_volume_surfarea
+    get_high_accuracy_voronoi_nodes, get_void_volume_surfarea, \
+    get_free_sphere_params
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.analysis.bond_valence import BVAnalyzer
 
@@ -175,6 +176,27 @@ class GetVoronoiNodesTest(unittest.TestCase):
         self.assertIsInstance(vor_face_center_struct, Structure)
         print (len(vor_node_struct.sites))
         print (len(vor_face_center_struct.sites))
+
+
+@unittest.skipIf(not zeo, "zeo not present.")
+class GetFreeSphereParamsTest(unittest.TestCase):
+    def setUp(self):
+        filepath = os.path.join(test_dir, 'free_sph.cif')
+        self.structure = Structure.from_file(filepath)
+        self.rad_dict = {'Ge':0.67,'P':0.52,'S':1.7,
+                         'La':1.17,'Zr':0.86,'O':1.26}
+
+    def test_get_free_sphere_params(self):
+        free_sph_params = get_free_sphere_params(self.structure,
+                rad_dict=self.rad_dict)
+        # Zeo results can change in future. Hence loose comparison
+        self.assertAlmostEqual(
+                free_sph_params['inc_sph_max_dia'], 2.58251, places=1)
+        self.assertAlmostEqual(
+                free_sph_params['free_sph_max_dia'], 1.29452, places=1)
+        self.assertAlmostEqual(
+                free_sph_params['inc_sph_along_free_sph_path_max_dia'], 
+                2.58251, places=1)
 
 
 @unittest.skipIf(not zeo, "zeo not present.")

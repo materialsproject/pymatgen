@@ -285,6 +285,15 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
     def from_dict(cls, d):
         return cls.from_file(d['filepath'])
 
+    def as_tmpfile(self):
+        """
+        Copy the pseudopotential to a temporary a file and returns a new pseudopotential object.
+        """
+        import tempfile, shutil
+        _, dst = tempfile.mkstemp(suffix=self.basename, text=True)
+        shutil.copy(self.path, dst)
+        return self.__class__.from_file(dst)
+
     @property
     def has_dojo_report(self):
         """True if self contains the `DOJO_REPORT` section."""
@@ -1655,7 +1664,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
     def as_dict(self, **kwargs):
         d = {}
         for p in self:
-            k, count = p.basename, 1
+            k, count = p.element, 1
             # Handle multiple-pseudos with the same name!
             while k in d:
                 k += k.split("#")[0] + "#" + str(count)
@@ -1670,7 +1679,8 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
         pseudos = []
         dec = MontyDecoder()
         for k, v in d.items():
-            pseudos.extend(dec.process_decoded(v))
+            if not k.startswith('@'):
+                pseudos.append(dec.process_decoded(v))
         return cls(pseudos)
 
     def is_complete(self, zmax=118):

@@ -2185,7 +2185,9 @@ class AbinitTask(Task):
         if manager is None: manager = TaskManager.from_user_config()
 
         # Construct the task and run it
-        return cls.from_input(inp, workdir=workdir, manager=manager.to_shell_manager(mpi_procs=1))
+        task = cls.from_input(inp, workdir=workdir, manager=manager.to_shell_manager(mpi_procs=1))
+        task.set_name('temp_shell_task')
+        return task
 
     def setup(self):
         """
@@ -2477,7 +2479,7 @@ class AbinitTask(Task):
         def move_file(f):
             try:
                 f.move(os.path.join(reset_dir, f.basename + "_" + str(num_reset)))
-            except IOError as exc:
+            except OSError as exc:
                 logger.warning("Couldn't move file {}. exc: {}".format(f, str(exc)))
 
 
@@ -2527,7 +2529,7 @@ class AbinitTask(Task):
             for i, handler in enumerate(self.event_handlers):
 
                 if handler.can_handle(event) and not done[i]:
-                    logger.info("handler", handler, "will try to fix", event)
+                    logger.info("handler %s will try to fix event %s" % (handler, event))
                     try:
                         d = handler.handle_task_event(self, event)
                         if d: 
@@ -2714,8 +2716,8 @@ class ProduceHist(object):
 
 class GsTask(AbinitTask):
     """
-    Base class for ground-state tasks. A ground state task produce a GSR file
-    Provide the method `open_gsr` that reads and returns a GSR file.
+    Base class for ground-state tasks. A ground state task produces a GSR file
+    Provides the method `open_gsr` that reads and returns a GSR file.
     """
     @property
     def gsr_path(self):
