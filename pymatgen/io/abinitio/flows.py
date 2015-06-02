@@ -389,7 +389,7 @@ class Flow(Node, NodeContainer, PMGSONable):
             raise RuntimeError("Cannot change mongo_id %s" % self.mongo_id)
         self._mongo_id = value
 
-    def mongo_upload(self, **kwargs):
+    def mongodb_upload(self, **kwargs):
         from abiflows.core.scheduler import FlowUploader
         FlowUploader().upload(self, **kwargs)
 
@@ -676,6 +676,32 @@ class Flow(Node, NodeContainer, PMGSONable):
                 app(str(InputVariable(name, value)))
 
         return "\n".join(lines)
+
+    def abivalidate_inputs(self):
+        """
+        Run ABINIT in dry mode to validate all the inputs of the flow.
+
+        Return:
+            (isok, tuples)
+
+            isok is True if all inputs are ok.
+            tuples is List of `namedtuple` objects, one for each task in the flow.
+            Each namedtuple has the following attributes:
+
+                retcode: Return code. 0 if OK.
+                log_file:  log file of the Abinit run, use log_file.read() to access its content.
+                stderr_file: stderr file of the Abinit run. use stderr_file.read() to access its content.
+
+        Raises:
+            `RuntimeError` if executable is not in $PATH.
+        """
+        isok, tuples = True, []
+        for task in self.iflat_tasks():
+            t = task.input.abivalidate()
+            if t.retcode != 0: isok = False
+            tuples.append(t)
+
+        return isok, tuples
 
     def check_dependencies(self):
         """Test the dependencies of the nodes for possible deadlocks."""

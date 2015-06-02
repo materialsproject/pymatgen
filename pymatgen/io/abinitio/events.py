@@ -14,11 +14,13 @@ import six
 import abc
 import logging
 import inspect
+import numpy as np
 
 from monty.string import indent, is_string, list_strings
 from monty.fnmatch import WildCard
 from monty.termcolor import colored
 from monty.inspect import all_subclasses
+from monty.json import MontyDecoder
 from pymatgen.core import Structure
 from pymatgen.serializers.json_coders import PMGSONable, pmg_serialize
 from .abiinspect import YamlTokenizer
@@ -556,7 +558,7 @@ class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
         """
 
     @pmg_serialize
-    def to_dict(self):
+    def as_dict(self):
         #@Guido this introspection is nice but it's not safe
         d = {}
         if hasattr(self, "__init__"):
@@ -570,6 +572,64 @@ class EventHandler(six.with_metaclass(abc.ABCMeta, object)):
         kwargs = {k: v for k, v in d.items() if k in inspect.getargspec(cls.__init__).args}
         return cls(**kwargs)
 
+    @classmethod
+    def compare_inputs(cls, new_input, old_input):
+
+        def vars_dict(d):
+            """
+            make a simple dictionary and convert numpy arrays to lists
+            """
+            new_d = {}
+            for key, value in d.items():
+                if isinstance(value, np.ndarray): value = value.tolist()
+                new_d[key] = value
+
+            return new_d
+
+        new_vars = vars_dict(new_input)
+        old_vars = vars_dict(old_input)
+
+        new_keys = set(new_vars.keys())
+        old_keys = set(old_vars.keys())
+        intersect = new_keys.intersection(old_keys)
+
+        added_keys = new_keys - intersect
+        removed_keys = old_keys - intersect
+        changed_keys = set(v for v in intersect if new_vars[v] != old_vars[v])
+
+        log_diff = {}
+        if added_keys:
+            log_diff['_set'] = {k: new_vars[k] for k in added_keys}
+
+        if changed_keys:
+            log_diff['_update'] = ({k: {'new': new_vars[k], 'old': old_vars[k]} for k in changed_keys})
+
+        if new_input.structure != old_input.structure:
+            log_diff['_change_structure'] = new_input.structure.as_dict()
+
+        if removed_keys:
+            log_diff['_pop'] = {k: old_vars[k] for k in removed_keys}
+
+        return log_diff
+
+
+class Correction(PMGSONable):
+
+    def __init__(self, handler, actions, event, reset=False):
+        self.handler = handler
+        self.actions = actions
+        self.event = event
+        self.reset = reset
+
+    @pmg_serialize
+    def as_dict(self):
+        return dict(handler=self.handler.as_dict(), actions=self.actions, event=self.event.as_dict(), reset=self.reset)
+
+    @classmethod
+    def from_dict(cls, d):
+        dec = MontyDecoder()
+        return cls(handler=dec.process_decoded(d['handler']), actions=d['actions'],
+                   event=dec.process_decoded(d['event']), reset=d['reset'])
 
 
 #class WarningHandler(EventHandler):
@@ -693,6 +753,18 @@ class DilatmxErrorHandler(ErrorHandler):
 
         return self.FIXED
 
+    def handle_input_event(self, abiinput, outdir, event):
+        try:
+            old_abiinput = abiinput.deepcopy()
+            # Read the last structure dumped by ABINIT before aborting.
+            filepath = outdir.has_abiext("DILATMX_STRUCT.nc")
+            last_structure = Structure.from_file(filepath)
+            abiinput.set_structure(last_structure)
+            return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, False)
+        except Exception as exc:
+            logger.warning('Error while trying to apply the handler {}.'.format(str(self)), exc)
+            return None
+
 
 """
 class DilatmxErrorHandlerTest(ErrorHandler):
@@ -755,3 +827,14 @@ class TolSymErrorHandler(ErrorHandler):
 
         task.log_correction(event, "Increasing tolsym from %s to %s" % (old_tolsym, new_tolsym))
         return self.FIXED
+
+    def handle_input_event(self, abiinput, outdir, event):
+        try:
+            old_abiinput = abiinput.deepcopy()
+            old_tolsym = abiinput["tolsym"]
+            new_tolsym = 1e-6 if old_tolsym is None else old_tolsym * 10
+            abiinput.set_vars(tolsym=new_tolsym)
+            return Correction(self, self.compare_inputs(abiinput, old_abiinput), event, False)
+        except Exception as exc:
+            logger.warning('Error while trying to apply the handler {}.'.format(str(self)), exc)
+            return None

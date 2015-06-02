@@ -109,7 +109,10 @@ class File(object):
         """Write string to file."""
         self.make_dir()
         with open(self.path, "w") as f:
-            return f.write(string)
+            if not string.endswith("\n"):
+                return f.write(string + "\n")
+            else:
+                return f.write(string)
 
     def writelines(self, lines):
         """Write a list of strings to file."""
@@ -244,6 +247,9 @@ class Directory(object):
             `ValueError` if multiple files with the given ext are found.
             This implies that this method is not compatible with multiple datasets.
         """
+
+        ext = ext if ext.startswith('_') else '_'+ext
+
         files = []
         for f in self.list_filepaths():
             if f.endswith(ext) or f.endswith(ext + ".nc"):
