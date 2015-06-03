@@ -1153,6 +1153,7 @@ class Outcar(PMGSONable):
         self.efermi = efermi
         self.nelect = nelect
         self.total_mag = total_mag
+        self.data = {}
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False,
                      postprocess=str):
@@ -1174,15 +1175,15 @@ class Outcar(PMGSONable):
         Renders accessible:
             Any attribute in patterns. For example,
             {"energy": "energy\(sigma->0\)\s+=\s+([\d\-\.]+)"} will set the
-            value of self.energy to the results from regex and postprocess.
-            Note that the returned values are lists of lists, because you can
-            grep multiple items on one line.
+            value of self.data["energy"] = [[-1234], [-3453], ...], to the
+            results from regex and postprocess. Note that the returned values
+            are lists of lists, because you can grep multiple items on one line.
         """
         matches = regrep(self.filename, patterns, reverse=reverse,
                            terminate_on_match=terminate_on_match,
                            postprocess=postprocess)
         for k in patterns.keys():
-            setattr(self, k, [i[0] for i in matches.get(k, [])])
+            self.data[k] = [i[0] for i in matches.get(k, [])]
 
     def read_tst_neb(self, reverse=True, terminate_on_match=True):
         """
@@ -1204,9 +1205,9 @@ class Outcar(PMGSONable):
             energy - Final energy.
         """
         patterns = {
-            "energy": "energy\(sigma->0\)\s+=\s+([0-9\-\.]+)",
+            "energy": "energy\(sigma->0\)\s+=\s+([\d\-\.]+)",
             "tangent_force": "NEB: projections on to tangent \(" \
-                "spring, REAL\)\s+[0-9\-\.]+\s+([0-9\-\.]+)"
+                "spring, REAL\)\s+\S+\s+([\d\-\.]+)"
         }
         self.read_pattern(patterns, reverse=reverse,
                           terminate_on_match=terminate_on_match,
