@@ -512,7 +512,7 @@ class GaussianOutput(object):
         oniom_patt = re.compile("ONIOM:\s+extrapolated energy\s*=\s*(.*)")
         termination_patt = re.compile("(Normal|Error) termination")
         error_patt = re.compile("(! Non-Optimized Parameters !|Convergence failure)")
-        mulliken_patt = re.compile("^\s*Mulliken charges")
+        mulliken_patt = re.compile("^\s*(Mulliken charges|Mulliken atomic charges)")
         mulliken_charge_patt = re.compile('^\s+(\d+)\s+([A-Z][a-z]?)\s*(\S*)')
         end_mulliken_patt = re.compile('(Sum of Mulliken )(.*)(charges)\s*=\s*(\D)')
         std_orientation_patt = re.compile("Standard orientation")
@@ -575,21 +575,6 @@ class GaussianOutput(object):
                             key = m.group(2).strip(" to ")
                             self.corrections[key] = float(m.group(3))
 
-                    if read_mulliken:
-                        mulliken_txt = []
-                        if not end_mulliken_patt.search(line):
-                            mulliken_txt.append(line)
-                        else:
-                            m = end_mulliken_patt.search(line)
-                            mulliken_charges = {}
-                            for line in mulliken_txt:
-                                if mulliken_charge_patt.search(line):
-                                    m = mulliken_charge_patt.search(line)
-                                    dict = {int(m.group(1)): [m.group(2), float(m.group(3))]}
-                                    mulliken_charges.update(dict)
-                            read_mulliken = False
-                            self.Mulliken_charges = mulliken_charges
-
                     if read_coord:
                         if not end_patt.search(line):
                             coord_txt.append(line)
@@ -641,7 +626,23 @@ class GaussianOutput(object):
                     elif orbital_patt.search(line):
                         orbitals_txt.append(line)
                     elif mulliken_patt.search(line):
+                        mulliken_txt = []
                         read_mulliken = True
+
+                    if read_mulliken:
+                        if not end_mulliken_patt.search(line):
+                            mulliken_txt.append(line)
+                        else:
+                            m = end_mulliken_patt.search(line)
+                            mulliken_charges = {}
+                            for line in mulliken_txt:
+                                if mulliken_charge_patt.search(line):
+                                    m = mulliken_charge_patt.search(line)
+                                    dict = {int(m.group(1)): [m.group(2), float(m.group(3))]}
+                                    mulliken_charges.update(dict)
+                            read_mulliken = False
+                            self.Mulliken_charges = mulliken_charges
+
         if not terminated:
             raise IOError("Bad Gaussian output file.")
 
