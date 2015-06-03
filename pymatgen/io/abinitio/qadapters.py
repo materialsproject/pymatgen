@@ -983,7 +983,14 @@ limits:
         """
         Method to increase the wall time
         """
-        raise self.Error("increasing time in is not possible, it's maximal already")
+        increase_factor = 2
+
+        new_time = self.timelimit()*increase_factor
+        self.set_timelimit(new_time)
+        # at the moment we don't have a limit only the limit defined in the quadaper
+        # but we just increase, if we pass the limit the qsub will fail....
+        # raise self.Error("increasing time is not possible, the current quadapter does not implement a method")
+        return new_time
 
 ####################
 # Concrete classes #
