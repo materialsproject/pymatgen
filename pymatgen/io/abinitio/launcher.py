@@ -561,7 +561,7 @@ class PyFlowScheduler(object):
                 if flow.manager.has_queue: logger.warning('Cannot get njobs_inqueue')
 
             if nqjobs >= self.max_njobs_inqueue:
-                logger.info("Too many jobs in the queue, returning")
+                print("Too many jobs in the queue: %s, returning" % nqjobs)
                 return
 
         if self.max_nlaunches == -1:

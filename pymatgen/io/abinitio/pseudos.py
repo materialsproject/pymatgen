@@ -2200,10 +2200,10 @@ class DojoReport(dict):
         "deltafactor",
         "gbrv_bcc",
         "gbrv_fcc",
-        "phonon",
+        "phonon"
     )
 
-    ATOLS = (0.5, 0.1, 0.02)
+    ATOLS = (1.0, 0.2, 0.04)
     Error = DojoReportError
 
     @classmethod
@@ -2715,7 +2715,6 @@ class DojoReport(dict):
 
         d = self["phonon"]
         ecuts = list(d.keys())
-        print(ecuts)
 
         l = [(ecut, float(ecut)) for ecut in ecuts]
         s = sorted(l, key=lambda t: t[1])
