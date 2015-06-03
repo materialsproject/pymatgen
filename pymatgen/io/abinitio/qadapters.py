@@ -350,11 +350,16 @@ queue:
 # dictionary with the constraints that must be fulfilled in order to run on this queue.
 limits:
     min_cores:         # Minimum number of cores (default 1)
-    max_cores:         # Maximum number of cores (mandatory)
+    max_cores:         # Maximum number of cores (mandatory), the limit used in the first setup of jobs,
+                       # Fix_Critical method may increase this number until max_cores_max is reached
+                       # if not sepcified max_cores_max will be used
+    max_cores_hard:    # hard limit to max_cores, the limit beyond which the scheduler will not accept the job (mandatory)
     min_mem_per_proc:  # Minimum memory per MPI process in Mb, units can be specified e.g. 1.4 Gb
                        # (default hardware.mem_per_core)
     max_mem_per_proc:  # Maximum memory per MPI process in Mb, units can be specified e.g. `1.4Gb`
                        # (default hardware.mem_per_node)
+    timelimit          # initial time limit
+    timelimit_hard     # the hard timelimit for this queue (mandatory)
     condition:         # MongoDB-like condition (default empty, i.e. not used)
     allocation:        # String defining the policy used to select the optimal number of CPUs.
                        # possible values are ["nodes", "force_nodes", "shared"]
@@ -383,7 +388,8 @@ limits:
             min_cores, max_cores: Minimum and maximum number of cores that can be used
             min_mem_per_proc=Minimun memory per process in megabytes.
             max_mem_per_proc=Maximum memory per process in megabytes.
-            timelimit: Time limit in seconds
+            timelimit: initial time limit in seconds
+            timelimit_hard: hard limelimit for this que
             priority: Priority level, integer number > 0
             allocate_nodes: True if we must allocate entire nodes"
             condition: Condition object (dictionary)
@@ -445,8 +451,10 @@ limits:
 
     def _parse_limits(self, d):
         self.set_timelimit(qu.timelimit_parser(d.pop("timelimit")))
+        self.set_timelimit_hard(qu.timelimit_parser(d.pop("timelimit_hard")))
         self.min_cores = int(d.pop("min_cores", 1))
         self.max_cores = int(d.pop("max_cores"))
+        self.max_cores_hard = int(d.pop("max_cores_max"))
         # FIXME: Neeed because autoparal 1 with paral_kgb 1 is not able to estimate memory 
         self.min_mem_per_proc = qu.any2mb(d.pop("min_mem_per_proc", self.hw.mem_per_core))
         self.max_mem_per_proc = qu.any2mb(d.pop("max_mem_per_proc", self.hw.mem_per_node))
@@ -649,8 +657,12 @@ limits:
         return self._timelimit
 
     def set_timelimit(self, timelimit):
-        """Set the walltime in seconds."""
+        """Set the start walltime in seconds, fix method may increase this one until timelimit_hard is reached."""
         self._timelimit = timelimit
+
+    def set_timelimit_hard(self, timelimit_hard):
+        """Set the maximal possible walltime in seconds."""
+        self._timelimit_hard = timelimit_hard
 
     @property
     def mem_per_proc(self):
