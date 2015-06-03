@@ -2482,10 +2482,8 @@ class AbinitTask(Task):
             except OSError as exc:
                 logger.warning("Couldn't move file {}. exc: {}".format(f, str(exc)))
 
-
-        move_file(self.output_file)
-        move_file(self.log_file)
-        move_file(self.stderr_file)
+        for fname in ("output_file", "log_file", "stderr_file", "qout_file", "qerr_file"):
+            move_file(getattr(self, fname))
 
         with open(reset_file, "wt") as fh: 
             fh.write(str(num_reset))
