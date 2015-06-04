@@ -361,6 +361,7 @@ class PBSErrorParser(AbstractErrorParser):
     Implementation for the PBS scheduler
     """
 
+#=>> PBS: job killed: walltime 932 exceeded limit 900
     @property
     def error_definitions(self):
         return {
