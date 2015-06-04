@@ -866,7 +866,7 @@ batch_adapter:
         # Submit the task and save the queue id.
         try:
             qjob, process = self.qadapter.submit_to_queue(script_file)
-            task.set_status(task.S_SUB)
+            task.set_status(task.S_SUB, msg='submitted to que')
             task.set_qjob(qjob)
             return process
 
@@ -1512,7 +1512,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.history.info("Unlocked by %s", source_node)
 
     #@check_spectator
-    def set_status(self, status, msg=None):
+    def set_status(self, status, msg):
         """
         Set and return the status of the task.
 
@@ -1520,7 +1520,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             status: Status object or string representation of the status
             msg: string with human-readable message used in the case of errors (optional)
         """
-        msg = "" if msg is None else msg
+        # msg = "No message provided" if msg is None else msg
+        # lets refuse to accept changes in the status the do not have a message
 
         # Locked files must be explicitly unlocked 
         if self.status == self.S_LOCKED or status == self.S_LOCKED:
@@ -1635,9 +1636,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 # Check if the calculation converged.
                 not_ok = report.filter_types(self.CRITICAL_EVENTS)
                 if not_ok:
-                    return self.set_status(self.S_UNCONVERGED)
+                    return self.set_status(self.S_UNCONVERGED, msg='conlcuded unconverged based on abiout' )
                 else:
-                    return self.set_status(self.S_OK)
+                    return self.set_status(self.S_OK, msg='conlcuded ok based on abiout')
 
             # Calculation still running or errors?
             if report.errors:
@@ -1660,7 +1661,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 if self.qerr_file.exists and not err_msg:
                     # there is output and no errors
                     # The job still seems to be running
-                    return self.set_status(self.S_RUN)
+                    return self.set_status(self.S_RUN, msg='there is output and no errors: job still seems to be running')
 
         # 6)
         if not self.output_file.exists:
@@ -1685,21 +1686,22 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 self.queue_errors = scheduler_parser.errors
                 # the queue errors in the task
                 msg = "scheduler errors found:\n%s" % str(scheduler_parser.errors)
-                self.history.critical(msg)
+                # self.history.critical(msg)
                 return self.set_status(self.S_QCRITICAL, msg=msg)
                 # The job is killed or crashed and we know what happened
             else:
                 if len(err_info) > 0:
-                    logger.debug('found unknown queue error: %s' % str(err_info))
-                    return self.set_status(self.S_QCRITICAL, msg=err_info)
+                    #logger.history.debug('found unknown queue error: %s' % str(err_info))
+                    msg = 'found unknown queue error: %s' % str(err_info)
+                    return self.set_status(self.S_QCRITICAL, msg=msg)
                     # The job is killed or crashed but we don't know what happened
                     # it is set to QCritical, we will attempt to fix it by running on more resources
 
         # 8) analizing the err files and abinit output did not identify a problem
         # but if the files are not empty we do have a problem but no way of solving it:
         if err_msg is not None and len(err_msg) > 0:
-            logger.debug('found error message:\n %s' % str(err_msg))
-            return self.set_status(self.S_QCRITICAL, msg=err_info)
+            msg = 'found error message:\n %s' % str(err_msg)
+            return self.set_status(self.S_QCRITICAL, msg=msg)
             # The job is killed or crashed but we don't know what happend
             # it is set to QCritical, we will attempt to fix it by running on more resources
 
@@ -1711,14 +1713,14 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         if self.output_file.exists and \
            (time.time() - self.output_file.get_stat().st_mtime > self.manager.policy.frozen_timeout):
             msg = "Task seems to be frozen, last change more than %s [s] ago" % self.manager.policy.frozen_timeout
-            return self.set_status(self.S_ERROR, msg)
+            return self.set_status(self.S_ERROR, msg=msg)
 
         # Handle weird case in which either run.abo, or run.log have not been produced
         #if self.status not in (self.S_INIT, self.S_READY) and (not self.output.file.exists or not self.log_file.exits):
         #    msg = "Task have been submitted but cannot find the log file or the output file"
         #    return self.set_status(self.S_ERROR, msg)
 
-        return self.set_status(self.S_RUN)
+        return self.set_status(self.S_RUN, msg='final option: notting seems to be wrong, the job must still be running')
 
     def reduce_memory_demand(self):
         """
@@ -1877,8 +1879,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         #except parser.Error as exc:
         except Exception as exc:
             # Return a report with an error entry with info on the exception.
-            logger.critical("%s: Exception while parsing ABINIT events:\n %s" % (ofile, str(exc)))
-            self.set_status(self.S_ABICRITICAL, msg=str(exc))
+            msg = "%s: Exception while parsing ABINIT events:\n %s" % (ofile, str(exc))
+            self.set_status(self.S_ABICRITICAL, msg=msg)
             return parser.report_exception(ofile.path, exc)
 
     def get_results(self, **kwargs):
@@ -2103,8 +2105,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 # If autoparal cannot find a qadapter to run the calculation raises an Exception
                 self.history.critical(exc)
                 msg = "Error trying to find a running configuration:\n%s" % straceback()
-                logger.critical(msg)
-
+                #logger.critical(msg)
                 self.set_status(self.S_QCRITICAL, msg=msg)
                 return 0
             except Exception as exc:
@@ -2128,8 +2129,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 except Exception as exc:
                     self.history.critical("Second call to autoparal failed with %s. Cannot recover!", exc)
                     msg = "Tried autoparal again but got:\n%s" % straceback()
-                    logger.critical(msg)
-
+                    # logger.critical(msg)
                     self.set_status(self.S_ABICRITICAL, msg=msg)
                     return 0
 
@@ -2395,7 +2395,7 @@ class AbinitTask(Task):
         # Finalization
         ##############
         # Reset the status, remove garbage files ...
-        self.set_status(self.S_INIT)
+        self.set_status(self.S_INIT, msg='finished auto paralell')
 
         # Remove the output file since Abinit likes to create new files 
         # with extension .outA, .outB if the file already exists.
@@ -2593,7 +2593,7 @@ class AbinitTask(Task):
                         try:
                             self.manager.exclude_nodes(error.nodes)
                             self.reset_from_scratch()
-                            self.set_status(self.S_READY, msg='excloding nodes')
+                            self.set_status(self.S_READY, msg='excluding nodes')
                         except:
                             raise FixQueueCriticalError
                     else:
