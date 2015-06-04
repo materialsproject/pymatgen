@@ -358,7 +358,8 @@ class Composition(collections.Mapping, collections.Hashable, PMGSONable):
         """
         mul = gcd(*[Fraction(v).limit_denominator(max_denominator) for v
                     in self.values()])
-        (formula, factor) = reduce_formula((self / mul).get_el_amt_dict())
+        d = {k: round(v / mul) for k, v in self.get_el_amt_dict().items()}
+        (formula, factor) = reduce_formula(d)
         if formula in Composition.special_formulas:
             formula = Composition.special_formulas[formula]
             factor /= 2
