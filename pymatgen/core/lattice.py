@@ -483,10 +483,9 @@ class Lattice(PMGSONable):
         (lengths, angles) = other_lattice.lengths_and_angles
         (alpha, beta, gamma) = angles
 
-        points = self.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
-                                           max(lengths) * (1 + ltol))
-        frac = np.array([p[0] for p in points])
-        dist = np.array([p[1] for p in points])
+        frac, dist, _ = self.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
+                                                  max(lengths) * (1 + ltol),
+                                                  zip_results=False)
         cart = self.get_cartesian_coords(frac)
 
         # this can't be broadcast because they're different lengths
@@ -521,7 +520,8 @@ class Lattice(PMGSONable):
                     rotation_m = np.linalg.solve(aligned_m, other_lattice.matrix)
                 yield Lattice(aligned_m), rotation_m, scale_m
 
-    def find_mapping(self, other_lattice, ltol=1e-5, atol=1):
+    def find_mapping(self, other_lattice, ltol=1e-5, atol=1,
+                     skip_rotation_matrix=False):
         """
         Finds a mapping between current lattice and another lattice. There
         are an infinite number of choices of basis vectors for two entirely
@@ -550,7 +550,8 @@ class Lattice(PMGSONable):
 
             None is returned if no matches are found.
         """
-        for x in self.find_all_mappings(other_lattice, ltol, atol):
+        for x in self.find_all_mappings(other_lattice, ltol, atol,
+                                        skip_rotation_matrix=skip_rotation_matrix):
             return x
 
     def get_lll_reduced_lattice(self, delta=0.75):
@@ -742,7 +743,7 @@ class Lattice(PMGSONable):
 
         latt = Lattice.from_parameters(a, b, c, alpha, beta, gamma)
 
-        mapped = self.find_mapping(latt, e, e)
+        mapped = self.find_mapping(latt, e, skip_rotation_matrix=True)
         if mapped is not None:
             return mapped[0]
         raise ValueError("can't find niggli")
@@ -855,7 +856,7 @@ class Lattice(PMGSONable):
         """
         return np.sqrt(self.dot(coords, coords, frac_coords=frac_coords))
 
-    def get_points_in_sphere(self, frac_points, center, r):
+    def get_points_in_sphere(self, frac_points, center, r, zip_results=True):
         """
         Find all points within a sphere from the point taking into account
         periodic boundary conditions. This includes sites in other periodic
@@ -877,10 +878,15 @@ class Lattice(PMGSONable):
             frac_points: All points in the lattice in fractional coordinates.
             center: Cartesian coordinates of center of sphere.
             r: radius of sphere.
+            zip_results (bool): Whether to zip the results together to group by
+                 point, or return the raw fcoord, dist, index arrays
 
         Returns:
-            [(fcoord, dist) ...] since most of the time, subsequent processing
-            requires the distance.
+            if zip_results:
+                [(fcoord, dist, index) ...] since most of the time, subsequent
+                processing requires the distance.
+            else:
+                fcoords, dists, inds
         """
         recp_len = np.array(self.reciprocal_lattice.abc)
         sr = r + 0.15
@@ -913,9 +919,12 @@ class Lattice(PMGSONable):
         dists = np.sqrt(np.sum((coords - pts[:, None, None, None, :]) ** 2,
                                axis=4))
         within_r = np.where(dists <= r)
-
-        return list(zip(shifted_coords[within_r], dists[within_r],
-                        indices[within_r[0]]))
+        if zip_results:
+            return list(zip(shifted_coords[within_r], dists[within_r],
+                            indices[within_r[0]]))
+        else:
+            return shifted_coords[within_r], dists[within_r], \
+                indices[within_r[0]]
 
     def get_all_distances(self, fcoords1, fcoords2):
         """

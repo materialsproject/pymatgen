@@ -105,6 +105,20 @@ class LinearAssignmentTest(unittest.TestCase):
         la = LinearAssignment(w1)
         self.assertAlmostEqual(la.min_cost, 0)
 
+    def test_small_range(self):
+        # can be tricky for the augment step
+        x = np.array([[4, 5, 5, 6, 8, 4, 7, 4, 7, 8],
+                      [5, 6, 6, 6, 7, 6, 6, 5, 6, 7],
+                      [4, 4, 5, 7, 7, 4, 8, 4, 7, 7],
+                      [6, 7, 6, 6, 7, 6, 6, 6, 6, 6],
+                      [4, 4, 4, 6, 6, 4, 7, 4, 7, 7],
+                      [4, 5, 5, 6, 8, 4, 7, 4, 7, 8],
+                      [5, 7, 5, 5, 5, 6, 4, 5, 4, 6],
+                      [8, 9, 8, 4, 5, 9, 4, 8, 4, 4],
+                      [5, 6, 6, 6, 7, 6, 6, 5, 6, 7],
+                      [5, 6, 6, 6, 7, 6, 6, 5, 6, 7]])
+        self.assertAlmostEqual(LinearAssignment(x).min_cost, 48)
+
     def test_boolean_inputs(self):
         w = np.ones((135,135), dtype=np.bool)
         np.fill_diagonal(w, False)
