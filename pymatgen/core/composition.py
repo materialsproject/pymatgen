@@ -23,9 +23,9 @@ import string
 import six
 from six.moves import filter, map, zip
 
-from fractions import gcd
+from fractions import Fraction
 from functools import total_ordering
-from itertools import chain
+from monty.fractions import gcd
 from pymatgen.core.periodic_table import get_el_sp, Element
 from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import PMGSONable
@@ -208,6 +208,8 @@ class Composition(collections.Mapping, collections.Hashable, PMGSONable):
         return Composition({el: self[el] / other for el in self},
                            allow_negative=self.allow_negative)
 
+    __div__ = __truediv__
+
     def __hash__(self):
         """
         Minimally effective hash function that just distinguishes between
@@ -341,6 +343,26 @@ class Composition(collections.Mapping, collections.Hashable, PMGSONable):
             factor /= 2
 
         return formula, factor
+
+    def get_integer_formula_and_factor(self, max_denominator=10000):
+        """
+        Calculates an integer formula and factor.
+
+        Args:
+            max_denominator (int): all amounts in the el:amt dict are
+                first converted to a Fraction with this maximum denominator
+
+        Returns:
+            A pretty normalized formula and a multiplicative factor, i.e.,
+            Li0.5O0.25 returns (Li2O, 0.25). O0.25 returns (O2, 0.125)
+        """
+        mul = gcd(*[Fraction(v).limit_denominator(max_denominator) for v
+                    in self.values()])
+        (formula, factor) = reduce_formula((self / mul).get_el_amt_dict())
+        if formula in Composition.special_formulas:
+            formula = Composition.special_formulas[formula]
+            factor /= 2
+        return formula, factor * mul
 
     @property
     def reduced_formula(self):
@@ -739,7 +761,7 @@ def reduce_formula(sym_amt):
                           get_el_sp(syms[num_el - 1]).X
                           - get_el_sp(syms[num_el - 2]).X < 1.65)
 
-    factor = abs(six.moves.reduce(gcd, sym_amt.values()))
+    factor = abs(gcd(*sym_amt.values()))
     reduced_form = []
     n = num_el - 2 if contains_polyanion else num_el
     for i in range(0, n):
@@ -800,6 +822,8 @@ class ChemicalPotential(dict, PMGSONable):
             return ChemicalPotential({k: v / other for k, v in self.items()})
         else:
             return NotImplemented
+
+    __div__ = __truediv__
 
     def __sub__(self, other):
         if isinstance(other, ChemicalPotential):
