@@ -24,6 +24,43 @@ from monty.io import zopen
 from pymatgen.util.coord_utils import get_angle
 
 
+def read_route_line(route):
+    """
+    read route line in gaussian input/output and return functional basis_set
+    and a dictionary of other route parameters
+
+    Args:
+        route (str) : the route line
+
+    return
+        functional (str) : the method (HF, PBE ...)
+        basis_set (str) : the basis set
+        route (dict) : dictionary of parameters 
+    """
+    scrf_patt = re.compile("^([sS][cC][rR][fF])\s*=\s*(.+)")
+
+    functional = None
+    basis_set = None
+    route_params = {}
+    if route:
+        if "/" in route:
+            tok = route.split("/")
+            functional = tok[0].split()[-1]
+            basis_set = tok[1].split()[0]
+            for tok in [functional, basis_set, "/"]:
+                route = route.replace(tok, "")
+
+        for tok in route.split():
+            if scrf_patt.match(tok):
+                m = scrf_patt.match(tok)
+                route_params[m.group(1)] = m.group(2)
+            else:
+                d = tok.split("=")
+                v = None if len(d) == 1 else d[1]
+                route_params[d[0]] = v
+
+    return functional, basis_set, route_params
+
 class GaussianInput(object):
     """
     An object representing a Gaussian input file.
@@ -214,7 +251,6 @@ class GaussianInput(object):
                 m = link0_patt.match(l)
                 link0_dict[m.group(1)] = m.group(2)
 
-        scrf_patt = re.compile("^([sS][cC][rR][fF])\s*=\s*(.+)")
         route_patt = re.compile("^#[sSpPnN]*.*")
         route = None
         for i, l in enumerate(lines):
@@ -222,22 +258,8 @@ class GaussianInput(object):
                 route = l
                 route_index = i
                 break
-        route_paras = {}
-        if route:
-            for tok in route.split():
-                if tok.strip().startswith("#"):
-                    continue
-                if re.match("[\S]+/.*", tok):
-                    d = tok.split("/")
-                    functional = d[0]
-                    basis_set = d[1]
-                elif scrf_patt.match(tok):
-                    m = scrf_patt.match(tok)
-                    route_paras[m.group(1)] = m.group(2)
-                else:
-                    d = tok.split("=")
-                    v = None if len(d) == 1 else d[1]
-                    route_paras[d[0]] = v
+        functional, basis_set, route_paras = read_route_line(route)
+
         ind = 2
         title = []
         while lines[route_index + ind].strip():
@@ -545,16 +567,7 @@ class GaussianOutput(object):
                     if start_patt.search(line):
                         parse_stage = 1
                     elif route_patt.search(line):
-                        self.route = {}
-                        for tok in line.split():
-                            sub_tok = tok.strip().split("=")
-                            key = sub_tok[0].upper()
-                            self.route[key] = sub_tok[1].upper() \
-                                if len(sub_tok) > 1 else ""
-                            m = re.match("(\w+)/([^/]+)", key)
-                            if m:
-                                self.functional = m.group(1)
-                                self.basis_set = m.group(2)
+                        self.functional, self.basis_set, self.route = read_route_line(line)
                         parse_stage = 1
                 elif parse_stage == 1:
                     if charge_mul_patt.search(line):
@@ -708,3 +721,4 @@ class GaussianOutput(object):
         d["@class"] =  self.__class__.__name__
 
         return d
+
