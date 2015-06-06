@@ -866,7 +866,7 @@ batch_adapter:
         # Submit the task and save the queue id.
         try:
             qjob, process = self.qadapter.submit_to_queue(script_file)
-            task.set_status(task.S_SUB, msg='submitted to que')
+            task.set_status(task.S_SUB, msg='submitted to queue')
             task.set_qjob(qjob)
             return process
 
@@ -1373,14 +1373,14 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self._returncode = self.process.poll()
 
         if self._returncode is not None:
-            self.set_status(self.S_DONE)
+            self.set_status(self.S_DONE, "status set to Done")
 
         return self._returncode
 
     def wait(self):
         """Wait for child process to terminate. Set and return returncode attribute."""
         self._returncode = self.process.wait()
-        self.set_status(self.S_DONE)
+        self.set_status(self.S_DONE, "status set to Done")
 
         return self._returncode
 
@@ -1394,14 +1394,14 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         """
         stdoutdata, stderrdata = self.process.communicate(input=input)
         self._returncode = self.process.returncode
-        self.set_status(self.S_DONE)
+        self.set_status(self.S_DONE, "status set to Done")
 
         return stdoutdata, stderrdata 
 
     def kill(self):
         """Kill the child."""
         self.process.kill()
-        self.set_status(self.S_ERROR)
+        self.set_status(self.S_ERROR, "status set to Error by task.kill")
         self._returncode = self.process.returncode
 
     @property
@@ -1636,9 +1636,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 # Check if the calculation converged.
                 not_ok = report.filter_types(self.CRITICAL_EVENTS)
                 if not_ok:
-                    return self.set_status(self.S_UNCONVERGED, msg='conlcuded unconverged based on abiout' )
+                    return self.set_status(self.S_UNCONVERGED, msg='status set to unconverged based on abiout')
                 else:
-                    return self.set_status(self.S_OK, msg='conlcuded ok based on abiout')
+                    return self.set_status(self.S_OK, msg="status set to ok based on abiout")
 
             # Calculation still running or errors?
             if report.errors:
@@ -2477,6 +2477,7 @@ class AbinitTask(Task):
 
         # Move files to reset and append digit with reset index.
         def move_file(f):
+            if not f.exists: return
             try:
                 f.move(os.path.join(reset_dir, f.basename + "_" + str(num_reset)))
             except OSError as exc:
@@ -2492,11 +2493,6 @@ class AbinitTask(Task):
 
         # Reset datetimes
         self.datetimes = TaskDateTimes()
-
-        #self.output_file.remove()
-        #self.log_file.remove()
-        #self.stderr_file.remove()
-        #self.start_lockfile.remove()
 
         return self._restart(submit=False)
 
