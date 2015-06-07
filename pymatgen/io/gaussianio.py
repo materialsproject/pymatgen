@@ -54,6 +54,9 @@ def read_route_line(route):
             if scrf_patt.match(tok):
                 m = scrf_patt.match(tok)
                 route_params[m.group(1)] = m.group(2)
+            elif "#" in tok:
+                # does not store # in route to avoid error in input 
+                continue
             else:
                 d = tok.split("=")
                 v = None if len(d) == 1 else d[1]
@@ -483,6 +486,15 @@ class GaussianOutput(object):
 
         Basis set used in the run
 
+    .. attribute:: route
+
+        Additional route parameters as a dict. For example,
+            {'SP':"", "SCF":"Tight"}
+
+    .. attribute:: link0
+    
+        Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
+
     .. attribute:: charge
 
         Charge for structure
@@ -524,6 +536,7 @@ class GaussianOutput(object):
     def _parse(self, filename):
         start_patt = re.compile(" \(Enter \S+l101\.exe\)")
         route_patt = re.compile(" #[pPnNtT]*.*")
+        link0_patt = re.compile("^\s(%.+)\s*=\s*(.+)")
         charge_mul_patt = re.compile("Charge\s+=\s*([-\\d]+)\s+"
                                      "Multiplicity\s+=\s*(\d+)")
         num_basis_func_patt = re.compile("([0-9]+)\s+basis functions")
@@ -552,6 +565,7 @@ class GaussianOutput(object):
         self.pcm = None
         self.errors = []
         self.Mulliken_charges = {}
+        self.link0 = {}
 
         coord_txt = []
         read_coord = 0
@@ -566,6 +580,9 @@ class GaussianOutput(object):
                 if parse_stage == 0:
                     if start_patt.search(line):
                         parse_stage = 1
+                    elif link0_patt.match(line):
+                        m = link0_patt.match(line)
+                        self.link0[m.group(1)] = m.group(2)
                     elif route_patt.search(line):
                         self.functional, self.basis_set, self.route = read_route_line(line)
                         parse_stage = 1
