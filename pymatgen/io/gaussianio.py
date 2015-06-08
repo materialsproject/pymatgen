@@ -383,7 +383,7 @@ class GaussianInput(object):
         output = []
         if self.link0_parameters:
             output.append(para_dict_to_string(self.link0_parameters, "\n"))
-        output.append("#P {func}/{bset} {route} Test"
+        output.append("#P {func}/{bset} {route}"
                       .format(func=self.functional, bset=self.basis_set,
                               route=para_dict_to_string(self.route_parameters))
                       )
@@ -738,4 +738,54 @@ class GaussianOutput(object):
         d["@class"] =  self.__class__.__name__
 
         return d
+
+    def to_input(self, filename, mol=None,  charge=None,
+                 spin_multiplicity=None, title=None, functional=None,
+                 basis_set=None, route_parameters=None, input_parameters=None,
+                 link0_parameters=None, cart_coords=False):
+        """
+        Write a new input file using by default the last geometry read in self
+        and with the same calculation parameters. Arguments are the same as
+        GaussianInput class.
+
+        Returns
+            gaunip (GaussianInput) : the gaussian input object
+        """
+        if not mol:
+            mol = self.final_structure
+
+        if not charge:
+            charge = self.charge
+
+        if not spin_multiplicity:
+            spin_multiplicity = self.spin_mult
+
+        if not title:
+            title = "restart "
+
+        if not functional:
+            functional = self.functional
+
+        if not basis_set:
+            basis_set = self.basis_set
+
+        if not route_parameters:
+            route_parameters = self.route
+
+        if not link0_parameters:
+            link0_parameters = self.link0
+
+        gauinp = GaussianInput(mol=mol,
+                               charge=charge,
+                               spin_multiplicity=spin_multiplicity,
+                               title=title,
+                               functional=functional,
+                               basis_set=basis_set,
+                               route_parameters=route_parameters,
+                               input_parameters=input_parameters,
+                               link0_parameters=link0_parameters)
+
+        gauinp.write_file(filename, cart_coords=cart_coords)
+
+        return gauinp
 
