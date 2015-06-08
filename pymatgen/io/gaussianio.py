@@ -56,13 +56,14 @@ def read_route_line(route):
                 route_params[m.group(1)] = m.group(2)
             elif "#" in tok:
                 # does not store # in route to avoid error in input 
+                dieze_tag = tok
                 continue
             else:
                 d = tok.split("=")
                 v = None if len(d) == 1 else d[1]
                 route_params[d[0]] = v
 
-    return functional, basis_set, route_params
+    return functional, basis_set, route_params, dieze_tag
 
 class GaussianInput(object):
     """
@@ -87,6 +88,7 @@ class GaussianInput(object):
         input_parameters: Additional input parameters for run as a dict. Used
             for example, in PCM calculations.  E.g., {"EPS":12}
         link0_parameters: Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
+        dieze_tag: # preceding the route line. E.g. "#p"
     """
 
     #Commonly used regex patterns
@@ -96,7 +98,7 @@ class GaussianInput(object):
 
     def __init__(self, mol, charge=None, spin_multiplicity=None, title=None,
                  functional="HF", basis_set="6-31G(d)", route_parameters=None,
-                 input_parameters=None, link0_parameters=None):
+                 input_parameters=None, link0_parameters=None, dieze_tag="#P"):
         self._mol = mol
         self.charge = charge if charge is not None else mol.charge
         nelectrons = - self.charge + mol.charge + mol.nelectrons
@@ -115,6 +117,7 @@ class GaussianInput(object):
         self.route_parameters = route_parameters if route_parameters else {}
         self.input_parameters = input_parameters if input_parameters else {}
         self.title = title if title else self._mol.composition.formula
+        self.dieze_tag = dieze_tag if dieze_tag[0] == "#" else "#P"
 
     @property
     def molecule(self):
@@ -261,7 +264,8 @@ class GaussianInput(object):
                 route = l
                 route_index = i
                 break
-        functional, basis_set, route_paras = read_route_line(route)
+        functional, basis_set, route_paras, dieze_tag = read_route_line(route)
+        print(functional, basis_set, route_paras, dieze_tag)
 
         ind = 2
         title = []
@@ -292,7 +296,8 @@ class GaussianInput(object):
         return GaussianInput(mol, charge=charge, spin_multiplicity=spin_mult,
                              title=title, functional=functional,
                              basis_set=basis_set, route_parameters=route_paras,
-                             input_parameters=input_paras,link0_parameters=link0_dict)
+                             input_parameters=input_paras,link0_parameters=link0_dict,
+                             dieze_tag=dieze_tag)
 
     @staticmethod
     def from_file(filename):
@@ -383,8 +388,9 @@ class GaussianInput(object):
         output = []
         if self.link0_parameters:
             output.append(para_dict_to_string(self.link0_parameters, "\n"))
-        output.append("#P {func}/{bset} {route}"
-                      .format(func=self.functional, bset=self.basis_set,
+        output.append("{diez} {func}/{bset} {route}"
+                      .format(diez=self.dieze_tag, func=self.functional,
+                              bset=self.basis_set,
                               route=para_dict_to_string(self.route_parameters))
                       )
         output.append("")
@@ -491,6 +497,10 @@ class GaussianOutput(object):
         Additional route parameters as a dict. For example,
             {'SP':"", "SCF":"Tight"}
 
+    .. attribute:: dieze_tag
+
+        # preceding the route line, e.g. "#P"
+
     .. attribute:: link0
     
         Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
@@ -584,7 +594,11 @@ class GaussianOutput(object):
                         m = link0_patt.match(line)
                         self.link0[m.group(1)] = m.group(2)
                     elif route_patt.search(line):
-                        self.functional, self.basis_set, self.route = read_route_line(line)
+                        params = read_route_line(line)
+                        self.functional = params[0]
+                        self.basis_set = params[1]
+                        self.route = params[2]
+                        self.dieze_tag = params[3]
                         parse_stage = 1
                 elif parse_stage == 1:
                     if charge_mul_patt.search(line):
@@ -742,7 +756,7 @@ class GaussianOutput(object):
     def to_input(self, filename, mol=None,  charge=None,
                  spin_multiplicity=None, title=None, functional=None,
                  basis_set=None, route_parameters=None, input_parameters=None,
-                 link0_parameters=None, cart_coords=False):
+                 link0_parameters=None, dieze_tag=None, cart_coords=False):
         """
         Write a new input file using by default the last geometry read in self
         and with the same calculation parameters. Arguments are the same as
@@ -775,6 +789,9 @@ class GaussianOutput(object):
         if not link0_parameters:
             link0_parameters = self.link0
 
+        if not dieze_tag:
+            dieze_tag = self.dieze_tag
+
         gauinp = GaussianInput(mol=mol,
                                charge=charge,
                                spin_multiplicity=spin_multiplicity,
@@ -783,7 +800,8 @@ class GaussianOutput(object):
                                basis_set=basis_set,
                                route_parameters=route_parameters,
                                input_parameters=input_parameters,
-                               link0_parameters=link0_parameters)
+                               link0_parameters=link0_parameters,
+                               dieze_tag=dieze_tag)
 
         gauinp.write_file(filename, cart_coords=cart_coords)
 
