@@ -34,6 +34,7 @@ from six import string_types
 import numpy as np
 
 from monty.io import zopen, reverse_readfile
+from monty.re import regrep
 from monty.json import jsanitize
 
 from pymatgen.util.io_utils import clean_lines, micro_pyawk
@@ -1152,6 +1153,65 @@ class Outcar(PMGSONable):
         self.efermi = efermi
         self.nelect = nelect
         self.total_mag = total_mag
+        self.data = {}
+
+    def read_pattern(self, patterns, reverse=False, terminate_on_match=False,
+                     postprocess=str):
+        """
+        General pattern reading. Uses monty's regrep method. Takes the same
+        arguments.
+
+        Args:
+            patterns (dict): A dict of patterns, e.g.,
+                {"energy": "energy\(sigma->0\)\s+=\s+([\d\-\.]+)"}.
+            reverse (bool): Read files in reverse. Defaults to false. Useful for
+                large files, esp OUTCARs, especially when used with
+                terminate_on_match.
+            terminate_on_match (bool): Whether to terminate when there is at
+                least one match in each key in pattern.
+            postprocess (callable): A post processing function to convert all
+                matches. Defaults to str, i.e., no change.
+
+        Renders accessible:
+            Any attribute in patterns. For example,
+            {"energy": "energy\(sigma->0\)\s+=\s+([\d\-\.]+)"} will set the
+            value of self.data["energy"] = [[-1234], [-3453], ...], to the
+            results from regex and postprocess. Note that the returned values
+            are lists of lists, because you can grep multiple items on one line.
+        """
+        matches = regrep(self.filename, patterns, reverse=reverse,
+                           terminate_on_match=terminate_on_match,
+                           postprocess=postprocess)
+        for k in patterns.keys():
+            self.data[k] = [i[0] for i in matches.get(k, [])]
+
+    def read_tst_neb(self, reverse=True, terminate_on_match=True):
+        """
+        Reads TST NEB data. This only works with OUTCARs from calculations
+        performed using the climbing image NEB method implemented by
+        Henkelman et al.
+
+        Args:
+            reverse (bool): Read files in reverse. Defaults to false. Useful for
+                large files, esp OUTCARs, especially when used with
+                terminate_on_match. Defaults to True here since we usually
+                want only the final value.
+            terminate_on_match (bool): Whether to terminate when there is at
+                least one match in each key in pattern. Defaults to True here
+                since we usually want only the final value.
+
+        Renders accessible:
+            tangent_force - Final tangent force.
+            energy - Final energy.
+        """
+        patterns = {
+            "energy": "energy\(sigma->0\)\s+=\s+([\d\-\.]+)",
+            "tangent_force": "NEB: projections on to tangent \(" \
+                "spring, REAL\)\s+\S+\s+([\d\-\.]+)"
+        }
+        self.read_pattern(patterns, reverse=reverse,
+                          terminate_on_match=terminate_on_match,
+                          postprocess=float)
 
     def read_igpar(self):
         """
