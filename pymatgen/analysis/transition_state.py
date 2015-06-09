@@ -21,7 +21,6 @@ from pymatgen.io.vaspio import Poscar, Outcar
 import numpy as np
 import os
 import glob
-import collections
 from pymatgen.util.plotting_utils import get_publication_quality_plot
 
 
@@ -31,15 +30,6 @@ def is_int(s):
         return True
     except ValueError:
         return False
-
-
-def get_cubic_spline(r1, e1, f1, r2, e2, f2):
-    r = (r2 - r1)
-    a = (2 * e2 - e1) / r ** 3 - (f2 + f1) / r ** 2
-    b = (3 * e2 - e1) / r ** 2 + (2 * f2 + f1) / r
-    c = -f1
-    d = e1
-    return lambda x: a * x ** 3 + b * x ** 2 + c * x + d
 
 
 class CINEBAnalysis(object):
@@ -114,9 +104,9 @@ class CINEBAnalysis(object):
             y.extend(a * f ** 3 + b * f ** 2 + c * f + d)
         for i in range(1, len(x) - 1):
             if y[i] < y[i-1] and y[i] < y[i+1]:
-                print "Minimum at r = %s, E = %s" % (x[i] * scale, y[i])
+                print("Minimum at r = %s, E = %s" % (x[i] * scale, y[i]))
             elif y[i] > y[i-1] and y[i] > y[i+1]:
-                print "Maximum at r = %s, E = %s" % (x[i] * scale, y[i])
+                print("Maximum at r = %s, E = %s" % (x[i] * scale, y[i]))
 
     def get_plot(self, normalize_rxn_coordinate=True):
         """
