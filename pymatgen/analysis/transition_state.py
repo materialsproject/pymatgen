@@ -148,20 +148,32 @@ class NEBAnalysis(object):
     @classmethod
     def from_dir(cls, root_dir):
         """
-        Initializes a CINEBAnalysis object from a directory of a NEB run.
+        Initializes a NEBAnalysis object from a directory of a NEB run.
         Note that the directory must have OUTCARs in all image directories,
         including the terminal points. The termainal OUTCARs are usually
         obtained from relaxation calculations. For the non-terminal points,
         the CONTCAR is read to obtain structures. For terminal points,
         the POSCAR is used. The image directories are assumed to be the only
         directories that can be resolved to integers. E.g., "00", "01", "02",
-        "03", "04", "05", "06".
+        "03", "04", "05", "06". The minimum sub-directory structure that can be
+        parsed is of the following form (a 5-image example is shown):
+
+        00:
+        - POSCAR
+        - OUTCAR
+        01, 02, 03, 04, 05:
+        - CONTCAR
+        - OUTCAR
+        06: 
+        - POSCAR
+        - OUTCAR
+
 
         Args:
             root_dir (str): Path to the root directory of the NEB calculation.
 
         Returns:
-            CINEBAnalysis object.
+            NEBAnalysis object.
         """
         neb_dirs = []
         for d in os.listdir(root_dir):
