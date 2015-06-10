@@ -64,10 +64,19 @@ class CINEBAnalysis(object):
             dists.append(np.sqrt(ss) + prev_dist)
             prev = s
 
-        energies = np.array([o.data["energy"] for o in outcars])
+        energies = []
+        forces = []
+        for i, o in enumerate(outcars):
+            o.read_tst_neb()
+            energies.append(o.data["energy"][0][0])
+            if i in [0, len(outcars) - 1]:
+                forces.append(0)
+            else:
+                forces.append(o.data["tangent_force"][0][0])
+
+        energies = np.array(energies)
         energies -= energies[0]
-        forces = np.array(
-            [o.data.get("tangent_force", 0) for o in outcars])
+        forces = np.array(forces)
         self.r = np.array(dists)
         self.energies = energies
         self.forces = forces
@@ -138,8 +147,8 @@ class CINEBAnalysis(object):
         self.get_extrema(normalize_rxn_coordinate=normalize_rxn_coordinate)
         return plt
 
-    @staticmethod
-    def from_dir(root_dir):
+    @classmethod
+    def from_dir(cls, root_dir):
         """
         Initializes a CINEBAnalysis object from a directory of a NEB run.
         Note that the directory must have OUTCARs in all image directories,
@@ -169,9 +178,9 @@ class CINEBAnalysis(object):
             poscar = glob.glob(os.path.join(d, "POSCAR*"))
             terminal = i == 0 or i == neb_dirs[-1][0]
             if terminal:
-                outcars.append(Outcar(outcar[0], force=False))
-                structures.append(Poscar.from_file(contcar[0]).structure)
-            else:
-                outcars.append(Outcar(outcar[0], force=True))
+                outcars.append(Outcar(outcar[0]))
                 structures.append(Poscar.from_file(poscar[0]).structure)
+            else:
+                outcars.append(Outcar(outcar[0]))
+                structures.append(Poscar.from_file(contcar[0]).structure)
         return CINEBAnalysis(outcars, structures)
