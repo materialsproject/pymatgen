@@ -1208,7 +1208,8 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             previous_incar = vasp_run.incar
         except:
             traceback.print_exc()
-            raise RuntimeError("Can't get valid results from previous run. prev dir: {}".format(previous_vasp_dir))
+            raise RuntimeError("Can't get valid results from previous run: {}"
+                               .format(previous_vasp_dir))
 
         #Get a Magmom-decorated structure
         structure = MPNonSCFVaspInputSet.get_structure(vasp_run, outcar,
