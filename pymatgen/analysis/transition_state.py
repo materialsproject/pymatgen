@@ -32,11 +32,9 @@ def is_int(s):
         return False
 
 
-class CINEBAnalysis(object):
+class NEBAnalysis(object):
     """
-    Note that this only works for CINEB calculations as it depends on certain
-    lines present in the OUTCAR. Also, even the start and end point directories
-    must contain an OUTCAR.
+    An NEBAnalysis class.
     """
 
     def __init__(self, outcars, structures):
@@ -67,13 +65,13 @@ class CINEBAnalysis(object):
         energies = []
         forces = []
         for i, o in enumerate(outcars):
-            o.read_tst_neb()
+            o.read_neb()
             energies.append(o.data["energy"][0][0])
             if i in [0, len(outcars) - 1]:
                 forces.append(0)
             else:
-                forces.append(o.data["tangent_force"][0][0])
-
+                f = o.data["cineb_tangent_force"] or o.data["neb_tangent_force"]
+                forces.append(f[0][0])
         energies = np.array(energies)
         energies -= energies[0]
         forces = np.array(forces)
@@ -152,11 +150,12 @@ class CINEBAnalysis(object):
         """
         Initializes a CINEBAnalysis object from a directory of a NEB run.
         Note that the directory must have OUTCARs in all image directories,
-        including the terminal points. These are usually obtained from
-        relaxation calculations. For the non-terminal points, the CONTCAR is
-        read to obtain structures. For terminal points, the POSCAR is used.
-        The image directories are assumed to be the only directories that can
-        be resolved to integers. E.g., "00", "01", "02", "03", "04", "05", "06".
+        including the terminal points. The termainal OUTCARs are usually
+        obtained from relaxation calculations. For the non-terminal points,
+        the CONTCAR is read to obtain structures. For terminal points,
+        the POSCAR is used. The image directories are assumed to be the only
+        directories that can be resolved to integers. E.g., "00", "01", "02",
+        "03", "04", "05", "06".
 
         Args:
             root_dir (str): Path to the root directory of the NEB calculation.
@@ -166,9 +165,10 @@ class CINEBAnalysis(object):
         """
         neb_dirs = []
         for d in os.listdir(root_dir):
-            if os.path.isdir(d) and is_int(d):
-                i = int(os.path.basename(d))
-                neb_dirs.append((i, d))
+            pth = os.path.join(root_dir, d)
+            if os.path.isdir(pth) and is_int(d):
+                i = int(d)
+                neb_dirs.append((i, pth))
         neb_dirs = sorted(neb_dirs, key=lambda d: d[0])
         outcars = []
         structures = []
@@ -183,4 +183,4 @@ class CINEBAnalysis(object):
             else:
                 outcars.append(Outcar(outcar[0]))
                 structures.append(Poscar.from_file(contcar[0]).structure)
-        return CINEBAnalysis(outcars, structures)
+        return NEBAnalysis(outcars, structures)
