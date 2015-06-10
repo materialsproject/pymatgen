@@ -1215,8 +1215,7 @@ class Outcar(PMGSONable):
         self.read_pattern(patterns, reverse=reverse,
                           terminate_on_match=terminate_on_match,
                           postprocess=str)
-        if "energy" in self.data:
-            self.data["energy"] = float(self.data["energy"][0][0])
+        self.data["energy"] = float(self.data["energy"][0][0])
         if self.data.get("tangent_force"):
             self.data["tangent_force"] = float(self.data["tangent_force"][0][1])
 
@@ -1461,7 +1460,6 @@ class Outcar(PMGSONable):
         except:
             raise Exception("LEPSILON OUTCAR could not be parsed.")
 
-
     def read_lepsilon_ionic(self):
         # variables to be filled
         try:
@@ -1548,7 +1546,6 @@ class Outcar(PMGSONable):
 
         except:
             raise Exception("ionic part of LEPSILON OUTCAR could not be parsed.")
-
 
     def read_lcalcpol(self):
         # variables to be filled
