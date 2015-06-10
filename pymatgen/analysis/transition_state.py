@@ -99,6 +99,18 @@ class NEBAnalysis(object):
         self.spline_params = spline_params
 
     def get_extrema(self, normalize_rxn_coordinate=True):
+        """
+        Returns the positions of the extrema along the MEP. Both local
+        minimums and maximums are returned.
+
+        Args:
+            normalize_rxn_coordinate (bool): Whether to normalize the
+                reaction coordinate to between 0 and 1. Defaults to True.
+
+        Returns:
+            (min_extrema, max_extrema), where the extrema are given as
+            [(x1, y1), (x2, y2), ...].
+        """
         x = []
         y = []
         scale = 1 if not normalize_rxn_coordinate else 1 / self.r[-1]
@@ -108,13 +120,16 @@ class NEBAnalysis(object):
             f = np.arange(0, 1.0, 0.01)
             x.extend(self.r[i] + f * dr)
             y.extend(a * f ** 3 + b * f ** 2 + c * f + d)
+        min_extrema = []
+        max_extrema = []
         for i in range(1, len(x) - 1):
             if y[i] < y[i-1] and y[i] < y[i+1]:
-                print("Minimum at r = %s, E = %s" % (x[i] * scale, y[i]))
+                min_extrema.append((x[i] * scale, y[i]))
             elif y[i] > y[i-1] and y[i] > y[i+1]:
-                print("Maximum at r = %s, E = %s" % (x[i] * scale, y[i]))
+                max_extrema.append((x[i] * scale, y[i]))
+        return min_extrema, max_extrema
 
-    def get_plot(self, normalize_rxn_coordinate=True):
+    def get_plot(self, normalize_rxn_coordinate=True, label_barrier=True):
         """
         Returns the NEB plot. Uses Henkelman's approach of spline fitting
         each section of the reaction path based on tangent force and energies.
@@ -122,12 +137,14 @@ class NEBAnalysis(object):
         Args:
             normalize_rxn_coordinate (bool): Whether to normalize the
                 reaction coordinate to between 0 and 1. Defaults to True.
+            label_barrier (bool): Whether to label the maximum barrier.
 
         Returns:
             matplotlib.pyplot object.
         """
         plt = get_publication_quality_plot(12, 8)
         scale = 1 if not normalize_rxn_coordinate else 1 / self.r[-1]
+        all_x = []
         all_y = []
         for i in range(0, len(self.r) - 1):
             dr = self.r[i + 1] - self.r[i]
@@ -135,13 +152,21 @@ class NEBAnalysis(object):
             f = np.arange(0, 1.01, 0.01)
             x = self.r[i] + f * dr
             y = (a * f ** 3 + b * f ** 2 + c * f + d) * 1000
+            all_x.extend(x * scale)
             all_y.extend(y)
             plt.plot(x * scale, y, 'k-', linewidth=2)
+
         plt.plot(self.r * scale, self.energies * 1000, 'ro', markersize=10)
         plt.xlabel("Reaction coordinate")
         plt.ylabel("Energy (meV)")
         plt.ylim((np.min(all_y) - 10, np.max(all_y) + 10))
-        self.get_extrema(normalize_rxn_coordinate=normalize_rxn_coordinate)
+        if label_barrier:
+            data = zip(all_x, all_y)
+            barrier = max(data, key=lambda d: d[1])
+            plt.plot([0, barrier[0]], [barrier[1], barrier[1]], 'k--')
+            plt.annotate('%.0f meV' % barrier[1],
+                         xy=(barrier[0] / 2, barrier[1] + 1),
+                         xytext=(barrier[0] / 2, barrier[1] + 1))
         return plt
 
     @classmethod
