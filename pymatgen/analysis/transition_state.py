@@ -66,12 +66,11 @@ class NEBAnalysis(object):
         forces = []
         for i, o in enumerate(outcars):
             o.read_neb()
-            energies.append(o.data["energy"][0][0])
+            energies.append(o.data["energy"])
             if i in [0, len(outcars) - 1]:
                 forces.append(0)
             else:
-                f = o.data["cineb_tangent_force"] or o.data["neb_tangent_force"]
-                forces.append(f[0][0])
+                forces.append(o.data["tangent_force"])
         energies = np.array(energies)
         energies -= energies[0]
         forces = np.array(forces)
@@ -164,7 +163,7 @@ class NEBAnalysis(object):
         01, 02, 03, 04, 05:
         - CONTCAR
         - OUTCAR
-        06: 
+        06:
         - POSCAR
         - OUTCAR
 

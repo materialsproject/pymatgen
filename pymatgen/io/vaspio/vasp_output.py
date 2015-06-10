@@ -1187,8 +1187,8 @@ class Outcar(PMGSONable):
 
     def read_neb(self, reverse=True, terminate_on_match=True):
         """
-        Reads TST NEB data. This only works with OUTCARs from calculations
-        performed using the climbing image NEB method implemented by
+        Reads TST NEB data. This only works with OUTCARs from both normal
+        VASP NEB calculations or from the CI NEB method implemented by
         Henkelman et al.
 
         Args:
@@ -1201,18 +1201,24 @@ class Outcar(PMGSONable):
                 since we usually want only the final value.
 
         Renders accessible:
-            tangent_force - Final tangent force.
+            neb_tangent_force - Final tangent force for normal NEB calculations.
+            cineb_tangent_force - Final tangent force for CI NEB calculations.
             energy - Final energy.
+            These can be accessed under Outcar.data[key]
         """
         patterns = {
             "energy": "energy\(sigma->0\)\s+=\s+([\d\-\.]+)",
-            "cineb_tangent_force": "NEB: projections on to tangent \(" \
-                "spring, REAL\)\s+\S+\s+([\d\-\.]+)",
-            "neb_tangent_force": "tangential force \(eV/A\)\s+([\d\-\.]+)"
+            "tangent_force": "(NEB: projections on to tangent \(" \
+                "spring, REAL\)\s+\S+|tangential force \(eV/A\))\s+(["
+                                   "\d\-\.]+)"
         }
         self.read_pattern(patterns, reverse=reverse,
                           terminate_on_match=terminate_on_match,
-                          postprocess=float)
+                          postprocess=str)
+        if "energy" in self.data:
+            self.data["energy"] = float(self.data["energy"][0][0])
+        if self.data.get("tangent_force"):
+            self.data["tangent_force"] = float(self.data["tangent_force"][0][1])
 
     def read_igpar(self):
         """
