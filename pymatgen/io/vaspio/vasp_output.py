@@ -1180,12 +1180,12 @@ class Outcar(PMGSONable):
             are lists of lists, because you can grep multiple items on one line.
         """
         matches = regrep(self.filename, patterns, reverse=reverse,
-                           terminate_on_match=terminate_on_match,
-                           postprocess=postprocess)
+                         terminate_on_match=terminate_on_match,
+                         postprocess=postprocess)
         for k in patterns.keys():
             self.data[k] = [i[0] for i in matches.get(k, [])]
 
-    def read_tst_neb(self, reverse=True, terminate_on_match=True):
+    def read_neb(self, reverse=True, terminate_on_match=True):
         """
         Reads TST NEB data. This only works with OUTCARs from calculations
         performed using the climbing image NEB method implemented by
@@ -1206,8 +1206,9 @@ class Outcar(PMGSONable):
         """
         patterns = {
             "energy": "energy\(sigma->0\)\s+=\s+([\d\-\.]+)",
-            "tangent_force": "NEB: projections on to tangent \(" \
-                "spring, REAL\)\s+\S+\s+([\d\-\.]+)"
+            "cineb_tangent_force": "NEB: projections on to tangent \(" \
+                "spring, REAL\)\s+\S+\s+([\d\-\.]+)",
+            "neb_tangent_force": "tangential force \(eV/A\)\s+([\d\-\.]+)"
         }
         self.read_pattern(patterns, reverse=reverse,
                           terminate_on_match=terminate_on_match,
