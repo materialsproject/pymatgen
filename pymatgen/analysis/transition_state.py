@@ -51,16 +51,15 @@ class NEBAnalysis(object):
         """
         if len(outcars) != len(structures):
             raise ValueError("# of Outcars must be same as # of Structures")
-        dists = [0]
+
+        # Calculate cumulative mean square distance between structures,
+        # which serves as the reaction coordinate.
+        r = [0]
         prev = structures[0]
-        for s in structures[1:]:
-            ss = 0
-            for site1, site2 in zip(prev, s):
-                dist = site2.distance(site1)
-                ss += dist ** 2
-            prev_dist = dists[-1]
-            dists.append(np.sqrt(ss) + prev_dist)
-            prev = s
+        for st in structures[1:]:
+            dists = np.array([s2.distance(s1) for s1, s2 in zip(prev, st)])
+            r.append(np.sqrt(np.sum(dists ** 2)) + r[-1])
+            prev = st
 
         energies = []
         forces = []
@@ -74,7 +73,7 @@ class NEBAnalysis(object):
         energies = np.array(energies)
         energies -= energies[0]
         forces = np.array(forces)
-        self.r = np.array(dists)
+        self.r = np.array(r)
         self.energies = energies
         self.forces = forces
         self._fit_splines()
@@ -170,17 +169,22 @@ class NEBAnalysis(object):
         return plt
 
     @classmethod
-    def from_dir(cls, root_dir):
+    def from_dir(cls, root_dir, relaxation_dirs=None):
         """
         Initializes a NEBAnalysis object from a directory of a NEB run.
-        Note that the directory must have OUTCARs in all image directories,
-        including the terminal points. The termainal OUTCARs are usually
-        obtained from relaxation calculations. For the non-terminal points,
-        the CONTCAR is read to obtain structures. For terminal points,
-        the POSCAR is used. The image directories are assumed to be the only
-        directories that can be resolved to integers. E.g., "00", "01", "02",
-        "03", "04", "05", "06". The minimum sub-directory structure that can be
-        parsed is of the following form (a 5-image example is shown):
+        Note that OUTCARs must be present in all image directories. For the
+        terminal OUTCARs from relaxation calculations, you can specify the
+        locations using relaxation_dir. If these are not specified, the code
+        will attempt to look for the OUTCARs in 00 and 0n directories,
+        followed by subdirs "start", "end" or "initial", "final" in the
+        root_dir. These are just some typical conventions used
+        preferentially in Shyue Ping's MAVRL research group. For the
+        non-terminal points, the CONTCAR is read to obtain structures. For
+        terminal points, the POSCAR is used. The image directories are
+        assumed to be the only directories that can be resolved to integers.
+        E.g., "00", "01", "02", "03", "04", "05", "06". The minimum
+        sub-directory structure that can be parsed is of the following form (
+        a 5-image example is shown):
 
         00:
         - POSCAR
@@ -192,9 +196,11 @@ class NEBAnalysis(object):
         - POSCAR
         - OUTCAR
 
-
         Args:
             root_dir (str): Path to the root directory of the NEB calculation.
+            relaxation_dirs (tuple): This specifies the starting and ending
+                relaxation directories from which the OUTCARs are read for the
+                terminal points for the energies.
 
         Returns:
             NEBAnalysis object.
@@ -208,13 +214,36 @@ class NEBAnalysis(object):
         neb_dirs = sorted(neb_dirs, key=lambda d: d[0])
         outcars = []
         structures = []
+
+        # Setup the search sequence for the OUTCARs for the terminal
+        # directories.
+        terminal_dirs = []
+        if relaxation_dirs is not None:
+            terminal_dirs.append(relaxation_dirs)
+        terminal_dirs.append((neb_dirs[0][1], neb_dirs[-1][1]))
+        terminal_dirs.append([os.path.join(root_dir, d)
+                              for d in ["start", "end"]])
+        terminal_dirs.append([os.path.join(root_dir, d)
+                              for d in ["initial", "final"]])
+
         for i, d in neb_dirs:
             outcar = glob.glob(os.path.join(d, "OUTCAR*"))
             contcar = glob.glob(os.path.join(d, "CONTCAR*"))
             poscar = glob.glob(os.path.join(d, "POSCAR*"))
             terminal = i == 0 or i == neb_dirs[-1][0]
             if terminal:
-                outcars.append(Outcar(outcar[0]))
+                found = False
+                for ds in terminal_dirs:
+                    od = ds[0] if i == 0 else ds[1]
+                    outcar = glob.glob(os.path.join(od, "OUTCAR*"))
+                    if outcar:
+                        outcar = sorted(outcar)
+                        outcars.append(Outcar(outcar[-1]))
+                        found = True
+                        break
+                if not found:
+                    raise ValueError("OUTCAR cannot be found for terminal "
+                                     "point %s" % d)
                 structures.append(Poscar.from_file(poscar[0]).structure)
             else:
                 outcars.append(Outcar(outcar[0]))
