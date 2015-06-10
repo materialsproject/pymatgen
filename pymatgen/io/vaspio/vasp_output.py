@@ -1187,7 +1187,7 @@ class Outcar(PMGSONable):
 
     def read_neb(self, reverse=True, terminate_on_match=True):
         """
-        Reads TST NEB data. This only works with OUTCARs from both normal
+        Reads NEB data. This only works with OUTCARs from both normal
         VASP NEB calculations or from the CI NEB method implemented by
         Henkelman et al.
 
@@ -1201,8 +1201,7 @@ class Outcar(PMGSONable):
                 since we usually want only the final value.
 
         Renders accessible:
-            neb_tangent_force - Final tangent force for normal NEB calculations.
-            cineb_tangent_force - Final tangent force for CI NEB calculations.
+            tangent_force - Final tangent force.
             energy - Final energy.
             These can be accessed under Outcar.data[key]
         """
