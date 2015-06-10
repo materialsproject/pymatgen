@@ -522,15 +522,7 @@ class MITNEBVaspInputSet(DictVaspInputSet):
             structures.append(s)
         return structures
 
-    def write_input(self, structure, output_dir,
-                    make_dir_if_not_present=True, include_cif=False):
-        """
-        The default write_input is for writing initial structures / end point
-        relaxations. This ensures that
-        """
-
-    def write_input(self, structures, output_dir,
-                    make_dir_if_not_present=True,
+    def write_input(self, structures, output_dir, make_dir_if_not_present=True,
                     write_cif=False):
         """
         NEB inputs has a special directory structure where inputs are in 00,
