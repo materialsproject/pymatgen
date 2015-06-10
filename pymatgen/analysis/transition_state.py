@@ -52,8 +52,10 @@ class NEBAnalysis(object):
         if len(outcars) != len(structures):
             raise ValueError("# of Outcars must be same as # of Structures")
 
-        # Calculate cumulative mean square distance between structures,
-        # which serves as the reaction coordinate.
+        # Calculate cumulative root mean square distance between structures,
+        # which serves as the reaction coordinate. Note that these are
+        # calculated from the final relaxed structures as the coordinates may
+        # have changed from the initial interpolation.
         r = [0]
         prev = structures[0]
         for st in structures[1:]:
