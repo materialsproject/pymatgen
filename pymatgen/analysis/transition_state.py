@@ -27,20 +27,12 @@ from pymatgen.util.plotting_utils import get_publication_quality_plot
 from pymatgen.io.vaspio import Poscar, Outcar
 
 
-def is_int(s):
-    try:
-        int(s)
-        return True
-    except ValueError:
-        return False
-
-
 class NEBAnalysis(object):
     """
     An NEBAnalysis class.
     """
 
-    def __init__(self, outcars, structures):
+    def __init__(self, outcars, structures, interpolation_order=3):
         """
         Initializes an NEBAnalysis from Outcar and Structure objects. Use
         the static constructors, e.g., :class:`from_dir` instead if you
@@ -52,6 +44,9 @@ class NEBAnalysis(object):
                 to be ordered from start to end along reaction coordinates.
             structures ([Structure]): List of Structures along reaction
                 coordinate. Must be same length as outcar.
+            interpolation_order (int): Order of polynomial to use to
+                interpolate between images. Same format as order parameter in
+                scipy.interplotate.PiecewisePolynomial.
         """
         if len(outcars) != len(structures):
             raise ValueError("# of Outcars must be same as # of Structures")
@@ -83,10 +78,14 @@ class NEBAnalysis(object):
         self.r = np.array(r)
         self.energies = energies
         self.forces = forces
-        self.spline = PiecewisePolynomial(self.r,
-                                          np.array([self.energies,
-                                                    -self.forces]).T,
-                                          orders=3)
+
+        # We do a piecewise interpolation between the points. Each spline (
+        # cubic by default) is constrained by the boundary conditions of the
+        # energies and the tangent force, i.e., the derivative of
+        # the energy at each pair of points.
+        self.spline = PiecewisePolynomial(
+            self.r, np.array([self.energies, -self.forces]).T,
+            orders=interpolation_order)
 
     def get_extrema(self, normalize_rxn_coordinate=True):
         """
@@ -186,9 +185,10 @@ class NEBAnalysis(object):
             NEBAnalysis object.
         """
         neb_dirs = []
+
         for d in os.listdir(root_dir):
             pth = os.path.join(root_dir, d)
-            if os.path.isdir(pth) and is_int(d):
+            if os.path.isdir(pth) and d.isdigit():
                 i = int(d)
                 neb_dirs.append((i, pth))
         neb_dirs = sorted(neb_dirs, key=lambda d: d[0])
