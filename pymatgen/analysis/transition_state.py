@@ -101,15 +101,10 @@ class NEBAnalysis(object):
             (min_extrema, max_extrema), where the extrema are given as
             [(x1, y1), (x2, y2), ...].
         """
-        x = []
-        y = []
+        x = np.arange(0, np.max(self.r), 0.01)
+        y = self.spline(x) * 1000
+
         scale = 1 if not normalize_rxn_coordinate else 1 / self.r[-1]
-        for i in range(0, len(self.r) - 1):
-            dr = self.r[i + 1] - self.r[i]
-            a, b, c, d = self.spline_params[i]
-            f = np.arange(0, 1.0, 0.01)
-            x.extend(self.r[i] + f * dr)
-            y.extend(a * f ** 3 + b * f ** 2 + c * f + d)
         min_extrema = []
         max_extrema = []
         for i in range(1, len(x) - 1):
