@@ -23,7 +23,7 @@ from monty.dev import requires
 try:
     import openbabel as ob
     import pybel as pb
-except ImportError:
+except:
     pb = None
     ob = None
 
