@@ -143,7 +143,8 @@ class NEBAnalysis(object):
             plt.plot([0, barrier[0]], [barrier[1], barrier[1]], 'k--')
             plt.annotate('%.0f meV' % barrier[1],
                          xy=(barrier[0] / 2, barrier[1] * 1.02),
-                         xytext=(barrier[0] / 2, barrier[1] * 1.02))
+                         xytext=(barrier[0] / 2, barrier[1] * 1.02),
+                         horizontalalignment='center')
         plt.tight_layout()
         return plt
 
