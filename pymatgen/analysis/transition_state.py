@@ -130,9 +130,8 @@ class NEBAnalysis(object):
         scale = 1 if not normalize_rxn_coordinate else 1 / self.r[-1]
         x = np.arange(0, np.max(self.r), 0.01)
         y = self.spline(x) * 1000
-        plt.plot(x * scale, y, 'k-', linewidth=2)
-
-        plt.plot(self.r * scale, self.energies * 1000, 'ro', markersize=10)
+        plt.plot(self.r * scale, self.energies * 1000, 'ro',
+                 x * scale, y, 'k-', linewidth=2, markersize=10)
         plt.xlabel("Reaction coordinate")
         plt.ylabel("Energy (meV)")
         plt.ylim((np.min(y) - 10, np.max(y) * 1.02 + 20))
