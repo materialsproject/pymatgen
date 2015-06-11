@@ -17,11 +17,14 @@ __maintainer__ = 'Shyue Ping Ong'
 __email__ = 'ongsp@ucsd.edu'
 __date__ = '6/1/15'
 
-from pymatgen.io.vaspio import Poscar, Outcar
-import numpy as np
 import os
 import glob
+
+import numpy as np
+from scipy.interpolate import PiecewisePolynomial
+
 from pymatgen.util.plotting_utils import get_publication_quality_plot
+from pymatgen.io.vaspio import Poscar, Outcar
 
 
 def is_int(s):
@@ -80,26 +83,10 @@ class NEBAnalysis(object):
         self.r = np.array(r)
         self.energies = energies
         self.forces = forces
-        self._fit_splines()
-
-    def _fit_splines(self):
-        # Internal spline fitting procedure based on boundary conditions of
-        # tangent force and energies.
-        spline_params = {}
-        for i in range(0, len(self.r) - 1):
-            dr = self.r[i + 1] - self.r[i]
-            f1 = self.forces[i] * dr
-            f2 = self.forces[i + 1] * dr
-            u1 = self.energies[i]
-            u2 = self.energies[i + 1]
-            fs = f1 + f2
-            ud = u2 - u1
-            d = u1
-            c = -f1
-            b = 3 * ud + f1 + fs
-            a = -2 * ud - fs
-            spline_params[i] = a, b, c, d
-        self.spline_params = spline_params
+        self.spline = PiecewisePolynomial(self.r,
+                                          np.array([self.energies,
+                                                    -self.forces]).T,
+                                          orders=3)
 
     def get_extrema(self, normalize_rxn_coordinate=True):
         """
@@ -147,24 +134,16 @@ class NEBAnalysis(object):
         """
         plt = get_publication_quality_plot(12, 8)
         scale = 1 if not normalize_rxn_coordinate else 1 / self.r[-1]
-        all_x = []
-        all_y = []
-        for i in range(0, len(self.r) - 1):
-            dr = self.r[i + 1] - self.r[i]
-            a, b, c, d = self.spline_params[i]
-            f = np.arange(0, 1.01, 0.01)
-            x = self.r[i] + f * dr
-            y = (a * f ** 3 + b * f ** 2 + c * f + d) * 1000
-            all_x.extend(x * scale)
-            all_y.extend(y)
-            plt.plot(x * scale, y, 'k-', linewidth=2)
+        x = np.arange(0, np.max(self.r), 0.01)
+        y = self.spline(x) * 1000
+        plt.plot(x * scale, y, 'k-', linewidth=2)
 
         plt.plot(self.r * scale, self.energies * 1000, 'ro', markersize=10)
         plt.xlabel("Reaction coordinate")
         plt.ylabel("Energy (meV)")
-        plt.ylim((np.min(all_y) - 10, np.max(all_y) * 1.02 + 20))
+        plt.ylim((np.min(y) - 10, np.max(y) * 1.02 + 20))
         if label_barrier:
-            data = zip(all_x, all_y)
+            data = zip(x * scale, y)
             barrier = max(data, key=lambda d: d[1])
             plt.plot([0, barrier[0]], [barrier[1], barrier[1]], 'k--')
             plt.annotate('%.0f meV' % barrier[1],
