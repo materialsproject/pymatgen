@@ -386,7 +386,7 @@ loop_
 
         ans = """#generated using pymatgen
 data_LiFePO4
-_symmetry_space_group_name_H-M   Pcmn
+_symmetry_space_group_name_H-M   Pnma
 _cell_length_a   4.74480000
 _cell_length_b   6.06577000
 _cell_length_c   10.41037000
@@ -403,10 +403,10 @@ loop_
  _symmetry_equiv_pos_as_xyz
   1  'x, y, z'
   2  '-x, -y, -z'
-  3  '-x+1/2, -y+1/2, z+1/2'
-  4  'x+1/2, y+1/2, -z+1/2'
-  5  'x+1/2, -y, -z+1/2'
-  6  '-x+1/2, y, z+1/2'
+  3  'x+1/2, -y, -z+1/2'
+  4  '-x+1/2, y, z+1/2'
+  5  '-x+1/2, -y+1/2, z+1/2'
+  6  'x+1/2, y+1/2, -z+1/2'
   7  '-x, y+1/2, -z'
   8  'x, -y+1/2, z'
 loop_
