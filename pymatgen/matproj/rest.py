@@ -68,9 +68,10 @@ class MPRester(object):
             set. If so, it will use that environment variable. This makes
             easier for heavy users to simply add this environment variable to
             their setups and MPRester can then be called without any arguments.
-        endpoint (str): Url of endpoint to access the MaterialsProject REST interface.
-            Defaults to the standard Materials Project REST address, but
-            can be changed to other urls implementing a similar interface.
+        endpoint (str): Url of endpoint to access the MaterialsProject REST
+            interface. Defaults to the standard Materials Project REST
+            address, but can be changed to other urls implementing a similar
+            interface.
     """
 
     supported_properties = ("energy", "energy_per_atom", "volume",
@@ -91,7 +92,8 @@ class MPRester(object):
                                  "is_compatible", "spacegroup",
                                  "band_gap", "density", "icsd_id", "cif")
 
-    def __init__(self, api_key=None, endpoint="https://www.materialsproject.org/rest/v2"):
+    def __init__(self, api_key=None,
+                 endpoint="https://www.materialsproject.org/rest/v2"):
         if api_key is not None:
             self.api_key = api_key
         else:
