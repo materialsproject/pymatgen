@@ -1,23 +1,25 @@
-import unittest
+# coding: utf-8
 
-from nose.exc import SkipTest
+from __future__ import unicode_literals
+
+import unittest
 
 from pymatgen.command_line.aconvasp_caller import get_num_division_kpoints, \
     get_minkowski_red, get_vasp_kpoint_file_sym
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.core.periodic_table import Element
-from pymatgen.util.io_utils import which
+from monty.os.path import which
 
 
 aconvasp_present = which('aconvasp')
+aconvasp_present = False  # disable aconvasp testing for now.
 
 
+@unittest.skipIf(not aconvasp_present, "aconvasp not present.")
 class AconvaspCallerTest(unittest.TestCase):
 
     def setUp(self):
-        if not aconvasp_present:
-            raise SkipTest("aconvasp not present. Skipping...")
         self.si = Element("Si")
         coords = list()
         coords.append([0, 0, 0])

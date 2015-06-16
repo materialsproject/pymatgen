@@ -1,21 +1,22 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 """
 This module provides classes for calculating the ewald sum of a structure.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong, William Davidson Richard"
 __copyright__ = "Copyright 2011, The Materials Project"
 __credits__ = "Christopher Fischer"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Aug 1 2012"
 
-from math import pi, sqrt, log, exp, cos, sin, erfc, factorial
+from math import pi, sqrt, log, exp, erfc, factorial
 from datetime import datetime
 from copy import deepcopy, copy
 import bisect
@@ -23,7 +24,6 @@ import bisect
 import numpy as np
 
 from pymatgen.core.physical_constants import ELECTRON_CHARGE, EPSILON_0
-from pymatgen.util.coord_utils import get_points_in_sphere_pbc
 
 
 class EwaldSummation(object):
@@ -50,25 +50,20 @@ class EwaldSummation(object):
         parameters have been specified, but you can override them if you wish.
 
         Args:
-            structure:
-                input structure that must have proper Specie on all sites, i.e.
-                Element with oxidation state. Use
-                StructureEditor.add_oxidation_state... in
-                pymatgen.core.structure_modifier for example.
-            real_space_cut:
-                Real space cutoff radius dictating how many terms are used in
-                the real space sum. Defaults to None, which means determine
-                automagically using the formula given in gulp 3.1
-                documentation.
-            recip_space_cut:
-                Reciprocal space cutoff radius. Defaults to None, which means
-                determine automagically using the formula given in gulp 3.1
-                documentation.
-            eta:
-                The screening parameter. Defaults to None, which means
+            structure (Structure): Input structure that must have proper
+                Specie on all sites, i.e. Element with oxidation state. Use
+                Structure.add_oxidation_state... for example.
+            real_space_cut (float): Real space cutoff radius dictating how
+                many terms are used in the real space sum. Defaults to None,
+                which means determine automagically using the formula given
+                in gulp 3.1 documentation.
+            recip_space_cut (float): Reciprocal space cutoff radius.
+                Defaults to None, which means determine automagically using
+                the formula given in gulp 3.1 documentation.
+            eta (float): The screening parameter. Defaults to None, which means
                 determine automatically.
-            acc_factor:
-                No. of significant figures each sum is converged to.
+            acc_factor (float): No. of significant figures each sum is
+                converged to.
         """
         self._s = structure
         self._vol = structure.volume
@@ -122,10 +117,8 @@ class EwaldSummation(object):
         structure, with possible different charges.
 
         Args:
-            substructure:
-                Substructure to compute Ewald sum for.
-            tol:
-                Tolerance for site matching in fractional coordinates.
+            substructure (Structure): Substructure to compute Ewald sum for.
+            tol (float): Tolerance for site matching in fractional coordinates.
 
         Returns:
             Ewald sum of substructure.
@@ -136,8 +129,8 @@ class EwaldSummation(object):
             for test_site in sub_structure:
                 frac_diff = abs(np.array(site.frac_coords)
                                 - np.array(test_site.frac_coords)) % 1
-                frac_diff = [abs(a) < tol or abs(a) > 1 - tol \
-                     for a in frac_diff]
+                frac_diff = [abs(a) < tol or abs(a) > 1 - tol
+                             for a in frac_diff]
                 if all(frac_diff):
                     return test_site
             return None
@@ -235,7 +228,7 @@ class EwaldSummation(object):
         site.
         """
         return self._forces
-    
+
     def _calc_recip(self):
         """
         Perform the reciprocal space summation. Calculates the quantity
@@ -253,15 +246,15 @@ class EwaldSummation(object):
         forces = np.zeros((numsites, 3))
         coords = self._coords
         rcp_latt = self._s.lattice.reciprocal_lattice
-        recip_nn = get_points_in_sphere_pbc(rcp_latt, [[0, 0, 0]], [0, 0, 0],
-                                            self._gmax)
+        recip_nn = rcp_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
+                                                 self._gmax)
 
         frac_to_cart = rcp_latt.get_cartesian_coords
-        
+
         oxistates = np.array(self._oxi_states)
         #create array where q_2[i,j] is qi * qj
         qiqj = oxistates[None, :] * oxistates[:, None]
-        
+
         for (fcoords, dist, i) in recip_nn:
             if dist == 0:
                 continue
@@ -271,27 +264,27 @@ class EwaldSummation(object):
             expval = exp(-1.0 * gsquare / (4.0 * self._eta))
 
             gvectdot = np.sum(gvect[None, :] * coords, 1)
-            
+
             #calculate the structure factor
             sreal = np.sum(oxistates * np.cos(gvectdot))
             simag = np.sum(oxistates * np.sin(gvectdot))
-            
-            #create array where exparg[i,j] is gvectdot[i] - gvectdot[j] 
+
+            #create array where exparg[i,j] is gvectdot[i] - gvectdot[j]
             exparg = gvectdot[None, :] - gvectdot[:, None]
-            
+
             #uses the identity sin(x)+cos(x) = 2**0.5 sin(x + pi/4)
-            sfactor = qiqj * np.sin(exparg + pi/4) * 2 ** 0.5
-            
+            sfactor = qiqj * np.sin(exparg + pi / 4) * 2 ** 0.5
+
             erecip += expval / gsquare * sfactor
             pref = 2 * expval / gsquare * oxistates
             factor = prefactor * pref * \
                 (sreal * np.sin(gvectdot)
                  - simag * np.cos(gvectdot)) * EwaldSummation.CONV_FACT
-             
+
             forces += factor[:, None] * gvect[None, :]
 
         return erecip * prefactor * EwaldSummation.CONV_FACT, forces
-    
+
     def _calc_real_and_point(self):
         """
         Determines the self energy -(eta/pi)**(1/2) * sum_{i=1}^{N} q_i**2
@@ -299,7 +292,6 @@ class EwaldSummation(object):
         If cell is charged a compensating background is added (i.e. a G=0 term)
         """
         all_nn = self._s.get_all_neighbors(self._rmax, True)
-        
 
         forcepf = 2.0 * self._sqrt_eta / sqrt(pi)
         coords = self._coords
@@ -307,7 +299,7 @@ class EwaldSummation(object):
         ereal = np.zeros((numsites, numsites))
         epoint = np.zeros(numsites)
         forces = np.zeros((numsites, 3))
-        for i in xrange(numsites):
+        for i in range(numsites):
             nn = all_nn[i]  # self._s.get_neighbors(site, self._rmax)
             num_neighbors = len(nn)
             qi = self._oxi_states[i]
@@ -315,28 +307,30 @@ class EwaldSummation(object):
             epoint[i] *= -1.0 * sqrt(self._eta / pi)
             # add jellium term
             epoint[i] += qi * pi / (2.0 * self._vol * self._eta)
-            
+
             rij = np.zeros(num_neighbors)
             qj = np.zeros(num_neighbors)
             js = np.zeros(num_neighbors)
-            ncoords = np.zeros((num_neighbors,3))
-            
+            ncoords = np.zeros((num_neighbors, 3))
+
             for k, (site, dist, j) in enumerate(nn):
                 rij[k] = dist
                 qj[k] = self._oxi_states[j]
                 js[k] = j
                 ncoords[k] = site.coords
-            
-            erfcval = np.array(map(erfc, self._sqrt_eta * rij))
+
+            erfcval = np.array([erfc(k) for k in self._sqrt_eta * rij])
             new_ereals = erfcval * qi * qj / rij
-            
+
             #insert new_ereals
             for k, new_e in enumerate(new_ereals):
-                ereal[js[k],i] += new_e
-                
-            fijpf = qj / rij ** 3 * (erfcval + forcepf * rij * np.exp(-self._eta * rij ** 2))
-            forces[i] += np.sum(np.expand_dims(fijpf, 1) * (np.array([coords[i]]) - ncoords) * \
-                                qi * EwaldSummation.CONV_FACT, axis = 0)
+                ereal[js[k], i] += new_e
+
+            fijpf = qj / rij ** 3 * (erfcval + forcepf * rij *
+                                     np.exp(-self._eta * rij ** 2))
+            forces[i] += np.sum(np.expand_dims(fijpf, 1) *
+                                (np.array([coords[i]]) - ncoords) *
+                                qi * EwaldSummation.CONV_FACT, axis=0)
 
         ereal *= 0.5 * EwaldSummation.CONV_FACT
         epoint *= EwaldSummation.CONV_FACT
@@ -371,6 +365,21 @@ class EwaldMinimizer:
     order disordered structure transformation.
 
     Author - Will Richards
+
+    Args:
+        matrix: A matrix of the ewald sum interaction energies. This is stored
+            in the class as a diagonally symmetric array and so
+            self._matrix will not be the same as the input matrix.
+        m_list: list of manipulations. each item is of the form
+            (multiplication fraction, number_of_indices, indices, species)
+            These are sorted such that the first manipulation contains the
+            most permutations. this is actually evaluated last in the
+            recursion since I'm using pop.
+        num_to_return: The minimizer will find the number_returned lowest
+            energy structures. This is likely to return a number of duplicate
+            structures so it may be necessary to overestimate and then
+            remove the duplicates later. (duplicate checking in this
+            process is extremely expensive)
     """
 
     ALGO_FAST = 0
@@ -385,25 +394,6 @@ class EwaldMinimizer:
     ALGO_TIME_LIMIT = 3
 
     def __init__(self, matrix, m_list, num_to_return=1, algo=ALGO_FAST):
-        """
-        Args:
-            matrix:
-                a matrix of the ewald sum interaction energies. This is stored
-                in the class as a diagonally symmetric array and so
-                self._matrix will not be the same as the input matrix.
-            m_list:
-                list of manipulations. each item is of the form
-                (multiplication fraction, number_of_indices, indices, species)
-                These are sorted such that the first manipulation contains the
-                most permutations. this is actually evaluated last in the
-                recursion since I'm using pop.
-            num_to_return:
-                The minimizer will find the number_returned lowest energy
-                structures. This is likely to return a number of duplicate
-                structures so it may be necessary to overestimate and then
-                remove the duplicates later. (duplicate checking in this
-                process is extremely expensive)
-        """
         # Setup and checking of inputs
         self._matrix = copy(matrix)
         # Make the matrix diagonally symmetric (so matrix[i,:] == matrix[:,j])
@@ -448,7 +438,7 @@ class EwaldMinimizer:
         ewald sum calls recursive function to iterate through permutations
         """
         if self._algo == EwaldMinimizer.ALGO_FAST or \
-            self._algo == EwaldMinimizer.ALGO_BEST_FIRST:
+                self._algo == EwaldMinimizer.ALGO_BEST_FIRST:
             return self._recurse(self._matrix, self._m_list,
                                  set(range(len(self._matrix))))
 
@@ -462,7 +452,7 @@ class EwaldMinimizer:
         else:
             bisect.insort(self._output_lists, [matrix_sum, m_list])
         if self._algo == EwaldMinimizer.ALGO_BEST_FIRST and \
-            len(self._output_lists) == self._num_to_return:
+                len(self._output_lists) == self._num_to_return:
             self._finished = True
         if len(self._output_lists) > self._num_to_return:
             self._output_lists.pop()
@@ -474,16 +464,13 @@ class EwaldMinimizer:
         Computes a best case given a matrix and manipulation list.
 
         Args:
-            matrix:
-                the current matrix (with some permutations already performed
-            m_list:
-                [(multiplication fraction, number_of_indices, indices,
+            matrix: the current matrix (with some permutations already
+                performed)
+            m_list: [(multiplication fraction, number_of_indices, indices,
                 species)] describing the manipulation
-            indices:
-                Set of indices which haven't had a permutation performed on
-                them.
+            indices: Set of indices which haven't had a permutation
+                performed on them.
         """
-
         m_indices = []
         fraction_list = []
         for m in m_list:
@@ -548,13 +535,11 @@ class EwaldMinimizer:
         tree search strategy.
 
         Args:
-            matrix:
-                The current matrix (with some permutations already performed
-            m_list:
-                The list of permutations still to be performed
-            indices:
-                Set of indices which haven't had a permutation performed on
-                them.
+            matrix: The current matrix (with some permutations already
+                performed).
+            m_list: The list of permutations still to be performed
+            indices: Set of indices which haven't had a permutation
+                performed on them.
         """
         #check to see if we've found all the solutions that we need
         if self._finished:
@@ -619,8 +604,7 @@ def compute_average_oxidation_state(site):
     Calculates the average oxidation state of a site
 
     Args:
-        site:
-            Site to compute average oxidation state
+        site: Site to compute average oxidation state
 
     Returns:
         Average oxidation state of site.

@@ -1,2 +1,4 @@
-__author__ = "Shyue"
-__date__ = "Jul 29 2012"
+"""
+This package provides the packages and modules to perform IO from various
+input file formats and pymatgen objects.
+"""

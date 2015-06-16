@@ -1,7 +1,10 @@
+# coding: utf-8
+
+from __future__ import unicode_literals
+
 import unittest
 import os
 
-from pymatgen.core.structure_modifier import StructureEditor
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 from pymatgen.io.vaspio.vasp_input import Poscar
 import numpy as np
@@ -15,11 +18,9 @@ class EwaldSummationTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'POSCAR')
         p = Poscar.from_file(filepath)
         original_s = p.structure
-
-        modifier = StructureEditor(original_s)
-        modifier.add_oxidation_state_by_element({"Li": 1, "Fe": 2,
-                                                 "P": 5, "O":-2})
-        s = modifier.modified_structure
+        s = original_s.copy()
+        s.add_oxidation_state_by_element({"Li": 1, "Fe": 2,
+                                          "P": 5, "O": -2})
         ham = EwaldSummation(s)
         self.assertAlmostEqual(ham.real_space_energy, -354.91294268, 4,
                                "Real space energy incorrect!")
@@ -58,9 +59,8 @@ class EwaldSummationTest(unittest.TestCase):
             else:
                 charges.append(-2)
 
-        editor = StructureEditor(original_s)
-        editor.add_site_property('charge', charges)
-        ham2 = EwaldSummation(editor.modified_structure)
+        original_s.add_site_property('charge', charges)
+        ham2 = EwaldSummation(original_s)
         self.assertAlmostEqual(ham2.real_space_energy, -354.91294268, 4,
                                "Real space energy incorrect!")
 

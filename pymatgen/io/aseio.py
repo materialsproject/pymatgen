@@ -1,17 +1,18 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 """
 This module provides conversion between the Atomic Simulation Environment
 Atoms object and pymatgen Structure objects.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
 
 from pymatgen.core.structure import Structure
@@ -34,8 +35,7 @@ class AseAtomsAdaptor(object):
         Returns ASE Atoms object from pymatgen structure.
 
         Args:
-            structure:
-                pymatgen.core.structure.Structure
+            structure: pymatgen.core.structure.Structure
 
         Returns:
             ASE Atoms object
@@ -53,8 +53,7 @@ class AseAtomsAdaptor(object):
         Returns pymatgen structure from ASE Atoms.
 
         Args:
-            atoms:
-                ASE Atoms object
+            atoms: ASE Atoms object
 
         Returns:
             Equivalent pymatgen.core.structure.Structure

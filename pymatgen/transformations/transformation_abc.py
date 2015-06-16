@@ -1,4 +1,6 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+from __future__ import unicode_literals
 
 """
 Defines an abstract base class contract for Transformation object.
@@ -8,19 +10,19 @@ __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Sep 23, 2011"
 
 import abc
 
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
+import six
 
 
-class AbstractTransformation(MSONable):
+class AbstractTransformation(six.with_metaclass(abc.ABCMeta, PMGSONable)):
     """
     Abstract transformation class.
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def apply_transformation(self, structure):
@@ -69,24 +71,12 @@ class AbstractTransformation(MSONable):
         returned as a ranked list.
         """
         return False
-    
+
     @property
     def use_multiprocessing(self):
         """
-        Indicates whether the transformation can be applied by a 
-        subprocessing pool. This should be overridden to return True for 
+        Indicates whether the transformation can be applied by a
+        subprocessing pool. This should be overridden to return True for
         transformations that the transmuter can parallelize.
         """
         return False
-    
-    @staticmethod
-    def from_dict(d):
-        for trans_modules in ['standard_transformations',
-                              'site_transformations',
-                              'advanced_transformations']:
-            mod = __import__('pymatgen.transformations.' + trans_modules,
-                             globals(), locals(), [d['name']], -1)
-            if hasattr(mod, d['name']):
-                trans = getattr(mod, d['name'])
-                return trans(**d['init_args'])
-        raise ValueError("Invalid Transformations dict")

@@ -1,10 +1,12 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 """
 This module provides classes for predicting new structures from existing ones.
 """
 
-from __future__ import division
+from six.moves import zip
 
 __author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -13,20 +15,22 @@ __maintainer__ = "Will Richards"
 __email__ = "wrichard@mit.edu"
 __date__ = "Aug 31, 2012"
 
-from pymatgen.serializers.json_coders import MSONable
+import itertools
+import logging
+from operator import mul
+import six
+
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.structure_prediction.substitution_probability \
     import SubstitutionProbability
 from pymatgen.transformations.standard_transformations \
     import SubstitutionTransformation
 from pymatgen.alchemy.transmuters import StandardTransmuter
 from pymatgen.alchemy.materials import TransformedStructure
-from pymatgen.alchemy.filters import RemoveDuplicatesFilter
-import itertools
-import logging
-from operator import mul
+from pymatgen.alchemy.filters import RemoveDuplicatesFilter, RemoveExistingFilter
 
 
-class Substitutor(MSONable):
+class Substitutor(PMGSONable):
     """
     This object uses a data mined ionic substitution approach to propose
     compounds likely to be stable. It relies on an algorithm presented in
@@ -60,16 +64,24 @@ class Substitutor(MSONable):
         returns the species in the domain of the probability function
         any other specie will not work
         """
-        return self._sp.species_list
+        return self._sp.species
 
     def pred_from_structures(self, target_species, structures_list,
-                             remove_duplicates=True):
+                             remove_duplicates=True, remove_existing=False):
         """
-        performs a structure prediction targeting compounds containing the
-        target_species and based on a list of structure (those structures
+        performs a structure prediction targeting compounds containing all of
+        the target_species, based on a list of structure (those structures
         can for instance come from a database like the ICSD). It will return
         all the structures formed by ionic substitutions with a probability
         higher than the threshold
+
+        Notes:
+        If the default probability model is used, input structures must
+        be oxidation state decorated.
+
+        This method does not change the number of species in a structure. i.e
+        if the number of target species is 3, only input structures containing
+        3 species will be considered.
 
         Args:
             target_species:
@@ -79,7 +91,15 @@ class Substitutor(MSONable):
             structures_list:
                 a list of dictionnary of the form {'structure':Structure object
                 ,'id':some id where it comes from}
-                the id can for instance refer to an ICSD id
+                the id can for instance refer to an ICSD id.
+
+            remove_duplicates:
+                if True, the duplicates in the predicted structures will
+                be removed
+
+            remove_existing:
+                if True, the predicted structures that already exist in the
+                structures_list will be removed
 
         Returns:
             a list of TransformedStructure objects.
@@ -88,7 +108,7 @@ class Substitutor(MSONable):
         transmuter = StandardTransmuter([])
         if len(list(set(target_species) & set(self.get_allowed_species()))) \
                 != len(target_species):
-            return ValueError("the species in target_species are not allowed"
+            raise ValueError("the species in target_species are not allowed"
                               + "for the probability model you are using")
 
         for permut in itertools.permutations(target_species):
@@ -97,13 +117,13 @@ class Substitutor(MSONable):
                 #and the probability of subst. is above the threshold
                 els = s['structure'].composition.elements
                 if len(els) == len(permut) and \
-                   len(list(set(els) & set(self.get_allowed_species()))) == \
+                    len(list(set(els) & set(self.get_allowed_species()))) == \
                         len(els) and self._sp.cond_prob_list(permut, els) > \
                         self._threshold:
 
                     clean_subst = {els[i]: permut[i]
-                         for i in xrange(0, len(els))
-                         if els[i] != permut[i]}
+                                   for i in range(0, len(els))
+                                   if els[i] != permut[i]}
 
                     if len(clean_subst) == 0:
                         continue
@@ -113,16 +133,27 @@ class Substitutor(MSONable):
                     if Substitutor._is_charge_balanced(
                             transf.apply_transformation(s['structure'])):
                         ts = TransformedStructure(
-                            s['structure'], [transf], history=[s['id']],
+                            s['structure'], [transf],
+                            history=[{"source": s['id']}],
                             other_parameters={
                                 'type': 'structure_prediction',
                                 'proba': self._sp.cond_prob_list(permut, els)}
                         )
                         result.append(ts)
                         transmuter.append_transformed_structures([ts])
+
         if remove_duplicates:
-            transmuter.apply_filter(RemoveDuplicatesFilter(symprec=\
-                                                           self._symprec))
+            transmuter.apply_filter(RemoveDuplicatesFilter(
+                symprec=self._symprec))
+        if remove_existing:
+            #Make the list of structures from structures_list that corresponds to the
+            #target species
+            chemsys = list(set([sp.symbol for sp in target_species]))
+            structures_list_target = [st['structure'] for st in structures_list
+                                      if Substitutor._is_from_chemical_system(chemsys,
+                                                                              st['structure'])]
+            transmuter.apply_filter(RemoveExistingFilter(structures_list_target,
+                                                         symprec=self._symprec))
         return transmuter.transformed_structures
 
     @staticmethod
@@ -134,6 +165,19 @@ class Substitutor(MSONable):
             return True
         else:
             return False
+
+    @staticmethod
+    def _is_from_chemical_system(chemical_system, struct):
+        """
+        checks if the structure object is from the given chemical system
+        """
+        chemsys = list(set([sp.symbol for sp in struct.composition]))
+        if len(chemsys) != len(chemical_system):
+            return False
+        for el in chemsys:
+            if not el in chemical_system:
+                return False
+        return True
 
     def pred_from_list(self, species_list):
         """
@@ -164,7 +208,7 @@ class Substitutor(MSONable):
         max_probabilities = []
         for s2 in species_list:
             max_p = 0
-            for s1 in self._sp.species_list:
+            for s1 in self._sp.species:
                 max_p = max([self._sp.cond_prob(s1, s2), max_p])
             max_probabilities.append(max_p)
         output = []
@@ -172,15 +216,15 @@ class Substitutor(MSONable):
         def _recurse(output_prob, output_species):
             best_case_prob = list(max_probabilities)
             best_case_prob[:len(output_prob)] = output_prob
-            if reduce(mul, best_case_prob) > self._threshold:
+            if six.moves.reduce(mul, best_case_prob) > self._threshold:
                 if len(output_species) == len(species_list):
                     odict = {
                         'substitutions':
                         dict(zip(species_list, output_species)),
-                        'probability': reduce(mul, best_case_prob)}
+                        'probability': six.moves.reduce(mul, best_case_prob)}
                     output.append(odict)
                     return
-                for sp in self._sp.species_list:
+                for sp in self._sp.species:
                     i = len(output_prob)
                     prob = self._sp.cond_prob(sp, species_list[i])
                     _recurse(output_prob + [prob], output_species + [sp])
@@ -208,15 +252,14 @@ class Substitutor(MSONable):
                      'compositions found'.format(len(output)))
         return output
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
                 "kwargs": self._kwargs, "threshold": self._threshold,
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         t = d['threshold']
         kwargs = d['kwargs']
-        return Substitutor(threshold=t, **kwargs)
+        return cls(threshold=t, **kwargs)

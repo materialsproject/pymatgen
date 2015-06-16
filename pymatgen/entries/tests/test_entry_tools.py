@@ -1,23 +1,24 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 """
 FIXME: Proper module docstring
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Nov 9, 2012"
 
 import unittest
 import os
 import json
 
-from pymatgen.serializers.json_coders import PMGJSONDecoder
+from monty.json import MontyDecoder
 from pymatgen.entries.entry_tools import group_entries_by_structure
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -28,7 +29,7 @@ class FuncTest(unittest.TestCase):
 
     def test_group_entries_by_structure(self):
         with open(os.path.join(test_dir, "TiO2_entries.json"), "r") as f:
-            entries = json.load(f, cls=PMGJSONDecoder)
+            entries = json.load(f, cls=MontyDecoder)
         groups = group_entries_by_structure(entries)
         self.assertEqual(sorted([len(g) for g in groups]),
                          [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 4])

@@ -1,26 +1,28 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 """
 This module provides classes that operate on points or vectors in 3D space.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 import numpy as np
+import re
 from math import sin, cos, pi, sqrt
 
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 
 
-class SymmOp(MSONable):
+class SymmOp(PMGSONable):
     """
     A symmetry operation in cartesian space. Consists of a rotation plus a
     translation. Implementation is as an affine transformation matrix of rank 4
@@ -39,10 +41,9 @@ class SymmOp(MSONable):
         generate a SymmOp from proper rotations and translation.
 
         Args:
-            affine_transformation_matrix:
-                A 4x4 numpy.array representing an affine transformation.
-            tol:
-                Tolerance for determining if matrices are equal.
+            affine_transformation_matrix (4x4 array): Representing an
+                affine transformation.
+            tol (float): Tolerance for determining if matrices are equal.
         """
         affine_transformation_matrix = np.array(affine_transformation_matrix)
         if affine_transformation_matrix.shape != (4, 4):
@@ -51,22 +52,17 @@ class SymmOp(MSONable):
         self.tol = tol
 
     @staticmethod
-    def from_rotation_and_translation(rotation_matrix=((1, 0, 0),
-                                                       (0, 1, 0),
-                                                       (0, 0, 1)),
-                                      translation_vec=(0, 0, 0),
-                                      tol=0.1):
+    def from_rotation_and_translation(
+            rotation_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)),
+            translation_vec=(0, 0, 0), tol=0.1):
         """
         Creates a symmetry operation from a rotation matrix and a translation
         vector.
 
         Args:
-            rotation_matrix:
-                A 3x3 numpy.array specifying a rotation matrix.
-            translation_vec:
-                A rank 1 numpy.array specifying a translation vector.
-            tol:
-                Tolerance to determine if rotation matrix is valid.
+            rotation_matrix (3x3 array): Rotation matrix.
+            translation_vec (3x1 array): Translation vector.
+            tol (float): Tolerance to determine if rotation matrix is valid.
 
         Returns:
             SymmOp object
@@ -82,35 +78,6 @@ class SymmOp(MSONable):
         affine_matrix[0:3][:, 0:3] = rotation_matrix
         affine_matrix[0:3][:, 3] = translation_vec
         return SymmOp(affine_matrix, tol)
-
-    @staticmethod
-    def from_rotation_matrix_and_translation_vector(
-            rotation_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)),
-            translation_vec=(0, 0, 0),
-            tol=0.1):
-        """
-        .. deprecated:: 2.2.1
-            Use :func:`from_rotation_and_translation` instead.
-
-        Creates a symmetry operation from a rotation matrix and a translation
-        vector.
-
-        Args:
-            rotation_matrix:
-                A 3x3 numpy.array specifying a rotation matrix.
-            translation_vec:
-                A rank 1 numpy.array specifying a translation vector.
-            tol:
-                Tolerance to determine if rotation matrix is valid.
-
-        Returns:
-            SymmOp object
-        """
-        import warnings
-        warnings.warn("This method has been deprecated from version 2.2.1. "
-                      "Use from_rotation_and_translation instead.")
-        return SymmOp.from_rotation_and_translation(rotation_matrix,
-                                                    translation_vec, tol)
 
     def __eq__(self, other):
         return np.allclose(self.affine_matrix, other.affine_matrix,
@@ -132,9 +99,7 @@ class SymmOp(MSONable):
         Apply the operation on a point.
 
         Args:
-            point:
-                A cartesian coordinate represented as a rank 1 numpy array
-                of 3 elements.
+            point: Cartesian coordinate.
 
         Returns:
             Coordinates of point after operation.
@@ -142,14 +107,27 @@ class SymmOp(MSONable):
         affine_point = np.array([point[0], point[1], point[2], 1])
         return np.dot(self.affine_matrix, affine_point)[0:3]
 
+    def operate_multi(self, points):
+        """
+        Apply the operation on a list of points.
+
+        Args:
+            points: List of Cartesian coordinates
+
+        Returns:
+            Numpy array of coordinates after operation
+        """
+        points = np.array(points)
+        affine_points = np.concatenate([points, np.ones(points.shape[:-1] + (1,))], axis=-1)
+        return np.inner(affine_points, self.affine_matrix)[..., :-1]
+
     def apply_rotation_only(self, vector):
         """
         Vectors should only be operated by the rotation matrix and not the
         translation vector.
 
         Args:
-            vector:
-                A rank 1 numpy array of 3 elements representing a vector.
+            vector (3x1 array): A vector.
         """
         return np.dot(self.rotation_matrix, vector)
 
@@ -158,12 +136,9 @@ class SymmOp(MSONable):
         Checks if two points are symmetrically related.
 
         Args:
-            point_a:
-                First point.
-            point_b:
-                Second point.
-            tol:
-                Absolute tolerance for checking.
+            point_a (3x1 array): First point.
+            point_b (3x1 array): Second point.
+            tol (float): Absolute tolerance for checking distance.
 
         Returns:
             True if self.operate(point_a) == point_b or vice versa.
@@ -211,16 +186,12 @@ class SymmOp(MSONable):
         Generates a SymmOp for a rotation about a given axis plus translation.
 
         Args:
-            axis:
-                The axis of rotation in cartesian space. For example, [1,0,0]
-                indicates rotation about x-axis.
-            angle:
-                The angle of rotation.
-            angle_in_radians:
-                Set to True if angles are given in radians. Or else, units of
-                degrees are assumed.
-            translation_vec:
-                A translation vector. Defaults to zero.
+            axis: The axis of rotation in cartesian space. For example,
+                [1, 0, 0]indicates rotation about x-axis.
+            angle (float): Angle of rotation.
+            angle_in_radians (bool): Set to True if angles are given in
+                radians. Or else, units of degrees are assumed.
+            translation_vec: A translation vector. Defaults to zero.
 
         Returns:
             SymmOp for a rotation about given axis and translation.
@@ -252,6 +223,21 @@ class SymmOp(MSONable):
 
     @staticmethod
     def from_origin_axis_angle(origin, axis, angle, angle_in_radians=False):
+        """
+        Generates a SymmOp for a rotation about a given axis through an
+        origin.
+
+        Args:
+            origin (3x1 array): The origin which the axis passes through.
+            axis (3x1 array): The axis of rotation in cartesian space. For
+                example, [1, 0, 0]indicates rotation about x-axis.
+            angle (float): Angle of rotation.
+            angle_in_radians (bool): Set to True if angles are given in
+                radians. Or else, units of degrees are assumed.
+
+        Returns:
+            SymmOp.
+        """
         theta = angle * pi / 180 if not angle_in_radians else angle
         a = origin[0]
         b = origin[1]
@@ -293,13 +279,153 @@ class SymmOp(MSONable):
         return SymmOp([[m11, m12, m13, m14], [m21, m22, m23, m24],
                        [m31, m32, m33, m34], [0, 0, 0, 1]])
 
-    @property
-    def to_dict(self):
+    @staticmethod
+    def reflection(normal, origin=(0, 0, 0)):
+        """
+        Returns reflection symmetry operation.
+
+        Args:
+            normal (3x1 array): Vector of the normal to the plane of
+                reflection.
+            origin (3x1 array): A point in which the mirror plane passes
+                through.
+
+        Returns:
+            SymmOp for the reflection about the plane
+        """
+        #Normalize the normal vector first.
+        n = np.array(normal, dtype=float) / np.linalg.norm(normal)
+
+        u, v, w = n
+
+        translation = np.eye(4)
+        translation[0:3, 3] = -np.array(origin)
+
+        xx = 1 - 2 * u ** 2
+        yy = 1 - 2 * v ** 2
+        zz = 1 - 2 * w ** 2
+        xy = -2 * u * v
+        xz = -2 * u * w
+        yz = -2 * v * w
+        mirror_mat = [[xx, xy, xz, 0], [xy, yy, yz, 0], [xz, yz, zz, 0],
+                      [0, 0, 0, 1]]
+
+        if np.linalg.norm(origin) > 1e-6:
+            mirror_mat = np.dot(np.linalg.inv(translation),
+                                np.dot(mirror_mat, translation))
+        return SymmOp(mirror_mat)
+
+    @staticmethod
+    def inversion(origin=(0, 0, 0)):
+        """
+        Inversion symmetry operation about axis.
+
+        Args:
+            origin (3x1 array): Origin of the inversion operation. Defaults
+                to [0, 0, 0].
+
+        Returns:
+            SymmOp representing an inversion operation about the origin.
+        """
+        mat = -np.eye(4)
+        mat[3, 3] = 1
+        mat[0:3, 3] = 2 * np.array(origin)
+        return SymmOp(mat)
+
+    @staticmethod
+    def rotoreflection(axis, angle, origin=(0, 0, 0)):
+        """
+        Returns a roto-reflection symmetry operation
+
+        Args:
+            axis (3x1 array): Axis of rotation / mirror normal
+            angle (float): Angle in degrees
+            origin (3x1 array): Point left invariant by roto-reflection.
+                Defaults to (0, 0, 0).
+
+        Return:
+            Roto-reflection operation
+        """
+        rot = SymmOp.from_origin_axis_angle(origin, axis, angle)
+        refl = SymmOp.reflection(axis, origin)
+        m = np.dot(rot.affine_matrix, refl.affine_matrix)
+        return SymmOp(m)
+
+    def as_dict(self):
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
              "matrix": self.affine_matrix.tolist(), "tolerance": self.tol}
         return d
 
+    def as_xyz_string(self):
+        """
+        Returns a string of the form 'x, y, z', '-x, -y, z',
+        '-y+1/2, x+1/2, z+1/2', etc. Only works for integer rotation matrices
+        """
+        xyz = ['x', 'y', 'z']
+        strings = []
+
+        # test for invalid rotation matrix
+        if not np.all(np.isclose(self.rotation_matrix,
+                                 np.round(self.rotation_matrix))):
+            raise ValueError('Rotation matrix must be integer')
+
+        for r, t in zip(self.rotation_matrix, self.translation_vector):
+            symbols = []
+            for val, axis in zip(r, xyz):
+                val = int(round(val))
+                if val == 1:
+                    if symbols:
+                        symbols.append('+')
+                    symbols.append(axis)
+                elif val == -1:
+                    symbols.append('-' + axis)
+                elif val > 1:
+                    if symbols:
+                        symbols.append('+')
+                    symbols.append(str(val) + axis)
+                elif val < -1:
+                    symbols.append(str(val) + axis)
+            import fractions
+            f = fractions.Fraction(float(t)).limit_denominator()
+            if abs(f) > 1e-6:
+                if f > 0:
+                    symbols.append('+')
+                symbols.append(str(f))
+            strings.append("".join(symbols))
+        return ', '.join(strings)
+
     @staticmethod
-    def from_dict(d):
-        return SymmOp(d["matrix"], d["tolerance"])
+    def from_xyz_string(xyz_string):
+        """
+        Args:
+            xyz_string: string of the form 'x, y, z', '-x, -y, z',
+                '-2y+1/2, 3x+1/2, z-y+1/2', etc.
+        Returns:
+            SymmOp
+        """
+        rot_matrix = np.zeros((3, 3))
+        trans = np.zeros(3)
+        toks = xyz_string.strip().replace(" ", "").lower().split(",")
+        re_rot = re.compile("([+-]?)([\d\.]*)/?([\d\.]*)([x-z])")
+        re_trans = re.compile("([+-]?)([\d\.]+)/?([\d\.]*)(?![x-z])")
+        for i, tok in enumerate(toks):
+            # build the rotation matrix
+            for m in re_rot.finditer(tok):
+                factor = -1 if m.group(1) == "-" else 1
+                if m.group(2) != "":
+                    factor *= float(m.group(2)) / float(m.group(3)) \
+                        if m.group(3) != "" else float(m.group(2))
+                j = ord(m.group(4)) - 120
+                rot_matrix[i, j] = factor
+            # build the translation vector
+            for m in re_trans.finditer(tok):
+                factor = -1 if m.group(1) == "-" else 1
+                num = float(m.group(2)) / float(m.group(3)) \
+                    if m.group(3) != "" else float(m.group(2))
+                trans[i] = num * factor
+        return SymmOp.from_rotation_and_translation(rot_matrix, trans)
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(d["matrix"], d["tolerance"])

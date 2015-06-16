@@ -1,0 +1,311 @@
+INCAR:
+  ALGO: All
+  EDIFF: 5.0e-05
+  ENCUT: 520
+  HFSCREEN: 0.2
+  IBRION: 2
+  ICHARG: 1
+  ISIF: 3
+  ISMEAR: 0
+  ISPIN: 2
+  LHFCALC: true
+  LORBIT: 11
+  LREAL: Auto
+  LWAVE: false
+  MAGMOM:
+    Co: 5
+    Co3+: 0.6
+    Co4+: 1
+    Cr: 5
+    Fe: 5
+    Fe2+: 4
+    Fe3+: 5
+    Fe4+: 4
+    Mn: 5
+    Mn2+: 5
+    Mn3+: 4
+    Mn4+: 3
+    Mo: 5
+    Ni: 2
+    Ni3+: 1
+    Ni4+: 0.6
+    Ta: 5
+    V: 5
+    W: 5
+  NELM: 100
+  NELMIN: 3
+  NSW: 99
+  PREC: Accurate
+  PRECFOCK: Fast
+  SIGMA: 0.05
+  TIME: 0.4
+KPOINTS:
+  grid_density: 1000
+POTCAR:
+  Ac:
+    symbol: Ac
+    hash: ab896d3414b6f2b5fc646de8d1175b3b
+  Ag:
+    symbol: Ag
+    hash: 4b91cc11ecf7bb18841c45a144a79c41
+  Al:
+    symbol: Al
+    hash: 805c888bbd2793e462311f6a20d873d9
+  Ar:
+    symbol: Ar
+    hash: ed180b378a39ae600a758db378f79613
+  As:
+    symbol: As
+    hash: f2975f7ebc8e17cf183cb5d96dbce04f
+  Au:
+    symbol: Au
+    hash: 625e379bf420815fc0b5030bae2d3020
+  B:
+    symbol: B
+    hash: 6f82f6d8181ceafd86150d4afd2ee217
+  Ba:
+    symbol: Ba_sv
+    hash: 485991a44f9abb117d91950eeb2b4429
+  Be:
+    symbol: Be
+    hash: 3c0d9366b7351813401045c87e728b41
+  Bi:
+    symbol: Bi
+    hash: 1d5d4955bcd53ef836826e489bcfb2a1
+  Br:
+    symbol: Br
+    hash: aebb1e2d99deabf67629df71ec68faa6
+  C:
+    symbol: C
+    hash: 928197bd7fda1dfdfd78d4314756d4b6
+  Ca:
+    symbol: Ca_sv
+    hash: 2694a19250c6f83212d034611c80a7b7
+  Cd:
+    symbol: Cd
+    hash: cb3728b036fb539fcd1cfdad415bc6e3
+  Ce:
+    symbol: Ce
+    hash: e6c517a6b47b29367ad6badbf7658a84
+  Cl:
+    symbol: Cl
+    hash: 2dddc321bf178f08cc5b55de17690c2c
+  Co:
+    symbol: Co
+    hash: 6c5a5928146198687f93ee8e6c657f91
+  Cr:
+    symbol: Cr
+    hash: b229e9bf0b2fd4100ad97d8c44ff779f
+  Cs:
+    symbol: Cs_sv
+    hash: 10cc54209c698d83d9cda3d842ba670e
+  Cu:
+    symbol: Cu
+    hash: 12920f1bd9e05e219846eb1b2147aad2
+  Dy:
+    symbol: Dy_3
+    hash: 563b1a3db877e2e9a0942b7baf6912fc
+  Er:
+    symbol: Er_3
+    hash: 216f11f6ffc94d9cbc7e10e843c18243
+  Eu:
+    symbol: Eu
+    hash: a6a9205b00bcc39bb7e05b46a0a322a8
+  F:
+    symbol: F
+    hash: 9b0fd56137ce81cfee1eb63a8901c66c
+  Fe:
+    symbol: Fe
+    hash: e0051a21ce51eb34a52e9153c17aa32d
+  Ga:
+    symbol: Ga
+    hash: 74ea8272a7d36b77e5012eda4c66c1e6
+  Gd:
+    symbol: Gd
+    hash: 9a655d3ad37e09e18c1cf735bf50d02f
+  Ge:
+    symbol: Ge
+    hash: 528ed543d8219527e1bf32cfdd907550
+  H:
+    symbol: H
+    hash: 57732e53d8a424e5b3721d0277f14ef0
+  He:
+    symbol: He
+    hash: d92babd515400b87c53ae10f1207baf0
+  Hf:
+    symbol: Hf
+    hash: 6b964549e14f525a85541ff682ee3cdf
+  Hg:
+    symbol: Hg
+    hash: 90cd2c22dd044c7e7dee6044de7924d2
+  Ho:
+    symbol: Ho_3
+    hash: 648bac4b40cd03310be89a286ab11723
+  I:
+    symbol: I
+    hash: 8d84981af6268445e6061ee5e4c8f1ff
+  In:
+    symbol: In
+    hash: dbf146f5877f1f9f8952e6f54a54fa33
+  Ir:
+    symbol: Ir
+    hash: 77f35e340570c6c64d58057c657e0f00
+  K:
+    symbol: K_sv
+    hash: 3aa49a52448d031d7e3ceff922fd2bb5
+  Kr:
+    symbol: Kr
+    hash: 13cd29c85b23be584b39e5584863f68a
+  La:
+    symbol: La
+    hash: 54ddd96957998f722631b9b9b619208e
+  Li:
+    symbol: Li
+    hash: 9658a0ffb28da97ee7b36709966a0d1c
+  Lu:
+    symbol: Lu_3
+    hash: fc611a12817d148e39ec66cf09d0011c
+  Mg:
+    symbol: Mg
+    hash: 1823588a2ee3bb27056d17f2b33765a2
+  Mn:
+    symbol: Mn
+    hash: d8f441d1afa31cbc8bca0146dd8d15f1
+  Mo:
+    symbol: Mo_pv
+    hash: 845c10332730e4479f1d8c900a62a451
+  N:
+    symbol: N
+    hash: accf6eec0aac6dcb2f3909b240164405
+  Na:
+    symbol: Na
+    hash: 9178b9a3bb7cd96a03bf36ecc17887c5
+  Nb:
+    symbol: Nb_pv
+    hash: 3613f771112af96e69530838d9f871b9
+  Nd:
+    symbol: Nd
+    hash: fe199587a4cd3cae41b66610de273e62
+  Ne:
+    symbol: Ne
+    hash: 05028bf086ff942787f587f652c0f915
+  Ni:
+    symbol: Ni
+    hash: 6aa314a5314ececec9e6f32bd9a47a67
+  Np:
+    symbol: Np
+    hash: 901c7eea516a40ab1f0022e5fe611b96
+  O:
+    symbol: O
+    hash: 7af704ddff29da5354831c4609f1cbc5
+  Os:
+    symbol: Os
+    hash: 07d129608555acc64619aaa2f71f020d
+  P:
+    symbol: P
+    hash: 95fbb6408e51dff3516bcdfa913c1ae1
+  Pa:
+    symbol: Pa
+    hash: 14ce3992d69e85ff1245589ea515099a
+  Pb:
+    symbol: Pb
+    hash: bc579707fd1e19954bdb79279b270845
+  Pd:
+    symbol: Pd
+    hash: 531184ffdf879b6fb03f4c66349dab57
+  Pm:
+    symbol: Pm
+    hash: 0fac03017e52c1ce9bccec3c06d3b9fb
+  Pr:
+    symbol: Pr
+    hash: 90f29e6d697cdca84258003aef55eabd
+  Pt:
+    symbol: Pt
+    hash: 5eedb457fb34ed5f7e4d177354c24146
+  Pu:
+    symbol: Pu
+    hash: 714a9d23aaf7c419dacdb09e058cb154
+  Rb:
+    symbol: Rb_pv
+    hash: eba1609a48399579a157d2382fe54147
+  Re:
+    symbol: Re
+    hash: bfd3134ebee781f8c10a8b57e8ccdf3e
+  Rh:
+    symbol: Rh
+    hash: 9a5965b71021d659c383d4b3a2c27c92
+  Ru:
+    symbol: Ru_pv
+    hash: e0670836c05839313f290caf804a9930
+  S:
+    symbol: S
+    hash: f7f8e4a74a6cbb8d63e41f4373b54df2
+  Sb:
+    symbol: Sb
+    hash: f3d4b0bf2cf25789b65750316564c229
+  Sc:
+    symbol: Sc_sv
+    hash: 07569d3abd3dac9ccc783e96c59774d7
+  Se:
+    symbol: Se
+    hash: b3107ca39cd95c072974ad9512643155
+  Si:
+    symbol: Si
+    hash: 7d68bdc19d5bb101b242afb70632e21d
+  Sm:
+    symbol: Sm_3
+    hash: 139141abf169ea82407c054137099715
+  Sn:
+    symbol: Sn_d
+    hash: 4ca5a5ded798f481fd917ee78d2b8b69
+  Sr:
+    symbol: Sr_sv
+    hash: 7c3df2de5e7e505501f5eed8965f8e35
+  Ta:
+    symbol: Ta
+    hash: fc7188123cefb52a5b9f7139311ecba9
+  Tb:
+    symbol: Tb_3
+    hash: b43a90ba0a6903a64a940551d418ecf1
+  Tc:
+    symbol: Tc
+    hash: 1cd8df68cfbaf068a0e2c2a66f7d837a
+  Te:
+    symbol: Te
+    hash: 4baab09b5cb1853c18e1dd247cca2750
+  Th:
+    symbol: Th
+    hash: b47ab9512a0d504560743df6959711b5
+  Ti:
+    symbol: Ti
+    hash: a0b93ffb4d0053e26c73f548295a0303
+  Tl:
+    symbol: Tl
+    hash: fee8a3e06e4783bbc851784d87ae582f
+  Tm:
+    symbol: Tm_3
+    hash: b5915dce17e99bda785786dcaaba88fa
+  U:
+    symbol: U
+    hash: 5f65b444317154eb1642485eeae1c4f5
+  V:
+    symbol: V_pv
+    hash: 6af2fbd956cacbdc11b148602a19ff74
+  W:
+    symbol: W_pv
+    hash: a4f7269d3b3d0921b03cd854efdd5230
+  Xe:
+    symbol: Xe
+    hash: 840909bdaaef33813792f2ef369228f0
+  Y:
+    symbol: Y_sv
+    hash: 3db912f9d14a5213ad779ea6dedf5057
+  Yb:
+    symbol: Yb
+    hash: e7b79843d22986718b2e3995889b38d1
+  Zn:
+    symbol: Zn
+    hash: b4d5e9d4062aae56d394731e18f44c4c
+  Zr:
+    symbol: Zr
+    hash: 81f2c0f73adfc4f89f1a18dca3d14f52

@@ -1,16 +1,17 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 '''
 Created on Mar 5, 2012
 '''
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Mar 5, 2012"
 
 import unittest
@@ -61,8 +62,8 @@ class PoscarTransmuterTest(unittest.TestCase):
             self.assertEqual(expected_ans, els)
 
     def test_transmuter(self):
-        tsc = PoscarTransmuter.from_filenames([os.path.join(test_dir,
-                                                            "POSCAR")])
+        tsc = PoscarTransmuter.from_filenames(
+            [os.path.join(test_dir, "POSCAR")])
         tsc.append_transformation(RemoveSpeciesTransformation('O'))
         self.assertEqual(len(tsc[0].final_structure), 8)
 
@@ -86,7 +87,8 @@ class PoscarTransmuterTest(unittest.TestCase):
         tsc.apply_filter(ContainsSpecieFilter(['Zn2+', 'Be2+', 'Mn4+'],
                                               strict_compare=True, AND=False))
         self.assertEqual(len(tsc), 8)
-        self.assertEqual(tsc.get_transformed_structures()[0].to_dict['history'][-1]['@class'], 'ContainsSpecieFilter')
+        self.assertEqual(tsc.get_transformed_structures()[0].as_dict()[
+                             'history'][-1]['@class'], 'ContainsSpecieFilter')
 
         tsc.apply_filter(ContainsSpecieFilter(['Be2+']))
         self.assertEqual(len(tsc), 4)
@@ -94,10 +96,10 @@ class PoscarTransmuterTest(unittest.TestCase):
         #Test set_parameter and add_tag.
         tsc.set_parameter("para1", "hello")
         self.assertEqual(tsc.transformed_structures[0]
-                         .to_dict['other_parameters']['para1'], 'hello')
+                         .as_dict()['other_parameters']['para1'], 'hello')
         tsc.add_tags(["world", "universe"])
         self.assertEqual(tsc.transformed_structures[0]
-                         .to_dict['other_parameters']['tags'],
+                         .as_dict()['other_parameters']['tags'],
                          ["world", "universe"])
 
 if __name__ == "__main__":

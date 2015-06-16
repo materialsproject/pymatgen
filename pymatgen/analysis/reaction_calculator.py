@@ -1,16 +1,17 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 """
 This module provides classes that define a chemical reaction.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "2.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Jul 11 2012"
 
@@ -18,146 +19,66 @@ import logging
 import itertools
 import numpy as np
 import re
-from collections import defaultdict
 
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.core.composition import Composition
+from monty.json import MontyDecoder
 
 logger = logging.getLogger(__name__)
 
 
-class Reaction(MSONable):
+class BalancedReaction(PMGSONable):
     """
-    A class representing a Reaction.
+    An object representing a complete chemical reaction.
     """
 
-    # Tolerance for determining if a particular component fraction is > 0.
-    TOLERANCE = 1e-6
-
-    def __init__(self, reactants, products):
+    def __init__(self, reactants_coeffs, products_coeffs):
         """
-        Reactants and products to be specified as list of
-        pymatgen.core.structure.Composition.  e.g., [comp1, comp2]
+        Reactants and products to be specified as dict of {Composition: coeff}.
 
         Args:
-            reactants:
-                List of reactants.
-            products:
-                List of products.
+            reactants ({Composition: float}): Reactants as dict of
+                {Composition: amt}.
+            products ({Composition: float}): Products as dict of
+                {Composition: amt}.
         """
-        self._input_reactants = reactants
-        self._input_products = products
-        all_comp = reactants[:]
-        all_comp.extend(products[:])
-        els = set()
-        for c in all_comp:
-            els.update(c.elements)
-        els = tuple(els)
+        #sum reactants and products
+        all_reactants = sum([k * v for k, v in reactants_coeffs.items()],
+                            Composition({}))
+        all_products = sum([k * v for k, v in products_coeffs.items()],
+                           Composition({}))
 
-        nconstraints = len(all_comp)
-        num_els = len(els)
-        dim = max(num_els, nconstraints)
-        logger.debug("num_els = {}".format(num_els))
-        logger.debug("nconstraints = {}".format(nconstraints))
-        logger.debug("dim = {}".format(dim))
+        if not all_reactants.almost_equals(all_products,
+                                atol=Reaction.TOLERANCE):
+            raise ReactionError("Reaction is unbalanced!")
 
-        if nconstraints < 2:
-            raise ReactionError("A reaction cannot be formed with just one "
-                                "composition.")
-        elif nconstraints == 2:
-            if all_comp[0].reduced_formula != all_comp[1].reduced_formula:
-                raise ReactionError("Reaction cannot be balanced.")
-            else:
-                coeffs = [-all_comp[1][els[0]] / all_comp[0][els[0]], 1]
-        else:
-            comp_matrix = np.zeros((dim, dim))
-            count = 0
-            if nconstraints < num_els:
-                for i in range(nconstraints, num_els):
-                    all_comp.append(Composition({els[i]: 1}))
-            for c in all_comp:
-                for i in range(num_els):
-                    comp_matrix[i][count] = c[els[i]]
-                count += 1
+        self._els = all_reactants.elements
 
-            if nconstraints > num_els:
-                #Try two schemes for making the comp matrix non-singular.
-                for i in range(num_els, nconstraints):
-                    for j in range(num_els):
-                        comp_matrix[i][j] = 0
-                    comp_matrix[i][i] = 1
-                count = 0
-                if abs(np.linalg.det(comp_matrix)) < self.TOLERANCE:
-                    for i in range(num_els, nconstraints):
-                        for j in range(num_els):
-                            comp_matrix[i][j] = count
-                            count += 1
-                        comp_matrix[i][i] = count
-                ans_matrix = np.zeros(nconstraints)
-                ans_matrix[num_els:nconstraints] = 1
-                coeffs = np.linalg.solve(comp_matrix, ans_matrix)
-            else:
-                if abs(np.linalg.det(comp_matrix)) < self.TOLERANCE:
-                    logger.debug("Linear solution possible. Trying various "
-                                 "permutations.")
-                    comp_matrix = comp_matrix[0:num_els][:, 0:nconstraints]
-                    logger.debug("comp_matrix = {}".format(comp_matrix))
-                    ans_found = False
-                    for perm_matrix in itertools.permutations(comp_matrix):
-                        logger.debug("Testing permuted matrix = {}"
-                                     .format(perm_matrix))
-                        for m in xrange(nconstraints):
-                            submatrix = [[perm_matrix[i][j]
-                                          for j in xrange(nconstraints)
-                                          if j != m]
-                                         for i in xrange(nconstraints)
-                                         if i != m]
-                            logger.debug("Testing submatrix = {}"
-                                         .format(submatrix))
-                            if abs(np.linalg.det(submatrix)) > self.TOLERANCE:
-                                logger.debug("Possible sol")
-                                ansmatrix = [perm_matrix[i][m]
-                                             for i in xrange(nconstraints)
-                                             if i != m]
-                                coeffs = -np.linalg.solve(submatrix, ansmatrix)
-                                coeffs = [c for c in coeffs]
-                                coeffs.insert(m, 1)
-                                #Check if final coeffs are valid
-                                overall_mat = np.dot(perm_matrix, coeffs)
-                                if (abs(overall_mat) < 1e-8).all():
-                                    ans_found = True
-                                    break
-                    if not ans_found:
-                        raise ReactionError("Reaction is ill-formed and cannot"
-                                            " be balanced.")
-                else:
-                    raise ReactionError("Reaction is ill-formed and cannot be"
-                                        " balanced.")
+        self.reactants_coeffs = reactants_coeffs
+        self.products_coeffs = products_coeffs
 
-        for i in xrange(len(coeffs) - 1, -1, -1):
-            if coeffs[i] != 0:
-                normfactor = coeffs[i]
-                break
-        #Invert negative solutions and scale to final product
-        coeffs = [c / normfactor for c in coeffs]
-        self._els = els
-        self._all_comp = all_comp[0:nconstraints]
-        self._coeffs = coeffs[0:nconstraints]
-        self._num_comp = nconstraints
+        #calculate net reaction coefficients
+        self._coeffs = []
+        self._els = []
+        self._all_comp = []
+        for c in set(list(reactants_coeffs.keys()) +
+                list(products_coeffs.keys())):
+            coeff = products_coeffs.get(c,0) - \
+                                    reactants_coeffs.get(c,0)
 
-    def copy(self):
-        """
-        Returns a copy of the Reaction object.
-        """
-        return Reaction(self.reactants, self.products)
+            if abs(coeff) > Reaction.TOLERANCE:
+                self._all_comp.append(c)
+                self._coeffs.append(coeff)
+
+        self._num_comp = len(self._all_comp)
 
     def calculate_energy(self, energies):
         """
         Calculates the energy of the reaction.
 
         Args:
-            energies:
-                dict of {comp:energy}. E.g., {comp1: energy1, comp2: energy2}.
+            energies ({Composition: float}): Energy for each composition.
+                E.g ., {comp1: energy1, comp2: energy2}.
 
         Returns:
             reaction energy as a float.
@@ -172,10 +93,8 @@ class Reaction(MSONable):
         coefficient of 1. Another factor can be specified.
 
         Args:
-            comp:
-                Composition to normalize to
-            factor:
-                Factor to normalize to. Defaults to 1.
+            comp (Composition): Composition to normalize to
+            factor (float): Factor to normalize to. Defaults to 1.
         """
         scale_factor = abs(1 / self._coeffs[self._all_comp.index(comp)]
                            * factor)
@@ -188,15 +107,13 @@ class Reaction(MSONable):
         Another factor can be specified.
 
         Args:
-            element:
-                Element to normalize to.
-            factor:
-                Factor to normalize to. Defaults to 1.
+            element (Element/Specie): Element to normalize to.
+            factor (float): Factor to normalize to. Defaults to 1.
         """
         all_comp = self._all_comp
         coeffs = self._coeffs
         current_el_amount = sum([all_comp[i][element] * abs(coeffs[i])
-                                 for i in xrange(len(all_comp))]) / 2
+                                 for i in range(len(all_comp))]) / 2
         scale_factor = factor / current_el_amount
         self._coeffs = [c * scale_factor for c in coeffs]
 
@@ -205,14 +122,13 @@ class Reaction(MSONable):
         Returns the amount of the element in the reaction.
 
         Args:
-            element:
-                Element in the reaction
+            element (Element/Specie): Element in the reaction
 
         Returns:
             Amount of that element in the reaction.
         """
         return sum([self._all_comp[i][element] * abs(self._coeffs[i])
-                    for i in xrange(len(self._all_comp))]) / 2
+                    for i in range(len(self._all_comp))]) / 2
 
     @property
     def elements(self):
@@ -240,7 +156,7 @@ class Reaction(MSONable):
         """
         List of reactants
         """
-        return [self._all_comp[i] for i in xrange(len(self._all_comp))
+        return [self._all_comp[i] for i in range(len(self._all_comp))
                 if self._coeffs[i] < 0]
 
     @property
@@ -248,7 +164,7 @@ class Reaction(MSONable):
         """
         List of products
         """
-        return [self._all_comp[i] for i in xrange(len(self._all_comp))
+        return [self._all_comp[i] for i in range(len(self._all_comp))
                 if self._coeffs[i] > 0]
 
     def get_coeff(self, comp):
@@ -327,7 +243,7 @@ class Reaction(MSONable):
         for i in range(self._num_comp):
             comp = self._all_comp[i]
             coeff = self._coeffs[i]
-            red_comp = Composition.from_formula(comp.reduced_formula)
+            red_comp = Composition(comp.reduced_formula)
             scale_factor = comp.num_atoms / red_comp.num_atoms
             scaled_coeff = coeff * scale_factor
             if scaled_coeff < 0:
@@ -338,18 +254,181 @@ class Reaction(MSONable):
                                                       comp.reduced_formula))
         return " + ".join(reactant_str) + " -> " + " + ".join(product_str)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "reactants": [comp.to_dict for comp in self._input_reactants],
-                "products": [comp.to_dict for comp in self._input_products]}
+                "reactants": {str(comp): coeff
+                              for comp, coeff in self.reactants_coeffs.items()},
+                "products": {str(comp): coeff
+                             for comp, coeff in self.products_coeffs.items()}}
+
+    @classmethod
+    def from_dict(cls, d):
+        reactants = {Composition(comp): coeff
+                     for comp, coeff in d["reactants"].items()}
+        products = {Composition(comp): coeff
+                    for comp, coeff in d["products"].items()}
+        return cls(reactants, products)
 
     @staticmethod
-    def from_dict(d):
+    def from_string(rxn_string):
+        """
+        Generates a balanced reaction from a string. The reaction must
+        already be balanced.
+
+        Args:
+            rxn_string:
+                The reaction string. For example, "4 Li + O2-> 2Li2O"
+
+        Returns:
+            BalancedReaction
+        """
+        rct_str, prod_str = rxn_string.split("->")
+
+        def get_comp_amt(comp_str):
+            return {Composition(m.group(2)): float(m.group(1) or 1)
+                    for m in re.finditer(r"([\d\.]*)\s*([A-Z][\w\.\(\)]*)",
+                                         comp_str)}
+
+        return BalancedReaction(get_comp_amt(rct_str), get_comp_amt(prod_str))
+
+
+class Reaction(BalancedReaction):
+    """
+    A more flexible class representing a Reaction. The reaction amounts will
+    be automatically balanced.
+    """
+
+    # Tolerance for determining if a particular component fraction is > 0.
+    TOLERANCE = 1e-6
+
+    def __init__(self, reactants, products):
+        """
+        Reactants and products to be specified as list of
+        pymatgen.core.structure.Composition.  e.g., [comp1, comp2]
+
+        Args:
+            reactants ([Composition]): List of reactants.
+            products ([Composition]): List of products.
+        """
+        self._input_reactants = reactants
+        self._input_products = products
+        all_comp = reactants[:]
+        all_comp.extend(products[:])
+        els = set()
+        for c in all_comp:
+            els.update(c.elements)
+        els = tuple(els)
+
+        nconstraints = len(all_comp)
+        num_els = len(els)
+        dim = max(num_els, nconstraints)
+        logger.debug("num_els = {}".format(num_els))
+        logger.debug("nconstraints = {}".format(nconstraints))
+        logger.debug("dim = {}".format(dim))
+
+        if nconstraints < 2:
+            raise ReactionError("A reaction cannot be formed with just one "
+                                "composition.")
+        elif nconstraints == 2:
+            if all_comp[0].reduced_formula != all_comp[1].reduced_formula:
+                raise ReactionError("Reaction cannot be balanced.")
+            else:
+                coeffs = [-all_comp[1][els[0]] / all_comp[0][els[0]], 1]
+        else:
+            comp_matrix = np.zeros((dim, dim))
+            count = 0
+            if nconstraints < num_els:
+                for i in range(nconstraints, num_els):
+                    all_comp.append(Composition({els[i]: 1}))
+            for c in all_comp:
+                for i in range(num_els):
+                    comp_matrix[i][count] = c[els[i]]
+                count += 1
+
+            if nconstraints > num_els:
+                #Try two schemes for making the comp matrix non-singular.
+                for i in range(num_els, nconstraints):
+                    for j in range(num_els):
+                        comp_matrix[i][j] = 0
+                    comp_matrix[i][i] = 1
+                count = 0
+                if abs(np.linalg.det(comp_matrix)) < self.TOLERANCE:
+                    for i in range(num_els, nconstraints):
+                        for j in range(num_els):
+                            comp_matrix[i][j] = count
+                            count += 1
+                        comp_matrix[i][i] = count
+                ans_matrix = np.zeros(nconstraints)
+                ans_matrix[num_els:nconstraints] = 1
+                coeffs = np.linalg.solve(comp_matrix, ans_matrix)
+            else:
+                if abs(np.linalg.det(comp_matrix)) < self.TOLERANCE:
+                    logger.debug("Linear solution possible. Trying various "
+                                 "permutations.")
+                    comp_matrix = comp_matrix[0:num_els][:, 0:nconstraints]
+                    logger.debug("comp_matrix = {}".format(comp_matrix))
+                    ans_found = False
+                    for perm_matrix in itertools.permutations(comp_matrix):
+                        logger.debug("Testing permuted matrix = {}"
+                                     .format(perm_matrix))
+                        for m in range(nconstraints):
+                            submatrix = [[perm_matrix[i][j]
+                                          for j in range(nconstraints)
+                                          if j != m]
+                                         for i in range(nconstraints)
+                                         if i != m]
+                            logger.debug("Testing submatrix = {}"
+                                         .format(submatrix))
+                            if abs(np.linalg.det(submatrix)) > self.TOLERANCE:
+                                logger.debug("Possible sol")
+                                ansmatrix = [perm_matrix[i][m]
+                                             for i in range(nconstraints)
+                                             if i != m]
+                                coeffs = -np.linalg.solve(submatrix, ansmatrix)
+                                coeffs = [c for c in coeffs]
+                                coeffs.insert(m, 1)
+                                #Check if final coeffs are valid
+                                overall_mat = np.dot(perm_matrix, coeffs)
+                                if np.allclose(overall_mat, 0,
+                                               atol=self.TOLERANCE):
+                                    ans_found = True
+                                    break
+                    if not ans_found:
+                        raise ReactionError("Reaction is ill-formed and cannot"
+                                            " be balanced.")
+                else:
+                    raise ReactionError("Reaction is ill-formed and cannot be"
+                                        " balanced.")
+
+        for i in range(len(coeffs) - 1, -1, -1):
+            if coeffs[i] != 0:
+                normfactor = coeffs[i]
+                break
+        #Invert negative solutions and scale to final product
+        coeffs = [c / normfactor for c in coeffs]
+        self._els = els
+        self._all_comp = all_comp[0:nconstraints]
+        self._coeffs = coeffs[0:nconstraints]
+        self._num_comp = nconstraints
+
+    def copy(self):
+        """
+        Returns a copy of the Reaction object.
+        """
+        return Reaction(self.reactants, self.products)
+
+    def as_dict(self):
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "reactants": [comp.as_dict() for comp in self._input_reactants],
+                "products": [comp.as_dict() for comp in self._input_products]}
+
+    @classmethod
+    def from_dict(cls, d):
         reactants = [Composition(sym_amt) for sym_amt in d["reactants"]]
         products = [Composition(sym_amt) for sym_amt in d["products"]]
-        return Reaction(reactants, products)
+        return cls(reactants, products)
 
 
 def smart_float_gcd(list_of_floats):
@@ -384,101 +463,6 @@ class ReactionError(Exception):
         return self.msg
 
 
-class BalancedReaction(Reaction):
-    """
-    An extended version of Reaction to allow coefficients to be specified.
-    """
-
-    def __init__(self, reactants_coeffs, products_coeffs):
-        """
-        Reactants and products to be specified as dict of {Composition: coeff}.
-
-        Args:
-            reactants:
-                Reactants as dict of {Composition: amt}.
-            products:
-                Products as dict of {Composition: amt}.
-        """
-
-        coeffs = []
-        all_comp = []
-        for comp, c in reactants_coeffs.items():
-            if comp not in all_comp:
-                all_comp.append(comp)
-                coeffs.append(-c)
-            else:
-                ind = all_comp.index(comp)
-                coeffs[ind] += -c
-
-        for comp, c in products_coeffs.items():
-            if comp not in all_comp:
-                all_comp.append(comp)
-                coeffs.append(c)
-            else:
-                ind = all_comp.index(comp)
-                coeffs[ind] += c
-        els = set()
-        for c in all_comp:
-            els.update(c.elements)
-        els = tuple(els)
-
-        sum_comp = defaultdict(int)
-
-        for i in xrange(len(all_comp)):
-            for el in els:
-                sum_comp[el] += coeffs[i] * all_comp[i][el]
-
-        for v in sum_comp.values():
-            if abs(v) > Reaction.TOLERANCE:
-                raise ReactionError("Reaction is unbalanced!")
-
-        self._input_rct = reactants_coeffs
-        self._input_prd = products_coeffs
-
-        self._els = els
-        self._all_comp = all_comp
-        self._coeffs = coeffs
-        self._num_comp = len(self._all_comp)
-
-    @property
-    def to_dict(self):
-        return {"@module": self.__class__.__module__,
-                "@class": self.__class__.__name__,
-                "reactants": {str(comp): coeff
-                              for comp, coeff in self._input_rct.items()},
-                "products": {str(comp): coeff
-                             for comp, coeff in self._input_prd.items()}}
-
-    @staticmethod
-    def from_dict(d):
-        reactants = {Composition(comp): coeff
-                     for comp, coeff in d["reactants"].items()}
-        products = {Composition(comp): coeff
-                    for comp, coeff in d["products"].items()}
-        return BalancedReaction(reactants, products)
-
-    @staticmethod
-    def from_string(rxn_string):
-        """
-        Generates a balanced reaction from a string. The reaciton must
-        already be balanced.
-
-        Args:
-            rxn_string:
-                The reaction string. For example, "4 Li + O2-> 2Li2O"
-
-        Returns:
-            BalancedReaction
-        """
-        rct_str, prod_str = rxn_string.split("->")
-
-        def get_comp_amt(comp_str):
-            return {Composition(m.group(2)): float(m.group(1) or 1)
-                    for m in re.finditer("([\d\.]*)\s*([A-Z][\w\.]*)",
-                                         comp_str)}
-        return BalancedReaction(get_comp_amt(rct_str), get_comp_amt(prod_str))
-
-
 class ComputedReaction(Reaction):
     """
     Convenience class to generate a reaction from ComputedEntry objects, with
@@ -489,10 +473,8 @@ class ComputedReaction(Reaction):
     def __init__(self, reactant_entries, product_entries):
         """
         Args:
-            reactant_entries:
-                List of reactant_entries.
-            products:
-                List of product_entries.
+            reactant_entries ([ComputedEntry]): List of reactant_entries.
+            product_entries ([ComputedEntry]): List of product_entries.
         """
         self._reactant_entries = reactant_entries
         self._product_entries = product_entries
@@ -509,26 +491,23 @@ class ComputedReaction(Reaction):
     def calculated_reaction_energy(self):
         calc_energies = {}
 
-        def update_calc_energies(entry):
+        for entry in self._reactant_entries + self._product_entries:
             (comp, factor) = \
                 entry.composition.get_reduced_composition_and_factor()
             calc_energies[comp] = min(calc_energies.get(comp, float('inf')),
                                       entry.energy / factor)
-        map(update_calc_energies, self._reactant_entries)
-        map(update_calc_energies, self._product_entries)
+
         return self.calculate_energy(calc_energies)
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "reactants": [e.to_dict for e in self._reactant_entries],
-                "products": [e.to_dict for e in self._product_entries]}
+                "reactants": [e.as_dict() for e in self._reactant_entries],
+                "products": [e.as_dict() for e in self._product_entries]}
 
-    @staticmethod
-    def from_dict(d):
-        from pymatgen.serializers.json_coders import PMGJSONDecoder
-        dec = PMGJSONDecoder()
+    @classmethod
+    def from_dict(cls, d):
+        dec = MontyDecoder()
         reactants = [dec.process_decoded(e) for e in d["reactants"]]
         products = [dec.process_decoded(e) for e in d["products"]]
-        return ComputedReaction(reactants, products)
+        return cls(reactants, products)

@@ -1,5 +1,6 @@
-#!/usr/bin/env python
-from __future__ import division
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 '''
 Created on Sep 23, 2011
@@ -9,17 +10,21 @@ __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Sep 23, 2011"
 
 import os
-import unittest
 import random
+import unittest
+import json
+import six
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.transformations.standard_transformations import *
+from pymatgen.core import PeriodicSite
+from monty.json import MontyDecoder
 from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen.io.cifio import CifParser
+from pymatgen.transformations.standard_transformations import *
+from pymatgen.symmetry.structure import SymmetrizedStructure
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -42,9 +47,9 @@ class TransformationsTest(unittest.TestCase):
 
     def test_to_from_dict(self):
         t = IdentityTransformation()
-        d = t.to_dict
-        self.assertIn("version", t.to_dict)
-        self.assertIn("init_args", t.to_dict)
+        d = t.as_dict()
+        self.assertIn("version", t.as_dict())
+        self.assertIn("init_args", t.as_dict())
         self.assertEqual(type(IdentityTransformation.from_dict(d)),
                          IdentityTransformation)
 
@@ -92,6 +97,8 @@ class SubstitutionTransformationTest(unittest.TestCase):
     def test_fractional_substitution(self):
         t = SubstitutionTransformation({"Li+": "Na+",
                                         "O2-": {"S2-": 0.5, "Se2-": 0.5}})
+        #test the to and from dict on the nested dictionary
+        t = SubstitutionTransformation.from_dict(t.as_dict())
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
@@ -124,11 +131,12 @@ class SupercellTransformationTest(unittest.TestCase):
         self.assertEqual(s.composition.formula, "Li16 O16")
 
     def test_from_scaling_factors(self):
-        scale_factors = [random.randint(1, 5) for i in xrange(3)]
+        scale_factors = [random.randint(1, 5) for i in range(3)]
         t = SupercellTransformation.from_scaling_factors(*scale_factors)
         s = t.apply_transformation(self.struct)
-        self.assertEqual(s.num_sites, 4 * reduce(lambda a, b: a * b,
-                                                 scale_factors))
+        self.assertEqual(s.num_sites,
+                         4 * six.moves.reduce(lambda a, b: a * b,
+                                              scale_factors))
 
 
 class OxidationStateDecorationTransformationTest(unittest.TestCase):
@@ -163,7 +171,7 @@ class AutoOxiStateDecorationTransformationTest(unittest.TestCase):
 
     def to_from_dict(self):
         t = AutoOxiStateDecorationTransformation()
-        d = t.to_dict
+        d = t.as_dict()
         t = AutoOxiStateDecorationTransformation.from_dict(d)
         self.assertEqual(t.analyzer.dist_scale_factor, 1.015)
 
@@ -284,6 +292,27 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
         allstructs = t.apply_transformation(struct, 50)
         self.assertEqual(len(allstructs), 3)
 
+    def test_symmetrized_structure(self):
+        t = OrderDisorderedStructureTransformation(symmetrized_structures=True)
+        c = []
+        sp = []
+        c.append([0.5, 0.5, 0.5])
+        sp.append('Si4+')
+        c.append([0.45, 0.45, 0.45])
+        sp.append({"Si4+": 0.5})
+        c.append([0.56, 0.56, 0.56])
+        sp.append({"Si4+": 0.5})
+        c.append([0.25, 0.75, 0.75])
+        sp.append({"Si4+": 0.5})
+        c.append([0.75, 0.25, 0.25])
+        sp.append({"Si4+": 0.5})
+        l = Lattice.cubic(5)
+        s = Structure(l, sp, c)
+        test_site = PeriodicSite("Si4+", c[2], l)
+        s = SymmetrizedStructure(s, 'not_real', [0,1,1,2,2])
+        output = t.apply_transformation(s)
+        self.assertTrue(test_site in output.sites)
+
     def test_too_small_cell(self):
         t = OrderDisorderedStructureTransformation()
         coords = list()
@@ -339,10 +368,10 @@ class PrimitiveCellTransformationTest(unittest.TestCase):
         s = t.apply_transformation(struct)
         self.assertEqual(len(s), 4)
 
-        parser = CifParser(os.path.join(test_dir, "TiO2_super.cif"))
-        s = parser.get_structures()[0]
-        prim = t.apply_transformation(s)
-        self.assertEqual(prim.formula, "Ti4 O8")
+        with open(os.path.join(test_dir, "TiO2_super.json")) as f:
+            s = json.load(f, cls=MontyDecoder)
+            prim = t.apply_transformation(s)
+            self.assertEqual(prim.formula, "Ti4 O8")
 
 
 class PerturbStructureTransformationTest(unittest.TestCase):

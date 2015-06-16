@@ -1,21 +1,24 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 """
 This module provides input and output from the CSSR file format.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Jan 24, 2012"
 
 import re
 
-from pymatgen.util.io_utils import zopen
+from six.moves import map
+
+from monty.io import zopen
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
@@ -24,14 +27,12 @@ class Cssr(object):
     """
     Basic object for working with Cssr file. Right now, only conversion from
     a Structure to a Cssr file is supported.
+
+    Args:
+        structure (Structure/IStructure): A structure to create the Cssr object.
     """
 
     def __init__(self, structure):
-        """
-        Args:
-            structure:
-                A structure to create the Cssr object.
-        """
         if not structure.is_ordered:
             raise ValueError("Cssr file can only be constructed from ordered "
                              "structure")
@@ -54,10 +55,9 @@ class Cssr(object):
         Write out a CSSR file.
 
         Args:
-            filename:
-                Filename to write to.
+            filename (str): Filename to write to.
         """
-        with open(filename, 'w') as f:
+        with zopen(filename, 'wt') as f:
             f.write(str(self) + "\n")
 
     @staticmethod
@@ -66,17 +66,16 @@ class Cssr(object):
         Reads a string representation to a Cssr object.
 
         Args:
-            string:
-                A string representation of a CSSR.
+            string (str): A string representation of a CSSR.
 
         Returns:
             Cssr object.
         """
         lines = string.split("\n")
         toks = lines[0].split()
-        lengths = map(float, toks)
+        lengths = [float(i) for i in toks]
         toks = lines[1].split()
-        angles = map(float, toks[0:3])
+        angles = [float(i) for i in toks[0:3]]
         latt = Lattice.from_lengths_and_angles(lengths, angles)
         sp = []
         coords = []
@@ -85,7 +84,7 @@ class Cssr(object):
                          "([0-9\-\.]+)", l.strip())
             if m:
                 sp.append(m.group(1))
-                coords.append([float(m.group(i)) for i in xrange(2, 5)])
+                coords.append([float(m.group(i)) for i in range(2, 5)])
         return Cssr(Structure(latt, sp, coords))
 
     @staticmethod
@@ -94,11 +93,10 @@ class Cssr(object):
         Reads a CSSR file to a Cssr object.
 
         Args:
-            filename:
-                Filename to read from.
+            filename (str): Filename to read from.
 
         Returns:
             Cssr object.
         """
-        with zopen(filename, "r") as f:
+        with zopen(filename, "rt") as f:
             return Cssr.from_string(f.read())

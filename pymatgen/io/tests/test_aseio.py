@@ -1,16 +1,17 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 """
 Created on Mar 8, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Mar 8, 2012"
 
 import unittest
@@ -34,7 +35,7 @@ class AseAtomsAdaptorTest(unittest.TestCase):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
         structure = p.structure
         atoms = aio.AseAtomsAdaptor.get_atoms(structure)
-        ase_composition = Composition.from_formula(atoms.get_name())
+        ase_composition = Composition(atoms.get_name())
         self.assertEqual(ase_composition, structure.composition)
 
     def test_get_structure(self):
@@ -51,4 +52,4 @@ if __name__ == "__main__":
     if aio.ase_loaded:
         unittest.main()
     else:
-        print "ASE not loaded. Skipping tests"
+        print("ASE not loaded. Skipping tests")

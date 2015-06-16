@@ -1,67 +1,104 @@
-analysis Package
-================
+pymatgen.analysis package
+=========================
 
-:mod:`analysis` Package
------------------------
+Subpackages
+-----------
 
-.. automodule:: pymatgen.analysis
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. toctree::
 
-:mod:`bond_valence` Module
---------------------------
+    pymatgen.analysis.cost
+    pymatgen.analysis.defects
+    pymatgen.analysis.diffraction
+    pymatgen.analysis.pourbaix
+
+Submodules
+----------
+
+pymatgen.analysis.bond_valence module
+-------------------------------------
 
 .. automodule:: pymatgen.analysis.bond_valence
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`ewald` Module
--------------------
+pymatgen.analysis.diffusion_analyzer module
+-------------------------------------------
+
+.. automodule:: pymatgen.analysis.diffusion_analyzer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.analysis.energy_models module
+--------------------------------------
+
+.. automodule:: pymatgen.analysis.energy_models
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.analysis.ewald module
+------------------------------
 
 .. automodule:: pymatgen.analysis.ewald
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`reaction_calculator` Module
----------------------------------
+pymatgen.analysis.molecule_matcher module
+-----------------------------------------
+
+.. automodule:: pymatgen.analysis.molecule_matcher
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.analysis.molecule_structure_comparator module
+------------------------------------------------------
+
+.. automodule:: pymatgen.analysis.molecule_structure_comparator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.analysis.reaction_calculator module
+--------------------------------------------
 
 .. automodule:: pymatgen.analysis.reaction_calculator
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`structure_analyzer` Module
---------------------------------
+pymatgen.analysis.structure_analyzer module
+-------------------------------------------
 
 .. automodule:: pymatgen.analysis.structure_analyzer
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`structure_matcher` Module
--------------------------------
+pymatgen.analysis.structure_matcher module
+------------------------------------------
 
 .. automodule:: pymatgen.analysis.structure_matcher
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`symmetry_fitter` Module
------------------------------
-
-.. automodule:: pymatgen.analysis.symmetry_fitter
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`thermochemistry` Module
------------------------------
+pymatgen.analysis.thermochemistry module
+----------------------------------------
 
 .. automodule:: pymatgen.analysis.thermochemistry
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: pymatgen.analysis
+    :members:
+    :undoc-members:
+    :show-inheritance:

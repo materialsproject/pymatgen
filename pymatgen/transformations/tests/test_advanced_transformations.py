@@ -1,36 +1,42 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 """
 Created on Jul 24, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Jul 24, 2012"
 
 import unittest
 import os
 import json
 
+import numpy as np
+
 from pymatgen import Lattice, Structure
 from pymatgen.transformations.standard_transformations import \
-    OxidationStateDecorationTransformation, SubstitutionTransformation
+    OxidationStateDecorationTransformation, SubstitutionTransformation, \
+    OrderDisorderedStructureTransformation
 from pymatgen.transformations.advanced_transformations import \
     SuperTransformation, EnumerateStructureTransformation, \
     MultipleSubstitutionTransformation, ChargeBalanceTransformation, \
-    SubstitutionPredictorTransformation
-from pymatgen.util.io_utils import which
+    SubstitutionPredictorTransformation, MagOrderingTransformation
+from monty.os.path import which
 from pymatgen.io.vaspio.vasp_input import Poscar
-
-from nose.exc import SkipTest
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.analysis.energy_models import IsingModel
+from pymatgen.util.testing import PymatgenTest
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
+
 
 def get_table():
     """
@@ -46,17 +52,14 @@ def get_table():
     return lambda_table
 
 
-if which('multienum.x') and which('makestr.x'):
-    enumlib_present = True
-else:
-    enumlib_present = False
+enumlib_present = which('multienum.x') and which('makestr.x')
 
 
 class SuperTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
-        tl = [SubstitutionTransformation({"Li+":"Na+"}),
-              SubstitutionTransformation({"Li+":"K+"})]
+        tl = [SubstitutionTransformation({"Li+": "Na+"}),
+              SubstitutionTransformation({"Li+": "K+"})]
         t = SuperTransformation(tl)
         coords = list()
         coords.append([0, 0, 0])
@@ -79,6 +82,23 @@ class SuperTransformationTest(unittest.TestCase):
             self.assertEqual(s_and_t['transformation']
                              .apply_transformation(struct),
                              s_and_t['structure'])
+
+    @unittest.skipIf(not enumlib_present, "enum_lib not present.")
+    def test_apply_transformation_mult(self):
+        #Test returning multiple structures from each transformation.
+        disord = Structure(np.eye(3) * 4.209, [{"Cs+": 0.5, "K+": 0.5}, "Cl-"],
+                           [[0, 0, 0], [0.5, 0.5, 0.5]])
+        disord.make_supercell([2, 2, 1])
+
+
+        tl = [EnumerateStructureTransformation(),
+              OrderDisorderedStructureTransformation()]
+        t = SuperTransformation(tl, nstructures_per_trans=10)
+        self.assertEqual(len(t.apply_transformation(disord,
+                                                    return_ranked_list=20)), 8)
+        t = SuperTransformation(tl)
+        self.assertEqual(len(t.apply_transformation(disord,
+                                                    return_ranked_list=20)), 2)
 
 
 class MultipleSubstitutionTransformationTest(unittest.TestCase):
@@ -124,12 +144,10 @@ class ChargeBalanceTransformationTest(unittest.TestCase):
         self.assertAlmostEqual(s.charge, 0, 5)
 
 
+@unittest.skipIf(not enumlib_present, "enum_lib not present.")
 class EnumerateStructureTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
-        if not enumlib_present:
-            raise SkipTest("enumlib not present. "
-                           "Skipping EnumerateStructureTransformationTest...")
         enum_trans = EnumerateStructureTransformation(refine_structure=True)
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
                              check_for_POTCAR=False)
@@ -138,13 +156,11 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         for i, frac in enumerate([0.25, 0.5, 0.75]):
             trans = SubstitutionTransformation({'Fe': {'Fe': frac}})
             s = trans.apply_transformation(struct)
-            oxitrans = OxidationStateDecorationTransformation({'Li': 1,
-                                                               'Fe': 2,
-                                                               'P': 5,
-                                                               'O':-2})
+            oxitrans = OxidationStateDecorationTransformation(
+                {'Li': 1, 'Fe': 2, 'P': 5, 'O': -2})
             s = oxitrans.apply_transformation(s)
             alls = enum_trans.apply_transformation(s, 100)
-            self.assertEquals(len(alls), expected_ans[i])
+            self.assertEqual(len(alls), expected_ans[i])
             self.assertIsInstance(trans.apply_transformation(s), Structure)
             for s in alls:
                 self.assertIn("energy", s)
@@ -153,24 +169,21 @@ class EnumerateStructureTransformationTest(unittest.TestCase):
         trans = SubstitutionTransformation({'Fe': {'Fe': 0.5}})
         s = trans.apply_transformation(struct)
         alls = enum_trans.apply_transformation(s, 100)
-        self.assertEquals(len(alls), 3)
+        self.assertEqual(len(alls), 3)
         self.assertIsInstance(trans.apply_transformation(s), Structure)
         for s in alls:
             self.assertNotIn("energy", s)
 
     def test_to_from_dict(self):
-        if not enumlib_present:
-            raise SkipTest("enumlib not present. Skipping "
-                           "EnumerateStructureTransformationTest...")
         trans = EnumerateStructureTransformation()
-        d = trans.to_dict
+        d = trans.as_dict()
         trans = EnumerateStructureTransformation.from_dict(d)
         self.assertEqual(trans.symm_prec, 0.1)
 
 
 class SubstitutionPredictorTransformationTest(unittest.TestCase):
     def test_apply_transformation(self):
-        t = SubstitutionPredictorTransformation(threshold=1e-3, alpha= -5,
+        t = SubstitutionPredictorTransformation(threshold=1e-3, alpha=-5,
                                                 lambda_table=get_table())
         coords = list()
         coords.append([0, 0, 0])
@@ -184,15 +197,72 @@ class SubstitutionPredictorTransformationTest(unittest.TestCase):
         outputs = t.apply_transformation(struct, return_ranked_list=True)
         self.assertEqual(len(outputs), 4, 'incorrect number of structures')
 
-    def test_to_dict(self):
-        t = SubstitutionPredictorTransformation(threshold=2, alpha= -2,
+    def test_as_dict(self):
+        t = SubstitutionPredictorTransformation(threshold=2, alpha=-2,
                                                 lambda_table=get_table())
-        d = t.to_dict
+        d = t.as_dict()
         t = SubstitutionPredictorTransformation.from_dict(d)
         self.assertEqual(t._threshold, 2,
                          'incorrect threshold passed through dict')
-        self.assertEqual(t._substitutor._sp._alpha, -2,
+        self.assertEqual(t._substitutor.p.alpha, -2,
                          'incorrect alpha passed through dict')
+
+
+@unittest.skipIf(not enumlib_present, "enum_lib not present.")
+class MagOrderingTransformationTest(PymatgenTest):
+
+    def test_apply_transformation(self):
+        trans = MagOrderingTransformation({"Fe": 5})
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
+                             check_for_POTCAR=False)
+        s = p.structure
+        alls = trans.apply_transformation(s, 10)
+        self.assertEqual(len(alls), 3)
+        f = SpacegroupAnalyzer(alls[0]["structure"], 0.1)
+        self.assertEqual(f.get_spacegroup_number(), 31)
+
+        model = IsingModel(5, 5)
+        trans = MagOrderingTransformation({"Fe": 5},
+                                          energy_model=model)
+        alls2 = trans.apply_transformation(s, 10)
+        #Ising model with +J penalizes similar neighbor magmom.
+        self.assertNotEqual(alls[0]["structure"], alls2[0]["structure"])
+        self.assertEqual(alls[0]["structure"], alls2[2]["structure"])
+
+        s = self.get_structure('Li2O')
+        #Li2O doesn't have magnetism of course, but this is to test the
+        # enumeration.
+        trans = MagOrderingTransformation({"Li+": 1}, max_cell_size=3)
+        alls = trans.apply_transformation(s, 100)
+        self.assertEqual(len(alls), 10)
+
+    def test_ferrimagnetic(self):
+        trans = MagOrderingTransformation({"Fe": 5}, 0.75, max_cell_size=1)
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
+                             check_for_POTCAR=False)
+        s = p.structure
+        alls = trans.apply_transformation(s, 10)
+        self.assertEqual(len(alls), 2)
+
+    def test_to_from_dict(self):
+        trans = MagOrderingTransformation({"Fe": 5}, 0.75)
+        d = trans.as_dict()
+        #Check json encodability
+        s = json.dumps(d)
+        trans = MagOrderingTransformation.from_dict(d)
+        self.assertEqual(trans.mag_species_spin, {"Fe": 5})
+        from pymatgen.analysis.energy_models import SymmetryModel
+        self.assertIsInstance(trans.emodel, SymmetryModel)
+
+    def test_zero_spin_case(self):
+        #ensure that zero spin case maintains sites and formula
+        s = self.get_structure('Li2O')
+        trans = MagOrderingTransformation({"Li+": 0.0}, 0.5)
+        alls = trans.apply_transformation(s)
+        #Ensure s does not have a spin property
+        self.assertFalse('spin' in s.sites[0].specie._properties)
+        #ensure sites are assigned a spin property in alls
+        self.assertTrue('spin' in alls.sites[0].specie._properties)
 
 
 if __name__ == "__main__":

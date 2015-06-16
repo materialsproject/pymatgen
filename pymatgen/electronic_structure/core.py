@@ -1,17 +1,18 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 """
 This module provides core classes needed by all define electronic structure,
 such as the Spin, Orbital, etc.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
@@ -31,8 +32,7 @@ class Spin(object):
         Provides the spin from an int. +1 == Spin.up, -1 == Spin.down.
 
         Args:
-            i:
-                integer representing direction of spin.
+            i (1/-1): integer representing direction of spin.
         """
         if i == 1:
             return Spin.up

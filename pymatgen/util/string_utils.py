@@ -1,18 +1,24 @@
-#!/usr/bin/env python
-
+# coding: utf-8
 """
 This module provides utility classes for string operations.
 """
+from __future__ import unicode_literals
+import re
+import sys
+
+
+from six.moves import zip
+from monty.string import list_strings
+from monty.fnmatch import WildCard
+
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "$Sep 23, 2011M$"
-
-import re
 
 
 def generate_latex_table(results, header=None, caption=None, label=None):
@@ -48,7 +54,7 @@ def str_delimited(results, header=None, delimiter="\t"):
     """
     Given a tuple of tuples, generate a delimited string form.
     >>> results = [["a","b","c"],["d","e","f"],[1,2,3]]
-    >>> print str_delimited(results,delimiter=",")
+    >>> print(str_delimited(results,delimiter=","))
     a,b,c
     d,e,f
     1,2,3
@@ -71,7 +77,7 @@ def str_aligned(results, header=None):
     """
     Given a tuple, generate a nicely aligned string form.
     >>> results = [["a","b","cz"],["d","ez","f"],[1,2,3]]
-    >>> print str_aligned(results)
+    >>> print(str_aligned(results))
     a    b   cz
     d   ez    f
     1    2    3
@@ -108,12 +114,9 @@ def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
     Instead of Li1.0 Fe1.0 P1.0 O4.0, you get LiFePO4.
 
     Args:
-        afloat:
-            a float
-        ignore_ones:
-            if true, floats of 1 are ignored.
-        tol:
-            Tolerance to round to nearest int. i.e. 2.0000000001 -> 2
+        afloat (float): a float
+        ignore_ones (bool): if true, floats of 1 are ignored.
+        tol (float): Tolerance to round to nearest int. i.e. 2.0000000001 -> 2
 
     Returns:
         A string representation of the float for formulas.
@@ -123,7 +126,7 @@ def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
     elif abs(afloat - int(afloat)) < tol:
         return str(int(afloat))
     else:
-        return str(afloat)
+        return str(round(afloat, 8))
 
 
 def latexify(formula):
@@ -132,8 +135,7 @@ def latexify(formula):
     Fe$_{2}$O$_{3}$.
 
     Args:
-        formula:
-            Input formula.
+        formula (str): Input formula.
 
     Returns:
         Formula suitable for display as in LaTeX with proper subscripts.
@@ -147,14 +149,57 @@ def latexify_spacegroup(spacegroup_symbol):
     P2$_{1}$/c and P-1 is converted to P$\overline{1}$.
 
     Args:
-        spacegroup_symbol:
-            A spacegroup symbol
+        spacegroup_symbol (str): A spacegroup symbol
 
     Returns:
         A latex formatted spacegroup with proper subscripts and overlines.
     """
     sym = re.sub(r"_(\d+)", r"$_{\1}$", spacegroup_symbol)
     return re.sub(r"-(\d)", r"$\overline{\1}$", sym)
+
+
+def stream_has_colours(stream):
+    """
+    True if stream supports colours. Python cookbook, #475186
+    """
+    if not hasattr(stream, "isatty"):
+        return False
+
+    if not stream.isatty():
+        return False  # auto color only on TTYs
+    try:
+        import curses
+        curses.setupterm()
+        return curses.tigetnum("colors") > 2
+    except:
+        return False  # guess false in case of error
+
+
+class StringColorizer(object):
+    colours = {"default": "",
+               "blue": "\x1b[01;34m",
+               "cyan": "\x1b[01;36m",
+               "green": "\x1b[01;32m",
+               "red": "\x1b[01;31m",
+               # lighting colours.
+               #"lred":    "\x1b[01;05;37;41m"
+               }
+
+    def __init__(self, stream):
+        self.has_colours = stream_has_colours(stream)
+
+    def __call__(self, string, colour):
+        if self.has_colours:
+            code = self.colours.get(colour.lower(), "")
+            if code:
+                return code + string + "\x1b[00m"
+            else:
+                return string
+        else:
+            return string
+
+
+
 
 
 if __name__ == "__main__":

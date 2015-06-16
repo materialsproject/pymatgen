@@ -31,7 +31,7 @@ from pymatgen import __version__, __author__
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.viewcode', 'sphinx.ext.autodoc', "sphinxtogithub" ]
+extensions = ['sphinx.ext.autodoc', 'sphinxcontrib.napoleon', 'sphinx.ext.viewcode', "sphinx.ext.mathjax"]
 exclude_patterns = ['../**/tests*']
 exclude_dirnames = ['../**/tests*']
 autoclass_content = 'both'

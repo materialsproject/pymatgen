@@ -1,0 +1,264 @@
+
+Running Job 1 of 1 hf.inp
+qchem hf.inp_5970.0 /Users/xiaohuiqu/scratch/qchem5970/ 1
+                  Welcome to Q-Chem
+     A Quantum Leap Into The Future Of Chemistry
+
+ Y. Shao, L. Fusti-Molnar, Y. Jung, J. Kussmann, C. Ochsenfeld, S. T. Brown, 
+ A. T. B. Gilbert, L. V. Slipchenko, S. V. Levchenko, D. P. O'Neill, 
+ R. A. DiStasio Jr., R. C. Lochan, T. Wang, G. J. O. Beran, N. A. Besley, 
+ J. M. Herbert, C. Y. Lin, T. Van Voorhis, S. H. Chien, A. Sodt, R. P. Steele, 
+ V. A. Rassolov, P. E. Maslen, P. P. Korambath, R. D. Adamson, B. Austin, 
+ J. Baker, E. F. C. Byrd, H. Dachsel, R. J. Doerksen, A. Dreuw, B. D. Dunietz, 
+ A. D. Dutoi, T. R. Furlani, S. R. Gwaltney, A. Heyden, S. Hirata, C.-P. Hsu, 
+ G. Kedziora, R. Z. Khaliullin, P. Klunzinger, A. M. Lee, M. S. Lee, W. Liang, 
+ I. Lotan, N. Nair, B. Peters, E. I. Proynov, P. A. Pieniazek, Y. M. Rhee, 
+ J. Ritchie, E. Rosta, C. D. Sherrill, A. C. Simmonett, J. E. Subotnik, 
+ H. L. Woodcock III, W. Zhang, A. T. Bell, A. K. Chakraborty, D. M. Chipman, 
+ F. J. Keil, A. Warshel, W. J. Hehre, H. F. Schaefer III, J. Kong, 
+ A. I. Krylov, P. M. W. Gill, M. Head-Gordon
+
+ Additional authors for Version 3.1: 
+ Z. Gan, Y. Zhao, N. E. SchultzD. Truhlar, E. Epifanovsky, M. Oana
+
+ Additional authors for Version 3.2: 
+ R. Baer, B. R. Brooks, D. Casanova, J.-D. Chai, C.-L. Cheng, C. Cramer, 
+ D. Crittenden, A. Ghysels, G. Hawkins, E. G. Hohenstein, C. Kelley, 
+ W. Kurlancheek, D. Liotard, E. Livshits, P. Manohar, A. Marenich, 
+ D. Neuhauser, R. Olson, M. A. Rohrdanz, K. S. Thanthiriwatte, A. J. W. Thom, 
+ V. Vanovschi, C. F. Williams, Q. Wu, Z.-Q. You
+
+ Additional authors for Version 4.0: 
+ A. Aspuru-Guzik, Y. Bernard, C. Chang, J. Deng, A. Dreuw, M. Diedenhofen, 
+ R. G. Edgar, D. Ghosh, W. A. Goddard III, M. Goldey, L. D. Jacobson, 
+ M. Gordon, B. Kaduk, I. Kaliman, K. Khistyaev, R. King, A. Klamt, 
+ D. Kosenkov, T. Kus, D. Lambrecht, A. Landau, A. W. Lange, K. Lawler, F. Liu, 
+ J. Liu, R. Olivares-Amaya, S. P. Mao, J. Parkhill, N. Russ, M. Schmidt, 
+ N. Shenvi, D. Small, Y. C. Su, E. Sundstrom, L. Vogt, O. Vydrov, M. Watson, 
+ M. Wormit, X. Xu, S. Yeganeh, I. Y. Zhang, D. Zuev
+
+ Additional authors for Version 4.1: 
+ X. Feng, M. W. D. Hason-Heine, P. Horn, H. Ji, A. Laurent, R. Peverati, 
+ N. Mardirossian, N. Sergueev, S. Sharada, P. Zimmerman
+
+
+ Q-Chem, Version 4.1, Q-Chem, Inc., Pittsburgh, PA (2013).
+
+ MAC (Intel) OSX Version 4.1.0.1 
+
+ Q-chem begins on Thu Nov 21 16:09:08 2013  
+
+Host: 
+0
+
+     Scratch files written to /Users/xiaohuiqu/scratch/qchem5970//
+ Aug3013 17693_zgan 4696   
+Processing $rem in /Users/xiaohuiqu/program/qchem/config/preferences.
+ MEM_TOTAL  2000 
+Finally everything over in PARseQInput
+
+--------------------------------------------------------------
+User input:
+--------------------------------------------------------------
+$molecule
+0 1
+H       0.000000     0.000000    -0.862674
+F       0.000000     0.000000     0.043813
+$end
+
+$rem
+job_type = sp
+correlation = mosmp2
+omega = 200
+basis = 6-31+G(d)
+aux_basis = rimp2-aug-cc-pvdz
+$end
+
+--------------------------------------------------------------
+ ----------------------------------------------------
+       Standard Nuclear Orientation (Angstroms)
+    I     Atom         X            Y            Z
+ ----------------------------------------------------
+    1      H       0.000000     0.000000    -0.815838
+    2      F       0.000000     0.000000     0.090649
+ ----------------------------------------------------
+ Molecular Point Group                 C*v   NOp =***
+ Largest Abelian Subgroup              C2v   NOp =  1
+ Nuclear Repulsion Energy =     5.2539031417 hartrees
+ There are        5 alpha and        5 beta electrons
+ Requested basis set is 6-31+G(d)
+ There are 7 shells and 21 basis functions
+
+Total QAlloc Memory Limit   2000 MB
+Mega-Array Size        61 MB
+MEM_STATIC part        62 MB
+
+                       Distance Matrix (Angstroms)
+             H (  1)
+   F (  2)  0.906487
+ 
+ Requested basis set is rimp2-aug-cc-pVDZ
+ There are 31 shells and 102 basis functions
+ A cutoff of  1.0D-08 yielded     28 shell pairs
+ There are       264 function pairs
+ Smallest overlap matrix eigenvalue = 7.26E-03
+
+  Scale SEOQF with 1.000000e+00/1.000000e+00/1.000000e+00
+
+ Standard Electronic Orientation quadrupole field applied
+ Nucleus-field energy     =    -0.0000000008 hartrees
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+ A restricted Hartree-Fock SCF calculation will be
+ performed using Pulay DIIS extrapolation
+ SCF converges when DIIS error is below 1.0E-05
+ using 2 threads for integral computing 
+ reading int configure file ... done
+ 
+ -------------------------------------------------------
+ OpenMP Integral Computing Module                       
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+ Integral Job Info:
+ Integral screening is                        1
+ Integral computing path is                   2
+ max size of driver memeory is           800000
+ size of driver memeory is               593606
+ size of scratch memory is               800000
+ max col of scratch BK array               1296
+ max len of scratch array in speh3          155
+ max len of scratch index in speh4           18
+ max int batch size is                       50
+ min int batch size is                       15
+ fixed nKL is                                18
+ max L of basis functions is                  2
+ order of int derivative is                   0
+ number of shells is                          7
+ number of basis is                          21
+ number of cartesian basis is                21
+ number of contracted shell pairs            28
+ number of primitive shell pairs            151
+ maxK2 (contraction) of shell pair           36
+ max number of K2 of shell pair               1
+ max number of CS2 of shell pair              3
+ max number of PS2 of shell pair             36
+ -------------------------------------------------------
+         cpu   0.00 wall   0.00
+ ---------------------------------------
+  Cycle       Energy         DIIS Error
+ ---------------------------------------
+    1     -99.8656129690      1.15E-01
+         cpu   0.00 wall   0.00
+    2     -99.9907132243      2.29E-02
+         cpu   0.00 wall   0.00
+    3    -100.0097329857      1.27E-02
+         cpu   0.01 wall   0.00
+    4    -100.0146764749      1.34E-03
+         cpu   0.00 wall   0.00
+    5    -100.0147965199      4.05E-04
+         cpu   0.00 wall   0.00
+    6    -100.0148110648      7.19E-05
+         cpu   0.00 wall   0.00
+    7    -100.0148117861      1.34E-05
+         cpu   0.00 wall   0.00
+    8    -100.0148118121      2.10E-06 Convergence criterion met
+ ---------------------------------------
+ SCF time:  CPU 0.38 s  wall 0.22 s
+ SCF   energy in the final basis set = -100.0148118121
+ Total energy in the final basis set = -100.0148118121
+ Entering Scaled Opposite Spin MP2
+ NBasAux in rimp2.F =          102
+
+ OS-MP2 job begins now...
+
+ Omega value = 0.20 a.u.
+ Form (P|Q)**(-1/2)...
+ Entering AOints
+ Form (ia|P)...
+ Form BiaQ = (ia|P)*(P|Q)**(-1/2)...
+ Laplace quadrature loop begins
+ Laplace point 1: correlation energy     =        -0.0164239721
+ Laplace point 2: correlation energy     =        -0.0443137606
+ Laplace point 3: correlation energy     =        -0.0575924559
+ Laplace point 4: correlation energy     =        -0.0189235403
+ Laplace point 5: correlation energy     =        -0.0009602058
+ Laplace point 6: correlation energy     =        -0.0000040586
+ Laplace point 7: correlation energy     =         0.0000000000
+ 
+ Non-Brillouin Singles                   =         0.0000000000
+ Total MOS-MP2 correlation energy        =        -0.1382179933
+ Total MOS-MP2 energy                    =      -100.1530298055
+ 
+ ------------------------------------------------------------------------------
+                     MOSMP2        : Timing summary (seconds)
+ ------------------------------------------------------------------------------
+     job step          cpu (% of tot)      sys (% of tot)     wall (% of tot)
+ ------------------------------------------------------------------------------
+  Form inv (P|Q)    0.1534E-01 (41.4)   0.0000E+00 ( 0.0)   0.7915E-02 (40.0)
+  Form (ia|P)       0.1203E-01 (32.5)   0.1000E-05 (****)   0.6391E-02 (32.3)
+  Form  BiaQ        0.7820E-03 ( 2.1)   0.0000E+00 ( 0.0)   0.3910E-03 ( 2.0)
+  LP orbitals       0.1093E-02 ( 3.0)   0.0000E+00 ( 0.0)   0.5698E-03 ( 2.9)
+  Form  X(PQ)       0.2400E-02 ( 6.5)   0.0000E+00 ( 0.0)   0.1195E-02 ( 6.0)
+  Increment EMP2    0.3095E-02 ( 8.4)   0.0000E+00 ( 0.0)   0.1570E-02 ( 7.9)
+ ------------------------------------------------------------------------------
+   Grand Totals     0.3704E-01          0.1000E-05          0.1978E-01
+ ------------------------------------------------------------------------------
+ Analysis of SCF Wavefunction
+ 
+ --------------------------------------------------------------
+                    Orbital Energies (a.u.)
+ --------------------------------------------------------------
+ 
+ Alpha MOs
+ -- Occupied --
+-26.314  -1.610  -0.775  -0.652  -0.652
+ -- Virtual --
+  0.192   0.306   0.311   0.311   0.376   1.278   1.780   1.780
+  1.812   1.855   2.067   2.067   2.134   2.134   3.050   4.617
+ --------------------------------------------------------------
+ 
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)
+  ----------------------------------------
+      1 H                     0.575174
+      2 F                    -0.575174
+  ----------------------------------------
+  Sum of atomic charges =     0.000000
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                 0.0000
+    Dipole Moment (Debye)
+         X       0.0000      Y       0.0000      Z      -2.0650
+       Tot       2.0650
+    Quadrupole Moments (Debye-Ang)
+        XX      -5.7266     XY       0.0000     YY      -5.7266
+        XZ       0.0000     YZ       0.0000     ZZ      -3.5335
+    Octapole Moments (Debye-Ang^2)
+       XXX       0.0000    XXY       0.0000    XYY       0.0000
+       YYY       0.0000    XXZ      -0.2468    XYZ       0.0000
+       YYZ      -0.2468    XZZ       0.0000    YZZ       0.0000
+       ZZZ      -2.0601
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX      -3.7400   XXXY       0.0000   XXYY      -1.2467
+      XYYY       0.0000   YYYY      -3.7400   XXXZ       0.0000
+      XXYZ       0.0000   XYYZ       0.0000   YYYZ       0.0000
+      XXZZ      -1.3619   XYZZ       0.0000   YYZZ      -1.3619
+      XZZZ       0.0000   YZZZ       0.0000   ZZZZ      -3.0663
+ -----------------------------------------------------------------
+Archival summary:
+1\1\macqu.dhcp.lbl.gov\SP\ProcedureUnspecified\6-31+G*\11\ThuNov2116:09:082013ThuNov2116:09:082013\0\\#,ProcedureUnspecified,6-31+G*,\\0,1\H\F,1,0.906487\\HF=-100.014812\\@
+
+ Total job time:  0.30s(wall), 0.48s(cpu) 
+ Thu Nov 21 16:09:08 2013
+
+        *************************************************************
+        *                                                           *
+        *  Thank you very much for using Q-Chem.  Have a nice day.  *
+        *                                                           *
+        *************************************************************
+
+

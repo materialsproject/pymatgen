@@ -1,8 +1,3 @@
-.. pymatgen documentation master file, created by
-   sphinx-quickstart on Tue Nov 15 00:13:52 2011.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 .. image:: _static/pymatgen.png
    :width: 300 px
    :alt: pymatgen
@@ -19,11 +14,11 @@ researchers. These are some of the main features:
 
 1. Highly flexible classes for the representation of Element, Site, Molecule,
    Structure objects.
-2. Extensive io capabilities to manipulate many VASP input and output files
-   (http://cms.mpi.univie.ac.at/vasp/) and the crystallographic information
-   file format. This includes generating Structure objects from vasp input and
-   output. There is also support for Gaussian input files and XYZ file for
-   molecules.
+2. Extensive io capabilities to manipulate many VASP
+   (http://cms.mpi.univie.ac.at/vasp/) and ABINIT (http://www.abinit.org/)
+   input and output files and the crystallographic information file format.
+   This includes generating Structure objects from vasp input and output.
+   There is also support for Gaussian input files and XYZ file for molecules.
 3. Comprehensive tool to generate and view compositional and grand canonical
    phase diagrams.
 4. Electronic structure analyses (DOS and Bandstructure).
@@ -52,7 +47,9 @@ several advantages over other codes out there:
 
 1. **It is (fairly) robust.** Pymatgen is used in the Materials Project. As
    such, the analysis it produces survives rigorous scrutiny every single
-   day. Bugs tend to be found and corrected quickly.
+   day. Bugs tend to be found and corrected quickly. Furthermore,
+   pymatgen uses `CircleCI <https://circleci.com>`_ for continuous
+   integration, which ensures that all unittests pass with every commit.
 2. **It is well documented.** A fairly comprehensive documentation has been
    written to help you get to grips with it quickly. That means more
    efficient research.
@@ -67,50 +64,91 @@ several advantages over other codes out there:
    written in other languages. Pymatgen also comes with a complete system for
    handling periodic boundary conditions.
 
-Latest Change Log
-=================
+Python 3.x support
+==================
 
-Version 2.6.3
--------------
-1. Added new MaterialsProject REST interfaces for submit/query/delete_snl
-   (currently open in beta for collaborators only).
-2. Added support for new MaterialsProject REST method get_stability.
-3. Added aliases for PhaseDiagram, GrandPotentialPhaseDiagram,
-   PDAnalyzer and PDPlotter in pymatgen.phasediagrams.
-4. Improvements to StructureMatcher: stol (site - tolerance) redefined as
-   a fraction of the average length per atom. Structures matched in fractional
-   space are now also matched in cartesian space and a rms displacement
-   normalized by length per atom can be returned using the rms_dist method.
+.. versionadded:: 3.0
 
-Version 2.6.2
--------------
+With effect from version 3.0, pymatgen now supports both Python 2.7 as well
+as Python 3.x. All underlying core dependencies (numpy, pyhull and the spglib
+library) have been made Python 3 compatible, and a completely rewritten CIF
+parser module (courtesy of William Davidson Richards) has removed the
+dependency on PyCIFRW. We will support Python >= 3.3 (ignoring v3.1 and v3.2).
 
-1. Site and PeriodicSite now uses a Composition mapping type to represent
-   the species and occupancy, instead of a standard dict.
-2. Bug fix for reading and re-writing out of Potcars.
-3. VaspInputSet now supports MSONable framework.
-4. Strain cell option in StructureEditor.
-5. Miscellaneous bug fixes and speedups.
+With the release of a new major version, we are taking the opportunity to
+streamline and cleanup some of the code, which introduces some backwards
+incompatibilities. The major ones are listed below:
 
-Version 2.6.1
--------------
-1. Use requests.Session in MPRester for connection pooling and code simplicity.
-2. Support for "with" context manager in MPRester.
-3. Updated periodic table data to correct errors in Ru, Tc and other elements.
-4. New methods in Lattice to obtain Wigner-Seitz cell and Brillouin Zone.
-5. Miscellaneous bug fixes and speedups.
+* The to_dict property of all classes have been deprecated in favor of the
+  as_dict() method protocol in the monty package. The to_dict property will
+  be available only up till the next minor version, i.e., v3.1.
+* All previously deprecated methods and modules (e.g.,
+  pymatgen.core.structure_editor) have been removed.
 
-:doc:`Older versions </changelog>`
+For developers working to add new features to pymatgen, this also means that
+all new code going forward has to be Python 2.7+ and 3 compatible. Our approach
+is to have a single codebase support Python 2.7 and 3.x,
+as per current best practices. Please review the `coding guidelines
+</contributing>`_.
+
+.. include:: latest_changes.rst
+
+:doc:`Older versions </change_log>`
 
 Getting pymatgen
 ================
 
+Guided install
+--------------
+
+For users who intend to use pymatgen purely as an analysis library (without
+developing on it), a user-friendly script has been written to guide users
+through the installation process for 64-bit Linux and Mac users. This
+installation script requires only basic *Python 2.7+, setuptools,
+and a working version of gcc* as prerequisites. Click to download the
+`pmg_install.py <_static/pmg_install.py>`_ script. Move the script to an
+empty directory and then run::
+
+    python pmg_install.py
+
+Unless you are working in a virtual environment, you will probably need to
+run the above command with admin privileges (e.g., sudo). This will install
+pymatgen with all *basic dependencies*.
+
+To include more optional dependencies, build the enumlib and bader
+executables as well as a step-by-step initial setup for POTCARs and Materials
+API usage, run::
+
+    python pmg_install.py -f
+
+The full installation requires a Fortran compiler (ifort or gfortran) to be in
+the PATH, as well as X11 (`XQuartz <http://xquartz.macosforge.org/>`_ on Mac)
+to be installed for matplotlib.
+
 Stable version
 --------------
 
+.. note:: Preparation
+
+    Before installing pymatgen, you may need to first install a few critical
+    dependencies manually.
+
+    1. Installation has been tested to be most successful with gcc,
+       and several dependencies have issues with icc. Use gcc where
+       possible and do "export CC=gcc" prior to installation.
+    2. Numpy's distutils is needed to compile the spglib and pyhull
+       dependencies. This should be the first thing you install.
+    3. Although PyYaml can be installed directly through pip without
+       additional preparation, it is highly recommended that you install
+       pyyaml with the C bindings for speed. To do so, install LibYaml first,
+       and then install pyyaml with the command below (see the `pyyaml
+       doc <http://pyyaml.org/wiki/PyYAML>`_ for more information)::
+
+           python setup.py --with-libyaml install
+
 The version at the Python Package Index (PyPI) is always the latest stable
-release that will be hopefully, be relatively bug-free. The easiest way to
-install pymatgen on any system is to use easy_install or pip, as follows::
+release that is relatively bug-free. The easiest way to install pymatgen on
+any system is to use easy_install or pip, as follows::
 
     easy_install pymatgen
 
@@ -118,12 +156,12 @@ or::
 
     pip install pymatgen
 
-**Note**: You may need to install numpy before installing pymatgen as numpy's
-distutils is needed to compile the spglib and pyhull dependencies.
+Detailed installation instructions for various platforms (Mac and Windows)
+are given on this :doc:`page </installation>`.
 
-**Note for Windows users**: Given that pymatgen requires several Python C
-extensions, it is generally recommended that you install it in a cygwin or
-equivalent environment with the necessary compilers.
+Some extra functionality (e.g., generation of POTCARs) do require additional
+setup. Please see the following sections for further details on the
+dependencies needed, where to get them and how to install them.
 
 Developmental version
 ---------------------
@@ -140,15 +178,21 @@ or to install the package in developmental mode::
 
     python setup.py develop
 
-Some extra functionality (e.g., generation of POTCARs) do require additional
-setup.Please see the following sections for further details on the
-dependencies needed, where to get them and how to install them.
+Running unittests
+~~~~~~~~~~~~~~~~~
 
-Detailed installation help
---------------------------
+To run the very comprehensive suite of unittests included with the
+developmental version, make sure you have nose installed and then just type::
+
+    nosetests
+
+in the pymatgen root directory.
+
+Installation help
+-----------------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    installation
 
@@ -169,73 +213,14 @@ molecule input files, Materials Project, etc.) into Python objects using
 pymatgen's io packages, which are then used to perform further structure
 manipulation or analyses.
 
-Command line - matgenie.py
---------------------------
+.. _quick_start:
 
-To demonstrate the capabilities of pymatgen and to make it easy for users to
-quickly use the functionality, pymatgen comes with a set of useful scripts
-that utilize the library to perform all kinds of analyses. You can find these
-scripts in `scripts directory of pymatgen's github repo
-<https://github.com/materialsproject/pymatgen/tree/master/scripts>`_.
+Quick start
+-----------
 
-Here, we will discuss the most versatile of these scripts,
-known as matgenie.py. The typical usage of matgenie.py is::
-
-    matgenie.py {analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
-
-At any time, you can use "matgenie.py --help" or "matgenie.py subcommand
---help" to bring up a useful help message on how to use these subcommands.
-Here are a few examples of typical usages::
-
-    #Parses all vasp runs in a directory and display the basic energy
-    #information. Saves the data in a file called vasp_data.gz for subsequent
-    #reuse.
-
-    matgenie.py analyze .
-
-    #Plot the dos from the vasprun.xml file.
-
-    matgenie.py plotdos vasprun.xml
-
-    #Convert between file formats. The script attempts to intelligently
-    #determine the file type. Input file types supported include CIF,
-    #vasprun.xml, POSCAR, CSSR. You can force the script to assume certain file
-    #types by specifying additional arguments. See matgenie.py convert -h.
-
-    matgenie.py convert input_filename output_filename.
-
-    #Obtain spacegroup information.
-
-    matgenie.py symm -s filename1 filename2
-
-    #Visualize a structure. Requires VTK to be installed.
-
-    matgenie.py view filename
-
-    #Compare two structures for similarity
-
-    matgenie.py compare filename1 filename2
-
-    #Generate a POTCAR with symbols Li_sv O and the PBE functional
-
-    matgenie.py generate --potcar Li_sv O --functional PBE
-
-ipmg - Custom ipython shell
----------------------------
-
-From version 2.5.2, A custom ipython shell for pymatgen has been implemented.
-Upon installing pymatgen in the usual manner, the "ipmg" script will be
-installed. Running ipmg will bring users into a custom ipython environment
-where the most commonly used pymatgen objects (see Aliases below) are
-automatically loaded into the environment.
-
-Aliases
--------
-
-From version 2.0.0 of pymatgen, useful aliases for commonly used objects are
-now provided, similar in style to numpy. Supported objects include Element,
-Composition, Structure, Molecule, Spin and Orbital. Here are some quick
-examples of the core capabilities and objects:
+Useful aliases for commonly used objects are now provided. Supported objects
+include Element, Composition, Structure, Molecule, Spin and Orbital. Here are
+some quick examples of the core capabilities and objects:
 
 .. code-block:: pycon
 
@@ -264,38 +249,165 @@ examples of the core capabilities and objects:
     >>> structure[0]
     PeriodicSite: Cs (0.0000, 0.0000, 0.0000) [0.0000, 0.0000, 0.0000]
     >>>
-    >>> #Integrated symmetry tools from spglib.
-    >>> from pymatgen.symmetry.finder import SymmetryFinder
-    >>> finder = SymmetryFinder(structure)
+    >>> # You can create a Structure using spacegroup symmetry as well.
+    >>> li2o = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Li", "O"],
+                                         [[0.25, 0.25, 0.25], [0, 0, 0]])
+    >>>
+    >>> #Integrated symmetry analysis tools from spglib.
+    >>> from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+    >>> finder = SpacegroupAnalyzer(structure)
     >>> finder.get_spacegroup_symbol()
     'Pm-3m'
     >>>
-    >>> #Writing out a POSCAR file for VASP calculations.
-    >>> poscar = Poscar(structure)
-    >>> mg.write_structure(structure, "POSCAR")
+    >>> # Convenient IO to various formats. You can specify various formats.
+    >>> # Without a filename, a string is returned. Otherwise,
+    >>> # the output is written to the file. If only the filenmae is provided,
+    >>> # the format is intelligently determined from a file.
+    >>> structure.to(fmt="poscar")
+    >>> structure.to(filename="POSCAR")
+    >>> structure.to(filename="CsCl.cif")
     >>>
-    >>> #Reading a structure from a file.
-    >>> structure = mg.read_structure("POSCAR")
+    >>> # Reading a structure is similarly easy.
+    >>> structure = mg.Structure.from_str(open("CsCl.cif").read(), fmt="cif")
+    >>> structure = mg.Structure.from_file("CsCl.cif")
+    >>>
+    >>> # Reading and writing a molecule from a file. Supports XYZ and
+    >>> # Gaussian input and output by default. Support for many other
+    >>> # formats via the optional openbabel dependency (if installed).
+    >>> methane = mg.Molecule.from_file("methane.xyz")
+    >>> mol.to("methane.gjf")
+    >>>
+    >>> # Pythonic API for editing Structures and Molecules (v2.9.1 onwards)
+    >>> # Changing the specie of a site.
+    >>> structure[1] = "F"
+    >>> print(structure)
+    Structure Summary (Cs1 F1)
+    Reduced Formula: CsF
+    abc   :   4.200000   4.200000   4.200000
+    angles:  90.000000  90.000000  90.000000
+    Sites (2)
+    1 Cs     0.000000     0.000000     0.000000
+    2 F     0.500000     0.500000     0.500000
+    >>>
+    >>> #Changes species and coordinates (fractional assumed for structures)
+    >>> structure[1] = "Cl", [0.51, 0.51, 0.51]
+    >>> print(structure)
+    Structure Summary (Cs1 Cl1)
+    Reduced Formula: CsCl
+    abc   :   4.200000   4.200000   4.200000
+    angles:  90.000000  90.000000  90.000000
+    Sites (2)
+    1 Cs     0.000000     0.000000     0.000000
+    2 Cl     0.510000     0.510000     0.510000
+    >>>
+    >>> # Because structure is like a list, it supports most list-like methods
+    >>> # such as sort, reverse, etc.
+    >>> structure.reverse()
+    >>> print(structure)
+    Structure Summary (Cs1 Cl1)
+    Reduced Formula: CsCl
+    abc   :   4.200000   4.200000   4.200000
+    angles:  90.000000  90.000000  90.000000
+    Sites (2)
+    1 Cl     0.510000     0.510000     0.510000
+    2 Cs     0.000000     0.000000     0.000000
+    >>>
+    >>> # Molecules function similarly, but with Site and cartesian coords.
+    >>> # The following changes the C in CH4 to an N and displaces it by 0.01A
+    >>> # in the x-direction.
+    >>> methane[0] = "N", [0.01, 0, 0]
 
 The above illustrates only the most basic capabilities of pymatgen.
 
-Advanced Usage
---------------
+Examples
+--------
 
-Users are strongly encouraged to explore the detailed :doc:`usage pages
-</usage>` (toc given below), and :doc:`the API docs </modules>`.
+A good way to explore the functionality of pymatgen is to look at examples.
+Please check out the ipython notebooks at our :doc:`examples page </examples>`.
+
+Usage guide
+-----------
+
+Users are also strongly encouraged to explore the :doc:`usage pages </usage>`
+(toc given below).
 
 .. toctree::
    :maxdepth: 2
 
    usage
 
+API documentation
+-----------------
+
+For detailed documentation of all modules and classes, please refer to the
+:doc:`API docs </modules>`.
+
+pmg - Command line tool
+-----------------------
+
+To demonstrate the capabilities of pymatgen and to make it easy for users to
+quickly use the functionality, pymatgen comes with a set of useful scripts
+that utilize the library to perform all kinds of analyses. These are
+installed to your path by default when you install pymatgen through the
+typical installation routes.
+
+Here, we will discuss the most versatile of these scripts, known as
+pmg. The typical usage of pmg is::
+
+    pmg {analyze, plotdos, plotchgint, convert, symm, view, compare} additional_arguments
+
+At any time, you can use ``"pmg --help"`` or ``"pmg subcommand
+--help"`` to bring up a useful help message on how to use these subcommands.
+Here are a few examples of typical usages::
+
+    #Parses all vasp runs in a directory and display the basic energy
+    #information. Saves the data in a file called vasp_data.gz for subsequent
+    #reuse.
+
+    pmg analyze .
+
+    #Plot the dos from the vasprun.xml file.
+
+    pmg plotdos vasprun.xml
+
+    #Convert between file formats. The script attempts to intelligently
+    #determine the file type. Input file types supported include CIF,
+    #vasprun.xml, POSCAR, CSSR. You can force the script to assume certain file
+    #types by specifying additional arguments. See pmg convert -h.
+
+    pmg convert input_filename output_filename.
+
+    #Obtain spacegroup information.
+
+    pmg symm -s filename1 filename2
+
+    #Visualize a structure. Requires VTK to be installed.
+
+    pmg view filename
+
+    #Compare two structures for similarity
+
+    pmg compare filename1 filename2
+
+    #Generate a POTCAR with symbols Li_sv O and the PBE functional
+
+    pmg generate --potcar Li_sv O --functional PBE
+
+ipmg - A Custom ipython shell
+-----------------------------
+
+From version 2.5.2, A custom ipython shell for pymatgen has been implemented.
+Upon installing pymatgen in the usual manner, the "ipmg" script will be
+installed. Running ipmg will bring users into a custom ipython environment
+where the most commonly used pymatgen objects (see Aliases below) are
+automatically loaded into the environment.
+
 Add-ons
 -------
 
 Some add-ons are available for pymatgen today:
 
-1. The `pymatgen-db add-on <https://pypi.python.org/pypi/pymatgen-db>`_
+1. The `pymatgen-db <https://pypi.python.org/pypi/pymatgen-db>`_ add-on
    provides tools to create databases of calculated run data using pymatgen.
 2. The `custodian <https://pypi.python.org/pypi/custodian>`_ pacakge provides
    a JIT job management and error correction for calculations, particularly
@@ -337,15 +449,6 @@ Github workflow (see section below).
 
    contributing
 
-API/Reference Docs
-==================
-
-The API docs are generated using Sphinx auto-doc and outlines the purpose of all
-modules and classes, and the expected argument and returned objects for most
-methods. They are available at the link below.
-
-:doc:`pymatgen API docs </modules>`
-
 How to cite pymatgen
 ====================
 
@@ -360,100 +463,16 @@ work:
     <http://dx.doi.org/10.1016/j.commatsci.2012.10.028>`_
 
 In addition, some of pymatgen's functionality is based on scientific advances
-/ principles developed by the computational materials scientists in our team.
-If you use some of these functionality in your research, you may wish to
-consider citing the following works:
-
-pymatgen.io.vaspio_set
-----------------------
-
-The MIT parameter sets, which are optimized for high-throughput computing, are
-outlined the following work:
-
-    A. Jain, G. Hautier, C. Moore, S. P. Ong, C. C. Fischer, T. Mueller,
-    K. A. Persson, and G. Ceder. *A high-throughput infrastructure for density
-    functional theory calculations.* Computational Materials Science, 2011,
-    50(8), 2295-2310. `doi:10.1016/j.commatsci.2011.02.023
-    <http://dx.doi.org/10.1016/j.commatsci.2011.02.023>`_
-
-pymatgen.phasediagram
----------------------
-
-The phase diagram code, in particular the grand canonical phase diagram
-analysis, is based on the work of Ong et al. and are used in following works:
-
-    S. P. Ong, L. Wang, B. Kang, and G. Ceder. *Li-Fe-P-O2 Phase Diagram from
-    First Principles Calculations.* Chemistry of Materials, 2008, 20(5),
-    1798-1807. `doi:10.1021/cm702327g <http://dx.doi.org/10.1021/cm702327g>`_
-
-    S. P. Ong, A. Jain, G. Hautier, B. Kang, and G. Ceder. *Thermal stabilities
-    of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first
-    principles calculations.* Electrochemistry Communications, 2010, 12(3),
-    427-430. `doi:10.1016/j.elecom.2010.01.010
-    <http://dx.doi.org/10.1016/j.elecom.2010.01.010>`_
-
-pymatgen.entries.compatibility
-------------------------------
-
-The compatibility processing, which allows mixing of GGA and GGA+U runs that
-have been calculated using the MaterialsProjectVaspInputSet or MITVaspInputSet,
-is based on the following work:
-
-    A. Jain, G. Hautier, S. P. Ong, C. Moore, C. C. Fischer, K. A. Persson, and
-    G. Ceder. *Formation enthalpies by mixing GGA and GGA + U calculations.*
-    Physical Review B, 2011, 84(4), 045115. `doi:10.1103/PhysRevB.84.045115
-    <http://dx.doi.org/10.1103/PhysRevB.84.045115>`_
-
-pymatgen.matproj
-----------------
-
-The matproj package contains an interface to the `Materials Project REST API
-<http://www.materialsproject.org/open>`_ (Materials API). If you use data
-from the Materials Project, please cite the following works:
-
-    A. Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, T. Mueller,
-    K. Persson, G. Ceder. *A high-throughput infrastructure for density
-    functional theory calculations.* Computational Materials Science, 2011,
-    50(8), 2295–2310. `doi:10 .1016/j.commatsci.2011.02.023
-    <http://dx.doi.org/10 .1016/j.commatsci.2011.02.023>`_
-
-    S. P. Ong, A. Jain, G. Hautier, M. Kocher, S. Cholia, D. Gunter, D. Bailey,
-    D. Skinner, K. Persson, G. Ceder. *The Materials Project.*
-    http://materialsproject.org/
-
-pymatgen.symmetry
------------------
-
-The symmetry package is based on the excellent spglib developed by Atz Togo. For
-more information, please refer to Atz Togo's site at
-http://spglib.sourceforge.net/.
+/ principles developed by various scientists. Please refer to the
+:doc:`references page </references>` for citation info.
 
 License
 =======
 
 Pymatgen is released under the MIT License. The terms of the license are as
-follows::
+follows:
 
-    The MIT License (MIT)
-    Copyright (c) 2011-2012 MIT & LBNL
-
-    Permission is hereby granted, free of charge, to any person obtaining a
-    copy of this software and associated documentation files (the "Software")
-    , to deal in the Software without restriction, including without limitation
-    the rights to use, copy, modify, merge, publish, distribute, sublicense,
-    and/or sell copies of the Software, and to permit persons to whom the
-    Software is furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in
-    all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-    DEALINGS IN THE SOFTWARE.
+.. literalinclude:: ../LICENSE.rst
 
 Indices and tables
 ==================

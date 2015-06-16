@@ -1,10 +1,11 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 """
 Unit tests for StructureNL (SNL) format
 """
 
-from __future__ import division
 
 __author__ = "Anubhav Jain"
 __credits__ = "Shyue Ping Ong"
@@ -17,10 +18,9 @@ __date__ = "2/14/13"
 import datetime
 import unittest
 import numpy as np
-import json
 
 from pymatgen import Structure, Molecule
-from pymatgen.matproj.snl import StructureNL, HistoryNode
+from pymatgen.matproj.snl import StructureNL, HistoryNode, Author
 
 
 class StructureNLCase(unittest.TestCase):
@@ -49,8 +49,11 @@ class StructureNLCase(unittest.TestCase):
                    "\n year = {2013}\n}"
         repeat = "REPEAT" * 10000
         self.superlong = "@misc{SuperLong,\ntitle = {{" + repeat + "}}}"
-        self.unicode_title = u"@misc{Unicode_Title,\ntitle = {{A \u73ab is a rose}}}"
+        self.unicode_title = "@misc{Unicode_Title,\ntitle = {{A \u73ab is a rose}}}"
         self.junk = "This is junk text, not a BibTeX reference"
+
+        # set up remarks
+        self.remark_fail = ["This is a really long remark that is clearly invalid and must fail, don't you agree? It would be silly to allow remarks that went on forever and ever."]
 
         # set up some authors
         self.hulk = [{"name": "Hulk", "email": "hulk@avengers.com"}]
@@ -69,22 +72,22 @@ class StructureNLCase(unittest.TestCase):
 
     def test_authors(self):
         a = StructureNL(self.s, self.hulk, references=self.pmg)
-        self.assertEquals(a.authors[0].name, "Hulk")
-        self.assertEquals(a.authors[0].email, "hulk@avengers.com")
+        self.assertEqual(a.authors[0].name, "Hulk")
+        self.assertEqual(a.authors[0].email, "hulk@avengers.com")
 
         a = StructureNL(self.s, self.america, references=self.pmg)
-        self.assertEquals(a.authors[0].name, "Captain America")
-        self.assertEquals(a.authors[0].email, "captainamerica@avengers.com")
+        self.assertEqual(a.authors[0].name, "Captain America")
+        self.assertEqual(a.authors[0].email, "captainamerica@avengers.com")
 
         a = StructureNL(self.s, self.thor, references=self.pmg)
-        self.assertEquals(a.authors[0].name, "Thor")
-        self.assertEquals(a.authors[0].email, "thor@avengers.com")
+        self.assertEqual(a.authors[0].name, "Thor")
+        self.assertEqual(a.authors[0].email, "thor@avengers.com")
 
         a = StructureNL(self.s, self.duo, references=self.pmg)
-        self.assertEquals(a.authors[0].name, "Iron Man")
-        self.assertEquals(a.authors[0].email, "ironman@avengers.com")
-        self.assertEquals(a.authors[1].name, "Black Widow")
-        self.assertEquals(a.authors[1].email, "blackwidow@avengers.com")
+        self.assertEqual(a.authors[0].name, "Iron Man")
+        self.assertEqual(a.authors[0].email, "ironman@avengers.com")
+        self.assertEqual(a.authors[1].name, "Black Widow")
+        self.assertEqual(a.authors[1].email, "blackwidow@avengers.com")
         StructureNL(self.s, self.hulk, references=self.pmg)
 
     def test_references(self):
@@ -108,18 +111,18 @@ class StructureNLCase(unittest.TestCase):
 
     def test_historynodes(self):
         a = StructureNL(self.s, self.hulk, history=[self.valid_node])
-        self.assertEquals(a.history[0].name, "DB 1")
-        self.assertEquals(a.history[0].url, "www.db1URLgoeshere.com")
-        self.assertEquals(a.history[0].description, {"db1_id": 12424})
+        self.assertEqual(a.history[0].name, "DB 1")
+        self.assertEqual(a.history[0].url, "www.db1URLgoeshere.com")
+        self.assertEqual(a.history[0].description, {"db1_id": 12424})
 
         a = StructureNL(self.s, self.hulk,
                         history=[self.valid_node, self.valid_node2])
-        self.assertEquals(a.history[1].name, "DB 2")
-        self.assertEquals(a.history[1].url, "www.db2URLgoeshere.com")
-        self.assertEquals(a.history[1].description, {"db2_id": 12424})
+        self.assertEqual(a.history[1].name, "DB 2")
+        self.assertEqual(a.history[1].url, "www.db2URLgoeshere.com")
+        self.assertEqual(a.history[1].description, {"db2_id": 12424})
 
         # invalid nodes should not work
-        self.assertRaises(StandardError, StructureNL, self.s, self.hulk,
+        self.assertRaises(Exception, StructureNL, self.s, self.hulk,
                           history=[self.invalid_node])
 
         # too many nodes should not work
@@ -134,8 +137,14 @@ class StructureNLCase(unittest.TestCase):
         self.assertRaises(ValueError, StructureNL, self.s, self.hulk,
                           data={"bad_key": 1})
 
+    def test_remarks(self):
+        a = StructureNL(self.s, self.hulk, remarks="string format")
+        self.assertEqual(a.remarks[0], "string format")
+        self.assertRaises(ValueError, StructureNL, self.s, self.hulk,
+                          remarks=self.remark_fail)
+
     def test_eq(self):
-        # test basic equals()
+        # test basic Equal()
         created_at = datetime.datetime.now()
         a = StructureNL(self.s, self.hulk, ['test_project'], self.pmg,
                         ['remark1'], {"_my_data": self.s2},
@@ -162,7 +171,7 @@ class StructureNLCase(unittest.TestCase):
         a = StructureNL(self.s, self.hulk, ['test_project'], self.pmg,
                         ['remark1'], {"_my_data": "string"},
                         [self.valid_node, self.valid_node2])
-        b = StructureNL.from_dict(a.to_dict)
+        b = StructureNL.from_dict(a.as_dict())
         self.assertEqual(a, b)
         # complicated objects in the 'data' and 'nodes' field
         complicated_node = {"name": "complicated node",
@@ -171,15 +180,30 @@ class StructureNLCase(unittest.TestCase):
         a = StructureNL(self.s, self.hulk, ['test_project'], self.pmg,
                         ['remark1'], {"_my_data": {"structure": self.s2}},
                         [complicated_node, self.valid_node])
-        b = StructureNL.from_dict(a.to_dict)
+        b = StructureNL.from_dict(a.as_dict())
         self.assertEqual(a, b,
                          'to/from dict is broken when object embedding is '
-                         'used! Apparently PMGJSONEncoding is broken...')
+                         'used! Apparently MontyEncoding is broken...')
 
         #Test molecule
         molnl = StructureNL(self.mol, self.hulk, references=self.pmg)
-        b = StructureNL.from_dict(molnl.to_dict)
+        b = StructureNL.from_dict(molnl.as_dict())
         self.assertEqual(molnl, b)
+
+    def test_from_structures(self):
+        s1 = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Fe"], [[0, 0, 0]])
+        s2 = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Mn"], [[0, 0, 0]])
+        remarks = ["unittest"]
+        authors="Test User <test@materialsproject.com>"
+        snl_list = StructureNL.from_structures([s1, s2], authors, remarks=remarks)
+
+        self.assertEqual(len(snl_list), 2)
+        snl1 = snl_list[0]
+        snl2 = snl_list[1]
+        self.assertEqual(snl1.remarks, remarks)
+        self.assertEqual(snl2.remarks, remarks)
+        self.assertEqual(snl1.authors, [Author.parse_author(authors)])
+        self.assertEqual(snl2.authors, [Author.parse_author(authors)])
 
 
 if __name__ == '__main__':

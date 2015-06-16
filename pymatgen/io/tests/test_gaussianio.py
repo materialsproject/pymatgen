@@ -1,16 +1,17 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 """
 Created on Apr 17, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Apr 17, 2012"
 
 import unittest
@@ -20,7 +21,7 @@ from pymatgen import Molecule
 from pymatgen.io.gaussianio import GaussianInput, GaussianOutput
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
+                        'test_files', "molecules")
 
 
 class GaussianInputTest(unittest.TestCase):
@@ -32,14 +33,24 @@ class GaussianInputTest(unittest.TestCase):
                   [1.026719, 0.000000, -0.363000],
                   [-0.513360, -0.889165, -0.363000],
                   [-0.513360, 0.889165, -0.363000]]
-
+        self.coords = coords
         mol = Molecule(["C", "H", "H", "H", "H"], coords)
-        self.gau = GaussianInput(mol,
-                                 route_parameters={'SP': "", "SCF": "Tight"},
-                                 input_parameters={"EPS": 12})
+        self.gau = GaussianInput(
+            mol, route_parameters={'SP': "", "SCF": "Tight"},
+            input_parameters={"EPS": 12})
+
+    def test_init(self):
+        mol = Molecule(["C", "H", "H", "H", "H"], self.coords)
+        gau = GaussianInput(mol, charge=1, route_parameters={'SP': "",
+                                                             "SCF": "Tight"})
+        self.assertEqual(gau.spin_multiplicity, 2)
+        mol = Molecule(["C", "H", "H", "H", "H"], self.coords, charge=-1)
+        gau = GaussianInput(mol, route_parameters={'SP': "", "SCF": "Tight"})
+        self.assertEqual(gau.spin_multiplicity, 2)
+        self.assertRaises(ValueError, GaussianInput, mol, spin_multiplicity=1)
 
     def test_str_and_from_string(self):
-        ans = """#P HF/6-31G(d) SP SCF=Tight Test
+        ans = """#P HF/6-31G(d) SCF=Tight SP Test
 
 H4 C1
 
@@ -61,11 +72,12 @@ A4=109.471213
 D4=119.999966
 
 EPS=12
+
 """
         self.assertEqual(str(self.gau), ans)
         gau = GaussianInput.from_string(ans)
         self.assertEqual(gau.functional, 'HF')
-        self.assertEqual(gau.input_parameters['EPS'], 12)
+        self.assertEqual(gau.input_parameters['EPS'], '12')
 
     def test_from_file(self):
         filepath = os.path.join(test_dir, 'MethylPyrrolidine_drawn.gjf')
@@ -86,15 +98,16 @@ EPS=12
             self.assertIsNotNone(gau.molecule)
             if i == 0:
                 mol = gau.molecule
-        ans = """Molecule Summary (H4 O2)
+        ans = """Full Formula (H4 O2)
 Reduced Formula: H2O
+Charge = 0, Spin Mult = 1
 Sites (6)
-1 O     0.000000     0.000000     0.000000
-2 O     0.000000     0.000000     2.912902
-3 H     0.892596     0.000000    -0.373266
-4 H     0.143970     0.000219     0.964351
-5 H    -0.582554     0.765401     3.042783
-6 H    -0.580711    -0.766761     3.043012"""
+0 O     0.000000     0.000000     0.000000
+1 O     0.000000     0.000000     2.912902
+2 H     0.892596     0.000000    -0.373266
+3 H     0.143970     0.000219     0.964351
+4 H    -0.582554     0.765401     3.042783
+5 H    -0.580711    -0.766761     3.043012"""
         self.assertEqual(str(mol), ans)
 
     def test_from_string(self):
@@ -143,6 +156,9 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertEqual("HF", gau.functional)
         self.assertEqual("3-21G", gau.basis_set)
         self.assertEqual(17, gau.num_basis_func)
+        d = gau.as_dict()
+        self.assertEqual(d["input"]["functional"], "HF")
+        self.assertAlmostEqual(d["output"]["final_energy"], -39.9768775602)
 
 
 if __name__ == "__main__":

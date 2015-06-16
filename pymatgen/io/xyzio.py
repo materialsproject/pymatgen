@@ -1,27 +1,32 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 """
 Module implementing an XYZ file object class.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Apr 17, 2012"
 
 import re
 
 from pymatgen.core.structure import Molecule
+from monty.io import zopen
 
 
 class XYZ(object):
     """
     Basic class for importing and exporting Molecules or Structures in XYZ
     format.
+
+    Args:
+        mol: Input molecule
 
     .. note::
         Exporting periodic structures in the XYZ format will lose information
@@ -30,11 +35,6 @@ class XYZ(object):
         lattice.
     """
     def __init__(self, mol, coord_precision=6):
-        """
-        Args:
-            mol:
-                Input molecule
-        """
         self._mol = mol
         self.precision = coord_precision
 
@@ -51,8 +51,7 @@ class XYZ(object):
         Creates XYZ object from a string.
 
         Args:
-            contents:
-                String representing an XYZ file.
+            contents: String representing an XYZ file.
 
         Returns:
             XYZ object
@@ -62,13 +61,14 @@ class XYZ(object):
         coords = []
         sp = []
         coord_patt = re.compile(
-            "(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)"
+            "(\w+)\s+([0-9\-\.e]+)\s+([0-9\-\.e]+)\s+([0-9\-\.e]+)"
         )
-        for i in xrange(2, 2 + num_sites):
+        for i in range(2, 2 + num_sites):
             m = coord_patt.search(lines[i])
             if m:
-                sp.append(m.group(1))
-                coords.append(map(float, m.groups()[2:5]))
+                sp.append(m.group(1))  # this is 1-indexed
+                # this is 0-indexed
+                coords.append([float(j) for j in m.groups()[1:4]])
         return XYZ(Molecule(sp, coords))
 
     @staticmethod
@@ -77,13 +77,12 @@ class XYZ(object):
         Creates XYZ object from a file.
 
         Args:
-            filename:
-                XYZ filename
+            filename: XYZ filename
 
         Returns:
             XYZ object
         """
-        with open(filename, "r") as f:
+        with zopen(filename) as f:
             return XYZ.from_string(f.read())
 
     def __str__(self):
@@ -98,8 +97,7 @@ class XYZ(object):
         Writes XYZ to file.
 
         Args:
-            filename:
-                File name of output file.
+            filename: File name of output file.
         """
-        with open(filename, "w") as f:
+        with zopen(filename, "wt") as f:
             f.write(self.__str__())

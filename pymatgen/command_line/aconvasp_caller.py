@@ -1,4 +1,6 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+from __future__ import unicode_literals
 
 """
 Interface with command line aconvasp. http://aflowlib.org/
@@ -60,29 +62,27 @@ def get_minkowski_red(structure):
             started = False
     return Poscar.from_string(poscar_string).structure
 
+
 def get_conv_struct(structure):
     """
     Get a minkowski reduced structure
     """
     output = run_aconvasp_command(["aconvasp", "--std_conv"], structure)
-    started = False
-    poscar_string = ""
     if "ERROR" in output[1]:
         raise AconvaspError(output[1])
-    tmp=Poscar.from_string(output[0])
-    return {'struct':tmp.structure, 'comm':tmp.comment}
+    tmp = Poscar.from_string(output[0])
+    return {'struct': tmp.structure, 'comm': tmp.comment}
+
 
 def get_prim_struct(structure):
     """
     Get standard primitive
     """
     output = run_aconvasp_command(["aconvasp", "--std_prim"], structure)
-    started = False
-    poscar_string = ""
     if "ERROR" in output[1]:
         raise AconvaspError(output[1])
-    tmp=Poscar.from_string(output[0])
-    return {'struct':tmp.structure, 'comm':tmp.comment}
+    tmp = Poscar.from_string(output[0])
+    return {'struct': tmp.structure, 'comm': tmp.comment}
 
 
 def get_vasp_kpoint_file_sym(structure):

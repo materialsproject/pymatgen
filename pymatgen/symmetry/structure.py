@@ -1,42 +1,54 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 """
 This module implements symmetry-related structure forms.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Mar 9, 2012"
 
-import itertools
-
+import numpy as np
 from pymatgen.core.structure import Structure
 
 
 class SymmetrizedStructure(Structure):
     """
     This class represents a symmetrized structure, i.e. a structure
-    where the spacegroup and symmetry operations are defined.
+    where the spacegroup and symmetry operations are defined. This class is
+    typically not called but instead is typically obtained by calling
+    pymatgen.symmetry.analyzer.SpacegroupAnalyzer.get_symmetrized_structure.
+
+    Args:
+        structure (Structure): Original structure
+        spacegroup (Spacegroup): An input spacegroup from SpacegroupAnalyzer.
+        equivalent_positions: Equivalent positions from SpacegroupAnalyzer.
+
+    .. attribute: equivalent_indices
+
+        indices of structure grouped by equivalency
     """
 
-    def __init__(self, refined_structure, spacegroup, equivalent_positions):
-        Structure.__init__(self, refined_structure.lattice,
+    def __init__(self, structure, spacegroup, equivalent_positions):
+        Structure.__init__(self, structure.lattice,
                            [site.species_and_occu
-                            for site in refined_structure],
-                           refined_structure.frac_coords)
+                            for site in structure],
+                           structure.frac_coords,
+                           site_properties=structure.site_properties)
 
         self._spacegroup = spacegroup
-        site_map = zip(self._sites, equivalent_positions)
-        site_map = sorted(site_map, key=lambda x: x[1])
-        self._equivalent_sites = [[x[0] for x in g]
-                                  for k, g
-                                  in itertools.groupby(site_map,
-                                                       key=lambda x: x[1])]
+        u, inv = np.unique(equivalent_positions, return_inverse = True)
+        self.equivalent_indices = [[] for i in range(len(u))]
+        self._equivalent_sites = [[] for i in range(len(u))]
+        for i, inv in enumerate(inv):
+            self.equivalent_indices[inv].append(i)
+            self._equivalent_sites[inv].append(self.sites[i])
 
     @property
     def equivalent_sites(self):
@@ -51,11 +63,10 @@ class SymmetrizedStructure(Structure):
         Finds all symmetrically equivalent sites for a particular site
 
         Args:
-            site:
-                A site in the structure
+            site (PeriodicSite): A site in the structure
 
         Returns:
-            A list of all symmetrically equivalent sites.
+            ([PeriodicSite]): List of all symmetrically equivalent sites.
         """
         for sites in self.equivalent_sites:
             if site in sites:

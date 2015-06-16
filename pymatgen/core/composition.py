@@ -1,33 +1,43 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 """
-This module implements a Composition class to represent compositions.
+This module implements a Composition class to represent compositions,
+and a ChemicalPotential class to represent potentials.
 """
-
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Nov 10, 2012"
 
-import re
 import collections
-from fractions import gcd
+import numbers
+import re
+import string
 
-from pymatgen.core.periodic_table import smart_element_or_specie, Element
+import six
+from six.moves import filter, map, zip
+
+from fractions import Fraction
+from functools import total_ordering
+from monty.fractions import gcd
+from pymatgen.core.periodic_table import get_el_sp, Element
 from pymatgen.util.string_utils import formula_double_format
-from pymatgen.serializers.json_coders import MSONable
+from pymatgen.serializers.json_coders import PMGSONable
+from pymatgen.core.units import unitized
 
 
-class Composition(collections.Mapping, collections.Hashable, MSONable):
+@total_ordering
+class Composition(collections.Mapping, collections.Hashable, PMGSONable):
     """
     Represents a Composition, which is essentially a {element:amount} mapping
     type. Composition is written to be immutable and hashable,
-    unless a standard Python dict.
+    unlike a standard Python dict.
 
     Note that the key can be either an Element or a Specie. Elements and Specie
     are treated differently. i.e., a Fe2+ is not the same as a Fe3+ Specie and
@@ -74,10 +84,11 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
     that formula output does not write LiO instead of Li2O2 for example.
     """
     special_formulas = {"LiO": "Li2O2", "NaO": "Na2O2", "KO": "K2O2",
-                        "HO": "H2O2", "O": "O2", "F": "F2", "N": "N2",
-                        "Cl": "Cl2", "H": "H2"}
+                        "HO": "H2O2", "CsO": "Cs2O2", "RbO": "Rb2O2",
+                        "O": "O2",  "N": "N2", "F": "F2", "Cl": "Cl2",
+                        "H": "H2"}
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs): #allow_negative=False
         """
         Very flexible Composition construction, similar to the built-in Python
         dict(). Also extended to allow simple string init.
@@ -96,29 +107,57 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
 
             In addition, the Composition constructor also allows a single
             string as an input formula. E.g., Composition("Li2O").
+
+            allow_negative: Whether to allow negative compositions. This
+                argument must be popped from the \*\*kwargs due to \*args
+                ambiguity.
         """
-        if len(args) == 1 and isinstance(args[0], basestring):
+        self.allow_negative = kwargs.pop('allow_negative', False)
+        # it's much faster to recognize a composition and use the elmap than
+        # to pass the composition to dict()
+        if len(args) == 1 and isinstance(args[0], Composition):
+            elmap = args[0]._elmap
+        elif len(args) == 1 and isinstance(args[0], six.string_types):
             elmap = self._parse_formula(args[0])
         else:
             elmap = dict(*args, **kwargs)
-        if any([e < 0 for e in elmap.values()]):
-            raise ValueError("Amounts in Composition cannot be negative!")
-        self._elmap = {smart_element_or_specie(k): v for k, v in elmap.items()}
-        self._natoms = sum(self._elmap.values())
+        self._elmap = {}
+        self._natoms = 0
+        for k, v in elmap.items():
+            if v < -Composition.amount_tolerance and not self.allow_negative:
+                raise CompositionError("Amounts in Composition cannot be "
+                                       "negative!")
+            if abs(v) >= Composition.amount_tolerance:
+                self._elmap[get_el_sp(k)] = v
+                self._natoms += abs(v)
 
     def __getitem__(self, el):
         """
         Get the amount for element.
         """
-        return self._elmap.get(smart_element_or_specie(el), 0)
+        return self._elmap.get(get_el_sp(el), 0)
 
     def __eq__(self, other):
-        for el in self.elements:
-            if self[el] != other[el]:
+        #  elements with amounts < Composition.amount_tolerance don't show up
+        #  in the elmap, so checking len enables us to only check one
+        #  compositions elements
+        if len(self) != len(other):
+            return False
+        for el, v in self._elmap.items():
+            if abs(v - other[el]) > Composition.amount_tolerance:
                 return False
-        for el in other.elements:
-            if self[el] != other[el]:
+        return True
+
+    def __ge__(self, other):
+        """
+        Defines >= for Compositions. Should ONLY be used for defining a sort
+        order (the behavior is probably not what you'd expect)
+        """
+        for el in sorted(set(self.elements + other.elements)):
+            if other[el] - self[el] >= Composition.amount_tolerance:
                 return False
+            elif self[el] - other[el] >= Composition.amount_tolerance:
+                return True
         return True
 
     def __ne__(self, other):
@@ -129,14 +168,11 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         Adds two compositions. For example, an Fe2O3 composition + an FeO
         composition gives a Fe3O4 composition.
         """
-        new_el_map = {el: self[el] for el in self}
-        for k in other.keys():
-            el = smart_element_or_specie(k)
-            if el in self:
-                new_el_map[el] += other[k]
-            else:
-                new_el_map[el] = other[k]
-        return Composition(new_el_map)
+        new_el_map = collections.defaultdict(float)
+        new_el_map.update(self)
+        for k, v in other.items():
+            new_el_map[get_el_sp(k)] += v
+        return Composition(new_el_map, allow_negative=self.allow_negative)
 
     def __sub__(self, other):
         """
@@ -144,28 +180,35 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         composition gives an FeO2 composition.
 
         Raises:
-            ValueError if the subtracted composition is greater than the
-            original composition in any of its elements.
+            CompositionError if the subtracted composition is greater than the
+            original composition in any of its elements, unless allow_negative
+            is True
         """
-        new_el_map = {el: self[el] for el in self}
-        for k in other.keys():
-            el = smart_element_or_specie(k)
-            if el in self and other[k] <= self[el]:
-                new_el_map[el] -= other[k]
-            else:
-                raise ValueError(("All elements in subtracted composition "
-                                  "must exist in original composition in "
-                                  "equal or lesser amount!"))
-        return Composition(new_el_map)
+        new_el_map = collections.defaultdict(float)
+        new_el_map.update(self)
+        for k, v in other.items():
+            new_el_map[get_el_sp(k)] -= v
+        return Composition(new_el_map, allow_negative=self.allow_negative)
 
     def __mul__(self, other):
         """
         Multiply a Composition by an integer or a float.
         Fe2O3 * 4 -> Fe8O12
         """
-        if not (isinstance(other, int) or isinstance(other, float)):
-            raise ValueError("Multiplication can only be done for int/floats!")
-        return Composition({el: self[el] * other for el in self})
+        if not isinstance(other, numbers.Number):
+            return NotImplemented
+        return Composition({el: self[el] * other for el in self},
+                           allow_negative=self.allow_negative)
+
+    __rmul__ = __mul__
+
+    def __truediv__(self, other):
+        if not isinstance(other, numbers.Number):
+            return NotImplemented
+        return Composition({el: self[el] / other for el in self},
+                           allow_negative=self.allow_negative)
+
+    __div__ = __truediv__
 
     def __hash__(self):
         """
@@ -174,9 +217,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         hashcode = 0
         for el in self._elmap.keys():
-            #Ignore elements with zero amounts.
-            if self[el] > self.amount_tolerance:
-                hashcode += el.Z
+            hashcode += el.Z
         return hashcode
 
     def __contains__(self, el):
@@ -190,7 +231,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
 
     @property
     def average_electroneg(self):
-        return sum((el.X * amt for el, amt in self._elmap.items())) / \
+        return sum((el.X * abs(amt) for el, amt in self._elmap.items())) / \
             self.num_atoms
 
     def almost_equals(self, other, rtol=0.1, atol=1e-8):
@@ -198,12 +239,9 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         Returns true if compositions are equal within a tolerance.
 
         Args:
-            other:
-                other composition to check
-            rtol:
-                relative tolerance
-            atol:
-                absolute tolerance
+            other (Composition): Other composition to check
+            rtol (float): Relative tolerance
+            atol (float): Absolute tolerance
         """
         sps = set(self.elements + other.elements)
         for sp in sps:
@@ -219,12 +257,10 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         True if composition is for an element.
         """
-        positive_amts = [amt for amt in self._elmap.values()
-                         if amt > self.amount_tolerance]
-        return len(positive_amts) == 1
+        return len(self._elmap) == 1
 
     def copy(self):
-        return Composition(self._elmap)
+        return Composition(self._elmap, allow_negative=self.allow_negative)
 
     @property
     def formula(self):
@@ -233,12 +269,8 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         e.g., Li4 Fe4 P4 O16.
         """
         sym_amt = self.get_el_amt_dict()
-        syms = sorted(sym_amt.keys(),
-                      key=lambda s: smart_element_or_specie(s).X)
-        formula = []
-        for s in syms:
-            if sym_amt[s] != 0:
-                formula.append(s + formula_double_format(sym_amt[s], False))
+        syms = sorted(sym_amt.keys(), key=lambda sym: get_el_sp(sym).X)
+        formula = [s + formula_double_format(sym_amt[s], False) for s in syms]
         return " ".join(formula)
 
     @property
@@ -249,10 +281,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt.keys())
-        formula = []
-        for s in syms:
-            if sym_amt[s] != 0:
-                formula.append(s + formula_double_format(sym_amt[s], False))
+        formula = [s + formula_double_format(sym_amt[s], False) for s in syms]
         return " ".join(formula)
 
     @property
@@ -261,10 +290,19 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         Returns the composition replacing any species by the corresponding
         element.
         """
-        o = collections.defaultdict(float)
-        for sp in self:
-            o[Element(sp.symbol)] += self[sp]
-        return Composition(o)
+        return Composition(self.get_el_amt_dict(),
+                           allow_negative=self.allow_negative)
+
+    @property
+    def fractional_composition(self):
+        """
+        Returns the normalized composition which the number of species sum to
+        1.
+
+        Returns:
+            Normalized composition which the number of species sum to 1.
+        """
+        return self / self._natoms
 
     @property
     def reduced_composition(self):
@@ -284,8 +322,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             Li4Fe4P4O16 returns (Composition("LiFePO4"), 4).
         """
         factor = self.get_reduced_formula_and_factor()[1]
-        reduced_comp = Composition({el: self[el] / factor for el in self})
-        return reduced_comp, factor
+        return self / factor, factor
 
     def get_reduced_formula_and_factor(self):
         """
@@ -307,17 +344,26 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
 
         return formula, factor
 
-    def get_fractional_composition(self):
+    def get_integer_formula_and_factor(self, max_denominator=10000):
         """
-        Returns the normalized composition which the number of species sum to
-        1.
+        Calculates an integer formula and factor.
+
+        Args:
+            max_denominator (int): all amounts in the el:amt dict are
+                first converted to a Fraction with this maximum denominator
 
         Returns:
-            Normalized composition which the number of species sum to 1.
+            A pretty normalized formula and a multiplicative factor, i.e.,
+            Li0.5O0.25 returns (Li2O, 0.25). O0.25 returns (O2, 0.125)
         """
-        natoms = self._natoms
-        frac_map = {k: v / natoms for k, v in self._elmap.items()}
-        return Composition(frac_map)
+        mul = gcd(*[Fraction(v).limit_denominator(max_denominator) for v
+                    in self.values()])
+        d = {k: round(v / mul) for k, v in self.get_el_amt_dict().items()}
+        (formula, factor) = reduce_formula(d)
+        if formula in Composition.special_formulas:
+            formula = Composition.special_formulas[formula]
+            factor /= 2
+        return formula, factor * mul
 
     @property
     def reduced_formula(self):
@@ -332,22 +378,23 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         Returns view of elements in Composition.
         """
-        return self._elmap.keys()
+        return list(self._elmap.keys())
 
     def __str__(self):
-        return " ".join(["{}{}".format(k,
-                                       formula_double_format(v,
-                                                             ignore_ones=False))
-                         for k, v in self.to_dict.items()])
+        return " ".join([
+            "{}{}".format(k, formula_double_format(v, ignore_ones=False))
+            for k, v in self.as_dict().items()])
 
     @property
     def num_atoms(self):
         """
-        Total number of atoms in Composition
+        Total number of atoms in Composition. For negative amounts, sum
+        of absolute values
         """
         return self._natoms
 
     @property
+    @unitized("amu")
     def weight(self):
         """
         Total molecular weight of Composition
@@ -357,50 +404,49 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
 
     def get_atomic_fraction(self, el):
         """
+        Calculate atomic fraction of an Element or Specie.
+
         Args:
-            el:
-                Element or Specie
+            el (Element/Specie): Element or Specie to get fraction for.
 
         Returns:
             Atomic fraction for element el in Composition
         """
-        return self[el] / self._natoms
+        return abs(self[el]) / self._natoms
 
     def get_wt_fraction(self, el):
         """
+        Calculate weight fraction of an Element or Specie.
+
         Args:
-            el:
-                Element or Specie
+            el (Element/Specie): Element or Specie to get fraction for.
 
         Returns:
             Weight fraction for element el in Composition
         """
-        return smart_element_or_specie(el).atomic_mass * self[el] / self.weight
+        return get_el_sp(el).atomic_mass * abs(self[el]) / self.weight
 
     def _parse_formula(self, formula):
         """
         Args:
-            formula:
-                A string formula, e.g. Fe2O3, Li3Fe2(PO4)3
+            formula (str): A string formula, e.g. Fe2O3, Li3Fe2(PO4)3
 
         Returns:
             Composition with that formula.
         """
         def get_sym_dict(f, factor):
-            sym_dict = {}
-            for m in re.finditer(r"([A-Z][a-z]*)([\.\d]*)", f):
+            sym_dict = collections.defaultdict(float)
+            for m in re.finditer(r"([A-Z][a-z]*)([-*\.\d]*)", f):
                 el = m.group(1)
                 amt = 1
                 if m.group(2).strip() != "":
                     amt = float(m.group(2))
-                if el in sym_dict:
-                    sym_dict[el] += amt * factor
-                else:
-                    sym_dict[el] = amt * factor
+                sym_dict[el] += amt * factor
                 f = f.replace(m.group(), "", 1)
             if f.strip():
-                raise ValueError("{} is an invalid formula!".format(f))
+                raise CompositionError("{} is an invalid formula!".format(f))
             return sym_dict
+
         m = re.search(r"\(([^\(\)]+)\)([\.\d]*)", formula)
         if m:
             factor = 1
@@ -413,15 +459,6 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             return self._parse_formula(expanded_formula)
         return get_sym_dict(formula, 1)
 
-    @staticmethod
-    def from_formula(formula):
-        """
-        .. deprecated:: 1.6.1
-
-        Use Composition(formula) instead.
-        """
-        return Composition(formula)
-
     @property
     def anonymized_formula(self):
         """
@@ -432,9 +469,8 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         reduced_comp = self.get_reduced_composition_and_factor()[0]
         els = sorted(reduced_comp.elements, key=lambda e: reduced_comp[e])
-        ascii_code = 65
         anon_formula = []
-        for e in els:
+        for anon, e in zip(string.ascii_uppercase, els):
             amt = reduced_comp[e]
             if amt > 0:
                 if amt == 1:
@@ -443,32 +479,30 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
                     amt_str = str(int(amt))
                 else:
                     amt_str = str(amt)
-                anon_formula.append("{}{}".format(chr(ascii_code), amt_str))
-                ascii_code += 1
+                anon_formula.append("{}{}".format(anon, amt_str))
         return "".join(anon_formula)
 
     def __repr__(self):
         return "Comp: " + self.formula
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         """
-        Creates a composition from a dict generated by to_dict. Strictly not
+        Creates a composition from a dict generated by as_dict(). Strictly not
         necessary given that the standard constructor already takes in such an
         input, but this method preserves the standard pymatgen API of having
-        from_dict methods to reconstitute objects generated by to_dict. Allows
+        from_dict methods to reconstitute objects generated by as_dict(). Allows
         for easier introspection.
 
         Args:
-            d:
-                {symbol: amount} dict.
+            d (dict): {symbol: amount} dict.
         """
-        return Composition(d)
+        return cls(d)
 
     def get_el_amt_dict(self):
         """
         Returns:
-            dict with species symbol and (unreduced) amount e.g.,
+            Dict with element symbol and (unreduced) amount e.g.,
             {"Fe": 4.0, "O":6.0} or {"Fe3+": 4.0, "O2-":6.0}
         """
         d = collections.defaultdict(float)
@@ -476,8 +510,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             d[e.symbol] += a
         return d
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         """
         Returns:
             dict with species symbol and (unreduced) amount e.g.,
@@ -492,25 +525,25 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
     def to_reduced_dict(self):
         """
         Returns:
-            dict with element symbol and reduced amount e.g.,
+            Dict with element symbol and reduced amount e.g.,
             {"Fe": 2.0, "O":3.0}
         """
         c = Composition(self.reduced_formula)
-        return c.to_dict
+        return c.as_dict()
 
     @property
     def to_data_dict(self):
         """
-        Returns a dict with many composition-related properties.
-
         Returns:
-            A dict with many keys and values relating to Composition/Formula
+            A dict with many keys and values relating to Composition/Formula,
+            including reduced_cell_composition, unit_cell_composition,
+            reduced_cell_formula, elements and nelements.
         """
         return {"reduced_cell_composition": self.to_reduced_dict,
-                "unit_cell_composition": self.to_dict,
+                "unit_cell_composition": self.as_dict(),
                 "reduced_cell_formula": self.reduced_formula,
-                "elements": self.to_dict.keys(),
-                "nelements": len(self.to_dict.keys())}
+                "elements": self.as_dict().keys(),
+                "nelements": len(self.as_dict().keys())}
 
     @staticmethod
     def ranked_compositions_from_indeterminate_formula(fuzzy_formula,
@@ -521,16 +554,12 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         Author: Anubhav Jain
 
         Args:
-            fuzzy_formula:
-                A formula string, such as "co2o3" or "MN", that may or may not
-
-                have multiple interpretations
-            lock_if_strict:
-                If true, a properly entered formula will only return the one
-
-                correct interpretation. For example, "Co1" will only return
-
-                "Co1" if true, but will return both "Co1" and "C1 O1" if false.
+            fuzzy_formula (str): A formula string, such as "co2o3" or "MN",
+                that may or may not have multiple interpretations
+            lock_if_strict (bool): If true, a properly entered formula will
+                only return the one correct interpretation. For example,
+                "Co1" will only return "Co1" if true, but will return both
+                "Co1" and "C1 O1" if false.
 
         Returns:
             A ranked list of potential Composition matches
@@ -542,9 +571,9 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             #the strict composition parsing might throw an error, we can ignore
             #it and just get on with fuzzy matching
             try:
-                comp = Composition.from_formula(fuzzy_formula)
+                comp = Composition(fuzzy_formula)
                 return [comp]
-            except:
+            except (CompositionError, ValueError):
                 pass
 
         all_matches = Composition._comps_from_fuzzy_formula(fuzzy_formula)
@@ -565,16 +594,14 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         Author: Anubhav Jain
 
         Args:
-            fuzzy_formula:
-                A formula string, such as "co2o3" or "MN", that may or may not
-                have multiple interpretations.
-            m_dict:
-                A symbol:amt dictionary from the previously parsed formula.
-            m_points:
-                Number of points gained from the previously parsed formula.
-            factor:
-                Coefficient for this parse, e.g. (PO4)2 will feed in PO4 as the
-                fuzzy_formula with a coefficient of 2.
+            fuzzy_formula (str): A formula string, such as "co2o3" or "MN",
+                that may or may not have multiple interpretations.
+            m_dict (dict): A symbol:amt dictionary from the previously parsed
+                formula.
+            m_points: Number of points gained from the previously parsed
+                formula.
+            factor: Coefficient for this parse, e.g. (PO4)2 will feed in PO4
+                as the fuzzy_formula with a coefficient of 2.
 
         Returns:
             A list of tuples, with the first element being a Composition and
@@ -589,15 +616,13 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             Author: Anubhav Jain
 
             Args:
-                m:
-                    a regex match, with the first group being the element and
+                m: A regex match, with the first group being the element and
                     the second group being the amount
-                f:
-                    The formula part containing the match
-                m_dict:
-                    A symbol:amt dictionary from the previously parsed formula
-                m_points:
-                    Number of points gained from the previously parsed formula
+                f: The formula part containing the match
+                m_dict: A symbol:amt dictionary from the previously parsed
+                    formula
+                m_points: Number of points gained from the previously parsed
+                    formula
 
             Returns:
                 A tuple of (f, m_dict, points) where m_dict now contains data
@@ -618,7 +643,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             #get element and amount from regex match
             el = m.group(1)
             if len(el) > 2 or len(el) < 1:
-                raise ValueError("Invalid element symbol entered!")
+                raise CompositionError("Invalid element symbol entered!")
             amt = float(m.group(2)) if m.group(2).strip() != "" else 1
 
             #convert the element string to proper [uppercase,lowercase] format
@@ -719,25 +744,25 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
 
 def reduce_formula(sym_amt):
     """
-    Help method to reduce a sym_amt dict to a reduced formula and factor.
+    Helper method to reduce a sym_amt dict to a reduced formula and factor.
 
     Args:
-        Dict of the form {symbol: amount}.
+        sym_amt (dict): {symbol: amount}.
 
     Returns:
         (reduced_formula, factor).
     """
     syms = sorted(sym_amt.keys(),
-                  key=lambda s: smart_element_or_specie(s).X)
+                  key=lambda s: get_el_sp(s).X)
 
-    syms = filter(lambda s: sym_amt[s] > Composition.amount_tolerance,
-                  syms)
+    syms = list(filter(lambda s: abs(sym_amt[s]) >
+                                 Composition.amount_tolerance, syms))
     num_el = len(syms)
     contains_polyanion = (num_el >= 3 and
-                          smart_element_or_specie(syms[num_el - 1]).X
-                          - smart_element_or_specie(syms[num_el - 2]).X < 1.65)
+                          get_el_sp(syms[num_el - 1]).X
+                          - get_el_sp(syms[num_el - 2]).X < 1.65)
 
-    factor = reduce(gcd, sym_amt.values())
+    factor = abs(gcd(*sym_amt.values()))
     reduced_form = []
     n = num_el - 2 if contains_polyanion else num_el
     for i in range(0, n):
@@ -760,6 +785,77 @@ def reduce_formula(sym_amt):
 
     return reduced_form, factor
 
+
+class CompositionError(Exception):
+    """Exception class for composition errors"""
+    pass
+
+
+class ChemicalPotential(dict, PMGSONable):
+    """
+    Class to represent set of chemical potentials. Can be:
+    multiplied/divided by a Number
+    multiplied by a Composition (returns an energy)
+    added/subtracted with other ChemicalPotentials.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """
+        Args:
+            *args, **kwargs: any valid dict init arguments
+        """
+        d = dict(*args, **kwargs)
+        super(ChemicalPotential, self).__init__((get_el_sp(k), v)
+                                                for k, v in d.items())
+        if len(d) != len(self):
+            raise ValueError("Duplicate potential specified")
+
+    def __mul__(self, other):
+        if isinstance(other, numbers.Number):
+            return ChemicalPotential({k: v * other for k, v in self.items()})
+        else:
+            return NotImplemented
+
+    __rmul__ = __mul__
+
+    def __truediv__(self, other):
+        if isinstance(other, numbers.Number):
+            return ChemicalPotential({k: v / other for k, v in self.items()})
+        else:
+            return NotImplemented
+
+    __div__ = __truediv__
+
+    def __sub__(self, other):
+        if isinstance(other, ChemicalPotential):
+            els = set(self.keys()).union(other.keys())
+            return ChemicalPotential({e: self.get(e, 0) - other.get(e, 0)
+                                      for e in els})
+        else:
+            return NotImplemented
+
+    def __add__(self, other):
+        if isinstance(other, ChemicalPotential):
+            els = set(self.keys()).union(other.keys())
+            return ChemicalPotential({e: self.get(e, 0) + other.get(e, 0)
+                                      for e in els})
+        else:
+            return NotImplemented
+
+    def get_energy(self, composition, strict=True):
+        """
+        Calculates the energy of a composition
+        Args:
+            composition (Composition): input composition
+            strict (bool): Whether all potentials must be specified
+        """
+        if strict and set(composition.keys()) > set(self.keys()):
+            s = set(composition.keys()) - set(self.keys())
+            raise ValueError("Potentials not specified for {}".format(s))
+        return sum(self.get(k, 0) * v for k, v in composition.items())
+
+    def __repr__(self):
+        return "ChemPots: " + super(ChemicalPotential, self).__repr__()
 
 if __name__ == "__main__":
     import doctest

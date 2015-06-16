@@ -1,77 +1,80 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+from __future__ import division, unicode_literals
 
 """
 Created on Apr 30, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Apr 30, 2012"
 
 import unittest
 
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.transformations.standard_transformations import IdentityTransformation
+from pymatgen.transformations.standard_transformations import \
+    IdentityTransformation
 import json
-from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder, MSONable
+
+from monty.json import MontyEncoder, MontyDecoder, MSONError
+from pymatgen.serializers.json_coders import PMGSONable
 import datetime
+import numpy as np
 
 
-class MSONableTest(unittest.TestCase):
+class PMGSONableTest(unittest.TestCase):
 
     def setUp(self):
-        class GoodMSONClass(MSONable):
+        class GoodMSONClass(PMGSONable):
 
             def __init__(self, a, b):
                 self.a = a
                 self.b = b
 
-            @property
-            def to_dict(self):
-                d = {'a':self.a, 'b':self.b}
+            def as_dict(self):
+                d = {'a': self.a, 'b': self.b}
                 return d
 
-            @staticmethod
-            def from_dict(d):
+            @classmethod
+            def from_dict(cls, d):
                 return GoodMSONClass(d['a'], d['b'])
 
         self.good_cls = GoodMSONClass
 
-        class BadMSONClass(MSONable):
+        class BadMSONClass(PMGSONable):
 
             def __init__(self, a, b):
                 self.a = a
                 self.b = b
 
-            @property
-            def to_dict(self):
-                d = {'a':self.a, 'b':self.b}
+            def as_dict(self):
+                d = {'a': self.a, 'b': self.b}
                 return d
 
         self.bad_cls = BadMSONClass
 
     def test_to_from_dict(self):
         obj = self.good_cls("Hello", "World")
-        d = obj.to_dict
+        d = obj.as_dict()
         self.assertIsNotNone(d)
         self.good_cls.from_dict(d)
         obj = self.bad_cls("Hello", "World")
-        d = obj.to_dict
+        d = obj.as_dict()
         self.assertIsNotNone(d)
-        self.assertRaises(NotImplementedError, self.bad_cls.from_dict, d)
+        self.assertRaises(MSONError, self.bad_cls.from_dict, d)
 
     def test_to_json(self):
         obj = self.good_cls("Hello", "World")
         self.assertIsNotNone(obj.to_json)
 
 
-class PMGJSONTest(unittest.TestCase):
+class MontyTest(unittest.TestCase):
 
     def test_core(self):
         coords = list()
@@ -83,28 +86,28 @@ class PMGJSONTest(unittest.TestCase):
         struct = Structure(lattice, ["Si4+", "Si4+"], coords)
         objs = [struct, struct[0], struct.lattice, struct[0].species_and_occu,
                 struct.composition]
-        for o in  objs:
-            jsonstr = json.dumps(o, cls=PMGJSONEncoder)
-            d = json.loads(jsonstr, cls=PMGJSONDecoder)
+        for o in objs:
+            jsonstr = json.dumps(o, cls=MontyEncoder)
+            d = json.loads(jsonstr, cls=MontyDecoder)
             self.assertEqual(type(d), type(o))
 
         mol = Molecule(["O", "O"], coords)
         objs = [mol, mol[0]]
-        for o in  objs:
-            jsonstr = json.dumps(o, cls=PMGJSONEncoder)
-            d = json.loads(jsonstr, cls=PMGJSONDecoder)
+        for o in objs:
+            jsonstr = json.dumps(o, cls=MontyEncoder)
+            d = json.loads(jsonstr, cls=MontyDecoder)
             self.assertEqual(type(d), type(o))
 
         #Check dict of things
-        o = {'structure':struct, "molecule":mol}
-        jsonstr = json.dumps(o, cls=PMGJSONEncoder)
-        d = json.loads(jsonstr, cls=PMGJSONDecoder)
+        o = {'structure': struct, "molecule": mol}
+        jsonstr = json.dumps(o, cls=MontyEncoder)
+        d = json.loads(jsonstr, cls=MontyDecoder)
         self.assertEqual(type(d['structure']), Structure)
         self.assertEqual(type(d['molecule']), Molecule)
 
     def test_entry(self):
-        enc = PMGJSONEncoder()
-        dec = PMGJSONDecoder()
+        enc = MontyEncoder()
+        dec = MontyDecoder()
 
         entry = ComputedEntry("Fe2O3", 2.3)
         jsonstr = enc.encode(entry)
@@ -121,20 +124,20 @@ class PMGJSONTest(unittest.TestCase):
 
     def test_transformations(self):
         trans = IdentityTransformation()
-        jsonstr = json.dumps(trans, cls=PMGJSONEncoder)
-        d = json.loads(jsonstr, cls=PMGJSONDecoder)
+        jsonstr = json.dumps(trans, cls=MontyEncoder)
+        d = json.loads(jsonstr, cls=MontyDecoder)
         self.assertEqual(type(d), IdentityTransformation)
 
     def test_datetime(self):
         dt = datetime.datetime.now()
-        jsonstr = json.dumps(dt, cls=PMGJSONEncoder)
-        d = json.loads(jsonstr, cls=PMGJSONDecoder)
+        jsonstr = json.dumps(dt, cls=MontyEncoder)
+        d = json.loads(jsonstr, cls=MontyDecoder)
         self.assertEqual(type(d), datetime.datetime)
         self.assertEqual(dt, d)
         #Test a nested datetime.
         a = {'dt': dt, "a": 1}
-        jsonstr = json.dumps(a, cls=PMGJSONEncoder)
-        d = json.loads(jsonstr, cls=PMGJSONDecoder)
+        jsonstr = json.dumps(a, cls=MontyEncoder)
+        d = json.loads(jsonstr, cls=MontyDecoder)
         self.assertEqual(type(d["dt"]), datetime.datetime)
 
 

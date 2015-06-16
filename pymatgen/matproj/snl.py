@@ -1,4 +1,6 @@
-#!/usr/bin/env python
+# coding: utf-8
+
+from __future__ import unicode_literals
 
 """
 Classes and methods related to the Structure Notation Language (SNL)
@@ -13,15 +15,20 @@ __email__ = 'ajain@lbl.gov'
 __date__ = 'Feb 11, 2013'
 
 import sys
-import cStringIO
 import re
 import datetime
 from collections import namedtuple
 import json
 
+from six.moves import map, cStringIO
+from six import string_types
+
+from monty.json import MontyDecoder, MontyEncoder
+from monty.string import remove_non_ascii
+
 from pymatgen.core.structure import Structure, Molecule
-from pymatgen.serializers.json_coders import PMGJSONDecoder, PMGJSONEncoder
 from pybtex.database.input import bibtex
+from pybtex import errors
 
 
 MAX_HNODE_SIZE = 64000  # maximum size (bytes) of SNL HistoryNode
@@ -35,17 +42,16 @@ def is_valid_bibtex(reference):
     Use pybtex to validate that a reference is in proper BibTeX format
 
     Args:
-        reference:
-            A String reference in BibTeX format
+        reference: A String reference in BibTeX format.
 
     Returns:
         Boolean indicating if reference is valid bibtex.
     """
     # str is necessary since pybtex seems to have an issue with unicode. The
     # filter expression removes all non-ASCII characters.
-    sio = cStringIO.StringIO(str("".join(filter(lambda x: ord(x) < 128,
-                                                reference))))
+    sio = cStringIO(remove_non_ascii(reference))
     parser = bibtex.Parser()
+    errors.set_strict_mode(False)
     bib_data = parser.parse_stream(sio)
     return len(bib_data.entries) > 0
 
@@ -77,13 +83,14 @@ class HistoryNode(namedtuple('HistoryNode', ['name', 'url', 'description'])):
         Structure (dict).
     """
 
-    @property
-    def to_dict(self):
-        return dict(self._asdict())
+    def as_dict(self):
+        return {"name": self.name, "url": self.url,
+                "description": self.description}
 
     @staticmethod
     def from_dict(h_node):
-        return HistoryNode(h_node['name'], h_node['url'], h_node['description'])
+        return HistoryNode(h_node['name'], h_node['url'],
+                           h_node['description'])
 
     @staticmethod
     def parse_history_node(h_node):
@@ -91,8 +98,8 @@ class HistoryNode(namedtuple('HistoryNode', ['name', 'url', 'description'])):
         Parses a History Node object from either a dict or a tuple.
 
         Args:
-            h_node:
-                A dict with name/url/description fields or a 3-element tuple.
+            h_node: A dict with name/url/description fields or a 3-element
+                tuple.
 
         Returns:
             History node.
@@ -127,9 +134,8 @@ class Author(namedtuple('Author', ['name', 'email'])):
         """
         return '{} <{}>'.format(self.name, self.email)
 
-    @property
-    def to_dict(self):
-        return dict(self._asdict())
+    def as_dict(self):
+        return {"name": self.name, "email": self.email}
 
     @staticmethod
     def from_dict(d):
@@ -141,14 +147,13 @@ class Author(namedtuple('Author', ['name', 'email'])):
         Parses an Author object from either a String, dict, or tuple
 
         Args:
-            author:
-                A String formatted as "NAME <email@domain.com>",
-                (name, email) tuple, or a dict with name and email keys
+            author: A String formatted as "NAME <email@domain.com>",
+                (name, email) tuple, or a dict with name and email keys.
 
         Returns:
             An Author object.
         """
-        if isinstance(author, basestring):
+        if isinstance(author, string_types):
             # Regex looks for whitespace, (any name), whitespace, <, (email),
             # >, whitespace
             m = re.match('\s*(.*?)\s*<(.*?@.*?)>\s*', author)
@@ -181,44 +186,35 @@ class StructureNL(object):
         - history
     - lattice (optional)
     - sites
+
+    Args:
+        struct_or_mol: A pymatgen.core.structure Structure/Molecule object
+        authors: *List* of {"name":'', "email":''} dicts,
+            *list* of Strings as 'John Doe <johndoe@gmail.com>',
+            or a single String with commas separating authors
+        projects: List of Strings ['Project A', 'Project B']
+        references: A String in BibTeX format
+        remarks: List of Strings ['Remark A', 'Remark B']
+        data: A free form dict. Namespaced at the root level with an
+            underscore, e.g. {"_materialsproject": <custom data>}
+        history: List of dicts - [{'name':'', 'url':'', 'description':{}}]
+        created_at: A datetime object
     """
 
     def __init__(self, struct_or_mol, authors, projects=None, references='',
                  remarks=None, data=None, history=None, created_at=None):
-        """
-        Args:
-            struct_or_mol:
-                A pymatgen.core.structure Structure/Molecule object
-            authors:
-                *List* of {"name":'', "email":''} dicts,
-                *list* of Strings as 'John Doe <johndoe@gmail.com>',
-                or a single String with commas separating authors
-            projects:
-                List of Strings ['Project A', 'Project B']
-            references:
-                A String in BibTeX format
-            remarks:
-                List of Strings ['Remark A', 'Remark B']
-            data:
-                A free form dict. Namespaced at the root level with an
-                underscore, e.g. {"_materialsproject": <custom data>}
-            history:
-                List of dicts - [{'name':'', 'url':'', 'description':{}}]
-            created_at:
-                A datetime object
-        """
         # initialize root-level structure keys
         self.structure = struct_or_mol
 
         # turn authors into list of Author objects
         authors = authors.split(',')\
-            if isinstance(authors, basestring) else authors
+            if isinstance(authors, string_types) else authors
         self.authors = [Author.parse_author(a) for a in authors]
 
         # turn projects into list of Strings
         projects = projects if projects else []
         self.projects = [projects] \
-            if isinstance(projects, basestring) else projects
+            if isinstance(projects, string_types) else projects
 
         # check that references are valid BibTeX
         if references and not is_valid_bibtex(references):
@@ -233,7 +229,14 @@ class StructureNL(object):
 
         # turn remarks into list of Strings
         remarks = remarks if remarks else []
-        self.remarks = [remarks] if isinstance(remarks, basestring) else remarks
+        self.remarks = [remarks] if isinstance(remarks, string_types) \
+            else remarks
+
+        # check remarks limit
+        for r in self.remarks:
+            if len(r) > 140:
+                raise ValueError("The remark exceeds the maximum size of"
+                                 "140 characters: {}".format(r))
 
         # check data limit
         self.data = data if data else {}
@@ -262,40 +265,80 @@ class StructureNL(object):
         self.created_at = created_at if created_at \
             else datetime.datetime.utcnow()
 
-    @property
-    def to_dict(self):
-        d = self.structure.to_dict
+    def as_dict(self):
+        d = self.structure.as_dict()
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
-        d["about"] = {"authors": [a.to_dict for a in self.authors],
+        d["about"] = {"authors": [a.as_dict() for a in self.authors],
                       "projects": self.projects,
                       "references": self.references,
                       "remarks": self.remarks,
-                      "history": [h.to_dict for h in self.history],
-                      "created_at": self.created_at}
+                      "history": [h.as_dict() for h in self.history],
+                      "created_at": json.loads(json.dumps(self.created_at,
+                                               cls=MontyEncoder))}
         d["about"].update(json.loads(json.dumps(self.data,
-                                                cls=PMGJSONEncoder)))
+                                                cls=MontyEncoder)))
         return d
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         a = d["about"]
-        dec = PMGJSONDecoder()
+        dec = MontyDecoder()
 
-        created_at = dec.process_decoded(a["created_at"]) if "created_at" in a \
-            else None
+        created_at = dec.process_decoded(a.get("created_at"))
         data = {k: v for k, v in d["about"].items()
                 if k.startswith("_")}
         data = dec.process_decoded(data)
 
         structure = Structure.from_dict(d) if "lattice" in d \
             else Molecule.from_dict(d)
-        return StructureNL(structure, a["authors"],
-                           projects=a.get("projects", None),
-                           references=a.get("references", ""),
-                           remarks=a.get("remarks", None), data=data,
-                           history=a.get("history", None),
-                           created_at=created_at)
+        return cls(structure, a["authors"], projects=a.get("projects", None),
+                   references=a.get("references", ""),
+                   remarks=a.get("remarks", None), data=data,
+                   history=a.get("history", None), created_at=created_at)
+
+    @classmethod
+    def from_structures(cls, structures, authors, projects=None,
+                        references='', remarks=None, data=None,
+                        histories=None, created_at=None):
+        """
+        A convenience method for getting a list of StructureNL objects by
+        specifying structures and metadata separately. Some of the metadata
+        is applied to all of the structures for ease of use.
+
+        Args:
+            structures: A list of Structure objects
+            authors: *List* of {"name":'', "email":''} dicts,
+                *list* of Strings as 'John Doe <johndoe@gmail.com>',
+                or a single String with commas separating authors
+            projects: List of Strings ['Project A', 'Project B']. This
+                applies to all structures.
+            references: A String in BibTeX format. Again, this applies to all
+                structures.
+            remarks: List of Strings ['Remark A', 'Remark B']
+            data: A list of free form dict. Namespaced at the root level
+                with an underscore, e.g. {"_materialsproject":<custom data>}
+                . The length of data should be the same as the list of
+                structures if not None.
+            histories: List of list of dicts - [[{'name':'', 'url':'',
+                'description':{}}], ...] The length of histories should be the
+                same as the list of structures if not None.
+            created_at: A datetime object
+        """
+        data = [{}] * len(structures) if data is None else data
+        histories = [[]] * len(structures) if histories is None else \
+            histories
+
+        snl_list = []
+        for i, struct in enumerate(structures):
+            snl = StructureNL(struct, authors, projects=projects,
+                              references=references,
+                              remarks=remarks, data=data[i],
+                              history=histories[i],
+                              created_at=created_at)
+            snl_list.append(snl)
+
+        return snl_list
 
     def __str__(self):
         return "\n".join(["{}\n{}".format(k, getattr(self, k))
