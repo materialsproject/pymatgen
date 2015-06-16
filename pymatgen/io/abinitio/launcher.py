@@ -329,7 +329,7 @@ class PyFlowScheduler(object):
         #self.max_etime_s = kwargs.pop("max_etime_s", )
         self.max_nlaunches = kwargs.pop("max_nlaunches", -1)
         self.debug = kwargs.pop("debug", 0)
-        self.fix_qcritical =  kwargs.pop("fix_qcritical", True)
+        self.fix_qcritical = kwargs.pop("fix_qcritical", True)
 
         self.customer_service_dir = kwargs.pop("customer_service_dir", None)
         if self.customer_service_dir is not None:
@@ -561,7 +561,7 @@ class PyFlowScheduler(object):
                 if flow.manager.has_queue: logger.warning('Cannot get njobs_inqueue')
 
             if nqjobs >= self.max_njobs_inqueue:
-                logger.info("Too many jobs in the queue, returning")
+                print("Too many jobs in the queue: %s, returning" % nqjobs)
                 return
 
         if self.max_nlaunches == -1:
