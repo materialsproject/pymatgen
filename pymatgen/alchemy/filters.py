@@ -233,8 +233,8 @@ class RemoveExistingFilter(AbstractStructureFilter):
             return finder.get_spacegroup_number()
 
         for s in self._existing_structures:
-            if self._sm._comparator.get_structure_hash(structure) ==\
-                    self._sm._comparator.get_structure_hash(s):
+            if self._sm._comparator.get_hash(structure.composition) ==\
+                    self._sm._comparator.get_hash(s.composition):
                 if self._symprec is None or \
                         get_sg(s) == get_sg(structure):
                     if self._sm.fit(s, structure):
