@@ -27,7 +27,6 @@ from pymatgen.io.cifio import CifParser
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.structure import Molecule
 
-import scipy
 
 test_dir_mol = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                             'test_files', "molecules")
