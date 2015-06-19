@@ -28,7 +28,7 @@ INCAR:
   NSW: 99
   PREC: Accurate
   PRECFOCK: Fast
-  SIGMA: 0.2
+  SIGMA: 0.05
 KPOINTS:
   grid_density: 1000
 POTCAR:
