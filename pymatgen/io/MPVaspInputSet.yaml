@@ -66,7 +66,7 @@ INCAR:
       Ni: 6.2
       V: 3.25
       W: 6.2
-  LDAUPRINT: 1 
+  LDAUPRINT: 1
   LORBIT: 11
   LREAL: AUTO
   LWAVE: false
@@ -86,7 +86,7 @@ INCAR:
   NELM: 100
   NSW: 99
   PREC: Accurate
-  SIGMA: 0.2
+  SIGMA: 0.05
 KPOINTS:
   grid_density: 1000
 POTCAR:
