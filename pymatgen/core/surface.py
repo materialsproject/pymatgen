@@ -665,8 +665,8 @@ def get_symmetrically_distinct_miller_indices(structure, max_index):
 
 def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
                        bonds=None, tol=0.1, max_broken_bonds=0,
-                       lll_reduce=False,
-                       center_slab=False, primitive=True):
+                       lll_reduce=False, center_slab=False, primitive=True,
+                       max_normal_search=None):
     """
     A function that finds all different slabs up to a certain miller index.
     Slabs oriented under certain Miller indices that are equivalent to other
@@ -693,13 +693,26 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
             from a primitive cell, it simply means that after slab
             generation, we attempt to find shorter lattice vectors,
             which lead to less surface area and smaller cells).
+        max_normal_search (int): If set to a positive integer, the code will
+            conduct a search for a normal lattice vector that is as
+            perpendicular to the surface as possible by considering
+            multiples linear combinations of lattice vectors up to
+            max_normal_search. This has no bearing on surface energies,
+            but may be useful as a preliminary step to generating slabs
+            for absorption and other sizes. It is typical that this will
+            not be the smallest possible cell for simulation. Normality
+            is not guaranteed, but the oriented cell will have the c
+            vector as normal as possible (within the search range) to the
+            surface. A value of up to the max absolute Miller index is
+            usually sufficient.
     """
     all_slabs = []
     for miller in get_symmetrically_distinct_miller_indices(structure,
                                                             max_index):
         gen = SlabGenerator(structure, miller, min_slab_size,
                             min_vacuum_size, lll_reduce=lll_reduce,
-                            center_slab=center_slab, primitive=primitive)
+                            center_slab=center_slab, primitive=primitive,
+                            max_normal_search=max_normal_search)
         slabs = gen.get_slabs(bonds=bonds, tol=tol,
                               max_broken_bonds=max_broken_bonds)
         if len(slabs) > 0:
