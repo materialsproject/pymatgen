@@ -310,7 +310,7 @@ class SlabGenerator(object):
 
     def __init__(self, initial_structure, miller_index, min_slab_size,
                  min_vacuum_size, lll_reduce=False, center_slab=False,
-                 primitive=True):
+                 primitive=True, max_normal_search=None):
         """
         Calculates the slab scale factor and uses it to generate a unit cell
         of the initial structure that has been oriented by its miller index.
@@ -333,6 +333,18 @@ class SlabGenerator(object):
                 from a primitive cell, it simply means that after slab
                 generation, we attempt to find shorter lattice vectors,
                 which lead to less surface area and smaller cells).
+            max_normal_search (int): If set to a positive integer, the code will
+                conduct a search for a normal lattice vector that is as
+                perpendicular to the surface as possible by considering
+                multiples linear combinations of lattice vectors up to
+                max_normal_search. This has no bearing on surface energies,
+                but may be useful as a preliminary step to generating slabs
+                for absorption and other sizes. It is typical that this will
+                not be the smallest possible cell for simulation. Normality
+                is not guaranteed, but the oriented cell will have the c
+                vector as normal as possible (within the search range) to the
+                surface. A value of up to the max absolute Miller index is
+                usually sufficient.
         """
         latt = initial_structure.lattice
         d = abs(reduce(gcd, miller_index))
@@ -371,7 +383,23 @@ class SlabGenerator(object):
                 if len(slab_scale_factor) == 2:
                     break
 
-        slab_scale_factor.append(eye[c_index])
+        if max_normal_search is None:
+            slab_scale_factor.append(eye[c_index])
+        else:
+            index_range = list(range(-max_normal_search, max_normal_search + 1))
+            candidates = []
+            for i, j, k in itertools.product(index_range, index_range,
+                                             index_range):
+                if i == 0 and j == 0 and k == 0:
+                    continue
+                v = np.dot(latt.matrix, [i, j, k])
+                l = np.linalg.norm(v)
+                cosine = abs(np.dot(v, normal) / l)
+                candidates.append(((i, j, k), cosine, l))
+            # We want the indices with the maximum absolute cosine,
+            # but smallest possible length.
+            m, cosine, l = max(candidates, key=lambda x: (x[1], -l))
+            slab_scale_factor.append(m)
 
         slab_scale_factor = np.array(slab_scale_factor)
 

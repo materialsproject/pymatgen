@@ -247,8 +247,45 @@ class IncarTest(unittest.TestCase):
         incar1 = Incar.from_file(filepath1)
         filepath2 = os.path.join(test_dir, 'INCAR.2')
         incar2 = Incar.from_file(filepath2)
+        filepath3 = os.path.join(test_dir, 'INCAR.3')
+        incar3 = Incar.from_file(filepath2)
         self.assertEqual(
             incar1.diff(incar2),
+            {'Different': {
+                'NELM': {'INCAR1': None, 'INCAR2': 100},
+                'ISPIND': {'INCAR1': 2, 'INCAR2': None},
+                'LWAVE': {'INCAR1': True, 'INCAR2': False},
+                'LDAUPRINT': {'INCAR1': None, 'INCAR2': 1},
+                'MAGMOM': {'INCAR1': [6, -6, -6, 6, 0.6, 0.6, 0.6,
+                                      0.6, 0.6, 0.6, 0.6, 0.6,
+                                      0.6, 0.6, 0.6, 0.6, 0.6,
+                                      0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6],
+                           'INCAR2': None},
+                'NELMIN': {'INCAR1': None, 'INCAR2': 3},
+                'ENCUTFOCK': {'INCAR1': 0.0, 'INCAR2': None},
+                'HFSCREEN': {'INCAR1': 0.207, 'INCAR2': None},
+                'LSCALU': {'INCAR1': False, 'INCAR2': None},
+                'ENCUT': {'INCAR1': 500, 'INCAR2': None},
+                'NSIM': {'INCAR1': 1, 'INCAR2': None},
+                'ICHARG': {'INCAR1': None, 'INCAR2': 1},
+                'NSW': {'INCAR1': 99, 'INCAR2': 51},
+                'NKRED': {'INCAR1': 2, 'INCAR2': None},
+                'NUPDOWN': {'INCAR1': 0, 'INCAR2': None},
+                'LCHARG': {'INCAR1': True, 'INCAR2': None},
+                'LPLANE': {'INCAR1': True, 'INCAR2': None},
+                'ISMEAR': {'INCAR1': 0, 'INCAR2': -5},
+                'NPAR': {'INCAR1': 8, 'INCAR2': 1},
+                'SYSTEM': {'INCAR1': 'Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]',
+                           'INCAR2': 'Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] sg_name=[r-3m]'},
+                'ALGO': {'INCAR1': 'Damped', 'INCAR2': 'Fast'},
+                'LHFCALC': {'INCAR1': True, 'INCAR2': None},
+                'TIME': {'INCAR1': 0.4, 'INCAR2': None}},
+             'Same': {'IBRION': 2, 'PREC': 'Accurate', 'ISIF': 3, 'LMAXMIX': 4,
+                      'LREAL': 'Auto', 'ISPIN': 2, 'EDIFF': 0.0001,
+                      'LORBIT': 11, 'SIGMA': 0.05}})
+
+        self.assertEqual(
+            incar1.diff(incar3),
             {'Different': {
                 'NELM': {'INCAR1': None, 'INCAR2': 100},
                 'ISPIND': {'INCAR1': 2, 'INCAR2': None},
@@ -410,6 +447,10 @@ class PotcarSingleTest(unittest.TestCase):
     def test_nelectrons(self):
         self.assertEqual(self.psingle.nelectrons, 13)
 
+    def test_electron_config(self):
+        config = self.psingle.electron_configuration
+        self.assertEqual(config[-1], (3, "p", 6))
+
     def test_attributes(self):
         for k in ['DEXC', 'RPACOR', 'ENMAX', 'QCUT', 'EAUG', 'RMAX',
                   'ZVAL', 'EATOM', 'NDATA', 'QGAM', 'ENMIN', 'RCLOC',
@@ -522,6 +563,19 @@ class VaspInputTest(unittest.TestCase):
         vinput = VaspInput.from_dict(d)
         comp = vinput["POSCAR"].structure.composition
         self.assertEqual(comp, Composition("Fe4P4O16"))
+
+    def test_write(self):
+        tmp_dir = "VaspInput.testing"
+        self.vinput.write_input(tmp_dir)
+
+        filepath = os.path.join(tmp_dir, "INCAR")
+        incar = Incar.from_file(filepath)
+        self.assertEqual(incar["NSW"], 99)
+
+        for name in ("INCAR", "POSCAR", "POTCAR", "KPOINTS"):
+            os.remove(os.path.join(tmp_dir, name))
+
+        os.rmdir(tmp_dir)
 
     def test_from_directory(self):
         vi = VaspInput.from_directory(test_dir,

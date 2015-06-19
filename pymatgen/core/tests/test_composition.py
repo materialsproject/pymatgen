@@ -138,6 +138,20 @@ class CompositionTest(unittest.TestCase):
         all_formulas = [c.reduced_formula for c in self.comp]
         self.assertEqual(all_formulas, correct_reduced_formulas)
 
+    def test_integer_formula(self):
+        correct_reduced_formulas = ['Li3Fe2(PO4)3', 'Li3FePO5', 'LiMn2O4',
+                                    'Li2O2', 'Li3Fe2(MoO4)3',
+                                    'Li3Fe2P6(C5O27)2', 'Li3Si', 'ZnHO']
+        all_formulas = [c.get_integer_formula_and_factor()[0] for c in self.comp]
+        self.assertEqual(all_formulas, correct_reduced_formulas)
+        self.assertEqual(Composition('Li0.5O0.25').get_integer_formula_and_factor(),
+                         ('Li2O', 0.25))
+        self.assertEqual(Composition('O0.25').get_integer_formula_and_factor(),
+                         ('O2', 0.125))
+        formula, factor = Composition("Li0.16666667B1.0H1.0").get_integer_formula_and_factor()
+        self.assertEqual(formula, 'Li(BH)6')
+        self.assertAlmostEqual(factor, 1 / 6)
+
     def test_num_atoms(self):
         correct_num_atoms = [20, 10, 7, 8, 20, 75, 2, 3]
         all_natoms = [c.num_atoms for c in self.comp]

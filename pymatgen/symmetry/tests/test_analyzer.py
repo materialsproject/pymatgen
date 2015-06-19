@@ -27,7 +27,6 @@ from pymatgen.io.cifio import CifParser
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.structure import Molecule
 
-import scipy
 
 test_dir_mol = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                             'test_files', "molecules")
@@ -383,6 +382,7 @@ class PointGroupAnalyzerTest(PymatgenTest):
                   [-0.513360, 0.889165, -0.363000]]
         mol = Molecule(["C", "H", "F", "Br", "Cl"], coords)
         a = PointGroupAnalyzer(mol)
+
         self.assertEqual(a.sch_symbol, "C1")
         self.assertEqual(len(a.get_pointgroup()), 1)
         coords = [[0.000000, 0.000000, 1.08],

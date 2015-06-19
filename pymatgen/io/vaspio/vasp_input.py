@@ -574,7 +574,20 @@ class Incar(dict, PMGSONable):
             Incar object
         """
         with zopen(filename, "rt") as f:
-            lines = list(clean_lines(f.readlines()))
+            return Incar.from_string(f.read())
+
+    @staticmethod
+    def from_string(string):
+        """
+        Reads an Incar object from a string.
+
+        Args:
+            string (str): Incar string
+
+        Returns:
+            Incar object
+        """
+        lines = list(clean_lines(string.splitlines()))
         params = {}
         for line in lines:
             m = re.match("(\w+)\s*=\s*(.*)", line)
@@ -633,7 +646,7 @@ class Incar(dict, PMGSONable):
                 raise ValueError(key + " should be a boolean type!")
 
             if key in float_keys:
-                return float(re.search(r"^-?[0]?\.?\d*[e|E]?-?\d*", val).group(0))
+                return float(re.search(r"^-?\d*\.?\d*[e|E]?-?\d*", val).group(0))
 
             if key in int_keys:
                 return int(re.match(r"^-?[0-9]+", val).group(0))
@@ -1358,6 +1371,18 @@ class PotcarSingle(object):
     def __str__(self):
         return self.data + "\n"
 
+    @property
+    def electron_configuration(self):
+        el = Element.from_Z(self.atomic_no)
+        full_config = el.full_electronic_structure
+        nelect = self.nelectrons
+        config = []
+        while nelect > 0:
+            e = full_config.pop(-1)
+            config.append(e)
+            nelect -= e[-1]
+        return config
+
     def write_file(self, filename):
         with zopen(filename, "wt") as f:
             f.write(self.__str__())
@@ -1370,10 +1395,12 @@ class PotcarSingle(object):
     @staticmethod
     def from_symbol_and_functional(symbol, functional="PBE"):
         funcdir = PotcarSingle.functional_dir[functional]
-        paths_to_try = [os.path.join(get_potcar_dir(), funcdir,
-                                     "POTCAR.{}".format(symbol)),
-                        os.path.join(get_potcar_dir(), funcdir, symbol,
-                                     "POTCAR")]
+        d = get_potcar_dir()
+        if d is None:
+            raise ValueError("No POTCAR directory found. Please set "
+                             "the VASP_PSP_DIR environment variable")
+        paths_to_try = [os.path.join(d, funcdir, "POTCAR.{}".format(symbol)),
+                        os.path.join(d, funcdir, symbol, "POTCAR")]
         for p in paths_to_try:
             p = os.path.expanduser(p)
             p = zpath(p)
@@ -1637,7 +1664,7 @@ class VaspInput(dict, PMGSONable):
             os.makedirs(output_dir)
         for k, v in self.items():
             with zopen(os.path.join(output_dir, k), "wt") as f:
-                f.write(v)
+                f.write(v.__str__())
 
     @staticmethod
     def from_directory(input_dir, optional_files=None):
