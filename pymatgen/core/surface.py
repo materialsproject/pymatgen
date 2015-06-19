@@ -343,7 +343,8 @@ class SlabGenerator(object):
                 not be the smallest possible cell for simulation. Normality
                 is not guaranteed, but the oriented cell will have the c
                 vector as normal as possible (within the search range) to the
-                surface.
+                surface. A value of up to the max absolute Miller index is
+                usually sufficient.
         """
         latt = initial_structure.lattice
         d = abs(reduce(gcd, miller_index))
@@ -389,15 +390,15 @@ class SlabGenerator(object):
             candidates = []
             for i, j, k in itertools.product(index_range, index_range,
                                              index_range):
+                if i == 0 and j == 0 and k == 0:
+                    continue
                 v = np.dot(latt.matrix, [i, j, k])
-                if np.linalg.norm(v) > 1e-8:
-                    cosine = abs(np.dot(v, normal) / np.linalg.norm(v))
-                    candidates.append(((i, j, k), cosine))
+                l = np.linalg.norm(v)
+                cosine = abs(np.dot(v, normal) / l)
+                candidates.append(((i, j, k), cosine, l))
             # We want the indices with the maximum absolute cosine,
-            # but smallest possible miller index.
-            m, cosine = max(candidates,
-                            key=lambda x: (x[1], -abs(x[0][0]), -abs(x[0][1]),
-                                           -abs(x[0][2])))
+            # but smallest possible length.
+            m, cosine, l = max(candidates, key=lambda x: (x[1], -l))
             slab_scale_factor.append(m)
 
         slab_scale_factor = np.array(slab_scale_factor)
