@@ -1,13 +1,14 @@
 Change log
 ==========
 
-v3.0.13
--------
-* Bug fix for parsing certain types of CIFs.
-* MPRester now has get_materials_id_references helper method.
-* Minor fix for Vasprun.final_energy.
-* Added mp_decode option to MPRester.query to allow option to not decode into
-  pymatgen objects.
-* New POTCAR hash scheme to more robustly identify unique POTCARs.
-* Link to http://bit.ly/materialsapi for information on Materials API
-  document schema for use with MPRester.query method.
+v3.1.0
+------
+* Much improved surface generation algorithm that provides for
+  orthogonality constraints.
+* Transition state analysis tools! (beta)
+* Massive improvements in Outcar parsing which provides a powerful grepping
+  syntax.
+* PWSCFInput generation (beta).
+* Reduce default SIGMA to 0.05 for MP input sets.
+* Update spglib to 1.7.3 as per recommendation of Togo.
+* Many bug fixes and efficiency improvements.
