@@ -386,20 +386,25 @@ class SlabGenerator(object):
         if max_normal_search is None:
             slab_scale_factor.append(eye[c_index])
         else:
-            index_range = list(range(-max_normal_search, max_normal_search + 1))
+            index_range = sorted(
+                reversed(range(-max_normal_search, max_normal_search + 1)),
+                key=lambda x: abs(x))
             candidates = []
-            for i, j, k in itertools.product(index_range, index_range,
+            for uvw in itertools.product(index_range, index_range,
                                              index_range):
-                if i == 0 and j == 0 and k == 0:
+                if not any(uvw):
                     continue
-                v = np.dot(latt.matrix, [i, j, k])
-                l = np.linalg.norm(v)
-                cosine = abs(np.dot(v, normal) / l)
-                candidates.append(((i, j, k), cosine, l))
+                vec = np.dot(latt.matrix, uvw)
+                l = np.linalg.norm(vec)
+                cosine = abs(np.dot(vec, normal) / l)
+                candidates.append((uvw, cosine, l))
+                if abs(abs(cosine) - 1) < 1e-8:
+                    # If cosine of 1 is found, no need to search further.
+                    break
             # We want the indices with the maximum absolute cosine,
             # but smallest possible length.
-            m, cosine, l = max(candidates, key=lambda x: (x[1], -l))
-            slab_scale_factor.append(m)
+            uvw, cosine, l = max(candidates, key=lambda x: (x[1], -l))
+            slab_scale_factor.append(uvw)
 
         slab_scale_factor = np.array(slab_scale_factor)
 
