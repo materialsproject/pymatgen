@@ -37,8 +37,17 @@ FULL_SPACE_GROUP_MAPPING = {
     v["full_symbol"]: k for k, v in SYMM_DATA["space_group_encoding"].items()}
 
 
+class SymmetryGroup(object):
+
+    def is_subgroup(self, group):
+        return self.symmetry_ops.issubset(group.symmetry_ops)
+
+    def is_supergroup(self, group):
+        return self.symmetry_ops.issuperset(group.symmetry_ops)
+
+
 @cached_class
-class PointGroup(object):
+class PointGroup(SymmetryGroup):
     """
     Class representing a Point Group, with generators and symmetry operations.
 
@@ -66,8 +75,8 @@ class PointGroup(object):
         self.symbol = int_symbol
         self.generators = [GENERATOR_MATRICES[c]
                            for c in POINT_GROUP_ENC[int_symbol]]
-        self.symmetry_ops = [SymmOp.from_rotation_and_translation(m)
-                             for m in self._generate_full_symmetry_ops()]
+        self.symmetry_ops = set([SymmOp.from_rotation_and_translation(m)
+                                 for m in self._generate_full_symmetry_ops()])
         self.order = len(self.symmetry_ops)
 
     def _generate_full_symmetry_ops(self):
@@ -105,7 +114,7 @@ class PointGroup(object):
 
 
 @cached_class
-class SpaceGroup(object):
+class SpaceGroup(SymmetryGroup):
     """
     Class representing a SpaceGroup.
 
@@ -127,7 +136,7 @@ class SpaceGroup(object):
         Order of Space Group
     """
 
-    #Contains the entire list of supported Space Group symbols.
+    # Contains the entire list of supported Space Group symbols.
     SG_SYMBOLS = tuple(SPACE_GROUP_ENC.keys())
 
     def __init__(self, int_symbol):
