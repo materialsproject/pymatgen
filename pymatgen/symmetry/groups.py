@@ -23,7 +23,7 @@ import numpy as np
 from monty.serialization import loadfn
 
 from pymatgen.core.operations import SymmOp
-
+from monty.design_patterns import cached_class
 
 SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__), "symm_data.yaml"))
 
@@ -37,6 +37,7 @@ FULL_SPACE_GROUP_MAPPING = {
     v["full_symbol"]: k for k, v in SYMM_DATA["space_group_encoding"].items()}
 
 
+@cached_class
 class PointGroup(object):
     """
     Class representing a Point Group, with generators and symmetry operations.
@@ -103,6 +104,7 @@ class PointGroup(object):
         return orbit
 
 
+@cached_class
 class SpaceGroup(object):
     """
     Class representing a SpaceGroup.
