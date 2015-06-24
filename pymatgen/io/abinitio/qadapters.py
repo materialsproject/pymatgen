@@ -350,10 +350,10 @@ queue:
 # dictionary with the constraints that must be fulfilled in order to run on this queue.
 limits:
     min_cores:         # Minimum number of cores (default 1)
-    max_cores:         # Maximum number of cores (mandatory), the limit used in the first setup of jobs,
-                       # Fix_Critical method may increase this number until max_cores_max is reached
-                       # if not sepcified max_cores_max will be used
-    max_cores_hard:    # hard limit to max_cores, the limit beyond which the scheduler will not accept the job (mandatory)
+    max_cores:         # Maximum number of cores (mandatory),
+                       # hard limit to hint_cores, the limit beyond which the scheduler will not accept the job (mandatory)
+    hint_cores:        # the limit used in the first setup of jobs,
+                       # Fix_Critical method may increase this number until max_cores is reached
     min_mem_per_proc:  # Minimum memory per MPI process in Mb, units can be specified e.g. 1.4 Gb
                        # (default hardware.mem_per_core)
     max_mem_per_proc:  # Maximum memory per MPI process in Mb, units can be specified e.g. `1.4Gb`
@@ -385,7 +385,7 @@ limits:
             mpi_runner: Path to the MPI runner or :class:`MpiRunner` instance. None if not used
             max_num_launches: Maximum number of submissions that can be done. Defaults to 10
             qverbatim:
-            min_cores, max_cores, max_cores_hard: Minimum, maximum, and hard max limit of number of cores that can be used
+            min_cores, max_cores, hint_cores: Minimum, maximum, and hint limits of number of cores that can be used
             min_mem_per_proc=Minimun memory per process in megabytes.
             max_mem_per_proc=Maximum memory per process in megabytes.
             timelimit: initial time limit in seconds
@@ -454,7 +454,7 @@ limits:
         self.set_timelimit_hard(qu.timelimit_parser(d.pop("timelimit_hard")))
         self.min_cores = int(d.pop("min_cores", 1))
         self.max_cores = int(d.pop("max_cores"))
-        self.max_cores_hard = int(d.pop("max_cores_hard", self.max_cores))
+        self.hint_cores = int(d.pop("hint_cores", self.max_cores))
         # FIXME: Neeed because autoparal 1 with paral_kgb 1 is not able to estimate memory 
         self.min_mem_per_proc = qu.any2mb(d.pop("min_mem_per_proc", self.hw.mem_per_core))
         self.max_mem_per_proc = qu.any2mb(d.pop("max_mem_per_proc", self.hw.mem_per_node))
@@ -605,8 +605,8 @@ limits:
         errors = []
         app = errors.append
 
-        if not self.max_cores >= self.mpi_procs * self.omp_threads >= self.min_cores:
-            app("self.max_cores >= mpi_procs * omp_threads >= self.min_cores not satisfied")
+        if not self.hint_cores >= self.mpi_procs * self.omp_threads >= self.min_cores:
+            app("self.hint_cores >= mpi_procs * omp_threads >= self.min_cores not satisfied")
 
         if self.omp_threads > self.hw.cores_per_node:
             app("omp_threads > hw.cores_per_node")
@@ -620,8 +620,8 @@ limits:
         if self.priority <= 0: 
             app("priority must be > 0")
 
-        if not (1 <= self.min_cores <= self.hw.num_cores >= self.max_cores):
-            app("1 <= min_cores <= hardware num_cores >= max_cores not satisfied")
+        if not (1 <= self.min_cores <= self.hw.num_cores >= self.hint_cores):
+            app("1 <= min_cores <= hardware num_cores >= hint_cores not satisfied")
 
         if errors:
             raise self.Error(str(self) + "\n".join(errors))
@@ -701,7 +701,7 @@ limits:
 
     def can_run_pconf(self, pconf):
         """True if the qadapter in principle is able to run the :class:`ParalConf` pconf"""
-        if not self.max_cores >= pconf.num_cores >= self.min_cores: return False
+        if not self.hint_cores >= pconf.num_cores >= self.min_cores: return False
         if not self.hw.can_use_omp_threads(self.omp_threads): return False
         if pconf.mem_per_proc > self.hw.mem_per_node: return False
         if self.allocation == "force_nodes" and pconf.num_cores % self.hw.cores_per_node != 0:
@@ -982,19 +982,19 @@ limits:
 
         raise self.Error('could not increase mem_per_proc further')
 
-    def more_mpi_procs(self, factor=1):
+    def more_cores(self, factor=1):
         """
         Method to increase the number of MPI procs.
         Return: new number of processors if success, 0 if processors cannot be increased.
         """
-        base_increase = 4 * int(self.max_cores_hard / 40)
-        new_cpus = self.mpi_procs + factor * base_increase
+        base_increase = 4 * int(self.max_cores / 40)
+        new_cores = self.hint_cores + factor * base_increase
 
-        if new_cpus * self.omp_threads < self.max_cores_hard:
-            self.set_mpi_procs(new_cpus)
-            return new_cpus
+        if new_cores < self.max_cores:
+            self.hint_cores = new_cores
+            return new_cores
 
-        raise self.Error('more_mpi_procs reached the limit')
+        raise self.Error('more_cores reached the limit')
 
     def more_time(self, factor=1):
         """
