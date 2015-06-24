@@ -1901,11 +1901,18 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
             names.append(p.basename)
 
             # FIXME
-            ecut_acc = dict(
-                low=report.ecuts[0],
-                normal=report.ecuts[4],
-                high=report.ecuts[-1],
-            )
+            try:
+                ecut_acc = dict(
+                    low=report.ecuts[0],
+                    normal=report.ecuts[4],
+                    high=report.ecuts[-1],
+                )
+            except IndexError:
+                ecut_acc = dict(
+                    low=report.ecuts[0],
+                    normal=report.ecuts[-1],
+                    high=report.ecuts[-1],
+                )
 
             for acc in accuracies:
                 d[acc + "_ecut"] = ecut_acc[acc]
