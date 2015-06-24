@@ -994,7 +994,7 @@ limits:
             self.hint_cores = new_cores
             return new_cores
 
-        raise self.Error('more_cores reached the limit')
+        raise self.Error('%s hint_cores reached limit on max_core %s' % (new_cores, self.max_cores))
 
     def more_time(self, factor=1):
         """
