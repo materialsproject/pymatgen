@@ -350,11 +350,16 @@ queue:
 # dictionary with the constraints that must be fulfilled in order to run on this queue.
 limits:
     min_cores:         # Minimum number of cores (default 1)
-    max_cores:         # Maximum number of cores (mandatory)
+    max_cores:         # Maximum number of cores (mandatory),
+                       # hard limit to hint_cores, the limit beyond which the scheduler will not accept the job (mandatory)
+    hint_cores:        # the limit used in the first setup of jobs,
+                       # Fix_Critical method may increase this number until max_cores is reached
     min_mem_per_proc:  # Minimum memory per MPI process in Mb, units can be specified e.g. 1.4 Gb
                        # (default hardware.mem_per_core)
     max_mem_per_proc:  # Maximum memory per MPI process in Mb, units can be specified e.g. `1.4Gb`
                        # (default hardware.mem_per_node)
+    timelimit          # initial time limit
+    timelimit_hard     # the hard timelimit for this queue (mandatory)
     condition:         # MongoDB-like condition (default empty, i.e. not used)
     allocation:        # String defining the policy used to select the optimal number of CPUs.
                        # possible values are ["nodes", "force_nodes", "shared"]
@@ -380,10 +385,11 @@ limits:
             mpi_runner: Path to the MPI runner or :class:`MpiRunner` instance. None if not used
             max_num_launches: Maximum number of submissions that can be done. Defaults to 10
             qverbatim:
-            min_cores, max_cores: Minimum and maximum number of cores that can be used
+            min_cores, max_cores, hint_cores: Minimum, maximum, and hint limits of number of cores that can be used
             min_mem_per_proc=Minimun memory per process in megabytes.
             max_mem_per_proc=Maximum memory per process in megabytes.
-            timelimit: Time limit in seconds
+            timelimit: initial time limit in seconds
+            timelimit_hard: hard limelimit for this que
             priority: Priority level, integer number > 0
             allocate_nodes: True if we must allocate entire nodes"
             condition: Condition object (dictionary)
@@ -445,8 +451,10 @@ limits:
 
     def _parse_limits(self, d):
         self.set_timelimit(qu.timelimit_parser(d.pop("timelimit")))
+        self.set_timelimit_hard(qu.timelimit_parser(d.pop("timelimit_hard")))
         self.min_cores = int(d.pop("min_cores", 1))
         self.max_cores = int(d.pop("max_cores"))
+        self.hint_cores = int(d.pop("hint_cores", self.max_cores))
         # FIXME: Neeed because autoparal 1 with paral_kgb 1 is not able to estimate memory 
         self.min_mem_per_proc = qu.any2mb(d.pop("min_mem_per_proc", self.hw.mem_per_core))
         self.max_mem_per_proc = qu.any2mb(d.pop("max_mem_per_proc", self.hw.mem_per_node))
@@ -597,8 +605,8 @@ limits:
         errors = []
         app = errors.append
 
-        if not self.max_cores >= self.mpi_procs * self.omp_threads >= self.min_cores:
-            app("self.max_cores >= mpi_procs * omp_threads >= self.min_cores not satisfied")
+        if not self.hint_cores >= self.mpi_procs * self.omp_threads >= self.min_cores:
+            app("self.hint_cores >= mpi_procs * omp_threads >= self.min_cores not satisfied")
 
         if self.omp_threads > self.hw.cores_per_node:
             app("omp_threads > hw.cores_per_node")
@@ -612,8 +620,8 @@ limits:
         if self.priority <= 0: 
             app("priority must be > 0")
 
-        if not (1 <= self.min_cores <= self.hw.num_cores >= self.max_cores):
-            app("1 <= min_cores <= hardware num_cores >= max_cores not satisfied")
+        if not (1 <= self.min_cores <= self.hw.num_cores >= self.hint_cores):
+            app("1 <= min_cores <= hardware num_cores >= hint_cores not satisfied")
 
         if errors:
             raise self.Error(str(self) + "\n".join(errors))
@@ -648,9 +656,18 @@ limits:
         """Returns the walltime in seconds."""
         return self._timelimit
 
+    @property
+    def timelimit_hard(self):
+        """Returns the walltime in seconds."""
+        return self._timelimit_hard
+
     def set_timelimit(self, timelimit):
-        """Set the walltime in seconds."""
+        """Set the start walltime in seconds, fix method may increase this one until timelimit_hard is reached."""
         self._timelimit = timelimit
+
+    def set_timelimit_hard(self, timelimit_hard):
+        """Set the maximal possible walltime in seconds."""
+        self._timelimit_hard = timelimit_hard
 
     @property
     def mem_per_proc(self):
@@ -684,7 +701,7 @@ limits:
 
     def can_run_pconf(self, pconf):
         """True if the qadapter in principle is able to run the :class:`ParalConf` pconf"""
-        if not self.max_cores >= pconf.num_cores >= self.min_cores: return False
+        if not self.hint_cores >= pconf.num_cores >= self.min_cores: return False
         if not self.hw.can_use_omp_threads(self.omp_threads): return False
         if pconf.mem_per_proc > self.hw.mem_per_node: return False
         if self.allocation == "force_nodes" and pconf.num_cores % self.hw.cores_per_node != 0:
@@ -965,32 +982,34 @@ limits:
 
         raise self.Error('could not increase mem_per_proc further')
 
-    def more_mpi_procs(self, factor=1):
+    def more_cores(self, factor=1):
         """
         Method to increase the number of MPI procs.
         Return: new number of processors if success, 0 if processors cannot be increased.
         """
-        base_increase = 12
-        new_cpus = self.mpi_procs + factor * base_increase
+        base_increase = 4 * int(self.max_cores / 40)
+        new_cores = self.hint_cores + factor * base_increase
 
-        if new_cpus * self.omp_threads < self.max_cores:
-            self.set_mpi_procs(new_cpus)
-            return new_cpus
+        if new_cores < self.max_cores:
+            self.hint_cores = new_cores
+            return new_cores
 
-        raise self.Error('more_mpi_procs reached the limit')
+        raise self.Error('%s hint_cores reached limit on max_core %s' % (new_cores, self.max_cores))
 
-    def more_time(self):
+    def more_time(self, factor=1):
         """
         Method to increase the wall time
         """
-        increase_factor = 2
+        base_increase = int(self.timelimit_hard / 10)
 
-        new_time = self.timelimit()*increase_factor
-        self.set_timelimit(new_time)
-        # at the moment we don't have a limit only the limit defined in the quadaper
-        # but we just increase, if we pass the limit the qsub will fail....
-        # raise self.Error("increasing time is not possible, the current quadapter does not implement a method")
-        return new_time
+        new_time = self.timelimit() + base_increase*factor
+        if new_time < self.timelimit_hard:
+            self.set_timelimit(new_time)
+            return new_time
+
+        self.priority = -1
+
+        raise self.Error("increasing time is not possible, the hard limit has been raised")
 
 ####################
 # Concrete classes #

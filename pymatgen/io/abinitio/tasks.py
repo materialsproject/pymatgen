@@ -53,7 +53,6 @@ __all__ = [
 import logging
 logger = logging.getLogger(__name__)
 
-
 # Tools and helper functions.
 
 def straceback():
@@ -789,7 +788,7 @@ batch_adapter:
         Maximum number of cores that can be used.
         This value is mainly used in the autoparal part to get the list of possible configurations.
         """
-        return max(q.max_cores for q in self.qads)
+        return max(q.hint_cores for q in self.qads)
 
     def get_njobs_in_queue(self, username=None):
         """
@@ -893,7 +892,7 @@ batch_adapter:
             self.qadapter.more_mem_per_proc()
         except QueueAdapterError:
             # here we should try to switch to an other qadapter
-            raise ManagerIncreaseError
+            raise ManagerIncreaseError('manager failed to increase mem')
 
     def increase_ncpu(self):
         """
@@ -901,14 +900,14 @@ batch_adapter:
         switch to the next qadapter. If all fail raise an ManagerIncreaseError
         """
         try:
-            self.qadapter.more_mpi_procs
+            self.qadapter.more_cores()
         except QueueAdapterError:
             # here we should try to switch to an other qadapter
             raise ManagerIncreaseError('manager failed to increase ncpu')
 
     def increase_resources(self):
         try:
-            self.qadapter.more_mpi_procs
+            self.qadapter.more_cores()
         except QueueAdapterError:
             pass
 
@@ -2146,7 +2145,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.start(*args, **kwargs)
         retcode = self.wait()
         return retcode
-
 
 
 class DecreaseDemandsError(Exception):
