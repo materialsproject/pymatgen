@@ -385,7 +385,7 @@ limits:
             mpi_runner: Path to the MPI runner or :class:`MpiRunner` instance. None if not used
             max_num_launches: Maximum number of submissions that can be done. Defaults to 10
             qverbatim:
-            min_cores, max_cores: Minimum and maximum number of cores that can be used
+            min_cores, max_cores, max_cores_hard: Minimum, maximum, and hard max limit of number of cores that can be used
             min_mem_per_proc=Minimun memory per process in megabytes.
             max_mem_per_proc=Maximum memory per process in megabytes.
             timelimit: initial time limit in seconds
@@ -454,7 +454,7 @@ limits:
         self.set_timelimit_hard(qu.timelimit_parser(d.pop("timelimit_hard")))
         self.min_cores = int(d.pop("min_cores", 1))
         self.max_cores = int(d.pop("max_cores"))
-        self.max_cores_hard = int(d.pop("max_cores_max"))
+        self.max_cores_hard = int(d.pop("max_cores_hard"))
         # FIXME: Neeed because autoparal 1 with paral_kgb 1 is not able to estimate memory 
         self.min_mem_per_proc = qu.any2mb(d.pop("min_mem_per_proc", self.hw.mem_per_core))
         self.max_mem_per_proc = qu.any2mb(d.pop("max_mem_per_proc", self.hw.mem_per_node))
@@ -655,6 +655,11 @@ limits:
     def timelimit(self):
         """Returns the walltime in seconds."""
         return self._timelimit
+
+    @property
+    def timelimit_hard(self):
+        """Returns the walltime in seconds."""
+        return self._timelimit_hard
 
     def set_timelimit(self, timelimit):
         """Set the start walltime in seconds, fix method may increase this one until timelimit_hard is reached."""
@@ -982,27 +987,29 @@ limits:
         Method to increase the number of MPI procs.
         Return: new number of processors if success, 0 if processors cannot be increased.
         """
-        base_increase = 12
+        base_increase = 4 * int(self.max_cores_hard / 40)
         new_cpus = self.mpi_procs + factor * base_increase
 
-        if new_cpus * self.omp_threads < self.max_cores:
+        if new_cpus * self.omp_threads < self.max_cores_hard:
             self.set_mpi_procs(new_cpus)
             return new_cpus
 
         raise self.Error('more_mpi_procs reached the limit')
 
-    def more_time(self):
+    def more_time(self, factor=1):
         """
         Method to increase the wall time
         """
-        increase_factor = 2
+        base_increase = int(self.timelimit_hard / 10)
 
-        new_time = self.timelimit()*increase_factor
-        self.set_timelimit(new_time)
-        # at the moment we don't have a limit only the limit defined in the quadaper
-        # but we just increase, if we pass the limit the qsub will fail....
-        # raise self.Error("increasing time is not possible, the current quadapter does not implement a method")
-        return new_time
+        new_time = self.timelimit() + base_increase*factor
+        if new_time < self.timelimit_hard:
+            self.set_timelimit(new_time)
+            return new_time
+
+        self.priority = -1
+
+        raise self.Error("increasing time is not possible, the hard limit has been raised")
 
 ####################
 # Concrete classes #
