@@ -454,7 +454,7 @@ limits:
         self.set_timelimit_hard(qu.timelimit_parser(d.pop("timelimit_hard")))
         self.min_cores = int(d.pop("min_cores", 1))
         self.max_cores = int(d.pop("max_cores"))
-        self.max_cores_hard = int(d.pop("max_cores_hard"))  # hard limit
+        self.max_cores_hard = int(d.pop("max_cores_hard", self.max_cores))
         # FIXME: Neeed because autoparal 1 with paral_kgb 1 is not able to estimate memory 
         self.min_mem_per_proc = qu.any2mb(d.pop("min_mem_per_proc", self.hw.mem_per_core))
         self.max_mem_per_proc = qu.any2mb(d.pop("max_mem_per_proc", self.hw.mem_per_node))
