@@ -892,7 +892,7 @@ batch_adapter:
             self.qadapter.more_mem_per_proc()
         except QueueAdapterError:
             # here we should try to switch to an other qadapter
-            raise ManagerIncreaseError
+            raise ManagerIncreaseError('manager failed to increase mem')
 
     def increase_ncpu(self):
         """
@@ -907,7 +907,7 @@ batch_adapter:
 
     def increase_resources(self):
         try:
-            self.qadapter.more_mpi_procs
+            self.qadapter.more_cores()
         except QueueAdapterError:
             pass
 
