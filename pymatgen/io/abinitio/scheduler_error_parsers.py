@@ -369,7 +369,7 @@ class PBSErrorParser(AbstractErrorParser):
                 'out': {
                     'string': "job killed: walltime",
                     'meta_filter': {
-                        'broken_limit': [r"job killed: walltime (\d+) exceeded limit (\d+) que std", 1]
+                        'broken_limit': [r"job killed: walltime (\d+) exceeded limit (\d+)", 1]
                     }
                 }
             },
