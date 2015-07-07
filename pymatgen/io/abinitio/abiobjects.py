@@ -397,7 +397,7 @@ class KSampling(AbivarAble, PMGSONable):
 
         if mode in ("monkhorst",):
             assert num_kpts == 0
-            ngkpt  = np.reshape(kpts, (-1,3))
+            ngkpt  = np.reshape(kpts, 3)
             shiftk = np.reshape(kpt_shifts, (-1,3))
 
             if use_symmetries and use_time_reversal: kptopt = 1
@@ -417,7 +417,7 @@ class KSampling(AbivarAble, PMGSONable):
             if num_kpts <= 0:
                 raise ValueError("For Path mode, num_kpts must be specified and >0")
 
-            kptbounds = np.reshape(kpts, (-1,3,))
+            kptbounds = np.reshape(kpts, (-1,3))
             #print("in path with kptbound: %s " % kptbounds)
 
             abivars.update({
