@@ -1608,7 +1608,7 @@ class Flow(Node, NodeContainer, PMGSONable):
                 might not be aware of its children when it reached S_OK.
         """
         assert policy in ("task", "flow")
-        exts = list_strings(exts) if exts is not None else ("WFK", "SUS", "SCR")
+        exts = list_strings(exts) if exts is not None else ("WFK", "SUS", "SCR", "BSR", "BSC")
 
         gc = GarbageCollector(exts=set(exts), policy=policy)
 
