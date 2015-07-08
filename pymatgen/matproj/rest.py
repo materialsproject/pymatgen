@@ -41,6 +41,7 @@ from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.matproj.snl import StructureNL
 from pymatgen.core.structure import Structure
 
+
 class MPRester(object):
     """
     A class to conveniently interface with the Materials Project REST
@@ -61,16 +62,16 @@ class MPRester(object):
 
     Args:
         api_key (str): A String API key for accessing the MaterialsProject
-            REST interface. Please apply on the Materials Project website for
-            one.
-            If this is None, the code will check if there is a "MAPI_KEY"
-            environment variable set. If so, it will use that environment
-            variable. This makes easier for heavy users to simply add
-            this environment variable to their setups and MPRester can
-            then be called without any arguments.
-        endpoint (str): Url of endpoint to access the MaterialsProject REST interface.
-            Defaults to the standard Materials Project REST address, but
-            can be changed to other urls implementing a similar interface.
+            REST interface. Please obtain your API key at
+            https://www.materialsproject.org/dashboard. If this is None,
+            the code will check if there is a "MAPI_KEY" environment variable
+            set. If so, it will use that environment variable. This makes
+            easier for heavy users to simply add this environment variable to
+            their setups and MPRester can then be called without any arguments.
+        endpoint (str): Url of endpoint to access the MaterialsProject REST
+            interface. Defaults to the standard Materials Project REST
+            address, but can be changed to other urls implementing a similar
+            interface.
     """
 
     supported_properties = ("energy", "energy_per_atom", "volume",
@@ -91,7 +92,8 @@ class MPRester(object):
                                  "is_compatible", "spacegroup",
                                  "band_gap", "density", "icsd_id", "cif")
 
-    def __init__(self, api_key=None, endpoint="https://www.materialsproject.org/rest/v2"):
+    def __init__(self, api_key=None,
+                 endpoint="https://www.materialsproject.org/rest/v2"):
         if api_key is not None:
             self.api_key = api_key
         else:

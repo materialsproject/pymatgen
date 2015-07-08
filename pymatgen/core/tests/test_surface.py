@@ -131,6 +131,19 @@ class SlabGeneratorTest(PymatgenTest):
             self.assertAlmostEqual(np.dot(a, gen._normal), 0)
             self.assertAlmostEqual(np.dot(b, gen._normal), 0)
 
+    def test_normal_search(self):
+        fcc = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"],
+                                        [[0, 0, 0]])
+        for miller in [(1, 0, 0), (1, 1, 0), (1, 1, 1), (2, 1, 1)]:
+            gen = SlabGenerator(fcc, miller, 10, 10)
+            gen_normal = SlabGenerator(fcc, miller, 10, 10,
+                                       max_normal_search=max(miller))
+            slab = gen_normal.get_slab()
+            self.assertAlmostEqual(slab.lattice.alpha, 90)
+            self.assertAlmostEqual(slab.lattice.beta, 90)
+            self.assertGreaterEqual(len(gen_normal.oriented_unit_cell),
+                                    len(gen.oriented_unit_cell))
+
     def test_get_slabs(self):
         gen = SlabGenerator(self.get_structure("CsCl"), [0, 0, 1], 10, 10)
 
