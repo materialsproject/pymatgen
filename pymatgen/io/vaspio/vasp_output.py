@@ -1180,15 +1180,15 @@ class Outcar(PMGSONable):
             are lists of lists, because you can grep multiple items on one line.
         """
         matches = regrep(self.filename, patterns, reverse=reverse,
-                           terminate_on_match=terminate_on_match,
-                           postprocess=postprocess)
+                         terminate_on_match=terminate_on_match,
+                         postprocess=postprocess)
         for k in patterns.keys():
             self.data[k] = [i[0] for i in matches.get(k, [])]
 
-    def read_tst_neb(self, reverse=True, terminate_on_match=True):
+    def read_neb(self, reverse=True, terminate_on_match=True):
         """
-        Reads TST NEB data. This only works with OUTCARs from calculations
-        performed using the climbing image NEB method implemented by
+        Reads NEB data. This only works with OUTCARs from both normal
+        VASP NEB calculations or from the CI NEB method implemented by
         Henkelman et al.
 
         Args:
@@ -1203,15 +1203,20 @@ class Outcar(PMGSONable):
         Renders accessible:
             tangent_force - Final tangent force.
             energy - Final energy.
+            These can be accessed under Outcar.data[key]
         """
         patterns = {
             "energy": "energy\(sigma->0\)\s+=\s+([\d\-\.]+)",
-            "tangent_force": "NEB: projections on to tangent \(" \
-                "spring, REAL\)\s+\S+\s+([\d\-\.]+)"
+            "tangent_force": "(NEB: projections on to tangent \(" \
+                "spring, REAL\)\s+\S+|tangential force \(eV/A\))\s+(["
+                                   "\d\-\.]+)"
         }
         self.read_pattern(patterns, reverse=reverse,
                           terminate_on_match=terminate_on_match,
-                          postprocess=float)
+                          postprocess=str)
+        self.data["energy"] = float(self.data["energy"][0][0])
+        if self.data.get("tangent_force"):
+            self.data["tangent_force"] = float(self.data["tangent_force"][0][1])
 
     def read_igpar(self):
         """
@@ -1454,7 +1459,6 @@ class Outcar(PMGSONable):
         except:
             raise Exception("LEPSILON OUTCAR could not be parsed.")
 
-
     def read_lepsilon_ionic(self):
         # variables to be filled
         try:
@@ -1541,7 +1545,6 @@ class Outcar(PMGSONable):
 
         except:
             raise Exception("ionic part of LEPSILON OUTCAR could not be parsed.")
-
 
     def read_lcalcpol(self):
         # variables to be filled

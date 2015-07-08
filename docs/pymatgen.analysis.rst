@@ -94,6 +94,14 @@ pymatgen.analysis.thermochemistry module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.analysis.transition_state module
+-----------------------------------------
+
+.. automodule:: pymatgen.analysis.transition_state
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------
