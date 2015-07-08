@@ -717,7 +717,8 @@ batch_adapter:
         if self.has_omp: self.set_omp_threads(pconf.omp_threads)
                                                                       
         # Set memory per proc.
-        self.set_mem_per_proc(pconf.mem_per_proc)
+        #FIXME: Fixer may have changed the memory per proc and should not be resetted by ParalConf
+        #self.set_mem_per_proc(pconf.mem_per_proc)
         return pconf
 
     def __str__(self):
@@ -1424,7 +1425,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             0 on success, 1 if reset failed.
         """
         # Can only reset tasks that are done.
-        if self.status < self.S_DONE: return 1
+        # One should be able to reset 'Submitted' tasks (sometimes, they are not in the queue
+        #   and we want to restart them)
+        if (self.status != self.S_SUB and self.status < self.S_DONE): return 1
 
         # Remove output files otherwise the EventParser will think the job is still running
         self.output_file.remove()

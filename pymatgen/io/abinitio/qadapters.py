@@ -1193,6 +1193,7 @@ class PbsProAdapter(QueueAdapter):
 #PBS -N $${job_name}
 #PBS -A $${account}
 #PBS -l select=$${select}
+#PBS -l pvmem=$${pvmem}mb
 #PBS -l walltime=$${walltime}
 #PBS -l model=$${model}
 #PBS -l place=$${place}
@@ -1217,7 +1218,7 @@ $${qverbatim}
         """Set the memory per process in megabytes"""
         super(PbsProAdapter, self).set_mem_per_proc(mem_mb)
         #self.qparams["vmem"] = self.mem_per_proc
-        #self.qparams["pvmem"] = self.mem_per_proc
+        self.qparams["pvmem"] = self.mem_per_proc
 
     def cancel(self, job_id):
         return os.system("qdel %d" % job_id)
