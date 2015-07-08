@@ -27,7 +27,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
 from pymatgen.optimization.linear_assignment_cython import LinearAssignment
-from pymatgen.util.coord_utils_cython import pbc_shortest_vectors, is_coord_subset_pbc
+from pymatgen.util.coord_utils_cython import pbc_shortest_vectors, is_coord_subset_pbc, det3x3
 from pymatgen.util.coord_utils import lattice_points_in_supercell
 
 
@@ -384,7 +384,7 @@ class StructureMatcher(PMGSONable):
             target_lattice, ltol=self.ltol, atol=self.angle_tol,
             skip_rotation_matrix=True)
         for l, _, scale_m in lattices:
-            if abs(abs(np.linalg.det(scale_m)) - supercell_size) < 0.5:
+            if abs(abs(det3x3(scale_m)) - supercell_size) < 0.5:
                 yield l, scale_m
 
     def _get_supercells(self, struct1, struct2, fu, s1_supercell):
@@ -460,11 +460,8 @@ class StructureMatcher(PMGSONable):
         if mask.shape != (len(s2), len(s1)):
             raise ValueError("mask has incorrect shape")
 
-        mask_val = 1e10 * self.stol / normalization
         #vectors are from s2 to s1
-        vecs = pbc_shortest_vectors(avg_lattice, s2, s1)
-        vecs[mask] = mask_val
-        d_2 = np.sum(vecs ** 2, axis=-1)
+        vecs, d_2 = pbc_shortest_vectors(avg_lattice, s2, s1, mask, return_d2=True)
         lin = LinearAssignment(d_2)
         s = lin.solution
         short_vecs = vecs[np.arange(len(s)), s]

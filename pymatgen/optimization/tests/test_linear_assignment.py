@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 import unittest
 
-from pymatgen.optimization.linear_assignment import LinearAssignment
+from pymatgen.optimization.linear_assignment_cython import LinearAssignment
 import numpy as np
 
 class LinearAssignmentTest(unittest.TestCase):

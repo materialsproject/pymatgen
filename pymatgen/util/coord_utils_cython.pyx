@@ -86,7 +86,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     """
 
     #ensure correct shape
-    #fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
+    fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
 
     cdef np.float64_t[:, :] lat = lattice._matrix
 
