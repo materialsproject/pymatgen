@@ -499,6 +499,11 @@ class SlabGenerator(object):
         frac_coords = self.oriented_unit_cell.frac_coords
         n = len(frac_coords)
 
+        if n == 1:
+            # Clustering does not work when there is only one data point.
+            shift = frac_coords[0][2] + 0.5
+            return [shift - math.floor(shift)]
+
         # We cluster the sites according to the c coordinates. But we need to
         # take into account PBC. Let's compute a fractional c-coordinate
         # distance matrix that accounts for PBC.
