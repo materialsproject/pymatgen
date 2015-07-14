@@ -144,6 +144,15 @@ class SlabGeneratorTest(PymatgenTest):
             self.assertGreaterEqual(len(gen_normal.oriented_unit_cell),
                                     len(gen.oriented_unit_cell))
 
+        graphite = self.get_structure("Graphite")
+        graphite.to(filename="graphite.cif")
+        for miller in [(1, 0, 0), (1, 1, 0), (0, 0, 1), (2, 1, 1)]:
+            gen = SlabGenerator(graphite, miller, 10, 10)
+            gen_normal = SlabGenerator(graphite, miller, 10, 10,
+                                       max_normal_search=max(miller))
+            self.assertGreaterEqual(len(gen_normal.oriented_unit_cell),
+                                    len(gen.oriented_unit_cell))
+
     def test_get_slabs(self):
         gen = SlabGenerator(self.get_structure("CsCl"), [0, 0, 1], 10, 10)
 
