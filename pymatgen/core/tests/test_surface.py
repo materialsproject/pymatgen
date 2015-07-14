@@ -145,7 +145,6 @@ class SlabGeneratorTest(PymatgenTest):
                                     len(gen.oriented_unit_cell))
 
         graphite = self.get_structure("Graphite")
-        graphite.to(filename="graphite.cif")
         for miller in [(1, 0, 0), (1, 1, 0), (0, 0, 1), (2, 1, 1)]:
             gen = SlabGenerator(graphite, miller, 10, 10)
             gen_normal = SlabGenerator(graphite, miller, 10, 10,
@@ -192,6 +191,15 @@ class SlabGeneratorTest(PymatgenTest):
         a, b, c = gen.oriented_unit_cell.lattice.matrix
         self.assertAlmostEqual(np.dot(a, gen._normal), 0)
         self.assertAlmostEqual(np.dot(b, gen._normal), 0)
+
+        scc = Structure.from_spacegroup("Pm-3m", Lattice.cubic(3), ["Fe"],
+                                        [[0, 0, 0]])
+        gen = SlabGenerator(scc, [0, 0, 1], 10, 10)
+        slabs = gen.get_slabs()
+        self.assertEqual(len(slabs), 1)
+        gen = SlabGenerator(scc, [1, 1, 1], 10, 10, max_normal_search=1)
+        slabs = gen.get_slabs()
+        self.assertEqual(len(slabs), 1)
 
     def test_triclinic_TeI(self):
         # Test case for a triclinic structure of TeI. Only these three
