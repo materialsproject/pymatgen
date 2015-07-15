@@ -227,6 +227,7 @@ class FuncTest(PymatgenTest):
 
         self.p1 = Structure(Lattice.from_parameters(3, 4, 5, 31, 43, 50),
                             ["H", "He"], [[0, 0, 0], [0.1, 0.2, 0.3]])
+        self.graphite = self.get_structure("Graphite")
 
     def test_get_symmetrically_distinct_miller_indices(self):
         indices = get_symmetrically_distinct_miller_indices(self.cscl, 1)
@@ -246,6 +247,9 @@ class FuncTest(PymatgenTest):
         # always have inversion symmetry.
         indices = get_symmetrically_distinct_miller_indices(self.p1, 1)
         self.assertEqual(len(indices), 13)
+
+        indices = get_symmetrically_distinct_miller_indices(self.graphite, 2)
+        self.assertEqual(len(indices), 12)
 
     def test_generate_all_slabs(self):
         slabs = generate_all_slabs(self.cscl, 1, 10, 10)
