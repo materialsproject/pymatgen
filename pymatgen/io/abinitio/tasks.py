@@ -913,6 +913,7 @@ batch_adapter:
     def increase_resources(self):
         try:
             self.qadapter.more_cores()
+            return
         except QueueAdapterError:
             pass
 
@@ -1622,9 +1623,14 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             err_msg = self.stderr_file.read()
 
         # Analyze the stderr file of the resource manager runtime errors.
-        err_info = None
+        qerr_info = None
         if self.qerr_file.exists:
-            err_info = self.qerr_file.read()
+            qerr_info = self.qerr_file.read()
+
+        # Analyze the stdout file of the resource manager (needed for PBS !)
+        qout_info = None
+        if self.qout_file.exists:
+            qout_info = self.qout_file.read()
 
         # Start to check ABINIT status if the output file has been created.
         if self.output_file.exists:
@@ -1663,8 +1669,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 return self.set_status(self.S_ABICRITICAL, msg=msg)
 
             # 5)
-            if self.stderr_file.exists and not err_info:
-                if self.qerr_file.exists and not err_msg:
+            if self.stderr_file.exists and not err_msg:
+                if self.qerr_file.exists and not qerr_info:
                     # there is output and no errors
                     # The job still seems to be running
                     return self.set_status(self.S_RUN, msg='there is output and no errors: job still seems to be running')
@@ -1677,7 +1683,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 return self.status
                 
         # 7) Analyze the files of the resource manager and abinit and execution err (mvs)
-        if err_info:
+        if qerr_info or qout_info:
             from pymatgen.io.abinitio.scheduler_error_parsers import get_parser
             scheduler_parser = get_parser(self.manager.qadapter.QTYPE, err_file=self.qerr_file.path,
                                           out_file=self.qout_file.path, run_err_file=self.stderr_file.path)
@@ -1695,13 +1701,15 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 # self.history.critical(msg)
                 return self.set_status(self.S_QCRITICAL, msg=msg)
                 # The job is killed or crashed and we know what happened
-            else:
-                if len(err_info) > 0:
-                    #logger.history.debug('found unknown queue error: %s' % str(err_info))
-                    msg = 'found unknown queue error: %s' % str(err_info)
+            elif qerr_info:
+                # if only qout_info, we are not necessarily in QCRITICAL state, since there will always be info in the qout file
+                if len(qerr_info) > 0:
+                    #logger.history.debug('found unknown queue error: %s' % str(qerr_info))
+                    msg = 'found unknown queue error: %s' % str(qerr_info)
                     return self.set_status(self.S_QCRITICAL, msg=msg)
                     # The job is killed or crashed but we don't know what happened
                     # it is set to QCritical, we will attempt to fix it by running on more resources
+
 
         # 8) analizing the err files and abinit output did not identify a problem
         # but if the files are not empty we do have a problem but no way of solving it:
