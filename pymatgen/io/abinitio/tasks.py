@@ -527,7 +527,11 @@ batch_adapter:
             path = os.path.join(cls.USER_CONFIG_DIR, cls.YAML_FILE)
 
         if not os.path.exists(path):
-            raise RuntimeError("Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, path))
+            raise RuntimeError("Cannot locate %s neither in current directory nor in %s\n"
+                               " !!! PLEASE READ THIS : !!! \n"
+                               "To use abipy to run jobs this file needs be be present\n"
+                               "it provides a description of the cluster/computer you are running on\n"
+                               "Examples are provided in abipy/data/managers." % (cls.YAML_FILE, path))
 
         _USER_CONFIG_TASKMANAGER = cls.from_file(path)
         return _USER_CONFIG_TASKMANAGER 
