@@ -389,9 +389,49 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
     def has_hints(self):
         """True if self provides hints on the cutoff energy."""
         for acc in ["low", "normal", "high"]:
-            if self.hint_for_accuracy(acc) is None:
+            try:
+                if self.hint_for_accuracy(acc) is None:
+                    return False
+            except KeyError:
                 return False
         return True
+
+    def get_pspsfile(self, ecut=60, pawecutdg=None):
+        """
+        Calls Abinit to compute the internal tables for the application of the 
+        pseudopotential part. Returns :class:`PspsFile` object providing methods
+        to plot and analyze the data.
+
+        Args:
+            ecut: Cutoff energy in Hartree.
+            pawecutdg: Cutoff energy for the PAW double grid.
+
+        raise:
+            RuntimeError if file cannot be found.
+        """
+        from pymatgen.io.abinitio.tasks import AbinitTask
+        from abipy.core.structure import Structure
+        from abipy.abio.factories import gs_input
+        from abipy.electrons.psps import PspsFile
+
+        # Build fake structure.
+        lattice = 10 * np.eye(3)
+        structure = Structure(lattice, [self.element], coords=[[0, 0, 0]])
+
+        if self.ispaw and pawecutdg is None: pawecudg = ecut * 4
+        inp = gs_input(structure, pseudos=[self], ecut=ecut, pawecutdg=pawecutdg, kppa=1)
+        # Add prtpsps = -1 to make Abinit print the PSPS file and stop.
+        inp["prtpsps"] = -1
+
+        # Build temporary task and run it.
+        task = AbinitTask.temp_shell_task(inp)
+        retcode = task.start_and_wait()
+
+        filepath = task.outdir.has_abiext("_PSPS.nc")
+        if not filepath:
+            raise RuntimeError("Cannot find PSPS.nc file in %s" % task.outdir)
+
+        return PspsFile(filepath)
 
 
 class NcPseudo(six.with_metaclass(abc.ABCMeta, object)):
