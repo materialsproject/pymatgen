@@ -989,7 +989,12 @@ limits:
         Method to increase the number of MPI procs.
         Return: new number of processors if success, 0 if processors cannot be increased.
         """
-        base_increase = 4 * int(self.max_cores / 40)
+        # TODO : find a formula that works for all max_cores
+        if self.max_cores > 40:
+          base_increase = 4 * int(self.max_cores / 40)
+        else:
+          base_increase = 4
+
         new_cores = self.hint_cores + factor * base_increase
 
         if new_cores < self.max_cores:
@@ -1004,7 +1009,7 @@ limits:
         """
         base_increase = int(self.timelimit_hard / 10)
 
-        new_time = self.timelimit() + base_increase*factor
+        new_time = self.timelimit + base_increase*factor
         if new_time < self.timelimit_hard:
             self.set_timelimit(new_time)
             return new_time
