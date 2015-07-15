@@ -362,6 +362,7 @@ class PBSErrorParser(AbstractErrorParser):
     """
 
 #=>> PBS: job killed: walltime 932 exceeded limit 900
+#=>> PBS: job killed: walltime 46 exceeded limit 30
     @property
     def error_definitions(self):
         return {
@@ -382,7 +383,7 @@ class PBSErrorParser(AbstractErrorParser):
         }
 
 
-ALL_PARSERS = {'slurm': SlurmErrorParser, 'pbs': PBSErrorParser, 'torque': PBSErrorParser}
+ALL_PARSERS = {'slurm': SlurmErrorParser, 'pbspro': PBSErrorParser, 'torque': PBSErrorParser}
 
 
 def get_parser(scheduler, err_file, out_file=None, run_err_file=None, batch_err_file=None):
