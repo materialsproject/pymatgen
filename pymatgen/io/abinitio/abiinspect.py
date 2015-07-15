@@ -63,7 +63,11 @@ def _magic_parser(stream, magic):
             for l, v in zip(fields.values(), tokens):
                 l.append(v)
 
-    return fields
+    # Convert values to numpy arrays.
+    if fields:
+        return collections.OrderedDict([(k, np.array(v)) for k, v in fields.items()])
+    else:
+        return None
 
 
 def plottable_from_outfile(filepath):
@@ -87,7 +91,6 @@ def plottable_from_outfile(filepath):
     #obj = ctype2class.get(calc_type, None)
 
     obj = GroundStateScfCycle
-
     if obj is not None:
         return obj.from_file(filepath)
     else:
@@ -161,9 +164,12 @@ class ScfCycle(collections.Mapping):
             return None
 
     @add_fig_kwargs
-    def plot(self, **kwargs):
+    def plot(self, fig=None, **kwargs):
         """
         Uses matplotlib to plot the evolution of the SCF cycle. Return `matplotlib` figure
+
+        Args:
+            fig: matplotlib figure. If None a new figure is produced.
         """
         import matplotlib.pyplot as plt
 
@@ -173,11 +179,22 @@ class ScfCycle(collections.Mapping):
             ncols = 2
             nrows = (num_plots//ncols) + (num_plots % ncols)
 
-        fig, ax_list = plt.subplots(nrows=nrows, ncols=ncols, sharex=True, squeeze=False)
-        ax_list = ax_list.ravel()
+        if fig is None:
+            fig, ax_list = plt.subplots(nrows=nrows, ncols=ncols, sharex=True, squeeze=False)
+            ax_list = ax_list.ravel()
+        else:
+            ax_list = list(fig.axes)
+
+        # Use log scale for these variables.
+        use_logscale = set(["residm", "vres2"])
+
+        # Hard-coded y-range for selected variables.
+        has_yrange = {
+            "deltaE(h)": (-1e-3, +1e-3),
+            "deltaE(Ha)": (-1e-3, +1e-3),
+            }
 
         iter_num = np.array(list(range(self.num_iterations)))
-
         for ((key, values), ax) in zip(self.items(), ax_list):
             ax.grid(True)
             ax.set_xlabel('Iteration')
@@ -189,20 +206,28 @@ class ScfCycle(collections.Mapping):
                 # Don't show the first iteration since it's not very useful.
                 xx, yy = xx[1:] + 1, values[1:]
 
-            #print("xx ",xx, "yy ",yy)
             ax.plot(xx, yy, "-o", lw=2.0)
+
+            if key in use_logscale and np.all(yy > 1e-22):
+                ax.set_yscale("log")
+
+            if key in has_yrange:
+                ymin, ymax = has_yrange[key]
+                val_min, val_max = np.min(yy), np.max(yy)
+                if abs(val_max - val_min) > abs(ymax - ymin):
+                    ax.set_ylim(ymin, ymax)
 
         # Get around a bug in matplotlib.
         if (num_plots % ncols) != 0:
             ax_list[-1].plot(xx, yy, lw=0.0)
             ax_list[-1].axis('off')
 
+        #plt.legend(loc="best")
         return fig
 
 
 class GroundStateScfCycle(ScfCycle):
     """Result of the Ground State self-consistent cycle."""
-    #yaml_tag = '!GroundStateScfCycle'
     MAGIC = "iter   Etot(hartree)"
 
     @property
@@ -211,15 +236,18 @@ class GroundStateScfCycle(ScfCycle):
         return self["Etot(hartree)"][-1]
 
 
-class PhononScfCycle(ScfCycle):
+class D2DEScfCycle(ScfCycle):
     """Result of the Phonon self-consistent cycle."""
-    #yaml_tag = '!PhononScfCycle'
     MAGIC = "iter   2DEtotal(Ha)"
 
     @property
     def last_etotal(self):
         """The 2-nd order derivative of the energy at the last iteration."""
         return self["2DEtotal(Ha)"][-1]
+
+
+class PhononScfCycle(D2DEScfCycle):
+    """Iterations of the DFPT SCF cycle for phonons."""
 
 
 class Relaxation(collections.Iterable):
@@ -377,6 +405,14 @@ class Relaxation(collections.Iterable):
 #        if show: plt.show()
 #        return fig
 
+
+#class Differ(object)
+#class GroundStateScfCycleDiffer(Differ):
+
+
+##################
+## Yaml parsers.
+##################
 
 class YamlTokenizerError(Exception):
     """Exceptions raised by :class:`YamlTokenizer`."""
