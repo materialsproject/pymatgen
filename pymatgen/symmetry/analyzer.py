@@ -610,12 +610,7 @@ class SpacegroupAnalyzer(object):
                         new_matrix = [[a, 0, 0],
                                       [0, b, 0],
                                       [0, c * cos(alpha), c * sin(alpha)]]
-                if new_matrix is None:
-                    #this if is to treat the case
-                    #where alpha==90 (but we still have a monoclinic sg
-                    new_matrix = [[a, 0, 0],
-                                  [0, b, 0],
-                                  [0, c * cos(alpha), c * sin(alpha)]]
+
                 if new_matrix is None:
                     #this if is to treat the case
                     #where alpha==90 (but we still have a monoclinic sg
