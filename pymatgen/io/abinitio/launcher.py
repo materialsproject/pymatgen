@@ -623,6 +623,8 @@ class PyFlowScheduler(object):
         except Exception:
             excs.append(straceback())
 
+        # check status.
+        #flow.check_status(show=True)
         flow.show_status()
 
         if excs:
@@ -653,7 +655,7 @@ class PyFlowScheduler(object):
             return self.shutdown(msg="All tasks have reached S_OK. Will shutdown the scheduler and exit")
 
         # Handle failures.
-        err_msg = ""
+        err_lines = []
 
         # Shall we send a reminder to the user?
         delta_etime = self.get_delta_etime()
@@ -668,16 +670,16 @@ class PyFlowScheduler(object):
                 # Cannot send mail, shutdown now!
                 msg += ("\nThe scheduler tried to send an e-mail to remind the user\n" +
                         " but send_email returned %d. Aborting now" % retcode)
-                err_msg += msg
+                err_lines.append(msg)
 
         #if delta_etime.total_seconds() > self.max_etime_s:
-        #    err_msg += "\nExceeded max_etime_s %s. Will shutdown the scheduler and exit" % self.max_etime_s
+        #    err_lines.append("\nExceeded max_etime_s %s. Will shutdown the scheduler and exit" % self.max_etime_s)
 
         # Too many exceptions. Shutdown the scheduler.
         if self.num_excs > self.max_num_pyexcs:
             msg = "Number of exceptions %s > %s. Will shutdown the scheduler and exit" % (
                 self.num_excs, self.max_num_pyexcs)
-            err_msg += boxed(msg)
+            err_lines.append(boxed(msg))
 
         # Paranoid check: disable the scheduler if we have submitted
         # too many jobs (it might be due to some bug or other external reasons 
@@ -685,13 +687,13 @@ class PyFlowScheduler(object):
         if self.nlaunch > self.safety_ratio * self.flow.num_tasks:
             msg = "Too many jobs launched %d. Total number of tasks = %s, Will shutdown the scheduler and exit" % (
                 self.nlaunch, self.flow.num_tasks)
-            err_msg += boxed(msg)
+            err_lines.append(boxed(msg))
 
         # Count the number of tasks with status == S_ERROR.
         if self.flow.num_errored_tasks > self.max_num_abierrs:
             msg = "Number of tasks with ERROR status %s > %s. Will shutdown the scheduler and exit" % (
                 self.flow.num_errored_tasks, self.max_num_abierrs)
-            err_msg += boxed(msg)
+            err_lines.append(boxed(msg))
 
         # Test on the presence of deadlocks.
         #"""
@@ -703,19 +705,19 @@ class PyFlowScheduler(object):
             g = self.flow.find_deadlocks()
             print("deadlocked:\n", g.deadlocked, "\nrunnables:\n", g.runnables, "\nrunning\n", g.running)
             if g.deadlocked and not g.runnables and not g.running:
-                err_msg += "No runnable job with deadlocked tasks:\n%s." % str(g.deadlocked)
+                err_lines.append("No runnable job with deadlocked tasks:\n%s." % str(g.deadlocked))
 
         if not g.runnables and not g.running:
             # Check the flow again to that status are updated. 
             self.flow.check_status()
             g = self.flow.find_deadlocks()
             if not g.runnables and not g.running:
-                err_msg += "No task is running and cannot find other tasks to submit."
+                err_lines.append("No task is running and cannot find other tasks to submit.")
         #"""
 
-        if err_msg:
+        if err_lines:
             # Something wrong. Quit
-            self.shutdown(err_msg)
+            self.shutdown("\n".join(err_lines))
 
         return len(self.exceptions)
 
@@ -764,6 +766,7 @@ class PyFlowScheduler(object):
 
             print("")
             print("\n".join(lines))
+            print("")
 
             self._do_customer_service()
 

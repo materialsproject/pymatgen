@@ -1573,7 +1573,11 @@ class Flow(Node, NodeContainer, PMGSONable):
         This method is called when the flow is completed.
         Return 0 if success
         """
-        if self.finalized: return 1
+        if self.finalized: 
+            self.history.warning("Calling finalize on an alrady finalized flow.")
+            return 1
+
+        self.history.warning("Calling flow.finalize.")
         self.finalized = False
 
         if self.has_db:

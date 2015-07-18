@@ -593,7 +593,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     @finalized.setter
     def finalized(self, boolean):
         self._finalized = boolean
-        self.history.info("status set to finalized")
+        self.history.info("Status set to finalized")
 
     @property
     def in_spectator_mode(self):
@@ -602,7 +602,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
     @in_spectator_mode.setter
     def in_spectator_mode(self, mode):
         self._in_spectator_mode = bool(mode)
-        self.history.info("in_spectator_mode set to %s" % mode)
+        #self.history.info("in_spectator_mode set to %s" % mode)
 
     @property
     def corrections(self):
