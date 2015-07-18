@@ -358,8 +358,10 @@ limits:
                        # (default hardware.mem_per_core)
     max_mem_per_proc:  # Maximum memory per MPI process in Mb, units can be specified e.g. `1.4Gb`
                        # (default hardware.mem_per_node)
-    timelimit          # initial time limit
-    timelimit_hard     # the hard timelimit for this queue (mandatory)
+    timelimit          # Initial time-limit
+    timelimit_hard     # The hard time-limit for this queue.
+                       # Error handlers could try to submit jobs with increased timelimit
+                       # up to timelimit_hard. If not specified, timelimit_hard == timelimit
     condition:         # MongoDB-like condition (default empty, i.e. not used)
     allocation:        # String defining the policy used to select the optimal number of CPUs.
                        # possible values are ["nodes", "force_nodes", "shared"]
@@ -390,9 +392,8 @@ limits:
             min_mem_per_proc=Minimun memory per process in megabytes.
             max_mem_per_proc=Maximum memory per process in megabytes.
             timelimit: initial time limit in seconds
-            timelimit_hard: hard limelimit for this que
+            timelimit_hard: hard limelimit for this queue
             priority: Priority level, integer number > 0
-            allocate_nodes: True if we must allocate entire nodes"
             condition: Condition object (dictionary)
 
         .. note::
@@ -451,16 +452,24 @@ limits:
             raise ValueError(err_msg)
 
     def _parse_limits(self, d):
+        # Time limits.
         self.set_timelimit(qu.timelimit_parser(d.pop("timelimit")))
-        self.set_timelimit_hard(qu.timelimit_parser(d.pop("timelimit_hard")))
+        tl_hard = d.pop("timelimit_hard", None)
+        tl_hard = qu.timelimit_parser(tl_hard) if tl_hard is not None else self.timelimit
+        self.set_timelimit_hard(tl_hard)
+
+        # Cores
         self.min_cores = int(d.pop("min_cores", 1))
         self.max_cores = int(d.pop("max_cores"))
         self.hint_cores = int(d.pop("hint_cores", self.max_cores))
-        self.max_num_launches = int(d.pop("max_num_launches", 10))
+
+        # Memory
         # FIXME: Neeed because autoparal 1 with paral_kgb 1 is not able to estimate memory 
         self.min_mem_per_proc = qu.any2mb(d.pop("min_mem_per_proc", self.hw.mem_per_core))
         self.max_mem_per_proc = qu.any2mb(d.pop("max_mem_per_proc", self.hw.mem_per_node))
-        #self.allocate_nodes = bool(d.pop("allocate_nodes", False))
+
+        # Misc
+        self.max_num_launches = int(d.pop("max_num_launches", 10))
         self.condition = Condition(d.pop("condition", {}))
         self.allocation = d.pop("allocation", "shared")
         if self.allocation not in ("nodes", "force_nodes", "shared"):

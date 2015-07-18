@@ -114,7 +114,7 @@ class AbinitInpectTest(PymatgenTest):
         last = cycle.last_iteration
 
         assert last["Etot(hartree)"] == -7.1476241568657 and last["vres2"] == 3.879E-08
-        assert cycle["vres2"] == [1.769E+02, 7.920E-01, 1.570E-01, 4.259E-03, 4.150E-05, 3.879E-08]
+        assert list(cycle["vres2"]) == [1.769E+02, 7.920E-01, 1.570E-01, 4.259E-03, 4.150E-05, 3.879E-08]
 
         if have_matplotlib:
             cycle.plot(show=False)
