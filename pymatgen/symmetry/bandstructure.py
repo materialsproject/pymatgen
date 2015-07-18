@@ -18,6 +18,7 @@ from math import pi
 from warnings import warn
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
+
 class HighSymmKpath(object):
     """
     This class looks for path along high symmetry lines in
