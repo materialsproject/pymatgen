@@ -3242,6 +3242,36 @@ class ScrTask(ManyBodyTask):
     #def inspect(self, **kwargs):
     #    """Plot graph showing the number of q-points computed and the wall-time used"""
 
+    @property
+    def scr_path(self):
+        """Absolute path of the SCR file. Empty string if file is not present."""
+        # Lazy property to avoid multiple calls to has_abiext.
+        try:
+            return self._scr_path 
+        except AttributeError:
+            path = self.outdir.has_abiext("SCR.nc")
+            if path: self._scr_path = path
+            return path
+
+    def open_scr(self):
+        """
+        Open the SIGRES file located in the in self.outdir. 
+        Returns SigresFile object, None if file could not be found or file is not readable.
+        """
+        scr_path = self.scr_path
+
+        if not scr_path:
+            logger.critical("%s didn't produce a SCR.nc file in %s" % (self, self.outdir))
+            return None
+
+        # Open the GSR file and add its data to results.out
+        from abipy.electrons.scr import SctFile
+        try:
+            return SctFile(sigres_path)
+        except Exception as exc:
+            logger.critical("Exception while reading SCR file at %s:\n%s" % (scr_path, str(exc)))
+            return None
+
 
 class SigmaTask(ManyBodyTask):
     """
@@ -3296,7 +3326,7 @@ class SigmaTask(ManyBodyTask):
             logger.critical("%s didn't produce a SIGRES file in %s" % (self, self.outdir))
             return None
 
-        # Open the GSR file and add its data to results.out
+        # Open the SIGRES file and add its data to results.out
         from abipy.electrons.gw import SigresFile
         try:
             return SigresFile(sigres_path)
