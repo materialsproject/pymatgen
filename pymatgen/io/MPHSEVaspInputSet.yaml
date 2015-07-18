@@ -8,7 +8,6 @@ INCAR:
   ISIF: 3
   ISMEAR: 0
   ISPIN: 2
-  ISYM: 3
   LHFCALC: true
   LORBIT: 11
   LREAL: AUTO
@@ -28,7 +27,7 @@ INCAR:
   NSW: 99
   PREC: Accurate
   PRECFOCK: Fast
-  SIGMA: 0.2
+  SIGMA: 0.05
 KPOINTS:
   grid_density: 1000
 POTCAR:
