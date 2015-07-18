@@ -406,9 +406,6 @@ class Relaxation(collections.Iterable):
 #        return fig
 
 
-#class Differ(object)
-#class GroundStateScfCycleDiffer(Differ):
-
 
 ##################
 ## Yaml parsers.

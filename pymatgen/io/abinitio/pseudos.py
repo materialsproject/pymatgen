@@ -396,7 +396,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
                 return False
         return True
 
-    def get_pspsfile(self, ecut=60, pawecutdg=None):
+    def open_pspsfile(self, ecut=20, pawecutdg=None):
         """
         Calls Abinit to compute the internal tables for the application of the 
         pseudopotential part. Returns :class:`PspsFile` object providing methods
@@ -429,9 +429,15 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
 
         filepath = task.outdir.has_abiext("_PSPS.nc")
         if not filepath:
-            raise RuntimeError("Cannot find PSPS.nc file in %s" % task.outdir)
+            logger.critical("Cannot find PSPS.nc file in %s" % task.outdir)
+            return None
 
-        return PspsFile(filepath)
+        # Open the PSPS file.
+        try:
+            return PspsFile(filepath)
+        except Exception as exc:
+            logger.critical("Exception while reading PSPS file at %s:\n%s" % (filepath, str(exc)))
+            return None
 
 
 class NcPseudo(six.with_metaclass(abc.ABCMeta, object)):
@@ -1731,6 +1737,24 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
             if not self[z]: return False
         return True
 
+    def all_combinations_for_elements(self, element_symbols):
+        """
+        Return a list with all the the possible combination of pseudos 
+        for the given list of element_symbols.
+        Each item is a list of pseudopotential objects.
+
+        Example::
+
+            table.all_combinations_for_elements(["Li", "F"])
+        """
+        d = OrderedDict()
+        for symbol in element_symbols:
+            d[symbol] = self.select_symbols(symbol, ret_list=True)
+
+        from itertools import product
+        all = product(*d.values())
+        return list(all)
+
     def pseudo_with_symbol(self, symbol):
         """
         Return the pseudo with the given chemical symbol.
@@ -2250,7 +2274,10 @@ class DojoReport(dict):
         "phonon"
     )
 
-    ATOLS = (1.0, 0.2, 0.04)
+    # Tolerances on the deltafactor prime (in eV) used for the hints.
+    #ATOLS = (1.0, 0.2, 0.04)
+    ATOLS = (0.5, 0.1, 0.02)
+
     Error = DojoReportError
 
     @classmethod
@@ -2656,6 +2683,9 @@ class DojoReport(dict):
                 for pad, color in zip(self.ATOLS, ("green", "red", "violet")):
                     ax.hlines(y=last + pad, xmin=xmin, xmax=xmax, colors=color, linewidth=3, linestyles='dotted')
                     ax.hlines(y=last - pad, xmin=xmin, xmax=xmax, colors=color, linewidth=3, linestyles='dotted')
+              
+                # Set proper limits so that we focus on the relevant region.
+                ax.set_ylim(last - 2*self.ATOLS[0], last + 2*self.ATOLS[0])
 
         return fig
 
@@ -2744,22 +2774,16 @@ class DojoReport(dict):
         return fig
 
     @add_fig_kwargs
-    def plot_phonon_convergence(self, code=None, ax_list=None, **kwargs):
+    def plot_phonon_convergence(self, ax_list=None, **kwargs):
         """
-        plot the convergence of the phonon modes wrt ecut.
+        Plot the convergence of the phonon modes wrt ecut.
 
         Args:
-            code: Reference code, not used
             ax_list: List of matplotlib Axes, if ax_list is None a new figure is created
 
         Returns:
             `matplotlib` figure.
         """
-
-        if code is not None:
-            from pseudo_dojo.refdata.phonon import ph_database
-            reference = ph_database().get_entry(symbol=self.symbol, code=code)
-
         d = self["phonon"]
         ecuts = list(d.keys())
 
@@ -2769,24 +2793,30 @@ class DojoReport(dict):
         s_ecuts = [ecut[0] for ecut in s]
 
         import matplotlib.pyplot as plt
-        fig, ax = plt.subplots(nrows=2)
-
+        fig, ax = plt.subplots(nrows=2, sharex=True)
         #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(keys), ncols=1, sharex=True, squeeze=False)
 
+        fmin, fmax = np.inf, -np.inf
         for i, v in enumerate(d[ecuts[0]]):
             values1 = np.array([float(d[ecut][i]) for ecut in s_ecuts])
+            fmin = min(fmin, values1.min())
+            fmax = max(fmax, values1.max())
 
             ax[0].plot(s_ecuts, values1, "o-")
             ax[0].grid(True)
-            ax[0].set_ylabel("phonon modes [meV]")
+            ax[0].set_ylabel("phonon modes [meV] (asr==2)")
             ax[0].set_xlabel("Ecut [Ha]")
 
             values2 = np.array([float(d[ecut][i]) - float(d[max_ecut][i]) for ecut in s_ecuts])
 
             ax[1].plot(s_ecuts, values2, "o-")
             ax[1].grid(True)
-            ax[1].set_ylabel("w - w(ecut_max)")
+            ax[1].set_ylabel("w - w(ecut_max) [meV]")
             ax[1].set_xlabel("Ecut [Ha]")
 
+        # Adjust limits.
+        fmin -= 10 
+        fmax += 10 
+        ax[0].set_ylim(fmin, fmax)
 
         return fig
