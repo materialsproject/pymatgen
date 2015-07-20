@@ -72,6 +72,7 @@ class PseudoTestCase(PymatgenTest):
         self.assertEqual(pseudo.l_max, 1)
         self.assertEqual(pseudo.l_local, 0)
 
+        assert self.Si_hgh.md5 is not None
         assert self.Si_hgh == self.Si_hgh
 
         # TM pseudos
@@ -116,6 +117,7 @@ class PseudoTestCase(PymatgenTest):
                         oxygen.Z_val == 6,
                        )
 
+        assert oxygen.md5 is not None
         self.assert_almost_equal(oxygen.paw_radius, 1.4146523028)
 
         # Test pickle
