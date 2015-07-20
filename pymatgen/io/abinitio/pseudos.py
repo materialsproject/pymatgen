@@ -121,14 +121,16 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
         return PseudoParser().parse(filename)
 
     def __eq__(self, other):
-        if not isinstance(other, Pseudo): return False
+        if other is None: return False
         # TODO
         # For the time being we check the filepath
         # A more robust algorithm would use md5
-        return self.filepath == other.filepath
-        #return (self.__class__ == other.__class__ and 
-        #return (self.md5 == other.md5 and 
-        #        self.text == other.text)
+        #return self.filepath == other.filepath
+        return (self.md5 == other.md5 and
+                self.__class__ == other.__class__ and 
+                self.Z == other.Z and 
+                self.Z_val == other.Z_val and
+                self.l_max == other.l_max )
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -216,29 +218,46 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
         """True if PAW pseudopotential."""
         return isinstance(self, PawPseudo)
 
-    #@lazy_property
-    #def md5(self):
-    #    import md5
-    #    m = md5.new()
-    #    with open(self.filepath, "r") as fh:
-    #        # Warning: line-based parser
-    #        for line in fh:
-    #            if line.startswith("<DOJO_REPORT>"): break
-    #            m.update(line)
+    @lazy_property
+    def md5(self):
+        """MD5 hash value."""
+        return self._compute_md5()
 
-    #    return m.digest()
+    def _compute_md5(self):
+        """Compute MD5 hash value."""
+        import hashlib
 
-    #@lazy_property
-    #def md5(self):
-    #    """Md5 hash value."""
-    #    with open(self.path, "r") as fh:
-    #        lines = fh.readlines()
-    #        start = lines.index("<DOJO_REPORT>\n")
-    #        stop = lines.index("</DOJO_REPORT>\n")
-    #        text = "".join(lines[:start])
-    #    
-    #        import hashlib
-    #        return hashlib.md5(text)
+        if self.path.endswith(".xml"):
+            # TODO: XML + DOJO_REPORT
+            #raise NotImplementedError("md5 for XML files!")
+            with open(self.path, "rt") as fh:
+                text = fh.read()
+
+        else:
+            # If we have a pseudo with a dojo_report at the end.
+            # we compute the hash from the data before DOJO_REPORT.
+            # else all the lines are taken.
+            with open(self.path, "rt") as fh:
+                lines = fh.readlines()
+                try:
+                    start = lines.index("<DOJO_REPORT>\n")
+                except ValueError:
+                    start = len(lines)
+                text = "".join(lines[:start])
+
+        m = hashlib.md5(text)
+        return m.hexdigest()
+
+    def check_and_fix_dojo_md5(self):
+        report = self.read_dojo_report()
+
+        if "md5" in report:
+            if report["md5"] != self.md5:
+                raise ValueError("md5 found in dojo_report does not agree\n"
+                    "with the computed value\nFound %s\nComputed %s"  % (report["md5"], hash))
+        else:
+            report["md5"] = self.md5
+            self.write_dojo_report(report=report)
 
     #@abc.abstractproperty
     #def xc_type(self):
@@ -274,16 +293,20 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
             Z=self.Z,
             Z_val=self.Z_val,
             l_max=self.l_max,
-            #md5=self.md5,
-            #nlcc_radius=self.nlcc_radius,
-            #xc_type=
-            #pp_type=
+            md5=self.md5,
             filepath=self.filepath
         )
 
     @classmethod
     def from_dict(cls, d):
-        return cls.from_file(d['filepath'])
+        new = cls.from_file(d['filepath'])
+
+        # Consistency test based on md5
+        if "md5" in d and d["md5"] != new.md5:
+            raise ValueError("The md5 found in file does not agree with the one in dict\n"
+            "Received %s\nComputed %s" % (d["md5"], new.md5))
+
+        return new
 
     def as_tmpfile(self):
         """
@@ -325,6 +348,13 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
             report = self.dojo_report
 
         report["symbol"] = self.symbol
+
+        if "md5" not in report:
+            report["md5"] = self.md5
+
+        if report["md5"] != self.md5:
+            raise ValueError("md5 found in dojo_report does not agree\n"
+               "with the computed value\nreport: %s\npseudo %s" % (report["md5"], self.md5))
 
         # Create JSON string from report.
         jstring = json.dumps(report, indent=4, sort_keys=True) + "\n"
@@ -381,7 +411,10 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
             accuracy: ["low", "normal", "high"]
         """
         if self.has_dojo_report:
-            return Hint.from_dict(self.dojo_report["hints"][accuracy])
+            try:
+                return Hint.from_dict(self.dojo_report["hints"][accuracy])
+            except KeyError:
+                return None
         else:
             return None
 
@@ -400,14 +433,11 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
         """
         Calls Abinit to compute the internal tables for the application of the 
         pseudopotential part. Returns :class:`PspsFile` object providing methods
-        to plot and analyze the data.
+        to plot and analyze the data or None if file is not found or it's not readable.
 
         Args:
             ecut: Cutoff energy in Hartree.
             pawecutdg: Cutoff energy for the PAW double grid.
-
-        raise:
-            RuntimeError if file cannot be found.
         """
         from pymatgen.io.abinitio.tasks import AbinitTask
         from abipy.core.structure import Structure
@@ -420,7 +450,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
 
         if self.ispaw and pawecutdg is None: pawecudg = ecut * 4
         inp = gs_input(structure, pseudos=[self], ecut=ecut, pawecutdg=pawecutdg, kppa=1)
-        # Add prtpsps = -1 to make Abinit print the PSPS file and stop.
+        # Add prtpsps = -1 to make Abinit print the PSPS.nc file and stop.
         inp["prtpsps"] = -1
 
         # Build temporary task and run it.
@@ -432,7 +462,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
             logger.critical("Cannot find PSPS.nc file in %s" % task.outdir)
             return None
 
-        # Open the PSPS file.
+        # Open the PSPS.nc file.
         try:
             return PspsFile(filepath)
         except Exception as exc:
@@ -1447,7 +1477,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
             label = "$n_c$" if i == 1 else "$\\tilde{n}_c$"
             ax.plot(rden.mesh, rden.mesh * rden.values, label=label, lw=2)
 
-        plt.legend(loc="best")
+        ax.legend(loc="best")
 
         return fig
 
@@ -1539,7 +1569,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     #    for state, rfunc in self.potentials.items():
     #        ax.plot(rfunc.mesh, rfunc.values, label="TPROJ: " + state)
 
-    #    plt.legend(loc="best")
+    #    ax.legend(loc="best")
 
     #    if title is not None: fig.suptitle(title)
     #    if show: plt.show()
@@ -1755,18 +1785,26 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
         all = product(*d.values())
         return list(all)
 
-    def pseudo_with_symbol(self, symbol):
+    def pseudo_with_symbol(self, symbol, allow_multi=False):
         """
         Return the pseudo with the given chemical symbol.
 
+        Args:
+            symbols: String with the chemical symbol of the element
+            allow_multi: By default, the method raises ValueError
+                if multiple occurrences are found. Use allow_multi to prevent this.
+
         Raises:
-            ValueError if symbol is not found or multiple occurences are present.
+            ValueError if symbol is not found or multiple occurences are present and not allow_multi
         """
         pseudos = self.select_symbols(symbol, ret_list=True)
-        if not pseudos or len(pseudos) > 1:
+        if not pseudos or (len(pseudos) > 1 and not allow_multi):
             raise ValueError("Found %d occurrences of symbol %s" % (len(pseudos), symbol))
 
-        return pseudos[0]
+        if not allow_multi: 
+            return pseudos[0]
+        else:
+            return pseudos
 
     def pseudos_with_symbols(self, symbols):
         """
@@ -1778,11 +1816,14 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
         pseudos = self.select_symbols(symbols, ret_list=True)
         found_symbols = [p.symbol for p in pseudos]
         duplicated_elements = [s for s, o in collections.Counter(found_symbols).items() if o > 1]
+
         if duplicated_elements:
             raise ValueError("Found multiple occurrences of symbol(s) %s" % ', '.join(duplicated_elements))
         missing_symbols = [s for s in symbols if s not in found_symbols]
+
         if missing_symbols:
             raise ValueError("Missing data for symbol(s) %s" % ', '.join(missing_symbols))
+
         return pseudos
 
     def select_symbols(self, symbols, ret_list=False):
@@ -2086,6 +2127,7 @@ try:
 except ImportError:
     DataFrame = object
 
+
 class DojoDataFrame(DataFrame):
     ALL_ACCURACIES = ("low", "normal", "high")
 
@@ -2283,7 +2325,7 @@ class DojoReport(dict):
     @classmethod
     def from_file(cls, filepath):
         """Read the DojoReport from file."""
-        with open(filepath, "r") as fh:
+        with open(filepath, "rt") as fh:
             lines = fh.readlines()
             try:
                 start = lines.index("<DOJO_REPORT>\n")
@@ -2291,6 +2333,9 @@ class DojoReport(dict):
                 return {}
 
             stop = lines.index("</DOJO_REPORT>\n")
+            #print("start, stop" ,start, stop)
+            #print("".join(lines[start+1:stop]))
+
             d = json.loads("".join(lines[start+1:stop]))
             return cls(**d)
 
@@ -2617,6 +2662,21 @@ class DojoReport(dict):
                 if adiff <= self.ATOLS[i] and hints[i] is None:
                     hints[i] = ecut
         return hints
+
+    def check_errors(self):
+        """
+        Return a list of errors found in the DOJO_REPORT.
+        """
+        errors = []
+        app = errors.append
+
+        if "version" not in self:
+            app("version is missing")
+
+        if "ppgen_hints" not in self:
+            app("version is missing")
+
+        return errors
 
     @add_fig_kwargs
     def plot_deltafactor_convergence(self, code="WIEN2k", what=None, ax_list=None, **kwargs):

@@ -103,7 +103,7 @@ class Composition(collections.Mapping, collections.Hashable, PMGSONable):
                {"Li":2, "O":1}, {3:2, 8:1} all result in a Li2O composition.
             2. Keyword arg initialization, similar to a dict, e.g.,
 
-               Compostion(Li = 2, O = 1)
+               Composition(Li = 2, O = 1)
 
             In addition, the Composition constructor also allows a single
             string as an input formula. E.g., Composition("Li2O").

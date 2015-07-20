@@ -16,7 +16,7 @@ import numpy as np
 from pprint import pprint
 from six.moves import map, zip, StringIO
 from monty.string import is_string, list_strings
-from monty.collections import AttrDict, dict2namedtuple
+from monty.collections import AttrDict
 from monty.functools import lazy_property, return_none_if_raise
 from monty.json import MontyDecoder
 from monty.fnmatch import WildCard
@@ -554,7 +554,7 @@ batch_adapter:
     @classmethod
     def as_manager(cls, obj):
         """
-        Convert obj into TaskManager instance. Accepts string, filepath, dictionary, TaskManager object.
+        Convert obj into TaskManager instance. Accepts string, filepath, dictionary, `TaskManager` object.
         If obj is None, the manager is initialized from the user config file.
         """
         if isinstance(obj, cls): return obj

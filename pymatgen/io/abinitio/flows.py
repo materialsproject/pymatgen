@@ -695,6 +695,10 @@ class Flow(Node, NodeContainer, PMGSONable):
         Raises:
             `RuntimeError` if executable is not in $PATH.
         """
+        if not self.allocated:
+            self.build()
+            #self.build_and_pickle_dump()
+
         isok, tuples = True, []
         for task in self.iflat_tasks():
             t = task.input.abivalidate()
