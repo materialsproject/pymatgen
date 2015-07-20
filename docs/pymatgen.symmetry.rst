@@ -26,34 +26,10 @@ pymatgen.symmetry.bandstructure module
     :undoc-members:
     :show-inheritance:
 
-pymatgen.symmetry.finder module
--------------------------------
-
-.. automodule:: pymatgen.symmetry.finder
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 pymatgen.symmetry.groups module
 -------------------------------
 
 .. automodule:: pymatgen.symmetry.groups
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.symmetry.pointgroup module
------------------------------------
-
-.. automodule:: pymatgen.symmetry.pointgroup
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.symmetry.spacegroup module
------------------------------------
-
-.. automodule:: pymatgen.symmetry.spacegroup
     :members:
     :undoc-members:
     :show-inheritance:

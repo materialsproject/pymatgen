@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v3.1.1
+------
+* Bug fixes for SpacegroupAnalyzer and SlabGenerator.
+* Much faster normal vec search.
+
 v3.1.0
 ------
 * Much improved surface generation algorithm that provides for
