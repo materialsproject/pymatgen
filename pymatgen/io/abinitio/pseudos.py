@@ -2129,6 +2129,7 @@ except ImportError:
 
 
 class DojoDataFrame(DataFrame):
+    """Extends pands DataFrame adding helper functions."""
     ALL_ACCURACIES = ("low", "normal", "high")
 
     ALL_TRIALS = (

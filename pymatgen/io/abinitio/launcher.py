@@ -301,6 +301,8 @@ class PyFlowScheduler(object):
                 file before launching the jobs. Default: False
             max_nlaunches: Maximum number of tasks launched by radpifire (default -1 i.e. no limit)
             fix_qcritical: True if the launcher should try to fix QCritical Errors (default: True)
+            rmflow: If set to True, the scheduler will remove the flow directory if the calculation
+                completed successfully. Default: False
         """
         # Options passed to the scheduler.
         self.sched_options = AttrDict(
@@ -330,6 +332,7 @@ class PyFlowScheduler(object):
         self.max_nlaunches = kwargs.pop("max_nlaunches", -1)
         self.debug = kwargs.pop("debug", 0)
         self.fix_qcritical = kwargs.pop("fix_qcritical", True)
+        self.rmflow = kwargs.pop("rmflow", False)
 
         self.customer_service_dir = kwargs.pop("customer_service_dir", None)
         if self.customer_service_dir is not None:
@@ -773,6 +776,12 @@ class PyFlowScheduler(object):
             if self.flow.all_ok:
                 print("Calling flow.finalize()")
                 self.flow.finalize()
+                if self.rmflow:
+                    app("Flow directory will be removed...")
+                    try:
+                        self.flow.rmtree()
+                    except Exception:
+                        logger.warning("Ignoring exception while trying to remove flow dir.")
 
         finally:
             # Shutdown the scheduler thus allowing the process to exit.
