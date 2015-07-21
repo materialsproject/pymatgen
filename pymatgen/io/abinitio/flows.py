@@ -1504,7 +1504,7 @@ class Flow(Node, NodeContainer, PMGSONable):
                 # Change the input so that output files are produced 
                 # only if the calculation is not converged.
                 task.history.info("Will disable IO for task")
-                task._set_inpvars(prtwf=-1, prtden=0) # prt1wf=-1, 
+                task._set_inpvars(prtwf=-1, prtden=0) # TODO: prt1wf=-1, 
             else:
                 must_produce_abiexts = []
                 for child in children:
