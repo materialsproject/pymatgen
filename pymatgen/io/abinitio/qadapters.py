@@ -462,6 +462,8 @@ limits:
         self.min_cores = int(d.pop("min_cores", 1))
         self.max_cores = int(d.pop("max_cores"))
         self.hint_cores = int(d.pop("hint_cores", self.max_cores))
+        if self.min_cores > self.max_cores:
+            raise ValueError("min_cores %s cannot be greater than max_cores %s" % (self.min_cores, self.max_cores))
 
         # Memory
         # FIXME: Neeed because autoparal 1 with paral_kgb 1 is not able to estimate memory 
