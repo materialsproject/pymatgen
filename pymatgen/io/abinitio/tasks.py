@@ -899,7 +899,7 @@ batch_adapter:
             # here we should try to switch to an other qadapter
             raise ManagerIncreaseError('manager failed to increase mem')
 
-    def increase_ncpu(self):
+    def increase_ncpus(self):
         """
         increase the number of cpus, first ask the current quadapter, if that one raises a QadapterIncreaseError
         switch to the next qadapter. If all fail raise an ManagerIncreaseError

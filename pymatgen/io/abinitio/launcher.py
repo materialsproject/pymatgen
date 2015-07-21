@@ -642,6 +642,15 @@ class PyFlowScheduler(object):
             # All exceptions raised here will trigger the shutdown!
             s = straceback()
             self.exceptions.append(s)
+
+            # This is useful when debugging 
+            #try:
+            #    print("Exception in callback, will cancel all tasks")
+            #    for task in self.flow.iflat_tasks():
+            #        task.cancel()
+            #except Exception:
+            #    pass
+
             self.shutdown(msg="Exception raised in callback!\n" + s)
 
     def _callback(self):

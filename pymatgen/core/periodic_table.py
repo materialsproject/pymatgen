@@ -40,8 +40,11 @@ _MAXZ = 119
 # List with the correspondence Z --> Symbol
 # We use a list instead of a mapping so that we can select slices easily.
 _z2symbol = _MAXZ * [None]
+_symbol2z = {}
 for (symbol, data) in _pt_data.items():
-    _z2symbol[data["Atomic no"]] = symbol
+    z = data["Atomic no"]
+    _z2symbol[z] = symbol
+    _symbol2z[symbol] = z
 
 
 def all_symbols():
@@ -63,8 +66,21 @@ def symbol_from_Z(z):
 
     Args:
         z (int): Atomic number or slice object
+
+    >>> assert symbol_from_Z(14) == "Si" 
     """
     return _z2symbol[z]
+
+
+def sort_symbols_by_Z(symbols):
+    """
+    Given a list of element symbols, sort the strings according to Z, 
+    Return sorted list.
+
+    >>> assert sort_symbols_by_Z(["Si", "H"]) == ["H", "Si"]
+    """
+    return list(sorted(symbols, key=lambda s: _symbol2z[s]))
+
 
 
 _CHARS2L = {
