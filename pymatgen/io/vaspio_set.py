@@ -626,7 +626,7 @@ class MITMDVaspInputSet(DictVaspInputSet):
         if 'ENCUT' not in self.user_incar_settings:
             del self.incar_settings['ENCUT']
 
-        if not spin_polarized:
+        if defaults['ISPIN'] == 1:
             del self.incar_settings['MAGMOM']
 
     def get_kpoints(self, structure):
