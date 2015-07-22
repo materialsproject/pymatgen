@@ -317,7 +317,10 @@ class SlabGenerator(object):
         Also stores the initial information needed later on to generate a slab.
 
         Args:
-            initial_structure (Structure): Initial input structure.
+            initial_structure (Structure): Initial input structure. Note that to
+                ensure that the miller indices correspond to usual
+                crystallographic definitions, you should supply a conventional
+                unit cell structure.
             miller_index ([h, k, l]): Miller index of plane parallel to
                 surface. Note that this is referenced to the input structure. If
                 you need this to be based on the conventional cell,
@@ -498,6 +501,11 @@ class SlabGenerator(object):
     def _calculate_possible_shifts(self, tol=0.1):
         frac_coords = self.oriented_unit_cell.frac_coords
         n = len(frac_coords)
+
+        if n == 1:
+            # Clustering does not work when there is only one data point.
+            shift = frac_coords[0][2] + 0.5
+            return [shift - math.floor(shift)]
 
         # We cluster the sites according to the c coordinates. But we need to
         # take into account PBC. Let's compute a fractional c-coordinate
@@ -680,7 +688,10 @@ def generate_all_slabs(structure, max_index, min_slab_size, min_vacuum_size,
     CsCl has equivalent slabs in the (0,0,1), (0,1,0), and (1,0,0) direction.
 
     Args:
-        structure (Structure): Initial input structure.
+        structure (Structure): Initial input structure. Note that to
+                ensure that the miller indices correspond to usual
+                crystallographic definitions, you should supply a conventional
+                unit cell structure.
         max_index (int): The maximum Miller index to go up to.
         symprec (float): Tolerance for symmetry finding. Defaults to 1e-3,
             which is fairly strict and works well for properly refined
