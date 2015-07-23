@@ -492,7 +492,7 @@ class Node(six.with_metaclass(abc.ABCMeta, object)):
         self._required_files = []
 
         # Used to push additional info during the execution. 
-        self.history = NodeHistory(maxlen=200)
+        self.history = NodeHistory(maxlen=80)
 
         # Actions performed to fix abicritical events.
         self._corrections = NodeCorrections()

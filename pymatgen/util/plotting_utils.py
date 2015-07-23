@@ -58,7 +58,7 @@ def get_publication_quality_plot(width=8, height=None, plt=None):
     return plt
 
 
-def get_ax_fig_plt(ax):
+def get_ax_fig_plt(ax=None):
     """
     Helper function used in plot functions supporting an optional Axes argument.
     If ax is None, we build the `matplotlib` figure and create the Axes else
