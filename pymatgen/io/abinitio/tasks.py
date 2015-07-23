@@ -1640,6 +1640,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 msg = "%s exception while parsing event_report:\n%s" % (self, exc)
                 return self.set_status(self.S_ABICRITICAL, msg=msg)
 
+            if report is None:
+                return self.set_status(self.S_ERROR, msg="got None report!")
+
             if report.run_completed:
                 # Here we  set the correct timing data reported by Abinit
                 self.datetimes.start = report.start_datetime
