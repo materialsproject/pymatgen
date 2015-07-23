@@ -607,10 +607,10 @@ class PyFlowScheduler(object):
         # fix only prepares for restarting, and sets to ready
         if self.fix_qcritical:
             nfixed = flow.fix_queue_critical()
-            if nfixed: print("Fixed %d QCritical errors" % nfixed)
+            if nfixed: print("Fixed %d QCritical error(s)" % nfixed)
 
         nfixed = flow.fix_abicritical()
-        if nfixed: print("Fixed %d AbiCritical errors" % nfixed)
+        if nfixed: print("Fixed %d AbiCritical error(s)" % nfixed)
 
         # update database
         flow.pickle_dump()
@@ -765,15 +765,23 @@ class PyFlowScheduler(object):
                     fh.writelines(self.exceptions)
                     fh.write("Shutdown message:\n%s" % msg)
 
+                # Cancel all jobs.
+                #try:
+                #   for task in self.flow.iflat_tasks()
+                #       task.cancel()
+                #except:
+                #   pass
+
             lines = []
             app = lines.append
             app("Submitted on %s" % time.ctime(self.start_time))
             app("Completed on %s" % time.asctime())
             app("Elapsed time %s" % str(self.get_delta_etime()))
+
             if self.flow.all_ok:
                 app("Flow completed successfully")
             else:
-                app("Flow didn't complete successfully")
+                app("Flow %s didn't complete successfully" % repr(self.flow.workdir))
                 app("Shutdown message:\n%s" % msg)
 
             print("")
@@ -845,6 +853,7 @@ class PyFlowScheduler(object):
             tag = " [ALL OK]" if self.flow.all_ok else " [WARNING]"
 
         return sendmail(subject=self.flow.name + tag, text=strio.getvalue(), mailto=self.mailto)
+
 
 def sendmail(subject, text, mailto, sender=None):
     """

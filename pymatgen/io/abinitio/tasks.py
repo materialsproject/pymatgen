@@ -1525,10 +1525,16 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         Args:
             status: Status object or string representation of the status
-            msg: string with human-readable message used in the case of errors (optional)
+            msg: string with human-readable message used in the case of errors.
         """
         # msg = "No message provided" if msg is None else msg
         # lets refuse to accept changes in the status the do not have a message
+        
+        # truncate strig if it's long. msg will be logged in the object and we don't want
+        # to waste memory.
+        if len(msg) > 2000:
+            msg = msg[:2000]
+            msg += "\n... snip ...\n"
 
         # Locked files must be explicitly unlocked 
         if self.status == self.S_LOCKED or status == self.S_LOCKED:
@@ -1734,7 +1740,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         #    msg = "Task have been submitted but cannot find the log file or the output file"
         #    return self.set_status(self.S_ERROR, msg)
 
-        return self.set_status(self.S_RUN, msg='final option: notting seems to be wrong, the job must still be running')
+        return self.set_status(self.S_RUN, msg='final option: nothing seems to be wrong, the job must still be running')
 
     def reduce_memory_demand(self):
         """
