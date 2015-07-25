@@ -156,7 +156,7 @@ class PseudoTestCase(PymatgenTest):
         self.assertFalse(ger.has_dojo_report)
 
     def test_oncvpsp_dojo_report(self):
-        """Testing the dojo report"""
+        """Testing pseudopotentials with dojo report"""
         plot = True
         try:
             from matplotlib.figure import Figure as Fig
@@ -165,6 +165,7 @@ class PseudoTestCase(PymatgenTest):
             plot = False
 
         h_wdr = Pseudo.from_file(ref_file("H-wdr.oncvpsp"))
+        #h_wdr.check_and_fix_dojo_md5()
 
         print(repr(h_wdr))
         print(h_wdr.as_dict())
