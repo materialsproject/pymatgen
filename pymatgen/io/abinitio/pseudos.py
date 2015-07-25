@@ -2868,20 +2868,12 @@ def write_notebook(pseudopath):
     """
     from IPython.nbformat import current as nbf
     #from IPython.nbformat import v3 as nbf
-    #from IPython.nbformat import v2 as nbf
-    #from IPython.nbformat import v4 as nbf
     #import IPython.nbformat as nbf
 
     nb = nbf.new_notebook()
-    #nb = nbf.NotebookNode()
     
-    #def ignore_text_cell(**kwargs):
-    #    pass
-    #nbf.new_text_cell = ignore_text_cell
-
     cells = [
-#        nbf.new_text_cell(cell_type='heading', 
-#                          source="This is an auto-generated notebook for %s" % os.path.basename(pseudopath)),
+        nbf.new_heading_cell("This is an auto-generated notebook for %s" % os.path.basename(pseudopath)),
         nbf.new_code_cell("""\
 from __future__ import print_function
 %matplotlib inline
@@ -2899,7 +2891,7 @@ from pymatgen.io.abinitio.pseudos import Pseudo
 pseudo = Pseudo.from_file('%s')
 report = pseudo.dojo_report""" % os.path.basename(pseudopath)),
 
-        #nbf.new_text_cell(cell_type='heading', source="ONCVPSP Input File:"),
+        nbf.new_heading_cell("ONCVPSP Input File:"),
         nbf.new_code_cell("""\
 input_file = pseudo.filepath.replace(".psp8", ".in") 
 %cat $input_file"""),
@@ -2912,31 +2904,31 @@ onc_parser = OncvOutputParser(pseudo.filepath.replace(".psp8", ".out"))
 onc_parser.scan()
 plotter = onc_parser.make_plotter()"""),
 
-        #nbf.new_text_cell(cell_type='heading', source="AE/PS radial wavefunctions $\phi(r)$:"),
+        nbf.new_heading_cell("AE/PS radial wavefunctions $\phi(r)$:"),
         nbf.new_code_cell("""fig = plotter.plot_radial_wfs(show=False)"""),
 
-        #nbf.new_text_cell(cell_type='heading', source="Arctan of the logarithmic derivatives:"),
+        nbf.new_heading_cell("Arctan of the logarithmic derivatives:"),
         nbf.new_code_cell("""fig = plotter.plot_atan_logders(show=False)"""),
 
-        #nbf.new_text_cell(cell_type='heading', source="Convergence in $G$-space estimated by ONCVPSP:"),
+        nbf.new_heading_cell("Convergence in $G$-space estimated by ONCVPSP:"),
         nbf.new_code_cell("""fig = plotter.plot_ene_vs_ecut(show=False)"""),
 
-        #nbf.new_text_cell(cell_type='heading', source="Projectors:"),
+        nbf.new_heading_cell("Projectors:"),
         nbf.new_code_cell("""fig = plotter.plot_projectors(show=False)"""),
 
-        #nbf.new_text_cell(cell_type='heading', source="Core/Valence/Model charge densities:"),
+        nbf.new_heading_cell("Core/Valence/Model charge densities:"),
         nbf.new_code_cell("""fig = plotter.plot_densities(show=False)"""),
 
-        #nbf.new_text_cell(cell_type='heading', source="Local potential and $l$-dependent potentials:"),
+        nbf.new_heading_cell("Local potential and $l$-dependent potentials:"),
         nbf.new_code_cell("""fig = plotter.plot_potentials(show=False)"""),
 
-        #nbf.new_text_cell(cell_type='heading', source="1-st order derivative of $v_l$ and $v_{loc}$ computed via finite differences:"),
+        #nbf.new_heading_cell("1-st order derivative of $v_l$ and $v_{loc}$ computed via finite differences:"),
         #nbf.new_code_cell("""fig = plotter.plot_der_potentials(order=1, show=False)"""),
 
-        #nbf.new_text_cell(cell_type='heading', source="2-nd order derivative of $v_l$ and $v_{loc}$ computed via finite differences:"),
+        #nbf.new_heading_cell("2-nd order derivative of $v_l$ and $v_{loc}$ computed via finite differences:"),
         #nbf.new_code_cell("""fig = plotter.plot_der_potentials(order=2, show=False)"""),
 
-        #nbf.new_text_cell(cell_type='heading', source="Model core charge and form factors computed by ABINIT"),
+        nbf.new_heading_cell("Model core charge and form factors computed by ABINIT"),
         nbf.new_code_cell("""\
 with pseudo.open_pspsfile() as psps:
     psps.plot_modelcore_rspace()
@@ -2944,35 +2936,35 @@ with pseudo.open_pspsfile() as psps:
     psps.plot_vlspl()
     psps.plot_ffspl()"""),
 
-        #nbf.new_text_cell(cell_type='heading', source="Convergence of the total energy:"),
+        nbf.new_heading_cell("Convergence of the total energy:"),
         nbf.new_code_cell("""\
 # Convergence of the total energy (computed from the deltafactor runs with Wien2K equilibrium volume)
 fig = report.plot_etotal_vs_ecut(show=False)"""),
 
-        #nbf.new_text_cell(cell_type='heading', source="Convergence of the deltafactor results:"),
+        nbf.new_heading_cell("Convergence of the deltafactor results:"),
         nbf.new_code_cell("""fig = report.plot_deltafactor_convergence(what=("dfact_meV", "dfactprime_meV"), show=False)"""),
 
-        #nbf.new_text_cell(cell_type='heading', source="Convergence of $\Delta v_0$, $\Delta b_0$, and $\Delta b_1$ (deltafactor tests)"),
+        nbf.new_heading_cell("Convergence of $\Delta v_0$, $\Delta b_0$, and $\Delta b_1$ (deltafactor tests)"),
         nbf.new_code_cell("""\
 # Here we plot the difference wrt Wien2k results.
 fig = report.plot_deltafactor_convergence(what=("-dfact_meV", "-dfactprime_meV"), show=False)"""),
 
-        #nbf.new_text_cell(cell_type='heading', source="deltafactor EOS for the different cutoff energies:"),
+        nbf.new_heading_cell("deltafactor EOS for the different cutoff energies:"),
         nbf.new_code_cell("""fig = report.plot_deltafactor_eos(show=False)"""),
 
-        #nbf.new_text_cell(cell_type='heading', source="Convergence of the GBRV lattice parameters:"),
+        nbf.new_heading_cell("Convergence of the GBRV lattice parameters:"),
         nbf.new_code_cell("""fig = report.plot_gbrv_convergence(show=False)"""),
 
-        #nbf.new_text_cell(cell_type='heading', source="GBRV EOS for the FCC structure:"),
+        nbf.new_heading_cell("GBRV EOS for the FCC structure:"),
         nbf.new_code_cell("""fig = report.plot_gbrv_eos(struct_type="fcc", show=False)"""),
 
-        #nbf.new_text_cell(cell_type='heading', source="GBRV EOS for the BCC structure:"),
+        nbf.new_heading_cell("GBRV EOS for the BCC structure:"),
         nbf.new_code_cell("""fig = report.plot_gbrv_eos(struct_type="bcc", show=False)"""),
 
-        #nbf.new_text_cell(cell_type='heading', source="Convergence of phonon frequencies at $\Gamma$:"),
+        nbf.new_heading_cell("Convergence of phonon frequencies at $\Gamma$:"),
         nbf.new_code_cell("""fig = report.plot_phonon_convergence(show=False)"""),
 
-#        nbf.new_text_cell(cell_type='heading', source="Comparison with the other pseudos in this table"),
+#        nbf.new_heading_cell("Comparison with the other pseudos in this table"),
 #        nbf.new_code_cell("""\
 #from pseudo_dojo import get_pseudos
 #pseudos = get_pseudos(".")
