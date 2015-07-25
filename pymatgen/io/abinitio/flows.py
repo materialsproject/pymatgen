@@ -668,7 +668,6 @@ class Flow(Node, NodeContainer, PMGSONable):
         lines = []
         app = lines.append
 
-        task2vars = {}
         for task in self.iflat_tasks():
             app(str(task))
             for name in varnames:
@@ -908,7 +907,7 @@ class Flow(Node, NodeContainer, PMGSONable):
                     events = '{:>3}|{:>4}|{:>3}'.format(*map(str, (report.num_errors, report.num_warnings, report.num_comments)))
 
                 #para_info = "|".join(map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
-                para_info  = '{:>4}|{:>3}|{:>3}'.format(*map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
+                para_info = '{:>4}|{:>3}|{:>3}'.format(*map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
 
                 task_info = list(map(str, [task.__class__.__name__, 
                                  (task.num_restarts, task.num_launches, task.num_corrections), stime, task.node_id]))
@@ -962,8 +961,8 @@ class Flow(Node, NodeContainer, PMGSONable):
     
     def listext(self, ext, stream=sys.stdout):
         """
-        Print to the given stream a table with the list of the output files 
-        with the given ext produced by the flow.
+        Print to the given `stream` a table with the list of the output files
+        with the given `ext` produced by the flow.
         """
         nodes_files = []
         for node in self.iflat_nodes():
@@ -1210,16 +1209,21 @@ class Flow(Node, NodeContainer, PMGSONable):
             app(header)
             report = task.get_event_report()
 
-            app("num_errors: %s, num_warnings: %s, num_comments: %s" % (
-            report.num_errors, report.num_warnings, report.num_comments))
+            if report is not None:
+                app("num_errors: %s, num_warnings: %s, num_comments: %s" % (
+                    report.num_errors, report.num_warnings, report.num_comments))
 
-            app("*** ERRORS ***")
-            app("\n".join(str(e) for e in report.errors))
+                app("*** ERRORS ***")
+                app("\n".join(str(e) for e in report.errors))
 
-            app("*** BUGS ***")
-            app("\n".join(str(b) for b in report.bugs))
+                app("*** BUGS ***")
+                app("\n".join(str(b) for b in report.bugs))
 
-            lines.append("=" * len(header) + 2*"\n")
+            else:
+                app("get_envent_report returned None!")
+
+
+            app("=" * len(header) + 2*"\n")
 
         return stream.writelines(lines)
 
@@ -1261,7 +1265,8 @@ class Flow(Node, NodeContainer, PMGSONable):
 
         # If we are running with the scheduler, we must send a SIGKILL signal.
         if os.path.exists(self.pid_file):
-            print("Found scheduler attached to this flow. Will send SIGKILL to the scheduler before cancelling the tasks!")
+            print("Found scheduler attached to this flow.")
+            print("Will send SIGKILL to the scheduler before cancelling the tasks!")
             
             with open(self.pid_file, "r") as fh:
                 pid = int(fh.readline())

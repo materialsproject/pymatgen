@@ -418,7 +418,7 @@ limits:
         self.launches = []
 
         if kwargs:
-            raise ValueError("Found unknown keywords:\n%s" % kwargs.keys())
+            raise ValueError("Found unknown keywords:\n%s" % list(kwargs.keys()))
 
         self.validate_qparams()
 

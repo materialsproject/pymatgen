@@ -1432,7 +1432,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         # Can only reset tasks that are done.
         # One should be able to reset 'Submitted' tasks (sometimes, they are not in the queue
         #   and we want to restart them)
-        if (self.status != self.S_SUB and self.status < self.S_DONE): return 1
+        if self.status != self.S_SUB and self.status < self.S_DONE: return 1
 
         # Remove output files otherwise the EventParser will think the job is still running
         self.output_file.remove()
