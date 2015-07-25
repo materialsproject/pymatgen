@@ -9,9 +9,10 @@ import sys
 import collections
 import numpy as np
 
-from monty.string import is_string, list_strings
 from six.moves import zip
+from monty.string import is_string, list_strings
 from pymatgen.util.num_utils import minloc
+from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
 
 import logging
 logger = logging.getLogger(__name__)
@@ -253,12 +254,9 @@ class AbinitTimerParser(collections.Iterable):
 
         return ParallelEfficiency(self._filenames, min_idx, peff)
 
-    def show_efficiency(self, key="wall_time", what="gb", nmax=5, **kwargs):
-        import matplotlib.pyplot as plt
-
-        title = kwargs.pop("title", "Parallel efficiency")
-        show = kwargs.pop("show", True)
-        savefig = kwargs.pop("savefig", None)
+    @add_fig_kwargs
+    def plot_efficiency(self, key="wall_time", what="gb", nmax=5, ax=None, **kwargs):
+        ax, fig, plt = get_ax_fig_plt(ax=ax)
 
         timers = self.timers()
         peff = self.pefficiency()
@@ -269,8 +267,6 @@ class AbinitTimerParser(collections.Iterable):
         n = len(timers)
         xx = np.arange(n)
 
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1)
         ax.set_color_cycle(['g', 'b', 'c', 'm', 'y', 'k'])
 
         legend_entries = []
@@ -304,7 +300,7 @@ class AbinitTimerParser(collections.Iterable):
 
         ax.legend(lines, legend_entries, loc="best", shadow=True)
 
-        ax.set_title(title)
+        #ax.set_title(title)
         ax.set_xlabel('Total_NCPUs')
         ax.set_ylabel('Efficiency')
         ax.grid(True)
@@ -314,21 +310,12 @@ class AbinitTimerParser(collections.Iterable):
         ax.set_xticks(xx)
         ax.set_xticklabels(labels, fontdict=None, minor=False, rotation=15)
 
-        if show:
-            plt.show()
-
-        if savefig:
-            fig.savefig(savefig)
-
         return fig
 
-    def show_pie(self, key="wall_time", minfract=0.05, **kwargs):
+    @add_fig_kwargs
+    def plot_pie(self, key="wall_time", minfract=0.05, ax=None, **kwargs):
         """Pie charts of the different timers."""
-        import matplotlib.pyplot as plt
-
-        title = kwargs.pop("title", None)
-        show = kwargs.pop("show", True)
-        savefig = kwargs.pop("savefig", None)
+        ax, fig, plt = get_ax_fig_plt(ax=ax)
 
         timers = self.timers()
         n = len(timers)
@@ -338,26 +325,17 @@ class AbinitTimerParser(collections.Iterable):
 
         fig = plt.figure(1, figsize=(6, 6))
 
-        for (idx, timer) in enumerate(timers):
+        for idx, timer in enumerate(timers):
             plt.subplot(the_grid[idx, 0])
             plt.title(str(timer))
             timer.pie(key=key, minfract=minfract)
 
-        if show:
-            plt.show()
-
-        if savefig:
-            fig.savefig(savefig)
-
         return fig
 
-    def show_stacked_hist(self, key="wall_time", nmax=5, **kwargs):
+    @add_fig_kwargs
+    def plot_stacked_hist(self, key="wall_time", nmax=5, ax=None, **kwargs):
         """Stacked histogram of the different timers."""
-        import matplotlib.pyplot as plt
-
-        title = kwargs.pop("title", None)
-        show = kwargs.pop("show", True)
-        savefig = kwargs.pop("savefig", None)
+        ax, fig, plt = get_ax_fig_plt(ax=ax)
 
         mpi_rank = "0"
         timers = self.timers(mpi_rank=mpi_rank)
@@ -366,7 +344,7 @@ class AbinitTimerParser(collections.Iterable):
         names, values = [], []
         rest = np.zeros(n)
 
-        for (idx, sname) in enumerate(self.section_names(ordkey=key)):
+        for idx, sname in enumerate(self.section_names(ordkey=key)):
             sections = self.get_sections(sname)
             svals = np.asarray([s.__dict__[key] for s in sections])
 
@@ -393,7 +371,7 @@ class AbinitTimerParser(collections.Iterable):
         bars = []
         bottom = np.zeros(n)
 
-        for (idx, vals) in enumerate(values):
+        for idx, vals in enumerate(values):
             color = colors[idx]
 
             bar = plt.bar(ind, vals, width, color=color, bottom=bottom)
@@ -401,21 +379,14 @@ class AbinitTimerParser(collections.Iterable):
 
             bottom += vals
 
-        plt.ylabel(key)
-        plt.title("Stacked histogram for the %d most important sections" % nmax)
+        ax.set_ylabel(key)
+        #ax.title("Stacked histogram for the %d most important sections" % nmax)
 
         labels = ["MPI = %d, OMP = %d" % (t.mpi_nprocs, t.omp_nthreads) for t in timers]
         plt.xticks(ind + width / 2.0, labels, rotation=15)
         #plt.yticks(np.arange(0,81,10))
 
-        plt.legend([bar[0] for bar in bars], names, loc="best")
-
-        if show:
-            plt.show()
-
-        fig = plt.gcf()
-        if savefig:
-            fig.savefig(savefig)
+        ax.legend([bar[0] for bar in bars], names, loc="best")
 
         return fig
 
@@ -666,14 +637,9 @@ class AbinitTimer(object):
         fsort = lambda s: s.__dict__[key]
         return sorted(self.sections, key=fsort, reverse=reverse)
 
-    def cpuwall_histogram(self, **kwargs):
-        import matplotlib.pyplot as plt
-
-        title = kwargs.pop("title", None)
-        show = kwargs.pop("show", True)
-        savefig = kwargs.pop("savefig", None)
-
-        fig = plt.subplot(1, 1, 1)
+    @add_fig_kwargs
+    def cpuwall_histogram(self, ax=None, **kwargs):
+        ax, fig, plt = get_ax_fig_plt(ax=ax)
 
         nk = len(self.sections)
         ind = np.arange(nk)  # the x locations for the groups
@@ -686,23 +652,17 @@ class AbinitTimer(object):
         rects2 = plt.bar(ind + width, wall_times, width, color='y')
 
         # Add ylable and title
-        plt.ylabel('Time (s)')
+        ax.set_ylabel('Time (s)')
 
-        if title:
-            plt.title(title)
-        else:
-            plt.title('CPU-time and Wall-time for the different sections of the code')
+        #if title:
+        #    plt.title(title)
+        #else:
+        #    plt.title('CPU-time and Wall-time for the different sections of the code')
 
         ticks = self.get_values("name")
-        plt.xticks(ind + width, ticks)
+        ax.set_xticks(ind + width, ticks)
 
-        plt.legend((rects1[0], rects2[0]), ('CPU', 'Wall'), loc="best")
-
-        if show:
-            plt.show()
-
-        if savefig:
-            fig.savefig(savefig)
+        ax.legend((rects1[0], rects2[0]), ('CPU', 'Wall'), loc="best")
 
         return fig
 
@@ -736,18 +696,19 @@ class AbinitTimer(object):
 
         return plt.pie(vals, explode=None, labels=labels, autopct='%1.1f%%', shadow=True)
 
-    def scatter_hist(self, **kwargs):
+    def scatter_hist(self, ax=None, **kwargs):
         import matplotlib.pyplot as plt
         from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-        title = kwargs.pop("title", None)
-        show = kwargs.pop("show", True)
-        savefig = kwargs.pop("savefig", None)
+        ax, fig, plt = get_ax_fig_plt(ax=ax)
+
+        #title = kwargs.pop("title", None)
+        #show = kwargs.pop("show", True)
+        #savefig = kwargs.pop("savefig", None)
+        #fig = plt.figure(1, figsize=(5.5, 5.5))
 
         x = np.asarray(self.get_values("cpu_time"))
         y = np.asarray(self.get_values("wall_time"))
-
-        fig = plt.figure(1, figsize=(5.5, 5.5))
 
         # the scatter plot:
         axScatter = plt.subplot(1, 1, 1)
@@ -787,11 +748,5 @@ class AbinitTimer(object):
                 axHisty.set_xticks([0, 50, 100])
 
         plt.draw()
-
-        if show:
-            plt.show()
-
-        if savefig:
-            fig.savefig(savefig)
 
         return fig
