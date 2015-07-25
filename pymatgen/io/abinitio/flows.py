@@ -1174,6 +1174,26 @@ class Flow(Node, NodeContainer, PMGSONable):
 
         return Editor(editor=editor).edit_files(files)
 
+    def get_abitimer(self, nids=None):
+        """
+        Parse the timer data in the main output file(s) of Abinit.
+
+        Args:
+            nids: optional list of node identifiers used to filter the tasks.
+
+        Return: :class:`AbinitTimerParser` instance, None if error.
+        """
+        # Get the list of output files according to nids.
+        paths = [task.output_file.path for task in self.iflat_tasks(nids=nids)]
+
+        # Parse data.
+        from .abitimer import AbinitTimerParser
+        parser = AbinitTimerParser() 
+        read_ok = parser.parse(paths)
+        if read_ok:
+            return parser
+        return None
+
     def show_abierrors(self, nids=None, stream=sys.stdout):
         """
         Write to the given stream the list of ABINIT errors for all tasks whose status is S_ABICRITICAL.

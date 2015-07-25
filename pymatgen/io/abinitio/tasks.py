@@ -70,7 +70,7 @@ class TaskResults(NodeResults):
 
     @classmethod
     def from_node(cls, task):
-        """Initialize an instance from an AbinitTask instance."""
+        """Initialize an instance from an :class:`AbinitTask` instance."""
         new = super(TaskResults, cls).from_node(task)
 
         new.update(
@@ -2694,6 +2694,19 @@ class AbinitTask(Task):
 
         return 0
 
+    def get_abitimer(self):
+        """
+        Parse the timer data in the main output file of Abinit.
+
+        Return: :class:`AbinitTimerParser` instance, None if error.
+        """
+        from .abitimer import AbinitTimerParser
+        parser = AbinitTimerParser() 
+        read_ok = parser.parse(self.output_file.path)
+        if read_ok:
+            return parser
+        return None
+
 
 class ProduceHist(object):
     """
@@ -3051,7 +3064,7 @@ class DfptTask(AbinitTask):
                 logger.critical("%s reached S_OK but didn't produce a DDB file in %s" % (self, self.outdir))
             return None
 
-        # Open the GSR file.
+        # Open the DDB file.
         from abipy.dfpt.ddb import DdbFile
         try:
             return DdbFile(ddb_path)
@@ -3603,7 +3616,7 @@ class AnaddbTask(Task):
     def __init__(self, anaddb_input, ddb_node,
                  gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None):
         """
-        Create an instance of :class:`AnaddbTask` from an string containing the input.
+        Create an instance of :class:`AnaddbTask` from a string containing the input.
 
         Args:
             anaddb_input: string with the anaddb variables.
