@@ -166,6 +166,7 @@ class PseudoTestCase(PymatgenTest):
 
         h_wdr = Pseudo.from_file(ref_file("H-wdr.oncvpsp"))
         #h_wdr.check_and_fix_dojo_md5()
+        assert h_wdr.md5 == "0911255f47943a292c3905909f499a84"
 
         print(repr(h_wdr))
         print(h_wdr.as_dict())
