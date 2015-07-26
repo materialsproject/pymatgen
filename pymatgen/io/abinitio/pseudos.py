@@ -252,7 +252,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
                     start = len(lines)
                 text = "".join(lines[:start])
 
-        m = hashlib.md5(text)
+        m = hashlib.md5(text.encode("utf-8"))
         return m.hexdigest()
 
     def check_and_fix_dojo_md5(self):
@@ -2537,7 +2537,7 @@ class DojoReport(dict):
         d = OrderedDict([(ecut, data["etotals"][4]) for ecut, data in self["deltafactor"].items()])
 
         # Ecut mesh in Ha
-        ecuts = np.array(d.keys())
+        ecuts = np.array(list(d.keys()))
         ecut_min, ecut_max = np.min(ecuts), np.max(ecuts)
 
         # Energies per atom in meV and difference wrt 'converged' value
@@ -2686,7 +2686,7 @@ class DojoReport(dict):
         reference = df_database().get_entry(symbol=self.symbol, code=code)
 
         d = self["deltafactor"]
-        ecuts = d.keys()
+        ecuts = list(d.keys())
 
         import matplotlib.pyplot as plt
         if ax_list is None:
@@ -2793,7 +2793,7 @@ class DojoReport(dict):
         for i, (ax, stype) in enumerate(zip(ax_list, stypes)):
             trial = "gbrv_" + stype
             d = self[trial]
-            ecuts = d.keys()
+            ecuts = list(d.keys())
             values = np.array([float(d[ecut]["a0_rel_err"]) for ecut in ecuts])
 
             ax.grid(True)
