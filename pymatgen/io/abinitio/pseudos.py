@@ -14,6 +14,7 @@ import six
 #import pprint
 import numpy as np
 
+from warnings import warn
 from collections import OrderedDict
 from monty.string import list_strings, is_string
 from monty.itertools import iterator_from_slice
@@ -222,9 +223,12 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
     def md5(self):
         """MD5 hash value."""
         if self.has_dojo_report:
-            return self.dojo_report["md5"]
-        else:
-            return self._compute_md5()
+            if "md5" in self.dojo_report:
+                return self.dojo_report["md5"]
+            else:
+                warn("Dojo report without md5 entry")
+
+        return self._compute_md5()
 
     def _compute_md5(self):
         """Compute MD5 hash value."""
@@ -707,7 +711,6 @@ def _int_from_str(string):
         return int_num
     else:
         # Needed to handle pseudos with fractional charge
-        from warnings import warn
         int_num = np.rint(float_num)
         warn("Converting float %s to int %s" % (float_num, int_num))
         return int_num
