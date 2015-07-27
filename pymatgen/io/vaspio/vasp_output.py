@@ -848,10 +848,14 @@ class Vasprun(PMGSONable):
     def _parse_params(self, elem):
         params = {}
         for c in elem:
+            name = c.attrib.get("name")
             if c.tag not in ("i", "v"):
-                params.update(self._parse_params(c))
+                p = self._parse_params(c)
+                if name == "response functions" and "NELM" in p:
+                    # Delete NELM from response functions.
+                    del p["NELM"]
+                params.update(p)
             else:
-                name = c.attrib.get("name")
                 ptype = c.attrib.get("type")
                 val = c.text.strip() if c.text else ""
                 if c.tag == "i":
