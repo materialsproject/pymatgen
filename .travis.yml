@@ -12,7 +12,7 @@ env:
     - GULP_LIB=`pwd`/cmd_line/gulp/Libraries
 # command to install dependencies
 install:
-  - "sudo apt-get install python-scipy libblas-dev liblapack-dev"
+  - "sudo apt-get install python-scipy libblas-dev liblapack-dev gfortran"
   - "pip install pip --upgrade"
   - "pip install -r requirements.txt"
 # This is needed, otherwise, nosetests can't find the installed pymatgen C
