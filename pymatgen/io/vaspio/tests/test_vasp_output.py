@@ -41,6 +41,8 @@ class VasprunTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath, parse_potcar_file=False)
 
+        #Test NELM parsing.
+        self.assertEqual(vasprun.parameters["NELM"], 60)
         #test pdos parsing
 
         pdos0 = vasprun.complete_dos.pdos[vasprun.final_structure[0]]

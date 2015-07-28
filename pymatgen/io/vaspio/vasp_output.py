@@ -848,10 +848,15 @@ class Vasprun(PMGSONable):
     def _parse_params(self, elem):
         params = {}
         for c in elem:
+            name = c.attrib.get("name")
             if c.tag not in ("i", "v"):
-                params.update(self._parse_params(c))
+                p = self._parse_params(c)
+                if name == "response functions":
+                    # Delete duplicate fields from "response functions",
+                    # which overrides the values in the root params.
+                    p = {k: v for k, v in p.items() if k not in params}
+                params.update(p)
             else:
-                name = c.attrib.get("name")
                 ptype = c.attrib.get("type")
                 val = c.text.strip() if c.text else ""
                 if c.tag == "i":

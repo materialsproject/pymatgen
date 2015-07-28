@@ -152,6 +152,11 @@ class SlabGeneratorTest(PymatgenTest):
             self.assertGreaterEqual(len(gen_normal.oriented_unit_cell),
                                     len(gen.oriented_unit_cell))
 
+        sc = Structure(Lattice.hexagonal(3.32, 5.15), ["Sc", "Sc"],
+                       [[1/3, 2/3, 0.25], [2/3, 1/3, 0.75]])
+        gen = SlabGenerator(sc, (1, 1, 1), 10, 10, max_normal_search=1)
+        self.assertAlmostEqual(gen.oriented_unit_cell.lattice.angles[1], 90)
+
     def test_get_slabs(self):
         gen = SlabGenerator(self.get_structure("CsCl"), [0, 0, 1], 10, 10)
 
