@@ -851,9 +851,10 @@ class Vasprun(PMGSONable):
             name = c.attrib.get("name")
             if c.tag not in ("i", "v"):
                 p = self._parse_params(c)
-                if name == "response functions" and "NELM" in p:
-                    # Delete NELM from response functions.
-                    del p["NELM"]
+                if name == "response functions":
+                    # Delete duplicate fields from "response functions",
+                    # which overrides the values in the root params.
+                    p = {k: v for k, v in p.items() if k not in params}
                 params.update(p)
             else:
                 ptype = c.attrib.get("type")
