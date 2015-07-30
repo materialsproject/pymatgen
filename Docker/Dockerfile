@@ -1,4 +1,6 @@
 FROM ubuntu:latest
+ADD "Libraries" "Libraries"
+ADD bin bin
 RUN apt-get -y update && apt-get install -y python-scipy gfortran python-pip python-matplotlib python-openbabel python-setuptools
 RUN export PATH=$PATH:`pwd`/bin
 RUN export GULP_LIB=`pwd`/Libraries
