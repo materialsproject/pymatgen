@@ -746,3 +746,46 @@ class PerturbStructureTransformation(AbstractTransformation):
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
+
+
+class StrainStructureTransformation(AbstractTransformation):
+    """
+    This transformation applies an isotropic strain to the lattice.
+    Author: Cormac Toher
+    """
+
+    def __init__(self, amplitude=0.01):
+        """
+        Args:
+            amplitude:
+                Amplitude of strain as a fraction of unit cell dimension. 
+               The lengths of all lattice vectors will be changed by this amount.
+        """
+       self._amp = amplitude
+
+    def apply_transformation(self, structure):
+        s = Structure.from_sites(structure.sites)
+        s.apply_strain(self._amp)
+        return s
+
+    def __str__(self):
+        return "StrainStructureTransformation : " + \
+            "Amplitude = {}".format(self._amp)
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return False
+
+    @property
+    def as_dict(self):
+        return {"name": self.__class__.__name__, "version": __version__,
+                "init_args": {"amplitude": self._amp},
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
