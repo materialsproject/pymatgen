@@ -118,7 +118,3 @@ class HHIModel(object):
 
         if hhi > 2500:
             return 'high'
-
-if __name__ == "__main__":
-    hhi = HHIModel()
-    print hhi.get_hhi("He")
