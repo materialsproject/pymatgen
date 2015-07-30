@@ -178,6 +178,21 @@ or to install the package in developmental mode::
 
     python setup.py develop
 
+"Sample" version - Using Docker
+-------------------------------
+
+If you would like to try out pymatgen's capabilities before committing to an
+install, one way is to use `Docker <http://www.docker.com/>`_. The
+`Materials Virtual Lab`_ has created an Docker image for the latest version of
+pymatgen. After installing Docker for your platform, you may pull and run the
+pymatgen Docker image as follows::
+
+    docker pull materialsvirtuallab/pymatgen
+    docker run -t -i materialsvirtuallab/pymatgen
+
+This will run ipython shell where you can import pymatgen and run most of the
+examples.
+
 Running unittests
 ~~~~~~~~~~~~~~~~~
 
@@ -342,6 +357,15 @@ API documentation
 For detailed documentation of all modules and classes, please refer to the
 :doc:`API docs </modules>`.
 
+More resources
+--------------
+
+The founder and maintainer of pymatgen, Shyue Ping Ong, has conducted several
+workshops (together with Anubhav Jain) on how to effectively use pymatgen (as
+well as the extremely useful `custodian`_ error management and `FireWorks`_
+workflow software. The slides for these workshops are available on the
+`Materials Virtual Lab`_.
+
 pmg - Command line tool
 -----------------------
 
@@ -409,9 +433,8 @@ Some add-ons are available for pymatgen today:
 
 1. The `pymatgen-db <https://pypi.python.org/pypi/pymatgen-db>`_ add-on
    provides tools to create databases of calculated run data using pymatgen.
-2. The `custodian <https://pypi.python.org/pypi/custodian>`_ pacakge provides
-   a JIT job management and error correction for calculations, particularly
-   VASP calculations.
+2. The `custodian`_ package provides a JIT job management and error
+   correction for calculations.
 
 Contributing
 ============
@@ -485,3 +508,6 @@ Indices and tables
 .. _`pymatgen's Google Groups page`: https://groups.google.com/forum/?fromgroups#!forum/pymatgen/
 .. _`PyPI` : http://pypi.python.org/pypi/pymatgen
 .. _`Github page`: https://github.com/materialsproject/pymatgen/issues
+.. _`custodian`: https://pypi.python.org/pypi/custodian
+.. _`FireWorks`: https://pythonhosted.org/FireWorks/
+.. _`Materials Virtual Lab`: http://www.materialsvirtuallab.org

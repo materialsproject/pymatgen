@@ -34,7 +34,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                         'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
                                          'hash': '994537de5c4122b7f1b77fb604476db4'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
-                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
         self.entry2 = ComputedEntry(
             'Fe3O4', -2, 0.0,
             parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'O': 0},
@@ -42,7 +42,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                         'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
                                          'hash': '994537de5c4122b7f1b77fb604476db4'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
-                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
         self.entry3 = ComputedEntry(
             'FeO', -2, 0.0,
             parameters={'is_hubbard': True, 'hubbards': {'Fe': 4.3, 'O': 0},
@@ -50,7 +50,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                         'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
                                          'hash': '994537de5c4122b7f1b77fb604476db4'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
-                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
         self.compat = MaterialsProjectCompatibility(check_potcar_hash=False)
         self.ggacompat = MaterialsProjectCompatibility("GGA", check_potcar_hash=False)
@@ -67,7 +67,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                         'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
                                          'hash': '994537de5c4122b7f1b77fb604476db4'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
-                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
         self.assertIsNone(self.compat.process_entry(entry))
         self.assertIsNotNone(self.ggacompat.process_entry(entry))
 
@@ -78,7 +78,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                         'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
                                          'hash': '994537de5c4122b7f1b77fb604476db4'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
-                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
         self.assertIsNotNone(self.compat.process_entry(entry))
 
     def test_correction_values(self):
@@ -93,7 +93,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                         'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
                                          'hash': '994537de5c4122b7f1b77fb604476db4'},
                                         {'titel': 'PAW_PBE F 08Apr2002',
-                                         'hash': '9b0fd56137ce81cfee1eb63a8901c66c'}]})
+                                         'hash': '180141c33d032bfbfff30b3bea9d23dd'}]})
         self.assertIsNotNone(self.compat.process_entry(entry))
 
         #Check actual correction
@@ -108,7 +108,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                         'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
                                          'hash': '994537de5c4122b7f1b77fb604476db4'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
-                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
         self.assertIsNone(self.compat.process_entry(entry))
 
         #GGA run of U
@@ -119,7 +119,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                         'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
                                          'hash': '994537de5c4122b7f1b77fb604476db4'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
-                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
         self.assertIsNone(self.compat.process_entry(entry))
 
         #GGA+U run of non-U
@@ -130,7 +130,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                         'potcar_spec': [{'titel': 'PAW_PBE Al 06Sep2000',
                                          'hash': '805c888bbd2793e462311f6a20d873d9'},
                                            {'titel': 'PAW_PBE O 08Apr2002',
-                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
         self.assertIsNone(self.compat.process_entry(entry))
 
         #Materials project should not have a U for sulfides
@@ -151,9 +151,9 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
             parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'O': 0},
                         'run_type': 'GGA+U',
                         'potcar_spec': [{'titel':'PAW_PBE Fe 06Sep2000',
-                                         'hash': 'e0051a21ce51eb34a52e9153c17aa32d'},
+                                         'hash': '9530da8244e4dac17580869b4adab115'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
-                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
         self.assertIsNone(self.compat.process_entry(entry))
 
     def test_element_processing(self):
@@ -161,7 +161,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
             'O', -1, 0.0,
             parameters={'is_hubbard': False, 'hubbards': {},
                         'potcar_spec': [{'titel': 'PAW_PBE O 08Apr2002',
-                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}],
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}],
                         'run_type': 'GGA'})
         entry = self.compat.process_entry(entry)
 #        self.assertEqual(entry.entry_id, -8)
@@ -181,7 +181,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                         'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
                                             'hash': '994537de5c4122b7f1b77fb604476db4'},
                                            {'titel': 'PAW_PBE O 08Apr2002',
-                                            'hash': "7af704ddff29da5354831c4609f1cbc5"}]})
+                                            'hash': "7a25bc5b9a5393f46600a4939d357982"}]})
         c = compat.get_corrections_dict(entry)
 
         self.assertAlmostEqual(c["MP Gas Correction"], -2.10687)
@@ -210,9 +210,9 @@ class MITCompatibilityTest(unittest.TestCase):
                         'hubbards': {'Fe': 4.0, 'O': 0},
                         'run_type': 'GGA+U',
                         'potcar_spec': [{'titel':'PAW_PBE Fe 06Sep2000',
-                                         'hash': 'e0051a21ce51eb34a52e9153c17aa32d'},
+                                         'hash': '9530da8244e4dac17580869b4adab115'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
-                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
         self.entry_F = ComputedEntry(
             'FeF3', -2, 0.0,
@@ -220,18 +220,18 @@ class MITCompatibilityTest(unittest.TestCase):
                         'hubbards': {'Fe': 4.0, 'F': 0},
                         'run_type': 'GGA+U',
                         'potcar_spec': [{'titel':'PAW_PBE Fe 06Sep2000',
-                                         'hash': 'e0051a21ce51eb34a52e9153c17aa32d'},
+                                         'hash': '9530da8244e4dac17580869b4adab115'},
                                         {'titel': 'PAW_PBE F 08Apr2002',
-                                         'hash': '9b0fd56137ce81cfee1eb63a8901c66c'}]})
+                                         'hash': '180141c33d032bfbfff30b3bea9d23dd'}]})
         self.entry_S = ComputedEntry(
             'FeS2', -2, 0.0,
             parameters={'is_hubbard': True,
                         'hubbards': {'Fe': 1.9, 'S': 0},
                         'run_type': 'GGA+U',
                         'potcar_spec': [{'titel':'PAW_PBE Fe 06Sep2000',
-                                            'hash': 'e0051a21ce51eb34a52e9153c17aa32d'},
+                                            'hash': '9530da8244e4dac17580869b4adab115'},
                                            {'titel': 'PAW_PBE S 08Apr2002',
-                                            'hash': 'f7f8e4a74a6cbb8d63e41f4373b54df2'}]})
+                                            'hash': 'd368db6899d8839859bbee4811a42a88'}]})
 
     def test_process_entry(self):
         #Correct parameters
@@ -256,9 +256,9 @@ class MITCompatibilityTest(unittest.TestCase):
                         'hubbards': {'Ni': 1.9, 'S': 0},
                         'run_type': 'GGA+U',
                         'potcar_spec': [{'titel':'PAW_PBE Ni 06Sep2000',
-                                            'hash': '6aa314a5314ececec9e6f32bd9a47a67'},
+                                            'hash': '653f5772e68b2c7fd87ffd1086c0d710'},
                                            {'titel': 'PAW_PBE S 08Apr2002',
-                                            'hash': 'f7f8e4a74a6cbb8d63e41f4373b54df2'}]})
+                                            'hash': 'd368db6899d8839859bbee4811a42a88'}]})
 
         self.assertIsNone(self.compat.process_entry(entry))
 
@@ -268,9 +268,9 @@ class MITCompatibilityTest(unittest.TestCase):
                         'hubbards': None,
                         'run_type': 'GGA',
                         'potcar_spec': [{'titel':'PAW_PBE Ni 06Sep2000',
-                                            'hash': '6aa314a5314ececec9e6f32bd9a47a67'},
+                                            'hash': '653f5772e68b2c7fd87ffd1086c0d710'},
                                            {'titel': 'PAW_PBE S 08Apr2002',
-                                            'hash': 'f7f8e4a74a6cbb8d63e41f4373b54df2'}]})
+                                            'hash': 'd368db6899d8839859bbee4811a42a88'}]})
 
         self.assertIsNotNone(self.ggacompat.process_entry(entry))
 
@@ -282,9 +282,9 @@ class MITCompatibilityTest(unittest.TestCase):
                         'hubbards': {'Fe': 5.2, 'O': 0},
                         'run_type': 'GGA+U',
                         'potcar_spec': [{'titel':'PAW_PBE Fe 06Sep2000',
-                                         'hash': 'e0051a21ce51eb34a52e9153c17aa32d'},
+                                         'hash': '9530da8244e4dac17580869b4adab115'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
-                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
         self.assertIsNone(self.compat.process_entry(entry))
 
@@ -295,9 +295,9 @@ class MITCompatibilityTest(unittest.TestCase):
                         'hubbards': None,
                         'run_type': 'GGA',
                         'potcar_spec': [{'titel':'PAW_PBE Fe 06Sep2000',
-                                         'hash': 'e0051a21ce51eb34a52e9153c17aa32d'},
+                                         'hash': '9530da8244e4dac17580869b4adab115'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
-                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
         self.assertIsNone(self.compat.process_entry(entry))
         self.assertIsNotNone(self.ggacompat.process_entry(entry))
 
@@ -311,7 +311,7 @@ class MITCompatibilityTest(unittest.TestCase):
                         'potcar_spec': [{'titel':'PAW_PBE Fe_pv 06Sep2000',
                                          'hash': '994537de5c4122b7f1b77fb604476db4'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
-                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
         self.assertIsNone(self.compat.process_entry(entry))
 
     def test_element_processing(self):
@@ -320,7 +320,7 @@ class MITCompatibilityTest(unittest.TestCase):
             'O', -1, 0.0,
             parameters={'is_hubbard': False, 'hubbards': {},
                         'potcar_spec': [{'titel': 'PAW_PBE O 08Apr2002',
-                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}],
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}],
                         'run_type': 'GGA'})
         entry = self.compat.process_entry(entry)
         self.assertAlmostEqual(entry.energy, -1)
@@ -334,9 +334,9 @@ class MITCompatibilityTest(unittest.TestCase):
                         'hubbards': {'Fe': 4.0, 'O': 0},
                         'run_type': 'GGA+U',
                         'potcar_spec': [{'titel':'PAW_PBE Fe 06Sep2000',
-                                         'hash': 'e0051a21ce51eb34a52e9153c17aa32d'},
+                                         'hash': '9530da8244e4dac17580869b4adab115'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
-                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
         #Incorrect Hash Correct Symbol
         entry2 = ComputedEntry(
             'Fe2O3', -1, 0.0,
@@ -346,7 +346,7 @@ class MITCompatibilityTest(unittest.TestCase):
                         'potcar_spec': [{'titel':'PAW_PBE Fe 06Sep2000',
                                          'hash': 'DifferentHash'},
                                         {'titel': 'PAW_PBE O 08Apr2002',
-                                         'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                         'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
         compat = MITCompatibility()
         self.assertEqual(len(compat.process_entries([entry, entry2])), 2)
@@ -404,9 +404,9 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                           'hubbards': None,
                                           'run_type': 'GGA',
                                           'potcar_spec': [{'titel':'PAW_PBE Li 17Jan2003',
-                                                           'hash': '9658a0ffb28da97ee7b36709966a0d1c'},
+                                                           'hash': '65e83282d1707ec078c1012afbd05be8'},
                                                           {'titel': 'PAW_PBE O 08Apr2002',
-                                                           'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                                           'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
         lio2_entry_corrected = self.compat.process_entry(lio2_entry_nostruct)
         self.assertAlmostEqual(lio2_entry_corrected.energy, -3 - 0.13893*4, 4)
@@ -431,9 +431,9 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                           'hubbards': None,
                                           'run_type': 'GGA',
                                           'potcar_spec': [{'titel':'PAW_PBE Li 17Jan2003',
-                                                           'hash': '9658a0ffb28da97ee7b36709966a0d1c'},
+                                                           'hash': '65e83282d1707ec078c1012afbd05be8'},
                                                           {'titel': 'PAW_PBE O 08Apr2002',
-                                                           'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                                           'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
         lio2_entry_corrected = self.compat.process_entry(lio2_entry)
         self.assertAlmostEqual(lio2_entry_corrected.energy, -3 -0.13893*4, 4)
@@ -457,9 +457,9 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                           'hubbards': None,
                                           'run_type': 'GGA',
                                           'potcar_spec': [{'titel':'PAW_PBE Li 17Jan2003',
-                                                           'hash': '9658a0ffb28da97ee7b36709966a0d1c'},
+                                                           'hash': '65e83282d1707ec078c1012afbd05be8'},
                                                           {'titel': 'PAW_PBE O 08Apr2002',
-                                                           'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                                           'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
         li2o2_entry_corrected = self.compat.process_entry(li2o2_entry)
         self.assertAlmostEqual(li2o2_entry_corrected.energy, -3 - 0.44317 * 4, 4)
@@ -480,9 +480,9 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                           'hubbards': None,
                                           'run_type': 'GGA',
                                           'potcar_spec': [{'titel':'PAW_PBE Li 17Jan2003',
-                                                           'hash': '9658a0ffb28da97ee7b36709966a0d1c'},
+                                                           'hash': '65e83282d1707ec078c1012afbd05be8'},
                                                           {'titel': 'PAW_PBE O 08Apr2002',
-                                                           'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                                           'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
         lio3_entry_corrected = self.compat.process_entry(lio3_entry)
         self.assertAlmostEqual(lio3_entry_corrected.energy, -3.0)
@@ -502,9 +502,9 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                           'hubbards': None,
                                           'run_type': 'GGA',
                                           'potcar_spec': [{'titel':'PAW_PBE Li 17Jan2003',
-                                                           'hash': '9658a0ffb28da97ee7b36709966a0d1c'},
+                                                           'hash': '65e83282d1707ec078c1012afbd05be8'},
                                                           {'titel': 'PAW_PBE O 08Apr2002',
-                                                           'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                                           'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
         li2o_entry_corrected = self.compat.process_entry(li2o_entry)
         self.assertAlmostEqual(li2o_entry_corrected.energy, -3.0 -0.66975, 4)
@@ -530,9 +530,9 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
                                           'hubbards': None,
                                           'run_type': 'GGA',
                                           'potcar_spec': [{'titel':'PAW_PBE Li 17Jan2003',
-                                                           'hash': '9658a0ffb28da97ee7b36709966a0d1c'},
+                                                           'hash': '65e83282d1707ec078c1012afbd05be8'},
                                                           {'titel': 'PAW_PBE O 08Apr2002',
-                                                           'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                                           'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
         li2o_entry_corrected = self.compat.process_entry(li2o_entry)
         self.assertAlmostEqual(li2o_entry_corrected.energy, -3.0 -0.66975, 4)
@@ -556,9 +556,9 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
                                           'hubbards': None,
                                           'run_type': 'GGA',
                                           'potcar_spec': [{'titel':'PAW_PBE Li 17Jan2003',
-                                                           'hash': '9658a0ffb28da97ee7b36709966a0d1c'},
+                                                           'hash': '65e83282d1707ec078c1012afbd05be8'},
                                                           {'titel': 'PAW_PBE O 08Apr2002',
-                                                           'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                                           'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
         li2o2_entry_corrected = self.compat.process_entry(li2o2_entry)
         self.assertRaises(AssertionError, self.assertAlmostEqual,
@@ -581,9 +581,9 @@ class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
                                           'hubbards': None,
                                           'run_type': 'GGA',
                                           'potcar_spec': [{'titel':'PAW_PBE Li 17Jan2003',
-                                                           'hash': '9658a0ffb28da97ee7b36709966a0d1c'},
+                                                           'hash': '65e83282d1707ec078c1012afbd05be8'},
                                                           {'titel': 'PAW_PBE O 08Apr2002',
-                                                           'hash': '7af704ddff29da5354831c4609f1cbc5'}]})
+                                                           'hash': '7a25bc5b9a5393f46600a4939d357982'}]})
 
         lio3_entry_corrected = self.compat.process_entry(lio3_entry)
         self.assertAlmostEqual(lio3_entry_corrected.energy, -3.0 - 3 * 0.66975)
@@ -647,11 +647,11 @@ class TestMITAqueousCompatibility(unittest.TestCase):
                                           'hubbards': None,
                                           'run_type': 'GGA',
                                           'potcar_spec': [{'titel':'PAW_PBE Li 17Jan2003',
-                                                           'hash': '9658a0ffb28da97ee7b36709966a0d1c'},
+                                                           'hash': '65e83282d1707ec078c1012afbd05be8'},
                                                           {'titel': 'PAW_PBE O 08Apr2002',
-                                                           'hash': '7af704ddff29da5354831c4609f1cbc5'},
+                                                           'hash': '7a25bc5b9a5393f46600a4939d357982'},
                                                           {"titel": 'PAW_PBE H 15Jun2001',
-                                                           'hash': "57732e53d8a424e5b3721d0277f14ef0"}]})
+                                                           'hash': "bb43c666e3d36577264afe07669e9582"}]})
         lioh_entry_compat = self.compat.process_entry(lioh_entry)
         lioh_entry_compat_aqcorr = self.aqcorr.correct_entry(lioh_entry_compat)
         lioh_entry_aqcompat = self.aqcompat.process_entry(lioh_entry)
