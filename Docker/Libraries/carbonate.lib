@@ -1,0 +1,98 @@
+#
+#   POTENTIALS FOR CALCITE : 
+#
+#   Rohl, Wright and Gale, Am. Miner., 88, 921-925 (2003)
+#   Austen, Wright, Slater and Gale, PCCP, 7, 4150 - 4156 (2005)
+#
+#   NOTE : requires a version of GULP later than 1.3 
+#
+#
+#  This option specifies that Coulomb interactions within molecules are excluded
+#
+keyword mole
+#
+#  The following is a list of the charges for each species
+#
+species
+Ca    core  2.00000000 
+Mg    core  2.00000000 
+Fe    core  2.00000000 
+Cd    core  2.00000000 
+Mn    core  2.00000000 
+Ni    core  2.00000000 
+Zn    core  2.00000000 
+Co    core  2.00000000 
+C     core  1.34353898 
+O     core  1.01848700 
+O     shel -2.13300000 
+#
+#  The following are the parameters of the Buckingham potential where the numbers
+#  are:
+#  A rho C rmin rmax with units eV, Angstroms**-1, eV**Angs**6, Angs, Angs, respectively
+#
+#  E = A.exp(-r/rho) - C/r**6 for rmin < r < rmax
+#
+#  intra => only acts within a molecule
+#  inter => only acts between molecules
+#
+buck intra     
+O     core O     core  4030.3000     0.245497 0.00000000      0.00  2.50 
+buck     
+Ca    core O     shel  2154.0600     0.289118 0.00000000      0.00 10.00
+Mg    core O     shel  1039.5900     0.289329 0.00000000      0.00 10.00
+Fe    core O     shel  1550.1075     0.265070 0.00000000      0.00 10.00
+Cd    core O     shel  3117.3763     0.256300 0.00000000      0.00 10.00
+Mn    core O     shel  1440.6645     0.272680 0.00000000      0.00 10.00
+Ni    core O     shel  1176.7798     0.266610 0.00000000      0.00 10.00
+Zn    core O     shel   741.1401     0.289100 0.00000000      0.00 10.00
+Co    core O     shel   788.8089     0.286300 0.00000000      0.00 10.00
+Ca    core C     core 120000000.000  0.120000 0.00000000      0.00 10.00 
+Mg    core C     core  26164795.400  0.120000 0.00000000      0.00 10.00 
+Fe    core C     core  90909090.910  0.120000 0.00000000      0.00 10.00 
+Cd    core C     core 117575757.600  0.120000 0.00000000      0.00 10.00 
+Mn    core C     core  98181818.180  0.120000 0.00000000      0.00 10.00 
+Ni    core C     core 100606060.600  0.120000 0.00000000      0.00 10.00 
+Zn    core C     core  89696969.700  0.120000 0.00000000      0.00 10.00 
+Co    core C     core  95757575.760  0.120000 0.00000000      0.00 10.00 
+buck inter     
+O     shel O     shel  64242.454     0.198913  21.843570      0.00 15.00
+#
+#  The following are the parameters of the Morse potential
+#
+#  D0 a r0 Coulomb_flag with units eV, Angs**-1, Angstroms and none, respectively
+#
+morse intra bond
+C     core O     core 5.0000000     2.5228      1.19820  0.0000 
+#
+#  The following specifies the spring constant for the shell model in eV/Angs**2
+#
+spring
+O      52.740087 
+#
+#  The following specifies the force constant and equilibrium angle for the three-body
+#  harmonic potential, in eV/rad**2 and degrees, respectively.
+#
+three bond intra
+C     core O     core O     core 1.7995     120.00  
+#
+#  The following specifies the out of plane potential of form :
+#
+#  E = 1/2 K2*r**2 + 1/12 K4*r**4
+#
+#  The values given are K2 and K4 in units of eV/Angs**2 and eV/Angs**4
+#
+outofplane bond intra
+C     cor O     cor O     cor O     cor 8.6892 360.0 
+#
+#  The covalent radius of Ca must be zero so that the molecules are correctly defined
+#
+element
+cova Ca 0.0
+cova Mg 0.0
+cova Ni 0.0
+cova Zn 0.0
+cova Co 0.0
+cova Fe 0.0
+cova Cd 0.0
+cova Mn 0.0
+end

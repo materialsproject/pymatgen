@@ -1,6 +1,12 @@
 Change log
 ==========
 
+v3.1.2
+------
+* Bug fixes for surfaces normalizatino.
+* Bug fix for Vasprun parsing of response function keys.
+* Dockerfile for generation of an image for pymatgen.
+
 v3.1.1
 ------
 * Bug fixes for SpacegroupAnalyzer and SlabGenerator.
