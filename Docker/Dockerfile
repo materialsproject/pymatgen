@@ -1,4 +1,6 @@
 FROM ubuntu:latest
+MAINTAINER Shyue Ping Ong "shyuep@gmail.com"
+
 ADD "Libraries" "Libraries"
 ADD bin bin
 RUN apt-get -y update && apt-get install -y python-scipy gfortran python-pip python-matplotlib python-openbabel python-setuptools

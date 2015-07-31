@@ -23,7 +23,8 @@ __maintainer__ = 'Anubhav Jain'
 __email__ = 'ajain@lbl.gov'
 __date__ = 'Oct 27, 2014'
 
-csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'hhi_data.csv')
+csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        'hhi_data.csv')
 
 @singleton
 class HHIModel(object):
@@ -35,7 +36,8 @@ class HHIModel(object):
             for line in f:
                 if line[0] != "#":
                     symbol, hhi_production, hhi_reserve = line.split(',')
-                    self.symbol_hhip_hhir[symbol] = (float(hhi_production), float(hhi_reserve))
+                    self.symbol_hhip_hhir[symbol] = (float(hhi_production),
+                                                     float(hhi_reserve))
 
     def _get_hhi_el(self, el_or_symbol):
         """
@@ -44,7 +46,8 @@ class HHIModel(object):
         if isinstance(el_or_symbol, Element):
             el_or_symbol = el_or_symbol.symbol
 
-        return (self.symbol_hhip_hhir[el_or_symbol][0], self.symbol_hhip_hhir[el_or_symbol][1])
+        return (self.symbol_hhip_hhir[el_or_symbol][0],
+                self.symbol_hhip_hhir[el_or_symbol][1])
 
     def get_hhi(self, comp_or_form):
         """
