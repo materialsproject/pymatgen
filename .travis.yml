@@ -29,7 +29,6 @@ branches:
   only:
     - master
     - stable
-    - pmg3
 notifications:
   email:
     recipients:
