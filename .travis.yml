@@ -20,7 +20,7 @@ addons:
     - gfortran
     - python-pip
 install:
-  - travis_wait pip install -r requirements.txt
+  - travis_wait pip install -q -r requirements.txt
 # This is needed, otherwise, nosetests can't find the installed pymatgen C
 # extensions.
 before_script:
