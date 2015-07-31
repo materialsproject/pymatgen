@@ -1,0 +1,95 @@
+#
+#  Library of potentials for modelling glass systems
+#
+#  NOTE : This potential set does not use an Ewald
+#         sum, but uses a q.q.erfc/r potential to
+#         represent the charge-charge interactions.
+#
+#  NOTE : Ca, Na and H not parameterised for use at the
+#         same time in this file
+#
+#  Refs: (aluminosilicate parameters in most refs)
+#
+#  Na =   D.M. Zirl and S.H. Garofalini,
+#         J. Am. Ceram. Soc., 75, 2353-2362 (1992)
+#  Ca =   S. Blonski and S.H. Garofalini,
+#         J. Am. Ceram. Soc., 80, 1997-2004 (1997)
+#  H  =   S. Blonski and S.H. Garofalini,
+#         J. Phys. Chem., 100, 2201-2205 (1995)
+#
+#  NOTE: The silica parameters differ between publications
+#  and the values from D.A. Litton and S.H. Garofalini,
+#  J. Appl. Phys., 89, 6013 (2001) are taken to be the 
+#  definitive ones.
+#
+# Turn off Ewald sum and charged interactions
+keyword noelectrostatics
+# Charges on species
+species
+Ca core  2.0
+Al core  3.0
+Si core  4.0
+O  core -2.0
+H  core  1.0
+Na core  1.0
+# Truncated Coulomb potentials
+qerfc pm
+Ca core Ca core 230 5.5
+Ca core Al core 230 5.5
+Ca core Si core 230 5.5
+Ca core O  core 234 5.5
+Al core Al core 235 5.5
+Al core Si core 233 5.5
+Al core O  core 234 5.5
+Al core H  core 231 5.5
+Si core Si core 230 5.5
+Si core O  core 234 5.5
+Si core H  core 231 5.5
+O  core O  core 234 5.5
+O  core H  core 226 5.5
+H  core H  core 210 5.5
+Na core Na core 230 5.5
+Na core Al core 230 5.5
+Na core Si core 230 5.5
+Na core O  core 234 5.5
+# Buckingham repulsive terms
+buckingham
+Ca core Ca core 4369.0100 0.29 0.0 0.0 5.5
+Ca core Al core 1359.3878 0.29 0.0 0.0 5.5
+Ca core Si core 1382.4811 0.29 0.0 0.0 5.5
+Ca core O  core 3557.6200 0.29 0.0 0.0 5.5
+Al core Al core  312.0700 0.29 0.0 0.0 5.5
+Al core Si core 1574.7178 0.29 0.0 0.0 5.5
+Al core O  core 1554.1210 0.29 0.0 0.0 5.5
+Al core H  core   31.2070 0.29 0.0 0.0 5.5
+Si core Si core 1171.5201 0.29 0.0 0.0 5.5
+Si core O  core 1848.7174 0.29 0.0 0.0 5.5
+Si core H  core   43.0664 0.29 0.0 0.0 5.5
+O  core O  core  452.5051 0.29 0.0 0.0 5.5
+O  core H  core  248.6324 0.29 0.0 0.0 5.5
+H  core H  core   21.2208 0.35 0.0 0.0 5.5
+Na core Na core 1347.5183 0.29 0.0 0.0 5.5
+Na core Al core 1359.3769 0.29 0.0 0.0 5.5
+Na core Si core 1248.9041 0.29 0.0 0.0 5.5
+Na core O  core 1994.1273 0.29 0.0 0.0 5.5
+# Fermi-Dirac / complementary sigmoidal function
+fermi
+Si core H  core  -2.90492  6.0 2.20 5.5
+H  core H  core  -3.29502  6.0 1.51 5.5
+H  core H  core   0.21676  2.0 2.42 5.5
+O  core H  core  -1.30071 15.0 1.05 5.5
+O  core H  core   4.76918  3.2 1.50 5.5
+O  core H  core  -0.52028  5.0 2.00 5.5
+# Three-body terms
+sw3
+O  core Al core Al core   6.241 109.5 2.00 2.60 2.60 5.20
+O  core Al core Si core   6.241 109.5 2.00 2.60 2.60 5.20
+O  core Al core H  core   6.241 109.5 2.00 2.60 2.60 5.20
+O  core Al core H  core 156.035 109.5 1.20 1.50 1.50 3.00
+O  core Si core Si core   1.872 109.5 2.00 2.60 2.60 5.20
+O  core Si core H  core  31.208 109.5 2.00 2.60 2.60 5.20
+O  core Si core H  core 156.035 109.5 1.20 1.50 1.50 3.00
+O  core H  core H  core 218.450 104.5 1.30 1.60 1.60 3.20
+Si core O  core O  core 118.589 109.5 2.80 3.00 3.00 6.00
+sw3 modified
+Al core O  core O  core 149.794 109.5 2.80 3.00 3.00 6.00
