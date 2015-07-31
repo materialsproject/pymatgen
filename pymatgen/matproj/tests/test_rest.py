@@ -110,7 +110,7 @@ class MPResterTest(unittest.TestCase):
         # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_find_structure
         # self.rester points to rest/v2 by default which doesn't have the find_structure endpoint
         m = MPRester(endpoint="https://www.materialsproject.org/rest")
-        ciffile = 'test_files/Fe3O4.cif'
+        ciffile = os.path.join(test_dir, 'Fe3O4.cif')
         data = m.find_structure(ciffile)
         self.assertTrue(len(data) > 1)
         s = CifParser(ciffile).get_structures()[0]
