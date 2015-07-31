@@ -238,7 +238,7 @@ class CifFile(object):
     @classmethod
     def from_string(cls, string):
         d = OrderedDict()
-        for x in re.split("^data_", "x\n"+string,
+        for x in re.split("^[ \t]*data_", "x\n"+string,
                           flags=re.MULTILINE | re.DOTALL)[1:]:
             c = CifBlock.from_string("data_"+x)
             d[c.header] = c
