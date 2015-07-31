@@ -119,9 +119,7 @@ class MPResterTest(unittest.TestCase):
 
     def test_get_entries_in_chemsys(self):
         syms = ["Li", "Fe", "O"]
-        all_entries = self.rester.get_entries_in_chemsys(syms, False)
         entries = self.rester.get_entries_in_chemsys(syms)
-        self.assertTrue(len(entries) <= len(all_entries))
         elements = set([Element(sym) for sym in syms])
         for e in entries:
             self.assertIsInstance(e, ComputedEntry)
@@ -173,6 +171,10 @@ class MPResterTest(unittest.TestCase):
         self.assertTrue(len(entries) > 1)
         for e in entries:
             self.assertEqual(e.structure.composition.reduced_formula, "TiO2")
+
+        all_entries = self.rester.get_entries("Fe", compatible_only=False)
+        entries = self.rester.get_entries("Fe", compatible_only=True)
+        self.assertTrue(len(entries) < len(all_entries))
 
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
