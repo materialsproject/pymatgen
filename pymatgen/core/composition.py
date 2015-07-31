@@ -332,7 +332,7 @@ class Composition(collections.Mapping, collections.Hashable, PMGSONable):
             A pretty normalized formula and a multiplicative factor, i.e.,
             Li4Fe4P4O16 returns (LiFePO4, 4).
         """
-        all_int = all([x == int(x) for x in self._elmap.values()])
+        all_int = all(x == int(x) for x in self._elmap.values())
         if not all_int:
             return self.formula.replace(" ", ""), 1
         d = self.get_el_amt_dict()
@@ -467,20 +467,20 @@ class Composition(collections.Mapping, collections.Hashable, PMGSONable):
         prototyping formulas. For example, all stoichiometric perovskites have
         anonymized_formula ABC3.
         """
-        reduced_comp = self.get_reduced_composition_and_factor()[0]
-        els = sorted(reduced_comp.elements, key=lambda e: reduced_comp[e])
-        anon_formula = []
-        for anon, e in zip(string.ascii_uppercase, els):
-            amt = reduced_comp[e]
-            if amt > 0:
-                if amt == 1:
-                    amt_str = ""
-                elif abs(amt % 1) < 1e-8:
-                    amt_str = str(int(amt))
-                else:
-                    amt_str = str(amt)
-                anon_formula.append("{}{}".format(anon, amt_str))
-        return "".join(anon_formula)
+        reduced = self.element_composition
+        if all(x == int(x) for x in self._elmap.values()):
+            reduced /= gcd(*self._elmap.values())
+
+        anon = ""
+        for e, amt in zip(string.ascii_uppercase, sorted(reduced.values())):
+            if amt == 1:
+                amt_str = ""
+            elif abs(amt % 1) < 1e-8:
+                amt_str = str(int(amt))
+            else:
+                amt_str = str(amt)
+            anon += ("{}{}".format(e, amt_str))
+        return anon
 
     def __repr__(self):
         return "Comp: " + self.formula
@@ -756,7 +756,7 @@ def reduce_formula(sym_amt):
                   key=lambda s: get_el_sp(s).X)
 
     syms = list(filter(lambda s: abs(sym_amt[s]) >
-                                 Composition.amount_tolerance, syms))
+                       Composition.amount_tolerance, syms))
     num_el = len(syms)
     contains_polyanion = (num_el >= 3 and
                           get_el_sp(syms[num_el - 1]).X
