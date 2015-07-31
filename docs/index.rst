@@ -191,7 +191,13 @@ pymatgen Docker image as follows::
     docker run -t -i materialsvirtuallab/pymatgen
 
 This will run ipython shell where you can import pymatgen and run most of the
-examples.
+examples. If you want to use your own files to run some examples, you may
+mount a directory in your host computer containing the files you wish to work
+in the docker container using the -v option. For example, let's say you have
+your files in the /Users/myname/research directory. You may then run docker
+as follows::
+
+    docker run -t -i -v /Users/myname/research:/opt/research materialsvirtuallab/pymatgen
 
 Running unittests
 ~~~~~~~~~~~~~~~~~
