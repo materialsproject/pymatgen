@@ -26,6 +26,8 @@ dec = MontyDecoder()
 class MITMPVaspInputSetTest(unittest.TestCase):
 
     def setUp(self):
+        if "VASP_PSP_DIR" not in os.environ:
+            os.environ["VASP_PSP_DIR"] = test_dir
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         self.struct = poscar.structure
@@ -246,8 +248,6 @@ class MITMPVaspInputSetTest(unittest.TestCase):
                          [10, -5, 0.6])
 
     def test_optics(self):
-        if "VASP_PSP_DIR" not in os.environ:
-            os.environ["VASP_PSP_DIR"] = test_dir
         self.mpopticsparamset = MPOpticsNonSCFVaspInputSet.from_previous_vasp_run(
             '{}/static_silicon'.format(test_dir), output_dir='optics_test_dir',
             nedos=1145)
