@@ -19,7 +19,7 @@ import os
 import json
 
 from pymatgen.core.structure import Molecule
-from pymatgen.io.nwchemio import NwTask, NwInput, NwInputError, NwOutput
+from pymatgen.io.nwchem import NwTask, NwInput, NwInputError, NwOutput
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",

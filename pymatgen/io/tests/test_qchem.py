@@ -10,7 +10,7 @@ from unittest import TestCase
 import unittest
 
 from pymatgen import Molecule
-from pymatgen.io.qchemio import QcTask, QcInput, QcOutput
+from pymatgen.io.qchem import QcTask, QcInput, QcOutput
 
 
 __author__ = 'xiaohuiqu'

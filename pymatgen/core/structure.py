@@ -1301,8 +1301,8 @@ class IStructure(SiteCollection, PMGSONable):
             (str) if filename is None. None otherwise.
         """
         from pymatgen.io.cif import CifWriter
-        from pymatgen.io.vaspio import Poscar
-        from pymatgen.io.cssrio import Cssr
+        from pymatgen.io.vasp import Poscar
+        from pymatgen.io.cssr import Cssr
         filename = filename or ""
         fmt = "" if fmt is None else fmt.lower()
         fname = os.path.basename(filename)
@@ -1348,8 +1348,8 @@ class IStructure(SiteCollection, PMGSONable):
             IStructure / Structure
         """
         from pymatgen.io.cif import CifParser
-        from pymatgen.io.vaspio import Poscar
-        from pymatgen.io.cssrio import Cssr
+        from pymatgen.io.vasp import Poscar
+        from pymatgen.io.cssr import Cssr
         fmt = fmt.lower()
         if fmt == "cif":
             parser = CifParser.from_string(input_string)
@@ -1398,7 +1398,7 @@ class IStructure(SiteCollection, PMGSONable):
                 s = s.get_sorted_structure()
             return s
 
-        from pymatgen.io.vaspio import Vasprun, Chgcar
+        from pymatgen.io.vasp import Vasprun, Chgcar
         from monty.io import zopen
         fname = os.path.basename(filename)
         with zopen(filename) as f:
@@ -1875,9 +1875,9 @@ class IMolecule(SiteCollection, PMGSONable):
         Returns:
             (str) if filename is None. None otherwise.
         """
-        from pymatgen.io.xyzio import XYZ
-        from pymatgen.io.gaussianio import GaussianInput
-        from pymatgen.io.babelio import BabelMolAdaptor
+        from pymatgen.io.xyz import XYZ
+        from pymatgen.io.gaussian import GaussianInput
+        from pymatgen.io.babel import BabelMolAdaptor
 
         fmt = "" if fmt is None else fmt.lower()
         fname = os.path.basename(filename or "")
@@ -1928,8 +1928,8 @@ class IMolecule(SiteCollection, PMGSONable):
         Returns:
             IMolecule or Molecule.
         """
-        from pymatgen.io.xyzio import XYZ
-        from pymatgen.io.gaussianio import GaussianInput
+        from pymatgen.io.xyz import XYZ
+        from pymatgen.io.gaussian import GaussianInput
         if fmt.lower() == "xyz":
             m = XYZ.from_string(input_string).molecule
         elif fmt in ["gjf", "g03", "g09", "com", "inp"]:
@@ -1941,7 +1941,7 @@ class IMolecule(SiteCollection, PMGSONable):
             d = yaml.load(input_string, Loader=Loader)
             return cls.from_dict(d)
         else:
-            from pymatgen.io.babelio import BabelMolAdaptor
+            from pymatgen.io.babel import BabelMolAdaptor
             m = BabelMolAdaptor.from_string(input_string,
                                             file_format=fmt).pymatgen_mol
         return cls.from_sites(m)
@@ -1961,7 +1961,7 @@ class IMolecule(SiteCollection, PMGSONable):
         Returns:
             Molecule
         """
-        from pymatgen.io.gaussianio import GaussianOutput
+        from pymatgen.io.gaussian import GaussianOutput
         with zopen(filename) as f:
             contents = f.read()
         fname = filename.lower()
@@ -1978,7 +1978,7 @@ class IMolecule(SiteCollection, PMGSONable):
         elif fnmatch(fname, "*.yaml*"):
             return cls.from_str(contents, fmt="yaml")
         else:
-            from pymatgen.io.babelio import BabelMolAdaptor
+            from pymatgen.io.babel import BabelMolAdaptor
             m = re.search("\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
                           filename.lower())
             if m:

@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import unittest
 import os
 
-from pymatgen.io.feffio_set import FeffInputSet
+from pymatgen.io.feff.sets import FeffInputSet
 from pymatgen.io.feffio import FeffPot
 from pymatgen.io.cif import CifParser
 

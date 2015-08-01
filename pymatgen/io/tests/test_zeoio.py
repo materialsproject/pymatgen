@@ -16,10 +16,10 @@ import re
 from pymatgen.core.periodic_table import Specie
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.io.cif import CifParser
-from pymatgen.io.zeoio import ZeoCssr, ZeoVoronoiXYZ, get_voronoi_nodes, \
+from pymatgen.io.zeo import ZeoCssr, ZeoVoronoiXYZ, get_voronoi_nodes, \
     get_high_accuracy_voronoi_nodes, get_void_volume_surfarea, \
     get_free_sphere_params
-from pymatgen.io.vaspio.vasp_input import Poscar
+from pymatgen.io.vasp.vasp_input import Poscar
 from pymatgen.analysis.bond_valence import BVAnalyzer
 
 try:
