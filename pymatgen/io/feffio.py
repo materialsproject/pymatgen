@@ -31,7 +31,7 @@ import numpy as np
 from collections import defaultdict, OrderedDict
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from operator import itemgetter
-from pymatgen.io.cifio import CifParser
+from pymatgen.io.cif import CifParser
 from pymatgen.util.string_utils import str_aligned, str_delimited
 from monty.io import zopen
 from pymatgen.util.io_utils import clean_lines

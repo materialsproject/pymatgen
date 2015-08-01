@@ -25,7 +25,7 @@ from copy import deepcopy
 from monty.json import MontyDecoder
 
 from pymatgen.core.structure import Structure
-from pymatgen.io.cifio import CifParser
+from pymatgen.io.cif import CifParser
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.matproj.snl import StructureNL

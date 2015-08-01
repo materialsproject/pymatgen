@@ -24,7 +24,7 @@ from monty.dev import deprecated
 
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.io.vaspio import Vasprun, Poscar, Chgcar
-from pymatgen.io.cifio import CifParser, CifWriter
+from pymatgen.io.cif import CifParser, CifWriter
 from pymatgen.io.cssrio import Cssr
 from pymatgen.io.xyzio import XYZ
 from pymatgen.io.gaussianio import GaussianInput, GaussianOutput

@@ -1300,7 +1300,7 @@ class IStructure(SiteCollection, PMGSONable):
         Returns:
             (str) if filename is None. None otherwise.
         """
-        from pymatgen.io.cifio import CifWriter
+        from pymatgen.io.cif import CifWriter
         from pymatgen.io.vaspio import Poscar
         from pymatgen.io.cssrio import Cssr
         filename = filename or ""
@@ -1347,7 +1347,7 @@ class IStructure(SiteCollection, PMGSONable):
         Returns:
             IStructure / Structure
         """
-        from pymatgen.io.cifio import CifParser
+        from pymatgen.io.cif import CifParser
         from pymatgen.io.vaspio import Poscar
         from pymatgen.io.cssrio import Cssr
         fmt = fmt.lower()

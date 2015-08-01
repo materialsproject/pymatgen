@@ -20,7 +20,7 @@ import argparse
 
 from pymatgen.io.feffio_set import *
 from pymatgen.io.vaspio import *
-from pymatgen.io.cifio import CifParser
+from pymatgen.io.cif import CifParser
 
 parser = argparse.ArgumentParser(description='''
 Example script to generate FEFF input files from a cif file
