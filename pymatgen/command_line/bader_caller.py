@@ -30,8 +30,8 @@ import os
 import subprocess
 import shutil
 
-from pymatgen.io.vaspio.vasp_output import Chgcar
-from pymatgen.io.vaspio.vasp_input import Potcar
+from pymatgen.io.vasp.vasp_output import Chgcar
+from pymatgen.io.vasp.vasp_input import Potcar
 from monty.os.path import which
 from monty.dev import requires
 from monty.tempfile import ScratchDir

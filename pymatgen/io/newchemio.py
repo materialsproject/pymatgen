@@ -16,6 +16,6 @@ __date__ = '8/1/15'
 
 
 import warnings
-warnings.warn("pymatgen.io.smartio has been moved pymatgen.io.smart. "
+warnings.warn("pymatgen.io.nwchemio has been moved pymatgen.io.nwchem. "
               "This stub will be removed in pymatgen 4.0.")
-from .smart import *
+from .nwchem import *

@@ -4,19 +4,20 @@ from __future__ import unicode_literals
 
 import unittest
 import os
-import numpy as np
 import shutil
 
-from pymatgen.io.vaspio_set import MITVaspInputSet, MITHSEVaspInputSet, \
+import numpy as np
+from monty.json import MontyDecoder
+
+from pymatgen.io.vasp.sets import MITVaspInputSet, MITHSEVaspInputSet, \
     MPVaspInputSet, MITGGAVaspInputSet, MITNEBVaspInputSet,\
     MPStaticVaspInputSet, MPNonSCFVaspInputSet, MITMDVaspInputSet,\
     MPHSEVaspInputSet, MPBSHSEVaspInputSet, MPStaticDielectricDFPTVaspInputSet,\
     MPOpticsNonSCFVaspInputSet
-from pymatgen.io.vaspio.vasp_input import Poscar, Incar
+from pymatgen.io.vasp.vasp_input import Poscar, Incar
 from pymatgen import Specie, Lattice, Structure
-from monty.json import MontyDecoder
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
 dec = MontyDecoder()

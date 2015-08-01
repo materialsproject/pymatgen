@@ -17,8 +17,8 @@ __date__ = "Jan 24, 2012"
 import unittest
 import os
 
-from pymatgen.io.cssrio import Cssr
-from pymatgen.io.vaspio.vasp_input import Poscar
+from pymatgen.io.cssr import Cssr
+from pymatgen.io.vasp.vasp_input import Poscar
 from pymatgen.core.structure import Structure
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",

@@ -15,7 +15,9 @@ __email__ = 'ongsp@ucsd.edu'
 __date__ = '8/1/15'
 
 
-import warnings
-warnings.warn("pymatgen.io.smartio has been moved pymatgen.io.smart. "
-              "This stub will be removed in pymatgen 4.0.")
-from .smart import *
+def main():
+    pass
+
+
+if __name__ == "__main__":
+    main()
