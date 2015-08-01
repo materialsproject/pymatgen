@@ -31,7 +31,7 @@ from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, \
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.electronic_structure.plotter import DosPlotter
 from pymatgen.io.vaspio import Poscar
-from pymatgen.io.cifio import CifParser, CifWriter
+from pymatgen.io.cif import CifParser, CifWriter
 from pymatgen.io.vaspio_set import MPVaspInputSet, MITVaspInputSet
 from pymatgen.io.cssrio import Cssr
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer

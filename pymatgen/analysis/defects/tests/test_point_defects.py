@@ -10,7 +10,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from monty.os.path import which
-from pymatgen.io.cifio import CifParser
+from pymatgen.io.cif import CifParser
 
 try:
     import zeo

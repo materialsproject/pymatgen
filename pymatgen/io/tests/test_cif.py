@@ -8,7 +8,7 @@ import warnings
 
 import numpy as np
 
-from pymatgen.io.cifio import CifParser, CifWriter, CifBlock
+from pymatgen.io.cif import CifParser, CifWriter, CifBlock
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen import Element, Specie, Lattice, Structure, Composition, DummySpecie
 from pymatgen.analysis.structure_matcher import StructureMatcher
