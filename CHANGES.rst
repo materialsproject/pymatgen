@@ -1,6 +1,10 @@
 Change log
 ==========
 
+v3.1.4
+------
+* Fix missing yaml files that have been moved.
+
 v3.1.3
 ------
 * Major refactoring of pymatgen.io. Now, the io suffix is dropped from all io
