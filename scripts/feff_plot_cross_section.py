@@ -17,7 +17,7 @@ __date__ = "April 7, 2013"
 
 import argparse
 
-from pymatgen.io.feffio import Xmu
+from pymatgen.io.feff import Xmu
 from pymatgen.util.plotting_utils import get_publication_quality_plot
 
 parser = argparse.ArgumentParser(description='''Convenient DOS Plotter for Feff runs.
