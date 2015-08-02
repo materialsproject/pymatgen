@@ -11,7 +11,7 @@ __date__ = '3/28/15'
 
 import unittest
 
-from pymatgen.io.pwscfio import PWInput, PWInputError
+from pymatgen.io.pwscf import PWInput, PWInputError
 from pymatgen.util.testing import PymatgenTest
 
 

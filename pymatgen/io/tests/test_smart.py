@@ -17,7 +17,7 @@ __date__ = "Jul 30, 2012"
 import unittest
 import os
 
-from pymatgen.io.smartio import read_structure, read_mol, write_structure, \
+from pymatgen.io.smart import read_structure, read_mol, write_structure, \
     write_mol
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.analysis.structure_matcher import StructureMatcher

@@ -4,19 +4,20 @@ from __future__ import unicode_literals
 
 import unittest
 import os
-import numpy as np
 import shutil
 
-from pymatgen.io.vaspio_set import MITVaspInputSet, MITHSEVaspInputSet, \
+import numpy as np
+from monty.json import MontyDecoder
+
+from pymatgen.io.vasp.sets import MITVaspInputSet, MITHSEVaspInputSet, \
     MPVaspInputSet, MITGGAVaspInputSet, MITNEBVaspInputSet,\
     MPStaticVaspInputSet, MPNonSCFVaspInputSet, MITMDVaspInputSet,\
     MPHSEVaspInputSet, MPBSHSEVaspInputSet, MPStaticDielectricDFPTVaspInputSet,\
     MPOpticsNonSCFVaspInputSet
-from pymatgen.io.vaspio.vasp_input import Poscar, Incar
+from pymatgen.io.vasp.vasp_input import Poscar, Incar
 from pymatgen import Specie, Lattice, Structure
-from monty.json import MontyDecoder
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
 dec = MontyDecoder()
@@ -25,6 +26,8 @@ dec = MontyDecoder()
 class MITMPVaspInputSetTest(unittest.TestCase):
 
     def setUp(self):
+        if "VASP_PSP_DIR" not in os.environ:
+            os.environ["VASP_PSP_DIR"] = test_dir
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         self.struct = poscar.structure
@@ -245,8 +248,6 @@ class MITMPVaspInputSetTest(unittest.TestCase):
                          [10, -5, 0.6])
 
     def test_optics(self):
-        if "VASP_PSP_DIR" not in os.environ:
-            os.environ["VASP_PSP_DIR"] = test_dir
         self.mpopticsparamset = MPOpticsNonSCFVaspInputSet.from_previous_vasp_run(
             '{}/static_silicon'.format(test_dir), output_dir='optics_test_dir',
             nedos=1145)
