@@ -20,7 +20,7 @@ import json
 import os.path
 import stat
 
-from pymatgen.io.vasp.vasp_input import Kpoints, Potcar
+from pymatgen.io.vasp.inputs import Kpoints, Potcar
 from pymatgen.io.vasp.sets import DictVaspInputSet
 from pymatgen.io.abinitio.helpers import s_name
 
