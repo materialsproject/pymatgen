@@ -20,7 +20,7 @@ import os
 import numpy as np
 
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.io.vasp.vasp_input import Poscar
+from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, \
     PointGroupAnalyzer, cluster_sites
 from pymatgen.io.cif import CifParser

@@ -47,7 +47,7 @@ from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.electronic_structure.bandstructure import BandStructure, \
     BandStructureSymmLine, get_reconstructed_band_structure
 from pymatgen.core.lattice import Lattice
-from pymatgen.io.vasp.vasp_input import Incar, Kpoints, Poscar, Potcar
+from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
 from pymatgen.entries.computed_entries import \
     ComputedEntry, ComputedStructureEntry
 from pymatgen.serializers.json_coders import PMGSONable

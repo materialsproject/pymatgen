@@ -317,7 +317,7 @@ def compare_structures(args):
 
 
 def generate_files(args):
-    from pymatgen.io.vasp.vasp_input import Potcar
+    from pymatgen.io.vasp.inputs import Potcar
     if args.symbols:
         try:
             p = Potcar(args.symbols, functional=args.functional)

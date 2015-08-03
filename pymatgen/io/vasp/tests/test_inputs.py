@@ -21,7 +21,7 @@ import warnings
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.physical_constants import BOLTZMANN_CONST
-from pymatgen.io.vasp.vasp_input import Incar, Poscar, Kpoints, Potcar, \
+from pymatgen.io.vasp.inputs import Incar, Poscar, Kpoints, Potcar, \
     PotcarSingle, VaspInput
 from pymatgen import Composition, Structure
 from monty.io import zopen

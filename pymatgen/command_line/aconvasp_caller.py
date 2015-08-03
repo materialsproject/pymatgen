@@ -18,7 +18,7 @@ __date__ = "$Nov 22, 2011M$"
 
 import subprocess
 
-from pymatgen.io.vasp.vasp_input import Poscar
+from pymatgen.io.vasp.inputs import Poscar
 
 
 def run_aconvasp_command(command, structure):
