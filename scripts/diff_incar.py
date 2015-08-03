@@ -15,7 +15,7 @@ __date__ = "Nov 12, 2011"
 import itertools
 import argparse
 
-from pymatgen.io.vaspio import Incar
+from pymatgen.io.vasp import Incar
 from pymatgen.util.string_utils import str_aligned
 
 

@@ -405,7 +405,7 @@ def batch_write_vasp_input(transformed_structures, vasp_input_set, output_dir,
         s.write_vasp_input(vasp_input_set, dirname,
                            create_directory=create_directory)
         if include_cif:
-            from pymatgen.io.cifio import CifWriter
+            from pymatgen.io.cif import CifWriter
 
             writer = CifWriter(s.final_structure)
             writer.write_file(os.path.join(dirname, "{}.cif".format(formula)))

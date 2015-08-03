@@ -24,7 +24,7 @@ import numpy as np
 from scipy.interpolate import PiecewisePolynomial
 
 from pymatgen.util.plotting_utils import get_publication_quality_plot
-from pymatgen.io.vaspio import Poscar, Outcar
+from pymatgen.io.vasp import Poscar, Outcar
 
 
 class NEBAnalysis(object):
