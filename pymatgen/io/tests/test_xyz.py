@@ -18,8 +18,8 @@ import unittest
 import os
 
 from pymatgen.core.structure import Molecule
-from pymatgen.io.xyzio import XYZ
-from pymatgen.io.vaspio.vasp_input import Poscar
+from pymatgen.io.xyz import XYZ
+from pymatgen.io.vasp.vasp_input import Poscar
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')

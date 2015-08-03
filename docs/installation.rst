@@ -63,6 +63,9 @@ the moment) required only for certain features:
    which is in turn used extensively by :mod:`pymatgen.analysis.defects` to
    compute empirical defect energies.
 5. aconvasp: For use with the :mod:`pymatgen.command_line.aconvasp_caller`.
+6. Zeo++ (http://www.maciejharanczyk.info/Zeopp/): For defect structure
+   generation. This is required in addition to installing the zeo Python
+   package.
 
 Detailed installation instructions
 ==================================

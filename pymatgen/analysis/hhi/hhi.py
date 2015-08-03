@@ -113,6 +113,10 @@ class HHIModel(object):
         Returns:
             The designation as String
         """
+
+        if hhi is None:
+            return None
+
         if 0 <= hhi < 1500:
             return 'low'
 

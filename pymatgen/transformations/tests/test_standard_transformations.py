@@ -22,7 +22,7 @@ import six
 from pymatgen.core.lattice import Lattice
 from pymatgen.core import PeriodicSite
 from monty.json import MontyDecoder
-from pymatgen.io.vaspio.vasp_input import Poscar
+from pymatgen.io.vasp.vasp_input import Poscar
 from pymatgen.transformations.standard_transformations import *
 from pymatgen.symmetry.structure import SymmetrizedStructure
 

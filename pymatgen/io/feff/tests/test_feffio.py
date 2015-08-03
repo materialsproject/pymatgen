@@ -5,10 +5,10 @@ from __future__ import unicode_literals
 import unittest
 import os
 
-from pymatgen.io.feffio import Header, FeffTags, FeffLdos, FeffPot, Xmu, \
+from pymatgen.io.feff import Header, FeffTags, FeffLdos, FeffPot, Xmu, \
     FeffAtoms
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
 class  HeaderTest(unittest.TestCase):

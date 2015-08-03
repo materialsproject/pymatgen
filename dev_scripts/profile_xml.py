@@ -1,5 +1,5 @@
 
-from pymatgen.io.vaspio import Vasprun
+from pymatgen.io.vasp import Vasprun
 
 def parse_xml():
     v = Vasprun("../test_files/vasprun.xml")
