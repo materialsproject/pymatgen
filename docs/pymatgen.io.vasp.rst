@@ -18,26 +18,26 @@ pymatgen.io.vasp.GWvaspinputsets module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.io.vasp.inputs module
+------------------------------
+
+.. automodule:: pymatgen.io.vasp.inputs
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.io.vasp.outputs module
+-------------------------------
+
+.. automodule:: pymatgen.io.vasp.outputs
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.io.vasp.sets module
 ----------------------------
 
 .. automodule:: pymatgen.io.vasp.sets
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.vasp.vasp_input module
-----------------------------------
-
-.. automodule:: pymatgen.io.vasp.vasp_input
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pymatgen.io.vasp.vasp_output module
------------------------------------
-
-.. automodule:: pymatgen.io.vasp.vasp_output
     :members:
     :undoc-members:
     :show-inheritance:
