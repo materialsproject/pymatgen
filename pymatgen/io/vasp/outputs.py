@@ -2421,3 +2421,88 @@ def get_adjusted_fermi_level(efermi, cbm, band_structure):
             if not bs_working.is_metal():
                 return e
     return efermi
+
+class Wavederf(object):
+    """
+    Object for reading a WAVEDERF file.
+    
+    Note: This file is only produced when LOPTICS is true AND vasp has been recompiled
+    after uncommenting the line that calls WRT_CDER_BETWEEN_STATES_FORMATTED in
+    linear_optics.F
+
+
+    Args:
+        filename: Name of file containing WAVEDERF.
+
+    .. attribute:: data
+
+        A numpy array containing the WAVEDERF data of the form below. It should
+        be noted that VASP uses 1-based indexing for bands, but this is
+        converted to 0-based numpy array indexing.
+
+        For each kpoint (in the same order as in IBZKPT), and for each pair of bands:
+
+            [ #kpoint index 
+             [ #band 1 index
+              [ #band 2 index
+               [cdum_x_real, cdum_x_imag, cdum_y_real, cdum_y_imag, cdum_z_real, cdum_z_imag]
+              ] 
+             ] 
+            ]
+             
+        This structure follows the file format. Additional methods can be used
+        to fetch data in a more useful way (e.g., get matrix elements between 
+        two specific bands at each kpoint)
+
+    
+    """
+    def __init__(self, filename):
+        f = zopen(filename, "rt")
+        header = f.readline().split()
+        ispin = int(header[0])
+        nb_kpoints = int(header[1])
+        nb_bands = int(header[2])
+        data = np.zeros((nb_kpoints,nb_bands,nb_bands,6))
+        for ik in range(nb_kpoints):
+            for ib1 in range(nb_bands):
+                for ib2 in range(nb_bands):
+                    # each line in the file includes besides the band indexes, which are redundant,
+                    # each band's energy and occupation, which are already available elsewhere,
+                    # so we store only the 6 matrix elements after this 6 redundant values
+                    data[ik][ib1][ib2] = [ float(element) for element in f.readline().split()[6:] ]
+                    
+        self.data = data
+        self._nb_kpoints = nb_kpoints
+        self._nb_bands = nb_bands
+
+    @property
+    def nb_bands(self):
+        """
+        returns the number of bands in the band structure
+        """
+        return self._nb_bands
+
+    @property
+    def nb_kpoints(self):
+        """
+        Returns the number of k-points in the band structure calculation
+        """
+        return self._nb_kpoints
+
+    def get_elements_between_bands(self, band_i, band_j):
+        """
+        Method returning a numpy array with all elements between bands band_i and band_j
+        (vasp 1-based indexing) for all kpoints.
+
+        Args:
+            band_i (Integer): Index of band i
+            band_j (Integer): Index of band j
+
+        Returns:
+            a numpy list of elements for each kpoint
+        """
+        if band_i < 1 or band_i > self.nb_bands or band_j < 1 or band_j > self.nb_bands:
+            raise ValueError("Band index out of bounds")
+            
+        return self.data[:,band_i-1,band_j-1,:] # using numpy array multidimensional slicing
+
