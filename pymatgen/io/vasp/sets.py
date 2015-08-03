@@ -31,8 +31,8 @@ import numpy as np
 
 from monty.serialization import loadfn
 
-from pymatgen.io.vasp.vasp_input import Incar, Poscar, Potcar, Kpoints
-from pymatgen.io.vasp.vasp_output import Vasprun, Outcar
+from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar, Kpoints
+from pymatgen.io.vasp.outputs import Vasprun, Outcar
 from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath

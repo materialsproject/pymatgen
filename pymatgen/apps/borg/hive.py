@@ -26,8 +26,8 @@ import six
 from six.moves import zip
 
 from monty.io import zopen
-from pymatgen.io.vasp.vasp_input import Incar, Potcar, Poscar
-from pymatgen.io.vasp.vasp_output import Vasprun, Oszicar, Dynmat
+from pymatgen.io.vasp.inputs import Incar, Potcar, Poscar
+from pymatgen.io.vasp.outputs import Vasprun, Oszicar, Dynmat
 from pymatgen.io.gaussian import GaussianOutput
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry

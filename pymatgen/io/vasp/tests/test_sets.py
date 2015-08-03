@@ -14,7 +14,7 @@ from pymatgen.io.vasp.sets import MITVaspInputSet, MITHSEVaspInputSet, \
     MPStaticVaspInputSet, MPNonSCFVaspInputSet, MITMDVaspInputSet,\
     MPHSEVaspInputSet, MPBSHSEVaspInputSet, MPStaticDielectricDFPTVaspInputSet,\
     MPOpticsNonSCFVaspInputSet
-from pymatgen.io.vasp.vasp_input import Poscar, Incar
+from pymatgen.io.vasp.inputs import Poscar, Incar
 from pymatgen import Specie, Lattice, Structure
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
