@@ -12,7 +12,7 @@ import unittest
 from pymatgen.command_line.gulp_caller import *
 from pymatgen.core.structure import Structure
 from monty.os.path import which
-from pymatgen.io.vasp.vasp_input import Poscar
+from pymatgen.io.vasp.inputs import Poscar
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')

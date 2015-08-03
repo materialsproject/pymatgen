@@ -6,5 +6,5 @@ classes to be simply called as pymatgen.io.vasp.Incar for example, to retain
 backwards compatibility.
 """
 
-from .vasp_input import *
-from .vasp_output import *
+from .inputs import *
+from .outputs import *
