@@ -17,7 +17,7 @@ __date__ = "Mar 18, 2012"
 import unittest
 import os
 
-from pymatgen.io.vasp.vasp_output import Vasprun
+from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
 

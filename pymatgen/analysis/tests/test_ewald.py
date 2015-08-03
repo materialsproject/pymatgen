@@ -6,7 +6,7 @@ import unittest
 import os
 
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
-from pymatgen.io.vasp.vasp_input import Poscar
+from pymatgen.io.vasp.inputs import Poscar
 import numpy as np
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",

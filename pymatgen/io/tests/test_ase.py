@@ -20,7 +20,7 @@ import os
 from nose.exc import SkipTest
 
 from pymatgen import Composition
-from pymatgen.io.vasp.vasp_input import Poscar
+from pymatgen.io.vasp.inputs import Poscar
 import pymatgen.io.ase as aio
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
