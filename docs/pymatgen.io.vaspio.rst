@@ -1,6 +1,26 @@
 pymatgen.io.vaspio package
 ==========================
 
+Submodules
+----------
+
+pymatgen.io.vaspio.vasp_input module
+------------------------------------
+
+.. automodule:: pymatgen.io.vaspio.vasp_input
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.io.vaspio.vasp_output module
+-------------------------------------
+
+.. automodule:: pymatgen.io.vaspio.vasp_output
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 Module contents
 ---------------
 
