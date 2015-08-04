@@ -10,10 +10,13 @@ __email__ = 'ongsp@ucsd.edu'
 __date__ = '3/28/15'
 
 import unittest
+import os
 
-from pymatgen.io.pwscf import PWInput, PWInputError
+from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput
 from pymatgen.util.testing import PymatgenTest
 
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 
 class PWInputTest(PymatgenTest):
 
@@ -66,6 +69,19 @@ CELL_PARAMETERS angstrom
 """
         self.assertEqual(pw.__str__().strip(), ans.strip())
 
+
+class PWOuputTest(PymatgenTest):
+
+    def setUp(self):
+        self.pwout = PWOutput(os.path.join(test_dir, "Si.pwscf.out"))
+
+    def test_properties(self):
+        self.assertAlmostEqual(self.pwout.final_energy, -93.45259708)
+
+    def test_get_celldm(self):
+        self.assertAlmostEqual(self.pwout.get_celldm(1), 10.323)
+        for i in range(2, 7):
+            self.assertAlmostEqual(self.pwout.get_celldm(i), 0)
 
 if __name__ == '__main__':
     unittest.main()
