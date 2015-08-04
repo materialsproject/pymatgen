@@ -2450,30 +2450,30 @@ class Wavederf(object):
              ] 
             ]
              
-        This structure follows the file format. Additional methods can be used
-        to fetch data in a more useful way (e.g., get matrix elements between 
-        two specific bands at each kpoint)
+        This structure follows the file format. Numpy array methods can be used to fetch data 
+        in a more useful way (e.g., get matrix elements between wo specific bands at each kpoint, 
+        fetch x/y/z components, real/imaginary parts, abs/phase, etc. )
 
-    
+    Author: Miguel Dias Costa
     """
     def __init__(self, filename):
-        f = zopen(filename, "rt")
-        header = f.readline().split()
-        ispin = int(header[0])
-        nb_kpoints = int(header[1])
-        nb_bands = int(header[2])
-        data = np.zeros((nb_kpoints,nb_bands,nb_bands,6))
-        for ik in range(nb_kpoints):
-            for ib1 in range(nb_bands):
-                for ib2 in range(nb_bands):
-                    # each line in the file includes besides the band indexes, which are redundant,
-                    # each band's energy and occupation, which are already available elsewhere,
-                    # so we store only the 6 matrix elements after this 6 redundant values
-                    data[ik][ib1][ib2] = [ float(element) for element in f.readline().split()[6:] ]
+        with zopen(filename, "rt") as f:
+            header = f.readline().split()
+            ispin = int(header[0])
+            nb_kpoints = int(header[1])
+            nb_bands = int(header[2])
+            data = np.zeros((nb_kpoints,nb_bands,nb_bands,6))
+            for ik in range(nb_kpoints):
+                for ib1 in range(nb_bands):
+                    for ib2 in range(nb_bands):
+                        # each line in the file includes besides the band indexes, which are redundant,
+                        # each band's energy and occupation, which are already available elsewhere,
+                        # so we store only the 6 matrix elements after this 6 redundant values
+                        data[ik][ib1][ib2] = [ float(element) for element in f.readline().split()[6:] ]
                     
-        self.data = data
-        self._nb_kpoints = nb_kpoints
-        self._nb_bands = nb_bands
+            self.data = data
+            self._nb_kpoints = nb_kpoints
+            self._nb_bands = nb_bands
 
     @property
     def nb_bands(self):
@@ -2491,8 +2491,11 @@ class Wavederf(object):
 
     def get_elements_between_bands(self, band_i, band_j):
         """
-        Method returning a numpy array with all elements between bands band_i and band_j
-        (vasp 1-based indexing) for all kpoints.
+        Method returning a numpy array with elements 
+
+        [cdum_x_real, cdum_x_imag, cdum_y_real, cdum_y_imag, cdum_z_real, cdum_z_imag]
+
+        between bands band_i and band_j (vasp 1-based indexing) for all kpoints.
 
         Args:
             band_i (Integer): Index of band i
