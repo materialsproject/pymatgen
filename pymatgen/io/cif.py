@@ -612,7 +612,7 @@ class CifWriter(object):
                 for t in TRANSLATIONS.values():
                     if abs(i - t) < symprec:
                         return t
-                if abs(i % 1 - 1) < symprec:
+                if abs(i - round(i)) < symprec:
                     return 0
                 raise ValueError("Invalid translation!")
 
