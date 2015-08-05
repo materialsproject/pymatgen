@@ -388,7 +388,7 @@ class Vasprun(PMGSONable):
                 ionic_steps.append(self._parse_calculation(elem))
             if tag == "dielectricfunction":
                 if not elem.attrib.has_key("comment") or \
-                   elem.attrib["comment"] == "HEAD OF MICROSCOPIC DIELECTRIC TENSOR (INDEPENDENT PARTICLE)":
+                   elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
                     self.dielectric = self._parse_diel(elem)
                 else:
                     self.other_dielectric[elem.attrib["comment"]] = self._parse_diel(elem)
