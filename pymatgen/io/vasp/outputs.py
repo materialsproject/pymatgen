@@ -242,7 +242,19 @@ class Vasprun(PMGSONable):
         The real and imaginary part of the dielectric constant (e.g., computed
         by RPA) in function of the energy (frequency). Optical properties (e.g.
         absorption coefficient) can be obtained through this.
-        The date is given as a tuple of 3 values containing each of them
+        The data is given as a tuple of 3 values containing each of them
+        the energy, the real part tensor, and the imaginary part tensor
+        ([energies],[[real_partxx,real_partyy,real_partzz,real_partxy,
+        real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz,
+        imag_partxy, imag_partyz, imag_partxz]])
+
+    .. attribute:: other_dielectric
+
+        Dictionary, with the tag comment as key, containing other variants of
+        the real and imaginary part of the dielectric constant (e.g., computed
+        by RPA) in function of the energy (frequency). Optical properties (e.g.
+        absorption coefficient) can be obtained through this.
+        The data is given as a tuple of 3 values containing each of them
         the energy, the real part tensor, and the imaginary part tensor
         ([energies],[[real_partxx,real_partyy,real_partzz,real_partxy,
         real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz,
@@ -347,6 +359,7 @@ class Vasprun(PMGSONable):
         self.efermi = None
         self.eigenvalues = None
         self.projected_eigenvalues = None
+        self.other_dielectric = {}
         ionic_steps = []
         parsed_header = False
         for event, elem in iterparse(stream):
@@ -374,7 +387,11 @@ class Vasprun(PMGSONable):
                 parsed_header = True
                 ionic_steps.append(self._parse_calculation(elem))
             if tag == "dielectricfunction":
-                self.dielectric = self._parse_diel(elem)
+                if not elem.attrib.has_key("comment") or \
+                   elem.attrib["comment"] == "HEAD OF MICROSCOPIC DIELECTRIC TENSOR (INDEPENDENT PARTICLE)":
+                    self.dielectric = self._parse_diel(elem)
+                else:
+                    self.other_dielectric[elem.attrib["comment"]] = self._parse_diel(elem)
             elif parse_dos and tag == "dos":
                 try:
                     self.tdos, self.idos, self.pdos = self._parse_dos(elem)
