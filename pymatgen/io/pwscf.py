@@ -15,9 +15,7 @@ __date__ = "3/27/15"
 
 
 import six
-import re
 
-from monty.io import zopen
 from monty.re import regrep
 from collections import defaultdict
 
@@ -122,7 +120,7 @@ class PWInputError(BaseException):
 class PWOutput(object):
 
     patterns = {
-        "energy": "total energy\s+=\s+([\d\.\-]+)\sRy",
+        "energies": "total energy\s+=\s+([\d\.\-]+)\sRy",
         "ecut": "kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry",
         "lattice_type": "bravais\-lattice index\s+=\s+(\d+)",
         "celldm1": "celldm\(1\)=\s+([\d\.]+)\s",
@@ -138,6 +136,13 @@ class PWOutput(object):
         self.filename = filename
         self.data = defaultdict(list)
         self.read_pattern(PWOutput.patterns)
+        for k, v in self.data.items():
+            if k == "energies":
+                self.data[k] = [float(i[0][0]) for i in v]
+            elif k in ["lattice_type", "nkpts"]:
+                self.data[k] = int(v[0][0][0])
+            else:
+                self.data[k] = float(v[0][0][0])
 
     def read_pattern(self, patterns, reverse=False,
                      terminate_on_match=False, postprocess=str):
@@ -167,19 +172,18 @@ class PWOutput(object):
         matches = regrep(self.filename, patterns, reverse=reverse,
                          terminate_on_match=terminate_on_match,
                          postprocess=postprocess)
-        for k in patterns.keys():
-            self.data[k] = [i[0] for i in matches.get(k, [])]
+        self.data.update(matches)
 
     def get_celldm(self, i):
-        return float(self.data["celldm%d" % i][-1][-1])
+        return self.data["celldm%d" % i]
 
     @property
     def final_energy(self):
-        return float(self.data["energy"][-1][-1])
+        return self.data["energies"][-1]
 
     @property
     def lattice_type(self):
-        return int(self.data["lattice_type"][-1][-1])
+        return self.data["lattice_type"]
 
 
 if __name__ == "__main__":
