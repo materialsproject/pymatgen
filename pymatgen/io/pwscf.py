@@ -16,6 +16,9 @@ __date__ = "3/27/15"
 
 import six
 
+from monty.re import regrep
+from collections import defaultdict
+
 
 class PWInput(object):
     """
@@ -114,17 +117,76 @@ class PWInputError(BaseException):
     pass
 
 
+class PWOutput(object):
+
+    patterns = {
+        "energies": "total energy\s+=\s+([\d\.\-]+)\sRy",
+        "ecut": "kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry",
+        "lattice_type": "bravais\-lattice index\s+=\s+(\d+)",
+        "celldm1": "celldm\(1\)=\s+([\d\.]+)\s",
+        "celldm2": "celldm\(2\)=\s+([\d\.]+)\s",
+        "celldm3": "celldm\(3\)=\s+([\d\.]+)\s",
+        "celldm4": "celldm\(4\)=\s+([\d\.]+)\s",
+        "celldm5": "celldm\(5\)=\s+([\d\.]+)\s",
+        "celldm6": "celldm\(6\)=\s+([\d\.]+)\s",
+        "nkpts": "number of k points=\s+([\d]+)"
+    }
+
+    def __init__(self, filename):
+        self.filename = filename
+        self.data = defaultdict(list)
+        self.read_pattern(PWOutput.patterns)
+        for k, v in self.data.items():
+            if k == "energies":
+                self.data[k] = [float(i[0][0]) for i in v]
+            elif k in ["lattice_type", "nkpts"]:
+                self.data[k] = int(v[0][0][0])
+            else:
+                self.data[k] = float(v[0][0][0])
+
+    def read_pattern(self, patterns, reverse=False,
+                     terminate_on_match=False, postprocess=str):
+        """
+        General pattern reading. Uses monty's regrep method. Takes the same
+        arguments.
+
+        Args:
+            patterns (dict): A dict of patterns, e.g.,
+                {"energy": "energy\(sigma->0\)\s+=\s+([\d\-\.]+)"}.
+            reverse (bool): Read files in reverse. Defaults to false. Useful for
+                large files, esp OUTCARs, especially when used with
+                terminate_on_match.
+            terminate_on_match (bool): Whether to terminate when there is at
+                least one match in each key in pattern.
+            postprocess (callable): A post processing function to convert all
+                matches. Defaults to str, i.e., no change.
+
+        Renders accessible:
+            Any attribute in patterns. For example,
+            {"energy": "energy\(sigma->0\)\s+=\s+([\d\-\.]+)"} will set the
+            value of self.data["energy"] = [[-1234], [-3453], ...], to the
+            results from regex and postprocess. Note that the returned
+            values are lists of lists, because you can grep multiple
+            items on one line.
+        """
+        matches = regrep(self.filename, patterns, reverse=reverse,
+                         terminate_on_match=terminate_on_match,
+                         postprocess=postprocess)
+        self.data.update(matches)
+
+    def get_celldm(self, i):
+        return self.data["celldm%d" % i]
+
+    @property
+    def final_energy(self):
+        return self.data["energies"][-1]
+
+    @property
+    def lattice_type(self):
+        return self.data["lattice_type"]
+
+
 if __name__ == "__main__":
-    from pymatgen.core.structure import Structure
-    coords = []
-    coords.append([0, 0, 0])
-    coords.append([0.75, 0.5, 0.75])
-    lattice = [[3.8401979337, 0.00, 0.00],
-               [1.9200989668, 3.3257101909, 0.00],
-               [0.00, -2.2171384943, 3.1355090603]]
-    structure = Structure(lattice, ["Si", "Si"], coords)
-    pw = PWInput(structure,
-                    control={"calculation": "scf", "pseudo_dir": './'},
-                    pseudo={"Si": "Si.pbe-n-kjpaw_psl.0.1.UPF"},
-                    system={"ecutwfc": 50})
-    pw.write_file("Si.pw.in")
+    o = PWOutput("../../test_files/Si.pwscf.out")
+    print(o.data)
+    print(o.final_energy)

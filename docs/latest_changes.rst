@@ -1,7 +1,9 @@
 Change log
 ==========
 
-v3.1.5
+v3.1.6
 ------
-* Move vasp.vasp*put to vasp.*puts. Also, maintain backwards compatibility with 
-  vaspio.vasp_*put
+* Rudimentary PWSCF output reading.
+* Fix ASE support.
+* Support for WAVEDERF and reading multiple dielectricfunctions in vasprun.xml. 
+  (Miguel Dias Costa)

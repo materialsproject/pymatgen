@@ -242,7 +242,19 @@ class Vasprun(PMGSONable):
         The real and imaginary part of the dielectric constant (e.g., computed
         by RPA) in function of the energy (frequency). Optical properties (e.g.
         absorption coefficient) can be obtained through this.
-        The date is given as a tuple of 3 values containing each of them
+        The data is given as a tuple of 3 values containing each of them
+        the energy, the real part tensor, and the imaginary part tensor
+        ([energies],[[real_partxx,real_partyy,real_partzz,real_partxy,
+        real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz,
+        imag_partxy, imag_partyz, imag_partxz]])
+
+    .. attribute:: other_dielectric
+
+        Dictionary, with the tag comment as key, containing other variants of
+        the real and imaginary part of the dielectric constant (e.g., computed
+        by RPA) in function of the energy (frequency). Optical properties (e.g.
+        absorption coefficient) can be obtained through this.
+        The data is given as a tuple of 3 values containing each of them
         the energy, the real part tensor, and the imaginary part tensor
         ([energies],[[real_partxx,real_partyy,real_partzz,real_partxy,
         real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz,
@@ -347,6 +359,7 @@ class Vasprun(PMGSONable):
         self.efermi = None
         self.eigenvalues = None
         self.projected_eigenvalues = None
+        self.other_dielectric = {}
         ionic_steps = []
         parsed_header = False
         for event, elem in iterparse(stream):
@@ -374,7 +387,11 @@ class Vasprun(PMGSONable):
                 parsed_header = True
                 ionic_steps.append(self._parse_calculation(elem))
             if tag == "dielectricfunction":
-                self.dielectric = self._parse_diel(elem)
+                if ("comment" not in elem.attrib) or \
+                   elem.attrib["comment"] == "INVERSE MACROSCOPIC DIELECTRIC TENSOR (including local field effects in RPA (Hartree))":
+                    self.dielectric = self._parse_diel(elem)
+                else:
+                    self.other_dielectric[elem.attrib["comment"]] = self._parse_diel(elem)
             elif parse_dos and tag == "dos":
                 try:
                     self.tdos, self.idos, self.pdos = self._parse_dos(elem)
@@ -2425,7 +2442,7 @@ def get_adjusted_fermi_level(efermi, cbm, band_structure):
 class Wavederf(object):
     """
     Object for reading a WAVEDERF file.
-    
+
     Note: This file is only produced when LOPTICS is true AND vasp has been recompiled
     after uncommenting the line that calls WRT_CDER_BETWEEN_STATES_FORMATTED in
     linear_optics.F
@@ -2442,16 +2459,16 @@ class Wavederf(object):
 
         For each kpoint (in the same order as in IBZKPT), and for each pair of bands:
 
-            [ #kpoint index 
+            [ #kpoint index
              [ #band 1 index
               [ #band 2 index
                [cdum_x_real, cdum_x_imag, cdum_y_real, cdum_y_imag, cdum_z_real, cdum_z_imag]
-              ] 
-             ] 
+              ]
+             ]
             ]
-             
-        This structure follows the file format. Numpy array methods can be used to fetch data 
-        in a more useful way (e.g., get matrix elements between wo specific bands at each kpoint, 
+
+        This structure follows the file format. Numpy array methods can be used to fetch data
+        in a more useful way (e.g., get matrix elements between wo specific bands at each kpoint,
         fetch x/y/z components, real/imaginary parts, abs/phase, etc. )
 
     Author: Miguel Dias Costa
@@ -2470,7 +2487,7 @@ class Wavederf(object):
                         # each band's energy and occupation, which are already available elsewhere,
                         # so we store only the 6 matrix elements after this 6 redundant values
                         data[ik][ib1][ib2] = [ float(element) for element in f.readline().split()[6:] ]
-                    
+
             self.data = data
             self._nb_kpoints = nb_kpoints
             self._nb_bands = nb_bands
@@ -2491,7 +2508,7 @@ class Wavederf(object):
 
     def get_elements_between_bands(self, band_i, band_j):
         """
-        Method returning a numpy array with elements 
+        Method returning a numpy array with elements
 
         [cdum_x_real, cdum_x_imag, cdum_y_real, cdum_y_imag, cdum_z_real, cdum_z_imag]
 
@@ -2506,6 +2523,6 @@ class Wavederf(object):
         """
         if band_i < 1 or band_i > self.nb_bands or band_j < 1 or band_j > self.nb_bands:
             raise ValueError("Band index out of bounds")
-            
+
         return self.data[:,band_i-1,band_j-1,:] # using numpy array multidimensional slicing
 
