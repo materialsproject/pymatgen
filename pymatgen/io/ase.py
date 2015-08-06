@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from __future__ import division, unicode_literals
+from __future__ import division, unicode_literals, absolute_import
 
 """
 This module provides conversion between the Atomic Simulation Environment
