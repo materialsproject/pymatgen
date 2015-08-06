@@ -1383,8 +1383,7 @@ class IStructure(SiteCollection, PMGSONable):
         Args:
             filename (str): The filename to read from.
             primitive (bool): Whether to convert to a primitive cell
-                Only available for cifs, POSCAR, CSSR, JSON, YAML
-                Defaults to True.
+                Only available for cifs. Defaults to True.
             sort (bool): Whether to sort sites. Default to False.
 
         Returns:
