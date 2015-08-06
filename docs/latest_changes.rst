@@ -1,7 +1,9 @@
 Change log
 ==========
 
-v3.1.1
+v3.1.6
 ------
-* Bug fixes for SpacegroupAnalyzer and SlabGenerator.
-* Much faster normal vec search.
+* Rudimentary PWSCF output reading.
+* Fix ASE support.
+* Support for WAVEDERF and reading multiple dielectricfunctions in vasprun.xml. 
+  (Miguel Dias Costa)

@@ -393,11 +393,11 @@ class SlabGenerator(object):
                 reversed(range(-max_normal_search, max_normal_search + 1)),
                 key=lambda x: abs(x))
             candidates = []
-            for uvw in itertools.product(index_range, index_range,
-                                             index_range):
-                if not any(uvw):
+            for uvw in itertools.product(index_range, index_range, index_range):
+                if (not any(uvw)) or abs(
+                        np.linalg.det(slab_scale_factor + [uvw])) < 1e-8:
                     continue
-                vec = np.dot(latt.matrix, uvw)
+                vec = latt.get_cartesian_coords(uvw)
                 l = np.linalg.norm(vec)
                 cosine = abs(np.dot(vec, normal) / l)
                 candidates.append((uvw, cosine, l))
