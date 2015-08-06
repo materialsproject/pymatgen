@@ -15,7 +15,7 @@ import six
 import numpy as np
 
 from warnings import warn
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict, namedtuple
 from monty.string import list_strings, is_string
 from monty.itertools import iterator_from_slice
 from monty.io import FileLock
@@ -228,9 +228,9 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
             else:
                 warn("Dojo report without md5 entry")
 
-        return self._compute_md5()
+        return self.compute_md5()
 
-    def _compute_md5(self):
+    def compute_md5(self):
         """Compute MD5 hash value."""
         import hashlib
 
@@ -263,7 +263,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
                 raise ValueError("md5 found in dojo_report does not agree\n"
                     "with the computed value\nFound %s\nComputed %s"  % (report["md5"], hash))
         else:
-            report["md5"] = self._compute_md5()
+            report["md5"] = self.compute_md5()
             self.write_dojo_report(report=report)
 
     #@abc.abstractproperty
@@ -456,7 +456,8 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
         structure = Structure(lattice, [self.element], coords=[[0, 0, 0]])
 
         if self.ispaw and pawecutdg is None: pawecudg = ecut * 4
-        inp = gs_input(structure, pseudos=[self], ecut=ecut, pawecutdg=pawecutdg, kppa=1)
+        inp = gs_input(structure, pseudos=[self], ecut=ecut, pawecutdg=pawecutdg, 
+                       spin_mode="unpolarized", kppa=1)
         # Add prtpsps = -1 to make Abinit print the PSPS.nc file and stop.
         inp["prtpsps"] = -1
 
@@ -619,7 +620,7 @@ class PawAbinitPseudo(PawPseudo, AbinitPseudo):
     #def orbitals(self):
 
 
-class Hint(collections.namedtuple("Hint", "ecut aug_ratio")):
+class Hint(namedtuple("Hint", "ecut aug_ratio")):
     """
     Suggested value for the cutoff energy [Hartree units] and the augmentation ratio (PAW pseudo)
     """
@@ -719,7 +720,7 @@ def _int_from_str(string):
 
 class NcAbinitHeader(AbinitHeader):
     """The abinit header found in the NC pseudopotential files."""
-    _attr_desc = collections.namedtuple("att", "default astype")
+    _attr_desc = namedtuple("att", "default astype")
 
     _VARS = {
         # Mandatory
@@ -915,7 +916,7 @@ class NcAbinitHeader(AbinitHeader):
 
 class PawAbinitHeader(AbinitHeader):
     """The abinit header found in the PAW pseudopotential files."""
-    _attr_desc = collections.namedtuple("att", "default astype")
+    _attr_desc = namedtuple("att", "default astype")
 
     _VARS = {
         "zatom"           : _attr_desc(None, _int_from_str),
@@ -1059,7 +1060,7 @@ class PseudoParser(object):
     Error = PseudoParserError
 
     # Supported values of pspcod
-    ppdesc = collections.namedtuple("ppdesc", "pspcod name psp_type format")
+    ppdesc = namedtuple("ppdesc", "pspcod name psp_type format")
 
     # TODO Recheck
     _PSPCODES = OrderedDict( {
@@ -1228,7 +1229,7 @@ class PseudoParser(object):
 
 
 #TODO use RadialFunction from pseudo_dojo.
-class RadialFunction(collections.namedtuple("RadialFunction", "mesh values")):
+class RadialFunction(namedtuple("RadialFunction", "mesh values")):
     pass
 
 
@@ -1651,16 +1652,6 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
 
         return cls(pseudos).sort_by_z()
 
-    #@pmg_serialize
-    #def as_dict(self, **kwargs):
-    #    return {pseudo.as_dict() for pseudo in self}
-
-    #@classmethod
-    #def from_dict(cls, d):
-    #    pseudos = [p.from_dict(d) for k, p in cls.as_dict().items() if not k.startswith("@")]
-    #    print(pseudos)
-    #    #return cls(pseudos)
-
     def __init__(self, pseudos):
         """
         Args:
@@ -1675,7 +1666,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
         if len(pseudos) and is_string(pseudos[0]):
             pseudos = list_strings(pseudos)
 
-        self._pseudos_with_z = collections.defaultdict(list)
+        self._pseudos_with_z = defaultdict(list)
 
         for pseudo in pseudos:
             p = pseudo
@@ -1878,7 +1869,6 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
         """
         symbols = structure.symbol_set
         return self.pseudos_with_symbols(symbols)
-
 
     #def list_properties(self, *props, **kw):
     #    """
@@ -2285,22 +2275,6 @@ class DojoDataFrame(DataFrame):
 
         return fig
 
-    #def sns_plot(self):
-    #    import seaborn as sns
-    #    import matplotlib.pyplot as plt
-    #    #self.plot(x="symbol", y="high_dfact_meV", use_index=True)
-    #    #data = calc_rerrors(data)
-    #    g = sns.PairGrid(self, x_vars="Z", y_vars=[
-    #        "low_ecut",
-    #        "low_dfact_meV",
-    #        #"high_dfact_meV", 
-    #        #"low_v0_rerr", "low_b0_GPa_rerr", "low_b1_rerr",
-    #        ]
-    #    ) #, hue="smoker")
-    #    g.map(plt.scatter)
-    #    g.add_legend()
-    #    plt.show()
-
 
 class DojoReportError(Exception):
     """Exception raised by DoJoReport."""
@@ -2405,7 +2379,7 @@ class DojoReport(dict):
     @property
     def trials(self):
         """Set of strings with the trials present in the report."""
-        return set(self.keys()).intersection(self.ALL_TRIALS)
+        return set(list(self.keys())).intersection(self.ALL_TRIALS)
 
     def has_trial(self, dojo_trial, ecut=None):
         """
@@ -2641,9 +2615,10 @@ class DojoReport(dict):
                     hints[i] = ecut
         return hints
 
-    def check_errors(self):
+    def check(self):
         """
-        Return a list of errors found in the DOJO_REPORT.
+        Check the dojo report for inconsistencies.
+        Return a string with the errors found in the DOJO_REPORT.
         """
         errors = []
         app = errors.append
@@ -2654,7 +2629,24 @@ class DojoReport(dict):
         if "ppgen_hints" not in self:
             app("version is missing")
 
-        return errors
+        if "md5" not in self:
+            app("md5 checksum is missing!")
+
+        # Check if we have computed each trial for the full set of ecuts in global_ecuts
+        global_ecuts = self.ecuts
+
+        missing = defaultdict(list)
+        for trial in self.ALL_TRIALS:
+            for ecut in global_ecuts:
+                if not self.has_trial(trial, ecut=ecut):
+                    missing[trial].append(ecut)
+
+        if missing:
+            app("The following list of ecut energies is missing:")
+            for trial, ecuts in missing.items():
+                app("%s: %s" % (trial, ecuts))
+            
+        return "\n".join(errors)
 
     @add_fig_kwargs
     def plot_deltafactor_convergence(self, code="WIEN2k", what=None, ax_list=None, **kwargs):
