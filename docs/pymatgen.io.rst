@@ -110,18 +110,18 @@ pymatgen.io.gaussianio module
     :undoc-members:
     :show-inheritance:
 
-pymatgen.io.newchemio module
-----------------------------
-
-.. automodule:: pymatgen.io.newchemio
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 pymatgen.io.nwchem module
 -------------------------
 
 .. automodule:: pymatgen.io.nwchem
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pymatgen.io.nwchemio module
+---------------------------
+
+.. automodule:: pymatgen.io.nwchemio
     :members:
     :undoc-members:
     :show-inheritance:
