@@ -32,10 +32,11 @@ from monty.json import MontyEncoder, MontyDecoder
 
 from pymatgen.core.periodic_table import ALL_ELEMENT_SYMBOLS, Element
 from pymatgen.core.composition import Composition
-from pymatgen.entries.computed_entries import ComputedStructureEntry
+from pymatgen.entries.computed_entries import ComputedEntry, \
+    ComputedStructureEntry
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
-from pymatgen.io.vaspio_set import DictVaspInputSet
+from pymatgen.io.vasp.sets import DictVaspInputSet
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.matproj.snl import StructureNL
@@ -298,17 +299,38 @@ class MPRester(object):
         """
         # TODO: This is a very hackish way of doing this. It should be fixed
         # on the REST end.
-
+        params = ["run_type", "is_hubbard", "pseudo_potential", "hubbards",
+                  "potcar_symbols"]
         if compatible_only:
-            data = self.get_data(chemsys_formula_id, prop="entry")
-            entries = [d["entry"] for d in data]
+            props = ["energy", "unit_cell_formula", "task_id"] + params
             if inc_structure:
-                for i, e in enumerate(entries):
-                    s = self.get_structure_by_material_id(
-                        e.entry_id, inc_structure == "final")
-                    entries[i] = ComputedStructureEntry(
-                        s, e.energy, e.correction, e.parameters, e.data,
-                        e.entry_id)
+                if inc_structure == "final":
+                    props.append("structure")
+                else:
+                    props.append("initial_structure")
+
+            criteria = MPRester.parse_criteria(chemsys_formula_id)
+
+            data = self.query(criteria, props)
+
+            entries = []
+            for d in data:
+                d["potcar_symbols"] = [
+                    "%s %s" % (d["pseudo_potential"]["functional"], l)
+                    for l in d["pseudo_potential"]["labels"]]
+                if not inc_structure:
+                    e = ComputedEntry(d["unit_cell_formula"], d["energy"],
+                                      parameters={k: d[k] for k in params},
+                                      entry_id=d["task_id"])
+
+                else:
+                    s = d["structure"] if inc_structure == "final" else d[
+                        "initial_structure"]
+                    e = ComputedStructureEntry(
+                        s, d["energy"],
+                        parameters={k: d[k] for k in params},
+                        entry_id=d["task_id"])
+                entries.append(e)
             entries = MaterialsProjectCompatibility().process_entries(entries)
         else:
             entries = []
@@ -419,14 +441,11 @@ class MPRester(object):
         entries = []
         for i in range(len(elements)):
             for els in itertools.combinations(elements, i + 1):
-                try:
-                    entries.extend(
-                        self.get_entries(
-                            "-".join(els), compatible_only=compatible_only,
-                            inc_structure=inc_structure)
-                    )
-                except:
-                    pass
+                entries.extend(
+                    self.get_entries(
+                        "-".join(els), compatible_only=compatible_only,
+                        inc_structure=inc_structure)
+                )
         return entries
 
     def get_exp_thermo_data(self, formula):

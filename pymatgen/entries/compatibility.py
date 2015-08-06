@@ -25,7 +25,7 @@ from collections import defaultdict
 from monty.design_patterns import cached_class
 from monty.serialization import loadfn
 
-from pymatgen.io.vaspio_set import MITVaspInputSet, MPVaspInputSet
+from pymatgen.io.vasp.sets import MITVaspInputSet, MPVaspInputSet
 from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.structure_analyzer import oxide_type
 

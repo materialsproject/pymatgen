@@ -24,16 +24,16 @@ import datetime
 from collections import OrderedDict
 
 from pymatgen import Structure
-from pymatgen.io.vaspio import Outcar, Vasprun, Chgcar
+from pymatgen.io.vasp import Outcar, Vasprun, Chgcar
 from pymatgen.util.string_utils import str_aligned
 from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, \
     VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.electronic_structure.plotter import DosPlotter
-from pymatgen.io.vaspio import Poscar
-from pymatgen.io.cifio import CifParser, CifWriter
-from pymatgen.io.vaspio_set import MPVaspInputSet, MITVaspInputSet
-from pymatgen.io.cssrio import Cssr
+from pymatgen.io.vasp import Poscar
+from pymatgen.io.cif import CifParser, CifWriter
+from pymatgen.io.vasp.sets import MPVaspInputSet, MITVaspInputSet
+from pymatgen.io.cssr import Cssr
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
@@ -317,7 +317,7 @@ def compare_structures(args):
 
 
 def generate_files(args):
-    from pymatgen.io.vaspio.vasp_input import Potcar
+    from pymatgen.io.vasp.inputs import Potcar
     if args.symbols:
         try:
             p = Potcar(args.symbols, functional=args.functional)

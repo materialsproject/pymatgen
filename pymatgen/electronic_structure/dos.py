@@ -266,7 +266,7 @@ class Dos(PMGSONable):
 class CompleteDos(Dos):
     """
     This wrapper class defines a total dos, and also provides a list of PDos.
-    Mainly used by pymatgen.io.vaspio.Vasprun to create a complete Dos from
+    Mainly used by pymatgen.io.vasp.Vasprun to create a complete Dos from
     a vasprun.xml file. You are unlikely to try to generate this object
     manually.
 
