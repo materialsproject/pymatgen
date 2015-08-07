@@ -1078,7 +1078,7 @@ class Kpoints(PMGSONable):
                            kpts=kpts, coord_type=coord_type, labels=labels)
 
         #Assume explicit KPOINTS if all else fails.
-        style = Kpoints.supported_modes.Cartesian if style == "ck" \
+        style = Kpoints.supported_modes.Cartesian if style in "ck" \
             else Kpoints.supported_modes.Reciprocal
         kpts = []
         kpts_weights = []
@@ -1089,7 +1089,7 @@ class Kpoints(PMGSONable):
 
         for i in range(3, 3 + num_kpts):
             toks = lines[i].split()
-            kpts.append([[float(j) for j in toks[0:3]]])
+            kpts.append([float(j) for j in toks[0:3]])
             kpts_weights.append(float(toks[3]))
             if len(toks) > 4:
                 labels.append(toks[4])
