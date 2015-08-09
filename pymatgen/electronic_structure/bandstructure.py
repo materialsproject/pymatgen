@@ -666,9 +666,9 @@ class BandStructureSymmLine(BandStructure, PMGSONable):
     def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict,
                  coords_are_cartesian=False, structure=None,
                  projections=None):
-        BandStructure.__init__(self, kpoints, eigenvals, lattice, efermi,
-                               labels_dict, coords_are_cartesian, structure,
-                               projections)
+        super(BandStructureSymmLine, self).__init__(
+            kpoints, eigenvals, lattice, efermi, labels_dict,
+            coords_are_cartesian, structure, projections)
         self._distance = []
         self._branches = []
         one_group = []
