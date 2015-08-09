@@ -465,7 +465,6 @@ class Compatibility(object):
             "corrected_energy"])
 
 
-@cached_class
 class MaterialsProjectCompatibility(Compatibility):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
@@ -498,7 +497,6 @@ class MaterialsProjectCompatibility(Compatibility):
              UCorrection(fp, i_s, compat_type)])
 
 
-@cached_class
 class MITCompatibility(Compatibility):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
@@ -530,7 +528,6 @@ class MITCompatibility(Compatibility):
              UCorrection(fp, i_s, compat_type)])
 
 
-@cached_class
 class MITAqueousCompatibility(Compatibility):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
