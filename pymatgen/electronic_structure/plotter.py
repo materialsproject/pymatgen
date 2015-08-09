@@ -487,17 +487,17 @@ class BSPlotter(object):
                     plt.ylim(self._bs.efermi + e_min, self._bs._efermi + e_max)
             else:
                 if vbm_cbm_marker:
-                	for cbm in data['cbm']:
-                        	plt.scatter(cbm[0], cbm[1], color='r', marker='o',
-                               	s=100)
+                    for cbm in data['cbm']:
+                        plt.scatter(cbm[0], cbm[1], color='r', marker='o',
+                                    s=100)
 
                         for vbm in data['vbm']:
-                                plt.scatter(vbm[0], vbm[1], color='g', marker='o',
-                                s=100)
-                
-		plt.ylim(data['vbm'][0][1] + e_min, data['cbm'][0][1] + e_max)
-        else:
-            plt.ylim(ylim)
+                            plt.scatter(vbm[0], vbm[1], color='g', marker='o',
+                                        s=100)
+
+                    plt.ylim(data['vbm'][0][1] + e_min, data['cbm'][0][1] + e_max)
+                else:
+                    plt.ylim(ylim)
 
         plt.tight_layout()
 
