@@ -387,7 +387,7 @@ class BSPlotter(object):
                                                         bg['energy'])
                 if not self._bs.is_metal() else ""}
 
-    def get_plot(self, zero_to_efermi=True, ylim=None, smooth=False):
+    def get_plot(self, zero_to_efermi=True, ylim=None, smooth=False, vbm_cbm_marker=False):
         """
         get a matplotlib object for the bandstructure plot.
         Blue lines are up spin, red lines are down
@@ -486,12 +486,16 @@ class BSPlotter(object):
                 else:
                     plt.ylim(self._bs.efermi + e_min, self._bs._efermi + e_max)
             else:
-                for cbm in data['cbm']:
-                    plt.scatter(cbm[0], cbm[1], color='r', marker='o', s=100)
+                if vbm_cbm_marker:
+                	for cbm in data['cbm']:
+                        	plt.scatter(cbm[0], cbm[1], color='r', marker='o',
+                               	s=100)
 
-                for vbm in data['vbm']:
-                    plt.scatter(vbm[0], vbm[1], color='g', marker='o', s=100)
-                plt.ylim(data['vbm'][0][1] + e_min, data['cbm'][0][1] + e_max)
+                        for vbm in data['vbm']:
+                                plt.scatter(vbm[0], vbm[1], color='g', marker='o',
+                                s=100)
+                
+		plt.ylim(data['vbm'][0][1] + e_min, data['cbm'][0][1] + e_max)
         else:
             plt.ylim(ylim)
 
@@ -693,7 +697,7 @@ class BSPlotterProjected(BSPlotter):
         if len(bs._projections) == 0:
             raise ValueError("try to plot projections"
                              " on a band structure without any")
-        super(BSPlotterProjected, self).__init__(bs)
+        BSPlotter.__init__(self, bs)
 
     def _get_projections_by_branches(self, dictio):
         proj = self._bs.get_projections_on_elts_and_orbitals(dictio)
@@ -725,7 +729,7 @@ class BSPlotterProjected(BSPlotter):
                                                                    for e in proj[Spin.down][i][j]})
         return proj_br
 
-    def get_projected_plots_dots(self, dictio, zero_to_efermi=True, ylim=None):
+    def get_projected_plots_dots(self, dictio, zero_to_efermi=True, ylim=None, vbm_cbm_marker=False):
         """
         Method returning a plot composed of subplots along different elements
         and orbitals.
@@ -786,13 +790,13 @@ class BSPlotterProjected(BSPlotter):
                             plt.ylim(self._bs.efermi + e_min, self._bs._efermi
                                      + e_max)
                     else:
-
-                        for cbm in data['cbm']:
-                            plt.scatter(cbm[0], cbm[1], color='r', marker='o',
+			if vbm_cbm_marker:
+                        	for cbm in data['cbm']:
+                            		plt.scatter(cbm[0], cbm[1], color='r', marker='o',
                                         s=100)
 
-                        for vbm in data['vbm']:
-                            plt.scatter(vbm[0], vbm[1], color='g', marker='o',
+                        	for vbm in data['vbm']:
+                            		plt.scatter(vbm[0], vbm[1], color='g', marker='o',
                                         s=100)
 
                         plt.ylim(data['vbm'][0][1] + e_min, data['cbm'][0][1]
@@ -803,7 +807,7 @@ class BSPlotterProjected(BSPlotter):
                 count += 1
         return plt
 
-    def get_elt_projected_plots(self, zero_to_efermi=True, ylim=None):
+    def get_elt_projected_plots(self, zero_to_efermi=True, ylim=None, vbm_cbm_marker=False):
         """
         Method returning a plot composed of subplots along different elements
 
@@ -855,13 +859,13 @@ class BSPlotterProjected(BSPlotter):
                             plt.ylim(self._bs.efermi + e_min, self._bs._efermi
                                      + e_max)
                     else:
-
-                        for cbm in data['cbm']:
-                            plt.scatter(cbm[0], cbm[1], color='r', marker='o',
+                        if vbm_cbm_marker:
+                                for cbm in data['cbm']:
+                                        plt.scatter(cbm[0], cbm[1], color='r', marker='o',
                                         s=100)
 
-                        for vbm in data['vbm']:
-                            plt.scatter(vbm[0], vbm[1], color='g', marker='o',
+                                for vbm in data['vbm']:
+                                        plt.scatter(vbm[0], vbm[1], color='g', marker='o',
                                         s=100)
 
                         plt.ylim(data['vbm'][0][1] + e_min, data['cbm'][0][1]
