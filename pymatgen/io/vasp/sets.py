@@ -501,8 +501,8 @@ class MITNEBVaspInputSet(DictVaspInputSet):
         if user_incar_settings:
             defaults.update(user_incar_settings)
 
-        DictVaspInputSet.__init__(
-            self, "MIT NEB",
+        super(MITNEBVaspInputSet, self).__init__(
+            "MIT NEB",
             loadfn(os.path.join(MODULE_DIR, "MITVaspInputSet.yaml")),
             user_incar_settings=defaults, ediff_per_atom=False, **kwargs)
         self.nimages = nimages
@@ -609,8 +609,8 @@ class MITMDVaspInputSet(DictVaspInputSet):
         #override default settings with user supplied settings
         if user_incar_settings:
             defaults.update(user_incar_settings)
-        DictVaspInputSet.__init__(
-            self, "MIT MD",
+        super(MITMDVaspInputSet, self).__init__(
+            "MIT MD",
             loadfn(os.path.join(MODULE_DIR, "MITVaspInputSet.yaml")),
             hubbard_off=hubbard_off, sort_structure=sort_structure,
             user_incar_settings=defaults, **kwargs)
@@ -713,8 +713,8 @@ class MPStaticVaspInputSet(DictVaspInputSet):
     """
 
     def __init__(self, kpoints_density=90, sym_prec=0.1, **kwargs):
-        DictVaspInputSet.__init__(
-            self, "MP Static",
+        super(MPStaticVaspInputSet, self).__init__(
+            "MP Static",
             loadfn(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")),
             **kwargs)
         self.incar_settings.update(
@@ -917,8 +917,8 @@ class MPStaticDielectricDFPTVaspInputSet(DictVaspInputSet):
     """
 
     def __init__(self, user_incar_settings=None, ionic=True):
-        DictVaspInputSet.__init__(
-            self, "MaterialsProject Static Dielectric DFPT",
+        super(MPStaticDielectricDFPTVaspInputSet, self).__init__(
+            "Materials Project Static Dielectric DFPT",
             loadfn(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")))
         self.user_incar_settings = user_incar_settings if \
             user_incar_settings is not None else {}
@@ -958,8 +958,8 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
 
     def __init__(self, user_incar_settings=None, added_kpoints=None, mode="Line",
                  kpoints_density=None, kpoints_line_density=20):
-        DictVaspInputSet.__init__(
-            self, "MaterialsProject HSE Band Structure",
+        super(MPBSHSEVaspInputSet, self).__init__(
+            "Materials Project HSE Band Structure",
             loadfn(os.path.join(MODULE_DIR, "MPHSEVaspInputSet.yaml")))
         self.user_incar_settings = user_incar_settings if \
             user_incar_settings is not None else {}
@@ -1064,8 +1064,8 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         if mode not in ["Line", "Uniform"]:
             raise ValueError("Supported modes for NonSCF runs are 'Line' and "
                              "'Uniform'!")
-        DictVaspInputSet.__init__(
-            self, "MaterialsProject Static",
+        DictVaspInputSet.__init__(self,
+            "Materials Project Static",
             loadfn(os.path.join(MODULE_DIR, "MPVaspInputSet.yaml")),
             constrain_total_magmom=constrain_total_magmom,
             sort_structure=sort_structure)
@@ -1279,8 +1279,8 @@ class MPOpticsNonSCFVaspInputSet(MPNonSCFVaspInputSet):
                  kpoints_density=1000, sym_prec=0.1, nedos=2001):
         self.sym_prec = sym_prec
         self.nedos = nedos
-        MPNonSCFVaspInputSet.__init__(
-            self, user_incar_settings, mode="Uniform",
+        DictVaspInputSet.__init__(
+            user_incar_settings, mode="Uniform",
             constrain_total_magmom=constrain_total_magmom,
             sort_structure=sort_structure,
             kpoints_density=kpoints_density, sym_prec=sym_prec)
