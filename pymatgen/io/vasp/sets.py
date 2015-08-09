@@ -978,7 +978,10 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
         if self.mode == "Line":
             ir_kpts = SpacegroupAnalyzer(structure, symprec=0.1)\
                 .get_ir_reciprocal_mesh(grid[0])
-            kpoints, labels = HighSymmKpath(structure).get_kpoints(line_density=self.kpoints_line_density)
+            kpath = HighSymmKpath(structure)
+            cart_k_points, labels = kpath.get_kpoints(line_density=self.kpoints_line_density)
+            frac_k_points = [kpath._prim_rec.get_fractional_coords(k)
+                             for k in cart_k_points]
             kpts = []
             weights = []
             all_labels = []
@@ -986,8 +989,8 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
                 kpts.append(k[0])
                 weights.append(int(k[1]))
                 all_labels.append(None)
-            for k in range(len(kpoints)):
-                kpts.append(kpoints[k])
+            for k in range(len(frac_k_points)):
+                kpts.append(frac_k_points[k])
                 weights.append(0.0)
                 all_labels.append(labels[k])
             return Kpoints(comment="HSE run along symmetry lines",
