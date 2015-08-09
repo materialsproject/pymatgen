@@ -119,7 +119,7 @@ class CostDBElements(CostDBCSV):
     Singleton object that provides the cost data for elements
     """
     def __init__(self):
-        CostDBElements.__init__(
+        CostDBCSV.__init__(
             self, os.path.join(module_dir, "costdb_elements.csv"))
 
 
