@@ -1308,7 +1308,7 @@ def solute_site_preference_finder(
           "solute_defect_density requires Sympy module. Please install it.")
 def solute_defect_density(structure, e0, vac_defs, antisite_defs, solute_defs,
         solute_concen=0.01, T=800, trial_chem_pot = None,
-        plot_style="highchargs"):
+        plot_style="highcharts"):
     """
     Wrapper for the solute_site_preference_finder.
     The computed plot data is prepared based on plot_style.
