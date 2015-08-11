@@ -2,12 +2,6 @@
 
 from __future__ import division, unicode_literals
 
-"""
-This testing code does not actually run sxdefectalign, it just checks to see
-if the code
-"""
-
-
 __author__ = "Danny Broberg"
 __copyright__ = "Copyright 2015, The Materials Project"
 __version__ = "0.1"
