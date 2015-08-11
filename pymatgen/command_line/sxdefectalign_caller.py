@@ -265,7 +265,7 @@ class FreysoldtCorrection(object):
             self.runsxdefect()
         PC=self.get_avgPCen()
         pot=self.get_avgpotalign()
-        correction=PC-float(self._charge)*pot #CHECKSIGN
+        correction=PC-float(self._charge)*pot
         print 'yields Freysoldt (sxdefectalign) correction energy of '+str(correction)+'\n'
         print 'note that the following error dictionary was created: errors='+str(self.errors)
         return correction
