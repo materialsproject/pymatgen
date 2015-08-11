@@ -2,6 +2,8 @@
 from __future__ import division, unicode_literals
 
 """
+TO DO: include compatibility with all the extra flags that sxdefectalign has?
+
 This module implements an interface to the Freysoldt et al.'s excellent
 code for calculating a correction for formation energy of a charged 
 defect.
@@ -33,12 +35,11 @@ from monty.os.path import which
 from monty.dev import requires
 from monty.tempfile import ScratchDir
 
-#this which command seems to be faulty?
 @requires(which("sxdefectalign"),
           "Charge defect correction requires the executable sxdefectalign to "
           "be in the path. Please download the executable at "
           "http://sxlib.mpie.de/wiki/AddOns.")
-class SxdefectalignWrapper(object):
+class FreysoldtCorrection(object):
     """
     Charge correction wraparound for sxdefectalign code written by Freysoldt
 
@@ -49,8 +50,8 @@ class SxdefectalignWrapper(object):
         Initialize the sxdefectalign caller
 
         Args:
-            locpotref_filename: The filename of the LOCPOT_ref (pure LOCPOT)
-            locpotdef_filename: The filename of the LOCPOT_def (defect LOCPOT)
+            locpotref_filename: The absolute path of the LOCPOT_ref (pure LOCPOT)
+            locpotdef_filename: The absolute path of the LOCPOT_def (defect LOCPOT)
                 note: these must have been pre-processed so that the 6th line
                 of the VASP output for LOCPOT file is deleted (required for
                 sxdefectalign code compatibility)
@@ -74,19 +75,47 @@ class SxdefectalignWrapper(object):
         self._frac_coords = site_frac_coords
         self._align=align
         if not lengths:
-            struct=Locpot.from_file(locpot_ref)
+            struct=Locpot.from_file(locpot_ref) #maybe include an exception for if the Locpot can't be read or something?
             self._lengths=struct.structure.lattice.abc
-            print 'had to import lengths, if want to speed up set lengths='+str(self._lengths)+'\n'
+            print 'had to import lengths, if you want to speed up class ' \
+                  'instantiation set lengths to: '+str(self._lengths)+'\n'
         else:
             self._lengths = lengths
+        self.PCen=None
+        self.errors={}
+        #check to see if sxdefectalign in path
+        command=['sxdefectalign','-v']
+        valid=['+-----------------------------------------------------------------------------\n',
+               '| S/PHI/nX DFT package by S. Boeck, J. Neugebauer et al.\n', '| S/PHI/nX release 1.0\n',
+               '| sxdefectalign by C. Freysoldt\n', '| version 1.3\n',
+               '+-----------------------------------------------------------------------------\n']
+        with ScratchDir('.'):
+            #in case NERSC (Hopper) has issues with python subprocess can use hack
+            #p = subprocess.Popen(command, stdout=subprocess.PIPE,
+            #        stdin=subprocess.PIPE, stderr=subprocess.PIPE,close_fds=True)
+            #output, err = p.communicate()
+            #out = out.decode('utf-8')
+            #err = err.decode('utf-8')
 
+            #this is hack wrap-around for when subprocess doesn't work
+            cmd = ' '.join(command)
+            cmd += ' > tmptest'
+            os.system(cmd)
+            with open('tmptest') as f:
+                out = f.readlines()
+            if out!=valid:
+                print 'Could not find sxdefectalign version 1.3 code! ' \
+                      'Please make sure the correct version is in your path\n'
+                self.errors['code']=True
+            else:
+                print 'Ready to run sxdefectalign code\n'
+                self.errors['code']=None
 
-        errors={}
+    def runsxdefect(self):
         if not self._charge:
             print 'charge=0, so no charge correction needed'+'\n'
             self.PCen=[0,0,0]  #triplet for PC correction with respect to each axis
             self.potalign=[0,0,0]
-            self.errors=errors
             return
 
         with ScratchDir('.'):
@@ -104,14 +133,13 @@ class SxdefectalignWrapper(object):
                     '-C', str(-float(self._align[axis])),
                     '--vref', self._locpotref,
                     '--vdef', self._locpotdef]
-                print command+'\n'
-
+                print str(command)+'\n'
 
                 ##standard way of running NERSC commands.
                 #in case NERSC (Hopper) has issues with python subprocess can use hack
                 #p = subprocess.Popen(command, stdout=subprocess.PIPE,
-                #        stdin=subprocess.PIPE, stderr=subprocess.PIPE,close_fds=True)
-                #output, err = p.communicate()
+                #        stdin=subprocess.PIPE, close_fds=True)
+                #out, err = p.communicate()
                 #out = out.decode('utf-8')
                 #err = err.decode('utf-8')
                 #print 'output from sxdefectalign = ', str(out)
@@ -126,7 +154,7 @@ class SxdefectalignWrapper(object):
                 print 'output from sxdefectalign = '+str(output)+'\n'
                 val =  output[-1].split()[3].strip()
 
-
+                #return to normal code
                 result.append(float(val))
                 print "chg correction is "+str(result[-1])+'\n'
                 os.remove('tmpoutput')
@@ -180,7 +208,7 @@ class SxdefectalignWrapper(object):
                         else:
                             continue
 
-                print 'alignment is ', -np.mean(tmpalign)+'\n'
+                print 'alignment is ', -np.mean(tmpalign),'\n'
                 platy.append(-np.mean(tmpalign))
                 flag = 0
                 for i in tmpalign:  #check to see if alignment region varies too much
@@ -193,16 +221,18 @@ class SxdefectalignWrapper(object):
                           'than 0.2eV (in range of halfway between defects ' + \
                           '+/-1 \Angstrom). Might have issues with Freidel ' + \
                           'oscillations or atomic relaxation\n'
-                    errors[axis]='large osc (>0.2) in potential, check plots for further information'
+                    self.errors['alignment'+str(axis)]='large osc (>0.2) in potential,' \
+                                            ' check plots for further information'
         self.PCen=result    #triplet for PC correction with respect to each axis
         self.potalign=platy #triplet of potential alignment for each axis
-        self.errors=errors
 
 
     def get_full(self):
         """
         Output triplet of PC energies and a triplet of potential alignments for each axis
         """
+        if not self.PCen:
+            self.runsxdefect()
         return [self.PCen,self.potalign]
 
 
@@ -210,6 +240,8 @@ class SxdefectalignWrapper(object):
         """
         Gives average of potential alignment corrections for each axis
         """
+        if not self.PCen:
+            self.runsxdefect()
         avg=np.mean(self.potalign)
         print 'For potential alignment, average of '+str(self.potalign)+' is '+str(avg)+'\n'
         return avg
@@ -218,6 +250,8 @@ class SxdefectalignWrapper(object):
         """
         Gives average of PC energies for each axis
         """
+        if not self.PCen:
+            self.runsxdefect()
         avg=np.mean(self.PCen)
         print 'For PC energy, average of '+str(self.PCen)+' is '+str(avg)+'\n'
         return avg
@@ -227,6 +261,8 @@ class SxdefectalignWrapper(object):
         If one has no intention of plotting potentials and checking for localization (not recommended)
         This returns a single correction after one run of the sxdefectalign code.
         """
+        if not self.PCen:
+            self.runsxdefect()
         PC=self.get_avgPCen()
         pot=self.get_avgpotalign()
         correction=PC-float(self._charge)*pot #CHECKSIGN
