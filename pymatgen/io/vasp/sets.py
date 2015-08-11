@@ -979,9 +979,8 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
             ir_kpts = SpacegroupAnalyzer(structure, symprec=0.1)\
                 .get_ir_reciprocal_mesh(grid[0])
             kpath = HighSymmKpath(structure)
-            cart_k_points, labels = kpath.get_kpoints(line_density=self.kpoints_line_density)
-            frac_k_points = [kpath._prim_rec.get_fractional_coords(k)
-                             for k in cart_k_points]
+            frac_k_points, labels = kpath.get_kpoints(line_density=self.kpoints_line_density,
+                                                      coords_are_cartesian=False)
             kpts = []
             weights = []
             all_labels = []
@@ -1097,14 +1096,12 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         """
         if self.mode == "Line":
             kpath = HighSymmKpath(structure)
-            cart_k_points, k_points_labels = kpath.get_kpoints(
-                line_density=self.kpoints_line_density)
-            frac_k_points = [kpath._prim_rec.get_fractional_coords(k)
-                             for k in cart_k_points]
+            frac_k_points, k_points_labels = kpath.get_kpoints(line_density=self.kpoints_line_density,
+                                                               coords_are_cartesian=False)
             return Kpoints(comment="Non SCF run along symmetry lines",
                            style="Reciprocal", num_kpts=len(frac_k_points),
                            kpts=frac_k_points, labels=k_points_labels,
-                           kpts_weights=[1] * len(cart_k_points))
+                           kpts_weights=[1] * len(frac_k_points))
         else:
             num_kpoints = self.kpoints_settings["kpoints_density"] * \
                 structure.lattice.reciprocal_lattice.volume
