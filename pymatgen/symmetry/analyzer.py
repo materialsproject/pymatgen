@@ -99,9 +99,47 @@ class SpacegroupAnalyzer(object):
                 zs.extend([len(unique_species)] * len(tuple(g)))
         self._unique_species = unique_species
         self._numbers = np.array(zs, dtype='intc')
-        self._spacegroup_data = spg.spacegroup(
-            self._transposed_latt.copy(), self._positions.copy(),
-            self._numbers, self._symprec, self._angle_tol)
+
+        dataset = {}
+        keys = ('number',
+                'hall_number',
+                'international',
+                'hall',
+                'transformation_matrix',
+                'origin_shift',
+                'rotations',
+                'translations',
+                'wyckoffs',
+                'equivalent_atoms',
+                'brv_lattice',
+                'brv_types',
+                'brv_positions')
+        for key, data in zip(keys, spg.dataset(self._transposed_latt.copy(),
+                                               self._positions.copy(),
+                                               self._numbers, self._symprec,
+                                               self._angle_tol)):
+
+            dataset[key] = data
+
+        dataset['international'] = dataset['international'].strip()
+        dataset['hall'] = dataset['hall'].strip()
+        dataset['transformation_matrix'] = np.array(
+            dataset['transformation_matrix'], dtype='double', order='C')
+        dataset['origin_shift'] = np.array(dataset['origin_shift'], dtype='double')
+        dataset['rotations'] = np.array(dataset['rotations'],
+                                        dtype='intc', order='C')
+        dataset['translations'] = np.array(dataset['translations'],
+                                           dtype='double', order='C')
+        letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        dataset['wyckoffs'] = [letters[x] for x in dataset['wyckoffs']]
+        dataset['equivalent_atoms'] = np.array(dataset['equivalent_atoms'],
+                                               dtype='intc')
+        dataset['brv_lattice'] = np.array(np.transpose(dataset['brv_lattice']),
+                                          dtype='double', order='C')
+        dataset['brv_types'] = np.array(dataset['brv_types'], dtype='intc')
+        dataset['brv_positions'] = np.array(dataset['brv_positions'],
+                                            dtype='double', order='C')
+        self._spacegroup_data = dataset
 
     def get_spacegroup(self):
         """
@@ -122,7 +160,7 @@ class SpacegroupAnalyzer(object):
         Returns:
             (str): Spacegroup symbol for structure.
         """
-        return self._spacegroup_data.split()[0]
+        return self._spacegroup_data["international"]
 
     def get_spacegroup_number(self):
         """
@@ -131,9 +169,7 @@ class SpacegroupAnalyzer(object):
         Returns:
             (int): International spacegroup number for structure.
         """
-        sgnum = self._spacegroup_data.split()[-1]
-        sgnum = int(re.sub("\D", "", sgnum))
-        return sgnum
+        return self._spacegroup_data["number"]
 
     def get_hall(self):
         """
@@ -142,8 +178,7 @@ class SpacegroupAnalyzer(object):
         Returns:
             (str): Hall symbol
         """
-        ds = self.get_symmetry_dataset()
-        return ds["hall"]
+        return self._spacegroup_data["hall"]
 
     def get_point_group(self):
         """
@@ -152,8 +187,7 @@ class SpacegroupAnalyzer(object):
         Returns:
             (Pointgroup): Point group for structure.
         """
-        ds = self.get_symmetry_dataset()
-        return get_point_group(ds["rotations"])[0].strip()
+        return get_point_group(self._spacegroup_data["rotations"])[0].strip()
 
     def get_crystal_system(self):
         """
@@ -163,7 +197,7 @@ class SpacegroupAnalyzer(object):
         Returns:
             (str): Crystal system for structure.
         """
-        n = self.get_spacegroup_number()
+        n = self._spacegroup_data["number"]
 
         f = lambda i, j: i <= n <= j
         cs = {"triclinic": (1, 2), "monoclinic": (3, 15),
@@ -189,7 +223,7 @@ class SpacegroupAnalyzer(object):
         Returns:
             (str): Lattice type for structure.
         """
-        n = self.get_spacegroup_number()
+        n = self._spacegroup_data["number"]
         system = self.get_crystal_system()
         if n in [146, 148, 155, 160, 161, 166, 167]:
             return "rhombohedral"
@@ -215,30 +249,7 @@ class SpacegroupAnalyzer(object):
             [(r,t) for r, t in zip(rotations, translations)]
             wyckoffs: Wyckoff letters
         """
-        keys = ("number",
-                "international",
-                "hall",
-                "transformation_matrix",
-                "origin_shift",
-                "rotations",
-                "translations",
-                "wyckoffs",
-                "equivalent_atoms")
-        dataset = dict(zip(keys, spg.dataset(
-            self._transposed_latt.copy(), self._positions, self._numbers,
-            self._symprec, self._angle_tol)))
-        dataset["international"] = dataset["international"].strip()
-        dataset["hall"] = dataset["hall"].strip()
-        dataset["transformation_matrix"] = \
-            np.array(dataset["transformation_matrix"])
-        dataset["origin_shift"] = np.array(dataset["origin_shift"])
-        dataset["rotations"] = np.array(dataset["rotations"])
-        dataset["translations"] = np.array(dataset["translations"])
-        letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        dataset["wyckoffs"] = [letters[x] for x in dataset["wyckoffs"]]
-        dataset["equivalent_atoms"] = np.array(dataset["equivalent_atoms"])
-
-        return dataset
+        return self._spacegroup_data
 
     def _get_symmetry(self):
         """
@@ -599,12 +610,7 @@ class SpacegroupAnalyzer(object):
                         new_matrix = [[a, 0, 0],
                                       [0, b, 0],
                                       [0, c * cos(alpha), c * sin(alpha)]]
-                if new_matrix is None:
-                    #this if is to treat the case
-                    #where alpha==90 (but we still have a monoclinic sg
-                    new_matrix = [[a, 0, 0],
-                                  [0, b, 0],
-                                  [0, c * cos(alpha), c * sin(alpha)]]
+
                 if new_matrix is None:
                     #this if is to treat the case
                     #where alpha==90 (but we still have a monoclinic sg

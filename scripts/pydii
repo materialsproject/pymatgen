@@ -16,16 +16,14 @@ __date__ = "March 16, 2015"
 
 import argparse
 import os
-import json
 import glob
 
 from monty.serialization import loadfn, dumpfn
 from monty.json import MontyEncoder, MontyDecoder
-from pymatgen import Structure
 from pymatgen.analysis.defects.point_defects import Vacancy
-from pymatgen.io.vaspio_set import MPGGAVaspInputSet
-from pymatgen.io.vaspio import Poscar, Kpoints
-from pymatgen.io.vaspio import Vasprun
+from pymatgen.io.vasp.sets import MPGGAVaspInputSet
+from pymatgen.io.vasp import Kpoints
+from pymatgen.io.vasp import Vasprun
 from pymatgen.matproj.rest import MPRester
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.defects.dilute_solution_model import \

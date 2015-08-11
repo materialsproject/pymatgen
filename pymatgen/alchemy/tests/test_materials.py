@@ -23,7 +23,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import \
     SubstitutionTransformation, PartialRemoveSpecieTransformation, \
     SupercellTransformation
-from pymatgen.io.vaspio_set import MPVaspInputSet
+from pymatgen.io.vasp.sets import MPVaspInputSet
 from pymatgen.alchemy.filters import ContainsSpecieFilter
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.matproj.snl import StructureNL

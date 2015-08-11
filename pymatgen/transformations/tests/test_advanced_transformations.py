@@ -29,7 +29,7 @@ from pymatgen.transformations.advanced_transformations import \
     MultipleSubstitutionTransformation, ChargeBalanceTransformation, \
     SubstitutionPredictorTransformation, MagOrderingTransformation
 from monty.os.path import which
-from pymatgen.io.vaspio.vasp_input import Poscar
+from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.energy_models import IsingModel
 from pymatgen.util.testing import PymatgenTest

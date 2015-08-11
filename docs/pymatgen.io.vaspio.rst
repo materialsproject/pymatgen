@@ -1,22 +1,8 @@
 pymatgen.io.vaspio package
 ==========================
 
-Subpackages
------------
-
-.. toctree::
-
-
 Submodules
 ----------
-
-pymatgen.io.vaspio.GWvaspinputsets module
------------------------------------------
-
-.. automodule:: pymatgen.io.vaspio.GWvaspinputsets
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 pymatgen.io.vaspio.vasp_input module
 ------------------------------------

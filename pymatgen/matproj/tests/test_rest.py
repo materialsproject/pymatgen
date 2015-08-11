@@ -26,7 +26,7 @@ from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.phasediagram.pdmaker import PhaseDiagram
 from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
-from pymatgen.io.cifio import CifParser
+from pymatgen.io.cif import CifParser
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -110,7 +110,7 @@ class MPResterTest(unittest.TestCase):
         # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_find_structure
         # self.rester points to rest/v2 by default which doesn't have the find_structure endpoint
         m = MPRester(endpoint="https://www.materialsproject.org/rest")
-        ciffile = 'test_files/Fe3O4.cif'
+        ciffile = os.path.join(test_dir, 'Fe3O4.cif')
         data = m.find_structure(ciffile)
         self.assertTrue(len(data) > 1)
         s = CifParser(ciffile).get_structures()[0]
@@ -119,9 +119,7 @@ class MPResterTest(unittest.TestCase):
 
     def test_get_entries_in_chemsys(self):
         syms = ["Li", "Fe", "O"]
-        all_entries = self.rester.get_entries_in_chemsys(syms, False)
         entries = self.rester.get_entries_in_chemsys(syms)
-        self.assertTrue(len(entries) <= len(all_entries))
         elements = set([Element(sym) for sym in syms])
         for e in entries:
             self.assertIsInstance(e, ComputedEntry)
@@ -173,6 +171,10 @@ class MPResterTest(unittest.TestCase):
         self.assertTrue(len(entries) > 1)
         for e in entries:
             self.assertEqual(e.structure.composition.reduced_formula, "TiO2")
+
+        all_entries = self.rester.get_entries("Fe", compatible_only=False)
+        entries = self.rester.get_entries("Fe", compatible_only=True)
+        self.assertTrue(len(entries) < len(all_entries))
 
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
