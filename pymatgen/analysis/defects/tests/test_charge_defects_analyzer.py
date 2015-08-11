@@ -19,18 +19,17 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 
 class ParsedChargeDefectTest(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def test_as_dict(self):
-        pass
-
-    def test_from_dict(self):
-        pass
+    """
+    This class is just an aggregate for the data. No tests are necessary.
+    """
+    pass
 
 
 @unittest.skipIf(not sxdefectalign_present, "sxdefectalign not present.")
 class CorrectionTest(unittest.TestCase):
+    """
+    Tests for the correction obtained Freysoldt method
+    """
     def setUp(self):
         pass
 
