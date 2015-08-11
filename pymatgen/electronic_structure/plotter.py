@@ -24,7 +24,6 @@ from monty.json import jsanitize
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 
-
 logger = logging.getLogger('BSPlotter')
 
 
@@ -171,13 +170,13 @@ class DosPlotter(object):
                          label=str(key))
             else:
                 ppl.plot(x, y, color=colors[i % ncolors],
-                         label=str(key),linewidth=3)
+                         label=str(key), linewidth=3)
             if not self.zero_at_efermi:
                 ylim = plt.ylim()
                 ppl.plot([self._doses[key]['efermi'],
                           self._doses[key]['efermi']], ylim,
-                          color=colors[i % ncolors],
-                          linestyle='--', linewidth=2)
+                         color=colors[i % ncolors],
+                         linestyle='--', linewidth=2)
 
         if xlim:
             plt.xlim(xlim)
@@ -245,7 +244,8 @@ class BSPlotter(object):
                 "A BandStructure object (on a uniform grid for instance and "
                 "not along symmetry lines won't work)")
         self._bs = bs
-        #TODO: come with an intelligent way to cut the highest unconverged bands
+        # TODO: come with an intelligent way to cut the highest unconverged
+        # bands
         self._nb_bands = self._bs._nb_bands
 
     def _maketicks(self, plt):
@@ -253,7 +253,7 @@ class BSPlotter(object):
         utility private method to add ticks to a band structure
         """
         ticks = self.get_ticks()
-        #Sanitize only plot the uniq values
+        # Sanitize only plot the uniq values
         uniq_d = []
         uniq_l = []
         temp_ticks = list(zip(ticks['distance'], ticks['label']))
@@ -284,7 +284,7 @@ class BSPlotter(object):
                     if ticks['label'][i] == ticks['label'][i - 1]:
                         logger.debug("already print label... "
                                      "skipping label {i}".format(
-                                     i=ticks['label'][i]))
+                            i=ticks['label'][i]))
                     else:
                         logger.debug("Adding a line at {d}"
                                      " for label {l}".format(
@@ -292,7 +292,7 @@ class BSPlotter(object):
                         plt.axvline(ticks['distance'][i], color='k')
                 else:
                     logger.debug("Adding a line at {d} for label {l}".format(
-                            d=ticks['distance'][i], l=ticks['label'][i]))
+                        d=ticks['distance'][i], l=ticks['label'][i]))
                     plt.axvline(ticks['distance'][i], color='k')
         return plt
 
@@ -344,18 +344,18 @@ class BSPlotter(object):
                 energy.append({str(Spin.up): []})
             distance.append([self._bs._distance[j]
                              for j in range(b['start_index'],
-                                            b['end_index']+1)])
+                                            b['end_index'] + 1)])
             ticks = self.get_ticks()
 
             for i in range(self._nb_bands):
                 energy[-1][str(Spin.up)].append(
                     [self._bs._bands[Spin.up][i][j] - zero_energy
-                     for j in range(b['start_index'], b['end_index']+1)])
+                     for j in range(b['start_index'], b['end_index'] + 1)])
             if self._bs.is_spin_polarized:
                 for i in range(self._nb_bands):
                     energy[-1][str(Spin.down)].append(
                         [self._bs._bands[Spin.down][i][j] - zero_energy
-                         for j in range(b['start_index'], b['end_index']+1)])
+                         for j in range(b['start_index'], b['end_index'] + 1)])
 
         vbm = self._bs.get_vbm()
         cbm = self._bs.get_cbm()
@@ -387,7 +387,8 @@ class BSPlotter(object):
                                                         bg['energy'])
                 if not self._bs.is_metal() else ""}
 
-    def get_plot(self, zero_to_efermi=True, ylim=None, smooth=False):
+    def get_plot(self, zero_to_efermi=True, ylim=None, smooth=False,
+                 vbm_cbm_marker=False):
         """
         get a matplotlib object for the bandstructure plot.
         Blue lines are up spin, red lines are down
@@ -407,7 +408,7 @@ class BSPlotter(object):
         import scipy.interpolate as scint
         rc('text', usetex=True)
 
-        #main internal config options
+        # main internal config options
         e_min = -4
         e_max = 4
         if self._bs.is_metal():
@@ -438,15 +439,14 @@ class BSPlotter(object):
                     step = (data['distances'][d][-1]
                             - data['distances'][d][0]) / 1000
 
-                    plt.plot([x * step+data['distances'][d][0]
+                    plt.plot([x * step + data['distances'][d][0]
                               for x in range(1000)],
-                             [scint.splev(x * step+data['distances'][d][0],
+                             [scint.splev(x * step + data['distances'][d][0],
                                           tck, der=0)
                               for x in range(1000)], 'b-',
                              linewidth=band_linewidth)
 
                     if self._bs.is_spin_polarized:
-
                         tck = scint.splrep(
                             data['distances'][d],
                             [data['energy'][d][str(Spin.down)][i][j]
@@ -454,15 +454,16 @@ class BSPlotter(object):
                         step = (data['distances'][d][-1]
                                 - data['distances'][d][0]) / 1000
 
-                        plt.plot([x * step+data['distances'][d][0]
+                        plt.plot([x * step + data['distances'][d][0]
                                   for x in range(1000)],
-                                 [scint.splev(x * step+data['distances'][d][0],
-                                              tck, der=0)
+                                 [scint.splev(
+                                     x * step + data['distances'][d][0],
+                                     tck, der=0)
                                   for x in range(1000)], 'r--',
                                  linewidth=band_linewidth)
         self._maketicks(plt)
 
-        #Main X and Y Labels
+        # Main X and Y Labels
         plt.xlabel(r'$\mathrm{Wave\ Vector}$', fontsize=30)
         ylabel = r'$\mathrm{E\ -\ E_f\ (eV)}$' if zero_to_efermi \
             else r'$\mathrm{Energy\ (eV)}$'
@@ -474,7 +475,7 @@ class BSPlotter(object):
             plt.axhline(ef, linewidth=2, color='k')
 
         # X range (K)
-        #last distance point
+        # last distance point
         x_max = data['distances'][-1][-1]
         plt.xlim(0, x_max)
 
@@ -486,14 +487,19 @@ class BSPlotter(object):
                 else:
                     plt.ylim(self._bs.efermi + e_min, self._bs._efermi + e_max)
             else:
-                for cbm in data['cbm']:
-                    plt.scatter(cbm[0], cbm[1], color='r', marker='o', s=100)
+                if vbm_cbm_marker:
+                    for cbm in data['cbm']:
+                        plt.scatter(cbm[0], cbm[1], color='r', marker='o',
+                                    s=100)
 
-                for vbm in data['vbm']:
-                    plt.scatter(vbm[0], vbm[1], color='g', marker='o', s=100)
-                plt.ylim(data['vbm'][0][1] + e_min, data['cbm'][0][1] + e_max)
-        else:
-            plt.ylim(ylim)
+                        for vbm in data['vbm']:
+                            plt.scatter(vbm[0], vbm[1], color='g', marker='o',
+                                        s=100)
+
+                    plt.ylim(data['vbm'][0][1] + e_min,
+                             data['cbm'][0][1] + e_max)
+                else:
+                    plt.ylim(ylim)
 
         plt.tight_layout()
 
@@ -583,19 +589,19 @@ class BSPlotter(object):
             a matplotlib object with both band structures
 
         """
-        #TODO: add exception if the band structures are not compatible
+        # TODO: add exception if the band structures are not compatible
         plt = self.get_plot()
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()
         band_linewidth = 3
         for i in range(other_plotter._nb_bands):
+            plt.plot(data_orig['distances'],
+                     [e for e in data['energy'][str(Spin.up)][i]],
+                     'r-', linewidth=band_linewidth)
+            if other_plotter._bs.is_spin_polarized:
                 plt.plot(data_orig['distances'],
-                         [e for e in data['energy'][str(Spin.up)][i]],
+                         [e for e in data['energy'][str(Spin.down)][i]],
                          'r-', linewidth=band_linewidth)
-                if other_plotter._bs.is_spin_polarized:
-                    plt.plot(data_orig['distances'],
-                             [e for e in data['energy'][str(Spin.down)][i]],
-                             'r-', linewidth=band_linewidth)
         return plt
 
     def plot_brillouin(self):
@@ -613,7 +619,7 @@ class BSPlotter(object):
         vec2 = self._bs.lattice.matrix[1]
         vec3 = self._bs.lattice.matrix[2]
 
-        #make the grid
+        # make the grid
         max_x = -1000
         max_y = -1000
         max_z = -1000
@@ -680,7 +686,6 @@ class BSPlotter(object):
 
 
 class BSPlotterProjected(BSPlotter):
-
     """
     Class to plot or get data to facilitate the plot of band structure objects
     projected along orbitals, elements or sites.
@@ -705,27 +710,32 @@ class BSPlotterProjected(BSPlotter):
         for b in self._bs._branches:
             print(b)
             if self._bs.is_spin_polarized:
-                proj_br.append({str(Spin.up): [[] for l in range(self._nb_bands)],
-                                str(Spin.down): [[] for l in range(self._nb_bands)]})
+                proj_br.append(
+                    {str(Spin.up): [[] for l in range(self._nb_bands)],
+                     str(Spin.down): [[] for l in range(self._nb_bands)]})
             else:
-                proj_br.append({str(Spin.up): [[] for l in range(self._nb_bands)]})
+                proj_br.append(
+                    {str(Spin.up): [[] for l in range(self._nb_bands)]})
             print((len(proj_br[-1][str(Spin.up)]), self._nb_bands))
 
             for i in range(self._nb_bands):
-                for j in range(b['start_index'], b['end_index']+1):
-                    proj_br[-1][str(Spin.up)][i].append({e: {o: proj[Spin.up][i][j][e][o]
-                                                             for o in proj[Spin.up][i][j][e]}
-                                                         for e in proj[Spin.up][i][j]})
+                for j in range(b['start_index'], b['end_index'] + 1):
+                    proj_br[-1][str(Spin.up)][i].append(
+                        {e: {o: proj[Spin.up][i][j][e][o]
+                             for o in proj[Spin.up][i][j][e]}
+                         for e in proj[Spin.up][i][j]})
             if self._bs.is_spin_polarized:
                 for b in self._bs._branches:
                     for i in range(self._nb_bands):
-                        for j in range(b['start_index'], b['end_index']+1):
-                            proj_br[-1][str(Spin.down)][i].append({e: {o: proj[Spin.down][i][j][e][o]
-                                                                       for o in proj[Spin.down][i][j][e]}
-                                                                   for e in proj[Spin.down][i][j]})
+                        for j in range(b['start_index'], b['end_index'] + 1):
+                            proj_br[-1][str(Spin.down)][i].append(
+                                {e: {o: proj[Spin.down][i][j][e][o]
+                                     for o in proj[Spin.down][i][j][e]}
+                                 for e in proj[Spin.down][i][j]})
         return proj_br
 
-    def get_projected_plots_dots(self, dictio, zero_to_efermi=True, ylim=None):
+    def get_projected_plots_dots(self, dictio, zero_to_efermi=True, ylim=None,
+                                 vbm_cbm_marker=False):
         """
         Method returning a plot composed of subplots along different elements
         and orbitals.
@@ -763,21 +773,30 @@ class BSPlotterProjected(BSPlotter):
                     for i in range(self._nb_bands):
                         plt.plot(data['distances'][b],
                                  [data['energy'][b][str(Spin.up)][i][j]
-                                  for j in range(len(data['distances'][b]))], 'b-',
+                                  for j in range(len(data['distances'][b]))],
+                                 'b-',
                                  linewidth=band_linewidth)
                         if self._bs.is_spin_polarized:
                             plt.plot(data['distances'][b],
                                      [data['energy'][b][str(Spin.down)][i][j]
-                                      for j in range(len(data['distances'][b]))],
+                                      for j in
+                                      range(len(data['distances'][b]))],
                                      'r--', linewidth=band_linewidth)
-                            for j in range(len(data['energy'][b][str(Spin.up)][i])):
+                            for j in range(
+                                    len(data['energy'][b][str(Spin.up)][i])):
                                 plt.plot(data['distances'][b][j],
-                                         data['energy'][b][str(Spin.down)][i][j], 'ro',
-                                         markersize=proj[b][str(Spin.down)][i][j][str(el)][o] * 15.0)
+                                         data['energy'][b][str(Spin.down)][i][
+                                             j], 'ro',
+                                         markersize=
+                                         proj[b][str(Spin.down)][i][j][str(el)][
+                                             o] * 15.0)
                         for j in range(len(data['energy'][b][str(Spin.up)][i])):
                             plt.plot(data['distances'][b][j],
-                                     data['energy'][b][str(Spin.up)][i][j], 'bo',
-                                     markersize=proj[b][str(Spin.up)][i][j][str(el)][o] * 15.0)
+                                     data['energy'][b][str(Spin.up)][i][j],
+                                     'bo',
+                                     markersize=
+                                     proj[b][str(Spin.up)][i][j][str(el)][
+                                         o] * 15.0)
                 if ylim is None:
                     if self._bs.is_metal():
                         if zero_to_efermi:
@@ -786,14 +805,16 @@ class BSPlotterProjected(BSPlotter):
                             plt.ylim(self._bs.efermi + e_min, self._bs._efermi
                                      + e_max)
                     else:
+                        if vbm_cbm_marker:
+                            for cbm in data['cbm']:
+                                plt.scatter(cbm[0], cbm[1], color='r',
+                                            marker='o',
+                                            s=100)
 
-                        for cbm in data['cbm']:
-                            plt.scatter(cbm[0], cbm[1], color='r', marker='o',
-                                        s=100)
-
-                        for vbm in data['vbm']:
-                            plt.scatter(vbm[0], vbm[1], color='g', marker='o',
-                                        s=100)
+                            for vbm in data['vbm']:
+                                plt.scatter(vbm[0], vbm[1], color='g',
+                                            marker='o',
+                                            s=100)
 
                         plt.ylim(data['vbm'][0][1] + e_min, data['cbm'][0][1]
                                  + e_max)
@@ -803,7 +824,8 @@ class BSPlotterProjected(BSPlotter):
                 count += 1
         return plt
 
-    def get_elt_projected_plots(self, zero_to_efermi=True, ylim=None):
+    def get_elt_projected_plots(self, zero_to_efermi=True, ylim=None,
+                                vbm_cbm_marker=False):
         """
         Method returning a plot composed of subplots along different elements
 
@@ -815,7 +837,8 @@ class BSPlotterProjected(BSPlotter):
         """
         band_linewidth = 1.0
         proj = self._get_projections_by_branches({e.symbol: ['s', 'p', 'd']
-                                                  for e in self._bs._structure.composition.elements})
+                                                  for e in
+                                                  self._bs._structure.composition.elements})
         data = self.bs_plot_data(zero_to_efermi)
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
@@ -826,36 +849,44 @@ class BSPlotterProjected(BSPlotter):
             e_max = 10
         count = 1
         for el in self._bs._structure.composition.elements:
-                plt.subplot(220 + count)
-                self._maketicks(plt)
-                for b in range(len(data['distances'])):
-                    for i in range(self._nb_bands):
-                        plt.plot(data['distances'][b], [data['energy'][b][str(Spin.up)][i][j]
-                                                        for j in range(len(data['distances'][b]))], 'b-',
-                                 linewidth=band_linewidth)
-                        if self._bs.is_spin_polarized:
-                            plt.plot(data['distances'][b],
-                                     [data['energy'][b][str(Spin.down)][i][j]
-                                      for j in range(len(data['distances'][b]))],
-                                     'r--', linewidth=band_linewidth)
-                            for j in range(len(data['energy'][b][str(Spin.up)][i])):
-                                plt.plot(data['distances'][b][j], data['energy'][b][str(Spin.down)][i][j], 'ro',
-                                         markersize=sum([proj[b][str(Spin.down)][i][j][str(el)][o] for o in proj[b]
-                                         [str(Spin.down)][i][j][str(el)]]) * 15.0)
+            plt.subplot(220 + count)
+            self._maketicks(plt)
+            for b in range(len(data['distances'])):
+                for i in range(self._nb_bands):
+                    plt.plot(data['distances'][b],
+                             [data['energy'][b][str(Spin.up)][i][j]
+                              for j in range(len(data['distances'][b]))], 'b-',
+                             linewidth=band_linewidth)
+                    if self._bs.is_spin_polarized:
+                        plt.plot(data['distances'][b],
+                                 [data['energy'][b][str(Spin.down)][i][j]
+                                  for j in range(len(data['distances'][b]))],
+                                 'r--', linewidth=band_linewidth)
                         for j in range(len(data['energy'][b][str(Spin.up)][i])):
                             plt.plot(data['distances'][b][j],
-                                     data['energy'][b][str(Spin.up)][i][j], 'bo',
-                                     markersize=sum([proj[b][str(Spin.up)][i][j][str(el)][o] for o in proj[b]
-                                     [str(Spin.up)][i][j][str(el)]]) * 15.0)
-                if ylim is None:
-                    if self._bs.is_metal():
-                        if zero_to_efermi:
-                            plt.ylim(e_min, e_max)
-                        else:
-                            plt.ylim(self._bs.efermi + e_min, self._bs._efermi
-                                     + e_max)
+                                     data['energy'][b][str(Spin.down)][i][j],
+                                     'ro',
+                                     markersize=sum([proj[b][str(Spin.down)][i][
+                                                         j][str(el)][o] for o in
+                                                     proj[b]
+                                                     [str(Spin.down)][i][j][
+                                                         str(el)]]) * 15.0)
+                    for j in range(len(data['energy'][b][str(Spin.up)][i])):
+                        plt.plot(data['distances'][b][j],
+                                 data['energy'][b][str(Spin.up)][i][j], 'bo',
+                                 markersize=sum(
+                                     [proj[b][str(Spin.up)][i][j][str(el)][o]
+                                      for o in proj[b]
+                                      [str(Spin.up)][i][j][str(el)]]) * 15.0)
+            if ylim is None:
+                if self._bs.is_metal():
+                    if zero_to_efermi:
+                        plt.ylim(e_min, e_max)
                     else:
-
+                        plt.ylim(self._bs.efermi + e_min, self._bs._efermi
+                                 + e_max)
+                else:
+                    if vbm_cbm_marker:
                         for cbm in data['cbm']:
                             plt.scatter(cbm[0], cbm[1], color='r', marker='o',
                                         s=100)
@@ -864,12 +895,12 @@ class BSPlotterProjected(BSPlotter):
                             plt.scatter(vbm[0], vbm[1], color='g', marker='o',
                                         s=100)
 
-                        plt.ylim(data['vbm'][0][1] + e_min, data['cbm'][0][1]
-                                 + e_max)
-                else:
-                    plt.ylim(ylim)
-                plt.title(str(el))
-                count += 1
+                    plt.ylim(data['vbm'][0][1] + e_min, data['cbm'][0][1]
+                             + e_max)
+            else:
+                plt.ylim(ylim)
+            plt.title(str(el))
+            count += 1
 
         return plt
 
@@ -950,7 +981,7 @@ def _qvertex_target(data, index):
     Returns the vertices of the voronoi construction around this target point.
     """
     from pyhull import qvoronoi
-    output = qvoronoi("p QV"+str(index), data)
+    output = qvoronoi("p QV" + str(index), data)
     output.pop(0)
     output.pop(0)
     return [[float(i) for i in row.split()] for row in output]
@@ -975,16 +1006,16 @@ def get_lines_voronoi(data):
         for line in itertools.combinations(facets[i], 2):
             for j in range(len(facets)):
                 if i != j and line[0] in facets[j] and line[1] in facets[j]:
-                    #check if the two facets i and j are not coplanar
-                    vector1 = np.array(list_points[facets[j][0]])\
-                        - np.array(list_points[facets[j][1]])
-                    vector2 = np.array(list_points[facets[j][0]])\
-                        - np.array(list_points[facets[j][2]])
+                    # check if the two facets i and j are not coplanar
+                    vector1 = np.array(list_points[facets[j][0]]) \
+                              - np.array(list_points[facets[j][1]])
+                    vector2 = np.array(list_points[facets[j][0]]) \
+                              - np.array(list_points[facets[j][2]])
                     n1 = np.cross(vector1, vector2)
-                    vector1 = np.array(list_points[facets[i][0]])\
-                        - np.array(list_points[facets[i][1]])
-                    vector2 = np.array(list_points[facets[i][0]])\
-                        - np.array(list_points[facets[i][2]])
+                    vector1 = np.array(list_points[facets[i][0]]) \
+                              - np.array(list_points[facets[i][1]])
+                    vector2 = np.array(list_points[facets[i][0]]) \
+                              - np.array(list_points[facets[i][2]])
                     n2 = np.cross(vector1, vector2)
 
                     dot = math.fabs(np.dot(n1, n2) / (np.linalg.norm(n1)

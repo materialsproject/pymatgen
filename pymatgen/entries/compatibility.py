@@ -465,7 +465,6 @@ class Compatibility(object):
             "corrected_energy"])
 
 
-@cached_class
 class MaterialsProjectCompatibility(Compatibility):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
@@ -492,13 +491,12 @@ class MaterialsProjectCompatibility(Compatibility):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MPCompatibility.yaml")
         i_s = MPVaspInputSet()
-        Compatibility.__init__(
-            self, [PotcarCorrection(i_s, check_hash=check_potcar_hash),
-                   GasCorrection(fp, correct_peroxide=correct_peroxide),
-                   UCorrection(fp, i_s, compat_type)])
+        super(MaterialsProjectCompatibility, self).__init__(
+            [PotcarCorrection(i_s, check_hash=check_potcar_hash),
+             GasCorrection(fp, correct_peroxide=correct_peroxide),
+             UCorrection(fp, i_s, compat_type)])
 
 
-@cached_class
 class MITCompatibility(Compatibility):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
@@ -524,13 +522,12 @@ class MITCompatibility(Compatibility):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MITCompatibility.yaml")
         i_s = MITVaspInputSet()
-        Compatibility.__init__(
-            self, [PotcarCorrection(i_s, check_hash=check_potcar_hash),
-                   GasCorrection(fp, correct_peroxide=correct_peroxide),
-                   UCorrection(fp, i_s, compat_type)])
+        super(MITCompatibility, self).__init__(
+            [PotcarCorrection(i_s, check_hash=check_potcar_hash),
+             GasCorrection(fp, correct_peroxide=correct_peroxide),
+             UCorrection(fp, i_s, compat_type)])
 
 
-@cached_class
 class MITAqueousCompatibility(Compatibility):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
@@ -556,10 +553,10 @@ class MITAqueousCompatibility(Compatibility):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MITCompatibility.yaml")
         i_s = MITVaspInputSet()
-        Compatibility.__init__(
-            self, [PotcarCorrection(i_s, check_hash=check_potcar_hash),
-                   GasCorrection(fp, correct_peroxide=correct_peroxide),
-                   UCorrection(fp, i_s, compat_type), AqueousCorrection(fp)])
+        super(MITAqueousCompatibility, self).__init__(
+            [PotcarCorrection(i_s, check_hash=check_potcar_hash),
+             GasCorrection(fp, correct_peroxide=correct_peroxide),
+             UCorrection(fp, i_s, compat_type), AqueousCorrection(fp)])
 
 
 @cached_class
@@ -589,7 +586,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MPCompatibility.yaml")
         i_s = MPVaspInputSet()
-        Compatibility.__init__(
-            self, [PotcarCorrection(i_s, check_hash=check_potcar_hash),
-                   GasCorrection(fp, correct_peroxide=correct_peroxide),
-                   UCorrection(fp, i_s, compat_type), AqueousCorrection(fp)])
+        super(MaterialsProjectAqueousCompatibility, self).__init__(
+            [PotcarCorrection(i_s, check_hash=check_potcar_hash),
+             GasCorrection(fp, correct_peroxide=correct_peroxide),
+             UCorrection(fp, i_s, compat_type), AqueousCorrection(fp)])
