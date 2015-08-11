@@ -16,7 +16,8 @@ from pymatgen.core.structure import PeriodicSite
 from pymatgen.io.vaspio.vasp_output import Locpot
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pycdcd.corrections.freysoldt_correction import FreysoldtCorrection
+#from pycdcd.corrections.freysoldt_correction import FreysoldtCorrection
+from pymatgen.command_line.sxdefectalign_caller import FreysoldtCorrection
 
 #some constants
 kb = 8.6173324e-5
@@ -91,9 +92,9 @@ def get_correction(defect, bulk_entry, epsilon, type='freysoldt'):
         corr_meth = FreysoldtCorrection(
                 locpot_path_blk, locpot_path_def, charge, epsilon, 
                 frac_coords, encut, latt_len, name=defect._name)
-        corr_val = corr_meth.run_correction()
+        corr_val = corr_meth.get_singlecorrection()
 
-        return sum(corr_val)/len(corr_val) 
+        return corr_val
 
 
 class ChargeDefectsAnalyzer(object):
