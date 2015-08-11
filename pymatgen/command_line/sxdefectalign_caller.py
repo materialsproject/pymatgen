@@ -44,8 +44,8 @@ class FreysoldtCorrection(object):
     Charge correction wraparound for sxdefectalign code written by Freysoldt
 
     """
-    def __init__(self,locpot_ref,locpot_def,charge,epsilon,encut,
-                 site_frac_coords,align=[0,0,0],lengths=None):
+    def __init__(self, locpot_ref, locpot_def, charge, epsilon, encut,
+                 site_frac_coords, align=[0,0,0], lengths=None, name=''):
         """
         Initialize the sxdefectalign caller
 
@@ -81,6 +81,7 @@ class FreysoldtCorrection(object):
                   'instantiation set lengths to: '+str(self._lengths)+'\n'
         else:
             self._lengths = lengths
+	self.name=name
         self.PCen=None
         self.errors={}
         #check to see if sxdefectalign in path
@@ -177,7 +178,10 @@ class FreysoldtCorrection(object):
 
                 #Do I have to move this out of the scratch dir in a different way?
                 #keep output files for future plotting usage
-                os.rename("vline-eV.dat","../axis"+str(axis)+"vline-eV.dat")
+		if not self.name:
+                	os.rename("vline-eV.dat","../axis"+str(axis)+"vline-eV.dat")
+		else:
+                	os.rename("vline-eV.dat","../"+str(self.name)+"axis"+str(axis)+"vline-eV.dat")
 
 
                 # Extract potential alignment term averaging window of +/- 1 Ang
