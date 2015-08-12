@@ -45,14 +45,14 @@ class ExpEntry(PDEntry, PMGSONable):
         enthalpy = float("inf")
         for data in self._thermodata:
             if data.type == "fH" and data.value < enthalpy and \
-                (data.phaseinfo != "gas" and data.phaseinfo != "liquid"):
+                    (data.phaseinfo != "gas" and data.phaseinfo != "liquid"):
                 enthalpy = data.value
                 found = True
         if not found:
             raise ValueError("List of Thermodata does not contain enthalpy "
                              "values.")
         self.temperature = temperature
-        PDEntry.__init__(self, comp, enthalpy)
+        super(ExpEntry, self).__init__(comp, enthalpy)
 
     def __repr__(self):
         return "ExpEntry {}, Energy = {:.4f}".format(self.composition.formula,
