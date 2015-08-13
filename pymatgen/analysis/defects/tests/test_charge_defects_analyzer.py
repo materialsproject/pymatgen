@@ -39,7 +39,12 @@ class CorrectionTest(unittest.TestCase):
 
 class ChargeDefectsAnalyzerTest(unittest.TestCase):
     def setUp(self):
-        pass
+        e_vbm = 0
+        mu_elts = {}
+        band_gap = 0
+        entry_bulk = None
+        self.defect_analyzer = ChargeDefectsAnalyzer(
+                entry_bulk, e_vbm, mu_elts, band_gap)
 
     def test_as_dict(self):
         pass
