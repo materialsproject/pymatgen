@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from pymatgen.alchemy.filters import ContainsSpecieFilter, \
-    SpecieProximityFilter, RemoveDuplicatesFilter
+    SpecieProximityFilter, RemoveDuplicatesFilter, RemoveExistingFilter
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Specie
@@ -104,6 +104,25 @@ class RemoveDuplicatesFilterTest(unittest.TestCase):
         d = fil.as_dict()
         self.assertIsInstance(RemoveDuplicatesFilter().from_dict(d),
                               RemoveDuplicatesFilter)
+
+
+class RemoveExistingFilterTest(unittest.TestCase):
+
+    def setUp(self):
+        with open(os.path.join(test_dir, "TiO2_entries.json"), 'r') as fp:
+            entries = json.load(fp, cls=MontyDecoder)
+        self._struct_list = [e.structure for e in entries]
+        self._sm = StructureMatcher()
+        self._exisiting_structures = self._struct_list[:-1]
+
+    def test_filter(self):
+        fil = RemoveExistingFilter(self._exisiting_structures)
+        transmuter = StandardTransmuter.from_structures(self._struct_list)
+        transmuter.apply_filter(fil)
+        self.assertEqual(len(transmuter.transformed_structures), 1)
+        self.assertTrue(
+            self._sm.fit(self._struct_list[-1],
+                         transmuter.transformed_structures[-1].final_structure))
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

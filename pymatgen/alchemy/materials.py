@@ -25,8 +25,8 @@ from copy import deepcopy
 from monty.json import MontyDecoder
 
 from pymatgen.core.structure import Structure
-from pymatgen.io.cifio import CifParser
-from pymatgen.io.vaspio.vasp_input import Poscar
+from pymatgen.io.cif import CifParser
+from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.matproj.snl import StructureNL
 
@@ -190,7 +190,7 @@ class TransformedStructure(PMGSONable):
 
     def get_vasp_input(self, vasp_input_set, generate_potcar=True):
         """
-        Returns VASP input as a dict of vaspio objects.
+        Returns VASP input as a dict of vasp objects.
 
         Args:
             vasp_input_set (pymatgen.io.vaspio_set.VaspInputSet): input set

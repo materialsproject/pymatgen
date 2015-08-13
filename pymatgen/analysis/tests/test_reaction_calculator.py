@@ -11,6 +11,7 @@ from pymatgen.entries.computed_entries import ComputedEntry
 
 
 class ReactionTest(unittest.TestCase):
+
     def test_init(self):
         reactants = [Composition("Fe"),
                      Composition("O2")]
@@ -128,6 +129,18 @@ class ReactionTest(unittest.TestCase):
                          "1.000 MgO + 1.000 Al2O3 -> 1.000 MgAl2O4")
         self.assertEqual(rxn.normalized_repr, "MgO + Al2O3 -> MgAl2O4")
         self.assertAlmostEquals(rxn.calculate_energy(energies), -0.2, 5)
+
+    def test_as_entry(self):
+        reactants = [Composition("MgO"), Composition("Al2O3")]
+        products = [Composition("MgAl2O4")]
+        energies = {Composition("MgO"): -0.1, Composition("Al2O3"): -0.2,
+                    Composition("MgAl2O4"): -0.5}
+        rxn = Reaction(reactants, products)
+        entry = rxn.as_entry(energies)
+        self.assertEqual(entry.name,
+                         "1.000 MgO + 1.000 Al2O3 -> 1.000 MgAl2O4")
+        self.assertAlmostEquals(entry.energy, -0.2, 5)
+
 
     def test_products_reactants(self):
         reactants = [Composition("Li3Fe2(PO4)3"), Composition("Fe2O3"),
