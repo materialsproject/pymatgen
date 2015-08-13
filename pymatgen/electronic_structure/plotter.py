@@ -498,8 +498,8 @@ class BSPlotter(object):
 
                     plt.ylim(data['vbm'][0][1] + e_min,
                              data['cbm'][0][1] + e_max)
-                else:
-                    plt.ylim(ylim)
+        else:
+            plt.ylim(ylim)
 
         plt.tight_layout()
 
@@ -698,7 +698,7 @@ class BSPlotterProjected(BSPlotter):
         if len(bs._projections) == 0:
             raise ValueError("try to plot projections"
                              " on a band structure without any")
-        BSPlotter.__init__(self, bs)
+        super(BSPlotterProjected, self).__init__(bs)
 
     def _get_projections_by_branches(self, dictio):
         proj = self._bs.get_projections_on_elts_and_orbitals(dictio)
