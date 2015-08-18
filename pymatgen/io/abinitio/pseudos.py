@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 """
 This module provides objects describing the basic parameters of the 
 pseudopotentials used in Abinit, and a parser to instantiate pseudopotential objects..
