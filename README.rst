@@ -141,4 +141,31 @@ follows::
     IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
     CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+About the Pymatgen Development Team
+===================================
+
+Shyue Ping Ong started Pymatgen in 2011, and is still the project lead.
+
+The Pymatgen Development Team is the set of all contributors to the
+pymatgen project, including all subprojects.
+
+Our Copyright Policy
+====================
+
+Pymatgen uses a shared copyright model. Each contributor maintains copyright
+over their contributions to pymatgen. But, it is important to note that these
+contributions are typically only changes to the repositories. Thus, the
+pymatgen source code, in its entirety is not the copyright of any
+single person or institution. Instead, it is the collective copyright of the
+entire pymatgen Development Team. If individual contributors want to maintain a
+record of what changes/contributions they have specific copyright on, they
+should indicate their copyright in the commit message of the change, when
+they commit the change to one of the pymatgen repositories.
+
+With this in mind, the following banner should be used in any source code file
+to indicate the copyright and license terms::
+
+    Copyright (c) Pymatgen Development Team.
+    Distributed under the terms of the MIT License.
+
 .. _`pymatgen page` : http://www.pymatgen.org
