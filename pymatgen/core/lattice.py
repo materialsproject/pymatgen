@@ -524,10 +524,7 @@ class Lattice(PMGSONable):
                     rotation_m = np.linalg.solve(aligned_m,
                                                  other_lattice.matrix)
 
-                if np.linalg.det(aligned_m) > 0:
-                    yield Lattice(aligned_m), rotation_m, scale_m
-                else:
-                    yield Lattice(-aligned_m), rotation_m, -scale_m
+                yield Lattice(aligned_m), rotation_m, scale_m
 
     def find_mapping(self, other_lattice, ltol=1e-5, atol=1,
                      skip_rotation_matrix=False):
@@ -637,6 +634,8 @@ class Lattice(PMGSONable):
 
         lll = Lattice(a.T)
         lll_mapped, rot, scale = self.find_mapping(lll)
+        if np.linalg.det(lll_mapped.matrix) < 0:
+            lll_mapped = Lattice(-lll_mapped.matrix)
 
         return lll_mapped
 
@@ -654,9 +653,10 @@ class Lattice(PMGSONable):
         Returns:
             Niggli-reduced lattice.
         """
-        a = self._matrix[0]
-        b = self._matrix[1]
-        c = self._matrix[2]
+        matrix = self._matrix.copy()
+        a = matrix[0]
+        b = matrix[1]
+        c = matrix[2]
         e = tol * self.volume ** (1 / 3)
 
         #Define metric tensor
@@ -758,7 +758,11 @@ class Lattice(PMGSONable):
 
         mapped = self.find_mapping(latt, e, skip_rotation_matrix=True)
         if mapped is not None:
-            return mapped[0]
+            if np.linalg.det(mapped[0].matrix) > 0:
+                return mapped[0]
+            else:
+                return Lattice(-mapped[0].matrix)
+
         raise ValueError("can't find niggli")
 
     def scale(self, new_volume):
