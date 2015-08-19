@@ -74,7 +74,7 @@ class Lattice(PMGSONable):
     @classmethod
     def from_abivars(cls, *args, **kwargs):
         """
-        Returns a new instance from a dictionary with the variables 
+        Returns a new instance from a dictionary with the variables
         used in ABINIT to define the unit cell.
         """
         kwargs.update(dict(*args))
@@ -513,12 +513,19 @@ class Lattice(PMGSONable):
                 scale_m = np.array((f_a[i], f_b[j], f_c[k]))
                 if abs(np.linalg.det(scale_m)) < 1e-8:
                     continue
+
                 aligned_m = np.array((c_a[i], c_b[j], c_c[k]))
+
                 if skip_rotation_matrix:
                     rotation_m = None
                 else:
-                    rotation_m = np.linalg.solve(aligned_m, other_lattice.matrix)
-                yield Lattice(aligned_m), rotation_m, scale_m
+                    rotation_m = np.linalg.solve(aligned_m,
+                                                 other_lattice.matrix)
+
+                if np.linalg.det(aligned_m) > 0:
+                    yield Lattice(aligned_m), rotation_m, scale_m
+                else:
+                    yield Lattice(-aligned_m), rotation_m, -scale_m
 
     def find_mapping(self, other_lattice, ltol=1e-5, atol=1,
                      skip_rotation_matrix=False):
@@ -550,8 +557,9 @@ class Lattice(PMGSONable):
 
             None is returned if no matches are found.
         """
-        for x in self.find_all_mappings(other_lattice, ltol, atol,
-                                        skip_rotation_matrix=skip_rotation_matrix):
+        for x in self.find_all_mappings(
+                other_lattice, ltol, atol,
+                skip_rotation_matrix=skip_rotation_matrix):
             return x
 
     def get_lll_reduced_lattice(self, delta=0.75):
@@ -569,7 +577,7 @@ class Lattice(PMGSONable):
         """
         # Transpose the lattice matrix first so that basis vectors are columns.
         # Makes life easier.
-        a = self._matrix.T
+        a = self._matrix.copy().T
 
         b = np.zeros((3, 3))  # Vectors after the Gram-Schmidt process
         u = np.zeros((3, 3))  # Gram-Schmidt coeffieicnts
@@ -625,7 +633,9 @@ class Lattice(PMGSONable):
                     result = np.linalg.lstsq(q.T, p.T)[0].T
                     u[k:3, (k - 2):k] = result
 
-        return Lattice(a.T)
+        lll = Lattice(a.T)
+        lll_mapped, rot, scale = self.find_mapping(lll)
+        return lll_mapped
 
     def get_niggli_reduced_lattice(self, tol=1e-5):
         """
