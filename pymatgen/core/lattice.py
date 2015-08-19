@@ -633,11 +633,8 @@ class Lattice(PMGSONable):
                     u[k:3, (k - 2):k] = result
 
         lll = Lattice(a.T)
-        lll_mapped, rot, scale = self.find_mapping(lll)
-        if np.linalg.det(lll_mapped.matrix) < 0:
-            lll_mapped = Lattice(-lll_mapped.matrix)
 
-        return lll_mapped
+        return lll
 
     def get_niggli_reduced_lattice(self, tol=1e-5):
         """
