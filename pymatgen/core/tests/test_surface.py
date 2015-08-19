@@ -212,7 +212,7 @@ class SlabGeneratorTest(PymatgenTest):
         # atoms should be in a surface together. The closeness of the sites
         # in other Miller indices can cause some ambiguity when choosing a
         # higher tolerance.
-        numb_slabs = {(0, 0, 1): 9, (0, 1, 0): 5, (1, 0, 0): 12}
+        numb_slabs = {(0, 0, 1): 5, (0, 1, 0): 3, (1, 0, 0): 7}
         TeI = Structure.from_file(get_path("icsd_TeI.cif"),
                                   primitive=False)
         for k, v in numb_slabs.items():
