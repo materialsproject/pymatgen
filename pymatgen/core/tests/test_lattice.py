@@ -133,7 +133,7 @@ class LatticeTestCase(PymatgenTest):
         self.assertAlmostEqual(
             np.linalg.det(np.linalg.solve(expected_ans.matrix,
                                           reduced_latt.matrix)),
-            -1)
+            1)
         self.assertArrayAlmostEqual(
             sorted(reduced_latt.abc), sorted(expected_ans.abc))
         self.assertAlmostEqual(reduced_latt.volume, lattice.volume)
@@ -147,7 +147,7 @@ class LatticeTestCase(PymatgenTest):
         self.assertAlmostEqual(
             np.linalg.det(np.linalg.solve(expected_ans.matrix,
                                           reduced_latt.matrix)),
-            -1)
+            1)
         self.assertArrayAlmostEqual(
             sorted(reduced_latt.abc), sorted(expected_ans.abc))
 
@@ -162,7 +162,7 @@ class LatticeTestCase(PymatgenTest):
         self.assertAlmostEqual(
             np.linalg.det(np.linalg.solve(expected_ans.matrix,
                                           reduced_latt.matrix)),
-            -1)
+            1)
         self.assertArrayAlmostEqual(
             sorted(reduced_latt.abc), sorted(expected_ans.abc))
 
