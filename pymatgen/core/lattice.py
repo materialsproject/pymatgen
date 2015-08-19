@@ -635,6 +635,7 @@ class Lattice(PMGSONable):
 
         lll = Lattice(a.T)
         lll_mapped, rot, scale = self.find_mapping(lll)
+
         return lll_mapped
 
     def get_niggli_reduced_lattice(self, tol=1e-5):

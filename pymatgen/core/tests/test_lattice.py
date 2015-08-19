@@ -131,7 +131,7 @@ class LatticeTestCase(PymatgenTest):
         self.assertAlmostEqual(
             np.linalg.det(np.linalg.solve(expected_ans.matrix,
                                           reduced_latt.matrix)),
-            1)
+            -1)
         self.assertArrayAlmostEqual(
             sorted(reduced_latt.abc), sorted(expected_ans.abc))
         self.assertAlmostEqual(reduced_latt.volume, lattice.volume)
@@ -145,7 +145,7 @@ class LatticeTestCase(PymatgenTest):
         self.assertAlmostEqual(
             np.linalg.det(np.linalg.solve(expected_ans.matrix,
                                           reduced_latt.matrix)),
-            1)
+            -1)
         self.assertArrayAlmostEqual(
             sorted(reduced_latt.abc), sorted(expected_ans.abc))
 
@@ -160,7 +160,7 @@ class LatticeTestCase(PymatgenTest):
         self.assertAlmostEqual(
             np.linalg.det(np.linalg.solve(expected_ans.matrix,
                                           reduced_latt.matrix)),
-            1)
+            -1)
         self.assertArrayAlmostEqual(
             sorted(reduced_latt.abc), sorted(expected_ans.abc))
 
@@ -206,7 +206,7 @@ class LatticeTestCase(PymatgenTest):
                [0.831059, -2.067413, -1.547813],
                [0.458407, 2.480895, -1.129126]]
         self.assertArrayAlmostEqual(latt.get_niggli_reduced_lattice().matrix,
-                                    ans, 5)
+                                    -np.array(ans), 5)
 
     def test_find_mapping(self):
         m = np.array([[0.1, 0.2, 0.3], [-0.1, 0.2, 0.7], [0.6, 0.9, 0.2]])
@@ -239,8 +239,15 @@ class LatticeTestCase(PymatgenTest):
         latt2 = Lattice(np.dot(rot, np.dot(scale, m).T).T)
 
         for (aligned_out, rot_out, scale_out) in latt.find_all_mappings(latt2):
-            self.assertArrayAlmostEqual(np.inner(latt2.matrix, rot_out), aligned_out.matrix)
-            self.assertArrayAlmostEqual(np.dot(scale_out, latt.matrix), aligned_out.matrix)
+            if np.linalg.det(scale_out) < 0:
+                factor = 1
+            else:
+                factor = -1
+            self.assertArrayAlmostEqual(np.inner(latt2.matrix, rot_out),
+                                        factor * np.array(
+                                            aligned_out.matrix), 5)
+            self.assertArrayAlmostEqual(np.dot(scale_out, latt.matrix),
+                                        aligned_out.matrix)
             self.assertArrayAlmostEqual(aligned_out.lengths_and_angles, latt2.lengths_and_angles)
             self.assertFalse(np.allclose(aligned_out.lengths_and_angles,
                                          latt.lengths_and_angles))
