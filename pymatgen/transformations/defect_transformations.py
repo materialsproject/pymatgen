@@ -274,20 +274,16 @@ class InterstitialTransformation(AbstractTransformation):
     Generates interstitial structures from the input structure
     """
     def __init__(self, interstitial_specie, supercell_dim,
-                 valences={}, radii={}, site_type='voronoi_vertex',
-                 accuracy='Normal'):
+                 valences={}, radii={}):
         """
         :param supercell_dim:
         :param valences:
         :param radii:
-        :param accuracy:
         :return:
         """
         self.supercell_dim = supercell_dim
         self.valences = valences
         self.radii = radii
-        self.site_type = site_type
-        self.accuracy = accuracy
         self.inter_specie = interstitial_specie
 
     def apply_transformation(self, structure, return_ranked_list=False):
@@ -307,16 +303,14 @@ class InterstitialTransformation(AbstractTransformation):
             num_to_return = 1
 
         if self.radii:
-            inter = Interstitial(structure, self.valences, self.radii,
-                site_type=self.site_type, accuracy=self.accuracy)
+            inter = Interstitial(structure, self.valences, self.radii)
         else:
             s = structure.copy()
             valrad_eval = ValenceIonicRadiusEvaluator(s)
             s = valrad_eval.structure
             val = valrad_eval.valences
             rad = valrad_eval.radii
-            inter = Interstitial(s,val,rad,site_type=self.site_type,
-                accuracy=self.accuracy, oxi_state=True)
+            inter = Interstitial(s,val,rad,oxi_state=True)
 
         scs = inter.make_supercells_with_defects(
             self.supercell_dim, self.inter_specie)
