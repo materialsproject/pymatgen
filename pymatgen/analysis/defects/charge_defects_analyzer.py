@@ -14,7 +14,7 @@ from math import sqrt, floor, pi, exp
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import PeriodicSite
-from pymatgen.io.vaspio.vasp_output import Locpot
+from pymatgen.io.vasp.outputs import Locpot
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pycdcd.corrections.freysoldt_correction import FreysoldtCorrection
@@ -24,7 +24,7 @@ kb = 8.6173324e-5
 hbar = 6.58211928e-16
 conv = sqrt((9.1*1e-31)**3)*sqrt((1.6*1e-19)**3)/((1.05*1e-34)**3)
 
-class ParsedChargeDefect(object):
+class ParsedDefect(object):
     """
     Holds all the info concerning a defect computation: 
     composition+structure, energy, correction on energy and name
@@ -62,7 +62,7 @@ class ParsedChargeDefect(object):
 
     @classmethod
     def from_dict(cls, d):
-        return ParsedChargeDefect(
+        return ParsedDefect(
                 ComputedStructureEntry.from_dict(d['entry']), 
                 PeriodicSite.from_dict(d['site']),
                 charge=d.get('charge',0.0),
@@ -74,7 +74,7 @@ def get_correction(defect, bulk_entry, epsilon, type='freysoldt'):
     """
     Function to compute the correction for each defect.
     Args:
-        defect: ParsedChargeDefect object
+        defect: ParsedDefect object
         bulk_entry: ComputedStructureEntry corresponding to bulk
         epsilon: Dielectric constant
         type: String indicating the type of correction. Only Freysoldt
@@ -135,11 +135,13 @@ class ChargeDefectsAnalyzer(object):
     @classmethod
     def from_dict(cls, d):
         entry_bulk = ComputedStructureEntry.from_dict(d['entry_bulk'])
-        analyzer = DefectsAnalyzer(
+        analyzer = ChargeDefectsAnalyzer(
                 entry_bulk, d['e_vbm'], 
                 {el: d['mu_elts'][el] for el in d['mu_elts']}, d['band_gap'])
         for ddict in d['defects']:
-            analyzer.add_defect(ParsedChargeDefect.from_dict(ddict))
+            #analyzer.add_defect(ParsedDefect.from_dict(ddict))
+            analyzer._defects.append(ParsedDefect.from_dict(ddict))
+        analyzer._formation_energies = d['formation_energies']
         return analyzer
 
     def add_parsed_defect(self, defect):
@@ -147,7 +149,7 @@ class ChargeDefectsAnalyzer(object):
         add a parsed defect to the analyzer
         Args:
             defect:
-                a ParsedChargeDefect object
+                a ParsedDefect object
         """
         self._defects.append(defect)
         self._compute_form_en()
