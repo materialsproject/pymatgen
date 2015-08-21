@@ -18,6 +18,25 @@ import re
 from monty.io import zopen
 
 
+def prompt(prompt):
+    import six
+    # Fix python 2.x.
+    if six.PY2:
+        my_input = raw_input
+    else:
+        my_input = input
+    
+    return my_input(prompt)
+
+
+def ask_yesno(prompt, default=True):
+    try:
+        answer = prompt(prompt)
+        return answer.lower().strip() in ["y", "yes"]
+    except EOFError:
+        return default
+
+
 def clean_lines(string_list, remove_empty_lines=True):
     """
     Strips whitespace, carriage returns and empty lines from a list of strings.

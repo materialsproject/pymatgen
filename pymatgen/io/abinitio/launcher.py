@@ -16,6 +16,7 @@ from monty.os.path import which
 from monty.collections import AttrDict, dict2namedtuple
 from .utils import as_bool, File, Directory
 from . import qutils as qu
+from pymatgen.util.io_utils import ask_yesno
 
 try:
     import apscheduler
@@ -37,22 +38,6 @@ def straceback():
     """Returns a string with the traceback."""
     import traceback
     return traceback.format_exc()
-
-
-def ask_yesno(prompt, default=True):
-    import six
-    # Fix python 2.x.
-    if six.PY2:
-        my_input = raw_input
-    else:
-        my_input = input
-
-    try:
-        answer = my_input(prompt)
-        return answer.lower().strip() in ["y", "yes"]
-    except EOFError:
-        return default
-
 
 class ScriptEditor(object):
     """Simple editor that simplifies the writing of shell scripts"""
