@@ -250,17 +250,6 @@ def polminbrack (imin, npol, ndata, x, polynomialcoeffs):
 # Adapted from original Fortran version written by M. A. Blanco et al.
 # See Computer Physics Communications 158, 57-72 (2004) and Journal of Molecular Structure (Theochem) 368, 245-255 (1996) for details
 #
-#
-#-----------------------------------------------------------------------
-#
-#
-#.....polmin - gets the minimum of a polymomial, using Newton-Raphson
-#     method to zero its first derivative.
-#
-#     The minimum must be in the interval [xmin,xmax], and whenever
-#     Newton's method doesn't converge, a bisection step will be given
-#     for this interval
-#
 def polmin (xini, xmin, xmax, npolycoeffs, polycoeffswork, agl_data):
     x = xini
     a = xmin
