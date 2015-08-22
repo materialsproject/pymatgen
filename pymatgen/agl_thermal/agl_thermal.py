@@ -301,10 +301,10 @@ def debfitt (polynomialcoeffs, agl_data):
 #            T : Absolute temperature (K).
 #       natoms : Number of atoms in the unit cell.
 #-----OUTPUT-------------------------------------------------------------
-#           en : Vibrational internal energy, U (hartree/molecule).
+#        energ : Vibrational internal energy, U (hartree/molecule).
 #           cv : Constant V heat capacity, Cv (hartree/K molecule).
-#           he : Helmholtz's free energy (hartree/molecule).
-#          ent : Entropy (hartree/K molecule).
+#    helmholtz : Helmholtz's free energy (hartree/molecule).
+#      entropy : Entropy (hartree/K molecule).
 #        Debye : Debye's integral.
 #         xabs : Maximum error in Debye's integral evaluation.
 #----------------------------------------------------------------------------
