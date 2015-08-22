@@ -25,7 +25,7 @@ class sxdefectalignTest(unittest.TestCase):
         analysis = FreysoldtCorrection(os.path.join(test_dir, "LOCPOT_vref"),
                                  os.path.join(test_dir, "LOCPOT_vdef"),-1,5.765,520,[0.0,0.0,0.0],
                                  align=[0,0,0],lengths=[3.536141526,3.536141526,3.536141526])
-        self.assert_Equal(analysis.errors['code'],None)
+        self.assertIsNone(analysis.errors['code'])
         full=analysis.get_full()
         for i in range(3):
             self.assertAlmostEqual(full[0][i],1.00207)
@@ -36,7 +36,10 @@ class sxdefectalignTest(unittest.TestCase):
         self.assertAlmostEqual(s1,1.4471626)
         self.assertAlmostEqual(s2,1.00207)
         self.assertAlmostEqual(s3,2.4492326)
-
+	for i in range(3):
+		tmpfile="axis"+str(i)+"vline-eV.dat"
+		self.assertTrue(os.path.exists(tmpfile))
+		os.remove(tmpfile)
 
 if __name__ == '__main__':
     unittest.main()
