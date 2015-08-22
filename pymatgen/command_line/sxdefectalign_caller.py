@@ -50,8 +50,8 @@ class FreysoldtCorrection(object):
         Initialize the sxdefectalign caller
 
         Args:
-            locpotref_filename: The absolute path of the LOCPOT_ref (pure LOCPOT)
-            locpotdef_filename: The absolute path of the LOCPOT_def (defect LOCPOT)
+            locpot_ref: The path of the LOCPOT_ref (pure LOCPOT)
+            locpot_def: The path of the LOCPOT_def (defect LOCPOT)
                 note: these must have been pre-processed so that the 6th line
                 of the VASP output for LOCPOT file is deleted (required for
                 sxdefectalign code compatibility)
@@ -67,15 +67,23 @@ class FreysoldtCorrection(object):
                 the given Locpot's but this is time consuming to load these files
 
         """
-        self._locpotref=locpot_ref
-        self._locpotdef=locpot_def
+	if os.path.exists(locpot_ref):
+        	self._locpotref=os.path.abspath(str(locpot_ref))
+	else:
+		print 'Could not find Locpot_vref in specified path ' \
+			'Double check path input for locpot_ref'
+	if os.path.exists(locpot_def):
+        	self._locpotdef=os.path.abspath(str(locpot_def))
+	else:
+		print 'Could not find Locpot_vdef in specified path ' \
+			'Double check path input for locpot_ref'
         self._charge = charge
         self._epsilon = epsilon
         self._encut = encut
         self._frac_coords = site_frac_coords
         self._align=align
         if not lengths:
-            struct=Locpot.from_file(locpot_ref) #maybe include an exception for if the Locpot can't be read or something?
+            struct=Locpot.from_file(locpot_ref) #maybe include an exception for if the Locpot can't be read
             self._lengths=struct.structure.lattice.abc
             print 'had to import lengths, if you want to speed up class ' \
                   'instantiation set lengths to: '+str(self._lengths)+'\n'
