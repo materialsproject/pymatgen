@@ -51,14 +51,15 @@ __date__ = "April 8, 2014"
 #
 def gibbs(agl_data):
     #
-    #.....Compute the function f(poisson) in the Debye model.
-    #(See Miguel A. Blanco, PhD Thesis)
+    #.....Compute the scaling factor function f(poisson) in the Debye model.
+    # (See for example CMS 98, 34 (2015), Poirier - Intro. to the Physics of the Earth's Interior, and Miguel A. Blanco, PhD Thesis)
     #
     fx=2*(1 + agl_data.poisson)/3.0/(1 - 2*agl_data.poisson)
     gx=(1 + agl_data.poisson)/3.0/(1 - agl_data.poisson)
     hx=2.0*math.sqrt(fx**3)+math.sqrt(gx**3)
     agl_data.poratio=math.exp(-math.log(hx/3)/3)
     # Open main output file and write appropriate header for GIBBS output data for all p, T values
+    # String for holding data to be written to main output file 
     if (agl_data.ieos >= 0):
         agl_data.outstr = 'MP AGL - (P,T) thermodynamics of crystals from (E,V) data \n'
         agl_data.outstr = agl_data.outstr + '\n'
@@ -71,6 +72,7 @@ def gibbs(agl_data):
         agl_data.outstr = agl_data.outstr + str(agl_data.title) + ' \n'
         agl_data.outstr = agl_data.outstr + ' \n' 
         agl_data.outstr = agl_data.outstr + '# P(GPa) \t  T(K) \t V(bohr^3)  \t  G(kJ/mol) \t Bt(GPa)' + '\n'
+    # String for holding log information on calculation status, error messages, warnings and information about automatic parameter adjustments
     agl_data.logstr = 'MP AGL: Log file: status information, errors and warnings \n'
     for i in xrange(agl_data.ninp):
         agl_data.energ_inp[i] = agl_data.energ_inp[i] - agl_data.energ_inf
