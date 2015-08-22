@@ -76,7 +76,7 @@ class FreysoldtCorrection(object):
         	self._locpotdef=os.path.abspath(str(locpot_def))
 	else:
 		print 'Could not find Locpot_vdef in specified path ' \
-			'Double check path input for locpot_ref'
+			'Double check path input for locpot_def'
         self._charge = charge
         self._epsilon = epsilon
         self._encut = encut
@@ -134,7 +134,7 @@ class FreysoldtCorrection(object):
 
             for axis in [0,1,2]:
                 print 'do axis'+str(axis+1)
-                command = ['~/sxdefectalign', '--vasp', '-a'+str(axis+1),
+                command = ['sxdefectalign', '--vasp', '-a'+str(axis+1),
                     '--relative', '--pos', relpos,
                     '--charge', str(-self._charge),
                     '--ecut', str(self._encut/13.6057), #eV to Ry for sxdefect
