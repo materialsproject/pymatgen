@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals, print_function
 
@@ -608,10 +610,6 @@ class Vasprun(PMGSONable):
             file) (it's not possible to run a non-sc band structure with hybrid
             functionals). The explicit KPOINTS file needs to have data on the
             kpoint label as commentary.
-
-        TODO:
-            - make a bit more general for non Symm Line band structures
-            - make a decision on the convention with 2*pi or not.
         """
 
         if not kpoints_filename:
@@ -626,7 +624,7 @@ class Vasprun(PMGSONable):
         kpoint_file = None
         if os.path.exists(kpoints_filename):
             kpoint_file = Kpoints.from_file(kpoints_filename)
-        lattice_new = Lattice(self.lattice_rec.matrix * 2 * math.pi)
+        lattice_new = Lattice(self.lattice_rec.matrix)
 
         kpoints = [np.array(self.actual_kpoints[i])
                    for i in range(len(self.actual_kpoints))]
@@ -1944,7 +1942,7 @@ class Locpot(VolumetricData):
     """
 
     def __init__(self, poscar, data):
-        VolumetricData.__init__(self, poscar.structure, data)
+        super(Locpot, self).__init__(poscar.structure, data)
         self.name = poscar.comment
 
     @staticmethod
@@ -1963,7 +1961,7 @@ class Chgcar(VolumetricData):
     """
 
     def __init__(self, poscar, data):
-        VolumetricData.__init__(self, poscar.structure, data)
+        super(Chgcar, self).__init__(poscar.structure, data)
         self.poscar = poscar
         self.name = poscar.comment
         self._distance_matrix = {}

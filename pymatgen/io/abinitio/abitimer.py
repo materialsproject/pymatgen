@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 """
 This module provides objects for extracting timing data from the ABINIT output files 
 It also provides tools to analye and to visualize the parallel efficiency.

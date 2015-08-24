@@ -1031,22 +1031,22 @@ static const int num_sitesym[] =
       4,   4,  32,  16,  16,  16,   8,   8,   8,   4,
       4,  32,  16,  16,  16,  16,   8,   8,  32,  16,
      16,  16,  16,   8,   8,   3,   1,   1,   1,   3,
-      3,   3,   1,   3,   1,   6,   3,   3,   2,   2,
-      1,   1,   6,   3,   3,   2,   1,   1,   6,   3,
+      3,   9,   3,   3,   1,   6,   3,   3,   2,   2,
+      1,   1,  18,   9,   9,   6,   3,   3,   6,   3,
       3,   2,   1,   1,   6,   3,   3,   2,   2,   2,
       1,   1,   1,   1,   1,   1,   6,   3,   3,   2,
       2,   1,   1,   6,   3,   3,   6,   3,   3,   6,
-      3,   3,   6,   3,   3,   6,   3,   3,   2,   1,
-      1,   6,   3,   3,   2,   1,   1,   6,   3,   1,
+      3,   3,   6,   3,   3,  18,   9,   9,   6,   3,
+      3,   6,   3,   3,   2,   1,   1,   6,   3,   1,
       1,   1,   6,   3,   2,   1,   6,   2,   2,   2,
-      6,   2,   2,   6,   3,   1,   6,   3,   1,   6,
-      2,   6,   2,  12,   6,   6,   6,   4,   3,   3,
+      6,   2,   2,  18,   9,   3,   6,   3,   1,  18,
+      6,   6,   2,  12,   6,   6,   6,   4,   3,   3,
       2,   2,   2,   1,   1,  12,   6,   6,   4,   4,
       2,   2,   2,   2,  12,   6,   6,   6,   3,   3,
       2,   2,   1,   1,  12,   6,   6,   4,   4,   2,
-      2,  12,   6,   6,   6,   3,   3,   2,   1,   1,
-     12,   6,   6,   6,   3,   3,   2,   1,   1,  12,
-      6,   6,   4,   2,   2,  12,   6,   6,   4,   2,
+      2,  36,  18,  18,  18,   9,   9,   6,   3,   3,
+     12,   6,   6,   6,   3,   3,   2,   1,   1,  36,
+     18,  18,  12,   6,   6,  12,   6,   6,   4,   2,
       2,   6,   3,   2,   1,   6,   6,   6,   3,   3,
       6,   3,   3,   6,   2,   2,   6,   3,   3,   2,
       2,   2,   1,   1,   1,   1,   1,   1,  12,   6,
@@ -1108,9 +1108,9 @@ static const int num_sitesym[] =
      16,  16, };
 
 
-int ssmdb_get_coordinate( int rot[3][3],
-			  double trans[3],
-			  const int index )
+int ssmdb_get_coordinate(int rot[3][3],
+			 double trans[3],
+			 const int index)
 {
   int i, rot_enc, trans_enc;
   int rows[3], trans_int[3];
@@ -1125,28 +1125,28 @@ int ssmdb_get_coordinate( int rot[3][3],
 
   rot_enc = coordinates_first[index] % 91125; /* = 45**3 */
   rows[0] = rot_enc / 2025;        /* = 45**2 */
-  rows[1] = ( rot_enc % 2025 ) / 45;
+  rows[1] = (rot_enc % 2025) / 45;
   rows[2] = rot_enc % 45;
 
-  for ( i = 0; i < 3; i++ ) {
+  for (i = 0; i < 3; i++) {
     rot[i][0] = rows[i] / 9 - 2;
-    rot[i][1] = ( rows[i] % 9 ) / 3 - 1;
+    rot[i][1] = (rows[i] % 9) / 3 - 1;
     rot[i][2] = rows[i] % 3 - 1;
   }
 
   trans_enc = coordinates_first[index] / 91125; /* = 45**3 */
   trans_int[0] = trans_enc / 576;
-  trans_int[1] = ( trans_enc % 576 ) / 24 ;
+  trans_int[1] = (trans_enc % 576) / 24 ;
   trans_int[2] = trans_enc % 24 ;
-  for ( i = 0; i < 3; i++ ) {
+  for (i = 0; i < 3; i++) {
     trans[i] = ((double) trans_int[i]) / 24;
   }
 
-  return num_sitesym[ index ];
+  return num_sitesym[index];
 }
 
-void ssmdb_get_wyckoff_indices( int indices[2], const int index )
+void ssmdb_get_wyckoff_indices(int indices[2], const int index)
 {
-  indices[0] = position_wyckoff[ index ];
-  indices[1] = position_wyckoff[ index + 1 ] - position_wyckoff[ index ];
+  indices[0] = position_wyckoff[index];
+  indices[1] = position_wyckoff[index + 1] - position_wyckoff[index];
 }

@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -2026,8 +2028,7 @@ class Structure(IStructure, collections.MutableSequence):
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
         """
-        IStructure.__init__(
-            self, lattice, species, coords,
+        super(Structure, self).__init__(lattice, species, coords,
             validate_proximity=validate_proximity, to_unit_cell=to_unit_cell,
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties)
@@ -2527,8 +2528,7 @@ class Molecule(IMolecule, collections.MutableSequence):
                 sequences have to be the same length as the atomic species
                 and fractional_coords. Defaults to None for no properties.
         """
-        IMolecule.__init__(
-            self, species, coords, charge=charge,
+        super(Molecule, self).__init__(species, coords, charge=charge,
             spin_multiplicity=spin_multiplicity,
             validate_proximity=validate_proximity,
             site_properties=site_properties)

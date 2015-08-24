@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals, print_function
 
@@ -20,13 +22,16 @@ import json
 import os.path
 import stat
 
+from monty.serialization import loadfn
+
 from pymatgen.io.vasp.inputs import Kpoints, Potcar
 from pymatgen.io.vasp.sets import DictVaspInputSet
 from pymatgen.io.abinitio.helpers import s_name
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-GWVaspInputSet = os.path.join(MODULE_DIR, "..", "GWVaspInputSet.json")
+GWVaspInputSet = os.path.join(MODULE_DIR, "GWVaspInputSet.yaml")
+
 
 """
 MPGWVaspInputSet.joson contains the standards for GW calculations. This set contains all
@@ -45,13 +50,14 @@ class GWscDFTPrepVaspInputSet(DictVaspInputSet):
     TESTS = {}
     CONVS = {}
 
-    def __init__(self, structure, spec, functional='PBE', sym_prec=0.01, **kwargs):
+    def __init__(self, structure, spec, functional='PBE', sym_prec=0.01,
+                 **kwargs):
         """
         Supports the same kwargs as :class:`JSONVaspInputSet`.
         """
-        with open(GWVaspInputSet) as f:
-            DictVaspInputSet.__init__(
-                self, "MP Static Self consistent run for GW", json.load(f), **kwargs)
+        super(GWscDFTPrepVaspInputSet, self).__init__(
+            "MP Static Self consistent run for GW",
+            loadfn(GWVaspInputSet), **kwargs)
         self.structure = structure
         self.tests = self.__class__.get_defaults_tests()
         self.convs = self.__class__.get_defaults_convs()
@@ -168,9 +174,8 @@ class GWDFTDiagVaspInputSet(GWscDFTPrepVaspInputSet):
         """
         Supports the same kwargs as :class:`JSONVaspInputSet`.
         """
-        with open(GWVaspInputSet) as f:
-            DictVaspInputSet.__init__(
-                self, "MP Static exact diagonalization", json.load(f), **kwargs)
+        super(GWDFTDiagVaspInputSet, self).__init__(
+            structure, spec, functional=functional, sym_prec=sym_prec, **kwargs)
         self.structure = structure
         self.tests = self.__class__.get_defaults_tests()
         self.convs = self.__class__.get_defaults_convs()
@@ -205,17 +210,20 @@ class GWG0W0VaspInputSet(GWDFTDiagVaspInputSet):
     Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
     for static G0W0 calculation
     """
-    TESTS = {'ENCUTGW': {'test_range': (200, 300, 400), 'method': 'incar_settings', 'control': "gap"},
-             'NOMEGA': {'test_range': (80, 100, 120), 'method': 'set_nomega', 'control': "gap"}}
-    CONVS = {'ENCUTGW': {'test_range': (200, 400, 600, 800), 'method': 'incar_settings', 'control': "gap"}}
+    TESTS = {'ENCUTGW': {'test_range': (200, 300, 400),
+                         'method': 'incar_settings', 'control': "gap"},
+             'NOMEGA': {'test_range': (80, 100, 120),
+                        'method': 'set_nomega', 'control': "gap"}}
+    CONVS = {'ENCUTGW': {'test_range': (200, 400, 600, 800),
+                         'method': 'incar_settings', 'control': "gap"}}
 
-    def __init__(self, structure, spec, functional='PBE', sym_prec=0.01, **kwargs):
+    def __init__(self, structure, spec, functional='PBE', sym_prec=0.01,
+                 **kwargs):
         """
         Supports the same kwargs as :class:`JSONVaspInputSet`.
         """
-        with open(GWVaspInputSet) as f:
-            DictVaspInputSet.__init__(
-                self, "MP Static G0W0", json.load(f), **kwargs)
+        super(GWG0W0VaspInputSet, self).__init__(
+            structure, spec, functional=functional, sym_prec=sym_prec, **kwargs)
         self.structure = structure
         self.tests = self.__class__.get_defaults_tests()
         self.convs = self.__class__.get_defaults_convs()
@@ -223,7 +231,8 @@ class GWG0W0VaspInputSet(GWDFTDiagVaspInputSet):
         self.sym_prec = sym_prec
         npar = self.get_npar(structure)
         # G0W0 calculation with reduced cutoff for the response function
-        self.incar_settings.update({"ALGO": "GW0", "ENCUTGW": 250, "LWAVE": "FALSE", "NELM": 1})
+        self.incar_settings.update({"ALGO": "GW0", "ENCUTGW": 250,
+                                    "LWAVE": "FALSE", "NELM": 1})
         self.set_dens(spec)
         self.nomega_max = 2 * self.get_kpoints(structure).kpts[0][0]**3
         nomega = npar * int(self.nomega_max / npar)

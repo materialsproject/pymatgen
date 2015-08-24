@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -399,12 +401,12 @@ loop_
  _atom_site_fract_y
  _atom_site_fract_z
  _atom_site_occupancy
-  Li  Li1  4  0.000010  0.999990  0.999990  1.0
-  Fe  Fe2  4  0.025080  0.746540  0.281160  1.0
-  P  P3  4  0.082070  0.248300  0.405560  1.0
-  O  O4  8  0.213450  0.044060  0.334190  1.0
-  O  O5  4  0.208450  0.251100  0.543160  1.0
-  O  O6  4  0.241490  0.750460  0.596220  1.0
+  Li  Li1  4  0.000010  0.500000  0.999990  1.0
+  Fe  Fe2  4  0.025030  0.746540  0.281160  1.0
+  P  P3  4  0.082060  0.248260  0.405570  1.0
+  O  O4  8  0.213420  0.043980  0.334230  1.0
+  O  O5  4  0.208430  0.251100  0.543180  1.0
+  O  O6  4  0.241480  0.750450  0.596220  1.0
 """
         s = Structure.from_file(os.path.join(test_dir, 'LiFePO4.cif'))
         writer = CifWriter(s, symprec=0.1)

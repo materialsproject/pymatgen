@@ -1,9 +1,7 @@
 Change log
 ==========
 
-v3.1.6
+v3.1.7
 ------
-* Rudimentary PWSCF output reading.
-* Fix ASE support.
-* Support for WAVEDERF and reading multiple dielectricfunctions in vasprun.xml. 
-  (Miguel Dias Costa)
+* Bug fixes for MPRester.
+* Ensure correct monty version requirement in setup.py.

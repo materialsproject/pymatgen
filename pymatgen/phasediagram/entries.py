@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -236,7 +238,7 @@ class TransformedPDEntry(PDEntry):
     """
 
     def __init__(self, comp, original_entry):
-        PDEntry.__init__(self, comp, original_entry.energy)
+        super(TransformedPDEntry, self).__init__(comp, original_entry.energy)
         self.original_entry = original_entry
         self.name = original_entry.name
 
