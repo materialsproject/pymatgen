@@ -886,7 +886,7 @@ class MPRester(object):
             else:
                 all_formulas = set()
                 parts = re.split(r"(\*|\{.*\})", t)
-                parts = [parse_sym(s) for s in parts]
+                parts = [parse_sym(s) for s in parts if s != ""]
                 for f in itertools.product(*parts):
                     if len(set(f)) == len(f):
                         c = Composition("".join(f))
