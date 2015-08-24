@@ -885,11 +885,14 @@ class MPRester(object):
                 return {"chemsys": {"$in": chemsyss}}
             else:
                 all_formulas = set()
+                nelements = re.findall(r"(\*[\.\d]*|\{.*\}[\.\d]*|[A-Z]["
+                                       r"a-z]*[\.\d]*)", t)
+                nelements = len(nelements)
                 parts = re.split(r"(\*|\{.*\})", t)
                 parts = [parse_sym(s) for s in parts if s != ""]
                 for f in itertools.product(*parts):
-                    if len(set(f)) == len(f):
-                        c = Composition("".join(f))
+                    c = Composition("".join(f))
+                    if len(c) == nelements:
                         #Check for valid Elements in keys.
                         for e in c.keys():
                             Element(e.symbol)
