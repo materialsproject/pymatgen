@@ -78,7 +78,8 @@ class ChargeDefectsAnalyzerTest(unittest.TestCase):
 
     def test_add_parsed_defect(self):
         self.defect_analyzer.add_parsed_defect(self.data_defects['defects'][0])
-        self.assertIsNotNone(self.defect_analyzer._formation_energies)
+        self.assertAlmostEqual(self.defect_analyzer._formation_energies[0],
+                6.8216, places=4)
 
     def test_change_charge_correction(self):
         added_defect = self.data_defects['defects'][0]
@@ -124,9 +125,10 @@ class ChargeDefectsAnalyzerTest(unittest.TestCase):
         final_form_energy = self.defect_analyzer._formation_energies[0]
         self.assertAlmostEqual(abs(final_form_energy-orig_form_energy),0.3)
 
-    @unittest.skip("Not validated at present")
     def test_get_defects_concentration(self):
-        pass
+        self.defect_analyzer.add_parsed_defect(self.data_defects['defects'][0])
+        conc = self.defect_analyzer.get_defects_concentration()[0]['conc']
+        self.assertAlmostEqual(conc, 4.2818e-87, places=90)
 
     @unittest.skip("Not validated at present")
     def test_get_eq_ef(self):
