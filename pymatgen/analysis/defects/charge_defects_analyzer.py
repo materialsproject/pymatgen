@@ -1,5 +1,6 @@
-#!/usr/bin/env python
+# coding utf-8
 
+from __future__ import unicode_literals
 
 __author__ = "Geoffroy Hautier, Bharat Medasani"
 __copyright__ = "Copyright 2014, The Materials Project"
@@ -13,7 +14,7 @@ from math import sqrt, floor, pi, exp
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import PeriodicSite
-from pymatgen.io.vaspio.vasp_output import Locpot
+from pymatgen.io.vasp.outputs import Locpot
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 #from pycdcd.corrections.freysoldt_correction import FreysoldtCorrection
@@ -24,7 +25,7 @@ kb = 8.6173324e-5
 hbar = 6.58211928e-16
 conv = sqrt((9.1*1e-31)**3)*sqrt((1.6*1e-19)**3)/((1.05*1e-34)**3)
 
-class ParsedChargeDefect(object):
+class ParsedDefect(object):
     """
     Holds all the info concerning a defect computation: 
     composition+structure, energy, correction on energy and name
@@ -62,7 +63,7 @@ class ParsedChargeDefect(object):
 
     @classmethod
     def from_dict(cls, d):
-        return ParsedChargeDefect(
+        return ParsedDefect(
                 ComputedStructureEntry.from_dict(d['entry']), 
                 PeriodicSite.from_dict(d['site']),
                 charge=d.get('charge',0.0),
@@ -74,7 +75,7 @@ def get_correction(defect, bulk_entry, epsilon, type='freysoldt'):
     """
     Function to compute the correction for each defect.
     Args:
-        defect: ParsedChargeDefect object
+        defect: ParsedDefect object
         bulk_entry: ComputedStructureEntry corresponding to bulk
         epsilon: Dielectric constant
         type: String indicating the type of correction. Only Freysoldt
@@ -99,7 +100,7 @@ def get_correction(defect, bulk_entry, epsilon, type='freysoldt'):
 
 class ChargeDefectsAnalyzer(object):
     """
-    a class aimed at performing standard analysis of defects
+    A class aimed at performing standard analysis of charged defects
     """
     def __init__(self, entry_bulk, e_vbm, mu_elts, band_gap):
         """
@@ -135,11 +136,13 @@ class ChargeDefectsAnalyzer(object):
     @classmethod
     def from_dict(cls, d):
         entry_bulk = ComputedStructureEntry.from_dict(d['entry_bulk'])
-        analyzer = DefectsAnalyzer(
+        analyzer = ChargeDefectsAnalyzer(
                 entry_bulk, d['e_vbm'], 
                 {el: d['mu_elts'][el] for el in d['mu_elts']}, d['band_gap'])
         for ddict in d['defects']:
-            analyzer.add_defect(ParsedChargeDefect.from_dict(ddict))
+            #analyzer.add_defect(ParsedDefect.from_dict(ddict))
+            analyzer._defects.append(ParsedDefect.from_dict(ddict))
+        analyzer._formation_energies = d['formation_energies']
         return analyzer
 
     def add_parsed_defect(self, defect):
@@ -147,7 +150,7 @@ class ChargeDefectsAnalyzer(object):
         add a parsed defect to the analyzer
         Args:
             defect:
-                a Defect object
+                a ParsedDefect object
         """
         self._defects.append(defect)
         self._compute_form_en()
@@ -176,46 +179,21 @@ class ChargeDefectsAnalyzer(object):
         """
         self._formation_energies = []
         for d in self._defects:
-            #multiplier = None
-            #atm_blk = self._entry_bulk.composition.num_atoms
-            #atm_def = d.entry.composition.num_atoms 
-            """
-            By Bharat: I don't get the need to use multiplier and
-            the complicated way of determining it below. The code below 
-            is trying to generate 1 in an complicated way. 
-            """
-            #for i in [1,-1,0]:
-            #    if floor((atm_def+i)/atm_blk) == (atm_def+i)/atm_blk:
-            #        multiplier = (atm_def+i)/atm_blk
-            #        break
-            
-
             #compensate each element in defect with the chemical potential
-            """
-            By Bharat: Again an overly complicated way of generating the 
-            multipliers for chemical potentials. And it can be lead to bugs 
-            when used for defect complexes. 
-            """
             mu_needed_coeffs = {}
             for elt in d.entry.composition.elements:
                 el_def_comp = d.entry.composition[elt] 
                 el_blk_comp = self._entry_bulk.composition[elt]
                 mu_needed_coeffs[elt] = el_blk_comp - el_def_comp
-                #if el_def_comp > multiplier*el_blk_comp:
-                #    mu_needed_coeffs[elt] = -1.0
-                #if el_def_comp < multiplier*el_blk_comp:
-                #    mu_needed_coeffs[elt] = 1.0
 
             sum_mus = 0.0
             for elt in mu_needed_coeffs:
                 el = elt.symbol
                 sum_mus += mu_needed_coeffs[elt] * self._mu_elts[el]
 
-            self._formation_energies.append(
-                    d.entry.energy - self._entry_bulk.energy + \
-                    #d.entry.energy - multiplier*self._entry_bulk.energy + \
-                            sum_mus + d._charge*self._e_vbm + \
-                            d.charge_correction)
+            self._formation_energies.append(d.entry.energy - \
+                    self._entry_bulk.energy + sum_mus + \
+                    d._charge*self._e_vbm + d.charge_correction)
 
     def correct_bg_simple(self, vbm_correct, cbm_correct):
         """
@@ -249,7 +227,6 @@ class ChargeDefectsAnalyzer(object):
             Where type_of_defect is a string: 'vbm_like' or 'cbm_like'
         """
 
-
         self._band_gap = self._band_gap + cbm_correct + vbm_correct
         self._e_vbm = self._e_vbm - vbm_correct
         self._compute_form_en()
@@ -270,17 +247,17 @@ class ChargeDefectsAnalyzer(object):
 
     def get_defects_concentration(self, temp=300, ef=0.0):
         """
-        get the defect concentration for a temperature and Fermi level
+        Get the defect concentration for a temperature and Fermi level
         Args:
             temp:
-                the temperature in K
+                The temperature in K
             Ef:
-                the fermi level in eV (with respect to the VBM)
+                The Fermi level in eV (with respect to the VBM)
         Returns:
-            a list of dict of {'name': defect name, 'charge': defect charge 
+            A list of dict of {'name': defect name, 'charge': defect charge 
                                'conc': defects concentration in m-3}
         """
-        conc=[]
+        conc = []
         spga = SpacegroupAnalyzer(self._entry_bulk.structure, symprec=1e-1)
         struct = spga.get_symmetrized_structure()
         i = 0
@@ -369,7 +346,7 @@ class ChargeDefectsAnalyzer(object):
 
     def get_non_eq_ef(self, tsyn, teq, m_elec, m_hole):
         """
-        access to the non-equilibrium values of Fermi level and 
+        Access to the non-equilibrium values of Fermi level and 
         concentrations in defects and carriers obtained by 
         self-consistent solution of charge balance + defect and 
         carriers concentrations

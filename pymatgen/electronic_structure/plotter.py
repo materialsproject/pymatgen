@@ -21,6 +21,7 @@ from collections import OrderedDict
 import numpy as np
 
 from monty.json import jsanitize
+from matplotlib.figure import figaspect
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 
@@ -199,6 +200,228 @@ class DosPlotter(object):
         leg = plt.gca().get_legend()
         ltext = leg.get_texts()  # all the text.Text instance in the legend
         plt.setp(ltext, fontsize=30)
+        plt.tight_layout()
+        return plt
+
+    def save_plot(self, filename, img_format="eps", xlim=None, ylim=None):
+        """
+        Save matplotlib plot to a file.
+
+        Args:
+            filename: Filename to write to.
+            img_format: Image format to use. Defaults to EPS.
+            xlim: Specifies the x-axis limits. Set to None for automatic
+                determination.
+            ylim: Specifies the y-axis limits.
+        """
+        plt = self.get_plot(xlim, ylim)
+        plt.savefig(filename, format=img_format)
+
+    def show(self, xlim=None, ylim=None):
+        """
+        Show the plot using matplotlib.
+
+        Args:
+            xlim: Specifies the x-axis limits. Set to None for automatic
+                determination.
+            ylim: Specifies the y-axis limits.
+        """
+        plt = self.get_plot(xlim, ylim)
+        plt.show()
+
+
+class DosMultiPlotter(object):
+    """
+    Class for plotting DOSs using subplots. Useful to plot the spd dosplots
+    of different elements or sites in a single figure.
+
+        # Initializes plotter with some optional args. Defaults are usually
+        # fine,
+        plotter = DosMultiPlotter()
+
+        # Adds a DOS with a label.
+        plotter.add_dos("Total DOS", spd_dos)
+
+        # Alternatively, you can add a dict of DOSs. This is the typical
+        # form returned by CompleteDos.get_spd/element/others_dos().
+        plotter.add_dos_dict({"el1_dos": el1_dos, "el2_dos": el2_dos})
+
+    Args:
+        zero_at_efermi: Whether to shift all Dos to have zero energy at the
+            fermi energy. Defaults to True.
+        stack: Whether to plot the DOS as a stacked area graph
+        key_sort_func: function used to sort the dos_dict keys.
+        sigma: A float specifying a standard deviation for Gaussian smearing
+            the DOS for nicer looking plots. Defaults to None for no
+            smearing.
+    """
+
+    def __init__(self, zero_at_efermi=False, stack=False, sigma=None):
+        self.zero_at_efermi = zero_at_efermi
+        self.stack = stack
+        self.sigma = sigma
+        self._doses = OrderedDict()
+
+    def add_dos(self, label, spd_dos):
+        """
+        Adds a spd dos for plotting.
+
+        Args:
+            label:
+                label for the DOS. Must be unique.
+            dos:
+                spd dos dict
+        """
+        self._doses[label] = OrderedDict()
+        for orb,dos in spd_dos.items():
+            energies = dos.energies - dos.efermi if self.zero_at_efermi \
+                else dos.energies
+            densities = dos.get_smeared_densities(self.sigma) if self.sigma \
+                else dos.densities
+            efermi = dos.efermi
+            self._doses[label][orb] = {'energies': energies, 
+                    'densities': densities, 'efermi': efermi}
+
+    def add_dos_dict(self, spd_dos_dict, key_sort_func=None):
+        """
+        Add a dictionary of doses, with an optional sorting function for the
+        keys.
+
+        Args:
+            spd_dos_dict: dict of {label: spd_dos}
+            key_sort_func: function used to sort the dos_dict keys.
+        """
+        if key_sort_func:
+            keys = sorted(spd_dos_dict.keys(), key=key_sort_func)
+        else:
+            keys = spd_dos_dict.keys()
+        for label in keys:
+            self.add_dos(label, spd_dos_dict[label])
+
+    def get_dos_dict(self):
+        """
+        Returns the added doses as a json-serializable dict. Note that if you
+        have specified smearing for the DOS plot, the densities returned will
+        be the smeared densities, not the original densities.
+
+        Returns:
+            Dict of dos data. Generally of the form, {label: {'energies':..,
+            'densities': {'up':...}, 'efermi':efermi}}
+        """
+        return jsanitize(self._doses)
+
+    def get_plot(self, xlim=None, ylim=None):
+        """
+        Get a matplotlib plot showing the DOS.
+
+        Args:
+            xlim: Specifies the x-axis limits. Set to None for automatic
+                determination.
+            ylim: Specifies the y-axis limits.
+        """
+        import prettyplotlib as ppl
+        from prettyplotlib import brewer2mpl
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        ncolors = 4 # Corresponding to spdf
+        colors = brewer2mpl.get_map('Set1', 'qualitative', ncolors).mpl_colors
+
+        y = None
+        w, h = figaspect(0.25*len(self._doses))
+        #print w
+        w,h = w*2,h*2
+        #plt = get_publication_quality_plot(12, 8)
+        plt = get_publication_quality_plot(w, h)
+        f = plt.gcf()
+        ax = plt.gca()
+        f.delaxes(ax)
+        #axes = f.add_subplots(len(self._doses), sharex=True)
+
+
+        # Note that this complicated processing of energies is to allow for
+        # stacked plots in matplotlib.
+        cnt = 1
+        for k, spd_dos in self._doses.items():
+            alldensities = []
+            allenergies = []
+            for key, dos in spd_dos.items():
+                energies = dos['energies']
+                densities = dos['densities']
+                if not y:
+                    y = {Spin.up: np.zeros(energies.shape),
+                         Spin.down: np.zeros(energies.shape)}
+                newdens = {}
+                for spin in [Spin.up, Spin.down]:
+                    if spin in densities:
+                        if self.stack:
+                            y[spin] += densities[spin]
+                            newdens[spin] = y[spin].copy()
+                        else:
+                            newdens[spin] = densities[spin]
+                allenergies.append(energies)
+                alldensities.append(newdens)
+
+            keys = list(spd_dos.keys())
+            keys.reverse()
+            alldensities.reverse()
+            allenergies.reverse()
+            allpts = []
+            if cnt == 1:
+                ax = f.add_subplot(len(self._doses),1,cnt)
+                ax1 = ax
+            else:
+                ax = f.add_subplot(len(self._doses),1,cnt, sharex=ax1)
+            ax.set_title(k,loc='right')
+            for i, key in enumerate(keys):
+                x = []
+                y = []
+                for spin in [Spin.up, Spin.down]:
+                    if spin in alldensities[i]:
+                        densities = list(int(spin) * alldensities[i][spin])
+                        energies = list(allenergies[i])
+                        if spin == Spin.down:
+                            energies.reverse()
+                            densities.reverse()
+                        x.extend(energies)
+                        y.extend(densities)
+                allpts.extend(list(zip(x, y)))
+                if self.stack:
+                    ax.fill(x, y, color=colors[i % ncolors],
+                             label=str(key))
+                else:
+                    ppl.plot(ax,x, y, color=colors[i % ncolors],
+                             label=str(key),linewidth=1.5)
+                if not self.zero_at_efermi:
+                    if not ylim:
+                        ylim = plt.ylim()
+                    ppl.plot(ax,[self._doses[k][key]['efermi'],
+                              self._doses[k][key]['efermi']], ylim,
+                              #color=colors[i % ncolors],
+                              'k--',
+                              linestyle='--', linewidth=1.5)
+
+            if xlim:
+                ax.set_xlim(xlim)
+            if ylim:
+                ax.set_ylim(ylim)
+            else:
+                xlim = ax.set_xlim()
+                relevanty = [p[1] for p in allpts
+                             if xlim[0] < p[0] < xlim[1]]
+                ax.set_ylim((min(relevanty), max(relevanty)))
+
+            if self.zero_at_efermi:
+                ylim = ax.ylim()
+                ax.plot([0, 0], ylim, 'k--', linewidth=2)
+
+            cnt += 1
+
+        # For the last plot set legend and xlabel
+        ax.set_xlabel('Energies (eV)')
+        #f.ylabel('Density of states')
+        ax.legend()
+        #leg = plt.gca().get_legend()
+        #ltext = leg.get_texts()  # all the text.Text instance in the legend
+        #plt.setp(ltext, fontsize=30)
         plt.tight_layout()
         return plt
 
