@@ -60,6 +60,25 @@ def straceback():
     import traceback
     return traceback.format_exc()
 
+def nmltostring(nml):
+    if not isinstance(nml,dict):
+      raise ValueError("nml should be a dict !")
+
+    curstr = ""
+    for key,group in nml.items():
+       namelist = ["&"+key]
+       for k,v in group.items():
+         if isinstance(v,list) or isinstance(v,tuple):
+           namelist.append(k + " = "+",".join(map(str,v))+",")
+         elif isinstance(v,unicode) or isinstance(v,str):
+           namelist.append(k + " = '"+str(v)+"',")
+         else:
+           namelist.append(k + " = "+str(v)+",")
+       namelist.append("/")
+
+       curstr = curstr + "\n".join(namelist)+"\n"
+
+    return curstr
 
 class TaskResults(NodeResults):
 
@@ -3501,7 +3520,6 @@ class BseTask(ManyBodyTask):
 
         return results
 
-
 class OpticTask(Task):
     """
     Task for the computation of optical spectra with optic i.e.
@@ -3583,13 +3601,16 @@ class OpticTask(Task):
     def make_input(self):
         """Construct and write the input file of the calculation."""
         # Set the file paths.
-        files = "\n".join(self.ddk_filepaths + [self.wfk_filepath]) + "\n"
+        all_files ={"ddkfile_"+str(n+1) : ddk for n,ddk in enumerate(self.ddk_filepaths)}
+        all_files.update({"wfkfile" : self.wfk_filepath})
+        files_nml = {"FILES" : all_files}
+        files= nmltostring(files_nml)
 
         # Get the input specified by the user
-        user_inp = str(self.input)
+        user_file = nmltostring(self.input.as_dict())
 
         # Join them.
-        return files + user_inp
+        return files + user_file
 
     def setup(self):
         """Public method called before submitting the task."""
@@ -3606,6 +3627,12 @@ class OpticTask(Task):
         #"epsilon_infinity":
         #))
         return results
+
+    def fix_abicritical(self):
+        """
+        Cannot fix abicritical errors for optic
+        """
+        return 0
 
 
 class AnaddbTask(Task):
