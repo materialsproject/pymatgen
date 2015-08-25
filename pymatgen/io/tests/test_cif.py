@@ -280,7 +280,7 @@ loop_
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         writer = CifWriter(poscar.structure, symprec=0.001)
-        ans = """#generated using pymatgen
+        ans = """# generated using pymatgen
 data_FePO4
 _symmetry_space_group_name_H-M   Pnma
 _cell_length_a   10.41176687
@@ -327,7 +327,7 @@ loop_
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         writer = CifWriter(poscar.structure, symprec=0.1)
-        ans = """#generated using pymatgen
+        ans = """# generated using pymatgen
 data_FePO4
 _symmetry_space_group_name_H-M   Pnma
 _cell_length_a   10.41176687
@@ -368,7 +368,7 @@ loop_
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 
-        ans = """#generated using pymatgen
+        ans = """# generated using pymatgen
 data_LiFePO4
 _symmetry_space_group_name_H-M   Pnma
 _cell_length_a   4.74480000
@@ -423,7 +423,7 @@ loop_
                                     [0.00, -2.2171384943, 3.1355090603]]))
         struct = Structure(lattice, [si, {si:0.5, n:0.5}], coords)
         writer = CifWriter(struct)
-        ans = """#generated using pymatgen
+        ans = """# generated using pymatgen
 data_Si1.5N0.5
 _symmetry_space_group_name_H-M   'P 1'
 _cell_length_a   3.84019793
@@ -470,7 +470,7 @@ N  N3  1  0.750000  0.500000  0.750000  0.5
                                     [0.00, -2.2171384943, 3.1355090603]]))
         struct = Structure(lattice, [n, {si3:0.5, n:0.5}, si4], coords)
         writer = CifWriter(struct)
-        ans = """#generated using pymatgen
+        ans = """# generated using pymatgen
 data_X1.5Si1.5
 _symmetry_space_group_name_H-M   'P 1'
 _cell_length_a   3.84019793
