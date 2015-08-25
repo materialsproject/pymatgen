@@ -2003,6 +2003,13 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
             d = {"symbol": p.symbol, "Z": p.Z}
             names.append(p.basename)
 
+            #read hints
+            for acc in accuracies:
+                try:
+                    d.update({acc + "_ecut_hint": report['hints'][acc]['ecut']})
+                except KeyError:
+                    d.update({acc + "_ecut_hint": -1.0 })
+
             # FIXME
             try:
                 ecut_acc = dict(
@@ -2441,6 +2448,14 @@ class DojoReport(dict):
 
             prev_ecuts.insert(i, e)
 
+    def add_hints(self, hints):
+        hints_dict = {
+           "low": {'ecut': hints[0]},
+           "normal" : {'ecut': hints[1]},
+           "high" : {'ecut': hints[2]}
+                     }
+        self["hints"] = hints_dict
+
     #def validate(self, hints):
     #    Add md5 hash value
     #    self["validated"] = True
@@ -2630,6 +2645,8 @@ class DojoReport(dict):
             for i in range(3):
                 if adiff <= self.ATOLS[i] and hints[i] is None:
                     hints[i] = ecut
+                if adiff > self.ATOLS[i]: 
+                    hints[i] = None
         return hints
 
     def check(self):
