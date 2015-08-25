@@ -223,7 +223,7 @@ class CifFile(object):
     Reads and parses CifBlocks from a .cif file
     """
 
-    def __init__(self, data, orig_string=None):
+    def __init__(self, data, orig_string=None, comment=None):
         """
         Args:
             data: OrderedDict of CifBlock objects
@@ -231,11 +231,12 @@ class CifFile(object):
         """
         self.data = data
         self.orig_string = orig_string
+        self.comment = "# generated using pymatgen" if comment is None else \
+            comment
 
     def __str__(self):
         s = ["%s" % v for v in self.data.values()]
-        comment = "#generated using pymatgen\n"
-        return comment + "\n".join(s)+"\n"
+        return self.comment + "\n" + "\n".join(s)+"\n"
 
     @classmethod
     def from_string(cls, string):
