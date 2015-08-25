@@ -166,6 +166,35 @@ class ChargedDefectsStructuresTest(unittest.TestCase):
                 'Inserting an interstitial site into a primitive cubic' \
                 ' structure failed')
 
+    def test_get_defects_data(self):
+        defect_dict_C_cubic = ChargedDefectsStructures(
+                self.C_cubic_struct, cellmax=2).get_defects_data()
+        self.assertIsNotNone(
+                defect_dict_C_cubic, "Getting defect data dictionary failed")
+        self.assertEqual(
+                len(defect_dict_C_cubic), 4, "Asserting length of defect"
+                        " dictionary failed for cubic test structure")
+        self.assertIsNotNone(
+                defect_dict_C_cubic["bulk"], "Asserting non-empty"
+                    " bulk failed")
+        self.assertEqual(
+                len(defect_dict_C_cubic["vacancies"]), 1, "Asserting a single"
+                        "  vacancy site for elemental cubic structure failed")
+        self.assertEqual(
+                len(defect_dict_C_cubic["interstitials"]), 0, "Asserting"
+                        " no default interstitials failed")
+        self.assertEqual(
+                len(defect_dict_C_cubic["substitutions"]), 0,  "Asserting"
+                    " no default substitutions for elemental structure failed")
+        defect_dict_GaAs = ChargedDefectsStructures(
+                self.GaAs_struct, cellmax=8).get_defects_data()
+        self.assertEqual(
+                len(defect_dict_GaAs["vacancies"]), 2, "Asserting two"
+                        "  vacancy sites for GaAs structure failed")
+        self.assertEqual(
+                len(defect_dict_GaAs["substitutions"]), 2,  "Asserting"
+                    " two substitutions (antisites) for GaAs structure failed")
+
 
     def tearDown(self):
 

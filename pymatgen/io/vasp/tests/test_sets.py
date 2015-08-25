@@ -9,11 +9,12 @@ import shutil
 import numpy as np
 from monty.json import MontyDecoder
 
+from pymatgen.analysis.defects.charged_defects_maker import ChargedDefectsStructures
 from pymatgen.io.vasp.sets import MITVaspInputSet, MITHSEVaspInputSet, \
     MPVaspInputSet, MITGGAVaspInputSet, MITNEBVaspInputSet,\
     MPStaticVaspInputSet, MPNonSCFVaspInputSet, MITMDVaspInputSet,\
     MPHSEVaspInputSet, MPBSHSEVaspInputSet, MPStaticDielectricDFPTVaspInputSet,\
-    MPOpticsNonSCFVaspInputSet
+    MPOpticsNonSCFVaspInputSet, MPChargedDefectsVaspInputSet
 from pymatgen.io.vasp.inputs import Poscar, Incar
 from pymatgen import Specie, Lattice, Structure
 
@@ -410,6 +411,43 @@ class MITNEBVaspInputSetTest(unittest.TestCase):
 
         fc = self.vis._process_structures(structs)[2].frac_coords
         self.assertTrue(np.allclose(fc, [[0.5]*3,[0.9, 1.033333, 1.0333333]]))
+
+
+class MPChargedDefectsVaspInputSetTest(unittest.TestCase):
+
+    #def setUp(self):
+    #    # A simple and lean primitive cubic structure.
+    #    self.C_cubic_struct = Structure(
+    #            Lattice.cubic(2.0),
+    #            ['C'], [[0.0, 0.0, 0.0]],
+    #            validate_proximity=False, to_unit_cell=False,
+    #            coords_are_cartesian=False, site_properties=None)
+    #    self.cds_C_cubic_struct = ChargedDefectsStructures(
+    #            self.C_cubic_struct)
+
+
+    def test_init(self):
+        self.assertIsNotNone(
+                MPChargedDefectsVaspInputSet(),
+                "Simple initialization failed")
+        with self.assertRaises(ValueError):
+            MPChargedDefectsVaspInputSet(path_base="")
+
+    #def test_write_files(self):
+    #    test_id = 1
+    #    while os.path.exists("test_"+str(test_id)):
+    #        test_id = test_id + 1
+    #    directory = "test_"+str(test_id)
+    #    os.mkdir(directory)
+    #    mpcdvis = MPChargedDefectsVaspInputSet(path_base=directory)
+    #    mpcdvis.write_files(self.cds_C_cubic_struct.get_defects_data())
+    #    mpcdvis.write_dielectric_files(self.C_cubic_struct)
+    #    os.rmdir(directory)
+
+
+    #def tearDown(self):
+    #    del self.cds_C_cubic_struct
+    #    del self.C_cubic_struct
 
 
 if __name__ == '__main__':

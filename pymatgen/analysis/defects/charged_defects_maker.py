@@ -426,3 +426,15 @@ class ChargedDefectsStructures(object):
         sc.append(target_site.specie, target_site.frac_coords)
         
         return sc
+
+
+    def get_defects_data(self):
+        """
+        Get all data (i.e., structures) for the targeted charged-defect
+            calculations.
+        Return:
+            defects (dict): all structures necessary for the targeted
+                charged-defect calculations.
+        """
+        defects = self.defects
+        return defects
