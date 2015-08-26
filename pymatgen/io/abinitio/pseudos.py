@@ -1987,26 +1987,35 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
             "deltafactor": ["dfact_meV", "dfactprime_meV"] + ["v0", "b0_GPa", "b1"], 
             "gbrv_bcc": ["a0_rel_err"],
             "gbrv_fcc": ["a0_rel_err"],
+            "phonon": "all",
+            "phwoa": "all"
         }
 
         rows, names, errors = [], [], []
 
         for p in self:
             report = p.dojo_report
-            assert "version"  in report
-            #if "version" not in report:
-            #    print("ignoring old report in ", p.basename)
-            #    continue
+            #assert "version"  in report
+            if "version" not in report:
+                print("ignoring old report in ", p.basename)
+                continue
 
             d = {"symbol": p.symbol, "Z": p.Z}
             names.append(p.basename)
 
+            #read hints
+            for acc in accuracies:
+                try:
+                    d.update({acc + "_ecut_hint": report['hints'][acc]['ecut']})
+                except KeyError:
+                    d.update({acc + "_ecut_hint": -1.0 })
+
             # FIXME
             try:
                 ecut_acc = dict(
-                    low=report.ecuts[0],
-                    normal=report.ecuts[4],
-                    high=report.ecuts[-1],
+                    low=report.ecuts[2],
+                    normal=report.ecuts[int(len(report.ecuts)/2)],
+                    high=report.ecuts[-2],
                 )
             except IndexError:
                 ecut_acc = dict(
@@ -2022,12 +2031,22 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
                 for trial, keys in trial2keys.items():
                     data = report.get(trial, None)
                     if data is None: continue
+                    # if the current trial has an entry for this ecut notting changes, else we take the ecut closes 
+                    ecut_acc = dict(
+                        low=sorted(data.keys())[0],
+                        normal=sorted(data.keys())[int(len(data.keys())/2)],
+                        high=sorted(data.keys())[-1],
+                    )
                     for acc in accuracies:
                         ecut = ecut_acc[acc]
-                        if trial.startswith("gbrv"):
-                            d.update({acc + "_" + trial + "_" + k: float(data[ecut][k]) for k in keys}) 
+                        if keys is 'all':
+                            ecuts = data
+                            d.update({acc + "_" + trial: data[ecut]})
                         else:
-                            d.update({acc + "_" + k: float(data[ecut][k]) for k in keys}) 
+                            if trial.startswith("gbrv"):
+                                d.update({acc + "_" + trial + "_" + k: float(data[ecut][k]) for k in keys}) 
+                            else:
+                                d.update({acc + "_" + k: float(data[ecut][k]) for k in keys}) 
 
             except Exception as exc:
                 logger.warning("%s raised %s" % (p.basename, exc))
@@ -2133,7 +2152,8 @@ class DojoDataFrame(DataFrame):
         "deltafactor",
         "gbrv_bcc",
         "gbrv_fcc",
-        #"phwoa",
+        "phonon",
+        "phwoa"
     )
 
     _TRIALS2KEY = {
@@ -2141,7 +2161,8 @@ class DojoDataFrame(DataFrame):
         "deltafactor": "dfact_meV",
         "gbrv_bcc": "gbrv_bcc_a0_rel_err",
         "gbrv_fcc": "gbrv_fcc_a0_rel_err",
-        #"phwoa": "phowa_rel_err",
+        "phonon": "all",
+        "phwoa": "all"
     }
 
     _TRIALS2YLABEL = {
@@ -2149,7 +2170,8 @@ class DojoDataFrame(DataFrame):
         "deltafactor": "$\Delta$-factor [meV]",
         "gbrv_bcc": "BCC $\Delta a_0$ (%)",
         "gbrv_fcc": "FCC $\Delta a_0$ (%)",
-        #"phwoa": "Phonons wo ASR",
+        "phonon": "Phonons with ASR",
+        "phwoa": "Phonons without ASR"
     }
 
     ACC2PLTOPTS = dict(
@@ -2287,7 +2309,8 @@ class DojoReport(dict):
         "deltafactor": "dfact_meV",
         "gbrv_bcc": "a0_rel_err",
         "gbrv_fcc": "a0_rel_err",
-        #"phwoa": "phowa_rel_err",
+        "phwoa": "all",
+        "phonon": "all"
     }
 
     ALL_ACCURACIES = ("low", "normal", "high")
@@ -2298,7 +2321,8 @@ class DojoReport(dict):
         "deltafactor",
         "gbrv_bcc",
         "gbrv_fcc",
-        "phonon"
+        "phonon",
+        "phwoa"
     )
 
     # Tolerances on the deltafactor prime (in eV) used for the hints.
@@ -2423,6 +2447,14 @@ class DojoReport(dict):
                 i += 1
 
             prev_ecuts.insert(i, e)
+
+    def add_hints(self, hints):
+        hints_dict = {
+           "low": {'ecut': hints[0]},
+           "normal" : {'ecut': hints[1]},
+           "high" : {'ecut': hints[2]}
+                     }
+        self["hints"] = hints_dict
 
     #def validate(self, hints):
     #    Add md5 hash value
@@ -2613,6 +2645,8 @@ class DojoReport(dict):
             for i in range(3):
                 if adiff <= self.ATOLS[i] and hints[i] is None:
                     hints[i] = ecut
+                if adiff > self.ATOLS[i]: 
+                    hints[i] = None
         return hints
 
     def check(self):
