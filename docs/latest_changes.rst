@@ -1,7 +1,6 @@
 Change log
 ==========
 
-v3.1.7
+v3.1.8
 ------
-* Bug fixes for MPRester.
-* Ensure correct monty version requirement in setup.py.
+* Fix scripts.
