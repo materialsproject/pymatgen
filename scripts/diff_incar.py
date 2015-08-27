@@ -1,7 +1,8 @@
-# coding: utf-8
+#!/usr/bin/env python
+#  coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-#!/usr/bin/env python
+
 
 """
 Created on Nov 12, 2011
