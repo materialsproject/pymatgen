@@ -1,6 +1,15 @@
 Change log
 ==========
 
+v3.1.8
+------
+* Fix scripts.
+
+v3.1.7
+------
+* Bug fixes for MPRester.
+* Ensure correct monty version requirement in setup.py.
+
 v3.1.6
 ------
 * Rudimentary PWSCF output reading.
