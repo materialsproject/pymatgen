@@ -42,10 +42,10 @@ FULL_SPACE_GROUP_MAPPING = {
 class SymmetryGroup(object):
 
     def is_subgroup(self, group):
-        return self.symmetry_ops.issubset(group.symmetry_ops)
+        return set(self.symmetry_ops).issubset(group.symmetry_ops)
 
     def is_supergroup(self, group):
-        return self.symmetry_ops.issuperset(group.symmetry_ops)
+        return set(self.symmetry_ops).issuperset(group.symmetry_ops)
 
 
 @cached_class
