@@ -1073,7 +1073,7 @@ class Outcar(PMGSONable):
         "Maximum memory used (kb)", "Average memory used (kb)",
         "User time (sec)".
 
-    .. attribute:: total_tensor
+    .. attribute:: elastic_tensor
         Total elastic moduli (Kbar) is given in a 6x6 array matrix.
 
     One can then call a specific reader depending on the type of run being
@@ -1096,7 +1096,7 @@ class Outcar(PMGSONable):
         total_mag = None
         nelect = None
         efermi = None
-        total_tensor = None
+        elastic_tensor = None
 
         time_patt = re.compile("\((sec|kb)\)")
         efermi_patt = re.compile("E-fermi\s*:\s*(\S+)")
@@ -1184,7 +1184,7 @@ class Outcar(PMGSONable):
                     tok = [float(i) for i in tok]
                     tensor_matrix.append(tok)
             total_elm = [tensor_matrix[i] for i in range(18, 24)]
-            total_tensor = np.asarray(total_elm).reshape(6, 6)
+            elastic_tensor = np.asarray(total_elm).reshape(6, 6)
         else:
             pass
 
@@ -1194,7 +1194,7 @@ class Outcar(PMGSONable):
         self.efermi = efermi
         self.nelect = nelect
         self.total_mag = total_mag
-        self.total_tensor = total_tensor
+        self.elastic_tensor = elastic_tensor
         self.data = {}
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False,
