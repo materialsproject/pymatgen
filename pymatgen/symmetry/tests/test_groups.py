@@ -34,6 +34,23 @@ class PointGroupTest(unittest.TestCase):
         self.assertEqual(len(pg.get_orbit([0, 0, 0.1])), 2)
         self.assertEqual(len(pg.get_orbit([1.2, 1.2, 1])), 8)
 
+    def test_is_sub_super_group(self):
+        pgmmm = PointGroup("mmm")
+        pgmm2 = PointGroup("mm2")
+        pg222 = PointGroup("222")
+        pg4 = PointGroup("4")
+        self.assertTrue(pgmmm.is_supergroup(pgmm2))
+        self.assertTrue(pgmm2.is_subgroup(pgmmm))
+        self.assertTrue(pgmmm.is_supergroup(pg222))
+        self.assertFalse(pgmmm.is_supergroup(pg4))
+        pgm3m = PointGroup("m-3m")
+        pg6mmm = PointGroup("6/mmm")
+        pg3m = PointGroup("-3m")
+        # TODO: Fix the test below.
+        #self.assertTrue(pg3m.is_subgroup(pgm3m))
+        self.assertTrue(pg3m.is_subgroup(pg6mmm))
+        self.assertFalse(pgm3m.is_supergroup(pg6mmm))
+
 
 class SpaceGroupTest(unittest.TestCase):
 

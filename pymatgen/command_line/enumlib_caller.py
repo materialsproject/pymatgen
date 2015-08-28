@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -44,7 +46,7 @@ from monty.fractions import fractions
 
 from six.moves import reduce
 
-from pymatgen.io.vaspio.vasp_input import Poscar
+from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer

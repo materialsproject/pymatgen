@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -14,7 +16,7 @@ from bisect import bisect_left
 from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.io.zeoio import get_voronoi_nodes, get_void_volume_surfarea, \
+from pymatgen.io.zeo import get_voronoi_nodes, get_void_volume_surfarea, \
     get_high_accuracy_voronoi_nodes
 from pymatgen.command_line.gulp_caller import get_energy_buckingham, \
     get_energy_relax_structure_buckingham
@@ -551,6 +553,7 @@ class Interstitial(Defect):
                  accuracy='Normal', symmetry_flag=True, oxi_state = False):
         """
         Given a structure, generate symmetrically distinct interstitial sites.
+        For a non-ionic structure, use oxi_state=True and give atomic radii.
 
         Args:
             structure: pymatgen.core.structure.Structure
@@ -574,17 +577,7 @@ class Interstitial(Defect):
                 sites.
         """
         if not oxi_state:
-            try:
-                bv = BVAnalyzer()
-                self._structure = bv.get_oxi_state_decorated_structure(
-                        structure)
-            except:
-                try:
-                    bv = BVAnalyzer(symm_tol=0.0)
-                    self._structure = bv.get_oxi_state_decorated_structure(
-                            structure)
-                except:
-                    raise
+            self._structure = ValenceIonicRadiusEvaluator(structure).structure
         else:
             self._structure = structure
 

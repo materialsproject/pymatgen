@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -26,7 +28,7 @@ from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.phasediagram.pdmaker import PhaseDiagram
 from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
-from pymatgen.io.cifio import CifParser
+from pymatgen.io.cif import CifParser
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -101,16 +103,16 @@ class MPResterTest(unittest.TestCase):
 
     def test_get_materials_id_references(self):
         # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_get_materials_id_references
-        # TODO use self.rester when in prod
-        m = MPRester(os.environ.get('MAPI_KEY_DEV'), endpoint="http://www.materialsproject.org:8080/rest")
+        # self.rester points to rest/v2 by default which doesn't have the refs endpoint
+        m = MPRester(endpoint="https://www.materialsproject.org/rest")
         data = m.get_materials_id_references('mp-123')
         self.assertTrue(len(data) > 1000)
 
     def test_find_structure(self):
         # nosetests pymatgen/matproj/tests/test_rest.py:MPResterTest.test_find_structure
-        # TODO use self.rester when in prod
-        m = MPRester(os.environ.get('MAPI_KEY_DEV'), endpoint="http://www.materialsproject.org:8080/rest")
-        ciffile = 'test_files/Fe3O4.cif'
+        # self.rester points to rest/v2 by default which doesn't have the find_structure endpoint
+        m = MPRester(endpoint="https://www.materialsproject.org/rest")
+        ciffile = os.path.join(test_dir, 'Fe3O4.cif')
         data = m.find_structure(ciffile)
         self.assertTrue(len(data) > 1)
         s = CifParser(ciffile).get_structures()[0]
@@ -119,9 +121,7 @@ class MPResterTest(unittest.TestCase):
 
     def test_get_entries_in_chemsys(self):
         syms = ["Li", "Fe", "O"]
-        all_entries = self.rester.get_entries_in_chemsys(syms, False)
         entries = self.rester.get_entries_in_chemsys(syms)
-        self.assertTrue(len(entries) <= len(all_entries))
         elements = set([Element(sym) for sym in syms])
         for e in entries:
             self.assertIsInstance(e, ComputedEntry)
@@ -173,6 +173,10 @@ class MPResterTest(unittest.TestCase):
         self.assertTrue(len(entries) > 1)
         for e in entries:
             self.assertEqual(e.structure.composition.reduced_formula, "TiO2")
+
+        all_entries = self.rester.get_entries("Fe", compatible_only=False)
+        entries = self.rester.get_entries("Fe", compatible_only=True)
+        self.assertTrue(len(entries) < len(all_entries))
 
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
@@ -238,7 +242,7 @@ class MPResterTest(unittest.TestCase):
 
         comps = MPRester.parse_criteria("**O3")["pretty_formula"]["$in"]
         for c in comps:
-            self.assertEqual(len(Composition(c)), 3)
+            self.assertEqual(len(Composition(c)), 3, "Failed in %s" % c)
 
         chemsys = MPRester.parse_criteria("{Fe,Mn}-O")["chemsys"]["$in"]
         self.assertEqual(len(chemsys), 2)

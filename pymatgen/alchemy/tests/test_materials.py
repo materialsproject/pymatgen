@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -23,7 +25,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import \
     SubstitutionTransformation, PartialRemoveSpecieTransformation, \
     SupercellTransformation
-from pymatgen.io.vaspio_set import MPVaspInputSet
+from pymatgen.io.vasp.sets import MPVaspInputSet
 from pymatgen.alchemy.filters import ContainsSpecieFilter
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.matproj.snl import StructureNL

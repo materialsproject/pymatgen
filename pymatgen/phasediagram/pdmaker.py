@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -370,8 +372,8 @@ class CompoundPhaseDiagram(PhaseDiagram):
         (pentries, species_mapping) = \
             self.transform_entries(entries, terminal_compositions)
         self.species_mapping = species_mapping
-        PhaseDiagram.__init__(self, pentries,
-                              elements=species_mapping.values())
+        super(CompoundPhaseDiagram, self).__init__(
+            pentries, elements=species_mapping.values())
 
     def transform_entries(self, entries, terminal_compositions):
         """

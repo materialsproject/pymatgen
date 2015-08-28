@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -199,6 +201,14 @@ def pbc_diff(fcoords1, fcoords2):
     fdist = np.subtract(fcoords1, fcoords2)
     return fdist - np.round(fdist)
 
+#create images, 2d array of all length 3 combinations of [-1,0,1]
+r = np.arange(-1, 2)
+arange = r[:, None] * np.array([1, 0, 0])[None, :]
+brange = r[:, None] * np.array([0, 1, 0])[None, :]
+crange = r[:, None] * np.array([0, 0, 1])[None, :]
+images = arange[:, None, None] + brange[None, :, None] + \
+    crange[None, None, :]
+images = images.reshape((27, 3))
 
 def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
     """
@@ -222,15 +232,6 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
     #ensure that all points are in the unit cell
     fcoords1 = np.mod(fcoords1, 1)
     fcoords2 = np.mod(fcoords2, 1)
-
-    #create images, 2d array of all length 3 combinations of [-1,0,1]
-    r = np.arange(-1, 2)
-    arange = r[:, None] * np.array([1, 0, 0])[None, :]
-    brange = r[:, None] * np.array([0, 1, 0])[None, :]
-    crange = r[:, None] * np.array([0, 0, 1])[None, :]
-    images = arange[:, None, None] + brange[None, :, None] + \
-        crange[None, None, :]
-    images = images.reshape((27, 3))
 
     #create images of f2
     shifted_f2 = fcoords2[:, None, :] + images[None, :, :]
@@ -291,12 +292,16 @@ def in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8):
     return len(find_in_coord_list_pbc(fcoord_list, fcoord, atol=atol)) > 0
 
 
-def is_coord_subset_pbc(subset, superset, atol=1e-8):
+def is_coord_subset_pbc(subset, superset, atol=1e-8, mask=None):
     """
     Tests if all fractional coords in subset are contained in superset.
 
     Args:
         subset, superset: List of fractional coords
+        atol (float or size 3 array): Tolerance for matching
+        mask (boolean array): Mask of matches that are not allowed.
+            i.e. if mask[1,2] == True, then subset[1] cannot be matched
+            to superset[2]
 
     Returns:
         True if all of subset is in superset.
@@ -305,6 +310,8 @@ def is_coord_subset_pbc(subset, superset, atol=1e-8):
     c2 = np.array(superset)
     dist = c1[:, None, :] - c2[None, :, :]
     dist -= np.round(dist)
+    if mask is not None:
+        dist[np.array(mask)] = np.inf
     is_close = np.all(np.abs(dist) < atol, axis=-1)
     any_close = np.any(is_close, axis=-1)
     return np.all(any_close)

@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -8,6 +10,7 @@ import collections
 
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie, \
     PeriodicTable, get_el_sp
+from pymatgen.core.composition import Composition
 from copy import deepcopy
 
 
@@ -242,6 +245,11 @@ class DummySpecieTestCase(unittest.TestCase):
     def test_sort(self):
         r = sorted([Element('Fe'), DummySpecie("X")])
         self.assertEqual(r, [DummySpecie("X"), Element('Fe')])
+
+    def test_safe_from_composition(self):
+        c = Composition({'Xa': 1, 'Fe': 1})
+        self.assertEqual(DummySpecie.safe_from_composition(c).symbol, 'Xb')
+        self.assertEqual(DummySpecie.safe_from_composition(c, 1).symbol, 'Xb')
 
 
 class PeriodicTableTestCase(unittest.TestCase):

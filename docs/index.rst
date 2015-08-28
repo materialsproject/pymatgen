@@ -178,6 +178,27 @@ or to install the package in developmental mode::
 
     python setup.py develop
 
+"Sample" version - Using Docker
+-------------------------------
+
+If you would like to try out pymatgen's capabilities before committing to an
+install, one way is to use `Docker <http://www.docker.com/>`_. The
+`Materials Virtual Lab`_ has created an Docker image for the latest version of
+pymatgen. After installing Docker for your platform, you may pull and run the
+pymatgen Docker image as follows::
+
+    docker pull materialsvirtuallab/pymatgen
+    docker run -t -i materialsvirtuallab/pymatgen
+
+This will run ipython shell where you can import pymatgen and run most of the
+examples. If you want to use your own files to run some examples, you may
+mount a directory in your host computer containing the files you wish to work
+in the docker container using the -v option. For example, let's say you have
+your files in the /Users/myname/research directory. You may then run docker
+as follows::
+
+    docker run -t -i -v /Users/myname/research:/opt/research materialsvirtuallab/pymatgen
+
 Running unittests
 ~~~~~~~~~~~~~~~~~
 
@@ -342,6 +363,15 @@ API documentation
 For detailed documentation of all modules and classes, please refer to the
 :doc:`API docs </modules>`.
 
+More resources
+--------------
+
+The founder and maintainer of pymatgen, Shyue Ping Ong, has conducted several
+workshops (together with Anubhav Jain) on how to effectively use pymatgen (as
+well as the extremely useful `custodian`_ error management and `FireWorks`_
+workflow software. The slides for these workshops are available on the
+`Materials Virtual Lab`_.
+
 pmg - Command line tool
 -----------------------
 
@@ -409,9 +439,8 @@ Some add-ons are available for pymatgen today:
 
 1. The `pymatgen-db <https://pypi.python.org/pypi/pymatgen-db>`_ add-on
    provides tools to create databases of calculated run data using pymatgen.
-2. The `custodian <https://pypi.python.org/pypi/custodian>`_ pacakge provides
-   a JIT job management and error correction for calculations, particularly
-   VASP calculations.
+2. The `custodian`_ package provides a JIT job management and error
+   correction for calculations.
 
 Contributing
 ============
@@ -474,6 +503,33 @@ follows:
 
 .. literalinclude:: ../LICENSE.rst
 
+About the Pymatgen Development Team
+===================================
+
+Shyue Ping Ong started Pymatgen in 2011, and is still the project lead.
+
+The Pymatgen Development Team is the set of all contributors to the
+pymatgen project, including all subprojects.
+
+Our Copyright Policy
+====================
+
+Pymatgen uses a shared copyright model. Each contributor maintains copyright
+over their contributions to pymatgen. But, it is important to note that these
+contributions are typically only changes to the repositories. Thus, the
+pymatgen source code, in its entirety is not the copyright of any
+single person or institution. Instead, it is the collective copyright of the
+entire pymatgen Development Team. If individual contributors want to maintain a
+record of what changes/contributions they have specific copyright on, they
+should indicate their copyright in the commit message of the change, when
+they commit the change to one of the pymatgen repositories.
+
+With this in mind, the following banner should be used in any source code file
+to indicate the copyright and license terms::
+
+    # Copyright (c) Pymatgen Development Team.
+    # Distributed under the terms of the MIT License.
+
 Indices and tables
 ==================
 
@@ -485,3 +541,6 @@ Indices and tables
 .. _`pymatgen's Google Groups page`: https://groups.google.com/forum/?fromgroups#!forum/pymatgen/
 .. _`PyPI` : http://pypi.python.org/pypi/pymatgen
 .. _`Github page`: https://github.com/materialsproject/pymatgen/issues
+.. _`custodian`: https://pypi.python.org/pypi/custodian
+.. _`FireWorks`: https://pythonhosted.org/FireWorks/
+.. _`Materials Virtual Lab`: http://www.materialsvirtuallab.org
