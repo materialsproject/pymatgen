@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -278,7 +280,7 @@ loop_
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         writer = CifWriter(poscar.structure, symprec=0.001)
-        ans = """#generated using pymatgen
+        ans = """# generated using pymatgen
 data_FePO4
 _symmetry_space_group_name_H-M   Pnma
 _cell_length_a   10.41176687
@@ -325,7 +327,7 @@ loop_
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         writer = CifWriter(poscar.structure, symprec=0.1)
-        ans = """#generated using pymatgen
+        ans = """# generated using pymatgen
 data_FePO4
 _symmetry_space_group_name_H-M   Pnma
 _cell_length_a   10.41176687
@@ -366,7 +368,7 @@ loop_
         for l1, l2 in zip(str(writer).split("\n"), ans.split("\n")):
             self.assertEqual(l1.strip(), l2.strip())
 
-        ans = """#generated using pymatgen
+        ans = """# generated using pymatgen
 data_LiFePO4
 _symmetry_space_group_name_H-M   Pnma
 _cell_length_a   4.74480000
@@ -399,12 +401,12 @@ loop_
  _atom_site_fract_y
  _atom_site_fract_z
  _atom_site_occupancy
-  Li  Li1  4  0.000010  0.999990  0.999990  1.0
-  Fe  Fe2  4  0.025080  0.746540  0.281160  1.0
-  P  P3  4  0.082070  0.248300  0.405560  1.0
-  O  O4  8  0.213450  0.044060  0.334190  1.0
-  O  O5  4  0.208450  0.251100  0.543160  1.0
-  O  O6  4  0.241490  0.750460  0.596220  1.0
+  Li  Li1  4  0.000010  0.500000  0.999990  1.0
+  Fe  Fe2  4  0.025030  0.746540  0.281160  1.0
+  P  P3  4  0.082060  0.248260  0.405570  1.0
+  O  O4  8  0.213420  0.043980  0.334230  1.0
+  O  O5  4  0.208430  0.251100  0.543180  1.0
+  O  O6  4  0.241480  0.750450  0.596220  1.0
 """
         s = Structure.from_file(os.path.join(test_dir, 'LiFePO4.cif'))
         writer = CifWriter(s, symprec=0.1)
@@ -421,7 +423,7 @@ loop_
                                     [0.00, -2.2171384943, 3.1355090603]]))
         struct = Structure(lattice, [si, {si:0.5, n:0.5}], coords)
         writer = CifWriter(struct)
-        ans = """#generated using pymatgen
+        ans = """# generated using pymatgen
 data_Si1.5N0.5
 _symmetry_space_group_name_H-M   'P 1'
 _cell_length_a   3.84019793
@@ -468,7 +470,7 @@ N  N3  1  0.750000  0.500000  0.750000  0.5
                                     [0.00, -2.2171384943, 3.1355090603]]))
         struct = Structure(lattice, [n, {si3:0.5, n:0.5}, si4], coords)
         writer = CifWriter(struct)
-        ans = """#generated using pymatgen
+        ans = """# generated using pymatgen
 data_X1.5Si1.5
 _symmetry_space_group_name_H-M   'P 1'
 _cell_length_a   3.84019793

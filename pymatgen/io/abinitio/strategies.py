@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 """Strategy objects for creating ABINIT calculations."""
 from __future__ import unicode_literals, division, print_function
 

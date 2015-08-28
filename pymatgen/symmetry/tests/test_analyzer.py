@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -57,12 +59,12 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertEqual(self.disordered_sg.get_spacegroup_symbol(),
                          "P4_2/nmc")
         self.assertEqual(self.sg3.get_spacegroup_symbol(), "Pnma")
-        self.assertEqual(self.sg4.get_spacegroup_symbol(), "R-3m")
+        self.assertEqual(self.sg4.get_spacegroup_symbol(), "P6_3/mmc")
 
     def test_get_space_number(self):
         self.assertEqual(self.sg.get_spacegroup_number(), 62)
         self.assertEqual(self.disordered_sg.get_spacegroup_number(), 137)
-        self.assertEqual(self.sg4.get_spacegroup_number(), 166)
+        self.assertEqual(self.sg4.get_spacegroup_number(), 194)
 
     def test_get_hall(self):
         self.assertEqual(self.sg.get_hall(), '-P 2ac 2n')
