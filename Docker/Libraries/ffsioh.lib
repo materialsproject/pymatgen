@@ -1,0 +1,58 @@
+# 
+# FFSiOH force field library
+#
+# A. Pedone, G. Malavasi, M.C. Menziani, U. Segre, F. Musso, M. Corno, B. Civalleri and P. Ugliengo,
+# Chem. Mater., 20, 2522-2531 (2008)
+#
+# Atom types:
+#
+# Si
+# O1 => oxide oxygen
+# O2 => hydroxyl oxygen
+# H
+# 
+keyword molq 
+#
+# Charges
+#
+species   6
+Si     core    2.722600                  
+O1     core    1.919810                  
+O1     shel   -3.281110                  
+O2     core    1.429114                  
+O2     shel   -2.767837                  
+H      core    0.658073                  
+#
+# Potentials
+#
+spring
+O1     256.71027     
+spring
+O2     160.84247     
+buck     
+O1    shel O1    shel  15039.909     0.227708  0.0000000      0.00 15.00 
+buck     
+O1    shel O2    shel  6768.7644     0.245932  0.0000000      0.00 15.00 
+buck     
+O2    shel O2    shel  1688.1482     0.292545  0.0000000      0.00 15.00 
+buck     
+Si    core O1    shel  8166.2632     0.193884  0.0000000      0.00 15.00 
+morse intra bond
+Si    core O2    shel  .04589720 2.6598      2.33921  0.0000  
+morse intra bond
+H     core O2    shel  .00935906 3.2461      1.76617  0.0000  
+morse x12 
+H     core O2    shel  .11097337 1.0230      2.33429  0.0000 &
+  0.000  3.000  
+morse x12 
+H     core O1    shel  .00643903 1.8794      3.17953  0.0000 &
+  0.000  4.000  
+#
+# The hydrogen bond term is available only in GULP3.1 version onwards
+# However, this term has been necessary only for the simulation of the hydrogarnet 
+# defect because of the high interaction of OH groups in the 4-membered rings
+# created by the substitution of 1 Si with 4 H
+#
+hydrogen-bond  12 10  4      
+H     core O2    shel O2    shel    3653.26        0.00000     &
+    0.000    1.000    0.000    2.00    0.000    2.71 

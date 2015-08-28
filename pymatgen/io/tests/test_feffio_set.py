@@ -1,13 +1,15 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
 import unittest
 import os
 
-from pymatgen.io.feffio_set import FeffInputSet
-from pymatgen.io.feffio import FeffPot
-from pymatgen.io.cifio import CifParser
+from pymatgen.io.feff.sets import FeffInputSet
+from pymatgen.io.feff import FeffPot
+from pymatgen.io.cif import CifParser
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')

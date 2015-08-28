@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -51,7 +53,7 @@ class XRDCalculatorTest(PymatgenTest):
         s = self.get_structure("Graphite")
 
         data = c.get_xrd_data(s, two_theta_range=(0, 90))
-        self.assertAlmostEqual(data[0][0], 7.929279053132362)
+        self.assertAlmostEqual(data[0][0], 26.21057350859598)
         self.assertAlmostEqual(data[0][1], 100)
         self.assertAlmostEqual(len(list(data[0][2].keys())[0]), 4)
 
