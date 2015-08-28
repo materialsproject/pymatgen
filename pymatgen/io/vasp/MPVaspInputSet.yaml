@@ -18,6 +18,8 @@ INCAR:
       Ni: 0
       V: 0
       W: 0
+      Ce: 0
+      Eu: 0
     O:
       Co: 0
       Cr: 0
@@ -27,6 +29,8 @@ INCAR:
       Ni: 0
       V: 0
       W: 0
+      Ce: 0
+      Eu: 0
   LDAUL:
     F:
       Co: 2
@@ -37,6 +41,8 @@ INCAR:
       Ni: 2
       V: 2
       W: 2
+      Ce: 3
+      Eu: 3
     O:
       Co: 2
       Cr: 2
@@ -46,6 +52,8 @@ INCAR:
       Ni: 2
       V: 2
       W: 2
+      Ce: 3
+      Eu: 3
   LDAUTYPE: 2
   LDAUU:
     F:
@@ -57,6 +65,8 @@ INCAR:
       Ni: 6.2
       V: 3.25
       W: 6.2
+      Ce: 2.5
+      Eu: 2.5
     O:
       Co: 3.32
       Cr: 3.7
@@ -66,7 +76,9 @@ INCAR:
       Ni: 6.2
       V: 3.25
       W: 6.2
-  LDAUPRINT: 1
+      Ce: 2.5
+      Eu: 2.5
+  LDAUPRINT: 1 
   LORBIT: 11
   LREAL: AUTO
   LWAVE: false
@@ -83,6 +95,8 @@ INCAR:
     Ni: 5
     V: 5
     W: 5
+    Ce: 5
+    Eu: 10
   NELM: 100
   NSW: 99
   PREC: Accurate
