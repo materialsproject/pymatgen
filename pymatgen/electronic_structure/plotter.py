@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals, print_function
 
@@ -491,7 +493,6 @@ class BSPlotter(object):
                     for cbm in data['cbm']:
                         plt.scatter(cbm[0], cbm[1], color='r', marker='o',
                                     s=100)
-
                     for vbm in data['vbm']:
                         plt.scatter(vbm[0], vbm[1], color='g', marker='o',
                                     s=100)	
@@ -500,7 +501,6 @@ class BSPlotter(object):
 	else:
 	    plt.ylim(ylim)
            
-
         plt.tight_layout()
 
         return plt
@@ -698,7 +698,7 @@ class BSPlotterProjected(BSPlotter):
         if len(bs._projections) == 0:
             raise ValueError("try to plot projections"
                              " on a band structure without any")
-        BSPlotter.__init__(self, bs)
+        super(BSPlotterProjected, self).__init__(bs)
 
     def _get_projections_by_branches(self, dictio):
         proj = self._bs.get_projections_on_elts_and_orbitals(dictio)

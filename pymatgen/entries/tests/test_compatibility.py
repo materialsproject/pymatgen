@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -680,6 +682,7 @@ class TestMITAqueousCompatibility(unittest.TestCase):
         ['PAW_PBE Fe 17Jan2003', 'PAW_PBE O 08Apr2002', 'PAW_PBE H 15Jun2001']})
 
         self.assertIsNone(compat.process_entry(lioh_entry))
+
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
