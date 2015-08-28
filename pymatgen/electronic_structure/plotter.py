@@ -498,8 +498,8 @@ class BSPlotter(object):
                                     s=100)	
                 plt.ylim(data['vbm'][0][1] + e_min,
                          data['cbm'][0][1] + e_max)
-	else:
-	    plt.ylim(ylim)
+        else:
+            plt.ylim(ylim)
            
         plt.tight_layout()
 
