@@ -23,6 +23,8 @@ INCAR:
     Ni: 5
     V: 5
     W: 5
+    Ce: 5
+    Eu: 10
   NELM: 100
   NSW: 99
   PREC: Accurate
