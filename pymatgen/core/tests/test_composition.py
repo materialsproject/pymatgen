@@ -173,7 +173,7 @@ class CompositionTest(unittest.TestCase):
                          "Wrong computed atomic fractions")
 
     def test_anonymized_formula(self):
-        expected_formulas = ['A2B3C3D12', 'ABC3D5', 'AB2C4', 'A2B2',
+        expected_formulas = ['A2B3C3D12', 'ABC3D5', 'AB2C4', 'AB',
                              'A2B3C3D12', 'A2B3C6D10E54', 'A0.5B1.5', 'ABC']
         for i in range(len(self.comp)):
             self.assertEqual(self.comp[i].anonymized_formula,

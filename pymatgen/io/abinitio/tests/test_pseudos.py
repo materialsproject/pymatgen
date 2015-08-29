@@ -72,6 +72,7 @@ class PseudoTestCase(PymatgenTest):
         self.assertEqual(pseudo.l_max, 1)
         self.assertEqual(pseudo.l_local, 0)
 
+        assert self.Si_hgh.md5 is not None
         assert self.Si_hgh == self.Si_hgh
 
         # TM pseudos
@@ -116,6 +117,7 @@ class PseudoTestCase(PymatgenTest):
                         oxygen.Z_val == 6,
                        )
 
+        assert oxygen.md5 is not None
         self.assert_almost_equal(oxygen.paw_radius, 1.4146523028)
 
         # Test pickle
@@ -154,7 +156,7 @@ class PseudoTestCase(PymatgenTest):
         self.assertFalse(ger.has_dojo_report)
 
     def test_oncvpsp_dojo_report(self):
-        """Testing the dojo report"""
+        """Testing pseudopotentials with dojo report"""
         plot = True
         try:
             from matplotlib.figure import Figure as Fig
@@ -164,11 +166,17 @@ class PseudoTestCase(PymatgenTest):
 
         h_wdr = Pseudo.from_file(ref_file("H-wdr.oncvpsp"))
 
-        print(repr(h_wdr))
-        print(h_wdr.as_dict())
+        # Test DOJO REPORT and md5
+
         assert h_wdr.symbol == "H" and h_wdr.has_dojo_report
 
-        # Test DOJO REPORT
+        #h_wdr.check_and_fix_dojo_md5()
+        ref_md5 = "0911255f47943a292c3905909f499a84"
+        assert h_wdr.compute_md5() == ref_md5
+        assert "md5" in h_wdr.dojo_report and h_wdr.md5 == ref_md5
+
+        print(repr(h_wdr))
+        print(h_wdr.as_dict())
         report = h_wdr.read_dojo_report()
 
         #print(report)
@@ -185,7 +193,6 @@ class PseudoTestCase(PymatgenTest):
         for trial in report.trials:
             assert report.has_trial(trial)
         assert report.has_trial("deltafactor", ecut=32)
-
 
         # Test deltafactor entry.
         self.assert_almost_equal(report["deltafactor"][32]["etotals"][1], -63.503524424394556)

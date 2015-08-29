@@ -315,7 +315,7 @@ class PeriodicSite(Site, PMGSONable):
         if to_unit_cell:
             self._fcoords = np.mod(self._fcoords, 1)
             c_coords = lattice.get_cartesian_coords(self._fcoords)
-        Site.__init__(self, atoms_n_occu, c_coords, properties)
+        super(PeriodicSite, self).__init__(atoms_n_occu, c_coords, properties)
 
     def __hash__(self):
         """

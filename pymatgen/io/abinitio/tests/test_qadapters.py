@@ -335,6 +335,7 @@ hardware:
 #PBS -q fat
 #PBS -N job_name
 #PBS -l select=3:ncpus=1:vmem=1024mb:mpiprocs=1
+#PBS -l pvmem=1024mb
 #PBS -l walltime=0:0:10
 #PBS -W group_list=naps
 #PBS -o qout_path

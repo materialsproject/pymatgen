@@ -19,7 +19,7 @@ __date__ = "April 7, 2012"
 import argparse
 from collections import OrderedDict
 
-from pymatgen.io.feffio import FeffLdos
+from pymatgen.io.feff import FeffLdos
 from pymatgen.electronic_structure.plotter import DosPlotter
 
 parser = argparse.ArgumentParser(description='''Convenient DOS Plotter for Feff runs.

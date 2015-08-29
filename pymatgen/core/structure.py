@@ -517,6 +517,52 @@ class IStructure(SiteCollection, PMGSONable):
                    site_properties=all_site_properties)
 
     @classmethod
+    def from_xsf_string(cls, input_string):
+        """
+        Initialize a `Structure` object from a string with data in XSF format.
+        See http://www.xcrysden.org/doc/XSF.html
+        """
+        # CRYSTAL                                        see (1)
+        # these are primitive lattice vectors (in Angstroms) 
+        # PRIMVEC
+        #    0.0000000    2.7100000    2.7100000         see (2)
+        #    2.7100000    0.0000000    2.7100000
+        #    2.7100000    2.7100000    0.0000000
+
+        # these are conventional lattice vectors (in Angstroms)
+        # CONVVEC
+        #    5.4200000    0.0000000    0.0000000         see (3)
+        #    0.0000000    5.4200000    0.0000000
+        #    0.0000000    0.0000000    5.4200000
+
+        # these are atomic coordinates in a primitive unit cell  (in Angstroms)
+        # PRIMCOORD
+        # 2 1                                            see (4)
+        # 16      0.0000000     0.0000000     0.0000000  see (5)
+        # 30      1.3550000    -1.3550000    -1.3550000
+
+        lattice, coords, species = [], [], []
+        lines = input_string.splitlines()
+
+        for i in range(len(lines)):
+            if "PRIMVEC" in lines[i]:
+                for j in range(i+1, i+4):
+                    lattice.append([float(c) for c in lines[j].split()])
+
+            if "PRIMCOORD" in lines[i]:
+                num_sites = int(lines[i+1].split()[0])
+     
+                for j in range(i+2, i+2+num_sites):
+                    tokens = lines[j].split()
+                    species.append(int(tokens[0]))
+                    coords.append([float(j) for j in tokens[1:]])
+                break
+        else:
+            raise ValueError("Invalid XSF data")
+
+        return cls(lattice, species, coords, coords_are_cartesian=True)
+
+    @classmethod
     def from_abivars(cls, *args, **kwargs):
         """Build a :class:`Structure` object from a dictionary with ABINIT variables."""
         kwargs.update(dict(*args))
@@ -1251,6 +1297,32 @@ class IStructure(SiteCollection, PMGSONable):
 
         return d
 
+    def to_xsf_string(self):
+        """
+        Returns a string with the structure in XSF format
+        See http://www.xcrysden.org/doc/XSF.html
+        """
+        lines = []
+        app = lines.append
+
+        app("CRYSTAL")
+        app("# Primitive lattice vectors in Angstrom")
+        app("PRIMVEC")
+        cell = self.lattice_vectors(space="r") 
+        for i in range(3):
+            app(' %.14f %.14f %.14f' % tuple(cell[i]))
+
+        cart_coords = self.cart_coords  
+        app("# Cartesian coordinates in Angstrom.")
+        app("PRIMCOORD")
+        app(" %d 1" % len(cart_coords))
+
+        for a in range(len(cart_coords)):
+            sp = "%d" % self.atomic_numbers[a]
+            app(sp + ' %20.14f %20.14f %20.14f' % tuple(cart_coords[a]))
+
+        return "\n".join(lines)
+
     def dot(self, coords_a, coords_b, space="r", frac_coords=False):
         """
         Compute the scalar product of vector(s) either in real space or
@@ -1301,9 +1373,9 @@ class IStructure(SiteCollection, PMGSONable):
         Returns:
             (str) if filename is None. None otherwise.
         """
-        from pymatgen.io.cifio import CifWriter
-        from pymatgen.io.vaspio import Poscar
-        from pymatgen.io.cssrio import Cssr
+        from pymatgen.io.cif import CifWriter
+        from pymatgen.io.vasp import Poscar
+        from pymatgen.io.cssr import Cssr
         filename = filename or ""
         fmt = "" if fmt is None else fmt.lower()
         fname = os.path.basename(filename)
@@ -1323,6 +1395,14 @@ class IStructure(SiteCollection, PMGSONable):
                 return
             else:
                 return s
+        elif fmt == "xsf" or fnmatch(fname.lower(), "*.xsf*"):
+            if filename:
+                with zopen(fname, "wt", encoding='utf8') as f:
+                    s = self.to_xsf_string()
+                    f.write(s)
+                    return s
+            else:
+                return self.to_xsf_string()
         else:
             if filename:
                 with open(filename, "w") as f:
@@ -1348,9 +1428,9 @@ class IStructure(SiteCollection, PMGSONable):
         Returns:
             IStructure / Structure
         """
-        from pymatgen.io.cifio import CifParser
-        from pymatgen.io.vaspio import Poscar
-        from pymatgen.io.cssrio import Cssr
+        from pymatgen.io.cif import CifParser
+        from pymatgen.io.vasp import Poscar
+        from pymatgen.io.cssr import Cssr
         fmt = fmt.lower()
         if fmt == "cif":
             parser = CifParser.from_string(input_string)
@@ -1366,8 +1446,10 @@ class IStructure(SiteCollection, PMGSONable):
         elif fmt == "yaml":
             d = yaml.load(input_string)
             s = cls.from_dict(d)
+        elif fmt == "xsf":
+            s = cls.from_xsf_string(input_string)
         else:
-            raise ValueError("Unrecognized format!")
+            raise ValueError("Unrecognized format `%s`!" % fmt)
 
         if sort:
             s = s.get_sorted_structure()
@@ -1384,8 +1466,7 @@ class IStructure(SiteCollection, PMGSONable):
         Args:
             filename (str): The filename to read from.
             primitive (bool): Whether to convert to a primitive cell
-                Only available for cifs, POSCAR, CSSR, JSON, YAML
-                Defaults to True.
+                Only available for cifs. Defaults to True.
             sort (bool): Whether to sort sites. Default to False.
 
         Returns:
@@ -1399,7 +1480,7 @@ class IStructure(SiteCollection, PMGSONable):
                 s = s.get_sorted_structure()
             return s
 
-        from pymatgen.io.vaspio import Vasprun, Chgcar
+        from pymatgen.io.vasp import Vasprun, Chgcar
         from monty.io import zopen
         fname = os.path.basename(filename)
         with zopen(filename) as f:
@@ -1423,6 +1504,9 @@ class IStructure(SiteCollection, PMGSONable):
                                 primitive=primitive, sort=sort)
         elif fnmatch(fname, "*.yaml*"):
             return cls.from_str(contents, fmt="yaml",
+                                primitive=primitive, sort=sort)
+        elif fnmatch(fname, "*.xsf"):
+            return cls.from_str(contents, fmt="xsf",
                                 primitive=primitive, sort=sort)
         else:
             raise ValueError("Unrecognized file extension!")
@@ -1876,9 +1960,9 @@ class IMolecule(SiteCollection, PMGSONable):
         Returns:
             (str) if filename is None. None otherwise.
         """
-        from pymatgen.io.xyzio import XYZ
-        from pymatgen.io.gaussianio import GaussianInput
-        from pymatgen.io.babelio import BabelMolAdaptor
+        from pymatgen.io.xyz import XYZ
+        from pymatgen.io.gaussian import GaussianInput
+        from pymatgen.io.babel import BabelMolAdaptor
 
         fmt = "" if fmt is None else fmt.lower()
         fname = os.path.basename(filename or "")
@@ -1900,6 +1984,7 @@ class IMolecule(SiteCollection, PMGSONable):
                     return yaml.dump(self.as_dict(), f, Dumper=Dumper)
             else:
                 return yaml.dump(self.as_dict(), Dumper=Dumper)
+
         else:
             m = re.search("\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
                           fname.lower())
@@ -1929,8 +2014,8 @@ class IMolecule(SiteCollection, PMGSONable):
         Returns:
             IMolecule or Molecule.
         """
-        from pymatgen.io.xyzio import XYZ
-        from pymatgen.io.gaussianio import GaussianInput
+        from pymatgen.io.xyz import XYZ
+        from pymatgen.io.gaussian import GaussianInput
         if fmt.lower() == "xyz":
             m = XYZ.from_string(input_string).molecule
         elif fmt in ["gjf", "g03", "g09", "com", "inp"]:
@@ -1942,7 +2027,7 @@ class IMolecule(SiteCollection, PMGSONable):
             d = yaml.load(input_string, Loader=Loader)
             return cls.from_dict(d)
         else:
-            from pymatgen.io.babelio import BabelMolAdaptor
+            from pymatgen.io.babel import BabelMolAdaptor
             m = BabelMolAdaptor.from_string(input_string,
                                             file_format=fmt).pymatgen_mol
         return cls.from_sites(m)
@@ -1962,7 +2047,7 @@ class IMolecule(SiteCollection, PMGSONable):
         Returns:
             Molecule
         """
-        from pymatgen.io.gaussianio import GaussianOutput
+        from pymatgen.io.gaussian import GaussianOutput
         with zopen(filename) as f:
             contents = f.read()
         fname = filename.lower()
@@ -1979,7 +2064,7 @@ class IMolecule(SiteCollection, PMGSONable):
         elif fnmatch(fname, "*.yaml*"):
             return cls.from_str(contents, fmt="yaml")
         else:
-            from pymatgen.io.babelio import BabelMolAdaptor
+            from pymatgen.io.babel import BabelMolAdaptor
             m = re.search("\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
                           filename.lower())
             if m:
@@ -2028,8 +2113,7 @@ class Structure(IStructure, collections.MutableSequence):
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
         """
-        IStructure.__init__(
-            self, lattice, species, coords,
+        super(Structure, self).__init__(lattice, species, coords,
             validate_proximity=validate_proximity, to_unit_cell=to_unit_cell,
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties)
@@ -2529,8 +2613,7 @@ class Molecule(IMolecule, collections.MutableSequence):
                 sequences have to be the same length as the atomic species
                 and fractional_coords. Defaults to None for no properties.
         """
-        IMolecule.__init__(
-            self, species, coords, charge=charge,
+        super(Molecule, self).__init__(species, coords, charge=charge,
             spin_multiplicity=spin_multiplicity,
             validate_proximity=validate_proximity,
             site_properties=site_properties)

@@ -668,7 +668,6 @@ class Flow(Node, NodeContainer, PMGSONable):
         lines = []
         app = lines.append
 
-        task2vars = {}
         for task in self.iflat_tasks():
             app(str(task))
             for name in varnames:
@@ -695,6 +694,10 @@ class Flow(Node, NodeContainer, PMGSONable):
         Raises:
             `RuntimeError` if executable is not in $PATH.
         """
+        if not self.allocated:
+            self.build()
+            #self.build_and_pickle_dump()
+
         isok, tuples = True, []
         for task in self.iflat_tasks():
             t = task.input.abivalidate()
@@ -904,7 +907,7 @@ class Flow(Node, NodeContainer, PMGSONable):
                     events = '{:>3}|{:>4}|{:>3}'.format(*map(str, (report.num_errors, report.num_warnings, report.num_comments)))
 
                 #para_info = "|".join(map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
-                para_info  = '{:>4}|{:>3}|{:>3}'.format(*map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
+                para_info = '{:>4}|{:>3}|{:>3}'.format(*map(str, (task.mpi_procs, task.omp_threads, "%.1f" % task.mem_per_proc.to("Gb"))))
 
                 task_info = list(map(str, [task.__class__.__name__, 
                                  (task.num_restarts, task.num_launches, task.num_corrections), stime, task.node_id]))
@@ -958,8 +961,8 @@ class Flow(Node, NodeContainer, PMGSONable):
     
     def listext(self, ext, stream=sys.stdout):
         """
-        Print to the given stream a table with the list of the output files 
-        with the given ext produced by the flow.
+        Print to the given `stream` a table with the list of the output files
+        with the given `ext` produced by the flow.
         """
         nodes_files = []
         for node in self.iflat_nodes():
@@ -1170,6 +1173,26 @@ class Flow(Node, NodeContainer, PMGSONable):
 
         return Editor(editor=editor).edit_files(files)
 
+    def get_abitimer(self, nids=None):
+        """
+        Parse the timer data in the main output file(s) of Abinit.
+
+        Args:
+            nids: optional list of node identifiers used to filter the tasks.
+
+        Return: :class:`AbinitTimerParser` instance, None if error.
+        """
+        # Get the list of output files according to nids.
+        paths = [task.output_file.path for task in self.iflat_tasks(nids=nids)]
+
+        # Parse data.
+        from .abitimer import AbinitTimerParser
+        parser = AbinitTimerParser() 
+        read_ok = parser.parse(paths)
+        if read_ok:
+            return parser
+        return None
+
     def show_abierrors(self, nids=None, stream=sys.stdout):
         """
         Write to the given stream the list of ABINIT errors for all tasks whose status is S_ABICRITICAL.
@@ -1186,16 +1209,21 @@ class Flow(Node, NodeContainer, PMGSONable):
             app(header)
             report = task.get_event_report()
 
-            app("num_errors: %s, num_warnings: %s, num_comments: %s" % (
-            report.num_errors, report.num_warnings, report.num_comments))
+            if report is not None:
+                app("num_errors: %s, num_warnings: %s, num_comments: %s" % (
+                    report.num_errors, report.num_warnings, report.num_comments))
 
-            app("*** ERRORS ***")
-            app("\n".join(str(e) for e in report.errors))
+                app("*** ERRORS ***")
+                app("\n".join(str(e) for e in report.errors))
 
-            app("*** BUGS ***")
-            app("\n".join(str(b) for b in report.bugs))
+                app("*** BUGS ***")
+                app("\n".join(str(b) for b in report.bugs))
 
-            lines.append("=" * len(header) + 2*"\n")
+            else:
+                app("get_envent_report returned None!")
+
+
+            app("=" * len(header) + 2*"\n")
 
         return stream.writelines(lines)
 
@@ -1237,7 +1265,8 @@ class Flow(Node, NodeContainer, PMGSONable):
 
         # If we are running with the scheduler, we must send a SIGKILL signal.
         if os.path.exists(self.pid_file):
-            print("Found scheduler attached to this flow. Will send SIGKILL to the scheduler before cancelling the tasks!")
+            print("Found scheduler attached to this flow.")
+            print("Will send SIGKILL to the scheduler before cancelling the tasks!")
             
             with open(self.pid_file, "r") as fh:
                 pid = int(fh.readline())
@@ -1500,7 +1529,7 @@ class Flow(Node, NodeContainer, PMGSONable):
                 # Change the input so that output files are produced 
                 # only if the calculation is not converged.
                 task.history.info("Will disable IO for task")
-                task._set_inpvars(prtwf=-1, prtden=0) # prt1wf=-1, 
+                task._set_inpvars(prtwf=-1, prtden=0) # TODO: prt1wf=-1, 
             else:
                 must_produce_abiexts = []
                 for child in children:
@@ -1573,7 +1602,11 @@ class Flow(Node, NodeContainer, PMGSONable):
         This method is called when the flow is completed.
         Return 0 if success
         """
-        if self.finalized: return 1
+        if self.finalized: 
+            self.history.warning("Calling finalize on an alrady finalized flow.")
+            return 1
+
+        self.history.warning("Calling flow.finalize.")
         self.finalized = False
 
         if self.has_db:
@@ -1608,7 +1641,7 @@ class Flow(Node, NodeContainer, PMGSONable):
                 might not be aware of its children when it reached S_OK.
         """
         assert policy in ("task", "flow")
-        exts = list_strings(exts) if exts is not None else ("WFK", "SUS", "SCR")
+        exts = list_strings(exts) if exts is not None else ("WFK", "SUS", "SCR", "BSR", "BSC")
 
         gc = GarbageCollector(exts=set(exts), policy=policy)
 
