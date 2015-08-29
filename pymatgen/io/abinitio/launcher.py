@@ -16,6 +16,7 @@ from monty.os.path import which
 from monty.collections import AttrDict, dict2namedtuple
 from .utils import as_bool, File, Directory
 from . import qutils as qu
+from pymatgen.util.io_utils import ask_yesno
 
 try:
     import apscheduler
@@ -37,22 +38,6 @@ def straceback():
     """Returns a string with the traceback."""
     import traceback
     return traceback.format_exc()
-
-
-def ask_yesno(prompt, default=True):
-    import six
-    # Fix python 2.x.
-    if six.PY2:
-        my_input = raw_input
-    else:
-        my_input = input
-
-    try:
-        answer = my_input(prompt)
-        return answer.lower().strip() in ["y", "yes"]
-    except EOFError:
-        return default
-
 
 class ScriptEditor(object):
     """Simple editor that simplifies the writing of shell scripts"""
@@ -301,6 +286,8 @@ class PyFlowScheduler(object):
                 file before launching the jobs. Default: False
             max_nlaunches: Maximum number of tasks launched by radpifire (default -1 i.e. no limit)
             fix_qcritical: True if the launcher should try to fix QCritical Errors (default: True)
+            rmflow: If set to True, the scheduler will remove the flow directory if the calculation
+                completed successfully. Default: False
         """
         # Options passed to the scheduler.
         self.sched_options = AttrDict(
@@ -330,6 +317,7 @@ class PyFlowScheduler(object):
         self.max_nlaunches = kwargs.pop("max_nlaunches", -1)
         self.debug = kwargs.pop("debug", 0)
         self.fix_qcritical = kwargs.pop("fix_qcritical", True)
+        self.rmflow = kwargs.pop("rmflow", False)
 
         self.customer_service_dir = kwargs.pop("customer_service_dir", None)
         if self.customer_service_dir is not None:
@@ -604,10 +592,10 @@ class PyFlowScheduler(object):
         # fix only prepares for restarting, and sets to ready
         if self.fix_qcritical:
             nfixed = flow.fix_queue_critical()
-            if nfixed: print("Fixed %d QCritical errors" % nfixed)
+            if nfixed: print("Fixed %d QCritical error(s)" % nfixed)
 
         nfixed = flow.fix_abicritical()
-        if nfixed: print("Fixed %d AbiCritical errors" % nfixed)
+        if nfixed: print("Fixed %d AbiCritical error(s)" % nfixed)
 
         # update database
         flow.pickle_dump()
@@ -623,6 +611,8 @@ class PyFlowScheduler(object):
         except Exception:
             excs.append(straceback())
 
+        # check status.
+        #flow.check_status(show=True)
         flow.show_status()
 
         if excs:
@@ -637,6 +627,15 @@ class PyFlowScheduler(object):
             # All exceptions raised here will trigger the shutdown!
             s = straceback()
             self.exceptions.append(s)
+
+            # This is useful when debugging 
+            #try:
+            #    print("Exception in callback, will cancel all tasks")
+            #    for task in self.flow.iflat_tasks():
+            #        task.cancel()
+            #except Exception:
+            #    pass
+
             self.shutdown(msg="Exception raised in callback!\n" + s)
 
     def _callback(self):
@@ -653,7 +652,7 @@ class PyFlowScheduler(object):
             return self.shutdown(msg="All tasks have reached S_OK. Will shutdown the scheduler and exit")
 
         # Handle failures.
-        err_msg = ""
+        err_lines = []
 
         # Shall we send a reminder to the user?
         delta_etime = self.get_delta_etime()
@@ -668,16 +667,16 @@ class PyFlowScheduler(object):
                 # Cannot send mail, shutdown now!
                 msg += ("\nThe scheduler tried to send an e-mail to remind the user\n" +
                         " but send_email returned %d. Aborting now" % retcode)
-                err_msg += msg
+                err_lines.append(msg)
 
         #if delta_etime.total_seconds() > self.max_etime_s:
-        #    err_msg += "\nExceeded max_etime_s %s. Will shutdown the scheduler and exit" % self.max_etime_s
+        #    err_lines.append("\nExceeded max_etime_s %s. Will shutdown the scheduler and exit" % self.max_etime_s)
 
         # Too many exceptions. Shutdown the scheduler.
         if self.num_excs > self.max_num_pyexcs:
             msg = "Number of exceptions %s > %s. Will shutdown the scheduler and exit" % (
                 self.num_excs, self.max_num_pyexcs)
-            err_msg += boxed(msg)
+            err_lines.append(boxed(msg))
 
         # Paranoid check: disable the scheduler if we have submitted
         # too many jobs (it might be due to some bug or other external reasons 
@@ -685,13 +684,13 @@ class PyFlowScheduler(object):
         if self.nlaunch > self.safety_ratio * self.flow.num_tasks:
             msg = "Too many jobs launched %d. Total number of tasks = %s, Will shutdown the scheduler and exit" % (
                 self.nlaunch, self.flow.num_tasks)
-            err_msg += boxed(msg)
+            err_lines.append(boxed(msg))
 
         # Count the number of tasks with status == S_ERROR.
         if self.flow.num_errored_tasks > self.max_num_abierrs:
             msg = "Number of tasks with ERROR status %s > %s. Will shutdown the scheduler and exit" % (
                 self.flow.num_errored_tasks, self.max_num_abierrs)
-            err_msg += boxed(msg)
+            err_lines.append(boxed(msg))
 
         # Test on the presence of deadlocks.
         #"""
@@ -703,19 +702,19 @@ class PyFlowScheduler(object):
             g = self.flow.find_deadlocks()
             print("deadlocked:\n", g.deadlocked, "\nrunnables:\n", g.runnables, "\nrunning\n", g.running)
             if g.deadlocked and not g.runnables and not g.running:
-                err_msg += "No runnable job with deadlocked tasks:\n%s." % str(g.deadlocked)
+                err_lines.append("No runnable job with deadlocked tasks:\n%s." % str(g.deadlocked))
 
         if not g.runnables and not g.running:
             # Check the flow again to that status are updated. 
             self.flow.check_status()
             g = self.flow.find_deadlocks()
             if not g.runnables and not g.running:
-                err_msg += "No task is running and cannot find other tasks to submit."
+                err_lines.append("No task is running and cannot find other tasks to submit.")
         #"""
 
-        if err_msg:
+        if err_lines:
             # Something wrong. Quit
-            self.shutdown(err_msg)
+            self.shutdown("\n".join(err_lines))
 
         return len(self.exceptions)
 
@@ -751,25 +750,40 @@ class PyFlowScheduler(object):
                     fh.writelines(self.exceptions)
                     fh.write("Shutdown message:\n%s" % msg)
 
+                # Cancel all jobs.
+                #try:
+                #   for task in self.flow.iflat_tasks()
+                #       task.cancel()
+                #except:
+                #   pass
+
             lines = []
             app = lines.append
             app("Submitted on %s" % time.ctime(self.start_time))
             app("Completed on %s" % time.asctime())
             app("Elapsed time %s" % str(self.get_delta_etime()))
+
             if self.flow.all_ok:
                 app("Flow completed successfully")
             else:
-                app("Flow didn't complete successfully")
+                app("Flow %s didn't complete successfully" % repr(self.flow.workdir))
                 app("Shutdown message:\n%s" % msg)
 
             print("")
             print("\n".join(lines))
+            print("")
 
             self._do_customer_service()
 
             if self.flow.all_ok:
                 print("Calling flow.finalize()")
                 self.flow.finalize()
+                if self.rmflow:
+                    app("Flow directory will be removed...")
+                    try:
+                        self.flow.rmtree()
+                    except Exception:
+                        logger.warning("Ignoring exception while trying to remove flow dir.")
 
         finally:
             # Shutdown the scheduler thus allowing the process to exit.
@@ -824,6 +838,7 @@ class PyFlowScheduler(object):
             tag = " [ALL OK]" if self.flow.all_ok else " [WARNING]"
 
         return sendmail(subject=self.flow.name + tag, text=strio.getvalue(), mailto=self.mailto)
+
 
 def sendmail(subject, text, mailto, sender=None):
     """

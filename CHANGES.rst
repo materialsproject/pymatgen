@@ -1,6 +1,60 @@
 Change log
 ==========
 
+v3.1.6
+------
+* Rudimentary PWSCF output reading.
+* Fix ASE support.
+* Support for WAVEDERF and reading multiple dielectricfunctions in vasprun.xml. 
+  (Miguel Dias Costa)
+
+v3.1.5
+------
+* Move vasp.vasp*put to vasp.*puts. Also, maintain backwards compatibility with 
+  vaspio.vasp_*put
+
+v3.1.4
+------
+* Fix missing yaml files that have been moved.
+
+v3.1.3
+------
+* Major refactoring of pymatgen.io. Now, the io suffix is dropped from all io
+  classes. i.e., it is just pymatgen.io.vasp, not pymatgen.io.vaspio. Also, all
+  input sets have been moved within the relevant package, e.g.,
+  pymatgen.io.vasp.sets. All changes are backwards compatible for now. But
+  deprecation messages have been included which states that the stubs will be
+  removed in pymatgen 4.0. Pls migrate code when you see the deprecation
+  messages.
+* Make Composition.anonymized_formula truly chemistry independent (No A2B2
+  for peroxides or A2 for diatomic gasses) 
+* Allowing CIF data_* header to be prefixed with spaces and tabulations.
+
+v3.1.2
+------
+* HHI Resource Analysis (by Anubhav Jain).
+* Bug fixes for surfaces normalizatino.
+* Bug fix for Vasprun parsing of response function keys.
+* Dockerfile for generation of an image for pymatgen.
+* Updated requirements.txt for latest requests, scipy, numpy.
+
+v3.1.1
+------
+* Bug fixes for SpacegroupAnalyzer and SlabGenerator.
+* Much faster normal vec search.
+
+v3.1.0
+------
+* Much improved surface generation algorithm that provides for
+  orthogonality constraints.
+* Transition state analysis tools! (beta)
+* Massive improvements in Outcar parsing which provides a powerful grepping
+  syntax.
+* PWSCFInput generation (beta).
+* Reduce default SIGMA to 0.05 for MP input sets.
+* Update spglib to 1.7.3 as per recommendation of Togo.
+* Many bug fixes and efficiency improvements.
+
 v3.0.13
 -------
 

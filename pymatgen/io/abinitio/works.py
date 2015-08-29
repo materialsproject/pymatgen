@@ -209,19 +209,18 @@ class BaseWork(six.with_metaclass(abc.ABCMeta, Node)):
         if self.all_ok: 
             if self.finalized:
                 return AttrDict(returncode=0, message="Work has been already finalized")
-
             else:
                 # Set finalized here, because on_all_ok might change it (e.g. Relax + EOS in a single work)
-                self._finalized = True
+                self.finalized = True
                 try:
                     results = AttrDict(**self.on_all_ok())
-                except:
+                except Exception as exc:
+                    self.history.critical("on_all_ok raises %s" % str(exc))
                     self.finalized = False
                     raise
 
                 # Signal to possible observers that the `Work` reached S_OK
                 self.history.info("Work %s is finalized and broadcasts signal S_OK" % str(self))
-                #logger.info("Work %s status = %s" % (str(self), self.status))
 
                 if self._finalized:
                     self.send_signal(self.S_OK)

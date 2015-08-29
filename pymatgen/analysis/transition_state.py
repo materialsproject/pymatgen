@@ -17,19 +17,14 @@ __maintainer__ = 'Shyue Ping Ong'
 __email__ = 'ongsp@ucsd.edu'
 __date__ = '6/1/15'
 
-from pymatgen.io.vaspio import Poscar, Outcar
-import numpy as np
 import os
 import glob
+
+import numpy as np
+from scipy.interpolate import PiecewisePolynomial
+
 from pymatgen.util.plotting_utils import get_publication_quality_plot
-
-
-def is_int(s):
-    try:
-        int(s)
-        return True
-    except ValueError:
-        return False
+from pymatgen.io.vasp import Poscar, Outcar
 
 
 class NEBAnalysis(object):
@@ -37,7 +32,7 @@ class NEBAnalysis(object):
     An NEBAnalysis class.
     """
 
-    def __init__(self, outcars, structures):
+    def __init__(self, outcars, structures, interpolation_order=3):
         """
         Initializes an NEBAnalysis from Outcar and Structure objects. Use
         the static constructors, e.g., :class:`from_dir` instead if you
@@ -49,6 +44,9 @@ class NEBAnalysis(object):
                 to be ordered from start to end along reaction coordinates.
             structures ([Structure]): List of Structures along reaction
                 coordinate. Must be same length as outcar.
+            interpolation_order (int): Order of polynomial to use to
+                interpolate between images. Same format as order parameter in
+                scipy.interplotate.PiecewisePolynomial.
         """
         if len(outcars) != len(structures):
             raise ValueError("# of Outcars must be same as # of Structures")
@@ -80,26 +78,14 @@ class NEBAnalysis(object):
         self.r = np.array(r)
         self.energies = energies
         self.forces = forces
-        self._fit_splines()
 
-    def _fit_splines(self):
-        # Internal spline fitting procedure based on boundary conditions of
-        # tangent force and energies.
-        spline_params = {}
-        for i in range(0, len(self.r) - 1):
-            dr = self.r[i + 1] - self.r[i]
-            f1 = self.forces[i] * dr
-            f2 = self.forces[i + 1] * dr
-            u1 = self.energies[i]
-            u2 = self.energies[i + 1]
-            fs = f1 + f2
-            ud = u2 - u1
-            d = u1
-            c = -f1
-            b = 3 * ud + f1 + fs
-            a = -2 * ud - fs
-            spline_params[i] = a, b, c, d
-        self.spline_params = spline_params
+        # We do a piecewise interpolation between the points. Each spline (
+        # cubic by default) is constrained by the boundary conditions of the
+        # energies and the tangent force, i.e., the derivative of
+        # the energy at each pair of points.
+        self.spline = PiecewisePolynomial(
+            self.r, np.array([self.energies, -self.forces]).T,
+            orders=interpolation_order)
 
     def get_extrema(self, normalize_rxn_coordinate=True):
         """
@@ -114,15 +100,10 @@ class NEBAnalysis(object):
             (min_extrema, max_extrema), where the extrema are given as
             [(x1, y1), (x2, y2), ...].
         """
-        x = []
-        y = []
+        x = np.arange(0, np.max(self.r), 0.01)
+        y = self.spline(x) * 1000
+
         scale = 1 if not normalize_rxn_coordinate else 1 / self.r[-1]
-        for i in range(0, len(self.r) - 1):
-            dr = self.r[i + 1] - self.r[i]
-            a, b, c, d = self.spline_params[i]
-            f = np.arange(0, 1.0, 0.01)
-            x.extend(self.r[i] + f * dr)
-            y.extend(a * f ** 3 + b * f ** 2 + c * f + d)
         min_extrema = []
         max_extrema = []
         for i in range(1, len(x) - 1):
@@ -147,29 +128,21 @@ class NEBAnalysis(object):
         """
         plt = get_publication_quality_plot(12, 8)
         scale = 1 if not normalize_rxn_coordinate else 1 / self.r[-1]
-        all_x = []
-        all_y = []
-        for i in range(0, len(self.r) - 1):
-            dr = self.r[i + 1] - self.r[i]
-            a, b, c, d = self.spline_params[i]
-            f = np.arange(0, 1.01, 0.01)
-            x = self.r[i] + f * dr
-            y = (a * f ** 3 + b * f ** 2 + c * f + d) * 1000
-            all_x.extend(x * scale)
-            all_y.extend(y)
-            plt.plot(x * scale, y, 'k-', linewidth=2)
-
-        plt.plot(self.r * scale, self.energies * 1000, 'ro', markersize=10)
+        x = np.arange(0, np.max(self.r), 0.01)
+        y = self.spline(x) * 1000
+        plt.plot(self.r * scale, self.energies * 1000, 'ro',
+                 x * scale, y, 'k-', linewidth=2, markersize=10)
         plt.xlabel("Reaction coordinate")
         plt.ylabel("Energy (meV)")
-        plt.ylim((np.min(all_y) - 10, np.max(all_y) * 1.02 + 20))
+        plt.ylim((np.min(y) - 10, np.max(y) * 1.02 + 20))
         if label_barrier:
-            data = zip(all_x, all_y)
+            data = zip(x * scale, y)
             barrier = max(data, key=lambda d: d[1])
             plt.plot([0, barrier[0]], [barrier[1], barrier[1]], 'k--')
             plt.annotate('%.0f meV' % barrier[1],
                          xy=(barrier[0] / 2, barrier[1] * 1.02),
-                         xytext=(barrier[0] / 2, barrier[1] * 1.02))
+                         xytext=(barrier[0] / 2, barrier[1] * 1.02),
+                         horizontalalignment='center')
         plt.tight_layout()
         return plt
 
@@ -211,9 +184,10 @@ class NEBAnalysis(object):
             NEBAnalysis object.
         """
         neb_dirs = []
+
         for d in os.listdir(root_dir):
             pth = os.path.join(root_dir, d)
-            if os.path.isdir(pth) and is_int(d):
+            if os.path.isdir(pth) and d.isdigit():
                 i = int(d)
                 neb_dirs.append((i, pth))
         neb_dirs = sorted(neb_dirs, key=lambda d: d[0])

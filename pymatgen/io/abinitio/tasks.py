@@ -16,7 +16,7 @@ import numpy as np
 from pprint import pprint
 from six.moves import map, zip, StringIO
 from monty.string import is_string, list_strings
-from monty.collections import AttrDict, dict2namedtuple
+from monty.collections import AttrDict
 from monty.functools import lazy_property, return_none_if_raise
 from monty.json import MontyDecoder
 from monty.fnmatch import WildCard
@@ -53,7 +53,6 @@ __all__ = [
 import logging
 logger = logging.getLogger(__name__)
 
-
 # Tools and helper functions.
 
 def straceback():
@@ -61,6 +60,25 @@ def straceback():
     import traceback
     return traceback.format_exc()
 
+def nmltostring(nml):
+    if not isinstance(nml,dict):
+      raise ValueError("nml should be a dict !")
+
+    curstr = ""
+    for key,group in nml.items():
+       namelist = ["&"+key]
+       for k,v in group.items():
+         if isinstance(v,list) or isinstance(v,tuple):
+           namelist.append(k + " = "+",".join(map(str,v))+",")
+         elif isinstance(v,unicode) or isinstance(v,str):
+           namelist.append(k + " = '"+str(v)+"',")
+         else:
+           namelist.append(k + " = "+str(v)+",")
+       namelist.append("/")
+
+       curstr = curstr + "\n".join(namelist)+"\n"
+
+    return curstr
 
 class TaskResults(NodeResults):
 
@@ -71,7 +89,7 @@ class TaskResults(NodeResults):
 
     @classmethod
     def from_node(cls, task):
-        """Initialize an instance from an AbinitTask instance."""
+        """Initialize an instance from an :class:`AbinitTask` instance."""
         new = super(TaskResults, cls).from_node(task)
 
         new.update(
@@ -528,7 +546,11 @@ batch_adapter:
             path = os.path.join(cls.USER_CONFIG_DIR, cls.YAML_FILE)
 
         if not os.path.exists(path):
-            raise RuntimeError("Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, path))
+            raise RuntimeError("Cannot locate %s neither in current directory nor in %s\n"
+                               " !!! PLEASE READ THIS : !!! \n"
+                               "To use abipy to run jobs this file needs be be present\n"
+                               "it provides a description of the cluster/computer you are running on\n"
+                               "Examples are provided in abipy/data/managers." % (cls.YAML_FILE, path))
 
         _USER_CONFIG_TASKMANAGER = cls.from_file(path)
         return _USER_CONFIG_TASKMANAGER 
@@ -551,7 +573,7 @@ batch_adapter:
     @classmethod
     def as_manager(cls, obj):
         """
-        Convert obj into TaskManager instance. Accepts string, filepath, dictionary, TaskManager object.
+        Convert obj into TaskManager instance. Accepts string, filepath, dictionary, `TaskManager` object.
         If obj is None, the manager is initialized from the user config file.
         """
         if isinstance(obj, cls): return obj
@@ -718,7 +740,8 @@ batch_adapter:
         if self.has_omp: self.set_omp_threads(pconf.omp_threads)
                                                                       
         # Set memory per proc.
-        self.set_mem_per_proc(pconf.mem_per_proc)
+        #FIXME: Fixer may have changed the memory per proc and should not be resetted by ParalConf
+        #self.set_mem_per_proc(pconf.mem_per_proc)
         return pconf
 
     def __str__(self):
@@ -789,7 +812,7 @@ batch_adapter:
         Maximum number of cores that can be used.
         This value is mainly used in the autoparal part to get the list of possible configurations.
         """
-        return max(q.max_cores for q in self.qads)
+        return max(q.hint_cores for q in self.qads)
 
     def get_njobs_in_queue(self, username=None):
         """
@@ -893,22 +916,23 @@ batch_adapter:
             self.qadapter.more_mem_per_proc()
         except QueueAdapterError:
             # here we should try to switch to an other qadapter
-            raise ManagerIncreaseError
+            raise ManagerIncreaseError('manager failed to increase mem')
 
-    def increase_ncpu(self):
+    def increase_ncpus(self):
         """
         increase the number of cpus, first ask the current quadapter, if that one raises a QadapterIncreaseError
         switch to the next qadapter. If all fail raise an ManagerIncreaseError
         """
         try:
-            self.qadapter.more_mpi_procs
+            self.qadapter.more_cores()
         except QueueAdapterError:
             # here we should try to switch to an other qadapter
             raise ManagerIncreaseError('manager failed to increase ncpu')
 
     def increase_resources(self):
         try:
-            self.qadapter.more_mpi_procs
+            self.qadapter.more_cores()
+            return
         except QueueAdapterError:
             pass
 
@@ -1425,7 +1449,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             0 on success, 1 if reset failed.
         """
         # Can only reset tasks that are done.
-        if self.status < self.S_DONE: return 1
+        # One should be able to reset 'Submitted' tasks (sometimes, they are not in the queue
+        #   and we want to restart them)
+        if self.status != self.S_SUB and self.status < self.S_DONE: return 1
 
         # Remove output files otherwise the EventParser will think the job is still running
         self.output_file.remove()
@@ -1518,10 +1544,16 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
 
         Args:
             status: Status object or string representation of the status
-            msg: string with human-readable message used in the case of errors (optional)
+            msg: string with human-readable message used in the case of errors.
         """
         # msg = "No message provided" if msg is None else msg
         # lets refuse to accept changes in the status the do not have a message
+        
+        # truncate strig if it's long. msg will be logged in the object and we don't want
+        # to waste memory.
+        if len(msg) > 2000:
+            msg = msg[:2000]
+            msg += "\n... snip ...\n"
 
         # Locked files must be explicitly unlocked 
         if self.status == self.S_LOCKED or status == self.S_LOCKED:
@@ -1616,9 +1648,14 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             err_msg = self.stderr_file.read()
 
         # Analyze the stderr file of the resource manager runtime errors.
-        err_info = None
+        qerr_info = None
         if self.qerr_file.exists:
-            err_info = self.qerr_file.read()
+            qerr_info = self.qerr_file.read()
+
+        # Analyze the stdout file of the resource manager (needed for PBS !)
+        qout_info = None
+        if self.qout_file.exists:
+            qout_info = self.qout_file.read()
 
         # Start to check ABINIT status if the output file has been created.
         if self.output_file.exists:
@@ -1627,6 +1664,9 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
             except Exception as exc:
                 msg = "%s exception while parsing event_report:\n%s" % (self, exc)
                 return self.set_status(self.S_ABICRITICAL, msg=msg)
+
+            if report is None:
+                return self.set_status(self.S_ERROR, msg="got None report!")
 
             if report.run_completed:
                 # Here we  set the correct timing data reported by Abinit
@@ -1657,8 +1697,8 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 return self.set_status(self.S_ABICRITICAL, msg=msg)
 
             # 5)
-            if self.stderr_file.exists and not err_info:
-                if self.qerr_file.exists and not err_msg:
+            if self.stderr_file.exists and not err_msg:
+                if self.qerr_file.exists and not qerr_info:
                     # there is output and no errors
                     # The job still seems to be running
                     return self.set_status(self.S_RUN, msg='there is output and no errors: job still seems to be running')
@@ -1671,7 +1711,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 return self.status
                 
         # 7) Analyze the files of the resource manager and abinit and execution err (mvs)
-        if err_info:
+        if qerr_info or qout_info:
             from pymatgen.io.abinitio.scheduler_error_parsers import get_parser
             scheduler_parser = get_parser(self.manager.qadapter.QTYPE, err_file=self.qerr_file.path,
                                           out_file=self.qout_file.path, run_err_file=self.stderr_file.path)
@@ -1689,13 +1729,15 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
                 # self.history.critical(msg)
                 return self.set_status(self.S_QCRITICAL, msg=msg)
                 # The job is killed or crashed and we know what happened
-            else:
-                if len(err_info) > 0:
-                    #logger.history.debug('found unknown queue error: %s' % str(err_info))
-                    msg = 'found unknown queue error: %s' % str(err_info)
+            elif qerr_info:
+                # if only qout_info, we are not necessarily in QCRITICAL state, since there will always be info in the qout file
+                if len(qerr_info) > 0:
+                    #logger.history.debug('found unknown queue error: %s' % str(qerr_info))
+                    msg = 'found unknown queue error: %s' % str(qerr_info)
                     return self.set_status(self.S_QCRITICAL, msg=msg)
                     # The job is killed or crashed but we don't know what happened
                     # it is set to QCritical, we will attempt to fix it by running on more resources
+
 
         # 8) analizing the err files and abinit output did not identify a problem
         # but if the files are not empty we do have a problem but no way of solving it:
@@ -1720,7 +1762,7 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         #    msg = "Task have been submitted but cannot find the log file or the output file"
         #    return self.set_status(self.S_ERROR, msg)
 
-        return self.set_status(self.S_RUN, msg='final option: notting seems to be wrong, the job must still be running')
+        return self.set_status(self.S_RUN, msg='final option: nothing seems to be wrong, the job must still be running')
 
     def reduce_memory_demand(self):
         """
@@ -2146,7 +2188,6 @@ class Task(six.with_metaclass(abc.ABCMeta, Node)):
         self.start(*args, **kwargs)
         retcode = self.wait()
         return retcode
-
 
 
 class DecreaseDemandsError(Exception):
@@ -2672,6 +2713,19 @@ class AbinitTask(Task):
 
         return 0
 
+    def get_abitimer(self):
+        """
+        Parse the timer data in the main output file of Abinit.
+
+        Return: :class:`AbinitTimerParser` instance, None if error.
+        """
+        from .abitimer import AbinitTimerParser
+        parser = AbinitTimerParser() 
+        read_ok = parser.parse(self.output_file.path)
+        if read_ok:
+            return parser
+        return None
+
 
 class ProduceHist(object):
     """
@@ -3029,7 +3083,7 @@ class DfptTask(AbinitTask):
                 logger.critical("%s reached S_OK but didn't produce a DDB file in %s" % (self, self.outdir))
             return None
 
-        # Open the GSR file.
+        # Open the DDB file.
         from abipy.dfpt.ddb import DdbFile
         try:
             return DdbFile(ddb_path)
@@ -3229,6 +3283,36 @@ class ScrTask(ManyBodyTask):
     #def inspect(self, **kwargs):
     #    """Plot graph showing the number of q-points computed and the wall-time used"""
 
+    @property
+    def scr_path(self):
+        """Absolute path of the SCR file. Empty string if file is not present."""
+        # Lazy property to avoid multiple calls to has_abiext.
+        try:
+            return self._scr_path 
+        except AttributeError:
+            path = self.outdir.has_abiext("SCR.nc")
+            if path: self._scr_path = path
+            return path
+
+    def open_scr(self):
+        """
+        Open the SIGRES file located in the in self.outdir. 
+        Returns SigresFile object, None if file could not be found or file is not readable.
+        """
+        scr_path = self.scr_path
+
+        if not scr_path:
+            logger.critical("%s didn't produce a SCR.nc file in %s" % (self, self.outdir))
+            return None
+
+        # Open the GSR file and add its data to results.out
+        from abipy.electrons.scr import SctFile
+        try:
+            return SctFile(sigres_path)
+        except Exception as exc:
+            logger.critical("Exception while reading SCR file at %s:\n%s" % (scr_path, str(exc)))
+            return None
+
 
 class SigmaTask(ManyBodyTask):
     """
@@ -3283,7 +3367,7 @@ class SigmaTask(ManyBodyTask):
             logger.critical("%s didn't produce a SIGRES file in %s" % (self, self.outdir))
             return None
 
-        # Open the GSR file and add its data to results.out
+        # Open the SIGRES file and add its data to results.out
         from abipy.electrons.gw import SigresFile
         try:
             return SigresFile(sigres_path)
@@ -3436,7 +3520,6 @@ class BseTask(ManyBodyTask):
 
         return results
 
-
 class OpticTask(Task):
     """
     Task for the computation of optical spectra with optic i.e.
@@ -3518,13 +3601,16 @@ class OpticTask(Task):
     def make_input(self):
         """Construct and write the input file of the calculation."""
         # Set the file paths.
-        files = "\n".join(self.ddk_filepaths + [self.wfk_filepath]) + "\n"
+        all_files ={"ddkfile_"+str(n+1) : ddk for n,ddk in enumerate(self.ddk_filepaths)}
+        all_files.update({"wfkfile" : self.wfk_filepath})
+        files_nml = {"FILES" : all_files}
+        files= nmltostring(files_nml)
 
         # Get the input specified by the user
-        user_inp = str(self.input)
+        user_file = nmltostring(self.input.as_dict())
 
         # Join them.
-        return files + user_inp
+        return files + user_file
 
     def setup(self):
         """Public method called before submitting the task."""
@@ -3542,6 +3628,12 @@ class OpticTask(Task):
         #))
         return results
 
+    def fix_abicritical(self):
+        """
+        Cannot fix abicritical errors for optic
+        """
+        return 0
+
 
 class AnaddbTask(Task):
     """Task for Anaddb runs (post-processing of DFPT calculations)."""
@@ -3551,7 +3643,7 @@ class AnaddbTask(Task):
     def __init__(self, anaddb_input, ddb_node,
                  gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None):
         """
-        Create an instance of :class:`AnaddbTask` from an string containing the input.
+        Create an instance of :class:`AnaddbTask` from a string containing the input.
 
         Args:
             anaddb_input: string with the anaddb variables.
