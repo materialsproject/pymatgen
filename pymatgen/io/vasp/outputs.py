@@ -667,8 +667,9 @@ class Vasprun(PMGSONable):
         # check if we have an hybrid band structure computation
         #for this we look at the presence of the LHFCALC tag
         hybrid_band = False
-        if self.parameters['LHFCALC']:
-            hybrid_band = True
+        if self.parameters.has_key('LHFCALC'):
+            if self.parameters['LHFCALC']:
+                hybrid_band = True
 
         if kpoint_file is not None:
             if kpoint_file.style == "Line_mode":
