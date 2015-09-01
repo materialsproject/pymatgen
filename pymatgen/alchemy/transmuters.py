@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -304,7 +306,7 @@ class CifTransmuter(StandardTransmuter):
             tstruct = TransformedStructure.from_cif_string("\n".join(data), [],
                                                            primitive)
             transformed_structures.append(tstruct)
-        StandardTransmuter.__init__(self, transformed_structures,
+        super(CifTransmuter, self).__init__(transformed_structures,
                                     transformations, extend_collection)
 
     @staticmethod
@@ -346,7 +348,7 @@ class PoscarTransmuter(StandardTransmuter):
     def __init__(self, poscar_string, transformations=None,
                  extend_collection=False):
         tstruct = TransformedStructure.from_poscar_string(poscar_string, [])
-        StandardTransmuter.__init__(self, [tstruct], transformations,
+        super(PoscarTransmuter, self).__init__([tstruct], transformations,
                                     extend_collection=extend_collection)
 
     @staticmethod

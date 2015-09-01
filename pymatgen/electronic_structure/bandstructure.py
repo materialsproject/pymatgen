@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -140,6 +142,8 @@ class BandStructure(object):
             kpoints array. If the band structure is not spin polarized, we
             only store one data set under Spin.up
         lattice: The reciprocal lattice as a pymatgen Lattice object.
+            Pymatgen uses the physics convention of reciprocal lattice vectors
+            WITH a 2*pi coefficient
         label_dict: (dict) of {} this link a kpoint (in frac coords or
             cartesian coordinates depending on the coords).
         coords_are_cartesian: Whether coordinates are cartesian.
@@ -643,6 +647,8 @@ class BandStructureSymmLine(BandStructure, PMGSONable):
             kpoints array. If the band structure is not spin polarized, we
             only store one data set under Spin.up.
         lattice: The reciprocal lattice.
+            Pymatgen uses the physics convention of reciprocal lattice vectors
+            WITH a 2*pi coefficient
         efermi: fermi energy
         label_dict: (dict) of {} this link a kpoint (in frac coords or
             cartesian coordinates depending on the coords).
@@ -666,9 +672,9 @@ class BandStructureSymmLine(BandStructure, PMGSONable):
     def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict,
                  coords_are_cartesian=False, structure=None,
                  projections=None):
-        BandStructure.__init__(self, kpoints, eigenvals, lattice, efermi,
-                               labels_dict, coords_are_cartesian, structure,
-                               projections)
+        super(BandStructureSymmLine, self).__init__(
+            kpoints, eigenvals, lattice, efermi, labels_dict,
+            coords_are_cartesian, structure, projections)
         self._distance = []
         self._branches = []
         one_group = []

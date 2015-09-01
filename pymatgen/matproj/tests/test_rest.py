@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -240,7 +242,7 @@ class MPResterTest(unittest.TestCase):
 
         comps = MPRester.parse_criteria("**O3")["pretty_formula"]["$in"]
         for c in comps:
-            self.assertEqual(len(Composition(c)), 3)
+            self.assertEqual(len(Composition(c)), 3, "Failed in %s" % c)
 
         chemsys = MPRester.parse_criteria("{Fe,Mn}-O")["chemsys"]["$in"]
         self.assertEqual(len(chemsys), 2)
