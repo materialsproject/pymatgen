@@ -234,7 +234,7 @@ class Mrgddb(ExecWrapper):
 
         self.stdin_data = [s for s in inp.getvalue()]
 
-        with open(self.stdin_fname, "w") as fh:
+        with open(self.stdin_fname, "wt") as fh:
             fh.writelines(self.stdin_data)
 
         retcode = self.execute(workdir)
