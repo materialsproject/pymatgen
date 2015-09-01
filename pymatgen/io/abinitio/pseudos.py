@@ -620,12 +620,19 @@ class PawAbinitPseudo(PawPseudo, AbinitPseudo):
     #def orbitals(self):
 
 
-class Hint(namedtuple("Hint", "ecut aug_ratio")):
+#class Hint(namedtuple("Hint", "ecut aug_ratio")):
+class Hint(object):
     """
-    Suggested value for the cutoff energy [Hartree units] and the augmentation ratio (PAW pseudo)
+    Suggested value for the cutoff energy [Hartree units] 
+    and the cutoff energy for the dense grid (only for PAW pseudos)
     """
+    def __init__(self, ecut, pawecutdg=None):
+        self.ecut = ecut
+        self.pawecutdg = ecut if pawecutdg is None else pawecutdg
+        
+    @pmg_serialize
     def as_dict(self):
-        return {f: getattr(self, f) for f in self._fields}
+        return dict(ecut=self.ecut, pawecutdg=self.pawecutdg)
 
     @classmethod
     def from_dict(cls, d):
