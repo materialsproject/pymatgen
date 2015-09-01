@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals, print_function
 
@@ -608,10 +610,6 @@ class Vasprun(PMGSONable):
             file) (it's not possible to run a non-sc band structure with hybrid
             functionals). The explicit KPOINTS file needs to have data on the
             kpoint label as commentary.
-
-        TODO:
-            - make a bit more general for non Symm Line band structures
-            - make a decision on the convention with 2*pi or not.
         """
 
         if not kpoints_filename:
@@ -626,7 +624,7 @@ class Vasprun(PMGSONable):
         kpoint_file = None
         if os.path.exists(kpoints_filename):
             kpoint_file = Kpoints.from_file(kpoints_filename)
-        lattice_new = Lattice(self.lattice_rec.matrix * 2 * math.pi)
+        lattice_new = Lattice(self.lattice_rec.matrix)
 
         kpoints = [np.array(self.actual_kpoints[i])
                    for i in range(len(self.actual_kpoints))]
@@ -1075,6 +1073,9 @@ class Outcar(PMGSONable):
         "Maximum memory used (kb)", "Average memory used (kb)",
         "User time (sec)".
 
+    .. attribute:: elastic_tensor
+        Total elastic moduli (Kbar) is given in a 6x6 array matrix.
+
     One can then call a specific reader depending on the type of run being
     performed. These are currently: read_igpar(), read_lepsilon() and
     read_lcalcpol(), read_core_state_eign().
@@ -1095,11 +1096,14 @@ class Outcar(PMGSONable):
         total_mag = None
         nelect = None
         efermi = None
+        elastic_tensor = None
 
         time_patt = re.compile("\((sec|kb)\)")
         efermi_patt = re.compile("E-fermi\s*:\s*(\S+)")
         nelect_patt = re.compile("number of electron\s+(\S+)\s+"
                                  "magnetization\s+(\S+)")
+        etensor_patt = re.compile("[X-Z][X-Z]+\s+-?\d+")
+        
         all_lines = []
         for line in reverse_readfile(self.filename):
             clean = line.strip()
@@ -1169,12 +1173,28 @@ class Outcar(PMGSONable):
                     run_stats['cores'] = line.split()[2]
                     break
 
+        # 6x6 tensor matrix for TOTAL ELASTIC MODULI
+        tensor_matrix = []
+        tag = "TOTAL ELASTIC MODULI (kBar)"
+        if tag in all_lines:
+            for clean in all_lines:
+                if etensor_patt.search(clean):
+                    tok = clean.strip().split()
+                    tok.pop(0)
+                    tok = [float(i) for i in tok]
+                    tensor_matrix.append(tok)
+            total_elm = [tensor_matrix[i] for i in range(18, 24)]
+            elastic_tensor = np.asarray(total_elm).reshape(6, 6)
+        else:
+            pass
+
         self.run_stats = run_stats
         self.magnetization = tuple(mag)
         self.charge = tuple(charge)
         self.efermi = efermi
         self.nelect = nelect
         self.total_mag = total_mag
+        self.elastic_tensor = elastic_tensor
         self.data = {}
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False,
@@ -1944,7 +1964,7 @@ class Locpot(VolumetricData):
     """
 
     def __init__(self, poscar, data):
-        VolumetricData.__init__(self, poscar.structure, data)
+        super(Locpot, self).__init__(poscar.structure, data)
         self.name = poscar.comment
 
     @staticmethod
@@ -1963,7 +1983,7 @@ class Chgcar(VolumetricData):
     """
 
     def __init__(self, poscar, data):
-        VolumetricData.__init__(self, poscar.structure, data)
+        super(Chgcar, self).__init__(poscar.structure, data)
         self.poscar = poscar
         self.name = poscar.comment
         self._distance_matrix = {}

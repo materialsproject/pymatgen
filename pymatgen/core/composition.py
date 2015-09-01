@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -856,6 +858,7 @@ class ChemicalPotential(dict, PMGSONable):
 
     def __repr__(self):
         return "ChemPots: " + super(ChemicalPotential, self).__repr__()
+
 
 if __name__ == "__main__":
     import doctest

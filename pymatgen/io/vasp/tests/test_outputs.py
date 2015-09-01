@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -369,6 +371,17 @@ class OutcarTest(unittest.TestCase):
             self.assertAlmostEqual(outcar.born[0][1][2], -0.385)
             self.assertAlmostEqual(outcar.born[1][2][0], 0.36465)
 
+    def test_elastic_tensor(self):
+        filepath = os.path.join(test_dir, "OUTCAR.total_tensor.Li2O.gz")
+        outcar = Outcar(filepath)
+
+        elastic_tensor = outcar.elastic_tensor
+
+        self.assertAlmostEqual(elastic_tensor[0][0], 1986.3391)
+        self.assertAlmostEqual(elastic_tensor[0][1], 187.8324)
+        self.assertAlmostEqual(elastic_tensor[3][3], 586.3034)
+
+
     def test_core_state_eigen(self):
         filepath = os.path.join(test_dir, "OUTCAR.CL")
         cl = Outcar(filepath).read_core_state_eigen()
@@ -395,6 +408,9 @@ class OutcarTest(unittest.TestCase):
         self.assertAlmostEqual(outcar.total_mag, 8.2e-06)
 
         self.assertIsNotNone(outcar.as_dict())
+
+
+
 
 
 class OszicarTest(unittest.TestCase):

@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -284,9 +286,12 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.assertAlmostEqual(kpoints.kpts[10][0], 0.0)
         self.assertAlmostEqual(kpoints.kpts[10][1], 0.5)
         self.assertAlmostEqual(kpoints.kpts[10][2], 0.16666667)
-        self.assertAlmostEqual(kpoints.kpts[-1][0], 0.66006924)
-        self.assertAlmostEqual(kpoints.kpts[-1][1], 0.51780182)
-        self.assertAlmostEqual(kpoints.kpts[-1][2], 0.30173482)
+        self.assertAlmostEqual(kpoints.kpts[26][0], 0.0714285714286)
+        self.assertAlmostEqual(kpoints.kpts[26][1], 0.0)
+        self.assertAlmostEqual(kpoints.kpts[26][2], 0.0)
+        self.assertAlmostEqual(kpoints.kpts[-1][0], 0.5)
+        self.assertAlmostEqual(kpoints.kpts[-1][1], 0.5)
+        self.assertAlmostEqual(kpoints.kpts[-1][2], 0.5)
 
         kpoints = self.mpbshseparamsetu.get_kpoints(self.struct)
         self.assertAlmostEqual(kpoints.num_kpts, 25)

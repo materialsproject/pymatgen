@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 """
 This module is used to estimate the cost of various compounds. Costs are taken
@@ -119,7 +121,8 @@ class CostDBElements(CostDBCSV):
     Singleton object that provides the cost data for elements
     """
     def __init__(self):
-        CostDBCSV.__init__(self, os.path.join(module_dir, "costdb_elements.csv"))
+        CostDBCSV.__init__(
+            self, os.path.join(module_dir, "costdb_elements.csv"))
 
 
 class CostAnalyzer(object):

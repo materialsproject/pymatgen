@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -36,11 +38,9 @@ class SymmetrizedStructure(Structure):
     """
 
     def __init__(self, structure, spacegroup, equivalent_positions):
-        Structure.__init__(self, structure.lattice,
-                           [site.species_and_occu
-                            for site in structure],
-                           structure.frac_coords,
-                           site_properties=structure.site_properties)
+        super(SymmetrizedStructure, self).__init__(
+            structure.lattice, [site.species_and_occu for site in structure],
+            structure.frac_coords, site_properties=structure.site_properties)
 
         self._spacegroup = spacegroup
         u, inv = np.unique(equivalent_positions, return_inverse = True)
