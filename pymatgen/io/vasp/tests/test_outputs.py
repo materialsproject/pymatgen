@@ -381,7 +381,6 @@ class OutcarTest(unittest.TestCase):
         self.assertAlmostEqual(elastic_tensor[0][1], 187.8324)
         self.assertAlmostEqual(elastic_tensor[3][3], 586.3034)
 
-
     def test_core_state_eigen(self):
         filepath = os.path.join(test_dir, "OUTCAR.CL")
         cl = Outcar(filepath).read_core_state_eigen()
