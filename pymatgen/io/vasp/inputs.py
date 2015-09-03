@@ -139,11 +139,12 @@ class Poscar(PMGSONable):
     def __setattr__(self, name, value):
         if name in ("selective_dynamics", "velocities"):
             if value is not None and len(value) > 0:
-                value = list(value)
-                dim = np.array(value).shape
+                value = np.array(value)
+                dim = value.shape
                 if dim[1] != 3 or dim[0] != len(self.structure):
                     raise ValueError(name + " array must be same length as" +
                                      " the structure.")
+                value = value.tolist()
         elif name == "structure":
             #If we set a new structure, we should discard the velocities and
             #predictor_corrector and selective dynamics.
