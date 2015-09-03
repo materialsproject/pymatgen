@@ -421,7 +421,8 @@ class Poscar(PMGSONable):
                 "@class": self.__class__.__name__,
                 "structure": self.structure.as_dict(),
                 "true_names": self.true_names,
-                "selective_dynamics": self.selective_dynamics,
+                "selective_dynamics": np.array(
+                    self.selective_dynamics).tolist(),
                 "velocities": self.velocities,
                 "predictor_corrector": self.predictor_corrector,
                 "comment": self.comment}
