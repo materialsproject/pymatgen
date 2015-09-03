@@ -912,8 +912,8 @@ class StructureMatcher(PMGSONable):
 
     def get_transformation(self, struct1, struct2):
         """
-        Returns the supercell transformation, fractional translation vector, and a mapping
-        to transform struct2 to be similar to struct1.
+        Returns the supercell transformation, fractional translation vector,
+        and a mapping to transform struct2 to be similar to struct1.
 
         Args:
             struct1 (Structure): Reference structure
@@ -922,13 +922,14 @@ class StructureMatcher(PMGSONable):
             supercell (numpy.ndarray(3, 3)): supercell matrix
             vector (numpy.ndarray(3)): fractional translation vector
             mapping (list(int or None)):
-                The first len(struct1) items of the mapping vector are the indices of struct1's
-                corresponding sites in struct2 (or None if there is no corresponding site), and
-                the other items are the remaining site indices of struct2.
+                The first len(struct1) items of the mapping vector are the
+                indices of struct1's corresponding sites in struct2 (or None
+                if there is no corresponding site), and the other items are
+                the remaining site indices of struct2.
         """
         if self._primitive_cell:
-            raise ValueError("get_transformation cannot be used with the primitive"
-                             " cell option")
+            raise ValueError("get_transformation cannot be used with the "
+                             "primitive cell option")
 
         s1, s2, fu, s1_supercell = self._preprocess(struct1, struct2, False)
         ratio = fu if s1_supercell else 1/fu
