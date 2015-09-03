@@ -2,7 +2,11 @@ Overview
 ========
 
 This page provides new users of the pymatgen code base with a quick overview of
-the pymatgen code base.
+the pymatgen code base. It should also be pointed out that there is an
+:doc:`examples page </examples>` with many ipython notebook examples with
+actual code demonstrating the use of the code. Learning from those examples
+is the fastest way to get started.
+
 
 Pymatgen is structured in a highly object-oriented manner. Almost everything
 (Element, Site, Structure, etc.) is an object.  Currently, the code is heavily
@@ -167,7 +171,7 @@ specific io packages. For example, to create a Structure from a cif::
 
 Another example, creating a Structure from a VASP POSCAR/CONTCAR file::
 
-    from pymatgen.io.vaspio import Poscar
+    from pymatgen.io.vasp import Poscar
     poscar = Poscar.from_file("POSCAR")
     struct = poscar.struct
 
@@ -284,7 +288,7 @@ diagram, metallic phases such as Fe and FexPy are most appropriately modelled
 using standard GGA, while a hubbard U should be applied for the oxides such
 as FexOy and FexPyOz.
 
-In the :mod:`pymatgen.io.vaspio_set` module, pre-defined parameter sets have
+In the :mod:`pymatgen.io.vasp.sets` module, pre-defined parameter sets have
 been coded to allow users to generate VASP input files that are consistent
 with input parameters that are compatible with the Materials Project data.
 Users who wish to perform analysis using runs calculated using these
