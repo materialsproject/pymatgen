@@ -36,7 +36,7 @@ from monty.string import str2unicode
 from pymatgen.io.babel import BabelMolAdaptor
 
 
-@deprecated(Structure.from_file)
+@deprecated(Structure.from_file, message="Will be removed in pymatgen 4.0.")
 def read_structure(filename, primitive=True, sort=False):
     """
     Reads a structure based on file extension. For example, anything ending in
@@ -79,7 +79,7 @@ def read_structure(filename, primitive=True, sort=False):
     return s
 
 
-@deprecated(replacement=Structure.to)
+@deprecated(replacement=Structure.to, message="Will be removed in pymatgen 4.0")
 def write_structure(structure, filename):
     """
     Write a structure to a file based on file extension. For example, anything
@@ -108,7 +108,7 @@ def write_structure(structure, filename):
     writer.write_file(filename)
 
 
-@deprecated(Molecule.from_file)
+@deprecated(Molecule.from_file, message="Will be removed in pymatgen 4.0.")
 def read_mol(filename):
     """
     Reads a molecule based on file extension. For example, anything ending in
@@ -149,7 +149,7 @@ def read_mol(filename):
     raise ValueError("Unrecognized file extension!")
 
 
-@deprecated(replacement=Molecule.to)
+@deprecated(replacement=Molecule.to, message="Will be removed in pymatgen 4.0.")
 def write_mol(mol, filename):
     """
     Write a molecule to a file based on file extension. For example, anything
