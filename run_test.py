@@ -10,6 +10,7 @@ import sys
 import subprocess
 import random
 
+
 run_ratio = 1/10
 
 output = subprocess.check_output(["git", "diff", "--name-only", "HEAD~10"])
@@ -31,7 +32,11 @@ for parent, subdir, files in os.walk("pymatgen"):
 
 nrun = int(run_ratio * len(can_run))
 
-to_run = random.sample(can_run, nrun) + must_run
+if random.randint(1, 50) % 50 = 0:
+    #One in fifty times, we will run a full test.
+    to_run = must_run + can_run
+else:
+    to_run = random.sample(can_run, nrun) + must_run
 
 status = subprocess.call(["nosetests", "-v"] + to_run)
 sys.exit(status)
