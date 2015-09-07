@@ -14,7 +14,7 @@ import random
 run_ratio = 1/10
 
 output = subprocess.check_output(["git", "diff", "--name-only", "HEAD~10"])
-files_changed = [f for f in output.split("\n") if f.startswith("pymatgen")]
+files_changed = [f for f in output.decode("utf-8").split("\n") if f.startswith("pymatgen")]
 
 must_run = []
 for f in files_changed:
