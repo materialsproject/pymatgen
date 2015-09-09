@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -11,6 +13,7 @@ from pymatgen.entries.computed_entries import ComputedEntry
 
 
 class ReactionTest(unittest.TestCase):
+
     def test_init(self):
         reactants = [Composition("Fe"),
                      Composition("O2")]
@@ -129,6 +132,18 @@ class ReactionTest(unittest.TestCase):
         self.assertEqual(rxn.normalized_repr, "MgO + Al2O3 -> MgAl2O4")
         self.assertAlmostEquals(rxn.calculate_energy(energies), -0.2, 5)
 
+    def test_as_entry(self):
+        reactants = [Composition("MgO"), Composition("Al2O3")]
+        products = [Composition("MgAl2O4")]
+        energies = {Composition("MgO"): -0.1, Composition("Al2O3"): -0.2,
+                    Composition("MgAl2O4"): -0.5}
+        rxn = Reaction(reactants, products)
+        entry = rxn.as_entry(energies)
+        self.assertEqual(entry.name,
+                         "1.000 MgO + 1.000 Al2O3 -> 1.000 MgAl2O4")
+        self.assertAlmostEquals(entry.energy, -0.2, 5)
+
+
     def test_products_reactants(self):
         reactants = [Composition("Li3Fe2(PO4)3"), Composition("Fe2O3"),
                      Composition("O2")]
@@ -189,6 +204,12 @@ class BalancedReactionTest(unittest.TestCase):
                                {Composition("Li2O"): 2})
         self.assertEqual(rxn,
                          BalancedReaction.from_string("4 Li + O2 -> 2Li2O"))
+
+        rxn = BalancedReaction({Composition("Li(NiO2)3"): 1}, {Composition("O2"): 0.5,
+                               Composition("Li(NiO2)2"): 1, Composition("NiO"): 1})
+
+        self.assertEqual(rxn,
+                         BalancedReaction.from_string("1.000 Li(NiO2)3 -> 0.500 O2 + 1.000 Li(NiO2)2 + 1.000 NiO"))
 
     def test_remove_spectator_species(self):
         rxn = BalancedReaction({Composition("Li"): 4, Composition("O2"): 1, Composition('Na'): 1},

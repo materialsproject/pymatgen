@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -139,9 +141,9 @@ class ComputedStructureEntry(ComputedEntry):
                 with the entry. Defaults to None.
             entry_id (obj): An optional id to uniquely identify the entry.
         """
-        ComputedEntry.__init__(self, structure.composition, energy,
-                               correction=correction, parameters=parameters,
-                               data=data, entry_id=entry_id)
+        super(ComputedStructureEntry, self).__init__(
+            structure.composition, energy, correction=correction,
+            parameters=parameters, data=data, entry_id=entry_id)
         self.structure = structure
 
     def __repr__(self):

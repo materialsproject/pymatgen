@@ -1,12 +1,19 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 """Wrapper for netCDF readers."""
 from __future__ import unicode_literals, division, print_function
 
 import os.path
 
-from monty.dev import requires
+from monty.dev import requires, deprecated
+from monty.collections import AttrDict
+from monty.functools import lazy_property
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.structure import Structure
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 __author__ = "Matteo Giantomassi"
@@ -22,7 +29,7 @@ __all__ = [
     "as_etsfreader",
     "NetcdfReader",
     "ETSF_Reader",
-    "structure_from_etsf_file",
+    "structure_from_ncdata",
 ]
 
 try:
@@ -55,6 +62,10 @@ class NetcdfReaderError(Exception):
     """Base error class for NetcdfReader"""
 
 
+class NO_DEFAULT(object):
+    """Signal that read_value should raise an Error"""
+
+
 class NetcdfReader(object):
     """
     Wraps and extends netCDF4.Dataset. Read only mode. Supports with statements.
@@ -72,14 +83,14 @@ class NetcdfReader(object):
         try:
             self.rootgrp = netCDF4.Dataset(self.path, mode="r")
         except Exception as exc:
-            raise self.Error("%s: %s" % (self.path, str(exc)))
+            raise self.Error("In file %s: %s" % (self.path, str(exc)))
 
         self.ngroups = len(list(self.walk_tree()))
 
         #self.path2group = collections.OrderedDict()
         #for children in self.walk_tree():
         #   for child in children:
-        #       #print child.group,  child.path
+        #       #print(child.group,  child.path)
         #       self.path2group[child.path] = child.group
 
     def __enter__(self):
@@ -87,13 +98,14 @@ class NetcdfReader(object):
         return self
 
     def __exit__(self, type, value, traceback):
-        """
-        Activated at the end of the with statement. It automatically closes the file.
-        """
+        """Activated at the end of the with statement. It automatically closes the file."""
         self.rootgrp.close()
 
     def close(self):
-        self.rootgrp.close()
+        try:
+            self.rootgrp.close()
+        except Exception as exc:
+            logger.warning("Exception %s while trying to close %s" % (exc, self.path))
 
     #@staticmethod
     #def pathjoin(*args):
@@ -131,26 +143,25 @@ class NetcdfReader(object):
             group = self.path2group[path]
             return group.variables.keys()
 
-    def read_value(self, varname, path="/", cmode=None):
+    def read_value(self, varname, path="/", cmode=None, default=NO_DEFAULT):
         """
         Returns the values of variable with name varname in the group specified by path.
 
         Args:
-            varname:
-                Name of the variable
-            path:
-                path to the group.
-            cmode:
-                if cmode=="c", a complex ndarrays is constructed and returned
+            varname: Name of the variable
+            path: path to the group.
+            cmode: if cmode=="c", a complex ndarrays is constructed and returned
                 (netcdf does not provide native support from complex datatype).
+            default: read_value returns default if varname is not present.
 
         Returns:
             numpy array if varname represents an array, scalar otherwise.
         """
         try:
             var = self.read_variable(varname, path=path)
-        except:
-            raise
+        except self.Error:
+            if default is NO_DEFAULT: raise
+            return default
 
         if cmode is None:
             # scalar or array
@@ -168,9 +179,7 @@ class NetcdfReader(object):
                 raise ValueError("Wrong value for cmode %s" % cmode)
 
     def read_variable(self, varname, path="/"):
-        """
-        Returns the variable with name varname in the group specified by path.
-        """
+        """Returns the variable with name varname in the group specified by path."""
         return self._read_variables(varname, path=path)[0]
 
     def _read_dimensions(self, *dimnames, **kwargs):
@@ -183,7 +192,7 @@ class NetcdfReader(object):
                 return [group.dimensions[dname] for dname in dimnames]
 
         except KeyError:
-            raise self.Error("dimnames %s, kwargs %s" % (dimnames, kwargs))
+            raise self.Error("In file %s:\ndimnames %s, kwargs %s" % (self.path, dimnames, kwargs))
 
     def _read_variables(self, *varnames, **kwargs):
         path = kwargs.get("path", "/")
@@ -195,95 +204,63 @@ class NetcdfReader(object):
                 return [group.variables[vname] for vname in varnames]
 
         except KeyError:
-            raise self.Error("varnames %s, kwargs %s" % (varnames, kwargs))
+            raise self.Error("In file %s:\nvarnames %s, kwargs %s" % (self.path, varnames, kwargs))
 
-    def read_values_with_map(self, names, map_names=None, path="/"):
+    def read_keys(self, keys, dict_cls=AttrDict, path="/"):
         """
-        Read (dimensions, variables) with a mapping.
-
-        Args:
-            names:
-                list of netCDF keywords to read.
-            map_names:
-                dictionary used to map names to the netCDF keywords used to access data on file.
-            path:
-                Used to access groups.
-
-        returns: od, missing
-            od is the dictionary. Values are stored in d[name] for name in names.
-            missing is a list of 2-d tuple with the keywords that are not found.
+        Read a list of variables/dimensions from file. If a key is not present the corresponding
+        entry in the output dictionary is set to None.
         """
-        if map_names is None:
-            map_names = {}
-
-        od, missing = {}, []
-        for k in names:
-            try:
-                key = map_names[k]
-            except KeyError:
-                # Read k.
-                key = k
-
+        od = dict_cls()
+        for k in keys:
             try:
                 # Try to read a variable.
-                od[k] = self.read_value(key, path=path)
+                od[k] = self.read_value(k, path=path)
             except self.Error:
                 try:
                     # Try to read a dimension.
-                    od[k] = self.read_dimvalue(key, path=path)
+                    od[k] = self.read_dimvalue(k, path=path)
                 except self.Error:
-                    # key is missing!
-                    missing.append((k, key))
+                    od[k] = None
 
-        return od, missing
+        return od
 
 
 class ETSF_Reader(NetcdfReader):
     """
-    This object reads data from a file written according to the
-    ETSF-IO specifications.
+    This object reads data from a file written according to the ETSF-IO specifications.
 
     We assume that the netcdf file contains at least the crystallographic section.
     """
-    @property
+    @lazy_property
     def chemical_symbols(self):
         """Chemical symbols char [number of atom species][symbol length]."""
-        if not hasattr(self, "_chemical_symbols"):
-            symbols = self.read_value("chemical_symbols")
-            self._chemical_symbols = []
-            for s in symbols:
-                self._chemical_symbols.append("".join(s))
-
-        return self._chemical_symbols
+        symbols = self.read_value("chemical_symbols")
+        symbols = [s.decode("ascii") for s in symbols]
+        chemical_symbols = [str("".join(s)) for s in symbols]
+        return chemical_symbols
 
     def typeidx_from_symbol(self, symbol):
         """Returns the type index from the chemical symbol. Note python convention."""
-        return self._chemical_symbols.index(symbol)
+        return self.chemical_symbols.index(symbol)
 
-    def read_structure(self):
-        """
-        Returns the crystalline structure.
-
-        Args:
-            site_properties:
-                Optional dictionary with site properties.
-        """
+    def read_structure(self, cls=Structure):
+        """Returns the crystalline structure."""
         if self.ngroups != 1:
-            raise NotImplementedError("ngroups != 1")
+            raise NotImplementedError("In file %s: ngroups != 1" % self.path)
 
-        return structure_from_etsf_file(self)
+        return structure_from_ncdata(self, cls=cls)
 
 
-def structure_from_etsf_file(ncdata, site_properties=None):
+def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     """
     Reads and returns a pymatgen structure from a NetCDF file
     containing crystallographic data in the ETSF-IO format.
 
     Args:
-        ncdata:
-            filename or NetcdfReader instance.
-        site_properties:
-            Dictionary with site properties.
+        ncdata: filename or NetcdfReader instance.
+        site_properties: Dictionary with site properties.
+        cls: The Structure class to instanciate.
     """
     ncdata, closeit = as_ncreader(ncdata)
 
@@ -309,7 +286,7 @@ def structure_from_etsf_file(ncdata, site_properties=None):
         for prop in site_properties:
             d[property] = ncdata.read_value(prop)
 
-    structure = Structure(lattice, species, red_coords, site_properties=d)
+    structure = cls(lattice, species, red_coords, site_properties=d)
 
     # Quick and dirty hack.
     # I need an abipy structure since I need to_abivars and other methods.

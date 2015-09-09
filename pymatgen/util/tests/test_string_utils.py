@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -25,6 +27,8 @@ class FuncTest(unittest.TestCase):
     def test_latexify(self):
         self.assertEqual(latexify("Li3Fe2(PO4)3"),
                          "Li$_{3}$Fe$_{2}$(PO$_{4}$)$_{3}$")
+        self.assertEqual(latexify("Li0.2Na0.8Cl"),
+                         "Li$_{0.2}$Na$_{0.8}$Cl")
 
     def test_latexify_spacegroup(self):
         self.assertEqual(latexify_spacegroup("Fd-3m"), "Fd$\overline{3}$m")

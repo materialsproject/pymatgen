@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals, division, print_function
 
@@ -80,6 +82,9 @@ class ETSF_Reader_TestCase(PymatgenTest):
 
             with self.assertRaises(data.Error):
                 data.read_dimvalue("foobar")
+
+            # Unless default is given
+            assert data.read_value("foobar", default=None) is None
 
             data.print_tree()
             for group in data.walk_tree():

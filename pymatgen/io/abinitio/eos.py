@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 """Tools to compute equations of states with different models."""
 from __future__ import unicode_literals, division, print_function
 
@@ -6,7 +8,9 @@ import collections
 import numpy as np
 import pymatgen.core.units as units
 
+from monty.functools import return_none_if_raise
 from pymatgen.core.units import FloatWithUnit
+from pymatgen.util.plotting_utils import add_fig_kwargs, get_ax_fig_plt
 
 import logging
 logger = logging.getLogger(__file__)
@@ -314,22 +318,33 @@ class EOS_Fit(object):
     def b0_GPa(self):
         return FloatWithUnit(self.b0, "eV ang^-3").to("GPa")
 
+    @property
+    @return_none_if_raise(AttributeError)
+    def results(self):
+        """Dictionary with the results. None if results are not available"""
+        return dict(v0=self.v0, e0=self.e0, b0=self.b0, b1=self.b1)
+
+    @add_fig_kwargs
     def plot(self, ax=None, **kwargs):
         """
         Uses Matplotlib to plot the energy curve.
 
         Args:
-            ax:
-                Axis object. If ax is None, a new figure is produced.
-            show:
-                True to show the figure
-            savefig:
-                'abc.png' or 'abc.eps' to save the figure to a file.
+            ax: :class:`Axes` object. If ax is None, a new figure is produced.
+
+        ================  ==============================================================
+        kwargs            Meaning
+        ================  ==============================================================
+        style             
+        color
+        text
+        label
+        ================  ==============================================================
 
         Returns:
             Matplotlib figure.
         """
-        import matplotlib.pyplot as plt
+        ax, fig, plt = get_ax_fig_plt(ax)
 
         vmin, vmax = self.volumes.min(), self.volumes.max()
         emin, emax = self.energies.min(), self.energies.max()
@@ -337,49 +352,36 @@ class EOS_Fit(object):
         vmin, vmax = (vmin - 0.01 * abs(vmin), vmax + 0.01 * abs(vmax))
         emin, emax = (emin - 0.01 * abs(emin), emax + 0.01 * abs(emax))
 
-        if ax is None:
-            fig = plt.figure()
-            ax = fig.add_subplot(1,1,1)
-        else:
-            fig = plt.gcf()
-
-        lines, legends = [], []
+        color = kwargs.pop("color", "r")
+        label = kwargs.pop("label", None)
 
         # Plot input data.
-        line, = ax.plot(self.volumes, self.energies, "ro")
-        lines.append(line)
-        legends.append("Input Data")
+        ax.plot(self.volumes, self.energies, linestyle="None", marker="o", color=color) #, label="Input Data")
 
         # Plot EOS.
         vfit = np.linspace(vmin, vmax, 100)
+        if label is None:
+            label = self.name + ' fit'
 
         if self.eos_name == "deltafactor":
             xx = vfit**(-2./3.)
-            line, = ax.plot(vfit, np.polyval(self.eos_params, xx), "b-")
+            ax.plot(vfit, np.polyval(self.eos_params, xx), linestyle="dashed", color=color, label=label)
         else:
-            line, = ax.plot(vfit, self.func(vfit, *self.eos_params), "b-")
-
-        lines.append(line)
-        legends.append(self.name + ' fit')
+            ax.plot(vfit, self.func(vfit, *self.eos_params), linestyle="dashed", color=color, label=label)
 
         # Set xticks and labels.
         ax.grid(True)
         ax.set_xlabel("Volume $\AA^3$")
         ax.set_ylabel("Energy (eV)")
-        ax.legend(lines, legends, loc='upper right', shadow=True)
+
+        ax.legend(loc="best", shadow=True)
 
         # Add text with fit parameters.
-        text = []; app = text.append
-        app("Min Volume = %1.2f $\AA^3$" % self.v0)
-        app("Bulk modulus = %1.2f eV/$\AA^3$ = %1.2f GPa" % (self.b0, self.b0_GPa))
-        app("B1 = %1.2f" % self.b1)
-        fig.text(0.4, 0.5, "\n".join(text), transform=ax.transAxes)
-
-        if kwargs.pop("show", True):
-            plt.show()
-
-        savefig = kwargs.pop("savefig", None)
-        if savefig is not None:
-            fig.savefig(savefig)
+        if kwargs.pop("text", True):
+            text = []; app = text.append
+            app("Min Volume = %1.2f $\AA^3$" % self.v0)
+            app("Bulk modulus = %1.2f eV/$\AA^3$ = %1.2f GPa" % (self.b0, self.b0_GPa))
+            app("B1 = %1.2f" % self.b1)
+            fig.text(0.4, 0.5, "\n".join(text), transform=ax.transAxes)
 
         return fig

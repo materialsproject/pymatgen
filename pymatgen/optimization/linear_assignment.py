@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -61,8 +63,13 @@ class LinearAssignment(object):
         if self.nx == self.ny:
             self.c = self.orig_c
         else:
-            self.c = np.zeros((self.n, self.n))
-            self.c[:self.nx, :self.ny] = self.orig_c
+            # Can run into precision issues if np.max is used as the fill value (since a
+            # value of this size doesn't necessarily end up in the solution). A value
+            # at least as large as the maximin is, however, guaranteed to appear so it
+            # is a safer choice. The fill value is not zero to avoid choosing the extra
+            # rows in the initial column reduction step
+            self.c = np.full((self.n, self.n), np.max(np.min(self.orig_c, axis=1)))
+            self.c[:self.nx] = self.orig_c
 
         #initialize solution vectors
         self._x = np.zeros(self.n, dtype=np.int) - 1
@@ -87,7 +94,6 @@ class LinearAssignment(object):
         """
         if self._min_cost:
             return self._min_cost
-
         self._min_cost = np.sum(self.c[np.arange(self.nx), self.solution])
         return self._min_cost
 

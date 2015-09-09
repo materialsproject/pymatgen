@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -20,17 +22,13 @@ import os
 import numpy as np
 
 from pymatgen.core.sites import PeriodicSite
-from pymatgen.io.vaspio.vasp_input import Poscar
+from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, \
     PointGroupAnalyzer, cluster_sites
-from pymatgen.io.cifio import CifParser
+from pymatgen.io.cif import CifParser
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.structure import Molecule
 
-try:
-    import scipy
-except ImportError:
-    scipy = None
 
 test_dir_mol = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                             'test_files', "molecules")
@@ -61,12 +59,12 @@ class SpacegroupAnalyzerTest(PymatgenTest):
         self.assertEqual(self.disordered_sg.get_spacegroup_symbol(),
                          "P4_2/nmc")
         self.assertEqual(self.sg3.get_spacegroup_symbol(), "Pnma")
-        self.assertEqual(self.sg4.get_spacegroup_symbol(), "R-3m")
+        self.assertEqual(self.sg4.get_spacegroup_symbol(), "P6_3/mmc")
 
     def test_get_space_number(self):
         self.assertEqual(self.sg.get_spacegroup_number(), 62)
         self.assertEqual(self.disordered_sg.get_spacegroup_number(), 137)
-        self.assertEqual(self.sg4.get_spacegroup_number(), 166)
+        self.assertEqual(self.sg4.get_spacegroup_number(), 194)
 
     def test_get_hall(self):
         self.assertEqual(self.sg.get_hall(), '-P 2ac 2n')
@@ -354,7 +352,6 @@ PF6 = Molecule(["P", "F", "F", "F", "F", "F", "F"],
                 [1, 0, 0], [-1, 0, 0]])
 
 
-@unittest.skipIf(scipy is None, "Scipy not present.")
 class PointGroupAnalyzerTest(PymatgenTest):
 
     def test_spherical(self):
@@ -387,6 +384,7 @@ class PointGroupAnalyzerTest(PymatgenTest):
                   [-0.513360, 0.889165, -0.363000]]
         mol = Molecule(["C", "H", "F", "Br", "Cl"], coords)
         a = PointGroupAnalyzer(mol)
+
         self.assertEqual(a.sch_symbol, "C1")
         self.assertEqual(len(a.get_pointgroup()), 1)
         coords = [[0.000000, 0.000000, 1.08],
@@ -428,7 +426,6 @@ class PointGroupAnalyzerTest(PymatgenTest):
         self.assertEqual(a.sch_symbol, "D5d")
 
 
-@unittest.skipIf(scipy is None, "Scipy not present.")
 class FuncTest(unittest.TestCase):
 
     def test_cluster_sites(self):

@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -14,20 +16,17 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 20, 2012"
 
+import collections
+
 import numpy as np
 
 import six
 
 from pymatgen.electronic_structure.core import Spin, Orbital
+from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord_utils import get_linear_interpolated_value
 from pymatgen.serializers.json_coders import PMGSONable
-from monty.dev import requires
-
-try:
-    import scipy
-except ImportError:
-    scipy = None
 
 
 class Dos(PMGSONable):
@@ -81,8 +80,6 @@ class Dos(PMGSONable):
             result = self.densities[spin]
         return result
 
-    @requires(scipy is not None, "get_smeared_densities requires scipy to be "
-                                 "installed.")
     def get_smeared_densities(self, sigma):
         """
         Returns the Dict representation of the densities, {Spin: densities},
@@ -271,7 +268,7 @@ class Dos(PMGSONable):
 class CompleteDos(Dos):
     """
     This wrapper class defines a total dos, and also provides a list of PDos.
-    Mainly used by pymatgen.io.vaspio.Vasprun to create a complete Dos from
+    Mainly used by pymatgen.io.vasp.Vasprun to create a complete Dos from
     a vasprun.xml file. You are unlikely to try to generate this object
     manually.
 
@@ -290,9 +287,9 @@ class CompleteDos(Dos):
         Dict of partial densities of the form {Site:{Orbital:{Spin:Densities}}}
     """
     def __init__(self, structure, total_dos, pdoss):
-        Dos.__init__(self, total_dos.efermi, energies=total_dos.energies,
-                     densities={k: np.array(d)
-                                for k, d in total_dos.densities.items()})
+        super(CompleteDos, self).__init__(
+            total_dos.efermi, energies=total_dos.energies,
+            densities={k: np.array(d) for k, d in total_dos.densities.items()})
         self.pdos = pdoss
         self.structure = structure
 
@@ -334,12 +331,12 @@ class CompleteDos(Dos):
         """
         spd_dos = dict()
         for orb, pdos in self.pdos[site].items():
-            orb_type = orb.orbital_type
-            if orb_type in spd_dos:
-                spd_dos[orb_type] = add_densities(spd_dos[orb_type], pdos)
+            orbital_type = _get_orb_type(orb)
+            if orbital_type in spd_dos:
+                spd_dos[orbital_type] = add_densities(spd_dos[orbital_type], pdos)
             else:
-                spd_dos[orb_type] = pdos
-        return {orb: Dos(self.efermi, self.energies, densities) 
+                spd_dos[orbital_type] = pdos
+        return {orb: Dos(self.efermi, self.energies, densities)
                 for orb, densities in spd_dos.items()}
 
     def get_site_t2g_eg_resolved_dos(self, site):
@@ -377,7 +374,7 @@ class CompleteDos(Dos):
         spd_dos = {}
         for atom_dos in self.pdos.values():
             for orb, pdos in atom_dos.items():
-                orbital_type = orb.orbital_type
+                orbital_type = _get_orb_type(orb)
                 if orbital_type not in spd_dos:
                     spd_dos[orbital_type] = pdos
                 else:
@@ -415,12 +412,12 @@ class CompleteDos(Dos):
         Returns:
             dict of {Element: {"S": densities, "P": densities, "D": densities}}
         """
-
-        el_dos = dict()
+        el = get_el_sp(el)
+        el_dos = {}
         for site, atom_dos in self.pdos.items():
             if site.specie == el:
                 for orb, pdos in atom_dos.items():
-                    orbital_type = orb.orbital_type
+                    orbital_type = _get_orb_type(orb)
                     if orbital_type not in el_dos:
                         el_dos[orbital_type] = pdos
                     else:
@@ -490,3 +487,10 @@ def add_densities(density1, density2):
     """
     return {spin: np.array(density1[spin]) + np.array(density2[spin])
             for spin in density1.keys()}
+
+
+def _get_orb_type(orb):
+    try:
+        return orb.orbital_type
+    except AttributeError:
+        return orb

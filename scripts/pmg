@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -24,16 +27,16 @@ import datetime
 from collections import OrderedDict
 
 from pymatgen import Structure
-from pymatgen.io.vaspio import Outcar, Vasprun, Chgcar
+from pymatgen.io.vasp import Outcar, Vasprun, Chgcar
 from pymatgen.util.string_utils import str_aligned
 from pymatgen.apps.borg.hive import SimpleVaspToComputedEntryDrone, \
     VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.electronic_structure.plotter import DosPlotter
-from pymatgen.io.vaspio import Poscar
-from pymatgen.io.cifio import CifParser, CifWriter
-from pymatgen.io.vaspio_set import MPVaspInputSet, MITVaspInputSet
-from pymatgen.io.cssrio import Cssr
+from pymatgen.io.vasp import Poscar
+from pymatgen.io.cif import CifParser, CifWriter
+from pymatgen.io.vasp.sets import MPVaspInputSet, MITVaspInputSet
+from pymatgen.io.cssr import Cssr
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
@@ -227,6 +230,9 @@ def convert_fmt(args):
         elif iformat == "CIF":
             r = CifParser(filename)
             structure = r.get_structures()[0]
+        elif iformat == "CONVENTIONAL_CIF":
+            r = CifParser(filename)
+            structure = r.get_structures(primitive=False)[0]
         elif iformat == "CSSR":
             structure = Cssr.from_file(filename).structure
 
@@ -314,7 +320,7 @@ def compare_structures(args):
 
 
 def generate_files(args):
-    from pymatgen.io.vaspio.vasp_input import Potcar
+    from pymatgen.io.vasp.inputs import Potcar
     if args.symbols:
         try:
             p = Potcar(args.symbols, functional=args.functional)
@@ -408,27 +414,30 @@ def main():
                                 help="Radius of integration.")
     parser_plotchg.set_defaults(func=plot_chgint)
 
-    parser_convert = subparsers.add_parser("convert",
-                                           help="File format conversion tools."
-                                           )
+    parser_convert = subparsers.add_parser(
+        "convert", help="File format conversion tools.")
     parser_convert.add_argument("input_filename", metavar="input_filename",
                                 type=str, nargs=1, help="Input filename.")
     parser_convert.add_argument("output_filename", metavar="output_filename",
                                 type=str, nargs=1,
                                 help="Output filename (for POSCAR/CIF/CSSR "
                                 "output) / dirname (VASP output)")
-    parser_convert.add_argument("-i", "--input", dest="input_format", type=str,
+    parser_convert.add_argument("-i", "--input", dest="input_format",
+                                type=str.upper,
                                 nargs=1,
-                                choices=["POSCAR", "CIF", "CSSR", "smart"],
+                                choices=["POSCAR", "CIF", "CSSR", "smart",
+                                         "CONVENTIONAL_CIF"],
                                 default=["smart"],
                                 help="Input file format. By default, smart is "
                                 "selected, which guesses the format from the "
                                 "filename. Other formats can be enforced as "
-                                "needed.")
+                                "needed. If CONVENTIONAL_CIF is chosen instead "
+                                "of CIF, no primitive cell reduction is done.")
+
     parser_convert.add_argument("-o", "--output", dest="output_format",
-                                type=str, nargs=1,
+                                type=str.upper, nargs=1,
                                 choices=["POSCAR", "CIF", "CSSR", "VASP",
-                                         "MITVASP"
+                                         "MITVASP",
                                          "smart"],
                                 default=["smart"],
                                 help="Output file format. By default, smart is"
@@ -501,6 +510,12 @@ def main():
     parser_diffraction.set_defaults(func=generate_diffraction_plot)
 
     args = parser.parse_args()
+
+    try:
+        a = getattr(args, "func")
+    except AttributeError:
+        parser.print_help()
+        sys.exit(0)
     args.func(args)
 
 

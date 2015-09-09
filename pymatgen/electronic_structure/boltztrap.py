@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals, print_function
 
@@ -222,7 +224,7 @@ class BoltztrapRunner():
                 fout.write("%d                        # lpfac, number of latt-points per k-point\n" % self.lpfac)
                 fout.write("BOLTZ                     # run mode (only BOLTZ is supported)\n")
                 fout.write(".15                       # (efcut) energy range of chemical potential\n")
-                fout.write("800. 100.                  # Tmax, temperature grid\n")
+                fout.write("1300. 100.                  # Tmax, temperature grid\n")
                 fout.write("-1.  # energyrange of bands given DOS output sig_xxx and dos_xxx (xxx is band number)\n")
                 fout.write(self.dos_type+"\n")
                 fout.write(str(tauref)+" "+str(tauexp)+" "+str(tauen)+" 0 0 0\n")

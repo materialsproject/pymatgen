@@ -1,5 +1,8 @@
-# coding: utf-8
 #!/usr/bin/env python
+#  coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
 
 """
 Created on Nov 12, 2011
@@ -15,7 +18,7 @@ __date__ = "Nov 12, 2011"
 import itertools
 import argparse
 
-from pymatgen.io.vaspio import Incar
+from pymatgen.io.vasp import Incar
 from pymatgen.util.string_utils import str_aligned
 
 

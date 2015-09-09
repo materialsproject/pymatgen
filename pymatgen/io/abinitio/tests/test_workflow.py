@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals, division, print_function
 
@@ -16,7 +18,7 @@ def ref_file(filename):
     return os.path.join(_test_dir, filename)
 
 
-#class WorkflowTestCase(PymatgenTest):
+#class WorkTestCase(PymatgenTest):
 #
 #    def test_pseudoconvergence(self):
 #        workdir = mkdtemp(prefix="test_pseudoconvergence")

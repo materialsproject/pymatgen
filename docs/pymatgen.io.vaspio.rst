@@ -1,12 +1,6 @@
 pymatgen.io.vaspio package
 ==========================
 
-Subpackages
------------
-
-.. toctree::
-
-
 Submodules
 ----------
 

@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -1074,6 +1076,22 @@ class DummySpecie(PMGSONable):
             return DummySpecie(sym, oxi, properties)
         raise ValueError("Invalid DummySpecies String")
 
+    @classmethod
+    def safe_from_composition(cls, comp, oxidation_state=0):
+        """
+        Returns a DummySpecie object that can be safely used
+        with (i.e. not present in) a given composition
+        """
+        # We don't want to add a DummySpecie with the same
+        # symbol as anything in the composition, even if the
+        # oxidation state is different
+        els = comp.element_composition.elements
+        for c in 'abcdfghijklmnopqrstuvwxyz':
+            if DummySpecie('X' + c) not in els:
+                return DummySpecie('X' + c, oxidation_state)
+        raise ValueError("All attempted DummySpecies already "
+                         "present in {}".format(comp))
+
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
@@ -1184,12 +1202,17 @@ def get_el_sp(obj):
     if isinstance(obj, (Element, Specie, DummySpecie)):
         return obj
 
-    obj = str(obj)
+    def is_integer(s):
+        try:
+            c = float(s)
+            return int(c) == c
+        except (ValueError, TypeError):
+            return False
 
-    try:
-        z = int(obj)
-        return Element.from_Z(z)
-    except ValueError:
+    if is_integer(obj):
+        return Element.from_Z(int(float(obj)))
+    else:
+        obj = str(obj)
         try:
             return Specie.from_string(obj)
         except (ValueError, KeyError):
@@ -1199,5 +1222,5 @@ def get_el_sp(obj):
                 try:
                     return DummySpecie.from_string(obj)
                 except:
-                    raise ValueError("Can't parse Element or String from %s."
-                                     % obj)
+                    raise ValueError("Can't parse Element or String from type %s: %s."
+                                     % (type(obj), obj))

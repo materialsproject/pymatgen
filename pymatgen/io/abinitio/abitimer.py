@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 """
 This module provides objects for extracting timing data from the ABINIT output files 
 It also provides tools to analye and to visualize the parallel efficiency.
@@ -11,6 +13,7 @@ import numpy as np
 
 from monty.string import is_string, list_strings
 from six.moves import zip
+from pymatgen.util.num_utils import minloc
 
 import logging
 logger = logging.getLogger(__name__)
@@ -27,16 +30,6 @@ def alternate(*iterables):
         items.extend([item for item in tup])
     return items
 
-
-def minloc(iterable):
-    """Return the minimum value in an iterable and its (first) position."""
-    min_val, min_idx = iterable[0], 0
-
-    for (idx, item) in enumerate(iterable[1:]):
-        if item < min_val:
-            min_val, min_idx = item, idx
-
-    return min_val, min_idx
 
 
 class AbinitTimerParserError(Exception):
@@ -223,7 +216,8 @@ class AbinitTimerParser(collections.Iterable):
         ncpus = [timer.ncpus for timer in timers]
 
         # Find the minimum number of cpus used and its index in timers.
-        min_ncpus, min_idx = minloc(ncpus)
+        min_idx = minloc(ncpus)
+        min_ncpus = ncpus[min_idx]
 
         # Reference timer
         ref_t = timers[min_idx]

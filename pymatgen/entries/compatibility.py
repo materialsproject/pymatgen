@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -8,10 +10,9 @@ functionals.
 """
 
 import six
-from six.moves import filter
-from six.moves import map
+from six.moves import filter, map
 
-__author__ = "Shyue Ping Ong, Anubhav Jain, Sai Jayaraman"
+__author__ = "Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -26,7 +27,7 @@ from collections import defaultdict
 from monty.design_patterns import cached_class
 from monty.serialization import loadfn
 
-from pymatgen.io.vaspio_set import MITVaspInputSet, MPVaspInputSet
+from pymatgen.io.vasp.sets import MITVaspInputSet, MPVaspInputSet
 from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.structure_analyzer import oxide_type
 
@@ -102,24 +103,57 @@ class PotcarCorrection(Correction):
         input_set: InputSet object used to generate the runs (used to check
             for correct potcar symbols)
 
+        check_hash (bool): If true, uses the potcar hash to check for valid
+            potcars. If false, uses the potcar symbol (Less reliable).
+            Defaults to True
+
     Raises:
         ValueError if entry do not contain "potcar_symbols" key.
         CombatibilityError if wrong potcar symbols
     """
-    def __init__(self, input_set):
-        self.valid_potcars = set(input_set.potcar_settings.values())
+
+    def __init__(self, input_set, check_hash=False):
+
+        if isinstance(list(input_set.potcar_settings.values())[-1], dict):
+            if check_hash:
+                self.valid_potcars = {k: d["hash"] for k, d in
+                                      input_set.potcar_settings.items()}
+            else:
+                self.valid_potcars = {k: d["symbol"] for k, d in
+                                      input_set.potcar_settings.items()}
+        else:
+            if check_hash:
+                raise ValueError('Cannot check hashes of potcars,'
+                                 ' hashes are not set')
+            else:
+                self.valid_potcars = {k: d for k, d in
+                                      input_set.potcar_settings.items()}
+
         self.input_set = input_set
+        self.check_hash = check_hash
 
     def get_correction(self, entry):
-        try:
-            psp_settings = set([sym.split(" ")[1]
-                                for sym
-                                in entry.parameters["potcar_symbols"]])
-        except KeyError:
-            raise ValueError(
-                "PotcarCorrection can only be checked for entries with a "
-                "\"potcar_symbols\" in entry.parameters")
-        if not self.valid_potcars.issuperset(psp_settings):
+
+        if self.check_hash:
+            if entry.parameters.get("potcar_spec"):
+                psp_settings = set([d.get("hash")
+                                    for d in entry.parameters[
+                                    "potcar_spec"] if d])
+            else:
+                raise ValueError('Cannot check hash '
+                                 'without potcar_spec field')
+        else:
+            if entry.parameters.get("potcar_spec"):
+                psp_settings = set([d.get("titel").split()[1]
+                                    for d in entry.parameters[
+                                    "potcar_spec"] if d])
+            else:
+                psp_settings = set([sym.split()[1]
+                                    for sym in entry.parameters[
+                                    "potcar_symbols"] if sym])
+
+        if {self.valid_potcars[str(el)] for el in
+                entry.composition.elements} != psp_settings:
             raise CompatibilityError('Incompatible potcar')
         return 0
 
@@ -157,7 +191,7 @@ class GasCorrection(Correction):
         #Check for oxide, peroxide, superoxide, and ozonide corrections.
         if self.correct_peroxide:
             if len(comp) >= 2 and Element("O") in comp:
-                if "oxide_type" in entry.data:
+                if entry.data.get("oxide_type"):
                     if entry.data["oxide_type"] in self.oxide_correction:
                         ox_corr = self.oxide_correction[
                             entry.data["oxide_type"]]
@@ -433,7 +467,6 @@ class Compatibility(object):
             "corrected_energy"])
 
 
-@cached_class
 class MaterialsProjectCompatibility(Compatibility):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
@@ -452,19 +485,20 @@ class MaterialsProjectCompatibility(Compatibility):
             will therefore be excluded under the scheme.
         correct_peroxide: Specify whether peroxide/superoxide/ozonide
             corrections are to be applied or not.
+        check_potcar_hash (bool): Use potcar hash to verify potcars are correct.
     """
 
-    def __init__(self, compat_type="Advanced", correct_peroxide=True):
+    def __init__(self, compat_type="Advanced", correct_peroxide=True,
+                 check_potcar_hash=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MPCompatibility.yaml")
         i_s = MPVaspInputSet()
-        Compatibility.__init__(
-            self, [PotcarCorrection(i_s),
-                   GasCorrection(fp, correct_peroxide=correct_peroxide),
-                   UCorrection(fp, i_s, compat_type)])
+        super(MaterialsProjectCompatibility, self).__init__(
+            [PotcarCorrection(i_s, check_hash=check_potcar_hash),
+             GasCorrection(fp, correct_peroxide=correct_peroxide),
+             UCorrection(fp, i_s, compat_type)])
 
 
-@cached_class
 class MITCompatibility(Compatibility):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
@@ -482,19 +516,20 @@ class MITCompatibility(Compatibility):
             will therefore be excluded under the scheme.
         correct_peroxide: Specify whether peroxide/superoxide/ozonide
             corrections are to be applied or not.
+        check_potcar_hash (bool): Use potcar hash to verify potcars are correct.
     """
 
-    def __init__(self, compat_type="Advanced", correct_peroxide=True):
+    def __init__(self, compat_type="Advanced", correct_peroxide=True,
+                check_potcar_hash=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MITCompatibility.yaml")
         i_s = MITVaspInputSet()
-        Compatibility.__init__(
-            self, [PotcarCorrection(i_s),
-                   GasCorrection(fp, correct_peroxide=correct_peroxide),
-                   UCorrection(fp, i_s, compat_type)])
+        super(MITCompatibility, self).__init__(
+            [PotcarCorrection(i_s, check_hash=check_potcar_hash),
+             GasCorrection(fp, correct_peroxide=correct_peroxide),
+             UCorrection(fp, i_s, compat_type)])
 
 
-@cached_class
 class MITAqueousCompatibility(Compatibility):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
@@ -512,19 +547,20 @@ class MITAqueousCompatibility(Compatibility):
             will therefore be excluded under the scheme.
         correct_peroxide: Specify whether peroxide/superoxide/ozonide
             corrections are to be applied or not.
+        check_potcar_hash (bool): Use potcar hash to verify potcars are correct.
     """
 
-    def __init__(self, compat_type="Advanced", correct_peroxide=True):
+    def __init__(self, compat_type="Advanced", correct_peroxide=True,
+                check_potcar_hash=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MITCompatibility.yaml")
         i_s = MITVaspInputSet()
-        Compatibility.__init__(
-            self, [PotcarCorrection(i_s),
-                   GasCorrection(fp, correct_peroxide=correct_peroxide),
-                   UCorrection(fp, i_s, compat_type), AqueousCorrection(fp)])
+        super(MITAqueousCompatibility, self).__init__(
+            [PotcarCorrection(i_s, check_hash=check_potcar_hash),
+             GasCorrection(fp, correct_peroxide=correct_peroxide),
+             UCorrection(fp, i_s, compat_type), AqueousCorrection(fp)])
 
 
-@cached_class
 class MaterialsProjectAqueousCompatibility(Compatibility):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
@@ -543,13 +579,15 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             will therefore be excluded under the scheme.
         correct_peroxide: Specify whether peroxide/superoxide/ozonide
             corrections are to be applied or not.
+        check_potcar_hash (bool): Use potcar hash to verify potcars are correct.
     """
 
-    def __init__(self, compat_type="Advanced", correct_peroxide=True):
+    def __init__(self, compat_type="Advanced", correct_peroxide=True,
+                check_potcar_hash=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fp = os.path.join(module_dir, "MPCompatibility.yaml")
         i_s = MPVaspInputSet()
-        Compatibility.__init__(
-            self, [PotcarCorrection(i_s),
-                   GasCorrection(fp, correct_peroxide=correct_peroxide),
-                   UCorrection(fp, i_s, compat_type), AqueousCorrection(fp)])
+        super(MaterialsProjectAqueousCompatibility, self).__init__(
+            [PotcarCorrection(i_s, check_hash=check_potcar_hash),
+             GasCorrection(fp, correct_peroxide=correct_peroxide),
+             UCorrection(fp, i_s, compat_type), AqueousCorrection(fp)])

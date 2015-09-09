@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -150,8 +152,11 @@ class SubstitutionDefectTransformation(AbstractTransformation):
         num_to_return = min(num_to_return, len(sub_scs))
 
         structures = []
-        for sc in sub_scs[0:num_to_return]:
-            structures.append({'structure':sc})
+        if num_to_return:
+            for sc in sub_scs[0:num_to_return]:
+                structures.append({'structure':sc})
+        else:
+            structures.append({'structure':scs[0]})
         return structures
 
     def __str__(self):

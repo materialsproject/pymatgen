@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -224,12 +226,9 @@ class Site(collections.Mapping, collections.Hashable, PMGSONable):
         useful for getting correct formulas.  For example, FeO4PLi is
         automatically sorted in LiFePO4.
         """
-
-        if self._species.average_electroneg < \
-                other._species.average_electroneg:
+        if self._species.average_electroneg < other._species.average_electroneg:
             return True
-        if self._species.average_electroneg > \
-                other._species.average_electroneg:
+        if self._species.average_electroneg > other._species.average_electroneg:
             return False
         if self.species_string < other.species_string:
             return True
@@ -318,7 +317,7 @@ class PeriodicSite(Site, PMGSONable):
         if to_unit_cell:
             self._fcoords = np.mod(self._fcoords, 1)
             c_coords = lattice.get_cartesian_coords(self._fcoords)
-        Site.__init__(self, atoms_n_occu, c_coords, properties)
+        super(PeriodicSite, self).__init__(atoms_n_occu, c_coords, properties)
 
     def __hash__(self):
         """
