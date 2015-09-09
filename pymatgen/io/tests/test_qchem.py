@@ -2142,6 +2142,11 @@ Sites (12)
 11 H     3.261096    -0.769470     0.003158'''
         self.assertEqual(qcout.final_structure.__str__(), ans)
 
+    def test_time_nan_values(self):
+        filename = os.path.join(test_dir, "time_nan_values.qcout")
+        qcout = QcOutput(filename)
+        self.assertFalse(qcout.data[0]["has_error"])
+
 
 if __name__ == "__main__":
     unittest.main()

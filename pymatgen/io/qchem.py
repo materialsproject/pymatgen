@@ -1463,6 +1463,9 @@ class QcOutput(object):
         for line in output.split("\n"):
             for ep, message in error_defs:
                 if ep.search(line):
+                    if message == "NAN values":
+                        if "time" in line:
+                            continue
                     errors.append(message)
             if parse_input:
                 if "-" * 50 in line:
