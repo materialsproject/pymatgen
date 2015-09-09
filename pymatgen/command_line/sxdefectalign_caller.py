@@ -1,5 +1,5 @@
 # coding: utf-8
-from __future__ import division, unicode_literals
+
 
 """
 TO DO: include compatibility with all the extra flags that sxdefectalign has?
@@ -67,16 +67,16 @@ class FreysoldtCorrection(object):
                 the given Locpot's but this is time consuming to load these files
 
         """
-	if os.path.exists(locpot_ref):
-        	self._locpotref=os.path.abspath(str(locpot_ref))
-	else:
-		print 'Could not find Locpot_vref in specified path ' \
-			'Double check path input for locpot_ref'
-	if os.path.exists(locpot_def):
-        	self._locpotdef=os.path.abspath(str(locpot_def))
-	else:
-		print 'Could not find Locpot_vdef in specified path ' \
-			'Double check path input for locpot_def'
+        if os.path.exists(locpot_ref):
+            self._locpotref=os.path.abspath(str(locpot_ref))
+        else:
+            print('Could not find Locpot_vref in specified path ' \
+                  'Double check path input for locpot_ref')
+        if os.path.exists(locpot_def):
+            self._locpotdef=os.path.abspath(str(locpot_def))
+        else:
+            print('Could not find Locpot_vdef in specified path ' \
+                  'Double check path input for locpot_def')
         self._charge = charge
         self._epsilon = epsilon
         self._encut = encut
@@ -85,11 +85,11 @@ class FreysoldtCorrection(object):
         if not lengths:
             struct=Locpot.from_file(locpot_ref) #maybe include an exception for if the Locpot can't be read
             self._lengths=struct.structure.lattice.abc
-            print 'had to import lengths, if you want to speed up class ' \
-                  'instantiation set lengths to: '+str(self._lengths)+'\n'
+            print('had to import lengths, if you want to speed up class ' \
+                  'instantiation set lengths to: '+str(self._lengths)+'\n')
         else:
             self._lengths = lengths
-	self.name=name
+        self.name=name
         self.PCen=None
         self.errors={}
         #check to see if sxdefectalign in path
@@ -113,16 +113,16 @@ class FreysoldtCorrection(object):
             with open('tmptest') as f:
                 out = f.readlines()
             if out!=valid:
-                print 'Could not find sxdefectalign version 1.3 code! ' \
-                      'Please make sure the correct version is in your path\n'
+                print('Could not find sxdefectalign version 1.3 code! ' \
+                      'Please make sure the correct version is in your path\n')
                 self.errors['code']=True
             else:
-                print 'Ready to run sxdefectalign code\n'
+                print('Ready to run sxdefectalign code\n')
                 self.errors['code']=None
 
     def runsxdefect(self):
         if not self._charge:
-            print 'charge=0, so no charge correction needed'+'\n'
+            print('charge=0, so no charge correction needed'+'\n')
             self.PCen=[0,0,0]  #triplet for PC correction with respect to each axis
             self.potalign=[0,0,0]
             return
@@ -133,7 +133,7 @@ class FreysoldtCorrection(object):
             relpos=",".join(str(i) for i in self._frac_coords)
 
             for axis in [0,1,2]:
-                print 'do axis'+str(axis+1)
+                print('do axis'+str(axis+1))
                 command = ['sxdefectalign', '--vasp', '-a'+str(axis+1),
                     '--relative', '--pos', relpos,
                     '--charge', str(-self._charge),
@@ -142,7 +142,7 @@ class FreysoldtCorrection(object):
                     '-C', str(-float(self._align[axis])),
                     '--vref', self._locpotref,
                     '--vdef', self._locpotdef]
-                print str(command)+'\n'
+                print(str(command)+'\n')
 
                 ##standard way of running NERSC commands.
                 #in case NERSC (Hopper) has issues with python subprocess can use hack
@@ -160,12 +160,12 @@ class FreysoldtCorrection(object):
                 os.system(cmd)
                 with open('tmpoutput') as f:
                     output = f.readlines()
-                print 'output from sxdefectalign = '+str(output)+'\n'
+                print('output from sxdefectalign = '+str(output)+'\n')
                 val =  output[-1].split()[3].strip()
 
                 #return to normal code
                 result.append(float(val))
-                print "chg correction is "+str(result[-1])+'\n'
+                print("chg correction is "+str(result[-1])+'\n')
                 os.remove('tmpoutput')
 
                 #for alignment and creating easy to plot files
@@ -186,10 +186,10 @@ class FreysoldtCorrection(object):
 
                 #Do I have to move this out of the scratch dir in a different way?
                 #keep output files for future plotting usage
-		if not self.name:
-                	os.rename("vline-eV.dat","../axis"+str(axis)+"vline-eV.dat")
-		else:
-                	os.rename("vline-eV.dat","../"+str(self.name)+"axis"+str(axis)+"vline-eV.dat")
+                if not self.name:
+                    os.rename("vline-eV.dat","../axis"+str(axis)+"vline-eV.dat")
+                else:
+                    os.rename("vline-eV.dat","../"+str(self.name)+"axis"+str(axis)+"vline-eV.dat")
 
 
                 # Extract potential alignment term averaging window of +/- 1 Ang
@@ -199,15 +199,15 @@ class FreysoldtCorrection(object):
                      platx = (self._frac_coords[axis]-0.5) * latt_len
                 else:
                      platx = (self._frac_coords[axis]+0.5) * latt_len
-                print "half way between defects is: ", platx
+                print("half way between defects is: ", platx)
 
                 xmin = latt_len - (1-platx) if platx < 1 else platx-1
                 xmax = 1-(latt_len-platx) if platx > latt_len-1 else 1+platx
-                print 'means sampling region is (', xmin, ',', xmax, ')'+'\n'
+                print('means sampling region is (', xmin, ',', xmax, ')'+'\n')
 
                 tmpalign=[]
                 if xmax < xmin:
-                    print 'wrap around detected, special alignment needed'
+                    print('wrap around detected, special alignment needed')
                     for i in range(len(x)):
                         if x[i]<xmax or x[i]>xmin:
                             tmpalign.append(y[i])
@@ -220,7 +220,7 @@ class FreysoldtCorrection(object):
                         else:
                             continue
 
-                print 'alignment is ', -np.mean(tmpalign),'\n'
+                print('alignment is ', -np.mean(tmpalign),'\n')
                 platy.append(-np.mean(tmpalign))
                 flag = 0
                 for i in tmpalign:  #check to see if alignment region varies too much
@@ -229,10 +229,10 @@ class FreysoldtCorrection(object):
                     else:
                         continue
                 if flag != 0:
-                    print 'Warning: potential aligned region varied by more ' + \
+                    print('Warning: potential aligned region varied by more ' + \
                           'than 0.2eV (in range of halfway between defects ' + \
                           '+/-1 \Angstrom). Might have issues with Freidel ' + \
-                          'oscillations or atomic relaxation\n'
+                          'oscillations or atomic relaxation\n')
                     self.errors['alignment'+str(axis)]='large osc (>0.2) in potential,' \
                                             ' check plots for further information'
         self.PCen=result    #triplet for PC correction with respect to each axis
@@ -255,7 +255,7 @@ class FreysoldtCorrection(object):
         if not self.PCen:
             self.runsxdefect()
         avg=np.mean(self.potalign)
-        print 'For potential alignment, average of '+str(self.potalign)+' is '+str(avg)+'\n'
+        print('For potential alignment, average of '+str(self.potalign)+' is '+str(avg)+'\n')
         return avg
 
     def get_avgPCen(self):
@@ -265,7 +265,7 @@ class FreysoldtCorrection(object):
         if not self.PCen:
             self.runsxdefect()
         avg=np.mean(self.PCen)
-        print 'For PC energy, average of '+str(self.PCen)+' is '+str(avg)+'\n'
+        print('For PC energy, average of '+str(self.PCen)+' is '+str(avg)+'\n')
         return avg
 
     def get_singlecorrection(self):
@@ -278,8 +278,8 @@ class FreysoldtCorrection(object):
         PC=self.get_avgPCen()
         pot=self.get_avgpotalign()
         correction=PC-float(self._charge)*pot
-        print 'yields Freysoldt (sxdefectalign) correction energy of '+str(correction)+'\n'
-        print 'note that the following error dictionary was created: errors='+str(self.errors)
+        print('yields Freysoldt (sxdefectalign) correction energy of '+str(correction)+'\n')
+        print('note that the following error dictionary was created: errors='+str(self.errors))
         return correction
 
 
