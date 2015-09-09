@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -30,10 +32,6 @@ from math import cos
 from math import sin
 
 import numpy as np
-try:
-    import scipy.cluster as spcluster
-except ImportError:
-    spcluster = None
 
 from six.moves import filter, map, zip
 
@@ -44,8 +42,6 @@ from pymatgen.core.structure import PeriodicSite
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord_utils import find_in_coord_list
 
-
-from monty.dev import requires
 
 try:
     import pymatgen._spglib as spg
@@ -105,9 +101,47 @@ class SpacegroupAnalyzer(object):
                 zs.extend([len(unique_species)] * len(tuple(g)))
         self._unique_species = unique_species
         self._numbers = np.array(zs, dtype='intc')
-        self._spacegroup_data = spg.spacegroup(
-            self._transposed_latt.copy(), self._positions.copy(),
-            self._numbers, self._symprec, self._angle_tol)
+
+        dataset = {}
+        keys = ('number',
+                'hall_number',
+                'international',
+                'hall',
+                'transformation_matrix',
+                'origin_shift',
+                'rotations',
+                'translations',
+                'wyckoffs',
+                'equivalent_atoms',
+                'brv_lattice',
+                'brv_types',
+                'brv_positions')
+        for key, data in zip(keys, spg.dataset(self._transposed_latt.copy(),
+                                               self._positions.copy(),
+                                               self._numbers, self._symprec,
+                                               self._angle_tol)):
+
+            dataset[key] = data
+
+        dataset['international'] = dataset['international'].strip()
+        dataset['hall'] = dataset['hall'].strip()
+        dataset['transformation_matrix'] = np.array(
+            dataset['transformation_matrix'], dtype='double', order='C')
+        dataset['origin_shift'] = np.array(dataset['origin_shift'], dtype='double')
+        dataset['rotations'] = np.array(dataset['rotations'],
+                                        dtype='intc', order='C')
+        dataset['translations'] = np.array(dataset['translations'],
+                                           dtype='double', order='C')
+        letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        dataset['wyckoffs'] = [letters[x] for x in dataset['wyckoffs']]
+        dataset['equivalent_atoms'] = np.array(dataset['equivalent_atoms'],
+                                               dtype='intc')
+        dataset['brv_lattice'] = np.array(np.transpose(dataset['brv_lattice']),
+                                          dtype='double', order='C')
+        dataset['brv_types'] = np.array(dataset['brv_types'], dtype='intc')
+        dataset['brv_positions'] = np.array(dataset['brv_positions'],
+                                            dtype='double', order='C')
+        self._spacegroup_data = dataset
 
     def get_spacegroup(self):
         """
@@ -128,7 +162,7 @@ class SpacegroupAnalyzer(object):
         Returns:
             (str): Spacegroup symbol for structure.
         """
-        return self._spacegroup_data.split()[0]
+        return self._spacegroup_data["international"]
 
     def get_spacegroup_number(self):
         """
@@ -137,9 +171,7 @@ class SpacegroupAnalyzer(object):
         Returns:
             (int): International spacegroup number for structure.
         """
-        sgnum = self._spacegroup_data.split()[-1]
-        sgnum = int(re.sub("\D", "", sgnum))
-        return sgnum
+        return self._spacegroup_data["number"]
 
     def get_hall(self):
         """
@@ -148,8 +180,7 @@ class SpacegroupAnalyzer(object):
         Returns:
             (str): Hall symbol
         """
-        ds = self.get_symmetry_dataset()
-        return ds["hall"]
+        return self._spacegroup_data["hall"]
 
     def get_point_group(self):
         """
@@ -158,8 +189,7 @@ class SpacegroupAnalyzer(object):
         Returns:
             (Pointgroup): Point group for structure.
         """
-        ds = self.get_symmetry_dataset()
-        return get_point_group(ds["rotations"])[0].strip()
+        return get_point_group(self._spacegroup_data["rotations"])[0].strip()
 
     def get_crystal_system(self):
         """
@@ -169,7 +199,7 @@ class SpacegroupAnalyzer(object):
         Returns:
             (str): Crystal system for structure.
         """
-        n = self.get_spacegroup_number()
+        n = self._spacegroup_data["number"]
 
         f = lambda i, j: i <= n <= j
         cs = {"triclinic": (1, 2), "monoclinic": (3, 15),
@@ -195,7 +225,7 @@ class SpacegroupAnalyzer(object):
         Returns:
             (str): Lattice type for structure.
         """
-        n = self.get_spacegroup_number()
+        n = self._spacegroup_data["number"]
         system = self.get_crystal_system()
         if n in [146, 148, 155, 160, 161, 166, 167]:
             return "rhombohedral"
@@ -221,30 +251,7 @@ class SpacegroupAnalyzer(object):
             [(r,t) for r, t in zip(rotations, translations)]
             wyckoffs: Wyckoff letters
         """
-        keys = ("number",
-                "international",
-                "hall",
-                "transformation_matrix",
-                "origin_shift",
-                "rotations",
-                "translations",
-                "wyckoffs",
-                "equivalent_atoms")
-        dataset = dict(zip(keys, spg.dataset(
-            self._transposed_latt.copy(), self._positions, self._numbers,
-            self._symprec, self._angle_tol)))
-        dataset["international"] = dataset["international"].strip()
-        dataset["hall"] = dataset["hall"].strip()
-        dataset["transformation_matrix"] = \
-            np.array(dataset["transformation_matrix"])
-        dataset["origin_shift"] = np.array(dataset["origin_shift"])
-        dataset["rotations"] = np.array(dataset["rotations"])
-        dataset["translations"] = np.array(dataset["translations"])
-        letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        dataset["wyckoffs"] = [letters[x] for x in dataset["wyckoffs"]]
-        dataset["equivalent_atoms"] = np.array(dataset["equivalent_atoms"])
-
-        return dataset
+        return self._spacegroup_data
 
     def _get_symmetry(self):
         """
@@ -605,12 +612,7 @@ class SpacegroupAnalyzer(object):
                         new_matrix = [[a, 0, 0],
                                       [0, b, 0],
                                       [0, c * cos(alpha), c * sin(alpha)]]
-                if new_matrix is None:
-                    #this if is to treat the case
-                    #where alpha==90 (but we still have a monoclinic sg
-                    new_matrix = [[a, 0, 0],
-                                  [0, b, 0],
-                                  [0, c * cos(alpha), c * sin(alpha)]]
+
                 if new_matrix is None:
                     #this if is to treat the case
                     #where alpha==90 (but we still have a monoclinic sg
@@ -830,8 +832,6 @@ class PointGroupAnalyzer(object):
     """
     inversion_op = SymmOp.inversion()
 
-    @requires(spcluster is not None, "Cannot import scipy. PointGroupAnalyzer "
-                                     "requires scipy.cluster")
     def __init__(self, mol, tolerance=0.3, eigen_tolerance=0.01,
                  matrix_tol=0.1):
         """
@@ -1052,7 +1052,7 @@ class PointGroupAnalyzer(object):
 
         def not_on_axis(site):
             v = np.cross(site.coords, axis)
-            return np.linalg.norm(v) > 1e-3
+            return np.linalg.norm(v) > self.tol
 
         valid_sets = []
         origin_site, dist_el_sites = cluster_sites(self.centered_mol, self.tol)
@@ -1198,8 +1198,6 @@ class PointGroupAnalyzer(object):
         return True
 
 
-@requires(spcluster is not None, "Cannot import scipy. cluster_sites require "
-                                 "scipy.cluster.")
 def cluster_sites(mol, tol):
     """
     Cluster sites based on distance and species type.
@@ -1216,6 +1214,7 @@ def cluster_sites(mol, tol):
     # Cluster works for dim > 2 data. We just add a dummy 0 for second
     # coordinate.
     dists = [[np.linalg.norm(site.coords), 0] for site in mol]
+    import scipy.cluster as spcluster
     f = spcluster.hierarchy.fclusterdata(dists, tol, criterion='distance')
     clustered_dists = defaultdict(list)
     for i, site in enumerate(mol):

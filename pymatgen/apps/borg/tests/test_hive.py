@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -38,7 +40,7 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
 
     def test_assimilate(self):
         entry = self.drone.assimilate(self.test_dir)
-        for p in ["hubbards", "is_hubbard", "potcar_symbols", "run_type"]:
+        for p in ["hubbards", "is_hubbard", "potcar_spec", "run_type"]:
             self.assertIn(p, entry.parameters)
         self.assertAlmostEqual(entry.data["efermi"], 1.8301027)
         self.assertEqual(entry.composition.reduced_formula, "LiFe4(PO4)4")
@@ -49,7 +51,7 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
         self.assertIsInstance(entry, ComputedStructureEntry)
         self.assertIsNotNone(entry.structure)
         self.assertEqual(len(entry.parameters["history"]), 2)
-        compat = MITCompatibility()
+        compat = MITCompatibility(check_potcar_hash=False)
         self.assertIsNone(compat.process_entry(entry))
 
     def test_to_from_dict(self):

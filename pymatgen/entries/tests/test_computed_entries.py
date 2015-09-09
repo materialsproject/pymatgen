@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -17,7 +19,7 @@ __date__ = "Mar 18, 2012"
 import unittest
 import os
 
-from pymatgen.io.vaspio.vasp_output import Vasprun
+from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
 

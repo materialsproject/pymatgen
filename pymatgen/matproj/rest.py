@@ -1,6 +1,9 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
+from six import string_types
 
 """
 This module provides classes to interface with the Materials Project REST
@@ -11,7 +14,6 @@ To make use of the Materials API, you need to be a registered user of the
 Materials Project, and obtain an API key by going to your dashboard at
 https://www.materialsproject.org/dashboard.
 """
-
 
 __author__ = "Shyue Ping Ong, Shreyas Cholia"
 __credits__ = "Anubhav Jain"
@@ -32,13 +34,15 @@ from monty.json import MontyEncoder, MontyDecoder
 
 from pymatgen.core.periodic_table import ALL_ELEMENT_SYMBOLS, Element
 from pymatgen.core.composition import Composition
-from pymatgen.entries.computed_entries import ComputedStructureEntry
+from pymatgen.entries.computed_entries import ComputedEntry, \
+    ComputedStructureEntry
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
-from pymatgen.io.vaspio_set import DictVaspInputSet
+from pymatgen.io.vasp.sets import DictVaspInputSet
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.matproj.snl import StructureNL
+from pymatgen.core.structure import Structure
 
 
 class MPRester(object):
@@ -61,16 +65,16 @@ class MPRester(object):
 
     Args:
         api_key (str): A String API key for accessing the MaterialsProject
-            REST interface. Please apply on the Materials Project website for
-            one.
-            If this is None, the code will check if there is a "MAPI_KEY"
-            environment variable set. If so, it will use that environment
-            variable. This makes easier for heavy users to simply add
-            this environment variable to their setups and MPRester can
-            then be called without any arguments.
-        host (str): Url of host to access the MaterialsProject REST interface.
-            Defaults to the standard Materials Project REST address, but
-            can be changed to other urls implementing a similar interface.
+            REST interface. Please obtain your API key at
+            https://www.materialsproject.org/dashboard. If this is None,
+            the code will check if there is a "MAPI_KEY" environment variable
+            set. If so, it will use that environment variable. This makes
+            easier for heavy users to simply add this environment variable to
+            their setups and MPRester can then be called without any arguments.
+        endpoint (str): Url of endpoint to access the MaterialsProject REST
+            interface. Defaults to the standard Materials Project REST
+            address, but can be changed to other urls implementing a similar
+            interface.
     """
 
     supported_properties = ("energy", "energy_per_atom", "volume",
@@ -80,7 +84,7 @@ class MPRester(object):
                             "e_above_hull", "hubbards", "is_compatible",
                             "spacegroup", "task_ids", "band_gap", "density",
                             "icsd_id", "icsd_ids", "cif", "total_magnetization",
-                            "material_id", "oxide_type")
+                            "material_id", "oxide_type", "tags")
 
     supported_task_properties = ("energy", "energy_per_atom", "volume",
                                  "formation_energy_per_atom", "nsites",
@@ -91,12 +95,13 @@ class MPRester(object):
                                  "is_compatible", "spacegroup",
                                  "band_gap", "density", "icsd_id", "cif")
 
-    def __init__(self, api_key=None, host="www.materialsproject.org"):
+    def __init__(self, api_key=None,
+                 endpoint="https://www.materialsproject.org/rest/v2"):
         if api_key is not None:
             self.api_key = api_key
         else:
             self.api_key = os.environ.get("MAPI_KEY", "")
-        self.preamble = "https://{}/rest/v2".format(host)
+        self.preamble = endpoint
         self.session = requests.Session()
         self.session.headers = {"x-api-key": self.api_key}
 
@@ -112,7 +117,8 @@ class MPRester(object):
         """
         self.session.close()
 
-    def _make_request(self, sub_url, payload=None, method="GET"):
+    def _make_request(self, sub_url, payload=None, method="GET",
+                      mp_decode=True):
         response = None
         url = self.preamble + sub_url
         try:
@@ -121,9 +127,12 @@ class MPRester(object):
             else:
                 response = self.session.get(url, params=payload)
             if response.status_code in [200, 400]:
-                try:
-                    data = json.loads(response.text, cls=MPDecoder)
-                except:
+                if mp_decode:
+                    try:
+                        data = json.loads(response.text, cls=MPDecoder)
+                    except:
+                        data = json.loads(response.text)
+                else:
                     data = json.loads(response.text)
                 if data["valid_response"]:
                     if data.get("warning"):
@@ -152,6 +161,18 @@ class MPRester(object):
             materials_id (str)
         """
         return self._make_request("/materials/mid_from_tid/%s" % task_id)
+
+    def get_materials_id_references(self, material_id):
+        """
+        Returns all references for a materials id.
+
+        Args:
+            material_id (str): A material id.
+
+        Returns:
+            BibTeX (str)
+        """
+        return self._make_request("/materials/%s/refs" % material_id)
 
     def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
         """
@@ -219,6 +240,41 @@ class MPRester(object):
         data = self.get_data(chemsys_formula_id, prop=prop)
         return [d[prop] for d in data]
 
+    def find_structure(self, filename_or_structure):
+        """
+        Finds matching structures on the Materials Project site.
+
+        Args:
+            filename_or_structure: filename or Structure object
+
+        Returns:
+            A list of matching structures.
+
+        Raises:
+            MPRestError
+        """
+        try:
+            if isinstance(filename_or_structure, string_types):
+                s = Structure.from_file(filename_or_structure)
+            elif isinstance(filename_or_structure, Structure):
+                s = filename_or_structure
+            else:
+                raise MPRestError("Provide filename or Structure object.")
+            payload = {'structure': json.dumps(s.as_dict(), cls=MontyEncoder)}
+            response = self.session.post(
+                '{}/find_structure'.format(self.preamble), data=payload
+            )
+            if response.status_code in [200, 400]:
+                resp = json.loads(response.text, cls=MPDecoder)
+                if resp['valid_response']:
+                    return resp['response']
+                else:
+                    raise MPRestError(resp["error"])
+            raise MPRestError("REST error with status code {} and error {}"
+                              .format(response.status_code, response.text))
+        except Exception as ex:
+            raise MPRestError(str(ex))
+
     def get_entries(self, chemsys_formula_id, compatible_only=True,
                     inc_structure=None):
         """
@@ -245,16 +301,38 @@ class MPRester(object):
         """
         # TODO: This is a very hackish way of doing this. It should be fixed
         # on the REST end.
+        params = ["run_type", "is_hubbard", "pseudo_potential", "hubbards",
+                  "potcar_symbols"]
         if compatible_only:
-            data = self.get_data(chemsys_formula_id, prop="entry")
-            entries = [d["entry"] for d in data]
+            props = ["energy", "unit_cell_formula", "task_id"] + params
             if inc_structure:
-                for i, e in enumerate(entries):
-                    s = self.get_structure_by_material_id(
-                        e.entry_id, inc_structure == "final")
-                    entries[i] = ComputedStructureEntry(
-                        s, e.energy, e.correction, e.parameters, e.data,
-                        e.entry_id)
+                if inc_structure == "final":
+                    props.append("structure")
+                else:
+                    props.append("initial_structure")
+
+            criteria = MPRester.parse_criteria(chemsys_formula_id)
+
+            data = self.query(criteria, props)
+
+            entries = []
+            for d in data:
+                d["potcar_symbols"] = [
+                    "%s %s" % (d["pseudo_potential"]["functional"], l)
+                    for l in d["pseudo_potential"]["labels"]]
+                if not inc_structure:
+                    e = ComputedEntry(d["unit_cell_formula"], d["energy"],
+                                      parameters={k: d[k] for k in params},
+                                      entry_id=d["task_id"])
+
+                else:
+                    s = d["structure"] if inc_structure == "final" else d[
+                        "initial_structure"]
+                    e = ComputedStructureEntry(
+                        s, d["energy"],
+                        parameters={k: d[k] for k in params},
+                        entry_id=d["task_id"])
+                entries.append(e)
             entries = MaterialsProjectCompatibility().process_entries(entries)
         else:
             entries = []
@@ -289,19 +367,24 @@ class MPRester(object):
         data = self.get_data(material_id, prop=prop)
         return data[0][prop]
 
-    def get_entry_by_material_id(self, material_id):
+    def get_entry_by_material_id(self, material_id, compatible=True):
         """
         Get a ComputedEntry corresponding to a material_id.
 
         Args:
             material_id (str): Materials Project material_id (a string,
                 e.g., mp-1234).
+            compatible (bool): Whether to process the entry using Materials
+                Project compatibility. Defaults to True.
 
         Returns:
             ComputedEntry object.
         """
         data = self.get_data(material_id, prop="entry")
-        return data[0]["entry"]
+        e = data[0]["entry"]
+        if compatible:
+            e = MaterialsProjectCompatibility().process_entry(e)
+        return e
 
     def get_dos_by_material_id(self, material_id):
         """
@@ -360,14 +443,11 @@ class MPRester(object):
         entries = []
         for i in range(len(elements)):
             for els in itertools.combinations(elements, i + 1):
-                try:
-                    entries.extend(
-                        self.get_entries(
-                            "-".join(els), compatible_only=compatible_only,
-                            inc_structure=inc_structure)
-                    )
-                except:
-                    pass
+                entries.extend(
+                    self.get_entries(
+                        "-".join(els), compatible_only=compatible_only,
+                        inc_structure=inc_structure)
+                )
         return entries
 
     def get_exp_thermo_data(self, formula):
@@ -428,7 +508,7 @@ class MPRester(object):
         except Exception as ex:
             raise MPRestError(str(ex))
 
-    def query(self, criteria, properties):
+    def query(self, criteria, properties, mp_decode=True):
         """
         Performs an advanced query, which is a Mongo-like syntax for directly
         querying the Materials Project database via the query rest interface.
@@ -441,6 +521,12 @@ class MPRester(object):
         Query allows an advanced developer to perform queries which are
         otherwise too cumbersome to perform using the standard convenience
         methods.
+
+        It is highly recommended that you consult the Materials API
+        documentation at http://bit.ly/materialsapi, which provides a
+        comprehensive explanation of the document schema used in the
+        Materials Project and how best to query for the relevant information
+        you need.
 
         Args:
             criteria (str/dict): Criteria of the query as a string or
@@ -469,6 +555,9 @@ class MPRester(object):
             properties (list): Properties to request for as a list. For
                 example, ["formula", "formation_energy_per_atom"] returns
                 the formula and formation energy per atom.
+            mp_decode (bool): Whether to do a decoding to a Pymatgen object
+                where possible. In some cases, it might be useful to just get
+                the raw python dict, i.e., set to False.
 
         Returns:
             List of results. E.g.,
@@ -481,7 +570,8 @@ class MPRester(object):
             criteria = MPRester.parse_criteria(criteria)
         payload = {"criteria": json.dumps(criteria),
                    "properties": json.dumps(properties)}
-        return self._make_request("/query", payload=payload, method="POST")
+        return self._make_request("/query", payload=payload, method="POST",
+                                  mp_decode=mp_decode)
 
     def submit_structures(self, structures, authors, projects=None,
                           references='', remarks=None, data=None,
@@ -771,34 +861,42 @@ class MPRester(object):
         """
         toks = criteria_string.split()
 
+        def parse_sym(sym):
+            if sym == "*":
+                return ALL_ELEMENT_SYMBOLS
+            else:
+                m = re.match("\{(.*)\}", sym)
+                if m:
+                    return [s.strip() for s in m.group(1).split(",")]
+                else:
+                    return [sym]
+
         def parse_tok(t):
             if re.match("\w+-\d+", t):
                 return {"task_id": t}
             elif "-" in t:
-                elements = t.split("-")
-                elements = [[Element(el).symbol] if el != "*" else
-                            ALL_ELEMENT_SYMBOLS for el in elements]
+                elements = [parse_sym(sym) for sym in t.split("-")]
                 chemsyss = []
                 for cs in itertools.product(*elements):
                     if len(set(cs)) == len(cs):
-                        chemsyss.append("-".join(sorted(set(cs))))
+                        # Check for valid symbols
+                        cs = [Element(s).symbol for s in cs]
+                        chemsyss.append("-".join(sorted(cs)))
                 return {"chemsys": {"$in": chemsyss}}
             else:
                 all_formulas = set()
-                syms = re.findall("[A-Z][a-z]*", t)
-                to_permute = ALL_ELEMENT_SYMBOLS.difference(syms)
-                parts = t.split("*")
-                for syms in itertools.permutations(to_permute,
-                                                   len(parts) - 1):
-                    f = []
-                    for p in zip(parts, syms):
-                        f.extend(p)
-                    f.append(parts[-1])
+                nelements = re.findall(r"(\*[\.\d]*|\{.*\}[\.\d]*|[A-Z]["
+                                       r"a-z]*[\.\d]*)", t)
+                nelements = len(nelements)
+                parts = re.split(r"(\*|\{.*\})", t)
+                parts = [parse_sym(s) for s in parts if s != ""]
+                for f in itertools.product(*parts):
                     c = Composition("".join(f))
-                    #Check for valid Elements in keys.
-                    for e in c.keys():
-                        Element(e.symbol)
-                    all_formulas.add(c.reduced_formula)
+                    if len(c) == nelements:
+                        #Check for valid Elements in keys.
+                        for e in c.keys():
+                            Element(e.symbol)
+                        all_formulas.add(c.reduced_formula)
                 return {"pretty_formula": {"$in": list(all_formulas)}}
 
         if len(toks) == 1:
@@ -847,3 +945,4 @@ class MPDecoder(MontyDecoder):
             return {self.process_decoded(k): self.process_decoded(v)
                     for k, v in d.items()}
         return MontyDecoder.process_decoded(self, d)
+

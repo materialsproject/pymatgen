@@ -1,3 +1,7 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
 """
 Deployment file to facilitate releases of pymatgen.
 Note that this file is meant to be run from the root directory of the pymatgen
@@ -104,6 +108,8 @@ def release_github():
         contents = f.read()
     toks = re.split("\-+", contents)
     desc = toks[1].strip()
+    toks = desc.split("\n")
+    desc = "\n".join(toks[:-1]).strip()
     payload = {
         "tag_name": "v" + ver,
         "target_commitish": "master",

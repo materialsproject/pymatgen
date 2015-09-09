@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -26,9 +28,9 @@ import six
 from six.moves import zip
 
 from monty.io import zopen
-from pymatgen.io.vaspio.vasp_input import Incar, Potcar, Poscar
-from pymatgen.io.vaspio.vasp_output import Vasprun, Oszicar
-from pymatgen.io.gaussianio import GaussianOutput
+from pymatgen.io.vasp.inputs import Incar, Potcar, Poscar
+from pymatgen.io.vasp.outputs import Vasprun, Oszicar, Dynmat
+from pymatgen.io.gaussian import GaussianOutput
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
 from pymatgen.serializers.json_coders import PMGSONable
@@ -100,7 +102,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
             ComputedEntries.
         parameters (list): Input parameters to include. It has to be one of
             the properties supported by the Vasprun object. See
-            :class:`pymatgen.io.vaspio.Vasprun`. If parameters == None,
+            :class:`pymatgen.io.vasp.Vasprun`. If parameters == None,
             a default set of parameters that are necessary for typical
             post-processing will be set.
         data (list): Output data to include. Has to be one of the properties
@@ -109,8 +111,8 @@ class VaspToComputedEntryDrone(AbstractDrone):
 
     def __init__(self, inc_structure=False, parameters=None, data=None):
         self._inc_structure = inc_structure
-        self._parameters = {"is_hubbard", "hubbards", "potcar_symbols",
-                            "run_type"}
+        self._parameters = {"is_hubbard", "hubbards", "potcar_spec",
+                            "potcar_symbols", "run_type"}
         if parameters:
             self._parameters.update(parameters)
         self._data = data if data else []
@@ -162,8 +164,11 @@ class VaspToComputedEntryDrone(AbstractDrone):
         if "relax1" in subdirs and "relax2" in subdirs:
             return [parent]
         if (not parent.endswith("/relax1")) and \
-                (not parent.endswith("/relax2")) and \
-                len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0:
+           (not parent.endswith("/relax2")) and (
+               len(glob.glob(os.path.join(parent, "vasprun.xml*"))) > 0 or (
+               len(glob.glob(os.path.join(parent, "POSCAR*"))) > 0 and
+               len(glob.glob(os.path.join(parent, "OSZICAR*"))) > 0)
+           ):
             return [parent]
         return []
 
@@ -198,7 +203,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
 
     def __init__(self, inc_structure=False):
         self._inc_structure = inc_structure
-        self._parameters = {"is_hubbard", "hubbards", "potcar_symbols",
+        self._parameters = {"is_hubbard", "hubbards", "potcar_spec",
                             "run_type"}
 
     def assimilate(self, path):
@@ -213,15 +218,16 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                     search_str = os.path.join(path, "relax2", filename + "*")
                     files_to_parse[filename] = glob.glob(search_str)[-1]
             else:
-                files_to_parse["INCAR"] = glob.glob(os.path.join(path,
-                                                                 "INCAR*"))[0]
-                files_to_parse["POTCAR"] = glob.glob(
-                    os.path.join(path, "POTCAR*"))[-1]
-
-                for filename in ("CONTCAR", "OSZICAR", "POSCAR"):
+                for filename in (
+                    "INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR", "DYNMAT"
+                ):
                     files = glob.glob(os.path.join(path, filename + "*"))
-                    if len(files) == 1:
-                        files_to_parse[filename] = files[0]
+                    if len(files) < 1:
+                        continue
+                    if len(files) == 1 or filename == "INCAR" or \
+                       filename == "POTCAR" or filename == "DYNMAT":
+                        files_to_parse[filename] = files[-1]\
+                            if filename == "POTCAR" else files[0]
                     elif len(files) > 1:
                         """
                         This is a bit confusing, since there maybe be
@@ -247,38 +253,53 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                                 break
                             files_to_parse[filename] = fname
 
-            poscar = Poscar.from_file(files_to_parse["POSCAR"])
-            contcar = Poscar.from_file(files_to_parse["CONTCAR"])
+            poscar, contcar, incar, potcar, oszicar, dynmat = [None]*6
+            if 'POSCAR' in files_to_parse:
+                poscar = Poscar.from_file(files_to_parse["POSCAR"])
+            if 'CONTCAR' in files_to_parse:
+                contcar = Poscar.from_file(files_to_parse["CONTCAR"])
+            if 'INCAR' in files_to_parse:
+                incar = Incar.from_file(files_to_parse["INCAR"])
+            if 'POTCAR' in files_to_parse:
+                potcar = Potcar.from_file(files_to_parse["POTCAR"])
+            if 'OSZICAR' in files_to_parse:
+                oszicar = Oszicar(files_to_parse["OSZICAR"])
+            if 'DYNMAT' in files_to_parse:
+                dynmat = Dynmat(files_to_parse["DYNMAT"])
 
-            param = {}
-
-            incar = Incar.from_file(files_to_parse["INCAR"])
-            if "LDAUU" in incar:
+            param = {"hubbards":{}}
+            if poscar is not None and incar is not None and "LDAUU" in incar:
                 param["hubbards"] = dict(zip(poscar.site_symbols,
                                              incar["LDAUU"]))
-            else:
-                param["hubbards"] = {}
-            param["is_hubbard"] = (incar.get("LDAU", False) and
-                                   sum(param["hubbards"].values()) > 0)
-            param["run_type"] = "GGA+U" if param["is_hubbard"] else "GGA"
+            param["is_hubbard"] = (
+                incar.get("LDAU", False) and sum(param["hubbards"].values()) > 0
+            ) if incar is not None else False
+            param["run_type"] = None
+            if incar is not None:
+                param["run_type"] = "GGA+U" if param["is_hubbard"] else "GGA"
             param["history"] = _get_transformation_history(path)
-
-            potcar = Potcar.from_file(files_to_parse["POTCAR"])
-            param["potcar_symbols"] = potcar.symbols
-            oszicar = Oszicar(files_to_parse["OSZICAR"])
-            energy = oszicar.final_energy
-            structure = contcar.structure
-            initial_vol = poscar.structure.volume
-            final_vol = contcar.structure.volume
-            delta_volume = (final_vol / initial_vol - 1)
+            param["potcar_spec"] = potcar.spec if potcar is not None else None
+            energy = oszicar.final_energy if oszicar is not None else 1e10
+            structure = contcar.structure if contcar is not None\
+                else poscar.structure
+            initial_vol = poscar.structure.volume if poscar is not None else \
+                None
+            final_vol = contcar.structure.volume if contcar is not None else \
+                None
+            delta_volume = None
+            if initial_vol is not None and final_vol is not None:
+                delta_volume = (final_vol / initial_vol - 1)
             data = {"filename": path, "delta_volume": delta_volume}
+            if dynmat is not None:
+                data['phonon_frequencies'] = dynmat.get_phonon_frequencies()
             if self._inc_structure:
-                entry = ComputedStructureEntry(structure, energy,
-                                               parameters=param,
-                                               data=data)
+                entry = ComputedStructureEntry(
+                    structure, energy, parameters=param, data=data
+                )
             else:
-                entry = ComputedEntry(structure.composition, energy,
-                                      parameters=param, data=data)
+                entry = ComputedEntry(
+                  structure.composition, energy, parameters=param, data=data
+                )
             return entry
 
         except Exception as ex:

@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -32,7 +34,7 @@ import numpy as np
 from pymatgen.core import Structure, get_el_sp
 import pymatgen.core.physical_constants as phyc
 from pymatgen.serializers.json_coders import PMGSONable
-from pymatgen.io.vaspio.vasp_output import Vasprun
+from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.coord_utils import pbc_diff
 
 

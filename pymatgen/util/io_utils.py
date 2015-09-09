@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -6,7 +8,7 @@ from __future__ import unicode_literals
 This module provides utility classes for io operations.
 """
 
-__author__ = "Shyue Ping Ong, Rickard Armiento, Anubhav Jain, G Matteo"
+__author__ = "Shyue Ping Ong, Rickard Armiento, Anubhav Jain, G Matteo, Ioannis Petousis"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -15,8 +17,7 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 import re
-import numpy
-import six
+from monty.io import zopen
 
 
 def clean_lines(string_list, remove_empty_lines=True):
@@ -64,7 +65,7 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
     you interact with it in run() and test(). Hence, in many occasions it is
     thus clever to use results=self.
 
-    Author: Rickard Armiento
+    Author: Rickard Armiento, Ioannis Petousis
 
     Returns:
         results
@@ -74,18 +75,17 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
 
     # Compile strings into regexs
     for entry in search:
-        if isinstance(entry[0], str):
-            entry[0] = re.compile(entry[0])
+        entry[0] = re.compile(entry[0])
 
-    with open(filename) as f:
+    with zopen(filename, "rt") as f:
         for line in f:
-            for i in range(len(search)):
-                match = search[i][0].search(line)
-                if match and (search[i][1] is not None
-                              or search[i][1](results, line)):
+            for entry in search:
+                match = re.search(entry[0], line)
+                if match and (entry[1] is None
+                              or entry[1](results, line)):
                     if debug is not None:
                         debug(results, match)
-                    search[i][2](results, match)
+                    entry[2](results, match)
                     if postdebug is not None:
                         postdebug(results, match)
 

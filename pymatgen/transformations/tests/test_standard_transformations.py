@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -22,7 +24,7 @@ import six
 from pymatgen.core.lattice import Lattice
 from pymatgen.core import PeriodicSite
 from monty.json import MontyDecoder
-from pymatgen.io.vaspio.vasp_input import Poscar
+from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.transformations.standard_transformations import *
 from pymatgen.symmetry.structure import SymmetrizedStructure
 

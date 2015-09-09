@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -83,17 +85,21 @@ class MoleculeStructureComparator(PMGSONable):
 
     ionic_element_list = ['Na', 'Mg', 'Al', 'Sc', 'V', 'Cr', "Mn", 'Fe', 'Co', 'Ni',
                           'Cu', 'Zn', 'Ga', 'Rb', 'Sr']
+    halogen_list = ['F', 'Cl', 'Br', 'I']
 
     def __init__(self, bond_length_cap=0.3,
                  covalent_radius=CovalentRadius.radius,
                  priority_bonds=(),
                  priority_cap=0.8,
-                 ignore_ionic_bond=True):
+                 ignore_ionic_bond=True,
+                 bond_13_cap=0.05):
         self.bond_length_cap = bond_length_cap
         self.covalent_radius = covalent_radius
         self.priority_bonds = [tuple(sorted(b)) for b in priority_bonds]
         self.priority_cap = priority_cap
         self.ignore_ionic_bond = ignore_ionic_bond
+        self.ignore_halogen_self_bond = True
+        self.bond_13_cap = bond_13_cap
 
     def are_equal(self, mol1, mol2):
         """
@@ -106,6 +112,18 @@ class MoleculeStructureComparator(PMGSONable):
         b1 = set(self._get_bonds(mol1))
         b2 = set(self._get_bonds(mol2))
         return b1 == b2
+
+    @staticmethod
+    def get_13_bonds(priority_bonds):
+        all_bond_pairs = list(itertools.combinations(priority_bonds, r=2))
+        all_2_bond_atoms = [set(b1+b2) for b1, b2 in all_bond_pairs]
+        all_13_bond_atoms = [a for a in all_2_bond_atoms if len(a) == 3]
+        all_2_and_13_bonds = set([tuple(sorted(b))
+                                  for b in
+                                  list(itertools.chain(*[list(itertools.combinations(p, 2))
+                                                         for p in all_13_bond_atoms]))])
+        bonds_13 = all_2_and_13_bonds - set([tuple(b) for b in priority_bonds])
+        return tuple(sorted(bonds_13))
 
     def _get_bonds(self, mol):
         """
@@ -132,12 +150,18 @@ class MoleculeStructureComparator(PMGSONable):
         if len(unavailable_elements) > 0:
             raise ValueError("The covalent radius for element {} is not "
                              "available".format(unavailable_elements))
+        bond_13 = self.get_13_bonds(self.priority_bonds)
         max_length = [(self.covalent_radius[mol.sites[p[0]].specie.symbol] +
                        self.covalent_radius[mol.sites[p[1]].specie.symbol]) *
-                      (1 + (self.priority_cap
-                            if p in self.priority_bonds
-                            else self.bond_length_cap))
+                      (1 + (self.priority_cap if p in self.priority_bonds
+                            else (self.bond_length_cap if p not in bond_13
+                                  else self.bond_13_cap))) *
+                      (0.1 if (self.ignore_halogen_self_bond and p not in self.priority_bonds and
+                               mol.sites[p[0]].specie.symbol in self.halogen_list and
+                               mol.sites[p[1]].specie.symbol in self.halogen_list)
+                       else 1.0)
                       for p in all_pairs]
+
         bonds = [bond
                  for bond, dist, cap in zip(all_pairs, pair_dists, max_length)
                  if dist <= cap]

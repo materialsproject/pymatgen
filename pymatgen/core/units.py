@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -97,6 +99,7 @@ BASE_UNITS["memory"].update({k.lower(): v for k, v in BASE_UNITS["memory"].items
 DERIVED_UNITS = {
     "energy": {
         "eV": {"kg": 1, "m": 2, "s": -2, e: 1},
+        "meV": {"kg": 1, "m": 2, "s": -2, e * 1e-3: 1},
         "Ha": {"kg": 1, "m": 2, "s": -2, e * Ha_to_eV: 1},
         "Ry": {"kg": 1, "m": 2, "s": -2, e * Ry_to_eV: 1},
         "J": {"kg": 1, "m": 2, "s": -2},
@@ -107,7 +110,7 @@ DERIVED_UNITS = {
         "e": {"A": 1, "s": 1, e: 1},
     },
     "force": {
-        "N": {"kg": 1, "m": 1, "s": -2}
+        "N": {"kg": 1, "m": 1, "s": -2},
     },
     "pressure": {
         "Pa": {"kg": 1, "m": -1, "s": -2},

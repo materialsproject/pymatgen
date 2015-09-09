@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -233,8 +235,8 @@ class RemoveExistingFilter(AbstractStructureFilter):
             return finder.get_spacegroup_number()
 
         for s in self._existing_structures:
-            if self._sm._comparator.get_structure_hash(structure) ==\
-                    self._sm._comparator.get_structure_hash(s):
+            if self._sm._comparator.get_hash(structure.composition) ==\
+                    self._sm._comparator.get_hash(s.composition):
                 if self._symprec is None or \
                         get_sg(s) == get_sg(structure):
                     if self._sm.fit(s, structure):
@@ -261,6 +263,38 @@ class ChargeBalanceFilter(AbstractStructureFilter):
             return True
         else:
             return False
+
+    def as_dict(self):
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
+
+
+class SpeciesMaxDistFilter(AbstractStructureFilter):
+    """
+    This filter removes structures that do have two particular species that are
+    not nearest neighbors by a predefined max_dist. For instance, if you are
+    analyzing Li battery materials, you would expect that each Li+ would be
+    nearest neighbor to lower oxidation state transition metal for
+    electrostatic reasons. This only works if the structure is oxidation state
+    decorated, as structures with only elemental sites are automatically
+    assumed to have net charge of 0.
+    """
+    def __init__(self, sp1, sp2, max_dist):
+        self.sp1 = get_el_sp(sp1)
+        self.sp2 = get_el_sp(sp2)
+        self.max_dist = max_dist
+
+    def test(self, structure):
+        sp1_indices = [i for i, site in enumerate(structure) if
+                       site.specie == self.sp1]
+        sp2_indices = [i for i, site in enumerate(structure) if
+                       site.specie == self.sp2]
+        fcoords = structure.frac_coords
+        fcoords1 = fcoords[sp1_indices, :]
+        fcoords2 = fcoords[sp2_indices, :]
+        lattice = structure.lattice
+        dists = lattice.get_all_distances(fcoords1, fcoords2)
+        return all([any(row) for row in dists < self.max_dist])
 
     def as_dict(self):
         return {"@module": self.__class__.__module__,
