@@ -416,7 +416,8 @@ class BSPlotter(object):
         if self._bs.is_metal():
             e_min = -10
             e_max = 10
-        band_linewidth = 3
+        #band_linewidth = 3
+        band_linewidth = 1
 
         data = self.bs_plot_data(zero_to_efermi)
         if not smooth:
@@ -493,16 +494,14 @@ class BSPlotter(object):
                     for cbm in data['cbm']:
                         plt.scatter(cbm[0], cbm[1], color='r', marker='o',
                                     s=100)
-
-                        for vbm in data['vbm']:
-                            plt.scatter(vbm[0], vbm[1], color='g', marker='o',
-                                        s=100)
-
-                    plt.ylim(data['vbm'][0][1] + e_min,
-                             data['cbm'][0][1] + e_max)
+                    for vbm in data['vbm']:
+                        plt.scatter(vbm[0], vbm[1], color='g', marker='o',
+                                    s=100)	
+                plt.ylim(data['vbm'][0][1] + e_min,
+                         data['cbm'][0][1] + e_max)
         else:
             plt.ylim(ylim)
-
+           
         plt.tight_layout()
 
         return plt
