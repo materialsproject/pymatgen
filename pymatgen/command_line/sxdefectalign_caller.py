@@ -94,9 +94,11 @@ class FreysoldtCorrection(object):
         self.errors={}
         #check to see if sxdefectalign in path
         command=['sxdefectalign','-v']
-        valid=['+-----------------------------------------------------------------------------\n',
-               '| S/PHI/nX DFT package by S. Boeck, J. Neugebauer et al.\n', '| S/PHI/nX release 1.0\n',
-               '| sxdefectalign by C. Freysoldt\n', '| version 1.3\n',
+        valid=['Option --ecut is required!\n', '+-----------------------------------------------------------------------------\n',
+               '| S/PHI/nX release 2.0+\n',
+               '| based on S/PHI/nX package by S. Boeck, J. Neugebauer et al.\n',
+               '| sxdefectalign by C. Freysoldt\n',
+               '| version 1.3\n',
                '+-----------------------------------------------------------------------------\n']
         with ScratchDir('.'):
             #in case NERSC (Hopper) has issues with python subprocess can use hack
