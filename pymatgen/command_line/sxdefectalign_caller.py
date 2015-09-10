@@ -67,16 +67,8 @@ class FreysoldtCorrection(object):
                 the given Locpot's but this is time consuming to load these files
 
         """
-        if os.path.exists(locpot_ref):
-            self._locpotref=os.path.abspath(str(locpot_ref))
-        else:
-            print('Could not find Locpot_vref in specified path ' \
-                  'Double check path input for locpot_ref')
-        if os.path.exists(locpot_def):
-            self._locpotdef=os.path.abspath(str(locpot_def))
-        else:
-            print('Could not find Locpot_vdef in specified path ' \
-                  'Double check path input for locpot_def')
+        self._locpotref = self.prepare_locpot(locpot_ref)
+        self._locpotdef = self.prepare_locpot(locpot_def)
         self._charge = charge
         self._epsilon = epsilon
         self._encut = encut
@@ -163,8 +155,7 @@ class FreysoldtCorrection(object):
                 with open('tmpoutput') as f:
                     output = f.readlines()
                 print('output from sxdefectalign = '+str(output)+'\n')
-                val =  output[-1].split()[3].strip()
-
+                val =  output[-2].split()[3].strip()
                 #return to normal code
                 result.append(float(val))
                 print("chg correction is "+str(result[-1])+'\n')
@@ -240,6 +231,20 @@ class FreysoldtCorrection(object):
         self.PCen=result    #triplet for PC correction with respect to each axis
         self.potalign=platy #triplet of potential alignment for each axis
 
+    def prepare_locpot(self, locpot):
+        if not os.path.exists(locpot):
+            print('Could not find Locpot in specified path ' \
+                  'Double check path input for locpot_ref and locpot_def')
+        with open(locpot) as f_in:
+            with open(locpot + '.sxd', 'w') as f_out:
+                nline = 0
+                while True:
+                    nline += 1
+                    line = f_in.readline()
+                    if nline == 6: continue
+                    f_out.write(line)
+                    if line == '': break
+        return locpot + '.sxd'
 
     def get_full(self):
         """
