@@ -533,9 +533,7 @@ class StructureTest(PymatgenTest):
         op = SymmOp([[1, 1, 0, 0.5], [1, 0, 0, 0.5], [0, 0, 1, 0.5],
                      [0, 0, 0, 1]])
         s = self.structure.copy()
-        s.to(filename="Initial.cif")
         s.apply_operation(op, fractional=True)
-        s.to(filename="Final.cif")
         self.assertArrayAlmostEqual(
             s.lattice.matrix,
             [[5.760297, 3.325710, 0.000000],
