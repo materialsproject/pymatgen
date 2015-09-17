@@ -620,5 +620,17 @@ loop_
         sm = StructureMatcher(stol=0.05, ltol=0.01, angle_tol=0.1)
         self.assertTrue(sm.fit(s_ref, s_test))
 
+    def test_empty(self):
+        #single line
+        cb = CifBlock.from_string("data_mwe\nloop_\n_tag\n ''")
+        self.assertEqual(cb.data['_tag'][0], '')
+
+        #multi line
+        cb = CifBlock.from_string("data_mwe\nloop_\n_tag\n;\n;")
+        self.assertEqual(cb.data['_tag'][0], '')
+
+        cb2 = CifBlock.from_string(str(cb))
+        self.assertEqual(cb, cb2)
+
 if __name__ == '__main__':
     unittest.main()
