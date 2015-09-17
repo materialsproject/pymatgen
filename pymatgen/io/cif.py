@@ -79,6 +79,11 @@ class CifBlock(object):
         # get an Exception
         self.header = header[:74]
 
+    def __eq__(self, other):
+        return self.loops == other.loops \
+            and self.data == other.data \
+            and self.header == other.header
+
     def __getitem__(self, key):
         return self.data[key]
 
@@ -130,6 +135,8 @@ class CifBlock(object):
         if len(v) > self.maxlen:
             return ';\n' + textwrap.fill(v, self.maxlen) + '\n;'
         #add quotes if necessary
+        if v == '':
+            return '""'
         if (" " in v or v[0] == "_") \
                 and not (v[0] == "'" and v[-1] == "'") \
                 and not (v[0] == '"' and v[-1] == '"'):
@@ -164,7 +171,7 @@ class CifBlock(object):
             if multiline:
                 if l.startswith(";"):
                     multiline = False
-                    q.append(" ".join(ml))
+                    q.append(('', '', '', ' '.join(ml)))
                     ml = []
                     l = l[1:].strip()
                 else:
