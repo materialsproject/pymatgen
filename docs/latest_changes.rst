@@ -1,9 +1,9 @@
 Change log
 ==========
 
-v3.2.0
+v3.2.1
 ------
-* Force conversion to an actual list in selective dynamics and velocities in
-  Poscar.
-* fix small bug in BSPlotter (wrong ylim)
-* Elastic tensor parsing in Outcar
+* Fix wrong U value for Ce and Eu.
+* Properly handle empty multiline strings in Cif
+* Add ability to get specific data in MPRester.get_entries. Make all get_entry 
+  methods consistent  in kwargs.
