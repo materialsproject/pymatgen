@@ -19,6 +19,7 @@ __date__ = '8/1/15'
 import re
 
 import numpy as np
+import warnings
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.core import Element, Molecule, Composition
@@ -423,7 +424,7 @@ class GaussianInput(object):
     def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "molecule": self.molecule.to_dict,
+                "molecule": self.molecule.as_dict(),
                 "functional": self.functional,
                 "basis_set": self.basis_set,
                 "route_parameters": self.route_parameters,
@@ -431,7 +432,8 @@ class GaussianInput(object):
                 "charge": self.charge,
                 "spin_multiplicity": self.spin_multiplicity,
                 "input_parameters": self.input_parameters,
-                "link0_parameters": self.link0_parameters}
+                "link0_parameters": self.link0_parameters,
+                "dieze_tag": self.dieze_tag}
 
     @classmethod
     def from_dict(cls, d):
@@ -635,10 +637,10 @@ class GaussianOutput(object):
                                     coords.append([float(i) for i in toks[3:6]])
                                 self.structures.append(Molecule(sp, coords))
                     elif termination_patt.search(line):
+                        print(line)
                         m = termination_patt.search(line)
                         if m.group(1) == "Normal":
                             self.properly_terminated = True
-                        terminated = True
                     elif error_patt.search(line):
                         error_defs = {"! Non-Optimized Parameters !": "Optimization error",
                                         "Convergence failure": "SCF convergence error"
@@ -690,7 +692,9 @@ class GaussianOutput(object):
                             self.Mulliken_charges = mulliken_charges
 
         if not terminated:
-            raise IOError("Bad Gaussian output file.")
+            #raise IOError("Bad Gaussian output file.")
+            warnings.warn("\n" + self.filename + \
+                ": Termination error or bad Gaussian output file !")
 
     def _check_pcm(self, line):
         energy_patt = re.compile("(Dispersion|Cavitation|Repulsion) energy"
