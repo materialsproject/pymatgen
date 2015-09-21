@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -22,6 +24,7 @@ import re
 
 from pymatgen.serializers.json_coders import PMGSONable
 from pymatgen.core.composition import Composition
+from pymatgen.entries.computed_entries import ComputedEntry
 from monty.json import MontyDecoder
 
 logger = logging.getLogger(__name__)
@@ -253,6 +256,16 @@ class BalancedReaction(PMGSONable):
                 product_str.append("{:.3f} {}".format(scaled_coeff,
                                                       comp.reduced_formula))
         return " + ".join(reactant_str) + " -> " + " + ".join(product_str)
+
+    def as_entry(self, energies):
+        """
+        Returns a ComputedEntry representation of the reaction.
+        :return:
+        """
+        comp = sum(self._all_comp, Composition())
+        entry = ComputedEntry(0.5 * comp, self.calculate_energy(energies))
+        entry.name = self.__str__()
+        return entry
 
     def as_dict(self):
         return {"@module": self.__class__.__module__,

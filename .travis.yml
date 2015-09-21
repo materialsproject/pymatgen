@@ -1,8 +1,7 @@
 language: python
 python:
   - "2.7"
-  - "3.3"
-  - "3.4.1"
+  - "3.4"
 git:
   depth: 1
 env:
@@ -11,25 +10,30 @@ env:
     - PATH=$PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit
     - GULP_LIB=`pwd`/cmd_line/gulp/Libraries
 # command to install dependencies
+sudo: false
+addons:
+  apt:
+    packages:
+    - python-scipy
+    - libblas-dev
+    - liblapack-dev
+    - gfortran
+    - python-pip
 install:
-  - "sudo apt-get install python-scipy"
-  - "easy_install -U setuptools"
-  - "pip install -r requirements.txt"
+  - travis_wait pip install -q -r requirements.txt
 # This is needed, otherwise, nosetests can't find the installed pymatgen C
 # extensions.
 before_script:
   - python setup.py develop
 # command to run tests, e.g. python setup.py test
-script: nosetests
+script: nosetests pymatgen
 branches:
   only:
     - master
     - stable
-    - pmg3
 notifications:
   email:
     recipients:
       - shyuep@gmail.com
-      - wrichard@mit.edu
     on_success: change
     on_failure: always

@@ -1,0 +1,86 @@
+#
+#  LEWIS library - collection of potentials based
+#  around the Catlow oxygen-oxygen potential
+#
+#  Taken from Tables 1 and 2 of Lewis and Catlow. 
+#  Potentials derived using method (a) Extrapolation 
+#  for systems with limited data - fit rho as being 
+#  common to all related oxides and only fit A for 
+#  each system (b) fitting of both A and rho where
+#  structures are of low symmetry.
+#
+#  Reference:
+#  (1) G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid
+#      State Phys., 18, 1149-1161 (1985)
+#
+species
+# Table 1 species
+Ca_2+ core  2.00000
+Sc_2+ core  2.00000
+Ti_2+ core  2.00000
+V_2+  core  2.00000
+Cr_2+ core  2.00000
+Mn_2+ core  2.00000
+Fe_2+ core  2.00000
+Co_2+ core  2.00000
+Ni_2+ core  2.00000
+Zn_2+ core  2.00000
+Zr_4+ core  4.00000
+Cd_2+ core  2.00000
+Hf_4+ core  4.00000
+Ce_4+ core  4.00000
+Eu_2+ core  2.00000
+Tb_4+ core  4.00000
+Th_4+ core  4.00000
+U_4+  core  4.00000
+# Table 2 species
+Sc_3+ core  3.00000
+Mn_3+ core  3.00000
+Y_3+  core  3.00000
+La_3+ core  3.00000
+Nd_3+ core  3.00000
+Eu_3+ core  3.00000
+Gd_3+ core  3.00000
+Ho_3+ core  3.00000
+Yb_3+ core  3.00000
+Lu_3+ core  3.00000
+Pu_3+ core  3.00000
+# Oxygen
+O     core  0.86902
+O     shel -2.86902
+buckingham
+# Table 1 potentials
+Ca_2+ core    O shel  1227.7 0.33720  0.00000 0.0 10.0
+Sc_2+ core    O shel   838.6 0.33720  0.00000 0.0 10.0
+Ti_2+ core    O shel   633.3 0.33720  0.00000 0.0 10.0
+V_2+  core    O shel   557.8 0.33720  0.00000 0.0 10.0
+Cr_2+ core    O shel   619.8 0.33720  0.00000 0.0 10.0
+Mn_2+ core    O shel   832.7 0.33720  0.00000 0.0 10.0
+Fe_2+ core    O shel   725.7 0.33720  0.00000 0.0 10.0
+Co_2+ core    O shel   684.9 0.33720  0.00000 0.0 10.0
+Ni_2+ core    O shel   641.2 0.33720  0.00000 0.0 10.0
+Zn_2+ core    O shel   700.3 0.33720  0.00000 0.0 10.0
+Zr_4+ core    O shel  1453.8 0.35000  0.00000 0.0 10.0
+Cd_2+ core    O shel   868.3 0.35000  0.00000 0.0 10.0
+Hf_4+ core    O shel  1454.6 0.35000  0.00000 0.0 10.0
+Ce_4+ core    O shel  1017.4 0.39490  0.00000 0.0 10.0
+Eu_2+ core    O shel   665.2 0.39490  0.00000 0.0 10.0
+Tb_4+ core    O shel   905.3 0.39490  0.00000 0.0 10.0
+Th_4+ core    O shel  1144.6 0.39490  0.00000 0.0 10.0
+U_4+  core    O shel  1055.0 0.39490  0.00000 0.0 10.0
+# Table 1 potentials
+Sc_3+ core    O shel  1299.4 0.33120  0.00000 0.0 10.0
+Mn_3+ core    O shel  1257.9 0.32140  0.00000 0.0 10.0
+Y_3+  core    O shel  1345.1 0.34910  0.00000 0.0 10.0
+La_3+ core    O shel  1439.7 0.36510  0.00000 0.0 10.0
+Nd_3+ core    O shel  1379.9 0.36010  0.00000 0.0 10.0
+Eu_3+ core    O shel  1358.0 0.35560  0.00000 0.0 10.0
+Gd_3+ core    O shel  1336.8 0.35510  0.00000 0.0 10.0
+Ho_3+ core    O shel  1350.2 0.34870  0.00000 0.0 10.0
+Yb_3+ core    O shel  1309.6 0.34620  0.00000 0.0 10.0
+Lu_3+ core    O shel  1347.1 0.34300  0.00000 0.0 10.0
+Pu_3+ core    O shel  1376.2 0.35930  0.00000 0.0 10.0
+# Oxygen-oxygen potential
+O     shel    O shel 22764.0 0.14900 27.87900 0.0 12.0
+spring
+O  74.92

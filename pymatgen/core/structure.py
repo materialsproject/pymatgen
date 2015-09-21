@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -1300,9 +1302,9 @@ class IStructure(SiteCollection, PMGSONable):
         Returns:
             (str) if filename is None. None otherwise.
         """
-        from pymatgen.io.cifio import CifWriter
-        from pymatgen.io.vaspio import Poscar
-        from pymatgen.io.cssrio import Cssr
+        from pymatgen.io.cif import CifWriter
+        from pymatgen.io.vasp import Poscar
+        from pymatgen.io.cssr import Cssr
         filename = filename or ""
         fmt = "" if fmt is None else fmt.lower()
         fname = os.path.basename(filename)
@@ -1347,9 +1349,9 @@ class IStructure(SiteCollection, PMGSONable):
         Returns:
             IStructure / Structure
         """
-        from pymatgen.io.cifio import CifParser
-        from pymatgen.io.vaspio import Poscar
-        from pymatgen.io.cssrio import Cssr
+        from pymatgen.io.cif import CifParser
+        from pymatgen.io.vasp import Poscar
+        from pymatgen.io.cssr import Cssr
         fmt = fmt.lower()
         if fmt == "cif":
             parser = CifParser.from_string(input_string)
@@ -1383,8 +1385,7 @@ class IStructure(SiteCollection, PMGSONable):
         Args:
             filename (str): The filename to read from.
             primitive (bool): Whether to convert to a primitive cell
-                Only available for cifs, POSCAR, CSSR, JSON, YAML
-                Defaults to True.
+                Only available for cifs. Defaults to True.
             sort (bool): Whether to sort sites. Default to False.
 
         Returns:
@@ -1398,7 +1399,7 @@ class IStructure(SiteCollection, PMGSONable):
                 s = s.get_sorted_structure()
             return s
 
-        from pymatgen.io.vaspio import Vasprun, Chgcar
+        from pymatgen.io.vasp import Vasprun, Chgcar
         from monty.io import zopen
         fname = os.path.basename(filename)
         with zopen(filename) as f:
@@ -1875,9 +1876,9 @@ class IMolecule(SiteCollection, PMGSONable):
         Returns:
             (str) if filename is None. None otherwise.
         """
-        from pymatgen.io.xyzio import XYZ
-        from pymatgen.io.gaussianio import GaussianInput
-        from pymatgen.io.babelio import BabelMolAdaptor
+        from pymatgen.io.xyz import XYZ
+        from pymatgen.io.gaussian import GaussianInput
+        from pymatgen.io.babel import BabelMolAdaptor
 
         fmt = "" if fmt is None else fmt.lower()
         fname = os.path.basename(filename or "")
@@ -1928,8 +1929,8 @@ class IMolecule(SiteCollection, PMGSONable):
         Returns:
             IMolecule or Molecule.
         """
-        from pymatgen.io.xyzio import XYZ
-        from pymatgen.io.gaussianio import GaussianInput
+        from pymatgen.io.xyz import XYZ
+        from pymatgen.io.gaussian import GaussianInput
         if fmt.lower() == "xyz":
             m = XYZ.from_string(input_string).molecule
         elif fmt in ["gjf", "g03", "g09", "com", "inp"]:
@@ -1941,7 +1942,7 @@ class IMolecule(SiteCollection, PMGSONable):
             d = yaml.load(input_string, Loader=Loader)
             return cls.from_dict(d)
         else:
-            from pymatgen.io.babelio import BabelMolAdaptor
+            from pymatgen.io.babel import BabelMolAdaptor
             m = BabelMolAdaptor.from_string(input_string,
                                             file_format=fmt).pymatgen_mol
         return cls.from_sites(m)
@@ -1961,7 +1962,7 @@ class IMolecule(SiteCollection, PMGSONable):
         Returns:
             Molecule
         """
-        from pymatgen.io.gaussianio import GaussianOutput
+        from pymatgen.io.gaussian import GaussianOutput
         with zopen(filename) as f:
             contents = f.read()
         fname = filename.lower()
@@ -1978,7 +1979,7 @@ class IMolecule(SiteCollection, PMGSONable):
         elif fnmatch(fname, "*.yaml*"):
             return cls.from_str(contents, fmt="yaml")
         else:
-            from pymatgen.io.babelio import BabelMolAdaptor
+            from pymatgen.io.babel import BabelMolAdaptor
             m = re.search("\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
                           filename.lower())
             if m:
@@ -2027,8 +2028,7 @@ class Structure(IStructure, collections.MutableSequence):
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
         """
-        IStructure.__init__(
-            self, lattice, species, coords,
+        super(Structure, self).__init__(lattice, species, coords,
             validate_proximity=validate_proximity, to_unit_cell=to_unit_cell,
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties)
@@ -2241,7 +2241,7 @@ class Structure(IStructure, collections.MutableSequence):
         self._sites = [s for i, s in enumerate(self._sites)
                        if i not in indices]
 
-    def apply_operation(self, symmop):
+    def apply_operation(self, symmop, fractional=False):
         """
         Apply a symmetry operation to the structure and return the new
         structure. The lattice is operated by the rotation matrix only.
@@ -2249,16 +2249,33 @@ class Structure(IStructure, collections.MutableSequence):
 
         Args:
             symmop (SymmOp): Symmetry operation to apply.
+            fractional (bool): Whether the symmetry operation is applied in
+                fractional space. Defaults to False, i.e., symmetry operation
+                is applied in cartesian coordinates.
         """
-        self._lattice = Lattice([symmop.apply_rotation_only(row)
-                                 for row in self._lattice.matrix])
+        if not fractional:
+            self._lattice = Lattice([symmop.apply_rotation_only(row)
+                                     for row in self._lattice.matrix])
 
-        def operate_site(site):
-            new_cart = symmop.operate(site.coords)
-            new_frac = self._lattice.get_fractional_coords(new_cart)
-            return PeriodicSite(site.species_and_occu, new_frac, self._lattice,
-                                properties=site.properties)
-        self._sites = list(map(operate_site, self._sites))
+            def operate_site(site):
+                new_cart = symmop.operate(site.coords)
+                new_frac = self._lattice.get_fractional_coords(new_cart)
+                return PeriodicSite(site.species_and_occu, new_frac, self._lattice,
+                                    properties=site.properties)
+
+        else:
+            new_latt = np.dot(symmop.rotation_matrix, self._lattice.matrix)
+            self._lattice = Lattice(new_latt)
+
+            def operate_site(site):
+                return PeriodicSite(site.species_and_occu,
+                                    symmop.operate(site.frac_coords),
+                                    self._lattice,
+                                    properties=site.properties)
+
+        self._sites = [operate_site(s) for s in self._sites]
+
+
 
     def modify_lattice(self, new_lattice):
         """
@@ -2528,8 +2545,7 @@ class Molecule(IMolecule, collections.MutableSequence):
                 sequences have to be the same length as the atomic species
                 and fractional_coords. Defaults to None for no properties.
         """
-        IMolecule.__init__(
-            self, species, coords, charge=charge,
+        super(Molecule, self).__init__(species, coords, charge=charge,
             spin_multiplicity=spin_multiplicity,
             validate_proximity=validate_proximity,
             site_properties=site_properties)

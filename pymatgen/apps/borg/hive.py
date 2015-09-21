@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -26,9 +28,9 @@ import six
 from six.moves import zip
 
 from monty.io import zopen
-from pymatgen.io.vaspio.vasp_input import Incar, Potcar, Poscar
-from pymatgen.io.vaspio.vasp_output import Vasprun, Oszicar, Dynmat
-from pymatgen.io.gaussianio import GaussianOutput
+from pymatgen.io.vasp.inputs import Incar, Potcar, Poscar
+from pymatgen.io.vasp.outputs import Vasprun, Oszicar, Dynmat
+from pymatgen.io.gaussian import GaussianOutput
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
 from pymatgen.serializers.json_coders import PMGSONable
@@ -100,7 +102,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
             ComputedEntries.
         parameters (list): Input parameters to include. It has to be one of
             the properties supported by the Vasprun object. See
-            :class:`pymatgen.io.vaspio.Vasprun`. If parameters == None,
+            :class:`pymatgen.io.vasp.Vasprun`. If parameters == None,
             a default set of parameters that are necessary for typical
             post-processing will be set.
         data (list): Output data to include. Has to be one of the properties
