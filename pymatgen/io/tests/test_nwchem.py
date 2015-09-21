@@ -415,6 +415,13 @@ class NwOutputTest(unittest.TestCase):
                                nwo_cosmo.data[7]["energies"][0]['gas phase'])
         self.assertAlmostEqual(-11165.227470576949,
                                nwo_cosmo.data[7]["energies"][0]['sol phase'])
+
+        self.assertAlmostEqual(nwo.data[1]["hessian"][0][0], 4.60187e+01)
+        self.assertAlmostEqual(nwo.data[1]["hessian"][1][2], -1.14030e-08)
+        self.assertAlmostEqual(nwo.data[1]["hessian"][2][3], 2.60819e+01)
+        self.assertAlmostEqual(nwo.data[1]["hessian"][6][6], 1.45055e+02)
+        self.assertAlmostEqual(nwo.data[1]["hessian"][11][14], 1.35078e+01)
+
         ie = (nwo.data[4]["energies"][-1] - nwo.data[2]["energies"][-1])
         ea = (nwo.data[2]["energies"][-1] - nwo.data[3]["energies"][-1])
         self.assertAlmostEqual(0.7575358046858582, ie)
@@ -446,7 +453,10 @@ class NwOutputTest(unittest.TestCase):
         self.assertEqual(nwo.data[1]['frequencies'][-1][0], 3696.74)
         self.assertEqual(nwo.data[1]['frequencies'][-1][1][-1],
                          (0.20498, -0.94542, -0.00073))
-
+        self.assertEqual(nwo.data[1]["normal_frequencies"][1][0], -70.72)
+        self.assertEqual(nwo.data[1]["normal_frequencies"][3][0], -61.92)
+        self.assertEqual(nwo.data[1]["normal_frequencies"][1][1][-1],
+                         (0.00056, 0.00042, 0.06781))
 
 
 
