@@ -1,10 +1,13 @@
-# coding: utf-8
 #!/usr/bin/env python
+#  coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
-'''
+
+"""
 Example script that generates FEFF input files from a cif file
 Remove comment # on write line to actually write files to disk
-'''
+"""
 
 from __future__ import division
 
@@ -18,9 +21,9 @@ __date__ = "April 7, 2013"
 
 import argparse
 
-from pymatgen.io.feffio_set import *
-from pymatgen.io.vaspio import *
-from pymatgen.io.cifio import CifParser
+from pymatgen.io.feff.sets import *
+from pymatgen.io.vasp import *
+from pymatgen.io.cif import CifParser
 
 parser = argparse.ArgumentParser(description='''
 Example script to generate FEFF input files from a cif file

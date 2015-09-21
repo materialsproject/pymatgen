@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -266,7 +268,7 @@ class Dos(PMGSONable):
 class CompleteDos(Dos):
     """
     This wrapper class defines a total dos, and also provides a list of PDos.
-    Mainly used by pymatgen.io.vaspio.Vasprun to create a complete Dos from
+    Mainly used by pymatgen.io.vasp.Vasprun to create a complete Dos from
     a vasprun.xml file. You are unlikely to try to generate this object
     manually.
 
@@ -285,9 +287,9 @@ class CompleteDos(Dos):
         Dict of partial densities of the form {Site:{Orbital:{Spin:Densities}}}
     """
     def __init__(self, structure, total_dos, pdoss):
-        Dos.__init__(self, total_dos.efermi, energies=total_dos.energies,
-                     densities={k: np.array(d)
-                                for k, d in total_dos.densities.items()})
+        super(CompleteDos, self).__init__(
+            total_dos.efermi, energies=total_dos.energies,
+            densities={k: np.array(d) for k, d in total_dos.densities.items()})
         self.pdos = pdoss
         self.structure = structure
 

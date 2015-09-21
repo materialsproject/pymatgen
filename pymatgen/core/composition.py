@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import division, unicode_literals
 
@@ -23,9 +25,9 @@ import string
 import six
 from six.moves import filter, map, zip
 
-from fractions import gcd
+from fractions import Fraction
 from functools import total_ordering
-from itertools import chain
+from monty.fractions import gcd
 from pymatgen.core.periodic_table import get_el_sp, Element
 from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import PMGSONable
@@ -208,6 +210,8 @@ class Composition(collections.Mapping, collections.Hashable, PMGSONable):
         return Composition({el: self[el] / other for el in self},
                            allow_negative=self.allow_negative)
 
+    __div__ = __truediv__
+
     def __hash__(self):
         """
         Minimally effective hash function that just distinguishes between
@@ -330,7 +334,7 @@ class Composition(collections.Mapping, collections.Hashable, PMGSONable):
             A pretty normalized formula and a multiplicative factor, i.e.,
             Li4Fe4P4O16 returns (LiFePO4, 4).
         """
-        all_int = all([x == int(x) for x in self._elmap.values()])
+        all_int = all(x == int(x) for x in self._elmap.values())
         if not all_int:
             return self.formula.replace(" ", ""), 1
         d = self.get_el_amt_dict()
@@ -341,6 +345,27 @@ class Composition(collections.Mapping, collections.Hashable, PMGSONable):
             factor /= 2
 
         return formula, factor
+
+    def get_integer_formula_and_factor(self, max_denominator=10000):
+        """
+        Calculates an integer formula and factor.
+
+        Args:
+            max_denominator (int): all amounts in the el:amt dict are
+                first converted to a Fraction with this maximum denominator
+
+        Returns:
+            A pretty normalized formula and a multiplicative factor, i.e.,
+            Li0.5O0.25 returns (Li2O, 0.25). O0.25 returns (O2, 0.125)
+        """
+        mul = gcd(*[Fraction(v).limit_denominator(max_denominator) for v
+                    in self.values()])
+        d = {k: round(v / mul) for k, v in self.get_el_amt_dict().items()}
+        (formula, factor) = reduce_formula(d)
+        if formula in Composition.special_formulas:
+            formula = Composition.special_formulas[formula]
+            factor /= 2
+        return formula, factor * mul
 
     @property
     def reduced_formula(self):
@@ -444,20 +469,20 @@ class Composition(collections.Mapping, collections.Hashable, PMGSONable):
         prototyping formulas. For example, all stoichiometric perovskites have
         anonymized_formula ABC3.
         """
-        reduced_comp = self.get_reduced_composition_and_factor()[0]
-        els = sorted(reduced_comp.elements, key=lambda e: reduced_comp[e])
-        anon_formula = []
-        for anon, e in zip(string.ascii_uppercase, els):
-            amt = reduced_comp[e]
-            if amt > 0:
-                if amt == 1:
-                    amt_str = ""
-                elif abs(amt % 1) < 1e-8:
-                    amt_str = str(int(amt))
-                else:
-                    amt_str = str(amt)
-                anon_formula.append("{}{}".format(anon, amt_str))
-        return "".join(anon_formula)
+        reduced = self.element_composition
+        if all(x == int(x) for x in self._elmap.values()):
+            reduced /= gcd(*self._elmap.values())
+
+        anon = ""
+        for e, amt in zip(string.ascii_uppercase, sorted(reduced.values())):
+            if amt == 1:
+                amt_str = ""
+            elif abs(amt % 1) < 1e-8:
+                amt_str = str(int(amt))
+            else:
+                amt_str = str(amt)
+            anon += ("{}{}".format(e, amt_str))
+        return anon
 
     def __repr__(self):
         return "Comp: " + self.formula
@@ -733,13 +758,13 @@ def reduce_formula(sym_amt):
                   key=lambda s: get_el_sp(s).X)
 
     syms = list(filter(lambda s: abs(sym_amt[s]) >
-                                 Composition.amount_tolerance, syms))
+                       Composition.amount_tolerance, syms))
     num_el = len(syms)
     contains_polyanion = (num_el >= 3 and
                           get_el_sp(syms[num_el - 1]).X
                           - get_el_sp(syms[num_el - 2]).X < 1.65)
 
-    factor = abs(six.moves.reduce(gcd, sym_amt.values()))
+    factor = abs(gcd(*sym_amt.values()))
     reduced_form = []
     n = num_el - 2 if contains_polyanion else num_el
     for i in range(0, n):
@@ -801,6 +826,8 @@ class ChemicalPotential(dict, PMGSONable):
         else:
             return NotImplemented
 
+    __div__ = __truediv__
+
     def __sub__(self, other):
         if isinstance(other, ChemicalPotential):
             els = set(self.keys()).union(other.keys())
@@ -831,6 +858,7 @@ class ChemicalPotential(dict, PMGSONable):
 
     def __repr__(self):
         return "ChemPots: " + super(ChemicalPotential, self).__repr__()
+
 
 if __name__ == "__main__":
     import doctest

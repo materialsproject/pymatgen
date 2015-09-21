@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -6,7 +8,7 @@ import unittest
 import os
 
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
-from pymatgen.io.vaspio.vasp_input import Poscar
+from pymatgen.io.vasp.inputs import Poscar
 import numpy as np
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",

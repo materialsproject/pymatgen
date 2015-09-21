@@ -1,10 +1,19 @@
-from __future__ import unicode_literals
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+#!/usr/bin/env python
+
+from __future__ import division, unicode_literals
+
 """
-This package implements modules for input and output to and from VASP. It
-imports the key classes form both vasp_input and vasp_output to allow most
-classes to be simply called as pymatgen.io.vaspio.Incar for example, to retain
-backwards compatibility.
+#TODO: Write module doc.
 """
 
-from .vasp_input import *
-from .vasp_output import *
+__author__ = 'Shyue Ping Ong'
+__copyright__ = 'Copyright 2013, The Materials Virtual Lab'
+__version__ = '0.1'
+__maintainer__ = 'Shyue Ping Ong'
+__email__ = 'ongsp@ucsd.edu'
+__date__ = '8/1/15'
+
+from pymatgen.io.vasp import *

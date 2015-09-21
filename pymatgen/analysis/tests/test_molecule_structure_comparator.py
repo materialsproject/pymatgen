@@ -1,4 +1,6 @@
 # coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
 from __future__ import unicode_literals
 
@@ -8,7 +10,7 @@ import unittest
 from pymatgen.analysis.molecule_structure_comparator import \
     MoleculeStructureComparator
 from pymatgen.core.structure import Molecule
-from pymatgen.io.qchemio import QcOutput
+from pymatgen.io.qchem import QcOutput
 
 __author__ = 'xiaohuiqu'
 
