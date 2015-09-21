@@ -533,6 +533,17 @@ class GaussianOutput(object):
 
         Mulliken atomic charges
 
+    Methods:
+    
+    .. method:: to_input()
+    
+        Return a GaussianInput object using the last geometry and the same
+        calculation parameters.
+        
+    .. method:: read_scan()
+    
+        Read a potential energy surface from a gaussian scan calculation.
+
     """
 
     def __init__(self, filename):
@@ -637,10 +648,10 @@ class GaussianOutput(object):
                                     coords.append([float(i) for i in toks[3:6]])
                                 self.structures.append(Molecule(sp, coords))
                     elif termination_patt.search(line):
-                        print(line)
                         m = termination_patt.search(line)
                         if m.group(1) == "Normal":
                             self.properly_terminated = True
+                            terminated = True
                     elif error_patt.search(line):
                         error_defs = {"! Non-Optimized Parameters !": "Optimization error",
                                         "Convergence failure": "SCF convergence error"
@@ -759,13 +770,110 @@ class GaussianOutput(object):
 
         return d
 
+    def read_scan(self):
+        """  
+        Read a potential energy surface from a gaussian scan calculation.
+        
+        Returns:
+        
+            A dict: {"energies": [ values ], 
+                     "coords": {"d1": [ values ], "A2", [ values ], ... }}
+            
+            "energies" are the energies of all points of the potential energy
+            surface. "coords" are the internal coordinates used to compute the 
+            potential energy surface and the internal coordinates optimized, 
+            labelled by their name as defined in the calculation.
+        """
+
+        def floatList(l):
+            """ return a list of float from a list of string """
+            return [float(v) for v in l]
+
+        scan_patt = re.compile("^\sSummary of the potential surface scan:")
+        optscan_patt = re.compile("^\sSummary of Optimized Potential Surface Scan")
+        float_patt = re.compile("\s*([+-]?\d+\.\d+)")
+
+        # data dict return
+        data = {"energies": list(), "coords": dict()}
+
+        # read in file
+        with zopen(self.filename, "r") as f:
+            line = f.readline()
+
+            while line != "":
+                if optscan_patt.match(line):
+                    f.readline()
+                    line = f.readline()
+                    endScan = False
+                    while not endScan:
+                        data["energies"] += floatList(float_patt.findall(line))
+                        line = f.readline()
+                        while not re.search("(^\s+(\d+)|^\s-+)", line):
+                            icname = line.split()[0].strip()
+                            if icname in data["coords"]:
+                                data["coords"][icname] += floatList(float_patt.findall(line))
+                            else:
+                                data["coords"][icname] = floatList(float_patt.findall(line))
+                            line = f.readline()
+                        if re.search("^\s-+", line):
+                            endScan = True
+                        else:
+                            line = f.readline()
+
+                elif scan_patt.match(line):
+                    line = f.readline()
+                    data["coords"] = {icname: list() for icname in line.split()[1:-1]}
+                    f.readline()
+                    line = f.readline()
+                    while not re.search("^\s-+", line):
+                        values = floatList(line.split())
+                        data["energies"].append(values[-1])
+                        for i, icname in enumerate(data["coords"]):
+                            data["coords"][icname].append(values[i+1])
+                        line = f.readline()    
+                else:
+                    line = f.readline()
+
+        return data
+
+    def scan_plotter(self, filename="scan.pdf", img_format="pdf", coords=None):
+        """ 
+        Plot the potential energy surface 
+        
+        Args:
+            filename: Filename to write to.
+            img_format: Image format to use. Defaults to EPS.        
+            coords: internal coordinate name for the abcissa.        
+        """
+        
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        
+        plt = get_publication_quality_plot(12, 8)
+        
+        d = self.read_scan()
+        
+        if coords and coords in d["coords"]:
+            x = d["coords"][coords]
+            plt.xlabel(coords)
+        else:
+            x = range(len(d["energies"]))
+            plt.xlabel("points")
+        
+        plt.ylabel("Energy   /   eV")
+        
+        e_min = min(d["energies"])
+        y = [(e - e_min) * 27.21138505 for e in d["energies"]]
+        
+        plt.plot(x, y, "ro--")
+        plt.savefig(filename, format=img_format)
+
     def to_input(self, filename, mol=None,  charge=None,
                  spin_multiplicity=None, title=None, functional=None,
                  basis_set=None, route_parameters=None, input_parameters=None,
                  link0_parameters=None, dieze_tag=None, cart_coords=False):
         """
-        Write a new input file using by default the last geometry read in self
-        and with the same calculation parameters. Arguments are the same as
+        Write a new input file using by default the last geometry read in the output
+        file and with the same calculation parameters. Arguments are the same as
         GaussianInput class.
 
         Returns
