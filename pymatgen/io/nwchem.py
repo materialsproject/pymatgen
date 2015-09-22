@@ -730,13 +730,13 @@ class NwOutput(object):
                 mode[:] = zip(*[iter(mode)]*3)
         if hessian:
             n = len(hessian)
-            for i in xrange(n):
-                for j in xrange(i + 1, n):
+            for i in range(n):
+                for j in range(i + 1, n):
                     hessian[i].append(hessian[j][i])
         if projected_hessian:
             n = len(projected_hessian)
-            for i in xrange(n):
-                for j in xrange(i + 1, n):
+            for i in range(n):
+                for j in range(i + 1, n):
                     projected_hessian[i].append(projected_hessian[j][i])
 
         data.update({"job_type": job_type, "energies": energies,
