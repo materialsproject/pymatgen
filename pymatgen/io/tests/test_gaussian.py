@@ -169,6 +169,12 @@ class GaussianOutputTest(unittest.TestCase):
         self.assertEqual(len(d["coords"]), 1)
         self.assertEqual(len(d["energies"]), len(gau.energies))
         self.assertEqual(len(d["energies"]), 21)
+    
+    def test_td(self):
+        gau = GaussianOutput(os.path.join(test_dir, "so2_td.log"))
+        transitions = gau.read_excitation_energies()
+        self.assertEqual(len(transitions), 4)
+        self.assertAlmostEqual(transitions[0], (3.9281, 315.64, 0.0054))
 
 if __name__ == "__main__":
     unittest.main()
