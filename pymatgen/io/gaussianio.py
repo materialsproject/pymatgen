@@ -6,7 +6,8 @@
 from __future__ import division, unicode_literals
 
 """
-#TODO: Write module doc.
+This module has been moved pymatgen.io.gaussian. This sub module will
+be removed in pymatgen 4.0.
 """
 
 __author__ = 'Shyue Ping Ong'
