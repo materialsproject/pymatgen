@@ -161,7 +161,14 @@ class GaussianOutputTest(unittest.TestCase):
         d = gau.as_dict()
         self.assertEqual(d["input"]["functional"], "hf")
         self.assertAlmostEqual(d["output"]["final_energy"], -39.9768775602)
-
+        
+    def test_scan(self):
+        gau = GaussianOutput(os.path.join(test_dir, "so2_scan.log"))
+        d = gau.read_scan()
+        self.assertAlmostEqual(-548.02102, d["energies"][-1])
+        self.assertEqual(len(d["coords"]), 1)
+        self.assertEqual(len(d["energies"]), len(gau.energies))
+        self.assertEqual(len(d["energies"]), 21)
 
 if __name__ == "__main__":
     unittest.main()

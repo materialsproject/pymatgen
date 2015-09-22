@@ -544,6 +544,14 @@ class GaussianOutput(object):
     
         Read a potential energy surface from a gaussian scan calculation.
 
+    .. method:: get_scan_plot()
+    
+        Get a matplotlib plot of the potential energy surface
+        
+    .. method:: save_scan_plot()
+    
+        Save a matplotlib plot of the potential energy surface to a file
+
     """
 
     def __init__(self, filename):
@@ -836,14 +844,12 @@ class GaussianOutput(object):
 
         return data
 
-    def scan_plotter(self, filename="scan.pdf", img_format="pdf", coords=None):
-        """ 
-        Plot the potential energy surface 
+    def get_scan_plot(self, coords=None):
+        """
+        Get a matplotlib plot of the potential energy surface.
         
         Args:
-            filename: Filename to write to.
-            img_format: Image format to use. Defaults to EPS.        
-            coords: internal coordinate name for the abcissa.        
+            coords: internal coordinate name to use as abcissa.
         """
         
         from pymatgen.util.plotting_utils import get_publication_quality_plot
@@ -865,6 +871,18 @@ class GaussianOutput(object):
         y = [(e - e_min) * 27.21138505 for e in d["energies"]]
         
         plt.plot(x, y, "ro--")
+        return plt
+        
+    def save_scan_plot(self, filename="scan.pdf", img_format="pdf", coords=None):
+        """
+        Save matplotlib plot of the scan to a file.
+        
+        Args:
+            filename: Filename to write to.
+            img_format: Image format to use. Defaults to EPS.
+            coords: internal coordinate name to use as abcissa.
+        """
+        plt = self.get_scan_plot(coords)
         plt.savefig(filename, format=img_format)
 
     def to_input(self, filename, mol=None,  charge=None,
