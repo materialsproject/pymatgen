@@ -232,7 +232,8 @@ class BalancedReaction(PMGSONable):
         if other is None:
             return False
         for comp in self._all_comp:
-            if self.get_coeff(comp) != other.get_coeff(comp):
+            coeff2 = other.get_coeff(comp) if comp in other._all_comp else 0
+            if self.get_coeff(comp) != coeff2:
                 return False
         return True
 
