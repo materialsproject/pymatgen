@@ -25,6 +25,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core import Element, Molecule, Composition
 from monty.io import zopen
 from pymatgen.util.coord_utils import get_angle
+import pymatgen.core.physical_constants as cst
 
 
 def read_route_line(route):
@@ -847,17 +848,16 @@ class GaussianOutput(object):
     def get_scan_plot(self, coords=None):
         """
         Get a matplotlib plot of the potential energy surface.
-        
+
         Args:
             coords: internal coordinate name to use as abcissa.
         """
-        
         from pymatgen.util.plotting_utils import get_publication_quality_plot
-        
+
         plt = get_publication_quality_plot(12, 8)
-        
+
         d = self.read_scan()
-        
+
         if coords and coords in d["coords"]:
             x = d["coords"][coords]
             plt.xlabel(coords)
@@ -868,21 +868,116 @@ class GaussianOutput(object):
         plt.ylabel("Energy   /   eV")
         
         e_min = min(d["energies"])
-        y = [(e - e_min) * 27.21138505 for e in d["energies"]]
+        y = [(e - e_min) * cst.HARTREE_TO_ELECTRON_VOLT for e in d["energies"]]
         
         plt.plot(x, y, "ro--")
         return plt
         
     def save_scan_plot(self, filename="scan.pdf", img_format="pdf", coords=None):
         """
-        Save matplotlib plot of the scan to a file.
-        
+        Save matplotlib plot of the potential energy surface to a file.
+
         Args:
             filename: Filename to write to.
             img_format: Image format to use. Defaults to EPS.
             coords: internal coordinate name to use as abcissa.
         """
         plt = self.get_scan_plot(coords)
+        plt.savefig(filename, format=img_format)
+
+    def read_excitation_energies(self):
+        """
+        Read a excitation energies after a TD-DFT calculation.
+
+        Returns:
+
+            A list: A list of tuple for each transition such as 
+                    [(energie (eV), lambda (nm), oscillatory strength), ... ]
+        """
+        float_patt = re.compile("\s*([+-]?\d+\.\d+)")
+
+        transitions = list()
+
+        # read in file
+        with zopen(self.filename, "r") as f:
+            line = f.readline()
+            td = False
+            while line != "":
+                if re.search("^\sExcitation energies and oscillator strengths:", line):
+                    td = True
+   
+                if td:
+                    if re.search("^\sExcited State\s*\d", line):
+                        val = [float(v) for v in float_patt.findall(line)]
+                        transitions.append(tuple(val[0:3]))
+                line = f.readline()
+        return transitions
+
+    def get_spectre_plot(self, sigma=0.05, step=0.01):
+        """
+        Get a matplotlib plot of the UV-visible spectra. Transition are plotted
+        as vertical lines and as a sum of normal functions with sigma with. The
+        broadening is applied in energy and the spectra is plotted as a function
+        of the wavelength.
+
+        Args:
+            sigma: Full width at half maximum in eV for normal functions.
+            step: bin interval in eV
+            
+        Returns:
+            A dict: {"energies": values, "lambda": values, "spectra": values}
+                    where values are lists of abscissa (energies, lamba) and
+                    the sum of gaussian functions (spectra).
+            A matplotlib plot.
+        """
+        from pymatgen.util.plotting_utils import get_publication_quality_plot
+        from matplotlib.mlab import normpdf
+        plt = get_publication_quality_plot(12, 8)
+
+        transitions = self.read_excitation_energies()
+
+        minval = min([val[0] for val in transitions]) - 5.0 * sigma
+        maxval = max([val[0] for val in transitions]) + 5.0 * sigma
+        npts = int((maxval - minval) / step) + 1
+
+        eneval = np.linspace(minval, maxval, npts) # in eV
+        lambdaval = [cst.h * cst.c / (val * cst.e) * 1.e9 for val in eneval] # in nm
+
+        # sum of gaussian functions        
+        spectre = np.zeros(npts)
+        for trans in transitions:
+            spectre += trans[2] * normpdf(eneval, trans[0], sigma)
+        spectre /= spectre.max()
+        plt.plot(lambdaval, spectre, "r-", label="spectre")
+        
+        data = {"energies": eneval, "lambda": lambdaval, "spectra": spectre}
+
+        # plot transitions as vlines
+        plt.vlines([val[1] for val in transitions], \
+                   0., \
+                   [val[2] for val in transitions], \
+                   color="blue", \
+                   label="transitions",
+                   linewidth=2)
+
+        plt.xlabel("$\lambda$ (nm)")
+        plt.ylabel("Arbitrary unit")
+        plt.legend()
+
+        return data, plt
+
+    def save_spectre_plot(self, filename="spectre.pdf", img_format="pdf", 
+                          sigma=0.05, step=0.01):
+        """
+        Save matplotlib plot of the spectre to a file.
+
+        Args:
+            filename: Filename to write to.
+            img_format: Image format to use. Defaults to EPS.
+            sigma: Full width at half maximum in eV for normal functions.
+            step: bin interval in eV            
+        """
+        d, plt = self.get_spectre_plot(sigma, step)
         plt.savefig(filename, format=img_format)
 
     def to_input(self, filename, mol=None,  charge=None,
