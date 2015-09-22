@@ -35,6 +35,9 @@ class BalancedReaction(PMGSONable):
     An object representing a complete chemical reaction.
     """
 
+    # Tolerance for determining if a particular component fraction is > 0.
+    TOLERANCE = 1e-6
+
     def __init__(self, reactants_coeffs, products_coeffs):
         """
         Reactants and products to be specified as dict of {Composition: coeff}.
@@ -52,7 +55,7 @@ class BalancedReaction(PMGSONable):
                            Composition({}))
 
         if not all_reactants.almost_equals(all_products,
-                                atol=Reaction.TOLERANCE):
+                                atol=BalancedReaction.TOLERANCE):
             raise ReactionError("Reaction is unbalanced!")
 
         self._els = all_reactants.elements
@@ -66,10 +69,9 @@ class BalancedReaction(PMGSONable):
         self._all_comp = []
         for c in set(list(reactants_coeffs.keys()) +
                 list(products_coeffs.keys())):
-            coeff = products_coeffs.get(c,0) - \
-                                    reactants_coeffs.get(c,0)
+            coeff = products_coeffs.get(c, 0) - reactants_coeffs.get(c, 0)
 
-            if abs(coeff) > Reaction.TOLERANCE:
+            if abs(coeff) > BalancedReaction.TOLERANCE:
                 self._all_comp.append(c)
                 self._coeffs.append(coeff)
 
@@ -262,7 +264,9 @@ class BalancedReaction(PMGSONable):
         Returns a ComputedEntry representation of the reaction.
         :return:
         """
-        comp = sum(self._all_comp, Composition())
+        relevant_comp = [comp * abs(coeff) for coeff, comp
+                         in zip(self._coeffs, self._all_comp)]
+        comp = sum(relevant_comp, Composition())
         entry = ComputedEntry(0.5 * comp, self.calculate_energy(energies))
         entry.name = self.__str__()
         return entry
@@ -311,9 +315,6 @@ class Reaction(BalancedReaction):
     A more flexible class representing a Reaction. The reaction amounts will
     be automatically balanced.
     """
-
-    # Tolerance for determining if a particular component fraction is > 0.
-    TOLERANCE = 1e-6
 
     def __init__(self, reactants, products):
         """
@@ -366,7 +367,7 @@ class Reaction(BalancedReaction):
                         comp_matrix[i][j] = 0
                     comp_matrix[i][i] = 1
                 count = 0
-                if abs(np.linalg.det(comp_matrix)) < self.TOLERANCE:
+                if abs(np.linalg.det(comp_matrix)) < BalancedReaction.TOLERANCE:
                     for i in range(num_els, nconstraints):
                         for j in range(num_els):
                             comp_matrix[i][j] = count
@@ -376,7 +377,7 @@ class Reaction(BalancedReaction):
                 ans_matrix[num_els:nconstraints] = 1
                 coeffs = np.linalg.solve(comp_matrix, ans_matrix)
             else:
-                if abs(np.linalg.det(comp_matrix)) < self.TOLERANCE:
+                if abs(np.linalg.det(comp_matrix)) < BalancedReaction.TOLERANCE:
                     logger.debug("Linear solution possible. Trying various "
                                  "permutations.")
                     comp_matrix = comp_matrix[0:num_els][:, 0:nconstraints]
@@ -393,7 +394,8 @@ class Reaction(BalancedReaction):
                                          if i != m]
                             logger.debug("Testing submatrix = {}"
                                          .format(submatrix))
-                            if abs(np.linalg.det(submatrix)) > self.TOLERANCE:
+                            if abs(np.linalg.det(submatrix)) > \
+                                    BalancedReaction.TOLERANCE:
                                 logger.debug("Possible sol")
                                 ansmatrix = [perm_matrix[i][m]
                                              for i in range(nconstraints)
@@ -404,7 +406,7 @@ class Reaction(BalancedReaction):
                                 #Check if final coeffs are valid
                                 overall_mat = np.dot(perm_matrix, coeffs)
                                 if np.allclose(overall_mat, 0,
-                                               atol=self.TOLERANCE):
+                                               atol=BalancedReaction.TOLERANCE):
                                     ans_found = True
                                     break
                     if not ans_found:
