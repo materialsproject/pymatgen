@@ -6,8 +6,17 @@ from __future__ import division, unicode_literals
 
 """
 This module implements input and output processing from Nwchem.
-"""
 
+2015/09/21 - Xin Chen (chenxin13@mails.tsinghua.edu.cn):
+
+    NwOutput will read new kinds of data:
+        1. normal hessian matrix.       ["hessian"]
+        2. projected hessian matrix.    ["projected_hessian"]
+        3. normal frequencies.          ["normal_frequencies"]
+
+    For backward compatibility, the key for accessing the projected frequencies
+    is still 'frequencies'.
+"""
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -16,20 +25,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "6/5/13"
 
-
-"""
-
-2015/09/21, Xin Chen (chenxin13@mails.tsinghua.edu.cn):
-
-NwOutput will read new kinds of data:
-    1. normal hessian matrix.       ["hessian"]
-    2. projected hessian matrix.    ["projected_hessian"]
-    3. normal frequencies.          ["normal_frequencies"]
-
-For backward compatibility, the key for accesing the projected frequencies is
-still 'frequencies'.
-
-"""
 
 import re
 from string import Template
@@ -631,7 +626,7 @@ class NwOutput(object):
                     if is_int(toks[1]):
                         continue
                     try:
-                        vals = map(lambda x : float(fd2e(x)), toks[1:])
+                        vals = [float(fd2e(x)) for x in toks[1:]]
                     except Exception as e:
                         print(l)
                         raise e
@@ -652,7 +647,7 @@ class NwOutput(object):
                         continue
                     if is_int(toks[1]):
                         continue
-                    vals = map(lambda x : float(fd2e(x)), toks[1:])
+                    vals = [float(fd2e(x)) for x in toks[1:]]
                     if len(projected_hessian) < row:
                         projected_hessian.append(vals)
                     else:
