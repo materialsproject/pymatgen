@@ -349,7 +349,8 @@ Here are the steps that I took to make it work:
         //Path to a library.
         PYTHON_LIBRARY:FILEPATH=/Library/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib
 
-12. If you are using Mavericks (OSX 10.9) and encounter errors relating to <tr1/memory>, you might also need to include the following flag in your CMakeCache.txt::
+12. If you are using Mavericks (OSX 10.9) and encounter errors relating to <tr1/memory>, you might also need to include
+    the following flag in your CMakeCache.txt::
 
 		CMAKE_CXX_FLAGS:STRING=-stdlib=libstdc++
 
