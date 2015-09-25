@@ -10,9 +10,11 @@ be available on `PyPI <http://pypi.python.org>`_.
    not. If you do not need those features, you can choose to work with Python 3.
 2. numpy: For array, matrix and other numerical manipulations. Used extensively
    by all core modules.
-3. pyhull 1.5.2+: For generation of phase diagrams.
-4. requests 2.0+: For the high-level interface to the Materials API.
-5. monty 0.4.2+: For some common complementary functions,
+3. scipy 0.10+ (highly recommended): For use in Gaussian smearing and faster
+   Phase Diagrams.
+4. pyhull 1.5.2+: For generation of phase diagrams.
+5. requests 2.0+: For the high-level interface to the Materials API.
+6. monty 0.4.2+: For some common complementary functions,
    design patterns (e.g., singleton) and decorators to the Python
    standard library.
 
@@ -21,21 +23,19 @@ Optional dependencies
 
 Optional libraries that are required if you need certain features:
 
-1. scipy 0.10+ (highly recommended): For use in Gaussian smearing and faster
-   Phase Diagrams.
-2. matplotlib 1.1+ (highly recommended): For plotting (e.g., Phase Diagrams).
-3. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
+1. matplotlib 1.1+ (highly recommended): For plotting (e.g., Phase Diagrams).
+2. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
    crystal structures using the pymatgen.vis package. Note that the VTK
    package is incompatible with Python 3.x at the moment.
-4. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
+3. Atomistic Simulation Environment or ASE 3.6+: Required for the usage of the
    adapters in pymatgen.io.aseio between pymatgen's core Structure object and
    the Atoms object used by ASE. Get it at https://wiki.fysik.dtu.dk/ase/.
    Note that the ASE package is incompatible with Python 3.x at the moment.
-5. OpenBabel with Python bindings (http://openbabel.org): Required for the
+4. OpenBabel with Python bindings (http://openbabel.org): Required for the
    usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
    and OpenBabel's OBMol. Opens up input and output support for the very large
    number of input and output formats supported by OpenBabel.
-6. nose - For unittesting. Not optional for developers.
+5. nose - For unittesting. Not optional for developers.
 
 Optional non-Python programs
 ----------------------------
@@ -253,39 +253,6 @@ Mac OS X 10.7 - 10.8
 Typical installation of Xcode with python setup.py install seems to work fine.
 The pre-compiled binary for OSX 10.6 also seems to work.
 
-Matplotlib (tested on v1.10)
-----------------------------
-
-Mac OS X 10.7 - 10.8
-~~~~~~~~~~~~~~~~~~~~
-
-This setup assumes you have the latest version of python (2.7 as of this is written)
-and numpy already installed. You will need to set the compiler flags to build
-matplotlib from source.
-
-::
-
-	export CFLAGS="-arch x86_64 -I/usr/X11/include -I/usr/X11/include/freetype2"
-	export LDFLAGS="-arch x86_64 -L/usr/X11/lib"
-	python setup.py build
-	sudo python setup.py install
-
-Solaris 10
-~~~~~~~~~~
-
-First install solstudio 12.2. Then put the following code in a shell script and
-run it.
-
-::
-
-	#!/bin/bash
-	PATH=/opt/solstudio12.2/bin:/usr/ccs/bin:/usr/bin:/usr/sfw/bin:/usr/sbin; export PATH
-	ATLAS=None; export ATLAS
-	BLAS=/opt/solstudio12.2/lib/libsunperf.so; export BLAS
-	LAPACK=/opt/solstudio12.2/lib/libsunmath.so; export LAPACK
-	python setup.py build
-	python setup.py install
-
 VTK (tested on v5.10.0 - 6.1.0)
 -------------------------------
 
@@ -295,47 +262,22 @@ Mac OS X 10.7 - 10.9
 The easiest is to install cmake from
 http://cmake.org/cmake/resources/software.html.
 
-Type the following:
-
-::
+Type the following::
 
 	cd VTK (this is the directory you expanded VTK into)
-	cmake -i (this uses cmake in an interactive manner)
+	mkdir build
+	cd build
+	sudo ccmake .. (this uses cmake in an interactive manner)
 
-For all options, use the defaults, EXCEPT for BUILD_SHARED_LIBS and
-VTK_WRAP_PYTHON which must be set to ON. You may also need to modify the python
-paths and library paths if they are in non-standard locations. For example, if
-you have installed the official version of Python instead of using the
-Mac-provided version, you will probably need to edit the CMakeCache Python
-links. Example configuration for Python 2.7 is given below (only variables that
-need to be modified are shown):
+Press "t" to toggle advanced mode. Then press "c" to do an initial configuration. After the list of parameters come out,
+ensure that the PYTHON_VERSION is set to 2, the VTK_WRAP_PYTHON is set to ON, and BUILD_SHARED_LIBS is set to ON. Then
+press "c" again to configure and finally "g" to generate the required make files::
 
-::
+    BUILD_SHARED_LIBS                ON       # May need to toggle advanced mode to view this option
+    VTK_PYTHON_VERSION               2
+    VTK_WRAP_PYTHON                  ON
 
-   //Path to a program.
-   PYTHON_EXECUTABLE:FILEPATH=/Library/Frameworks/Python.framework/Versions/2.7/bin/python
-
-   //Path to a file.
-   PYTHON_INCLUDE_DIR:PATH=/Library/Frameworks/Python.framework/Versions/2.7/Headers
-
-   //Path to a library.
-   PYTHON_LIBRARY:FILEPATH=/Library/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib
-
-   //Also delete the prefix settings for python, which typically links to the Mac python.
-
-    VTK_INSTALL_PYTHON_MODULE_DIR:PATH=/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages
-
-.. note:: Garbage collection on new Xcode
-
-    If you are using a very new XCode (e.g. 5.1), please note that Cocoa garbage
-    collection has been removed and during compile, you may get an "error:
-    garbage collection is no longer supported" message. VTK does not require
-    Cocoa garbage collection, but was configured to built with support for it on.
-    You can simply remove the -fobjc-gc flag from VTK_REQUIRED_OBJCXX_FLAGS.
-
-After the CMakeCache.txt file is generated, type:
-
-::
+Next, do make and install::
 
 	make -j 4
 	sudo make install
