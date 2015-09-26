@@ -256,7 +256,9 @@ http://cmake.org/cmake/resources/software.html.
 Type the following::
 
 	cd VTK (this is the directory you expanded VTK into)
-	ccmake (this uses cmake in an interactive manner)
+	mkdir build
+	cd build
+	ccmake .. (this uses cmake in an interactive manner)
 
 Press "t" to toggle advanced mode. Then press "c" to do an initial
 configuration. After the list of parameters come out, ensure that the
