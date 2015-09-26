@@ -244,48 +244,6 @@ Please feel free to send in suggestions to update the instructions based on
 your experiences. In all the instructions, it is assumed that you have standard
 gcc and other compilers (e.g., Xcode on Macs) already installed.
 
-Scipy (tested on v0.10.1)
--------------------------
-
-Mac OS X 10.7 - 10.8
-~~~~~~~~~~~~~~~~~~~~
-
-Typical installation of Xcode with python setup.py install seems to work fine.
-The pre-compiled binary for OSX 10.6 also seems to work.
-
-Matplotlib (tested on v1.10)
-----------------------------
-
-Mac OS X 10.7 - 10.8
-~~~~~~~~~~~~~~~~~~~~
-
-This setup assumes you have the latest version of python (2.7 as of this is written)
-and numpy already installed. You will need to set the compiler flags to build
-matplotlib from source.
-
-::
-
-	export CFLAGS="-arch x86_64 -I/usr/X11/include -I/usr/X11/include/freetype2"
-	export LDFLAGS="-arch x86_64 -L/usr/X11/lib"
-	python setup.py build
-	sudo python setup.py install
-
-Solaris 10
-~~~~~~~~~~
-
-First install solstudio 12.2. Then put the following code in a shell script and
-run it.
-
-::
-
-	#!/bin/bash
-	PATH=/opt/solstudio12.2/bin:/usr/ccs/bin:/usr/bin:/usr/sfw/bin:/usr/sbin; export PATH
-	ATLAS=None; export ATLAS
-	BLAS=/opt/solstudio12.2/lib/libsunperf.so; export BLAS
-	LAPACK=/opt/solstudio12.2/lib/libsunmath.so; export LAPACK
-	python setup.py build
-	python setup.py install
-
 VTK (tested on v5.10.0 - 6.1.0)
 -------------------------------
 
@@ -295,15 +253,15 @@ Mac OS X 10.7 - 10.9
 The easiest is to install cmake from
 http://cmake.org/cmake/resources/software.html.
 
-Type the following:
-
-::
+Type the following::
 
 	cd VTK (this is the directory you expanded VTK into)
-	cmake -i (this uses cmake in an interactive manner)
+	ccmake (this uses cmake in an interactive manner)
 
-For all options, use the defaults, EXCEPT for BUILD_SHARED_LIBS and
-VTK_WRAP_PYTHON which must be set to ON. You may also need to modify the python
+Press "t" to toggle advanced mode. Then press "c" to do an initial
+configuration. After the list of parameters come out, ensure that the
+PYTHON_VERSION is set to 2, the VTK_WRAP_PYTHON is set to ON, and
+BUILD_SHARED_LIBS is set to ON. You may also need to modify the python
 paths and library paths if they are in non-standard locations. For example, if
 you have installed the official version of Python instead of using the
 Mac-provided version, you will probably need to edit the CMakeCache Python
@@ -333,7 +291,8 @@ need to be modified are shown):
     Cocoa garbage collection, but was configured to built with support for it on.
     You can simply remove the -fobjc-gc flag from VTK_REQUIRED_OBJCXX_FLAGS.
 
-After the CMakeCache.txt file is generated, type:
+Then press "c" again to configure and finally "g" to generate the required
+make files After the CMakeCache.txt file is generated, type:
 
 ::
 
