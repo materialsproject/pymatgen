@@ -1,7 +1,6 @@
 # coding: utf-8
 # Copyright (c) Pymatgen Development Team.
 # Distributed under the terms of the MIT License.
-
 from __future__ import unicode_literals, division, print_function
 
 import os
@@ -19,7 +18,6 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
 
 def cif_paths():
     cifpaths = []
-    print(test_dir)
     for fname in os.listdir(test_dir):
         fname = os.path.join(test_dir, fname)
         if os.path.isfile(fname) and fname.endswith(".cif"):
@@ -63,9 +61,12 @@ class SmearingTest(PymatgenTest):
         self.assertTrue(same_fd == fd1ev)
 
         nosmear = Smearing.nosmearing()
+        assert nosmear == Smearing.as_smearing("nosmearing")
 
         self.assertFalse(nosmear)
         self.assertTrue(nosmear != fd1ev)
+        self.assertPMGSONable(nosmear)
+
         new_fd1ev = Smearing.from_dict(fd1ev.as_dict())
         self.assertTrue(new_fd1ev == fd1ev)
 
@@ -84,6 +85,9 @@ class ElectronsAlgorithmTest(PymatgenTest):
         # Test pickle
         self.serialize_with_pickle(algo)
 
+        # Test dict methods
+        self.assertPMGSONable(algo)
+
 
 class ElectronsTest(PymatgenTest):
     def test_base(self):
@@ -98,6 +102,12 @@ class ElectronsTest(PymatgenTest):
 
         # Test pickle
         self.serialize_with_pickle(default_electrons, test_eq=False)
+
+        custom_electrons = Electrons(spin_mode="unpolarized", smearing="marzari4:0.2 eV",
+                 algorithm=ElectronsAlgorithm(nstep=70), nband=10, charge=1.0, comment="Test comment")
+
+        # Test dict methods
+        self.assertPMGSONable(custom_electrons)
 
 
 class KSamplingTest(PymatgenTest):

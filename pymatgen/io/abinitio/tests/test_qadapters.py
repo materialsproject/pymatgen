@@ -11,13 +11,15 @@ from monty.collections import AttrDict
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio.tasks import ParalConf
 from pymatgen.io.abinitio.qadapters import *
-from pymatgen.io.abinitio.qadapters import QueueAdapter, SlurmAdapter, slurm_parse_timestr
-
+from pymatgen.io.abinitio.qadapters import QueueAdapter, SlurmAdapter 
+from pymatgen.io.abinitio import qutils as qu
 
 class ParseTimestr(PymatgenTest):
     def test_slurm_parse_timestr(self):
         days, hours, minutes, secs = 24*60*60, 60*60, 60, 1
         aequal = self.assertEqual
+
+        slurm_parse_timestr = qu.slurm_parse_timestr 
 
         # "days-hours",
         aequal(slurm_parse_timestr("2-1"), 2*days + hours)
@@ -335,6 +337,7 @@ hardware:
 #PBS -q fat
 #PBS -N job_name
 #PBS -l select=3:ncpus=1:vmem=1024mb:mpiprocs=1
+#PBS -l pvmem=1024mb
 #PBS -l walltime=0:0:10
 #PBS -W group_list=naps
 #PBS -o qout_path

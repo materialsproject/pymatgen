@@ -6,6 +6,7 @@ from __future__ import unicode_literals, division, print_function
 
 import os
 import six
+import re
 import collections
 import shutil
 import operator
@@ -13,6 +14,7 @@ import numpy as np
 
 from fnmatch import fnmatch
 from six.moves import filter
+from monty.collections import dict2namedtuple
 from monty.string import list_strings
 from monty.fnmatch import WildCard
 
@@ -70,7 +72,11 @@ class File(object):
     @property
     def relpath(self):
         """Relative path."""
-        return os.path.relpath(self.path)
+        try:
+            return os.path.relpath(self.path)
+        except OSError:
+            # current working directory may not be defined!
+            return self.path
 
     @property
     def dirname(self):
@@ -87,6 +93,10 @@ class File(object):
         """True if self is a NetCDF file"""
         return self.basename.endswith(".nc")
 
+    def chmod(self, mode):
+        """Change the access permissions of a file."""
+        os.chmod(self.path, mode)
+
     def read(self):
         """Read data from file."""
         with open(self.path, "r") as f:
@@ -101,7 +111,10 @@ class File(object):
         """Write string to file."""
         self.make_dir()
         with open(self.path, "w") as f:
-            return f.write(string)
+            if not string.endswith("\n"):
+                return f.write(string + "\n")
+            else:
+                return f.write(string)
 
     def writelines(self, lines):
         """Write a list of strings to file."""
@@ -121,6 +134,13 @@ class File(object):
         except:
             pass
 
+    def move(self, dst):
+        """
+        Recursively move a file or directory to another location. This is
+        similar to the Unix "mv" command.
+        """
+        shutil.move(self.path, dst)
+
     def get_stat(self):
         """Results from os.stat"""
         return os.stat(self.path)
@@ -138,7 +158,7 @@ class Directory(object):
         return "<%s at %s, %s>" % (self.__class__.__name__, id(self), self.path)
 
     def __str__(self):
-        return "<%s, %s>" % (self.__class__.__name__, self.path)
+        return self.path
 
     def __eq__(self, other):
         return False if other is None else self.path == other.path
@@ -229,6 +249,9 @@ class Directory(object):
             `ValueError` if multiple files with the given ext are found.
             This implies that this method is not compatible with multiple datasets.
         """
+
+        ext = ext if ext.startswith('_') else '_'+ext
+
         files = []
         for f in self.list_filepaths():
             if f.endswith(ext) or f.endswith(ext + ".nc"):
@@ -243,7 +266,7 @@ class Directory(object):
 
         if len(files) > 1:
             # ABINIT users must learn that multiple datasets are bad!
-            err_msg = "Found multiple files with the same extensions\n Please avoid the use of mutiple datasets!"
+            err_msg = "Found multiple files with the same extensions:\n %s\nPlease avoid the use of mutiple datasets!" % files
             raise ValueError(err_msg)
 
         return files[0]
@@ -309,11 +332,81 @@ class Directory(object):
             try:
                 os.remove(path)
                 paths.append(path)
-            except:
+            except IOError:
                 logger.warning("Exception while trying to remove file %s" % path)
 
         return paths
-        
+
+    def find_last_timden_file(self):
+        """
+        ABINIT produces lots of out_TIM1_DEN files for each step and we need to find the lat
+        one in order to prepare the restart or to connect other tasks to the structural relaxation.
+
+        This function finds all the TIM?_DEN files in self and return a namedtuple (path, step)
+        where `path` is the path of the last TIM?_DEN file and step is the iteration number.
+        Returns None if the directory does not contain TIM?_DEN files.
+        """
+        regex = re.compile("out_TIM(\d+)_DEN(.nc)?$")
+
+        timden_paths = [f for f in self.list_filepaths() if regex.match(os.path.basename(f))]
+        if not timden_paths: return None
+
+        # Build list of (step, path) tuples.
+        stepfile_list = []
+        for path in timden_paths:
+            name = os.path.basename(path)
+            match = regex.match(name)
+            step, ncext = match.groups()
+            stepfile_list.append((int(step), path))
+                                                                                        
+        # DSU sort.
+        last = sorted(stepfile_list, key=lambda t: t[0])[-1]
+        return dict2namedtuple(step=last[0], path=last[1])
+
+    def find_1wf_files(self):
+        """
+        Abinit adds the idir-ipert index at the end of the 1WF file and this breaks the extension 
+        e.g. out_1WF4. This method scans the files in the directories and returns a list of namedtuple
+        Each named tuple gives the `path` of the 1FK file and the `pertcase` index.
+        """
+        regex = re.compile("out_1WF(\d+)(.nc)?$")
+
+        wf_paths = [f for f in self.list_filepaths() if regex.match(os.path.basename(f))]
+        if not wf_paths: return None
+
+        # Build list of (pertcase, path) tuples.
+        pertfile_list = []
+        for path in wf_paths:
+            name = os.path.basename(path)
+            match = regex.match(name)
+            pertcase, ncext = match.groups()
+            pertfile_list.append((int(pertcase), path))
+                                                                                        
+        # DSU sort.
+        pertfile_list = sorted(pertfile_list, key=lambda t: t[0])
+        return [dict2namedtuple(pertcase=item[0], path=item[1]) for item in pertfile_list]
+
+    def find_1den_files(self):
+        """
+        Abinit adds the idir-ipert index at the end of the 1DEN file and this breaks the extension 
+        e.g. out_DEN1. This method scans the files in the directories and returns a list of namedtuple
+        Each named tuple gives the `path` of the 1DEN file and the `pertcase` index.
+        """
+        regex = re.compile("out_DEN(\d+)(.nc)?$")
+        den_paths = [f for f in self.list_filepaths() if regex.match(os.path.basename(f))]
+        if not den_paths: return None
+
+        # Build list of (pertcase, path) tuples.
+        pertfile_list = []
+        for path in den_paths:
+            name = os.path.basename(path)
+            match = regex.match(name)
+            pertcase, ncext = match.groups()
+            pertfile_list.append((int(pertcase), path))
+                                                                                        
+        # DSU sort.
+        pertfile_list = sorted(pertfile_list, key=lambda t: t[0])
+        return [dict2namedtuple(pertcase=item[0], path=item[1]) for item in pertfile_list]
 
 # This dictionary maps ABINIT file extensions to the variables that must be used to read the file in input.
 #

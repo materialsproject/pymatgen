@@ -13,10 +13,11 @@ import abc
 import collections
 import json
 import six
-import pprint
+#import pprint
 import numpy as np
 
-from collections import OrderedDict
+from warnings import warn
+from collections import OrderedDict, defaultdict, namedtuple
 from monty.string import list_strings, is_string
 from monty.itertools import iterator_from_slice
 from monty.io import FileLock
@@ -122,17 +123,23 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
         """
         return PseudoParser().parse(filename)
 
-    #def __eq__(self, other):
-    #    if not isinstance(other, Pseudo): return False
-    #    return (self.__class__ == other.__class__ and 
-    #    return (self.md5 == other.md5 and 
-    #            self.text == other.text)
+    def __eq__(self, other):
+        if other is None: return False
+        # TODO
+        # For the time being we check the filepath
+        # A more robust algorithm would use md5
+        #return self.filepath == other.filepath
+        return (self.md5 == other.md5 and
+                self.__class__ == other.__class__ and 
+                self.Z == other.Z and 
+                self.Z_val == other.Z_val and
+                self.l_max == other.l_max )
 
-    #def __ne__(self, other):
-    #    return not self.__eq__(other)
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __repr__(self):
-        return "<%s at %s, name = %s>" % (self.__class__.__name__, id(self), self.basename)
+        return "<%s at %s>" % (self.__class__.__name__, self.filepath)
 
     def __str__(self):
         """String representation."""
@@ -214,29 +221,52 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
         """True if PAW pseudopotential."""
         return isinstance(self, PawPseudo)
 
-    #@lazy_property
-    #def md5(self):
-    #    import md5
-    #    m = md5.new()
-    #    with open(self.filepath, "r") as fh:
-    #        # Warning: line-based parser
-    #        for line in fh:
-    #            if line.startswith("<DOJO_REPORT>"): break
-    #            m.update(line)
+    @lazy_property
+    def md5(self):
+        """MD5 hash value."""
+        if self.has_dojo_report:
+            if "md5" in self.dojo_report:
+                return self.dojo_report["md5"]
+            else:
+                warn("Dojo report without md5 entry")
 
-    #    return m.digest()
+        return self.compute_md5()
 
-    #@lazy_property
-    #def md5(self):
-    #    """Md5 hash value."""
-    #    with open(self.path, "r") as fh:
-    #        lines = fh.readlines()
-    #        start = lines.index("<DOJO_REPORT>\n")
-    #        stop = lines.index("</DOJO_REPORT>\n")
-    #        text = "".join(lines[:start])
-    #    
-    #        import hashlib
-    #        return hashlib.md5(text)
+    def compute_md5(self):
+        """Compute MD5 hash value."""
+        import hashlib
+
+        if self.path.endswith(".xml"):
+            # TODO: XML + DOJO_REPORT
+            #raise NotImplementedError("md5 for XML files!")
+            with open(self.path, "rt") as fh:
+                text = fh.read()
+
+        else:
+            # If we have a pseudo with a dojo_report at the end.
+            # we compute the hash from the data before DOJO_REPORT.
+            # else all the lines are taken.
+            with open(self.path, "rt") as fh:
+                lines = fh.readlines()
+                try:
+                    start = lines.index("<DOJO_REPORT>\n")
+                except ValueError:
+                    start = len(lines)
+                text = "".join(lines[:start])
+
+        m = hashlib.md5(text.encode("utf-8"))
+        return m.hexdigest()
+
+    def check_and_fix_dojo_md5(self):
+        report = self.read_dojo_report()
+
+        if "md5" in report:
+            if report["md5"] != self.md5:
+                raise ValueError("md5 found in dojo_report does not agree\n"
+                    "with the computed value\nFound %s\nComputed %s"  % (report["md5"], hash))
+        else:
+            report["md5"] = self.compute_md5()
+            self.write_dojo_report(report=report)
 
     #@abc.abstractproperty
     #def xc_type(self):
@@ -272,16 +302,29 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
             Z=self.Z,
             Z_val=self.Z_val,
             l_max=self.l_max,
-            #md5=self.md5,
-            #nlcc_radius=self.nlcc_radius,
-            #xc_type=
-            #pp_type=
+            md5=self.md5,
             filepath=self.filepath
         )
 
     @classmethod
     def from_dict(cls, d):
-        return cls.from_file(d['filepath'])
+        new = cls.from_file(d['filepath'])
+
+        # Consistency test based on md5
+        if "md5" in d and d["md5"] != new.md5:
+            raise ValueError("The md5 found in file does not agree with the one in dict\n"
+            "Received %s\nComputed %s" % (d["md5"], new.md5))
+
+        return new
+
+    def as_tmpfile(self):
+        """
+        Copy the pseudopotential to a temporary a file and returns a new pseudopotential object.
+        """
+        import tempfile, shutil
+        _, dst = tempfile.mkstemp(suffix=self.basename, text=True)
+        shutil.copy(self.path, dst)
+        return self.__class__.from_file(dst)
 
     @property
     def has_dojo_report(self):
@@ -302,7 +345,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
 
     def read_dojo_report(self):
         """
-        Read the `DOJO_REPORT` section and set dojo_report attribute.
+        Read the `DOJO_REPORT` section and set the `dojo_report` attribute.
         returns {} if section is not present.
         """ 
         self.dojo_report = DojoReport.from_file(self.path)
@@ -314,6 +357,13 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
             report = self.dojo_report
 
         report["symbol"] = self.symbol
+
+        if "md5" not in report:
+            report["md5"] = self.md5
+
+        if report["md5"] != self.md5:
+            raise ValueError("md5 found in dojo_report does not agree\n"
+               "with the computed value\nreport: %s\npseudo %s" % (report["md5"], self.md5))
 
         # Create JSON string from report.
         jstring = json.dumps(report, indent=4, sort_keys=True) + "\n"
@@ -370,7 +420,10 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
             accuracy: ["low", "normal", "high"]
         """
         if self.has_dojo_report:
-            return Hint.from_dict(self.dojo_report["hints"][accuracy])
+            try:
+                return Hint.from_dict(self.dojo_report["hints"][accuracy])
+            except KeyError:
+                return None
         else:
             return None
 
@@ -378,9 +431,53 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, PMGSONable, object)):
     def has_hints(self):
         """True if self provides hints on the cutoff energy."""
         for acc in ["low", "normal", "high"]:
-            if self.hint_for_accuracy(acc) is None:
+            try:
+                if self.hint_for_accuracy(acc) is None:
+                    return False
+            except KeyError:
                 return False
         return True
+
+    def open_pspsfile(self, ecut=20, pawecutdg=None):
+        """
+        Calls Abinit to compute the internal tables for the application of the 
+        pseudopotential part. Returns :class:`PspsFile` object providing methods
+        to plot and analyze the data or None if file is not found or it's not readable.
+
+        Args:
+            ecut: Cutoff energy in Hartree.
+            pawecutdg: Cutoff energy for the PAW double grid.
+        """
+        from pymatgen.io.abinitio.tasks import AbinitTask
+        from abipy.core.structure import Structure
+        from abipy.abio.factories import gs_input
+        from abipy.electrons.psps import PspsFile
+
+        # Build fake structure.
+        lattice = 10 * np.eye(3)
+        structure = Structure(lattice, [self.element], coords=[[0, 0, 0]])
+
+        if self.ispaw and pawecutdg is None: pawecudg = ecut * 4
+        inp = gs_input(structure, pseudos=[self], ecut=ecut, pawecutdg=pawecutdg, 
+                       spin_mode="unpolarized", kppa=1)
+        # Add prtpsps = -1 to make Abinit print the PSPS.nc file and stop.
+        inp["prtpsps"] = -1
+
+        # Build temporary task and run it.
+        task = AbinitTask.temp_shell_task(inp)
+        retcode = task.start_and_wait()
+
+        filepath = task.outdir.has_abiext("_PSPS.nc")
+        if not filepath:
+            logger.critical("Cannot find PSPS.nc file in %s" % task.outdir)
+            return None
+
+        # Open the PSPS.nc file.
+        try:
+            return PspsFile(filepath)
+        except Exception as exc:
+            logger.critical("Exception while reading PSPS file at %s:\n%s" % (filepath, str(exc)))
+            return None
 
 
 class NcPseudo(six.with_metaclass(abc.ABCMeta, object)):
@@ -525,12 +622,19 @@ class PawAbinitPseudo(PawPseudo, AbinitPseudo):
     #def orbitals(self):
 
 
-class Hint(collections.namedtuple("Hint", "ecut aug_ratio")):
+#class Hint(namedtuple("Hint", "ecut aug_ratio")):
+class Hint(object):
     """
-    Suggested value for the cutoff energy [Hartree units] and the augmentation ratio (PAW pseudo)
+    Suggested value for the cutoff energy [Hartree units] 
+    and the cutoff energy for the dense grid (only for PAW pseudos)
     """
+    def __init__(self, ecut, pawecutdg=None):
+        self.ecut = ecut
+        self.pawecutdg = ecut if pawecutdg is None else pawecutdg
+        
+    @pmg_serialize
     def as_dict(self):
-        return {f: getattr(self, f) for f in self._fields}
+        return dict(ecut=self.ecut, pawecutdg=self.pawecutdg)
 
     @classmethod
     def from_dict(cls, d):
@@ -616,12 +720,16 @@ def _int_from_str(string):
     if float_num == int_num:
         return int_num
     else:
-        raise TypeError("Cannot convert string %s to int" % string)
+        # Needed to handle pseudos with fractional charge
+        int_num = np.rint(float_num)
+        warn("Converting float %s to int %s" % (float_num, int_num))
+        return int_num
+        #raise TypeError("Cannot convert string %s to int" % string)
 
 
 class NcAbinitHeader(AbinitHeader):
     """The abinit header found in the NC pseudopotential files."""
-    _attr_desc = collections.namedtuple("att", "default astype")
+    _attr_desc = namedtuple("att", "default astype")
 
     _VARS = {
         # Mandatory
@@ -751,8 +859,11 @@ class NcAbinitHeader(AbinitHeader):
 
         header.update({'pspdat': header['pspd']})
         header.pop('pspd')
-
-        header["dojo_report"] = DojoReport.from_file(filename)
+        try:
+            header["dojo_report"] = DojoReport.from_file(filename)
+        except DojoReport.Error:
+            logger.warning('failed to read the dojo report for %s' % filename)
+            header["dojo_report"] = None
 
         return NcAbinitHeader(summary, **header)
 
@@ -814,7 +925,7 @@ class NcAbinitHeader(AbinitHeader):
 
 class PawAbinitHeader(AbinitHeader):
     """The abinit header found in the PAW pseudopotential files."""
-    _attr_desc = collections.namedtuple("att", "default astype")
+    _attr_desc = namedtuple("att", "default astype")
 
     _VARS = {
         "zatom"           : _attr_desc(None, _int_from_str),
@@ -958,7 +1069,7 @@ class PseudoParser(object):
     Error = PseudoParserError
 
     # Supported values of pspcod
-    ppdesc = collections.namedtuple("ppdesc", "pspcod name psp_type format")
+    ppdesc = namedtuple("ppdesc", "pspcod name psp_type format")
 
     # TODO Recheck
     _PSPCODES = OrderedDict( {
@@ -1127,7 +1238,7 @@ class PseudoParser(object):
 
 
 #TODO use RadialFunction from pseudo_dojo.
-class RadialFunction(collections.namedtuple("RadialFunction", "mesh values")):
+class RadialFunction(namedtuple("RadialFunction", "mesh values")):
     pass
 
 
@@ -1382,7 +1493,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
             label = "$n_c$" if i == 1 else "$\\tilde{n}_c$"
             ax.plot(rden.mesh, rden.mesh * rden.values, label=label, lw=2)
 
-        plt.legend(loc="best")
+        ax.legend(loc="best")
 
         return fig
 
@@ -1474,7 +1585,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     #    for state, rfunc in self.potentials.items():
     #        ax.plot(rfunc.mesh, rfunc.values, label="TPROJ: " + state)
 
-    #    plt.legend(loc="best")
+    #    ax.legend(loc="best")
 
     #    if title is not None: fig.suptitle(title)
     #    if show: plt.show()
@@ -1524,7 +1635,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
         pseudos = []
 
         if exts == "all_files":
-            for f in [os.path.join(path, fn) for fn in os.listdir(top)]:
+            for f in [os.path.join(top, fn) for fn in os.listdir(top)]:
                 if os.path.isfile(f):
                     try:
                         p = Pseudo.from_file(f)
@@ -1550,16 +1661,6 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
 
         return cls(pseudos).sort_by_z()
 
-    #@pmg_serialize
-    #def as_dict(self, **kwargs):
-    #    return {pseudo.as_dict() for pseudo in self}
-
-    #@classmethod
-    #def from_dict(cls, d):
-    #    pseudos = [p.from_dict(d) for k, p in cls.as_dict().items() if not k.startswith("@")]
-    #    print(pseudos)
-    #    #return cls(pseudos)
-
     def __init__(self, pseudos):
         """
         Args:
@@ -1574,7 +1675,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
         if len(pseudos) and is_string(pseudos[0]):
             pseudos = list_strings(pseudos)
 
-        self._pseudos_with_z = collections.defaultdict(list)
+        self._pseudos_with_z = defaultdict(list)
 
         for pseudo in pseudos:
             p = pseudo
@@ -1645,7 +1746,7 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
     def as_dict(self, **kwargs):
         d = {}
         for p in self:
-            k, count = p.basename, 1
+            k, count = p.element, 1
             # Handle multiple-pseudos with the same name!
             while k in d:
                 k += k.split("#")[0] + "#" + str(count)
@@ -1660,7 +1761,8 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
         pseudos = []
         dec = MontyDecoder()
         for k, v in d.items():
-            pseudos.extend(dec.process_decoded(v))
+            if not k.startswith('@'):
+                pseudos.append(dec.process_decoded(v))
         return cls(pseudos)
 
     def is_complete(self, zmax=118):
@@ -1671,18 +1773,44 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
             if not self[z]: return False
         return True
 
-    def pseudo_with_symbol(self, symbol):
+    def all_combinations_for_elements(self, element_symbols):
+        """
+        Return a list with all the the possible combination of pseudos 
+        for the given list of element_symbols.
+        Each item is a list of pseudopotential objects.
+
+        Example::
+
+            table.all_combinations_for_elements(["Li", "F"])
+        """
+        d = OrderedDict()
+        for symbol in element_symbols:
+            d[symbol] = self.select_symbols(symbol, ret_list=True)
+
+        from itertools import product
+        all = product(*d.values())
+        return list(all)
+
+    def pseudo_with_symbol(self, symbol, allow_multi=False):
         """
         Return the pseudo with the given chemical symbol.
 
+        Args:
+            symbols: String with the chemical symbol of the element
+            allow_multi: By default, the method raises ValueError
+                if multiple occurrences are found. Use allow_multi to prevent this.
+
         Raises:
-            ValueError if symbol is not found or multiple occurences are present.
+            ValueError if symbol is not found or multiple occurences are present and not allow_multi
         """
         pseudos = self.select_symbols(symbol, ret_list=True)
-        if not pseudos or len(pseudos) > 1:
+        if not pseudos or (len(pseudos) > 1 and not allow_multi):
             raise ValueError("Found %d occurrences of symbol %s" % (len(pseudos), symbol))
 
-        return pseudos[0]
+        if not allow_multi: 
+            return pseudos[0]
+        else:
+            return pseudos
 
     def pseudos_with_symbols(self, symbols):
         """
@@ -1694,11 +1822,14 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
         pseudos = self.select_symbols(symbols, ret_list=True)
         found_symbols = [p.symbol for p in pseudos]
         duplicated_elements = [s for s, o in collections.Counter(found_symbols).items() if o > 1]
+
         if duplicated_elements:
             raise ValueError("Found multiple occurrences of symbol(s) %s" % ', '.join(duplicated_elements))
         missing_symbols = [s for s in symbols if s not in found_symbols]
+
         if missing_symbols:
             raise ValueError("Missing data for symbol(s) %s" % ', '.join(missing_symbols))
+
         return pseudos
 
     def select_symbols(self, symbols, ret_list=False):
@@ -1747,7 +1878,6 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
         """
         symbols = structure.symbol_set
         return self.pseudos_with_symbols(symbols)
-
 
     #def list_properties(self, *props, **kw):
     #    """
@@ -1866,26 +1996,42 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
             "deltafactor": ["dfact_meV", "dfactprime_meV"] + ["v0", "b0_GPa", "b1"], 
             "gbrv_bcc": ["a0_rel_err"],
             "gbrv_fcc": ["a0_rel_err"],
+            "phonon": "all",
+            "phwoa": "all"
         }
 
         rows, names, errors = [], [], []
 
         for p in self:
             report = p.dojo_report
-            assert "version"  in report
-            #if "version" not in report:
-            #    print("ignoring old report in ", p.basename)
-            #    continue
+            #assert "version"  in report
+            if "version" not in report:
+                print("ignoring old report in ", p.basename)
+                continue
 
             d = {"symbol": p.symbol, "Z": p.Z}
             names.append(p.basename)
 
+            #read hints
+            for acc in accuracies:
+                try:
+                    d.update({acc + "_ecut_hint": report['hints'][acc]['ecut']})
+                except KeyError:
+                    d.update({acc + "_ecut_hint": -1.0 })
+
             # FIXME
-            ecut_acc = dict(
-                low=report.ecuts[0],
-                normal=report.ecuts[4],
-                high=report.ecuts[-1],
-            )
+            try:
+                ecut_acc = dict(
+                    low=report.ecuts[2],
+                    normal=report.ecuts[int(len(report.ecuts)/2)],
+                    high=report.ecuts[-2],
+                )
+            except IndexError:
+                ecut_acc = dict(
+                    low=report.ecuts[0],
+                    normal=report.ecuts[-1],
+                    high=report.ecuts[-1],
+                )
 
             for acc in accuracies:
                 d[acc + "_ecut"] = ecut_acc[acc]
@@ -1894,12 +2040,22 @@ class PseudoTable(six.with_metaclass(abc.ABCMeta, collections.Sequence, PMGSONab
                 for trial, keys in trial2keys.items():
                     data = report.get(trial, None)
                     if data is None: continue
+                    # if the current trial has an entry for this ecut notting changes, else we take the ecut closes 
+                    ecut_acc = dict(
+                        low=sorted(data.keys())[0],
+                        normal=sorted(data.keys())[int(len(data.keys())/2)],
+                        high=sorted(data.keys())[-1],
+                    )
                     for acc in accuracies:
                         ecut = ecut_acc[acc]
-                        if trial.startswith("gbrv"):
-                            d.update({acc + "_" + trial + "_" + k: float(data[ecut][k]) for k in keys}) 
+                        if keys is 'all':
+                            ecuts = data
+                            d.update({acc + "_" + trial: data[ecut]})
                         else:
-                            d.update({acc + "_" + k: float(data[ecut][k]) for k in keys}) 
+                            if trial.startswith("gbrv"):
+                                d.update({acc + "_" + trial + "_" + k: float(data[ecut][k]) for k in keys}) 
+                            else:
+                                d.update({acc + "_" + k: float(data[ecut][k]) for k in keys}) 
 
             except Exception as exc:
                 logger.warning("%s raised %s" % (p.basename, exc))
@@ -1995,7 +2151,9 @@ try:
 except ImportError:
     DataFrame = object
 
+
 class DojoDataFrame(DataFrame):
+    """Extends pandas DataFrame adding helper functions."""
     ALL_ACCURACIES = ("low", "normal", "high")
 
     ALL_TRIALS = (
@@ -2003,6 +2161,8 @@ class DojoDataFrame(DataFrame):
         "deltafactor",
         "gbrv_bcc",
         "gbrv_fcc",
+        "phonon",
+        "phwoa"
     )
 
     _TRIALS2KEY = {
@@ -2010,6 +2170,8 @@ class DojoDataFrame(DataFrame):
         "deltafactor": "dfact_meV",
         "gbrv_bcc": "gbrv_bcc_a0_rel_err",
         "gbrv_fcc": "gbrv_fcc_a0_rel_err",
+        "phonon": "all",
+        "phwoa": "all"
     }
 
     _TRIALS2YLABEL = {
@@ -2017,6 +2179,8 @@ class DojoDataFrame(DataFrame):
         "deltafactor": "$\Delta$-factor [meV]",
         "gbrv_bcc": "BCC $\Delta a_0$ (%)",
         "gbrv_fcc": "FCC $\Delta a_0$ (%)",
+        "phonon": "Phonons with ASR",
+        "phwoa": "Phonons without ASR"
     }
 
     ACC2PLTOPTS = dict(
@@ -2142,21 +2306,9 @@ class DojoDataFrame(DataFrame):
 
         return fig
 
-    #def sns_plot(self):
-    #    import seaborn as sns
-    #    import matplotlib.pyplot as plt
-    #    #self.plot(x="symbol", y="high_dfact_meV", use_index=True)
-    #    #data = calc_rerrors(data)
-    #    g = sns.PairGrid(self, x_vars="Z", y_vars=[
-    #        "low_ecut",
-    #        "low_dfact_meV",
-    #        #"high_dfact_meV", 
-    #        #"low_v0_rerr", "low_b0_GPa_rerr", "low_b1_rerr",
-    #        ]
-    #    ) #, hue="smoker")
-    #    g.map(plt.scatter)
-    #    g.add_legend()
-    #    plt.show()
+
+class DojoReportError(Exception):
+    """Exception raised by DoJoReport."""
 
 
 class DojoReport(dict):
@@ -2166,22 +2318,32 @@ class DojoReport(dict):
         "deltafactor": "dfact_meV",
         "gbrv_bcc": "a0_rel_err",
         "gbrv_fcc": "a0_rel_err",
+        "phwoa": "all",
+        "phonon": "all"
     }
 
     ALL_ACCURACIES = ("low", "normal", "high")
 
+    # List of dojo_trials
+    # Remember to update the list if you add a new test to the DOJO_REPORT
     ALL_TRIALS = (
         "deltafactor",
         "gbrv_bcc",
         "gbrv_fcc",
+        "phonon",
+        "phwoa"
     )
 
-    ATOLS = (0.2, 0.1, 0.01)
+    # Tolerances on the deltafactor prime (in eV) used for the hints.
+    #ATOLS = (1.0, 0.2, 0.04)
+    ATOLS = (0.5, 0.1, 0.02)
+
+    Error = DojoReportError
 
     @classmethod
     def from_file(cls, filepath):
         """Read the DojoReport from file."""
-        with open(filepath, "r") as fh:
+        with open(filepath, "rt") as fh:
             lines = fh.readlines()
             try:
                 start = lines.index("<DOJO_REPORT>\n")
@@ -2189,6 +2351,9 @@ class DojoReport(dict):
                 return {}
 
             stop = lines.index("</DOJO_REPORT>\n")
+            #print("start, stop" ,start, stop)
+            #print("".join(lines[start+1:stop]))
+
             d = json.loads("".join(lines[start+1:stop]))
             return cls(**d)
 
@@ -2205,32 +2370,24 @@ class DojoReport(dict):
     def __init__(self, *args, **kwargs): 
         super(DojoReport, self).__init__(*args, **kwargs)
 
-        for trial in self.ALL_TRIALS:
-            # Convert ecut to float and build an OrderedDict (results are indexed by ecut in ascending order)
-            try:
-                d = self[trial]
-            except KeyError:
-                continue
-            ecuts_keys = sorted([(float(k), k) for k in d], key=lambda t:t[0])
-            ord = OrderedDict([(t[0], d[t[1]]) for t in ecuts_keys])
-            self[trial] = ord
+        try:
+            for trial in self.ALL_TRIALS:
+                # Convert ecut to float and build an OrderedDict (results are indexed by ecut in ascending order)
+                try:
+                    d = self[trial]
+                except KeyError:
+                    continue
+                ecuts_keys = sorted([(float(k), k) for k in d], key=lambda t:t[0])
+                ord = OrderedDict([(t[0], d[t[1]]) for t in ecuts_keys])
+                self[trial] = ord
 
-    def __str__(self):
-        stream = six.moves.StringIO()
-        pprint.pprint(self, stream=stream, indent=2, width=80)
-        return stream.getvalue()
+        except ValueError:
+            raise self.Error('Error while initializing the dojo report')
 
-    def has_exceptions(self):
-        problems = {}
-        for trial in self.ALL_TRIALS:
-            for accuracy in self.ALL_ACCURACIES:
-                excs = self[trial][accuracy].get("_exceptions", None)
-                if excs is not None:
-                    if trial not in problems: problems[trial] = {}
-
-                    problems[trial][accuracy] = excs
-
-        return problems
+    #def __str__(self):
+    #    stream = six.moves.StringIO()
+    #    pprint.pprint(self, stream=stream, indent=2, width=80)
+    #    return stream.getvalue()
 
     @property
     def symbol(self):
@@ -2239,60 +2396,123 @@ class DojoReport(dict):
 
     @property
     def element(self):
+        """Element object."""
         return Element(self.symbol)
 
     @property
     def has_hints(self):
-        """True if hints are present."""
+        """True if hints on cutoff energy are present."""
         return "hints" in self
 
-    @lazy_property
+    @property
     def ecuts(self):
-        return np.array(self["ecuts"])
-
-    #@property
-    #def is_validated(self)
-    #    return bool(self.get("validated", False))
+        """Numpy array with the list of ecuts that should be present in the dojo_trial sub-dicts"""
+        return self["ecuts"]
 
     @property
     def trials(self):
-        """List of strings with the trials present in the report."""
-        return [k for k in self.keys() if k != "hints"]
+        """Set of strings with the trials present in the report."""
+        return set(list(self.keys())).intersection(self.ALL_TRIALS)
 
     def has_trial(self, dojo_trial, ecut=None):
         """
         True if the dojo_report contains dojo_trial with the given ecut.
         If ecut is not, we test if dojo_trial is present.
         """
+        if dojo_trial not in self.ALL_TRIALS:
+            raise self.Error("dojo_trial `%s` is not a registered DOJO TRIAL" % dojo_trial)
+
         if ecut is None:
             return dojo_trial in self
         else:
+            #key = self._ecut2key(ecut)
+            key = ecut
             try:
-                self[dojo_trial][ecut]
+                self[dojo_trial][key]
                 return True
             except KeyError:
                 return False
 
-    #def missing_ecuts(self, trial):
-    #    computed_ecuts = self[trial].keys()
-    #    return [e for e in self.ecuts if e not in computed_ecuts]
-
-    #def add_ecuts(self, ecuts):
+    def add_ecuts(self, new_ecuts):
+        """Add a list of new ecut values."""
         # Be careful with the format here! it should be %.1f
-        #new_ecuts = np.array(new_ecuts.split(","))
+        # Select the list of ecuts reported in the DOJO section.
+        prev_ecuts = self["ecuts"]
+
+        for i in range(len(prev_ecuts)-1):
+            if prev_ecuts[i] >= prev_ecuts[i+1]:
+                raise self.Error("Ecut list is not ordered:\n %s" % prev_ecuts)
+
+        from monty.bisect import find_le
+        for e in new_ecuts:
+            # Find rightmost value less than or equal to x.
+            if e < prev_ecuts[0]:
+                i = 0
+            elif e > prev_ecuts[-1]:
+                i = len(prev_ecuts)
+            else:
+                i = find_le(prev_ecuts, e)
+                assert prev_ecuts[i] != e
+                i += 1
+
+            prev_ecuts.insert(i, e)
+
+    def add_hints(self, hints):
+        hints_dict = {
+           "low": {'ecut': hints[0]},
+           "normal" : {'ecut': hints[1]},
+           "high" : {'ecut': hints[2]}
+                     }
+        self["hints"] = hints_dict
 
     #def validate(self, hints):
     #    Add md5 hash value
     #    self["validated"] = True
 
-    def check(self):
+    @staticmethod
+    def _ecut2key(ecut):
+        """Convert ecut to a valid key. ecut can be either a string or a float."""
+        if is_string(ecut):
+            # Validate string
+            i = ecut.index(".")
+            if len(ecut[i+1:]) != 1:
+                raise ValueError("string %s must have one digit")
+            return ecut
+
+        else:
+            # Assume float
+            return "%.1f" % ecut
+
+    def add_entry(self, dojo_trial, ecut, d, overwrite=False):
         """
-        check the DojoReport. Test if each trial contains an ecut entry. 
-        Return a dictionary trial: [missing_ecut]
+        Add an entry computed with the given ecut to the sub-dictionary associated to dojo_trial.
+
+        Args:
+            dojo_trial:
+            ecut:
+            d:
+            overwrite:
+        """
+        if dojo_trial not in self.ALL_TRIALS:
+            raise ValueError("%s is not a registered trial")
+        section = self.get(dojo_trial, {})
+
+        key = self._ecut2key(ecut)
+        if key in section and not overwrite:
+            raise self.Error("Cannot overwrite key %s in dojo_trial %s" % (key, dojo_trial))
+
+        section[key] = d
+
+    def find_missing_entries(self):
+        """
+        check the DojoReport. 
+        This function tests if each trial contains an ecut entry. 
+        Return a dictionary {trial_name: [list_of_missing_ecuts]}
+        mapping the name of the Dojo trials to the list of ecut values that are missing 
         """
         d = {}
-        for trial in self.ALL_TRIALS:
 
+        for trial in self.ALL_TRIALS:
             data = self.get(trial, None)
             if data is None:
                 # Gbrv results do not contain noble gases so ignore the error
@@ -2300,6 +2520,7 @@ class DojoReport(dict):
                     assert data is None
                     continue
                 d[trial] = self.ecuts
+
             else:
                 computed_ecuts = self[trial].keys()
                 for e in self.ecuts:
@@ -2311,39 +2532,6 @@ class DojoReport(dict):
             assert len(computed_ecuts) == len(self.ecuts)
 
         return d
-
-    #def get_dataframe(self, **kwargs):
-    #    """
-    #    ===========  ===============  ===============   ===============
-    #    Trial             low              normal            high 
-    #    ===========  ===============  ===============   ===============
-    #    deltafactor  value (rel_err)  value (rel_err)   value (rel_err)
-    #    gbrv_fcc     ...              ...               ...
-    #    ===========  ===============  ===============   ===============
-    #    """
-    #    # Build the header
-    #    if kwargs.pop("with_hints", True):
-    #        ecut_acc = {acc: self["hints"][acc]["ecut"] for acc in self.ALL_ACCURACIES}
-    #        l = ["%s (%s Ha)" % (acc, ecut_acc[acc]) for acc in self.ALL_ACCURACIES]
-    #    else:
-    #        l = list(self.ALL_ACCURACIES)
-
-    #    rows = [["Trial"] + l]
-
-    #    for trial in self.ALL_TRIALS:
-    #        row = [trial]
-    #        for accuracy in self.ALL_ACCURACIES:
-    #            if not self.has_trial(trial, accuracy): 
-    #                row.append("N/A")
-    #            else:
-    #                d = self[trial][accuracy]
-    #                value = d[self._TRIALS2KEY[trial]]
-    #                s = "%.4f" % value
-    #                row.append(s)
-    #        rows.append(row)
-    #    #import pandas as pd
-    #    #return pd.DataFrame(rows, index=names, columns=columns)
-    #    return rows
 
     def print_table(self, stream=sys.stdout):
         from monty.pprint import pprint_table
@@ -2364,7 +2552,7 @@ class DojoReport(dict):
         d = OrderedDict([(ecut, data["etotals"][4]) for ecut, data in self["deltafactor"].items()])
 
         # Ecut mesh in Ha
-        ecuts = np.array(d.keys())
+        ecuts = np.array(list(d.keys()))
         ecut_min, ecut_max = np.min(ecuts), np.max(ecuts)
 
         # Energies per atom in meV and difference wrt 'converged' value
@@ -2380,7 +2568,7 @@ class DojoReport(dict):
         xs = 1/ecuts if inv_ecut else ecuts
         ys = etotals_mev if inv_ecut else ediffs
 
-        line, = ax.plot(xs, ys, "-->", color="blue", linewidth=3.0, markersize=15)
+        line, = ax.plot(xs, ys, "-o", color="blue") #, linewidth=3.0, markersize=15)
         lines.append(line)
 
         label = kwargs.pop("label", None)
@@ -2466,7 +2654,42 @@ class DojoReport(dict):
             for i in range(3):
                 if adiff <= self.ATOLS[i] and hints[i] is None:
                     hints[i] = ecut
+                if adiff > self.ATOLS[i]: 
+                    hints[i] = None
         return hints
+
+    def check(self):
+        """
+        Check the dojo report for inconsistencies.
+        Return a string with the errors found in the DOJO_REPORT.
+        """
+        errors = []
+        app = errors.append
+
+        if "version" not in self:
+            app("version is missing")
+
+        if "ppgen_hints" not in self:
+            app("version is missing")
+
+        if "md5" not in self:
+            app("md5 checksum is missing!")
+
+        # Check if we have computed each trial for the full set of ecuts in global_ecuts
+        global_ecuts = self.ecuts
+
+        missing = defaultdict(list)
+        for trial in self.ALL_TRIALS:
+            for ecut in global_ecuts:
+                if not self.has_trial(trial, ecut=ecut):
+                    missing[trial].append(ecut)
+
+        if missing:
+            app("The following list of ecut energies is missing:")
+            for trial, ecuts in missing.items():
+                app("%s: %s" % (trial, ecuts))
+            
+        return "\n".join(errors)
 
     @add_fig_kwargs
     def plot_deltafactor_convergence(self, code="WIEN2k", what=None, ax_list=None, **kwargs):
@@ -2498,7 +2721,7 @@ class DojoReport(dict):
         reference = df_database().get_entry(symbol=self.symbol, code=code)
 
         d = self["deltafactor"]
-        ecuts = d.keys()
+        ecuts = list(d.keys())
 
         import matplotlib.pyplot as plt
         if ax_list is None:
@@ -2520,7 +2743,7 @@ class DojoReport(dict):
             #    refval = 0.0
 
             # Plot difference pseudo - ref.
-            ax.plot(ecuts, values - refval, "bo-")
+            ax.plot(ecuts, values - refval, "o-")
 
             ax.grid(True)
             ax.set_ylabel("$\Delta$" + key)
@@ -2530,9 +2753,12 @@ class DojoReport(dict):
                 # Add horizontal lines (used to find hints for ecut).
                 last = values[-1]
                 xmin, xmax = min(ecuts), max(ecuts)
-                for pad, color in zip(self.ATOLS, ("green", "red", "violet")):
-                    ax.hlines(y=last + pad, xmin=xmin, xmax=xmax, colors=color, linewidth=1, linestyles='dotted')
-                    ax.hlines(y=last - pad, xmin=xmin, xmax=xmax, colors=color, linewidth=1, linestyles='dotted')
+                for pad, color in zip(self.ATOLS, ("blue", "red", "violet")):
+                    ax.hlines(y=last + pad, xmin=xmin, xmax=xmax, colors=color, linewidth=1, linestyles='dashed')
+                    ax.hlines(y=last - pad, xmin=xmin, xmax=xmax, colors=color, linewidth=1, linestyles='dashed')
+              
+                # Set proper limits so that we focus on the relevant region.
+                ax.set_ylim(last - 1.1*self.ATOLS[0], last + 1.1*self.ATOLS[0])
 
         return fig
 
@@ -2583,11 +2809,6 @@ class DojoReport(dict):
         Args:
             ax_list: List of matplotlib Axes, if ax_list is None a new figure is created
 
-        ================  ==============================================================
-        kwargs            Meaning
-        ================  ==============================================================
-        ================  ==============================================================
-
         Returns:
             `matplotlib` figure.
         """
@@ -2602,12 +2823,12 @@ class DojoReport(dict):
         #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(stypes), ncols=1, sharex=True, squeeze=False)
 
         if len(stypes) != len(ax_list): 
-                raise ValueError("len(stypes)=%s != len(ax_list)=%s" %  (len(stypes), len(ax_list)))
+            raise ValueError("len(stypes)=%s != len(ax_list)=%s" %  (len(stypes), len(ax_list)))
 
         for i, (ax, stype) in enumerate(zip(ax_list, stypes)):
             trial = "gbrv_" + stype
             d = self[trial]
-            ecuts = d.keys()
+            ecuts = list(d.keys())
             values = np.array([float(d[ecut]["a0_rel_err"]) for ecut in ecuts])
 
             ax.grid(True)
@@ -2617,5 +2838,53 @@ class DojoReport(dict):
             ax.plot(ecuts, values, "bo-")
             #ax.hlines(y=0.0, xmin=min(ecuts), xmax=max(ecuts), color="red")
             if i == len(ax_list) - 1: ax.set_xlabel("Ecut [Ha]")
+
+        return fig
+
+    @add_fig_kwargs
+    def plot_phonon_convergence(self, ax_list=None, **kwargs):
+        """
+        Plot the convergence of the phonon modes wrt ecut.
+
+        Args:
+            ax_list: List of matplotlib Axes, if ax_list is None a new figure is created
+
+        Returns:
+            `matplotlib` figure.
+        """
+        d = self["phonon"]
+        ecuts = list(d.keys())
+
+        l = [(ecut, float(ecut)) for ecut in ecuts]
+        s = sorted(l, key=lambda t: t[1])
+        max_ecut = s[-1][0]
+        s_ecuts = [ecut[0] for ecut in s]
+
+        import matplotlib.pyplot as plt
+        fig, ax = plt.subplots(nrows=2, sharex=True)
+        #ax_list, fig, plt = get_axarray_fig_plt(ax_list, nrows=len(keys), ncols=1, sharex=True, squeeze=False)
+
+        fmin, fmax = np.inf, -np.inf
+        for i, v in enumerate(d[ecuts[0]]):
+            values1 = np.array([float(d[ecut][i]) for ecut in s_ecuts])
+            fmin = min(fmin, values1.min())
+            fmax = max(fmax, values1.max())
+
+            ax[0].plot(s_ecuts, values1, "o-")
+            ax[0].grid(True)
+            ax[0].set_ylabel("phonon modes [meV] (asr==2)")
+            ax[0].set_xlabel("Ecut [Ha]")
+
+            values2 = np.array([float(d[ecut][i]) - float(d[max_ecut][i]) for ecut in s_ecuts])
+
+            ax[1].plot(s_ecuts, values2, "o-")
+            ax[1].grid(True)
+            ax[1].set_ylabel("w - w(ecut_max) [meV]")
+            ax[1].set_xlabel("Ecut [Ha]")
+
+        # Adjust limits.
+        fmin -= 10 
+        fmax += 10 
+        ax[0].set_ylim(fmin, fmax)
 
         return fig

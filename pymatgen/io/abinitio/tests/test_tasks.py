@@ -10,7 +10,8 @@ from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio.tasks import *
 from pymatgen.io.abinitio.tasks import TaskPolicy, ParalHints
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 
+                        'test_files', "abinitio")
 
 
 class TaskManagerTest(PymatgenTest):
@@ -78,6 +79,8 @@ db_connector:
 
         # Test pickle
         self.serialize_with_pickle(slurm_manager, test_eq=False)
+
+        self.assertPMGSONable(slurm_manager)
 
 
 class ParalHintsTest(PymatgenTest):
