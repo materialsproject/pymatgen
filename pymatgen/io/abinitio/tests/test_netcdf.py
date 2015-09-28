@@ -17,8 +17,9 @@ try:
 except ImportError:
     netCDF4 = None
 
-_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files')
+
+_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 
+                         'test_files', "abinitio")
 
 def ref_file(filename):
     return os.path.join(_test_dir, filename)

@@ -10,12 +10,13 @@ Created on Fri Mar  8 23:14:02 CET 2013
 
 import os.path
 import collections
+import numpy as np
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio.pseudos import *
 
 _test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files')
+                        'test_files', "abinitio")
 
 
 def ref_file(filename):
@@ -73,11 +74,16 @@ class PseudoTestCase(PymatgenTest):
         self.assertEqual(pseudo.l_max, 1)
         self.assertEqual(pseudo.l_local, 0)
 
+        assert self.Si_hgh.md5 is not None
+        assert self.Si_hgh == self.Si_hgh
+
         # TM pseudos
         pseudo = self.Si_pspnc
         self.assertTrue(pseudo.has_nlcc)
         self.assertEqual(pseudo.l_max, 2)
         self.assertEqual(pseudo.l_local, 2)
+
+        assert self.Si_hgh != self.Si_pspnc
 
         # FHI pseudos
         pseudo = self.Si_fhi
@@ -113,6 +119,7 @@ class PseudoTestCase(PymatgenTest):
                         oxygen.Z_val == 6,
                        )
 
+        assert oxygen.md5 is not None
         self.assert_almost_equal(oxygen.paw_radius, 1.4146523028)
 
         # Test pickle
@@ -130,14 +137,15 @@ class PseudoTestCase(PymatgenTest):
                                                                                  
             self.assert_almost_equal(o.paw_radius, 1.4146523028)
 
-    def test_ncvpsp_pseudo(self):
+    def test_oncvpsp_pseudo(self):
         """
-        Test the NCVPSP Ge pseudo
+        Test the ONCVPSP Ge pseudo
         """
         ger = Pseudo.from_file(ref_file("ge.oncvpsp"))
         print(repr(ger))
         print(ger)
         print(ger.as_dict())
+        ger.as_tmpfile()
 
         self.assertTrue(ger.symbol == "Ge")
         self.assert_equal(ger.Z, 32.0)
@@ -147,7 +155,84 @@ class PseudoTestCase(PymatgenTest):
         self.assert_equal(ger.l_max, 2)
         self.assert_equal(ger.l_local, 4)
         self.assert_equal(ger.rcore, None)
+        self.assertFalse(ger.has_dojo_report)
 
+    def test_oncvpsp_dojo_report(self):
+        """Testing pseudopotentials with dojo report"""
+        plot = True
+        try:
+            from matplotlib.figure import Figure as Fig
+        except ImportError:
+            Fig = None
+            plot = False
+
+        h_wdr = Pseudo.from_file(ref_file("H-wdr.oncvpsp"))
+
+        # Test DOJO REPORT and md5
+
+        assert h_wdr.symbol == "H" and h_wdr.has_dojo_report
+
+        #h_wdr.check_and_fix_dojo_md5()
+        ref_md5 = "0911255f47943a292c3905909f499a84"
+        assert h_wdr.compute_md5() == ref_md5
+        assert "md5" in h_wdr.dojo_report and h_wdr.md5 == ref_md5
+
+        print(repr(h_wdr))
+        print(h_wdr.as_dict())
+        report = h_wdr.read_dojo_report()
+
+        #print(report)
+        assert report.symbol == "H" and report.element.symbol == "H"
+        assert not report.has_hints
+        assert report["pseudo_type"] == "norm-conserving" and report["version"] == "1.0"
+        assert not report.has_hints
+
+        # Basic consistency tests.
+        missings = report.find_missing_entries()
+        assert not missings
+        with self.assertRaises(report.Error): report.has_trial("foo")
+
+        for trial in report.trials:
+            assert report.has_trial(trial)
+        assert report.has_trial("deltafactor", ecut=32)
+
+        # Test deltafactor entry.
+        self.assert_almost_equal(report["deltafactor"][32]["etotals"][1], -63.503524424394556)
+        self.assert_almost_equal(report["deltafactor"][32]["volumes"][1],  66.80439150995784)
+
+        #assert report.has_trial("deltafactor", ecut="32.0")
+        #with self.assertRaises(report.Error): report.has_trial("deltafactor", ecut=-1)
+        #with self.assertRaises(report.Error): report.has_trial("deltafactor", ecut="32.00")
+
+        # Test GBRV entries
+        self.assert_almost_equal(report["gbrv_bcc"][32]["a0"], 1.8069170394120007)
+        self.assert_almost_equal(report["gbrv_fcc"][34]["a0_rel_err"], 0.044806085362549146)
+
+        # Test Phonon entry
+        self.assert_almost_equal(report["phonon"][36][-1], 528.9531110978663)
+
+        # Test API to add ecuts and find missing entries.
+        assert np.all(report.ecuts == [32.0,  34.0,  36.0, 38.0, 40.0, 42.0, 52.0])
+
+        report.add_ecuts([30])
+        assert np.all(report.ecuts == [30.0, 32.0, 34.0, 36.0, 38.0, 40.0, 42.0, 52.0])
+        missing = report.find_missing_entries() 
+        assert missing and all(v == [30] for v in missing.values())
+
+        report.add_ecuts([33, 53])
+        assert np.all(report.ecuts == [30.0, 32.0, 33.0, 34.0,  36.0, 38.0, 40.0, 42.0, 52.0, 53.0])
+        missing = report.find_missing_entries() 
+        assert missing and all(v == [30, 33, 53] for v in missing.values())
+
+        # Test plotting methods.
+        if plot:
+            self.assertIsInstance(report.plot_deltafactor_convergence(show=False), Fig)
+            self.assertIsInstance(report.plot_deltafactor_eos(show=False), Fig)
+            self.assertIsInstance(report.plot_etotal_vs_ecut(show=False), Fig)
+            self.assertIsInstance(report.plot_gbrv_convergence(show=False), Fig)
+            self.assertIsInstance(report.plot_gbrv_eos('bcc', show=False), Fig)
+            self.assertIsInstance(report.plot_gbrv_eos('fcc', show=False), Fig)
+            self.assertIsInstance(report.plot_phonon_convergence(show=False), Fig)
 
 
 class PseudoTableTest(PymatgenTest):
