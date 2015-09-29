@@ -178,6 +178,10 @@ class MPResterTest(unittest.TestCase):
         entries = self.rester.get_entries("Fe", compatible_only=True)
         self.assertTrue(len(entries) < len(all_entries))
 
+        entries = self.rester.get_entries("Fe", compatible_only=True,
+                                          property_data=["cif"])
+        self.assertIn("cif", entries[0].data)
+
     def test_get_exp_entry(self):
         entry = self.rester.get_exp_entry("Fe2O3")
         self.assertEqual(entry.energy, -825.5)
