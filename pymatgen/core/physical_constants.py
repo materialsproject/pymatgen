@@ -1,4 +1,8 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import unicode_literals
 
 """
 This module defines useful physical constants and conversion factors.
@@ -33,8 +37,6 @@ All units are in SI units except for conversion factors.
     Avogardo's constant
 """
 
-import numpy as _np
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
@@ -54,6 +56,9 @@ EPSILON_0 = 8.85418781762e-12
 BOLTZMANN_CONST = 1.3806488e-23
 ELECTRON_VOLT = 1.602176565e-19
 AVOGADROS_CONST = 6.02214129e23
+HARTREE_TO_ELECTRON_VOLT = 27.21138505
+SPEED_OF_LIGHT = 299792458.0
+PLANCK_CONSTANT = 6.62606957e-34
 
 #Some useful aliases
 N_a = AVOGADROS_CONST
@@ -61,3 +66,5 @@ k_b = BOLTZMANN_CONST
 e = ELECTRON_CHARGE
 R = AVOGADROS_CONST * BOLTZMANN_CONST
 F = AVOGADROS_CONST * ELECTRON_CHARGE
+c = SPEED_OF_LIGHT
+h = PLANCK_CONSTANT

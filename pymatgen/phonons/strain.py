@@ -13,32 +13,37 @@ from pymatgen.transformations.standard_transformations import *
 from pymatgen.core.structure_modifier import StructureEditor
 import numpy as np
 import os
-uthor__="Maarten de Jong"
+__author__ = "Maarten de Jong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Mark Asta, Anubhav Jain"
 __version__ = "1.0"
 __maintainer__ = "Maarten de Jong"
 __email__ = "maartendft@gmail.com"
 __status__ = "Development"
-__date__ ="March 13, 2012"
+__date__ = "March 13, 2012"
 
 
-class Strain(object):
-    #TODO: AJ says strain must subclass SQTensor
-    #TODO: AJ says much of this class should be reimplemented from the standpoint of subclassing SQTensor
-    #TODO: AJ says there should be a static from_strain(matrix) method that constructs the object from a strain matrix rather than deformation matrix
-    #For an example of the above, see the various 'from_xxxxx' methods in pymatgen.core.structure.Composition
-
+class Strain(SQTensor):
+    """
+    Subclass of SQTensor that describes the strain matrix
+    """
+    # TODO: AJ says strain must subclass SQTensor
+    # TODO: AJ says much of this class should be reimplemented from the standpoint of subclassing SQTensor
+    # TODO: AJ says there should be a static from_strain(matrix) method that constructs the object from a strain matrix rather than deformation matrix
+    # For an example of the above, see the various 'from_xxxxx' methods in pymatgen.core.structure.Composition
+    # TODO: JM says we might want to have the constructor use the strain matrix, and have a from_deformation_matrix
+    #   method instead of a from_strain method
+    
     def __init__(self, deformation_matrix):
-        self._dfm = deformation_matrix
+        super(Strain,self).__init__(deformation_matrix)
+        #self._dfm = deformation_matrix
         #TODO: AJ says the above needs to be handled by a super() call
-        self._strain = 0.5 * (np.matrix(self._dfm) * np.transpose(np.matrix(self._dfm)) - np.eye(3))
+        self._strain = 0.5 * (self._matrix * self._matrix.T - np.eye(3))
 
-    # return a scaled version of this matrix
-    def get_scaled(self, scale_factor):
-        #TODO: AJ says this method is not needed, anyway it goes in the superclass if needed
-        deformation_matrix = self._dfm * scale_factor
-        return Strain(deformation_matrix)
+    @classmethod
+    def from_strain(cls, strain_matrix):
+        #TODO: fix this, 
+        return cls(2*strain_matrix + np.eye(3))
 
     # return Green-Lagrange strain matrix
     @property

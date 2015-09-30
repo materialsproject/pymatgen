@@ -117,17 +117,17 @@ def parse_radii():
         toks = line.strip().split(",")
         el = toks[1]
         try:
-            atomic_radii = float(toks[3])/ 100
+            atomic_radii = float(toks[3]) / 100
         except:
             atomic_radii = toks[3]
 
         try:
-            atomic_radii_calc = float(toks[4])/ 100
+            atomic_radii_calc = float(toks[4]) / 100
         except:
             atomic_radii_calc = toks[4]
 
         try:
-            vdw_radii = float(toks[5])/ 100
+            vdw_radii = float(toks[5]) / 100
         except:
             vdw_radii = toks[5]
 

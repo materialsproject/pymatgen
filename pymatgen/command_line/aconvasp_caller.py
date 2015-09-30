@@ -1,4 +1,8 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import unicode_literals
 
 """
 Interface with command line aconvasp. http://aflowlib.org/
@@ -16,7 +20,7 @@ __date__ = "$Nov 22, 2011M$"
 
 import subprocess
 
-from pymatgen.io.vaspio.vasp_input import Poscar
+from pymatgen.io.vasp.inputs import Poscar
 
 
 def run_aconvasp_command(command, structure):

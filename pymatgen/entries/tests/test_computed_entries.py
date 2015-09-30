@@ -1,10 +1,13 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
 
 """
 Created on Mar 18, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -16,7 +19,7 @@ __date__ = "Mar 18, 2012"
 import unittest
 import os
 
-from pymatgen.io.vaspio.vasp_output import Vasprun
+from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.entries.computed_entries import ComputedEntry, \
     ComputedStructureEntry
 
@@ -48,7 +51,7 @@ class ComputedEntryTest(unittest.TestCase):
         self.assertEqual(self.entry2.composition.reduced_formula, "Fe2O3")
 
     def test_to_from_dict(self):
-        d = self.entry.to_dict
+        d = self.entry.as_dict()
         e = ComputedEntry.from_dict(d)
         self.assertAlmostEqual(e.energy, -269.38319884)
 
@@ -76,7 +79,7 @@ class ComputedStructureEntryTest(unittest.TestCase):
         self.assertEqual(self.entry.composition.reduced_formula, "LiFe4(PO4)4")
 
     def test_to_from_dict(self):
-        d = self.entry.to_dict
+        d = self.entry.as_dict()
         e = ComputedStructureEntry.from_dict(d)
         self.assertAlmostEqual(e.energy, -269.38319884)
 

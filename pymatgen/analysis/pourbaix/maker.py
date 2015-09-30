@@ -1,11 +1,15 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
 
 """
 Module containing analysis classes which compute a pourbaix diagram given a
 target compound/element.
 """
 
-from __future__ import division
+from six.moves import zip
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -19,13 +23,10 @@ __date__ = "Nov 1, 2012"
 import logging
 import numpy as np
 import itertools
-import re
 from itertools import chain
 from pyhull.convex_hull import ConvexHull
-from pymatgen.analysis.pourbaix.entry import MultiEntry
-from pymatgen.core.periodic_table import Element
-from pymatgen.core import Composition
-from pymatgen.core.ion import Ion
+from pymatgen.analysis.pourbaix.entry import MultiEntry, ion_or_solid_comp_object
+from pymatgen.core import Element, Composition
 
 
 logger = logging.getLogger(__name__)
@@ -37,15 +38,12 @@ MU_H2O = -2.4583
 class PourbaixDiagram(object):
     """
     Class to create a Pourbaix diagram from entries
+
+    Args:
+        entries: Entries list containing both Solids and Ions
+        comp_dict: Dictionary of compositions
     """
     def __init__(self, entries, comp_dict=None):
-        """
-        Args:
-            entries:
-                Entries list containing both Solids and Ions
-            comp_dict:
-                Dictionary of compositions
-        """
         self._solid_entries = list()
         self._ion_entries = list()
         for entry in entries:
@@ -54,28 +52,30 @@ class PourbaixDiagram(object):
             elif entry.phase_type == "Ion":
                 self._ion_entries.append(entry)
             else:
-                raise StandardError("Incorrect Phase type - needs to be \
+                raise Exception("Incorrect Phase type - needs to be \
                 Pourbaix entry of phase type Ion/Solid")
         self._unprocessed_entries = self._solid_entries + self._ion_entries
         self._elt_comp = comp_dict
         if comp_dict:
             self._multielement = True
-            self.pourbaix_elements = [key for key in comp_dict]
+            pbx_elements = set()
+            for comp in comp_dict.keys():
+                for el in [el for el in
+                           ion_or_solid_comp_object(comp).elements
+                           if el not in ["H", "O"]]:
+                    pbx_elements.add(el.symbol)
+            self.pourbaix_elements = pbx_elements
             w = [comp_dict[key] for key in comp_dict]
             A = []
             for comp in comp_dict:
-                m = re.search(r"\[([^\[\]]+)\]|\(aq\)", comp)
-                if m:
-                    comp_obj = Ion.from_formula(comp)
-                else:
-                    comp_obj = Composition.from_formula(comp)
+                comp_obj = ion_or_solid_comp_object(comp)
                 Ai = []
                 for elt in self.pourbaix_elements:
-                    Ai.append(comp_obj[Element(elt)])
+                    Ai.append(comp_obj[elt])
                 A.append(Ai)
             A = np.array(A).T.astype(float)
             w = np.array(w)
-            A /= np.dot([A[i].sum() for i in xrange(len(A))], w)
+            A /= np.dot([a.sum() for a in A], w)
             x = np.linalg.solve(A, w)
             self._elt_comp = dict(zip(self.pourbaix_elements, x))
 
@@ -84,6 +84,7 @@ class PourbaixDiagram(object):
             self.pourbaix_elements = [el.symbol
                                       for el in entries[0].composition.elements
                                       if el.symbol not in ["H", "O"]]
+            self._elt_comp = {self.pourbaix_elements[0]: 1.0}
         self._make_pourbaixdiagram()
 
     def _create_conv_hull_data(self):
@@ -111,9 +112,9 @@ class PourbaixDiagram(object):
         for entry in entries_to_process:
             row = [entry.npH, entry.nPhi, entry.g0]
             data.append(row)
-        temp = zip(data, self._qhull_entries)
-        temp.sort(key=lambda x: x[0][2])
-        [data, self._qhull_entries] = zip(*temp)
+        temp = sorted(zip(data, self._qhull_entries),
+                      key=lambda x: x[0][2])
+        [data, self._qhull_entries] = list(zip(*temp))
         return data
 
     def _process_multielement_entries(self):
@@ -124,18 +125,31 @@ class PourbaixDiagram(object):
         entries = self._unprocessed_entries
         el_list = self._elt_comp.keys()
         comp_list = [self._elt_comp[el] for el in el_list]
-        list_of_entries = list(itertools.combinations(
-            [i for i in xrange(len(entries))], N))
+        list_of_entries = list()
+        for j in range(1, N + 1):
+            list_of_entries += list(itertools.combinations(
+                                list(range(len(entries))), j))
         processed_entries = list()
-        self._entry_components_list = list_of_entries
-        self._entry_components_dict = {}
-        count = 0
         for entry_list in list_of_entries:
-            # Check if all elements in composition list are present in entry_list
-            if not (set([Element(el) for el in el_list]).issubset(set(list(chain.from_iterable([entries[i].composition.keys() for i in entry_list]))))):
+            # Check if all elements in composition list are present in
+            # entry_list
+            if not (set([Element(el) for el in el_list]).issubset(
+                    set(list(chain.from_iterable([entries[i].composition.keys()
+                                                  for i in entry_list]))))):
                 continue
-            count += 1
-            A = [[0.0] * (len(el_list) - 1) for _ in range(len(entry_list) - 1)]
+            if len(entry_list) == 1:
+                # If only one entry in entry_list, then check if the composition matches with the set composition. 
+                entry = entries[entry_list[0]]
+                dict_of_non_oh = dict(zip([key for key in entry.composition.keys() if key.symbol not in ["O", "H"]],
+                                           [entry.composition[key] for key in [key for key in entry.composition.keys() if key.symbol not in ["O", "H"]]]))
+                if Composition(dict(zip(self._elt_comp.keys(), [self._elt_comp[key] / min([self._elt_comp[key] for key in self._elt_comp.keys()])
+                                                                 for key in self._elt_comp.keys()]))).reduced_formula ==\
+                        Composition(dict(zip(dict_of_non_oh.keys(), [dict_of_non_oh[el] / min([dict_of_non_oh[key] for key in dict_of_non_oh.keys()])
+                                                                     for el in dict_of_non_oh.keys()]))).reduced_formula:                                                                     
+                    processed_entries.append(MultiEntry([entry], [1.0]))
+                continue
+
+            A = [[0.0] * (len(entry_list) - 1) for _ in range(len(entry_list) - 1)]
             multi_entries = [entries[j] for j in entry_list]
             entry0 = entries[entry_list[0]]
             comp0 = entry0.composition
@@ -145,8 +159,8 @@ class PourbaixDiagram(object):
                 red_fac = 1.0
             sum_nel = sum([comp0[el] / red_fac for el in el_list])
             b = [comp0[Element(el_list[i])] / red_fac - comp_list[i] * sum_nel
-                 for i in xrange(1, len(el_list))]
-            for j in xrange(1, len(entry_list)):
+                 for i in range(1, len(entry_list))]
+            for j in range(1, len(entry_list)):
                 entry = entries[entry_list[j]]
                 comp = entry.composition
                 if entry.phase_type == "Solid":
@@ -154,7 +168,7 @@ class PourbaixDiagram(object):
                 else:
                     red_fac = 1.0
                 sum_nel = sum([comp[el] / red_fac for el in el_list])
-                for i in xrange(1, len(el_list)):
+                for i in range(1, len(entry_list)):
                     el = el_list[i]
                     A[i-1][j-1] = comp_list[i] * sum_nel -\
                         comp[Element(el)] / red_fac
@@ -164,13 +178,12 @@ class PourbaixDiagram(object):
                 if 'Singular matrix' in err.message:
                     continue
                 else:
-                    raise StandardError("Unknown Error message!")
+                    raise Exception("Unknown Error message!")
             if not(np.all(weights > 0.0)):
                 continue
             weights = list(weights)
             weights.insert(0, 1.0)
             super_entry = MultiEntry(multi_entries, weights)
-            self._entry_components_dict[super_entry] = entry_list
             processed_entries.append(super_entry)
         return processed_entries
 
@@ -182,10 +195,10 @@ class PourbaixDiagram(object):
         self._qhull_data = self._create_conv_hull_data()
         dim = len(self._qhull_data[0])
         if len(self._qhull_data) < dim:
-            raise StandardError("Can only do elements with at-least 3 entries"
+            raise Exception("Can only do elements with at-least 3 entries"
                                 " for now")
         if len(self._qhull_data) == dim:
-            self._facets = [range(dim)]
+            self._facets = [list(range(dim))]
         else:
             facets_pyhull = np.array(ConvexHull(self._qhull_data).vertices)
             self._facets = np.sort(np.array(facets_pyhull))
@@ -203,7 +216,6 @@ class PourbaixDiagram(object):
                 if abs(np.linalg.det(facetmatrix)) > 1e-8:
                     vert_facets_removed.append(facet)
                 else:
-                    print "removed facet", facet
                     logger.debug("Removing vertical facet : {}".format(facet))
 
             logger.debug("Removing UCH facets by eliminating normal.z >0 ...")
@@ -239,7 +251,6 @@ class PourbaixDiagram(object):
                 if n[2] <= 0:
                     final_facets.append(facet)
                 else:
-                    print "removed UCH facet", facet
                     logger.debug("Removing UCH facet : {}".format(facet))
             final_facets = np.array(final_facets)
             self._facets = final_facets
@@ -277,9 +288,16 @@ class PourbaixDiagram(object):
     @property
     def stable_entries(self):
         """
-        Returns the stable entries in the phase diagram.
+        Returns the stable entries in the Pourbaix diagram.
         """
-        return self._stable_entries
+        return list(self._stable_entries)
+    
+    @property
+    def unstable_entries(self):
+        """
+        Returns all unstable entries in the Pourbaix diagram
+        """
+        return [e for e in self.qhull_entries if e not in self.stable_entries]
 
     @property
     def all_entries(self):

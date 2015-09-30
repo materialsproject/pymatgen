@@ -1,35 +1,44 @@
-alchemy Package
-===============
+pymatgen.alchemy package
+========================
 
-:mod:`alchemy` Package
-----------------------
+Subpackages
+-----------
 
-.. automodule:: pymatgen.alchemy
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. toctree::
 
-:mod:`filters` Module
----------------------
+
+Submodules
+----------
+
+pymatgen.alchemy.filters module
+-------------------------------
 
 .. automodule:: pymatgen.alchemy.filters
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`materials` Module
------------------------
+pymatgen.alchemy.materials module
+---------------------------------
 
 .. automodule:: pymatgen.alchemy.materials
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`transmuters` Module
--------------------------
+pymatgen.alchemy.transmuters module
+-----------------------------------
 
 .. automodule:: pymatgen.alchemy.transmuters
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: pymatgen.alchemy
+    :members:
+    :undoc-members:
+    :show-inheritance:

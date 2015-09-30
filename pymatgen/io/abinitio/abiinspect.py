@@ -1,15 +1,26 @@
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 """
 This module provides objects to inspect the status of the Abinit tasks at run-time.
 by extracting information from the main output file (text format).
 """
-from __future__ import division, print_function
+from __future__ import unicode_literals, division, print_function
 
 import collections
 import numpy as np
 import yaml
+import six
 
-from StringIO import StringIO
-from pymatgen.util.string_utils import pprint_table
+from six.moves import cStringIO, map, zip
+from prettytable import PrettyTable
+from pymatgen.util.plotting_utils import add_fig_kwargs
+
+
+def straceback():
+    """Returns a string with the traceback."""
+    import traceback
+    return traceback.format_exc()
 
 
 def _magic_parser(stream, magic):
@@ -17,11 +28,11 @@ def _magic_parser(stream, magic):
     Parse the section with the SCF cycle
 
     Returns:
-        dict where the key are the name of columns and 
+        dict where the key are the name of columns and
         the values are list of numbers. Note if no section was found.
 
-    .. warning:
-        
+    .. warning::
+
         The parser is very fragile and should be replaced by YAML.
     """
     #Example (SCF cycle, similar format is used for phonons):
@@ -48,7 +59,7 @@ def _magic_parser(stream, magic):
             # End of the section.
             if not line: break
 
-            tokens = map(float, line.split()[1:])
+            tokens = list(map(float, line.split()[1:]))
             assert len(tokens) == len(keys)
             for l, v in zip(fields.values(), tokens):
                 l.append(v)
@@ -99,22 +110,22 @@ class ScfCycle(collections.Mapping):
 
     def __getitem__(self, slice):
         return self.fields.__getitem__(slice)
-        
+
     def __iter__(self):
         return self.fields.__iter__()
-    
+
     def __len__(self):
         return len(self.fields)
 
     def __str__(self):
         """String representation."""
-        table = [list(self.fields.keys())]
+        table = PrettyTable([list(self.fields.keys())])
         for it in range(self.num_iterations):
-            row = map(str, (self[k][it] for k in self.keys()))
-            table.append(row)
+            row = list(map(str, (self[k][it] for k in self.keys())))
+            table.add_row(row)
 
-        stream = StringIO()
-        pprint_table(table, out=stream)
+        stream = cStringIO()
+        print(table, out=stream)
         stream.seek(0)
 
         return "".join(stream)
@@ -136,7 +147,7 @@ class ScfCycle(collections.Mapping):
         Read the first occurrence of ScfCycle from stream.
 
         Returns:
-            None if no ScfCycle entry is found.
+            None if no `ScfCycle` entry is found.
         """
         fields = _magic_parser(stream, magic=cls.MAGIC)
 
@@ -145,27 +156,13 @@ class ScfCycle(collections.Mapping):
             return cls(fields)
         else:
             return None
-        
+
+    @add_fig_kwargs
     def plot(self, **kwargs):
         """
-        Uses matplotlib to plot the evolution of the SCF cycle.
-
-        ==============  ==============================================================
-        kwargs          Meaning
-        ==============  ==============================================================
-        title           Title of the plot (Default: None).
-        show            True to show the figure (Default).
-        savefig         'abc.png' or 'abc.eps'* to save the figure to a file.
-        ==============  ==============================================================
-
-        Returns:
-            `matplotlib` figure
+        Uses matplotlib to plot the evolution of the SCF cycle. Return `matplotlib` figure
         """
         import matplotlib.pyplot as plt
-
-        title = kwargs.pop("title", None)
-        show = kwargs.pop("show", True)
-        savefig = kwargs.pop("savefig", None)
 
         # Build grid of plots.
         num_plots, ncols, nrows = len(self), 1, 1
@@ -176,14 +173,11 @@ class ScfCycle(collections.Mapping):
         fig, ax_list = plt.subplots(nrows=nrows, ncols=ncols, sharex=True, squeeze=False)
         ax_list = ax_list.ravel()
 
-        if title:
-            fig.suptitle(title)
-
-        iter_num = np.array(range(self.num_iterations))
+        iter_num = np.array(list(range(self.num_iterations)))
 
         for ((key, values), ax) in zip(self.items(), ax_list):
             ax.grid(True)
-            ax.set_xlabel('Iteration')       
+            ax.set_xlabel('Iteration')
             ax.set_xticks(iter_num, minor=False)
             ax.set_ylabel(key)
 
@@ -199,12 +193,6 @@ class ScfCycle(collections.Mapping):
         if (num_plots % ncols) != 0:
             ax_list[-1].plot(xx, yy, lw=0.0)
             ax_list[-1].axis('off')
-
-        if show:
-            plt.show()
-
-        if savefig is not None:
-            fig.savefig(savefig)
 
         return fig
 
@@ -233,9 +221,9 @@ class PhononScfCycle(ScfCycle):
 
 class Relaxation(collections.Iterable):
     """
-    A list of `GroundStateScfCycle` objects.
+    A list of :class:`GroundStateScfCycle` objects.
 
-    .. note:
+    .. note::
 
         Forces, stresses  and crystal structures are missing.
         Solving this problem would require the standardization
@@ -285,8 +273,7 @@ class Relaxation(collections.Iterable):
     @property
     def history(self):
         """
-        Dictionary of lists with the evolution of the data 
-        as function of the relaxation step.
+        Dictionary of lists with the evolution of the data as function of the relaxation step.
         """
         try:
             return self._history
@@ -299,26 +286,15 @@ class Relaxation(collections.Iterable):
 
             return self._history
 
+    @add_fig_kwargs
     def plot(self, **kwargs):
         """
         Uses matplotlib to plot the evolution of the structural relaxation.
-
-        ==============  ==============================================================
-        kwargs          Meaning
-        ==============  ==============================================================
-        title           Title of the plot (Default: None).
-        show            True to show the figure (Default).
-        savefig         'abc.png' or 'abc.eps'* to save the figure to a file.
-        ==============  ==============================================================
 
         Returns:
             `matplotlib` figure
         """
         import matplotlib.pyplot as plt
-
-        title = kwargs.pop("title", None)
-        show = kwargs.pop("show", True)
-        savefig = kwargs.pop("savefig", None)
 
         history = self.history
         #print(history)
@@ -337,33 +313,75 @@ class Relaxation(collections.Iterable):
         if (num_plots % ncols) != 0:
             ax_list[-1].axis('off')
 
-        if title:
-            fig.suptitle(title)
-        
-        for ((key, values), ax) in zip(history.items(), ax_list):
+        for (key, values), ax in zip(history.items(), ax_list):
             ax.grid(True)
-            ax.set_xlabel('Relaxation Step')       
+            ax.set_xlabel('Relaxation Step')
             ax.set_xticks(relax_step, minor=False)
             ax.set_ylabel(key)
 
             ax.plot(relax_step, values, "-o", lw=2.0)
-        
-        if show:
-            plt.show()
-        
-        if savefig is not None:
-            fig.savefig(savefig)
 
         return fig
+
+# TODO
+#class HaydockIterations(collections.Iterable):
+#    """This object collects info on the different steps of the Haydock technique used in the Bethe-Salpeter code"""
+#    @classmethod
+#    def from_file(cls, filepath):
+#        """Initialize the object from file."""
+#        with open(filepath, "r") as stream:
+#            return cls.from_stream(stream)
+#
+#    @classmethod
+#    def from_stream(cls, stream):
+#        """Extract data from stream. Returns None if some error occurred."""
+#        cycles = []
+#        while True:
+#            scf_cycle = GroundStateScfCycle.from_stream(stream)
+#            if scf_cycle is None: break
+#            cycles.append(scf_cycle)
+#
+#        return cls(cycles) if cycles else None
+#
+#    #def __init__(self):
+#
+#    def plot(self, **kwargs):
+#        """
+#        Uses matplotlib to plot the evolution of the structural relaxation.
+#        ==============  ==============================================================
+#        kwargs          Meaning
+#        ==============  ==============================================================
+#        title           Title of the plot (Default: None).
+#        how            True to show the figure (Default).
+#        savefig         'abc.png' or 'abc.eps'* to save the figure to a file.
+#        ==============  ==============================================================
+#        Returns:
+#            `matplotlib` figure
+#        """
+#        import matplotlib.pyplot as plt
+#        title = kwargs.pop("title", None)
+#        show = kwargs.pop("show", True)
+#        savefig = kwargs.pop("savefig", None)
+#        if title: fig.suptitle(title)
+#        if savefig is not None: fig.savefig(savefig)
+#        if show: plt.show()
+#        return fig
+
+
+class YamlTokenizerError(Exception):
+    """Exceptions raised by :class:`YamlTokenizer`."""
 
 
 class YamlTokenizer(collections.Iterator):
     """
-    Provides context-manager support so you can use it in a with statement. 
+    Provides context-manager support so you can use it in a with statement.
     """
+    Error = YamlTokenizerError
+
     def __init__(self, filename):
+        # The position inside the file.
+        self.linepos = 0 
         self.stream = open(filename, "r")
-        self.linepos = 0 # The position inside the file.
 
     def __iter__(self):
         return self
@@ -378,7 +396,11 @@ class YamlTokenizer(collections.Iterator):
         self.close()
 
     def close(self):
-        self.stream.close()
+        try:
+            self.stream.close()
+        except:
+            print("Exception in YAMLTokenizer.close()")
+            print(straceback())
 
     def seek(self, offset, whence=0):
         """
@@ -405,14 +427,15 @@ class YamlTokenizer(collections.Iterator):
         """
         Returns the first YAML document in stream.
 
-        .. warning:
+        .. warning::
 
             Assume that the YAML document are closed explicitely with the sentinel '...'
         """
         in_doc, lines, doc_tag = None, [], None
 
-        for line in self.stream:
+        for i, line in enumerate(self.stream):
             self.linepos += 1
+            #print(i, line)
 
             if line.startswith("---"):
                 # Include only lines in the form:
@@ -444,12 +467,12 @@ class YamlTokenizer(collections.Iterator):
 
     def all_yaml_docs(self):
         """
-        Returns a list with all the YAML docs found in stream. 
+        Returns a list with all the YAML docs found in stream.
         Seek the stream before returning.
 
-        .. warning:
+        .. warning::
 
-            Assume that all the YAML docs (with the exception of the last one) 
+            Assume that all the YAML docs (with the exception of the last one)
             are closed explicitely with the sentinel '...'
         """
         docs = [doc for doc in self]
@@ -458,12 +481,11 @@ class YamlTokenizer(collections.Iterator):
 
     def next_doc_with_tag(self, doc_tag):
         """
-        Returns the next document with the specified tag.
-        Empty string is no doc is found.
+        Returns the next document with the specified tag. Empty string is no doc is found.
         """
         while True:
             try:
-                doc = self.next()
+                doc = six.advance_iterator(self)
                 if doc.tag == doc_tag:
                     return doc
 
@@ -498,7 +520,7 @@ def yaml_read_kpoints(filename, doc_tag="!Kpoints"):
 
 
 def yaml_read_irred_perts(filename, doc_tag="!IrredPerts"):
-    """Read the lisr of irreducible perturbations from file."""
+    """Read the list of irreducible perturbations from file."""
     with YamlTokenizer(filename) as r:
         doc = r.next_doc_with_tag(doc_tag)
         d = yaml.load(doc.text_notag)
@@ -508,7 +530,7 @@ def yaml_read_irred_perts(filename, doc_tag="!IrredPerts"):
 
 class YamlDoc(object):
     """
-    Handy object that stores that YAML document, its main tag and the 
+    Handy object that stores that YAML document, its main tag and the
     position inside the file.
     """
     __slots__ = [
@@ -520,28 +542,28 @@ class YamlDoc(object):
     def __init__(self, text, lineno, tag=None):
         """
         Args:
-            text:
-                String with the YAML document.
-            lineno:
-                The line number where the document is located.
-            tag:
-                The YAML tag associate to the document.
+            text: String with the YAML document.
+            lineno: The line number where the document is located.
+            tag: The YAML tag associate to the document.
         """
         # Sanitize strings: use "ignore" to skip invalid characters in .encode/.decode like
-        text = text.decode("utf-8", "ignore")
+        if isinstance(text, bytes):
+            text = text.decode("utf-8", "ignore")
         text = text.rstrip().lstrip()
         self.text = text
         self.lineno = lineno
-        self.tag = tag.decode("utf-8", "ignore") if tag is not None else tag
+        if isinstance(tag, bytes):
+            tag = tag.decode("utf-8", "ignore")
+        self.tag = tag
 
     def __str__(self):
         return self.text
 
     def __eq__(self, other):
         if other is None: return False
-        return (self.text == other.text and 
-                self.lineno == other.lineno and 
-                self.tag == other.tag) 
+        return (self.text == other.text and
+                self.lineno == other.lineno and
+                self.tag == other.tag)
 
     def __ne__(self, other):
         return not self == other
@@ -554,6 +576,6 @@ class YamlDoc(object):
         (we used the tag just to locate the document).
         """
         if self.tag is not None:
-           return self.text.replace(self.tag, "")
+            return self.text.replace(self.tag, "")
         else:
-           return self.text
+            return self.text

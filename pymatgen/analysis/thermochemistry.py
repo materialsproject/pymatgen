@@ -1,10 +1,13 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
 
 """
 A module to perform experimental thermochemical data analysis.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -23,37 +26,29 @@ STANDARD_TEMP = 298.0
 class ThermoData(object):
     """
     A object container for an experimental Thermochemical Data.
+
+    Args:
+        data_type: The thermochemical data type. Should be one of the
+            following: fH - Formation enthalpy, S - Entropy,
+            A, B, C, D, E, F, G, H - variables for use in the various
+            quations for generating formation enthaplies or Cp at
+            various temperatures.
+        cpdname (str): A name for the compound. For example, hematite for
+            Fe2O3.
+        phaseinfo (str): Denoting the phase. For example, "solid", "liquid",
+            "gas" or "tetragonal".
+        formula (str): A proper string formula, e.g., Fe2O3
+        value (float): The value of the data.
+        ref (str): A reference, if any, for the data.
+        method (str): The method by which the data was determined,
+            if available.
+        temp_range ([float, float]): Temperature range of validity for the
+            data in Kelvin. Defaults to 298 K only.
+        uncertainty (float):
+            An uncertainty for the data, if available.
     """
     def __init__(self, data_type, cpdname, phaseinfo, formula, value, ref="",
                  method="", temp_range=(298, 298), uncertainty=None):
-        """
-        Args:
-            data_type:
-                The thermochemical data type. Should be one of the following:
-                    fH - Formation enthalpy
-                    S - Entropy
-                    A, B, C, D, E, F, G, H - variables for use in the various
-                    equations for generating formation enthaplies or Cp at
-                    various temperatures.
-            cpdname:
-                A name for the compound. For example, hematite for Fe2O3.
-            phaseinfo:
-                String denoting the phase. For example, "solid", "liquid",
-                "gas" or "tetragonal".
-            formula:
-                A proper string formula, e.g., Fe2O3
-            value:
-                The value of the data.
-            ref:
-                A reference, if any, for the data.
-            method:
-                The method by which the data was determined, if available.
-            temp_range:
-                Temperature range of validity for the data in Kelvin. Defaults
-                to 298 K only.
-            uncertainty:
-                An uncertainty for the data, if available.
-        """
         self.type = data_type
         self.formula = formula
         self.composition = Composition(self.formula)
@@ -73,8 +68,7 @@ class ThermoData(object):
                           d["value"], d["ref"], d["method"],
                           d["temp_range"], d.get("uncertainty", None))
 
-    @property
-    def to_dict(self):
+    def as_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__, "type": self.type,
                 "formula": self.formula, "compound_name": self.compound_name,

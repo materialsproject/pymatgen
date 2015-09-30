@@ -1,15 +1,13 @@
 import warnings, sys, os, math
 import unittest
 import pymatgen
-from pymatgen.io.vaspio import Poscar
-from pymatgen.io.vaspio import Poscar
-from pymatgen.io.vaspio import Vasprun
-from pymatgen.io.cifio import CifWriter
-from pymatgen.io.cifio import CifParser
+from pymatgen.io.vasp import Poscar
+from pymatgen.io.vasp import Vasprun
+from pymatgen.io.cif import CifWriter
+from pymatgen.io.cif import CifParser
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import *
-from pymatgen.core.structure_modifier import StructureEditor
 import numpy as np
 
 __author__="Maarten de Jong"
@@ -21,70 +19,133 @@ __email__ = "maartendft@gmail.com"
 __status__ = "Development"
 __date__ ="March 22, 2012"
 
+# TODO: JM asks should this not subclass the numpy Matrix object?
+#       might make it a little easier, and would extend a lot
+#       of the methods there, also make the _matrix attribute
+#       unnecessary
 
 class SQTensor(object):
     """
-    Class for doing useful general operation on *square* matrices, without 
+    Class for doing useful general operations on *square* matrices, without 
     restrictions on what type of matrix (stress, elastic, strain etc.).
     An error is thrown when the class is initialized with non-square matrix.
+
+    .. attribute:: _matrix
+
+        matrix corresponding to the tensor values
     """
+
     def __init__(self, matrix):
-        self._matrix = matrix
-        if self._matrix.shape[0]!=self._matrix.shape[1]:
+        """
+        Creates a SQTensor 
+
+        Args:
+            matrix (NxN array): input matrix with square shape.  If this
+            argument is not a square matrix, throws an ValueError.
+        """
+
+        self._matrix = np.matrix(matrix)
+        if self._matrix.shape[0] != self._matrix.shape[1]:
             raise ValueError("SQTensor operates only on square matrices")
-        
+
+    def __repr__(self):
+        return self._matrix
+
+    def __str__(self):
+        return self._matrix
+
+    @property
     def is_symmetric(self, tol=0.001):
+        """
+        Test to see if tensor is symmetric to a user-defined tolerance.
+        This is determined by subtracting the transpose; if any of the 
+        resultant elements are above the specified tolerance, returns 
+        False.  Otherwise returns true.
+
+        Args:
+            tol (float): tolerance to test whether the matrix is symmetric
+        """
+        # TODO: write a unit test
+        # TODO: JM asks whether tolerance test is necessay
+        return (np.abs(self._matrix-self._matrix.T) < tol).all()
+
+        """
+        return self._matrix == self._matrix
         if len(np.nonzero(np.abs(self._matrix-np.transpose(self._matrix))>tol)[0]) == 0:
             return True
         else:
             return False
-
-    def is_rotation_matrix(self, tol=0.001):
-        arr1 = np.nonzero(np.abs(np.linalg.inv(self._matrix)-np.transpose(self._matrix))>tol)[0]
-        arr2 = np.linalg.det(self._matrix)
-        arr2 = np.float(arr2 - 1)
-
-        if len(arr1) ==0 and arr2 < tol:
-            return True
-        else:
-            return False
+        """
 
     @property
-    def symmetrize(self):
-        return 0.5*(self._matrix + np.transpose(self._matrix))
+    def is_rotation_matrix(self, tol=0.001):
+        """
+        Test to see if tensor is a valid rotation matrix, performs a 
+        test to check whether the inverse is equal to the transpose
+        and if the determinant is equal to one within the specified
+        tolerance
 
+        Args:
+            tol (float): tolerance to both tests of whether the 
+                the determinant is zero and the inverse is equal
+                to the transpose
+        """
+
+        return (np.abs(self._matrix.I - self._matrix.T) < tol).all() \
+                and (np.linalg.det(self._matrix) - 1. < tol)
+        
+    @property
+    def symmetrize(self):
+        """
+        Returns a symmetrized matrix from the input matrix, 
+        calculated by taking the sum of the matrix and its
+        transpose
+        """
+        return 0.5*(self._matrix + self._matrix.T)
 
     def rotate(self, rotation):
         if not self.is_rotation_matrix():
             raise ValueError("Specified rotation matrix is invalid")
         raise NotImplementedError("matrix rotations are not yet supported")
+    
+    def get_scaled(self, scale_factor):
+        '''
+        Scales the tensor by a certain multiplicative scale factor
+        '''
+        return SQTensor(self._matrix * scale_factor)
 
     @property
     def tensor(self):
+        """ returns the tensor """
         return self._matrix
 
     @property
     def principal_invariants(self):
-        if np.shape(self._matrix)[0] != 3:
-            raise NotImplementedError("Principal Invariants are currently only supported for 3x3 matrices.")
-        I1 = self._matrix[0,0] + self._matrix[1,1] + self._matrix[2,2]
-        I2 = self._matrix[0,0]*self._matrix[1,1]+ \
-             self._matrix[1,1]*self._matrix[2,2]+ \
-             self._matrix[0,0]*self._matrix[2,2]- \
-             self._matrix[0,1]**2 - self._matrix[1,2]**2 - self._matrix[2,0]**2
-        I3 = np.linalg.det(self._matrix)
-        I = [I1, I2, I3]
-        return I
+        '''
+        returns a list of principal invariants for the tensor,
+        which are the values of the coefficients of the characteristic 
+        polynomial for the matrix
+        '''
+        # TODO: JM asks whether this fulfills the necessary sign conventions
+        return numpy.poly(self._matrix)[1:]
 
+        
     @property
     def KG_average(self):
-        if np.shape(self._matrix)[0] != 6 or np.shape(self._matrix)[1] != 6:
+        '''
+        calculates the Voigt-Reuss-Hill average
+        '''
+        if np.shape(self._matrix)[0] != 6:
             raise ValueError("This method only makes sense for 6x6 elastic tensors")
         if self.is_symmetric()==False:
             raise ValueError("This method takes only symmetric tensors")
 
-        K_Voigt = (self._matrix[0,0]+self._matrix[1,1]+self._matrix[2,2])*1.0/9 + (self._matrix[0,1]+self._matrix[0,2]+self._matrix[1,2])*2.0/9
-        G_Voigt = (self._matrix[0,0]+self._matrix[1,1]+self._matrix[2,2]-self._matrix[0,1]-self._matrix[0,2]-self._matrix[1,2])*1.0/15 + (self._matrix[3,3]+self._matrix[4,4] + self._matrix[5,5])*1.0/5
+        #k_voigt = self._matrix[:3,:3].trace()/9. + self._matrix
+        K_Voigt = (self._matrix[0,0]+self._matrix[1,1]+self._matrix[2,2])*1./9. \
+                + (self._matrix[0,1]+self._matrix[0,2]+self._matrix[1,2])*2./9.
+        G_Voigt = (self._matrix[0,0]+self._matrix[1,1]+self._matrix[2,2] - \
+                   self._matrix[0,1]-self._matrix[0,2]-self._matrix[1,2])*1./15.\
+                + (self._matrix[3,3]+self._matrix[4,4] + self._matrix[5,5])*1./5.
 
         S = np.linalg.inv(self._matrix)
 
@@ -94,29 +155,34 @@ class SQTensor(object):
         K_Voigt_Reuss_Hill = 0.5*(K_Voigt+K_Reuss)
         G_Voigt_Reuss_Hill = 0.5*(G_Voigt+G_Reuss)
 
-        average_Cij = [K_Voigt, G_Voigt, K_Reuss, G_Reuss, K_Voigt_Reuss_Hill, G_Voigt_Reuss_Hill]
+        average_Cij = [K_Voigt, G_Voigt, K_Reuss, G_Reuss, 
+                       K_Voigt_Reuss_Hill, G_Voigt_Reuss_Hill]
 
         return average_Cij
 
     @property
     def universal_anisotropy(self):
+        '''
+        calculates value for universal anisotropy, only valid for
+        symmetric tensors, throws an error if not symmetric
+        '''
         if self.is_symmetric()==False:
             raise ValueError("This method takes only symmetric tensors")
         average_Cij = self.KG_average
-        ua = 5*average_Cij[1]/average_Cij[3]+average_Cij[0]/average_Cij[2]-6
+        ua = 5*average_Cij[1]/average_Cij[3] + average_Cij[0]/average_Cij[2] - 6
         return ua
 
     @property
     def homogeneous_poisson(self):
+        '''
+        calculates homogeneous poisson 
+        '''
+        # TODO: JM asks should this be implemented?
         if self.is_symmetric()==False:
             raise ValueError("This method takes only symmetric tensors")
         average_Cij = self.KG_average
-        nu = (1-2.0/3*average_Cij[5]/average_Cij[4])/(2+2.0/3*average_Cij[5]/average_Cij[4])
-
-
-
-
-
+        nu = (1 - 2./3. * average_Cij[5]/average_Cij[4]) / \
+                (2 + 2./3. * average_Cij[5]/average_Cij[4])
 
 #    def rotate(self, rotation):
 #        super(StressOps, self).__init__(rotation)

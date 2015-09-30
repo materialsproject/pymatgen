@@ -1,10 +1,13 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
 
 """
 This module provides classes for calculating the ewald sum of a structure.
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong, William Davidson Richard"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -23,7 +26,6 @@ import bisect
 import numpy as np
 
 from pymatgen.core.physical_constants import ELECTRON_CHARGE, EPSILON_0
-from pymatgen.util.coord_utils import get_points_in_sphere_pbc
 
 
 class EwaldSummation(object):
@@ -50,25 +52,20 @@ class EwaldSummation(object):
         parameters have been specified, but you can override them if you wish.
 
         Args:
-            structure:
-                input structure that must have proper Specie on all sites, i.e.
-                Element with oxidation state. Use
-                StructureEditor.add_oxidation_state... in
-                pymatgen.core.structure_modifier for example.
-            real_space_cut:
-                Real space cutoff radius dictating how many terms are used in
-                the real space sum. Defaults to None, which means determine
-                automagically using the formula given in gulp 3.1
-                documentation.
-            recip_space_cut:
-                Reciprocal space cutoff radius. Defaults to None, which means
-                determine automagically using the formula given in gulp 3.1
-                documentation.
-            eta:
-                The screening parameter. Defaults to None, which means
+            structure (Structure): Input structure that must have proper
+                Specie on all sites, i.e. Element with oxidation state. Use
+                Structure.add_oxidation_state... for example.
+            real_space_cut (float): Real space cutoff radius dictating how
+                many terms are used in the real space sum. Defaults to None,
+                which means determine automagically using the formula given
+                in gulp 3.1 documentation.
+            recip_space_cut (float): Reciprocal space cutoff radius.
+                Defaults to None, which means determine automagically using
+                the formula given in gulp 3.1 documentation.
+            eta (float): The screening parameter. Defaults to None, which means
                 determine automatically.
-            acc_factor:
-                No. of significant figures each sum is converged to.
+            acc_factor (float): No. of significant figures each sum is
+                converged to.
         """
         self._s = structure
         self._vol = structure.volume
@@ -122,10 +119,8 @@ class EwaldSummation(object):
         structure, with possible different charges.
 
         Args:
-            substructure:
-                Substructure to compute Ewald sum for.
-            tol:
-                Tolerance for site matching in fractional coordinates.
+            substructure (Structure): Substructure to compute Ewald sum for.
+            tol (float): Tolerance for site matching in fractional coordinates.
 
         Returns:
             Ewald sum of substructure.
@@ -253,8 +248,8 @@ class EwaldSummation(object):
         forces = np.zeros((numsites, 3))
         coords = self._coords
         rcp_latt = self._s.lattice.reciprocal_lattice
-        recip_nn = get_points_in_sphere_pbc(rcp_latt, [[0, 0, 0]], [0, 0, 0],
-                                            self._gmax)
+        recip_nn = rcp_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
+                                                 self._gmax)
 
         frac_to_cart = rcp_latt.get_cartesian_coords
 
@@ -306,7 +301,7 @@ class EwaldSummation(object):
         ereal = np.zeros((numsites, numsites))
         epoint = np.zeros(numsites)
         forces = np.zeros((numsites, 3))
-        for i in xrange(numsites):
+        for i in range(numsites):
             nn = all_nn[i]  # self._s.get_neighbors(site, self._rmax)
             num_neighbors = len(nn)
             qi = self._oxi_states[i]
@@ -326,7 +321,7 @@ class EwaldSummation(object):
                 js[k] = j
                 ncoords[k] = site.coords
 
-            erfcval = np.array(map(erfc, self._sqrt_eta * rij))
+            erfcval = np.array([erfc(k) for k in self._sqrt_eta * rij])
             new_ereals = erfcval * qi * qj / rij
 
             #insert new_ereals
@@ -372,6 +367,21 @@ class EwaldMinimizer:
     order disordered structure transformation.
 
     Author - Will Richards
+
+    Args:
+        matrix: A matrix of the ewald sum interaction energies. This is stored
+            in the class as a diagonally symmetric array and so
+            self._matrix will not be the same as the input matrix.
+        m_list: list of manipulations. each item is of the form
+            (multiplication fraction, number_of_indices, indices, species)
+            These are sorted such that the first manipulation contains the
+            most permutations. this is actually evaluated last in the
+            recursion since I'm using pop.
+        num_to_return: The minimizer will find the number_returned lowest
+            energy structures. This is likely to return a number of duplicate
+            structures so it may be necessary to overestimate and then
+            remove the duplicates later. (duplicate checking in this
+            process is extremely expensive)
     """
 
     ALGO_FAST = 0
@@ -386,25 +396,6 @@ class EwaldMinimizer:
     ALGO_TIME_LIMIT = 3
 
     def __init__(self, matrix, m_list, num_to_return=1, algo=ALGO_FAST):
-        """
-        Args:
-            matrix:
-                a matrix of the ewald sum interaction energies. This is stored
-                in the class as a diagonally symmetric array and so
-                self._matrix will not be the same as the input matrix.
-            m_list:
-                list of manipulations. each item is of the form
-                (multiplication fraction, number_of_indices, indices, species)
-                These are sorted such that the first manipulation contains the
-                most permutations. this is actually evaluated last in the
-                recursion since I'm using pop.
-            num_to_return:
-                The minimizer will find the number_returned lowest energy
-                structures. This is likely to return a number of duplicate
-                structures so it may be necessary to overestimate and then
-                remove the duplicates later. (duplicate checking in this
-                process is extremely expensive)
-        """
         # Setup and checking of inputs
         self._matrix = copy(matrix)
         # Make the matrix diagonally symmetric (so matrix[i,:] == matrix[:,j])
@@ -475,16 +466,13 @@ class EwaldMinimizer:
         Computes a best case given a matrix and manipulation list.
 
         Args:
-            matrix:
-                the current matrix (with some permutations already performed
-            m_list:
-                [(multiplication fraction, number_of_indices, indices,
+            matrix: the current matrix (with some permutations already
+                performed)
+            m_list: [(multiplication fraction, number_of_indices, indices,
                 species)] describing the manipulation
-            indices:
-                Set of indices which haven't had a permutation performed on
-                them.
+            indices: Set of indices which haven't had a permutation
+                performed on them.
         """
-
         m_indices = []
         fraction_list = []
         for m in m_list:
@@ -549,13 +537,11 @@ class EwaldMinimizer:
         tree search strategy.
 
         Args:
-            matrix:
-                The current matrix (with some permutations already performed
-            m_list:
-                The list of permutations still to be performed
-            indices:
-                Set of indices which haven't had a permutation performed on
-                them.
+            matrix: The current matrix (with some permutations already
+                performed).
+            m_list: The list of permutations still to be performed
+            indices: Set of indices which haven't had a permutation
+                performed on them.
         """
         #check to see if we've found all the solutions that we need
         if self._finished:
@@ -620,8 +606,7 @@ def compute_average_oxidation_state(site):
     Calculates the average oxidation state of a site
 
     Args:
-        site:
-            Site to compute average oxidation state
+        site: Site to compute average oxidation state
 
     Returns:
         Average oxidation state of site.

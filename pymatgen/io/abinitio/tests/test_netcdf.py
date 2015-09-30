@@ -1,4 +1,8 @@
-from __future__ import division, print_function
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import unicode_literals, division, print_function
 
 import os
 import unittest
@@ -61,12 +65,15 @@ class ETSF_Reader_TestCase(PymatgenTest):
             # Test int variables
             for (varname, int_ref) in ref_int_values.items():
                 value = data.read_value(varname)
+                print(varname, value)
                 self.assert_equal(value, int_ref)
 
             # Test float variables
             for (varname, float_ref) in ref_float_values.items():
                 value = data.read_value(varname)
+                print(varname, value)
                 self.assert_almost_equal(value, float_ref)
+            #assert 0
 
             # Reading non-existent variables or dims should raise
             # a subclass of NetcdReaderError
@@ -75,6 +82,9 @@ class ETSF_Reader_TestCase(PymatgenTest):
 
             with self.assertRaises(data.Error):
                 data.read_dimvalue("foobar")
+
+            # Unless default is given
+            assert data.read_value("foobar", default=None) is None
 
             data.print_tree()
             for group in data.walk_tree():

@@ -1,12 +1,16 @@
-#!/usr/bin/python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
-from __future__ import division
+from __future__ import division, unicode_literals
+
 import unittest
 import pickle
 import collections
 
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie, \
-    PeriodicTable, smart_element_or_specie
+    PeriodicTable, get_el_sp
+from pymatgen.core.composition import Composition
 from copy import deepcopy
 
 
@@ -25,7 +29,7 @@ class ElementTestCase(unittest.TestCase):
 
     def test_dict(self):
         fe = Element("Fe")
-        d = fe.to_dict
+        d = fe.as_dict()
         self.assertEqual(fe, Element.from_dict(d))
 
     def test_block(self):
@@ -116,6 +120,11 @@ class ElementTestCase(unittest.TestCase):
         els = [Element("Se"), Element("C")]
         self.assertEqual(sorted(els), [Element("C"), Element("Se")])
 
+    def test_pickle(self):
+        el1 = Element("Fe")
+        o = pickle.dumps(el1)
+        self.assertEqual(el1, pickle.loads(o))
+
 
 class SpecieTestCase(unittest.TestCase):
 
@@ -161,6 +170,9 @@ class SpecieTestCase(unittest.TestCase):
         self.assertEqual(ellist, deepcopy(ellist),
                          "Deepcopy operation doesn't produce exact copy.")
 
+    def test_pickle(self):
+        self.assertEqual(self.specie1, pickle.loads(pickle.dumps(self.specie1)))
+
     def test_get_crystal_field_spin(self):
         self.assertEqual(Specie("Fe", 2).get_crystal_field_spin(), 4)
         self.assertEqual(Specie("Fe", 3).get_crystal_field_spin(), 5)
@@ -185,6 +197,21 @@ class SpecieTestCase(unittest.TestCase):
         self.assertRaises(ValueError, Specie("Fe", 2).get_crystal_field_spin,
                           "hex")
 
+    def test_sort(self):
+        els = map(get_el_sp, ["N3-", "Si4+", "Si3+"])
+        self.assertEqual(sorted(els), [Specie("Si", 3), Specie("Si", 4),
+                                       Specie("N", -3)])
+
+    def test_to_from_string(self):
+        fe3 = Specie("Fe", 3, {"spin": 5})
+        self.assertEqual(str(fe3), "Fe3+spin=5")
+        fe = Specie.from_string("Fe3+spin=5")
+        self.assertEqual(fe.spin, 5)
+        mo0 = Specie("Mo", 0, {"spin": 5})
+        self.assertEqual(str(mo0), "Mo0+spin=5")
+        mo = Specie.from_string("Mo0+spin=4")
+        self.assertEqual(mo.spin, 4)
+
 
 class DummySpecieTestCase(unittest.TestCase):
 
@@ -206,11 +233,23 @@ class DummySpecieTestCase(unittest.TestCase):
         self.assertEqual(sp.oxi_state, 0)
         sp = DummySpecie.from_string("X2+")
         self.assertEqual(sp.oxi_state, 2)
+        sp = DummySpecie.from_string("X2+spin=5")
+        self.assertEqual(sp.oxi_state, 2)
+        self.assertEqual(sp.spin, 5)
 
     def test_pickle(self):
-        el1 = Specie("Fe", 3)
+        el1 = DummySpecie("X", 3)
         o = pickle.dumps(el1)
         self.assertEqual(el1, pickle.loads(o))
+
+    def test_sort(self):
+        r = sorted([Element('Fe'), DummySpecie("X")])
+        self.assertEqual(r, [DummySpecie("X"), Element('Fe')])
+
+    def test_safe_from_composition(self):
+        c = Composition({'Xa': 1, 'Fe': 1})
+        self.assertEqual(DummySpecie.safe_from_composition(c).symbol, 'Xb')
+        self.assertEqual(DummySpecie.safe_from_composition(c, 1).symbol, 'Xb')
 
 
 class PeriodicTableTestCase(unittest.TestCase):
@@ -264,12 +303,13 @@ class PeriodicTableTestCase(unittest.TestCase):
 
 class FuncTest(unittest.TestCase):
 
-    def test_smart_element_or_specie(self):
-        self.assertEqual(smart_element_or_specie("Fe2+"), Specie("Fe", 2))
-        self.assertEqual(smart_element_or_specie("3"), Element("Li"))
-        self.assertEqual(smart_element_or_specie("U"), Element("U"))
-        self.assertEqual(smart_element_or_specie("X2+"), DummySpecie("X", 2))
-        self.assertEqual(smart_element_or_specie("Mn3+"), Specie("Mn", 3))
+    def test_get_el_sp(self):
+        self.assertEqual(get_el_sp("Fe2+"), Specie("Fe", 2))
+        self.assertEqual(get_el_sp("3"), Element("Li"))
+        self.assertEqual(get_el_sp("3.0"), Element("Li"))
+        self.assertEqual(get_el_sp("U"), Element("U"))
+        self.assertEqual(get_el_sp("X2+"), DummySpecie("X", 2))
+        self.assertEqual(get_el_sp("Mn3+"), Specie("Mn", 3))
 
 if __name__ == "__main__":
     unittest.main()

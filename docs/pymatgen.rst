@@ -1,13 +1,5 @@
-pymatgen Package
+pymatgen package
 ================
-
-:mod:`pymatgen` Package
------------------------
-
-.. automodule:: pymatgen.__init__
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 Subpackages
 -----------
@@ -32,3 +24,22 @@ Subpackages
     pymatgen.util
     pymatgen.vis
 
+Submodules
+----------
+
+pymatgen.dao module
+-------------------
+
+.. automodule:: pymatgen.dao
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: pymatgen
+    :members:
+    :undoc-members:
+    :show-inheritance:

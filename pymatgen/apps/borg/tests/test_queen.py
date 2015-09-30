@@ -1,10 +1,13 @@
-#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
+
+from __future__ import division, unicode_literals
 
 """
 Created on Mar 18, 2012
 """
 
-from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -27,11 +30,11 @@ class BorgQueenTest(unittest.TestCase):
 
     def setUp(self):
         drone = VaspToComputedEntryDrone()
-        self.queen = BorgQueen(drone, test_dir, None)
+        self.queen = BorgQueen(drone, test_dir, 1)
 
     def test_get_data(self):
         data = self.queen.get_data()
-        self.assertEqual(len(data), 1)
+        self.assertEqual(len(data), 2)
 
     def test_load_data(self):
         drone = VaspToComputedEntryDrone()

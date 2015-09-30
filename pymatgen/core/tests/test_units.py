@@ -1,13 +1,13 @@
-#!/usr/bin/python
-from __future__ import division
+# coding: utf-8
+# Copyright (c) Pymatgen Development Team.
+# Distributed under the terms of the MIT License.
 
-import numpy as np
-import tempfile
-import cPickle as pickle
+from __future__ import division, unicode_literals
+
 import collections
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.units import (Energy, Time, Length, unitized, Mass,
+from pymatgen.core.units import (Energy, Time, Length, unitized, Mass, Memory,
                                  EnergyArray, TimeArray, LengthArray, Unit,
                                  FloatWithUnit, ArrayWithUnit, UnitError)
 
@@ -28,6 +28,7 @@ class UnitTest(PymatgenTest):
         newton = Unit("kg") * acc
         self.assertEqual(str(newton * Unit("m")), "N m")
 
+
 class FloatWithUnitTest(PymatgenTest):
 
     def test_energy(self):
@@ -46,17 +47,33 @@ class FloatWithUnitTest(PymatgenTest):
 
     def test_time(self):
         a = Time(20, "h")
-        self.assertAlmostEqual(a.to("s"), 3600 * 20)
+        self.assertAlmostEqual(float(a.to("s")), 3600 * 20)
         #Test left and right multiplication.
-        self.assertEqual(str(a * 3), "60.0 h")
-        self.assertEqual(str(3 * a), "60.0 h")
+        b = a * 3
+        self.assertAlmostEqual(float(b), 60.0)
+        self.assertEqual(str(b.unit), "h")
+        self.assertEqual(float(3 * a), 60.0)
 
     def test_length(self):
         x = Length(4.2, "ang")
         self.assertAlmostEqual(x.to("cm"), 4.2e-08)
         self.assertEqual(x.to("pm"), 420)
         self.assertEqual(str(x / 2), "2.1 ang")
-        self.assertEqual(str(x ** 3), "74.088 ang^3")
+        y = x ** 3
+        self.assertAlmostEqual(y, 74.088)
+        self.assertEqual(str(y.unit), "ang^3")
+
+    def test_memory(self):
+        mega = Memory(1, "Mb")
+        print(type(Memory), type(mega))
+        self.assertEqual(mega.to("byte"), 1024**2)
+        self.assertEqual(mega, Memory(1, "mb"))
+
+        same_mega = Memory.from_string("1Mb")
+        self.assertEqual(same_mega.unit_type, "memory")
+
+        other_mega = Memory.from_string("+1.0 mb")
+        self.assertEqual(mega, other_mega)
 
     def test_unitized(self):
 
@@ -88,13 +105,18 @@ class FloatWithUnitTest(PymatgenTest):
         g = 10 * Length(1, "m") / (Time(1, "s") ** 2)
         e = Mass(1, "kg") * g * Length(1, "m")
         self.assertEqual(str(e), "10.0 N m")
-        form_e = FloatWithUnit(10, unit="kJ mol^-1")
-        self.assertEqual(str(form_e.to("eV atom^-1")), "0.103642691905 eV atom^-1")
+        form_e = FloatWithUnit(10, unit="kJ mol^-1").to("eV atom^-1")
+        self.assertAlmostEqual(float(form_e), 0.103642691905)
+        self.assertEqual(str(form_e.unit), "eV atom^-1")
         self.assertRaises(UnitError, form_e.to, "m s^-1")
         a = FloatWithUnit(1.0, "Ha^3")
-        self.assertEqual(str(a.to("J^3")), "8.28672661615e-53 J^3")
+        b = a.to("J^3")
+        self.assertAlmostEqual(b, 8.28672661615e-53)
+        self.assertEqual(str(b.unit), "J^3")
         a = FloatWithUnit(1.0, "Ha bohr^-2")
-        self.assertEqual(str(a.to("J m^-2")), "1556.89291457 J m^-2")
+        b = a.to("J m^-2")
+        self.assertAlmostEqual(b, 1556.89291457)
+        self.assertEqual(str(b.unit), "J m^-2")
 
 
 class ArrayWithFloatWithUnitTest(PymatgenTest):
@@ -114,22 +136,23 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         """
         a = EnergyArray(1.1, "eV")
         b = a.to("Ha")
-        self.assertAlmostEqual(b, 0.0404242579378)
+        self.assertAlmostEqual(float(b), 0.0404242579378)
         c = EnergyArray(3.14, "J")
-        self.assertAlmostEqual(c.to("eV"), 1.9598339337836966e+19)
+        self.assertAlmostEqual(float(c.to("eV")), 1.9598339337836966e+19)
         # self.assertRaises(ValueError, Energy, 1, "m")
 
         d = EnergyArray(1, "Ha")
-        self.assertAlmostEqual(a + d, 28.31138386)
-        self.assertAlmostEqual(a - d, -26.11138386)
-        self.assertEqual(a + 1, 2.1)
+        self.assertAlmostEqual(float(a + d), 28.31138386)
+        self.assertAlmostEqual(float(a - d), -26.11138386)
+        self.assertEqual(float(a + 1), 2.1)
 
     def test_time(self):
         """
         Similar to FloatWithUnitTest.test_time.
         Check whether EnergyArray and FloatWithUnit have same behavior.
         """
-        # here there's a minor difference because we have a ndarray with dtype=np.int.
+        # here there's a minor difference because we have a ndarray with
+        # dtype=np.int.
         a = TimeArray(20, "h")
         self.assertAlmostEqual(a.to("s"), 3600 * 20)
         #Test left and right multiplication.
@@ -142,8 +165,8 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         Check whether EnergyArray and FloatWithUnit have same behavior.
         """
         x = LengthArray(4.2, "ang")
-        self.assertAlmostEqual(x.to("cm"), 4.2e-08)
-        self.assertEqual(x.to("pm"), 420)
+        self.assertAlmostEqual(float(x.to("cm")), 4.2e-08)
+        self.assertEqual(float(x.to("pm")), 420)
         self.assertEqual(str(x / 2), "2.1 ang")
 
     def test_array_algebra(self):
@@ -156,7 +179,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         e2 = ene_ha.copy()
         e2 -= 1
         e3 = ene_ha.copy()
-        e3 /= 2
+        #e3 /= 2
         e4 = ene_ha.copy()
         e4 *= 2
 
@@ -184,7 +207,8 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
 
         objects_without_unit = [
             # Here we could return a FloatWithUnit object but I prefer this
-            # a bare scalar since FloatWithUnit extends float while we could have an int.
+            # a bare scalar since FloatWithUnit extends float while we could
+            # have an int.
             ene_ha[0],
         ]
 
@@ -199,7 +223,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         self.assertTrue(str(e) == "[ 1.          0.03674933] Ha")
         l = LengthArray([1.0], "ang").to("bohr")
         self.assertTrue(str(l) == "[ 1.88972613] bohr")
-        v = ArrayWithUnit([1,2,3], "bohr^3").to("ang^3")
+        v = ArrayWithUnit([1, 2, 3], "bohr^3").to("ang^3")
         self.assertTrue(str(v) == '[ 0.14818471  0.29636942  0.44455413] '
                                   'ang^3')
 
